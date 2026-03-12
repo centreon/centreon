@@ -34,15 +34,15 @@ $mediaLogInstance = CentreonLog::create();
 global $regCounter, $gdCounter, $fileRemoved, $dirCreated;
 
 $sid = session_id();
-if ($sid === false) {
+if ($sid === '' || $sid === false) {
     exit;
 }
 
-if (isset($sid)) {
-    $DBRESULT = $pearDB->query("SELECT * FROM session WHERE session_id = '" . $pearDB->escape($sid) . "'");
-    if ($DBRESULT->rowCount() === 0) {
-        exit();
-    }
+$DBRESULT = $pearDB->prepare('SELECT 1 FROM session WHERE session_id = :sid LIMIT 1');
+$DBRESULT->bindValue(':sid', $sid);
+$DBRESULT->execute();
+if ($DBRESULT->fetchColumn() === false) {
+    exit();
 }
 
 $dir = './img/media/';
@@ -162,14 +162,17 @@ echo _('Convert gd2 -> png :') . " {$gdCounter}<br><br><br>";
     }
 
 /**
- * Inserts $dir_id/$picture into DB if not registered yet
+ * Register an image file in the database and perform file-specific handling.
  *
- * @param string $imagePath
- * @param string $directoryPath
- * @param int $directoryId
- * @param CentreonDB $pearDB
+ * If the image is not already linked to the given directory, this function inserts a row into `view_img`
+ * and a relation into `view_img_dir_relation`. It also converts GD2 images to PNG when needed and
+ * sanitizes SVG files. Unsupported file types or files with missing names are ignored.
  *
- * @throws CentreonDbException
+ * @param string $imagePath Relative filename of the image (including extension) within the directory.
+ * @param string $directoryPath Filesystem path to the directory containing the image.
+ * @param int $directoryId Database identifier of the corresponding directory.
+ * @param CentreonDB $pearDB Database connection instance used for queries and transactions.
+ * @throws CentreonDbException When a database operation fails.
  * @return void
  */
 function checkPicture(
@@ -233,7 +236,7 @@ function checkPicture(
         ]
     );
 
-    if (! $statement->rowCount()) {
+    if ($statement->fetch() === false) {
         $pearDB->beginTransaction();
         try {
             $pearDB->executePreparedQuery(
@@ -263,7 +266,9 @@ function checkPicture(
             $pearDB->commit();
             $regCounter++;
         } catch (Exception $ex) {
-            $pearDB->rollBack();
+            if ($pearDB->inTransaction()) {
+                $pearDB->rollBack();
+            }
 
             throw $ex;
         }

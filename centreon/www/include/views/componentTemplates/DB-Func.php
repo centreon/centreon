@@ -23,6 +23,16 @@ if (! isset($centreon)) {
     exit();
 }
 
+/**
+ * Checks whether a datasource name is available for a component template within the current host/service scope.
+ *
+ * If a submitted form provides a `host_service_id`, that value is parsed and the check is scoped to that host and service;
+ * otherwise the check is performed against templates with NULL host_id and service_id. If the submitted form includes
+ * `compo_id`, that component ID is excluded from the existence check (useful to ignore the current row during updates).
+ *
+ * @param string|null $name The datasource name (`ds_name`) to check.
+ * @return bool `true` if no matching component template exists in the resolved scope (name is available), `false` otherwise.
+ */
 function DsHsrTestExistence($name = null)
 {
     global $pearDB, $form;
@@ -31,105 +41,110 @@ function DsHsrTestExistence($name = null)
         $formValues = $form->getSubmitValues();
     }
 
-    $query = 'SELECT compo_id FROM giv_components_template WHERE ds_name = :ds_name';
+    $query = 'SELECT 1 FROM giv_components_template WHERE ds_name = :ds_name';
 
-    if (! empty($formValues['host_id'])) {
-        if (preg_match('/([0-9]+)-([0-9]+)/', $formValues['host_id'], $matches)) {
-            $formValues['host_id'] = (int) $matches[1];
-            $formValues['service_id'] = (int) $matches[2];
-        } else {
-            throw new InvalidArgumentException('host_id must be a combination of integers');
-        }
-    }
+    [$hostId, $serviceId] = parseHostIdPostParameter($formValues['host_service_id'] ?? null);
 
-    if (! empty($formValues['host_id']) && ! empty($formValues['service_id'])) {
+    if ($hostId !== null && $serviceId !== null) {
         $query .= ' AND host_id = :hostId AND service_id = :serviceId';
-        $hostId = (filter_var($formValues['host_id'], FILTER_VALIDATE_INT) === false)
-            ? null
-            : (int) $formValues['host_id'];
-        $serviceId = (filter_var($formValues['service_id'], FILTER_VALIDATE_INT) === false)
-            ? null
-            : (int) $formValues['service_id'];
     } else {
         $query .= ' AND host_id IS NULL AND service_id IS NULL';
     }
 
-    $stmt = $pearDB->prepare($query);
+    $compoId = isset($formValues['compo_id']) ? (int) $formValues['compo_id'] : null;
+    if ($compoId !== null) {
+        $query .= ' AND compo_id <> :compoId';
+    }
 
+    $stmt = $pearDB->prepare($query . ' LIMIT 1');
     $stmt->bindValue(':ds_name', $name, PDO::PARAM_STR);
 
-    if (! empty($hostId) && ! empty($serviceId)) {
+    if ($hostId !== null && $serviceId !== null) {
         $stmt->bindValue(':hostId', $hostId, PDO::PARAM_INT);
         $stmt->bindValue(':serviceId', $serviceId, PDO::PARAM_INT);
     }
-
-    $stmt->execute();
-    $compo = $stmt->fetch();
-    if ($stmt->rowCount() >= 1 && $compo['compo_id'] === (int) $formValues['compo_id']) {
-        return true;
+    if ($compoId !== null) {
+        $stmt->bindValue(':compoId', $compoId, PDO::PARAM_INT);
     }
 
-    return ! ($stmt->rowCount() >= 1 && $compo['compo_id'] !== (int) $formValues['compo_id']);
+    $stmt->execute();
+
+    return $stmt->fetchColumn() === false;
 }
 
-function NameHsrTestExistence($name = null)
+/**
+ * Checks whether a component template name is available within an optional host/service scope.
+ *
+ * If both `$hostId` and `$serviceId` are null, host and service IDs are derived from submitted form values.
+ *
+ * @param string|null $name The component template name to check.
+ * @param int|null $hostId Optional host ID to scope the lookup; provide both host and service to apply scoped check.
+ * @param int|null $serviceId Optional service ID to scope the lookup; provide both host and service to apply scoped check.
+ * @return bool `true` if no component template with the given name exists in the specified scope, `false` otherwise.
+ */
+function NameHsrTestExistence($name = null, ?int $hostId = null, ?int $serviceId = null)
 {
     global $pearDB, $form;
     $formValues = [];
+    $compoId = null;
 
     if (isset($form)) {
         $formValues = $form->getSubmitValues();
     }
-    $query = 'SELECT compo_id FROM giv_components_template WHERE name = :name';
-    if (! empty($formValues['host_id'])) {
-        if (preg_match('/([0-9]+)-([0-9]+)/', $formValues['host_id'], $matches)) {
-            $formValues['host_id'] = (int) $matches[1];
-            $formValues['service_id'] = (int) $matches[2];
-        } else {
-            throw new InvalidArgumentException('chartId must be a combination of integers');
-        }
+
+    // When called from the duplication path, host/service are passed explicitly.
+    // When called as a form validator, derive them from the submitted form values.
+    if ($hostId === null && $serviceId === null) {
+        [$hostId, $serviceId] = parseHostIdPostParameter($formValues['host_service_id'] ?? null);
+        $compoId = isset($formValues['compo_id']) ? (int) $formValues['compo_id'] : null;
     }
 
-    if (! empty($formValues['host_id']) && ! empty($formValues['service_id'])) {
+    $query = 'SELECT 1 FROM giv_components_template WHERE name = :name';
+
+    if ($hostId !== null && $serviceId !== null) {
         $query .= ' AND host_id = :hostId AND service_id = :serviceId';
-        $hostId = (filter_var($formValues['host_id'], FILTER_VALIDATE_INT) === false)
-            ? null
-            : (int) $formValues['host_id'];
-        $serviceId = (filter_var($formValues['service_id'], FILTER_VALIDATE_INT) === false)
-            ? null
-            : (int) $formValues['service_id'];
     } else {
-        $query .= ' AND host_id IS NULL  AND service_id IS NULL';
+        $query .= ' AND host_id IS NULL AND service_id IS NULL';
     }
 
-    $stmt = $pearDB->prepare($query);
+    if ($compoId !== null) {
+        $query .= ' AND compo_id <> :compoId';
+    }
 
+    $stmt = $pearDB->prepare($query . ' LIMIT 1');
     $stmt->bindValue(':name', $name, PDO::PARAM_STR);
 
-    if (! empty($hostId) && ! empty($serviceId)) {
+    if ($hostId !== null && $serviceId !== null) {
         $stmt->bindValue(':hostId', $hostId, PDO::PARAM_INT);
         $stmt->bindValue(':serviceId', $serviceId, PDO::PARAM_INT);
     }
-
-    $stmt->execute();
-    $compo = $stmt->fetch();
-    if ($stmt->rowCount() >= 1 && $compo['compo_id'] === (int) $formValues['compo_id']) {
-        return true;
+    if ($compoId !== null) {
+        $stmt->bindValue(':compoId', $compoId, PDO::PARAM_INT);
     }
 
-    return ! ($stmt->rowCount() >= 1 && $compo['compo_id'] !== (int) $formValues['compo_id']);
+    $stmt->execute();
+
+    return $stmt->fetchColumn() === false;
 }
 
+/**
+ * Determines whether a color value is empty or begins with a '#' character.
+ *
+ * @param string $color The color string to validate.
+ * @return bool `true` if `$color` is empty or starts with `#`, `false` otherwise.
+ */
 function checkColorFormat($color)
 {
     return ! ($color != '' && strncmp($color, '#', 1));
 }
 
 /**
- * DELETE components in the database
+ * Delete component templates identified by the array's keys.
  *
- * @param array $compos
- * @return void
+ * The array's keys are treated as component IDs to delete; array values are ignored.
+ * After deletion, ensures a default component template exists by invoking defaultOreonGraph().
+ *
+ * @param array<int,mixed> $compos Array whose keys are compo_id values to remove.
  */
 function deleteComponentTemplateInDB($compos = [])
 {
@@ -152,11 +167,16 @@ function deleteComponentTemplateInDB($compos = [])
     defaultOreonGraph();
 }
 
+/**
+ * Ensures at least one component template is marked as the default Oreon graph.
+ *
+ * If no row in giv_components_template has default_tpl1 = '1', this function sets default_tpl1 = '1' on a single row.
+ */
 function defaultOreonGraph()
 {
     global $pearDB;
-    $dbResult = $pearDB->query("SELECT DISTINCT compo_id FROM giv_components_template WHERE default_tpl1 = '1'");
-    if (! $dbResult->rowCount()) {
+    $dbResult = $pearDB->query("SELECT DISTINCT compo_id FROM giv_components_template WHERE default_tpl1 = '1' LIMIT 1");
+    if ($dbResult->fetch() === false) {
         $dbResult2 = $pearDB->query("UPDATE giv_components_template SET default_tpl1 = '1' LIMIT 1");
     }
 }
@@ -168,33 +188,77 @@ function noDefaultOreonGraph()
     $pearDB->query($rq);
 }
 
+/**
+ * Creates multiple duplicates of existing component templates identified by their IDs.
+ *
+ * For each component ID provided as a key in $compos, this function clones the template row
+ * up to the number of duplicates specified in $nbrDup for that key. Each duplicate uses the
+ * original row's columns (except `compo_id`) with `default_tpl1` set to '0' and a name
+ * suffixed with "_<n>" where n increments until a non-colliding name is found. If a requested
+ * duplicate name already exists in the same host/service scope it is skipped. If the function
+ * cannot create the requested number of duplicates after a large number of suffix attempts,
+ * it logs a partial-success error.
+ *
+ * @param array $compos Associative array whose keys are component template IDs to duplicate (values are ignored).
+ * @param array $nbrDup Associative array mapping the same keys as $compos to the desired number of duplicates (0..100).
+ */
 function multipleComponentTemplateInDB($compos = [], $nbrDup = [])
 {
     global $pearDB;
-    foreach ($compos as $key => $value) {
-        $stmt = $pearDB->prepare(
-            'SELECT * FROM giv_components_template WHERE compo_id = :compo_id LIMIT 1'
-        );
-        $stmt->bindValue(':compo_id', $key, PDO::PARAM_INT);
-        $stmt->execute();
-        $row = $stmt->fetch();
-        $row['compo_id'] = '';
+
+    if (empty($compos) || empty($nbrDup)) {
+        return;
+    }
+
+    $selectStmt = $pearDB->prepare(
+        'SELECT * FROM giv_components_template WHERE compo_id = :compo_id LIMIT 1'
+    );
+
+    foreach (array_keys($compos) as $key) {
+        $compoId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($compoId === false) {
+            continue;
+        }
+
+        $dupCount = filter_var($nbrDup[$key] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
+        if ($dupCount === false) {
+            continue;
+        }
+        $selectStmt->bindValue(':compo_id', $compoId, PDO::PARAM_INT);
+        $selectStmt->execute();
+        $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            continue;
+        }
+
+        unset($row['compo_id']);
         $row['default_tpl1'] = '0';
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $val = null;
-            foreach ($row as $key2 => $value2) {
-                $value2 = is_int($value2) ? (string) $value2 : $value2;
-                if ($key2 == 'name') {
-                    $name = $value2 . '_' . $i;
-                    $value2 = $value2 . '_' . $i;
-                }
-                $val ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ', NULL')
-                    : $val .= ($value2 != null ? ("'" . $value2 . "'") : 'NULL');
+        $columns = array_keys($row);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO giv_components_template (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
+
+        $originalName = $row['name'];
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
+            $row['name'] = $originalName . '_' . $suffix;
+            if (! NameHsrTestExistence(
+                $row['name'],
+                $row['host_id'] !== null ? (int) $row['host_id'] : null,
+                $row['service_id'] !== null ? (int) $row['service_id'] : null
+            )) {
+                continue;
             }
-            if (NameHsrTestExistence($name)) {
-                $rq = $val ? 'INSERT INTO giv_components_template VALUES (' . $val . ')' : null;
-                $pearDB->query($rq);
+            $i++;
+            foreach ($columns as $col) {
+                $value = $row[$col];
+                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
             }
+            $insertStmt->execute();
+        }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for component template '{$originalName}' ({$key}): suffix search exhausted");
         }
     }
 }
@@ -212,10 +276,18 @@ function insertComponentTemplateInDB()
     return insertComponentTemplate();
 }
 
+/**
+ * Insert a new component template using submitted form values.
+ *
+ * Reads form submission from the global form, normalizes host/service IDs, sanitizes fields,
+ * inserts a new row into giv_components_template, ensures a default template exists, and
+ * returns the new component template identifier.
+ *
+ * @return int|string The ID of the newly created component template.
+ */
 function insertComponentTemplate()
 {
     global $form, $pearDB;
-    $formValues = [];
     $formValues = $form->getSubmitValues();
 
     if (
@@ -225,7 +297,7 @@ function insertComponentTemplate()
         $formValues['ds_color_area'] = $formValues['ds_color_line'];
     }
 
-    [$formValues['host_id'], $formValues['service_id']] = parseHostIdPostParameter($formValues['host_id']);
+    [$formValues['host_id'], $formValues['service_id']] = parseHostIdPostParameter($formValues['host_service_id']);
 
     $bindParams = sanitizeFormComponentTemplatesParameters($formValues);
 
@@ -243,29 +315,25 @@ function insertComponentTemplate()
         $stmt->bindValue($token, $value, $paramType);
     }
     $stmt->execute();
+    $compoId = $pearDB->lastInsertId();
     defaultOreonGraph();
-    $result = $pearDB->query('SELECT MAX(compo_id) FROM giv_components_template');
-    $compoId = $result->fetch();
 
-    return $compoId['MAX(compo_id)'];
+    return $compoId;
 }
 
 /**
- * Parses the host_id parameter from the form and checks the hostId-serviceId format
- * and returns the hostId et serviceId when defined.
+ * Extracts host_id and service_id from a form parameter formatted as "hostId-serviceId".
  *
- * @param string|null $hostIdParameter
- * @return array
+ * @param string|null $hostIdParameter Form parameter expected in the format "hostId-serviceId" (e.g., "12-34").
+ * @return array Array with two elements: hostId and serviceId; each is an int when present or null when not.
  */
 function parseHostIdPostParameter(?string $hostIdParameter): array
 {
-    if (! empty($hostIdParameter)) {
-        if (preg_match('/([0-9]+)-([0-9]+)/', $hostIdParameter, $matches)) {
-            $hostId = (int) $matches[1];
-            $serviceId = (int) $matches[2];
-        } else {
-            throw new InvalidArgumentException('host_id must be a combination of integers');
-        }
+    if (! empty($hostIdParameter)
+        && preg_match('/^([0-9]+)-([0-9]+)$/', $hostIdParameter, $matches)
+    ) {
+        $hostId = (int) $matches[1];
+        $serviceId = (int) $matches[2];
     } else {
         $hostId = null;
         $serviceId = null;
@@ -274,13 +342,19 @@ function parseHostIdPostParameter(?string $hostIdParameter): array
     return [$hostId, $serviceId];
 }
 
+/**
+ * Update a component template in the database from submitted form values.
+ *
+ * Reads submitted form values, applies normalization and sanitization, updates the database row for the specified component template, and ensures default template state is maintained.
+ *
+ * @param int|null $compoId The ID of the component template to update; if null or falsy the function does nothing.
+ */
 function updateComponentTemplate($compoId = null)
 {
     if (! $compoId) {
         return;
     }
     global $form, $pearDB;
-    $formValues = [];
     $formValues = $form->getSubmitValues();
 
     if (
@@ -331,11 +405,17 @@ function updateComponentTemplate($compoId = null)
 }
 
 /**
- * Sanitize all the component templates parameters from the component template form
- * and return a ready to bind array.
+ * Prepare and sanitize component template form values for safe PDO binding.
  *
- * @param array $ret
- * @return array $bindParams
+ * Sanitizes string inputs, normalizes enum/boolean-like fields to valid string values,
+ * converts integer fields to ints or null, and returns an associative array of
+ * PDO parameter placeholders to pairs of (PDO::PARAM_*, value) suitable for bind operations.
+ *
+ * If the `default_tpl1` field is present, this function invokes defaultOreonGraph() to
+ * ensure at least one template is marked as the default.
+ *
+ * @param array $ret Associative array of form input names to submitted values.
+ * @return array<string, array> Map of parameter placeholders (e.g. `:name`) to `[PDO::PARAM_*, value]`.
  */
 function sanitizeFormComponentTemplatesParameters(array $ret): array
 {
@@ -403,10 +483,11 @@ function sanitizeFormComponentTemplatesParameters(array $ret): array
                 ];
                 break;
             case 'default_tpl1':
+                // default_tpl1 is enum('0','1')
                 $bindParams[':' . $inputName] = [
-                    PDO::PARAM_INT, (filter_var($inputValue, FILTER_VALIDATE_INT) === false)
-                        ? null
-                        : (int) $inputValue,
+                    PDO::PARAM_STR, in_array((string) $inputValue, ['0', '1'], true)
+                        ? (string) $inputValue
+                        : '0',
                 ];
                 defaultOreonGraph();
                 break;

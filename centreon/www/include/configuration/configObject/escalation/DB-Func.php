@@ -27,9 +27,12 @@ require_once _CENTREON_PATH_ . 'www/class/centreonLDAP.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 
 /**
- * @param string|null $name
- * @throws Exception
- * @return bool
+ * Determines whether an escalation name is available (no conflicting record).
+ *
+ * If a submitted `esc_id` exists in the global form, the record with that id is excluded from the check.
+ *
+ * @param string|null $name Escalation name to check for conflicts.
+ * @return bool `true` if no conflicting escalation exists, `false` otherwise.
  */
 function testExistence(?string $name = null): bool
 {
@@ -38,18 +41,28 @@ function testExistence(?string $name = null): bool
 
     $id = isset($form) ? $form->getSubmitValue('esc_id') : null;
 
-    $stmt = $pearDB->prepare('SELECT esc_id FROM escalation WHERE esc_name = :name');
+    $query = 'SELECT 1 FROM escalation WHERE esc_name = :name';
+    if ($id !== null) {
+        $query .= ' AND esc_id <> :escId';
+    }
+    $stmt = $pearDB->prepare($query . ' LIMIT 1');
     $stmt->bindValue(':name', html_entity_decode($name, ENT_QUOTES, 'UTF-8'), PDO::PARAM_STR);
+    if ($id !== null) {
+        $stmt->bindValue(':escId', (int) $id, PDO::PARAM_INT);
+    }
     $stmt->execute();
 
-    $escalation = $stmt->fetch();
-
-    return ! ($stmt->rowCount() >= 1 && $escalation['esc_id'] !== (int) $id);
+    return $stmt->fetchColumn() === false;
 }
 
 /**
- * @param array $escalations
- * @throws Exception
+ * Delete escalation records for each escalation id present as keys in the provided array and log each deletion.
+ *
+ * For every escalation id found as a key in $escalations, attempts to load its name; if not found the id is skipped.
+ * If found, deletes the escalation row and records a delete action in the Centreon action log.
+ *
+ * @param array $escalations Array whose keys are escalation IDs to delete.
+ * @throws Exception If a database error occurs during select or delete operations.
  */
 function deleteEscalationInDB(array $escalations = [])
 {
@@ -60,6 +73,9 @@ function deleteEscalationInDB(array $escalations = [])
         $stmt->bindValue(':escalationId', $escalationId, PDO::PARAM_INT);
         $stmt->execute();
         $escalation = $stmt->fetch();
+        if ($escalation === false) {
+            continue;
+        }
 
         $stmt = $pearDB->prepare('DELETE FROM escalation WHERE esc_id = :escalationId');
         $stmt->bindValue(':escalationId', $escalationId, PDO::PARAM_INT);
@@ -69,6 +85,19 @@ function deleteEscalationInDB(array $escalations = [])
     }
 }
 
+/**
+ * Create duplicates of specified escalations in the database.
+ *
+ * For each escalation id in $escalations attempts to create the number of copies
+ * specified in $nbrDup (0–100). Each duplicate receives a unique name by
+ * appending a numeric suffix. Related relations (contact groups, hosts, host
+ * groups, services, meta services, service groups) are copied for each
+ * successful duplicate. Operations for each duplicate are wrapped in a
+ * transaction; failures roll back the transaction and are logged.
+ *
+ * @param array $escalations Array of escalation ids to duplicate (keys are escalation ids).
+ * @param array $nbrDup      Map of escalation id => number of copies to create (integers 0–100).
+ */
 function multipleEscalationInDB(array $escalations = [], array $nbrDup = []): void
 {
     global $pearDB, $centreon;
@@ -83,14 +112,27 @@ function multipleEscalationInDB(array $escalations = [], array $nbrDup = []): vo
             continue;
         }
 
-        for ($i = 1; $i <= $nbrDup[$escalationId]; $i++) {
+        $copies = filter_var($nbrDup[$escalationId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
+        if (! $copies) {
+            continue;
+        }
+        $suffix = 1;
+        for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
             $escalationDuplicate = $escalationModel;
-            $escalationDuplicate['esc_name'] = $escalationModel['esc_name'] . '_' . $i;
+            $escalationDuplicate['esc_name'] = $escalationModel['esc_name'] . '_' . $suffix;
 
-            if (testExistence($escalationDuplicate['esc_name'])) {
+            if (! testExistence($escalationDuplicate['esc_name'])) {
+                continue;
+            }
+            $i++;
+            try {
+                $pearDB->beginTransaction();
+
                 $escalationDuplicate['esc_id'] = insertEscalation($pearDB, $escalationDuplicate, false);
 
                 if (! $escalationDuplicate['esc_id']) {
+                    $pearDB->rollBack();
+
                     continue;
                 }
 
@@ -154,13 +196,23 @@ function multipleEscalationInDB(array $escalations = [], array $nbrDup = []): vo
                 $escalationServiceGroups = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
                 updateEscalationServiceGroups($pearDB, $escalationServiceGroups, $escalationDuplicate['esc_id']);
 
+                $pearDB->commit();
+
                 $centreon->CentreonLogAction->insertLog(
                     'escalation',
                     $escalationDuplicate['esc_id'],
                     $escalationDuplicate['esc_name'],
                     'a'
                 );
+            } catch (Throwable $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
+                error_log("Failed to duplicate escalation '{$escalationModel['esc_name']}': {$e->getMessage()}");
             }
+        }
+        if ($i < $copies) {
+            error_log("Could only create {$i}/{$copies} duplicates for escalation '{$escalationModel['esc_name']}' ({$escalationId}): suffix search exhausted");
         }
     }
 }
@@ -217,11 +269,19 @@ function insertEscalationInDB(): ?int
 }
 
 /**
- * @param CentreonDB $pearDB
- * @param array<string,mixed> $data
- * @param bool $logAction (default = true)
- * @throws Exception
- * @return int|null
+ * Create a new escalation record from the provided data.
+ *
+ * The $data array should contain escalation fields such as:
+ * `esc_name`, `esc_alias`, `first_notification`, `last_notification`,
+ * `notification_interval`, `escalation_period`,
+ * `host_inheritance_to_services`, `hostgroup_inheritance_to_services`,
+ * `escalation_options1`, `escalation_options2`, and `esc_comment`.
+ * When $logAction is true, an "add" action log entry is recorded for the new escalation.
+ *
+ * @param array<string,mixed> $data Escalation field values keyed by field name.
+ * @param bool $logAction Whether to create a log action for the insertion (default true).
+ * @throws Exception If the database insertion fails.
+ * @return int|null The ID of the created escalation, or `null` if insertion did not succeed.
  */
 function insertEscalation(CentreonDB $pearDB, array $data, bool $logAction = true): ?int
 {
@@ -274,16 +334,17 @@ function insertEscalation(CentreonDB $pearDB, array $data, bool $logAction = tru
         } else {
             $stmt->bindValue(
                 ':' . $paramName,
-                $data[$paramName] ?? 0,
+                ! empty($data[$paramName]) ? 1 : 0,
                 PDO::PARAM_INT
             );
         }
     }
     $stmt->execute();
 
-    $dbResult = $pearDB->query('SELECT MAX(esc_id) FROM escalation');
-    $escalationId = $dbResult->fetch();
-    $escalationId = $escalationId ? (int) $escalationId['MAX(esc_id)'] : null;
+    $escalationId = (int) $pearDB->lastInsertId();
+    if ($escalationId <= 0) {
+        return null;
+    }
 
     if ($logAction) {
         logEscalation($escalationId, 'a', $data);
@@ -293,10 +354,18 @@ function insertEscalation(CentreonDB $pearDB, array $data, bool $logAction = tru
 }
 
 /**
- * @param CentreonDB $pearDB
- * @param array<string,mixed> $data
- * @param int $escalationId
- * @throws Exception
+ * Update an existing escalation record in the database and write a change log entry.
+ *
+ * $data accepts the following keys (values will be sanitized or transformed as described):
+ * - esc_name, esc_alias, esc_comment: string values that will be HTML-sanitized.
+ * - first_notification, last_notification, notification_interval, escalation_period: integers or empty to store NULL.
+ * - host_inheritance_to_services, hostgroup_inheritance_to_services: checkbox-like values; stored as `1` when present/non-empty, `0` otherwise.
+ * - escalation_options1, escalation_options2: strings or arrays; when an array is provided it will be converted to a comma-separated string of keys.
+ *
+ * @param CentreonDB $pearDB Database connection used for the update.
+ * @param array<string,mixed> $data Associative array of escalation fields and relation selections.
+ * @param int $escalationId ID of the escalation to update.
+ * @return void
  */
 function updateEscalation(CentreonDB $pearDB, array $data, int $escalationId): void
 {
@@ -353,7 +422,7 @@ function updateEscalation(CentreonDB $pearDB, array $data, int $escalationId): v
         } else {
             $stmt->bindValue(
                 ':' . $paramName,
-                isset($data[$paramName]) ? 1 : 0,
+                ! empty($data[$paramName]) ? 1 : 0,
                 PDO::PARAM_INT
             );
         }

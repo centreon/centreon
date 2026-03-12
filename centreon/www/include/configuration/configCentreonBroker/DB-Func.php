@@ -29,8 +29,12 @@ use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryI
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 /**
- * Test broker file config existance
- * @param $name
+ * Determine if a Centreon Broker configuration name is available (not present in the database).
+ *
+ * @param string|null $name The configuration name to check.
+ *                         If a form submit value `id` exists in the global `$form`, the check will
+ *                         ignore the configuration with that `config_id` (useful when renaming).
+ * @return bool `true` if the name is not present for any other configuration (available), `false` otherwise.
  */
 function testExistence($name = null)
 {
@@ -42,15 +46,18 @@ function testExistence($name = null)
         $id = $form->getSubmitValue('id');
     }
 
-    $dbResult = $pearDB->query("SELECT config_name, config_id
-                                FROM `cfg_centreonbroker`
-                                WHERE `config_name` = '" . htmlentities($name, ENT_QUOTES, 'UTF-8') . "'");
-    $ndomod = $dbResult->fetch();
-    if ($dbResult->rowCount() >= 1 && $ndomod['config_id'] == $id) {
-        return true;
+    $query = 'SELECT 1 FROM `cfg_centreonbroker` WHERE `config_name` = :name';
+    if ($id !== null) {
+        $query .= ' AND config_id <> :configId';
     }
+    $statement = $pearDB->prepare($query . ' LIMIT 1');
+    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    if ($id !== null) {
+        $statement->bindValue(':configId', (int) $id, PDO::PARAM_INT);
+    }
+    $statement->execute();
 
-    return ! ($dbResult->rowCount() >= 1 && $ndomod['config_id'] != $id);
+    return $statement->fetchColumn() === false;
 }
 
 /**
@@ -129,37 +136,47 @@ function deleteCentreonBrokerInDB($ids = [])
 }
 
 /**
- * Get the information of a server
+ * Retrieve detailed Centreon Broker configuration for the given configuration ID.
  *
- * @param int $id
- * @return array
+ * Returns a default minimal broker configuration if the config ID does not exist or a database error occurs.
+ *
+ * @param int $id The configuration ID to fetch.
+ * @return array An associative array containing broker fields (id, name, filename, activation flags, queue sizes, paths, daemon/pool info, logging settings, etc.) merged with log-specific entries named `log_<name>` => <level>. When the configuration is missing or a DB error happens, returns a default set with sensible defaults for keys such as `name`, `filename`, `log_directory`, `write_timestamp`, `write_thread_id`, `activate_watchdog`, `activate`, `event_queue_max_size`, and `pool_size`.
  */
 function getCentreonBrokerInformation($id)
 {
     global $pearDB;
+    $defaultBrokerConf = [
+        'name' => '',
+        'filename' => '',
+        'log_directory' => '/var/log/centreon-broker/',
+        'write_timestamp' => '1',
+        'write_thread_id' => '1',
+        'activate_watchdog' => '1',
+        'activate' => '1',
+        'event_queue_max_size' => '',
+        'pool_size' => null,
+    ];
+
     $query
         = 'SELECT config_name, config_filename, ns_nagios_server, stats_activate,
             config_write_timestamp, config_write_thread_id, config_activate, event_queue_max_size,
             event_queues_total_size, cache_directory, command_file, daemon, pool_size, log_directory, log_filename,
             log_max_size, bbdo_version
         FROM cfg_centreonbroker
-        WHERE config_id = ' . $id;
+        WHERE config_id = :config_id';
     try {
-        $res = $pearDB->query($query);
+        $statement = $pearDB->prepare($query);
+        $statement->bindValue(':config_id', (int) $id, PDO::PARAM_INT);
+        $statement->execute();
+        $res = $statement;
     } catch (PDOException $e) {
-        $brokerConf = [
-            'name' => '',
-            'filename' => '',
-            'log_directory' => '/var/log/centreon-broker/',
-            'write_timestamp' => '1',
-            'write_thread_id' => '1',
-            'activate_watchdog' => '1',
-            'activate' => '1',
-            'event_queue_max_size' => '',
-            'pool_size' => null,
-        ];
+        return $defaultBrokerConf;
     }
     $row = $res->fetch();
+    if ($row === false) {
+        return $defaultBrokerConf;
+    }
     if (! isset($brokerConf)) {
         $brokerConf = [
             'id' => $id,
@@ -189,9 +206,12 @@ function getCentreonBrokerInformation($id)
             FROM `cb_log` log
             LEFT JOIN `cfg_centreonbroker_log` relation
                 ON relation.`id_log`  = log.`id`
-            WHERE relation.`id_centreonbroker` = ' . $id;
+            WHERE relation.`id_centreonbroker` = :config_id';
     try {
-        $res = $pearDB->query($query);
+        $statement = $pearDB->prepare($query);
+        $statement->bindValue(':config_id', (int) $id, PDO::PARAM_INT);
+        $statement->execute();
+        $res = $statement;
     } catch (PDOException $e) {
         return $brokerConf;
     }
@@ -204,11 +224,17 @@ function getCentreonBrokerInformation($id)
 }
 
 /**
- * Duplicate a configuration
+ * Create multiple duplicates of Centreon Broker configurations.
  *
- * @param array $ids List of id CentreonBroker configuration
- * @param array $nbr List of number a duplication
- * @param mixed $nbrDup
+ * For each configuration id in $ids, this function builds a new configuration payload,
+ * attempts to create the requested number of copies (as specified in $nbrDup for that id),
+ * and inserts each unique copy into the database. The requested number of copies for each
+ * id is validated as an integer between 0 and 100; name collisions are avoided by appending
+ * a numeric suffix to the original name and filename. If a unique suffix cannot be found
+ * within a bounded search, the function will create fewer copies than requested and log an error.
+ *
+ * @param array $ids Associative array of Centreon Broker configuration ids to duplicate (keys are config ids).
+ * @param array $nbrDup Associative array mapping config id to the number of copies to create for that id.
  */
 function multipleCentreonBrokerInDB($ids, $nbrDup)
 {
@@ -271,30 +297,33 @@ function multipleCentreonBrokerInDB($ids, $nbrDup)
         }
 
         // Copy the configuration
-        $j = 1;
+        $copies = filter_var($nbrDup[$id] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
+        if (! $copies) {
+            continue;
+        }
         $query = 'SELECT COUNT(*) as nb FROM cfg_centreonbroker WHERE config_name = :config_name';
         $statement = $pearDB->prepare($query);
-        for ($i = 1; $i <= $nbrDup[$id]; $i++) {
-            $nameNOk = true;
-
-            // Find the name
-            while ($nameNOk) {
-                $newname = $row['config_name'] . '_' . $j;
-                $newfilename = $j . '_' . $row['config_filename'];
-                $statement->bindValue(':config_name', $newname, PDO::PARAM_STR);
-                $statement->execute();
-                $rowNb = $statement->fetch(PDO::FETCH_ASSOC);
-                if ($rowNb['nb'] == 0) {
-                    $nameNOk = false;
-                }
-                $j++;
+        $suffix = 1;
+        for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
+            $newname = $row['config_name'] . '_' . $suffix;
+            $newfilename = $suffix . '_' . $row['config_filename'];
+            $statement->bindValue(':config_name', $newname, PDO::PARAM_STR);
+            $statement->execute();
+            $rowNb = $statement->fetch(PDO::FETCH_ASSOC);
+            if ($rowNb['nb'] != 0) {
+                continue;
             }
+            $i++;
+
             $values['name'] = $newname;
             $values['filename'] = $newfilename;
 
             retrieveOriginalPasswordValuesFromVault($values);
 
             $cbObj->insertConfig($values);
+        }
+        if ($i < $copies) {
+            error_log("Could only create {$i}/{$copies} duplicates for broker config '{$row['config_name']}' ({$id}): suffix search exhausted");
         }
     }
 }

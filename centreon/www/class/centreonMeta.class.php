@@ -40,10 +40,10 @@ class CentreonMeta
     }
 
     /**
-     * Return host id
+     * Get the host ID for the special "_Module_Meta" host, creating that host if it does not exist.
      *
-     * @throws PDOException
-     * @return int
+     * @throws PDOException If a database error occurs.
+     * @return int The host_id for "_Module_Meta", or 0 if the host could not be retrieved after creation.
      */
     public function getRealHostId()
     {
@@ -56,16 +56,16 @@ class CentreonMeta
                 . 'AND host_register = "2" '
                 . 'LIMIT 1 ';
             $res = $this->db->query($queryHost);
-            if ($res->rowCount()) {
-                $row = $res->fetchRow();
+            $row = $res->fetchRow();
+            if ($row !== false) {
                 $hostId = $row['host_id'];
             } else {
                 $query = 'INSERT INTO host (host_name, host_register) '
                     . 'VALUES ("_Module_Meta", "2") ';
                 $this->db->query($query);
                 $res = $this->db->query($queryHost);
-                if ($res->rowCount()) {
-                    $row = $res->fetchRow();
+                $row = $res->fetchRow();
+                if ($row !== false) {
                     $hostId = $row['host_id'];
                 } else {
                     $hostId = 0;
@@ -77,12 +77,10 @@ class CentreonMeta
     }
 
     /**
-     * Return service id
+     * Get the service_id for the meta service identified by the given meta ID.
      *
-     * @param int $metaId
-     *
-     * @throws PDOException
-     * @return int
+     * @param int $metaId The meta identifier used to build the service_description `meta_<metaId>`.
+     * @return int The service_id for that meta service, or 0 if none exists.
      */
     public function getRealServiceId($metaId)
     {
@@ -91,40 +89,37 @@ class CentreonMeta
             return $services[$metaId];
         }
 
-        $sql = 'SELECT s.service_id '
-            . 'FROM service s '
-            . 'WHERE s.service_description = "meta_' . $metaId . '" ';
+        $stmt = $this->db->prepare(
+            'SELECT s.service_id FROM service s WHERE s.service_description = :desc ORDER BY s.service_id DESC LIMIT 1'
+        );
+        $stmt->bindValue(':desc', 'meta_' . $metaId, PDO::PARAM_STR);
+        $stmt->execute();
+        $row = $stmt->fetch();
+        $services[$metaId] = $row !== false ? (int) $row['service_id'] : 0;
 
-        $res = $this->db->query($sql);
-        if ($res->rowCount()) {
-            while ($row = $res->fetchRow()) {
-                $services[$metaId] = $row['service_id'];
-            }
-        }
-
-        return $services[$metaId] ?? 0;
+        return $services[$metaId];
     }
 
     /**
-     * Return metaservice id
-     *
-     * @param string $serviceDisplayName
-     *
-     * @throws PDOException
-     * @return int
-     */
+         * Retrieve the meta ID encoded in a service's description for a given display name.
+         *
+         * Looks up the service by display name and extracts a numeric ID from a description matching `meta_<digits>`.
+         *
+         * @param string $serviceDisplayName The service display name to look up.
+         * @throws PDOException If a database error occurs.
+         * @return int|null The extracted meta ID as an integer, or `null` if no matching meta description is found.
+         */
     public function getMetaIdFromServiceDisplayName($serviceDisplayName)
     {
         $metaId = null;
-        $query = 'SELECT service_description '
-            . 'FROM service '
-            . 'WHERE display_name = "' . $serviceDisplayName . '" ';
-        $res = $this->db->query($query);
-        if ($res->rowCount()) {
-            $row = $res->fetchRow();
-            if (preg_match('/meta_(\d+)/', $row['service_description'], $matches)) {
-                $metaId = $matches[1];
-            }
+        $stmt = $this->db->prepare(
+            'SELECT service_description FROM service WHERE display_name = :displayName LIMIT 1'
+        );
+        $stmt->bindValue(':displayName', $serviceDisplayName, PDO::PARAM_STR);
+        $stmt->execute();
+        $row = $stmt->fetch();
+        if ($row !== false && preg_match('/meta_(\d+)/', $row['service_description'], $matches)) {
+            $metaId = $matches[1];
         }
 
         return $metaId;
@@ -242,13 +237,12 @@ class CentreonMeta
     }
 
     /**
-     * Returns service details
+     * Retrieve specified columns for a meta service identified by its meta_id.
      *
-     * @param int $id
-     * @param array $parameters
-     *
-     * @throws PDOException
-     * @return array
+     * @param int $id The meta_service.meta_id to query.
+     * @param array $parameters List of column names to return; if empty, the function returns an empty array.
+     * @throws PDOException If a database error occurs.
+     * @return array Associative array of column => value for the matching row, or an empty array if no row is found.
      */
     public function getParameters($id, $parameters = [])
     {
@@ -262,27 +256,27 @@ class CentreonMeta
             $sElement = implode(',', $parameters);
         }
 
-        $query = 'SELECT ' . $sElement . ' '
-            . 'FROM meta_service '
-            . 'WHERE meta_id = ' . $this->db->escape($id) . ' ';
-
-        $res = $this->db->query($query);
-
-        if ($res->rowCount()) {
-            $values = $res->fetchRow();
+        $stmt = $this->db->prepare(
+            'SELECT ' . $sElement . ' FROM meta_service WHERE meta_id = :id LIMIT 1'
+        );
+        $stmt->bindValue(':id', (int) $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $row = $stmt->fetch();
+        if ($row !== false) {
+            $values = $row;
         }
 
         return $values;
     }
 
     /**
-     * Returns service id
+     * Ensure a virtual service exists for the given meta and return its service ID.
      *
-     * @param int $metaId
-     * @param string $metaName
-     *
-     * @throws PDOException
-     * @return int
+     * @param int $metaId The meta identifier used to compose the service description (`meta_<metaId>`).
+     * @param string $metaName The display name to set for the virtual service.
+     * @throws PDOException If a database error occurs.
+     * @throws RuntimeException If a newly inserted service's ID cannot be retrieved.
+     * @return int The `service_id` for the meta (existing or newly created).
      */
     public function insertVirtualService($metaId, $metaName)
     {
@@ -291,38 +285,61 @@ class CentreonMeta
 
         $composedName = 'meta_' . $metaId;
 
-        $queryService = 'SELECT service_id, display_name FROM service '
-            . 'WHERE service_register = "2" AND service_description = "' . $composedName . '" ';
-        $res = $this->db->query($queryService);
-        if ($res->rowCount()) {
-            $row = $res->fetchRow();
+        $selectStmt = $this->db->prepare(
+            'SELECT service_id, display_name FROM service
+            WHERE service_register = :register AND service_description = :description'
+        );
+        $selectStmt->bindValue(':register', '2', PDO::PARAM_STR);
+        $selectStmt->bindValue(':description', $composedName, PDO::PARAM_STR);
+        $selectStmt->execute();
+        $row = $selectStmt->fetch();
+        if ($row !== false) {
             $serviceId = $row['service_id'];
             if ($row['display_name'] !== $metaName) {
-                $query = 'UPDATE service SET display_name = :display_name WHERE service_id = :service_id';
-                $statement = $this->db->prepare($query);
-                $statement->bindValue(':display_name', $metaName, PDO::PARAM_STR);
-                $statement->bindValue(':service_id', (int) $serviceId, PDO::PARAM_INT);
-                $statement->execute();
+                $updateStmt = $this->db->prepare(
+                    'UPDATE service SET display_name = :display_name WHERE service_id = :service_id'
+                );
+                $updateStmt->bindValue(':display_name', $metaName, PDO::PARAM_STR);
+                $updateStmt->bindValue(':service_id', (int) $serviceId, PDO::PARAM_INT);
+                $updateStmt->execute();
             }
         } else {
-            $query = 'INSERT INTO service (service_description, display_name, service_register) '
-                . 'VALUES '
-                . '("' . $composedName . '", "' . $metaName . '", "2")';
-            $this->db->query($query);
-            $query = 'INSERT INTO host_service_relation(host_host_id, service_service_id) '
-                . 'VALUES (:host_id,'
-                . '(SELECT service_id 
-                    FROM service 
-                    WHERE service_description = :service_description AND service_register = "2" LIMIT 1)'
-                . ')';
-            $statement = $this->db->prepare($query);
-            $statement->bindValue(':host_id', (int) $hostId, PDO::PARAM_INT);
-            $statement->bindValue(':service_description', $composedName, PDO::PARAM_STR);
-            $statement->execute();
-            $res = $this->db->query($queryService);
-            if ($res->rowCount()) {
-                $row = $res->fetchRow();
-                $serviceId = $row['service_id'];
+            $ownTransaction = ! $this->db->inTransaction();
+            if ($ownTransaction) {
+                $this->db->beginTransaction();
+            }
+            try {
+                $insertStmt = $this->db->prepare(
+                    'INSERT INTO service (service_description, display_name, service_register)
+                    VALUES (:description, :display_name, :register)'
+                );
+                $insertStmt->bindValue(':description', $composedName, PDO::PARAM_STR);
+                $insertStmt->bindValue(':display_name', $metaName, PDO::PARAM_STR);
+                $insertStmt->bindValue(':register', '2', PDO::PARAM_STR);
+                $insertStmt->execute();
+
+                $serviceId = (int) $this->db->lastInsertId();
+                if ($serviceId <= 0) {
+                    throw new RuntimeException('Failed to retrieve inserted service_id');
+                }
+
+                $relStmt = $this->db->prepare(
+                    'INSERT INTO host_service_relation (host_host_id, service_service_id)
+                    VALUES (:host_id, :service_id)'
+                );
+                $relStmt->bindValue(':host_id', (int) $hostId, PDO::PARAM_INT);
+                $relStmt->bindValue(':service_id', $serviceId, PDO::PARAM_INT);
+                $relStmt->execute();
+
+                if ($ownTransaction) {
+                    $this->db->commit();
+                }
+            } catch (Throwable $e) {
+                if ($ownTransaction && $this->db->inTransaction()) {
+                    $this->db->rollBack();
+                }
+
+                throw $e;
             }
         }
 

@@ -73,7 +73,15 @@ function checkResourcesRelations(CentreonACL $userAcl, array $selectedResources,
     return true;
 }
 
-// QuickForm Rules
+/**
+ * Check whether a downtime name is available (not used by another record).
+ *
+ * When a dt_id is present in the current form submission, that record is excluded
+ * from the uniqueness check so the name can remain unchanged during edits.
+ *
+ * @param string|null $downtimeName The downtime name to check.
+ * @return bool `true` if no other downtime uses the given name, `false` otherwise.
+ */
 function testDowntimeNameExistence($downtimeName = null)
 {
     global $pearDB, $form;
@@ -82,14 +90,18 @@ function testDowntimeNameExistence($downtimeName = null)
     if (isset($form)) {
         $id = $form->getSubmitValue('dt_id');
     }
-    $res = $pearDB->query("SELECT dt_id FROM downtime WHERE dt_name = '" . $pearDB->escape($downtimeName) . "'");
-    $d = $res->fetchRow();
-    $nbRes = $res->rowCount();
-    if ($nbRes && $d['dt_id'] == $id) {
-        return true;
+    $query = 'SELECT 1 FROM downtime WHERE dt_name = :dtName';
+    if ($id !== null) {
+        $query .= ' AND dt_id <> :dtId';
     }
+    $statement = $pearDB->prepare($query . ' LIMIT 1');
+    $statement->bindValue(':dtName', $downtimeName, PDO::PARAM_STR);
+    if ($id !== null) {
+        $statement->bindValue(':dtId', (int) $id, PDO::PARAM_INT);
+    }
+    $statement->execute();
 
-    return ! ($nbRes && $d['dt_id'] != $id);
+    return $statement->fetchColumn() === false;
 }
 
 if (($o == 'c' || $o == 'w') && isset($_GET['dt_id'])) {

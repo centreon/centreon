@@ -42,37 +42,42 @@ function setAclGroupChanged($db, $aclGroupId)
 }
 
 /**
- * Test if group exists
+ * Checks whether an ACL group name is available (no existing group with the same name).
  *
- * @param null $name
- * @return bool
+ * @param string|null $name The ACL group name to check.
+ * @param bool $excludeCurrentFormId Whether to exclude the current form's `acl_group_id` from the check (defaults to true).
+ * @return bool `true` if no matching group exists (name is available), `false` otherwise.
  */
-function testGroupExistence($name = null)
+function testGroupExistence($name = null, bool $excludeCurrentFormId = true)
 {
     global $pearDB, $form;
 
     $id = null;
 
-    if (isset($form)) {
+    if ($excludeCurrentFormId && isset($form)) {
         $id = $form->getSubmitValue('acl_group_id');
     }
-    $query = 'SELECT acl_group_id, acl_group_name '
-        . 'FROM acl_groups '
-        . "WHERE acl_group_name = '" . htmlentities($name, ENT_QUOTES, 'UTF-8') . "' ";
-    $dbResult = $pearDB->query($query);
-    $cg = $dbResult->fetch();
-    if ($dbResult->rowCount() >= 1 && $cg['acl_group_id'] == $id) {
-        return true;
+    $query = 'SELECT 1 FROM acl_groups WHERE acl_group_name = :name';
+    if ($id !== null) {
+        $query .= ' AND acl_group_id <> :aclGroupId';
     }
+    $statement = $pearDB->prepare($query . ' LIMIT 1');
+    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    if ($id !== null) {
+        $statement->bindValue(':aclGroupId', (int) $id, PDO::PARAM_INT);
+    }
+    $statement->execute();
 
-    return ! ($dbResult->rowCount() >= 1 && $cg['acl_group_id'] != $id);
-    // Duplicate entry
-
+    return $statement->fetchColumn() === false;
 }
 
 /**
- * @param null $acl_group_id
- * @param array $groups
+ * Enable one or more ACL groups, mark them as changed, and record an enable action in the audit log.
+ *
+ * If a single `$acl_group_id` is provided it is used as the target; otherwise `$groups` supplies the group ids to enable.
+ *
+ * @param int|null $acl_group_id Optional ACL group id to enable.
+ * @param array $groups Array of ACL group ids (keys) to enable.
  */
 function enableGroupInDB($acl_group_id = null, $groups = [])
 {
@@ -105,13 +110,22 @@ function enableGroupInDB($acl_group_id = null, $groups = [])
         $dbResult->bindValue('aclGroupId', $key, PDO::PARAM_INT);
         $dbResult->execute();
         $row = $dbResult->fetch();
-        $centreon->CentreonLogAction->insertLog('access group', (int) $key, $row['acl_group_name'], 'enable');
+        $centreon->CentreonLogAction->insertLog(
+            'access group',
+            (int) $key,
+            $row !== false ? $row['acl_group_name'] : "id:{$key}",
+            'enable'
+        );
     }
 }
 
 /**
- * @param null $acl_group_id
- * @param array $groups
+ * Disable one or more ACL groups in the database and record the action in the audit log.
+ *
+ * If a single `$acl_group_id` is provided it takes precedence and will be disabled.
+ *
+ * @param int|null $acl_group_id The ACL group id to disable, or null to use `$groups`.
+ * @param array $groups An array of ACL group ids to disable (array keys are used as ids).
  */
 function disableGroupInDB($acl_group_id = null, $groups = [])
 {
@@ -136,13 +150,19 @@ function disableGroupInDB($acl_group_id = null, $groups = [])
         $dbResult->bindValue('aclGroupId', $key, PDO::PARAM_INT);
         $dbResult->execute();
         $row = $dbResult->fetch();
-        $centreon->CentreonLogAction->insertLog('access group', (int) $key, $row['acl_group_name'], 'disable');
+        $centreon->CentreonLogAction->insertLog(
+            'access group',
+            (int) $key,
+            $row !== false ? $row['acl_group_name'] : "id:{$key}",
+            'disable'
+        );
     }
 }
 
 /**
- * Delete the selected group in DB
- * @param $groups
+ * Deletes ACL groups whose IDs are provided as the keys of the given array and logs each deletion.
+ *
+ * @param array $groups Array where each key is an `acl_group_id` identifying a group to delete; values are ignored.
  */
 function deleteGroupInDB($groups = [])
 {
@@ -158,99 +178,172 @@ function deleteGroupInDB($groups = [])
         $dbResult = $pearDB->prepare('DELETE FROM acl_groups WHERE acl_group_id = :aclGroupId');
         $dbResult->bindValue('aclGroupId', $key, PDO::PARAM_INT);
         $dbResult->execute();
-        $centreon->CentreonLogAction->insertLog('access group', (int) $key, $row['acl_group_name'], 'd');
+        $centreon->CentreonLogAction->insertLog(
+            'access group',
+            (int) $key,
+            $row !== false ? $row['acl_group_name'] : "id:{$key}",
+            'd'
+        );
     }
 }
 
 /**
- * Duplicate the selected group
- * @param $groups
- * @param $nbrDup
+ * Duplicate selected ACL groups and their related relations, creating numbered copies.
+ *
+ * For each group id present in $groups, creates up to the requested number of duplicates,
+ * replicating the group's fields and associated contacts, contact groups, resources,
+ * actions, and menus. Invalid group ids are skipped and existing names are not overwritten.
+ *
+ * @param array $groups Associative array whose keys are ACL group ids to duplicate.
+ * @param array $nbrDup Associative array mapping ACL group ids to the desired duplication count (0–100).
  */
 function multipleGroupInDB($groups = [], $nbrDup = [])
 {
     global $pearDB, $centreon;
 
-    foreach ($groups as $key => $value) {
-        $dbResult = $pearDB->prepare('SELECT * FROM acl_groups WHERE acl_group_id = :aclGroupId LIMIT 1');
-        $dbResult->bindValue('aclGroupId', $key, PDO::PARAM_INT);
-        $dbResult->execute();
-        $row = $dbResult->fetch();
-        $row['acl_group_id'] = '';
+    $selectStmt = $pearDB->prepare(
+        'SELECT * FROM acl_groups WHERE acl_group_id = :aclGroupId LIMIT 1'
+    );
 
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $val = null;
-            foreach ($row as $key2 => $value2) {
-                $value2 = is_int($value2) ? (string) $value2 : $value2;
-                if ($key2 == 'acl_group_name') {
-                    $acl_group_name = $value2 . '_' . $i;
-                    $value2 = $value2 . '_' . $i;
-                }
-                $val ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ', NULL')
-                    : $val .= ($value2 != null ? ("'" . $value2 . "'") : 'NULL');
-                if ($key2 != 'acl_group_id') {
-                    $fields[$key2] = $value2;
-                }
-                if (isset($acl_group_name)) {
-                    $fields['acl_group_name'] = $acl_group_name;
-                }
+    foreach (array_keys($groups) as $key) {
+        $aclGroupId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($aclGroupId === false) {
+            continue;
+        }
+
+        $selectStmt->bindValue(':aclGroupId', $aclGroupId, PDO::PARAM_INT);
+        $selectStmt->execute();
+        $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            continue;
+        }
+        unset($row['acl_group_id']);
+        $columns = array_keys($row);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO acl_groups (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
+
+        $dupCount = filter_var($nbrDup[$key] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
+        if ($dupCount === false) {
+            continue;
+        }
+        $originalName = $row['acl_group_name'];
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
+            $acl_group_name = $originalName . '_' . $suffix;
+
+            if (! testGroupExistence($acl_group_name, false)) {
+                continue;
             }
+            $i++;
 
-            if (testGroupExistence($acl_group_name)) {
-                $rq = $val ? 'INSERT INTO acl_groups VALUES (' . $val . ')' : null;
-                $pearDB->query($rq);
-                $dbResult = $pearDB->query('SELECT MAX(acl_group_id) FROM acl_groups');
-                $maxId = $dbResult->fetch();
-                $dbResult->closeCursor();
+            $pearDB->beginTransaction();
+            try {
+                $row['acl_group_name'] = $acl_group_name;
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                }
+                $insertStmt->execute();
+
+                $lastInsertId = $pearDB->lastInsertId();
+                if ($lastInsertId === false) {
+                    $pearDB->rollBack();
+
+                    continue;
+                }
+                $maxId = (int) $lastInsertId;
+                if ($maxId <= 0) {
+                    $pearDB->rollBack();
+
+                    continue;
+                }
 
                 // Duplicate Links
-                duplicateContacts($key, $maxId['MAX(acl_group_id)'], $pearDB);
-                duplicateContactGroups($key, $maxId['MAX(acl_group_id)'], $pearDB);
-                duplicateResources($key, $maxId['MAX(acl_group_id)'], $pearDB);
-                duplicateActions($key, $maxId['MAX(acl_group_id)'], $pearDB);
-                duplicateMenus($key, $maxId['MAX(acl_group_id)'], $pearDB);
+                duplicateContacts($key, $maxId, $pearDB);
+                duplicateContactGroups($key, $maxId, $pearDB);
+                duplicateResources($key, $maxId, $pearDB);
+                duplicateActions($key, $maxId, $pearDB);
+                duplicateMenus($key, $maxId, $pearDB);
 
+                $fields = $row;
                 $centreon->CentreonLogAction->insertLog(
                     'access group',
-                    $maxId['MAX(acl_group_id)'],
+                    $maxId,
                     $acl_group_name,
                     'a',
                     $fields
                 );
+                $pearDB->commit();
+            } catch (Throwable $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
+
+                throw $e;
             }
+        }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for group ACL '{$originalName}' ({$key}): suffix search exhausted");
         }
     }
 }
 
 /**
- * Insert group in DB
- * @param $ret
+ * Create a new ACL group and persist its related contacts, contact groups, actions, resources, and menus in the database.
+ *
+ * This function performs the insert inside a transaction: it calls insertGroup to create the ACL group, then updates related relations.
+ * On error the transaction is rolled back and the exception is rethrown. After a successful commit, an audit log entry is recorded.
+ *
+ * @param array $ret Optional override data used when inserting the group and its relations.
+ * @return int The created `acl_group_id`.
+ * @throws RuntimeException If the group insert fails and no valid ID is returned.
+ * @throws Throwable Re-throws any exception/error encountered while performing database operations.
  */
 function insertGroupInDB($ret = [])
 {
-    global $form, $centreon;
+    global $form, $centreon, $pearDB;
 
-    $acl_group_id = insertGroup($ret);
-    updateGroupContacts($acl_group_id, $ret);
-    updateGroupContactGroups($acl_group_id);
-    updateGroupActions($acl_group_id);
-    updateGroupResources($acl_group_id);
-    updateGroupMenus($acl_group_id);
+    try {
+        $pearDB->beginTransaction();
 
-    $ret = $form->getSubmitValues();
-    $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog('access group', $acl_group_id, $ret['acl_group_name'], 'a', $fields);
+        $acl_group_id = insertGroup($ret);
+        if ((int) $acl_group_id <= 0) {
+            throw new RuntimeException('Failed to insert ACL group');
+        }
+        updateGroupContacts($acl_group_id, $ret);
+        updateGroupContactGroups($acl_group_id);
+        updateGroupActions($acl_group_id);
+        updateGroupResources($acl_group_id);
+        updateGroupMenus($acl_group_id);
+
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
+    }
+
+    $submitValues = $form->getSubmitValues();
+    $fields = CentreonLogAction::prepareChanges($submitValues);
+    $centreon->CentreonLogAction->insertLog('access group', $acl_group_id, $submitValues['acl_group_name'], 'a', $fields);
 
     return $acl_group_id;
 }
 
 /**
- * Insert a new access group
+ * Create a new ACL group record.
  *
- * @param $groupInfos Array containing group's informations
- * @global $form    HTML_QuickFormCustom
- * @global $pearDB  CentreonDB
- * @return int Return id of the new access group
+ * If $groupInfos is empty, submitted form values are used. Expected keys in
+ * $groupInfos: `acl_group_name`, `acl_group_alias`, and an optional
+ * `acl_group_activate` array containing `acl_group_activate => '1'` to mark the
+ * group as active.
+ *
+ * @param array $groupInfos Optional associative array of group fields.
+ * @return int|null The new acl_group_id on success, `null` on failure.
  */
 function insertGroup($groupInfos)
 {
@@ -283,11 +376,6 @@ function insertGroup($groupInfos)
         PDO::PARAM_STR
     );
     $prepare->bindValue(
-        ':group_alias',
-        $groupInfos['acl_group_alias'],
-        PDO::PARAM_STR
-    );
-    $prepare->bindValue(
         ':is_activate',
         ($isAclGroupActivate ? '1' : '0'),
         PDO::PARAM_STR
@@ -299,26 +387,42 @@ function insertGroup($groupInfos)
 }
 
 /**
- * Update Group in DB
- * @param $acl_group_id
+ * Update an ACL group and its related relations in the database and record the change in the audit log.
+ *
+ * Performs the group update and updates contacts, contact groups, actions, resources, and menus within a single database transaction; commits on success and rolls back on error. After a successful commit, records the submitted values in the Centreon log.
+ *
+ * @param int|null $acl_group_id The ACL group identifier to update. If null or falsy, the function returns without action.
+ * @throws Throwable If any error occurs during the database operations; the transaction is rolled back before the exception is propagated.
  */
 function updateGroupInDB($acl_group_id = null)
 {
     if (! $acl_group_id) {
         return;
     }
-    global $form, $centreon;
+    global $form, $centreon, $pearDB;
 
-    updateGroup($acl_group_id);
-    updateGroupContacts($acl_group_id);
-    updateGroupContactGroups($acl_group_id);
-    updateGroupActions($acl_group_id);
-    updateGroupResources($acl_group_id);
-    updateGroupMenus($acl_group_id);
+    try {
+        $pearDB->beginTransaction();
 
-    $ret = $form->getSubmitValues();
-    $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog('access group', $acl_group_id, $ret['acl_group_name'], 'c', $fields);
+        updateGroup($acl_group_id);
+        updateGroupContacts($acl_group_id);
+        updateGroupContactGroups($acl_group_id);
+        updateGroupActions($acl_group_id);
+        updateGroupResources($acl_group_id);
+        updateGroupMenus($acl_group_id);
+
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
+    }
+
+    $submitValues = $form->getSubmitValues();
+    $fields = CentreonLogAction::prepareChanges($submitValues);
+    $centreon->CentreonLogAction->insertLog('access group', $acl_group_id, $submitValues['acl_group_name'], 'c', $fields);
 }
 
 /**
@@ -380,9 +484,10 @@ function updateGroup($aclGroupId = null)
 }
 
 /**
- * Update Contacts lists
- * @param $acl_group_id
- * @param $ret
+ * Replace contact relations for an ACL group with the contacts provided in the request.
+ *
+ * @param int $acl_group_id The ACL group identifier whose contact relations will be replaced.
+ * @param array $ret Optional data array retained for API compatibility.
  */
 function updateGroupContacts($acl_group_id, $ret = [])
 {
@@ -392,23 +497,42 @@ function updateGroupContacts($acl_group_id, $ret = [])
         return;
     }
 
-    $rq = "DELETE FROM acl_group_contacts_relations WHERE acl_group_id = '" . $acl_group_id . "'";
-    $dbResult = $pearDB->query($rq);
-    if (isset($_POST['cg_contacts'])) {
-        foreach ($_POST['cg_contacts'] as $id) {
-            $rq = 'INSERT INTO acl_group_contacts_relations ';
-            $rq .= '(contact_contact_id, acl_group_id) ';
-            $rq .= 'VALUES ';
-            $rq .= "('" . $id . "', '" . $acl_group_id . "')";
-            $dbResult = $pearDB->query($rq);
+    try {
+        $pearDB->beginTransaction();
+
+        $deleteStmt = $pearDB->prepare('DELETE FROM acl_group_contacts_relations WHERE acl_group_id = :group_id');
+        $deleteStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
+        $deleteStmt->execute();
+        if (isset($_POST['cg_contacts'])) {
+            $insertStmt = $pearDB->prepare(
+                'INSERT INTO acl_group_contacts_relations (contact_contact_id, acl_group_id)'
+                . ' VALUES (:contact_id, :group_id)'
+            );
+            foreach ($_POST['cg_contacts'] as $id) {
+                $insertStmt->bindValue(':contact_id', (int) $id, PDO::PARAM_INT);
+                $insertStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
+                $insertStmt->execute();
+            }
         }
+
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
     }
 }
 
 /**
- * Update contact group list
- * @param $acl_group_id
- * @param $ret
+ * Update contact-group relations for the specified ACL group.
+ *
+ * Deletes existing relations for the ACL group and inserts relations from $_POST['cg_contactGroups']. Non-numeric entries are attempted to be created as LDAP contact groups via CentreonContactgroup::insertLdapGroup and replaced with the returned id; entries that cannot be resolved are skipped.
+ *
+ * @param int   $acl_group_id The ACL group id to update; no action is taken if falsy.
+ * @param array $ret          Optional additional data (unused).
+ * @throws Throwable If a database operation fails.
  */
 function updateGroupContactGroups($acl_group_id, $ret = [])
 {
@@ -418,32 +542,53 @@ function updateGroupContactGroups($acl_group_id, $ret = [])
         return;
     }
 
-    $rq = "DELETE FROM acl_group_contactgroups_relations WHERE acl_group_id = '" . $acl_group_id . "'";
-    $dbResult = $pearDB->query($rq);
-    if (isset($_POST['cg_contactGroups'])) {
-        $cg = new CentreonContactgroup($pearDB);
-        foreach ($_POST['cg_contactGroups'] as $id) {
-            if (! is_numeric($id)) {
-                $res = $cg->insertLdapGroup($id);
-                if ($res != 0) {
-                    $id = $res;
-                } else {
-                    continue;
+    try {
+        $pearDB->beginTransaction();
+
+        $deleteStmt = $pearDB->prepare(
+            'DELETE FROM acl_group_contactgroups_relations WHERE acl_group_id = :group_id'
+        );
+        $deleteStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
+        $deleteStmt->execute();
+        if (isset($_POST['cg_contactGroups'])) {
+            $cg = new CentreonContactgroup($pearDB);
+            $insertStmt = $pearDB->prepare(
+                'INSERT INTO acl_group_contactgroups_relations (cg_cg_id, acl_group_id)'
+                . ' VALUES (:cg_id, :group_id)'
+            );
+            foreach ($_POST['cg_contactGroups'] as $id) {
+                if (! is_numeric($id)) {
+                    $res = $cg->insertLdapGroup($id);
+                    if ($res != 0) {
+                        $id = $res;
+                    } else {
+                        continue;
+                    }
                 }
+                $insertStmt->bindValue(':cg_id', (int) $id, PDO::PARAM_INT);
+                $insertStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
+                $insertStmt->execute();
             }
-            $rq = 'INSERT INTO acl_group_contactgroups_relations ';
-            $rq .= '(cg_cg_id, acl_group_id) ';
-            $rq .= 'VALUES ';
-            $rq .= "('" . $id . "', '" . $acl_group_id . "')";
-            $dbResult = $pearDB->query($rq);
         }
+
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
     }
 }
 
 /**
- * Update Group actions
- * @param $acl_group_id
- * @param $ret
+ * Update the action relations for a specific ACL group.
+ *
+ * Deletes all existing entries in acl_group_actions_relations for the given group
+ * and inserts new relations from the posted `actionAccess` list when present.
+ *
+ * @param int $acl_group_id The ACL group identifier to update.
+ * @param array $ret Optional associative array of values (contextual/legacy, not required).
  */
 function updateGroupActions($acl_group_id, $ret = [])
 {
@@ -453,23 +598,42 @@ function updateGroupActions($acl_group_id, $ret = [])
         return;
     }
 
-    $rq = "DELETE FROM acl_group_actions_relations WHERE acl_group_id = '" . $acl_group_id . "'";
-    $dbResult = $pearDB->query($rq);
-    if (isset($_POST['actionAccess'])) {
-        foreach ($_POST['actionAccess'] as $id) {
-            $rq = 'INSERT INTO acl_group_actions_relations ';
-            $rq .= '(acl_action_id, acl_group_id) ';
-            $rq .= 'VALUES ';
-            $rq .= "('" . $id . "', '" . $acl_group_id . "')";
-            $dbResult = $pearDB->query($rq);
+    try {
+        $pearDB->beginTransaction();
+
+        $deleteStmt = $pearDB->prepare('DELETE FROM acl_group_actions_relations WHERE acl_group_id = :group_id');
+        $deleteStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
+        $deleteStmt->execute();
+        if (isset($_POST['actionAccess'])) {
+            $insertStmt = $pearDB->prepare(
+                'INSERT INTO acl_group_actions_relations (acl_action_id, acl_group_id)'
+                . ' VALUES (:action_id, :group_id)'
+            );
+            foreach ($_POST['actionAccess'] as $id) {
+                $insertStmt->bindValue(':action_id', (int) $id, PDO::PARAM_INT);
+                $insertStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
+                $insertStmt->execute();
+            }
         }
+
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
     }
 }
 
 /**
- * Update Menu Access
- * @param $acl_group_id
- * @param $ret
+ * Replace topology (menu) relations for the specified ACL group with the provided menu access values.
+ *
+ * Executes a transactional update that deletes existing topology relations for the given group and,
+ * if present, inserts relations for each topology id in `$_POST['menuAccess']`.
+ *
+ * @param int|null $acl_group_id The ACL group id to update; nothing is done if null or falsy.
+ * @param array $ret Optional additional data (unused by this function).
  */
 function updateGroupMenus($acl_group_id, $ret = [])
 {
@@ -479,23 +643,43 @@ function updateGroupMenus($acl_group_id, $ret = [])
         return;
     }
 
-    $rq = "DELETE FROM acl_group_topology_relations WHERE acl_group_id = '" . $acl_group_id . "'";
-    $dbResult = $pearDB->query($rq);
-    if (isset($_POST['menuAccess'])) {
-        foreach ($_POST['menuAccess'] as $id) {
-            $rq = 'INSERT INTO acl_group_topology_relations ';
-            $rq .= '(acl_topology_id, acl_group_id) ';
-            $rq .= 'VALUES ';
-            $rq .= "('" . $id . "', '" . $acl_group_id . "')";
-            $dbResult = $pearDB->query($rq);
+    try {
+        $pearDB->beginTransaction();
+
+        $deleteStmt = $pearDB->prepare('DELETE FROM acl_group_topology_relations WHERE acl_group_id = :group_id');
+        $deleteStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
+        $deleteStmt->execute();
+        if (isset($_POST['menuAccess'])) {
+            $insertStmt = $pearDB->prepare(
+                'INSERT INTO acl_group_topology_relations (acl_topology_id, acl_group_id)'
+                . ' VALUES (:topology_id, :group_id)'
+            );
+            foreach ($_POST['menuAccess'] as $id) {
+                $insertStmt->bindValue(':topology_id', (int) $id, PDO::PARAM_INT);
+                $insertStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
+                $insertStmt->execute();
+            }
         }
+
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
     }
 }
 
 /**
- * Update Group ressources
- * @param $acl_group_id
- * @param $ret
+ * Update resource relations for an ACL group.
+ *
+ * Deletes unlocked resource relations for the given ACL group and inserts new relations
+ * from the submitted `$_POST['resourceAccess']` list.
+ *
+ * @param int   $acl_group_id The ACL group identifier to update.
+ * @param array $ret          Optional additional data (unused).
+ * @throws Throwable If a database error occurs; transaction will be rolled back and the exception rethrown.
  */
 function updateGroupResources($acl_group_id, $ret = [])
 {
@@ -505,20 +689,35 @@ function updateGroupResources($acl_group_id, $ret = [])
         return;
     }
 
-    $query = 'DELETE argr '
-        . 'FROM acl_res_group_relations argr '
-        . 'JOIN acl_resources ar ON argr.acl_res_id = ar.acl_res_id '
-        . 'WHERE argr.acl_group_id = ' . $acl_group_id . ' '
-        . 'AND ar.locked = 0 ';
-    $pearDB->query($query);
-    if (isset($_POST['resourceAccess'])) {
-        foreach ($_POST['resourceAccess'] as $id) {
-            $rq = 'INSERT INTO acl_res_group_relations ';
-            $rq .= '(acl_res_id, acl_group_id) ';
-            $rq .= 'VALUES ';
-            $rq .= "('" . $id . "', '" . $acl_group_id . "')";
-            $pearDB->query($rq);
+    try {
+        $pearDB->beginTransaction();
+
+        $deleteStmt = $pearDB->prepare(
+            'DELETE argr FROM acl_res_group_relations argr'
+            . ' JOIN acl_resources ar ON argr.acl_res_id = ar.acl_res_id'
+            . ' WHERE argr.acl_group_id = :group_id AND ar.locked = 0'
+        );
+        $deleteStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
+        $deleteStmt->execute();
+        if (isset($_POST['resourceAccess'])) {
+            $insertStmt = $pearDB->prepare(
+                'INSERT INTO acl_res_group_relations (acl_res_id, acl_group_id)'
+                . ' VALUES (:res_id, :group_id)'
+            );
+            foreach ($_POST['resourceAccess'] as $id) {
+                $insertStmt->bindValue(':res_id', (int) $id, PDO::PARAM_INT);
+                $insertStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
+                $insertStmt->execute();
+            }
         }
+
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
     }
 }
 

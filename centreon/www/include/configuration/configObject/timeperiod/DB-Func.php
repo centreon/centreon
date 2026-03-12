@@ -26,122 +26,170 @@ if (! isset($centreon)) {
 }
 
 use Core\ActionLog\Domain\Model\ActionLog;
-use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Infrastructure\Common\Api\Router;
+use Symfony\Component\HttpClient\CurlHttpClient;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+/**
+ * Add include and exclude relations for a time period.
+ *
+ * Inserts one row per ID from `$includeTab` into `timeperiod_include_relations` and one row per ID from `$excludeTab` into `timeperiod_exclude_relations`.
+ *
+ * @param int   $tpId       The parent time period ID to associate relations with.
+ * @param int[] $includeTab Array of time period IDs to include; ignored if empty or not an array.
+ * @param int[] $excludeTab Array of time period IDs to exclude; ignored if empty or not an array.
+ */
 function includeExcludeTimeperiods($tpId, $includeTab = [], $excludeTab = [])
 {
     global $pearDB;
 
     // Insert inclusions
-    if (isset($includeTab) && is_array($includeTab)) {
-        $str = '';
+    if (is_array($includeTab) && $includeTab !== []) {
+        $includeStmt = $pearDB->prepare(
+            'INSERT INTO timeperiod_include_relations (timeperiod_id, timeperiod_include_id)
+            VALUES (:tpId, :tpIncludeId)'
+        );
         foreach ($includeTab as $tpIncludeId) {
-            if ($str != '') {
-                $str .= ', ';
-            }
-            $str .= "('" . $tpId . "', '" . $tpIncludeId . "')";
-        }
-        if (strlen($str)) {
-            $query = 'INSERT INTO timeperiod_include_relations (timeperiod_id, timeperiod_include_id ) VALUES ' . $str;
-            $pearDB->query($query);
+            $includeStmt->bindValue(':tpId', (int) $tpId, PDO::PARAM_INT);
+            $includeStmt->bindValue(':tpIncludeId', (int) $tpIncludeId, PDO::PARAM_INT);
+            $includeStmt->execute();
         }
     }
 
     // Insert exclusions
-    if (isset($excludeTab) && is_array($excludeTab)) {
-        $str = '';
+    if (is_array($excludeTab) && $excludeTab !== []) {
+        $excludeStmt = $pearDB->prepare(
+            'INSERT INTO timeperiod_exclude_relations (timeperiod_id, timeperiod_exclude_id)
+            VALUES (:tpId, :tpExcludeId)'
+        );
         foreach ($excludeTab as $tpExcludeId) {
-            if ($str != '') {
-                $str .= ', ';
-            }
-            $str .= "('" . $tpId . "', '" . $tpExcludeId . "')";
-        }
-        if (strlen($str)) {
-            $query = 'INSERT INTO timeperiod_exclude_relations (timeperiod_id, timeperiod_exclude_id ) VALUES ' . $str;
-            $pearDB->query($query);
+            $excludeStmt->bindValue(':tpId', (int) $tpId, PDO::PARAM_INT);
+            $excludeStmt->bindValue(':tpExcludeId', (int) $tpExcludeId, PDO::PARAM_INT);
+            $excludeStmt->execute();
         }
     }
 }
 
-function testTPExistence($name = null)
+/**
+ * Determine whether a timeperiod name is available for insertion or update.
+ *
+ * If $excludeCurrentFormId is true and a form is present, the current form's tp_id
+ * is excluded from the existence check so the name may match the current record.
+ *
+ * @param string|null $name The timeperiod name to check.
+ * @param bool $excludeCurrentFormId Whether to exclude the current form's tp_id from the check when a form is available.
+ * @return bool `true` if no matching timeperiod exists, `false` otherwise.
+ */
+function testTPExistence($name = null, bool $excludeCurrentFormId = true)
 {
     global $pearDB, $form, $centreon;
 
     $id = null;
-    if (isset($form)) {
+    if ($excludeCurrentFormId && isset($form)) {
         $id = $form->getSubmitValue('tp_id');
     }
 
-    $query = 'SELECT tp_name, tp_id FROM timeperiod WHERE tp_name = :tp_name';
-    $statement = $pearDB->prepare($query);
+    $query = 'SELECT 1 FROM timeperiod WHERE tp_name = :tp_name';
+    if ($id !== null) {
+        $query .= ' AND tp_id <> :tpId';
+    }
+    $statement = $pearDB->prepare($query . ' LIMIT 1');
     $statement->bindValue(
         ':tp_name',
         htmlentities($centreon->checkIllegalChar($name), ENT_QUOTES, 'UTF-8'),
         PDO::PARAM_STR
     );
-    $statement->execute();
-    $tp = $statement->fetch(PDO::FETCH_ASSOC);
-    // Modif case
-    if ($statement->rowCount() >= 1 && $tp['tp_id'] == $id) {
-        return true;
+    if ($id !== null) {
+        $statement->bindValue(':tpId', (int) $id, PDO::PARAM_INT);
     }
+    $statement->execute();
 
-    return ! ($statement->rowCount() >= 1 && $tp['tp_id'] != $id);  // Duplicate entry
+    return $statement->fetchColumn() === false;
 }
 
+/**
+ * Create duplicate timeperiods in the database for specified timeperiod IDs.
+ *
+ * For each timeperiod ID present as a key in $timeperiods, attempts to create the requested
+ * number of duplicates using unique suffixed names, preserves associated exceptions and
+ * timeranges, and records each creation in the action log. If the function cannot create
+ * the requested number of duplicates for a timeperiod (e.g., unique name space exhausted),
+ * it logs an error describing how many were created versus requested.
+ *
+ * @param array $timeperiods An array whose keys are timeperiod identifiers (values will be ignored);
+ *                           keys that are not valid integers are skipped.
+ * @param array $nbrDup      An associative array mapping the same timeperiod identifiers to the
+ *                           number of duplicates to create (non-integer or out-of-range values are treated as 0).
+ */
 function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
 {
     global $centreon;
 
-    foreach ($timeperiods as $key => $value) {
-        global $pearDB;
-
-        $fields = [];
-        $dbResult = $pearDB->query("SELECT * FROM timeperiod WHERE tp_id = '" . $key . "' LIMIT 1");
-
-        $query = "SELECT days, timerange FROM timeperiod_exceptions WHERE timeperiod_id = '" . $key . "'";
-        $res = $pearDB->query($query);
-        while ($row = $res->fetch()) {
-            foreach ($row as $keyz => $valz) {
-                $fields[$keyz] = $valz;
-            }
+    foreach (array_keys($timeperiods) as $key) {
+        $tpId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($tpId === false) {
+            continue;
         }
 
-        $row = $dbResult->fetch();
-        $row['tp_id'] = null;
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $val = [];
-            foreach ($row as $key2 => $value2) {
-                if ($key2 == 'tp_name') {
-                    $value2 .= '_' . $i;
-                }
-                if ($key2 == 'tp_name') {
-                    $tp_name = $value2;
-                }
-                $val[] = $value2 ?: null;
-                if ($key2 != 'tp_id') {
-                    $fields[$key2] = $value2;
-                }
-                if (isset($tp_name)) {
-                    $fields['tp_name'] = $tp_name;
-                }
+        global $pearDB;
+
+        $selectStmt = $pearDB->prepare('SELECT * FROM timeperiod WHERE tp_id = :tpId LIMIT 1');
+        $selectStmt->bindValue(':tpId', $tpId, PDO::PARAM_INT);
+        $selectStmt->execute();
+
+        $exceptionStmt = $pearDB->prepare(
+            'SELECT days, timerange FROM timeperiod_exceptions WHERE timeperiod_id = :tpId'
+        );
+        $exceptionStmt->bindValue(':tpId', $tpId, PDO::PARAM_INT);
+        $exceptionStmt->execute();
+        $exceptionDays = '';
+        $exceptionTimeranges = '';
+        while ($exception = $exceptionStmt->fetch()) {
+            $exceptionDays .= $exception['days'] . ',';
+            $exceptionTimeranges .= $exception['timerange'] . ',';
+        }
+        $exceptionFields = [];
+        if ($exceptionDays !== '') {
+            $exceptionFields['days'] = trim($exceptionDays, ',');
+            $exceptionFields['timerange'] = trim($exceptionTimeranges, ',');
+        }
+
+        $row = $selectStmt->fetch();
+        if ($row === false) {
+            continue;
+        }
+        unset($row['tp_id']);
+        $columns = array_keys($row);
+        $dupCount = filter_var($nbrDup[$key] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
+        if ($dupCount === false) {
+            continue;
+        }
+        $originalName = $row['tp_name'];
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
+            $tp_name = $originalName . '_' . $suffix;
+            if (! testTPExistence($tp_name, false)) {
+                continue;
             }
-            if (isset($tp_name) && testTPExistence($tp_name)) {
-                $params = [
-                    'values' => $val,
-                    'timeperiod_id' => $key,
-                ];
-                $tpId = duplicateTimePeriod($params);
-                $centreon->CentreonLogAction->insertLog(
-                    object_type: ActionLog::OBJECT_TYPE_TIMEPERIOD,
-                    object_id: $tpId,
-                    object_name: $tp_name,
-                    action_type: ActionLog::ACTION_TYPE_ADD,
-                    fields: $fields
-                );
-            }
+            $i++;
+            $row['tp_name'] = $tp_name;
+            $fields = $row + $exceptionFields;
+            $params = [
+                'columns' => $columns,
+                'values' => $row,
+                'timeperiod_id' => $key,
+            ];
+            $newTpId = duplicateTimePeriod($params);
+            $centreon->CentreonLogAction->insertLog(
+                object_type: ActionLog::OBJECT_TYPE_TIMEPERIOD,
+                object_id: $newTpId,
+                object_name: $tp_name,
+                action_type: ActionLog::ACTION_TYPE_ADD,
+                fields: $fields
+            );
+        }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for time period '{$originalName}' ({$key}): suffix search exhausted");
         }
     }
 }
@@ -190,20 +238,22 @@ function checkHours($hourString)
 }
 
 /**
- * Get time period id by name
+ * Retrieve the timeperiod's ID for the given name.
  *
- * @param string $name
- * @return int
+ * @param string $name Timeperiod name to look up.
+ * @return int The timeperiod ID if found, or 0 if no matching timeperiod exists.
  */
 function getTimeperiodIdByName($name)
 {
     global $pearDB;
 
     $id = 0;
-    $res = $pearDB->query("SELECT tp_id FROM timeperiod WHERE tp_name = '" . $pearDB->escape($name) . "'");
-    if ($res->rowCount()) {
-        $row = $res->fetch();
-        $id = $row['tp_id'];
+    $stmt = $pearDB->prepare('SELECT tp_id FROM timeperiod WHERE tp_name = :tpName');
+    $stmt->bindValue(':tpName', $name, PDO::PARAM_STR);
+    $stmt->execute();
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($row !== false) {
+        $id = (int) $row['tp_id'];
     }
 
     return $id;
@@ -265,10 +315,12 @@ function testTemplateLoop($value)
 }
 
 /**
- * All in one function to duplicate time periods
+ * Creates a duplicate of a time period including its exceptions and include/exclude relations.
  *
- * @param array $params
- * @return int
+ * Performs the duplication inside a database transaction unless one is already active.
+ *
+ * @param array $params Associative array containing the source time period data required by createTimePeriod and related creation functions.
+ * @return int The newly created time period ID.
  */
 function duplicateTimePeriod(array $params): int
 {
@@ -287,40 +339,49 @@ function duplicateTimePeriod(array $params): int
             $pearDB->commit();
         }
     } catch (Exception $e) {
-        if (! $isAlreadyInTransaction) {
+        if (! $isAlreadyInTransaction && $pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
+
+        throw $e;
     }
 
     return $params['tp_id'];
 }
 
 /**
- * Creates time period and returns id.
+ * Insert a new timeperiod row using the provided column names and values, and return the new timeperiod ID.
  *
- * @param array $params
- * @return int
+ * @param array $params {
+ *     Parameters for the insert operation.
+ *
+ *     @type string[] $columns List of column names to insert.
+ *     @type array $values   Associative array of column => value pairs. Use null for SQL NULL.
+ * }
+ * @return int The newly created timeperiod ID.
+ * @throws RuntimeException If the inserted ID cannot be retrieved.
  */
 function createTimePeriod(array $params): int
 {
     global $pearDB;
 
-    $queryBindValues = [];
-    foreach ($params['values'] as $index => $value) {
-        $queryBindValues[':value_' . $index] = $value;
-    }
-    $bindValues = implode(', ', array_keys($queryBindValues));
-    $statement = $pearDB->prepare("INSERT INTO timeperiod VALUES ({$bindValues})");
-    foreach ($queryBindValues as $bindKey => $bindValue) {
-        if (array_key_first($queryBindValues) === $bindKey) {
-            $statement->bindValue($bindKey, (int) $bindValue, PDO::PARAM_INT);
-        } else {
-            $statement->bindValue($bindKey, $bindValue, PDO::PARAM_STR);
-        }
+    $columns = $params['columns'];
+    $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+    $statement = $pearDB->prepare(
+        'INSERT INTO timeperiod (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+    );
+    foreach ($columns as $col) {
+        $value = $params['values'][$col];
+        $statement->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
     }
     $statement->execute();
 
-    return (int) $pearDB->lastInsertId();
+    $tpId = (int) $pearDB->lastInsertId();
+    if ($tpId <= 0) {
+        throw new RuntimeException('Failed to retrieve inserted timeperiod id');
+    }
+
+    return $tpId;
 }
 
 /**
@@ -423,6 +484,7 @@ function insertTimeperiodByApi(array $formData, string $basePath): int
     $kernel = Kernel::createForWeb();
     /** @var Router $router */
     $router = $kernel->getContainer()->get(Router::class);
+    $client = new CurlHttpClient();
 
     $payload = getPayloadForTimePeriod($formData);
     $url = $router->generate(
@@ -431,17 +493,29 @@ function insertTimeperiodByApi(array $formData, string $basePath): int
         UrlGeneratorInterface::ABSOLUTE_URL,
     );
 
-    $client = new InternalApiClient();
-    $response = $client->request($url, 'POST', CentreonSession::resolveSessionCookie(), $payload);
+    $headers = [
+        'Content-Type' => 'application/json',
+        'Cookie' => CentreonSession::resolveSessionCookie(),
+    ];
+    $response = $client->request(
+        'POST',
+        $url,
+        [
+            'headers' => $headers,
+            'body' => json_encode(value: $payload, flags: JSON_THROW_ON_ERROR),
+        ],
+    );
 
-    if ($response['status_code'] !== 201) {
-        $message = $response['content']['message'] ?? 'Unexpected return status';
+    if ($response->getStatusCode() !== 201) {
+        $content = json_decode(json: $response->getContent(false), flags: JSON_THROW_ON_ERROR);
 
-        throw new Exception($message);
+        throw new Exception($content->message ?? 'Unexpected return status');
     }
 
-    /** @var array{id:int} $response['content'] */
-    return $response['content']['id'];
+    $data = $response->toArray();
+
+    /** @var array{id:int} $data */
+    return $data['id'];
 }
 
 /**
@@ -493,6 +567,7 @@ function updateTimeperiodByApi(array $formData, string $basePath): void
     $kernel = Kernel::createForWeb();
     /** @var Router $router */
     $router = $kernel->getContainer()->get(Router::class);
+    $client = new CurlHttpClient();
 
     $payload = getPayloadForTimePeriod($formData);
     $url = $router->generate(
@@ -501,13 +576,23 @@ function updateTimeperiodByApi(array $formData, string $basePath): void
         UrlGeneratorInterface::ABSOLUTE_URL,
     );
 
-    $client = new InternalApiClient();
-    $response = $client->request($url, 'PUT', CentreonSession::resolveSessionCookie(), $payload);
+    $headers = [
+        'Content-Type' => 'application/json',
+        'Cookie' => CentreonSession::resolveSessionCookie(),
+    ];
+    $response = $client->request(
+        'PUT',
+        $url,
+        [
+            'headers' => $headers,
+            'body' => json_encode(value: $payload, flags: JSON_THROW_ON_ERROR),
+        ],
+    );
 
-    if ($response['status_code'] !== 204) {
-        $message = $response['content']['message'] ?? 'Unexpected return status';
+    if ($response->getStatusCode() !== 204) {
+        $content = json_decode(json: $response->getContent(false), flags: JSON_THROW_ON_ERROR);
 
-        throw new Exception($message);
+        throw new Exception($content->message ?? 'Unexpected return status');
     }
 }
 
@@ -549,8 +634,12 @@ function deleteTimePeriodByAPI(string $basePath, array $timePeriodIds): void
     $kernel = Kernel::createForWeb();
     /** @var Router $router */
     $router = $kernel->getContainer()->get(Router::class);
-    $client = new InternalApiClient();
-    $sessionCookie = CentreonSession::resolveSessionCookie();
+    $client = new CurlHttpClient();
+
+    $headers = [
+        'Content-Type' => 'application/json',
+        'Cookie' => CentreonSession::resolveSessionCookie(),
+    ];
 
     foreach ($timePeriodIds as $id) {
         $url = $router->generate(
@@ -559,10 +648,11 @@ function deleteTimePeriodByAPI(string $basePath, array $timePeriodIds): void
             UrlGeneratorInterface::ABSOLUTE_URL,
         );
 
-        $response = $client->request($url, 'DELETE', $sessionCookie);
+        $response = $client->request('DELETE', $url, ['headers' => $headers]);
 
-        if ($response['status_code'] !== 204) {
-            $message = $response['content']['message'] ?? 'Unknown error';
+        if ($response->getStatusCode() !== 204) {
+            $content = json_decode($response->getContent(false), true);
+            $message = $content['message'] ?? 'Unknown error';
 
             CentreonLog::create()->error(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,

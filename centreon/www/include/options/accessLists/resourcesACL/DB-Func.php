@@ -28,28 +28,46 @@ use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Domain\Exception\ValueObjectException;
 
 /**
- * @param null $name
- * @return bool
+ * Check whether an ACL resource name is available (no existing record uses the same name).
+ *
+ * The provided name is sanitized (HTML tags removed) before checking. When
+ * $excludeCurrentFormId is true and a global $form is present, the current
+ * form's `acl_res_id` is excluded from the existence check.
+ *
+ * @param string|null $name The ACL resource name to check (may be null).
+ * @param bool $excludeCurrentFormId When true, exclude the current form's acl_res_id from the check if available.
+ * @return bool `true` if no existing record with the same name exists, `false` otherwise.
  */
-function testExistence($name = null)
+function testExistence($name = null, bool $excludeCurrentFormId = true)
 {
     global $pearDB, $form;
     $id = null;
 
-    if (isset($form)) {
+    if ($excludeCurrentFormId && isset($form)) {
         $id = $form->getSubmitValue('acl_res_id');
     }
     $name = HtmlAnalyzer::sanitizeAndRemoveTags($name);
-    $statement = $pearDB->prepare('SELECT acl_res_name, acl_res_id FROM `acl_resources` WHERE acl_res_name = :name');
+    $query = 'SELECT 1 FROM `acl_resources` WHERE acl_res_name = :name';
+    if ($id !== null) {
+        $query .= ' AND acl_res_id <> :aclResId';
+    }
+    $statement = $pearDB->prepare($query . ' LIMIT 1');
     $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    if ($id !== null) {
+        $statement->bindValue(':aclResId', (int) $id, PDO::PARAM_INT);
+    }
     $statement->execute();
 
-    return ! (($lca = $statement->fetch()) && $lca['acl_res_id'] != $id);
+    return $statement->fetchColumn() === false;
 }
 
 /**
- * @param null $aclResId
- * @param array $acls
+ * Enables one or more ACL resources in the database, marks related groups as changed, and records an "enable" log for each resource.
+ *
+ * If $aclResId is provided it takes precedence and only that resource is enabled; otherwise each key in $acls is treated as an ACL resource id to enable.
+ *
+ * @param int|null $aclResId Optional ACL resource id to enable exclusively.
+ * @param array $acls Associative array whose keys are ACL resource ids to enable; non-integer keys are ignored.
  */
 function enableLCAInDB($aclResId = null, $acls = [])
 {
@@ -62,23 +80,46 @@ function enableLCAInDB($aclResId = null, $acls = [])
         $acls = [$aclResId => '1'];
     }
 
-    foreach ($acls as $key => $value) {
-        $query = "UPDATE `acl_groups` SET `acl_group_changed` = '1' "
-            . "WHERE acl_group_id IN (SELECT acl_group_id FROM acl_res_group_relations WHERE acl_res_id = '{$key}')";
-        $pearDB->query($query);
-        $query = "UPDATE `acl_resources` SET acl_res_activate = '1', `changed` = '1' "
-            . "WHERE `acl_res_id` = '" . $key . "'";
-        $pearDB->query($query);
-        $query = "SELECT acl_res_name FROM `acl_resources` WHERE acl_res_id = '" . (int) $key . "' LIMIT 1";
-        $dbResult = $pearDB->query($query);
-        $row = $dbResult->fetch();
-        $centreon->CentreonLogAction->insertLog('resource access', $key, $row['acl_res_name'], 'enable');
+    $updateGroupStmt = $pearDB->prepare(
+        "UPDATE `acl_groups` SET `acl_group_changed` = '1' "
+        . 'WHERE acl_group_id IN (SELECT acl_group_id FROM acl_res_group_relations WHERE acl_res_id = :acl_res_id)'
+    );
+    $updateResourceStmt = $pearDB->prepare(
+        "UPDATE `acl_resources` SET acl_res_activate = '1', `changed` = '1' WHERE `acl_res_id` = :acl_res_id"
+    );
+    $selectStmt = $pearDB->prepare(
+        'SELECT acl_res_name FROM `acl_resources` WHERE acl_res_id = :acl_res_id LIMIT 1'
+    );
+
+    foreach (array_keys($acls) as $key) {
+        $validAclResId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($validAclResId === false) {
+            continue;
+        }
+
+        $updateGroupStmt->bindValue(':acl_res_id', $validAclResId, PDO::PARAM_INT);
+        $updateGroupStmt->execute();
+        $updateResourceStmt->bindValue(':acl_res_id', $validAclResId, PDO::PARAM_INT);
+        $updateResourceStmt->execute();
+        $selectStmt->bindValue(':acl_res_id', $validAclResId, PDO::PARAM_INT);
+        $selectStmt->execute();
+        $row = $selectStmt->fetch();
+        $centreon->CentreonLogAction->insertLog(
+            'resource access',
+            $key,
+            $row !== false ? $row['acl_res_name'] : "id:{$key}",
+            'enable'
+        );
     }
 }
 
 /**
- * @param null $aclResId
- * @param array $acls
+ * Deactivates one or more ACL resources in the database, marks related groups as changed, and logs each disable action.
+ *
+ * If `$aclResId` is provided it will be used instead of `$acls`.
+ *
+ * @param int|null $aclResId Optional ACL resource id to disable; takes precedence over `$acls`.
+ * @param array $acls Array of ACL resource ids to disable (keys are treated as ids).
  */
 function disableLCAInDB($aclResId = null, $acls = [])
 {
@@ -92,95 +133,176 @@ function disableLCAInDB($aclResId = null, $acls = [])
         $acls = [$aclResId => '1'];
     }
 
-    foreach ($acls as $key => $value) {
-        $query = "UPDATE `acl_groups` SET `acl_group_changed` = '1' "
-            . "WHERE acl_group_id IN (SELECT acl_group_id FROM acl_res_group_relations WHERE acl_res_id = '{$key}')";
-        $pearDB->query($query);
-        $query = "UPDATE `acl_resources` SET acl_res_activate = '0', `changed` = '1' "
-            . "WHERE `acl_res_id` = '" . $key . "'";
-        $pearDB->query($query);
-        $query = "SELECT acl_res_name FROM `acl_resources` WHERE acl_res_id = '" . (int) $key . "' LIMIT 1";
-        $dbResult = $pearDB->query($query);
-        $row = $dbResult->fetch();
-        $centreon->CentreonLogAction->insertLog('resource access', $key, $row['acl_res_name'], 'disable');
+    $updateGroupStmt = $pearDB->prepare(
+        "UPDATE `acl_groups` SET `acl_group_changed` = '1' "
+        . 'WHERE acl_group_id IN (SELECT acl_group_id FROM acl_res_group_relations WHERE acl_res_id = :acl_res_id)'
+    );
+    $updateResourceStmt = $pearDB->prepare(
+        "UPDATE `acl_resources` SET acl_res_activate = '0', `changed` = '1' WHERE `acl_res_id` = :acl_res_id"
+    );
+    $selectStmt = $pearDB->prepare(
+        'SELECT acl_res_name FROM `acl_resources` WHERE acl_res_id = :acl_res_id LIMIT 1'
+    );
+
+    foreach (array_keys($acls) as $key) {
+        $validAclResId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($validAclResId === false) {
+            continue;
+        }
+
+        $updateGroupStmt->bindValue(':acl_res_id', $validAclResId, PDO::PARAM_INT);
+        $updateGroupStmt->execute();
+        $updateResourceStmt->bindValue(':acl_res_id', $validAclResId, PDO::PARAM_INT);
+        $updateResourceStmt->execute();
+        $selectStmt->bindValue(':acl_res_id', $validAclResId, PDO::PARAM_INT);
+        $selectStmt->execute();
+        $row = $selectStmt->fetch();
+        $centreon->CentreonLogAction->insertLog(
+            'resource access',
+            $key,
+            $row !== false ? $row['acl_res_name'] : "id:{$key}",
+            'disable'
+        );
     }
 }
 
 /**
- * Delete ACL entry in DB
- * @param $acls
+ * Delete ACL resources from the database, mark affected groups as changed, and log each deletion.
+ *
+ * For each entry in $acls the function treats the array key as an ACL resource ID; non-integer keys are skipped.
+ * The function updates `acl_group_changed` for groups related to the resource, deletes the resource row, and
+ * creates a log entry containing the resource name when available (falls back to "id:{id}").
+ *
+ * @param array $acls Array whose keys are ACL resource IDs to delete (values are ignored).
  */
 function deleteLCAInDB($acls = [])
 {
     global $pearDB, $centreon;
 
-    foreach ($acls as $key => $value) {
-        $query = "SELECT acl_res_name FROM `acl_resources` WHERE acl_res_id = '" . (int) $key . "' LIMIT 1";
-        $dbResult = $pearDB->query($query);
-        $row = $dbResult->fetch();
-        $query = "UPDATE `acl_groups` SET `acl_group_changed` = '1' "
-            . "WHERE acl_group_id IN (SELECT acl_group_id FROM acl_res_group_relations WHERE acl_res_id = '{$key}')";
-        $pearDB->query($query);
+    $selectStmt = $pearDB->prepare(
+        'SELECT acl_res_name FROM `acl_resources` WHERE acl_res_id = :acl_res_id LIMIT 1'
+    );
+    $updateGroupStmt = $pearDB->prepare(
+        "UPDATE `acl_groups` SET `acl_group_changed` = '1' "
+        . 'WHERE acl_group_id IN (SELECT acl_group_id FROM acl_res_group_relations WHERE acl_res_id = :acl_res_id)'
+    );
+    $deleteStmt = $pearDB->prepare('DELETE FROM `acl_resources` WHERE acl_res_id = :acl_res_id');
 
-        $pearDB->query("DELETE FROM `acl_resources` WHERE acl_res_id = '" . $key . "'");
-        $centreon->CentreonLogAction->insertLog('resource access', $key, $row['acl_res_name'], 'd');
+    foreach (array_keys($acls) as $key) {
+        $aclResId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($aclResId === false) {
+            continue;
+        }
+
+        $selectStmt->bindValue(':acl_res_id', $aclResId, PDO::PARAM_INT);
+        $selectStmt->execute();
+        $row = $selectStmt->fetch();
+        $updateGroupStmt->bindValue(':acl_res_id', $aclResId, PDO::PARAM_INT);
+        $updateGroupStmt->execute();
+        $deleteStmt->bindValue(':acl_res_id', $aclResId, PDO::PARAM_INT);
+        $deleteStmt->execute();
+        $centreon->CentreonLogAction->insertLog(
+            'resource access',
+            $key,
+            $row !== false ? $row['acl_res_name'] : "id:{$key}",
+            'd'
+        );
     }
 }
 
 /**
- * Duplicate Resources ACL
- * @param $lcas
- * @param $nbrDup
+ * Create duplicate ACL resource records and replicate their related relations.
+ *
+ * For each integer ACL resource ID provided as a key in `$lcas`, attempts to create the requested
+ * number of duplicates using sequential name suffixes (e.g., original_1, original_2). Each created
+ * duplicate is inserted inside a transaction and its related relations (group/contact/poller/etc.)
+ * are duplicated. Successful creations are logged; if the suffix search is exhausted before
+ * reaching the requested count, a warning is emitted to the error log.
+ *
+ * @param array $lcas An array whose keys are source `acl_res_id` values (values are ignored).
+ * @param array $nbrDup An array mapping the same keys to the desired number of duplicates (non-negative integer).
+ * @throws Throwable If a database error or other throwable occurs during duplication (transactions are rolled back).
  */
 function multipleLCAInDB($lcas = [], $nbrDup = [])
 {
     global $pearDB, $centreon;
 
-    foreach ($lcas as $key => $value) {
-        $dbResult = $pearDB->query("SELECT * FROM `acl_resources` WHERE acl_res_id = '" . $key . "' LIMIT 1");
-        $row = $dbResult->fetch();
-        $row['acl_res_id'] = '';
+    $selectStmt = $pearDB->prepare(
+        'SELECT * FROM `acl_resources` WHERE acl_res_id = :acl_res_id LIMIT 1'
+    );
 
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $values = [];
+    foreach (array_keys($lcas) as $key) {
+        $aclResId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($aclResId === false) {
+            continue;
+        }
 
-            foreach ($row as $key2 => $value2) {
-                $value2 = is_int($value2) ? (string) $value2 : $value2;
-                if ($key2 == 'acl_res_name') {
-                    $acl_name = $value2 . '_' . $i;
-                    $value2 = $value2 . '_' . $i;
-                }
-                $values[] = $value2 != null
-                    ? "'" . $value2 . "'"
-                    : 'NULL';
-                if ($key2 != 'acl_res_id') {
-                    $fields[$key2] = $value2;
-                }
-                if (isset($acl_res_name)) {
-                    $fields['acl_res_name'] = $acl_res_name;
-                }
+        $selectStmt->bindValue(':acl_res_id', $aclResId, PDO::PARAM_INT);
+        $selectStmt->execute();
+        $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            continue;
+        }
+        unset($row['acl_res_id']);
+        $columns = array_keys($row);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO acl_resources (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
+
+        $originalName = $row['acl_res_name'];
+        $dupCount = filter_var($nbrDup[$key] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
+        if ($dupCount === false) {
+            continue;
+        }
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
+            $acl_name = $originalName . '_' . $suffix;
+
+            if (! testExistence($acl_name, false)) {
+                continue;
             }
+            $i++;
 
-            if (testExistence($acl_name)) {
-                if ($values !== []) {
-                    $pearDB->query('INSERT INTO acl_resources VALUES (' . implode(',', $values) . ')');
+            $pearDB->beginTransaction();
+            try {
+                $row['acl_res_name'] = $acl_name;
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                }
+                $insertStmt->execute();
+
+                $newId = (int) $pearDB->lastInsertId();
+                if ($newId <= 0) {
+                    $pearDB->rollBack();
+
+                    continue;
                 }
 
-                $dbResult = $pearDB->query('SELECT MAX(acl_res_id) FROM acl_resources');
-                $maxId = $dbResult->fetch();
-                $dbResult->closeCursor();
+                duplicateGroups($key, $newId, $pearDB);
 
-                if (isset($maxId['MAX(acl_res_id)'])) {
-                    duplicateGroups($key, $maxId['MAX(acl_res_id)'], $pearDB);
-                    $centreon->CentreonLogAction->insertLog(
-                        'resource access',
-                        $maxId['MAX(acl_res_id)'],
-                        $acl_name,
-                        'a',
-                        $fields
-                    );
+                $fields = $row;
+                $fields['acl_res_name'] = $acl_name;
+                $pearDB->commit();
+
+                $centreon->CentreonLogAction->insertLog(
+                    'resource access',
+                    $newId,
+                    $acl_name,
+                    'a',
+                    $fields
+                );
+            } catch (Throwable $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
                 }
+
+                throw $e;
             }
+        }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for resource ACL '{$originalName}' ({$key}): suffix search exhausted");
         }
     }
 }
@@ -263,15 +385,24 @@ function duplicateGroups($idTD, $acl_id, $pearDB)
 }
 
 /**
- * @param $idTD
- * @param $acl_id
- * @param $pearDB
+ * Duplicate all ACL resource-to-group relations from one contact group to another.
+ *
+ * Copies every acl_res_group_relations row that references the source group id ($idTD)
+ * and inserts equivalent rows that reference the destination group id ($acl_id).
+ *
+ * @param int $idTD Source contact group id whose relations will be copied.
+ * @param int $acl_id Destination contact group id to receive the duplicated relations.
+ * @param PDO|object $pearDB PDO-compatible database connection used to prepare and execute the statement.
  */
 function duplicateContactGroups($idTD, $acl_id, $pearDB)
 {
-    $query = 'INSERT INTO acl_res_group_relations (acl_res_id, acl_group_id) '
-        . "SELECT acl_res_id, '{$acl_id}' AS acl_group_id FROM acl_res_group_relations WHERE acl_group_id = '{$idTD}'";
-    $pearDB->query($query);
+    $statement = $pearDB->prepare(
+        'INSERT INTO acl_res_group_relations (acl_res_id, acl_group_id) '
+        . 'SELECT acl_res_id, :acl_id AS acl_group_id FROM acl_res_group_relations WHERE acl_group_id = :idTD'
+    );
+    $statement->bindValue(':acl_id', (int) $acl_id, PDO::PARAM_INT);
+    $statement->bindValue(':idTD', (int) $idTD, PDO::PARAM_INT);
+    $statement->execute();
 }
 
 /**

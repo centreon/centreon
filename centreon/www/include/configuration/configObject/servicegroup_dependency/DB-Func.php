@@ -23,28 +23,49 @@ if (! isset($oreon)) {
     exit();
 }
 
-function testServiceGroupDependencyExistence($name = null)
+/**
+ * Check whether a dependency name is available (no existing dependency uses that name).
+ *
+ * @param string|null $name The dependency name to check.
+ * @param bool $excludeCurrentFormId If true, exclude the dependency id from the current form submission (if present) when checking for duplicates.
+ * @param bool $purge If true, purge obsolete dependencies before performing the existence check.
+ * @return bool `true` if no existing dependency uses the given name, `false` otherwise.
+ */
+function testServiceGroupDependencyExistence($name = null, bool $excludeCurrentFormId = true, bool $purge = true)
 {
     global $pearDB;
     global $form;
 
-    CentreonDependency::purgeObsoleteDependencies($pearDB);
+    $name = HtmlAnalyzer::sanitizeAndRemoveTags($name ?? '');
+    if ($purge) {
+        CentreonDependency::purgeObsoleteDependencies($pearDB);
+    }
 
     $id = null;
-    if (isset($form)) {
+    if ($excludeCurrentFormId && isset($form)) {
         $id = $form->getSubmitValue('dep_id');
     }
-    $statement = $pearDB->prepare('SELECT dep_name, dep_id FROM dependency WHERE dep_name = :name');
-    $statement->bindValue(':name', $name, PDO::PARAM_STR);
-    $statement->execute();
-    $dep = $statement->fetch();
-    if ($dep === false) {
-        return true;
+    $query = 'SELECT 1 FROM dependency WHERE dep_name = :name';
+    if ($id !== null) {
+        $query .= ' AND dep_id <> :depId';
     }
+    $statement = $pearDB->prepare($query . ' LIMIT 1');
+    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    if ($id !== null) {
+        $statement->bindValue(':depId', (int) $id, PDO::PARAM_INT);
+    }
+    $statement->execute();
 
-    return $dep['dep_id'] == $id;
+    return $statement->fetchColumn() === false;
 }
 
+/**
+ * Checks whether submitted parent and child service-group selections form a direct cycle.
+ *
+ * Examines the form's dep_sgParents and dep_sgChilds values and returns false if any parent is also listed as a child.
+ *
+ * @return bool `true` if no parent appears among the configured children, `false` otherwise.
+ */
 function testServiceGroupDependencyCycle($childs = null)
 {
     global $pearDB;
@@ -65,39 +86,63 @@ function testServiceGroupDependencyCycle($childs = null)
     return true;
 }
 
+/**
+ * Delete specified service group dependencies from the database and log each deletion.
+ *
+ * Accepts an array whose keys are dependency ids to remove; non-integer keys are ignored.
+ * For each valid id, removes the dependency row and records a log entry using the dependency name
+ * when available or "id:KEY" when the row cannot be found.
+ *
+ * @param array $dependencies Array whose keys are dependency ids to delete.
+ */
 function deleteServiceGroupDependencyInDB($dependencies = [])
 {
     global $pearDB, $oreon;
     $selectStatement = $pearDB->prepare('SELECT dep_name FROM `dependency` WHERE `dep_id` = :dep_id LIMIT 1');
     $deleteStatement = $pearDB->prepare('DELETE FROM dependency WHERE dep_id = :dep_id');
     foreach (array_keys($dependencies) as $key) {
-        $selectStatement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-        $selectStatement->execute();
-        $row = $selectStatement->fetch();
-        if ($row === false) {
+        $depId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($depId === false) {
             continue;
         }
 
-        $deleteStatement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $selectStatement->bindValue(':dep_id', $depId, PDO::PARAM_INT);
+        $selectStatement->execute();
+        $row = $selectStatement->fetch();
+
+        $deleteStatement->bindValue(':dep_id', $depId, PDO::PARAM_INT);
         $deleteStatement->execute();
-        $oreon->CentreonLogAction->insertLog('servicegroup dependency', $key, $row['dep_name'], 'd');
+        $oreon->CentreonLogAction->insertLog(
+            'servicegroup dependency',
+            $key,
+            $row !== false ? $row['dep_name'] : "id:{$key}",
+            'd'
+        );
     }
 }
 
+/**
+ * Duplicate multiple service group dependencies and replicate their parent/child relations.
+ *
+ * For each dependency identifier present in $dependencies, this function attempts to create
+ * the requested number of duplicates (as specified in $nbrDup). Each duplicate receives a
+ * unique suffixed name, the original dependency's column values are copied, and associated
+ * parent and child service-group relations are recreated for the new dependency. Creation
+ * actions are logged; a warning is emitted to error_log if the requested number of duplicates
+ * could not be produced.
+ *
+ * @param array $dependencies Map-like array whose keys are dependency identifiers (dep_id) to process.
+ * @param array $nbrDup       Associative array mapping dependency keys (same keys as $dependencies)
+ *                            to the desired number of duplicates (integer, 0..100).
+ *
+ * @throws RuntimeException If a duplicated row is inserted but the new dependency id cannot be retrieved.
+ * @throws Throwable        If a database operation fails during duplication (transactions are rolled back).
+ */
 function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
 {
     global $pearDB, $oreon;
     $selectStmt = $pearDB->prepare(
-        'SELECT dep_name, dep_description, inherits_parent, execution_failure_criteria,
-                notification_failure_criteria, dep_comment
-        FROM dependency WHERE dep_id = :dep_id LIMIT 1'
-    );
-    $insertStmt = $pearDB->prepare(
-        'INSERT INTO dependency
-        (dep_name, dep_description, inherits_parent, execution_failure_criteria,
-         notification_failure_criteria, dep_comment)
-        VALUES (:dep_name, :dep_description, :inherits_parent, :execution_failure_criteria,
-         :notification_failure_criteria, :dep_comment)'
+        'SELECT * FROM dependency WHERE dep_id = :dep_id LIMIT 1'
     );
     $selectParentStmt = $pearDB->prepare(
         'SELECT DISTINCT servicegroup_sg_id FROM dependency_servicegroupParent_relation '
@@ -116,60 +161,100 @@ function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
         . 'VALUES (:depId, :servicegroupId)'
     );
 
+    CentreonDependency::purgeObsoleteDependencies($pearDB);
+
     foreach (array_keys($dependencies) as $key) {
-        $selectStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $depId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($depId === false) {
+            continue;
+        }
+
+        $selectStmt->bindValue(':dep_id', $depId, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
             continue;
         }
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $dep_name = $row['dep_name'] . '_' . $i;
+        unset($row['dep_id']);
+        $columns = array_keys($row);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO dependency (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
+        // Fetch relationships once before duplication loop
+        $selectParentStmt->bindValue(':dep_id', $depId, PDO::PARAM_INT);
+        $selectParentStmt->execute();
+        $parents = $selectParentStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $selectChildStmt->bindValue(':dep_id', $depId, PDO::PARAM_INT);
+        $selectChildStmt->execute();
+        $children = $selectChildStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $dupCount = filter_var($nbrDup[$key] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
+        if ($dupCount === false) {
+            continue;
+        }
+        $originalName = $row['dep_name'];
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
+            $dep_name = $originalName . '_' . $suffix;
+            if (! testServiceGroupDependencyExistence($dep_name, false, false)) {
+                continue;
+            }
+            $i++;
             $fields = [];
             foreach ($row as $key2 => $value2) {
                 $fields[$key2] = $key2 == 'dep_name' ? $dep_name : $value2;
             }
-            if (testServiceGroupDependencyExistence($dep_name)) {
-                $insertStmt->bindValue(':dep_name', $dep_name, PDO::PARAM_STR);
-                $insertStmt->bindValue(':dep_description', $row['dep_description'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':inherits_parent', $row['inherits_parent'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':execution_failure_criteria', $row['execution_failure_criteria'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':notification_failure_criteria', $row['notification_failure_criteria'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':dep_comment', $row['dep_comment'], PDO::PARAM_STR);
+            $row['dep_name'] = $dep_name;
+
+            $pearDB->beginTransaction();
+            try {
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                }
                 $insertStmt->execute();
                 $lastId = (int) $pearDB->lastInsertId();
-                if ($lastId > 0) {
-                    $selectParentStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-                    $selectParentStmt->execute();
-                    $fields['dep_sgParents'] = '';
-                    while ($sg = $selectParentStmt->fetch()) {
-                        $insertParentStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
-                        $insertParentStmt->bindValue(':servicegroupId', (int) $sg['servicegroup_sg_id'], PDO::PARAM_INT);
-                        $insertParentStmt->execute();
-                        $fields['dep_sgParents'] .= $sg['servicegroup_sg_id'] . ',';
-                    }
-                    $fields['dep_sgParents'] = trim($fields['dep_sgParents'], ',');
-                    $selectParentStmt->closeCursor();
-                    $selectChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-                    $selectChildStmt->execute();
-                    $fields['dep_sgChilds'] = '';
-                    while ($sg = $selectChildStmt->fetch()) {
-                        $insertChildStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
-                        $insertChildStmt->bindValue(':servicegroupId', (int) $sg['servicegroup_sg_id'], PDO::PARAM_INT);
-                        $insertChildStmt->execute();
-                        $fields['dep_sgChilds'] .= $sg['servicegroup_sg_id'] . ',';
-                    }
-                    $selectChildStmt->closeCursor();
-                    $fields['dep_sgChilds'] = trim($fields['dep_sgChilds'], ',');
-                    $oreon->CentreonLogAction->insertLog(
-                        'servicegroup dependency',
-                        $lastId,
-                        $dep_name,
-                        'a',
-                        $fields
-                    );
+                if ($lastId <= 0) {
+                    throw new RuntimeException('Failed to retrieve duplicated dependency id');
                 }
+                $fields['dep_sgParents'] = '';
+                foreach ($parents as $sg) {
+                    $insertParentStmt->bindValue(':depId', $lastId, PDO::PARAM_INT);
+                    $insertParentStmt->bindValue(':servicegroupId', (int) $sg['servicegroup_sg_id'], PDO::PARAM_INT);
+                    $insertParentStmt->execute();
+                    $fields['dep_sgParents'] .= $sg['servicegroup_sg_id'] . ',';
+                }
+                $fields['dep_sgParents'] = trim($fields['dep_sgParents'], ',');
+
+                $fields['dep_sgChilds'] = '';
+                foreach ($children as $sg) {
+                    $insertChildStmt->bindValue(':depId', $lastId, PDO::PARAM_INT);
+                    $insertChildStmt->bindValue(':servicegroupId', (int) $sg['servicegroup_sg_id'], PDO::PARAM_INT);
+                    $insertChildStmt->execute();
+                    $fields['dep_sgChilds'] .= $sg['servicegroup_sg_id'] . ',';
+                }
+                $fields['dep_sgChilds'] = trim($fields['dep_sgChilds'], ',');
+
+                $pearDB->commit();
+            } catch (Throwable $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
+
+                throw $e;
             }
+            $oreon->CentreonLogAction->insertLog(
+                'servicegroup dependency',
+                $lastId,
+                $dep_name,
+                'a',
+                $fields
+            );
+        }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for service group dependency '{$originalName}' ({$key}): suffix search exhausted");
         }
     }
 }
@@ -194,10 +279,11 @@ function insertServiceGroupDependencyInDB($ret = [])
 }
 
 /**
- * Create a service group dependency
+ * Insert a new service group dependency and record its creation in the changelog.
  *
- * @param array<string, mixed> $ret
- * @return int
+ * @param array<string, mixed> $ret Optional associative array of dependency fields; when empty, values are taken from the current form submission.
+ * @return int The newly inserted dependency id.
+ * @throws RuntimeException If the inserted dependency id cannot be retrieved.
  */
 function insertServiceGroupDependency($ret = []): int
 {
@@ -223,6 +309,9 @@ function insertServiceGroupDependency($ret = []): int
     $statement->execute();
 
     $depId = (int) $pearDB->lastInsertId();
+    if ($depId <= 0) {
+        throw new RuntimeException('Failed to retrieve inserted servicegroup dependency id');
+    }
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($resourceValues);

@@ -23,40 +23,58 @@ if (! isset($centreon)) {
     exit();
 }
 
-function testExistence($name = null)
+/**
+ * Check whether a graph template name is available (no existing template matches).
+ *
+ * When $name is null, the check targets rows where `name IS NULL`. If
+ * $excludeCurrentFormId is true and a global $form is available, the current
+ * form's `graph_id` is excluded from the search.
+ *
+ * @param string|null $name Name to check for availability, or null to check for NULL names.
+ * @param bool $excludeCurrentFormId Whether to exclude the current form's graph_id from the check.
+ * @return bool `true` if no matching row exists (name is available), `false` otherwise.
+ */
+function testExistence($name = null, bool $excludeCurrentFormId = true)
 {
     global $pearDB, $form;
 
     $id = null;
-    if (isset($form)) {
+    if ($excludeCurrentFormId && isset($form)) {
         $id = $form->getSubmitValue('graph_id');
     }
-    $query = "SELECT graph_id, name FROM giv_graphs_template WHERE name = '"
-        . htmlentities($name, ENT_QUOTES, 'UTF-8') . "'";
-    $res = $pearDB->query($query);
-    $graph = $res->fetch();
-    // Modif case
-    if ($res->rowCount() >= 1 && $graph['graph_id'] == $id) {
-        return true;
+    $normalizedName = $name !== null ? htmlentities($name, ENT_QUOTES, 'UTF-8') : null;
+    $conditions = $normalizedName === null ? 'name IS NULL' : 'name = :name';
+    if ($id !== null) {
+        $conditions .= ' AND graph_id <> :graphId';
     }
 
-    return ! ($res->rowCount() >= 1 && $graph['graph_id'] != $id);
-    // duplicate entry
+    $statement = $pearDB->prepare(
+        'SELECT 1 FROM giv_graphs_template WHERE ' . $conditions . ' LIMIT 1'
+    );
+    if ($normalizedName !== null) {
+        $statement->bindValue(':name', $normalizedName, PDO::PARAM_STR);
+    }
+    if ($id !== null) {
+        $statement->bindValue(':graphId', (int) $id, PDO::PARAM_INT);
+    }
+    $statement->execute();
 
+    return $statement->fetchColumn() === false;
 }
 
 /**
- * Deletes from the DB the graph templates provided
+ * Delete graph templates identified by the array's keys from the database.
  *
- * @param int[] $graphs
- * @return void
+ * After deletion, ensures a default graph template exists by calling defaultOreonGraph().
+ *
+ * @param array<int, mixed> $graphs Array whose keys are `graph_id` values to delete; array values are ignored.
  */
 function deleteGraphTemplateInDB($graphs = []): void
 {
     global $pearDB;
 
-    foreach ($graphs as $key => $value) {
-        $stmt = $pearDB->prepare('DELETE FROM giv_graphs_template WHERE graph_id = :graphTemplateId');
+    $stmt = $pearDB->prepare('DELETE FROM giv_graphs_template WHERE graph_id = :graphTemplateId');
+    foreach (array_keys($graphs) as $key) {
         $stmt->bindValue(':graphTemplateId', $key, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -64,64 +82,102 @@ function deleteGraphTemplateInDB($graphs = []): void
     defaultOreonGraph();
 }
 
-/*
- * Duplicates the selected graph templates in the DB
- * by adding _n to the duplicated graph template name
+/**
+ * Create copies of the specified graph templates in the database, appending a numeric suffix to each duplicated name.
  *
- * @param  int[] $graphs
- * @param  int[] $nbrDup
- * @return void
+ * For each provided graph ID this function attempts to create the requested number of duplicates (0–100). Each duplicate:
+ * - receives the original template's data with `graph_id` cleared,
+ * - has the default flag cleared,
+ * - is named by appending `_n` to the original name where `n` is a positive integer chosen to avoid name collisions.
+ *
+ * Invalid graph IDs or invalid duplication counts are skipped. If the function cannot create the requested number of duplicates for a template (due to name collisions), it logs a warning indicating how many copies were created.
+ *
+ * @param array<int,mixed> $graphs Associative array where keys are graph template IDs to duplicate.
+ * @param array<int,int> $nbrDup Associative array mapping graph template ID keys (same keys as in `$graphs`) to the desired number of duplicates (integer between 0 and 100).
  */
 function multipleGraphTemplateInDB($graphs = [], $nbrDup = []): void
 {
     global $pearDB;
-    if (! empty($graphs) && ! empty($nbrDup)) {
-        foreach ($graphs as $key => $value) {
-            $stmt = $pearDB->prepare('SELECT * FROM giv_graphs_template WHERE graph_id = :graphTemplateId LIMIT 1');
-            $stmt->bindValue(':graphTemplateId', $key, PDO::PARAM_INT);
-            $stmt->execute();
-            if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $row['graph_id'] = '';
-                $row['default_tpl1'] = '0';
-                for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-                    $val = null;
-                    foreach ($row as $key2 => $value2) {
-                        $value2 = is_int($value2) ? (string) $value2 : $value2;
-                        if ($key2 == 'name') {
-                            $name = $value2 . '_' . $i;
-                            $value2 = $value2 . '_' . $i;
-                        }
-                        $val
-                            ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ', NULL')
-                            : $val .= ($value2 != null ? ("'" . $value2 . "'") : 'NULL');
-                    }
-                    if (testExistence($name)) {
-                        $rq = $val ? 'INSERT INTO giv_graphs_template VALUES (' . $val . ')' : null;
-                        $pearDB->query($rq);
-                    }
-                }
+
+    if (empty($graphs) || empty($nbrDup)) {
+        return;
+    }
+
+    $selectStmt = $pearDB->prepare(
+        'SELECT * FROM giv_graphs_template WHERE graph_id = :graphTemplateId LIMIT 1'
+    );
+
+    foreach (array_keys($graphs) as $key) {
+        $graphTemplateId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($graphTemplateId === false) {
+            continue;
+        }
+
+        $dupCount = filter_var($nbrDup[$key] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
+        if ($dupCount === false) {
+            continue;
+        }
+        $selectStmt->bindValue(':graphTemplateId', $graphTemplateId, PDO::PARAM_INT);
+        $selectStmt->execute();
+        $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            continue;
+        }
+
+        unset($row['graph_id']);
+        $row['default_tpl1'] = '0';
+        $columns = array_keys($row);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO giv_graphs_template (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
+
+        $originalName = html_entity_decode((string) $row['name'], ENT_QUOTES, 'UTF-8');
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
+            $decodedName = $originalName . '_' . $suffix;
+            $row['name'] = htmlentities($decodedName, ENT_QUOTES, 'UTF-8');
+            if (! testExistence($decodedName, false)) {
+                continue;
             }
+            $i++;
+            foreach ($columns as $col) {
+                $value = $row[$col];
+                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            }
+            $insertStmt->execute();
+        }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for graph template '{$originalName}' ({$key}): suffix search exhausted");
         }
     }
 }
 
+/**
+ * Ensure a default graph template exists in the database.
+ *
+ * If no template is currently marked as the default, marks the template with the smallest
+ * `graph_id` as the default by setting `default_tpl1` to '1'.
+ */
 function defaultOreonGraph()
 {
     global $pearDB;
-    $rq = "SELECT DISTINCT graph_id FROM giv_graphs_template WHERE default_tpl1 = '1'";
-    $res = $pearDB->query($rq);
-    if (! $res->rowCount()) {
-        $rq = "UPDATE giv_graphs_template SET default_tpl1 = '1' "
-            . 'WHERE graph_id = (SELECT MIN(graph_id) FROM giv_graphs_template)';
-        $pearDB->query($rq);
+    $res = $pearDB->query("SELECT DISTINCT graph_id FROM giv_graphs_template WHERE default_tpl1 = '1' LIMIT 1");
+    if ($res->fetch() === false) {
+        $pearDB->query(
+            "UPDATE giv_graphs_template SET default_tpl1 = '1'"
+            . ' WHERE graph_id = (SELECT MIN(graph_id) FROM giv_graphs_template)'
+        );
     }
 }
 
+/**
+ * Clears the default flag for all graph templates by setting `default_tpl1` to '0' in the database.
+ */
 function noDefaultOreonGraph()
 {
     global $pearDB;
-    $rq = "UPDATE giv_graphs_template SET default_tpl1 = '0'";
-    $pearDB->query($rq);
+    $pearDB->query("UPDATE giv_graphs_template SET default_tpl1 = '0'");
 }
 
 /**
@@ -140,6 +196,14 @@ function insertGraphTemplateInDB()
     return insertGraphTemplate();
 }
 
+/**
+ * Insert a new graph template using values submitted via the form.
+ *
+ * If the submitted data sets the template as default, existing defaults are cleared before insertion.
+ * After a successful insert, ensures a default template exists.
+ *
+ * @return int The new graph template's ID on success, or 0 on failure.
+ */
 function insertGraphTemplate(): int
 {
     global $form, $pearDB;
@@ -168,7 +232,10 @@ function insertGraphTemplate(): int
         $stmt->bindValue($key, $value, $type);
     }
     $stmt->execute();
-    $graphId = $pearDB->lastInsertId();
+    $graphId = (int) $pearDB->lastInsertId();
+    if ($graphId <= 0) {
+        return 0;
+    }
     defaultOreonGraph();
 
     return $graphId;
@@ -219,6 +286,8 @@ function updateGraphTemplate(?int $graph_id = null): void
 }
 
 /**
+ * Build an associative map of PDO bind parameters for a graph template record.
+ *
  * @param array{
  *     name: string,
  *     vertical_label: string,
@@ -232,9 +301,9 @@ function updateGraphTemplate(?int $graph_id = null): void
  *     stacked: int,
  *     scaled: int,
  *     comment: string
- * } $data
+ * } $data Input values (typically from a form) for graph template fields.
  *
- * @return array{string, array{int, mixed}
+ * @return array<string, array{int,mixed}> Associative array keyed by PDO parameter names (e.g. ':name'); each value is a two-element array [PDO::PARAM_* constant, bound value|null].
  */
 function getBindValues(array $data): array
 {
@@ -263,15 +332,17 @@ function getBindValues(array $data): array
         ':size_to_max' => isset($data['size_to_max']) && $data['size_to_max'] !== ''
             ? [PDO::PARAM_INT, $data['size_to_max']]
             : [PDO::PARAM_INT, 0],
-        ':default_tpl1' => isset($data['default_tpl1']) && $data['default_tpl1'] !== ''
-            ? [PDO::PARAM_STR, (int) $data['default_tpl1']]
-            : [PDO::PARAM_STR, 0],
-        ':stacked' => isset($data['stacked']) && $data['stacked'] !== ''
-            ? [PDO::PARAM_STR, (int) $data['stacked']]
+        // default_tpl1, stacked, scaled are enum('0','1') columns.
+        // PARAM_STR stringifies for the enum.
+        ':default_tpl1' => isset($data['default_tpl1']) && in_array($data['default_tpl1'], ['0', '1'], true)
+            ? [PDO::PARAM_STR, $data['default_tpl1']]
+            : [PDO::PARAM_STR, '0'],
+        ':stacked' => isset($data['stacked']) && in_array($data['stacked'], ['0', '1'], true)
+            ? [PDO::PARAM_STR, $data['stacked']]
             : [PDO::PARAM_NULL, null],
-        ':scaled' => isset($data['scaled']) && $data['scaled'] !== ''
-            ? [PDO::PARAM_STR, (int) $data['scaled']]
-            : [PDO::PARAM_STR, 0],
+        ':scaled' => isset($data['scaled']) && in_array($data['scaled'], ['0', '1'], true)
+            ? [PDO::PARAM_STR, $data['scaled']]
+            : [PDO::PARAM_STR, '0'],
         ':comment' => isset($data['comment']) && $data['comment'] !== ''
             ? [PDO::PARAM_STR, htmlentities($data['comment'], ENT_QUOTES, 'UTF-8')]
             : [PDO::PARAM_NULL, null],

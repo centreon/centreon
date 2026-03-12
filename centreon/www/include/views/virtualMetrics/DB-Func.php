@@ -39,14 +39,13 @@ function _TestRPNInfinityLoop()
 }
 
 /**
- * Indicates if a virtual metric name has already been used
+ * Determine whether a virtual metric name is unused within the given index.
  *
- * @global CentreonDB $pearDB
- * @global CentreonDB $pearDBO
- * @global HTML_QuickFormCustom $form
- * @param string $vmetricName
- * @param int $indexId
- * @return bool Return false if the virtual metric name has already been used
+ * If `$vmetricName` or `$indexId` are `null`, submitted form values are used when available.
+ *
+ * @param string|null $vmetricName The virtual metric name to check, or `null` to use the submitted value.
+ * @param int|null $indexId The index_id scope to check, or `null` to use the submitted value.
+ * @return bool `true` if the name is not used by another virtual or physical metric in the index (ignoring the current virtual metric when editing), `false` otherwise.
  */
 function hasVirtualNameNeverUsed($vmetricName = null, $indexId = null)
 {
@@ -70,14 +69,8 @@ function hasVirtualNameNeverUsed($vmetricName = null, $indexId = null)
     $prepareVirtualM->bindValue(':metric_name', $vmetricName, PDO::PARAM_STR);
     $prepareVirtualM->bindValue(':index_id', $indexId, PDO::PARAM_INT);
 
-    try {
-        $prepareVirtualM->execute();
-    } catch (PDOException $e) {
-        echo 'DB Error : ' . $e->getMessage();
-    }
-
+    $prepareVirtualM->execute();
     $vmetric = $prepareVirtualM->fetch();
-    $numberOfVirtualMetric = $prepareVirtualM->rowCount();
     $prepareVirtualM->closeCursor();
 
     $prepareMetric = $pearDBO->prepare(
@@ -88,104 +81,123 @@ function hasVirtualNameNeverUsed($vmetricName = null, $indexId = null)
     $prepareMetric->bindValue(':metric_name', $vmetricName, PDO::PARAM_STR);
     $prepareMetric->bindValue(':index_id', $indexId, PDO::PARAM_INT);
 
-    try {
-        $prepareMetric->execute();
-    } catch (PDOException $e) {
-        echo 'DB Error : ' . $e->getMessage();
-    }
-
+    $prepareMetric->execute();
     $metric = $prepareMetric->fetch();
-    $numberOfVirtualMetric += $prepareMetric->rowCount();
     $prepareMetric->closeCursor();
 
+    $currentVmetricId = $gsvs['vmetric_id'] ?? null;
+
     return ! (
-        ($numberOfVirtualMetric >= 1
-        && $vmetric['vmetric_id'] != $gsvs['vmetric_id'])
-        || isset($metric['metric_id'])
+        ($vmetric !== false
+        && $vmetric['vmetric_id'] != $currentVmetricId)
+        || ($metric !== false && isset($metric['metric_id']))
     );
 
 }
 
 /**
- * Delete a list of virtual metric
+ * Delete virtual metrics whose IDs are provided as the array's keys.
+ *
+ * Invalid or non-integer keys are ignored; each valid ID is deleted from the virtual_metrics table.
  *
  * @global CentreonDB $pearDB
- * @param int[] $vmetrics List of virtual metric id to delete
+ * @param array<int, mixed> $vmetrics virtual metric IDs provided as the array's keys
  */
 function deleteVirtualMetricInDB($vmetrics = [])
 {
     global $pearDB;
+    $prepareStatement = $pearDB->prepare(
+        'DELETE FROM virtual_metrics WHERE vmetric_id = :vmetric_id'
+    );
     foreach (array_keys($vmetrics) as $vmetricId) {
-        try {
-            $prepareStatement = $pearDB->prepare(
-                'DELETE FROM virtual_metrics WHERE vmetric_id = :vmetric_id'
-            );
-            $prepareStatement->bindValue(':vmetric_id', $vmetricId, PDO::PARAM_INT);
-            $prepareStatement->execute();
-        } catch (PDOException $e) {
-            echo 'DB Error : ' . $e->getMessage();
+        $validVmetricId = filter_var($vmetricId, FILTER_VALIDATE_INT);
+        if ($validVmetricId === false) {
+            continue;
         }
+
+        $prepareStatement->bindValue(':vmetric_id', $validVmetricId, PDO::PARAM_INT);
+        $prepareStatement->execute();
     }
 }
 
 /**
- * Duplicates a list of virtual metric
+ * Create duplicates of specified virtual metrics by appending incremental numeric suffixes.
+ *
+ * For each provided virtual metric ID (keys of $vmetrics), attempts to insert the requested
+ * number of copies from $nbrDup using names suffixed with "_{n}", skipping invalid IDs
+ * and names that already exist for the same index. Operates inside a transaction and will
+ * roll back on error; partial creation attempts are logged when the suffix search is exhausted.
  *
  * @global CentreonDB $pearDB
- * @param int[] $vmetrics List of virtual metric id to duplicate
- * @param int[] $nbrDup Number of copy
+ * @param array<int, mixed> $vmetrics virtual metric IDs provided as array keys
+ * @param array<int, int> $nbrDup mapping of virtual metric ID to number of copies to create (0–100)
  */
 function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
 {
     global $pearDB;
-    foreach (array_keys($vmetrics) as $vmetricId) {
-        $prepareStatement = $pearDB->prepare(
-            'SELECT * FROM virtual_metrics WHERE vmetric_id = :vmetric_id LIMIT 1'
-        );
-        $prepareStatement->bindValue(':vmetric_id', $vmetricId, PDO::PARAM_INT);
 
-        try {
-            $prepareStatement->execute();
-        } catch (PDOException $e) {
-            echo 'DB Error : ' . $e->getMessage();
+    if (empty($vmetrics) || empty($nbrDup)) {
+        return;
+    }
+
+    $selectStmt = $pearDB->prepare(
+        'SELECT * FROM virtual_metrics WHERE vmetric_id = :vmetric_id LIMIT 1'
+    );
+
+    $pearDB->beginTransaction();
+    try {
+        foreach (array_keys($vmetrics) as $vmetricId) {
+            $validVmetricId = filter_var($vmetricId, FILTER_VALIDATE_INT);
+            if ($validVmetricId === false) {
+                continue;
+            }
+
+            $selectStmt->bindValue(':vmetric_id', $validVmetricId, PDO::PARAM_INT);
+            $selectStmt->execute();
+            $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
+            if ($row === false) {
+                continue;
+            }
+
+            unset($row['vmetric_id']);
+            $columns = array_keys($row);
+            $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+            $insertStmt = $pearDB->prepare(
+                'INSERT INTO virtual_metrics (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+            );
+
+            $indexId = (int) $row['index_id'];
+            $originalName = $row['vmetric_name'];
+            $copies = filter_var($nbrDup[$vmetricId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
+            if (! $copies) {
+                continue;
+            }
+            $suffix = 1;
+            for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
+                $virtualMetricName = $originalName . '_' . $suffix;
+                if (! hasVirtualNameNeverUsed($virtualMetricName, $indexId)) {
+                    continue;
+                }
+                $i++;
+                $row['vmetric_name'] = $virtualMetricName;
+
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                }
+                $insertStmt->execute();
+            }
+            if ($i < $copies) {
+                error_log("Could only create {$i}/{$copies} duplicates for virtual metric '{$originalName}' ({$vmetricId}): suffix search exhausted");
+            }
+        }
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
         }
 
-        $vmConfiguration = $prepareStatement->fetch();
-        $vmConfiguration['vmetric_id'] = '';
-
-        for ($newIndex = 1; $newIndex <= $nbrDup[$vmetricId]; $newIndex++) {
-            $val = null;
-            $virtualMetricName = null;
-            foreach ($vmConfiguration as $cfgName => $cfgValue) {
-                if ($cfgName == 'vmetric_name') {
-                    $indexId = (int) $vmConfiguration['index_id'];
-                    $count = 1;
-                    $virtualMetricName = $cfgValue . '_' . $count;
-                    while (! hasVirtualNameNeverUsed($virtualMetricName, $indexId)) {
-                        $count++;
-                        $virtualMetricName = $cfgValue . '_' . $count;
-                    }
-                    $cfgValue = $virtualMetricName;
-                }
-
-                if (is_null($val)) {
-                    $val .= ($cfgValue == null)
-                        ? 'NULL'
-                        : "'" . $pearDB->escape($cfgValue) . "'";
-                } else {
-                    $val .= ($cfgValue == null)
-                        ? ', NULL'
-                        : ", '" . $pearDB->escape($cfgValue) . "'";
-                }
-            }
-            if (! is_null($val)) {
-                try {
-                    $pearDB->query("INSERT INTO virtual_metrics VALUES ({$val})");
-                } catch (PDOException $e) {
-                    echo 'DB Error : ' . $e->getMessage();
-                }
-            }
-        }
+        throw $e;
     }
 }
 
@@ -203,12 +215,14 @@ function insertVirtualMetricInDB()
 }
 
 /**
- * Insert a virtual metric
+ * Insert a new virtual metric record into the database.
+ *
+ * Values are read from the submitted form and persisted to the `virtual_metrics` table.
  *
  * @global HTML_QuickFormCustom $form
  * @global CentreonDB $pearDB
  * @global CentreonDB $pearDBO
- * @return int New virtual metric id
+ * @return int The newly created virtual metric id.
  */
 function insertVirtualMetric()
 {
@@ -289,10 +303,7 @@ function insertVirtualMetric()
 
     $insertStatement->execute();
 
-    $dbResult = $pearDB->query('SELECT MAX(vmetric_id) FROM virtual_metrics');
-    $vmetricId = $dbResult->fetch();
-
-    return $vmetricId['MAX(vmetric_id)'];
+    return (int) $pearDB->lastInsertId();
 }
 
 /**
@@ -459,6 +470,17 @@ function disableVirtualMetricInDB($vmetric_id = null, $force = 0)
     return 1;
 }
 
+/**
+ * Collects virtual metric IDs that must be disabled because they depend on the given virtual metric.
+ *
+ * Scans for active dependent virtual metrics (unless $force is non-zero) whose `rpn_function` references
+ * the specified metric name, recurses into each dependency to build a complete list, and optionally
+ * includes the original metric ID.
+ *
+ * @param int|null $v_id The starting virtual metric ID to disable dependencies for.
+ * @param int $force If non-zero, include inactive metrics in the dependency search and do not add the original metric ID to the result.
+ * @return array<int> An array of virtual metric IDs that should be disabled (may be empty).
+ */
 function &disableVirtualMetric($v_id = null, $force = 0)
 {
     global $pearDB;
@@ -472,9 +494,9 @@ function &disableVirtualMetric($v_id = null, $force = 0)
     );
     $statement->bindValue(':vmetric_id', (int) $v_id, PDO::PARAM_INT);
     $statement->execute();
-    if ($statement->rowCount() == 1) {
-        $vmetric = $statement->fetch(PDO::FETCH_ASSOC);
-        $statement->closeCursor();
+    $vmetric = $statement->fetch(PDO::FETCH_ASSOC);
+    $statement->closeCursor();
+    if ($vmetric !== false) {
         $query = "SELECT vmetric_id FROM `virtual_metrics` WHERE `index_id`= :index_id AND `vmetric_activate` = '1' "
             . 'AND `rpn_function` REGEXP :rpn_function';
         $statement = $pearDB->prepare($query);
@@ -531,6 +553,14 @@ function enableVirtualMetricInDB($vmetric_id = null)
     return 1;
 }
 
+/**
+ * Determine which virtual metric IDs need to be enabled for a given metric (including its dependencies).
+ *
+ * @param int|null $v_id The vmetric_id to enable; if null, the function will look up by name and index.
+ * @param string|null $v_name Virtual metric name used when $v_id is null.
+ * @param int|null $index_id Index identifier used when $v_id is null.
+ * @return int[] Array of vmetric IDs that should be enabled, including dependent metrics. 
+ */
 function enableVirtualMetric($v_id, $v_name = null, $index_id = null)
 {
     global $pearDB;
@@ -551,8 +581,8 @@ function enableVirtualMetric($v_id, $v_name = null, $index_id = null)
         $statement->bindValue(':vmetric_id', (int) $v_id, PDO::PARAM_INT);
     }
     $statement->execute();
-    if ($statement->rowCount() == 1) {
-        $p_vmetric = $statement->fetch(PDO::FETCH_ASSOC);
+    $p_vmetric = $statement->fetch(PDO::FETCH_ASSOC);
+    if ($p_vmetric !== false) {
         $l_mlist = preg_split("/\,/", $p_vmetric['rpn_function']);
         foreach ($l_mlist as $l_mnane) {
             $lv_ena = enableVirtualMetric(null, $l_mnane, $p_vmetric['index_id']);
@@ -569,6 +599,13 @@ function enableVirtualMetric($v_id, $v_name = null, $index_id = null)
     return $v_ena;
 }
 
+/**
+ * Check RRD graph generation for a virtual metric and update its `ck_state`.
+ *
+ * @param int|null $v_id The virtual metric id to validate.
+ * @param int $force A flag to force revalidation.
+ * @return array|null Array where element 0 is the RRDtool exit code and element 1 is the last output line; `null` if the metric was not eligible for checking.
+ */
 function checkRRDGraphData($v_id = null, $force = 0)
 {
     global $pearDB, $oreon;
@@ -582,7 +619,8 @@ function checkRRDGraphData($v_id = null, $force = 0)
     $statement = $pearDB->prepare($query);
     $statement->bindValue(':vmetric_id', (int) $v_id, PDO::PARAM_INT);
     $statement->execute();
-    if ($statement->rowCount() == 1) {
+    $row = $statement->fetch(PDO::FETCH_ASSOC);
+    if ($row !== false) {
         /**
          * Create XML Request Objects
          */

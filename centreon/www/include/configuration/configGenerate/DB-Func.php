@@ -20,21 +20,27 @@
  */
 
 /**
- * Get the configuration path for Centreon Broker
+ * Retrieve the Centreon Broker configuration directory path for a Nagios server.
  *
- * @param int $ns_id The nagios server id
- * @return string
+ * @param int $ns_id The Nagios server ID.
+ * @return string|null The trimmed configuration path if set and non-empty, or `null` if no path is found.
  */
 function getCentreonBrokerDirCfg($ns_id)
 {
     global $pearDB;
-    $query = 'SELECT centreonbroker_cfg_path
+    $statement = $pearDB->prepare('SELECT centreonbroker_cfg_path
 	    	FROM nagios_server
-	    	WHERE id = ' . $ns_id;
-    $res = $pearDB->query($query);
-    $row = $res->fetch();
-    if (trim($row['centreonbroker_cfg_path']) != '') {
-        return trim($row['centreonbroker_cfg_path']);
+	    	WHERE id = :ns_id');
+    $statement->bindValue(':ns_id', (int) $ns_id, PDO::PARAM_INT);
+    $statement->execute();
+    $row = $statement->fetch(PDO::FETCH_ASSOC);
+    if ($row === false) {
+        return null;
+    }
+
+    $path = trim((string) $row['centreonbroker_cfg_path']);
+    if ($path !== '') {
+        return $path;
     }
 
     return null;

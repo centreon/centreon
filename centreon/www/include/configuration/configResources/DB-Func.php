@@ -37,108 +37,113 @@ use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryI
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 /**
- * Indicates if the resource name has already been used.
+ * Check whether a resource name is available for the specified instance IDs.
  *
- * @global CentreonDB $pearDB
- * @global HTML_QuickFormCustom $form
+ * When $instanceIds is null, instance IDs (and an optional resource_id to exclude)
+ * are derived from the global form submission. If derived instance IDs are empty
+ * or contain invalid values, the function treats the name as unavailable.
  *
- * @param string $name
- * @param int $instanceId
+ * @global CentreonDB $pearDB Database connection used for the existence check.
+ * @global HTML_QuickFormCustom $form Form object used to derive instance IDs when $instanceIds is null.
  *
- * @return bool Return false if the resource name has already been used
+ * @param string|null $name The resource name to check.
+ * @param array<int,int>|null $instanceIds Array of instance IDs to check against, or null to derive from the form.
+ * @return bool `true` if no existing resource with the same name is linked to any of the provided instance IDs, `false` otherwise.
  */
-function testExistence($name = null, $instanceId = null)
+function testExistence($name = null, ?array $instanceIds = null)
 {
     global $pearDB, $form;
 
     $id = 0;
-    $instanceIds = [];
-    if (isset($form)) {
-        $id = (int) $form->getSubmitValue('resource_id');
-        $instanceIds = $form->getSubmitValue('instance_id');
-        $instanceIds = filter_var_array(
-            $instanceIds,
-            FILTER_VALIDATE_INT
-        );
-        if (in_array(false, $instanceIds, true)) {
-            return true;
+    // When called from the duplication path, instance IDs are passed explicitly.
+    // When called as a form validator, derive them from the submitted form values.
+    if ($instanceIds === null) {
+        $instanceIds = [];
+        if (isset($form)) {
+            $id = (int) $form->getSubmitValue('resource_id');
+            $rawInstanceIds = $form->getSubmitValue('instance_id');
+            $instanceIds = is_array($rawInstanceIds)
+                ? filter_var_array($rawInstanceIds, FILTER_VALIDATE_INT)
+                : [];
+            if (in_array(false, $instanceIds, true)) {
+                return true;
+            }
         }
-    } elseif (! is_null($instanceId) && $instanceId) {
-        $instanceIds = [(int) $instanceId];
     }
     if ($instanceIds === []) {
         return true;
     }
-    $prepare = $pearDB->prepare(
-        'SELECT cr.resource_name, crir.resource_id, crir.instance_id '
+    $instancePlaceholders = [];
+    foreach ($instanceIds as $idx => $instId) {
+        $instancePlaceholders[] = ':instanceId' . $idx;
+    }
+    $query = 'SELECT 1 '
         . 'FROM cfg_resource cr, cfg_resource_instance_relations crir '
         . 'WHERE cr.resource_id = crir.resource_id '
-        . 'AND crir.instance_id IN (' . implode(',', $instanceIds) . ') '
-        . 'AND cr.resource_name = :resource_name'
-    );
-    $prepare->bindValue(':resource_name', $name, PDO::PARAM_STR);
-    $prepare->execute();
-    $total = $prepare->rowCount();
-    $result = $prepare->fetch(PDO::FETCH_ASSOC);
-    if ($total >= 1 && $result['resource_id'] === $id) {
-        /**
-         * In case of modification.
-         */
-        return true;
+        . 'AND crir.instance_id IN (' . implode(', ', $instancePlaceholders) . ') '
+        . 'AND cr.resource_name = :resource_name';
+    if ($id !== 0) {
+        $query .= ' AND cr.resource_id <> :resourceId';
     }
+    $prepare = $pearDB->prepare($query . ' LIMIT 1');
+    foreach ($instanceIds as $idx => $instId) {
+        $prepare->bindValue(':instanceId' . $idx, $instId, PDO::PARAM_INT);
+    }
+    $prepare->bindValue(':resource_name', $name, PDO::PARAM_STR);
+    if ($id !== 0) {
+        $prepare->bindValue(':resourceId', $id, PDO::PARAM_INT);
+    }
+    $prepare->execute();
 
-    return ! ($total >= 1 && $result['resource_id'] !== $id);
-    /**
-     * In case of duplicate.
-     */
+    return $prepare->fetchColumn() === false;
 }
 
 /**
- * Deletes resources.
+ * Delete resources identified by the keys of the provided array.
+ *
+ * For each integer key in `$resourceIds`, the corresponding `cfg_resource` row is removed.
+ * If the resource row contains a vault-backed value, the associated secret is removed via `deleteFromVault`.
  *
  * @global CentreonDB $pearDB
- *
- * @param int[] $resourceIds Resource ids to delete
+ * @param array<int, mixed> $resourceIds Array whose keys are resource IDs to delete; non-integer keys are ignored.
  */
 function deleteResourceInDB($resourceIds = []): void
 {
     global $pearDB;
 
+    $selectStmt = $pearDB->prepare(
+        'SELECT resource_line, resource_name FROM cfg_resource WHERE resource_id = :resourceId'
+    );
+    $deleteStmt = $pearDB->prepare('DELETE FROM cfg_resource WHERE resource_id = :resourceId');
+
     foreach (array_keys($resourceIds) as $currentResourceId) {
         if (is_int($currentResourceId)) {
-            $statement = $pearDB->prepare(
-                'SELECT *FROM cfg_resource WHERE resource_id = :resourceId'
-            );
-            $statement->bindValue(':resourceId', $currentResourceId);
-            $statement->execute();
+            $selectStmt->bindValue(':resourceId', $currentResourceId, PDO::PARAM_INT);
+            $selectStmt->execute();
 
-            if (false !== $data = $statement->fetch()) {
+            if (false !== $data = $selectStmt->fetch()) {
                 deleteFromVault($data);
 
-                $pearDB->query(
-                    "DELETE FROM cfg_resource WHERE resource_id = {$currentResourceId}"
-                );
+                $deleteStmt->bindValue(':resourceId', $currentResourceId, PDO::PARAM_INT);
+                $deleteStmt->execute();
             }
         }
     }
 }
 
 /**
- * Enables a resource.
+ * Enable the resource identified by the given resource id.
  *
- * @global CentreonDB $pearDB
- *
- * @param int[] $resourceId Resource id to enable
+ * @param int $resourceId The resource id to enable.
  */
 function enableResourceInDB($resourceId): void
 {
     global $pearDB;
 
     if (is_int($resourceId)) {
-        $pearDB->query(
-            "UPDATE cfg_resource SET resource_activate = '1' "
-            . "WHERE resource_id = {$resourceId}"
-        );
+        $statement = $pearDB->prepare("UPDATE cfg_resource SET resource_activate = '1' WHERE resource_id = :resourceId");
+        $statement->bindValue(':resourceId', $resourceId, PDO::PARAM_INT);
+        $statement->execute();
     }
 }
 
@@ -153,27 +158,40 @@ function disableResourceInDB($resourceId): void
 {
     global $pearDB;
     if (is_int($resourceId)) {
-        $pearDB->query(
-            "UPDATE cfg_resource SET resource_activate = '0' "
-            . "WHERE resource_id = {$resourceId}"
-        );
+        $statement = $pearDB->prepare("UPDATE cfg_resource SET resource_activate = '0' WHERE resource_id = :resourceId");
+        $statement->bindValue(':resourceId', $resourceId, PDO::PARAM_INT);
+        $statement->execute();
     }
 }
 /**
- * Duplicates resource.
+ * Create multiple duplicates of the specified resources.
  *
- * @global CentreonDB $pearDB
+ * For each resource id provided (keys of $resourceIds) this function attempts to create
+ * the requested number of copies. Duplicates preserve the original resource's line,
+ * comment, activation state and password flag; vault-backed secrets are read from the
+ * vault and re-saved under the new name when applicable. Each created duplicate is
+ * inserted along with copied instance relations inside a transaction; vault entries
+ * are cleaned up on failure. If name conflicts prevent creation, the function skips
+ * those duplicates and logs a summary when it cannot reach the requested count.
  *
- * @param array $resourceIds List of resource id to duplicate
- * @param int[] $nbrDup Number of copy
+ * @param array<int,mixed> $resourceIds Array whose keys are resource IDs to duplicate.
+ * @param int[] $nbrDup Associative array mapping resource ID to the number of copies to create (0–100).
+ *
+ * @throws Throwable If a database or vault operation fails; partial work is rolled back per-duplicate.
  */
 function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
 {
     global $pearDB;
 
+    $selectStmt = $pearDB->prepare('SELECT * FROM cfg_resource WHERE resource_id = :resourceId LIMIT 1');
+    $instanceStmt = $pearDB->prepare(
+        'SELECT instance_id FROM cfg_resource_instance_relations WHERE resource_id = :resourceId'
+    );
+
     foreach (array_keys($resourceIds) as $resourceId) {
         if (is_int($resourceId)) {
-            $dbResult = $pearDB->query("SELECT * FROM cfg_resource WHERE resource_id = {$resourceId} LIMIT 1");
+            $selectStmt->bindValue(':resourceId', $resourceId, PDO::PARAM_INT);
+            $selectStmt->execute();
             /**
              * @var array{
              *  resource_id:int,
@@ -184,12 +202,24 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
              *  is_password:int
              * } $resourceConfiguration
              */
-            $resourceConfiguration = $dbResult->fetch();
+            $resourceConfiguration = $selectStmt->fetch();
+            if ($resourceConfiguration === false) {
+                continue;
+            }
 
-            for ($newIndex = 1; $newIndex <= $nbrDup[$resourceId]; $newIndex++) {
+            $instanceStmt->bindValue(':resourceId', $resourceId, PDO::PARAM_INT);
+            $instanceStmt->execute();
+            $instanceIds = $instanceStmt->fetchAll(PDO::FETCH_COLUMN);
+
+            $dupCount = filter_var($nbrDup[$resourceId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
+            if ($dupCount === false) {
+                continue;
+            }
+            $suffix = 1;
+            for ($newIndex = 0; $newIndex < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
                 $name = preg_match('/^\$(.*)\$$/', $resourceConfiguration['resource_name'])
-                    ? rtrim($resourceConfiguration['resource_name'], '$') . '_' . $newIndex . '$'
-                    : $resourceConfiguration['resource_name'] . '_' . $newIndex;
+                    ? rtrim($resourceConfiguration['resource_name'], '$') . '_' . $suffix . '$'
+                    : $resourceConfiguration['resource_name'] . '_' . $suffix;
                 $value = $resourceConfiguration['resource_line'];
                 if (
                     (bool) $resourceConfiguration['is_password'] === true
@@ -199,12 +229,18 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
                     $value = $resourcesFromVault[$resourceConfiguration['resource_name']];
                 }
 
-                if (testExistence($name) && ! is_null($value)) {
-                    if ((bool) $resourceConfiguration['is_password'] === true) {
-                        $vaultPath = saveInVault($name, $value);
-                    }
-                    $value = $vaultPath ?? $value;
+                if (! testExistence($name, $instanceIds) || is_null($value)) {
+                    continue;
+                }
+                $newIndex++;
+                $vaultPath = null;
+                if ((bool) $resourceConfiguration['is_password'] === true) {
+                    $vaultPath = saveInVault($name, $value);
+                }
+                $value = $vaultPath ?? $value;
 
+                $pearDB->beginTransaction();
+                try {
                     $statement = $pearDB->prepare(
                         <<<'SQL'
                             INSERT INTO cfg_resource
@@ -214,19 +250,43 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
                     );
                     $statement->bindValue(':name', $name, PDO::PARAM_STR);
                     $statement->bindValue(':value', $value, PDO::PARAM_STR);
-                    $statement->bindValue(':comment', $resourceConfiguration['resource_comment'], PDO::PARAM_STR);
-                    $statement->bindValue(':is_active', $resourceConfiguration['resource_activate'], PDO::PARAM_STR);
+                    $comment = $resourceConfiguration['resource_comment'];
+                    $statement->bindValue(':comment', $comment, $comment === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                    $isActive = $resourceConfiguration['resource_activate'];
+                    $statement->bindValue(':is_active', $isActive, $isActive === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
                     $statement->bindValue(':is_password', $resourceConfiguration['is_password'], PDO::PARAM_INT);
                     $statement->execute();
 
-                    $lastId = $pearDB->lastInsertId();
-                    $pearDB->query(
-                        'INSERT INTO cfg_resource_instance_relations ('
-                        . "SELECT {$lastId}, instance_id "
-                        . 'FROM cfg_resource_instance_relations '
-                        . "WHERE resource_id = {$resourceId})"
+                    $lastId = (int) $pearDB->lastInsertId();
+                    if ($lastId <= 0) {
+                        $pearDB->rollBack();
+                        if ($vaultPath !== null) {
+                            deleteFromVault(['resource_line' => $vaultPath, 'resource_name' => $name]);
+                        }
+                        continue;
+                    }
+                    $relStmt = $pearDB->prepare(
+                        'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id)
+                        SELECT :newId, instance_id FROM cfg_resource_instance_relations WHERE resource_id = :oldId'
                     );
+                    $relStmt->bindValue(':newId', $lastId, PDO::PARAM_INT);
+                    $relStmt->bindValue(':oldId', $resourceId, PDO::PARAM_INT);
+                    $relStmt->execute();
+
+                    $pearDB->commit();
+                } catch (Throwable $e) {
+                    if ($pearDB->inTransaction()) {
+                        $pearDB->rollBack();
+                    }
+                    if ($vaultPath !== null) {
+                        deleteFromVault(['resource_line' => $vaultPath, 'resource_name' => $name]);
+                    }
+
+                    throw $e;
                 }
+            }
+            if ($newIndex < $dupCount) {
+                error_log("Could only create {$newIndex}/{$dupCount} duplicates for resource '{$resourceConfiguration['resource_name']}' ({$resourceId}): suffix search exhausted");
             }
         }
     }
@@ -247,14 +307,12 @@ function updateResourceInDB($resource_id = null, array $submitedValues): void
 }
 
 /**
- * Updates a resource which is in the form.
+ * Update an existing resource record and record the change in the changelog.
  *
- * @global HTML_QuickFormCustom $form
- * @global CentreonDB $pearDB
- * @global Centreon $centreon
+ * Updates the resource row (name, line, comment, activation, password flag). When the submitted values indicate a password, vault read/write/delete operations may be performed to store or migrate the secret before updating the database. After the update, a changelog entry is inserted for the resource.
  *
- * @param int $resourceId
- * @param array<string,mixed> $submitedValues
+ * @param int $resourceId The ID of the resource to update.
+ * @param array<string,mixed> $submitedValues Associative array of submitted resource fields (expected keys include `resource_name`, `resource_line`, `resource_comment`, `resource_activate`, and `is_password`).
  */
 function updateResource(int $resourceId, array $submitedValues): void
 {
@@ -309,19 +367,19 @@ function updateResource(int $resourceId, array $submitedValues): void
 
     $prepare->bindValue(
         ':resource_name',
-        $pearDB->escape($submitedValues['resource_name']),
+        $submitedValues['resource_name'],
         PDO::PARAM_STR
     );
 
     $prepare->bindValue(
         ':resource_line',
-        $pearDB->escape($submitedValues['resource_line']),
+        $submitedValues['resource_line'],
         PDO::PARAM_STR
     );
 
     $prepare->bindValue(
         ':resource_comment',
-        $pearDB->escape($submitedValues['resource_comment']),
+        $submitedValues['resource_comment'],
         PDO::PARAM_STR
     );
 
@@ -340,20 +398,37 @@ function updateResource(int $resourceId, array $submitedValues): void
     $centreon->CentreonLogAction->insertLog(
         'resource',
         $resourceId,
-        CentreonDB::escape($submitedValues['resource_name']),
+        $submitedValues['resource_name'],
         'c',
         $fields
     );
 }
 
+/**
+ * Insert a new resource and create its instance relations when insertion succeeds.
+ *
+ * @return int The created resource ID, or 0 if insertion failed.
+ */
 function insertResourceInDB()
 {
     $resource_id = insertResource();
-    insertInstanceRelations($resource_id);
+    if ($resource_id > 0) {
+        insertInstanceRelations($resource_id);
+    }
 
     return $resource_id;
 }
 
+/**
+ * Insert a new resource record into the database and record its creation in the changelog.
+ *
+ * If the submitted values indicate a password, the function attempts to save the secret in the vault
+ * and replaces the stored resource_line with the resulting vault path; if insertion fails or an
+ * exception occurs, any created vault entry is removed.
+ *
+ * @param array $ret Submitted values for the resource (keys: resource_name, resource_line, resource_comment, resource_activate, is_password). If empty, values are retrieved from the global form.
+ * @return int The created resource ID on success, or 0 on failure.
+ */
 function insertResource($ret = [])
 {
     global $form, $pearDB, $centreon;
@@ -362,6 +437,7 @@ function insertResource($ret = [])
         $ret = $form->getSubmitValues();
     }
 
+    $vaultPath = null;
     if ($ret['is_password']) {
         $vaultPath = saveInVault($ret['resource_name'], $ret['resource_line']);
         $ret['resource_line'] = $vaultPath ?? $ret['resource_line'];
@@ -393,30 +469,53 @@ function insertResource($ret = [])
     $isActivated = isset($ret['resource_activate']['resource_activate'])
         && (bool) (int) $ret['resource_activate']['resource_activate'];
     $statement->bindValue(':is_activated', (string) (int) $isActivated);
-    $statement->bindValue('is_password', (int) $ret['is_password'], PDO::PARAM_INT);
-    $statement->execute();
+    $statement->bindValue(':is_password', (int) $ret['is_password'], PDO::PARAM_INT);
 
-    $dbResult = $pearDB->query('SELECT MAX(resource_id) FROM cfg_resource');
-    $resource_id = $dbResult->fetch();
+    try {
+        $statement->execute();
 
-    // Prepare value for changelog
-    $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog(
-        'resource',
-        $resource_id['MAX(resource_id)'],
-        CentreonDB::escape($ret['resource_name']),
-        'a',
-        $fields
-    );
+        $resource_id = (int) $pearDB->lastInsertId();
+        if ($resource_id <= 0) {
+            if ($vaultPath !== null) {
+                deleteFromVault(['resource_line' => $vaultPath, 'resource_name' => $ret['resource_name']]);
+            }
 
-    return $resource_id['MAX(resource_id)'];
+            return 0;
+        }
+
+        // Prepare value for changelog
+        $fields = CentreonLogAction::prepareChanges($ret);
+        $centreon->CentreonLogAction->insertLog(
+            'resource',
+            $resource_id,
+            $ret['resource_name'],
+            'a',
+            $fields
+        );
+    } catch (Throwable $e) {
+        if ($vaultPath !== null) {
+            deleteFromVault(['resource_line' => $vaultPath, 'resource_name' => $ret['resource_name']]);
+        }
+
+        throw $e;
+    }
+
+    return $resource_id;
 }
 
+/**
+ * Replace instance associations for a resource with the provided instance(s).
+ *
+ * If $instanceId is provided, the resource will be associated only with that instance.
+ * If $instanceId is null, instance IDs are taken from submitted form values merged with initial values.
+ *
+ * @param int|string $resourceId Numeric resource identifier.
+ * @param int|null $instanceId Optional numeric instance identifier to associate; when null, use form-derived instance IDs.
+ */
 function insertInstanceRelations($resourceId, $instanceId = null): void
 {
     if (is_numeric($resourceId)) {
         global $pearDB;
-        $pearDB->query('DELETE FROM cfg_resource_instance_relations WHERE resource_id = ' . (int) $resourceId);
 
         if (! is_null($instanceId)) {
             $instances = [$instanceId];
@@ -425,36 +524,54 @@ function insertInstanceRelations($resourceId, $instanceId = null): void
             $instances = CentreonUtils::mergeWithInitialValues($form, 'instance_id');
         }
 
-        $subQuery = '';
-        foreach ($instances as $instanceId) {
-            if (is_numeric($instanceId)) {
-                if (! empty($subQuery)) {
-                    $subQuery .= ', ';
-                }
-                $subQuery .= '(' . (int) $resourceId . ', ' . (int) $instanceId . ')';
-            }
-        }
-        if (! empty($subQuery)) {
-            $pearDB->query(
-                'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id) VALUES ' . $subQuery
+        $pearDB->beginTransaction();
+        try {
+            $deleteStmt = $pearDB->prepare('DELETE FROM cfg_resource_instance_relations WHERE resource_id = :resourceId');
+            $deleteStmt->bindValue(':resourceId', (int) $resourceId, PDO::PARAM_INT);
+            $deleteStmt->execute();
+
+            $insertStmt = $pearDB->prepare(
+                'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id) VALUES (:resourceId, :instanceId)'
             );
+            foreach ($instances as $instanceId) {
+                if (is_numeric($instanceId)) {
+                    $insertStmt->bindValue(':resourceId', (int) $resourceId, PDO::PARAM_INT);
+                    $insertStmt->bindValue(':instanceId', (int) $instanceId, PDO::PARAM_INT);
+                    $insertStmt->execute();
+                }
+            }
+
+            $pearDB->commit();
+        } catch (Throwable $e) {
+            if ($pearDB->inTransaction()) {
+                $pearDB->rollBack();
+            }
+
+            throw $e;
         }
     }
 }
 
+/**
+ * Return HTML links to pollers associated with the given resource.
+ *
+ * @param int $resource_id The resource identifier to look up.
+ * @return string Concatenated HTML anchor elements linking to each associated poller (empty string if none).
+ */
 function getLinkedPollerList($resource_id)
 {
     global $pearDB;
 
     $str = '';
-    $query = 'SELECT ns.name, ns.id FROM cfg_resource_instance_relations nsr, cfg_resource r, nagios_server ns '
-        . "WHERE nsr.resource_id = r.resource_id AND nsr.instance_id = ns.id AND nsr.resource_id = '"
-        . $resource_id . "'";
-    $dbResult = $pearDB->query($query);
-    while ($data = $dbResult->fetch()) {
+    $statement = $pearDB->prepare(
+        'SELECT ns.name, ns.id FROM cfg_resource_instance_relations nsr, cfg_resource r, nagios_server ns '
+        . 'WHERE nsr.resource_id = r.resource_id AND nsr.instance_id = ns.id AND nsr.resource_id = :resource_id'
+    );
+    $statement->bindValue(':resource_id', (int) $resource_id, PDO::PARAM_INT);
+    $statement->execute();
+    while ($data = $statement->fetch()) {
         $str .= "<a href='main.php?p=60901&o=c&server_id=" . $data['id'] . "'>" . HtmlSanitizer::createFromString($data['name'])->sanitize()->getString() . '</a> ';
     }
-    unset($dbResult);
 
     return $str;
 }

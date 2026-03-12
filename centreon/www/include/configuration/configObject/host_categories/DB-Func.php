@@ -82,9 +82,11 @@ function checkSeverity(array $fields)
 }
 
 /**
- * Check existence of a host category name
+ * Determine whether a host category name is available (not present) in the database.
  *
- * @throws RepositoryException
+ * @param string|null $name The host category name to check.
+ * @return bool `true` if the name is available (no matching record found), `false` otherwise.
+ * @throws RepositoryException If `$name` is empty or if sanitization/database lookup fails.
  */
 function testHostCategorieExistence(?string $name = null): bool
 {
@@ -96,27 +98,32 @@ function testHostCategorieExistence(?string $name = null): bool
 
     $currentId = $form ? $form->getSubmitValue('hc_id') : null;
     $qb = $pearDB->createQueryBuilder();
-    $query = $qb->select('hc_id')
+    $qb->select('1')
         ->from('hostcategories')
-        ->where('hc_name = :hc_name')
-        ->getQuery();
+        ->where('hc_name = :hc_name');
+    if ($currentId !== null) {
+        $qb->andWhere('hc_id <> :hc_id');
+    }
+    $query = $qb->getQuery();
 
     try {
         $cleanName = HtmlSanitizer::createFromString($name)
             ->removeTags()
             ->sanitize()
             ->getString();
+        $params = [QueryParameter::string('hc_name', $cleanName)];
+        if ($currentId !== null) {
+            $params[] = QueryParameter::int('hc_id', (int) $currentId);
+        }
         $result = $pearDB->fetchAssociative(
             $query,
-            QueryParameters::create([
-                QueryParameter::string('hc_name', $cleanName),
-            ])
+            QueryParameters::create($params)
         );
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         throw new RepositoryException('Unable to check host category existence', ['hcName' => $name], $exception);
     }
 
-    return ! ($result && isset($result['hc_id']) && $result['hc_id'] != $currentId);
+    return $result === false;
 }
 
 /**
@@ -129,9 +136,11 @@ function shouldNotBeEqTo0($value)
 }
 
 /**
- * Enable one or multiple host categories
+ * Enable one or more host categories and record an enable action for each.
  *
- * @throws RepositoryException
+ * @param int|null $hcId Optional single host category ID to enable. When provided, $hcArr is ignored.
+ * @param array $hcArr Optional map of host category IDs to enable (keys are IDs). Invalid or non-integer keys are ignored.
+ * @throws RepositoryException If the enable operation or logging fails.
  */
 function enableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
 {
@@ -158,6 +167,9 @@ function enableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
     try {
         foreach (array_keys($hcArr) as $key) {
             $id = filter_var($key, FILTER_VALIDATE_INT);
+            if ($id === false) {
+                continue;
+            }
             $pearDB->update(
                 $updQuery,
                 QueryParameters::create([QueryParameter::int('hc_id', $id)])
@@ -186,9 +198,11 @@ function enableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
 }
 
 /**
- * Disable one or multiple host categories
+ * Disable one or more host categories by setting their activation flag to 0 and logging each action.
  *
- * @throws RepositoryException
+ * @param int|null $hcId If provided, disables the single host category with this ID.
+ * @param array $hcArr Map of host category IDs to any value; each valid integer key will be disabled. Non-integer keys are ignored.
+ * @throws RepositoryException If the database update or logging fails.
  */
 function disableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
 {
@@ -215,13 +229,16 @@ function disableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
     try {
         foreach (array_keys($hcArr) as $key) {
             $id = filter_var($key, FILTER_VALIDATE_INT);
+            if ($id === false) {
+                continue;
+            }
             $pearDB->update(
                 $updQuery,
-                QueryParameters::create([QueryParameter::int('hc_id', (int) $id)])
+                QueryParameters::create([QueryParameter::int('hc_id', $id)])
             );
             $row = $pearDB->fetchAssociative(
                 $selQuery,
-                QueryParameters::create([QueryParameter::int('hc_id', (int) $id)])
+                QueryParameters::create([QueryParameter::int('hc_id', $id)])
             );
             $centreon->CentreonLogAction->insertLog(
                 object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
@@ -243,9 +260,14 @@ function disableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
 }
 
 /**
- * Delete one or multiple host categories
+ * Delete one or more host categories by ID.
  *
- * @throws RepositoryException
+ * For each valid integer key in `$hostCategories`, removes the corresponding
+ * host category from the database, logs the deletion action using the stored
+ * category name, and updates ACLs after processing all deletions.
+ *
+ * @param array $hostCategories Associative array whose keys are host category IDs to delete; values are ignored.
+ * @throws RepositoryException If the deletion process fails due to database, value object, or collection errors.
  */
 function deleteHostCategoriesInDB(array $hostCategories = []): void
 {
@@ -268,10 +290,16 @@ function deleteHostCategoriesInDB(array $hostCategories = []): void
     try {
         foreach (array_keys($hostCategories) as $key) {
             $id = filter_var($key, FILTER_VALIDATE_INT);
+            if ($id === false) {
+                continue;
+            }
             $row = $pearDB->fetchAssociative(
                 $selQuery,
                 QueryParameters::create([QueryParameter::int('hc_id', (int) $id)])
             );
+            if ($row === false) {
+                continue;
+            }
             $pearDB->delete(
                 $delQuery,
                 QueryParameters::create([QueryParameter::int('hc_id', (int) $id)])
@@ -279,7 +307,7 @@ function deleteHostCategoriesInDB(array $hostCategories = []): void
             $centreon->CentreonLogAction->insertLog(
                 object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
                 object_id: $id,
-                object_name: $row['hc_name'] ?? '',
+                object_name: $row['hc_name'],
                 action_type: ActionLog::ACTION_TYPE_DELETE
             );
         }
@@ -296,9 +324,16 @@ function deleteHostCategoriesInDB(array $hostCategories = []): void
 }
 
 /**
- * Duplicate host categories N times
+ * Create specified numbers of duplicate host categories for given category IDs.
  *
- * @throws RepositoryException
+ * For each host category ID provided as a key in $hostCategories, attempts to create
+ * the number of copies indicated in $nbrDup for that ID. New categories receive a
+ * unique suffixed name, related host associations are copied when applicable,
+ * addition actions are logged, and ACLs are duplicated and refreshed.
+ *
+ * @param array $hostCategories Array whose keys are host category IDs (int) to duplicate; values are ignored.
+ * @param array $nbrDup Map of host category ID => number of copies to create (int). Values outside 0–100 are treated as 0.
+ * @throws RepositoryException If duplication fails or an underlying DB/validation error occurs.
  */
 function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = []): void
 {
@@ -308,7 +343,10 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
 
     try {
         foreach (array_keys($hostCategories) as $key) {
-            $hcId = (int) filter_var($key, FILTER_VALIDATE_INT);
+            $hcId = filter_var($key, FILTER_VALIDATE_INT);
+            if ($hcId === false) {
+                continue;
+            }
 
             $selectQ = $pearDB->createQueryBuilder()
                 ->select('*')
@@ -324,14 +362,20 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
                 continue;
             }
 
-            for ($i = 1; $i <= ($nbrDup[$key] ?? 0); $i++) {
+            $copies = filter_var($nbrDup[$key] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
+            if (! $copies) {
+                continue;
+            }
+            $suffix = 1;
+            for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
                 $newName = HtmlSanitizer::createFromString($row['hc_name'])
                     ->removeTags()
                     ->sanitize()
-                    ->getString() . "_{$i}";
+                    ->getString() . "_{$suffix}";
                 if (! testHostCategorieExistence($newName)) {
                     continue;
                 }
+                $i++;
 
                 $qbInsert = $pearDB->createQueryBuilder()
                     ->insert('hostcategories')
@@ -362,6 +406,7 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
                 $newId = (int) $pearDB->getLastInsertId();
                 $aclMap[$newId] = $hcId;
 
+                $hostRows = [];
                 if (empty($row['level'])) {
                     $relSelect = $pearDB->createQueryBuilder()
                         ->select('host_host_id')
@@ -402,6 +447,9 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
                     action_type: ActionLog::ACTION_TYPE_ADD,
                     fields: $fields
                 );
+            }
+            if ($i < $copies) {
+                error_log("Could only create {$i}/{$copies} duplicates for host category '{$row['hc_name']}' ({$hcId}): suffix search exhausted");
             }
         }
 
@@ -517,9 +565,12 @@ function updateHostCategoriesInDB(?int $hcId = null): void
 }
 
 /**
- * Perform the UPDATE query on hostcategories.
+ * Update a host category record and record corresponding audit logs.
  *
- * @throws RepositoryException
+ * Conditionally applies severity-related fields when present and inserts an additional enable/disable log if the activation state is supplied.
+ *
+ * @param int $hcId The ID of the host category to update.
+ * @throws RepositoryException If the update or logging operation fails.
  */
 function updateHostCategories(int $hcId): void
 {
@@ -547,10 +598,10 @@ function updateHostCategories(int $hcId): void
         QueryParameter::string('hc_alias', $ret['hc_alias'] ?? ''),
         ! empty($ret['hc_type']) && isset($ret['hc_severity_level'])
             ? QueryParameter::int('level', (int) $ret['hc_severity_level'])
-            : QueryParameter::string('level', null),
+            : QueryParameter::int('level', null),
         ! empty($ret['hc_type']) && isset($ret['hc_severity_icon'])
             ? QueryParameter::int('icon_id', (int) $ret['hc_severity_icon'])
-            : QueryParameter::string('icon_id', null),
+            : QueryParameter::int('icon_id', null),
         QueryParameter::string('hc_comment', $ret['hc_comment'] ?? null),
         QueryParameter::string('hc_activate', $activate),
         QueryParameter::int('hc_id', $hcId),

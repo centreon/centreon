@@ -42,10 +42,15 @@ require_once __DIR__ . '/../../../../class/centreonContact.class.php';
 require_once _CENTREON_PATH_ . '/www/include/common/sqlCommonFunction.php';
 
 /**
- * @param string|null $name
- * @param bool|null $preventLog
- * @throws RepositoryException
- * @return bool
+ * Determine whether a contact name is available (no other contact uses it).
+ *
+ * Checks for an existing contact with the given name and, if a contact_id is present
+ * in the current form submission, excludes that contact from the check.
+ *
+ * @param string|null $name Contact name to verify.
+ * @param bool|null $preventLog If true, suppresses error logging on database failures.
+ * @return bool `true` if no other contact uses the given name (available), `false` otherwise.
+ * @throws RepositoryException If a database or query error occurs.
  */
 function testContactExistence(?string $name = null, ?bool $preventLog = false): bool
 {
@@ -58,18 +63,19 @@ function testContactExistence(?string $name = null, ?bool $preventLog = false): 
 
     $contactName = $centreon->checkIllegalChar($name);
 
-    $query = <<<'SQL'
-            SELECT contact_name, contact_id
-            FROM contact
-            WHERE contact_name = :contact_name
-        SQL;
+    $query = 'SELECT 1 FROM contact WHERE contact_name = :contact_name';
+    if ($id !== null) {
+        $query .= ' AND contact_id <> :contact_id';
+    }
 
     try {
+        $params = [QueryParameter::string('contact_name', $contactName)];
+        if ($id !== null) {
+            $params[] = QueryParameter::int('contact_id', (int) $id);
+        }
         $contact = $pearDB->fetchAssociative(
             $query,
-            QueryParameters::create([
-                QueryParameter::string('contact_name', $contactName),
-            ])
+            QueryParameters::create($params),
         );
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         if ($preventLog !== true) {
@@ -88,18 +94,18 @@ function testContactExistence(?string $name = null, ?bool $preventLog = false): 
         );
     }
 
-    if ($contact && $contact['contact_id'] == $id) {
-        return true;
-    }
-
-    return ! ($contact && $contact['contact_id'] != $id);
+    return $contact === false;
 }
 
 /**
- * @param string|null $alias
- * @param bool|null $preventLog
- * @throws RepositoryException
- * @return bool
+ * Checks whether a contact alias is available (not used by any other contact).
+ *
+ * Excludes the contact whose id is present in the global form field `contact_id` when determining existence.
+ *
+ * @param string|null $alias The alias to check.
+ * @param bool|null $preventLog If true, suppresses error logging on database failure.
+ * @return bool `true` if the alias is not present for any contact (available), `false` if it is already used.
+ * @throws RepositoryException On database errors while checking alias existence.
  */
 function testAliasExistence(?string $alias = null, ?bool $preventLog = false): bool
 {
@@ -108,17 +114,18 @@ function testAliasExistence(?string $alias = null, ?bool $preventLog = false): b
     if (isset($form)) {
         $id = $form->getSubmitValue('contact_id');
     }
-    $query = <<<'SQL'
-            SELECT contact_id
-            FROM contact
-            WHERE contact_alias = :contact_alias
-        SQL;
+    $query = 'SELECT 1 FROM contact WHERE contact_alias = :contact_alias';
+    if ($id !== null) {
+        $query .= ' AND contact_id <> :contact_id';
+    }
     try {
+        $params = [QueryParameter::string('contact_alias', $alias ?? '')];
+        if ($id !== null) {
+            $params[] = QueryParameter::int('contact_id', (int) $id);
+        }
         $contact = $pearDB->fetchAssociative(
             $query,
-            QueryParameters::create([
-                QueryParameter::string('contact_alias', $alias ?? ''),
-            ]),
+            QueryParameters::create($params),
         );
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         if ($preventLog !== true) {
@@ -137,11 +144,7 @@ function testAliasExistence(?string $alias = null, ?bool $preventLog = false): b
         );
     }
 
-    if ($contact && $contact['contact_id'] == $id) {
-        return true;
-    }
-
-    return ! ($contact && $contact['contact_id'] != $id);
+    return $contact === false;
 }
 
 /**
@@ -404,9 +407,10 @@ function unblockContactInDB(int|array|null $contact = null): void
 }
 
 /**
- * Delete Contacts
- * @param array $contacts
- * @throws RepositoryException
+ * Remove multiple contacts and their associated authentication tokens, recording each deletion in the audit log.
+ *
+ * @param array $contacts An array keyed by contact_id (integer) identifying contacts to delete; an empty array does nothing.
+ * @throws RepositoryException If a database or transaction error occurs while deleting contacts or rolling back. 
  */
 function deleteContactInDB(array $contacts = []): void
 {
@@ -417,9 +421,9 @@ function deleteContactInDB(array $contacts = []): void
     }
 
     try {
-        $ownTransaction = ! $pearDB->isTransactionActive();
+        $ownTransaction = ! $pearDB->inTransaction();
         if ($ownTransaction) {
-            $pearDB->startTransaction();
+            $pearDB->beginTransaction();
         }
 
         foreach (array_keys($contacts) as $contactId) {
@@ -486,12 +490,12 @@ function deleteContactInDB(array $contacts = []): void
         }
 
         if ($ownTransaction) {
-            $pearDB->commitTransaction();
+            $pearDB->commit();
         }
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         try {
-            if (($ownTransaction ?? false) && $pearDB->isTransactionActive()) {
-                $pearDB->rollBackTransaction();
+            if (($ownTransaction ?? false) && $pearDB->inTransaction()) {
+                $pearDB->rollBack();
             }
         } catch (ConnectionException $rollbackException) {
             throw new RepositoryException(
@@ -514,9 +518,12 @@ function deleteContactInDB(array $contacts = []): void
 }
 
 /**
- * Synchronize LDAP with contacts' data
- * Used for massive sync request
- * @param array $contacts
+ * Schedule LDAP synchronization for the provided contacts and disconnect their active sessions when LDAP is enabled.
+ *
+ * For each contact (by contact_id) that is bound to an LDAP directory, marks the contact to require LDAP synchronization on next login, terminates any active Centreon sessions for that contact, and records successful schedule actions to the log. If LDAP is not enabled, logs a warning and takes no action.
+ *
+ * @param array $contacts Array of contacts to schedule, keyed by contact_id (int).
+ * @throws Exception If a database error occurs while planning synchronizations or managing sessions.
  */
 function synchronizeContactWithLdap(array $contacts = []): void
 {
@@ -587,7 +594,9 @@ function synchronizeContactWithLdap(array $contacts = []): void
                 );
             }
         } catch (PDOException $e) {
-            $pearDB->rollBack();
+            if ($pearDB->inTransaction()) {
+                $pearDB->rollBack();
+            }
 
             throw new Exception('Bad Request : ' . $e);
         }
@@ -601,19 +610,29 @@ function synchronizeContactWithLdap(array $contacts = []): void
 }
 
 /**
- * Duplicate a list of contact
+ * Duplicate specified contacts the requested number of times.
  *
- * @param array $contacts list of contact ids to duplicate
- * @param array $nbrDup Number of duplication per contact id
- * @throws RepositoryException
- * @return array List of the new contact ids
+ * Creates duplicates of each contact whose id appears in $contacts using the counts
+ * provided in $nbrDup. For each successfully created duplicate the new contact_id
+ * is returned and relations (ACL, host/service commands, contact groups) and
+ * password (when present) are copied.
+ *
+ * @param array $contacts List of contact ids to duplicate (contact ids are the array keys).
+ * @param array $nbrDup  Number of duplicates to create per contact id, keyed by contact_id.
+ * @throws RepositoryException If a database or duplication-related error occurs.
+ * @return array Mapping of original_contact_id => array of new contact_ids.
  */
 function multipleContactInDB($contacts = [], $nbrDup = []): array
 {
     global $pearDB, $centreon;
     $newContactIds = [];
     foreach ($contacts as $contactId => $value) {
-        $contactId = (int) $contactId;
+        $validContactId = filter_var($contactId, FILTER_VALIDATE_INT);
+        if ($validContactId === false) {
+            continue;
+        }
+
+        $contactId = $validContactId;
         $newContactIds[$contactId] = [];
 
         $selectContactQuery = <<<'SQL'
@@ -658,17 +677,18 @@ function multipleContactInDB($contacts = [], $nbrDup = []): array
             implode(', ', $placeholders)
         );
 
-        $dupCount = isset($nbrDup[$contactId]) ? (int) $nbrDup[$contactId] : 0;
-        if ($dupCount <= 0) {
+        $dupCount = filter_var($nbrDup[$contactId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
+        if (! $dupCount) {
             continue;
         }
 
-        for ($i = 1; $i <= $dupCount; $i++) {
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $insertData = $baseInsertData;
 
             // Prepare duplicated values
-            $contactName = isset($insertData['contact_name']) ? ((string) $insertData['contact_name'] . '_' . $i) : null;
-            $contactAlias = isset($insertData['contact_alias']) ? ((string) $insertData['contact_alias'] . '_' . $i) : null;
+            $contactName = isset($insertData['contact_name']) ? ((string) $insertData['contact_name'] . '_' . $suffix) : null;
+            $contactAlias = isset($insertData['contact_alias']) ? ((string) $insertData['contact_alias'] . '_' . $suffix) : null;
 
             if ($contactName !== null) {
                 $contactName = $centreon->checkIllegalChar($contactName);
@@ -677,6 +697,7 @@ function multipleContactInDB($contacts = [], $nbrDup = []): array
             if (! testContactExistence($contactName, true) || ! testAliasExistence($contactAlias, true)) {
                 continue;
             }
+            $i++;
 
             $insertData['contact_name'] = $contactName;
             $insertData['contact_alias'] = $contactAlias;
@@ -885,24 +906,34 @@ function multipleContactInDB($contacts = [], $nbrDup = []): array
                 $fields
             );
         }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for contact '{$baseInsertData['contact_name']}' ({$contactId}): suffix search exhausted");
+        }
     }
 
     return $newContactIds;
 }
 
 /**
- * @param mixed $contact_id
- * @param bool $from_MC
- * @param bool $isRemote
- * @throws RepositoryException
+ * Update a contact record and its related relationships inside a transactional boundary.
+ *
+ * Executes either a normal update or a massive-change update for the specified contact, then updates
+ * host commands, service commands, contact groups (unless $isRemote is true), and ACL group links
+ * according to submitted form flags. The function manages its own transaction when none is active
+ * and will commit or roll back around all related updates as a unit.
+ *
+ * @param mixed $contact_id The contact identifier to update (will be cast to int).
+ * @param bool $from_MC If true, perform the massive-change (MC) update path.
+ * @param bool $isRemote If true, skip updating contact group relationships (remote/replicated update).
+ * @throws RepositoryException If the provided contact ID is invalid or if a repository/database error occurs.
  */
 function updateContactInDB(mixed $contact_id, bool $from_MC = false, bool $isRemote = false): void
 {
-    global $form;
+    global $form, $pearDB;
 
     $contact_id = (int) $contact_id;
 
-    if (! $contact_id > 0) {
+    if ($contact_id <= 0) {
         throw new RepositoryException(
             message: 'Invalid contact ID provided to update contact from contact page',
             context: ['contact_id' => $contact_id]
@@ -911,73 +942,112 @@ function updateContactInDB(mixed $contact_id, bool $from_MC = false, bool $isRem
 
     $ret = $form->getSubmitValues();
 
-    // Global function to use
-    if ($from_MC) {
-        updateContact_MC($contact_id);
-    } else {
-        updateContact($contact_id);
+    $ownTransaction = ! $pearDB->isTransactionActive();
+    if ($ownTransaction) {
+        $pearDB->beginTransaction();
     }
-
-    // Function for updating host commands
-    // 1 - MC with deletion of existing cmds
-    // 2 - MC with addition of new cmds
-    // 3 - Normal update
-    if (isset($ret['mc_mod_hcmds']['mc_mod_hcmds']) && $ret['mc_mod_hcmds']['mc_mod_hcmds']) {
-        updateContactHostCommands($contact_id);
-    } elseif (isset($ret['mc_mod_hcmds']['mc_mod_hcmds']) && ! $ret['mc_mod_hcmds']['mc_mod_hcmds']) {
-        updateContactHostCommands_MC($contact_id);
-    } else {
-        updateContactHostCommands($contact_id);
-    }
-    // Function for updating service commands
-    // 1 - MC with deletion of existing cmds
-    // 2 - MC with addition of new cmds
-    // 3 - Normal update
-    if (isset($ret['mc_mod_svcmds']['mc_mod_svcmds']) && $ret['mc_mod_svcmds']['mc_mod_svcmds']) {
-        updateContactServiceCommands($contact_id);
-    } elseif (isset($ret['mc_mod_svcmds']['mc_mod_svcmds']) && ! $ret['mc_mod_svcmds']['mc_mod_svcmds']) {
-        updateContactServiceCommands_MC($contact_id);
-    } else {
-        updateContactServiceCommands($contact_id);
-    }
-    // Function for updating contact groups
-    // 1 - MC with deletion of existing cg
-    // 2 - MC with addition of new cg
-    // 3 - Normal update
-    if (! $isRemote) {
-        if (isset($ret['mc_mod_cg']['mc_mod_cg']) && $ret['mc_mod_cg']['mc_mod_cg']) {
-            updateContactContactGroup($contact_id);
-        } elseif (isset($ret['mc_mod_cg']['mc_mod_cg']) && ! $ret['mc_mod_cg']['mc_mod_cg']) {
-            updateContactContactGroup_MC($contact_id);
+    try {
+        // Global function to use
+        if ($from_MC) {
+            updateContact_MC($contact_id);
         } else {
-            updateContactContactGroup($contact_id);
+            updateContact($contact_id);
         }
-    }
 
-    /**
-     * ACL
-     */
-    if (isset($ret['mc_mod_acl']['mc_mod_acl']) && $ret['mc_mod_acl']['mc_mod_acl']) {
-        updateAccessGroupLinks($contact_id);
-    } elseif (isset($ret['mc_mod_acl']['mc_mod_acl']) && ! $ret['mc_mod_acl']['mc_mod_acl']) {
-        updateAccessGroupLinks_MC($contact_id, $ret['mc_mod_acl']['mc_mod_acl']);
-    } else {
-        updateAccessGroupLinks($contact_id);
+        // Function for updating host commands
+        // 1 - MC with deletion of existing cmds
+        // 2 - MC with addition of new cmds
+        // 3 - Normal update
+        if (isset($ret['mc_mod_hcmds']['mc_mod_hcmds']) && $ret['mc_mod_hcmds']['mc_mod_hcmds']) {
+            updateContactHostCommands($contact_id);
+        } elseif (isset($ret['mc_mod_hcmds']['mc_mod_hcmds']) && ! $ret['mc_mod_hcmds']['mc_mod_hcmds']) {
+            updateContactHostCommands_MC($contact_id);
+        } else {
+            updateContactHostCommands($contact_id);
+        }
+        // Function for updating service commands
+        // 1 - MC with deletion of existing cmds
+        // 2 - MC with addition of new cmds
+        // 3 - Normal update
+        if (isset($ret['mc_mod_svcmds']['mc_mod_svcmds']) && $ret['mc_mod_svcmds']['mc_mod_svcmds']) {
+            updateContactServiceCommands($contact_id);
+        } elseif (isset($ret['mc_mod_svcmds']['mc_mod_svcmds']) && ! $ret['mc_mod_svcmds']['mc_mod_svcmds']) {
+            updateContactServiceCommands_MC($contact_id);
+        } else {
+            updateContactServiceCommands($contact_id);
+        }
+        // Function for updating contact groups
+        // 1 - MC with deletion of existing cg
+        // 2 - MC with addition of new cg
+        // 3 - Normal update
+        if (! $isRemote) {
+            if (isset($ret['mc_mod_cg']['mc_mod_cg']) && $ret['mc_mod_cg']['mc_mod_cg']) {
+                updateContactContactGroup($contact_id);
+            } elseif (isset($ret['mc_mod_cg']['mc_mod_cg']) && ! $ret['mc_mod_cg']['mc_mod_cg']) {
+                updateContactContactGroup_MC($contact_id);
+            } else {
+                updateContactContactGroup($contact_id);
+            }
+        }
+
+        /**
+         * ACL
+         */
+        if (isset($ret['mc_mod_acl']['mc_mod_acl']) && $ret['mc_mod_acl']['mc_mod_acl']) {
+            updateAccessGroupLinks($contact_id);
+        } elseif (isset($ret['mc_mod_acl']['mc_mod_acl']) && ! $ret['mc_mod_acl']['mc_mod_acl']) {
+            updateAccessGroupLinks_MC($contact_id, $ret['mc_mod_acl']['mc_mod_acl']);
+        } else {
+            updateAccessGroupLinks($contact_id);
+        }
+
+        if ($ownTransaction) {
+            $pearDB->commit();
+        }
+    } catch (Exception $e) {
+        if ($ownTransaction && $pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
     }
 }
 
 /**
- * @param array $ret
- * @throws RepositoryException
- * @return int
+ * Insert a new contact and create its related relations (host commands, service commands,
+ * contact groups and access-group links) as a single operation.
+ *
+ * The provided `$ret` array should contain sanitized contact fields suitable for insertion.
+ *
+ * @param array $ret Associative array of contact fields (as returned by sanitizeFormContactParameters).
+ * @return int The newly created contact's ID.
+ * @throws RepositoryException If a database or repository error occurs while inserting or linking the contact.
  */
 function insertContactInDB(array $ret = []): int
 {
-    $contactId = insertContact($ret);
-    updateContactHostCommands($contactId, $ret);
-    updateContactServiceCommands($contactId, $ret);
-    updateContactContactGroup($contactId, $ret);
-    updateAccessGroupLinks($contactId);
+    global $pearDB;
+
+    $ownTransaction = ! $pearDB->isTransactionActive();
+    if ($ownTransaction) {
+        $pearDB->beginTransaction();
+    }
+    try {
+        $contactId = insertContact($ret);
+        updateContactHostCommands($contactId, $ret);
+        updateContactServiceCommands($contactId, $ret);
+        updateContactContactGroup($contactId, $ret);
+        updateAccessGroupLinks($contactId);
+
+        if ($ownTransaction) {
+            $pearDB->commit();
+        }
+    } catch (Exception $e) {
+        if ($ownTransaction && $pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
+    }
 
     return $contactId;
 }
@@ -1095,13 +1165,20 @@ function insertContact(array $ret = []): int
 }
 
 /**
- * @throws RepositoryException
+ * Update a contact's data from the contact edit page.
+ *
+ * Validates and sanitizes submitted form values, updates the contact record,
+ * optionally updates the contact's password and language for the connected user,
+ * and records the change in the audit log.
+ *
+ * @param int $contactId The ID of the contact to update.
+ * @throws RepositoryException If the contact ID is invalid; sanitization of form parameters fails; the database update or audit log insertion fails; updating the password fails; or the connected user ID cannot be determined.
  */
 function updateContact(int $contactId): void
 {
     global $form, $pearDB, $centreon;
 
-    if (! $contactId > 0) {
+    if ($contactId <= 0) {
         throw new RepositoryException(
             message: 'Invalid contact ID provided to update contact from contact page for contact id ' . $contactId,
             context: ['contact_id' => $contactId]
@@ -1164,7 +1241,7 @@ function updateContact(int $contactId): void
 
     $userIdConnected = (int) $centreon->user->get_id();
 
-    if (! $userIdConnected > 0) {
+    if ($userIdConnected <= 0) {
         throw new RepositoryException(
             message: 'Fetching connected user ID failed during contact update from contact page for contact id ' . $contactId,
             context: ['contact_id' => $contactId],
@@ -1217,13 +1294,19 @@ function updateContact(int $contactId): void
 }
 
 /**
- * @throws RepositoryException
+ * Apply a massive-change update to a contact using submitted form values.
+ *
+ * Empty form fields are ignored; non-admin submissions are filtered to allowed fields.
+ * The function sanitizes parameters, updates the contact row in the database, and records a best-effort change log.
+ *
+ * @param int $contact_id Contact ID to update.
+ * @throws RepositoryException If the contact ID is invalid, parameter sanitization fails, or a database error occurs during the update or logging.
  */
 function updateContact_MC(int $contact_id): void
 {
     global $form, $pearDB, $centreon;
 
-    if (! $contact_id > 0) {
+    if ($contact_id <= 0) {
         throw new RepositoryException(
             message: 'Invalid contact ID provided to update contact by massive change for contact id ' . $contact_id,
             context: ['contact_id' => $contact_id]
@@ -1271,10 +1354,6 @@ function updateContact_MC(int $contact_id): void
         $stmt->bindValue(':contactId', $contact_id, PDO::PARAM_INT);
         $stmt->execute();
 
-        // Prepare Log
-        $query = "SELECT contact_name FROM `contact` WHERE contact_id='" . $contact_id . "' LIMIT 1";
-        $dbResult2 = $pearDB->query($query);
-        $row = $dbResult2->fetch();
     } catch (PDOException $e) {
         throw new RepositoryException(
             message: 'Database error while updating contact by massive change for contact id ' . $contact_id,
@@ -1283,7 +1362,18 @@ function updateContact_MC(int $contact_id): void
         );
     }
 
-    // Prepare value for changelog
+    // Prepare Log — best-effort, must not abort the update flow
+    try {
+        $nameStmt = $pearDB->prepare(
+            'SELECT contact_name FROM `contact` WHERE contact_id = :contactId LIMIT 1'
+        );
+        $nameStmt->bindValue(':contactId', $contact_id, PDO::PARAM_INT);
+        $nameStmt->execute();
+        $row = $nameStmt->fetch() ?: ['contact_name' => $ret['contact_name'] ?? 'unknown'];
+    } catch (PDOException) {
+        $row = ['contact_name' => $ret['contact_name'] ?? 'unknown'];
+    }
+
     $fields = CentreonLogAction::prepareChanges($ret);
     try {
         $centreon->CentreonLogAction->insertLog('contact', $contact_id, $row['contact_name'], 'mc', $fields);
@@ -1642,8 +1732,13 @@ function updateContactContactGroup(int $contactId, array $fields = []): bool
 
 // For massive change. We just add the new list if the elem doesn't exist yet
 /**
- * @param int $contactId
- * @return bool
+ * Apply massive-change contact group associations for a contact using submitted form values.
+ *
+ * Adds any contact-group relations present in the form field `contact_cgNotif` that are not already
+ * associated with the given contact and then synchronizes the contact-group custom view.
+ *
+ * @param int $contactId The contact identifier to update; must be greater than 0.
+ * @return bool `true` if associations were applied and the custom view synchronized, `false` on invalid input or failure.
  */
 function updateContactContactGroup_MC(int $contactId): bool
 {
@@ -1670,8 +1765,10 @@ function updateContactContactGroup_MC(int $contactId): bool
     }
 
     try {
-        $query = "SELECT contactgroup_cg_id FROM contactgroup_contact_relation WHERE contact_contact_id = {$contactId}";
-        $contactGroupIdsFromDb = $pearDB->executeQueryFetchColumn($query);
+        $cgMcStmt = $pearDB->prepare('SELECT contactgroup_cg_id FROM contactgroup_contact_relation WHERE contact_contact_id = :contactId');
+        $cgMcStmt->bindValue(':contactId', $contactId, PDO::PARAM_INT);
+        $cgMcStmt->execute();
+        $contactGroupIdsFromDb = $cgMcStmt->fetchAll(PDO::FETCH_COLUMN);
 
         $query = 'INSERT INTO contactgroup_contact_relation (contact_contact_id, contactgroup_cg_id) VALUES (:contact_id, :contactgroup_id)';
         $pdoSth = $pearDB->prepareQuery($query);
@@ -1683,7 +1780,7 @@ function updateContactContactGroup_MC(int $contactId): bool
                 );
             }
         }
-    } catch (CentreonDbException $e) {
+    } catch (PDOException|CentreonDbException $e) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_BUSINESS_LOG,
             'Error while updating the relationship between contacts and contact groups by massive change',
@@ -1711,9 +1808,16 @@ function updateContactContactGroup_MC(int $contactId): bool
 }
 
 /**
- * @param array $tmpContacts
- * @throws RepositoryException
- * @return bool
+ * Import LDAP contacts into the local database and associate them with LDAP contact groups.
+ *
+ * Expects $tmpContacts to contain parallel arrays for imported entries (at minimum the keys
+ * 'select', 'contact_name', 'contact_alias', 'contact_email', 'contact_pager', 'ar_id', and 'dn').
+ * For each selected entry this function inserts a new contact when it does not exist, or updates the
+ * existing contact's LDAP binding and template when configured, then fetches LDAP groups and creates
+ * contactgroup relations and default LDAP contactgroup associations.
+ *
+ * @param array $tmpContacts Parallel arrays of LDAP-derived contact fields (see summary).
+ * @return bool `true` on successful processing of all selected entries, `false` if a database or LDAP error occurred.
  */
 function insertLdapContactInDB($tmpContacts = [])
 {
@@ -1751,19 +1855,23 @@ function insertLdapContactInDB($tmpContacts = [])
             $tmpConf['contact_location'] = '0';
             $tmpConf['contact_register'] = '1';
             $tmpConf['contact_enable_notifications']['contact_enable_notifications'] = '2';
-            insertContactInDB($tmpConf);
+            $contact_id = insertContactInDB($tmpConf);
             unset($tmpConf);
+        } else {
+            // Get the contact_id by DN for existing contacts
+            $dnStmt = $pearDB->prepare('SELECT contact_id FROM contact WHERE contact_ldap_dn = :ldap_dn');
+            $dnStmt->bindValue(':ldap_dn', $tmpContacts['dn'][$select_key], PDO::PARAM_STR);
+            try {
+                $dnStmt->execute();
+            } catch (PDOException $e) {
+                return false;
+            }
+            $row = $dnStmt->fetch(PDO::FETCH_ASSOC);
+            if ($row === false) {
+                continue;
+            }
+            $contact_id = (int) $row['contact_id'];
         }
-        // Get the contact_id
-        $query = "SELECT contact_id FROM contact WHERE contact_ldap_dn = '"
-            . $pearDB->escape($tmpContacts['dn'][$select_key]) . "'";
-        try {
-            $res = $pearDB->query($query);
-        } catch (PDOException $e) {
-            return false;
-        }
-        $row = $res->fetch();
-        $contact_id = $row['contact_id'];
 
         if (! isset($ldapInstances[$arId])) {
             $ldap = new CentreonLDAP($pearDB, null, $arId);
@@ -1776,22 +1884,42 @@ function insertLdapContactInDB($tmpContacts = [])
             $ldap = $ldapInstances[$arId];
         }
         if ($contact_id) {
-            $sqlUpdate = 'UPDATE contact SET ar_id = ' . $pearDB->escape($arId)
-                . ' %s  WHERE contact_id = ' . (int) $contact_id;
-            $tmplSql = '';
-            if (isset($contactTemplates[$arId])) {
-                $tmplSql = ', contact_template_id = ' . $pearDB->escape($contactTemplates[$arId]);
+            try {
+                if (isset($contactTemplates[$arId])) {
+                    $updateStmt = $pearDB->prepare(
+                        'UPDATE contact SET ar_id = :arId, contact_template_id = :tmplId WHERE contact_id = :contactId'
+                    );
+                    $updateStmt->bindValue(':tmplId', (int) $contactTemplates[$arId], PDO::PARAM_INT);
+                } else {
+                    $updateStmt = $pearDB->prepare(
+                        'UPDATE contact SET ar_id = :arId WHERE contact_id = :contactId'
+                    );
+                }
+                $updateStmt->bindValue(':arId', (int) $arId, PDO::PARAM_INT);
+                $updateStmt->bindValue(':contactId', (int) $contact_id, PDO::PARAM_INT);
+                $updateStmt->execute();
+            } catch (PDOException $e) {
+                return false;
             }
-            $pearDB->query(sprintf($sqlUpdate, $tmplSql));
         }
         $listGroup = [];
         if ($ldap->connect() !== false) {
             $listGroup = $ldap->listGroupsForUser($tmpContacts['dn'][$select_key]);
         }
         if ($listGroup !== []) {
-            $query = "SELECT cg_id FROM contactgroup WHERE cg_name IN ('" . join("','", $listGroup) . "')";
+            $placeholders = [];
+            $cgStmt = null;
+            foreach ($listGroup as $idx => $groupName) {
+                $placeholders[] = ':cg_' . $idx;
+            }
+            $query = 'SELECT cg_id FROM contactgroup WHERE cg_name IN (' . implode(',', $placeholders) . ')';
             try {
-                $res = $pearDB->query($query);
+                $cgStmt = $pearDB->prepare($query);
+                foreach ($listGroup as $idx => $groupName) {
+                    $cgStmt->bindValue(':cg_' . $idx, $groupName, PDO::PARAM_STR);
+                }
+                $cgStmt->execute();
+                $res = $cgStmt;
             } catch (PDOException $e) {
                 return false;
             }
@@ -2174,13 +2302,19 @@ function validatePasswordCreation(array $fields): true|array
 }
 
 /**
- * Validate password creation using defined security policy.
+ * Validate a contact password change request against required fields and the configured password policy.
  *
- * @param array<string,mixed> $fields
+ * Checks presence and consistency of current, new, and confirmation passwords; verifies the current password, enforces the password policy for the new password, and returns field-specific error messages when validation fails.
  *
- * @throws InvalidArgumentException
+ * @param array<string,mixed> $fields Associative array expected to contain:
+ *                                   - 'contact_id' (int): ID of the contact being modified,
+ *                                   - 'contact_passwd' (string): new password,
+ *                                   - 'contact_passwd2' (string): confirmation of the new password,
+ *                                   - 'current_password' (string): current password for verification.
  *
- * @return array<string,string>|true
+ * @throws InvalidArgumentException If the provided contact ID or the connected user ID is invalid.
+ *
+ * @return array<string,string>|true `true` when validation succeeds; otherwise an associative array mapping input field names to error messages.
  */
 function validatePasswordModification(array $fields): array|true
 {
@@ -2190,12 +2324,12 @@ function validatePasswordModification(array $fields): array|true
     $currentPassword = $fields['current_password'];
 
     $contactId = (int) $fields['contact_id'];
-    if (! $contactId > 0) {
+    if ($contactId <= 0) {
         throw new InvalidArgumentException('Invalid contact ID provided for password modification validation');
     }
 
     $userIdConnected = (int) $centreon->user->get_id();
-    if (! $userIdConnected > 0) {
+    if ($userIdConnected <= 0) {
         throw new InvalidArgumentException('Invalid connected user ID provided for password modification validation');
     }
 
@@ -2266,14 +2400,21 @@ function validatePasswordModification(array $fields): array|true
 }
 
 /**
- * Validate autologin key is not equal to a password
+ * Ensure the provided autologin key is different from the contact's current or new password.
  *
- * @param array<string,mixed> $fields
+ * Validates that when an autologin key is present it does not match the existing stored password
+ * for the contact (if any) and does not equal a newly supplied password in the same request.
  *
- * @throws RepositoryException
- * @throws InvalidArgumentException
+ * @param array<string,mixed> $fields Associative input containing at minimum:
+ *   - 'contact_id' (int|string|null): contact identifier when validating an existing contact.
+ *   - 'contact_autologin_key' (string|null): the autologin key to validate.
+ *   - 'contact_passwd' (string|null): optional new password provided in the request.
  *
- * @return array<string,string>|true
+ * @throws InvalidArgumentException If the connected user ID cannot be determined for validation.
+ * @throws RepositoryException If a database error occurs while retrieving the contact's stored password.
+ *
+ * @return array<string,string>|true An associative array of field-specific error messages when validation fails,
+ *   or `true` when the autologin key passes validation.
  */
 function validateAutologin(array $fields): array|true
 {
@@ -2287,7 +2428,7 @@ function validateAutologin(array $fields): array|true
 
         $userIdConnected = (int) $centreon->user->get_id();
 
-        if (! $userIdConnected > 0) {
+        if ($userIdConnected <= 0) {
             throw new InvalidArgumentException('Invalid connected user ID provided for autologin validation');
         }
 
@@ -2312,7 +2453,7 @@ function validateAutologin(array $fields): array|true
                 );
             }
 
-            if (password_verify($fields['contact_autologin_key'], $contactPassword['password'])) {
+            if ($contactPassword !== false && password_verify($fields['contact_autologin_key'], $contactPassword['password'])) {
                 $errors['contact_autologin_key'] = _(
                     'Your autologin key must be different than your current password'
                 );

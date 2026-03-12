@@ -118,11 +118,12 @@ function testAdditionalRemoteServer(array $values)
 }
 
 /**
- * Check if the name already exist in database
+ * Determine whether a server name is available (not present) in the database.
  *
- * @param string $name Name to check
+ * If a form submission contains an 'id' value, that id is excluded from the existence check.
  *
- * @return bool Return true if the name does not exist in database
+ * @param string|null $name The server name to check.
+ * @return bool `true` if the name is not present in the database (available), `false` otherwise.
  */
 function testExistence($name = null): bool
 {
@@ -134,17 +135,18 @@ function testExistence($name = null): bool
         $id = $form->getSubmitValue('id');
     }
 
-    $query = 'SELECT name, id FROM `nagios_server` WHERE `name` = :name';
-    $statement = $pearDB->prepare($query);
-    $statement->bindValue(':name', htmlentities($name, ENT_QUOTES, 'UTF-8'), PDO::PARAM_STR);
-    $statement->execute();
-    $row = $statement->fetch(PDO::FETCH_ASSOC);
-
-    if ($statement->rowCount() >= 1 && $row['id'] == $id) {
-        return true;
+    $query = 'SELECT 1 FROM `nagios_server` WHERE `name` = :name';
+    if ($id !== null) {
+        $query .= ' AND id <> :serverId';
     }
+    $statement = $pearDB->prepare($query . ' LIMIT 1');
+    $statement->bindValue(':name', htmlentities($name, ENT_QUOTES, 'UTF-8'), PDO::PARAM_STR);
+    if ($id !== null) {
+        $statement->bindValue(':serverId', (int) $id, PDO::PARAM_INT);
+    }
+    $statement->execute();
 
-    return ! ($statement->rowCount() >= 1 && $row['id'] != $id);
+    return $statement->fetchColumn() === false;
 }
 
 /**
@@ -164,55 +166,74 @@ function isValidIpAddress(string $ipAddress): bool
 }
 
 /**
- * Enable a server
+ * Enable the poller/server with the given id and ensure one engine is activated.
  *
- * @param int $id Id of the server
+ * Sets `ns_activate = 1` for the server, selects the minimum `cfg_nagios.nagios_id` for that server (if any),
+ * deactivates other `cfg_nagios` entries for the server and activates the selected engine, and records the action in the changelog.
  *
- * @throws Exception
- * @global CentreonDB $pearDB DB connector
- * @global Centreon $centreon
+ * @param int $id Id of the server to enable.
  */
 function enableServerInDB(int $id): void
 {
     global $pearDB, $centreon;
 
-    $dbResult = $pearDB->query('SELECT name FROM `nagios_server` WHERE `id` = ' . $id . ' LIMIT 1');
-    $row = $dbResult->fetch();
+    $selectStmt = $pearDB->prepare('SELECT name FROM `nagios_server` WHERE `id` = :id LIMIT 1');
+    $selectStmt->bindValue(':id', $id, PDO::PARAM_INT);
+    $selectStmt->execute();
+    $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
+    if ($row === false) {
+        return;
+    }
 
-    $pearDB->query("UPDATE `nagios_server` SET `ns_activate` = '1' WHERE id = " . $id);
+    $updateStmt = $pearDB->prepare('UPDATE `nagios_server` SET `ns_activate` = \'1\' WHERE id = :id');
+    $updateStmt->bindValue(':id', $id, PDO::PARAM_INT);
+    $updateStmt->execute();
     $centreon->CentreonLogAction->insertLog('poller', $id, $row['name'], 'enable');
 
-    $query = 'SELECT MIN(`nagios_id`) AS idEngine FROM cfg_nagios WHERE `nagios_server_id` = ' . $id;
-    $dbResult = $pearDB->query($query);
-    $idEngine = $dbResult->fetch();
+    $engineStmt = $pearDB->prepare(
+        'SELECT MIN(`nagios_id`) AS idEngine FROM cfg_nagios WHERE `nagios_server_id` = :id'
+    );
+    $engineStmt->bindValue(':id', $id, PDO::PARAM_INT);
+    $engineStmt->execute();
+    $idEngine = $engineStmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($idEngine['idEngine']) {
-        $pearDB->query(
-            "UPDATE `cfg_nagios` SET `nagios_activate` = '0' WHERE `nagios_server_id` = " . $id
+    if ($idEngine !== false && $idEngine['idEngine']) {
+        $disableStmt = $pearDB->prepare(
+            'UPDATE `cfg_nagios` SET `nagios_activate` = \'0\' WHERE `nagios_server_id` = :id'
         );
-        $pearDB->query(
-            "UPDATE cfg_nagios SET nagios_activate = '1' WHERE nagios_id = " . (int) $idEngine['idEngine']
+        $disableStmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $disableStmt->execute();
+
+        $enableStmt = $pearDB->prepare(
+            'UPDATE cfg_nagios SET nagios_activate = \'1\' WHERE nagios_id = :engineId'
         );
+        $enableStmt->bindValue(':engineId', (int) $idEngine['idEngine'], PDO::PARAM_INT);
+        $enableStmt->execute();
     }
 }
 
 /**
- * Disable a server
+ * Disable the server with the given id in the database.
+ *
+ * Also sets related `cfg_nagios` entries to inactive and creates a 'disable' log entry.
  *
  * @param int $id Id of the server
- *
- * @throws Exception
- * @global CentreonDB $pearDB DB connector
- * @global Centreon $centreon
  */
 function disableServerInDB(int $id): void
 {
     global $pearDB, $centreon;
 
-    $dbResult = $pearDB->query('SELECT name FROM `nagios_server` WHERE `id` = ' . $id . ' LIMIT 1');
-    $row = $dbResult->fetch();
+    $selectStmt = $pearDB->prepare('SELECT name FROM `nagios_server` WHERE `id` = :id LIMIT 1');
+    $selectStmt->bindValue(':id', $id, PDO::PARAM_INT);
+    $selectStmt->execute();
+    $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
+    if ($row === false) {
+        return;
+    }
 
-    $pearDB->query("UPDATE `nagios_server` SET `ns_activate` = '0' WHERE id = " . $id);
+    $updateStmt = $pearDB->prepare('UPDATE `nagios_server` SET `ns_activate` = \'0\' WHERE id = :id');
+    $updateStmt->bindValue(':id', $id, PDO::PARAM_INT);
+    $updateStmt->execute();
 
     $centreon->CentreonLogAction->insertLog(
         'poller',
@@ -221,18 +242,23 @@ function disableServerInDB(int $id): void
         'disable'
     );
 
-    $pearDB->query(
-        "UPDATE `cfg_nagios` SET `nagios_activate` = '0' WHERE `nagios_server_id` = " . $id
+    $cfgStmt = $pearDB->prepare(
+        'UPDATE `cfg_nagios` SET `nagios_activate` = \'0\' WHERE `nagios_server_id` = :id'
     );
+    $cfgStmt->bindValue(':id', $id, PDO::PARAM_INT);
+    $cfgStmt->execute();
 }
 
 /**
- * Delete a server
+ * Delete poller/server entries and perform related cleanup in the database.
  *
- * @param array $serverIds
+ * For each provided server id this removes the poller record and associated data:
+ * reassigns child platforms when deleting a remote platform, deletes remote_servers
+ * entries and rs_poller_relation mappings as appropriate, deletes the nagios_server
+ * row, marks the corresponding instance as deleted, removes Centreon Broker config
+ * for the poller, and writes a deletion log entry.
  *
- * @global CentreonDB $pearDB DB connector
- * @global Centreon $centreon
+ * @param array $serverIds Array whose keys are poller/server IDs to delete.
  */
 function deleteServerInDB(array $serverIds): void
 {
@@ -261,10 +287,12 @@ function deleteServerInDB(array $serverIds): void
             }
         }
 
-        $result = $pearDB->query(
-            'SELECT name, ns_ip_address AS ip FROM `nagios_server` WHERE `id` = ' . $serverId . ' LIMIT 1'
+        $selectServerStmt = $pearDB->prepare(
+            'SELECT name, ns_ip_address AS ip FROM `nagios_server` WHERE `id` = :serverId LIMIT 1'
         );
-        $row = $result->fetch();
+        $selectServerStmt->bindValue(':serverId', (int) $serverId, PDO::PARAM_INT);
+        $selectServerStmt->execute();
+        $row = $selectServerStmt->fetch(PDO::FETCH_ASSOC);
 
         // Is a Remote Server?
         $statement = $pearDB->prepare(
@@ -273,7 +301,7 @@ function deleteServerInDB(array $serverIds): void
         $statement->bindValue(':id', $serverId, PDO::PARAM_INT);
         $statement->execute();
 
-        if ($statement->rowCount() > 0) {
+        if ($statement->fetch() !== false) {
             // Delete entry from remote_servers
             $statement = $pearDB->prepare(
                 'DELETE FROM remote_servers WHERE server_id = :id'
@@ -281,55 +309,64 @@ function deleteServerInDB(array $serverIds): void
             $statement->bindValue(':id', $serverId, PDO::PARAM_INT);
             $statement->execute();
             // Delete all relation between this Remote Server and pollers
-            $pearDB->query(
-                "DELETE FROM rs_poller_relation WHERE remote_server_id = '" . $serverId . "'"
+            $deleteRelStmt = $pearDB->prepare(
+                'DELETE FROM rs_poller_relation WHERE remote_server_id = :serverId'
             );
+            $deleteRelStmt->bindValue(':serverId', (int) $serverId, PDO::PARAM_INT);
+            $deleteRelStmt->execute();
         } else {
             // Delete all relation between this poller and Remote Servers
-            $pearDB->query(
-                "DELETE FROM rs_poller_relation WHERE poller_server_id = '" . $serverId . "'"
+            $deleteRelStmt = $pearDB->prepare(
+                'DELETE FROM rs_poller_relation WHERE poller_server_id = :serverId'
             );
+            $deleteRelStmt->bindValue(':serverId', (int) $serverId, PDO::PARAM_INT);
+            $deleteRelStmt->execute();
         }
 
-        $pearDB->query('DELETE FROM `nagios_server` WHERE id = ' . $serverId);
-        $pearDBO->query(
-            "UPDATE `instances` SET deleted = '1' WHERE instance_id = " . $serverId
+        $deleteServerStmt = $pearDB->prepare('DELETE FROM `nagios_server` WHERE id = :serverId');
+        $deleteServerStmt->bindValue(':serverId', (int) $serverId, PDO::PARAM_INT);
+        $deleteServerStmt->execute();
+
+        $updateInstanceStmt = $pearDBO->prepare(
+            'UPDATE `instances` SET deleted = \'1\' WHERE instance_id = :serverId'
         );
+        $updateInstanceStmt->bindValue(':serverId', (int) $serverId, PDO::PARAM_INT);
+        $updateInstanceStmt->execute();
         deleteCentreonBrokerByPollerId($serverId);
 
         $centreon->CentreonLogAction->insertLog(
             'poller',
             $serverId,
-            $row['name'],
+            $row !== false ? $row['name'] : "id:{$serverId}",
             'd'
         );
     }
 }
 
 /**
- * Delete Centreon Broker configurations
+ * Remove Centreon Broker configuration rows associated with the specified poller.
  *
- * @param int $id The Id poller
- *
- * @global CentreonDB $pearDB DB connector
+ * @param int $id Poller database id whose Centreon Broker entries will be deleted.
  */
 function deleteCentreonBrokerByPollerId(int $id)
 {
     global $pearDB;
 
-    $pearDB->query(
-        'DELETE FROM cfg_centreonbroker WHERE ns_nagios_server = ' . $id
-    );
+    $stmt = $pearDB->prepare('DELETE FROM cfg_centreonbroker WHERE ns_nagios_server = :id');
+    $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+    $stmt->execute();
 }
 
 /**
- * Duplicate server
+ * Create duplicated copies of the specified servers using unique numeric suffixes and replicate their related configuration and relations.
  *
- * @param array $server List of server id to duplicate
- * @param array $nbrDup Number of duplications per server id
+ * For each server id provided, this function generates the requested number of duplicates (using available suffixes),
+ * inserts new nagios_server rows with suffixed names, and duplicates associated cfg_nagios entries, broker modules,
+ * resource-instance relations, poller command relations, and remote server information. Each duplication attempt is
+ * performed inside a database transaction; failures are rolled back and logged.
  *
- * @throws Exception
- * @global CentreonDB $pearDB DB connector
+ * @param array $server Array whose keys are server IDs to duplicate.
+ * @param array $nbrDup Associative array mapping server ID to the number of duplicates to create for that server.
  */
 function duplicateServer(array $server, array $nbrDup): void
 {
@@ -338,15 +375,20 @@ function duplicateServer(array $server, array $nbrDup): void
     $obj = new CentreonMainCfg();
 
     foreach (array_keys($server) as $serverId) {
-        $result = $pearDB->query(
-            'SELECT * FROM `nagios_server` WHERE id = ' . (int) $serverId . ' LIMIT 1'
+        $selectServerStmt = $pearDB->prepare(
+            'SELECT * FROM `nagios_server` WHERE id = :serverId LIMIT 1'
         );
-        $rowServer = $result->fetch();
+        $selectServerStmt->bindValue(':serverId', (int) $serverId, PDO::PARAM_INT);
+        $selectServerStmt->execute();
+        $rowServer = $selectServerStmt->fetch(PDO::FETCH_ASSOC);
+        $selectServerStmt->closeCursor();
+        if ($rowServer === false) {
+            continue;
+        }
         $rowServer['id'] = null;
         $rowServer['ns_activate'] = '0';
         $rowServer['is_default'] = '0';
         $rowServer['localhost'] = '0';
-        $result->closeCursor();
 
         if (! isset($rowServer['name'])) {
             continue;
@@ -354,77 +396,88 @@ function duplicateServer(array $server, array $nbrDup): void
 
         $rowBks = $obj->getBrokerModules($serverId);
 
+        if (! isset($nbrDup[$serverId])) {
+            continue;
+        }
         $availableSuffix = getAvailableSuffixIds(
             $rowServer['name'],
-            $nbrDup[$serverId]
+            (int) $nbrDup[$serverId]
         );
 
         foreach ($availableSuffix as $suffix) {
-            $queryValues = null;
             $serverName = null;
+            $columns = [];
+            $params = [];
+            $paramIndex = 0;
             foreach ($rowServer as $columnName => $columnValue) {
                 if ($columnName == 'name') {
                     $columnValue .= '_' . $suffix;
                     $serverName = $columnValue;
                 }
-
-                if (is_null($queryValues)) {
-                    $queryValues .= $columnValue != null
-                        ? ("'" . $columnValue . "'")
-                        : 'NULL';
-                } else {
-                    $queryValues .= $columnValue != null
-                        ? (", '" . $columnValue . "'")
-                        : ', NULL';
-                }
+                $columns[] = '`' . $columnName . '`';
+                $paramKey = ':p' . $paramIndex++;
+                $params[$paramKey] = $columnValue;
             }
-            if (! is_null($queryValues) && testExistence($serverName)) {
-                if ($queryValues) {
-                    $pearDB->query('INSERT INTO `nagios_server` VALUES (' . $queryValues . ')');
-                }
-
-                $queryGetId = 'SELECT id FROM nagios_server WHERE name = :name';
+            $decodedName = $serverName !== null
+                ? html_entity_decode($serverName, ENT_QUOTES, 'UTF-8')
+                : null;
+            if ($columns !== [] && $decodedName !== null && testExistence($decodedName)) {
+                $pearDB->beginTransaction();
                 try {
-                    $statement = $pearDB->prepare($queryGetId);
-                    $statement->bindValue(':name', $serverName, PDO::PARAM_STR);
-                    $statement->execute();
-                    if ($statement->rowCount() > 0) {
-                        $row = $statement->fetch(PDO::FETCH_ASSOC);
-                        $iId = $obj->insertServerInCfgNagios($serverId, $row['id'], $serverName);
-                        $obj->insertCfgNagiosLogger($iId, $serverId);
+                    $placeholders = implode(', ', array_keys($params));
+                    $columnList = implode(', ', $columns);
+                    $insertStmt = $pearDB->prepare(
+                        'INSERT INTO `nagios_server` (' . $columnList . ') VALUES (' . $placeholders . ')'
+                    );
+                    foreach ($params as $paramKey => $paramValue) {
+                        $insertStmt->bindValue($paramKey, $paramValue, $paramValue === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                    }
+                    $insertStmt->execute();
+                    $newServerId = (int) $pearDB->lastInsertId();
 
-                        if (isset($rowBks)) {
-                            $rqBk = 'INSERT INTO cfg_nagios_broker_module (`cfg_nagios_id`, `broker_module`)'
-                                    . ' VALUES (:cfg_nagios_id, :broker_module)';
-                            $statement = $pearDB->prepare($rqBk);
-                            foreach ($rowBks as $keyBk => $valBk) {
-                                if ($valBk['broker_module']) {
-                                    $statement->bindValue(':cfg_nagios_id', (int) $iId, PDO::PARAM_INT);
-                                    $statement->bindValue(':broker_module', $valBk['broker_module'], PDO::PARAM_STR);
-                                    $statement->execute();
-                                }
+                    if ($newServerId <= 0) {
+                        throw new RuntimeException('Failed to retrieve duplicated server id');
+                    }
+
+                    $iId = $obj->insertServerInCfgNagios($serverId, $newServerId, $serverName);
+                    $obj->insertCfgNagiosLogger($iId, $serverId);
+
+                    if (isset($rowBks)) {
+                        $rqBk = 'INSERT INTO cfg_nagios_broker_module (`cfg_nagios_id`, `broker_module`)'
+                                . ' VALUES (:cfg_nagios_id, :broker_module)';
+                        $statement = $pearDB->prepare($rqBk);
+                        foreach ($rowBks as $keyBk => $valBk) {
+                            if ($valBk['broker_module']) {
+                                $statement->bindValue(':cfg_nagios_id', (int) $iId, PDO::PARAM_INT);
+                                $statement->bindValue(':broker_module', $valBk['broker_module'], PDO::PARAM_STR);
+                                $statement->execute();
                             }
                         }
-
-                        $queryRel = 'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id) '
-                            . 'SELECT b.resource_id, :instance_id FROM '
-                            . 'cfg_resource_instance_relations as b WHERE b.instance_id = :b_instance_id';
-                        $statement = $pearDB->prepare($queryRel);
-                        $statement->bindValue(':instance_id', (int) $row['id'], PDO::PARAM_INT);
-                        $statement->bindValue(':b_instance_id', (int) $serverId, PDO::PARAM_INT);
-                        $statement->execute();
-                        $queryCmd = 'INSERT INTO poller_command_relations (poller_id, command_id, command_order) '
-                            . 'SELECT :poller_id, b.command_id, b.command_order FROM '
-                            . 'poller_command_relations as b WHERE b.poller_id = :b_poller_id';
-                        $statement = $pearDB->prepare($queryCmd);
-                        $statement->bindValue(':poller_id', (int) $row['id'], PDO::PARAM_INT);
-                        $statement->bindValue(':b_poller_id', (int) $serverId, PDO::PARAM_INT);
-                        $statement->execute();
-
-                        duplicateRemoteServerInformation((int) $serverId, (int) $row['id']);
                     }
-                } catch (PDOException $e) {
-                    // Nothing to do
+
+                    $queryRel = 'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id) '
+                        . 'SELECT b.resource_id, :instance_id FROM '
+                        . 'cfg_resource_instance_relations as b WHERE b.instance_id = :b_instance_id';
+                    $statement = $pearDB->prepare($queryRel);
+                    $statement->bindValue(':instance_id', $newServerId, PDO::PARAM_INT);
+                    $statement->bindValue(':b_instance_id', (int) $serverId, PDO::PARAM_INT);
+                    $statement->execute();
+                    $queryCmd = 'INSERT INTO poller_command_relations (poller_id, command_id, command_order) '
+                        . 'SELECT :poller_id, b.command_id, b.command_order FROM '
+                        . 'poller_command_relations as b WHERE b.poller_id = :b_poller_id';
+                    $statement = $pearDB->prepare($queryCmd);
+                    $statement->bindValue(':poller_id', $newServerId, PDO::PARAM_INT);
+                    $statement->bindValue(':b_poller_id', (int) $serverId, PDO::PARAM_INT);
+                    $statement->execute();
+
+                    duplicateRemoteServerInformation((int) $serverId, $newServerId);
+
+                    $pearDB->commit();
+                } catch (Throwable $e) {
+                    if ($pearDB->inTransaction()) {
+                        $pearDB->rollBack();
+                    }
+                    error_log('Failed to duplicate server id=' . $serverId . ': ' . $e->getMessage());
                 }
             }
         }
@@ -507,13 +560,16 @@ function insertServerInDB(array $data): int
 }
 
 /**
- * Create a server in database
+ * Create a new nagios_server (poller) record and perform related setup.
  *
- * @param array $data Data of the new server
+ * Inserts the server into the database and performs associated actions such as
+ * adding a platform_topology entry, applying poller commands (if provided),
+ * creating a changelog entry, and updating poller ACLs. Exceptions raised
+ * while inserting platform topology are caught and not rethrown.
  *
- * @return int Id of the new server
- * @global Centreon $centreon
- * @global CentreonDB $pearDB DB connector
+ * @param array $data Associative array of server properties used for the insert (name, ns_ip_address, ssh_port, gorgone settings, command paths, activation flags, remote linkage, etc.).
+ * @return int The new poller id.
+ * @throws RuntimeException If the insert does not produce a valid poller id.
  */
 function insertServer(array $data): int
 {
@@ -692,27 +748,28 @@ function insertServer(array $data): int
     }
     $stmt->execute();
 
-    $result = $pearDB->query('SELECT MAX(id) as last_id FROM `nagios_server`');
-    $poller = $result->fetch();
-    $result->closeCursor();
+    $pollerId = (int) $pearDB->lastInsertId();
+    if ($pollerId <= 0) {
+        throw new RuntimeException('Failed to retrieve a valid poller id after insert');
+    }
 
     try {
-        insertServerIntoPlatformTopology($retValue, (int) $poller['last_id']);
+        insertServerIntoPlatformTopology($retValue, $pollerId);
     } catch (Exception $e) {
         // catch exception but don't return anything to avoid blank pages on form
     }
 
     if (isset($_REQUEST['pollercmd'])) {
         $instanceObj = new CentreonInstance($pearDB);
-        $instanceObj->setCommands($poller['last_id'], $_REQUEST['pollercmd']);
+        $instanceObj->setCommands($pollerId, $_REQUEST['pollercmd']);
     }
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($data);
     $centreon->CentreonLogAction->insertLog(
         'poller',
-        $poller['last_id'] ?? null,
-        CentreonDB::escape($data['name']),
+        $pollerId,
+        $data['name'],
         'a',
         $fields
     );
@@ -722,15 +779,18 @@ function insertServer(array $data): int
      */
     $centreon->user->access->updatePollerACL();
 
-    return (int) $poller['last_id'];
+    return $pollerId;
 }
 
 /**
- * @param int $serverId Id of the server
+ * Associate the given poller with every resource and record each association in the changelog.
  *
- * @return bool Return true if ok
- * @global CentreonDB $pearDB DB connector
- *                              global Centreon $centreon
+ * Iterates over all rows in cfg_resource and inserts a relation for the specified poller
+ * into cfg_resource_instance_relations if not already processed within this call; for each
+ * inserted relation a changelog entry is created.
+ *
+ * @param int $serverId The poller/server id to associate resources with.
+ * @return bool `true` on success, `false` if resource enumeration failed.
  */
 function addUserRessource(int $serverId): bool
 {
@@ -760,7 +820,7 @@ function addUserRessource(int $serverId): bool
             $centreon->CentreonLogAction->insertLog(
                 'resource',
                 $serverId,
-                CentreonDB::escape($resource['resource_name']),
+                $resource['resource_name'],
                 'a',
                 $fields
             );
@@ -803,12 +863,15 @@ function updateRemoteServerInformation(array $data, int $id)
 }
 
 /**
- * Update a server
+ * Update an existing poller/server record and related configuration.
  *
- * @param int $id
- * @param array $data
+ * Updates the nagios_server row for the given server id using values from $data,
+ * applies activation changes to the engine when required, updates remote-server
+ * information and platform topology, manages additional remote relations and
+ * poller commands, and inserts a changelog entry describing the changes.
  *
- * @throws Exception
+ * @param int $id The id of the server to update.
+ * @param array $data Associative array of server properties to apply (fields mirror nagios_server column meanings and related form keys).
  */
 function updateServer(int $id, array $data): void
 {
@@ -1041,7 +1104,7 @@ function updateServer(int $id, array $data): void
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($data);
-    $centreon->CentreonLogAction->insertLog('poller', $id, CentreonDB::escape($data['name']), 'c', $fields);
+    $centreon->CentreonLogAction->insertLog('poller', $id, $data['name'] ?? '', 'c', $fields);
 }
 
 /**
@@ -1114,10 +1177,19 @@ function insertServerIntoPlatformTopology(array $pollerInformations, int $poller
 }
 
 /**
- * Update Server information into platform_topology table
+ * Update or insert the poller's entry in platform_topology to reflect its current address, name, type, and parent.
  *
- * @param array $pollerInformations
- * @param int $serverId
+ * Updates the existing platform_topology row for the given server_id or inserts a new row when none exists.
+ * Determines the topology `type` as 'remote', 'central', or 'poller', resolves the appropriate parent platform,
+ * and preserves an existing central platform address if the poller IP is the localhost loopback.
+ *
+ * @param array $pollerInformations Associative array of poller values; expected keys include
+ *                                 ':ns_ip_address' (string) for the poller IP,
+ *                                 ':name' (string) for the poller name,
+ *                                 ':localhost' (bool|int) indicating central/localhost status,
+ *                                 and optional ':remote_id' (int) when attached to a remote platform.
+ * @param int   $serverId          The poller's server_id used to locate or create the platform_topology row.
+ * @throws Exception If no parent platform topology can be found when required.
  */
 function updateServerIntoPlatformTopology(array $pollerInformations, int $serverId)
 {
@@ -1204,7 +1276,7 @@ function updateServerIntoPlatformTopology(array $pollerInformations, int $server
     $statement->bindValue(':address', $pollerIp, PDO::PARAM_STR);
     $statement->bindValue(':name', $name, PDO::PARAM_STR);
     $statement->bindValue(':type', $type, PDO::PARAM_STR);
-    $statement->bindValue(':parent', $parentId, PDO::PARAM_INT);
+    $statement->bindValue(':parent', $parentId, $parentId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
     $statement->bindValue(':serverId', $serverId, PDO::PARAM_INT);
     $statement->execute();
 }

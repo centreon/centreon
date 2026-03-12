@@ -30,74 +30,113 @@ use Core\Common\Domain\Exception\ValueObjectException;
 require_once __DIR__ . '/../../../class/centreonContact.class.php';
 require_once __DIR__ . '/../../../class/centreonAuth.class.php';
 
+/**
+ * Check whether any other contact (excluding the current user) has the specified name.
+ *
+ * @param string|null $name The contact name to check.
+ * @return bool `true` if no other contact uses the given name, `false` otherwise.
+ */
 function testExistence($name = null)
 {
     global $pearDB, $centreon;
 
-    $query = "SELECT contact_name, contact_id FROM contact WHERE contact_name = '"
-        . htmlentities($name, ENT_QUOTES, 'UTF-8') . "'";
-    $dbResult = $pearDB->query($query);
-    $contact = $dbResult->fetch();
-    // Modif case
-    if ($dbResult->rowCount() >= 1 && $contact['contact_id'] == $centreon->user->get_id()) {
-        return true;
-    }
+    $userId = (int) $centreon->user->get_id();
+    $statement = $pearDB->prepare(
+        'SELECT 1 FROM contact WHERE contact_name = :name AND contact_id <> :userId LIMIT 1'
+    );
+    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    $statement->bindValue(':userId', $userId, PDO::PARAM_INT);
+    $statement->execute();
 
-    return ! ($dbResult->rowCount() >= 1 && $contact['contact_id'] != $centreon->user->get_id());
-    // Duplicate entry
-
+    return $statement->fetchColumn() === false;
 }
 
+/**
+ * Determine whether a contact alias is available (not used by another user).
+ *
+ * @param string|null $alias The alias to check.
+ * @return bool `true` if no other contact has the given alias, `false` otherwise.
+ */
 function testAliasExistence($alias = null)
 {
     global $pearDB, $centreon;
 
-    $query = 'SELECT contact_alias, contact_id FROM contact '
-        . "WHERE contact_alias = '" . htmlentities($alias, ENT_QUOTES, 'UTF-8') . "'";
-    $dbResult = $pearDB->query($query);
-    $contact = $dbResult->fetch();
+    $userId = (int) $centreon->user->get_id();
+    $statement = $pearDB->prepare(
+        'SELECT 1 FROM contact WHERE contact_alias = :alias AND contact_id <> :userId LIMIT 1'
+    );
+    $statement->bindValue(':alias', $alias, PDO::PARAM_STR);
+    $statement->bindValue(':userId', $userId, PDO::PARAM_INT);
+    $statement->execute();
 
-    // Modif case
-    if ($dbResult->rowCount() >= 1 && $contact['contact_id'] == $centreon->user->get_id()) {
-        return true;
-    }
-
-    return ! ($dbResult->rowCount() >= 1 && $contact['contact_id'] != $centreon->user->get_id());
-    // Duplicate entry
-
+    return $statement->fetchColumn() === false;
 }
 
+/**
+ * Update a contact's notification preferences in the database from submitted form values.
+ *
+ * Deletes existing `contact_param` entries for keys matching `monitoring%notification%` for the
+ * specified contact and inserts new `monitoring_(host|svc)_notification*` flags and
+ * `monitoring_sound*` values from the current form submission. Clears the session cache
+ * key `centreon_notification_preferences` after a successful update.
+ *
+ * @param int $userIdConnected The contact ID whose notification options will be updated.
+ * @throws Throwable If a database error or other exception occurs while updating (transaction is rolled back).
+ */
 function updateNotificationOptions($userIdConnected)
 {
     global $form, $pearDB;
 
-    $pearDB->query('DELETE FROM contact_param
-        WHERE cp_contact_id = ' . $pearDB->escape($userIdConnected) . "
-        AND cp_key LIKE 'monitoring%notification%'");
-    $data = $form->getSubmitValues();
-    foreach ($data as $k => $v) {
-        if (preg_match('/^monitoring_(host|svc)_notification/', $k)) {
-            $query = 'INSERT INTO contact_param (cp_key, cp_value, cp_contact_id) '
-                . "VALUES ('" . $pearDB->escape($k) . "', '1', " . $pearDB->escape($userIdConnected) . ')';
-            $pearDB->query($query);
-        } elseif (preg_match('/^monitoring_sound/', $k)) {
-            $query = 'INSERT INTO contact_param (cp_key, cp_value, cp_contact_id) '
-                . "VALUES ('" . $pearDB->escape($k) . "', '" . $pearDB->escape($v) . "', "
-                . $pearDB->escape($userIdConnected) . ')';
-            $pearDB->query($query);
+    $pearDB->beginTransaction();
+    try {
+        $deleteStmt = $pearDB->prepare(
+            "DELETE FROM contact_param WHERE cp_contact_id = :contact_id AND cp_key LIKE 'monitoring%notification%'"
+        );
+        $deleteStmt->bindValue(':contact_id', (int) $userIdConnected, PDO::PARAM_INT);
+        $deleteStmt->execute();
+
+        $data = $form->getSubmitValues();
+
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO contact_param (cp_key, cp_value, cp_contact_id) VALUES (:cp_key, :cp_value, :contact_id)'
+        );
+
+        foreach ($data as $k => $v) {
+            if (preg_match('/^monitoring_(host|svc)_notification/', $k)) {
+                $insertStmt->bindValue(':cp_key', $k, PDO::PARAM_STR);
+                $insertStmt->bindValue(':cp_value', '1', PDO::PARAM_STR);
+                $insertStmt->bindValue(':contact_id', (int) $userIdConnected, PDO::PARAM_INT);
+                $insertStmt->execute();
+            } elseif (preg_match('/^monitoring_sound/', $k)) {
+                $insertStmt->bindValue(':cp_key', $k, PDO::PARAM_STR);
+                $insertStmt->bindValue(':cp_value', $v, PDO::PARAM_STR);
+                $insertStmt->bindValue(':contact_id', (int) $userIdConnected, PDO::PARAM_INT);
+                $insertStmt->execute();
+            }
         }
+
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
     }
     unset($_SESSION['centreon_notification_preferences']);
 }
 
 /**
- * @throws RepositoryException
+ * Update the connected user's contact record and notification preferences from the My Account page.
+ *
+ * @param mixed $userIdConnected The connected user's identifier; must be convertible to an integer greater than zero.
+ * @throws RepositoryException If the provided user ID is invalid (<= 0) or if underlying update operations fail.
  */
 function updateContactByMyAccountInDB(mixed $userIdConnected): void
 {
     $userIdConnected = (int) $userIdConnected;
 
-    if (! $userIdConnected > 0) {
+    if ($userIdConnected <= 0) {
         throw new RepositoryException(
             message: 'Invalid connected user ID provided to update contact from my account page for contact id ' . $userIdConnected,
             context: ['contact_id' => $userIdConnected]
@@ -109,13 +148,20 @@ function updateContactByMyAccountInDB(mixed $userIdConnected): void
 }
 
 /**
- * @throws RepositoryException
+ * Update the connected user's contact record and account settings from the submitted "My Account" form.
+ *
+ * Updates contact fields (name, alias, location, language, email, pager, default page, display flags,
+ * and autologin key), optionally updates the stored password when a new password is provided, and
+ * refreshes the in-memory Centreon user object with the new values.
+ *
+ * @param int $userIdConnected The ID of the connected contact to update.
+ * @throws RepositoryException If the provided user ID is invalid, if a database update fails, or if password renewal fails.
  */
 function updateContactByMyAccount(int $userIdConnected): void
 {
     global $form, $pearDB, $centreon;
 
-    if (! $userIdConnected > 0) {
+    if ($userIdConnected <= 0) {
         throw new RepositoryException(
             message: 'Invalid connected user ID provided to update contact from my account page for contact id ' . $userIdConnected,
             context: ['contact_id' => $userIdConnected]
@@ -232,11 +278,16 @@ function updateContactByMyAccount(int $userIdConnected): void
 }
 
 /**
- * @param array<string,mixed> $fields
+ * Validate a user's password-change input and enforce required fields and password policy.
  *
- * @throws InvalidArgumentException
+ * Accepts an associative array containing the keys `contact_passwd` (new password),
+ * `contact_passwd2` (new password confirmation) and `current_password` (existing password),
+ * validates presence/combinations of those fields, verifies the current password, and
+ * checks the new password against the configured password policy.
  *
- * @return array<string,string>|true
+ * @param array<string,mixed> $fields Input fields; expected keys: `contact_passwd`, `contact_passwd2`, `current_password`.
+ * @throws InvalidArgumentException If the connected user ID is invalid.
+ * @return array<string,string>|true An associative array mapping field names to error messages when validation fails, or `true` when validation succeeds.
  */
 function validatePasswordModification(array $fields): array|true
 {
@@ -247,7 +298,7 @@ function validatePasswordModification(array $fields): array|true
 
     $userIdConnected = (int) $centreon->user->get_id();
 
-    if (! $userIdConnected > 0) {
+    if ($userIdConnected <= 0) {
         throw new InvalidArgumentException('Invalid connected user ID provided for password modification validation');
     }
 
@@ -318,12 +369,18 @@ function validatePasswordModification(array $fields): array|true
 }
 
 /**
- * @param array<string,mixed> $fields
+ * Validate the autologin key against the user's current password and the proposed new password.
  *
- * @throws RepositoryException
- * @throws InvalidArgumentException
+ * Checks that the provided `contact_autologin_key` is different from the stored current password
+ * and, if a new password is supplied, different from that new password. Returns field-specific
+ * error messages when validation fails or `true` when validation passes.
  *
- * @return array<string,string>|bool
+ * @param array<string,mixed> $fields Form values; expects 'contact_autologin_key' and optionally 'contact_passwd'.
+ *
+ * @throws InvalidArgumentException When the connected user ID is invalid.
+ * @throws RepositoryException When the stored contact password cannot be retrieved.
+ *
+ * @return array<string,string>|true `true` if validation passes, otherwise an associative array of field => error message.
  */
 function checkAutologinValue(array $fields): array|true
 {
@@ -334,7 +391,7 @@ function checkAutologinValue(array $fields): array|true
 
         $userIdConnected = (int) $centreon->user->get_id();
 
-        if (! $userIdConnected > 0) {
+        if ($userIdConnected <= 0) {
             throw new InvalidArgumentException('Invalid connected user ID provided for autologin key check');
         }
 
@@ -358,7 +415,10 @@ function checkAutologinValue(array $fields): array|true
             );
         }
 
-        if (password_verify($fields['contact_autologin_key'], $contactPassword['password'])) {
+        $currentPasswordHash = $contactPassword !== false
+            ? $contactPassword['password']
+            : $centreon->user->passwd;
+        if (password_verify($fields['contact_autologin_key'], $currentPasswordHash)) {
             $errors['contact_autologin_key'] = _('Your autologin key must be different than your current password');
         } elseif (
             ! empty($fields['contact_passwd'])

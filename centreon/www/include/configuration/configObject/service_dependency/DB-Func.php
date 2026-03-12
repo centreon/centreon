@@ -23,28 +23,50 @@ if (! isset($oreon)) {
     exit();
 }
 
-function testServiceDependencyExistence($name = null)
+/**
+ * Check whether a dependency name is available (no existing dependency has that name).
+ *
+ * @param string|null $name The dependency name to check; it will be sanitized.
+ * @param bool $excludeCurrentFormId If true, exclude the current form's `dep_id` from the existence check.
+ * @param bool $purge If true, purge obsolete dependencies before performing the check.
+ * @return bool `true` if no existing dependency matches the name, `false` otherwise.
+ */
+function testServiceDependencyExistence($name = null, bool $excludeCurrentFormId = true, bool $purge = true)
 {
     global $pearDB;
     global $form;
 
-    CentreonDependency::purgeObsoleteDependencies($pearDB);
+    $name = HtmlAnalyzer::sanitizeAndRemoveTags($name ?? '');
+    if ($purge) {
+        CentreonDependency::purgeObsoleteDependencies($pearDB);
+    }
 
     $id = null;
-    if (isset($form)) {
+    if ($excludeCurrentFormId && isset($form)) {
         $id = $form->getSubmitValue('dep_id');
     }
-    $statement = $pearDB->prepare('SELECT dep_name, dep_id FROM dependency WHERE dep_name = :name');
-    $statement->bindValue(':name', $name, PDO::PARAM_STR);
-    $statement->execute();
-    $dep = $statement->fetch();
-    if ($dep === false) {
-        return true;
+    $query = 'SELECT 1 FROM dependency WHERE dep_name = :name';
+    if ($id !== null) {
+        $query .= ' AND dep_id <> :depId';
     }
+    $statement = $pearDB->prepare($query . ' LIMIT 1');
+    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    if ($id !== null) {
+        $statement->bindValue(':depId', (int) $id, PDO::PARAM_INT);
+    }
+    $statement->execute();
 
-    return $dep['dep_id'] == $id;
+    return $statement->fetchColumn() === false;
 }
 
+/**
+ * Checks whether any parent service appears among the children to detect a cyclic relation.
+ *
+ * When a form is present, parent IDs are read from the form field `dep_hSvPar` and child IDs
+ * from `dep_hSvChi`; the function returns `false` if any parent ID is also present in the child set.
+ *
+ * @return bool `true` if no parent ID appears in the children (no cycle), `false` otherwise.
+ */
 function testCycleH($childs = null)
 {
     global $pearDB;
@@ -65,39 +87,60 @@ function testCycleH($childs = null)
     return true;
 }
 
+/**
+ * Delete service dependencies identified by the array keys and record each deletion in the changelog.
+ *
+ * Iterates the keys of $dependencies, treats each key as a dependency id (integer), skips keys that are not valid integers,
+ * removes the corresponding row from the `dependency` table, and logs the deletion. If the dependency name cannot be
+ * retrieved before deletion, the log entry will include the id.
+ *
+ * @param array $dependencies Array whose keys are dependency ids to delete; values are ignored.
+ */
 function deleteServiceDependencyInDB($dependencies = [])
 {
     global $pearDB, $oreon;
     $selectStatement = $pearDB->prepare('SELECT dep_name FROM `dependency` WHERE `dep_id` = :dep_id LIMIT 1');
     $deleteStatement = $pearDB->prepare('DELETE FROM dependency WHERE dep_id = :dep_id');
     foreach (array_keys($dependencies) as $key) {
-        $selectStatement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-        $selectStatement->execute();
-        $row = $selectStatement->fetch();
-        if ($row === false) {
+        $depId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($depId === false) {
             continue;
         }
 
-        $deleteStatement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $selectStatement->bindValue(':dep_id', $depId, PDO::PARAM_INT);
+        $selectStatement->execute();
+        $row = $selectStatement->fetch();
+
+        $deleteStatement->bindValue(':dep_id', $depId, PDO::PARAM_INT);
         $deleteStatement->execute();
-        $oreon->CentreonLogAction->insertLog('service dependency', $key, $row['dep_name'], 'd');
+        $oreon->CentreonLogAction->insertLog(
+            'service dependency',
+            $key,
+            $row !== false ? $row['dep_name'] : "id:{$key}",
+            'd'
+        );
     }
 }
 
+/**
+ * Duplicate specified service dependency rows and recreate their host/service relations.
+ *
+ * For each dependency id provided in $dependencies, creates up to the requested number of
+ * duplicates as specified in $nbrDup. Each duplicate receives a unique suffixed name and
+ * is inserted with the same column values (except `dep_name`), and the original
+ * dependency's host-child, service-parent, and service-child relations are duplicated
+ * for the new dependency id. Partially completed duplication attempts are logged.
+ *
+ * @param array $dependencies Array whose keys are dependency ids to duplicate (values ignored).
+ * @param array $nbrDup Associative array mapping dependency id (same keys as $dependencies) to the number of duplicates to create.
+ * @throws RuntimeException If a duplicated dependency id cannot be retrieved after insert.
+ * @throws Exception On database errors or transaction failures during duplication (transactions are rolled back and the exception is rethrown).
+ */
 function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
 {
     global $pearDB, $oreon;
     $selectStmt = $pearDB->prepare(
-        'SELECT dep_name, dep_description, inherits_parent, execution_failure_criteria,
-                notification_failure_criteria, dep_comment
-        FROM dependency WHERE dep_id = :dep_id LIMIT 1'
-    );
-    $insertStmt = $pearDB->prepare(
-        'INSERT INTO dependency
-        (dep_name, dep_description, inherits_parent, execution_failure_criteria,
-         notification_failure_criteria, dep_comment)
-        VALUES (:dep_name, :dep_description, :inherits_parent, :execution_failure_criteria,
-         :notification_failure_criteria, :dep_comment)'
+        'SELECT * FROM dependency WHERE dep_id = :dep_id LIMIT 1'
     );
     $selectHostChildStmt = $pearDB->prepare(
         'SELECT host_host_id FROM dependency_hostChild_relation WHERE dependency_dep_id = :dep_id'
@@ -123,80 +166,124 @@ function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
         VALUES (:depId, :serviceId, :hostId)'
     );
 
+    CentreonDependency::purgeObsoleteDependencies($pearDB);
+
     foreach (array_keys($dependencies) as $key) {
-        $selectStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $depId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($depId === false) {
+            continue;
+        }
+
+        $selectStmt->bindValue(':dep_id', $depId, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
             continue;
         }
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $dep_name = $row['dep_name'] . '_' . $i;
-            $fields = [];
-            foreach ($row as $key2 => $value2) {
-                $fields[$key2] = $key2 == 'dep_name' ? $dep_name : $value2;
+        unset($row['dep_id']);
+        $columns = array_keys($row);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO dependency (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
+        // Fetch relationships once before duplication loop
+        $selectHostChildStmt->bindValue(':dep_id', $depId, PDO::PARAM_INT);
+        $selectHostChildStmt->execute();
+        $hostChildren = $selectHostChildStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $selectServiceParentStmt->bindValue(':dep_id', $depId, PDO::PARAM_INT);
+        $selectServiceParentStmt->execute();
+        $serviceParents = $selectServiceParentStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $selectServiceChildStmt->bindValue(':dep_id', $depId, PDO::PARAM_INT);
+        $selectServiceChildStmt->execute();
+        $serviceChildren = $selectServiceChildStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $dupCount = filter_var($nbrDup[$key] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
+        if ($dupCount === false) {
+            continue;
+        }
+        $originalName = $row['dep_name'];
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
+            $dep_name = $originalName . '_' . $suffix;
+            if (! testServiceDependencyExistence($dep_name, false, false)) {
+                continue;
             }
-            if (testServiceDependencyExistence($dep_name)) {
-                $insertStmt->bindValue(':dep_name', $dep_name, PDO::PARAM_STR);
-                $insertStmt->bindValue(':dep_description', $row['dep_description'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':inherits_parent', $row['inherits_parent'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':execution_failure_criteria', $row['execution_failure_criteria'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':notification_failure_criteria', $row['notification_failure_criteria'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':dep_comment', $row['dep_comment'], PDO::PARAM_STR);
+            $i++;
+
+            try {
+                $pearDB->beginTransaction();
+
+                $fields = [];
+                foreach ($row as $key2 => $value2) {
+                    $fields[$key2] = $key2 == 'dep_name' ? $dep_name : $value2;
+                }
+                $row['dep_name'] = $dep_name;
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                }
                 $insertStmt->execute();
                 $lastId = (int) $pearDB->lastInsertId();
-                if ($lastId > 0) {
-                    $selectHostChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-                    $selectHostChildStmt->execute();
-                    $fields['dep_hostPar'] = '';
-                    while ($host = $selectHostChildStmt->fetch()) {
-                        $insertHostChildStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
-                        $insertHostChildStmt->bindValue(':hostId', (int) $host['host_host_id'], PDO::PARAM_INT);
-                        $insertHostChildStmt->execute();
-                        $fields['dep_hostPar'] .= $host['host_host_id'] . ',';
-                    }
-                    $fields['dep_hostPar'] = trim($fields['dep_hostPar'], ',');
-
-                    $selectServiceParentStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-                    $selectServiceParentStmt->execute();
-                    $fields['dep_hSvPar'] = '';
-                    while ($service = $selectServiceParentStmt->fetch()) {
-                        $insertServiceParentStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
-                        $insertServiceParentStmt->bindValue(
-                            ':serviceId',
-                            (int) $service['service_service_id'],
-                            PDO::PARAM_INT
-                        );
-                        $insertServiceParentStmt->bindValue(':hostId', (int) $service['host_host_id'], PDO::PARAM_INT);
-                        $insertServiceParentStmt->execute();
-                        $fields['dep_hSvPar'] .= $service['service_service_id'] . ',';
-                    }
-                    $fields['dep_hSvPar'] = trim($fields['dep_hSvPar'], ',');
-
-                    $selectServiceChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-                    $selectServiceChildStmt->execute();
-                    $fields['dep_hSvChi'] = '';
-                    while ($service = $selectServiceChildStmt->fetch()) {
-                        $insertServiceChildStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
-                        $insertServiceChildStmt->bindValue(
-                            ':serviceId',
-                            (int) $service['service_service_id'],
-                            PDO::PARAM_INT
-                        );
-                        $insertServiceChildStmt->bindValue(':hostId', (int) $service['host_host_id'], PDO::PARAM_INT);
-                        $insertServiceChildStmt->execute();
-                        $fields['dep_hSvChi'] .= $service['service_service_id'] . ',';
-                    }
-                    $fields['dep_hSvChi'] = trim($fields['dep_hSvChi'], ',');
-                    $oreon->CentreonLogAction->insertLog(
-                        'service dependency',
-                        $lastId,
-                        $dep_name,
-                        'a',
-                        $fields
-                    );
+                if ($lastId <= 0) {
+                    throw new RuntimeException('Failed to retrieve duplicated dependency id');
                 }
+                $fields['dep_hostPar'] = '';
+                foreach ($hostChildren as $host) {
+                    $insertHostChildStmt->bindValue(':depId', $lastId, PDO::PARAM_INT);
+                    $insertHostChildStmt->bindValue(':hostId', (int) $host['host_host_id'], PDO::PARAM_INT);
+                    $insertHostChildStmt->execute();
+                    $fields['dep_hostPar'] .= $host['host_host_id'] . ',';
+                }
+                $fields['dep_hostPar'] = trim($fields['dep_hostPar'], ',');
+
+                $fields['dep_hSvPar'] = '';
+                foreach ($serviceParents as $service) {
+                    $insertServiceParentStmt->bindValue(':depId', $lastId, PDO::PARAM_INT);
+                    $insertServiceParentStmt->bindValue(
+                        ':serviceId',
+                        (int) $service['service_service_id'],
+                        PDO::PARAM_INT
+                    );
+                    $insertServiceParentStmt->bindValue(':hostId', (int) $service['host_host_id'], PDO::PARAM_INT);
+                    $insertServiceParentStmt->execute();
+                    $fields['dep_hSvPar'] .= $service['service_service_id'] . ',';
+                }
+                $fields['dep_hSvPar'] = trim($fields['dep_hSvPar'], ',');
+
+                $fields['dep_hSvChi'] = '';
+                foreach ($serviceChildren as $service) {
+                    $insertServiceChildStmt->bindValue(':depId', $lastId, PDO::PARAM_INT);
+                    $insertServiceChildStmt->bindValue(
+                        ':serviceId',
+                        (int) $service['service_service_id'],
+                        PDO::PARAM_INT
+                    );
+                    $insertServiceChildStmt->bindValue(':hostId', (int) $service['host_host_id'], PDO::PARAM_INT);
+                    $insertServiceChildStmt->execute();
+                    $fields['dep_hSvChi'] .= $service['service_service_id'] . ',';
+                }
+                $fields['dep_hSvChi'] = trim($fields['dep_hSvChi'], ',');
+                $oreon->CentreonLogAction->insertLog(
+                    'service dependency',
+                    $lastId,
+                    $dep_name,
+                    'a',
+                    $fields
+                );
+
+                $pearDB->commit();
+            } catch (Exception $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
+
+                throw $e;
             }
+        }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for service dependency '{$originalName}' ({$key}): suffix search exhausted");
         }
     }
 }
@@ -223,10 +310,11 @@ function insertServiceDependencyInDB($ret = [])
 }
 
 /**
- * Create a service dependency
+ * Insert a new service dependency record into the database.
  *
- * @param array<string, mixed> $ret
- * @return int
+ * @param array<string,mixed> $ret Optional associative array of submitted dependency fields; if empty, submitted form values are used.
+ * @return int The newly created dependency id.
+ * @throws RuntimeException If the inserted dependency id cannot be retrieved.
  */
 function insertServiceDependency($ret = []): int
 {
@@ -260,6 +348,9 @@ function insertServiceDependency($ret = []): int
     $statement->execute();
 
     $depId = (int) $pearDB->lastInsertId();
+    if ($depId <= 0) {
+        throw new RuntimeException('Failed to retrieve inserted service dependency id');
+    }
 
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(

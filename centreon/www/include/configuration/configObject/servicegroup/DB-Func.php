@@ -23,25 +23,46 @@ if (! isset($centreon)) {
     exit();
 }
 
-function testServiceGroupExistence($name = null)
+/**
+ * Check whether a service group name is available, optionally excluding the current form's ID.
+ *
+ * @param string|null $name The service group name to check.
+ * @param bool $excludeCurrentFormId When true, exclude the sg_id from the current form submission (if present) from the existence check.
+ * @return bool `true` if no service group exists with the given name (name is available), `false` otherwise.
+ */
+function testServiceGroupExistence($name = null, bool $excludeCurrentFormId = true)
 {
-    global $pearDB, $form, $centreon;
+    global $pearDB, $form;
 
     $id = null;
 
-    if (isset($form)) {
+    if ($excludeCurrentFormId && isset($form)) {
         $id = $form->getSubmitValue('sg_id');
     }
     $sgName = HtmlAnalyzer::sanitizeAndRemoveTags($name);
 
-    $statement = $pearDB->prepare('SELECT sg_name, sg_id FROM servicegroup WHERE sg_name = :sg_name');
+    $query = 'SELECT 1 FROM servicegroup WHERE sg_name = :sg_name';
+    if ($id !== null) {
+        $query .= ' AND sg_id <> :sgId';
+    }
+    $statement = $pearDB->prepare($query . ' LIMIT 1');
     $statement->bindValue(':sg_name', $sgName, PDO::PARAM_STR);
+    if ($id !== null) {
+        $statement->bindValue(':sgId', (int) $id, PDO::PARAM_INT);
+    }
     $statement->execute();
-    $sg = $statement->fetch();
 
-    return ! ($statement->rowCount() >= 1 && $sg['sg_id'] !== (int) $id);
+    return $statement->fetchColumn() === false;
 }
 
+/**
+ * Enable a service group by its identifier.
+ *
+ * Sets the service group's activation flag in the database, signals a configuration
+ * change for the service group, and records the enable action in the audit log.
+ *
+ * @param int|string|null $sgId The service group ID. If null or not a valid integer, no action is taken.
+ */
 function enableServiceGroupInDB($sgId = null)
 {
     if (! $sgId) {
@@ -60,11 +81,22 @@ function enableServiceGroupInDB($sgId = null)
     $statement2->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
     $statement2->execute();
     $row = $statement2->fetch();
+    if ($row === false) {
+        return;
+    }
 
     signalConfigurationChange('servicegroup', $sgId);
     $centreon->CentreonLogAction->insertLog('servicegroup', $sgId, $row['sg_name'], 'enable');
 }
 
+/**
+ * Disable the specified service group and record the change.
+ *
+ * If the provided ID is falsy or no matching service group exists, no action is taken.
+ * Also signals a configuration change for the service group and inserts a 'disable' audit log entry.
+ *
+ * @param int|null $sgId The service group ID to disable.
+ */
 function disableServiceGroupInDB($sgId = null)
 {
     if (! $sgId) {
@@ -82,34 +114,53 @@ function disableServiceGroupInDB($sgId = null)
     $statement2->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
     $statement2->execute();
     $row = $statement2->fetch();
+    if ($row === false) {
+        return;
+    }
 
     signalConfigurationChange('servicegroup', $sgId, [], false);
     $centreon->CentreonLogAction->insertLog('servicegroup', $sgId, $row['sg_name'], 'disable');
 }
 
 /**
- * @param int $servicegroupId
+ * Remove the dependency row if the specified service group is the last parent for that dependency.
+ *
+ * Checks how many service-group parents reference the dependency tied to the given service group,
+ * and deletes the corresponding dependency record when exactly one parent remains.
+ *
+ * @param int $servicegroupId The ID of the service group to inspect.
  */
 function removeRelationLastServicegroupDependency(int $servicegroupId): void
 {
     global $pearDB;
 
-    $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
-              FROM dependency_servicegroupParent_relation
-              WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_servicegroupParent_relation
-                                         WHERE servicegroup_sg_id =  ' . $servicegroupId . ')
-              GROUP BY dependency_dep_id';
-    $dbResult = $pearDB->query($query);
-    $result = $dbResult->fetch();
+    $statement = $pearDB->prepare(
+        'SELECT count(dependency_dep_id) AS nb_dependency, dependency_dep_id AS id
+        FROM dependency_servicegroupParent_relation
+        WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_servicegroupParent_relation
+                                   WHERE servicegroup_sg_id = :sg_id)
+        GROUP BY dependency_dep_id'
+    );
+    $statement->bindValue(':sg_id', $servicegroupId, PDO::PARAM_INT);
+    $statement->execute();
+    $result = $statement->fetch();
 
     // is last parent
     if (isset($result['nb_dependency']) && $result['nb_dependency'] == 1) {
-        $pearDB->query('DELETE FROM dependency WHERE dep_id = ' . $result['id']);
+        $deleteStmt = $pearDB->prepare('DELETE FROM dependency WHERE dep_id = :dep_id');
+        $deleteStmt->bindValue(':dep_id', (int) $result['id'], PDO::PARAM_INT);
+        $deleteStmt->execute();
     }
 }
 
 /**
- * @param array $serviceGroups
+ * Delete the specified service groups whose IDs are provided as the array's keys.
+ *
+ * For each valid service group ID key, removes the last dependency relation if needed,
+ * deletes the service group row, signals a configuration change for the deleted group,
+ * and records the deletion in the action log. After processing all IDs, updates ACLs.
+ *
+ * @param array<int, mixed> $serviceGroups service group IDs as keys
  */
 function deleteServiceGroupInDB($serviceGroups = [])
 {
@@ -117,164 +168,183 @@ function deleteServiceGroupInDB($serviceGroups = [])
 
     foreach (array_keys($serviceGroups) as $key) {
         $sgId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($sgId === false) {
+            continue;
+        }
 
-        $previousPollerIds = getPollersForConfigChangeFlagFromServicegroupId((int) $sgId);
+        $previousPollerIds = getPollersForConfigChangeFlagFromServicegroupId($sgId);
 
-        removeRelationLastServicegroupDependency((int) $sgId);
+        removeRelationLastServicegroupDependency($sgId);
         $statement = $pearDB->prepare('SELECT sg_name FROM `servicegroup` WHERE `sg_id` = :sg_id LIMIT 1');
         $statement->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
         $statement->execute();
         $row = $statement->fetch();
+        if ($row === false) {
+            continue;
+        }
 
         $statement2 = $pearDB->prepare('DELETE FROM servicegroup WHERE sg_id = :sg_id');
         $statement2->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
         $statement2->execute();
 
         signalConfigurationChange('servicegroup', $sgId, $previousPollerIds);
-        $centreon->CentreonLogAction->insertLog('servicegroup', $key, $row['sg_name'], 'd');
+        $centreon->CentreonLogAction->insertLog('servicegroup', $sgId, $row['sg_name'], 'd');
     }
     $centreon->user->access->updateACL();
 }
 
+/**
+ * Duplicate multiple service groups according to provided counts and propagate their relations, ACLs, and configuration changes.
+ *
+ * Creates up to the requested number of copies for each service group whose ID is provided as a key in `$serviceGroups`. For each created duplicate this function:
+ * - inserts a new service group record with a unique name,
+ * - replicates servicegroup relations for the new group,
+ * - duplicates ACL entries for the new group,
+ * - signals a configuration change for the new group,
+ * - writes an audit log entry.
+ *
+ * Invalid or non‑existent service group IDs are skipped. If name collisions or other constraints prevent creating the requested number of duplicates, the function will create as many as possible and write a partial‑creation warning to the PHP error log. After processing all groups the ACL is updated.
+ *
+ * @param array<int,mixed> $serviceGroups Service group identifiers passed as the array keys; each key is treated as the source sg_id to duplicate.
+ * @param array<int,int> $nbrDup Mapping from the service group key to the number of duplicates to create (0–100). Invalid or out‑of‑range counts are ignored.
+ */
 function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
 {
     global $pearDB, $centreon;
 
-    $sgAcl = [];
     foreach (array_keys($serviceGroups) as $key) {
         $sgId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($sgId === false) {
+            continue;
+        }
 
         $statement = $pearDB->prepare('SELECT * FROM servicegroup WHERE sg_id = :sg_id LIMIT 1');
         $statement->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
         $statement->execute();
         $row = $statement->fetch();
+        if ($row === false) {
+            continue;
+        }
 
-        $row['sg_id'] = null;
+        unset($row['sg_id']);
+        $columns = array_keys($row);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO servicegroup (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
 
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $bindParams = [];
-            foreach ($row as $key2 => $value2) {
-                switch ($key2) {
-                    case 'sg_name':
-                        $value2 = HtmlAnalyzer::sanitizeAndRemoveTags($value2);
-                        $sgName = $value2 . '_' . $i;
-                        $value2 = $value2 . '_' . $i;
-                        $bindParams[':sg_name'] = [PDO::PARAM_STR => $value2];
-                        break;
-                    case 'sg_alias':
-                        $value2 = HtmlAnalyzer::sanitizeAndRemoveTags($value2);
-                        $bindParams[':sg_alias'] = [PDO::PARAM_STR => $value2];
-                        break;
-                    case 'sg_comment':
-                        $value2 = HtmlAnalyzer::sanitizeAndRemoveTags($value2);
-                        $value2
-                            ? $bindParams[':sg_comment'] = [PDO::PARAM_STR => $value2]
-                            : $bindParams[':sg_comment'] = [PDO::PARAM_NULL => null];
-                        break;
-                    case 'geo_coords':
-                        centreonUtils::validateGeoCoords($value2)
-                            ? $bindParams[':geo_coords'] = [PDO::PARAM_STR => $value2]
-                            : $bindParams[':geo_coords'] = [PDO::PARAM_NULL => null];
-                        break;
-                    case 'sg_activate':
-                        $value2 = filter_var($value2, FILTER_VALIDATE_REGEXP, [
-                            'options' => [
-                                'regexp' => '/^0|1$/',
-                            ],
-                        ]);
-                        $value2
-                            ? $bindParams[':sg_activate'] = [PDO::PARAM_STR => $value2]
-                            : $bindParams[':sg_activate'] = [PDO::PARAM_STR => '0'];
-                        break;
-                }
-                if ($key2 != 'sg_id') {
-                    $fields[$key2] = $value2;
-                }
-                if (isset($sgName)) {
-                    $fields['sg_name'] = $sgName;
-                }
+        $dupCount = filter_var($nbrDup[$key] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
+        if ($dupCount === false) {
+            continue;
+        }
+        $originalName = $row['sg_name'];
+        $suffix = 1;
+
+        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
+            $sgName = $originalName . '_' . $suffix;
+            if (! testServiceGroupExistence($sgName, false)) {
+                continue;
             }
-            if (testServiceGroupExistence($sgName)) {
-                if (! empty($bindParams)) {
-                    $statement = $pearDB->prepare('
-                        INSERT INTO servicegroup
-                        VALUES (NULL, :sg_name, :sg_alias, :sg_comment, :geo_coords, :sg_activate)
-                    ');
+            $i++;
+            $row['sg_name'] = $sgName;
+            $fields = $row;
+            $pearDB->beginTransaction();
+            try {
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                }
+                $insertStmt->execute();
+                $newSgId = (int) $pearDB->lastInsertId();
+                if ($newSgId <= 0) {
+                    $pearDB->rollBack();
+                    continue;
+                }
+                $statement = $pearDB->prepare('
+                    SELECT DISTINCT sgr.host_host_id, sgr.hostgroup_hg_id, sgr.service_service_id
+                    FROM servicegroup_relation sgr WHERE sgr.servicegroup_sg_id = :sg_id
+                ');
+                $statement->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
+                $statement->execute();
+                $fields['sg_hgServices'] = '';
+                $insertRelStmt = $pearDB->prepare('
+                    INSERT INTO servicegroup_relation
+                    (host_host_id, hostgroup_hg_id, service_service_id, servicegroup_sg_id)
+                    VALUES (:host_host_id, :hostgroup_hg_id, :service_service_id, :servicegroup_sg_id)
+                ');
+                while ($service = $statement->fetch()) {
+                    $bindParams = [];
+                    foreach ($service as $key2 => $value2) {
+                        switch ($key2) {
+                            case 'host_host_id':
+                                $value2 = filter_var($value2, FILTER_VALIDATE_INT);
+                                $value2
+                                    ? $bindParams[':host_host_id'] = [PDO::PARAM_INT => $value2]
+                                    : $bindParams[':host_host_id'] = [PDO::PARAM_NULL => null];
+                                break;
+                            case 'hostgroup_hg_id':
+                                $value2 = filter_var($value2, FILTER_VALIDATE_INT);
+                                $value2
+                                    ? $bindParams[':hostgroup_hg_id'] = [PDO::PARAM_INT => $value2]
+                                    : $bindParams[':hostgroup_hg_id'] = [PDO::PARAM_NULL => null];
+                                break;
+                            case 'service_service_id':
+                                $value2 = filter_var($value2, FILTER_VALIDATE_INT);
+                                $value2
+                                    ? $bindParams[':service_service_id'] = [PDO::PARAM_INT => $value2]
+                                    : $bindParams[':service_service_id'] = [PDO::PARAM_NULL => null];
+                                break;
+                        }
+                    }
+                    $bindParams[':servicegroup_sg_id'] = [PDO::PARAM_INT => $newSgId];
                     foreach ($bindParams as $token => $bindValues) {
                         foreach ($bindValues as $paramType => $value) {
-                            $statement->bindValue($token, $value, $paramType);
+                            $insertRelStmt->bindValue($token, $value, $paramType);
                         }
                     }
-                    $statement->execute();
+                    $insertRelStmt->execute();
+                    $fields['sg_hgServices'] .= $service['service_service_id'] . ',';
                 }
-                $dbResult = $pearDB->query('SELECT MAX(sg_id) FROM servicegroup');
-                $maxId = $dbResult->fetch();
-                if (isset($maxId['MAX(sg_id)'])) {
-                    $sgAcl[$maxId['MAX(sg_id)']] = $sgId;
-                    $dbResult->closeCursor();
-                    $statement = $pearDB->prepare('
-                        SELECT DISTINCT sgr.host_host_id, sgr.hostgroup_hg_id, sgr.service_service_id
-                        FROM servicegroup_relation sgr WHERE sgr.servicegroup_sg_id = :sg_id
-                    ');
-                    $statement->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
-                    $statement->execute();
-                    $fields['sg_hgServices'] = '';
-                    while ($service = $statement->fetch()) {
-                        $bindParams = [];
-                        foreach ($service as $key2 => $value2) {
-                            switch ($key2) {
-                                case 'host_host_id':
-                                    $value2 = filter_var($value2, FILTER_VALIDATE_INT);
-                                    $value2
-                                        ? $bindParams[':host_host_id'] = [PDO::PARAM_INT => $value2]
-                                        : $bindParams[':host_host_id'] = [PDO::PARAM_NULL => null];
-                                    break;
-                                case 'hostgroup_hg_id':
-                                    $value2 = filter_var($value2, FILTER_VALIDATE_INT);
-                                    $value2
-                                        ? $bindParams[':hostgroup_hg_id'] = [PDO::PARAM_INT => $value2]
-                                        : $bindParams[':hostgroup_hg_id'] = [PDO::PARAM_NULL => null];
-                                    break;
-                                case 'service_service_id':
-                                    $value2 = filter_var($value2, FILTER_VALIDATE_INT);
-                                    $value2
-                                        ? $bindParams[':service_service_id'] = [PDO::PARAM_INT => $value2]
-                                        : $bindParams[':service_service_id'] = [PDO::PARAM_NULL => null];
-                                    break;
-                            }
-                            $bindParams[':servicegroup_sg_id'] = [PDO::PARAM_INT => $maxId['MAX(sg_id)']];
-                        }
-                        $statement2 = $pearDB->prepare('
-                            INSERT INTO servicegroup_relation
-                            (host_host_id, hostgroup_hg_id, service_service_id, servicegroup_sg_id)
-                            VALUES (:host_host_id, :hostgroup_hg_id, :service_service_id, :servicegroup_sg_id)
-                        ');
-                        foreach ($bindParams as $token => $bindValues) {
-                            foreach ($bindValues as $paramType => $value) {
-                                $statement2->bindValue($token, $value, $paramType);
-                            }
-                        }
-                        $statement2->execute();
-                        $fields['sg_hgServices'] .= $service['service_service_id'] . ',';
-                    }
-                    $fields['sg_hgServices'] = trim($fields['sg_hgServices'], ',');
+                $fields['sg_hgServices'] = trim($fields['sg_hgServices'], ',');
 
-                    signalConfigurationChange('servicegroup', $maxId['MAX(sg_id)']);
-                    $centreon->CentreonLogAction->insertLog(
-                        'servicegroup',
-                        $maxId['MAX(sg_id)'],
-                        $sgName,
-                        'a',
-                        $fields
-                    );
+                CentreonACL::duplicateSgAcl([$newSgId => $sgId]);
+                $pearDB->commit();
+            } catch (Throwable $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
                 }
+
+                throw $e;
             }
+
+            signalConfigurationChange('servicegroup', $newSgId);
+            $centreon->CentreonLogAction->insertLog(
+                'servicegroup',
+                $newSgId,
+                $sgName,
+                'a',
+                $fields
+            );
+        }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for service group '{$originalName}' ({$sgId}): suffix search exhausted");
         }
     }
-    CentreonACL::duplicateSgAcl($sgAcl);
     $centreon->user->access->updateACL();
 }
 
+/**
+ * Attach the given service group to ACL datasets referenced by the submitted resource access rules.
+ *
+ * For each rule ID in $submittedValues['resource_access_rules'], either appends the service group to an
+ * existing dataset filter of type `servicegroup` or creates a new dataset, links it to the rule,
+ * links the service group to the dataset, and creates a corresponding dataset filter.
+ *
+ * @param int $serviceGroupId ID of the service group to link into ACL datasets.
+ * @param array $submittedValues Array of submitted form values; must contain a key
+ *                              `resource_access_rules` with an iterable list of rule IDs.
+ * @throws Throwable If a database transaction fails; the exception will be rethrown after rollback.
+ */
 function updateServiceGroupAcl(int $serviceGroupId, array $submittedValues = []): void
 {
     global $pearDB;
@@ -311,7 +381,9 @@ function updateServiceGroupAcl(int $serviceGroupId, array $submittedValues = [])
                     createNewDatasetFilter(datasetId: $datasetId, ruleId: $ruleId, serviceGroupId: $serviceGroupId);
                     $pearDB->commit();
                 } catch (Throwable $exception) {
-                    $pearDB->rollBack();
+                    if ($pearDB->inTransaction()) {
+                        $pearDB->rollBack();
+                    }
 
                     throw $exception;
                 }
@@ -328,7 +400,9 @@ function updateServiceGroupAcl(int $serviceGroupId, array $submittedValues = [])
                 );
                 $pearDB->commit();
             } catch (Throwable $exception) {
-                $pearDB->rollBack();
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
 
                 throw $exception;
             }
@@ -525,6 +599,16 @@ function updateServiceGroupInDB(
     $centreon->user->access->updateACL();
 }
 
+/**
+ * Create a new service group from provided submitted values.
+ *
+ * Accepted keys in $submittedValues include:
+ * - `sg_name`, `sg_alias`, `sg_comment`, `geo_coords`, `sg_activate`
+ * Values are sanitized/validated as appropriate before insertion.
+ *
+ * @param array $submittedValues Associative array of service group fields.
+ * @return int The newly created service group's ID.
+ */
 function insertServiceGroup($submittedValues = [])
 {
     global $pearDB, $centreon;
@@ -575,23 +659,36 @@ function insertServiceGroup($submittedValues = [])
     }
     $statement->execute();
 
-    $dbResult = $pearDB->query('SELECT MAX(sg_id) FROM servicegroup');
-    $sgId = $dbResult->fetch();
-    $dbResult->closeCursor();
+    $sgId = (int) $pearDB->lastInsertId();
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($submittedValues);
     $centreon->CentreonLogAction->insertLog(
         'servicegroup',
-        $sgId['MAX(sg_id)'],
+        $sgId,
         htmlentities($submittedValues['sg_name'], ENT_QUOTES, 'UTF-8'),
         'a',
         $fields
     );
 
-    return $sgId['MAX(sg_id)'];
+    return $sgId;
 }
 
+/**
+ * Update fields of an existing service group and record the change in the audit log.
+ *
+ * Applies sanitized and validated values from $submittedValues to the servicegroup row
+ * identified by $serviceGroupId, persists the changes to the database, and inserts a
+ * changelog entry describing the modifications.
+ *
+ * @param int $serviceGroupId The ID of the service group to update; no action is taken if falsy.
+ * @param array $submittedValues Associative array of fields to update. Supported keys:
+ *                              - 'sg_name' (string): sanitized name.
+ *                              - 'sg_alias' (string): sanitized alias.
+ *                              - 'sg_comment' (string|null): sanitized comment or null to clear.
+ *                              - 'geo_coords' (string|null): validated geographical coordinates or null to clear.
+ *                              - 'sg_activate' (array|mixed): activation flag; expected under 'sg_activate' key with value '0' or '1'.
+ */
 function updateServiceGroup($serviceGroupId, $submittedValues = [])
 {
     global $pearDB, $centreon;
@@ -667,6 +764,24 @@ function updateServiceGroup($serviceGroupId, $submittedValues = [])
     );
 }
 
+/**
+ * Update service-to-servicegroup relations for a given service group.
+ *
+ * Adds relations between the specified service group and services (including
+ * service templates and hostgroup services) using values from the provided
+ * arrays or from the form when arrays are not supplied. If `$increment` is
+ * false, existing relations for the service group are removed before new
+ * relations are inserted.
+ *
+ * @param int|string $sgId The service group identifier.
+ * @param array<string,array<int,string>> $ret Optional relation arrays. Recognized keys:
+ *        - `sg_tServices`: array of "hostId-serviceId" strings for service templates.
+ *        - `sg_hServices`: array of "hostId-serviceId" strings for regular services.
+ *        - `sg_hgServices`: array of "hostgroupId-serviceId" strings for hostgroup services.
+ *        If a key is absent the function will use form values for that relation type.
+ * @param bool $increment If true, preserve existing relations and only add missing ones;
+ *                       if false, remove all existing relations for the service group before inserting.
+ */
 function updateServiceGroupServices($sgId, $ret = [], $increment = false)
 {
     if (! $sgId) {
@@ -708,7 +823,7 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
                 $statement->bindValue(':service_service_id', $serviceServiceId, PDO::PARAM_INT);
                 $statement->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
                 $statement->execute();
-                if (! $statement->rowCount()) {
+                if ($statement->fetch() === false) {
                     $statement2->bindValue(':host_host_id', $hostHostId, PDO::PARAM_INT);
                     $statement2->bindValue(':service_service_id', $serviceServiceId, PDO::PARAM_INT);
                     $statement2->bindValue(':servicegroup_sg_id', $sgId, PDO::PARAM_INT);
@@ -741,7 +856,7 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
             $statement->bindValue(':service_service_id', $serviceServiceId, PDO::PARAM_INT);
             $statement->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
             $statement->execute();
-            if (! $statement->rowCount()) {
+            if ($statement->fetch() === false) {
                 $statement2->bindValue(':host_host_id', $hostHostId, PDO::PARAM_INT);
                 $statement2->bindValue(':service_service_id', $serviceServiceId, PDO::PARAM_INT);
                 $statement2->bindValue(':servicegroup_sg_id', $sgId, PDO::PARAM_INT);
@@ -772,7 +887,7 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
         $statement->bindValue(':service_service_id', $serviceServiceId, PDO::PARAM_INT);
         $statement->bindValue(':servicegroup_sg_id', $sgId, PDO::PARAM_INT);
         $statement->execute();
-        if (! $statement->rowCount()) {
+        if ($statement->fetch() === false) {
             $statement2->bindValue(':hostgroup_hg_id', $hostGroupId, PDO::PARAM_INT);
             $statement2->bindValue(':service_service_id', $serviceServiceId, PDO::PARAM_INT);
             $statement2->bindValue(':servicegroup_sg_id', $sgId, PDO::PARAM_INT);

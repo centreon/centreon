@@ -152,12 +152,17 @@ function deleteTrapGroupInDB(array $trapGroups = []): void
 }
 
 /**
- * Duplicate one or more trap groups $nbrDup[$id] times
+ * Create duplicates of one or more trap groups and their relations.
  *
- * @param array<int|string,mixed> $trapGroups
- * @param array<int|string,int> $nbrDup
- * @throws RepositoryException
- * @return void
+ * For each trap group id in $trapGroups, creates up to $nbrDup[$id] new groups named "<original>_N",
+ * skipping names that already exist, copies the original group's trap relations to each new group,
+ * and inserts audit log entries for each created group. Operations are performed inside a database
+ * transaction; on failure the transaction is rolled back and a RepositoryException is thrown with
+ * context about the processed ids and requested duplication counts.
+ *
+ * @param array<int|string,mixed> $trapGroups Array whose keys are trap group ids to duplicate.
+ * @param array<int|string,int> $nbrDup Mapping of trap group id => number of duplicates to create (validated 0..100).
+ * @throws RepositoryException If a database or related operation fails (includes rollback failure context).
  */
 function multipleTrapGroupInDB(array $trapGroups = [], array $nbrDup = []): void
 {
@@ -189,7 +194,10 @@ function multipleTrapGroupInDB(array $trapGroups = [], array $nbrDup = []): void
             }
 
             $baseName = $originalGroup['traps_group_name'];
-            $dupCount = (int) ($nbrDup[$trapGroupId] ?? 0);
+            $dupCount = filter_var($nbrDup[$trapGroupId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
+            if (! $dupCount) {
+                continue;
+            }
 
             $parameters = [];
             $valuePlaceholders = [];

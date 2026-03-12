@@ -1,48 +1,47 @@
 <?php
 
-/*
- * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+/**
+ * Check whether a Nagios configuration name is available in the database.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * When $excludeCurrentFormId is true and a global form is present, the currently submitted
+ * `nagios_id` from the form is excluded from the existence check.
  *
- * https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * For more information : contact@centreon.com
- *
+ * @param string|null $name The Nagios configuration name to check.
+ * @param bool $excludeCurrentFormId If true, exclude the current form's `nagios_id` (if available) from the check.
+ * @return bool `true` if no conflicting row exists (name is available), `false` otherwise.
  */
 
-function testExistence($name = null)
+function testExistence($name = null, bool $excludeCurrentFormId = true)
 {
     global $pearDB, $form;
 
     $id = null;
-    if (isset($form)) {
+    if ($excludeCurrentFormId && isset($form)) {
         $id = $form->getSubmitValue('nagios_id');
     }
 
-    $dbResult = $pearDB->query(
-        "SELECT nagios_name, nagios_id FROM cfg_nagios WHERE nagios_name = '"
-        . htmlentities($name, ENT_QUOTES, 'UTF-8') . "'"
-    );
-    $nagios = $dbResult->fetch();
-    if ($dbResult->rowCount() >= 1 && $nagios['nagios_id'] == $id) {
-        return true;
+    $query = 'SELECT 1 FROM cfg_nagios WHERE nagios_name = :name';
+    if ($id !== null) {
+        $query .= ' AND nagios_id <> :nagiosId';
     }
+    $statement = $pearDB->prepare($query . ' LIMIT 1');
+    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    if ($id !== null) {
+        $statement->bindValue(':nagiosId', (int) $id, PDO::PARAM_INT);
+    }
+    $statement->execute();
 
-    return ! ($dbResult->rowCount() >= 1 && $nagios['nagios_id'] != $id);
+    return $statement->fetchColumn() === false;
 }
 
 /**
- * @param null $nagiosId
- * @throws Exception
+ * Enable the specified Nagios instance and ensure its poller server is activated.
+ *
+ * When a valid `$nagiosId` is provided, this will deactivate other Nagios entries on the same
+ * poller, activate the given Nagios entry, and if the associated poller (`nagios_server`) is
+ * currently inactive, activate it and record an enable action in the changelog.
+ *
+ * @param int|null $nagiosId The ID of the Nagios configuration to enable. If null or not found, no action is taken.
  */
 function enableNagiosInDB($nagiosId = null)
 {
@@ -51,10 +50,13 @@ function enableNagiosInDB($nagiosId = null)
         return;
     }
 
-    $dbResult = $pearDB->query(
-        "SELECT `nagios_server_id` FROM cfg_nagios WHERE nagios_id = '" . $nagiosId . "'"
-    );
-    $data = $dbResult->fetch();
+    $statement = $pearDB->prepare('SELECT `nagios_server_id` FROM cfg_nagios WHERE nagios_id = :nagios_id');
+    $statement->bindValue(':nagios_id', (int) $nagiosId, PDO::PARAM_INT);
+    $statement->execute();
+    $data = $statement->fetch();
+    if ($data === false) {
+        return;
+    }
 
     $statement = $pearDB->prepare(
         "UPDATE `cfg_nagios`
@@ -64,9 +66,9 @@ function enableNagiosInDB($nagiosId = null)
     $statement->bindValue(':nagios_server_id', (int) $data['nagios_server_id'], PDO::PARAM_INT);
     $statement->execute();
 
-    $pearDB->query(
-        "UPDATE cfg_nagios SET nagios_activate = '1' WHERE nagios_id = '" . $nagiosId . "'"
-    );
+    $statement = $pearDB->prepare("UPDATE cfg_nagios SET nagios_activate = '1' WHERE nagios_id = :nagios_id");
+    $statement->bindValue(':nagios_id', (int) $nagiosId, PDO::PARAM_INT);
+    $statement->execute();
 
     $query = "SELECT `id`, `name` FROM nagios_server WHERE `ns_activate` = '0' AND `id` = :id";
     $statement = $pearDB->prepare($query);
@@ -83,8 +85,13 @@ function enableNagiosInDB($nagiosId = null)
 }
 
 /**
- * @param null $nagiosId
- * @throws Exception
+ * Disable a Nagios configuration and deactivate its poller when no other active instance remains on the same server.
+ *
+ * Disables the specified Nagios entry (sets `nagios_activate` = '0'). If there are no other active Nagios rows for the
+ * same `nagios_server_id`, the associated poller (`nagios_server.ns_activate`) is set to '0' and a 'disable' action is
+ * logged for that poller. The function does nothing when `$nagiosId` is null or when the Nagios entry cannot be found.
+ *
+ * @param int|null $nagiosId The ID of the Nagios entry to disable.
  */
 function disableNagiosInDB($nagiosId = null)
 {
@@ -94,14 +101,17 @@ function disableNagiosInDB($nagiosId = null)
         return;
     }
 
-    $dbResult = $pearDB->query(
-        "SELECT `nagios_server_id` FROM cfg_nagios WHERE nagios_id = '" . $nagiosId . "'"
-    );
-    $data = $dbResult->fetch();
+    $statement = $pearDB->prepare('SELECT `nagios_server_id` FROM cfg_nagios WHERE nagios_id = :nagios_id');
+    $statement->bindValue(':nagios_id', (int) $nagiosId, PDO::PARAM_INT);
+    $statement->execute();
+    $data = $statement->fetch();
+    if ($data === false) {
+        return;
+    }
 
-    $pearDB->query(
-        "UPDATE cfg_nagios SET nagios_activate = '0' WHERE `nagios_id` = '" . $nagiosId . "'"
-    );
+    $statement = $pearDB->prepare("UPDATE cfg_nagios SET nagios_activate = '0' WHERE `nagios_id` = :nagios_id");
+    $statement->bindValue(':nagios_id', (int) $nagiosId, PDO::PARAM_INT);
+    $statement->execute();
 
     $query = "SELECT `nagios_id` FROM cfg_nagios WHERE `nagios_activate` = '1' "
              . 'AND `nagios_server_id` = :nagios_server_id';
@@ -110,7 +120,7 @@ function disableNagiosInDB($nagiosId = null)
     $statement->execute();
     $activate = $statement->fetch(PDO::FETCH_ASSOC);
 
-    if (! $activate['nagios_id']) {
+    if ($activate === false || ! $activate['nagios_id']) {
         $query = "UPDATE `nagios_server` SET `ns_activate` = '0' WHERE `id` = :id";
         $statement = $pearDB->prepare($query);
         $statement->bindValue(':id', (int) $data['nagios_server_id'], PDO::PARAM_INT);
@@ -121,103 +131,192 @@ function disableNagiosInDB($nagiosId = null)
         $statement->bindValue(':id', (int) $data['nagios_server_id'], PDO::PARAM_INT);
         $statement->execute();
         $poller = $statement->fetch(PDO::FETCH_ASSOC);
+        if ($poller === false) {
+            return;
+        }
 
         $centreon->CentreonLogAction->insertLog('poller', $poller['id'], $poller['name'], 'disable');
     }
 }
 
+/**
+ * Delete the specified Nagios configurations and their broker module associations, then ensure each affected server has an active Nagios instance.
+ *
+ * For each integer key in $nagios this function removes the corresponding rows from `cfg_nagios` and `cfg_nagios_broker_module`. After deletions, for each server that lost configurations, if no Nagios entry on that server remains active it activates the remaining Nagios entry with the highest `nagios_id`.
+ *
+ * @param array $nagios Array whose keys are Nagios IDs to delete; non-integer keys are ignored.
+ */
 function deleteNagiosInDB($nagios = [])
 {
     global $pearDB;
 
-    foreach ($nagios as $key => $value) {
-        $pearDB->query(
-            "DELETE FROM cfg_nagios WHERE nagios_id = '" . $key . "'"
-        );
-        $pearDB->query(
-            "DELETE FROM cfg_nagios_broker_module WHERE cfg_nagios_id = '" . $key . "'"
-        );
-    }
-    $dbResult = $pearDB->query(
-        "SELECT nagios_id FROM cfg_nagios WHERE nagios_activate = '1'"
+    $selectServerStmt = $pearDB->prepare(
+        'SELECT nagios_server_id FROM cfg_nagios WHERE nagios_id = :nagios_id'
     );
-    if (! $dbResult->rowCount()) {
-        $dbResult2 = $pearDB->query(
-            'SELECT MAX(nagios_id) FROM cfg_nagios'
-        );
-        $nagios_id = $dbResult2->fetch();
-        $statement = $pearDB->prepare(
-            "UPDATE cfg_nagios SET nagios_activate = '1' WHERE nagios_id = :nagios_id"
-        );
-        $statement->bindValue(':nagios_id', (int) $nagios_id['MAX(nagios_id)'], PDO::PARAM_INT);
-        $statement->execute();
+    $deleteNagios = $pearDB->prepare('DELETE FROM cfg_nagios WHERE nagios_id = :nagios_id');
+    $deleteBroker = $pearDB->prepare('DELETE FROM cfg_nagios_broker_module WHERE cfg_nagios_id = :nagios_id');
+
+    $affectedServerIds = [];
+    foreach (array_keys($nagios) as $key) {
+        $nagiosId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($nagiosId === false) {
+            continue;
+        }
+
+        $selectServerStmt->bindValue(':nagios_id', $nagiosId, PDO::PARAM_INT);
+        $selectServerStmt->execute();
+        $serverRow = $selectServerStmt->fetch(PDO::FETCH_ASSOC);
+        if ($serverRow !== false && $serverRow['nagios_server_id'] !== null) {
+            $affectedServerIds[(int) $serverRow['nagios_server_id']] = true;
+        }
+
+        $deleteNagios->bindValue(':nagios_id', $nagiosId, PDO::PARAM_INT);
+        $deleteNagios->execute();
+        $deleteBroker->bindValue(':nagios_id', $nagiosId, PDO::PARAM_INT);
+        $deleteBroker->execute();
     }
-    $dbResult->closeCursor();
+
+    $checkActiveStmt = $pearDB->prepare(
+        "SELECT 1 FROM cfg_nagios WHERE nagios_server_id = :server_id AND nagios_activate = '1' LIMIT 1"
+    );
+    $findReplacementStmt = $pearDB->prepare(
+        'SELECT MAX(nagios_id) AS max_id FROM cfg_nagios WHERE nagios_server_id = :server_id'
+    );
+    $activateStmt = $pearDB->prepare(
+        "UPDATE cfg_nagios SET nagios_activate = '1' WHERE nagios_id = :nagios_id"
+    );
+
+    foreach (array_keys($affectedServerIds) as $serverId) {
+        $checkActiveStmt->bindValue(':server_id', $serverId, PDO::PARAM_INT);
+        $checkActiveStmt->execute();
+        if ($checkActiveStmt->fetch() !== false) {
+            continue;
+        }
+
+        $findReplacementStmt->bindValue(':server_id', $serverId, PDO::PARAM_INT);
+        $findReplacementStmt->execute();
+        $row = $findReplacementStmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false || $row['max_id'] === null) {
+            continue;
+        }
+
+        $activateStmt->bindValue(':nagios_id', (int) $row['max_id'], PDO::PARAM_INT);
+        $activateStmt->execute();
+    }
 }
 
-// Duplicate Engine Configuration file in DB
+/**
+ * Duplicate multiple Nagios configurations and their broker/logger associations in the database.
+ *
+ * Iterates the provided Nagios IDs and creates up to the requested number of duplicates for each.
+ * Each duplicate receives a unique name suffix, has its activation flag set to '0', and inherits
+ * broker module rows and Logger V2 configuration from the original. Operations for each duplicate
+ * are performed inside a transaction; failures are logged and cause that duplicate to be skipped.
+ * If the function cannot create the requested number of duplicates for an original, a partial-creation
+ * message is logged.
+ *
+ * @param array $nagios Associative array whose keys are the original Nagios IDs to duplicate.
+ * @param array $nbrDup Associative array mapping original Nagios ID to the number of duplicates to create (non-negative integers, capped by internal limits).
+ */
 function multipleNagiosInDB($nagios = [], $nbrDup = [])
 {
-    foreach ($nagios as $originalNagiosId => $value) {
-        global $pearDB;
+    global $pearDB;
 
-        $stmt = $pearDB->prepare('SELECT * FROM cfg_nagios WHERE nagios_id = :nagiosId LIMIT 1');
-        $stmt->bindValue('nagiosId', (int) $originalNagiosId, PDO::PARAM_INT);
-        $stmt->execute();
-        $row = $stmt->fetch();
-        $row['nagios_id'] = '';
-        $row['nagios_activate'] = '0';
-        $stmt->closeCursor();
+    $selectStmt = $pearDB->prepare('SELECT * FROM cfg_nagios WHERE nagios_id = :nagiosId LIMIT 1');
+    $selectBrokerStmt = $pearDB->prepare(
+        'SELECT broker_module FROM cfg_nagios_broker_module WHERE cfg_nagios_id = :nagiosId'
+    );
+    $insertBrokerStmt = $pearDB->prepare(
+        'INSERT INTO cfg_nagios_broker_module (`cfg_nagios_id`, `broker_module`)
+        VALUES (:nagiosId, :brokerModule)'
+    );
 
-        $rowBks = [];
-        $stmt = $pearDB->prepare('SELECT * FROM cfg_nagios_broker_module WHERE cfg_nagios_id = :nagiosId');
-        $stmt->bindValue('nagiosId', (int) $originalNagiosId, PDO::PARAM_INT);
-        $stmt->execute();
-        while ($rowBk = $stmt->fetch()) {
-            $rowBks[] = $rowBk;
+    foreach (array_keys($nagios) as $originalNagiosId) {
+        $nagiosId = filter_var($originalNagiosId, FILTER_VALIDATE_INT);
+        if ($nagiosId === false) {
+            continue;
         }
-        $stmt->closeCursor();
 
-        for ($i = 1; $i <= $nbrDup[$originalNagiosId]; $i++) {
-            $val = null;
-            foreach ($row as $key2 => $value2) {
-                $value2 = is_int($value2) ? (string) $value2 : $value2;
-                $value2 = $pearDB->escape($value2);
-                if ($key2 == 'nagios_name') {
-                    $nagios_name = $value2 . '_' . $i;
-                    $value2 = $value2 . '_' . $i;
-                }
-                $val ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ', NULL')
-                    : $val .= ($value2 != null ? ("'" . $value2 . "'") : 'NULL');
+        $selectStmt->bindValue(':nagiosId', $nagiosId, PDO::PARAM_INT);
+        $selectStmt->execute();
+        $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            continue;
+        }
+        $selectStmt->closeCursor();
+
+        unset($row['nagios_id']);
+        $row['nagios_activate'] = '0';
+
+        $selectBrokerStmt->bindValue(':nagiosId', $nagiosId, PDO::PARAM_INT);
+        $selectBrokerStmt->execute();
+        $rowBks = $selectBrokerStmt->fetchAll(PDO::FETCH_ASSOC);
+        $selectBrokerStmt->closeCursor();
+
+        $columns = array_keys($row);
+        $placeholders = array_map(fn ($col) => ':' . $col, $columns);
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO cfg_nagios (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ')'
+        );
+
+        $originalName = $row['nagios_name'];
+        $dupCount = filter_var($nbrDup[$originalNagiosId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
+        if ($dupCount === false) {
+            continue;
+        }
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
+            $nagios_name = $originalName . '_' . $suffix;
+            $row['nagios_name'] = $nagios_name;
+
+            if (! testExistence($nagios_name, false)) {
+                continue;
             }
-            if (testExistence($nagios_name)) {
-                $rq = $val ? 'INSERT INTO cfg_nagios VALUES (' . $val . ')' : null;
-                $dbResult = $pearDB->query($rq);
-                // Find the new last nagios_id once
-                $dbResult = $pearDB->query('SELECT MAX(nagios_id) FROM cfg_nagios');
-                $nagiosId = $dbResult->fetch();
-                $dbResult->closeCursor();
-                foreach ($rowBks as $keyBk => $valBk) {
+            $i++;
+            foreach ($columns as $col) {
+                $value = $row[$col];
+                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            }
+            $pearDB->beginTransaction();
+            try {
+                $insertStmt->execute();
+
+                $newNagiosId = (int) $pearDB->lastInsertId();
+                if ($newNagiosId <= 0) {
+                    $pearDB->rollBack();
+                    error_log('Invalid lastInsertId while duplicating nagios_id=' . $nagiosId);
+                    continue;
+                }
+
+                foreach ($rowBks as $valBk) {
                     if ($valBk['broker_module']) {
-                        $stmt = $pearDB->prepare(
-                            'INSERT INTO cfg_nagios_broker_module (`cfg_nagios_id`, `broker_module`)
-                            VALUES (:nagiosId, :brokerModule)'
-                        );
-                        $stmt->bindValue('nagiosId', (int) $nagiosId['MAX(nagios_id)'], PDO::PARAM_INT);
-                        $stmt->bindValue('brokerModule', $valBk['broker_module'], PDO::PARAM_STR);
-                        $stmt->execute();
+                        $insertBrokerStmt->bindValue(':nagiosId', $newNagiosId, PDO::PARAM_INT);
+                        $insertBrokerStmt->bindValue(':brokerModule', $valBk['broker_module'], PDO::PARAM_STR);
+                        $insertBrokerStmt->execute();
                     }
                 }
-                duplicateLoggerV2Cfg($pearDB, $originalNagiosId, $nagiosId['MAX(nagios_id)']);
+                duplicateLoggerV2Cfg($pearDB, $nagiosId, $newNagiosId);
+                $pearDB->commit();
+            } catch (Throwable $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
+                error_log('Failed to duplicate cfg_nagios for nagios_id=' . $nagiosId . ': ' . $e->getMessage());
+                continue;
             }
+        }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for nagios config '{$originalName}' ({$originalNagiosId}): suffix search exhausted");
         }
     }
 }
 
 /**
- * @param CentreonDB $pearDB
- * @param int $originalNagiosId
- * @param int $duplicatedNagiosId
+ * Create a Logger V2 configuration for a duplicated Nagios by copying the logger row from the original Nagios.
+ *
+ * @param CentreonDB $pearDB Database connection used to perform the copy.
+ * @param int $originalNagiosId ID of the Nagios entry to copy the Logger V2 configuration from.
+ * @param int $duplicatedNagiosId ID of the duplicated Nagios entry that will receive the copied Logger V2 configuration.
  */
 function duplicateLoggerV2Cfg(CentreonDB $pearDB, int $originalNagiosId, int $duplicatedNagiosId): void
 {
@@ -227,7 +326,7 @@ function duplicateLoggerV2Cfg(CentreonDB $pearDB, int $originalNagiosId, int $du
                `log_level_config`, `log_level_events`, `log_level_checks`,
                `log_level_notifications`, `log_level_eventbroker`, `log_level_external_command`,
                `log_level_commands`, `log_level_downtimes`, `log_level_comments`,
-               `log_level_macros`, `log_level_process`, `log_level_runtime`
+               `log_level_macros`, `log_level_process`, `log_level_runtime`, `log_level_otl`
                FROM cfg_nagios_logger
                WHERE cfg_nagios_id = :originalNagiosId'
     );
@@ -302,17 +401,17 @@ function implodeDebugLevel(array $levels): string
 }
 
 /**
- * @param array $macros
- * @return string
+ * Join a list of macros into a comma-separated whitelist string.
+ *
+ * @param string[] $macros Array of macro strings.
+ * @return string A comma-separated string of the provided macros with surrounding whitespace trimmed.
  */
 function concatMacrosWhitelist(array $macros): string
 {
     return trim(
         implode(
             ',',
-            array_map(function ($macro) {
-                return CentreonDB::escape($macro);
-            }, $macros)
+            $macros
         )
     );
 }
@@ -521,6 +620,18 @@ function encodeFieldNagios(string $value, string $columnName): string
         : htmlentities($value, ENT_QUOTES, 'UTF-8');
 }
 
+/**
+ * Insert a new Nagios configuration into the database and return the new record's ID.
+ *
+ * This creates a cfg_nagios row from the provided values (or submitted form values when `$data` is empty),
+ * optionally inserts Logger V2 configuration, inserts broker directives when requested, enforces a single
+ * active Nagios per poller when activation is requested, and records the change in the changelog.
+ *
+ * @param array $data Associative array of Nagios configuration values (column => value). When empty, submitted form values are used.
+ * @param array $brokerTab Unused legacy parameter retained for compatibility.
+ * @return int The newly inserted `nagios_id`.
+ * @throws RuntimeException If the newly inserted `nagios_id` cannot be retrieved.
+ */
 function insertNagios($data = [], $brokerTab = [])
 {
     global $form, $pearDB, $centreon;
@@ -566,17 +677,18 @@ function insertNagios($data = [], $brokerTab = [])
 
     $statement->execute();
 
-    $dbResult = $pearDB->query('SELECT MAX(nagios_id) FROM cfg_nagios');
-    $nagios_id = $dbResult->fetch();
-    $dbResult->closeCursor();
+    $nagiosId = (int) $pearDB->lastInsertId();
+    if ($nagiosId <= 0) {
+        throw new RuntimeException('Failed to retrieve last inserted nagios_id');
+    }
 
     if (isset($nagiosCfg['logger_version']) && $nagiosCfg['logger_version'] === 'log_v2_enabled') {
-        insertLoggerV2Cfg($pearDB, $data, $nagios_id['MAX(nagios_id)']);
+        insertLoggerV2Cfg($pearDB, $data, $nagiosId);
     }
 
     if (isset($_REQUEST['in_broker'])) {
         $mainCfg = new CentreonConfigEngine($pearDB);
-        $mainCfg->insertBrokerDirectives($nagios_id['MAX(nagios_id)'], $_REQUEST['in_broker']);
+        $mainCfg->insertBrokerDirectives($nagiosId, $_REQUEST['in_broker']);
     }
 
     // Manage the case where you have to main.cfg on the same poller
@@ -586,7 +698,7 @@ function insertNagios($data = [], $brokerTab = [])
              WHERE nagios_id != :nagios_id
              AND nagios_server_id = :nagios_server_id"
         );
-        $statement->bindValue(':nagios_id', (int) $nagios_id['MAX(nagios_id)'], PDO::PARAM_INT);
+        $statement->bindValue(':nagios_id', $nagiosId, PDO::PARAM_INT);
         $statement->bindValue(':nagios_server_id', (int) $data['nagios_server_id'], PDO::PARAM_INT);
         $statement->execute();
     }
@@ -595,15 +707,24 @@ function insertNagios($data = [], $brokerTab = [])
     $fields = CentreonLogAction::prepareChanges($data);
     $centreon->CentreonLogAction->insertLog(
         'engine',
-        $nagios_id['MAX(nagios_id)'],
-        $pearDB->escape($data['nagios_name']),
+        $nagiosId,
+        $data['nagios_name'],
         'a',
         $fields
     );
 
-    return $nagios_id['MAX(nagios_id)'];
+    return $nagiosId;
 }
 
+/**
+ * Update an existing Nagios configuration in the database and synchronize related components.
+ *
+ * Applies submitted form values to the cfg_nagios row for the given ID, ensures Logger V2 configuration is
+ * inserted or updated when enabled, updates broker directives for the instance, optionally activates the
+ * Nagios instance, and records the change in the changelog.
+ *
+ * @param int|null $nagiosId The ID of the Nagios configuration to update; if null the function is a no-op.
+ */
 function updateNagios($nagiosId = null)
 {
     global $form, $pearDB, $centreon;
@@ -641,8 +762,9 @@ function updateNagios($nagiosId = null)
     $queryPieces = array_map(fn ($columnName) => "`{$columnName}` = :{$columnName}", array_keys($nagiosCfg));
 
     $statement = $pearDB->prepare(
-        'UPDATE cfg_nagios SET ' . implode(', ', $queryPieces) . " WHERE nagios_id = {$nagiosId}"
+        'UPDATE cfg_nagios SET ' . implode(', ', $queryPieces) . ' WHERE nagios_id = :nagios_id'
     );
+    $statement->bindValue(':nagios_id', (int) $nagiosId, PDO::PARAM_INT);
 
     array_walk(
         $nagiosCfg,
@@ -672,7 +794,7 @@ function updateNagios($nagiosId = null)
     $centreon->CentreonLogAction->insertLog(
         'engine',
         $nagiosId,
-        $pearDB->escape($data['nagios_name']),
+        $data['nagios_name'],
         'c',
         $fields
     );

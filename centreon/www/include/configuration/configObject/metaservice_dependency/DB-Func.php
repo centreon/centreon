@@ -23,28 +23,54 @@ if (! isset($oreon)) {
     exit();
 }
 
-function testExistence($name = null)
+/**
+ * Determine whether a metaservice dependency name is available.
+ *
+ * The provided name is sanitized before the check. Optionally purges obsolete
+ * dependencies prior to querying and optionally excludes the current form's
+ * dep_id from the existence check.
+ *
+ * @param string|null $name The dependency name to check (will be sanitized).
+ * @param bool $excludeCurrentFormId If true, exclude the current form's dep_id from the check when present.
+ * @param bool $purge If true, purge obsolete dependencies before performing the existence check.
+ * @return bool `true` if no existing dependency with the given name was found, `false` otherwise.
+ */
+function testExistence($name = null, bool $excludeCurrentFormId = true, bool $purge = true)
 {
     global $pearDB;
     global $form;
 
-    CentreonDependency::purgeObsoleteDependencies($pearDB);
+    $name = HtmlAnalyzer::sanitizeAndRemoveTags($name ?? '');
+    if ($purge) {
+        CentreonDependency::purgeObsoleteDependencies($pearDB);
+    }
 
     $id = null;
-    if (isset($form)) {
+    if ($excludeCurrentFormId && isset($form)) {
         $id = $form->getSubmitValue('dep_id');
     }
-    $statement = $pearDB->prepare('SELECT dep_name, dep_id FROM dependency WHERE dep_name = :name');
-    $statement->bindValue(':name', $name, PDO::PARAM_STR);
-    $statement->execute();
-    $dep = $statement->fetch();
-    if ($dep === false) {
-        return true;
+    $query = 'SELECT 1 FROM dependency WHERE dep_name = :name';
+    if ($id !== null) {
+        $query .= ' AND dep_id <> :depId';
     }
+    $statement = $pearDB->prepare($query . ' LIMIT 1');
+    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    if ($id !== null) {
+        $statement->bindValue(':depId', (int) $id, PDO::PARAM_INT);
+    }
+    $statement->execute();
 
-    return $dep['dep_id'] == $id;
+    return $statement->fetchColumn() === false;
 }
 
+/**
+ * Detects whether any selected parent is also selected as a child in the current submission.
+ *
+ * Checks parent and child selections from the global form (if available) and returns `false` when a parent appears among the selected children, indicating a cycle.
+ *
+ * @param array|null $childs Optional legacy parameter retained for compatibility; the function uses values from the global `$form` when present.
+ * @return bool `true` if no parent appears among the selected children, `false` otherwise.
+ */
 function testCycle($childs = null)
 {
     global $pearDB;
@@ -65,30 +91,48 @@ function testCycle($childs = null)
     return true;
 }
 
+/**
+ * Delete dependency records for the given dependency IDs.
+ *
+ * Accepts an array whose keys are treated as dependency IDs; keys that are not valid integers are ignored.
+ *
+ * @param array $dependencies Array where keys are dependency IDs to remove.
+ * @return void
+ */
 function deleteMetaServiceDependencyInDB($dependencies = [])
 {
     global $pearDB;
     $statement = $pearDB->prepare('DELETE FROM dependency WHERE dep_id = :dep_id');
     foreach (array_keys($dependencies) as $key) {
-        $statement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $depId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($depId === false) {
+            continue;
+        }
+
+        $statement->bindValue(':dep_id', $depId, PDO::PARAM_INT);
         $statement->execute();
     }
 }
 
+/**
+ * Create multiple duplicates of existing metaservice dependencies and replicate their parent/child relations.
+ *
+ * For each dependency id in `$dependencies`, this function duplicates the dependency record up to the count
+ * provided in `$nbrDup` for that id, generating unique names by appending a numeric suffix. Parent and child
+ * meta-service relations of the original dependency are recreated for each duplicate inside a database
+ * transaction.
+ *
+ * @param array $dependencies Associative array whose keys are dependency ids to duplicate (values are ignored).
+ * @param array $nbrDup Associative array mapping dependency id keys to the requested number of duplicates (integer between 0 and 100).
+ *
+ * @throws RuntimeException If a duplicated dependency id cannot be retrieved after insert.
+ * @throws Throwable Propagates any database or unexpected exception raised during duplication (transactions are rolled back on error).
+ */
 function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
 {
     global $pearDB;
     $selectStmt = $pearDB->prepare(
-        'SELECT dep_name, dep_description, inherits_parent, execution_failure_criteria,
-                notification_failure_criteria, dep_comment
-        FROM dependency WHERE dep_id = :dep_id LIMIT 1'
-    );
-    $insertStmt = $pearDB->prepare(
-        'INSERT INTO dependency
-        (dep_name, dep_description, inherits_parent, execution_failure_criteria,
-         notification_failure_criteria, dep_comment)
-        VALUES (:dep_name, :dep_description, :inherits_parent, :execution_failure_criteria,
-         :notification_failure_criteria, :dep_comment)'
+        'SELECT * FROM dependency WHERE dep_id = :dep_id LIMIT 1'
     );
     $selectParentStmt = $pearDB->prepare(
         'SELECT DISTINCT meta_service_meta_id FROM dependency_metaserviceParent_relation '
@@ -107,43 +151,80 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
         . 'VALUES (:depId, :metaId)'
     );
 
+    CentreonDependency::purgeObsoleteDependencies($pearDB);
+
     foreach (array_keys($dependencies) as $key) {
-        $selectStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $depId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($depId === false) {
+            continue;
+        }
+
+        $selectStmt->bindValue(':dep_id', $depId, PDO::PARAM_INT);
         $selectStmt->execute();
-        $row = $selectStmt->fetch();
+        $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
             continue;
         }
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $dep_name = $row['dep_name'] . '_' . $i;
-            if (testExistence($dep_name)) {
-                $insertStmt->bindValue(':dep_name', $dep_name, PDO::PARAM_STR);
-                $insertStmt->bindValue(':dep_description', $row['dep_description'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':inherits_parent', $row['inherits_parent'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':execution_failure_criteria', $row['execution_failure_criteria'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':notification_failure_criteria', $row['notification_failure_criteria'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':dep_comment', $row['dep_comment'], PDO::PARAM_STR);
+        unset($row['dep_id']);
+        $columns = array_keys($row);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO dependency (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
+        // Fetch relationships once before duplication loop
+        $selectParentStmt->bindValue(':dep_id', $depId, PDO::PARAM_INT);
+        $selectParentStmt->execute();
+        $parents = $selectParentStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $selectChildStmt->bindValue(':dep_id', $depId, PDO::PARAM_INT);
+        $selectChildStmt->execute();
+        $children = $selectChildStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $dupCount = filter_var($nbrDup[$key] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
+        if ($dupCount === false) {
+            continue;
+        }
+        $originalName = $row['dep_name'];
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
+            $dep_name = $originalName . '_' . $suffix;
+            if (! testExistence($dep_name, false, false)) {
+                continue;
+            }
+            $i++;
+            $row['dep_name'] = $dep_name;
+            $pearDB->beginTransaction();
+            try {
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                }
                 $insertStmt->execute();
                 $lastId = (int) $pearDB->lastInsertId();
-                if ($lastId > 0) {
-                    $selectParentStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-                    $selectParentStmt->execute();
-                    while ($ms = $selectParentStmt->fetch()) {
-                        $insertParentStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
-                        $insertParentStmt->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
-                        $insertParentStmt->execute();
-                    }
-                    $selectParentStmt->closeCursor();
-                    $selectChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-                    $selectChildStmt->execute();
-                    while ($ms = $selectChildStmt->fetch()) {
-                        $insertChildStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
-                        $insertChildStmt->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
-                        $insertChildStmt->execute();
-                    }
-                    $selectChildStmt->closeCursor();
+                if ($lastId <= 0) {
+                    throw new RuntimeException('Failed to retrieve duplicated dependency id');
                 }
+                foreach ($parents as $ms) {
+                    $insertParentStmt->bindValue(':depId', $lastId, PDO::PARAM_INT);
+                    $insertParentStmt->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
+                    $insertParentStmt->execute();
+                }
+                foreach ($children as $ms) {
+                    $insertChildStmt->bindValue(':depId', $lastId, PDO::PARAM_INT);
+                    $insertChildStmt->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
+                    $insertChildStmt->execute();
+                }
+                $pearDB->commit();
+            } catch (Throwable $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
+
+                throw $e;
             }
+        }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for meta-service dependency '{$originalName}' ({$key}): suffix search exhausted");
         }
     }
 }
@@ -168,9 +249,12 @@ function insertMetaServiceDependencyInDB()
 }
 
 /**
- * Create a metaservice dependency
+ * Insert a new metaservice dependency record and add a changelog entry.
  *
- * @return int
+ * Uses submitted form values (sanitized) to populate the dependency fields.
+ *
+ * @return int The ID of the newly created dependency.
+ * @throws RuntimeException If the inserted dependency ID cannot be retrieved.
  */
 function insertMetaServiceDependency(): int
 {
@@ -193,6 +277,9 @@ function insertMetaServiceDependency(): int
     $statement->execute();
 
     $depId = (int) $pearDB->lastInsertId();
+    if ($depId <= 0) {
+        throw new RuntimeException('Failed to retrieve inserted metaservice dependency id');
+    }
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($resourceValues);
@@ -291,6 +378,14 @@ function sanitizeResourceParameters(array $resources): array
     return $sanitizedParameters;
 }
 
+/**
+ * Update the parent meta-service relations for a dependency.
+ *
+ * Deletes all existing parent relations for the given dependency id and inserts new relations
+ * using the merged 'dep_msParents' values from the active form.
+ *
+ * @param int|null $dep_id The dependency id whose parent relations should be refreshed; function exits if null or falsy.
+ */
 function updateMetaServiceDependencyMetaServiceParents($dep_id = null)
 {
     if (! $dep_id) {
@@ -301,7 +396,6 @@ function updateMetaServiceDependencyMetaServiceParents($dep_id = null)
     $statement = $pearDB->prepare('DELETE FROM dependency_metaserviceParent_relation WHERE dependency_dep_id = :dep_id');
     $statement->bindValue(':dep_id', (int) $dep_id, PDO::PARAM_INT);
     $statement->execute();
-    $ret = [];
     $ret = CentreonUtils::mergeWithInitialValues($form, 'dep_msParents');
     $statement = $pearDB->prepare(
         'INSERT INTO dependency_metaserviceParent_relation (dependency_dep_id, meta_service_meta_id)
@@ -315,6 +409,14 @@ function updateMetaServiceDependencyMetaServiceParents($dep_id = null)
     }
 }
 
+/**
+ * Replace child meta-service relations for the given dependency with submitted form values.
+ *
+ * Deletes all existing child relations for the dependency and inserts new relations using
+ * merged values from the form field 'dep_msChilds'. If no $dep_id is provided, the function exits.
+ *
+ * @param int|null $dep_id The dependency id whose child meta-service relations will be replaced.
+ */
 function updateMetaServiceDependencyMetaServiceChilds($dep_id = null)
 {
     if (! $dep_id) {
@@ -325,7 +427,6 @@ function updateMetaServiceDependencyMetaServiceChilds($dep_id = null)
     $statement = $pearDB->prepare('DELETE FROM dependency_metaserviceChild_relation WHERE dependency_dep_id = :dep_id');
     $statement->bindValue(':dep_id', (int) $dep_id, PDO::PARAM_INT);
     $statement->execute();
-    $ret = [];
     $ret = CentreonUtils::mergeWithInitialValues($form, 'dep_msChilds');
     $statement = $pearDB->prepare(
         'INSERT INTO dependency_metaserviceChild_relation (dependency_dep_id, meta_service_meta_id)

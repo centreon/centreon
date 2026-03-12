@@ -587,15 +587,26 @@ $form->registerRule('isValidHeartbeat', 'callback', 'isValidHeartbeat');
 
 // Add validator for macro name format
 /**
- * Validate the macro name
+ * Validate that each macro name in the request contains no illegal output characters.
  *
- * @param string $value Not used
- * @return bool If all name are valid
+ * Reads 'illegal_macro_output_chars' and 'macros_filter' from the request. Treats the request value
+ * for illegal characters as a string (returns false if it is not) and always rejects carriage return,
+ * newline, and null byte characters in macro names.
+ *
+ * @param mixed $value Unused callback parameter.
+ * @return bool `true` if every macro in `$_REQUEST['macros_filter']` contains none of the illegal characters, `false` otherwise.
  */
 function validMacroName($value)
 {
     // Get the list of invalid characters
-    $invalidCharacters = str_split($_REQUEST['illegal_macro_output_chars']);
+    $illegalChars = $_REQUEST['illegal_macro_output_chars'] ?? '`~$^&"|\'<>';
+    if (! is_string($illegalChars)) {
+        return false;
+    }
+    $invalidCharacters = $illegalChars !== '' ? str_split($illegalChars) : [];
+    // Always reject newlines and null bytes to prevent config file injection
+    $invalidCharacters = array_unique(array_merge($invalidCharacters, ["\r", "\n", "\0"]));
+
     foreach ($_REQUEST['macros_filter'] as $name) {
         $parsed = str_replace($invalidCharacters, '', $name);
         // Contains one of invalid characters

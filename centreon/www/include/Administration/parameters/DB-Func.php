@@ -134,36 +134,45 @@ function updateGeneralOptInDB($gopt_id = null)
     updateGeneralOpt($gopt_id);
 }
 
+/**
+ * Persist Nagios-related configuration from the submitted form into Centreon options and refresh in-memory options.
+ *
+ * Reads submitted form values, updates corresponding options and the acl_resources.changed flag in the database,
+ * normalizes checkbox-like fields to 1 or 0 and applies defaults for downtime duration and scale when absent,
+ * then calls Centreon to regenerate in-memory configuration.
+ *
+ * @param int|null $gopt_id Optional general options identifier; ignored when null.
+ * @return void
+ */
 function updateNagiosConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(
         $pearDB,
         'nagios_path_plugins',
         isset($ret['nagios_path_plugins']) && $ret['nagios_path_plugins'] != null
-            ? $pearDB->escape($ret['nagios_path_plugins']) : 'NULL'
+            ? $ret['nagios_path_plugins'] : 'NULL'
     );
     updateOption(
         $pearDB,
         'mailer_path_bin',
         isset($ret['mailer_path_bin']) && $ret['mailer_path_bin'] != null
-            ? $pearDB->escape($ret['mailer_path_bin']) : 'NULL'
+            ? $ret['mailer_path_bin'] : 'NULL'
     );
     updateOption(
         $pearDB,
         'interval_length',
         isset($ret['interval_length']) && $ret['interval_length'] != null
-            ? $pearDB->escape($ret['interval_length']) : 'NULL'
+            ? $ret['interval_length'] : 'NULL'
     );
     updateOption(
         $pearDB,
         'broker',
         isset($ret['broker']) && $ret['broker'] != null
-            ? $pearDB->escape($ret['broker']) : 'broker'
+            ? $ret['broker'] : 'broker'
     );
     $pearDB->query('UPDATE acl_resources SET changed = 1');
 
@@ -204,13 +213,13 @@ function updateNagiosConfigData($gopt_id = null)
         $pearDB,
         'monitoring_dwt_duration',
         isset($ret['monitoring_dwt_duration']) && $ret['monitoring_dwt_duration']
-            ? $pearDB->escape($ret['monitoring_dwt_duration']) : 3600
+            ? $ret['monitoring_dwt_duration'] : 3600
     );
     updateOption(
         $pearDB,
         'monitoring_dwt_duration_scale',
         isset($ret['monitoring_dwt_duration_scale']) && $ret['monitoring_dwt_duration_scale']
-            ? $pearDB->escape($ret['monitoring_dwt_duration_scale']) : 's'
+            ? $ret['monitoring_dwt_duration_scale'] : 's'
     );
     updateOption(
         $pearDB,
@@ -316,11 +325,19 @@ function updateGorgoneConfigData($db, $form, $centreon)
     $centreon->initOptGen($db);
 }
 
+/**
+ * Update SNMP-related configuration options and refresh in-memory options.
+ *
+ * Stores submitted SNMP settings (snmp_community, snmp_version, snmp_trapd_path_conf,
+ * snmptt_unknowntrap_log_file, snmpttconvertmib_path_bin, perl_library_path) into
+ * the persistent options storage. If a submitted value is missing or null, the
+ * literal string 'NULL' is stored for that option. After persisting values, the
+ * in-memory configuration is regenerated.
+ */
 function updateSNMPConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(
@@ -361,11 +378,15 @@ function updateSNMPConfigData($gopt_id = null)
     $centreon->initOptGen($pearDB);
 }
 
+/**
+ * Update debug-related configuration options from submitted form values and refresh generated options.
+ *
+ * Reads debug settings from the current form submission, stores them in the options table (including debug flags, debug path, and debug level), applies the debug level to the environment, and regenerates in-memory options.
+ */
 function updateDebugConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(
@@ -489,11 +510,17 @@ function updateLdapConfigData($gopt_id = null)
     $centreon->initOptGen($pearDB);
 }
 
+/**
+ * Apply general configuration submitted via the global form to stored options and refresh generated options.
+ *
+ * Reads submitted values from the global form, updates corresponding Centreon options in the database, and invokes initOptGen to regenerate in-memory configuration.
+ *
+ * @throws InvalidArgumentException If required submitted values (`AjaxTimeReloadStatistic`) are missing.
+ */
 function updateGeneralConfigData()
 {
     global $form, $pearDB, $centreon;
 
-    $ret = [];
     $ret = $form->getSubmitValues();
 
     if (! isset($ret['AjaxTimeReloadStatistic'])) {
@@ -675,11 +702,22 @@ function updateGeneralConfigData()
     $centreon->initOptGen($pearDB);
 }
 
+/**
+ * Update RRDTool-related options in the database and refresh generated configuration.
+ *
+ * Updates the following options in the options table: `rrdtool_path_bin`, `rrdtool_version`,
+ * `rrdcached_enable`, `rrdcached_port`, and `rrdcached_unix_path`. For `rrdtool_path_bin`,
+ * `rrdtool_version`, and `rrdcached_unix_path` provided string values are HTML-escaped before
+ * storage; `rrdcached_enable` and `rrdcached_port` use the submitted values or fall back to
+ * `'0'` and empty string respectively when absent. After persisting options, regenerates
+ * in-memory configuration by calling initOptGen on the Centreon instance.
+ *
+ * @param mixed $gopt_id Optional parameter kept for signature compatibility; it is not used.
+ */
 function updateRRDToolConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(
@@ -726,11 +764,19 @@ function updatePartitioningConfigData($db, $form, $centreon)
     $centreon->initOptGen($db);
 }
 
+/**
+ * Update ODS and RRD-related configuration from submitted form values.
+ *
+ * Reads submitted values, normalizes defaults (including ensuring RRD path ends with '/'),
+ * enforces minimums for purge interval and other retention/length defaults, treats
+ * storage type as nullable when empty, and writes the resulting values into the
+ * `config` table (row id = 1). Also updates related Centreon options: `centstorage`,
+ * `centstorage_auto_drop`, and `centstorage_drop_file`.
+ */
 function updateODSConfigData()
 {
     global $form, $pearDBO, $pearDB;
 
-    $ret = [];
     $ret = $form->getSubmitValues();
     if (! isset($ret['audit_log_option'])) {
         $ret['audit_log_option'] = '0';
@@ -766,24 +812,50 @@ function updateODSConfigData()
     if (! isset($ret['audit_log_retention'])) {
         $ret['audit_log_retention'] = 0;
     }
+    if (! isset($ret['archive_retention'])) {
+        $ret['archive_retention'] = 0;
+    }
+    if (! isset($ret['reporting_retention'])) {
+        $ret['reporting_retention'] = 0;
+    }
 
-    $rq = "UPDATE `config` SET `RRDdatabase_path` = '" . $ret['RRDdatabase_path'] . "',
-        `RRDdatabase_status_path` = '" . $ret['RRDdatabase_status_path'] . "',
-        `RRDdatabase_nagios_stats_path` = '" . $ret['RRDdatabase_nagios_stats_path'] . "',
-        `len_storage_rrd` = '" . $ret['len_storage_rrd'] . "',
-        `len_storage_mysql` = '" . $ret['len_storage_mysql'] . "',
-        `autodelete_rrd_db` = '" . $ret['autodelete_rrd_db'] . "',
-        `purge_interval` = '" . $ret['purge_interval'] . "',
-        `archive_log` = '" . $ret['archive_log'] . "',
-        `archive_retention` = '" . $ret['archive_retention'] . "',
-        `reporting_retention` = '" . $ret['reporting_retention'] . "',
-        `audit_log_option` = '" . $ret['audit_log_option'] . "',
-        `storage_type` = " . ($ret['storage_type'] ?? 'NULL') . ",
-        `len_storage_downtimes` = '" . $ret['len_storage_downtimes'] . "',
-        `audit_log_retention` = '" . $ret['audit_log_retention'] . "',
-        `len_storage_comments` = '" . $ret['len_storage_comments'] . "' "
-        . ' WHERE `id` = 1 LIMIT 1 ;';
-    $DBRESULT = $pearDBO->query($rq);
+    $statement = $pearDBO->prepare(
+        'UPDATE `config` SET
+        `RRDdatabase_path` = :rrdPath,
+        `RRDdatabase_status_path` = :rrdStatusPath,
+        `RRDdatabase_nagios_stats_path` = :rrdStatsPath,
+        `len_storage_rrd` = :lenRrd,
+        `len_storage_mysql` = :lenMysql,
+        `autodelete_rrd_db` = :autodeleteRrd,
+        `purge_interval` = :purgeInterval,
+        `archive_log` = :archiveLog,
+        `archive_retention` = :archiveRetention,
+        `reporting_retention` = :reportingRetention,
+        `audit_log_option` = :auditLogOption,
+        `storage_type` = :storageType,
+        `len_storage_downtimes` = :lenDowntimes,
+        `audit_log_retention` = :auditLogRetention,
+        `len_storage_comments` = :lenComments
+        WHERE `id` = 1 LIMIT 1'
+    );
+    $statement->bindValue(':rrdPath', $ret['RRDdatabase_path'], PDO::PARAM_STR);
+    $statement->bindValue(':rrdStatusPath', $ret['RRDdatabase_status_path'], PDO::PARAM_STR);
+    $statement->bindValue(':rrdStatsPath', $ret['RRDdatabase_nagios_stats_path'], PDO::PARAM_STR);
+    $statement->bindValue(':lenRrd', (int) $ret['len_storage_rrd'], PDO::PARAM_INT);
+    $statement->bindValue(':lenMysql', (int) $ret['len_storage_mysql'], PDO::PARAM_INT);
+    $statement->bindValue(':autodeleteRrd', $ret['autodelete_rrd_db'], PDO::PARAM_STR);
+    $statement->bindValue(':purgeInterval', (int) $ret['purge_interval'], PDO::PARAM_INT);
+    $statement->bindValue(':archiveLog', $ret['archive_log'], PDO::PARAM_STR);
+    $statement->bindValue(':archiveRetention', (int) $ret['archive_retention'], PDO::PARAM_INT);
+    $statement->bindValue(':reportingRetention', (int) $ret['reporting_retention'], PDO::PARAM_INT);
+    $statement->bindValue(':auditLogOption', $ret['audit_log_option'], PDO::PARAM_STR);
+    $rawStorageType = $ret['storage_type'] ?? null;
+    $storageType = ($rawStorageType === null || $rawStorageType === '') ? null : (int) $rawStorageType;
+    $statement->bindValue(':storageType', $storageType, $storageType === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+    $statement->bindValue(':lenDowntimes', (int) $ret['len_storage_downtimes'], PDO::PARAM_INT);
+    $statement->bindValue(':auditLogRetention', (int) $ret['audit_log_retention'], PDO::PARAM_INT);
+    $statement->bindValue(':lenComments', (int) $ret['len_storage_comments'], PDO::PARAM_INT);
+    $statement->execute();
 
     updateOption(
         $pearDB,
@@ -795,15 +867,21 @@ function updateODSConfigData()
     updateOption(
         $pearDB,
         'centstorage_drop_file',
-        isset($ret['centstorage_drop_file']) ? $pearDB->escape($ret['centstorage_drop_file']) : ''
+        $ret['centstorage_drop_file'] ?? ''
     );
 }
 
+/**
+ * Update CAS (Central Authentication Service) configuration options from submitted form values and regenerate in-memory options.
+ *
+ * Reads CAS-related values from the global form submission and persists them into the options storage, then calls initOptGen to refresh runtime configuration.
+ *
+ * @param mixed $gopt_id Optional general options identifier (not used by this function).
+ */
 function updateCASConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(

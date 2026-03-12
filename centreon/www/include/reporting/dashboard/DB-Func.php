@@ -19,30 +19,44 @@
  *
  */
 
-// returns days of week taken in account for reporting in a string
-function getReportDaysStr($reportTimePeriod)
+/**
+ * Get the names of weekdays enabled in the provided reporting time period.
+ *
+ * @param array $reportTimePeriod Associative array of reporting flags where keys are `report_<Day>` (e.g., `report_Monday`) and a truthy value includes that day.
+ * @return string[] Array of weekday names (e.g., `"Monday"`, `"Tuesday"`) that are included in the reporting period.
+ */
+function getReportDaysArray($reportTimePeriod)
 {
     $tab = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    $str = '';
-    foreach ($tab as $key => $value) {
+    $days = [];
+    foreach ($tab as $value) {
         if (isset($reportTimePeriod['report_' . $value]) && $reportTimePeriod['report_' . $value]) {
-            if ($str != '') {
-                $str .= ", '" . $value . "'";
-            } else {
-                $str .= "'" . $value . "'";
-            }
+            $days[] = $value;
         }
     }
-    if ($str == '') {
-        $str = 'NULL';
-    }
 
-    return $str;
+    return $days;
 }
 
-/*
- * Return a table a (which reference is given in parameter) that
- * contains stats on a given host defined by $host_id
+/**
+ * Build aggregated availability and alert statistics for a specific host over a time range and reporting days.
+ *
+ * Returns an associative array of computed metrics for the host filtered by the reporting time period's selected days.
+ * The returned array contains time totals, formatted time strings, percentage values and alert counts using the
+ * following keys (example subset):
+ * - UP_T, DOWN_T, UNREACHABLE_T, UNDETERMINED_T, MAINTENANCE_T: time in seconds spent in each status.
+ * - UP_A, DOWN_A, UNREACHABLE_A: total alert counts for each status.
+ * - TOTAL_TIME, MEAN_TIME: aggregated total and mean times in seconds.
+ * - *_TP: percentage of TOTAL_TIME for each status (e.g. UP_TP).
+ * - *_MP: percentage of MEAN_TIME for each status excluding undetermined time (e.g. UP_MP).
+ * - *_TF, MEAN_TIME_F, TOTAL_TIME_F: human-readable formatted time strings for corresponding time values.
+ * - TOTAL_ALERTS: sum of per-status alert counts.
+ *
+ * @param int $host_id The host identifier to compute statistics for.
+ * @param int $start_date Unix timestamp (inclusive) marking the start of the reporting interval.
+ * @param int $end_date Unix timestamp (inclusive) marking the end of the reporting interval.
+ * @param array $reportTimePeriod Reporting time period configuration (includes selected weekdays and formatting rules).
+ * @return array Associative array of host statistics keyed by metric names described above. If no reporting days are selected, returns zeroed statistics.
  */
 function getLogInDbForHost($host_id, $start_date, $end_date, $reportTimePeriod)
 {
@@ -53,18 +67,33 @@ function getLogInDbForHost($host_id, $start_date, $end_date, $reportTimePeriod)
         $hostStats[$name] = 0;
     }
 
-    $days_of_week = getReportDaysStr($reportTimePeriod);
+    $days_of_week = getReportDaysArray($reportTimePeriod);
+    if ($days_of_week === []) {
+        return $hostStats;
+    }
+    $dayPlaceholders = [];
+    foreach ($days_of_week as $i => $day) {
+        $dayPlaceholders[] = ':day' . $i;
+    }
+    $daysInClause = implode(', ', $dayPlaceholders);
     $rq = 'SELECT sum(`UPnbEvent`) as UP_A, sum(`UPTimeScheduled`) as UP_T, '
         . ' sum(`DOWNnbEvent`) as DOWN_A, sum(`DOWNTimeScheduled`) as DOWN_T, '
         . ' sum(`UNREACHABLEnbEvent`) as UNREACHABLE_A, sum(`UNREACHABLETimeScheduled`) as UNREACHABLE_T, '
         . ' sum(`UNDETERMINEDTimeScheduled`) as UNDETERMINED_T, '
         . ' sum(`MaintenanceTime`) as MAINTENANCE_T '
         . 'FROM `log_archive_host` '
-        . 'WHERE `host_id` = ' . $host_id . ' AND `date_start` >=  ' . $start_date . ' AND `date_end` <= ' . $end_date
-        . ' ' . "AND DATE_FORMAT( FROM_UNIXTIME( `date_start`), '%W') IN (" . $days_of_week . ') '
+        . 'WHERE `host_id` = :host_id AND `date_start` >= :start_date AND `date_end` <= :end_date '
+        . "AND DATE_FORMAT(FROM_UNIXTIME(`date_start`), '%W') IN (" . $daysInClause . ') '
         . 'GROUP BY `host_id` ';
 
-    $dbResult = $pearDBO->query($rq);
+    $dbResult = $pearDBO->prepare($rq);
+    $dbResult->bindValue(':host_id', (int) $host_id, PDO::PARAM_INT);
+    $dbResult->bindValue(':start_date', (int) $start_date, PDO::PARAM_INT);
+    $dbResult->bindValue(':end_date', (int) $end_date, PDO::PARAM_INT);
+    foreach ($days_of_week as $i => $day) {
+        $dbResult->bindValue(':day' . $i, $day, PDO::PARAM_STR);
+    }
+    $dbResult->execute();
     if ($row = $dbResult->fetch()) {
         $hostStats = $row;
     }
@@ -201,10 +230,20 @@ function getLogInDbForHostGroup($hostgroup_id, $start_date, $end_date, $reportTi
     return $hostgroupStats;
 }
 
-/*
- * Return a table a (which reference is given in parameter)
- * that contains stats on services for a given host defined by $host_id
- */
+/**
+ * Gather per-service availability and alert statistics for a given host over a time interval and reporting days.
+ *
+ * Builds an associative array indexed by service ID (plus an 'average' entry) containing totals and percentages
+ * for statuses: OK, WARNING, CRITICAL, UNKNOWN, UNDETERMINED and MAINTENANCE. Each service entry includes time
+ * totals (`*_T`), total-time percentages (`*_TP`), mean-time percentages (`*_MP`, computed excluding UNDETERMINED),
+ * alert counts (`*_A`), formatted time strings (`*_TF`), `MEAN_TIME`, `MEAN_TIME_F`, `TOTAL_TIME`, `TOTAL_TIME_F`,
+ * `DESCRIPTION`, and `ID`.
+ *
+ * @param int   $host_id         The host identifier.
+ * @param int   $start_date      Start of the reporting interval as a Unix timestamp.
+ * @param int   $end_date        End of the reporting interval as a Unix timestamp.
+ * @param array $reportTimePeriod Reporting time period configuration (used to determine included days and formatting).
+ * @return array Associative array of service statistics indexed by service ID and an 'average' aggregate entry.
 function getLogInDbForHostSVC($host_id, $start_date, $end_date, $reportTimePeriod)
 {
     global $centreon, $pearDBO;
@@ -254,12 +293,26 @@ function getLogInDbForHostSVC($host_id, $start_date, $end_date, $reportTimePerio
         }
     }
 
-    $days_of_week = getReportDaysStr($reportTimePeriod);
+    $days_of_week = getReportDaysArray($reportTimePeriod);
+    if ($days_of_week === []) {
+        return $hostServiceStats;
+    }
+    $dayPlaceholders = [];
+    foreach ($days_of_week as $i => $day) {
+        $dayPlaceholders[] = ':day' . $i;
+    }
+    $daysInClause = implode(', ', $dayPlaceholders);
     $aclCondition = '';
+    $aclGroupIds = [];
     if (! $centreon->user->admin) {
+        $aclGroupIds = array_keys($centreon->user->access->getAccessGroups());
+        $aclPlaceholders = [];
+        foreach ($aclGroupIds as $j => $id) {
+            $aclPlaceholders[] = ':aclGroup' . $j;
+        }
         $aclCondition = 'AND EXISTS (SELECT 1 FROM centreon_acl acl '
             . 'WHERE las.host_id = acl.host_id AND las.service_id = acl.service_id '
-            . 'AND acl.group_id IN (' . $centreon->user->access->getAccessGroupsString() . ') LIMIT 1)';
+            . 'AND acl.group_id IN (' . implode(', ', $aclPlaceholders) . ') LIMIT 1)';
     }
     $rq = 'SELECT DISTINCT las.service_id, '
         . 'sum(OKTimeScheduled) as OK_T, '
@@ -273,12 +326,22 @@ function getLogInDbForHostSVC($host_id, $start_date, $end_date, $reportTimePerio
         . 'sum(UNDETERMINEDTimeScheduled) as UNDETERMINED_T, '
         . 'sum(MaintenanceTime) as MAINTENANCE_T '
         . 'FROM log_archive_service las '
-        . 'WHERE las.host_id = ' . $host_id . ' '
+        . 'WHERE las.host_id = :host_id '
         . $aclCondition . ' '
-        . 'AND date_start >= ' . $start_date . ' AND date_end <= ' . $end_date . ' '
-        . "AND DATE_FORMAT(FROM_UNIXTIME(date_start), '%W') IN (" . $days_of_week . ') '
+        . 'AND date_start >= :start_date AND date_end <= :end_date '
+        . "AND DATE_FORMAT(FROM_UNIXTIME(date_start), '%W') IN (" . $daysInClause . ') '
         . 'GROUP BY las.service_id ';
-    $dbResult = $pearDBO->query($rq);
+    $dbResult = $pearDBO->prepare($rq);
+    $dbResult->bindValue(':host_id', (int) $host_id, PDO::PARAM_INT);
+    $dbResult->bindValue(':start_date', (int) $start_date, PDO::PARAM_INT);
+    $dbResult->bindValue(':end_date', (int) $end_date, PDO::PARAM_INT);
+    foreach ($days_of_week as $i => $day) {
+        $dbResult->bindValue(':day' . $i, $day, PDO::PARAM_STR);
+    }
+    foreach ($aclGroupIds as $j => $id) {
+        $dbResult->bindValue(':aclGroup' . $j, (int) $id, PDO::PARAM_INT);
+    }
+    $dbResult->execute();
     while ($row = $dbResult->fetch()) {
         if (isset($hostServiceStats[$row['service_id']])) {
             $hostServiceStats[$row['service_id']] = $row;
@@ -368,16 +431,21 @@ function getLogInDbForHostSVC($host_id, $start_date, $end_date, $reportTimePerio
     return $hostServiceStats;
 }
 
-/*
- * Return a table a (which reference is given in parameter) that contains stats
- * on services for a given host defined by $host_id and $service_id
- * me must specify the host id because one service can be linked to many hosts
+/**
+ * Compute aggregated status times and alert counts for multiple services over a time interval constrained by reporting days.
  *
- * @param int $servicegroupId
- * @param int $startDate
- * @param int $endDate
- * @param array $reportTimePeriod
- * @return array
+ * Aggregates scheduled time and event counts per status (OK, WARNING, CRITICAL, UNKNOWN, UNDETERMINED, MAINTENANCE)
+ * for each provided host/service pair, computes total and mean times, time percentages (TP), mean percentages (MP),
+ * formatted time strings (TF), and total alerts.
+ *
+ * @param array $services Array of services to process; each element must contain keys `hostId` and `serviceId`.
+ * @param int $startDate Unix timestamp for the inclusive start of the interval.
+ * @param int $endDate Unix timestamp for the inclusive end of the interval.
+ * @param array $reportTimePeriod Reporting time period configuration (contains selected days/hours used to filter the interval).
+ * @return array Associative array indexed by host_id then service_id. Each value contains aggregated keys such as:
+ *               OK_T, OK_A, WARNING_T, WARNING_A, CRITICAL_T, CRITICAL_A, UNKNOWN_T, UNKNOWN_A,
+ *               UNDETERMINED_T, MAINTENANCE_T, TOTAL_TIME, MEAN_TIME, `<STATUS>_TP`, `<STATUS>_MP`,
+ *               `<STATUS>_TF`, MEAN_TIME_F, TOTAL_TIME_F, TOTAL_ALERTS, plus `host_id` and `service_id`.
  */
 function getServicesLogs(array $services, $startDate, $endDate, $reportTimePeriod)
 {
@@ -392,17 +460,31 @@ function getServicesLogs(array $services, $startDate, $endDate, $reportTimePerio
     foreach (getServicesStatsValueName() as $name) {
         $serviceStats[$name] = 0;
     }
-    $daysOfWeek = getReportDaysStr($reportTimePeriod);
+    $daysOfWeek = getReportDaysArray($reportTimePeriod);
+    if ($daysOfWeek === []) {
+        return $serviceStats;
+    }
+    $dayPlaceholders = [];
+    foreach ($daysOfWeek as $i => $day) {
+        $dayPlaceholders[] = ':day' . $i;
+    }
+    $daysInClause = implode(', ', $dayPlaceholders);
     $aclCondition = '';
+    $aclGroupIds = [];
     if (! $centreon->user->admin) {
-        $aclCondition = 'AND EXISTS (SELECT * FROM centreon_acl acl '
+        $aclGroupIds = array_keys($centreon->user->access->getAccessGroups());
+        $aclPlaceholders = [];
+        foreach ($aclGroupIds as $j => $id) {
+            $aclPlaceholders[] = ':aclGroup' . $j;
+        }
+        $aclCondition = 'AND EXISTS (SELECT 1 FROM centreon_acl acl '
             . 'WHERE las.host_id = acl.host_id AND las.service_id = acl.service_id '
-            . 'AND acl.group_id IN (' . $centreon->user->access->getAccessGroupsString() . ') )';
+            . 'AND acl.group_id IN (' . implode(', ', $aclPlaceholders) . ') )';
     }
 
     $bindValues = [
-        ':startDate' => [PDO::PARAM_STR, $startDate],
-        ':endDate' => [PDO::PARAM_STR, $endDate],
+        ':startDate' => [PDO::PARAM_INT, (int) $startDate],
+        ':endDate' => [PDO::PARAM_INT, (int) $endDate],
     ];
 
     $servicesConditions = [];
@@ -425,13 +507,19 @@ function getServicesLogs(array $services, $startDate, $endDate, $reportTimePerio
         . 'AND date_end <= :endDate '
         . $aclCondition . ' '
         . $servicesSubquery . ' '
-        . "AND DATE_FORMAT(FROM_UNIXTIME(date_start), '%W') IN (" . $daysOfWeek . ') '
+        . "AND DATE_FORMAT(FROM_UNIXTIME(date_start), '%W') IN (" . $daysInClause . ') '
         . 'GROUP BY las.host_id, las.service_id';
     $statement = $pearDBO->prepare($rq);
 
     foreach ($bindValues as $bindName => $bindParams) {
         [$bindType, $bindValue] = $bindParams;
         $statement->bindValue($bindName, $bindValue, $bindType);
+    }
+    foreach ($daysOfWeek as $i => $day) {
+        $statement->bindValue(':day' . $i, $day, PDO::PARAM_STR);
+    }
+    foreach ($aclGroupIds as $j => $id) {
+        $statement->bindValue(':aclGroup' . $j, (int) $id, PDO::PARAM_INT);
     }
 
     $statement->execute();
@@ -695,53 +783,78 @@ function getreportingTimePeriod()
     return $reportingTimePeriod;
 }
 
-// Functions to get objects names from their ID
+/**
+ * Retrieve the host name for a given host ID.
+ *
+ * @param int $host_id The host identifier.
+ * @return string The host name if found, or `'undefined'` when no matching host exists.
+ */
 function getHostNameFromId($host_id)
 {
     global $pearDB;
-    $req = 'SELECT  `host_name` FROM `host` WHERE `host_id` = ' . $host_id;
-    $dbResult = $pearDB->query($req);
-    if ($row = $dbResult->fetch()) {
+    $statement = $pearDB->prepare('SELECT `host_name` FROM `host` WHERE `host_id` = :host_id');
+    $statement->bindValue(':host_id', (int) $host_id, PDO::PARAM_INT);
+    $statement->execute();
+    if ($row = $statement->fetch()) {
         return $row['host_name'];
     }
 
     return 'undefined';
 }
 
+/**
+ * Get the hostgroup name for the specified hostgroup ID.
+ *
+ * @param int $hostgroup_id The hostgroup identifier.
+ * @return string The hostgroup name if found, otherwise the string 'undefined'.
+ */
 function getHostgroupNameFromId($hostgroup_id)
 {
     global $pearDB;
-    $req = 'SELECT  `hg_name` FROM `hostgroup` WHERE `hg_id` = ' . $hostgroup_id;
-    $dbResult = $pearDB->query($req);
-    if ($row = $dbResult->fetch()) {
+    $statement = $pearDB->prepare('SELECT `hg_name` FROM `hostgroup` WHERE `hg_id` = :hg_id');
+    $statement->bindValue(':hg_id', (int) $hostgroup_id, PDO::PARAM_INT);
+    $statement->execute();
+    if ($row = $statement->fetch()) {
         return $row['hg_name'];
     }
 
     return 'undefined';
 }
 
+/**
+ * Retrieve the service description for a given service identifier.
+ *
+ * @param int|string $service_id The service ID to look up.
+ * @return string The service description if found, `'undefined'` otherwise.
+ */
 function getServiceDescriptionFromId($service_id)
 {
     global $pearDB;
-    $req = 'SELECT  `service_description` FROM `service` WHERE `service_id` = ' . $service_id;
-    $dbResult = $pearDB->query($req);
-    if ($row = $dbResult->fetch()) {
+    $statement = $pearDB->prepare('SELECT `service_description` FROM `service` WHERE `service_id` = :service_id');
+    $statement->bindValue(':service_id', (int) $service_id, PDO::PARAM_INT);
+    $statement->execute();
+    if ($row = $statement->fetch()) {
         return $row['service_description'];
     }
 
     return 'undefined';
 }
 
+/**
+ * Retrieve the name of a service group by its ID.
+ *
+ * @param int $sg_id The service group identifier.
+ * @return string The service group name if found, otherwise the string 'undefined'.
+ */
 function getServiceGroupNameFromId($sg_id)
 {
     global $pearDB;
-    $req = 'SELECT  `sg_name` FROM `servicegroup` WHERE `sg_id` = ' . $sg_id;
-    $dbResult = $pearDB->query($req);
-    unset($req);
-    if ($row = $dbResult->fetch()) {
+    $statement = $pearDB->prepare('SELECT `sg_name` FROM `servicegroup` WHERE `sg_id` = :sg_id');
+    $statement->bindValue(':sg_id', (int) $sg_id, PDO::PARAM_INT);
+    $statement->execute();
+    if ($row = $statement->fetch()) {
         return $row['sg_name'];
     }
-    $dbResult->closeCursor();
 
     return 'undefined';
 }
