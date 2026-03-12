@@ -639,32 +639,43 @@ function insertNagios($data = [], $brokerTab = [])
         $statement
     );
 
-    $statement->execute();
-
-    $nagiosId = (int) $pearDB->lastInsertId();
-    if ($nagiosId <= 0) {
-        throw new RuntimeException('Failed to retrieve last inserted nagios_id');
-    }
-
-    if (isset($nagiosCfg['logger_version']) && $nagiosCfg['logger_version'] === 'log_v2_enabled') {
-        insertLoggerV2Cfg($pearDB, $data, $nagiosId);
-    }
-
-    if (isset($_REQUEST['in_broker'])) {
-        $mainCfg = new CentreonConfigEngine($pearDB);
-        $mainCfg->insertBrokerDirectives($nagiosId, $_REQUEST['in_broker']);
-    }
-
-    // Manage the case where you have to main.cfg on the same poller
-    if (isset($data['nagios_activate']['nagios_activate']) && $data['nagios_activate']['nagios_activate']) {
-        $statement = $pearDB->prepare(
-            "UPDATE cfg_nagios SET nagios_activate = '0'
-             WHERE nagios_id != :nagios_id
-             AND nagios_server_id = :nagios_server_id"
-        );
-        $statement->bindValue(':nagios_id', $nagiosId, PDO::PARAM_INT);
-        $statement->bindValue(':nagios_server_id', (int) $data['nagios_server_id'], PDO::PARAM_INT);
+    $pearDB->beginTransaction();
+    try {
         $statement->execute();
+
+        $nagiosId = (int) $pearDB->lastInsertId();
+        if ($nagiosId <= 0) {
+            throw new RuntimeException('Failed to retrieve last inserted nagios_id');
+        }
+
+        if (isset($nagiosCfg['logger_version']) && $nagiosCfg['logger_version'] === 'log_v2_enabled') {
+            insertLoggerV2Cfg($pearDB, $data, $nagiosId);
+        }
+
+        if (isset($_REQUEST['in_broker'])) {
+            $mainCfg = new CentreonConfigEngine($pearDB);
+            $mainCfg->insertBrokerDirectives($nagiosId, $_REQUEST['in_broker']);
+        }
+
+        // Manage the case where you have to main.cfg on the same poller
+        if (isset($data['nagios_activate']['nagios_activate']) && $data['nagios_activate']['nagios_activate']) {
+            $deactivateStmt = $pearDB->prepare(
+                "UPDATE cfg_nagios SET nagios_activate = '0'
+                 WHERE nagios_id != :nagios_id
+                 AND nagios_server_id = :nagios_server_id"
+            );
+            $deactivateStmt->bindValue(':nagios_id', $nagiosId, PDO::PARAM_INT);
+            $deactivateStmt->bindValue(':nagios_server_id', (int) $data['nagios_server_id'], PDO::PARAM_INT);
+            $deactivateStmt->execute();
+        }
+
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
     }
 
     // Prepare value for changelog
@@ -727,21 +738,32 @@ function updateNagios($nagiosId = null)
         $statement
     );
 
-    $statement->execute();
+    $pearDB->beginTransaction();
+    try {
+        $statement->execute();
 
-    if (isset($nagiosCfg['logger_version']) && $nagiosCfg['logger_version'] === 'log_v2_enabled') {
-        insertOrUpdateLogger($pearDB, $data, $nagiosId);
-    }
+        if (isset($nagiosCfg['logger_version']) && $nagiosCfg['logger_version'] === 'log_v2_enabled') {
+            insertOrUpdateLogger($pearDB, $data, $nagiosId);
+        }
 
-    $mainCfg = new CentreonConfigEngine($pearDB);
-    if (isset($_REQUEST['in_broker'])) {
-        $mainCfg->insertBrokerDirectives($nagiosId, $_REQUEST['in_broker']);
-    } else {
-        $mainCfg->insertBrokerDirectives($nagiosId);
-    }
+        $mainCfg = new CentreonConfigEngine($pearDB);
+        if (isset($_REQUEST['in_broker'])) {
+            $mainCfg->insertBrokerDirectives($nagiosId, $_REQUEST['in_broker']);
+        } else {
+            $mainCfg->insertBrokerDirectives($nagiosId);
+        }
 
-    if ($data['nagios_activate']['nagios_activate']) {
-        enableNagiosInDB($nagiosId);
+        if ($data['nagios_activate']['nagios_activate']) {
+            enableNagiosInDB($nagiosId);
+        }
+
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
     }
 
     // Prepare value for changelog

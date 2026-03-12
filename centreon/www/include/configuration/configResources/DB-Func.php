@@ -228,8 +228,8 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
                 }
                 $value = $vaultPath ?? $value;
 
-                $pearDB->beginTransaction();
                 try {
+                    $pearDB->beginTransaction();
                     $statement = $pearDB->prepare(
                         <<<'SQL'
                             INSERT INTO cfg_resource

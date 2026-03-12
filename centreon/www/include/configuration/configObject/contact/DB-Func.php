@@ -695,27 +695,16 @@ function multipleContactInDB($contacts = [], $nbrDup = []): array
                 };
             }
 
+            $pearDB->beginTransaction();
             try {
                 $pearDB->insert($insertQuery, QueryParameters::create($queryParameters));
                 $lastId = (int) $pearDB->getLastInsertId();
-            } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-                throw new RepositoryException(
-                    'Error while inserting duplicated contact',
-                    [
-                        'original_contact_id' => $contactId,
-                        'contact_name' => $contactName,
-                        'contact_alias' => $contactAlias,
-                    ],
-                    $exception,
-                );
-            }
 
-            if ($lastId <= 0) {
-                continue;
-            }
+                if ($lastId <= 0) {
+                    throw new RuntimeException('Failed to retrieve last inserted contact id');
+                }
 
-            if ($password !== null) {
-                try {
+                if ($password !== null) {
                     $contact = new CentreonContact($pearDB);
                     $contact->addPasswordByContactId($lastId, $password);
                     if ($creationDate !== null) {
@@ -733,24 +722,11 @@ function multipleContactInDB($contacts = [], $nbrDup = []): array
                             ])
                         );
                     }
-                } catch (Throwable $exception) {
-                    throw new RepositoryException(
-                        'Error while duplicating contact password',
-                        [
-                            'new_contact_id' => $lastId,
-                            'original_contact_id' => $contactId,
-                        ],
-                        $exception,
-                    );
                 }
-            }
 
-            $newContactIds[$contactId][] = $lastId;
+                // --- Copy relations (ACL, host commands, service commands, contact groups) ---
+                $fields = [];
 
-            // --- Copy relations (ACL, host commands, service commands, contact groups) ---
-            $fields = [];
-
-            try {
                 // ACL relations
                 $aclIdsQuery = <<<'SQL'
                     SELECT DISTINCT acl_group_id
@@ -871,15 +847,18 @@ function multipleContactInDB($contacts = [], $nbrDup = []): array
                 }
                 $fields['contact_cgNotif'] = trim($fields['contact_cgNotif'], ',');
 
-            } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-                throw new RepositoryException(
-                    'Error while duplicating contact relations',
-                    ['original_contact_id' => $contactId, 'new_contact_id' => $lastId],
-                    $exception
-                );
+                $pearDB->commit();
+            } catch (Throwable $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
+
+                throw $e;
             }
 
-            // Log (same behavior)
+            $newContactIds[$contactId][] = $lastId;
+
+            // Log after commit (same behavior)
             $centreon->CentreonLogAction->insertLog(
                 'contact',
                 $lastId,
@@ -933,47 +912,43 @@ function updateContactInDB(mixed $contact_id, bool $from_MC = false, bool $isRem
         // 1 - MC with deletion of existing cmds
         // 2 - MC with addition of new cmds
         // 3 - Normal update
-        if (isset($ret['mc_mod_hcmds']['mc_mod_hcmds']) && $ret['mc_mod_hcmds']['mc_mod_hcmds']) {
-            updateContactHostCommands($contact_id);
-        } elseif (isset($ret['mc_mod_hcmds']['mc_mod_hcmds']) && ! $ret['mc_mod_hcmds']['mc_mod_hcmds']) {
-            updateContactHostCommands_MC($contact_id);
-        } else {
-            updateContactHostCommands($contact_id);
+        $result = isset($ret['mc_mod_hcmds']['mc_mod_hcmds']) && ! $ret['mc_mod_hcmds']['mc_mod_hcmds']
+            ? updateContactHostCommands_MC($contact_id)
+            : updateContactHostCommands($contact_id);
+        if (! $result) {
+            throw new RepositoryException('Failed to update contact host commands', ['contact_id' => $contact_id]);
         }
+
         // Function for updating service commands
         // 1 - MC with deletion of existing cmds
         // 2 - MC with addition of new cmds
         // 3 - Normal update
-        if (isset($ret['mc_mod_svcmds']['mc_mod_svcmds']) && $ret['mc_mod_svcmds']['mc_mod_svcmds']) {
-            updateContactServiceCommands($contact_id);
-        } elseif (isset($ret['mc_mod_svcmds']['mc_mod_svcmds']) && ! $ret['mc_mod_svcmds']['mc_mod_svcmds']) {
-            updateContactServiceCommands_MC($contact_id);
-        } else {
-            updateContactServiceCommands($contact_id);
+        $result = isset($ret['mc_mod_svcmds']['mc_mod_svcmds']) && ! $ret['mc_mod_svcmds']['mc_mod_svcmds']
+            ? updateContactServiceCommands_MC($contact_id)
+            : updateContactServiceCommands($contact_id);
+        if (! $result) {
+            throw new RepositoryException('Failed to update contact service commands', ['contact_id' => $contact_id]);
         }
+
         // Function for updating contact groups
         // 1 - MC with deletion of existing cg
         // 2 - MC with addition of new cg
         // 3 - Normal update
         if (! $isRemote) {
-            if (isset($ret['mc_mod_cg']['mc_mod_cg']) && $ret['mc_mod_cg']['mc_mod_cg']) {
-                updateContactContactGroup($contact_id);
-            } elseif (isset($ret['mc_mod_cg']['mc_mod_cg']) && ! $ret['mc_mod_cg']['mc_mod_cg']) {
-                updateContactContactGroup_MC($contact_id);
-            } else {
-                updateContactContactGroup($contact_id);
+            $result = isset($ret['mc_mod_cg']['mc_mod_cg']) && ! $ret['mc_mod_cg']['mc_mod_cg']
+                ? updateContactContactGroup_MC($contact_id)
+                : updateContactContactGroup($contact_id);
+            if (! $result) {
+                throw new RepositoryException('Failed to update contact contact groups', ['contact_id' => $contact_id]);
             }
         }
 
-        /**
-         * ACL
-         */
-        if (isset($ret['mc_mod_acl']['mc_mod_acl']) && $ret['mc_mod_acl']['mc_mod_acl']) {
-            updateAccessGroupLinks($contact_id);
-        } elseif (isset($ret['mc_mod_acl']['mc_mod_acl']) && ! $ret['mc_mod_acl']['mc_mod_acl']) {
-            updateAccessGroupLinks_MC($contact_id, $ret['mc_mod_acl']['mc_mod_acl']);
-        } else {
-            updateAccessGroupLinks($contact_id);
+        // ACL
+        $result = isset($ret['mc_mod_acl']['mc_mod_acl']) && ! $ret['mc_mod_acl']['mc_mod_acl']
+            ? updateAccessGroupLinks_MC($contact_id, $ret['mc_mod_acl']['mc_mod_acl'])
+            : updateAccessGroupLinks($contact_id);
+        if (! $result) {
+            throw new RepositoryException('Failed to update contact access group links', ['contact_id' => $contact_id]);
         }
 
         if ($ownTransaction) {
@@ -1003,10 +978,18 @@ function insertContactInDB(array $ret = []): int
     }
     try {
         $contactId = insertContact($ret);
-        updateContactHostCommands($contactId, $ret);
-        updateContactServiceCommands($contactId, $ret);
-        updateContactContactGroup($contactId, $ret);
-        updateAccessGroupLinks($contactId);
+        if (! updateContactHostCommands($contactId, $ret)) {
+            throw new RepositoryException('Failed to update contact host commands', ['contact_id' => $contactId]);
+        }
+        if (! updateContactServiceCommands($contactId, $ret)) {
+            throw new RepositoryException('Failed to update contact service commands', ['contact_id' => $contactId]);
+        }
+        if (! updateContactContactGroup($contactId, $ret)) {
+            throw new RepositoryException('Failed to update contact contact groups', ['contact_id' => $contactId]);
+        }
+        if (! updateAccessGroupLinks($contactId)) {
+            throw new RepositoryException('Failed to update contact access group links', ['contact_id' => $contactId]);
+        }
 
         if ($ownTransaction) {
             $pearDB->commit();
