@@ -161,7 +161,7 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
 
             // duplicate as many times as requested
             $copies = filter_var($nbrDup[$depId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
-            if (! $copies) {
+            if ($copies === false || $copies === 0) {
                 continue;
             }
 

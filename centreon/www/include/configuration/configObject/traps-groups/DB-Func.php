@@ -190,7 +190,7 @@ function multipleTrapGroupInDB(array $trapGroups = [], array $nbrDup = []): void
 
             $baseName = $originalGroup['traps_group_name'];
             $dupCount = filter_var($nbrDup[$trapGroupId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
-            if (! $dupCount) {
+            if ($dupCount === false || $dupCount === 0) {
                 continue;
             }
 

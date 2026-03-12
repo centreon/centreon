@@ -173,7 +173,7 @@ function multipleHostGroupDependencyInDB(array $dependencies = [], array $nbrDup
             }
             unset($row['dep_id']);
             $copies = filter_var($nbrDup[$key] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
-            if (! $copies) {
+            if ($copies === false || $copies === 0) {
                 continue;
             }
             $columns = array_keys($row);
