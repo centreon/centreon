@@ -292,9 +292,9 @@ $createBrokerOutputEventScript = function () use ($pearDB, &$errorMessage, $vers
     if (
         $typeId = $pearDB->fetchOne(
             <<<'SQL'
-            SELECT `cb_type_id` FROM `cb_type`
-            WHERE `type_shortname` = 'event_script'
-            SQL
+                SELECT `cb_type_id` FROM `cb_type`
+                WHERE `type_shortname` = 'event_script'
+                SQL
         )
     ) {
         CentreonLog::create()->info(
@@ -412,8 +412,8 @@ $createBrokerOutputEventScript = function () use ($pearDB, &$errorMessage, $vers
     if (
         $pearDB->fetchOne(
             <<<'SQL'
-            SELECT 1 FROM `options` WHERE `key` = 'brokercfg_event_script_timeout'
-            SQL
+                SELECT 1 FROM `options` WHERE `key` = 'brokercfg_event_script_timeout'
+                SQL
         ) !== false
     ) {
         CentreonLog::create()->info(
@@ -587,7 +587,7 @@ $createBrokerOutputEventScript = function () use ($pearDB, &$errorMessage, $vers
             'cb_list_values',
             ['cb_list_id', 'value_name', 'value_value'],
             BatchInsertParameters::create(array_map(
-                fn($option) => QueryParameters::create([
+                fn ($option) => QueryParameters::create([
                     QueryParameter::int('cb_list_id', $listId),
                     QueryParameter::string('value_name', $option),
                     QueryParameter::string('value_value', $option),
@@ -614,10 +614,10 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
     if (
         $pearDB->fetchOne(
             <<<'SQL'
-            SELECT 1 FROM `cfg_centreonbroker_info`
-            WHERE `config_key` = 'name'
-            AND `config_value` = 'central-broker-master-event-script'
-            SQL
+                SELECT 1 FROM `cfg_centreonbroker_info`
+                WHERE `config_key` = 'name'
+                AND `config_value` = 'central-broker-master-event-script'
+                SQL
         )
     ) {
         CentreonLog::create()->info(
@@ -733,7 +733,6 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
         message: "UPGRADE - {$version}: Successfully inserted Broker output 'central-broker-master-event-script' for CMA",
     );
 };
-
 
 try {
     // DDL statements for real time database
