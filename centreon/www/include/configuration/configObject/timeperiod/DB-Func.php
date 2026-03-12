@@ -325,6 +325,12 @@ function createTimePeriod(array $params): int
     global $pearDB;
 
     $columns = $params['columns'];
+
+    $invalid = array_filter($columns, fn ($col) => ! preg_match('/^[a-zA-Z0-9_]+$/', $col));
+    if ($invalid !== []) {
+        throw new InvalidArgumentException('Invalid column names: ' . implode(', ', $invalid));
+    }
+
     $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
     $statement = $pearDB->prepare(
         'INSERT INTO timeperiod (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
