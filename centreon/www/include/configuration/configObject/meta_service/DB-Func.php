@@ -1147,6 +1147,8 @@ function insertMetric($ret = [])
             ],
             $exception
         );
+
+        return 0;
     }
     $msrId = $pearDB->getLastInsertId();
     if (! $msrId) {

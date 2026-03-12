@@ -42,8 +42,8 @@ use Core\Security\Vault\Domain\Model\VaultConfiguration;
  * @global CentreonDB $pearDB
  * @global HTML_QuickFormCustom $form
  *
- * @param string $name
- * @param int $instanceId
+ * @param string|null $name
+ * @param array<int>|null $instanceIds
  *
  * @return bool Return false if the resource name has already been used
  */

@@ -95,7 +95,7 @@ function multipleGraphTemplateInDB($graphs = [], $nbrDup = []): void
     );
 
     foreach (array_keys($graphs) as $key) {
-        $graphTemplateId = filter_var($key, FILTER_VALIDATE_INT);
+        $graphTemplateId = filter_var($key, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
         if ($graphTemplateId === false) {
             continue;
         }

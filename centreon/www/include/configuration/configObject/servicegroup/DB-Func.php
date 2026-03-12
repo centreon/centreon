@@ -302,9 +302,16 @@ function updateServiceGroupAcl(int $serviceGroupId, array $submittedValues = [])
 {
     global $pearDB;
 
-    $ruleIds = $submittedValues['resource_access_rules'];
+    $ruleIds = $submittedValues['resource_access_rules'] ?? [];
+    if (! is_array($ruleIds)) {
+        return;
+    }
 
     foreach ($ruleIds as $ruleId) {
+        $ruleId = filter_var($ruleId, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        if ($ruleId === false) {
+            continue;
+        }
         $datasets = findDatasetsByRuleId($ruleId);
 
         /**
@@ -764,6 +771,7 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
 
     // regular services
     $retTmp = $ret['sg_hServices'] ?? CentreonUtils::mergeWithInitialValues($form, 'sg_hServices');
+    $retTmp = is_array($retTmp) ? $retTmp : [];
 
     $statement = $pearDB->prepare('
         SELECT servicegroup_sg_id service FROM servicegroup_relation
@@ -799,6 +807,7 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
 
     // hostgroup services
     $retTmp = $ret['sg_hgServices'] ?? CentreonUtils::mergeWithInitialValues($form, 'sg_hgServices');
+    $retTmp = is_array($retTmp) ? $retTmp : [];
 
     $statement = $pearDB->prepare('
         SELECT servicegroup_sg_id service FROM servicegroup_relation

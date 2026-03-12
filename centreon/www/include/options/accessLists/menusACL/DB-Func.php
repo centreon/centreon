@@ -387,6 +387,9 @@ function insertLCAInDB()
     try {
         $pearDB->beginTransaction();
         $aclId = insertLCA();
+        if (! $aclId) {
+            throw new RuntimeException('Failed to insert menu ACL');
+        }
         updateLCARelation($aclId);
         updateGroups($aclId);
 
@@ -554,12 +557,14 @@ function updateLCARelation($aclId = null)
                 . 'VALUES (:aclId, :key, :value)'
             );
             foreach ($submitedValues as $key => $value) {
-                if ($key != 0) {
-                    $insertStmt->bindValue(':aclId', $aclId, PDO::PARAM_INT);
-                    $insertStmt->bindValue(':key', $key, PDO::PARAM_INT);
-                    $insertStmt->bindValue(':value', $value, PDO::PARAM_INT);
-                    $insertStmt->execute();
+                // Skip invalid topology ID 0
+                if ($key == 0) {
+                    continue;
                 }
+                $insertStmt->bindValue(':aclId', $aclId, PDO::PARAM_INT);
+                $insertStmt->bindValue(':key', $key, PDO::PARAM_INT);
+                $insertStmt->bindValue(':value', $value, PDO::PARAM_INT);
+                $insertStmt->execute();
             }
         }
 

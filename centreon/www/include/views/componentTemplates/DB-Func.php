@@ -384,8 +384,8 @@ function sanitizeFormComponentTemplatesParameters(array $ret): array
                 break;
             case 'ds_color_line_mode':
                 $bindParams[':' . $inputName] = [
-                    PDO::PARAM_STR, in_array($inputValue[$inputName], ['0', '1'])
-                        ? $inputValue[$inputName]
+                    PDO::PARAM_STR, in_array($inputValue, ['0', '1'])
+                        ? $inputValue
                         : '0',
                 ];
                 break;
