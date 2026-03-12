@@ -182,6 +182,9 @@ function insertMnftr($ret = [])
     $statement->bindValue(':description', $ret['description'], PDO::PARAM_STR);
     $statement->execute();
     $mnftrId = (int) $pearDB->lastInsertId();
+    if ($mnftrId <= 0) {
+        throw new RuntimeException('Failed to retrieve inserted manufacturer id');
+    }
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($ret);

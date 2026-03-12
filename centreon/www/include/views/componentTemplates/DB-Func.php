@@ -259,7 +259,10 @@ function insertComponentTemplate()
         $stmt->bindValue($token, $value, $paramType);
     }
     $stmt->execute();
-    $compoId = $pearDB->lastInsertId();
+    $compoId = (int) $pearDB->lastInsertId();
+    if ($compoId <= 0) {
+        throw new RuntimeException('Failed to retrieve inserted component template id');
+    }
     defaultOreonGraph();
 
     return $compoId;

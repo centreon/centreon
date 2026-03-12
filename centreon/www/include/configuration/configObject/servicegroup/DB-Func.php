@@ -424,7 +424,12 @@ function createNewDataset(string $datasetName): int
     $statement->bindValue(':name', $datasetName, PDO::PARAM_STR);
     $statement->execute();
 
-    return $pearDB->lastInsertId();
+    $sgId = (int) $pearDB->lastInsertId();
+    if ($sgId <= 0) {
+        throw new RuntimeException('Failed to retrieve inserted servicegroup id');
+    }
+
+    return $sgId;
 }
 
 /**
@@ -589,6 +594,9 @@ function insertServiceGroup($submittedValues = [])
     $statement->execute();
 
     $sgId = (int) $pearDB->lastInsertId();
+    if ($sgId <= 0) {
+        throw new RuntimeException('Failed to retrieve inserted servicegroup id');
+    }
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($submittedValues);

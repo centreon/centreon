@@ -353,6 +353,9 @@ function insertServiceCategorieInDB()
         $statement->execute();
 
         $newScId = (int) $pearDB->lastInsertId();
+        if ($newScId <= 0) {
+            throw new RuntimeException('Failed to retrieve inserted service category id');
+        }
 
         updateServiceCategoriesServices($newScId);
         $centreon->user->access->updateACL();

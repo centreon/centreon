@@ -295,7 +295,12 @@ function insertVirtualMetric()
 
     $insertStatement->execute();
 
-    return (int) $pearDB->lastInsertId();
+    $vmetricId = (int) $pearDB->lastInsertId();
+    if ($vmetricId <= 0) {
+        throw new RuntimeException('Failed to retrieve inserted virtual metric id');
+    }
+
+    return $vmetricId;
 }
 
 /**
