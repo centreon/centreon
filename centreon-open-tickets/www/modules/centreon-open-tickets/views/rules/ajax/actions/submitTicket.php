@@ -549,4 +549,25 @@ try {
 
     $resultat['code'] = 1;
     $resultat['msg'] = $e->getMessage();
+} catch (Throwable $e) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_BUSINESS_LOG,
+        'Unexpected error while submitting tickets: ' . $e->getMessage(),
+        exception: $e
+    );
+
+    try {
+        if ($ownTransaction && $db->isTransactionActive()) {
+            $db->rollBackTransaction();
+        }
+    } catch (ConnectionException $rollbackException) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_BUSINESS_LOG,
+            'Failed to roll back transaction while submitting tickets: ' . $rollbackException->getMessage(),
+            exception: $rollbackException
+        );
+    }
+
+    $resultat['code'] = 1;
+    $resultat['msg'] = $e->getMessage();
 }

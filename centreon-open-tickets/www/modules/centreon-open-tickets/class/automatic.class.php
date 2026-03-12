@@ -96,7 +96,7 @@ class Automatic
             $this->setFullMacroName($macroName, 'service');
             $macroId = $this->getTicketMacroId('service', $service['service_id']);
             if (! is_null($macroId)) {
-                $this->updateServiceMacro($rv['ticket_id'], $service['service_id']);
+                $this->updateServiceMacro($rv['ticket_id'], $service['service_id'], $macroId);
             } elseif ($this->isServiceUnique($service['service_id'])) {
                 $this->insertTicketInConfigDB('service', $rv['ticket_id'], $service['service_id']);
             }
@@ -135,7 +135,7 @@ class Automatic
             $macroId = $this->getTicketMacroId('host', $host['host_id']);
 
             if (! is_null($macroId)) {
-                $this->updateHostMacro($rv['ticket_id'], $host['host_id']);
+                $this->updateHostMacro($rv['ticket_id'], $host['host_id'], $macroId);
             } else {
                 $this->insertTicketInConfigDB('host', $rv['ticket_id'], $host['host_id']);
             }
@@ -215,7 +215,9 @@ class Automatic
             try {
                 $providerClass->closeTicket($closeTicketData);
                 $this->changeMacroService($macroName, $service);
-                $this->updateServiceMacro('', $service['service_id']);
+                if ($this->isServiceUnique($service['service_id'])) {
+                    $this->updateServiceMacro('', $service['service_id']);
+                }
                 $rv = ['code' => 0, 'message' => 'ticket ' . $ticketId . ' has been closed'];
             } catch (Exception $e) {
                 $rv = ['code' => -1, 'message' => $e->getMessage()];
@@ -242,71 +244,80 @@ class Automatic
      *
      * @param string $ticketId the ticket id
      * @param int $serviceId the id of the service
+     * @param int|null $macroId the macro id (avoids a redundant SELECT when already known)
      * @return void
      */
-    protected function updateServiceMacro(string $ticketId, int $serviceId): void
+    protected function updateServiceMacro(string $ticketId, int $serviceId, ?int $macroId = null): void
     {
-        // check if service has the macro set up
-        $query = <<<'SQL'
-                SELECT svc_macro_id
-                FROM on_demand_macro_service
-                WHERE svc_macro_name = :macro_name AND svc_svc_id = :service_id
-            SQL;
-
-        $stmt = $this->dbCentreon->prepare($query);
-        $stmt->bindParam(':macro_name', $this->fullMacroName, PDO::PARAM_STR);
-        $stmt->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
-        $stmt->execute();
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($row) {
-            $macroId = (int) $row['svc_macro_id'];
+        if ($macroId === null) {
+            // check if service has the macro set up
             $query = <<<'SQL'
-                    UPDATE on_demand_macro_service
-                    SET svc_macro_value = :macro_value
-                    WHERE svc_macro_id = :macro_id
+                    SELECT svc_macro_id
+                    FROM on_demand_macro_service
+                    WHERE svc_macro_name = :macro_name AND svc_svc_id = :service_id
                 SQL;
 
             $stmt = $this->dbCentreon->prepare($query);
-            $stmt->bindParam(':macro_id', $macroId, PDO::PARAM_INT);
-            $stmt->bindParam(':macro_value', $ticketId, PDO::PARAM_STR);
+            $stmt->bindParam(':macro_name', $this->fullMacroName, PDO::PARAM_STR);
+            $stmt->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
             $stmt->execute();
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (! $row) {
+                return;
+            }
+            $macroId = (int) $row['svc_macro_id'];
         }
+
+        $query = <<<'SQL'
+                UPDATE on_demand_macro_service
+                SET svc_macro_value = :macro_value
+                WHERE svc_macro_id = :macro_id
+            SQL;
+
+        $stmt = $this->dbCentreon->prepare($query);
+        $stmt->bindParam(':macro_id', $macroId, PDO::PARAM_INT);
+        $stmt->bindParam(':macro_value', $ticketId, PDO::PARAM_STR);
+        $stmt->execute();
     }
 
     /**
-     * updateHostMacro: set the value of the service ticketing macro in the config database
+     * updateHostMacro: set the value of the host ticketing macro in the config database
      *
      * @param string $ticketId the ticket id
      * @param int $hostId the host id
+     * @param int|null $macroId the macro id (avoids a redundant SELECT when already known)
      * @return void
      */
-    protected function updateHostMacro(string $ticketId, int $hostId): void
+    protected function updateHostMacro(string $ticketId, int $hostId, ?int $macroId = null): void
     {
-        // check if service has the macro set up
-        $query = <<<'SQL'
-                SELECT host_macro_id
-                FROM on_demand_macro_host
-                WHERE host_macro_name = :macro_name AND host_host_id = :host_id
-            SQL;
-        $stmt = $this->dbCentreon->prepare($query);
-        $stmt->bindParam(':macro_name', $this->fullMacroName, PDO::PARAM_STR);
-        $stmt->bindParam(':host_id', $hostId, PDO::PARAM_INT);
-        $stmt->execute();
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($row) {
-            $macroId = (int) $row['host_macro_id'];
+        if ($macroId === null) {
             $query = <<<'SQL'
-                    UPDATE on_demand_macro_host
-                    SET host_macro_value = :macro_value
-                    WHERE host_macro_id = :macro_id
+                    SELECT host_macro_id
+                    FROM on_demand_macro_host
+                    WHERE host_macro_name = :macro_name AND host_host_id = :host_id
                 SQL;
             $stmt = $this->dbCentreon->prepare($query);
-            $stmt->bindParam(':macro_id', $macroId, PDO::PARAM_INT);
-            $stmt->bindParam(':macro_value', $ticketId, PDO::PARAM_STR);
+            $stmt->bindParam(':macro_name', $this->fullMacroName, PDO::PARAM_STR);
+            $stmt->bindParam(':host_id', $hostId, PDO::PARAM_INT);
             $stmt->execute();
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (! $row) {
+                return;
+            }
+            $macroId = (int) $row['host_macro_id'];
         }
+
+        $query = <<<'SQL'
+                UPDATE on_demand_macro_host
+                SET host_macro_value = :macro_value
+                WHERE host_macro_id = :macro_id
+            SQL;
+        $stmt = $this->dbCentreon->prepare($query);
+        $stmt->bindParam(':macro_id', $macroId, PDO::PARAM_INT);
+        $stmt->bindParam(':macro_value', $ticketId, PDO::PARAM_STR);
+        $stmt->execute();
     }
 
     /**
