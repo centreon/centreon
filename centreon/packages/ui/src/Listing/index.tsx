@@ -617,11 +617,7 @@ const Listing = <
                           isHovered={isRowHovered}
                           isSelected={isRowSelected}
                           isShiftKeyDown={isShiftKeyDown}
-                          key={
-                            gte(limit, performanceRowsLimit)
-                              ? `row_${index}`
-                              : getRowId(row)
-                          }
+                          key={getRowId(row)}
                           lastSelectionIndex={lastSelectionIndex}
                           limit={limit}
                           listingVariant={listingVariant}
