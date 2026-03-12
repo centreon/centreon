@@ -195,6 +195,10 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
                     );
                     $pearDB->insert($sqlIns, $insParams);
                     $newId = (int) $pearDB->getLastInsertId();
+                    if ($newId <= 0) {
+                        $pearDB->rollBack();
+                        continue;
+                    }
 
                     // duplicate relations
                     foreach ([
@@ -242,7 +246,7 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
                 $centreon->CentreonLogAction->insertLog(
                     'host dependency',
                     $newId,
-                    $dupName,
+                    $dup['dep_name'],
                     'a',
                     CentreonLogAction::prepareChanges($dup)
                 );

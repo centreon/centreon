@@ -65,7 +65,10 @@ class CentreonMeta
                 $this->db->query($query);
                 $res = $this->db->query($queryHost);
                 $row = $res->fetchRow();
-                $hostId = $row !== false ? $row['host_id'] : 0;
+                if ($row === false) {
+                    throw new RuntimeException('Failed to resolve _Module_Meta host_id after insert');
+                }
+                $hostId = (int) $row['host_id'];
             }
         }
 

@@ -80,16 +80,16 @@ function testDowntimeNameExistence($downtimeName = null)
 
     $id = null;
     if (isset($form)) {
-        $id = $form->getSubmitValue('dt_id');
+        $id = filter_var($form->getSubmitValue('dt_id'), FILTER_VALIDATE_INT);
     }
     $query = 'SELECT 1 FROM downtime WHERE dt_name = :dtName';
-    if ($id !== null) {
+    if ($id !== null && $id !== false) {
         $query .= ' AND dt_id <> :dtId';
     }
     $statement = $pearDB->prepare($query . ' LIMIT 1');
     $statement->bindValue(':dtName', $downtimeName, PDO::PARAM_STR);
-    if ($id !== null) {
-        $statement->bindValue(':dtId', (int) $id, PDO::PARAM_INT);
+    if ($id !== null && $id !== false) {
+        $statement->bindValue(':dtId', $id, PDO::PARAM_INT);
     }
     $statement->execute();
 

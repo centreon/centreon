@@ -150,7 +150,7 @@ function multipleHostGroupDependencyInDB(array $dependencies = [], array $nbrDup
 
     CentreonDependency::purgeObsoleteDependencies($pearDB);
 
-    foreach ($dependencies as $key => $value) {
+    foreach (array_keys($dependencies) as $key) {
         $depId = filter_var($key, FILTER_VALIDATE_INT);
         if ($depId === false) {
             continue;
@@ -446,6 +446,8 @@ function updateHostGroupDependency($depId = null): void
             ],
             exception: $e
         );
+
+        throw $e;
     }
 }
 

@@ -388,6 +388,10 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
 
                     $pearDB->insert($insQuery, QueryParameters::create($params));
                     $newId = (int) $pearDB->getLastInsertId();
+                    if ($newId <= 0) {
+                        $pearDB->rollBack();
+                        continue;
+                    }
                     $aclMap[$newId] = $hcId;
 
                     $hostRows = [];
@@ -678,11 +682,15 @@ function updateHostCategoriesHosts(?int $hcId, array $ret = []): void
             $insQuery = $insertBuilder->getQuery();
 
             foreach ($hosts as $hostId) {
+                $validatedHostId = filter_var($hostId, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+                if ($validatedHostId === false) {
+                    continue;
+                }
                 $pearDB->insert(
                     $insQuery,
                     QueryParameters::create([
                         QueryParameter::int('hc_id', $hcId),
-                        QueryParameter::int('host', (int) $hostId),
+                        QueryParameter::int('host', $validatedHostId),
                     ])
                 );
             }

@@ -231,24 +231,24 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
                 ');
                 while ($service = $statement->fetch()) {
                     $bindParams = [];
-                    foreach ($service as $key2 => $value2) {
-                        switch ($key2) {
+                    foreach ($service as $columnName => $columnValue) {
+                        switch ($columnName) {
                             case 'host_host_id':
-                                $value2 = filter_var($value2, FILTER_VALIDATE_INT);
-                                $value2
-                                    ? $bindParams[':host_host_id'] = [PDO::PARAM_INT => $value2]
+                                $columnValue = filter_var($columnValue, FILTER_VALIDATE_INT);
+                                $columnValue
+                                    ? $bindParams[':host_host_id'] = [PDO::PARAM_INT => $columnValue]
                                     : $bindParams[':host_host_id'] = [PDO::PARAM_NULL => null];
                                 break;
                             case 'hostgroup_hg_id':
-                                $value2 = filter_var($value2, FILTER_VALIDATE_INT);
-                                $value2
-                                    ? $bindParams[':hostgroup_hg_id'] = [PDO::PARAM_INT => $value2]
+                                $columnValue = filter_var($columnValue, FILTER_VALIDATE_INT);
+                                $columnValue
+                                    ? $bindParams[':hostgroup_hg_id'] = [PDO::PARAM_INT => $columnValue]
                                     : $bindParams[':hostgroup_hg_id'] = [PDO::PARAM_NULL => null];
                                 break;
                             case 'service_service_id':
-                                $value2 = filter_var($value2, FILTER_VALIDATE_INT);
-                                $value2
-                                    ? $bindParams[':service_service_id'] = [PDO::PARAM_INT => $value2]
+                                $columnValue = filter_var($columnValue, FILTER_VALIDATE_INT);
+                                $columnValue
+                                    ? $bindParams[':service_service_id'] = [PDO::PARAM_INT => $columnValue]
                                     : $bindParams[':service_service_id'] = [PDO::PARAM_NULL => null];
                                 break;
                         }

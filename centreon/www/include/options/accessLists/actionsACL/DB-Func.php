@@ -80,7 +80,7 @@ function enableActionInDB($aclActionId = null, $actions = [])
 
     try {
         $pearDB->beginTransaction();
-        foreach ($actions as $key => $value) {
+        foreach (array_keys($actions) as $key) {
             $sanitizedAclActionId = filter_var($key, FILTER_VALIDATE_INT);
             if ($sanitizedAclActionId === false) {
                 throw new InvalidArgumentException('Invalid id');
@@ -139,7 +139,7 @@ function disableActionInDB($aclActionId = null, $actions = [])
 
     try {
         $pearDB->beginTransaction();
-        foreach ($actions as $key => $value) {
+        foreach (array_keys($actions) as $key) {
             $sanitizedAclActionId = filter_var($key, FILTER_VALIDATE_INT);
             if ($sanitizedAclActionId === false) {
                 throw new InvalidArgumentException('Invalid id');
@@ -190,7 +190,7 @@ function deleteActionInDB($actions = [])
 
     try {
         $pearDB->beginTransaction();
-        foreach ($actions as $key => $value) {
+        foreach (array_keys($actions) as $key) {
             $sanitizedAclActionId = filter_var($key, FILTER_VALIDATE_INT);
             if ($sanitizedAclActionId === false) {
                 throw new InvalidArgumentException('Invalid id');
