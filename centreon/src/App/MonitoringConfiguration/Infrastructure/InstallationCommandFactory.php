@@ -41,10 +41,10 @@ final readonly class InstallationCommandFactory
     {
         if ($this->isCloudPlatform && $this->poller->isCentral) {
             return sprintf(
-                'curl -fsSL https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/%s-latest/agent/installer/scripts_linux/install_cma.sh -o install_cma.sh && sudo chmod +x install_cma.sh && sudo ./install_cma.sh -e "engine-centreon-%s.euwest1.centreon.cloud/%s:443"',
+                'curl -fsSL https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/%s-latest/agent/installer/scripts_linux/install_cma.sh -o install_cma.sh && sudo chmod +x install_cma.sh && sudo ./install_cma.sh -e "engine-%s-%s.euwest1.centreon.cloud:443"',
                 $this->platformVersion,
-                $this->organisationName,
-                $this->baseUri
+                $this->baseUri,
+                $this->organisationName
             );
         }
 
@@ -62,10 +62,10 @@ final readonly class InstallationCommandFactory
     {
         if ($this->isCloudPlatform && $this->poller->isCentral) {
             return sprintf(
-                'curl https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/%s-latest/agent/installer/install_cma.ps1 -o install_cma.ps1 ; .\install_cma.ps1 -endpoint "engine-centreon-%s.euwest1.centreon.cloud/%s:443"',
+                'curl https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/%s-latest/agent/installer/install_cma.ps1 -o install_cma.ps1 ; powershell -ExecutionPolicy Bypass -File .\install_cma.ps1 -endpoint "engine-%s-%s.euwest1.centreon.cloud:443"',
                 $this->platformVersion,
-                $this->organisationName,
-                $this->baseUri
+                $this->baseUri,
+                $this->organisationName
             );
         }
 
