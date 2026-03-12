@@ -98,7 +98,8 @@ class IvantiProvider extends AbstractProvider
         }
 
         $curl = curl_init();
-        $apiAddress = $info['protocol'] . '://' . $info['address'] . '/HEAT/api/odata/businessobject/incidents?$top=1';
+        $apiPath = rtrim($info['api_path'] ?? '/HEAT/api/odata/businessobject', '/');
+        $apiAddress = $info['protocol'] . '://' . $info['address'] . $apiPath . '/incidents?$top=1';
 
         $headers = [
             'Authorization: rest_api_key=' . $info['apiKey'],
@@ -171,7 +172,7 @@ class IvantiProvider extends AbstractProvider
     protected function setDefaultValueExtra()
     {
         $this->default_data['address'] = '127.0.0.1';
-        $this->default_data['api_path'] = '/HEAT/api/odata/businessobject/';
+        $this->default_data['api_path'] = '/HEAT/api/odata/businessobject';
         $this->default_data['protocol'] = 'https';
         $this->default_data['apiKey'] = '';
         $this->default_data['timeout'] = 60;
@@ -716,14 +717,12 @@ class IvantiProvider extends AbstractProvider
     /*
     * handle every query that we need to do
     *
-    * @param {array} $info required information to reach the glpi api
-    * @param int|null $offset pagination offset
+    * @param {array} $info required information to reach the ivanti api
     *
-    * @return {array} $curlResult the json decoded data gathered from glpi
+    * @return {array} $curlResult the json decoded data gathered from ivanti
     *
     * throw \Exception 10 if php-curl is not installed
-    * throw \Exception if we can't get a session token
-    * throw \Exception 11 if glpi api fails
+    * throw \Exception 11 if ivanti api fails
      */
     protected function curlQuery($info)
     {
@@ -735,7 +734,7 @@ class IvantiProvider extends AbstractProvider
 
         // Construction de l'URL complète avec le api_path
         $apiAddress = $this->getFormValue('protocol') . '://' . $this->getFormValue('address')
-                      . $this->getFormValue('api_path') . $info['query_endpoint'];
+                      . rtrim($this->getFormValue('api_path'), '/') . '/' . ltrim($info['query_endpoint'], '/');
 
         // Headers par défaut
         $headers = [
@@ -756,8 +755,15 @@ class IvantiProvider extends AbstractProvider
         curl_setopt($curl, CURLOPT_URL, $apiAddress);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $peerVerify);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, $verifyHost);
         curl_setopt($curl, CURLOPT_TIMEOUT, $timeout);
+        self::setProxy($curl, [
+            'proxy_address' => $this->getFormValue('proxy_address', false),
+            'proxy_port' => $this->getFormValue('proxy_port', false),
+            'proxy_username' => $this->getFormValue('proxy_username', false),
+            'proxy_password' => $this->getFormValue('proxy_password', false),
+        ]);
 
         $optionsToLog = [
             'apiAddress' => $apiAddress,
@@ -976,12 +982,8 @@ class IvantiProvider extends AbstractProvider
 
         $info = [
             'query_endpoint' => $endpoint,
-            'method' => 0, // GET par défaut, mais sera remplacé par PATCH
+            'method' => 0,
             'custom_request' => 'PATCH',
-            'headers' => [
-                'Authorization: rest_api_key=' . $this->getFormValue('apiKey'),
-                'Content-Type: application/json',
-            ],
             'postFields' => json_encode($data),
         ];
 
