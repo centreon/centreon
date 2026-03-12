@@ -66,7 +66,9 @@ function testExistence($name = null)
             ],
             $exception
         );
-        $meta = false;
+
+        // On error, treat as "name exists" to prevent unsafe inserts
+        return false;
     }
 
     return $meta === false;
@@ -390,9 +392,10 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
         if ($copies === false || $copies === 0) {
             continue;
         }
+        $originalName = $row['meta_name'];
         $suffix = 1;
         for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
-            $metaName = $row['meta_name'] . '_' . $suffix;
+            $metaName = $originalName . '_' . $suffix;
             $row['meta_name'] = $metaName;
             $columns = array_keys($row);
             $qbInsert = $pearDB->createQueryBuilder();
@@ -515,7 +518,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
             }
         }
         if ($i < $copies) {
-            error_log("Could only create {$i}/{$copies} duplicates for meta service '{$row['meta_name']}' ({$metaId}): suffix search exhausted");
+            error_log("Could only create {$i}/{$copies} duplicates for meta service '{$originalName}' ({$metaId}): suffix search exhausted");
         }
     }
 }
@@ -773,6 +776,8 @@ function insertMetaService($ret = [])
             ],
             $exception
         );
+
+        return 0;
     }
     $metaId = $pearDB->getLastInsertId();
     if (! $metaId) {
@@ -862,6 +867,8 @@ function updateMetaService($metaId = null)
             ],
             $exception
         );
+
+        return;
     }
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog('meta', $metaId, $ret['meta_name'], 'c', $fields);
