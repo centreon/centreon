@@ -250,9 +250,11 @@ class CentreonMeta
             return [];
         }
 
-        if (count($parameters) > 0) {
-            $sElement = implode(',', $parameters);
+        $sanitized = array_filter($parameters, fn ($col) => preg_match('/^[a-zA-Z0-9_]+$/', $col));
+        if ($sanitized === []) {
+            return [];
         }
+        $sElement = implode(',', $sanitized);
 
         $stmt = $this->db->prepare(
             'SELECT ' . $sElement . ' FROM meta_service WHERE meta_id = :id LIMIT 1'
