@@ -215,7 +215,7 @@ final class InstallationCommandFactoryTest extends TestCase
 
         $command = $factory->generateCommandForLinux();
 
-        self::assertStringContainsString('engine-centreon-' . $organisation . '.euwest1.centreon.cloud/' . $site . ':443', $command);
+        self::assertStringContainsString('engine-' . $site . '-' . $organisation . '.euwest1.centreon.cloud:443', $command);
         self::assertStringContainsString(self::PLATFORM_VERSION, $command);
         self::assertStringNotContainsString(self::POLLER_ADDRESS, $command);
     }
@@ -236,7 +236,8 @@ final class InstallationCommandFactoryTest extends TestCase
 
         $command = $factory->generateCommandForWindows();
 
-        self::assertStringContainsString('engine-centreon-' . $organisation . '.euwest1.centreon.cloud/' . $site . ':443', $command);
+        self::assertStringContainsString('engine-' . $site . '-' . $organisation . '.euwest1.centreon.cloud:443', $command);
+        self::assertStringContainsString('powershell -ExecutionPolicy Bypass -File', $command);
         self::assertStringContainsString(self::PLATFORM_VERSION, $command);
         self::assertStringNotContainsString(self::POLLER_ADDRESS, $command);
     }
