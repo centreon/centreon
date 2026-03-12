@@ -254,12 +254,6 @@ parameters:
 			path: www/include/configuration/configObject/host/DB-Func.php
 
 		-
-			message: '#^Caught class CentreonException not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: www/include/configuration/configObject/host_dependency/formHostDependency.php
-
-		-
 			message: '#^Deprecated in PHP 8\.0\: Required parameter \$basePath follows optional parameter \$isCloudPlatform\.$#'
 			identifier: parameter.requiredAfterOptional
 			count: 1

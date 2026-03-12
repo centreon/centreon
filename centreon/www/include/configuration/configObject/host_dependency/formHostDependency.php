@@ -23,6 +23,7 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Domain\Exception\ValueObjectException;
 
 if (! isset($centreon)) {
@@ -286,7 +287,7 @@ if ($form->validate()) {
         require_once 'listHostDependency.php';
 
         return;
-    } catch (CentreonException $exception) {
+    } catch (RepositoryException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error processing host dependancy form: ' . $exception->getMessage(),

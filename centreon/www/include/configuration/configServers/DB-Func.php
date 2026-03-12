@@ -68,7 +68,7 @@ function getAvailableSuffixIds(
         ORDER BY suffix
         SQL;
     $stmt = $pearDB->prepare($query);
-    $stmt->bindValue(':server_name_separator', '^"' . $serverName . $separator . '[0-9]+$', PDO::PARAM_STR);
+    $stmt->bindValue(':server_name_separator', '^' . $serverName . $separator . '[0-9]+$', PDO::PARAM_STR);
     $stmt->execute();
 
     $notAvailableSuffixes = [];

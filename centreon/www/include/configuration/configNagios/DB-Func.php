@@ -412,7 +412,7 @@ function getNagiosCfgColumnsDetails(): array
         'check_result_reaper_frequency' => ['default' => 5],
         'date_format' => ['default' => 'euro'],
         'debug_level' => ['callback' => 'calculateDebugLevel', 'default' => '0'],
-        'debug_log_opt' => ['callback' => 'implodeDebugLevel', 'default' => '0'],
+        'debug_level_opt' => ['callback' => 'implodeDebugLevel', 'default' => '0'],
         'debug_file' => ['default' => null],
         'debug_verbosity' => ['default' => '2'],
         'event_broker_options' => ['callback' => 'calculateBitwise', 'default' => '-1'],
