@@ -8,10 +8,10 @@ msgstr ""
 "Project-Id-Version: Centreon web\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
-"PO-Revision-Date: 2026-02-10 15:50+0000\n"
+"PO-Revision-Date: 2026-03-12 13:08+0000\n"
 "Last-Translator: admin <noreply@centreon.com>\n"
 "Language-Team: French <https://translate.apps.centreon.com/projects/"
-"infra-develop/web/help/fr/>\n"
+"centreon-infra-monitoring/develop/web-help/fr/>\n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -2562,48 +2562,64 @@ msgid ""
 "Provided that the user can access the commands configuration menu, this "
 "action will allow them to list and edit check commands."
 msgstr ""
+"Si l'utilisateur peut accéder au menu de configuration des commandes, cette "
+"action lui permettra d'afficher et de modifier les commandes de contrôle."
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
 msgid ""
 "Provided that the user can access the commands configuration menu, this "
 "action will allow them to list and edit discovery commands."
 msgstr ""
+"Si l'utilisateur peut accéder au menu de configuration des commandes, cette "
+"action lui permettra d'afficher et de modifier les commandes de découverte."
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
 msgid ""
 "Provided that the user can access the commands configuration menu, this "
 "action will allow them to list and edit miscellaneous commands."
 msgstr ""
+"Si l'utilisateur peut accéder au menu de configuration des commandes, cette "
+"action lui permettra d'afficher et de modifier les commandes de type Divers."
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
 msgid ""
 "Provided that the user can access the commands configuration menu, this "
 "action will allow them to list and edit notification commands."
 msgstr ""
+"Si l'utilisateur peut accéder au menu de configuration des commandes, cette "
+"action lui permettra d'afficher et de modifier les commandes de notification."
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
 msgid ""
 "Provided that the user can access the commands configuration menu, this "
 "action will allow them to list check commands."
 msgstr ""
+"Si l'utilisateur peut accéder au menu de configuration des commandes, cette "
+"action lui permettra d'afficher les commandes de contrôle."
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
 msgid ""
 "Provided that the user can access the commands configuration menu, this "
 "action will allow them to list discovery commands."
 msgstr ""
+"Si l'utilisateur peut accéder au menu de configuration des commandes, cette "
+"action lui permettra d'afficher les commandes de découverte."
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
 msgid ""
 "Provided that the user can access the commands configuration menu, this "
 "action will allow them to list miscellaneous commands."
 msgstr ""
+"Si l'utilisateur peut accéder au menu de configuration des commandes, cette "
+"action lui permettra d'afficher les commandes de type Divers."
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
 msgid ""
 "Provided that the user can access the commands configuration menu, this "
 "action will allow them to list notification commands."
 msgstr ""
+"Si l'utilisateur peut accéder au menu de configuration des commandes, cette "
+"action lui permettra d'afficher les commandes de notification."
 
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "Public certificate file path when TLS encryption is used."
