@@ -27,12 +27,15 @@ function testMnftrExistence($name = null, bool $excludeCurrentFormId = true)
     if ($excludeCurrentFormId && isset($form)) {
         $id = $form->getSubmitValue('id');
     }
-    $query = 'SELECT 1 FROM traps_vendor WHERE name = :name';
+    // Also check for legacy HTML-encoded name (old code stored htmlentities values)
+    $encodedName = htmlentities($name ?? '', ENT_QUOTES, 'UTF-8');
+    $query = 'SELECT 1 FROM traps_vendor WHERE (name = :name OR name = :encodedName)';
     if ($id !== null) {
         $query .= ' AND id <> :vendorId';
     }
     $statement = $pearDB->prepare($query . ' LIMIT 1');
     $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    $statement->bindValue(':encodedName', $encodedName, PDO::PARAM_STR);
     if ($id !== null) {
         $statement->bindValue(':vendorId', (int) $id, PDO::PARAM_INT);
     }
@@ -116,6 +119,9 @@ function multipleMnftrInDB($mnftr = [], $nbrDup = [])
             }
             $insertStmt->execute();
             $newMnftrId = (int) $pearDB->lastInsertId();
+            if ($newMnftrId <= 0) {
+                continue;
+            }
             $oreon->CentreonLogAction->insertLog(
                 'manufacturer',
                 $newMnftrId,

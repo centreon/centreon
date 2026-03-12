@@ -88,6 +88,9 @@ function multipleServiceCategorieInDB($sc = [], $nbrDup = [])
         $statement->bindValue(':sc_id', $scId, PDO::PARAM_INT);
         $statement->execute();
         $row = $statement->fetch();
+        if ($row === false) {
+            continue;
+        }
         $copies = filter_var($nbrDup[$scId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
         if ($copies === false || $copies === 0) {
             continue;
@@ -509,25 +512,40 @@ function updateServiceCategoriesServices(int $sc_id)
     if (! $sc_id) {
         return;
     }
-    $query = "
-        DELETE FROM service_categories_relation WHERE sc_id = :sc_id
-        AND service_service_id IN (SELECT service_id FROM service WHERE service_register = '0')";
-    $statement = $pearDB->prepare($query);
-    $statement->bindValue(':sc_id', $sc_id, PDO::PARAM_INT);
-    $statement->execute();
-    if (isset($_POST['sc_svcTpl'])) {
-        foreach ($_POST['sc_svcTpl'] as $serviceId) {
+    if (! isset($_POST['sc_svcTpl']) || ! is_array($_POST['sc_svcTpl'])) {
+        return;
+    }
+    $serviceIds = $_POST['sc_svcTpl'];
+
+    try {
+        $pearDB->beginTransaction();
+
+        $query = "
+            DELETE FROM service_categories_relation WHERE sc_id = :sc_id
+            AND service_service_id IN (SELECT service_id FROM service WHERE service_register = '0')";
+        $statement = $pearDB->prepare($query);
+        $statement->bindValue(':sc_id', $sc_id, PDO::PARAM_INT);
+        $statement->execute();
+
+        $insertStmt = $pearDB->prepare('
+            INSERT INTO service_categories_relation (service_service_id, sc_id)
+            VALUES (:service_id, :sc_id)');
+        foreach ($serviceIds as $serviceId) {
             $serviceId = filter_var($serviceId, FILTER_VALIDATE_INT);
             if ($serviceId === false) {
                 continue;
             }
-            $query = '
-                INSERT INTO service_categories_relation (service_service_id, sc_id)
-                VALUES (:service_id, :sc_id)';
-            $statement = $pearDB->prepare($query);
-            $statement->bindValue(':service_id', $serviceId, PDO::PARAM_INT);
-            $statement->bindValue(':sc_id', $sc_id, PDO::PARAM_INT);
-            $statement->execute();
+            $insertStmt->bindValue(':service_id', $serviceId, PDO::PARAM_INT);
+            $insertStmt->bindValue(':sc_id', $sc_id, PDO::PARAM_INT);
+            $insertStmt->execute();
         }
+
+        $pearDB->commit();
+    } catch (\Exception $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
     }
 }
