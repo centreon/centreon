@@ -349,7 +349,9 @@ class Automatic
         }
 
         $host['host_state'] = $host['state'];
-        $host['state_str'] = $params['host_state'];
+        if (isset($params['host_state'])) {
+            $host['state_str'] = $params['host_state'];
+        }
         $host['last_state_change_duration'] = CentreonDuration::toString(
             time() - $host['last_state_change']
         );
@@ -714,12 +716,12 @@ class Automatic
     protected function getHostTicket($params, $macroName)
     {
         $stmt = $this->dbCentstorage->prepare(
-            'SELECT SQL_CALC_FOUND_ROWS mot.ticket_value AS ticket_id 
-            FROM hosts h 
-            LEFT JOIN customvariables cv ON (h.host_id = cv.host_id 
-            AND (cv.service_id IS NULL or cv.service_id = 0) 
+            'SELECT mot.ticket_value AS ticket_id
+            FROM hosts h
+            LEFT JOIN customvariables cv ON (h.host_id = cv.host_id
+            AND (cv.service_id IS NULL or cv.service_id = 0)
             AND cv.name = :macro_name)
-            LEFT JOIN mod_open_tickets mot ON cv.value = mot.ticket_value 
+            LEFT JOIN mod_open_tickets mot ON cv.value = mot.ticket_value
             WHERE h.host_id = :host_id'
         );
         $stmt->bindParam(':macro_name', $macroName, PDO::PARAM_STR);
@@ -741,10 +743,11 @@ class Automatic
     protected function getServiceTicket($params, $macroName)
     {
         $query = <<<'SQL'
-                SELECT SQL_CALC_FOUND_ROWS cv.value AS ticket_id
+                SELECT mot.ticket_value AS ticket_id
                 FROM customvariables cv
-                WHERE service_id = :service_id
-                    AND host_id = :host_id
+                LEFT JOIN mod_open_tickets mot ON cv.value = mot.ticket_value
+                WHERE cv.service_id = :service_id
+                    AND cv.host_id = :host_id
                     AND cv.name = :macro_name
             SQL;
 
