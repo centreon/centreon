@@ -244,7 +244,7 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
                     $newId,
                     $dupName,
                     'a',
-                    $fields
+                    CentreonLogAction::prepareChanges($dup)
                 );
             }
             if ($i < $copies) {

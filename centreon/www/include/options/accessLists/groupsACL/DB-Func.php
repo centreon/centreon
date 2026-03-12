@@ -131,7 +131,7 @@ function disableGroupInDB($acl_group_id = null, $groups = [])
 
     foreach ($groups as $key => $value) {
         $dbResult = $pearDB->prepare(
-            "UPDATE acl_groups SET acl_group_activate = '0' WHERE acl_group_id = :aclGroupId"
+            "UPDATE acl_groups SET acl_group_activate = '0', acl_group_changed = '1' WHERE acl_group_id = :aclGroupId"
         );
         $dbResult->bindValue('aclGroupId', $key, PDO::PARAM_INT);
         $dbResult->execute();

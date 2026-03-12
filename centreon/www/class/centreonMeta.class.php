@@ -116,7 +116,7 @@ class CentreonMeta
         $stmt->execute();
         $row = $stmt->fetch();
         if ($row !== false && preg_match('/meta_(\d+)/', $row['service_description'], $matches)) {
-            $metaId = $matches[1];
+            $metaId = (int) $matches[1];
         }
 
         return $metaId;
