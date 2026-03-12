@@ -47,27 +47,32 @@ if (($o === 'c' || $o === 'w') && $nagiosId) {
     $statement->bindValue(':nagiosId', $nagiosId, PDO::PARAM_INT);
     $statement->execute();
     // Set base value
-    $nagios = array_map('myDecode', $statement->fetch());
+    $row = $statement->fetch();
+    if ($row === false) {
+        $nagios = [];
+    } else {
+        $nagios = array_map('myDecode', $row);
 
-    // Log V1
-    $tmp = explode(',', $nagios['debug_level_opt']);
-    foreach ($tmp as $key => $value) {
-        $nagiosLogV1['nagios_debug_level'][$value] = 1;
-    }
-    // Log V2
-    if ($nagios['logger_version'] === 'log_v2_enabled') {
-        $statement = $pearDB->prepare('SELECT * FROM cfg_nagios_logger WHERE cfg_nagios_id = :nagiosId');
-        $statement->bindValue(':nagiosId', $nagiosId, PDO::PARAM_INT);
-        $statement->execute();
-        if ($result = $statement->fetch()) {
-            $nagiosLogV2 = $result;
+        // Log V1
+        $tmp = explode(',', $nagios['debug_level_opt']);
+        foreach ($tmp as $key => $value) {
+            $nagiosLogV1['nagios_debug_level'][$value] = 1;
         }
-    }
+        // Log V2
+        if ($nagios['logger_version'] === 'log_v2_enabled') {
+            $statement = $pearDB->prepare('SELECT * FROM cfg_nagios_logger WHERE cfg_nagios_id = :nagiosId');
+            $statement->bindValue(':nagiosId', $nagiosId, PDO::PARAM_INT);
+            $statement->execute();
+            if ($result = $statement->fetch()) {
+                $nagiosLogV2 = $result;
+            }
+        }
 
-    $defaultEventBrokerOptions['event_broker_options'] = $objMain->explodeEventBrokerOptions(
-        (int) $nagios['event_broker_options']
-    );
-    unset($nagios['event_broker_options']);
+        $defaultEventBrokerOptions['event_broker_options'] = $objMain->explodeEventBrokerOptions(
+            (int) $nagios['event_broker_options']
+        );
+        unset($nagios['event_broker_options']);
+    }
 }
 
 // Preset values of broker directives
