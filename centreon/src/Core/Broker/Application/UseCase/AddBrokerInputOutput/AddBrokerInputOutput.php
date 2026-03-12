@@ -108,8 +108,7 @@ final class AddBrokerInputOutput
 
             $outputId = $this->writeOutputRepository->add(
                 $newOutput,
-                $request->brokerId,
-                $outputFields
+                $request->brokerId
             );
 
             if (! ($output = $this->readOutputRepository->findByIdAndBrokerId(

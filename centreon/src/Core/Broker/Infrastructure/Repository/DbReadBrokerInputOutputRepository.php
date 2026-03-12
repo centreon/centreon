@@ -31,23 +31,14 @@ use Core\Broker\Domain\Model\Type;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
 /**
- * @phpstan-type _InputOutput array{
- *      config_group_id:int,
- *      config_key:string,
- *      config_value:string,
- *      subgrp_id:null|int,
- *      parent_grp_id:null|int,
- *      fieldIndex:null|int
- * }
- * @phpstan-type _ExtendedInputOutput array{
- *      config_id:int,
- *      config_group:string,
- *      config_group_id:int,
- *      config_key:string,
- *      config_value:string,
- *      subgrp_id:null|int,
- *      parent_grp_id:null|int,
- *      fieldIndex:null|int
+ * @phpstan-type _InputOutputRow array{
+ *     id: int,
+ *     config_id: int,
+ *     tag: string,
+ *     type_id: int,
+ *     type_name: string,
+ *     name: string,
+ *     parameters: string
  * }
  */
 class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements ReadBrokerInputOutputRepositoryInterface
@@ -175,30 +166,22 @@ class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
-                SELECT
-                    cfg.config_group_id,
-                    cfg.config_key,
-                    cfg.config_value,
-                    cfg.subgrp_id,
-                    cfg.parent_grp_id,
-                    cfg.fieldIndex
-                FROM `:db`.`cfg_centreonbroker_info` cfg
-                WHERE cfg.config_group = :tag
-                    AND cfg.config_id = :brokerId
-                    AND cfg.config_group_id = :inputOutputId
+                SELECT id, config_id, tag, type_id, type_name, name, parameters
+                FROM `:db`.`cfg_broker_input_output`
+                WHERE id = :id AND config_id = :brokerId AND tag = :tag
                 SQL
         ));
-        $statement->bindValue(':tag', $tag, \PDO::PARAM_STR);
+        $statement->bindValue(':id', $inputOutputId, \PDO::PARAM_INT);
         $statement->bindValue(':brokerId', $brokerId, \PDO::PARAM_INT);
-        $statement->bindValue(':inputOutputId', $inputOutputId, \PDO::PARAM_INT);
+        $statement->bindValue(':tag', $tag, \PDO::PARAM_STR);
         $statement->execute();
 
-        if (! ($result = $statement->fetchAll(\PDO::FETCH_ASSOC))) {
+        if (! ($row = $statement->fetch(\PDO::FETCH_ASSOC))) {
             return null;
         }
 
-        /** @var _InputOutput[] $result */
-        return $this->createFromArray($result, $tag);
+        /** @var _InputOutputRow $row */
+        return $this->createFromRow($row);
     }
 
     /**
@@ -208,11 +191,10 @@ class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
-                SELECT
-                    cfg.config_value
-                FROM `:db`.`cfg_centreonbroker_info` cfg
-                WHERE cfg.config_id = :brokerId
-                    AND cfg.config_value LIKE 'secret::%'
+                SELECT parameters
+                FROM `:db`.`cfg_broker_input_output`
+                WHERE config_id = :brokerId
+                    AND CAST(parameters AS CHAR) LIKE '%secret::%'
                 LIMIT 1
                 SQL
         ));
@@ -220,9 +202,14 @@ class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements
         $statement->execute();
 
         $result = $statement->fetchColumn();
-        /** @var string|null|false $result */
+        if ($result === false) {
+            return null;
+        }
 
-        return $result !== false ? $result : null;
+        /** @var array<mixed> $params */
+        $params = json_decode((string) $result, true, 512, JSON_THROW_ON_ERROR);
+
+        return $this->findVaultPathInValue($params);
     }
 
     /**
@@ -232,34 +219,18 @@ class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
-                SELECT
-                    cfg.config_id,
-                    cfg.config_group,
-                    cfg.config_group_id,
-                    cfg.config_key,
-                    cfg.config_value,
-                    cfg.subgrp_id,
-                    cfg.parent_grp_id,
-                    cfg.fieldIndex
-                FROM `:db`.`cfg_centreonbroker_info` cfg
+                SELECT id, config_id, tag, type_id, type_name, name, parameters
+                FROM `:db`.`cfg_broker_input_output`
                 SQL
         ));
         $statement->execute();
 
-        $data = [];
-        while (($row = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            /** @var _ExtendedInputOutput $row */
-            $data[$row['config_id'] . '_' . $row['config_group'] . '_' . $row['config_group_id']][] = $row;
-        }
-
         $results = [];
-        foreach ($data as $values) {
-            $firstElem = current($values);
-
-            /** @var _ExtendedInputOutput[] $values */
-            $inputOutput = $this->createFromArray($values, $firstElem['config_group'], true);
+        while (($row = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            /** @var _InputOutputRow $row */
+            $inputOutput = $this->createFromRow($row);
             if ($inputOutput !== null) {
-                $results[$firstElem['config_id']][] = $inputOutput;
+                $results[(int) $row['config_id']][] = $inputOutput;
             }
         }
 
@@ -267,101 +238,45 @@ class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements
     }
 
     /**
-     * @param _InputOutput[] $result
-     * @param string $tag
-     * @param bool $withPasswords
-     *
-     * @return BrokerInputOutput|null
+     * @param _InputOutputRow $row
      */
-    private function createFromArray(array $result, string $tag, bool $withPasswords = false): ?BrokerInputOutput
+    private function createFromRow(array $row): ?BrokerInputOutput
     {
-        $parameters = [];
-        $groupedFields = [];
-
-        foreach ($result as $row) {
-            $id ??= $row['config_group_id'];
-
-            if ($row['config_key'] === 'name') {
-                $outputName = $row['config_value'];
-
-                continue;
-            }
-            if ($row['config_key'] === 'blockId') {
-                $typeId = (int) str_replace(['1_', '2_'], '', $row['config_value']);
-
-                continue;
-            }
-            if ($row['config_key'] === 'type') {
-                $typeName = $row['config_value'];
-
-                continue;
-            }
-            if ($row['fieldIndex'] !== null) {
-                // is part of a group field
-                $grpNames = explode('__', $row['config_key']);
-                $groupedFields[$grpNames[0]] = 1;
-                $parameters[$grpNames[0]][$row['fieldIndex']][$grpNames[1]] = $row['config_value'];
-
-                continue;
-            }
-            if ($row['subgrp_id'] !== null) {
-                // is part of a multiselect
-                $multiselectName = $row['config_key'];
-
-                continue;
-            }
-            if ($row['parent_grp_id'] !== null) {
-                // is part of a multiselect
-                continue;
-            }
-
-            $parameters[$row['config_key']] = $row['config_value'];
-        }
-
-        // regrouping multiselect
-        if (isset($multiselectName)) {
-            foreach ($result as $row) {
-                if ($row['parent_grp_id'] !== null) {
-                    $parameters["{$multiselectName}_{$row['config_key']}"][] = $row['config_value'];
-                }
-            }
-        }
-
-        if ($withPasswords === false) {
-            // removing password values
-            foreach (array_keys($groupedFields) as $groupedFieldName) {
-                $parameters[$groupedFieldName] = array_map(
-                    $this->removePasswordValue(...),
-                    array_values($parameters[$groupedFieldName])
-                );
-            }
-        }
-
-        // for phpstan, should never happen
-        if (! isset($id, $typeId, $typeName, $outputName)) {
+        try {
+            /** @var array<mixed> $parameters */
+            $parameters = json_decode($row['parameters'], true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
             return null;
         }
 
         return new BrokerInputOutput(
-            $id,
-            $tag,
-            new Type($typeId, $typeName),
-            $outputName,
-            $parameters
+            id: (int) $row['id'],
+            tag: $row['tag'],
+            type: new Type((int) $row['type_id'], $row['type_name']),
+            name: $row['name'],
+            parameters: $parameters,
         );
     }
 
     /**
-     * @param array{type?:string,value?:string} $groupedField
+     * Recursively searches a decoded JSON value for the first string starting with 'secret::'.
      *
-     * @return array<string,int|string|null>
+     * @param mixed $value
      */
-    private function removePasswordValue(array $groupedField): array
+    private function findVaultPathInValue(mixed $value): ?string
     {
-        if (isset($groupedField['value'], $groupedField['type']) && $groupedField['type'] === 'password') {
-            $groupedField['value'] = null;
+        if (is_string($value) && str_starts_with($value, 'secret::')) {
+            return $value;
+        }
+        if (is_array($value)) {
+            foreach ($value as $item) {
+                $path = $this->findVaultPathInValue($item);
+                if ($path !== null) {
+                    return $path;
+                }
+            }
         }
 
-        return $groupedField;
+        return null;
     }
 }

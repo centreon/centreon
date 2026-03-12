@@ -873,60 +873,79 @@ class CentreonConfigCentreonBroker
      */
     public function getForms($config_id, $tag, $page, $tpl)
     {
-        $query = "SELECT config_key, config_value, config_group_id, grp_level, parent_grp_id, fieldIndex
-            FROM cfg_centreonbroker_info WHERE config_id = %d
-            AND config_group = '%s'
-            AND subgrp_id IS NULL
-            ORDER BY config_group_id";
+        $query = "SELECT id, tag, type_id, type_name, name, parameters
+            FROM cfg_broker_input_output
+            WHERE config_id = %d AND tag = '%s'
+            ORDER BY id";
         try {
             $res = $this->db->query(sprintf($query, $config_id, $tag));
         } catch (PDOException $e) {
             return [];
         }
+
         $formsInfos = [];
         $arrayMultipleValues = [];
-        $isTypePassword = false;
+
         while ($row = $res->fetch()) {
-            $fieldname = $tag . '[' . $row['config_group_id'] . ']['
-                . $this->getConfigFieldName($config_id, $tag, $row) . ']';
-            // Multi value for a multiselect
-            if (isset($row['fieldIndex']) && ! is_null($row['fieldIndex']) && $row['fieldIndex'] != '') {
-                $fieldname = $tag . '[' . $row['config_group_id'] . ']['
-                    . $this->getConfigFieldName($config_id, $tag, $row) . '_#index#]';
-                $suffix = preg_match('/__(.+)$/', $row['config_key'], $matches) ? $matches[1] : '';
-                $arrayMultipleValues[$fieldname]['suffix'] = $suffix;
-                $arrayMultipleValues[$fieldname]['values'][$row['fieldIndex']]
-                    = $isTypePassword && $suffix === 'value' ? CentreonAuth::PWS_OCCULTATION : $row['config_value'];
-                if ($suffix === 'type' && $row['config_value'] === 'password') {
-                    $isTypePassword = true;
-                } elseif ($isTypePassword && $suffix === 'value') {
+            $groupId   = (int) $row['id'];
+            $prefix    = $row['tag'] === 'output' ? '1' : '2';
+            $blockId   = $prefix . '_' . $row['type_id'];
+            $parameters = json_decode($row['parameters'] ?? '{}', true) ?: [];
+
+            $formsInfos[$groupId]['blockId'] = $blockId;
+
+            // Standard meta-fields expected by quickFormById.
+            $formsInfos[$groupId]['defaults'][$tag . '[' . $groupId . '][blockId]'] = $blockId;
+            $formsInfos[$groupId]['defaults'][$tag . '[' . $groupId . '][blockId][blockId]'] = $blockId;
+            $formsInfos[$groupId]['defaults'][$tag . '[' . $groupId . '][name]'] = $row['name'];
+            $formsInfos[$groupId]['defaults'][$tag . '[' . $groupId . '][type]'] = $row['type_name'];
+
+            foreach ($parameters as $paramName => $paramValue) {
+                if (is_array($paramValue) && array_is_list($paramValue) && isset($paramValue[0]) && is_array($paramValue[0])) {
+                    // Grouped field (e.g. lua_parameter): array of objects, each object has sub-fields.
                     $isTypePassword = false;
-                }
-            } else {
-                if (isset($formsInfos[$row['config_group_id']]['defaults'][$fieldname])) {
-                    if (! is_array($formsInfos[$row['config_group_id']]['defaults'][$fieldname])) {
-                        $formsInfos[$row['config_group_id']]['defaults'][$fieldname] = [$formsInfos[$row['config_group_id']]['defaults'][$fieldname]];
+                    foreach ($paramValue as $index => $subFields) {
+                        foreach ($subFields as $subFieldName => $subFieldValue) {
+                            // Build 'groupName__subFieldName_index' form key.
+                            $formKey = $tag . '[' . $groupId . '][' . $paramName . '__' . $subFieldName . '_' . $index . ']';
+                            $multiKey = $tag . '[' . $groupId . '][' . $paramName . '__' . $subFieldName . '_#index#]';
+
+                            if ($subFieldName === 'type' && $subFieldValue === 'password') {
+                                $isTypePassword = true;
+                            }
+                            $displayValue = ($isTypePassword && $subFieldName === 'value')
+                                ? CentreonAuth::PWS_OCCULTATION
+                                : $subFieldValue;
+                            if ($isTypePassword && $subFieldName === 'value') {
+                                $isTypePassword = false;
+                            }
+
+                            $arrayMultipleValues[$multiKey]['suffix'] = $subFieldName;
+                            $arrayMultipleValues[$multiKey]['values'][$index] = $displayValue;
+                            $formsInfos[$groupId]['defaults'][$formKey] = $displayValue;
+                        }
                     }
-                    $formsInfos[$row['config_group_id']]['defaults'][$fieldname][]
-                        = $row['config_key'] === 'db_password' ? CentreonAuth::PWS_OCCULTATION : $row['config_value'];
+                } elseif (is_array($paramValue)) {
+                    // Multiselect or associative-array field: store as array of values.
+                    $formKey = $tag . '[' . $groupId . '][' . $paramName . ']';
+                    $formsInfos[$groupId]['defaults'][$formKey] = array_values($paramValue);
                 } else {
-                    $formsInfos[$row['config_group_id']]['defaults'][$fieldname]
-                        = $row['config_key'] === 'db_password' ? CentreonAuth::PWS_OCCULTATION : $row['config_value'];
-                    $formsInfos[$row['config_group_id']]['defaults'][$fieldname . '[' . $row['config_key'] . ']']
-                        = $row['config_key'] === 'db_password'
-                        ? CentreonAuth::PWS_OCCULTATION
-                        : $row['config_value']; // Radio button
-                }
-                if ($row['config_key'] == 'blockId') {
-                    $formsInfos[$row['config_group_id']]['blockId'] = $row['config_value'];
+                    // Simple scalar field.
+                    $formKey = $tag . '[' . $groupId . '][' . $paramName . ']';
+                    $isPassword = str_ends_with($paramName, 'password');
+                    $displayValue = $isPassword ? CentreonAuth::PWS_OCCULTATION : $paramValue;
+                    $formsInfos[$groupId]['defaults'][$formKey] = $displayValue;
+                    // Radio button compat: duplicate key with sub-key.
+                    $formsInfos[$groupId]['defaults'][$formKey . '[' . $paramName . ']'] = $displayValue;
                 }
             }
         }
+
         $forms = [];
         $isMultiple = false;
         foreach (array_keys($formsInfos) as $key) {
             $qf = $this->quickFormById($formsInfos[$key]['blockId'], $page, $key, $config_id);
-            // Replace loaded configuration with defaults external values
+            // Replace loaded configuration with defaults external values.
             [$tagId, $typeId] = explode('_', $formsInfos[$key]['blockId']);
             $tag = $this->getTagName($tagId);
             $fields = $this->getBlockInfos($typeId);
@@ -934,7 +953,7 @@ class CentreonConfigCentreonBroker
             foreach ($fields as $field) {
                 $elementName = $this->getElementName($tag, $key, $field, $isMultiple);
                 if (! is_null($field['value']) && $field['value'] != false) {
-                    unset($formsInfos[$key]['defaults'][$elementName]); // = $this->getInfoDb($field['value']);
+                    unset($formsInfos[$key]['defaults'][$elementName]);
                 }
                 if (isset($arrayMultipleValues[$elementName])) {
                     if ($isMultiple && $field['group'] !== '') {
@@ -999,11 +1018,10 @@ class CentreonConfigCentreonBroker
     public function getHelps($config_id, $tag)
     {
         $this->nbSubGroup = 1;
-        $query = "SELECT config_value, config_group_id
-            FROM cfg_centreonbroker_info
-            WHERE config_id = %d AND config_group = '%s'
-            AND config_key = 'blockId'
-            ORDER BY config_group_id";
+        $query = "SELECT id, type_id
+            FROM cfg_broker_input_output
+            WHERE config_id = %d AND tag = '%s'
+            ORDER BY id";
         try {
             $res = $this->db->query(sprintf($query, $config_id, $tag));
         } catch (PDOException $e) {
@@ -1011,9 +1029,9 @@ class CentreonConfigCentreonBroker
         }
         $helps = [];
         while ($row = $res->fetchRow()) {
-            [$tagId, $typeId] = explode('_', $row['config_value']);
-            $pos = $row['config_group_id'];
-            $fields = $this->getBlockInfos((int) $typeId);
+            $pos    = (int) $row['id'];
+            $typeId = (int) $row['type_id'];
+            $fields = $this->getBlockInfos($typeId);
             $help = [];
             $help[] = ['name' => $tag . '[' . $pos . '][name]', 'desc' => _('The name of block configuration')];
             $help[] = ['name' => $tag . '[' . $pos . '][type]', 'desc' => _('The type of block configuration')];
@@ -1026,7 +1044,6 @@ class CentreonConfigCentreonBroker
                 $help[] = ['name' => $tag . '[' . $pos . '][' . $fieldname . ']', 'desc' => _($field['description'])];
             }
             $helps[] = $help;
-            $pos++;
         }
 
         return $helps;
@@ -1300,9 +1317,7 @@ class CentreonConfigCentreonBroker
             deleteBrokerConfigsFromVault($writeVaultRepository, [$configId]);
         }
 
-        $query = 'DELETE FROM cfg_centreonbroker_info WHERE config_id = '
-            . $configId
-            . ($keepLuaParameters ? ' AND config_key NOT LIKE "lua\_parameter\_%"' : '');
+        $query = 'DELETE FROM cfg_broker_input_output WHERE config_id = ' . $configId;
         $this->db->query($query);
 
         [$groups_infos] = $this->getGroupsInfos($values);
@@ -1405,35 +1420,40 @@ class CentreonConfigCentreonBroker
     }
 
     /**
-     * Find a broker config original value based on fieldIndex
+     * Find a broker config original value based on fieldIndex.
+     * For grouped fields (lua_parameter), the value is stored as
+     * parameters.lua_parameter[fieldIndex].value in the JSON column.
      *
      * @param int $configId
-     * @param string $configKey
-     * @param int $fieldIndex
-     * @param int $configGroupId
+     * @param string $configKey e.g. 'lua_parameter__value'
+     * @param int $fieldIndex array index within the grouped field
+     * @param int $inputOutputId AUTO_INCREMENT id of the input/output row
      *
      * @throws PDOException
      * @return string|null
      */
-    private function findOriginalValueWithFieldIndex(int $configId, string $configKey, int $fieldIndex, int $configGroupId): ?string
+    private function findOriginalValueWithFieldIndex(int $configId, string $configKey, int $fieldIndex, int $inputOutputId): ?string
     {
+        // configKey format: 'groupName__subFieldName' → we only need the group part.
+        $groupName = explode('__', $configKey, 2)[0];
+        $jsonPath = '$."' . $groupName . '"[' . $fieldIndex . ']."value"';
+
         $stmt = $this->db->prepare(
-            'SELECT config_value FROM cfg_centreonbroker_info
+            'SELECT JSON_UNQUOTE(JSON_EXTRACT(parameters, :jsonPath))
+            FROM cfg_broker_input_output
             WHERE config_id = :configId
-            AND config_key = :configKey
-            AND fieldIndex = :fieldIndex
-            AND config_group_id = :configGroupId'
+            AND id = :inputOutputId
+            LIMIT 1'
         );
 
         $stmt->bindValue(':configId', $configId, PDO::PARAM_INT);
-        $stmt->bindValue(':configKey', $configKey, PDO::PARAM_STR);
-        $stmt->bindValue(':fieldIndex', $fieldIndex, PDO::PARAM_INT);
-        $stmt->bindValue(':configGroupId', $configGroupId, PDO::PARAM_INT);
+        $stmt->bindValue(':inputOutputId', $inputOutputId, PDO::PARAM_INT);
+        $stmt->bindValue(':jsonPath', $jsonPath, PDO::PARAM_STR);
         $stmt->execute();
 
-        $row = $stmt->fetch();
+        $value = $stmt->fetchColumn();
 
-        return $row['config_value'] ?? null;
+        return ($value !== false && $value !== null) ? (string) $value : null;
     }
 
     /**
@@ -1466,31 +1486,33 @@ class CentreonConfigCentreonBroker
     }
 
     /**
-     * Find a broker config original value based on group id
+     * Find a broker config original value based on the input/output row id.
+     * Reads from the JSON parameters column of cfg_broker_input_output.
      *
      * @param int $configId
-     * @param int $groupId
+     * @param int $inputOutputId AUTO_INCREMENT id of the input/output row
      * @param string $configKey
      *
      * @throws PDOException
      * @return string|null
      */
-    private function findOriginalValueWithGroupId(int $configId, int $groupId, string $configKey): ?string
+    private function findOriginalValueWithGroupId(int $configId, int $inputOutputId, string $configKey): ?string
     {
         $stmt = $this->db->prepare(
-            'SELECT config_value FROM cfg_centreonbroker_info
+            'SELECT JSON_UNQUOTE(JSON_EXTRACT(parameters, :jsonPath))
+            FROM cfg_broker_input_output
             WHERE config_id = :configId
-            AND config_key = :configKey
-            AND config_group_id = :groupId'
+            AND id = :inputOutputId
+            LIMIT 1'
         );
         $stmt->bindValue(':configId', $configId, PDO::PARAM_INT);
-        $stmt->bindValue(':configKey', $configKey, PDO::PARAM_STR);
-        $stmt->bindValue(':groupId', $groupId, PDO::PARAM_STR);
+        $stmt->bindValue(':inputOutputId', $inputOutputId, PDO::PARAM_INT);
+        $stmt->bindValue(':jsonPath', '$."' . $configKey . '"', PDO::PARAM_STR);
         $stmt->execute();
 
-        $row = $stmt->fetch();
+        $value = $stmt->fetchColumn();
 
-        return $row['config_value'] ?? null;
+        return ($value !== false && $value !== null) ? (string) $value : null;
     }
 
     /**

@@ -24,23 +24,22 @@ declare(strict_types=1);
 namespace Core\Broker\Application\Repository;
 
 use Core\Broker\Domain\Model\BrokerInputOutput;
-use Core\Broker\Domain\Model\BrokerInputOutputField;
 use Core\Broker\Domain\Model\NewBrokerInputOutput;
 
 interface WriteBrokerInputOutputRepositoryInterface
 {
     /**
      * Add an input or output to a broker configuration.
+     * Returns the AUTO_INCREMENT id of the newly created row.
      *
      * @param NewBrokerInputOutput $inputOutput
      * @param int $brokerId
-     * @param array<string,BrokerInputOutputField|array<string,BrokerInputOutputField>> $parameters
      *
      * @throws \Throwable
      *
      * @return int
      */
-    public function add(NewBrokerInputOutput $inputOutput, int $brokerId, array $parameters): int;
+    public function add(NewBrokerInputOutput $inputOutput, int $brokerId): int;
 
     /**
      * Delete a broker input or output configuration.
@@ -58,9 +57,8 @@ interface WriteBrokerInputOutputRepositoryInterface
      *
      * @param BrokerInputOutput $inputOutput
      * @param int $brokerId
-     * @param array<string,BrokerInputOutputField|array<string,BrokerInputOutputField>> $fields
      *
      * @throws \Throwable
      */
-    public function update(BrokerInputOutput $inputOutput, int $brokerId, array $fields): void;
+    public function update(BrokerInputOutput $inputOutput, int $brokerId): void;
 }

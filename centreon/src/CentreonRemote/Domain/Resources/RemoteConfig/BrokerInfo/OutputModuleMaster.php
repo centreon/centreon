@@ -31,136 +31,31 @@ class OutputModuleMaster
      *
      * @todo move it as yml
      *
-     * @return array<int, string[]> the configuration template
+     * @return array<string,mixed> the configuration template
      */
     public static function getConfiguration(): array
     {
         return [
-            [
-                'config_key' => 'name',
-                'config_value' => 'central-module-master-output',
-                'config_group' => 'output',
-                'config_group_id' => '0',
-                'grp_level' => '0',
-            ],
-            [
-                'config_key' => 'port',
-                'config_value' => '5669',
-                'config_group' => 'output',
-                'config_group_id' => '0',
-                'grp_level' => '0',
-            ],
-            [
-                'config_key' => 'host',
-                'config_value' => 'localhost',
-                'config_group' => 'output',
-                'config_group_id' => '0',
-                'grp_level' => '0',
-            ],
-            [
-                'config_key' => 'failover',
-                'config_value' => '',
-                'config_group' => 'output',
-                'config_group_id' => '0',
-                'grp_level' => '0',
-            ],
-            [
-                'config_key' => 'retry_interval',
-                'config_value' => '15',
-                'config_group' => 'output',
-                'config_group_id' => '0',
-                'grp_level' => '0',
-            ],
-            [
-                'config_key' => 'buffering_timeout',
-                'config_value' => '0',
-                'config_group' => 'output',
-                'config_group_id' => '0',
-                'grp_level' => '0',
-            ],
-            [
-                'config_key' => 'protocol',
-                'config_value' => 'bbdo',
-                'config_group' => 'output',
-                'config_group_id' => '0',
-                'grp_level' => '0',
-            ],
-            [
-                'config_key' => 'tls',
-                'config_value' => 'no',
-                'config_group' => 'output',
-                'config_group_id' => '0',
-                'grp_level' => '0',
-            ],
-            [
-                'config_key' => 'private_key',
-                'config_value' => '',
-                'config_group' => 'output',
-                'config_group_id' => '0',
-                'grp_level' => '0',
-            ],
-            [
-                'config_key' => 'public_cert',
-                'config_value' => '',
-                'config_group' => 'output',
-                'config_group_id' => '0',
-                'grp_level' => '0',
-            ],
-            [
-                'config_key' => 'ca_certificate',
-                'config_value' => '',
-                'config_group' => 'output',
-                'config_group_id' => '0',
-                'grp_level' => '0',
-            ],
-            [
-                'config_key' => 'negotiation',
-                'config_value' => 'yes',
-                'config_group' => 'output',
-                'config_group_id' => '0',
-                'grp_level' => '0',
-            ],
-            [
-                'config_key' => 'one_peer_retention_mode',
-                'config_value' => 'no',
-                'config_group' => 'output',
-                'config_group_id' => '0',
-                'grp_level' => '0',
-            ],
-            [
-                'config_key' => 'compression',
-                'config_value' => 'no',
-                'config_group' => 'output',
-                'config_group_id' => '0',
-                'grp_level' => '0',
-            ],
-            [
-                'config_key' => 'compression_level',
-                'config_value' => '',
-                'config_group' => 'output',
-                'config_group_id' => '0',
-                'grp_level' => '0',
-            ],
-            [
-                'config_key' => 'compression_buffer',
-                'config_value' => '',
-                'config_group' => 'output',
-                'config_group_id' => '0',
-                'grp_level' => '0',
-            ],
-            [
-                'config_key' => 'type',
-                'config_value' => 'ipv4',
-                'config_group' => 'output',
-                'config_group_id' => '0',
-                'grp_level' => '0',
-            ],
-            [
-                'config_key' => 'blockId',
-                'config_value' => '1_3',
-                'config_group' => 'output',
-                'config_group_id' => '0',
-                'grp_level' => '0',
+            'tag'       => 'output',
+            'type_id'   => 3,
+            'type_name' => 'ipv4',
+            'name'      => 'central-module-master-output',
+            'parameters' => [
+                'port'                    => '5669',
+                'host'                    => 'localhost',
+                'failover'                => '',
+                'retry_interval'          => '15',
+                'buffering_timeout'       => '0',
+                'protocol'                => 'bbdo',
+                'tls'                     => 'no',
+                'private_key'             => '',
+                'public_cert'             => '',
+                'ca_certificate'          => '',
+                'negotiation'             => 'yes',
+                'one_peer_retention_mode' => 'no',
+                'compression'             => 'no',
+                'compression_level'       => '',
+                'compression_buffer'      => '',
             ],
         ];
     }
