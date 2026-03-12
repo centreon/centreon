@@ -56,6 +56,7 @@ export interface InputProps {
     options?: Array<string>;
   };
   connectedAutocomplete?: {
+    useNewAPIFormat?: boolean;
     additionalConditionParameters: Array<ConditionsSearchParameter>;
     customQueryParameters: Array<QueryParameter>;
     chipColor?: string;
@@ -63,6 +64,7 @@ export interface InputProps {
     filterKey?: string;
     getRenderedOptionText?: (option) => string | JSX.Element;
     getOptionLabel?: (option) => string;
+    helperText?: string;
     optionProperty?: string;
     disableSelectAll?: boolean;
     limitTags?: number;

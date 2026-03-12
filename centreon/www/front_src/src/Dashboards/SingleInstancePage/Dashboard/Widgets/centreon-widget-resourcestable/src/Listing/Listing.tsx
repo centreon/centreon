@@ -1,22 +1,21 @@
 import { useTheme } from '@mui/material';
 
 import { MemoizedListing, SeverityCode } from '@centreon/ui';
-import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
-import { ReactElement } from 'react';
+import type { ReactElement } from 'react';
 
-import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
-import { openTicketAtom } from '../atom';
-import { PanelOptions } from '../models';
+import type { CommonWidgetProps, Resource, SortOrder } from '../../../models';
+import { isOnPublicPageLocalAtom, openTicketContextAtom } from '../atom';
+import type { PanelOptions } from '../models';
 import Actions from './Actions';
 import AcknowledgeForm from './Actions/Acknowledge';
 import DowntimeForm from './Actions/Downtime';
 import CloseTicketModal from './Columns/CloseTicket/Modal';
 import OpenTicketModal from './Columns/OpenTicket/Modal';
 import { rowColorConditions } from './colors';
-import { DisplayType as DisplayTypeEnum, NamedEntity } from './models';
+import { DisplayType as DisplayTypeEnum, type NamedEntity } from './models';
 import useListing from './useListing';
 
 interface ListingProps
@@ -66,6 +65,8 @@ const Listing = ({
   serviceSeverities
 }: ListingProps): ReactElement => {
   const theme = useTheme();
+  const isOnPublicPage = useAtomValue(isOnPublicPageLocalAtom);
+  const { isOpenTicketEnabled, provider } = useAtomValue(openTicketContextAtom);
 
   const {
     selectColumns,
@@ -111,9 +112,6 @@ const Listing = ({
     statusTypes,
     widgetPrefixQuery
   });
-
-  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
-  const { isOpenTicketEnabled, provider } = useAtomValue(openTicketAtom);
 
   return (
     <>

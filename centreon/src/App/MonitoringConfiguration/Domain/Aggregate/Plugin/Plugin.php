@@ -23,12 +23,12 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Plugin;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
-
-final class Plugin extends AggregateRoot
+final class Plugin
 {
     public function __construct(
         public readonly PluginName $name,
+        public readonly PluginCommandLine $commandLine,
+        public ?PluginDescription $description = null,
     ) {
     }
 }

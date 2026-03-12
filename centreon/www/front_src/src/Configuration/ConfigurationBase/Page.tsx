@@ -13,15 +13,16 @@ import useCoutChangedFilters from './Filters/AdvancedFilters/useCoutChangedFilte
 import { Listing } from './Listing';
 import useLoadData from './Listing/useLoadData';
 import { Modal } from './Modal';
+import Navbar from './NavBar';
 
 const WelcomePage = ({
-  hasWriteAccess,
   labels,
   dataTestId,
   onCreate,
   filtersAtom,
   filtersAtomKey,
-  isWelcomePageDisplayedAtom
+  isWelcomePageDisplayedAtom,
+  hasWriteAccess
 }) => {
   const { isLoading, data } = useLoadData({ filtersAtom, filtersAtomKey });
 
@@ -58,7 +59,8 @@ const Page = <TFilters,>({
   selectedColumnIdsAtom,
   filtersAtom,
   filtersAtomKey,
-  isWelcomePageDisplayedAtom
+  isWelcomePageDisplayedAtom,
+  navbar
 }: Pick<
   ConfigurationBase<TFilters>,
   | 'columns'
@@ -70,6 +72,7 @@ const Page = <TFilters,>({
   | 'filtersAtom'
   | 'filtersAtomKey'
   | 'isWelcomePageDisplayedAtom'
+  | 'navbar'
 >): JSX.Element => {
   const [, setSearchParams] = useSearchParams();
 
@@ -95,6 +98,11 @@ const Page = <TFilters,>({
           <PageHeader.Main>
             <PageHeader.Title title={labels.title} />
           </PageHeader.Main>
+          {!!navbar && (
+            <PageHeader.Actions>
+              <Navbar navbar={navbar} />
+            </PageHeader.Actions>
+          )}
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>

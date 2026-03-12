@@ -6,10 +6,12 @@ manageUsersAndGroups() {
     usermod apache -a -G nagios,centreon-engine,centreon-broker,centreon-gorgone,centreon
     usermod nagios -a -G apache
     usermod centreon-gorgone -a -G apache
+    usermod centreon-broker -a -G apache
     usermod centreon -a -G apache
   else
     usermod www-data -a -G centreon-engine,centreon-broker,centreon-gorgone,centreon
     usermod centreon-gorgone -a -G www-data
+    usermod centreon-broker -a -G www-data
     usermod centreon -a -G www-data
   fi
 }
@@ -131,6 +133,8 @@ rebuildSymfonyCache() {
     echo "Rebuilding Centreon application cache ..."
     rm -rf /var/cache/centreon/symfony
     su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear -q" || :
+    rm -rf /var/cache/centreon/symfony.new
+    su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console.new cache:clear -q" || :
   fi
 }
 

@@ -488,7 +488,12 @@ class Host extends AbstractHost
 
             [$directMacros, $indirectMacros] = Macro::resolveInheritance($existingMacros, $inheritanceLine, $serviceId);
             $serviceMacros = array_merge($serviceMacros, array_values($directMacros));
-            $serviceTemplateMacros = array_merge($serviceTemplateMacros, array_values($indirectMacros));
+
+            $allTemplateMacros = array_filter(
+                $existingMacros,
+                fn (Macro $macro): bool => $macro->getOwnerId() !== $serviceId
+            );
+            $serviceTemplateMacros = array_merge($serviceTemplateMacros, array_values($allTemplateMacros));
         }
 
         array_walk(

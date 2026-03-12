@@ -738,9 +738,6 @@ jobs:
       matrix:
         include:
           - package_extension: rpm
-            image: packaging-nfpm-alma8
-            distrib: el8
-          - package_extension: rpm
             image: packaging-nfpm-alma9
             distrib: el9
           - package_extension: deb
@@ -883,10 +880,7 @@ jobs:
       - name: Generate information according to matrix os
         id: matrix_include
         run: |
-          if [ "${{ matrix.operating_system }}" = "alma8" ]; then
-            DISTRIB=el8
-            PACKAGE_EXTENSION=rpm
-          elif [ "${{ matrix.operating_system }}" = "alma9" ]; then
+          if [ "${{ matrix.operating_system }}" = "alma9" ]; then
             DISTRIB=el9
             PACKAGE_EXTENSION=rpm
           elif [ "${{ matrix.operating_system }}" = "bookworm" ]; then
@@ -1002,7 +996,7 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' ) &&
+      (needs.get-environment.outputs.stability == 'testing' || needs.get-environment.outputs.is_nightly == 'true') &&
       github.repository == 'centreon/centreon'
     strategy:
       fail-fast: false
@@ -1014,6 +1008,7 @@ jobs:
       major_version: ${{ needs.get-environment.outputs.major_version }}
       minor_version: ${{ needs.get-environment.outputs.minor_version }}
       os: ${{ matrix.operating_system }}
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
     secrets:
       xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
       xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
@@ -1135,7 +1130,7 @@ jobs:
       minor_version: ${{ needs.get-environment.outputs.minor_version }}
       stability: ${{ needs.get-environment.outputs.stability }}
       target_stability: ${{ needs.get-environment.outputs.target_stability }}
-      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma8' && 'rpm-el8' || matrix.operating_system == 'alma9' && 'rpm-el9' || 'deb-bookworm' ) }}
+      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma9' && 'rpm-el9' || 'deb-bookworm' ) }}
       package_directory: fixtures/packages
       test_tags: ${{ needs.changes.outputs.trigger_upgrade_testing == 'true' && matrix.test_tags || format('{0} and not @update and not @upgrade', matrix.test_tags) }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
@@ -1347,7 +1342,7 @@ jobs:
       github.repository == 'centreon/centreon'
     strategy:
       matrix:
-        distrib: [el8, el9]
+        distrib: [el9]
     name: deliver-rpm ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
@@ -1418,7 +1413,7 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [el8, el9, bookworm]
+        distrib: [el9, bookworm]
     name: promote ${{ matrix.distrib }}
     steps:
       - name: Checkout sources

@@ -5,7 +5,6 @@ import {
   useLocaleDateTimeFormat,
   useStyleTable
 } from '@centreon/ui';
-import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
 import {
@@ -23,7 +22,7 @@ import {
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { openTicketAtom } from '../../atom';
+import { isOnPublicPageLocalAtom, openTicketContextAtom } from '../../atom';
 import { DisplayType } from '../models';
 import {
   labelAction,
@@ -80,7 +79,7 @@ const useColumns = ({
     data: dataStyle.statusColumnChip
   });
 
-  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+  const isOnPublicPage = useAtomValue(isOnPublicPageLocalAtom);
   const {
     displayResources,
     enableHostTicketCreation,
@@ -88,7 +87,7 @@ const useColumns = ({
     isOpenTicketEnabled,
     isOpenTicketInstalled,
     provider
-  } = useAtomValue(openTicketAtom);
+  } = useAtomValue(openTicketContextAtom);
 
   const { format } = useLocaleDateTimeFormat();
   const { t } = useTranslation();

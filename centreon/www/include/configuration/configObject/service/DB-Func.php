@@ -31,13 +31,13 @@ use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
-use Symfony\Component\HttpClient\CurlHttpClient;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -1014,7 +1014,7 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
         $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $serviceId);
     }
 
-    if (isset($ret['command_command_id'])) {
+    if (! empty($ret['command_command_id'])) {
         $kernel = Kernel::createForWeb();
         /** @var ReadCommandRepositoryInterface $commandRepository */
         $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
@@ -1900,7 +1900,7 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
         $submittedValues = $form->getSubmitValues();
     }
 
-    if (isset($submittedValues['command_command_id'])) {
+    if (! empty($submittedValues['command_command_id'])) {
         $kernel = Kernel::createForWeb();
         /** @var ReadCommandRepositoryInterface $commandRepository */
         $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
@@ -2114,7 +2114,7 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
         $submittedValues = $form->getSubmitValues();
     }
 
-    if (isset($submittedValues['command_command_id']) && $submittedValues['command_command_id'] != null) {
+    if (! empty($submittedValues['command_command_id'])) {
         $kernel = Kernel::createForWeb();
         /** @var ReadCommandRepositoryInterface $commandRepository */
         $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
@@ -4422,21 +4422,7 @@ function deleteServiceTemplateByApi(array $serviceTemplates = []): void
  */
 function callApi(string $url, string $httpMethod, array $payload): array
 {
-    $client = new CurlHttpClient();
-    $response = $client->request(
-        $httpMethod,
-        $url,
-        [
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Cookie' => CentreonSession::resolveSessionCookie(),
-            ],
-            'body' => json_encode($payload),
-        ]
-    );
+    $client = new InternalApiClient();
 
-    $status = $response->getStatusCode();
-    $content = json_decode($response->getContent(false), true);
-
-    return ['status_code' => $status, 'content' => $content];
+    return $client->request($url, $httpMethod, CentreonSession::resolveSessionCookie(), $payload);
 }

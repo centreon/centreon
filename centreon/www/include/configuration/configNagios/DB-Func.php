@@ -375,6 +375,7 @@ function getNagiosCfgColumnsDetails(): array
         'illegal_macro_output_chars' => ['default' => null],
         'illegal_object_name_chars' => ['default' => null],
         'instance_heartbeat_interval' => ['default' => '30'],
+        'broker_module_cfg_file' => ['default' => null],
         // Radio inputs
         'accept_passive_host_checks' => ['isRadio' => true, 'default' => '1'],
         'accept_passive_service_checks' => ['isRadio' => true, 'default' => '1'],

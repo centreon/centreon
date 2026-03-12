@@ -117,6 +117,11 @@ Given('I am on the Authentication tokens page', () => {
 
   cy.getByLabel({ label: 'Refresh', tag: 'button' }).click();
   cy.wait('@getTokens');
+
+  // Remove the default central token
+  cy.getByLabel({ label: 'Delete' }).eq(0).click();
+  cy.getByTestId({ tag: 'button', testId: 'confirm' }).click();
+  cy.wait('@getTokens');
 });
 
 When('I filter tokens by {string} and click on Search', (filterBy: string) => {

@@ -24,6 +24,7 @@ use Centreon\Domain\Log\Logger;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
@@ -432,20 +433,23 @@ class CentreonConfigCentreonBroker
             }
 
             // If get information for read-only in database
+            $roValue = false;
             if (! is_null($field['value']) && $field['value'] !== false) {
-                $elementType = null;
                 $roValue = $this->getInfoDb($field['value']);
-                $field['value'] = $roValue;
-                if (is_array($roValue)) {
-                    $qf->addElement('select', $elementName, $displayName, $roValue);
-                } else {
-                    $qf->addElement('text', $elementName, $displayName, $this->attrText);
+                if ($elementType !== 'advmultiselect') {
+                    $elementType = null;
+                    $field['value'] = $roValue;
+                    if (is_array($roValue)) {
+                        $qf->addElement('select', $elementName, $displayName, $roValue);
+                    } else {
+                        $qf->addElement('text', $elementName, $displayName, $this->attrText);
+                    }
+                    $qf->freeze($elementName);
                 }
-                $qf->freeze($elementName);
             }
 
             // Add required informations
-            if ($field['required'] && is_null($field['value']) && $elementType != 'select') {
+            if ($field['required'] && is_null($field['value']) && ! in_array($elementType, ['select', 'advmultiselect'])) {
                 $elementAttr = array_merge($elementAttr, ['id' => $elementName, 'class' => 'v_required']);
             }
 
@@ -478,6 +482,10 @@ class CentreonConfigCentreonBroker
                     $el->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
                     $el->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
                     $el->setElementTemplate($this->advMultiTemplate);
+                    if ($roValue !== false) {
+                        $field['value'] = $roValue;
+                        $qf->freeze($elementName);
+                    }
                 } else {
                     $el = $qf->addElement($elementType, $elementName, $displayName, $elementAttr, $elementAttrSelect);
                 }
@@ -1302,11 +1310,8 @@ class CentreonConfigCentreonBroker
         /** @var Core\Infrastructure\Common\Api\Router $router */
         $router = $kernel->getContainer()->get(Core\Infrastructure\Common\Api\Router::class)
         ?? throw new LogicException('Router not found in container');
-        $client = new Symfony\Component\HttpClient\CurlHttpClient();
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Cookie' => CentreonSession::resolveSessionCookie(),
-        ];
+        $client = new InternalApiClient();
+        $sessionCookie = CentreonSession::resolveSessionCookie();
         $parameters = ['brokerId' => $configId];
         if ($basePath) {
             $parameters['base_uri'] = $basePath;
@@ -1322,18 +1327,12 @@ class CentreonConfigCentreonBroker
 
             foreach ($groups as $group) {
                 $payload = $this->buildPayload($group);
-                $response = $client->request(
-                    'POST',
-                    $url,
-                    [
-                        'headers' => $headers,
-                        'body' => json_encode($payload),
-                    ],
-                );
-                if ($response->getStatusCode() !== 201) {
-                    $content = json_decode($response->getContent(false));
+                $response = $client->request($url, 'POST', $sessionCookie, $payload);
 
-                    throw new Exception($content->message ?? 'Unexpected return status');
+                if ($response['status_code'] !== 201) {
+                    $message = $response['content']['message'] ?? 'Unexpected return status';
+
+                    throw new Exception($message);
                 }
             }
         }
