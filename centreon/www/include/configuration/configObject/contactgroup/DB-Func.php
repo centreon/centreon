@@ -175,8 +175,8 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
             }
             $i++;
 
-            $pearDB->beginTransaction();
             try {
+                $pearDB->beginTransaction();
                 $row['cg_name'] = $cg_name;
                 foreach ($columns as $col) {
                     $value = $row[$col];

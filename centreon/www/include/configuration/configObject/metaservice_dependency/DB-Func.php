@@ -151,8 +151,8 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
             }
             $i++;
             $row['dep_name'] = $dep_name;
-            $pearDB->beginTransaction();
             try {
+                $pearDB->beginTransaction();
                 foreach ($columns as $col) {
                     $value = $row[$col];
                     $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);

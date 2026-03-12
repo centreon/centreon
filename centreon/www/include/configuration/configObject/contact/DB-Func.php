@@ -550,8 +550,8 @@ function synchronizeContactWithLdap(array $contacts = []): void
         );
 
         $successfullySync = [];
-        $pearDB->beginTransaction();
         try {
+            $pearDB->beginTransaction();
             foreach ($contacts as $key => $value) {
                 $contactNameStmt->bindValue(':contactId', (int) $key, PDO::PARAM_INT);
                 $contactNameStmt->execute();
@@ -695,8 +695,8 @@ function multipleContactInDB($contacts = [], $nbrDup = []): array
                 };
             }
 
-            $pearDB->beginTransaction();
             try {
+                $pearDB->beginTransaction();
                 $pearDB->insert($insertQuery, QueryParameters::create($queryParameters));
                 $lastId = (int) $pearDB->getLastInsertId();
 
@@ -897,10 +897,10 @@ function updateContactInDB(mixed $contact_id, bool $from_MC = false, bool $isRem
     $ret = $form->getSubmitValues();
 
     $ownTransaction = ! $pearDB->isTransactionActive();
-    if ($ownTransaction) {
-        $pearDB->beginTransaction();
-    }
     try {
+        if ($ownTransaction) {
+            $pearDB->beginTransaction();
+        }
         // Global function to use
         if ($from_MC) {
             updateContact_MC($contact_id);
@@ -973,10 +973,10 @@ function insertContactInDB(array $ret = []): int
     global $pearDB;
 
     $ownTransaction = ! $pearDB->isTransactionActive();
-    if ($ownTransaction) {
-        $pearDB->beginTransaction();
-    }
     try {
+        if ($ownTransaction) {
+            $pearDB->beginTransaction();
+        }
         $contactId = insertContact($ret);
         if (! updateContactHostCommands($contactId, $ret)) {
             throw new RepositoryException('Failed to update contact host commands', ['contact_id' => $contactId]);

@@ -205,8 +205,8 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
             $i++;
             $row['sg_name'] = $sgName;
             $fields = $row;
-            $pearDB->beginTransaction();
             try {
+                $pearDB->beginTransaction();
                 foreach ($columns as $col) {
                     $value = $row[$col];
                     $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
@@ -318,23 +318,23 @@ function updateServiceGroupAcl(int $serviceGroupId, array $submittedValues = [])
             preg_match('/dataset_for_rule_\d+_(\d+)/', $lastDatasetAdded['dataset_name'], $matches);
             // calculate the new dataset_name
             $newDatasetName = 'dataset_for_rule_' . $ruleId . '_' . ((int) $matches[1] + 1);
-            if ($pearDB->beginTransaction()) {
-                try {
-                    $datasetId = createNewDataset(datasetName: $newDatasetName);
-                    linkDatasetToRule(datasetId: $datasetId, ruleId: $ruleId);
-                    linkServiceGroupToDataset(datasetId: $datasetId, serviceGroupId: $serviceGroupId);
-                    createNewDatasetFilter(datasetId: $datasetId, ruleId: $ruleId, serviceGroupId: $serviceGroupId);
-                    $pearDB->commit();
-                } catch (Throwable $exception) {
-                    if ($pearDB->inTransaction()) {
-                        $pearDB->rollBack();
-                    }
-
-                    throw $exception;
-                }
-            }
-        } elseif ($pearDB->beginTransaction()) {
             try {
+                $pearDB->beginTransaction();
+                $datasetId = createNewDataset(datasetName: $newDatasetName);
+                linkDatasetToRule(datasetId: $datasetId, ruleId: $ruleId);
+                linkServiceGroupToDataset(datasetId: $datasetId, serviceGroupId: $serviceGroupId);
+                createNewDatasetFilter(datasetId: $datasetId, ruleId: $ruleId, serviceGroupId: $serviceGroupId);
+                $pearDB->commit();
+            } catch (Throwable $exception) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
+
+                throw $exception;
+            }
+        } else {
+            try {
+                $pearDB->beginTransaction();
                 linkServiceGroupToDataset(datasetId: $serviceGroupDatasetFilters[0]['dataset_id'], serviceGroupId: $serviceGroupId);
                 // Expend the existing hostgroup dataset_filter
                 $expendedResourceIds = $serviceGroupDatasetFilters[0]['dataset_filter_resources'] . ', ' . $serviceGroupId;

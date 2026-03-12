@@ -305,10 +305,10 @@ class CentreonMeta
             }
         } else {
             $ownTransaction = ! $this->db->inTransaction();
-            if ($ownTransaction) {
-                $this->db->beginTransaction();
-            }
             try {
+                if ($ownTransaction) {
+                    $this->db->beginTransaction();
+                }
                 $insertStmt = $this->db->prepare(
                     'INSERT INTO service (service_description, display_name, service_register)
                     VALUES (:description, :display_name, :register)'

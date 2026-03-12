@@ -236,8 +236,8 @@ function multipleLCAInDB($lcas = [], $nbrDup = [])
             }
             $i++;
 
-            $pearDB->beginTransaction();
             try {
+                $pearDB->beginTransaction();
                 $row['acl_res_name'] = $acl_name;
                 foreach ($columns as $col) {
                     $value = $row[$col];

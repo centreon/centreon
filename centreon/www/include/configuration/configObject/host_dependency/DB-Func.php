@@ -179,8 +179,8 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
                 }
                 $i++;
 
-                $pearDB->beginTransaction();
                 try {
+                    $pearDB->beginTransaction();
                     // insert duplicated dependency
                     $cols   = array_keys($dup);
                     $sqlIns = $pearDB->createQueryBuilder()

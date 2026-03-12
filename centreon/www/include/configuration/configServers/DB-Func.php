@@ -421,8 +421,8 @@ function duplicateServer(array $server, array $nbrDup): void
                 ? html_entity_decode($serverName, ENT_QUOTES, 'UTF-8')
                 : null;
             if ($columns !== [] && $decodedName !== null && testExistence($decodedName)) {
-                $pearDB->beginTransaction();
                 try {
+                    $pearDB->beginTransaction();
                     $placeholders = implode(', ', array_keys($params));
                     $columnList = implode(', ', $columns);
                     $insertStmt = $pearDB->prepare(

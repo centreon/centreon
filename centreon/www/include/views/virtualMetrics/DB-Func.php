@@ -138,8 +138,8 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
         'SELECT * FROM virtual_metrics WHERE vmetric_id = :vmetric_id LIMIT 1'
     );
 
-    $pearDB->beginTransaction();
     try {
+        $pearDB->beginTransaction();
         foreach (array_keys($vmetrics) as $vmetricId) {
             $validVmetricId = filter_var($vmetricId, FILTER_VALIDATE_INT);
             if ($validVmetricId === false) {

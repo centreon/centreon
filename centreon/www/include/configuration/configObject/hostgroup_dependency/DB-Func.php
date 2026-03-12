@@ -196,8 +196,8 @@ function multipleHostGroupDependencyInDB(array $dependencies = [], array $nbrDup
                 }
                 $i++;
 
-                $pearDB->beginTransaction();
                 try {
+                    $pearDB->beginTransaction();
                     $insertParams = [];
                     $fields = [];
                     foreach ($dup as $col => $val) {

@@ -64,8 +64,8 @@ function updateNotificationOptions($userIdConnected)
 {
     global $form, $pearDB;
 
-    $pearDB->beginTransaction();
     try {
+        $pearDB->beginTransaction();
         $deleteStmt = $pearDB->prepare(
             "DELETE FROM contact_param WHERE cp_contact_id = :contact_id"
             . " AND (cp_key LIKE 'monitoring%notification%' OR cp_key LIKE 'monitoring_sound%')"

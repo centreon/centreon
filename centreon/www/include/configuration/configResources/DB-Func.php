@@ -493,8 +493,8 @@ function insertInstanceRelations($resourceId, $instanceId = null): void
             $instances = CentreonUtils::mergeWithInitialValues($form, 'instance_id');
         }
 
-        $pearDB->beginTransaction();
         try {
+            $pearDB->beginTransaction();
             $deleteStmt = $pearDB->prepare('DELETE FROM cfg_resource_instance_relations WHERE resource_id = :resourceId');
             $deleteStmt->bindValue(':resourceId', (int) $resourceId, PDO::PARAM_INT);
             $deleteStmt->execute();

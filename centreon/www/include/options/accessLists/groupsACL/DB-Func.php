@@ -223,8 +223,8 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
             }
             $i++;
 
-            $pearDB->beginTransaction();
             try {
+                $pearDB->beginTransaction();
                 $row['acl_group_name'] = $acl_group_name;
                 foreach ($columns as $col) {
                     $value = $row[$col];
@@ -467,9 +467,11 @@ function updateGroupContacts($acl_group_id, $ret = [])
         return;
     }
 
+    $ownTransaction = ! $pearDB->inTransaction();
     try {
-        $pearDB->beginTransaction();
-
+        if ($ownTransaction) {
+            $pearDB->beginTransaction();
+        }
         $deleteStmt = $pearDB->prepare('DELETE FROM acl_group_contacts_relations WHERE acl_group_id = :group_id');
         $deleteStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
         $deleteStmt->execute();
@@ -485,9 +487,11 @@ function updateGroupContacts($acl_group_id, $ret = [])
             }
         }
 
-        $pearDB->commit();
+        if ($ownTransaction) {
+            $pearDB->commit();
+        }
     } catch (Throwable $e) {
-        if ($pearDB->inTransaction()) {
+        if ($ownTransaction && $pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
 
@@ -508,9 +512,11 @@ function updateGroupContactGroups($acl_group_id, $ret = [])
         return;
     }
 
+    $ownTransaction = ! $pearDB->inTransaction();
     try {
-        $pearDB->beginTransaction();
-
+        if ($ownTransaction) {
+            $pearDB->beginTransaction();
+        }
         $deleteStmt = $pearDB->prepare(
             'DELETE FROM acl_group_contactgroups_relations WHERE acl_group_id = :group_id'
         );
@@ -537,9 +543,11 @@ function updateGroupContactGroups($acl_group_id, $ret = [])
             }
         }
 
-        $pearDB->commit();
+        if ($ownTransaction) {
+            $pearDB->commit();
+        }
     } catch (Throwable $e) {
-        if ($pearDB->inTransaction()) {
+        if ($ownTransaction && $pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
 
@@ -560,9 +568,11 @@ function updateGroupActions($acl_group_id, $ret = [])
         return;
     }
 
+    $ownTransaction = ! $pearDB->inTransaction();
     try {
-        $pearDB->beginTransaction();
-
+        if ($ownTransaction) {
+            $pearDB->beginTransaction();
+        }
         $deleteStmt = $pearDB->prepare('DELETE FROM acl_group_actions_relations WHERE acl_group_id = :group_id');
         $deleteStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
         $deleteStmt->execute();
@@ -578,9 +588,11 @@ function updateGroupActions($acl_group_id, $ret = [])
             }
         }
 
-        $pearDB->commit();
+        if ($ownTransaction) {
+            $pearDB->commit();
+        }
     } catch (Throwable $e) {
-        if ($pearDB->inTransaction()) {
+        if ($ownTransaction && $pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
 
@@ -601,9 +613,11 @@ function updateGroupMenus($acl_group_id, $ret = [])
         return;
     }
 
+    $ownTransaction = ! $pearDB->inTransaction();
     try {
-        $pearDB->beginTransaction();
-
+        if ($ownTransaction) {
+            $pearDB->beginTransaction();
+        }
         $deleteStmt = $pearDB->prepare('DELETE FROM acl_group_topology_relations WHERE acl_group_id = :group_id');
         $deleteStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
         $deleteStmt->execute();
@@ -619,9 +633,11 @@ function updateGroupMenus($acl_group_id, $ret = [])
             }
         }
 
-        $pearDB->commit();
+        if ($ownTransaction) {
+            $pearDB->commit();
+        }
     } catch (Throwable $e) {
-        if ($pearDB->inTransaction()) {
+        if ($ownTransaction && $pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
 
@@ -642,9 +658,11 @@ function updateGroupResources($acl_group_id, $ret = [])
         return;
     }
 
+    $ownTransaction = ! $pearDB->inTransaction();
     try {
-        $pearDB->beginTransaction();
-
+        if ($ownTransaction) {
+            $pearDB->beginTransaction();
+        }
         $deleteStmt = $pearDB->prepare(
             'DELETE argr FROM acl_res_group_relations argr'
             . ' JOIN acl_resources ar ON argr.acl_res_id = ar.acl_res_id'
@@ -664,9 +682,11 @@ function updateGroupResources($acl_group_id, $ret = [])
             }
         }
 
-        $pearDB->commit();
+        if ($ownTransaction) {
+            $pearDB->commit();
+        }
     } catch (Throwable $e) {
-        if ($pearDB->inTransaction()) {
+        if ($ownTransaction && $pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
 

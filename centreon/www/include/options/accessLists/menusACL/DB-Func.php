@@ -287,8 +287,8 @@ function multipleLCAInDB($acls = [], $duplicateNbr = [])
             $i++;
             $row['acl_topo_name'] = $aclName;
 
-            $pearDB->beginTransaction();
             try {
+                $pearDB->beginTransaction();
                 foreach ($columns as $col) {
                     $value = $row[$col];
                     $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
@@ -348,8 +348,8 @@ function updateLCAInDB($aclId = null)
         return;
     }
 
-    $pearDB->beginTransaction();
     try {
+        $pearDB->beginTransaction();
         updateLCA($aclId);
         updateLCARelation($aclId);
         updateGroups($aclId);
@@ -384,8 +384,8 @@ function insertLCAInDB()
 {
     global $form, $centreon, $pearDB;
 
-    $pearDB->beginTransaction();
     try {
+        $pearDB->beginTransaction();
         $aclId = insertLCA();
         updateLCARelation($aclId);
         updateGroups($aclId);
@@ -537,10 +537,10 @@ function updateLCARelation($aclId = null)
     }
 
     $ownTransaction = ! $pearDB->inTransaction();
-    if ($ownTransaction) {
-        $pearDB->beginTransaction();
-    }
     try {
+        if ($ownTransaction) {
+            $pearDB->beginTransaction();
+        }
         $prepareDelete = $pearDB->prepare(
             'DELETE FROM acl_topology_relations WHERE acl_topo_id = :acl_id'
         );
@@ -591,10 +591,10 @@ function updateGroups($aclId = null)
     }
 
     $ownTransaction = ! $pearDB->inTransaction();
-    if ($ownTransaction) {
-        $pearDB->beginTransaction();
-    }
     try {
+        if ($ownTransaction) {
+            $pearDB->beginTransaction();
+        }
         $prepareDelete = $pearDB->prepare(
             'DELETE FROM acl_group_topology_relations WHERE acl_topology_id = :acl_id'
         );

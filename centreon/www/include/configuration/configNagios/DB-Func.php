@@ -257,8 +257,8 @@ function multipleNagiosInDB($nagios = [], $nbrDup = [])
                 $value = $row[$col];
                 $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
             }
-            $pearDB->beginTransaction();
             try {
+                $pearDB->beginTransaction();
                 $insertStmt->execute();
 
                 $newNagiosId = (int) $pearDB->lastInsertId();
@@ -639,8 +639,8 @@ function insertNagios($data = [], $brokerTab = [])
         $statement
     );
 
-    $pearDB->beginTransaction();
     try {
+        $pearDB->beginTransaction();
         $statement->execute();
 
         $nagiosId = (int) $pearDB->lastInsertId();
@@ -738,8 +738,8 @@ function updateNagios($nagiosId = null)
         $statement
     );
 
-    $pearDB->beginTransaction();
     try {
+        $pearDB->beginTransaction();
         $statement->execute();
 
         if (isset($nagiosCfg['logger_version']) && $nagiosCfg['logger_version'] === 'log_v2_enabled') {

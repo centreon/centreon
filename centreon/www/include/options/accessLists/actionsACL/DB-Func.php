@@ -78,8 +78,8 @@ function enableActionInDB($aclActionId = null, $actions = [])
         'SELECT acl_action_name FROM acl_actions WHERE acl_action_id = :id LIMIT 1'
     );
 
-    $pearDB->beginTransaction();
     try {
+        $pearDB->beginTransaction();
         foreach ($actions as $key => $value) {
             $sanitizedAclActionId = filter_var($key, FILTER_VALIDATE_INT);
             if ($sanitizedAclActionId === false) {
@@ -137,8 +137,8 @@ function disableActionInDB($aclActionId = null, $actions = [])
         'SELECT acl_action_name FROM acl_actions WHERE acl_action_id = :id LIMIT 1'
     );
 
-    $pearDB->beginTransaction();
     try {
+        $pearDB->beginTransaction();
         foreach ($actions as $key => $value) {
             $sanitizedAclActionId = filter_var($key, FILTER_VALIDATE_INT);
             if ($sanitizedAclActionId === false) {
@@ -188,8 +188,8 @@ function deleteActionInDB($actions = [])
         'SELECT acl_action_name FROM acl_actions WHERE acl_action_id = :id LIMIT 1'
     );
 
-    $pearDB->beginTransaction();
     try {
+        $pearDB->beginTransaction();
         foreach ($actions as $key => $value) {
             $sanitizedAclActionId = filter_var($key, FILTER_VALIDATE_INT);
             if ($sanitizedAclActionId === false) {
@@ -305,8 +305,8 @@ function multipleActionInDB($actions = [], $nbrDup = [])
             }
             $i++;
             $row['acl_action_name'] = $aclActionName;
-            $pearDB->beginTransaction();
             try {
+                $pearDB->beginTransaction();
                 foreach ($columns as $col) {
                     $value = $row[$col];
                     $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
@@ -373,8 +373,8 @@ function insertActionInDB($ret = [])
 {
     global $form, $centreon, $pearDB;
 
-    $pearDB->beginTransaction();
     try {
+        $pearDB->beginTransaction();
         $aclActionId = insertAction($ret);
         updateGroupActions($aclActionId, $ret);
         updateRulesActions($aclActionId, $ret);
@@ -453,8 +453,8 @@ function updateActionInDB($aclActionId = null)
         return;
     }
 
-    $pearDB->beginTransaction();
     try {
+        $pearDB->beginTransaction();
         updateAction($aclActionId);
         updateGroupActions($aclActionId);
         // TODO: updateRulesActions() is called separately from formActionsAccess.php after this function. Should it be moved here?
@@ -521,10 +521,10 @@ function updateGroupActions($aclActionId, $ret = [])
     global $form, $pearDB;
 
     $ownTransaction = ! $pearDB->inTransaction();
-    if ($ownTransaction) {
-        $pearDB->beginTransaction();
-    }
     try {
+        if ($ownTransaction) {
+            $pearDB->beginTransaction();
+        }
         $deleteStmt = $pearDB->prepare('DELETE FROM acl_group_actions_relations WHERE acl_action_id = :acl_action_id');
         $deleteStmt->bindValue(':acl_action_id', (int) $aclActionId, PDO::PARAM_INT);
         $deleteStmt->execute();
@@ -565,10 +565,10 @@ function updateRulesActions($aclActionId, $ret = [])
     }
 
     $ownTransaction = ! $pearDB->inTransaction();
-    if ($ownTransaction) {
-        $pearDB->beginTransaction();
-    }
     try {
+        if ($ownTransaction) {
+            $pearDB->beginTransaction();
+        }
         $deleteStmt = $pearDB->prepare('DELETE FROM acl_actions_rules WHERE acl_action_rule_id = :acl_action_rule_id');
         $deleteStmt->bindValue(':acl_action_rule_id', (int) $aclActionId, PDO::PARAM_INT);
         $deleteStmt->execute();

@@ -234,8 +234,8 @@ function checkPicture(
     );
 
     if ($statement->fetch() === false) {
-        $pearDB->beginTransaction();
         try {
+            $pearDB->beginTransaction();
             $pearDB->executePreparedQuery(
                 $pearDB->prepareQuery(
                     'INSERT INTO view_img (`img_name`, `img_path`) VALUES (:img_name, :img_path)'

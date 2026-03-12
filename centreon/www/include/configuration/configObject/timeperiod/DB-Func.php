@@ -292,10 +292,10 @@ function duplicateTimePeriod(array $params): int
     global $pearDB;
 
     $isAlreadyInTransaction = $pearDB->inTransaction();
-    if (! $isAlreadyInTransaction) {
-        $pearDB->beginTransaction();
-    }
     try {
+        if (! $isAlreadyInTransaction) {
+            $pearDB->beginTransaction();
+        }
         $params['tp_id'] = createTimePeriod($params);
         createTimePeriodsExceptions($params);
         createTimePeriodsIncludeRelations($params);

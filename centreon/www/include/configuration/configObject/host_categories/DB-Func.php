@@ -359,8 +359,8 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
                 }
                 $i++;
 
-                $pearDB->beginTransaction();
                 try {
+                    $pearDB->beginTransaction();
                     $qbInsert = $pearDB->createQueryBuilder()
                         ->insert('hostcategories')
                         ->values([
@@ -640,8 +640,8 @@ function updateHostCategoriesHosts(?int $hcId, array $ret = []): void
         throw new RepositoryException('Host category ID is required for relation update');
     }
 
-    $pearDB->beginTransaction();
     try {
+        $pearDB->beginTransaction();
         // Delete old relations
         $pearDB->delete(
             $pearDB->createQueryBuilder()
