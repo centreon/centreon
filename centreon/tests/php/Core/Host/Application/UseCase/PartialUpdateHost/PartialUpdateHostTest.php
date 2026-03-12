@@ -527,95 +527,6 @@ it('should present a ConflictResponse when the host icon ID is not valid', funct
         );
 });
 
-// Tests for categories
-
-it('should present a ConflictResponse when a host category does not exist', function (): void {
-    $this->request->checkCommandId = null;
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(true);
-    $this->user
-        ->expects($this->exactly(2))
-        ->method('isAdmin')
-        ->willReturn(true);
-    $this->readHostRepository
-        ->expects($this->once())
-        ->method('findById')
-        ->willReturn($this->originalHost);
-
-    // Host
-    $this->optionService
-        ->expects($this->once())
-        ->method('findSelectedOptions')
-        ->willReturn([$this->inheritanceModeOption]);
-    $this->writeHostRepository
-        ->expects($this->once())
-        ->method('update');
-
-    // Categories
-    $this->validation
-        ->expects($this->once())
-        ->method('assertAreValidCategories')
-        ->willThrowException(HostException::idsDoNotExist('categories', $this->request->categories));
-
-    ($this->useCase)($this->request, $this->presenter, $this->hostId);
-
-    expect($this->presenter->response)
-        ->toBeInstanceOf(ConflictResponse::class)
-        ->and($this->presenter->response->getMessage())
-        ->toBe(HostException::idsDoNotExist('categories', $this->request->categories)->getMessage());
-});
-
-// Tests for groups
-
-it('should present a ConflictResponse when a host group does not exist', function (): void {
-    $this->request->checkCommandId = null;
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(true);
-    $this->user
-        ->expects($this->exactly(3))
-        ->method('isAdmin')
-        ->willReturn(true);
-    $this->readHostRepository
-        ->expects($this->once())
-        ->method('findById')
-        ->willReturn($this->originalHost);
-
-    // Host
-    $this->optionService
-        ->expects($this->once())
-        ->method('findSelectedOptions')
-        ->willReturn([$this->inheritanceModeOption]);
-    $this->writeHostRepository
-        ->expects($this->once())
-        ->method('update');
-
-    // Categories
-    $this->readHostCategoryRepository
-        ->expects($this->once())
-        ->method('findByHost')
-        ->willReturn([]);
-    $this->writeHostCategoryRepository
-        ->expects($this->once())
-        ->method('linkToHost');
-
-    // Groups
-    $this->validation
-        ->expects($this->once())
-        ->method('assertAreValidGroups')
-        ->willThrowException(HostException::idsDoNotExist('groups', $this->request->groups));
-
-    ($this->useCase)($this->request, $this->presenter, $this->hostId);
-
-    expect($this->presenter->response)
-        ->toBeInstanceOf(ConflictResponse::class)
-        ->and($this->presenter->response->getMessage())
-        ->toBe(HostException::idsDoNotExist('groups', $this->request->groups)->getMessage());
-});
-
 // Tests for parents templates
 
 it('should present a ConflictResponse when a parent template ID is not valid', function (): void {
@@ -779,9 +690,6 @@ it('should present a NoContentResponse on success', function (): void {
         ->method('update');
 
     // Categories
-    $this->validation
-        ->expects($this->once())
-        ->method('assertAreValidCategories');
     $this->readHostCategoryRepository
         ->expects($this->once())
         ->method('findByHost')
@@ -794,9 +702,6 @@ it('should present a NoContentResponse on success', function (): void {
         ->method('unlinkFromHost');
 
     // Groups
-    $this->validation
-        ->expects($this->once())
-        ->method('assertAreValidGroups');
     $this->readHostGroupRepository
         ->expects($this->once())
         ->method('findByHost')
