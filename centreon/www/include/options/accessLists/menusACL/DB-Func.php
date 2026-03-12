@@ -525,9 +525,8 @@ function updateLCA($aclId = null)
  *
  * @global HTML_QuickFormCustom $form
  * @global \CentreonDB $pearDB
- * @param type $acl_id
- * @param null|mixed $aclId
- * @return type
+ * @param int|null $aclId
+ * @return void
  */
 function updateLCARelation($aclId = null)
 {
@@ -581,9 +580,8 @@ function updateLCARelation($aclId = null)
  *
  * @global HTML_QuickFormCustom $form
  * @global \CentreonDB $pearDB
- * @param type $acl_id
- * @param null|mixed $aclId
- * @return type
+ * @param int|null $aclId
+ * @return void
  */
 function updateGroups($aclId = null)
 {
@@ -604,12 +602,12 @@ function updateGroups($aclId = null)
         $prepareDelete->execute();
 
         $submitedValues = $form->getSubmitValue('acl_groups');
-        if (isset($submitedValues)) {
+        if (is_array($submitedValues)) {
             $insertStmt = $pearDB->prepare(
                 'INSERT INTO acl_group_topology_relations (acl_topology_id, acl_group_id)
                 VALUES (:aclId, :value)'
             );
-            foreach ($submitedValues as $key => $value) {
+            foreach ($submitedValues as $value) {
                 if (isset($value)) {
                     $insertStmt->bindValue(':aclId', $aclId, PDO::PARAM_INT);
                     $insertStmt->bindValue(':value', $value, PDO::PARAM_INT);

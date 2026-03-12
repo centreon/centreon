@@ -141,15 +141,25 @@ function getCentreonBrokerInformation($id)
 {
     global $pearDB;
     $defaultBrokerConf = [
+        'id' => $id,
         'name' => '',
         'filename' => '',
-        'log_directory' => '/var/log/centreon-broker/',
+        'ns_nagios_server' => null,
+        'activate' => '1',
+        'activate_watchdog' => '1',
+        'stats_activate' => null,
         'write_timestamp' => '1',
         'write_thread_id' => '1',
-        'activate_watchdog' => '1',
-        'activate' => '1',
         'event_queue_max_size' => '',
+        'event_queues_total_size' => null,
+        'cache_directory' => null,
+        'command_file' => null,
+        'daemon' => null,
         'pool_size' => null,
+        'log_directory' => '/var/log/centreon-broker/',
+        'log_filename' => null,
+        'log_max_size' => null,
+        'bbdo_version' => null,
     ];
 
     $query
@@ -171,8 +181,7 @@ function getCentreonBrokerInformation($id)
     if ($row === false) {
         return $defaultBrokerConf;
     }
-    if (! isset($brokerConf)) {
-        $brokerConf = [
+    $brokerConf = [
             'id' => $id,
             'name' => $row['config_name'],
             'filename' => $row['config_filename'],
@@ -193,7 +202,6 @@ function getCentreonBrokerInformation($id)
             'log_max_size' => $row['log_max_size'],
             'bbdo_version' => $row['bbdo_version'],
         ];
-    }
     // Log
     $brokerLogConf = [];
     $query = 'SELECT log.`name`, relation.`id_level`

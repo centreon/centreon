@@ -33,7 +33,7 @@ function testExistence($name = null, bool $excludeCurrentFormId = true)
         $query .= ' AND nagios_id <> :nagiosId';
     }
     $statement = $pearDB->prepare($query . ' LIMIT 1');
-    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    $statement->bindValue(':name', encodeFieldNagios((string) $name, 'nagios_name'), PDO::PARAM_STR);
     if ($id !== null) {
         $statement->bindValue(':nagiosId', (int) $id, PDO::PARAM_INT);
     }
@@ -239,14 +239,15 @@ function multipleNagiosInDB($nagios = [], $nbrDup = [])
         );
 
         $originalName = $row['nagios_name'];
+        $decodedName = html_entity_decode($originalName, ENT_QUOTES, 'UTF-8');
         $dupCount = filter_var($nbrDup[$originalNagiosId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
         if ($dupCount === false) {
             continue;
         }
         $suffix = 1;
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
-            $nagios_name = $originalName . '_' . $suffix;
-            $row['nagios_name'] = $nagios_name;
+            $nagios_name = $decodedName . '_' . $suffix;
+            $row['nagios_name'] = encodeFieldNagios($nagios_name, 'nagios_name');
 
             if (! testExistence($nagios_name, false)) {
                 continue;

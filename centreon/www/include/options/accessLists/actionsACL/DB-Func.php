@@ -388,7 +388,7 @@ function insertActionInDB($ret = [])
         throw $e;
     }
     $ret = $form->getSubmitValues();
-    flagUpdatedAclForAuthentifiedUsers($ret['acl_groups']);
+    flagUpdatedAclForAuthentifiedUsers($ret['acl_groups'] ?? []);
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog('action access', $aclActionId, $ret['acl_action_name'], 'a', $fields);
 
@@ -457,6 +457,7 @@ function updateActionInDB($aclActionId = null)
     try {
         updateAction($aclActionId);
         updateGroupActions($aclActionId);
+        // TODO: updateRulesActions() is called separately from formActionsAccess.php after this function. Should it be moved here?
 
         $pearDB->commit();
     } catch (Throwable $e) {
@@ -467,7 +468,7 @@ function updateActionInDB($aclActionId = null)
         throw $e;
     }
     $ret = $form->getSubmitValues();
-    flagUpdatedAclForAuthentifiedUsers($ret['acl_groups']);
+    flagUpdatedAclForAuthentifiedUsers($ret['acl_groups'] ?? []);
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog('action access', $aclActionId, $ret['acl_action_name'], 'c', $fields);
 }
@@ -527,7 +528,7 @@ function updateGroupActions($aclActionId, $ret = [])
         $deleteStmt = $pearDB->prepare('DELETE FROM acl_group_actions_relations WHERE acl_action_id = :acl_action_id');
         $deleteStmt->bindValue(':acl_action_id', (int) $aclActionId, PDO::PARAM_INT);
         $deleteStmt->execute();
-        if (isset($_POST['acl_groups'])) {
+        if (isset($_POST['acl_groups']) && is_array($_POST['acl_groups'])) {
             $insertStmt = $pearDB->prepare(
                 'INSERT INTO acl_group_actions_relations (acl_group_id, acl_action_id) VALUES (:group_id, :action_id)'
             );
