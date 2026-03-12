@@ -47,10 +47,39 @@ env:
   e2e_directory: centreon/tests/e2e
 
 jobs:
+  check-actor:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Skip workflow if weblate-service-account only changed translation files
+        if: github.actor == 'weblate-service-account'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            FILES=$(gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" --paginate --jq '.[].filename')
+          elif [[ "${{ github.event_name }}" == "push" ]]; then
+            if [[ "${{ github.event.before }}" == "0000000000000000000000000000000000000000" ]]; then
+              BASE="develop"
+            else
+              BASE="${{ github.event.before }}"
+            fi
+            FILES=$(gh api "repos/${{ github.repository }}/compare/${BASE}...${{ github.sha }}" --jq '.files[].filename')
+          else
+            echo "Event '${{ github.event_name }}' or initial push — not skipping."
+            exit 0
+          fi
+          NON_TRANSLATION=$(echo "$FILES" | grep -vE '\.pot?$' || true)
+          if [[ -z "$NON_TRANSLATION" ]]; then
+            echo "Only .po/.pot files changed by weblate-service-account — skipping workflow."
+            exit 1
+          fi
+          echo "Non-translation files detected — proceeding."
+
   dependency-scan:
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
   dispatch-to-maintenance-branches:
+    needs: [check-actor]
     if: |
       github.run_attempt == 1 &&
       github.event_name == 'schedule' &&
@@ -68,7 +97,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   get-environment:
-    needs: [dependency-scan]
+    needs: [dependency-scan, check-actor]
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
