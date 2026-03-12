@@ -448,33 +448,35 @@ function insertResource($ret = [])
     $statement->bindValue(':is_password', (int) $ret['is_password'], PDO::PARAM_INT);
 
     try {
+        $pearDB->beginTransaction();
         $statement->execute();
 
         $resource_id = (int) $pearDB->lastInsertId();
         if ($resource_id <= 0) {
-            if ($vaultPath !== null) {
-                deleteFromVault(['resource_line' => $vaultPath, 'resource_name' => $ret['resource_name']]);
-            }
-
-            return 0;
+            throw new RuntimeException('Unable to retrieve inserted resource id');
         }
 
-        // Prepare value for changelog
-        $fields = CentreonLogAction::prepareChanges($ret);
-        $centreon->CentreonLogAction->insertLog(
-            'resource',
-            $resource_id,
-            $ret['resource_name'],
-            'a',
-            $fields
-        );
+        $pearDB->commit();
     } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
         if ($vaultPath !== null) {
             deleteFromVault(['resource_line' => $vaultPath, 'resource_name' => $ret['resource_name']]);
         }
 
         throw $e;
     }
+
+    // Prepare value for changelog
+    $fields = CentreonLogAction::prepareChanges($ret);
+    $centreon->CentreonLogAction->insertLog(
+        'resource',
+        $resource_id,
+        $ret['resource_name'],
+        'a',
+        $fields
+    );
 
     return $resource_id;
 }
