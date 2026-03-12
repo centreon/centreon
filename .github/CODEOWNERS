@@ -33,7 +33,6 @@ tsconfig.json                           @centreon/owners-react
 *.ts                                    @centreon/owners-react
 *.tsx                                   @centreon/owners-react
 *.jsx                                   @centreon/owners-react
-**/cypress/**                           @centreon/owners-react
 
 *.pm                                    @centreon/owners-perl
 *.pl                                    @centreon/owners-perl
@@ -58,6 +57,8 @@ dependencies/**                         @centreon/owners-pipelines
 
 **/tests/rest_api/**                    @centreon/owners-api-testing
 
-.gitleaks.toml                          @centreon/owners-security
-.gitleaksignore                         @centreon/owners-security
-**/secu-*.yml                           @centreon/owners-security
+# Security Codeowners rules
+.gitleaks.toml                @centreon/owners-security
+.gitleaksignore               @centreon/owners-security
+.githooks/pre-commit          @centreon/owners-security
+**/secu-*.yml                 @centreon/owners-security
