@@ -498,7 +498,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                     }
 
                     $pearDB->commitTransaction();
-                } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+                } catch (Throwable $exception) {
                     if ($pearDB->isTransactionActive()) {
                         $pearDB->rollBackTransaction();
                     }
@@ -509,7 +509,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                 if ($newMetaId) {
                     updateAclResourcesMetaRelations($newMetaId);
                 }
-            } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+            } catch (ValueObjectException|CollectionException|ConnectionException|RuntimeException $exception) {
                 CentreonLog::create()->error(
                     CentreonLog::TYPE_SQL,
                     'Error duplicating meta_service',

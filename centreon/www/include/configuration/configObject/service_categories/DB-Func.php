@@ -512,10 +512,6 @@ function updateServiceCategoriesServices(int $sc_id)
     if (! $sc_id) {
         return;
     }
-    if (! isset($_POST['sc_svcTpl']) || ! is_array($_POST['sc_svcTpl'])) {
-        return;
-    }
-    $serviceIds = $_POST['sc_svcTpl'];
 
     try {
         $pearDB->beginTransaction();
@@ -527,17 +523,20 @@ function updateServiceCategoriesServices(int $sc_id)
         $statement->bindValue(':sc_id', $sc_id, PDO::PARAM_INT);
         $statement->execute();
 
-        $insertStmt = $pearDB->prepare('
-            INSERT INTO service_categories_relation (service_service_id, sc_id)
-            VALUES (:service_id, :sc_id)');
-        foreach ($serviceIds as $serviceId) {
-            $serviceId = filter_var($serviceId, FILTER_VALIDATE_INT);
-            if ($serviceId === false) {
-                continue;
+        $serviceIds = $_POST['sc_svcTpl'] ?? null;
+        if (is_array($serviceIds)) {
+            $insertStmt = $pearDB->prepare('
+                INSERT INTO service_categories_relation (service_service_id, sc_id)
+                VALUES (:service_id, :sc_id)');
+            foreach ($serviceIds as $serviceId) {
+                $serviceId = filter_var($serviceId, FILTER_VALIDATE_INT);
+                if ($serviceId === false) {
+                    continue;
+                }
+                $insertStmt->bindValue(':service_id', $serviceId, PDO::PARAM_INT);
+                $insertStmt->bindValue(':sc_id', $sc_id, PDO::PARAM_INT);
+                $insertStmt->execute();
             }
-            $insertStmt->bindValue(':service_id', $serviceId, PDO::PARAM_INT);
-            $insertStmt->bindValue(':sc_id', $sc_id, PDO::PARAM_INT);
-            $insertStmt->execute();
         }
 
         $pearDB->commit();
