@@ -261,15 +261,22 @@ class CentreonGraph
 
         // Get RRDCacheD options
         $result = $this->DB->query(
-            "SELECT config_key, config_value
-            FROM cfg_centreonbroker_info AS cbi
-            INNER JOIN cfg_centreonbroker AS cb ON (cb.config_id = cbi.config_id)
-            INNER JOIN nagios_server AS ns ON (ns.id = cb.ns_nagios_server)
+            "SELECT JSON_UNQUOTE(JSON_EXTRACT(bio.parameters, '$.rrd_cached_option')) AS rrd_cached_option,
+                    JSON_UNQUOTE(JSON_EXTRACT(bio.parameters, '$.rrd_cached')) AS rrd_cached
+            FROM cfg_broker_input_output AS bio
+            INNER JOIN cfg_centreonbroker AS cb ON cb.config_id = bio.config_id
+            INNER JOIN nagios_server AS ns ON ns.id = cb.ns_nagios_server
             WHERE ns.localhost = '1'
-            AND cbi.config_key IN ('rrd_cached_option', 'rrd_cached')"
+            AND JSON_EXTRACT(bio.parameters, '$.rrd_cached_option') IS NOT NULL
+            LIMIT 1"
         );
-        while ($row = $result->fetch()) {
-            $this->rrdCachedOptions[$row['config_key']] = $row['config_value'];
+        if ($row = $result->fetch()) {
+            if ($row['rrd_cached_option'] !== null) {
+                $this->rrdCachedOptions['rrd_cached_option'] = $row['rrd_cached_option'];
+            }
+            if ($row['rrd_cached'] !== null) {
+                $this->rrdCachedOptions['rrd_cached'] = $row['rrd_cached'];
+            }
         }
 
         if (isset($index)) {
