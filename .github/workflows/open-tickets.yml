@@ -325,9 +325,16 @@ jobs:
           - package_extension: rpm
             image: packaging-nfpm-alma9
             distrib: el9
+          - package_extension: rpm
+            image: packaging-nfpm-alma10
+            distrib: el10
           - package_extension: deb
-            image: packaging-nfpm-bookworm
-            distrib: bookworm
+            image: packaging-nfpm-trixie
+            distrib: trixie
+
+          # - package_extension: deb
+          #   image: packaging-nfpm-bookworm
+          #   distrib: bookworm
           # - package_extension: deb
           #   image: packaging-nfpm-jammy
           #   distrib: jammy
@@ -390,7 +397,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        operating_system: [alma9]
+        operating_system: [alma9, alma10]
 
     name: dockerize ${{ matrix.operating_system }}
 
@@ -404,7 +411,13 @@ jobs:
           if [ "${{ matrix.operating_system }}" = "alma9" ]; then
             DISTRIB=el9
             PACKAGE_EXTENSION=rpm
+          elif [ "${{ matrix.operating_system }}" = "alma10" ]; then
+            DISTRIB=el10
+            PACKAGE_EXTENSION=rpm
           elif [ "${{ matrix.operating_system }}" = "bookworm" ]; then
+            DISTRIB=bookworm
+            PACKAGE_EXTENSION=deb
+          elif [ "${{ matrix.operating_system }}" = "trixie" ]; then
             DISTRIB=bookworm
             PACKAGE_EXTENSION=deb
           elif [ "${{ matrix.operating_system }}" = "jammy" ]; then
@@ -596,7 +609,7 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [el9]
+        distrib: [el9, el10]
 
     steps:
       - name: Checkout sources
@@ -630,7 +643,7 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [bookworm]
+        distrib: [trixie]
     steps:
       - name: Checkout sources
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -659,7 +672,7 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [el9, bookworm]
+        distrib: [el9, el10, trixie]
 
     steps:
       - name: Checkout sources
