@@ -33,10 +33,10 @@ use PDO;
 class BrokerInfo extends AbstractObject
 {
     /** @var string */
-    protected $table = 'cfg_centreonbroker_info';
+    protected $table = 'cfg_broker_input_output';
 
     /** @var string */
-    protected $generateFilename = 'cfg_centreonbroker_info.infile';
+    protected $generateFilename = 'cfg_broker_input_output.infile';
 
     /** @var null */
     protected $stmtBrokerInfo = null;
@@ -44,14 +44,11 @@ class BrokerInfo extends AbstractObject
     /** @var string[] */
     protected $attributesWrite = [
         'config_id',
-        'config_key',
-        'config_value',
-        'config_group',
-        'config_group_id',
-        'grp_level',
-        'subgrp_id',
-        'parent_grp_id',
-        'fieldIndex',
+        'tag',
+        'type_id',
+        'type_name',
+        'name',
+        'parameters',
     ];
 
     /** @var int */
@@ -114,7 +111,7 @@ class BrokerInfo extends AbstractObject
         if (is_null($this->stmtBrokerInfo)) {
             $this->stmtBrokerInfo = $this->backendInstance->db->prepare(
                 'SELECT *
-                FROM cfg_centreonbroker_info
+                FROM cfg_broker_input_output
                 WHERE config_id = :config_id'
             );
         }
@@ -140,7 +137,7 @@ class BrokerInfo extends AbstractObject
     {
         $stmt = $this->backendInstance->db->prepare(
             'SELECT *
-             FROM cfg_centreonbroker_info'
+             FROM cfg_broker_input_output'
         );
 
         $stmt->execute();

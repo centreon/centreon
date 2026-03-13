@@ -71,19 +71,6 @@ class Broker extends AbstractObjectJSON
     ';
 
     /** @var string */
-    protected $attributes_select_parameters = '
-        config_group,
-        config_group_id,
-        config_id,
-        config_key,
-        config_value,
-        grp_level,
-        subgrp_id,
-        parent_grp_id,
-        fieldIndex
-    ';
-
-    /** @var string */
     protected $attributes_engine_parameters = '
         id,
         name,
@@ -231,12 +218,14 @@ class Broker extends AbstractObjectJSON
         $this->getEngineParameters($pollerId);
 
         if (is_null($this->stmt_broker_parameters)) {
-            $this->stmt_broker_parameters = $this->backend_instance->db->prepare("SELECT
-              {$this->attributes_select_parameters}
-            FROM cfg_centreonbroker_info
-            WHERE config_id = :config_id
-            ORDER BY config_group, config_group_id
-            ");
+            $this->stmt_broker_parameters = $this->backend_instance->db->prepare('
+                SELECT bio.id, bio.tag, bio.type_id, bio.type_name, bio.name, bio.parameters,
+                       ct.cb_tag_id
+                FROM cfg_broker_input_output bio
+                LEFT JOIN cb_tag ct ON ct.tagname = bio.tag
+                WHERE bio.config_id = :config_id
+                ORDER BY bio.tag, bio.id
+            ');
         }
 
         $watchdog = [];
@@ -281,7 +270,7 @@ class Broker extends AbstractObjectJSON
 
             $this->stmt_broker_parameters->bindParam(':config_id', $row['config_id'], PDO::PARAM_INT);
             $this->stmt_broker_parameters->execute();
-            $resultParameters = $this->stmt_broker_parameters->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_ASSOC);
+            $resultParameters = $this->stmt_broker_parameters->fetchAll(PDO::FETCH_ASSOC);
 
             // logger
             $object['log']['directory'] = HtmlAnalyzer::sanitizeAndRemoveTags($row['log_directory']);
@@ -291,115 +280,75 @@ class Broker extends AbstractObjectJSON
             $logs = $this->cacheLogValue[$object['broker_id']];
             $object['log']['loggers'] = $logs;
 
-            $reindexedObjectKeys = [];
-
             // Flow parameters
-            foreach ($resultParameters as $key => $value) {
-                // We search the BlockId
-                $blockId = 0;
-                for ($i = count($value); $i > 0; $i--) {
-                    if (isset($value[$i]['config_key']) && $value[$i]['config_key'] == 'blockId') {
-                        $blockId = $value[$i]['config_value'];
-                        $configGroupId = $value[$i]['config_group_id'];
-                        break;
+            foreach ($resultParameters as $flowRow) {
+                $tag     = $flowRow['tag'];
+                $typeId  = $flowRow['type_id'];
+                $blockId = $flowRow['cb_tag_id'] . '_' . $typeId;
+                $params  = json_decode($flowRow['parameters'], true) ?? [];
+
+                $flow = [
+                    'name' => $flowRow['name'],
+                    'type' => $flowRow['type_name'],
+                ];
+
+                // rrd_cached_option + rrd_cached → port or path
+                $rrdCacheOption = $params['rrd_cached_option'] ?? null;
+                $rrdCached      = $params['rrd_cached'] ?? null;
+                if ($rrdCached && $rrdCacheOption) {
+                    if ($rrdCacheOption === 'tcp') {
+                        $flow['port'] = $rrdCached;
+                    } elseif ($rrdCacheOption === 'unix') {
+                        $flow['path'] = $rrdCached;
                     }
                 }
+                unset($params['rrd_cached_option'], $params['rrd_cached']);
 
-                $subValuesToCastInArray = [];
-                $rrdCacheOption = null;
-                $rrdCached = null;
-                foreach ($value as $subvalue) {
-                    if (
-                        ! isset($subvalue['fieldIndex'])
-                        || $subvalue['fieldIndex'] == ''
-                        || is_null($subvalue['fieldIndex'])
-                    ) {
-                        if (in_array($subvalue['config_key'], $this->exclude_parameters)) {
-                            continue;
-                        }
-                        if (trim($subvalue['config_value']) == ''
-                            && ! in_array(
-                                $subvalue['config_key'],
-                                $this->authorized_empty_field
-                            )
-                        ) {
-                            continue;
-                        }
-                        if (in_array($subvalue['config_key'], ['category', 'event'])) {
-                            $object[$key][$subvalue['config_group_id']]['filters'][$subvalue['config_key']][]
-                                = $subvalue['config_value'];
-                        } elseif (in_array($subvalue['config_key'], ['rrd_cached_option', 'rrd_cached'])) {
-                            if ($subvalue['config_key'] === 'rrd_cached_option') {
-                                $rrdCacheOption = $subvalue['config_value'];
-                            } elseif ($subvalue['config_key'] === 'rrd_cached') {
-                                $rrdCached = $subvalue['config_value'];
-                            }
-                            if ($rrdCached && $rrdCacheOption) {
-                                if ($rrdCacheOption === 'tcp') {
-                                    $object[$key][$subvalue['config_group_id']]['port'] = $rrdCached;
-                                } elseif ($rrdCacheOption === 'unix') {
-                                    $object[$key][$subvalue['config_group_id']]['path'] = $rrdCached;
-                                }
-                            }
-                        } else {
-                            $object[$key][$subvalue['config_group_id']][$subvalue['config_key']]
-                                = $subvalue['config_value'];
+                // filters_category → filters.category array
+                if (isset($params['filters_category'])) {
+                    $flow['filters']['category'] = $params['filters_category'];
+                    unset($params['filters_category']);
+                }
 
-                            // We override with external values
-                            if (isset($this->cacheExternalValue[$subvalue['config_key'] . '_' . $blockId])) {
-                                $object[$key][$subvalue['config_group_id']][$subvalue['config_key']]
-                                    = $this->getInfoDb(
-                                        $this->cacheExternalValue[$subvalue['config_key'] . '_' . $blockId]
-                                    );
-                            }
-                            // Let broker insert in index data in pollers
-                            if (
-                                $subvalue['config_key'] === 'type'
-                                && $subvalue['config_value'] === 'storage'
-                                && ! $localhost
-                            ) {
-                                $object[$key][$subvalue['config_group_id']]['insert_in_index_data'] = 'yes';
-                            }
-                        }
-                    } else {
-                        $res = explode('__', $subvalue['config_key'], 3);
-                        $object[$key][$subvalue['config_group_id']][$res[0]][(int) $subvalue['fieldIndex']][$res[1]]
-                            = $subvalue['config_value'];
-                        $subValuesToCastInArray[$subvalue['config_group_id']][] = $res[0];
+                // Remaining parameters
+                foreach ($params as $key => $value) {
+                    if (is_array($value)) {
+                        $flow[$key] = $value;
+                        continue;
+                    }
+                    if (trim((string) $value) === '' && ! in_array($key, $this->authorized_empty_field)) {
+                        continue;
+                    }
+                    if (isset($this->cacheExternalValue[$key . '_' . $blockId])) {
+                        $value = $this->getInfoDb($this->cacheExternalValue[$key . '_' . $blockId]);
+                    }
+                    $flow[$key] = $value;
+                }
 
-                        if ((strcmp(
-                            $object[$key][$subvalue['config_group_id']]['name'],
-                            'forward-to-anomaly-detection'
-                        ) == 0)
-                            && (strcmp(
-                                $object[$key][$subvalue['config_group_id']]['path'],
-                                '/usr/share/centreon-broker/lua/centreon-anomaly-detection.lua'
-                            ) == 0)
-                        ) {
-                            $anomalyDetectionLuaOutputGroupID = $subvalue['config_group_id'];
+                // Let broker insert in index data in pollers
+                if ($flowRow['type_name'] === 'storage' && ! $localhost) {
+                    $flow['insert_in_index_data'] = 'yes';
+                }
+
+                // External values for any missing field
+                foreach ($this->cacheExternalValue as $extKey => $extValue) {
+                    if (preg_match('/^(.+)_' . preg_quote($blockId, '/') . '$/', $extKey, $m)) {
+                        if (! isset($flow[$m[1]])) {
+                            $flow[$m[1]] = $this->getInfoDb($extValue);
                         }
                     }
                 }
 
-                // Check if we need to add values from external
-                foreach ($this->cacheExternalValue as $key2 => $value2) {
-                    if (preg_match('/^(.+)_' . $blockId . '$/', $key2, $matches)) {
-                        if (! isset($object[$configGroupId][$key][$matches[1]])) {
-                            $object[$key][$configGroupId][$matches[1]]
-                                = $this->getInfoDb($value2);
-                        }
-                    }
+                // Track anomaly detection lua output index
+                if (
+                    $tag === 'output'
+                    && ($flow['name'] ?? '') === 'forward-to-anomaly-detection'
+                    && ($flow['path'] ?? '') === '/usr/share/centreon-broker/lua/centreon-anomaly-detection.lua'
+                ) {
+                    $anomalyDetectionLuaOutputGroupID = count($object['output'] ?? []);
                 }
 
-                // cast into arrays instead of objects with integer as key
-                foreach ($subValuesToCastInArray as $configGroupId => $subValues) {
-                    foreach ($subValues as $subValue) {
-                        $object[$key][$configGroupId][$subValue]
-                            = array_values($object[$key][$configGroupId][$subValue]);
-                    }
-                }
-
-                $reindexedObjectKeys[] = $key;
+                $object[$tag][] = $flow;
             }
 
             // Stats parameters
@@ -428,13 +377,6 @@ class Broker extends AbstractObjectJSON
             $object['grpc'] = [
                 'port' => 51000 + (int) $row['config_id'],
             ];
-
-            // Force as list-array eventually wrong indexed object keys (input, output)
-            foreach ($reindexedObjectKeys as $key) {
-                if (is_array($object[$key])) {
-                    $object[$key] = array_values($object[$key]);
-                }
-            }
 
             // Remove unnecessary element form inputs and output for stream types bbdo
             $object = $this->cleanBbdoStreams($object);
