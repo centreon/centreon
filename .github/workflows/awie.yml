@@ -199,7 +199,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el9, bookworm]
+        distrib: [el9, el10, trixie]
         include:
           - package_extension: rpm
             image: packaging-nfpm-alma9
