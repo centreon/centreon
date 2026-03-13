@@ -47,46 +47,6 @@ env:
   e2e_directory: centreon/tests/e2e
 
 jobs:
-  check-actor:
-    runs-on: ubuntu-24.04
-    outputs:
-      should_skip: ${{ steps.check.outputs.should_skip }}
-    steps:
-      - name: Check if weblate-service-account only changed translation files
-        id: check
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if [[ "${{ github.actor }}" != "weblate-service-account" ]]; then
-            echo "Actor is not weblate-service-account — not skipping."
-            echo "should_skip=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            FILES=$(gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" --paginate --jq '.[].filename')
-          elif [[ "${{ github.event_name }}" == "push" ]]; then
-            if [[ "${{ github.event.before }}" == "0000000000000000000000000000000000000000" ]]; then
-              BASE="develop"
-            else
-              BASE="${{ github.event.before }}"
-            fi
-            FILES=$(gh api "repos/${{ github.repository }}/compare/${BASE}...${{ github.sha }}" --jq '.files[].filename')
-          else
-            echo "Event '${{ github.event_name }}' — not skipping."
-            echo "should_skip=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          NON_TRANSLATION=$(echo "$FILES" | grep -vE '\.pot?$' || true)
-          if [[ -z "$NON_TRANSLATION" ]]; then
-            echo "Only .po/.pot files changed by weblate-service-account — skipping lint and test jobs."
-            echo "should_skip=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "Non-translation files detected — proceeding."
-            echo "should_skip=false" >> "$GITHUB_OUTPUT"
-          fi
-
   dependency-scan:
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
@@ -142,7 +102,6 @@ jobs:
         "centreon/cron/**"
         "centreon/doc/API/**"
         "centreon/GPL_LIB/**"
-        "centreon/lang/**"
         "centreon/lib/**"
         "centreon/libinstall/**"
         "centreon/logrotate/**"
@@ -196,6 +155,8 @@ jobs:
         "centreon/www/install/**"
         "centreon/packaging/**"
         "centreon/tests/e2e/features/Platform-upgrade-update/**"
+      translation_paths: |
+        "centreon/lang/**"
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
       base_sha: ${{ needs.get-environment.outputs.previous_release_bundle_tag }}
       labels: ${{ needs.get-environment.outputs.labels }}
@@ -455,9 +416,8 @@ jobs:
 
   frontend-web-lint:
     runs-on: ubuntu-24.04
-    needs: [changes, get-environment, check-actor]
+    needs: [changes, get-environment]
     if: |
-      needs.check-actor.outputs.should_skip != 'true' &&
       needs.changes.outputs.trigger_frontend_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
@@ -474,9 +434,8 @@ jobs:
 
   frontend-unit-test:
     runs-on: ubuntu-24.04
-    needs: [changes, get-environment, check-actor]
+    needs: [changes, get-environment]
     if: |
-      needs.check-actor.outputs.should_skip != 'true' &&
       needs.changes.outputs.trigger_frontend_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
@@ -513,9 +472,8 @@ jobs:
           path: "centreon/junit.xml"
 
   frontend-component-test:
-    needs: [changes, get-environment, check-actor]
+    needs: [changes, get-environment]
     if: |
-      needs.check-actor.outputs.should_skip != 'true' &&
       needs.changes.outputs.trigger_frontend_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
@@ -535,9 +493,8 @@ jobs:
 
   backend-unit-test:
     runs-on: ubuntu-24.04
-    needs: [changes, get-environment, check-actor]
+    needs: [changes, get-environment]
     if: |
-      needs.check-actor.outputs.should_skip != 'true' &&
       needs.changes.outputs.trigger_backend_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
@@ -582,9 +539,8 @@ jobs:
 
   backend-lint:
     runs-on: ubuntu-24.04
-    needs: [changes, get-environment, check-actor]
+    needs: [changes, get-environment]
     if: |
-      needs.check-actor.outputs.should_skip != 'true' &&
       needs.changes.outputs.trigger_backend_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
@@ -724,9 +680,8 @@ jobs:
 
   gherkin-lint:
     runs-on: ubuntu-24.04
-    needs: [get-environment, changes, check-actor]
+    needs: [get-environment, changes]
     if: |
-      needs.check-actor.outputs.should_skip != 'true' &&
       needs.changes.outputs.trigger_e2e_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
@@ -739,9 +694,8 @@ jobs:
 
   e2e-lint:
     runs-on: ubuntu-22.04
-    needs: [get-environment, changes, check-actor]
+    needs: [get-environment, changes]
     if: |
-      needs.check-actor.outputs.should_skip != 'true' &&
       needs.changes.outputs.trigger_e2e_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
@@ -1068,11 +1022,9 @@ jobs:
         get-environment,
         changes,
         create-xray-test-plan-and-test-execution,
-        dockerize,
-        check-actor
+        dockerize
       ]
     if: |
-      needs.check-actor.outputs.should_skip != 'true' &&
       needs.changes.outputs.trigger_api_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&
@@ -1110,9 +1062,8 @@ jobs:
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   legacy-e2e-test:
-    needs: [get-environment, changes, dockerize, check-actor]
+    needs: [get-environment, changes, dockerize]
     if: |
-      needs.check-actor.outputs.should_skip != 'true' &&
       needs.changes.outputs.trigger_e2e_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&
@@ -1154,10 +1105,8 @@ jobs:
         create-xray-test-plan-and-test-execution,
         gherkin-lint,
         e2e-lint,
-        check-actor,
       ]
     if: |
-      needs.check-actor.outputs.should_skip != 'true' &&
       needs.changes.outputs.trigger_e2e_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&

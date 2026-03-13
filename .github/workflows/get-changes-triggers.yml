@@ -29,6 +29,10 @@ on:
         required: false
         type: string
         default: ''
+      translation_paths:
+        required: false
+        type: string
+        default: ''
       is_nightly:
         required: true
         type: string
@@ -97,6 +101,7 @@ jobs:
           API_TEST_PATHS: ${{ inputs.api_test_paths }}
           E2E_TEST_PATHS: ${{ inputs.e2e_test_paths }}
           UPGRADE_TEST_PATHS: ${{ inputs.upgrade_test_paths }}
+          TRANSLATION_PATHS: ${{ inputs.translation_paths }}
         with:
           script: |
             const paths = {
@@ -107,6 +112,7 @@ jobs:
               api_test_paths: process.env.API_TEST_PATHS,
               e2e_test_paths: process.env.E2E_TEST_PATHS,
               upgrade_test_paths: process.env.UPGRADE_TEST_PATHS,
+              translation_paths: process.env.TRANSLATION_PATHS,
             };
 
             for (const [key, value] of Object.entries(paths)) {
@@ -142,6 +148,8 @@ jobs:
             ${{ steps.inline_inputs.outputs.e2e_test_paths }}
             upgrade_test:
             ${{ steps.inline_inputs.outputs.upgrade_test_paths }}
+            translation:
+            ${{ steps.inline_inputs.outputs.translation_paths }}
 
       - name: Determine triggers for event ${{ github.event_name }}
         if: github.event_name == 'pull_request' || inputs.base_sha != ''
@@ -156,6 +164,8 @@ jobs:
           HAS_API_TEST_CHANGES: ${{ steps.get_changed_files.outputs.api_test_any_changed }}
           HAS_E2E_TEST_CHANGES: ${{ steps.get_changed_files.outputs.e2e_test_any_changed }}
           HAS_UPGRADE_TEST_CHANGES: ${{ steps.get_changed_files.outputs.upgrade_test_any_changed }}
+          HAS_TRANSLATION_CHANGES: ${{ steps.get_changed_files.outputs.translation_any_changed }}
+          GITHUB_ACTOR: ${{ github.actor }}
           LABELS: ${{ inputs.labels }}
         with:
           script: |
@@ -193,37 +203,66 @@ jobs:
               core.warning(`Could not parse labels: ${e}`);
             }
 
+            // When weblate-service-account only changed translation files, skip all testing
+            // but keep packaging and delivery enabled.
+            const isWeblateTranslationOnly =
+              process.env.GITHUB_ACTOR === 'weblate-service-account'
+              && process.env.HAS_TRANSLATION_CHANGES === 'true'
+              && process.env.HAS_BACKEND_PRODUCTION_CHANGES !== 'true'
+              && process.env.HAS_FRONTEND_PRODUCTION_CHANGES !== 'true'
+              && process.env.HAS_BACKEND_TEST_CHANGES !== 'true'
+              && process.env.HAS_FRONTEND_TEST_CHANGES !== 'true'
+              && process.env.HAS_API_TEST_CHANGES !== 'true'
+              && process.env.HAS_E2E_TEST_CHANGES !== 'true'
+              && process.env.HAS_UPGRADE_TEST_CHANGES !== 'true';
+
+            if (isWeblateTranslationOnly) {
+              core.info('weblate-service-account with translation-only changes detected — skipping all test and lint triggers.');
+            }
+
             const outputs = {
               'trigger_backend_testing':
-                process.env.IS_NIGHTLY === 'true'
-                || process.env.HAS_BACKEND_TEST_CHANGES === 'true'
-                || process.env.HAS_BACKEND_PRODUCTION_CHANGES === 'true',
+                !isWeblateTranslationOnly && (
+                  process.env.IS_NIGHTLY === 'true'
+                  || process.env.HAS_BACKEND_TEST_CHANGES === 'true'
+                  || process.env.HAS_BACKEND_PRODUCTION_CHANGES === 'true'
+                ),
               'trigger_frontend_testing':
-                process.env.IS_NIGHTLY === 'true'
-                || process.env.HAS_FRONTEND_TEST_CHANGES === 'true'
-                || process.env.HAS_FRONTEND_PRODUCTION_CHANGES === 'true',
+                !isWeblateTranslationOnly && (
+                  process.env.IS_NIGHTLY === 'true'
+                  || process.env.HAS_FRONTEND_TEST_CHANGES === 'true'
+                  || process.env.HAS_FRONTEND_PRODUCTION_CHANGES === 'true'
+                ),
               'trigger_packaging':
                 process.env.IS_NIGHTLY === 'true'
                 || process.env.HAS_FRONTEND_PRODUCTION_CHANGES === 'true'
                 || process.env.HAS_BACKEND_PRODUCTION_CHANGES === 'true'
                 || process.env.HAS_API_TEST_CHANGES === 'true'
-                || process.env.HAS_E2E_TEST_CHANGES === 'true',
+                || process.env.HAS_E2E_TEST_CHANGES === 'true'
+                || isWeblateTranslationOnly,
               'trigger_api_testing':
-                process.env.IS_NIGHTLY === 'true'
-                || process.env.HAS_BACKEND_PRODUCTION_CHANGES === 'true'
-                || process.env.HAS_API_TEST_CHANGES === 'true',
+                !isWeblateTranslationOnly && (
+                  process.env.IS_NIGHTLY === 'true'
+                  || process.env.HAS_BACKEND_PRODUCTION_CHANGES === 'true'
+                  || process.env.HAS_API_TEST_CHANGES === 'true'
+                ),
               'trigger_e2e_testing':
-                process.env.IS_NIGHTLY === 'true'
-                || process.env.HAS_FRONTEND_PRODUCTION_CHANGES === 'true'
-                || process.env.HAS_BACKEND_PRODUCTION_CHANGES === 'true'
-                || process.env.HAS_E2E_TEST_CHANGES === 'true',
+                !isWeblateTranslationOnly && (
+                  process.env.IS_NIGHTLY === 'true'
+                  || process.env.HAS_FRONTEND_PRODUCTION_CHANGES === 'true'
+                  || process.env.HAS_BACKEND_PRODUCTION_CHANGES === 'true'
+                  || process.env.HAS_E2E_TEST_CHANGES === 'true'
+                ),
               'trigger_upgrade_testing':
-                process.env.IS_NIGHTLY === 'true'
-                || process.env.HAS_UPGRADE_TEST_CHANGES === 'true',
+                !isWeblateTranslationOnly && (
+                  process.env.IS_NIGHTLY === 'true'
+                  || process.env.HAS_UPGRADE_TEST_CHANGES === 'true'
+                ),
               'trigger_delivery':
                 process.env.IS_NIGHTLY === 'true'
                 || process.env.HAS_FRONTEND_PRODUCTION_CHANGES === 'true'
-                || process.env.HAS_BACKEND_PRODUCTION_CHANGES === 'true',
+                || process.env.HAS_BACKEND_PRODUCTION_CHANGES === 'true'
+                || isWeblateTranslationOnly,
             };
 
             for (const [key, value] of Object.entries(outputs)) {
