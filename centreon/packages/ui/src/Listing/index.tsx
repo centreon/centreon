@@ -45,8 +45,6 @@ import DataCell from './Cell/DataCell';
 import Checkbox from './Checkbox';
 import { EmptyResult } from './EmptyResult/EmptyResult';
 import { ListingHeader } from './Header';
-import ListingRow from './Row/Row';
-import { SkeletonLoader } from './Row/SkeletonLoaderRows';
 import type {
   Column,
   ColumnConfiguration,
@@ -55,6 +53,8 @@ import type {
   RowId,
   SortOrder
 } from './models';
+import ListingRow from './Row/Row';
+import { SkeletonLoader } from './Row/SkeletonLoaderRows';
 import { subItemsPivotsAtom } from './tableAtoms';
 import { labelNoResultFound as defaultLabelNoResultFound } from './translatedLabels';
 import useStyleTable, { useColumnStyle } from './useStyleTable';
@@ -595,7 +595,7 @@ const Listing = <
                     component="div"
                     onMouseLeave={clearHoveredRow}
                   >
-                    {rowsToDisplay.map((row, index) => {
+                    {rowsToDisplay.map((row) => {
                       const isRowSelected = isSelected(row);
                       const isSubItem = allSubItemIds.includes(
                         getSubItemRowId(row)
