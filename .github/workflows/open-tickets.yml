@@ -484,7 +484,7 @@ jobs:
           DOCKER_BUILD_SUMMARY: false
           DOCKER_BUILD_RECORD_UPLOAD: false
         with:
-          file: .github/docker/${{ env.project }}/Dockerfile
+          file: .github/docker/${{ env.project }}/${{ steps.matrix_include.outputs.distrib }}/Dockerfile
           context: .
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
