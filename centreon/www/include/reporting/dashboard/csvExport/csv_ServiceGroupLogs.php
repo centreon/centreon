@@ -87,7 +87,8 @@ $servicegroupName = getServiceGroupNameFromId($servicegroupId);
 header('Cache-Control: public');
 header('Pragma: public');
 header('Content-Type: application/octet-stream');
-header('Content-disposition: filename=' . $servicegroupName . '.csv');
+$safeFilename = str_replace(["\r", "\n", '"'], '', $servicegroupName);
+header('Content-disposition: attachment; filename="' . $safeFilename . '.csv"');
 
 echo _('ServiceGroup') . ';'
     . _('Begin date') . '; '
@@ -213,19 +214,18 @@ $dbResult = $pearDB->prepare(
 $dbResult->bindValue(':servicegroupId', $servicegroupId, PDO::PARAM_INT);
 $dbResult->execute();
 
-$str = '';
+$serviceIds = [];
 while ($sg = $dbResult->fetch()) {
-    if ($str != '') {
-        $str .= ', ';
-    }
-    $str .= "'" . $sg['service_service_id'] . "'";
+    $serviceIds[] = (int) $sg['service_service_id'];
 }
 $dbResult->closeCursor();
-if ($str == '') {
-    $str = "''";
-}
 unset($sg, $dbResult);
 
+if (count($serviceIds) > 0) {
+    $placeholders = implode(',', array_fill(0, count($serviceIds), '?'));
+} else {
+    $placeholders = 'NULL';
+}
 $res = $pearDBO->prepare(
     'SELECT `date_start`, `date_end`, sum(`OKnbEvent`) as OKnbEvent, '
     . 'sum(`CRITICALnbEvent`) as CRITICALnbEvent, '
@@ -235,13 +235,17 @@ $res = $pearDBO->prepare(
     . 'avg( `WARNINGTimeScheduled` ) as WARNINGTimeScheduled, '
     . 'avg( `UNKNOWNTimeScheduled` ) as UNKNOWNTimeScheduled, '
     . 'avg( `CRITICALTimeScheduled` ) as CRITICALTimeScheduled '
-    . 'FROM `log_archive_service` WHERE `service_id` IN (' . $str . ') '
-    . 'AND `date_start` >= :startDate '
-    . 'AND `date_end` <= :endDate '
-    . 'GROUP BY `date_end`, `date_start` order by `date_start` desc'
+    . 'FROM `log_archive_service` WHERE `service_id` IN (' . $placeholders . ') '
+    . 'AND `date_start` >= ? '
+    . 'AND `date_end` <= ? '
+    . 'GROUP BY `date_end`, `date_start` ORDER BY `date_start` desc'
 );
-$res->bindValue(':startDate', $startDate, PDO::PARAM_INT);
-$res->bindValue(':endDate', $endDate, PDO::PARAM_INT);
+$paramIndex = 1;
+foreach ($serviceIds as $sId) {
+    $res->bindValue($paramIndex++, $sId, PDO::PARAM_INT);
+}
+$res->bindValue($paramIndex++, $startDate, PDO::PARAM_INT);
+$res->bindValue($paramIndex++, $endDate, PDO::PARAM_INT);
 $res->execute();
 
 $statesTab = ['OK', 'WARNING', 'CRITICAL', 'UNKNOWN'];

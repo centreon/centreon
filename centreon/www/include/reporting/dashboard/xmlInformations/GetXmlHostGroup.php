@@ -41,19 +41,25 @@ if (empty($color) || count($_GET['color']) !== count($color)) {
 if (($id = filter_var($_GET['id'] ?? false, FILTER_VALIDATE_INT)) !== false) {
     $hosts_id = $centreon->user->access->getHostHostGroupAclConf($id, 'broker');
     if (count($hosts_id) > 0) {
+        $hostIds = array_map('intval', array_keys($hosts_id));
+        $placeholders = implode(',', array_fill(0, count($hostIds), '?'));
         $rq = 'SELECT `date_start`, `date_end`, sum(`UPnbEvent`) as UPnbEvent, sum(`DOWNnbEvent`) as DOWNnbEvent, '
             . 'sum(`UNREACHABLEnbEvent`) as UNREACHABLEnbEvent, '
             . 'avg( `UPTimeScheduled` ) as "UPTimeScheduled", '
             . 'avg( `DOWNTimeScheduled` ) as "DOWNTimeScheduled", '
             . 'avg( `UNREACHABLETimeScheduled` ) as "UNREACHABLETimeScheduled", '
             . 'avg( `UNDETERMINEDTimeScheduled` ) as "UNDETERMINEDTimeScheduled" '
-            . 'FROM `log_archive_host` WHERE `host_id` IN ('
-            . implode(',', array_keys($hosts_id)) . ') GROUP BY date_end, date_start ORDER BY date_start desc';
-        $DBRESULT = $pearDBO->query($rq);
-        while ($row = $DBRESULT->fetchRow()) {
+            . 'FROM `log_archive_host` WHERE `host_id` IN (' . $placeholders . ') '
+            . 'GROUP BY date_end, date_start ORDER BY date_start desc';
+        $stmt = $pearDBO->prepare($rq);
+        foreach ($hostIds as $index => $hostId) {
+            $stmt->bindValue($index + 1, $hostId, PDO::PARAM_INT);
+        }
+        $stmt->execute();
+        while ($row = $stmt->fetchRow()) {
             fillBuffer($statesTab, $row, $color);
         }
-        $DBRESULT->closeCursor();
+        $stmt->closeCursor();
     }
 } else {
     $buffer->writeElement('error', 'Bad id format');

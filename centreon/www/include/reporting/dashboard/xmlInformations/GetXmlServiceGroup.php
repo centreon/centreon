@@ -44,26 +44,39 @@ if (($id = filter_var($_GET['id'] ?? false, FILTER_VALIDATE_INT)) !== false) {
         $host_ids = [];
         $service_ids = [];
         foreach ($services as $host_service_id => $host_service_name) {
-            $res = explode('_', $host_service_id);
-            $host_ids[$res[0]] = 1;
-            $service_ids[$res[1]] = 1;
+            $parts = explode('_', $host_service_id);
+            $host_ids[(int) $parts[0]] = 1;
+            $service_ids[(int) $parts[1]] = 1;
         }
 
-        $request =  'SELECT '
+        $hostIdList = array_map('intval', array_keys($host_ids));
+        $serviceIdList = array_map('intval', array_keys($service_ids));
+        $hostPlaceholders = implode(',', array_fill(0, count($hostIdList), '?'));
+        $servicePlaceholders = implode(',', array_fill(0, count($serviceIdList), '?'));
+
+        $request = 'SELECT '
             . 'date_start, date_end, OKnbEvent, CRITICALnbEvent, WARNINGnbEvent, UNKNOWNnbEvent, '
             . 'avg( `OKTimeScheduled` ) as "OKTimeScheduled", '
             . 'avg( `WARNINGTimeScheduled` ) as "WARNINGTimeScheduled", '
             . 'avg( `UNKNOWNTimeScheduled` ) as "UNKNOWNTimeScheduled", '
             . 'avg( `CRITICALTimeScheduled` ) as "CRITICALTimeScheduled", '
             . 'avg( `UNDETERMINEDTimeScheduled` ) as "UNDETERMINEDTimeScheduled" '
-            . 'FROM `log_archive_service` WHERE `host_id` IN ('
-                . implode(',', array_keys($host_ids)) . ') AND `service_id` IN ('
-                . implode(',', array_keys($service_ids)) . ') group by date_end, date_start order by date_start desc';
-        $res = $pearDBO->query($request);
-        while ($row = $res->fetchRow()) {
+            . 'FROM `log_archive_service` WHERE `host_id` IN (' . $hostPlaceholders . ') '
+            . 'AND `service_id` IN (' . $servicePlaceholders . ') '
+            . 'GROUP BY date_end, date_start ORDER BY date_start desc';
+        $stmt = $pearDBO->prepare($request);
+        $paramIndex = 1;
+        foreach ($hostIdList as $hId) {
+            $stmt->bindValue($paramIndex++, $hId, PDO::PARAM_INT);
+        }
+        foreach ($serviceIdList as $sId) {
+            $stmt->bindValue($paramIndex++, $sId, PDO::PARAM_INT);
+        }
+        $stmt->execute();
+        while ($row = $stmt->fetchRow()) {
             fillBuffer($statesTab, $row, $color);
         }
-        $DBRESULT->closeCursor();
+        $stmt->closeCursor();
     }
 } else {
     $buffer->writeElement('error', 'Bad id format');

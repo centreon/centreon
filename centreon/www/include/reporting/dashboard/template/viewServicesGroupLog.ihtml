@@ -24,7 +24,7 @@
                 <input type="radio" id="preset" value="preset" name="period_choice" {if $period_choice == "preset" } checked="checked" {/if}/>
                 <label for="preset"></label>
             </div>
-				{$periodTitle} : {$formPeriod.period.html}{$periodORlabel}
+				{$periodTitle} : {$formPeriod.period.html} {$periodORlabel}
             <div class="md-radio-modified md-radio-inline">
                 <input type="radio" id="custom" name="period_choice" value="custom" {if $period_choice == "custom" } checked="checked" {/if} />
                 <label for="custom"></label>

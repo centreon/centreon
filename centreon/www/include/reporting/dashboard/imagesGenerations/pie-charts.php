@@ -71,12 +71,15 @@ $g->pie_slice_colours($color);
 $g->set_tool_tip('#val#%');
 
 if (isset($_GET['service_name'], $_GET['host_name'])) {
+    $serviceName = htmlspecialchars(mb_convert_encoding($_GET['service_name'], 'UTF-8', 'ISO-8859-1'), ENT_QUOTES, 'UTF-8');
+    $hostName = htmlspecialchars(mb_convert_encoding($_GET['host_name'], 'UTF-8', 'ISO-8859-1'), ENT_QUOTES, 'UTF-8');
     $g->title(
-        mb_convert_encoding($_GET['service_name'], 'UTF-8', 'ISO-8859-1') . ' on ' . mb_convert_encoding($_GET['host_name'], 'UTF-8', 'ISO-8859-1'),
+        $serviceName . ' on ' . $hostName,
         '{font-size:15px; color: #424242}'
     );
 } elseif (isset($_GET['host_name'])) {
-    $g->title(mb_convert_encoding($_GET['host_name'], 'UTF-8', 'ISO-8859-1'), '{font-size:18px; color: #424242}');
+    $hostName = htmlspecialchars(mb_convert_encoding($_GET['host_name'], 'UTF-8', 'ISO-8859-1'), ENT_QUOTES, 'UTF-8');
+    $g->title($hostName, '{font-size:18px; color: #424242}');
 }
 header('Cache-Control: cache, must-revalidate');
 header('Pragma: public');

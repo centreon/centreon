@@ -110,7 +110,8 @@ $hostgroupName = getHostgroupNameFromId($hostgroupId);
 header('Cache-Control: public');
 header('Pragma: public');
 header('Content-Type: application/octet-stream');
-header('Content-disposition: filename=' . $hostgroupName . '.csv');
+$safeFilename = str_replace(["\r", "\n", '"'], '', $hostgroupName);
+header('Content-disposition: attachment; filename="' . $safeFilename . '.csv"');
 
 echo _('Hostgroup') . ';'
     . _('Begin date') . '; '
@@ -182,7 +183,7 @@ echo "\n";
 echo "\n";
 
 // getting all hosts from hostgroup
-$str = '';
+$hostIds = [];
 $dbResult = $pearDB->prepare(
     'SELECT host_host_id FROM `hostgroup_relation` '
     . 'WHERE `hostgroup_hg_id` = :hostgroupId'
@@ -191,30 +192,33 @@ $dbResult->bindValue(':hostgroupId', $hostgroupId, PDO::PARAM_INT);
 $dbResult->execute();
 
 while ($hg = $dbResult->fetch()) {
-    if ($str != '') {
-        $str .= ', ';
-    }
-    $str .= "'" . $hg['host_host_id'] . "'";
-}
-if ($str == '') {
-    $str = "''";
+    $hostIds[] = (int) $hg['host_host_id'];
 }
 unset($hg, $dbResult);
 
 // Getting hostgroup stats evolution
+if (count($hostIds) > 0) {
+    $placeholders = implode(',', array_fill(0, count($hostIds), '?'));
+} else {
+    $placeholders = 'NULL';
+}
 $dbResult = $pearDBO->prepare(
     'SELECT `date_start`, `date_end`, sum(`UPnbEvent`) as UPnbEvent, sum(`DOWNnbEvent`) as DOWNnbEvent, '
     . 'sum(`UNREACHABLEnbEvent`) as UNREACHABLEnbEvent, '
     . 'avg( `UPTimeScheduled` ) as UPTimeScheduled, '
     . 'avg( `DOWNTimeScheduled` ) as DOWNTimeScheduled, '
     . 'avg( `UNREACHABLETimeScheduled` ) as UNREACHABLETimeScheduled '
-    . 'FROM `log_archive_host` WHERE `host_id` IN (' . $str . ') '
-    . 'AND `date_start` >= :startDate '
-    . 'AND `date_end` <= :endDate '
+    . 'FROM `log_archive_host` WHERE `host_id` IN (' . $placeholders . ') '
+    . 'AND `date_start` >= ? '
+    . 'AND `date_end` <= ? '
     . 'GROUP BY `date_end`, `date_start` ORDER BY `date_start` desc'
 );
-$dbResult->bindValue(':startDate', $startDate, PDO::PARAM_INT);
-$dbResult->bindValue(':endDate', $endDate, PDO::PARAM_INT);
+$paramIndex = 1;
+foreach ($hostIds as $hId) {
+    $dbResult->bindValue($paramIndex++, $hId, PDO::PARAM_INT);
+}
+$dbResult->bindValue($paramIndex++, $startDate, PDO::PARAM_INT);
+$dbResult->bindValue($paramIndex++, $endDate, PDO::PARAM_INT);
 $dbResult->execute();
 
 echo _('Day') . ';'
