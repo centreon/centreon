@@ -1111,20 +1111,38 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
         );
     }
 
-    // Add sort index for the default ORDER BY (status_ordered DESC, last_status_change DESC)
-    $hasStatusSortIdx = $pearDBO->fetchOne(
+    // Add/recreate sort index for cursor pagination: must include resource_id as tiebreaker
+    // so MariaDB can satisfy ORDER BY status_ordered DESC, last_status_change DESC, resource_id DESC
+    // without a filesort on page 2+. Drop and recreate if the old index (without resource_id) exists.
+    $hasStatusSortIdxWithResourceId = $pearDBO->fetchOne(
         <<<'SQL'
             SELECT 1 FROM information_schema.STATISTICS
             WHERE TABLE_SCHEMA = DATABASE()
               AND TABLE_NAME = 'resources'
               AND INDEX_NAME = 'resources_enabled_status_sort_idx'
+              AND COLUMN_NAME = 'resource_id'
             SQL
     );
-    if (! $hasStatusSortIdx) {
+    if (! $hasStatusSortIdxWithResourceId) {
+        $hasStatusSortIdx = $pearDBO->fetchOne(
+            <<<'SQL'
+                SELECT 1 FROM information_schema.STATISTICS
+                WHERE TABLE_SCHEMA = DATABASE()
+                  AND TABLE_NAME = 'resources'
+                  AND INDEX_NAME = 'resources_enabled_status_sort_idx'
+                SQL
+        );
+        if ($hasStatusSortIdx) {
+            $pearDBO->executeStatement(
+                <<<'SQL'
+                    ALTER TABLE `resources` DROP INDEX `resources_enabled_status_sort_idx`
+                    SQL
+            );
+        }
         $pearDBO->executeStatement(
             <<<'SQL'
                 ALTER TABLE `resources`
-                ADD INDEX `resources_enabled_status_sort_idx` (`enabled`, `status_ordered` DESC, `last_status_change` DESC)
+                ADD INDEX `resources_enabled_status_sort_idx` (`enabled`, `status_ordered` DESC, `last_status_change` DESC, `resource_id` DESC)
                 SQL
         );
     }

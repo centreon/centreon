@@ -4,6 +4,7 @@ import { buildListingEndpoint } from '@centreon/ui';
 import { resourcesEndpoint } from '../../api/endpoint';
 
 export type ListResourcesProps = {
+  cursor?: string | null;
   endpoint?: string;
   hostCategories: Array<string>;
   hostGroups: Array<string>;
@@ -19,7 +20,7 @@ export type ListResourcesProps = {
   states: Array<string>;
   statusTypes: Array<string>;
   statuses: Array<string>;
-} & ListingParameters;
+} & Omit<ListingParameters, 'page'>;
 
 const buildResourcesEndpoint = (parameters: ListResourcesProps): string => {
   return buildListingEndpoint({
@@ -47,7 +48,8 @@ const buildResourcesEndpoint = (parameters: ListResourcesProps): string => {
         value: parameters.serviceSeverityLevels
       },
       { name: 'host_severity_names', value: parameters.hostSeverities },
-      { name: 'host_severity_levels', value: parameters.hostSeverityLevels }
+      { name: 'host_severity_levels', value: parameters.hostSeverityLevels },
+      { name: 'cursor', value: parameters.cursor ?? undefined }
     ],
     parameters
   });

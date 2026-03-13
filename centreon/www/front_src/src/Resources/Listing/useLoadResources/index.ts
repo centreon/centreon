@@ -48,10 +48,11 @@ import {
 } from '../../translatedLabels';
 import { listResources } from '../api';
 import {
+  currentCursorIndexAtom,
+  cursorStackAtom,
   enabledAutorefreshAtom,
   limitAtom,
   listingAtom,
-  pageAtom,
   sendingAtom
 } from '../listingAtoms';
 import useGetCriteriaName from './useGetCriteriaName';
@@ -89,7 +90,8 @@ const useLoadResources = (): LoadResources => {
       request: getData
     });
 
-  const [page, setPage] = useAtom(pageAtom);
+  const [cursorStack, setCursorStack] = useAtom(cursorStackAtom);
+  const [currentCursorIndex, setCurrentCursorIndex] = useAtom(currentCursorIndexAtom);
   const [details, setDetails] = useAtom(detailsAtom);
   const refreshInterval = useAtomValue(refreshIntervalAtom);
   const selectedResourceUuid = useAtomValue(selectedResourceUuidAtom);
@@ -179,7 +181,10 @@ const useLoadResources = (): LoadResources => {
     const names = getCriteriaNames('names');
     const parentNames = getCriteriaNames('parent_names');
 
+    const currentCursor = cursorStack[currentCursorIndex] ?? null;
+
     const listingPromise = sendRequest({
+      cursor: currentCursor,
       endpoint: resourcesEndpoint,
       hostCategories: getCriteriaNames('host_categories'),
       hostGroups: getCriteriaNames('host_groups'),
@@ -187,7 +192,6 @@ const useLoadResources = (): LoadResources => {
       hostSeverityLevels: getCriteriaLevels('host_severity_levels'),
       limit,
       monitoringServers: getCriteriaNames('monitoring_servers'),
-      page,
       resourceTypes: getCriteriaIds('resource_types'),
       search: mergeRight(
         getSearch({
@@ -220,6 +224,12 @@ const useLoadResources = (): LoadResources => {
       statuses: getCriteriaIds('statuses'),
       statusTypes: getCriteriaIds('status_types')
     }).then((response) => {
+      // Append next_cursor to the stack only when navigating forward for the first time.
+      const nextCursor = response.meta.next_cursor;
+      if (nextCursor !== null && cursorStack.length <= currentCursorIndex + 1) {
+        setCursorStack((prev) => [...prev, nextCursor]);
+      }
+
       if (!equals(visualization, Visualization.Host)) {
         setListing(response);
 
@@ -284,15 +294,13 @@ const useLoadResources = (): LoadResources => {
   }, [isNil(details)]);
 
   useEffect(() => {
-    if (isNil(page)) {
-      return;
-    }
-
     initAutorefreshAndLoad();
-  }, [page, limit, appliedFilter]);
+  }, [currentCursorIndex, limit, appliedFilter]);
 
   useEffect(() => {
-    setPage(1);
+    // Reset cursor navigation when filters or limit change.
+    setCursorStack([null]);
+    setCurrentCursorIndex(0);
   }, [limit, appliedFilter]);
 
   useEffect(() => {

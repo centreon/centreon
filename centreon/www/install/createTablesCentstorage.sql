@@ -340,7 +340,7 @@ CREATE TABLE `resources` (
   INDEX `resources_id_index` (`id`),
   INDEX `resources_parent_id_index` (`parent_id`),
   INDEX `resources_enabled_type_index` (`enabled`, `type`),
-  INDEX `resources_enabled_status_sort_idx` (`enabled`, `status_ordered` DESC, `last_status_change` DESC),
+  INDEX `resources_enabled_status_sort_idx` (`enabled`, `status_ordered` DESC, `last_status_change` DESC, `resource_id` DESC),
   INDEX `resources_enabled_type_ismodule_idx` (`enabled`, `type`, `is_module`, `poller_id`),
   INDEX `resources_status_filter_idx` (`enabled`, `status`, `type`, `is_module`, `acknowledged`, `in_downtime`, `status_confirmed`, `poller_id`),
   INDEX `resources_name_search_idx` (`enabled`, `type`, `is_module`, `poller_id`, `name`),

@@ -12,7 +12,17 @@ import {
 
 export const listingAtom = atom<ResourceListing | undefined>(undefined);
 export const limitAtom = atomWithStorage(`${baseKey}limit`, 30);
-export const pageAtom = atom<number | undefined>(undefined);
+
+/**
+ * Cursor stack for keyset pagination.
+ * cursorStack[0] is always null (first page — no cursor needed).
+ * cursorStack[N] is the cursor returned by page N-1 to reach page N.
+ */
+export const cursorStackAtom = atom<Array<string | null>>([null]);
+
+/** 0-indexed index into cursorStack — the page currently displayed. */
+export const currentCursorIndexAtom = atom<number>(0);
+
 export const enabledAutorefreshAtom = atom<boolean>(true);
 const columnIdsAtom = atom(defaultSelectedColumnIds);
 export const selectedColumnIdsAtom = atom(

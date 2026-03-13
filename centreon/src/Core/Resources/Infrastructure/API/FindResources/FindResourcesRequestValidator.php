@@ -137,6 +137,7 @@ final class FindResourcesRequestValidator
         RequestParameters::NAME_FOR_SEARCH,
         RequestParameters::NAME_FOR_SORT,
         RequestParameters::NAME_FOR_TOTAL,
+        'cursor',
     ];
 
     /** Query parameters for export that should be ignored but not forbidden only on export */

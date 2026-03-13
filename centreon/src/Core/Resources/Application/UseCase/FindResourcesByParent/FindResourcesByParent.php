@@ -29,6 +29,7 @@ use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Resources\Application\Exception\ResourceException;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Resources\Application\UseCase\FindResources\FindResourcesFactory;
@@ -61,6 +62,7 @@ final class FindResourcesByParent
         private readonly RequestParametersInterface $requestParameters,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private readonly \Traversable $extraDataProviders,
+        private readonly AdminResolver $adminResolver
     ) {
     }
 
@@ -91,7 +93,7 @@ final class FindResourcesByParent
             $resources = [];
             $parentResources = [];
 
-            if ($this->contact->isAdmin()) {
+            if ($this->adminResolver->isAdmin($this->contact)) {
                 $resources = $this->findResourcesAsAdmin($filter);
                 // Save total children found
                 $totalChildrenFound = $this->requestParameters->getTotal();
@@ -120,6 +122,9 @@ final class FindResourcesByParent
                 }
             }
 
+            // Capture the cursor produced by the children query before request parameters are mutated.
+            $nextCursor = $this->repository->getNextCursor();
+
             // Only get extra data for services
             $extraData = [];
             foreach (iterator_to_array($this->extraDataProviders) as $provider) {
@@ -136,7 +141,7 @@ final class FindResourcesByParent
             $parents = FindResourcesFactory::createResponse($parentResources);
 
             $presenter->presentResponse(
-                FindResourcesByParentFactory::createResponse($parents->resources, $children->resources, $extraData)
+                FindResourcesByParentFactory::createResponse($parents->resources, $children->resources, $extraData, $nextCursor)
             );
         } catch (\Throwable $e) {
             $presenter->presentResponse(

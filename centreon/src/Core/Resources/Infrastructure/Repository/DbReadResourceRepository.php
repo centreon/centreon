@@ -43,6 +43,7 @@ use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParametersTransformer;
 use Core\Domain\RealTime\ResourceTypeInterface;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
+use Core\Resources\Domain\Model\ResourceCursor;
 use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface;
 use Core\Severity\RealTime\Domain\Model\Severity;
 
@@ -70,6 +71,9 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
     /** @var ExtraDataProviderInterface[] */
     private array $extraDataProviders;
+
+    /** Next-page cursor token set by find(), consumed by the use case via getNextCursor(). */
+    private ?string $nextCursor = null;
 
     /** @var array<string, string> */
     private array $resourceConcordances = [
@@ -130,6 +134,11 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
         $this->resourceTypes = iterator_to_array($resourceTypes);
         $this->extraDataProviders = iterator_to_array($extraDataProviders);
+    }
+
+    public function getNextCursor(): ?string
+    {
+        return $this->nextCursor;
     }
 
     public function findParentResourcesById(ResourceFilter $filter): array
@@ -535,6 +544,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         bool $withoutPagination = false,
         bool $useTagExistsForFilters = false,
         bool $useAclCte = false,
+        ?ResourceCursor $cursor = null,
     ): string {
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
 
@@ -726,18 +736,36 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         $query .= $this->addSeveritySubRequest($filter, $queryParametersFromRequestParameter);
 
         /**
-         * Handle sort parameters.
+         * Cursor keyset condition (replaces OFFSET-based pagination).
          */
-        if (! $withoutSort) {
-            $query .= $this->sqlRequestTranslator->translateSortParameterToSql()
-                ?: ' ORDER BY resources.status_ordered DESC, resources.last_status_change DESC';
+        if ($cursor !== null) {
+            $query .= $this->buildCursorWhereCondition($cursor, $queryParametersFromRequestParameter);
         }
 
         /**
-         * Handle pagination.
+         * Handle sort parameters.
+         */
+        if (! $withoutSort) {
+            $sortSql = $this->sqlRequestTranslator->translateSortParameterToSql()
+                ?: ' ORDER BY resources.status_ordered DESC, resources.last_status_change DESC';
+
+            if ($cursor !== null) {
+                // Append resource_id as tiebreaker to guarantee a stable sort for keyset pagination.
+                $dir = strtoupper($cursor->sorts[0]['dir'] ?? 'DESC');
+                $sortSql .= ", resources.resource_id {$dir}";
+            }
+
+            $query .= $sortSql;
+        }
+
+        /**
+         * Handle pagination — cursor-only, no offset.
+         * Always fetch limit+1 rows: the extra row reveals whether a next page exists.
+         * The cursor WHERE condition (or absence thereof) positions the window.
          */
         if (! $withoutPagination) {
-            $query .= $this->sqlRequestTranslator->translatePaginationToSql();
+            $limit = $this->sqlRequestTranslator->getRequestParameters()->getLimit();
+            $query .= sprintf(' LIMIT %d', $limit + 1);
         }
 
         return $query;
@@ -1430,7 +1458,10 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      */
     private function find(ResourceFilter $filter, array $accessGroupIds = []): void
     {
-        // get resources
+        $this->nextCursor = null;
+        $limit = $this->sqlRequestTranslator->getRequestParameters()->getLimit();
+
+        // Decode cursor if present (null = first page).
         $cursor = null;
         if ($filter->getCursor() !== null) {
             try {
@@ -1454,6 +1485,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             accessGroupIds: $accessGroupIds,
             useTagExistsForFilters: true,
             useAclCte: $useAclCte,
+            cursor: $cursor,
         );
 
         $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
@@ -1461,8 +1493,19 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         );
         $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameter);
 
-        foreach ($this->connection->iterateAssociative($this->translateDbName($queryFind), $queryParameters) as $resourceRecord) {
-            /** @var array<string,int|string|null> $resourceRecord */
+        // Collect all rows so we can detect the extra (limit+1) row.
+        $records = [];
+        foreach ($this->connection->iterateAssociative($this->translateDbName($queryFind), $queryParameters) as $record) {
+            /** @var array<string, int|string|null> $record */
+            $records[] = $record;
+        }
+
+        $hasNextPage = count($records) > $limit;
+        if ($hasNextPage) {
+            array_pop($records); // Remove the extra look-ahead row.
+        }
+
+        foreach ($records as $resourceRecord) {
             $this->resources[] = DbResourceFactory::createFromRecord($resourceRecord, $this->resourceTypes);
         }
 
@@ -1470,22 +1513,14 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         $icons = $this->getIconsDataForResources($iconIds);
         $this->completeResourcesWithIcons($icons);
 
-        // get total without pagination
-        $queryParametersFromRequestParameter = new QueryParameters();
-        $queryCount = $this->generateCountResourcesQuery(
-            filter: $filter,
-            queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
-            accessGroupIds: $accessGroupIds,
-        );
-
-        $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
-            $this->sqlRequestTranslator->getSearchValues()
-        );
-        $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameter);
-
-        if (($total = $this->connection->fetchOne($this->translateDbName($queryCount), $queryParameters)) !== false) {
-            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
+        // Build next-cursor from the last record of the current page.
+        if ($hasNextPage && $records !== []) {
+            /** @var array<string, int|string|null> $lastRecord */
+            $lastRecord = end($records);
+            $this->nextCursor = $this->buildNextCursorFromRecord($lastRecord, $activeSortCols);
         }
+
+        // COUNT query is intentionally omitted — cursor pagination does not need a total.
     }
 
     /**
@@ -1557,6 +1592,145 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
             yield $this->resources[0];
         }
+    }
+
+    // ------------------------------------- CURSOR PAGINATION HELPERS -------------------------------------
+
+    /**
+     * Determine the sort column(s) active for the current request, expressed as resource-table column
+     * names (without the "resources." prefix). Used to build and decode cursors.
+     *
+     * Returns the default sort when no sort_by parameter is provided.
+     *
+     * @return list<array{col: string, dir: string}>
+     */
+    private function resolveActiveSortCols(): array
+    {
+        $sort = $this->sqlRequestTranslator->getRequestParameters()->getSort();
+
+        if (empty($sort)) {
+            return [
+                ['col' => 'status_ordered', 'dir' => 'DESC'],
+                ['col' => 'last_status_change', 'dir' => 'DESC'],
+            ];
+        }
+
+        $cols = [];
+        $concordance = $this->sqlRequestTranslator->getConcordanceArray();
+        foreach ($sort as $field => $dir) {
+            $dbExpr = $concordance[$field] ?? null;
+            // Only use simple "resources.<column>" expressions as cursor components.
+            if ($dbExpr !== null && preg_match('/^resources\.(\w+)$/', $dbExpr, $m)) {
+                $cols[] = ['col' => $m[1], 'dir' => strtoupper((string) $dir)];
+            }
+        }
+
+        return $cols !== [] ? $cols : [
+            ['col' => 'status_ordered', 'dir' => 'DESC'],
+            ['col' => 'last_status_change', 'dir' => 'DESC'],
+        ];
+    }
+
+    /**
+     * Encode a ResourceCursor from the last DB record and active sort columns.
+     *
+     * @param array<string, int|string|null> $record
+     * @param list<array{col: string, dir: string}> $sortCols
+     */
+    private function buildNextCursorFromRecord(array $record, array $sortCols): string
+    {
+        $sorts = [];
+        foreach ($sortCols as $def) {
+            $raw = $record[$def['col']] ?? null;
+            $sorts[] = [
+                'col' => $def['col'],
+                'dir' => $def['dir'],
+                'val' => is_numeric($raw) ? (int) $raw : (string) $raw,
+            ];
+        }
+
+        return (new ResourceCursor($sorts, (int) ($record['resource_id'] ?? 0)))->encode();
+    }
+
+    /**
+     * Build the keyset WHERE fragment for cursor pagination and bind the cursor parameter values.
+     *
+     * For an n-column sort (all same direction), this generates:
+     *   AND (
+     *     (col1 OP v1)
+     *     OR (col1 = v1 AND col2 OP v2)
+     *     ...
+     *     OR (col1 = v1 AND ... AND colN = vN AND resource_id OP rid)
+     *   )
+     *
+     * where OP is "<" for DESC sorts and ">" for ASC sorts.
+     */
+    private function buildCursorWhereCondition(ResourceCursor $cursor, QueryParameters $queryParams): string
+    {
+        $sorts = $cursor->sorts;
+
+        if ($sorts === []) {
+            return '';
+        }
+
+        $dir = strtoupper($sorts[0]['dir'] ?? 'DESC');
+        $cmp = $dir === 'DESC' ? '<' : '>';
+
+        // Bind all cursor values once.
+        foreach ($sorts as $i => $sort) {
+            $key = "cursor_col{$i}";
+            if (is_int($sort['val'])) {
+                $queryParams->add($key, QueryParameter::int($key, $sort['val']));
+            } else {
+                $queryParams->add($key, QueryParameter::string($key, (string) $sort['val']));
+            }
+        }
+        $queryParams->add('cursor_rid', QueryParameter::int('cursor_rid', $cursor->resourceId));
+
+        // When all sort directions are identical, use a row value comparison:
+        //   (col1, col2, ..., resource_id) < (v1, v2, ..., rid)
+        // MariaDB recognises this as a single range predicate on the composite index
+        // (enabled, col1 DESC, col2 DESC, resource_id DESC) and can seek directly to
+        // the cursor position without a filesort — O(log N) instead of O(N).
+        // Fall back to the OR-expansion only for mixed-direction sorts.
+        $allSameDir = count(array_unique(array_column($sorts, 'dir'))) === 1;
+
+        if ($allSameDir) {
+            $cols = implode(', ', array_map(
+                static fn(array $s): string => "resources.{$s['col']}",
+                $sorts
+            ));
+            $placeholders = implode(', ', array_map(
+                static fn(int $i): string => ":cursor_col{$i}",
+                array_keys($sorts)
+            ));
+
+            return " AND ({$cols}, resources.resource_id) {$cmp} ({$placeholders}, :cursor_rid)";
+        }
+
+        // Mixed-direction fallback: OR-expanded keyset condition.
+        $conditions = [];
+        $n = count($sorts);
+
+        for ($i = 0; $i < $n; $i++) {
+            $colDir = strtoupper($sorts[$i]['dir'] ?? 'DESC');
+            $colCmp = $colDir === 'DESC' ? '<' : '>';
+            $parts = [];
+            for ($j = 0; $j < $i; $j++) {
+                $parts[] = sprintf('resources.%s = :cursor_col%d', $sorts[$j]['col'], $j);
+            }
+            $parts[] = sprintf('resources.%s %s :cursor_col%d', $sorts[$i]['col'], $colCmp, $i);
+            $conditions[] = '(' . implode(' AND ', $parts) . ')';
+        }
+
+        $tiebreaker = [];
+        for ($j = 0; $j < $n; $j++) {
+            $tiebreaker[] = sprintf('resources.%s = :cursor_col%d', $sorts[$j]['col'], $j);
+        }
+        $tiebreaker[] = sprintf('resources.resource_id %s :cursor_rid', $cmp);
+        $conditions[] = '(' . implode(' AND ', $tiebreaker) . ')';
+
+        return ' AND (' . implode("\n    OR ", $conditions) . ')';
     }
 
     /**

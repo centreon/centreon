@@ -41,15 +41,18 @@ final class FindResourcesFactory
     /**
      * @param list<ResourceEntity> $resources
      * @param array<string, array<mixed, mixed>> $extraData
+     * @param string|null $nextCursor
      *
      * @return FindResourcesResponse
      */
     public static function createResponse(
         array $resources,
         array $extraData = [],
+        ?string $nextCursor = null,
     ): FindResourcesResponse {
         $response = new FindResourcesResponse();
         $response->extraData = $extraData;
+        $response->nextCursor = $nextCursor;
 
         foreach ($resources as $resource) {
             $parentResource = $resource->getParent();

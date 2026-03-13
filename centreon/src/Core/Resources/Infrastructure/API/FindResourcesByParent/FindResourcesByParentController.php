@@ -57,7 +57,16 @@ final class FindResourcesByParentController extends AbstractController
 
         $filter = $this->validator->validateAndRetrieveRequestParameters($request->query->all());
 
-        $useCase($presenter, $this->createResourceFilter($filter));
+        $resourceFilter = $this->createResourceFilter($filter);
+
+        /** @var string|null $cursorToken */
+        $cursorToken = $request->query->get('cursor');
+        if ($cursorToken !== null && $cursorToken !== '') {
+            $decoded = json_decode($cursorToken, true);
+            $resourceFilter->setCursor(is_string($decoded) ? $decoded : $cursorToken);
+        }
+
+        $useCase($presenter, $resourceFilter);
 
         return $presenter->show();
     }
