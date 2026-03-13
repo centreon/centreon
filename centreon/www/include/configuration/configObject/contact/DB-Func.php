@@ -480,19 +480,9 @@ function deleteContactInDB(array $contacts = []): void
         if ($ownTransaction) {
             $pearDB->commit();
         }
-    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        try {
-            if (($ownTransaction ?? false) && $pearDB->inTransaction()) {
-                $pearDB->rollBack();
-            }
-        } catch (ConnectionException $rollbackException) {
-            throw new RepositoryException(
-                'Failed to roll back transaction in deleteContactInDB: ' . $rollbackException->getMessage(),
-                [
-                    'contact_ids' => array_keys($contacts),
-                ],
-                $rollbackException
-            );
+    } catch (ValueObjectException|CollectionException|ConnectionException|PDOException $exception) {
+        if (($ownTransaction ?? false) && $pearDB->inTransaction()) {
+            $pearDB->rollBack();
         }
 
         throw new RepositoryException(

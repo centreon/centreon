@@ -138,60 +138,60 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
         'SELECT * FROM virtual_metrics WHERE vmetric_id = :vmetric_id LIMIT 1'
     );
 
-    try {
-        $pearDB->beginTransaction();
-        foreach (array_keys($vmetrics) as $vmetricId) {
-            $validVmetricId = filter_var($vmetricId, FILTER_VALIDATE_INT);
-            if ($validVmetricId === false) {
+    foreach (array_keys($vmetrics) as $vmetricId) {
+        $validVmetricId = filter_var($vmetricId, FILTER_VALIDATE_INT);
+        if ($validVmetricId === false) {
+            continue;
+        }
+
+        $selectStmt->bindValue(':vmetric_id', $validVmetricId, PDO::PARAM_INT);
+        $selectStmt->execute();
+        $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            continue;
+        }
+
+        unset($row['vmetric_id']);
+        $columns = array_keys($row);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO virtual_metrics (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
+
+        $indexId = (int) $row['index_id'];
+        $originalName = $row['vmetric_name'];
+        $copies = filter_var($nbrDup[$vmetricId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
+        if ($copies === false || $copies === 0) {
+            continue;
+        }
+        $suffix = 1;
+        for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
+            $virtualMetricName = $originalName . '_' . $suffix;
+            if (! hasVirtualNameNeverUsed($virtualMetricName, $indexId)) {
                 continue;
             }
+            $i++;
+            $row['vmetric_name'] = $virtualMetricName;
 
-            $selectStmt->bindValue(':vmetric_id', $validVmetricId, PDO::PARAM_INT);
-            $selectStmt->execute();
-            $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
-            if ($row === false) {
-                continue;
-            }
-
-            unset($row['vmetric_id']);
-            $columns = array_keys($row);
-            $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
-            $insertStmt = $pearDB->prepare(
-                'INSERT INTO virtual_metrics (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
-            );
-
-            $indexId = (int) $row['index_id'];
-            $originalName = $row['vmetric_name'];
-            $copies = filter_var($nbrDup[$vmetricId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
-            if ($copies === false || $copies === 0) {
-                continue;
-            }
-            $suffix = 1;
-            for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
-                $virtualMetricName = $originalName . '_' . $suffix;
-                if (! hasVirtualNameNeverUsed($virtualMetricName, $indexId)) {
-                    continue;
-                }
-                $i++;
-                $row['vmetric_name'] = $virtualMetricName;
-
+            try {
+                $pearDB->beginTransaction();
                 foreach ($columns as $col) {
                     $value = $row[$col];
                     $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
                 }
                 $insertStmt->execute();
-            }
-            if ($i < $copies) {
-                error_log("Could only create {$i}/{$copies} duplicates for virtual metric '{$originalName}' ({$vmetricId}): suffix search exhausted");
-            }
-        }
-        $pearDB->commit();
-    } catch (Throwable $e) {
-        if ($pearDB->inTransaction()) {
-            $pearDB->rollBack();
-        }
+                $pearDB->commit();
+            } catch (Throwable $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
 
-        throw $e;
+                throw $e;
+            }
+        }
+        if ($i < $copies) {
+            error_log("Could only create {$i}/{$copies} duplicates for virtual metric '{$originalName}' ({$vmetricId}): suffix search exhausted");
+        }
     }
 }
 
