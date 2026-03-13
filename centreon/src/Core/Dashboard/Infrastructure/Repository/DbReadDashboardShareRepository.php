@@ -870,6 +870,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         ]);
 
         [$aclGroupBindValues, $aclGroupsBindQuery] = $this->createMultipleBindQuery($aclGroupIds, ':acl_group_');
+        [$aclGroupBindValuesGcgr, $aclGroupsBindQueryGcgr] = $this->createMultipleBindQuery($aclGroupIds, ':acl_group_gcgr_');
         [$contactGroupBindValues, $contactGroupsBindQuery] = $this->createMultipleBindQuery(
             $contactGroupIds,
             ':contact_group_'
@@ -884,7 +885,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             $sharingScopeConditions[] = <<<SQL
                 (
                     gcr.acl_group_id IN ({$aclGroupsBindQuery})
-                    OR gcgr.acl_group_id IN ({$aclGroupsBindQuery})
+                    OR gcgr.acl_group_id IN ({$aclGroupsBindQueryGcgr})
                 )
                 SQL;
         }
@@ -927,7 +928,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
 
         $countQuery = 'SELECT COUNT(DISTINCT c.contact_id) ' . $baseQuery . $whereClause;
         $countStatement = $this->db->prepare($this->translateDbName($countQuery));
-        foreach (array_merge($aclGroupBindValues, $contactGroupBindValues) as $token => $value) {
+        foreach (array_merge($aclGroupBindValues, $aclGroupBindValuesGcgr, $contactGroupBindValues) as $token => $value) {
             /** @var int $value */
             $countStatement->bindValue($token, $value, \PDO::PARAM_INT);
         }
@@ -951,7 +952,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         $query .= $sqlTranslator->translatePaginationToSql();
 
         $statement = $this->db->prepare($this->translateDbName($query));
-        foreach (array_merge($aclGroupBindValues, $contactGroupBindValues) as $token => $value) {
+        foreach (array_merge($aclGroupBindValues, $aclGroupBindValuesGcgr, $contactGroupBindValues) as $token => $value) {
             /** @var int $value */
             $statement->bindValue($token, $value, \PDO::PARAM_INT);
         }
