@@ -854,7 +854,7 @@ jobs:
             echo "::error::Unsupported distrib, exiting."
             exit 1
           fi
-
+        shell: bash
 
       - name: Package Centreon
         uses: ./.github/actions/package-nfpm
