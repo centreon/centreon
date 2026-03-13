@@ -7034,6 +7034,10 @@ msgstr ""
 msgid "Error while retrieving remote server information"
 msgstr ""
 
+#: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
+msgid "Error while retrieving service category"
+msgstr ""
+
 #: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
 msgid "Error while retrieving service group"
 msgstr ""
@@ -7278,6 +7282,10 @@ msgstr ""
 
 #: centreon/src/Core/HostSeverity/Application/Exception/HostSeverityException.php
 msgid "Error while updating host severity"
+msgstr ""
+
+#: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
+msgid "Error while updating service category"
 msgstr ""
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
@@ -18096,6 +18104,11 @@ msgid ""
 "Centreon or is disabled"
 msgstr ""
 
+#: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
+#, php-format
+msgid "The service category name '%s' already exists"
+msgstr ""
+
 #: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
 #, php-format
 msgid "The service group name '%s' already exists"
@@ -20615,6 +20628,10 @@ msgstr ""
 
 #: centreon/src/Core/Media/Application/Exception/MediaException.php
 msgid "You are not allowed to update media"
+msgstr ""
+
+#: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
+msgid "You are not allowed to update service categories"
 msgstr ""
 
 #: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php

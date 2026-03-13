@@ -6684,6 +6684,10 @@ msgstr ""
 msgid "Error while retrieving remote server information"
 msgstr ""
 
+#: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
+msgid "Error while retrieving service category"
+msgstr ""
+
 #: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
 msgid "Error while retrieving service group"
 msgstr ""
@@ -6933,6 +6937,10 @@ msgstr ""
 #: centreon/src/Core/HostSeverity/Application/Exception/HostSeverityException.php
 msgid "Error while updating host severity"
 msgstr "Erreur lors de la mise à jour de la sévérité d'hôtes"
+
+#: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
+msgid "Error while updating service category"
+msgstr ""
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while updating the dashboard share"
@@ -16919,6 +16927,11 @@ msgstr ""
 "Le serveur du type '%s' : '%s'@'%s' ne correspond pas à celui configuré dans "
 "Centreon ou est désactivé"
 
+#: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
+#, php-format
+msgid "The service category name '%s' already exists"
+msgstr ""
+
 #: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
 #, php-format
 msgid "The service group name '%s' already exists"
@@ -19304,6 +19317,10 @@ msgstr "Vous n'avez pas la permission de mettre à jour un modèle de service"
 #: centreon/src/Core/Media/Application/Exception/MediaException.php
 msgid "You are not allowed to update media"
 msgstr "Vous n'avez pas la permission de mettre à jour des médias"
+
+#: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
+msgid "You are not allowed to update service categories"
+msgstr ""
 
 #: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
 msgid "You are not allowed to update service groups"
