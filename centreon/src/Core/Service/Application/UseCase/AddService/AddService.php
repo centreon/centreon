@@ -40,6 +40,7 @@ use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Contact\Domain\AdminResolver;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
@@ -48,6 +49,7 @@ use Core\Macro\Domain\Model\MacroManager;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Service\Application\Exception\ServiceException;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
@@ -93,6 +95,9 @@ final class AddService
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
         private readonly WriteRealTimeServiceRepositoryInterface $writeRealTimeServiceRepository,
+        private readonly ReadCommandRepositoryInterface $readCommandRepository,
+        private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
+        private readonly AdminResolver $adminResolver,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
@@ -116,7 +121,7 @@ final class AddService
                 return;
             }
 
-            if (! $this->user->isAdmin()) {
+            if (! $this->adminResolver->isAdmin($this->user)) {
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $this->validation->accessGroups = $this->accessGroups;
             }
@@ -141,7 +146,7 @@ final class AddService
 
                 return;
             }
-            if ($this->user->isAdmin()) {
+            if ($this->adminResolver->isAdmin($this->user)) {
                 $serviceCategories = $this->readServiceCategoryRepository->findByService($newServiceId);
                 $serviceGroups = $this->readServiceGroupRepository->findByService($newServiceId);
             } else {
@@ -428,6 +433,10 @@ final class AddService
             if (($monitoringServer = $this->readMonitoringServerRepository->findByHost($request->hostId))) {
                 $this->writeMonitoringServerRepository->notifyConfigurationChange($monitoringServer->getId());
             }
+
+            $this->adminResolver->isAdmin($this->user)
+                ? $this->writeAccessGroupRepository->updateAclResourcesFlag()
+                : $this->writeAccessGroupRepository->updateAclGroupsFlag($this->accessGroups);
 
             $this->storageEngine->commitTransaction();
 

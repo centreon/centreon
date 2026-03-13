@@ -34,6 +34,7 @@ use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Domain\YesNoDefault;
+use Core\Contact\Domain\AdminResolver;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
@@ -42,6 +43,7 @@ use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryI
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\MonitoringServer\Model\MonitoringServer;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\Service\Application\Exception\ServiceException;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteRealTimeServiceRepositoryInterface;
@@ -87,6 +89,9 @@ beforeEach(function (): void {
         $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
         $this->writeRealTimeServiceRepository = $this->createMock(WriteRealTimeServiceRepositoryInterface::class),
+        $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
+        $this->writeAccessGroupRepository = $this->createMock(WriteAccessGroupRepositoryInterface::class),
+        $this->adminResolver = $this->createMock(AdminResolver::class),
     );
 
     $this->request = new AddServiceRequest();
@@ -117,7 +122,7 @@ it('should present an ErrorResponse when the service name already exists', funct
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -150,7 +155,7 @@ it('should present a ConflictResponse when the severity ID is not valid', functi
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -177,7 +182,7 @@ it('should present a ConflictResponse when the performance graph ID is not valid
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -205,7 +210,7 @@ it('should present a ConflictResponse when the service template ID is not valid'
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -234,7 +239,7 @@ it('should present a ConflictResponse when the command ID is not valid', functio
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -264,7 +269,7 @@ it('should present a ConflictResponse when the event handler ID is not valid', f
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -305,7 +310,7 @@ it('should present a ConflictResponse when the time period ID is not valid', fun
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -348,7 +353,7 @@ it('should present a ConflictResponse when the icon ID is not valid', function (
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -392,7 +397,7 @@ it('should present a ConflictResponse when the host ID is not valid', function (
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -436,7 +441,7 @@ it('should present a ConflictResponse when the service category IDs are not vali
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -481,7 +486,7 @@ it('should present a ConflictResponse when the service group IDs are not valid',
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -525,7 +530,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -629,8 +634,8 @@ it('should present an AddServiceResponse when everything has gone well', functio
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
-        ->expects($this->exactly(2))
+    $this->adminResolver
+        ->expects($this->exactly(3))
         ->method('isAdmin')
         ->willReturn(true);
 
@@ -693,6 +698,10 @@ it('should present an AddServiceResponse when everything has gone well', functio
     $this->writeMonitoringServerRepository
         ->expects($this->once())
         ->method('notifyConfigurationChange');
+
+    $this->writeAccessGroupRepository
+        ->expects($this->once())
+        ->method('updateAclResourcesFlag');
 
     $this->readServiceRepository
         ->expects($this->once())
