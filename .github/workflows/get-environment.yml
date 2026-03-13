@@ -683,6 +683,16 @@ jobs:
         id: get_os_database_matrix
         with:
           script: |
+            const alma10_mariadb_11_8 = {
+              "operating_system": "alma10",
+              "database": "mariadb:11.8",
+              "test_tags": "not @ignore"
+            };
+            const alma10_mysql_8_4 = {
+              "operating_system": "alma10",
+              "database": "mysql:8.4",
+              "test_tags": "not @ignore"
+            };
             const alma9_mariadb_10_11 = {
               "operating_system": "alma9",
               "database": "mariadb:10.11",
@@ -693,8 +703,8 @@ jobs:
               "database": "mysql:8.0",
               "test_tags": "not @ignore"
             };
-            const bookworm_mysql_8_4 = {
-              "operating_system": "bookworm",
+            const trixie_mysql_8_4 = {
+              "operating_system": "trixie",
               "database": "mysql:8.4",
               "test_tags": "not @ignore"
             };
@@ -729,7 +739,7 @@ jobs:
               return configs[configIndex];
             };
 
-            const configs = [alma9_mariadb_10_11, alma9_mysql_8_0, bookworm_mysql_8_4];
+            const configs = [alma9_mariadb_10_11, alma9_mysql_8_0, alma10_mariadb_11_8, alma10_mysql_8_4 trixie_mysql_8_4];
 
             const cloud = alma9_mysql_8_0;
 
