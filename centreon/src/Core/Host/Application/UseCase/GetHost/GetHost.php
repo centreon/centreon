@@ -26,7 +26,6 @@ namespace Core\Host\Application\UseCase\GetHost;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
@@ -104,28 +103,30 @@ final class GetHost
             $parentTemplates = [];
             if ($this->adminResolver->isAdmin($this->user)) {
                 $host = $this->readHostRepository->findById($hostId);
-                $hostCategories = $this->readHostCategoryRepository->findByHost($hostId);
-                $hostGroups = $this->readHostGroupRepository->findByHost($hostId);
-                $macros = $this->readHostMacroRepository->findByHostId($hostId);
-                $parentTemplates = $this->findParentTemplates($hostId);
-
+                if ($host !== null) {
+                    $hostCategories = $this->readHostCategoryRepository->findByHost($hostId);
+                    $hostGroups = $this->readHostGroupRepository->findByHost($hostId);
+                    $macros = $this->readHostMacroRepository->findByHostId($hostId);
+                    $parentTemplates = $this->findParentTemplates($hostId);
+                }
             } else {
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 if ($this->readHostRepository->existsByAccessGroups($hostId, $this->accessGroups)) {
                     $host = $this->readHostRepository->findById($hostId);
+                    if ($host !== null) {
+                        $hostCategories = $this->readHostCategoryRepository->findByHostAndAccessGroups(
+                            $hostId,
+                            $this->accessGroups
+                        );
 
-                    $hostCategories = $this->readHostCategoryRepository->findByHostAndAccessGroups(
-                        $hostId,
-                        $this->accessGroups
-                    );
+                        $hostGroups = $this->readHostGroupRepository->findByHostAndAccessGroups(
+                            $hostId,
+                            $this->accessGroups
+                        );
 
-                    $hostGroups = $this->readHostGroupRepository->findByHostAndAccessGroups(
-                        $hostId,
-                        $this->accessGroups
-                    );
-
-                    $macros = $this->readHostMacroRepository->findByHostId($hostId);
-                    $parentTemplates = $this->findParentTemplates($hostId);
+                        $macros = $this->readHostMacroRepository->findByHostId($hostId);
+                        $parentTemplates = $this->findParentTemplates($hostId);
+                    }
                 }
             }
 
@@ -140,9 +141,6 @@ final class GetHost
             }
 
             $presenter->presentResponse($this->createResponse($host, $hostCategories, $hostGroups, $parentTemplates, $macros));
-        } catch (RequestParametersTranslatorException $ex) {
-            $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
             $presenter->presentResponse(
                 new ErrorResponse(HostException::errorWhileRetrievingObject())
@@ -254,6 +252,10 @@ final class GetHost
         $parentTemplates = [];
         foreach ($templateIds as $templateId) {
             if (! isset($templateNames[$templateId])) {
+                $this->warning('Template name not found for template', [
+                    'host_id' => $hostId,
+                    'template_id' => $templateId,
+                ]);
                 continue;
             }
             $parentTemplates[] = [
