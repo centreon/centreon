@@ -124,7 +124,7 @@ class AgentConfiguration extends AbstractObjectJSON
     {
         $tokens = $this->filterTokens($data['tokens'] ?? []);
         $configuration = [];
-        if ($data['agent_initiated'] === true) {
+        if (! $data['is_reverse']) {
             $configuration['otel_server'] = $this->formatOtelConfiguration($data, $tokens, $connectionMode);
         }
         $configuration['centreon_agent'] = [
