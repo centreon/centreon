@@ -773,7 +773,7 @@ function updateNagios($nagiosId = null)
             $mainCfg->insertBrokerDirectives($nagiosId);
         }
 
-        if ($data['nagios_activate']['nagios_activate']) {
+        if (isset($data['nagios_activate']['nagios_activate']) && $data['nagios_activate']['nagios_activate']) {
             enableNagiosInDB($nagiosId);
         }
 

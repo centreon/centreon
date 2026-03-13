@@ -763,7 +763,7 @@ function insertServer(array $data): int
     $centreon->CentreonLogAction->insertLog(
         'poller',
         $pollerId,
-        $data['name'],
+        $data['name'] ?? '',
         'a',
         $fields
     );

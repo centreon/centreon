@@ -357,6 +357,9 @@ function createTimePeriod(array $params): int
         'INSERT INTO timeperiod (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
     );
     foreach ($columns as $col) {
+        if (! array_key_exists($col, $params['values'])) {
+            throw new InvalidArgumentException("Missing value for column: {$col}");
+        }
         $value = $params['values'][$col];
         $statement->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
     }
