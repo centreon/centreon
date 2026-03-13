@@ -566,13 +566,14 @@ function updateLCARelation($aclId = null)
                 . 'VALUES (:aclId, :key, :value)'
             );
             foreach ($submitedValues as $key => $value) {
-                // Skip invalid topology ID 0
-                if ($key == 0) {
+                $topologyId = filter_var($key, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+                $accessRight = filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 2]]);
+                if ($topologyId === false || $accessRight === false) {
                     continue;
                 }
                 $insertStmt->bindValue(':aclId', $aclId, PDO::PARAM_INT);
-                $insertStmt->bindValue(':key', $key, PDO::PARAM_INT);
-                $insertStmt->bindValue(':value', $value, PDO::PARAM_INT);
+                $insertStmt->bindValue(':key', $topologyId, PDO::PARAM_INT);
+                $insertStmt->bindValue(':value', $accessRight, PDO::PARAM_INT);
                 $insertStmt->execute();
             }
         }
@@ -622,11 +623,13 @@ function updateGroups($aclId = null)
                 VALUES (:aclId, :value)'
             );
             foreach ($submitedValues as $value) {
-                if (isset($value)) {
-                    $insertStmt->bindValue(':aclId', $aclId, PDO::PARAM_INT);
-                    $insertStmt->bindValue(':value', $value, PDO::PARAM_INT);
-                    $insertStmt->execute();
+                $groupId = filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+                if ($groupId === false) {
+                    continue;
                 }
+                $insertStmt->bindValue(':aclId', $aclId, PDO::PARAM_INT);
+                $insertStmt->bindValue(':value', $groupId, PDO::PARAM_INT);
+                $insertStmt->execute();
             }
         }
 
