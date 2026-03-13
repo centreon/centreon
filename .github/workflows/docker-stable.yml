@@ -105,6 +105,9 @@ jobs:
               25.10)
                 DISTRIBS=("alma8" "alma9" "bookworm")
                 ;;
+              26.10)
+                DISTRIBS=("alma9" "alma10" "trixie")
+                ;;
               *)
                 echo "::error::Major version has not been properly detected."
                 exit 1
