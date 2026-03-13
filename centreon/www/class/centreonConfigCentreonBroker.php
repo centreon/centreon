@@ -1741,51 +1741,6 @@ class CentreonConfigCentreonBroker
     }
 
     /**
-     * Get configuration fieldname for loading configuration from database
-     *
-     * @param int $configId The configuration ID
-     * @param string $configGroup The configuration group (tag)
-     * @param array $info The information
-     * @return string
-     */
-    private function getConfigFieldName($configId, $configGroup, $info)
-    {
-        $elemStr = $info['config_key'];
-        if ($info['grp_level'] != 0) {
-            $error = false;
-            try {
-                $res = $this->db->query(sprintf(
-                    "SELECT config_key, config_value, config_group_id, grp_level, parent_grp_id
-               FROM cfg_centreonbroker_info
-               WHERE config_id = %d
-                   AND config_group = '%s'
-           AND subgrp_id = %d
-           AND grp_level = %d
-           AND config_group_id = %d",
-                    $configId,
-                    $configGroup,
-                    $info['parent_grp_id'],
-                    $info['grp_level'] - 1,
-                    $info['config_group_id']
-                ));
-            } catch (PDOException $e) {
-                $error = true;
-            }
-            if ($error || $res->rowCount() == 0) {
-                return $elemStr;
-            }
-            $row = $res->fetchRow();
-            $elemStr = $this->getConfigFieldName(
-                $configId,
-                $configGroup,
-                $row
-            ) . '__' . $info['parent_grp_id'] . '__' . $elemStr;
-        }
-
-        return $elemStr;
-    }
-
-    /**
      * @param array<string|int|null|array<string|int|null|array<string|int|null>>> $inputOutput
      *
      * @return array

@@ -108,9 +108,9 @@ $elemArr = [];
 $centreonToken = createCSRFToken();
 
 $statementBrokerInfo = $pearDB->prepare(
-    'SELECT COUNT(DISTINCT(config_group_id)) as num '
-    . 'FROM cfg_centreonbroker_info '
-    . 'WHERE config_group = :config_group '
+    'SELECT COUNT(*) as num '
+    . 'FROM cfg_broker_input_output '
+    . 'WHERE tag = :tag '
     . 'AND config_id = :config_id'
 );
 
@@ -137,13 +137,13 @@ for ($i = 0; $config = $cfgBrokerStmt->fetch(); $i++) {
 
     // Number of output
     $statementBrokerInfo->bindValue(':config_id', (int) $config['config_id'], PDO::PARAM_INT);
-    $statementBrokerInfo->bindValue(':config_group', 'output', PDO::PARAM_STR);
+    $statementBrokerInfo->bindValue(':tag', 'output', PDO::PARAM_STR);
     $statementBrokerInfo->execute();
     $row = $statementBrokerInfo->fetch(PDO::FETCH_ASSOC);
     $outputNumber = $row['num'];
 
     // Number of input
-    $statementBrokerInfo->bindValue(':config_group', 'input', PDO::PARAM_STR);
+    $statementBrokerInfo->bindValue(':tag', 'input', PDO::PARAM_STR);
     $statementBrokerInfo->execute();
     $row = $statementBrokerInfo->fetch(PDO::FETCH_ASSOC);
     $inputNumber = $row['num'];
