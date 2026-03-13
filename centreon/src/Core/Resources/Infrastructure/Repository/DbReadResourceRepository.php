@@ -51,6 +51,14 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     use LoggerTrait;
     private const RESOURCE_TYPE_HOST = 1;
 
+    /**
+     * When the number of ACL entries for the user's groups is below this threshold, we pre-compute
+     * accessible resource IDs via a WITH acl_accessible CTE and drive the join from that small set.
+     * Above the threshold, ACL selectivity is high enough that the correlated EXISTS approach is
+     * faster (the sort-index scan early-terminates at LIMIT after seeing few rows).
+     */
+    private const ACL_CTE_THRESHOLD = 20_000;
+
     /** @var ResourceEntity[] */
     private array $resources = [];
 
@@ -401,7 +409,8 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $query = $this->generateFindResourcesQuery(
                 filter: $filter,
                 queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
-                accessGroupIds: $accessGroupIds
+                accessGroupIds: $accessGroupIds,
+                useAclCte: $this->shouldUseAclCte($accessGroupIds),
             );
 
             return $this->iterate($query, $queryParametersFromRequestParameter);
@@ -535,33 +544,49 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             || $filter->getStatusTypes() !== [];
 
         if ($useTagExistsForFilters) {
-            // EXISTS approach: no CTE, tag filters go in WHERE clause as correlated EXISTS conditions.
+            // EXISTS approach: tag filters go in WHERE clause as correlated EXISTS conditions.
             // Enables the optimizer to walk resources in sort order and early-terminate at LIMIT.
-            $query = '';
-            $joinCtes = '';
             $tagExistsConditions = $this->createTagFilterExistsConditions(
                 $filter,
                 $queryParametersFromRequestParameter,
             );
-            // When status/state filters are active, force the status_filter_idx:
-            // it directly seeks to matching rows and avoids scanning acknowledged/in_downtime rows at
-            // the same status_ordered level, preventing 500× slowdown on pages > 1 (OFFSET > 0).
-            // When only tag EXISTS filters are active (no status filter), use the sort index so the
-            // optimizer can walk resources in order and early-terminate at LIMIT without building a CTE.
-            if ($hasStatusOrStateFilter) {
-                $sortIndexHint = 'FORCE INDEX (`resources_status_filter_idx`)';
-            } elseif ($tagExistsConditions !== '') {
-                $sortIndexHint = 'FORCE INDEX (`resources_enabled_status_sort_idx`)';
+            if ($useAclCte) {
+                // Pre-compute accessible resource IDs via the acl_accessible CTE and drive the join
+                // from that small set. Used when ACL selectivity is very low (few accessible resources
+                // out of 900k+) — the EXISTS approach would force a full scan of the sort index.
+                $query = $this->buildAclCte($accessGroupIds);
+                $joinCtes = ' INNER JOIN acl_accessible ON resources.resource_id = acl_accessible.resource_id ';
+                $sortIndexHint = ''; // No sort index: driving from small ACL CTE
             } else {
-                $sortIndexHint = '';
+                $query = '';
+                $joinCtes = '';
+                // When status/state filters are active, force the status_filter_idx:
+                // it directly seeks to matching rows and avoids scanning acknowledged/in_downtime rows at
+                // the same status_ordered level, preventing 500× slowdown on pages > 1 (OFFSET > 0).
+                // When only tag EXISTS filters are active (no status filter), use the sort index so the
+                // optimizer can walk resources in order and early-terminate at LIMIT without building a CTE.
+                if ($hasStatusOrStateFilter) {
+                    $sortIndexHint = 'FORCE INDEX (`resources_status_filter_idx`)';
+                } elseif ($tagExistsConditions !== '') {
+                    $sortIndexHint = 'FORCE INDEX (`resources_enabled_status_sort_idx`)';
+                } else {
+                    $sortIndexHint = '';
+                }
             }
         } else {
             // CTE approach: tag filters are materialized as CTEs and joined in.
             // Better for large result sets (exports) where early termination is not possible.
-            $query = $this->createQueryHeaders($filter, $queryParametersFromRequestParameter);
-            $joinCtes = $query === ''
-                ? ''
-                : ' INNER JOIN cte ON cte.resource_id = resources.resource_id ';
+            $tagCtes = $this->createQueryHeaders($filter, $queryParametersFromRequestParameter);
+            if ($useAclCte) {
+                $query = $tagCtes . $this->buildAclCte($accessGroupIds, prependComma: $tagCtes !== '');
+                $joinCtes = ($tagCtes !== '' ? ' INNER JOIN cte ON cte.resource_id = resources.resource_id ' : '')
+                    . ' INNER JOIN acl_accessible ON resources.resource_id = acl_accessible.resource_id ';
+            } else {
+                $query = $tagCtes;
+                $joinCtes = $tagCtes !== ''
+                    ? ' INNER JOIN cte ON cte.resource_id = resources.resource_id '
+                    : '';
+            }
             $tagExistsConditions = '';
             $sortIndexHint = '';
         }
@@ -653,9 +678,11 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $query .= $provider->getSubFilter($filter);
         }
 
-        if ($accessGroupIds !== []) {
+        if ($accessGroupIds !== [] && ! $useAclCte) {
             $query .= $this->buildAclExistsCondition($accessGroupIds);
         }
+        // When $useAclCte is true, ACL filtering is handled via the acl_accessible CTE JOIN
+        // prepended in the query header — no additional WHERE clause is needed.
 
         $query .= $tagExistsConditions;
 
@@ -744,6 +771,42 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 )
             )
             SQL;
+    }
+
+    /**
+     * Returns true when the CTE-based ACL strategy should be used instead of correlated EXISTS.
+     *
+     * The decision is based on the number of ACL entries for the given groups:
+     * - Few entries  → CTE: pre-compute ~N accessible resource IDs, drive join from that small set.
+     *                  Avoids scanning 900k+ rows with EXISTS when ACL selectivity is very low.
+     * - Many entries → EXISTS: ACL selectivity is high, the sort-index scan early-terminates at
+     *                  LIMIT quickly. Building and sorting a large CTE would be slower.
+     *
+     * The count is cached per group-id set to avoid querying centreon_acl twice when find() and
+     * count() are called with the same groups within the same request.
+     *
+     * @param int[] $accessGroupIds
+     */
+    private function shouldUseAclCte(array $accessGroupIds): bool
+    {
+        if ($accessGroupIds === []) {
+            return false;
+        }
+
+        $ids = array_map('intval', $accessGroupIds);
+        sort($ids);
+        $cacheKey = implode(',', $ids);
+
+        if (! isset($this->aclCountCache[$cacheKey])) {
+            $placeholders = implode(',', $ids);
+            $this->aclCountCache[$cacheKey] = (int) $this->connection->fetchOne(
+                $this->translateDbName(
+                    "SELECT COUNT(*) FROM `:dbstg`.`centreon_acl` WHERE group_id IN ({$placeholders})"
+                )
+            );
+        }
+
+        return $this->aclCountCache[$cacheKey] < self::ACL_CTE_THRESHOLD;
     }
 
     /**
@@ -1091,12 +1154,21 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         ResourceFilter $filter,
         QueryParameters $queryParametersFromRequestParameter,
         array $accessGroupIds = [],
+        bool $useAclCte = false,
     ): string {
-        $queryHeaders = $this->createQueryHeaders($filter, $queryParametersFromRequestParameter);
-
-        $joinCtes = $queryHeaders !== ''
-            ? ' INNER JOIN cte ON cte.resource_id = resources.resource_id '
-            : '';
+        $tagHeaders = $this->createQueryHeaders($filter, $queryParametersFromRequestParameter);
+        if ($useAclCte) {
+            // Pre-compute accessible resource IDs via the acl_accessible CTE and drive the COUNT
+            // from that small set. Used when ACL selectivity is very low (few accessible resources).
+            $queryHeaders = $tagHeaders . $this->buildAclCte($accessGroupIds, prependComma: $tagHeaders !== '');
+            $joinCtes = ($tagHeaders !== '' ? ' INNER JOIN cte ON cte.resource_id = resources.resource_id ' : '')
+                . ' INNER JOIN acl_accessible ON resources.resource_id = acl_accessible.resource_id ';
+        } else {
+            $queryHeaders = $tagHeaders;
+            $joinCtes = $queryHeaders !== ''
+                ? ' INNER JOIN cte ON cte.resource_id = resources.resource_id '
+                : '';
+        }
 
         // LEFT JOIN to parent_resource is needed when severity filter is active
         // (addSeveritySubRequest references parent_resource.severity_id).
@@ -1203,9 +1275,11 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $query .= $provider->getSubFilter($filter);
         }
 
-        if ($accessGroupIds !== []) {
+        if ($accessGroupIds !== [] && ! $useAclCte) {
             $query .= $this->buildAclExistsCondition($accessGroupIds);
         }
+        // When $useAclCte is true, ACL filtering is handled via the acl_accessible CTE JOIN
+        // prepended in the query header — no additional WHERE clause is needed.
 
         $query .= $this->addResourceParentIdSubRequest($filter, $queryParametersFromRequestParameter);
         $query .= $this->addResourceTypeSubRequest($filter);
@@ -1304,6 +1378,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             filter: $filter,
             queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
             accessGroupIds: $accessGroupIds,
+            useAclCte: $this->shouldUseAclCte($accessGroupIds),
         );
 
         $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
