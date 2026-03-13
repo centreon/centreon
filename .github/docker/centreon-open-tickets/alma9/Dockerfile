@@ -5,7 +5,7 @@ FROM ${REGISTRY_URL}/centreon-web-alma9:${FROM_IMAGE_VERSION}
 
 COPY --chmod=755 ./.github/docker/install-centreon-module.php /tmp/install-centreon-module.php
 
-COPY --chmod=755 ./.github/docker/centreon-open-tickets/entrypoint.sh /usr/share/centreon/container.d/80-open-tickets.sh
+COPY --chmod=755 ./.github/docker/centreon-open-tickets/alma9/entrypoint.sh /usr/share/centreon/container.d/80-open-tickets.sh
 
 RUN --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon bash -e <<EOF
 
