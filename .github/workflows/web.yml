@@ -880,6 +880,9 @@ jobs:
           elif [ "${{ matrix.operating_system }}" = "trixie" ]; then
             DISTRIB=trixie
             PACKAGE_EXTENSION=deb
+          elif [ "${{ matrix.operating_system }}" = "trixie" ]; then
+            DISTRIB=bookworm
+            PACKAGE_EXTENSION=deb
           elif [ "${{ matrix.operating_system }}" = "jammy" ]; then
             DISTRIB=jammy
             PACKAGE_EXTENSION=deb
