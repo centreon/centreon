@@ -58,4 +58,16 @@ interface WriteAccessGroupRepositoryInterface
      * @param AccessGroup[] $accessGroups
      */
     public function addLinksBetweenServiceGroupAndAccessGroups(int $serviceGroupId, array $accessGroups): void;
+
+    /**
+     * Sets the changed flag
+     *
+     * @param AccessGroup[] $accessGroupIds
+     */
+    public function updateAclGroupsFlag(array $accessGroupIds): void;
+
+    /**
+     * Update the changed flag for ACL resources.
+     */
+    public function updateAclResourcesFlag(): void;
 }
