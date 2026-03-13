@@ -163,133 +163,108 @@ function multipleTrapGroupInDB(array $trapGroups = [], array $nbrDup = []): void
 {
     global $pearDB, $oreon;
 
-    try {
-        if (! $pearDB->isTransactionActive()) {
-            $pearDB->startTransaction();
+    $copySql = <<<'SQL'
+            INSERT INTO traps_group_relation (traps_group_id, traps_id)
+            SELECT :new_group_id, traps_id
+            FROM traps_group_relation
+            WHERE traps_group_id = :old_group_id
+        SQL;
+
+    foreach (array_keys($trapGroups) as $trapGroupId) {
+        $trapGroupId = filter_var($trapGroupId, FILTER_VALIDATE_INT);
+        if ($trapGroupId === false) {
+            continue;
         }
 
-        foreach (array_keys($trapGroups) as $trapGroupId) {
-            // Fetch original row
-            $paramsId = QueryParameters::create([
+        // Fetch original row
+        $originalGroup = $pearDB->fetchAssociative(
+            <<<'SQL'
+                    SELECT *
+                    FROM traps_group
+                    WHERE traps_group_id = :id
+                    LIMIT 1
+                SQL,
+            QueryParameters::create([
                 QueryParameter::create('id', (int) $trapGroupId, QueryParameterTypeEnum::INTEGER),
-            ]);
+            ])
+        );
+        if (! $originalGroup) {
+            continue;
+        }
 
-            $originalGroup = $pearDB->fetchAssociative(
-                <<<'SQL'
-                        SELECT *
-                        FROM traps_group
-                        WHERE traps_group_id = :id
-                        LIMIT 1
-                    SQL,
-                $paramsId
-            );
-            if (! $originalGroup) {
-                // nothing to duplicate for this id
+        $baseName = $originalGroup['traps_group_name'];
+        $dupCount = filter_var($nbrDup[$trapGroupId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
+        if ($dupCount === false || $dupCount === 0) {
+            continue;
+        }
+
+        unset($originalGroup['traps_group_id']);
+        $columns = array_keys($originalGroup);
+        $insertSql = sprintf(
+            'INSERT INTO traps_group (%s) VALUES (%s)',
+            implode(', ', $columns),
+            implode(', ', array_map(fn ($col) => ':' . $col, $columns)),
+        );
+
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
+            $newName = $baseName . '_' . $suffix;
+            if (testTrapGroupExistence($newName)) {
                 continue;
             }
+            $i++;
 
-            $baseName = $originalGroup['traps_group_name'];
-            $dupCount = filter_var($nbrDup[$trapGroupId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
-            if ($dupCount === false || $dupCount === 0) {
-                continue;
-            }
+            $dup = $originalGroup;
+            $dup['traps_group_name'] = $newName;
 
-            $parameters = [];
-            $valuePlaceholders = [];
-            $insertLogsInfo = [];
-            for ($i = 1; $i <= $dupCount; $i++) {
-                $newName = $baseName . '_' . $i;
-                if (testTrapGroupExistence($newName)) {
+            try {
+                $pearDB->startTransaction();
+
+                $params = [];
+                foreach ($columns as $col) {
+                    $params[] = QueryParameter::create(
+                        $col,
+                        $dup[$col],
+                        $dup[$col] === null ? QueryParameterTypeEnum::NULL : QueryParameterTypeEnum::STRING,
+                    );
+                }
+                $pearDB->insert($insertSql, QueryParameters::create($params));
+                $newGroupId = (int) $pearDB->getLastInsertId();
+                if ($newGroupId <= 0) {
+                    $pearDB->rollBackTransaction();
                     continue;
                 }
 
-                $paramName = 'name_' . $i;
-                $parameters[] = QueryParameter::create(
-                    $paramName,
-                    $newName,
-                    QueryParameterTypeEnum::STRING,
-                );
-                $valuePlaceholders[] = '(:' . $paramName . ')';
-                $insertLogsInfo[] = [$trapGroupId, $newName];
-            }
-
-            if ($parameters === []) {
-                continue;
-            }
-            $insertSql = sprintf(
-                'INSERT INTO traps_group (traps_group_name) VALUES %s',
-                implode(', ', $valuePlaceholders),
-            );
-            $pearDB->insert($insertSql, QueryParameters::create($parameters));
-
-            $firstInsertedId = (int) $pearDB->getLastInsertId();
-            $totalInserted = count($parameters);
-            $newIds = range($firstInsertedId, $firstInsertedId + $totalInserted - 1);
-
-            // Map new IDs to their names
-            $newGroups = [];
-            foreach ($parameters as $index => $param) {
-                $newGroups[$newIds[$index]] = $param->getValue();
-            }
-
-            // Copy relations
-            foreach ($newGroups as $newGroupId => $newName) {
-                $copyParams = QueryParameters::create([
+                // Copy relations
+                $pearDB->insert($copySql, QueryParameters::create([
                     QueryParameter::create('new_group_id', $newGroupId, QueryParameterTypeEnum::INTEGER),
                     QueryParameter::create('old_group_id', (int) $trapGroupId, QueryParameterTypeEnum::INTEGER),
-                ]);
+                ]));
 
-                $pearDB->insert(
-                    <<<'SQL'
-                            INSERT INTO traps_group_relation (traps_group_id, traps_id)
-                            SELECT :new_group_id, traps_id
-                            FROM traps_group_relation
-                            WHERE traps_group_id = :old_group_id
-                        SQL,
-                    $copyParams,
+                $pearDB->commitTransaction();
+            } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+                if ($pearDB->isTransactionActive()) {
+                    $pearDB->rollBackTransaction();
+                }
+
+                throw new RepositoryException(
+                    'Error while duplicating trap group',
+                    ['trapGroupId' => $trapGroupId, 'newName' => $newName],
+                    $exception,
                 );
             }
 
-            // Log insertions after successful creation
-            foreach ($newGroups as $newGroupId => $newName) {
-                $oreon->CentreonLogAction->insertLog(
-                    'traps_group',
-                    $newGroupId,
-                    $newName,
-                    'a',
-                    [
-                        'traps_group_name' => $newName,
-                        'name' => $newName,
-                    ]
-                );
-            }
-        }
-
-        $pearDB->commitTransaction();
-    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        try {
-            if ($pearDB->isTransactionActive()) {
-                $pearDB->rollBackTransaction();
-            }
-        } catch (ConnectionException $rollbackException) {
-            throw new RepositoryException(
-                'Failed to roll back transaction in multipleTrapGroupInDB: ' . $rollbackException->getMessage(),
-                [
-                    'trapGroups' => array_keys($trapGroups),
-                    'nbrDup' => $nbrDup,
-                ],
-                $rollbackException,
+            $oreon->CentreonLogAction->insertLog(
+                'traps_group',
+                $newGroupId,
+                $newName,
+                'a',
+                CentreonLogAction::prepareChanges($dup),
             );
         }
-
-        throw new RepositoryException(
-            'Error while executing multipleTrapGroupInDB',
-            [
-                'trapGroups' => array_keys($trapGroups),
-                'nbrDup' => $nbrDup,
-            ],
-            $exception,
-        );
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for trap group '{$baseName}' ({$trapGroupId}): suffix search exhausted");
+        }
     }
 }
 
