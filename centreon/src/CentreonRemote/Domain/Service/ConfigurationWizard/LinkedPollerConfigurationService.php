@@ -180,8 +180,8 @@ class LinkedPollerConfigurationService
         $remoteBrokerConfigId = $this->brokerRepository->findBrokerConfigIdByPollerId($remoteId);
 
         // get template function to generate input flow in remote server broker configuration
-        $brokerInfosEntities = InputFlowOnePeerRetention::getConfiguration($poller->getName(), $poller->getIp());
-        $this->brokerConfigurationService->addFlow($remoteBrokerConfigId, 'input', $brokerInfosEntities);
+        $config = InputFlowOnePeerRetention::getConfiguration($poller->getName(), $poller->getIp());
+        $this->brokerConfigurationService->addFlow($remoteBrokerConfigId, $config);
     }
 
     /**
