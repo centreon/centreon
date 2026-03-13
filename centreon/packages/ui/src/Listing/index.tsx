@@ -598,7 +598,7 @@ const Listing = <
                     component="div"
                     onMouseLeave={clearHoveredRow}
                   >
-                    {rowsToDisplay.map((row, index) => {
+                    {rowsToDisplay.map((row) => {
                       const isRowSelected = isSelected(row);
                       const isSubItem = allSubItemIds.includes(
                         getSubItemRowId(row)
@@ -617,11 +617,7 @@ const Listing = <
                           isHovered={isRowHovered}
                           isSelected={isRowSelected}
                           isShiftKeyDown={isShiftKeyDown}
-                          key={
-                            gte(limit, performanceRowsLimit)
-                              ? `row_${index}`
-                              : getRowId(row)
-                          }
+                          key={getRowId(row)}
                           lastSelectionIndex={lastSelectionIndex}
                           limit={limit}
                           listingVariant={listingVariant}

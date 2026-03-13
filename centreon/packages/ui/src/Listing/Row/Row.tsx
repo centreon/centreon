@@ -185,7 +185,7 @@ const IntersectionRow = ({ isHovered, ...rest }: Props): JSX.Element => {
 
   useEffect(() => {
     setElement(getFirstCellElement() as HTMLDivElement);
-  }, [getFirstCellElement, setElement]);
+  }, [getFirstCellElement()]);
 
   return (
     <div className="contents w-full" data-is-hovered={isHovered} ref={rowRef}>
