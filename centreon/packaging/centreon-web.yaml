@@ -435,7 +435,7 @@ overrides:
       - "(mariadb or mysql)"
       - httpd
       - php-common >= 8.4
-      - php-common < 8.3
+      - php-common < 8.5
       - php-cli
       - php-pdo
       - php-mysqlnd
