@@ -41,6 +41,7 @@ use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Contact\Domain\AdminResolver;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\InheritanceManager;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
@@ -58,6 +59,7 @@ use Core\Macro\Domain\Model\MacroDifference;
 use Core\Macro\Domain\Model\MacroManager;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 final class AddHost
@@ -85,6 +87,9 @@ final class AddHost
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
         private readonly WriteRealTimeHostRepositoryInterface $writeRealTimeHostRepository,
+        private readonly ReadCommandRepositoryInterface $readCommandRepository,
+        private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
+        private readonly AdminResolver $adminResolver,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
     }
@@ -110,7 +115,7 @@ final class AddHost
 
             $accessGroups = [];
 
-            if (! $this->user->isAdmin()) {
+            if (! $this->adminResolver->isAdmin($this->user)) {
                 $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $this->validation->accessGroups = $accessGroups;
             }
@@ -126,6 +131,10 @@ final class AddHost
                 if ($accessGroups !== []) {
                     $this->writeRealTimeHostRepository->addHostToResourceAcls($hostId, $accessGroups);
                 }
+                $this->adminResolver->isAdmin($this->user)
+                    ? $this->writeAccessGroupRepository->updateAclResourcesFlag()
+                    : $this->writeAccessGroupRepository->updateAclGroupsFlag($accessGroups);
+
                 $this->writeMonitoringServerRepository->notifyConfigurationChange($request->monitoringServerId);
 
                 $this->dataStorageEngine->commitTransaction();
@@ -421,7 +430,7 @@ final class AddHost
         if (! $host) {
             throw HostException::errorWhileRetrievingObject();
         }
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             $hostCategories = $this->readHostCategoryRepository->findByHost($hostId);
             $hostGroups = $this->readHostGroupRepository->findByHost($hostId);
         } else {
