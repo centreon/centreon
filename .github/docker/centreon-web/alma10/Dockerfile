@@ -1,14 +1,14 @@
 ARG REGISTRY_URL=docker.centreon.com/centreon
 ARG FROM_IMAGE_VERSION=develop
 
-FROM ${REGISTRY_URL}/centreon-web-dependencies-collect-alma9:${FROM_IMAGE_VERSION}
+FROM ${REGISTRY_URL}/centreon-web-dependencies-collect-alma10:${FROM_IMAGE_VERSION}
 
 ARG STABILITY
 ARG MAJOR_VERSION
 ARG WEB_MINOR_VERSION
 
-COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint /usr/share/centreon
-COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /usr/share/centreon/www/install/tmp
+COPY --chmod=755 ./.github/docker/centreon-web/alma10/entrypoint /usr/share/centreon
+COPY --chown=apache:apache ./.github/docker/centreon-web/alma10/configuration /usr/share/centreon/www/install/tmp
 
 COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 
