@@ -35,17 +35,17 @@ else
   apt-get install -y /tmp/packages-centreon/centreon-*.deb
 fi
 
-sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php/8.2/mods-available/timezone.ini
-phpenmod -v 8.2 timezone
+sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php/8.4/mods-available/timezone.ini
+phpenmod -v 8.4 timezone
 
-touch /var/log/php8.2-fpm-centreon-error.log
-chown www-data:www-data /var/log/php8.2-fpm-centreon-error.log
+touch /var/log/php8.4-fpm-centreon-error.log
+chown www-data:www-data /var/log/php8.4-fpm-centreon-error.log
 
 systemctl stop gorgoned
 systemctl stop centengine
 systemctl stop cbd
 systemctl stop apache2
-systemctl stop php8.2-fpm
+systemctl stop php8.4-fpm
 systemctl stop snmpd
 
 apt-get clean
