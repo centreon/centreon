@@ -218,6 +218,17 @@ $migrateCfgCentreonbrokerInfoData = function () use ($pearDB, &$errorMessage, $v
         if ($configId === null || $tag === null
             || $typeId === null || $typeName === null || $name === null
         ) {
+            $missing = implode(', ', array_keys(array_filter(
+                ['configId' => $configId, 'tag' => $tag, 'typeId' => $typeId, 'typeName' => $typeName, 'name' => $name],
+                static fn ($v) => $v === null,
+            )));
+            CentreonLog::create()->warning(
+                logTypeId: CentreonLog::TYPE_UPGRADE,
+                message: "UPGRADE - {$version}: Skipping incomplete broker block (config_id={$group[0]['config_id']}"
+                    . ", config_group={$group[0]['config_group']}"
+                    . ", config_group_id={$group[0]['config_group_id']})"
+                    . " — missing fields: {$missing}",
+            );
             continue;
         }
 
