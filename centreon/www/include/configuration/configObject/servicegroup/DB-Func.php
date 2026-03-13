@@ -197,16 +197,28 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
         $originalName = $row['sg_name'];
         $suffix = 1;
 
-        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
-            $sgName = $originalName . '_' . $suffix;
-            if (! testServiceGroupExistence($sgName, false)) {
-                continue;
-            }
-            $i++;
-            $row['sg_name'] = $sgName;
-            $fields = $row;
+        for ($i = 0; $i < $dupCount; $i++) {
             try {
                 $pearDB->beginTransaction();
+
+                // Existence check is inside the transaction to avoid a TOCTOU race
+                // between checking the name and inserting it.
+                $sgName = null;
+                for (; $suffix <= $dupCount + 1000; $suffix++) {
+                    $testName = $originalName . '_' . $suffix;
+                    if (testServiceGroupExistence($testName, false)) {
+                        $sgName = $testName;
+                        break;
+                    }
+                }
+
+                if ($sgName === null) {
+                    $pearDB->rollBack();
+                    break;
+                }
+                $row['sg_name'] = $sgName;
+                $fields = $row;
+
                 foreach ($columns as $col) {
                     $value = $row[$col];
                     $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
@@ -215,7 +227,7 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
                 $newSgId = (int) $pearDB->lastInsertId();
                 if ($newSgId <= 0) {
                     $pearDB->rollBack();
-                    continue;
+                    break;
                 }
                 $statement = $pearDB->prepare('
                     SELECT DISTINCT sgr.host_host_id, sgr.hostgroup_hg_id, sgr.service_service_id

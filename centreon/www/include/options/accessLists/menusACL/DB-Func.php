@@ -277,16 +277,27 @@ function multipleLCAInDB($acls = [], $duplicateNbr = [])
         }
         $originalName = $row['acl_topo_name'];
         $suffix = 1;
-        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
-            $aclName = $originalName . '_' . $suffix;
-            if (! hasTopologyNameNeverUsed($aclName, false)) {
-                continue;
-            }
-            $i++;
-            $row['acl_topo_name'] = $aclName;
-
+        for ($i = 0; $i < $dupCount; $i++) {
             try {
                 $pearDB->beginTransaction();
+
+                // Existence check is inside the transaction to avoid a TOCTOU race
+                // between checking the name and inserting it.
+                $aclName = null;
+                for (; $suffix <= $dupCount + 1000; $suffix++) {
+                    $testName = $originalName . '_' . $suffix;
+                    if (hasTopologyNameNeverUsed($testName, false)) {
+                        $aclName = $testName;
+                        break;
+                    }
+                }
+
+                if ($aclName === null) {
+                    $pearDB->rollBack();
+                    break;
+                }
+                $row['acl_topo_name'] = $aclName;
+
                 foreach ($columns as $col) {
                     $value = $row[$col];
                     $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
@@ -297,7 +308,7 @@ function multipleLCAInDB($acls = [], $duplicateNbr = [])
                 if ($newTopologyId <= 0) {
                     $pearDB->rollBack();
 
-                    continue;
+                    break;
                 }
 
                 $prepareInsertRelation->bindValue(':new_topology_id', $newTopologyId, PDO::PARAM_INT);

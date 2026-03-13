@@ -96,59 +96,63 @@ function multipleServiceCategorieInDB($sc = [], $nbrDup = [])
             continue;
         }
         $suffix = 1;
-        for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
-            $bindParams = [];
-            $fields = [];
-            foreach ($row as $key2 => $value2) {
-                $value2 = is_int($value2) ? (string) $value2 : $value2;
-                switch ($key2) {
-                    case 'sc_name':
-                        $value2 = HtmlAnalyzer::sanitizeAndRemoveTags($value2);
-                        $sc_name = $value2 . '_' . $suffix;
-                        $value2 = $value2 . '_' . $suffix;
-                        $bindParams[':sc_name'] = [
-                            PDO::PARAM_STR => $value2,
-                        ];
-                        break;
-                    case 'sc_description':
-                        $value2 = HtmlAnalyzer::sanitizeAndRemoveTags($value2);
-                        $bindParams[':sc_description'] = [
-                            PDO::PARAM_STR => $value2,
-                        ];
-                        break;
-                    case 'level':
-                        $value2 = filter_var($value2, FILTER_VALIDATE_INT);
-                        $value2
-                            ? $bindParams[':sc_level'] = [PDO::PARAM_INT => $value2]
-                            : $bindParams[':sc_level'] = [PDO::PARAM_NULL => 'NULL'];
-                        break;
-                    case 'icon_id':
-                        $value2 = filter_var($value2, FILTER_VALIDATE_INT);
-                        $value2
-                            ? $bindParams[':sc_icon_id'] = [PDO::PARAM_INT => $value2]
-                            : $bindParams[':sc_icon_id'] = [PDO::PARAM_NULL => 'NULL'];
-                        break;
-                    case 'sc_activate':
-                        $value2 = filter_var($value2, FILTER_VALIDATE_INT);
-                        $value2
-                            ? $bindParams[':sc_activate'] = [PDO::PARAM_STR => $value2]
-                            : $bindParams[':sc_activate'] = [PDO::PARAM_STR =>  '0'];
-                        break;
-                }
-                if ($key2 != 'sc_id') {
-                    $fields[$key2] = $value2;
-                }
-            }
-            if ($bindParams === []) {
-                continue;
-            }
-            $fields['sc_name'] = $sc_name;
-            if (! testServiceCategorieExistence($sc_name)) {
-                continue;
-            }
-            $i++;
+        $baseName = HtmlAnalyzer::sanitizeAndRemoveTags($row['sc_name']);
+        for ($i = 0; $i < $copies; $i++) {
             try {
                 $pearDB->beginTransaction();
+
+                // Existence check is inside the transaction to avoid a TOCTOU race
+                // between checking the name and inserting it.
+                $sc_name = null;
+                for (; $suffix <= $copies + 1000; $suffix++) {
+                    $testName = $baseName . '_' . $suffix;
+                    if (testServiceCategorieExistence($testName)) {
+                        $sc_name = $testName;
+                        break;
+                    }
+                }
+
+                if ($sc_name === null) {
+                    $pearDB->rollBack();
+                    break;
+                }
+
+                $bindParams = [':sc_name' => [PDO::PARAM_STR => $sc_name]];
+                $fields = ['sc_name' => $sc_name];
+                foreach ($row as $key2 => $value2) {
+                    $value2 = is_int($value2) ? (string) $value2 : $value2;
+                    switch ($key2) {
+                        case 'sc_name':
+                            break;
+                        case 'sc_description':
+                            $value2 = HtmlAnalyzer::sanitizeAndRemoveTags($value2);
+                            $bindParams[':sc_description'] = [
+                                PDO::PARAM_STR => $value2,
+                            ];
+                            break;
+                        case 'level':
+                            $value2 = filter_var($value2, FILTER_VALIDATE_INT);
+                            $value2
+                                ? $bindParams[':sc_level'] = [PDO::PARAM_INT => $value2]
+                                : $bindParams[':sc_level'] = [PDO::PARAM_NULL => 'NULL'];
+                            break;
+                        case 'icon_id':
+                            $value2 = filter_var($value2, FILTER_VALIDATE_INT);
+                            $value2
+                                ? $bindParams[':sc_icon_id'] = [PDO::PARAM_INT => $value2]
+                                : $bindParams[':sc_icon_id'] = [PDO::PARAM_NULL => 'NULL'];
+                            break;
+                        case 'sc_activate':
+                            $value2 = filter_var($value2, FILTER_VALIDATE_INT);
+                            $value2
+                                ? $bindParams[':sc_activate'] = [PDO::PARAM_STR => $value2]
+                                : $bindParams[':sc_activate'] = [PDO::PARAM_STR =>  '0'];
+                            break;
+                    }
+                    if ($key2 != 'sc_id' && $key2 != 'sc_name') {
+                        $fields[$key2] = $value2;
+                    }
+                }
 
                 $statement = $pearDB->prepare(
                     <<<'SQL'
@@ -165,7 +169,7 @@ function multipleServiceCategorieInDB($sc = [], $nbrDup = [])
                 $newScId = (int) $pearDB->lastInsertId();
                 if ($newScId <= 0) {
                     $pearDB->rollBack();
-                    continue;
+                    break;
                 }
 
                 $scAcl[$newScId] = $scId;

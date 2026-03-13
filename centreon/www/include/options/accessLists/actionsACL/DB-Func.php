@@ -301,15 +301,27 @@ function multipleActionInDB($actions = [], $nbrDup = [])
         }
         $originalName = $row['acl_action_name'];
         $suffix = 1;
-        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
-            $aclActionName = $originalName . '_' . $suffix;
-            if (! testActionExistence($aclActionName, false)) {
-                continue;
-            }
-            $i++;
-            $row['acl_action_name'] = $aclActionName;
+        for ($i = 0; $i < $dupCount; $i++) {
             try {
                 $pearDB->beginTransaction();
+
+                // Existence check is inside the transaction to avoid a TOCTOU race
+                // between checking the name and inserting it.
+                $aclActionName = null;
+                for (; $suffix <= $dupCount + 1000; $suffix++) {
+                    $testName = $originalName . '_' . $suffix;
+                    if (testActionExistence($testName, false)) {
+                        $aclActionName = $testName;
+                        break;
+                    }
+                }
+
+                if ($aclActionName === null) {
+                    $pearDB->rollBack();
+                    break;
+                }
+                $row['acl_action_name'] = $aclActionName;
+
                 foreach ($columns as $col) {
                     $value = $row[$col];
                     $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
@@ -318,7 +330,7 @@ function multipleActionInDB($actions = [], $nbrDup = [])
                 $lastId = (int) $pearDB->lastInsertId();
                 if ($lastId <= 0) {
                     $pearDB->rollBack();
-                    continue;
+                    break;
                 }
 
                 foreach ($groupRelations as $cct) {

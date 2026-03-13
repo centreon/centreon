@@ -653,38 +653,46 @@ function multipleContactInDB($contacts = [], $nbrDup = []): array
         }
 
         $suffix = 1;
-        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
-            $insertData = $baseInsertData;
-
-            // Prepare duplicated values
-            $contactName = isset($insertData['contact_name']) ? ((string) $insertData['contact_name'] . '_' . $suffix) : null;
-            $contactAlias = isset($insertData['contact_alias']) ? ((string) $insertData['contact_alias'] . '_' . $suffix) : null;
-
-            if ($contactName !== null) {
-                $contactName = $centreon->checkIllegalChar($contactName);
-            }
-
-            if (! testContactExistence($contactName, true) || ! testAliasExistence($contactAlias, true)) {
-                continue;
-            }
-            $i++;
-
-            $insertData['contact_name'] = $contactName;
-            $insertData['contact_alias'] = $contactAlias;
-
-            $queryParameters = [];
-            foreach ($insertData as $col => $value) {
-                $paramName = 'c_' . $col;
-                $queryParameters[] = match (true) {
-                    $value === null => QueryParameter::null($paramName),
-                    is_int($value) => QueryParameter::int($paramName, $value),
-                    is_bool($value) => QueryParameter::bool($paramName, $value),
-                    default => QueryParameter::string($paramName, (string) $value),
-                };
-            }
-
+        for ($i = 0; $i < $dupCount; $i++) {
             try {
                 $pearDB->beginTransaction();
+
+                // Existence check is inside the transaction to avoid a TOCTOU race
+                // between checking the name and inserting it.
+                $contactName = null;
+                $contactAlias = null;
+                for (; $suffix <= $dupCount + 1000; $suffix++) {
+                    $testName = isset($baseInsertData['contact_name']) ? ((string) $baseInsertData['contact_name'] . '_' . $suffix) : null;
+                    $testAlias = isset($baseInsertData['contact_alias']) ? ((string) $baseInsertData['contact_alias'] . '_' . $suffix) : null;
+                    if ($testName !== null) {
+                        $testName = $centreon->checkIllegalChar($testName);
+                    }
+                    if (testContactExistence($testName, true) && testAliasExistence($testAlias, true)) {
+                        $contactName = $testName;
+                        $contactAlias = $testAlias;
+                        break;
+                    }
+                }
+
+                if ($contactName === null) {
+                    $pearDB->rollBack();
+                    break;
+                }
+
+                $insertData = $baseInsertData;
+                $insertData['contact_name'] = $contactName;
+                $insertData['contact_alias'] = $contactAlias;
+
+                $queryParameters = [];
+                foreach ($insertData as $col => $value) {
+                    $paramName = 'c_' . $col;
+                    $queryParameters[] = match (true) {
+                        $value === null => QueryParameter::null($paramName),
+                        is_int($value) => QueryParameter::int($paramName, $value),
+                        is_bool($value) => QueryParameter::bool($paramName, $value),
+                        default => QueryParameter::string($paramName, (string) $value),
+                    };
+                }
                 $pearDB->insert($insertQuery, QueryParameters::create($queryParameters));
                 $lastId = (int) $pearDB->getLastInsertId();
 

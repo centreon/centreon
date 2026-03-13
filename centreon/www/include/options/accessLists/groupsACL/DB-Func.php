@@ -214,17 +214,27 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
         }
         $originalName = $row['acl_group_name'];
         $suffix = 1;
-        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
-            $acl_group_name = $originalName . '_' . $suffix;
-
-            if (! testGroupExistence($acl_group_name, false)) {
-                continue;
-            }
-            $i++;
-
+        for ($i = 0; $i < $dupCount; $i++) {
             try {
                 $pearDB->beginTransaction();
+
+                // Existence check is inside the transaction to avoid a TOCTOU race
+                // between checking the name and inserting it.
+                $acl_group_name = null;
+                for (; $suffix <= $dupCount + 1000; $suffix++) {
+                    $testName = $originalName . '_' . $suffix;
+                    if (testGroupExistence($testName, false)) {
+                        $acl_group_name = $testName;
+                        break;
+                    }
+                }
+
+                if ($acl_group_name === null) {
+                    $pearDB->rollBack();
+                    break;
+                }
                 $row['acl_group_name'] = $acl_group_name;
+
                 foreach ($columns as $col) {
                     $value = $row[$col];
                     $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
@@ -235,13 +245,13 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
                 if ($lastInsertId === false) {
                     $pearDB->rollBack();
 
-                    continue;
+                    break;
                 }
                 $maxId = (int) $lastInsertId;
                 if ($maxId <= 0) {
                     $pearDB->rollBack();
 
-                    continue;
+                    break;
                 }
 
                 // Duplicate Links

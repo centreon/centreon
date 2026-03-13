@@ -186,18 +186,28 @@ function multipleHostGroupDependencyInDB(array $dependencies = [], array $nbrDup
                 ->getQuery();
 
             $suffix = 1;
-            for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
-                $dup = $row;
-                $dup['dep_name'] = $row['dep_name'] . '_' . $suffix;
-                $dep_name = $dup['dep_name'];
-
-                if (! testHostGroupDependencyExistence($dep_name, false)) {
-                    continue;
-                }
-                $i++;
-
+            for ($i = 0; $i < $copies; $i++) {
                 try {
                     $pearDB->beginTransaction();
+
+                    // Existence check is inside the transaction to avoid a TOCTOU race
+                    // between checking the name and inserting it.
+                    $dep_name = null;
+                    for (; $suffix <= $copies + 1000; $suffix++) {
+                        $testName = $row['dep_name'] . '_' . $suffix;
+                        if (testHostGroupDependencyExistence($testName, false)) {
+                            $dep_name = $testName;
+                            break;
+                        }
+                    }
+
+                    if ($dep_name === null) {
+                        $pearDB->rollBack();
+                        break;
+                    }
+                    $dup = $row;
+                    $dup['dep_name'] = $dep_name;
+
                     $insertParams = [];
                     $fields = [];
                     foreach ($dup as $col => $val) {

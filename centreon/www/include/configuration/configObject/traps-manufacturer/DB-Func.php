@@ -103,22 +103,44 @@ function multipleMnftrInDB($mnftr = [], $nbrDup = [])
         }
         $originalName = $row['name'];
         $suffix = 1;
-        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
-            $name = $originalName . '_' . $suffix;
-            if (! testMnftrExistence($name, false)) {
-                continue;
-            }
-            $i++;
-            $row['name'] = $name;
-            $fields = $row;
-            foreach ($columns as $col) {
-                $value = $row[$col];
-                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-            }
-            $insertStmt->execute();
-            $newMnftrId = (int) $pearDB->lastInsertId();
-            if ($newMnftrId <= 0) {
-                continue;
+        for ($i = 0; $i < $dupCount; $i++) {
+            try {
+                $pearDB->beginTransaction();
+
+                // Existence check is inside the transaction to avoid a TOCTOU race
+                // between checking the name and inserting it.
+                $name = null;
+                for (; $suffix <= $dupCount + 1000; $suffix++) {
+                    $testName = $originalName . '_' . $suffix;
+                    if (testMnftrExistence($testName, false)) {
+                        $name = $testName;
+                        break;
+                    }
+                }
+
+                if ($name === null) {
+                    $pearDB->rollBack();
+                    break;
+                }
+                $row['name'] = $name;
+                $fields = $row;
+
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                }
+                $insertStmt->execute();
+                $newMnftrId = (int) $pearDB->lastInsertId();
+                if ($newMnftrId <= 0) {
+                    $pearDB->rollBack();
+                    break;
+                }
+                $pearDB->commit();
+            } catch (PDOException $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
+                throw $e;
             }
             $oreon->CentreonLogAction->insertLog(
                 'manufacturer',

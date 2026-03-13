@@ -227,17 +227,28 @@ function multipleLCAInDB($lcas = [], $nbrDup = [])
             continue;
         }
         $suffix = 1;
-        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
-            $acl_name = $originalName . '_' . $suffix;
-
-            if (! testExistence($acl_name, false)) {
-                continue;
-            }
-            $i++;
-
+        for ($i = 0; $i < $dupCount; $i++) {
             try {
                 $pearDB->beginTransaction();
+
+                // Existence check is inside the transaction to avoid a TOCTOU race
+                // between checking the name and inserting it.
+                $acl_name = null;
+                for (; $suffix <= $dupCount + 1000; $suffix++) {
+                    $testName = $originalName . '_' . $suffix;
+                    if (testExistence($testName, false)) {
+                        $acl_name = $testName;
+                        break;
+                    }
+                }
+
+                if ($acl_name === null) {
+                    $pearDB->rollBack();
+                    break;
+                }
+
                 $row['acl_res_name'] = $acl_name;
+
                 foreach ($columns as $col) {
                     $value = $row[$col];
                     $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
@@ -248,7 +259,7 @@ function multipleLCAInDB($lcas = [], $nbrDup = [])
                 if ($newId <= 0) {
                     $pearDB->rollBack();
 
-                    continue;
+                    break;
                 }
 
                 duplicateGroups($key, $newId, $pearDB);

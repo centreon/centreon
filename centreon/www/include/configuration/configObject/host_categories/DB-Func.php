@@ -349,18 +349,29 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
                 continue;
             }
             $suffix = 1;
-            for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
-                $newName = HtmlSanitizer::createFromString($row['hc_name'])
-                    ->removeTags()
-                    ->sanitize()
-                    ->getString() . "_{$suffix}";
-                if (! testHostCategorieExistence($newName)) {
-                    continue;
-                }
-                $i++;
-
+            $baseName = HtmlSanitizer::createFromString($row['hc_name'])
+                ->removeTags()
+                ->sanitize()
+                ->getString();
+            for ($i = 0; $i < $copies; $i++) {
                 try {
                     $pearDB->beginTransaction();
+
+                    // Existence check is inside the transaction to avoid a TOCTOU race
+                    // between checking the name and inserting it.
+                    $newName = null;
+                    for (; $suffix <= $copies + 1000; $suffix++) {
+                        $testName = $baseName . "_{$suffix}";
+                        if (testHostCategorieExistence($testName)) {
+                            $newName = $testName;
+                            break;
+                        }
+                    }
+
+                    if ($newName === null) {
+                        $pearDB->rollBack();
+                        break;
+                    }
                     $qbInsert = $pearDB->createQueryBuilder()
                         ->insert('hostcategories')
                         ->values([
@@ -390,7 +401,7 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
                     $newId = (int) $pearDB->getLastInsertId();
                     if ($newId <= 0) {
                         $pearDB->rollBack();
-                        continue;
+                        break;
                     }
                     $aclMap[$newId] = $hcId;
 

@@ -209,18 +209,28 @@ function multipleTrapGroupInDB(array $trapGroups = [], array $nbrDup = []): void
         );
 
         $suffix = 1;
-        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
-            $newName = $baseName . '_' . $suffix;
-            if (testTrapGroupExistence($newName)) {
-                continue;
-            }
-            $i++;
-
-            $dup = $originalGroup;
-            $dup['traps_group_name'] = $newName;
-
+        for ($i = 0; $i < $dupCount; $i++) {
             try {
                 $pearDB->startTransaction();
+
+                // Existence check is inside the transaction to avoid a TOCTOU race
+                // between checking the name and inserting it.
+                $newName = null;
+                for (; $suffix <= $dupCount + 1000; $suffix++) {
+                    $testName = $baseName . '_' . $suffix;
+                    if (! testTrapGroupExistence($testName)) {
+                        $newName = $testName;
+                        break;
+                    }
+                }
+
+                if ($newName === null) {
+                    $pearDB->rollBackTransaction();
+                    break;
+                }
+
+                $dup = $originalGroup;
+                $dup['traps_group_name'] = $newName;
 
                 $params = [];
                 foreach ($columns as $col) {
@@ -234,7 +244,7 @@ function multipleTrapGroupInDB(array $trapGroups = [], array $nbrDup = []): void
                 $newGroupId = (int) $pearDB->getLastInsertId();
                 if ($newGroupId <= 0) {
                     $pearDB->rollBackTransaction();
-                    continue;
+                    break;
                 }
 
                 // Copy relations

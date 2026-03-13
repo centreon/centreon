@@ -165,16 +165,27 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
             continue;
         }
         $suffix = 1;
-        for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
-            $virtualMetricName = $originalName . '_' . $suffix;
-            if (! hasVirtualNameNeverUsed($virtualMetricName, $indexId)) {
-                continue;
-            }
-            $i++;
-            $row['vmetric_name'] = $virtualMetricName;
-
+        for ($i = 0; $i < $copies; $i++) {
             try {
                 $pearDB->beginTransaction();
+
+                // Existence check is inside the transaction to avoid a TOCTOU race
+                // between checking the name and inserting it.
+                $virtualMetricName = null;
+                for (; $suffix <= $copies + 1000; $suffix++) {
+                    $testName = $originalName . '_' . $suffix;
+                    if (hasVirtualNameNeverUsed($testName, $indexId)) {
+                        $virtualMetricName = $testName;
+                        break;
+                    }
+                }
+
+                if ($virtualMetricName === null) {
+                    $pearDB->rollBack();
+                    break;
+                }
+                $row['vmetric_name'] = $virtualMetricName;
+
                 foreach ($columns as $col) {
                     $value = $row[$col];
                     $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);

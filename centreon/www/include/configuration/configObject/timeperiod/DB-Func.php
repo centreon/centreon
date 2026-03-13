@@ -133,20 +133,41 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
         }
         $originalName = $row['tp_name'];
         $suffix = 1;
-        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
-            $tp_name = $originalName . '_' . $suffix;
-            if (! testTPExistence($tp_name, false)) {
-                continue;
+        for ($i = 0; $i < $dupCount; $i++) {
+            try {
+                $pearDB->beginTransaction();
+
+                // Existence check is inside the transaction to avoid a TOCTOU race
+                // between checking the name and inserting it.
+                $tp_name = null;
+                for (; $suffix <= $dupCount + 1000; $suffix++) {
+                    $testName = $originalName . '_' . $suffix;
+                    if (testTPExistence($testName, false)) {
+                        $tp_name = $testName;
+                        break;
+                    }
+                }
+
+                if ($tp_name === null) {
+                    $pearDB->rollBack();
+                    break;
+                }
+                $row['tp_name'] = $tp_name;
+                $fields = $row + $exceptionFields;
+
+                $params = [
+                    'columns' => $columns,
+                    'values' => $row,
+                    'timeperiod_id' => $key,
+                ];
+                $newTpId = duplicateTimePeriod($params);
+                $pearDB->commit();
+            } catch (Throwable $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
+                throw $e;
             }
-            $i++;
-            $row['tp_name'] = $tp_name;
-            $fields = $row + $exceptionFields;
-            $params = [
-                'columns' => $columns,
-                'values' => $row,
-                'timeperiod_id' => $key,
-            ];
-            $newTpId = duplicateTimePeriod($params);
             $centreon->CentreonLogAction->insertLog(
                 object_type: ActionLog::OBJECT_TYPE_TIMEPERIOD,
                 object_id: $newTpId,

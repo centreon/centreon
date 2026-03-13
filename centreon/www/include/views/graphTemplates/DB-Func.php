@@ -121,18 +121,39 @@ function multipleGraphTemplateInDB($graphs = [], $nbrDup = []): void
 
         $originalName = html_entity_decode((string) $row['name'], ENT_QUOTES, 'UTF-8');
         $suffix = 1;
-        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
-            $decodedName = $originalName . '_' . $suffix;
-            $row['name'] = htmlentities($decodedName, ENT_QUOTES, 'UTF-8');
-            if (! testExistence($decodedName, false)) {
-                continue;
+        for ($i = 0; $i < $dupCount; $i++) {
+            try {
+                $pearDB->beginTransaction();
+
+                // Existence check is inside the transaction to avoid a TOCTOU race
+                // between checking the name and inserting it.
+                $decodedName = null;
+                for (; $suffix <= $dupCount + 1000; $suffix++) {
+                    $testName = $originalName . '_' . $suffix;
+                    if (testExistence($testName, false)) {
+                        $decodedName = $testName;
+                        break;
+                    }
+                }
+
+                if ($decodedName === null) {
+                    $pearDB->rollBack();
+                    break;
+                }
+                $row['name'] = htmlentities($decodedName, ENT_QUOTES, 'UTF-8');
+
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                }
+                $insertStmt->execute();
+                $pearDB->commit();
+            } catch (PDOException $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
+                throw $e;
             }
-            $i++;
-            foreach ($columns as $col) {
-                $value = $row[$col];
-                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-            }
-            $insertStmt->execute();
         }
         if ($i < $dupCount) {
             error_log("Could only create {$i}/{$dupCount} duplicates for graph template '{$originalName}' ({$key}): suffix search exhausted");

@@ -144,15 +144,27 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
         }
         $originalName = $row['dep_name'];
         $suffix = 1;
-        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
-            $dep_name = $originalName . '_' . $suffix;
-            if (! testExistence($dep_name, false, false)) {
-                continue;
-            }
-            $i++;
-            $row['dep_name'] = $dep_name;
+        for ($i = 0; $i < $dupCount; $i++) {
             try {
                 $pearDB->beginTransaction();
+
+                // Existence check is inside the transaction to avoid a TOCTOU race
+                // between checking the name and inserting it.
+                $dep_name = null;
+                for (; $suffix <= $dupCount + 1000; $suffix++) {
+                    $testName = $originalName . '_' . $suffix;
+                    if (testExistence($testName, false, false)) {
+                        $dep_name = $testName;
+                        break;
+                    }
+                }
+
+                if ($dep_name === null) {
+                    $pearDB->rollBack();
+                    break;
+                }
+                $row['dep_name'] = $dep_name;
+
                 foreach ($columns as $col) {
                     $value = $row[$col];
                     $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);

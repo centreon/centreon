@@ -245,20 +245,31 @@ function multipleNagiosInDB($nagios = [], $nbrDup = [])
             continue;
         }
         $suffix = 1;
-        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
-            $nagios_name = $decodedName . '_' . $suffix;
-            $row['nagios_name'] = encodeFieldNagios($nagios_name, 'nagios_name');
-
-            if (! testExistence($nagios_name, false)) {
-                continue;
-            }
-            $i++;
-            foreach ($columns as $col) {
-                $value = $row[$col];
-                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-            }
+        for ($i = 0; $i < $dupCount; $i++) {
             try {
                 $pearDB->beginTransaction();
+
+                // Existence check is inside the transaction to avoid a TOCTOU race
+                // between checking the name and inserting it.
+                $nagios_name = null;
+                for (; $suffix <= $dupCount + 1000; $suffix++) {
+                    $testName = $decodedName . '_' . $suffix;
+                    if (testExistence($testName, false)) {
+                        $nagios_name = $testName;
+                        break;
+                    }
+                }
+
+                if ($nagios_name === null) {
+                    $pearDB->rollBack();
+                    break;
+                }
+                $row['nagios_name'] = encodeFieldNagios($nagios_name, 'nagios_name');
+
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                }
                 $insertStmt->execute();
 
                 $newNagiosId = (int) $pearDB->lastInsertId();

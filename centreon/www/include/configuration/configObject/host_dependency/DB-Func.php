@@ -166,21 +166,31 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
             }
 
             $suffix = 1;
-            for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
-                $dup = $original;
-                $dupName = $dup['dep_name'] . "_{$suffix}";
-                $dup['dep_name'] = HtmlSanitizer::createFromString($dupName)
-                    ->removeTags()
-                    ->sanitize()
-                    ->getString();
-
-                if (! testHostDependencyExistence($dup['dep_name'], false)) {
-                    continue;
-                }
-                $i++;
-
+            for ($i = 0; $i < $copies; $i++) {
                 try {
                     $pearDB->beginTransaction();
+
+                    // Existence check is inside the transaction to avoid a TOCTOU race
+                    // between checking the name and inserting it.
+                    $dupName = null;
+                    for (; $suffix <= $copies + 1000; $suffix++) {
+                        $testName = HtmlSanitizer::createFromString($original['dep_name'] . "_{$suffix}")
+                            ->removeTags()
+                            ->sanitize()
+                            ->getString();
+                        if (testHostDependencyExistence($testName, false)) {
+                            $dupName = $testName;
+                            break;
+                        }
+                    }
+
+                    if ($dupName === null) {
+                        $pearDB->rollBack();
+                        break;
+                    }
+                    $dup = $original;
+                    $dup['dep_name'] = $dupName;
+
                     // insert duplicated dependency
                     $cols   = array_keys($dup);
                     $sqlIns = $pearDB->createQueryBuilder()
@@ -197,7 +207,7 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
                     $newId = (int) $pearDB->getLastInsertId();
                     if ($newId <= 0) {
                         $pearDB->rollBack();
-                        continue;
+                        break;
                     }
 
                     // duplicate relations

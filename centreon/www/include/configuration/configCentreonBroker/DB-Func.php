@@ -300,23 +300,41 @@ function multipleCentreonBrokerInDB($ids, $nbrDup)
         $query = 'SELECT COUNT(*) as nb FROM cfg_centreonbroker WHERE config_name = :config_name';
         $statement = $pearDB->prepare($query);
         $suffix = 1;
-        for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
-            $newname = $row['config_name'] . '_' . $suffix;
-            $newfilename = $suffix . '_' . $row['config_filename'];
-            $statement->bindValue(':config_name', $newname, PDO::PARAM_STR);
-            $statement->execute();
-            $rowNb = $statement->fetch(PDO::FETCH_ASSOC);
-            if ($rowNb['nb'] != 0) {
-                continue;
+        for ($i = 0; $i < $copies; $i++) {
+            try {
+                $pearDB->beginTransaction();
+
+                // Existence check is inside the transaction to avoid a TOCTOU race
+                // between checking the name and inserting it.
+                $newname = null;
+                for (; $suffix <= $copies + 1000; $suffix++) {
+                    $statement->bindValue(':config_name', $row['config_name'] . '_' . $suffix, PDO::PARAM_STR);
+                    $statement->execute();
+                    $rowNb = $statement->fetch(PDO::FETCH_ASSOC);
+                    if ($rowNb['nb'] == 0) {
+                        $newname = $row['config_name'] . '_' . $suffix;
+                        break;
+                    }
+                }
+
+                if ($newname === null) {
+                    $pearDB->rollBack();
+                    break;
+                }
+                $newfilename = $suffix . '_' . $row['config_filename'];
+                $values['name'] = $newname;
+                $values['filename'] = $newfilename;
+
+                retrieveOriginalPasswordValuesFromVault($values);
+
+                $cbObj->insertConfig($values);
+                $pearDB->commit();
+            } catch (Throwable $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
+                throw $e;
             }
-            $i++;
-
-            $values['name'] = $newname;
-            $values['filename'] = $newfilename;
-
-            retrieveOriginalPasswordValuesFromVault($values);
-
-            $cbObj->insertConfig($values);
         }
         if ($i < $copies) {
             error_log("Could only create {$i}/{$copies} duplicates for broker config '{$row['config_name']}' ({$id}): suffix search exhausted");

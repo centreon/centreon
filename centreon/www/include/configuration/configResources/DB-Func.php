@@ -205,31 +205,44 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
                 continue;
             }
             $suffix = 1;
-            for ($newIndex = 0; $newIndex < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
-                $name = preg_match('/^\$(.*)\$$/', $resourceConfiguration['resource_name'])
-                    ? rtrim($resourceConfiguration['resource_name'], '$') . '_' . $suffix . '$'
-                    : $resourceConfiguration['resource_name'] . '_' . $suffix;
-                $value = $resourceConfiguration['resource_line'];
-                if (
-                    (bool) $resourceConfiguration['is_password'] === true
-                    && str_starts_with($resourceConfiguration['resource_line'], VaultConfiguration::VAULT_PATH_PATTERN)
-                ) {
-                    $resourcesFromVault = getFromVault($resourceConfiguration['resource_line']);
-                    $value = $resourcesFromVault[$resourceConfiguration['resource_name']];
-                }
+            $value = $resourceConfiguration['resource_line'];
+            if (
+                (bool) $resourceConfiguration['is_password'] === true
+                && str_starts_with($resourceConfiguration['resource_line'], VaultConfiguration::VAULT_PATH_PATTERN)
+            ) {
+                $resourcesFromVault = getFromVault($resourceConfiguration['resource_line']);
+                $value = $resourcesFromVault[$resourceConfiguration['resource_name']];
+            }
+            if (is_null($value)) {
+                continue;
+            }
 
-                if (! testExistence($name, $instanceIds) || is_null($value)) {
-                    continue;
-                }
-                $newIndex++;
-                $vaultPath = null;
-                if ((bool) $resourceConfiguration['is_password'] === true) {
-                    $vaultPath = saveInVault($name, $value);
-                }
-                $value = $vaultPath ?? $value;
-
+            for ($newIndex = 0; $newIndex < $dupCount; $newIndex++) {
                 try {
                     $pearDB->beginTransaction();
+
+                    // Existence check is inside the transaction to avoid a TOCTOU race
+                    // between checking the name and inserting it.
+                    $name = null;
+                    for (; $suffix <= $dupCount + 1000; $suffix++) {
+                        $testName = preg_match('/^\$(.*)\$$/', $resourceConfiguration['resource_name'])
+                            ? rtrim($resourceConfiguration['resource_name'], '$') . '_' . $suffix . '$'
+                            : $resourceConfiguration['resource_name'] . '_' . $suffix;
+                        if (testExistence($testName, $instanceIds)) {
+                            $name = $testName;
+                            break;
+                        }
+                    }
+
+                    if ($name === null) {
+                        $pearDB->rollBack();
+                        break;
+                    }
+                    $vaultPath = null;
+                    if ((bool) $resourceConfiguration['is_password'] === true) {
+                        $vaultPath = saveInVault($name, $value);
+                    }
+                    $value = $vaultPath ?? $value;
                     $statement = $pearDB->prepare(
                         <<<'SQL'
                             INSERT INTO cfg_resource

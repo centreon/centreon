@@ -205,21 +205,43 @@ function multipleComponentTemplateInDB($compos = [], $nbrDup = [])
 
         $originalName = $row['name'];
         $suffix = 1;
-        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
-            $row['name'] = $originalName . '_' . $suffix;
-            if (! NameHsrTestExistence(
-                $row['name'],
-                $row['host_id'] !== null ? (int) $row['host_id'] : null,
-                $row['service_id'] !== null ? (int) $row['service_id'] : null
-            )) {
-                continue;
+        for ($i = 0; $i < $dupCount; $i++) {
+            try {
+                $pearDB->beginTransaction();
+
+                // Existence check is inside the transaction to avoid a TOCTOU race
+                // between checking the name and inserting it.
+                $foundName = null;
+                for (; $suffix <= $dupCount + 1000; $suffix++) {
+                    $testName = $originalName . '_' . $suffix;
+                    if (NameHsrTestExistence(
+                        $testName,
+                        $row['host_id'] !== null ? (int) $row['host_id'] : null,
+                        $row['service_id'] !== null ? (int) $row['service_id'] : null
+                    )) {
+                        $foundName = $testName;
+                        break;
+                    }
+                }
+
+                if ($foundName === null) {
+                    $pearDB->rollBack();
+                    break;
+                }
+                $row['name'] = $foundName;
+
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                }
+                $insertStmt->execute();
+                $pearDB->commit();
+            } catch (PDOException $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
+                throw $e;
             }
-            $i++;
-            foreach ($columns as $col) {
-                $value = $row[$col];
-                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-            }
-            $insertStmt->execute();
         }
         if ($i < $dupCount) {
             error_log("Could only create {$i}/{$dupCount} duplicates for component template '{$originalName}' ({$key}): suffix search exhausted");

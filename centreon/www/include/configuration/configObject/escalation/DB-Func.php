@@ -96,23 +96,34 @@ function multipleEscalationInDB(array $escalations = [], array $nbrDup = []): vo
             continue;
         }
         $suffix = 1;
-        for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
-            $escalationDuplicate = $escalationModel;
-            $escalationDuplicate['esc_name'] = $escalationModel['esc_name'] . '_' . $suffix;
-
-            if (! testExistence($escalationDuplicate['esc_name'])) {
-                continue;
-            }
-            $i++;
+        for ($i = 0; $i < $copies; $i++) {
             try {
                 $pearDB->beginTransaction();
+
+                // Existence check is inside the transaction to avoid a TOCTOU race
+                // between checking the name and inserting it.
+                $escName = null;
+                for (; $suffix <= $copies + 1000; $suffix++) {
+                    $testName = $escalationModel['esc_name'] . '_' . $suffix;
+                    if (testExistence($testName)) {
+                        $escName = $testName;
+                        break;
+                    }
+                }
+
+                if ($escName === null) {
+                    $pearDB->rollBack();
+                    break;
+                }
+                $escalationDuplicate = $escalationModel;
+                $escalationDuplicate['esc_name'] = $escName;
 
                 $escalationDuplicate['esc_id'] = insertEscalation($pearDB, $escalationDuplicate, false);
 
                 if (! $escalationDuplicate['esc_id']) {
                     $pearDB->rollBack();
 
-                    continue;
+                    break;
                 }
 
                 $stmt = $pearDB->prepare(

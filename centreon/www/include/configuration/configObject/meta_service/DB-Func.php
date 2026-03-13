@@ -394,122 +394,127 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
         }
         $originalName = $row['meta_name'];
         $suffix = 1;
-        for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
-            $metaName = $originalName . '_' . $suffix;
-            $row['meta_name'] = $metaName;
-            $columns = array_keys($row);
-            $qbInsert = $pearDB->createQueryBuilder();
-            $insertQuery = $qbInsert->insert('meta_service')
-                ->values(array_combine($columns, array_map(fn ($col) => ':' . $col, $columns)))
-                ->getQuery();
-
+        for ($i = 0; $i < $copies; $i++) {
             try {
-                if (! testExistence($metaName)) {
-                    continue;
+                $newMetaId = null;
+                $pearDB->startTransaction();
+
+                // Existence check is inside the transaction to avoid a TOCTOU race
+                // between checking the name and inserting it.
+                $metaName = null;
+                for (; $suffix <= $copies + 1000; $suffix++) {
+                    $testName = $originalName . '_' . $suffix;
+                    if (testExistence($testName)) {
+                        $metaName = $testName;
+                        break;
+                    }
                 }
-                $i++;
+
+                if ($metaName === null) {
+                    $pearDB->rollBackTransaction();
+                    break;
+                }
+                $row['meta_name'] = $metaName;
+
+                $columns = array_keys($row);
+                $qbInsert = $pearDB->createQueryBuilder();
+                $insertQuery = $qbInsert->insert('meta_service')
+                    ->values(array_combine($columns, array_map(fn ($col) => ':' . $col, $columns)))
+                    ->getQuery();
                 $params = [];
                 foreach ($row as $column => $value) {
                     $params[] = QueryParameter::string($column, $value);
                 }
-
-                $newMetaId = null;
-                $pearDB->startTransaction();
-                try {
-                    $pearDB->insert($insertQuery, QueryParameters::create($params));
-                    $newMetaId = $pearDB->getLastInsertId();
-                    if (! $newMetaId) {
-                        $pearDB->rollBackTransaction();
-                        continue;
-                    }
-
-                    $metaObj = new CentreonMeta($pearDB);
-                    $metaObj->insertVirtualService($newMetaId, $metaName);
-
-                    // Duplicate contacts
-                    $qbContacts = $pearDB->createQueryBuilder();
-                    $queryContacts = $qbContacts->select('DISTINCT contact_id')
-                        ->from('meta_contact')
-                        ->where('meta_id = :meta_id')
-                        ->getQuery();
-                    $contacts = $pearDB->fetchAllAssociative($queryContacts, QueryParameters::create([
-                        QueryParameter::int('meta_id', $validMetaId),
-                    ]));
-                    foreach ($contacts as $contact) {
-                        $qbInsertContact = $pearDB->createQueryBuilder();
-                        $queryInsertContact = $qbInsertContact->insert('meta_contact')
-                            ->values([
-                                'meta_id'    => ':meta_id',
-                                'contact_id' => ':contact_id',
-                            ])
-                            ->getQuery();
-                        $pearDB->insert($queryInsertContact, QueryParameters::create([
-                            QueryParameter::int('meta_id', (int) $newMetaId),
-                            QueryParameter::int('contact_id', (int) $contact['contact_id']),
-                        ]));
-                    }
-
-                    // Duplicate contactgroups
-                    $qbCG = $pearDB->createQueryBuilder();
-                    $queryCG = $qbCG->select('DISTINCT cg_cg_id')
-                        ->from('meta_contactgroup_relation')
-                        ->where('meta_id = :meta_id')
-                        ->getQuery();
-                    $cgroups = $pearDB->fetchAllAssociative($queryCG, QueryParameters::create([
-                        QueryParameter::int('meta_id', $validMetaId),
-                    ]));
-                    foreach ($cgroups as $cg) {
-                        $qbInsertCG = $pearDB->createQueryBuilder();
-                        $queryInsertCG = $qbInsertCG->insert('meta_contactgroup_relation')
-                            ->values([
-                                'meta_id'   => ':meta_id',
-                                'cg_cg_id'  => ':cg_cg_id',
-                            ])
-                            ->getQuery();
-                        $pearDB->insert($queryInsertCG, QueryParameters::create([
-                            QueryParameter::int('meta_id', (int) $newMetaId),
-                            QueryParameter::int('cg_cg_id', (int) $cg['cg_cg_id']),
-                        ]));
-                    }
-
-                    // Duplicate metrics
-                    $qbMetric = $pearDB->createQueryBuilder();
-                    $queryMetric = $qbMetric->select('*')
-                        ->from('meta_service_relation')
-                        ->where('meta_id = :meta_id')
-                        ->getQuery();
-                    $metricsRows = $pearDB->fetchAllAssociative($queryMetric, QueryParameters::create([
-                        QueryParameter::int('meta_id', $validMetaId),
-                    ]));
-                    foreach ($metricsRows as $metric) {
-                        unset($metric['msr_id']);
-                        $metric['meta_id'] = $newMetaId;
-                        $columns = array_keys($metric);
-                        $qbInsertMetric = $pearDB->createQueryBuilder();
-                        $insertMetricQuery = $qbInsertMetric->insert('meta_service_relation')
-                            ->values(array_combine($columns, array_map(fn ($col) => ':' . $col, $columns)))
-                            ->getQuery();
-                        // Build parameters for the metric row.
-                        $paramsMetric = [];
-                        foreach ($metric as $column => $value) {
-                            $paramsMetric[] =  QueryParameter::string($column, $value);
-                        }
-                        $pearDB->insert($insertMetricQuery, QueryParameters::create($paramsMetric));
-                    }
-
-                    $pearDB->commitTransaction();
-                } catch (Throwable $exception) {
-                    if ($pearDB->isTransactionActive()) {
-                        $pearDB->rollBackTransaction();
-                    }
-
-                    throw $exception;
+                $pearDB->insert($insertQuery, QueryParameters::create($params));
+                $newMetaId = $pearDB->getLastInsertId();
+                if (! $newMetaId) {
+                    $pearDB->rollBackTransaction();
+                    break;
                 }
+
+                $metaObj = new CentreonMeta($pearDB);
+                $metaObj->insertVirtualService($newMetaId, $metaName);
+
+                // Duplicate contacts
+                $qbContacts = $pearDB->createQueryBuilder();
+                $queryContacts = $qbContacts->select('DISTINCT contact_id')
+                    ->from('meta_contact')
+                    ->where('meta_id = :meta_id')
+                    ->getQuery();
+                $contacts = $pearDB->fetchAllAssociative($queryContacts, QueryParameters::create([
+                    QueryParameter::int('meta_id', $validMetaId),
+                ]));
+                foreach ($contacts as $contact) {
+                    $qbInsertContact = $pearDB->createQueryBuilder();
+                    $queryInsertContact = $qbInsertContact->insert('meta_contact')
+                        ->values([
+                            'meta_id'    => ':meta_id',
+                            'contact_id' => ':contact_id',
+                        ])
+                        ->getQuery();
+                    $pearDB->insert($queryInsertContact, QueryParameters::create([
+                        QueryParameter::int('meta_id', (int) $newMetaId),
+                        QueryParameter::int('contact_id', (int) $contact['contact_id']),
+                    ]));
+                }
+
+                // Duplicate contactgroups
+                $qbCG = $pearDB->createQueryBuilder();
+                $queryCG = $qbCG->select('DISTINCT cg_cg_id')
+                    ->from('meta_contactgroup_relation')
+                    ->where('meta_id = :meta_id')
+                    ->getQuery();
+                $cgroups = $pearDB->fetchAllAssociative($queryCG, QueryParameters::create([
+                    QueryParameter::int('meta_id', $validMetaId),
+                ]));
+                foreach ($cgroups as $cg) {
+                    $qbInsertCG = $pearDB->createQueryBuilder();
+                    $queryInsertCG = $qbInsertCG->insert('meta_contactgroup_relation')
+                        ->values([
+                            'meta_id'   => ':meta_id',
+                            'cg_cg_id'  => ':cg_cg_id',
+                        ])
+                        ->getQuery();
+                    $pearDB->insert($queryInsertCG, QueryParameters::create([
+                        QueryParameter::int('meta_id', (int) $newMetaId),
+                        QueryParameter::int('cg_cg_id', (int) $cg['cg_cg_id']),
+                    ]));
+                }
+
+                // Duplicate metrics
+                $qbMetric = $pearDB->createQueryBuilder();
+                $queryMetric = $qbMetric->select('*')
+                    ->from('meta_service_relation')
+                    ->where('meta_id = :meta_id')
+                    ->getQuery();
+                $metricsRows = $pearDB->fetchAllAssociative($queryMetric, QueryParameters::create([
+                    QueryParameter::int('meta_id', $validMetaId),
+                ]));
+                foreach ($metricsRows as $metric) {
+                    unset($metric['msr_id']);
+                    $metric['meta_id'] = $newMetaId;
+                    $columns = array_keys($metric);
+                    $qbInsertMetric = $pearDB->createQueryBuilder();
+                    $insertMetricQuery = $qbInsertMetric->insert('meta_service_relation')
+                        ->values(array_combine($columns, array_map(fn ($col) => ':' . $col, $columns)))
+                        ->getQuery();
+                    // Build parameters for the metric row.
+                    $paramsMetric = [];
+                    foreach ($metric as $column => $value) {
+                        $paramsMetric[] =  QueryParameter::string($column, $value);
+                    }
+                    $pearDB->insert($insertMetricQuery, QueryParameters::create($paramsMetric));
+                }
+
+                $pearDB->commitTransaction();
 
                 if ($newMetaId) {
                     updateAclResourcesMetaRelations($newMetaId);
                 }
             } catch (ValueObjectException|CollectionException|ConnectionException|RuntimeException $exception) {
+                if ($pearDB->isTransactionActive()) {
+                    $pearDB->rollBackTransaction();
+                }
                 CentreonLog::create()->error(
                     CentreonLog::TYPE_SQL,
                     'Error duplicating meta_service',
