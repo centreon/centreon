@@ -535,18 +535,31 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
  */
 function updateMetaServiceInDB($metaId = null)
 {
-    global $isCloudPlatform;
+    global $pearDB, $isCloudPlatform;
 
     if (! $metaId) {
         return;
     }
-    updateMetaService($metaId);
 
-    if (! $isCloudPlatform) {
-        updateMetaServiceContact($metaId);
-        updateMetaServiceContactGroup($metaId);
+    try {
+        $pearDB->beginTransaction();
+
+        updateMetaService($metaId);
+
+        if (! $isCloudPlatform) {
+            updateMetaServiceContact($metaId);
+            updateMetaServiceContactGroup($metaId);
+        }
+        updateAclResourcesMetaRelations($metaId);
+
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
     }
-    updateAclResourcesMetaRelations($metaId);
 }
 
 /**
@@ -556,15 +569,27 @@ function updateMetaServiceInDB($metaId = null)
  */
 function insertMetaServiceInDB()
 {
-    global $isCloudPlatform;
+    global $pearDB, $isCloudPlatform;
 
-    $metaId = insertMetaService();
+    try {
+        $pearDB->beginTransaction();
 
-    if (! $isCloudPlatform) {
-        updateMetaServiceContact($metaId);
-        updateMetaServiceContactGroup($metaId);
+        $metaId = insertMetaService();
+
+        if (! $isCloudPlatform) {
+            updateMetaServiceContact($metaId);
+            updateMetaServiceContactGroup($metaId);
+        }
+        updateAclResourcesMetaRelations($metaId);
+
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
     }
-    updateAclResourcesMetaRelations($metaId);
 
     return $metaId;
 }
@@ -893,8 +918,12 @@ function updateMetaServiceContact($metaId)
     }
     global $form, $pearDB, $centreon;
 
-    $pearDB->startTransaction();
+    $ownTransaction = ! $pearDB->inTransaction();
     try {
+        if ($ownTransaction) {
+            $pearDB->startTransaction();
+        }
+
         $qbDelete = $pearDB->createQueryBuilder();
         $queryPurge = $qbDelete->delete('meta_contact')
             ->where('meta_id = :meta_id')
@@ -922,9 +951,11 @@ function updateMetaServiceContact($metaId)
             $pearDB->insert($queryAddRelation, QueryParameters::create(array_values($params)));
         }
 
-        $pearDB->commitTransaction();
+        if ($ownTransaction) {
+            $pearDB->commitTransaction();
+        }
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        if ($pearDB->isTransactionActive()) {
+        if ($ownTransaction && $pearDB->isTransactionActive()) {
             $pearDB->rollBackTransaction();
         }
         CentreonLog::create()->error(
@@ -951,8 +982,12 @@ function updateMetaServiceContactGroup($metaId = null)
     }
     global $form, $pearDB;
 
-    $pearDB->startTransaction();
+    $ownTransaction = ! $pearDB->inTransaction();
     try {
+        if ($ownTransaction) {
+            $pearDB->startTransaction();
+        }
+
         $qbDelete = $pearDB->createQueryBuilder();
         $queryDelete = $qbDelete->delete('meta_contactgroup_relation')
             ->where('meta_id = :meta_id')
@@ -985,9 +1020,11 @@ function updateMetaServiceContactGroup($metaId = null)
             ]));
         }
 
-        $pearDB->commitTransaction();
+        if ($ownTransaction) {
+            $pearDB->commitTransaction();
+        }
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        if ($pearDB->isTransactionActive()) {
+        if ($ownTransaction && $pearDB->isTransactionActive()) {
             $pearDB->rollBackTransaction();
         }
         CentreonLog::create()->error(
@@ -1054,8 +1091,12 @@ function updateAclResourcesMetaRelations(int $metaId): void
                 $paramsAcl[] = QueryParameter::int($metaKey, (int) $metaId);
             }
 
-            $pearDB->startTransaction();
+            $ownTransaction = ! $pearDB->inTransaction();
             try {
+                if ($ownTransaction) {
+                    $pearDB->startTransaction();
+                }
+
                 $queryClean = 'DELETE FROM acl_resources_meta_relations WHERE meta_id = :metaId AND acl_res_id IN (' . implode(', ', $deletePlaceholders) . ')';
                 $pearDB->delete($queryClean, QueryParameters::create($deleteParams));
 
@@ -1065,9 +1106,11 @@ function updateAclResourcesMetaRelations(int $metaId): void
                     $queryAcl = "INSERT INTO acl_resources_meta_relations (acl_res_id, meta_id) VALUES {$valuesString}";
                     $pearDB->insert($queryAcl, QueryParameters::create($paramsAcl));
                 }
-                $pearDB->commitTransaction();
+                if ($ownTransaction) {
+                    $pearDB->commitTransaction();
+                }
             } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-                if ($pearDB->isTransactionActive()) {
+                if ($ownTransaction && $pearDB->isTransactionActive()) {
                     $pearDB->rollBackTransaction();
                 }
 

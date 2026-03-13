@@ -242,10 +242,24 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
 
 function insertContactGroupInDB($ret = [])
 {
-    $cg_id = insertContactGroup($ret);
-    if ($cg_id > 0) {
-        updateContactGroupContacts($cg_id, $ret);
-        updateContactGroupAclGroups($cg_id, $ret);
+    global $pearDB;
+
+    try {
+        $pearDB->beginTransaction();
+
+        $cg_id = insertContactGroup($ret);
+        if ($cg_id > 0) {
+            updateContactGroupContacts($cg_id, $ret);
+            updateContactGroupAclGroups($cg_id, $ret);
+        }
+
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
     }
 
     return $cg_id;
@@ -301,13 +315,27 @@ function insertContactGroup($ret)
 
 function updateContactGroupInDB($cg_id = null, $params = [])
 {
+    global $pearDB;
+
     if (! $cg_id) {
         return;
     }
 
-    updateContactGroup($cg_id, $params);
-    updateContactGroupContacts($cg_id, $params);
-    updateContactGroupAclGroups($cg_id, $params);
+    try {
+        $pearDB->beginTransaction();
+
+        updateContactGroup($cg_id, $params);
+        updateContactGroupContacts($cg_id, $params);
+        updateContactGroupAclGroups($cg_id, $params);
+
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
+    }
 }
 
 /**
@@ -353,8 +381,12 @@ function updateContactGroupContacts($cg_id, $ret = [])
         return;
     }
 
+    $ownTransaction = ! $pearDB->inTransaction();
+
     try {
-        $pearDB->beginTransaction();
+        if ($ownTransaction) {
+            $pearDB->beginTransaction();
+        }
 
         $deleteStmt = $pearDB->prepare(
             'DELETE FROM `contactgroup_contact_relation` WHERE `contactgroup_cg_id` = :cgId'
@@ -377,9 +409,11 @@ function updateContactGroupContacts($cg_id, $ret = [])
             CentreonCustomView::syncContactGroupCustomView($centreon, $pearDB, $ret[$i]);
         }
 
-        $pearDB->commit();
+        if ($ownTransaction) {
+            $pearDB->commit();
+        }
     } catch (Exception $e) {
-        if ($pearDB->inTransaction()) {
+        if ($ownTransaction && $pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
 
@@ -395,8 +429,12 @@ function updateContactGroupAclGroups($cg_id, $ret = [])
         return;
     }
 
+    $ownTransaction = ! $pearDB->inTransaction();
+
     try {
-        $pearDB->beginTransaction();
+        if ($ownTransaction) {
+            $pearDB->beginTransaction();
+        }
 
         $deleteStmt = $pearDB->prepare(
             'DELETE FROM `acl_group_contactgroups_relations` WHERE `cg_cg_id` = :cgId'
@@ -416,9 +454,11 @@ function updateContactGroupAclGroups($cg_id, $ret = [])
             $insertStmt->execute();
         }
 
-        $pearDB->commit();
+        if ($ownTransaction) {
+            $pearDB->commit();
+        }
     } catch (Exception $e) {
-        if ($pearDB->inTransaction()) {
+        if ($ownTransaction && $pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
 
