@@ -6810,6 +6810,10 @@ msgstr ""
 msgid "Error while retrieving remote server information"
 msgstr ""
 
+#: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
+msgid "Error while retrieving service group"
+msgstr ""
+
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "Error while retrieving service statuses distribution"
 msgstr ""
@@ -7017,6 +7021,10 @@ msgstr ""
 
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "Error while updating a service"
+msgstr ""
+
+#: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
+msgid "Error while updating a service group"
 msgstr ""
 
 #: centreon/src/Core/ServiceTemplate/Application/Exception/ServiceTemplateException.php
@@ -19471,6 +19479,10 @@ msgstr ""
 
 #: centreon/src/Core/Media/Application/Exception/MediaException.php
 msgid "You are not allowed to update media"
+msgstr ""
+
+#: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
+msgid "You are not allowed to update service groups"
 msgstr ""
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
