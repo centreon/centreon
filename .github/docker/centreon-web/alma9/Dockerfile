@@ -57,9 +57,6 @@ grep -q 'pm.process_idle_timeout' /etc/php-fpm.d/www.conf \
   && sed -i 's/^pm\.process_idle_timeout = .*/pm.process_idle_timeout = 10s/' /etc/php-fpm.d/www.conf \
   || echo 'pm.process_idle_timeout = 10s' >> /etc/php-fpm.d/www.conf
 
-# Pre-apply gorgone Docker subnet config (avoids runtime sed at each startup)
-sed -i '/127.0.0.1/a\          - 172.0.0.0\/8' /etc/centreon-gorgone/config.d/40-gorgoned.yaml
-
 systemctl stop gorgoned
 systemctl stop centengine
 systemctl stop cbd
