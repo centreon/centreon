@@ -17,6 +17,13 @@ description: >
     * `$or`
     * `$and`
 
+  `$and` requires **all** conditions to be true simultaneously for the same resource (intersection).
+  `$or` requires **at least one** condition to be true (union).
+
+  > **Important:** Using `$and` on the same field with incompatible values will always return
+  > an empty result. For example, a host whose name is "host1" cannot simultaneously have
+  > the name "host2". To search for resources matching either value, use `$or` instead.
+
   Available search operators are:
     * `$eq` → equal
     * `$neq` → not equal
@@ -31,14 +38,18 @@ description: >
     * `$rg` → regex
 
   Examples without nested aggregators:
+
+  Use `$or` to find hosts named "host1" OR "host2":
     ```
     search={
       "$or":[
-        {"host.name":{"$eq":"name_1"}},
-        {"host.name":{"$eq":"name_2"}}
+        {"host.name":{"$eq":"host1"}},
+        {"host.name":{"$eq":"host2"}}
       ]
     }
     ```
+
+  Use `$and` to combine conditions on **different fields**:
     ```
     search={
       "$and":[

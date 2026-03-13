@@ -84,7 +84,7 @@ export default () => {
           .trigger('mouseover');
 
         cy.contains(
-          !isEnabledHost ? labelNoEnabledHosts : labelNoDisabledHosts
+          !isEnabledHost ? labelDisabledHosts : labelNoEnabledHosts
         ).should('be.visible');
 
         cy.makeSnapshot();
