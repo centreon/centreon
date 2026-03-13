@@ -6688,6 +6688,10 @@ msgstr ""
 msgid "Error while retrieving service group"
 msgstr ""
 
+#: centreon/src/Core/ServiceSeverity/Application/Exception/ServiceSeverityException.php
+msgid "Error while retrieving service severity"
+msgstr ""
+
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "Error while retrieving service statuses distribution"
 msgstr "Erreur lors de la récupération du statut des services"
