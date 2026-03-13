@@ -1,22 +1,22 @@
 import { useAtom, useSetAtom } from 'jotai';
 import { SetStateAction } from 'react';
 
-import { limitAtom, pageAtom } from './listingAtoms';
+import { currentCursorIndexAtom, limitAtom } from './listingAtoms';
 
 export interface ListingState {
-  page?: number;
+  currentCursorIndex: number;
+  setCurrentCursorIndex: (index: SetStateAction<number>) => void;
   setLimit: (limit: SetStateAction<number>) => void;
-  setPage: (page: SetStateAction<number | undefined>) => void;
 }
 
 const useListing = (): ListingState => {
-  const [page, setPage] = useAtom(pageAtom);
+  const [currentCursorIndex, setCurrentCursorIndex] = useAtom(currentCursorIndexAtom);
   const setLimit = useSetAtom(limitAtom);
 
   return {
-    page,
-    setLimit,
-    setPage
+    currentCursorIndex,
+    setCurrentCursorIndex,
+    setLimit
   };
 };
 

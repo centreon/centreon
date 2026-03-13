@@ -108,6 +108,14 @@ interface ReadResourceRepositoryInterface
     ): int;
 
     /**
+     * Returns the next-page cursor token produced by the most recent findResources() /
+     * findResourcesByAccessGroupIds() call, or null when no next page exists.
+     *
+     * @return string|null
+     */
+    public function getNextCursor(): ?string;
+
+    /**
      * @throws RepositoryException
      * @return int
      */

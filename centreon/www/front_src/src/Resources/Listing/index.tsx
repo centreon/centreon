@@ -49,10 +49,11 @@ import {
   getColumns
 } from './columns';
 import {
+  currentCursorIndexAtom,
+  cursorStackAtom,
   enabledAutorefreshAtom,
   limitAtom,
   listingAtom,
-  pageAtom,
   selectedColumnIdsAtom,
   sendingAtom
 } from './listingAtoms';
@@ -70,7 +71,8 @@ const ResourceListing = (): JSX.Element => {
   const [selectedResourceUuid, setSelectedResourceUuid] = useAtom(
     selectedResourceUuidAtom
   );
-  const [page, setPage] = useAtom(pageAtom);
+  const [currentCursorIndex, setCurrentCursorIndex] = useAtom(currentCursorIndexAtom);
+  const cursorStack = useAtomValue(cursorStackAtom);
   const [selectedColumnIds, setSelectedColumnIds] = useAtom(
     selectedColumnIdsAtom
   );
@@ -92,7 +94,7 @@ const ResourceListing = (): JSX.Element => {
   const featureFlags = useAtomValue(featureFlagsDerivedAtom);
 
   const setOpenDetailsTabId = useSetAtom(openDetailsTabIdAtom);
-  const setLimit = useSetAtom(limitAtom);
+  const [limit, setLimit] = useAtom(limitAtom);
   const setResourcesToAcknowledge = useSetAtom(resourcesToAcknowledgeAtom);
   const setResourcesToSetDowntime = useSetAtom(resourcesToSetDowntimeAtom);
   const setCriteriaAndNewFilter = useSetAtom(
@@ -124,8 +126,8 @@ const ResourceListing = (): JSX.Element => {
     setLimit(Number(value));
   };
 
-  const changePage = (updatedPage): void => {
-    setPage(updatedPage + 1);
+  const changePage = (updatedPage: number): void => {
+    setCurrentCursorIndex(updatedPage);
   };
 
   const selectResource = ({ id, links, uuid }: Resource): void => {
@@ -246,20 +248,21 @@ const ResourceListing = (): JSX.Element => {
         sortable: areColumnsSortable
       }}
       columns={columns}
-      currentPage={(page || 1) - 1}
+      currentPage={currentCursorIndex}
       getHighlightRowCondition={({ status }): boolean =>
         equals(status?.severity_code, SeverityCode.High)
       }
       getId={getId}
       headerMemoProps={[search]}
-      limit={listing?.meta.limit}
+      limit={limit}
       listingVariant={user_interface_density}
       loading={loading}
       memoProps={[
         listing,
         sortField,
         sortOrder,
-        page,
+        currentCursorIndex,
+        cursorStack,
         selectedResources,
         selectedResourceUuid,
         sending,
@@ -293,7 +296,7 @@ const ResourceListing = (): JSX.Element => {
         labelCollapse: 'Collapse',
         labelExpand: 'Expand'
       }}
-      totalRows={listing?.meta.total}
+      totalRows={cursorStack.length * limit}
       viewerModeConfiguration={{
         disabled: isPending,
         onClick: changeViewModeTableResources,
