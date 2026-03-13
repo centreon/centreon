@@ -89,7 +89,11 @@ dnf install -y libfaketime
 # install php dependencies #
 ############################
 
-dnf module enable -y php:8.2
+# Use remi
+dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
+dnf install -y https://rpms.remirepo.net/enterprise/remi-release-10.rpm
+crb enable
+dnf module -y switch-to php:remi-8.4/common
 dnf install -y \
   php-common \
   php-cli \

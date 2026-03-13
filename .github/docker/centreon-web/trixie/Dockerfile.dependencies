@@ -78,7 +78,6 @@ apt-get install -y \
   python3 \
   sed \
   snmpd \
-  software-properties-common \
   sudo
 
 #############################
