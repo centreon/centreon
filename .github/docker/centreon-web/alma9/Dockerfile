@@ -57,6 +57,9 @@ systemctl stop httpd
 systemctl stop php-fpm
 systemctl stop snmpd
 
+# Pre-install language packs to avoid runtime dnf install on container startup
+dnf install -y glibc-langpack-de glibc-langpack-es glibc-langpack-fr glibc-langpack-pt
+
 dnf clean all
 rm -rf /usr/share/doc /usr/share/man /usr/share/info
 
