@@ -840,6 +840,22 @@ jobs:
         run: rm -f centreon/packaging/*-selinux.yaml
         shell: bash
 
+      - name: Set PHP_MIN_VERSION and PHP_MAX_VERSION
+        run: |
+          if [[ "${{ matrix.distrib }}" == "el9" ]]; then
+            echo "Distrib is ${{ matrix.distrib }}, setting PHP_MIN_VERSION to 8.2 and PHP_MAX_VERSION to 8.3 ."
+            echo "PHP_MIN_VERSION=8.2" >> $GITHUB_ENV
+            echo "PHP_MAX_VERSION=8.3" >> $GITHUB_ENV
+          elif [[ "${{ matrix.distrib }}" == "el10" || "${{ matrix.distrib }}" == "trixie" ]]; then
+            echo "Distrib is ${{ matrix.distrib }}, setting PHP_MIN_VERSION to 8.4 and PHP_MAX_VERSION to 8.5 ."
+            echo "PHP_MIN_VERSION=8.4" >> $GITHUB_ENV
+            echo "PHP_MAX_VERSION=8.5" >> $GITHUB_ENV
+          else
+            echo "::error::Unsupported distrib, exiting."
+            exit 1
+          fi
+
+
       - name: Package Centreon
         uses: ./.github/actions/package-nfpm
         with:
@@ -849,6 +865,8 @@ jobs:
           package_extension: ${{ matrix.package_extension }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
+          php_min_version: ${{ env.PHP_MIN_VERSION }}
+          php_max_version: ${{ env.PHP_MAX_VERSION }}
           release: ${{ needs.get-environment.outputs.release }}
           arch: all
           commit_hash: ${{ github.sha }}

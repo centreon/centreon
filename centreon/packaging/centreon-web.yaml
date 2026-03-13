@@ -434,9 +434,8 @@ overrides:
       - initscripts
       - "(mariadb or mysql)"
       - httpd
-      # - php-common >= 8.4
-      # - php-common < 8.5
-      - "(php-common >= 8.2 and php-common < 8.3) or (php-common >= 8.4 and php-common < 8.5)"
+      - php-common >= ${PHP_MIN_VERSION}
+      - php-common < ${PHP_MAX_VERSION}
       - php-cli
       - php-pdo
       - php-mysqlnd
@@ -527,7 +526,6 @@ overrides:
       - "mariadb-client | mysql-client"
       - cron
       - apache2
-      - "php8.2-common | php8.4-common"
       - rrdtool
       - locales
       - gettext
