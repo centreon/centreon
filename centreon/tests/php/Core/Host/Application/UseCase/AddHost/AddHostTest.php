@@ -40,6 +40,7 @@ use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\Domain\Common\GeoCoords;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Exception\HostException;
@@ -66,6 +67,7 @@ use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Tests\Core\Host\Infrastructure\API\AddHost\AddHostPresenterStub;
 
 beforeEach(function (): void {
@@ -94,6 +96,8 @@ beforeEach(function (): void {
         readVaultRepository: $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
         writeRealTimeHostRepository: $this->writeRealTimeHostRepository = $this->createMock(WriteRealTimeHostRepositoryInterface::class),
         readCommandRepository: $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
+        writeAccessGroupRepository: $this->writeAccessGroupRepository = $this->createMock(WriteAccessGroupRepositoryInterface::class),
+        adminResolver: $this->adminResolver = $this->createMock(AdminResolver::class),
     );
 
     $this->inheritanceModeOption = new Option();
@@ -680,10 +684,15 @@ it('should return created object on success (with admin user)', function (): voi
         ->expects($this->once())
         ->method('notifyConfigurationChange');
 
-    $this->user
+    $this->adminResolver
         ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(true);
+
+    $this->writeAccessGroupRepository
+        ->expects($this->once())
+        ->method('updateAclResourcesFlag');
+
     $this->readHostRepository
         ->expects($this->once())
         ->method('findById')
@@ -896,10 +905,15 @@ it('should return created object on success (with non-admin user)', function ():
         ->expects($this->once())
         ->method('notifyConfigurationChange');
 
-    $this->user
+    $this->adminResolver
         ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(false);
+
+    $this->writeAccessGroupRepository
+        ->expects($this->once())
+        ->method('updateAclGroupsFlag');
+
     $this->readHostRepository
         ->expects($this->once())
         ->method('findById')
