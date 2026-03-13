@@ -27,7 +27,6 @@ use Centreon\Infrastructure\Service\Exception\NotFoundException;
 
 /**
  * Repository to manage main centreon broker configuration
- * @todo move management of cfg_centreonbroker_info in another repository
  */
 class CfgCentreonBrokerRepository extends ServiceEntityRepository implements CfgCentreonBrokerInterface
 {
@@ -38,16 +37,16 @@ class CfgCentreonBrokerRepository extends ServiceEntityRepository implements Cfg
     public function findCentralBrokerConfigId(): int
     {
         // to find central broker configuration,
-        // we search a configuration with an input which is listing on port 5669
+        // we search a configuration with an input which is listening on port 5669
         $sql = 'SELECT cb.config_id '
-            . 'FROM cfg_centreonbroker cb, cfg_centreonbroker_info cbi, nagios_server ns '
-            . 'WHERE cb.ns_nagios_server = ns.id '
-            . 'AND cb.config_id = cbi.config_id '
-            . 'AND ns.localhost = "1" ' // central poller should be on localhost
+            . 'FROM cfg_centreonbroker cb '
+            . 'INNER JOIN cfg_broker_input_output bio ON bio.config_id = cb.config_id '
+            . 'INNER JOIN nagios_server ns ON ns.id = cb.ns_nagios_server '
+            . 'WHERE ns.localhost = "1" ' // central poller should be on localhost
             . 'AND cb.daemon = 1 ' // central broker should be linked to cbd daemon
             . 'AND cb.config_activate = "1" '
-            . 'AND cbi.config_group = "input" '
-            . 'AND cbi.config_value = "5669"';
+            . 'AND bio.tag = "input" '
+            . 'AND JSON_UNQUOTE(JSON_EXTRACT(bio.parameters, \'$.port\')) = "5669"';
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
 
@@ -67,16 +66,16 @@ class CfgCentreonBrokerRepository extends ServiceEntityRepository implements Cfg
     public function findBrokerConfigIdByPollerId(int $pollerId): int
     {
         // to find poller broker configuration,
-        // we search a configuration with an input which is listing on port 5669
+        // we search a configuration with an input which is listening on port 5669
         $sql = 'SELECT cb.config_id '
-            . 'FROM cfg_centreonbroker cb, cfg_centreonbroker_info cbi, nagios_server ns '
-            . 'WHERE cb.ns_nagios_server = ns.id '
-            . 'AND cb.config_id = cbi.config_id '
-            . 'AND cb.ns_nagios_server = :poller_id '
-            . 'AND cb.daemon = 1 ' // central broker should be linked to cbd daemon
+            . 'FROM cfg_centreonbroker cb '
+            . 'INNER JOIN cfg_broker_input_output bio ON bio.config_id = cb.config_id '
+            . 'INNER JOIN nagios_server ns ON ns.id = cb.ns_nagios_server '
+            . 'WHERE cb.ns_nagios_server = :poller_id '
+            . 'AND cb.daemon = 1 ' // poller broker should be linked to cbd daemon
             . 'AND cb.config_activate = "1" '
-            . 'AND cbi.config_group = "input" '
-            . 'AND cbi.config_value = "5669"';
+            . 'AND bio.tag = "input" '
+            . 'AND JSON_UNQUOTE(JSON_EXTRACT(bio.parameters, \'$.port\')) = "5669"';
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':poller_id', $pollerId, \PDO::PARAM_INT);
         $stmt->execute();
@@ -122,13 +121,13 @@ class CfgCentreonBrokerRepository extends ServiceEntityRepository implements Cfg
     }
 
     /**
-     * Truncate centreon broker configuration in database (cfg_centreonbroker, cfg_centreonbroker_info)
+     * Truncate centreon broker configuration in database (cfg_centreonbroker, cfg_broker_input_output)
      */
     public function truncate(): void
     {
         $sql = <<<'SQL'
             TRUNCATE TABLE `cfg_centreonbroker`;
-            TRUNCATE TABLE `cfg_centreonbroker_info`
+            TRUNCATE TABLE `cfg_broker_input_output`
             SQL;
         $stmt = $this->db->prepare($sql);
         $stmt->execute();

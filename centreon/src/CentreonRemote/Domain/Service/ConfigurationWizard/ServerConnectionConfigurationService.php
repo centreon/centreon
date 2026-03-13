@@ -259,14 +259,11 @@ abstract class ServerConnectionConfigurationService
         $bamBrokerInfoData = BamBrokerCfgInfo::getConfiguration($conf_centreon['password']);
 
         $bamBrokerInfoData = $this->saveCredentialInVault($bamBrokerInfoData);
-        foreach ($bamBrokerInfoData['monitoring'] as $row) {
-            $row['config_id'] = $this->brokerID;
-            $this->insertWithAdapter('cfg_centreonbroker_info', $row);
-        }
-
-        foreach ($bamBrokerInfoData['reporting'] as $row) {
-            $row['config_id'] = $this->brokerID;
-            $this->insertWithAdapter('cfg_centreonbroker_info', $row);
+        foreach (['monitoring', 'reporting'] as $key) {
+            $row = $bamBrokerInfoData[$key];
+            $row['config_id']  = $this->brokerID;
+            $row['parameters'] = json_encode($row['parameters'], JSON_THROW_ON_ERROR);
+            $this->insertWithAdapter('cfg_broker_input_output', $row);
         }
     }
 
@@ -297,11 +294,11 @@ abstract class ServerConnectionConfigurationService
     }
 
     /**
-     * @param array<string, array<int, string[]>> $brokerInfos
+     * @param array<string, array<string, mixed>> $brokerInfos
      *
      * @throws \Throwable
      *
-     * @return array<string, array<int, string[]>>
+     * @return array<string, array<string, mixed>>
      */
     protected function saveCredentialInVault(array $brokerInfos): array
     {
@@ -328,24 +325,10 @@ abstract class ServerConnectionConfigurationService
         }
 
         foreach ($brokerInfos as $key => $inputOutput) {
-            $inputOutputName = null;
-            $credentialKey = null;
-            $credentialValue = null;
-            foreach ($inputOutput as $index => $row) {
-                if (isset($row['config_key']) && $row['config_key'] === 'name') {
-                    $inputOutputName = $row['config_value'];
-                }
-                if (isset($row['config_key']) && $row['config_key'] === 'db_password') {
-                    $credentialKey = $index;
-                    $credentialValue = $row['config_value'];
-                }
-            }
+            $inputOutputName = $inputOutput['name'] ?? null;
+            $credentialValue = $inputOutput['parameters']['db_password'] ?? null;
 
-            if (
-                $inputOutputName === null
-                || $credentialKey === null
-                || $credentialValue === null
-            ) {
+            if ($inputOutputName === null || $credentialValue === null || $credentialValue === '') {
                 continue;
             }
 
@@ -359,7 +342,7 @@ abstract class ServerConnectionConfigurationService
                 $this->uuid = $this->getUuidFromPath($path);
             }
 
-            $brokerInfos[$key][$credentialKey]['config_value'] = $paths["{$inputOutputName}_db_password"];
+            $brokerInfos[$key]['parameters']['db_password'] = $paths["{$inputOutputName}_db_password"];
         }
 
         return $brokerInfos;
