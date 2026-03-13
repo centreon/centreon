@@ -456,12 +456,29 @@ function disableVirtualMetricInDB($vmetric_id = null, $force = 0)
     if (! count($v_dis)) {
         return 0;
     }
-    $statement = $pearDB->prepare(
-        "UPDATE `virtual_metrics` SET `vmetric_activate` = '0' WHERE `vmetric_id` = :vmetric_id"
-    );
-    foreach ($v_dis as $vm) {
-        $statement->bindValue(':vmetric_id', (int) $vm, PDO::PARAM_INT);
-        $statement->execute();
+    $ownTransaction = ! $pearDB->inTransaction();
+    try {
+        if ($ownTransaction) {
+            $pearDB->beginTransaction();
+        }
+
+        $statement = $pearDB->prepare(
+            "UPDATE `virtual_metrics` SET `vmetric_activate` = '0' WHERE `vmetric_id` = :vmetric_id"
+        );
+        foreach ($v_dis as $vm) {
+            $statement->bindValue(':vmetric_id', (int) $vm, PDO::PARAM_INT);
+            $statement->execute();
+        }
+
+        if ($ownTransaction) {
+            $pearDB->commit();
+        }
+    } catch (Throwable $e) {
+        if ($ownTransaction && $pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
     }
 
     return 1;
@@ -522,22 +539,38 @@ function enableVirtualMetricInDB($vmetric_id = null)
     if (! count($v_ena)) {
         return 0;
     }
-    $statement = $pearDB->prepare(
-        "UPDATE `virtual_metrics` SET `vmetric_activate` = '1' WHERE `vmetric_id` = :vmetric_id"
-    );
-    foreach ($v_ena as $v_id) {
-        $checkResult = checkRRDGraphData($v_id);
-        if ($checkResult === null) {
-            continue;
+    $ownTransaction = ! $pearDB->inTransaction();
+    try {
+        if ($ownTransaction) {
+            $pearDB->beginTransaction();
         }
-        [$rc, $output] = $checkResult;
-        if ($rc) {
-            $error = preg_replace('/^ERROR:\s*/', '', $output);
 
-            throw new Exception("Wrong RPN syntax (RRDtool said: {$error})");
+        $statement = $pearDB->prepare(
+            "UPDATE `virtual_metrics` SET `vmetric_activate` = '1' WHERE `vmetric_id` = :vmetric_id"
+        );
+        foreach ($v_ena as $v_id) {
+            $checkResult = checkRRDGraphData($v_id);
+            if ($checkResult !== null) {
+                [$rc, $output] = $checkResult;
+                if ($rc) {
+                    $error = preg_replace('/^ERROR:\s*/', '', $output);
+
+                    throw new Exception("Wrong RPN syntax (RRDtool said: {$error})");
+                }
+            }
+            $statement->bindValue(':vmetric_id', (int) $v_id, PDO::PARAM_INT);
+            $statement->execute();
         }
-        $statement->bindValue(':vmetric_id', (int) $v_id, PDO::PARAM_INT);
-        $statement->execute();
+
+        if ($ownTransaction) {
+            $pearDB->commit();
+        }
+    } catch (Throwable $e) {
+        if ($ownTransaction && $pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
     }
 
     return 1;

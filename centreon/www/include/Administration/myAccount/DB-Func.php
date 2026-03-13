@@ -375,7 +375,7 @@ function checkAutologinValue(array $fields): array|true
         $currentPasswordHash = $contactPassword !== false
             ? $contactPassword['password']
             : $centreon->user->passwd;
-        if (password_verify($fields['contact_autologin_key'], $currentPasswordHash)) {
+        if (is_string($currentPasswordHash) && password_verify($fields['contact_autologin_key'], $currentPasswordHash)) {
             $errors['contact_autologin_key'] = _('Your autologin key must be different than your current password');
         } elseif (
             ! empty($fields['contact_passwd'])
