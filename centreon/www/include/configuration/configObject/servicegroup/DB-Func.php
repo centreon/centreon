@@ -112,22 +112,33 @@ function removeRelationLastServicegroupDependency(int $servicegroupId): void
 {
     global $pearDB;
 
-    $statement = $pearDB->prepare(
-        'SELECT count(dependency_dep_id) AS nb_dependency, dependency_dep_id AS id
-        FROM dependency_servicegroupParent_relation
-        WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_servicegroupParent_relation
-                                   WHERE servicegroup_sg_id = :sg_id)
-        GROUP BY dependency_dep_id'
-    );
-    $statement->bindValue(':sg_id', $servicegroupId, PDO::PARAM_INT);
-    $statement->execute();
-    $result = $statement->fetch();
+    try {
+        $pearDB->beginTransaction();
+        $statement = $pearDB->prepare(
+            'SELECT count(dependency_dep_id) AS nb_dependency, dependency_dep_id AS id
+            FROM dependency_servicegroupParent_relation
+            WHERE dependency_dep_id IN (SELECT dependency_dep_id FROM dependency_servicegroupParent_relation
+                                        WHERE servicegroup_sg_id = :sg_id)
+            GROUP BY dependency_dep_id'
+        );
+        $statement->bindValue(':sg_id', $servicegroupId, PDO::PARAM_INT);
+        $statement->execute();
 
-    // is last parent
-    if (isset($result['nb_dependency']) && $result['nb_dependency'] == 1) {
+        // Delete dependencies where this service group is the last parent
         $deleteStmt = $pearDB->prepare('DELETE FROM dependency WHERE dep_id = :dep_id');
-        $deleteStmt->bindValue(':dep_id', (int) $result['id'], PDO::PARAM_INT);
-        $deleteStmt->execute();
+        foreach ($statement->fetchAll(PDO::FETCH_ASSOC) as $result) {
+            if ((int) $result['nb_dependency'] === 1) {
+                $deleteStmt->bindValue(':dep_id', (int) $result['id'], PDO::PARAM_INT);
+                $deleteStmt->execute();
+            }
+        }
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
     }
 }
 
