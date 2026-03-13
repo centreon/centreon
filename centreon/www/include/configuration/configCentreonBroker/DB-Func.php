@@ -182,26 +182,26 @@ function getCentreonBrokerInformation($id)
         return $defaultBrokerConf;
     }
     $brokerConf = [
-            'id' => $id,
-            'name' => $row['config_name'],
-            'filename' => $row['config_filename'],
-            'ns_nagios_server' => $row['ns_nagios_server'],
-            'activate' => $row['config_activate'],
-            'activate_watchdog' => $row['daemon'],
-            'stats_activate' => $row['stats_activate'],
-            'write_timestamp' => $row['config_write_timestamp'],
-            'write_thread_id' => $row['config_write_thread_id'],
-            'event_queue_max_size' => $row['event_queue_max_size'],
-            'event_queues_total_size' => $row['event_queues_total_size'],
-            'cache_directory' => $row['cache_directory'],
-            'command_file' => $row['command_file'],
-            'daemon' => $row['daemon'],
-            'pool_size' => $row['pool_size'],
-            'log_directory' => $row['log_directory'],
-            'log_filename' => $row['log_filename'],
-            'log_max_size' => $row['log_max_size'],
-            'bbdo_version' => $row['bbdo_version'],
-        ];
+        'id' => $id,
+        'name' => $row['config_name'],
+        'filename' => $row['config_filename'],
+        'ns_nagios_server' => $row['ns_nagios_server'],
+        'activate' => $row['config_activate'],
+        'activate_watchdog' => $row['daemon'],
+        'stats_activate' => $row['stats_activate'],
+        'write_timestamp' => $row['config_write_timestamp'],
+        'write_thread_id' => $row['config_write_thread_id'],
+        'event_queue_max_size' => $row['event_queue_max_size'],
+        'event_queues_total_size' => $row['event_queues_total_size'],
+        'cache_directory' => $row['cache_directory'],
+        'command_file' => $row['command_file'],
+        'daemon' => $row['daemon'],
+        'pool_size' => $row['pool_size'],
+        'log_directory' => $row['log_directory'],
+        'log_filename' => $row['log_filename'],
+        'log_max_size' => $row['log_max_size'],
+        'bbdo_version' => $row['bbdo_version'],
+    ];
     // Log
     $brokerLogConf = [];
     $query = 'SELECT log.`name`, relation.`id_level`

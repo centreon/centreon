@@ -540,7 +540,7 @@ function updateServiceCategoriesServices(int $sc_id)
         }
 
         $pearDB->commit();
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }

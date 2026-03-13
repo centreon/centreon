@@ -404,10 +404,11 @@ function updateLCAInDB($aclId = null): void
         updatePollers($aclId);
 
         $pearDB->commit();
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
+
         throw $e;
     }
 
@@ -449,10 +450,11 @@ function insertLCAInDB(): int
         updatePollers($aclId);
 
         $pearDB->commit();
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
+
         throw $e;
     }
 

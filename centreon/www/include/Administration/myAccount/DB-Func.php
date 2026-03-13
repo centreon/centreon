@@ -67,7 +67,7 @@ function updateNotificationOptions($userIdConnected)
     try {
         $pearDB->beginTransaction();
         $deleteStmt = $pearDB->prepare(
-            "DELETE FROM contact_param WHERE cp_contact_id = :contact_id"
+            'DELETE FROM contact_param WHERE cp_contact_id = :contact_id'
             . " AND (cp_key LIKE 'monitoring%notification%' OR cp_key LIKE 'monitoring_sound%')"
         );
         $deleteStmt->bindValue(':contact_id', (int) $userIdConnected, PDO::PARAM_INT);

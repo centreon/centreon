@@ -25,8 +25,6 @@ use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Log\LoggerPassword;
-use App\Kernel;
-use Centreon\Domain\Log\Logger;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Domain\Exception\TransformerException;
@@ -1309,14 +1307,14 @@ function updateContact_MC(int $contact_id): void
 /**
  * @param int $contactId
  * @param array $fields
- * @throws \InvalidArgumentException
+ * @throws InvalidArgumentException
  */
 function updateContactHostCommands(int $contactId, array $fields = []): void
 {
     global $form, $pearDB;
 
     if ($contactId <= 0) {
-        throw new \InvalidArgumentException("contactId must be greater than 0, given: {$contactId}");
+        throw new InvalidArgumentException("contactId must be greater than 0, given: {$contactId}");
     }
 
     $pearDB->delete(
@@ -1344,14 +1342,14 @@ function updateContactHostCommands(int $contactId, array $fields = []): void
 
 /**
  * @param int $contactId
- * @throws \InvalidArgumentException
+ * @throws InvalidArgumentException
  */
 function updateContactHostCommands_MC(int $contactId): void
 {
     global $form, $pearDB;
 
     if ($contactId <= 0) {
-        throw new \InvalidArgumentException("contactId must be greater than 0, given: {$contactId}");
+        throw new InvalidArgumentException("contactId must be greater than 0, given: {$contactId}");
     }
 
     $hostCommandIdsFromForm = $form->getSubmitValue('contact_hostNotifCmds');
@@ -1394,7 +1392,7 @@ function updateContactHostCommands_MC(int $contactId): void
 /**
  * @param int $contactId
  * @param array $fields
- * @throws \InvalidArgumentException
+ * @throws InvalidArgumentException
  * @throws CentreonDbException
  */
 function updateContactServiceCommands(int $contactId, array $fields = []): void
@@ -1402,7 +1400,7 @@ function updateContactServiceCommands(int $contactId, array $fields = []): void
     global $form, $pearDB;
 
     if ($contactId <= 0) {
-        throw new \InvalidArgumentException("contactId must be greater than 0, given: {$contactId}");
+        throw new InvalidArgumentException("contactId must be greater than 0, given: {$contactId}");
     }
 
     $query = 'DELETE FROM contact_servicecommands_relation WHERE contact_contact_id = :contact_id';
@@ -1427,14 +1425,14 @@ function updateContactServiceCommands(int $contactId, array $fields = []): void
 // For massive change. We just add the new list if the elem doesn't exist yet
 /**
  * @param int $contactId
- * @throws \InvalidArgumentException
+ * @throws InvalidArgumentException
  */
 function updateContactServiceCommands_MC(int $contactId): void
 {
     global $form, $pearDB;
 
     if ($contactId <= 0) {
-        throw new \InvalidArgumentException("contactId must be greater than 0, given: {$contactId}");
+        throw new InvalidArgumentException("contactId must be greater than 0, given: {$contactId}");
     }
 
     $serviceCommandsFromForm = $form->getSubmitValue('contact_svNotifCmds');
@@ -1477,7 +1475,7 @@ function updateContactServiceCommands_MC(int $contactId): void
 /**
  * @param int $contactId
  * @param array $fields
- * @throws \InvalidArgumentException
+ * @throws InvalidArgumentException
  * @throws CentreonDbException
  */
 function updateContactContactGroup(int $contactId, array $fields = []): void
@@ -1485,7 +1483,7 @@ function updateContactContactGroup(int $contactId, array $fields = []): void
     global $centreon, $form, $pearDB;
 
     if ($contactId <= 0) {
-        throw new \InvalidArgumentException("contactId must be greater than 0, given: {$contactId}");
+        throw new InvalidArgumentException("contactId must be greater than 0, given: {$contactId}");
     }
 
     $contactGroupIdsFromForm = $fields['contact_cgNotif'] ?? CentreonUtils::mergeWithInitialValues(
@@ -1520,14 +1518,14 @@ function updateContactContactGroup(int $contactId, array $fields = []): void
 // For massive change. We just add the new list if the elem doesn't exist yet
 /**
  * @param int $contactId
- * @throws \InvalidArgumentException
+ * @throws InvalidArgumentException
  */
 function updateContactContactGroup_MC(int $contactId): void
 {
     global $centreon, $form, $pearDB;
 
     if ($contactId <= 0) {
-        throw new \InvalidArgumentException("contactId must be greater than 0, given: {$contactId}");
+        throw new InvalidArgumentException("contactId must be greater than 0, given: {$contactId}");
     }
 
     $contactGroupIdsFromForm = $form->getSubmitValue('contact_cgNotif');
@@ -1692,7 +1690,7 @@ function insertLdapContactInDB($tmpContacts = [])
  * Update ACL groups links with this user
  * @param int $contactId
  * @param array $fields
- * @throws \InvalidArgumentException
+ * @throws InvalidArgumentException
  * @throws CentreonDbException
  */
 function updateAccessGroupLinks(int $contactId, array $fields = []): void
@@ -1700,7 +1698,7 @@ function updateAccessGroupLinks(int $contactId, array $fields = []): void
     global $form, $pearDB;
 
     if ($contactId <= 0) {
-        throw new \InvalidArgumentException("contactId must be greater than 0, given: {$contactId}");
+        throw new InvalidArgumentException("contactId must be greater than 0, given: {$contactId}");
     }
 
     $aclGroupIds = $fields['contact_acl_groups'] ?? CentreonUtils::mergeWithInitialValues(
@@ -1726,7 +1724,7 @@ function updateAccessGroupLinks(int $contactId, array $fields = []): void
  * Update ACL groups links with this user during massive changes
  * @param int $contactId
  * @param $flag
- * @throws \InvalidArgumentException
+ * @throws InvalidArgumentException
  * @throws CentreonDbException
  */
 function updateAccessGroupLinks_MC(int $contactId, $flag): void
@@ -1734,7 +1732,7 @@ function updateAccessGroupLinks_MC(int $contactId, $flag): void
     global $form, $pearDB;
 
     if ($contactId <= 0) {
-        throw new \InvalidArgumentException("contactId must be greater than 0, given: {$contactId}");
+        throw new InvalidArgumentException("contactId must be greater than 0, given: {$contactId}");
     }
 
     $aclGroupIds = $form->getSubmitValue('contact_acl_groups');
