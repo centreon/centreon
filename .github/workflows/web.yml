@@ -740,9 +740,15 @@ jobs:
           - package_extension: rpm
             image: packaging-nfpm-alma9
             distrib: el9
+          - package_extension: rpm
+            image: packaging-nfpm-alma10
+            distrib: el10
           - package_extension: deb
-            image: packaging-nfpm-bookworm
-            distrib: bookworm
+            image: packaging-nfpm-trixie
+            distrib: trixie
+          # - package_extension: deb
+          #   image: packaging-nfpm-bookworm
+          #   distrib: bookworm
           # - package_extension: deb
           #   image: packaging-nfpm-jammy
           #   distrib: jammy
@@ -883,7 +889,13 @@ jobs:
           if [ "${{ matrix.operating_system }}" = "alma9" ]; then
             DISTRIB=el9
             PACKAGE_EXTENSION=rpm
+          elif [ "${{ matrix.operating_system }}" = "alma10" ]; then
+            DISTRIB=el10
+            PACKAGE_EXTENSION=rpm
           elif [ "${{ matrix.operating_system }}" = "bookworm" ]; then
+            DISTRIB=bookworm
+            PACKAGE_EXTENSION=deb
+          elif [ "${{ matrix.operating_system }}" = "trixie" ]; then
             DISTRIB=bookworm
             PACKAGE_EXTENSION=deb
           elif [ "${{ matrix.operating_system }}" = "jammy" ]; then
@@ -1342,7 +1354,7 @@ jobs:
       github.repository == 'centreon/centreon'
     strategy:
       matrix:
-        distrib: [el9]
+        distrib: [el9, el10]
     name: deliver-rpm ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
@@ -1383,7 +1395,7 @@ jobs:
       (needs.get-environment.outputs.is_cloud == 'false' || needs.get-environment.outputs.stability == 'unstable')
     strategy:
       matrix:
-        distrib: [bookworm]
+        distrib: [trixie]
     name: deliver-deb ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
@@ -1413,7 +1425,7 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [el9, bookworm]
+        distrib: [el9, el10, trixie]
     name: promote ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
