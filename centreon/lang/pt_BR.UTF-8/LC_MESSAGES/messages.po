@@ -70,10 +70,6 @@ msgstr ""
 "*O fuso horário utilizado é o que foi configurado no seu perfil de usuário"
 
 #: centreon/www/install/front_translate.php
-msgid "/*+&"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
 msgid "0-9"
 msgstr ""
 
@@ -193,6 +189,10 @@ msgstr ""
 
 #: centreon/www/install/step_upgrade/step4.php
 msgid "<p>Currently upgrading... please do not interrupt this process.</p>"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "@$!%*?&"
 msgstr ""
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php

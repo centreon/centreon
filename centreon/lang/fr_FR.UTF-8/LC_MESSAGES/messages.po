@@ -75,10 +75,6 @@ msgstr ""
 "utilisateur"
 
 #: centreon/www/install/front_translate.php
-msgid "/*+&"
-msgstr "/*+&"
-
-#: centreon/www/install/front_translate.php
 msgid "0-9"
 msgstr "0-9"
 
@@ -204,6 +200,10 @@ msgstr ""
 #: centreon/www/install/step_upgrade/step4.php
 msgid "<p>Currently upgrading... please do not interrupt this process.</p>"
 msgstr "<p>Montée de version en cours... N'interrompez pas le processus.</p>"
+
+#: centreon/www/install/front_translate.php
+msgid "@$!%*?&"
+msgstr ""
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
@@ -20301,6 +20301,10 @@ msgid "* Cross-Site Request Forgery : unauthorized commands are transmitted"
 msgstr ""
 "* Cross-Site Request Forgery : des requêtes non autorisées ont été "
 "transmises"
+
+#: unknown
+msgid "/*+&"
+msgstr "/*+&"
 
 #: unknown
 msgid "2d Coords"
