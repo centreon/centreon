@@ -82,14 +82,17 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        distrib: [el9, bookworm]
+        distrib: [el9, el10, trixie]
         include:
           - package_extension: rpm
             image: packaging-nfpm-alma9
             distrib: el9
+          - package_extension: rpm
+            image: packaging-nfpm-alma10
+            distrib: el10
           - package_extension: deb
-            image: packaging-nfpm-bookworm
-            distrib: bookworm
+            image: packaging-nfpm-trixie
+            distrib: trixie
 
     runs-on: ubuntu-24.04
 
@@ -161,7 +164,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [el9]
+        distrib: [el9, el10]
 
     steps:
       - name: Checkout sources
@@ -193,7 +196,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bookworm]
+        distrib: [trixie]
 
     steps:
       - name: Checkout sources
@@ -222,7 +225,7 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [el9, bookworm]
+        distrib: [el9, el10, trixie]
 
     steps:
       - name: Checkout sources
