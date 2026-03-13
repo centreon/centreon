@@ -74,7 +74,7 @@ jobs:
         if: |
           needs.get-environment.outputs.is_cloud == 'false' ||
           ! contains(fromJson('["testing", "stable"]'), needs.get-environment.outputs.stability) ||
-          matrix.distrib != 'bookworm'
+          matrix.distrib != 'trixie'
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
           DOCKER_BUILD_SUMMARY: false
@@ -98,7 +98,7 @@ jobs:
         if: |
           needs.get-environment.outputs.is_cloud == 'false' ||
           ! contains(fromJson('["testing", "stable"]'), needs.get-environment.outputs.stability) ||
-          matrix.distrib != 'bookworm'
+          matrix.distrib != 'trixie'
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
           DOCKER_BUILD_SUMMARY: false
