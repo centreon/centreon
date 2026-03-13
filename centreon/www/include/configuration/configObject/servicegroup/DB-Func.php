@@ -758,6 +758,9 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
         for ($i = 0; $i < $counter; $i++) {
             if (isset($retTmp[$i]) && $retTmp[$i]) {
                 $t = preg_split("/\-/", $retTmp[$i]);
+                if (count($t) !== 2) {
+                    continue;
+                }
                 $hostHostId = filter_var($t[0], FILTER_VALIDATE_INT);
                 $serviceServiceId = filter_var($t[1], FILTER_VALIDATE_INT);
                 if ($hostHostId === false || $serviceServiceId === false) {

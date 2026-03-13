@@ -41,8 +41,12 @@ function includeExcludeTimeperiods($tpId, $includeTab = [], $excludeTab = [])
             VALUES (:tpId, :tpIncludeId)'
         );
         foreach ($includeTab as $tpIncludeId) {
+            $tpIncludeId = filter_var($tpIncludeId, FILTER_VALIDATE_INT);
+            if ($tpIncludeId === false) {
+                continue;
+            }
             $includeStmt->bindValue(':tpId', (int) $tpId, PDO::PARAM_INT);
-            $includeStmt->bindValue(':tpIncludeId', (int) $tpIncludeId, PDO::PARAM_INT);
+            $includeStmt->bindValue(':tpIncludeId', $tpIncludeId, PDO::PARAM_INT);
             $includeStmt->execute();
         }
     }
@@ -54,8 +58,12 @@ function includeExcludeTimeperiods($tpId, $includeTab = [], $excludeTab = [])
             VALUES (:tpId, :tpExcludeId)'
         );
         foreach ($excludeTab as $tpExcludeId) {
+            $tpExcludeId = filter_var($tpExcludeId, FILTER_VALIDATE_INT);
+            if ($tpExcludeId === false) {
+                continue;
+            }
             $excludeStmt->bindValue(':tpId', (int) $tpId, PDO::PARAM_INT);
-            $excludeStmt->bindValue(':tpExcludeId', (int) $tpExcludeId, PDO::PARAM_INT);
+            $excludeStmt->bindValue(':tpExcludeId', $tpExcludeId, PDO::PARAM_INT);
             $excludeStmt->execute();
         }
     }

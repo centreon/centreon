@@ -94,12 +94,12 @@ function testHostCategorieExistence(?string $name = null): bool
         throw new RepositoryException('Host category name is required for existence check');
     }
 
-    $currentId = $form ? $form->getSubmitValue('hc_id') : null;
+    $currentId = $form ? filter_var($form->getSubmitValue('hc_id'), FILTER_VALIDATE_INT) : false;
     $qb = $pearDB->createQueryBuilder();
     $qb->select('1')
         ->from('hostcategories')
         ->where('hc_name = :hc_name');
-    if ($currentId !== null) {
+    if ($currentId !== false) {
         $qb->andWhere('hc_id <> :hc_id');
     }
     $query = $qb->getQuery();
@@ -110,8 +110,8 @@ function testHostCategorieExistence(?string $name = null): bool
             ->sanitize()
             ->getString();
         $params = [QueryParameter::string('hc_name', $cleanName)];
-        if ($currentId !== null) {
-            $params[] = QueryParameter::int('hc_id', (int) $currentId);
+        if ($currentId !== false) {
+            $params[] = QueryParameter::int('hc_id', $currentId);
         }
         $result = $pearDB->fetchAssociative(
             $query,

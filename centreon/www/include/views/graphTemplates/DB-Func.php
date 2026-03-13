@@ -31,7 +31,7 @@ function testExistence($name = null, bool $excludeCurrentFormId = true)
     if ($excludeCurrentFormId && isset($form)) {
         $id = $form->getSubmitValue('graph_id');
     }
-    $normalizedName = $name !== null ? htmlentities($name, ENT_QUOTES, 'UTF-8') : null;
+    $normalizedName = $name !== null && $name !== '' ? htmlentities($name, ENT_QUOTES, 'UTF-8') : null;
     $conditions = $normalizedName === null ? 'name IS NULL' : 'name = :name';
     if ($id !== null) {
         $conditions .= ' AND graph_id <> :graphId';

@@ -60,6 +60,7 @@ function getAvailableSuffixIds(
      * expression in the database query
      */
     $serverName = preg_quote($serverName);
+    $separator = preg_quote($separator);
 
     // Get list of suffix already used
     $query = <<<'SQL'

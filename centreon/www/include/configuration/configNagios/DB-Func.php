@@ -285,7 +285,7 @@ function multipleNagiosInDB($nagios = [], $nbrDup = [])
                 if ($newNagiosId <= 0) {
                     $pearDB->rollBack();
                     error_log('Invalid lastInsertId while duplicating nagios_id=' . $nagiosId);
-                    continue;
+                    break;
                 }
 
                 foreach ($rowBks as $valBk) {
@@ -302,7 +302,7 @@ function multipleNagiosInDB($nagios = [], $nbrDup = [])
                     $pearDB->rollBack();
                 }
                 error_log('Failed to duplicate cfg_nagios for nagios_id=' . $nagiosId . ': ' . $e->getMessage());
-                continue;
+                break;
             }
         }
         if ($i < $dupCount) {

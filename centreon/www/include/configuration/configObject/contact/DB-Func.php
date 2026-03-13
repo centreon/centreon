@@ -892,7 +892,7 @@ function updateContactInDB(mixed $contact_id, bool $from_MC = false, bool $isRem
 
     $ret = $form->getSubmitValues();
 
-    $ownTransaction = ! $pearDB->isTransactionActive();
+    $ownTransaction = ! $pearDB->inTransaction();
     try {
         if ($ownTransaction) {
             $pearDB->beginTransaction();
@@ -956,7 +956,7 @@ function insertContactInDB(array $ret = []): int
 {
     global $pearDB;
 
-    $ownTransaction = ! $pearDB->isTransactionActive();
+    $ownTransaction = ! $pearDB->inTransaction();
     try {
         if ($ownTransaction) {
             $pearDB->beginTransaction();

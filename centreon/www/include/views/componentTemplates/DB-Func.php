@@ -274,7 +274,7 @@ function insertComponentTemplate()
         $formValues['ds_color_area'] = $formValues['ds_color_line'];
     }
 
-    [$formValues['host_id'], $formValues['service_id']] = parseHostIdPostParameter($formValues['host_service_id']);
+    [$formValues['host_id'], $formValues['service_id']] = parseHostIdPostParameter($formValues['host_service_id'] ?? null);
 
     $bindParams = sanitizeFormComponentTemplatesParameters($formValues);
 
@@ -338,7 +338,7 @@ function updateComponentTemplate($compoId = null)
         $formValues['ds_color_area'] = $formValues['ds_color_line'];
     }
 
-    [$formValues['host_id'], $formValues['service_id']] = parseHostIdPostParameter($formValues['host_service_id']);
+    [$formValues['host_id'], $formValues['service_id']] = parseHostIdPostParameter($formValues['host_service_id'] ?? null);
 
     // Sets the default values if they have not been sent (used to deselect the checkboxes)
     $checkBoxValueToSet = [
