@@ -345,6 +345,9 @@ function updateResource(int $resourceId, array $submitedValues): void
             );
             $pearDB->executePreparedQuery($oldResourceStatement, ['resource_id' => $resourceId]);
             $oldResource = $oldResourceStatement->fetch();
+            if ($oldResource === false) {
+                return;
+            }
             $vaultData = getFromVault($submitedValues['resource_line']);
             if (array_key_exists($oldResource['resource_name'], $vaultData)) {
                 deleteFromVault([

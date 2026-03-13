@@ -225,50 +225,55 @@ function checkPicture(
             SQL
     );
 
-    $pearDB->executePreparedQuery(
-        $statement,
-        [
-            ':img_path' => $filename . '.' . $extension,
-            ':parent_id' => $directoryId,
-        ]
-    );
+    try {
+        $pearDB->beginTransaction();
 
-    if ($statement->fetch() === false) {
-        try {
-            $pearDB->beginTransaction();
-            $pearDB->executePreparedQuery(
-                $pearDB->prepareQuery(
-                    'INSERT INTO view_img (`img_name`, `img_path`) VALUES (:img_name, :img_path)'
-                ),
-                [
-                    ':img_name' => $filename,
-                    ':img_path' => $imagePath,
-                ]
-            );
+        $pearDB->executePreparedQuery(
+            $statement,
+            [
+                ':img_path' => $filename . '.' . $extension,
+                ':parent_id' => $directoryId,
+            ]
+        );
 
-            $imageId = $pearDB->lastInsertId();
-            $statement = $pearDB->prepareQuery(
-                <<<'SQL'
-                    INSERT INTO view_img_dir_relation (`dir_dir_parent_id`, `img_img_id`)
-                    VALUES (:parent_id, :img_id)
-                    SQL
-            );
-            $pearDB->executePreparedQuery(
-                $statement,
-                [
-                    ':parent_id' => $directoryId,
-                    ':img_id' => $imageId,
-                ]
-            );
-            $pearDB->commit();
-            $regCounter++;
-        } catch (Exception $ex) {
-            if ($pearDB->inTransaction()) {
-                $pearDB->rollBack();
-            }
+        if ($statement->fetch() !== false) {
+            $pearDB->rollBack();
 
-            throw $ex;
+            return;
         }
+
+        $pearDB->executePreparedQuery(
+            $pearDB->prepareQuery(
+                'INSERT INTO view_img (`img_name`, `img_path`) VALUES (:img_name, :img_path)'
+            ),
+            [
+                ':img_name' => $filename,
+                ':img_path' => $imagePath,
+            ]
+        );
+
+        $imageId = $pearDB->lastInsertId();
+        $statement = $pearDB->prepareQuery(
+            <<<'SQL'
+                INSERT INTO view_img_dir_relation (`dir_dir_parent_id`, `img_img_id`)
+                VALUES (:parent_id, :img_id)
+                SQL
+        );
+        $pearDB->executePreparedQuery(
+            $statement,
+            [
+                ':parent_id' => $directoryId,
+                ':img_id' => $imageId,
+            ]
+        );
+        $pearDB->commit();
+        $regCounter++;
+    } catch (Exception $ex) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $ex;
     }
 }
 
