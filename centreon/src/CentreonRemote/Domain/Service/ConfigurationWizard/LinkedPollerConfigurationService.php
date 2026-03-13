@@ -240,12 +240,12 @@ class LinkedPollerConfigurationService
                     'INSERT INTO `cfg_broker_input_output`
                         (config_id, tag, type_id, type_name, name, parameters)
                     VALUES
-                        (:config_id, :tag, :type_id, :type_name, :name, :parameters)'
+                        (:brokerId, :tag, :typeId, :typeName, :name, :parameters)'
                 );
-                $statement->bindValue(':config_id', $configId, \PDO::PARAM_INT);
+                $statement->bindValue(':brokerId', $configId, \PDO::PARAM_INT);
                 $statement->bindValue(':tag', $config['tag'], \PDO::PARAM_STR);
-                $statement->bindValue(':type_id', $config['type_id'], \PDO::PARAM_INT);
-                $statement->bindValue(':type_name', $config['type_name'], \PDO::PARAM_STR);
+                $statement->bindValue(':typeId', $config['type_id'], \PDO::PARAM_INT);
+                $statement->bindValue(':typeName', $config['type_name'], \PDO::PARAM_STR);
                 $statement->bindValue(':name', $config['name'], \PDO::PARAM_STR);
                 $statement->bindValue(':parameters', $parameters, \PDO::PARAM_STR);
                 $statement->execute();
@@ -258,13 +258,13 @@ class LinkedPollerConfigurationService
                 "UPDATE `cfg_broker_input_output`
                 SET `parameters` = JSON_SET(`parameters`, '$.host', :host),
                     `name` = :name
-                WHERE `config_id` = :config_id
+                WHERE `config_id` = :brokerId
                 AND `tag` = 'output'
                 AND `type_name` = 'ipv4'"
             );
             $statement->bindValue(':host', $remote->getIp(), \PDO::PARAM_STR);
             $statement->bindValue(':name', $outputName, \PDO::PARAM_STR);
-            $statement->bindValue(':config_id', $configId, \PDO::PARAM_INT);
+            $statement->bindValue(':brokerId', $configId, \PDO::PARAM_INT);
             $statement->execute();
         }
     }
