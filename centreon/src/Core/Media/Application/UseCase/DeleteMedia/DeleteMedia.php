@@ -29,23 +29,32 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\Media\Application\Exception\MediaException;
+use Core\Media\Application\Repository\ReadImageFolderRepositoryInterface;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Media\Application\Repository\WriteMediaRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 final class DeleteMedia
 {
     use LoggerTrait;
 
-    /*
+    /**
      * @param ReadMediaRepositoryInterface $readMediaRepository
      * @param WriteMediaRepositoryInterface $writeMediaRepository
+     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+     * @param ReadImageFolderRepositoryInterface $readImageFolderRepository
      * @param ContactInterface $user
+     * @param AdminResolver $adminResolver
      */
     public function __construct(
         private readonly ReadMediaRepositoryInterface $readMediaRepository,
         private readonly WriteMediaRepositoryInterface $writeMediaRepository,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly ReadImageFolderRepositoryInterface $readImageFolderRepository,
         private readonly ContactInterface $user,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -56,7 +65,20 @@ final class DeleteMedia
     public function __invoke(int $mediaId, PresenterInterface $presenter): void
     {
         try {
-            $media = $this->readMediaRepository->findById($mediaId);
+            $media = null;
+
+            if ($this->adminResolver->isAdmin($this->user)) {
+                $media = $this->readMediaRepository->findById($mediaId);
+            } else {
+                $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+
+                if (
+                    $this->readImageFolderRepository->hasAccessToAllImageFolders($accessGroups)
+                    || $this->readMediaRepository->existsByAccessGroups($mediaId, $accessGroups)
+                ) {
+                    $media = $this->readMediaRepository->findById($mediaId);
+                }
+            }
 
             if ($media === null) {
                 $this->error('Media not found', ['media_id' => $mediaId]);

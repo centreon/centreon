@@ -30,6 +30,7 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Contact\Domain\AdminResolver;
 use Core\Media\Application\Exception\MediaException;
+use Core\Media\Application\Repository\ReadImageFolderRepositoryInterface;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
@@ -40,12 +41,14 @@ final class GetMedia
     /**
      * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
      * @param ReadMediaRepositoryInterface $readMediaRepository
+     * @param ReadImageFolderRepositoryInterface $readImageFolderRepository
      * @param ContactInterface $user
      * @param AdminResolver $adminResolver
      */
     public function __construct(
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadMediaRepositoryInterface $readMediaRepository,
+        private readonly ReadImageFolderRepositoryInterface $readImageFolderRepository,
         private readonly ContactInterface $user,
         private readonly AdminResolver $adminResolver,
     ) {
@@ -62,7 +65,10 @@ final class GetMedia
             } else {
                 $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
 
-                if ($this->readMediaRepository->existsByAccessGroups($mediaId, $accessGroups)) {
+                if (
+                    $this->readImageFolderRepository->hasAccessToAllImageFolders($accessGroups)
+                    || $this->readMediaRepository->existsByAccessGroups($mediaId, $accessGroups)
+                ) {
                     $media = $this->readMediaRepository->findById($mediaId);
                 }
             }

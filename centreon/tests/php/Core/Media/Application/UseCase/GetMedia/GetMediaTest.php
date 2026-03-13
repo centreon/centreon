@@ -28,6 +28,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Contact\Domain\AdminResolver;
 use Core\Media\Application\Exception\MediaException;
+use Core\Media\Application\Repository\ReadImageFolderRepositoryInterface;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Media\Application\UseCase\GetMedia\GetMedia;
 use Core\Media\Application\UseCase\GetMedia\GetMediaResponse;
@@ -37,8 +38,9 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 beforeEach(function (): void {
     $this->useCase = new GetMedia(
-        $this->readAccessGroupRepository =  $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->readMediaRepository = $this->createMock(ReadMediaRepositoryInterface::class),
+        $this->readImageFolderRepository = $this->createMock(ReadImageFolderRepositoryInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
         $this->adminResolver = $this->createMock(AdminResolver::class),
     );
@@ -117,7 +119,7 @@ it('should present a GetMediaResponse as admin', function (): void {
         ->toEqual($this->media->getEqualityHash());
 });
 
-it('should present a GetMediaResponse as non-admin user', function (): void {
+it('should present a GetMediaResponse as non-admin user with access to specific media via access groups', function (): void {
     $accessGroup = new AccessGroup(1, 'group1', 'group1_alias');
 
     $this->adminResolver
@@ -130,10 +132,58 @@ it('should present a GetMediaResponse as non-admin user', function (): void {
         ->method('findByContact')
         ->willReturn([$accessGroup]);
 
+    $this->readImageFolderRepository
+        ->expects($this->once())
+        ->method('hasAccessToAllImageFolders')
+        ->willReturn(false);
+
     $this->readMediaRepository
         ->expects($this->once())
         ->method('existsByAccessGroups')
         ->willReturn(true);
+
+    $this->readMediaRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->media);
+
+    $response = ($this->useCase)($this->media->getId());
+
+    expect($response)
+        ->toBeInstanceOf(GetMediaResponse::class)
+        ->and($response->id)
+        ->toEqual($this->media->getId())
+        ->and($response->filename)
+        ->toEqual($this->media->getFilename())
+        ->and($response->comment)
+        ->toEqual($this->media->getComment())
+        ->and($response->directory)
+        ->toEqual($this->media->getDirectory())
+        ->and($response->md5)
+        ->toEqual($this->media->getEqualityHash());
+});
+
+it('should present a GetMediaResponse as non-admin user with access to all image folders', function (): void {
+    $accessGroup = new AccessGroup(1, 'group1', 'group1_alias');
+
+    $this->adminResolver
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+
+    $this->readAccessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->willReturn([$accessGroup]);
+
+    $this->readImageFolderRepository
+        ->expects($this->once())
+        ->method('hasAccessToAllImageFolders')
+        ->willReturn(true);
+
+    $this->readMediaRepository
+        ->expects($this->never())
+        ->method('existsByAccessGroups');
 
     $this->readMediaRepository
         ->expects($this->once())
@@ -167,6 +217,11 @@ it('should present a NotFoundResponse as non-admin user when media is not access
         ->expects($this->once())
         ->method('findByContact')
         ->willReturn([$accessGroup]);
+
+    $this->readImageFolderRepository
+        ->expects($this->once())
+        ->method('hasAccessToAllImageFolders')
+        ->willReturn(false);
 
     $this->readMediaRepository
         ->expects($this->once())
