@@ -506,11 +506,11 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                     $pearDB->insert($insertMetricQuery, QueryParameters::create($paramsMetric));
                 }
 
-                $pearDB->commitTransaction();
-
                 if ($newMetaId) {
                     updateAclResourcesMetaRelations($newMetaId);
                 }
+
+                $pearDB->commitTransaction();
             } catch (ValueObjectException|CollectionException|ConnectionException|RuntimeException $exception) {
                 if ($pearDB->isTransactionActive()) {
                     $pearDB->rollBackTransaction();
@@ -810,6 +810,9 @@ function insertMetaService($ret = [])
             ],
             $exception
         );
+        if ($pearDB->inTransaction()) {
+            throw $exception;
+        }
 
         return 0;
     }
@@ -901,6 +904,9 @@ function updateMetaService($metaId = null)
             ],
             $exception
         );
+        if ($pearDB->inTransaction()) {
+            throw $exception;
+        }
 
         return;
     }
@@ -971,6 +977,9 @@ function updateMetaServiceContact($metaId)
             ],
             $exception
         );
+        if (! $ownTransaction) {
+            throw $exception;
+        }
     }
 }
 
@@ -1040,6 +1049,9 @@ function updateMetaServiceContactGroup($metaId = null)
             ],
             $exception
         );
+        if (! $ownTransaction) {
+            throw $exception;
+        }
     }
 }
 
@@ -1131,6 +1143,9 @@ function updateAclResourcesMetaRelations(int $metaId): void
             ],
             $exception
         );
+        if ($pearDB->inTransaction()) {
+            throw $exception;
+        }
     }
 }
 

@@ -146,27 +146,6 @@ function deleteNagiosInDB($nagios = [])
     );
     $deleteNagios = $pearDB->prepare('DELETE FROM cfg_nagios WHERE nagios_id = :nagios_id');
     $deleteBroker = $pearDB->prepare('DELETE FROM cfg_nagios_broker_module WHERE cfg_nagios_id = :nagios_id');
-
-    $affectedServerIds = [];
-    foreach (array_keys($nagios) as $key) {
-        $nagiosId = filter_var($key, FILTER_VALIDATE_INT);
-        if ($nagiosId === false) {
-            continue;
-        }
-
-        $selectServerStmt->bindValue(':nagios_id', $nagiosId, PDO::PARAM_INT);
-        $selectServerStmt->execute();
-        $serverRow = $selectServerStmt->fetch(PDO::FETCH_ASSOC);
-        if ($serverRow !== false && $serverRow['nagios_server_id'] !== null) {
-            $affectedServerIds[(int) $serverRow['nagios_server_id']] = true;
-        }
-
-        $deleteNagios->bindValue(':nagios_id', $nagiosId, PDO::PARAM_INT);
-        $deleteNagios->execute();
-        $deleteBroker->bindValue(':nagios_id', $nagiosId, PDO::PARAM_INT);
-        $deleteBroker->execute();
-    }
-
     $checkActiveStmt = $pearDB->prepare(
         "SELECT 1 FROM cfg_nagios WHERE nagios_server_id = :server_id AND nagios_activate = '1' LIMIT 1"
     );
@@ -177,22 +156,52 @@ function deleteNagiosInDB($nagios = [])
         "UPDATE cfg_nagios SET nagios_activate = '1' WHERE nagios_id = :nagios_id"
     );
 
-    foreach (array_keys($affectedServerIds) as $serverId) {
-        $checkActiveStmt->bindValue(':server_id', $serverId, PDO::PARAM_INT);
-        $checkActiveStmt->execute();
-        if ($checkActiveStmt->fetch() !== false) {
-            continue;
+    $pearDB->beginTransaction();
+    try {
+        $affectedServerIds = [];
+        foreach (array_keys($nagios) as $key) {
+            $nagiosId = filter_var($key, FILTER_VALIDATE_INT);
+            if ($nagiosId === false) {
+                continue;
+            }
+
+            $selectServerStmt->bindValue(':nagios_id', $nagiosId, PDO::PARAM_INT);
+            $selectServerStmt->execute();
+            $serverRow = $selectServerStmt->fetch(PDO::FETCH_ASSOC);
+            if ($serverRow !== false && $serverRow['nagios_server_id'] !== null) {
+                $affectedServerIds[(int) $serverRow['nagios_server_id']] = true;
+            }
+
+            $deleteNagios->bindValue(':nagios_id', $nagiosId, PDO::PARAM_INT);
+            $deleteNagios->execute();
+            $deleteBroker->bindValue(':nagios_id', $nagiosId, PDO::PARAM_INT);
+            $deleteBroker->execute();
         }
 
-        $findReplacementStmt->bindValue(':server_id', $serverId, PDO::PARAM_INT);
-        $findReplacementStmt->execute();
-        $row = $findReplacementStmt->fetch(PDO::FETCH_ASSOC);
-        if ($row === false || $row['max_id'] === null) {
-            continue;
+        foreach (array_keys($affectedServerIds) as $serverId) {
+            $checkActiveStmt->bindValue(':server_id', $serverId, PDO::PARAM_INT);
+            $checkActiveStmt->execute();
+            if ($checkActiveStmt->fetch() !== false) {
+                continue;
+            }
+
+            $findReplacementStmt->bindValue(':server_id', $serverId, PDO::PARAM_INT);
+            $findReplacementStmt->execute();
+            $row = $findReplacementStmt->fetch(PDO::FETCH_ASSOC);
+            if ($row === false || $row['max_id'] === null) {
+                continue;
+            }
+
+            $activateStmt->bindValue(':nagios_id', (int) $row['max_id'], PDO::PARAM_INT);
+            $activateStmt->execute();
         }
 
-        $activateStmt->bindValue(':nagios_id', (int) $row['max_id'], PDO::PARAM_INT);
-        $activateStmt->execute();
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+        throw $e;
     }
 }
 
