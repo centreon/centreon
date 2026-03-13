@@ -27,15 +27,13 @@ function testMnftrExistence($name = null, bool $excludeCurrentFormId = true)
     if ($excludeCurrentFormId && isset($form)) {
         $id = $form->getSubmitValue('id');
     }
-    // Also check for legacy HTML-encoded name (old code stored htmlentities values)
     $encodedName = htmlentities($name ?? '', ENT_QUOTES, 'UTF-8');
-    $query = 'SELECT 1 FROM traps_vendor WHERE (name = :name OR name = :encodedName)';
+    $query = 'SELECT 1 FROM traps_vendor WHERE name = :name';
     if ($id !== null) {
         $query .= ' AND id <> :vendorId';
     }
     $statement = $pearDB->prepare($query . ' LIMIT 1');
-    $statement->bindValue(':name', $name, PDO::PARAM_STR);
-    $statement->bindValue(':encodedName', $encodedName, PDO::PARAM_STR);
+    $statement->bindValue(':name', $encodedName, PDO::PARAM_STR);
     if ($id !== null) {
         $statement->bindValue(':vendorId', (int) $id, PDO::PARAM_INT);
     }
