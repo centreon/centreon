@@ -1510,26 +1510,29 @@ function retrieveMultipleBrokerConfigUuidsFromDatabase(array $brokerIds): array
     $bindString = implode(', ', array_keys($bindParams));
     $statement = $pearDB->prepare(
         <<<SQL
-            SELECT DISTINCT config_value
-            FROM cfg_centreonbroker_info
-            WHERE config_value LIKE :vaultPath
-                AND config_id IN ( {$bindString} );
+            SELECT parameters
+            FROM cfg_broker_input_output
+            WHERE config_id IN ( {$bindString} )
+            AND parameters LIKE :vaultPath;
             SQL
     );
     foreach ($bindParams as $token => $brokerId) {
         $statement->bindValue($token, $brokerId, PDO::PARAM_INT);
     }
-    $statement->bindValue(':vaultPath', VaultConfiguration::VAULT_PATH_PATTERN . '%', PDO::PARAM_STR);
+    $statement->bindValue(':vaultPath', '%' . VaultConfiguration::VAULT_PATH_PATTERN . '%', PDO::PARAM_STR);
     $statement->execute();
     $uuids = [];
-    while ($result = $statement->fetchColumn()) {
-        $uuids[]
-            = preg_match('/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/', $result, $matches)
-                ? $matches[2]
-                : null;
+    $vaultPattern = '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/';
+    while ($parametersJson = $statement->fetchColumn()) {
+        $params = json_decode($parametersJson, true) ?? [];
+        array_walk_recursive($params, function ($value) use (&$uuids, $vaultPattern) {
+            if (is_string($value) && str_starts_with($value, VaultConfiguration::VAULT_PATH_PATTERN)) {
+                $uuids[] = preg_match($vaultPattern, $value, $matches) ? $matches[2] : null;
+            }
+        });
     }
 
-    return array_filter($uuids, fn ($uuid) => $uuid !== null);
+    return array_filter(array_unique($uuids), fn ($uuid) => $uuid !== null);
 }
 
 /**
