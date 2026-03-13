@@ -103,11 +103,13 @@ function deleteContactGroupInDB($contactGroups = [])
         $selectStmt->bindValue(':cgId', $cgId, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch();
-        $cgName = is_array($row) ? $row['cg_name'] : "id:{$key}";
+        if ($row === false) {
+            continue;
+        }
 
         $deleteStmt->bindValue(':cgId', $cgId, PDO::PARAM_INT);
         $deleteStmt->execute();
-        $centreon->CentreonLogAction->insertLog('contactgroup', $key, $cgName, 'd');
+        $centreon->CentreonLogAction->insertLog('contactgroup', $cgId, $row['cg_name'], 'd');
     }
 }
 

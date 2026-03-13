@@ -99,7 +99,9 @@ function deleteTrapGroupInDB(array $trapGroups = []): void
             ]);
 
             $row = $pearDB->fetchAssociative($selectQuery, $params);
-            $groupName = $row['name'] ?? '';
+            if ($row === false) {
+                continue;
+            }
 
             $pearDB->delete(
                 <<<'SQL'
@@ -120,7 +122,7 @@ function deleteTrapGroupInDB(array $trapGroups = []): void
             $oreon->CentreonLogAction->insertLog(
                 'traps_group',
                 $trapGroupId,
-                $groupName,
+                $row['name'],
                 'd',
             );
         }

@@ -85,15 +85,13 @@ function deleteServiceDependencyInDB($dependencies = [])
         $selectStatement->bindValue(':dep_id', $depId, PDO::PARAM_INT);
         $selectStatement->execute();
         $row = $selectStatement->fetch();
+        if ($row === false) {
+            continue;
+        }
 
         $deleteStatement->bindValue(':dep_id', $depId, PDO::PARAM_INT);
         $deleteStatement->execute();
-        $oreon->CentreonLogAction->insertLog(
-            'service dependency',
-            $key,
-            $row !== false ? $row['dep_name'] : "id:{$key}",
-            'd'
-        );
+        $oreon->CentreonLogAction->insertLog('service dependency', $depId, $row['dep_name'], 'd');
     }
 }
 

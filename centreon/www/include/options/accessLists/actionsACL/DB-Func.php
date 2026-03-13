@@ -200,6 +200,9 @@ function deleteActionInDB($actions = [])
             $selectNameStmt->bindValue(':id', $sanitizedAclActionId, PDO::PARAM_INT);
             $selectNameStmt->execute();
             $row = $selectNameStmt->fetch();
+            if ($row === false) {
+                continue;
+            }
 
             $aclActionIdQueryString = '(' . implode(', ', array_keys($queryValues)) . ')';
             $groupStmt = $pearDB->prepare(
@@ -223,7 +226,7 @@ function deleteActionInDB($actions = [])
             $centreon->CentreonLogAction->insertLog(
                 'action access',
                 $sanitizedAclActionId,
-                $row !== false ? $row['acl_action_name'] : "id:{$sanitizedAclActionId}",
+                $row['acl_action_name'],
                 'd'
             );
         }

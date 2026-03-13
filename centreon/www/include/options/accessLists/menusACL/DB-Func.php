@@ -200,6 +200,9 @@ function deleteLCAInDB($acls = [])
 
         $prepareSelect->execute();
         $result = $prepareSelect->fetch(PDO::FETCH_ASSOC);
+        if ($result === false) {
+            continue;
+        }
 
         $prepareDelete = $pearDB->prepare(
             'DELETE FROM `acl_topology` WHERE acl_topo_id = :topology_id'
@@ -210,12 +213,7 @@ function deleteLCAInDB($acls = [])
             PDO::PARAM_INT
         );
         $prepareDelete->execute();
-        $centreon->CentreonLogAction->insertLog(
-            'menu access',
-            $currentTopologyId,
-            $result !== false ? $result['acl_topo_name'] : "id:{$currentTopologyId}",
-            'd'
-        );
+        $centreon->CentreonLogAction->insertLog('menu access', $validTopologyId, $result['acl_topo_name'], 'd');
     }
 }
 

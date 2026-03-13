@@ -177,16 +177,15 @@ function deleteLCAInDB($acls = [])
         $selectStmt->bindValue(':acl_res_id', $aclResId, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch();
+        if ($row === false) {
+            continue;
+        }
+
         $updateGroupStmt->bindValue(':acl_res_id', $aclResId, PDO::PARAM_INT);
         $updateGroupStmt->execute();
         $deleteStmt->bindValue(':acl_res_id', $aclResId, PDO::PARAM_INT);
         $deleteStmt->execute();
-        $centreon->CentreonLogAction->insertLog(
-            'resource access',
-            $key,
-            $row !== false ? $row['acl_res_name'] : "id:{$key}",
-            'd'
-        );
+        $centreon->CentreonLogAction->insertLog('resource access', $aclResId, $row['acl_res_name'], 'd');
     }
 }
 

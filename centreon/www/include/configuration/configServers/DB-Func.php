@@ -292,6 +292,9 @@ function deleteServerInDB(array $serverIds): void
         $selectServerStmt->bindValue(':serverId', (int) $serverId, PDO::PARAM_INT);
         $selectServerStmt->execute();
         $row = $selectServerStmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            continue;
+        }
 
         // Is a Remote Server?
         $statement = $pearDB->prepare(
@@ -333,12 +336,7 @@ function deleteServerInDB(array $serverIds): void
         $updateInstanceStmt->execute();
         deleteCentreonBrokerByPollerId($serverId);
 
-        $centreon->CentreonLogAction->insertLog(
-            'poller',
-            $serverId,
-            $row !== false ? $row['name'] : "id:{$serverId}",
-            'd'
-        );
+        $centreon->CentreonLogAction->insertLog('poller', $serverId, $row['name'], 'd');
     }
 }
 
