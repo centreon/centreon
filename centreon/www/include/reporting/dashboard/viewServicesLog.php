@@ -145,6 +145,7 @@ if ($serviceId !== false && $hostId !== false) {
 
     // Exporting variables for ihtml
     $tpl->assign('host_name', $host_name);
+    $tpl->assign('host_id', $hostId);
     $tpl->assign('name', $itemsForUrl[$serviceId]);
     $tpl->assign('totalAlert', $serviceStats['TOTAL_ALERTS']);
     $tpl->assign('totalTime', $serviceStats['TOTAL_TIME_F']);

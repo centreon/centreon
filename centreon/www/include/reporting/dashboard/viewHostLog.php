@@ -92,6 +92,30 @@ if ($id !== false) {
 
     $hostServicesStats = getLogInDbForHostSVC($id, $startDate, $endDate, $reportingTimePeriod);
 
+    // Resolve service icons (custom icon or default SVG)
+    require_once './class/centreonMedia.class.php';
+    $mediaObj = new CentreonMedia($pearDB);
+    $defaultSvcIcon = returnSvg('www/img/icons/service.svg', 'var(--icons-fill-color)', 14, 14);
+    foreach ($hostServicesStats as $svcId => &$svcData) {
+        if ($svcId === 'average') {
+            continue;
+        }
+        $svcIcon = '';
+        $iconId = getMyServiceExtendedInfoField($svcId, 'esi_icon_image');
+        if ($iconId) {
+            $iconFile = $mediaObj->getFilename($iconId);
+            if ($iconFile) {
+                $svcIcon = '<img src="./img/media/' . htmlspecialchars($iconFile)
+                    . '" width="14" height="14" style="vertical-align:middle;" />';
+            }
+        }
+        if (empty($svcIcon)) {
+            $svcIcon = $defaultSvcIcon;
+        }
+        $svcData['ICON'] = '<span style="margin-right:6px;vertical-align:middle;display:inline-block;">' . $svcIcon . '</span>';
+    }
+    unset($svcData);
+
     // Chart datas
     $tpl->assign('host_up', $hostStats['UP_TP']);
     $tpl->assign('host_down', $hostStats['DOWN_TP']);

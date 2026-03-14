@@ -7,7 +7,8 @@
 		<input type="hidden" name="color_UNDETERMINED" value="{$color.UNDETERMINED}" >
 	</form>
 </div>
-<table style='width:100%;' class="ListTable">
+<h2 style="margin:0 0 8px 0; padding:0; font-size:18px; font-weight:600; color:#2d3436;">Availability Report</h2>
+<table style='width:100%; max-width:1400px;' class="ListTable">
 	<tr class='ListHeader'>
 		<!-- hostgroup selection -->
 		<form {$formHostGroup.attributes} style="margin:0px;padding:0px;">&nbsp;
@@ -18,18 +19,24 @@
 				{if $date_start != 0}
 				&nbsp;&nbsp;&nbsp;{$period_name} <span class="isTimestamp isDate">{$date_start} </span> {$to} <span class="isTimestamp isDate"> {$date_end}</span>
 				{/if}
-                <div class="md-radio-modified md-radio-inline">
-                    <input type="radio" id="preset" value="preset" name="period_choice" {if $period_choice == "preset" } checked="checked" {/if}/>
-                    <label for="preset"></label>
-                </div>
-					{$periodTitle} : {$formPeriod.period.html} {$periodORlabel}
-                <div class="md-radio-modified md-radio-inline">
-                    <input type="radio" id="custom" name="period_choice" value="custom" {if $period_choice == "custom" } checked="checked" {/if} />
-                    <label for="custom"></label>
-                </div>
-					{$formPeriod.StartDate.label} {$formPeriod.StartDate.html}&nbsp;
-					{$formPeriod.EndDate.label} {$formPeriod.EndDate.html}
-					{$formPeriod.button.html}{$formPeriod.hidden}
+                {$periodTitle} :
+                <span class="rpt-period-group" id="rpt-preset-group">
+                    <div class="md-radio-modified md-radio-inline">
+                        <input type="radio" id="preset" value="preset" name="period_choice" {if $period_choice == "preset" } checked="checked" {/if}/>
+                        <label for="preset"></label>
+                    </div>
+                    {$formPeriod.period.html}
+                </span>
+                {$periodORlabel}
+                <span class="rpt-period-group" id="rpt-custom-group">
+                    <div class="md-radio-modified md-radio-inline">
+                        <input type="radio" id="custom" name="period_choice" value="custom" {if $period_choice == "custom" } checked="checked" {/if} />
+                        <label for="custom"></label>
+                    </div>
+                    {$formPeriod.StartDate.label} {$formPeriod.StartDate.html}&nbsp;
+                    {$formPeriod.EndDate.label} {$formPeriod.EndDate.html}
+                </span>
+                {$formPeriod.button.html}{$formPeriod.hidden}
 		</td>
 		</form>
 		<td>
@@ -40,7 +47,9 @@
 		<td style='width:300px; padding:5px'>
 			<!-- chart drawing -->
 			{if isset($hostgroup_id)}
-			<div id="chart" style="text-align: center; max-height: 180px; position: relative;" ></div>
+			<div style="text-align: center; max-height: 220px; position: relative;">
+				<canvas id="chartCanvas" width="350" height="200"></canvas>
+			</div>
 			{/if}
 		</td>
 		<!-- period selection -->
@@ -48,7 +57,7 @@
 		<td style='vertical-align:top;padding:5px;' colspan="2">
 			<table class="ListTable">
 				<tr class='ListHeader'>
-					<td colspan=5>&nbsp;{$resumeTitle}</td>
+					<td colspan=5>&nbsp;<b>{$resumeTitle}</b></td>
 				</tr>
 				<!-- headers -->
 				<tr class='list_lvl_1'>
@@ -100,40 +109,47 @@
 	</tr>
 	<tr>
 		<td colspan="3" style=' padding:5px;'>
-			<table class="ListTable">
+			<table class="ListTable reporting-modern">
 				<tr class='ListHeader'>
-					<td class="FormHeader" colspan=12>&nbsp;{$svcTitle}</td>
+					<td class="FormHeader" colspan="8">&nbsp;{$svcTitle}</td>
 				</tr>
 				<tr class='list_lvl_1'>
 					<td class="ListColHeaderCenter">{$hostTitle}</td>
-					<td colspan=2 class="ListColHeaderCenter">{$states.UP}</td>
-					<td colspan=2 class="ListColHeaderCenter">{$states.DOWN}</td>
-					<td colspan=2 class="ListColHeaderCenter">{$states.UNREACHABLE}</td>
-					<td class="ListColHeaderCenter">{$states.MAINTENANCE}</td>
-					<td class="ListColHeaderCenter">{$states.UNDETERMINED}</td>
+					<td class="ListColHeaderCenter"><span class="rpt-dot" style="background:#{$colors.up}"></span> {$states.UP}</td>
+					<td class="ListColHeaderCenter"><span class="rpt-dot" style="background:#{$colors.down}"></span> {$states.DOWN}</td>
+					<td class="ListColHeaderCenter"><span class="rpt-dot" style="background:#{$colors.unreachable}"></span> {$states.UNREACHABLE}</td>
+					<td class="ListColHeaderCenter"><span class="rpt-dot" style="background:#{$colors.maintenance}"></span> {$states.MAINTENANCE}</td>
+					<td class="ListColHeaderCenter"><span class="rpt-dot" style="background:#{$colors.undetermined}"></span> {$states.UNDETERMINED}</td>
+					<td class="ListColHeaderCenter">{$alertsLabel}</td>
 				</tr>
 				<tr class='list_lvl_1'>
 					<td class="ListColHeaderCenter"></td>
-					<td class="ListColHeaderCenter">%</td>
-					<td class="ListColHeaderCenter">{$Alert}</td>
-					<td class="ListColHeaderCenter">%</td>
-					<td class="ListColHeaderCenter">{$Alert}</td>
-					<td class="ListColHeaderCenter">%</td>
-					<td class="ListColHeaderCenter">{$Alert}</td>
-					<td class="ListColHeaderCenter">%</td>
-					<td class="ListColHeaderCenter">%</td>
+					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">MT / TT</td>
+					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">MT / TT</td>
+					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">MT / TT</td>
+					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">TT</td>
+					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">TT</td>
+					<td class="ListColHeaderCenter"></td>
 				</tr>
 				{foreach item=tb from=$components}
 				<tr class={cycle values="list_two, list_one"}>
 					<td class="ListColHeaderLeft"><a href="main.php?p=30701&host={$tb.ID}&period={$get_period}&start={$get_date_start}&end={$get_date_end}">{$tb.NAME}</a></td>
-					<td class="ListColCenter" {$style.UP_BOTTOM}>{$tb.UP_TP}% ({$tb.UP_MP}%)</td>
-					<td class="ListColCenter" {$style.UP_BOTTOM} >{$tb.UP_A}</td>
-					<td class="ListColCenter" {$style.DOWN_BOTTOM}>{$tb.DOWN_TP}% ({$tb.DOWN_MP}%)</td>
-					<td class="ListColCenter" {$style.DOWN_BOTTOM} style="width:30px;">{$tb.DOWN_A}</td>
-					<td class="ListColCenter" {$style.UNREACHABLE_BOTTOM}>{$tb.UNREACHABLE_TP}% ({$tb.UNREACHABLE_MP}%)</td>
-					<td class="ListColCenter" {$style.UNREACHABLE_BOTTOM} style="width:30px;">{$tb.UNREACHABLE_A}</td>
-					<td class="ListColCenter" {$style.MAINTENANCE_BOTTOM}>{$tb.MAINTENANCE_TP}%</td>
-					<td class="ListColCenter" {$style.UNDETERMINED_BOTTOM}>{$tb.UNDETERMINED_TP}%</td>
+					<td class="ListColCenter rpt-val rpt-bg-up" style="padding:5px;">
+						<span class="rpt-mp">{$tb.UP_MP}%</span><span class="rpt-sep">/</span><span class="rpt-tp">{$tb.UP_TP}%</span>
+					</td>
+					<td class="ListColCenter rpt-val rpt-bg-down" style="padding:5px;">
+						<span class="rpt-mp">{$tb.DOWN_MP}%</span><span class="rpt-sep">/</span><span class="rpt-tp">{$tb.DOWN_TP}%</span>
+					</td>
+					<td class="ListColCenter rpt-val rpt-bg-unreachable" style="padding:5px;">
+						<span class="rpt-mp">{$tb.UNREACHABLE_MP}%</span><span class="rpt-sep">/</span><span class="rpt-tp">{$tb.UNREACHABLE_TP}%</span>
+					</td>
+					<td class="ListColCenter rpt-bg-maintenance" style="padding:5px;">{$tb.MAINTENANCE_TP}%</td>
+					<td class="ListColCenter rpt-bg-undetermined" style="padding:5px;">{$tb.UNDETERMINED_TP}%</td>
+					<td class="ListColCenter rpt-alerts" style="padding:5px;">
+						{if $tb.DOWN_A > 0}<span class="rpt-alert-badge rpt-alert-crit">{$tb.DOWN_A}</span>{/if}
+						{if $tb.UNREACHABLE_A > 0}<span class="rpt-alert-badge rpt-alert-warn">{$tb.UNREACHABLE_A}</span>{/if}
+						{if $tb.DOWN_A == 0 && $tb.UNREACHABLE_A == 0}<span class="rpt-alert-badge rpt-alert-none">0</span>{/if}
+					</td>
 				</tr>
 				{/foreach}
 			</table>
@@ -141,12 +157,39 @@
 	</tr>
 	<tr>
 		<td colspan="3" style=' padding:5px;'>
-			<div id="my-timeline" style="height: 250px; border: 1px solid #aaa"></div>
+			<div id="availability-heatmap"></div>
+			<div id="alerts-heatmap" style="margin-top: 10px;"></div>
 		</td>
 	</tr>
 </table>
 
 {literal}
+<style>
+.reporting-modern .rpt-dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:4px; vertical-align:middle; }
+.reporting-modern .rpt-val { white-space:nowrap; }
+.reporting-modern .rpt-val .rpt-mp { font-weight:600; color:#24292f; }
+.reporting-modern .rpt-val .rpt-sep { color:#bbb; margin:0 2px; }
+.reporting-modern .rpt-val .rpt-tp { font-size:11px; color:#999; }
+.reporting-modern .rpt-alerts { white-space:nowrap; }
+.reporting-modern .rpt-alert-badge { display:inline-block; padding:1px 6px; border-radius:10px; font-size:11px; font-weight:600; margin:0 1px; }
+.reporting-modern .rpt-alert-warn { background:#fff3e0; color:#e65100; }
+.reporting-modern .rpt-alert-crit { background:#fce4ec; color:#c62828; }
+.reporting-modern .rpt-alert-unk { background:#f3e5f5; color:#6a1b9a; }
+.reporting-modern .rpt-alert-none { background:#e8f5e9; color:#2e7d32; }
+.reporting-modern .rpt-bg-up { background: rgba({/literal}{$colors_rgb.up}{literal}, 0.05) !important; }
+.reporting-modern .rpt-bg-down { background: rgba({/literal}{$colors_rgb.down}{literal}, 0.05) !important; }
+.reporting-modern .rpt-bg-unreachable { background: rgba({/literal}{$colors_rgb.unreachable}{literal}, 0.05) !important; }
+.reporting-modern .rpt-bg-maintenance { background: rgba({/literal}{$colors_rgb.maintenance}{literal}, 0.05) !important; }
+.reporting-modern .rpt-bg-undetermined { background: rgba({/literal}{$colors_rgb.undetermined}{literal}, 0.05) !important; }
+/* Header rows — neutral warm gray */
+.reporting-modern tr.list_lvl_1 {
+    background: #f5f5f0 !important;
+}
+.reporting-modern tr.list_lvl_1 td {
+    color: #333 !important;
+    font-weight: 600;
+}
+</style>
 <script>
     //formatting the tags containing a class isTimestamp
     formatDateMoment();
@@ -154,36 +197,55 @@
     /* initializing datepicker and the alternative format field */
     initDatepicker("datepicker", "mm/dd/yy", null);
 
-    jQuery("select[name='period']").click(function() {
-        jQuery("input[value='preset'][name='period_choice'][type='radio']").prop('checked', true);
-    });
 
     jQuery(function () {
-        c3.generate({
-            bindto: d3.select('#chart'),
-            data: {
-                // iris data from R
-                columns: [
-                    ['Up', {/literal}{$hostgroup_up|number_format:2:".":""}{literal}],
-                    ['Down', {/literal}{$hostgroup_down|number_format:2:".":""}{literal}],
-                    ['Unreachable', {/literal}{$hostgroup_unreachable|number_format:2:".":""}{literal}],
-                    ['Downtime', {/literal}{$hostgroup_maintenance|number_format:2:".":""}{literal}],
-                    ['Undetermined', {/literal}{$hostgroup_undetermined|number_format:2:".":""}{literal}],
-                ],
-                type : 'pie',
-                colors : {
-                    'Up' : '#{/literal}{$colors.up}{literal}',
-                    'Down' : '#{/literal}{$colors.down}{literal}',
-                    'Unreachable' : '#{/literal}{$colors.unreachable}{literal}',
-                    'Downtime' : '#{/literal}{$colors.maintenance}{literal}',
-                    'Undetermined' : '#{/literal}{$colors.undetermined}{literal}'
+        // Availability heatmap calendar
+        if (typeof initTimeline === 'function') { initTimeline(); }
+
+        var ctx = document.getElementById('chartCanvas');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Up', 'Down', 'Unreachable', 'Downtime', 'Undetermined'],
+                    datasets: [{
+                        data: [
+                            {/literal}{$hostgroup_up|number_format:2:".":""}{literal},
+                            {/literal}{$hostgroup_down|number_format:2:".":""}{literal},
+                            {/literal}{$hostgroup_unreachable|number_format:2:".":""}{literal},
+                            {/literal}{$hostgroup_maintenance|number_format:2:".":""}{literal},
+                            {/literal}{$hostgroup_undetermined|number_format:2:".":""}{literal}
+                        ],
+                        backgroundColor: [
+                            '#{/literal}{$colors.up}{literal}',
+                            '#{/literal}{$colors.down}{literal}',
+                            '#{/literal}{$colors.unreachable}{literal}',
+                            '#{/literal}{$colors.maintenance}{literal}',
+                            '#{/literal}{$colors.undetermined}{literal}'
+                        ],
+                        borderWidth: 1,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    cutout: '40%',
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { boxWidth: 12, padding: 8, font: { size: 11 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed.toFixed(2) + '%';
+                                }
+                            }
+                        }
+                    }
                 }
-            },
-            size: {
-                height: 200,
-                width: 350
-            }
-        });
+            });
+        }
     });
 {/literal}
 </script>

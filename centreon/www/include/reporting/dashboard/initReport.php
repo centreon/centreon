@@ -55,6 +55,17 @@ $tpl->assign('centreon_path', _CENTREON_PATH_);
 $colors = ['up' => '88b917', 'down' => 'e00b3d', 'unreachable' => '818285', 'maintenance' => 'cc99ff', 'downtime' => 'cc99ff', 'ok' => '88b917', 'warning' => 'ff9a13', 'critical' => 'e00b3d', 'unknown' => 'bcbdc0', 'undetermined' => 'd1d2d4'];
 $tpl->assign('colors', $colors);
 
+// Convert hex colors to RGB triplets for rgba() usage in CSS
+$colorsRgb = [];
+foreach ($colors as $key => $hex) {
+    $hex = ltrim($hex, '#');
+    $r = hexdec(substr($hex, 0, 2));
+    $g = hexdec(substr($hex, 2, 2));
+    $b = hexdec(substr($hex, 4, 2));
+    $colorsRgb[$key] = "$r, $g, $b";
+}
+$tpl->assign('colors_rgb', $colorsRgb);
+
 $color = [];
 $color['UNKNOWN'] = $colors['unknown'];
 $color['UP'] = $colors['up'];
@@ -71,37 +82,23 @@ $endDate = 0;
 
 // Translations and styles
 
-$tpl->assign('style_ok', "class='ListColCenter' style='padding:5px;background:#" . $colors['ok'] . "'");
+// Modern styles: neutral background, colored indicator dot instead of full background
+$tpl->assign('style_ok', "class='ListColCenter reporting-cell' style='padding:5px;'");
 $tpl->assign('style_ok_top', " style='color:#" . $colors['ok'] . "'");
-$tpl->assign('style_ok_alert', "class='ListColCenter' style='width: 25px; background:#" . $colors['ok'] . "'");
-$tpl->assign('style_warning', "class='ListColCenter' style='padding:5px;background:#" . $colors['warning'] . "'");
+$tpl->assign('style_ok_alert', "class='ListColCenter reporting-cell-alert' style='padding:5px;'");
+$tpl->assign('style_warning', "class='ListColCenter reporting-cell' style='padding:5px;'");
 $tpl->assign('style_warning_top', "style='color:#" . $colors['warning'] . "'");
-$tpl->assign(
-    'style_warning_alert',
-    "class='ListColCenter' style='width: 25px; background:#" . $colors['warning'] . "'"
-);
-$tpl->assign('style_critical', "class='ListColCenter' style='padding:5px;background:#" . $colors['critical'] . "'");
+$tpl->assign('style_warning_alert', "class='ListColCenter reporting-cell-alert' style='padding:5px;'");
+$tpl->assign('style_critical', "class='ListColCenter reporting-cell' style='padding:5px;'");
 $tpl->assign('style_critical_top', "style='color:#" . $colors['critical'] . "'");
-$tpl->assign(
-    'style_critical_alert',
-    "class='ListColCenter' style='width: 25px; background:#" . $colors['critical'] . "'"
-);
-$tpl->assign('style_unknown', "class='ListColCenter' style='padding:5px;background:#" . $colors['unknown'] . "'");
+$tpl->assign('style_critical_alert', "class='ListColCenter reporting-cell-alert' style='padding:5px;'");
+$tpl->assign('style_unknown', "class='ListColCenter reporting-cell' style='padding:5px;'");
 $tpl->assign('style_unknown_top', '');
-$tpl->assign(
-    'style_unknown_alert',
-    "class='ListColCenter' style='width: 25px; background:#" . $colors['unknown'] . "'"
-);
-$tpl->assign('style_pending', "class='ListColCenter' style='padding:5px;background:#" . $colors['undetermined'] . "'");
+$tpl->assign('style_unknown_alert', "class='ListColCenter reporting-cell-alert' style='padding:5px;'");
+$tpl->assign('style_pending', "class='ListColCenter reporting-cell' style='padding:5px;'");
 $tpl->assign('style_pending_top', '');
-$tpl->assign(
-    'style_pending_alert',
-    "class='ListColCenter' style='width: 25px; background:#" . $colors['undetermined'] . "'"
-);
-$tpl->assign(
-    'style_maintenance',
-    "class='ListColCenter' style='padding:5px;background:#" . $colors['maintenance'] . "'"
-);
+$tpl->assign('style_pending_alert', "class='ListColCenter reporting-cell-alert' style='padding:5px;'");
+$tpl->assign('style_maintenance', "class='ListColCenter reporting-cell' style='padding:5px;'");
 $tpl->assign('style_maintenance_top', "style='color:#" . $colors['maintenance'] . "'");
 
 $tpl->assign('badge_UP', "class='ListColCenter state_badge host_up'");
@@ -119,7 +116,7 @@ $tpl->assign('badge_maintenance', "class='ListColCenter state_badge badge_downti
 
 $tpl->assign('actualTitle', _('Actual'));
 
-$tpl->assign('serviceTitle', _('Service'));
+$tpl->assign('serviceTitle', _('Services'));
 $tpl->assign('hostTitle', _('Host name'));
 $tpl->assign('allTilte', _('All'));
 $tpl->assign('averageTilte', _('Average'));
@@ -157,15 +154,15 @@ $tpl->assign('states', $state);
 
 // CSS Definition for status colors
 $style['UP'] = "style='padding:5px;color:#" . $colors['up'] . "'";
-$style['UP_BOTTOM'] = "style='padding:5px;background-color:#" . $colors['up'] . "'";
+$style['UP_BOTTOM'] = "style='padding:5px;'";
 $style['DOWN'] = "style='padding:5px;color:#" . $colors['down'] . "'";
-$style['DOWN_BOTTOM'] = "style='padding:5px;background-color:#" . $colors['down'] . "'";
+$style['DOWN_BOTTOM'] = "style='padding:5px;'";
 $style['UNREACHABLE'] = "style='padding:5px'";
-$style['UNREACHABLE_BOTTOM'] = "style='padding:5px;background-color:#" . $colors['unreachable'] . "'";
+$style['UNREACHABLE_BOTTOM'] = "style='padding:5px;'";
 $style['UNDETERMINED'] = "style='padding:5px'";
-$style['UNDETERMINED_BOTTOM'] = "style='padding:5px;background-color:#" . $colors['undetermined'] . "'";
+$style['UNDETERMINED_BOTTOM'] = "style='padding:5px;'";
 $style['MAINTENANCE'] = "style='padding:5px;color:#" . $colors['maintenance'] . "'";
-$style['MAINTENANCE_BOTTOM'] = "style='padding:5px;background-color:#" . $colors['maintenance'] . "'";
+$style['MAINTENANCE_BOTTOM'] = "style='padding:5px;'";
 $tpl->assign('style', $style);
 
 // Init Timeperiod List
@@ -326,9 +323,67 @@ $formPeriod->setDefaults(
 );
 
 ?>
+<style>
+.rpt-period-group { display:inline; }
+.rpt-period-group.rpt-disabled { opacity:0.35; pointer-events:none; }
+.rpt-period-group.rpt-disabled select,
+.rpt-period-group.rpt-disabled input[type="text"] { background:#f0f0f0; }
+/* Keep radio buttons always clickable even in disabled group */
+.rpt-period-group.rpt-disabled input[type="radio"],
+.rpt-period-group.rpt-disabled label,
+.rpt-period-group.rpt-disabled .md-radio-modified { pointer-events:auto; opacity:1; }
+</style>
 <script type='text/javascript'>
 function togglePeriodType()
 {
     document.getElementById("presetPeriod").selectedIndex = 0;
 }
+function updatePeriodToggle() {
+    var isPreset = document.getElementById('preset').checked;
+    var presetGroup = document.getElementById('rpt-preset-group');
+    var customGroup = document.getElementById('rpt-custom-group');
+    if (presetGroup && customGroup) {
+        if (isPreset) {
+            presetGroup.className = 'rpt-period-group';
+            customGroup.className = 'rpt-period-group rpt-disabled';
+        } else {
+            presetGroup.className = 'rpt-period-group rpt-disabled';
+            customGroup.className = 'rpt-period-group';
+        }
+    }
+}
+document.addEventListener('DOMContentLoaded', function() {
+    updatePeriodToggle();
+    var presetRadio = document.getElementById('preset');
+    var customRadio = document.getElementById('custom');
+    if (presetRadio) {
+        presetRadio.addEventListener('change', updatePeriodToggle);
+    }
+    if (customRadio) {
+        customRadio.addEventListener('change', updatePeriodToggle);
+    }
+    // Also toggle when clicking on the period select
+    var periodSelect = document.getElementById('presetPeriod');
+    if (periodSelect) {
+        periodSelect.addEventListener('click', function() {
+            presetRadio.checked = true;
+            updatePeriodToggle();
+        });
+    }
+    // Toggle when clicking on date fields
+    var startDate = document.getElementById('StartDate');
+    var endDate = document.getElementById('EndDate');
+    if (startDate) {
+        startDate.addEventListener('click', function() {
+            customRadio.checked = true;
+            updatePeriodToggle();
+        });
+    }
+    if (endDate) {
+        endDate.addEventListener('click', function() {
+            customRadio.checked = true;
+            updatePeriodToggle();
+        });
+    }
+});
 </script>

@@ -106,6 +106,29 @@ if ($id !== false) {
         }
     }
 
+    // Resolve service icons (custom icon or default SVG)
+    require_once './class/centreonMedia.class.php';
+    $mediaObj = new CentreonMedia($pearDB);
+    $defaultSvcIcon = returnSvg('www/img/icons/service.svg', 'var(--icons-fill-color)', 14, 14);
+    foreach ($servicesgroupFinalStats as &$svcData) {
+        if (isset($svcData['SERVICE_ID'])) {
+            $svcIcon = '';
+            $iconId = getMyServiceExtendedInfoField($svcData['SERVICE_ID'], 'esi_icon_image');
+            if ($iconId) {
+                $iconFile = $mediaObj->getFilename($iconId);
+                if ($iconFile) {
+                    $svcIcon = '<img src="./img/media/' . htmlspecialchars($iconFile)
+                        . '" width="14" height="14" style="vertical-align:middle;" />';
+                }
+            }
+            if (empty($svcIcon)) {
+                $svcIcon = $defaultSvcIcon;
+            }
+            $svcData['SVC_ICON'] = '<span style="margin-right:6px;vertical-align:middle;display:inline-block;">' . $svcIcon . '</span>';
+        }
+    }
+    unset($svcData);
+
     $tpl->assign('components', $servicesgroupFinalStats);
     $tpl->assign('period_name', _('From'));
     $tpl->assign('date_start', $startDate);
