@@ -130,6 +130,7 @@ if ($id !== false) {
     unset($svcData);
 
     $tpl->assign('components', $servicesgroupFinalStats);
+    $tpl->assign('components_avg', $servicesgroupStats['average']);
     $tpl->assign('period_name', _('From'));
     $tpl->assign('date_start', $startDate);
     $tpl->assign('to', _('to'));
@@ -167,6 +168,7 @@ if ($id !== false) {
     ?><script type="text/javascript"> function initTimeline() {;} </script> <?php
 }
 $tpl->assign('resumeTitle', _('Service group state'));
+$tpl->assign('svcTitle', _('State Breakdowns For Services In Group'));
 $tpl->assign('p', $p);
 
 // Rendering forms

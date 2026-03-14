@@ -7,7 +7,13 @@
 		<input type="hidden" name="color_UNDETERMINED" value="{$color.UNDETERMINED}" >
 	</form>
 </div>
-<h2 style="margin:0 0 8px 0; padding:0; font-size:18px; font-weight:600; color:#2d3436;">Availability Report</h2>
+<div class="rpt-title-bar">
+	<h2 class="rpt-title">{$availabilityReportTitle}</h2>
+	<div class="rpt-nav-pills">
+		<a href="main.php?p=30703" class="rpt-nav-pill">Go to Host Group Report</a>
+		<a href="main.php?p=30704" class="rpt-nav-pill">Go to Service Group Report</a>
+	</div>
+</div>
 <table style='width:100%; max-width:1400px;' class="ListTable">
 	<tr class='ListHeader'>
 		<form {$formHost.attributes} style="margin:0px;padding:0px;">
@@ -41,7 +47,7 @@
 	</tr>
 	{if $date_start != 0}
 	<tr class="rpt-date-row">
-		<td colspan="3" style="padding:6px 10px; background:#f5f5f0; color:#333; font-weight:600; font-size:12px; border-bottom:1px solid #ddd;">
+		<td colspan="3">
 			{$period_name} <span class="isTimestamp isDate">{$date_start}</span> {$to} <span class="isTimestamp isDate">{$date_end}</span>
 		</td>
 	</tr>
@@ -61,7 +67,7 @@
 							</div>
 						{/if}
 					</td>
-					<td style="padding:0; vertical-align:top; border-left:1px solid #ddd;">
+					<td style="padding:0; vertical-align:top; border-left:1px solid var(--list-table-border-color, #ddd);">
 						<table style="width:100%; height:100%;">
 							<!-- headers -->
 							<tr class='rpt-summary-header'>
@@ -73,35 +79,35 @@
 							</tr>
 							<!-- Values -->
 							<tr class="list_one">
-								<td style="padding:5px;"><span class="rpt-dot" style="background:#{$colors.up}"></span> Up</td>
+								<td style="padding:5px;"><span class="rpt-dot" style="background:#{$colors.up}"></span> {$upLabel}</td>
 								<td style="padding:5px;" class='ListColCenter'>{$summary.UP_TF}</td>
 								<td style="padding:5px;" class='ListColCenter'>{$summary.UP_TP}%</td>
 								<td style="padding:5px;" class='ListColCenter'>{$summary.UP_MP}%</td>
 								<td style="padding:5px;" class='ListColCenter'><span class="rpt-alert-badge rpt-alert-up">{$summary.UP_A}</span></td>
 							</tr>
 							<tr class="list_two">
-								<td style="padding:5px;"><span class="rpt-dot" style="background:#{$colors.down}"></span> Down</td>
+								<td style="padding:5px;"><span class="rpt-dot" style="background:#{$colors.down}"></span> {$downLabel}</td>
 								<td style="padding:5px;" class='ListColCenter'>{$summary.DOWN_TF}</td>
 								<td style="padding:5px;" class='ListColCenter'>{$summary.DOWN_TP}%</td>
 								<td style="padding:5px;" class='ListColCenter'>{$summary.DOWN_MP}%</td>
 								<td style="padding:5px;" class='ListColCenter'><span class="rpt-alert-badge rpt-alert-down">{$summary.DOWN_A}</span></td>
 							</tr>
 							<tr class="list_one">
-								<td style="padding:5px;"><span class="rpt-dot" style="background:#{$colors.unreachable}"></span> Unreachable</td>
+								<td style="padding:5px;"><span class="rpt-dot" style="background:#{$colors.unreachable}"></span> {$unreachableLabel}</td>
 								<td style="padding:5px;" class='ListColCenter'>{$summary.UNREACHABLE_TF}</td>
 								<td style="padding:5px;" class='ListColCenter'>{$summary.UNREACHABLE_TP}%</td>
 								<td style="padding:5px;" class='ListColCenter'>{$summary.UNREACHABLE_MP}%</td>
 								<td style="padding:5px;" class='ListColCenter'><span class="rpt-alert-badge rpt-alert-unreach">{$summary.UNREACHABLE_A}</span></td>
 							</tr>
 							<tr class="list_two">
-								<td style="padding:5px;"><span class="rpt-dot" style="background:#{$colors.maintenance}"></span> Downtime</td>
+								<td style="padding:5px;"><span class="rpt-dot" style="background:#{$colors.maintenance}"></span> {$downtimeLabel}</td>
 								<td style="padding:5px;" class='ListColCenter'>{$summary.MAINTENANCE_TF}</td>
 								<td style="padding:5px;" class='ListColCenter'>{$summary.MAINTENANCE_TP}%</td>
 								<td style="padding:5px;" class='ListColCenter'></td>
 								<td style="padding:5px;" class='ListColCenter'></td>
 							</tr>
 							<tr class="list_one">
-								<td style="padding:5px;"><span class="rpt-dot" style="background:#{$colors.undetermined}"></span> Undetermined</td>
+								<td style="padding:5px;"><span class="rpt-dot" style="background:#{$colors.undetermined}"></span> {$undeterminedLabel}</td>
 								<td style="padding:5px;" class='ListColCenter'>{$summary.UNDETERMINED_TF}</td>
 								<td style="padding:5px;" class='ListColCenter'>{$summary.UNDETERMINED_TP}%</td>
 								<td style="padding:5px;" class='ListColCenter'></td>
@@ -133,19 +139,19 @@
 					<td class="ListColHeaderCenter"><span class="rpt-dot" style="background:#{$colors.warning}"></span> {$WarningTitle}</td>
 					<td class="ListColHeaderCenter"><span class="rpt-dot" style="background:#{$colors.critical}"></span> {$CriticalTitle}</td>
 					<td class="ListColHeaderCenter"><span class="rpt-dot" style="background:#{$colors.unknown}"></span> {$UnknownTitle}</td>
-					<td class="ListColHeaderCenter"><span class="rpt-dot" style="background:#{$colors.maintenance}"></span> <span class="rpt-tooltip-wrap">Downtime<span class="rpt-tooltip">Scheduled downtime — Planned maintenance periods during which the resource is intentionally taken offline.</span></span></td>
-					<td class="ListColHeaderCenter"><span class="rpt-dot" style="background:#{$colors.undetermined}"></span> <span class="rpt-tooltip-wrap">Undetermined<span class="rpt-tooltip">Undetermined time — Periods with no monitoring data available, typically due to missing collection or incomplete history.</span></span></td>
+					<td class="ListColHeaderCenter"><span class="rpt-dot" style="background:#{$colors.maintenance}"></span> <span class="rpt-tooltip-wrap">{$downtimeLabel}<span class="rpt-tooltip">{$downtimeTooltip}</span></span></td>
+					<td class="ListColHeaderCenter"><span class="rpt-dot" style="background:#{$colors.undetermined}"></span> <span class="rpt-tooltip-wrap">{$undeterminedLabel}<span class="rpt-tooltip">{$undeterminedTooltip}</span></span></td>
 					<td class="ListColHeaderCenter">{$alertsLabel}</td>
-					<td class="ListColHeaderCenter">Status</td>
+					<td class="ListColHeaderCenter">{$statusLabel}</td>
 				</tr>
 				<tr class='list_lvl_1'>
 					<td class="ListColHeaderCenter"></td>
-					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">MT / TT</td>
-					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">MT / TT</td>
-					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">MT / TT</td>
-					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">MT / TT</td>
-					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">TT</td>
-					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">TT</td>
+					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">{$mtTtLabel}</td>
+					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">{$mtTtLabel}</td>
+					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">{$mtTtLabel}</td>
+					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">{$mtTtLabel}</td>
+					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">{$ttLabel}</td>
+					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">{$ttLabel}</td>
 					<td class="ListColHeaderCenter"></td>
 					<td class="ListColHeaderCenter"></td>
 				</tr>
@@ -173,7 +179,7 @@
 						{if $tb.WARNING_A == 0 && $tb.CRITICAL_A == 0 && $tb.UNKNOWN_A == 0}<span class="rpt-alert-badge rpt-alert-none">0</span>{/if}
 					</td>
 					<td style="padding:2px 5px; min-width:120px;">
-						<div class="status-bar" style="display:flex; height:14px; border-radius:3px; overflow:hidden; background:#f0f0f0;" title="Ok:{$tb.OK_TP}% Warning:{$tb.WARNING_TP}% Critical:{$tb.CRITICAL_TP}% Unknown:{$tb.UNKNOWN_TP}% Maint:{$tb.MAINTENANCE_TP}% Undetermined:{$tb.UNDETERMINED_TP}%">
+						<div class="status-bar" style="display:flex; height:14px; border-radius:3px; overflow:hidden; background:var(--list-lvl-1-background-color, #f0f0f0);" title="Ok:{$tb.OK_TP}% Warning:{$tb.WARNING_TP}% Critical:{$tb.CRITICAL_TP}% Unknown:{$tb.UNKNOWN_TP}% Maint:{$tb.MAINTENANCE_TP}% Undetermined:{$tb.UNDETERMINED_TP}%">
 							<div style="width:{$tb.OK_TP}%; background:#{$colors.ok};"></div>
 							<div style="width:{$tb.WARNING_TP}%; background:#{$colors.warning};"></div>
 							<div style="width:{$tb.CRITICAL_TP}%; background:#{$colors.critical};"></div>
@@ -206,7 +212,7 @@
 						{if $components_avg.UNKNOWN_A > 0}<span class="rpt-alert-badge rpt-alert-unk">{$components_avg.UNKNOWN_A}</span>{/if}
 					</td>
 					<td style="padding:2px 5px; min-width:120px;">
-						<div class="status-bar" style="display:flex; height:14px; border-radius:3px; overflow:hidden; background:#f0f0f0;" title="Ok:{$components_avg.OK_TP}% Warning:{$components_avg.WARNING_TP}% Critical:{$components_avg.CRITICAL_TP}% Unknown:{$components_avg.UNKNOWN_TP}% Maint:{$components_avg.MAINTENANCE_TP}% Undetermined:{$components_avg.UNDETERMINED_TP}%">
+						<div class="status-bar" style="display:flex; height:14px; border-radius:3px; overflow:hidden; background:var(--list-lvl-1-background-color, #f0f0f0);" title="Ok:{$components_avg.OK_TP}% Warning:{$components_avg.WARNING_TP}% Critical:{$components_avg.CRITICAL_TP}% Unknown:{$components_avg.UNKNOWN_TP}% Maint:{$components_avg.MAINTENANCE_TP}% Undetermined:{$components_avg.UNDETERMINED_TP}%">
 							<div style="width:{$components_avg.OK_TP}%; background:#{$colors.ok};"></div>
 							<div style="width:{$components_avg.WARNING_TP}%; background:#{$colors.warning};"></div>
 							<div style="width:{$components_avg.CRITICAL_TP}%; background:#{$colors.critical};"></div>
@@ -228,165 +234,6 @@
 </table>
 
 {literal}
-<style>
-/* Modern reporting table styles */
-.reporting-modern .rpt-dot {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    margin-right: 4px;
-    vertical-align: middle;
-}
-.reporting-modern .rpt-val {
-    white-space: nowrap;
-}
-.reporting-modern .rpt-val .rpt-mp {
-    font-weight: 600;
-    color: #24292f;
-}
-.reporting-modern .rpt-val .rpt-sep {
-    color: #bbb;
-    margin: 0 2px;
-}
-.reporting-modern .rpt-val .rpt-tp {
-    font-size: 11px;
-    color: #999;
-}
-.reporting-modern .rpt-alerts {
-    white-space: nowrap;
-}
-.reporting-modern .rpt-alert-badge {
-    display: inline-block;
-    padding: 1px 6px;
-    border-radius: 10px;
-    font-size: 11px;
-    font-weight: 600;
-    margin: 0 1px;
-}
-.reporting-modern .rpt-alert-warn {
-    background: #fff3e0;
-    color: #e65100;
-}
-.reporting-modern .rpt-alert-crit {
-    background: #fce4ec;
-    color: #c62828;
-}
-.reporting-modern .rpt-alert-unk {
-    background: #f3e5f5;
-    color: #6a1b9a;
-}
-.reporting-modern .rpt-alert-none {
-    background: #e8f5e9;
-    color: #2e7d32;
-}
-/* Subtle colored background per status column — 5% opacity (95% transparent) */
-.reporting-modern .rpt-bg-ok { background: rgba({/literal}{$colors_rgb.ok}{literal}, 0.05) !important; }
-.reporting-modern .rpt-bg-warning { background: rgba({/literal}{$colors_rgb.warning}{literal}, 0.05) !important; }
-.reporting-modern .rpt-bg-critical { background: rgba({/literal}{$colors_rgb.critical}{literal}, 0.05) !important; }
-.reporting-modern .rpt-bg-unknown { background: rgba({/literal}{$colors_rgb.unknown}{literal}, 0.05) !important; }
-.reporting-modern .rpt-bg-maintenance { background: rgba({/literal}{$colors_rgb.maintenance}{literal}, 0.05) !important; }
-.reporting-modern .rpt-bg-undetermined { background: rgba({/literal}{$colors_rgb.undetermined}{literal}, 0.05) !important; }
-/* Header rows — neutral warm gray like footer */
-.reporting-modern tr.list_lvl_1 {
-    background: #f5f5f0 !important;
-}
-.reporting-modern tr.list_lvl_1 td {
-    color: #333 !important;
-    font-weight: 600;
-}
-/* Average row — same neutral warm gray */
-.reporting-modern .rpt-avg {
-    background: #f5f5f0 !important;
-    border-top: 2px solid #ddd;
-}
-.reporting-modern .rpt-avg td {
-    font-weight: 600;
-    color: #333;
-}
-.rpt-dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:4px; vertical-align:middle; }
-/* Tooltip overlay for column headers */
-.rpt-tooltip-wrap {
-    position: relative;
-    cursor: help;
-    border-bottom: 1px dotted #999;
-}
-.rpt-tooltip {
-    visibility: hidden;
-    opacity: 0;
-    position: absolute;
-    bottom: calc(100% + 8px);
-    left: 50%;
-    transform: translateX(-50%);
-    width: 220px;
-    padding: 8px 10px;
-    background: #2d3436;
-    color: #fff;
-    font-size: 11px;
-    font-weight: 400;
-    line-height: 1.4;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    text-align: left;
-    white-space: normal;
-    z-index: 100;
-    transition: opacity 0.2s ease, visibility 0.2s ease;
-    pointer-events: none;
-}
-.rpt-tooltip::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 6px solid transparent;
-    border-top-color: #2d3436;
-}
-.rpt-tooltip-wrap:hover .rpt-tooltip {
-    visibility: visible;
-    opacity: 1;
-}
-.rpt-alert-badge {
-    display: inline-block;
-    padding: 1px 8px;
-    border-radius: 10px;
-    font-size: 11px;
-    font-weight: 600;
-}
-.rpt-alert-up {
-    background: #e8f5e9;
-    color: #2e7d32;
-}
-.rpt-alert-down {
-    background: #fce4ec;
-    color: #c62828;
-}
-.rpt-alert-unreach {
-    background: #f3e5f5;
-    color: #6a1b9a;
-}
-.rpt-alert-total {
-    background: #e3f2fd;
-    color: #1565c0;
-}
-/* Summary table (donut + host stats) — header and footer */
-.reporting-summary .rpt-summary-header {
-    background: #f5f5f0;
-}
-.reporting-summary .rpt-summary-header td {
-    color: #333;
-    font-weight: 600;
-    border-bottom: 1px solid #ddd;
-}
-.reporting-summary .rpt-summary-footer {
-    background: #f5f5f0;
-    border-top: 2px solid #ddd;
-}
-.reporting-summary .rpt-summary-footer td {
-    font-weight: 600;
-    color: #333;
-}
-</style>
 <script>
     //formatting the tags containing a class isTimestamp
     formatDateMoment();
@@ -400,10 +247,16 @@
 
         var ctx = document.getElementById('chartCanvas');
         if (ctx) {
+            // Detect dark theme by reading CSS variable
+            var bodyBg = getComputedStyle(document.body).backgroundColor || '';
+            var isDark = bodyBg.indexOf('33, 33, 33') !== -1 || bodyBg.indexOf('21, 21, 21') !== -1;
+            var borderCol = isDark ? 'rgba(255,255,255,0.1)' : '#fff';
+            var legendColor = isDark ? '#b2aca2' : '#666';
+
             new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Up', 'Down', 'Unreachable', 'Downtime', 'Undetermined'],
+                    labels: ['{/literal}{$upLabel}{literal}', '{/literal}{$downLabel}{literal}', '{/literal}{$unreachableLabel}{literal}', '{/literal}{$downtimeLabel}{literal}', '{/literal}{$undeterminedLabel}{literal}'],
                     datasets: [{
                         data: [
                             {/literal}{$host_up|number_format:2:".":""}{literal},
@@ -420,7 +273,7 @@
                             '#{/literal}{$colors.undetermined}{literal}'
                         ],
                         borderWidth: 1,
-                        borderColor: '#fff'
+                        borderColor: borderCol
                     }]
                 },
                 options: {
@@ -429,7 +282,7 @@
                     plugins: {
                         legend: {
                             position: 'right',
-                            labels: { boxWidth: 12, padding: 8, font: { size: 11 } }
+                            labels: { boxWidth: 12, padding: 8, font: { size: 11 }, color: legendColor }
                         },
                         tooltip: {
                             callbacks: {

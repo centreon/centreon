@@ -45,17 +45,17 @@ $colorsJson = json_encode($colors);
 }
 .heatmap-nav-btn {
     background: none;
-    border: 1px solid #d0d7de;
+    border: 1px solid var(--list-table-border-color, #d0d7de);
     border-radius: 6px;
     padding: 3px 10px;
     font-size: 12px;
-    color: #24292f;
+    color: var(--body-color, #24292f);
     cursor: pointer;
     line-height: 20px;
     transition: background 0.15s;
 }
 .heatmap-nav-btn:hover {
-    background: #f3f4f6;
+    background: var(--list-lvl-1-background-color, #f3f4f6);
 }
 .heatmap-nav-btn:disabled {
     opacity: 0.4;
@@ -64,7 +64,7 @@ $colorsJson = json_encode($colors);
 .heatmap-nav-year {
     font-size: 14px;
     font-weight: 600;
-    color: #24292f;
+    color: var(--body-color, #24292f);
     min-width: 40px;
     text-align: center;
 }
@@ -73,7 +73,8 @@ $colorsJson = json_encode($colors);
     padding-left: 32px;
     margin-bottom: 4px;
     font-size: 11px;
-    color: #666;
+    color: var(--body-color, #666);
+    opacity: 0.7;
 }
 .heatmap-months span {
     flex: none;
@@ -88,7 +89,8 @@ $colorsJson = json_encode($colors);
     justify-content: space-between;
     padding-right: 6px;
     font-size: 10px;
-    color: #888;
+    color: var(--body-color, #888);
+    opacity: 0.6;
     width: 26px;
     flex-shrink: 0;
 }
@@ -109,13 +111,13 @@ $colorsJson = json_encode($colors);
     width: 13px;
     height: 13px;
     border-radius: 2px;
-    background: #ebedf0;
+    background: rgba(128, 128, 128, 0.15);
     cursor: pointer;
     position: relative;
     transition: outline 0.1s;
 }
 .heatmap-cell:hover {
-    outline: 2px solid #333;
+    outline: 2px solid var(--body-color, #333);
     outline-offset: -1px;
     z-index: 2;
 }
@@ -171,7 +173,8 @@ $colorsJson = json_encode($colors);
     margin-top: 10px;
     padding-left: 32px;
     font-size: 11px;
-    color: #666;
+    color: var(--body-color, #666);
+    opacity: 0.7;
 }
 .heatmap-legend-cell {
     width: 13px;
@@ -193,6 +196,7 @@ var _heatmapData = null;
 var _heatmapYear = null;
 var _heatmapIsHostType = <?php echo $isHostType ? 'true' : 'false'; ?>;
 var _heatmapColors = <?php echo $colorsJson; ?>;
+var _rptI18n = <?php echo $tpl->getTemplateVars('jsTranslationsJson'); ?>;
 
 function initTimeline() {
     var url = '<?php echo $jsonUrl; ?>';
@@ -200,7 +204,7 @@ function initTimeline() {
     jQuery.getJSON(url, function(data) {
         if (data.error || !Array.isArray(data) || data.length === 0) {
             document.getElementById('availability-heatmap').innerHTML =
-                '<p style="color:#888;text-align:center;padding:20px;">No data available</p>';
+                '<p style="color:var(--body-color, #888); opacity:0.6; text-align:center; padding:20px;">' + _rptI18n.noDataAvailable + '</p>';
             document.getElementById('alerts-heatmap').innerHTML = '';
             return;
         }
@@ -288,7 +292,7 @@ function buildHeatmapGrid(containerId, dataMap, availableYears, colorFn, tooltip
 
     // Month labels
     var monthsHtml = '<div class="heatmap-months">';
-    var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var monthNames = _rptI18n.months;
     var lastMonth = -1;
     weeks.forEach(function(week, i) {
         var refDay = week.length > 3 ? week[3] : week[week.length - 1];
@@ -310,7 +314,7 @@ function buildHeatmapGrid(containerId, dataMap, availableYears, colorFn, tooltip
     monthsHtml += '</div>';
 
     // Day labels
-    var dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    var dayLabels = _rptI18n.days;
     var daysLabelHtml = '<div class="heatmap-days-label">';
     for (var i = 0; i < 7; i++) {
         daysLabelHtml += '<span>' + (i % 2 === 1 ? dayLabels[i] : '') + '</span>';
@@ -366,9 +370,9 @@ function buildHeatmapGrid(containerId, dataMap, availableYears, colorFn, tooltip
         + legendHtml
         + '</div>'
         + '</td>'
-        + '<td style="padding:10px; width:480px; vertical-align:top; border-left:1px solid #ddd;">'
+        + '<td style="padding:10px; width:480px; vertical-align:top; border-left:1px solid var(--list-table-border-color, #ddd);">'
         + '<div style="padding-top:8px;">'
-        + '<div style="font-size:11px; font-weight:600; color:#666; margin-bottom:6px; text-align:left; padding-left:8px;">Evolution on the last 30 days</div>'
+        + '<div style="font-size:11px; font-weight:600; color:var(--body-color, #666); opacity:0.7; margin-bottom:6px; text-align:left; padding-left:8px;">' + _rptI18n.evolution30days + '</div>'
         + '<div style="position:relative; height:140px;">'
         + '<canvas id="' + chartCanvasId + '"></canvas>'
         + '</div>'
@@ -376,6 +380,18 @@ function buildHeatmapGrid(containerId, dataMap, availableYears, colorFn, tooltip
         + '</td>'
         + '</tr>'
         + '</table>';
+}
+
+/* Detect dark theme for Chart.js colors */
+function _rptGetChartTheme() {
+    var bodyBg = getComputedStyle(document.body).backgroundColor || '';
+    var isDark = bodyBg.indexOf('33, 33, 33') !== -1 || bodyBg.indexOf('21, 21, 21') !== -1 || bodyBg === 'rgb(33, 33, 33)' || bodyBg === 'rgb(21, 21, 21)';
+    return {
+        isDark: isDark,
+        gridColor: isDark ? 'rgba(255,255,255,0.08)' : '#f0f0f0',
+        tickColor: isDark ? '#b2aca2' : '#666',
+        labelColor: isDark ? '#b2aca2' : '#666'
+    };
 }
 
 /* ========================================================
@@ -397,7 +413,7 @@ function renderHeatmap() {
 
     // Color function
     function colorFn(dateStr, d) {
-        if (!d) return '#ebedf0';
+        if (!d) return 'rgba(128,128,128,0.15)';
         var goodPct = isHostType ? (d.up || 0) : (d.ok || 0);
         var badPct = isHostType ? (d.down || 0) + (d.unreachable || 0) : (d.critical || 0);
         var warnPct = isHostType ? 0 : (d.warning || 0);
@@ -417,24 +433,24 @@ function renderHeatmap() {
     // Tooltip function
     function tooltipFn(dateStr, d) {
         var dateObj = new Date(dateStr + 'T00:00:00');
-        var dateLabel = dateObj.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+        var dateLabel = dateObj.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
 
-        if (!d) return '<b>' + dateLabel + '</b><br>No data';
+        if (!d) return '<b>' + dateLabel + '</b><br>' + _rptI18n.noData;
 
         var lines = '<b>' + dateLabel + '</b><br>';
         if (isHostType) {
-            lines += '<span style="color:#' + colors.up + '">●</span> Up: ' + d.up + '%<br>';
-            lines += '<span style="color:#' + colors.down + '">●</span> Down: ' + d.down + '%<br>';
-            lines += '<span style="color:#' + colors.unreachable + '">●</span> Unreachable: ' + d.unreachable + '%<br>';
-            if (d.maintenance > 0) lines += '<span style="color:#' + colors.maintenance + '">●</span> Downtime: ' + d.maintenance + '%<br>';
-            lines += '<span style="color:#' + colors.undetermined + '">●</span> Undetermined: ' + d.undetermined + '%';
+            lines += '<span style="color:#' + colors.up + '">●</span> ' + _rptI18n.up + ': ' + d.up + '%<br>';
+            lines += '<span style="color:#' + colors.down + '">●</span> ' + _rptI18n.down + ': ' + d.down + '%<br>';
+            lines += '<span style="color:#' + colors.unreachable + '">●</span> ' + _rptI18n.unreachable + ': ' + d.unreachable + '%<br>';
+            if (d.maintenance > 0) lines += '<span style="color:#' + colors.maintenance + '">●</span> ' + _rptI18n.downtime + ': ' + d.maintenance + '%<br>';
+            lines += '<span style="color:#' + colors.undetermined + '">●</span> ' + _rptI18n.undetermined + ': ' + d.undetermined + '%';
         } else {
-            lines += '<span style="color:#' + colors.ok + '">●</span> Ok: ' + d.ok + '%<br>';
-            lines += '<span style="color:#' + colors.warning + '">●</span> Warning: ' + d.warning + '%<br>';
-            lines += '<span style="color:#' + colors.critical + '">●</span> Critical: ' + d.critical + '%<br>';
-            lines += '<span style="color:#' + colors.unknown + '">●</span> Unknown: ' + d.unknown + '%<br>';
-            if (d.maintenance > 0) lines += '<span style="color:#' + colors.maintenance + '">●</span> Downtime: ' + d.maintenance + '%<br>';
-            lines += '<span style="color:#' + colors.undetermined + '">●</span> Undetermined: ' + d.undetermined + '%';
+            lines += '<span style="color:#' + colors.ok + '">●</span> ' + _rptI18n.ok + ': ' + d.ok + '%<br>';
+            lines += '<span style="color:#' + colors.warning + '">●</span> ' + _rptI18n.warning + ': ' + d.warning + '%<br>';
+            lines += '<span style="color:#' + colors.critical + '">●</span> ' + _rptI18n.critical + ': ' + d.critical + '%<br>';
+            lines += '<span style="color:#' + colors.unknown + '">●</span> ' + _rptI18n.unknown + ': ' + d.unknown + '%<br>';
+            if (d.maintenance > 0) lines += '<span style="color:#' + colors.maintenance + '">●</span> ' + _rptI18n.downtime + ': ' + d.maintenance + '%<br>';
+            lines += '<span style="color:#' + colors.undetermined + '">●</span> ' + _rptI18n.undetermined + ': ' + d.undetermined + '%';
         }
 
         // Mini status bar
@@ -457,23 +473,23 @@ function renderHeatmap() {
 
     // Legend
     var legendHtml = '<div class="heatmap-legend">';
-    legendHtml += '<span>Less</span>';
-    legendHtml += '<div class="heatmap-legend-cell" style="background:#ebedf0"></div>';
+    legendHtml += '<span>' + _rptI18n.less + '</span>';
+    legendHtml += '<div class="heatmap-legend-cell" style="background:rgba(128,128,128,0.15)"></div>';
     legendHtml += '<div class="heatmap-legend-cell" style="background:#c6e48b"></div>';
     legendHtml += '<div class="heatmap-legend-cell" style="background:#9be9a8"></div>';
     legendHtml += '<div class="heatmap-legend-cell" style="background:#40c463"></div>';
     legendHtml += '<div class="heatmap-legend-cell" style="background:#30a14e"></div>';
     legendHtml += '<div class="heatmap-legend-cell" style="background:#216e39"></div>';
-    legendHtml += '<span>More available</span>';
+    legendHtml += '<span>' + _rptI18n.moreAvailable + '</span>';
     legendHtml += '<span style="margin-left:15px">|</span>';
     legendHtml += '<div class="heatmap-legend-cell" style="background:#ffe0b2;margin-left:8px"></div>';
-    legendHtml += '<span>Warning</span>';
+    legendHtml += '<span>' + _rptI18n.warning + '</span>';
     legendHtml += '<div class="heatmap-legend-cell" style="background:#e8a0a0;margin-left:8px"></div>';
     legendHtml += '<div class="heatmap-legend-cell" style="background:#' + (colors.critical || colors.down) + '"></div>';
-    legendHtml += '<span>Critical</span>';
+    legendHtml += '<span>' + _rptI18n.critical + '</span>';
     legendHtml += '</div>';
 
-    buildHeatmapGrid('availability-heatmap', dataMap, availableYears, colorFn, tooltipFn, legendHtml, 'Availability');
+    buildHeatmapGrid('availability-heatmap', dataMap, availableYears, colorFn, tooltipFn, legendHtml, _rptI18n.availability);
 
     // 30-day availability line chart
     var last30 = getLast30Days(dataMap);
@@ -482,12 +498,13 @@ function renderHeatmap() {
         if (window._availChart30) { window._availChart30.destroy(); }
         var goodKey = isHostType ? 'up' : 'ok';
         var vals = last30.entries.map(function(d) { return d ? (d[goodKey] || 0) : null; });
+        var theme = _rptGetChartTheme();
         window._availChart30 = new Chart(ctx30, {
             type: 'line',
             data: {
                 labels: last30.labels,
                 datasets: [{
-                    label: isHostType ? 'Up %' : 'Ok %',
+                    label: isHostType ? _rptI18n.up + ' %' : _rptI18n.ok + ' %',
                     data: vals,
                     borderColor: '#30a14e',
                     backgroundColor: 'rgba(48,161,78,0.1)',
@@ -502,8 +519,8 @@ function renderHeatmap() {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    y: { min: 0, max: 100, suggestedMax: 102, ticks: { stepSize: 20, callback: function(v) { return v + '%'; }, font: { size: 10 } }, grid: { color: '#f0f0f0' }, afterFit: function(axis) { axis.max = 102; } },
-                    x: { ticks: { maxTicksLimit: 6, font: { size: 9 }, maxRotation: 0 }, grid: { display: false } }
+                    y: { min: 0, max: 100, suggestedMax: 102, ticks: { stepSize: 20, callback: function(v) { return v + '%'; }, font: { size: 10 }, color: theme.tickColor }, grid: { color: theme.gridColor }, afterFit: function(axis) { axis.max = 102; } },
+                    x: { ticks: { maxTicksLimit: 6, font: { size: 9 }, maxRotation: 0, color: theme.tickColor }, grid: { display: false } }
                 },
                 plugins: {
                     legend: { display: false },
@@ -537,7 +554,7 @@ function renderAlertHeatmap() {
     // Alert color scale based on alerts_total
     // Grey = no data, Green = 0 alerts (calm day), then orange->red scale
     function colorFn(dateStr, d) {
-        if (!d) return '#ebedf0';
+        if (!d) return 'rgba(128,128,128,0.15)';
         var total = d.alerts_total || 0;
         if (total === 0) return '#216e39';
         if (total <= 2) return '#c6e48b';
@@ -550,23 +567,23 @@ function renderAlertHeatmap() {
     // Alert tooltip
     function tooltipFn(dateStr, d) {
         var dateObj = new Date(dateStr + 'T00:00:00');
-        var dateLabel = dateObj.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+        var dateLabel = dateObj.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
 
-        if (!d) return '<b>' + dateLabel + '</b><br>No data';
+        if (!d) return '<b>' + dateLabel + '</b><br>' + _rptI18n.noData;
 
         var total = d.alerts_total || 0;
         var lines = '<b>' + dateLabel + '</b><br>';
-        lines += '<b>' + total + ' alert' + (total !== 1 ? 's' : '') + '</b><br>';
+        lines += '<b>' + total + ' ' + (total !== 1 ? _rptI18n.alertsPlural : _rptI18n.alert) + '</b><br>';
 
         if (isHostType) {
-            lines += '<span style="color:#' + colors.up + '">●</span> Up: ' + (d.alerts_up || 0) + '<br>';
-            lines += '<span style="color:#' + colors.down + '">●</span> Down: ' + (d.alerts_down || 0) + '<br>';
-            lines += '<span style="color:#' + (colors.unreachable || 'aaa') + '">●</span> Unreachable: ' + (d.alerts_unreachable || 0);
+            lines += '<span style="color:#' + colors.up + '">●</span> ' + _rptI18n.up + ': ' + (d.alerts_up || 0) + '<br>';
+            lines += '<span style="color:#' + colors.down + '">●</span> ' + _rptI18n.down + ': ' + (d.alerts_down || 0) + '<br>';
+            lines += '<span style="color:#' + (colors.unreachable || 'aaa') + '">●</span> ' + _rptI18n.unreachable + ': ' + (d.alerts_unreachable || 0);
         } else {
-            lines += '<span style="color:#' + colors.ok + '">●</span> Ok: ' + (d.alerts_ok || 0) + '<br>';
-            lines += '<span style="color:#' + colors.warning + '">●</span> Warning: ' + (d.alerts_warning || 0) + '<br>';
-            lines += '<span style="color:#' + colors.critical + '">●</span> Critical: ' + (d.alerts_critical || 0) + '<br>';
-            lines += '<span style="color:#' + (colors.unknown || 'aaa') + '">●</span> Unknown: ' + (d.alerts_unknown || 0);
+            lines += '<span style="color:#' + colors.ok + '">●</span> ' + _rptI18n.ok + ': ' + (d.alerts_ok || 0) + '<br>';
+            lines += '<span style="color:#' + colors.warning + '">●</span> ' + _rptI18n.warning + ': ' + (d.alerts_warning || 0) + '<br>';
+            lines += '<span style="color:#' + colors.critical + '">●</span> ' + _rptI18n.critical + ': ' + (d.alerts_critical || 0) + '<br>';
+            lines += '<span style="color:#' + (colors.unknown || 'aaa') + '">●</span> ' + _rptI18n.unknown + ': ' + (d.alerts_unknown || 0);
         }
 
         return lines;
@@ -574,20 +591,20 @@ function renderAlertHeatmap() {
 
     // Legend for alerts
     var legendHtml = '<div class="heatmap-legend">';
-    legendHtml += '<span>0 alerts</span>';
+    legendHtml += '<span>' + _rptI18n.zeroAlerts + '</span>';
     legendHtml += '<div class="heatmap-legend-cell" style="background:#216e39"></div>';
     legendHtml += '<div class="heatmap-legend-cell" style="background:#c6e48b"></div>';
     legendHtml += '<div class="heatmap-legend-cell" style="background:#ffe0b2"></div>';
     legendHtml += '<div class="heatmap-legend-cell" style="background:#ffab91"></div>';
     legendHtml += '<div class="heatmap-legend-cell" style="background:#e8a0a0"></div>';
     legendHtml += '<div class="heatmap-legend-cell" style="background:#' + (colors.critical || colors.down) + '"></div>';
-    legendHtml += '<span>20+ alerts</span>';
+    legendHtml += '<span>' + _rptI18n.twentyPlusAlerts + '</span>';
     legendHtml += '<span style="margin-left:15px">|</span>';
-    legendHtml += '<div class="heatmap-legend-cell" style="background:#ebedf0;margin-left:8px"></div>';
-    legendHtml += '<span>No data</span>';
+    legendHtml += '<div class="heatmap-legend-cell" style="background:rgba(128,128,128,0.15);margin-left:8px"></div>';
+    legendHtml += '<span>' + _rptI18n.noData + '</span>';
     legendHtml += '</div>';
 
-    buildHeatmapGrid('alerts-heatmap', dataMap, availableYears, colorFn, tooltipFn, legendHtml, 'Alerts');
+    buildHeatmapGrid('alerts-heatmap', dataMap, availableYears, colorFn, tooltipFn, legendHtml, _rptI18n.alerts);
 
     // 30-day alerts bar chart
     var last30 = getLast30Days(dataMap);
@@ -603,12 +620,13 @@ function renderAlertHeatmap() {
             if (v <= 20) return '#e8a0a0';
             return '#' + (colors.critical || colors.down);
         });
+        var theme = _rptGetChartTheme();
         window._alertChart30 = new Chart(ctx30, {
             type: 'bar',
             data: {
                 labels: last30.labels,
                 datasets: [{
-                    label: 'Alerts',
+                    label: _rptI18n.alerts,
                     data: vals,
                     backgroundColor: barColors,
                     borderRadius: 2,
@@ -619,12 +637,12 @@ function renderAlertHeatmap() {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    y: { beginAtZero: true, ticks: { precision: 0, font: { size: 10 } }, grid: { color: '#f0f0f0' } },
-                    x: { ticks: { maxTicksLimit: 6, font: { size: 9 }, maxRotation: 0 }, grid: { display: false } }
+                    y: { beginAtZero: true, ticks: { precision: 0, font: { size: 10 }, color: theme.tickColor }, grid: { color: theme.gridColor } },
+                    x: { ticks: { maxTicksLimit: 6, font: { size: 9 }, maxRotation: 0, color: theme.tickColor }, grid: { display: false } }
                 },
                 plugins: {
                     legend: { display: false },
-                    tooltip: { callbacks: { label: function(c) { return c.parsed.y + ' alerts'; } } }
+                    tooltip: { callbacks: { label: function(c) { return c.parsed.y + ' ' + _rptI18n.alertsPlural; } } }
                 }
             }
         });

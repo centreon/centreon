@@ -133,6 +133,29 @@ switch ($type) {
         break;
 
     case 'HostGroup':
+        // Step 1: Get host IDs belonging to this hostgroup from centreon config DB
+        $hgStmt = $pearDB->prepare(
+            'SELECT host_host_id FROM hostgroup_relation WHERE hostgroup_hg_id = :id'
+        );
+        $hgStmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $hgStmt->execute();
+        $hostIdsInGroup = [];
+        while ($hgRow = $hgStmt->fetch()) {
+            $hostIdsInGroup[] = (int) $hgRow['host_host_id'];
+        }
+
+        // Apply ACL filtering
+        if (!$isAdmin) {
+            $aclHostIds = array_keys($acl->getHostAclConf(null, 'broker'));
+            $hostIdsInGroup = array_intersect($hostIdsInGroup, array_map('intval', $aclHostIds));
+        }
+
+        if (empty($hostIdsInGroup)) {
+            break;
+        }
+
+        // Step 2: Query log_archive_host in centstorage for these host IDs
+        $hostIdList = implode(',', $hostIdsInGroup);
         $query = 'SELECT date_start, '
             . 'SUM(UPTimeScheduled) as UPTimeScheduled, SUM(DOWNTimeScheduled) as DOWNTimeScheduled, '
             . 'SUM(UNREACHABLETimeScheduled) as UNREACHABLETimeScheduled, '
@@ -140,23 +163,11 @@ switch ($type) {
             . 'SUM(MaintenanceTime) as MaintenanceTime, '
             . 'SUM(UPnbEvent) as UPnbEvent, SUM(DOWNnbEvent) as DOWNnbEvent, '
             . 'SUM(UNREACHABLEnbEvent) as UNREACHABLEnbEvent '
-            . 'FROM log_archive_host lah '
-            . 'INNER JOIN hostgroup_relation hgr ON hgr.host_host_id = lah.host_id '
-            . 'WHERE hgr.hostgroup_hg_id = :id ';
+            . 'FROM log_archive_host '
+            . 'WHERE host_id IN (' . $hostIdList . ') '
+            . 'GROUP BY date_start ORDER BY date_start ASC';
 
-        if (!$isAdmin) {
-            $hostIds = array_keys($acl->getHostAclConf(null, 'broker'));
-            if (empty($hostIds)) {
-                break;
-            }
-            $hostIdList = array_map('intval', $hostIds);
-            $query .= 'AND lah.host_id IN (' . implode(',', $hostIdList) . ') ';
-        }
-        $query .= 'GROUP BY date_start ORDER BY date_start ASC';
-
-        $stmt = $pearDBO->prepare($query);
-        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-        $stmt->execute();
+        $stmt = $pearDBO->query($query);
 
         while ($row = $stmt->fetch()) {
             $total = $row['UPTimeScheduled'] + $row['DOWNTimeScheduled']
@@ -177,6 +188,41 @@ switch ($type) {
         break;
 
     case 'ServiceGroup':
+        // Step 1: Get host_id + service_id pairs from centreon config DB
+        $sgStmt = $pearDB->prepare(
+            'SELECT host_host_id, service_service_id FROM servicegroup_relation WHERE servicegroup_sg_id = :id'
+        );
+        $sgStmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $sgStmt->execute();
+        $svcPairs = [];
+        $hostIdsInGroup = [];
+        while ($sgRow = $sgStmt->fetch()) {
+            $hid = (int) $sgRow['host_host_id'];
+            $sid = (int) $sgRow['service_service_id'];
+            $svcPairs[] = '(las.host_id = ' . $hid . ' AND las.service_id = ' . $sid . ')';
+            $hostIdsInGroup[] = $hid;
+        }
+
+        // Apply ACL filtering
+        if (!$isAdmin) {
+            $aclHostIds = array_map('intval', array_keys($acl->getHostAclConf(null, 'broker')));
+            $filteredPairs = [];
+            $sgStmt->execute();
+            while ($sgRow = $sgStmt->fetch()) {
+                $hid = (int) $sgRow['host_host_id'];
+                $sid = (int) $sgRow['service_service_id'];
+                if (in_array($hid, $aclHostIds)) {
+                    $filteredPairs[] = '(las.host_id = ' . $hid . ' AND las.service_id = ' . $sid . ')';
+                }
+            }
+            $svcPairs = $filteredPairs;
+        }
+
+        if (empty($svcPairs)) {
+            break;
+        }
+
+        // Step 2: Query log_archive_service in centstorage
         $query = 'SELECT date_start, '
             . 'SUM(OKTimeScheduled) as OKTimeScheduled, SUM(WARNINGTimeScheduled) as WARNINGTimeScheduled, '
             . 'SUM(CRITICALTimeScheduled) as CRITICALTimeScheduled, '
@@ -186,22 +232,10 @@ switch ($type) {
             . 'SUM(OKnbEvent) as OKnbEvent, SUM(WARNINGnbEvent) as WARNINGnbEvent, '
             . 'SUM(CRITICALnbEvent) as CRITICALnbEvent, SUM(UNKNOWNnbEvent) as UNKNOWNnbEvent '
             . 'FROM log_archive_service las '
-            . 'INNER JOIN servicegroup_relation sgr ON sgr.host_host_id = las.host_id AND sgr.service_service_id = las.service_id '
-            . 'WHERE sgr.servicegroup_sg_id = :id ';
+            . 'WHERE (' . implode(' OR ', $svcPairs) . ') '
+            . 'GROUP BY date_start ORDER BY date_start ASC';
 
-        if (!$isAdmin) {
-            $hostIds = array_keys($acl->getHostAclConf(null, 'broker'));
-            if (empty($hostIds)) {
-                break;
-            }
-            $hostIdList = array_map('intval', $hostIds);
-            $query .= 'AND las.host_id IN (' . implode(',', $hostIdList) . ') ';
-        }
-        $query .= 'GROUP BY date_start ORDER BY date_start ASC';
-
-        $stmt = $pearDBO->prepare($query);
-        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-        $stmt->execute();
+        $stmt = $pearDBO->query($query);
 
         while ($row = $stmt->fetch()) {
             $total = $row['OKTimeScheduled'] + $row['WARNINGTimeScheduled']

@@ -8,12 +8,18 @@
 		<input type="hidden" name="color_UNDETERMINED" value="{$color.UNDETERMINED}" >
 	</form>
 </div>
-<h2 style="margin:0 0 8px 0; padding:0; font-size:18px; font-weight:600; color:#2d3436;">Availability Report</h2>
+<div class="rpt-title-bar">
+	<h2 class="rpt-title">{$availabilityReportTitle}</h2>
+	<div class="rpt-nav-pills">
+		<a href="main.php?p=30703" class="rpt-nav-pill">Go to Host Group Report</a>
+		<a href="main.php?p=30704" class="rpt-nav-pill">Go to Service Group Report</a>
+	</div>
+</div>
 <table style='width:100%; max-width:1400px;' class="ListTable">
 	<tr class='ListHeader'>
 		<td class="ListColHeaderLeft" style='white-space: nowrap;'>
 			<form {$formPeriod.attributes} style="margin:0px;padding:0px;">&nbsp;
-				Host&nbsp;:&nbsp;&nbsp;
+				{$hostLabel}&nbsp;:&nbsp;&nbsp;
 
 				<input type=text value="{$host_name}" name="host_name" disabled>
 				&nbsp;/&nbsp;
@@ -36,7 +42,7 @@
 		</td>
 		<td style="white-space:nowrap; text-align:right;">
 			<a href="main.php?p=30701&host={$host_id}&period={$get_period}&start={$get_date_start}&end={$get_date_end}"
-			   title="Back to Host Report"
+			   title="{$backToHostReport}"
 			   style="margin-right:10px; text-decoration:none; font-size:12px; color:#0072CE;">
 				← {$host_name}
 			</a>
@@ -45,7 +51,7 @@
 	</tr>
 	{if $date_start != 0}
 	<tr class="rpt-date-row">
-		<td colspan="2" style="padding:6px 10px; background:#f5f5f0; color:#333; font-weight:600; font-size:12px; border-bottom:1px solid #ddd;">
+		<td colspan="2">
 			{$period_name} <span class="isTimestamp isDate">{$date_start}</span> {$to} <span class="isTimestamp isDate">{$date_end}</span>
 		</td>
 	</tr>
@@ -62,7 +68,7 @@
 							<canvas id="chartCanvas" width="260" height="160"></canvas>
 						</div>
 					</td>
-					<td style="padding:0; vertical-align:top; border-left:1px solid #ddd;">
+					<td style="padding:0; vertical-align:top; border-left:1px solid var(--list-table-border-color, #ddd);">
 						<table style="width:100%; height:100%;">
 							<!-- headers -->
 							<tr class='rpt-summary-header'>
@@ -138,53 +144,6 @@
 </table>
 
 {literal}
-<style>
-.rpt-dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:4px; vertical-align:middle; }
-/* Summary table (donut + service stats) — header and footer in neutral gray */
-.reporting-summary .rpt-summary-header {
-    background: #f5f5f0;
-}
-.reporting-summary .rpt-summary-header td {
-    color: #333;
-    font-weight: 600;
-    border-bottom: 1px solid #ddd;
-}
-.reporting-summary .rpt-summary-footer {
-    background: #f5f5f0;
-    border-top: 2px solid #ddd;
-}
-.reporting-summary .rpt-summary-footer td {
-    font-weight: 600;
-    color: #333;
-}
-.rpt-alert-badge {
-    display: inline-block;
-    padding: 1px 8px;
-    border-radius: 10px;
-    font-size: 11px;
-    font-weight: 600;
-}
-.rpt-alert-ok {
-    background: #e8f5e9;
-    color: #2e7d32;
-}
-.rpt-alert-warn {
-    background: #fff3e0;
-    color: #e65100;
-}
-.rpt-alert-crit {
-    background: #fce4ec;
-    color: #c62828;
-}
-.rpt-alert-unk {
-    background: #f3e5f5;
-    color: #6a1b9a;
-}
-.rpt-alert-total {
-    background: #e3f2fd;
-    color: #1565c0;
-}
-</style>
 <script>
     //formatting the tags containing a class isTimestamp
     formatDateMoment();
@@ -198,10 +157,15 @@
 
         var ctx = document.getElementById('chartCanvas');
         if (ctx) {
+            var bodyBg = getComputedStyle(document.body).backgroundColor || '';
+            var isDark = bodyBg.indexOf('33, 33, 33') !== -1 || bodyBg.indexOf('21, 21, 21') !== -1;
+            var borderCol = isDark ? 'rgba(255,255,255,0.1)' : '#fff';
+            var legendColor = isDark ? '#b2aca2' : '#666';
+
             new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Ok', 'Warning', 'Critical', 'Unknown', 'Downtime', 'Undetermined'],
+                    labels: ['{/literal}{$okLabel}{literal}', '{/literal}{$warningLabel}{literal}', '{/literal}{$criticalLabel}{literal}', '{/literal}{$unknownLabel}{literal}', '{/literal}{$downtimeLabel}{literal}', '{/literal}{$undeterminedLabel}{literal}'],
                     datasets: [{
                         data: [
                             {/literal}{$service_ok|number_format:2:".":""}{literal},
@@ -220,7 +184,7 @@
                             '#{/literal}{$colors.undetermined}{literal}'
                         ],
                         borderWidth: 1,
-                        borderColor: '#fff'
+                        borderColor: borderCol
                     }]
                 },
                 options: {
@@ -229,7 +193,7 @@
                     plugins: {
                         legend: {
                             position: 'right',
-                            labels: { boxWidth: 12, padding: 8, font: { size: 11 } }
+                            labels: { boxWidth: 12, padding: 8, font: { size: 11 }, color: legendColor }
                         },
                         tooltip: {
                             callbacks: {
