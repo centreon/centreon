@@ -279,7 +279,7 @@ function multipleLCAInDB($acls = [], $duplicateNbr = [])
                 $values[$column] = $value;
             }
 
-            if (! empty($values)) {
+            if ($values !== []) {
                 $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
                 $insertStmt = $pearDB->prepare(
                     'INSERT INTO acl_topology (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
