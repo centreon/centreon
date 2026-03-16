@@ -311,11 +311,6 @@ parameters:
 			path: src/CentreonRemote/Application/Clapi/CentreonRemoteServer.php
 
 		-
-			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) di must contain 3 or more characters\.$#'
-			count: 5
-			path: src/CentreonRemote/Application/Clapi/CentreonWorker.php
-
-		-
 			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) ip must contain 3 or more characters\.$#'
 			count: 4
 			path: src/CentreonRemote/Application/Webservice/CentreonRemoteServer.php
