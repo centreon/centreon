@@ -33,8 +33,6 @@ services:
       - .env
     image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:10.11}"
     ports: ["3306"]
-    tmpfs:
-      - /bitnami/mariadb/data:size=512M,mode=777
     deploy:
       resources:
         limits:
