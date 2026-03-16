@@ -79,8 +79,12 @@ if (! $centreon->user->admin
 
 // Getting time interval to report
 $dates = getPeriodToReport();
-$startDate = htmlentities($_GET['start'], ENT_QUOTES, 'UTF-8');
-$endDate = htmlentities($_GET['end'], ENT_QUOTES, 'UTF-8');
+$startDate = filter_var($_GET['start'] ?? null, FILTER_VALIDATE_INT);
+$endDate = filter_var($_GET['end'] ?? null, FILTER_VALIDATE_INT);
+if ($startDate === false || $endDate === false) {
+    echo 'Invalid date parameters';
+    exit();
+}
 $servicegroupName = getServiceGroupNameFromId($servicegroupId);
 
 // file type setting
