@@ -736,21 +736,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - package_extension: rpm
-            image: packaging-nfpm-alma9
-            distrib: el9
-          - package_extension: deb
-            image: packaging-nfpm-bookworm
-            distrib: bookworm
-          # - package_extension: deb
-          #   image: packaging-nfpm-jammy
-          #   distrib: jammy
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
     name: package ${{ matrix.distrib }}
     runs-on: ubuntu-24.04
     container:
-      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/packaging-nfpm-${{ matrix.operating_system }}:${{ needs.get-environment.outputs.major_version }}
       credentials:
         username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
         password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
@@ -871,7 +862,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
     name: dockerize ${{ matrix.operating_system }}
     steps:
       - name: Checkout sources
