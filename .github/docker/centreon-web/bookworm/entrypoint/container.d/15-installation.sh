@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+set -euo pipefail
 
 # Controls database partitioning during Centreon installation.
 # Default to "1" (enabled) to preserve the standard installation behavior
@@ -16,9 +17,9 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
   echo "Creating Centreon configuration files..."
   su www-data -s /bin/bash -c "php configFileSetup.php"
 
-  if [ $(mysql -N -s -h${MYSQL_HOST} -u root -e \
+  if [ "$(mysql -N -s -h"${MYSQL_HOST}" -u root -e \
     "SELECT count(*) from information_schema.tables WHERE \
-        table_schema='centreon' and table_name='nagios_server'") -eq 1
+        table_schema='centreon' and table_name='nagios_server'")" -eq 1
   ]; then
     echo "Centreon is already installed."
 
@@ -42,15 +43,15 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
       su www-data -s /bin/bash -c "php partitionTables.php"
     fi
 
-    mysql -h${MYSQL_HOST} -uroot centreon -e "UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
-    mysql -h${MYSQL_HOST} -uroot -e "GRANT ALL ON *.* to 'centreon'@'%' WITH GRANT OPTION"
+    mysql -h"${MYSQL_HOST}" -uroot centreon -e "UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
+    mysql -h"${MYSQL_HOST}" -uroot -e "GRANT ALL ON *.* to 'centreon'@'%' WITH GRANT OPTION"
 
     if [ "$CENTREON_DATASET" = "1" ]; then
       echo "CENTREON_DATASET environment variable is set, dump will be inserted."
       DATA_DUMP_DIR="/usr/local/src/sql/data"
-      for file in `ls $DATA_DUMP_DIR` ; do
-        echo "Inserting dump $file ..."
-        mysql -h${MYSQL_HOST} -uroot centreon < $DATA_DUMP_DIR/$file
+      for file in "$DATA_DUMP_DIR"/*; do
+        echo "Inserting dump $(basename "$file") ..."
+        mysql -h"${MYSQL_HOST}" -uroot centreon < "$file"
       done
     fi
   fi
@@ -61,7 +62,7 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
 fi
 
 sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
-sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
+sed -i 's/^\( *id:\) .*/\1 1/' /etc/centreon-gorgone/config.d/40-gorgoned.yaml
 sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
 
 
@@ -73,7 +74,7 @@ setAdminLanguage() {
 
   echo "Setting language to $1"
 
-  mysql -h${MYSQL_HOST} -uroot centreon -e "UPDATE contact SET contact_lang = '$1.UTF-8' WHERE contact_alias = 'admin'"
+  mysql -h"${MYSQL_HOST}" -uroot centreon -e "UPDATE contact SET contact_lang = '$1.UTF-8' WHERE contact_alias = 'admin'"
 }
 
 case "$CENTREON_LANG" in
