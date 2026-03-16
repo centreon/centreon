@@ -199,7 +199,7 @@ var _heatmapColors = <?php echo $colorsJson; ?>;
 var _rptI18n = <?php echo $tpl->getTemplateVars('jsTranslationsJson'); ?>;
 
 function initTimeline() {
-    var url = '<?php echo $jsonUrl; ?>';
+    var url = <?php echo json_encode($jsonUrl); ?>;
 
     jQuery.getJSON(url, function(data) {
         if (data.error || !Array.isArray(data) || data.length === 0) {
