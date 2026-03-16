@@ -38,8 +38,27 @@ fi
 sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php/8.2/mods-available/timezone.ini
 phpenmod -v 8.2 timezone
 
+cat > /etc/php/8.2/mods-available/opcache-centreon.ini <<'OPCACHE'
+opcache.enable=1
+opcache.enable_cli=0
+opcache.memory_consumption=128
+opcache.interned_strings_buffer=16
+opcache.max_accelerated_files=20000
+opcache.revalidate_freq=0
+opcache.validate_timestamps=0
+opcache.fast_shutdown=1
+OPCACHE
+phpenmod -v 8.2 opcache-centreon
+
 touch /var/log/php8.2-fpm-centreon-error.log
 chown www-data:www-data /var/log/php8.2-fpm-centreon-error.log
+
+# Tune php-fpm for CI: ondemand mode to avoid spawning idle workers at startup
+sed -i 's/^pm = .*/pm = ondemand/' /etc/php/8.2/fpm/pool.d/*.conf
+sed -i 's/^pm\.max_children = .*/pm.max_children = 10/' /etc/php/8.2/fpm/pool.d/*.conf
+grep -q 'pm.process_idle_timeout' /etc/php/8.2/fpm/pool.d/www.conf \
+  && sed -i 's/^pm\.process_idle_timeout = .*/pm.process_idle_timeout = 10s/' /etc/php/8.2/fpm/pool.d/www.conf \
+  || echo 'pm.process_idle_timeout = 10s' >> /etc/php/8.2/fpm/pool.d/www.conf
 
 systemctl stop gorgoned
 systemctl stop centengine
@@ -49,6 +68,7 @@ systemctl stop php8.2-fpm
 systemctl stop snmpd
 
 apt-get clean
+rm -rf /usr/share/doc /usr/share/man /usr/share/info
 
 EOF
 

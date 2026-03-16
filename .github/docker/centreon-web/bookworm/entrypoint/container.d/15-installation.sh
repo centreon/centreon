@@ -14,6 +14,24 @@ sed -i "s/localhost/${MYSQL_HOST}/g" /usr/share/centreon/www/install/tmp/databas
 if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/install ]; then
   cd /usr/share/centreon/www/install/steps/process
 
+  MYSQL_FK_CHECKS=$(mysql -N -s -h"${MYSQL_HOST}" -uroot -e "SELECT @@GLOBAL.foreign_key_checks")
+  MYSQL_UNIQUE_CHECKS=$(mysql -N -s -h"${MYSQL_HOST}" -uroot -e "SELECT @@GLOBAL.unique_checks")
+  MYSQL_INNODB_FLUSH=$(mysql -N -s -h"${MYSQL_HOST}" -uroot -e "SELECT @@GLOBAL.innodb_flush_log_at_trx_commit")
+  MYSQL_SYNC_BINLOG=$(mysql -N -s -h"${MYSQL_HOST}" -uroot -e "SELECT @@GLOBAL.sync_binlog")
+
+  restore_mysql_settings() {
+    mysql -h"${MYSQL_HOST}" -uroot -e "SET GLOBAL foreign_key_checks=${MYSQL_FK_CHECKS}"
+    mysql -h"${MYSQL_HOST}" -uroot -e "SET GLOBAL unique_checks=${MYSQL_UNIQUE_CHECKS}"
+    mysql -h"${MYSQL_HOST}" -uroot -e "SET GLOBAL innodb_flush_log_at_trx_commit=${MYSQL_INNODB_FLUSH}"
+    mysql -h"${MYSQL_HOST}" -uroot -e "SET GLOBAL sync_binlog=${MYSQL_SYNC_BINLOG}"
+  }
+  trap restore_mysql_settings EXIT
+
+  mysql -h"${MYSQL_HOST}" -uroot -e "SET GLOBAL foreign_key_checks=0"
+  mysql -h"${MYSQL_HOST}" -uroot -e "SET GLOBAL unique_checks=0"
+  mysql -h"${MYSQL_HOST}" -uroot -e "SET GLOBAL innodb_flush_log_at_trx_commit=2"
+  mysql -h"${MYSQL_HOST}" -uroot -e "SET GLOBAL sync_binlog=0"
+
   echo "Creating Centreon configuration files..."
   su www-data -s /bin/bash -c "php configFileSetup.php"
 
@@ -56,8 +74,19 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
     fi
   fi
 
-  su www-data -s /bin/bash -c "php createEngineContextConfiguration.php"
+  echo "Generating Centreon cache..."
   su www-data -s /bin/bash -c "php generationCache.php"
+
+  echo "Creating engine context configuration..."
+  su www-data -s /bin/bash -c "php createEngineContextConfiguration.php"
+
+  echo "Disabling statistics collection..."
+  mysql -h"${MYSQL_HOST}" -uroot centreon -e "DELETE FROM options WHERE \`key\` = 'send_statistics'"
+  mysql -h"${MYSQL_HOST}" -uroot centreon -e "INSERT INTO options (\`key\`, \`value\`) VALUES ('send_statistics', '0')"
+
+  trap - EXIT
+  restore_mysql_settings
+
   cd -
 fi
 
@@ -77,23 +106,39 @@ setAdminLanguage() {
   mysql -h"${MYSQL_HOST}" -uroot centreon -e "UPDATE contact SET contact_lang = '$1.UTF-8' WHERE contact_alias = 'admin'"
 }
 
+installLanguagePack() {
+  if [ -z "$1" ]; then
+    echo "Language not set"
+    return
+  fi
+
+  echo "Installing language pack for $1"
+
+  apt-get install -y --no-install-recommends "language-pack-$1"
+}
+
 case "$CENTREON_LANG" in
   de*)
+    installLanguagePack "de"
     setAdminLanguage "de_DE"
     ;;
   en*)
     setAdminLanguage "en_US"
     ;;
   es*)
+    installLanguagePack "es"
     setAdminLanguage "es_ES"
     ;;
   fr*)
+    installLanguagePack "fr"
     setAdminLanguage "fr_FR"
     ;;
   pt_BR)
+    installLanguagePack "pt"
     setAdminLanguage "pt_BR"
     ;;
   pt*)
+    installLanguagePack "pt"
     setAdminLanguage "pt_PT"
     ;;
   "")
