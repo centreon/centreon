@@ -20,25 +20,12 @@ services:
       DEBUG: ${DEBUG:-0}
     tmpfs:
       - /var/cache/centreon/symfony:size=32M,mode=1777
-      - /var/log/httpd:size=32M,mode=1777
-      - /var/log/php-fpm:size=32M,mode=1777
       - /var/lib/php/session:size=32M,mode=1777
-      - /tmp:size=64M,mode=1777
-    deploy:
-      resources:
-        limits:
-          cpus: '4'
-          memory: 1G
-        reservations:
-          cpus: '0.5'
-          memory: 256M
     healthcheck:
       test: bash -c "[ -f /tmp/docker.ready ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
       interval: 1s
       retries: 120
       timeout: 5s
-    # volumes:
-    #   - /home/toto/workspace/centreon/.github/docker/centreon-web/alma9/entrypoint/container.d:/usr/share/centreon/container.d
 
   db:
     platform: linux/amd64
