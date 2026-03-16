@@ -104,20 +104,21 @@ function deleteResourceInDB($resourceIds = []): void
 {
     global $pearDB;
 
+    $selectStmt = $pearDB->prepare(
+        'SELECT * FROM cfg_resource WHERE resource_id = :resourceId'
+    );
+    $deleteStmt = $pearDB->prepare('DELETE FROM cfg_resource WHERE resource_id = :resourceId');
+
     foreach (array_keys($resourceIds) as $currentResourceId) {
         if (is_int($currentResourceId)) {
-            $statement = $pearDB->prepare(
-                'SELECT *FROM cfg_resource WHERE resource_id = :resourceId'
-            );
-            $statement->bindValue(':resourceId', $currentResourceId);
-            $statement->execute();
+            $selectStmt->bindValue(':resourceId', $currentResourceId, PDO::PARAM_INT);
+            $selectStmt->execute();
 
-            if (false !== $data = $statement->fetch()) {
+            if (false !== $data = $selectStmt->fetch()) {
                 deleteFromVault($data);
 
-                $pearDB->query(
-                    "DELETE FROM cfg_resource WHERE resource_id = {$currentResourceId}"
-                );
+                $deleteStmt->bindValue(':resourceId', $currentResourceId, PDO::PARAM_INT);
+                $deleteStmt->execute();
             }
         }
     }
@@ -135,10 +136,11 @@ function enableResourceInDB($resourceId): void
     global $pearDB;
 
     if (is_int($resourceId)) {
-        $pearDB->query(
-            "UPDATE cfg_resource SET resource_activate = '1' "
-            . "WHERE resource_id = {$resourceId}"
+        $statement = $pearDB->prepare(
+            "UPDATE cfg_resource SET resource_activate = '1' WHERE resource_id = :resourceId"
         );
+        $statement->bindValue(':resourceId', $resourceId, PDO::PARAM_INT);
+        $statement->execute();
     }
 }
 
@@ -153,10 +155,11 @@ function disableResourceInDB($resourceId): void
 {
     global $pearDB;
     if (is_int($resourceId)) {
-        $pearDB->query(
-            "UPDATE cfg_resource SET resource_activate = '0' "
-            . "WHERE resource_id = {$resourceId}"
+        $statement = $pearDB->prepare(
+            "UPDATE cfg_resource SET resource_activate = '0' WHERE resource_id = :resourceId"
         );
+        $statement->bindValue(':resourceId', $resourceId, PDO::PARAM_INT);
+        $statement->execute();
     }
 }
 /**
@@ -173,7 +176,9 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
 
     foreach (array_keys($resourceIds) as $resourceId) {
         if (is_int($resourceId)) {
-            $dbResult = $pearDB->query("SELECT * FROM cfg_resource WHERE resource_id = {$resourceId} LIMIT 1");
+            $selectStmt = $pearDB->prepare('SELECT * FROM cfg_resource WHERE resource_id = :resourceId LIMIT 1');
+            $selectStmt->bindValue(':resourceId', $resourceId, PDO::PARAM_INT);
+            $selectStmt->execute();
             /**
              * @var array{
              *  resource_id:int,
@@ -184,7 +189,7 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
              *  is_password:int
              * } $resourceConfiguration
              */
-            $resourceConfiguration = $dbResult->fetch();
+            $resourceConfiguration = $selectStmt->fetch();
 
             for ($newIndex = 1; $newIndex <= $nbrDup[$resourceId]; $newIndex++) {
                 $name = preg_match('/^\$(.*)\$$/', $resourceConfiguration['resource_name'])
@@ -220,12 +225,15 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
                     $statement->execute();
 
                     $lastId = $pearDB->lastInsertId();
-                    $pearDB->query(
-                        'INSERT INTO cfg_resource_instance_relations ('
-                        . "SELECT {$lastId}, instance_id "
+                    $relStmt = $pearDB->prepare(
+                        'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id) '
+                        . 'SELECT :newId, instance_id '
                         . 'FROM cfg_resource_instance_relations '
-                        . "WHERE resource_id = {$resourceId})"
+                        . 'WHERE resource_id = :oldId'
                     );
+                    $relStmt->bindValue(':newId', (int) $lastId, PDO::PARAM_INT);
+                    $relStmt->bindValue(':oldId', $resourceId, PDO::PARAM_INT);
+                    $relStmt->execute();
                 }
             }
         }
@@ -309,19 +317,19 @@ function updateResource(int $resourceId, array $submitedValues): void
 
     $prepare->bindValue(
         ':resource_name',
-        $pearDB->escape($submitedValues['resource_name']),
+        $submitedValues['resource_name'],
         PDO::PARAM_STR
     );
 
     $prepare->bindValue(
         ':resource_line',
-        $pearDB->escape($submitedValues['resource_line']),
+        $submitedValues['resource_line'],
         PDO::PARAM_STR
     );
 
     $prepare->bindValue(
         ':resource_comment',
-        $pearDB->escape($submitedValues['resource_comment']),
+        $submitedValues['resource_comment'],
         PDO::PARAM_STR
     );
 
@@ -416,7 +424,10 @@ function insertInstanceRelations($resourceId, $instanceId = null): void
 {
     if (is_numeric($resourceId)) {
         global $pearDB;
-        $pearDB->query('DELETE FROM cfg_resource_instance_relations WHERE resource_id = ' . (int) $resourceId);
+
+        $deleteStmt = $pearDB->prepare('DELETE FROM cfg_resource_instance_relations WHERE resource_id = :resourceId');
+        $deleteStmt->bindValue(':resourceId', (int) $resourceId, PDO::PARAM_INT);
+        $deleteStmt->execute();
 
         if (! is_null($instanceId)) {
             $instances = [$instanceId];
@@ -425,19 +436,15 @@ function insertInstanceRelations($resourceId, $instanceId = null): void
             $instances = CentreonUtils::mergeWithInitialValues($form, 'instance_id');
         }
 
-        $subQuery = '';
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id) VALUES (:resourceId, :instanceId)'
+        );
         foreach ($instances as $instanceId) {
             if (is_numeric($instanceId)) {
-                if (! empty($subQuery)) {
-                    $subQuery .= ', ';
-                }
-                $subQuery .= '(' . (int) $resourceId . ', ' . (int) $instanceId . ')';
+                $insertStmt->bindValue(':resourceId', (int) $resourceId, PDO::PARAM_INT);
+                $insertStmt->bindValue(':instanceId', (int) $instanceId, PDO::PARAM_INT);
+                $insertStmt->execute();
             }
-        }
-        if (! empty($subQuery)) {
-            $pearDB->query(
-                'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id) VALUES ' . $subQuery
-            );
         }
     }
 }
@@ -447,14 +454,15 @@ function getLinkedPollerList($resource_id)
     global $pearDB;
 
     $str = '';
-    $query = 'SELECT ns.name, ns.id FROM cfg_resource_instance_relations nsr, cfg_resource r, nagios_server ns '
-        . "WHERE nsr.resource_id = r.resource_id AND nsr.instance_id = ns.id AND nsr.resource_id = '"
-        . $resource_id . "'";
-    $dbResult = $pearDB->query($query);
-    while ($data = $dbResult->fetch()) {
+    $statement = $pearDB->prepare(
+        'SELECT ns.name, ns.id FROM cfg_resource_instance_relations nsr, cfg_resource r, nagios_server ns '
+        . 'WHERE nsr.resource_id = r.resource_id AND nsr.instance_id = ns.id AND nsr.resource_id = :resource_id'
+    );
+    $statement->bindValue(':resource_id', (int) $resource_id, PDO::PARAM_INT);
+    $statement->execute();
+    while ($data = $statement->fetch()) {
         $str .= "<a href='main.php?p=60901&o=c&server_id=" . $data['id'] . "'>" . HtmlSanitizer::createFromString($data['name'])->sanitize()->getString() . '</a> ';
     }
-    unset($dbResult);
 
     return $str;
 }

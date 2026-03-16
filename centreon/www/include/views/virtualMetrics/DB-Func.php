@@ -151,10 +151,9 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
         }
 
         $vmConfiguration = $prepareStatement->fetch();
-        $vmConfiguration['vmetric_id'] = '';
+        unset($vmConfiguration['vmetric_id']);
 
         for ($newIndex = 1; $newIndex <= $nbrDup[$vmetricId]; $newIndex++) {
-            $val = null;
             $virtualMetricName = null;
             foreach ($vmConfiguration as $cfgName => $cfgValue) {
                 if ($cfgName == 'vmetric_name') {
@@ -165,25 +164,25 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
                         $count++;
                         $virtualMetricName = $cfgValue . '_' . $count;
                     }
-                    $cfgValue = $virtualMetricName;
-                }
-
-                if (is_null($val)) {
-                    $val .= ($cfgValue == null)
-                        ? 'NULL'
-                        : "'" . $pearDB->escape($cfgValue) . "'";
-                } else {
-                    $val .= ($cfgValue == null)
-                        ? ', NULL'
-                        : ", '" . $pearDB->escape($cfgValue) . "'";
+                    $vmConfiguration['vmetric_name'] = $virtualMetricName;
                 }
             }
-            if (! is_null($val)) {
-                try {
-                    $pearDB->query("INSERT INTO virtual_metrics VALUES ({$val})");
-                } catch (PDOException $e) {
-                    echo 'DB Error : ' . $e->getMessage();
-                }
+
+            $columns = array_keys($vmConfiguration);
+            $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+            $insertStmt = $pearDB->prepare(
+                'INSERT INTO virtual_metrics (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+            );
+
+            foreach ($columns as $col) {
+                $value = $vmConfiguration[$col];
+                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            }
+
+            try {
+                $insertStmt->execute();
+            } catch (PDOException $e) {
+                echo 'DB Error : ' . $e->getMessage();
             }
         }
     }
