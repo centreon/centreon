@@ -459,8 +459,8 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             LEFT JOIN `:db`.acl_groups ag
                 ON ag.acl_group_id = gcr.acl_group_id
             LEFT JOIN `:db`.acl_group_topology_relations agtr
-                ON agtr.acl_group_id = gcr.acl_group_id
-                    OR agtr.acl_group_id = gcgr.acl_group_id
+                ON (agtr.acl_group_id = gcr.acl_group_id
+                    OR agtr.acl_group_id = gcgr.acl_group_id)
             LEFT JOIN `:db`.acl_topology_relations acltr
                 ON acltr.acl_topo_id = agtr.acl_topology_id
             LEFT JOIN `:db`.topology
@@ -542,8 +542,8 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             LEFT JOIN `:db`.acl_group_contacts_relations gcr
                 ON gcr.contact_contact_id = c.contact_id
             LEFT JOIN `:db`.acl_group_topology_relations agtr
-                ON agtr.acl_group_id = gcr.acl_group_id
-                    OR agtr.acl_group_id = gcgr.acl_group_id
+                ON (agtr.acl_group_id = gcr.acl_group_id
+                    OR agtr.acl_group_id = gcgr.acl_group_id)
             LEFT JOIN `:db`.acl_topology_relations acltr
                 ON acltr.acl_topo_id = agtr.acl_topology_id
             INNER JOIN `:db`.topology
@@ -797,8 +797,8 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                     LEFT JOIN `:db`.acl_group_contacts_relations gcr
                         ON gcr.contact_contact_id = c.contact_id
                     LEFT JOIN `:db`.acl_group_topology_relations agtr
-                        ON agtr.acl_group_id = gcr.acl_group_id
-                        OR agtr.acl_group_id = gcgr.acl_group_id
+                        ON (agtr.acl_group_id = gcr.acl_group_id
+                        OR agtr.acl_group_id = gcgr.acl_group_id)
                     LEFT JOIN `:db`.acl_topology_relations acltr
                         ON acltr.acl_topo_id = agtr.acl_topology_id
                     INNER JOIN `:db`.topology
@@ -903,8 +903,8 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                 LEFT JOIN `:db`.acl_group_contacts_relations gcr
                     ON gcr.contact_contact_id = c.contact_id
                 LEFT JOIN `:db`.acl_group_topology_relations agtr
-                    ON agtr.acl_group_id = gcr.acl_group_id
-                    OR agtr.acl_group_id = gcgr.acl_group_id
+                    ON (agtr.acl_group_id = gcr.acl_group_id
+                    OR agtr.acl_group_id = gcgr.acl_group_id)
                 LEFT JOIN `:db`.acl_topology_relations acltr
                     ON acltr.acl_topo_id = agtr.acl_topology_id
                 INNER JOIN `:db`.topology
@@ -948,7 +948,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                 c.contact_id,
                 c.contact_email
             SQL;
-        $query .= $baseQuery . $whereClause . ' GROUP BY c.contact_id, c.contact_name';
+        $query .= ' ' . $baseQuery . $whereClause . ' GROUP BY c.contact_id, c.contact_name';
         $query .= $sqlTranslator->translatePaginationToSql();
 
         $statement = $this->db->prepare($this->translateDbName($query));
