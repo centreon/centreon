@@ -60,10 +60,19 @@ jobs:
       test_tags: ${{ steps.list-features.outputs.tags }}
       features: ${{ steps.list-features.outputs.specs }}
       has_features: ${{ steps.list-features.outputs.specs != '' && toJson(fromJson(steps.list-features.outputs.specs)) != '[]' && 'true' || 'false' }}
+      db_id: ${{ steps.get-db-id.outputs.db_id }}
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Get database identifier
+        id: get-db-id
+        run: |
+          db_id=$(echo "$DATABASE_IMAGE" | sed 's|.*/||' | tr ':' '-')
+          echo "db_id=$db_id" >> $GITHUB_OUTPUT
+        env:
+          DATABASE_IMAGE: ${{ inputs.database_image }}
 
       - name: Detect relevant E2E specs
         id: list-features
@@ -184,7 +193,7 @@ jobs:
         if: failure()
         name: Upload acceptance test logs
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-logs-${{ steps.feature-path.outputs.feature_name_with_dash }}
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.behat-test-list.outputs.db_id }}-test-logs-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: acceptance-logs
           retention-days: 1
 
@@ -192,12 +201,12 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.behat-test-list.outputs.db_id }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: xunit-reports
           retention-days: 1
 
   behat-test-report:
-    needs: [behat-test-run]
+    needs: [behat-test-list, behat-test-run]
     if: failure()
     runs-on: ubuntu-24.04
 
@@ -207,7 +216,7 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          pattern: ${{ inputs.name }}-${{ inputs.os }}-test-reports-*
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.behat-test-list.outputs.db_id }}-test-reports-*
           path: ${{ inputs.name }}-xunit-reports
           merge-multiple: true
 
@@ -232,12 +241,12 @@ jobs:
         uses: actions/upload-artifact/merge@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: ${{ contains(needs.behat-test-run.result, 'failure') }}
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
-          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.behat-test-list.outputs.db_id }}-${{ matrix.type_of_report }}
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.behat-test-list.outputs.db_id }}-${{ matrix.type_of_report }}-*
           retention-days: 1
 
       - name: Delete merged artifacts
         uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.behat-test-list.outputs.db_id }}-${{ matrix.type_of_report }}-*
           failOnError: false
