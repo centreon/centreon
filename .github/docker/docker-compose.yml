@@ -35,7 +35,6 @@ services:
     ports: ["3306"]
     tmpfs:
       - /bitnami/mariadb/data:size=512M,mode=777
-    # command: ["--skip-name-resolve", "--innodb-log-file-size=32M", "--secure-file-priv="]
     deploy:
       resources:
         limits:

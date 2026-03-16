@@ -212,8 +212,6 @@ jobs:
         if: ${{ steps.cache-docker-keycloak.outputs.cache-hit == 'true' }}
         run: |
           docker load --input ../../../docker-image-keycloak/keycloak.tar
-          docker images
-          # docker tag keycloak:${{ inputs.major_version }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/keycloak:${{ inputs.major_version }}
         shell: bash
 
       - name: Get test execution Key
