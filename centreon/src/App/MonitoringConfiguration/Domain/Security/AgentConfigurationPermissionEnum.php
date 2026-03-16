@@ -25,5 +25,5 @@ namespace App\MonitoringConfiguration\Domain\Security;
 
 enum AgentConfigurationPermissionEnum: string
 {
-    case CanReadAndWrite = 'installation_command_read';
+    case CanReadAndWrite = 'installation_command_read_write';
 }

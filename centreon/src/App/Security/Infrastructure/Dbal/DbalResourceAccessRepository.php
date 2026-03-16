@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 final readonly class DbalResourceAccessRepository implements ResourceAccessRepository
@@ -78,7 +79,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         ]);
     }
 
-    private function getAccessibleAclResourcesQueryBuilder(): \Doctrine\DBAL\Query\QueryBuilder
+    private function getAccessibleAclResourcesQueryBuilder(): QueryBuilder
     {
         $qb = $this->connection->createQueryBuilder();
         $qb
