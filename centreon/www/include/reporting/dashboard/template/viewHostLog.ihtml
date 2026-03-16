@@ -17,10 +17,10 @@
 <table style='width:100%; max-width:1400px;' class="ListTable">
 	<tr class='ListHeader'>
 		<form {$formHost.attributes} style="margin:0px;padding:0px;">
-		<td class="ListColHeaderLeft" style='white-space: nowrap; border-left-width:0.0px;border-left-style:none;'>
+		<td class="ListColHeaderLeft" style='white-space:nowrap;width:1%;border-left-width:0.0px;border-left-style:none;'>
 				&nbsp;{$formPeriod.hostElement.html}{$formHost.hidden}
 		</td>
-		<td style='padding:5px;vertical-align:top;'>
+		<td style='padding:5px 5px 5px 8px;vertical-align:top;border-left:1px solid rgba(0,0,0,0.15);'>
                 {t}Reporting Period{/t} :
                 <span class="rpt-period-group" id="rpt-preset-group">
                     <div class="md-radio-modified md-radio-inline">

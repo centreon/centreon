@@ -17,29 +17,35 @@
 </div>
 <table style='width:100%; max-width:1400px;' class="ListTable">
 	<tr class='ListHeader'>
-		<td class="ListColHeaderLeft" style='white-space: nowrap;'>
-			<form {$formPeriod.attributes} style="margin:0px;padding:0px;">&nbsp;
-				{$hostLabel}&nbsp;:&nbsp;&nbsp;
-
+		<form {$formPeriod.attributes} style="margin:0px;padding:0px;">
+		<td class="ListColHeaderLeft" style='white-space:nowrap;width:1%;border-left-width:0.0px;border-left-style:none;'>
+				&nbsp;{$hostLabel}&nbsp;:&nbsp;
 				<input type=text value="{$host_name}" name="host_name" disabled>
 				&nbsp;/&nbsp;
 				<b>{$formPeriod.itemElement.label}:</b>&nbsp;&nbsp;{$formPeriod.itemElement.html}
-				{$formPeriod.hidden}&nbsp;&nbsp;&nbsp;
-
+				{$formPeriod.hidden}
+		</td>
+		<td style='padding:5px 5px 5px 8px;vertical-align:top;border-left:1px solid rgba(0,0,0,0.15);'>
 				{$periodTitle} :
 				<span class="rpt-period-group" id="rpt-preset-group">
-					<input type="radio" id="preset" value="preset" name="period_choice" {if $period_choice == "preset" } checked="checked" {/if}/>
+					<div class="md-radio-modified md-radio-inline">
+						<input type="radio" id="preset" value="preset" name="period_choice" {if $period_choice == "preset" } checked="checked" {/if}/>
+						<label for="preset"></label>
+					</div>
 					{$formPeriod.period.html}
 				</span>
 				{$periodORlabel}
 				<span class="rpt-period-group" id="rpt-custom-group">
-					<input type="radio" id="custom" name="period_choice" value="custom" {if $period_choice == "custom" } checked="checked" {/if} />
+					<div class="md-radio-modified md-radio-inline">
+						<input type="radio" id="custom" name="period_choice" value="custom" {if $period_choice == "custom" } checked="checked" {/if} />
+						<label for="custom"></label>
+					</div>
 					{$formPeriod.StartDate.label} {$formPeriod.StartDate.html}&nbsp;
 					{$formPeriod.EndDate.label} {$formPeriod.EndDate.html}
 				</span>
 				{$formPeriod.button.html}{$formPeriod.hidden}
-			</form>
 		</td>
+		</form>
 		<td style="white-space:nowrap; text-align:right;">
 			<a href="main.php?p=30701&host={$host_id}&period={$get_period}&start={$get_date_start}&end={$get_date_end}"
 			   title="{$backToHostReport}"
@@ -51,7 +57,7 @@
 	</tr>
 	{if $date_start != 0}
 	<tr class="rpt-date-row">
-		<td colspan="2">
+		<td colspan="3">
 			{$period_name} <span class="isTimestamp isDate">{$date_start}</span> {$to} <span class="isTimestamp isDate">{$date_end}</span>
 		</td>
 	</tr>
