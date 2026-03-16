@@ -11,8 +11,8 @@
 <div class="rpt-title-bar">
 	<h2 class="rpt-title">{$availabilityReportTitle}</h2>
 	<div class="rpt-nav-pills">
-		<a href="main.php?p=30703" class="rpt-nav-pill">Go to Host Group Report</a>
-		<a href="main.php?p=30704" class="rpt-nav-pill">Go to Service Group Report</a>
+		{if $canAccessHostGroupReport}<a href="main.php?p=30703" class="rpt-nav-pill">Go to Host Group Report</a>{/if}
+		{if $canAccessServiceGroupReport}<a href="main.php?p=30704" class="rpt-nav-pill">Go to Service Group Report</a>{/if}
 	</div>
 </div>
 <table style='width:100%; max-width:1400px;' class="ListTable">

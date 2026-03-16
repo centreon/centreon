@@ -163,6 +163,11 @@ $tpl->assign('warningLabel', _('Warning'));
 $tpl->assign('criticalLabel', _('Critical'));
 $tpl->assign('unknownLabel', _('Unknown'));
 
+// Page-level ACL: show nav pills only for pages the user can access (no extra query, read from session)
+$tpl->assign('canAccessHostReport', $centreon->user->admin || $centreon->user->access->page(30701));
+$tpl->assign('canAccessHostGroupReport', $centreon->user->admin || $centreon->user->access->page(30703));
+$tpl->assign('canAccessServiceGroupReport', $centreon->user->admin || $centreon->user->access->page(30704));
+
 // Tooltip descriptions
 $tpl->assign('downtimeTooltip', _('Scheduled downtime — Planned maintenance periods during which the resource is intentionally taken offline.'));
 $tpl->assign('undeterminedTooltip', _('Undetermined time — Periods with no monitoring data available, typically due to missing collection or incomplete history.'));
