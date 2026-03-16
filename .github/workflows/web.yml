@@ -1006,8 +1006,6 @@ jobs:
           path: ./docker-image
           key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.image_tag.outputs.additional_tag || steps.image_tag.outputs.tag }}
 
-
-
       - name: Store keycloak image in local archive
         run: |
           docker pull docker.centreon.com/centreon/keycloak:${{ needs.get-environment.outputs.major_version }}
