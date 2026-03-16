@@ -27,10 +27,12 @@ if (! isset($centreon)) {
 require_once './include/reporting/dashboard/initReport.php';
 
 // Getting service group to report
-$id = filter_var($_GET['item'] ?? $_POST['itemElement'] ?? false, FILTER_VALIDATE_INT);
+$id = filter_var($_GET['item'] ?? $_GET['itemElement'] ?? $_POST['itemElement'] ?? false, FILTER_VALIDATE_INT);
+
 // FORMS
 
-$serviceGroupForm = new HTML_QuickFormCustom('formServiceGroup', 'post', '?p=' . $p);
+$serviceGroupForm = new HTML_QuickFormCustom('formServiceGroup', 'get', '');
+$serviceGroupForm->addElement('hidden', 'p', $p);
 $redirect = $serviceGroupForm->addElement('hidden', 'o');
 $redirect->setValue($o);
 

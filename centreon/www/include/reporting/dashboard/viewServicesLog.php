@@ -27,11 +27,13 @@ if (! isset($centreon)) {
 require_once './include/reporting/dashboard/initReport.php';
 
 // Getting service to report
-$hostId = filter_var($_GET['host_id'] ?? $_POST['host_id'] ?? false, FILTER_VALIDATE_INT);
-$serviceId = filter_var($_GET['item'] ?? $_POST['itemElement'] ?? false, FILTER_VALIDATE_INT);
+$hostId = filter_var($_GET['host_id'] ?? $_GET['host_id'] ?? $_POST['host_id'] ?? false, FILTER_VALIDATE_INT);
+
+$serviceId = filter_var($_GET['item'] ?? $_GET['itemElement'] ?? $_POST['itemElement'] ?? false, FILTER_VALIDATE_INT);
 
 // FORMS
-$form = new HTML_QuickFormCustom('formItem', 'post', '?p=' . $p);
+$form = new HTML_QuickFormCustom('formItem', 'get', '');
+$form->addElement('hidden', 'p', $p);
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 

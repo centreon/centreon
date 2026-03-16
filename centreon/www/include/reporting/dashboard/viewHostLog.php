@@ -26,12 +26,13 @@ if (! isset($centreon)) {
 require_once './include/reporting/dashboard/initReport.php';
 
 // Getting host to report
-$id = filter_var($_GET['host'] ?? $_POST['hostElement'] ?? false, FILTER_VALIDATE_INT);
+$id = filter_var($_GET['host'] ?? $_GET['hostElement'] ?? $_POST['hostElement'] ?? false, FILTER_VALIDATE_INT);
 
 // Formulary
 
 // Host Selection
-$formHost = new HTML_QuickFormCustom('formHost', 'post', '?p=' . $p);
+$formHost = new HTML_QuickFormCustom('formHost', 'get', '');
+$formHost->addElement('hidden', 'p', $p);
 $redirect = $formHost->addElement('hidden', 'o');
 $redirect->setValue($o);
 
