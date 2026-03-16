@@ -38,18 +38,6 @@ fi
 sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php/8.2/mods-available/timezone.ini
 phpenmod -v 8.2 timezone
 
-cat > /etc/php/8.2/mods-available/opcache-centreon.ini <<'OPCACHE'
-opcache.enable=1
-opcache.enable_cli=0
-opcache.memory_consumption=128
-opcache.interned_strings_buffer=16
-opcache.max_accelerated_files=20000
-opcache.revalidate_freq=0
-opcache.validate_timestamps=0
-opcache.fast_shutdown=1
-OPCACHE
-phpenmod -v 8.2 opcache-centreon
-
 touch /var/log/php8.2-fpm-centreon-error.log
 chown www-data:www-data /var/log/php8.2-fpm-centreon-error.log
 
