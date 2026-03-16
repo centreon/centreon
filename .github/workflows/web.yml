@@ -998,7 +998,7 @@ jobs:
           key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.image_tag.outputs.additional_tag || steps.image_tag.outputs.tag }}
 
       - name: Store keycloak image in local archive
-        if: ${{ needs.get-environment.outputs.stability == 'unstable' }}
+        if: ${{ needs.get-environment.outputs.stability == 'unstable' && matrix.operating_system == 'alma9' }}
         run: |
           docker pull docker.centreon.com/centreon/keycloak:${{ needs.get-environment.outputs.major_version }}
           mkdir -p docker-image-keycloak
@@ -1006,9 +1006,9 @@ jobs:
         shell: bash
 
       - name: Clear previous keycloak image from cache
-        if: ${{ needs.get-environment.outputs.stability == 'unstable' }}
+        if: ${{ needs.get-environment.outputs.stability == 'unstable' && matrix.operating_system == 'alma9' }}
         run: |
-          curl \
+          curl --fail-with-body \
             -X DELETE \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
@@ -1016,7 +1016,7 @@ jobs:
         shell: bash
 
       - name: Store keycloak image in cache
-        if: ${{ needs.get-environment.outputs.stability == 'unstable' }}
+        if: ${{ needs.get-environment.outputs.stability == 'unstable' && matrix.operating_system == 'alma9' }}
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ./docker-image-keycloak

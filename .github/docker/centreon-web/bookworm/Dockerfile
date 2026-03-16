@@ -44,9 +44,11 @@ chown www-data:www-data /var/log/php8.2-fpm-centreon-error.log
 # Tune php-fpm for CI: ondemand mode to avoid spawning idle workers at startup
 sed -i 's/^pm = .*/pm = ondemand/' /etc/php/8.2/fpm/pool.d/*.conf
 sed -i 's/^pm\.max_children = .*/pm.max_children = 10/' /etc/php/8.2/fpm/pool.d/*.conf
-grep -q 'pm.process_idle_timeout' /etc/php/8.2/fpm/pool.d/www.conf \
-  && sed -i 's/^pm\.process_idle_timeout = .*/pm.process_idle_timeout = 10s/' /etc/php/8.2/fpm/pool.d/www.conf \
-  || echo 'pm.process_idle_timeout = 10s' >> /etc/php/8.2/fpm/pool.d/www.conf
+for conf in /etc/php/8.2/fpm/pool.d/*.conf; do
+  grep -q 'pm.process_idle_timeout' "\$conf" \
+    && sed -i 's/^pm\.process_idle_timeout = .*/pm.process_idle_timeout = 10s/' "\$conf" \
+    || echo 'pm.process_idle_timeout = 10s' >> "\$conf"
+done
 
 systemctl stop gorgoned
 systemctl stop centengine

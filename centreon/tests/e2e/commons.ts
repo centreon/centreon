@@ -26,7 +26,6 @@ const apiActionV1 = `${apiBase}/index.php`;
 const versionApi = 'latest';
 const apiLogout = '/centreon/api/latest/authentication/logout';
 
-// trigger
 let servicesFoundStepCount = 0;
 let hostsFoundStepCount = 0;
 let metricsFoundStepCount = 0;

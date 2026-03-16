@@ -793,10 +793,15 @@ jobs:
               || process.env.HAS_SYSTEM === 'true'
               || process.env.HAS_DATABASE === 'true';
 
-            const allDistribs = [
-              { operating_system: 'alma9',    distrib: 'el9',      package_extension: 'rpm' },
-              { operating_system: 'bookworm', distrib: 'bookworm', package_extension: 'deb' },
-            ];
+            const distribMap = {
+              alma9:    { distrib: 'el9',      package_extension: 'rpm' },
+              bookworm: { distrib: 'bookworm', package_extension: 'deb' },
+            };
+
+            const allDistribs = Object.entries(distribMap).map(([os, info]) => ({
+              operating_system: os,
+              ...info,
+            }));
 
             const result = isFullRun ? allDistribs : [allDistribs[0]];
 

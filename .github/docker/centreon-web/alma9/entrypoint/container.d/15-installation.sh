@@ -61,10 +61,11 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
     mysql -h"${MYSQL_HOST}" -uroot centreon -e "UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
     mysql -h"${MYSQL_HOST}" -uroot -e "GRANT ALL ON *.* to 'centreon'@'%' WITH GRANT OPTION"
 
-    if [ "$CENTREON_DATASET" = "1" ]; then
+    if [ "${CENTREON_DATASET:-0}" = "1" ]; then
       echo "CENTREON_DATASET environment variable is set, dump will be inserted."
       DATA_DUMP_DIR="/usr/local/src/sql/data"
       for file in "$DATA_DUMP_DIR"/*; do
+        [ -e "$file" ] || continue
         echo "Inserting dump $(basename "$file") ..."
         mysql -h"${MYSQL_HOST}" -uroot centreon < "$file"
       done
@@ -81,8 +82,8 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
   mysql -h"${MYSQL_HOST}" -uroot centreon -e "DELETE FROM options WHERE \`key\` = 'send_statistics'"
   mysql -h"${MYSQL_HOST}" -uroot centreon -e "INSERT INTO options (\`key\`, \`value\`) VALUES ('send_statistics', '0')"
 
-  trap - EXIT
   restore_mysql_settings
+  trap - EXIT
 
   cd -
 fi
@@ -93,7 +94,7 @@ sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreo
 
 
 setAdminLanguage() {
-  if [ -z "$1" ]; then
+  if [ -z "${1:-}" ]; then
     echo "Language not set"
     return
   fi
@@ -104,7 +105,7 @@ setAdminLanguage() {
 }
 
 installLanguagePack() {
-  if [ -z "$1" ]; then
+  if [ -z "${1:-}" ]; then
     echo "Language not set"
     return
   fi
@@ -114,7 +115,7 @@ installLanguagePack() {
   dnf install -y --disablerepo='centreon*' --disablerepo='epel*' "glibc-langpack-$1"
 }
 
-case "$CENTREON_LANG" in
+case "${CENTREON_LANG:-}" in
   de*)
     installLanguagePack "de"
     setAdminLanguage "de_DE"

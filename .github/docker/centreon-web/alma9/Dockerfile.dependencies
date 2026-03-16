@@ -106,7 +106,8 @@ dnf install -y \
   php-curl \
   php-zip \
   php-pear \
-  php-json
+  php-json \
+  php-opcache
 
 ###################
 # install plugins #

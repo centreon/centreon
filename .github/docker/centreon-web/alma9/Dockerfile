@@ -44,7 +44,6 @@ opcache.interned_strings_buffer=16
 opcache.max_accelerated_files=20000
 opcache.revalidate_freq=0
 opcache.validate_timestamps=0
-opcache.fast_shutdown=1
 OPCACHE
 
 touch /var/log/php-fpm/centreon-error.log
