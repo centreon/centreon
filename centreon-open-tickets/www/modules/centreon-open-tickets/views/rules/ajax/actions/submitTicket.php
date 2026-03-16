@@ -160,6 +160,7 @@ function getTicketMacroId(string $type, string $macroName, int $objectId): ?int
             'Error while fetching ticket macro id: ' . $e->getMessage(),
             exception: $e
         );
+
         throw new RepositoryException('Error while fetching ticket macro id: ' . $e->getMessage(), previous: $e);
     }
 
@@ -208,6 +209,7 @@ function updateMacroValue(string $type, string $macroValue, int $macroId): void
             'Error while updating macro value: ' . $e->getMessage(),
             exception: $e
         );
+
         throw new RepositoryException('Error while updating macro value: ' . $e->getMessage(), previous: $e);
     }
 }
@@ -248,6 +250,7 @@ function getMaxOrder(string $type, int $objectId): int
             'Error while fetching max macro order: ' . $e->getMessage(),
             exception: $e
         );
+
         throw new RepositoryException('Error while fetching max macro order: ' . $e->getMessage(), previous: $e);
     }
 
@@ -302,6 +305,7 @@ function insertNewMacroValue(string $type, string $macroName, string $macroValue
             'Error while inserting new macro value: ' . $e->getMessage(),
             exception: $e
         );
+
         throw new RepositoryException('Error while inserting new macro value: ' . $e->getMessage(), previous: $e);
     }
 }
@@ -344,6 +348,7 @@ function isServiceUnique(int $serviceId): bool
             'Error while checking service uniqueness: ' . $e->getMessage(),
             exception: $e
         );
+
         throw new RepositoryException('Error while checking service uniqueness: ' . $e->getMessage(), previous: $e);
     }
 

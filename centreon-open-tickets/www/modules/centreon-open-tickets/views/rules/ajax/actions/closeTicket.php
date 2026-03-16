@@ -55,6 +55,7 @@ function updateHostMacro(string $macroName, int $hostId): void
             'Error while fetching host macro: ' . $e->getMessage(),
             exception: $e
         );
+
         throw new RepositoryException('Error while fetching host macro: ' . $e->getMessage(), previous: $e);
     }
 
@@ -75,6 +76,7 @@ function updateHostMacro(string $macroName, int $hostId): void
                 'Error while updating host macro: ' . $e->getMessage(),
                 exception: $e
             );
+
             throw new RepositoryException('Error while updating host macro: ' . $e->getMessage(), previous: $e);
         }
     }
@@ -109,6 +111,7 @@ function updateServiceMacro(string $macroName, int $serviceId): void
             'Error while fetching service macro: ' . $e->getMessage(),
             exception: $e
         );
+
         throw new RepositoryException('Error while fetching service macro: ' . $e->getMessage(), previous: $e);
     }
 
@@ -129,6 +132,7 @@ function updateServiceMacro(string $macroName, int $serviceId): void
                 'Error while updating service macro: ' . $e->getMessage(),
                 exception: $e
             );
+
             throw new RepositoryException('Error while updating service macro: ' . $e->getMessage(), previous: $e);
         }
     }

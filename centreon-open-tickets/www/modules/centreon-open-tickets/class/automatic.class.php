@@ -276,6 +276,7 @@ class Automatic
                     'Error while fetching service macro: ' . $e->getMessage(),
                     exception: $e
                 );
+
                 throw new RepositoryException('Error while fetching service macro: ' . $e->getMessage(), previous: $e);
             }
 
@@ -302,6 +303,7 @@ class Automatic
                 'Error while updating service macro: ' . $e->getMessage(),
                 exception: $e
             );
+
             throw new RepositoryException('Error while updating service macro: ' . $e->getMessage(), previous: $e);
         }
     }
@@ -335,6 +337,7 @@ class Automatic
                     'Error while fetching host macro: ' . $e->getMessage(),
                     exception: $e
                 );
+
                 throw new RepositoryException('Error while fetching host macro: ' . $e->getMessage(), previous: $e);
             }
 
@@ -361,6 +364,7 @@ class Automatic
                 'Error while updating host macro: ' . $e->getMessage(),
                 exception: $e
             );
+
             throw new RepositoryException('Error while updating host macro: ' . $e->getMessage(), previous: $e);
         }
     }
@@ -407,6 +411,7 @@ class Automatic
                 'Error while inserting ticket macro in config DB: ' . $e->getMessage(),
                 exception: $e
             );
+
             throw new RepositoryException('Error while inserting ticket macro in config DB: ' . $e->getMessage(), previous: $e);
         }
     }
@@ -446,6 +451,7 @@ class Automatic
                 'Error while fetching ticket macro id: ' . $e->getMessage(),
                 exception: $e
             );
+
             throw new RepositoryException('Error while fetching ticket macro id: ' . $e->getMessage(), previous: $e);
         }
 
@@ -490,6 +496,7 @@ class Automatic
                 'Error while fetching max macro order: ' . $e->getMessage(),
                 exception: $e
             );
+
             throw new RepositoryException('Error while fetching max macro order: ' . $e->getMessage(), previous: $e);
         }
 
@@ -537,6 +544,7 @@ class Automatic
                 'Error while checking service uniqueness: ' . $e->getMessage(),
                 exception: $e
             );
+
             throw new RepositoryException('Error while checking service uniqueness: ' . $e->getMessage(), previous: $e);
         }
 
