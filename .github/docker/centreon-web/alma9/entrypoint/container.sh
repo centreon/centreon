@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #set -e
 [ "${DEBUG:-0}" = "1" ] && set -x
