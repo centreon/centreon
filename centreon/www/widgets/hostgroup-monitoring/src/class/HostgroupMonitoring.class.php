@@ -177,7 +177,7 @@ class HostgroupMonitoring
         }
 
         $query .= <<<'SQL'
-                WHERE s.enabled = 1 AND h.enabled = 1 GROUP BY s.service_id, hhg.hostgroup_id ORDER BY tri, s.description ASC
+                WHERE s.enabled = 1 AND h.enabled = 1 GROUP BY s.service_id, h.host_id, hhg.hostgroup_id ORDER BY tri, s.description ASC
             SQL;
 
         foreach ($this->dbb->iterateAssociative($query, QueryParameters::create($queryParameters)) as $row) {
