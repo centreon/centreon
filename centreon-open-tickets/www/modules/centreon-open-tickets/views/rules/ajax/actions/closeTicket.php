@@ -23,6 +23,7 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Domain\Exception\ValueObjectException;
 
 /**
@@ -30,7 +31,7 @@ use Core\Common\Domain\Exception\ValueObjectException;
  *
  * @param string $macroName name of the macro that must be updated
  * @param int $hostId id of host
- * @throws CollectionException|ConnectionException|ValueObjectException
+ * @throws RepositoryException
  * @return void
  */
 function updateHostMacro(string $macroName, int $hostId): void
@@ -43,10 +44,19 @@ function updateHostMacro(string $macroName, int $hostId): void
             FROM on_demand_macro_host
             WHERE host_macro_name = :macro_name AND host_host_id = :host_id
         SQL;
-    $row = $db->fetchAssociative($query, QueryParameters::create([
-        QueryParameter::string('macro_name', $macroName),
-        QueryParameter::int('host_id', $hostId),
-    ]));
+    try {
+        $row = $db->fetchAssociative($query, QueryParameters::create([
+            QueryParameter::string('macro_name', $macroName),
+            QueryParameter::int('host_id', $hostId),
+        ]));
+    } catch (CollectionException|ConnectionException|ValueObjectException $e) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error while fetching host macro: ' . $e->getMessage(),
+            exception: $e
+        );
+        throw new RepositoryException('Error while fetching host macro: ' . $e->getMessage(), previous: $e);
+    }
 
     if ($row) {
         $macroId = (int) $row['host_macro_id'];
@@ -55,9 +65,18 @@ function updateHostMacro(string $macroName, int $hostId): void
                 SET host_macro_value = ''
                 WHERE host_macro_id = :macro_id
             SQL;
-        $db->update($query, QueryParameters::create([
-            QueryParameter::int('macro_id', $macroId),
-        ]));
+        try {
+            $db->update($query, QueryParameters::create([
+                QueryParameter::int('macro_id', $macroId),
+            ]));
+        } catch (CollectionException|ConnectionException|ValueObjectException $e) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_SQL,
+                'Error while updating host macro: ' . $e->getMessage(),
+                exception: $e
+            );
+            throw new RepositoryException('Error while updating host macro: ' . $e->getMessage(), previous: $e);
+        }
     }
 }
 
@@ -66,7 +85,7 @@ function updateHostMacro(string $macroName, int $hostId): void
  *
  * @param string $macroName name of the macro that must be updated
  * @param int $serviceId id of service
- * @throws CollectionException|ConnectionException|ValueObjectException
+ * @throws RepositoryException
  * @return void
  */
 function updateServiceMacro(string $macroName, int $serviceId): void
@@ -79,10 +98,19 @@ function updateServiceMacro(string $macroName, int $serviceId): void
             FROM on_demand_macro_service
             WHERE svc_macro_name = :macro_name AND svc_svc_id = :service_id
         SQL;
-    $row = $db->fetchAssociative($query, QueryParameters::create([
-        QueryParameter::string('macro_name', $macroName),
-        QueryParameter::int('service_id', $serviceId),
-    ]));
+    try {
+        $row = $db->fetchAssociative($query, QueryParameters::create([
+            QueryParameter::string('macro_name', $macroName),
+            QueryParameter::int('service_id', $serviceId),
+        ]));
+    } catch (CollectionException|ConnectionException|ValueObjectException $e) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error while fetching service macro: ' . $e->getMessage(),
+            exception: $e
+        );
+        throw new RepositoryException('Error while fetching service macro: ' . $e->getMessage(), previous: $e);
+    }
 
     if ($row) {
         $macroId = (int) $row['svc_macro_id'];
@@ -91,9 +119,18 @@ function updateServiceMacro(string $macroName, int $serviceId): void
                 SET svc_macro_value = ''
                 WHERE svc_macro_id = :macro_id
             SQL;
-        $db->update($query, QueryParameters::create([
-            QueryParameter::int('macro_id', $macroId),
-        ]));
+        try {
+            $db->update($query, QueryParameters::create([
+                QueryParameter::int('macro_id', $macroId),
+            ]));
+        } catch (CollectionException|ConnectionException|ValueObjectException $e) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_SQL,
+                'Error while updating service macro: ' . $e->getMessage(),
+                exception: $e
+            );
+            throw new RepositoryException('Error while updating service macro: ' . $e->getMessage(), previous: $e);
+        }
     }
 }
 
@@ -302,7 +339,7 @@ try {
     if ($ownTransaction) {
         $db->commitTransaction();
     }
-} catch (CollectionException|ConnectionException|ValueObjectException $e) {
+} catch (RepositoryException $e) {
     CentreonLog::create()->error(
         CentreonLog::TYPE_BUSINESS_LOG,
         'Error while closing tickets: ' . $e->getMessage(),

@@ -19,6 +19,13 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
+
 class Automatic
 {
     /** @var Centreon */
@@ -100,7 +107,7 @@ class Automatic
             } elseif ($this->isServiceUnique($service['service_id'])) {
                 $this->insertTicketInConfigDB('service', $rv['ticket_id'], $service['service_id']);
             }
-        } catch (Exception $e) {
+        } catch (RepositoryException $e) {
             CentreonLog::create()->error(
                 CentreonLog::TYPE_BUSINESS_LOG,
                 'Failed to persist ticket macro in config DB for service ticket opening: ' . $e->getMessage(),
@@ -139,7 +146,7 @@ class Automatic
             } else {
                 $this->insertTicketInConfigDB('host', $rv['ticket_id'], $host['host_id']);
             }
-        } catch (Exception $e) {
+        } catch (RepositoryException $e) {
             CentreonLog::create()->error(
                 CentreonLog::TYPE_BUSINESS_LOG,
                 'Failed to persist ticket macro in config DB for host ticket opening: ' . $e->getMessage(),
@@ -245,6 +252,7 @@ class Automatic
      * @param string $ticketId the ticket id
      * @param int $serviceId the id of the service
      * @param int|null $macroId the macro id (avoids a redundant SELECT when already known)
+     * @throws RepositoryException
      * @return void
      */
     protected function updateServiceMacro(string $ticketId, int $serviceId, ?int $macroId = null): void
@@ -257,11 +265,19 @@ class Automatic
                     WHERE svc_macro_name = :macro_name AND svc_svc_id = :service_id
                 SQL;
 
-            $stmt = $this->dbCentreon->prepare($query);
-            $stmt->bindParam(':macro_name', $this->fullMacroName, PDO::PARAM_STR);
-            $stmt->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
-            $stmt->execute();
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            try {
+                $row = $this->dbCentreon->fetchAssociative($query, QueryParameters::create([
+                    QueryParameter::string('macro_name', $this->fullMacroName),
+                    QueryParameter::int('service_id', $serviceId),
+                ]));
+            } catch (CollectionException|ConnectionException|ValueObjectException $e) {
+                CentreonLog::create()->error(
+                    CentreonLog::TYPE_SQL,
+                    'Error while fetching service macro: ' . $e->getMessage(),
+                    exception: $e
+                );
+                throw new RepositoryException('Error while fetching service macro: ' . $e->getMessage(), previous: $e);
+            }
 
             if (! $row) {
                 return;
@@ -275,10 +291,19 @@ class Automatic
                 WHERE svc_macro_id = :macro_id
             SQL;
 
-        $stmt = $this->dbCentreon->prepare($query);
-        $stmt->bindParam(':macro_id', $macroId, PDO::PARAM_INT);
-        $stmt->bindParam(':macro_value', $ticketId, PDO::PARAM_STR);
-        $stmt->execute();
+        try {
+            $this->dbCentreon->update($query, QueryParameters::create([
+                QueryParameter::int('macro_id', $macroId),
+                QueryParameter::string('macro_value', $ticketId),
+            ]));
+        } catch (CollectionException|ConnectionException|ValueObjectException $e) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_SQL,
+                'Error while updating service macro: ' . $e->getMessage(),
+                exception: $e
+            );
+            throw new RepositoryException('Error while updating service macro: ' . $e->getMessage(), previous: $e);
+        }
     }
 
     /**
@@ -287,6 +312,7 @@ class Automatic
      * @param string $ticketId the ticket id
      * @param int $hostId the host id
      * @param int|null $macroId the macro id (avoids a redundant SELECT when already known)
+     * @throws RepositoryException
      * @return void
      */
     protected function updateHostMacro(string $ticketId, int $hostId, ?int $macroId = null): void
@@ -297,11 +323,20 @@ class Automatic
                     FROM on_demand_macro_host
                     WHERE host_macro_name = :macro_name AND host_host_id = :host_id
                 SQL;
-            $stmt = $this->dbCentreon->prepare($query);
-            $stmt->bindParam(':macro_name', $this->fullMacroName, PDO::PARAM_STR);
-            $stmt->bindParam(':host_id', $hostId, PDO::PARAM_INT);
-            $stmt->execute();
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            try {
+                $row = $this->dbCentreon->fetchAssociative($query, QueryParameters::create([
+                    QueryParameter::string('macro_name', $this->fullMacroName),
+                    QueryParameter::int('host_id', $hostId),
+                ]));
+            } catch (CollectionException|ConnectionException|ValueObjectException $e) {
+                CentreonLog::create()->error(
+                    CentreonLog::TYPE_SQL,
+                    'Error while fetching host macro: ' . $e->getMessage(),
+                    exception: $e
+                );
+                throw new RepositoryException('Error while fetching host macro: ' . $e->getMessage(), previous: $e);
+            }
 
             if (! $row) {
                 return;
@@ -314,10 +349,20 @@ class Automatic
                 SET host_macro_value = :macro_value
                 WHERE host_macro_id = :macro_id
             SQL;
-        $stmt = $this->dbCentreon->prepare($query);
-        $stmt->bindParam(':macro_id', $macroId, PDO::PARAM_INT);
-        $stmt->bindParam(':macro_value', $ticketId, PDO::PARAM_STR);
-        $stmt->execute();
+
+        try {
+            $this->dbCentreon->update($query, QueryParameters::create([
+                QueryParameter::int('macro_id', $macroId),
+                QueryParameter::string('macro_value', $ticketId),
+            ]));
+        } catch (CollectionException|ConnectionException|ValueObjectException $e) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_SQL,
+                'Error while updating host macro: ' . $e->getMessage(),
+                exception: $e
+            );
+            throw new RepositoryException('Error while updating host macro: ' . $e->getMessage(), previous: $e);
+        }
     }
 
     /**
@@ -326,11 +371,16 @@ class Automatic
      * @param string $type the object type (host or service)
      * @param string $ticketId the ticket id
      * @param int $objectId the id of the object (service id or host id)
+     * @throws RepositoryException
      * @return void
      */
     protected function insertTicketInConfigDB(string $type, string $ticketId, int $objectId): void
     {
-        $macroOrder = $this->getMaxOrder($type, $objectId);
+        try {
+            $macroOrder = $this->getMaxOrder($type, $objectId);
+        } catch (RepositoryException $e) {
+            throw new RepositoryException('Error while fetching macro order before insert: ' . $e->getMessage(), previous: $e);
+        }
 
         if ($type === 'host') {
             $query = <<<'SQL'
@@ -344,13 +394,21 @@ class Automatic
                 SQL;
         }
 
-        $stmt = $this->dbCentreon->prepare($query);
-        $stmt->bindParam(':ticket_id', $ticketId, PDO::PARAM_STR);
-        $stmt->bindParam(':macro_name', $this->fullMacroName, PDO::PARAM_STR);
-        $stmt->bindParam(':macro_order', $macroOrder, PDO::PARAM_INT);
-        $stmt->bindParam(':object_id', $objectId, PDO::PARAM_INT);
-
-        $stmt->execute();
+        try {
+            $this->dbCentreon->insert($query, QueryParameters::create([
+                QueryParameter::string('ticket_id', $ticketId),
+                QueryParameter::string('macro_name', $this->fullMacroName),
+                QueryParameter::int('macro_order', $macroOrder),
+                QueryParameter::int('object_id', $objectId),
+            ]));
+        } catch (CollectionException|ConnectionException|ValueObjectException $e) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_SQL,
+                'Error while inserting ticket macro in config DB: ' . $e->getMessage(),
+                exception: $e
+            );
+            throw new RepositoryException('Error while inserting ticket macro in config DB: ' . $e->getMessage(), previous: $e);
+        }
     }
 
     /**
@@ -358,6 +416,7 @@ class Automatic
      *
      * @param string $type the type of object (can be host or service)
      * @param int $objectId the id of the host or service
+     * @throws RepositoryException
      * @return int|null the id of the macro if directly linked to the host or service
      */
     protected function getTicketMacroId(string $type, int $objectId): ?int
@@ -376,11 +435,19 @@ class Automatic
                 SQL;
         }
 
-        $stmt = $this->dbCentreon->prepare($query);
-        $stmt->bindParam(':object_id', $objectId, PDO::PARAM_INT);
-        $stmt->bindParam(':macro_name', $this->fullMacroName, PDO::PARAM_STR);
-        $stmt->execute();
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        try {
+            $row = $this->dbCentreon->fetchAssociative($query, QueryParameters::create([
+                QueryParameter::int('object_id', $objectId),
+                QueryParameter::string('macro_name', $this->fullMacroName),
+            ]));
+        } catch (CollectionException|ConnectionException|ValueObjectException $e) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_SQL,
+                'Error while fetching ticket macro id: ' . $e->getMessage(),
+                exception: $e
+            );
+            throw new RepositoryException('Error while fetching ticket macro id: ' . $e->getMessage(), previous: $e);
+        }
 
         if ($row) {
             return (int) $row['macro_id'];
@@ -394,6 +461,7 @@ class Automatic
      *
      * @param string $type the type of object (must be host or service)
      * @param int $objectId the id of the service or the host
+     * @throws RepositoryException
      * @return int the next available order number
      */
     protected function getMaxOrder(string $type, int $objectId): int
@@ -412,10 +480,18 @@ class Automatic
                 SQL;
         }
 
-        $stmt = $this->dbCentreon->prepare($query);
-        $stmt->bindParam(':object_id', $objectId, PDO::PARAM_INT);
-        $stmt->execute();
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        try {
+            $row = $this->dbCentreon->fetchAssociative($query, QueryParameters::create([
+                QueryParameter::int('object_id', $objectId),
+            ]));
+        } catch (CollectionException|ConnectionException|ValueObjectException $e) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_SQL,
+                'Error while fetching max macro order: ' . $e->getMessage(),
+                exception: $e
+            );
+            throw new RepositoryException('Error while fetching max macro order: ' . $e->getMessage(), previous: $e);
+        }
 
         if ($row) {
             return is_null($row['max']) ? 0 : (int) $row['max'] + 1;
@@ -428,6 +504,7 @@ class Automatic
      * isServiceUnique checks if the service is linked to a single host (not to multiple hosts or to a hostgroup)
      *
      * @param int $serviceId the id of the service
+     * @throws RepositoryException
      * @return bool
      */
     protected function isServiceUnique(int $serviceId): bool
@@ -450,10 +527,18 @@ class Automatic
                 ) AS relation
             SQL;
 
-        $stmt = $this->dbCentreon->prepare($query);
-        $stmt->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
-        $stmt->execute();
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        try {
+            $row = $this->dbCentreon->fetchAssociative($query, QueryParameters::create([
+                QueryParameter::int('service_id', $serviceId),
+            ]));
+        } catch (CollectionException|ConnectionException|ValueObjectException $e) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_SQL,
+                'Error while checking service uniqueness: ' . $e->getMessage(),
+                exception: $e
+            );
+            throw new RepositoryException('Error while checking service uniqueness: ' . $e->getMessage(), previous: $e);
+        }
 
         if ($row) {
             return (int) $row['duplicated_service'] === 0;

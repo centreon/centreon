@@ -23,6 +23,7 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Domain\Exception\ValueObjectException;
 
 function get_contact_information()
@@ -48,12 +49,12 @@ function get_contact_information()
         }
     } catch (ConnectionException|CollectionException|ValueObjectException $e) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_BUSINESS_LOG,
+            CentreonLog::TYPE_SQL,
             'Error while fetching contact information: ' . $e->getMessage(),
             exception: $e
         );
 
-        throw $e;
+        throw new RepositoryException('Error while fetching contact information: ' . $e->getMessage(), previous: $e);
     }
 
     return $result;
@@ -127,7 +128,7 @@ function do_chain_rules($rule_list, $db_storage, $contact_infos, $selected)
  * @param string $type the type of object (can be host or service)
  * @param string $macroName the name of the macro (usually TICKET_ID)
  * @param int $objectId the id of the host or service
- * @throws CollectionException|ConnectionException|ValueObjectException
+ * @throws RepositoryException
  * @return int|null the id of the macro if directly linked to the host or service
  */
 function getTicketMacroId(string $type, string $macroName, int $objectId): ?int
@@ -148,10 +149,19 @@ function getTicketMacroId(string $type, string $macroName, int $objectId): ?int
             SQL;
     }
 
-    $row = $db->fetchAssociative($query, QueryParameters::create([
-        QueryParameter::int('object_id', $objectId),
-        QueryParameter::string('macro_name', $macroName),
-    ]));
+    try {
+        $row = $db->fetchAssociative($query, QueryParameters::create([
+            QueryParameter::int('object_id', $objectId),
+            QueryParameter::string('macro_name', $macroName),
+        ]));
+    } catch (CollectionException|ConnectionException|ValueObjectException $e) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error while fetching ticket macro id: ' . $e->getMessage(),
+            exception: $e
+        );
+        throw new RepositoryException('Error while fetching ticket macro id: ' . $e->getMessage(), previous: $e);
+    }
 
     if ($row) {
         return (int) $row['macro_id'];
@@ -166,7 +176,7 @@ function getTicketMacroId(string $type, string $macroName, int $objectId): ?int
  * @param string $type the type of object (can be host or service)
  * @param string $macroValue the value that is going to be updated
  * @param int $macroId the id of the macro that needs to be updated
- * @throws CollectionException|ConnectionException|ValueObjectException
+ * @throws RepositoryException
  * @return void
  */
 function updateMacroValue(string $type, string $macroValue, int $macroId): void
@@ -187,10 +197,19 @@ function updateMacroValue(string $type, string $macroValue, int $macroId): void
             SQL;
     }
 
-    $db->update($query, QueryParameters::create([
-        QueryParameter::string('ticket_id', $macroValue),
-        QueryParameter::int('macro_id', $macroId),
-    ]));
+    try {
+        $db->update($query, QueryParameters::create([
+            QueryParameter::string('ticket_id', $macroValue),
+            QueryParameter::int('macro_id', $macroId),
+        ]));
+    } catch (CollectionException|ConnectionException|ValueObjectException $e) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error while updating macro value: ' . $e->getMessage(),
+            exception: $e
+        );
+        throw new RepositoryException('Error while updating macro value: ' . $e->getMessage(), previous: $e);
+    }
 }
 
 /**
@@ -198,7 +217,7 @@ function updateMacroValue(string $type, string $macroValue, int $macroId): void
  *
  * @param string $type the type of object (must be host or service)
  * @param int $objectId the id of the service or the host
- * @throws CollectionException|ConnectionException|ValueObjectException
+ * @throws RepositoryException
  * @return int the next available order number
  */
 function getMaxOrder(string $type, int $objectId): int
@@ -219,9 +238,18 @@ function getMaxOrder(string $type, int $objectId): int
             SQL;
     }
 
-    $row = $db->fetchAssociative($query, QueryParameters::create([
-        QueryParameter::int('object_id', $objectId),
-    ]));
+    try {
+        $row = $db->fetchAssociative($query, QueryParameters::create([
+            QueryParameter::int('object_id', $objectId),
+        ]));
+    } catch (CollectionException|ConnectionException|ValueObjectException $e) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error while fetching max macro order: ' . $e->getMessage(),
+            exception: $e
+        );
+        throw new RepositoryException('Error while fetching max macro order: ' . $e->getMessage(), previous: $e);
+    }
 
     if ($row) {
         return is_null($row['max']) ? 0 : (int) $row['max'] + 1;
@@ -237,13 +265,17 @@ function getMaxOrder(string $type, int $objectId): int
  * @param string $macroName the name of the macro
  * @param string $macroValue the value of the macro
  * @param int $objectId the id of the service or the host
- * @throws CollectionException|ConnectionException|ValueObjectException
+ * @throws RepositoryException
  * @return void
  */
 function insertNewMacroValue(string $type, string $macroName, string $macroValue, int $objectId): void
 {
     global $db;
-    $macroOrder = getMaxOrder($type, $objectId);
+    try {
+        $macroOrder = getMaxOrder($type, $objectId);
+    } catch (RepositoryException $e) {
+        throw new RepositoryException('Error while fetching macro order before insert: ' . $e->getMessage(), previous: $e);
+    }
 
     if ($type === 'host') {
         $query = <<<'SQL'
@@ -257,19 +289,28 @@ function insertNewMacroValue(string $type, string $macroName, string $macroValue
             SQL;
     }
 
-    $db->insert($query, QueryParameters::create([
-        QueryParameter::string('ticket_id', $macroValue),
-        QueryParameter::int('object_id', $objectId),
-        QueryParameter::string('macro_name', $macroName),
-        QueryParameter::int('macro_order', $macroOrder),
-    ]));
+    try {
+        $db->insert($query, QueryParameters::create([
+            QueryParameter::string('ticket_id', $macroValue),
+            QueryParameter::int('object_id', $objectId),
+            QueryParameter::string('macro_name', $macroName),
+            QueryParameter::int('macro_order', $macroOrder),
+        ]));
+    } catch (CollectionException|ConnectionException|ValueObjectException $e) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error while inserting new macro value: ' . $e->getMessage(),
+            exception: $e
+        );
+        throw new RepositoryException('Error while inserting new macro value: ' . $e->getMessage(), previous: $e);
+    }
 }
 
 /**
  * isServiceUnique checks if the service is linked to a single host (not to multiple hosts or to a hostgroup)
  *
  * @param int $serviceId the id of the service
- * @throws CollectionException|ConnectionException|ValueObjectException
+ * @throws RepositoryException
  * @return bool
  */
 function isServiceUnique(int $serviceId): bool
@@ -293,9 +334,18 @@ function isServiceUnique(int $serviceId): bool
             ) AS relation
         SQL;
 
-    $row = $db->fetchAssociative($query, QueryParameters::create([
-        QueryParameter::int('service_id', $serviceId),
-    ]));
+    try {
+        $row = $db->fetchAssociative($query, QueryParameters::create([
+            QueryParameter::int('service_id', $serviceId),
+        ]));
+    } catch (CollectionException|ConnectionException|ValueObjectException $e) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error while checking service uniqueness: ' . $e->getMessage(),
+            exception: $e
+        );
+        throw new RepositoryException('Error while checking service uniqueness: ' . $e->getMessage(), previous: $e);
+    }
 
     if ($row) {
         return (int) $row['duplicated_service'] === 0;
@@ -528,7 +578,7 @@ try {
     }
 
     $centreon_provider->clearUploadFiles();
-} catch (CollectionException|ConnectionException|ValueObjectException $e) {
+} catch (RepositoryException $e) {
     CentreonLog::create()->error(
         CentreonLog::TYPE_BUSINESS_LOG,
         'Error while submitting tickets: ' . $e->getMessage(),
