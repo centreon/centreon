@@ -92,6 +92,9 @@ jobs:
       SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
 
     steps:
+      - name: Checkout sources
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
       - name: Compute image tag
         id: image_tag
         env:
@@ -104,9 +107,6 @@ jobs:
             echo "tag=$REF" >> $GITHUB_OUTPUT
           fi
         shell: bash
-
-      - name: Checkout sources
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Login to registry
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
