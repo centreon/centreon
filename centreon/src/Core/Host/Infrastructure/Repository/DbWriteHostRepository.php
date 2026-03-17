@@ -563,6 +563,216 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
     }
 
     /**
+     * @inheritDoc
+     */
+    public function deleteServicesFromRemovedTemplates(
+        int $hostId,
+        array $removedTemplateIds,
+        array $remainingTemplateIds,
+    ): void {
+        if ($removedTemplateIds === []) {
+            return;
+        }
+
+        // Expand remaining templates to include their full inheritance chains
+        $allRemainingIds = $this->expandTemplateChain($remainingTemplateIds);
+
+        // Process each removed template and its inheritance chain
+        foreach ($removedTemplateIds as $removedTemplateId) {
+            $this->deleteServicesFromTemplate($hostId, $removedTemplateId, $allRemainingIds, []);
+        }
+    }
+
+    /**
+     * Recursively delete deployed services on a host that were inherited from a template
+     * and are not provided by any of the remaining templates.
+     *
+     * @param int $hostId The host being updated
+     * @param int $templateId The template being processed
+     * @param int[] $remainingIds All remaining template IDs (expanded chains)
+     * @param array<int, bool> $visited Anti-loop tracker
+     */
+    private function deleteServicesFromTemplate(
+        int $hostId,
+        int $templateId,
+        array $remainingIds,
+        array $visited,
+    ): void {
+        if (isset($visited[$templateId])) {
+            return;
+        }
+        $visited[$templateId] = true;
+
+        // Find service templates linked to this template
+        $findServiceTemplates = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT hsr.service_service_id
+                FROM `:db`.`host_service_relation` hsr
+                INNER JOIN `:db`.`service` svc ON svc.service_id = hsr.service_service_id
+                WHERE svc.service_register = '0'
+                AND hsr.host_host_id = :template_id
+                SQL
+        ));
+        $findServiceTemplates->bindValue(':template_id', $templateId, \PDO::PARAM_INT);
+        $findServiceTemplates->execute();
+
+        $deleteService = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                DELETE hsr, svc
+                FROM `:db`.`host_service_relation` hsr
+                INNER JOIN `:db`.`service` svc ON hsr.service_service_id = svc.service_id
+                WHERE svc.service_template_model_stm_id = :service_template_id
+                AND svc.service_register = '1'
+                AND hsr.host_host_id = :host_id
+                SQL
+        ));
+
+        while ($row = $findServiceTemplates->fetch(\PDO::FETCH_ASSOC)) {
+            $serviceTemplateId = (int) $row['service_service_id'];
+
+            // Check if this service template is still provided by a remaining template
+            if (! $this->isServiceTemplateInUse($serviceTemplateId, $remainingIds)) {
+                $deleteService->bindValue(':service_template_id', $serviceTemplateId, \PDO::PARAM_INT);
+                $deleteService->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+                $deleteService->execute();
+            }
+        }
+        $findServiceTemplates->closeCursor();
+
+        // Recursively process this template's own parent templates
+        $findParents = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT host_tpl_id
+                FROM `:db`.`host_template_relation`
+                WHERE host_host_id = :template_id
+                ORDER BY `order`
+                SQL
+        ));
+        $findParents->bindValue(':template_id', $templateId, \PDO::PARAM_INT);
+        $findParents->execute();
+
+        // Collect parent IDs
+        $parentIds = [];
+        while ($row = $findParents->fetch(\PDO::FETCH_ASSOC)) {
+            $parentIds[] = (int) $row['host_tpl_id'];
+        }
+        $findParents->closeCursor();
+
+        foreach ($parentIds as $parentId) {
+            // Also look at the parent's service templates directly on the host
+            $findParentServiceTemplates = $this->db->prepare($this->translateDbName(
+                <<<'SQL'
+                    SELECT hsr.service_service_id
+                    FROM `:db`.`host_service_relation` hsr
+                    INNER JOIN `:db`.`service` svc ON svc.service_id = hsr.service_service_id
+                    WHERE svc.service_register = '0'
+                    AND hsr.host_host_id = :parent_id
+                    SQL
+            ));
+            $findParentServiceTemplates->bindValue(':parent_id', $parentId, \PDO::PARAM_INT);
+            $findParentServiceTemplates->execute();
+
+            while ($row = $findParentServiceTemplates->fetch(\PDO::FETCH_ASSOC)) {
+                $serviceTemplateId = (int) $row['service_service_id'];
+
+                if (! $this->isServiceTemplateInUse($serviceTemplateId, $remainingIds)) {
+                    $deleteService->bindValue(':service_template_id', $serviceTemplateId, \PDO::PARAM_INT);
+                    $deleteService->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+                    $deleteService->execute();
+                }
+            }
+            $findParentServiceTemplates->closeCursor();
+
+            $this->deleteServicesFromTemplate($hostId, $parentId, $remainingIds, $visited);
+        }
+    }
+
+    /**
+     * Check if a service template is provided by any of the given template IDs.
+     *
+     * @param int $serviceTemplateId
+     * @param int[] $templateIds
+     *
+     * @return bool
+     */
+    private function isServiceTemplateInUse(int $serviceTemplateId, array $templateIds): bool
+    {
+        if ($templateIds === []) {
+            return false;
+        }
+
+        $bindIds = [];
+        foreach ($templateIds as $index => $id) {
+            $bindIds[':tmpl_' . $index] = $id;
+        }
+        $inClause = implode(', ', array_keys($bindIds));
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT 1
+                FROM `:db`.`service` svc
+                INNER JOIN `:db`.`host_service_relation` hsr ON hsr.service_service_id = svc.service_template_model_stm_id
+                WHERE hsr.service_service_id = :service_template_id
+                AND hsr.host_host_id IN ({$inClause})
+                LIMIT 1
+                SQL
+        ));
+        $statement->bindValue(':service_template_id', $serviceTemplateId, \PDO::PARAM_INT);
+        foreach ($bindIds as $key => $id) {
+            $statement->bindValue($key, $id, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return $statement->rowCount() >= 1;
+    }
+
+    /**
+     * Expand a list of template IDs to include their full inheritance chains.
+     *
+     * @param int[] $templateIds
+     *
+     * @return int[]
+     */
+    private function expandTemplateChain(array $templateIds): array
+    {
+        $allIds = [];
+        foreach ($templateIds as $id) {
+            $this->collectTemplateChain($id, $allIds);
+        }
+
+        return array_values(array_unique($allIds));
+    }
+
+    /**
+     * Recursively collect all template IDs in a template's inheritance chain.
+     *
+     * @param int $templateId
+     * @param int[] $collected
+     */
+    private function collectTemplateChain(int $templateId, array &$collected): void
+    {
+        if (in_array($templateId, $collected, true)) {
+            return;
+        }
+        $collected[] = $templateId;
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT host_tpl_id
+                FROM `:db`.`host_template_relation`
+                WHERE host_host_id = :template_id
+                SQL
+        ));
+        $statement->bindValue(':template_id', $templateId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            $this->collectTemplateChain((int) $row['host_tpl_id'], $collected);
+        }
+        $statement->closeCursor();
+    }
+
+    /**
      * @param \PDOStatement $statement
      * @param NewHost|Host $host
      *

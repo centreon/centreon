@@ -76,4 +76,20 @@ interface WriteHostRepositoryInterface
      * @throws \Throwable
      */
     public function deleteById(int $hostId): void;
+
+    /**
+     * Delete services on a host that were inherited
+     * from removed host templates and are not provided by any of the remaining templates.
+     *
+     * @param int $hostId
+     * @param int[] $removedTemplateIds Templates being removed from the host
+     * @param int[] $remainingTemplateIds Templates still linked to the host
+     *
+     * @throws \Throwable
+     */
+    public function deleteServicesFromRemovedTemplates(
+        int $hostId,
+        array $removedTemplateIds,
+        array $remainingTemplateIds,
+    ): void;
 }

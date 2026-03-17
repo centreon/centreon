@@ -547,6 +547,13 @@ final class PartialUpdateHost
         $parentTemplateIds = array_unique($dto->templates);
         $this->validation->assertAreValidTemplates($parentTemplateIds, $host->getId());
 
+        // Read current parent templates BEFORE deleting them, to compute which were removed
+        $currentParents = $this->readHostRepository->findParents($host->getId());
+        $currentParentIds = array_map(
+            static fn (array $parent): int => $parent['parent_id'],
+            $currentParents
+        );
+
         $this->info('Remove parent templates from a host', ['host_id' => $host->getId()]);
         $this->writeHostRepository->deleteParents($host->getId());
 
@@ -555,6 +562,20 @@ final class PartialUpdateHost
                 'host_id' => $host->getId(), 'parent_id' => $templateId, 'order' => $order,
             ]);
             $this->writeHostRepository->addParent($host->getId(), $templateId, $order);
+        }
+
+        // Clean up deployed services from templates that were removed
+        $removedTemplateIds = array_values(array_diff($currentParentIds, $parentTemplateIds));
+        if ($removedTemplateIds !== []) {
+            $this->info('Clean up services from removed templates', [
+                'host_id' => $host->getId(),
+                'removed_template_ids' => $removedTemplateIds,
+            ]);
+            $this->writeHostRepository->deleteServicesFromRemovedTemplates(
+                $host->getId(),
+                $removedTemplateIds,
+                $parentTemplateIds,
+            );
         }
     }
 

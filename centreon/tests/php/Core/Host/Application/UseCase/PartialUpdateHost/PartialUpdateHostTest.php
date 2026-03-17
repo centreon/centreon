@@ -724,9 +724,9 @@ it('should present a NoContentResponse on success', function (): void {
         ->expects($this->exactly(2))
         ->method('addParent');
 
-    // Macros
+    // Macros (findParents is also called in updateParentTemplates for service cleanup diff)
     $this->readHostRepository
-        ->expects($this->once())
+        ->expects($this->exactly(2))
         ->method('findParents')
         ->willReturn($this->inheritanceLineIds);
     $this->readHostMacroRepository
