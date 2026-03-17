@@ -196,8 +196,7 @@ interface ReadHostRepositoryInterface
      *
      * @throws \Throwable
      *
-     * @return array<int, array<array{parent_id:int,child_id:int,order:int}>>
-     *         Map of hostId => array of parent relations
+     * @return array<int, array<array{parent_id:int,child_id:int,order:int}>> Map of hostId => array of parent relations
      */
     public function findParentsByHostIds(array $hostIds): array;
 }

@@ -451,42 +451,6 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
     }
 
     /**
-     * Filter the global parent list to get only relations reachable from a specific host.
-     *
-     * @param int $hostId
-     * @param array<array{child_id: int|string, parent_id: int|string, order: int|string}> $allParents
-     *
-     * @return array<array{parent_id: int, child_id: int, order: int}>
-     */
-    private function filterParentsForHost(int $hostId, array $allParents): array
-    {
-        $relevant = [];
-        $idsToProcess = [$hostId];
-        $processed = [];
-
-        while (! empty($idsToProcess)) {
-            $currentId = array_shift($idsToProcess);
-            if (isset($processed[$currentId])) {
-                continue;
-            }
-            $processed[$currentId] = true;
-
-            foreach ($allParents as $parent) {
-                if ((int) $parent['child_id'] === $currentId) {
-                    $relevant[] = [
-                        'parent_id' => (int) $parent['parent_id'],
-                        'child_id' => (int) $parent['child_id'],
-                        'order' => (int) $parent['order'],
-                    ];
-                    $idsToProcess[] = (int) $parent['parent_id'];
-                }
-            }
-        }
-
-        return $relevant;
-    }
-
-    /**
      * @inheritDoc
      */
     public function findNames(array $hostIds): HostNamesById
@@ -898,6 +862,42 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
         }
 
         return $hostsByHostGroup;
+    }
+
+    /**
+     * Filter the global parent list to get only relations reachable from a specific host.
+     *
+     * @param int $hostId
+     * @param array<array{child_id: int|string, parent_id: int|string, order: int|string}> $allParents
+     *
+     * @return array<array{parent_id: int, child_id: int, order: int}>
+     */
+    private function filterParentsForHost(int $hostId, array $allParents): array
+    {
+        $relevant = [];
+        $idsToProcess = [$hostId];
+        $processed = [];
+
+        while (! empty($idsToProcess)) {
+            $currentId = array_shift($idsToProcess);
+            if (isset($processed[$currentId])) {
+                continue;
+            }
+            $processed[$currentId] = true;
+
+            foreach ($allParents as $parent) {
+                if ((int) $parent['child_id'] === $currentId) {
+                    $relevant[] = [
+                        'parent_id' => (int) $parent['parent_id'],
+                        'child_id' => (int) $parent['child_id'],
+                        'order' => (int) $parent['order'],
+                    ];
+                    $idsToProcess[] = (int) $parent['parent_id'];
+                }
+            }
+        }
+
+        return $relevant;
     }
 
     /**

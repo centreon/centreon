@@ -439,7 +439,7 @@ class Host extends AbstractHost
         int $hostId,
         array $inheritanceLine,
         array $allHostMacros,
-        bool $isPollerEncryptionReady
+        bool $isPollerEncryptionReady,
     ): array {
         $relevantIds = array_flip(array_merge([$hostId], $inheritanceLine));
 
@@ -471,7 +471,7 @@ class Host extends AbstractHost
         array $serviceIds,
         array $serviceInheritanceLines,
         array $allServiceMacros,
-        bool $isPollerEncryptionReady
+        bool $isPollerEncryptionReady,
     ): array {
         $serviceMacros = [];
         $serviceTemplateMacros = [];
