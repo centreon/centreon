@@ -1075,6 +1075,7 @@ jobs:
       collection_path: centreon/tests/rest_api/collections
       image_name: centreon-web
       os: ${{ matrix.operating_system }}
+      db_id: ${{ matrix.db_id }}
       container_name: my_centreon_container
       centreon_url: http://localhost
       centreon_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
