@@ -534,6 +534,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         bool $withoutSort = false,
         bool $withoutPagination = false,
         bool $useTagExistsForFilters = false,
+        bool $useAclCte = false,
     ): string {
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
 
@@ -1430,12 +1431,29 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     private function find(ResourceFilter $filter, array $accessGroupIds = []): void
     {
         // get resources
+        $cursor = null;
+        if ($filter->getCursor() !== null) {
+            try {
+                $cursor = ResourceCursor::decode($filter->getCursor());
+            } catch (\InvalidArgumentException) {
+                // Malformed cursor: treat as first page.
+            }
+        }
+
+        // Determine active sort columns for next-cursor construction.
+        $activeSortCols = $this->resolveActiveSortCols();
+
+        // Decide ACL strategy once; the result is reused by count() via the aclCountCache.
+        $useAclCte = $this->shouldUseAclCte($accessGroupIds);
+
+        // Build and execute data query.
         $queryParametersFromRequestParameter = new QueryParameters();
         $queryFind = $this->generateFindResourcesQuery(
             filter: $filter,
             queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
             accessGroupIds: $accessGroupIds,
             useTagExistsForFilters: true,
+            useAclCte: $useAclCte,
         );
 
         $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
