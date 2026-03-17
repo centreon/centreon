@@ -83,28 +83,58 @@ if (! $obj->is_admin) {
         $sgFilter = 'AND 1=0 ';
     } else {
         $allServiceGroupsAllowed = false;
-        $stmt = $obj->DB->query(
-            'SELECT 1 FROM acl_resources ar
-            INNER JOIN acl_res_group_relations argr ON argr.acl_res_id = ar.acl_res_id
-            WHERE argr.acl_group_id IN (' . $groupStr . ')
-            AND ar.all_servicegroups = \'1\'
-            LIMIT 1'
-        );
-        if ($stmt->fetch()) {
-            $allServiceGroupsAllowed = true;
+        $query = <<<SQL
+                SELECT
+                    1
+                FROM acl_resources ar
+                INNER JOIN acl_res_group_relations argr
+                    ON argr.acl_res_id = ar.acl_res_id
+                WHERE
+                    argr.acl_group_id IN ({$groupStr})
+                    AND ar.all_servicegroups = '1'
+                    AND ar.acl_res_activate = '1'
+                LIMIT 1
+            SQL;
+
+        try {
+            $allServiceGroupsAllowed = $obj->DB->fetchAssociative($query) !== false;
+        } catch (Adaptation\Database\Connection\Exception\ConnectionException $e) {
+            throw new Core\Common\Domain\Exception\RepositoryException(
+                message: 'Error while checking if all service groups are allowed: ' . $e->getMessage(),
+                context: [
+                    'query' => $query,
+                    'grouplistStr' => $grouplistStr,
+                ],
+                previous: $e
+            );
         }
 
         if (! $allServiceGroupsAllowed) {
             $allowedSgIds = [];
-            $stmt = $obj->DB->query(
-                'SELECT DISTINCT arsr.sg_id
-                FROM acl_resources_sg_relations arsr
-                INNER JOIN acl_res_group_relations argr ON argr.acl_res_id = arsr.acl_res_id
-                WHERE argr.acl_group_id IN (' . $groupStr . ')'
-            );
-            while ($row = $stmt->fetch()) {
-                $allowedSgIds[] = (int) $row['sg_id'];
+            $query = <<<SQL
+                    SELECT DISTINCT
+                        arsr.sg_id
+                    FROM acl_resources_sg_relations arsr
+                    INNER JOIN acl_res_group_relations argr
+                        ON argr.acl_res_id = arsr.acl_res_id
+                    WHERE argr.acl_group_id IN ({$groupStr})
+                SQL;
+
+            try {
+                foreach ($obj->DB->iterateAssociative($query) as $row) {
+                    $allowedSgIds[] = (int) $row['sg_id'];
+                }
+            } catch (Adaptation\Database\Connection\Exception\ConnectionException $e) {
+                throw new Core\Common\Domain\Exception\RepositoryException(
+                    message: 'Error while fetching allowed service group IDs: ' . $e->getMessage(),
+                    context: [
+                        'query' => $query,
+                        'grouplistStr' => $grouplistStr,
+                    ],
+                    previous: $e
+                );
             }
+
             $sgFilter = $allowedSgIds === []
                 ? 'AND 1=0 '
                 : 'AND sg.servicegroup_id IN (' . implode(',', $allowedSgIds) . ') ';

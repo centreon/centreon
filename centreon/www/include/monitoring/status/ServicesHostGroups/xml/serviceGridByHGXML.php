@@ -74,36 +74,61 @@ $grouplistStr = empty($ids) ? '0' : implode(',', $ids);
 // Pre-fetch allowed host group IDs from config DB for non-admin users
 $hgFilter = '';
 if (! $obj->is_admin) {
-    if ($grouplistStr === '') {
-        $hgFilter = 'AND 1=0 ';
-    } else {
-        $allHostGroupsAllowed = false;
-        $stmt = $obj->DB->query(
-            'SELECT 1 FROM acl_resources ar
-            INNER JOIN acl_res_group_relations argr ON argr.acl_res_id = ar.acl_res_id
-            WHERE argr.acl_group_id IN (' . $grouplistStr . ')
-            AND ar.all_hostgroups = \'1\'
-            LIMIT 1'
-        );
-        if ($stmt->fetch()) {
-            $allHostGroupsAllowed = true;
-        }
+    $allHostGroupsAllowed = false;
 
-        if (! $allHostGroupsAllowed) {
-            $allowedHgIds = [];
-            $stmt = $obj->DB->query(
-                'SELECT DISTINCT arhr.hg_hg_id
+    $query = <<<SQL
+            SELECT
+                1
+            FROM acl_resources ar
+            INNER JOIN acl_res_group_relations argr
+                ON argr.acl_res_id = ar.acl_res_id
+            WHERE
+                argr.acl_group_id IN ({$grouplistStr})
+                AND ar.all_hostgroups = '1'
+                AND ar.acl_res_activate = '1'
+        SQL;
+
+    try {
+        $allHostGroupsAllowed = $obj->DB->fetchAssociative($query) !== false;
+    } catch (Adaptation\Database\Connection\Exception\ConnectionException $e) {
+        throw new Core\Common\Domain\Exception\RepositoryException(
+            message: 'Error while checking if all host groups are allowed: ' . $e->getMessage(),
+            context: [
+                'query' => $query,
+                'grouplistStr' => $grouplistStr,
+            ],
+            previous: $e
+        );
+    }
+
+    if (! $allHostGroupsAllowed) {
+        $allowedHgIds = [];
+        $query = <<<SQL
+                SELECT DISTINCT
+                    arhr.hg_hg_id
                 FROM acl_resources_hg_relations arhr
-                INNER JOIN acl_res_group_relations argr ON argr.acl_res_id = arhr.acl_res_id
-                WHERE argr.acl_group_id IN (' . $grouplistStr . ')'
-            );
-            while ($row = $stmt->fetch()) {
+                INNER JOIN acl_res_group_relations argr
+                    ON argr.acl_res_id = arhr.acl_res_id
+                WHERE argr.acl_group_id IN ({$grouplistStr})
+            SQL;
+
+        try {
+            foreach ($obj->DB->iterateAssociative($query) as $row) {
                 $allowedHgIds[] = (int) $row['hg_hg_id'];
             }
-            $hgFilter = $allowedHgIds === []
-                ? 'AND 1=0 '
-                : 'AND hg.hostgroup_id IN (' . implode(',', $allowedHgIds) . ') ';
+        } catch (Adaptation\Database\Connection\Exception\ConnectionException $e) {
+            throw new Core\Common\Domain\Exception\RepositoryException(
+                message: 'Error while fetching allowed host group IDs: ' . $e->getMessage(),
+                context: [
+                    'query' => $query,
+                    'grouplistStr' => $grouplistStr,
+                ],
+                previous: $e
+            );
         }
+        $hgFilter = $allowedHgIds === []
+            ? 'AND 1=0 '
+            : 'AND hg.hostgroup_id IN (' . implode(',', $allowedHgIds) . ') ';
     }
 }
 
@@ -161,7 +186,7 @@ if (str_ends_with($o, '_pb')) {
     $filterRq2 = ' AND s.state != 0 AND s.state != 4';
 } elseif (str_ends_with($o, '_ack_0')) {
     $rq1 .= <<<'SQL'
-        
+
         AND h.host_id IN (
             SELECT s.host_id
             FROM services s
@@ -171,7 +196,7 @@ if (str_ends_with($o, '_pb')) {
     $filterRq2 =  ' AND s.state != 0 AND s.state != 4 AND s.acknowledged = 0';
 } elseif (str_ends_with($o, '_ack_1')) {
     $rq1 .= <<<'SQL'
-        
+
         AND h.host_id IN (
             SELECT s.host_id
             FROM services s

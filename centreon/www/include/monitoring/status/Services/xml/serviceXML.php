@@ -185,7 +185,7 @@ if (! $obj->is_admin) {
         INNER JOIN centreon_acl
             ON centreon_acl.host_id = h.host_id
             AND centreon_acl.service_id = s.service_id
-            AND group_id IN ({$accessGroupsIds})
+            AND group_id IN ({$accessGroupIds})
         SQL;
 }
 
