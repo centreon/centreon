@@ -4,7 +4,7 @@ Cypress.Commands.add('getClosestVersionFile', (currentVersion, versionDir) => {
   const pattern = /^Update-(\d+\.\d+(\.\d+)?(?:-\S+)?)\.php$/; // Updated regex to handle versions with suffixes like .beta, .rc, etc.
 
   // Use cy.task() to read the files in the directory
-  cy.task('listFilesInDirectory', versionDir).then((files) => {
+  cy.task<string[]>('listFilesInDirectory', versionDir).then((files) => {
     // Filter files that match the pattern
     const versionFiles = (files || []).filter(
       (file): file is string => typeof file === 'string' && pattern.test(file)
@@ -67,6 +67,16 @@ Cypress.Commands.add('getClosestVersionFile', (currentVersion, versionDir) => {
   });
 });
 
+Cypress.Commands.add('getImageDocker', (): Cypress.Chainable => {
+  return cy.getWebVersion().then(({ major_version }) => {
+    const branch = Cypress.env('WEB_IMAGE_VERSION') as string;
+    const imageTag = branch || major_version;
+    const image = `docker.centreon.com/centreon/centreon-web-dependencies-${Cypress.env('WEB_IMAGE_OS')}:${imageTag}`;
+
+    return cy.wrap({ image, major_version });
+  });
+});
+
 declare global {
   // biome-ignore lint/style/noNamespace: <explanation>
   namespace Cypress {
@@ -75,6 +85,7 @@ declare global {
         currentVersion: string,
         versionDir: string
       ): Cypress.Chainable<string>;
+      getImageDocker(): Cypress.Chainable<{ image: string; major_version: string }>;
     }
   }
 }

@@ -202,7 +202,9 @@ export default (on: Cypress.PluginEvents): void => {
       name,
       portBindings = [],
     }: StartContainerProps) => {
-      let container = await new GenericContainer(image).withName(name);
+      let container = await new GenericContainer(image)
+        .withName(name)
+        .withPlatform(`linux/${process.arch === 'arm64' ? 'amd64' : process.arch}`);
 
       portBindings.forEach(({ source, destination }) => {
         container = container.withExposedPorts({

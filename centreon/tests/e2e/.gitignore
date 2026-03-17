@@ -4,3 +4,4 @@ fixtures/packages
 cucumber-messages.ndjson
 cypress
 *.yml
+*.env.json

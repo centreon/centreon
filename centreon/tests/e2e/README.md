@@ -39,3 +39,42 @@ NB: All the tests should run fine except for some of them that require small cha
 For linux it should be fine but for windows/mac users need to make small changes in "common.ts" file of the test case.
 
 EX: For Openid in the "common.ts" file that is located in "OpenID-connect" folder change the ip "172.17.0.3" by "localhost:8080".
+
+## cypress.env.json
+
+The `cypress.env.json` file allows you to override Cypress environment variables locally without modifying the committed configuration. It is listed in `.gitignore` and must never be committed.
+
+Create the file at `centreon/tests/e2e/cypress.env.json` if it does not already exist.
+
+### Available variables
+
+| Variable | Default value | Description |
+|---|---|---|
+| `WEB_IMAGE_VERSION` | current git branch name | Docker image tag of the Centreon web container |
+| `WEB_IMAGE_OS` | `alma9` | OS variant of the web image |
+| `DATABASE_IMAGE` | `bitnami/mariadb:10.11` | Docker image used for the database container |
+| `OPENID_IMAGE_VERSION` | `MAJOR` env var or `24.04` | Version of the OpenID provider image |
+| `SAML_IMAGE_VERSION` | `MAJOR` env var or `24.04` | Version of the SAML provider image |
+| `STABILITY` | `unstable` | Package repository stability channel (`stable` / `unstable`) |
+| `TARGET_STABILITY` | `unstable` | Target stability channel for upgrade tests |
+
+### Example
+
+To run tests against a specific image version (e.g. a release branch) instead of the version derived from the current git branch:
+
+```json
+{
+  "WEB_IMAGE_VERSION": "release-25.10-next"
+}
+```
+
+To run tests against a stable image on a different OS:
+
+```json
+{
+  "WEB_IMAGE_VERSION": "25.10.0",
+  "WEB_IMAGE_OS": "alma9",
+  "STABILITY": "stable",
+  "TARGET_STABILITY": "stable"
+}
+```

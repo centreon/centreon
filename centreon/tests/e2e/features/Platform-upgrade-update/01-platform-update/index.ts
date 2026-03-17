@@ -14,7 +14,7 @@ beforeEach(() => {
     })
   );
 
-  cy.getWebVersion().then(({ major_version }) => {
+  cy.getImageDocker().then(({ image }) => {
     cy.intercept({
       method: 'GET',
       url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -72,9 +72,7 @@ beforeEach(() => {
     return cy
       .startContainer({
         command: 'tail -f /dev/null',
-        image: `docker.centreon.com/centreon/centreon-web-dependencies-${Cypress.env(
-          'WEB_IMAGE_OS'
-        )}:${major_version}`,
+        image,
         name: 'web',
         portBindings: [
           {
