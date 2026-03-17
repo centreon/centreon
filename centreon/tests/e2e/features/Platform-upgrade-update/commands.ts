@@ -73,7 +73,7 @@ Cypress.Commands.add('getImageDocker', (): Cypress.Chainable => {
     const imageTag = branch || major_version;
     const image = `docker.centreon.com/centreon/centreon-web-dependencies-${Cypress.env('WEB_IMAGE_OS')}:${imageTag}`;
 
-    return cy.wrap({ image, major_version });
+    return cy.wrap({ image, majorVersion: major_version });
   });
 });
 
@@ -85,7 +85,10 @@ declare global {
         currentVersion: string,
         versionDir: string
       ): Cypress.Chainable<string>;
-      getImageDocker(): Cypress.Chainable<{ image: string; major_version: string }>;
+      getImageDocker(): Cypress.Chainable<{
+        image: string;
+        majorVersion: string;
+      }>;
     }
   }
 }
