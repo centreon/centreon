@@ -36,16 +36,6 @@ fi
 
 sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php.d/20-timezone.ini
 
-cat > /etc/php.d/10-opcache.ini <<'OPCACHE'
-opcache.enable=1
-opcache.enable_cli=0
-opcache.memory_consumption=128
-opcache.interned_strings_buffer=16
-opcache.max_accelerated_files=20000
-opcache.revalidate_freq=0
-opcache.validate_timestamps=0
-OPCACHE
-
 touch /var/log/php-fpm/centreon-error.log
 chown apache:apache /var/log/php-fpm/centreon-error.log
 
