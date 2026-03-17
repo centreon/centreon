@@ -86,7 +86,7 @@ paths:
   /configuration/services:
     $ref: "./latest/Cloud/Configuration/Service/AddAndFindServices.yaml"
   /configuration/services/{service_id}:
-    $ref: "./latest/Cloud/Configuration/Service/PartialUpdateService.yaml"
+    $ref: "./latest/Cloud/Configuration/Service/GetAndPartialUpdateService.yaml"
   /configuration/services/templates:
     $ref: "./latest/Cloud/Configuration/ServiceTemplate/AddAndFindServiceTemplates.yaml"
   /configuration/services/templates/{service_template_id}:
