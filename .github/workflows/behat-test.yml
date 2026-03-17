@@ -32,6 +32,9 @@ on:
       is_nightly:
         required: true
         type: string
+      major_version:
+        required: true
+        type: string
     secrets:
       registry_username:
         required: true
@@ -108,12 +111,24 @@ jobs:
     name: ${{ matrix.feature }}
 
     env:
-      IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
       SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Compute image tag
+        id: image_tag
+        env:
+          REF: ${{ github.head_ref || github.ref_name }}
+          MAJOR_VERSION: ${{ inputs.major_version }}
+        run: |
+          if [[ "$REF" == "develop" ]]; then
+            echo "tag=develop-${MAJOR_VERSION}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=$REF" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
 
       - name: Login to registry
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
@@ -157,7 +172,7 @@ jobs:
         timeout-minutes: 6
         with:
           path: ./docker-image
-          key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
+          key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ steps.image_tag.outputs.tag }}
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
 
@@ -165,13 +180,13 @@ jobs:
         if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
         run: |
           docker load --input ./docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
-          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }}
         shell: bash
 
       - name: Behat acceptance testing
         env:
           PANTHER_CHROME_BINARY: /usr/bin/google-chrome
-          WEB_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          WEB_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }}
           MYSQL_IMAGE: ${{ inputs.database_image }}
         run: |
           rm -rf acceptance-logs && mkdir acceptance-logs

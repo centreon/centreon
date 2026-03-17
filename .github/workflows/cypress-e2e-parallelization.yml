@@ -143,7 +143,6 @@ jobs:
     name: ${{ matrix.feature }}
 
     env:
-      IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
       SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
 
     steps:
@@ -224,7 +223,7 @@ jobs:
         timeout-minutes: 6
         with:
           path: ./docker-image
-          key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
+          key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ steps.image_tag.outputs.tag }}
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
 
@@ -232,7 +231,7 @@ jobs:
         if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
         run: |
           docker load --input ../../../docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
-          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }}
         shell: bash
 
       - name: Get test execution Key
@@ -257,7 +256,7 @@ jobs:
           CYPRESS_VERIFY_TIMEOUT: "60000"
           CYPRESS_DATABASE_IMAGE: ${{ inputs.database_image }}
           CYPRESS_WEB_IMAGE_OS: ${{ inputs.os }}
-          CYPRESS_WEB_IMAGE_VERSION: ${{ env.IMAGE_TAG }}
+          CYPRESS_WEB_IMAGE_VERSION: ${{ steps.image_tag.outputs.tag }}
           CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.major_version }}
           CYPRESS_SAML_IMAGE_VERSION: ${{ inputs.major_version }}
           CYPRESS_STABILITY: ${{ inputs.stability }}
