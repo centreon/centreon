@@ -26,7 +26,6 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\AgentConfiguration;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 
 /**
- * @immutable
  * @extends AggregateRoot<AgentConfigurationId>
  */
 class AgentConfiguration extends AggregateRoot
@@ -36,10 +35,10 @@ class AgentConfiguration extends AggregateRoot
 
     public function __construct(
         ?AgentConfigurationId $id,
-        public AgentConfigurationName $name,
-        public AgentConfigurationTypeEnum $type,
-        public ConnectionModeEnum $connectionMode,
-        public AbstractConfigurationParameters $configuration,
+        public readonly AgentConfigurationName $name,
+        public readonly AgentConfigurationTypeEnum $type,
+        public readonly ConnectionModeEnum $connectionMode,
+        public readonly AbstractConfigurationParameters $configuration,
     ) {
         parent::__construct($id);
     }

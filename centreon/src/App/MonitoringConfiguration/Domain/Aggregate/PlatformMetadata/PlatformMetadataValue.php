@@ -30,6 +30,7 @@ final readonly class PlatformMetadataValue
     public function __construct(
         public string $value,
     ) {
+        $value = trim($value);
         Assert::lengthBetween($value, 1, 255);
     }
 }

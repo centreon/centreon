@@ -49,6 +49,25 @@ abstract class AbstractConfigurationParameters
 
     abstract public function getBrokerDirective(): ?string;
 
+    /**
+     * Reads $this->parameters[$key], validates it as a certificate path and writes the normalised value back.
+     *
+     * @param string $key   Key in $this->parameters to read and overwrite.
+     * @param string $field Name of the configuration parameter, used as a label in validation error messages.
+     */
+    protected function normalizeCertificateParam(string $key, string $field): void
+    {
+        $this->parameters[$key] = $this->validateCertificatePath(
+            is_string($this->parameters[$key]) ? $this->parameters[$key] : null,
+            $field
+        );
+    }
+
+    /**
+     * @param string $path
+     * @param string $field Name of the configuration parameter (e.g. 'ca_certificate', 'server_certificate'),
+     * used as a label in validation error messages.
+     */
     protected function validateCertificatePath(?string $path, string $field): ?string
     {
         if ($path === null || $path === '') {
@@ -72,6 +91,10 @@ abstract class AbstractConfigurationParameters
     }
 
     /**
+     * @param string $path
+     * @param string $field Name of the configuration parameter (e.g. 'ca_certificate', 'server_certificate'),
+     * used as a label in validation error messages.
+     *
      * @throws \InvalidArgumentException
      */
     protected function assertPathSecurity(string $path, string $field): void

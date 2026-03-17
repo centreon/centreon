@@ -27,6 +27,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 
 final readonly class InstallationCommandFactory
 {
+    private const LINUX_INSTALL_SCRIPT_URL = 'https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/%s-latest/agent/installer/scripts_linux/install_cma.sh';
+    private const WINDOWS_INSTALL_SCRIPT_URL = 'https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/%s-latest/agent/installer/install_cma.ps1';
+
     public function __construct(
         public Poller $poller,
         public int $agentConfigurationPort,
@@ -41,7 +44,7 @@ final readonly class InstallationCommandFactory
     {
         if ($this->isCloudPlatform && $this->poller->isCentral) {
             return sprintf(
-                'curl -fsSL https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/%s-latest/agent/installer/scripts_linux/install_cma.sh -o install_cma.sh && sudo chmod +x install_cma.sh && sudo ./install_cma.sh -e "engine-%s-%s.euwest1.centreon.cloud:443"',
+                'curl -fsSL ' . self::LINUX_INSTALL_SCRIPT_URL . ' -o install_cma.sh && sudo chmod +x install_cma.sh && sudo ./install_cma.sh -e "engine-%s-%s.euwest1.centreon.cloud:443"',
                 $this->platformVersion,
                 $this->baseUri,
                 $this->organisationName
@@ -49,7 +52,7 @@ final readonly class InstallationCommandFactory
         }
 
         $command = sprintf(
-            'curl -fsSL https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/%s-latest/agent/installer/scripts_linux/install_cma.sh -o install_cma.sh && sudo chmod +x install_cma.sh && sudo ./install_cma.sh -e "%s:%s"',
+            'curl -fsSL ' . self::LINUX_INSTALL_SCRIPT_URL . ' -o install_cma.sh && sudo chmod +x install_cma.sh && sudo ./install_cma.sh -e "%s:%s"',
             $this->platformVersion,
             $this->poller->address->value,
             $this->agentConfigurationPort
@@ -62,7 +65,7 @@ final readonly class InstallationCommandFactory
     {
         if ($this->isCloudPlatform && $this->poller->isCentral) {
             return sprintf(
-                'curl https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/%s-latest/agent/installer/install_cma.ps1 -o install_cma.ps1 ; powershell -ExecutionPolicy Bypass -File .\install_cma.ps1 -endpoint "engine-%s-%s.euwest1.centreon.cloud:443"',
+                'curl ' . self::WINDOWS_INSTALL_SCRIPT_URL . ' -o install_cma.ps1 ; powershell -ExecutionPolicy Bypass -File .\install_cma.ps1 -endpoint "engine-%s-%s.euwest1.centreon.cloud:443"',
                 $this->platformVersion,
                 $this->baseUri,
                 $this->organisationName
@@ -70,7 +73,7 @@ final readonly class InstallationCommandFactory
         }
 
         $command = sprintf(
-            'curl -fsSL https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/%s-latest/agent/installer/install_cma.ps1 -o install_cma.ps1 ; .\install_cma.ps1 -endpoint "%s:%s"',
+            'curl -fsSL ' . self::WINDOWS_INSTALL_SCRIPT_URL . ' -o install_cma.ps1 ; .\install_cma.ps1 -endpoint "%s:%s"',
             $this->platformVersion,
             $this->poller->address->value,
             $this->agentConfigurationPort

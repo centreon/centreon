@@ -190,8 +190,8 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         $certCn = $row['certificate_cn'] ?? null;
         $poller->addPollerCMACertificates(
             new PollerCMACertificates(
-                certificateSha: is_string($certSha) && $certSha !== '' ? new CMACertificateSHA($certSha) : null,
-                certificateCn: is_string($certCn) && $certCn !== '' ? new CMACertificateCN($certCn) : null,
+                certificateSha: is_string($certSha) ? new CMACertificateSHA($certSha) : null,
+                certificateCn: is_string($certCn) ? new CMACertificateCN($certCn) : null,
             )
         );
     }

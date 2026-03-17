@@ -40,26 +40,11 @@ class TelegrafConfigurationParameters extends AbstractConfigurationParameters
         $confServerPort = $this->parameters['conf_server_port'];
         Assert::range($confServerPort, 0, 65535, 'configuration.conf_server_port');
 
-        $this->parameters['otel_public_certificate'] = $this->validateCertificatePath(
-            is_string($this->parameters['otel_public_certificate']) ? $this->parameters['otel_public_certificate'] : null,
-            'configuration.otel_public_certificate'
-        );
-        $this->parameters['otel_private_key'] = $this->validateCertificatePath(
-            is_string($this->parameters['otel_private_key']) ? $this->parameters['otel_private_key'] : null,
-            'configuration.otel_private_key'
-        );
-        $this->parameters['conf_certificate'] = $this->validateCertificatePath(
-            is_string($this->parameters['conf_certificate']) ? $this->parameters['conf_certificate'] : null,
-            'configuration.conf_certificate'
-        );
-        $this->parameters['conf_private_key'] = $this->validateCertificatePath(
-            is_string($this->parameters['conf_private_key']) ? $this->parameters['conf_private_key'] : null,
-            'configuration.conf_private_key'
-        );
-        $this->parameters['otel_ca_certificate'] = $this->validateCertificatePath(
-            is_string($this->parameters['otel_ca_certificate']) ? $this->parameters['otel_ca_certificate'] : null,
-            'configuration.otel_ca_certificate'
-        );
+        $this->normalizeCertificateParam('otel_public_certificate', 'configuration.otel_public_certificate');
+        $this->normalizeCertificateParam('otel_private_key', 'configuration.otel_private_key');
+        $this->normalizeCertificateParam('conf_certificate', 'configuration.conf_certificate');
+        $this->normalizeCertificateParam('conf_private_key', 'configuration.conf_private_key');
+        $this->normalizeCertificateParam('otel_ca_certificate', 'configuration.otel_ca_certificate');
     }
 
     public function getData(): array

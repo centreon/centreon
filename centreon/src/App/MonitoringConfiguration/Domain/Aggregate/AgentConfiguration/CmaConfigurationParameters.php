@@ -31,91 +31,33 @@ class CmaConfigurationParameters extends AbstractConfigurationParameters
     public const DEFAULT_CHECK_INTERVAL = 60;
     public const DEFAULT_EXPORT_PERIOD = 60;
 
+    // Top-level parameter keys
+    public const PARAM_AGENT_INITIATED = 'agent_initiated';
+    public const PARAM_OTEL_PUBLIC_CERTIFICATE = 'otel_public_certificate';
+    public const PARAM_OTEL_PRIVATE_KEY = 'otel_private_key';
+    public const PARAM_OTEL_CA_CERTIFICATE = 'otel_ca_certificate';
+    public const PARAM_TOKENS = 'tokens';
+    public const PARAM_PORT = 'port';
+    public const PARAM_POLLER_INITIATED = 'poller_initiated';
+    public const PARAM_HOSTS = 'hosts';
+
+    // Host sub-keys
+    public const HOST_ID = 'id';
+    public const HOST_ADDRESS = 'address';
+    public const HOST_PORT = 'port';
+    public const HOST_POLLER_CA_CERTIFICATE = 'poller_ca_certificate';
+    public const HOST_TOKEN = 'token';
+
+    // Token sub-keys
+    public const TOKEN_NAME = 'name';
+    public const TOKEN_CREATOR_ID = 'creator_id';
+
     public function __construct(array $parameters, private readonly bool $fromReadRepository = false)
     {
         parent::__construct($parameters);
 
-        /** @var bool $agentInitiated */
-        $agentInitiated = $this->parameters['agent_initiated'];
-        if ($agentInitiated === false) {
-            $this->parameters['otel_public_certificate'] = null;
-            $this->parameters['otel_private_key'] = null;
-            $this->parameters['otel_ca_certificate'] = null;
-            $this->parameters['tokens'] = [];
-        } else {
-            $this->parameters['otel_public_certificate'] = $this->validateCertificatePath(
-                is_string($this->parameters['otel_public_certificate']) ? $this->parameters['otel_public_certificate'] : null,
-                'configuration.otel_public_certificate'
-            );
-            $this->parameters['otel_private_key'] = $this->validateCertificatePath(
-                is_string($this->parameters['otel_private_key']) ? $this->parameters['otel_private_key'] : null,
-                'configuration.otel_private_key'
-            );
-            $this->parameters['otel_ca_certificate'] = $this->validateCertificatePath(
-                is_string($this->parameters['otel_ca_certificate']) ? $this->parameters['otel_ca_certificate'] : null,
-                'configuration.otel_ca_certificate'
-            );
-
-            if (! $this->fromReadRepository) {
-                /** @var array<mixed> $tokens */
-                $tokens = $this->parameters['tokens'];
-                Assert::notEmpty($tokens, '[configuration.tokens] Tokens cannot be empty.');
-                foreach ($tokens as $token) {
-                    /** @var array<string, mixed> $token */
-                    Assert::stringNotEmpty(
-                        is_string($token['name']) ? $token['name'] : '',
-                        '[configuration.tokens[].name] Token name cannot be empty.'
-                    );
-                }
-            }
-            if (! isset($this->parameters['port'])) {
-                $this->parameters['port'] = AgentConfiguration::DEFAULT_PORT;
-            }
-            $portValue = $this->parameters['port'] ?? null;
-            $port = is_int($portValue) ? $portValue : AgentConfiguration::DEFAULT_PORT;
-            Assert::range($port, 0, 65535, '[configuration.port] Port must be between 0 and 65535. Got: %s');
-        }
-
-        /** @var bool $pollerInitiated */
-        $pollerInitiated = $this->parameters['poller_initiated'];
-        if ($pollerInitiated === false) {
-            $this->parameters['hosts'] = [];
-        } else {
-            /** @var array<int|string, array{id: mixed, address: mixed, port: mixed, poller_ca_certificate: mixed, token: mixed}> $hosts */
-            $hosts = $this->parameters['hosts'];
-            foreach ($hosts as $key => $host) {
-                Assert::positiveInteger($host['id'], '[configuration.hosts[].id] Host id must be a positive integer. Got: %s');
-                /** @var string $hostAddress */
-                $hostAddress = $host['address'];
-                Assert::true(
-                    filter_var($hostAddress, FILTER_VALIDATE_IP) !== false
-                    || filter_var($hostAddress, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) !== false,
-                    sprintf('[configuration.hosts[].address] "%s" is not a valid IP or domain.', $hostAddress)
-                );
-                Assert::range($host['port'], 0, 65535, '[configuration.hosts[].port] Port must be between 0 and 65535. Got: %s');
-                $hosts[$key]['poller_ca_certificate'] = $this->validateCertificatePath(
-                    is_string($host['poller_ca_certificate']) ? $host['poller_ca_certificate'] : null,
-                    'configuration.hosts[].poller_ca_certificate'
-                );
-
-                if (! $this->fromReadRepository) {
-                    Assert::notNull($host['token'], '[configuration.hosts[].token] Token cannot be null.');
-                    /** @var array<string, mixed> $hostToken */
-                    $hostToken = $host['token'];
-                    $tokenName = is_string($hostToken['name']) ? $hostToken['name'] : '';
-                    Assert::stringNotEmpty(
-                        $tokenName,
-                        '[configuration.hosts[].token.name] Token name cannot be empty.'
-                    );
-                    $tokenCreatorId = is_int($hostToken['creator_id']) ? $hostToken['creator_id'] : 0;
-                    Assert::positiveInteger(
-                        $tokenCreatorId,
-                        '[configuration.hosts[].token.creator_id] Creator id must be a positive integer. Got: %s'
-                    );
-                }
-            }
-            $this->parameters['hosts'] = $hosts;
-        }
+        $this->applyAgentInitiatedParameters();
+        $this->applyPollerInitiatedParameters();
     }
 
     public function getData(): array
@@ -126,5 +68,116 @@ class CmaConfigurationParameters extends AbstractConfigurationParameters
     public function getBrokerDirective(): ?string
     {
         return self::BROKER_MODULE_DIRECTIVE;
+    }
+
+    private function applyAgentInitiatedParameters(): void
+    {
+        if ($this->parameters[self::PARAM_AGENT_INITIATED] === false) {
+            $this->parameters[self::PARAM_OTEL_PUBLIC_CERTIFICATE] = null;
+            $this->parameters[self::PARAM_OTEL_PRIVATE_KEY] = null;
+            $this->parameters[self::PARAM_OTEL_CA_CERTIFICATE] = null;
+            $this->parameters[self::PARAM_TOKENS] = [];
+
+            return;
+        }
+
+        $this->normalizeCertificateParam(self::PARAM_OTEL_PUBLIC_CERTIFICATE, 'configuration.otel_public_certificate');
+        $this->normalizeCertificateParam(self::PARAM_OTEL_PRIVATE_KEY, 'configuration.otel_private_key');
+        $this->normalizeCertificateParam(self::PARAM_OTEL_CA_CERTIFICATE, 'configuration.otel_ca_certificate');
+
+        if (! $this->fromReadRepository) {
+            $this->validateTokens();
+        }
+
+        $this->normalizePort();
+    }
+
+    private function normalizePort(): void
+    {
+        if (! isset($this->parameters[self::PARAM_PORT])) {
+            $this->parameters[self::PARAM_PORT] = AgentConfiguration::DEFAULT_PORT;
+        }
+        $portValue = $this->parameters[self::PARAM_PORT] ?? null;
+        $port = is_int($portValue) ? $portValue : AgentConfiguration::DEFAULT_PORT;
+        Assert::range($port, 0, 65535, '[configuration.port] Port must be between 0 and 65535. Got: %s');
+    }
+
+    private function validateTokens(): void
+    {
+        /** @var array<mixed> $tokens */
+        $tokens = $this->parameters[self::PARAM_TOKENS];
+        Assert::notEmpty($tokens, '[configuration.tokens] Tokens cannot be empty.');
+        foreach ($tokens as $token) {
+            /** @var array<string, mixed> $token */
+            Assert::stringNotEmpty(
+                is_string($token[self::TOKEN_NAME]) ? $token[self::TOKEN_NAME] : '',
+                '[configuration.tokens[].name] Token name cannot be empty.'
+            );
+        }
+    }
+
+    private function applyPollerInitiatedParameters(): void
+    {
+        if ($this->parameters[self::PARAM_POLLER_INITIATED] === false) {
+            $this->parameters[self::PARAM_HOSTS] = [];
+
+            return;
+        }
+
+        /** @var array<int|string, array{id: mixed, address: mixed, port: mixed, poller_ca_certificate: mixed, token: mixed}> $hosts */
+        $hosts = $this->parameters[self::PARAM_HOSTS];
+        foreach ($hosts as $key => $host) {
+            $hosts[$key] = $this->validateHost($host);
+        }
+        $this->parameters[self::PARAM_HOSTS] = $hosts;
+    }
+
+    /**
+     * @param array{id: mixed, address: mixed, port: mixed, poller_ca_certificate: mixed, token: mixed} $host
+     *
+     * @return array{id: mixed, address: mixed, port: mixed, poller_ca_certificate: mixed, token: mixed}
+     */
+    private function validateHost(array $host): array
+    {
+        Assert::positiveInteger($host[self::HOST_ID], '[configuration.hosts[].id] Host id must be a positive integer. Got: %s');
+
+        /** @var string $hostAddress */
+        $hostAddress = $host[self::HOST_ADDRESS];
+        Assert::true(
+            filter_var($hostAddress, FILTER_VALIDATE_IP) !== false
+            || filter_var($hostAddress, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) !== false,
+            sprintf('[configuration.hosts[].address] "%s" is not a valid IP or domain.', $hostAddress)
+        );
+
+        Assert::range($host[self::HOST_PORT], 0, 65535, '[configuration.hosts[].port] Port must be between 0 and 65535. Got: %s');
+
+        $host[self::HOST_POLLER_CA_CERTIFICATE] = $this->validateCertificatePath(
+            is_string($host[self::HOST_POLLER_CA_CERTIFICATE]) ? $host[self::HOST_POLLER_CA_CERTIFICATE] : null,
+            'configuration.hosts[].poller_ca_certificate'
+        );
+
+        if (! $this->fromReadRepository) {
+            Assert::notNull($host[self::HOST_TOKEN], '[configuration.hosts[].token] Token cannot be null.');
+            /** @var array<string, mixed> $hostToken */
+            $hostToken = $host[self::HOST_TOKEN];
+            $this->validateHostToken($hostToken);
+        }
+
+        return $host;
+    }
+
+    /**
+     * @param array<string, mixed> $hostToken
+     */
+    private function validateHostToken(array $hostToken): void
+    {
+        $tokenName = is_string($hostToken[self::TOKEN_NAME]) ? $hostToken[self::TOKEN_NAME] : '';
+        Assert::stringNotEmpty($tokenName, '[configuration.hosts[].token.name] Token name cannot be empty.');
+
+        $tokenCreatorId = is_int($hostToken[self::TOKEN_CREATOR_ID]) ? $hostToken[self::TOKEN_CREATOR_ID] : 0;
+        Assert::positiveInteger(
+            $tokenCreatorId,
+            '[configuration.hosts[].token.creator_id] Creator id must be a positive integer. Got: %s'
+        );
     }
 }
