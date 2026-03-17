@@ -757,7 +757,7 @@ function secure_dbms_setup() {
 		systemctl restart mariadb
 		log "INFO" "Executing SQL requests for $dbms"
 		mysql -u root --verbose <<-EOF
-			UPDATE mysql.global_priv SET priv=json_set(priv, '$.plugin', 'caching_sha2_password', '$.authentication_string', PASSWORD('$db_root_password')) WHERE User='root';
+			ALTER USER 'root'@'localhost' IDENTIFIED BY '${db_root_password//\'/\'\'}';
 			DELETE FROM mysql.global_priv WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
 			DELETE FROM mysql.global_priv WHERE User='';
 			DROP DATABASE IF EXISTS test;
@@ -907,6 +907,24 @@ function setup_before_installation() {
 }
 #========= end of function setup_before_installation()
 
+#========= begin of function urlencode()
+# URL-encode a string for use in application/x-www-form-urlencoded POST data
+#
+function urlencode() {
+	local string="$1"
+	local encoded="" char hex
+	local i
+	for (( i=0; i<${#string}; i++ )); do
+		char="${string:$i:1}"
+		case "$char" in
+			[a-zA-Z0-9._~-]) encoded+="$char" ;;
+			*) printf -v hex '%%%02X' "'$char"; encoded+="$hex" ;;
+		esac
+	done
+	printf '%s' "$encoded"
+}
+#========= end of function urlencode()
+
 #========= begin of function install_wizard_post()
 # execute a post request of the install wizard
 # - session cookie
@@ -923,6 +941,11 @@ function install_wizard_post() {
 function play_install_wizard() {
 	log "INFO" "Playing install wizard"
 
+	local enc_db_root_password enc_db_centreon_password enc_centreon_admin_password
+	enc_db_root_password=$(urlencode "$db_root_password")
+	enc_db_centreon_password=$(urlencode "$db_centreon_password")
+	enc_centreon_admin_password=$(urlencode "$centreon_admin_password")
+
 	sessionID=$(curl -s -v "http://${central_ip}/centreon/install/install.php" 2>&1 | grep Set-Cookie | awk '{print $3}')
 	curl -s "http://${central_ip}/centreon/install/steps/step.php?action=stepContent" -H "Cookie: ${sessionID}" >/dev/null
 	install_wizard_post ${sessionID} "process_step3.php" 'centreon_engine_stats_binary=%2Fusr%2Fsbin%2Fcentenginestats&monitoring_var_lib=%2Fvar%2Flib%2Fcentreon-engine&centreon_engine_connectors=%2Fusr%2Flib64%2Fcentreon-connector&centreon_engine_lib=%2Fusr%2Flib64%2Fcentreon-engine&centreonplugins=%2Fusr%2Flib%2Fcentreon%2Fplugins%2F'
@@ -934,8 +957,8 @@ function play_install_wizard() {
         install_wizard_post ${sessionID} "process_step4.php" 'centreonbroker_etc=%2Fetc%2Fcentreon-broker&centreonbroker_log=%2Fvar%2Flog%2Fcentreon-broker&centreonbroker_varlib=%2Fvar%2Flib%2Fcentreon-broker&centreonbroker_lib=%2Fusr%2Fshare%2Fcentreon%2Flib%2Fcentreon-broker'
     ;;
     esac
-	install_wizard_post ${sessionID} "process_step5.php" "admin_password=${centreon_admin_password}&confirm_password=${centreon_admin_password}&firstname=${centreon_admin_firstname}&lastname=${centreon_admin_lastname}&email=${centreon_admin_email}"
-	install_wizard_post ${sessionID} "process_step6.php" "address=&port=3306&root_user=root&root_password=${db_root_password}&db_configuration=centreon&db_storage=centreon_storage&db_user=centreon&db_password=${db_centreon_password}&db_password_confirm=${db_centreon_password}"
+	install_wizard_post ${sessionID} "process_step5.php" "admin_password=${enc_centreon_admin_password}&confirm_password=${enc_centreon_admin_password}&firstname=${centreon_admin_firstname}&lastname=${centreon_admin_lastname}&email=${centreon_admin_email}"
+	install_wizard_post ${sessionID} "process_step6.php" "address=&port=3306&root_user=root&root_password=${enc_db_root_password}&db_configuration=centreon&db_storage=centreon_storage&db_user=centreon&db_password=${enc_db_centreon_password}&db_password_confirm=${enc_db_centreon_password}"
 	if [[ -v use_vault ]]; then
 	  install_wizard_post ${sessionID} "process_step_vault.php" "address=${vault_address}&port=${vault_port}&role_id=${vault_role_id}&secret_id=${vault_secret_id}&root_path=${vault_root_path}"
 	fi
@@ -946,7 +969,7 @@ function play_install_wizard() {
 	install_wizard_post ${sessionID} "insertBaseConf.php"
 	install_wizard_post ${sessionID} "partitionTables.php"
 	install_wizard_post ${sessionID} "generationCache.php"
-	INSTALLED_EXTENSIONS='modules%5B%5D=centreon-license-manager&modules%5B%5D=centreon-pp-manager&modules%5B%5D=centreon-it-edition-extensions&modules%5B%5D=centreon-autodiscovery-server&widgets%5B%5D=engine-status&widgets%5B%5D=global-health&widgets%5B%5D=graph-monitoring&widgets%5B%5D=grid-map&widgets%5B%5D=host-monitoring&widgets%5B%5D=hostgroup-monitoring&widgets%5B%5D=httploader&widgets%5B%5D=live-top10-cpu-usage&widgets%5B%5D=live-top10-memory-usage&widgets%5B%5D=service-monitoring&widgets%5B%5D=servicegroup-monitoring&widgets%5B%5D=tactical-overview&widgets%5B%5D=single-metric'
+	INSTALLED_EXTENSIONS='modules%5B%5D=centreon-license-manager&modules%5B%5D=centreon-pp-manager&modules%5B%5D=centreon-it-edition-extensions&modules%5B%5D=centreon-autodiscovery-server'
 	install_wizard_post ${sessionID} "process_step8.php" "$INSTALLED_EXTENSIONS"
 	install_wizard_post ${sessionID} "process_step9.php" 'send_statistics=1'
 }
