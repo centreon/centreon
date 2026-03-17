@@ -18,9 +18,6 @@ services:
       CENTREON_LANG: ${CENTREON_LANG:-en_US}
       DATABASE_PARTITIONING: ${DATABASE_PARTITIONING:-1}
       DEBUG: ${DEBUG:-0}
-    tmpfs:
-      - /var/cache/centreon/symfony:size=32M,mode=1777
-      - /var/lib/php/session:size=32M,mode=1777
     healthcheck:
       test: bash -c "[ -f /tmp/docker.ready ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
       interval: 1s
