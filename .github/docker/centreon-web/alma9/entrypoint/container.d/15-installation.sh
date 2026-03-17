@@ -89,7 +89,13 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
 fi
 
 sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
-sed -i 's/^\( *id:\) .*/\1 1/' /etc/centreon-gorgone/config.d/40-gorgoned.yaml
+if [[ -f /etc/centreon-gorgone/config.d/40-gorgoned.yaml ]]; then
+  if grep -Pzo '(?s)gorgonecore:.*?(?=\n\S|\Z)' /etc/centreon-gorgone/config.d/40-gorgoned.yaml | grep -q 'id:'; then
+    sed -Ei '/^gorgonecore:/,/^[^[:space:]]/ s/^([[:space:]]*id:).*/\1 1/' /etc/centreon-gorgone/config.d/40-gorgoned.yaml
+  else
+    sed -Ei '/^gorgonecore:/a\    id: 1' /etc/centreon-gorgone/config.d/40-gorgoned.yaml
+  fi
+fi
 sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
 
 

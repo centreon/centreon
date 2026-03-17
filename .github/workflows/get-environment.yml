@@ -780,9 +780,9 @@ jobs:
         id: get_package_matrix
         env:
           STABILITY: ${{ steps.get_stability.outputs.stability }}
-          HAS_UPLOAD_ARTIFACTS: ${{ contains(steps.has_skip_label.outputs.labels, 'upload-artifacts') }}
-          HAS_SYSTEM: ${{ contains(steps.has_skip_label.outputs.labels, 'system') }}
-          HAS_DATABASE: ${{ contains(steps.has_skip_label.outputs.labels, 'database') }}
+          HAS_UPLOAD_ARTIFACTS: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'upload-artifacts') }}
+          HAS_SYSTEM: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'system') }}
+          HAS_DATABASE: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'database') }}
           IS_NIGHTLY: ${{ steps.get_nightly_status.outputs.is_nightly }}
         with:
           script: |

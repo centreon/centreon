@@ -45,9 +45,11 @@ chown www-data:www-data /var/log/php8.2-fpm-centreon-error.log
 sed -i 's/^pm = .*/pm = ondemand/' /etc/php/8.2/fpm/pool.d/*.conf
 sed -i 's/^pm\.max_children = .*/pm.max_children = 10/' /etc/php/8.2/fpm/pool.d/*.conf
 for conf in /etc/php/8.2/fpm/pool.d/*.conf; do
-  grep -q 'pm.process_idle_timeout' "\$conf" \
-    && sed -i 's/^pm\.process_idle_timeout = .*/pm.process_idle_timeout = 10s/' "\$conf" \
-    || echo 'pm.process_idle_timeout = 10s' >> "\$conf"
+  if grep -Eq '^[;[:space:]]*pm\.process_idle_timeout\s*=' "\$conf"; then
+    sed -Ei 's|^[;[:space:]]*pm\.process_idle_timeout\s*=.*|pm.process_idle_timeout = 10s|' "\$conf"
+  else
+    echo 'pm.process_idle_timeout = 10s' >> "\$conf"
+  fi
 done
 
 systemctl stop gorgoned
