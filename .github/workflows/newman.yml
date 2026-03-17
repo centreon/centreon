@@ -548,31 +548,33 @@ jobs:
           merge-multiple: true
 
       - name: Delete Artifacts
+        env:
+          ARTIFACT_PATTERN: newman-${{ inputs.os }}${{ inputs.db_id && format('-{0}', inputs.db_id) || '' }}-test-reports-
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
         run: |
-          artifact_pattern="newman-${{ inputs.os }}${{ inputs.db_id && format('-{0}', inputs.db_id) || '' }}-test-reports-"
-          TOKEN="${{ secrets.GITHUB_TOKEN }}"
           artifact_exists=true
           while [ "$artifact_exists" = true ]; do
             artifact_exists=false
             artifacts_response=$(curl -L \
                           -H "Accept: application/vnd.github+json" \
-                          -H "Authorization: Bearer $TOKEN" \
+                          -H "Authorization: Bearer ${TOKEN}" \
                           -H "X-GitHub-Api-Version: 2022-11-28" \
-                          "https://api.github.com/repos/${{ github.repository }}/actions/artifacts?per_page=100")
+                          "https://api.github.com/repos/${REPOSITORY}/actions/artifacts?per_page=100")
             artifacts=$(echo $artifacts_response | jq -c '.artifacts[]')
             echo "Those are the artifacts : $artifacts"
             while read row; do
               artifact_name=$(echo "$row" | jq -r '.name')
-              if [[ "$artifact_name" =~ ^.*"$artifact_pattern".* ]]; then
+              if [[ "$artifact_name" =~ ^.*"$ARTIFACT_PATTERN".* ]]; then
                 artifact_exists=true
                 echo "Deleting : $artifact_name"
                 artifact_id=$(echo "$row" | jq -r '.id')
                 curl -L \
                   -X DELETE \
                   -H "Accept: application/vnd.github+json" \
-                  -H "Authorization: Bearer $TOKEN" \
+                  -H "Authorization: Bearer ${TOKEN}" \
                   -H "X-GitHub-Api-Version: 2022-11-28" \
-                  "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${artifact_id}"
+                  "https://api.github.com/repos/${REPOSITORY}/actions/artifacts/${artifact_id}"
               fi
             done <<< "$artifacts"
           done
