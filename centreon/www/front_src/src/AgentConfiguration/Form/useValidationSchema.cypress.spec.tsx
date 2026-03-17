@@ -60,6 +60,26 @@ describe('useValidationSchema', () => {
     });
   });
 
+  it('validate certificate files with .cert extension', () => {
+    cy.then(async () => {
+      const validData = {
+        name: 'test',
+        type: { id: AgentType.Telegraf },
+        pollers: [{ id: 1, name: 'poller1' }],
+        connectionMode: { id: 'secure', name: 'Secure' },
+        configuration: {
+          confServerPort: 8080,
+          otelPublicCertificate: 'cert.cert'
+        }
+      };
+
+      const result = await schema.validate(validData, {
+        context: { connectionMode: { id: 'secure' } }
+      });
+      expect(result).to.exist;
+    });
+  });
+
   it('validate key files with .key extension', () => {
     cy.then(async () => {
       const validData = {
@@ -113,7 +133,7 @@ describe('useValidationSchema', () => {
         connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
           confServerPort: 8080,
-          otelPublicCertificate: './path/to/cert.crt'
+          otelPublicCertificate: './path/to/cert.cert'
         }
       };
 
@@ -178,6 +198,7 @@ describe('useValidationSchema', () => {
         pollers: [{ id: 1, name: 'poller1' }],
         connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
+          port: 4317,
           agentInitiated: true,
           pollerInitiated: false,
           tokens: [{ id: '1', name: 'token1', creatorId: 1 }],
@@ -204,6 +225,7 @@ describe('useValidationSchema', () => {
         pollers: [{ id: 1, name: 'poller1' }],
         connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
+          port: null,
           agentInitiated: false,
           pollerInitiated: true,
           tokens: null,
@@ -243,6 +265,7 @@ describe('useValidationSchema', () => {
         pollers: [{ id: 1, name: 'poller1' }],
         connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
+          port: 4317,
           agentInitiated: false,
           pollerInitiated: false,
           tokens: null,
@@ -315,6 +338,7 @@ describe('useValidationSchema', () => {
         pollers: [{ id: 1, name: 'poller1' }],
         connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
+          port: null,
           agentInitiated: false,
           pollerInitiated: true,
           hosts: [
@@ -338,7 +362,9 @@ describe('useValidationSchema', () => {
         context: {
           connectionMode: { id: 'secure' },
           type: { id: AgentType.CMA },
-          configuration: { pollerInitiated: true }
+          configuration: {
+            pollerInitiated: true
+          }
         }
       });
       expect(result).to.exist;

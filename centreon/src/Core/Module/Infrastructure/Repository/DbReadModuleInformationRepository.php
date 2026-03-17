@@ -26,6 +26,7 @@ namespace Core\Module\Infrastructure\Repository;
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
@@ -51,7 +52,7 @@ final class DbReadModuleInformationRepository extends DatabaseRepository impleme
     public function findByName(string $name): ?ModuleInformation
     {
         try {
-            $query = $this->queryBuilder
+            $query = $this->connection->createQueryBuilder()
                 ->select('name', 'rname', 'mod_release')
                 ->from('modules_informations')
                 ->where('name = :name')
@@ -72,7 +73,7 @@ final class DbReadModuleInformationRepository extends DatabaseRepository impleme
                 version: $result['mod_release']
             );
 
-        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        } catch (QueryBuilderException|ValueObjectException|CollectionException|ConnectionException $exception) {
             throw new RepositoryException(
                 "Find module name failed : {$exception->getMessage()}",
                 ['module_name' => $name],

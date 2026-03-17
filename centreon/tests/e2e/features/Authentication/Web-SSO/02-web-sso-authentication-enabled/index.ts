@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import { initializeWebSsoUserAndGetLoginPage } from '../common';
 
 before(() => {
@@ -37,10 +38,7 @@ Given('an administrator logged in the platform', () => {
 When(
   'the administrator activates the Web SSO authentication on the platform',
   () => {
-    cy.navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
+    cy.visit(PAGES.configuration.authentication)
       .get('div[role="tablist"] button:nth-child(3)')
       .click();
     cy.wait('@getWebSSOProvider');

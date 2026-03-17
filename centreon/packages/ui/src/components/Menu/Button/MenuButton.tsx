@@ -5,12 +5,11 @@ import {
   Menu as MenuIcon
 } from '@mui/icons-material';
 
+import { useStyles } from './MenuButton.styles';
 import { AriaLabelingAttributes } from '../../../@types/aria-attributes';
 import { DataTestAttributes } from '../../../@types/data-attributes';
 import { Button, ButtonProps } from '../../Button';
 import { useMenu } from '../useMenu';
-
-import { useStyles } from './MenuButton.styles';
 
 type MenuButtonProps = {
   ariaLabel?: string;

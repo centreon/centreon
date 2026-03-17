@@ -84,24 +84,41 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       features: ${{ steps.list-features.outputs.features }}
+      has_features: ${{ steps.list-features.outputs.features != '' && toJson(fromJson(steps.list-features.outputs.features)) != '[]' && 'true' || 'false' }}
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
-        with:
-          version: 8
-          run_install: false
-          standalone: true
-
       - name: List features
         id: list-features
         run: |
-          pnpm add -g @cucumber/cucumber@10.8.0
+          set -o pipefail
+
+          sudo apt-get update
+          sudo apt-get install -y cucumber
+
+          TEST_TAGS_INPUT="${{ inputs.test_tags }}"
+          CUCUMBER_TAGS=()
+          if [ -n "$TEST_TAGS_INPUT" ]; then
+            while IFS= read -r RAW_TAG; do
+              RAW_TAG=$(echo "$RAW_TAG" | sed -e 's/^ *//g' -e 's/ *$//g')
+              if [[ "$RAW_TAG" == not\ * ]]; then
+                TAG="${RAW_TAG#not }"
+                CUCUMBER_TAGS+=(--tags "~$TAG")
+              elif [ -n "$RAW_TAG" ]; then
+                CUCUMBER_TAGS+=(--tags "$RAW_TAG")
+              fi
+            done <<< "$(echo "$TEST_TAGS_INPUT" | sed 's/ and /\n/g')"
+
+            TEST_TAGS=$(echo "$TEST_TAGS_INPUT" | sed -e 's#not #~#g' -e 's# and #\&\&#g')
+          fi
+          echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
+
           cd ${{ inputs.module_name }}
-          cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]'
-          echo "features=$(cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          FEATURES=$(cucumber ${{ inputs.features_path }} "${CUCUMBER_TAGS[@]}" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')
+          echo $FEATURES
+          echo "features=$FEATURES" >> $GITHUB_OUTPUT
 
   cypress-e2e-test-run:
     if: ${{ needs.cypress-e2e-test-list.outputs.features != '' && toJson(fromJson(needs.cypress-e2e-test-list.outputs.features)) != '[]' }}
@@ -275,18 +292,19 @@ jobs:
 
   # This action is only for NIGHTLY and testing branches
   import-reports-to-xray:
-    needs: [cypress-e2e-test-run]
+    needs: [cypress-e2e-test-list, cypress-e2e-test-run]
     if: |
       ! cancelled() &&
       ! contains(needs.*.result, 'cancelled') &&
-      (inputs.stability == 'testing' || github.event_name == 'schedule')
+      (inputs.stability == 'testing' || inputs.is_nightly == 'true') &&
+      needs.cypress-e2e-test-list.outputs.has_features == 'true'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
         with:
-          version: 8
+          version: 10
 
       - name: Download Artifacts
         uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
@@ -318,10 +336,11 @@ jobs:
           done
 
   cypress-e2e-test-report:
-    needs: [cypress-e2e-test-run]
+    needs: [cypress-e2e-test-list, cypress-e2e-test-run]
     if: |
       ! cancelled() &&
-      ! contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.cypress-e2e-test-list.outputs.has_features == 'true'
     runs-on: ubuntu-24.04
 
     steps:
@@ -329,7 +348,7 @@ jobs:
 
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
         with:
-          version: 8
+          version: 10
 
       - name: Download Artifacts
         uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
@@ -388,29 +407,112 @@ jobs:
             }
 
   regroup-artifacts:
-    needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report]
+    needs: [cypress-e2e-test-list, cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report]
     if: |
       ! cancelled() &&
-      ! contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.cypress-e2e-test-list.outputs.has_features == 'true'
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         type_of_report: [test-results, test-reports, xray-reports]
     steps:
+      - name: Check artifacts exist before merge
+        id: check_artifacts_for_merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pattern="${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}"
+          run_id=${{ github.run_id }}
+          found=false
+          timeout=80       # maximum wait time in seconds
+          interval=5       # interval between each check
+          elapsed=0
+
+          while [ $elapsed -lt $timeout ]; do
+            # Retrieve artifact names of the current run without quotes
+            artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts \
+            --jq ".artifacts[] | select(.workflow_run.id == $run_id) | .name" | tr -d '"')
+
+            merge_list=""
+            while read -r artifact; do
+              echo "Checking artifact: $artifact"
+              if [[ "$artifact" == *"$pattern"* ]]; then
+                merge_list="$merge_list $artifact"
+              fi
+            done <<< "$artifacts"
+
+            if [ -n "$merge_list" ]; then
+              echo "Found artifact(s): $merge_list"
+              found=true
+              break
+            fi
+
+            echo "Artifacts not found yet, waiting $interval seconds..."
+            sleep $interval
+            elapsed=$((elapsed + interval))
+          done
+
+          echo "DEBUG: found='$found'"
+          echo "found=$found" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: Merge Artifacts
         uses: actions/upload-artifact/merge@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
-        if: ${{ ( contains(needs.cypress-e2e-test-run.result, 'failure') && ( matrix.type_of_report == 'test-results' || matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'xray-reports' }}
+        if: steps.check_artifacts_for_merge.outputs.found == 'true' &&
+            (( contains(needs.cypress-e2e-test-run.result, 'failure') &&
+              (matrix.type_of_report == 'test-results' || matrix.type_of_report == 'test-reports') ) ||
+            matrix.type_of_report == 'xray-reports')
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
           pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
-          delete-merged: false # cannot be set to true due to random fails: Failed to DeleteArtifact: Unable to make request: ECONNRESET
+          delete-merged: false
           retention-days: 1
+
+      - name: Check if artifact exists
+        id: check_artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Checking artifact: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*"
+          artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].name')
+          if echo "$artifacts" | grep -q "${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}"; then
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
+      - name: Wait until artifacts are ready for deletion
+        id: wait_artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+            pattern="${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}"
+            found=false
+            timeout=60       # maximum wait time in seconds
+            interval=5       # interval between each check
+            elapsed=0
+
+            while [ $elapsed -lt $timeout ]; do
+              artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].name')
+              if echo "$artifacts" | grep -q "$pattern"; then
+                found=true
+                break
+              fi
+              echo "Artifacts not ready yet, waiting $interval seconds..."
+              sleep $interval
+              elapsed=$((elapsed + interval))
+            done
+
+            echo "found=$found" >> $GITHUB_OUTPUT
+        shell: bash
 
       - name: Delete merged artifacts
         if: |
-          success() ||
-          ( failure() && matrix.type_of_report == 'test-results' )
+          ( success() || ( failure() && matrix.type_of_report == 'test-results' ) ) &&
+          steps.check_artifact.outputs.found == 'true'
         uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*

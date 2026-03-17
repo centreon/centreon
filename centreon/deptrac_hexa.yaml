@@ -67,3 +67,5 @@ parameters:
             - Centreon\Domain\Contact\Contact
         App\ResourceConfiguration\Infrastructure\Legacy\LegacyServiceCategoryPermissionVoter:
             - Centreon\Domain\Contact\Contact
+        App\Shared\Infrastructure\Legacy\LegacyHttpExceptionListener:
+            - Centreon\Domain\Exception\EntityNotFoundException

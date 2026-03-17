@@ -126,7 +126,8 @@ export const useInputs = (): {
                         otelPublicCertificate: '',
                         otelCaCertificate: null,
                         otelPrivateKey: '',
-                        hosts: []
+                        hosts: [],
+                        port: 4317
                       }
                 });
                 setTouched({}, false);

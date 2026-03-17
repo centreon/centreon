@@ -90,7 +90,7 @@ class AgentConfiguration extends AbstractObjectJSON
     {
         return [
             'host' => ModelAgentConfiguration::DEFAULT_HOST,
-            'port' => ModelAgentConfiguration::DEFAULT_PORT,
+            'port' => $data['port'] ?? ModelAgentConfiguration::DEFAULT_PORT,
             'encryption' => match ($connectionMode) {
                 ConnectionModeEnum::SECURE => 'full',
                 ConnectionModeEnum::INSECURE => 'insecure',
@@ -128,6 +128,7 @@ class AgentConfiguration extends AbstractObjectJSON
             'centreon_agent' => [
                 'check_interval' => CmaConfigurationParameters::DEFAULT_CHECK_INTERVAL,
                 'export_period' => CmaConfigurationParameters::DEFAULT_EXPORT_PERIOD,
+                'create_host_auto' => $data['create_host_auto'] ?? false,
             ],
         ];
 

@@ -3,3 +3,7 @@ packages:
   - 'lighthouse'
   - 'tests/e2e'
   - 'tests/rest_api'
+  - 'doc/API'
+
+# 7 days
+minimumReleaseAge: 10080

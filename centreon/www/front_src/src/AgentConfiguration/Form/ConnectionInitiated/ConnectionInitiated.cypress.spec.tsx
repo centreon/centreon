@@ -141,11 +141,11 @@ describe('ConnectionInitiated', () => {
     cy.get('.MuiSwitch-root').click();
     cy.get('input[type="checkbox"]').should('be.checked');
 
-    cy.get('[data-testid="Public certificate(.crt,.cer)"]').should(
+    cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"]').should(
       'be.visible'
     );
-    cy.get('[data-testid="CA(.crt,.cer)"]').should('be.visible');
-    cy.get('[data-testid="Private key(.key)"]').should('be.visible');
+    cy.get('[data-testid="CA (.crt, .cert, .cer)"]').should('be.visible');
+    cy.get('[data-testid="Private key (.key)"]').should('be.visible');
     cy.get('[data-testid="Select existing CMA token(s)"]').should('be.visible');
 
     cy.makeSnapshot();
@@ -157,7 +157,9 @@ describe('ConnectionInitiated', () => {
     cy.get('.MuiSwitch-root').click();
     cy.get('input[type="checkbox"]').should('not.be.checked');
 
-    cy.get('[data-testid="Public certificate(.crt,.cer)"]').should('not.exist');
+    cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"]').should(
+      'not.exist'
+    );
   });
 
   it('should enable poller initiated configuration', () => {
@@ -211,7 +213,9 @@ describe('ConnectionInitiated', () => {
 
     initialize(valuesWithDifferentMode);
 
-    cy.get('[data-testid="Public certificate(.crt,.cer)"]').should('not.exist');
+    cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"]').should(
+      'not.exist'
+    );
   });
 
   it('should render AgentInitiated when connection mode is secure', () => {
@@ -230,7 +234,7 @@ describe('ConnectionInitiated', () => {
 
     initialize(valuesWithSecureMode);
 
-    cy.get('[data-testid="Public certificate(.crt,.cer)"]').should(
+    cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"]').should(
       'be.visible'
     );
   });
@@ -247,7 +251,7 @@ describe('ConnectionInitiated', () => {
     cy.get('[role="tabpanel"][id*="agent"]').should('be.visible');
 
     cy.get('input[type="checkbox"]').should('be.checked');
-    cy.get('[data-testid="Public certificate(.crt,.cer)"]').should(
+    cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"]').should(
       'be.visible'
     );
   });

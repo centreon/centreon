@@ -27,7 +27,7 @@ get:
               result:
                 type: array
                 items:
-                  $ref: 'Schema/FindImageFolders.yaml'
+                  $ref: 'Schema/FindImageFoldersResponse.yaml'
               meta:
                 $ref: '../../Common/Schema/Meta.yaml'
     '403':

@@ -134,7 +134,12 @@ it(
             'Message content',
             '<p>Message content</p>'
         );
-        $notificationUser = new NotificationContact(3, 'test-user', 'test-email');
+        $notificationUser = new NotificationContact(
+            3,
+            'test-user',
+            'test-email',
+            'test-alias'
+        );
 
         $this->notificationRepository
             ->expects($this->once())
@@ -190,7 +195,12 @@ it(
             'Message content',
             '<p>Message content</p>'
         );
-        $notificationUser = new NotificationContact(3, 'test-user', 'test-email');
+        $notificationUser = new NotificationContact(
+            3,
+            'test-user',
+            'test-email',
+            'test-alias'
+        );
 
         $this->notificationRepository
             ->expects($this->once())

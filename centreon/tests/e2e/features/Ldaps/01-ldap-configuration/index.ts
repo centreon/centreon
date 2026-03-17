@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import ldaps from '../../../fixtures/ldaps/ldap.json';
 
 const checkFirstLdapFromListing = () => {
@@ -40,11 +41,7 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 When('the user adds a new LDAP configuration', () => {
-  cy.navigateTo({
-    page: 'LDAP',
-    rootItemNumber: 4,
-    subMenu: 'Parameters'
-  });
+  cy.visit(PAGES.configuration.ldapsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'Add').click();
   cy.addOrUpdateLdap(ldaps.default);
@@ -55,11 +52,7 @@ Then('the LDAP configuration is saved with its properties', () => {
 });
 
 Given('one LDAP configuration has been created', () => {
-  cy.navigateTo({
-    page: 'LDAP',
-    rootItemNumber: 4,
-    subMenu: 'Parameters'
-  });
+  cy.visit(PAGES.configuration.ldapsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'Add').click();
   cy.addOrUpdateLdap(ldaps.default);

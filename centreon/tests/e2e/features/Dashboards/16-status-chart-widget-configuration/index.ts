@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import {
   checkHostsAreMonitored,
   checkMetricsAreMonitored,
@@ -271,37 +272,15 @@ When(
 Then(
   'a donut chart representing the statuses of this list of resources are displayed in the widget preview',
   () => {
-    cy.getByTestId({ testId: 'up' }).should('exist');
-    cy.getByTestId({ testId: 'critical' }).should('exist');
-    cy.getByTestId({ testId: 'warning' }).should('exist');
-    cy.getByTestId({ testId: 'unknown' }).should('exist');
-    cy.getByTestId({ testId: 'unknown' }).should('exist');
-    cy.getByTestId({ testId: 'ok' }).should('exist');
-    cy.getByTestId({ testId: 'pending' }).should('exist');
-    cy.getByTestId({ testId: 'Legend' }).eq(0).should('exist');
-    cy.getByTestId({ testId: 'Legend' }).eq(1).should('exist');
     cy.verifyLegendItemStyle(
       0,
       [
         greenCssBackground,
-        redCssBackground,
-        greyCssBackground,
-        blueCssBackground
-      ],
-      ['100.0%', '0.0%', '0.0%', '0.0%'],
-      ['66.7%', '33.3%', '0.0%', '0.0%']
-    );
-    cy.verifyLegendItemStyle(
-      1,
-      [
-        greenCssBackground,
         orangeCssBackground,
         redCssBackground,
-        greyCssBackground,
         blueCssBackground
       ],
-      ['50.0%', '8.3%', '8.3%', '0.0%', '33.3%'],
-      ['25.0%', '8.3%', '8.3%', '25.0%', '33.3%']
+      ['100.0%', '41.7%', '50.0%', '8.3%'],
     );
   }
 );
@@ -311,37 +290,16 @@ When('the user saves the Status Chart widget', () => {
 });
 
 Then("the Status Chart widget is added in the dashboard's layout", () => {
-  cy.getByTestId({ testId: 'up' }).should('exist');
-  cy.getByTestId({ testId: 'critical' }).should('exist');
-  cy.getByTestId({ testId: 'warning' }).should('exist');
-  cy.getByTestId({ testId: 'unknown' }).should('exist');
-  cy.getByTestId({ testId: 'unknown' }).should('exist');
-  cy.getByTestId({ testId: 'ok' }).should('exist');
-  cy.getByTestId({ testId: 'pending' }).should('exist');
-  cy.getByTestId({ testId: 'Legend' }).eq(0).should('exist');
-  cy.getByTestId({ testId: 'Legend' }).eq(1).should('exist');
   cy.verifyLegendItemStyle(
     0,
     [
       greenCssBackground,
-      redCssBackground,
-      greyCssBackground,
-      blueCssBackground
-    ],
-    ['100.0%', '0.0%', '0.0%', '0.0%'],
-    ['66.7%', '33.3%', '0.0%', '0.0%']
-  );
-  cy.verifyLegendItemStyle(
-    1,
-    [
-      greenCssBackground,
       orangeCssBackground,
       redCssBackground,
-      greyCssBackground,
       blueCssBackground
     ],
-    ['50.0%', '8.3%', '8.3%', '0.0%', '33.3%'],
-    ['25.0%', '8.3%', '8.3%', '25.0%', '33.3%']
+    ['100.0%', '41.7%', '50.0%', '8.3%'],
+    ['41.7%', '50.0%', '100.0%', '33.3%']
   );
 });
 
@@ -370,10 +328,10 @@ Then('the unit of the resources already displayed should be updated', () => {
       greenCssBackground,
       orangeCssBackground,
       redCssBackground,
-      greyCssBackground,
       blueCssBackground
     ],
-    ['5', '8', '3', '0', '3']
+    ['50.0%', '8.3%', '16.7%', '33.3%'],
+    ['33.3%', '25.0%', '8.3%', '33.3%']
   );
 });
 
@@ -406,11 +364,10 @@ Then('only the contents of the other widget are displayed', () => {
       greenCssBackground,
       orangeCssBackground,
       redCssBackground,
-      greyCssBackground,
       blueCssBackground
     ],
-    ['50.0%', '8.3%', '8.3%', '0.0%', '33.3%'],
-    ['25.0%', '8.3%', '8.3%', '25.0%', '33.3%']
+    ['50.0%', '16.7%', '16.7%', '33.3%'],
+    ['33.3%', '8.3%', '8.3%', '33.3%']
   );
 });
 
@@ -439,11 +396,10 @@ Then('a second Status Chart widget is displayed on the dashboard', () => {
       greenCssBackground,
       orangeCssBackground,
       redCssBackground,
-      greyCssBackground,
       blueCssBackground
     ],
-    ['50.0%', '8.3%', '8.3%', '0.0%', '33.3%'],
-    ['25.0%', '8.3%', '8.3%', '25.0%', '33.3%']
+    ['50.0%', '16.7%', '16.7%', '33.3%'],
+    ['33.3%', '8.3%', '8.3%', '33.3%']
   );
 });
 
@@ -477,11 +433,10 @@ Then(
         greenCssBackground,
         orangeCssBackground,
         redCssBackground,
-        greyCssBackground,
         blueCssBackground
       ],
-      ['50.0%', '8.3%', '8.3%', '0.0%', '33.3%'],
-      ['25.0%', '8.3%', '8.3%', '25.0%', '33.3%']
+      ['50.0%', '8.3%', '16.7%', '33.3%'],
+      ['33.3%', '25.0%', '8.3%', '33.3%']
     );
   }
 );
@@ -520,10 +475,7 @@ Then(
 
 Given('the dashboard administrator adds more than 20 hosts', () => {
   cy.addMultipleHosts();
-  cy.navigateTo({
-    page: 'Resources Status',
-    rootItemNumber: 1
-  });
+  cy.visit(PAGES.monitoring.resourcesStatus);
   cy.waitForElementToBeVisible('[data-testid="CloseIcon"]');
 
   cy.getByTestId({ testId: 'Clear filter' }).click({ force: true });

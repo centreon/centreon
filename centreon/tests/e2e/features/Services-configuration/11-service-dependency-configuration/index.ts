@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import data from '../../../fixtures/services/dependency.json';
 import servicesData from '../../../fixtures/services/service.json';
 
@@ -85,11 +86,7 @@ Given('some hosts and services and service groups are configured', () => {
 });
 
 Given('a service dependency is configured', () => {
-  cy.navigateTo({
-    page: 'Services',
-    rootItemNumber: 3,
-    subMenu: 'Notifications'
-  });
+  cy.visit(PAGES.configuration.servicesDependenciesLegacy);
   cy.getIframeBody().contains('a', 'Add').click();
   cy.wait('@getTimeZone');
   cy.addServiceDependency({
@@ -277,11 +274,7 @@ Then('the deleted service dependency is not displayed in the list', () => {
 });
 
 Given('a service group dependency is configured', () => {
-  cy.navigateTo({
-    page: 'Service Groups',
-    rootItemNumber: 3,
-    subMenu: 'Notifications'
-  });
+  cy.visit(PAGES.configuration.serviceGroupsDependenciesLegacy);
   cy.getIframeBody().contains('a', 'Add').click();
   cy.wait('@getTimeZone');
   cy.addServiceGroupDependency({

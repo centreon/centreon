@@ -1,4 +1,4 @@
-import { RefObject, forwardRef } from 'react';
+import { ReactElement, RefObject, forwardRef } from 'react';
 
 import { equals, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
@@ -28,12 +28,12 @@ const useStyles = makeStyles()((theme) => ({
 
 interface Props {
   checkboxSelected?: boolean;
-  children: string;
+  children: string | ReactElement;
   thumbnailUrl?: string;
 }
 
 const Option = forwardRef(
-  ({ children, checkboxSelected, thumbnailUrl }: Props, ref): JSX.Element => {
+  ({ children, checkboxSelected, thumbnailUrl }: Props, ref): ReactElement => {
     const { classes } = useStyles();
 
     return (

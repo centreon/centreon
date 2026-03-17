@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
 
 before(() => {
@@ -56,7 +57,7 @@ Given('an admin user is in the Agents Configuration page', () => {
     jsonName: 'admin',
     loginViaApi: false
   });
-  cy.visit('/centreon/configuration/pollers/agent-configurations');
+  cy.visit(PAGES.configuration.agentConfigurations);
   cy.wait('@getAgentsPage');
 });
 
@@ -121,30 +122,36 @@ Then('a pop up is displayed with all of the agent information', () => {
     'have.text',
     'Central'
   );
-  cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(0)
     .should(
       'have.value',
       `/etc/pki/${agentsConfiguration.telegraf1.publicCertfFileName}`
     );
-  cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' }).should(
+  cy.getByLabel({ label: 'CA (.crt, .cert, .cer)', tag: 'input' }).should(
     'have.value',
     `/etc/pki/${agentsConfiguration.telegraf1.caFileName}`
   );
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(0)
     .should(
       'have.value',
       `/etc/pki/${agentsConfiguration.telegraf1.privateKFileName}`
     );
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(1)
     .should(
       'have.value',
       `/etc/pki/${agentsConfiguration.telegraf1.certfFileName}`
     );
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(1)
     .should(
       'have.value',
@@ -202,7 +209,7 @@ Given('a non-admin user without topology rights is logged in', () => {
 });
 
 When('the user tries to access the Agents Configuration page', () => {
-  cy.visit('/centreon/configuration/pollers/agent-configurations');
+  cy.visit(PAGES.configuration.agentConfigurations);
 });
 
 Then('the user cannot access the Agents Configuration page', () => {
@@ -219,7 +226,7 @@ Given('a non-admin user is logged in', () => {
 });
 
 Given('an agent configuration already created linked with two pollers', () => {
-  cy.visit('/centreon/configuration/pollers/agent-configurations');
+  cy.visit(PAGES.configuration.agentConfigurations);
   cy.wait('@getAgentsPage');
   cy.contains('button', 'Add').click();
   cy.get('*[role="dialog"]').should('be.visible');
@@ -234,20 +241,26 @@ Given('an agent configuration already created linked with two pollers', () => {
   cy.contains('Poller-1').click();
   // Click outside to close the pollers dropdown list
   cy.contains('h6', 'Pollers').click();
-  cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(0)
     .type(agentsConfiguration.telegraf1.publicCertfFileName);
-  cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' }).type(
+  cy.getByLabel({ label: 'CA (.crt, .cert, .cer)', tag: 'input' }).type(
     agentsConfiguration.telegraf1.caFileName
   );
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(0)
     .type(agentsConfiguration.telegraf1.privateKFileName);
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(1)
     .type(agentsConfiguration.telegraf1.certfFileName);
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(1)
     .type(agentsConfiguration.telegraf1.privateKFileName);
   cy.getByTestId({ testId: 'submit' }).click();
@@ -334,7 +347,7 @@ Then(
       .eq(1)
       .should('have.text', 'Poller-1');
     cy.getByLabel({
-      label: 'Public certificate(.crt,.cer)',
+      label: 'Public certificate (.crt, .cert, .cer)',
       tag: 'input'
     })
       .eq(0)
@@ -342,11 +355,11 @@ Then(
         'have.value',
         `/etc/pki/${agentsConfiguration.telegraf1.publicCertfFileName}`
       );
-    cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' }).should(
+    cy.getByLabel({ label: 'CA (.crt, .cert, .cer)', tag: 'input' }).should(
       'have.value',
       `/etc/pki/${agentsConfiguration.telegraf1.caFileName}`
     );
-    cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+    cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
       .eq(0)
       .should(
         'have.value',
@@ -354,7 +367,7 @@ Then(
       );
     cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
     cy.getByLabel({
-      label: 'Public certificate(.crt,.cer)',
+      label: 'Public certificate (.crt, .cert, .cer)',
       tag: 'input'
     })
       .eq(1)
@@ -362,7 +375,7 @@ Then(
         'have.value',
         `/etc/pki/${agentsConfiguration.telegraf1.certfFileName}`
       );
-    cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+    cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
       .eq(1)
       .should(
         'have.value',
@@ -393,7 +406,7 @@ Given('a non-admin user is in the Agents Configuration page', () => {
     jsonName: 'user-non-admin-for-AC',
     loginViaApi: false
   });
-  cy.visit('/centreon/configuration/pollers/agent-configurations');
+  cy.visit(PAGES.configuration.agentConfigurations);
   cy.wait('@getAgentsPage');
 });
 

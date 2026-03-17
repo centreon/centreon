@@ -109,9 +109,13 @@ class CentreonAuthLDAP
                 // User resource error
                 return CentreonAuth::PASSWORD_INVALID;
             }
-
-            // LDAP fallback
-            return CentreonAuth::PASSWORD_CANNOT_BE_VERIFIED;
+            // User alias matches the contact alias but the user DN is different
+            // We have to update the user DN
+            $updateUserDnOK = $this->updateUserDn();
+            if ($updateUserDnOK === false) {
+                // LDAP fallback
+                return CentreonAuth::PASSWORD_CANNOT_BE_VERIFIED;
+            }
         }
 
         if (empty(trim($this->contactInfos['contact_ldap_dn']))) {
@@ -252,11 +256,7 @@ class CentreonAuthLDAP
                     $stmt->bindValue(':userDisplay', $userDisplay, PDO::PARAM_STR);
                     $stmt->bindValue(':userEmail', $userEmail, PDO::PARAM_STR);
                     $stmt->bindValue(':userPager', $userPager, PDO::PARAM_STR);
-                    $stmt->bindValue(
-                        ':reachApiRt',
-                        $this->contactInfos['contact_oreon'] === '1' ? 1 : 0,
-                        PDO::PARAM_INT
-                    );
+                    $stmt->bindValue(':reachApiRt', $this->contactInfos['reach_api_rt'], PDO::PARAM_INT);
                     $stmt->bindValue(':arId', $this->arId, PDO::PARAM_INT);
                     $stmt->bindValue(':contactId', $this->contactInfos['contact_id'], PDO::PARAM_INT);
                     $stmt->execute();

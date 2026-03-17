@@ -60,11 +60,17 @@ try {
             require_once 'list.php';
             break;
         case 'e':
-            $rule->enable($select);
+            if (empty($select) && $ruleId === null) {
+                throw new Exception('Please provide at least one rule to enable');
+            }
+            $rule->enable(! empty($select) ? $select : [$ruleId => '1']);
             require_once 'list.php';
             break;
         case 'ds':
-            $rule->disable($select);
+            if (empty($select) && $ruleId === null) {
+                throw new Exception('Please provide at least one rule to disable');
+            }
+            $rule->disable(! empty($select) ? $select : [$ruleId => '1']);
             require_once 'list.php';
             break;
         default:

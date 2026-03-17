@@ -1662,7 +1662,7 @@ CREATE TABLE `nagios_server` (
   `remote_id` int(11) NULL,
   `remote_server_use_as_proxy` enum('0','1') NOT NULL DEFAULT '1',
   `updated` enum('1','0') NOT NULL DEFAULT '0',
-  `is_encryption_ready` enum('0', '1') NOT NULL DEFAULT '1',
+  `is_encryption_ready` BOOLEAN NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   CONSTRAINT `nagios_server_remote_id_id` FOREIGN KEY (`remote_id`) REFERENCES `nagios_server` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -2459,6 +2459,7 @@ CREATE TABLE `cfg_nagios_logger` (
   `log_level_macros` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err',
   `log_level_process` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'info',
   `log_level_runtime` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err',
+  `log_level_otl` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err',
   PRIMARY KEY (`id`),
   CONSTRAINT `cfg_nagios_logger_cfg_nagios_id_fk`
     FOREIGN KEY (`cfg_nagios_id`)
@@ -2643,15 +2644,15 @@ CREATE TABLE IF NOT EXISTS `dashboard_widgets` (
 ) COMMENT='Table storing available widget models for dashboards' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `additional_connector_configuration` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `type` enum('vmware_v6') NOT NULL DEFAULT 'vmware_v6',
-  `name` varchar(255) NOT NULL,
-  `description` text,
-  `parameters` JSON NOT NULL,
-  `created_by` int(11) DEFAULT NULL,
-  `updated_by` int(11) DEFAULT NULL,
-  `created_at` int(11) NOT NULL,
-  `updated_at` int(11) NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the additional connector configuration',
+  `type` enum('vmware_v6') NOT NULL DEFAULT 'vmware_v6' COMMENT 'Type of the additional connector configuration (e.g., vmware_v6)',
+  `name` varchar(255) NOT NULL COMMENT 'Name of the additional connector configuration',
+  `description` text COMMENT 'Description of the additional connector configuration',
+  `port` INT UNSIGNED NOT NULL DEFAULT 443 COMMENT 'Port number for VMware connector (default 443)',
+  `created_by` int(11) DEFAULT NULL COMMENT 'ID of the user who created the configuration',
+  `updated_by` int(11) DEFAULT NULL COMMENT 'ID of the user who last updated the configuration',
+  `created_at` int(11) NOT NULL COMMENT 'Creation timestamp',
+  `updated_at` int(11) NOT NULL COMMENT 'Last update timestamp',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name_unique` (`name`),
   CONSTRAINT `acc_contact_created_by`
@@ -2673,6 +2674,24 @@ CREATE TABLE IF NOT EXISTS `acc_poller_relation` (
     FOREIGN KEY (`poller_id`)
     REFERENCES `nagios_server` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+/** ACC configuration items for VMware vCenter - stores individual vCenter connection details  */
+CREATE TABLE IF NOT EXISTS `acc_item` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the vCenter configuration item',
+  `acc_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to additional_connector_configuration',
+  `name` VARCHAR(255) NOT NULL COMMENT 'Name of the vCenter',
+  `url` VARCHAR(255) NOT NULL COMMENT 'vCenter server URL',
+  `username` VARCHAR(255) NOT NULL COMMENT 'Username for vCenter authentication',
+  `password` VARCHAR(255) NOT NULL COMMENT 'Encrypted password for vCenter authentication',
+  `created_at` INT NOT NULL COMMENT 'Creation timestamp',
+  `updated_at` INT NOT NULL COMMENT 'Last update timestamp',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `acc_item_unique` (`acc_id`, `id`),
+  CONSTRAINT `fk_config_acc`
+    FOREIGN KEY (`acc_id`)
+    REFERENCES `additional_connector_configuration` (`id`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='VMware vCenter connection details for ACC';
 
 CREATE TABLE IF NOT EXISTS `dashboard_thumbnail_relation` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID of the relation',

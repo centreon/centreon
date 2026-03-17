@@ -111,10 +111,12 @@ export interface FederatedWidgetOption {
         when: string;
       };
   required?: boolean;
+  requireResourceType?: boolean;
   secondaryLabel: string;
   subInputs?: Array<SubInput>;
   subInputsDelimiter?: string;
   type: FederatedWidgetOptionType;
+  allowEmptyResources?: boolean;
 }
 
 export interface FederatedWidgetProperties {

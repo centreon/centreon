@@ -7,7 +7,7 @@ Cypress.Commands.add('getClosestVersionFile', (currentVersion, versionDir) => {
   cy.task('listFilesInDirectory', versionDir).then((files) => {
     // Filter files that match the pattern
     const versionFiles = (files || []).filter(
-      (file): file is string => typeof file === "string" && pattern.test(file),
+      (file): file is string => typeof file === 'string' && pattern.test(file)
     );
 
     if (versionFiles.length === 0) {

@@ -1,3 +1,4 @@
+import { PAGES } from 'fixtures/shared/constants/pages';
 import metrics from '../../fixtures/dashboards/creation/widgets/metrics.json';
 
 interface Dashboard {
@@ -112,11 +113,11 @@ Cypress.Commands.add('visitDashboards', () => {
     url: '/centreon/api/latest/configuration/dashboards*'
   }).as('listAllDashboards');
 
-  const dashboardsUrl = '/centreon/home/dashboards/library';
+  const dashboardsUrl = PAGES.monitoring.dashboardsLibrary;
   cy.url().then((url) =>
     url.includes(dashboardsUrl)
       ? cy.visit(dashboardsUrl)
-      : cy.navigateTo({ page: 'Dashboards', rootItemNumber: 0 })
+      : cy.visit(PAGES.monitoring.dashboards)
   );
 
   cy.wait('@listAllDashboards');

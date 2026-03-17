@@ -114,9 +114,10 @@ final class DeleteHost
         $this->storageEngine->startTransaction();
         $isVaultActive = $this->writeVaultRepository->isVaultConfigured();
         try {
-            $serviceIds = $this->readServiceRepository->findServiceIdsLinkedToHostId($host->getId());
+            // Only delete services that are exclusively linked to this host
+            $serviceIds = $this->readServiceRepository->findServiceIdsExclusivelyLinkedToHostId($host->getId());
             if ($serviceIds !== []) {
-                $this->info('Services to delete', ['user_id' => $this->contact->getId(), 'services' => $serviceIds]);
+                $this->info('Services to delete (exclusively linked to this host)', ['user_id' => $this->contact->getId(), 'services' => $serviceIds]);
                 if ($isVaultActive) {
                     $serviceUuids = $this->retrieveServiceUuidsFromVault($serviceIds);
                     $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);

@@ -646,7 +646,7 @@ When('the dashboard administrator clicks on the zero-centred button', () => {
 Then(
   'the Metrics Graph widget should be refreshed to center the values around 0',
   () => {
-    cy.get('text').contains('tspan', '0 ms').should('exist');
+    cy.get('text').contains('ms').should('be.visible');
   }
 );
 

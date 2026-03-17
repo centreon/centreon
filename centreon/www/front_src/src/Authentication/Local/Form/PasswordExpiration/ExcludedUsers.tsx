@@ -68,15 +68,13 @@ const ExcludedUsers = (): JSX.Element => {
     });
 
   const getRenderedOptionText = useCallback((option): JSX.Element => {
-    const { alias, email, is_admin: isAdmin } = option;
+    const { alias, is_admin: isAdmin } = option;
 
     return (
       <div className={classes.option}>
         <ListItemText
           primary={alias}
           primaryTypographyProps={optionTypographyProps}
-          secondary={email}
-          secondaryTypographyProps={optionTypographyProps}
         />
         {isAdmin && (
           <Tooltip

@@ -36,6 +36,7 @@ export type {
   Acknowledgement,
   Acl,
   DashboardRolesAndPermissions,
+    PlatformVersions,
   FeatureFlags,
   PlatformFeatures,
   AdditionalResource,

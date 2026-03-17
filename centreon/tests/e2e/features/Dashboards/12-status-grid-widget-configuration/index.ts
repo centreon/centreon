@@ -336,7 +336,7 @@ When(
     cy.getByLabel({ label: 'RichTextEditor' })
       .eq(0)
       .type(genericTextWidgets.default.description);
-    cy.contains("Select all").eq(0).click();
+    cy.contains('Select all').eq(0).click();
     cy.get('input[name="unhandled_problems"]').click();
     cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.getByLabel({ label: 'Host Group' }).click();

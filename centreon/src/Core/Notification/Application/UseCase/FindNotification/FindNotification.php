@@ -226,7 +226,7 @@ final class FindNotification
         );
 
         $response->users = array_map(
-            static fn (NotificationContact $user): array => ['id' => $user->getId(), 'name' => $user->getName()],
+            static fn (NotificationContact $user): array => ['id' => $user->getId(), 'alias' => $user->getAlias()],
             $notifiedUsers
         );
 

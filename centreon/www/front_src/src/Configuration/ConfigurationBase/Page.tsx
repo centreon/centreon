@@ -19,6 +19,7 @@ import { modalStateAtom } from './atoms';
 import { LoadingSkeleton } from '@centreon/ui';
 
 const WelcomePage = ({
+  hasWriteAccess,
   labels,
   dataTestId,
   onCreate,
@@ -47,6 +48,7 @@ const WelcomePage = ({
       data-testid={dataTestId}
       labels={labels}
       onCreate={onCreate}
+      canCreate={hasWriteAccess}
     />
   );
 };
@@ -112,6 +114,7 @@ const Page = <TFilters,>({
               filtersAtom={filtersAtom}
               filtersAtomKey={filtersAtomKey}
               isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
+              hasWriteAccess={!!actions?.edit}
             />
           ) : (
             <Listing<TFilters>

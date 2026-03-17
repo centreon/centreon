@@ -1,10 +1,10 @@
 /* eslint-disable hooks/sort */
 import { useState } from 'react';
 
+import { Box } from '@mui/material';
 import { T, always, cond, gt, isEmpty, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Box } from '@mui/material';
 import { Variant } from '@mui/material/styles/createTypography';
 
 import { Group, InputType } from '@centreon/ui';
@@ -34,6 +34,7 @@ import {
   serviceGroupsEndpoint,
   usersEndpoint
 } from '../api/endpoints';
+
 import { hostEvents, serviceEvents } from '../utils';
 
 import { EmailBody } from './Channel';
@@ -245,7 +246,8 @@ const useFormInputs = ({
       additionalLabelClassName: classes.additionalLabel,
       connectedAutocomplete: {
         additionalConditionParameters: [],
-        endpoint: availableTimePeriodsEndpoint
+        endpoint: availableTimePeriodsEndpoint,
+        getOptionLabel: (option) => option.name
       },
       dataTestId: t(labelTimePeriod),
       fieldName: 'timeperiod',
@@ -309,7 +311,11 @@ const useFormInputs = ({
           {
             connectedAutocomplete: {
               additionalConditionParameters: [],
-              endpoint: usersEndpoint
+              endpoint: usersEndpoint,
+              getRenderedOptionText: (option): string =>
+                option.alias?.toString(),
+              filterKey: 'alias',
+              optionProperty: 'alias'
             },
             dataTestId: 'Search contacts',
             fieldName: 'users',

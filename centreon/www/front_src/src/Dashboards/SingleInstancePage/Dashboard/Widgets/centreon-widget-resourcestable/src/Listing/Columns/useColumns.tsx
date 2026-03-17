@@ -1,28 +1,27 @@
-import {
-  T,
-  always,
-  cond,
-  equals,
-  head,
-  isEmpty,
-  isNotNil,
-  pipe,
-  propOr,
-  split
-} from 'ramda';
-import { useTranslation } from 'react-i18next';
-
-import { isOnPublicPageAtom } from '@centreon/ui-context';
-import { useAtomValue } from 'jotai';
-
+import type { Column } from '@centreon/ui';
 import {
   ColumnType,
   truncate,
   useLocaleDateTimeFormat,
   useStyleTable
 } from '@centreon/ui';
-import type { Column } from '@centreon/ui';
+import { useAtomValue } from 'jotai';
+import {
+  always,
+  cond,
+  equals,
+  head,
+  isEmpty,
+  isNotNil,
+  or,
+  pipe,
+  propOr,
+  split,
+  T
+} from 'ramda';
+import { useTranslation } from 'react-i18next';
 
+import { isOnPublicPageLocalAtom, openTicketContextAtom } from '../../atom';
 import { DisplayType } from '../models';
 import {
   labelAction,
@@ -47,12 +46,11 @@ import {
   labelTicketSubject,
   labelTries
 } from '../translatedLabels';
-
-import useIsOpenTicketInstalled from '../useIsOpenTicketInstalled';
 import CloseTicket from './CloseTicket/CloseTicket';
 
 import { useStatusStyles } from './Columns.styles';
 import OpenTicket from './OpenTicket/OpenTicket';
+import { TicketLink } from './OpenTicket/TicketLink';
 import ParentResourceColumn from './Parent';
 import ResourceColumn from './Resource';
 import SubItem from './ServiceSubItemColumn/SubItem';
@@ -61,10 +59,7 @@ import StateColumn from './State';
 import StatusColumn from './Status';
 
 interface ColumnProps {
-  displayResources: 'withTicket' | 'withoutTicket';
   displayType?: DisplayType;
-  isOpenTicketEnabled: boolean;
-  provider?: { id: number; name: string };
 }
 
 interface ColumnsState {
@@ -77,22 +72,25 @@ const getTicketInformations = (row) =>
   row?.parent?.extra?.open_tickets?.tickets;
 
 const useColumns = ({
-  displayType = DisplayType.All,
-  displayResources,
-  provider,
-  isOpenTicketEnabled
+  displayType = DisplayType.All
 }: ColumnProps): ColumnsState => {
   const { dataStyle } = useStyleTable({});
   const { classes: statusClasses } = useStatusStyles({
     data: dataStyle.statusColumnChip
   });
 
-  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+  const isOnPublicPage = useAtomValue(isOnPublicPageLocalAtom);
+  const {
+    displayResources,
+    enableHostTicketCreation,
+    enableServiceTicketCreation,
+    isOpenTicketEnabled,
+    isOpenTicketInstalled,
+    provider
+  } = useAtomValue(openTicketContextAtom);
 
   const { format } = useLocaleDateTimeFormat();
   const { t } = useTranslation();
-
-  const isOpenTicketInstalled = useIsOpenTicketInstalled();
 
   const resourceLabel = cond([
     [equals(DisplayType.Host), always(labelHost)],
@@ -108,7 +106,10 @@ const useColumns = ({
 
   const hasProvider = isNotNil(provider) && !isEmpty(provider);
   const isOpenTicketColumnsVisible =
-    isOpenTicketInstalled && isOpenTicketEnabled && hasProvider;
+    isOpenTicketInstalled &&
+    isOpenTicketEnabled &&
+    hasProvider &&
+    or(enableHostTicketCreation, enableServiceTicketCreation);
 
   const isOpenTicketActionColumnVisible =
     isOpenTicketColumnsVisible && equals(displayResources, 'withoutTicket');
@@ -182,10 +183,11 @@ const useColumns = ({
     ...(areTicketColumnsVisible
       ? [
           {
-            getFormattedString: (row): string => getTicketInformations(row)?.id,
             id: 'ticket_id',
+            clickable: true,
             label: t(labelTicketID),
-            type: ColumnType.string
+            type: ColumnType.component,
+            Component: TicketLink
           },
           {
             getFormattedString: (row): string =>

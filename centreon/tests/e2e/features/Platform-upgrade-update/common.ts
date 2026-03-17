@@ -2,6 +2,7 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/commands';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import { checkIfConfigurationIsExported, insertFixture } from '../../commons';
 
 const dateBeforeLogin = new Date();
@@ -49,8 +50,7 @@ const getCentreonStableMinorVersions = (
     commandResult = cy
       .execInContainer({
         command: [
-          'mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak',
-          'mv /etc/apt/sources.list.d/centreon-testing.list /etc/apt/sources.list.d/centreon-testing.list.bak',
+          'for i in $( ls /etc/apt/sources.list.d/centreon*{unstable,testing}* ); do mv $i $i.disabled; done',
           'apt-get update'
         ],
         name: 'web'
@@ -79,8 +79,7 @@ const getCentreonStableMinorVersions = (
     } else {
       cy.execInContainer({
         command: [
-          'mv /etc/apt/sources.list.d/centreon-unstable.list.bak /etc/apt/sources.list.d/centreon-unstable.list',
-          'mv /etc/apt/sources.list.d/centreon-testing.list.bak /etc/apt/sources.list.d/centreon-testing.list',
+          'for i in $( ls /etc/apt/sources.list.d/centreon*{unstable,testing}*.disabled ); do mv $i "$(echo $i | sed -r \'s/.disabled//\')"; done',
           'apt-get update'
         ],
         name: 'web'
@@ -98,12 +97,9 @@ const getCentreonStableMinorVersions = (
 
 const installDatabase = (): void => {
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-    const osMatches = Cypress.env('WEB_IMAGE_OS').match(/alma(\d+)/);
     cy.execInContainer({
       command: [
-        `bash -e <<EOF
-          curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --skip-check-installed --skip-maxscale --os-version=${osMatches[1]} --mariadb-server-version="mariadb-10.5"
-EOF`,
+        'dnf module enable -y mariadb:10.11',
         'dnf install -y mariadb-server mariadb'
       ],
       name: 'web'
@@ -159,7 +155,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
         `dnf install -y centreon-web-${version}`,
         'dnf install -y centreon-broker-cbd',
         "echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini",
-        '/etc/init.d/mysql start',
+        'systemctl start mariadb',
         'mkdir -p /run/php-fpm',
         'systemctl restart php-fpm',
         'systemctl restart httpd',
@@ -210,8 +206,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
 
     cy.execInContainer({
       command: [
-        'mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak',
-        'mv /etc/apt/sources.list.d/centreon-testing.list /etc/apt/sources.list.d/centreon-testing.list.bak',
+        'for i in $( ls /etc/apt/sources.list.d/centreon*{unstable,testing}* ); do mv $i $i.disabled; done',
         'apt-get update',
         `apt-get install -y ${packagesToInstall.join(' ')}`,
         'mkdir -p /usr/lib/centreon-connector',
@@ -223,8 +218,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
         `systemctl restart php${phpVersion}-fpm`,
         'systemctl restart apache2',
         `mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"`,
-        'mv /etc/apt/sources.list.d/centreon-unstable.list.bak /etc/apt/sources.list.d/centreon-unstable.list',
-        'mv /etc/apt/sources.list.d/centreon-testing.list.bak /etc/apt/sources.list.d/centreon-testing.list',
+        'for i in $( ls /etc/apt/sources.list.d/centreon*{unstable,testing}*.disabled ); do mv $i "$(echo $i | sed -r \'s/.disabled//\')"; done',
         'apt-get update',
         'usermod -a -G centreon-broker www-data' // temporary fix (MON-20769)
       ],
@@ -245,9 +239,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
   }).as('cacheGeneration');
 
   // Step 1
-  cy.visit('/centreon/install/install.php')
-    .get('th.step-wrapper span')
-    .contains(1);
+  cy.visit(PAGES.configuration.install).get('th.step-wrapper span').contains(1);
   cy.get('#next').click();
 
   // Step 2
@@ -443,7 +435,7 @@ const insertResources = (): Cypress.Chainable => {
 
 const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
   return cy.getWebVersion().then(({ major_version, minor_version }) => {
-    const targetUpdateFile = `/usr/share/centreon/www/install/php/Update-${major_version}.${minor_version}.php`;
+    let targetUpdateFile = `/usr/share/centreon/www/install/php/Update-${major_version}.${minor_version}.php`;
 
     // Check if the version-specific file already exists
     return cy
@@ -452,12 +444,16 @@ const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
         name: 'web'
       })
       .then((fileCheckResult) => {
-        // If version-specific file already exists, no action needed
+        let targetMinor = minor_version;
+        // If version-specific file already exists, increment minor version for testing purposes (to make sure Update-next.php content is tested)
         if (!fileCheckResult.output.includes('File not found')) {
           cy.log(
             `Version-specific update file already exists in container: ${targetUpdateFile}`
           );
-          return cy.wrap(null);
+          cy.log('Incrementing minor version to test Update-next.php content');
+
+          targetMinor = (Number.parseInt(minor_version) + 1).toString();
+          targetUpdateFile = `/usr/share/centreon/www/install/php/Update-${major_version}.${targetMinor}.php`;
         }
 
         // If version-specific file does not exist => copy content from Update-next.php
@@ -494,7 +490,7 @@ const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
 
                     // Change version in the file
                     return cy.execInContainer({
-                      command: `sed -i "s/version = '';/version = '${major_version}.${minor_version}';/g" ${targetUpdateFile}`,
+                      command: `sed -i "s/version = '';/version = '${major_version}.${targetMinor}';/g" ${targetUpdateFile}`,
                       name: 'web'
                     });
                   });
@@ -619,7 +615,7 @@ Then(
 );
 
 Then('legacy services grid page should still work', () => {
-  cy.visit('/centreon/main.php?p=20204&o=svcOV_pb').wait('@getTimeZone');
+  cy.visit(PAGES.configuration.servicesGridLegacy).wait('@getTimeZone');
 
   cy.waitUntil(() => {
     cy.get('iframe#main-content')

@@ -822,8 +822,11 @@ function clonerefreshListener(el){
                         });
 
                         if (jQuery(elem).find("input[id^='macroPassword_']").is(':checked')) {
-                        	jQuery(elem).find("input[name^='macroValue']").prop('type', 'password');
+                            jQuery(elem).find("input[name^='macroValue']").prop('type', 'password');
                             jQuery(elem).find("input[id^='macroPassword_']").closest('span').hide();
+                            jQuery(elem).find("input[id^='macroValue_']").val('**********');
+                            jQuery(elem).find("input[id^='macroOldValue_']").val('**********');
+                            jQuery(elem).find("input[id^='macroTplValue_']").val('**********');
                     	}
                     });
                 },

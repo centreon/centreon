@@ -613,12 +613,16 @@ jQuery(function() {
             jQuery("#service_cs").select2("val", "");
             jQuery("#service_cgs").attr('disabled', 'disabled');
             jQuery("#service_cgs").select2("val", "");
-        } else {
-            jQuery("input[name='contact_additive_inheritance']").removeAttr('disabled');
-            jQuery("input[name='cg_additive_inheritance']").removeAttr('disabled');
-            jQuery("#service_cs").removeAttr('disabled');
-            jQuery("#service_cgs").removeAttr('disabled');
+
+            return;
         }
+
+        {/literal}{if $form.frozen == false}{literal}
+        jQuery("input[name='contact_additive_inheritance']").removeAttr('disabled');
+        jQuery("input[name='cg_additive_inheritance']").removeAttr('disabled');
+        jQuery("#service_cs").removeAttr('disabled');
+        jQuery("#service_cgs").removeAttr('disabled');
+        {/literal}{/if}{literal}
     }
 
     bindInhertance();

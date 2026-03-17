@@ -36,7 +36,7 @@ const MultiAutocompleteField = ({
   disableSortedOptions = false,
   disableSelectAll = true,
   optionProperty = 'name',
-  getOptionLabel = (option): string => option.name,
+  getOptionLabel = (option): string => option?.name,
   getTagLabel = (option): string => option[optionProperty],
   getOptionTooltipLabel,
   chipProps,

@@ -1,26 +1,16 @@
-Cypress.Commands.add('visitHostTemplatesListing', (index: number) => {
-  cy.navigateTo({
-    page: 'Templates',
-    rootItemNumber: index,
-    subMenu: 'Hosts'
-  });
+import { PAGES } from 'fixtures/shared/constants/pages';
+
+Cypress.Commands.add('visitHostTemplatesListing', () => {
+  cy.visit(PAGES.configuration.hostsTemplatesLegacy);
   cy.wait('@getTimeZone');
 });
-Cypress.Commands.add('visitServiceTemplatesListing', (index: number) => {
-  cy.navigateTo({
-    page: 'Templates',
-    rootItemNumber: index,
-    subMenu: 'Services'
-  });
+Cypress.Commands.add('visitServiceTemplatesListing', () => {
+  cy.visit(PAGES.configuration.servicesTemplatesLegacy);
   cy.wait('@getTimeZone');
 });
 
-Cypress.Commands.add('visitServicesListing', (index: number) => {
-  cy.navigateTo({
-    page: 'Services by host',
-    rootItemNumber: index,
-    subMenu: 'Services'
-  });
+Cypress.Commands.add('visitServicesListing', () => {
+  cy.visit(PAGES.configuration.servicesByHostLegacy);
   cy.wait('@getTimeZone');
 });
 
@@ -88,11 +78,11 @@ Cypress.Commands.add(
       expect(result.exitCode).to.eq(0);
       const output = result.output;
       const regexNormal = new RegExp(
-        `${normalMacro.name}\\s+${normalMacro.value}`
+        `${normalMacro.name}\\s+raw::${normalMacro.value}`
       );
       expect(output).to.match(regexNormal);
       const regexPassword = new RegExp(
-        `${passMacro.name}\\s+${passMacro.value}`
+        `${passMacro.name}\\s+encrypt::[A-Za-z0-9+/=]+`
       );
       if (!isInherited) {
         expect(output).to.match(regexPassword);
@@ -127,9 +117,9 @@ declare global {
   // biome-ignore lint/style/noNamespace: <explanation>
   namespace Cypress {
     interface Chainable {
-      visitServiceTemplatesListing: (index: number) => Cypress.Chainable;
-      visitServicesListing: (index: number) => Cypress.Chainable;
-      visitHostTemplatesListing: (index: number) => Cypress.Chainable;
+      visitServiceTemplatesListing: () => Cypress.Chainable;
+      visitServicesListing: () => Cypress.Chainable;
+      visitHostTemplatesListing: () => Cypress.Chainable;
       fillMacros: (
         isUpdate: boolean,
         normalMacro: Macro,
@@ -154,5 +144,3 @@ declare global {
     }
   }
 }
-
-export {};

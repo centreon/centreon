@@ -44,11 +44,12 @@ final class TicketExtraDataFormatter implements ExtraDataNormalizerInterface
      */
     public function normalizeExtraDataForResource(mixed $data): array
     {
-        /** @var array{id:int, subject:string, created_at:\DateTimeInterface} $data */
+        /** @var array{id:int, subject:string, created_at:\DateTimeInterface, link:string} $data */
         return [
             'tickets' => [
                 'id' => $data['id'],
                 'subject' => $data['subject'],
+                'link' => $data['link'],
                 'created_at' => $this->formatDateToIso8601($data['created_at']),
             ],
         ];

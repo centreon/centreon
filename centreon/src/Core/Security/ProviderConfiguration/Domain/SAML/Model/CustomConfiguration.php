@@ -32,7 +32,6 @@ use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
 use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Security\ProviderConfiguration\Domain\SAML\Exception\MissingLogoutUrlException;
-use TypeError;
 
 final class CustomConfiguration implements CustomConfigurationInterface, SAMLCustomConfigurationInterface
 {
@@ -42,168 +41,154 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
     /** @var array<AuthorizationRule> */
     private array $authorizationRules = [];
 
-    /** @var bool */
     private bool $isAutoImportEnabled = false;
 
-    /** @var ContactTemplate|null */
     private ?ContactTemplate $contactTemplate = null;
 
-    /** @var string|null */
     private ?string $emailBindAttribute = null;
 
-    /** @var string|null */
     private ?string $userNameBindAttribute = null;
 
-    /** @var ContactGroup|null */
     private ?ContactGroup $contactGroup = null;
 
-    /** @var ACLConditions */
     private ACLConditions $aclConditions;
 
-    /** @var AuthenticationConditions */
     private AuthenticationConditions $authenticationConditions;
 
-    /** @var GroupsMapping */
     private GroupsMapping $groupsMapping;
 
-    /** @var string */
     private string $remoteLoginUrl = '';
 
-    /** @var string */
     private string $entityIdUrl = '';
 
-    /** @var string|null */
     private ?string $publicCertificate = '';
 
-    /** @var string */
     private string $userIdAttribute = '';
 
-    /** @var RequestedAuthnContextEnum */
-    private RequestedAuthnContextEnum $requestedAuthnContext;
+    private bool $requestedAuthnContext = false;
 
-    /** @var bool */
+    private RequestedAuthnContextComparisonEnum $requestedAuthnContextComparison;
+
     private bool $logoutFrom = true;
 
-    /** @var string|null */
     private ?string $logoutFromUrl = null;
 
-    /**
-     * @param array<string,mixed> $json
-     *
-     * @throws ConfigurationException
-     */
-    public function __construct(array $json)
+    private function __construct()
     {
-        $this->create($json);
     }
 
     /**
-     * @return string
+     * @param array<string,mixed> $values
+     *
+     * @throws ConfigurationException|MissingLogoutUrlException
      */
+    public static function createFromValues(array $values): self
+    {
+        $customConfiguration = new self();
+        if (isset($values['is_active']) && $values['is_active']) {
+            $customConfiguration->validateMandatoryFields($values);
+        }
+        $customConfiguration->setEntityIDUrl($values['entity_id_url']);
+        $customConfiguration->setRemoteLoginUrl($values['remote_login_url']);
+        $customConfiguration->setPublicCertificate($values['certificate']);
+        $customConfiguration->setLogoutFrom($values['logout_from']);
+        if (isset($values['is_forced']) && $values['is_forced'] === true) {
+            $customConfiguration->setLogoutFrom(self::LOGOUT_FROM_CENTREON_AND_IDP);
+        }
+
+        $customConfiguration->setLogoutFromUrl($values['logout_from_url']);
+        $customConfiguration->setUserIdAttribute($values['user_id_attribute']);
+        $customConfiguration->setRequestedAuthnContext($values['requested_authn_context'] ?? false);
+        $customConfiguration->setRequestedAuthnContextComparison(
+            RequestedAuthnContextComparisonEnum::tryFrom($values['requested_authn_context_comparison'])
+            ?? throw ConfigurationException::invalidRequestedAuthnContextComparison($values['requested_authn_context_comparison'])
+        );
+        $customConfiguration->setAutoImportEnabled($values['auto_import']);
+        $customConfiguration->setUserNameBindAttribute($values['fullname_bind_attribute']);
+        $customConfiguration->setEmailBindAttribute($values['email_bind_attribute']);
+        $customConfiguration->setContactTemplate($values['contact_template']);
+        $customConfiguration->setAuthenticationConditions($values['authentication_conditions']);
+        $customConfiguration->setACLConditions($values['roles_mapping']);
+        $customConfiguration->setGroupsMapping($values['groups_mapping']);
+
+        return $customConfiguration;
+    }
+
     public function getRemoteLoginUrl(): string
     {
         return $this->remoteLoginUrl;
     }
 
-    /**
-     * @param string $value
-     */
     public function setRemoteLoginUrl(string $value): void
     {
         $this->remoteLoginUrl = $value;
     }
 
-    /**
-     * @return string
-     */
     public function getEntityIDUrl(): string
     {
         return $this->entityIdUrl;
     }
 
-    /**
-     * @param string $value
-     */
     public function setEntityIDUrl(string $value): void
     {
         $this->entityIdUrl = $value;
     }
 
-    /**
-     * @return string|null
-     */
     public function getPublicCertificate(): ?string
     {
         return $this->publicCertificate;
     }
 
-    /**
-     * @param string|null $value
-     */
     public function setPublicCertificate(?string $value): void
     {
         $this->publicCertificate = $value;
     }
 
-    /**
-     * @return string
-     */
     public function getUserIdAttribute(): string
     {
         return $this->userIdAttribute;
     }
 
-    /**
-     * @param string $value
-     */
     public function setUserIdAttribute(string $value): void
     {
         $this->userIdAttribute = $value;
     }
 
-    /**
-     * @return RequestedAuthnContextEnum
-     */
-    public function getRequestedAuthnContext(): RequestedAuthnContextEnum
+    public function hasRequestedAuthnContext(): bool
     {
         return $this->requestedAuthnContext;
     }
 
-    /**
-     * @param RequestedAuthnContextEnum $value
-     */
-    public function setRequestedAuthnContext(RequestedAuthnContextEnum $value): void
+    public function setRequestedAuthnContext(bool $requestedAuthnContext): void
     {
-        $this->requestedAuthnContext = $value;
+        $this->requestedAuthnContext = $requestedAuthnContext;
     }
 
-    /**
-     * @return bool
-     */
+    public function getRequestedAuthnContextComparison(): RequestedAuthnContextComparisonEnum
+    {
+        return $this->requestedAuthnContextComparison;
+    }
+
+    public function setRequestedAuthnContextComparison(RequestedAuthnContextComparisonEnum $value): void
+    {
+        $this->requestedAuthnContextComparison = $value;
+    }
+
     public function getLogoutFrom(): bool
     {
         return $this->logoutFrom;
     }
 
-    /**
-     * @param bool $value
-     */
     public function setLogoutFrom(bool $value): void
     {
         $this->logoutFrom = $value;
     }
 
-    /**
-     * @return string|null
-     */
     public function getLogoutFromUrl(): ?string
     {
         return $this->logoutFromUrl;
     }
 
-    /**
-     * @param string|null $value
-     */
     public function setLogoutFromUrl(?string $value): void
     {
         $this->logoutFromUrl = $value;
@@ -217,75 +202,46 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         return $this->authorizationRules;
     }
 
-    /**
-     * @return bool
-     */
     public function isAutoImportEnabled(): bool
     {
         return $this->isAutoImportEnabled;
     }
 
-    /**
-     * @return ContactTemplate|null
-     */
     public function getContactTemplate(): ?ContactTemplate
     {
         return $this->contactTemplate;
     }
 
-    /**
-     * @return string|null
-     */
     public function getEmailBindAttribute(): ?string
     {
         return $this->emailBindAttribute;
     }
 
-    /**
-     * @param string $value
-     */
     public function setEmailBindAttribute(?string $value): void
     {
         $this->emailBindAttribute = $value;
     }
 
-    /**
-     * @return string|null
-     */
     public function getUserNameBindAttribute(): ?string
     {
         return $this->userNameBindAttribute;
     }
 
-    /**
-     * @param string $value
-     */
     public function setUserNameBindAttribute(?string $value): void
     {
         $this->userNameBindAttribute = $value;
     }
 
-    /**
-     * @return ContactGroup|null
-     */
     public function getContactGroup(): ?ContactGroup
     {
         return $this->contactGroup;
     }
 
-    /**
-     * @return ACLConditions
-     */
     public function getACLConditions(): ACLConditions
     {
         return $this->aclConditions;
     }
 
-    /**
-     * @param bool $isAutoImportEnabled
-     *
-     * @return self
-     */
     public function setAutoImportEnabled(bool $isAutoImportEnabled): self
     {
         $this->isAutoImportEnabled = $isAutoImportEnabled;
@@ -293,11 +249,6 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         return $this;
     }
 
-    /**
-     * @param ContactTemplate|null $contactTemplate
-     *
-     * @return self
-     */
     public function setContactTemplate(?ContactTemplate $contactTemplate): self
     {
         $this->contactTemplate = $contactTemplate;
@@ -307,10 +258,6 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     /**
      * @param AuthorizationRule[] $authorizationRules
-     *
-     * @throws TypeError
-     *
-     * @return self
      */
     public function setAuthorizationRules(array $authorizationRules): self
     {
@@ -322,11 +269,6 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         return $this;
     }
 
-    /**
-     * @param AuthorizationRule $authorizationRule
-     *
-     * @return self
-     */
     public function addAuthorizationRule(AuthorizationRule $authorizationRule): self
     {
         $this->authorizationRules[] = $authorizationRule;
@@ -334,11 +276,6 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         return $this;
     }
 
-    /**
-     * @param ContactGroup|null $contactGroup
-     *
-     * @return self
-     */
     public function setContactGroup(?ContactGroup $contactGroup): self
     {
         $this->contactGroup = $contactGroup;
@@ -346,11 +283,6 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         return $this;
     }
 
-    /**
-     * @param AuthenticationConditions $authenticationConditions
-     *
-     * @return self
-     */
     public function setAuthenticationConditions(AuthenticationConditions $authenticationConditions): self
     {
         $this->authenticationConditions = $authenticationConditions;
@@ -358,19 +290,11 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         return $this;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function getAuthenticationConditions(): AuthenticationConditions
     {
         return $this->authenticationConditions;
     }
 
-    /**
-     * @param GroupsMapping $groupsMapping
-     *
-     * @return self
-     */
     public function setGroupsMapping(GroupsMapping $groupsMapping): self
     {
         $this->groupsMapping = $groupsMapping;
@@ -378,49 +302,11 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         return $this;
     }
 
-    /**
-     * @return GroupsMapping
-     */
     public function getGroupsMapping(): GroupsMapping
     {
         return $this->groupsMapping;
     }
 
-    /**
-     * @param array<string,mixed> $json
-     *
-     * @throws ConfigurationException
-     */
-    public function create(array $json): void
-    {
-        if (isset($json['is_active']) && $json['is_active']) {
-            $this->validateMandatoryFields($json);
-        }
-        $this->setEntityIDUrl($json['entity_id_url']);
-        $this->setRemoteLoginUrl($json['remote_login_url']);
-        $this->setPublicCertificate($json['certificate']);
-        $this->setLogoutFrom($json['logout_from']);
-        if (isset($json['is_forced']) && $json['is_forced'] === true) {
-            $this->setLogoutFrom(self::LOGOUT_FROM_CENTREON_AND_IDP);
-        }
-
-        $this->setLogoutFromUrl($json['logout_from_url']);
-        $this->setUserIdAttribute($json['user_id_attribute']);
-        $this->setRequestedAuthnContext(RequestedAuthnContextEnum::fromString($json['requested_authn_context']));
-        $this->setAutoImportEnabled($json['auto_import']);
-        $this->setUserNameBindAttribute($json['fullname_bind_attribute']);
-        $this->setEmailBindAttribute($json['email_bind_attribute']);
-        $this->setContactTemplate($json['contact_template']);
-        $this->setAuthenticationConditions($json['authentication_conditions']);
-        $this->setACLConditions($json['roles_mapping']);
-        $this->setGroupsMapping($json['groups_mapping']);
-    }
-
-    /**
-     * @param ACLConditions $aclConditions
-     *
-     * @return CustomConfiguration
-     */
     private function setACLConditions(ACLConditions $aclConditions): self
     {
         $this->aclConditions = $aclConditions;
@@ -431,7 +317,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
     /**
      * @param array<string,mixed> $json
      *
-     * @throws ConfigurationException
+     * @throws ConfigurationException|MissingLogoutUrlException
      */
     private function validateMandatoryFields(array $json): void
     {
@@ -470,15 +356,11 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         ) {
             throw MissingLogoutUrlException::create();
         }
+
+        $this->validateRequestedAuthnContextConfiguration($json);
     }
 
     /**
-     * Validate mandatory parameters for auto import.
-     *
-     * @param ContactTemplate|null $contactTemplate
-     * @param string|null $emailBindAttribute
-     * @param string|null $userNameBindAttribute
-     *
      * @throws ConfigurationException
      */
     private function validateParametersForAutoImport(
@@ -500,6 +382,25 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
             throw ConfigurationException::missingAutoImportMandatoryParameters(
                 $missingMandatoryParameters
             );
+        }
+    }
+
+    /**
+     * @param array<string,mixed> $json
+     *
+     * @throws ConfigurationException
+     */
+    private function validateRequestedAuthnContextConfiguration(array $json): void
+    {
+        if (isset($json['requested_authn_context']) && $json['requested_authn_context'] === true) {
+            if (! isset($json['requested_authn_context_comparison'])) {
+                throw ConfigurationException::missingRequestedAuthnContextComparison();
+            }
+            if (RequestedAuthnContextComparisonEnum::tryFrom($json['requested_authn_context_comparison']) === null) {
+                throw ConfigurationException::invalidRequestedAuthnContextComparison(
+                    $json['requested_authn_context_comparison']
+                );
+            }
         }
     }
 }

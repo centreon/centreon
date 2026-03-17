@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 before(() => {
   cy.startContainers();
@@ -27,11 +28,7 @@ Given('an admin user is logged in', () => {
 });
 
 When('the admin user accesses the backup page', () => {
-  cy.navigateTo({
-    page: 'Backup',
-    rootItemNumber: 4,
-    subMenu: 'Parameters'
-  });
+  cy.visit(PAGES.configuration.backupParametersLegacy);
   cy.wait('@userTimeZone');
 });
 

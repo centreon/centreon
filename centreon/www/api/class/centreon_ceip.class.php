@@ -93,12 +93,66 @@ class CentreonCeip extends CentreonWebService
                 'visitor' => $this->getVisitorInformation(),
                 'account' => $this->getAccountInformation(),
                 'excludeAllText' => true,
+                'agents' => $this->getAgentInformation(),
                 'ceip' => true,
             ]
             // Don't compute data if CEIP is disabled
             : [
                 'ceip' => false,
             ];
+    }
+
+    /**
+     * Fetch Agents info.
+     *
+     * @throws PDOException
+     * @return array{
+     *   poller_id: int,
+     *   nb_agents: int
+     * }
+     */
+    private function getAgentInformation(): array
+    {
+        $agents = [];
+        try {
+            $query = <<<'SQL'
+                    SELECT `poller_id`, `enabled`, `infos`
+                    FROM `centreon_storage`.`agent_information`
+                SQL;
+            $statement = $this->pearDB->executeStatement($query);
+
+            $rows = $this->pearDB->fetchAllAssociative($statement);
+            foreach ($rows as $row) {
+                /** @var array{poller_id:int,enabled:int,infos:string} $row */
+                if ((bool) $row['enabled'] === false) {
+                    continue;
+                }
+
+                $decodedInfos = json_decode($row['infos'], true);
+                if (! is_array($decodedInfos)) {
+                    CentreonLog::create()->error(
+                        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                        message: "Invalid JSON format in agent_information table for poller_id {$row['poller_id']}",
+                        customContext: ['agent_data' => $row]
+                    );
+
+                    continue;
+                }
+
+                $agents[] = [
+                    'poller_id' => $row['poller_id'],
+                    'nb_agents' => array_sum(array_map(static fn (array $info): int => $info['nb_agent'] ?? 0, $decodedInfos)),
+                ];
+            }
+        } catch (Throwable $exception) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: $exception->getMessage(),
+                customContext: ['context' => $exception]
+            );
+        }
+
+        return $agents;
     }
 
     /**
@@ -322,7 +376,11 @@ class CentreonCeip extends CentreonWebService
         } catch (UnknownIdentifierException) {
             // The licence does not exist, 99.99% chance we are on Open source. No need to log.
         } catch (Throwable $exception) {
-            $this->logger->error($exception->getMessage(), ['context' => $exception]);
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: $exception->getMessage(),
+                customContext: ['context' => $exception]
+            );
         }
 
         $licenseInformation = [
@@ -393,9 +451,10 @@ class CentreonCeip extends CentreonWebService
             return $decodedToken['token'];
         }
 
-        $this->logger->warning(
-            "Invalid JSON format in options table for key 'impCompanyToken'",
-            ['context' => $impCompanyToken]
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Invalid JSON format in options table for key 'impCompanyToken'",
+            customContext: ['context' => $impCompanyToken]
         );
 
         return '';
@@ -422,7 +481,11 @@ class CentreonCeip extends CentreonWebService
 
             return is_string($value) || is_int($value) || is_float($value) ? $value : null;
         } catch (PDOException $exception) {
-            $this->logger->error($exception->getMessage(), ['context' => $exception]);
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: $exception->getMessage(),
+                customContext: ['context' => $exception]
+            );
 
             return null;
         }

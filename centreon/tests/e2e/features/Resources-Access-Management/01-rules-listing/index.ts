@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 beforeEach(() => {
   cy.startContainers();
@@ -20,7 +21,7 @@ Given(
 );
 
 When('I navigate to the Resource Access Management page', () => {
-  cy.visit('centreon/administration/resource-access/rules');
+  cy.visit(PAGES.configuration.resourceAccessRules);
 });
 
 Then(

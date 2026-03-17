@@ -1,3 +1,5 @@
+import { PAGES } from 'fixtures/shared/constants/pages';
+
 const setTimePeriod = (): Cypress.Chainable => {
   cy.getIframeBody().find('input[name="tp_name"]').type('timePeriodName');
   cy.getIframeBody().find('input[name="tp_alias"]').type('timePeriodAlias');
@@ -49,11 +51,7 @@ const setTimePeriod = (): Cypress.Chainable => {
 };
 
 function navigateToTimePeriodsAndInitiateAddition() {
-  cy.navigateTo({
-    page: 'Time Periods',
-    rootItemNumber: 3,
-    subMenu: 'Users'
-  });
+  cy.visit(PAGES.configuration.timePeriodsLegacy);
   cy.waitForElementInIframe('#main-content', 'input[name="searchTP"]');
   cy.getIframeBody().find('a.bt_success').contains('Add').click();
   cy.waitForElementInIframe('#main-content', 'input[name="tp_name"]');
