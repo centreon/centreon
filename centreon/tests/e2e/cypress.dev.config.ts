@@ -1,12 +1,9 @@
 import configuration from '../../packages/js-config/cypress/e2e/configuration';
 
-// The comments are included to keep the architecture visible upon launch. This is intentional
+// biome-ignore lint/suspicious/noConsole: This is intentional to keep the architecture visible upon launch
 console.log('cypress.dev.config] arch:', process.arch);
 if (process.arch === 'arm64') {
   process.env.DOCKER_DEFAULT_PLATFORM = 'linux/amd64';
-  console.log(
-    '[cypress.dev.config] DOCKER_DEFAULT_PLATFORM set to linux/amd64',
-  );
 }
 
 export default configuration({
