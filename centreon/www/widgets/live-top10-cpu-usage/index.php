@@ -172,7 +172,7 @@ try {
                     i.host_name,
                     i.service_description,
                     s.state
-                ORDER BY current_value DESC
+                ORDER BY AVG(m.current_value) DESC
                 LIMIT :numberOfLines;
             SQL;
 
