@@ -174,7 +174,7 @@ final readonly class QueryParameter implements ValueObjectInterface, \Stringable
         return [
             'name' => $this->name,
             'value' => $this->value,
-            'type' => $this->type,
+            'type' => $this->type?->name,
         ];
     }
 

@@ -421,6 +421,24 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
         message: "UPGRADE - {$version}: Inserting Broker output 'central-broker-master-event-script' for CMA",
     );
 
+    // This output is specific to the Central broker. On Remote Servers, cfg_centreonbroker
+    // does not have a 'central-broker-master' entry — inserting with config_id = 1 would
+    // violate the foreign key constraint. Skip if not running on a Central server.
+    if (! $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT 1 FROM `cfg_centreonbroker`
+            WHERE `config_id` = 1
+            AND `config_name` = 'central-broker-master'
+            SQL
+    )) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Not running on a Central server, skipping insertion of 'central-broker-master-event-script'",
+        );
+
+        return;
+    }
+
     if ($pearDB->fetchOne(
         <<<'SQL'
             SELECT 1 FROM `cfg_centreonbroker_info`
