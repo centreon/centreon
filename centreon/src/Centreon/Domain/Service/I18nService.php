@@ -114,7 +114,7 @@ class I18nService
         $data = [];
 
         $translationPath = __DIR__ . "/../../../../www/locale/{$this->lang}/LC_MESSAGES";
-        $translationFile = 'messages.ser';
+        $translationFile = 'messages.json';
 
         if ($this->filesystem->exists($translationPath . '/' . $translationFile)) {
             $files = $this->finder
@@ -122,7 +122,7 @@ class I18nService
                 ->in($translationPath);
 
             foreach ($files as $file) {
-                $data = unserialize($file->getContents());
+                $data = json_decode($file->getContents(), true);
             }
         }
 
@@ -142,7 +142,7 @@ class I18nService
 
         foreach ($languages as $language) {
             $translationPath = __DIR__ . "/../../../../www/locale/{$language}/LC_MESSAGES";
-            $translationFile = 'messages.ser';
+            $translationFile = 'messages.json';
 
             if ($this->filesystem->exists($translationPath . '/' . $translationFile)) {
                 $files = $this->finder
@@ -150,7 +150,7 @@ class I18nService
                     ->in($translationPath);
 
                 foreach ($files as $file) {
-                    $data = array_replace_recursive($data, unserialize($file->getContents()));
+                    $data = array_replace_recursive($data, json_decode($file->getContents(), true));
                 }
             }
         }
@@ -170,7 +170,7 @@ class I18nService
         // loop over each installed modules to get translation
         foreach (array_keys($this->modulesInformation->getInstalledList()) as $module) {
             $translationPath = __DIR__ . "/../../../../www/modules/{$module}/locale/{$this->lang}/LC_MESSAGES";
-            $translationFile = 'messages.ser';
+            $translationFile = 'messages.json';
 
             if ($this->filesystem->exists($translationPath . '/' . $translationFile)) {
                 $files = $this->finder
@@ -180,7 +180,7 @@ class I18nService
                 foreach ($files as $file) {
                     $data = array_replace_recursive(
                         $data,
-                        unserialize($file->getContents())
+                        json_decode($file->getContents(), true)
                     );
                 }
             }
@@ -204,7 +204,7 @@ class I18nService
             // loop over each installed modules to get translation
             foreach (array_keys($this->modulesInformation->getInstalledList()) as $module) {
                 $translationPath = __DIR__ . "/../../../../www/modules/{$module}/locale/{$language}/LC_MESSAGES";
-                $translationFile = 'messages.ser';
+                $translationFile = 'messages.json';
 
                 if ($this->filesystem->exists($translationPath . '/' . $translationFile)) {
                     $files = $this->finder
@@ -214,7 +214,7 @@ class I18nService
                     foreach ($files as $file) {
                         $data = array_replace_recursive(
                             $data,
-                            unserialize($file->getContents())
+                            json_decode($file->getContents(), true)
                         );
                     }
                 }

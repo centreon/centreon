@@ -364,7 +364,7 @@ jobs:
             bash -e ../.github/scripts/translation/make_translation.sh centreon $langName
             msgfmt "lang/$localefull/LC_MESSAGES/messages.po" -o "www/locale/$localefull/LC_MESSAGES/messages.mo" || exit 1
             msgfmt "lang/$localefull/LC_MESSAGES/help.po" -o "www/locale/$localefull/LC_MESSAGES/help.mo" || exit 1
-            php bin/centreon-translations.php "$langShortName" "lang/$localefull/LC_MESSAGES/messages.po" "www/locale/$localefull/LC_MESSAGES/messages.ser"
+            php bin/centreon-translations.php "$langShortName" "lang/$localefull/LC_MESSAGES/messages.po" "www/locale/$localefull/LC_MESSAGES/messages.json"
           done
 
           if [[ "$(git diff --ignore-matching-lines="POT-Creation-Date" | wc -l)" != "0" ]]; then
