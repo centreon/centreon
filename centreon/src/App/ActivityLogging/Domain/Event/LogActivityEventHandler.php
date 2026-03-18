@@ -29,7 +29,11 @@ use App\ActivityLogging\Domain\Aggregate\ActorId;
 use App\ActivityLogging\Domain\Factory\ActivityLogFactoryInterface;
 use App\ActivityLogging\Domain\Repository\ActivityLogRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Event\AggregateCreated;
+use App\Shared\Domain\Event\AggregateDeleted;
+use App\Shared\Domain\Event\AggregateDuplicated;
+use App\Shared\Domain\Event\AggregateUpdated;
 use App\Shared\Domain\Event\AsEventHandler;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
@@ -44,22 +48,40 @@ final readonly class LogActivityEventHandler
     ) {
     }
 
-    public function __invoke(AggregateCreated $event): void
+    /**
+     * @param AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated<AggregateRoot<AggregateRootId>> $event
+     */
+    public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated $event): void
     {
-        if (! $this->activityLogFactories->has($event->aggregate::class)) {
-            throw new \LogicException(\sprintf('There is no "%s" for "%s", did you add a service with "activity_logging.activity_log_factory" tag?', ActivityLogFactoryInterface::class, $event->aggregate::class));
+        $aggregates = is_array($event->aggregate) ? $event->aggregate : [$event->aggregate];
+
+        if ($aggregates === []) {
+            return;
         }
 
-        /** @var ActivityLogFactoryInterface<AggregateRoot> $factory */
-        $factory = $this->activityLogFactories->get($event->aggregate::class);
+        if (! $this->activityLogFactories->has($aggregates[0]::class)) {
+            throw new \LogicException(\sprintf('There is no "%s" for "%s", did you add a service with "activity_logging.activity_log_factory" tag?', ActivityLogFactoryInterface::class, $aggregates[0]::class));
+        }
 
-        $activityLog = $factory->create(
-            action: ActionEnum::Add,
-            aggregate: $event->aggregate,
-            firedBy: new Actor(id: new ActorId($event->creatorId)),
-            firedAt: $event->firedAt(),
-        );
+        /** @var ActivityLogFactoryInterface<AggregateRoot<AggregateRootId>> $factory */
+        $factory = $this->activityLogFactories->get($aggregates[0]::class);
 
-        $this->repository->add($activityLog);
+        $action = match (true) {
+            $event instanceof AggregateCreated, $event instanceof AggregateDuplicated => ActionEnum::Add,
+            $event instanceof AggregateUpdated => ActionEnum::Update,
+            $event instanceof AggregateDeleted => ActionEnum::Delete,
+        };
+
+        $activityLogs = [];
+        foreach ($aggregates as $aggregate) {
+            $activityLogs[] = $factory->create(
+                action: $action,
+                aggregate: $aggregate,
+                firedBy: new Actor(id: new ActorId($event->creatorId)),
+                firedAt: $event->firedAt(),
+            );
+        }
+
+        $this->repository->add(...$activityLogs);
     }
 }

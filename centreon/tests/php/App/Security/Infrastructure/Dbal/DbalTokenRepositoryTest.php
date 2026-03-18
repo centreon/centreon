@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Security\Infrastructure\Dbal;
 
-use App\Security\Domain\Exception\TokenDoesNotExistException;
+use App\Security\Domain\Exception\TokenNotFoundException;
 use App\Security\Infrastructure\Dbal\DbalTokenRepository;
 use Tests\App\Shared\ApiTestCase;
 
@@ -40,7 +40,7 @@ class DbalTokenRepositoryTest extends ApiTestCase
 
     public function testGetThrowsExceptionIfTokenNotFound(): void
     {
-        $this->expectException(TokenDoesNotExistException::class);
+        $this->expectException(TokenNotFoundException::class);
         $this->repository->get('unknown-token');
     }
 

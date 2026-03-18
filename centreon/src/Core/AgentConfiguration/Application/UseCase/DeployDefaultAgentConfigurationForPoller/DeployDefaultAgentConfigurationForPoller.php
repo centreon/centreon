@@ -53,6 +53,15 @@ final class DeployDefaultAgentConfigurationForPoller
 
     public function __invoke(DeployDefaultAgentConfigurationForPollerRequest $request): void
     {
+        if ($this->readAcRepository->findByPollerId($request->pollerId) !== null) {
+            $this->info(
+                'Default AC deployment skipped for poller because it already has an AC linked.',
+                ['pollerId' => $request->pollerId]
+            );
+
+            return;
+        }
+
         $poller = $this->readMonitoringServerRepository->get($request->pollerId);
         $suffix = mb_substr(UuidV4::v4()->toString(), 0, 8);
 
