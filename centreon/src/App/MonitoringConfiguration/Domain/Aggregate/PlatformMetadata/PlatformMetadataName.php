@@ -27,10 +27,12 @@ use Webmozart\Assert\Assert;
 
 final readonly class PlatformMetadataName
 {
-    public function __construct(
-        public string $value,
-    ) {
+    public string $value;
+
+    public function __construct(string $value)
+    {
         $value = trim($value);
         Assert::lengthBetween($value, 1, 255);
+        $this->value = $value;
     }
 }

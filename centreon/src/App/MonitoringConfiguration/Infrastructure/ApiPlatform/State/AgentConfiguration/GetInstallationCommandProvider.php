@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\AgentConf
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\AgentConfiguration\AgentConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\AgentConfiguration\CmaConfigurationParameters;
 use App\MonitoringConfiguration\Domain\Aggregate\PlatformMetadata\PlatformMetadataName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Repository\AgentConfigurationRepository;
@@ -34,6 +35,7 @@ use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\AgentConfiguration\InstallationCommandResource;
 use App\MonitoringConfiguration\Infrastructure\InstallationCommandFactory;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Webmozart\Assert\Assert;
 
 /**
  * @template-implements ProviderInterface<InstallationCommandResource>
@@ -63,7 +65,20 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
         $platformVersion = $this->informationRepository->getByName(new PlatformMetadataName('version'));
         $poller = $this->pollerRepository->withCmaCertificates()->get($pollerId);
         $agentConfiguration = $this->agentConfigurationRepository->getByPollerId($poller->id());
-        $portData = $agentConfiguration->configuration->getData()['port'] ?? null;
+
+        Assert::isInstanceOf(
+            $agentConfiguration->configuration,
+            CmaConfigurationParameters::class,
+            'Installation commands are only available for CMA configurations.'
+        );
+
+        $configData = $agentConfiguration->configuration->getData();
+        Assert::true(
+            ($configData[CmaConfigurationParameters::PARAM_AGENT_INITIATED] ?? false) === true,
+            'Installation commands require agent-initiated connection mode.'
+        );
+
+        $portData = $configData['port'] ?? null;
         $installationCommand = new InstallationCommandFactory(
             $poller,
             is_scalar($portData) ? (int) $portData : AgentConfiguration::DEFAULT_PORT,

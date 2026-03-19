@@ -52,8 +52,8 @@ abstract class AbstractConfigurationParameters
     /**
      * Reads $this->parameters[$key], validates it as a certificate path and writes the normalised value back.
      *
-     * @param string $key   Key in $this->parameters to read and overwrite.
-     * @param string $field Name of the configuration parameter, used as a label in validation error messages.
+     * @param string $key key in $this->parameters to read and overwrite
+     * @param string $field name of the configuration parameter, used as a label in validation error messages
      */
     protected function normalizeCertificateParam(string $key, string $field): void
     {
@@ -66,7 +66,7 @@ abstract class AbstractConfigurationParameters
     /**
      * @param string $path
      * @param string $field Name of the configuration parameter (e.g. 'ca_certificate', 'server_certificate'),
-     * used as a label in validation error messages.
+     *                      used as a label in validation error messages.
      */
     protected function validateCertificatePath(?string $path, string $field): ?string
     {
@@ -91,10 +91,8 @@ abstract class AbstractConfigurationParameters
     }
 
     /**
-     * @param string $path
      * @param string $field Name of the configuration parameter (e.g. 'ca_certificate', 'server_certificate'),
-     * used as a label in validation error messages.
-     *
+     *                      used as a label in validation error messages.
      * @throws \InvalidArgumentException
      */
     protected function assertPathSecurity(string $path, string $field): void
@@ -125,9 +123,10 @@ abstract class AbstractConfigurationParameters
         }
 
         // Reject /etc except /etc/pki
-        if (str_starts_with($path, '/etc/')) {
+        if ($path === '/etc' || str_starts_with($path, '/etc/')) {
+            $basePath = rtrim(self::CERTIFICATE_BASE_PATH, '/');
             Assert::true(
-                str_starts_with($path, self::CERTIFICATE_BASE_PATH) || $path === self::CERTIFICATE_BASE_PATH,
+                $path === $basePath || str_starts_with($path, $basePath . '/'),
                 sprintf('[%s] The path "%s" can only be in /etc/pki/ directory', $field, $path)
             );
         }

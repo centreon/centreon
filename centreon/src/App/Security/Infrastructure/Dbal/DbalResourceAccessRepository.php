@@ -51,7 +51,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             ->setParameter('contactId', $userId->value)
             ->setMaxResults(1);
 
-        return ! (bool) $this->connection->fetchOne($qb->getSQL(), ['contactId' => $userId->value]);
+        return (bool) $this->connection->fetchOne($qb->getSQL(), ['contactId' => $userId->value]);
     }
 
     public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool

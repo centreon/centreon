@@ -56,6 +56,12 @@ class CmaConfigurationParameters extends AbstractConfigurationParameters
     {
         parent::__construct($parameters);
 
+        Assert::true(
+            $this->parameters[self::PARAM_AGENT_INITIATED] === true
+            || $this->parameters[self::PARAM_POLLER_INITIATED] === true,
+            '[configuration] At least one connection mode must be enabled.'
+        );
+
         $this->applyAgentInitiatedParameters();
         $this->applyPollerInitiatedParameters();
     }
@@ -99,19 +105,21 @@ class CmaConfigurationParameters extends AbstractConfigurationParameters
         }
         $portValue = $this->parameters[self::PARAM_PORT] ?? null;
         $port = is_int($portValue) ? $portValue : AgentConfiguration::DEFAULT_PORT;
-        Assert::range($port, 0, 65535, '[configuration.port] Port must be between 0 and 65535. Got: %s');
+        Assert::range($port, 1, 65535, '[configuration.port] Port must be between 1 and 65535. Got: %s');
     }
 
     private function validateTokens(): void
     {
         /** @var array<mixed> $tokens */
         $tokens = $this->parameters[self::PARAM_TOKENS];
-        Assert::notEmpty($tokens, '[configuration.tokens] Tokens cannot be empty.');
+        Assert::notEmpty($tokens, sprintf('[configuration.%s] Tokens cannot be empty.', self::PARAM_TOKENS));
         foreach ($tokens as $token) {
+            Assert::isArray($token, sprintf('[configuration.%s[]] Token entry must be an array.', self::PARAM_TOKENS));
+            Assert::keyExists($token, self::TOKEN_NAME, sprintf('[configuration.%s[].%s] Missing token name.', self::PARAM_TOKENS, self::TOKEN_NAME));
             /** @var array<string, mixed> $token */
             Assert::stringNotEmpty(
                 is_string($token[self::TOKEN_NAME]) ? $token[self::TOKEN_NAME] : '',
-                '[configuration.tokens[].name] Token name cannot be empty.'
+                sprintf('[configuration.%s[].%s] Token name cannot be empty.', self::PARAM_TOKENS, self::TOKEN_NAME)
             );
         }
     }
@@ -149,7 +157,7 @@ class CmaConfigurationParameters extends AbstractConfigurationParameters
             sprintf('[configuration.hosts[].address] "%s" is not a valid IP or domain.', $hostAddress)
         );
 
-        Assert::range($host[self::HOST_PORT], 0, 65535, '[configuration.hosts[].port] Port must be between 0 and 65535. Got: %s');
+        Assert::range($host[self::HOST_PORT], 1, 65535, '[configuration.hosts[].port] Port must be between 1 and 65535. Got: %s');
 
         $host[self::HOST_POLLER_CA_CERTIFICATE] = $this->validateCertificatePath(
             is_string($host[self::HOST_POLLER_CA_CERTIFICATE]) ? $host[self::HOST_POLLER_CA_CERTIFICATE] : null,

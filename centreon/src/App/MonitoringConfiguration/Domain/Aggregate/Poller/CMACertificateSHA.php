@@ -27,11 +27,13 @@ use Webmozart\Assert\Assert;
 
 final readonly class CMACertificateSHA
 {
-    public function __construct(
-        public string $value,
-    ) {
+    public string $value;
+
+    public function __construct(string $value)
+    {
         $value = trim($value);
         Assert::lengthBetween($value, 1, 255);
-
+        Assert::regex($value, '/^[A-Fa-f0-9:]+$/', 'CMACertificateSHA must contain only hexadecimal characters and colons. Got: %s');
+        $this->value = $value;
     }
 }

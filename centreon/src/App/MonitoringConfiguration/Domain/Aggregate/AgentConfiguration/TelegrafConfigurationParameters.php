@@ -37,8 +37,9 @@ class TelegrafConfigurationParameters extends AbstractConfigurationParameters
         parent::__construct($parameters);
 
         /** @var mixed $confServerPort */
-        $confServerPort = $this->parameters['conf_server_port'];
-        Assert::range($confServerPort, 0, 65535, 'configuration.conf_server_port');
+        $confServerPort = $this->parameters['conf_server_port'] ?? null;
+        Assert::integer($confServerPort, '[configuration.conf_server_port] Port must be an integer.');
+        Assert::range($confServerPort, 1, 65535, '[configuration.conf_server_port] Port must be between 1 and 65535. Got: %s');
 
         $this->normalizeCertificateParam('otel_public_certificate', 'configuration.otel_public_certificate');
         $this->normalizeCertificateParam('otel_private_key', 'configuration.otel_private_key');

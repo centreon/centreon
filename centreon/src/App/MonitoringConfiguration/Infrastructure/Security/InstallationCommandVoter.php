@@ -44,7 +44,9 @@ final class InstallationCommandVoter extends Voter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return AgentConfigurationPermissionEnum::tryFrom($attribute) !== null;
+        return AgentConfigurationPermissionEnum::tryFrom($attribute) !== null
+            && is_int($subject)
+            && $subject > 0;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
@@ -60,9 +62,10 @@ final class InstallationCommandVoter extends Voter
 
             return false;
         }
+        /** @var int $subject guaranteed by supports() */
         if (
             ! $this->resourceAccessRepository->hasAccessToAllPollers($user->credential->userId)
-            && $this->resourceAccessRepository->hasAccessToPoller(new PollerId(is_scalar($subject) ? (int) $subject : 0), $user->credential->userId) === false
+            && $this->resourceAccessRepository->hasAccessToPoller(new PollerId($subject), $user->credential->userId) === false
         ) {
             $vote?->addReason('The user has no access to this monitoring server.');
 
