@@ -50,11 +50,11 @@ final class LogoutSessionController extends AbstractController
         $sessionId = null;
 
         if ($basePath !== '') {
-            $sessionId = $request->cookies->get('PHPSESSID_' . $basePath);
+            $sessionId = $request->cookies->get(session_name() . '_' . $basePath);
         }
 
         if ($sessionId === null) {
-            $sessionId = $request->cookies->get('PHPSESSID');
+            $sessionId = $request->cookies->get(session_name());
         }
 
         $useCase($sessionId, $presenter);
