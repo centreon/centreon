@@ -98,6 +98,38 @@ $deployDefaultAgentConfiguration = function () use ($pearDB, &$errorMessage, $ve
 };
 
 /** ------------------------------------- Broker output for CMA ------------------------------------- */
+$isMachineACentral = function () use ($pearDB, &$errorMessage, $version): bool {
+    $errorMessage = 'Unable to check if platform is a Central';
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Check if platform is Central",
+    );
+
+    $isCentral = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT `value` FROM `informations`
+            WHERE `key` = 'isCentral'
+            SQL
+    );
+
+    if ($isCentral === 'yes') {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: server is a central",
+        );
+
+        return true;
+    }
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: server is not a central",
+    );
+
+    return false;
+};
+
 $createBrokerOutputEventScript = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to create Broker output event_script';
 
@@ -421,6 +453,34 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
         message: "UPGRADE - {$version}: Inserting Broker output 'central-broker-master-event-script' for CMA",
     );
 
+    $configId = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT cb.config_id
+            FROM cfg_centreonbroker cb
+            WHERE daemon = 1
+                AND config_activate = '1'
+                AND ns_nagios_server = (
+                    SELECT id FROM nagios_server WHERE localhost = '1'
+                )
+                AND EXISTS (
+                    SELECT 1
+                    FROM cfg_centreonbroker_info cbi
+                    WHERE cbi.config_id = cb.config_id
+                        AND cbi.config_group = 'output'
+                        AND cbi.config_key = 'type'
+                        AND cbi.config_value = 'unified_sql'
+                )
+            SQL
+    );
+    if ($configId === false) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Unable to find the Central's broker configuration"
+        );
+
+        throw new Exception("Unable to find the Central's broker configuration");
+    }
+
     if ($pearDB->fetchOne(
         <<<'SQL'
             SELECT 1 FROM `cfg_centreonbroker_info`
@@ -454,7 +514,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
         ['config_id', 'config_key', 'config_value', 'config_group', 'config_group_id', 'grp_level', 'subgrp_id', 'parent_grp_id'],
         BatchInsertParameters::create([
             QueryParameters::create([
-                QueryParameter::int('config_id', 1),
+                QueryParameter::int('config_id', $configId),
                 QueryParameter::string('config_key', 'type'),
                 QueryParameter::string('config_value', 'event_script'),
                 QueryParameter::string('config_group', 'output'),
@@ -464,7 +524,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameter::int('parent_grp_id', null),
             ]),
             QueryParameters::create([
-                QueryParameter::int('config_id', 1),
+                QueryParameter::int('config_id', $configId),
                 QueryParameter::string('config_key', 'name'),
                 QueryParameter::string('config_value', 'central-broker-master-event-script'),
                 QueryParameter::string('config_group', 'output'),
@@ -474,7 +534,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameter::int('parent_grp_id', null),
             ]),
             QueryParameters::create([
-                QueryParameter::int('config_id', 1),
+                QueryParameter::int('config_id', $configId),
                 QueryParameter::string('config_key', 'blockId'),
                 QueryParameter::string('config_value', '1_' . $typeId),
                 QueryParameter::string('config_group', 'output'),
@@ -484,7 +544,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameter::int('parent_grp_id', null),
             ]),
             QueryParameters::create([
-                QueryParameter::int('config_id', 1),
+                QueryParameter::int('config_id', $configId),
                 QueryParameter::string('config_key', 'script_path'),
                 QueryParameter::string('config_value', '/usr/share/centreon/bin/console agent-configuration:host:create'),
                 QueryParameter::string('config_group', 'output'),
@@ -494,7 +554,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameter::int('parent_grp_id', null),
             ]),
             QueryParameters::create([
-                QueryParameter::int('config_id', 1),
+                QueryParameter::int('config_id', $configId),
                 QueryParameter::string('config_key', 'timeout'),
                 QueryParameter::string('config_value', '15'),
                 QueryParameter::string('config_group', 'output'),
@@ -504,7 +564,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameter::int('parent_grp_id', null),
             ]),
             QueryParameters::create([
-                QueryParameter::int('config_id', 1),
+                QueryParameter::int('config_id', $configId),
                 QueryParameter::string('config_key', 'managed_event_ttl'),
                 QueryParameter::string('config_value', '3600'),
                 QueryParameter::string('config_group', 'output'),
@@ -514,7 +574,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameter::int('parent_grp_id', null),
             ]),
             QueryParameters::create([
-                QueryParameter::int('config_id', 1),
+                QueryParameter::int('config_id', $configId),
                 QueryParameter::string('config_key', 'filters'),
                 QueryParameter::string('config_value', ''),
                 QueryParameter::string('config_group', 'output'),
@@ -524,7 +584,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameter::int('parent_grp_id', null),
             ]),
             QueryParameters::create([
-                QueryParameter::int('config_id', 1),
+                QueryParameter::int('config_id', $configId),
                 QueryParameter::string('config_key', 'event'),
                 QueryParameter::string('config_value', 'neb:UnknownHost'),
                 QueryParameter::string('config_group', 'output'),
@@ -798,7 +858,9 @@ try {
     }
 
     $createBrokerOutputEventScript();
-    $insertEventScriptOutputForCMA();
+    if ($isMachineACentral()) {
+        $insertEventScriptOutputForCMA();
+    }
 
     // Command redesign updates
     $addNewCommandPage();
