@@ -1,5 +1,4 @@
-import { useState } from 'react';
-
+import { useCallback, useState } from 'react';
 import { useAtom } from 'jotai';
 import { isNil } from 'ramda';
 
@@ -53,9 +52,12 @@ const HostGraph = ({ details }: TabProps): JSX.Element => {
     });
   };
 
-  const getTimePeriodsParameters = (data: GraphTimeParameters): void => {
-    setGraphTimeParameters(data);
-  };
+  const getTimePeriodsParameters = useCallback(
+    (data: GraphTimeParameters): void => {
+      setGraphTimeParameters(data);
+    },
+    []
+  );
 
   return (
     <InfiniteScroll<Resource>

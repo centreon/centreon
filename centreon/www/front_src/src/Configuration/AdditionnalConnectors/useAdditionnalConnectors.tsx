@@ -33,6 +33,7 @@ export const adaptFormToApiPayload = (
     parameters: {
       ...formData.parameters,
       vcenters: formData.parameters.vcenters.map((vcenter) => ({
+        id: vcenter?.id || null,
         name: vcenter[ParameterKeys.name],
         password: equals(vcenter[ParameterKeys.password], maskedPassword)
           ? null

@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-namespace */
+/// <reference types="cypress" />
+/// <reference types="@testing-library/cypress" />
 import '@centreon/js-config/cypress/component/commands';
 import '@testing-library/cypress/add-commands';
 
@@ -103,6 +104,7 @@ Cypress.Commands.add('openCalendar', (testId) => {
 });
 
 declare global {
+  // biome-ignore lint/style/noNamespace: Need it for Cypress types
   namespace Cypress {
     interface Chainable {
       clickOutside: () => Cypress.Chainable;

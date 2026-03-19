@@ -281,6 +281,7 @@
           } else {
               self.chart.load(self.buildMetricData(data[0]).data);
               self.chart.regions(self.buildRegions(data[0]));
+              self.buildLegend(data[0].metrics);
               self.buildExtraLegend(data[0].metrics);
           }
         }
@@ -512,8 +513,8 @@
       if (this.settings.period.startTime === null ||
         this.settings.period.endTime === null) {
 
-        start = moment().tz(this.timezone);
-        end = moment().tz(this.timezone);
+        start = moment.tz(this.timezone);
+        end = moment.tz(this.timezone);
 
         start.subtract(this.interval.number, this.interval.unit);
 
@@ -529,8 +530,9 @@
           myEnd = this.settings.period.endTime * 1000;
         }
 
-        start = moment().tz(myStart, this.timezone);
-        end = moment().tz(myEnd, this.timezone);
+
+        start = moment.tz(myStart, "YYYY-MM-DD HH:mm", this.timezone);
+        end = moment.tz(myEnd, "YYYY-MM-DD HH:mm", this.timezone);
       }
 
       return {
@@ -707,6 +709,9 @@
       var curveId;
       var i;
       var j;
+      // Clear existing legends before building new ones
+      this.legendDiv.empty();
+
       for (i = 0; i < legends.length; i++) {
         legend = legends[i];
         curveId = self.ids[legend.legend];

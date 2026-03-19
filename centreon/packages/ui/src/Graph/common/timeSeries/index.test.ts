@@ -362,10 +362,10 @@ describe('timeSeries', () => {
   describe(formatMetricValue, () => {
     const cases: Array<TestCase> = [
       [218857269, '', 1000, '218.86m'],
-      [218857269, '', 1024, '208.72 M'],
+      [218857269, '', 1024, '208.72 Mi'],
       [0.12232323445, '', 1000, '0.12'],
-      [1024, 'B', 1000, '1 KB'],
-      [1024, 'B', 1024, '1 KB'],
+      [1024, 'B', 1000, '1 KiB'],
+      [1024, 'B', 1024, '1 KiB'],
       [null, 'B', 1024, null]
     ];
 
@@ -553,7 +553,7 @@ describe('Format value with unit', () => {
       return '324.23m';
     }
 
-    return `309.21 M${unit}`;
+    return `309.21 Mi${unit}`;
   };
 
   const humanReadableTestCases = units.map((unit) => {

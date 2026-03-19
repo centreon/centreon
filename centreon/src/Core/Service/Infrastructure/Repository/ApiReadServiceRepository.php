@@ -80,6 +80,11 @@ class ApiReadServiceRepository implements ReadServiceRepositoryInterface
         throw RepositoryException::notYetImplemented();
     }
 
+    public function findServiceIdsLinkedToHostThroughHostGroups(int $hostId): array
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
     /**
      * @inheritDoc
      */
@@ -209,6 +214,14 @@ class ApiReadServiceRepository implements ReadServiceRepositoryInterface
      * @inheritDoc
      */
     public function findNameById(int $serviceId): ?string
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findIdsByCommandNames(array $commandNames, array $pollerIds = [], array $hostIds = []): array
     {
         throw RepositoryException::notYetImplemented();
     }

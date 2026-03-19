@@ -89,3 +89,5 @@ export const labelByPollerTooltip =
 
 export const labelAtLeastOneConnexionMode =
   'At least one connection mode must be enabled.';
+
+export const labelCreateHostAutomatically = 'Create hosts automatically';

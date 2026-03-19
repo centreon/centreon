@@ -49,7 +49,9 @@ try {
 
     // TODO add your function calls to update the configuration database data here
 
-    $pearDB->commitTransaction();
+    if ($pearDB->isTransactionActive()) {
+        $pearDB->commitTransaction();
+    }
 
 } catch (Throwable $throwable) {
     CentreonLog::create()->error(

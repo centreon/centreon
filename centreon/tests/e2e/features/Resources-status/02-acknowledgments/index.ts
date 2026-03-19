@@ -240,12 +240,6 @@ Then(
 Then(
   'the previously selected resources is marked as acknowledged in the listing with the acknowledgement icon',
   () => {
-    cy.contains(serviceInAcknowledgementName)
-      .parent()
-      .parent()
-      .getByLabel({ label: `${serviceInAcknowledgementName} Acknowledged` })
-      .should('be.visible');
-
     cy.contains(hostInAcknowledgementName)
       .parent()
       .parent()

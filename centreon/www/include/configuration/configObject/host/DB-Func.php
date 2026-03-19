@@ -34,12 +34,12 @@ use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
-use Symfony\Component\HttpClient\CurlHttpClient;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -1390,8 +1390,7 @@ function updateHost_MC($hostId = null)
             $submittedValues['command_command_id_arg2'] = str_replace("\r", '#R#', $submittedValues['command_command_id_arg2']);
         }
     }
-
-    if (isset($submittedValues['command_command_id'])) {
+    if (! empty($submittedValues['command_command_id'])) {
         $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
         $command = $commandRepository->findById((int) $submittedValues['command_command_id']);
         if ($command === null) {
@@ -2966,30 +2965,20 @@ function updateByApi(array $formData, bool $isCloudPlatform, string $basePath, b
  */
 function callHostApi(string $url, string $httpMethod, array $payload): array
 {
-    $client = new CurlHttpClient();
-    $response = $client->request(
-        $httpMethod,
-        $url,
-        [
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Cookie' => CentreonSession::resolveSessionCookie(),
-            ],
-            'body' => json_encode($payload, JSON_THROW_ON_ERROR),
-        ],
-    );
+    $client = new InternalApiClient();
+    $response = $client->request($url, $httpMethod, CentreonSession::resolveSessionCookie(), $payload);
 
-    $status = $response->getStatusCode();
+    $status = $response['status_code'];
     if (
         ($httpMethod === 'POST' && $status !== 201)
         || ($httpMethod === 'PATCH' && $status !== 204)
     ) {
-        $content = json_decode(json: $response->getContent(false), flags: JSON_THROW_ON_ERROR);
+        $message = $response['content']['message'] ?? 'Unexpected return status';
 
-        throw new Exception($content->message ?? 'Unexpected return status');
+        throw new Exception($message);
     }
 
-    return ['status_code' => $status, 'content' => json_decode($response->getContent(false), true)];
+    return $response;
 }
 
 /**

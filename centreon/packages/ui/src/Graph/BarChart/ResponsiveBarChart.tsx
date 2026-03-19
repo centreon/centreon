@@ -68,7 +68,7 @@ const ResponsiveBarChart = ({
 
   const { classes, cx } = useTooltipStyles();
 
-  const [linesGraph, setLinesGraph] = useState<Array<Line>>(lines);
+  const [linesGraph, setLinesGraph] = useState<Array<Line>>(lines || []);
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
   const [tooltipData, setTooltipData] = useAtom(tooltipDataAtom);
@@ -81,7 +81,7 @@ const ResponsiveBarChart = ({
   );
 
   const [firstUnit, secondUnit] = getUnits(displayedLines);
-  const allUnits = getUnits(lines);
+  const allUnits = getUnits(lines || []);
 
   const { maxLeftAxisCharacters, maxRightAxisCharacters } =
     useComputeYAxisMaxCharacters({
@@ -156,12 +156,12 @@ const ResponsiveBarChart = ({
     ]
   );
 
-  const leftScale = yScalesPerUnit[firstUnit];
-  const rightScale = yScalesPerUnit[secondUnit];
+  const leftScale = yScalesPerUnit[firstUnit ?? allUnits?.[0]];
+  const rightScale = yScalesPerUnit[secondUnit ?? allUnits?.[1]];
 
   useEffect(
     () => {
-      setLinesGraph(lines);
+      setLinesGraph(lines || []);
     },
     useDeepCompare([lines])
   );
