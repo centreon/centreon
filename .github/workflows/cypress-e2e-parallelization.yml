@@ -92,10 +92,19 @@ jobs:
     outputs:
       features: ${{ steps.list-features.outputs.specs }}
       has_features: ${{ steps.list-features.outputs.specs != '' && toJson(fromJson(steps.list-features.outputs.specs)) != '[]' && 'true' || 'false' }}
+      db_id: ${{ steps.get-db-id.outputs.db_id }}
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Get database identifier
+        id: get-db-id
+        run: |
+          db_id=$(echo "$DATABASE_IMAGE" | sed 's|.*/||' | tr ':' '-')
+          echo "db_id=$db_id" >> $GITHUB_OUTPUT
+        env:
+          DATABASE_IMAGE: ${{ inputs.database_image }}
 
       - name: Detect relevant E2E specs
         id: list-features
@@ -208,6 +217,24 @@ jobs:
           docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }}
         shell: bash
 
+      - name: Restore keycloak image from cache
+        if: ${{ contains(matrix.feature, 'Authentication') }}
+        id: cache-docker-keycloak
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        continue-on-error: true
+        timeout-minutes: 6
+        with:
+          path: ./docker-image-keycloak
+          key: docker-image-keycloak-${{ inputs.major_version}}
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
+
+      - name: Load keycloak image
+        if: ${{ contains(matrix.feature, 'Authentication') && steps.cache-docker-keycloak.outputs.cache-hit == 'true' }}
+        run: |
+          docker load --input ../../../docker-image-keycloak/keycloak.tar
+        shell: bash
+
       - name: Get test execution Key
         id: get-test-execution-key
         run: |
@@ -256,7 +283,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-results-${{ steps.feature-path.outputs.feature_name_with_dash }}
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.cypress-e2e-test-list.outputs.db_id }}-test-results-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/
           retention-days: 1
 
@@ -276,7 +303,7 @@ jobs:
         if: ${{ ! cancelled() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.cypress-e2e-test-list.outputs.db_id }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/reports/*.json
           retention-days: 1
 
@@ -284,7 +311,7 @@ jobs:
         if: ${{ ! cancelled() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.cypress-e2e-test-list.outputs.db_id }}-xray-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/*.json
           retention-days: 1
 
@@ -307,7 +334,7 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          pattern: ${{ inputs.name }}-${{ inputs.os }}-xray-reports-*
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.cypress-e2e-test-list.outputs.db_id }}-xray-reports-*
           path: ${{ inputs.name }}-json-xray-reports
           merge-multiple: true
 
@@ -351,7 +378,7 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          pattern: ${{ inputs.name }}-${{ inputs.os }}-test-reports-*
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.cypress-e2e-test-list.outputs.db_id }}-test-reports-*
           path: ${{ inputs.name }}-json-reports
           merge-multiple: true
 
@@ -420,8 +447,8 @@ jobs:
         uses: actions/upload-artifact/merge@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: ${{ ( contains(needs.cypress-e2e-test-run.result, 'failure') && ( matrix.type_of_report == 'test-results' || matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'xray-reports' }}
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
-          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.cypress-e2e-test-list.outputs.db_id }}-${{ matrix.type_of_report }}
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.cypress-e2e-test-list.outputs.db_id }}-${{ matrix.type_of_report }}-*
           delete-merged: false # cannot be set to true due to random fails: Failed to DeleteArtifact: Unable to make request: ECONNRESET
           retention-days: 1
 
@@ -431,5 +458,5 @@ jobs:
           ( failure() && matrix.type_of_report == 'test-results' )
         uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.cypress-e2e-test-list.outputs.db_id }}-${{ matrix.type_of_report }}-*
           failOnError: false
