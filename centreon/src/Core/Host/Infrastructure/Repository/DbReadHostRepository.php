@@ -878,7 +878,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
         $idsToProcess = [$hostId];
         $processed = [];
 
-        while (! empty($idsToProcess)) {
+        while ($idsToProcess !== []) {
             $currentId = array_shift($idsToProcess);
             if (isset($processed[$currentId])) {
                 continue;
