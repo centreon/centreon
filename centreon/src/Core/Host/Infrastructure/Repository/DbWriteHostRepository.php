@@ -164,6 +164,27 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
     }
 
     /**
+     * @inheritDoc
+     */
+    public function deleteServicesFromRemovedTemplates(
+        int $hostId,
+        array $removedTemplateIds,
+        array $remainingTemplateIds,
+    ): void {
+        if ($removedTemplateIds === []) {
+            return;
+        }
+
+        // Expand remaining templates to include their full inheritance chains
+        $allRemainingIds = $this->expandTemplateChain($remainingTemplateIds);
+
+        // Process each removed template and its inheritance chain
+        foreach ($removedTemplateIds as $removedTemplateId) {
+            $this->deleteServicesFromTemplate($hostId, $removedTemplateId, $allRemainingIds, []);
+        }
+    }
+
+    /**
      * @param Host $host
      *
      * @throws \Throwable
@@ -560,27 +581,6 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
         );
 
         $statement->execute();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function deleteServicesFromRemovedTemplates(
-        int $hostId,
-        array $removedTemplateIds,
-        array $remainingTemplateIds,
-    ): void {
-        if ($removedTemplateIds === []) {
-            return;
-        }
-
-        // Expand remaining templates to include their full inheritance chains
-        $allRemainingIds = $this->expandTemplateChain($remainingTemplateIds);
-
-        // Process each removed template and its inheritance chain
-        foreach ($removedTemplateIds as $removedTemplateId) {
-            $this->deleteServicesFromTemplate($hostId, $removedTemplateId, $allRemainingIds, []);
-        }
     }
 
     /**
