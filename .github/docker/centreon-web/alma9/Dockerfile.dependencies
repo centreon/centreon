@@ -15,6 +15,7 @@ RUN --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_USERNAME \
 ######################################
 
 echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf
+echo 'tsflags=nodocs' >> /etc/dnf/dnf.conf
 
 dnf install -y dnf-plugins-core
 
