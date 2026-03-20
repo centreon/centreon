@@ -97,9 +97,9 @@ class CentreonACLAction extends CentreonObject
     /**
      * @param $parameters
      * @throws CentreonClapiException
-     * @return void
+     * @return mixed
      */
-    public function initInsertParameters($parameters): void
+    public function initInsertParameters($parameters): mixed
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -110,6 +110,8 @@ class CentreonACLAction extends CentreonObject
         $addParams['acl_action_description'] = $params[self::ORDER_DESCRIPTION];
         $this->params = array_merge($this->params, $addParams);
         $this->checkParameters();
+
+        return $parameters;
     }
 
     /**
@@ -117,7 +119,7 @@ class CentreonACLAction extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    public function initUpdateParameters($parameters)
+    public function initUpdateParameters($parameters): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -260,9 +262,9 @@ class CentreonACLAction extends CentreonObject
      * @param null $filterName
      *
      * @throws Exception
-     * @return bool|void
+     * @return bool
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
             return false;
@@ -301,6 +303,8 @@ class CentreonACLAction extends CentreonObject
             echo $exportLine;
             $exportLine = '';
         }
+
+        return true;
     }
 
     /**
@@ -374,7 +378,7 @@ class CentreonACLAction extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    protected function splitParams($parameters)
+    protected function splitParams($parameters): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 2) {
@@ -395,7 +399,7 @@ class CentreonACLAction extends CentreonObject
      * @throws PDOException
      * @return string
      */
-    private function exportGrantActions($aclActionRuleId, $aclActionName)
+    private function exportGrantActions($aclActionRuleId, $aclActionName): string
     {
         $grantActions = '';
         $query = 'SELECT * FROM acl_actions_rules WHERE acl_action_rule_id = :ruleId';

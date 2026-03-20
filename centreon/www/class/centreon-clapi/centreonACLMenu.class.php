@@ -84,9 +84,9 @@ class CentreonACLMenu extends CentreonObject
     /**
      * @param $parameters
      * @throws CentreonClapiException
-     * @return void
+     * @return null
      */
-    public function initInsertParameters($parameters): void
+    public function initInsertParameters($parameters): null
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -97,6 +97,8 @@ class CentreonACLMenu extends CentreonObject
         $addParams['acl_topo_alias'] = $params[self::ORDER_ALIAS];
         $this->params = array_merge($this->params, $addParams);
         $this->checkParameters();
+
+        return null;
     }
 
     /**
@@ -104,7 +106,7 @@ class CentreonACLMenu extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    public function initUpdateParameters($parameters)
+    public function initUpdateParameters($parameters): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -277,9 +279,9 @@ class CentreonACLMenu extends CentreonObject
      * @param null $filterName
      *
      * @throws Exception
-     * @return bool|void
+     * @return bool
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
             return false;
@@ -319,6 +321,8 @@ class CentreonACLMenu extends CentreonObject
             echo $exportLine;
             $exportLine = '';
         }
+
+        return true;
     }
 
     /**
@@ -330,7 +334,7 @@ class CentreonACLMenu extends CentreonObject
      * @throws PDOException
      * @return array
      */
-    protected function splitParams($parameters)
+    protected function splitParams($parameters): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 3) {
@@ -454,7 +458,7 @@ class CentreonACLMenu extends CentreonObject
      * @throws PDOException
      * @return string
      */
-    private function grantMenu($aclTopoId, $aclTopoName)
+    private function grantMenu($aclTopoId, $aclTopoName): string
     {
         $grantedMenu = '';
 

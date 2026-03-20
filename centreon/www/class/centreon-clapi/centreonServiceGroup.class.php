@@ -34,12 +34,12 @@ use Pimple\Container;
 require_once 'centreonObject.class.php';
 require_once 'centreonConfigurationChange.class.php';
 require_once 'centreonACL.class.php';
-require_once 'Centreon/Object/Service/Group.php';
-require_once 'Centreon/Object/Relation/Host/Service.php';
-require_once 'Centreon/Object/Relation/Host/Group/Service/Service.php';
-require_once 'Centreon/Object/Relation/Service/Group/Service.php';
-require_once 'Centreon/Object/Relation/Service/Group/Host/Group/Service.php';
-require_once 'Centreon/Object/Dependency/DependencyServicegroupParent.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Service/Group.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Host/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Host/Group/Service/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Service/Group/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Service/Group/Host/Group/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Dependency/DependencyServicegroupParent.php';
 
 /**
  * Class
@@ -289,9 +289,9 @@ class CentreonServiceGroup extends CentreonObject
      *
      * @throws CentreonClapiException
      * @throws PDOException
-     * @return void
+     * @return null
      */
-    public function initInsertParameters($parameters): void
+    public function initInsertParameters($parameters): null
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -302,6 +302,8 @@ class CentreonServiceGroup extends CentreonObject
         $addParams['sg_alias'] = $params[self::ORDER_ALIAS];
         $this->params = array_merge($this->params, $addParams);
         $this->checkParameters();
+
+        return null;
     }
 
     /**
@@ -364,7 +366,7 @@ class CentreonServiceGroup extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    public function initUpdateParameters($parameters)
+    public function initUpdateParameters($parameters): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -505,9 +507,9 @@ class CentreonServiceGroup extends CentreonObject
      * @param null $filterName
      *
      * @throws Exception
-     * @return void
+     * @return bool
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! parent::export($filterName)) {
             return false;
@@ -574,5 +576,7 @@ class CentreonServiceGroup extends CentreonObject
                 }
             }
         }
+
+        return true;
     }
 }

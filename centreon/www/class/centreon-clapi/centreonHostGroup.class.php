@@ -36,15 +36,15 @@ require_once 'centreonObject.class.php';
 require_once 'centreonConfigurationChange.class.php';
 require_once 'centreonACL.class.php';
 require_once 'centreonHost.class.php';
-require_once 'Centreon/Object/Host/Group.php';
-require_once 'Centreon/Object/Host/Host.php';
-require_once 'Centreon/Object/Service/Group.php';
-require_once 'Centreon/Object/Service/Service.php';
-require_once 'Centreon/Object/Relation/Host/Service.php';
-require_once 'Centreon/Object/Relation/Host/Group/Host.php';
-require_once 'Centreon/Object/Relation/Host/Group/Service/Service.php';
-require_once 'Centreon/Object/Relation/Host/Group/Service/Group.php';
-require_once 'Centreon/Object/Dependency/DependencyHostgroupParent.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Group.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Service/Group.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Service/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Host/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Host/Group/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Host/Group/Service/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Host/Group/Service/Group.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Dependency/DependencyHostgroupParent.php';
 
 /**
  * Class
@@ -205,9 +205,9 @@ class CentreonHostGroup extends CentreonObject
      *
      * @throws CentreonClapiException
      * @throws PDOException
-     * @return void
+     * @return null
      */
-    public function initInsertParameters($parameters = null): void
+    public function initInsertParameters($parameters = null): null
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -222,6 +222,8 @@ class CentreonHostGroup extends CentreonObject
         $addParams['hg_alias'] = $params[self::ORDER_ALIAS];
         $this->params = array_merge($this->params, $addParams);
         $this->checkParameters();
+
+        return null;
     }
 
     /**
@@ -398,7 +400,7 @@ class CentreonHostGroup extends CentreonObject
      * @throws PDOException
      * @return array
      */
-    public function initUpdateParameters($parameters = null)
+    public function initUpdateParameters($parameters = null): array
     {
         $params = explode($this->delim, $parameters);
 
@@ -434,7 +436,7 @@ class CentreonHostGroup extends CentreonObject
      * @throws PDOException
      * @return mixed
      */
-    public function getIdIcon($path)
+    public function getIdIcon($path): mixed
     {
         $iconData = explode('/', $path);
         $dirStatement = $this->db->prepare('SELECT dir_id FROM view_img_dir WHERE dir_name = :IconData');
@@ -465,9 +467,9 @@ class CentreonHostGroup extends CentreonObject
      * @param null $filterName
      *
      * @throws Exception
-     * @return false|void
+     * @return bool
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! parent::export($filterName)) {
             return false;
@@ -497,5 +499,7 @@ class CentreonHostGroup extends CentreonObject
                 . $element[$labelField] . $this->delim
                 . $element[$hFieldName] . "\n";
         }
+
+        return true;
     }
 }

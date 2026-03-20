@@ -32,10 +32,10 @@ use Pimple\Container;
 require_once 'centreonObject.class.php';
 require_once 'centreonSeverityAbstract.class.php';
 require_once 'centreonACL.class.php';
-require_once 'Centreon/Object/Service/Category.php';
-require_once 'Centreon/Object/Service/Service.php';
-require_once 'Centreon/Object/Relation/Host/Service.php';
-require_once 'Centreon/Object/Relation/Service/Category/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Service/Category.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Service/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Host/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Service/Category/Service.php';
 
 /**
  * Class
@@ -78,7 +78,7 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
      * @throws CentreonClapiException
      * @return void
      */
-    public function __call($name, $arg)
+    public function __call($name, $arg): void
     {
         // Get the method name
         $name = strtolower($name);
@@ -229,9 +229,9 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
     /**
      * @param $parameters
      * @throws CentreonClapiException
-     * @return void
+     * @return null
      */
-    public function initInsertParameters($parameters): void
+    public function initInsertParameters($parameters): null
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -242,6 +242,8 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
         $addParams['sc_description'] = $params[self::ORDER_ALIAS];
         $this->params = array_merge($this->params, $addParams);
         $this->checkParameters();
+
+        return null;
     }
 
     /**
@@ -249,7 +251,7 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
      * @throws CentreonClapiException
      * @return array
      */
-    public function initUpdateParameters($parameters)
+    public function initUpdateParameters($parameters): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -276,9 +278,9 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
      * @param string|null $filterName
      *
      * @throws Exception
-     * @return false|void
+     * @return bool
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! parent::export($filterName)) {
             return false;
@@ -331,6 +333,8 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
                 }
             }
         }
+
+        return true;
     }
 
     /**

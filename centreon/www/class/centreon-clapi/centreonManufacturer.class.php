@@ -28,7 +28,7 @@ use Pimple\Container;
 
 require_once 'centreonObject.class.php';
 require_once 'centreonUtils.class.php';
-require_once 'Centreon/Object/Manufacturer/Manufacturer.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Manufacturer/Manufacturer.php';
 
 /**
  * Class
@@ -62,9 +62,9 @@ class CentreonManufacturer extends CentreonObject
     /**
      * @param $parameters
      * @throws CentreonClapiException
-     * @return void
+     * @return null
      */
-    public function initInsertParameters($parameters): void
+    public function initInsertParameters($parameters): null
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -75,6 +75,8 @@ class CentreonManufacturer extends CentreonObject
         $addParams['alias'] = $params[self::ORDER_ALIAS];
         $this->params = array_merge($this->params, $addParams);
         $this->checkParameters();
+
+        return null;
     }
 
     /**
@@ -98,7 +100,7 @@ class CentreonManufacturer extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    public function initUpdateParameters($parameters = null)
+    public function initUpdateParameters($parameters = null): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -147,7 +149,7 @@ class CentreonManufacturer extends CentreonObject
      * @param int $id
      * @return string
      */
-    public function getName($id)
+    public function getName($id): string
     {
         $name = $this->object->getParameters($id, [$this->object->getUniqueLabelField()]);
 
@@ -161,7 +163,7 @@ class CentreonManufacturer extends CentreonObject
      * @throws CentreonClapiException
      * @return mixed
      */
-    public function getId($name)
+    public function getId($name): mixed
     {
         $ids = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$name]);
         if (! count($ids)) {

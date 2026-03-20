@@ -35,9 +35,9 @@ use Pimple\Container;
 
 require_once 'centreonObject.class.php';
 require_once 'centreonContact.class.php';
-require_once 'Centreon/Object/Ldap/ConfigurationLdap.php';
-require_once 'Centreon/Object/Ldap/ObjectLdap.php';
-require_once 'Centreon/Object/Ldap/ServerLdap.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Ldap/ConfigurationLdap.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Ldap/ObjectLdap.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Ldap/ServerLdap.php';
 
 /**
  * Class
@@ -114,7 +114,7 @@ class CentreonLDAP extends CentreonObject
      * @throws PDOException
      * @return mixed returns null if no ldap id is found
      */
-    public function getLdapId($name)
+    public function getLdapId($name): mixed
     {
         $res = $this->db->prepare(
             <<<'SQL'
@@ -128,7 +128,7 @@ class CentreonLDAP extends CentreonObject
 
         $row = $res->fetch();
         if (! isset($row['ar_id'])) {
-            return;
+            return null;
         }
         $ldapId = $row['ar_id'];
         unset($res);
@@ -142,7 +142,7 @@ class CentreonLDAP extends CentreonObject
      * @throws PDOException
      * @return array
      */
-    public function getLdapServers($id)
+    public function getLdapServers($id): array
     {
         $res = $this->db->prepare(
             <<<'SQL'
@@ -463,9 +463,9 @@ class CentreonLDAP extends CentreonObject
      * @param mixed|null $filterName
      *
      * @throws Exception
-     * @return int|void
+     * @return bool
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
             return 0;
@@ -554,6 +554,8 @@ class CentreonLDAP extends CentreonObject
                 }
             }
         }
+
+        return true;
     }
 
     /**
@@ -565,7 +567,7 @@ class CentreonLDAP extends CentreonObject
      * @throws PDOException
      * @return bool
      */
-    protected function isUnique($name = '', $arId = 0)
+    protected function isUnique($name = '', $arId = 0): bool
     {
         $stmt = $this->db->prepare(
             <<<'SQL'

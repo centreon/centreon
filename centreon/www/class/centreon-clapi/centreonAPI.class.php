@@ -423,7 +423,7 @@ class CentreonAPI
     /**
      * @return Container
      */
-    public function getDependencyInjector()
+    public function getDependencyInjector(): Container
     {
         return $this->dependencyInjector;
     }
@@ -466,15 +466,15 @@ class CentreonAPI
      * @param bool $isWorker
      *
      * @throws PDOException
-     * @return int|void 1 if user can login
+     * @return int 1 if user can login
      */
-    public function checkUser($useSha1 = false, $isWorker = false)
+    public function checkUser($useSha1 = false, $isWorker = false): int
     {
         if (! isset($this->login) || $this->login == '') {
             echo "ERROR: Can not connect to centreon without login.\n";
             $this->printHelp();
 
-            exit();
+            exit(0);
         }
         if (! isset($this->password) || $this->password == '') {
             echo 'ERROR: Can not connect to centreon without password.';
@@ -681,7 +681,7 @@ class CentreonAPI
      *
      * @return string
      */
-    public function getVar($str)
+    public function getVar($str): string
     {
         $res = explode('=', $str);
 
@@ -703,9 +703,9 @@ class CentreonAPI
      *
      * @param bool $exit If exit or return the return code
      *
-     * @return int|void
+     * @return int
      */
-    public function launchAction($exit = true)
+    public function launchAction($exit = true): int
     {
         $action = strtoupper($this->action);
 
@@ -775,7 +775,7 @@ class CentreonAPI
      *
      * @return int
      */
-    public function import($filename)
+    public function import($filename): int
     {
         $globalReturn = 0;
 
@@ -823,9 +823,9 @@ class CentreonAPI
     }
 
     /**
-     * @return int|void
+     * @return int
      */
-    public function launchActionForImport()
+    public function launchActionForImport(): int
     {
         $action = strtoupper($this->action);
         // Debug
@@ -889,9 +889,9 @@ class CentreonAPI
      *
      * @param bool $withoutClose disable using of PHP exit function (default: false)
      *
-     * @return int|void
+     * @return int
      */
-    public function export($withoutClose = false)
+    public function export($withoutClose = false): int
     {
         $this->requireLibs('');
 
@@ -921,7 +921,7 @@ class CentreonAPI
                     if ($withoutClose === false) {
                         $this->close();
                     } else {
-                        return;
+                        return $this->return_code;
                     }
                 } elseif (! is_null($splits[1])) {
                     $name = $splits[1];
@@ -934,7 +934,7 @@ class CentreonAPI
                         if ($withoutClose === false) {
                             $this->close();
                         } else {
-                            return;
+                            return $this->return_code;
                         }
                     } else {
                         $this->objectTable[$splits[0]]->export($name);
@@ -995,7 +995,7 @@ class CentreonAPI
      * @throws LogicException
      * @return int
      */
-    public function POLLERLIST()
+    public function POLLERLIST(): int
     {
         $poller = new CentreonConfigPoller($this->centreon_path, $this->dependencyInjector);
 
@@ -1012,7 +1012,7 @@ class CentreonAPI
      * @throws ServiceNotFoundException
      * @return int|null
      */
-    public function POLLERRESTART()
+    public function POLLERRESTART(): ?int
     {
         $poller = new CentreonConfigPoller($this->centreon_path, $this->dependencyInjector);
 
@@ -1029,7 +1029,7 @@ class CentreonAPI
      * @throws ServiceNotFoundException
      * @return int|mixed
      */
-    public function POLLERRELOAD()
+    public function POLLERRELOAD(): mixed
     {
         $poller = new CentreonConfigPoller($this->centreon_path, $this->dependencyInjector);
 
@@ -1044,7 +1044,7 @@ class CentreonAPI
      * @throws LogicException
      * @return int
      */
-    public function POLLERGENERATE()
+    public function POLLERGENERATE(): int
     {
         $poller = new CentreonConfigPoller($this->centreon_path, $this->dependencyInjector);
 
@@ -1059,7 +1059,7 @@ class CentreonAPI
      * @throws LogicException
      * @return int|null
      */
-    public function POLLERTEST()
+    public function POLLERTEST(): ?int
     {
         $poller = new CentreonConfigPoller($this->centreon_path, $this->dependencyInjector);
 
@@ -1074,7 +1074,7 @@ class CentreonAPI
      * @throws LogicException
      * @return int
      */
-    public function POLLEREXECCMD()
+    public function POLLEREXECCMD(): int
     {
         $poller = new CentreonConfigPoller($this->centreon_path, $this->dependencyInjector);
 
@@ -1089,7 +1089,7 @@ class CentreonAPI
      * @throws LogicException
      * @return int|null
      */
-    public function CFGMOVE()
+    public function CFGMOVE(): ?int
     {
         $poller = new CentreonConfigPoller($this->centreon_path, $this->dependencyInjector);
 
@@ -1104,7 +1104,7 @@ class CentreonAPI
      * @throws LogicException
      * @return int|null
      */
-    public function SENDTRAPCFG()
+    public function SENDTRAPCFG(): ?int
     {
         $poller = new CentreonConfigPoller($this->centreon_path, $this->dependencyInjector);
 
@@ -1121,7 +1121,7 @@ class CentreonAPI
      * @throws ServiceNotFoundException
      * @return int|mixed|null
      */
-    public function APPLYCFG()
+    public function APPLYCFG(): mixed
     {
         /**
          * Display time for logs
@@ -1208,7 +1208,7 @@ class CentreonAPI
      *
      * @return void
      */
-    protected function requireLibs($object)
+    protected function requireLibs($object): void
     {
         if ($object != '') {
             if (

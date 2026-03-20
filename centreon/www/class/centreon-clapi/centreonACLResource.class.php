@@ -44,24 +44,24 @@ use PDOException;
 use Pimple\Container;
 
 require_once 'centreonObject.class.php';
-require_once 'Centreon/Object/Acl/Group.php';
-require_once 'Centreon/Object/Acl/Resource.php';
-require_once 'Centreon/Object/Relation/Acl/Group/Resource.php';
-require_once 'Centreon/Object/Host/Host.php';
-require_once 'Centreon/Object/Host/Group.php';
-require_once 'Centreon/Object/Host/Category.php';
-require_once 'Centreon/Object/Service/Group.php';
-require_once 'Centreon/Object/Service/Category.php';
-require_once 'Centreon/Object/Meta/Service.php';
-require_once 'Centreon/Object/Instance/Instance.php';
-require_once 'Centreon/Object/Relation/Acl/Resource/Host/Host.php';
-require_once 'Centreon/Object/Relation/Acl/Resource/Host/Group.php';
-require_once 'Centreon/Object/Relation/Acl/Resource/Host/Category.php';
-require_once 'Centreon/Object/Relation/Acl/Resource/Host/Exclude.php';
-require_once 'Centreon/Object/Relation/Acl/Resource/Service/Group.php';
-require_once 'Centreon/Object/Relation/Acl/Resource/Service/Category.php';
-require_once 'Centreon/Object/Relation/Acl/Resource/Meta/Service.php';
-require_once 'Centreon/Object/Relation/Acl/Resource/Instance.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Acl/Group.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Acl/Resource.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Acl/Group/Resource.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Group.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Category.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Service/Group.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Service/Category.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Meta/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Instance/Instance.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Acl/Resource/Host/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Acl/Resource/Host/Group.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Acl/Resource/Host/Category.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Acl/Resource/Host/Exclude.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Acl/Resource/Service/Group.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Acl/Resource/Service/Category.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Acl/Resource/Meta/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Acl/Resource/Instance.php';
 
 /**
  * Class
@@ -126,7 +126,7 @@ class CentreonACLResource extends CentreonObject
      * @throws CentreonClapiException
      * @return void
      */
-    public function __call($name, $arg)
+    public function __call($name, $arg): void
     {
         $name = strtolower($name);
         if (preg_match('/^(grant|revoke|addfilter|delfilter)_([a-zA-Z_]+)/', $name, $matches)) {
@@ -143,9 +143,9 @@ class CentreonACLResource extends CentreonObject
     /**
      * @param $parameters
      * @throws CentreonClapiException
-     * @return void
+     * @return null
      */
-    public function initInsertParameters($parameters): void
+    public function initInsertParameters($parameters): null
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -156,6 +156,8 @@ class CentreonACLResource extends CentreonObject
         $addParams['acl_res_alias'] = $params[self::ORDER_ALIAS];
         $this->params = array_merge($this->params, $addParams);
         $this->checkParameters();
+
+        return null;
     }
 
     /**
@@ -163,7 +165,7 @@ class CentreonACLResource extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    public function initUpdateParameters($parameters)
+    public function initUpdateParameters($parameters): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -270,9 +272,9 @@ class CentreonACLResource extends CentreonObject
      * @param null $filterName
      *
      * @throws Exception
-     * @return bool|void
+     * @return bool
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
             return false;
@@ -312,6 +314,8 @@ class CentreonACLResource extends CentreonObject
             echo $exportLine;
             $exportLine = '';
         }
+
+        return true;
     }
 
     /**
@@ -322,7 +326,7 @@ class CentreonACLResource extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    protected function splitParams($type, $parameters)
+    protected function splitParams($type, $parameters): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 2) {
@@ -437,7 +441,7 @@ class CentreonACLResource extends CentreonObject
      * @throws CentreonClapiException
      * @return void
      */
-    protected function revoke($type, $arg)
+    protected function revoke($type, $arg): void
     {
         [$aclResourceId, $resourceIds] = $this->splitParams($type, $arg);
 
@@ -465,7 +469,7 @@ class CentreonACLResource extends CentreonObject
      * @throws CentreonClapiException
      * @return void
      */
-    protected function addfilter($type, $arg)
+    protected function addfilter($type, $arg): void
     {
         $this->grant($type, $arg);
     }
@@ -479,7 +483,7 @@ class CentreonACLResource extends CentreonObject
      * @throws CentreonClapiException
      * @return void
      */
-    protected function delfilter($type, $arg)
+    protected function delfilter($type, $arg): void
     {
         $this->revoke($type, $arg);
     }
@@ -488,7 +492,7 @@ class CentreonACLResource extends CentreonObject
      * @param $aclResourceParams
      * @return string
      */
-    private function exportGrantResources($aclResourceParams)
+    private function exportGrantResources($aclResourceParams): string
     {
         $grantResources = '';
 
@@ -536,7 +540,7 @@ class CentreonACLResource extends CentreonObject
      * @throws PDOException
      * @return string
      */
-    private function exportGrantHostResources($aclResId, $aclResName, $allHosts = 1, $withExclusion = true)
+    private function exportGrantHostResources($aclResId, $aclResName, $allHosts = 1, $withExclusion = true): string
     {
         $grantHostResources = '';
 
@@ -581,7 +585,7 @@ class CentreonACLResource extends CentreonObject
      * @throws PDOException
      * @return string
      */
-    private function exportGrantHostgroupResources($aclResId, $aclResName, $allHostgroups = 1)
+    private function exportGrantHostgroupResources($aclResId, $aclResName, $allHostgroups = 1): string
     {
         $grantHostgroupResources = '';
 
@@ -616,7 +620,7 @@ class CentreonACLResource extends CentreonObject
      * @throws PDOException
      * @return string
      */
-    private function exportGrantServicegroupResources($aclResId, $aclResName, $allServicegroups = 1)
+    private function exportGrantServicegroupResources($aclResId, $aclResName, $allServicegroups = 1): string
     {
         $grantServicegroupResources = '';
 
@@ -649,7 +653,7 @@ class CentreonACLResource extends CentreonObject
      * @throws PDOException
      * @return string
      */
-    private function exportGrantMetaserviceResources($aclResId, $aclResName)
+    private function exportGrantMetaserviceResources($aclResId, $aclResName): string
     {
         $grantMetaserviceResources = '';
 
@@ -678,7 +682,7 @@ class CentreonACLResource extends CentreonObject
      * @throws PDOException
      * @return string
      */
-    private function exportFilterInstance($aclResId, $aclResName)
+    private function exportFilterInstance($aclResId, $aclResName): string
     {
         $filterInstances = '';
 
@@ -702,7 +706,7 @@ class CentreonACLResource extends CentreonObject
      * @throws PDOException
      * @return string
      */
-    private function exportFilterHostCategory($aclResId, $aclResName)
+    private function exportFilterHostCategory($aclResId, $aclResName): string
     {
         $filterHostCategories = '';
 
@@ -731,7 +735,7 @@ class CentreonACLResource extends CentreonObject
      * @throws PDOException
      * @return string
      */
-    private function exportFilterServiceCategory($aclResId, $aclResName)
+    private function exportFilterServiceCategory($aclResId, $aclResName): string
     {
         $filterServiceCategories = '';
 
@@ -759,7 +763,7 @@ class CentreonACLResource extends CentreonObject
      * @param $aclResName
      * @return string
      */
-    private function exportGrantObject($grantedResourceItems, $grantCommand, $aclResName)
+    private function exportGrantObject($grantedResourceItems, $grantCommand, $aclResName): string
     {
         $grantObject = '';
 

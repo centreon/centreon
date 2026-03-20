@@ -150,7 +150,7 @@ class CentreonSettings extends CentreonObject
      * @param string $method
      * @return void
      */
-    protected function unsupportedMethod($method)
+    protected function unsupportedMethod($method): void
     {
         echo sprintf("The %s method is not supported on this object\n", $method);
     }
@@ -160,7 +160,7 @@ class CentreonSettings extends CentreonObject
      * @throws CentreonClapiException
      * @return mixed
      */
-    private function getTimezoneIdFromName($value)
+    private function getTimezoneIdFromName($value): mixed
     {
         $timezone = new Centreon_Object_Timezone($this->dependencyInjector);
         $timezoneId = $timezone->getIdByParameter('timezone_name', $value);
@@ -176,7 +176,7 @@ class CentreonSettings extends CentreonObject
      * @throws CentreonClapiException
      * @return mixed
      */
-    private function getTimezonenameFromId($value)
+    private function getTimezonenameFromId($value): mixed
     {
         $timezone = new Centreon_Object_Timezone($this->dependencyInjector);
         $timezoneName = $timezone->getParameters($value, ['timezone_name']);

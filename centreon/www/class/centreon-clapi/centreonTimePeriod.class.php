@@ -114,9 +114,9 @@ class CentreonTimePeriod extends CentreonObject
      *
      * @throws CentreonClapiException
      * @throws PDOException
-     * @return void
+     * @return null
      */
-    public function initInsertParameters($parameters): void
+    public function initInsertParameters($parameters): null
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -127,6 +127,8 @@ class CentreonTimePeriod extends CentreonObject
         $addParams['tp_alias'] = $params[self::ORDER_ALIAS];
         $this->params = array_merge($this->params, $addParams);
         $this->checkParameters();
+
+        return null;
     }
 
     /**
@@ -134,7 +136,7 @@ class CentreonTimePeriod extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    public function initUpdateParameters($parameters)
+    public function initUpdateParameters($parameters): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -250,7 +252,7 @@ class CentreonTimePeriod extends CentreonObject
      * @throws CentreonClapiException
      * @return int
      */
-    public function getTimeperiodId($name)
+    public function getTimeperiodId($name): int
     {
         $tpIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$name]);
         if (! count($tpIds)) {
@@ -266,7 +268,7 @@ class CentreonTimePeriod extends CentreonObject
      * @param int $timeperiodId
      * @return string
      */
-    public function getTimeperiodName($timeperiodId)
+    public function getTimeperiodName($timeperiodId): string
     {
         $tpName = $this->object->getParameters($timeperiodId, [$this->object->getUniqueLabelField()]);
 
@@ -283,7 +285,7 @@ class CentreonTimePeriod extends CentreonObject
      * @throws CentreonClapiException
      * @return void
      */
-    protected function setRelations($relationType, $sourceId, $relationName)
+    protected function setRelations($relationType, $sourceId, $relationName): void
     {
         $relationIds = [];
         $relationNames = explode('|', $relationName);

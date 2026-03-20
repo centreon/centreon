@@ -44,9 +44,9 @@ use Pimple\Container;
 
 require_once 'centreonService.class.php';
 require_once 'centreonCommand.class.php';
-require_once 'Centreon/Object/Relation/Service/Template/Host.php';
-require_once 'Centreon/Object/Host/Template.php';
-require_once 'Centreon/Object/Service/Template.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Service/Template/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Template.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Service/Template.php';
 
 /**
  * Class
@@ -408,9 +408,9 @@ class CentreonServiceTemplate extends CentreonObject
      *
      * @throws CentreonClapiException
      * @throws PDOException
-     * @return void
+     * @return null
      */
-    public function initInsertParameters($parameters): void
+    public function initInsertParameters($parameters): null
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -439,6 +439,8 @@ class CentreonServiceTemplate extends CentreonObject
             $addParams['service_template_model_stm_id'] = $tmp[0][$this->object->getPrimaryKey()];
         }
         $this->params = array_merge($this->params, $addParams);
+
+        return null;
     }
 
     /**
@@ -482,7 +484,7 @@ class CentreonServiceTemplate extends CentreonObject
      * @throws PDOException
      * @return array
      */
-    public function initUpdateParameters($parameters = null)
+    public function initUpdateParameters($parameters = null): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -817,9 +819,9 @@ class CentreonServiceTemplate extends CentreonObject
      * @param null $filterName
      *
      * @throws Exception
-     * @return bool|void
+     * @return bool
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
             return false;
@@ -966,6 +968,8 @@ class CentreonServiceTemplate extends CentreonObject
                 . $helement['service_description'] . $this->delim
                 . $helement['host_name'] . "\n";
         }
+
+        return true;
     }
 
     /**
@@ -976,7 +980,7 @@ class CentreonServiceTemplate extends CentreonObject
      * @throws Exception
      * @return bool
      */
-    protected function serviceExists($serviceDescription)
+    protected function serviceExists($serviceDescription): bool
     {
         $elements = $this->object->getList(
             'service_description',
@@ -997,7 +1001,7 @@ class CentreonServiceTemplate extends CentreonObject
      * @param string $columnName
      * @return string
      */
-    protected function getClapiActionName($columnName)
+    protected function getClapiActionName($columnName): string
     {
         static $table;
 
@@ -1017,7 +1021,7 @@ class CentreonServiceTemplate extends CentreonObject
      * @param string $macroName
      * @return string
      */
-    protected function extractMacroName($macroName)
+    protected function extractMacroName($macroName): string
     {
         $strippedMacro = $macroName;
         if (preg_match('/\$_SERVICE([a-zA-Z0-9_-]+)\$/', $strippedMacro, $matches)) {
@@ -1033,7 +1037,7 @@ class CentreonServiceTemplate extends CentreonObject
      * @param string $macroName
      * @return string
      */
-    protected function stripMacro($macroName)
+    protected function stripMacro($macroName): string
     {
         $strippedMacro = $this->extractMacroName($macroName);
 
@@ -1046,7 +1050,7 @@ class CentreonServiceTemplate extends CentreonObject
      * @param string $macroName
      * @return string
      */
-    protected function wrapMacro($macroName)
+    protected function wrapMacro($macroName): string
     {
         return '$_SERVICE' . strtoupper($macroName) . '$';
     }
@@ -1058,7 +1062,7 @@ class CentreonServiceTemplate extends CentreonObject
      * @param int $parentId
      * @return array
      */
-    protected function sortTemplates($arr, $parentId = null)
+    protected function sortTemplates($arr, $parentId = null): array
     {
         $branch = [];
         foreach ($arr as $data) {

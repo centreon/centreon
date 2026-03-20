@@ -26,7 +26,7 @@ use PDOException;
 use Pimple\Container;
 
 require_once 'centreonObject.class.php';
-require_once 'Centreon/Object/Timezone/Timezone.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Timezone/Timezone.php';
 
 /**
  * Class

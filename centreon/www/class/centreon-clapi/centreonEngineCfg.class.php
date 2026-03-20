@@ -31,9 +31,9 @@ use Pimple\Container;
 
 require_once 'centreonObject.class.php';
 require_once 'centreonInstance.class.php';
-require_once 'Centreon/Object/Engine/Engine.php';
-require_once 'Centreon/Object/Engine/Engine_Broker_Module.php';
-require_once 'Centreon/Object/Command/Command.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Engine/Engine.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Engine/Engine_Broker_Module.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Command/Command.php';
 
 /**
  * Class
@@ -147,9 +147,9 @@ class CentreonEngineCfg extends CentreonObject
     /**
      * @param $parameters
      * @throws CentreonClapiException
-     * @return void
+     * @return null
      */
-    public function initInsertParameters($parameters): void
+    public function initInsertParameters($parameters): null
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -161,6 +161,8 @@ class CentreonEngineCfg extends CentreonObject
         $addParams['nagios_comment'] = $params[self::ORDER_COMMENT];
         $this->params = array_merge($this->params, $addParams);
         $this->checkParameters();
+
+        return null;
     }
 
     /**
@@ -170,7 +172,7 @@ class CentreonEngineCfg extends CentreonObject
      * @throws PDOException
      * @return array
      */
-    public function initUpdateParameters($parameters)
+    public function initUpdateParameters($parameters): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -272,9 +274,9 @@ class CentreonEngineCfg extends CentreonObject
      * @param null $filterName
      *
      * @throws Exception
-     * @return bool|void
+     * @return bool
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
             return false;
@@ -349,6 +351,8 @@ class CentreonEngineCfg extends CentreonObject
                 . 'broker_module' . $this->delim
                 . implode('|', $moduleList) . "\n";
         }
+
+        return true;
     }
 
     /**
@@ -411,7 +415,7 @@ class CentreonEngineCfg extends CentreonObject
      * @return void
      * @todo we should implement this object in the centreon api so that we don't have to write our own query
      */
-    protected function setBrokerModule($objectId, $brokerModule)
+    protected function setBrokerModule($objectId, $brokerModule): void
     {
         $query = 'DELETE FROM cfg_nagios_broker_module WHERE cfg_nagios_id = ?';
         $this->db->query($query, [$objectId]);
@@ -435,7 +439,7 @@ class CentreonEngineCfg extends CentreonObject
      * @return void
      * @todo we should implement this object in the centreon api so that we don't have to write our own query
      */
-    protected function addBkModule($objectId, $brokerModule)
+    protected function addBkModule($objectId, $brokerModule): void
     {
         $brokerModuleArray = explode('|', $brokerModule);
         foreach ($brokerModuleArray as $bkModule) {
@@ -467,7 +471,7 @@ class CentreonEngineCfg extends CentreonObject
      * @return void
      * @todo we should implement this object in the centreon api so that we don't have to write our own query
      */
-    protected function delBkModule($objectId, $brokerModule)
+    protected function delBkModule($objectId, $brokerModule): void
     {
         $brokerModuleArray = explode('|', $brokerModule);
 

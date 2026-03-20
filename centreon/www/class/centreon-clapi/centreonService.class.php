@@ -45,33 +45,33 @@ require_once 'centreonUtils.class.php';
 require_once 'centreonTimePeriod.class.php';
 require_once 'centreonACL.class.php';
 require_once 'centreonCommand.class.php';
-require_once 'Centreon/Object/Instance/Instance.php';
-require_once 'Centreon/Object/Command/Command.php';
-require_once 'Centreon/Object/Timeperiod/Timeperiod.php';
-require_once 'Centreon/Object/Graph/Template/Template.php';
-require_once 'Centreon/Object/Host/Host.php';
-require_once 'Centreon/Object/Host/Extended.php';
-require_once 'Centreon/Object/Host/Group.php';
-require_once 'Centreon/Object/Host/Host.php';
-require_once 'Centreon/Object/Host/Macro/Custom.php';
-require_once 'Centreon/Object/Service/Service.php';
-require_once 'Centreon/Object/Service/Group.php';
-require_once 'Centreon/Object/Service/Category.php';
-require_once 'Centreon/Object/Service/Macro/Custom.php';
-require_once 'Centreon/Object/Service/Extended.php';
-require_once 'Centreon/Object/Contact/Contact.php';
-require_once 'Centreon/Object/Contact/Group.php';
-require_once 'Centreon/Object/Trap/Trap.php';
-require_once 'Centreon/Object/Relation/Host/Template/Host.php';
-require_once 'Centreon/Object/Relation/Contact/Service.php';
-require_once 'Centreon/Object/Relation/Contact/Group/Service.php';
-require_once 'Centreon/Object/Relation/Host/Service.php';
-require_once 'Centreon/Object/Relation/Host/Group/Service/Service.php';
-require_once 'Centreon/Object/Relation/Trap/Service.php';
-require_once 'Centreon/Object/Relation/Service/Category/Service.php';
-require_once 'Centreon/Object/Relation/Service/Group/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Instance/Instance.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Command/Command.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Timeperiod/Timeperiod.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Graph/Template/Template.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Extended.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Group.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Macro/Custom.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Service/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Service/Group.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Service/Category.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Service/Macro/Custom.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Service/Extended.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Contact/Contact.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Contact/Group.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Trap/Trap.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Host/Template/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Contact/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Contact/Group/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Host/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Host/Group/Service/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Trap/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Service/Category/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Service/Group/Service.php';
 
-require_once 'Centreon/Object/Dependency/DependencyServiceParent.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Dependency/DependencyServiceParent.php';
 
 /**
  * Class
@@ -132,7 +132,7 @@ class CentreonService extends CentreonObject
      * @throws PDOException
      * @return void
      */
-    public function __call($name, $arg)
+    public function __call($name, $arg): void
     {
         // Get the method name
         $name = strtolower($name);
@@ -286,7 +286,7 @@ class CentreonService extends CentreonObject
      * @throws PDOException
      * @return int
      */
-    public function getObjectId($name, int $type = CentreonObject::SINGLE_VALUE)
+    public function getObjectId($name, int $type = CentreonObject::SINGLE_VALUE): int
     {
         if (isset($this->objectIds[$name])) {
             return $this->objectIds[$name];
@@ -315,7 +315,7 @@ class CentreonService extends CentreonObject
      * @throws PDOException
      * @return array
      */
-    public function getHostAndServiceId($host, $service)
+    public function getHostAndServiceId($host, $service): array
     {
         // Regular services
         $sql = 'SELECT h.host_id, s.service_id
@@ -356,7 +356,7 @@ class CentreonService extends CentreonObject
      * @throws PDOException
      * @return int
      */
-    public function hostTypeLink($serviceId)
+    public function hostTypeLink($serviceId): int
     {
         $sql = 'SELECT host_host_id, hostgroup_hg_id FROM host_service_relation WHERE service_service_id = ?';
         $res = $this->db->query($sql, [$serviceId]);
@@ -382,7 +382,7 @@ class CentreonService extends CentreonObject
      * @throws Exception
      * @return bool
      */
-    public function serviceExists($hostName, $serviceDescription)
+    public function serviceExists($hostName, $serviceDescription): bool
     {
         $relObj = new Centreon_Object_Relation_Host_Service($this->dependencyInjector);
         $elements = $relObj->getMergedParameters(
@@ -565,9 +565,9 @@ class CentreonService extends CentreonObject
      *
      * @throws CentreonClapiException
      * @throws PDOException
-     * @return void
+     * @return null
      */
-    public function initInsertParameters($parameters): void
+    public function initInsertParameters($parameters): null
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -599,6 +599,8 @@ class CentreonService extends CentreonObject
         }
         $addParams['service_template_model_stm_id'] = $tmp[0][$this->object->getPrimaryKey()];
         $this->params = array_merge($this->params, $addParams);
+
+        return null;
     }
 
     /**
@@ -1188,7 +1190,7 @@ class CentreonService extends CentreonObject
      * @param int $id
      * @return string
      */
-    public function getObjectName($id)
+    public function getObjectName($id): string
     {
         $tmp = $this->object->getParameters($id, ['service_description']);
 
@@ -1199,9 +1201,9 @@ class CentreonService extends CentreonObject
      * @param null $filterName
      *
      * @throws Exception
-     * @return bool|void
+     * @return bool
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
             return false;
@@ -1378,6 +1380,8 @@ class CentreonService extends CentreonObject
                     . $telement['traps_name'] . "\n";
             }
         }
+
+        return true;
     }
 
     /**
@@ -1390,7 +1394,7 @@ class CentreonService extends CentreonObject
      * @throws PDOException
      * @return bool
      */
-    public function hasMacroFromServiceChanged($pearDB, $service_id, &$macroInput, &$macroValue, $cmdId = false)
+    public function hasMacroFromServiceChanged($pearDB, $service_id, &$macroInput, &$macroValue, $cmdId = false): bool
     {
         $aListTemplate = $this->getListTemplates($pearDB, $service_id);
 
@@ -1417,7 +1421,7 @@ class CentreonService extends CentreonObject
      * @throws PDOException
      * @return array
      */
-    public function getMacros($iServiceId, $aListTemplate, $iIdCommande)
+    public function getMacros($iServiceId, $aListTemplate, $iIdCommande): array
     {
         $aMacroInService = [];
 
@@ -1492,7 +1496,7 @@ class CentreonService extends CentreonObject
      * @throws PDOException
      * @return array
      */
-    public function getCustomMacroInDb($serviceId = null, $template = null)
+    public function getCustomMacroInDb($serviceId = null, $template = null): array
     {
         $arr = [];
         $i = 0;
@@ -1525,7 +1529,7 @@ class CentreonService extends CentreonObject
      * @param $aTempMacro
      * @return array
      */
-    public function macro_unique($aTempMacro)
+    public function macro_unique($aTempMacro): array
     {
         $storedMacros = [];
         foreach ($aTempMacro as $TempMacro) {
@@ -1556,7 +1560,7 @@ class CentreonService extends CentreonObject
      * @param mixed $alreadyProcessed
      * @return array
      */
-    public function getListTemplates($pearDB, $svcId, $alreadyProcessed = [])
+    public function getListTemplates($pearDB, $svcId, $alreadyProcessed = []): array
     {
         $svcTmpl = [];
         if (in_array($svcId, $alreadyProcessed)) {
@@ -1590,7 +1594,7 @@ class CentreonService extends CentreonObject
      * @param string $columnName
      * @return string
      */
-    protected function getClapiActionName($columnName)
+    protected function getClapiActionName($columnName): string
     {
         static $table;
 
@@ -1610,7 +1614,7 @@ class CentreonService extends CentreonObject
      * @param string $macroName
      * @return string
      */
-    protected function stripMacro($macroName)
+    protected function stripMacro($macroName): string
     {
         $strippedMacro = $macroName;
         if (preg_match('/\$_SERVICE([a-zA-Z0-9_-]+)\$/', $strippedMacro, $matches)) {
@@ -1626,7 +1630,7 @@ class CentreonService extends CentreonObject
      * @param string $macroName
      * @return string
      */
-    protected function wrapMacro($macroName)
+    protected function wrapMacro($macroName): string
     {
         return '$_SERVICE' . strtoupper($macroName) . '$';
     }
@@ -1697,7 +1701,7 @@ class CentreonService extends CentreonObject
      * @param $finalMacro
      * @return string
      */
-    private function getInheritedDescription($storedMacros, $finalMacro)
+    private function getInheritedDescription($storedMacros, $finalMacro): string
     {
         $description = '';
         if (empty($finalMacro['macroDescription'])) {
@@ -1745,7 +1749,7 @@ class CentreonService extends CentreonObject
      * @param bool $getFirst
      * @return bool
      */
-    private function findTplValue($storedMacro, $getFirst = false)
+    private function findTplValue($storedMacro, $getFirst = false): bool
     {
         if ($getFirst) {
             foreach ($storedMacro as $macros) {
@@ -1773,7 +1777,7 @@ class CentreonService extends CentreonObject
      * @param bool $getFirst
      * @return mixed
      */
-    private function comparaPriority($macroA, $macroB, $getFirst = true)
+    private function comparaPriority($macroA, $macroB, $getFirst = true): mixed
     {
         $arrayPrio = ['direct' => 3, 'fromTpl' => 2, 'fromService' => 1];
         if ($getFirst) {

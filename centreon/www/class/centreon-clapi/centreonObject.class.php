@@ -152,7 +152,7 @@ abstract class CentreonObject
     /**
      * @return Centreon_Object
      */
-    public function getObject()
+    public function getObject(): Centreon_Object
     {
         return $this->object;
     }
@@ -170,7 +170,7 @@ abstract class CentreonObject
      *
      * @return string
      */
-    public function getVersion()
+    public function getVersion(): string
     {
         return $this->version;
     }
@@ -181,7 +181,7 @@ abstract class CentreonObject
      * @param string $name
      * @return int
      */
-    public function getObjectId($name, int $type = self::SINGLE_VALUE)
+    public function getObjectId($name, int $type = self::SINGLE_VALUE): int
     {
         if (isset($this->objectIds[$name])) {
             return $this->objectIds[$name];
@@ -204,7 +204,7 @@ abstract class CentreonObject
      * @param int $id
      * @return string
      */
-    public function getObjectName($id)
+    public function getObjectName($id): string
     {
         $tmp = $this->object->getParameters($id, [$this->object->getUniqueLabelField()]);
 
@@ -216,7 +216,7 @@ abstract class CentreonObject
      *
      * @return string
      */
-    public function getBaseUrl()
+    public function getBaseUrl(): string
     {
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http';
         $port = '';
@@ -265,7 +265,7 @@ abstract class CentreonObject
      * @param $parameters
      * @return mixed
      */
-    public function initInsertParameters($parameters)
+    public function initInsertParameters($parameters): mixed
     {
         return $parameters;
     }
@@ -399,7 +399,7 @@ abstract class CentreonObject
      * @throws Exception
      * @return bool
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
             return false;
@@ -466,12 +466,12 @@ abstract class CentreonObject
      * @throws PDOException
      * @return void
      */
-    public function addAuditLog($actionType, $objId, $objName, $objValues = [], $objectType = null)
+    public function addAuditLog($actionType, $objId, $objName, $objValues = [], $objectType = null): void
     {
         $objType = is_null($objectType) ? strtoupper($this->action) : $objectType;
         $objectTypes = ['HTPL' => 'host', 'STPL' => 'service', 'CONTACT' => 'contact', 'SG' => 'servicegroup', 'TP' => 'timeperiod', 'SERVICE' => 'service', 'CG' => 'contactgroup', 'CMD' => 'command', 'HOST' => 'host', 'HC' => 'hostcategories', 'HG' => 'hostgroup', 'SC' => 'servicecategories'];
         if (! isset($objectTypes[$objType])) {
-            return null;
+            return;
         }
         $objType = $objectTypes[$objType];
 
@@ -525,7 +525,7 @@ abstract class CentreonObject
      * @throws PDOException
      * @return string The string sanitized
      */
-    public function checkIllegalChar($name)
+    public function checkIllegalChar($name): string
     {
         $dbResult = $this->db->query('SELECT illegal_object_name_chars FROM cfg_nagios');
         while ($data = $dbResult->fetch()) {
@@ -540,7 +540,7 @@ abstract class CentreonObject
      * @param null $dependencyInjector
      * @return mixed
      */
-    public static function getInstance($dependencyInjector = null)
+    public static function getInstance($dependencyInjector = null): mixed
     {
         $class = static::class;
 
@@ -564,7 +564,7 @@ abstract class CentreonObject
      * @throws Exception
      * @return bool
      */
-    protected function objectExists($name, $updateId = null)
+    protected function objectExists($name, $updateId = null): bool
     {
         $ids = $this->object->getList(
             $this->object->getPrimaryKey(),
@@ -627,7 +627,7 @@ abstract class CentreonObject
      *
      * @return bool
      */
-    protected function canBeExported($filterName = null)
+    protected function canBeExported($filterName = null): bool
     {
         $exported = CentreonExported::getInstance();
 
@@ -659,7 +659,7 @@ abstract class CentreonObject
      * @param string $text The string to escape
      * @return string The string sanitized
      */
-    protected function csvEscape($text)
+    protected function csvEscape($text): string
     {
         if (str_contains($text, '"') || str_contains($text, $this->delim) || str_contains($text, "\n")) {
             $text = '"' . str_replace('"', '""', $text) . '"';

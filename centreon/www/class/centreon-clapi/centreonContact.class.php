@@ -36,11 +36,11 @@ require_once __DIR__ . '/../../../bootstrap.php';
 require_once 'centreonObject.class.php';
 require_once 'centreonUtils.class.php';
 require_once 'centreonTimePeriod.class.php';
-require_once 'Centreon/Object/Contact/Contact.php';
-require_once 'Centreon/Object/Command/Command.php';
-require_once 'Centreon/Object/Timezone/Timezone.php';
-require_once 'Centreon/Object/Relation/Contact/Command/Host.php';
-require_once 'Centreon/Object/Relation/Contact/Command/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Contact/Contact.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Command/Command.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Timezone/Timezone.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Contact/Command/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Contact/Command/Service.php';
 
 /**
  * Class
@@ -131,7 +131,7 @@ class CentreonContact extends CentreonObject
      * @throws CentreonClapiException
      * @return mixed
      */
-    public function getContactID($contact_name = null)
+    public function getContactID($contact_name = null): mixed
     {
         $cIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$contact_name]);
         if (! count($cIds)) {
@@ -195,7 +195,7 @@ class CentreonContact extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function initInsertParameters($parameters): void
+    public function initInsertParameters($parameters): null
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -214,6 +214,8 @@ class CentreonContact extends CentreonObject
 
         $this->params = array_merge($this->params, $this->addParams);
         $this->checkParameters();
+
+        return null;
     }
 
     /**
@@ -221,7 +223,7 @@ class CentreonContact extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    public function initUpdateParameters($parameters)
+    public function initUpdateParameters($parameters): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -342,9 +344,9 @@ class CentreonContact extends CentreonObject
      * @param null $filterName
      *
      * @throws Exception
-     * @return bool|void
+     * @return bool
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
             return false;
@@ -414,6 +416,8 @@ class CentreonContact extends CentreonObject
             $this->exportNotifCommands(self::HOST_NOTIF_CMD, $objId, $element[$this->object->getUniqueLabelField()]);
             $this->exportNotifCommands(self::SVC_NOTIF_CMD, $objId, $element[$this->object->getUniqueLabelField()]);
         }
+
+        return true;
     }
 
     /**
@@ -422,7 +426,7 @@ class CentreonContact extends CentreonObject
      * @param string $locale
      * @return bool
      */
-    protected function checkLang($locale)
+    protected function checkLang($locale): bool
     {
         if (! $locale || $locale == '') {
             return true;

@@ -30,8 +30,8 @@ use Pimple\Container;
 
 require_once 'centreonObject.class.php';
 require_once 'centreonInstance.class.php';
-require_once 'Centreon/Object/Resource/Resource.php';
-require_once 'Centreon/Object/Relation/Instance/Resource.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Resource/Resource.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Instance/Resource.php';
 
 /**
  * Class
@@ -89,7 +89,7 @@ class CentreonResourceCfg extends CentreonObject
      * @throws CentreonClapiException
      * @return void
      */
-    public function __call($name, $arg)
+    public function __call($name, $arg): void
     {
         // Get the method name
         $name = strtolower($name);
@@ -180,9 +180,9 @@ class CentreonResourceCfg extends CentreonObject
      *
      * @throws CentreonClapiException
      * @throws PDOException
-     * @return void
+     * @return null
      */
-    public function initInsertParameters($parameters): void
+    public function initInsertParameters($parameters): null
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -211,6 +211,8 @@ class CentreonResourceCfg extends CentreonObject
         $addParams['resource_line'] = $params[self::ORDER_VALUE];
         $addParams['resource_comment'] = $params[self::ORDER_COMMENT];
         $this->params = array_merge($this->params, $addParams);
+
+        return null;
     }
 
     /**
@@ -226,7 +228,7 @@ class CentreonResourceCfg extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    public function initUpdateParameters($parameters)
+    public function initUpdateParameters($parameters): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -374,12 +376,12 @@ class CentreonResourceCfg extends CentreonObject
      * @param null $filterName
      *
      * @throws Exception
-     * @return int|void
+     * @return bool
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
-            return 0;
+            return false;
         }
 
         $labelField = $this->object->getUniqueLabelField();
@@ -434,6 +436,8 @@ class CentreonResourceCfg extends CentreonObject
                 }
             }
         }
+
+        return true;
     }
 
     /**
@@ -446,7 +450,7 @@ class CentreonResourceCfg extends CentreonObject
      * @throws PDOException
      * @return bool
      */
-    protected function isUnique($macro, $pollerId)
+    protected function isUnique($macro, $pollerId): bool
     {
         if (is_numeric($macro)) {
             $stmt = $this->db->query('SELECT resource_name FROM cfg_resource WHERE resource_id = ?', [$macro]);
@@ -478,7 +482,7 @@ class CentreonResourceCfg extends CentreonObject
      * @param array $instances
      * @return void
      */
-    protected function setRelations($resourceId, $instances)
+    protected function setRelations($resourceId, $instances): void
     {
         $this->relObj->delete_resource_id($resourceId);
         foreach ($instances as $instanceId) {

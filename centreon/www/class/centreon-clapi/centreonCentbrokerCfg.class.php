@@ -29,7 +29,7 @@ use Pimple\Container;
 
 require_once 'centreonObject.class.php';
 require_once 'centreonInstance.class.php';
-require_once 'Centreon/Object/Broker/Broker.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Broker/Broker.php';
 
 require_once _CENTREON_PATH_ . 'www/class/centreonDB.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonConfigCentreonBroker.php';
@@ -130,9 +130,9 @@ class CentreonCentbrokerCfg extends CentreonObject
     /**
      * @param $parameters
      * @throws CentreonClapiException
-     * @return void
+     * @return null
      */
-    public function initInsertParameters($parameters): void
+    public function initInsertParameters($parameters): null
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -143,6 +143,8 @@ class CentreonCentbrokerCfg extends CentreonObject
         $addParams['ns_nagios_server'] = $this->instanceObj->getInstanceId($params[self::ORDER_INSTANCE]);
         $this->params = array_merge($this->params, $addParams);
         $this->checkParameters();
+
+        return null;
     }
 
     /**
@@ -150,7 +152,7 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    public function initUpdateParameters($parameters)
+    public function initUpdateParameters($parameters): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -318,9 +320,9 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @param null $filterName
      *
      * @throws PDOException
-     * @return bool|void
+     * @return bool
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
             return false;
@@ -441,6 +443,8 @@ class CentreonCentbrokerCfg extends CentreonObject
                 }
             }
         }
+
+        return true;
     }
 
     /**
@@ -449,7 +453,7 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @throws PDOException
      * @return array
      */
-    protected function getMultiselect()
+    protected function getMultiselect(): array
     {
         $sql = "SELECT f.cb_fieldgroup_id, fieldname, groupname
             FROM cb_field f, cb_fieldgroup fg
@@ -475,7 +479,7 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @throws PDOException
      * @return string
      */
-    protected function getBlockId($tagName, $typeName)
+    protected function getBlockId($tagName, $typeName): string
     {
         $sql = 'SELECT cttr.cb_tag_id, cttr.cb_type_id
         		FROM cb_tag, cb_type, cb_tag_type_relation cttr
@@ -502,7 +506,7 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @throws PDOException
      * @return bool
      */
-    protected function fieldIsValid($configId, $tagName, $args)
+    protected function fieldIsValid($configId, $tagName, $args): bool
     {
         $sql = "SELECT config_value
         		FROM cfg_centreonbroker_info

@@ -30,9 +30,9 @@ use Pimple\Container;
 
 require_once 'centreonObject.class.php';
 require_once 'centreon.Config.Poller.class.php';
-require_once 'Centreon/Object/Instance/Instance.php';
-require_once 'Centreon/Object/Host/Host.php';
-require_once 'Centreon/Object/Relation/Instance/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Instance/Instance.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Instance/Host.php';
 
 /**
  * Class
@@ -96,9 +96,9 @@ class CentreonInstance extends CentreonObject
     /**
      * @param $parameters
      * @throws CentreonClapiException
-     * @return void
+     * @return null
      */
-    public function initInsertParameters($parameters): void
+    public function initInsertParameters($parameters): null
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -138,6 +138,8 @@ class CentreonInstance extends CentreonObject
         }
         $this->params = array_merge($this->params, $addParams);
         $this->checkParameters();
+
+        return null;
     }
 
     /**
@@ -145,7 +147,7 @@ class CentreonInstance extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    public function initUpdateParameters($parameters)
+    public function initUpdateParameters($parameters): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -228,7 +230,7 @@ class CentreonInstance extends CentreonObject
      * @throws CentreonClapiException
      * @return mixed
      */
-    public function getInstanceId($name)
+    public function getInstanceId($name): mixed
     {
         $instanceIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$name]);
         if (! count($instanceIds)) {
@@ -244,7 +246,7 @@ class CentreonInstance extends CentreonObject
      * @param int $instanceId
      * @return string
      */
-    public function getInstanceName($instanceId)
+    public function getInstanceName($instanceId): string
     {
         $instanceName = $this->object->getParameters($instanceId, [$this->object->getUniqueLabelField()]);
 

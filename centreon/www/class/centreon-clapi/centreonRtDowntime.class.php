@@ -35,13 +35,13 @@ use Throwable;
 require_once 'centreonObject.class.php';
 require_once 'centreonHost.class.php';
 require_once 'centreonService.class.php';
-require_once 'Centreon/Object/Downtime/RtDowntime.php';
-require_once 'Centreon/Object/Host/Host.php';
-require_once 'Centreon/Object/Host/Group.php';
-require_once 'Centreon/Object/Service/Group.php';
-require_once 'Centreon/Object/Relation/Downtime/Host.php';
-require_once 'Centreon/Object/Relation/Downtime/Hostgroup.php';
-require_once 'Centreon/Object/Relation/Downtime/Servicegroup.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Downtime/RtDowntime.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Group.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Service/Group.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Downtime/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Downtime/Hostgroup.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Downtime/Servicegroup.php';
 require_once dirname(__FILE__, 2) . '/centreonExternalCommand.class.php';
 require_once dirname(__FILE__, 2) . '/centreonDB.class.php';
 require_once dirname(__FILE__, 2) . '/centreonUser.class.php';
@@ -413,7 +413,7 @@ class CentreonRtDowntime extends CentreonObject
      * @param string $format
      * @return bool
      */
-    private function validateDate($date, $format = 'Y/m/d H:i')
+    private function validateDate($date, $format = 'Y/m/d H:i'): bool
     {
         $d = DateTime::createFromFormat($format, $date);
 
@@ -425,7 +425,7 @@ class CentreonRtDowntime extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    private function parseParameters($parameters)
+    private function parseParameters($parameters): array
     {
         // Make safe the inputs
         [$type, $resource, $start, $end, $fixed, $duration, $comment, $withServices] = explode(';', $parameters);
@@ -477,7 +477,7 @@ class CentreonRtDowntime extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    private function parseShowParameters($parameters)
+    private function parseShowParameters($parameters): array
     {
         $parameters = explode(';', $parameters);
         if (count($parameters) === 1) {

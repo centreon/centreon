@@ -52,31 +52,31 @@ require_once 'centreonACL.class.php';
 require_once 'centreonCommand.class.php';
 require_once 'centreonExported.class.php';
 require_once 'centreonTimezone.class.php';
-require_once 'Centreon/Object/Instance/Instance.php';
-require_once 'Centreon/Object/Command/Command.php';
-require_once 'Centreon/Object/Timeperiod/Timeperiod.php';
-require_once 'Centreon/Object/Host/Host.php';
-require_once 'Centreon/Object/Host/Extended.php';
-require_once 'Centreon/Object/Host/Group.php';
-require_once 'Centreon/Object/Host/Category.php';
-require_once 'Centreon/Object/Host/Template.php';
-require_once 'Centreon/Object/Host/Macro/Custom.php';
-require_once 'Centreon/Object/Service/Service.php';
-require_once 'Centreon/Object/Service/Extended.php';
-require_once 'Centreon/Object/Contact/Contact.php';
-require_once 'Centreon/Object/Contact/Group.php';
-require_once 'Centreon/Object/Relation/Host/Template/Host.php';
-require_once 'Centreon/Object/Relation/Host/Parent/Host.php';
-require_once 'Centreon/Object/Relation/Host/Group/Host.php';
-require_once 'Centreon/Object/Relation/Host/Child/Host.php';
-require_once 'Centreon/Object/Relation/Host/Category/Host.php';
-require_once 'Centreon/Object/Relation/Instance/Host.php';
-require_once 'Centreon/Object/Relation/Contact/Host.php';
-require_once 'Centreon/Object/Relation/Contact/Group/Host.php';
-require_once 'Centreon/Object/Relation/Host/Service.php';
-require_once 'Centreon/Object/Timezone/Timezone.php';
-require_once 'Centreon/Object/Media/Media.php';
-require_once 'Centreon/Object/Dependency/DependencyHostParent.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Instance/Instance.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Command/Command.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Timeperiod/Timeperiod.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Extended.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Group.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Category.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Template.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Macro/Custom.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Service/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Service/Extended.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Contact/Contact.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Contact/Group.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Host/Template/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Host/Parent/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Host/Group/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Host/Child/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Host/Category/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Instance/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Contact/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Contact/Group/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Host/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Timezone/Timezone.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Media/Media.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Dependency/DependencyHostParent.php';
 
 /**
  * Class
@@ -155,7 +155,7 @@ class CentreonHost extends CentreonObject
      * @throws CentreonClapiException
      * @return void
      */
-    public function __call($name, $arg)
+    public function __call($name, $arg): void
     {
         // Get the method name
         $name = strtolower($name);
@@ -276,7 +276,7 @@ class CentreonHost extends CentreonObject
      * @param string $name
      * @return int
      */
-    public function getHostID($name)
+    public function getHostID($name): int
     {
         return $this->getObjectId($name);
     }
@@ -287,7 +287,7 @@ class CentreonHost extends CentreonObject
      * @param int $hostId
      * @return string
      */
-    public function getHostName($hostId)
+    public function getHostName($hostId): string
     {
         return $this->getObjectName($hostId);
     }
@@ -358,9 +358,9 @@ class CentreonHost extends CentreonObject
      *
      * @throws CentreonClapiException
      * @throws PDOException
-     * @return void
+     * @return null
      */
-    public function initInsertParameters($parameters): void
+    public function initInsertParameters($parameters): null
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -421,6 +421,8 @@ class CentreonHost extends CentreonObject
         }
         $this->params = array_merge($this->params, $addParams);
         $this->checkParameters();
+
+        return null;
     }
 
     /**
@@ -738,7 +740,7 @@ class CentreonHost extends CentreonObject
      * @throws PDOException
      * @return array
      */
-    public function initUpdateParameters($parameters = null)
+    public function initUpdateParameters($parameters = null): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -1100,12 +1102,12 @@ class CentreonHost extends CentreonObject
      * @param null $filterName
      *
      * @throws Exception
-     * @return void
+     * @return bool
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
-            return 0;
+            return false;
         }
 
         $labelField = $this->object->getUniqueLabelField();
@@ -1375,6 +1377,8 @@ class CentreonHost extends CentreonObject
                 CentreonHostGroupService::getInstance()->export($helement['hg_name']);
             }
         }
+
+        return true;
     }
 
     /**
@@ -1386,7 +1390,7 @@ class CentreonHost extends CentreonObject
      * @throws PDOException
      * @return bool
      */
-    public function hasMacroFromHostChanged($host_id, &$macroInput, &$macroValue, $cmdId = false)
+    public function hasMacroFromHostChanged($host_id, &$macroInput, &$macroValue, $cmdId = false): bool
     {
         $aTemplates = $this->getTemplateChain($host_id, [], -1, true, 'host_name,host_id,command_command_id');
         if (! isset($cmdId)) {
@@ -1481,7 +1485,7 @@ class CentreonHost extends CentreonObject
      * @throws PDOException
      * @return array
      */
-    public function getMacros($iHostId, $bIsTemplate, $aListTemplate, $iIdCommande)
+    public function getMacros($iHostId, $bIsTemplate, $aListTemplate, $iIdCommande): array
     {
         $aMacroInCommande = [];
 
@@ -1555,7 +1559,7 @@ class CentreonHost extends CentreonObject
      * @throws PDOException
      * @return array
      */
-    public function getCustomMacroInDb($hostId = null, $template = null)
+    public function getCustomMacroInDb($hostId = null, $template = null): array
     {
         $arr = [];
         $i = 0;
@@ -1591,7 +1595,7 @@ class CentreonHost extends CentreonObject
      *
      * @return array
      */
-    public function macro_unique($aTempMacro)
+    public function macro_unique($aTempMacro): array
     {
         $storedMacros = [];
         foreach ($aTempMacro as $TempMacro) {
@@ -1620,7 +1624,7 @@ class CentreonHost extends CentreonObject
      * @param string $columnName
      * @return string
      */
-    protected function getClapiActionName($columnName)
+    protected function getClapiActionName($columnName): string
     {
         static $table;
 
@@ -1640,7 +1644,7 @@ class CentreonHost extends CentreonObject
      * @param string $macroName
      * @return string
      */
-    protected function wrapMacro($macroName)
+    protected function wrapMacro($macroName): string
     {
         return '$_HOST' . strtoupper($macroName) . '$';
     }
@@ -1651,7 +1655,7 @@ class CentreonHost extends CentreonObject
      * @param string $macroName
      * @return string
      */
-    protected function stripMacro($macroName)
+    protected function stripMacro($macroName): string
     {
         $strippedMacro = $macroName;
         if (preg_match('/\$_HOST([a-zA-Z0-9_-]+)\$/', $strippedMacro, $matches)) {
@@ -1672,7 +1676,7 @@ class CentreonHost extends CentreonObject
      * @throws PDOException
      * @return void
      */
-    protected function deployServices($hostId, $hostTemplateId = null)
+    protected function deployServices($hostId, $hostTemplateId = null): void
     {
         static $tmplRel;
         static $svcObj;
@@ -1735,7 +1739,7 @@ class CentreonHost extends CentreonObject
      * @throws Exception
      * @return array
      */
-    protected function getHostListByParent(&$elements)
+    protected function getHostListByParent(&$elements): array
     {
         $hostParent = new Centreon_Object_Relation_Host_Parent_Host($this->dependencyInjector);
         $parentShip = [];
@@ -1788,7 +1792,7 @@ class CentreonHost extends CentreonObject
      *
      * @return mixed
      */
-    private function comparaPriority($macroA, $macroB, $getFirst = true)
+    private function comparaPriority($macroA, $macroB, $getFirst = true): mixed
     {
         $arrayPrio = ['direct' => 3, 'fromTpl' => 2, 'fromCommand' => 1];
         if ($getFirst) {
@@ -1839,7 +1843,7 @@ class CentreonHost extends CentreonObject
      *
      * @return mixed|string
      */
-    private function getInheritedDescription($storedMacros, $finalMacro)
+    private function getInheritedDescription($storedMacros, $finalMacro): mixed
     {
         $description = '';
         if (empty($finalMacro['description'])) {
@@ -1893,7 +1897,7 @@ class CentreonHost extends CentreonObject
      *
      * @return false
      */
-    private function findTplValue($storedMacro, $getFirst = true)
+    private function findTplValue($storedMacro, $getFirst = true): false
     {
         if ($getFirst) {
             foreach ($storedMacro as $macros) {

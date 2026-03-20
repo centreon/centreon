@@ -31,9 +31,9 @@ require_once 'centreonObject.class.php';
 require_once 'centreonManufacturer.class.php';
 require_once 'centreonHost.class.php';
 require_once 'centreonService.class.php';
-require_once 'Centreon/Object/Trap/Trap.php';
-require_once 'Centreon/Object/Trap/Matching.php';
-require_once 'Centreon/Object/Relation/Trap/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Trap/Trap.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Trap/Matching.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Trap/Service.php';
 
 /**
  * Class
@@ -75,9 +75,9 @@ class CentreonTrap extends CentreonObject
     /**
      * @param string|null $parameters
      * @throws CentreonClapiException
-     * @return void
+     * @return null
      */
-    public function initInsertParameters($parameters = null): void
+    public function initInsertParameters($parameters = null): null
     {
         if (is_null($parameters)) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
@@ -91,6 +91,8 @@ class CentreonTrap extends CentreonObject
         $addParams['traps_oid'] = $params[self::ORDER_OID];
         $this->params = array_merge($this->params, $addParams);
         $this->checkParameters();
+
+        return null;
     }
 
     /**
@@ -100,7 +102,7 @@ class CentreonTrap extends CentreonObject
      * @throws CentreonClapiException
      * @return int
      */
-    public function getStatusInt($val)
+    public function getStatusInt($val): int
     {
         $val = strtolower($val);
         if (! is_numeric($val)) {
@@ -122,7 +124,7 @@ class CentreonTrap extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    public function initUpdateParameters($parameters = null)
+    public function initUpdateParameters($parameters = null): array
     {
         if (is_null($parameters)) {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
@@ -317,9 +319,9 @@ class CentreonTrap extends CentreonObject
      * @param string|null $filterName
      *
      * @throws Exception
-     * @return false|void
+     * @return bool
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
             return false;
@@ -382,5 +384,7 @@ class CentreonTrap extends CentreonObject
                     . $prop['tmo_status'] . "\n";
             }
         }
+
+        return true;
     }
 }

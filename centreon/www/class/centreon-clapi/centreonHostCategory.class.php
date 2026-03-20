@@ -32,9 +32,9 @@ use Pimple\Container;
 require_once 'centreonObject.class.php';
 require_once 'centreonSeverityAbstract.class.php';
 require_once 'centreonACL.class.php';
-require_once 'Centreon/Object/Host/Host.php';
-require_once 'Centreon/Object/Host/Category.php';
-require_once 'Centreon/Object/Relation/Host/Category/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Category.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Host/Category/Host.php';
 
 /**
  * Class
@@ -175,9 +175,9 @@ class CentreonHostCategory extends CentreonSeverityAbstract
     /**
      * @param $parameters
      * @throws CentreonClapiException
-     * @return void
+     * @return null
      */
-    public function initInsertParameters($parameters): void
+    public function initInsertParameters($parameters): null
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -188,6 +188,8 @@ class CentreonHostCategory extends CentreonSeverityAbstract
         $addParams['hc_alias'] = $params[self::ORDER_ALIAS];
         $this->params = array_merge($this->params, $addParams);
         $this->checkParameters();
+
+        return null;
     }
 
     /**
@@ -195,7 +197,7 @@ class CentreonHostCategory extends CentreonSeverityAbstract
      * @throws CentreonClapiException
      * @return array
      */
-    public function initUpdateParameters($parameters)
+    public function initUpdateParameters($parameters): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -244,12 +246,12 @@ class CentreonHostCategory extends CentreonSeverityAbstract
      * @param null $filterName
      *
      * @throws PDOException
-     * @return void
+     * @return bool
      */
-    public function export($filterName = null): void
+    public function export($filterName = null): bool
     {
         if (! parent::export($filterName)) {
-            return;
+            return false;
         }
 
         $hostCategories = $this->findHostCategories();
@@ -280,6 +282,8 @@ class CentreonHostCategory extends CentreonSeverityAbstract
                 );
             }
         }
+
+        return true;
     }
 
     /**

@@ -29,8 +29,8 @@ use Pimple\Container;
 
 require_once 'centreonObject.class.php';
 require_once 'centreonUtils.class.php';
-require_once 'Centreon/Object/Command/Command.php';
-require_once 'Centreon/Object/Graph/Template/Template.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Command/Command.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Graph/Template/Template.php';
 
 /**
  * Class
@@ -102,7 +102,7 @@ class CentreonCommand extends CentreonObject
      * @throws CentreonClapiException
      * @throws PDOException
      */
-    public function initInsertParameters($parameters): void
+    public function initInsertParameters($parameters): null
     {
         $params = explode($this->delim, $parameters);
 
@@ -122,6 +122,8 @@ class CentreonCommand extends CentreonObject
         $addParams['command_line'] = $params[self::ORDER_COMMAND];
         $this->params = array_merge($this->params, $addParams);
         $this->checkParameters();
+
+        return null;
     }
 
     /**
@@ -129,7 +131,7 @@ class CentreonCommand extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    public function initUpdateParameters($parameters)
+    public function initUpdateParameters($parameters): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -295,7 +297,7 @@ class CentreonCommand extends CentreonObject
      * @throws CentreonClapiException
      * @return int
      */
-    public function getId($commandName)
+    public function getId($commandName): int
     {
         $obj = new Centreon_Object_Command($this->dependencyInjector);
         $tmp = $obj->getIdByParameter($obj->getUniqueLabelField(), $commandName);
@@ -311,9 +313,9 @@ class CentreonCommand extends CentreonObject
     /**
      * @param null $filterName
      * @throws CentreonClapiException
-     * @return bool|void
+     * @return bool
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
             return false;
@@ -385,6 +387,8 @@ class CentreonCommand extends CentreonObject
                     . implode(';', $argDescriptions) . "\n";
             }
         }
+
+        return true;
     }
 
     /**
@@ -397,7 +401,7 @@ class CentreonCommand extends CentreonObject
      * @throws PDOException
      * @return array
      */
-    public function getMacroByIdAndType($iIdCommand, $sType, $iWithFormatData = 1)
+    public function getMacroByIdAndType($iIdCommand, $sType, $iWithFormatData = 1): array
     {
         $inputName = $sType;
         if ($sType == 'service') {
@@ -452,7 +456,7 @@ class CentreonCommand extends CentreonObject
      * @throws PDOException
      * @return array
      */
-    public function getMacroDescription($iIdCmd)
+    public function getMacroDescription($iIdCmd): array
     {
         $aReturn = [];
         $sSql = 'SELECT * FROM `on_demand_macro_command` WHERE `command_command_id` = ' . (int) $iIdCmd;
@@ -476,7 +480,7 @@ class CentreonCommand extends CentreonObject
      * @param string $columnName
      * @return string
      */
-    protected function getClapiActionName($columnName)
+    protected function getClapiActionName($columnName): string
     {
         static $table;
 
@@ -495,7 +499,7 @@ class CentreonCommand extends CentreonObject
      * @throws PDOException
      * @return array
      */
-    protected function getArgsDescriptions($command_id)
+    protected function getArgsDescriptions($command_id): array
     {
         $sql = 'SELECT macro_name, macro_description
         		FROM command_arg_description

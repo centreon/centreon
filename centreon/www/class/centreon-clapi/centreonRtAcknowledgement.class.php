@@ -31,9 +31,9 @@ use Pimple\Container;
 require_once 'centreonObject.class.php';
 require_once 'centreonHost.class.php';
 require_once 'centreonService.class.php';
-require_once 'Centreon/Object/Acknowledgement/RtAcknowledgement.php';
-require_once 'Centreon/Object/Host/Host.php';
-require_once 'Centreon/Object/Service/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Acknowledgement/RtAcknowledgement.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Service/Service.php';
 require_once dirname(__FILE__, 2) . '/centreonExternalCommand.class.php';
 require_once dirname(__FILE__, 2) . '/centreonDB.class.php';
 require_once dirname(__FILE__, 2) . '/centreonUser.class.php';
@@ -354,7 +354,7 @@ class CentreonRtAcknowledgement extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    private function parseParameters($parameters)
+    private function parseParameters($parameters): array
     {
         // Make safe the inputs
         [$type, $resource, $comment, $sticky, $notify, $persistent] = explode(';', $parameters);
@@ -391,7 +391,7 @@ class CentreonRtAcknowledgement extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    private function parseShowParameters($parameters)
+    private function parseShowParameters($parameters): array
     {
         $parameters = explode(';', $parameters);
         if (count($parameters) === 1) {

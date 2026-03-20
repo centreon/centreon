@@ -148,7 +148,7 @@ class CentreonContactGroup extends CentreonObject
      * @throws CentreonClapiException
      * @return int
      */
-    public function getContactGroupID($contactGroupName = null)
+    public function getContactGroupID($contactGroupName = null): int
     {
         $cgIds = $this->object->getIdByParameter($this->object->getUniqueLabelField(), [$contactGroupName]);
         if (count($cgIds) !== 1) {
@@ -184,9 +184,9 @@ class CentreonContactGroup extends CentreonObject
      *
      * @throws CentreonClapiException
      * @throws PDOException
-     * @return void
+     * @return null
      */
-    public function initInsertParameters($parameters): void
+    public function initInsertParameters($parameters): null
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -197,6 +197,8 @@ class CentreonContactGroup extends CentreonObject
         $addParams['cg_alias'] = $params[self::ORDER_ALIAS];
         $this->params = array_merge($this->params, $addParams);
         $this->checkParameters();
+
+        return null;
     }
 
     /**
@@ -204,7 +206,7 @@ class CentreonContactGroup extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    public function initUpdateParameters($parameters)
+    public function initUpdateParameters($parameters): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -231,9 +233,9 @@ class CentreonContactGroup extends CentreonObject
      * @param null $filterName
      *
      * @throws Exception
-     * @return false|void
+     * @return bool
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! parent::export($filterName)) {
             return false;
@@ -263,5 +265,7 @@ class CentreonContactGroup extends CentreonObject
                 . $this->delim . $element[$cgFieldName] . $this->delim . $element[$cFieldName]
                 . $this->delim . $element['contact_alias'] . "\n";
         }
+
+        return true;
     }
 }

@@ -52,7 +52,7 @@ class CentreonACLResources
      * @throws PDOException
      * @return int
      */
-    public function getACLResourceID($name)
+    public function getACLResourceID($name): int
     {
         $request = 'SELECT acl_group_id FROM acl_groups WHERE acl_group_name LIKE :name';
         $stmt = $this->_DB->prepare($request);
@@ -73,7 +73,7 @@ class CentreonACLResources
      * @throws PDOException
      * @return int
      */
-    public function addContact($contact_id, $aclid)
+    public function addContact($contact_id, $aclid): int
     {
         $deleteRequest = 'DELETE FROM acl_group_contacts_relations WHERE acl_group_id = :aclid AND contact_contact_id = :contact_id';
         $deleteStmt = $this->_DB->prepare($deleteRequest);
@@ -97,7 +97,7 @@ class CentreonACLResources
      * @throws PDOException
      * @return int
      */
-    public function delContact($contact_id, $aclid)
+    public function delContact($contact_id, $aclid): int
     {
         $deleteRequest = 'DELETE FROM acl_group_contacts_relations WHERE acl_group_id = :aclid AND contact_contact_id = :contact_id';
         $deleteStmt = $this->_DB->prepare($deleteRequest);
@@ -112,7 +112,7 @@ class CentreonACLResources
      * @throws PDOException
      * @return int
      */
-    public function updateACL()
+    public function updateACL(): int
     {
         $updateRequest = "UPDATE `acl_resources` SET `changed` = '1'";
         $updateStmt = $this->_DB->prepare($updateRequest);

@@ -44,7 +44,7 @@ class CentreonUtils
      * @param string $pattern
      * @return string
      */
-    public static function convertSpecialPattern($pattern)
+    public static function convertSpecialPattern($pattern): string
     {
         $pattern = str_replace('#S#', '/', $pattern);
         $pattern = str_replace('#BS#', '\\', $pattern);
@@ -59,7 +59,7 @@ class CentreonUtils
      * @throws PDOException
      * @return int|null
      */
-    public static function getImageId($imagename, $db = null)
+    public static function getImageId($imagename, $db = null): ?int
     {
         if (is_null($db)) {
             $db = new CentreonDB('centreon');
@@ -94,7 +94,7 @@ class CentreonUtils
      * @param string $str | string to convert
      * @return string
      */
-    public static function convertLineBreak($str)
+    public static function convertLineBreak($str): string
     {
         $str = str_replace("\r\n", '<br/>', $str);
 
@@ -128,7 +128,7 @@ class CentreonUtils
     /**
      * @return string
      */
-    public static function getUserName()
+    public static function getUserName(): string
     {
         return self::$clapiUserName;
     }
@@ -146,7 +146,7 @@ class CentreonUtils
     /**
      * @return int
      */
-    public static function getuserId()
+    public static function getuserId(): int
     {
         return self::$clapiUserId;
     }

@@ -108,7 +108,7 @@ class CentreonConfigPoller
      * @throws PDOException
      * @return int
      */
-    public function getPollerList($format)
+    public function getPollerList($format): int
     {
         $DBRESULT = $this->DB->query("SELECT id,name FROM nagios_server WHERE ns_activate = '1' ORDER BY id");
         if ($format == 'xml') {
@@ -132,7 +132,7 @@ class CentreonConfigPoller
      * @throws ServiceNotFoundException
      * @return int
      */
-    public function pollerReload($variables)
+    public function pollerReload($variables): int
     {
         if (! isset($variables)) {
             echo 'Cannot get poller';
@@ -185,7 +185,7 @@ class CentreonConfigPoller
      * @throws PDOException
      * @return int
      */
-    public function execCmd($pollerId)
+    public function execCmd($pollerId): int
     {
         $instanceClassFile = $this->centreon_path . 'www/class/centreonInstance.class.php';
         if (! is_file($instanceClassFile)) {
@@ -223,7 +223,7 @@ class CentreonConfigPoller
      * @throws ServiceNotFoundException
      * @return int
      */
-    public function pollerRestart($variables)
+    public function pollerRestart($variables): int
     {
         if (! isset($variables)) {
             echo 'Cannot get poller';
@@ -273,9 +273,9 @@ class CentreonConfigPoller
      *
      * @throws CentreonClapiException
      * @throws PDOException
-     * @return int|void
+     * @return int
      */
-    public function pollerTest($format, $variables)
+    public function pollerTest($format, $variables): int
     {
         if (! isset($variables)) {
             echo 'Cannot get poller';
@@ -372,7 +372,7 @@ class CentreonConfigPoller
      * @throws PDOException
      * @return int
      */
-    public function pollerGenerate($variables, $login, $password)
+    public function pollerGenerate($variables, $login, $password): int
     {
 
         $config_generate = new Generate($this->dependencyInjector);
@@ -445,9 +445,9 @@ class CentreonConfigPoller
      *
      * @throws CentreonClapiException
      * @throws PDOException
-     * @return int|void
+     * @return int
      */
-    public function cfgMove($variables = null)
+    public function cfgMove($variables = null): int
     {
         global $pearDB, $pearDBO;
         $pearDB = $this->DB;
@@ -644,7 +644,7 @@ class CentreonConfigPoller
      *
      * @return string
      */
-    public function getApacheUser()
+    public function getApacheUser(): string
     {
         // Change files owner
         $installFile = '/etc/centreon/instCentWeb.conf';
@@ -675,7 +675,7 @@ class CentreonConfigPoller
      * @throws PDOException
      * @return int
      */
-    public function sendTrapCfg($pollerId = null)
+    public function sendTrapCfg($pollerId = null): int
     {
         if (is_null($pollerId)) {
             throw new CentreonClapiException(self::MISSING_POLLER_ID);
@@ -712,7 +712,7 @@ class CentreonConfigPoller
      * @throws PDOException
      * @return array
      */
-    public function getPollerState()
+    public function getPollerState(): array
     {
         $pollerState = [];
         $dbResult = $this->DBC->query('SELECT instance_id, running, name FROM instances');
@@ -755,7 +755,7 @@ class CentreonConfigPoller
      * @throws PDOException
      * @return int
      */
-    private function ensurePollerId($poller)
+    private function ensurePollerId($poller): int
     {
         if (is_numeric($poller)) {
             $statement = $this->DB->prepare('SELECT id FROM nagios_server WHERE id = :poller');
@@ -781,12 +781,12 @@ class CentreonConfigPoller
      * @param string|null $filename
      * @param string|null $status
      *
-     * @return string|void
+     * @return string
      */
-    private function displayCopyingFile($filename = null, $status = null)
+    private function displayCopyingFile($filename = null, $status = null): string
     {
         if (! isset($filename)) {
-            return;
+            return '';
         }
 
         return '- ' . $filename . ' -> ' . $status . "\n";

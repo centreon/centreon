@@ -40,15 +40,15 @@ use Pimple\Container;
 require_once 'centreonObject.class.php';
 require_once 'centreonHost.class.php';
 require_once 'centreonService.class.php';
-require_once 'Centreon/Object/Dependency/Dependency.php';
-require_once 'Centreon/Object/Host/Host.php';
-require_once 'Centreon/Object/Host/Group.php';
-require_once 'Centreon/Object/Service/Group.php';
-require_once 'Centreon/Object/Meta/Service.php';
-require_once 'Centreon/Object/Relation/Dependency/Parent/Host.php';
-require_once 'Centreon/Object/Relation/Dependency/Parent/Hostgroup.php';
-require_once 'Centreon/Object/Relation/Dependency/Parent/Servicegroup.php';
-require_once 'Centreon/Object/Relation/Dependency/Parent/Metaservice.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Dependency/Dependency.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Group.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Service/Group.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Meta/Service.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Dependency/Parent/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Dependency/Parent/Hostgroup.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Dependency/Parent/Servicegroup.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Dependency/Parent/Metaservice.php';
 
 /**
  * Class
@@ -171,7 +171,7 @@ class CentreonDependency extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    public function initUpdateParameters($parameters = null)
+    public function initUpdateParameters($parameters = null): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -291,15 +291,17 @@ class CentreonDependency extends CentreonObject
      *
      * @param $filterName
      *
-     * @return void
+     * @return bool
      */
-    public function export($filterName = null): void
+    public function export($filterName = null): bool
     {
         $this->exportHostDep();
         $this->exportServiceDep();
         $this->exportHostgroupDep();
         $this->exportServicegroupDep();
         $this->exportMetaDep();
+
+        return true;
     }
 
     /**
@@ -310,7 +312,7 @@ class CentreonDependency extends CentreonObject
      * @throws PDOException
      * @return string
      */
-    protected function getDependencyType($dependencyName)
+    protected function getDependencyType($dependencyName): string
     {
         $sql = "SELECT '" . self::DEP_TYPE_HOST . "' as type
             FROM dependency d, dependency_hostParent_relation rel
@@ -371,7 +373,7 @@ class CentreonDependency extends CentreonObject
      * @throws CentreonClapiException
      * @return void
      */
-    protected function insertDependency($name, $description, $parentObj, $parentString, $relationObj)
+    protected function insertDependency($name, $description, $parentObj, $parentString, $relationObj): void
     {
         $parents = explode('|', $parentString);
         $parentIds = [];
@@ -1299,7 +1301,7 @@ class CentreonDependency extends CentreonObject
      * @throws PDOException
      * @return void
      */
-    protected function exportHostDep()
+    protected function exportHostDep(): void
     {
         $sql = 'SELECT dep_id, dep_name, dep_description, inherits_parent,
             execution_failure_criteria, notification_failure_criteria, dep_comment, host_name
@@ -1375,7 +1377,7 @@ class CentreonDependency extends CentreonObject
      * @throws PDOException
      * @return void
      */
-    protected function exportServiceDep()
+    protected function exportServiceDep(): void
     {
         $sql = 'SELECT dep_id, dep_name, dep_description, inherits_parent,
             execution_failure_criteria, notification_failure_criteria, dep_comment, host_name, service_description
@@ -1453,7 +1455,7 @@ class CentreonDependency extends CentreonObject
      * @throws PDOException
      * @return void
      */
-    protected function exportHostgroupDep()
+    protected function exportHostgroupDep(): void
     {
         $sql = 'SELECT dep_id, dep_name, dep_description, inherits_parent,
             execution_failure_criteria, notification_failure_criteria, dep_comment, hg_name
@@ -1513,7 +1515,7 @@ class CentreonDependency extends CentreonObject
      * @throws PDOException
      * @return void
      */
-    protected function exportServicegroupDep()
+    protected function exportServicegroupDep(): void
     {
         $sql = 'SELECT dep_id, dep_name, dep_description, inherits_parent,
             execution_failure_criteria, notification_failure_criteria, dep_comment, sg_name
@@ -1573,7 +1575,7 @@ class CentreonDependency extends CentreonObject
      * @throws PDOException
      * @return void
      */
-    protected function exportMetaDep()
+    protected function exportMetaDep(): void
     {
         $sql = 'SELECT dep_id, dep_name, dep_description, inherits_parent,
             execution_failure_criteria, notification_failure_criteria, dep_comment, meta_name

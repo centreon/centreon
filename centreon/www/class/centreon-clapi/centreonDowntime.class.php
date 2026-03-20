@@ -31,13 +31,13 @@ use Pimple\Container;
 require_once 'centreonObject.class.php';
 require_once 'centreonHost.class.php';
 require_once 'centreonService.class.php';
-require_once 'Centreon/Object/Downtime/Downtime.php';
-require_once 'Centreon/Object/Host/Host.php';
-require_once 'Centreon/Object/Host/Group.php';
-require_once 'Centreon/Object/Service/Group.php';
-require_once 'Centreon/Object/Relation/Downtime/Host.php';
-require_once 'Centreon/Object/Relation/Downtime/Hostgroup.php';
-require_once 'Centreon/Object/Relation/Downtime/Servicegroup.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Downtime/Downtime.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Host/Group.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Service/Group.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Downtime/Host.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Downtime/Hostgroup.php';
+require_once __DIR__ . '/../../../lib/Centreon/Object/Relation/Downtime/Servicegroup.php';
 
 /**
  * Class
@@ -167,9 +167,9 @@ class CentreonDowntime extends CentreonObject
     /**
      * @param null $parameters
      * @throws CentreonClapiException
-     * @return void
+     * @return null
      */
-    public function initInsertParameters($parameters = null): void
+    public function initInsertParameters($parameters = null): null
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < $this->nbOfCompulsoryParams) {
@@ -180,6 +180,8 @@ class CentreonDowntime extends CentreonObject
         $addParams['dt_description'] = $params[self::ORDER_ALIAS];
         $this->params = array_merge($this->params, $addParams);
         $this->checkParameters();
+
+        return null;
     }
 
     /**
@@ -187,7 +189,7 @@ class CentreonDowntime extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    public function initUpdateParameters($parameters = null)
+    public function initUpdateParameters($parameters = null): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -394,7 +396,7 @@ class CentreonDowntime extends CentreonObject
      * @throws PDOException
      * @return string
      */
-    public function listHosts($downtimeId)
+    public function listHosts($downtimeId): string
     {
         // hosts
         $sql = 'SELECT host_name
@@ -417,7 +419,7 @@ class CentreonDowntime extends CentreonObject
      * @throws PDOException
      * @return string
      */
-    public function listHostGroups($downtimeId)
+    public function listHostGroups($downtimeId): string
     {
         // host groups
         $sql = 'SELECT hg_name
@@ -440,7 +442,7 @@ class CentreonDowntime extends CentreonObject
      * @throws PDOException
      * @return string
      */
-    public function listServices($downtimeId)
+    public function listServices($downtimeId): string
     {
         // services
         $sql = 'SELECT host_name, service_description
@@ -464,7 +466,7 @@ class CentreonDowntime extends CentreonObject
      * @throws PDOException
      * @return string
      */
-    public function listServiceGroups($downtimeId)
+    public function listServiceGroups($downtimeId): string
     {
         // service groups
         $sql = 'SELECT sg_name
@@ -487,7 +489,7 @@ class CentreonDowntime extends CentreonObject
      * @throws PDOException
      * @return string
      */
-    public function listResources($downtimeId)
+    public function listResources($downtimeId): string
     {
         // hosts
         $sql = 'SELECT host_name
@@ -844,9 +846,9 @@ class CentreonDowntime extends CentreonObject
      * @param null $filterName
      *
      * @throws PDOException
-     * @return false|void
+     * @return bool
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         // generic add & setparam
         if (! parent::export($filterName)) {
@@ -867,13 +869,15 @@ class CentreonDowntime extends CentreonObject
 
         // handle periods
         $this->exportPeriods();
+
+        return true;
     }
 
     /**
      * @throws PDOException
      * @return void
      */
-    protected function exportPeriods()
+    protected function exportPeriods(): void
     {
         $sql = 'SELECT dt_name, dtp_start_time, dtp_end_time, dtp_fixed, dtp_duration,
             dtp_day_of_week, dtp_day_of_month, dtp_month_cycle
@@ -914,7 +918,7 @@ class CentreonDowntime extends CentreonObject
      * @throws PDOException
      * @return void
      */
-    protected function exportHostRel()
+    protected function exportHostRel(): void
     {
         $sql = 'SELECT dt_name, host_name as object_name
             FROM downtime d, host o, downtime_host_relation rel
@@ -927,7 +931,7 @@ class CentreonDowntime extends CentreonObject
      * @throws PDOException
      * @return void
      */
-    protected function exportHostgroupRel()
+    protected function exportHostgroupRel(): void
     {
         $sql = 'SELECT dt_name, hg_name as object_name
             FROM downtime d, hostgroup o, downtime_hostgroup_relation rel
@@ -940,7 +944,7 @@ class CentreonDowntime extends CentreonObject
      * @throws PDOException
      * @return void
      */
-    protected function exportServiceRel()
+    protected function exportServiceRel(): void
     {
         $sql = "SELECT dt_name, CONCAT_WS(',', host_name, service_description) as object_name
             FROM downtime d, host h, service s, downtime_service_relation rel
@@ -954,7 +958,7 @@ class CentreonDowntime extends CentreonObject
      * @throws PDOException
      * @return void
      */
-    protected function exportServicegroupRel()
+    protected function exportServicegroupRel(): void
     {
         $sql = 'SELECT dt_name, sg_name as object_name
             FROM downtime d, servicegroup o, downtime_servicegroup_relation rel
@@ -1045,7 +1049,7 @@ class CentreonDowntime extends CentreonObject
      * @throws PDOException
      * @return mixed
      */
-    protected function getPeriods($downtimeId, $position = null)
+    protected function getPeriods($downtimeId, $position = null): mixed
     {
         $sql = 'SELECT dt_id, dtp_start_time, dtp_end_time, dtp_fixed, dtp_duration,
             dtp_day_of_week, dtp_day_of_month, dtp_month_cycle

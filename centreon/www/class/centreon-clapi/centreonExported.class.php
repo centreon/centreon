@@ -117,7 +117,7 @@ class CentreonExported
      *
      * @return int
      */
-    public function isExported($object, $id, $name)
+    public function isExported($object, $id, $name): int
     {
         if ($this->filter == 0) {
             return 1;
@@ -146,7 +146,7 @@ class CentreonExported
     /**
      * @return CentreonExported
      */
-    public static function getInstance()
+    public static function getInstance(): CentreonExported
     {
         if (is_null(self::$instance)) {
             self::$instance = new CentreonExported();
@@ -162,7 +162,7 @@ class CentreonExported
      *
      * @return int
      */
-    private function checkAriane($object, $id, $name)
+    private function checkAriane($object, $id, $name): int
     {
         if (! is_null($this->filter_ariane)) {
             $ariane = join('#', $this->ariane);
@@ -185,7 +185,7 @@ class CentreonExported
      *
      * @return int
      */
-    private function checkFilter($object, $id, $name)
+    private function checkFilter($object, $id, $name): int
     {
         if (! is_null($this->filter_type)) {
             foreach ($this->filter_type as $filter) {
