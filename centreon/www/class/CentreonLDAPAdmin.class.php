@@ -49,7 +49,7 @@ class CentreonLdapAdmin
      * @return array
      * @todo sanitize the inputs to avoid XSS
      */
-    public function getLdapParameters()
+    public function getLdapParameters(): array
     {
         return [
             'ldap_store_password',
@@ -213,7 +213,7 @@ class CentreonLdapAdmin
      * @throws PDOException
      * @return array
      */
-    public function getGeneralOptions($arId)
+    public function getGeneralOptions($arId): array
     {
         $gopt = [];
         $statement = $this->db->prepare(
@@ -300,7 +300,7 @@ class CentreonLdapAdmin
      * @param array $options A hash table with options for connections and search in ldap
      * @return int|bool The id of connection, false on error
      */
-    public function addTemplate(array $options = [])
+    public function addTemplate(array $options = []): int|bool
     {
         try {
             $this->db->query(
@@ -417,7 +417,7 @@ class CentreonLdapAdmin
      *
      * @return array
      */
-    public function getTemplateAd()
+    public function getTemplateAd(): array
     {
         $infos = [];
         $infos['user_filter'] = '(&(samAccountName=%s)(objectClass=user)(samAccountType=805306368))';
@@ -444,7 +444,7 @@ class CentreonLdapAdmin
      *
      * @return array
      */
-    public function getTemplateLdap()
+    public function getTemplateLdap(): array
     {
         $infos = [];
         $infos['user_filter'] = '(&(uid=%s)(objectClass=inetOrgPerson))';

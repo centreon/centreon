@@ -43,7 +43,7 @@ class CentreonHostcategories
      * @param int $field
      * @return array
      */
-    public static function getDefaultValuesParameters($field)
+    public static function getDefaultValuesParameters($field): array
     {
         $parameters = [];
         $parameters['currentObject']['table'] = 'hostcategories';
@@ -78,7 +78,7 @@ class CentreonHostcategories
      * @throws PDOException
      * @return array
      */
-    public function getObjectForSelect2($values = [], $options = [])
+    public function getObjectForSelect2($values = [], $options = []): array
     {
         global $centreon;
         $items = [];

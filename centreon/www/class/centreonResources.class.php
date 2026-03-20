@@ -44,7 +44,7 @@ class CentreonResources
      *
      * @return array
      */
-    public static function getDefaultValuesParameters($field)
+    public static function getDefaultValuesParameters($field): array
     {
         $parameters = [];
         $parameters['currentObject']['table'] = 'cfg_resource';
@@ -72,7 +72,7 @@ class CentreonResources
      * @throws Exception
      * @return array
      */
-    public static function getResourceByName($db, $name)
+    public static function getResourceByName($db, $name): array
     {
         $queryResources = "SELECT * FROM cfg_resource WHERE resource_name = '{$name}'";
         $resultQueryResources = $db->query($queryResources);

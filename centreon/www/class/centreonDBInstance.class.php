@@ -58,7 +58,7 @@ class CentreonDBInstance
     /**
      * @return CentreonDB
      */
-    public function getInstance()
+    public function getInstance(): CentreonDB
     {
         return $this->instance;
     }
@@ -66,7 +66,7 @@ class CentreonDBInstance
     /**
      * @return CentreonDB
      */
-    public static function getDbCentreonInstance()
+    public static function getDbCentreonInstance(): CentreonDB
     {
         if (is_null(self::$dbCentreonInstance)) {
             self::$dbCentreonInstance = new CentreonDBInstance('centreon');
@@ -78,7 +78,7 @@ class CentreonDBInstance
     /**
      * @return CentreonDB
      */
-    public static function getDbCentreonStorageInstance()
+    public static function getDbCentreonStorageInstance(): CentreonDB
     {
         if (is_null(self::$dbCentreonStorageInstance)) {
             self::$dbCentreonStorageInstance = new CentreonDBInstance('centstorage');

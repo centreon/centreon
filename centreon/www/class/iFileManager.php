@@ -29,5 +29,5 @@ interface iFileManager
     /**
      * @return mixed
      */
-    public function upload();
+    public function upload(): mixed;
 }

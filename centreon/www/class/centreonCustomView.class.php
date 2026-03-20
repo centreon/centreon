@@ -122,7 +122,7 @@ class CentreonCustomView
      * @throws Exception
      * @return mixed
      */
-    public function checkOtherShareViewUnlocked($userId, $viewId)
+    public function checkOtherShareViewUnlocked($userId, $viewId): mixed
     {
         $query = 'SELECT COUNT(user_id) as "nbuser" '
             . 'FROM custom_view_user_relation '
@@ -150,7 +150,7 @@ class CentreonCustomView
      * @throws Exception
      * @return mixed
      */
-    public function checkOwnerViewStatus($viewId)
+    public function checkOwnerViewStatus($viewId): mixed
     {
         $query = 'SELECT is_consumed '
             . 'FROM custom_view_user_relation '
@@ -230,7 +230,7 @@ class CentreonCustomView
      * @throws Exception
      * @return bool
      */
-    public function checkSharedPermission($viewId)
+    public function checkSharedPermission($viewId): bool
     {
         $views = $this->getCustomViews();
 
@@ -247,7 +247,7 @@ class CentreonCustomView
      * @throws Exception
      * @return bool
      */
-    public function checkOwnership($viewId)
+    public function checkOwnership($viewId): bool
     {
         $views = $this->getCustomViews();
 
@@ -286,7 +286,7 @@ class CentreonCustomView
      *
      * @return int
      */
-    public function getDefaultViewId()
+    public function getDefaultViewId(): int
     {
         return $this->defaultView;
     }
@@ -297,7 +297,7 @@ class CentreonCustomView
      * @throws Exception
      * @return int
      */
-    public function getCurrentView()
+    public function getCurrentView(): int
     {
         if (! isset($this->currentView)) {
             if (isset($_REQUEST['currentView'])) {
@@ -331,7 +331,7 @@ class CentreonCustomView
      * @throws Exception
      * @return array
      */
-    public function getCustomViews()
+    public function getCustomViews(): array
     {
 
         $queryValue = [];
@@ -539,7 +539,7 @@ class CentreonCustomView
      * @throws Exception
      * @return null
      */
-    public function syncCustomView($customViewId, $userId = null)
+    public function syncCustomView($customViewId, $userId = null): null
     {
         if (! $this->checkOwnership($customViewId)) {
             return null;
@@ -993,7 +993,7 @@ class CentreonCustomView
      * @throws CentreonCustomViewException
      * @return string
      */
-    public function getLayout($viewId)
+    public function getLayout($viewId): string
     {
         $views = $this->getCustomViews();
         if (isset($views[$viewId], $views[$viewId]['layout'])) {
@@ -1223,7 +1223,7 @@ class CentreonCustomView
      * @throws Exception
      * @return null
      */
-    public static function syncContactGroupCustomView($centreon, $db, $contactId)
+    public static function syncContactGroupCustomView($centreon, $db, $contactId): null
     {
         $contactgroups = CentreonContact::getContactGroupsFromContact($db, $contactId);
         if (! count($contactgroups)) {
@@ -1260,7 +1260,7 @@ class CentreonCustomView
      * @throws PDOException
      * @return mixed
      */
-    protected function getLastViewId()
+    protected function getLastViewId(): mixed
     {
         $query = 'SELECT MAX(custom_view_id) as last_id FROM custom_views';
         $stmt = $this->db->query($query);
@@ -1282,7 +1282,7 @@ class CentreonCustomView
      * @throws Exception
      * @return int|null
      */
-    protected function copyPreferences($viewId, $userId = null, $userGroupId = null)
+    protected function copyPreferences($viewId, $userId = null, $userGroupId = null): ?int
     {
         if (isset($userId) && $userId) {
             $query = 'REPLACE INTO widget_preferences (widget_view_id, parameter_id, preference_value, user_id) '

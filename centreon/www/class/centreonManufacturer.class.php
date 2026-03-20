@@ -46,7 +46,7 @@ class CentreonManufacturer
      * @throws PDOException
      * @return array
      */
-    public function getObjectForSelect2($values = [], $options = [])
+    public function getObjectForSelect2($values = [], $options = []): array
     {
         $items = [];
         $listValues = '';

@@ -68,7 +68,7 @@ class CentreonNotification
      * @throws PDOException
      * @return array
      */
-    public function getList()
+    public function getList(): array
     {
         $sql = 'SELECT contact_id, contact_alias FROM contact ORDER BY contact_name';
         $res = $this->db->query($sql);
@@ -88,7 +88,7 @@ class CentreonNotification
      * @throws PDOException
      * @return array
      */
-    public function getContactGroupsById($contactGroupId)
+    public function getContactGroupsById($contactGroupId): array
     {
         $sql = 'SELECT cg_id, cg_name
         		FROM contactgroup cg
@@ -110,7 +110,7 @@ class CentreonNotification
      * @throws PDOException
      * @return array
      */
-    public function getContactGroups($contactId)
+    public function getContactGroups($contactId): array
     {
         $sql = 'SELECT cg_id, cg_name
         		FROM contactgroup cg, contactgroup_contact_relation ccr
@@ -134,7 +134,7 @@ class CentreonNotification
      * @throws PDOException
      * @return array
      */
-    public function getNotifications($notifType, $contactId)
+    public function getNotifications($notifType, $contactId): array
     {
         $contactId = $this->db->escape($contactId);
         if ($this->isNotificationEnabled($contactId) === false) {
@@ -162,7 +162,7 @@ class CentreonNotification
      * @throws PDOException
      * @return array
      */
-    public function getNotificationsContactGroup($notifType, $contactgroupId)
+    public function getNotificationsContactGroup($notifType, $contactgroupId): array
     {
         /*if (false === $this->isNotificationEnabled($contactId)) {
             return array();
@@ -187,7 +187,7 @@ class CentreonNotification
      * @throws PDOException
      * @return bool true if notification is enabled, false otherwise
      */
-    protected function isNotificationEnabled($contactId)
+    protected function isNotificationEnabled($contactId): bool
     {
         $sql = 'SELECT contact_enable_notifications FROM contact WHERE contact_id = ' . $contactId;
         $res = $this->db->query($sql);
@@ -209,7 +209,7 @@ class CentreonNotification
      * @throws PDOException
      * @return array
      */
-    protected function getHostEscalations($escalations)
+    protected function getHostEscalations($escalations): array
     {
         $escalations = implode(',', array_keys($escalations));
         $sql = 'SELECT h.host_id, h.host_name
@@ -239,7 +239,7 @@ class CentreonNotification
      * @throws PDOException
      * @return array
      */
-    protected function getServiceEscalations($escalations)
+    protected function getServiceEscalations($escalations): array
     {
         $escalationsList = implode('', array_keys($escalations));
         $sql = 'SELECT h.host_id, h.host_name, s.service_id, s.service_description
@@ -276,7 +276,7 @@ class CentreonNotification
      * @throws PDOException
      * @return array
      */
-    protected function getEscalationNotifications($notifType, $contactgroups)
+    protected function getEscalationNotifications($notifType, $contactgroups): array
     {
         if (! count($contactgroups)) {
             return [];
@@ -309,7 +309,7 @@ class CentreonNotification
      * @throws PDOException
      * @return array
      */
-    protected function getHostNotifications($contactId, $contactgroups)
+    protected function getHostNotifications($contactId, $contactgroups): array
     {
         $sql = 'SELECT host_id, host_name, host_register, 1 as notif_type
         		FROM contact_host_relation chr, host h
@@ -362,7 +362,7 @@ class CentreonNotification
      * @throws PDOException
      * @return bool
      */
-    protected function getHostTemplateNotifications($hostId, $templates)
+    protected function getHostTemplateNotifications($hostId, $templates): bool
     {
         $sql = 'SELECT htr.host_tpl_id, ctr.contact_id, ctr2.contactgroup_cg_id
         		FROM host_template_relation htr
@@ -403,7 +403,7 @@ class CentreonNotification
      * @throws PDOException
      * @return array
      */
-    protected function getServiceNotifications($contactId, $contactGroups)
+    protected function getServiceNotifications($contactId, $contactGroups): array
     {
         $sql = 'SELECT h.host_id, h.host_name, s.service_id, s.service_description, s.service_register, 1 as notif_type
         		FROM contact_service_relation csr, service s
@@ -537,7 +537,7 @@ class CentreonNotification
      * @throws PDOException
      * @return bool
      */
-    protected function getServiceTemplateNotifications($serviceId, $templates)
+    protected function getServiceTemplateNotifications($serviceId, $templates): bool
     {
         $tplId = 0;
         if (! isset($this->svcTpl[$serviceId])) {

@@ -113,7 +113,7 @@ class CentreonCfgWriter
      *
      * @return CentreonXML
      */
-    public function getXML()
+    public function getXML(): CentreonXML
     {
         return $this->xmlBuffer;
     }
@@ -123,7 +123,7 @@ class CentreonCfgWriter
      *
      * @return void
      */
-    protected function createFile()
+    protected function createFile(): void
     {
         $this->createFileHeader();
     }
@@ -136,7 +136,7 @@ class CentreonCfgWriter
      *
      * @return int
      */
-    protected function writeText($text)
+    protected function writeText($text): int
     {
         $this->buffer .= $text;
 
@@ -148,7 +148,7 @@ class CentreonCfgWriter
      *
      * @return void
      */
-    protected function createFileHeader()
+    protected function createFileHeader(): void
     {
         $time = date('F j, Y, g:i a');
         $by = $this->centreon->user->get_name();

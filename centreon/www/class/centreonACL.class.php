@@ -184,7 +184,7 @@ class CentreonACL
      *
      * @return array
      */
-    public function getAccessGroups()
+    public function getAccessGroups(): array
     {
         $this->setAccessGroups();
 
@@ -203,7 +203,7 @@ class CentreonACL
      *
      * @return string
      */
-    public function getAccessGroupsString($flag = null, $escape = true)
+    public function getAccessGroupsString($flag = null, $escape = true): string
     {
         if ($flag !== null) {
             $flag = strtoupper($flag);
@@ -244,7 +244,7 @@ class CentreonACL
      *
      * @return array
      */
-    public function getResourceGroups()
+    public function getResourceGroups(): array
     {
         return $this->resourceGroups;
     }
@@ -261,7 +261,7 @@ class CentreonACL
      *
      * @return string
      */
-    public function getResourceGroupsString($flag = null, $escape = true)
+    public function getResourceGroupsString($flag = null, $escape = true): string
     {
         if ($flag !== null) {
             $flag = strtoupper($flag);
@@ -301,7 +301,7 @@ class CentreonACL
      *
      * @return array
      */
-    public function getHostGroups($flag = null)
+    public function getHostGroups($flag = null): array
     {
         $this->checkUpdateACL();
 
@@ -317,7 +317,7 @@ class CentreonACL
      *
      * @return array
      */
-    public function getPollers()
+    public function getPollers(): array
     {
         return $this->pollers;
     }
@@ -333,7 +333,7 @@ class CentreonACL
      *
      * @return string
      */
-    public function getHostGroupsString($flag = null)
+    public function getHostGroupsString($flag = null): string
     {
         if ($flag !== null) {
             $flag = strtoupper($flag);
@@ -377,7 +377,7 @@ class CentreonACL
      *
      * @return string
      */
-    public function getPollerString($flag = null, $escape = true)
+    public function getPollerString($flag = null, $escape = true): string
     {
         if ($flag !== null) {
             $flag = strtoupper($flag);
@@ -423,7 +423,7 @@ class CentreonACL
      *
      * @return array
      */
-    public function getServiceGroups()
+    public function getServiceGroups(): array
     {
         return $this->serviceGroups;
     }
@@ -440,7 +440,7 @@ class CentreonACL
      *
      * @return string
      */
-    public function getServiceGroupsString($flag = null, $escape = true)
+    public function getServiceGroupsString($flag = null, $escape = true): string
     {
         if ($flag !== null) {
             $flag = strtoupper($flag);
@@ -481,7 +481,7 @@ class CentreonACL
      *
      * @return array
      */
-    public function getServiceCategories()
+    public function getServiceCategories(): array
     {
         return $this->serviceCategories;
     }
@@ -491,7 +491,7 @@ class CentreonACL
      *
      * @return array
      */
-    public function getHostCategories()
+    public function getHostCategories(): array
     {
         return $this->hostCategories;
     }
@@ -508,7 +508,7 @@ class CentreonACL
      *
      * @return string
      */
-    public function getServiceCategoriesString($flag = null, $escape = true)
+    public function getServiceCategoriesString($flag = null, $escape = true): string
     {
         if ($flag !== null) {
             $flag = strtoupper($flag);
@@ -549,7 +549,7 @@ class CentreonACL
      *
      * @return string
      */
-    public function getHostCategoriesString($flag = null, $escape = true)
+    public function getHostCategoriesString($flag = null, $escape = true): string
     {
         if ($flag !== null) {
             $flag = strtoupper($flag);
@@ -587,7 +587,7 @@ class CentreonACL
      *
      * @return bool
      */
-    public function checkHost($hostId)
+    public function checkHost($hostId): bool
     {
         $pearDBO = CentreonDBInstance::getDbCentreonStorageInstance();
         $hostArray = $this->getHostsArray('ID', $pearDBO);
@@ -600,7 +600,7 @@ class CentreonACL
      *
      * @return bool
      */
-    public function checkService($serviceId)
+    public function checkService($serviceId): bool
     {
         $pearDBO = CentreonDBInstance::getDbCentreonStorageInstance();
         $serviceArray = $this->getServicesArray('ID', $pearDBO);
@@ -621,7 +621,7 @@ class CentreonACL
      *
      * @return array|string
      */
-    public function getHostsArray($flag = null, $pearDBndo = null, $escape = true)
+    public function getHostsArray($flag = null, $pearDBndo = null, $escape = true): array|string
     {
         $this->checkUpdateACL();
 
@@ -715,7 +715,7 @@ class CentreonACL
      *
      * @return string
      */
-    public function getACLHostsTemporaryTableJoin($db, $fieldToJoin, $force = false)
+    public function getACLHostsTemporaryTableJoin($db, $fieldToJoin, $force = false): string
     {
         $this->checkUpdateACL();
         $groupIds = array_keys($this->accessGroups);
@@ -742,7 +742,7 @@ class CentreonACL
      *
      * @return false|string
      */
-    public function getACLServicesTemporaryTableJoin($db, $fieldToJoin, $force = false)
+    public function getACLServicesTemporaryTableJoin($db, $fieldToJoin, $force = false): false|string
     {
         $this->checkUpdateACL();
         $groupIds = array_keys($this->accessGroups);
@@ -769,7 +769,7 @@ class CentreonACL
      *
      * @return string
      */
-    public function getACLHostsTableJoin($db, $fieldToJoin, $force = false)
+    public function getACLHostsTableJoin($db, $fieldToJoin, $force = false): string
     {
         $this->checkUpdateACL();
         $groupIds = array_keys($this->accessGroups);
@@ -789,7 +789,7 @@ class CentreonACL
      *
      * @return string
      */
-    public function getACLServicesTableJoin($db, $fieldToJoin, $force = false)
+    public function getACLServicesTableJoin($db, $fieldToJoin, $force = false): string
     {
         $this->checkUpdateACL();
         $groupIds = array_keys($this->accessGroups);
@@ -815,7 +815,7 @@ class CentreonACL
      *
      * @return string
      */
-    public function getHostsString($flag = null, $pearDBndo = null, $escape = true)
+    public function getHostsString($flag = null, $pearDBndo = null, $escape = true): string
     {
         $this->checkUpdateACL();
 
@@ -878,7 +878,7 @@ class CentreonACL
      *
      * @return array|string
      */
-    public function getServicesArray($flag = null, $pearDBndo = null, $escape = true)
+    public function getServicesArray($flag = null, $pearDBndo = null, $escape = true): array|string
     {
         $this->checkUpdateACL();
 
@@ -934,7 +934,7 @@ class CentreonACL
      *
      * @return string
      */
-    public function getServicesString($flag = null, $pearDBndo = null, $escape = true)
+    public function getServicesString($flag = null, $pearDBndo = null, $escape = true): string
     {
         $this->checkUpdateACL();
 
@@ -995,7 +995,7 @@ class CentreonACL
      *
      * @return string return id combinations like '14_26' (hostId_serviceId)
      */
-    public function getHostServiceIds($db)
+    public function getHostServiceIds($db): string
     {
         $this->checkUpdateACL();
 
@@ -1027,7 +1027,7 @@ class CentreonACL
     /**
      * @return array
      */
-    public function getActions()
+    public function getActions(): array
     {
         $this->checkUpdateACL();
 
@@ -1037,7 +1037,7 @@ class CentreonACL
     /**
      * @return array
      */
-    public function getTopology()
+    public function getTopology(): array
     {
         $this->checkUpdateACL();
 
@@ -1056,7 +1056,7 @@ class CentreonACL
     /**
      * @return string
      */
-    public function getTopologyString()
+    public function getTopologyString(): string
     {
         $this->checkUpdateACL();
 
@@ -1081,7 +1081,7 @@ class CentreonACL
      *
      * @return string
      */
-    public function queryBuilder($condition, $field, $stringlist)
+    public function queryBuilder($condition, $field, $stringlist): string
     {
         $str = '';
         if ($this->admin) {
@@ -1135,7 +1135,7 @@ class CentreonACL
      *
      * @return int
      */
-    public function checkAction($action)
+    public function checkAction($action): int
     {
         $this->checkUpdateACL();
         if ($this->admin || isset($this->actions[$action])) {
@@ -1154,7 +1154,7 @@ class CentreonACL
      *
      * @return array
      */
-    public function getHostsServices($pearDBMonitoring, $withServiceDescription = false)
+    public function getHostsServices($pearDBMonitoring, $withServiceDescription = false): array
     {
         $tab = [];
         if ($this->admin) {
@@ -1212,7 +1212,7 @@ class CentreonACL
      *
      * @return array
      */
-    public function getHostServices($pearDBMonitoring, $host_id)
+    public function getHostServices($pearDBMonitoring, $host_id): array
     {
         $tab = [];
         if ($this->admin) {
@@ -1265,7 +1265,7 @@ class CentreonACL
      *
      * @return array
      */
-    public function getHostsServicesName($pearDBndo)
+    public function getHostsServicesName($pearDBndo): array
     {
         $joinAcl = '';
         if (! $this->admin) {
@@ -1299,7 +1299,7 @@ class CentreonACL
      *
      * @return array
      */
-    public function getHostServicesName($pearDBndo, $host_name)
+    public function getHostServicesName($pearDBndo, $host_name): array
     {
         $joinAcl = '';
         if (! $this->admin) {
@@ -1336,7 +1336,7 @@ class CentreonACL
      *
      * @return array
      */
-    public function getHostgroupHosts($hg_id, $pearDBndo)
+    public function getHostgroupHosts($hg_id, $pearDBndo): array
     {
         $tab = [];
         $query = 'SELECT DISTINCT h.host_id, h.host_name '
@@ -1507,7 +1507,7 @@ class CentreonACL
      *
      * @return array
      */
-    public function getMetaServices()
+    public function getMetaServices(): array
     {
         return $this->metaServices;
     }
@@ -1517,7 +1517,7 @@ class CentreonACL
      *
      * @return string
      */
-    public function getMetaServiceString()
+    public function getMetaServiceString(): string
     {
         return $this->metaServiceStr;
     }
@@ -1529,7 +1529,7 @@ class CentreonACL
      *
      * @return string
      */
-    public function getNameDBAcl($broker = null)
+    public function getNameDBAcl($broker = null): string
     {
         global $conf_centreon;
 
@@ -1546,7 +1546,7 @@ class CentreonACL
      *
      * @return array
      */
-    public function getServiceGroupAclConf($search = null, $broker = null, $options = null, $sg_empty = null)
+    public function getServiceGroupAclConf($search = null, $broker = null, $options = null, $sg_empty = null): array
     {
         $sg = [];
 
@@ -1615,7 +1615,7 @@ class CentreonACL
      *
      * @return array
      */
-    public function getServiceServiceGroupAclConf($sgId, $broker = null, $options = null)
+    public function getServiceServiceGroupAclConf($sgId, $broker = null, $options = null): array
     {
         $services = [];
 
@@ -1685,7 +1685,7 @@ class CentreonACL
      *
      * @return array
      */
-    public function getHostAclConf($search = null, $broker = null, $options = null, $host_empty = false)
+    public function getHostAclConf($search = null, $broker = null, $options = null, $host_empty = false): array
     {
         $hosts = [];
 
@@ -1758,7 +1758,7 @@ class CentreonACL
      *
      * @return array|null
      */
-    public function getHostServiceAclConf($host_id, $broker = null, $options = null)
+    public function getHostServiceAclConf($host_id, $broker = null, $options = null): ?array
     {
         $services = [];
 
@@ -1844,7 +1844,7 @@ class CentreonACL
      *
      * @return array
      */
-    public function getHostGroupAclConf($search = null, $broker = null, $options = null, $hg_empty = false)
+    public function getHostGroupAclConf($search = null, $broker = null, $options = null, $hg_empty = false): array
     {
         $hg = [];
 
@@ -1905,7 +1905,7 @@ class CentreonACL
      *
      * @return string[]
      */
-    public function getAllHostGroupAclConf($search = null, $options = null, $hg_empty = false)
+    public function getAllHostGroupAclConf($search = null, $options = null, $hg_empty = false): array
     {
         $hg = [];
 
@@ -1964,7 +1964,7 @@ class CentreonACL
      *
      * @return array
      */
-    public function getHostHostGroupAclConf($hgId, $broker = null, $options = null)
+    public function getHostHostGroupAclConf($hgId, $broker = null, $options = null): array
     {
         $hg = [];
 
@@ -2018,7 +2018,7 @@ class CentreonACL
      *
      * @return array
      */
-    public function getPollerAclConf($options = [])
+    public function getPollerAclConf($options = []): array
     {
         if (! count($options)) {
             $options = ['fields' => ['id', 'name'], 'order' => ['name'], 'keys' => ['id']];
@@ -2048,7 +2048,7 @@ class CentreonACL
      *
      * @return array
      */
-    public function getContactAclConf($options = [])
+    public function getContactAclConf($options = []): array
     {
         $request = $this->constructRequest($options, true);
         if ($this->admin) {
@@ -2091,7 +2091,7 @@ class CentreonACL
      *
      * @return array
      */
-    public function getContactGroupAclConf(array $options = [], bool $localOnly = true)
+    public function getContactGroupAclConf(array $options = [], bool $localOnly = true): array
     {
         $request = $this->constructRequest($options, true);
 
@@ -2129,7 +2129,7 @@ class CentreonACL
      *
      * @return array
      */
-    public function getAclGroupAclConf($options = [])
+    public function getAclGroupAclConf($options = []): array
     {
         $request = $this->constructRequest($options);
 
@@ -2956,7 +2956,7 @@ class CentreonACL
      *
      * @return string
      */
-    private static function generateRandomString($length = 10)
+    private static function generateRandomString($length = 10): string
     {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
@@ -3010,7 +3010,7 @@ class CentreonACL
      *
      * @return array
      */
-    private function getRowFields($db, $rows, $originTable = 'centreon_acl')
+    private function getRowFields($db, $rows, $originTable = 'centreon_acl'): array
     {
         if (empty($rows)) {
             return [];
@@ -3038,7 +3038,7 @@ class CentreonACL
      *
      * @return string
      */
-    private function createTemporaryTable($name, $db, $rows, $originTable = 'centreon_acl', $fields = [])
+    private function createTemporaryTable($name, $db, $rows, $originTable = 'centreon_acl', $fields = []): string
     {
         $tempTableName = 'tmp_' . $name . '_' . self::generateRandomString(5);
         if (empty($fields)) {
@@ -3063,7 +3063,7 @@ class CentreonACL
      *
      * @return mixed
      */
-    private function getField($table, $field, $db)
+    private function getField($table, $field, $db): mixed
     {
         $query = "SHOW COLUMNS FROM `{$table}` WHERE Field = '{$field}'";
         $DBRES = $db->query($query);
@@ -3103,7 +3103,7 @@ class CentreonACL
      *
      * @return array
      */
-    private function constructRequest($options, $hasWhereClause = false)
+    private function constructRequest($options, $hasWhereClause = false): array
     {
         $requests = [];
 
@@ -3205,7 +3205,7 @@ class CentreonACL
      *
      * @return string
      */
-    private function constructKey($res, $options)
+    private function constructKey($res, $options): string
     {
         $key = '';
         $separator = '';
@@ -3228,7 +3228,7 @@ class CentreonACL
      *
      * @return array
      */
-    private function constructResult($sql, $options)
+    private function constructResult($sql, $options): array
     {
         $result = [];
 

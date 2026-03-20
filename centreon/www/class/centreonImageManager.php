@@ -62,17 +62,17 @@ class CentreonImageManager extends centreonFileManager
 
     /**
      * @param bool $insert
-     * @return array|bool
+     * @return bool
      */
-    public function upload($insert = true)
+    public function upload($insert = true): bool
     {
         $parentUpload = parent::upload();
 
         if ($parentUpload) {
             if ($insert) {
-                $img_ids[] = $this->insertImg();
+                $this->insertImg();
 
-                return $img_ids;
+                return true;
             }
         } else {
             return false;
@@ -87,7 +87,7 @@ class CentreonImageManager extends centreonFileManager
      *
      * @return array|bool
      */
-    public function uploadFromDirectory(string $tempDirectory, $insert = true)
+    public function uploadFromDirectory(string $tempDirectory, $insert = true): array|bool
     {
         $tempFullPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $tempDirectory;
         if (! parent::fileExist()) {
@@ -111,7 +111,7 @@ class CentreonImageManager extends centreonFileManager
      *
      * @return bool
      */
-    public function update($imgId, $imgName)
+    public function update($imgId, $imgName): bool
     {
         if (! $imgId || empty($imgName)) {
             return false;
@@ -181,7 +181,7 @@ class CentreonImageManager extends centreonFileManager
      *
      * @return void
      */
-    protected function deleteImg($fullPath)
+    protected function deleteImg($fullPath): void
     {
         unlink($fullPath);
     }
@@ -189,7 +189,7 @@ class CentreonImageManager extends centreonFileManager
     /**
      * @return int
      */
-    protected function checkDirectoryExistence()
+    protected function checkDirectoryExistence(): int
     {
         $dirId = 0;
         $query = 'SELECT dir_name, dir_id FROM view_img_dir WHERE dir_name = :dirName';
@@ -208,7 +208,7 @@ class CentreonImageManager extends centreonFileManager
     /**
      * @return mixed
      */
-    protected function insertDirectory()
+    protected function insertDirectory(): mixed
     {
         touch($this->destinationPath . '/index.html');
 
@@ -230,7 +230,7 @@ class CentreonImageManager extends centreonFileManager
      *
      * @return void
      */
-    protected function updateDirectory($dirId)
+    protected function updateDirectory($dirId): void
     {
         $query = 'UPDATE view_img_dir SET dir_name = :dirName, dir_alias = :dirAlias WHERE dir_id = :dirId';
         $stmt = $this->dbConfig->prepare($query);
@@ -243,7 +243,7 @@ class CentreonImageManager extends centreonFileManager
     /**
      * @return mixed
      */
-    protected function insertImg()
+    protected function insertImg(): mixed
     {
         if (! ($dirId = $this->checkDirectoryExistence())) {
             $dirId = $this->insertDirectory();

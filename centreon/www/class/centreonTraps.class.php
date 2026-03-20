@@ -70,7 +70,7 @@ class CentreonTraps
      * @param null|string $oid
      * @return bool
      */
-    public function testOidFormat($oid = null)
+    public function testOidFormat($oid = null): bool
     {
         return (bool) (preg_match('/^(\.([0-2]))|([0-2])((\.0)|(\.([1-9][0-9]*)))*$/', $oid) == true);
     }
@@ -112,7 +112,7 @@ class CentreonTraps
      * @throws PDOException
      * @return bool
      */
-    public function trapNameExists(string $trapName)
+    public function trapNameExists(string $trapName): bool
     {
         if (! empty($trapName)) {
             $statement = $this->db->prepare(
@@ -247,10 +247,10 @@ class CentreonTraps
      * @throws PDOException
      * @return null|void
      */
-    public function update($traps_id = null)
+    public function update($traps_id = null): void
     {
         if (! $traps_id) {
-            return null;
+            return;
         }
 
         $ret = $this->form->getSubmitValues();
@@ -487,7 +487,7 @@ class CentreonTraps
      * @throws PDOException
      * @return mixed
      */
-    public function insert($ret = [])
+    public function insert($ret = []): mixed
     {
         if (! count($ret)) {
             $ret = $this->form->getSubmitValues();
@@ -737,7 +737,7 @@ class CentreonTraps
      * @throws PDOException
      * @return array
      */
-    public function getPreexecFromTrapId(int $trapId)
+    public function getPreexecFromTrapId(int $trapId): array
     {
         if ($trapId > 0) {
             $query = '
@@ -771,7 +771,7 @@ class CentreonTraps
      * @throws PDOException
      * @return array
      */
-    public function getMatchingRulesFromTrapId(int $trapId)
+    public function getMatchingRulesFromTrapId(int $trapId): array
     {
         if ($trapId > 0) {
             $query = '
@@ -802,7 +802,7 @@ class CentreonTraps
      *
      * @return array
      */
-    public static function getDefaultValuesParameters($field)
+    public static function getDefaultValuesParameters($field): array
     {
         $parameters = [];
         $parameters['currentObject']['table'] = 'traps';
@@ -854,7 +854,7 @@ class CentreonTraps
      * @throws PDOException
      * @return array
      */
-    public function getObjectForSelect2($values = [], $options = [])
+    public function getObjectForSelect2($values = [], $options = []): array
     {
         $items = [];
         $listValues = '';

@@ -54,7 +54,7 @@ class CentreonCommand
      * @throws Exception
      * @return array
      */
-    public function getCheckCommands()
+    public function getCheckCommands(): array
     {
         return $this->getCommandList(2);
     }
@@ -65,7 +65,7 @@ class CentreonCommand
      * @throws Exception
      * @return array
      */
-    public function getNotificationCommands()
+    public function getNotificationCommands(): array
     {
         return $this->getCommandList(1);
     }
@@ -76,7 +76,7 @@ class CentreonCommand
      * @throws Exception
      * @return array
      */
-    public function getMiscCommands()
+    public function getMiscCommands(): array
     {
         return $this->getCommandList(3);
     }
@@ -87,7 +87,7 @@ class CentreonCommand
      * @throws PDOException
      * @return array
      */
-    public function getLockedCommands()
+    public function getLockedCommands(): array
     {
         static $arr = null;
         if (is_null($arr)) {
@@ -108,7 +108,7 @@ class CentreonCommand
      * @throws Exception
      * @return array
      */
-    public function getMacroByIdAndType($iIdCommand, $sType, $iWithFormatData = 1)
+    public function getMacroByIdAndType($iIdCommand, $sType, $iWithFormatData = 1): array
     {
         $macroToFilter = ['SNMPVERSION', 'SNMPCOMMUNITY'];
         if (empty($iIdCommand) || ! array_key_exists($sType, $this->aTypeCommand)) {
@@ -164,7 +164,7 @@ class CentreonCommand
      * @throws Exception
      * @return array
      */
-    public function getMacroDescription($iIdCmd)
+    public function getMacroDescription($iIdCmd): array
     {
         $aReturn = [];
         $query = 'SELECT * FROM `on_demand_macro_command` WHERE `command_command_id` = :command';
@@ -194,7 +194,7 @@ class CentreonCommand
      * @throws Exception
      * @return array
      */
-    public function getMacrosCommand($iCommandId, $aMacro, $sType)
+    public function getMacrosCommand($iCommandId, $aMacro, $sType): array
     {
         $aReturn = [];
 
@@ -246,7 +246,7 @@ class CentreonCommand
      * @throws Exception
      * @return array
      */
-    public function matchObject($iCommandId, $sStr, $sType)
+    public function matchObject($iCommandId, $sStr, $sType): array
     {
         $macros = [];
         $macrosDesc = [];
@@ -289,7 +289,7 @@ class CentreonCommand
      * @throws PDOException
      * @return array
      */
-    public function getObjectForSelect2($values = [], $options = [])
+    public function getObjectForSelect2($values = [], $options = []): array
     {
         $items = [];
         $listValues = '';
@@ -330,7 +330,7 @@ class CentreonCommand
      * @throws Exception
      * @return array|mixed
      */
-    public function getParameters($id, $parameters = [])
+    public function getParameters($id, $parameters = []): mixed
     {
         $queryValues = [];
         $explodedValues = '';
@@ -367,7 +367,7 @@ class CentreonCommand
      * @throws Exception
      * @return array|mixed
      */
-    public function getCommandByName($name)
+    public function getCommandByName($name): mixed
     {
         $arr = [];
         $query = 'SELECT * FROM command WHERE command_name = :commandName';
@@ -390,7 +390,7 @@ class CentreonCommand
      * @throws Exception
      * @return int|null
      */
-    public function getCommandIdByName($name)
+    public function getCommandIdByName($name): ?int
     {
         $query = 'SELECT command_id FROM command WHERE command_name = :commandName';
         $stmt = $this->db->prepare($query);
@@ -509,7 +509,7 @@ class CentreonCommand
      * @throws Exception
      * @return array
      */
-    public function getLinkedServicesByName($commandName, $checkTemplates = true)
+    public function getLinkedServicesByName($commandName, $checkTemplates = true): array
     {
         $register = $checkTemplates ? 0 : 1;
 
@@ -540,7 +540,7 @@ class CentreonCommand
      * @throws Exception
      * @return array
      */
-    public function getLinkedHostsByName($commandName, $checkTemplates = true)
+    public function getLinkedHostsByName($commandName, $checkTemplates = true): array
     {
         $register = $checkTemplates ? 0 : 1;
 
@@ -570,7 +570,7 @@ class CentreonCommand
      * @throws Exception
      * @return array
      */
-    protected function getCommandList($commandType)
+    protected function getCommandList($commandType): array
     {
         $query = 'SELECT command_id, command_name '
             . 'FROM command '

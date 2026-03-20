@@ -79,7 +79,7 @@ class CentreonRestHttp
      * @throws RestUnauthorizedException
      * @return array The result content
      */
-    public function call($url, $method = 'GET', $data = null, $headers = [], $throwContent = false, $noCheckCertificate = false, $noProxy = false)
+    public function call($url, $method = 'GET', $data = null, $headers = [], $throwContent = false, $noCheckCertificate = false, $noProxy = false): array
     {
         // Add content type to headers
         $headers[] = 'Content-type: ' . $this->contentType;

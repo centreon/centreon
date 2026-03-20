@@ -64,7 +64,7 @@ class CentreonUtils
      *
      * @return array|string
      */
-    public function objectIntoArray($arrObjData, $arrSkipIndices = [])
+    public function objectIntoArray($arrObjData, $arrSkipIndices = []): array|string
     {
         $arrData = [];
 
@@ -99,7 +99,7 @@ class CentreonUtils
      * @param bool $or
      * @return string
      */
-    public static function conditionBuilder($query, $condition, $or = false)
+    public static function conditionBuilder($query, $condition, $or = false): string
     {
         if (preg_match('/ WHERE /', $query)) {
             if ($or === true) {
@@ -122,7 +122,7 @@ class CentreonUtils
      * @throws Exception
      * @return int
      */
-    public static function getDateTimeTimestamp($datetime)
+    public static function getDateTimeTimestamp($datetime): int
     {
         static $db;
         static $centreonGmt;
@@ -159,7 +159,7 @@ class CentreonUtils
      * @param string $str
      * @return string
      */
-    public static function operandToMysqlFormat($str)
+    public static function operandToMysqlFormat($str): string
     {
         $result = '';
         switch ($str) {
@@ -210,7 +210,7 @@ class CentreonUtils
      * @throws InvalidArgumentException
      * @return array
      */
-    public static function mergeWithInitialValues($form, $key)
+    public static function mergeWithInitialValues($form, $key): array
     {
         $init = [];
         try {
@@ -237,7 +237,7 @@ class CentreonUtils
      *                           otherwise values will be used
      * @return string
      */
-    public static function toStringWithQuotes($arr = [], $transformKey = true)
+    public static function toStringWithQuotes($arr = [], $transformKey = true): string
     {
         $string = '';
         $first = true;
@@ -335,7 +335,7 @@ class CentreonUtils
      * @param string $stringToEscape String to escape
      * @return string Converted string
      */
-    public static function escapeAll($stringToEscape)
+    public static function escapeAll($stringToEscape): string
     {
         return htmlentities($stringToEscape ?? '', ENT_QUOTES, 'UTF-8');
     }
@@ -446,7 +446,7 @@ class CentreonUtils
      * @param string $stringToEscape String (HTML) to escape
      * @return string HTML escaped (except links)
      */
-    public static function escapeAllExceptLink($stringToEscape)
+    public static function escapeAllExceptLink($stringToEscape): string
     {
         return self::escapeAllExceptSelectedTags($stringToEscape, ['a']);
     }
@@ -460,7 +460,7 @@ class CentreonUtils
      * @return array (('tag'=> html tag; 'start' => start position of tag,
      *               'length'=> length between start and end of tag), ...)
      */
-    public static function getHtmlTags($tag, $html)
+    public static function getHtmlTags($tag, $html): array
     {
         $occurrences = false;
         $start = 0;

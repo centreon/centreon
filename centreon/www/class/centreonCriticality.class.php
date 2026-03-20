@@ -52,7 +52,7 @@ class CentreonCriticality
      * @throws PDOException
      * @return array
      */
-    public function getData($critId, $service = false)
+    public function getData($critId, $service = false): array
     {
         if ($service === false) {
             return $this->getDataForHosts($critId);
@@ -69,7 +69,7 @@ class CentreonCriticality
      * @throws PDOException
      * @return array
      */
-    public function getDataForHosts($critId)
+    public function getDataForHosts($critId): array
     {
         static $data = [];
 
@@ -98,7 +98,7 @@ class CentreonCriticality
      * @throws PDOException
      * @return array
      */
-    public function getDataForServices($critId)
+    public function getDataForServices($critId): array
     {
         static $data = [];
 
@@ -219,7 +219,7 @@ class CentreonCriticality
      * @throws PDOException
      * @return int|mixed
      */
-    public function criticitiesConfigOnSTpl($service_id)
+    public function criticitiesConfigOnSTpl($service_id): mixed
     {
         global $pearDB, $critCache;
 
@@ -335,7 +335,7 @@ class CentreonCriticality
      * @throws PDOException
      * @return int|mixed
      */
-    protected function getServiceCriticality($service_id)
+    protected function getServiceCriticality($service_id): mixed
     {
         global $pearDB;
 

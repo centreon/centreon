@@ -410,7 +410,7 @@ class CentreonAuthLDAP
      * @throws PDOException
      * @return int 1 enable 0 disable
      */
-    private function getLogFlag()
+    private function getLogFlag(): int
     {
         $res = $this->pearDB->query("SELECT value FROM options WHERE `key` = 'debug_ldap_import'");
         $data = $res->fetch();

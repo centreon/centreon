@@ -65,7 +65,7 @@ class CentreonMetrics
      * @throws PDOException
      * @return array
      */
-    public function getObjectForSelect2($values = [])
+    public function getObjectForSelect2($values = []): array
     {
         $metrics = [];
         $listValues = '';

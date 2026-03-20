@@ -45,7 +45,7 @@ class CentreonPdo extends PDO
     /**
      * @return void
      */
-    public function disconnect()
+    public function disconnect(): void
     {
     }
 
@@ -54,7 +54,7 @@ class CentreonPdo extends PDO
      *
      * @return string
      */
-    public function toString()
+    public function toString(): string
     {
         $errString = '';
         $errTab = $this->errorInfo();

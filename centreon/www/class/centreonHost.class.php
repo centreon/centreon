@@ -90,7 +90,7 @@ class CentreonHost
      * @throws Exception
      * @return array
      */
-    public function getList($enable = false, $template = false, $exclude = null)
+    public function getList($enable = false, $template = false, $exclude = null): array
     {
         $hostType = 1;
         if ($template) {
@@ -186,7 +186,7 @@ class CentreonHost
      * @throws Exception
      * @return array
      */
-    public function getHostChild($hostId, $withHg = false)
+    public function getHostChild($hostId, $withHg = false): array
     {
         if (! is_numeric($hostId)) {
             return [];
@@ -216,7 +216,7 @@ class CentreonHost
      * @throws Exception
      * @return array
      */
-    public function getHostRelationTree($withHg = false)
+    public function getHostRelationTree($withHg = false): array
     {
         $queryGetRelationTree = 'SELECT hp.host_parent_hp_id, h.host_id, h.host_name '
             . 'FROM host h, host_hostparent_relation hp '
@@ -245,7 +245,7 @@ class CentreonHost
      * @throws Exception
      * @return array
      */
-    public function getServices($hostId, $withHg = false, $withDisabledServices = false)
+    public function getServices($hostId, $withHg = false, $withDisabledServices = false): array
     {
         // Get service for a host
         $queryGetServices = 'SELECT s.service_id, s.service_description '
@@ -306,7 +306,7 @@ class CentreonHost
      * @throws Exception
      * @return array
      */
-    public function getHostServiceRelationTree($withHg = false)
+    public function getHostServiceRelationTree($withHg = false): array
     {
         // Get service for a host
         $query = 'SELECT hsr.host_host_id, s.service_id, s.service_description '
@@ -352,7 +352,7 @@ class CentreonHost
      * @throws PDOException
      * @return string
      */
-    public function getHostName($hostId)
+    public function getHostName($hostId): string
     {
         if (! isset($hostId) || ! $hostId) {
             return null;
@@ -373,7 +373,7 @@ class CentreonHost
      * @throws Exception
      * @return mixed
      */
-    public function getOneHostName($hostId)
+    public function getOneHostName($hostId): mixed
     {
         if (isset($hostId) && is_numeric($hostId)) {
             $query = 'SELECT host_id, host_name FROM host where host_id = ?';
@@ -442,7 +442,7 @@ class CentreonHost
      * @throws PDOException
      * @return int
      */
-    public function getHostCommandId($hostId)
+    public function getHostCommandId($hostId): int
     {
         if (isset($hostId) && is_numeric($hostId)) {
             $query = 'SELECT host_id, command_command_id FROM host where host_id = :hostId';
@@ -465,7 +465,7 @@ class CentreonHost
      * @throws Exception
      * @return mixed|null
      */
-    public function getHostAlias($hostId)
+    public function getHostAlias($hostId): mixed
     {
         static $aliasTab = [];
 
@@ -494,7 +494,7 @@ class CentreonHost
      * @throws Exception
      * @return mixed|null
      */
-    public function getHostAddress($hostId)
+    public function getHostAddress($hostId): mixed
     {
         static $addrTab = [];
 
@@ -524,7 +524,7 @@ class CentreonHost
      * @throws Exception
      * @return array
      */
-    public function getHostByAddress($address, $params = [])
+    public function getHostByAddress($address, $params = []): array
     {
         $paramsList = '';
         $hostList = [];
@@ -556,7 +556,7 @@ class CentreonHost
      * @throws Exception
      * @return mixed|null
      */
-    public function getHostId($hostName)
+    public function getHostId($hostName): mixed
     {
         static $ids = [];
 
@@ -590,7 +590,7 @@ class CentreonHost
      * @throws Exception
      * @return mixed
      */
-    public function checkIllegalChar($hostName, $pollerId = null)
+    public function checkIllegalChar($hostName, $pollerId = null): mixed
     {
         if ($pollerId) {
             $query = 'SELECT illegal_object_name_chars FROM cfg_nagios WHERE nagios_server_id = :pollerId';
@@ -658,7 +658,7 @@ class CentreonHost
      * @throws Exception
      * @return mixed
      */
-    public function replaceMacroInString($hostParam, $string, $antiLoop = null)
+    public function replaceMacroInString($hostParam, $string, $antiLoop = null): mixed
     {
         if (! preg_match('/\$[0-9a-zA-Z_-]+\$/', $string ?? '')) {
             return $string;
@@ -869,7 +869,7 @@ class CentreonHost
      * @throws Exception
      * @return array
      */
-    public function getCustomMacroInDb($hostId = null, $template = null)
+    public function getCustomMacroInDb($hostId = null, $template = null): array
     {
         $arr = [];
         $i = 0;
@@ -911,7 +911,7 @@ class CentreonHost
      * @throws Exception
      * @return array
      */
-    public function getCustomMacro($hostId = null, $realKeys = false)
+    public function getCustomMacro($hostId = null, $realKeys = false): array
     {
         $arr = [];
         $i = 0;
@@ -962,7 +962,7 @@ class CentreonHost
      * @throws Exception
      * @return array
      */
-    public function getTemplates($hostId = null)
+    public function getTemplates($hostId = null): array
     {
         $arr = [];
         $i = 0;
@@ -1059,7 +1059,7 @@ class CentreonHost
      * @throws PDOException
      * @return bool
      */
-    public function hasNoInfiniteLoop($hostId, $templateId, $antiTplLoop = [])
+    public function hasNoInfiniteLoop($hostId, $templateId, $antiTplLoop = []): bool
     {
         if ($hostId === $templateId) {
             return false;
@@ -1147,7 +1147,7 @@ class CentreonHost
      *
      * @return array
      */
-    public function getMacroFromForm($form, $fromKey)
+    public function getMacroFromForm($form, $fromKey): array
     {
         $Macros = [];
         if (! empty($form['macroInput'])) {
@@ -1176,7 +1176,7 @@ class CentreonHost
      * @throws Exception
      * @return array
      */
-    public function getMacros($iHostId, $aListTemplate, $iIdCommande, $form = [])
+    public function getMacros($iHostId, $aListTemplate, $iIdCommande, $form = []): array
     {
         $macroArray = $this->getMacroFromForm($form, 'direct');
         $aMacroTemplate[] = $this->getMacroFromForm($form, 'fromTpl');
@@ -1275,7 +1275,7 @@ class CentreonHost
      * @throws Exception
      * @return array
      */
-    public function ajaxMacroControl($form)
+    public function ajaxMacroControl($form): array
     {
         $macros = [];
 
@@ -1448,7 +1448,7 @@ class CentreonHost
      * @throws Exception
      * @return array
      */
-    public function getHostTemplateIds($hostId)
+    public function getHostTemplateIds($hostId): array
     {
         $hostTemplateIds = [];
         $query = 'SELECT htr.host_tpl_id '
@@ -1541,7 +1541,7 @@ class CentreonHost
      * @throws PDOException
      * @return array
      */
-    public function getLockedHostTemplates()
+    public function getLockedHostTemplates(): array
     {
         static $arr = null;
         if (is_null($arr)) {
@@ -1560,7 +1560,7 @@ class CentreonHost
      * @throws Exception
      * @return array
      */
-    public function getServicesTemplates($hostId)
+    public function getServicesTemplates($hostId): array
     {
         $query = 'SELECT s.service_id,s.command_command_id,s.service_description from host_service_relation hsr '
             . 'INNER JOIN service s on hsr.service_service_id = s.service_id and s.service_register = "0" '
@@ -1637,7 +1637,7 @@ class CentreonHost
      * @param array $aTempMacro
      * @return array
      */
-    public function macroUnique($aTempMacro)
+    public function macroUnique($aTempMacro): array
     {
         $storedMacros = [];
         foreach ($aTempMacro as $TempMacro) {
@@ -1664,7 +1664,7 @@ class CentreonHost
      * @param int $field
      * @return array
      */
-    public static function getDefaultValuesParameters($field)
+    public static function getDefaultValuesParameters($field): array
     {
         $parameters = [];
         $parameters['currentObject']['table'] = 'host';
@@ -1782,7 +1782,7 @@ class CentreonHost
      * @throws Exception
      * @return array
      */
-    public function getServicesTplInHostTpl($hostTplId)
+    public function getServicesTplInHostTpl($hostTplId): array
     {
         // Get service for a host
         $queryGetServices = 'SELECT s.service_id, s.service_description, s.service_alias '
@@ -1873,7 +1873,7 @@ class CentreonHost
      * @throws Exception
      * @return mixed
      */
-    public function insert($ret)
+    public function insert($ret): mixed
     {
         $ret['host_name'] = $this->checkIllegalChar($ret['host_name']);
 
@@ -2283,7 +2283,7 @@ class CentreonHost
      * @throws PDOException
      * @return array
      */
-    public function getObjectForSelect2($values = [], $options = [], $register = '1')
+    public function getObjectForSelect2($values = [], $options = [], $register = '1'): array
     {
         global $centreon;
         $items = [];
@@ -2487,7 +2487,7 @@ class CentreonHost
      *
      * @return mixed
      */
-    private function comparaPriority($macroA, $macroB, $getFirst = true)
+    private function comparaPriority($macroA, $macroB, $getFirst = true): mixed
     {
         $arrayPrio = ['direct' => 3, 'fromTpl' => 2, 'fromCommand' => 1];
         if ($getFirst) {
@@ -2539,7 +2539,7 @@ class CentreonHost
      *
      * @return string
      */
-    private function getInheritedDescription($storedMacros, $finalMacro)
+    private function getInheritedDescription($storedMacros, $finalMacro): string
     {
         $description = '';
         if (empty($finalMacro['macroDescription'])) {
@@ -2591,7 +2591,7 @@ class CentreonHost
      * @param bool $getFirst
      * @return bool
      */
-    private function findTplValue($storedMacro, $getFirst = true)
+    private function findTplValue($storedMacro, $getFirst = true): bool
     {
         if ($getFirst) {
             foreach ($storedMacro as $macros) {

@@ -46,7 +46,7 @@ class CentreonServicetemplates extends CentreonService
      * @param int $field
      * @return array
      */
-    public static function getDefaultValuesParameters($field)
+    public static function getDefaultValuesParameters($field): array
     {
         $parameters = [];
         $parameters['currentObject']['table'] = 'service';
@@ -82,7 +82,7 @@ class CentreonServicetemplates extends CentreonService
      * @throws PDOException
      * @return array
      */
-    public function getObjectForSelect2($values = [], $options = [], $register = '1')
+    public function getObjectForSelect2($values = [], $options = [], $register = '1'): array
     {
         $serviceList = [];
         if (isset($options['withHosttemplate']) && $options['withHosttemplate'] === true) {
@@ -125,7 +125,7 @@ class CentreonServicetemplates extends CentreonService
      * @throws Exception
      * @return array
      */
-    public function getLinkedServicesByName($serviceTemplateName, $checkTemplates = true)
+    public function getLinkedServicesByName($serviceTemplateName, $checkTemplates = true): array
     {
         $register = $checkTemplates ? 0 : 1;
 
@@ -157,7 +157,7 @@ class CentreonServicetemplates extends CentreonService
      * @throws PDOException
      * @return array service ids
      */
-    public function getServiceIdsLinkedToSTAndCreatedByHT($serviceTemplateName, $hostTemplateName)
+    public function getServiceIdsLinkedToSTAndCreatedByHT($serviceTemplateName, $hostTemplateName): array
     {
         $serviceIds = [];
 
@@ -187,7 +187,7 @@ class CentreonServicetemplates extends CentreonService
      *
      * @return array
      */
-    public function getList($enable = false)
+    public function getList($enable = false): array
     {
         $serviceTemplates = [];
 

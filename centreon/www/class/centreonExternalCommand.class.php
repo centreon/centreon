@@ -118,7 +118,7 @@ class CentreonExternalCommand
      *
      * @return int
      */
-    public function write()
+    public function write(): int
     {
         global $centreon;
 
@@ -175,7 +175,7 @@ class CentreonExternalCommand
      * @internal param $pearDB
      * @internal param $host_name
      */
-    public function getPollerID($host = null)
+    public function getPollerID($host = null): int
     {
         if (! isset($host)) {
             return 0;
@@ -215,7 +215,7 @@ class CentreonExternalCommand
      *
      * @return array
      */
-    public function getExternalCommandList()
+    public function getExternalCommandList(): array
     {
         return $this->actions;
     }
@@ -636,7 +636,7 @@ class CentreonExternalCommand
      * @throws Exception
      * @return int
      */
-    private function getDowntimeTimestampFromDate($date = 'now', $timezone = '', $start = true)
+    private function getDowntimeTimestampFromDate($date = 'now', $timezone = '', $start = true): int
     {
         $inputDate = new DateTime($date . ' GMT');
         $dateTime = new DateTime($date, new DateTimeZone($timezone));

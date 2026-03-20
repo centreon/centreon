@@ -45,7 +45,7 @@ class CentreonLocale
      * @throws PDOException
      * @return array
      */
-    public function getLocaleList()
+    public function getLocaleList(): array
     {
         $res = $this->db->query(
             'SELECT locale_id, locale_short_name, locale_long_name, locale_img '

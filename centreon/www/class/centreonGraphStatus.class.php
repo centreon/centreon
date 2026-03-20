@@ -84,7 +84,7 @@ class CentreonGraphStatus
      * @throws RuntimeException
      * @return array|array[]
      */
-    public function getData()
+    public function getData(): array
     {
         $this->setRRDOption('imgformat', 'JSONTIME');
         $this->setRRDOption('start', $this->startTime);
@@ -143,7 +143,7 @@ class CentreonGraphStatus
      *
      * @return bool
      */
-    public function flushRrdCached($indexData)
+    public function flushRrdCached($indexData): bool
     {
         if (! isset($this->rrdCachedOptions['rrd_cached_option'])
             || ! in_array($this->rrdCachedOptions['rrd_cached_option'], ['unix', 'tcp'])
@@ -212,7 +212,7 @@ class CentreonGraphStatus
      * @throws PDOException
      * @return int
      */
-    public static function getIndexId($hostId, $serviceId, $dbc)
+    public static function getIndexId($hostId, $serviceId, $dbc): int
     {
         $query = 'SELECT id, 1 AS REALTIME FROM index_data WHERE host_id = ' . $hostId . ' AND service_id = '
             . $serviceId;
@@ -232,7 +232,7 @@ class CentreonGraphStatus
      * @throws RuntimeException
      * @return array The list of genreal options
      */
-    protected function getOptions()
+    protected function getOptions(): array
     {
         $result = [];
         $query = "SELECT `key`, `value` FROM options
@@ -255,7 +255,7 @@ class CentreonGraphStatus
      * @throws PDOException
      * @return array of RRDCacheD options
      */
-    protected function getRrdCachedOptions()
+    protected function getRrdCachedOptions(): array
     {
         $result = $this->pearDB->query(
             "SELECT config_key, config_value
@@ -281,7 +281,7 @@ class CentreonGraphStatus
      * @throws RuntimeException
      * @return string The status RRD path
      */
-    protected function getStatusPath()
+    protected function getStatusPath(): string
     {
         $query = 'SELECT RRDdatabase_status_path FROM config';
         $res = $this->pearDBMonitoring->query($query);
@@ -300,7 +300,7 @@ class CentreonGraphStatus
      *
      * @return void
      */
-    protected function addArgument($arg)
+    protected function addArgument($arg): void
     {
         $this->arguments[] = $arg;
     }
@@ -313,7 +313,7 @@ class CentreonGraphStatus
      *
      * @return void
      */
-    protected function setRRDOption($name, $value = null)
+    protected function setRRDOption($name, $value = null): void
     {
         if (str_contains($value, ' ')) {
             $value = "'" . $value . "'";
@@ -345,7 +345,7 @@ class CentreonGraphStatus
      *
      * @return mixed
      */
-    private function getJsonStream()
+    private function getJsonStream(): mixed
     {
         $this->flushRrdcached($this->index);
 

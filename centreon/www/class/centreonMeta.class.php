@@ -45,7 +45,7 @@ class CentreonMeta
      * @throws PDOException
      * @return int
      */
-    public function getRealHostId()
+    public function getRealHostId(): int
     {
         static $hostId = null;
 
@@ -84,7 +84,7 @@ class CentreonMeta
      * @throws PDOException
      * @return int
      */
-    public function getRealServiceId($metaId)
+    public function getRealServiceId($metaId): int
     {
         static $services = null;
         if (isset($services[$metaId])) {
@@ -113,7 +113,7 @@ class CentreonMeta
      * @throws PDOException
      * @return int
      */
-    public function getMetaIdFromServiceDisplayName($serviceDisplayName)
+    public function getMetaIdFromServiceDisplayName($serviceDisplayName): int
     {
         $metaId = null;
         $query = 'SELECT service_description '
@@ -135,7 +135,7 @@ class CentreonMeta
      *
      * @return array
      */
-    public static function getDefaultValuesParameters($field)
+    public static function getDefaultValuesParameters($field): array
     {
         $parameters = [];
         $parameters['currentObject']['table'] = 'meta_service';
@@ -184,7 +184,7 @@ class CentreonMeta
      * @throws PDOException
      * @return array
      */
-    public function getObjectForSelect2($values = [], $options = [])
+    public function getObjectForSelect2($values = [], $options = []): array
     {
         $items = [];
         $listValues = '';
@@ -222,7 +222,7 @@ class CentreonMeta
      *
      * @return array
      */
-    public function getList()
+    public function getList(): array
     {
         $queryList = 'SELECT `meta_id`, `meta_name`
  	    	FROM `meta_service`
@@ -250,7 +250,7 @@ class CentreonMeta
      * @throws PDOException
      * @return array
      */
-    public function getParameters($id, $parameters = [])
+    public function getParameters($id, $parameters = []): array
     {
         $sElement = '*';
         $values = [];
@@ -284,7 +284,7 @@ class CentreonMeta
      * @throws PDOException
      * @return int
      */
-    public function insertVirtualService($metaId, $metaName)
+    public function insertVirtualService($metaId, $metaName): int
     {
         $hostId = $this->getRealHostId();
         $serviceId = null;

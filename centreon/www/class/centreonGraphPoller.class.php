@@ -115,7 +115,7 @@ class centreonGraphPoller
     /**
      * @return string
      */
-    public function getGraphName()
+    public function getGraphName(): string
     {
         return $this->graphName;
     }
@@ -205,7 +205,7 @@ class centreonGraphPoller
      * @throws RuntimeException
      * @return array
      */
-    public function getGraph($start, $end)
+    public function getGraph($start, $end): array
     {
         $this->buildCommandLine($start, $end);
 
@@ -274,7 +274,7 @@ class centreonGraphPoller
      *
      * @return mixed
      */
-    private function getJsonStream()
+    private function getJsonStream(): mixed
     {
         $commandLine = '';
         $commandLine = ' graph - ';

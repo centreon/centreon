@@ -45,7 +45,7 @@ class CentreonDependency
      * @param bool $withSg If use servicegroup relation
      * @return array
      */
-    public function getServiceService($withSg = false)
+    public function getServiceService($withSg = false): array
     {
         $query = 'SELECT dsp.host_host_id as parent_host_id, dsp.service_service_id as parent_service_id,
             dsc.host_host_id as child_host_id, dsc.service_service_id as child_service_id
@@ -90,7 +90,7 @@ class CentreonDependency
      * @param bool $withHg If use hostgroup relation
      * @return array
      */
-    public function getHostHost($withHg = false)
+    public function getHostHost($withHg = false): array
     {
         $query = 'SELECT dhp.host_host_id as parent_host_id, dhc.host_host_id as child_host_id
         	FROM dependency_hostParent_relation dhp, dependency_hostChild_relation dhc
@@ -134,7 +134,7 @@ class CentreonDependency
      *
      * @return array
      */
-    public function getHostService()
+    public function getHostService(): array
     {
         $query = 'SELECT dhp.host_host_id as parent_host_id, dsc.host_host_id as child_host_id,
             dsc.service_service_id as child_service_id
@@ -159,7 +159,7 @@ class CentreonDependency
      *
      * @return array
      */
-    public function getServiceHost()
+    public function getServiceHost(): array
     {
         $query = 'SELECT dsp.host_host_id as parent_host_id, dsp.service_service_id as parent_service_id,
             dhc.host_host_id as child_host_id
@@ -217,7 +217,7 @@ class CentreonDependency
      * @param int $field
      * @return array
      */
-    public static function getDefaultValuesParameters($field)
+    public static function getDefaultValuesParameters($field): array
     {
         $parameters = [];
         $parameters['currentObject']['table'] = 'host';

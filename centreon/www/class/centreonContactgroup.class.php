@@ -51,7 +51,7 @@ class CentreonContactgroup
      * @throws PDOException
      * @return array
      */
-    public function getListContactgroup($withLdap = false, $dbOnly = false)
+    public function getListContactgroup($withLdap = false, $dbOnly = false): array
     {
         // Contactgroup from database
         $contactgroups = [];
@@ -97,7 +97,7 @@ class CentreonContactgroup
      * @throws PDOException
      * @return array
      */
-    public function getLdapContactgroups($filter = '')
+    public function getLdapContactgroups($filter = ''): array
     {
         $cgs = [];
 
@@ -138,7 +138,7 @@ class CentreonContactgroup
      *
      * @return string
      */
-    public function formatLdapContactgroupName($cg_name, $ldap_name)
+    public function formatLdapContactgroupName($cg_name, $ldap_name): string
     {
         return $cg_name . ' (LDAP : ' . $ldap_name . ')';
     }
@@ -218,7 +218,7 @@ class CentreonContactgroup
      * @throws PDOException
      * @return array $msg array of error messages
      */
-    public function syncWithLdapConfigGen()
+    public function syncWithLdapConfigGen(): array
     {
         $msg = [];
         $ldapServerConnError = [];
@@ -317,7 +317,7 @@ class CentreonContactgroup
      * @throws PDOException
      * @return array of error messages
      */
-    public function syncWithLdap()
+    public function syncWithLdap(): array
     {
         $msg = [];
         $ldapRes = $this->db->query(
@@ -471,7 +471,7 @@ class CentreonContactgroup
      * @throws Exception
      * @return string
      */
-    public function getNameFromCgId($cgId)
+    public function getNameFromCgId($cgId): string
     {
         $query = 'SELECT cg_name FROM contactgroup WHERE cg_id = ' . CentreonDB::escape($cgId) . ' LIMIT 1';
         $res = $this->db->query($query);
@@ -490,7 +490,7 @@ class CentreonContactgroup
      * @param array $listCgs The list of contactgroups to validate
      * @return bool
      */
-    public static function verifiedExists($listCgs)
+    public static function verifiedExists($listCgs): bool
     {
         global $pearDB;
         foreach ($listCgs as $cg) {
@@ -523,7 +523,7 @@ class CentreonContactgroup
      * @param int $field
      * @return array
      */
-    public static function getDefaultValuesParameters($field)
+    public static function getDefaultValuesParameters($field): array
     {
         $parameters = [];
         $parameters['currentObject']['table'] = 'contactgroup';
@@ -564,7 +564,7 @@ class CentreonContactgroup
      * @throws PDOException
      * @return array
      */
-    public function getObjectForSelect2($values = [], $options = [])
+    public function getObjectForSelect2($values = [], $options = []): array
     {
         global $centreon;
         $items = [];

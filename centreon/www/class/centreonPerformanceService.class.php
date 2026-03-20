@@ -52,7 +52,7 @@ class CentreonPerformanceService
      * @throws RestBadRequestException
      * @return array
      */
-    public function getList($filters = [])
+    public function getList($filters = []): array
     {
         $additionnalTables = '';
         $additionnalCondition = '';
@@ -117,7 +117,7 @@ class CentreonPerformanceService
      *
      * @return string
      */
-    private function getVirtualServicesCondition($additionnalCondition)
+    private function getVirtualServicesCondition($additionnalCondition): string
     {
         // First, get virtual services for metaservices
         $metaServiceCondition = '';

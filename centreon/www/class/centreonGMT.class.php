@@ -74,7 +74,7 @@ class CentreonGMT
     /**
      * @return int
      */
-    public function used()
+    public function used(): int
     {
         return $this->use;
     }
@@ -92,7 +92,7 @@ class CentreonGMT
     /**
      * @return array
      */
-    public function getGMTList()
+    public function getGMTList(): array
     {
         if (is_null($this->timezoneById)) {
             $this->getList();
@@ -104,7 +104,7 @@ class CentreonGMT
     /**
      * @return string|null
      */
-    public function getMyGMT()
+    public function getMyGMT(): ?string
     {
         return $this->myGMT;
     }
@@ -114,7 +114,7 @@ class CentreonGMT
      *
      * @return string
      */
-    public function getMyTimezone()
+    public function getMyTimezone(): string
     {
         if (is_null($this->timezoneById)) {
             $this->getList();
@@ -146,7 +146,7 @@ class CentreonGMT
      * @throws Exception
      * @return string
      */
-    public function getDate($format, $date, $gmt = null)
+    public function getDate($format, $date, $gmt = null): string
     {
         $return = '';
         if (! $date) {
@@ -181,7 +181,7 @@ class CentreonGMT
      * @throws Exception
      * @return int|string
      */
-    public function getCurrentTime($date = 'N/A', $gmt = null)
+    public function getCurrentTime($date = 'N/A', $gmt = null): int|string
     {
         if ($date == 'N/A') {
             return $date;
@@ -206,7 +206,7 @@ class CentreonGMT
      * @throws Exception
      * @return string
      */
-    public function getUTCDate($date, $gmt = null, $reverseOffset = 1)
+    public function getUTCDate($date, $gmt = null, $reverseOffset = 1): string
     {
         $return = '';
         if (! isset($gmt)) {
@@ -239,7 +239,7 @@ class CentreonGMT
      * @throws Exception
      * @return string
      */
-    public function getUTCDateFromString($date, $gmt = null, $reverseOffset = 1)
+    public function getUTCDateFromString($date, $gmt = null, $reverseOffset = 1): string
     {
         $return = '';
 
@@ -274,7 +274,7 @@ class CentreonGMT
      * @param $gmt
      * @return string
      */
-    public function getDelaySecondsForRRD($gmt)
+    public function getDelaySecondsForRRD($gmt): string
     {
         $str = '';
         if ($gmt) {
@@ -289,12 +289,12 @@ class CentreonGMT
     /**
      * @param $sid
      *
-     * @return int|void
+     * @return void
      */
-    public function getMyGMTFromSession($sid = null)
+    public function getMyGMTFromSession($sid = null): void
     {
         if (! isset($sid)) {
-            return 0;
+            return;
         }
 
         try {
@@ -316,7 +316,7 @@ class CentreonGMT
      *
      * @return int|mixed|string|null
      */
-    public function getMyGTMFromUser($userId, $DB = null)
+    public function getMyGTMFromUser($userId, $DB = null): mixed
     {
         if (! empty($userId)) {
             try {
@@ -342,7 +342,7 @@ class CentreonGMT
      * @throws Exception
      * @return DateTime
      */
-    public function getHostCurrentDatetime($host_id, $date_format = 'c')
+    public function getHostCurrentDatetime($host_id, $date_format = 'c'): DateTime
     {
         $locations = $this->getHostLocations();
         $timezone = $locations[$host_id] ?? '';
@@ -361,7 +361,7 @@ class CentreonGMT
      * @throws Exception
      * @return string
      */
-    public function getUTCDateBasedOnHostGMT($date, $hostId, $dateFormat = 'c', $reverseOffset = 1)
+    public function getUTCDateBasedOnHostGMT($date, $hostId, $dateFormat = 'c', $reverseOffset = 1): string
     {
         $locations = $this->getHostLocations();
 
@@ -380,7 +380,7 @@ class CentreonGMT
      * @throws Exception
      * @return float|int|string
      */
-    public function getUTCTimestampBasedOnHostGMT($date, $hostId, $dateFormat = 'c')
+    public function getUTCTimestampBasedOnHostGMT($date, $hostId, $dateFormat = 'c'): float|int|string
     {
         $locations = $this->getHostLocations();
 
@@ -396,7 +396,7 @@ class CentreonGMT
      *
      * @return mixed|null
      */
-    public function getUTCLocationHost($hostId)
+    public function getUTCLocationHost($hostId): mixed
     {
         $locations = $this->getHostLocations();
 
@@ -408,7 +408,7 @@ class CentreonGMT
      *
      * @return array
      */
-    public function getList()
+    public function getList(): array
     {
         $queryList = 'SELECT timezone_id, timezone_name, timezone_offset FROM timezone ORDER BY timezone_name asc';
         try {
@@ -434,7 +434,7 @@ class CentreonGMT
      * @throws PDOException
      * @return array
      */
-    public function getObjectForSelect2($values = [], $options = [])
+    public function getObjectForSelect2($values = [], $options = []): array
     {
         $items = [];
 
@@ -474,7 +474,7 @@ class CentreonGMT
      * Get list of timezone of host
      * @return array
      */
-    public function getHostLocations()
+    public function getHostLocations(): array
     {
         if (count($this->hostLocations)) {
             return $this->hostLocations;
@@ -505,7 +505,7 @@ class CentreonGMT
      * Get list of timezone of pollers
      * @return array
      */
-    public function getPollerLocations()
+    public function getPollerLocations(): array
     {
         if (count($this->pollerLocations)) {
             return $this->pollerLocations;
@@ -533,7 +533,7 @@ class CentreonGMT
      *
      * @return string
      */
-    public function getCentreonTimezone()
+    public function getCentreonTimezone(): string
     {
         if (is_null($this->sDefaultTimezone)) {
             $sTimezone = '';
@@ -559,7 +559,7 @@ class CentreonGMT
      * @param string $gmt
      * @return string timezone
      */
-    public function getActiveTimezone($gmt)
+    public function getActiveTimezone($gmt): string
     {
         $sTimezone = '';
         if (is_null($this->timezoneById)) {

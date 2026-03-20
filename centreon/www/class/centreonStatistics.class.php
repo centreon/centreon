@@ -71,7 +71,7 @@ class CentreonStatistics
      *
      * @return array
      */
-    public function getCentreonUUID()
+    public function getCentreonUUID(): array
     {
         $centreonUUID = new CentreonUUID($this->dbConfig);
 
@@ -86,7 +86,7 @@ class CentreonStatistics
      * @throws PDOException
      * @return array
      */
-    public function getPlatformInfo()
+    public function getPlatformInfo(): array
     {
         $query = <<<'SQL'
             SELECT
@@ -111,7 +111,7 @@ class CentreonStatistics
      * @throws Exception
      * @return array
      */
-    public function getVersion()
+    public function getVersion(): array
     {
         $dbStorage = new CentreonDB('centstorage');
         $centreonVersion = new CentreonVersion($this->dbConfig, $dbStorage);
@@ -129,7 +129,7 @@ class CentreonStatistics
      *
      * @return array
      */
-    public function getPlatformTimezone()
+    public function getPlatformTimezone(): array
     {
         $oTimezone = new CentreonGMT();
         $defaultTimezone = $oTimezone->getCentreonTimezone();
@@ -152,7 +152,7 @@ class CentreonStatistics
      * @throws PDOException
      * @return array
      */
-    public function getLDAPAuthenticationOptions()
+    public function getLDAPAuthenticationOptions(): array
     {
         $data = [];
 
@@ -194,7 +194,7 @@ class CentreonStatistics
      * @throws PDOException
      * @return array
      */
-    public function getNewAuthenticationOptions()
+    public function getNewAuthenticationOptions(): array
     {
         $data = [];
 
@@ -284,7 +284,7 @@ class CentreonStatistics
      * @throws PDOException
      * @return array
      */
-    public function getAuthenticationOptions()
+    public function getAuthenticationOptions(): array
     {
         $data = $this->getNewAuthenticationOptions();
         $data['LDAP'] = $this->getLDAPAuthenticationOptions();
@@ -298,7 +298,7 @@ class CentreonStatistics
      * @throws PDOException
      * @return array
      */
-    public function getApiTokensInfo()
+    public function getApiTokensInfo(): array
     {
         $statementManagerCount = $this->dbConfig->fetchOne(
             <<<'SQL'
@@ -355,7 +355,7 @@ class CentreonStatistics
      *
      * @return array
      */
-    public function getAdditionalData()
+    public function getAdditionalData(): array
     {
         $centreonVersion = new CentreonVersion($this->dbConfig);
 

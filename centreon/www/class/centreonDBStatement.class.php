@@ -84,7 +84,7 @@ class CentreonDBStatement extends PDOStatement
      * This method wraps the Fetch method for legacy code compatibility
      * @return mixed
      */
-    public function fetchRow()
+    public function fetchRow(): mixed
     {
         return $this->fetch();
     }
@@ -106,7 +106,7 @@ class CentreonDBStatement extends PDOStatement
      *
      * @return int
      */
-    public function numRows()
+    public function numRows(): int
     {
         if (is_null($this->allFetched)) {
             $this->allFetched = $this->fetchAll();

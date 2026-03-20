@@ -59,7 +59,7 @@ class CentreonUUID
      * @throws PDOException
      * @return false|string
      */
-    private function getUUIDFromDatabase(): bool|string
+    private function getUUIDFromDatabase(): false|string
     {
         $query = 'SELECT value '
             . 'FROM informations '
@@ -80,7 +80,7 @@ class CentreonUUID
      * @throws CentreonDbException
      * @return string
      */
-    private function generateUUID()
+    private function generateUUID(): string
     {
         $uuid = sprintf(
             '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
