@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ ! -z ${VAULT_HOST} ] && timeout 0.2 getent ahostsv4 ${VAULT_HOST}; then
+if [ -n "${VAULT_HOST:-}" ] && timeout 0.2 getent ahostsv4 "${VAULT_HOST}"; then
   sed -i 's@"vault": [0-3]@"vault": 3@' /usr/share/centreon/config/features.json
   sed -i 's@"vault_broker": [0-3]@"vault_broker": 3@' /usr/share/centreon/config/features.json
   sed -i 's@"vault_gorgone": [0-3]@"vault_gorgone": 3@' /usr/share/centreon/config/features.json
