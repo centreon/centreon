@@ -75,6 +75,7 @@ const LoginForm = (): JSX.Element => {
     <form className={classes.form} onSubmit={handleSubmit}>
       <TextField
         ariaLabel={labelAlias}
+        autoComplete="on"
         dataTestId={labelAlias}
         error={aliasError}
         fullWidth
@@ -83,10 +84,19 @@ const LoginForm = (): JSX.Element => {
         onChange={handleChange(aliasFieldName)}
         required
         StartAdornment={PersonIcon}
+        textFieldSlotsAndSlotProps={{
+          slotProps: {
+            htmlInput: {
+              'aria-label': t(labelAlias) as string,
+              autoComplete: 'username'
+            }
+          }
+        }}
         value={aliasValue || ''}
       />
       <TextField
         ariaLabel={labelPassword}
+        autoComplete="on"
         dataTestId={labelPassword}
         EndAdornment={passwordEndAdornment}
         error={passwordError}

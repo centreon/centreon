@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace App\Security\Infrastructure\Dbal;
 
 use App\Security\Domain\Aggregate\Credential;
-use App\Security\Domain\Exception\CredentialDoesNotExistException;
+use App\Security\Domain\Exception\CredentialNotFoundException;
 use App\Security\Domain\Repository\CredentialRepository;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -80,7 +80,7 @@ final readonly class DbalCredentialRepository extends DbalRepository implements 
         /** @var array{c_id: int, c_alias: string, c_admin: string, c_active: string}|false $row */
         $row = $qb->executeQuery()->fetchAssociative();
         if ($row === false) {
-            throw new CredentialDoesNotExistException(['token' => $token]);
+            throw new CredentialNotFoundException(['token' => $token]);
         }
 
         return $this->createCredential($row);
@@ -100,7 +100,7 @@ final readonly class DbalCredentialRepository extends DbalRepository implements 
         /** @var array{c_id: int, c_alias: string, c_admin: string, c_active: string}|false $row */
         $row = $qb->executeQuery()->fetchAssociative();
         if ($row === false) {
-            throw new CredentialDoesNotExistException(['sessionId' => $sessionId]);
+            throw new CredentialNotFoundException(['sessionId' => $sessionId]);
         }
 
         return $this->createCredential($row);
@@ -120,7 +120,7 @@ final readonly class DbalCredentialRepository extends DbalRepository implements 
         $row = $qb->executeQuery()->fetchAssociative();
 
         if ($row === false) {
-            throw new CredentialDoesNotExistException(['username' => $username]);
+            throw new CredentialNotFoundException(['username' => $username]);
         }
 
         return $this->createCredential($row);

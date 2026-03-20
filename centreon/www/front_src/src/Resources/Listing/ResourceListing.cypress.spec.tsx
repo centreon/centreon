@@ -57,7 +57,7 @@ import useLoadDetails from './useLoadResources/useLoadDetails';
 
 const pageNavigationCalls = [
   { expectedCall: 1, param: 'page=2&limit=30' },
-  { expectedCall: 4, param: 'page=1&limit=30' },
+  { expectedCall: 3, param: 'page=1&limit=30' },
   { expectedCall: 1, param: 'page=4&limit=30' }
 ];
 
@@ -486,7 +486,7 @@ describe('Listing request', () => {
     cy.waitForRequest('@dataToListingTable');
 
     cy.getRequestCalls('@dataToListingTable').then((calls) => {
-      expect(calls).to.have.length(6);
+      expect(calls).to.have.length(5);
       pageNavigationCalls.forEach(({ param, expectedCall }) => {
         expect(
           filter((call) => includes(param, call.request.url.search), calls)

@@ -38,12 +38,6 @@ jobs:
       matrix:
         include:
           - runner: ubuntu-24.04
-            dockerfile: packaging-alma8
-            image: packaging-alma8
-          - runner: ubuntu-24.04
-            dockerfile: packaging-nfpm-alma8
-            image: packaging-nfpm-alma8
-          - runner: ubuntu-24.04
             dockerfile: packaging-alma9
             image: packaging-alma9
           - runner: ubuntu-24.04

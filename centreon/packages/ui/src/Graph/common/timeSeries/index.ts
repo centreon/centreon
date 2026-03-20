@@ -54,6 +54,17 @@ interface TimeTickWithMetrics {
   timeTick: string;
 }
 
+const defaultDsData = {
+  ds_color_line: '#000000',
+  ds_filled: false,
+  ds_invert: false,
+  ds_legend: '',
+  ds_order: '0',
+  ds_stack: '0',
+  ds_stack_key: null,
+  ds_transparency: 80
+};
+
 const toTimeTickWithMetrics = ({
   metrics,
   times
@@ -120,30 +131,41 @@ const toLine = ({
   maximum_value,
   metric_id,
   displayAs
-}: Metric): Line => ({
-  areaColor: ds_data.ds_color_area,
-  average_value,
-  color: ds_data.ds_color_line,
-  display: true,
-  displayAs,
-  filled: ds_data.ds_filled,
-  highlight: undefined,
-  invert: ds_data.ds_invert,
-  legend: ds_data.ds_legend,
-  lineColor: ds_data.ds_color_line,
-  maximum_value,
-  metric,
-  metric_id,
-  minimum_value,
-  name: legend,
-  stackKey: ds_data.ds_stack_key || null,
-  stackOrder:
-    equals(ds_data.ds_stack, '1') || equals(ds_data.ds_stack, true)
-      ? Number.parseInt(ds_data.ds_order || '0', 10)
-      : null,
-  transparency: ds_data.ds_transparency,
-  unit
-});
+}: Metric): Line => {
+  const safeDsData = {
+    ...defaultDsData,
+    ...(ds_data || {}),
+    ds_color_area:
+      ds_data?.ds_color_area ??
+      ds_data?.ds_color_line ??
+      defaultDsData.ds_color_line
+  };
+
+  return {
+    areaColor: safeDsData.ds_color_area,
+    average_value,
+    color: safeDsData.ds_color_line,
+    display: true,
+    displayAs,
+    filled: safeDsData.ds_filled,
+    highlight: undefined,
+    invert: safeDsData.ds_invert,
+    legend: safeDsData.ds_legend,
+    lineColor: safeDsData.ds_color_line,
+    maximum_value,
+    metric,
+    metric_id,
+    minimum_value,
+    name: legend,
+    stackKey: safeDsData.ds_stack_key || null,
+    stackOrder:
+      equals(safeDsData.ds_stack, '1') || equals(safeDsData.ds_stack, true)
+        ? Number.parseInt(safeDsData.ds_order || '0', 10)
+        : null,
+    transparency: safeDsData.ds_transparency,
+    unit
+  };
+};
 
 const getLineData = (graphData: LineChartData): Array<Line> =>
   map(toLine, graphData.metrics);
@@ -395,7 +417,7 @@ const getScale = ({
           : getMin(graphValues),
         !isEmpty(stackedValues) &&
           !equals(stackedValues, [0]) &&
-          getMin(stackedValues),
+          getMin([0, ...stackedValues]),
         Math.min(...thresholds)
       ]);
   const minValue = Math.min(...sanitizedValuesForMinimum.filter(isNotNil));
