@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: Centreon web\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
-"PO-Revision-Date: 2026-03-12 13:08+0000\n"
-"Last-Translator: admin <noreply@centreon.com>\n"
+"PO-Revision-Date: 2026-03-20 10:49+0000\n"
+"Last-Translator: Cécile GENIER <cgenier@centreon.com>\n"
 "Language-Team: French <https://translate.apps.centreon.com/projects/"
 "centreon-infra-monitoring/25-10/web-messages-25-10/fr/>\n"
 "Language: fr_FR\n"
@@ -204,7 +204,7 @@ msgstr "<p>Montée de version en cours... N'interrompez pas le processus.</p>"
 
 #: centreon/www/install/front_translate.php
 msgid "@$!%*?&"
-msgstr ""
+msgstr "@$!%*?&"
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
@@ -6732,7 +6732,7 @@ msgstr "Erreur lors de la récupération des informations du serveur distant"
 
 #: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
 msgid "Error while retrieving service category"
-msgstr ""
+msgstr "Erreur lors de la récupération de la catégorie de services"
 
 #: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
 msgid "Error while retrieving service group"
@@ -6740,7 +6740,7 @@ msgstr "Erreur lors de la récupération du groupe de services"
 
 #: centreon/src/Core/ServiceSeverity/Application/Exception/ServiceSeverityException.php
 msgid "Error while retrieving service severity"
-msgstr ""
+msgstr "Erreur lors de la récupération de la sévérité du service"
 
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "Error while retrieving service statuses distribution"
@@ -6987,7 +6987,7 @@ msgstr "Erreur lors de la mise à jour de la sévérité d'hôtes"
 
 #: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
 msgid "Error while updating service category"
-msgstr ""
+msgstr "Erreur lors de la mise à jour de la catégorie du service"
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while updating the dashboard share"
@@ -17039,7 +17039,7 @@ msgstr ""
 #: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
 #, php-format
 msgid "The service category name '%s' already exists"
-msgstr ""
+msgstr "Le nom de catégorie de services '%s' existe déjà"
 
 #: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
 #, php-format
@@ -19438,6 +19438,7 @@ msgstr "Vous n'avez pas la permission de mettre à jour des médias"
 #: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
 msgid "You are not allowed to update service categories"
 msgstr ""
+"Vous n'avez pas la permission de mettre à jour des catégories de services"
 
 #: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
 msgid "You are not allowed to update service groups"
