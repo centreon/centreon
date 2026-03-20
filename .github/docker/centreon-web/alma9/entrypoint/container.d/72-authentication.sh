@@ -1,10 +1,10 @@
 #!/bin/sh
 
-if [ ! -z ${LDAP_HOST} ] && timeout 0.2 getent ahostsv4 ${LDAP_HOST}; then
+if [ -n "${LDAP_HOST:-}" ] && timeout 0.2 getent ahostsv4 "${LDAP_HOST}"; then
   MYSQL_PWD="${MYSQL_ROOT_PASSWORD}" mysql -h${MYSQL_HOST} -uroot centreon -e "UPDATE auth_ressource SET ar_enable = '1' WHERE ar_name = 'openldap'"
 fi
 
-if [ ! -z ${OPENID_HOST} ] && timeout 0.2 getent ahostsv4 ${OPENID_HOST}; then
+if [ -n "${OPENID_HOST:-}" ] && timeout 0.2 getent ahostsv4 "${OPENID_HOST}"; then
   CONTACT_TEMPLATE_NAME="openid_contact_template"
   sudo -u apache centreon -u admin -p Centreon\!2021 -o CONTACTTPL -a ADD -v "$CONTACT_TEMPLATE_NAME;$CONTACT_TEMPLATE_NAME;;1;1;en_US.UTF-8;local"
   CONTACT_TEMPLATE_ID=$(sudo -u apache centreon -u admin -p Centreon\!2021 -o CONTACTTPL -a SHOW -v "$CONTACT_TEMPLATE_NAME" | grep "$CONTACT_TEMPLATE_NAME" | cut -d';' -f1)
@@ -50,7 +50,7 @@ if [ ! -z ${OPENID_HOST} ] && timeout 0.2 getent ahostsv4 ${OPENID_HOST}; then
 PAYLOAD
 fi
 
-if [ ! -z ${SAML_HOST} ] && timeout 0.2 getent ahostsv4 ${SAML_HOST}; then
+if [ -n "${SAML_HOST:-}" ] && timeout 0.2 getent ahostsv4 "${SAML_HOST}"; then
   CONTACT_TEMPLATE_NAME="saml_contact_template"
   sudo -u apache centreon -u admin -p Centreon\!2021 -o CONTACTTPL -a ADD -v "$CONTACT_TEMPLATE_NAME;$CONTACT_TEMPLATE_NAME;;1;1;en_US.UTF-8;local"
   CONTACT_TEMPLATE_ID=$(sudo -u apache centreon -u admin -p Centreon\!2021 -o CONTACTTPL -a SHOW -v "$CONTACT_TEMPLATE_NAME" | grep "$CONTACT_TEMPLATE_NAME" | cut -d';' -f1)

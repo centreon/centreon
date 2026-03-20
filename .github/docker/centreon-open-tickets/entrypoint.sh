@@ -2,7 +2,7 @@
 
 su apache -s /bin/bash -c "/tmp/install-centreon-module.php -b /usr/share/centreon/bootstrap.php -m centreon-open-tickets"
 
-if [ ! -z ${GLPI_HOST} ] && timeout 0.2 getent ahostsv4 ${GLPI_HOST}; then
+if [ -n "${GLPI_HOST:-}" ] && timeout 0.2 getent ahostsv4 "${GLPI_HOST}"; then
   mysql -h${MYSQL_HOST} -uroot -p"${MYSQL_ROOT_PASSWORD}" centreon <<EOF
     INSERT INTO mod_open_tickets_rule(alias, provider_id, provider_name, activate) VALUES ('glpi', 11, 'GlpiRestApi', '1');
     INSERT INTO mod_open_tickets_form_clone (rule_id, \`order\`, uniq_id, label, value) VALUES
