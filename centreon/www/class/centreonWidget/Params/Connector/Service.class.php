@@ -88,7 +88,7 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
      * @throws PDOException
      * @return mixed|null[]
      */
-    public function getListValues($paramId)
+    public function getListValues($paramId): array
     {
         static $tab;
 
@@ -150,7 +150,7 @@ class CentreonWidgetParamsConnectorService extends CentreonWidgetParamsList
      * @throws PDOException
      * @return array
      */
-    protected function getServiceIds($hostId)
+    protected function getServiceIds($hostId): array
     {
         $aclString = $this->acl->queryBuilder(
             'AND',

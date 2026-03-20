@@ -36,7 +36,7 @@ class CentreonWidgetParamsConnectorHostSeverityMulti extends CentreonWidgetParam
     /**
      * @return array
      */
-    public function getParameters()
+    public function getParameters(): array
     {
         $path = './api/internal.php?object=centreon_configuration_hostcategory&action=list&t=s';
 

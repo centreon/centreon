@@ -45,7 +45,7 @@ class CentreonWidgetParamsConnectorPollerMulti extends CentreonWidgetParamsSelec
     /**
      * @return array|mixed
      */
-    public function getParameters()
+    public function getParameters(): mixed
     {
         static $tab;
 

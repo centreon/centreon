@@ -49,9 +49,9 @@ class CentreonWidgetParamsBoolean extends CentreonWidgetParams
      * @param array $params
      *
      * @throws HTML_QuickForm_Error
-     * @return void
+     * @return null
      */
-    public function init($params): void
+    public function init($params): null
     {
         parent::init($params);
         if (isset($this->quickform)) {
@@ -61,6 +61,8 @@ class CentreonWidgetParamsBoolean extends CentreonWidgetParams
                 $params['parameter_name']
             );
         }
+
+        return null;
     }
 
     /**
@@ -68,9 +70,9 @@ class CentreonWidgetParamsBoolean extends CentreonWidgetParams
      *
      * @throws HTML_QuickForm_Error
      * @throws PDOException
-     * @return void
+     * @return null
      */
-    public function setValue($params): void
+    public function setValue($params): null
     {
         $userPref = $this->getUserPreferences($params);
         $cbVal = false;
@@ -83,5 +85,7 @@ class CentreonWidgetParamsBoolean extends CentreonWidgetParams
         }
         $cb = $this->quickform->getElement('param_' . $params['parameter_id']);
         $cb->setChecked($cbVal);
+
+        return null;
     }
 }

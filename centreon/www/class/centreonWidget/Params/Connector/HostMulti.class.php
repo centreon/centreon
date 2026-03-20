@@ -45,7 +45,7 @@ class CentreonWidgetParamsConnectorHostMulti extends CentreonWidgetParamsSelect2
     /**
      * @return array
      */
-    public function getParameters()
+    public function getParameters(): array
     {
         $path = './include/common/webServices/rest/internal.php?object=centreon_configuration_host&action=list';
 
