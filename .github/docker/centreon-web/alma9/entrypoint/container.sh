@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #set -e
-[ "${DEBUG:-0}" = "1" ] && set -x
+set -x
 
 # Run each startup script located in BASEDIR.
 # ls is required to ensure that the scripts are properly sorted by name.
