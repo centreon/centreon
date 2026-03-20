@@ -112,7 +112,7 @@ abstract class AbstractObject
      * @param Container $dependencyInjector
      * @return object
      */
-    public static function getInstance(Container $dependencyInjector)
+    public static function getInstance(Container $dependencyInjector): object
     {
         static $instances = [];
         $calledClass = static::class;

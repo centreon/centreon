@@ -238,7 +238,7 @@ abstract class AbstractService extends AbstractObject
      * @param array $service
      * @return void
      */
-    protected function getServiceCommands(array &$service)
+    protected function getServiceCommands(array &$service): void
     {
         $this->getServiceCommand($service, 'command_command_id');
         $this->getServiceCommand($service, 'command_command_id2');
@@ -250,7 +250,7 @@ abstract class AbstractService extends AbstractObject
      * @param array $service
      * @return void
      */
-    protected function getServicePeriods(array &$service)
+    protected function getServicePeriods(array &$service): void
     {
         $period = TimePeriod::getInstance($this->dependencyInjector);
         $period->generateFromTimeperiodId($service['timeperiod_tp_id']);

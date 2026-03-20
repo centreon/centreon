@@ -188,7 +188,7 @@ class Generate
      *
      * @return void
      */
-    public function getInstalledModules()
+    public function getInstalledModules(): void
     {
         if (! is_null($this->installedModules)) {
             return $this->installedModules;
@@ -318,7 +318,7 @@ class Generate
      * @param int $remoteId
      * @return void
      */
-    private function getPollersFromRemote(int $remoteId)
+    private function getPollersFromRemote(int $remoteId): void
     {
         $stmt = $this->backendInstance->db->prepare(
             'SELECT ns1.*

@@ -90,14 +90,14 @@ class ServiceCategory extends AbstractObject
      * @throws Exception
      * @return void
      */
-    public function generateObject(?int $scId)
+    public function generateObject(?int $scId): void
     {
         if (is_null($scId) || $this->checkGenerate($scId)) {
-            return null;
+            return;
         }
 
         if (! isset($this->serviceSeverityCache[$scId])) {
-            return null;
+            return;
         }
         $this->generateObjectInFile($this->serviceSeverityCache[$scId], $scId);
         Media::getInstance($this->dependencyInjector)
@@ -112,7 +112,7 @@ class ServiceCategory extends AbstractObject
      * @throws Exception
      * @return void
      */
-    public function getServiceSeverityByServiceId(int $serviceId)
+    public function getServiceSeverityByServiceId(int $serviceId): void
     {
         // Get from the cache
         if (isset($this->serviceLinkedCache[$serviceId])) {
@@ -128,7 +128,7 @@ class ServiceCategory extends AbstractObject
             return $this->serviceLinkedCache[$serviceId];
         }
         if ($this->doneCache == 1) {
-            return null;
+            return;
         }
 
         // We get unitary
@@ -150,7 +150,7 @@ class ServiceCategory extends AbstractObject
         if (is_null($severity)) {
             $this->serviceLinkedCache[$serviceId] = null;
 
-            return null;
+            return;
         }
 
         $this->serviceLinkedCache[$serviceId] = $severity['sc_id'];
@@ -170,13 +170,13 @@ class ServiceCategory extends AbstractObject
      * @param null|int $scId
      * @return void
      */
-    public function getServiceSeverityById(?int $scId)
+    public function getServiceSeverityById(?int $scId): void
     {
         if (is_null($scId)) {
-            return null;
+            return;
         }
         if (! isset($this->serviceSeverityCache[$scId])) {
-            return null;
+            return;
         }
 
         return $this->serviceSeverityCache[$scId];
@@ -188,7 +188,7 @@ class ServiceCategory extends AbstractObject
      * @param string $hcName
      * @return null|int
      */
-    public function getServiceSeverityMappingHostSeverityByName(string $hcName)
+    public function getServiceSeverityMappingHostSeverityByName(string $hcName): ?int
     {
         if (isset($this->serviceSeverityByNameCache[$hcName])) {
             return $this->serviceSeverityByNameCache[$hcName];

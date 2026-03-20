@@ -85,7 +85,7 @@ class Graph extends AbstractObject
      * @throws \Exception
      * @return string|null
      */
-    public function getGraphFromId(?int $graphId)
+    public function getGraphFromId(?int $graphId): ?string
     {
         if (is_null($this->graphs)) {
             $this->getGraph();

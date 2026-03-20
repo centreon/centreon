@@ -81,7 +81,7 @@ class MacroService extends AbstractObject
      * @throws Exception
      * @return null|array
      */
-    public function getServiceMacroByServiceId(int $serviceId)
+    public function getServiceMacroByServiceId(int $serviceId): ?array
     {
         // Get from the cache
         if (isset($this->macroServiceCache[$serviceId])) {
@@ -154,10 +154,10 @@ class MacroService extends AbstractObject
      * @throws Exception
      * @return null|void
      */
-    private function writeMacrosService(int $serviceId)
+    private function writeMacrosService(int $serviceId): void
     {
         if ($this->checkGenerate($serviceId)) {
-            return null;
+            return;
         }
 
         foreach ($this->macroServiceCache[$serviceId] as $value) {
@@ -170,7 +170,7 @@ class MacroService extends AbstractObject
      *
      * @return void
      */
-    private function buildCache()
+    private function buildCache(): void
     {
         if ($this->doneCache == 1) {
             return 0;

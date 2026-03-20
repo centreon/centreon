@@ -118,7 +118,7 @@ class ContactGroup extends AbstractObject
      * @param int $cgId
      * @return void
      */
-    public function getCgFromId(int $cgId)
+    public function getCgFromId(int $cgId): void
     {
         if (is_null($this->stmtCg)) {
             $this->stmtCg = $this->backendInstance->db->prepare(
@@ -170,17 +170,17 @@ class ContactGroup extends AbstractObject
      * @throws \Exception
      * @return void|string
      */
-    public function generateFromCgId(?int $cgId)
+    public function generateFromCgId(?int $cgId): void
     {
         if (is_null($cgId)) {
-            return null;
+            return;
         }
 
         $this->buildCache();
 
         if ($this->useCache == 1) {
             if (! isset($this->cgCache[$cgId])) {
-                return null;
+                return;
             }
             $this->cg[$cgId] = &$this->cgCache[$cgId];
         } elseif (! isset($this->cg[$cgId])) {
@@ -188,7 +188,7 @@ class ContactGroup extends AbstractObject
         }
 
         if (is_null($this->cg[$cgId])) {
-            return null;
+            return;
         }
         if ($this->checkGenerate($cgId)) {
             return $this->cg[$cgId]['cg_name'];
@@ -223,7 +223,7 @@ class ContactGroup extends AbstractObject
      *
      * @return void|int
      */
-    protected function buildCache()
+    protected function buildCache(): void
     {
         if ($this->doneCache == 1) {
             return 0;

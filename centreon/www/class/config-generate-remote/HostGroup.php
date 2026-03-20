@@ -72,7 +72,7 @@ class HostGroup extends AbstractObject
      * @throws \Exception
      * @return int
      */
-    public function addHostInHg(int $hgId, int $hostId, string $hostName)
+    public function addHostInHg(int $hgId, int $hostId, string $hostName): int
     {
         if (! isset($this->hg[$hgId])) {
             $this->getHostgroupFromId($hgId);
@@ -111,7 +111,7 @@ class HostGroup extends AbstractObject
      *
      * @return array
      */
-    public function getHostgroups()
+    public function getHostgroups(): array
     {
         $result = [];
         foreach ($this->hg as $id => &$value) {
@@ -145,7 +145,7 @@ class HostGroup extends AbstractObject
      * @param string $attr
      * @return string|null
      */
-    public function getString(int $hgId, string $attr)
+    public function getString(int $hgId, string $attr): ?string
     {
         return $this->hg[$hgId][$attr] ?? null;
     }
@@ -156,7 +156,7 @@ class HostGroup extends AbstractObject
      * @param int $hgId
      * @return void
      */
-    private function getHostgroupFromId(int $hgId)
+    private function getHostgroupFromId(int $hgId): void
     {
         if (is_null($this->stmtHg)) {
             $this->stmtHg = $this->backendInstance->db->prepare(
@@ -170,7 +170,7 @@ class HostGroup extends AbstractObject
         $results = $this->stmtHg->fetchAll(PDO::FETCH_ASSOC);
         $this->hg[$hgId] = array_pop($results);
         if (is_null($this->hg[$hgId])) {
-            return null;
+            return;
         }
         $this->hg[$hgId]['members'] = [];
     }

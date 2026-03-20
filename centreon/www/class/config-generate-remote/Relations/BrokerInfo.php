@@ -98,7 +98,7 @@ class BrokerInfo extends AbstractObject
      * @throws \Exception
      * @return array
      */
-    public function getBrokerInfoByConfigId(int $configId)
+    public function getBrokerInfoByConfigId(int $configId): array
     {
         // Get from the cache
         if (isset($this->brokerInfoCache[$configId])) {

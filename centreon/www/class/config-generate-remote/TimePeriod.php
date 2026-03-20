@@ -97,7 +97,7 @@ class TimePeriod extends AbstractObject
      * @throws Exception
      * @return null|string
      */
-    public function generateFromTimeperiodId(?int $timeperiodId)
+    public function generateFromTimeperiodId(?int $timeperiodId): ?string
     {
         if (is_null($timeperiodId)) {
             return null;
@@ -127,7 +127,7 @@ class TimePeriod extends AbstractObject
      * @param int $timeperiodId
      * @return void|int
      */
-    protected function getTimeperiodExceptionFromId(int $timeperiodId)
+    protected function getTimeperiodExceptionFromId(int $timeperiodId): void
     {
         if (isset($this->timeperiods[$timeperiodId]['exceptions'])) {
             return 1;

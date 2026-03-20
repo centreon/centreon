@@ -63,7 +63,7 @@ class Resource extends AbstractObject
      * @throws Exception
      * @return void
      */
-    public function generateFromPollerId(?int $pollerId)
+    public function generateFromPollerId(?int $pollerId): void
     {
         if (is_null($pollerId)) {
             return 0;

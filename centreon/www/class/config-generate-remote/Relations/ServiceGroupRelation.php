@@ -52,10 +52,10 @@ class ServiceGroupRelation extends AbstractObject
      * @throws Exception
      * @return void
      */
-    public function addRelationHostService(int $sgId, int $hostId, int $serviceId)
+    public function addRelationHostService(int $sgId, int $hostId, int $serviceId): void
     {
         if ($this->checkGenerate($sgId . '.' . $hostId . '.' . $serviceId)) {
-            return null;
+            return;
         }
         $relation = [
             'servicegroup_sg_id' => $sgId,

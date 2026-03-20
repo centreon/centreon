@@ -198,7 +198,7 @@ class Contact extends AbstractObject
      * @param int $contactId
      * @return void
      */
-    protected function getContactFromId(int $contactId)
+    protected function getContactFromId(int $contactId): void
     {
         if (is_null($this->stmtContact)) {
             $this->stmtContact = $this->backendInstance->db->prepare(
@@ -224,11 +224,11 @@ class Contact extends AbstractObject
      * @param object $instance
      * @return void|null
      */
-    protected function getContactNotificationCommands(int $contactId, string $label, object $instance)
+    protected function getContactNotificationCommands(int $contactId, string $label, object $instance): void
     {
         // avoid sql injection with label
         if (in_array($label, ['host', 'service'])) {
-            return null;
+            return;
         }
 
         if (! isset($this->contacts[$contactId][$label . '_commands_cache'])) {

@@ -134,7 +134,7 @@ class Trap extends AbstractObject
      * @throws Exception
      * @return null|array
      */
-    public function getTrapsByServiceId(int $serviceId)
+    public function getTrapsByServiceId(int $serviceId): ?array
     {
         // Get from the cache
         if (isset($this->serviceLinkedCache[$serviceId])) {
@@ -216,7 +216,7 @@ class Trap extends AbstractObject
      *
      * @return void|int
      */
-    private function buildCache()
+    private function buildCache(): void
     {
         if ($this->doneCache == 1) {
             return 0;
