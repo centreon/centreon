@@ -205,7 +205,7 @@ abstract class AbstractObject
      *
      * @return int
      */
-    public function checkGenerate($id)
+    public function checkGenerate($id): int
     {
         if (isset($this->exported[$id])) {
             return 1;
@@ -217,7 +217,7 @@ abstract class AbstractObject
     /**
      * @return array
      */
-    public function getExported()
+    public function getExported(): array
     {
         return $this->exported ?? [];
     }
@@ -268,7 +268,7 @@ abstract class AbstractObject
      *
      * @return void
      */
-    protected function writeObject($object)
+    protected function writeObject($object): void
     {
         $object_file = "\n";
         $object_file .= 'define ' . $this->object_name . " {\n";
@@ -322,7 +322,7 @@ abstract class AbstractObject
      * @throws Exception
      * @return void
      */
-    protected function generateObjectInFile($object, $id)
+    protected function generateObjectInFile($object, $id): void
     {
         if (is_null($this->fp)) {
             $this->openFileForUpdate(
@@ -339,7 +339,7 @@ abstract class AbstractObject
      * @throws Exception
      * @return void
      */
-    protected function generateFile($object)
+    protected function generateFile($object): void
     {
         if (is_null($this->fp)) {
             $this->openFileForUpdate(
@@ -400,7 +400,7 @@ abstract class AbstractObject
      *
      * @return array|false|mixed|mixed[]|string|string[]|null
      */
-    private function toUTF8($str)
+    private function toUTF8($str): mixed
     {
         $finalString = $str;
         if (mb_detect_encoding($finalString, 'UTF-8', true) !== 'UTF-8') {

@@ -95,7 +95,7 @@ class Backend
      *
      * @return Backend|null
      */
-    public static function getInstance(Container $dependencyInjector)
+    public static function getInstance(Container $dependencyInjector): ?Backend
     {
         if (is_null(self::$_instance)) {
             self::$_instance = new Backend($dependencyInjector);
@@ -110,7 +110,7 @@ class Backend
      * @throws Exception
      * @return string
      */
-    public function createDirectories($paths)
+    public function createDirectories($paths): string
     {
         $dir = '';
         $dir_append = '';
@@ -136,7 +136,7 @@ class Backend
     /**
      * @return string
      */
-    public function getEngineGeneratePath()
+    public function getEngineGeneratePath(): string
     {
         return $this->generate_path . '/' . $this->engine_sub;
     }
@@ -186,7 +186,7 @@ class Backend
     /**
      * @return null
      */
-    public function getPath()
+    public function getPath(): null
     {
         return $this->full_path;
     }
@@ -230,7 +230,7 @@ class Backend
     /**
      * @return string
      */
-    public function getUserName()
+    public function getUserName(): string
     {
         return $this->whoaim;
     }
@@ -248,7 +248,7 @@ class Backend
     /**
      * @return null
      */
-    public function getPollerId()
+    public function getPollerId(): null
     {
         return $this->poller_id;
     }
@@ -257,7 +257,7 @@ class Backend
      * @throws PDOException
      * @return mixed|null
      */
-    public function getCentralPollerId()
+    public function getCentralPollerId(): mixed
     {
         if (! is_null($this->central_poller_id)) {
             return $this->central_poller_id;
@@ -282,7 +282,7 @@ class Backend
      *
      * @return bool
      */
-    private function deleteDir($path)
+    private function deleteDir($path): bool
     {
         if (is_dir($path) === true) {
             $files = array_diff(scandir($path), ['.', '..']);

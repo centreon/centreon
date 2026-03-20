@@ -242,9 +242,9 @@ class Generate
 
     /**
      * @throws PDOException
-     * @return void|null
+     * @return string[]
      */
-    public function getInstalledModules()
+    public function getInstalledModules(): array
     {
         if (! is_null($this->installed_modules)) {
             return $this->installed_modules;
@@ -255,6 +255,8 @@ class Generate
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
             $this->installed_modules[] = $value['name'];
         }
+
+        return $this->installed_modules;
     }
 
     /**

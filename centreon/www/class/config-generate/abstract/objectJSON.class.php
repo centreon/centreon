@@ -126,7 +126,7 @@ abstract class AbstractObjectJSON
     /**
      * @return void
      */
-    public function reset()
+    public function reset(): void
     {
     }
 
@@ -136,7 +136,7 @@ abstract class AbstractObjectJSON
      * @throws RuntimeException
      * @return void
      */
-    protected function writeFile($dir)
+    protected function writeFile($dir): void
     {
         $full_file = $dir . '/' . $this->generate_filename;
         if ($handle = fopen($full_file, 'w')) {

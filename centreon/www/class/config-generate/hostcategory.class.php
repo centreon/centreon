@@ -122,7 +122,7 @@ final class HostCategory extends AbstractObject
      * @throws PDOException
      * @return self
      */
-    private function addHostCategoryToList(int $hostCategoryId): self
+    private function addHostCategoryToList(int $hostCategoryId): \HostCategory
     {
         $stmt = $this->backend_instance->db->prepare(
             "SELECT hc_id as id, hc_name as tag_name

@@ -196,13 +196,13 @@ class Dependency extends AbstractObject
 
     /**
      * @throws Exception
-     * @return int|void
+     * @return void
      */
-    public function doMetaService()
+    public function doMetaService(): void
     {
         $meta_instance = MetaService::getInstance($this->dependencyInjector);
         if (! $meta_instance->hasMetaServices()) {
-            return 0;
+            return;
         }
 
         $this->object_name = 'servicedependency';
@@ -306,12 +306,12 @@ class Dependency extends AbstractObject
 
     /**
      * @throws Exception
-     * @return int|void
+     * @return void
      */
-    public function generateObjects()
+    public function generateObjects(): void
     {
         if ($this->has_dependency == 0) {
-            return 0;
+            return;
         }
 
         $this->doHost();
@@ -334,7 +334,7 @@ class Dependency extends AbstractObject
     /**
      * @return int
      */
-    public function hasDependency()
+    public function hasDependency(): int
     {
         return $this->has_dependency;
     }
@@ -342,7 +342,7 @@ class Dependency extends AbstractObject
     /**
      * @return array
      */
-    public function getGeneratedDependencies()
+    public function getGeneratedDependencies(): array
     {
         return $this->generated_dependencies;
     }
@@ -353,7 +353,7 @@ class Dependency extends AbstractObject
      */
     private function getDependencyCache(): void
     {
-        $stmt = $this->backend_instance->db->prepare("SELECT 
+        $stmt = $this->backend_instance->db->prepare("SELECT
                     {$this->attributes_select}
                 FROM dependency
         ");
@@ -367,22 +367,22 @@ class Dependency extends AbstractObject
 
     /**
      * @throws PDOException
-     * @return int|void
+     * @return void
      */
-    private function getDependencyLinkedCache()
+    private function getDependencyLinkedCache(): void
     {
         if ($this->has_dependency == 0) {
-            return 0;
+            return;
         }
 
         // Host dependency
-        $stmt = $this->backend_instance->db->prepare('SELECT 
+        $stmt = $this->backend_instance->db->prepare('SELECT
                     dependency_dep_id, host_host_id
                 FROM dependency_hostParent_relation
         ');
         $stmt->execute();
         $this->dependency_linked_host_parent_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
-        $stmt = $this->backend_instance->db->prepare('SELECT 
+        $stmt = $this->backend_instance->db->prepare('SELECT
                     dependency_dep_id, host_host_id
                 FROM dependency_hostChild_relation
         ');
@@ -390,13 +390,13 @@ class Dependency extends AbstractObject
         $this->dependency_linked_host_child_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
 
         // Hostgroup dependency
-        $stmt = $this->backend_instance->db->prepare('SELECT 
+        $stmt = $this->backend_instance->db->prepare('SELECT
                     dependency_dep_id, hostgroup_hg_id
                 FROM dependency_hostgroupParent_relation
         ');
         $stmt->execute();
         $this->dependency_linked_hg_parent_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
-        $stmt = $this->backend_instance->db->prepare('SELECT 
+        $stmt = $this->backend_instance->db->prepare('SELECT
                     dependency_dep_id, hostgroup_hg_id
                 FROM dependency_hostgroupChild_relation
         ');
@@ -404,13 +404,13 @@ class Dependency extends AbstractObject
         $this->dependency_linked_hg_child_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
 
         // Servicegroup dependency
-        $stmt = $this->backend_instance->db->prepare('SELECT 
+        $stmt = $this->backend_instance->db->prepare('SELECT
                     dependency_dep_id, servicegroup_sg_id
                 FROM dependency_servicegroupParent_relation
         ');
         $stmt->execute();
         $this->dependency_linked_sg_parent_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
-        $stmt = $this->backend_instance->db->prepare('SELECT 
+        $stmt = $this->backend_instance->db->prepare('SELECT
                     dependency_dep_id, servicegroup_sg_id
                 FROM dependency_servicegroupChild_relation
         ');
@@ -418,13 +418,13 @@ class Dependency extends AbstractObject
         $this->dependency_linked_sg_child_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
 
         // Metaservice dependency
-        $stmt = $this->backend_instance->db->prepare('SELECT 
+        $stmt = $this->backend_instance->db->prepare('SELECT
                     dependency_dep_id, meta_service_meta_id
                 FROM dependency_metaserviceParent_relation
         ');
         $stmt->execute();
         $this->dependency_linked_meta_parent_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
-        $stmt = $this->backend_instance->db->prepare('SELECT 
+        $stmt = $this->backend_instance->db->prepare('SELECT
                     dependency_dep_id, meta_service_meta_id
                 FROM dependency_metaserviceChild_relation
         ');
@@ -432,14 +432,14 @@ class Dependency extends AbstractObject
         $this->dependency_linked_meta_child_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
 
         // Service dependency
-        $stmt = $this->backend_instance->db->prepare('SELECT 
+        $stmt = $this->backend_instance->db->prepare('SELECT
                     dependency_dep_id, host_host_id, service_service_id
                 FROM dependency_serviceParent_relation
         ');
         $stmt->execute();
         $this->dependency_linked_service_parent_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_ASSOC);
-        $stmt = $this->backend_instance->db->prepare('SELECT 
-                    dependency_dep_id, host_host_id, service_service_id 
+        $stmt = $this->backend_instance->db->prepare('SELECT
+                    dependency_dep_id, host_host_id, service_service_id
                 FROM dependency_serviceChild_relation
         ');
         $stmt->execute();
@@ -448,12 +448,12 @@ class Dependency extends AbstractObject
 
     /**
      * @throws PDOException
-     * @return int|void
+     * @return void
      */
-    private function buildCache()
+    private function buildCache(): void
     {
         if ($this->done_cache == 1) {
-            return 0;
+            return;
         }
 
         $this->getDependencyCache();

@@ -77,7 +77,7 @@ class Host extends AbstractHost
      *
      * @return mixed
      */
-    public function getSeverityForService($host_id)
+    public function getSeverityForService($host_id): mixed
     {
         return $this->hosts[$host_id]['severity_id_for_services'];
     }
@@ -196,7 +196,7 @@ class Host extends AbstractHost
      *
      * @return mixed|null
      */
-    public function getHostIdByHostName($host_name)
+    public function getHostIdByHostName($host_name): mixed
     {
         return $this->hosts_by_name[$host_name] ?? null;
     }
@@ -204,7 +204,7 @@ class Host extends AbstractHost
     /**
      * @return array
      */
-    public function getGeneratedParentship()
+    public function getGeneratedParentship(): array
     {
         return $this->generated_parentship;
     }
@@ -222,7 +222,7 @@ class Host extends AbstractHost
     /**
      * @return array
      */
-    public function getGeneratedHosts()
+    public function getGeneratedHosts(): array
     {
         return $this->generatedHosts;
     }
@@ -283,7 +283,7 @@ class Host extends AbstractHost
      * @throws PDOException
      * @return void
      */
-    protected function getSeverity($host_id_arg)
+    protected function getSeverity($host_id_arg): void
     {
         $host_id = null;
         $loop = [];
@@ -527,12 +527,12 @@ class Host extends AbstractHost
      * @param $host
      *
      * @throws PDOException
-     * @return int|void
+     * @return void
      */
-    private function getServicesByHg(&$host, array $serviceMacros, array $serviceTemplateMacros)
+    private function getServicesByHg(&$host, array $serviceMacros, array $serviceTemplateMacros): void
     {
         if (count($host['hg']) == 0) {
-            return 1;
+            return;
         }
         if (is_null($this->stmt_service_sg)) {
             $query = 'SELECT service_service_id FROM host_service_relation '

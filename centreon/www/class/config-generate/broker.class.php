@@ -571,7 +571,7 @@ class Broker extends AbstractObjectJSON
      * @throws PDOException
      * @return array|false|mixed|string
      */
-    private function getInfoDb($string)
+    private function getInfoDb($string): mixed
     {
         // Default values
         $s_db = 'centreon';
@@ -653,7 +653,7 @@ class Broker extends AbstractObjectJSON
      *
      * @return float|int|mixed|string
      */
-    private function rpnCalc($rpn, $val)
+    private function rpnCalc($rpn, $val): mixed
     {
         if (! is_numeric($val)) {
             return $val;
@@ -677,7 +677,7 @@ class Broker extends AbstractObjectJSON
      * @throws InvalidArgumentException
      * @return array|mixed
      */
-    private function rpnOperation($result, $item)
+    private function rpnOperation($result, $item): mixed
     {
         if (in_array($item, ['+', '-', '*', '/'])) {
             if (count($result) < 2) {

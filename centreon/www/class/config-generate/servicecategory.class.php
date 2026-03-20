@@ -166,7 +166,7 @@ final class ServiceCategory extends AbstractObject
      * @throws PDOException
      * @return self
      */
-    private function addServiceCategoryToList(int $serviceCategoryId): self
+    private function addServiceCategoryToList(int $serviceCategoryId): \ServiceCategory
     {
         $stmt = $this->backend_instance->db->prepare(
             "SELECT sc_id as id, sc_name as tag_name
