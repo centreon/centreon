@@ -279,7 +279,7 @@ class Centreon
      * @throws PDOException
      * @return string The string sanitized
      */
-    public function checkIllegalChar($name)
+    public function checkIllegalChar($name): string
     {
         $DBRESULT = CentreonDBInstance::getDbCentreonInstance()->query('SELECT illegal_object_name_chars FROM cfg_nagios');
         while ($data = $DBRESULT->fetchColumn()) {

@@ -70,7 +70,7 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
      *
      * @throws RuntimeException|Exception
      */
-    protected function writeFile($dir)
+    protected function writeFile($dir): void
     {
         $fullFile = $dir . '/' . $this->generate_filename;
         if ($handle = fopen($fullFile, 'w')) {

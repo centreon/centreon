@@ -124,7 +124,7 @@ abstract class AbstractService extends AbstractObject
      *
      * @return mixed|null
      */
-    public function getString($service_id, $attr)
+    public function getString($service_id, $attr): mixed
     {
         return $this->service_cache[$service_id][$attr] ?? null;
     }
@@ -135,7 +135,7 @@ abstract class AbstractService extends AbstractObject
      * @throws PDOException
      * @return void
      */
-    protected function getImages(&$service)
+    protected function getImages(&$service): void
     {
         $media = Media::getInstance($this->dependencyInjector);
         if (! isset($service['icon_image'])) {
@@ -199,7 +199,7 @@ abstract class AbstractService extends AbstractObject
      * @throws PDOException
      * @return void
      */
-    protected function getServiceTemplates(&$service, $serviceTemplateMacros = [])
+    protected function getServiceTemplates(&$service, $serviceTemplateMacros = []): void
     {
         $service['use'] = [ServiceTemplate::getInstance($this->dependencyInjector)
             ->generateFromServiceId($service['service_template_model_stm_id'], $serviceTemplateMacros)];
@@ -237,7 +237,7 @@ abstract class AbstractService extends AbstractObject
      *
      * @return mixed|null
      */
-    protected function findCommandName($service_id, $command_label)
+    protected function findCommandName($service_id, $command_label): mixed
     {
         $loop = [];
 
@@ -271,7 +271,7 @@ abstract class AbstractService extends AbstractObject
      * @throws ServiceNotFoundException
      * @return int
      */
-    protected function getServiceCommand(&$service, $result_name, $command_id_label, $command_arg_label)
+    protected function getServiceCommand(&$service, $result_name, $command_id_label, $command_arg_label): int
     {
         $command_name = Command::getInstance($this->dependencyInjector)
             ->generateFromCommandId($service[$command_id_label]);
@@ -311,7 +311,7 @@ abstract class AbstractService extends AbstractObject
      * @throws ServiceNotFoundException
      * @return void
      */
-    protected function getServiceCommands(&$service)
+    protected function getServiceCommands(&$service): void
     {
         $this->getServiceCommand($service, 'check_command', 'check_command_id', 'check_command_arg');
         $this->getServiceCommand($service, 'event_handler', 'event_handler_id', 'event_handler_arg');
@@ -323,7 +323,7 @@ abstract class AbstractService extends AbstractObject
      * @throws PDOException
      * @return void
      */
-    protected function getServicePeriods(&$service)
+    protected function getServicePeriods(&$service): void
     {
         $period = Timeperiod::getInstance($this->dependencyInjector);
         // Optional "check_period_id" for Anomaly Detection for instance.

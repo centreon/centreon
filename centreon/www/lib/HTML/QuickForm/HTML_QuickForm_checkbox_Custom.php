@@ -24,7 +24,7 @@ class HTML_QuickForm_checkbox_Custom extends HTML_QuickForm_checkbox
     /**
      * @return string
      */
-    public function toHtml()
+    public function toHtml(): string
     {
         if ($this->_flagFrozen) {
             $label = $this->_text;

@@ -397,7 +397,7 @@ class SmartyBC extends Smarty
      *
      * @return bool
      */
-    public function clear_cache($tpl_file = null, $cache_id = null, $compile_id = null, $exp_time = null)
+    public function clear_cache($tpl_file = null, $cache_id = null, $compile_id = null, $exp_time = null): bool
     {
         return $this->clearCache($tpl_file, $cache_id, $compile_id, $exp_time);
     }
@@ -409,7 +409,7 @@ class SmartyBC extends Smarty
      *
      * @return bool
      */
-    public function clear_all_cache($exp_time = null)
+    public function clear_all_cache($exp_time = null): bool
     {
         return $this->clearCache(null, null, null, $exp_time);
     }
@@ -426,7 +426,7 @@ class SmartyBC extends Smarty
      *
      * @throws \Exception
      */
-    public function is_cached($tpl_file, $cache_id = null, $compile_id = null)
+    public function is_cached($tpl_file, $cache_id = null, $compile_id = null): bool
     {
         return $this->isCached($tpl_file, $cache_id, $compile_id);
     }
@@ -450,7 +450,7 @@ class SmartyBC extends Smarty
      *
      * @return bool results of {@link smarty_core_rm_auto()}
      */
-    public function clear_compiled_tpl($tpl_file = null, $compile_id = null, $exp_time = null)
+    public function clear_compiled_tpl($tpl_file = null, $compile_id = null, $exp_time = null): bool
     {
         return $this->clearCompiledTemplate($tpl_file, $compile_id, $exp_time);
     }
@@ -464,7 +464,7 @@ class SmartyBC extends Smarty
      * @throws SmartyException
      *
      */
-    public function template_exists($tpl_file)
+    public function template_exists($tpl_file): bool
     {
         return $this->templateExists($tpl_file);
     }
@@ -476,7 +476,7 @@ class SmartyBC extends Smarty
      *
      * @return array
      */
-    public function get_template_vars($name = null)
+    public function get_template_vars($name = null): array
     {
         return $this->getTemplateVars($name);
     }
@@ -488,7 +488,7 @@ class SmartyBC extends Smarty
      *
      * @return array
      */
-    public function get_config_vars($name = null)
+    public function get_config_vars($name = null): array
     {
         return $this->getConfigVars($name);
     }
@@ -512,7 +512,7 @@ class SmartyBC extends Smarty
      *
      * @return object
      */
-    public function get_registered_object($name)
+    public function get_registered_object($name): object
     {
         return $this->getRegisteredObject($name);
     }

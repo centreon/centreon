@@ -158,7 +158,7 @@ class HTML_QuickForm_select2 extends HTML_QuickForm_select
      * @param bool $min
      * @return string
      */
-    public function getElementJs($raw = true, $min = false)
+    public function getElementJs($raw = true, $min = false): string
     {
         $jsFile = './include/common/javascript/jquery/plugins/select2/js/';
         $jsFile2 = './include/common/javascript/centreon/centreon-select2.js';
@@ -178,9 +178,9 @@ class HTML_QuickForm_select2 extends HTML_QuickForm_select
     }
 
     /**
-     * @return type
+     * @return string
      */
-    public function getElementHtmlName()
+    public function getElementHtmlName(): string
     {
         return $this->_elementHtmlName;
     }
@@ -190,7 +190,7 @@ class HTML_QuickForm_select2 extends HTML_QuickForm_select
      * @param bool $min
      * @return string
      */
-    public function getElementCss($raw = true, $min = false)
+    public function getElementCss($raw = true, $min = false): string
     {
         $cssFile = './include/common/javascript/jquery/plugins/select2/css/';
 
@@ -206,7 +206,7 @@ class HTML_QuickForm_select2 extends HTML_QuickForm_select
     /**
      * @return string
      */
-    public function toHtml()
+    public function toHtml(): string
     {
         $strHtml = '';
         $readonly = '';
@@ -226,7 +226,7 @@ class HTML_QuickForm_select2 extends HTML_QuickForm_select
     /**
      * @return string
      */
-    public function getJsInit()
+    public function getJsInit(): string
     {
         $allowClear = 'true';
         $additionnalJs = '';
@@ -296,7 +296,7 @@ class HTML_QuickForm_select2 extends HTML_QuickForm_select
     /**
      * @return string
      */
-    public function setFixedDatas()
+    public function setFixedDatas(): string
     {
         $datas = 'data: [';
 
@@ -383,7 +383,7 @@ class HTML_QuickForm_select2 extends HTML_QuickForm_select
     /**
      * @return string
      */
-    public function setDefaultAjaxDatas()
+    public function setDefaultAjaxDatas(): string
     {
         if (preg_match('/id=$/', $this->_defaultDatasetRoute)) {
             // do not fetch data if id is not set
@@ -416,7 +416,7 @@ class HTML_QuickForm_select2 extends HTML_QuickForm_select
     /**
      * @return string
      */
-    public function getFrozenHtml()
+    public function getFrozenHtml(): string
     {
         return '';
     }
@@ -427,7 +427,7 @@ class HTML_QuickForm_select2 extends HTML_QuickForm_select
      * @param type $caller
      * @return bool
      */
-    public function onQuickFormEvent($event, $arg, &$caller)
+    public function onQuickFormEvent($event, $arg, &$caller): bool
     {
         if ($event == 'updateValue') {
             $value = $this->_findValue($caller->_constantValues);

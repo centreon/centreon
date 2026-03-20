@@ -104,7 +104,7 @@ class CentreonACLMenu extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    public function initUpdateParameters($parameters)
+    public function initUpdateParameters($parameters): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -277,12 +277,12 @@ class CentreonACLMenu extends CentreonObject
      * @param null $filterName
      *
      * @throws Exception
-     * @return bool|void
+     * @return void
      */
-    public function export($filterName = null)
+    public function export($filterName = null): void
     {
         if (! $this->canBeExported($filterName)) {
-            return false;
+            return;
         }
 
         $labelField = $this->object->getUniqueLabelField();
@@ -330,7 +330,7 @@ class CentreonACLMenu extends CentreonObject
      * @throws PDOException
      * @return array
      */
-    protected function splitParams($parameters)
+    protected function splitParams($parameters): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 3) {
@@ -454,7 +454,7 @@ class CentreonACLMenu extends CentreonObject
      * @throws PDOException
      * @return string
      */
-    private function grantMenu($aclTopoId, $aclTopoName)
+    private function grantMenu($aclTopoId, $aclTopoName): string
     {
         $grantedMenu = '';
 

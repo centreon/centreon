@@ -102,7 +102,7 @@ class CentreonACLGroup extends CentreonObject
      * @throws Throwable
      * @return void
      */
-    public function __call($name, $arg)
+    public function __call($name, $arg): void
     {
         // Get the method name
         $name = strtolower($name);
@@ -226,7 +226,7 @@ class CentreonACLGroup extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    public function initUpdateParameters($parameters)
+    public function initUpdateParameters($parameters): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -281,12 +281,12 @@ class CentreonACLGroup extends CentreonObject
      * @param null $filterName
      *
      * @throws Exception
-     * @return bool|void
+     * @return void
      */
-    public function export($filterName = null)
+    public function export($filterName = null): void
     {
         if (! $this->canBeExported($filterName)) {
-            return false;
+            return;
         }
 
         $labelField = $this->object->getUniqueLabelField();
@@ -328,7 +328,7 @@ class CentreonACLGroup extends CentreonObject
      * @throws CentreonClapiException
      * @return string
      */
-    private function exportLinkedObjects($aclGroupId, $aclGroupName)
+    private function exportLinkedObjects($aclGroupId, $aclGroupName): string
     {
         $objectList = [['object' => 'MENU', 'relClass' => 'Centreon_Object_Relation_Acl_Group_Menu', 'objectFieldName' => 'acl_topo_name'], ['object' => 'ACTION', 'relClass' => 'Centreon_Object_Relation_Acl_Group_Action', 'objectFieldName' => 'acl_action_name'], ['object' => 'RESOURCE', 'relClass' => 'Centreon_Object_Relation_Acl_Group_Resource', 'objectFieldName' => 'acl_res_name'], ['object' => 'CONTACT', 'relClass' => 'Centreon_Object_Relation_Acl_Group_Contact', 'objectFieldName' => 'contact_alias'], ['object' => 'CONTACTGROUP', 'relClass' => 'Centreon_Object_Relation_Acl_Group_Contact_Group', 'objectFieldName' => 'cg_name']];
 
@@ -359,7 +359,7 @@ class CentreonACLGroup extends CentreonObject
      * @throws CentreonClapiException
      * @return string
      */
-    private function getLinkedObject($aclGroupId, $relClass, $objectFieldName)
+    private function getLinkedObject($aclGroupId, $relClass, $objectFieldName): string
     {
         if (! class_exists($relClass)) {
             throw  new CentreonClapiException('Unsupported relation object : ' . $relClass);

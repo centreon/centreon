@@ -117,7 +117,7 @@ class CentreonACLAction extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    public function initUpdateParameters($parameters)
+    public function initUpdateParameters($parameters): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < self::NB_UPDATE_PARAMS) {
@@ -260,12 +260,12 @@ class CentreonACLAction extends CentreonObject
      * @param null $filterName
      *
      * @throws Exception
-     * @return bool|void
+     * @return void
      */
-    public function export($filterName = null)
+    public function export($filterName = null): void
     {
         if (! $this->canBeExported($filterName)) {
-            return false;
+            return;
         }
 
         $labelField = $this->object->getUniqueLabelField();
@@ -374,7 +374,7 @@ class CentreonACLAction extends CentreonObject
      * @throws CentreonClapiException
      * @return array
      */
-    protected function splitParams($parameters)
+    protected function splitParams($parameters): array
     {
         $params = explode($this->delim, $parameters);
         if (count($params) < 2) {
@@ -395,7 +395,7 @@ class CentreonACLAction extends CentreonObject
      * @throws PDOException
      * @return string
      */
-    private function exportGrantActions($aclActionRuleId, $aclActionName)
+    private function exportGrantActions($aclActionRuleId, $aclActionName): string
     {
         $grantActions = '';
         $query = 'SELECT * FROM acl_actions_rules WHERE acl_action_rule_id = :ruleId';
