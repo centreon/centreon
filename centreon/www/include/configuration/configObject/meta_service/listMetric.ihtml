@@ -1,70 +1,200 @@
-<table class="ListTable table">
-    <tr class="list_lvl_1">
-    <td class="ListColLvl1_name">
-        <h4>{$meta.meta} -  {$meta.name}&nbsp;({$meta.calc_type})</h4>
-    </td>
-    </tr>
-</table>
-<br />
 <script type="text/javascript" src="./include/common/javascript/tool.js"></script>
-<form name='form'  method='POST'>
-<input type='hidden' name='o' id='o' value='42'>
-    <table class="ToolbarTable table">
-        <tr class="ToolbarTR">
+
+{literal}
+<style>
+/* Centreon Modern Listing — theme-aware (prefix: cl-) */
+.cl-listing-container { display:flex; flex-direction:column; width:100%; }
+.cl-actions-bar { display:flex; align-items:center; justify-content:space-between; padding:8px 0; gap:12px; }
+.cl-actions-left { display:flex; align-items:center; gap:12px; }
+.cl-actions-left select { padding:8px 12px; font-size:14px; border:1px solid var(--color-divider,#E3E3E3); border-radius:4px; background:var(--select-background,#fff); color:var(--select-color,#444); cursor:pointer; line-height:1.4; height:auto; }
+.cl-btn-add { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; font-size:14px; font-weight:500; color:var(--btc-color,#fff); background-color:var(--bt-success-background-color,#2E68AA); border:none; border-radius:4px; text-decoration:none; cursor:pointer; white-space:nowrap; line-height:1.4; transition:background-color .15s ease; }
+.cl-btn-add:hover { background-color:var(--bt-default-hover-background-color,#255891); color:var(--btc-hover-color,#fff); text-decoration:none; }
+.cl-btn-add::before { content:'+'; font-size:18px; font-weight:400; line-height:1; }
+.cl-pagination { display:flex; align-items:center; gap:6px; white-space:nowrap; flex-shrink:0; }
+.cl-pagination .cl-page-info { font-size:13px; color:var(--body-color,#555); padding:0 4px; }
+.cl-listing-table { width:100%; border-collapse:collapse; border-spacing:0; background:var(--body-background,#fff); border:none; }
+.cl-listing-table thead th { padding:6px 16px; font-weight:600; font-size:13px; color:#fff; text-align:left; border-bottom:none; background:#8C8C8C; white-space:nowrap; user-select:none; }
+.cl-listing-table thead th.cl-col-center { text-align:center; }
+.cl-listing-table thead th.cl-col-right { text-align:right; }
+.cl-listing-table thead th.cl-col-picker { width:40px; text-align:center; padding:6px 8px; vertical-align:middle; }
+.cl-listing-table tbody tr { background:var(--body-background,#fff); transition:background-color .15s ease; cursor:pointer; }
+.cl-listing-table tbody tr:hover { background-color:var(--list-hover-background-color,#E6EDF5); }
+.cl-listing-table tbody td { padding:4px 16px; font-size:13px; color:var(--body-color,#555); border-bottom:1px solid var(--listing-border-botom-color,#E3E3E3); vertical-align:middle; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:300px; }
+.cl-listing-table tbody td.cl-col-center { text-align:center; }
+.cl-listing-table tbody td.cl-col-right { text-align:right; }
+.cl-listing-table tbody td.cl-col-picker { width:40px; text-align:center; padding:4px 8px; }
+.cl-listing-table tbody td a { color:var(--color-primary-light,#2E68AA); text-decoration:none; }
+.cl-listing-table tbody td a:hover { text-decoration:underline; }
+.cl-listing-table tbody tr:hover td { color:var(--body-color,#444); }
+.cl-listing-table tbody tr:hover td a { color:var(--color-primary-light,#255891); }
+.cl-options-cell { display:flex; align-items:center; justify-content:flex-end; gap:8px; }
+.cl-toggle { position:relative; display:inline-block; width:36px; height:20px; cursor:pointer; flex-shrink:0; }
+.cl-toggle input { opacity:0; width:0; height:0; position:absolute; }
+.cl-toggle-slider { position:absolute; top:0; left:0; right:0; bottom:0; background-color:var(--color-secondary,#666); border-radius:20px; transition:background-color .25s ease; }
+.cl-toggle-slider::before { content:''; position:absolute; height:16px; width:16px; left:2px; bottom:2px; background-color:#fff; border-radius:50%; transition:transform .25s ease; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+.cl-toggle input:checked + .cl-toggle-slider { background-color:var(--color-success,#88B922); }
+.cl-toggle input:checked + .cl-toggle-slider::before { transform:translateX(16px); }
+.cl-toggle input:disabled + .cl-toggle-slider { opacity:.5; cursor:not-allowed; }
+.cl-bottom-bar { display:flex; align-items:center; justify-content:space-between; padding:8px 0; }
+.cl-listing-table .cl-col-picker .md-checkbox { display:flex; align-items:center; justify-content:center; margin:0; height:100%; }
+.cl-listing-table .cl-col-picker .md-checkbox input[type="checkbox"] { margin:0; }
+.cl-listing-table .cl-col-picker .md-checkbox label { margin:0; padding:0; min-height:auto; line-height:1; }
+.cl-listing-table thead th .md-checkbox label::before { border-color:#fff; }
+.cl-listing-table tbody { transition:opacity .2s ease; }
+.cl-listing-table tbody.cl-fade-in { animation:clFadeIn .25s ease; }
+@keyframes clFadeIn { from{opacity:0} to{opacity:1} }
+.cl-meta-header { padding:10px 16px; font-size:15px; font-weight:500; color:var(--body-color,#555); background:var(--body-background,#fff); border:1px solid var(--listing-border-botom-color,#E3E3E3); border-radius:4px; margin-bottom:8px; }
+</style>
+{/literal}
+
+<div class="cl-meta-header" id="metricMetaHeader">{t}Loading...{/t}</div>
+
+<form name='form' method='POST'>
+    <div class="cl-listing-container">
+        <div class="cl-actions-bar">
             { if $mode_access == 'w' }
-            <td>
+            <div class="cl-actions-left">
+                <a href="{$msg.addL1}" class="cl-btn-add">{$msg.addT}</a>
                 {$form.o1.html}
-                &nbsp;&nbsp;&nbsp;
-                <a href="{$msg.addL1}" class="btc bt_success">{$msg.addT}</a>
-            </td>
+            </div>
             { else }
-            <td>&nbsp;</td>
+            <div class="cl-actions-left">&nbsp;</div>
             { /if }
-        </tr>
-    </table>
-    <table class="ListTable">
-        <tr class="ListHeader">
-            <td class="ListColHeaderPicker">
-                <div class="md-checkbox md-checkbox-inline">
-                    <input type="checkbox" id="checkall" name="checkall" onclick="checkUncheckAll(this);"/>
-                    <label class="empty-label" for="checkall"></label>
-                </div>
-            </td>
-            <td class="ListColLeft">{$headerMenu_host}</td>
-            <td class="ListColLeft">{$headerMenu_service}</td>
-            <td class="ListColCenter">{$headerMenu_metric}</td>
-            <td class="ListColCenter">{$headerMenu_status}</td>
-            <td class="ListColRight">{$headerMenu_options}</td>
-        </tr>
-        {section name=elem loop=$elemArr1}
-        <tr class={$elemArr1[elem].MenuClass}>
-            <td class="ListColPicker">{$elemArr1[elem].RowMenu_select}</td>
-            <td class="ListColLeft"><a href="{$elemArr1[elem].RowMenu_link}">{$elemArr1[elem].RowMenu_host}</a></td>
-            <td class="ListColLeft"><a href="{$elemArr1[elem].RowMenu_link}">{$elemArr1[elem].RowMenu_service}</a></td>
-            <td class="ListColCenter">{$elemArr1[elem].RowMenu_metric}</td>
-            <td class="ListColCenter"><span class="badge {$elemArr1[elem].RowMenu_badge}">{$elemArr1[elem].RowMenu_status}</span></td>
-            <td class="ListColRight">{if $mode_access == 'w' }{$elemArr1[elem].RowMenu_options}{else}&nbsp;{/if}</td>
-        </tr>
-        {/section}
-    </table>
-    <table class="ToolbarTable table">
-        <tr class="ToolbarTR">
+            <div class="cl-pagination" id="clPaginationTop"></div>
+        </div>
+
+        <table class="cl-listing-table">
+            <thead>
+                <tr>
+                    <th class="cl-col-picker">
+                        <div class="md-checkbox md-checkbox-inline">
+                            <input type="checkbox" id="checkall" name="checkall" onclick="metricListing.checkUncheckAll(this);"/>
+                            <label class="empty-label" for="checkall"></label>
+                        </div>
+                    </th>
+                    <th>{$headerMenu_host}</th>
+                    <th>{$headerMenu_service}</th>
+                    <th class="cl-col-center">{$headerMenu_metric}</th>
+                    { if $mode_access == 'w' }
+                    <th class="cl-col-right">{$headerMenu_options}</th>
+                    { /if }
+                </tr>
+            </thead>
+            <tbody id="clTableBody">
+                <tr><td colspan="5" class="cl-loading">{t}Loading...{/t}</td></tr>
+            </tbody>
+        </table>
+
+        <div class="cl-bottom-bar">
             { if $mode_access == 'w' }
-            <td>
+            <div class="cl-actions-left">
                 {$form.o2.html}
-                &nbsp;&nbsp;&nbsp;
-                <a href="{$msg.addL1}" class="btc bt_success">{$msg.addT}</a>
-            </td>
+            </div>
             { else }
-            <td>&nbsp;</td>
+            <div>&nbsp;</div>
             { /if }
-        </tr>
-    </table>
-<input type='hidden' id='limit' name='limit' value='{$limit}'>  
+            <div class="cl-pagination" id="clPaginationBottom"></div>
+        </div>
+    </div>
+
+<input type='hidden' name='o' id='o' value='42'>
+<input type='hidden' id='limit' name='limit' value=''>
 {$form.hidden}
 </form>
+
 {literal}
-<script type='text/javascript'>
-    setDisabledRowStyle();
+<script type="text/javascript">
+function CentreonListing(config) {
+    var cfg = {
+        tableBodyId:config.tableBodyId||'clTableBody', paginationTopId:config.paginationTopId||'clPaginationTop',
+        paginationBottomId:config.paginationBottomId||'clPaginationBottom', searchInputId:config.searchInputId||'clSearchInput',
+        searchBtnId:config.searchBtnId||'clSearchBtn', limitInputId:config.limitInputId||'limit',
+        ajaxListUrl:config.ajaxListUrl||'', ajaxToggleUrl:config.ajaxToggleUrl||'',
+        pageId:config.pageId||'', writeAccess:config.writeAccess||false,
+        storageKey:config.storageKey||'cl_listing_limit', defaultLimit:config.defaultLimit||30,
+        autoRefresh:config.autoRefresh!==undefined?config.autoRefresh:30000,
+        emptyMessage:config.emptyMessage||'No items found', columns:config.columns||[],
+        rowIdField:config.rowIdField||'id', renderOptions:config.renderOptions||null,
+        instanceName:config.instanceName||'clInstance', extraParams:config.extraParams||{},
+        onDataLoaded:config.onDataLoaded||null
+    };
+    var self=this, csrfToken='', currentNum=0, firstLoad=true;
+    var currentLimit=parseInt(localStorage.getItem(cfg.storageKey),10)||cfg.defaultLimit, currentSearch='';
+    this.escape=function(s){if(!s)return '';var d=document.createElement('div');d.appendChild(document.createTextNode(s));return d.innerHTML;};
+    this.getCsrfToken=function(){return csrfToken;};
+    function getCheckedIds(){var ids=[];jQuery('#'+cfg.tableBodyId+' .cl-col-picker input[type=checkbox]:checked').each(function(){var n=jQuery(this).attr('name');if(n)ids.push(n);});return ids;}
+    function restoreCheckedIds(ids){for(var i=0;i<ids.length;i++)jQuery('#'+cfg.tableBodyId+' input[name="'+ids[i]+'"]').prop('checked',true);}
+    this.fetch=function(num,limit,search,silent){
+        currentNum=num;currentLimit=limit;currentSearch=search;var checkedIds=getCheckedIds();
+        if(firstLoad)jQuery('#'+cfg.tableBodyId).html('<tr><td colspan="99" style="text-align:center;padding:24px;color:#a7a9ac;">Loading...</td></tr>');
+        var params=jQuery.extend({search:search,num:num,limit:limit},cfg.extraParams);
+        jQuery.ajax({url:cfg.ajaxListUrl,type:'GET',dataType:'json',data:params,
+            success:function(data){csrfToken=data.centreon_token||'';var tbody=jQuery('#'+cfg.tableBodyId);tbody.removeClass('cl-fade-in');
+                self.renderRows(data.rows);self.renderPagination(data.total,data.num,data.limit);restoreCheckedIds(checkedIds);
+                jQuery('#'+cfg.limitInputId).val(data.limit);if(!silent){void tbody[0].offsetWidth;tbody.addClass('cl-fade-in');}firstLoad=false;
+                if(cfg.onDataLoaded)cfg.onDataLoaded(data);},
+            error:function(){if(firstLoad)jQuery('#'+cfg.tableBodyId).html('<tr><td colspan="99" style="text-align:center;padding:24px;color:#FF4A4A;">Error loading data</td></tr>');}
+        });
+    };
+    this.renderRows=function(rows){
+        var tbody=jQuery('#'+cfg.tableBodyId);tbody.empty();
+        if(!rows||!rows.length){tbody.html('<tr><td colspan="99" style="text-align:center;padding:24px;color:#a7a9ac;">'+self.escape(cfg.emptyMessage)+'</td></tr>');return;}
+        for(var i=0;i<rows.length;i++){var row=rows[i],rid=row[cfg.rowIdField];
+            var tr='<tr><td class="cl-col-picker"><div class="md-checkbox md-checkbox-inline"><input type="checkbox" id="select_'+rid+'" name="select['+rid+']" /><label class="empty-label" for="select_'+rid+'"></label></div></td>';
+            for(var c=0;c<cfg.columns.length;c++){var col=cfg.columns[c],align=col.align?' class="cl-col-'+col.align+'"':'';tr+='<td'+align+'>'+(col.render?col.render(row,self):self.escape(row[col.id]||''))+'</td>';}
+            if(cfg.writeAccess&&cfg.renderOptions)tr+='<td class="cl-col-right"><div class="cl-options-cell">'+cfg.renderOptions(row,self)+'</div></td>';
+            tr+='</tr>';tbody.append(tr);}
+    };
+    this.renderPagination=function(total,num,limit){
+        var html='<span class="cl-page-info">'+total+' item'+(total!==1?'s':'')+'</span>';
+        jQuery('#'+cfg.paginationTopId).html(html);jQuery('#'+cfg.paginationBottomId).html(html);
+    };
+    this.goToPage=function(){};
+    this.changeLimit=function(){};
+    this.toggleActivation=function(toggle){
+        if(!cfg.ajaxToggleUrl)return;var rid=jQuery(toggle).data('row-id'),checked=toggle.checked,action=checked?'s':'u';toggle.disabled=true;
+        jQuery.ajax({url:cfg.ajaxToggleUrl,type:'POST',dataType:'json',data:{sg_id:rid,action:action,centreon_token:csrfToken},
+            success:function(r){if(r.centreon_token)csrfToken=r.centreon_token;toggle.disabled=false;},
+            error:function(){toggle.checked=!checked;toggle.disabled=false;}});
+    };
+    this.checkUncheckAll=function(el){jQuery(el).closest('table').find('tbody .cl-col-picker input[type=checkbox]').each(function(){jQuery(this).prop('checked',el.checked);});};
+    this.init=function(){
+        self.fetch(0,9999,'');
+        if(cfg.autoRefresh>0)setInterval(function(){self.fetch(0,9999,'',true);},cfg.autoRefresh);
+    };
+}
+
+/* Meta Service Metric listing instance */
+var metricListing = new CentreonListing({
+    instanceName:  'metricListing',
+    ajaxListUrl:   './include/configuration/configObject/meta_service/ajaxMetaMetricListing.php',
+    ajaxToggleUrl: './include/configuration/configObject/meta_service/ajaxMetaMetricToggle.php',
+    pageId:        {/literal}'{$msPage}'{literal},
+    writeAccess:   {/literal}'{$mode_access}'{literal} === 'w',
+    defaultLimit:  9999,
+    storageKey:    'mm_listing_limit',
+    emptyMessage:  'No metrics found',
+    autoRefresh:   30000,
+    rowIdField:    'id',
+    extraParams:   { meta_id: {/literal}{$metaId}{literal} },
+    columns: [
+        { id:'host', render: function(row, l) {
+            var link = 'main.php?p={/literal}{$msPage}{literal}&o=cs&msr_id=' + row.id;
+            return '<a href="'+link+'">'+l.escape(row.host)+'</a>';
+        }},
+        { id:'service' },
+        { id:'metric', align:'center' }
+    ],
+    renderOptions: function(row, l) {
+        var checked = row.activate ? ' checked' : '';
+        return '<label class="cl-toggle"><input type="checkbox" data-row-id="'+row.id+'"'+checked+' onchange="metricListing.toggleActivation(this);"/><span class="cl-toggle-slider"></span></label>';
+    },
+    onDataLoaded: function(data) {
+        if (data.meta_name) {
+            jQuery('#metricMetaHeader').text('Meta Service - ' + data.meta_name + ' (' + data.meta_calc_type + ')');
+        }
+    }
+});
+metricListing.init();
 </script>
 {/literal}
