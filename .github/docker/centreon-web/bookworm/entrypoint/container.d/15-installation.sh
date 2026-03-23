@@ -28,7 +28,7 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
   mysql -h"${MYSQL_HOST}" -uroot -e "SET GLOBAL sync_binlog=0"
 
   echo "Creating Centreon configuration files..."
-  su www-data -s /bin/bash -c "php configFileSetup.php"
+  su www-data -s /bin/bash -c "php configFileSetup.php" > /dev/null
 
   if [ "$(mysql -N -s -h"${MYSQL_HOST}" -u root -e \
     "SELECT count(*) from information_schema.tables WHERE \
@@ -37,14 +37,24 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
     echo "Centreon is already installed."
 
     echo "Creating Centreon database user..."
-    su www-data -s /bin/bash -c "php createDbUser.php"
+    su www-data -s /bin/bash -c "php createDbUser.php" > /dev/null
   else
-    su www-data -s /bin/bash -c "php configFileSetup.php"
-    su www-data -s /bin/bash -c "php installConfigurationDb.php"
-    su www-data -s /bin/bash -c "php installStorageDb.php"
-    su www-data -s /bin/bash -c "php createDbUser.php"
-    su www-data -s /bin/bash -c "SERVER_ADDR='127.0.0.1' php insertBaseConf.php"
-    su www-data -s /bin/bash -c "php partitionTables.php"
+    echo "Installing Centreon configuration database..."
+    su www-data -s /bin/bash -c "php installConfigurationDb.php" > /dev/null
+
+    echo "Installing Centreon storage database..."
+    su www-data -s /bin/bash -c "php installStorageDb.php" > /dev/null
+
+    echo "Creating Centreon database user..."
+    su www-data -s /bin/bash -c "php createDbUser.php" > /dev/null
+
+    echo "Inserting base configuration..."
+    su www-data -s /bin/bash -c "SERVER_ADDR='127.0.0.1' php insertBaseConf.php" > /dev/null
+
+    if [ "$DATABASE_PARTITIONING" = "1" ]; then
+      echo "Creating database partition tables..."
+      su www-data -s /bin/bash -c "php partitionTables.php" > /dev/null
+    fi
 
     mysql -h"${MYSQL_HOST}" -uroot centreon -e "UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
     mysql -h"${MYSQL_HOST}" -uroot -e "GRANT ALL ON *.* to 'centreon'@'%' WITH GRANT OPTION"
@@ -61,10 +71,10 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
   fi
 
   echo "Generating Centreon cache..."
-  su www-data -s /bin/bash -c "php generationCache.php"
+  su www-data -s /bin/bash -c "php generationCache.php" > /dev/null
 
   echo "Creating engine context configuration..."
-  su www-data -s /bin/bash -c "php createEngineContextConfiguration.php"
+  su www-data -s /bin/bash -c "php createEngineContextConfiguration.php" > /dev/null
 
   echo "Disabling statistics collection..."
   mysql -h"${MYSQL_HOST}" -uroot centreon -e "DELETE FROM options WHERE \`key\` = 'send_statistics'"
@@ -73,7 +83,7 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
   restore_mysql_settings
   trap - EXIT
 
-  cd -
+  cd - > /dev/null
 fi
 
 sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
