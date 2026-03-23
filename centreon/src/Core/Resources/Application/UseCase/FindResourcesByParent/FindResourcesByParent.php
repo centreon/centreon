@@ -62,7 +62,7 @@ final class FindResourcesByParent
         private readonly RequestParametersInterface $requestParameters,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private readonly \Traversable $extraDataProviders,
-        private readonly AdminResolver $adminResolver
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 

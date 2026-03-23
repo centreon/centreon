@@ -68,7 +68,10 @@ final class ResourceCursor
             throw new \InvalidArgumentException('Invalid cursor: unexpected structure');
         }
 
-        return new self($data['sorts'], $data['rid']);
+        /** @var list<array{col: string, dir: string, val: int|string}> $sorts */
+        $sorts = array_values($data['sorts']);
+
+        return new self($sorts, $data['rid']);
     }
 
     /**

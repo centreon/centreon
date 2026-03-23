@@ -51,7 +51,7 @@ final class FindResources
         private readonly ContactInterface $contact,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private readonly \Traversable $extraDataProviders,
-        private readonly AdminResolver $adminResolver
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
