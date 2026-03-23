@@ -109,7 +109,10 @@ if (! $obj->is_admin) {
                 FROM acl_resources_hg_relations arhr
                 INNER JOIN acl_res_group_relations argr
                     ON argr.acl_res_id = arhr.acl_res_id
+                INNER JOIN acl_resources ar
+                    ON ar.acl_res_id = argr.acl_res_id
                 WHERE argr.acl_group_id IN ({$grouplistStr})
+                    AND ar.acl_res_activate = '1'
             SQL;
 
         try {

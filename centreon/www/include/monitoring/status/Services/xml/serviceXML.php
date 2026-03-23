@@ -178,7 +178,7 @@ $request = <<<'SQL_WRAP'
     SQL_WRAP;
 
 if (! $obj->is_admin) {
-    $ids = $centreonXMLBGRequest->access->getAccessGroups()->getIds();
+    $ids = $obj->access->getAccessGroups()->getIds();
     $accessGroupIds = empty($ids) ? '0' : implode(',', $ids);
     $request .= <<<SQL
 

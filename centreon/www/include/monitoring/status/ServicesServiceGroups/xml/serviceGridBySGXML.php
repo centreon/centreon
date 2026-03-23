@@ -79,10 +79,10 @@ $groupStr = implode(',', $obj->access->getAccessGroups()->getIds());
 // Pre-fetch allowed service group IDs from config DB for non-admin users
 $sgFilter = '';
 if (! $obj->is_admin) {
+    $allServiceGroupsAllowed = false;
     if ($groupStr === '') {
         $sgFilter = 'AND 1=0 ';
     } else {
-        $allServiceGroupsAllowed = false;
         $query = <<<SQL
                 SELECT 1 FROM acl_resources ar
                 INNER JOIN acl_res_group_relations argr
@@ -101,14 +101,14 @@ if (! $obj->is_admin) {
                 message: 'Error while checking if all service groups are allowed: ' . $e->getMessage(),
                 context: [
                     'query' => $query,
-                    'grouplistStr' => $grouplistStr,
+                    'groupStr' => $groupStr,
                 ],
                 previous: $e
             );
         }
     }
 
-    if (! $allServiceGroupsAllowed) {
+    if ($groupStr !== '' && ! $allServiceGroupsAllowed) {
         $allowedSgIds = [];
         $query = <<<SQL
                 SELECT DISTINCT
@@ -128,7 +128,7 @@ if (! $obj->is_admin) {
                 message: 'Error while fetching allowed service group IDs: ' . $e->getMessage(),
                 context: [
                     'query' => $query,
-                    'grouplistStr' => $groupStr,
+                    'groupStr' => $groupStr,
                 ],
                 previous: $e
             );
