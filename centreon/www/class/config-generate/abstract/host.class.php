@@ -132,7 +132,7 @@ abstract class AbstractHost extends AbstractObject
      *
      * @return int
      */
-    public function isHostTemplate($host_id, $host_tpl_id)
+    public function isHostTemplate($host_id, $host_tpl_id): int
     {
         $loop = [];
         $stack = [];
@@ -159,7 +159,7 @@ abstract class AbstractHost extends AbstractObject
      *
      * @return mixed|null
      */
-    public function getString($host_id, $attr)
+    public function getString($host_id, $attr): mixed
     {
         return $this->hosts[$host_id][$attr] ?? null;
     }
@@ -190,7 +190,7 @@ abstract class AbstractHost extends AbstractObject
      * @throws PDOException
      * @return mixed
      */
-    protected function getHostById(int $hostId, ?int $hostType = self::TYPE_HOST)
+    protected function getHostById(int $hostId, ?int $hostType = self::TYPE_HOST): mixed
     {
         $query = "SELECT {$this->attributes_select}
             FROM host
@@ -218,7 +218,7 @@ abstract class AbstractHost extends AbstractObject
      * @throws PDOException
      * @return void
      */
-    protected function getImages(&$host)
+    protected function getImages(&$host): void
     {
         $media = Media::getInstance($this->dependencyInjector);
         if (! isset($host['icon_image'])) {
@@ -393,7 +393,7 @@ abstract class AbstractHost extends AbstractObject
      *
      * @return mixed|null
      */
-    protected function findCommandName($host_id, $command_label)
+    protected function findCommandName($host_id, $command_label): mixed
     {
         $loop = [];
         $stack = [];
@@ -420,7 +420,7 @@ abstract class AbstractHost extends AbstractObject
      * @throws PDOException
      * @return void
      */
-    protected function getHostTimezone(&$host)
+    protected function getHostTimezone(&$host): void
     {
         $oTimezone = Timezone::getInstance($this->dependencyInjector);
         $timezone = $oTimezone->getTimezoneFromId($host['host_location']);
@@ -441,7 +441,7 @@ abstract class AbstractHost extends AbstractObject
      * @throws ServiceNotFoundException
      * @return int
      */
-    protected function getHostCommand(&$host, $result_name, $command_id_label, $command_arg_label)
+    protected function getHostCommand(&$host, $result_name, $command_id_label, $command_arg_label): int
     {
         $command_name = Command::getInstance($this->dependencyInjector)
             ->generateFromCommandId($host[$command_id_label]);
@@ -480,7 +480,7 @@ abstract class AbstractHost extends AbstractObject
      * @throws ServiceNotFoundException
      * @return void
      */
-    protected function getHostCommands(&$host)
+    protected function getHostCommands(&$host): void
     {
         $this->getHostCommand($host, 'check_command', 'check_command_id', 'check_command_arg');
         $this->getHostCommand($host, 'event_handler', 'event_handler_id', 'event_handler_arg');
@@ -492,7 +492,7 @@ abstract class AbstractHost extends AbstractObject
      * @throws PDOException
      * @return void
      */
-    protected function getHostPeriods(&$host)
+    protected function getHostPeriods(&$host): void
     {
         $period = Timeperiod::getInstance($this->dependencyInjector);
         $host['check_period'] = $period->generateFromTimeperiodId($host['check_period_id']);

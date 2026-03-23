@@ -208,12 +208,12 @@ class Escalation extends AbstractObject
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
-     * @return int|void
+     * @return void
      */
-    public function doMetaService()
+    public function doMetaService(): void
     {
         if (! MetaService::getInstance($this->dependencyInjector)->hasMetaServices()) {
-            return 0;
+            return;
         }
         $this->object_name = 'serviceescalation';
         foreach (MetaService::getInstance($this->dependencyInjector)->getGeneratedServices() as $meta_id) {
@@ -235,12 +235,12 @@ class Escalation extends AbstractObject
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
-     * @return int|void
+     * @return void
      */
-    public function generateObjects()
+    public function generateObjects(): void
     {
         if ($this->has_escalation == 0) {
-            return 0;
+            return;
         }
         $this->doHostgroup();
         $this->doHostService();
@@ -267,14 +267,14 @@ class Escalation extends AbstractObject
      */
     private function getEscalationCache(): void
     {
-        $stmt = $this->backend_instance->db->prepare("SELECT 
+        $stmt = $this->backend_instance->db->prepare("SELECT
                     {$this->attributes_select}
                 FROM escalation
         ");
         $stmt->execute();
         $this->escalation_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
 
-        $stmt = $this->backend_instance->db->prepare('SELECT 
+        $stmt = $this->backend_instance->db->prepare('SELECT
                     escalation_esc_id, contactgroup_cg_id
                 FROM escalation_contactgroup_relation
         ');
@@ -288,43 +288,43 @@ class Escalation extends AbstractObject
 
     /**
      * @throws PDOException
-     * @return int|void
+     * @return void
      */
-    private function getEscalationLinkedCache()
+    private function getEscalationLinkedCache(): void
     {
         if ($this->has_escalation == 0) {
-            return 0;
+            return;
         }
 
-        $stmt = $this->backend_instance->db->prepare('SELECT 
+        $stmt = $this->backend_instance->db->prepare('SELECT
                     host_host_id, escalation_esc_id
                 FROM escalation_host_relation
         ');
         $stmt->execute();
         $this->escalation_linked_host_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
 
-        $stmt = $this->backend_instance->db->prepare('SELECT 
+        $stmt = $this->backend_instance->db->prepare('SELECT
                     hostgroup_hg_id, escalation_esc_id
                 FROM escalation_hostgroup_relation
         ');
         $stmt->execute();
         $this->escalation_linked_hg_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
 
-        $stmt = $this->backend_instance->db->prepare('SELECT 
+        $stmt = $this->backend_instance->db->prepare('SELECT
                     servicegroup_sg_id, escalation_esc_id
                 FROM escalation_servicegroup_relation
         ');
         $stmt->execute();
         $this->escalation_linked_sg_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
 
-        $stmt = $this->backend_instance->db->prepare('SELECT 
+        $stmt = $this->backend_instance->db->prepare('SELECT
                     meta_service_meta_id, escalation_esc_id
                 FROM escalation_meta_service_relation
         ');
         $stmt->execute();
         $this->escalation_linked_meta_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
 
-        $stmt = $this->backend_instance->db->prepare("SELECT 
+        $stmt = $this->backend_instance->db->prepare("SELECT
                     CONCAT(host_host_id, '_', service_service_id), escalation_esc_id
                 FROM escalation_service_relation
         ");
@@ -334,12 +334,12 @@ class Escalation extends AbstractObject
 
     /**
      * @throws PDOException
-     * @return int|void
+     * @return void
      */
-    private function buildCache()
+    private function buildCache(): void
     {
         if ($this->done_cache == 1) {
-            return 0;
+            return;
         }
 
         $this->getEscalationCache();
@@ -375,7 +375,7 @@ class Escalation extends AbstractObject
      * @throws PDOException
      * @return mixed|null
      */
-    private function getEscalationFromId($escalation_id)
+    private function getEscalationFromId($escalation_id): mixed
     {
         if (isset($this->escalation_cache[$escalation_id])) {
             return $this->escalation_cache[$escalation_id];
@@ -385,7 +385,7 @@ class Escalation extends AbstractObject
         }
 
         if (is_null($this->stmt_escalation)) {
-            $this->stmt_escalation = $this->backend_instance->db->prepare("SELECT 
+            $this->stmt_escalation = $this->backend_instance->db->prepare("SELECT
                     {$this->attributes_select}
                 FROM escalation
                 WHERE esc_id = :esc_id
@@ -399,7 +399,7 @@ class Escalation extends AbstractObject
         }
 
         if (is_null($this->stmt_cg)) {
-            $this->stmt_cg = $this->backend_instance->db->prepare('SELECT 
+            $this->stmt_cg = $this->backend_instance->db->prepare('SELECT
                     contactgroup_cg_id
                 FROM escalation_contactgroup_relation
                 WHERE escalation_esc_id = :esc_id
@@ -416,13 +416,13 @@ class Escalation extends AbstractObject
      * @param $host_id
      *
      * @throws PDOException
-     * @return int|void
+     * @return void
      */
-    private function addHost($host_id)
+    private function addHost($host_id): void
     {
         if ($this->use_cache == 0) {
             if (is_null($this->stmt_host)) {
-                $this->stmt_host = $this->backend_instance->db->prepare('SELECT 
+                $this->stmt_host = $this->backend_instance->db->prepare('SELECT
                         escalation_esc_id
                     FROM escalation_host_relation
                     WHERE host_host_id = :host_id
@@ -434,7 +434,7 @@ class Escalation extends AbstractObject
             $this->escalation_linked_host_cache[$host_id] = $this->stmt_host->fetchAll(PDO::FETCH_COLUMN);
         }
         if (! isset($this->escalation_linked_host_cache[$host_id])) {
-            return 0;
+            return;
         }
 
         foreach ($this->escalation_linked_host_cache[$host_id] as $escalation_id) {
@@ -466,13 +466,13 @@ class Escalation extends AbstractObject
      * @param $hostgroup
      *
      * @throws PDOException
-     * @return int|void
+     * @return void
      */
-    private function addHostgroup($hg_id, $hostgroup)
+    private function addHostgroup($hg_id, $hostgroup): void
     {
         if ($this->use_cache == 0) {
             if (is_null($this->stmt_hg)) {
-                $this->stmt_hg = $this->backend_instance->db->prepare('SELECT 
+                $this->stmt_hg = $this->backend_instance->db->prepare('SELECT
                         escalation_esc_id
                     FROM escalation_hostgroup_relation
                     WHERE hostgroup_hg_id = :hg_id
@@ -484,7 +484,7 @@ class Escalation extends AbstractObject
             $this->escalation_linked_hg_cache[$hg_id] = $this->stmt_hg->fetchAll(PDO::FETCH_COLUMN);
         }
         if (! isset($this->escalation_linked_hg_cache[$hg_id])) {
-            return 0;
+            return;
         }
 
         foreach ($this->escalation_linked_hg_cache[$hg_id] as $escalation_id) {
@@ -523,13 +523,13 @@ class Escalation extends AbstractObject
      * @param $service_id
      *
      * @throws PDOException
-     * @return int|void
+     * @return void
      */
-    private function addService($host_id, $service_id)
+    private function addService($host_id, $service_id): void
     {
         if ($this->use_cache == 0) {
             if (is_null($this->stmt_service)) {
-                $this->stmt_service = $this->backend_instance->db->prepare('SELECT 
+                $this->stmt_service = $this->backend_instance->db->prepare('SELECT
                          escalation_esc_id
                     FROM escalation_service_relation
                     WHERE host_host_id = :host_id AND service_service_id = :service_id
@@ -543,7 +543,7 @@ class Escalation extends AbstractObject
                 = $this->stmt_service->fetchAll(PDO::FETCH_COLUMN);
         }
         if (! isset($this->escalation_linked_service_cache[$host_id . '_' . $service_id])) {
-            return 0;
+            return;
         }
 
         foreach ($this->escalation_linked_service_cache[$host_id . '_' . $service_id] as $escalation_id) {
@@ -558,13 +558,13 @@ class Escalation extends AbstractObject
      * @param $sg_id
      *
      * @throws PDOException
-     * @return int|void
+     * @return void
      */
-    private function addServicegroup($sg_id)
+    private function addServicegroup($sg_id): void
     {
         if ($this->use_cache == 0) {
             if (is_null($this->stmt_sg)) {
-                $this->stmt_sg = $this->backend_instance->db->prepare('SELECT 
+                $this->stmt_sg = $this->backend_instance->db->prepare('SELECT
                         escalation_esc_id
                     FROM escalation_servicegroup_relation
                     WHERE servicegroup_sg_id = :sg_id
@@ -576,7 +576,7 @@ class Escalation extends AbstractObject
             $this->escalation_linked_sg_cache[$sg_id] = $this->stmt_sg->fetchAll(PDO::FETCH_COLUMN);
         }
         if (! isset($this->escalation_linked_sg_cache[$sg_id])) {
-            return 0;
+            return;
         }
 
         foreach ($this->escalation_linked_sg_cache[$sg_id] as $escalation_id) {
@@ -596,11 +596,11 @@ class Escalation extends AbstractObject
      * @throws PDOException
      * @return array|false|mixed
      */
-    private function getEscalationFromMetaId($meta_id)
+    private function getEscalationFromMetaId($meta_id): mixed
     {
         if ($this->use_cache == 0) {
             if (is_null($this->stmt_meta)) {
-                $this->stmt_service = $this->backend_instance->db->prepare('SELECT 
+                $this->stmt_service = $this->backend_instance->db->prepare('SELECT
                          escalation_esc_id
                     FROM escalation_meta_service_relation
                     WHERE meta_service_meta_id = :meta_id

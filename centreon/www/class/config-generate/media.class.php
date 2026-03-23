@@ -35,7 +35,7 @@ class Media extends AbstractObject
      * @throws PDOException
      * @return string|null
      */
-    public function getMediaPathFromId($media_id)
+    public function getMediaPathFromId($media_id): ?string
     {
         if (is_null($this->medias)) {
             $this->getMedias();

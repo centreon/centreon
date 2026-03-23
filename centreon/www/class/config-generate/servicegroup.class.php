@@ -91,7 +91,7 @@ class Servicegroup extends AbstractObject
      * @throws PDOException
      * @return int
      */
-    public function addServiceInSg($sg_id, $service_id, $service_description, $host_id, $host_name)
+    public function addServiceInSg($sg_id, $service_id, $service_description, $host_id, $host_name): int
     {
         if (! isset($this->sg[$sg_id])) {
             $this->getServicegroupFromId($sg_id);
@@ -111,7 +111,7 @@ class Servicegroup extends AbstractObject
      * @throws PDOException
      * @return array|mixed
      */
-    public function getServiceGroupsForStpl($service_id)
+    public function getServiceGroupsForStpl($service_id): mixed
     {
         // Get from the cache
         if (isset($this->sg_relation_cache[$service_id])) {
@@ -147,7 +147,7 @@ class Servicegroup extends AbstractObject
      * @throws PDOException
      * @return array|mixed
      */
-    public function getServiceGroupsForService($host_id, $service_id)
+    public function getServiceGroupsForService($host_id, $service_id): mixed
     {
         // Get from the cache
         if (isset($this->sg_relation_cache[$service_id])) {
@@ -189,7 +189,7 @@ class Servicegroup extends AbstractObject
     /**
      * @return array
      */
-    public function getServicegroups()
+    public function getServicegroups(): array
     {
         $result = [];
         foreach ($this->sg as $id => &$value) {
@@ -223,7 +223,7 @@ class Servicegroup extends AbstractObject
      *
      * @return mixed|null
      */
-    public function getString($sg_id, $attr)
+    public function getString($sg_id, $attr): mixed
     {
         return $this->sg[$sg_id][$attr] ?? null;
     }
@@ -256,12 +256,12 @@ class Servicegroup extends AbstractObject
 
     /**
      * @throws PDOException
-     * @return int|void
+     * @return void
      */
-    private function buildCache()
+    private function buildCache(): void
     {
         if ($this->done_cache == 1) {
-            return 0;
+            return;
         }
 
         $stmt = $this->backend_instance->db->prepare(

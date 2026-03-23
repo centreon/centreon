@@ -135,7 +135,7 @@ class HostTemplate extends AbstractHost
      * @return mixed|null
      * @return mixed|null
      */
-    public function generateFromHostId($host_id, $hostTemplateMacros = [])
+    public function generateFromHostId($host_id, $hostTemplateMacros = []): mixed
     {
         if (is_null($this->hosts)) {
             $this->getHosts();
@@ -207,12 +207,12 @@ class HostTemplate extends AbstractHost
      * @param $host_id
      *
      * @throws PDOException
-     * @return int|void
+     * @return void
      */
-    private function getSeverity($host_id)
+    private function getSeverity($host_id): void
     {
         if (isset($this->hosts[$host_id]['severity_id'])) {
-            return 0;
+            return;
         }
 
         $this->hosts[$host_id]['severity_id']

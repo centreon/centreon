@@ -208,7 +208,7 @@ class Contactgroup extends AbstractObject
      * @throws PDOException
      * @return void
      */
-    protected function getCgCache()
+    protected function getCgCache(): void
     {
         $stmt = $this->backend_instance->db->prepare("SELECT 
                     {$this->attributes_select}

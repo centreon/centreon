@@ -59,7 +59,7 @@ class Command extends AbstractObject
      * @throws Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
      * @return mixed|null
      */
-    public function generateFromCommandId($command_id)
+    public function generateFromCommandId($command_id): mixed
     {
         $name = null;
         if (is_null($this->commands)) {

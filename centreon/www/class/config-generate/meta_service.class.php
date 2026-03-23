@@ -81,18 +81,18 @@ class MetaService extends AbstractObject
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
-     * @return int|void
+     * @return void
      */
-    public function generateObjects()
+    public function generateObjects(): void
     {
         $this->buildCacheMetaServices();
         if (count($this->meta_services) == 0) {
-            return 0;
+            return;
         }
 
         $host_id = MetaHost::getInstance($this->dependencyInjector)->getHostIdByHostName('_Module_Meta');
         if (is_null($host_id)) {
-            return 0;
+            return;
         }
         MetaCommand::getInstance($this->dependencyInjector)->generateObjects();
         MetaTimeperiod::getInstance($this->dependencyInjector)->generateObjects();
@@ -124,7 +124,7 @@ class MetaService extends AbstractObject
     /**
      * @return array
      */
-    public function getMetaServices()
+    public function getMetaServices(): array
     {
         return $this->meta_services;
     }
@@ -132,7 +132,7 @@ class MetaService extends AbstractObject
     /**
      * @return int
      */
-    public function hasMetaServices()
+    public function hasMetaServices(): int
     {
         return $this->has_meta_services;
     }
@@ -140,7 +140,7 @@ class MetaService extends AbstractObject
     /**
      * @return array
      */
-    public function getGeneratedServices()
+    public function getGeneratedServices(): array
     {
         return $this->generated_services;
     }
@@ -157,7 +157,7 @@ class MetaService extends AbstractObject
     private function getCtFromMetaId($meta_id): void
     {
         if (is_null($this->stmt_contact)) {
-            $this->stmt_contact = $this->backend_instance->db->prepare('SELECT 
+            $this->stmt_contact = $this->backend_instance->db->prepare('SELECT
                     contact_id
                 FROM meta_contact
                 WHERE meta_id = :meta_id
@@ -184,7 +184,7 @@ class MetaService extends AbstractObject
     private function getCgFromMetaId($meta_id): void
     {
         if (is_null($this->stmt_cg)) {
-            $this->stmt_cg = $this->backend_instance->db->prepare('SELECT 
+            $this->stmt_cg = $this->backend_instance->db->prepare('SELECT
                     cg_cg_id
                 FROM meta_contactgroup_relation
                 WHERE meta_id = :meta_id
@@ -206,7 +206,7 @@ class MetaService extends AbstractObject
      * @throws PDOException
      * @return mixed
      */
-    private function getServiceIdFromMetaId($meta_id, $meta_name)
+    private function getServiceIdFromMetaId($meta_id, $meta_name): mixed
     {
         $composed_name = 'meta_' . $meta_id;
         $query = 'SELECT service_id FROM service '

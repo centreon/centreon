@@ -114,7 +114,7 @@ class Severity extends AbstractObject
      * @throws PDOException
      * @return mixed|string|null
      */
-    public function getHostSeverityByHostId($host_id)
+    public function getHostSeverityByHostId($host_id): mixed
     {
         // Get from the cache
         if (isset($this->host_linked_cache[$host_id])) {
@@ -157,7 +157,7 @@ class Severity extends AbstractObject
      *
      * @return mixed|null
      */
-    public function getHostSeverityById($hc_id)
+    public function getHostSeverityById($hc_id): mixed
     {
         if (is_null($hc_id)) {
             return null;
@@ -177,7 +177,7 @@ class Severity extends AbstractObject
      * @throws PDOException
      * @return mixed|string|null
      */
-    public function getServiceSeverityByServiceId($service_id)
+    public function getServiceSeverityByServiceId($service_id): mixed
     {
         // Get from the cache
         if (isset($this->service_linked_cache[$service_id])) {
@@ -222,7 +222,7 @@ class Severity extends AbstractObject
      *
      * @return mixed|null
      */
-    public function getServiceSeverityById($sc_id)
+    public function getServiceSeverityById($sc_id): mixed
     {
         if (is_null($sc_id)) {
             return null;
@@ -242,7 +242,7 @@ class Severity extends AbstractObject
      * @throws PDOException
      * @return mixed|null
      */
-    public function getServiceSeverityMappingHostSeverityByName($hc_name)
+    public function getServiceSeverityMappingHostSeverityByName($hc_name): mixed
     {
         if (isset($this->service_severity_by_name_cache[$hc_name])) {
             $this->service_severities[$this->service_severity_by_name_cache[$hc_name]['sc_id']] = $this->service_severity_by_name_cache[$hc_name];
@@ -398,12 +398,12 @@ class Severity extends AbstractObject
 
     /**
      * @throws PDOException
-     * @return int|void
+     * @return void
      */
-    private function buildCache()
+    private function buildCache(): void
     {
         if ($this->done_cache == 1) {
-            return 0;
+            return;
         }
 
         $this->cacheHostSeverity();

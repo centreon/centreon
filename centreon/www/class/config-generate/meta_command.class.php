@@ -37,12 +37,12 @@ class MetaCommand extends AbstractObject
 
     /**
      * @throws Exception
-     * @return int|void
+     * @return void
      */
-    public function generateObjects()
+    public function generateObjects(): void
     {
         if ($this->checkGenerate(0)) {
-            return 0;
+            return;
         }
 
         $object = [];

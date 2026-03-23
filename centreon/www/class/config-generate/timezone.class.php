@@ -36,7 +36,7 @@ class Timezone extends AbstractObject
      * @throws PDOException
      * @return mixed|null
      */
-    public function getDefaultTimezone()
+    public function getDefaultTimezone(): mixed
     {
         if (! is_null($this->defaultTimezone)) {
             return $this->defaultTimezone;
@@ -59,7 +59,7 @@ class Timezone extends AbstractObject
      * @throws PDOException
      * @return mixed|null
      */
-    public function getTimezoneFromId($iTimezone, $returnDefault = false)
+    public function getTimezoneFromId($iTimezone, $returnDefault = false): mixed
     {
         if (is_null($this->aTimezone)) {
             $this->getTimezone();
@@ -77,16 +77,16 @@ class Timezone extends AbstractObject
 
     /**
      * @throws PDOException
-     * @return void|null
+     * @return mixed|null
      */
-    private function getTimezone()
+    private function getTimezone(): mixed
     {
         if (! is_null($this->aTimezone)) {
             return $this->aTimezone;
         }
 
         $this->aTimezone = [];
-        $stmt = $this->backend_instance->db->prepare('SELECT 
+        $stmt = $this->backend_instance->db->prepare('SELECT
                 timezone_id,
                 timezone_name
             FROM timezone');
@@ -95,5 +95,7 @@ class Timezone extends AbstractObject
         foreach ($results as $res) {
             $this->aTimezone[$res['timezone_id']] = $res['timezone_name'];
         }
+
+        return $this->aTimezone;
     }
 }

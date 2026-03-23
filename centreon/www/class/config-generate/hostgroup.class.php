@@ -59,7 +59,7 @@ class Hostgroup extends AbstractObject
      * @throws PDOException
      * @return int
      */
-    public function addHostInHg($hg_id, $host_id, $host_name)
+    public function addHostInHg($hg_id, $host_id, $host_name): int
     {
         if (! isset($this->hg[$hg_id])) {
             $this->getHostgroupFromId($hg_id);
@@ -85,7 +85,7 @@ class Hostgroup extends AbstractObject
     /**
      * @return array
      */
-    public function getHostgroups()
+    public function getHostgroups(): array
     {
         $result = [];
         foreach ($this->hg as $id => &$value) {
@@ -118,7 +118,7 @@ class Hostgroup extends AbstractObject
      *
      * @return mixed|null
      */
-    public function getString($hg_id, $attr)
+    public function getString($hg_id, $attr): mixed
     {
         return $this->hg[$hg_id][$attr] ?? null;
     }

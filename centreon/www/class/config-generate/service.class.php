@@ -370,7 +370,7 @@ class Service extends AbstractService
      *
      * @return void
      */
-    protected function clean(&$service)
+    protected function clean(&$service): void
     {
         if ($service['severity_from_host'] == 1) {
             unset($service['macros']['_CRITICALITY_LEVEL'], $service['macros']['_CRITICALITY_ID'], $service['macros']['severity']);

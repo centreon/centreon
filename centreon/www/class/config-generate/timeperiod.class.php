@@ -79,7 +79,7 @@ class Timeperiod extends AbstractObject
      * @throws PDOException
      * @return mixed|null
      */
-    public function generateFromTimeperiodId($timeperiod_id)
+    public function generateFromTimeperiodId($timeperiod_id): mixed
     {
         if (is_null($timeperiod_id)) {
             return null;
@@ -109,12 +109,12 @@ class Timeperiod extends AbstractObject
      * @param $timeperiod_id
      *
      * @throws PDOException
-     * @return int|void
+     * @return void
      */
-    protected function getTimeperiodExceptionFromId($timeperiod_id)
+    protected function getTimeperiodExceptionFromId($timeperiod_id): void
     {
         if (isset($this->timeperiods[$timeperiod_id]['exceptions'])) {
-            return 1;
+            return;
         }
 
         $query = 'SELECT days, timerange FROM timeperiod_exceptions WHERE timeperiod_id = :timeperiod_id';
@@ -137,7 +137,7 @@ class Timeperiod extends AbstractObject
      * @throws PDOException
      * @return void
      */
-    protected function getTimeperiodExtendFromId($timeperiod_id, $db_label, $label)
+    protected function getTimeperiodExtendFromId($timeperiod_id, $db_label, $label): void
     {
         if (! isset($this->timeperiods[$timeperiod_id][$label . '_cache'])) {
             if (is_null($this->stmt_extend[$db_label])) {

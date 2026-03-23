@@ -135,7 +135,7 @@ class ServiceTemplate extends AbstractService
      * @throws PDOException
      * @return mixed|null
      */
-    public function generateFromServiceId($service_id, $serviceTemplateMacros)
+    public function generateFromServiceId($service_id, $serviceTemplateMacros): mixed
     {
         if (is_null($service_id)) {
             return null;
@@ -239,12 +239,12 @@ class ServiceTemplate extends AbstractService
      * @param $service_id
      *
      * @throws PDOException
-     * @return int|void
+     * @return void
      */
-    private function getSeverity($service_id)
+    private function getSeverity($service_id): void
     {
         if (isset($this->service_cache[$service_id]['severity_id'])) {
-            return 0;
+            return;
         }
 
         $this->service_cache[$service_id]['severity_id']

@@ -66,12 +66,12 @@ class Resource extends AbstractObject
      * @param $poller_id
      *
      * @throws PDOException
-     * @return int|void
+     * @return void
      */
-    public function generateFromPollerId($poller_id)
+    public function generateFromPollerId($poller_id): void
     {
         if (is_null($poller_id)) {
-            return 0;
+            return;
         }
 
         if (is_null($this->stmt)) {

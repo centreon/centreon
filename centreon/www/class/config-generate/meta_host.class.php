@@ -44,9 +44,9 @@ class MetaHost extends AbstractObject
      * @throws PDOException
      * @return mixed|null
      */
-    public function getHostIdByHostName($host_name)
+    public function getHostIdByHostName($host_name): mixed
     {
-        $stmt = $this->backend_instance->db->prepare('SELECT 
+        $stmt = $this->backend_instance->db->prepare('SELECT
               host_id
             FROM host
             WHERE host_name = :host_name
@@ -62,12 +62,12 @@ class MetaHost extends AbstractObject
      * @param $host_id
      *
      * @throws Exception
-     * @return int|void
+     * @return void
      */
-    public function generateObject($host_id)
+    public function generateObject($host_id): void
     {
         if ($this->checkGenerate($host_id)) {
-            return 0;
+            return;
         }
 
         $object = [];

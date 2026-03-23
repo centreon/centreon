@@ -138,7 +138,7 @@ class Contact extends AbstractObject
      * @throws ServiceNotFoundException
      * @return mixed|null
      */
-    public function generateFromContactId($contact_id)
+    public function generateFromContactId($contact_id): mixed
     {
         if (is_null($contact_id)) {
             return null;
@@ -208,7 +208,7 @@ class Contact extends AbstractObject
      *
      * @return int
      */
-    public function isTemplate($contact_id)
+    public function isTemplate($contact_id): int
     {
         if ($this->contacts[$contact_id]['register'] == 0) {
             return 1;
@@ -253,7 +253,7 @@ class Contact extends AbstractObject
      * @throws ServiceNotFoundException
      * @return void
      */
-    protected function getContactNotificationCommands($contact_id, $label)
+    protected function getContactNotificationCommands($contact_id, $label): void
     {
         if (! isset($this->contacts[$contact_id][$label . '_commands_cache'])) {
             if (is_null($this->stmt_commands[$label])) {
