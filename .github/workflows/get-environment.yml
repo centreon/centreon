@@ -798,6 +798,7 @@ jobs:
 
             const distribMap = {
               alma9:    { distrib: 'el9',      package_extension: 'rpm' },
+              alma8:    { distrib: 'el8',      package_extension: 'rpm' },
               bookworm: { distrib: 'bookworm', package_extension: 'deb' },
             };
 
