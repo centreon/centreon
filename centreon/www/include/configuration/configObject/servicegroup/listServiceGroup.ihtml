@@ -339,6 +339,18 @@
     color: var(--color-grey-chateau, #a7a9ac);
     font-size: 14px;
 }
+
+/* Fade-in animation */
+.sg-listing-table tbody {
+    transition: opacity 0.2s ease;
+}
+.sg-listing-table tbody.sg-fade-in {
+    animation: sgFadeIn 0.25s ease;
+}
+@keyframes sgFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
 </style>
 {/literal}
 
@@ -431,6 +443,8 @@
     // =========================================================
     // AJAX fetch
     // =========================================================
+    var sgFirstLoad = true;
+
     function sgFetchData(num, limit, search, silent) {
         sgCurrentNum = num;
         sgCurrentLimit = limit;
@@ -439,7 +453,8 @@
         // Save checked rows before refresh
         var checkedIds = sgGetCheckedIds();
 
-        if (!silent) {
+        // Only show "Loading..." on first load
+        if (sgFirstLoad) {
             jQuery('#sgTableBody').html(
                 '<tr><td colspan="4" style="text-align:center;padding:24px;color:#a7a9ac;">Loading...</td></tr>'
             );
@@ -456,13 +471,20 @@
             },
             success: function (data) {
                 sgCsrfToken = data.centreon_token || '';
+                var tbody = jQuery('#sgTableBody');
+                tbody.removeClass('sg-fade-in');
                 sgRenderRows(data.rows);
                 sgRenderPagination(data.total, data.num, data.limit);
                 sgRestoreCheckedIds(checkedIds);
                 jQuery('#limit').val(data.limit);
+                if (!silent) {
+                    void tbody[0].offsetWidth;
+                    tbody.addClass('sg-fade-in');
+                }
+                sgFirstLoad = false;
             },
             error: function () {
-                if (!silent) {
+                if (sgFirstLoad) {
                     jQuery('#sgTableBody').html(
                         '<tr><td colspan="4" style="text-align:center;padding:24px;color:#FF4A4A;">Error loading data</td></tr>'
                     );
