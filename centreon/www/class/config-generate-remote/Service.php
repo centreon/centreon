@@ -84,10 +84,10 @@ class Service extends AbstractService
      * @param int $by_hg
      * @return void
      */
-    public function generateFromServiceId(int $hostId, string $hostName, ?int $serviceId, $by_hg = 0)
+    public function generateFromServiceId(int $hostId, string $hostName, ?int $serviceId, $by_hg = 0): void
     {
         if (is_null($serviceId)) {
-            return null;
+            return;
         }
 
         $this->buildCache();
@@ -101,7 +101,7 @@ class Service extends AbstractService
             $this->getServiceFromId($serviceId);
         }
         if (! isset($this->serviceCache[$serviceId]) || is_null($this->serviceCache[$serviceId])) {
-            return null;
+            return;
         }
         if ($this->checkGenerate($hostId . '.' . $serviceId)) {
             return $this->serviceCache[$serviceId]['service_description'];
@@ -180,7 +180,7 @@ class Service extends AbstractService
      * @param int $serviceId
      * @return void
      */
-    protected function getSeverity($hostId, int $serviceId)
+    protected function getSeverity($hostId, int $serviceId): void
     {
         $severityId
             = ServiceCategory::getInstance($this->dependencyInjector)->getServiceSeverityByServiceId($serviceId);
@@ -189,7 +189,7 @@ class Service extends AbstractService
                 ->addRelation($severityId, $serviceId);
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -282,7 +282,7 @@ class Service extends AbstractService
      * @param array $service
      * @return void
      */
-    private function clean(array &$service)
+    private function clean(array &$service): void
     {
     }
 
@@ -291,7 +291,7 @@ class Service extends AbstractService
      *
      * @return void|int
      */
-    private function buildCache()
+    private function buildCache(): void
     {
         if ($this->doneCache == 1
             || ($this->useCache == 0 && $this->useCachePoller == 0)

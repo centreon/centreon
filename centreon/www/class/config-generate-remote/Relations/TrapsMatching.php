@@ -103,7 +103,7 @@ class TrapsMatching extends AbstractObject
      * @throws Exception
      * @return void
      */
-    public function getTrapMatchingByTrapId(int $trapId)
+    public function getTrapMatchingByTrapId(int $trapId): void
     {
         // Get from the cache
         if (isset($this->trapMatchCache[$trapId])) {
@@ -112,7 +112,7 @@ class TrapsMatching extends AbstractObject
             return $this->trapMatchCache[$trapId];
         }
         if ($this->useCache == 1) {
-            return null;
+            return;
         }
 
         // We get unitary
@@ -163,7 +163,7 @@ class TrapsMatching extends AbstractObject
      *
      * @return void
      */
-    private function buildCache()
+    private function buildCache(): void
     {
         if ($this->doneCache == 1) {
             return 0;

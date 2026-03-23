@@ -153,7 +153,7 @@ class Host extends AbstractHost
      * @param string $hostName
      * @return string|void
      */
-    public function getHostIdByHostName(string $hostName)
+    public function getHostIdByHostName(string $hostName): void
     {
         return $this->hostsByName[$hostName] ?? null;
     }
@@ -163,7 +163,7 @@ class Host extends AbstractHost
      *
      * @return array
      */
-    public function getGeneratedParentship()
+    public function getGeneratedParentship(): array
     {
         return $this->generatedParentship;
     }
@@ -184,7 +184,7 @@ class Host extends AbstractHost
      *
      * @return array
      */
-    public function getGeneratedHosts()
+    public function getGeneratedHosts(): array
     {
         return $this->generatedHosts;
     }
@@ -215,7 +215,7 @@ class Host extends AbstractHost
      * @param int $hostIdArg
      * @return void
      */
-    protected function getSeverity($hostIdArg)
+    protected function getSeverity($hostIdArg): void
     {
         $severityId = HostCategory::getInstance($this->dependencyInjector)->getHostSeverityByHostId($hostIdArg);
         if (! is_null($severityId)) {
@@ -295,7 +295,7 @@ class Host extends AbstractHost
      * @throws PDOException
      * @return void
      */
-    private function getServicesByHg(array &$host)
+    private function getServicesByHg(array &$host): void
     {
         if (count($host['hg']) == 0) {
             return 1;

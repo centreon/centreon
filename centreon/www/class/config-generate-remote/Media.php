@@ -72,7 +72,7 @@ class Media extends AbstractObject
      * @throws \Exception
      * @return null|string
      */
-    public function getMediaPathFromId(?int $mediaId)
+    public function getMediaPathFromId(?int $mediaId): ?string
     {
         if (is_null($this->medias)) {
             $this->getMedias();
@@ -111,7 +111,7 @@ class Media extends AbstractObject
      * @throws \Exception
      * @return void
      */
-    protected function copyMedia(string $dir, string $file)
+    protected function copyMedia(string $dir, string $file): void
     {
         $this->backendInstance->createDirectories([$this->backendInstance->getPath() . '/media/' . $dir]);
         @copy(

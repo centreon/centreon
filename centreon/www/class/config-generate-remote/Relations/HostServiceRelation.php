@@ -67,10 +67,10 @@ class HostServiceRelation extends AbstractObject
      * @param int $serviceId
      * @return void
      */
-    public function addRelationHgService(int $hgId, int $serviceId)
+    public function addRelationHgService(int $hgId, int $serviceId): void
     {
         if ($this->checkGenerate('hg_s.' . $hgId . '.' . $serviceId)) {
-            return null;
+            return;
         }
 
         $relation = [

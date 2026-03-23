@@ -107,7 +107,7 @@ class TrapsGroup extends AbstractObject
      * @throws Exception
      * @return void
      */
-    public function getTrapGroupsByTrapId(int $trapId)
+    public function getTrapGroupsByTrapId(int $trapId): void
     {
         // Get from the cache
         if (isset($this->trapLinkedCache[$trapId])) {
@@ -116,7 +116,7 @@ class TrapsGroup extends AbstractObject
             return $this->trapLinkedCache[$trapId];
         }
         if ($this->useCache == 1) {
-            return null;
+            return;
         }
 
         // We get unitary
@@ -188,7 +188,7 @@ class TrapsGroup extends AbstractObject
      *
      * @return void
      */
-    private function buildCache()
+    private function buildCache(): void
     {
         if ($this->doneCache == 1) {
             return 0;

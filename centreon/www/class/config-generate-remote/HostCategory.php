@@ -87,7 +87,7 @@ class HostCategory extends AbstractObject
      * @throws Exception
      * @return array|null
      */
-    public function getHostSeverityByHostId(int $hostId)
+    public function getHostSeverityByHostId(int $hostId): ?array
     {
         // Get from the cache
         if (isset($this->hostLinkedCache[$hostId])) {
@@ -143,7 +143,7 @@ class HostCategory extends AbstractObject
      * @param null|int $hcId
      * @return array|null
      */
-    public function getHostSeverityById(?int $hcId)
+    public function getHostSeverityById(?int $hcId): ?array
     {
         if (is_null($hcId)) {
             return null;
@@ -209,7 +209,7 @@ class HostCategory extends AbstractObject
      *
      * @return void
      */
-    private function buildCache()
+    private function buildCache(): void
     {
         if ($this->doneCache == 1) {
             return 0;

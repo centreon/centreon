@@ -128,7 +128,7 @@ class HostTemplate extends AbstractHost
      * @param int $hostId
      * @return null|string
      */
-    public function generateFromHostId(int $hostId)
+    public function generateFromHostId(int $hostId): ?string
     {
         if (is_null($this->hosts)) {
             $this->getHosts();
@@ -203,7 +203,7 @@ class HostTemplate extends AbstractHost
      * @param int $hostId
      * @return int|void
      */
-    private function getSeverity(int $hostId)
+    private function getSeverity(int $hostId): void
     {
         if (isset($this->hosts[$hostId]['severity_id'])) {
             return 0;

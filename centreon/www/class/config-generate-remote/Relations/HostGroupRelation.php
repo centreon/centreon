@@ -53,10 +53,10 @@ class HostGroupRelation extends AbstractObject
      * @throws Exception
      * @return void
      */
-    public function addRelation(int $hgId, int $hostId)
+    public function addRelation(int $hgId, int $hostId): void
     {
         if ($this->checkGenerate($hgId . '.' . $hostId)) {
-            return null;
+            return;
         }
         $relation = [
             'hostgroup_hg_id' => $hgId,

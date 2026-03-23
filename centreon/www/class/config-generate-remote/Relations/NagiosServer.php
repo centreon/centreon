@@ -80,10 +80,10 @@ class NagiosServer extends AbstractObject
      * @throws Exception
      * @return void
      */
-    public function add(array $object, int $id)
+    public function add(array $object, int $id): void
     {
         if ($this->checkGenerate($id)) {
-            return null;
+            return;
         }
 
         $this->generateObjectInFile($object, $id);

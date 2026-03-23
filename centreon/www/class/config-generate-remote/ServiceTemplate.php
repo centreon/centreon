@@ -131,10 +131,10 @@ class ServiceTemplate extends AbstractService
      * @throws Exception
      * @return void
      */
-    public function generateFromServiceId(?int $serviceId)
+    public function generateFromServiceId(?int $serviceId): void
     {
         if (is_null($serviceId)) {
-            return null;
+            return;
         }
 
         if (! isset($this->serviceCache[$serviceId])) {
@@ -142,7 +142,7 @@ class ServiceTemplate extends AbstractService
         }
 
         if (is_null($this->serviceCache[$serviceId])) {
-            return null;
+            return;
         }
         if ($this->checkGenerate($serviceId)) {
             if (! isset($this->loopTpl[$serviceId])) {
@@ -157,7 +157,7 @@ class ServiceTemplate extends AbstractService
 
         // avoid loop. we return nothing
         if (isset($this->loopTpl[$serviceId])) {
-            return null;
+            return;
         }
         $this->loopTpl[$serviceId] = 1;
 
@@ -271,7 +271,7 @@ class ServiceTemplate extends AbstractService
      * @param int $serviceId
      * @return void|int
      */
-    private function getSeverity(int $serviceId)
+    private function getSeverity(int $serviceId): void
     {
         if (isset($this->serviceCache[$serviceId]['severity_id'])) {
             return 0;

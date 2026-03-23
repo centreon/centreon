@@ -84,7 +84,7 @@ class Manifest extends AbstractObject
      *
      * @return array
      */
-    public function getManifest()
+    public function getManifest(): array
     {
         return $this->manifest;
     }

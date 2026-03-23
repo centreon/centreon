@@ -94,7 +94,7 @@ class TrapsPreexec extends AbstractObject
      * @throws Exception
      * @return void
      */
-    public function getTrapPreexecByTrapId(int $trapId)
+    public function getTrapPreexecByTrapId(int $trapId): void
     {
         // Get from the cache
         if (isset($this->trapPreexecCache[$trapId])) {
@@ -103,7 +103,7 @@ class TrapsPreexec extends AbstractObject
             return $this->trapPreexecCache[$trapId];
         }
         if ($this->useCache == 1) {
-            return null;
+            return;
         }
 
         // We get unitary
@@ -154,7 +154,7 @@ class TrapsPreexec extends AbstractObject
      *
      * @return void
      */
-    private function buildCache()
+    private function buildCache(): void
     {
         if ($this->doneCache == 1) {
             return 0;

@@ -114,7 +114,7 @@ class Backend
      *
      * @return Backend|null
      */
-    public static function getInstance(Container $dependencyInjector)
+    public static function getInstance(Container $dependencyInjector): ?Backend
     {
         if (is_null(self::$instance)) {
             self::$instance = new Backend($dependencyInjector);
@@ -200,7 +200,7 @@ class Backend
      *
      * @return string
      */
-    public function getFieldSeparatorInfile()
+    public function getFieldSeparatorInfile(): string
     {
         return $this->fieldSeparatorInfile;
     }
@@ -210,7 +210,7 @@ class Backend
      *
      * @return string
      */
-    public function getLineSeparatorInfile()
+    public function getLineSeparatorInfile(): string
     {
         return $this->lineSeparatorInfile;
     }
@@ -220,7 +220,7 @@ class Backend
      *
      * @return bool
      */
-    public function isExportContact()
+    public function isExportContact(): bool
     {
         return $this->exportContact;
     }
@@ -230,7 +230,7 @@ class Backend
      *
      * @return string|null
      */
-    public function getPath()
+    public function getPath(): ?string
     {
         return $this->fullPath;
     }

@@ -55,10 +55,10 @@ class ViewImageDir extends AbstractObject
      * @throws Exception
      * @return void
      */
-    public function add(array $object, int $dirId)
+    public function add(array $object, int $dirId): void
     {
         if ($this->checkGenerate($dirId)) {
-            return null;
+            return;
         }
 
         $this->generateObjectInFile($object, $dirId);

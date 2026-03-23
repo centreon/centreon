@@ -101,7 +101,7 @@ class ServiceGroup extends AbstractObject
      * @throws Exception
      * @return int
      */
-    public function addServiceInSg(int $sgId, int $serviceId, string $serviceDescription, int $hostId, string $hostName)
+    public function addServiceInSg(int $sgId, int $serviceId, string $serviceDescription, int $hostId, string $hostName): int
     {
         if (! isset($this->sg[$sgId])) {
             $this->getServicegroupFromId($sgId);
@@ -122,7 +122,7 @@ class ServiceGroup extends AbstractObject
      * @param int $serviceId
      * @return void
      */
-    public function getServiceGroupsForStpl(int $serviceId)
+    public function getServiceGroupsForStpl(int $serviceId): void
     {
         // Get from the cache
         if (isset($this->sgRelationCache[$serviceId])) {
@@ -157,7 +157,7 @@ class ServiceGroup extends AbstractObject
      * @param int $serviceId
      * @return void
      */
-    public function getServiceGroupsForService(int $hostId, int $serviceId)
+    public function getServiceGroupsForService(int $hostId, int $serviceId): void
     {
         // Get from the cache
         if (isset($this->sgRelationCache[$serviceId])) {
@@ -195,10 +195,10 @@ class ServiceGroup extends AbstractObject
      * @throws Exception
      * @return void
      */
-    public function generateObject(int $sgId)
+    public function generateObject(int $sgId): void
     {
         if ($this->checkGenerate($sgId)) {
-            return null;
+            return;
         }
 
         $this->generateObjectInFile($this->sg[$sgId], $sgId);
@@ -227,7 +227,7 @@ class ServiceGroup extends AbstractObject
      *
      * @return array
      */
-    public function getServicegroups()
+    public function getServicegroups(): array
     {
         $result = [];
         foreach ($this->sg as $id => &$value) {
@@ -261,7 +261,7 @@ class ServiceGroup extends AbstractObject
      * @param string $attr
      * @return void
      */
-    public function getString(int $sgId, string $attr)
+    public function getString(int $sgId, string $attr): void
     {
         return $this->sg[$sgId][$attr] ?? null;
     }
@@ -272,7 +272,7 @@ class ServiceGroup extends AbstractObject
      * @param int $sgId
      * @return void
      */
-    private function getServicegroupFromId(int $sgId)
+    private function getServicegroupFromId(int $sgId): void
     {
         if (is_null($this->stmtSg)) {
             $this->stmtSg = $this->backendInstance->db->prepare(
@@ -297,7 +297,7 @@ class ServiceGroup extends AbstractObject
      *
      * @return void
      */
-    private function buildCache()
+    private function buildCache(): void
     {
         if ($this->doneCache == 1) {
             return 0;

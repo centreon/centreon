@@ -57,10 +57,10 @@ class TrapsVendor extends AbstractObject
      * @throws Exception
      * @return void
      */
-    public function add(int $id, string $name, string $alias, ?string $description = '')
+    public function add(int $id, string $name, string $alias, ?string $description = ''): void
     {
         if ($this->checkGenerate($id)) {
-            return null;
+            return;
         }
         $relation = [
             'id' => $id,
