@@ -23,6 +23,10 @@ if (! isset($centreon)) {
     exit();
 }
 
+include_once './class/centreonUtils.class.php';
+
+include './include/common/autoNumLimit.php';
+
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 

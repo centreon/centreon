@@ -1,0 +1,441 @@
+/*
+ * Centreon Modern Listing Styles
+ *
+ * Shared CSS for AJAX-based configuration listing pages.
+ * Prefix: cl- (centreon-listing)
+ *
+ * Usage: Include this file in any Smarty listing template, then use
+ * the CentreonListing JS module for AJAX data loading and rendering.
+ */
+
+/* ==========================================================================
+   Layout container
+   ========================================================================== */
+
+.cl-listing-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+/* ==========================================================================
+   Actions bar (top toolbar: add button, bulk actions, search, pagination)
+   ========================================================================== */
+
+.cl-actions-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    gap: 12px;
+}
+
+.cl-actions-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* "More actions" dropdown in actions bar */
+.cl-actions-left select {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid var(--color-divider, #E3E3E3);
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    line-height: 1.4;
+    height: auto;
+}
+
+/* ==========================================================================
+   Add button (blue with "+" prefix)
+   ========================================================================== */
+
+.cl-btn-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    background-color: var(--color-primary-light, #2E68AA);
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    line-height: 1.4;
+    transition: background-color 0.15s ease;
+}
+
+.cl-btn-add:hover {
+    background-color: var(--color-primary-hover, #255891);
+    color: #fff;
+    text-decoration: none;
+}
+
+.cl-btn-add::before {
+    content: '+';
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1;
+}
+
+/* ==========================================================================
+   Search bar (centered between actions and pagination)
+   ========================================================================== */
+
+.cl-search-center {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 24px;
+}
+
+.cl-search-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid var(--color-divider, #E3E3E3);
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+
+.cl-search-input:focus {
+    border-color: var(--color-primary-light, #2E68AA);
+}
+
+.cl-search-input::placeholder {
+    color: var(--color-grey-chateau, #a7a9ac);
+}
+
+/* ==========================================================================
+   Pagination (page numbers, nav arrows, limit selector, row count)
+   ========================================================================== */
+
+.cl-pagination {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.cl-pagination a,
+.cl-pagination span.cl-page-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    font-size: 13px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.cl-pagination a {
+    color: var(--color-primary-light, #2E68AA);
+}
+
+.cl-pagination a:hover {
+    background-color: var(--color-listing-hover, #E6EDF5);
+    text-decoration: none;
+}
+
+/* Navigation arrows (first, prev, next, last) */
+.cl-pagination a.cl-page-nav img {
+    width: 14px;
+    height: 14px;
+    opacity: 0.6;
+}
+
+.cl-pagination a.cl-page-nav:hover img {
+    opacity: 1;
+}
+
+/* Current page indicator */
+.cl-pagination span.cl-page-current {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    background-color: var(--color-primary-light, #2E68AA);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* "X-Y of Z" label */
+.cl-pagination .cl-page-info {
+    font-size: 13px;
+    color: var(--body-color, #555);
+    padding: 0 4px;
+}
+
+/* Rows-per-page selector */
+.cl-pagination .cl-limit-select {
+    padding: 4px 8px;
+    font-size: 13px;
+    border: 1px solid var(--color-divider, #E3E3E3);
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    min-width: 50px;
+}
+
+/* ==========================================================================
+   Data table
+   ========================================================================== */
+
+.cl-listing-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    background: #fff;
+    border: none;
+}
+
+/* -- Table header --------------------------------------------------------- */
+
+.cl-listing-table thead th {
+    padding: 6px 16px;
+    font-weight: 600;
+    font-size: 13px;
+    color: #fff;
+    text-align: left;
+    border-bottom: none;
+    background: #8C8C8C;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.cl-listing-table thead th.cl-col-center {
+    text-align: center;
+}
+
+.cl-listing-table thead th.cl-col-right {
+    text-align: right;
+}
+
+.cl-listing-table thead th.cl-col-picker {
+    width: 40px;
+    text-align: center;
+    padding: 6px 8px;
+    vertical-align: middle;
+}
+
+/* -- Table body rows ------------------------------------------------------ */
+
+.cl-listing-table tbody tr {
+    background: #fff;
+    transition: background-color 0.15s ease;
+    cursor: pointer;
+}
+
+.cl-listing-table tbody tr:hover {
+    background-color: var(--color-listing-hover, #E6EDF5);
+}
+
+.cl-listing-table tbody td {
+    padding: 4px 16px;
+    font-size: 13px;
+    color: var(--body-color, #555);
+    border-bottom: 1px solid var(--color-divider, #E3E3E3);
+    vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 300px;
+}
+
+.cl-listing-table tbody td.cl-col-center {
+    text-align: center;
+}
+
+.cl-listing-table tbody td.cl-col-right {
+    text-align: right;
+}
+
+.cl-listing-table tbody td.cl-col-picker {
+    width: 40px;
+    text-align: center;
+    padding: 4px 8px;
+}
+
+/* -- Links inside rows ---------------------------------------------------- */
+
+.cl-listing-table tbody td a {
+    color: var(--color-primary-light, #2E68AA);
+    text-decoration: none;
+}
+
+.cl-listing-table tbody td a:hover {
+    text-decoration: underline;
+}
+
+.cl-listing-table tbody tr:hover td {
+    color: var(--color-charcoal, #444);
+}
+
+.cl-listing-table tbody tr:hover td a {
+    color: var(--color-primary-hover, #255891);
+}
+
+/* ==========================================================================
+   Options cell (actions column: toggle + duplication input)
+   ========================================================================== */
+
+.cl-options-cell {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.cl-dup-input {
+    width: 36px;
+    height: 22px;
+    text-align: center;
+    border: 1px solid var(--color-divider, #E3E3E3);
+    border-radius: 4px;
+    font-size: 11px;
+    margin: 0;
+    padding: 0 2px;
+    line-height: 20px;
+}
+
+.cl-dup-input:focus {
+    border-color: var(--color-primary-light, #2E68AA);
+    outline: none;
+}
+
+/* ==========================================================================
+   Toggle switch (iPhone style enable/disable)
+   ========================================================================== */
+
+.cl-toggle {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.cl-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.cl-toggle-slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    border-radius: 20px;
+    transition: background-color 0.25s ease;
+}
+
+.cl-toggle-slider::before {
+    content: '';
+    position: absolute;
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: transform 0.25s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.cl-toggle input:checked + .cl-toggle-slider {
+    background-color: var(--color-success, #88B922);
+}
+
+.cl-toggle input:checked + .cl-toggle-slider::before {
+    transform: translateX(16px);
+}
+
+.cl-toggle input:disabled + .cl-toggle-slider {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Bottom bar (bulk actions + pagination)
+   ========================================================================== */
+
+.cl-bottom-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+}
+
+/* ==========================================================================
+   Checkbox alignment (header and body rows)
+   ========================================================================== */
+
+.cl-listing-table .cl-col-picker .md-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    height: 100%;
+}
+
+.cl-listing-table .cl-col-picker .md-checkbox input[type="checkbox"] {
+    margin: 0;
+}
+
+.cl-listing-table .cl-col-picker .md-checkbox label {
+    margin: 0;
+    padding: 0;
+    min-height: auto;
+    line-height: 1;
+}
+
+/* White checkbox border on dark header */
+.cl-listing-table thead th .md-checkbox label::before {
+    border-color: #fff;
+}
+
+/* ==========================================================================
+   States: loading, empty, fade-in animation
+   ========================================================================== */
+
+.cl-loading {
+    text-align: center;
+    padding: 24px;
+    color: var(--color-grey-chateau, #a7a9ac);
+    font-size: 14px;
+}
+
+.cl-listing-table tbody {
+    transition: opacity 0.2s ease;
+}
+
+.cl-listing-table tbody.cl-fade-in {
+    animation: clFadeIn 0.25s ease;
+}
+
+@keyframes clFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

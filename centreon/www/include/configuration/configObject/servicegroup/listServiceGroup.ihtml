@@ -2,406 +2,136 @@
 
 {literal}
 <style>
-/* Modern listing styles - aligned with React ConfigurationBase design */
-.sg-listing-container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
-}
+/* ==========================================================================
+   Centreon Modern Listing — shared styles (prefix: cl-)
+   Theme-aware: uses CSS variables for light/dark compatibility
+   ========================================================================== */
+
+/* Layout */
+.cl-listing-container { display:flex; flex-direction:column; width:100%; }
 
 /* Actions bar */
-.sg-actions-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 0;
-    gap: 12px;
-}
-.sg-actions-bar .sg-actions-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
+.cl-actions-bar { display:flex; align-items:center; justify-content:space-between; padding:8px 0; gap:12px; }
+.cl-actions-left { display:flex; align-items:center; gap:12px; }
+.cl-actions-left select { padding:8px 12px; font-size:14px; border:1px solid var(--color-divider,#E3E3E3); border-radius:4px; background:var(--select-background,#fff); color:var(--select-color,#444); cursor:pointer; line-height:1.4; height:auto; }
 
 /* Add button */
-.sg-btn-add {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #fff;
-    background-color: var(--color-primary-light, #2E68AA);
-    border: none;
-    border-radius: 4px;
-    text-decoration: none;
-    cursor: pointer;
-    white-space: nowrap;
-    line-height: 1.4;
-    transition: background-color 0.15s ease;
-}
-.sg-btn-add:hover {
-    background-color: var(--color-primary-hover, #255891);
-    color: #fff;
-    text-decoration: none;
-}
-.sg-btn-add::before {
-    content: '+';
-    font-size: 18px;
-    font-weight: 400;
-    line-height: 1;
-}
+.cl-btn-add { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; font-size:14px; font-weight:500; color:var(--btc-color,#fff); background-color:var(--bt-success-background-color,#2E68AA); border:none; border-radius:4px; text-decoration:none; cursor:pointer; white-space:nowrap; line-height:1.4; transition:background-color .15s ease; }
+.cl-btn-add:hover { background-color:var(--bt-default-hover-background-color,#255891); color:var(--btc-hover-color,#fff); text-decoration:none; }
+.cl-btn-add::before { content:'+'; font-size:18px; font-weight:400; line-height:1; }
 
-/* More actions dropdown */
-.sg-actions-left select {
-    padding: 8px 12px;
-    font-size: 14px;
-    border: 1px solid var(--color-divider, #E3E3E3);
-    border-radius: 4px;
-    background: #fff;
-    cursor: pointer;
-    line-height: 1.4;
-    height: auto;
-}
-
-/* Search bar - centered */
-.sg-search-center {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 0 24px;
-}
-.sg-search-input {
-    width: 100%;
-    max-width: 400px;
-    padding: 8px 12px;
-    font-size: 14px;
-    border: 1px solid var(--color-divider, #E3E3E3);
-    border-radius: 4px;
-    outline: none;
-    transition: border-color 0.15s ease;
-}
-.sg-search-input:focus {
-    border-color: var(--color-primary-light, #2E68AA);
-}
-.sg-search-input::placeholder {
-    color: var(--color-grey-chateau, #a7a9ac);
-}
+/* Search */
+.cl-search-center { flex:1; display:flex; align-items:center; justify-content:center; gap:8px; padding:0 24px; }
+.cl-search-input { width:100%; max-width:400px; padding:8px 12px; font-size:14px; border:1px solid var(--input-border-color,#E3E3E3); border-radius:4px; outline:none; background:var(--textarea-background-color,#fff); color:var(--textarea-font-color,#000); transition:border-color .15s ease; }
+.cl-search-input:focus { border-color:var(--color-primary-light,#2E68AA); }
+.cl-search-input::placeholder { color:var(--placeholder-font-color,#a7a9ac); }
 
 /* Pagination */
-.sg-pagination {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-.sg-pagination a,
-.sg-pagination span.sg-page-num {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 28px;
-    height: 28px;
-    border-radius: 4px;
-    font-size: 13px;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background-color 0.15s ease;
-}
-.sg-pagination a {
-    color: var(--color-primary-light, #2E68AA);
-}
-.sg-pagination a:hover {
-    background-color: var(--color-listing-hover, #E6EDF5);
-    text-decoration: none;
-}
-.sg-pagination a.sg-page-nav img {
-    width: 14px;
-    height: 14px;
-    opacity: 0.6;
-}
-.sg-pagination a.sg-page-nav:hover img {
-    opacity: 1;
-}
-.sg-pagination span.sg-page-current {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 28px;
-    height: 28px;
-    border-radius: 4px;
-    background-color: var(--color-primary-light, #2E68AA);
-    color: #fff;
-    font-size: 13px;
-    font-weight: 600;
-}
-.sg-pagination .sg-page-info {
-    font-size: 13px;
-    color: var(--body-color, #555);
-    padding: 0 4px;
-}
-.sg-pagination .sg-limit-select {
-    padding: 4px 8px;
-    font-size: 13px;
-    border: 1px solid var(--color-divider, #E3E3E3);
-    border-radius: 4px;
-    background: #fff;
-    cursor: pointer;
-    min-width: 50px;
-}
+.cl-pagination { display:flex; align-items:center; gap:6px; white-space:nowrap; flex-shrink:0; }
+.cl-pagination a, .cl-pagination span.cl-page-num { display:inline-flex; align-items:center; justify-content:center; min-width:28px; height:28px; border-radius:4px; font-size:13px; text-decoration:none; cursor:pointer; transition:background-color .15s ease; }
+.cl-pagination a { color:var(--color-primary-light,#2E68AA); }
+.cl-pagination a:hover { background-color:var(--list-hover-background-color,#E6EDF5); text-decoration:none; }
+.cl-pagination a.cl-page-nav img { width:14px; height:14px; opacity:.6; }
+.cl-pagination a.cl-page-nav:hover img { opacity:1; }
+.cl-pagination span.cl-page-current { display:inline-flex; align-items:center; justify-content:center; min-width:28px; height:28px; border-radius:4px; background-color:var(--color-primary-light,#2E68AA); color:#fff; font-size:13px; font-weight:600; }
+.cl-pagination .cl-page-info { font-size:13px; color:var(--body-color,#555); padding:0 4px; }
+.cl-pagination .cl-limit-select { padding:4px 8px; font-size:13px; border:1px solid var(--input-border-color,#E3E3E3); border-radius:4px; background:var(--select-background,#fff); color:var(--select-color,#444); cursor:pointer; min-width:50px; }
 
-/* Modern table */
-.sg-listing-table {
-    width: 100%;
-    border-collapse: collapse;
-    border-spacing: 0;
-    background: #fff;
-    border: none;
-}
-.sg-listing-table thead th {
-    padding: 6px 16px;
-    font-weight: 600;
-    font-size: 13px;
-    color: #fff;
-    text-align: left;
-    border-bottom: none;
-    background: #8C8C8C;
-    white-space: nowrap;
-    user-select: none;
-}
-.sg-listing-table thead th.sg-col-center {
-    text-align: center;
-}
-.sg-listing-table thead th.sg-col-right {
-    text-align: right;
-}
-.sg-listing-table thead th.sg-col-picker {
-    width: 40px;
-    text-align: center;
-    padding: 6px 8px;
-    vertical-align: middle;
-}
-.sg-listing-table tbody tr {
-    background: #fff;
-    transition: background-color 0.15s ease;
-    cursor: pointer;
-}
-.sg-listing-table tbody tr:hover {
-    background-color: var(--color-listing-hover, #E6EDF5);
-}
-.sg-listing-table tbody td {
-    padding: 4px 16px;
-    font-size: 13px;
-    color: var(--body-color, #555);
-    border-bottom: 1px solid var(--color-divider, #E3E3E3);
-    vertical-align: middle;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 300px;
-}
-.sg-listing-table tbody td.sg-col-center {
-    text-align: center;
-}
-.sg-listing-table tbody td.sg-col-right {
-    text-align: right;
-}
-.sg-listing-table tbody td.sg-col-picker {
-    width: 40px;
-    text-align: center;
-    padding: 4px 8px;
-}
-.sg-listing-table tbody td a {
-    color: var(--color-primary-light, #2E68AA);
-    text-decoration: none;
-}
-.sg-listing-table tbody td a:hover {
-    text-decoration: underline;
-}
-.sg-listing-table tbody tr:hover td {
-    color: var(--color-charcoal, #444);
-}
-.sg-listing-table tbody tr:hover td a {
-    color: var(--color-primary-hover, #255891);
-}
+/* Table */
+.cl-listing-table { width:100%; border-collapse:collapse; border-spacing:0; background:var(--body-background,#fff); border:none; }
+.cl-listing-table thead th { padding:6px 16px; font-weight:600; font-size:13px; color:#fff; text-align:left; border-bottom:none; background:#8C8C8C; white-space:nowrap; user-select:none; }
+.cl-listing-table thead th.cl-col-center { text-align:center; }
+.cl-listing-table thead th.cl-col-right { text-align:right; }
+.cl-listing-table thead th.cl-col-picker { width:40px; text-align:center; padding:6px 8px; vertical-align:middle; }
+.cl-listing-table tbody tr { background:var(--body-background,#fff); transition:background-color .15s ease; cursor:pointer; }
+.cl-listing-table tbody tr:hover { background-color:var(--list-hover-background-color,#E6EDF5); }
+.cl-listing-table tbody td { padding:4px 16px; font-size:13px; color:var(--body-color,#555); border-bottom:1px solid var(--listing-border-botom-color,#E3E3E3); vertical-align:middle; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:300px; }
+.cl-listing-table tbody td.cl-col-center { text-align:center; }
+.cl-listing-table tbody td.cl-col-right { text-align:right; }
+.cl-listing-table tbody td.cl-col-picker { width:40px; text-align:center; padding:4px 8px; }
+.cl-listing-table tbody td a { color:var(--color-primary-light,#2E68AA); text-decoration:none; }
+.cl-listing-table tbody td a:hover { text-decoration:underline; }
+.cl-listing-table tbody tr:hover td { color:var(--body-color,#444); }
+.cl-listing-table tbody tr:hover td a { color:var(--color-primary-light,#255891); }
 
 /* Options cell */
-.sg-options-cell {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-}
-.sg-options-cell .sg-dup-input {
-    width: 36px;
-    height: 22px;
-    text-align: center;
-    border: 1px solid var(--color-divider, #E3E3E3);
-    border-radius: 4px;
-    font-size: 11px;
-    margin: 0;
-    padding: 0 2px;
-    line-height: 20px;
-}
-.sg-options-cell .sg-dup-input:focus {
-    border-color: var(--color-primary-light, #2E68AA);
-    outline: none;
-}
+.cl-options-cell { display:flex; align-items:center; justify-content:flex-end; gap:8px; }
+.cl-dup-input { width:36px; height:22px; text-align:center; border:1px solid var(--input-border-color,#E3E3E3); border-radius:4px; font-size:11px; margin:0; padding:0 2px; line-height:20px; background:var(--textarea-background-color,#fff); color:var(--textarea-font-color,#000); }
+.cl-dup-input:focus { border-color:var(--color-primary-light,#2E68AA); outline:none; }
 
-/* Toggle switch - iPhone style */
-.sg-toggle {
-    position: relative;
-    display: inline-block;
-    width: 36px;
-    height: 20px;
-    cursor: pointer;
-    flex-shrink: 0;
-}
-.sg-toggle input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-    position: absolute;
-}
-.sg-toggle .sg-toggle-slider {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: #ccc;
-    border-radius: 20px;
-    transition: background-color 0.25s ease;
-}
-.sg-toggle .sg-toggle-slider::before {
-    content: '';
-    position: absolute;
-    height: 16px;
-    width: 16px;
-    left: 2px;
-    bottom: 2px;
-    background-color: #fff;
-    border-radius: 50%;
-    transition: transform 0.25s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-.sg-toggle input:checked + .sg-toggle-slider {
-    background-color: var(--color-success, #88B922);
-}
-.sg-toggle input:checked + .sg-toggle-slider::before {
-    transform: translateX(16px);
-}
-.sg-toggle input:disabled + .sg-toggle-slider {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
+/* Toggle switch */
+.cl-toggle { position:relative; display:inline-block; width:36px; height:20px; cursor:pointer; flex-shrink:0; }
+.cl-toggle input { opacity:0; width:0; height:0; position:absolute; }
+.cl-toggle-slider { position:absolute; top:0; left:0; right:0; bottom:0; background-color:var(--color-secondary,#666); border-radius:20px; transition:background-color .25s ease; }
+.cl-toggle-slider::before { content:''; position:absolute; height:16px; width:16px; left:2px; bottom:2px; background-color:#fff; border-radius:50%; transition:transform .25s ease; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+.cl-toggle input:checked + .cl-toggle-slider { background-color:var(--color-success,#88B922); }
+.cl-toggle input:checked + .cl-toggle-slider::before { transform:translateX(16px); }
+.cl-toggle input:disabled + .cl-toggle-slider { opacity:.5; cursor:not-allowed; }
 
 /* Bottom bar */
-.sg-pagination-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 0;
-}
-.sg-pagination-bar .sg-actions-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
+.cl-bottom-bar { display:flex; align-items:center; justify-content:space-between; padding:8px 0; }
 
-/* Checkbox alignment - header and body */
-.sg-listing-table .sg-col-picker .md-checkbox {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
-    height: 100%;
-}
-.sg-listing-table .sg-col-picker .md-checkbox input[type="checkbox"] {
-    margin: 0;
-}
-.sg-listing-table .sg-col-picker .md-checkbox label {
-    margin: 0;
-    padding: 0;
-    min-height: auto;
-    line-height: 1;
-}
-.sg-listing-table thead th .md-checkbox label::before {
-    border-color: #fff;
-}
+/* Checkbox alignment */
+.cl-listing-table .cl-col-picker .md-checkbox { display:flex; align-items:center; justify-content:center; margin:0; height:100%; }
+.cl-listing-table .cl-col-picker .md-checkbox input[type="checkbox"] { margin:0; }
+.cl-listing-table .cl-col-picker .md-checkbox label { margin:0; padding:0; min-height:auto; line-height:1; }
+.cl-listing-table thead th .md-checkbox label::before { border-color:#fff; }
 
-/* Loading state */
-.sg-loading {
-    text-align: center;
-    padding: 24px;
-    color: var(--color-grey-chateau, #a7a9ac);
-    font-size: 14px;
-}
-
-/* Fade-in animation */
-.sg-listing-table tbody {
-    transition: opacity 0.2s ease;
-}
-.sg-listing-table tbody.sg-fade-in {
-    animation: sgFadeIn 0.25s ease;
-}
-@keyframes sgFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
+/* Fade-in */
+.cl-listing-table tbody { transition:opacity .2s ease; }
+.cl-listing-table tbody.cl-fade-in { animation:clFadeIn .25s ease; }
+@keyframes clFadeIn { from{opacity:0} to{opacity:1} }
 </style>
 {/literal}
 
 <form name='form' method='POST'>
-    <div class="sg-listing-container">
-        <div class="sg-actions-bar">
+    <div class="cl-listing-container">
+        <div class="cl-actions-bar">
             { if $mode_access == 'w' }
-            <div class="sg-actions-left">
-                <a href="{$msg.addL}" class="sg-btn-add">{$msg.addT}</a>
+            <div class="cl-actions-left">
+                <a href="{$msg.addL}" class="cl-btn-add">{$msg.addT}</a>
                 {$form.o1.html}
             </div>
             { else }
-            <div class="sg-actions-left">&nbsp;</div>
+            <div class="cl-actions-left">&nbsp;</div>
             { /if }
-            <div class="sg-search-center">
-                <input type="text" id="sgSearchInput" name="searchSG" value="{$searchSG}" placeholder="{t}Search{/t}" class="sg-search-input">
-                <button type="button" id="sgSearchBtn" class="btc bt_success">{t}Search{/t}</button>
+            <div class="cl-search-center">
+                <input type="text" id="clSearchInput" name="searchSG" value="{$searchSG}" placeholder="{t}Search{/t}" class="cl-search-input">
+                <button type="button" id="clSearchBtn" class="btc bt_success">{t}Search{/t}</button>
             </div>
-            <div class="sg-pagination" id="sgPaginationTop"></div>
+            <div class="cl-pagination" id="clPaginationTop"></div>
         </div>
 
-        <table class="sg-listing-table">
+        <table class="cl-listing-table">
             <thead>
                 <tr>
-                    <th class="sg-col-picker">
+                    <th class="cl-col-picker">
                         <div class="md-checkbox md-checkbox-inline">
-                            <input type="checkbox" id="checkall" name="checkall" onclick="sgCheckUncheckAll(this);"/>
+                            <input type="checkbox" id="checkall" name="checkall" onclick="sgListing.checkUncheckAll(this);"/>
                             <label class="empty-label" for="checkall"></label>
                         </div>
                     </th>
                     <th>{$headerMenu_name}</th>
                     <th>{$headerMenu_desc}</th>
                     { if $mode_access == 'w' }
-                    <th class="sg-col-right">{$headerMenu_options}</th>
+                    <th class="cl-col-right">{$headerMenu_options}</th>
                     { /if }
                 </tr>
             </thead>
-            <tbody id="sgTableBody">
-                <tr><td colspan="4" class="sg-loading">{t}Loading...{/t}</td></tr>
+            <tbody id="clTableBody">
+                <tr><td colspan="4" class="cl-loading">{t}Loading...{/t}</td></tr>
             </tbody>
         </table>
 
-        <div class="sg-pagination-bar">
+        <div class="cl-bottom-bar">
             { if $mode_access == 'w' }
-            <div class="sg-actions-left">
+            <div class="cl-actions-left">
                 {$form.o2.html}
             </div>
             { else }
             <div>&nbsp;</div>
             { /if }
-            <div class="sg-pagination" id="sgPaginationBottom"></div>
+            <div class="cl-pagination" id="clPaginationBottom"></div>
         </div>
     </div>
 
@@ -412,279 +142,170 @@
 
 {literal}
 <script type="text/javascript">
-(function () {
-    var sgPage = {/literal}'{$sgPage}'{literal};
-    var sgWriteAccess = {/literal}'{$mode_access}'{literal} === 'w';
-    var sgCsrfToken = '';
-    var sgCurrentNum = 0;
-    var sgDefaultLimit = {/literal}{$defaultLimit}{literal};
-    var sgCurrentLimit = parseInt(localStorage.getItem('sg_listing_limit'), 10) || sgDefaultLimit;
-    var sgCurrentSearch = jQuery('#sgSearchInput').val() || '';
-    var sgDebounceTimer = null;
+/* ==========================================================================
+   CentreonListing — reusable AJAX listing module
+   ========================================================================== */
+function CentreonListing(config) {
+    var cfg = {
+        tableBodyId:        config.tableBodyId        || 'clTableBody',
+        paginationTopId:    config.paginationTopId    || 'clPaginationTop',
+        paginationBottomId: config.paginationBottomId || 'clPaginationBottom',
+        searchInputId:      config.searchInputId      || 'clSearchInput',
+        searchBtnId:        config.searchBtnId        || 'clSearchBtn',
+        limitInputId:       config.limitInputId       || 'limit',
+        ajaxListUrl:        config.ajaxListUrl        || '',
+        ajaxToggleUrl:      config.ajaxToggleUrl      || '',
+        pageId:             config.pageId             || '',
+        writeAccess:        config.writeAccess        || false,
+        storageKey:         config.storageKey          || 'cl_listing_limit',
+        defaultLimit:       config.defaultLimit        || 30,
+        autoRefresh:        config.autoRefresh !== undefined ? config.autoRefresh : 30000,
+        emptyMessage:       config.emptyMessage        || 'No items found',
+        columns:            config.columns             || [],
+        rowIdField:         config.rowIdField          || 'id',
+        renderOptions:      config.renderOptions       || null,
+        instanceName:       config.instanceName        || 'clInstance'
+    };
 
-    // =========================================================
-    // Save/restore checked rows
-    // =========================================================
-    function sgGetCheckedIds() {
+    var self = this, csrfToken = '', currentNum = 0, firstLoad = true;
+    var currentLimit = parseInt(localStorage.getItem(cfg.storageKey), 10) || cfg.defaultLimit;
+    var currentSearch = '';
+
+    this.escape = function(s) { if (!s) return ''; var d=document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; };
+    this.getCsrfToken = function() { return csrfToken; };
+
+    function getCheckedIds() {
         var ids = [];
-        jQuery('#sgTableBody input[type=checkbox]:checked').each(function () {
-            var name = jQuery(this).attr('name');
-            if (name) ids.push(name);
+        jQuery('#'+cfg.tableBodyId+' .cl-col-picker input[type=checkbox]:checked').each(function() {
+            var n = jQuery(this).attr('name'); if (n) ids.push(n);
         });
         return ids;
     }
-
-    function sgRestoreCheckedIds(ids) {
-        for (var i = 0; i < ids.length; i++) {
-            jQuery('#sgTableBody input[name="' + ids[i] + '"]').prop('checked', true);
-        }
+    function restoreCheckedIds(ids) {
+        for (var i=0; i<ids.length; i++) jQuery('#'+cfg.tableBodyId+' input[name="'+ids[i]+'"]').prop('checked', true);
     }
 
-    // =========================================================
-    // AJAX fetch
-    // =========================================================
-    var sgFirstLoad = true;
-
-    function sgFetchData(num, limit, search, silent) {
-        sgCurrentNum = num;
-        sgCurrentLimit = limit;
-        sgCurrentSearch = search;
-
-        // Save checked rows before refresh
-        var checkedIds = sgGetCheckedIds();
-
-        // Only show "Loading..." on first load
-        if (sgFirstLoad) {
-            jQuery('#sgTableBody').html(
-                '<tr><td colspan="4" style="text-align:center;padding:24px;color:#a7a9ac;">Loading...</td></tr>'
-            );
-        }
+    this.fetch = function(num, limit, search, silent) {
+        currentNum = num; currentLimit = limit; currentSearch = search;
+        var checkedIds = getCheckedIds();
+        if (firstLoad) jQuery('#'+cfg.tableBodyId).html('<tr><td colspan="99" style="text-align:center;padding:24px;color:#a7a9ac;">Loading...</td></tr>');
 
         jQuery.ajax({
-            url: './include/configuration/configObject/servicegroup/ajaxServiceGroupListing.php',
-            type: 'GET',
-            dataType: 'json',
-            data: {
-                search: search,
-                num: num,
-                limit: limit
+            url: cfg.ajaxListUrl, type:'GET', dataType:'json',
+            data: { search:search, num:num, limit:limit },
+            success: function(data) {
+                csrfToken = data.centreon_token || '';
+                var tbody = jQuery('#'+cfg.tableBodyId);
+                tbody.removeClass('cl-fade-in');
+                self.renderRows(data.rows);
+                self.renderPagination(data.total, data.num, data.limit);
+                restoreCheckedIds(checkedIds);
+                jQuery('#'+cfg.limitInputId).val(data.limit);
+                if (!silent) { void tbody[0].offsetWidth; tbody.addClass('cl-fade-in'); }
+                firstLoad = false;
             },
-            success: function (data) {
-                sgCsrfToken = data.centreon_token || '';
-                var tbody = jQuery('#sgTableBody');
-                tbody.removeClass('sg-fade-in');
-                sgRenderRows(data.rows);
-                sgRenderPagination(data.total, data.num, data.limit);
-                sgRestoreCheckedIds(checkedIds);
-                jQuery('#limit').val(data.limit);
-                if (!silent) {
-                    void tbody[0].offsetWidth;
-                    tbody.addClass('sg-fade-in');
-                }
-                sgFirstLoad = false;
-            },
-            error: function () {
-                if (sgFirstLoad) {
-                    jQuery('#sgTableBody').html(
-                        '<tr><td colspan="4" style="text-align:center;padding:24px;color:#FF4A4A;">Error loading data</td></tr>'
-                    );
-                }
+            error: function() {
+                if (firstLoad) jQuery('#'+cfg.tableBodyId).html('<tr><td colspan="99" style="text-align:center;padding:24px;color:#FF4A4A;">Error loading data</td></tr>');
             }
         });
-    }
-
-    // =========================================================
-    // Render table rows
-    // =========================================================
-    function sgRenderRows(rows) {
-        var tbody = jQuery('#sgTableBody');
-        tbody.empty();
-
-        if (!rows || rows.length === 0) {
-            tbody.html('<tr><td colspan="4" style="text-align:center;padding:24px;color:#a7a9ac;">No service groups found</td></tr>');
-            return;
-        }
-
-        for (var i = 0; i < rows.length; i++) {
-            var sg = rows[i];
-            var editLink = 'main.php?p=' + sgPage + '&o=c&sg_id=' + sg.sg_id;
-            var checked = sg.sg_activate ? ' checked' : '';
-
-            var tr = '<tr>' +
-                '<td class="sg-col-picker">' +
-                    '<div class="md-checkbox md-checkbox-inline">' +
-                        '<input type="checkbox" id="select_' + sg.sg_id + '" name="select[' + sg.sg_id + ']" />' +
-                        '<label class="empty-label" for="select_' + sg.sg_id + '"></label>' +
-                    '</div>' +
-                '</td>' +
-                '<td><a href="' + editLink + '">' + sgEscape(sg.sg_name) + '</a></td>' +
-                '<td><a href="' + editLink + '">' + sgEscape(sg.sg_alias || '') + '</a></td>';
-
-            if (sgWriteAccess) {
-                tr += '<td class="sg-col-right"><div class="sg-options-cell">' +
-                    '<label class="sg-toggle">' +
-                        '<input type="checkbox" data-sg-id="' + sg.sg_id + '"' + checked +
-                        ' onchange="sgToggleActivation(this);" />' +
-                        '<span class="sg-toggle-slider"></span>' +
-                    '</label>' +
-                    '<input onKeypress="if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) ' +
-                        'event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;" ' +
-                        'maxlength="3" size="3" value="1" class="sg-dup-input" name="dupNbr[' + sg.sg_id + ']" />' +
-                '</div></td>';
-            }
-
-            tr += '</tr>';
-            tbody.append(tr);
-        }
-    }
-
-    // =========================================================
-    // Render pagination
-    // =========================================================
-    function sgRenderPagination(total, num, limit) {
-        var totalPages = Math.ceil(total / limit);
-        if (totalPages < 1) totalPages = 1;
-
-        var startRow = total > 0 ? num * limit + 1 : 0;
-        var endRow = Math.min((num + 1) * limit, total);
-        var info = startRow + '-' + endRow + ' of ' + total;
-
-        var html = '';
-
-        // Prev
-        if (num > 0) {
-            html += '<a href="#" class="sg-page-nav" onclick="sgGoToPage(0);return false;">'
-                + '<img src="./img/icons/first_rewind.png" title="First page" /></a>';
-            html += '<a href="#" class="sg-page-nav" onclick="sgGoToPage(' + (num - 1) + ');return false;">'
-                + '<img src="./img/icons/rewind.png" title="Previous page" /></a>';
-        }
-
-        // Page numbers
-        var startPage = Math.max(0, num - 5);
-        var endPage = Math.min(totalPages - 1, num + 5);
-        for (var i = startPage; i <= endPage; i++) {
-            if (i === num) {
-                html += '<span class="sg-page-current">' + (i + 1) + '</span>';
-            } else {
-                html += '<a href="#" class="sg-page-num" onclick="sgGoToPage(' + i + ');return false;">' + (i + 1) + '</a>';
-            }
-        }
-
-        // Next
-        if (num < totalPages - 1) {
-            html += '<a href="#" class="sg-page-nav" onclick="sgGoToPage(' + (num + 1) + ');return false;">'
-                + '<img src="./img/icons/fast_forward.png" title="Next page" /></a>';
-            html += '<a href="#" class="sg-page-nav" onclick="sgGoToPage(' + (totalPages - 1) + ');return false;">'
-                + '<img src="./img/icons/end_forward.png" title="Last page" /></a>';
-        }
-
-        // Limit selector
-        html += ' <select class="sg-limit-select" onchange="sgChangeLimit(this.value);">';
-        var limits = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
-        for (var j = 0; j < limits.length; j++) {
-            var sel = limits[j] === limit ? ' selected' : '';
-            html += '<option value="' + limits[j] + '"' + sel + '>' + limits[j] + '</option>';
-        }
-        html += '</select>';
-
-        // Info
-        html += '<span class="sg-page-info">' + info + '</span>';
-
-        jQuery('#sgPaginationTop').html(html);
-        jQuery('#sgPaginationBottom').html(html);
-    }
-
-    // =========================================================
-    // Navigation helpers (global scope for onclick)
-    // =========================================================
-    window.sgGoToPage = function (num) {
-        sgFetchData(num, sgCurrentLimit, sgCurrentSearch);
     };
 
-    window.sgChangeLimit = function (limit) {
-        var newLimit = parseInt(limit, 10);
-        localStorage.setItem('sg_listing_limit', newLimit);
-        sgFetchData(0, newLimit, sgCurrentSearch);
+    this.renderRows = function(rows) {
+        var tbody = jQuery('#'+cfg.tableBodyId); tbody.empty();
+        if (!rows || !rows.length) { tbody.html('<tr><td colspan="99" style="text-align:center;padding:24px;color:#a7a9ac;">'+self.escape(cfg.emptyMessage)+'</td></tr>'); return; }
+        for (var i=0; i<rows.length; i++) {
+            var row = rows[i], rid = row[cfg.rowIdField];
+            var tr = '<tr><td class="cl-col-picker"><div class="md-checkbox md-checkbox-inline"><input type="checkbox" id="select_'+rid+'" name="select['+rid+']" /><label class="empty-label" for="select_'+rid+'"></label></div></td>';
+            for (var c=0; c<cfg.columns.length; c++) {
+                var col = cfg.columns[c], align = col.align ? ' class="cl-col-'+col.align+'"' : '';
+                tr += '<td'+align+'>'+(col.render ? col.render(row, self) : self.escape(row[col.id]||''))+'</td>';
+            }
+            if (cfg.writeAccess && cfg.renderOptions) tr += '<td class="cl-col-right"><div class="cl-options-cell">'+cfg.renderOptions(row, self)+'</div></td>';
+            tr += '</tr>'; tbody.append(tr);
+        }
     };
 
-    // =========================================================
-    // Toggle activation (AJAX)
-    // =========================================================
-    window.sgToggleActivation = function (toggle) {
-        var sgId = jQuery(toggle).data('sg-id');
-        var isChecked = toggle.checked;
-        var action = isChecked ? 's' : 'u';
+    this.renderPagination = function(total, num, limit) {
+        var tp = Math.max(1, Math.ceil(total/limit));
+        var sr = total>0 ? num*limit+1 : 0, er = Math.min((num+1)*limit, total);
+        var n = cfg.instanceName, html = '';
+        if (num>0) {
+            html += '<a href="#" class="cl-page-nav" onclick="'+n+'.goToPage(0);return false;"><img src="./img/icons/first_rewind.png" title="First page"/></a>';
+            html += '<a href="#" class="cl-page-nav" onclick="'+n+'.goToPage('+(num-1)+');return false;"><img src="./img/icons/rewind.png" title="Previous page"/></a>';
+        }
+        for (var i=Math.max(0,num-5); i<=Math.min(tp-1,num+5); i++) {
+            if (i===num) html += '<span class="cl-page-current">'+(i+1)+'</span>';
+            else html += '<a href="#" class="cl-page-num" onclick="'+n+'.goToPage('+i+');return false;">'+(i+1)+'</a>';
+        }
+        if (num<tp-1) {
+            html += '<a href="#" class="cl-page-nav" onclick="'+n+'.goToPage('+(num+1)+');return false;"><img src="./img/icons/fast_forward.png" title="Next page"/></a>';
+            html += '<a href="#" class="cl-page-nav" onclick="'+n+'.goToPage('+(tp-1)+');return false;"><img src="./img/icons/end_forward.png" title="Last page"/></a>';
+        }
+        html += ' <select class="cl-limit-select" onchange="'+n+'.changeLimit(this.value);">';
+        for (var j=10; j<=100; j+=10) { html += '<option value="'+j+'"'+(j===limit?' selected':'')+'>'+j+'</option>'; }
+        html += '</select><span class="cl-page-info">'+sr+'-'+er+' of '+total+'</span>';
+        jQuery('#'+cfg.paginationTopId).html(html);
+        jQuery('#'+cfg.paginationBottomId).html(html);
+    };
 
+    this.goToPage = function(num) { self.fetch(num, currentLimit, currentSearch); };
+    this.changeLimit = function(l) { var v=parseInt(l,10); localStorage.setItem(cfg.storageKey,v); self.fetch(0,v,currentSearch); };
+
+    this.toggleActivation = function(toggle) {
+        if (!cfg.ajaxToggleUrl) return;
+        var rid=jQuery(toggle).data('row-id'), checked=toggle.checked, action=checked?'s':'u';
         toggle.disabled = true;
-
         jQuery.ajax({
-            url: './include/configuration/configObject/servicegroup/ajaxServiceGroupToggle.php',
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                sg_id: sgId,
-                action: action,
-                centreon_token: sgCsrfToken
-            },
-            success: function (response) {
-                if (response.centreon_token) {
-                    sgCsrfToken = response.centreon_token;
-                }
-                toggle.disabled = false;
-            },
-            error: function () {
-                toggle.checked = !isChecked;
-                toggle.disabled = false;
-            }
+            url:cfg.ajaxToggleUrl, type:'POST', dataType:'json',
+            data:{ sg_id:rid, action:action, centreon_token:csrfToken },
+            success:function(r){ if(r.centreon_token) csrfToken=r.centreon_token; toggle.disabled=false; },
+            error:function(){ toggle.checked=!checked; toggle.disabled=false; }
         });
     };
 
-    // =========================================================
-    // Select/deselect all checkboxes
-    // =========================================================
-    window.sgCheckUncheckAll = function (theElement) {
-        var table = jQuery(theElement).closest('table');
-        table.find('tbody .sg-col-picker input[type=checkbox]').each(function () {
-            jQuery(this).prop('checked', theElement.checked);
-        });
+    this.checkUncheckAll = function(el) {
+        jQuery(el).closest('table').find('tbody .cl-col-picker input[type=checkbox]').each(function(){ jQuery(this).prop('checked',el.checked); });
     };
 
-    // =========================================================
-    // Search
-    // =========================================================
-    jQuery('#sgSearchBtn').on('click', function () {
-        var search = jQuery('#sgSearchInput').val();
-        sgFetchData(0, sgCurrentLimit, search);
-    });
+    this.init = function() {
+        currentSearch = jQuery('#'+cfg.searchInputId).val() || '';
+        jQuery('#'+cfg.searchBtnId).on('click', function(){ currentSearch=jQuery('#'+cfg.searchInputId).val(); self.fetch(0,currentLimit,currentSearch); });
+        jQuery('#'+cfg.searchInputId).on('keypress', function(e){ if(e.which===13){e.preventDefault(); jQuery('#'+cfg.searchBtnId).click();} });
+        self.fetch(0, currentLimit, currentSearch);
+        if (cfg.autoRefresh>0) setInterval(function(){ self.fetch(currentNum,currentLimit,currentSearch,true); }, cfg.autoRefresh);
+    };
+}
 
-    jQuery('#sgSearchInput').on('keypress', function (e) {
-        if (e.which === 13) {
-            e.preventDefault();
-            jQuery('#sgSearchBtn').click();
-        }
-    });
-
-    // =========================================================
-    // HTML escape helper
-    // =========================================================
-    function sgEscape(str) {
-        if (!str) return '';
-        var div = document.createElement('div');
-        div.appendChild(document.createTextNode(str));
-        return div.innerHTML;
+/* ==========================================================================
+   Service Groups listing instance
+   ========================================================================== */
+var sgListing = new CentreonListing({
+    instanceName:  'sgListing',
+    ajaxListUrl:   './include/configuration/configObject/servicegroup/ajaxServiceGroupListing.php',
+    ajaxToggleUrl: './include/configuration/configObject/servicegroup/ajaxServiceGroupToggle.php',
+    pageId:        {/literal}'{$sgPage}'{literal},
+    writeAccess:   {/literal}'{$mode_access}'{literal} === 'w',
+    defaultLimit:  {/literal}{$defaultLimit}{literal},
+    storageKey:    'sg_listing_limit',
+    emptyMessage:  'No service groups found',
+    autoRefresh:   30000,
+    rowIdField:    'id',
+    columns: [
+        { id:'name', render: function(row, l) {
+            var link = 'main.php?p={/literal}{$sgPage}{literal}&o=c&sg_id=' + row.id;
+            return '<a href="'+link+'">'+l.escape(row.name)+'</a>';
+        }},
+        { id:'alias', render: function(row, l) {
+            var link = 'main.php?p={/literal}{$sgPage}{literal}&o=c&sg_id=' + row.id;
+            return '<a href="'+link+'">'+l.escape(row.alias||'')+'</a>';
+        }}
+    ],
+    renderOptions: function(row, l) {
+        var checked = row.activate ? ' checked' : '';
+        return '<label class="cl-toggle"><input type="checkbox" data-row-id="'+row.id+'"'+checked+' onchange="sgListing.toggleActivation(this);"/><span class="cl-toggle-slider"></span></label>' +
+            '<input onKeypress="if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))event.returnValue=false;if(event.which>31&&(event.which<45||event.which>57))return false;" maxlength="3" size="3" value="1" class="cl-dup-input" name="dupNbr['+row.id+']"/>';
     }
-
-    // =========================================================
-    // Initial load
-    // =========================================================
-    sgFetchData(0, sgCurrentLimit, sgCurrentSearch);
-
-    // =========================================================
-    // Auto-refresh every 30 seconds (silent)
-    // =========================================================
-    setInterval(function () {
-        sgFetchData(sgCurrentNum, sgCurrentLimit, sgCurrentSearch, true);
-    }, 30000);
-})();
+});
+sgListing.init();
 </script>
 {/literal}

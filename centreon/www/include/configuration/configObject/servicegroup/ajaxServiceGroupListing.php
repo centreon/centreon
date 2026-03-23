@@ -19,82 +19,40 @@
  *
  */
 
-require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
-require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
-require_once _CENTREON_PATH_ . '/www/class/centreonSession.class.php';
-require_once _CENTREON_PATH_ . '/www/include/common/common-Func.php';
-require_once _CENTREON_PATH_ . '/www/class/HtmlAnalyzer.php';
+require_once realpath(__DIR__ . '/../../..') . '/common/listing/AjaxListingHelper.php';
 
-header('Content-Type: application/json');
+$helper  = AjaxListingHelper::boot();
+$centreon = $helper->requireCentreon();
+$pearDB  = $helper->getDb();
+$params  = $helper->getParams();
 
-session_start();
+$search = $params['search'];
+$num    = $params['num'];
+$limit  = $params['limit'];
 
-$pearDB = new CentreonDB();
-
-try {
-    if (! CentreonSession::checkSession(session_id(), $pearDB)) {
-        http_response_code(401);
-        echo json_encode(['error' => 'Unauthorized']);
-        exit;
-    }
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Internal error']);
-    exit;
-}
-
-// Parameters
-$search = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search'] ?? '');
-$num = filter_var($_GET['num'] ?? 0, FILTER_VALIDATE_INT) ?: 0;
-$limit = filter_var($_GET['limit'] ?? 30, FILTER_VALIDATE_INT) ?: 30;
-
-// ACL - check if user is admin
-require_once _CENTREON_PATH_ . '/www/class/centreon.class.php';
-require_once _CENTREON_PATH_ . '/www/class/centreonACL.class.php';
-
-// Register Centreon autoloader for session deserialization
-spl_autoload_register(function ($sClass): void {
-    $fileName = lcfirst($sClass);
-    $fileNameType1 = _CENTREON_PATH_ . '/www/class/' . $fileName . '.class.php';
-    $fileNameType2 = _CENTREON_PATH_ . '/www/class/' . $fileName . '.php';
-    if (file_exists($fileNameType1)) {
-        require_once $fileNameType1;
-    } elseif (file_exists($fileNameType2)) {
-        require_once $fileNameType2;
-    }
-});
-
-$centreon = $_SESSION['centreon'] ?? null;
-if (! $centreon) {
-    http_response_code(403);
-    echo json_encode(['error' => 'Forbidden']);
-    exit;
-}
-
-$isAdmin = $centreon->user->admin;
-
+// ACL filtering
 $conditionStr = '';
-$sgStrParams = [];
+$sgStrParams  = [];
 
-if (! $isAdmin) {
-    $acl = $centreon->user->access;
+if (! $helper->isAdmin()) {
+    $acl = $helper->getAcl();
     $sgs = $acl->getServiceGroupAclConf(null, 'broker');
 
-    if (! empty($sgs)) {
-        $sgIds = array_keys($sgs);
-        foreach ($sgIds as $index => $sgId) {
-            $sgStrParams[':sg_' . $index] = (int) $sgId;
-        }
-        $queryParams = implode(',', array_keys($sgStrParams));
-        $conditionStr = $search !== ''
-            ? 'AND sg_id IN (' . $queryParams . ')'
-            : 'WHERE sg_id IN (' . $queryParams . ')';
-    } else {
-        echo json_encode(['rows' => [], 'total' => 0, 'num' => 0, 'limit' => $limit, 'centreon_token' => createCSRFToken()]);
-        exit;
+    if (empty($sgs)) {
+        $helper->jsonResponse([], 0, 0, $limit);
     }
+
+    $sgIds = array_keys($sgs);
+    foreach ($sgIds as $index => $sgId) {
+        $sgStrParams[':sg_' . $index] = (int) $sgId;
+    }
+    $queryParams  = implode(',', array_keys($sgStrParams));
+    $conditionStr = $search !== ''
+        ? 'AND sg_id IN (' . $queryParams . ')'
+        : 'WHERE sg_id IN (' . $queryParams . ')';
 }
 
+// Query
 if ($search !== '') {
     $statement = $pearDB->prepare(
         'SELECT SQL_CALC_FOUND_ROWS sg_id, sg_name, sg_alias, sg_activate'
@@ -120,22 +78,11 @@ $total = (int) $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
 $rows = [];
 while ($sg = $statement->fetch(PDO::FETCH_ASSOC)) {
     $rows[] = [
-        'sg_id' => (int) $sg['sg_id'],
-        'sg_name' => $sg['sg_name'],
-        'sg_alias' => $sg['sg_alias'],
-        'sg_activate' => (int) $sg['sg_activate'],
+        'id'       => (int) $sg['sg_id'],
+        'name'     => $sg['sg_name'],
+        'alias'    => $sg['sg_alias'],
+        'activate' => (int) $sg['sg_activate'],
     ];
 }
 
-// CSRF token for toggle actions
-$centreonToken = createCSRFToken();
-
-echo json_encode([
-    'rows' => $rows,
-    'total' => $total,
-    'num' => $num,
-    'limit' => $limit,
-    'centreon_token' => $centreonToken,
-]);
-
-exit;
+$helper->jsonResponse($rows, $total, $num, $limit);
