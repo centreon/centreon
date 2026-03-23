@@ -10,7 +10,7 @@ for file in $(find "$BASEDIR" -maxdepth 1 -type f -printf '%f\n' | sort); do
   case "$file" in
     *_background*)
       # Execute background script and store PID
-      if . "$BASEDIR/$file" > /tmp/bg_${file}.log & then
+      if . "$BASEDIR/$file" & then
         pid=$!
         echo $pid >> /tmp/background_pids
       else
