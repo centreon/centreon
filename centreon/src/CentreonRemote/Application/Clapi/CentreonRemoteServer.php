@@ -58,9 +58,9 @@ class CentreonRemoteServer implements CentreonClapiServiceInterface
      *                                 a boolean to enable/disable certificate check to contact the remote,
      *                                 a boolean to enable/disable the use of proxy to contact the central
      *
-     * @return int|void
+     * @return int
      */
-    public function enableRemote(string $parametersString)
+    public function enableRemote(string $parametersString): int
     {
         // Set default value
         $noCheckCertificate = false;
@@ -145,6 +145,8 @@ class CentreonRemoteServer implements CentreonClapiServiceInterface
         }
 
         echo "Centreon Remote enabling finished.\n";
+
+        return 0;
     }
 
     /**

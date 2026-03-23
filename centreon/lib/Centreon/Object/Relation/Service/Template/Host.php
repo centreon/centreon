@@ -19,7 +19,7 @@
  *
  */
 
-require_once 'Centreon/Object/Relation/Relation.php';
+require_once __DIR__ . '/../../Relation.php';
 
 /**
  * Class
@@ -84,7 +84,7 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
      * @throws Exception
      * @return array
      */
-    public function getMergedParameters($firstTableParams = [], $secondTableParams = [], $count = -1, $offset = 0, $order = null, $sort = 'ASC', $filters = [], $filterType = 'OR')
+    public function getMergedParameters($firstTableParams = [], $secondTableParams = [], $count = -1, $offset = 0, $order = null, $sort = 'ASC', $filters = [], $filterType = 'OR'): array
     {
         if (! isset($this->firstObject) || ! isset($this->secondObject)) {
             throw new Exception('Unsupported method on this object');

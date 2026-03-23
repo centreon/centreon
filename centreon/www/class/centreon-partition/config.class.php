@@ -91,7 +91,7 @@ class Config
      * @throws Exception
      * @return null
      */
-    public function parseXML($xmlfile): void
+    public function parseXML($xmlfile): null
     {
         if (! file_exists($xmlfile)) {
             throw new Exception("Config file '" . $xmlfile . "' does not exist\n");
@@ -141,7 +141,7 @@ class Config
      *
      * @return array
      */
-    public function getTables()
+    public function getTables(): array
     {
         return $this->tables;
     }
@@ -153,7 +153,7 @@ class Config
      *
      * @return string
      */
-    public function getTable($name)
+    public function getTable($name): string
     {
         foreach ($this->tables as $key => $instance) {
             if ($key == $name) {
@@ -169,7 +169,7 @@ class Config
      *
      * @return bool
      */
-    public function isValid()
+    public function isValid(): bool
     {
         foreach ($this->tables as $key => $inst) {
             if (! $inst->isValid()) {

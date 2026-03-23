@@ -85,7 +85,7 @@ class WikiApi
      * @throws Exception
      * @return float
      */
-    public function getWikiVersion()
+    public function getWikiVersion(): float
     {
         $postfields = ['action' => 'query', 'meta' => 'siteinfo', 'format' => 'json'];
 
@@ -105,7 +105,7 @@ class WikiApi
      * @throws Exception
      * @return bool
      */
-    public function login()
+    public function login(): bool
     {
         if ($this->loggedIn) {
             return $this->loggedIn;
@@ -167,7 +167,7 @@ class WikiApi
      *
      * @return mixed
      */
-    public function getMethodToken($method = 'delete', $title = '')
+    public function getMethodToken($method = 'delete', $title = ''): mixed
     {
         if ($this->version >= 1.24) {
             $postfields = ['action' => 'query', 'meta' => 'tokens', 'type' => 'csrf', 'format' => 'json'];
@@ -200,7 +200,7 @@ class WikiApi
      * @throws Exception
      * @return true
      */
-    public function movePage($oldTitle = '', $newTitle = '')
+    public function movePage($oldTitle = '', $newTitle = ''): true
     {
         $this->login();
         $token = $this->getMethodToken('move', $oldTitle);
@@ -221,7 +221,7 @@ class WikiApi
      * @throws Exception
      * @return bool
      */
-    public function deletePage($title = '')
+    public function deletePage($title = ''): bool
     {
         $tries = 0;
         $deleteResult = $this->deleteMWPage($title);
@@ -240,7 +240,7 @@ class WikiApi
     /**
      * @return array
      */
-    public function getAllPages()
+    public function getAllPages(): array
     {
         $postfields = ['format' => 'json', 'action' => 'query', 'list' => 'allpages', 'aplimit' => '200'];
 
@@ -274,7 +274,7 @@ class WikiApi
      * @param int $count
      * @return mixed
      */
-    public function getChangedPages($count = 50)
+    public function getChangedPages($count = 50): mixed
     {
         // Connecting to Mediawiki API
         $postfields = ['format' => 'json', 'action' => 'query', 'list' => 'recentchanges', 'rclimit' => $count, 'rcprop' => 'title', 'rctype' => 'new|edit'];
@@ -289,7 +289,7 @@ class WikiApi
     /**
      * @return array
      */
-    public function detectCentreonObjects()
+    public function detectCentreonObjects(): array
     {
         $pages = $this->getChangedPages();
 
@@ -460,7 +460,7 @@ class WikiApi
     /**
      * @return CurlHandle|false
      */
-    private function getCurl()
+    private function getCurl(): CurlHandle|false
     {
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $this->url);
@@ -483,7 +483,7 @@ class WikiApi
      * @throws Exception
      * @return object
      */
-    private function deleteMWPage($title = '')
+    private function deleteMWPage($title = ''): object
     {
         $this->login();
 

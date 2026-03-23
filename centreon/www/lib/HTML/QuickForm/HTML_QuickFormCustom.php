@@ -64,7 +64,7 @@ class HTML_QuickFormCustom extends HTML_QuickForm
      * @throws HTML_QuickForm_Error
      * @return HTML_QuickForm_Element
      */
-    public function &createElement($elementType)
+    public function &createElement($elementType): HTML_QuickForm_Element
     {
         if ($elementType == 'radio') { // If element is radio we'll load our custom class type
             $elementType = 'radio_custom';
@@ -106,7 +106,7 @@ class HTML_QuickFormCustom extends HTML_QuickForm
      * @param array $submittedValues
      * @return bool
      */
-    public function checkSecurityToken($submittedValues)
+    public function checkSecurityToken($submittedValues): bool
     {
         $success = false;
 

@@ -42,7 +42,7 @@ final class HtmlSanitizer
      *
      * @return HtmlSanitizer
      */
-    public static function createFromString(string $string): self
+    public static function createFromString(string $string): HtmlSanitizer
     {
         return new self($string);
     }
@@ -50,7 +50,7 @@ final class HtmlSanitizer
     /**
      * @return HtmlSanitizer
      */
-    public function sanitize(): self
+    public function sanitize(): HtmlSanitizer
     {
         $this->string = htmlspecialchars($this->string, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
@@ -62,7 +62,7 @@ final class HtmlSanitizer
      *
      * @return HtmlSanitizer
      */
-    public function removeTags(?array $allowedTags = null): self
+    public function removeTags(?array $allowedTags = null): HtmlSanitizer
     {
         $this->string = strip_tags($this->string, $allowedTags);
 

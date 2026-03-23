@@ -71,7 +71,7 @@ class Options
      *
      * @return false|mixed|string|null
      */
-    public function getOptionValue($label)
+    public function getOptionValue($label): mixed
     {
         return $this->options[$label] ?? null;
     }
@@ -81,7 +81,7 @@ class Options
      *
      * @return bool
      */
-    public function isMissingOptions()
+    public function isMissingOptions(): bool
     {
         if (! isset($this->options) || count($this->options) == 0) {
             return true;
@@ -101,7 +101,7 @@ class Options
      *
      * @return bool
      */
-    public function isMigration()
+    public function isMigration(): bool
     {
         if (isset($this->options['m']) && file_exists($this->options['m'])) {
             $this->confFile = $this->options['m'];
@@ -117,7 +117,7 @@ class Options
      *
      * @return bool
      */
-    public function isCreation()
+    public function isCreation(): bool
     {
         if (isset($this->options['c']) && file_exists($this->options['c'])) {
             $this->confFile = $this->options['c'];
@@ -133,7 +133,7 @@ class Options
      *
      * @return bool
      */
-    public function isUpdate()
+    public function isUpdate(): bool
     {
         if (isset($this->options['u']) && file_exists($this->options['u'])) {
             $this->confFile = $this->options['u'];
@@ -149,7 +149,7 @@ class Options
      *
      * @return bool
      */
-    public function isBackup()
+    public function isBackup(): bool
     {
         if (isset($this->options['b']) && is_writable($this->options['b'])) {
             $this->confFile = $this->options['b'];
@@ -165,7 +165,7 @@ class Options
      *
      * @return bool
      */
-    public function isOptimize()
+    public function isOptimize(): bool
     {
         if (isset($this->options['o']) && is_writable($this->options['o'])) {
             $this->confFile = $this->options['o'];
@@ -181,7 +181,7 @@ class Options
      *
      * @return bool
      */
-    public function isPurge()
+    public function isPurge(): bool
     {
         if (isset($this->options['p']) && is_writable($this->options['p'])) {
             $this->confFile = $this->options['p'];
@@ -197,7 +197,7 @@ class Options
      *
      * @return bool
      */
-    public function isPartList()
+    public function isPartList(): bool
     {
         return (bool) (isset($this->options['l']) && $this->options['l'] != ''
             && isset($this->options['s']) && $this->options['s'] != '');
@@ -208,7 +208,7 @@ class Options
      *
      * @return mixed|string
      */
-    public function getVerboseLevel()
+    public function getVerboseLevel(): mixed
     {
         return $this->verbosity;
     }
@@ -218,7 +218,7 @@ class Options
      *
      * @return mixed
      */
-    public function getConfFile()
+    public function getConfFile(): mixed
     {
         return $this->confFile;
     }

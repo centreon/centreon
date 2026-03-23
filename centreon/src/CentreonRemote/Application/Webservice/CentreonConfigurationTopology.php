@@ -103,7 +103,7 @@ class CentreonConfigurationTopology extends CentreonWebServiceAbstract
      *
      * @return array<string,string|bool>
      */
-    public function postGetTopologyData()
+    public function postGetTopologyData(): array
     {
         if (! isset($_POST['topology_id']) || ! $_POST['topology_id']) {
             throw new \RestBadRequestException('You need to send \'topology_id\' in the request.');
@@ -135,7 +135,7 @@ class CentreonConfigurationTopology extends CentreonWebServiceAbstract
      *
      * @return bool If the user has access to the action
      */
-    public function authorize($action, $user, $isInternal = false)
+    public function authorize($action, $user, $isInternal = false): bool
     {
         if (parent::authorize($action, $user, $isInternal)) {
             return true;

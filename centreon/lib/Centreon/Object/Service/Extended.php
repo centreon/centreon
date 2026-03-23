@@ -19,7 +19,7 @@
  *
  */
 
-require_once 'Centreon/Object/Object.php';
+require_once __DIR__ . '/../Object.php';
 
 /**
  * Used for interacting with Service extended information
@@ -38,9 +38,9 @@ class Centreon_Object_Service_Extended extends Centreon_Object
      * Used for inserting object into database
      *
      * @param array $params
-     * @return int
+     * @return false|string|null
      */
-    public function insert($params = [])
+    public function insert($params = []): false|string|null
     {
         $sql = "INSERT INTO {$this->table} ";
         $sqlFields = '';
@@ -74,7 +74,7 @@ class Centreon_Object_Service_Extended extends Centreon_Object
      * @param mixed $parameterNames
      * @return array
      */
-    public function getParameters($objectId, $parameterNames)
+    public function getParameters($objectId, $parameterNames): array
     {
         $params = parent::getParameters($objectId, $parameterNames);
         $params_image = ['esi_icon_image'];

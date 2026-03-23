@@ -19,7 +19,7 @@
  *
  */
 
-require_once 'Centreon/Object/Relation/Relation.php';
+require_once __DIR__ . '/../../Relation.php';
 
 class Centreon_Object_Relation_Service_Group_Service extends Centreon_Object_Relation
 {
@@ -36,7 +36,7 @@ class Centreon_Object_Relation_Service_Group_Service extends Centreon_Object_Rel
      * @param array $arg
      * @throws Exception
      */
-    public function __call($name, $arg = [])
+    public function __call($name, $arg = []): array
     {
         throw new Exception('Unknown method');
     }
@@ -84,7 +84,7 @@ class Centreon_Object_Relation_Service_Group_Service extends Centreon_Object_Rel
      * @param int $serviceId
      * @return array
      */
-    public function getServicegroupIdFromHostIdServiceId($hostId, $serviceId)
+    public function getServicegroupIdFromHostIdServiceId($hostId, $serviceId): array
     {
         $sql = "SELECT {$this->firstKey} FROM {$this->relationTable} WHERE host_host_id = ? AND {$this->secondKey} = ?";
         $result = $this->getResult($sql, [$hostId, $serviceId]);
@@ -102,7 +102,7 @@ class Centreon_Object_Relation_Service_Group_Service extends Centreon_Object_Rel
      * @param int $servicegroupId
      * @return array multidimentional array with host_id and service_id indexes
      */
-    public function getHostIdServiceIdFromServicegroupId($servicegroupId)
+    public function getHostIdServiceIdFromServicegroupId($servicegroupId): array
     {
         $sql = "SELECT host_host_id, {$this->secondKey} FROM {$this->relationTable} WHERE {$this->firstKey} = ?";
         $result = $this->getResult($sql, [$servicegroupId]);

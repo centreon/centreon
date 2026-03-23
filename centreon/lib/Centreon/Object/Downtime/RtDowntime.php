@@ -19,7 +19,7 @@
  *
  */
 
-require_once 'Centreon/Object/ObjectRt.php';
+require_once __DIR__ . '/../ObjectRt.php';
 
 /**
  * Class
@@ -44,7 +44,7 @@ class Centreon_Object_RtDowntime extends Centreon_ObjectRt
      * @param array $hostList
      * @return array
      */
-    public function getHostDowntimes($hostList = [])
+    public function getHostDowntimes($hostList = []): array
     {
         $hostFilter = '';
 
@@ -69,7 +69,7 @@ class Centreon_Object_RtDowntime extends Centreon_ObjectRt
      * @param array $svcList
      * @return array
      */
-    public function getSvcDowntimes($svcList = [])
+    public function getSvcDowntimes($svcList = []): array
     {
         $serviceFilter = '';
 
@@ -104,7 +104,7 @@ class Centreon_Object_RtDowntime extends Centreon_ObjectRt
      * @param $id
      * @return array
      */
-    public function getCurrentDowntime($id)
+    public function getCurrentDowntime($id): array
     {
         $query = 'SELECT * FROM downtimes WHERE ISNULL(actual_end_time) '
             . ' AND end_time > ' . time() . ' AND downtime_id = ' . $id;

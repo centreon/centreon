@@ -44,7 +44,7 @@ class Centreon_Object_Contact extends Centreon_Object
      * @throws PDOException
      * @return false|string|null
      */
-    public function insert($params = [])
+    public function insert($params = []): false|string|null
     {
         $sql = "INSERT INTO {$this->table} ";
         $sqlFields = '';

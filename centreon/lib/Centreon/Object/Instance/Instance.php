@@ -23,7 +23,7 @@ use Centreon\Domain\PlatformTopology\Interfaces\PlatformInterface;
 use Centreon\Domain\PlatformTopology\Model\PlatformRegistered;
 use Centreon\Infrastructure\PlatformTopology\Repository\Model\PlatformTopologyFactoryRDB;
 
-require_once 'Centreon/Object/Object.php';
+require_once __DIR__ . '/../Object.php';
 
 /**
  * Used for interacting with Instances (pollers)
@@ -54,9 +54,9 @@ class Centreon_Object_Instance extends Centreon_Object
      * Insert platform in nagios_server and platform_topology tables.
      *
      * @param array<string,mixed> $params
-     * @return int
+     * @return false|string|null
      */
-    public function insert($params = [])
+    public function insert($params = []): false|string|null
     {
         if (! array_key_exists('ns_ip_address', $params) || ! array_key_exists('name', $params)) {
             throw new InvalidArgumentException('Missing parameters');

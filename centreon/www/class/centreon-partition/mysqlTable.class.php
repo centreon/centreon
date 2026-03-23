@@ -90,7 +90,7 @@ class MysqlTable
      *
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -100,7 +100,7 @@ class MysqlTable
      *
      * @return string
      */
-    public function getSchema()
+    public function getSchema(): string
     {
         return $this->schema;
     }
@@ -112,7 +112,7 @@ class MysqlTable
      *
      * @return null
      */
-    public function setActivate($activate): void
+    public function setActivate($activate): null
     {
         if (isset($activate) && is_numeric($activate)) {
             $this->activate = $activate;
@@ -124,7 +124,7 @@ class MysqlTable
      *
      * @return int
      */
-    public function getActivate()
+    public function getActivate(): int
     {
         return $this->activate;
     }
@@ -136,7 +136,7 @@ class MysqlTable
      *
      * @return null
      */
-    public function setColumn($column): void
+    public function setColumn($column): null
     {
         if (isset($column) && $column != '') {
             $this->column = $column;
@@ -148,7 +148,7 @@ class MysqlTable
      *
      * @return string|null
      */
-    public function getColumn()
+    public function getColumn(): ?string
     {
         return $this->column;
     }
@@ -160,7 +160,7 @@ class MysqlTable
      *
      * @return null
      */
-    public function setTimezone($timezone): void
+    public function setTimezone($timezone): null
     {
         $this->timezone = isset($timezone) && $timezone != '' ? $timezone : date_default_timezone_get();
     }
@@ -170,7 +170,7 @@ class MysqlTable
      *
      * @return string|null
      */
-    public function getTimezone()
+    public function getTimezone(): ?string
     {
         return $this->timezone;
     }
@@ -200,7 +200,7 @@ class MysqlTable
      *
      * @return string|null
      */
-    public function getType()
+    public function getType(): ?string
     {
         return $this->type;
     }
@@ -213,7 +213,7 @@ class MysqlTable
      * @throws Exception
      * @return null
      */
-    public function setDuration($duration): void
+    public function setDuration($duration): null
     {
         if (isset($duration) && ($duration != 'daily')) {
             throw new Exception(
@@ -230,7 +230,7 @@ class MysqlTable
      *
      * @return string|null
      */
-    public function getDuration()
+    public function getDuration(): ?string
     {
         return $this->duration;
     }
@@ -242,7 +242,7 @@ class MysqlTable
      *
      * @return null
      */
-    public function setCreateStmt($createstmt): void
+    public function setCreateStmt($createstmt): null
     {
         if (isset($createstmt) && $createstmt != '') {
             $this->createstmt = str_replace(';', '', $createstmt);
@@ -254,7 +254,7 @@ class MysqlTable
      *
      * @return string|null
      */
-    public function getCreateStmt()
+    public function getCreateStmt(): ?string
     {
         return $this->createstmt;
     }
@@ -266,7 +266,7 @@ class MysqlTable
      *
      * @return null
      */
-    public function setBackupFolder($backupFolder): void
+    public function setBackupFolder($backupFolder): null
     {
         if (isset($backupFolder) || $backupFolder != '') {
             $this->backupFolder = $backupFolder;
@@ -278,7 +278,7 @@ class MysqlTable
      *
      * @return string|null
      */
-    public function getBackupFolder()
+    public function getBackupFolder(): ?string
     {
         return $this->backupFolder;
     }
@@ -290,7 +290,7 @@ class MysqlTable
      *
      * @return null
      */
-    public function setBackupFormat($backupFormat): void
+    public function setBackupFormat($backupFormat): null
     {
         if (isset($backupFormat) || $backupFormat != '') {
             $this->backupFormat = $backupFormat;
@@ -302,7 +302,7 @@ class MysqlTable
      *
      * @return string|null
      */
-    public function getBackupFormat()
+    public function getBackupFormat(): ?string
     {
         return $this->backupFormat;
     }
@@ -315,7 +315,7 @@ class MysqlTable
      * @throws Exception
      * @return null
      */
-    public function setRetention($retention): void
+    public function setRetention($retention): null
     {
         if (isset($retention) && is_numeric($retention)) {
             $this->retention = $retention;
@@ -332,7 +332,7 @@ class MysqlTable
      *
      * @return int|null
      */
-    public function getRetention()
+    public function getRetention(): ?int
     {
         return $this->retention;
     }
@@ -362,7 +362,7 @@ class MysqlTable
      *
      * @return int|null
      */
-    public function getRetentionForward()
+    public function getRetentionForward(): ?int
     {
         return $this->retentionforward;
     }
@@ -372,7 +372,7 @@ class MysqlTable
      *
      * @return bool
      */
-    public function isValid()
+    public function isValid(): bool
     {
         // Condition to mod with new version
         return ! (
@@ -389,7 +389,7 @@ class MysqlTable
      * @throws Exception
      * @return bool
      */
-    public function exists()
+    public function exists(): bool
     {
         try {
             $DBRESULT = $this->db->query('use `' . $this->schema . '`');
@@ -422,7 +422,7 @@ class MysqlTable
      * @throws Exception
      * @return bool
      */
-    public function columnExists()
+    public function columnExists(): bool
     {
         try {
             $DBRESULT = $this->db->query(
@@ -452,7 +452,7 @@ class MysqlTable
      *
      * @return null
      */
-    private function setName($name): void
+    private function setName($name): null
     {
         $this->name = isset($name) && $name != '' ? $name : null;
     }
@@ -464,7 +464,7 @@ class MysqlTable
      *
      * @return null
      */
-    private function setSchema($schema): void
+    private function setSchema($schema): null
     {
         $this->schema = isset($schema) && $schema != '' ? $schema : null;
     }

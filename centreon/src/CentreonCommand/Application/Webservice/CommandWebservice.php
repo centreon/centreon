@@ -163,7 +163,7 @@ class CommandWebservice extends Webservice\WebServiceAbstract implements Webserv
      *
      * @return \Centreon\Application\DataRepresenter\Response
      */
-    public function getList()
+    public function getList(): \Centreon\Application\DataRepresenter\Response
     {
         // extract post payload
         $request = $this->query();

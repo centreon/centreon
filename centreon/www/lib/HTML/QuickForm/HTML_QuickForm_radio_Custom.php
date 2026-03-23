@@ -24,7 +24,7 @@ class HTML_QuickForm_radio_Custom extends HTML_QuickForm_radio
     /**
      * @return string
      */
-    public function toHtml()
+    public function toHtml(): string
     {
         return '<div class="md-radio md-radio-inline">' . parent::toHtml() . '</div>';
     }
@@ -38,7 +38,7 @@ class HTML_QuickForm_radio_Custom extends HTML_QuickForm_radio
      *
      * @return mixed
      */
-    protected function _findValue(&$values)
+    protected function _findValue(&$values): mixed
     {
         if (empty($values)) {
             return null;

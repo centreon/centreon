@@ -85,7 +85,7 @@ class PartEngine
      * @throws Exception
      * @return true|void
      */
-    public function purgeParts($table, $db)
+    public function purgeParts($table, $db): void
     {
         if ($table->getType() != 'date') {
             echo '[' . date(DATE_RFC822) . "][purge] No need to purge\n";
@@ -216,7 +216,7 @@ class PartEngine
      * @throws Exception
      * @return array
      */
-    public function listParts($table, $db, $throwException = true)
+    public function listParts($table, $db, $throwException = true): array
     {
         $tableName = '`' . $table->getSchema() . '`.' . $table->getName();
         if (! $table->exists()) {
@@ -337,7 +337,7 @@ class PartEngine
      * @throws PDOException
      * @return bool
      */
-    public function isCompatible($db)
+    public function isCompatible($db): bool
     {
         $dbResult = $db->query("SELECT plugin_status FROM INFORMATION_SCHEMA.PLUGINS WHERE plugin_name = 'partition'");
         $config = $dbResult->fetch();
@@ -433,7 +433,7 @@ class PartEngine
      *
      * @return string
      */
-    private function purgeDailyPartitionCondition($table)
+    private function purgeDailyPartitionCondition($table): string
     {
         date_default_timezone_set($table->getTimezone());
         $ltime = localtime();
@@ -454,7 +454,7 @@ class PartEngine
      * @throws Exception
      * @return false|int
      */
-    private function updateAddDailyPartitions($db, $tableName, $month, $day, $year, $hasMaxValuePartition = false)
+    private function updateAddDailyPartitions($db, $tableName, $month, $day, $year, $hasMaxValuePartition = false): false|int
     {
         $current_time = mktime(0, 0, 0, $month, $day, $year);
         $ntime = localtime($current_time);
@@ -619,7 +619,7 @@ class PartEngine
      * @throws Exception
      * @return int|string
      */
-    private function getLastPartRange($table, $db)
+    private function getLastPartRange($table, $db): int|string
     {
         $error = false;
         try {

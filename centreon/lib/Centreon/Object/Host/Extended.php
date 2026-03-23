@@ -19,7 +19,7 @@
  *
  */
 
-require_once 'Centreon/Object/Object.php';
+require_once __DIR__ . '/../Object.php';
 
 /**
  * Used for interacting with host extended information
@@ -38,9 +38,9 @@ class Centreon_Object_Host_Extended extends Centreon_Object
      * Used for inserting object into database
      *
      * @param array $params
-     * @return int
+     * @return false|string|null
      */
-    public function insert($params = [])
+    public function insert($params = []): false|string|null
     {
         $sql = "INSERT INTO {$this->table} ";
         $sqlFields = '';
@@ -74,16 +74,16 @@ class Centreon_Object_Host_Extended extends Centreon_Object
      * @param mixed $parameterNames
      * @return array
      */
-    public function getParameters($objectId, $parameterNames)
+    public function getParameters($objectId, $parameterNames): array
     {
         $params = parent::getParameters($objectId, $parameterNames);
         $params_image = ['ehi_icon_image', 'ehi_statusmap_image'];
         foreach ($params_image as $image) {
             if (array_key_exists($image, $params)) {
-                $sql = 'SELECT dir_name,img_path 
-                        FROM view_img vi 
-                        LEFT JOIN view_img_dir_relation vidr ON vi.img_id = vidr.img_img_id 
-                        LEFT JOIN view_img_dir vid ON vid.dir_id = vidr.dir_dir_parent_id 
+                $sql = 'SELECT dir_name,img_path
+                        FROM view_img vi
+                        LEFT JOIN view_img_dir_relation vidr ON vi.img_id = vidr.img_img_id
+                        LEFT JOIN view_img_dir vid ON vid.dir_id = vidr.dir_dir_parent_id
                         WHERE img_id = ?';
                 $res = $this->getResult($sql, [$params[$image]], 'fetch');
                 if (is_array($res)) {

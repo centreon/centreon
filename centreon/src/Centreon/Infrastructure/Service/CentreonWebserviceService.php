@@ -39,7 +39,7 @@ class CentreonWebserviceService implements ContainerInterface
      * @throws NotFoundException
      * @return self
      */
-    public function add(string $object): self
+    public function add(string $object): \Centreon\Infrastructure\Service\CentreonWebserviceService
     {
         $centreonClass = CentreonWebService::class;
         $abstractClass = CentreonWebServiceAbstract::class;

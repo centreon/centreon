@@ -19,7 +19,7 @@
  *
  */
 
-require_once 'Centreon/Object/ObjectRt.php';
+require_once __DIR__ . '/../ObjectRt.php';
 
 /**
  * Class
@@ -41,7 +41,7 @@ class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
      * @param int[] $hostIds
      * @return array
      */
-    public function getLastHostAcknowledgement($hostIds = [])
+    public function getLastHostAcknowledgement($hostIds = []): array
     {
         $hostFilter = '';
         if (! empty($hostIds)) {
@@ -78,7 +78,7 @@ class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
      * @param string[] $svcList
      * @return array
      */
-    public function getLastSvcAcknowledgement($svcList = [])
+    public function getLastSvcAcknowledgement($svcList = []): array
     {
         $serviceFilter = '';
 
@@ -132,7 +132,7 @@ class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
      * @param $serviceId
      * @return bool
      */
-    public function svcIsAcknowledged($serviceId)
+    public function svcIsAcknowledged($serviceId): bool
     {
         $query = 'SELECT acknowledged FROM services WHERE service_id = ? ';
 
@@ -143,7 +143,7 @@ class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
      * @param $hostId
      * @return bool
      */
-    public function hostIsAcknowledged($hostId)
+    public function hostIsAcknowledged($hostId): bool
     {
         $query = 'SELECT acknowledged FROM hosts WHERE host_id = ? ';
 

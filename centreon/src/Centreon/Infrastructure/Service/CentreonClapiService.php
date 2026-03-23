@@ -37,7 +37,7 @@ class CentreonClapiService implements ContainerInterface
      * @throws NotFoundException
      * @return CentreonClapiService
      */
-    public function add(string $object): self
+    public function add(string $object): CentreonClapiService
     {
         $interface = CentreonClapiServiceInterface::class;
         $hasInterface = (new ReflectionClass($object))

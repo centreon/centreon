@@ -60,7 +60,7 @@ class HTML_QuickForm_tags extends HTML_QuickForm_select2
     /**
      * @return string
      */
-    public function getJsInit()
+    public function getJsInit(): string
     {
         $allowClear = 'true';
         if ($this->_allowClear === false || $this->_flagFrozen) {

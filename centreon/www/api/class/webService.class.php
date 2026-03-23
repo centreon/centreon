@@ -67,7 +67,7 @@ class CentreonWebService
      * @param bool $isInternal If the api is call in internal
      * @return bool If the user has access to the action
      */
-    public function authorize($action, $user, $isInternal = false)
+    public function authorize($action, $user, $isInternal = false): bool
     {
         return (bool) ($isInternal || ($user && $user->admin));
     }
@@ -238,7 +238,7 @@ class CentreonWebService
      *
      * @return void
      */
-    protected function loadDb()
+    protected function loadDb(): void
     {
         $this->pearDB ??= new CentreonDB();
     }
@@ -248,7 +248,7 @@ class CentreonWebService
      *
      * @return void
      */
-    protected function loadArguments()
+    protected function loadArguments(): void
     {
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
@@ -275,7 +275,7 @@ class CentreonWebService
      * The body must be JSON format
      * @return array
      */
-    protected function parseBody()
+    protected function parseBody(): array
     {
         try {
             $httpParams = json_decode(file_get_contents('php://input'), true);
@@ -291,7 +291,7 @@ class CentreonWebService
      *
      * @return void
      */
-    protected function loadToken()
+    protected function loadToken(): void
     {
         if (isset($_SERVER['HTTP_CENTREON_AUTH_TOKEN'])) {
             $this->token = $_SERVER['HTTP_CENTREON_AUTH_TOKEN'];
@@ -305,7 +305,7 @@ class CentreonWebService
      *
      * @return array|mixed
      */
-    protected static function webservicePath($object = '')
+    protected static function webservicePath($object = ''): mixed
     {
         $webServiceClass = [];
         foreach (self::$webServicePaths as $webServicePath) {
@@ -335,7 +335,7 @@ class CentreonWebService
      *
      * @return void
      */
-    protected static function updateTokenTtl()
+    protected static function updateTokenTtl(): void
     {
         global $pearDB;
 

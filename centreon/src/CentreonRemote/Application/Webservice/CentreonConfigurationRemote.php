@@ -666,7 +666,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *
      * @return bool|int
      */
-    private function createExportTask(array $params)
+    private function createExportTask(array $params): bool|int
     {
         return $this->getDi()['centreon.taskservice']->addTask(Task::TYPE_EXPORT, ['params' => $params]);
     }

@@ -65,7 +65,7 @@ abstract class Centreon_Object_Relation
      * @throws Exception
      * @return array
      */
-    public function __call($name, $args = [])
+    public function __call($name, $args = []): array
     {
         if (! count($args)) {
             throw new Exception('Missing arguments');
@@ -137,7 +137,7 @@ abstract class Centreon_Object_Relation
      * @throws Exception
      * @return array
      */
-    public function getRelations()
+    public function getRelations(): array
     {
         $sql = 'SELECT ' . $this->firstKey . ',' . $this->secondKey . ' '
             . 'FROM ' . $this->relationTable;
@@ -226,7 +226,7 @@ abstract class Centreon_Object_Relation
      * @param array $sourceId
      * @return array
      */
-    public function getTargetIdFromSourceId($targetKey, $sourceKey, $sourceId)
+    public function getTargetIdFromSourceId($targetKey, $sourceKey, $sourceId): array
     {
         if (! is_array($sourceId)) {
             $sourceId = [$sourceId];
@@ -246,7 +246,7 @@ abstract class Centreon_Object_Relation
      *
      * @return string
      */
-    public function getFirstKey()
+    public function getFirstKey(): string
     {
         return $this->firstKey;
     }
@@ -256,7 +256,7 @@ abstract class Centreon_Object_Relation
      *
      * @return string
      */
-    public function getSecondKey()
+    public function getSecondKey(): string
     {
         return $this->secondKey;
     }
@@ -267,7 +267,7 @@ abstract class Centreon_Object_Relation
      *
      * @return mixed
      */
-    protected function getResult($sql, $params = [])
+    protected function getResult($sql, $params = []): mixed
     {
         $res = $this->db->query($sql, $params);
 

@@ -19,9 +19,9 @@
  *
  */
 
-require_once 'Centreon/Object/Relation/Relation.php';
-require_once 'Centreon/Object/Host/Host.php';
-require_once 'Centreon/Object/Host/Category.php';
+require_once __DIR__ . '/../../Relation.php';
+require_once __DIR__ . '/../../../Host/Host.php';
+require_once __DIR__ . '/../../../Host/Category.php';
 
 /**
  * Class

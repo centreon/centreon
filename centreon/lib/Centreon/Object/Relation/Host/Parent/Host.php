@@ -19,7 +19,7 @@
  *
  */
 
-require_once 'Centreon/Object/Relation/Relation.php';
+require_once __DIR__ . '/../../Relation.php';
 
 /**
  * Class

@@ -153,7 +153,7 @@ class EscalationWebservice extends Webservice\WebServiceAbstract implements Webs
      *
      * @return \Centreon\Application\DataRepresenter\Response
      */
-    public function getList()
+    public function getList(): \Centreon\Application\DataRepresenter\Response
     {
         // extract post payload
         $request = $this->query();

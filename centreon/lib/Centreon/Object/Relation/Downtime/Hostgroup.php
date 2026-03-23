@@ -19,9 +19,9 @@
  *
  */
 
-require_once 'Centreon/Object/Relation/Relation.php';
-require_once 'Centreon/Object/Downtime/Downtime.php';
-require_once 'Centreon/Object/Host/Group.php';
+require_once __DIR__ . '/../Relation.php';
+require_once __DIR__ . '/../../Downtime/Downtime.php';
+require_once __DIR__ . '/../../Host/Group.php';
 
 /**
  * Class

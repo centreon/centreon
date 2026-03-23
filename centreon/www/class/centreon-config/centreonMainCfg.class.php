@@ -101,7 +101,7 @@ class CentreonMainCfg
      *
      * @return array
      */
-    public function getDefaultMainCfg()
+    public function getDefaultMainCfg(): array
     {
         return $this->aInstanceDefaultValues;
     }
@@ -121,7 +121,7 @@ class CentreonMainCfg
      *
      * @return array
      */
-    public function getDefaultBrokerOptions()
+    public function getDefaultBrokerOptions(): array
     {
         return $this->aDefaultBrokerDirective;
     }
@@ -133,9 +133,9 @@ class CentreonMainCfg
      * @param ? $source
      *
      * @throws PDOException
-     * @return false|void
+     * @return bool
      */
-    public function insertBrokerDefaultDirectives($iId, $source)
+    public function insertBrokerDefaultDirectives($iId, $source): bool
     {
         if (empty($iId) || ! in_array($source, ['ui'])) {
             return false;
@@ -152,6 +152,8 @@ class CentreonMainCfg
                 return false;
             }
         }
+
+        return true;
     }
 
     /**
@@ -214,7 +216,7 @@ class CentreonMainCfg
      * @throws PDOException
      * @return false|mixed
      */
-    public function insertServerInCfgNagios($source, $iId, $sName)
+    public function insertServerInCfgNagios($source, $iId, $sName): mixed
     {
         if (empty($sName)) {
             $sName = 'poller';
@@ -377,7 +379,7 @@ class CentreonMainCfg
      * @throws PDOException
      * @return array $entries
      */
-    public function getBrokerModules($id)
+    public function getBrokerModules($id): array
     {
         $dbResult = $this->DB->query('SELECT * FROM cfg_nagios_broker_module WHERE cfg_nagios_id = ' . $id);
         while ($row = $dbResult->fetch()) {
@@ -395,7 +397,7 @@ class CentreonMainCfg
      *
      * @return array An array of integer
      */
-    public function explodeEventBrokerOptions($value)
+    public function explodeEventBrokerOptions($value): array
     {
         return $this->explodeBitwise($value, self::EVENT_BROKER_OPTIONS);
     }
@@ -500,7 +502,7 @@ class CentreonMainCfg
      *
      * @return array An array of integer
      */
-    private function explodeBitwise($value, $sources)
+    private function explodeBitwise($value, $sources): array
     {
         if ($value === -1) {
             return [-1 => 1];

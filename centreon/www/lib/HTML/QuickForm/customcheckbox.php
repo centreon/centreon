@@ -59,7 +59,7 @@ class HTML_QuickForm_customcheckbox extends HTML_QuickForm_checkbox
     /**
      * @return string
      */
-    public function toHtml()
+    public function toHtml(): string
     {
         $oldHtml = parent::toHtml();
         $matches = ['{element}', '{id}'];

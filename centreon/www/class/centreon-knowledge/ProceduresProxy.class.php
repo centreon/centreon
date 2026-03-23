@@ -153,7 +153,7 @@ class ProceduresProxy
      * @throws PDOException
      * @return int
      */
-    private function getHostId($hostName)
+    private function getHostId($hostName): int
     {
         $statement = $this->DB->prepare('SELECT host_id FROM host WHERE host_name LIKE :hostName');
         $statement->bindValue(':hostName', $hostName, PDO::PARAM_STR);

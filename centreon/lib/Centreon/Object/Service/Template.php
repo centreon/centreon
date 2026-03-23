@@ -19,7 +19,7 @@
  *
  */
 
-require_once 'Centreon/Object/Object.php';
+require_once __DIR__ . '/../Object.php';
 
 /**
  * Used for interacting with hosts
@@ -42,7 +42,7 @@ class Centreon_Object_Service_Template extends Centreon_Object
      * @param array $paramValues
      * @return array
      */
-    public function getIdByParameter($paramName, $paramValues = [])
+    public function getIdByParameter($paramName, $paramValues = []): array
     {
         $sql = "SELECT {$this->primaryKey} FROM {$this->table} WHERE ";
         $condition = '';

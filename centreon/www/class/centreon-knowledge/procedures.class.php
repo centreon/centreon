@@ -58,10 +58,10 @@ class procedures
      *
      * @return void
      */
-    public function fetchProcedures()
+    public function fetchProcedures(): void
     {
         if ($this->procList !== []) {
-            return null;
+            return;
         }
 
         $pages = $this->api->getAllPages();
@@ -80,7 +80,7 @@ class procedures
      * @throws PDOException
      * @return array
      */
-    public function getMyServiceTemplateModels($service_id = null)
+    public function getMyServiceTemplateModels($service_id = null): array
     {
         $tplArr = [];
 
@@ -128,7 +128,7 @@ class procedures
      * @throws PDOException
      * @return array
      */
-    public function getMyHostMultipleTemplateModels($host_id = null)
+    public function getMyHostMultipleTemplateModels($host_id = null): array
     {
         if (! $host_id) {
             return [];
@@ -165,7 +165,7 @@ class procedures
      * @param int $mode
      * @return bool
      */
-    public function serviceHasProcedure($key, $templates = [], $mode = PROCEDURE_SIMPLE_MODE)
+    public function serviceHasProcedure($key, $templates = [], $mode = PROCEDURE_SIMPLE_MODE): bool
     {
         if (isset($this->procList['Service_:_' . $key])) {
             return true;
@@ -193,7 +193,7 @@ class procedures
      * @param int $mode
      * @return bool
      */
-    public function hostHasProcedure($key, $templates = [], $mode = PROCEDURE_SIMPLE_MODE)
+    public function hostHasProcedure($key, $templates = [], $mode = PROCEDURE_SIMPLE_MODE): bool
     {
         if (isset($this->procList['Host_:_' . $key])) {
             return true;
@@ -222,7 +222,7 @@ class procedures
      * @param int $mode
      * @return bool
      */
-    public function serviceTemplateHasProcedure($key = '', $templates = [], $mode = PROCEDURE_SIMPLE_MODE)
+    public function serviceTemplateHasProcedure($key = '', $templates = [], $mode = PROCEDURE_SIMPLE_MODE): bool
     {
         if (isset($this->procList['Service-Template_:_' . $key])) {
             return true;
@@ -249,7 +249,7 @@ class procedures
      * @param mixed $mode
      * @return bool
      */
-    public function hostTemplateHasProcedure($key = '', $templates = [], $mode = PROCEDURE_SIMPLE_MODE)
+    public function hostTemplateHasProcedure($key = '', $templates = [], $mode = PROCEDURE_SIMPLE_MODE): bool
     {
         if (isset($this->procList['Host-Template_:_' . $key])) {
             return true;

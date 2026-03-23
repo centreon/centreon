@@ -19,7 +19,7 @@
  *
  */
 
-require_once 'Centreon/Object/Relation/Relation.php';
+require_once __DIR__ . '/../../Relation.php';
 
 /**
  * Class
@@ -109,7 +109,7 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
      * @param array $sourceId
      * @return array
      */
-    public function getTargetIdFromSourceId($targetKey, $sourceKey, $sourceId)
+    public function getTargetIdFromSourceId($targetKey, $sourceKey, $sourceId): array
     {
         if (! is_array($sourceId)) {
             $sourceId = [$sourceId];

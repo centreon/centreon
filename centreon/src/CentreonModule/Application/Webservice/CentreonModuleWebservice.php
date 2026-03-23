@@ -44,7 +44,7 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
      *
      * @return bool If the user has access to the action
      */
-    public function authorize($action, $user, $isInternal = false)
+    public function authorize($action, $user, $isInternal = false): bool
     {
         return ! (! $user->admin && $user->access->page('50709') === 0);
     }
@@ -174,7 +174,7 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
      *
      * @return Response
      */
-    public function getList()
+    public function getList(): Response
     {
         // extract post payload
         $request = $this->query();
@@ -288,7 +288,7 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
      *
      * @return Response
      */
-    public function getDetails()
+    public function getDetails(): Response
     {
         // extract post payload
         $request = $this->query();
@@ -386,7 +386,7 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
      *
      * @return Response
      */
-    public function postInstall()
+    public function postInstall(): Response
     {
         // extract post payload
         $request = $this->query();
@@ -493,7 +493,7 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
      *
      * @return Response
      */
-    public function postUpdate()
+    public function postUpdate(): Response
     {
         // extract post payload
         $request = $this->query();
@@ -596,7 +596,7 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
      *
      * @return Response
      */
-    public function deleteRemove()
+    public function deleteRemove(): Response
     {
         // extract post payload
         $request = $this->query();

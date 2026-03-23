@@ -57,7 +57,7 @@ abstract class Centreon_ObjectRt
      * @throws Exception
      * @return array
      */
-    public function __call($name, $args)
+    public function __call($name, $args): array
     {
         if (preg_match('/^getIdBy([a-zA-Z0-9_]+)/', $name, $matches)) {
             return $this->getIdByParameter($matches[1], $args);
@@ -73,7 +73,7 @@ abstract class Centreon_ObjectRt
      * @param mixed $parameterNames
      * @return array
      */
-    public function getParameters($objectId, $parameterNames)
+    public function getParameters($objectId, $parameterNames): array
     {
         $params = is_array($parameterNames) ? implode(',', $parameterNames) : $parameterNames;
         $sql = "SELECT {$params} FROM {$this->table} WHERE {$this->primaryKey} = ?";
@@ -143,7 +143,7 @@ abstract class Centreon_ObjectRt
      * @param array $paramValues
      * @return array
      */
-    public function getIdByParameter($paramName, $paramValues = [])
+    public function getIdByParameter($paramName, $paramValues = []): array
     {
         $sql = "SELECT {$this->primaryKey} FROM {$this->table} WHERE ";
         $condition = '';
@@ -175,7 +175,7 @@ abstract class Centreon_ObjectRt
      *
      * @return string
      */
-    public function getPrimaryKey()
+    public function getPrimaryKey(): string
     {
         return $this->primaryKey;
     }
@@ -185,7 +185,7 @@ abstract class Centreon_ObjectRt
      *
      * @return string
      */
-    public function getUniqueLabelField()
+    public function getUniqueLabelField(): string
     {
         return $this->uniqueLabelField;
     }
@@ -195,7 +195,7 @@ abstract class Centreon_ObjectRt
      *
      * @return string
      */
-    public function getTableName()
+    public function getTableName(): string
     {
         return $this->table;
     }
@@ -208,7 +208,7 @@ abstract class Centreon_ObjectRt
      * @param string $fetchMethod
      * @return array
      */
-    protected function getResult($sqlQuery, $sqlParams = [], $fetchMethod = 'fetchAll')
+    protected function getResult($sqlQuery, $sqlParams = [], $fetchMethod = 'fetchAll'): array
     {
         $res = $this->dbMon->query($sqlQuery, $sqlParams);
 

@@ -84,7 +84,7 @@ class CentreonAclWebservice extends CentreonWebServiceAbstract
      *
      * @return array<int,string|null>
      */
-    public function getGetCurrentAcl()
+    public function getGetCurrentAcl(): array
     {
         $user = $_SESSION['centreon']->user;
         if (empty($user)) {

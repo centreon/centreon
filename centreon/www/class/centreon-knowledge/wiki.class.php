@@ -66,7 +66,7 @@ class Wiki
      * @throws ServiceNotFoundException
      * @return array|mixed
      */
-    public function getWikiConfig()
+    public function getWikiConfig(): mixed
     {
         if (! is_null($this->config)) {
             return $this->config;

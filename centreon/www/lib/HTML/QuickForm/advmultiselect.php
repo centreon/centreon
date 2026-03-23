@@ -330,7 +330,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      *                    is not a string, or not in range
      *                    (add, remove, all, none, toggle,
      *                    movetop, movebottom, moveup, movedown)
-     * @return void
+     * @return PEAR_Error|null
      * @since      version 0.4.0 (2005-06-25)
      *
      * @example    examples/qfams_custom_5.php
@@ -348,7 +348,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @see       http://www.laurent-laville.org/img/qfams/screenshot/custom1.png
      *             Custom example 1: screenshot
      */
-    public function setButtonAttributes($button, $attributes = null)
+    public function setButtonAttributes($button, $attributes = null): ?PEAR_Error
     {
         if (! is_string($button)) {
             return PEAR::throwError(
@@ -467,6 +467,8 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
                     ['level' => 'error']
                 );
         }
+
+        return null;
     }
 
     /**
@@ -478,7 +480,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @return string
      * @since      version 0.4.0 (2005-06-25)
      */
-    public function setElementTemplate($html = null, $js = true)
+    public function setElementTemplate($html = null, $js = true): string
     {
         $oldTemplate = $this->_elementTemplate;
 
@@ -527,7 +529,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @see       http://www.laurent-laville.org/img/qfams/screenshot/custom4.png
      *             Custom example 4: screenshot
      */
-    public function getElementCss($raw = true)
+    public function getElementCss($raw = true): string
     {
         $id  = $this->getAttribute('name');
         $css = str_replace('{id}', $id, $this->_elementCSS);
@@ -547,7 +549,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @return string
      * @since      version 0.4.0 (2005-06-25)
      */
-    public function toHtml()
+    public function toHtml(): string
     {
         if ($this->_flagFrozen) {
             return $this->getFrozenHtml();
@@ -954,7 +956,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @return string
      * @since      version 0.4.0 (2005-06-25)
      */
-    public function getElementJs($raw = true, $min = false)
+    public function getElementJs($raw = true, $min = false): string
     {
         $js = __DIR__ . DIRECTORY_SEPARATOR;
 
@@ -1026,7 +1028,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @return PEAR_Error on error and TRUE on success
      * @see        load()
      */
-    public function loadArray(array $arr, $values = null)
+    public function loadArray(array $arr, $values = null): PEAR_Error
     {
         if (! is_array($arr)) {
             return PEAR::throwError(
@@ -1065,7 +1067,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @throws PEAR_Error
      * @return PEAR_Error on error and TRUE on success
      */
-    public function setPersistantOptions($optionValues, $persistant = true)
+    public function setPersistantOptions($optionValues, $persistant = true): PEAR_Error
     {
         if (! is_bool($persistant)) {
             return PEAR::throwError(
@@ -1109,7 +1111,7 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
      * @since      version 1.5.0 (2009-02-15)
      * @return array
      */
-    public function getPersistantOptions()
+    public function getPersistantOptions(): array
     {
         $options = [];
 
