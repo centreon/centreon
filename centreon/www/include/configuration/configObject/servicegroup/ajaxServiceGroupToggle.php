@@ -63,6 +63,56 @@ if ($token === null || ! in_array($token, $_SESSION['x-centreon-token'] ?? [], t
 $key = array_search($token, $_SESSION['x-centreon-token'], true);
 unset($_SESSION['x-centreon-token'][$key], $_SESSION['x-centreon-token-generated-at'][$token]);
 
+// ACL check - verify user has write access to this page and to this service group
+require_once _CENTREON_PATH_ . '/www/class/centreon.class.php';
+require_once _CENTREON_PATH_ . '/www/class/centreonACL.class.php';
+
+spl_autoload_register(function ($sClass): void {
+    $fileName = lcfirst($sClass);
+    $fileNameType1 = _CENTREON_PATH_ . '/www/class/' . $fileName . '.class.php';
+    $fileNameType2 = _CENTREON_PATH_ . '/www/class/' . $fileName . '.php';
+    if (file_exists($fileNameType1)) {
+        require_once $fileNameType1;
+    } elseif (file_exists($fileNameType2)) {
+        require_once $fileNameType2;
+    }
+});
+
+$centreon = $_SESSION['centreon'] ?? null;
+if (! $centreon) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Forbidden']);
+    exit;
+}
+
+// Check write access on service groups page (p=60801)
+$acl = $centreon->user->access;
+if ($acl->page(60801) !== 1) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Write access denied']);
+    exit;
+}
+
+// For non-admin, check ACL on this specific service group
+if (! $acl->admin) {
+    $sgs = $acl->getServiceGroupAclConf(null, 'broker');
+    if (! array_key_exists($sgId, $sgs)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Access denied to this service group']);
+        exit;
+    }
+}
+
+// Verify service group exists
+$checkStmt = $pearDB->prepare('SELECT sg_id FROM servicegroup WHERE sg_id = :sg_id');
+$checkStmt->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
+$checkStmt->execute();
+if (! $checkStmt->fetch()) {
+    http_response_code(404);
+    echo json_encode(['error' => 'Service group not found']);
+    exit;
+}
+
 // Perform enable/disable
 $activate = ($action === 's') ? '1' : '0';
 $statement = $pearDB->prepare("UPDATE servicegroup SET sg_activate = :activate WHERE sg_id = :sg_id");

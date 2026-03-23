@@ -65,12 +65,18 @@ spl_autoload_register(function ($sClass): void {
 });
 
 $centreon = $_SESSION['centreon'] ?? null;
-$isAdmin = $centreon ? $centreon->user->admin : false;
+if (! $centreon) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Forbidden']);
+    exit;
+}
+
+$isAdmin = $centreon->user->admin;
 
 $conditionStr = '';
 $sgStrParams = [];
 
-if (! $isAdmin && $centreon) {
+if (! $isAdmin) {
     $acl = $centreon->user->access;
     $sgs = $acl->getServiceGroupAclConf(null, 'broker');
 
