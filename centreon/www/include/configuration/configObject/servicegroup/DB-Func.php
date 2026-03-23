@@ -285,7 +285,7 @@ function updateServiceGroupAcl(int $serviceGroupId, array $submittedValues = [])
      * Before linking a service group to ACL resources, we must remove all previous relationships.
      * @see linkServiceGroupToDataset
      */
-    deleteServiceGroupToDataset($serviceGroupId);
+    deleteServiceGroupFromDataset($serviceGroupId);
     foreach ($ruleIds as $ruleId) {
         $datasets = findDatasetsByRuleId($ruleId);
 
@@ -372,7 +372,7 @@ function updateDatasetFiltersResourceIds(int $datasetFilterId, string $resourceI
  *
  * @return void
  */
-function deleteServiceGroupToDataset(int $serviceGroupId): void
+function deleteServiceGroupFromDataset(int $serviceGroupId): void
 {
     global $pearDB;
     $request = 'DELETE FROM acl_resources_sg_relations WHERE sg_id = :serviceGroupId';
