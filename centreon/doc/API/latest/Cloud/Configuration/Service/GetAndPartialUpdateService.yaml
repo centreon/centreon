@@ -1,3 +1,23 @@
+get:
+  tags:
+    - Service
+  summary: "Get a service"
+  description: "Get an existing service."
+  parameters:
+    - $ref: 'QueryParameter/ServiceId.yaml'
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: 'Schema/GetServiceResponse.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'
 patch:
   tags:
     - Service
