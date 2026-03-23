@@ -12,8 +12,8 @@ import { AgentType, ConnectionMode } from '../models';
 import {
   labelAgent,
   labelAgentType,
-  labelCMA,
   labelCaCertificate,
+  labelCMA,
   labelConfigurationServer,
   labelConnectionInitiated,
   labelEncryptionLevel,
@@ -128,10 +128,10 @@ export const useInputs = (): {
                 setTouched({}, false);
               },
               fieldName: 'type',
+              getDisabled: () => !equals(openFormModal, 'add'),
               label: t(labelAgentType),
               required: true,
-              type: InputType.SingleAutocomplete,
-              getDisabled: () => !equals(openFormModal, 'add')
+              type: InputType.SingleAutocomplete
             },
             {
               autocomplete: {
