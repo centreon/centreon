@@ -40,6 +40,7 @@ use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
@@ -62,6 +63,7 @@ use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Tests\Core\Host\Infrastructure\API\PartialUpdateHost\PartialUpdateHostPresenterStub;
 
 beforeEach(function (): void {
@@ -86,6 +88,8 @@ beforeEach(function (): void {
         writeVaultRepository: $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         readVaultRepository: $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
         readCommandRepository:  $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
+        writeAccessGroupRepository: $this->writeAccessGroupRepository = $this->createMock(WriteAccessGroupRepositoryInterface::class),
+        adminResolver: $this->adminResolver = $this->createMock(AdminResolver::class),
     );
 
     $this->inheritanceModeOption = new Option();
@@ -281,7 +285,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
@@ -302,7 +306,7 @@ it('should present a NotFoundResponse when the host does not exist', function ()
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -326,7 +330,7 @@ it('should present a ConflictResponse when name is already used', function (): v
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -363,7 +367,7 @@ it('should present a ConflictResponse when host severity ID is not valid', funct
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -392,7 +396,7 @@ it('should present a ConflictResponse when a host timezone ID is not valid', fun
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -422,7 +426,7 @@ it('should present a ConflictResponse when a timeperiod ID is not valid', functi
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -458,7 +462,7 @@ it('should present a ConflictResponse when a command ID is not valid', function 
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -495,7 +499,7 @@ it('should present a ConflictResponse when the host icon ID is not valid', funct
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -535,7 +539,7 @@ it('should present a ConflictResponse when a parent template ID is not valid', f
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(4))
         ->method('isAdmin')
         ->willReturn(true);
@@ -596,7 +600,7 @@ it('should present a ConflictResponse when a parent template creates a circular 
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(4))
         ->method('isAdmin')
         ->willReturn(true);
@@ -655,8 +659,8 @@ it('should present a NoContentResponse on success', function (): void {
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
-        ->expects($this->exactly(4))
+    $this->adminResolver
+        ->expects($this->exactly(5))
         ->method('isAdmin')
         ->willReturn(true);
     $this->readHostRepository
@@ -723,6 +727,11 @@ it('should present a NoContentResponse on success', function (): void {
     $this->writeHostRepository
         ->expects($this->exactly(2))
         ->method('addParent');
+
+    // ACL flag
+    $this->writeAccessGroupRepository
+        ->expects($this->once())
+        ->method('updateAclResourcesFlag');
 
     // Macros
     $this->readHostRepository
