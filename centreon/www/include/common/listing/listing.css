@@ -43,7 +43,7 @@
     font-size: 14px;
     border: 1px solid var(--color-divider, #E3E3E3);
     border-radius: 4px;
-    background: #fff;
+    background: var(--select-background, #fff);
     cursor: pointer;
     line-height: 1.4;
     height: auto;
@@ -189,7 +189,7 @@
     font-size: 13px;
     border: 1px solid var(--color-divider, #E3E3E3);
     border-radius: 4px;
-    background: #fff;
+    background: var(--select-background, #fff);
     cursor: pointer;
     min-width: 50px;
 }
@@ -202,7 +202,7 @@
     width: 100%;
     border-collapse: collapse;
     border-spacing: 0;
-    background: #fff;
+    background: var(--select-background, #fff);
     border: none;
 }
 
@@ -238,7 +238,7 @@
 /* -- Table body rows ------------------------------------------------------ */
 
 .cl-listing-table tbody tr {
-    background: #fff;
+    background: var(--select-background, #fff);
     transition: background-color 0.15s ease;
     cursor: pointer;
 }
@@ -438,4 +438,19 @@
 @keyframes clFadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
+}
+
+/* ==========================================================================
+   Sub-listing header (e.g. meta service metric listing)
+   ========================================================================== */
+
+.cl-meta-header {
+    padding: 10px 16px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--body-color, #555);
+    background: var(--body-background, #fff);
+    border: 1px solid var(--listing-border-botom-color, #E3E3E3);
+    border-radius: 4px;
+    margin-bottom: 8px;
 }

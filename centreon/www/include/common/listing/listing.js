@@ -58,6 +58,9 @@ function CentreonListing(config) {
         // function(row, listing) -> HTML string
         renderOptions: config.renderOptions || null,
 
+        // Extra GET parameters appended to every fetch request
+        extraParams: config.extraParams || {},
+
         // Callbacks
         onDataLoaded: config.onDataLoaded || null,
     };
@@ -146,7 +149,7 @@ function CentreonListing(config) {
             url: cfg.ajaxListUrl,
             type: 'GET',
             dataType: 'json',
-            data: { search: search, num: num, limit: limit },
+            data: jQuery.extend({ search: search, num: num, limit: limit }, cfg.extraParams),
             success: function (data) {
                 csrfToken = data.centreon_token || '';
                 var tbody = jQuery('#' + cfg.tableBodyId);
