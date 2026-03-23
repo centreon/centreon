@@ -75,6 +75,9 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     /** Next-page cursor token set by find(), consumed by the use case via getNextCursor(). */
     private ?string $nextCursor = null;
 
+    /** @var array<string, int> */
+    private array $aclCountCache = [];
+
     /** @var array<string, string> */
     private array $resourceConcordances = [
         'id' => 'resources.id',
@@ -676,7 +679,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
         $query .= ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
 
-        $query .= <<<SQL
+        $query .= <<<'SQL'
             resources.is_module = 0
                 AND resources.enabled = 1
                 AND resources.type != 3
@@ -751,7 +754,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
             if ($cursor !== null) {
                 // Append resource_id as tiebreaker to guarantee a stable sort for keyset pagination.
-                $dir = strtoupper($cursor->sorts[0]['dir'] ?? 'DESC');
+                $dir = mb_strtoupper($cursor->sorts[0]['dir'] ?? 'DESC');
                 $sortSql .= ", resources.resource_id {$dir}";
             }
 
@@ -884,119 +887,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     }
 
     /**
-     * Generates correlated EXISTS conditions for tag filters (hostgroup, host category,
-     * servicegroup, service category) to be used in the DATA query WHERE clause.
-     *
-     * Unlike the CTE+INTERSECT approach used in COUNT, this enables the optimizer to walk
-     * resources in sort order and early-terminate at LIMIT, avoiding full CTE materialization.
-     *
-     * @param ResourceFilter $filter
-     * @param QueryParameters $queryParameters
-     *
-     * @throws CollectionException
-     * @throws ValueObjectException
-     * @return string
-     */
-    private function createTagFilterExistsConditions(
-        ResourceFilter $filter,
-        QueryParameters $queryParameters,
-    ): string {
-        $conditions = '';
-
-        if ($filter->getHostgroupNames() !== []) {
-            $keys = [];
-            foreach ($filter->getHostgroupNames() as $index => $name) {
-                $key = ":hg_exists_{$index}";
-                $queryParameters->add($key, QueryParameter::string($key, $name));
-                $keys[] = $key;
-            }
-            $keysStr = implode(', ', $keys);
-            $conditions .= <<<SQL
-                 AND (
-                    EXISTS (
-                        SELECT 1 FROM `:dbstg`.`resources_tags` rt
-                        INNER JOIN `:dbstg`.`tags` t ON t.tag_id = rt.tag_id
-                        WHERE rt.resource_id = resources.resource_id
-                          AND t.type = 1 AND t.name IN ({$keysStr})
-                    )
-                    OR EXISTS (
-                        SELECT 1 FROM `:dbstg`.`resources` pr
-                        INNER JOIN `:dbstg`.`resources_tags` rt ON rt.resource_id = pr.resource_id
-                        INNER JOIN `:dbstg`.`tags` t ON t.tag_id = rt.tag_id
-                        WHERE pr.id = resources.parent_id AND pr.type = 1 AND pr.enabled = 1
-                          AND t.type = 1 AND t.name IN ({$keysStr})
-                    )
-                )
-                SQL;
-        }
-
-        if ($filter->getHostCategoryNames() !== []) {
-            $keys = [];
-            foreach ($filter->getHostCategoryNames() as $index => $name) {
-                $key = ":hc_exists_{$index}";
-                $queryParameters->add($key, QueryParameter::string($key, $name));
-                $keys[] = $key;
-            }
-            $keysStr = implode(', ', $keys);
-            $conditions .= <<<SQL
-                 AND (
-                    EXISTS (
-                        SELECT 1 FROM `:dbstg`.`resources_tags` rt
-                        INNER JOIN `:dbstg`.`tags` t ON t.tag_id = rt.tag_id
-                        WHERE rt.resource_id = resources.resource_id
-                          AND t.type = 3 AND t.name IN ({$keysStr})
-                    )
-                    OR EXISTS (
-                        SELECT 1 FROM `:dbstg`.`resources` pr
-                        INNER JOIN `:dbstg`.`resources_tags` rt ON rt.resource_id = pr.resource_id
-                        INNER JOIN `:dbstg`.`tags` t ON t.tag_id = rt.tag_id
-                        WHERE pr.id = resources.parent_id AND pr.type = 1 AND pr.enabled = 1
-                          AND t.type = 3 AND t.name IN ({$keysStr})
-                    )
-                )
-                SQL;
-        }
-
-        if ($filter->getServicegroupNames() !== []) {
-            $keys = [];
-            foreach ($filter->getServicegroupNames() as $index => $name) {
-                $key = ":sg_exists_{$index}";
-                $queryParameters->add($key, QueryParameter::string($key, $name));
-                $keys[] = $key;
-            }
-            $keysStr = implode(', ', $keys);
-            $conditions .= <<<SQL
-                 AND EXISTS (
-                    SELECT 1 FROM `:dbstg`.`resources_tags` rt
-                    INNER JOIN `:dbstg`.`tags` t ON t.tag_id = rt.tag_id
-                    WHERE rt.resource_id = resources.resource_id
-                      AND t.type = 0 AND t.name IN ({$keysStr})
-                )
-                SQL;
-        }
-
-        if ($filter->getServiceCategoryNames() !== []) {
-            $keys = [];
-            foreach ($filter->getServiceCategoryNames() as $index => $name) {
-                $key = ":sc_exists_{$index}";
-                $queryParameters->add($key, QueryParameter::string($key, $name));
-                $keys[] = $key;
-            }
-            $keysStr = implode(', ', $keys);
-            $conditions .= <<<SQL
-                 AND EXISTS (
-                    SELECT 1 FROM `:dbstg`.`resources_tags` rt
-                    INNER JOIN `:dbstg`.`tags` t ON t.tag_id = rt.tag_id
-                    WHERE rt.resource_id = resources.resource_id
-                      AND t.type = 2 AND t.name IN ({$keysStr})
-                )
-                SQL;
-        }
-
-        return $conditions;
-    }
-
-    /**
      * Generates INNER JOIN clauses against pre-materialized derived tables for tag filters that require
      * parent-propagation (hostgroup, host category). Using a pre-join instead of correlated EXISTS avoids
      * scanning the full resources table: MariaDB materializes the small intersection set first, then does
@@ -1007,7 +897,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      *
      * @param ResourceFilter $filter
      * @param QueryParameters $queryParameters
-     * @param string $tagExistsConditionsRef modified in-place: removes hg/hc conditions when pre-join is used
      *
      * @throws CollectionException
      * @throws ValueObjectException
@@ -1412,7 +1301,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
         $query .= ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
 
-        $query .= <<<SQL
+        $query .= <<<'SQL'
             resources.is_module = 0
                 AND resources.enabled = 1
                 AND resources.type != 3
@@ -1620,8 +1509,8 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         foreach ($sort as $field => $dir) {
             $dbExpr = $concordance[$field] ?? null;
             // Only use simple "resources.<column>" expressions as cursor components.
-            if ($dbExpr !== null && preg_match('/^resources\.(\w+)$/', $dbExpr, $m)) {
-                $cols[] = ['col' => $m[1], 'dir' => strtoupper((string) $dir)];
+            if ($dbExpr !== null && preg_match('/^resources\.(\w+)$/', $dbExpr, $matches)) {
+                $cols[] = ['col' => $matches[1], 'dir' => mb_strtoupper((string) $dir)];
             }
         }
 
@@ -1673,12 +1562,12 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             return '';
         }
 
-        $dir = strtoupper($sorts[0]['dir'] ?? 'DESC');
+        $dir = mb_strtoupper($sorts[0]['dir'] ?? 'DESC');
         $cmp = $dir === 'DESC' ? '<' : '>';
 
         // Bind all cursor values once.
-        foreach ($sorts as $i => $sort) {
-            $key = "cursor_col{$i}";
+        foreach ($sorts as $idx => $sort) {
+            $key = "cursor_col{$idx}";
             if (is_int($sort['val'])) {
                 $queryParams->add($key, QueryParameter::int($key, $sort['val']));
             } else {
@@ -1697,11 +1586,11 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
         if ($allSameDir) {
             $cols = implode(', ', array_map(
-                static fn(array $s): string => "resources.{$s['col']}",
+                static fn (array $sortEntry): string => "resources.{$sortEntry['col']}",
                 $sorts
             ));
             $placeholders = implode(', ', array_map(
-                static fn(int $i): string => ":cursor_col{$i}",
+                static fn (int $idx): string => ":cursor_col{$idx}",
                 array_keys($sorts)
             ));
 
@@ -1710,22 +1599,22 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
         // Mixed-direction fallback: OR-expanded keyset condition.
         $conditions = [];
-        $n = count($sorts);
+        $count = count($sorts);
 
-        for ($i = 0; $i < $n; $i++) {
-            $colDir = strtoupper($sorts[$i]['dir'] ?? 'DESC');
+        for ($idx = 0; $idx < $count; $idx++) {
+            $colDir = mb_strtoupper($sorts[$idx]['dir'] ?? 'DESC');
             $colCmp = $colDir === 'DESC' ? '<' : '>';
             $parts = [];
-            for ($j = 0; $j < $i; $j++) {
-                $parts[] = sprintf('resources.%s = :cursor_col%d', $sorts[$j]['col'], $j);
+            for ($jdx = 0; $jdx < $idx; $jdx++) {
+                $parts[] = sprintf('resources.%s = :cursor_col%d', $sorts[$jdx]['col'], $jdx);
             }
-            $parts[] = sprintf('resources.%s %s :cursor_col%d', $sorts[$i]['col'], $colCmp, $i);
+            $parts[] = sprintf('resources.%s %s :cursor_col%d', $sorts[$idx]['col'], $colCmp, $idx);
             $conditions[] = '(' . implode(' AND ', $parts) . ')';
         }
 
         $tiebreaker = [];
-        for ($j = 0; $j < $n; $j++) {
-            $tiebreaker[] = sprintf('resources.%s = :cursor_col%d', $sorts[$j]['col'], $j);
+        for ($jdx = 0; $jdx < $count; $jdx++) {
+            $tiebreaker[] = sprintf('resources.%s = :cursor_col%d', $sorts[$jdx]['col'], $jdx);
         }
         $tiebreaker[] = sprintf('resources.resource_id %s :cursor_rid', $cmp);
         $conditions[] = '(' . implode(' AND ', $tiebreaker) . ')';
