@@ -45,7 +45,7 @@ class CentreonWidgetParamsConnectorMetricMulti extends CentreonWidgetParamsSelec
     /**
      * @return array
      */
-    public function getParameters()
+    public function getParameters(): array
     {
         $path = './api/internal.php?object=centreon_metric&action=listByService';
 

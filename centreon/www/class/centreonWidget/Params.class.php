@@ -105,7 +105,7 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      *
      * @return mixed
      */
-    public static function factory($db, $quickform, $className, $userId)
+    public static function factory($db, $quickform, $className, $userId): mixed
     {
         if (! isset(self::$instances[$className])) {
             self::$instances[$className] = new $className($db, $quickform, $userId);
@@ -118,11 +118,13 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      * Init
      *
      * @param array $params
-     * @return void
+     * @return null
      */
-    public function init($params): void
+    public function init($params): null
     {
         $this->params = $params;
+
+        return null;
     }
 
     /**
@@ -132,9 +134,9 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      *
      * @throws HTML_QuickForm_Error
      * @throws PDOException
-     * @return void
+     * @return null
      */
-    public function setValue($params): void
+    public function setValue($params): null
     {
         $userPref = $this->getUserPreferences($params);
         if (in_array($params['ft_typename'], $this->multiType)) {
@@ -147,6 +149,8 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
         } elseif (isset($params['default_value']) && $params['default_value'] != '') {
             $this->quickform->setDefaults(['param_' . $params['parameter_id'] => $params['default_value']]);
         }
+
+        return null;
     }
 
     /**
@@ -154,7 +158,7 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      *
      * @return HTML_Quickform
      */
-    public function getElement()
+    public function getElement(): HTML_Quickform
     {
         return $this->element;
     }
@@ -167,7 +171,7 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      * @throws PDOException
      * @return array
      */
-    public function getListValues($paramId)
+    public function getListValues($paramId): array
     {
         $query = 'SELECT option_name, option_value
                           FROM widget_parameters_multiple_options
@@ -184,7 +188,7 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
     /**
      * @return false
      */
-    public function getTrigger()
+    public function getTrigger(): false
     {
         return $this->trigger;
     }
@@ -197,7 +201,7 @@ abstract class CentreonWidgetParams implements CentreonWidgetParamsInterface
      * @throws PDOException
      * @return mixed
      */
-    protected function getUserPreferences($params)
+    protected function getUserPreferences($params): mixed
     {
         $query = 'SELECT preference_value
                   FROM widget_preferences wp, widget_views wv, custom_view_user_relation cvur

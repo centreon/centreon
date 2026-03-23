@@ -50,7 +50,7 @@ class CentreonWidgetParamsConnectorServiceSeverityMulti extends CentreonWidgetPa
     /**
      * @return array
      */
-    public function getParameters()
+    public function getParameters(): array
     {
         $path = './api/internal.php?object=centreon_configuration_service_severity&action=list';
 

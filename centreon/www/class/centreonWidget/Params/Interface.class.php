@@ -34,31 +34,31 @@ interface CentreonWidgetParamsInterface
      *
      * @return mixed
      */
-    public static function factory($db, $quickform, $className, $userId);
+    public static function factory($db, $quickform, $className, $userId): mixed;
 
     /**
      * @param array $params
      *
      * @return mixed
      */
-    public function init($params);
+    public function init($params): mixed;
 
     /**
      * @param array $params
      *
      * @return mixed
      */
-    public function setValue($params);
+    public function setValue($params): mixed;
 
     /**
      * @return mixed
      */
-    public function getElement();
+    public function getElement(): mixed;
 
     /**
      * @param mixed $paramId
      *
      * @return mixed
      */
-    public function getListValues($paramId);
+    public function getListValues($paramId): mixed;
 }

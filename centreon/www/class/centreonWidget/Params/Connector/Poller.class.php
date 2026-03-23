@@ -51,7 +51,7 @@ class CentreonWidgetParamsConnectorPoller extends CentreonWidgetParamsList
      * @throws PDOException
      * @return mixed|null[]
      */
-    public function getListValues($paramId)
+    public function getListValues($paramId): array
     {
         static $tab;
 
