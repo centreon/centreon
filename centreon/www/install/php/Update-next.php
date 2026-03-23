@@ -502,7 +502,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
         <<<'SQL'
             SELECT MAX(`config_group_id`) FROM `cfg_centreonbroker_info` WHERE `config_group` = 'output' AND `config_id` = :config_id
             SQL,
-        QueryParameters::create([QueryParameter::int('config_d', $configId)])
+        QueryParameters::create([QueryParameter::int('config_id', $configId)])
     );
     $configGroupId = $configGroupId !== null ? (int) $configGroupId + 1 : 1;
     $typeId = $pearDB->fetchOne(
