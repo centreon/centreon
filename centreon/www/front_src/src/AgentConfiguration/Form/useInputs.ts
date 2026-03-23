@@ -2,18 +2,18 @@ import { Box, capitalize } from '@mui/material';
 
 import { Group, InputProps, InputType } from '@centreon/ui';
 
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { equals, isNil, map } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { pollersEndpoint } from '../api/endpoints';
-import { agentTypeFormAtom } from '../atoms';
+import { agentTypeFormAtom, openFormModalAtom } from '../atoms';
 import { AgentType, ConnectionMode } from '../models';
 import {
   labelAgent,
   labelAgentType,
-  labelCaCertificate,
   labelCMA,
+  labelCaCertificate,
   labelConfigurationServer,
   labelConnectionInitiated,
   labelEncryptionLevel,
@@ -59,6 +59,7 @@ export const useInputs = (): {
   const { t } = useTranslation();
 
   const [agentTypeForm, setAgentTypeForm] = useAtom(agentTypeFormAtom);
+  const openFormModal = useAtomValue(openFormModalAtom);
 
   const titleAttributes = {
     classes: { root: classes.titleGroup },
@@ -129,7 +130,8 @@ export const useInputs = (): {
               fieldName: 'type',
               label: t(labelAgentType),
               required: true,
-              type: InputType.SingleAutocomplete
+              type: InputType.SingleAutocomplete,
+              getDisabled: () => !equals(openFormModal, 'add')
             },
             {
               autocomplete: {
