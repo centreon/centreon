@@ -470,6 +470,8 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
                         AND cbi.config_key = 'type'
                         AND cbi.config_value = 'unified_sql'
                 )
+            ORDER BY cb.config_id ASC
+            LIMIT 1
             SQL
     );
     if ($configId === false) {
@@ -498,8 +500,9 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
 
     $configGroupId = $pearDB->fetchOne(
         <<<'SQL'
-            SELECT MAX(`config_group_id`) FROM `cfg_centreonbroker_info` WHERE `config_group` = 'output' AND `config_id` = 1
-            SQL
+            SELECT MAX(`config_group_id`) FROM `cfg_centreonbroker_info` WHERE `config_group` = 'output' AND `config_id` = :config_id
+            SQL,
+        QueryParameters::create([QueryParameter::int('config_d', $configId)])
     );
     $configGroupId = $configGroupId !== null ? (int) $configGroupId + 1 : 1;
     $typeId = $pearDB->fetchOne(
