@@ -576,7 +576,7 @@ while ($row = $res->fetch()) {
         : $resourceController->buildHostDetailsUri($row['host_id']);
 
     $data[$row['host_id'] . '_' . $row['service_id']]['s_details_uri'] = $useDeprecatedPages
-        ? '../../main.php?p=20202&o=hd&host_name=' . $row['hostname']
+        ? '../../main.php?p=20201&o=svcd&host_name=' . $row['hostname']
             . '&service_description=' . $row['description']
         : $resourceController->buildServiceDetailsUri($row['host_id'], $row['service_id']);
 }
