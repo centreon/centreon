@@ -311,25 +311,25 @@
     gap: 12px;
 }
 
-/* Header checkbox */
-.sg-listing-table thead th .md-checkbox label::before {
-    border-color: #fff;
-}
-.sg-listing-table thead th .md-checkbox {
+/* Checkbox alignment - header and body */
+.sg-listing-table .sg-col-picker .md-checkbox {
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0;
     height: 100%;
 }
-.sg-listing-table thead th .md-checkbox input[type="checkbox"] {
+.sg-listing-table .sg-col-picker .md-checkbox input[type="checkbox"] {
     margin: 0;
 }
-.sg-listing-table thead th .md-checkbox label {
+.sg-listing-table .sg-col-picker .md-checkbox label {
     margin: 0;
     padding: 0;
     min-height: auto;
     line-height: 1;
+}
+.sg-listing-table thead th .md-checkbox label::before {
+    border-color: #fff;
 }
 
 /* Loading state */
@@ -411,16 +411,39 @@
     var sgDebounceTimer = null;
 
     // =========================================================
+    // Save/restore checked rows
+    // =========================================================
+    function sgGetCheckedIds() {
+        var ids = [];
+        jQuery('#sgTableBody input[type=checkbox]:checked').each(function () {
+            var name = jQuery(this).attr('name');
+            if (name) ids.push(name);
+        });
+        return ids;
+    }
+
+    function sgRestoreCheckedIds(ids) {
+        for (var i = 0; i < ids.length; i++) {
+            jQuery('#sgTableBody input[name="' + ids[i] + '"]').prop('checked', true);
+        }
+    }
+
+    // =========================================================
     // AJAX fetch
     // =========================================================
-    function sgFetchData(num, limit, search) {
+    function sgFetchData(num, limit, search, silent) {
         sgCurrentNum = num;
         sgCurrentLimit = limit;
         sgCurrentSearch = search;
 
-        jQuery('#sgTableBody').html(
-            '<tr><td colspan="4" style="text-align:center;padding:24px;color:#a7a9ac;">Loading...</td></tr>'
-        );
+        // Save checked rows before refresh
+        var checkedIds = sgGetCheckedIds();
+
+        if (!silent) {
+            jQuery('#sgTableBody').html(
+                '<tr><td colspan="4" style="text-align:center;padding:24px;color:#a7a9ac;">Loading...</td></tr>'
+            );
+        }
 
         jQuery.ajax({
             url: './include/configuration/configObject/servicegroup/ajaxServiceGroupListing.php',
@@ -435,13 +458,15 @@
                 sgCsrfToken = data.centreon_token || '';
                 sgRenderRows(data.rows);
                 sgRenderPagination(data.total, data.num, data.limit);
-                // Update hidden limit for bulk actions form
+                sgRestoreCheckedIds(checkedIds);
                 jQuery('#limit').val(data.limit);
             },
             error: function () {
-                jQuery('#sgTableBody').html(
-                    '<tr><td colspan="4" style="text-align:center;padding:24px;color:#FF4A4A;">Error loading data</td></tr>'
-                );
+                if (!silent) {
+                    jQuery('#sgTableBody').html(
+                        '<tr><td colspan="4" style="text-align:center;padding:24px;color:#FF4A4A;">Error loading data</td></tr>'
+                    );
+                }
             }
         });
     }
@@ -597,7 +622,7 @@
     // =========================================================
     window.sgCheckUncheckAll = function (theElement) {
         var table = jQuery(theElement).closest('table');
-        table.find('tbody input[type=checkbox]').each(function () {
+        table.find('tbody .sg-col-picker input[type=checkbox]').each(function () {
             jQuery(this).prop('checked', theElement.checked);
         });
     };
@@ -631,6 +656,13 @@
     // Initial load
     // =========================================================
     sgFetchData(0, sgCurrentLimit, sgCurrentSearch);
+
+    // =========================================================
+    // Auto-refresh every 30 seconds (silent)
+    // =========================================================
+    setInterval(function () {
+        sgFetchData(sgCurrentNum, sgCurrentLimit, sgCurrentSearch, true);
+    }, 30000);
 })();
 </script>
 {/literal}
