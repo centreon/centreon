@@ -184,9 +184,9 @@ class Backend
     }
 
     /**
-     * @return null
+     * @return string|null
      */
-    public function getPath(): null
+    public function getPath(): ?string
     {
         return $this->full_path;
     }
@@ -246,9 +246,9 @@ class Backend
     }
 
     /**
-     * @return null
+     * @return string|null
      */
-    public function getPollerId(): null
+    public function getPollerId(): ?string
     {
         return $this->poller_id;
     }
