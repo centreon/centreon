@@ -985,14 +985,14 @@ jobs:
             -X DELETE \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.image_tag.outputs.additional_tag || steps.image_tag.outputs.tag }}
+            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.image_tag.outputs.tag }}
         shell: bash
 
       - name: Store slim image in cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ./docker-image
-          key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.image_tag.outputs.additional_tag || steps.image_tag.outputs.tag }}
+          key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.image_tag.outputs.tag }}
 
       - name: Store keycloak image in local archive
         if: ${{ needs.get-environment.outputs.stability == 'unstable' && matrix.operating_system == 'alma9' }}
@@ -1005,7 +1005,7 @@ jobs:
       - name: Clear previous keycloak image from cache
         if: ${{ needs.get-environment.outputs.stability == 'unstable' && matrix.operating_system == 'alma9' }}
         run: |
-          curl --fail-with-body \
+          curl \
             -X DELETE \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
