@@ -32,7 +32,7 @@ class CentreonDuration
      *
      * @return false|string
      */
-    public static function toString($duration, $periods = null)
+    public static function toString($duration, $periods = null): false|string
     {
         if (! is_array($duration)) {
             $duration = CentreonDuration::int2array($duration, $periods);
@@ -47,7 +47,7 @@ class CentreonDuration
      *
      * @return array|null
      */
-    public static function int2array($seconds, $periods = null)
+    public static function int2array($seconds, $periods = null): ?array
     {
         // Define time periods
         if (! is_array($periods)) {
@@ -80,7 +80,7 @@ class CentreonDuration
      *
      * @return false|string
      */
-    public static function array2string($duration)
+    public static function array2string($duration): false|string
     {
         if (! is_array($duration)) {
             return false;
@@ -112,7 +112,7 @@ class DurationHoursMinutes
      *
      * @return false|string
      */
-    public static function toString($duration, $periods = null)
+    public static function toString($duration, $periods = null): false|string
     {
         if (! is_array($duration)) {
             $duration = DurationHoursMinutes::int2array($duration, $periods);
@@ -127,7 +127,7 @@ class DurationHoursMinutes
      *
      * @return array|null
      */
-    public static function int2array($seconds, $periods = null)
+    public static function int2array($seconds, $periods = null): ?array
     {
         // Define time periods
         if (! is_array($periods)) {
@@ -159,7 +159,7 @@ class DurationHoursMinutes
      *
      * @return false|string
      */
-    public static function array2string($duration)
+    public static function array2string($duration): false|string
     {
         if (! is_array($duration)) {
             return false;

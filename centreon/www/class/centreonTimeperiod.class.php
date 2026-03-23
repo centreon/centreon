@@ -46,7 +46,7 @@ class CentreonTimeperiod
      * @throws PDOException
      * @return array
      */
-    public function getObjectForSelect2($values = [], $options = [])
+    public function getObjectForSelect2($values = [], $options = []): array
     {
         $items = [];
         $listValues = '';
@@ -86,7 +86,7 @@ class CentreonTimeperiod
      * @throws PDOException
      * @return string
      */
-    public function getTimperiodIdByName($name)
+    public function getTimperiodIdByName($name): string
     {
         $query = "SELECT tp_id FROM timeperiod 
                 WHERE tp_name = '" . $this->db->escape($name) . "'";
@@ -107,7 +107,7 @@ class CentreonTimeperiod
      * @throws PDOException
      * @return string
      */
-    public function getTimeperiodException($tpId)
+    public function getTimeperiodException($tpId): string
     {
         $query = 'SELECT `exception_id` FROM `timeperiod_exceptions`
                 WHERE `timeperiod_id` = ' . (int) $tpId;
@@ -283,7 +283,7 @@ class CentreonTimeperiod
      * @throws Exception
      * @return array
      */
-    public function getLinkedHostsByName($timeperiodName, $register = false)
+    public function getLinkedHostsByName($timeperiodName, $register = false): array
     {
         $registerClause = '';
         if ($register === '0' || $register === '1') {
@@ -319,7 +319,7 @@ class CentreonTimeperiod
      * @throws Exception
      * @return array
      */
-    public function getLinkedServicesByName($timeperiodName, $register = false)
+    public function getLinkedServicesByName($timeperiodName, $register = false): array
     {
         $registerClause = '';
         if ($register === '0' || $register === '1') {
@@ -353,7 +353,7 @@ class CentreonTimeperiod
      * @throws Exception
      * @return array
      */
-    public function getLinkedContactsByName($timeperiodName)
+    public function getLinkedContactsByName($timeperiodName): array
     {
         $linkedContacts = [];
         $query = 'SELECT DISTINCT c.contact_name '
@@ -381,7 +381,7 @@ class CentreonTimeperiod
      * @throws Exception
      * @return array
      */
-    public function getLinkedTimeperiodsByName($timeperiodName)
+    public function getLinkedTimeperiodsByName($timeperiodName): array
     {
         $linkedTimeperiods = [];
 

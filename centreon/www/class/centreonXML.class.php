@@ -168,7 +168,7 @@ class CentreonXML
      *
      * @return string
      */
-    protected function cleanStr($str)
+    protected function cleanStr($str): string
     {
         return preg_replace('/[\x00-\x09\x0B-\x0C\x0E-\x1F\x0D]/', '', $str);
     }
@@ -180,7 +180,7 @@ class CentreonXML
      *
      * @return int
      */
-    protected function is_utf8($string)
+    protected function is_utf8($string): int
     {
         if (mb_detect_encoding($string, 'UTF-8', true) == 'UTF-8') {
             return 1;

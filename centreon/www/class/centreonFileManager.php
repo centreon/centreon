@@ -107,9 +107,9 @@ class CentreonFileManager implements iFileManager
     }
 
     /**
-     * @return array|bool|void
+     * @return bool
      */
-    public function upload()
+    public function upload(): bool
     {
         if ($this->securityCheck()) {
             $this->moveFile();
@@ -123,7 +123,7 @@ class CentreonFileManager implements iFileManager
     /**
      * @return bool
      */
-    protected function securityCheck()
+    protected function securityCheck(): bool
     {
         return ! (
             ! $this->validFile()
@@ -139,7 +139,7 @@ class CentreonFileManager implements iFileManager
      *
      * @return array|string|string[]|null
      */
-    protected function secureName($text)
+    protected function secureName($text): array|string|null
     {
         $utf8 = ['/[áàâãªä]/u' => 'a', '/[ÁÀÂÃÄ]/u' => 'A', '/[ÍÌÎÏ]/u' => 'I', '/[íìîï]/u' => 'i', '/[éèêë]/u' => 'e', '/[ÉÈÊË]/u' => 'E', '/[óòôõºö]/u' => 'o', '/[ÓÒÔÕÖ]/u' => 'O', '/[úùûü]/u' => 'u', '/[ÚÙÛÜ]/u' => 'U', '/ç/' => 'c', '/Ç/' => 'C', '/ñ/' => 'n', '/Ñ/' => 'N', '/–/' => '-', '/[“”«»„"’‘‹›‚]/u' => '', '/ /' => '', '/\//' => '', '/\'/' => ''];
 
@@ -149,7 +149,7 @@ class CentreonFileManager implements iFileManager
     /**
      * @return bool
      */
-    protected function secureExtension()
+    protected function secureExtension(): bool
     {
 
         return (bool) (in_array(strtolower($this->extension), $this->legalExtensions));
@@ -158,7 +158,7 @@ class CentreonFileManager implements iFileManager
     /**
      * @return bool
      */
-    protected function validFile()
+    protected function validFile(): bool
     {
         return ! (empty($this->tmpFile) || $this->size == 0);
     }
@@ -166,7 +166,7 @@ class CentreonFileManager implements iFileManager
     /**
      * @return bool
      */
-    protected function validSize()
+    protected function validSize(): bool
     {
         return (bool) ($this->size < $this->legalSize);
     }
@@ -174,7 +174,7 @@ class CentreonFileManager implements iFileManager
     /**
      * @return bool
      */
-    protected function fileExist()
+    protected function fileExist(): bool
     {
         return (bool) (file_exists($this->completePath));
     }
@@ -183,7 +183,7 @@ class CentreonFileManager implements iFileManager
      * @param mixed $dir
      * @return void
      */
-    protected function dirExist($dir)
+    protected function dirExist($dir): void
     {
         if (! is_dir($dir)) {
             @mkdir($dir);
@@ -193,7 +193,7 @@ class CentreonFileManager implements iFileManager
     /**
      * @return void
      */
-    protected function moveFile()
+    protected function moveFile(): void
     {
         move_uploaded_file($this->tmpFile, $this->completePath);
     }

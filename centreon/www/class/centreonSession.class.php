@@ -176,7 +176,7 @@ class CentreonSession
      * @throws PDOException
      * @return int|string
      */
-    public static function getUser($sessionId, $pearDB)
+    public static function getUser($sessionId, $pearDB): int|string
     {
         $sessionId = str_replace(['_', '%'], ['', ''], $sessionId);
         $DBRESULT = $pearDB->query(

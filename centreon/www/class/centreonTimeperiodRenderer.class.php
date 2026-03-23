@@ -184,7 +184,7 @@ class CentreonTimeperiodRenderer
      *
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->tpname;
     }
@@ -194,7 +194,7 @@ class CentreonTimeperiodRenderer
      *
      * @return string
      */
-    public function getAlias()
+    public function getAlias(): string
     {
         return $this->tpalias;
     }
@@ -204,7 +204,7 @@ class CentreonTimeperiodRenderer
      *
      * @return array
      */
-    public function getTimeline()
+    public function getTimeline(): array
     {
         return $this->timeline;
     }
@@ -214,7 +214,7 @@ class CentreonTimeperiodRenderer
      *
      * @return array
      */
-    public function getExceptionList()
+    public function getExceptionList(): array
     {
         return $this->exceptionList;
     }
@@ -224,7 +224,7 @@ class CentreonTimeperiodRenderer
      *
      * @return array
      */
-    public static function getDefaultValuesParameters($field)
+    public static function getDefaultValuesParameters($field): array
     {
         $parameters = [];
         $parameters['currentObject']['table'] = 'timeperiod';
@@ -265,7 +265,7 @@ class CentreonTimeperiodRenderer
      * @param array $b
      * @return int
      */
-    protected function startCompare($a, $b)
+    protected function startCompare($a, $b): int
     {
         if ($a['tstart'] == $b['tstart']) {
             return 0;
@@ -282,7 +282,7 @@ class CentreonTimeperiodRenderer
      *
      * @return void
      */
-    protected function orderTimeRanges()
+    protected function orderTimeRanges(): void
     {
         foreach ($this->timerange as $key => $val) {
             usort($val, ['CentreonTimeperiodRenderer', 'startCompare']);
@@ -296,7 +296,7 @@ class CentreonTimeperiodRenderer
      * @param array $inexTr
      * @return void
      */
-    protected function updateTimeRange($inexTr)
+    protected function updateTimeRange($inexTr): void
     {
         foreach ($inexTr as $key => $val) {
             if (isset($val[0])) {
@@ -313,7 +313,7 @@ class CentreonTimeperiodRenderer
      * @throws PDOException
      * @return void
      */
-    protected function updateInclusions()
+    protected function updateInclusions(): void
     {
         $query = "SELECT timeperiod_include_id
         		  FROM timeperiod_include_relations
@@ -334,7 +334,7 @@ class CentreonTimeperiodRenderer
      * @throws PDOException
      * @return void
      */
-    protected function updateExclusions()
+    protected function updateExclusions(): void
     {
         $query = "SELECT * FROM timeperiod_exceptions WHERE timeperiod_id='" . $this->tpid . "'";
         $DBRESULT = $this->db->query($query);
@@ -359,7 +359,7 @@ class CentreonTimeperiodRenderer
      * @param string $range
      * @return array
      */
-    protected function getTimeRange($id, $name, $in, $range)
+    protected function getTimeRange($id, $name, $in, $range): array
     {
         $timeRange = [];
         $timeRange['fromTpId'] = $id;
@@ -387,7 +387,7 @@ class CentreonTimeperiodRenderer
      * @param string $range
      * @return array
      */
-    protected function getException($id, $name, $day, $range)
+    protected function getException($id, $name, $day, $range): array
     {
         return ['fromTpId' => $id, 'fromTpName' => $name, 'day' => $day, 'range' => $range];
     }

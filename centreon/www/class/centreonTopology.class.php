@@ -45,7 +45,7 @@ class CentreonTopology
      * @throws Exception
      * @return mixed
      */
-    public function getTopology($key, $value)
+    public function getTopology($key, $value): mixed
     {
         $queryTopologyPage = 'SELECT * FROM topology WHERE topology_' . $key . ' = :keyTopo';
         $stmt = $this->db->prepare($queryTopologyPage);
@@ -63,7 +63,7 @@ class CentreonTopology
      * @throws Exception
      * @return string
      */
-    public function getBreadCrumbFromTopology($topologyPage, $topologyName, $breadCrumbDelimiter = ' > ')
+    public function getBreadCrumbFromTopology($topologyPage, $topologyName, $breadCrumbDelimiter = ' > '): string
     {
         $breadCrumb = $topologyName;
         $currentTopology = $this->getTopology('page', $topologyPage);

@@ -91,7 +91,7 @@ class CentreonWidget
      * @throws Exception
      * @return null
      */
-    public function getWidgetType($widgetId)
+    public function getWidgetType($widgetId): null
     {
         $query = 'SELECT widget_model_id, widget_id FROM widgets WHERE widget_id = :widgetId';
         $stmt = $this->db->prepare($query);
@@ -112,7 +112,7 @@ class CentreonWidget
      * @throws Exception
      * @return null
      */
-    public function getWidgetTitle($widgetId)
+    public function getWidgetTitle($widgetId): null
     {
         $query = 'SELECT title, widget_id FROM widgets WHERE widget_id = :id';
         $stmt = $this->db->prepare($query);
@@ -133,7 +133,7 @@ class CentreonWidget
      * @throws Exception
      * @return mixed
      */
-    public function getWidgetDirectory($widgetModelId)
+    public function getWidgetDirectory($widgetModelId): mixed
     {
         $query = 'SELECT directory FROM widget_models WHERE widget_model_id = :id';
         $stmt = $this->db->prepare($query);
@@ -153,7 +153,7 @@ class CentreonWidget
      * @throws Exception
      * @return int
      */
-    public function getParameterIdByName($widgetModelId, $name)
+    public function getParameterIdByName($widgetModelId, $name): int
     {
         $tab = [];
         if (! isset($tab[$widgetModelId])) {
@@ -186,7 +186,7 @@ class CentreonWidget
      * @throws PDOException
      * @return mixed|null
      */
-    public function getWidgetInfo($type = 'id', $param = '')
+    public function getWidgetInfo($type = 'id', $param = ''): mixed
     {
         static $tabDir;
         static $tabId;
@@ -338,7 +338,7 @@ class CentreonWidget
      * @throws PDOException
      * @return mixed
      */
-    public function getWidgetInfoById($widgetModelId)
+    public function getWidgetInfoById($widgetModelId): mixed
     {
         return $this->getWidgetInfo('id', $widgetModelId);
     }
@@ -351,7 +351,7 @@ class CentreonWidget
      * @throws PDOException
      * @return mixed
      */
-    public function getWidgetInfoByDirectory($directory)
+    public function getWidgetInfoByDirectory($directory): mixed
     {
         return $this->getWidgetInfo('directory', $directory);
     }
@@ -362,7 +362,7 @@ class CentreonWidget
      * @throws Exception
      * @return mixed
      */
-    public function getUrl($widgetId)
+    public function getUrl($widgetId): mixed
     {
         $query = 'SELECT url FROM widget_models wm, widgets w '
             . 'WHERE wm.widget_model_id = w.widget_model_id '
@@ -390,7 +390,7 @@ class CentreonWidget
      * @throws Exception
      * @return mixed
      */
-    public function getRefreshInterval($widgetId)
+    public function getRefreshInterval($widgetId): mixed
     {
         $query = 'SELECT autoRefresh FROM widget_models wm, widgets w '
             . 'WHERE wm.widget_model_id = w.widget_model_id '
@@ -453,7 +453,7 @@ class CentreonWidget
      * @throws Exception
      * @return array
      */
-    public function getWidgetModels($search = '', $range = [])
+    public function getWidgetModels($search = '', $range = []): array
     {
         $queryValues = [];
         $query = 'SELECT SQL_CALC_FOUND_ROWS widget_model_id, title FROM widget_models ';
@@ -535,7 +535,7 @@ class CentreonWidget
      * @throws Exception
      * @return array
      */
-    public function getParamsFromWidgetId($widgetId, $hasPermission = false)
+    public function getParamsFromWidgetId($widgetId, $hasPermission = false): array
     {
         static $params;
 
@@ -768,7 +768,7 @@ class CentreonWidget
      *
      * @return array
      */
-    public function readConfigFile($filename)
+    public function readConfigFile($filename): array
     {
         $xmlString = file_get_contents($filename);
         $xmlObj = simplexml_load_string($xmlString);
@@ -889,7 +889,7 @@ class CentreonWidget
      * @throws Exception
      * @return array
      */
-    public function getWidgetPreferences($widgetId)
+    public function getWidgetPreferences($widgetId): array
     {
         $query = 'SELECT default_value, parameter_code_name '
             . 'FROM widget_parameters param, widgets w '
@@ -1053,7 +1053,7 @@ class CentreonWidget
      * @throws Exception
      * @return array
      */
-    protected function getParamsFromWidgetModelId($widgetModelId)
+    protected function getParamsFromWidgetModelId($widgetModelId): array
     {
         static $tab;
 
@@ -1082,7 +1082,7 @@ class CentreonWidget
      * @throws Exception
      * @return mixed
      */
-    protected function getLastInsertedWidgetId($title)
+    protected function getLastInsertedWidgetId($title): mixed
     {
         $query = 'SELECT MAX(widget_id) as lastId FROM widgets WHERE title = :title';
         $stmt = $this->db->prepare($query);
@@ -1102,7 +1102,7 @@ class CentreonWidget
      * @throws PDOException
      * @return mixed
      */
-    protected function getLastInsertedWidgetModelId($directory)
+    protected function getLastInsertedWidgetModelId($directory): mixed
     {
         $query = 'SELECT MAX(widget_model_id) as lastId '
             . 'FROM widget_models '
@@ -1124,7 +1124,7 @@ class CentreonWidget
      * @throws Exception
      * @return mixed
      */
-    protected function getLastInsertedParameterId($label)
+    protected function getLastInsertedParameterId($label): mixed
     {
         $query = 'SELECT MAX(parameter_id) as lastId '
             . 'FROM widget_parameters '
@@ -1146,7 +1146,7 @@ class CentreonWidget
      * @throws PDOException
      * @return array
      */
-    protected function getParameterTypeIds()
+    protected function getParameterTypeIds(): array
     {
         static $types;
 

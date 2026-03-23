@@ -54,7 +54,7 @@ class CentreonGraphService extends CentreonGraph
      * @throws RuntimeException
      * @return array
      */
-    public function getData($rows = 200)
+    public function getData($rows = 200): array
     {
         $legendDataInfo = ['last' => 'LAST', 'min' => 'MINIMUM', 'max' => 'MAXIMUM', 'average' => 'AVERAGE', 'total' => 'TOTAL'];
 
@@ -266,7 +266,7 @@ class CentreonGraphService extends CentreonGraph
      *
      * @return array
      */
-    public function getLimits()
+    public function getLimits(): array
     {
         $limits = ['min' => null, 'max' => null];
         if ($this->templateInformations['lower_limit'] !== '') {
@@ -284,7 +284,7 @@ class CentreonGraphService extends CentreonGraph
      *
      * @return int
      */
-    public function getBase()
+    public function getBase(): int
     {
         return $this->templateInformations['base'] ?? 1000;
     }
@@ -301,7 +301,7 @@ class CentreonGraphService extends CentreonGraph
      * @throws Exception
      * @return mixed
      */
-    public static function getIndexId($hostId, $serviceId, $dbc)
+    public static function getIndexId($hostId, $serviceId, $dbc): mixed
     {
         $query = 'SELECT id FROM index_data '
             . 'WHERE host_id = :host '

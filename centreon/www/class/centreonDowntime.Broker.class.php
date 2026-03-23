@@ -66,7 +66,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
      *
      * @return array An array with host and services for downtime, or false if in error
      */
-    public function getSchedDowntime()
+    public function getSchedDowntime(): array
     {
         $list = ['hosts' => [], 'services' => []];
         $query = "SELECT d.internal_id as internal_downtime_id,
@@ -100,7 +100,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
      * @param string $oname2 The second object name (service_name), is null if search a host
      * @return int
      */
-    public function getDowntimeInternalId($oname1, $start_time, $dt_id, $oname2 = null)
+    public function getDowntimeInternalId($oname1, $start_time, $dt_id, $oname2 = null): int
     {
         $query = 'SELECT d.internal_id as internal_downtime_id
         		  FROM downtimes d, hosts h ';
@@ -133,7 +133,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
      *
      * @return bool
      */
-    public function isWeeklyApproachingDowntime($startDelay, $endDelay, $daysOfWeek, $tomorrow)
+    public function isWeeklyApproachingDowntime($startDelay, $endDelay, $daysOfWeek, $tomorrow): bool
     {
         $isApproaching = false;
 
@@ -160,7 +160,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
      *
      * @return bool
      */
-    public function isMonthlyApproachingDowntime($startDelay, $endDelay, $daysOfMonth, $tomorrow)
+    public function isMonthlyApproachingDowntime($startDelay, $endDelay, $daysOfMonth, $tomorrow): bool
     {
         $isApproaching = false;
 
@@ -190,7 +190,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
      * @throws Exception
      * @return bool
      */
-    public function isSpecificDateDowntime($startDelay, $endDelay, $dayOfWeek, $cycle, $tomorrow)
+    public function isSpecificDateDowntime($startDelay, $endDelay, $dayOfWeek, $cycle, $tomorrow): bool
     {
         $isApproaching = false;
 
@@ -227,7 +227,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
      * @throws Exception
      * @return array
      */
-    public function getApproachingDowntimes($delay)
+    public function getApproachingDowntimes($delay): array
     {
         $approachingDowntimes = [];
 
@@ -354,7 +354,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
      * @throws PDOException
      * @return bool
      */
-    public function isScheduled($downtime)
+    public function isScheduled($downtime): bool
     {
         $isScheduled = false;
 
@@ -432,7 +432,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
      * @throws Exception
      * @return bool
      */
-    private function isTomorrow($downtimeStartTime, $now, $delay)
+    private function isTomorrow($downtimeStartTime, $now, $delay): bool
     {
         $tomorrow = false;
 
@@ -475,7 +475,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
      *
      * @return bool
      */
-    private function isApproachingTime($downtimeStart, $delayStart, $delayEnd)
+    private function isApproachingTime($downtimeStart, $delayStart, $delayEnd): bool
     {
         $approachingTime = false;
         if ($downtimeStart >= $delayStart && $downtimeStart <= $delayEnd) {
@@ -512,7 +512,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
      *
      * @return int
      */
-    private function manageSummerToWinterTimestamp(DateTime $dateTime)
+    private function manageSummerToWinterTimestamp(DateTime $dateTime): int
     {
         $datetimePlusOneHour = clone $dateTime;
         $datetimePlusOneHour->sub(new DateInterval('PT1H'));

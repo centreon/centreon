@@ -67,7 +67,7 @@ class CentreonData
      *
      * @return array
      */
-    public function getJsData()
+    public function getJsData(): array
     {
         return $this->jsData;
     }
@@ -77,7 +77,7 @@ class CentreonData
      *
      * @return CentreonData
      */
-    public static function getInstance()
+    public static function getInstance(): CentreonData
     {
         if (is_null(self::$instance)) {
             self::$instance = new CentreonData();

@@ -59,7 +59,7 @@ class CentreonFeature
      * @throws PDOException
      * @return array - The list of new feature to ask at the user
      */
-    public function toAsk($userId)
+    public function toAsk($userId): array
     {
         if (! is_numeric($userId)) {
             throw new Exception('The user id is not numeric.');
@@ -92,7 +92,7 @@ class CentreonFeature
      *
      * @return array
      */
-    public function getFeatures()
+    public function getFeatures(): array
     {
         $result = [];
         foreach (self::$availableFeatures as $feature) {
@@ -112,7 +112,7 @@ class CentreonFeature
      * @throws PDOException
      * @return array
      */
-    public function userFeaturesValue($userId)
+    public function userFeaturesValue($userId): array
     {
         if (! is_numeric($userId)) {
             throw new Exception('The user id is not numeric.');
@@ -162,7 +162,7 @@ class CentreonFeature
      * @throws Exception
      * @return bool
      */
-    public function featureActive($name, $version, $userId = null)
+    public function featureActive($name, $version, $userId = null): bool
     {
         foreach (self::$availableFeatures as $feature) {
             if ($feature['name'] === $name && $feature['version'] === $version && ! $feature['visible']) {

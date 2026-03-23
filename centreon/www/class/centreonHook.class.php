@@ -33,7 +33,7 @@ class CentreonHook
      *
      * @return array
      */
-    public static function execute($category, $method, $parameters = null)
+    public static function execute($category, $method, $parameters = null): array
     {
         global $centreon;
 

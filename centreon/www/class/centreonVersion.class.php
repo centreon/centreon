@@ -53,7 +53,7 @@ class CentreonVersion
      * @throws PDOException
      * @return array
      */
-    public function getCore()
+    public function getCore(): array
     {
         $data = [];
 
@@ -90,7 +90,7 @@ class CentreonVersion
      * @throws PDOException
      * @return array
      */
-    public function getModules()
+    public function getModules(): array
     {
         $data = [];
 
@@ -109,7 +109,7 @@ class CentreonVersion
      * @throws PDOException
      * @return array
      */
-    public function getWidgets()
+    public function getWidgets(): array
     {
         $data = [];
 
@@ -128,7 +128,7 @@ class CentreonVersion
      * @throws PDOException
      * @return array
      */
-    public function getSystem()
+    public function getSystem(): array
     {
         $data = ['OS' => php_uname()];
 
@@ -146,7 +146,7 @@ class CentreonVersion
      *
      * @return array $data An array composed with the name and version of the OS
      */
-    public function getVersionSystem()
+    public function getVersionSystem(): array
     {
         $data = [];
 
@@ -169,7 +169,7 @@ class CentreonVersion
      * @throws PDOException
      * @return array $data Widgets statistics
      */
-    public function getWidgetsUsage()
+    public function getWidgetsUsage(): array
     {
         $data = [];
 

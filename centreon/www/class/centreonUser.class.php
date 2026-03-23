@@ -164,7 +164,7 @@ class CentreonUser
      *
      * @return int|mixed
      */
-    public function showDiv($div_name = null)
+    public function showDiv($div_name = null): mixed
     {
         global $pearDB;
 
@@ -181,7 +181,7 @@ class CentreonUser
      * @throws PDOException
      * @return array
      */
-    public function getAllTopology($pearDB)
+    public function getAllTopology($pearDB): array
     {
         $DBRESULT = $pearDB->query('SELECT topology_page FROM topology WHERE topology_page IS NOT NULL');
         while ($topo = $DBRESULT->fetch()) {
@@ -237,7 +237,7 @@ class CentreonUser
     /**
      * @return int|mixed|string|null
      */
-    public function get_id()
+    public function get_id(): mixed
     {
         return $this->user_id;
     }
@@ -245,7 +245,7 @@ class CentreonUser
     /**
      * @return string|null
      */
-    public function get_name()
+    public function get_name(): ?string
     {
         return $this->name;
     }
@@ -253,7 +253,7 @@ class CentreonUser
     /**
      * @return string|null
      */
-    public function get_email()
+    public function get_email(): ?string
     {
         return $this->email;
     }
@@ -261,7 +261,7 @@ class CentreonUser
     /**
      * @return string|null
      */
-    public function get_alias()
+    public function get_alias(): ?string
     {
         return $this->alias;
     }
@@ -269,7 +269,7 @@ class CentreonUser
     /**
      * @return int
      */
-    public function get_version()
+    public function get_version(): int
     {
         return $this->version;
     }
@@ -297,7 +297,7 @@ class CentreonUser
     /**
      * @return mixed|string|null
      */
-    public function get_passwd()
+    public function get_passwd(): mixed
     {
         return $this->passwd;
     }
@@ -305,7 +305,7 @@ class CentreonUser
     /**
      * @return int|string|null
      */
-    public function get_admin()
+    public function get_admin(): int|string|null
     {
         return $this->admin;
     }
@@ -313,7 +313,7 @@ class CentreonUser
     /**
      * @return bool|null
      */
-    public function is_admin()
+    public function is_admin(): ?bool
     {
         return $this->is_admin;
     }
@@ -321,7 +321,7 @@ class CentreonUser
     /**
      * @return bool
      */
-    public function doesShowDeprecatedPages()
+    public function doesShowDeprecatedPages(): bool
     {
         return $this->showDeprecatedPages;
     }
@@ -413,7 +413,7 @@ class CentreonUser
     /**
      * @return mixed|null
      */
-    public function getMyGMT()
+    public function getMyGMT(): mixed
     {
         return $this->gmt;
     }
@@ -424,7 +424,7 @@ class CentreonUser
      * @throws PDOException
      * @return array|mixed
      */
-    public function getUserList($db)
+    public function getUserList($db): mixed
     {
         static $userList;
 
@@ -454,7 +454,7 @@ class CentreonUser
      * @throws PDOException
      * @return string
      */
-    public function getContactName($db, $userId)
+    public function getContactName($db, $userId): string
     {
         static $userNames;
 
@@ -478,7 +478,7 @@ class CentreonUser
      * @throws PDOException
      * @return array
      */
-    public function getContactParameters($db, $parameters = [])
+    public function getContactParameters($db, $parameters = []): array
     {
         $values = [];
 
@@ -511,10 +511,10 @@ class CentreonUser
      * @throws PDOException
      * @return null|void
      */
-    public function setContactParameters($db, $parameters = [])
+    public function setContactParameters($db, $parameters = []): void
     {
         if (! count($parameters)) {
-            return null;
+            return;
         }
         $queryValues = [];
         $keys = array_keys($parameters);
@@ -546,7 +546,7 @@ class CentreonUser
      *
      * @return int
      */
-    public function getCurrentPage()
+    public function getCurrentPage(): int
     {
         return $this->currentPage;
     }
@@ -567,7 +567,7 @@ class CentreonUser
      *
      * @return string
      */
-    public function getTheme()
+    public function getTheme(): string
     {
         return $this->theme;
     }
@@ -588,7 +588,7 @@ class CentreonUser
      *
      * @return string
      */
-    public function getToken()
+    public function getToken(): string
     {
         return $this->token;
     }
@@ -609,7 +609,7 @@ class CentreonUser
      *
      * @return bool
      */
-    public function hasAccessRestApiConfiguration()
+    public function hasAccessRestApiConfiguration(): bool
     {
         return $this->restApi;
     }
@@ -619,7 +619,7 @@ class CentreonUser
      *
      * @return bool
      */
-    public function hasAccessRestApiRealtime()
+    public function hasAccessRestApiRealtime(): bool
     {
         return $this->restApiRt;
     }

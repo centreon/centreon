@@ -42,7 +42,7 @@ class CentreonPdoStatement extends PDOStatement
     /**
      * @return mixed
      */
-    public function fetchRow()
+    public function fetchRow(): mixed
     {
         return $this->fetch();
     }
@@ -50,7 +50,7 @@ class CentreonPdoStatement extends PDOStatement
     /**
      * @return int
      */
-    public function numRows()
+    public function numRows(): int
     {
         return $this->rowCount();
     }
@@ -58,7 +58,7 @@ class CentreonPdoStatement extends PDOStatement
     /**
      * @return void
      */
-    public function free()
+    public function free(): void
     {
     }
 }

@@ -387,7 +387,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *          $result = $db->fetchNumeric('SELECT * FROM table WHERE id = :id', $queryParameters);
      *          // $result = [0 => 1, 1 => 'John', 2 => 'Doe']
      */
-    public function fetchNumeric(string $query, ?QueryParameters $queryParameters = null): false|array
+    public function fetchNumeric(string $query, ?QueryParameters $queryParameters = null): array|false
     {
         try {
             $this->validateSelectQuery($query);
@@ -421,7 +421,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *          $result = $db->fetchAssociative('SELECT * FROM table WHERE id = :id', $queryParameters);
      *          // $result = ['id' => 1, 'name' => 'John', 'surname' => 'Doe']
      */
-    public function fetchAssociative(string $query, ?QueryParameters $queryParameters = null): false|array
+    public function fetchAssociative(string $query, ?QueryParameters $queryParameters = null): array|false
     {
         try {
             $this->validateSelectQuery($query);
@@ -916,7 +916,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * @return array<mixed> dbsize, numberOfRow, freeSize
      */
-    public function getProperties()
+    public function getProperties(): array
     {
         $unitMultiple = 1024 * 1024;
 
@@ -1127,7 +1127,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      *
      * @deprecated
      */
-    public static function factory(string $name = self::LABEL_DB_CONFIGURATION)
+    public static function factory(string $name = self::LABEL_DB_CONFIGURATION): CentreonDB
     {
         if (! in_array($name, [self::LABEL_DB_CONFIGURATION, self::LABEL_DB_REALTIME])) {
             throw new Exception("The datasource isn't defined in configuration file.");
@@ -1421,7 +1421,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @deprecated Use {@see ConnectionInterface} methods instead
      * @see        ConnectionInterface
      */
-    public function execute(PDOStatement $pdoStatement, ?array $bindParams = null)
+    public function execute(PDOStatement $pdoStatement, ?array $bindParams = null): bool
     {
         try {
             if ($bindParams === []) {
@@ -1639,7 +1639,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @deprecated Instead use {@see CentreonDB::fetchFirstColumn()}
      * @see        CentreonDB::fetchFirstColumn()
      */
-    public function fetchColumn(PDOStatement $pdoStatement, int $column = 0): mixed
+    public function fetchColumn(PDOStatement $pdoStatement, int $column = 0): array|bool
     {
         try {
             return $pdoStatement->fetchColumn($column);
@@ -1747,7 +1747,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @deprecated No longer used by internal code and not recommended, instead use {@see CentreonDB::escapeString()}
      * @see        CentreonDB::escapeString()
      */
-    public static function escape($str, $htmlSpecialChars = false)
+    public static function escape($str, $htmlSpecialChars = false): string
     {
         if ($htmlSpecialChars) {
             $str = htmlspecialchars($str);
@@ -1820,7 +1820,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @deprecated Instead use {@see CentreonDB::executeQuery(), CentreonDB::prepareQuery(), CentreonDB::executePreparedQuery()}
      * @see        CentreonDB::executeQuery(), CentreonDB::prepareQuery(), CentreonDB::executePreparedQuery()
      */
-    public function getAll($query_string = null, $placeHolders = [])
+    public function getAll($query_string = null, $placeHolders = []): array|false
     {
         $this->requestExecuted++;
 

@@ -124,7 +124,7 @@ class CentreonConfigCentreonBroker
      * Serialize inner data
      * @return array
      */
-    public function __sleep()
+    public function __sleep(): array
     {
         $this->db = null;
 
@@ -146,7 +146,7 @@ class CentreonConfigCentreonBroker
      *
      * @return array
      */
-    public function getTags()
+    public function getTags(): array
     {
         if (! is_null($this->tagsCache)) {
             return $this->tagsCache;
@@ -172,7 +172,7 @@ class CentreonConfigCentreonBroker
      *
      * @return array
      */
-    public function getLogsOption()
+    public function getLogsOption(): array
     {
         if (! is_null($this->logsCache)) {
             return $this->logsCache;
@@ -196,7 +196,7 @@ class CentreonConfigCentreonBroker
      *
      * @return array
      */
-    public function getLogsLevel()
+    public function getLogsLevel(): array
     {
         if (! is_null($this->logsLevelCache)) {
             return $this->logsLevelCache;
@@ -221,7 +221,7 @@ class CentreonConfigCentreonBroker
      * @param int $tagId The tag id
      * @return string|null null in error
      */
-    public function getTagName($tagId)
+    public function getTagName($tagId): ?string
     {
         if (! is_null($this->tagsCache) && isset($this->tagsCache[$tagId])) {
             return $this->tagsCache[$tagId];
@@ -246,7 +246,7 @@ class CentreonConfigCentreonBroker
      * @param int $typeId The type id
      * @return string|null null in error
      */
-    public function getTypeShortname($typeId)
+    public function getTypeShortname($typeId): ?string
     {
         if (! is_null($this->typesCache) && isset($this->typesCache[$typeId])) {
             return $this->typesCache[$typeId];
@@ -272,7 +272,7 @@ class CentreonConfigCentreonBroker
      * @param int $typeId The type id
      * @return string|null null in error
      */
-    public function getTypeName($typeId)
+    public function getTypeName($typeId): ?string
     {
         if (! is_null($this->typesNameCache) && isset($this->typesNameCache[$typeId])) {
             return $this->typesNameCache[$typeId];
@@ -301,7 +301,7 @@ class CentreonConfigCentreonBroker
      * @param int $tagId The tag id
      * @return array
      */
-    public function getListConfigBlock($tagId)
+    public function getListConfigBlock($tagId): array
     {
         if (isset($this->blockCache[$tagId])) {
             return $this->blockCache[$tagId];
@@ -334,7 +334,7 @@ class CentreonConfigCentreonBroker
      * @throws HTML_QuickForm_Error
      * @return HTML_QuickFormCustom
      */
-    public function quickFormById($blockId, $page, $formId = 1, $config_id = 0)
+    public function quickFormById($blockId, $page, $formId = 1, $config_id = 0): HTML_QuickFormCustom
     {
         [$tagId, $typeId] = explode('_', $blockId);
         $fields = $this->getBlockInfos($typeId);
@@ -538,7 +538,7 @@ class CentreonConfigCentreonBroker
      *
      * @return array|false
      */
-    public function getBlockInfos($typeId)
+    public function getBlockInfos($typeId): array|false
     {
         if (isset($this->blockInfoCache[$typeId])) {
             return $this->blockInfoCache[$typeId];
@@ -613,7 +613,7 @@ class CentreonConfigCentreonBroker
      * @throws PDOException
      * @return int|null
      */
-    public function getTypeId($typeName)
+    public function getTypeId($typeName): ?int
     {
         $typeId = null;
 
@@ -761,7 +761,7 @@ class CentreonConfigCentreonBroker
      * @throws PDOException
      * @return bool
      */
-    public function updateConfig(int $id, array $values)
+    public function updateConfig(int $id, array $values): bool
     {
         // Insert the Centreon Broker configuration
         $query = '';
@@ -871,7 +871,7 @@ class CentreonConfigCentreonBroker
      * @throws HTML_QuickForm_Error
      * @return array
      */
-    public function getForms($config_id, $tag, $page, $tpl)
+    public function getForms($config_id, $tag, $page, $tpl): array
     {
         $query = "SELECT config_key, config_value, config_group_id, grp_level, parent_grp_id, fieldIndex
             FROM cfg_centreonbroker_info WHERE config_id = %d
@@ -974,7 +974,7 @@ class CentreonConfigCentreonBroker
      * @param int $typeId The type id
      * @return array
      */
-    public function getFieldtypes($typeId)
+    public function getFieldtypes($typeId): array
     {
         if (isset($this->fieldtypeCache[$typeId])) {
             return $this->fieldtypeCache[$typeId];
@@ -996,7 +996,7 @@ class CentreonConfigCentreonBroker
      * @param string $tag The tag of configuration
      * @return array The list of helps order by position in page
      */
-    public function getHelps($config_id, $tag)
+    public function getHelps($config_id, $tag): array
     {
         $this->nbSubGroup = 1;
         $query = "SELECT config_value, config_group_id
@@ -1038,7 +1038,7 @@ class CentreonConfigCentreonBroker
      * @param int $fieldId The field ID
      * @return string|null
      */
-    public function getDefaults($fieldId)
+    public function getDefaults($fieldId): ?string
     {
         if (isset($this->defaults[$fieldId])) {
             return $this->defaults[$fieldId];
@@ -1079,7 +1079,7 @@ class CentreonConfigCentreonBroker
      * @throws Exception
      * @return array|bool|mixed|string
      */
-    public function getInfoDb($string)
+    public function getInfoDb($string): mixed
     {
         global $pearDBO;
 
@@ -1171,7 +1171,7 @@ class CentreonConfigCentreonBroker
      * @param mixed $displayName
      * @return string
      */
-    public function getParentGroups($groupId, &$isMultiple = false, &$displayName = '')
+    public function getParentGroups($groupId, &$isMultiple = false, &$displayName = ''): string
     {
         $elemStr = '';
         try {
@@ -1213,7 +1213,7 @@ class CentreonConfigCentreonBroker
      * @throws PDOException
      * @return int
      */
-    public function isExist($sName)
+    public function isExist($sName): int
     {
         $bExist = 0;
         if (empty($sName)) {
@@ -1344,7 +1344,7 @@ class CentreonConfigCentreonBroker
      * @param int $typeId The type id
      * @return array<string,array<string,{type:string,default:string|null}>|{type:string,default:string|null}>
      */
-    public function getFieldInfosWithGroup($typeId)
+    public function getFieldInfosWithGroup($typeId): array
     {
         $fields = [];
         $block = $this->getBlockInfos($typeId);
@@ -1560,7 +1560,7 @@ class CentreonConfigCentreonBroker
      * @param array $field2 The second field to sort
      * @return int
      */
-    private function sortField($field1, $field2)
+    private function sortField($field1, $field2): int
     {
         if ($field1['order'] == $field2['order']) {
             return 0;
@@ -1578,7 +1578,7 @@ class CentreonConfigCentreonBroker
      * @param int $fieldId The field ID
      * @return array
      */
-    private function getListValues($fieldId)
+    private function getListValues($fieldId): array
     {
         if (isset($this->listValues[$fieldId])) {
             return $this->listValues[$fieldId];
@@ -1605,7 +1605,7 @@ class CentreonConfigCentreonBroker
      * @throws PDOException
      * @return bool|mixed|string|null
      */
-    private function getExternalDefaultValue($fieldId)
+    private function getExternalDefaultValue($fieldId): mixed
     {
         $externalValue = null;
         $query = 'SELECT `external` FROM cb_field WHERE cb_field_id = ' . $fieldId;
@@ -1635,7 +1635,7 @@ class CentreonConfigCentreonBroker
      * @param int $val The value for apply
      * @return mixed The value with rpn apply or the value is errors
      */
-    private function rpnCalc($rpn, $val)
+    private function rpnCalc($rpn, $val): mixed
     {
         if (! is_numeric($val)) {
             return $val;
@@ -1660,7 +1660,7 @@ class CentreonConfigCentreonBroker
      * @throws InvalidArgumentException
      * @return array
      */
-    private function rpnOperation($result, $item)
+    private function rpnOperation($result, $item): array
     {
         if (in_array($item, ['+', '-', '*', '/'])) {
             if (count($result) < 2) {
@@ -1689,7 +1689,7 @@ class CentreonConfigCentreonBroker
      * @param int $value maximum number of event in the queue
      * @return int maximum number of event in the queue
      */
-    private function checkEventMaxQueueSizeValue($value)
+    private function checkEventMaxQueueSizeValue($value): int
     {
         if (! isset($value) || $value == '' || $value < 10000) {
             $value = 10000;
@@ -1707,7 +1707,7 @@ class CentreonConfigCentreonBroker
      * @param mixed $isMultiple
      * @return string
      */
-    private function getElementName($tag, $formId, $field, &$isMultiple = false)
+    private function getElementName($tag, $formId, $field, &$isMultiple = false): string
     {
         $elementName = $tag . '[' . $formId . '][';
         if (! is_null($field['group']) && $field['group'] !== '') {
@@ -1726,7 +1726,7 @@ class CentreonConfigCentreonBroker
      * @param array $info The information
      * @return string
      */
-    private function getConfigFieldName($configId, $configGroup, $info)
+    private function getConfigFieldName($configId, $configGroup, $info): string
     {
         $elemStr = $info['config_key'];
         if ($info['grp_level'] != 0) {

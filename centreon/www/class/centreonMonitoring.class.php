@@ -67,7 +67,7 @@ class CentreonMonitoring
     /**
      * @return string
      */
-    public function getPoller()
+    public function getPoller(): string
     {
         return $this->poller;
     }

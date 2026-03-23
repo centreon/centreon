@@ -92,7 +92,7 @@ class CentreonLang
      *
      * @return string
      */
-    public function getLang()
+    public function getLang(): string
     {
         return $this->lang;
     }
@@ -113,7 +113,7 @@ class CentreonLang
      *
      * @return string
      */
-    public function getCharset()
+    public function getCharset(): string
     {
         return $this->charset;
     }
@@ -123,7 +123,7 @@ class CentreonLang
      *
      * @return array
      */
-    public function getCharsetList()
+    public function getCharsetList(): array
     {
         return $this->charsetList;
     }
@@ -131,7 +131,7 @@ class CentreonLang
     /**
      * @return int|string|null
      */
-    private function parseHttpAcceptHeader()
+    private function parseHttpAcceptHeader(): int|string|null
     {
         $langs = [];
 
@@ -172,7 +172,7 @@ class CentreonLang
      *
      * @return string
      */
-    private function getBrowserDefaultLanguage()
+    private function getBrowserDefaultLanguage(): string
     {
         $currentLocale = '';
 
@@ -192,7 +192,7 @@ class CentreonLang
      * @param string $shortLocale
      * @return string $fullLocale
      */
-    private function getFullLocale($shortLocale)
+    private function getFullLocale($shortLocale): string
     {
         $fullLocale = '';
 

@@ -51,7 +51,7 @@ class CentreonGraphTemplate
      * @throws PDOException
      * @return array
      */
-    public function getObjectForSelect2($values = [], $options = [], $register = '1')
+    public function getObjectForSelect2($values = [], $options = [], $register = '1'): array
     {
         $items = [];
         $listValues = '';

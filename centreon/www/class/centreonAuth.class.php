@@ -161,7 +161,7 @@ class CentreonAuth
      * @throws PDOException
      * @return int
      */
-    protected function getLogFlag()
+    protected function getLogFlag(): int
     {
         $res = $this->pearDB->query("SELECT value FROM options WHERE `key` = 'debug_auth'");
         $data = $res->fetch();
@@ -179,7 +179,7 @@ class CentreonAuth
      * @throws PDOException
      * @return void
      */
-    protected function checkPassword($password, $token = '', $autoImport = false)
+    protected function checkPassword($password, $token = '', $autoImport = false): void
     {
         if (empty($password) && empty($token)) {
             $this->passwdOk = self::PASSWORD_INVALID;
@@ -221,7 +221,7 @@ class CentreonAuth
      * @throws PDOException
      * @return void
      */
-    protected function checkUser($username, $password, $token)
+    protected function checkUser($username, $password, $token): void
     {
         if ($this->autologin == 0 || ($this->autologin && $token != '')) {
             $dbResult = $this->pearDB->prepare(
@@ -312,7 +312,7 @@ class CentreonAuth
      *
      * @return mixed
      */
-    protected function myCrypt($str)
+    protected function myCrypt($str): mixed
     {
         $algo = $this->dependencyInjector['utils']->detectPassPattern($str);
         if (! $algo) {
@@ -332,7 +332,7 @@ class CentreonAuth
     /**
      * @return int
      */
-    protected function getCryptEngine()
+    protected function getCryptEngine(): int
     {
         return $this->cryptEngine;
     }
@@ -340,7 +340,7 @@ class CentreonAuth
     /**
      * @return mixed
      */
-    protected function userExists()
+    protected function userExists(): mixed
     {
         return $this->userExists;
     }
@@ -348,7 +348,7 @@ class CentreonAuth
     /**
      * @return mixed
      */
-    protected function userIsEnable()
+    protected function userIsEnable(): mixed
     {
         return $this->enable;
     }
@@ -356,7 +356,7 @@ class CentreonAuth
     /**
      * @return mixed
      */
-    protected function passwordIsOk()
+    protected function passwordIsOk(): mixed
     {
         return $this->passwdOk;
     }
@@ -364,7 +364,7 @@ class CentreonAuth
     /**
      * @return mixed
      */
-    protected function getAuthType()
+    protected function getAuthType(): mixed
     {
         return $this->authType;
     }

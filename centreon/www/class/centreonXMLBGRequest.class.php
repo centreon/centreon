@@ -251,7 +251,7 @@ class CentreonXMLBGRequest
     /**
      * @return string
      */
-    public function getNextLineClass()
+    public function getNextLineClass(): string
     {
         $this->classLine = $this->classLine == 'list_one' ? 'list_two' : 'list_one';
 
@@ -327,7 +327,7 @@ class CentreonXMLBGRequest
      *
      * @return string
      */
-    public function checkArgument($name, $tab, $defaultValue)
+    public function checkArgument($name, $tab, $defaultValue): string
     {
         if (isset($name, $tab)) {
             if (isset($tab[$name])) {
@@ -350,7 +350,7 @@ class CentreonXMLBGRequest
      *
      * @return array|string|string[]
      */
-    public function prepareObjectName($name)
+    public function prepareObjectName($name): array|string
     {
         $name = str_replace('/', '#S#', $name);
 
@@ -363,7 +363,7 @@ class CentreonXMLBGRequest
      * @throws PDOException
      * @return void
      */
-    protected function getUserIdFromSID()
+    protected function getUserIdFromSID(): void
     {
         $query = 'SELECT user_id FROM session '
             . "WHERE session_id = '" . CentreonDB::escape($this->session_id) . "' LIMIT 1";
@@ -381,7 +381,7 @@ class CentreonXMLBGRequest
      * @throws PDOException
      * @return void
      */
-    protected function getStatusColor()
+    protected function getStatusColor(): void
     {
         $this->general_opt = [];
         $DBRESULT = $this->DB->query("SELECT * FROM `options` WHERE `key` LIKE 'color%'");
@@ -413,7 +413,7 @@ class CentreonXMLBGRequest
      *
      * @return string
      */
-    private function myDecode($arg)
+    private function myDecode($arg): string
     {
         return html_entity_decode($arg ?? '', ENT_QUOTES, 'UTF-8');
     }

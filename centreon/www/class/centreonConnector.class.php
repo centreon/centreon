@@ -87,7 +87,7 @@ class CentreonConnector
      * @throws RuntimeException
      * @return CentreonConnector|int
      */
-    public function create(array $connector, $returnId = false)
+    public function create(array $connector, $returnId = false): CentreonConnector|int
     {
         // Checking data
         if (! isset($connector['name'])) {
@@ -180,7 +180,7 @@ class CentreonConnector
      * @throws RuntimeException
      * @return array
      */
-    public function read($id)
+    public function read($id): array
     {
         if (! is_numeric($id)) {
             throw new InvalidArgumentException('Id is not integer');
@@ -237,7 +237,7 @@ class CentreonConnector
      *
      * @return CentreonConnector
      */
-    public function update(int $connectorId, array $connector = []): self
+    public function update(int $connectorId, array $connector = []): CentreonConnector
     {
         if ($connector === []) {
             return $this;
@@ -321,7 +321,7 @@ class CentreonConnector
      * @throws RuntimeException
      * @return CentreonConnector
      */
-    public function delete($id)
+    public function delete($id): CentreonConnector
     {
         if (! is_numeric($id)) {
             throw new InvalidArgumentException('Id should be integer');
@@ -424,7 +424,7 @@ class CentreonConnector
      * @throws RuntimeException
      * @return CentreonConnector|array
      */
-    public function copy($id, $numberOfcopies = 1, $returnIds = false)
+    public function copy($id, $numberOfcopies = 1, $returnIds = false): CentreonConnector|array
     {
         try {
             $connector = $this->read($id);
@@ -470,7 +470,7 @@ class CentreonConnector
      * @throws RuntimeException
      * @return int
      */
-    public function count($onlyEnabled = true)
+    public function count($onlyEnabled = true): int
     {
         if (! is_bool($onlyEnabled)) {
             throw new InvalidArgumentException('Parameter "onlyEnabled" should be boolean');
@@ -506,7 +506,7 @@ class CentreonConnector
      * @throws RuntimeException
      * @return bool
      */
-    public function isNameAvailable($name, $connectorId = null)
+    public function isNameAvailable($name, $connectorId = null): bool
     {
         if (! is_string($name)) {
             throw new InvalidArgumentException('Name is not intrger');
@@ -542,7 +542,7 @@ class CentreonConnector
      * @param int $field
      * @return array
      */
-    public static function getDefaultValuesParameters($field)
+    public static function getDefaultValuesParameters($field): array
     {
         $parameters = [];
         $parameters['currentObject']['table'] = 'connector';
@@ -571,7 +571,7 @@ class CentreonConnector
      * @throws PDOException
      * @return array
      */
-    public function getObjectForSelect2($values = [], $options = [])
+    public function getObjectForSelect2($values = [], $options = []): array
     {
         $items = [];
         $listValues = '';

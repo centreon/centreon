@@ -47,7 +47,7 @@ class CentreonIssue
      * @throws PDOException
      * @return array
      */
-    public function getChildren($issueId)
+    public function getChildren($issueId): array
     {
         $query = 'SELECT tb.issue_id, tb.host_id, tb.service_id, tb.start_time, tb.name, tb.description,
             tb.state, tb.output
@@ -102,7 +102,7 @@ class CentreonIssue
      * @throws PDOException
      * @return bool
      */
-    public function isParent($issueId)
+    public function isParent($issueId): bool
     {
         $query = 'SELECT parent_id
             FROM issues_issues_parents

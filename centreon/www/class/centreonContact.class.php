@@ -52,7 +52,7 @@ class CentreonContact
      * @throws PDOException
      * @return array
      */
-    public function getContactTemplates($fields = [], $filters = [], $order = [], $limit = [])
+    public function getContactTemplates($fields = [], $filters = [], $order = [], $limit = []): array
     {
         $fieldStr = '*';
         if (count($fields)) {
@@ -92,7 +92,7 @@ class CentreonContact
      * @throws PDOException
      * @return array
      */
-    public static function getContactGroupsFromContact($db, $contactId)
+    public static function getContactGroupsFromContact($db, $contactId): array
     {
         $sql = 'SELECT cg_id, cg_name
             FROM contactgroup_contact_relation r, contactgroup cg 
@@ -112,7 +112,7 @@ class CentreonContact
      * @param int $field
      * @return array
      */
-    public static function getDefaultValuesParameters($field)
+    public static function getDefaultValuesParameters($field): array
     {
         $parameters = [];
         $parameters['currentObject']['table'] = 'contact';
@@ -188,7 +188,7 @@ class CentreonContact
      * @throws PDOException
      * @return array
      */
-    public function getObjectForSelect2($values = [], $options = [])
+    public function getObjectForSelect2($values = [], $options = []): array
     {
         global $centreon;
         $items = [];

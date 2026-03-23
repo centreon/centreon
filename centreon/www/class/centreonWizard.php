@@ -56,7 +56,7 @@ class Centreon_Wizard
      *
      * @return string[]
      */
-    public function __sleep()
+    public function __sleep(): array
     {
         $this->_lastUpdate = time();
 
@@ -68,7 +68,7 @@ class Centreon_Wizard
      *
      * @return void
      */
-    public function __wakeup()
+    public function __wakeup(): void
     {
         $this->_lastUpdate = time();
     }
@@ -80,7 +80,7 @@ class Centreon_Wizard
      *
      * @return array
      */
-    public function getValues($step)
+    public function getValues($step): array
     {
         if (isset($this->_values[$step]) === false) {
             return [];
@@ -98,7 +98,7 @@ class Centreon_Wizard
      *
      * @return string
      */
-    public function getValue($step, $name, $default = '')
+    public function getValue($step, $name, $default = ''): string
     {
         if (isset($this->_values[$step]) === false || isset($this->_values[$step][$name]) === false) {
             return $default;
@@ -134,7 +134,7 @@ class Centreon_Wizard
      *
      * @return bool
      */
-    public function testUuid($uuid)
+    public function testUuid($uuid): bool
     {
         return (bool) ($uuid == $this->_uuid);
     }

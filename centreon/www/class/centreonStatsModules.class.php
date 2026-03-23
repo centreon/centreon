@@ -54,7 +54,7 @@ class CentreonStatsModules
      * @throws PDOException
      * @return array The statistics of each module
      */
-    public function getModulesStatistics()
+    public function getModulesStatistics(): array
     {
         $data = [];
         $moduleObjects = $this->getModuleObjects(
@@ -80,7 +80,7 @@ class CentreonStatsModules
      * @throws PDOException
      * @return array Return the names of installed modules [['name' => string], ...]
      */
-    private function getInstalledModules()
+    private function getInstalledModules(): array
     {
         $installedModules = [];
         $stmt = $this->db->prepare('SELECT name FROM modules_informations');
@@ -101,7 +101,7 @@ class CentreonStatsModules
      * @return array Return a list of statistics module found
      * @see    CentreonStatsModules::getInstalledModules()
      */
-    private function getModuleObjects(array $installedModules)
+    private function getModuleObjects(array $installedModules): array
     {
         $moduleObjects = [];
 

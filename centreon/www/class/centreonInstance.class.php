@@ -83,7 +83,7 @@ class CentreonInstance
      * @throws PDOException
      * @return array $pollers [['instance_id => integer, 'name' => string],...]
      */
-    public function getInstancesMonitoring($pollerIds = [])
+    public function getInstancesMonitoring($pollerIds = []): array
     {
         $pollers = [];
 
@@ -129,7 +129,7 @@ class CentreonInstance
      * @param string $paramName
      * @return string
      */
-    public function getParam($instance, $paramName)
+    public function getParam($instance, $paramName): string
     {
         if (is_numeric($instance)) {
             if (isset($this->params[$instance], $this->params[$instance][$paramName])) {
@@ -147,7 +147,7 @@ class CentreonInstance
      *
      * @return array
      */
-    public function getInstances()
+    public function getInstances(): array
     {
         return $this->instances;
     }
@@ -160,7 +160,7 @@ class CentreonInstance
      * @throws PDOException
      * @return array
      */
-    public function getCommandData($pollerId)
+    public function getCommandData($pollerId): array
     {
         $sql = 'SELECT c.command_id, c.command_name, c.command_line 
             FROM command c, poller_command_relations pcr
@@ -185,7 +185,7 @@ class CentreonInstance
      * @throws PDOException
      * @return array
      */
-    public function getCommandsFromPollerId($pollerId = null)
+    public function getCommandsFromPollerId($pollerId = null): array
     {
         $arr = [];
         $i = 0;
@@ -246,7 +246,7 @@ class CentreonInstance
      * @throws PDOException
      * @return array
      */
-    public function getObjectForSelect2($values = [], $options = [])
+    public function getObjectForSelect2($values = [], $options = []): array
     {
         global $centreon;
 
@@ -311,7 +311,7 @@ class CentreonInstance
      * @throws PDOException
      * @return array
      */
-    public function getHostsByInstance($instanceName)
+    public function getHostsByInstance($instanceName): array
     {
         $instanceList = [];
 
@@ -336,7 +336,7 @@ class CentreonInstance
      * @throws PDOException
      * @return mixed
      */
-    public function getInstanceId($instanceName)
+    public function getInstanceId($instanceName): mixed
     {
         $query = 'SELECT ns.id '
             . ' FROM nagios_server ns '
@@ -352,7 +352,7 @@ class CentreonInstance
      * @throws PDOException
      * @return void
      */
-    protected function initParams()
+    protected function initParams(): void
     {
         $this->params = [];
         $this->paramsByName = [];

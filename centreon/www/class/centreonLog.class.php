@@ -120,7 +120,7 @@ class CentreonUserLog
      * @throws Exception
      * @return CentreonUserLog
      */
-    public static function singleton($uid = 0)
+    public static function singleton($uid = 0): CentreonUserLog
     {
         if (is_null(self::$instance)) {
             self::$instance = new CentreonUserLog($uid, CentreonDB::factory('centreon'));

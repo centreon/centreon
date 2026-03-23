@@ -243,7 +243,7 @@ class CentreonDowntime
      * @throws PDOException
      * @return array
      */
-    public function getPeriods($id)
+    public function getPeriods($id): array
     {
         $this->initPeriods();
 
@@ -554,7 +554,7 @@ class CentreonDowntime
      * @throws PDOException
      * @return array
      */
-    public function getForEnabledServicegroups()
+    public function getForEnabledServicegroups(): array
     {
         $request = <<<'SQL'
                 SELECT dt.dt_id,
@@ -664,7 +664,7 @@ class CentreonDowntime
      * @throws PDOException
      * @return array All downtimes
      */
-    public function getForEnabledResources()
+    public function getForEnabledResources(): array
     {
         if (! is_null($this->downtimes)) {
             return $this->downtimes;

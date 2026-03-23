@@ -49,12 +49,12 @@ class CentreonServicegroups
      * @param null $sgId
      *
      * @throws PDOException
-     * @return array|void
+     * @return array
      */
-    public function getServiceGroupServices($sgId = null)
+    public function getServiceGroupServices($sgId = null): array
     {
         if (! $sgId) {
-            return;
+            return [];
         }
 
         $services = [];
@@ -85,7 +85,7 @@ class CentreonServicegroups
      * @param int[] $serviceGroupsIds
      * @return array $retArr [['id' => integer, 'name' => string],...]
      */
-    public function getServicesGroups($serviceGroupsIds = [])
+    public function getServicesGroups($serviceGroupsIds = []): array
     {
         $servicesGroups = [];
 
@@ -131,7 +131,7 @@ class CentreonServicegroups
      * @param type $field
      * @return string
      */
-    public static function getDefaultValuesParameters($field)
+    public static function getDefaultValuesParameters($field): string
     {
         $parameters = [];
         $parameters['currentObject']['table'] = 'servicegroup';
@@ -176,7 +176,7 @@ class CentreonServicegroups
      * @param array $options
      * @return array
      */
-    public function getObjectForSelect2($values = [], $options = [])
+    public function getObjectForSelect2($values = [], $options = []): array
     {
         $items = [];
 
@@ -332,7 +332,7 @@ class CentreonServicegroups
      * @param $sgName
      * @return int|mixed
      */
-    public function getServicesGroupId($sgName)
+    public function getServicesGroupId($sgName): mixed
     {
         static $ids = [];
 

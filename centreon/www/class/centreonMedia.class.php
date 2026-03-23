@@ -54,7 +54,7 @@ class CentreonMedia
      * @throws Exception
      * @return string
      */
-    public function getMediaDirectory()
+    public function getMediaDirectory(): string
     {
         if (empty($this->mediadirectoryname)) {
             return self::CENTREON_MEDIA_PATH;
@@ -109,7 +109,7 @@ class CentreonMedia
      * @throws PDOException
      * @return string
      */
-    public function getDirectoryName($directoryId)
+    public function getDirectoryName($directoryId): string
     {
         $query = 'SELECT dir_name FROM view_img_dir WHERE dir_id = ' . $directoryId . ' LIMIT 1';
 
@@ -133,7 +133,7 @@ class CentreonMedia
      * @throws Exception
      * @return int
      */
-    public function addDirectory($dirName, $dirAlias = null)
+    public function addDirectory($dirName, $dirAlias = null): int
     {
         $dirName = $this->sanitizePath($dirName);
 
@@ -174,7 +174,7 @@ class CentreonMedia
      * @throws PDOException
      * @return mixed
      */
-    public function getImageId($imagename, $dirname = null)
+    public function getImageId($imagename, $dirname = null): mixed
     {
         if (! isset($dirname)) {
             $tab = preg_split("/\//", $imagename);
@@ -211,7 +211,7 @@ class CentreonMedia
      * @throws PDOException
      * @return string
      */
-    public function getFilename($imgId = null)
+    public function getFilename($imgId = null): string
     {
         if (! isset($imgId)) {
             return '';
@@ -240,7 +240,7 @@ class CentreonMedia
      * @throws Exception
      * @return array
      */
-    public static function getFilesFromArchive($archiveFile)
+    public static function getFilesFromArchive($archiveFile): array
     {
         $fileName = basename($archiveFile);
         $position = strrpos($fileName, '.');
@@ -294,7 +294,7 @@ class CentreonMedia
      * @throws Exception
      * @return mixed
      */
-    public function addImage($parameters, $binary = null)
+    public function addImage($parameters, $binary = null): mixed
     {
         $imageId = null;
 
@@ -408,7 +408,7 @@ class CentreonMedia
      *
      * @return string
      */
-    private function sanitizePath($path)
+    private function sanitizePath($path): string
     {
         $cleanstr = htmlentities($path, ENT_QUOTES, 'UTF-8');
         $cleanstr = str_replace('/', '_', $cleanstr);

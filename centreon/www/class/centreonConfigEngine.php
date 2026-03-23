@@ -69,7 +69,7 @@ class CentreonConfigEngine
      * @throws PDOException
      * @return array
      */
-    public function getBrokerDirectives($serverId = null)
+    public function getBrokerDirectives($serverId = null): array
     {
         $arr = [];
         $i = 0;
@@ -97,7 +97,7 @@ class CentreonConfigEngine
      * @throws PDOException
      * @return mixed|null
      */
-    public function getTimezone($engineId = null)
+    public function getTimezone($engineId = null): mixed
     {
         $timezone = null;
 

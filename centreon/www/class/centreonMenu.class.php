@@ -51,7 +51,7 @@ class CentreonMenu
      *
      * @return string
      */
-    public function translate($isModule, $url, $menuName)
+    public function translate($isModule, $url, $menuName): string
     {
         $moduleName = '';
         if ($isModule && $url) {
