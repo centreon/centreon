@@ -1164,7 +1164,7 @@ class CentreonACL
             if ($withServiceDescription) {
                 $query = 'SELECT acl.host_id, acl.service_id, s.description '
                     . 'FROM centreon_acl acl '
-                    . 'LEFT JOIN services s on acl.service_id = s.service_id '
+                    . 'LEFT JOIN services s ON acl.host_id = s.host_id AND acl.service_id = s.service_id '
                     . 'WHERE group_id IN (' . $this->getAccessGroupsString() . ') '
                     . 'GROUP BY acl.host_id, acl.service_id ';
             } else {
