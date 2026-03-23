@@ -78,7 +78,7 @@ $updateSamlProviderConfiguration = function () use ($pearDB, &$errorMessage, $ve
 
     if (isset($customConfiguration['requested_authn_context'])) {
         $customConfiguration['requested_authn_context_comparison'] = $customConfiguration['requested_authn_context'];
-        $customConfiguration['requested_authn_context'] = true;
+        $customConfiguration['requested_authn_context'] = false;
 
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
