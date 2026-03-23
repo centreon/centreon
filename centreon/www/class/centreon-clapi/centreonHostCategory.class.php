@@ -244,12 +244,12 @@ class CentreonHostCategory extends CentreonSeverityAbstract
      * @param null $filterName
      *
      * @throws PDOException
-     * @return void
+     * @return bool
      */
-    public function export($filterName = null): void
+    public function export($filterName = null): bool
     {
         if (! parent::export($filterName)) {
-            return;
+            return false;
         }
 
         $hostCategories = $this->findHostCategories();
@@ -280,6 +280,8 @@ class CentreonHostCategory extends CentreonSeverityAbstract
                 );
             }
         }
+
+        return true;
     }
 
     /**

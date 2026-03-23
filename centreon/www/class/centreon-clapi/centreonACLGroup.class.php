@@ -281,12 +281,12 @@ class CentreonACLGroup extends CentreonObject
      * @param null $filterName
      *
      * @throws Exception
-     * @return void
+     * @return bool
      */
-    public function export($filterName = null): void
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
-            return;
+            return false;
         }
 
         $labelField = $this->object->getUniqueLabelField();
@@ -319,6 +319,8 @@ class CentreonACLGroup extends CentreonObject
             echo $exportLine;
             $exportLine = '';
         }
+
+        return true;
     }
 
     /**

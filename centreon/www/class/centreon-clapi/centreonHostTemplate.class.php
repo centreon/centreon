@@ -77,12 +77,12 @@ class CentreonHostTemplate extends CentreonHost
      * @param mixed|null $filterName
      *
      * @throws Exception
-     * @return void
+     * @return bool
      */
-    public function export(mixed $filterName = null): void
+    public function export(mixed $filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
-            return;
+            return false;
         }
 
         $labelField = $this->object->getUniqueLabelField();
@@ -319,5 +319,7 @@ class CentreonHostTemplate extends CentreonHost
                 CentreonHostGroupService::getInstance()->export($helement['hg_name']);
             }
         }
+
+        return true;
     }
 }

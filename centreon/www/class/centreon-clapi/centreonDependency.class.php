@@ -291,15 +291,17 @@ class CentreonDependency extends CentreonObject
      *
      * @param $filterName
      *
-     * @return void
+     * @return bool
      */
-    public function export($filterName = null): void
+    public function export($filterName = null): bool
     {
         $this->exportHostDep();
         $this->exportServiceDep();
         $this->exportHostgroupDep();
         $this->exportServicegroupDep();
         $this->exportMetaDep();
+
+        return true;
     }
 
     /**
