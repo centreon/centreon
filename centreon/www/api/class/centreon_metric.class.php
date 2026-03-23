@@ -417,7 +417,7 @@ class CentreonMetric extends CentreonWebService
      *
      * @return bool If the user has access to the action
      */
-    public function authorize($action, $user, $isInternal = false)
+    public function authorize($action, $user, $isInternal = false): bool
     {
         return (bool) (
             parent::authorize($action, $user, $isInternal)
