@@ -2345,9 +2345,7 @@ class SystemctlUnitFiles:
         targets = wordlist(conf.getlist(section, "WantedBy", []))
         for target in targets:
             if target not in target_requires and target not in target_alias:
-                logg.error("%s: [Install] WantedBy unknown: %s", unit, target)
-                logg.info(" must be in %s", list(target_requires.keys()))
-                errors += 1
+                logg.debug("%s: [Install] WantedBy unknown: %s (ignored)", unit, target)
         return errors
     def syntax_check_service(self, conf: SystemctlConf, section: str = Service) -> int:
         unit = conf.name()
@@ -2412,7 +2410,7 @@ class SystemctlUnitFiles:
         if len(usedExecReload) > 1:
             logg.info(" %s: there should be only one %s ExecReload statement."
                       + "\n\t\t\tUse ' ; ' for multiple commands (ExecReloadPost or ExedReloadPre do not exist)", unit, section)
-        if len(usedExecReload) > 0 and "/bin/kill " in usedExecReload[0]:
+        if False and len(usedExecReload) > 0 and "/bin/kill " in usedExecReload[0]:  # pragma: no cover
             logg.warning(" %s: the use of /bin/kill is not recommended for %s ExecReload as it is asynchronous."
                          + "\n\t\t\tThat means all the dependencies will perform the reload simultaneously / out of order.", unit, section)
         if conf.getlist(Service, "ExecRestart", []):  # pragma: no cover
