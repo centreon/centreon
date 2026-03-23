@@ -276,7 +276,44 @@ $obj->setColor('ARROW', '#FF0000');
 /**
  * Display Images Binary Data
  */
-$obj->displayImageFlow();
+$maxHeight = filter_var($_GET['max_height'] ?? 0, FILTER_VALIDATE_INT);
+if ($maxHeight > 0 && ! $obj->checkcurve) {
+    // Cap to prevent memory exhaustion from aspect-ratio scaling in imagecreatetruecolor().
+    $maxHeight = min($maxHeight, 4096);
+
+    $imageData = $obj->getImageData();
+    if ($imageData === null) {
+        CentreonGraph::displayError();
+    }
+
+    $image = @imagecreatefromstring($imageData);
+    if ($image === false) {
+        CentreonGraph::displayError();
+    }
+
+    if (imagesy($image) > $maxHeight) {
+        $width = imagesx($image);
+        $height = imagesy($image);
+        $newWidth = max(1, (int) round($width * $maxHeight / $height));
+        $scaled = imagecreatetruecolor($newWidth, $maxHeight);
+        if ($scaled === false) {
+            imagedestroy($image);
+            CentreonGraph::displayError();
+        }
+        imagecopyresampled($scaled, $image, 0, 0, 0, 0, $newWidth, $maxHeight, $width, $height);
+        imagedestroy($image);
+
+        $obj->setHeaders(false);
+        imagepng($scaled);
+        imagedestroy($scaled);
+    } else {
+        imagedestroy($image);
+        $obj->setHeaders(false, mb_strlen($imageData, '8bit'));
+        echo $imageData;
+    }
+} else {
+    $obj->displayImageFlow();
+}
 
 /**
  * Closing session
