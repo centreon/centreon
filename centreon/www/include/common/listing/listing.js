@@ -149,7 +149,7 @@ function CentreonListing(config) {
             url: cfg.ajaxListUrl,
             type: 'GET',
             dataType: 'json',
-            data: jQuery.extend({ search: search, num: num, limit: limit }, cfg.extraParams),
+            data: jQuery.extend({ search: search, num: num, limit: limit }, typeof cfg.extraParams === 'function' ? cfg.extraParams() : cfg.extraParams),
             success: function (data) {
                 csrfToken = data.centreon_token || '';
                 var tbody = jQuery('#' + cfg.tableBodyId);
@@ -163,6 +163,8 @@ function CentreonListing(config) {
                     tbody.addClass('cl-fade-in');
                 }
                 firstLoad = false;
+                // Reset bulk action dropdowns to default
+                jQuery('select[name="o1"], select[name="o2"]').prop('selectedIndex', 0);
                 if (cfg.onDataLoaded) cfg.onDataLoaded(data);
             },
             error: function () {
