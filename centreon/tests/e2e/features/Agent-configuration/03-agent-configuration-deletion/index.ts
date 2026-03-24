@@ -7,6 +7,9 @@ before(() => {
   cy.setUserTokenApiV1().executeCommandsViaClapi(
     'resources/clapi/config-ACL/ac-acl-user.json'
   );
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/pollers/poller-5.json'
+  );
 });
 
 beforeEach(() => {
@@ -42,7 +45,7 @@ Given('a non-admin user is in the Agents Configuration page', () => {
 });
 
 Given('an already existing agent configuration', () => {
-  cy.contains('button', 'Add agent configuration').click();
+  cy.getByTestId({ tag: 'button', testId: 'add-agent-configuration' }).click();
   cy.addTelegrafAgent({
     ...agentsConfiguration.telegraf1,
     publicCertificationFileName:
@@ -55,7 +58,7 @@ Given('an already existing agent configuration', () => {
 });
 
 When('the user deletes the agent configuration', () => {
-  cy.getByTestId({ testId: 'Delete' }).click();
+  cy.getByTestId({ testId: 'Delete' }).eq(1).click();
 });
 
 When('the user confirms on the pop-up', () => {
@@ -66,7 +69,6 @@ When('the user confirms on the pop-up', () => {
 Then(
   'the agent configuration is no longer displayed in the listing page',
   () => {
-    cy.contains('Welcome to the agent configuration page').should('be.visible');
     cy.contains('telegraf-001').should('not.exist');
   }
 );
