@@ -15,6 +15,7 @@ export const adaptFormDataToApiPayload = (
     parameters: {
       ...formData.parameters,
       vcenters: formData.parameters.vcenters.map((vcenter) => ({
+        id: vcenter.id ?? null,
         name: vcenter[ParameterKeys.name],
         password: vcenter[ParameterKeys.password],
         url: vcenter[ParameterKeys.url],
