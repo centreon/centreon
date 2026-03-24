@@ -21,8 +21,6 @@
 
 namespace CentreonRemote\Domain\Resources\RemoteConfig;
 
-use Centreon\Domain\Entity\CfgCentreonBrokerInfo;
-
 /**
  * Configuration if input flow of central broker to get data from the remote poller.
  */
@@ -36,29 +34,32 @@ class InputFlowOnePeerRetention
      * @param string $pollerName the poller name
      * @param string $pollerIP the poller ip address
      *
-     * @return CfgCentreonBrokerInfo[] the configuration template
+     * @return array<string,mixed> the configuration template
      */
     public static function getConfiguration(string $pollerName, string $pollerIP): array
     {
         return [
-            new CfgCentreonBrokerInfo('name', "connection-to-{$pollerName}"),
-            new CfgCentreonBrokerInfo('port', '5669'),
-            new CfgCentreonBrokerInfo('retry_interval', '15'),
-            new CfgCentreonBrokerInfo('buffering_timeout', '0'),
-            new CfgCentreonBrokerInfo('host', $pollerIP),
-            new CfgCentreonBrokerInfo('protocol', 'bbdo'),
-            new CfgCentreonBrokerInfo('tls', 'no'),
-            new CfgCentreonBrokerInfo('failover', ''),
-            new CfgCentreonBrokerInfo('private_key', ''),
-            new CfgCentreonBrokerInfo('public_cert', ''),
-            new CfgCentreonBrokerInfo('ca_certificate', ''),
-            new CfgCentreonBrokerInfo('negotiation', 'yes'),
-            new CfgCentreonBrokerInfo('one_peer_retention_mode', 'no'),
-            new CfgCentreonBrokerInfo('compression', 'no'),
-            new CfgCentreonBrokerInfo('compression_level', ''),
-            new CfgCentreonBrokerInfo('compression_buffer', ''),
-            new CfgCentreonBrokerInfo('type', 'ipv4'),
-            new CfgCentreonBrokerInfo('blockId', '2_3'),
+            'tag'       => 'input',
+            'type_id'   => 3,
+            'type_name' => 'ipv4',
+            'name'      => "connection-to-{$pollerName}",
+            'parameters' => [
+                'port'                    => '5669',
+                'host'                    => $pollerIP,
+                'retry_interval'          => '15',
+                'buffering_timeout'       => '0',
+                'failover'                => '',
+                'protocol'                => 'bbdo',
+                'tls'                     => 'no',
+                'private_key'             => '',
+                'public_cert'             => '',
+                'ca_certificate'          => '',
+                'negotiation'             => 'yes',
+                'one_peer_retention_mode' => 'no',
+                'compression'             => 'no',
+                'compression_level'       => '',
+                'compression_buffer'      => '',
+            ],
         ];
     }
 }

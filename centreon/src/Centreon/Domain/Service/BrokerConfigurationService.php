@@ -21,45 +21,54 @@
 
 namespace Centreon\Domain\Service;
 
-use Centreon\Domain\Repository\Interfaces\CfgCentreonBrokerInfoInterface;
-
 /**
  * Service to manage broker flows configuration
  */
 class BrokerConfigurationService
 {
-    /** @var CfgCentreonBrokerInfoInterface */
-    private $brokerInfoRepository;
+    /** @var \CentreonDB */
+    private $db;
 
     /**
-     * Set broker infos repository to manage flows (input, output, log...)
+     * Set database connection.
      *
-     * @param CfgCentreonBrokerInfoInterface $cfgCentreonBrokerInfo the broker info repository
+     * @param \CentreonDB $db
      */
-    public function setBrokerInfoRepository(CfgCentreonBrokerInfoInterface $cfgCentreonBrokerInfo): void
+    public function setDb(\CentreonDB $db): void
     {
-        $this->brokerInfoRepository = $cfgCentreonBrokerInfo;
+        $this->db = $db;
     }
 
     /**
-     * Add flow (input, output, log...)
+     * Add flow (input, output, log...) to cfg_broker_input_output.
      *
-     * @param int $configId the config id to update
-     * @param string $configGroup the config group to add (input, output...)
-     * @param \Centreon\Domain\Entity\CfgCentreonBrokerInfo[] $brokerInfoEntities the flow parameters to insert
+     * @param int $configId the broker config id to update
+     * @param array<string,mixed> $config the flow configuration with keys:
+     *                                    tag, type_id, type_name, name, parameters (array)
      */
-    public function addFlow(int $configId, string $configGroup, array $brokerInfoEntities): void
+    public function addFlow(int $configId, array $config): void
     {
-        // get new input config group id on central broker configuration
-        // to add new IPv4 input
-        $configGroupId = $this->brokerInfoRepository->getNewConfigGroupId($configId, $configGroup);
+        $parameters = json_encode($config['parameters'], JSON_THROW_ON_ERROR);
+        $this->db->beginTransaction();
+        try {
+            $statement = $this->db->prepare(
+                'INSERT INTO `cfg_broker_input_output`
+                    (config_id, tag, type_id, type_name, name, parameters)
+                VALUES
+                    (:config_id, :tag, :type_id, :type_name, :name, :parameters)'
+            );
+            $statement->bindValue(':config_id', $configId, \PDO::PARAM_INT);
+            $statement->bindValue(':tag', $config['tag'], \PDO::PARAM_STR);
+            $statement->bindValue(':type_id', $config['type_id'], \PDO::PARAM_INT);
+            $statement->bindValue(':type_name', $config['type_name'], \PDO::PARAM_STR);
+            $statement->bindValue(':name', $config['name'], \PDO::PARAM_STR);
+            $statement->bindValue(':parameters', $parameters, \PDO::PARAM_STR);
+            $statement->execute();
+            $this->db->commit();
+        } catch (\PDOException $e) {
+            $this->db->rollBack();
 
-        // insert each line of configuration in database thanks to BrokerInfoEntity
-        foreach ($brokerInfoEntities as $brokerInfoEntity) {
-            $brokerInfoEntity->setConfigId($configId);
-            $brokerInfoEntity->setConfigGroup($configGroup);
-            $brokerInfoEntity->setConfigGroupId($configGroupId);
-            $this->brokerInfoRepository->add($brokerInfoEntity);
+            throw $e;
         }
     }
 }

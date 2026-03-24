@@ -228,24 +228,12 @@ function multipleCentreonBrokerInDB($ids, $nbrDup)
         $values['activate_watchdog']['activate_watchdog'] = $row['daemon'];
         $values['output'] = [];
         $values['input'] = [];
-        $brokerCfgInfoData = getCfgBrokerInfoData((int) $id);
+        $brokerFlowData = getCfgBrokerInfoData((int) $id);
 
-        foreach ($brokerCfgInfoData as $rowOpt) {
-            if ($rowOpt['config_key'] == 'filters') {
-                continue;
+        foreach ($brokerFlowData as $tag => $flows) {
+            foreach ($flows as $i => $flow) {
+                $values[$tag][$i] = $flow;
             }
-            if ($rowOpt['config_key'] == 'category') {
-                $configKey = 'filters__' . $rowOpt['config_group_id'] . '__category';
-                $values[$rowOpt['config_group']][$rowOpt['config_group_id']][$configKey][]
-                    = $rowOpt['config_value'];
-            } elseif ($rowOpt['fieldIndex'] !== null) {
-                $configKey = $rowOpt['config_key'] . '_' . $rowOpt['fieldIndex'];
-                $values[$rowOpt['config_group']][$rowOpt['config_group_id']][$configKey] = $rowOpt['config_value'];
-            } else {
-                $values[$rowOpt['config_group']][$rowOpt['config_group_id']][$rowOpt['config_key']]
-                    = $rowOpt['config_value'];
-            }
-
         }
 
         // Convert values radio button
@@ -356,21 +344,58 @@ function getCfgBrokerInfoData(int $configId): array
     global $pearDB;
 
     $query = <<<'SQL'
-        SELECT config_key, config_value, config_group, config_group_id, fieldIndex
-        FROM cfg_centreonbroker_info
-        WHERE config_id = :config_id
+        SELECT bio.id, bio.tag, bio.type_id, bio.type_name, bio.name, bio.parameters,
+               ct.cb_tag_id
+        FROM cfg_broker_input_output bio
+        LEFT JOIN cb_tag ct ON ct.tagname = bio.tag
+        WHERE bio.config_id = :config_id
         SQL;
     try {
         $statement = $pearDB->prepare($query);
         $statement->bindValue(':config_id', $configId, PDO::PARAM_INT);
         $statement->execute();
-        $cfgBrokerInfoData = $statement->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $statement->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $exception) {
         throw new Exception('Cannot fetch Broker info config data');
     }
     $statement->closeCursor();
 
-    return $cfgBrokerInfoData;
+    $grouped = [];
+    foreach ($rows as $row) {
+        $tag     = $row['tag'];
+        $blockId = $row['cb_tag_id'] . '_' . $row['type_id'];
+        $params  = json_decode($row['parameters'], true) ?? [];
+
+        $flow = [
+            'blockId' => $blockId,
+            'name'    => $row['name'],
+            'type'    => $row['type_name'],
+        ];
+
+        // Expand lua_parameter array → indexed form keys (consumed by getGroupsInfos)
+        if (isset($params['lua_parameter']) && is_array($params['lua_parameter'])) {
+            foreach ($params['lua_parameter'] as $i => $luaParam) {
+                $flow['lua_parameter__name_'  . $i] = $luaParam['name']  ?? '';
+                $flow['lua_parameter__value_' . $i] = $luaParam['value'] ?? '';
+                $flow['lua_parameter__type_'  . $i] = $luaParam['type']  ?? '';
+            }
+            unset($params['lua_parameter']);
+        }
+
+        // filters_category → form key (addToPayload expects 'filters__N__category')
+        if (isset($params['filters_category'])) {
+            $flow['filters__0__category'] = $params['filters_category'];
+            unset($params['filters_category']);
+        }
+
+        foreach ($params as $key => $value) {
+            $flow[$key] = $value;
+        }
+
+        $grouped[$tag][] = $flow;
+    }
+
+    return $grouped;
 }
 
 /**

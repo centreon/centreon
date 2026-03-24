@@ -23,7 +23,6 @@ namespace Centreon;
 
 use Centreon\Application\Validation;
 use Centreon\Application\Webservice;
-use Centreon\Domain\Repository\CfgCentreonBrokerInfoRepository;
 use Centreon\Domain\Repository\CfgCentreonBrokerRepository;
 use Centreon\Domain\Service\BrokerConfigurationService;
 use Centreon\Domain\Service\FrontendComponentService;
@@ -59,7 +58,6 @@ class ServiceProvider implements AutoloadServiceProviderInterface
 
     // repositories
     public const CENTREON_BROKER_REPOSITORY = 'centreon.broker_repository';
-    public const CENTREON_BROKER_INFO_REPOSITORY = 'centreon.broker_info_repository';
 
     // managers and infrastructure services
     public const CENTREON_DB_MANAGER = 'centreon.db-manager';
@@ -180,19 +178,13 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             return new CfgCentreonBrokerRepository($container['configuration_db']);
         };
 
-        // @todo class is available via centreon.db-manager
-        $pimple[static::CENTREON_BROKER_INFO_REPOSITORY]
-            = function (Container $container): CfgCentreonBrokerInfoRepository {
-                return new CfgCentreonBrokerInfoRepository($container['configuration_db']);
-            };
-
         /**
          * Services
          */
         $pimple[static::CENTREON_BROKER_CONFIGURATION_SERVICE]
             = function (Container $container): BrokerConfigurationService {
                 $service = new BrokerConfigurationService();
-                $service->setBrokerInfoRepository($container[ServiceProvider::CENTREON_BROKER_INFO_REPOSITORY]);
+                $service->setDb($container['configuration_db']->getCentreonDBInstance());
 
                 return $service;
             };

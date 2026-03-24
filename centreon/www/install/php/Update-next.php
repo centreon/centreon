@@ -97,6 +97,165 @@ $deployDefaultAgentConfiguration = function () use ($pearDB, &$errorMessage, $ve
     );
 };
 
+/** ------------------------------------- cfg_broker_input_output migration ------------------------------------- */
+$createCfgCentreonbrokerInputOutputTable = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to create table cfg_broker_input_output';
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Creating table cfg_broker_input_output",
+    );
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            CREATE TABLE IF NOT EXISTS `cfg_broker_input_output` (
+                `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                `config_id`  INT NOT NULL,
+                `tag`        ENUM('input','output') NOT NULL,
+                `type_id`    INT NOT NULL,
+                `type_name`  VARCHAR(50) NOT NULL,
+                `name`       VARCHAR(255) NOT NULL,
+                `parameters` JSON NOT NULL,
+                PRIMARY KEY (`id`),
+                KEY `idx_cbio_config_tag` (`config_id`, `tag`),
+                CONSTRAINT `cfg_broker_input_output_ibfk_01`
+                    FOREIGN KEY (`config_id`) REFERENCES `cfg_centreonbroker` (`config_id`) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully created table cfg_broker_input_output",
+    );
+};
+
+$migrateCfgCentreonbrokerInfoData = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to migrate data from cfg_centreonbroker_info to cfg_broker_input_output';
+
+    if ($pearDB->fetchOne('SELECT 1 FROM `cfg_broker_input_output` LIMIT 1') !== false) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: cfg_broker_input_output already has data, skipping migration",
+        );
+
+        return;
+    }
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Migrating cfg_centreonbroker_info data to cfg_broker_input_output",
+    );
+
+    $rows = $pearDB->fetchAllAssociative('SELECT * FROM `cfg_centreonbroker_info`');
+
+    // Group EAV rows by (config_id, config_group, config_group_id).
+    $groups = [];
+    foreach ($rows as $row) {
+        $key = "{$row['config_id']}_{$row['config_group']}_{$row['config_group_id']}";
+        $groups[$key][] = $row;
+    }
+
+    foreach ($groups as $group) {
+        $configId   = null;
+        $tag        = null;
+        $typeId     = null;
+        $typeName   = null;
+        $name       = null;
+        $parameters = [];
+
+        foreach ($group as $row) {
+            $configId ??= (int) $row['config_id'];
+            $tag      ??= $row['config_group'];
+
+            if ($row['config_key'] === 'name') {
+                $name = $row['config_value'];
+                continue;
+            }
+            if ($row['config_key'] === 'blockId') {
+                // blockId format: '{prefix}_{type_id}' where prefix is '1' (output) or '2' (input).
+                $typeId = (int) substr($row['config_value'], strrpos($row['config_value'], '_') + 1);
+                continue;
+            }
+            if ($row['config_key'] === 'type') {
+                $typeName = $row['config_value'];
+                continue;
+            }
+            if ($row['fieldIndex'] !== null) {
+                // Grouped field: stored as groupName__subFieldName with a numeric fieldIndex.
+                [$grpName, $subName] = explode('__', $row['config_key'], 2);
+                $parameters[$grpName][(int) $row['fieldIndex']][$subName] = $row['config_value'];
+                continue;
+            }
+            if ($row['subgrp_id'] !== null) {
+                // Multiselect parent row – key carries the field name; value is empty.
+                // The actual values come from child rows (parent_grp_id != null).
+                continue;
+            }
+            if ($row['parent_grp_id'] !== null) {
+                // Multiselect child row – handled in the second pass below.
+                continue;
+            }
+
+            $parameters[$row['config_key']] = $row['config_value'];
+        }
+
+        // Second pass: collect multiselect child values.
+        $multiselectName = null;
+        foreach ($group as $row) {
+            if ($row['subgrp_id'] !== null && $row['parent_grp_id'] === null) {
+                $multiselectName = $row['config_key'];
+            }
+        }
+        if ($multiselectName !== null) {
+            foreach ($group as $row) {
+                if ($row['parent_grp_id'] !== null) {
+                    $parameters["{$multiselectName}_{$row['config_key']}"][] = $row['config_value'];
+                }
+            }
+        }
+
+        if ($configId === null || $tag === null
+            || $typeId === null || $typeName === null || $name === null
+        ) {
+            $missing = implode(', ', array_keys(array_filter(
+                ['configId' => $configId, 'tag' => $tag, 'typeId' => $typeId, 'typeName' => $typeName, 'name' => $name],
+                static fn ($v) => $v === null,
+            )));
+            CentreonLog::create()->warning(
+                logTypeId: CentreonLog::TYPE_UPGRADE,
+                message: "UPGRADE - {$version}: Skipping incomplete broker block (config_id={$group[0]['config_id']}"
+                    . ", config_group={$group[0]['config_group']}"
+                    . ", config_group_id={$group[0]['config_group_id']})"
+                    . " — missing fields: {$missing}",
+            );
+            continue;
+        }
+
+        $pearDB->executeStatement(
+            <<<'SQL'
+                INSERT INTO `cfg_broker_input_output`
+                    (config_id, tag, type_id, type_name, name, parameters)
+                VALUES
+                    (:configId, :tag, :typeId, :typeName, :name, :parameters)
+                SQL,
+            QueryParameters::create([
+                QueryParameter::int('configId', $configId),
+                QueryParameter::string('tag', $tag),
+                QueryParameter::int('typeId', $typeId),
+                QueryParameter::string('typeName', $typeName),
+                QueryParameter::string('name', $name),
+                QueryParameter::string('parameters', json_encode($parameters, JSON_THROW_ON_ERROR)),
+            ])
+        );
+    }
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully migrated " . count($groups) . ' input/output block(s)',
+    );
+};
+
 /** ------------------------------------- Broker output for CMA ------------------------------------- */
 $createBrokerOutputEventScript = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to create Broker output event_script';
@@ -423,9 +582,9 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
 
     if ($pearDB->fetchOne(
         <<<'SQL'
-            SELECT 1 FROM `cfg_centreonbroker_info`
-            WHERE `config_key` = 'name'
-            AND `config_value` = 'central-broker-master-event-script'
+            SELECT 1 FROM `cfg_broker_input_output`
+            WHERE `name` = 'central-broker-master-event-script'
+            AND `config_id` = 1
             SQL
     )) {
         CentreonLog::create()->info(
@@ -436,12 +595,6 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
         return;
     }
 
-    $configGroupId = $pearDB->fetchOne(
-        <<<'SQL'
-            SELECT MAX(`config_group_id`) FROM `cfg_centreonbroker_info` WHERE `config_group` = 'output' AND `config_id` = 1
-            SQL
-    );
-    $configGroupId = $configGroupId !== null ? (int) $configGroupId + 1 : 1;
     $typeId = $pearDB->fetchOne(
         <<<'SQL'
             SELECT `cb_type_id` FROM `cb_type`
@@ -449,96 +602,46 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
             SQL
     );
 
-    $pearDB->batchInsert(
-        'cfg_centreonbroker_info',
-        ['config_id', 'config_key', 'config_value', 'config_group', 'config_group_id', 'grp_level', 'subgrp_id', 'parent_grp_id'],
-        BatchInsertParameters::create([
-            QueryParameters::create([
-                QueryParameter::int('config_id', 1),
-                QueryParameter::string('config_key', 'type'),
-                QueryParameter::string('config_value', 'event_script'),
-                QueryParameter::string('config_group', 'output'),
-                QueryParameter::int('config_group_id', $configGroupId),
-                QueryParameter::int('grp_level', 0),
-                QueryParameter::int('subgrp_id', null),
-                QueryParameter::int('parent_grp_id', null),
-            ]),
-            QueryParameters::create([
-                QueryParameter::int('config_id', 1),
-                QueryParameter::string('config_key', 'name'),
-                QueryParameter::string('config_value', 'central-broker-master-event-script'),
-                QueryParameter::string('config_group', 'output'),
-                QueryParameter::int('config_group_id', $configGroupId),
-                QueryParameter::int('grp_level', 0),
-                QueryParameter::int('subgrp_id', null),
-                QueryParameter::int('parent_grp_id', null),
-            ]),
-            QueryParameters::create([
-                QueryParameter::int('config_id', 1),
-                QueryParameter::string('config_key', 'blockId'),
-                QueryParameter::string('config_value', '1_' . $typeId),
-                QueryParameter::string('config_group', 'output'),
-                QueryParameter::int('config_group_id', $configGroupId),
-                QueryParameter::int('grp_level', 0),
-                QueryParameter::int('subgrp_id', null),
-                QueryParameter::int('parent_grp_id', null),
-            ]),
-            QueryParameters::create([
-                QueryParameter::int('config_id', 1),
-                QueryParameter::string('config_key', 'script_path'),
-                QueryParameter::string('config_value', '/usr/share/centreon/bin/console agent-configuration:host:create'),
-                QueryParameter::string('config_group', 'output'),
-                QueryParameter::int('config_group_id', $configGroupId),
-                QueryParameter::int('grp_level', 0),
-                QueryParameter::int('subgrp_id', null),
-                QueryParameter::int('parent_grp_id', null),
-            ]),
-            QueryParameters::create([
-                QueryParameter::int('config_id', 1),
-                QueryParameter::string('config_key', 'timeout'),
-                QueryParameter::string('config_value', '15'),
-                QueryParameter::string('config_group', 'output'),
-                QueryParameter::int('config_group_id', $configGroupId),
-                QueryParameter::int('grp_level', 0),
-                QueryParameter::int('subgrp_id', null),
-                QueryParameter::int('parent_grp_id', null),
-            ]),
-            QueryParameters::create([
-                QueryParameter::int('config_id', 1),
-                QueryParameter::string('config_key', 'managed_event_ttl'),
-                QueryParameter::string('config_value', '3600'),
-                QueryParameter::string('config_group', 'output'),
-                QueryParameter::int('config_group_id', $configGroupId),
-                QueryParameter::int('grp_level', 0),
-                QueryParameter::int('subgrp_id', null),
-                QueryParameter::int('parent_grp_id', null),
-            ]),
-            QueryParameters::create([
-                QueryParameter::int('config_id', 1),
-                QueryParameter::string('config_key', 'filters'),
-                QueryParameter::string('config_value', ''),
-                QueryParameter::string('config_group', 'output'),
-                QueryParameter::int('config_group_id', $configGroupId),
-                QueryParameter::int('grp_level', 0),
-                QueryParameter::int('subgrp_id', 1),
-                QueryParameter::int('parent_grp_id', null),
-            ]),
-            QueryParameters::create([
-                QueryParameter::int('config_id', 1),
-                QueryParameter::string('config_key', 'event'),
-                QueryParameter::string('config_value', 'neb:UnknownHost'),
-                QueryParameter::string('config_group', 'output'),
-                QueryParameter::int('config_group_id', $configGroupId),
-                QueryParameter::int('grp_level', 1),
-                QueryParameter::int('subgrp_id', null),
-                QueryParameter::int('parent_grp_id', 1),
-            ]),
+    $parameters = json_encode([
+        'script_path'       => '/usr/share/centreon/bin/console agent-configuration:host:create',
+        'timeout'           => '15',
+        'managed_event_ttl' => '3600',
+        'filters_event'     => ['neb:UnknownHost'],
+    ], JSON_THROW_ON_ERROR);
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            INSERT INTO `cfg_broker_input_output`
+                (config_id, tag, type_id, type_name, name, parameters)
+            VALUES
+                (:configId, 'output', :typeId, 'event_script', 'central-broker-master-event-script', :parameters)
+            SQL,
+        QueryParameters::create([
+            QueryParameter::int('configId', 1),
+            QueryParameter::int('typeId', $typeId),
+            QueryParameter::string('parameters', $parameters),
         ])
     );
 
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: Successfully inserted Broker output 'central-broker-master-event-script' for CMA",
+    );
+};
+
+$dropCfgCentreonbrokerInfoTable = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to drop table cfg_centreonbroker_info';
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Dropping legacy table cfg_centreonbroker_info",
+    );
+
+    $pearDB->executeStatement('DROP TABLE IF EXISTS `cfg_centreonbroker_info`');
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully dropped legacy table cfg_centreonbroker_info",
     );
 };
 
@@ -790,13 +893,14 @@ try {
     // TODO add your function calls to update the real time database structure here
 
     // DDL statements for configuration database
-    // TODO add your function calls to update the configuration database structure here
+    $createCfgCentreonbrokerInputOutputTable();
 
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {
         $pearDB->startTransaction();
     }
 
+    $migrateCfgCentreonbrokerInfoData();
     $createBrokerOutputEventScript();
     $insertEventScriptOutputForCMA();
 
@@ -809,6 +913,9 @@ try {
     if ($pearDB->isTransactionActive()) {
         $pearDB->commitTransaction();
     }
+
+    // DDL: drop the legacy EAV table now that migration is complete
+    $dropCfgCentreonbrokerInfoTable();
 
     try {
         $deployDefaultAgentConfiguration();
