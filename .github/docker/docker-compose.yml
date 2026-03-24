@@ -2,7 +2,7 @@ services:
   web:
     env_file:
       - .env
-    image: "${WEB_IMAGE:-docker.centreon.com/centreon/centreon-web-alma9:develop}"
+    image: "${WEB_IMAGE}"
     ports: ["4000:80"]
     depends_on:
       - db
