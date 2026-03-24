@@ -701,26 +701,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - package_extension: rpm
-            image: packaging-nfpm-alma8
-            distrib: el8
-          - package_extension: rpm
-            image: packaging-nfpm-alma9
-            distrib: el9
-          - package_extension: deb
-            image: packaging-nfpm-bookworm
-            distrib: bookworm
-          - package_extension: deb
-            image: packaging-nfpm-jammy
-            distrib: jammy
-          - package_extension: deb
-            image: packaging-nfpm-noble
-            distrib: noble
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
+
     name: package ${{ matrix.distrib }}
     runs-on: ubuntu-24.04
     container:
-      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/packaging-nfpm-${{ matrix.operating_system }}:${{ needs.get-environment.outputs.major_version }}
       credentials:
         username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
         password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
@@ -852,7 +838,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
     name: dockerize ${{ matrix.operating_system }}
     steps:
       - name: Checkout sources
@@ -975,6 +961,31 @@ jobs:
           path: ./docker-image
           key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ github.head_ref || github.ref_name }}
 
+      - name: Store keycloak image in local archive
+        if: ${{ needs.get-environment.outputs.stability == 'unstable' && matrix.operating_system == 'alma9' }}
+        run: |
+          docker pull docker.centreon.com/centreon/keycloak:${{ needs.get-environment.outputs.major_version }}
+          mkdir -p docker-image-keycloak
+          docker save --output ./docker-image-keycloak/keycloak.tar docker.centreon.com/centreon/keycloak:${{ needs.get-environment.outputs.major_version }}
+        shell: bash
+
+      - name: Clear previous keycloak image from cache
+        if: ${{ needs.get-environment.outputs.stability == 'unstable' && matrix.operating_system == 'alma9' }}
+        run: |
+          curl --fail-with-body \
+            -X DELETE \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-keycloak-${{ needs.get-environment.outputs.major_version }}
+        shell: bash
+
+      - name: Store keycloak image in cache
+        if: ${{ needs.get-environment.outputs.stability == 'unstable' && matrix.operating_system == 'alma9' }}
+        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        with:
+          path: ./docker-image-keycloak
+          key: docker-image-keycloak-${{ needs.get-environment.outputs.major_version }}
+
   create-xray-test-plan-and-test-execution:
     needs: [get-environment, changes, dockerize]
     if: |
@@ -1028,6 +1039,7 @@ jobs:
       collection_path: centreon/tests/rest_api/collections
       image_name: centreon-web
       os: ${{ matrix.operating_system }}
+      db_id: ${{ matrix.db_id }}
       container_name: my_centreon_container
       centreon_url: http://localhost
       centreon_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
