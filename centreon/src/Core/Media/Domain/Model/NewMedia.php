@@ -44,7 +44,7 @@ class NewMedia
         $this->filename = str_replace(' ', '_', $this->filename);
         $this->directory = str_replace(' ', '', $this->directory);
         Assertion::notEmptyString($this->directory, 'NewMedia::directory');
-        Assertion::regex($this->directory, '/^[a-zA-Z0-9._-]+$/', 'NewMedia::directory');
+        Assertion::regex($this->directory, '/^(?!\.\.?$)[a-zA-Z0-9._-]+$/', 'NewMedia::directory');
     }
 
     public function setFilename(string $filename): void
