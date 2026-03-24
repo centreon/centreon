@@ -6,7 +6,6 @@ import { equals, lt, not, pluck } from 'ramda';
 import { memo, useCallback, useEffect, useRef } from 'react';
 
 import { useViewportIntersection } from '../../utils/useViewportIntersection';
-
 import type { Column, ColumnConfiguration, RowColorCondition } from '../models';
 
 type Props = {
@@ -146,7 +145,7 @@ const IntersectionRow = ({ isHovered, ...rest }: Props): JSX.Element => {
 
   useEffect(() => {
     setElement(getFirstCellElement() as HTMLDivElement);
-  }, [getFirstCellElement, setElement]);
+  }, [getFirstCellElement()]);
 
   return (
     <div className="contents w-full" data-is-hovered={isHovered} ref={rowRef}>
