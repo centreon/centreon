@@ -90,32 +90,38 @@ abstract class Centreon_Object
      */
     public function insert($params = []): false|string|null
     {
-        $sql = "INSERT INTO {$this->table} ";
-        $sqlFields = '';
-        $sqlValues = '';
-        $sqlParams = [];
+        $sqlFields = [];
+        $sqlPlaceholders = [];
+        $bindParams = [];
+
         foreach ($params as $key => $value) {
             if ($key == $this->primaryKey) {
                 continue;
             }
-            if ($sqlFields != '') {
-                $sqlFields .= ',';
-            }
-            if ($sqlValues != '') {
-                $sqlValues .= ',';
-            }
-            $sqlFields .= $key;
-            $sqlValues .= '?';
-            $sqlParams[] = trim($value);
-        }
-        if ($sqlFields && $sqlValues) {
-            $sql .= '(' . $sqlFields . ') VALUES (' . $sqlValues . ')';
-            $this->db->query($sql, $sqlParams);
-
-            return $this->db->lastInsertId();
+            $sqlFields[] = $this->validateIdentifier($key);
+            $placeholder = ':' . str_replace('.', '_', $key);
+            $sqlPlaceholders[] = $placeholder;
+            $bindParams[$placeholder] = trim($value);
         }
 
-        return null;
+        if ($sqlFields === []) {
+            return null;
+        }
+
+        $sql = sprintf(
+            'INSERT INTO %s (%s) VALUES (%s)',
+            $this->table,
+            implode(', ', $sqlFields),
+            implode(', ', $sqlPlaceholders)
+        );
+
+        $statement = $this->db->prepare($sql);
+        foreach ($bindParams as $placeholder => $value) {
+            $statement->bindValue($placeholder, $value);
+        }
+        $statement->execute();
+
+        return $this->db->lastInsertId();
     }
 
     /**
@@ -142,8 +148,7 @@ abstract class Centreon_Object
      */
     public function update($objectId, $params = []): void
     {
-        $sql = "UPDATE {$this->table} SET ";
-        $sqlUpdate = '';
+        $setClauses = [];
         $sqlParams = [];
         $not_null_attributes = [];
 
@@ -161,10 +166,7 @@ abstract class Centreon_Object
             if ($key == $this->primaryKey) {
                 continue;
             }
-            if ($sqlUpdate != '') {
-                $sqlUpdate .= ',';
-            }
-            $sqlUpdate .= $key . ' = ? ';
+            $setClauses[] = $this->validateIdentifier($key) . ' = ?';
             if ($value === '' && ! isset($not_null_attributes[$key])) {
                 $value = null;
             }
@@ -174,9 +176,14 @@ abstract class Centreon_Object
             $sqlParams[] = $value;
         }
 
-        if ($sqlUpdate) {
+        if ($setClauses !== []) {
             $sqlParams[] = $objectId;
-            $sql .= $sqlUpdate . " WHERE {$this->primaryKey} = ?";
+            $sql = sprintf(
+                'UPDATE %s SET %s WHERE %s = ?',
+                $this->table,
+                implode(', ', $setClauses),
+                $this->validateIdentifier($this->primaryKey)
+            );
             $this->db->query($sql, $sqlParams);
         }
     }
@@ -222,7 +229,8 @@ abstract class Centreon_Object
      */
     public function getParameters($objectId, $parameterNames): array
     {
-        $params = is_array($parameterNames) ? implode(',', $parameterNames) : $parameterNames;
+        $paramList = is_array($parameterNames) ? $parameterNames : [$parameterNames];
+        $params = implode(',', array_map([$this, 'validateIdentifier'], $paramList));
         $sql = "SELECT {$params} FROM {$this->table} WHERE {$this->primaryKey} = ?";
 
         return $this->getResult($sql, [$objectId], 'fetch');
@@ -255,15 +263,17 @@ abstract class Centreon_Object
         if ($filterType != 'OR' && $filterType != 'AND') {
             throw new Exception('Unknown filter type');
         }
-        $params = is_array($parameterNames) ? implode(',', $parameterNames) : $parameterNames;
+        $paramList = is_array($parameterNames) ? $parameterNames : [$parameterNames];
+        $params = implode(',', array_map([$this, 'validateIdentifier'], $paramList));
         $sql = "SELECT {$params} FROM {$this->table} ";
         $filterTab = [];
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
+                $safeKey = $this->validateIdentifier($key);
                 if ($filterTab === []) {
-                    $sql .= " WHERE {$key} ";
+                    $sql .= " WHERE {$safeKey} ";
                 } else {
-                    $sql .= " {$filterType} {$key} ";
+                    $sql .= " {$filterType} {$safeKey} ";
                 }
                 if (is_array($rawvalue)) {
                     $sql .= ' IN (' . str_repeat('?,', count($rawvalue) - 1) . '?) ';
@@ -278,7 +288,7 @@ abstract class Centreon_Object
                 }
             }
         }
-        if (isset($order, $sort)   && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
+        if (isset($order, $sort) && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
             $sql .= " ORDER BY {$order} {$sort} ";
         }
         if (isset($count) && $count != -1) {
@@ -300,6 +310,7 @@ abstract class Centreon_Object
      */
     public function getIdByParameter($paramName, $paramValues = []): array
     {
+        $safeParamName = $this->validateIdentifier($paramName);
         $sql = "SELECT {$this->primaryKey} FROM {$this->table} WHERE ";
         $condition = '';
         if (! is_array($paramValues)) {
@@ -309,7 +320,7 @@ abstract class Centreon_Object
             if ($condition != '') {
                 $condition .= ' OR ';
             }
-            $condition .= $paramName . ' = ? ';
+            $condition .= "`{$safeParamName}` = ? ";
         }
         if ($condition) {
             $sql .= $condition;
@@ -370,5 +381,23 @@ abstract class Centreon_Object
         $res = $this->db->query($sqlQuery, $sqlParams);
 
         return $res->{$fetchMethod}();
+    }
+
+    /**
+     * Validate a SQL identifier (column or table name) to prevent SQL injection.
+     * Allows alphanumeric characters, underscores, dots, and the wildcard '*'.
+     *
+     * @param string $name
+     *
+     * @throws InvalidArgumentException
+     * @return string
+     */
+    private function validateIdentifier(string $name): string
+    {
+        if (! preg_match('/^[a-zA-Z0-9_.]+$/', $name)) {
+            throw new InvalidArgumentException("Invalid SQL identifier: {$name}");
+        }
+
+        return $name;
     }
 }
