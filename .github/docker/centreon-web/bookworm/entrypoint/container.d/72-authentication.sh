@@ -1,10 +1,10 @@
 #!/bin/sh
 
-if [ ! -z ${LDAP_HOST} ] && getent hosts ${LDAP_HOST}; then
+if [ -n "${LDAP_HOST:-}" ] && timeout 0.2 getent ahostsv4 "${LDAP_HOST}"; then
   MYSQL_PWD="${MYSQL_ROOT_PASSWORD}" mysql -h${MYSQL_HOST} -uroot centreon -e "UPDATE auth_ressource SET ar_enable = '1' WHERE ar_name = 'openldap'"
 fi
 
-if [ ! -z ${OPENID_HOST} ] && getent hosts ${OPENID_HOST}; then
+if [ -n "${OPENID_HOST:-}" ] && timeout 0.2 getent ahostsv4 "${OPENID_HOST}"; then
   CONTACT_TEMPLATE_NAME="openid_contact_template"
   sudo -u www-data centreon -u admin -p Centreon\!2021 -o CONTACTTPL -a ADD -v "$CONTACT_TEMPLATE_NAME;$CONTACT_TEMPLATE_NAME;;1;1;en_US.UTF-8;local"
   CONTACT_TEMPLATE_ID=$(sudo -u www-data centreon -u admin -p Centreon\!2021 -o CONTACTTPL -a SHOW -v "$CONTACT_TEMPLATE_NAME" | grep "$CONTACT_TEMPLATE_NAME" | cut -d';' -f1)
@@ -12,7 +12,7 @@ if [ ! -z ${OPENID_HOST} ] && getent hosts ${OPENID_HOST}; then
   RESPONSE=$(curl -s -w "%{http_code}" -H 'Content-Type:application/json' -H 'Accept:application/json' -d '{"security":{"credentials":{"login":"admin","password":"Centreon!2021"}}}' -L "http://localhost:80/centreon/api/latest/login")
   TOKEN=$(echo "$RESPONSE" | head -c -4 | jq -r '.security.token')
 
-  OPENID_IP_ADDRESS=$(getent hosts "${OPENID_HOST}" | awk '{print $1;}') || {
+  OPENID_IP_ADDRESS=$(timeout 0.2 getent ahostsv4 "${OPENID_HOST}" | awk '{print $1;}') || {
     echo "Failed to resolve ${OPENID_HOST} hostname"
     exit 1
   }
@@ -50,7 +50,7 @@ if [ ! -z ${OPENID_HOST} ] && getent hosts ${OPENID_HOST}; then
 PAYLOAD
 fi
 
-if [ ! -z ${SAML_HOST} ] && getent hosts ${SAML_HOST}; then
+if [ -n "${SAML_HOST:-}" ] && timeout 0.2 getent ahostsv4 "${SAML_HOST}"; then
   CONTACT_TEMPLATE_NAME="saml_contact_template"
   sudo -u www-data centreon -u admin -p Centreon\!2021 -o CONTACTTPL -a ADD -v "$CONTACT_TEMPLATE_NAME;$CONTACT_TEMPLATE_NAME;;1;1;en_US.UTF-8;local"
   CONTACT_TEMPLATE_ID=$(sudo -u www-data centreon -u admin -p Centreon\!2021 -o CONTACTTPL -a SHOW -v "$CONTACT_TEMPLATE_NAME" | grep "$CONTACT_TEMPLATE_NAME" | cut -d';' -f1)
