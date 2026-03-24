@@ -100,6 +100,42 @@ docker compose --profile poller --profile vault -f .github/docker/docker-compose
 > Container logs can be displayed with the following command: `docker logs <container_id>`
 
 
+## :satellite: Remote Server setup
+
+A dedicated compose file allows running a Central server alongside a Remote Server, each with its own database.
+
+Run the following command from the **repository root directory**:
+
+```bash
+docker compose -f .github/docker/docker-compose.remote.yml up -d --wait
+```
+
+Once up, both interfaces are accessible:
+* Central: `http://localhost:4000/centreon`
+* Remote Server: `http://localhost:4001/centreon`
+* Credentials: **admin** / **Centreon!2021**
+
+The Remote Server registers itself automatically to the Central once both are ready. Registration runs in the background after the containers become healthy, so it may complete a few seconds after `--wait` returns. You can follow its progress with:
+
+```bash
+docker compose -f .github/docker/docker-compose.remote.yml \
+  exec remote-server \
+  cat /tmp/bg_85-register-to-central_background.sh.log
+```
+
+The following environment variables are available to customize the setup:
+
+* `WEB_IMAGE`: centreon-web image to use for both Central and Remote Server (default: `docker.centreon.com/centreon/centreon-web-alma9:develop`)
+* `REMOTE_SERVER_NAME`: name displayed for the Remote Server in the Central UI (default: `remote-server`)
+* `CENTRAL_API_USERNAME`: API account used for registration (default: `admin`)
+* `CENTRAL_API_PASSWORD`: password for the API account (default: `Centreon!2021`)
+
+To stop services:
+
+```bash
+docker compose -f .github/docker/docker-compose.remote.yml down
+```
+
 ## :hand: Stop services
 
 Services can be stopped with the following command:

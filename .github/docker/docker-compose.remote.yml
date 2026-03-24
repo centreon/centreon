@@ -1,0 +1,64 @@
+services:
+  web:
+    platform: linux/amd64
+    env_file:
+      - .env
+    image: "${WEB_IMAGE:-docker.centreon.com/centreon/centreon-web-alma9:develop}"
+    ports: ["4000:80"]
+    depends_on:
+      - db
+    environment:
+      MYSQL_HOST: db
+      CENTREON_DATASET: ${CENTREON_DATASET:-1}
+      CENTREON_LANG: ${CENTREON_LANG:-en_US}
+      DATABASE_PARTITIONING: ${DATABASE_PARTITIONING:-1}
+      DEBUG: ${DEBUG:-0}
+    healthcheck:
+      test: bash -c "[ -f /tmp/docker.ready ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
+      interval: 1s
+      retries: 120
+      timeout: 5s
+
+  db:
+    platform: linux/amd64
+    env_file:
+      - .env
+    image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:10.11}"
+    ports: ["3306"]
+
+  remote-server:
+    platform: linux/amd64
+    env_file:
+      - .env
+    image: "${WEB_IMAGE:-docker.centreon.com/centreon/centreon-web-alma9:develop}"
+    ports: ["4001:80"]
+    depends_on:
+      db-remote:
+        condition: service_started
+      web:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: db-remote
+      CENTREON_DATASET: 0
+      CENTREON_LANG: ${CENTREON_LANG:-en_US}
+      DATABASE_PARTITIONING: 0
+      DEBUG: ${DEBUG:-0}
+      # Registration parameters
+      CENTRAL_HOST: web
+      CENTRAL_API_USERNAME: ${CENTRAL_API_USERNAME:-admin}
+      CENTRAL_API_PASSWORD: ${CENTRAL_API_PASSWORD:-Centreon!2021}
+      REMOTE_SERVER_NAME: ${REMOTE_SERVER_NAME:-remote-server}
+    volumes:
+      - ./centreon-web/alma9/entrypoint/container.d/85-register-to-central_background.sh:/usr/share/centreon/container.d/85-register-to-central_background.sh
+    healthcheck:
+      test: bash -c "[ -f /tmp/docker.ready ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
+      interval: 1s
+      retries: 120
+      timeout: 5s
+
+  db-remote:
+    platform: linux/amd64
+    env_file:
+      - .env
+    image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:10.11}"
+    ports: ["3306"]
