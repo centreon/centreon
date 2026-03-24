@@ -276,7 +276,7 @@ export default (on: Cypress.PluginEvents): void => {
     },
     stopContainers: async () => {
       if (dockerEnvironment !== null) {
-        await dockerEnvironment.down();
+        await dockerEnvironment.down({ timeout: 0 });
 
         dockerEnvironment = null;
       }
