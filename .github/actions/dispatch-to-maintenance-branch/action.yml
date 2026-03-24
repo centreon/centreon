@@ -1,4 +1,5 @@
 name: "dispatch-to-maintenance-branch"
+description: "Dispatch to maintenance branch according to reference date"
 
 runs:
   using: "composite"
