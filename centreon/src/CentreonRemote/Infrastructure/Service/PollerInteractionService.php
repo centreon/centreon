@@ -24,6 +24,7 @@ namespace CentreonRemote\Infrastructure\Service;
 use Centreon;
 use Centreon\ServiceProvider;
 use CentreonBroker;
+use Core\MonitoringServer\Model\MonitoringServer;
 use CentreonContactgroup;
 use CentreonDB;
 use Exception;
@@ -139,9 +140,13 @@ class PollerInteractionService
 
         foreach ($tabServer as $host) {
             if (in_array($host['id'], $pollerIDs)) {
-                passthru("echo 'SENDCFGFILE:{$host['id']}' >> {$centCorePipe}", $return);
+                $written = file_put_contents(
+                    $centCorePipe,
+                    "SENDCFGFILE:{$host['id']}\n",
+                    FILE_APPEND | LOCK_EX
+                );
 
-                if ($return) {
+                if ($written === false) {
                     throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
                 }
             }
@@ -183,6 +188,9 @@ class PollerInteractionService
         foreach ($tabServers as $poller) {
             if (isset($poller['localhost']) && $poller['localhost'] == 1) {
                 if ($poller['engine_restart_command'] != '') {
+                    if (preg_match(MonitoringServer::VALID_COMMAND_RESTART_REGEX, $poller['engine_restart_command']) !== 1) {
+                        throw new Exception(_('Engine restart command does not match the expected format. Please check the monitoring server configuration.'));
+                    }
                     shell_exec(escapeshellcmd("sudo -n -- {$poller['engine_restart_command']}"));
                 }
             } elseif ($fh = @fopen($centCorePipe, 'a+')) {
