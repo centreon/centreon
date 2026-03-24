@@ -90,7 +90,7 @@ jobs:
             const branchIndex = workingDays % maintenanceBranches.length;
 
             const runOutput = await execSync(
-              `gh workflow run "web.yml" --ref `${maintenanceBranches[branchIndex]}` --raw-field nightly_manual_trigger=true`
+              `gh workflow run "web.yml" --ref "${maintenanceBranches[branchIndex]}" --raw-field nightly_manual_trigger=true`
             );
             console.log(`🌃 Nightly workflow triggered for component ${maintenanceBranches[branchIndex]}`);
 
