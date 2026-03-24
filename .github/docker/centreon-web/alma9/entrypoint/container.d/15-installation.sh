@@ -70,9 +70,6 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
   echo "Generating Centreon cache..."
   su apache -s /bin/bash -c "php generationCache.php"
 
-  echo "Creating engine context configuration..."
-  su apache -s /bin/bash -c "php createEngineContextConfiguration.php"
-
   echo "Disabling statistics collection..."
   mysql -h"${MYSQL_HOST}" -uroot centreon -e "DELETE FROM options WHERE \`key\` = 'send_statistics'"
   mysql -h"${MYSQL_HOST}" -uroot centreon -e "INSERT INTO options (\`key\`, \`value\`) VALUES ('send_statistics', '0')"
