@@ -659,30 +659,6 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
         $findParents->closeCursor();
 
         foreach ($parentIds as $parentId) {
-            // Also look at the parent's service templates directly on the host
-            $findParentServiceTemplates = $this->db->prepare($this->translateDbName(
-                <<<'SQL'
-                    SELECT hsr.service_service_id
-                    FROM `:db`.`host_service_relation` hsr
-                    INNER JOIN `:db`.`service` svc ON svc.service_id = hsr.service_service_id
-                    WHERE svc.service_register = '0'
-                    AND hsr.host_host_id = :parent_id
-                    SQL
-            ));
-            $findParentServiceTemplates->bindValue(':parent_id', $parentId, \PDO::PARAM_INT);
-            $findParentServiceTemplates->execute();
-
-            while ($row = $findParentServiceTemplates->fetch(\PDO::FETCH_ASSOC)) {
-                $serviceTemplateId = (int) $row['service_service_id'];
-
-                if (! $this->isServiceTemplateInUse($serviceTemplateId, $remainingIds)) {
-                    $deleteService->bindValue(':service_template_id', $serviceTemplateId, \PDO::PARAM_INT);
-                    $deleteService->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
-                    $deleteService->execute();
-                }
-            }
-            $findParentServiceTemplates->closeCursor();
-
             $this->deleteServicesFromTemplate($hostId, $parentId, $remainingIds, $visited);
         }
     }
@@ -723,7 +699,7 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
         }
         $statement->execute();
 
-        return $statement->rowCount() >= 1;
+        return $statement->fetchColumn() !== false;
     }
 
     /**

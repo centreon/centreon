@@ -547,12 +547,17 @@ final class PartialUpdateHost
         $parentTemplateIds = array_unique($dto->templates);
         $this->validation->assertAreValidTemplates($parentTemplateIds, $host->getId());
 
-        // Read current parent templates BEFORE deleting them, to compute which were removed
+        // Read current DIRECT parent templates BEFORE deleting them, to compute which were removed.
+        // findParents() returns the full inheritance chain, so we filter to direct parents only
+        // (rows where child_id matches the host) to avoid false positives with indirect ancestors.
         $currentParents = $this->readHostRepository->findParents($host->getId());
-        $currentParentIds = array_map(
-            static fn (array $parent): int => $parent['parent_id'],
-            $currentParents
-        );
+        $currentDirectParentIds = [];
+        foreach ($currentParents as $parent) {
+            if ((int) $parent['child_id'] === $host->getId()) {
+                $currentDirectParentIds[] = (int) $parent['parent_id'];
+            }
+        }
+        $currentDirectParentIds = array_values(array_unique($currentDirectParentIds));
 
         $this->info('Remove parent templates from a host', ['host_id' => $host->getId()]);
         $this->writeHostRepository->deleteParents($host->getId());
@@ -564,19 +569,35 @@ final class PartialUpdateHost
             $this->writeHostRepository->addParent($host->getId(), $templateId, $order);
         }
 
-        // Clean up deployed services from templates that were removed
-        $removedTemplateIds = array_values(array_diff($currentParentIds, $parentTemplateIds));
-        if ($removedTemplateIds !== []) {
-            $this->info('Clean up services from removed templates', [
-                'host_id' => $host->getId(),
-                'removed_template_ids' => $removedTemplateIds,
-            ]);
-            $this->writeHostRepository->deleteServicesFromRemovedTemplates(
-                $host->getId(),
-                $removedTemplateIds,
-                $parentTemplateIds,
-            );
+        $this->cleanServicesFromRemovedTemplates($host->getId(), $currentDirectParentIds, $parentTemplateIds);
+    }
+
+    /**
+     * Clean up services from templates that were removed from a host.
+     *
+     * @param int $hostId
+     * @param int[] $previousDirectParentIds Direct parent template IDs before the update
+     * @param int[] $newDirectParentIds Direct parent template IDs after the update
+     */
+    private function cleanServicesFromRemovedTemplates(
+        int $hostId,
+        array $previousDirectParentIds,
+        array $newDirectParentIds,
+    ): void {
+        $removedTemplateIds = array_values(array_diff($previousDirectParentIds, $newDirectParentIds));
+        if ($removedTemplateIds === []) {
+            return;
         }
+
+        $this->info('Clean up services from removed templates', [
+            'host_id' => $hostId,
+            'removed_template_ids' => $removedTemplateIds,
+        ]);
+        $this->writeHostRepository->deleteServicesFromRemovedTemplates(
+            $hostId,
+            $removedTemplateIds,
+            $newDirectParentIds,
+        );
     }
 
     /**
