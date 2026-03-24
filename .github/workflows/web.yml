@@ -53,8 +53,6 @@ jobs:
   dispatch-to-maintenance-branches:
     if: |
       github.run_attempt == 1 &&
-      github.event_name == 'schedule' &&
-      github.ref_name == 'develop' &&
       github.repository == 'centreon/centreon'
     runs-on: ubuntu-24.04
     steps:
