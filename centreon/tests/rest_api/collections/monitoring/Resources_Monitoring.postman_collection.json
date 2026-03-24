@@ -384,6 +384,7 @@
 									"        \"address\": \"999.99.99.99\",\r",
 									"        \"monitoring_server_id\": 1,\r",
 									"        \"snmp_version\": null,\r",
+									"        \"snmp_community\": null,\r",
 									"        \"geo_coords\": null,\r",
 									"        \"note_url\": null,\r",
 									"        \"note\": null,\r",
