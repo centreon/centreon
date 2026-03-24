@@ -582,11 +582,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 // When status/state filters are active, force the status_filter_idx for tight seek.
                 // When only tag pre-join filters are active, no FORCE INDEX needed — MariaDB drives
                 // from the small pre-join derived tables via PK lookups.
-                if ($hasStatusOrStateFilter) {
-                    $sortIndexHint = 'FORCE INDEX (`resources_status_filter_idx`)';
-                } else {
-                    $sortIndexHint = '';
-                }
+                $sortIndexHint = $hasStatusOrStateFilter ? 'FORCE INDEX (`resources_status_filter_idx`)' : '';
                 $joinCtes = $tagPreJoinClauses;
             }
         } else {
@@ -1497,7 +1493,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     {
         $sort = $this->sqlRequestTranslator->getRequestParameters()->getSort();
 
-        if (empty($sort)) {
+        if ($sort === []) {
             return [
                 ['col' => 'status_ordered', 'dir' => 'DESC'],
                 ['col' => 'last_status_change', 'dir' => 'DESC'],
