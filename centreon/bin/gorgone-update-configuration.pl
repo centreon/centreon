@@ -21,7 +21,6 @@ use strict;
 use warnings;
 use YAML::XS;
 use File::Copy;
-use Data::Dumper;
 # migration tool to enable gorgone websocket server, exit = 0 mean ok (either the change was made or not needed), exit = 1 mean an error.
 my $apache_conf = '/etc/apache2/';
 my $conf_file = $ENV{"GORGONE_CONF_FILE"} // '/etc/centreon-gorgone/config.d/40-gorgoned.yaml';
