@@ -53,7 +53,6 @@ jobs:
   dispatch-to-maintained-branches:
     if: |
       github.run_attempt == 1 &&
-      github.event_name == 'schedule' &&
       github.repository == 'centreon/centreon'
     runs-on: ubuntu-24.04
     steps:
