@@ -136,7 +136,7 @@ contents:
       group: "centreon"
       mode: 0664
 
-  - src: "../bin/{centFillTrapDB,centreon_trap_send}"
+  - src: "../bin/{centFillTrapDB,centreon_trap_send,centreon-update-configuration}"
     dst: "/usr/share/centreon/bin/"
     file_info:
       mode: 0755
@@ -145,6 +145,9 @@ contents:
     type: symlink
   - src: "/usr/share/centreon/bin/centreon_trap_send"
     dst: "/usr/bin/centreon_trap_send"
+    type: symlink
+  - src: "/usr/share/centreon/bin/centreon-update-configuration"
+    dst: "/usr/bin/centreon-update-configuration"
     type: symlink
 
   - src: "../bin/centreon_health"

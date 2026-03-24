@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This check some specific configuration case we now we can't handle automatically in postinstall to fail the install and force the user to manually update the configuration.
-# The final objective is to migrate gorgone pullwss/websocket configuration to apache proxying for simplier tls configuration.
+# The final objective is to migrate gorgone pullwss/websocket configuration to apache proxying for simpler tls configuration.
 is_gorgone_pullwss_tls=0
 is_apache_tls=0
 gorgone_file="/etc/centreon-gorgone/config.d/40-gorgoned.yaml"
@@ -14,11 +14,17 @@ if [ -f $gorgone_file ] && grep -q "name: proxy" $gorgone_file ; then
     is_gorgone_pullwss_tls=1;
   fi
 fi
-apache_dir="/etc/apache2/sites-enabled/"
-if [ -d $apache_dir ] && grep -qr "<VirtualHost *:443>" $apache_dir ; then
+apache_dir_deb="/etc/apache2/sites-enabled/"
+if [ -d $apache_dir_deb ] && grep -qr "<VirtualHost *:443>" $apache_dir_deb ; then
   echo "apache listen on port 443, so it should be configured for tls."
   is_apache_tls=1;
 fi
+apache_dir_rpm="/etc/httpd/sites-enabled/"
+if [ -d $apache_dir_rpm ] && grep -qr "<VirtualHost *:443>" $apache_dir_rpm ; then
+  echo "apache listen on port 443, so it should be configured for tls."
+  is_apache_tls=1;
+fi
+
 if [[ $is_gorgone_pullwss_tls == 1 && $is_apache_tls == 0 ]]; then
   echo "Your gorgone configuration is using pullwss with tls enabled but your apache configuration doesn't seems to be configured for tls."
   echo "As this new version need to proxy gorgone behind apache, we can't safely migrate your configuration."
