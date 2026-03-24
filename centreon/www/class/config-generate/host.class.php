@@ -454,7 +454,17 @@ class Host extends AbstractHost
             $isPollerEncryptionReady
         );
 
-        return Macro::resolveInheritance($existingHostMacros, $inheritanceLine, $hostId);
+        $directMacros = array_values(array_filter(
+            $existingHostMacros,
+            fn (Macro $macro) => $macro->getOwnerId() === $hostId
+        ));
+
+        $allTemplateMacros = array_values(array_filter(
+            $existingHostMacros,
+            fn (Macro $macro) => $macro->getOwnerId() !== $hostId
+        ));
+
+        return [$directMacros, $allTemplateMacros];
     }
 
     /**
