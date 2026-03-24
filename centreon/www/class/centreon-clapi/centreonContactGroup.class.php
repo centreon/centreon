@@ -233,7 +233,7 @@ class CentreonContactGroup extends CentreonObject
      * @throws Exception
      * @return false|void
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! parent::export($filterName)) {
             return false;
@@ -263,5 +263,7 @@ class CentreonContactGroup extends CentreonObject
                 . $this->delim . $element[$cgFieldName] . $this->delim . $element[$cFieldName]
                 . $this->delim . $element['contact_alias'] . "\n";
         }
+
+        return true;
     }
 }

@@ -313,7 +313,7 @@ class CentreonCommand extends CentreonObject
      * @throws CentreonClapiException
      * @return bool|void
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
             return false;
@@ -385,6 +385,8 @@ class CentreonCommand extends CentreonObject
                     . implode(';', $argDescriptions) . "\n";
             }
         }
+
+        return true;
     }
 
     /**

@@ -1102,10 +1102,10 @@ class CentreonHost extends CentreonObject
      * @throws Exception
      * @return void
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
-            return 0;
+            return false;
         }
 
         $labelField = $this->object->getUniqueLabelField();
@@ -1375,6 +1375,8 @@ class CentreonHost extends CentreonObject
                 CentreonHostGroupService::getInstance()->export($helement['hg_name']);
             }
         }
+
+        return true;
     }
 
     /**

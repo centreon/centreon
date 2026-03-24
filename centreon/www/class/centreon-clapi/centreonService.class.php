@@ -286,7 +286,7 @@ class CentreonService extends CentreonObject
      * @throws PDOException
      * @return int
      */
-    public function getObjectId($name, int $type = CentreonObject::SINGLE_VALUE)
+    public function getObjectId($name, int $type = CentreonObject::SINGLE_VALUE): int
     {
         if (isset($this->objectIds[$name])) {
             return $this->objectIds[$name];
@@ -1188,7 +1188,7 @@ class CentreonService extends CentreonObject
      * @param int $id
      * @return string
      */
-    public function getObjectName($id)
+    public function getObjectName($id): string
     {
         $tmp = $this->object->getParameters($id, ['service_description']);
 
@@ -1201,7 +1201,7 @@ class CentreonService extends CentreonObject
      * @throws Exception
      * @return bool|void
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
             return false;
@@ -1378,6 +1378,8 @@ class CentreonService extends CentreonObject
                     . $telement['traps_name'] . "\n";
             }
         }
+
+        return true;
     }
 
     /**

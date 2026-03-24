@@ -749,7 +749,7 @@ class CentreonHostGroupService extends CentreonObject
      *
      * @return string
      */
-    public function getObjectName($id)
+    public function getObjectName($id): string
     {
         $tmp = $this->object->getParameters($id, ['service_description']);
 
@@ -764,10 +764,10 @@ class CentreonHostGroupService extends CentreonObject
      * @throws Exception
      * @return int|void
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
-            return 0;
+            return false;
         }
 
         $labelField = $this->object->getUniqueLabelField();
@@ -910,6 +910,8 @@ class CentreonHostGroupService extends CentreonObject
                     . $celement['contact_name'] . "\n";
             }
         }
+
+        return true;
     }
 
     /**

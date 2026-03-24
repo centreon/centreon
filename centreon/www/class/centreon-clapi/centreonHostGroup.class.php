@@ -467,7 +467,7 @@ class CentreonHostGroup extends CentreonObject
      * @throws Exception
      * @return false|void
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! parent::export($filterName)) {
             return false;
@@ -497,5 +497,7 @@ class CentreonHostGroup extends CentreonObject
                 . $element[$labelField] . $this->delim
                 . $element[$hFieldName] . "\n";
         }
+
+        return true;
     }
 }

@@ -44,7 +44,7 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
      *
      * @return bool If the user has access to the action
      */
-    public function authorize($action, $user, $isInternal = false)
+    public function authorize($action, $user, $isInternal = false): bool
     {
         return ! (! $user->admin && $user->access->page('50709') === 0);
     }

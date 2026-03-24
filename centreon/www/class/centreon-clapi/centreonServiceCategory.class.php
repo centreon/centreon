@@ -278,7 +278,7 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
      * @throws Exception
      * @return false|void
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! parent::export($filterName)) {
             return false;
@@ -331,6 +331,8 @@ class CentreonServiceCategory extends CentreonSeverityAbstract
                 }
             }
         }
+
+        return true;
     }
 
     /**

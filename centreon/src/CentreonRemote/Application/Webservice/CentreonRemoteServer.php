@@ -180,7 +180,7 @@ class CentreonRemoteServer extends CentreonWebServiceAbstract
      *
      * @return bool If the user has access to the action
      */
-    public function authorize($action, $user, $isInternal = false)
+    public function authorize($action, $user, $isInternal = false): bool
     {
         return true;
     }

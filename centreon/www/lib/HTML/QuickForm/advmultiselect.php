@@ -467,6 +467,8 @@ class HTML_QuickForm_advmultiselect extends HTML_QuickForm_select
                     ['level' => 'error']
                 );
         }
+
+        return null;
     }
 
     /**

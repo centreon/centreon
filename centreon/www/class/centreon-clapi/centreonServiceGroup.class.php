@@ -507,7 +507,7 @@ class CentreonServiceGroup extends CentreonObject
      * @throws Exception
      * @return void
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! parent::export($filterName)) {
             return false;
@@ -574,5 +574,7 @@ class CentreonServiceGroup extends CentreonObject
                 }
             }
         }
+
+        return true;
     }
 }

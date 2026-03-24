@@ -272,7 +272,7 @@ class CentreonACLResource extends CentreonObject
      * @throws Exception
      * @return bool|void
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
             return false;
@@ -312,6 +312,8 @@ class CentreonACLResource extends CentreonObject
             echo $exportLine;
             $exportLine = '';
         }
+
+        return true;
     }
 
     /**

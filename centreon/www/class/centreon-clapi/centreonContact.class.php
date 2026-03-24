@@ -344,7 +344,7 @@ class CentreonContact extends CentreonObject
      * @throws Exception
      * @return bool|void
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
             return false;
@@ -414,6 +414,8 @@ class CentreonContact extends CentreonObject
             $this->exportNotifCommands(self::HOST_NOTIF_CMD, $objId, $element[$this->object->getUniqueLabelField()]);
             $this->exportNotifCommands(self::SVC_NOTIF_CMD, $objId, $element[$this->object->getUniqueLabelField()]);
         }
+
+        return true;
     }
 
     /**

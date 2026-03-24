@@ -846,7 +846,7 @@ class CentreonDowntime extends CentreonObject
      * @throws PDOException
      * @return false|void
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         // generic add & setparam
         if (! parent::export($filterName)) {
@@ -867,6 +867,8 @@ class CentreonDowntime extends CentreonObject
 
         // handle periods
         $this->exportPeriods();
+
+        return true;
     }
 
     /**

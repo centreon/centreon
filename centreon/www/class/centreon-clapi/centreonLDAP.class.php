@@ -465,10 +465,10 @@ class CentreonLDAP extends CentreonObject
      * @throws Exception
      * @return int|void
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
-            return 0;
+            return false;
         }
 
         $labelField = $this->object->getUniqueLabelField();
@@ -554,6 +554,8 @@ class CentreonLDAP extends CentreonObject
                 }
             }
         }
+
+        return true;
     }
 
     /**

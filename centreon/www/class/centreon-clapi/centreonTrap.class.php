@@ -319,7 +319,7 @@ class CentreonTrap extends CentreonObject
      * @throws Exception
      * @return false|void
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
             return false;
@@ -382,5 +382,7 @@ class CentreonTrap extends CentreonObject
                     . $prop['tmo_status'] . "\n";
             }
         }
+
+        return true;
     }
 }

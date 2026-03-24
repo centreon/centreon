@@ -819,7 +819,7 @@ class CentreonServiceTemplate extends CentreonObject
      * @throws Exception
      * @return bool|void
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
             return false;
@@ -966,6 +966,8 @@ class CentreonServiceTemplate extends CentreonObject
                 . $helement['service_description'] . $this->delim
                 . $helement['host_name'] . "\n";
         }
+
+        return true;
     }
 
     /**

@@ -320,7 +320,7 @@ class CentreonCentbrokerCfg extends CentreonObject
      * @throws PDOException
      * @return bool|void
      */
-    public function export($filterName = null)
+    public function export($filterName = null): bool
     {
         if (! $this->canBeExported($filterName)) {
             return false;
@@ -441,6 +441,8 @@ class CentreonCentbrokerCfg extends CentreonObject
                 }
             }
         }
+
+        return true;
     }
 
     /**
