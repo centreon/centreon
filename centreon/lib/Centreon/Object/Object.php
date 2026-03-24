@@ -205,7 +205,7 @@ abstract class Centreon_Object
                 $sourceParams[$this->uniqueLabelField] = $originalName . '_' . $i;
             }
             $ids = $this->getIdByParameter($this->uniqueLabelField, [$sourceParams[$this->uniqueLabelField]]);
-            if (! count($ids)) {
+            if ($ids === []) {
                 $this->insert($sourceParams);
             }
         }
