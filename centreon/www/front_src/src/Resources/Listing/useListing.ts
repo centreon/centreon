@@ -10,7 +10,9 @@ export interface ListingState {
 }
 
 const useListing = (): ListingState => {
-  const [currentCursorIndex, setCurrentCursorIndex] = useAtom(currentCursorIndexAtom);
+  const [currentCursorIndex, setCurrentCursorIndex] = useAtom(
+    currentCursorIndexAtom
+  );
   const setLimit = useSetAtom(limitAtom);
 
   return {

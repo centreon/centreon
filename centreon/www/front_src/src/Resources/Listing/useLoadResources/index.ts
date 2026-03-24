@@ -91,7 +91,9 @@ const useLoadResources = (): LoadResources => {
     });
 
   const [cursorStack, setCursorStack] = useAtom(cursorStackAtom);
-  const [currentCursorIndex, setCurrentCursorIndex] = useAtom(currentCursorIndexAtom);
+  const [currentCursorIndex, setCurrentCursorIndex] = useAtom(
+    currentCursorIndexAtom
+  );
   const [details, setDetails] = useAtom(detailsAtom);
   const refreshInterval = useAtomValue(refreshIntervalAtom);
   const selectedResourceUuid = useAtomValue(selectedResourceUuidAtom);

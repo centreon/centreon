@@ -1,4 +1,3 @@
-
 export enum ResourceType {
   anomalyDetection = 'anomaly-detection',
   host = 'host',
