@@ -55,7 +55,7 @@ class Media implements Comparable, Identifiable
         if ($this->comment !== null) {
             $this->comment = trim($this->comment);
         }
-        Assertion::regex($this->directory, '/^[a-zA-Z0-9_-]+$/', 'Media::directory');
+        Assertion::regex($this->directory, '/^[a-zA-Z0-9._-]+$/', 'Media::directory');
     }
 
     public function getId(): int
