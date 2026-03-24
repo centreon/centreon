@@ -454,3 +454,67 @@
     border-radius: 4px;
     margin-bottom: 8px;
 }
+
+/* ==========================================================================
+   Tooltip (instant, no-delay, fixed position in body)
+   ========================================================================== */
+
+.cl-tooltip-popup {
+    position: fixed;
+    z-index: 99999;
+    background: var(--body-background, #222);
+    color: var(--body-color, #eee);
+    border: 1px solid var(--listing-border-botom-color, #555);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 12px;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+}
+
+.cl-tooltip-popup b {
+    margin-right: 4px;
+}
+
+/* ==========================================================================
+   Add button dropdown (two-level: Wizard / Advanced)
+   ========================================================================== */
+
+.cl-add-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.cl-add-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--body-background, #fff);
+    border: 1px solid var(--listing-border-botom-color, #E3E3E3);
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 160px;
+    margin-top: 4px;
+    overflow: hidden;
+}
+
+.cl-add-dropdown.cl-open .cl-add-dropdown-menu {
+    display: block;
+}
+
+.cl-add-dropdown-menu a {
+    display: block;
+    padding: 8px 16px;
+    color: var(--body-color, #444);
+    text-decoration: none;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.cl-add-dropdown-menu a:hover {
+    background: var(--list-hover-background-color, #E6EDF5);
+    text-decoration: none;
+}

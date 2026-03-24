@@ -393,3 +393,27 @@ function CentreonListing(config) {
         return 'this';
     }
 }
+
+// ==========================================================================
+// Global instant tooltip for [data-cl-tooltip] elements
+// Positioned fixed in body — no overflow clipping, no delay
+// Usage: <span data-cl-tooltip="PID: 123<br>Uptime: 2d">ⓘ</span>
+// ==========================================================================
+(function () {
+    var tip = null;
+    jQuery(document).on('mouseenter', '[data-cl-tooltip]', function () {
+        var content = jQuery(this).attr('data-cl-tooltip');
+        if (!content) return;
+        tip = jQuery('<div class="cl-tooltip-popup">' + content + '</div>');
+        jQuery('body').append(tip);
+        var rect = this.getBoundingClientRect();
+        var top = rect.top - tip.outerHeight() - 6;
+        if (top < 0) top = rect.bottom + 6;
+        tip.css({
+            top: top + 'px',
+            left: (rect.left + rect.width / 2 - tip.outerWidth() / 2) + 'px'
+        });
+    }).on('mouseleave', '[data-cl-tooltip]', function () {
+        if (tip) { tip.remove(); tip = null; }
+    });
+})();
