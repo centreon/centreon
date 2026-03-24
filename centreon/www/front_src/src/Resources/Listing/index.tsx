@@ -71,7 +71,9 @@ const ResourceListing = (): JSX.Element => {
   const [selectedResourceUuid, setSelectedResourceUuid] = useAtom(
     selectedResourceUuidAtom
   );
-  const [currentCursorIndex, setCurrentCursorIndex] = useAtom(currentCursorIndexAtom);
+  const [currentCursorIndex, setCurrentCursorIndex] = useAtom(
+    currentCursorIndexAtom
+  );
   const cursorStack = useAtomValue(cursorStackAtom);
   const [selectedColumnIds, setSelectedColumnIds] = useAtom(
     selectedColumnIdsAtom
