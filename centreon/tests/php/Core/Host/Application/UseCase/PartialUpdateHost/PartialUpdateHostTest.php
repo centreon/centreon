@@ -652,6 +652,132 @@ it('should present a ConflictResponse when a parent template creates a circular 
         );
 });
 
+// Test for template removal and service cleanup
+
+it('should call deleteServicesFromRemovedTemplates when a template is removed', function (): void {
+    // Host initially has direct parents [2, 3, 4], request updates to [2, 3] => template 4 is removed
+    $this->request->templates = [2, 3];
+
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->adminResolver
+        ->expects($this->exactly(4))
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->originalHost);
+
+    // Host
+    $this->readCommandRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn(new Command(
+            id: $this->request->checkCommandId,
+            name: 'check_command_name',
+            commandLine: 'command_line',
+        ));
+    $this->optionService
+        ->expects($this->once())
+        ->method('findSelectedOptions')
+        ->willReturn([$this->inheritanceModeOption]);
+
+    $this->validation->expects($this->once())->method('assertIsValidName');
+    $this->validation->expects($this->once())->method('assertIsValidSeverity');
+    $this->validation->expects($this->once())->method('assertIsValidTimezone');
+    $this->validation->expects($this->exactly(2))->method('assertIsValidTimePeriod');
+    $this->validation->expects($this->exactly(2))->method('assertIsValidCommand');
+    $this->validation->expects($this->once())->method('assertIsValidIcon');
+
+    $this->writeHostRepository
+        ->expects($this->once())
+        ->method('update');
+
+    // Categories
+    $this->readHostCategoryRepository
+        ->expects($this->once())
+        ->method('findByHost')
+        ->willReturn([]);
+    $this->writeHostCategoryRepository
+        ->expects($this->once())
+        ->method('linkToHost');
+
+    // Groups
+    $this->readHostGroupRepository
+        ->expects($this->once())
+        ->method('findByHost')
+        ->willReturn([]);
+    $this->writeHostGroupRepository
+        ->expects($this->once())
+        ->method('linkToHost');
+
+    // Parent templates
+    $this->validation
+        ->expects($this->once())
+        ->method('assertAreValidTemplates');
+    $this->writeHostRepository
+        ->expects($this->once())
+        ->method('deleteParents');
+    $this->writeHostRepository
+        ->expects($this->exactly(2))
+        ->method('addParent');
+
+    // findParents is called twice:
+    //   1st: in updateParentTemplates to compute removed templates (before delete)
+    //   2nd: in updateMacros to resolve inheritance chain
+    $initialParents = [
+        ['child_id' => 1, 'parent_id' => 2, 'order' => 0],
+        ['child_id' => 1, 'parent_id' => 3, 'order' => 1],
+        ['child_id' => 1, 'parent_id' => 4, 'order' => 2],
+        ['child_id' => 2, 'parent_id' => 3, 'order' => 0],
+    ];
+    $updatedParents = [
+        ['child_id' => 1, 'parent_id' => 2, 'order' => 0],
+        ['child_id' => 1, 'parent_id' => 3, 'order' => 1],
+        ['child_id' => 2, 'parent_id' => 3, 'order' => 0],
+    ];
+    $this->readHostRepository
+        ->expects($this->exactly(2))
+        ->method('findParents')
+        ->willReturnOnConsecutiveCalls($initialParents, $updatedParents);
+
+    // Expect service cleanup for removed template 4
+    $this->writeHostRepository
+        ->expects($this->once())
+        ->method('deleteServicesFromRemovedTemplates')
+        ->with(
+            $this->hostId,
+            [4],       // removedTemplateIds
+            [2, 3],   // remainingTemplateIds
+        );
+
+    // Macros
+    $this->readHostMacroRepository
+        ->expects($this->once())
+        ->method('findByHostIds')
+        ->willReturn($this->hostMacros);
+    $this->readCommandMacroRepository
+        ->expects($this->once())
+        ->method('findByCommandIdAndType')
+        ->willReturn([]);
+    $this->writeHostMacroRepository
+        ->expects($this->once())
+        ->method('delete');
+    $this->writeHostMacroRepository
+        ->expects($this->once())
+        ->method('add');
+    $this->writeHostMacroRepository
+        ->expects($this->once())
+        ->method('update');
+
+    ($this->useCase)($this->request, $this->presenter, $this->hostId);
+
+    expect($this->presenter->response)->toBeInstanceOf(NoContentResponse::class);
+});
+
 // Test for successful request
 
 it('should present a NoContentResponse on success', function (): void {
