@@ -820,8 +820,8 @@ it('should load command macros from an inherited template command when the servi
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
-        ->expects($this->exactly(2))
+    $this->adminResolver
+        ->expects($this->exactly(3))
         ->method('isAdmin')
         ->willReturn(true);
 

@@ -921,8 +921,8 @@ it('should load command macros from an inherited check command when the host def
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
-        ->expects($this->exactly(4))
+    $this->adminResolver
+        ->expects($this->exactly(5))
         ->method('isAdmin')
         ->willReturn(true);
     $this->readHostRepository
@@ -947,7 +947,6 @@ it('should load command macros from an inherited check command when the host def
         ->method('update');
 
     // Categories
-    $this->validation->expects($this->once())->method('assertAreValidCategories');
     $this->readHostCategoryRepository
         ->expects($this->once())
         ->method('findByHost')
@@ -956,7 +955,6 @@ it('should load command macros from an inherited check command when the host def
     $this->writeHostCategoryRepository->expects($this->once())->method('unlinkFromHost');
 
     // Groups
-    $this->validation->expects($this->once())->method('assertAreValidGroups');
     $this->readHostGroupRepository
         ->expects($this->once())
         ->method('findByHost')
@@ -991,6 +989,10 @@ it('should load command macros from an inherited check command when the host def
     $this->writeHostMacroRepository->expects($this->once())->method('delete');
     $this->writeHostMacroRepository->expects($this->once())->method('add');
     $this->writeHostMacroRepository->expects($this->once())->method('update');
+
+    $this->writeAccessGroupRepository
+        ->expects($this->once())
+        ->method('updateAclResourcesFlag');
 
     ($this->useCase)($this->request, $this->presenter, $this->hostId);
 

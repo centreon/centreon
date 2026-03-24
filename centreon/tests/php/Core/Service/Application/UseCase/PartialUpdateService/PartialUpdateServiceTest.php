@@ -457,8 +457,8 @@ it('should load command macros from an inherited template command when the servi
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
-        ->expects($this->exactly(4))
+    $this->adminResolver
+        ->expects($this->exactly(5))
         ->method('isAdmin')
         ->willReturn(true);
     $this->readServiceRepository
@@ -500,7 +500,16 @@ it('should load command macros from an inherited template command when the servi
     $this->readServiceGroupRepository
         ->expects($this->once())
         ->method('findByService')
-        ->willReturn([$this->groupA]);
+        ->willReturn([
+            [
+                'relation' => new ServiceGroupRelation(
+                    $this->groupA->getId(),
+                    $this->service->getId(),
+                    $this->service->getHostId()
+                ),
+                'serviceGroup' => $this->groupA,
+            ],
+        ]);
     $this->writeServiceGroupRepository->expects($this->once())->method('unlink');
     $this->writeServiceGroupRepository->expects($this->once())->method('link');
 
