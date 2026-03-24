@@ -199,7 +199,7 @@ function CentreonListing(config) {
             var tr = '<tr>' +
                 '<td class="cl-col-picker">' +
                     '<div class="md-checkbox md-checkbox-inline">' +
-                        '<input type="checkbox" id="select_' + rowId + '" name="select[' + rowId + ']" />' +
+                        '<input type="checkbox" id="select_' + rowId + '" name="select[' + rowId + ']" value="1" />' +
                         '<label class="empty-label" for="select_' + rowId + '"></label>' +
                     '</div>' +
                 '</td>';
