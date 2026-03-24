@@ -50,7 +50,7 @@ jobs:
   dependency-scan:
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
-  dispatch-to-mmaintenance-branches:
+  dispatch-to-maintenance-branches:
     if: |
       github.run_attempt == 1 &&
       github.repository == 'centreon/centreon'
@@ -89,7 +89,7 @@ jobs:
 
             const branchIndex = workingDays % maintenanceBranches.length;
 
-            const runOutput = await execCommand(
+            const runOutput = await execSync(
               `gh workflow run "web.yml" --ref maintenanceBranches[branchIndex] --raw-field nightly_manual_trigger=true`
             );
             console.log(`🌃 Nightly workflow triggered for component ${maintenanceBranches[branchIndex]}`);
