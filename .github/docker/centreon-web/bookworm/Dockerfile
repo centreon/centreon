@@ -41,6 +41,17 @@ phpenmod -v 8.2 timezone
 touch /var/log/php8.2-fpm-centreon-error.log
 chown www-data:www-data /var/log/php8.2-fpm-centreon-error.log
 
+# Tune php-fpm for CI: ondemand mode to avoid spawning idle workers at startup
+sed -i 's/^pm = .*/pm = ondemand/' /etc/php/8.2/fpm/pool.d/*.conf
+sed -i 's/^pm\.max_children = .*/pm.max_children = 10/' /etc/php/8.2/fpm/pool.d/*.conf
+for conf in /etc/php/8.2/fpm/pool.d/*.conf; do
+  if grep -Eq '^[;[:space:]]*pm\.process_idle_timeout\s*=' "\$conf"; then
+    sed -Ei 's|^[;[:space:]]*pm\.process_idle_timeout\s*=.*|pm.process_idle_timeout = 10s|' "\$conf"
+  else
+    echo 'pm.process_idle_timeout = 10s' >> "\$conf"
+  fi
+done
+
 systemctl stop gorgoned
 systemctl stop centengine
 systemctl stop cbd
@@ -48,6 +59,7 @@ systemctl stop apache2
 systemctl stop php8.2-fpm
 
 apt-get clean
+rm -rf /usr/share/doc /usr/share/man /usr/share/info
 
 EOF
 

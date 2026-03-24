@@ -12,6 +12,10 @@ on:
       os:
         required: true
         type: string
+      db_id:
+        required: false
+        type: string
+        default: ''
       container_name:
         required: true
         type: string
@@ -222,14 +226,14 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
-          name: newman-${{ inputs.os }}-html-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
+          name: newman-${{ inputs.os }}${{ inputs.db_id && format('-{0}', inputs.db_id) || '' }}-html-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: centreon/tests/rest_api/newman/
 
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
-          name: newman-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
+          name: newman-${{ inputs.os }}${{ inputs.db_id && format('-{0}', inputs.db_id) || '' }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: centreon/tests/rest_api/postman_summaries/*.json
           retention-days: 1
 
@@ -243,36 +247,38 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
         with:
-          pattern: newman-${{ inputs.os }}-test-reports-*
+          pattern: newman-${{ inputs.os }}${{ inputs.db_id && format('-{0}', inputs.db_id) || '' }}-test-reports-*
           path: newman-json-test-reports
           merge-multiple: true
 
       - name: Delete Artifacts
+        env:
+          ARTIFACT_PATTERN: newman-${{ inputs.os }}${{ inputs.db_id && format('-{0}', inputs.db_id) || '' }}-test-reports-
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
         run: |
-          artifact_pattern="newman-${{ inputs.os }}-test-reports-"
-          TOKEN="${{ secrets.GITHUB_TOKEN }}"
           artifact_exists=true
           while [ "$artifact_exists" = true ]; do
             artifact_exists=false
             artifacts_response=$(curl -L \
                           -H "Accept: application/vnd.github+json" \
-                          -H "Authorization: Bearer $TOKEN" \
+                          -H "Authorization: Bearer ${TOKEN}" \
                           -H "X-GitHub-Api-Version: 2022-11-28" \
-                          "https://api.github.com/repos/${{ github.repository }}/actions/artifacts?per_page=100")
+                          "https://api.github.com/repos/${REPOSITORY}/actions/artifacts?per_page=100")
             artifacts=$(echo $artifacts_response | jq -c '.artifacts[]')
             echo "Those are the artifacts : $artifacts"
             while read row; do
               artifact_name=$(echo "$row" | jq -r '.name')
-              if [[ "$artifact_name" =~ ^.*"$artifact_pattern".* ]]; then
+              if [[ "$artifact_name" =~ ^.*"$ARTIFACT_PATTERN".* ]]; then
                 artifact_exists=true
                 echo "Deleting : $artifact_name"
                 artifact_id=$(echo "$row" | jq -r '.id')
                 curl -L \
                   -X DELETE \
                   -H "Accept: application/vnd.github+json" \
-                  -H "Authorization: Bearer $TOKEN" \
+                  -H "Authorization: Bearer ${TOKEN}" \
                   -H "X-GitHub-Api-Version: 2022-11-28" \
-                  "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${artifact_id}"
+                  "https://api.github.com/repos/${REPOSITORY}/actions/artifacts/${artifact_id}"
               fi
             done <<< "$artifacts"
           done
@@ -339,12 +345,12 @@ jobs:
         uses: actions/upload-artifact/merge@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         if: ${{ contains(needs.newman-test-run.result, 'failure') }}
         with:
-          name: newman-${{ inputs.os }}-html-reports
-          pattern: newman-${{ inputs.os }}-html-reports-*
+          name: newman-${{ inputs.os }}${{ inputs.db_id && format('-{0}', inputs.db_id) || '' }}-html-reports
+          pattern: newman-${{ inputs.os }}${{ inputs.db_id && format('-{0}', inputs.db_id) || '' }}-html-reports-*
           retention-days: 1
 
       - name: Delete merged artifacts
         uses: geekyeggo/delete-artifact@24928e75e6e6590170563b8ddae9fac674508aa1 # v5.0.0
         with:
-          name: newman-${{ inputs.os }}-html-reports-*
+          name: newman-${{ inputs.os }}${{ inputs.db_id && format('-{0}', inputs.db_id) || '' }}-html-reports-*
           failOnError: false
