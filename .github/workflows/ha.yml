@@ -93,9 +93,6 @@ jobs:
           - package_extension: deb
             image: packaging-nfpm-bookworm
             distrib: bookworm
-          - package_extension: deb
-            image: packaging-noble
-            distrib: noble
 
     runs-on: ubuntu-24.04
 
@@ -198,7 +195,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bookworm, noble]
+        distrib: [bookworm]
     steps:
       - name: Checkout sources
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -226,7 +223,7 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [el8, el9, bookworm, noble]
+        distrib: [el8, el9, bookworm]
 
     steps:
       - name: Checkout sources
