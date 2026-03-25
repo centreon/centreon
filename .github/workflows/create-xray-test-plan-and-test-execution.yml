@@ -216,13 +216,9 @@ jobs:
               linux_distribution="DEBIAN11"
               mariadb_version="MARIADB_10_5"
               ;;
-            bookworm)
-              linux_distribution="DEBIAN12"
-              mariadb_version="MARIADB_10_11"
             trixie)
               linux_distribution="DEBIAN13"
               mariadb_version="MARIADB_11_8"
-
             ;;
           esac
 
