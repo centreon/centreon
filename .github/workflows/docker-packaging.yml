@@ -56,14 +56,11 @@ jobs:
             dockerfile: packaging-nfpm-bullseye
             image: packaging-nfpm-bullseye
           - runner: ubuntu-24.04
-            dockerfile: packaging-bookworm
-            image: packaging-bookworm
-          - runner: ubuntu-24.04
-            dockerfile: packaging-nfpm-bookworm
-            image: packaging-nfpm-bookworm
-          - runner: ubuntu-24.04
             dockerfile: packaging-nfpm-jammy
             image: packaging-nfpm-jammy
+          - runner: ubuntu-24.04
+            dockerfile: packaging-trixie
+            image: packaging-trixie
           - runner: ubuntu-24.04
             dockerfile: packaging-nfpm-trixie
             image: packaging-nfpm-trixie

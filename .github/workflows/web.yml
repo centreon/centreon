@@ -877,9 +877,6 @@ jobs:
           elif [ "${{ matrix.operating_system }}" = "alma10" ]; then
             DISTRIB=el10
             PACKAGE_EXTENSION=rpm
-          elif [ "${{ matrix.operating_system }}" = "bookworm" ]; then
-            DISTRIB=bookworm
-            PACKAGE_EXTENSION=deb
           elif [ "${{ matrix.operating_system }}" = "trixie" ]; then
             DISTRIB=trixie
             PACKAGE_EXTENSION=deb
@@ -1172,7 +1169,7 @@ jobs:
       minor_version: ${{ needs.get-environment.outputs.minor_version }}
       stability: ${{ needs.get-environment.outputs.stability }}
       target_stability: ${{ needs.get-environment.outputs.target_stability }}
-      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma9' && 'rpm-el9' || 'deb-bookworm' ) }}
+      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma9' && 'rpm-el9' || 'deb-trixie' ) }}
       package_directory: fixtures/packages
       test_tags: ${{ needs.changes.outputs.trigger_upgrade_testing == 'true' && matrix.test_tags || format('{0} and not @update and not @upgrade', matrix.test_tags) }}
       dependencies_lock_file: centreon/pnpm-lock.yaml

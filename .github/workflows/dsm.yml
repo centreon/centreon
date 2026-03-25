@@ -212,9 +212,6 @@ jobs:
             image: packaging-nfpm-trixie
             distrib: trixie
           # - package_extension: deb
-          #   image: packaging-nfpm-bookworm
-          #   distrib: bookworm
-          # - package_extension: deb
           #   image: packaging-nfpm-jammy
           #   distrib: jammy
 

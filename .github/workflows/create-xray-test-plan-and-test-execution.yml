@@ -32,14 +32,14 @@ on:
         value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_key_bullseye }}
       test_execution_id_bullseye:
         value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_id_bullseye }}
-      test_plan_key_bookworm:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_key_bookworm }}
-      test_plan_id_bookworm:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_id_bookworm }}
-      test_execution_key_bookworm:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_key_bookworm }}
-      test_execution_id_bookworm:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_id_bookworm }}
+      test_plan_key_trixie:
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_key_trixie }}
+      test_plan_id_trixie:
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_id_trixie }}
+      test_execution_key_trixie:
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_key_trixie }}
+      test_execution_id_trixie:
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_id_trixie }}
     secrets:
       xray_jira_user_email:
         required: true
@@ -63,10 +63,10 @@ jobs:
       test_plan_id_bullseye: ${{ steps.get_test_plan_id.outputs.test_plan_id_bullseye }}
       test_execution_key_bullseye: ${{ steps.get_test_execution_key.outputs.test_execution_key_bullseye }}
       test_execution_id_bullseye: ${{ steps.get_test_execution_id.outputs.test_execution_id_bullseye }}
-      test_plan_key_bookworm: ${{ steps.get_test_plan_key.outputs.test_plan_key_bookworm }}
-      test_plan_id_bookworm: ${{ steps.get_test_plan_id.outputs.test_plan_id_bookworm }}
-      test_execution_key_bookworm: ${{ steps.get_test_execution_key.outputs.test_execution_key_bookworm }}
-      test_execution_id_bookworm: ${{ steps.get_test_execution_id.outputs.test_execution_id_bookworm }}
+      test_plan_key_trixie: ${{ steps.get_test_plan_key.outputs.test_plan_key_trixie }}
+      test_plan_id_trixie: ${{ steps.get_test_plan_id.outputs.test_plan_id_trixie }}
+      test_execution_key_trixie: ${{ steps.get_test_execution_key.outputs.test_execution_key_trixie }}
+      test_execution_id_trixie: ${{ steps.get_test_execution_id.outputs.test_execution_id_trixie }}
 
     steps:
       - name: Generate Xray Token
@@ -219,6 +219,10 @@ jobs:
             bookworm)
               linux_distribution="DEBIAN12"
               mariadb_version="MARIADB_10_11"
+            trixie)
+              linux_distribution="DEBIAN13"
+              mariadb_version="MARIADB_11_8"
+
             ;;
           esac
 
