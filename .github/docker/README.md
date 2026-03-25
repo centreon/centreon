@@ -125,6 +125,8 @@ The Remote Server is fully configured automatically in the background after the 
 5. Generate the Gorgone ZMQ configuration on the Remote Server (`/etc/centreon-gorgone/config.d/40-gorgoned.yaml`)
 6. Restart Gorgone on the Remote Server to establish the ZMQ connection with the Central
 7. Generate and reload the monitoring configuration for the Remote Server from the Central
+8. Restart `cbd` and `centengine` on the Remote Server to apply the generated configuration
+9. Generate and reload the monitoring configuration for the Central to apply the Broker changes introduced by the wizard
 
 The Remote Server should appear as **running** in `Configuration > Pollers` on the Central within a minute of `--wait` returning.
 

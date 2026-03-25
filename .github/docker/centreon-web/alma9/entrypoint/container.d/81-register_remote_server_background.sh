@@ -248,4 +248,21 @@ else
   echo "Warning: generate-and-reload returned HTTP ${GEN_HTTP_CODE}"
 fi
 
+echo "Restarting cbd and centengine on remote server ..."
+systemctl restart cbd centengine
+
+# Step 11: generate and reload configuration for the central server
+# linkCentreonRemoteServer updated the central's broker configuration in the DB;
+# this applies it so that cbd and centengine on the central pick up the new remote server.
+# Run after remote daemons are up so the central can immediately connect to the remote broker.
+echo "Generating and reloading configuration for central server (ID: ${CENTRAL_SERVER_ID}) ..."
+GEN_CENTRAL_HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -m 120 \
+  -H "X-AUTH-TOKEN: ${JWT_TOKEN}" \
+  "http://${CENTRAL_HOST}/centreon/api/latest/configuration/monitoring-servers/${CENTRAL_SERVER_ID}/generate-and-reload")
+if [ "$GEN_CENTRAL_HTTP_CODE" = "204" ]; then
+  echo "Central configuration generated and reloaded successfully."
+else
+  echo "Warning: generate-and-reload for central server returned HTTP ${GEN_CENTRAL_HTTP_CODE}"
+fi
+
 echo "Remote server '${REMOTE_SERVER_NAME}' is now running."
