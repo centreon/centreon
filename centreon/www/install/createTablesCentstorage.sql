@@ -344,6 +344,7 @@ CREATE TABLE `resources` (
   INDEX `resources_enabled_type_ismodule_idx` (`enabled`, `type`, `is_module`, `poller_id`),
   INDEX `resources_status_filter_idx` (`enabled`, `status`, `type`, `is_module`, `acknowledged`, `in_downtime`, `status_confirmed`, `poller_id`),
   INDEX `resources_name_search_idx` (`enabled`, `type`, `is_module`, `poller_id`, `name`),
+  INDEX `resources_severity_filter_idx` (`severity_id`, `enabled`, `is_module`, `type`),
   CONSTRAINT `resources_severities_severity_id_fk` FOREIGN KEY (`severity_id`) REFERENCES `severities` (`severity_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

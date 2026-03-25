@@ -1014,6 +1014,25 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
         );
     }
 
+    // Add index for severity filter queries: allows direct seeks on severity_id instead of a full scan.
+    // Used by the non-correlated IN subquery rewrite in DbReadResourceRepository::addSeveritySubRequest().
+    $hasSeverityFilterIdx = $pearDBO->fetchOne(
+        <<<'SQL'
+            SELECT 1 FROM information_schema.STATISTICS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = 'resources'
+              AND INDEX_NAME = 'resources_severity_filter_idx'
+            SQL
+    );
+    if (! $hasSeverityFilterIdx) {
+        $pearDBO->executeStatement(
+            <<<'SQL'
+                ALTER TABLE `resources`
+                ADD INDEX `resources_severity_filter_idx` (`severity_id`, `enabled`, `is_module`, `type`)
+                SQL
+        );
+    }
+
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: Successfully added performance indexes to centreon_storage.resources",
