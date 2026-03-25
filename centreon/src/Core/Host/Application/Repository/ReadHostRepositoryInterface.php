@@ -188,4 +188,15 @@ interface ReadHostRepositoryInterface
      * @return SimpleEntity[]
      */
     public function findByHostGroupAndAccessGroups(int $hostGroupId, array $accessGroups): array;
+
+    /**
+     * Retrieve all parent template relations for multiple hosts (batch version).
+     *
+     * @param int[] $hostIds
+     *
+     * @throws \Throwable
+     *
+     * @return array<int, array<array{parent_id:int,child_id:int,order:int}>> Map of hostId => array of parent relations
+     */
+    public function findParentsByHostIds(array $hostIds): array;
 }
