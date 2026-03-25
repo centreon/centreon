@@ -136,7 +136,9 @@ const toLine = ({
     ...defaultDsData,
     ...(ds_data || {}),
     ds_color_area:
-      ds_data?.ds_color_area ?? ds_data?.ds_color_line ?? defaultDsData.ds_color_line
+      ds_data?.ds_color_area ??
+      ds_data?.ds_color_line ??
+      defaultDsData.ds_color_line
   };
 
   return {

@@ -48,6 +48,7 @@ use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\Type\NoValue;
 use Core\Common\Application\UseCase\VaultTrait;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Contact\Domain\AdminResolver;
 use Core\Domain\Common\GeoCoords;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Exception\HostException;
@@ -69,6 +70,7 @@ use Core\Macro\Domain\Model\MacroDifference;
 use Core\Macro\Domain\Model\MacroManager;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Utility\Difference\BasicDifference;
@@ -101,6 +103,8 @@ final class PartialUpdateHost
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
         private readonly ReadCommandRepositoryInterface $readCommandRepository,
+        private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
+        private readonly AdminResolver $adminResolver,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
     }
@@ -128,14 +132,14 @@ final class PartialUpdateHost
                 return;
             }
 
-            if (! $this->user->isAdmin()) {
+            if (! $this->adminResolver->isAdmin($this->user)) {
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $this->validation->accessGroups = $this->accessGroups;
             }
 
             if (
                 (
-                    ! $this->user->isAdmin()
+                    ! $this->adminResolver->isAdmin($this->user)
                     && ! $this->readHostRepository->existsByAccessGroups($hostId, $this->accessGroups)
                 )
                 || ! ($host = $this->readHostRepository->findById($hostId))
@@ -181,10 +185,16 @@ final class PartialUpdateHost
             $previousMonitoringServer = $host->getMonitoringServerId();
             $this->updateHost($request, $host);
             $this->updateHostCategories($request, $host);
-            $this->updateHostGroups($request, $host);
+            $hostGroupsChanged = $this->updateHostGroups($request, $host);
             $this->updateParentTemplates($request, $host);
             // Note: parent templates must be updated before macros for macro inheritance resolution
             $this->updateMacros($request, $host);
+
+            if ($hostGroupsChanged) {
+                $this->adminResolver->isAdmin($this->user)
+                    ? $this->writeAccessGroupRepository->updateAclResourcesFlag()
+                    : $this->writeAccessGroupRepository->updateAclGroupsFlag($this->accessGroups);
+            }
 
             $this->writeMonitoringServerRepository->notifyConfigurationChange($host->getMonitoringServerId());
             if ($previousMonitoringServer !== $host->getMonitoringServerId()) {
@@ -436,7 +446,7 @@ final class PartialUpdateHost
 
         $categoryIds = array_unique($dto->categories);
 
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             $accessibleCategoryIds = $this->readHostCategoryRepository->exist($categoryIds);
             $originalCategories = $this->readHostCategoryRepository->findByHost($host->getId());
         } else {
@@ -476,7 +486,7 @@ final class PartialUpdateHost
      * @throws HostException
      * @throws \Throwable
      */
-    private function updateHostGroups(PartialUpdateHostRequest $dto, Host $host): void
+    private function updateHostGroups(PartialUpdateHostRequest $dto, Host $host): bool
     {
         $this->info(
             'PartialUpdateHost: update groups',
@@ -486,11 +496,11 @@ final class PartialUpdateHost
         if ($dto->groups instanceof NoValue) {
             $this->info('Groups not provided, nothing to update');
 
-            return;
+            return false;
         }
 
         $groupIds = array_unique($dto->groups);
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             $accessibleGroupIds = $this->readHostGroupRepository->exist($groupIds);
             $originalGroups = $this->readHostGroupRepository->findByHost($host->getId());
         } else {
@@ -522,6 +532,8 @@ final class PartialUpdateHost
 
         $this->writeHostGroupRepository->linkToHost($host->getId(), $addedGroups);
         $this->writeHostGroupRepository->unlinkFromHost($host->getId(), $removedGroups);
+
+        return $addedGroups !== [] || $removedGroups !== [];
     }
 
     /**

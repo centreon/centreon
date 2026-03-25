@@ -51,6 +51,9 @@ on:
       os_and_database_matrix:
         description: "matrix to use for dockerize and test jobs"
         value: ${{ jobs.get-environment.outputs.os_and_database_matrix }}
+      package_matrix:
+        description: "matrix of operating systems for package and dockerize jobs"
+        value: ${{ jobs.get-environment.outputs.package_matrix }}
       is_targeting_feature_branch:
         description: "if it is a PR, check if targeting a feature branch"
         value: ${{ jobs.get-environment.outputs.is_targeting_feature_branch }}
@@ -81,6 +84,7 @@ jobs:
       target_stability: ${{ steps.get_stability.outputs.target_stability }}
       release_type: ${{ steps.get_release_type.outputs.release_type }}
       os_and_database_matrix: ${{ steps.get_os_database_matrix.outputs.result }}
+      package_matrix: ${{ steps.get_package_matrix.outputs.result }}
       is_targeting_feature_branch: ${{ steps.get_stability.outputs.is_targeting_feature_branch }}
       is_nightly: ${{ steps.get_nightly_status.outputs.is_nightly }}
       skip_workflow: ${{ steps.skip_workflow.outputs.result }}
@@ -686,26 +690,25 @@ jobs:
             const alma10_mariadb_11_8 = {
               "operating_system": "alma10",
               "database": "mariadb:11.8",
-              "test_tags": "not @ignore"
-            };
-            const alma10_mysql_8_4 = {
-              "operating_system": "alma10",
-              "database": "mysql:8.4",
+              "db_id": "mariadb-11.8",
               "test_tags": "not @ignore"
             };
             const alma9_mariadb_10_11 = {
               "operating_system": "alma9",
               "database": "mariadb:10.11",
+              "db_id": "mariadb-10.11",
               "test_tags": "not @ignore"
             };
             const alma9_mysql_8_0 = {
               "operating_system": "alma9",
               "database": "mysql:8.0",
+              "db_id": "mysql-8.0",
               "test_tags": "not @ignore"
             };
             const trixie_mysql_8_4 = {
               "operating_system": "trixie",
               "database": "mysql:8.4",
+              "db_id": "mysql-8.4",
               "test_tags": "not @ignore"
             };
 
@@ -739,7 +742,7 @@ jobs:
               return configs[configIndex];
             };
 
-            const configs = [alma9_mariadb_10_11, alma9_mysql_8_0, alma10_mariadb_11_8, alma10_mysql_8_4, trixie_mysql_8_4];
+            const configs = [alma9_mariadb_10_11, alma9_mysql_8_0, alma10_mariadb_11_8, trixie_mysql_8_4];
 
             const cloud = alma9_mysql_8_0;
 
@@ -780,6 +783,41 @@ jobs:
             console.log(matrix);
 
             return matrix;
+
+      - name: Get operating systems matrix for package and dockerize jobs
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        id: get_package_matrix
+        env:
+          STABILITY: ${{ steps.get_stability.outputs.stability }}
+          HAS_UPLOAD_ARTIFACTS: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'upload-artifacts') }}
+          HAS_SYSTEM: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'system') }}
+          HAS_DATABASE: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'database') }}
+          IS_NIGHTLY: ${{ steps.get_nightly_status.outputs.is_nightly }}
+        with:
+          script: |
+            const stability = process.env.STABILITY;
+            const isFullRun = ['unstable', 'testing', 'stable'].includes(stability)
+              || process.env.IS_NIGHTLY === 'true'
+              || process.env.HAS_UPLOAD_ARTIFACTS === 'true'
+              || process.env.HAS_SYSTEM === 'true'
+              || process.env.HAS_DATABASE === 'true';
+
+            const distribMap = {
+              alma9:    { distrib: 'el9',      package_extension: 'rpm' },
+              alma10:   { distrib: 'el10',     package_extension: 'rpm' },
+              trixie:   { distrib: 'trixie',   package_extension: 'deb' },
+            };
+
+            const allDistribs = Object.entries(distribMap).map(([os, info]) => ({
+              operating_system: os,
+              ...info,
+            }));
+
+            const result = isFullRun ? allDistribs : [allDistribs[0]];
+
+            console.log('package_matrix', result);
+
+            return result;
 
       - name: Display info in job summary
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
