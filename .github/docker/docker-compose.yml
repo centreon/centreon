@@ -127,8 +127,8 @@ services:
     volumes:
       - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/81-register_remote_server_background.sh:/usr/share/centreon/container.d/81-register_remote_server_background.sh
     healthcheck:
-      test: bash -c "[ -f /tmp/docker.ready ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
-      interval: 1s
+      test: bash -c "[ -f /tmp/docker.ready ] && [ -f /tmp/remote-server.registered ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
+      interval: 5s
       retries: 120
       timeout: 5s
 

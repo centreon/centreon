@@ -290,4 +290,5 @@ else
   echo "Warning: generate-and-reload for central server returned HTTP ${GEN_CENTRAL_HTTP_CODE}"
 fi
 
+touch /tmp/remote-server.registered
 echo "Remote server '${REMOTE_SERVER_NAME}' is now running."
