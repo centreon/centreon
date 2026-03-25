@@ -58,6 +58,7 @@ Docker compose has a useful feature which is called `profile`.
 It allows to run additional services (containers) by specifying profiles which are declared in `docker-compose.yml`.
 Currently, the following profiles are available:
 * `poller`: register automatically a poller to centreon web image (:danger: EXPERIMENTAL)
+* `remote-server`: run a Remote Server alongside the Central, each with its own database — registers automatically (see [Remote Server setup](#satellite-remote-server-setup))
 * `glpi`: must be used with `centreon-open-tickets` image to link glpi automatically in open-tickets providers
 * `vault`: register automatically hashicorp vault and migrate credentials
 * `openid`: run a docker image of keycloak
@@ -102,12 +103,12 @@ docker compose --profile poller --profile vault -f .github/docker/docker-compose
 
 ## :satellite: Remote Server setup
 
-A dedicated compose file allows running a Central server alongside a Remote Server, each with its own database.
+Use the `remote` profile to run a Central server alongside a Remote Server, each with its own database.
 
 Run the following command from the **repository root directory**:
 
 ```bash
-docker compose -f .github/docker/docker-compose.remote.yml up -d --wait
+docker compose --profile remote-server -f .github/docker/docker-compose.yml up -d --wait
 ```
 
 Once up, both interfaces are accessible:
@@ -118,23 +119,18 @@ Once up, both interfaces are accessible:
 The Remote Server registers itself automatically to the Central once both are ready. Registration runs in the background after the containers become healthy, so it may complete a few seconds after `--wait` returns. You can follow its progress with:
 
 ```bash
-docker compose -f .github/docker/docker-compose.remote.yml \
+docker compose --profile remote-server -f .github/docker/docker-compose.yml \
   exec remote-server \
-  cat /tmp/bg_85-register-to-central_background.sh.log
+  cat /tmp/bg_81-register_remote_server_background.sh.log
 ```
 
 The following environment variables are available to customize the setup:
 
 * `WEB_IMAGE`: centreon-web image to use for both Central and Remote Server (default: `docker.centreon.com/centreon/centreon-web-alma9:develop`)
+* `CENTREON_WEB_OS`: OS variant used to resolve the registration script path (`alma9`, `bookworm`, `jammy` — default: `alma9`)
 * `REMOTE_SERVER_NAME`: name displayed for the Remote Server in the Central UI (default: `remote-server`)
 * `CENTRAL_API_USERNAME`: API account used for registration (default: `admin`)
 * `CENTRAL_API_PASSWORD`: password for the API account (default: `Centreon!2021`)
-
-To stop services:
-
-```bash
-docker compose -f .github/docker/docker-compose.remote.yml down
-```
 
 ## :hand: Stop services
 
@@ -144,8 +140,9 @@ Services can be stopped with the following command:
 docker compose -f .github/docker/docker-compose.yml down
 ```
 
-Do not forget to specify profiles if you used it. Otherwise, additional services will not be stopped:
+Do not forget to specify profiles if you used them. Otherwise, additional services will not be stopped:
 
 ```bash
 docker compose --profile poller --profile vault -f .github/docker/docker-compose.yml down
+docker compose --profile remote-server -f .github/docker/docker-compose.yml down
 ```
