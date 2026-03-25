@@ -64,15 +64,12 @@ jobs:
           - runner: ubuntu-24.04
             dockerfile: packaging-nfpm-trixie
             image: packaging-nfpm-trixie
-
           - runner: centreon-collect-arm64
             dockerfile: packaging-bullseye
             image: packaging-bullseye-arm64
           - runner: centreon-collect-arm64
             dockerfile: packaging-nfpm-bullseye
             image: packaging-nfpm-bullseye-arm64
-
-
 
     runs-on: ${{ matrix.runner }}
 
