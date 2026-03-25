@@ -50,12 +50,6 @@ inputs:
     description: "Upload packages as artifacts"
     required: false
     default: "false"
-  php_min_version:
-    description: The minimum PHP version
-    required: false
-  php_max_version:
-    description: The maximum PHP version
-    required: false
 
 
 runs:
@@ -91,8 +85,13 @@ runs:
         export VERSION="${{ inputs.major_version }}.${{ inputs.minor_version }}"
         export RELEASE="${{ inputs.release }}"
         export ARCH="${{ inputs.arch }}"
-        export PHP_MIN_VERSION="${{ inputs.php_min_version }}"
-        export PHP_MAX_VERSION="${{ inputs.php_max_version }}"
+        if [[ "${{ steps.parse-distrib.outputs.package_distrib }}" == "el9" ]]; then
+          export PHP_MIN_VERSION="8.2"
+          export PHP_MAX_VERSION="8.3"
+        elif [[ "${{ steps.parse-distrib.outputs.package_distrib }}" == "el10" || "${{ steps.parse-distrib.outputs.package_distrib }}" == "trixie" ]]; then
+          export PHP_MIN_VERSION="8.4"
+          export PHP_MAX_VERSION="8.5"
+        fi
 
         if  [ "${{ inputs.package_extension }}" = "rpm" ]; then
           export DIST="${{ steps.parse-distrib.outputs.package_distrib_separator }}${{ steps.parse-distrib.outputs.package_distrib_name }}"

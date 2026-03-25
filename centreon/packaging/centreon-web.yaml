@@ -109,7 +109,7 @@ contents:
       mode: 0644
     packager: rpm
   - src: "./src/php-fpm-systemd.conf"
-    dst: "/lib/systemd/system/php8.4-fpm.service.d/centreon.conf"
+    dst: "/lib/systemd/system/php${PHP_MIN_VERSION}-fpm.service.d/centreon.conf"
     type: config|noreplace
     file_info:
       mode: 0644
@@ -598,20 +598,20 @@ rpm:
 deb:
   compression: zstd
   predepends:
-    - php8.4
-    - php8.4-cli
-    - php8.4-fpm
-    - php8.4-curl
-    - php8.4-intl
-    - php8.4-xml
-    - php8.4-dom
-    - php8.4-gd
-    - php8.4-mbstring
-    - php8.4-xml
-    - php8.4-mysql
-    - php8.4-zip
-    - php8.4-snmp
-    - php8.4-ldap
-    - php8.4-readline
-    - php8.4-sqlite3
+    - php${PHP_MIN_VERSION}
+    - php${PHP_MIN_VERSION}-cli
+    - php${PHP_MIN_VERSION}-fpm
+    - php${PHP_MIN_VERSION}-curl
+    - php${PHP_MIN_VERSION}-intl
+    - php${PHP_MIN_VERSION}-xml
+    - php${PHP_MIN_VERSION}-dom
+    - php${PHP_MIN_VERSION}-gd
+    - php${PHP_MIN_VERSION}-mbstring
+    - php${PHP_MIN_VERSION}-xml
+    - php${PHP_MIN_VERSION}-mysql
+    - php${PHP_MIN_VERSION}-zip
+    - php${PHP_MIN_VERSION}-snmp
+    - php${PHP_MIN_VERSION}-ldap
+    - php${PHP_MIN_VERSION}-readline
+    - php${PHP_MIN_VERSION}-sqlite3
     - php-pear
