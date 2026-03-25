@@ -47,7 +47,12 @@ EOF
 # "duplicate flag" error in registerServerTopology.sh (template sourcing + CLI flag conflict)
 echo "Registering remote server '${REMOTE_SERVER_NAME}' to central '${CENTRAL_HOST}' ..."
 /usr/share/centreon/bin/registerServerTopology.sh --insecure --template "$TEMPLATE_FILE"
+REGISTER_EXIT=$?
 rm -f "$TEMPLATE_FILE"
+if [ $REGISTER_EXIT -ne 0 ]; then
+  echo "registerServerTopology.sh failed (exit code: ${REGISTER_EXIT}) for '${REMOTE_SERVER_NAME}' -> '${CENTRAL_HOST}'"
+  exit 1
+fi
 
 # Step 2: get auth token from central
 # api/index.php uses centreon-auth-token (no PHP session needed), unlike internal.php
@@ -63,25 +68,31 @@ fi
 
 # Step 3: call linkCentreonRemoteServer via api/index.php (token-based auth, no session required)
 echo "Linking remote server to central via wizard API ..."
+LINK_PAYLOAD=$(jq -n \
+  --arg server_name "$REMOTE_SERVER_NAME" \
+  --arg central_ip "$CENTRAL_HOST" \
+  --arg db_user "$DB_USER" \
+  --arg db_password "$DB_PASSWORD" \
+  '{
+    manage_broker_configuration: "1",
+    server_type: "remote",
+    server_name: $server_name,
+    server_ip: $server_name,
+    centreon_central_ip: $central_ip,
+    db_user: $db_user,
+    db_password: $db_password,
+    centreon_folder: "/centreon/",
+    open_broker_flow: false,
+    no_check_certificate: true,
+    no_proxy: true,
+    linked_pollers: [],
+    linked_remote_master: "",
+    linked_remote_slaves: []
+  }')
 LINK_RESPONSE=$(curl -s -m 60 \
   -H "centreon-auth-token: ${AUTH_TOKEN}" \
   -X POST -H "Content-Type: application/json" \
-  -d "{
-    \"manage_broker_configuration\": \"1\",
-    \"server_type\": \"remote\",
-    \"server_name\": \"${REMOTE_SERVER_NAME}\",
-    \"server_ip\": \"${REMOTE_SERVER_NAME}\",
-    \"centreon_central_ip\": \"${CENTRAL_HOST}\",
-    \"db_user\": \"${DB_USER}\",
-    \"db_password\": \"${DB_PASSWORD}\",
-    \"centreon_folder\": \"/centreon/\",
-    \"open_broker_flow\": false,
-    \"no_check_certificate\": true,
-    \"no_proxy\": true,
-    \"linked_pollers\": [],
-    \"linked_remote_master\": \"\",
-    \"linked_remote_slaves\": []
-  }" \
+  -d "$LINK_PAYLOAD" \
   "http://${CENTRAL_HOST}/centreon/api/index.php?object=centreon_configuration_remote&action=linkCentreonRemoteServer")
 
 echo "linkCentreonRemoteServer response: ${LINK_RESPONSE}"
@@ -106,11 +117,14 @@ if [ -n "$TASK_ID" ] && [ "$TASK_ID" != "null" ]; then
       -d "{\"task_id\": ${TASK_ID}}" \
       "http://${CENTRAL_HOST}/centreon/api/index.php?object=centreon_task_service&action=getTaskStatus")
 
-    STATUS=$(echo "$STATUS_RESPONSE" | grep -o '"status":"[^"]*' | cut -d'"' -f4)
+    STATUS=$(echo "$STATUS_RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('status',''))" 2>/dev/null)
     echo "Task status: ${STATUS}"
     if [ "$STATUS" = "completed" ]; then
       echo "Remote server '${REMOTE_SERVER_NAME}' successfully linked to central '${CENTRAL_HOST}'."
       break
+    elif [ "$STATUS" = "failed" ] || [ "$STATUS" = "error" ]; then
+      echo "Configuration export task failed (status: '${STATUS}'): ${STATUS_RESPONSE}"
+      exit 1
     fi
     retries=$((retries + 1))
   done
