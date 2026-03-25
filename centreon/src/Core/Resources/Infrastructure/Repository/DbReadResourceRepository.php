@@ -1797,20 +1797,31 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $filteredNames !== []
             || $filteredLevels !== []
         ) {
-            $subRequest = ' AND EXISTS (
-                SELECT 1 FROM `:dbstg`.severities
-                WHERE (severities.severity_id = resources.severity_id OR severities.severity_id = parent_resource.severity_id)
-                    AND severities.type IN (' . implode(', ', $filteredTypes) . ')';
+            // Use two non-correlated IN subqueries instead of a correlated EXISTS with OR.
+            // MariaDB materializes non-correlated subqueries as constant lists, then uses the
+            // resources_severities_severity_id_fk index for direct seeks on resources.severity_id —
+            // avoiding a full table scan through all enabled resources.
+            $typeList = implode(', ', $filteredTypes);
+            $innerWhere = 'sev_filter.type IN (' . $typeList . ')';
 
-            $subRequest .= $filteredNames !== []
-                ? ' AND severities.name IN (' . implode(', ', $filteredNames) . ')'
-                : '';
+            if ($filteredNames !== []) {
+                $innerWhere .= ' AND sev_filter.name IN (' . implode(', ', $filteredNames) . ')';
+            }
 
-            $subRequest .= $filteredLevels !== []
-                ? ' AND severities.level IN (' . implode(', ', $filteredLevels) . ')'
-                : '';
+            if ($filteredLevels !== []) {
+                $innerWhere .= ' AND sev_filter.level IN (' . implode(', ', $filteredLevels) . ')';
+            }
 
-            $subRequest .= ' LIMIT 1)';
+            $subRequest = ' AND (
+                resources.severity_id IN (
+                    SELECT sev_filter.severity_id FROM `:dbstg`.`severities` sev_filter
+                    WHERE ' . $innerWhere . '
+                )
+                OR parent_resource.severity_id IN (
+                    SELECT sev_filter.severity_id FROM `:dbstg`.`severities` sev_filter
+                    WHERE ' . $innerWhere . '
+                )
+            )';
         }
 
         return $subRequest;
