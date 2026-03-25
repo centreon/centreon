@@ -103,7 +103,7 @@ docker compose --profile poller --profile vault -f .github/docker/docker-compose
 
 ## :satellite: Remote Server setup
 
-Use the `remote` profile to run a Central server alongside a Remote Server, each with its own database.
+Use the `remote-server` profile to run a Central server alongside a Remote Server, each with its own database.
 
 Run the following command from the **repository root directory**:
 
@@ -116,10 +116,22 @@ Once up, both interfaces are accessible:
 * Remote Server: `http://localhost:4001/centreon`
 * Credentials: **admin** / **Centreon!2021**
 
-The Remote Server registers itself automatically to the Central once both are ready. Registration runs in the background after the containers become healthy, so it may complete a few seconds after `--wait` returns. You can follow its progress with:
+The Remote Server is fully configured automatically in the background after the containers become healthy. The following steps run without manual intervention:
+
+1. Convert the Remote Server node type and register its topology to the Central (`registerServerTopology.sh`)
+2. Link the Remote Server to the Central via the wizard API (`linkCentreonRemoteServer`), which creates the monitoring server entry and configures Broker
+3. Export the initial configuration from the Central to the Remote Server
+4. Retrieve the Central's Gorgone public key thumbprint
+5. Generate the Gorgone ZMQ configuration on the Remote Server (`/etc/centreon-gorgone/config.d/40-gorgoned.yaml`)
+6. Restart Gorgone on the Remote Server to establish the ZMQ connection with the Central
+7. Generate and reload the monitoring configuration for the Remote Server from the Central
+
+The Remote Server should appear as **running** in `Configuration > Pollers` on the Central within a minute of `--wait` returning.
+
+To follow the registration progress:
 
 ```bash
-docker logs $(docker ps -qf "name=remote-server") 2>&1 | grep -i "register\|central\|link\|error\|failed\|task"
+docker logs $(docker ps -qf "name=remote-server") 2>&1 | grep -i "step\|register\|link\|thumbprint\|gorgone\|generat\|running\|error\|failed"
 ```
 
 The following environment variables are available to customize the setup:

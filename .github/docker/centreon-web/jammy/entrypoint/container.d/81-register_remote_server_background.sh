@@ -55,8 +55,7 @@ echo "Getting auth token from central ..."
 AUTH_RESPONSE=$(curl -s -m 30 -X POST \
   -d "username=${CENTRAL_API_USERNAME}&password=${CENTRAL_API_PASSWORD}" \
   "http://${CENTRAL_HOST}/centreon/api/index.php?action=authenticate")
-
-AUTH_TOKEN=$(echo "$AUTH_RESPONSE" | grep -o '"authToken":"[^"]*' | cut -d'"' -f4)
+AUTH_TOKEN=$(echo "$AUTH_RESPONSE" | python3 -c "import sys, json; d=json.load(sys.stdin); print(d['authToken'])" 2>/dev/null)
 if [ -z "$AUTH_TOKEN" ]; then
   echo "Failed to get auth token from central (response: ${AUTH_RESPONSE})"
   exit 1
@@ -122,3 +121,131 @@ if [ -n "$TASK_ID" ] && [ "$TASK_ID" != "null" ]; then
 else
   echo "Remote server '${REMOTE_SERVER_NAME}' successfully linked to central '${CENTRAL_HOST}'."
 fi
+
+# Step 5: get JWT token from central (for /api/latest/ endpoints)
+echo "Getting JWT token from central ..."
+JWT_RESPONSE=$(curl -s -m 30 -X POST \
+  -H "Content-Type: application/json" \
+  -d "{\"security\":{\"credentials\":{\"login\":\"${CENTRAL_API_USERNAME}\",\"password\":\"${CENTRAL_API_PASSWORD}\"}}}" \
+  "http://${CENTRAL_HOST}/centreon/api/latest/login")
+JWT_TOKEN=$(echo "$JWT_RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['security']['token'])" 2>/dev/null)
+if [ -z "$JWT_TOKEN" ]; then
+  echo "Failed to get JWT token (response: ${JWT_RESPONSE})"
+  exit 1
+fi
+
+# Step 6: get monitoring server IDs from central
+echo "Getting monitoring server IDs ..."
+SERVERS_RESPONSE=$(curl -s -m 30 \
+  -H "X-AUTH-TOKEN: ${JWT_TOKEN}" \
+  "http://${CENTRAL_HOST}/centreon/api/latest/configuration/monitoring-servers")
+CENTRAL_SERVER_ID=$(echo "$SERVERS_RESPONSE" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+for s in data.get('result', []):
+    if s.get('is_localhost'):
+        print(s['id'])
+        break
+" 2>/dev/null)
+REMOTE_SERVER_ID=$(echo "$SERVERS_RESPONSE" | python3 -c "
+import sys, json, os
+data = json.load(sys.stdin)
+name = os.environ.get('REMOTE_SERVER_NAME', 'remote-server')
+for s in data.get('result', []):
+    if s.get('name') == name or s.get('address') == name:
+        print(s['id'])
+        break
+" 2>/dev/null)
+if [ -z "$CENTRAL_SERVER_ID" ] || [ -z "$REMOTE_SERVER_ID" ]; then
+  echo "Failed to get server IDs (central: '${CENTRAL_SERVER_ID}', remote: '${REMOTE_SERVER_ID}')"
+  echo "Servers response: ${SERVERS_RESPONSE}"
+  exit 1
+fi
+echo "Central server ID: ${CENTRAL_SERVER_ID}, Remote server ID: ${REMOTE_SERVER_ID}"
+
+# Step 7: get thumbprint from central Gorgone
+echo "Getting thumbprint from central Gorgone ..."
+THUMBPRINT_TOKEN_RESPONSE=$(curl -s -m 30 -X POST \
+  -H "X-AUTH-TOKEN: ${JWT_TOKEN}" \
+  "http://${CENTRAL_HOST}/centreon/api/latest/gorgone/pollers/${CENTRAL_SERVER_ID}/commands/thumbprint")
+THUMBPRINT_TOKEN=$(echo "$THUMBPRINT_TOKEN_RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('token',''))" 2>/dev/null)
+if [ -z "$THUMBPRINT_TOKEN" ]; then
+  echo "Failed to send thumbprint command (response: ${THUMBPRINT_TOKEN_RESPONSE})"
+  exit 1
+fi
+
+THUMBPRINT=""
+retries=0
+until [ $retries -ge 30 ]; do
+  sleep 2
+  THUMBPRINT_RESPONSE=$(curl -s -m 10 \
+    -H "X-AUTH-TOKEN: ${JWT_TOKEN}" \
+    "http://${CENTRAL_HOST}/centreon/api/latest/gorgone/pollers/${CENTRAL_SERVER_ID}/responses/${THUMBPRINT_TOKEN}")
+  THUMBPRINT=$(echo "$THUMBPRINT_RESPONSE" | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+logs = d.get('data', [])
+if logs:
+    last = logs[-1]
+    inner = json.loads(last.get('data', '{}'))
+    tp = inner.get('data', {}).get('thumbprint', '')
+    if tp:
+        print(tp)
+" 2>/dev/null)
+  if [ -n "$THUMBPRINT" ]; then
+    break
+  fi
+  retries=$((retries + 1))
+done
+if [ -z "$THUMBPRINT" ]; then
+  echo "Timeout waiting for thumbprint from central Gorgone"
+  exit 1
+fi
+echo "Got thumbprint: ${THUMBPRINT}"
+
+# Step 8: write Gorgone ZMQ configuration on this remote server
+echo "Writing Gorgone ZMQ configuration ..."
+GORGONE_CONFIG="/etc/centreon-gorgone/config.d/40-gorgoned.yaml"
+REMOTE_YAML_TEMPLATE="/usr/share/centreon/www/include/configuration/configServers/popup/remote.yaml"
+export THUMBPRINT REMOTE_SERVER_ID
+python3 - "$REMOTE_YAML_TEMPLATE" "$GORGONE_CONFIG" << 'PYEOF'
+import sys, os
+
+with open(sys.argv[1]) as f:
+    config = f.read()
+
+replacements = {
+    '__SERVERNAME__': os.environ['REMOTE_SERVER_NAME'],
+    '__SERVERID__': os.environ['REMOTE_SERVER_ID'],
+    '__GORGONEPORT__': '5556',
+    '__THUMBPRINT__': '\n      - key: ' + os.environ['THUMBPRINT'],
+    '__COMMAND__': '/var/lib/centreon-engine/rw/centengine.cmd',
+    '__CENTREON_VARLIB__': '/var/lib/centreon',
+    '__CENTREON_CACHEDIR__': '/var/cache/centreon',
+}
+for placeholder, value in replacements.items():
+    config = config.replace(placeholder, value)
+
+with open(sys.argv[2], 'w') as f:
+    f.write(config)
+print(f'Gorgone config written to {sys.argv[2]}')
+PYEOF
+
+# Step 9: restart Gorgone on this remote server
+echo "Restarting Gorgone ..."
+systemctl restart gorgoned
+echo "Gorgone restarted, waiting for ZMQ connection to central ..."
+sleep 10
+
+# Step 10: generate and reload configuration for this remote server from central
+echo "Generating and reloading configuration for remote server (ID: ${REMOTE_SERVER_ID}) ..."
+GEN_HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -m 120 \
+  -H "X-AUTH-TOKEN: ${JWT_TOKEN}" \
+  "http://${CENTRAL_HOST}/centreon/api/latest/configuration/monitoring-servers/${REMOTE_SERVER_ID}/generate-and-reload")
+if [ "$GEN_HTTP_CODE" = "204" ]; then
+  echo "Configuration generated and reloaded successfully."
+else
+  echo "Warning: generate-and-reload returned HTTP ${GEN_HTTP_CODE}"
+fi
+
+echo "Remote server '${REMOTE_SERVER_NAME}' is now running."
