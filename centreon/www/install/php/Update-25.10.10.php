@@ -280,6 +280,38 @@ $dropParametersColumn = function () use ($pearDB, &$errorMessage, $version): voi
 };
 
 /** ------------------------------------- Broker output for CMA ------------------------------------- */
+$isMachineACentral = function () use ($pearDB, &$errorMessage, $version): bool {
+    $errorMessage = 'Unable to check if platform is a Central';
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Check if platform is Central",
+    );
+
+    $isCentral = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT `value` FROM `informations`
+            WHERE `key` = 'isCentral'
+            SQL
+    );
+
+    if ($isCentral === 'yes') {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: server is a central",
+        );
+
+        return true;
+    }
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: server is not a central",
+    );
+
+    return false;
+};
+
 $createBrokerOutputEventScript = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to create Broker output event_script';
 
@@ -289,13 +321,11 @@ $createBrokerOutputEventScript = function () use ($pearDB, &$errorMessage, $vers
     );
 
     // Creating type
-    if (
-        $typeId = $pearDB->fetchOne(
-            <<<'SQL'
-                SELECT `cb_type_id` FROM `cb_type`
-                WHERE `type_shortname` = 'event_script'
-                SQL
-        )
+    if ($typeId = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT `cb_type_id` FROM `cb_type`
+            WHERE `type_shortname` = 'event_script'
+            SQL)
     ) {
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
@@ -363,8 +393,7 @@ $createBrokerOutputEventScript = function () use ($pearDB, &$errorMessage, $vers
         throw new RuntimeException('Not all required fields for Broker output "event_script" exist');
     } else {
         $pearDB->batchInsert(
-            'cb_field',
-            ['fieldname', 'displayname', 'description', 'fieldtype', 'cb_fieldgroup_id', 'external'],
+            'cb_field', ['fieldname', 'displayname', 'description', 'fieldtype', 'cb_fieldgroup_id', 'external'],
             BatchInsertParameters::create([
                 QueryParameters::create([
                     QueryParameter::string('fieldname', 'script_path'),
@@ -409,21 +438,18 @@ $createBrokerOutputEventScript = function () use ($pearDB, &$errorMessage, $vers
         );
     }
 
-    if (
-        $pearDB->fetchOne(
-            <<<'SQL'
-                SELECT 1 FROM `options` WHERE `key` = 'brokercfg_event_script_timeout'
-                SQL
-        ) !== false
-    ) {
+    if ($pearDB->fetchOne(
+        <<<'SQL'
+            SELECT 1 FROM `options` WHERE `key` = 'brokercfg_event_script_timeout'
+            SQL
+    ) !== false) {
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: Default options for Broker output 'event_script' already exist, skipping insertion",
         );
     } else {
         $pearDB->batchInsert(
-            'options',
-            ['`key`', '`value`'],
+            'options', ['`key`', '`value`'],
             BatchInsertParameters::create([
                 QueryParameters::create([
                     QueryParameter::string('key', 'brokercfg_event_script_timeout'),
@@ -469,8 +495,7 @@ $createBrokerOutputEventScript = function () use ($pearDB, &$errorMessage, $vers
         throw new RuntimeException('Some type_field relations for Broker output "event_script" already exist');
     } else {
         $pearDB->batchInsert(
-            'cb_type_field_relation',
-            ['cb_type_id', 'cb_field_id', 'is_required', 'order_display'],
+            'cb_type_field_relation', ['cb_type_id', 'cb_field_id', 'is_required', 'order_display'],
             BatchInsertParameters::create([
                 QueryParameters::create([
                     QueryParameter::int('cb_type_id', $typeId),
@@ -584,8 +609,7 @@ $createBrokerOutputEventScript = function () use ($pearDB, &$errorMessage, $vers
         );
     } else {
         $pearDB->batchInsert(
-            'cb_list_values',
-            ['cb_list_id', 'value_name', 'value_value'],
+            'cb_list_values', ['cb_list_id', 'value_name', 'value_value'],
             BatchInsertParameters::create(array_map(
                 fn ($option) => QueryParameters::create([
                     QueryParameter::int('cb_list_id', $listId),
@@ -611,15 +635,43 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
         message: "UPGRADE - {$version}: Inserting Broker output 'central-broker-master-event-script' for CMA",
     );
 
-    if (
-        $pearDB->fetchOne(
-            <<<'SQL'
-                SELECT 1 FROM `cfg_centreonbroker_info`
-                WHERE `config_key` = 'name'
-                AND `config_value` = 'central-broker-master-event-script'
-                SQL
-        )
-    ) {
+    $configId = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT cb.config_id
+            FROM cfg_centreonbroker cb
+            WHERE daemon = 1
+                AND config_activate = '1'
+                AND ns_nagios_server = (
+                    SELECT id FROM nagios_server WHERE localhost = '1'
+                )
+                AND EXISTS (
+                    SELECT 1
+                    FROM cfg_centreonbroker_info cbi
+                    WHERE cbi.config_id = cb.config_id
+                        AND cbi.config_group = 'output'
+                        AND cbi.config_key = 'type'
+                        AND cbi.config_value = 'unified_sql'
+                )
+            ORDER BY cb.config_id ASC
+            LIMIT 1
+            SQL
+    );
+    if ($configId === false) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Unable to find the Central's broker configuration"
+        );
+
+        throw new Exception("Unable to find the Central's broker configuration");
+    }
+
+    if ($pearDB->fetchOne(
+        <<<'SQL'
+            SELECT 1 FROM `cfg_centreonbroker_info`
+            WHERE `config_key` = 'name'
+            AND `config_value` = 'central-broker-master-event-script'
+            SQL
+    )) {
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: Broker output 'central-broker-master-event-script' for CMA already exists, skipping insertion",
@@ -630,8 +682,9 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
 
     $configGroupId = $pearDB->fetchOne(
         <<<'SQL'
-            SELECT MAX(`config_group_id`) FROM `cfg_centreonbroker_info` WHERE `config_group` = 'output' AND `config_id` = 1
-            SQL
+            SELECT MAX(`config_group_id`) FROM `cfg_centreonbroker_info` WHERE `config_group` = 'output' AND `config_id` = :config_id
+            SQL,
+        QueryParameters::create([QueryParameter::int('config_id', $configId)])
     );
     $configGroupId = $configGroupId !== null ? (int) $configGroupId + 1 : 1;
     $typeId = $pearDB->fetchOne(
@@ -646,7 +699,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
         ['config_id', 'config_key', 'config_value', 'config_group', 'config_group_id', 'grp_level', 'subgrp_id', 'parent_grp_id'],
         BatchInsertParameters::create([
             QueryParameters::create([
-                QueryParameter::int('config_id', 1),
+                QueryParameter::int('config_id', $configId),
                 QueryParameter::string('config_key', 'type'),
                 QueryParameter::string('config_value', 'event_script'),
                 QueryParameter::string('config_group', 'output'),
@@ -656,7 +709,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameter::int('parent_grp_id', null),
             ]),
             QueryParameters::create([
-                QueryParameter::int('config_id', 1),
+                QueryParameter::int('config_id', $configId),
                 QueryParameter::string('config_key', 'name'),
                 QueryParameter::string('config_value', 'central-broker-master-event-script'),
                 QueryParameter::string('config_group', 'output'),
@@ -666,7 +719,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameter::int('parent_grp_id', null),
             ]),
             QueryParameters::create([
-                QueryParameter::int('config_id', 1),
+                QueryParameter::int('config_id', $configId),
                 QueryParameter::string('config_key', 'blockId'),
                 QueryParameter::string('config_value', '1_' . $typeId),
                 QueryParameter::string('config_group', 'output'),
@@ -676,7 +729,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameter::int('parent_grp_id', null),
             ]),
             QueryParameters::create([
-                QueryParameter::int('config_id', 1),
+                QueryParameter::int('config_id', $configId),
                 QueryParameter::string('config_key', 'script_path'),
                 QueryParameter::string('config_value', '/usr/share/centreon/bin/console agent-configuration:host:create'),
                 QueryParameter::string('config_group', 'output'),
@@ -686,7 +739,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameter::int('parent_grp_id', null),
             ]),
             QueryParameters::create([
-                QueryParameter::int('config_id', 1),
+                QueryParameter::int('config_id', $configId),
                 QueryParameter::string('config_key', 'timeout'),
                 QueryParameter::string('config_value', '15'),
                 QueryParameter::string('config_group', 'output'),
@@ -696,7 +749,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameter::int('parent_grp_id', null),
             ]),
             QueryParameters::create([
-                QueryParameter::int('config_id', 1),
+                QueryParameter::int('config_id', $configId),
                 QueryParameter::string('config_key', 'managed_event_ttl'),
                 QueryParameter::string('config_value', '3600'),
                 QueryParameter::string('config_group', 'output'),
@@ -706,7 +759,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameter::int('parent_grp_id', null),
             ]),
             QueryParameters::create([
-                QueryParameter::int('config_id', 1),
+                QueryParameter::int('config_id', $configId),
                 QueryParameter::string('config_key', 'filters'),
                 QueryParameter::string('config_value', ''),
                 QueryParameter::string('config_group', 'output'),
@@ -716,7 +769,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameter::int('parent_grp_id', null),
             ]),
             QueryParameters::create([
-                QueryParameter::int('config_id', 1),
+                QueryParameter::int('config_id', $configId),
                 QueryParameter::string('config_key', 'event'),
                 QueryParameter::string('config_value', 'neb:UnknownHost'),
                 QueryParameter::string('config_group', 'output'),
@@ -748,7 +801,9 @@ try {
 
     $migrateAccJsonToTables();
     $createBrokerOutputEventScript();
-    $insertEventScriptOutputForCMA();
+    if ($isMachineACentral()) {
+        $insertEventScriptOutputForCMA();
+    }
 
     if ($pearDB->isTransactionActive()) {
         $pearDB->commitTransaction();
