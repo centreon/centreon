@@ -95,7 +95,9 @@ var contactListing = new CentreonListing({
     columns: [
         { id:'alias', render: function(row, l) {
             var link = 'main.php?p={/literal}{$contactPage}{literal}&o=c&contact_id=' + row.id;
-            return '<a href="'+link+'">'+l.escape(row.alias||'')+'</a>';
+            var icon = row.admin ? './img/icons/admin.svg' : './img/icons/user.svg';
+            var title = row.admin ? 'Administrator' : 'User';
+            return '<a href="'+link+'"><img src="'+icon+'" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" title="'+title+'" />'+l.escape(row.alias||'')+'</a>';
         }},
         { id:'name', render: function(row, l) {
             var link = 'main.php?p={/literal}{$contactPage}{literal}&o=c&contact_id=' + row.id;
