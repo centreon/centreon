@@ -297,7 +297,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el8, el9, bookworm, jammy, noble]
+        distrib: [el8, el9, bookworm]
         include:
           - package_extension: rpm
             image: packaging-nfpm-alma8
@@ -308,12 +308,6 @@ jobs:
           - package_extension: deb
             image: packaging-nfpm-bookworm
             distrib: bookworm
-          - package_extension: deb
-            image: packaging-nfpm-jammy
-            distrib: jammy
-          - package_extension: deb
-            image: packaging-nfpm-noble
-            distrib: noble
     runs-on: ubuntu-22.04
 
     container:
@@ -420,7 +414,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bookworm, noble, jammy]
+        distrib: [bookworm]
     steps:
       - name: Checkout sources
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -448,7 +442,7 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [el8, el9, bookworm, noble, jammy]
+        distrib: [el8, el9, bookworm]
 
     steps:
       - name: Checkout sources
