@@ -139,6 +139,14 @@ services:
     image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:10.11}"
     ports: ["3306"]
     profiles: ["remote-server"]
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 400M
+        reservations:
+          cpus: '0.25'
+          memory: 100M
 
   sso-proxy:
     image: nginx:stable-alpine

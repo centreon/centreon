@@ -86,10 +86,10 @@ LINK_RESPONSE=$(curl -s -m 60 \
 
 echo "linkCentreonRemoteServer response: ${LINK_RESPONSE}"
 
-TASK_ID=$(echo "$LINK_RESPONSE" | grep -o '"task_id":[^,}]*' | cut -d':' -f2 | tr -d ' "')
-SUCCESS=$(echo "$LINK_RESPONSE" | grep -o '"success":[^,}]*' | cut -d':' -f2 | tr -d ' ')
+TASK_ID=$(echo "$LINK_RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('task_id',''))" 2>/dev/null)
+SUCCESS=$(echo "$LINK_RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(str(d.get('success','')).lower())" 2>/dev/null)
 
-if [ "$SUCCESS" != "true" ] && [ "$SUCCESS" != "1" ]; then
+if [ "$SUCCESS" != "true" ]; then
   echo "linkCentreonRemoteServer failed: ${LINK_RESPONSE}"
   exit 1
 fi
@@ -207,7 +207,7 @@ echo "Got thumbprint: ${THUMBPRINT}"
 echo "Writing Gorgone ZMQ configuration ..."
 GORGONE_CONFIG="/etc/centreon-gorgone/config.d/40-gorgoned.yaml"
 REMOTE_YAML_TEMPLATE="/usr/share/centreon/www/include/configuration/configServers/popup/remote.yaml"
-export THUMBPRINT REMOTE_SERVER_ID
+export THUMBPRINT REMOTE_SERVER_ID REMOTE_SERVER_NAME
 python3 - "$REMOTE_YAML_TEMPLATE" "$GORGONE_CONFIG" << 'PYEOF'
 import sys, os
 
