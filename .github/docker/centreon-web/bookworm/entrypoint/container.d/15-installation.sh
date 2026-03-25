@@ -51,10 +51,8 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
     echo "Inserting base configuration..."
     su www-data -s /bin/bash -c "SERVER_ADDR='127.0.0.1' php insertBaseConf.php" > /dev/null
 
-    if [ "$DATABASE_PARTITIONING" = "1" ]; then
-      echo "Creating database partition tables..."
-      su www-data -s /bin/bash -c "php partitionTables.php" > /dev/null
-    fi
+    echo "Creating database partition tables..."
+    su www-data -s /bin/bash -c "php partitionTables.php" > /dev/null
 
     mysql -h"${MYSQL_HOST}" -uroot centreon -e "UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
     mysql -h"${MYSQL_HOST}" -uroot -e "GRANT ALL ON *.* to 'centreon'@'%' WITH GRANT OPTION"
