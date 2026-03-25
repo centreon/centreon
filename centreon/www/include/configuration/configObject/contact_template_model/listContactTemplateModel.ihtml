@@ -74,7 +74,7 @@ var ctListing = new CentreonListing({
     columns: [
         { id:'alias', render: function(row, l) {
             var link = 'main.php?p={/literal}{$ctPage}{literal}&o=c&contact_id=' + row.id;
-            return '<a href="'+link+'">'+l.escape(row.alias||'')+'</a>';
+            return '<a href="'+link+'"><img src="./img/icons/user-template.svg" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" title="Contact template" />'+l.escape(row.alias||'')+'</a>';
         }},
         { id:'name', render: function(row, l) {
             var link = 'main.php?p={/literal}{$ctPage}{literal}&o=c&contact_id=' + row.id;
