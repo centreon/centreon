@@ -119,9 +119,7 @@ Once up, both interfaces are accessible:
 The Remote Server registers itself automatically to the Central once both are ready. Registration runs in the background after the containers become healthy, so it may complete a few seconds after `--wait` returns. You can follow its progress with:
 
 ```bash
-docker compose --profile remote-server -f .github/docker/docker-compose.yml \
-  exec remote-server \
-  cat /tmp/bg_81-register_remote_server_background.sh.log
+docker logs $(docker ps -qf "name=remote-server") 2>&1 | grep -i "register\|central\|link\|error\|failed\|task"
 ```
 
 The following environment variables are available to customize the setup:

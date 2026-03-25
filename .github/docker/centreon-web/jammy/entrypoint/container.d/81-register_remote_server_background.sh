@@ -49,22 +49,24 @@ echo "Registering remote server '${REMOTE_SERVER_NAME}' to central '${CENTRAL_HO
 /usr/share/centreon/bin/registerServerTopology.sh --insecure --template "$TEMPLATE_FILE"
 rm -f "$TEMPLATE_FILE"
 
-# Step 2: call linkCentreonRemoteServer on the central to configure broker, DB and generate configs
-# (equivalent to filling and submitting the wizard form from the Central UI)
+# Step 2: get auth token from central
+# api/index.php uses centreon-auth-token (no PHP session needed), unlike internal.php
 echo "Getting auth token from central ..."
-AUTH_RESPONSE=$(curl -sf -X POST -H "Content-Type: application/json" \
-  -d "{\"security\":{\"credentials\":{\"login\":\"${CENTRAL_API_USERNAME}\",\"password\":\"${CENTRAL_API_PASSWORD}\"}}}" \
-  "http://${CENTRAL_HOST}/centreon/api/latest/login")
+AUTH_RESPONSE=$(curl -s -m 30 -X POST \
+  -d "username=${CENTRAL_API_USERNAME}&password=${CENTRAL_API_PASSWORD}" \
+  "http://${CENTRAL_HOST}/centreon/api/index.php?action=authenticate")
 
-AUTH_TOKEN=$(echo "$AUTH_RESPONSE" | grep -o '"token":"[^"]*' | cut -d'"' -f4)
+AUTH_TOKEN=$(echo "$AUTH_RESPONSE" | grep -o '"authToken":"[^"]*' | cut -d'"' -f4)
 if [ -z "$AUTH_TOKEN" ]; then
-  echo "Failed to get auth token from central"
+  echo "Failed to get auth token from central (response: ${AUTH_RESPONSE})"
   exit 1
 fi
 
+# Step 3: call linkCentreonRemoteServer via api/index.php (token-based auth, no session required)
 echo "Linking remote server to central via wizard API ..."
-LINK_RESPONSE=$(curl -sf -X POST -H "Content-Type: application/json" \
+LINK_RESPONSE=$(curl -s -m 60 \
   -H "centreon-auth-token: ${AUTH_TOKEN}" \
+  -X POST -H "Content-Type: application/json" \
   -d "{
     \"manage_broker_configuration\": \"1\",
     \"server_type\": \"remote\",
@@ -81,26 +83,29 @@ LINK_RESPONSE=$(curl -sf -X POST -H "Content-Type: application/json" \
     \"linked_remote_master\": \"\",
     \"linked_remote_slaves\": []
   }" \
-  "http://${CENTRAL_HOST}/centreon/api/internal.php?object=centreon_configuration_remote&action=linkCentreonRemoteServer")
+  "http://${CENTRAL_HOST}/centreon/api/index.php?object=centreon_configuration_remote&action=linkCentreonRemoteServer")
+
+echo "linkCentreonRemoteServer response: ${LINK_RESPONSE}"
 
 TASK_ID=$(echo "$LINK_RESPONSE" | grep -o '"task_id":[^,}]*' | cut -d':' -f2 | tr -d ' "')
 SUCCESS=$(echo "$LINK_RESPONSE" | grep -o '"success":[^,}]*' | cut -d':' -f2 | tr -d ' ')
 
 if [ "$SUCCESS" != "true" ] && [ "$SUCCESS" != "1" ]; then
-  echo "linkCentreonRemoteServer failed: $LINK_RESPONSE"
+  echo "linkCentreonRemoteServer failed: ${LINK_RESPONSE}"
   exit 1
 fi
 
-# Step 3: poll task status until completed
+# Step 4: poll task status until completed
 if [ -n "$TASK_ID" ] && [ "$TASK_ID" != "null" ]; then
   echo "Waiting for configuration export task ${TASK_ID} to complete ..."
   retries=0
   until [ $retries -ge $MAX_RETRIES ]; do
     sleep 2
-    STATUS_RESPONSE=$(curl -sf -X POST -H "Content-Type: application/json" \
+    STATUS_RESPONSE=$(curl -s -m 10 \
       -H "centreon-auth-token: ${AUTH_TOKEN}" \
+      -X POST -H "Content-Type: application/json" \
       -d "{\"task_id\": ${TASK_ID}}" \
-      "http://${CENTRAL_HOST}/centreon/api/internal.php?object=centreon_task_service&action=getTaskStatus")
+      "http://${CENTRAL_HOST}/centreon/api/index.php?object=centreon_task_service&action=getTaskStatus")
 
     STATUS=$(echo "$STATUS_RESPONSE" | grep -o '"status":"[^"]*' | cut -d'"' -f4)
     echo "Task status: ${STATUS}"
