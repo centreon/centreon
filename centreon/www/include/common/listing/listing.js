@@ -71,10 +71,16 @@ function CentreonListing(config) {
 
     var self       = this;
     var csrfToken  = '';
-    var currentNum = 0;
-    var currentLimit = parseInt(localStorage.getItem(cfg.storageKey), 10) || cfg.defaultLimit;
-    var currentSearch = '';
     var firstLoad  = true;
+
+    // Restore state from sessionStorage (survives navigation, cleared on browser close)
+    var stateKey   = 'cl_state_' + cfg.storageKey;
+    var savedState = null;
+    try { savedState = JSON.parse(sessionStorage.getItem(stateKey)); } catch(e) {}
+
+    var currentNum    = (savedState && typeof savedState.num === 'number') ? savedState.num : 0;
+    var currentLimit  = parseInt(localStorage.getItem(cfg.storageKey), 10) || (savedState && savedState.limit) || cfg.defaultLimit;
+    var currentSearch = (savedState && savedState.search) || '';
 
     // =====================================================================
     // Public: HTML escape utility
@@ -136,6 +142,23 @@ function CentreonListing(config) {
         currentNum    = num;
         currentLimit  = limit;
         currentSearch = search;
+
+        // Persist state to sessionStorage (including extra filter params + select2 labels)
+        try {
+            var extra = typeof cfg.extraParams === 'function' ? cfg.extraParams() : cfg.extraParams;
+            var labels = {};
+            if (extra) {
+                jQuery.each(extra, function(key, val) {
+                    if (val) {
+                        var el = jQuery('#' + key);
+                        if (el.length && el.is('select')) {
+                            labels[key] = el.find('option:selected').text() || val;
+                        }
+                    }
+                });
+            }
+            sessionStorage.setItem(stateKey, JSON.stringify({ num: num, limit: limit, search: search, extra: extra || {}, labels: labels }));
+        } catch(e) {}
 
         var checkedIds = getCheckedIds();
 
@@ -293,7 +316,7 @@ function CentreonListing(config) {
     this.changeLimit = function (limit) {
         var newLimit = parseInt(limit, 10);
         localStorage.setItem(cfg.storageKey, newLimit);
-        self.fetch(0, newLimit, currentSearch);
+        self.fetch(0, newLimit, currentSearch); // reset to page 0 on limit change
     };
 
     // =====================================================================
@@ -347,10 +370,33 @@ function CentreonListing(config) {
     // =====================================================================
 
     this.init = function () {
-        // Read initial search value
-        currentSearch = jQuery('#' + cfg.searchInputId).val() || '';
+        // Restore search value from session state (overrides Smarty default if different)
+        if (currentSearch) {
+            jQuery('#' + cfg.searchInputId).val(currentSearch);
+        } else {
+            currentSearch = jQuery('#' + cfg.searchInputId).val() || '';
+        }
 
-        // Search button
+        // Restore extra filter params (select2 dropdowns) from session state
+        if (savedState && savedState.extra) {
+            var labels = savedState.labels || {};
+            jQuery.each(savedState.extra, function(key, val) {
+                if (val) {
+                    var el = jQuery('#' + key);
+                    if (el.length && el.is('select')) {
+                        var text = labels[key] || val;
+                        if (!el.find('option[value="' + val + '"]').length) {
+                            el.append(new Option(text, val, true, true));
+                        } else {
+                            el.val(val);
+                        }
+                        el.trigger('change');
+                    }
+                }
+            });
+        }
+
+        // Search button (resets to page 0)
         jQuery('#' + cfg.searchBtnId).on('click', function () {
             currentSearch = jQuery('#' + cfg.searchInputId).val();
             self.fetch(0, currentLimit, currentSearch);
@@ -364,8 +410,8 @@ function CentreonListing(config) {
             }
         });
 
-        // Initial data load
-        self.fetch(0, currentLimit, currentSearch);
+        // Initial data load (restore page from session)
+        self.fetch(currentNum, currentLimit, currentSearch);
 
         // Auto-refresh
         if (cfg.autoRefresh > 0) {
