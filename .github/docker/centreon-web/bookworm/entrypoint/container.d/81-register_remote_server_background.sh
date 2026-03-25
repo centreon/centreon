@@ -178,13 +178,24 @@ fi
 echo "Central server ID: ${CENTRAL_SERVER_ID}, Remote server ID: ${REMOTE_SERVER_ID}"
 
 # Step 7: get thumbprint from central Gorgone
+# Gorgone may not be ready immediately after registerServerTopology.sh, so retry.
 echo "Getting thumbprint from central Gorgone ..."
-THUMBPRINT_TOKEN_RESPONSE=$(curl -s -m 30 -X POST \
-  -H "X-AUTH-TOKEN: ${JWT_TOKEN}" \
-  "http://${CENTRAL_HOST}/centreon/api/latest/gorgone/pollers/${CENTRAL_SERVER_ID}/commands/thumbprint")
-THUMBPRINT_TOKEN=$(echo "$THUMBPRINT_TOKEN_RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('token',''))" 2>/dev/null)
+THUMBPRINT_TOKEN=""
+retries=0
+until [ $retries -ge $MAX_RETRIES ]; do
+  THUMBPRINT_TOKEN_RESPONSE=$(curl -s -m 30 -X POST \
+    -H "X-AUTH-TOKEN: ${JWT_TOKEN}" \
+    "http://${CENTRAL_HOST}/centreon/api/latest/gorgone/pollers/${CENTRAL_SERVER_ID}/commands/thumbprint")
+  THUMBPRINT_TOKEN=$(echo "$THUMBPRINT_TOKEN_RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('token',''))" 2>/dev/null)
+  if [ -n "$THUMBPRINT_TOKEN" ]; then
+    break
+  fi
+  echo "Waiting for central Gorgone to be ready (response: ${THUMBPRINT_TOKEN_RESPONSE}) ..."
+  sleep 5
+  retries=$((retries + 1))
+done
 if [ -z "$THUMBPRINT_TOKEN" ]; then
-  echo "Failed to send thumbprint command (response: ${THUMBPRINT_TOKEN_RESPONSE})"
+  echo "Timeout waiting for central Gorgone to accept thumbprint command"
   exit 1
 fi
 
