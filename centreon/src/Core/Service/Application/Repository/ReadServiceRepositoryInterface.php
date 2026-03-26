@@ -245,6 +245,7 @@ interface ReadServiceRepositoryInterface
      * @return list<array{id: int, name: string}>
      */
     public function findByHostIdAndServiceTemplateId(int $hostId, int $serviceTemplateId): array;
+
     /**
      * Find all service IDs linked to the given hosts directly (batch version).
      *
