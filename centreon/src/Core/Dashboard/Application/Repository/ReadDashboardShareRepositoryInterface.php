@@ -248,7 +248,7 @@ interface ReadDashboardShareRepositoryInterface
      * @param RequestParametersInterface $requestParameters
      * @param int[] $aclGroupIds
      *
-     * @throws \Throwable|\UnexpectedValueException
+     * @throws RepositoryException
      *
      * @return DashboardContactGroupRole[]
      */

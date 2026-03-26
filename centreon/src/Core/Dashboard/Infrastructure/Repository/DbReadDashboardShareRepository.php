@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
@@ -33,6 +34,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
+use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParametersTransformer;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
@@ -926,20 +928,18 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                 AND c.contact_oreon = '1'
             SQL;
 
-        $countQuery = 'SELECT COUNT(DISTINCT c.contact_id) ' . $baseQuery . $whereClause;
-        $countStatement = $this->db->prepare($this->translateDbName($countQuery));
+        $queryParameters = SearchRequestParametersTransformer::reverseToQueryParameters(
+            $sqlTranslator->getSearchValues()
+        );
         foreach (array_merge($aclGroupBindValues, $aclGroupBindValuesGcgr, $contactGroupBindValues) as $token => $value) {
             /** @var int $value */
-            $countStatement->bindValue($token, $value, \PDO::PARAM_INT);
+            $queryParameters->add($token, QueryParameter::int($token, $value));
         }
-        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
-            /** @var int $type */
-            $type = key($data);
-            $value = $data[$type];
-            $countStatement->bindValue($key, $value, $type);
-        }
-        $countStatement->execute();
-        $sqlTranslator->getRequestParameters()->setTotal((int) $countStatement->fetchColumn());
+
+        $countQuery = 'SELECT COUNT(DISTINCT c.contact_id) ' . $baseQuery . $whereClause;
+        $sqlTranslator->getRequestParameters()->setTotal(
+            (int) $this->db->fetchOne($this->translateDbName($countQuery), $queryParameters)
+        );
 
         $query = <<<'SQL'
             SELECT
@@ -951,21 +951,8 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         $query .= ' ' . $baseQuery . $whereClause . ' GROUP BY c.contact_id, c.contact_name';
         $query .= $sqlTranslator->translatePaginationToSql();
 
-        $statement = $this->db->prepare($this->translateDbName($query));
-        foreach (array_merge($aclGroupBindValues, $aclGroupBindValuesGcgr, $contactGroupBindValues) as $token => $value) {
-            /** @var int $value */
-            $statement->bindValue($token, $value, \PDO::PARAM_INT);
-        }
-        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
-            /** @var int $type */
-            $type = key($data);
-            $value = $data[$type];
-            $statement->bindValue($key, $value, $type);
-        }
-        $statement->execute();
-
         $dashboardContactRoles = [];
-        foreach ($statement as $contactRole) {
+        foreach ($this->db->fetchAllAssociative($this->translateDbName($query), $queryParameters) as $contactRole) {
             /** @var array{
              *     topologies: string,
              *     contact_name: string,
@@ -1045,98 +1032,89 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         RequestParametersInterface $requestParameters,
         array $aclGroupIds,
     ): array {
-        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(
-            RequestParameters::CONCORDANCE_MODE_STRICT
-        );
-        $sqlTranslator->setConcordanceArray([
-            'name' => 'cg.cg_name',
-        ]);
+        try {
+            $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+            $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(
+                RequestParameters::CONCORDANCE_MODE_STRICT
+            );
+            $sqlTranslator->setConcordanceArray([
+                'name' => 'cg.cg_name',
+            ]);
 
-        $bind = [];
-        foreach ($aclGroupIds as $key => $aclGroupId) {
-            $bind[':acl_group_' . $key] = $aclGroupId;
+            $bind = [];
+            foreach ($aclGroupIds as $key => $aclGroupId) {
+                $bind[':acl_group_' . $key] = $aclGroupId;
+            }
+
+            if ($bind === []) {
+                return [];
+            }
+
+            $bindTokenAsString = implode(', ', array_keys($bind));
+
+            // Build base query parts
+            $baseQuery = <<<'SQL'
+                FROM `:db`.contactgroup cg
+                    LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
+                        ON gcgr.cg_cg_id = cg.cg_id
+                    LEFT JOIN `:db`.acl_group_topology_relations agtr
+                        ON agtr.acl_group_id = gcgr.acl_group_id
+                    LEFT JOIN `:db`.acl_topology_relations acltr
+                        ON acltr.acl_topo_id = agtr.acl_topology_id
+                    INNER JOIN `:db`.topology
+                        ON topology.topology_id = acltr.topology_topology_id
+                    INNER JOIN `:db`.topology parent
+                        ON topology.topology_parent = parent.topology_page
+                SQL;
+
+            $searchRequest = $sqlTranslator->translateSearchParameterToSql();
+            $whereClause = $searchRequest !== null
+                ? $searchRequest . ' AND '
+                : ' WHERE ';
+
+            $whereClause .= <<<SQL
+                parent.topology_name = 'Dashboards'
+                    AND topology.topology_name IN ('Viewer','Administrator','Creator')
+                    AND gcgr.acl_group_id IN ({$bindTokenAsString})
+                    AND acltr.access_right IS NOT NULL
+                SQL;
+
+            $queryParameters = SearchRequestParametersTransformer::reverseToQueryParameters(
+                $sqlTranslator->getSearchValues()
+            );
+            foreach ($bind as $token => $aclGroupId) {
+                $queryParameters->add($token, QueryParameter::int($token, $aclGroupId));
+            }
+
+            // Execute COUNT query for total
+            $countQuery = 'SELECT COUNT(DISTINCT cg.cg_id) ' . $baseQuery . $whereClause;
+            $sqlTranslator->getRequestParameters()->setTotal(
+                (int) $this->db->fetchOne($this->translateDbName($countQuery), $queryParameters)
+            );
+
+            // Execute main query for data
+            $query = 'SELECT GROUP_CONCAT(topology.topology_name) as topologies, cg.cg_name, cg.cg_id '
+                . $baseQuery . $whereClause . ' GROUP BY cg.cg_id';
+            $query .= $sqlTranslator->translatePaginationToSql();
+
+            $dashboardContactGroupRoles = [];
+            foreach ($this->db->fetchAllAssociative($this->translateDbName($query), $queryParameters) as $contactGroupRole) {
+                /** @var array{
+                 *     topologies: string,
+                 *     cg_name: string,
+                 *     cg_id: int,
+                 * } $contactGroupRole
+                 */
+                $dashboardContactGroupRoles[] = $this->createDashboardContactGroupRole($contactGroupRole);
+            }
+
+            return $dashboardContactGroupRoles;
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(
+                message: 'Error while searching contact groups by ACL groups',
+                previous: $exception
+            );
         }
-
-        if ($bind === []) {
-            return [];
-        }
-
-        $bindTokenAsString = implode(', ', array_keys($bind));
-
-        // Build base query parts
-        $baseQuery = <<<'SQL'
-            FROM `:db`.contactgroup cg
-                LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
-                    ON gcgr.cg_cg_id = cg.cg_id
-                LEFT JOIN `:db`.acl_group_topology_relations agtr
-                    ON agtr.acl_group_id = gcgr.acl_group_id
-                LEFT JOIN `:db`.acl_topology_relations acltr
-                    ON acltr.acl_topo_id = agtr.acl_topology_id
-                INNER JOIN `:db`.topology
-                    ON topology.topology_id = acltr.topology_topology_id
-                INNER JOIN `:db`.topology parent
-                    ON topology.topology_parent = parent.topology_page
-            SQL;
-
-        $searchRequest = $sqlTranslator->translateSearchParameterToSql();
-        $whereClause = $searchRequest !== null
-            ? $searchRequest . ' AND '
-            : ' WHERE ';
-
-        $whereClause .= <<<SQL
-            parent.topology_name = 'Dashboards'
-                AND topology.topology_name IN ('Viewer','Administrator','Creator')
-                AND gcgr.acl_group_id IN ({$bindTokenAsString})
-                AND acltr.access_right IS NOT NULL
-            SQL;
-
-        // Execute COUNT query for total
-        $countQuery = 'SELECT COUNT(DISTINCT cg.cg_id) ' . $baseQuery . $whereClause;
-        $countStatement = $this->db->prepare($this->translateDbName($countQuery));
-        foreach ($bind as $token => $aclGroupId) {
-            $countStatement->bindValue($token, $aclGroupId, \PDO::PARAM_INT);
-        }
-        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
-            /** @var int $type */
-            $type = key($data);
-            $value = $data[$type];
-            $countStatement->bindValue($key, $value, $type);
-        }
-        $countStatement->execute();
-        $total = (int) $countStatement->fetchColumn();
-        $sqlTranslator->getRequestParameters()->setTotal($total);
-
-        // Execute main query for data
-        $query = 'SELECT GROUP_CONCAT(topology.topology_name) as topologies, cg.cg_name, cg.cg_id '
-            . $baseQuery . $whereClause . ' GROUP BY cg.cg_id';
-
-        $statement = $this->db->prepare($this->translateDbName($query));
-        foreach ($bind as $token => $aclGroupId) {
-            $statement->bindValue($token, $aclGroupId, \PDO::PARAM_INT);
-        }
-        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
-            /**
-             * @var int
-             */
-            $type = key($data);
-            $value = $data[$type];
-            $statement->bindValue($key, $value, $type);
-        }
-        $statement->execute();
-
-        $dashboardContactGroupRoles = [];
-        foreach ($statement as $contactGroupRole) {
-            /** @var array{
-             *     topologies: string,
-             *     cg_name: string,
-             *     cg_id: int,
-             * } $contactGroupRole
-             */
-            $dashboardContactGroupRoles[] = $this->createDashboardContactGroupRole($contactGroupRole);
-        }
-
-        return $dashboardContactGroupRoles;
     }
 
     public function findContactGroupsWithAccessRightByUserAndRequestParameters(
