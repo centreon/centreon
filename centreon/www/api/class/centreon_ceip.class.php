@@ -124,9 +124,8 @@ class CentreonCeip extends CentreonWebService
                     SELECT `poller_id`, `enabled`, `infos`
                     FROM `agent_information`
                 SQL;
-            $statement = $this->pearDBO->executeStatement($query);
 
-            $rows = $this->pearDBO->fetchAllAssociative($statement);
+            $rows = $this->pearDBO->fetchAllAssociative($query);
             foreach ($rows as $row) {
                 /** @var array{poller_id:int,enabled:int,infos:string} $row */
                 if ((bool) $row['enabled'] === false) {
