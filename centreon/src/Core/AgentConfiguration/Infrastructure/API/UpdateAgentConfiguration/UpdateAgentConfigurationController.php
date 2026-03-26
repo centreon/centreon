@@ -73,7 +73,6 @@ final class UpdateAgentConfigurationController extends AbstractController
         /**
          * @var array{
          *     name:string,
-         *     type:string,
          *     connection_mode:string|null,
          *     poller_ids:int[],
          *     configuration:array<string,mixed>
@@ -81,17 +80,8 @@ final class UpdateAgentConfigurationController extends AbstractController
          */
         $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/UpdateAgentConfigurationSchema.json');
 
-        $schemaFile = match ($data['type']) {
-            'telegraf' => 'TelegrafConfigurationSchema.json',
-            'centreon-agent' => 'CmaConfigurationSchema.json',
-            default => throw new \InvalidArgumentException(sprintf("Unknown parameter type with value '%s'", $data['type'])),
-        };
-
-        $this->validateDataSent($request, __DIR__ . "/../Schema/{$schemaFile}");
-
         $updateRequest = new UpdateAgentConfigurationRequest();
         $updateRequest->id = $id;
-        $updateRequest->type = $data['type'];
         $updateRequest->name = $data['name'];
         $updateRequest->connectionMode = match ($data['connection_mode']) {
             'no-tls' => ConnectionModeEnum::NO_TLS,
