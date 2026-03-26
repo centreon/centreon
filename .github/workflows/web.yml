@@ -677,37 +677,37 @@ jobs:
 
   #         exit $exit_code
 
-  # gherkin-lint:
-  #   runs-on: ubuntu-24.04
-  #   needs: [get-environment, changes]
-  #   if: |
-  #     needs.changes.outputs.trigger_e2e_testing == 'true' &&
-  #     needs.get-environment.outputs.skip_workflow == 'false' &&
-  #     needs.get-environment.outputs.stability != 'stable'
-  #   steps:
-  #     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+  gherkin-lint:
+    runs-on: ubuntu-24.04
+    needs: [get-environment, changes]
+    if: |
+      needs.changes.outputs.trigger_e2e_testing == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
-  #     - uses: ./.github/actions/gherkin-lint
-  #       with:
-  #         features_path: ${{ env.e2e_directory }}/features
+      - uses: ./.github/actions/gherkin-lint
+        with:
+          features_path: ${{ env.e2e_directory }}/features
 
-  # e2e-lint:
-  #   runs-on: ubuntu-22.04
-  #   needs: [get-environment, changes]
-  #   if: |
-  #     needs.changes.outputs.trigger_e2e_testing == 'true' &&
-  #     needs.get-environment.outputs.skip_workflow == 'false' &&
-  #     needs.get-environment.outputs.stability != 'stable'
-  #   steps:
-  #     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+  e2e-lint:
+    runs-on: ubuntu-22.04
+    needs: [get-environment, changes]
+    if: |
+      needs.changes.outputs.trigger_e2e_testing == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
-  #     - uses: ./.github/actions/frontend-lint
-  #       with:
-  #         frontend_directory: ${{ env.e2e_directory }}
-  #         module_name: ${{ env.base_directory }}
-  #         dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-  #         pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-  #         lint_path: './features'
+      - uses: ./.github/actions/frontend-lint
+        with:
+          frontend_directory: ${{ env.e2e_directory }}
+          module_name: ${{ env.base_directory }}
+          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
+          pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          lint_path: './features'
 
   package:
     needs:
@@ -723,8 +723,8 @@ jobs:
         # frontend-web-lint,
         # frontend-unit-test,
         # frontend-component-test,
-        # gherkin-lint,
-        # e2e-lint,
+        gherkin-lint,
+        e2e-lint,
       ]
     if: |
       needs.changes.outputs.trigger_packaging == 'true' &&
