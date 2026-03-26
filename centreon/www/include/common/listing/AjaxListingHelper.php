@@ -149,6 +149,23 @@ class AjaxListingHelper
     }
 
     /**
+     * Require write access on a given topology page. Exits 403 if read-only or no access.
+     * Admins always pass.
+     *
+     * @param int $pageId The topology page number (e.g. 60101 for hosts, 60201 for servicegroups)
+     */
+    public function requireWriteAccess(int $pageId): void
+    {
+        if ($this->isAdmin()) {
+            return;
+        }
+        $acl = $this->getAcl();
+        if (! $acl || $acl->page($pageId) !== 1) {
+            self::jsonError('Write access denied', 403);
+        }
+    }
+
+    /**
      * Validate and consume a CSRF token from POST. Exits 403 on failure.
      * Returns a fresh token for the next request.
      */

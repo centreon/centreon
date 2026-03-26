@@ -25,7 +25,7 @@ $helper   = AjaxListingHelper::boot();
 $centreon = $helper->requireCentreon();
 $pearDB   = $helper->getDb();
 
-$resId  = filter_var($_POST['sg_id'] ?? null, FILTER_VALIDATE_INT);
+$resId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 $action = $_POST['action'] ?? null;
 
 if (! $resId || ! in_array($action, ['s', 'u'], true)) {
@@ -33,6 +33,9 @@ if (! $resId || ! in_array($action, ['s', 'u'], true)) {
 }
 
 $newToken = $helper->validateCsrfToken();
+
+// ACL: require write access
+$helper->requireWriteAccess(60904);
 
 $checkStmt = $pearDB->prepare('SELECT resource_id FROM cfg_resource WHERE resource_id = :id');
 $checkStmt->bindValue(':id', $resId, PDO::PARAM_INT);

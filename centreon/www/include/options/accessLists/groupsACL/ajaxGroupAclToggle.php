@@ -25,7 +25,7 @@ $helper   = AjaxListingHelper::boot();
 $centreon = $helper->requireCentreon();
 $pearDB   = $helper->getDb();
 
-$grpId  = filter_var($_POST['sg_id'] ?? null, FILTER_VALIDATE_INT);
+$grpId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 $action = $_POST['action'] ?? null;
 
 if (! $grpId || ! in_array($action, ['s', 'u'], true)) {
@@ -33,6 +33,9 @@ if (! $grpId || ! in_array($action, ['s', 'u'], true)) {
 }
 
 $newToken = $helper->validateCsrfToken();
+
+// ACL: require write access
+$helper->requireWriteAccess(50203);
 
 $checkStmt = $pearDB->prepare('SELECT acl_group_id FROM acl_groups WHERE acl_group_id = :id');
 $checkStmt->bindValue(':id', $grpId, PDO::PARAM_INT);

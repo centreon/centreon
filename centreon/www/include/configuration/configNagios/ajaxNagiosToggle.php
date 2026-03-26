@@ -25,7 +25,7 @@ $helper   = AjaxListingHelper::boot();
 $centreon = $helper->requireCentreon();
 $pearDB   = $helper->getDb();
 
-$nagiosId = filter_var($_POST['sg_id'] ?? null, FILTER_VALIDATE_INT);
+$nagiosId = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 $action   = $_POST['action'] ?? null;
 
 if (! $nagiosId || ! in_array($action, ['s', 'u'], true)) {
@@ -33,6 +33,9 @@ if (! $nagiosId || ! in_array($action, ['s', 'u'], true)) {
 }
 
 $newToken = $helper->validateCsrfToken();
+
+// ACL: require write access
+$helper->requireWriteAccess(60903);
 
 // Verify config exists
 $checkStmt = $pearDB->prepare('SELECT nagios_id, nagios_server_id FROM cfg_nagios WHERE nagios_id = :id');

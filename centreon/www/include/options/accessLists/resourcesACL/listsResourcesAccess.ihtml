@@ -33,9 +33,7 @@
                     <th class="cl-col-center">{$headerMenu_hg}</th>
                     <th class="cl-col-center">{$headerMenu_sg}</th>
                     <th class="cl-col-center">{$headerMenu_img}</th>
-                    { if $mode_access == 'w' }
                     <th class="cl-col-right">{$headerMenu_options}</th>
-                    { /if }
                 </tr>
             </thead>
             <tbody id="clTableBody">

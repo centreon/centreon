@@ -55,9 +55,7 @@
                     <th class="cl-col-center">{$headerMenu_status}</th>
                     <th>{$headerMenu_vendor}</th>
                     <th>{$headerMenu_output}</th>
-                    { if $mode_access == 'w' }
                     <th class="cl-col-right">{$headerMenu_options}</th>
-                    { /if }
                 </tr>
             </thead>
             <tbody id="clTableBody">

@@ -28,9 +28,7 @@
                         </div>
                     </th>
                     <th>{$headerMenu_name}</th>
-                    { if $mode_access == 'w' }
                     <th class="cl-col-right">{$headerMenu_options}</th>
-                    { /if }
                 </tr>
             </thead>
             <tbody id="clTableBody">

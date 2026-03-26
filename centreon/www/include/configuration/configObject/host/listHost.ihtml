@@ -59,9 +59,7 @@
                     <th class="cl-col-center">{$headerMenu_address}</th>
                     <th class="cl-col-center">{$headerMenu_poller}</th>
                     <th class="cl-col-center">{$headerMenu_parent}</th>
-                    { if $mode_access == 'w' }
                     <th class="cl-col-right">{$headerMenu_options}</th>
-                    { /if }
                 </tr>
             </thead>
             <tbody id="clTableBody">

@@ -31,9 +31,7 @@
                     <th>{$headerMenu_requester}</th>
                     <th class="cl-col-center">{$headerMenu_inputs}</th>
                     <th class="cl-col-center">{$headerMenu_outputs}</th>
-                    { if $mode_access == 'w' }
                     <th class="cl-col-right">{$headerMenu_options}</th>
-                    { /if }
                 </tr>
             </thead>
             <tbody id="clTableBody">

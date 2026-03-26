@@ -32,9 +32,7 @@
                     <th class="cl-col-center">{$headerMenu_eHosts}</th>
                     <th class="cl-col-center">{$headerMenu_dHosts}</th>
                     <th class="cl-col-center">{$headerMenu_type}</th>
-                    { if $mode_access == 'w' }
                     <th class="cl-col-right">{$headerMenu_options}</th>
-                    { /if }
                 </tr>
             </thead>
             <tbody id="clTableBody">

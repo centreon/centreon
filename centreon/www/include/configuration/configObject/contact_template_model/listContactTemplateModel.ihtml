@@ -31,9 +31,7 @@
                     <th>{$headerMenu_name}</th>
                     <th class="cl-col-center">{$headerMenu_hostNotif}</th>
                     <th class="cl-col-center">{$headerMenu_svNotif}</th>
-                    { if $mode_access == 'w' }
                     <th class="cl-col-right">{$headerMenu_options}</th>
-                    { /if }
                 </tr>
             </thead>
             <tbody id="clTableBody">

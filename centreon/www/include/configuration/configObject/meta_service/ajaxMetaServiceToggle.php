@@ -26,7 +26,7 @@ $centreon = $helper->requireCentreon();
 $pearDB   = $helper->getDb();
 
 // Input validation
-$metaId = filter_var($_POST['sg_id'] ?? null, FILTER_VALIDATE_INT);
+$metaId = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 $action = $_POST['action'] ?? null;
 
 if (! $metaId || ! in_array($action, ['s', 'u'], true)) {
@@ -35,6 +35,9 @@ if (! $metaId || ! in_array($action, ['s', 'u'], true)) {
 
 // CSRF validation
 $newToken = $helper->validateCsrfToken();
+
+// ACL: require write access
+$helper->requireWriteAccess(60204);
 
 // ACL: non-admin must have access to this meta service
 if (! $helper->isAdmin()) {

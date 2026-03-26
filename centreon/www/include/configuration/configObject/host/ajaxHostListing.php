@@ -77,10 +77,32 @@ function resolveHostIcon(int $hostId, array &$iconCache, CentreonDB $db): ?strin
     return null;
 }
 
+// ACL filtering for non-admin users
+$aclJoin = '';
+$aclBindParams = [];
+if (! $helper->isAdmin()) {
+    $acl = $helper->getAcl();
+    $aclDbName = $acl->getNameDBAcl();
+    $aclGroupIds = array_keys($acl->getAccessGroups());
+    if (! empty($aclGroupIds)) {
+        $aclPlaceholders = [];
+        foreach ($aclGroupIds as $index => $groupId) {
+            $key = ':acl_gid' . $index;
+            $aclPlaceholders[] = $key;
+            $aclBindParams[$key] = (int) $groupId;
+        }
+        $aclIn = implode(',', $aclPlaceholders);
+        $aclJoin = " INNER JOIN `{$aclDbName}`.centreon_acl acl ON acl.host_id = h.host_id AND acl.service_id IS NULL AND acl.group_id IN ({$aclIn}) ";
+    } else {
+        // No ACL access at all
+        $helper->jsonResponse([], 0, 0, $limit);
+    }
+}
+
 // Build query
-$joins = '';
+$joins = $aclJoin;
 $conditions = "WHERE h.host_register = '1' ";
-$bindParams = [];
+$bindParams = $aclBindParams;
 
 // Search filter
 if ($search !== '') {

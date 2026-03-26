@@ -25,7 +25,7 @@ $helper   = AjaxListingHelper::boot();
 $centreon = $helper->requireCentreon();
 $pearDB   = $helper->getDb();
 
-$configId = filter_var($_POST['sg_id'] ?? null, FILTER_VALIDATE_INT);
+$configId = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 $action   = $_POST['action'] ?? null;
 
 if (! $configId || ! in_array($action, ['s', 'u'], true)) {
@@ -33,6 +33,9 @@ if (! $configId || ! in_array($action, ['s', 'u'], true)) {
 }
 
 $newToken = $helper->validateCsrfToken();
+
+// ACL: require write access
+$helper->requireWriteAccess(60909);
 
 $checkStmt = $pearDB->prepare('SELECT config_id FROM cfg_centreonbroker WHERE config_id = :id');
 $checkStmt->bindValue(':id', $configId, PDO::PARAM_INT);

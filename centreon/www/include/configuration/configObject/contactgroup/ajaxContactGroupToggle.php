@@ -26,7 +26,7 @@ $centreon = $helper->requireCentreon();
 $pearDB   = $helper->getDb();
 
 // Input validation
-$cgId   = filter_var($_POST['sg_id'] ?? null, FILTER_VALIDATE_INT);
+$cgId   = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 $action = $_POST['action'] ?? null;
 
 if (! $cgId || ! in_array($action, ['s', 'u'], true)) {
@@ -35,6 +35,9 @@ if (! $cgId || ! in_array($action, ['s', 'u'], true)) {
 
 // CSRF validation
 $newToken = $helper->validateCsrfToken();
+
+// ACL: require write access
+$helper->requireWriteAccess(60302);
 
 // Verify contact group exists
 $checkStmt = $pearDB->prepare('SELECT cg_id FROM contactgroup WHERE cg_id = :cg_id');

@@ -26,7 +26,7 @@ $centreon = $helper->requireCentreon();
 $pearDB   = $helper->getDb();
 
 // Input validation
-$scId   = filter_var($_POST['sg_id'] ?? null, FILTER_VALIDATE_INT);
+$scId   = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 $action = $_POST['action'] ?? null;
 
 if (! $scId || ! in_array($action, ['s', 'u'], true)) {
@@ -35,6 +35,9 @@ if (! $scId || ! in_array($action, ['s', 'u'], true)) {
 
 // CSRF validation
 $newToken = $helper->validateCsrfToken();
+
+// ACL: require write access
+$helper->requireWriteAccess(60209);
 
 // ACL: write access on service categories page (60209)
 $acl = $helper->getAcl();

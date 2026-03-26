@@ -31,9 +31,7 @@
                     <th>{$headerMenu_value}</th>
                     <th class="cl-col-center">{$headerMenu_pollers}</th>
                     <th>{$headerMenu_comment}</th>
-                    { if $mode_access == 'w' }
                     <th class="cl-col-right">{$headerMenu_options}</th>
-                    { /if }
                 </tr>
             </thead>
             <tbody id="clTableBody">

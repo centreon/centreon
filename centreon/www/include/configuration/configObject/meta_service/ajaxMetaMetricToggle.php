@@ -26,7 +26,7 @@ $centreon = $helper->requireCentreon();
 $pearDB   = $helper->getDb();
 
 // Input validation
-$msrId  = filter_var($_POST['sg_id'] ?? null, FILTER_VALIDATE_INT);
+$msrId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 $action = $_POST['action'] ?? null;
 
 if (! $msrId || ! in_array($action, ['s', 'u'], true)) {
@@ -35,6 +35,9 @@ if (! $msrId || ! in_array($action, ['s', 'u'], true)) {
 
 // CSRF validation
 $newToken = $helper->validateCsrfToken();
+
+// ACL: require write access
+$helper->requireWriteAccess(60204);
 
 // Verify metric relation exists
 $checkStmt = $pearDB->prepare('SELECT msr_id FROM meta_service_relation WHERE msr_id = :msr_id');

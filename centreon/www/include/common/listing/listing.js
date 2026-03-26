@@ -235,11 +235,15 @@ function CentreonListing(config) {
                 tr += '<td' + align + '>' + cellHtml + '</td>';
             }
 
-            // Options column
-            if (cfg.writeAccess && cfg.renderOptions) {
-                tr += '<td class="cl-col-right"><div class="cl-options-cell">' +
-                    cfg.renderOptions(row, self) +
-                '</div></td>';
+            // Options column (always rendered; if read-only, toggle is disabled and dup input hidden)
+            if (cfg.renderOptions) {
+                var optHtml = cfg.renderOptions(row, self, cfg.writeAccess);
+                if (!cfg.writeAccess) {
+                    // Disable toggles and hide dup inputs for read-only users
+                    optHtml = optHtml.replace(/onchange="[^"]*"/g, '').replace(/<input[^>]*cl-dup-input[^>]*>/g, '');
+                    optHtml = optHtml.replace(/<input type="checkbox"/g, '<input type="checkbox" disabled');
+                }
+                tr += '<td class="cl-col-right"><div class="cl-options-cell">' + optHtml + '</div></td>';
             }
 
             tr += '</tr>';
@@ -337,7 +341,7 @@ function CentreonListing(config) {
             type: 'POST',
             dataType: 'json',
             data: {
-                sg_id: rowId,
+                id: rowId,
                 action: action,
                 centreon_token: csrfToken
             },

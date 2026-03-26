@@ -26,7 +26,7 @@ $centreon = $helper->requireCentreon();
 $pearDB   = $helper->getDb();
 
 // Input validation
-$contactId = filter_var($_POST['sg_id'] ?? null, FILTER_VALIDATE_INT);
+$contactId = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 $action    = $_POST['action'] ?? null;
 
 if (! $contactId || ! in_array($action, ['s', 'u'], true)) {
@@ -40,6 +40,9 @@ if ((int) $contactId === (int) $centreon->user->get_id()) {
 
 // CSRF validation
 $newToken = $helper->validateCsrfToken();
+
+// ACL: require write access
+$helper->requireWriteAccess(60301);
 
 // Verify contact exists and is registered (not a template)
 $checkStmt = $pearDB->prepare("SELECT contact_id FROM contact WHERE contact_id = :id AND contact_register = '1'");

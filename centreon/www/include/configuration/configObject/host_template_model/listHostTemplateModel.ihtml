@@ -47,9 +47,7 @@
                     <th>{$headerMenu_desc}</th>
                     <th class="cl-col-center">{$headerMenu_svChilds}</th>
                     <th class="cl-col-center">{$headerMenu_parent}</th>
-                    { if $mode_access == 'w' }
                     <th class="cl-col-right">{$headerMenu_options}</th>
-                    { /if }
                 </tr>
             </thead>
             <tbody id="clTableBody">

@@ -25,7 +25,7 @@ $helper   = AjaxListingHelper::boot();
 $centreon = $helper->requireCentreon();
 $pearDB   = $helper->getDb();
 
-$aclId  = filter_var($_POST['sg_id'] ?? null, FILTER_VALIDATE_INT);
+$aclId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 $action = $_POST['action'] ?? null;
 
 if (! $aclId || ! in_array($action, ['s', 'u'], true)) {
@@ -33,6 +33,9 @@ if (! $aclId || ! in_array($action, ['s', 'u'], true)) {
 }
 
 $newToken = $helper->validateCsrfToken();
+
+// ACL: require write access
+$helper->requireWriteAccess(50201);
 
 $checkStmt = $pearDB->prepare('SELECT acl_topo_id FROM acl_topology WHERE acl_topo_id = :id');
 $checkStmt->bindValue(':id', $aclId, PDO::PARAM_INT);
