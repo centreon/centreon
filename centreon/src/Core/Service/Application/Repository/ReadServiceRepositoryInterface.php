@@ -235,6 +235,7 @@ interface ReadServiceRepositoryInterface
     ): array;
 
     /**
+<<<<<<< MON-196135-unlink-host-services
      * Find deployed services on a host that are based on a given service template.
      *
      * @param int $hostId
@@ -245,4 +246,37 @@ interface ReadServiceRepositoryInterface
      * @return list<array{id: int, name: string}>
      */
     public function findByHostIdAndServiceTemplateId(int $hostId, int $serviceTemplateId): array;
+=======
+     * Find all service IDs linked to the given hosts directly (batch version).
+     *
+     * @param int[] $hostIds
+     *
+     * @throws \Throwable
+     *
+     * @return array<int, list<int>> Map of hostId => [serviceId, ...]
+     */
+    public function findServiceIdsLinkedToHostIds(array $hostIds): array;
+
+    /**
+     * Find all service IDs linked to the given hosts through host groups (batch version).
+     *
+     * @param int[] $hostIds
+     *
+     * @throws \Throwable
+     *
+     * @return array<int, list<int>> Map of hostId => [serviceId, ...]
+     */
+    public function findServiceIdsLinkedToHostsThroughHostGroups(array $hostIds): array;
+
+    /**
+     * Retrieve all parent template inheritances for multiple services (batch version).
+     *
+     * @param int[] $serviceIds
+     *
+     * @throws \Throwable
+     *
+     * @return array<int, ServiceInheritance[]> Map of serviceId => ServiceInheritance[]
+     */
+    public function findParentsByServiceIds(array $serviceIds): array;
+>>>>>>> develop
 }
