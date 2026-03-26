@@ -5,7 +5,6 @@ import { equals } from 'ramda';
 import {
   labelDisabledHosts,
   labelEnabledHosts,
-  labelNoDisabledHosts,
   labelNoEnabledHosts
 } from '../translatedLabels';
 import initialize from './initialize';
