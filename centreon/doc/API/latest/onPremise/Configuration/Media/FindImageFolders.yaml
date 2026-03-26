@@ -1,0 +1,36 @@
+get:
+  tags:
+    - Media
+  summary: "Find all image folders"
+  description: |
+    Return all image folders (created on file system and synchronized in database).
+
+    The available parameters to **search** / **sort_by** are:
+
+    * id
+    * name
+    * alias
+    * comment
+  parameters:
+    - $ref: '../../Common/QueryParameter/Limit.yaml'
+    - $ref: '../../Common/QueryParameter/Page.yaml'
+    - $ref: '../../Common/QueryParameter/Search.yaml'
+    - $ref: '../../Common/QueryParameter/SortBy.yaml'
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              result:
+                type: array
+                items:
+                  $ref: 'Schema/FindImageFoldersResponse.yaml'
+              meta:
+                $ref: '../../Common/Schema/Meta.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

@@ -1,45 +1,28 @@
 <?php
+
 /*
- * Copyright 2005-2016 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
- *
- * SVN : $URL$
- * SVN : $Id$
  *
  */
 
 /*require_once realpath(dirname(__FILE__) . "/../../../../../config/centreon.config.php");
 require_once _CENTREON_PATH_."www/class/centreonDB.class.php";
 
-/* Translation 
+/* Translation
 require_once(_CENTREON_PATH_ . "www/class/centreonSession.class.php");
 require_once(_CENTREON_PATH_ . "www/class/centreon.class.php");
 require_once(_CENTREON_PATH_ . "www/class/centreonLang.class.php");
@@ -49,10 +32,7 @@ $oreon = $_SESSION["centreon"];
 $centreonLang = new CentreonLang(_CENTREON_PATH_, $oreon);
 $centreonLang->bindLang();*/
 
-
-/*
- * Create a XML node for each day stats (in $row) for a service, a servicegroup, an host or an hostgroup
- */
+// Create a XML node for each day stats (in $row) for a service, a servicegroup, an host or an hostgroup
 function fillBuffer($statesTab, $row, $color)
 {
     global $buffer;
@@ -61,37 +41,35 @@ function fillBuffer($statesTab, $row, $color)
     $totalTime = 0;
     $sumTime = 0;
     foreach ($statesTab as $key => $value) {
-        if (isset($row[$value . "TimeScheduled"])) {
-            $statTab[$value . "_T"] = $row[$value . "TimeScheduled"];
-            $totalTime += $row[$value . "TimeScheduled"];
+        if (isset($row[$value . 'TimeScheduled'])) {
+            $statTab[$value . '_T'] = $row[$value . 'TimeScheduled'];
+            $totalTime += $row[$value . 'TimeScheduled'];
         } else {
-            $statTab[$value . "_T"] = 0;
+            $statTab[$value . '_T'] = 0;
         }
-        $statTab[$value . "_A"] = $row[$value."nbEvent"] ?? 0;
+        $statTab[$value . '_A'] = $row[$value . 'nbEvent'] ?? 0;
     }
-    $date_start = $row["date_start"];
-    $date_end = $row["date_end"];
+    $date_start = $row['date_start'];
+    $date_end = $row['date_end'];
     foreach ($statesTab as $key => $value) {
-        $statTab[$value . "_MP"] = $totalTime ? round(($statTab[$value."_T"] / ($totalTime) * 100), 2) : 0;
+        $statTab[$value . '_MP'] = $totalTime ? round(($statTab[$value . '_T'] / ($totalTime) * 100), 2) : 0;
     }
 
-    /*
-     * Popup generation for each day
-     */
-    $Day = _("Day");
-    $Duration = _("Duration");
-    $Alert = _("Alert");
+    // Popup generation for each day
+    $Day = _('Day');
+    $Duration = _('Duration');
+    $Alert = _('Alert');
     $detailPopup = '{table class=bulleDashtab}';
-    $detailPopup .= '{tr}{td class=bulleDashleft colspan=3}' . $Day .
-        ': {span class ="isTimestamp isDate"}';
-    $detailPopup .= $date_start . '{/span} --  ' . $Duration . ': ' .
-        CentreonDuration::toString($totalTime) . '{/td}{td class=bulleDashleft }' . $Alert . '{/td}{/tr}';
+    $detailPopup .= '{tr}{td class=bulleDashleft colspan=3}' . $Day
+        . ': {span class ="isTimestamp isDate"}';
+    $detailPopup .= $date_start . '{/span} --  ' . $Duration . ': '
+        . CentreonDuration::toString($totalTime) . '{/td}{td class=bulleDashleft }' . $Alert . '{/td}{/tr}';
     foreach ($statesTab as $key => $value) {
-        $detailPopup .= '{tr}' .
-                        '{td class=bulleDashleft style="background:' . $color[$value] . ';"  }' . _($value) . ':{/td}' .
-                        '{td class=bulleDash}' . CentreonDuration::toString($statTab[$value . "_T"]) . '{/td}' .
-                        '{td class=bulleDash}' . $statTab[$value . "_MP"] . '%{/td}'.
-                        '{td class=bulleDash}' . $statTab[$value . "_A"] . '{/td}';
+        $detailPopup .= '{tr}'
+                        . '{td class=bulleDashleft style="background:' . $color[$value] . ';"  }' . _($value) . ':{/td}'
+                        . '{td class=bulleDash}' . CentreonDuration::toString($statTab[$value . '_T']) . '{/td}'
+                        . '{td class=bulleDash}' . $statTab[$value . '_MP'] . '%{/td}'
+                        . '{td class=bulleDash}' . $statTab[$value . '_A'] . '{/td}';
         $detailPopup .= '{/tr}';
     }
     $detailPopup .= '{/table}';
@@ -100,19 +78,19 @@ function fillBuffer($statesTab, $row, $color)
     $t = round(($t - ($t * 0.11574074074)), 2);
 
     foreach ($statesTab as $key => $value) {
-        if ($statTab[$value."_MP"] > 0) {
-            $day = date("d", $date_start);
-            $year = date("Y", $date_start);
-            $month = date("m", $date_start);
+        if ($statTab[$value . '_MP'] > 0) {
+            $day = date('d', $date_start);
+            $year = date('Y', $date_start);
+            $month = date('m', $date_start);
             $start = mktime(0, 0, 0, $month, $day, $year);
-            $start += ($statTab[$value . "_T"]/100*2);
-            $end = $start + ($statTab[$value."_T"]/100*96);
-            $buffer->startElement("event");
-            $buffer->writeAttribute("start", createDateTimelineFormat($start) . " GMT");
-            $buffer->writeAttribute("end", createDateTimelineFormat($end) . " GMT");
-            $buffer->writeAttribute("color", $color[$value]);
-            $buffer->writeAttribute("isDuration", "true");
-            $buffer->writeAttribute("title", $statTab[$value . "_MP"] . "%");
+            $start += ($statTab[$value . '_T'] / 100 * 2);
+            $end = $start + ($statTab[$value . '_T'] / 100 * 96);
+            $buffer->startElement('event');
+            $buffer->writeAttribute('start', createDateTimelineFormat($start) . ' GMT');
+            $buffer->writeAttribute('end', createDateTimelineFormat($end) . ' GMT');
+            $buffer->writeAttribute('color', $color[$value]);
+            $buffer->writeAttribute('isDuration', 'true');
+            $buffer->writeAttribute('title', $statTab[$value . '_MP'] . '%');
             $buffer->text($detailPopup, false);
             $buffer->endElement();
         }

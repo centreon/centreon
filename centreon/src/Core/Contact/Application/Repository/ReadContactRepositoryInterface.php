@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ namespace Core\Contact\Application\Repository;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Contact\Domain\Model\BasicContact;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -36,11 +37,22 @@ interface ReadContactRepositoryInterface
      *
      * @param int ...$ids
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return array<int, array{id: int, name: string}>
      */
     public function findNamesByIds(int ...$ids): array;
+
+    /**
+     * Find contact alias by IDs.
+     *
+     * @param int ...$ids
+     *
+     * @throws RepositoryException
+     *
+     * @return array<int, array{id: int, alias: string}>
+     */
+    public function findAliasesByIds(int ...$ids): array;
 
     /**
      * Check user existence by its id.
@@ -159,6 +171,6 @@ interface ReadContactRepositoryInterface
     public function findByAccessGroupsAndUserAndRequestParameters(
         array $accessGroups,
         ContactInterface $user,
-        ?RequestParametersInterface $requestParameters = null
+        ?RequestParametersInterface $requestParameters = null,
     ): array;
 }

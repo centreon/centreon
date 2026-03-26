@@ -1,12 +1,11 @@
-import { ReactNode } from 'react';
-
-import { equals, type } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { Typography } from '@mui/material';
 
 import { Tooltip } from '@centreon/ui/components';
+
+import { equals, type } from 'ramda';
+import { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   children: ReactNode;
@@ -30,15 +29,9 @@ const Subtitle = ({ children, secondaryLabel }: Props): JSX.Element => {
           }
           followCursor={false}
           label={
-            containsSeveralSecondaryLabels ? (
-              <>
-                {secondaryLabel.map((label) => (
-                  <p key={label}>{t(label)}</p>
-                ))}
-              </>
-            ) : (
-              t(secondaryLabel)
-            )
+            containsSeveralSecondaryLabels
+              ? secondaryLabel.map((label) => <p key={label}>{t(label)}</p>)
+              : t(secondaryLabel)
           }
           placement="right"
         >

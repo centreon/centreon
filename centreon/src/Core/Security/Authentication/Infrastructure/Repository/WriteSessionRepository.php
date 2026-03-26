@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,12 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
 use Core\Security\Authentication\Application\Repository\WriteSessionTokenRepositoryInterface;
+use Core\Security\Authentication\Infrastructure\Provider\OpenId;
 use Core\Security\Authentication\Infrastructure\Provider\SAML;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration as OpenIdCustomConfiguration;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
+use Exception;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class WriteSessionRepository implements WriteSessionRepositoryInterface
@@ -44,7 +47,7 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
     public function __construct(
         private readonly RequestStack $requestStack,
         private readonly WriteSessionTokenRepositoryInterface $writeSessionTokenRepository,
-        private readonly ProviderAuthenticationFactoryInterface $providerFactory
+        private readonly ProviderAuthenticationFactoryInterface $providerFactory,
     ) {
     }
 
@@ -53,9 +56,12 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
      */
     public function invalidate(): void
     {
-        $this->writeSessionTokenRepository->deleteSession($this->requestStack->getSession()->getId());
-        $centreon = $this->requestStack->getSession()->get('centreon');
-        $this->requestStack->getSession()->invalidate();
+        $session = $this->requestStack->getSession();
+        $idToken = $session->get('openid_id_token') ?? '';
+        $sessionId = $session->getId();
+        $this->writeSessionTokenRepository->deleteSession($sessionId);
+        $centreon = $session->get('centreon');
+        $session->invalidate();
 
         if ($centreon && $centreon->user->authType === Provider::SAML) {
             /** @var SAML $provider */
@@ -69,6 +75,24 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
             ) {
                 $this->info('Logout from Centreon and SAML IDP...');
                 $provider->logout(); // The redirection is done here by the IDP
+            }
+        }
+
+        if ($centreon && $centreon->user->authType === Provider::OPENID) {
+            /** @var OpenId $provider */
+            $provider = $this->providerFactory->create(Provider::OPENID);
+            $configuration = $provider->getConfiguration();
+            /** @var OpenIdCustomConfiguration $customConfiguration */
+            $customConfiguration = $configuration->getCustomConfiguration();
+            $isLogin = $this->requestStack->getSession()->get('isLogin') ?? false;
+            if ($configuration->isActive()) {
+                try {
+                    $provider->logout($idToken, $isLogin);
+                } catch (Exception $e) {
+                    $this->error('OpenID logout failed: ' . $e->getMessage(), [
+                        'exception' => $e,
+                    ]);
+                }
             }
         }
     }
@@ -89,6 +113,7 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
         $this->info('[AUTHENTICATE] Starting Centreon Session');
         $this->requestStack->getSession()->start();
         $this->requestStack->getSession()->set('centreon', $legacySession);
+        $this->requestStack->getSession()->set('isLogin', true);
         $_SESSION['centreon'] = $legacySession;
 
         $isSessionStarted = $this->requestStack->getSession()->isStarted();

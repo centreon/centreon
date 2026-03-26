@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\HostConfiguration\Model;
@@ -40,39 +41,25 @@ class HostSeverity
     public const MAX_LEVEL_NUMBER = 127;
     public const MIN_LEVEL_NUMBER = -128;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $id;
 
-    /**
-     * @var string Define a short name for this severity. It will be displayed with this name in the ACL configuration.
-     */
+    /** @var string Define a short name for this severity. It will be displayed with this name in the ACL configuration. */
     private $name;
 
-    /**
-     * @var string Longer description of this severity.
-     */
+    /** @var string longer description of this severity */
     private $alias;
 
-    /**
-     * @var int Priority.
-     */
+    /** @var int priority */
     private $level;
 
-    /**
-     * @var Image Define the image that should be associated with this severity.
-     */
+    /** @var Image define the image that should be associated with this severity */
     private $icon;
 
-    /**
-     * @var string|null Comments regarding this severity.
-     */
+    /** @var string|null comments regarding this severity */
     private $comments;
 
-    /**
-     * @var bool Indicates whether this host severity is enabled or not (TRUE by default)
-     */
+    /** @var bool Indicates whether this host severity is enabled or not (TRUE by default) */
     private $isActivated = true;
 
     /**
@@ -105,6 +92,7 @@ class HostSeverity
     public function setId(int $id): HostSeverity
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -118,14 +106,15 @@ class HostSeverity
 
     /**
      * @param string $name
-     * @return HostSeverity
      * @throws \Assert\AssertionFailedException
+     * @return HostSeverity
      */
     public function setName(string $name): HostSeverity
     {
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, 'HostSeverity::name');
         Assertion::minLength($name, self::MIN_NAME_LENGTH, 'HostSeverity::name');
         $this->name = $name;
+
         return $this;
     }
 
@@ -139,14 +128,15 @@ class HostSeverity
 
     /**
      * @param string $alias
-     * @return HostSeverity
      * @throws \Assert\AssertionFailedException
+     * @return HostSeverity
      */
     public function setAlias(string $alias): HostSeverity
     {
         Assertion::maxLength($alias, self::MAX_ALIAS_LENGTH, 'HostSeverity::alias');
         Assertion::minLength($alias, self::MIN_ALIAS_LENGTH, 'HostSeverity::alias');
         $this->alias = $alias;
+
         return $this;
     }
 
@@ -165,6 +155,7 @@ class HostSeverity
     public function setActivated(bool $isActivated): HostSeverity
     {
         $this->isActivated = $isActivated;
+
         return $this;
     }
 
@@ -178,14 +169,15 @@ class HostSeverity
 
     /**
      * @param int $level
-     * @return HostSeverity
      * @throws \Assert\AssertionFailedException
+     * @return HostSeverity
      */
     public function setLevel(int $level): HostSeverity
     {
         Assertion::min($level, self::MIN_LEVEL_NUMBER, 'HostSeverity::level');
         Assertion::max($level, self::MAX_LEVEL_NUMBER, 'HostSeverity::level');
         $this->level = $level;
+
         return $this;
     }
 
@@ -204,6 +196,7 @@ class HostSeverity
     public function setIcon(Image $icon): HostSeverity
     {
         $this->icon = $icon;
+
         return $this;
     }
 
@@ -217,8 +210,8 @@ class HostSeverity
 
     /**
      * @param string|null $comments
-     * @return HostSeverity
      * @throws \Assert\AssertionFailedException
+     * @return HostSeverity
      */
     public function setComments(?string $comments): HostSeverity
     {
@@ -226,6 +219,7 @@ class HostSeverity
             Assertion::maxLength($comments, self::MAX_COMMENTS_LENGTH, 'HostSeverity::comments');
         }
         $this->comments = $comments;
+
         return $this;
     }
 }

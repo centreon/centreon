@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace EventSubscriber;
 
 use Core\Common\Infrastructure\FeatureFlags;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -33,28 +33,14 @@ use Symfony\Component\HttpKernel\KernelEvents;
  *
  * @see FeatureFlags
  */
-class FeatureFlagEventSubscriber implements EventSubscriberInterface
+class FeatureFlagEventSubscriber
 {
     /**
      * @param FeatureFlags $featureFlags
      */
     public function __construct(
-        private readonly FeatureFlags $featureFlags
+        private readonly FeatureFlags $featureFlags,
     ) {
-    }
-
-    /**
-     * Returns an array of event names this subscriber wants to listen to.
-     *
-     * @return mixed[] The event names to listen to
-     */
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            KernelEvents::REQUEST => [
-                ['defineFeaturesInAttributes', 40],
-            ],
-        ];
     }
 
     /**
@@ -62,6 +48,7 @@ class FeatureFlagEventSubscriber implements EventSubscriberInterface
      *
      * @param RequestEvent $event
      */
+    #[AsEventListener(event: KernelEvents::REQUEST, priority: 40)]
     public function defineFeaturesInAttributes(RequestEvent $event): void
     {
         foreach ($this->featureFlags->getEnabled() as $name) {

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\Event;
 
-readonly final class DashboardUpdatedEvent
+final readonly class DashboardUpdatedEvent
 {
     /**
      * @param int $dashboardId
@@ -37,7 +37,7 @@ readonly final class DashboardUpdatedEvent
         private string $directory,
         private string $content,
         private string $filename,
-        private int|null $thumbnailId = null
+        private int|null $thumbnailId = null,
     ) {
     }
 

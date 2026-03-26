@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ final class PartialRuleUpdate
         private readonly ReadResourceAccessRepositoryInterface $readRepository,
         private readonly WriteResourceAccessRepositoryInterface $writeRepository,
         private readonly UpdateRuleValidation $validator,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -72,7 +72,7 @@ final class PartialRuleUpdate
      */
     public function __invoke(
         PartialRuleUpdateRequest $request,
-        PresenterInterface $presenter
+        PresenterInterface $presenter,
     ): void {
         try {
             $this->info('Start resource access rule update process');

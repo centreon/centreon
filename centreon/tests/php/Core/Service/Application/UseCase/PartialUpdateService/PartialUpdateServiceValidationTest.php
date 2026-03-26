@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -214,9 +214,7 @@ it('should raise an exception when the service category IDs do not exist, as an 
     ServiceException::idsDoNotExist('service_categories', [1])->getMessage()
 );
 
-it('should raise an exception when the service category IDs do not exist, as a non-administrator', function ():
-void {
-
+it('should raise an exception when the service category IDs do not exist, as a non-administrator', function (): void {
     $this->contact
         ->expects($this->once())
         ->method('isAdmin')

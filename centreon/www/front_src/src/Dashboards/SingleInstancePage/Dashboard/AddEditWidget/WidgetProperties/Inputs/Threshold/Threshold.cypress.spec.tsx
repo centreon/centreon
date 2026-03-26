@@ -1,5 +1,5 @@
 import { Formik } from 'formik';
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
@@ -9,7 +9,6 @@ import {
   labelWarningThreshold
 } from '../../../../translatedLabels';
 import { ServiceMetric } from '../../../models';
-
 import Threshold from './Threshold';
 
 const emptyMetrics = [];
@@ -156,6 +155,15 @@ describe('Threshold', () => {
     initializeComponent({ enabled: true, metrics: selectedMetrics });
 
     cy.findByLabelText(labelShowThresholds).should('not.be.checked');
+
+    cy.makeSnapshot();
+  });
+
+  it('does not display none when metrics are not defined', () => {
+    initializeComponent({ enabled: true, metrics: undefined });
+
+    cy.contains('Default').should('be.visible');
+    cy.contains('(none)').should('not.exist');
 
     cy.makeSnapshot();
   });

@@ -1,18 +1,26 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, includes, isNil } from 'ramda';
+import {
+  type Dispatch,
+  type ReactElement,
+  type SetStateAction,
+  useEffect,
+  useState
+} from 'react';
 
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { ListItemText, MenuItem } from '@mui/material';
-
-import { SelectEntry, buildListingEndpoint } from '../../../..';
+import { buildListingEndpoint, type SelectEntry } from '../../../..';
 import {
   accessRightIdsDerivedAtom,
   addAccessRightDerivedAtom,
   contactTypeAtom
 } from '../atoms';
-import { AccessRightInitialValues, ContactType, Endpoints } from '../models';
+import {
+  type AccessRightInitialValues,
+  ContactType,
+  type Endpoints
+} from '../models';
 
 interface UseShareInputState {
   add: () => void;
@@ -20,7 +28,7 @@ interface UseShareInputState {
   getEndpoint: (parameters) => string;
   getOptionDisabled: (option) => boolean;
   isContactGroup: boolean;
-  renderOption: (attr, option) => JSX.Element;
+  getRenderedOptionText: (option: unknown) => ReactElement | string;
   selectContact: (_, entry) => void;
   selectedContact: AccessRightInitialValues | null;
   selectedRole: string;
@@ -40,7 +48,7 @@ const useShareInput = (endpoints: Endpoints): UseShareInputState => {
 
   const selectContact = (_, entry): void => {
     setSelectedContact(entry);
-    if (equals('editor', entry.most_permissive_role)) {
+    if (equals('editor', entry?.most_permissive_role)) {
       return;
     }
     setSelectedRole('viewer');
@@ -71,14 +79,14 @@ const useShareInput = (endpoints: Endpoints): UseShareInputState => {
       }
     });
 
-  const renderOption = (attr, option): JSX.Element => {
+  const getRenderedOptionText = (option): ReactElement => {
     return (
-      <MenuItem {...attr}>
-        <ListItemText>{option.name}</ListItemText>
-        {includes(option.id, accessRightIds) && (
+      <>
+        {option?.name}
+        {includes(option?.id, accessRightIds) && (
           <CheckCircleIcon color="success" />
         )}
-      </MenuItem>
+      </>
     );
   };
 
@@ -101,8 +109,8 @@ const useShareInput = (endpoints: Endpoints): UseShareInputState => {
     changeIdValue,
     getEndpoint,
     getOptionDisabled,
+    getRenderedOptionText,
     isContactGroup,
-    renderOption,
     selectContact,
     selectedContact,
     selectedRole,

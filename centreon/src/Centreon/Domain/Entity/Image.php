@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,8 +21,8 @@
 
 namespace Centreon\Domain\Entity;
 
-use Symfony\Component\Serializer\Annotation as Serializer;
 use ReflectionClass;
+use Symfony\Component\Serializer\Annotation as Serializer;
 
 class Image
 {
@@ -30,33 +30,23 @@ class Image
     public const MEDIA_DIR = 'img/media/';
     public const SERIALIZER_GROUP_LIST = 'image-list';
 
-    /**
-     * @var int
-     */
+    /** @var int */
     #[Serializer\SerializedName('id')]
     #[Serializer\Groups([Image::SERIALIZER_GROUP_LIST])]
     private $img_id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     #[Serializer\SerializedName('name')]
     #[Serializer\Groups([Image::SERIALIZER_GROUP_LIST])]
     private $img_name;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $img_path;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $img_comment;
 
-    /**
-     * @var ImageDir
-     */
+    /** @var ImageDir */
     private $imageDir;
 
     /**
@@ -137,7 +127,7 @@ class Image
     /**
      * @param string $name
      */
-    public function setImgName(string $name = null): void
+    public function setImgName(?string $name = null): void
     {
         $this->img_name = $name;
     }
@@ -153,7 +143,7 @@ class Image
     /**
      * @param string $path
      */
-    public function setImgPath(string $path = null): void
+    public function setImgPath(?string $path = null): void
     {
         $this->img_path = $path;
     }
@@ -169,7 +159,7 @@ class Image
     /**
      * @param string $comment
      */
-    public function setImgComment(string $comment = null): void
+    public function setImgComment(?string $comment = null): void
     {
         $this->img_comment = $comment;
     }
@@ -185,7 +175,7 @@ class Image
     /**
      * @param ImageDir $imageDir
      */
-    public function setImageDir(ImageDir $imageDir = null): void
+    public function setImageDir(?ImageDir $imageDir = null): void
     {
         $this->imageDir = $imageDir;
     }
@@ -197,7 +187,7 @@ class Image
     /**
      * @param int $dirId
      */
-    public function setDirId(int $dirId = null): void
+    public function setDirId(?int $dirId = null): void
     {
         $this->getImageDir()->setDirId($dirId);
     }
@@ -205,7 +195,7 @@ class Image
     /**
      * @param string $dirName
      */
-    public function setDirName(string $dirName = null): void
+    public function setDirName(?string $dirName = null): void
     {
         $this->getImageDir()->setDirName($dirName);
     }
@@ -213,7 +203,7 @@ class Image
     /**
      * @param string $dirAlias
      */
-    public function setDirAlias(string $dirAlias = null): void
+    public function setDirAlias(?string $dirAlias = null): void
     {
         $this->getImageDir()->setDirAlias($dirAlias);
     }
@@ -221,7 +211,7 @@ class Image
     /**
      * @param string $dirComment
      */
-    public function setDirComment(string $dirComment = null): void
+    public function setDirComment(?string $dirComment = null): void
     {
         $this->getImageDir()->setDirComment($dirComment);
     }

@@ -1,11 +1,10 @@
-import { useMemo } from 'react';
-
-import { useAtomValue } from 'jotai';
-
+import { useLocale } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
+import { useAtomValue } from 'jotai';
+import { useMemo } from 'react';
+
 import { PanelOptions } from './models';
-import { useLocale } from '@centreon/ui';
 
 export const useGetLocaleAndTimezone = ({
   locale,

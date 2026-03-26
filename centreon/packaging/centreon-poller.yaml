@@ -49,7 +49,7 @@ contents:
     file_info:
       mode: 0755
 
-  - src: "../bin/{registerServerTopology.sh,registerServerTopologyTemplate}"
+  - src: "../bin/{registerServerTopology.sh,registerServerTopologyTemplate,writeEngineSecrets.sh}"
     dst: "/usr/share/centreon/bin/"
     file_info:
       mode: 0755
@@ -98,7 +98,6 @@ overrides:
       - centreon-plugin-Applications-Databases-Mysql
       - centreon-plugin-Applications-Monitoring-Centreon-Central
       - centreon-plugin-Applications-Monitoring-Centreon-Database
-      - centreon-plugin-Applications-Monitoring-Centreon-Map4-Jmx
       - centreon-plugin-Applications-Monitoring-Centreon-Poller
       - centreon-plugin-Applications-Protocol-Dns
       - centreon-plugin-Applications-Protocol-Ftp
@@ -110,6 +109,7 @@ overrides:
       - centreon-plugin-Network-Cisco-Standard-Snmp
       - centreon-plugin-Operatingsystems-Linux-Snmp
       - centreon-plugin-Operatingsystems-Windows-Snmp
+      - logrotate
     provides:
       - centreon-poller
       - centreon-poller-centreon-engine
@@ -136,7 +136,6 @@ overrides:
       - centreon-plugin-applications-databases-mysql
       - centreon-plugin-applications-monitoring-centreon-central
       - centreon-plugin-applications-monitoring-centreon-database
-      - centreon-plugin-applications-monitoring-centreon-map4-jmx
       - centreon-plugin-applications-monitoring-centreon-poller
       - centreon-plugin-applications-protocol-dns
       - centreon-plugin-applications-protocol-ftp
@@ -148,6 +147,7 @@ overrides:
       - centreon-plugin-network-cisco-standard-snmp
       - centreon-plugin-operatingsystems-linux-snmp
       - centreon-plugin-operatingsystems-windows-snmp
+      - logrotate
     provides:
       - centreon-poller-centreon-engine
     replaces:

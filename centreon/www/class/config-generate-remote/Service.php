@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,8 +21,8 @@
 
 namespace ConfigGenerateRemote;
 
-use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractService;
+use PDO;
 
 /**
  * Class
@@ -31,20 +32,26 @@ use ConfigGenerateRemote\Abstracts\AbstractService;
  */
 class Service extends AbstractService
 {
-    /** @var int */
-    private $useCache = 0;
-    /** @var int */
-    private $useCachePoller = 1;
-    /** @var int */
-    private $doneCache = 0;
-    /** @var array|null */
-    protected $serviceCache = null;
-    /** @var string */
-    protected $table = 'service';
-    /** @var string */
-    protected $generateFilename = 'services.infile';
     /** @var int|null */
     public $pollerId = null; // for by poller cache
+
+    /** @var array|null */
+    protected $serviceCache = null;
+
+    /** @var string */
+    protected $table = 'service';
+
+    /** @var string */
+    protected $generateFilename = 'services.infile';
+
+    /** @var int */
+    private $useCache = 0;
+
+    /** @var int */
+    private $useCachePoller = 1;
+
+    /** @var int */
+    private $doneCache = 0;
 
     /**
      * Set useCache to 1
@@ -54,6 +61,135 @@ class Service extends AbstractService
     public function useCache(): void
     {
         $this->useCache = 1;
+    }
+
+    /**
+     * Add service in cache
+     *
+     * @param int $serviceId
+     * @param array $attr
+     * @return void
+     */
+    public function addServiceCache(int $serviceId, array $attr = []): void
+    {
+        $this->serviceCache[$serviceId] = $attr;
+    }
+
+    /**
+     * Generate service object from service id
+     *
+     * @param int $hostId
+     * @param string $hostName
+     * @param null|int $serviceId
+     * @param int $by_hg
+     * @return void
+     */
+    public function generateFromServiceId(int $hostId, string $hostName, ?int $serviceId, $by_hg = 0)
+    {
+        if (is_null($serviceId)) {
+            return null;
+        }
+
+        $this->buildCache();
+
+        // No need to do it again for service by hostgroup
+        if ($by_hg == 1 && isset($this->serviceCache[$serviceId])) {
+            return $this->serviceCache[$serviceId]['service_description'];
+        }
+
+        if (($this->useCache == 0 || $by_hg == 1) && ! isset($this->serviceCache[$serviceId])) {
+            $this->getServiceFromId($serviceId);
+        }
+        if (! isset($this->serviceCache[$serviceId]) || is_null($this->serviceCache[$serviceId])) {
+            return null;
+        }
+        if ($this->checkGenerate($hostId . '.' . $serviceId)) {
+            return $this->serviceCache[$serviceId]['service_description'];
+        }
+
+        $this->getImages($this->serviceCache[$serviceId]);
+        $this->getMacros($this->serviceCache[$serviceId]);
+        $this->getTraps($this->serviceCache[$serviceId]);
+        // useful for servicegroup on servicetemplate
+        $serviceTemplate = ServiceTemplate::getInstance($this->dependencyInjector);
+        $serviceTemplate->resetLoop();
+        $serviceTemplate->currentHostId = $hostId;
+        $serviceTemplate->currentHostName = $hostName;
+        $serviceTemplate->currentServiceId = $serviceId;
+        $serviceTemplate->currentServiceDescription = $this->serviceCache[$serviceId]['service_description'];
+        $this->getServiceTemplates($this->serviceCache[$serviceId]);
+        $this->getServiceCommands($this->serviceCache[$serviceId]);
+        $this->getServicePeriods($this->serviceCache[$serviceId]);
+        if ($this->backendInstance->isExportContact()) {
+            $this->getContactGroups($this->serviceCache[$serviceId]);
+            $this->getContacts($this->serviceCache[$serviceId]);
+        }
+
+        $this->getSeverity($hostId, $serviceId);
+        $this->getServiceGroups($serviceId, $hostId, $hostName);
+
+        $extendedInformation = $this->getExtendedInformation($this->serviceCache[$serviceId]);
+        Relations\ExtendedServiceInformation::getInstance($this->dependencyInjector)
+            ->add($extendedInformation, $serviceId);
+        Graph::getInstance($this->dependencyInjector)->getGraphFromId($extendedInformation['graph_id']);
+
+        $this->serviceCache[$serviceId]['service_id'] = $serviceId;
+        $this->generateObjectInFile(
+            $this->serviceCache[$serviceId],
+            $hostId . '.' . $serviceId
+        );
+        $this->clean($this->serviceCache[$serviceId]);
+
+        return $this->serviceCache[$serviceId]['service_description'];
+    }
+
+    /**
+     * Set poller
+     *
+     * @param int $pollerId
+     * @return void
+     */
+    public function setPoller(int $pollerId): void
+    {
+        $this->pollerId = $pollerId;
+    }
+
+    /**
+     * Reset object
+     *
+     * @param bool $resetParent
+     * @param bool $createfile
+     * @return void
+     */
+    public function reset($resetParent = false, $createfile = false): void
+    {
+        // We reset it by poller (dont need all. We save memory)
+        if ($this->useCachePoller == 1) {
+            $this->serviceCache = [];
+            $this->doneCache = 0;
+        }
+        if ($resetParent == true) {
+            parent::reset($createfile);
+        }
+    }
+
+    /**
+     * Get severity from service id
+     *
+     * @param int $hostId
+     * @param int $serviceId
+     * @return void
+     */
+    protected function getSeverity($hostId, int $serviceId)
+    {
+        $severityId
+            = ServiceCategory::getInstance($this->dependencyInjector)->getServiceSeverityByServiceId($serviceId);
+        if (! is_null($severityId)) {
+            Relations\ServiceCategoriesRelation::getInstance($this->dependencyInjector)
+                ->addRelation($severityId, $serviceId);
+        }
+
+        return null;
     }
 
     /**
@@ -93,11 +229,11 @@ class Service extends AbstractService
      */
     private function getServiceByPollerCache(): void
     {
-        $query = "SELECT $this->attributesSelect FROM ns_host_relation, host_service_relation, service " .
-            "LEFT JOIN extended_service_information ON extended_service_information.service_service_id = " .
-            "service.service_id WHERE ns_host_relation.nagios_server_id = :server_id " .
-            "AND ns_host_relation.host_host_id = host_service_relation.host_host_id " .
-            "AND host_service_relation.service_service_id = service.service_id AND service_activate = '1'";
+        $query = "SELECT {$this->attributesSelect} FROM ns_host_relation, host_service_relation, service "
+            . 'LEFT JOIN extended_service_information ON extended_service_information.service_service_id = '
+            . 'service.service_id WHERE ns_host_relation.nagios_server_id = :server_id '
+            . 'AND ns_host_relation.host_host_id = host_service_relation.host_host_id '
+            . "AND host_service_relation.service_service_id = service.service_id AND service_activate = '1'";
         $stmt = $this->backendInstance->db->prepare($query);
         $stmt->bindParam(':server_id', $this->pollerId, PDO::PARAM_INT);
         $stmt->execute();
@@ -112,24 +248,12 @@ class Service extends AbstractService
      */
     private function getServiceCache(): void
     {
-        $query = "SELECT $this->attributesSelect FROM service " .
-            "LEFT JOIN extended_service_information ON extended_service_information.service_service_id = " .
-            "service.service_id WHERE service_register = '1' AND service_activate = '1'";
+        $query = "SELECT {$this->attributesSelect} FROM service "
+            . 'LEFT JOIN extended_service_information ON extended_service_information.service_service_id = '
+            . "service.service_id WHERE service_register = '1' AND service_activate = '1'";
         $stmt = $this->backendInstance->db->prepare($query);
         $stmt->execute();
         $this->serviceCache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Add service in cache
-     *
-     * @param int $serviceId
-     * @param array $attr
-     * @return void
-     */
-    public function addServiceCache(int $serviceId, array $attr = []): void
-    {
-        $this->serviceCache[$serviceId] = $attr;
     }
 
     /**
@@ -141,33 +265,15 @@ class Service extends AbstractService
     private function getServiceFromId(int $serviceId): void
     {
         if (is_null($this->stmtService)) {
-            $query = "SELECT $this->attributesSelect FROM service " .
-                "LEFT JOIN extended_service_information ON extended_service_information.service_service_id = " .
-                "service.service_id WHERE service_id = :service_id AND service_activate = '1'";
+            $query = "SELECT {$this->attributesSelect} FROM service "
+                . 'LEFT JOIN extended_service_information ON extended_service_information.service_service_id = '
+                . "service.service_id WHERE service_id = :service_id AND service_activate = '1'";
             $this->stmtService = $this->backendInstance->db->prepare($query);
         }
         $this->stmtService->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
         $this->stmtService->execute();
         $results = $this->stmtService->fetchAll(PDO::FETCH_ASSOC);
         $this->serviceCache[$serviceId] = array_pop($results);
-    }
-
-    /**
-     * Get severity from service id
-     *
-     * @param int $hostId
-     * @param int $serviceId
-     * @return void
-     */
-    protected function getSeverity($hostId, int $serviceId)
-    {
-        $severityId =
-            ServiceCategory::getInstance($this->dependencyInjector)->getServiceSeverityByServiceId($serviceId);
-        if (!is_null($severityId)) {
-            Relations\ServiceCategoriesRelation::getInstance($this->dependencyInjector)
-                ->addRelation($severityId, $serviceId);
-        }
-        return null;
     }
 
     /**
@@ -187,8 +293,8 @@ class Service extends AbstractService
      */
     private function buildCache()
     {
-        if ($this->doneCache == 1 ||
-            ($this->useCache == 0 && $this->useCachePoller == 0)
+        if ($this->doneCache == 1
+            || ($this->useCache == 0 && $this->useCachePoller == 0)
         ) {
             return 0;
         }
@@ -200,102 +306,5 @@ class Service extends AbstractService
         }
 
         $this->doneCache = 1;
-    }
-
-    /**
-     * Generate service object from service id
-     *
-     * @param int $hostId
-     * @param string $hostName
-     * @param null|int $serviceId
-     * @param int $by_hg
-     * @return void
-     */
-    public function generateFromServiceId(int $hostId, string $hostName, ?int $serviceId, $by_hg = 0)
-    {
-        if (is_null($serviceId)) {
-            return null;
-        }
-
-        $this->buildCache();
-
-        // No need to do it again for service by hostgroup
-        if ($by_hg == 1 && isset($this->serviceCache[$serviceId])) {
-            return $this->serviceCache[$serviceId]['service_description'];
-        }
-
-        if (($this->useCache == 0 || $by_hg == 1) && !isset($this->serviceCache[$serviceId])) {
-            $this->getServiceFromId($serviceId);
-        }
-        if (!isset($this->serviceCache[$serviceId]) || is_null($this->serviceCache[$serviceId])) {
-            return null;
-        }
-        if ($this->checkGenerate($hostId . '.' . $serviceId)) {
-            return $this->serviceCache[$serviceId]['service_description'];
-        }
-
-        $this->getImages($this->serviceCache[$serviceId]);
-        $this->getMacros($this->serviceCache[$serviceId]);
-        $this->getTraps($this->serviceCache[$serviceId]);
-        // useful for servicegroup on servicetemplate
-        $serviceTemplate = ServiceTemplate::getInstance($this->dependencyInjector);
-        $serviceTemplate->resetLoop();
-        $serviceTemplate->currentHostId = $hostId;
-        $serviceTemplate->currentHostName = $hostName;
-        $serviceTemplate->currentServiceId = $serviceId;
-        $serviceTemplate->currentServiceDescription = $this->serviceCache[$serviceId]['service_description'];
-        $this->getServiceTemplates($this->serviceCache[$serviceId]);
-        $this->getServiceCommands($this->serviceCache[$serviceId]);
-        $this->getServicePeriods($this->serviceCache[$serviceId]);
-        if ($this->backendInstance->isExportContact()) {
-            $this->getContactGroups($this->serviceCache[$serviceId]);
-            $this->getContacts($this->serviceCache[$serviceId]);
-        }
-
-        $this->getSeverity($hostId, $serviceId);
-        $this->getServiceGroups($serviceId, $hostId, $hostName);
-
-        $extendedInformation = $this->getExtendedInformation($this->serviceCache[$serviceId]);
-        Relations\ExtendedServiceInformation::getInstance($this->dependencyInjector)
-            ->add($extendedInformation, $serviceId);
-        Graph::getInstance($this->dependencyInjector)->getGraphFromId($extendedInformation['graph_id']);
-
-        $this->serviceCache[$serviceId]['service_id'] = $serviceId;
-        $this->generateObjectInFile(
-            $this->serviceCache[$serviceId],
-            $hostId . '.' . $serviceId
-        );
-        $this->clean($this->serviceCache[$serviceId]);
-        return $this->serviceCache[$serviceId]['service_description'];
-    }
-
-    /**
-     * Set poller
-     *
-     * @param int $pollerId
-     * @return void
-     */
-    public function setPoller(int $pollerId): void
-    {
-        $this->pollerId = $pollerId;
-    }
-
-    /**
-     * Reset object
-     *
-     * @param bool $resetParent
-     * @param bool $createfile
-     * @return void
-     */
-    public function reset($resetParent = false, $createfile = false): void
-    {
-        // We reset it by poller (dont need all. We save memory)
-        if ($this->useCachePoller == 1) {
-            $this->serviceCache = [];
-            $this->doneCache = 0;
-        }
-        if ($resetParent == true) {
-            parent::reset($createfile);
-        }
     }
 }

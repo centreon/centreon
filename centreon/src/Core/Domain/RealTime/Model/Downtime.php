@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,7 +92,7 @@ class Downtime
     public function __construct(
         private int $id,
         private int $hostId,
-        private int $serviceId
+        private int $serviceId,
     ) {
         $this->maxDate = (new \DateTime('', new \DateTimeZone('UTC')))
             ->setDate(self::DOWNTIME_YEAR_MAX, 1, 1)

@@ -1,15 +1,17 @@
+import { useInfiniteScrollListing } from '@centreon/ui';
+
 import { equals, flatten } from 'ramda';
 
-import { useInfiniteScrollListing } from '@centreon/ui';
 import { Resource } from '../../../../models';
-import { tooltipPageAtom } from '../../StatusGridStandard/Tooltip/atoms';
-import { ResourceStatus } from '../../StatusGridStandard/models';
+import { isResourceString } from '../../../../utils';
 import {
   baIndicatorsEndpoint,
   businessActivitiesEndpoint,
   getListingCustomQueryParameters,
   resourcesEndpoint
 } from '../../api/endpoints';
+import { ResourceStatus } from '../../StatusGridStandard/models';
+import { tooltipPageAtom } from '../../StatusGridStandard/Tooltip/atoms';
 
 interface UseLoadResourcesProps {
   bypassRequest: boolean;
@@ -61,6 +63,14 @@ export const useLoadResources = ({
 
   const resourcesSearchConditions = resourcesToApplyToSearch.map(
     ({ resourceType: type, resources: resourcesToApply }) => {
+      if (isResourceString(resourcesToApply)) {
+        return {
+          field: resourceType,
+          values: {
+            $rg: resourcesToApply
+          }
+        };
+      }
       return resourcesToApply.map((resource) => ({
         field: type,
         values: {

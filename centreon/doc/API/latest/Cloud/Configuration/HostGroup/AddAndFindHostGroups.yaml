@@ -47,6 +47,7 @@ post:
 
     * name
     * resource_access_rules
+    * hosts (can be an empty array)
   requestBody:
     required: true
     content:

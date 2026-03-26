@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,12 +18,12 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\HostConfiguration\Interfaces\HostGroup;
 
 use Centreon\Domain\HostConfiguration\Exception\HostGroupException;
-use Centreon\Domain\HostConfiguration\HostGroupService;
 use Centreon\Domain\HostConfiguration\Model\HostGroup;
 use Centreon\Domain\Repository\RepositoryException;
 
@@ -44,8 +44,8 @@ interface HostGroupServiceInterface
      * Find host groups by name (for admin user).
      *
      * @param string[] $groupsName List of names of host groups to be found
-     * @return HostGroup[]
      * @throws HostGroupException
+     * @return HostGroup[]
      */
     public function findByNamesWithoutAcl(array $groupsName): array;
 
@@ -53,9 +53,9 @@ interface HostGroupServiceInterface
      * Find a host group (for non admin user).
      *
      * @param int $groupId Id of the host group to be found
-     * @return HostGroup|null
      * @throws HostGroupException
      * @throws RepositoryException
+     * @return HostGroup|null
      */
     public function findWithAcl(int $groupId): ?HostGroup;
 
@@ -63,9 +63,9 @@ interface HostGroupServiceInterface
      * Find a host group (for admin user).
      *
      * @param int $groupId Id of the host group to be found
-     * @return HostGroup|null
      * @throws HostGroupException
      * @throws RepositoryException
+     * @return HostGroup|null
      */
     public function findWithoutAcl(int $groupId): ?HostGroup;
 }

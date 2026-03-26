@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ final class UpdateHostGroupRequest
      * @param string|null $geoCoords
      * @param string $comment
      * @param int|null $iconId
-     * @param int[] $hosts
+     * @param int[]|null $hosts
      * @param int[] $resourceAccessRules
      */
     public function __construct(
@@ -42,7 +42,7 @@ final class UpdateHostGroupRequest
         public ?string $geoCoords = null,
         public string $comment = '',
         public ?int $iconId = null,
-        public array $hosts = [],
+        public ?array $hosts = null,
         public array $resourceAccessRules = [],
     ) {
 

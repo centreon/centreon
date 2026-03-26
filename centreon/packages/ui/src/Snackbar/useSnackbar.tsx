@@ -1,12 +1,10 @@
-import { useSnackbar as useNotistackSnackbar } from 'notistack';
-
 import { Typography } from '@mui/material';
 
+import { useSnackbar as useNotistackSnackbar } from 'notistack';
+
 import { sanitizedHTML } from '../utils';
-
-import Severity from './Severity';
-
 import Snackbar from '.';
+import Severity from './Severity';
 
 interface ShowMessageProps {
   message: string | JSX.Element;

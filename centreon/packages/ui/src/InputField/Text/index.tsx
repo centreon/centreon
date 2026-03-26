@@ -1,8 +1,3 @@
-import { forwardRef, useCallback } from 'react';
-
-import { equals, isNil } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import {
   Box,
   InputAdornment,
@@ -15,8 +10,11 @@ import {
   Typography
 } from '@mui/material';
 
-import { getNormalizedId } from '../../utils';
+import { equals, isNil } from 'ramda';
+import { forwardRef, useCallback } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
+import { getNormalizedId } from '../../utils';
 import useAutoSize from './useAutoSize';
 
 const useStyles = makeStyles()((theme: Theme) => ({
@@ -98,6 +96,7 @@ export type TextProps = {
   transparent?: boolean;
   value?: string;
   textFieldSlotsAndSlotProps?: TextFieldSlotsAndSlotProps<InputProps>;
+  forceUncontrolled?: boolean;
 } & Omit<TextFieldProps, 'variant' | 'size' | 'error'>;
 
 const TextField = forwardRef(
@@ -123,6 +122,8 @@ const TextField = forwardRef(
       containerClassName,
       type,
       textFieldSlotsAndSlotProps,
+      forceUncontrolled,
+      helperText,
       ...rest
     }: TextProps,
     ref: React.ForwardedRef<HTMLDivElement>
@@ -141,7 +142,7 @@ const TextField = forwardRef(
     const tooltipTitle = displayErrorInTooltip && !isNil(error) ? error : '';
 
     const getValueProps = useCallback((): object => {
-      if (debounced) {
+      if (debounced || forceUncontrolled) {
         return {};
       }
       if (defaultValue) {
@@ -149,7 +150,7 @@ const TextField = forwardRef(
       }
 
       return { value: innerValue };
-    }, [innerValue, debounced, defaultValue]);
+    }, [innerValue, debounced, defaultValue, forceUncontrolled]);
 
     return (
       <Box
@@ -160,21 +161,24 @@ const TextField = forwardRef(
           <MuiTextField
             data-testid={dataTestId}
             error={!isNil(error)}
-            helperText={displayErrorInTooltip ? undefined : error}
+            helperText={
+              (displayErrorInTooltip ? undefined : error) || helperText
+            }
             id={getNormalizedId(dataTestId || '')}
             label={label}
+            onChange={changeInputValue}
             ref={ref}
             size={size || 'small'}
-            onChange={changeInputValue}
             {...getValueProps()}
+            autoComplete="off"
             className={classes.textField}
             required={required}
-            sx={{
-              width: autoSize ? width : undefined,
-              ...rest?.sx
-            }}
-            type={type}
             slotProps={{
+              htmlInput: {
+                'aria-label': ariaLabel,
+                'data-testid': dataTestId,
+                ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput
+              },
               input: {
                 className: cx(
                   classes.inputBase,
@@ -208,13 +212,13 @@ const TextField = forwardRef(
                     equals(size, 'compact') && classes.compactLabelShrink
                   )
                 }
-              },
-              htmlInput: {
-                'aria-label': ariaLabel,
-                'data-testid': dataTestId,
-                ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput
               }
             }}
+            sx={{
+              width: autoSize ? width : undefined,
+              ...rest?.sx
+            }}
+            type={type}
             {...rest}
           />
         </Tooltip>

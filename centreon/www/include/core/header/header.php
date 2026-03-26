@@ -1,50 +1,34 @@
 <?php
 
 /*
- * Copyright 2005-2021 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-if (!defined('SMARTY_DIR')) {
+if (! defined('SMARTY_DIR')) {
     define('SMARTY_DIR', realpath('../vendor/smarty/smarty/libs/') . '/');
 }
 
-/*
- * Bench
- */
+// Bench
 function microtime_float(): bool
 {
-    [$usec, $sec] = explode(" ", microtime());
-    return ((float)$usec + (float)$sec);
+    [$usec, $sec] = explode(' ', microtime());
+
+    return (float) $usec + (float) $sec;
 }
 
 set_time_limit(60);
@@ -52,16 +36,14 @@ $time_start = microtime_float();
 
 $advanced_search = 0;
 
-/*
- * Include
- */
-include_once(realpath(__DIR__ . "/../../../../bootstrap.php"));
+// Include
+include_once realpath(__DIR__ . '/../../../../bootstrap.php');
 
-require_once "$classdir/centreonDB.class.php";
-require_once "$classdir/centreonLang.class.php";
-require_once "$classdir/centreonSession.class.php";
-require_once "$classdir/centreon.class.php";
-require_once "$classdir/centreonFeature.class.php";
+require_once "{$classdir}/centreonDB.class.php";
+require_once "{$classdir}/centreonLang.class.php";
+require_once "{$classdir}/centreonSession.class.php";
+require_once "{$classdir}/centreon.class.php";
+require_once "{$classdir}/centreonFeature.class.php";
 
 /*
  * Create DB Connection
@@ -69,58 +51,54 @@ require_once "$classdir/centreonFeature.class.php";
  *  - centstorage
  */
 $pearDB = new CentreonDB();
-$pearDBO = new CentreonDB("centstorage");
+$pearDBO = new CentreonDB('centstorage');
 
 $centreonSession = new CentreonSession();
 
 CentreonSession::start();
 
 // Check session and drop all expired sessions
-if (!$centreonSession->updateSession($pearDB)) {
+if (! $centreonSession->updateSession($pearDB)) {
     CentreonSession::stop();
 }
 
-$args = "&redirect=" . urlencode(http_build_query($_GET));
+$args = '&redirect=' . urlencode(http_build_query($_GET));
 
 // check centreon session
 // if session is not valid and autologin token is not given, then redirect to login page
-if (!isset($_SESSION["centreon"])) {
-    if (!isset($_GET['autologin'])) {
+if (! isset($_SESSION['centreon'])) {
+    if (! isset($_GET['autologin'])) {
         include __DIR__ . '/../../../index.html';
     } else {
         $args = null;
         foreach ($_GET as $key => $value) {
-            $args ? $args .= "&" . $key . "=" . $value : $args = $key . "=" . $value;
+            $args ? $args .= '&' . $key . '=' . $value : $args = $key . '=' . $value;
         }
-        header("Location: index.php?" . $args . "");
+        header('Location: index.php?' . $args . '');
     }
 }
 
-/*
- * Define Oreon var alias
- */
-if (isset($_SESSION["centreon"])) {
-    $oreon = $_SESSION["centreon"];
-    $centreon = $_SESSION["centreon"];
+// Define Oreon var alias
+if (isset($_SESSION['centreon'])) {
+    $oreon = $_SESSION['centreon'];
+    $centreon = $_SESSION['centreon'];
 }
-if (!isset($centreon) || !is_object($centreon)) {
+if (! isset($centreon) || ! is_object($centreon)) {
     exit();
 }
 
-/*
- * Init different elements we need in a lot of pages
- */
+// Init different elements we need in a lot of pages
 unset($centreon->optGen);
 $centreon->initOptGen($pearDB);
 
-if (!$p) {
+if (! $p) {
     $rootMenu = getFirstAllowedMenu($centreon->user->access->topologyStr, $centreon->user->default_page);
 
     if ($rootMenu && $rootMenu['topology_url'] && $rootMenu['is_react']) {
         header("Location: .{$rootMenu['topology_url']}");
     } elseif ($rootMenu) {
-        $p = $rootMenu["topology_page"];
-        $tab = preg_split("/\=/", $rootMenu["topology_url_opt"]);
+        $p = $rootMenu['topology_page'];
+        $tab = preg_split("/\=/", $rootMenu['topology_url_opt']);
 
         if (isset($tab[1])) {
             $o = $tab[1];
@@ -128,9 +106,7 @@ if (!$p) {
     }
 }
 
-/*
- * Cut Page ID
- */
+// Cut Page ID
 $level1 = null;
 $level2 = null;
 $level3 = null;
@@ -165,21 +141,21 @@ switch (strlen($p)) {
         break;
 }
 
-//Update Session Table For last_reload and current_page row
+// Update Session Table For last_reload and current_page row
 $page = '' . $level1 . $level2 . $level3 . $level4;
 if (empty($page)) {
     $page = null;
 }
 $sessionStatement = $pearDB->prepare(
-    "UPDATE `session`
+    'UPDATE `session`
     SET `current_page` = :currentPage
-    WHERE `session_id` = :sessionId"
+    WHERE `session_id` = :sessionId'
 );
-$sessionStatement->bindValue(':currentPage', $page, \PDO::PARAM_INT);
-$sessionStatement->bindValue(':sessionId', session_id(), \PDO::PARAM_STR);
+$sessionStatement->bindValue(':currentPage', $page, PDO::PARAM_INT);
+$sessionStatement->bindValue(':sessionId', session_id(), PDO::PARAM_STR);
 $sessionStatement->execute();
 
-//Init Language
+// Init Language
 $centreonLang = new CentreonLang(_CENTREON_PATH_, $centreon);
 $centreonLang->bindLang();
 $centreonLang->bindLang('help');

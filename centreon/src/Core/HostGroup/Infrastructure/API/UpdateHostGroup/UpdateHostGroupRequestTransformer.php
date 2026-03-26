@@ -37,7 +37,7 @@ final class UpdateHostGroupRequestTransformer
     public static function transform(
         UpdateHostGroupInput $input,
         int $hostGroupId,
-        bool $isCloudPlatform
+        bool $isCloudPlatform,
     ): UpdateHostGroupRequest {
         return new UpdateHostGroupRequest(
             id: $hostGroupId,

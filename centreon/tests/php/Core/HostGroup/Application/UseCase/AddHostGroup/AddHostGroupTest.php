@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,10 @@ namespace Tests\Core\HostGroup\Application\UseCase\AddHostGroup;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
-use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
-use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Domain\Common\GeoCoords;
 use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\Host\Application\Exception\HostException;
@@ -44,7 +42,6 @@ use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupResponse;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupValidator;
 use Core\HostGroup\Domain\Model\HostGroup;
 use Core\HostGroup\Domain\Model\HostGroupRelation;
-use Core\HostGroup\Domain\Model\NewHostGroup;
 use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
@@ -82,8 +79,8 @@ beforeEach(function (): void {
     $this->addHostGroupRequest->alias = 'HG_Alias';
     $this->addHostGroupRequest->geoCoords = '-10,10';
     $this->addHostGroupRequest->comment = 'A New Hostgroup';
-    $this->addHostGroupRequest->hosts = [1,2];
-    $this->addHostGroupRequest->resourceAccessRules = [1,2,3];
+    $this->addHostGroupRequest->hosts = [1, 2];
+    $this->addHostGroupRequest->resourceAccessRules = [1, 2, 3];
     $this->addHostGroupRequest->iconId = 1;
 
     $this->datasetFilterValidator = $this->createMock(DatasetFilterValidator::class);
@@ -94,7 +91,7 @@ it(
     function (): void {
         $this->validator
             ->expects($this->once())
-            ->method('assertNameDoesNotAlreadyExists')
+            ->method('assertNameIsValid')
             ->willThrowException(HostGroupException::nameAlreadyExists($this->addHostGroupRequest->name));
 
         $response = ($this->useCase)($this->addHostGroupRequest);
@@ -103,6 +100,27 @@ it(
             ->toBeInstanceOf(InvalidArgumentResponse::class)
             ->and($response->getMessage())
             ->toBe(HostGroupException::nameAlreadyExists($this->addHostGroupRequest->name)->getMessage());
+    }
+);
+
+it(
+    'Should return an InvalidArgumentResponse When an hostgroup name contains unauthorized characters',
+    function (): void {
+        $this->addHostGroupRequest->name = 'HG~1!';
+
+        $this->validator
+            ->expects($this->once())
+            ->method('assertNameIsValid')
+            ->willThrowException(
+                new \Assert\InvalidArgumentException('[HostGroup::name] The value contains unauthorized characters: ~!', 0)
+            );
+
+        $response = ($this->useCase)($this->addHostGroupRequest);
+
+        expect($response)
+            ->toBeInstanceOf(InvalidArgumentResponse::class)
+            ->and($response->getMessage())
+            ->toBe('[HostGroup::name] The value contains unauthorized characters: ~!');
     }
 );
 
@@ -154,7 +172,7 @@ it(
     }
 );
 
-it (
+it(
     'should present an ErrorResponse when an error occured while creating the host group',
     function (): void {
         $this->writeHostGroupRepository
@@ -162,12 +180,12 @@ it (
             ->method('add')
             ->willThrowException(new \Exception());
 
-            $response = ($this->useCase)($this->addHostGroupRequest);
+        $response = ($this->useCase)($this->addHostGroupRequest);
 
-            expect($response)
-                ->toBeInstanceOf(ErrorResponse::class)
-                ->and($response->getMessage())
-                ->toBe(HostGroupException::errorWhileAdding()->getMessage());
+        expect($response)
+            ->toBeInstanceOf(ErrorResponse::class)
+            ->and($response->getMessage())
+            ->toBe(HostGroupException::errorWhileAdding()->getMessage());
     }
 );
 
@@ -193,7 +211,7 @@ it(
                     parentId: null,
                     resourceAccessGroupId: 1,
                     aclGroupId: 1,
-                    resourceIds: [1,2,3]
+                    resourceIds: [1, 2, 3]
                 ),
                 new DatasetFilterRelation(
                     datasetFilterId: 2,
@@ -201,7 +219,7 @@ it(
                     parentId: null,
                     resourceAccessGroupId: 2,
                     aclGroupId: 2,
-                    resourceIds: [4,5,6]
+                    resourceIds: [4, 5, 6]
                 ),
             ]);
 
@@ -219,7 +237,6 @@ it(
             isActivated: true
         );
 
-
         $this->readHostGroupRepository
             ->expects($this->once())
             ->method('findOne')
@@ -229,8 +246,8 @@ it(
             ->expects($this->once())
             ->method('findByHostGroup')
             ->willReturn([
-                new  SimpleEntity(1, new TrimmedString('host1'), 'Host'),
-                new  SimpleEntity(2, new TrimmedString('host2'), 'Host')
+                new SimpleEntity(1, new TrimmedString('host1'), 'Host'),
+                new SimpleEntity(2, new TrimmedString('host2'), 'Host'),
             ]);
 
         $filterTypes = [];
@@ -256,19 +273,19 @@ it(
                     id: 1,
                     name: 'rule1',
                     applyToAllContacts: true,
-                    datasets: [new DatasetFilter('hostgroup', [1,2,3,7], $validator)]
+                    datasets: [new DatasetFilter('hostgroup', [1, 2, 3, 7], $validator)]
                 ),
                 new Rule(
                     id: 2,
                     name: 'rule2',
                     applyToAllContacts: true,
-                    datasets: [new DataSetFilter('hostgroup', [1,2,3,7], $validator)]
+                    datasets: [new DatasetFilter('hostgroup', [1, 2, 3, 7], $validator)]
                 ),
                 new Rule(
                     id: 3,
                     name: 'rule3',
                     applyToAllContacts: true,
-                    datasets: [new DataSetFilter('hostgroup', [1,2,3,7], $validator)]
+                    datasets: [new DatasetFilter('hostgroup', [1, 2, 3, 7], $validator)]
                 ),
             );
 

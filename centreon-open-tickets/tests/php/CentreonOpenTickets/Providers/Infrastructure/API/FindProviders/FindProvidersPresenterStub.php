@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,11 @@ declare(strict_types=1);
 
 namespace Tests\CentreonOpenTickets\Providers\Infrastructure\API\FindProviders;
 
-use CentreonOpenTickets\Providers\Application\UseCase\FindProvidersPresenterInterface;
 use CentreonOpenTickets\Providers\Application\UseCase\FindProvidersResponse;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 
-final class FindProvidersPresenterStub extends AbstractPresenter implements FindProvidersPresenterInterface
+final class FindProvidersPresenterStub extends AbstractPresenter
 {
     public FindProvidersResponse|ResponseStatusInterface $response;
 

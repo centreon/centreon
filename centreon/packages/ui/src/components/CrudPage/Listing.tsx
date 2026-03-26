@@ -1,8 +1,8 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+
 import { ColumnType } from '../../../';
 import { MemoizedListing } from '../../Listing';
 import Actions from './Actions/Actions';
-import ColumnActions from './Columns/Actions';
 import {
   changeSortAtom,
   limitAtom,
@@ -10,7 +10,8 @@ import {
   sortFieldAtom,
   sortOrderAtom
 } from './atoms';
-import { ListingProps } from './models';
+import ColumnActions from './Columns/Actions';
+import type { ListingProps } from './models';
 
 const Listing = <TData extends { id: number; name: string }>({
   rows,
@@ -33,29 +34,29 @@ const Listing = <TData extends { id: number; name: string }>({
   const changeSort = useSetAtom(changeSortAtom);
 
   const listingColumns = columns.concat({
-    type: ColumnType.component,
+    Component: ColumnActions,
+    clickable: true,
     id: 'actions',
     label: '',
-    Component: ColumnActions,
-    width: 'min-content',
-    clickable: true
+    type: ColumnType.component,
+    width: 'min-content'
   });
 
   return (
     <MemoizedListing
-      actions={<Actions labels={labels} filters={filters} />}
+      actions={<Actions filters={filters} labels={labels} />}
       columns={listingColumns}
-      subItems={subItems}
-      loading={isLoading}
-      rows={rows}
       currentPage={page}
-      onPaginate={setPage}
       limit={limit}
+      loading={isLoading}
       onLimitChange={setLimit}
-      totalRows={total}
+      onPaginate={setPage}
+      onSort={changeSort}
+      rows={rows}
       sortField={sortField}
       sortOrder={sortOrder}
-      onSort={changeSort}
+      subItems={subItems}
+      totalRows={total}
     />
   );
 };

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,24 +29,16 @@ class ImageDir
     public const TABLE = 'view_img_dir';
     public const JOIN_TABLE = 'view_img_dir_relation';
 
-    /**
-     * @var int
-     */
+    /** @var int */
     public $dir_id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $dir_name;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $dir_alias;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $dir_comment;
 
     /**
@@ -76,7 +68,7 @@ class ImageDir
     /**
      * @param string|null $dirName
      */
-    public function setDirName(string $dirName = null): void
+    public function setDirName(?string $dirName = null): void
     {
         $this->dir_name = $dirName;
     }
@@ -92,7 +84,7 @@ class ImageDir
     /**
      * @param string|null $dirAlias
      */
-    public function setDirAlias(string $dirAlias = null): void
+    public function setDirAlias(?string $dirAlias = null): void
     {
         $this->dir_alias = $dirAlias;
     }
@@ -108,7 +100,7 @@ class ImageDir
     /**
      * @param string|null $dirComment
      */
-    public function setDirComment(string $dirComment = null): void
+    public function setDirComment(?string $dirComment = null): void
     {
         $this->dir_comment = $dirComment;
     }

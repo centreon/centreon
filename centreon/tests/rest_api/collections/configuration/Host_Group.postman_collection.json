@@ -4,8 +4,8 @@
 		"name": "Host_Group",
 		"description": "This collection has fixes for these tickets :\n\n- [MON-34388](https://centreon.atlassian.net/browse/MON-34388) (Add search with host category)\n    \n- [MON-38229](https://centreon.atlassian.net/browse/MON-38229) (Fix request with\"or\")\n    \n- [MON-38233](https://centreon.atlassian.net/browse/MON-38233) (Fix request resulting in code 500)\n    \n- [MON-20165](https://centreon.atlassian.net/browse/MON-20165) (Add location header)\n    \n- [MON-20598](https://centreon.atlassian.net/browse/MON-20598) (Listing incorrect for non-admin users)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-e67bcfe6-fb70-438e-8833-6daf0e9d914a?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "28117716",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-e67bcfe6-fb70-438e-8833-6daf0e9d914a?action=share&source=collection_link&creator=28117716"
 	},
 	"item": [
 		{
@@ -2829,22 +2829,35 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new host group without name (error)",
+					"name": "Verify that the API rejects host group creation (422) when the “name” field is missing",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The host group has not been created, because the name is mandatory.\", function () {\r",
+									"pm.test(\"The host group has not been created, because the name is mandatory and not null.\", function () {\r",
 									"    pm.response.to.have.status(422);\r",
+									"    pm.expect(responseJson.message).to.contains(\"value should not be null\");\r",
+									"});\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"name: This value should not be null.\\nhosts: This value should not be null.\\n\");\r",
-									"    pm.expect(responseJson.message).to.include(\"name: This value should not be null.\");\r",
-									"});"
+									"pm.test(\"Schema validation test for the host group creation response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -2854,7 +2867,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2890,16 +2904,16 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new host group without name (error)",
+					"name": "Verify that the API rejects host group creation (422) when the “name” field is invalid type",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The host group has not been created, because the name can't be empty.\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
-									"    pm.expect(responseJson.message).to.eql(\"[NewHostGroup::name] The value \\\"\\\" is too short, it should have at least 1 characters, but only has 0 characters\");\r",
+									"pm.test(\"The host group has not been created, because there are values of the wrong type.\", function () {\r",
+									"    pm.response.to.have.status(422);\r",
+									"    pm.expect(responseJson.message).to.contains(\"This value should be of type\");\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation test for the host group creation response\", function () {\r",
@@ -2913,11 +2927,11 @@
 									"    };\r",
 									"\r",
 									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-									"});\r",
-									""
+									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -2927,7 +2941,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2941,7 +2956,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"\",\n    \"alias\": \"Hello, I'm your fourth group!\",\n    \"comment\": \"Oh, I should not work too!\",\n    \"hosts\":[]\n}",
+							"raw": "{\n    \"name\": true,\n    \"alias\": true,\n    \"icon_id\": \"8\",\n    \"geo_coords\": true,\n    \"is_activated\": \"true\",\n    \"comment\": 3,\n    \"hosts\":[]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3038,71 +3053,6 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new host group with wrong type of value (error)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The host group has not been created, because there are values of the wrong type.\", function () {\r",
-									"    pm.response.to.have.status(422);\r",
-									"\r",
-									"    const cleanedMessage = responseJson.message.replace(/\\s+/g, ' ').trim();\r",
-									"\r",
-									"    pm.expect(cleanedMessage).to.eql(\r",
-									"        \"name: This value should be of type string. alias: This value should be of type string. geoCoords: This value should be of type string. comment: This value should be of type string. iconId: This value should be of type int.\"\r",
-									"    );\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": true,\n    \"alias\": true,\n    \"icon_id\": \"8\",\n    \"geo_coords\": true,\n    \"is_activated\": \"true\",\n    \"comment\": 3,\n    \"hosts\":[]\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/hosts/groups",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"hosts",
-								"groups"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Creation of a new host group with special characters (successful)",
 					"event": [
 						{
@@ -3154,7 +3104,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"HostGroup4Name\", \"Test_H_Grôup_4!\");\r",
+									"pm.collectionVariables.set(\"HostGroup4Name\", \"Test_H_Group_4\");\r",
 									"pm.collectionVariables.set(\"HostGroup4Alias\", \"I want to break free !\");\r",
 									""
 								],
@@ -3174,6 +3124,79 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"name\": \"{{HostGroup4Name}}\",\n    \"alias\": \"{{HostGroup4Alias}}\",\n    \"comment\": \"   \",\n    \"hosts\": []\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a host group with illegal characters (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group creation failed due to illegal characters in name\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for error response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            code: { type: \"integer\" },\r",
+									"            message: { type: \"string\" }\r",
+									"        },\r",
+									"        required: [\"code\", \"message\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostGroupInvalidName\", \"Test_H_Grôup_4!\");\r",
+									"pm.collectionVariables.set(\"HostGroupInvalidAlias\", \"Invalid characters test\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{HostGroupInvalidName}}\",\n    \"alias\": \"{{HostGroupInvalidAlias}}\",\n    \"comment\": \"This should fail due to special characters\",\n    \"hosts\": []\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -6043,20 +6066,38 @@
 							"response": []
 						},
 						{
-							"name": "Update of a host group (error)",
+							"name": "Verify update of a host group (error)",
 							"event": [
 								{
 									"listen": "test",
 									"script": {
 										"exec": [
+											"/*\r",
+											"/  Check code status\r",
+											"*/\r",
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"Host group not found\", function () {\r",
-											"    pm.response.to.have.status(422);\r",
-											"    pm.expect(responseJson.message).to.eql(\"hosts: This value should not be null.\\n\");\r",
-											"});"
+											"    pm.response.to.have.status(404);\r",
+											"    pm.expect(responseJson.message).to.eql(\"Host Group not found\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Schema validation test for the host group listing response\", function () {\r",
+											"    const schema = {\r",
+											"        \"type\": 'object',\r",
+											"        \"properties\": {\r",
+											"            \"code\": { \"type\": 'integer' },\r",
+											"            \"message\": { \"type\": 'string' }\r",
+											"        },\r",
+											"        \"required\": ['code', 'message']\r",
+											"    };\r",
+											"\r",
+											"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+											"});\r",
+											""
 										],
 										"type": "text/javascript",
-										"packages": {}
+										"packages": {},
+										"requests": {}
 									}
 								},
 								{
@@ -6066,7 +6107,8 @@
 											""
 										],
 										"type": "text/javascript",
-										"packages": {}
+										"packages": {},
+										"requests": {}
 									}
 								}
 							],
@@ -6773,12 +6815,13 @@
 										"exec": [
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"Host group not found\", function () {\r",
-											"    pm.response.to.have.status(422);\r",
-											"    pm.expect(responseJson.message).to.eql(\"hosts: This value should not be null.\\n\");\r",
+											"    pm.response.to.have.status(404);\r",
+											"    pm.expect(responseJson.message).to.includes(\"Host Group not found\");\r",
 											"});"
 										],
 										"type": "text/javascript",
-										"packages": {}
+										"packages": {},
+										"requests": {}
 									}
 								},
 								{
@@ -6788,7 +6831,8 @@
 											""
 										],
 										"type": "text/javascript",
-										"packages": {}
+										"packages": {},
+										"requests": {}
 									}
 								}
 							],
@@ -7664,12 +7708,13 @@
 										"exec": [
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"Host group not found\", function () {\r",
-											"    pm.response.to.have.status(422);\r",
-											"    pm.expect(responseJson.message).to.eql(\"hosts: This value should not be null.\\n\");\r",
+											"    pm.response.to.have.status(404);\r",
+											"    pm.expect(responseJson.message).to.includes(\"Host Group not found\");\r",
 											"});"
 										],
 										"type": "text/javascript",
-										"packages": {}
+										"packages": {},
+										"requests": {}
 									}
 								},
 								{
@@ -7679,7 +7724,8 @@
 											""
 										],
 										"type": "text/javascript",
-										"packages": {}
+										"packages": {},
+										"requests": {}
 									}
 								}
 							],
@@ -8515,12 +8561,13 @@
 										"exec": [
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"Host group not found\", function () {\r",
-											"    pm.response.to.have.status(422);\r",
-											"    pm.expect(responseJson.message).to.eql(\"hosts: This value should not be null.\\n\");\r",
+											"    pm.response.to.have.status(404);\r",
+											"    pm.expect(responseJson.message).to.includes(\"Host Group not found\");\r",
 											"});"
 										],
 										"type": "text/javascript",
-										"packages": {}
+										"packages": {},
+										"requests": {}
 									}
 								},
 								{
@@ -8530,7 +8577,8 @@
 											""
 										],
 										"type": "text/javascript",
-										"packages": {}
+										"packages": {},
+										"requests": {}
 									}
 								}
 							],

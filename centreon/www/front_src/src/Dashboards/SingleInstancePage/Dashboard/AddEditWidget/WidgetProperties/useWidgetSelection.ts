@@ -1,4 +1,8 @@
-import { type ChangeEvent, useMemo, useState } from 'react';
+import type { SelectEntry } from '@centreon/ui';
+import {
+  federatedWidgetsAtom,
+  platformFeaturesAtom
+} from '@centreon/ui-context';
 
 import { useFormikContext } from 'formik';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -19,9 +23,7 @@ import {
   toLower,
   toPairs
 } from 'ramda';
-
-import type { SelectEntry } from '@centreon/ui';
-import { federatedWidgetsAtom } from '@centreon/ui-context';
+import { type ChangeEvent, useMemo, useState } from 'react';
 
 import { federatedWidgetsPropertiesAtom } from '../../../../../federatedModules/atoms';
 import type {
@@ -29,17 +31,14 @@ import type {
   FederatedWidgetOption,
   FederatedWidgetProperties
 } from '../../../../../federatedModules/models';
+import usePlatformVersions from '../../../../../Main/usePlatformVersions';
 import { isGenericText } from '../../utils';
 import {
   customBaseColorAtom,
-  singleMetricSelectionAtom,
   singleResourceSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
 import { type Widget, WidgetType } from '../models';
-
-import { platformFeaturesAtom } from '@centreon/ui-context';
-import usePlatformVersions from '../../../../../Main/usePlatformVersions';
 
 interface UseWidgetSelectionState {
   options: Array<SelectEntry>;
@@ -91,7 +90,6 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
   const federatedWidgetsProperties = useAtomValue(
     federatedWidgetsPropertiesAtom
   );
-  const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
   const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
@@ -111,7 +109,6 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       ),
     [federatedWidgetsProperties, widgets]
   );
-
   const availableWidgetsProperties = reject((widget) => {
     return isCloudPlatform && widget?.availableOnPremOnly;
   }, installedWidgets || []);
@@ -189,17 +186,34 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     }, {});
 
     const data = Object.entries(selectedWidgetProperties.data || {}).reduce(
-      (acc, [key, value]) => ({
-        ...acc,
-        [key]: value.defaultValue
-      }),
+      (acc, [key, value]) => {
+        if (value?.selectType) {
+          const selectedTypes = value.selectType.defaultResourceType;
+          return {
+            ...acc,
+            [key]: selectedTypes.map(({ resourceType }, index) => {
+              return {
+                [key]: Array.isArray(value.defaultValue)
+                  ? value.defaultValue[index] || []
+                  : value.defaultValue,
+                resourceType
+              };
+            })
+          };
+        }
+
+        return {
+          ...acc,
+          [key]: value.defaultValue
+        };
+      },
       {}
     );
+
     const shouldResetDescription =
       equals(values.moduleName, 'centreon-widget-generictext') &&
       !isGenericText(selectedWidget.federatedComponentsConfiguration[0].path);
 
-    setSingleMetricSection(selectedWidgetProperties.singleMetricSelection);
     setSingleResourceSelection(
       selectedWidgetProperties.singleResourceSelection
     );
@@ -213,7 +227,9 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
         ...options,
         ...properties,
         description:
-          shouldResetDescription || isNil(currentValues.options.description)
+          shouldResetDescription ||
+          isNil(currentValues.options.description) ||
+          isEmpty(currentValues.options.description)
             ? {
                 content: null,
                 enabled: true
@@ -245,8 +261,8 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
   return {
     options: formattedWidgetsByGroupTitle,
     searchWidgets,
-    selectWidget,
     selectedWidget,
+    selectWidget,
     widgets: filteredWidgets
   };
 };

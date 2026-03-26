@@ -1,11 +1,9 @@
-import { ReactElement } from 'react';
-
-import { Provider, createStore } from 'jotai';
-
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { platformVersionsAtom } from '@centreon/ui-context';
 
-import { AddEditResourceAccessRuleModal } from '..';
+import { createStore, Provider } from 'jotai';
+import { ReactElement } from 'react';
+
 import {
   editedResourceAccessRuleIdAtom,
   modalStateAtom,
@@ -38,17 +36,17 @@ import {
   labelSelectResourceType,
   labelYourFormHasUnsavedChanges
 } from '../../translatedLabels';
-import { query } from '../FormInitialValues/useFormInitialValues';
+import { AddEditResourceAccessRuleModal } from '..';
 import {
   findBusinessViewsEndpoint,
   resourceAccessRuleEndpoint
 } from '../api/endpoints';
-
+import { query } from '../FormInitialValues/useFormInitialValues';
 import {
   editedRuleFormData,
-  editedRuleFormDataWithAllContactsAndContactGroups,
   editedRuleFormDataiWithAllBusinessViews,
   editedRuleFormDataiWithBusinessViews,
+  editedRuleFormDataWithAllContactsAndContactGroups,
   findBusinessViewsResponse,
   findResourceAccessRuleResponse,
   findResourceAccessRuleResponseDecoded,
@@ -115,7 +113,7 @@ describe('Edit modal', () => {
     cy.findByText(labelEditResourceAccessRule).should('be.visible');
     cy.findByText(labelRuleProperies).should('be.visible');
     cy.findByText(labelAddResourceDatasets).should('be.visible');
-    cy.findByRole('dialog').scrollTo('bottom');
+    cy.findByTestId('modal-body').scrollTo('bottom');
     cy.findByText(labelContactsAndContactGroups).should('be.visible');
     cy.findByLabelText(labelExit).should('be.enabled');
     cy.findByLabelText(labelSave).should('be.disabled');
@@ -129,7 +127,7 @@ describe('Edit modal', () => {
 
     cy.findByText(labelRequired).should('be.visible');
 
-    cy.findByRole('dialog').scrollTo('bottom');
+    cy.findByTestId('modal-body').scrollTo('bottom');
     cy.findByLabelText(labelSave).should('be.disabled');
 
     cy.makeSnapshot();
@@ -141,7 +139,7 @@ describe('Edit modal', () => {
 
     cy.findByText(labelNameAlreadyExists).should('be.visible');
 
-    cy.findByRole('dialog').scrollTo('bottom');
+    cy.findByTestId('modal-body').scrollTo('bottom');
     cy.findByLabelText(labelSave).should('be.disabled');
 
     cy.makeSnapshot();
@@ -179,7 +177,7 @@ describe('Edit modal', () => {
   });
 
   it('displays configured contacts and contact groups for the Resource Access Rule', () => {
-    cy.findByRole('dialog').scrollTo('bottom');
+    cy.findByTestId('modal-body').scrollTo('bottom');
     cy.findByText('admin admin').should('be.visible');
     cy.findByText('centreon-gorgone').should('be.visible');
     cy.findByText('Guest').should('be.visible');
@@ -191,7 +189,7 @@ describe('Edit modal', () => {
   it('sends a request to edit a Resource Access Rule when a configured value is changed and the Save button is clicked', () => {
     cy.findAllByTestId('DeleteOutlineIcon').last().click();
 
-    cy.findByRole('dialog').scrollTo('bottom');
+    cy.findByTestId('modal-body').scrollTo('bottom');
     cy.findByLabelText(labelSave).click();
 
     cy.waitForRequest('@editResourceAccessRuleRequest');
@@ -233,7 +231,9 @@ describe('Edit modal', () => {
     cy.findByLabelText(labelName).clear().type('rule#1');
 
     cy.findByLabelText(labelAllHostGroups).click();
-    cy.findByLabelText(labelAllHostGroupsSelected).should('be.visible');
+    cy.findByLabelText(labelAllHostGroupsSelected)
+      .scrollIntoView()
+      .should('be.visible');
     cy.findByLabelText(labelAllHostGroupsSelected).should('be.disabled');
 
     cy.findByLabelText(labelSave).click();
@@ -311,7 +311,9 @@ describe('Edit modal', () => {
     cy.findByLabelText(labelName).clear().type('rule#1');
 
     cy.findByLabelText(labelAllHostGroups).click();
-    cy.findByLabelText(labelAllHostGroupsSelected).should('be.visible');
+    cy.findByLabelText(labelAllHostGroupsSelected)
+      .scrollIntoView()
+      .should('be.visible');
     cy.findByLabelText(labelAllHostGroupsSelected).should('be.disabled');
 
     cy.findByLabelText(labelAllContacts).click();

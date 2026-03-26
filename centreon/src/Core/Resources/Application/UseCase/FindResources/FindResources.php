@@ -49,7 +49,7 @@ final class FindResources
         private readonly ReadResourceRepositoryInterface $repository,
         private readonly ContactInterface $contact,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private readonly \Traversable $extraDataProviders
+        private readonly \Traversable $extraDataProviders,
     ) {
     }
 
@@ -59,7 +59,7 @@ final class FindResources
      */
     public function __invoke(
         FindResourcesPresenterInterface $presenter,
-        ResourceFilter $filter
+        ResourceFilter $filter,
     ): void {
         try {
             $resources = $this->contact->isAdmin() ? $this->findResourcesAsAdmin($filter) : $this->findResourcesAsUser($filter);
@@ -106,7 +106,7 @@ final class FindResources
     private function findResourcesAsUser(ResourceFilter $filter): array
     {
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $this->accessGroupRepository->findByContact($this->contact)
         );
 

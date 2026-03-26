@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,85 +18,56 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring\Model;
 
 class Comment
 {
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $id;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $entryTime;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $hostId;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $serviceId;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $author;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $data;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $deletionTime;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $entryType;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $expireTime;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $expires;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $instanceId;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $internalId;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $persistent;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $source;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $type;
 
     /**

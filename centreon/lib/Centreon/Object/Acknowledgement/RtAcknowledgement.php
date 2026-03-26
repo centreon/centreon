@@ -1,40 +1,25 @@
 <?php
 
 /*
- * Copyright 2005-2020 CENTREON
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give CENTREON
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of CENTREON choice, provided that
- * CENTREON also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-require_once "Centreon/Object/ObjectRt.php";
+require_once 'Centreon/Object/ObjectRt.php';
 
 /**
  * Class
@@ -44,11 +29,13 @@ require_once "Centreon/Object/ObjectRt.php";
 class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
 {
     /** @var string */
-    protected $table = "acknowledgements";
+    protected $table = 'acknowledgements';
+
     /** @var string */
-    protected $primaryKey = "acknowledgement_id";
+    protected $primaryKey = 'acknowledgement_id';
+
     /** @var string */
-    protected $uniqueLabelField = "comment_data";
+    protected $uniqueLabelField = 'comment_data';
 
     /**
      * @param int[] $hostIds
@@ -57,8 +44,8 @@ class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
     public function getLastHostAcknowledgement($hostIds = [])
     {
         $hostFilter = '';
-        if (!empty($hostIds)) {
-            $hostFilter = "AND hosts.host_id IN (" . implode(",", $hostIds) . ")";
+        if (! empty($hostIds)) {
+            $hostFilter = 'AND hosts.host_id IN (' . implode(',', $hostIds) . ')';
         }
 
         return $this->getResult(
@@ -95,7 +82,7 @@ class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
     {
         $serviceFilter = '';
 
-        if (!empty($svcList)) {
+        if (! empty($svcList)) {
             $serviceFilter = 'AND (';
             $filterTab = [];
             $counter = count($svcList);
@@ -147,12 +134,9 @@ class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
      */
     public function svcIsAcknowledged($serviceId)
     {
-        $query = "SELECT acknowledged FROM services WHERE service_id = ? ";
-        if ($this->getResult($query, [$serviceId], 'fetch')['acknowledged'] == 1) {
-            return true;
-        } else {
-            return false;
-        }
+        $query = 'SELECT acknowledged FROM services WHERE service_id = ? ';
+
+        return (bool) ($this->getResult($query, [$serviceId], 'fetch')['acknowledged'] == 1);
     }
 
     /**
@@ -161,11 +145,8 @@ class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
      */
     public function hostIsAcknowledged($hostId)
     {
-        $query = "SELECT acknowledged FROM hosts WHERE host_id = ? ";
-        if ($this->getResult($query, [$hostId], 'fetch')['acknowledged'] == 1) {
-            return true;
-        } else {
-            return false;
-        }
+        $query = 'SELECT acknowledged FROM hosts WHERE host_id = ? ';
+
+        return (bool) ($this->getResult($query, [$hostId], 'fetch')['acknowledged'] == 1);
     }
 }

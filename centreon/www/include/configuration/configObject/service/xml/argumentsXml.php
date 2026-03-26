@@ -1,52 +1,36 @@
 <?php
+
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-require_once realpath(__DIR__ . "/../../../../../../config/centreon.config.php");
+require_once realpath(__DIR__ . '/../../../../../../config/centreon.config.php');
 
-require_once __DIR__ . "/argumentsXmlFunction.php";
+require_once __DIR__ . '/argumentsXmlFunction.php';
 
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once _CENTREON_PATH_ . "/www/class/centreonXML.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once _CENTREON_PATH_ . '/www/class/centreonXML.class.php';
 
-/*
- * Get session
- */
-require_once(_CENTREON_PATH_ . "www/class/centreonSession.class.php");
-require_once(_CENTREON_PATH_ . "www/class/centreon.class.php");
+// Get session
+require_once _CENTREON_PATH_ . 'www/class/centreonSession.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreon.class.php';
 
-if (!isset($_SESSION['centreon'])) {
+if (! isset($_SESSION['centreon'])) {
     CentreonSession::start(1);
 }
 
@@ -56,20 +40,15 @@ if (isset($_SESSION['centreon'])) {
     exit;
 }
 
-/*
- * Get language
- */
+// Get language
 $locale = $oreon->user->get_lang();
-putenv("LANG=$locale");
+putenv("LANG={$locale}");
 setlocale(LC_ALL, $locale);
-bindtextdomain("messages", _CENTREON_PATH_ . "www/locale/");
-bind_textdomain_codeset("messages", "UTF-8");
-textdomain("messages");
+bindtextdomain('messages', _CENTREON_PATH_ . 'www/locale/');
+bind_textdomain_codeset('messages', 'UTF-8');
+textdomain('messages');
 
-
-/*
- * start init db
- */
+// start init db
 $db = new CentreonDB();
 $xml = new CentreonXML();
 
@@ -81,14 +60,14 @@ $xml->writeElement('argExample', _('Example'));
 $xml->writeElement('noArgLabel', _('No argument found for this command'));
 $xml->endElement();
 
-if (isset($_GET['cmdId']) && isset($_GET['svcId']) && isset($_GET['svcTplId']) && isset($_GET['o'])) {
+if (isset($_GET['cmdId'], $_GET['svcId'], $_GET['svcTplId'], $_GET['o'])) {
     $cmdId = CentreonDB::escape($_GET['cmdId']);
     $svcId = CentreonDB::escape($_GET['svcId']);
     $svcTplId = CentreonDB::escape($_GET['svcTplId']);
     $o = CentreonDB::escape($_GET['o']);
 
     $tab = [];
-    if (!$cmdId && $svcTplId) {
+    if (! $cmdId && $svcTplId) {
         while (1) {
             $query4 = "SELECT service_template_model_stm_id, command_command_id, command_command_id_arg 
                             FROM `service` 
@@ -99,7 +78,7 @@ if (isset($_GET['cmdId']) && isset($_GET['svcId']) && isset($_GET['svcTplId']) &
                 $cmdId = $row4['command_command_id'];
                 break;
             }
-            if (!isset($row4['service_template_model_stm_id']) || !$row4['service_template_model_stm_id']) {
+            if (! isset($row4['service_template_model_stm_id']) || ! $row4['service_template_model_stm_id']) {
                 break;
             }
             if (isset($tab[$row4['service_template_model_stm_id']])) {
@@ -113,13 +92,13 @@ if (isset($_GET['cmdId']) && isset($_GET['svcId']) && isset($_GET['svcTplId']) &
     $argTab = [];
     $exampleTab = [];
 
-    $query2 = "SELECT command_line, command_example FROM command WHERE command_id = :cmd_id LIMIT 1";
+    $query2 = 'SELECT command_line, command_example FROM command WHERE command_id = :cmd_id LIMIT 1';
     $statement = $db->prepare($query2);
-    $statement->bindValue(':cmd_id', $cmdId, \PDO::PARAM_INT);
+    $statement->bindValue(':cmd_id', $cmdId, PDO::PARAM_INT);
     $statement->execute();
     if ($row2 = $statement->fetch()) {
         $cmdLine = $row2['command_line'];
-        preg_match_all("/\\\$(ARG[0-9]+)\\\$/", $cmdLine, $matches);
+        preg_match_all('/\\$(ARG[0-9]+)\\$/', $cmdLine, $matches);
         foreach ($matches[1] as $key => $value) {
             $argTab[$value] = $value;
         }
@@ -133,9 +112,9 @@ if (isset($_GET['cmdId']) && isset($_GET['svcId']) && isset($_GET['svcTplId']) &
         }
     }
 
-    $cmdStatement = $db->prepare("SELECT command_command_id_arg " .
-        "FROM service " .
-        "WHERE service_id = :svcId LIMIT 1");
+    $cmdStatement = $db->prepare('SELECT command_command_id_arg '
+        . 'FROM service '
+        . 'WHERE service_id = :svcId LIMIT 1');
     $cmdStatement->bindValue(':svcId', (int) $svcId, PDO::PARAM_INT);
     $cmdStatement->execute();
     if ($cmdStatement->rowCount()) {
@@ -152,32 +131,30 @@ if (isset($_GET['cmdId']) && isset($_GET['svcId']) && isset($_GET['svcTplId']) &
         }
     }
 
-    $macroStatement = $db->prepare("SELECT macro_name, macro_description " .
-        "FROM command_arg_description " .
-        "WHERE cmd_id = :cmdId ORDER BY macro_name");
-    $macroStatement->bindValue(':cmdId', (int) $cmdId, \PDO::PARAM_INT);
+    $macroStatement = $db->prepare('SELECT macro_name, macro_description '
+        . 'FROM command_arg_description '
+        . 'WHERE cmd_id = :cmdId ORDER BY macro_name');
+    $macroStatement->bindValue(':cmdId', (int) $cmdId, PDO::PARAM_INT);
     $macroStatement->execute();
     while ($row = $macroStatement->fetchRow()) {
         $argTab[$row['macro_name']] = $row['macro_description'];
     }
     $macroStatement->closeCursor();
 
-    /*
-     * Write XML
-     */
+    // Write XML
     $style = 'list_two';
     $disabled = 0;
     $nbArg = 0;
     foreach ($argTab as $name => $description) {
         $style = $style == 'list_one' ? 'list_two' : 'list_one';
-        if ($o == "w") {
+        if ($o == 'w') {
             $disabled = 1;
         }
         $xml->startElement('arg');
         $xml->writeElement('name', $name, false);
         $xml->writeElement('description', $description, false);
-        $xml->writeElement('value', $valueTab[$name] ?? "", false);
-        $xml->writeElement('example', isset($exampleTab[$name]) ? myDecodeValue($exampleTab[$name]) : "", false);
+        $xml->writeElement('value', $valueTab[$name] ?? '', false);
+        $xml->writeElement('example', isset($exampleTab[$name]) ? myDecodeValue($exampleTab[$name]) : '', false);
         $xml->writeElement('style', $style);
         $xml->writeElement('disabled', $disabled);
         $xml->endElement();

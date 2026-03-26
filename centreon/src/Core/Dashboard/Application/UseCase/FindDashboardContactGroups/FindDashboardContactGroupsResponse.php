@@ -33,8 +33,7 @@ final class FindDashboardContactGroupsResponse implements ListingResponseInterfa
      */
     public function __construct(
         public array $contactGroups = [],
-    )
-    {
+    ) {
     }
 
     /**

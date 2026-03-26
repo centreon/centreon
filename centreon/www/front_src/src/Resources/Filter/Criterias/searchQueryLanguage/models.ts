@@ -4,8 +4,8 @@ import {
   CriteriaById,
   CriteriaNames,
   selectableResourceTypes,
-  selectableStateTypes,
   selectableStates,
+  selectableStateTypes,
   selectableStatuses
 } from '../models';
 
@@ -62,6 +62,13 @@ export const searchableFields = [
   'parent_alias',
   'fqdn',
   'information'
+];
+
+export const searchableFieldsForPerformance = [
+  'h.name',
+  'h.alias',
+  'h.address',
+  's.description'
 ];
 
 const statusNameToQueryLanguageName = selectableStatuses

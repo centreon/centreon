@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,12 +96,10 @@ class GroupsMapping implements SecurityAccessInterface
         $this->info('Configured groups mapping attribute path found', ['groupAttributePath' => $groupsAttributePath]);
 
         $groupRelationContextDebug = array_map(
-            function (ContactGroupRelation $contactGroupRelation) {
-                return [
-                    'group claim' => $contactGroupRelation->getClaimValue(),
-                    'contact group' => $contactGroupRelation->getContactGroup()->getName(),
-                ];
-            },
+            fn (ContactGroupRelation $contactGroupRelation) => [
+                'group claim' => $contactGroupRelation->getClaimValue(),
+                'contact group' => $contactGroupRelation->getContactGroup()->getName(),
+            ],
             $groupsMapping->getContactGroupRelations()
         );
 
@@ -148,7 +146,7 @@ class GroupsMapping implements SecurityAccessInterface
      */
     private function validateGroupsMappingAttributeOrFail(
         array $providerGroupsMapping,
-        array $contactGroupRelations
+        array $contactGroupRelations,
     ): void {
         if (array_is_list($providerGroupsMapping) === false) {
             $errorMessage = 'Invalid authentication conditions format, array of strings expected';

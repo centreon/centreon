@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -52,12 +52,12 @@ it('should throw an exception when timezone offset format is not respected', fun
     new Timezone(1, $this->name, 'aaa', $this->dayligthSavingTimeOffset);
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::matchRegex('aaa', '/^[-+][0-9]{2}:[0-9]{2}$/', "Timezone::offset")->getMessage()
+    AssertionException::matchRegex('aaa', '/^[-+][0-9]{2}:[0-9]{2}$/', 'Timezone::offset')->getMessage()
 );
 
 it('should throw an exception when timezone daylightSavingTimeOffset format is not respected', function (): void {
     new Timezone(1, $this->name, $this->offset, 'aaa');
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::matchRegex('aaa', '/^[-+][0-9]{2}:[0-9]{2}$/', "Timezone::daylightSavingTimeOffset")->getMessage()
+    AssertionException::matchRegex('aaa', '/^[-+][0-9]{2}:[0-9]{2}$/', 'Timezone::daylightSavingTimeOffset')->getMessage()
 );

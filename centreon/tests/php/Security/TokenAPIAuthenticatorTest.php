@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,31 +18,35 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Tests\Security;
 
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\MockObject\MockObject;
-use Security\TokenAPIAuthenticator;
-use Security\Domain\Authentication\Model\LocalProvider;
-use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
-
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
+use Security\Domain\Authentication\Model\LocalProvider;
+use Security\TokenAPIAuthenticator;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
 class TokenAPIAuthenticatorTest extends TestCase
 {
     private AuthenticationRepositoryInterface|MockObject $authenticationRepository;
+
     private ContactRepositoryInterface|MockObject $contactRepository;
+
     private LocalProvider $localProvider;
+
     private ReadTokenRepositoryInterface $readTokenRepository;
+
     private TokenAPIAuthenticator $authenticator;
 
     public function setUp(): void
@@ -68,7 +72,7 @@ class TokenAPIAuthenticatorTest extends TestCase
         $this->assertEquals(
             new JsonResponse(
                 [
-                    'message' => 'Authentication Required'
+                    'message' => 'Authentication Required',
                 ],
                 Response::HTTP_UNAUTHORIZED
             ),
@@ -99,7 +103,7 @@ class TokenAPIAuthenticatorTest extends TestCase
         $this->assertEquals(
             new JsonResponse(
                 [
-                    'message' => 'An authentication exception occurred.'
+                    'message' => 'An authentication exception occurred.',
                 ],
                 Response::HTTP_UNAUTHORIZED
             ),

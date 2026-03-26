@@ -1,7 +1,3 @@
-import { useMemo } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import {
   Box,
@@ -13,7 +9,9 @@ import {
 
 import { Tooltip } from '@centreon/ui/components';
 
-import { WidgetSwitch } from '..';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import Subtitle from '../../../../components/Subtitle';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import {
@@ -22,13 +20,14 @@ import {
   labelThresholdsAreAutomaticallyHidden
 } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
+import { WidgetSwitch } from '..';
 import { useThresholdStyles } from '../Inputs.styles';
-
 import useThreshold from './useThreshold';
 
 const Threshold = ({
   propertyName,
-  isInGroup
+  isInGroup,
+  tooltipLabel
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useThresholdStyles();
@@ -49,7 +48,7 @@ const Threshold = ({
           endAdornment={
             <Tooltip
               followCursor={false}
-              label={t(labelThresholdsAreAutomaticallyHidden)}
+              label={t(tooltipLabel || labelThresholdsAreAutomaticallyHidden)}
               position="right"
             >
               <InfoOutlinedIcon color="primary" />
@@ -64,7 +63,7 @@ const Threshold = ({
           {options.map(({ label, radioButtons, type, value }) => (
             <div key={label}>
               <Typography>{label}</Typography>
-              <RadioGroup row value={value} onChange={changeType(type)}>
+              <RadioGroup onChange={changeType(type)} row value={value}>
                 {radioButtons.map(({ content, value: radioValue }) => (
                   <FormControlLabel
                     control={<Radio data-testid={radioValue} />}

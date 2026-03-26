@@ -1,5 +1,3 @@
-import { useRef } from 'react';
-
 import dayjs from 'dayjs';
 import {
   equals,
@@ -11,10 +9,10 @@ import {
   pipe,
   pluck
 } from 'ramda';
+import { useRef } from 'react';
 
-import { LineChartData, buildListingEndpoint, useFetchQuery } from '../..';
-
-import { Metric, Resource, WidgetResourceType } from './models';
+import { buildListingEndpoint, type LineChartData, useFetchQuery } from '../..';
+import { type Metric, type Resource, WidgetResourceType } from './models';
 
 interface CustomTimePeriod {
   end: string;
@@ -36,6 +34,7 @@ interface UseMetricsQueryProps {
     start?: string | null;
     timePeriodType: number;
   };
+  isEnabled?: boolean;
 }
 
 interface UseMetricsQueryState {
@@ -101,7 +100,8 @@ const useGraphQuery = ({
   refreshInterval = false,
   refreshCount,
   bypassQueryParams = false,
-  prefix
+  prefix,
+  isEnabled = true
 }: UseMetricsQueryProps): UseMetricsQueryState => {
   const timePeriodToUse = equals(timePeriod?.timePeriodType, -1)
     ? {
@@ -158,7 +158,10 @@ const useGraphQuery = ({
       refreshCount || 0
     ],
     queryOptions: {
-      enabled: areResourcesFullfilled(resources) && !isEmpty(definedMetrics),
+      enabled:
+        areResourcesFullfilled(resources) &&
+        !isEmpty(definedMetrics) &&
+        isEnabled,
       refetchInterval: refreshInterval,
       suspense: false
     },
@@ -214,8 +217,8 @@ const useGraphQuery = ({
       return metrics?.map((line) => {
         const formattedLegend = formatLegend({
           host: line?.host_name,
-          service: line?.service_name,
-          metric: line?.metric
+          metric: line?.metric,
+          service: line?.service_name
         });
 
         return { ...line, legend: formattedLegend };
@@ -238,8 +241,8 @@ const useGraphQuery = ({
 
       if (areHostNameRedundant) {
         const formattedLegend = formatLegend({
-          service: line.service_name,
-          metric: line.metric
+          metric: line.metric,
+          service: line.service_name
         });
 
         return { ...line, legend: formattedLegend };
@@ -256,8 +259,8 @@ const useGraphQuery = ({
 
       const formattedLegend = formatLegend({
         host: line.host_name,
-        service: line.service_name,
-        metric: line.metric
+        metric: line.metric,
+        service: line.service_name
       });
 
       return { ...line, legend: formattedLegend };

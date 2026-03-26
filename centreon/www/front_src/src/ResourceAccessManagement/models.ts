@@ -13,7 +13,8 @@ export enum ResourceTypeEnum {
   MetaService = 'meta_service',
   Service = 'service',
   ServiceCategory = 'service_category',
-  ServiceGroup = 'servicegroup'
+  ServiceGroup = 'servicegroup',
+  ImageFolder = 'image_folder'
 }
 
 export interface MetaType {
@@ -63,7 +64,7 @@ export type GetResourceAccessRule = ResourceAccessRuleType & {
   };
   contacts: {
     all: boolean;
-    values: Array<NamedEntity>;
+    values: Array<Contact>;
   };
   datasetFilters: Array<DatasetFilter>;
 };
@@ -73,6 +74,11 @@ export type SortOrder = 'asc' | 'desc';
 export type NamedEntity = {
   id: number;
   name: string;
+};
+
+export type Contact = {
+  id: number;
+  alias: string;
 };
 
 export enum DeleteType {

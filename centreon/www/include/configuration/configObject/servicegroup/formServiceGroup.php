@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -71,14 +56,14 @@ $attrsTextarea = ['rows' => '5', 'cols' => '40'];
 $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br />'
     . '<br /><br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
-$route = './include/common/webServices/rest/internal.php?object=centreon_configuration_service&action=list';
+$route = BASE_ROUTE . '?object=centreon_configuration_service&action=list';
 $attrServices = [
     'datasourceOrigin' => 'ajax',
     'availableDatasetRoute' => $route,
     'multiple' => true,
     'linkedObject' => 'centreonService',
 ];
-$route = './include/common/webServices/rest/internal.php?object=centreon_configuration_servicetemplate&action=list&l=1';
+$route = BASE_ROUTE . '?object=centreon_configuration_servicetemplate&action=list&l=1';
 $attrServicetemplates = [
     'datasourceOrigin' => 'ajax',
     'availableDatasetRoute' => $route,
@@ -86,7 +71,7 @@ $attrServicetemplates = [
     'linkedObject' => 'centreonServicetemplates',
     'defaultDatasetOptions' => ['withHosttemplate' => true],
 ];
-$route = './include/common/webServices/rest/internal.php?object=centreon_configuration_service&action=list&t=hostgroup';
+$route = BASE_ROUTE . '?object=centreon_configuration_service&action=list&t=hostgroup';
 $attrHostgroups = [
     'datasourceOrigin' => 'ajax',
     'availableDatasetRoute' => $route,
@@ -116,27 +101,25 @@ $form->addElement('text', 'sg_alias', _('Description'), $attrsText);
 $form->registerRule('validate_geo_coords', 'function', 'validateGeoCoords');
 $form->addElement('text', 'geo_coords', _('Geo coordinates'), $attrsText);
 $form->addRule('geo_coords', _('geo coords are not valid'), 'validate_geo_coords');
+$form->applyFilter('geo_coords', 'truncateGeoCoords');
 
 $form->addElement('header', 'relation', _('Relations'));
 
-$route = './include/common/webServices/rest/internal.php?object=centreon_configuration_service'
-    . '&action=defaultValues&target=servicegroups&field=sg_hServices&id=' . $serviceGroupId;
+$route = BASE_ROUTE . '?object=centreon_configuration_service&action=defaultValues&target=servicegroups&field=sg_hServices&id=' . $serviceGroupId;
 $attrService1 = array_merge(
     $attrServices,
     ['defaultDatasetRoute' => $route]
 );
 $form->addElement('select2', 'sg_hServices', _('Linked Host Services'), [], $attrService1);
 
-$route = './include/common/webServices/rest/internal.php?object=centreon_configuration_service'
-    . '&action=defaultValues&target=servicegroups&field=sg_hgServices&id=' . $serviceGroupId;
+$route = BASE_ROUTE . '?object=centreon_configuration_service&action=defaultValues&target=servicegroups&field=sg_hgServices&id=' . $serviceGroupId;
 $attrHostgroup1 = array_merge(
     $attrHostgroups,
     ['defaultDatasetRoute' => $route]
 );
 $form->addElement('select2', 'sg_hgServices', _('Linked Host Group Services'), [], $attrHostgroup1);
 
-$route = './include/common/webServices/rest/internal.php?object=centreon_configuration_servicetemplate'
-    . '&action=defaultValues&target=servicegroups&field=sg_tServices&id=' . $serviceGroupId;
+$route = BASE_ROUTE . '?object=centreon_configuration_servicetemplate&action=defaultValues&target=servicegroups&field=sg_tServices&id=' . $serviceGroupId;
 $attrServicetemplate1 = array_merge(
     $attrServicetemplates,
     ['defaultDatasetRoute' => $route]
@@ -153,7 +136,7 @@ $form->setDefaults(['sg_activate' => '1']);
 $form->addElement('textarea', 'sg_comment', _('Comments'), $attrsTextarea);
 
 if (
-    $o === SERVICE_GROUP_ADD
+    in_array($o, [SERVICE_GROUP_ADD, SERVICE_GROUP_MODIFY])
     && $isCloudPlatform === true
 ) {
     $form->addElement(
@@ -164,13 +147,12 @@ if (
         [
             'datasourceOrigin' => 'ajax',
             'availableDatasetRoute' => BASE_ROUTE . '?object=centreon_administration_aclgroup&action=list&use_ram=true',
-            'defaultDataset' => [],
+            'defaultDatasetRoute' => BASE_ROUTE . '?object=centreon_administration_aclgroup&action=selectedValues&use_ram=true&serviceGroupId=' . $serviceGroupId,
             'multiple' => true,
         ]
     );
     $form->addRule('resource_access_rules', _('Mandatory field for ACL purpose.'), 'required');
 }
-
 
 $form->addElement('hidden', 'sg_id');
 $redirect = $form->addElement('hidden', 'o');

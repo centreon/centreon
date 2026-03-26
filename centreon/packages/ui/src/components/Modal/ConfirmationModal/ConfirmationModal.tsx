@@ -1,7 +1,6 @@
-import { useMemo } from 'react';
-
-import { PrimitiveAtom, useAtom } from 'jotai';
+import { type PrimitiveAtom, useAtom } from 'jotai';
 import { equals, pick, type } from 'ramda';
+import { useMemo } from 'react';
 
 import { Modal } from '..';
 
@@ -19,6 +18,7 @@ export interface ConfirmationModalProps<TAtom> {
   onCancel?: (atomData: Awaited<TAtom> | null) => void;
   onClose?: (atomData: Awaited<TAtom> | null) => void;
   onConfirm?: (atomData: Awaited<TAtom> | null) => void;
+  size?: 'small' | 'medium' | 'large' | 'xlarge' | 'fullscreen';
 }
 
 interface GetLabelProps<TAtom> {
@@ -39,7 +39,8 @@ export const ConfirmationModal = <TAtom,>({
   onClose,
   hasCloseButton = true,
   isDanger,
-  disabled
+  disabled,
+  size
 }: ConfirmationModalProps<TAtom>): JSX.Element => {
   const [atomData, setAtomData] = useAtom<TAtom | null>(atom);
 
@@ -70,8 +71,9 @@ export const ConfirmationModal = <TAtom,>({
   return (
     <Modal
       hasCloseButton={hasCloseButton}
-      open={Boolean(atomData)}
       onClose={closeModal}
+      open={Boolean(atomData)}
+      size={size}
     >
       <Modal.Header>{formattedLabels.title}</Modal.Header>
       <Modal.Body>{formattedLabels.description}</Modal.Body>

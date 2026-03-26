@@ -1,13 +1,12 @@
-import { useEffect, useState } from 'react';
-
-import { useSetAtom } from 'jotai';
-import { isEmpty, isNil, values } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { Checkbox, FormControlLabel, Typography } from '@mui/material';
 import Radio from '@mui/material/Radio';
 
-import { SelectField, TextField, postData, useRequest } from '@centreon/ui';
+import { postData, SelectField, TextField, useRequest } from '@centreon/ui';
+
+import { useSetAtom } from 'jotai';
+import { isEmpty, isNil, values } from 'ramda';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useStyles } from '../../styles/partials/form/PollerWizardStyle';
 import { remoteServerWaitListEndpoint } from '../api/endpoints';
@@ -200,65 +199,65 @@ const RemoteServerWizardStepOne = ({
         {inputTypeManual ? (
           <div className={classes.form}>
             <TextField
-              fullWidth
-              required
               error={getError('server_name')}
+              fullWidth
               label={t(labelServerName)}
               name="server_name"
-              value={stepOneFormData.server_name}
               onBlur={handleBlur}
               onChange={handleChange}
+              required
+              value={stepOneFormData.server_name}
             />
             <TextField
-              fullWidth
-              required
               error={getError('server_ip')}
+              fullWidth
               label={t(labelServerIp)}
               name="server_ip"
-              value={stepOneFormData.server_ip}
               onBlur={handleBlur}
               onChange={handleChange}
+              required
+              value={stepOneFormData.server_ip}
             />
             <TextField
-              fullWidth
-              required
               error={getError('db_user')}
+              fullWidth
               label={t(labelDbUser)}
               name="db_user"
-              value={stepOneFormData.db_user}
               onBlur={handleBlur}
               onChange={handleChange}
+              required
+              value={stepOneFormData.db_user}
             />
             <TextField
-              fullWidth
-              required
               error={getError('db_password')}
+              fullWidth
               label={t(labelDbPassword)}
               name="db_password"
+              onBlur={handleBlur}
+              onChange={handleChange}
+              required
               type="password"
               value={stepOneFormData.db_password}
-              onBlur={handleBlur}
-              onChange={handleChange}
             />
             <TextField
-              fullWidth
-              required
               error={getError('centreon_central_ip')}
+              fullWidth
               label={t(labelCentreonCentralIp)}
               name="centreon_central_ip"
-              value={stepOneFormData.centreon_central_ip}
               onBlur={handleBlur}
               onChange={handleChange}
+              required
+              value={stepOneFormData.centreon_central_ip}
             />
             <TextField
-              fullWidth
-              required
               error={getError('centreon_folder')}
+              fullWidth
               label={t(labelCentreonFolder)}
               name="centreon_folder"
-              value={stepOneFormData.centreon_folder}
               onBlur={handleBlur}
               onChange={handleChange}
+              required
+              value={stepOneFormData.centreon_folder}
             />
             <FormControlLabel
               control={
@@ -287,70 +286,70 @@ const RemoteServerWizardStepOne = ({
               fullWidth
               label={t(labelSelectRemoteLinks)}
               name="server_ip"
+              onChange={handleChange}
               options={waitListOption || []}
               selectedOptionId={stepOneFormData.server_ip}
-              onChange={handleChange}
             />
             <TextField
-              fullWidth
-              required
               error={getError('server_name')}
+              fullWidth
               label={t(labelServerName)}
               name="server_name"
-              value={stepOneFormData.server_name}
               onBlur={handleBlur}
               onChange={handleChange}
+              required
+              value={stepOneFormData.server_name}
             />
             <TextField
-              fullWidth
-              required
               error={getError('server_ip')}
+              fullWidth
               label={t(labelServerIp)}
               name="server_ip"
-              value={stepOneFormData.server_ip}
               onBlur={handleBlur}
               onChange={handleChange}
+              required
+              value={stepOneFormData.server_ip}
             />
             <TextField
-              fullWidth
-              required
               error={getError('db_user')}
+              fullWidth
               label={t(labelDbUser)}
               name="db_user"
-              value={stepOneFormData.db_user}
               onBlur={handleBlur}
               onChange={handleChange}
+              required
+              value={stepOneFormData.db_user}
             />
             <TextField
-              fullWidth
-              required
               error={getError('db_password')}
+              fullWidth
               label={t(labelDbPassword)}
               name="db_password"
+              onBlur={handleBlur}
+              onChange={handleChange}
+              required
               type="password"
               value={stepOneFormData.db_password}
-              onBlur={handleBlur}
-              onChange={handleChange}
             />
             <TextField
-              fullWidth
-              required
               error={getError('centreon_central_ip')}
+              fullWidth
               label={t(labelCentreonCentralIp)}
               name="centreon_central_ip"
-              value={stepOneFormData.centreon_central_ip}
               onBlur={handleBlur}
               onChange={handleChange}
+              required
+              value={stepOneFormData.centreon_central_ip}
             />
             <TextField
-              fullWidth
-              required
               error={getError('centreon_folder')}
+              fullWidth
               label={t(labelCentreonFolder)}
               name="centreon_folder"
-              value={stepOneFormData.centreon_folder}
               onBlur={handleBlur}
               onChange={handleChange}
+              required
+              value={stepOneFormData.centreon_folder}
             />
             <FormControlLabel
               control={

@@ -1,10 +1,9 @@
-import { useState } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import { Button, Typography } from '@mui/material';
 
 import { Dialog, getData, useRequest, useSnackbar } from '@centreon/ui';
+
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { exportAndReloadConfigurationEndpoint } from '../../../api/endpoints';
 import {
@@ -55,12 +54,12 @@ const ExportConfiguration = ({ closeSubMenu }: Props): JSX.Element | null => {
   return (
     <>
       <Button
-        fullWidth
         data-testid={labelExportConfiguration}
         disabled={disableButton}
+        fullWidth
+        onClick={askBeforeExportConfiguration}
         size="small"
         variant="outlined"
-        onClick={askBeforeExportConfiguration}
       >
         {t(labelExportConfiguration)}
       </Button>
@@ -68,10 +67,10 @@ const ExportConfiguration = ({ closeSubMenu }: Props): JSX.Element | null => {
         labelCancel={t(labelCancel) as string}
         labelConfirm={t(labelExportAndReload) as string}
         labelTitle={t(labelExportAndReloadTheConfiguration) as string}
-        open={askingBeforeExportConfiguration}
         onCancel={closeConfirmDialog}
         onClose={closeConfirmDialog}
         onConfirm={confirmExportAndReload}
+        open={askingBeforeExportConfiguration}
       >
         <div>
           <Typography>

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ final class UpdateHostSeverity
         private readonly ReadHostSeverityRepositoryInterface $readHostSeverityRepository,
         private readonly ReadViewImgRepositoryInterface $readViewImgRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
     }
 
@@ -121,7 +121,7 @@ final class UpdateHostSeverity
             }
 
             if (
-                0 === $request->iconId
+                $request->iconId === 0
                 || ! $this->readViewImgRepository->existsOne($request->iconId)
             ) {
                 $this->error(

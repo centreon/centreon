@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\ServiceGroup\Application\Repository;
 
 use Core\ServiceGroup\Domain\Model\NewServiceGroup;
+use Core\ServiceGroup\Domain\Model\ServiceGroup;
 use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 
 interface WriteServiceGroupRepositoryInterface
@@ -61,4 +62,13 @@ interface WriteServiceGroupRepositoryInterface
      * @throws \Throwable
      */
     public function unlink(array $serviceGroupRelations): void;
+
+    /**
+     * @param ServiceGroup $serviceGroup
+     *
+     * @throws \Throwable
+     *
+     * @return void
+     */
+    public function update(ServiceGroup $serviceGroup): void;
 }

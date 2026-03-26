@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,15 +63,15 @@ if (
 }
 
 const HOST_TEMPLATE_ADD = 'a',
-      HOST_TEMPLATE_WATCH = 'w',
-      HOST_TEMPLATE_MODIFY = 'c',
-      HOST_TEMPLATE_MASSIVE_CHANGE = 'mc',
-      HOST_TEMPLATE_ACTIVATION = 's',
-      HOST_TEMPLATE_MASSIVE_ACTIVATION = 'ms',
-      HOST_TEMPLATE_DEACTIVATION = 'u',
-      HOST_TEMPLATE_MASSIVE_DEACTIVATION = 'mu',
-      HOST_TEMPLATE_DUPLICATION = 'm',
-      HOST_TEMPLATE_DELETION = 'd';
+    HOST_TEMPLATE_WATCH = 'w',
+    HOST_TEMPLATE_MODIFY = 'c',
+    HOST_TEMPLATE_MASSIVE_CHANGE = 'mc',
+    HOST_TEMPLATE_ACTIVATION = 's',
+    HOST_TEMPLATE_MASSIVE_ACTIVATION = 'ms',
+    HOST_TEMPLATE_DEACTIVATION = 'u',
+    HOST_TEMPLATE_MASSIVE_DEACTIVATION = 'mu',
+    HOST_TEMPLATE_DUPLICATION = 'm',
+    HOST_TEMPLATE_DELETION = 'd';
 
 switch ($o) {
     case HOST_TEMPLATE_ADD:

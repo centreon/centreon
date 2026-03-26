@@ -1,15 +1,16 @@
-import { Legend as LegendComponent } from '../Legend';
-import { LegendProps } from '../Legend/models';
-import { useStyles } from './BarStack.styles';
-
 import { Typography } from '@mui/material';
+
 import numeral from 'numeral';
 import { equals } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import GraphAndLegend from './GraphAndLegend';
+
+import { Legend as LegendComponent } from '../Legend';
+import type { LegendProps } from '../Legend/models';
+import { useStyles } from './BarStack.styles';
 import { gap, smallTitleHeight, titleHeight } from './constants';
-import { BarStackProps } from './models';
+import GraphAndLegend from './GraphAndLegend';
+import type { BarStackProps } from './models';
 import useResponsiveBarStack from './useResponsiveBarStack';
 
 const DefaultLengd = ({ scale, direction }: LegendProps): JSX.Element => (
@@ -44,10 +45,10 @@ const ResponsiveBarStack = ({
   } = useResponsiveBarStack({
     data,
     height,
-    width,
+    legendDirection,
     unit,
     variant,
-    legendDirection
+    width
   });
 
   const graphAndLegendHeight = useMemo(() => {
@@ -71,28 +72,22 @@ const ResponsiveBarStack = ({
     >
       {title && (
         <Typography
-          data-testid="Title"
-          variant={equals(titleVariant, 'md') ? 'h6' : 'body1'}
-          textAlign="center"
-          fontWeight="bold"
           className={cx(equals(titleVariant, 'md') && classes.clippedTitle)}
+          data-testid="Title"
+          fontWeight="bold"
+          textAlign="center"
+          variant={equals(titleVariant, 'md') ? 'h6' : 'body1'}
         >
           {`${numeral(total).format('0a')}`} {t(title)}
         </Typography>
       )}
       <GraphAndLegend
-        height={graphAndLegendHeight}
-        width={width}
-        isVerticalBar={isVerticalBar}
-        displayLegend={displayLegend}
         colorScale={colorScale}
-        total={total}
         data={data}
-        unit={unit}
+        displayLegend={displayLegend}
         displayValues={displayValues}
-        onSingleBarClick={onSingleBarClick}
-        tooltipProps={tooltipProps}
-        TooltipContent={TooltipContent}
+        height={graphAndLegendHeight}
+        isVerticalBar={isVerticalBar}
         legend={
           <Legend
             data={data}
@@ -103,6 +98,12 @@ const ResponsiveBarStack = ({
             unit={unit}
           />
         }
+        onSingleBarClick={onSingleBarClick}
+        TooltipContent={TooltipContent}
+        tooltipProps={tooltipProps}
+        total={total}
+        unit={unit}
+        width={width}
       />
     </div>
   );

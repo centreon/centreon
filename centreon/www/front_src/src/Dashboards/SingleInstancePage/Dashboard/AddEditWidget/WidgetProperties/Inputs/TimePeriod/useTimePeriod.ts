@@ -1,10 +1,9 @@
-import { ChangeEvent, useEffect, useMemo } from 'react';
+import { SelectEntry } from '@centreon/ui';
 
 import dayjs from 'dayjs';
 import { useFormikContext } from 'formik';
 import { equals } from 'ramda';
-
-import { SelectEntry } from '@centreon/ui';
+import { ChangeEvent, useEffect, useMemo } from 'react';
 
 import {
   labelCustomize,
@@ -109,8 +108,8 @@ const useTimePeriod = (propertyName: string): UseTimePeriodState => {
 
     if (equals(newType, -1)) {
       setFieldValue(`options.${propertyName}`, {
-        end: dayjs(),
-        start: dayjs().subtract(1, 'hour'),
+        end: dayjs().toISOString(),
+        start: dayjs().subtract(1, 'hour').toISOString(),
         timePeriodType: newType
       });
 

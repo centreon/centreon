@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ final class PartialUpdateHostTemplateController extends AbstractController
     {
         /**
          * @var array{
-         *      macros?: array<array{name:string,value:string|null,is_password:bool,description:string|null}>,
+         *      macros?: array<array{id?:int|null,name:string,value:string|null,is_password:bool,description:string|null}>,
          *      categories?: int[],
          *      templates?: int[],
          *      name?: string,
@@ -262,7 +262,7 @@ final class PartialUpdateHostTemplateController extends AbstractController
     {
         /**
          * @var array{
-         *      macros?:array<array{name:string,value:string|null,is_password:bool,description:string|null}>,
+         *      macros?:array<array{id?:int|null,name:string,value:string|null,is_password:bool,description:string|null}>,
          *      categories?: int[],
          *      templates?: int[],
          *      name: string,

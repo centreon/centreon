@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\ServiceConfiguration;
@@ -30,39 +31,25 @@ namespace Centreon\Domain\ServiceConfiguration;
  */
 class ExtendedService
 {
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $id;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $notes;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $notesUrl;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $actionUrl;
 
-    /**
-     * @var int|null Icon id associated to service
-     */
+    /** @var int|null Icon id associated to service */
     private $iconId;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $iconAlternativeText;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $graphId;
 
     /**
@@ -80,6 +67,7 @@ class ExtendedService
     public function setId(?int $id): ExtendedService
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -98,6 +86,7 @@ class ExtendedService
     public function setNotes(?string $notes): ExtendedService
     {
         $this->notes = $notes;
+
         return $this;
     }
 
@@ -116,6 +105,7 @@ class ExtendedService
     public function setNotesUrl(?string $notesUrl): ExtendedService
     {
         $this->notesUrl = $notesUrl;
+
         return $this;
     }
 
@@ -134,6 +124,7 @@ class ExtendedService
     public function setActionUrl(?string $actionUrl): ExtendedService
     {
         $this->actionUrl = $actionUrl;
+
         return $this;
     }
 
@@ -152,6 +143,7 @@ class ExtendedService
     public function setIconId(?int $iconId): ExtendedService
     {
         $this->iconId = $iconId;
+
         return $this;
     }
 
@@ -170,6 +162,7 @@ class ExtendedService
     public function setIconAlternativeText(?string $iconAlternativeText): ExtendedService
     {
         $this->iconAlternativeText = $iconAlternativeText;
+
         return $this;
     }
 
@@ -188,6 +181,7 @@ class ExtendedService
     public function setGraphId(?int $graphId): ExtendedService
     {
         $this->graphId = $graphId;
+
         return $this;
     }
 }

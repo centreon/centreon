@@ -39,7 +39,7 @@ final class HostGroupRelation
     public function __construct(
         private readonly HostGroup $hostGroup,
         private readonly array $hosts = [],
-        private readonly array $resourceAccessRules = []
+        private readonly array $resourceAccessRules = [],
     ) {
     }
 

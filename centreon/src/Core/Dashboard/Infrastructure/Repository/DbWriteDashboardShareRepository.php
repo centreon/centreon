@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ class DbWriteDashboardShareRepository extends AbstractRepositoryDRB implements W
         $statement->bindValue(':contact_id', $contactId, \PDO::PARAM_INT);
         $statement->execute();
 
-        return 0 !== $statement->rowCount();
+        return $statement->rowCount() !== 0;
     }
 
     public function deleteContactGroupShare(int $contactGroupId, int $dashboardId): bool
@@ -75,7 +75,7 @@ class DbWriteDashboardShareRepository extends AbstractRepositoryDRB implements W
         $statement->bindValue(':contactgroup_id', $contactGroupId, \PDO::PARAM_INT);
         $statement->execute();
 
-        return 0 !== $statement->rowCount();
+        return $statement->rowCount() !== 0;
     }
 
     public function updateContactShare(int $contactId, int $dashboardId, DashboardSharingRole $role): bool
@@ -95,7 +95,7 @@ class DbWriteDashboardShareRepository extends AbstractRepositoryDRB implements W
         $statement->bindValue(':contact_role', $this->roleToString($role), \PDO::PARAM_STR);
         $statement->execute();
 
-        return 0 !== $statement->rowCount();
+        return $statement->rowCount() !== 0;
     }
 
     public function updateContactGroupShare(int $contactGroupId, int $dashboardId, DashboardSharingRole $role): bool
@@ -115,7 +115,7 @@ class DbWriteDashboardShareRepository extends AbstractRepositoryDRB implements W
         $statement->bindValue(':contact_role', $this->roleToString($role), \PDO::PARAM_STR);
         $statement->execute();
 
-        return 0 !== $statement->rowCount();
+        return $statement->rowCount() !== 0;
     }
 
     public function upsertShareWithContact(int $contactId, int $dashboardId, DashboardSharingRole $role): void
@@ -180,7 +180,7 @@ class DbWriteDashboardShareRepository extends AbstractRepositoryDRB implements W
             $bind[':contact_group' . $key] = $contactGroupId;
         }
 
-        if ([] === $bind) {
+        if ($bind === []) {
             return;
         }
 
@@ -210,7 +210,7 @@ class DbWriteDashboardShareRepository extends AbstractRepositoryDRB implements W
             $bind[':contact' . $key] = $contactId;
         }
 
-        if ([] === $bind) {
+        if ($bind === []) {
             return;
         }
 

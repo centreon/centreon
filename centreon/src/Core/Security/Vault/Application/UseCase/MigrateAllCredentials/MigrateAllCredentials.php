@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,12 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 
 use Centreon\Domain\Log\LoggerTrait;
+use CentreonLog;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
 use Core\AdditionalConnectorConfiguration\Application\Repository\WriteAccRepositoryInterface;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Acc;
@@ -171,8 +172,8 @@ final class MigrateAllCredentials
                 $accs,
             );
             $presenter->presentResponse($this->response);
-        } catch (\Throwable $ex) {
-            $this->error((string) $ex);
+        } catch (\Throwable $e) {
+            CentreonLog::create()->error(logTypeId: CentreonLog::TYPE_BUSINESS_LOG, message: $e->getMessage(), exception: $e);
             $presenter->presentResponse(new ErrorResponse(VaultException::unableToMigrateCredentials()));
         }
     }
@@ -311,8 +312,7 @@ final class MigrateAllCredentials
         foreach ($hostTemplates as $hostTemplate) {
             if (
                 $hostTemplate->getSnmpCommunity() === ''
-                || str_starts_with($hostTemplate->getSnmpCommunity(), VaultConfiguration::VAULT_PATH_PATTERN))
-            {
+                || str_starts_with($hostTemplate->getSnmpCommunity(), VaultConfiguration::VAULT_PATH_PATTERN)) {
                 continue;
             }
             $credential = new CredentialDto();
@@ -416,7 +416,7 @@ final class MigrateAllCredentials
             $knowledgeBasePasswordOption === null
             || $knowledgeBasePasswordOption->getValue() === null
             || str_starts_with($knowledgeBasePasswordOption->getValue(), VaultConfiguration::VAULT_PATH_PATTERN)
-        ){
+        ) {
             return $credentials;
         }
 
@@ -505,7 +505,7 @@ final class MigrateAllCredentials
                                 && isset($groupedParams['value'])
                                 && $groupedParams['value'] !== ''
                                 && ! str_starts_with((string) $groupedParams['value'], 'secret::')
-                                ) {
+                            ) {
                                 /** @var array{type:string,name:string,value:string|int} $groupedParams */
                                 $credential = new CredentialDto();
                                 $credential->resourceId = $brokerId;

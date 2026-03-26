@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,15 @@ declare(strict_types=1);
 namespace Core\Host\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Host\Domain\Model\HostStatusesCount;
 
 interface ReadRealTimeHostRepositoryInterface
 {
     /**
      * @param RequestParametersInterface $requestParameters
+     *
+     * @throws RepositoryException
      *
      * @return HostStatusesCount
      */
@@ -39,10 +42,12 @@ interface ReadRealTimeHostRepositoryInterface
      * @param RequestParametersInterface $requestParameters
      * @param int[] $accessGroupIds
      *
+     * @throws RepositoryException
+     *
      * @return HostStatusesCount
      */
     public function findStatusesByRequestParametersAndAccessGroupIds(
         RequestParametersInterface $requestParameters,
-        array $accessGroupIds
+        array $accessGroupIds,
     ): HostStatusesCount;
 }

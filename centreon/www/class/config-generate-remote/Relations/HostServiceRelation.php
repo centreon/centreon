@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,7 +33,9 @@ use Exception;
 class HostServiceRelation extends AbstractObject
 {
     protected $table = 'host_service_relation';
+
     protected $generateFilename = 'host_service_relation.infile';
+
     protected $attributesWrite = [
         'host_host_id',
         'hostgroup_hg_id',
@@ -45,8 +48,8 @@ class HostServiceRelation extends AbstractObject
      * @param int $hostId
      * @param int $serviceId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function addRelationHostService(int $hostId, int $serviceId): void
     {

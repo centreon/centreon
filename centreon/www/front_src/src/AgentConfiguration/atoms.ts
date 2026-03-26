@@ -1,17 +1,22 @@
 import { SelectEntry } from '@centreon/ui';
+
 import { atom } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
 import { equals, findIndex, remove } from 'ramda';
+
 import { AgentType } from './models';
+import {
+  baseKey,
+  defaultSelectedColumnIds,
+  filtersInitialValues
+} from './utils';
 
 export const pageAtom = atom(0);
 export const limitAtom = atom(10);
-export const searchAtom = atom('');
+
 export const sortOrderAtom = atom('asc');
 export const sortFieldAtom = atom('name');
-export const filtersAtom = atom({
-  agentTypes: [],
-  pollers: []
-});
+
 export const itemToDeleteAtom = atom<{
   agent: SelectEntry;
   poller?: SelectEntry;
@@ -65,4 +70,16 @@ export const deleteFilterEntryAtom = atom(
     });
     set(pageAtom, 0);
   }
+);
+
+export const isWelcomePageDisplayedAtom = atom<boolean>(true);
+
+export const filtersAtom = atomWithStorage(
+  `${baseKey}_filters`,
+  filtersInitialValues
+);
+
+export const selectedColumnIdsAtom = atomWithStorage(
+  `${baseKey}_column-ids`,
+  defaultSelectedColumnIds
 );

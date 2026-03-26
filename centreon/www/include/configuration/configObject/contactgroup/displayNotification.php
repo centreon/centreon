@@ -1,39 +1,25 @@
 <?php
+
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -42,16 +28,14 @@ require_once _CENTREON_PATH_ . 'www/class/centreonNotification.class.php';
 /**
  * Get user list
  */
-$contact = ["" => null];
-$DBRESULT = $pearDB->query("SELECT cg_id, cg_name FROM contactgroup cg ORDER BY cg_alias");
+$contact = ['' => null];
+$DBRESULT = $pearDB->query('SELECT cg_id, cg_name FROM contactgroup cg ORDER BY cg_alias');
 while ($ct = $DBRESULT->fetchRow()) {
-    $contact[$ct["cg_id"]] = $ct["cg_name"];
+    $contact[$ct['cg_id']] = $ct['cg_name'];
 }
 $DBRESULT->closeCursor();
 
-/*
- * Object init
- */
+// Object init
 $mediaObj = new CentreonMedia($pearDB);
 $host_method = new CentreonHost($pearDB);
 $oNotification = new CentreonNotification($pearDB);
@@ -59,22 +43,18 @@ $oNotification = new CentreonNotification($pearDB);
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
-/*
- * start header menu
- */
-$tpl->assign("headerMenu_host", _("Hosts"));
-$tpl->assign("headerMenu_service", _("Services"));
-$tpl->assign("headerMenu_host_esc", _("Escalated Hosts"));
-$tpl->assign("headerMenu_service_esc", _("Escalated Services"));
+// start header menu
+$tpl->assign('headerMenu_host', _('Hosts'));
+$tpl->assign('headerMenu_service', _('Services'));
+$tpl->assign('headerMenu_host_esc', _('Escalated Hosts'));
+$tpl->assign('headerMenu_service_esc', _('Escalated Services'));
 
-/*
- * Different style between each lines
- */
-$style = "one";
+// Different style between each lines
+$style = 'one';
 
 $groups = "''";
-if (isset($_POST["contact"])) {
-    $contactgroup_id = (int)htmlentities($_POST["contact"], ENT_QUOTES, "UTF-8");
+if (isset($_POST['contact'])) {
+    $contactgroup_id = (int) htmlentities($_POST['contact'], ENT_QUOTES, 'UTF-8');
 } else {
     $contactgroup_id = 0;
     $formData = ['contact' => $contactgroup_id];
@@ -82,33 +62,26 @@ if (isset($_POST["contact"])) {
 
 $formData = ['contact' => $contactgroup_id];
 
-/*
- * Create select form
- */
-$form = new HTML_QuickFormCustom('select_form', 'GET', "?p=" . $p);
+// Create select form
+$form = new HTML_QuickFormCustom('select_form', 'GET', '?p=' . $p);
 
-$form->addElement('select', 'contact', _("Contact"), $contact, ['id' => 'contact', 'onChange' => 'submit();']);
+$form->addElement('select', 'contact', _('Contact'), $contact, ['id' => 'contact', 'onChange' => 'submit();']);
 $form->setDefaults($formData);
 
-/*
- * Host escalations
- */
+// Host escalations
 $elemArrHostEsc = [];
 if ($contactgroup_id) {
     $hostEscResources = $oNotification->getNotificationsContactGroup(2, $contactgroup_id);
 }
 if (isset($hostEscResources)) {
     foreach ($hostEscResources as $hostId => $hostName) {
-        $elemArrHostEsc[] = ["MenuClass" => "list_" . $style, "RowMenu_hico" => "./img/icones/16x16/server_network.gif", "RowMenu_host" => myDecode($hostName)];
-        $style = $style != "two" ? "two" : "one";
+        $elemArrHostEsc[] = ['MenuClass' => 'list_' . $style, 'RowMenu_hico' => './img/icones/16x16/server_network.gif', 'RowMenu_host' => myDecode($hostName)];
+        $style = $style != 'two' ? 'two' : 'one';
     }
 }
-$tpl->assign("elemArrHostEsc", $elemArrHostEsc);
+$tpl->assign('elemArrHostEsc', $elemArrHostEsc);
 
-
-/*
- * Service escalations
- */
+// Service escalations
 $elemArrSvcEsc = [];
 if ($contactgroup_id) {
     $svcEscResources = $oNotification->getNotificationsContactGroup(3, $contactgroup_id);
@@ -116,31 +89,27 @@ if ($contactgroup_id) {
 if (isset($svcEscResources)) {
     foreach ($svcEscResources as $hostId => $hostTab) {
         foreach ($hostTab as $serviceId => $tab) {
-            $elemArrSvcEsc[] = ["MenuClass" => "list_" . $style, "RowMenu_hico" => "./img/icones/16x16/server_network.gif", "RowMenu_host" => myDecode($tab['host_name']), "RowMenu_service" => myDecode($tab['service_description'])];
-            $style = $style != "two" ? "two" : "one";
+            $elemArrSvcEsc[] = ['MenuClass' => 'list_' . $style, 'RowMenu_hico' => './img/icones/16x16/server_network.gif', 'RowMenu_host' => myDecode($tab['host_name']), 'RowMenu_service' => myDecode($tab['service_description'])];
+            $style = $style != 'two' ? 'two' : 'one';
         }
     }
 }
-$tpl->assign("elemArrSvcEsc", $elemArrSvcEsc);
+$tpl->assign('elemArrSvcEsc', $elemArrSvcEsc);
 
-/*
- * Hosts
- */
+// Hosts
 $elemArrHost = [];
 if ($contactgroup_id) {
     $hostResources = $oNotification->getNotificationsContactGroup(0, $contactgroup_id);
 }
 if (isset($hostResources)) {
     foreach ($hostResources as $hostId => $hostName) {
-        $elemArrHost[] = ["MenuClass" => "list_" . $style, "RowMenu_hico" => "./img/icones/16x16/server_network.gif", "RowMenu_host" => myDecode($hostName)];
-        $style = $style != "two" ? "two" : "one";
+        $elemArrHost[] = ['MenuClass' => 'list_' . $style, 'RowMenu_hico' => './img/icones/16x16/server_network.gif', 'RowMenu_host' => myDecode($hostName)];
+        $style = $style != 'two' ? 'two' : 'one';
     }
 }
-$tpl->assign("elemArrHost", $elemArrHost);
+$tpl->assign('elemArrHost', $elemArrHost);
 
-/*
- * Services
- */
+// Services
 $elemArrSvc = [];
 if ($contactgroup_id) {
     $svcResources = $oNotification->getNotificationsContactGroup(1, $contactgroup_id);
@@ -148,23 +117,21 @@ if ($contactgroup_id) {
 if (isset($svcResources)) {
     foreach ($svcResources as $hostId => $hostTab) {
         foreach ($hostTab as $serviceId => $tab) {
-            $elemArrSvc[] = ["MenuClass" => "list_" . $style, "RowMenu_hico" => "./img/icones/16x16/server_network.gif", "RowMenu_host" => myDecode($tab['host_name']), "RowMenu_service" => myDecode($tab['service_description'])];
-            $style = $style != "two" ? "two" : "one";
+            $elemArrSvc[] = ['MenuClass' => 'list_' . $style, 'RowMenu_hico' => './img/icones/16x16/server_network.gif', 'RowMenu_host' => myDecode($tab['host_name']), 'RowMenu_service' => myDecode($tab['service_description'])];
+            $style = $style != 'two' ? 'two' : 'one';
         }
     }
 }
-$tpl->assign("elemArrSvc", $elemArrSvc);
+$tpl->assign('elemArrSvc', $elemArrSvc);
 
 $labels = ['host_escalation' => _('Host escalations'), 'service_escalation' => _('Service escalations'), 'host_notifications' => _('Host notifications'), 'service_notifications' => _('Service notifications')];
 
-/*
- * Apply a template definition
- */
+// Apply a template definition
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
-$tpl->assign('msgSelect', _("Please select a user in order to view his notifications"));
+$tpl->assign('msgSelect', _('Please select a user in order to view his notifications'));
 $tpl->assign('p', $p);
 $tpl->assign('contact', $contactgroup_id);
 $tpl->assign('labels', $labels);
-$tpl->display("displayNotification.ihtml");
+$tpl->display('displayNotification.ihtml');

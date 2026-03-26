@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ class DbNotifiableResourceFactory
             $currentNotificationId = $record['notification_id'];
         }
 
-        if ([] !== $currentRecords) {
+        if ($currentRecords !== []) {
             yield self::createNotifiableResourceFromRecord($currentNotificationId, $currentRecords);
         }
 
@@ -183,7 +183,7 @@ class DbNotifiableResourceFactory
         string $hostName,
         ?string $hostAlias,
         array $hostEvents,
-        array $records
+        array $records,
     ): NotifiableHost {
         $notificationServices = [];
         $currentServiceEvents = [];
@@ -200,7 +200,7 @@ class DbNotifiableResourceFactory
                 );
             }
 
-            if ([] === $currentServiceEvents) {
+            if ($currentServiceEvents === []) {
                 continue;
             }
 

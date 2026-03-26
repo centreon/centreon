@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Core\Common\Infrastructure;
 
@@ -27,20 +27,20 @@ use Core\Common\Infrastructure\Repository\ValuesByPackets;
 
 const NO_LIMIT = 1000000;
 
-it('should divide the values according to the maxItemsByPackets limitation only', function(): void {
+it('should divide the values according to the maxItemsByPackets limitation only', function (): void {
     $maxItemsByPackets = 5;
     $maxQueryStringLength = NO_LIMIT;
     $values = range(1, 1000);
     $valuesByPackets = new ValuesByPackets($values, $maxItemsByPackets, $maxQueryStringLength);
     foreach ($valuesByPackets as $iterationNumber => $valuesToCheck) {
         expect(count($valuesToCheck))->toBeLessThanOrEqual($maxItemsByPackets);
-        for($index = 0; $index < $maxItemsByPackets && array_key_exists($index, $valuesToCheck); $index++) {
+        for ($index = 0; $index < $maxItemsByPackets && array_key_exists($index, $valuesToCheck); $index++) {
             expect($values[$index + ($iterationNumber * $maxItemsByPackets)])->toEqual($valuesToCheck[$index]);
         }
     }
 });
 
-it('should divide the values according to the maxQueryStringLength limitation only', function(): void {
+it('should divide the values according to the maxQueryStringLength limitation only', function (): void {
     $maxItemsByPackets = NO_LIMIT;
     $maxQueryStringLength = 50;
     $values = range(1, 1000);
@@ -51,7 +51,7 @@ it('should divide the values according to the maxQueryStringLength limitation on
     }
 });
 
-it('should divide the values according to all the limitations', function(): void {
+it('should divide the values according to all the limitations', function (): void {
     $maxItemsByPackets = 10;
     $maxQueryStringLength = 50;
     $values = range(1, 1000);
@@ -60,7 +60,7 @@ it('should divide the values according to all the limitations', function(): void
     foreach ($valuesByPackets as $iterationNumber => $valuesToCheck) {
         expect(count($valuesToCheck))->toBeLessThanOrEqual($maxItemsByPackets);
         expect(mb_strlen(implode($valueSeparator, $valuesToCheck)) <= $maxQueryStringLength)->toBeTrue();
-        for($index = 0; $index < $maxItemsByPackets && array_key_exists($index, $valuesToCheck); $index++) {
+        for ($index = 0; $index < $maxItemsByPackets && array_key_exists($index, $valuesToCheck); $index++) {
             expect($values[$index + ($iterationNumber * $maxItemsByPackets)])->toEqual($valuesToCheck[$index]);
         }
     }

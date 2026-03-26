@@ -1,20 +1,23 @@
-import { useEffect } from 'react';
-
 import {
-  UseMutationOptions,
-  UseMutationResult,
+  type UseMutationOptions,
+  type UseMutationResult,
   useMutation,
   useQueryClient
 } from '@tanstack/react-query';
 import { equals, includes, omit, type } from 'ramda';
-import { JsonDecoder } from 'ts.data.json';
+import { useEffect } from 'react';
+import type { JsonDecoder } from 'ts.data.json';
 
 import useSnackbar from '../../Snackbar/useSnackbar';
 import { useDeepCompare } from '../../utils';
-import { CatchErrorProps, ResponseError, customFetch } from '../customFetch';
+import {
+  type CatchErrorProps,
+  customFetch,
+  type ResponseError
+} from '../customFetch';
 import { errorLog } from '../logger';
 import {
-  OptimisticListing,
+  type OptimisticListing,
   useOptimisticMutation
 } from './useOptimisticMutation';
 
@@ -111,7 +114,9 @@ const useMutationQuery = <T extends object, TMeta>({
         defaultFailureMessage,
         endpoint: getEndpoint(_meta as TMeta),
         headers: new Headers({
-          'Content-Type': 'application/json',
+          'Content-Type': equals(method, Method.PATCH)
+            ? 'application/merge-patch+json'
+            : 'application/json',
           ...fetchHeaders
         }),
         isMutation: true,
@@ -134,9 +139,9 @@ const useMutationQuery = <T extends object, TMeta>({
       ? ({ payload, _meta }) => {
           const listingQueryKey = getListingQueryKey();
           const newListing = getOptimisticMutationItems({
+            _meta,
             method,
-            payload,
-            _meta
+            payload
           });
           const previousListing = getPreviousListing();
 

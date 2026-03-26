@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,52 +31,50 @@ use Core\Host\Domain\Model\SnmpVersion;
 use Core\HostTemplate\Domain\Model\HostTemplate;
 
 beforeEach(function (): void {
-    $this->createHostTemplate = static function (array $fields = []): HostTemplate {
-        return new HostTemplate(
-            ...[
-                'id' => 1,
-                'name' => 'host-template-name',
-                'alias' => 'host-template-alias',
-                'snmpVersion' => SnmpVersion::Two,
-                'snmpCommunity' => 'snmpCommunity-value',
-                'timezoneId' => 1,
-                'severityId' => 1,
-                'checkCommandId' => 1,
-                'checkCommandArgs' => ['arg1', 'arg2'],
-                'checkTimeperiodId' => 1,
-                'maxCheckAttempts' => 5,
-                'normalCheckInterval' => 5,
-                'retryCheckInterval' => 5,
-                'activeCheckEnabled' => YesNoDefault::Yes,
-                'passiveCheckEnabled' => YesNoDefault::Yes,
-                'notificationEnabled' => YesNoDefault::Yes,
-                'notificationOptions' => [HostEvent::Down, HostEvent::Unreachable],
-                'notificationInterval' => 5,
-                'notificationTimeperiodId' => 1,
-                'addInheritedContactGroup' => true,
-                'addInheritedContact' => true,
-                'firstNotificationDelay' => 5,
-                'recoveryNotificationDelay' => 5,
-                'acknowledgementTimeout' => 5,
-                'freshnessChecked' => YesNoDefault::Yes,
-                'freshnessThreshold' => 5,
-                'flapDetectionEnabled' => YesNoDefault::Yes,
-                'lowFlapThreshold' => 5,
-                'highFlapThreshold' => 5,
-                'eventHandlerEnabled' => YesNoDefault::Yes,
-                'eventHandlerCommandId' => 1,
-                'eventHandlerCommandArgs' => ['arg3', 'arg4'],
-                'noteUrl' => 'noteUrl-value',
-                'note' => 'note-value',
-                'actionUrl' => 'actionUrl-value',
-                'iconId' => 1,
-                'iconAlternative' => 'iconAlternative-value',
-                'comment' => 'comment-value',
-                'isLocked' => true,
-                ...$fields,
-            ]
-        );
-    };
+    $this->createHostTemplate = static fn (array $fields = []): HostTemplate => new HostTemplate(
+        ...[
+            'id' => 1,
+            'name' => 'host-template-name',
+            'alias' => 'host-template-alias',
+            'snmpVersion' => SnmpVersion::Two,
+            'snmpCommunity' => 'snmpCommunity-value',
+            'timezoneId' => 1,
+            'severityId' => 1,
+            'checkCommandId' => 1,
+            'checkCommandArgs' => ['arg1', 'arg2'],
+            'checkTimeperiodId' => 1,
+            'maxCheckAttempts' => 5,
+            'normalCheckInterval' => 5,
+            'retryCheckInterval' => 5,
+            'activeCheckEnabled' => YesNoDefault::Yes,
+            'passiveCheckEnabled' => YesNoDefault::Yes,
+            'notificationEnabled' => YesNoDefault::Yes,
+            'notificationOptions' => [HostEvent::Down, HostEvent::Unreachable],
+            'notificationInterval' => 5,
+            'notificationTimeperiodId' => 1,
+            'addInheritedContactGroup' => true,
+            'addInheritedContact' => true,
+            'firstNotificationDelay' => 5,
+            'recoveryNotificationDelay' => 5,
+            'acknowledgementTimeout' => 5,
+            'freshnessChecked' => YesNoDefault::Yes,
+            'freshnessThreshold' => 5,
+            'flapDetectionEnabled' => YesNoDefault::Yes,
+            'lowFlapThreshold' => 5,
+            'highFlapThreshold' => 5,
+            'eventHandlerEnabled' => YesNoDefault::Yes,
+            'eventHandlerCommandId' => 1,
+            'eventHandlerCommandArgs' => ['arg3', 'arg4'],
+            'noteUrl' => 'noteUrl-value',
+            'note' => 'note-value',
+            'actionUrl' => 'actionUrl-value',
+            'iconId' => 1,
+            'iconAlternative' => 'iconAlternative-value',
+            'comment' => 'comment-value',
+            'isLocked' => true,
+            ...$fields,
+        ]
+    );
 });
 
 it('should return properly set host template instance (all properties)', function (): void {
@@ -176,7 +174,7 @@ foreach (
 ) {
     it(
         "should throw an exception when host template {$field} is an empty string",
-        fn() => ($this->createHostTemplate)([$field => ''])
+        fn () => ($this->createHostTemplate)([$field => ''])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::notEmptyString("HostTemplate::{$field}")->getMessage()
@@ -309,7 +307,7 @@ foreach (
     $tooLong = str_repeat('a', $length + 1);
     it(
         "should throw an exception when host template {$field} is too long",
-        fn() => ($this->createHostTemplate)([$field => $tooLong])
+        fn () => ($this->createHostTemplate)([$field => $tooLong])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::maxLength($tooLong, $length + 1, $length, "HostTemplate::{$field}")->getMessage()
@@ -355,7 +353,7 @@ foreach (
 ) {
     it(
         "should throw an exception when host template {$field} is not > 0",
-        fn() => ($this->createHostTemplate)([$field => 0])
+        fn () => ($this->createHostTemplate)([$field => 0])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::positiveInt(0, "HostTemplate::{$field}")->getMessage()
@@ -402,7 +400,7 @@ foreach (
 ) {
     it(
         "should throw an exception when host template {$field} is not >= 0",
-        fn() => ($this->createHostTemplate)([$field => -1])
+        fn () => ($this->createHostTemplate)([$field => -1])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::min(-1, 0, "HostTemplate::{$field}")->getMessage()

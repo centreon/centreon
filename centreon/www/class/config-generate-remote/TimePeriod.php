@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,9 +21,9 @@
 
 namespace ConfigGenerateRemote;
 
+use ConfigGenerateRemote\Abstracts\AbstractObject;
 use Exception;
 use PDO;
-use ConfigGenerateRemote\Abstracts\AbstractObject;
 
 /**
  * Class
@@ -32,12 +33,12 @@ use ConfigGenerateRemote\Abstracts\AbstractObject;
  */
 class TimePeriod extends AbstractObject
 {
-    /** @var null */
-    private $timeperiods = null;
     /** @var string */
     protected $table = 'timeperiod';
+
     /** @var string */
     protected $generateFilename = 'timeperiods.infile';
+
     /** @var string */
     protected $attributesSelect = '
         tp_id,
@@ -51,6 +52,7 @@ class TimePeriod extends AbstractObject
         tp_friday,
         tp_saturday
     ';
+
     /** @var string[] */
     protected $attributesWrite = [
         'tp_id',
@@ -64,11 +66,15 @@ class TimePeriod extends AbstractObject
         'tp_friday',
         'tp_saturday',
     ];
+
     /** @var null[] */
     protected $stmtExtend = [
         'include' => null,
-        'exclude' => null
+        'exclude' => null,
     ];
+
+    /** @var null */
+    private $timeperiods = null;
 
     /**
      * Build cache of timeperiods
@@ -77,10 +83,42 @@ class TimePeriod extends AbstractObject
      */
     public function getTimeperiods(): void
     {
-        $query = "SELECT $this->attributesSelect FROM timeperiod";
+        $query = "SELECT {$this->attributesSelect} FROM timeperiod";
         $stmt = $this->backendInstance->db->prepare($query);
         $stmt->execute();
         $this->timeperiods = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Generate timeperiod from id
+     *
+     * @param null|int $timeperiodId
+     *
+     * @throws Exception
+     * @return null|string
+     */
+    public function generateFromTimeperiodId(?int $timeperiodId)
+    {
+        if (is_null($timeperiodId)) {
+            return null;
+        }
+        if (is_null($this->timeperiods)) {
+            $this->getTimeperiods();
+        }
+
+        if (! isset($this->timeperiods[$timeperiodId])) {
+            return null;
+        }
+        if ($this->checkGenerate($timeperiodId)) {
+            return $this->timeperiods[$timeperiodId]['tp_name'];
+        }
+
+        $this->getTimeperiodExceptionFromId($timeperiodId);
+
+        $this->timeperiods[$timeperiodId]['tp_id'] = $timeperiodId;
+        $this->generateObjectInFile($this->timeperiods[$timeperiodId], $timeperiodId);
+
+        return $this->timeperiods[$timeperiodId]['tp_name'];
     }
 
     /**
@@ -95,7 +133,7 @@ class TimePeriod extends AbstractObject
             return 1;
         }
 
-        $query = "SELECT days, timerange FROM timeperiod_exceptions WHERE timeperiod_id = :timeperiodId";
+        $query = 'SELECT days, timerange FROM timeperiod_exceptions WHERE timeperiod_id = :timeperiodId';
         $stmt = $this->backendInstance->db->prepare($query);
         $stmt->bindParam(':timeperiodId', $timeperiodId, PDO::PARAM_INT);
         $stmt->execute();
@@ -105,36 +143,5 @@ class TimePeriod extends AbstractObject
             $exception['timeperiod_id'] = $timeperiodId;
             Relations\TimePeriodExceptions::getInstance($this->dependencyInjector)->add($exception, $timeperiodId);
         }
-    }
-
-    /**
-     * Generate timeperiod from id
-     *
-     * @param null|int $timeperiodId
-     *
-     * @return null|string
-     * @throws Exception
-     */
-    public function generateFromTimeperiodId(?int $timeperiodId)
-    {
-        if (is_null($timeperiodId)) {
-            return null;
-        }
-        if (is_null($this->timeperiods)) {
-            $this->getTimeperiods();
-        }
-
-        if (!isset($this->timeperiods[$timeperiodId])) {
-            return null;
-        }
-        if ($this->checkGenerate($timeperiodId)) {
-            return $this->timeperiods[$timeperiodId]['tp_name'];
-        }
-
-        $this->getTimeperiodExceptionFromId($timeperiodId);
-
-        $this->timeperiods[$timeperiodId]['tp_id'] = $timeperiodId;
-        $this->generateObjectInFile($this->timeperiods[$timeperiodId], $timeperiodId);
-        return $this->timeperiods[$timeperiodId]['tp_name'];
     }
 }

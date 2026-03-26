@@ -56,8 +56,8 @@
                                 <td colspan="3">{$noModifLabel}</td>
                             </tr>
                         {/if}
-                </table>                
-            {/if}       
+                </table>
+            {/if}
             </td>
         </tr>
     {/foreach}

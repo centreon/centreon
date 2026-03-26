@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,10 +35,10 @@ use Centreon\Domain\Log\Logger;
 use Doctrine\DBAL\Query\QueryBuilder as DoctrineDbalQueryBuilder;
 
 /**
- * Class
+ * Class.
  *
  * @class   DbalQueryBuilderAdapter
- * @package Adaptation\Database\Adapter\Dbal
+ *
  * @see     DoctrineDbalQueryBuilder
  *
  * To dynamically create SQL queries.
@@ -46,27 +46,24 @@ use Doctrine\DBAL\Query\QueryBuilder as DoctrineDbalQueryBuilder;
 final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
 {
     /**
-     * DbalQueryBuilderAdapter constructor
-     *
-     * @param DoctrineDbalQueryBuilder $dbalQueryBuilder
-     * @param ConnectionConfig $connectionConfig
+     * DbalQueryBuilderAdapter constructor.
      */
     public function __construct(
         private DoctrineDbalQueryBuilder $dbalQueryBuilder,
-        private ConnectionConfig $connectionConfig
-    ) {}
+        private ConnectionConfig $connectionConfig,
+    ) {
+    }
 
     /**
-     * Factory
+     * Factory.
      *
      * Creates a new instance of a SQL query builder.
      *
      * We have to use a connection configuration to instantiate the query builder because the query builder needs a
      * connection to work.
      *
-     * @param ConnectionConfig $connectionConfig
-     *
      * @throws QueryBuilderException
+     *
      * @return DbalQueryBuilderAdapter
      */
     public static function createFromConnectionConfig(ConnectionConfig $connectionConfig): QueryBuilderInterface
@@ -86,9 +83,10 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
     }
 
     /**
-     * To build where clauses easier
+     * To build where clauses easier.
      *
      * @throws QueryBuilderException
+     *
      * @return DbalExpressionBuilderAdapter
      */
     public function expr(): ExpressionBuilderInterface
@@ -214,7 +212,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
 
     /**
      * Turns the query being built into a bulk update query that ranges over
-     * a certain table
+     * a certain table.
      *
      * <code>
      *     $qb = $db->createQueryBuilder()
@@ -237,7 +235,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
 
     /**
      * Turns the query being built into an insert query that inserts into
-     * a certain table
+     * a certain table.
      *
      * <code>
      *     $qb = $db->createQueryBuilder()
@@ -307,7 +305,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
         string $fromAlias,
         string $join,
         string $joinAlias,
-        string $condition
+        string $condition,
     ): QueryBuilderInterface {
         $this->dbalQueryBuilder->join($fromAlias, $join, $joinAlias, $condition);
 
@@ -336,7 +334,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
         string $fromAlias,
         string $join,
         string $joinAlias,
-        string $condition
+        string $condition,
     ): QueryBuilderInterface {
         $this->dbalQueryBuilder->innerJoin($fromAlias, $join, $joinAlias, $condition);
 
@@ -365,7 +363,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
         string $fromAlias,
         string $join,
         string $joinAlias,
-        string $condition
+        string $condition,
     ): QueryBuilderInterface {
         $this->dbalQueryBuilder->leftJoin($fromAlias, $join, $joinAlias, $condition);
 
@@ -394,7 +392,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
         string $fromAlias,
         string $join,
         string $joinAlias,
-        string $condition
+        string $condition,
     ): QueryBuilderInterface {
         $this->dbalQueryBuilder->rightJoin($fromAlias, $join, $joinAlias, $condition);
 
@@ -482,6 +480,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      * @param string ...$whereClauseExpressions Additional predicates to append.
      *
      * @return DbalQueryBuilderAdapter this QueryBuilder instance
+     *
      * @see where()
      */
     public function andWhere(string $whereClauseExpression, string ...$whereClauseExpressions): QueryBuilderInterface
@@ -501,6 +500,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      * @param string ...$whereClauseExpressions Additional predicates to append.
      *
      * @return DbalQueryBuilderAdapter this QueryBuilder instance
+     *
      * @see where()
      *
      * <code>
@@ -707,8 +707,6 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
     }
 
     /**
-     * @param int $limit
-     *
      * @return DbalQueryBuilderAdapter
      */
     public function limit(int $limit): QueryBuilderInterface
@@ -719,8 +717,6 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
     }
 
     /**
-     * @param int $offset
-     *
      * @return DbalQueryBuilderAdapter
      */
     public function offset(int $offset): QueryBuilderInterface
@@ -774,6 +770,18 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
     public function resetOrderBy(): QueryBuilderInterface
     {
         $this->dbalQueryBuilder->resetOrderBy();
+
+        return $this;
+    }
+
+    /**
+     * Resets the limit for the query.
+     *
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
+     */
+    public function resetLimit(): QueryBuilderInterface
+    {
+        $this->dbalQueryBuilder->setMaxResults(null);
 
         return $this;
     }

@@ -1,16 +1,15 @@
-import { ReactNode } from 'react';
-
-import { equals, type } from 'ramda';
-
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  AccordionSummaryProps,
+  type AccordionSummaryProps,
   Typography,
-  TypographyProps
+  type TypographyProps
 } from '@mui/material';
+
+import { equals, type } from 'ramda';
+import type { ReactNode } from 'react';
 
 import { useCollapsibleItemStyles } from './useCollapsibleItemStyles';
 
@@ -38,11 +37,11 @@ export const CollapsibleItem = ({
 
   return (
     <Accordion
-      disableGutters
       className={classes.accordion}
       data-compact={compact}
       data-testid={`${dataTestId}-accordion`}
       defaultExpanded={defaultExpanded}
+      disableGutters
     >
       <div className={classes.summaryContainer}>
         <div className={classes.customTitle}>{!isStringTitle && title}</div>

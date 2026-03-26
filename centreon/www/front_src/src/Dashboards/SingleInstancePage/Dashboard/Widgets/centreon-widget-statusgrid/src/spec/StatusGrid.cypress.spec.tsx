@@ -1,28 +1,27 @@
-import i18next from 'i18next';
-import { Provider, createStore } from 'jotai';
-import { initReactI18next } from 'react-i18next';
-import { BrowserRouter } from 'react-router';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom, userAtom } from '@centreon/ui-context';
 
-import Widget from '..';
+import i18next from 'i18next';
+import { createStore, Provider } from 'jotai';
+import { initReactI18next } from 'react-i18next';
+import { BrowserRouter } from 'react-router';
+
 import {
   labelNoHostsFound,
   labelNoServicesFound
 } from '../../../translatedLabels';
 import { getPublicWidgetEndpoint } from '../../../utils';
+import Widget from '..';
+import { resourcesEndpoint } from '../api/endpoints';
 import { getStatusesEndpoint } from '../StatusGridCondensed/api/endpoints';
-import { router } from '../StatusGridStandard/Tile';
 import { Data, PanelOptions } from '../StatusGridStandard/models';
+import { router } from '../StatusGridStandard/Tile';
 import {
   labelAllMetricsAreWorkingFine,
   labelMetricName,
   labelSeeMore,
   labelValue
 } from '../StatusGridStandard/translatedLabels';
-import { resourcesEndpoint } from '../api/endpoints';
-
 import {
   condensedOptions,
   hostOptions,
@@ -32,6 +31,7 @@ import {
   linkToResourcePing,
   noResources,
   resources,
+  resourcesRegex,
   seeMoreOptions,
   serviceOptions,
   services
@@ -335,6 +335,20 @@ describe('View by host', () => {
       cy.contains(labelNoHostsFound).should('be.visible');
     });
   });
+
+  it('handles regex resources when the appropriate data is provided', () => {
+    hostsRequests();
+    initialize({
+      data: { resources: resourcesRegex },
+      options: hostOptions
+    });
+
+    cy.waitForRequest('@getHostResources').then(({ request }) => {
+      expect(request.url.searchParams.get('search')).to.equal(
+        '{"$and":[{"$or":[{"parent_name":{"$rg":"^H1$"}}]},{"$or":[{"name":{"$rg":"^Loa"}}]}]}'
+      );
+    });
+  });
 });
 
 describe('View by service', () => {
@@ -527,6 +541,20 @@ describe('View by service', () => {
       cy.contains(labelNoServicesFound).should('be.visible');
     });
   });
+
+  it('handles regex resources when the appropriate data is provided', () => {
+    servicesRequests();
+    initialize({
+      data: { resources: resourcesRegex },
+      options: serviceOptions
+    });
+
+    cy.waitForRequest('@getServiceResources').then(({ request }) => {
+      expect(request.url.searchParams.get('search')).to.equal(
+        '{"$and":[{"$or":[{"parent_name":{"$rg":"^H1$"}}]},{"$or":[{"name":{"$rg":"^Loa"}}]}]}'
+      );
+    });
+  });
 });
 
 const initializeSeeMore = (): void => {
@@ -599,6 +627,20 @@ describe('Condensed view', () => {
       cy.clock(new Date(2021, 1, 1, 0, 0, 0), ['Date']);
       statusRequests();
       initialize({ data: { resources }, options: condensedOptions });
+    });
+
+    it('handles regex resources when the appropriate data is provided', () => {
+      statusRequests();
+      initialize({
+        data: { resources: resourcesRegex },
+        options: condensedOptions
+      });
+
+      cy.waitForRequest('@getStatuses').then(({ request }) => {
+        expect(request.url.searchParams.get('search')).to.equal(
+          '{"$and":[{"$or":[{"name":{"$rg":"^Loa"}}]},{"$or":[{"host.name":{"$rg":"^H1$"}}]}]}'
+        );
+      });
     });
 
     it('displays status tiles', () => {

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,17 +31,16 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 class AclGroupRepository extends AbstractRepositoryRDB implements PaginationRepositoryInterface
 {
     use CheckListOfIdsTrait;
-
-    /** @var int $resultCountForPagination */
-    private int $resultCountForPagination = 0;
-
     private const CONCORDANCE_ARRAY = [
         'id' => 'acl_group_id',
         'name' => 'acl_group_name',
         'alias' => 'acl_group_alias',
         'changed' => 'acl_group_changed',
-        'activate' => 'acl_group_activate'
+        'activate' => 'acl_group_activate',
     ];
+
+    /** @var int */
+    private int $resultCountForPagination = 0;
 
     /**
      * @param DatabaseConnection $db
@@ -52,7 +51,7 @@ class AclGroupRepository extends AbstractRepositoryRDB implements PaginationRepo
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function entityClass(): string
     {
@@ -70,11 +69,11 @@ class AclGroupRepository extends AbstractRepositoryRDB implements PaginationRepo
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function getPaginationList($filters = null, int $limit = null, int $offset = null, $ordering = []): array
+    public function getPaginationList($filters = null, ?int $limit = null, ?int $offset = null, $ordering = []): array
     {
-        $request = <<<SQL_WRAP
+        $request = <<<'SQL_WRAP'
                 SELECT SQL_CALC_FOUND_ROWS t.* FROM `:db`.`acl_groups` AS `t`
             SQL_WRAP;
 
@@ -91,7 +90,7 @@ class AclGroupRepository extends AbstractRepositoryRDB implements PaginationRepo
             if (
                 array_key_exists('ids', $filters)
                 && is_array($filters['ids'])
-                && [] !== $filters['ids']
+                && $filters['ids'] !== []
             ) {
                 $idsListKey = [];
                 foreach ($filters['ids'] as $index => $id) {
@@ -139,6 +138,14 @@ class AclGroupRepository extends AbstractRepositoryRDB implements PaginationRepo
         return $aclGroups;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function getPaginationListTotal(): int
+    {
+        return $this->resultCountForPagination;
+    }
+
     private function createAclGroupFromArray(array $data): AclGroup
     {
         $aclGroup = new AclGroup();
@@ -149,13 +156,5 @@ class AclGroupRepository extends AbstractRepositoryRDB implements PaginationRepo
         $aclGroup->setActivate($data['acl_group_activate']);
 
         return $aclGroup;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPaginationListTotal(): int
-    {
-        return $this->resultCountForPagination;
     }
 }

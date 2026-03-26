@@ -59,3 +59,9 @@ export const labelMsgConfirmationEnableToken =
 export const labelEnableToken = 'Enable token';
 export const labelTokenEnabled = 'Token enabled';
 export const labelEnable = 'Enable';
+
+export const labelWelcomePageTitle =
+  'Welcome to the authentication tokens page';
+export const labelWelcomeDescription =
+  'You can create two types of tokens: API tokens to manipulate Centreon objects via the API, or CMA tokens to allow the CMA monitoring agent to authenticate to the corresponding poller.';
+export const labelAddToken = 'Add a token';

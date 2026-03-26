@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ final class CommandException extends \Exception
     public static function nameAlreadyExists(string $name): self
     {
         return new self(
-            sprintf( _("The '%s' command name already exists"), $name),
+            sprintf(_("The '%s' command name already exists"), $name),
             self::CODE_CONFLICT
         );
     }
@@ -66,7 +66,7 @@ final class CommandException extends \Exception
     public static function invalidCommandType(int $type): self
     {
         return new self(
-            sprintf( _("'%d' is not a valid command type"), $type),
+            sprintf(_("'%d' is not a valid command type"), $type),
             self::CODE_CONFLICT
         );
     }
@@ -79,7 +79,7 @@ final class CommandException extends \Exception
     public static function invalidArguments(array $arguments): self
     {
         return new self(
-            sprintf( _('The following arguments are not valid: %s'), implode(', ', $arguments)),
+            sprintf(_('The following arguments are not valid: %s'), implode(', ', $arguments)),
             self::CODE_CONFLICT
         );
     }
@@ -92,7 +92,7 @@ final class CommandException extends \Exception
     public static function invalidMacros(array $macros): self
     {
         return new self(
-            sprintf( _('The following macros are not valid: %s'), implode(', ', $macros)),
+            sprintf(_('The following macros are not valid: %s'), implode(', ', $macros)),
             self::CODE_CONFLICT
         );
     }

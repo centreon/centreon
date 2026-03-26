@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,7 +130,7 @@ class Host
         private string $name,
         private string $address,
         private string $monitoringServerName,
-        private HostStatus $status
+        private HostStatus $status,
     ) {
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, 'Host::name');
         Assertion::notEmpty($name, 'Host::name');

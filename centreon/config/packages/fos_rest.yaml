@@ -5,7 +5,7 @@ fos_rest:
         serialize_null: true
     format_listener:
         rules:
-          - { path: ^/, fallback_format: 'json', priorities: [ 'json' ] }
+            - {path: ^/, fallback_format: 'json', priorities: ['json']}
     view:
         view_response_listener: true
         mime_types:

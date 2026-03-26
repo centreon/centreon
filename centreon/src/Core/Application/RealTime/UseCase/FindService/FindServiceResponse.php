@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -152,7 +152,7 @@ final class FindServiceResponse
         ?Acknowledgement $acknowledgement,
         Host $host,
         array $serviceCategories,
-        ?Severity $severity
+        ?Severity $severity,
     ) {
         $this->groups = $this->servicegroupsToArray($servicegroups);
         $this->status = $this->statusToArray($status);
@@ -161,7 +161,7 @@ final class FindServiceResponse
         $this->acknowledgement = $this->acknowledgementToArray($acknowledgement);
         $this->host = $this->hostToArray($host);
         $this->categories = $this->tagsToArray($serviceCategories);
-        $this->severity = null === $severity ? $severity : $this->severityToArray($severity);
+        $this->severity = $severity === null ? $severity : $this->severityToArray($severity);
     }
 
     /**

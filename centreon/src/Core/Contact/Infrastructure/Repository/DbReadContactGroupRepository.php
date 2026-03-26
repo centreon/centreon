@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
@@ -95,7 +96,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
         foreach ($accessGroupIds as $key => $accessGroupId) {
             $bind[':access_group_' . $key] = $accessGroupId;
         }
-        if ([] === $bind) {
+        if ($bind === []) {
             return false;
         }
 
@@ -111,7 +112,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
                     AND gcgr.acl_group_id IN ({$accessGroupIdsAsString})
                 SQL
         ));
-        $statement->bindValue(':contactGroupId', $contactGroupId,\PDO::PARAM_INT);
+        $statement->bindValue(':contactGroupId', $contactGroupId, \PDO::PARAM_INT);
         foreach ($bind as $token => $accessGroupId) {
             $statement->bindValue($token, $accessGroupId, \PDO::PARAM_INT);
         }
@@ -125,42 +126,50 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
      */
     public function findNamesByIds(int ...$ids): array
     {
-        if ([] === $ids) {
-            return [];
+        try {
+            if ($ids === []) {
+                return [];
+            }
+
+            $ids = array_unique($ids);
+
+            $fields = '';
+            foreach ($ids as $index => $id) {
+                $fields .= ($fields === '' ? '' : ', ') . ':id_' . $index;
+            }
+
+            $select = <<<SQL
+                SELECT
+                    `cg_id` as `id`,
+                    `cg_name` as `name`
+                FROM
+                    `:db`.`contactgroup`
+                WHERE
+                    `cg_id` IN ({$fields})
+                SQL;
+
+            $statement = $this->db->prepare($this->translateDbName($select));
+            foreach ($ids as $index => $id) {
+                $statement->bindValue(':id_' . $index, $id, \PDO::PARAM_INT);
+            }
+            $statement->setFetchMode(\PDO::FETCH_ASSOC);
+            $statement->execute();
+
+            // Retrieve data
+            $names = [];
+            foreach ($statement as $result) {
+                /** @var array{ id: int, name: string } $result */
+                $names[$result['id']] = $result;
+            }
+
+            return $names;
+        } catch (\PDOException $e) {
+            throw new RepositoryException(
+                message: 'An error occurred while retrieving contact group names by IDs',
+                context: ['ids' => $ids],
+                previous: $e
+            );
         }
-
-        $ids = array_unique($ids);
-
-        $fields = '';
-        foreach ($ids as $index => $id) {
-            $fields .= ('' === $fields ? '' : ', ') . ':id_' . $index;
-        }
-
-        $select = <<<SQL
-            SELECT
-                `cg_id` as `id`,
-                `cg_name` as `name`
-            FROM
-                `:db`.`contactgroup`
-            WHERE
-                `cg_id` IN ({$fields})
-            SQL;
-
-        $statement = $this->db->prepare($this->translateDbName($select));
-        foreach ($ids as $index => $id) {
-            $statement->bindValue(':id_' . $index, $id, \PDO::PARAM_INT);
-        }
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $statement->execute();
-
-        // Retrieve data
-        $names = [];
-        foreach ($statement as $result) {
-            /** @var array{ id: int, name: string } $result */
-            $names[$result['id']] = $result;
-        }
-
-        return $names;
     }
 
     /**
@@ -287,11 +296,12 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
             'contact_group_id' => $contactGroupId,
         ]);
         $statement = $this->db->prepare(
-            $this->translateDbName(<<<'SQL'
-                SELECT cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
-                FROM `:db`.contactgroup
-                WHERE cg_id = :contactGroupId
-                SQL
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
+                    FROM `:db`.contactgroup
+                    WHERE cg_id = :contactGroupId
+                    SQL
             )
         );
         $statement->bindValue(':contactGroupId', $contactGroupId, \PDO::PARAM_INT);
@@ -302,7 +312,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
             $contactGroup = DbContactGroupFactory::createFromRecord($result);
         }
         $this->debug(
-            $contactGroup === null  ? 'No Contact Group found' : 'Contact Group Found',
+            $contactGroup === null ? 'No Contact Group found' : 'Contact Group Found',
             [
                 'contact_group_id' => $contactGroupId,
             ]
@@ -330,11 +340,12 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
         $contactGroups = [];
         $boundIds = implode(', ', array_keys($queryBindValues));
         $statement = $this->db->prepare(
-            $this->translateDbName(<<<SQL
-                SELECT cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
-                FROM `:db`.contactgroup
-                WHERE cg_id IN ({$boundIds})
-                SQL
+            $this->translateDbName(
+                <<<SQL
+                    SELECT cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
+                    FROM `:db`.contactgroup
+                    WHERE cg_id IN ({$boundIds})
+                    SQL
             )
         );
         foreach ($queryBindValues as $bindKey => $contactGroupId) {
@@ -358,37 +369,37 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
         array $accessGroups,
         ContactInterface $user,
         ?RequestParametersInterface $requestParameters = null,
-    ): array
-    {
+    ): array {
         $accessGroupIds = array_map(
-            fn($accessGroup) => $accessGroup->getId(),
+            fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
         [$bindValues, $subQuery] = $this->createMultipleBindQuery($accessGroupIds, ':id_');
 
-        $request = $this->translateDbName(<<<SQL
-            SELECT SQL_CALC_FOUND_ROWS *
-            FROM (
-                SELECT /* Search for contact groups directly related to the user with ACL groups */
-                    cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
-                FROM `:db`.acl_group_contactgroups_relations gcgr
-                INNER JOIN `:db`.contactgroup cg
-                    ON cg.cg_id = gcgr.cg_cg_id
-                WHERE gcgr.acl_group_id IN ({$subQuery})
-                GROUP BY cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
-                UNION
-                SELECT /* Search for contact groups the user belongs to */
-                    cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
-                FROM `:db`.contactgroup cg
-                INNER JOIN `:db`.contactgroup_contact_relation ccr
-                    ON ccr.contactgroup_cg_id = cg.cg_id
-                INNER JOIN `:db`.contact c
-                    ON c.contact_id = ccr.contact_contact_id
-                WHERE ccr.contact_contact_id = :user_id
-                    AND c.contact_register = '1'
-            ) AS contact_groups
-            SQL
+        $request = $this->translateDbName(
+            <<<SQL
+                SELECT SQL_CALC_FOUND_ROWS *
+                FROM (
+                    SELECT /* Search for contact groups directly related to the user with ACL groups */
+                        cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
+                    FROM `:db`.acl_group_contactgroups_relations gcgr
+                    INNER JOIN `:db`.contactgroup cg
+                        ON cg.cg_id = gcgr.cg_cg_id
+                    WHERE gcgr.acl_group_id IN ({$subQuery})
+                    GROUP BY cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
+                    UNION
+                    SELECT /* Search for contact groups the user belongs to */
+                        cg_id, cg_name, cg_alias, cg_comment, cg_activate, cg_type
+                    FROM `:db`.contactgroup cg
+                    INNER JOIN `:db`.contactgroup_contact_relation ccr
+                        ON ccr.contactgroup_cg_id = cg.cg_id
+                    INNER JOIN `:db`.contact c
+                        ON c.contact_id = ccr.contact_contact_id
+                    WHERE ccr.contact_contact_id = :user_id
+                        AND c.contact_register = '1'
+                ) AS contact_groups
+                SQL
         );
         $sqlTranslator = $requestParameters !== null
             ? new SqlRequestParametersTranslator($requestParameters)
@@ -460,10 +471,10 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
         }
         $contactGroupIdsAsString = implode(', ', array_keys($bind));
         $request = $this->translateDbName(
-           <<<SQL
-               SELECT cg_id FROM `:db`.contactgroup
-               WHERE cg_id IN ({$contactGroupIdsAsString})
-               SQL
+            <<<SQL
+                SELECT cg_id FROM `:db`.contactgroup
+                WHERE cg_id IN ({$contactGroupIdsAsString})
+                SQL
         );
         $statement = $this->db->prepare($request);
         foreach ($bind as $key => $value) {

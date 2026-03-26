@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,29 +18,29 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Tests\Core\Application\Configuration\NotificationPolicy\UseCase;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Engine\EngineConfiguration;
+use Centreon\Domain\Engine\Interfaces\EngineConfigurationServiceInterface;
+use Centreon\Domain\MetaServiceConfiguration\Interfaces\MetaServiceConfigurationReadRepositoryInterface;
+use Centreon\Domain\MetaServiceConfiguration\Model\MetaServiceConfiguration;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\Configuration\Notification\Repository\ReadMetaServiceNotificationRepositoryInterface;
 use Core\Application\Configuration\NotificationPolicy\UseCase\FindMetaServiceNotificationPolicy;
 use Core\Application\Configuration\NotificationPolicy\UseCase\FindNotificationPolicyPresenterInterface;
 use Core\Application\Configuration\NotificationPolicy\UseCase\FindNotificationPolicyResponse;
-use Centreon\Domain\Engine\Interfaces\EngineConfigurationServiceInterface;
-use Centreon\Domain\MetaServiceConfiguration\Interfaces\MetaServiceConfigurationReadRepositoryInterface;
-use Core\Application\Configuration\Notification\Repository\ReadMetaServiceNotificationRepositoryInterface;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Application\RealTime\Repository\ReadMetaServiceRepositoryInterface as
-    ReadRealTimeMetaServiceRepositoryInterface;
-use Centreon\Domain\Engine\EngineConfiguration;
-use Centreon\Domain\MetaServiceConfiguration\Model\MetaServiceConfiguration;
-use Core\Domain\RealTime\Model\MetaService as RealtimeMetaService;
-use Core\Domain\RealTime\Model\ServiceStatus;
-use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\RealTime\Repository\ReadMetaServiceRepositoryInterface as ReadRealTimeMetaServiceRepositoryInterface;
+use Core\Domain\Configuration\Notification\Model\HostNotification;
 use Core\Domain\Configuration\Notification\Model\NotifiedContact;
 use Core\Domain\Configuration\Notification\Model\NotifiedContactGroup;
-use Core\Domain\Configuration\Notification\Model\HostNotification;
 use Core\Domain\Configuration\Notification\Model\ServiceNotification;
 use Core\Domain\Configuration\TimePeriod\Model\TimePeriod;
+use Core\Domain\RealTime\Model\MetaService as RealtimeMetaService;
+use Core\Domain\RealTime\Model\ServiceStatus;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
@@ -58,7 +58,7 @@ beforeEach(function (): void {
         'average',
         MetaServiceConfiguration::META_SELECT_MODE_LIST,
     );
-    $this->realTimeMetaService = new RealTimeMetaService(
+    $this->realTimeMetaService = new RealtimeMetaService(
         1,
         1,
         1,
@@ -67,10 +67,10 @@ beforeEach(function (): void {
         new ServiceStatus(ServiceStatus::STATUS_NAME_CRITICAL, ServiceStatus::STATUS_CODE_CRITICAL, 1),
     );
 
-    $hostNotification = new HostNotification(new Timeperiod(1, '24x7', '24/24 7/7'));
+    $hostNotification = new HostNotification(new TimePeriod(1, '24x7', '24/24 7/7'));
     $hostNotification->addEvent(HostNotification::EVENT_HOST_DOWN);
 
-    $serviceNotification = new ServiceNotification(new Timeperiod(1, '24x7', '24/24 7/7'));
+    $serviceNotification = new ServiceNotification(new TimePeriod(1, '24x7', '24/24 7/7'));
     $serviceNotification->addEvent(ServiceNotification::EVENT_SERVICE_CRITICAL);
 
     $this->notifiedContact = new NotifiedContact(

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\HostConfiguration\Interfaces;
@@ -41,16 +42,16 @@ interface HostConfigurationServiceInterface
      * Find a host.
      *
      * @param int $hostId Host Id to be found
-     * @return Host|null Returns a host otherwise null
      * @throws HostConfigurationException
+     * @return Host|null Returns a host otherwise null
      */
     public function findHost(int $hostId): ?Host;
 
     /**
      * Returns the number of host.
      *
-     * @return int Number of host
      * @throws HostConfigurationException
+     * @return int Number of host
      */
     public function getNumberOfHosts(): int;
 
@@ -60,8 +61,8 @@ interface HostConfigurationServiceInterface
      * **The priority order of host templates is maintained!**
      *
      * @param Host $host Host for which we want to find all host templates recursively
-     * @return Host[]
      * @throws HostConfigurationException
+     * @return Host[]
      */
     public function findHostTemplatesRecursively(Host $host): array;
 
@@ -71,8 +72,8 @@ interface HostConfigurationServiceInterface
      * case where the host does not have a command.
      *
      * @param int $hostId Host id
-     * @return string|null Return the command if found
      * @throws HostConfigurationException
+     * @return string|null Return the command if found
      */
     public function findCommandLine(int $hostId): ?string;
 
@@ -81,8 +82,8 @@ interface HostConfigurationServiceInterface
      *
      * @param int $hostId Id of the host
      * @param bool $isUsingInheritance Indicates whether to use inheritance to find host macros (FALSE by default)
-     * @return HostMacro[] List of host macros found
      * @throws HostConfigurationException
+     * @return HostMacro[] List of host macros found
      */
     public function findOnDemandHostMacros(int $hostId, bool $isUsingInheritance = false): array;
 
@@ -91,8 +92,8 @@ interface HostConfigurationServiceInterface
      *
      * @param int $hostId Host id
      * @param string $command Command to analyse
-     * @return HostMacro[] List of host macros
      * @throws HostConfigurationException
+     * @return HostMacro[] List of host macros
      */
     public function findHostMacrosFromCommandLine(int $hostId, string $command): array;
 
@@ -109,8 +110,8 @@ interface HostConfigurationServiceInterface
      * Find host names already used by hosts.
      *
      * @param string[] $namesToCheck List of names to find
-     * @return string[] Return the host names found
      * @throws HostConfigurationException
+     * @return string[] Return the host names found
      */
     public function findHostNamesAlreadyUsed(array $namesToCheck): array;
 
@@ -136,8 +137,8 @@ interface HostConfigurationServiceInterface
      * Find a host by its name
      *
      * @param string $hostName Host name to be found
-     * @return Host|null Returns a host otherwise null
      * @throws HostConfigurationException
+     * @return Host|null Returns a host otherwise null
      */
     public function findHostByName(string $hostName): ?Host;
 

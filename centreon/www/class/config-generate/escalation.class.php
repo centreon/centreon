@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -47,36 +32,16 @@ class Escalation extends AbstractObject
 {
     /** @var */
     public $hg_build;
+
     /** @var */
     public $sg_build;
-    /** @var int */
-    private $use_cache = 1;
-    /** @var int */
-    private $done_cache = 0;
-    /** @var int */
-    private $has_escalation = 1; # by default, we have.
-    /** @var array */
-    private $escalation_cache = [];
-    /** @var array */
-    private $escalation_linked_cg_cache = [];
-    /** @var array */
-    private $escalation_linked_host_cache = [];
-    /** @var array */
-    private $escalation_linked_hg_cache = [];
-    /** @var array */
-    private $escalation_linked_service_cache = [];
-    /** @var array */
-    private $escalation_linked_sg_cache = [];
-    /** @var array */
-    private $escalation_linked_meta_cache = [];
-    /** @var array */
-    private $hosts_build = [];
-    /** @var array */
-    private $services_build = [];
+
     /** @var string */
     protected $generate_filename = 'escalations.cfg';
+
     /** @var string */
     protected string $object_name = 'hostescalation';
+
     /** @var string */
     protected $attributes_select = "
         esc_id,
@@ -90,32 +55,81 @@ class Escalation extends AbstractObject
         host_inheritance_to_services,
         hostgroup_inheritance_to_services
     ";
+
     /** @var string[] */
     protected $attributes_write = [';escalation_name', 'first_notification', 'last_notification', 'notification_interval', 'escalation_period', 'escalation_options'];
+
     /** @var string[] */
     protected $attributes_array = ['hostgroup_name', 'host_name', 'servicegroup_name', 'service_description', 'contact_groups'];
+
     /** @var Host|null */
     protected $host_instance = null;
+
     /** @var Service|null */
     protected $service_instance = null;
+
     /** @var Hostgroup|null */
     protected $hg_instance = null;
+
     /** @var Servicegroup|null */
     protected $sg_instance = null;
+
     /** @var null */
     protected $stmt_escalation = null;
+
     /** @var null */
     protected $stmt_cg = null;
+
     /** @var null */
     protected $stmt_host = null;
+
     /** @var null */
     protected $stmt_service = null;
+
     /** @var null */
     protected $stmt_hg = null;
+
     /** @var null */
     protected $stmt_sg = null;
+
     /** @var null */
     protected $stmt_meta = null;
+
+    /** @var int */
+    private $use_cache = 1;
+
+    /** @var int */
+    private $done_cache = 0;
+
+    /** @var int */
+    private $has_escalation = 1; // by default, we have.
+
+    /** @var array */
+    private $escalation_cache = [];
+
+    /** @var array */
+    private $escalation_linked_cg_cache = [];
+
+    /** @var array */
+    private $escalation_linked_host_cache = [];
+
+    /** @var array */
+    private $escalation_linked_hg_cache = [];
+
+    /** @var array */
+    private $escalation_linked_service_cache = [];
+
+    /** @var array */
+    private $escalation_linked_sg_cache = [];
+
+    /** @var array */
+    private $escalation_linked_meta_cache = [];
+
+    /** @var array */
+    private $hosts_build = [];
+
+    /** @var array */
+    private $services_build = [];
 
     /**
      * Escalation constructor
@@ -135,462 +149,11 @@ class Escalation extends AbstractObject
     }
 
     /**
-     * @return void
-     * @throws PDOException
-     */
-    private function getEscalationCache(): void
-    {
-        $stmt = $this->backend_instance->db->prepare("SELECT 
-                    $this->attributes_select
-                FROM escalation
-        ");
-        $stmt->execute();
-        $this->escalation_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
-
-        $stmt = $this->backend_instance->db->prepare("SELECT 
-                    escalation_esc_id, contactgroup_cg_id
-                FROM escalation_contactgroup_relation
-        ");
-        $stmt->execute();
-        $this->escalation_linked_cg_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
-
-        if (count($this->escalation_cache) == 0) {
-            $this->has_escalation = 0;
-        }
-    }
-
-    /**
-     * @return int|void
-     * @throws PDOException
-     */
-    private function getEscalationLinkedCache()
-    {
-        if ($this->has_escalation == 0) {
-            return 0;
-        }
-
-        $stmt = $this->backend_instance->db->prepare("SELECT 
-                    host_host_id, escalation_esc_id
-                FROM escalation_host_relation
-        ");
-        $stmt->execute();
-        $this->escalation_linked_host_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
-
-        $stmt = $this->backend_instance->db->prepare("SELECT 
-                    hostgroup_hg_id, escalation_esc_id
-                FROM escalation_hostgroup_relation
-        ");
-        $stmt->execute();
-        $this->escalation_linked_hg_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
-
-        $stmt = $this->backend_instance->db->prepare("SELECT 
-                    servicegroup_sg_id, escalation_esc_id
-                FROM escalation_servicegroup_relation
-        ");
-        $stmt->execute();
-        $this->escalation_linked_sg_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
-
-        $stmt = $this->backend_instance->db->prepare("SELECT 
-                    meta_service_meta_id, escalation_esc_id
-                FROM escalation_meta_service_relation
-        ");
-        $stmt->execute();
-        $this->escalation_linked_meta_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
-
-        $stmt = $this->backend_instance->db->prepare("SELECT 
-                    CONCAT(host_host_id, '_', service_service_id), escalation_esc_id
-                FROM escalation_service_relation
-        ");
-        $stmt->execute();
-        $this->escalation_linked_service_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
-    }
-
-    /**
-     * @return int|void
-     * @throws PDOException
-     */
-    private function buildCache()
-    {
-        if ($this->done_cache == 1) {
-            return 0;
-        }
-
-        $this->getEscalationCache();
-        $this->getEscalationLinkedCache();
-        $this->done_cache = 1;
-    }
-
-    /**
-     * @param $escalation
-     * @param $esc_id
-     *
-     * @return void
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
-     */
-    private function generateSubObjects(&$escalation, $esc_id): void
-    {
-        $period = Timeperiod::getInstance($this->dependencyInjector);
-        $cg = Contactgroup::getInstance($this->dependencyInjector);
-
-        $escalation['escalation_period'] = $period->generateFromTimeperiodId($escalation['escalation_period_id']);
-        $escalation['contact_groups'] = [];
-        foreach ($this->escalation_linked_cg_cache[$esc_id] as $cg_id) {
-            $escalation['contact_groups'][] = $cg->generateFromCgId($cg_id);
-        }
-    }
-
-    /**
-     * @param $escalation_id
-     *
-     * @return mixed|null
-     * @throws PDOException
-     */
-    private function getEscalationFromId($escalation_id)
-    {
-        if (isset($this->escalation_cache[$escalation_id])) {
-            return $this->escalation_cache[$escalation_id];
-        }
-        if ($this->use_cache == 1) {
-            return null;
-        }
-
-        if (is_null($this->stmt_escalation)) {
-            $this->stmt_escalation = $this->backend_instance->db->prepare("SELECT 
-                    $this->attributes_select
-                FROM escalation
-                WHERE esc_id = :esc_id
-            ");
-        }
-        $this->stmt_escalation->bindParam(':esc_id', $escalation_id, PDO::PARAM_INT);
-        $this->stmt_escalation->execute();
-        $this->escalation_cache[$escalation_id] = array_pop($this->stmt_escalation->fetchAll(PDO::FETCH_ASSOC));
-        if (is_null($this->escalation_cache[$escalation_id])) {
-            return null;
-        }
-
-        if (is_null($this->stmt_cg)) {
-            $this->stmt_cg = $this->backend_instance->db->prepare("SELECT 
-                    contactgroup_cg_id
-                FROM escalation_contactgroup_relation
-                WHERE escalation_esc_id = :esc_id
-            ");
-        }
-        $this->stmt_cg->bindParam(':esc_id', $escalation_id, PDO::PARAM_INT);
-        $this->stmt_cg->execute();
-        $this->escalation_linked_cg_cache[$escalation_id] = $this->stmt_cg->fetchAll(PDO::FETCH_COLUMN);
-
-        return $this->escalation_cache[$escalation_id];
-    }
-
-    /**
-     * @param $host_id
-     *
-     * @return int|void
-     * @throws PDOException
-     */
-    private function addHost($host_id)
-    {
-        if ($this->use_cache == 0) {
-            if (is_null($this->stmt_host)) {
-                $this->stmt_host = $this->backend_instance->db->prepare("SELECT 
-                        escalation_esc_id
-                    FROM escalation_host_relation
-                    WHERE host_host_id = :host_id
-                ");
-            }
-
-            $this->stmt_host->bindParam(':host_id', $host_id, PDO::PARAM_INT);
-            $this->stmt_host->execute();
-            $this->escalation_linked_host_cache[$host_id] = $this->stmt_host->fetchAll(PDO::FETCH_COLUMN);
-        }
-        if (!isset($this->escalation_linked_host_cache[$host_id])) {
-            return 0;
-        }
-
-        foreach ($this->escalation_linked_host_cache[$host_id] as $escalation_id) {
-            if (!isset($this->hosts_build[$escalation_id])) {
-                $this->hosts_build[$escalation_id] = [];
-            }
-            $this->hosts_build[$escalation_id][] = $this->host_instance->getString($host_id, 'host_name');
-
-            if (isset($this->escalation_cache[$escalation_id]['host_inheritance_to_services']) &&
-                $this->escalation_cache[$escalation_id]['host_inheritance_to_services'] == 1
-            ) {
-                $services = $this->service_instance->getGeneratedServices();
-                // host without services
-                if (!isset($services[$host_id])) {
-                    continue;
-                }
-                foreach ($services[$host_id] as $service_id) {
-                    if (!isset($this->services_build[$escalation_id])) {
-                        $this->services_build[$escalation_id] = [$host_id => []];
-                    }
-                    $this->services_build[$escalation_id][$host_id][$service_id] = 1;
-                }
-            }
-        }
-    }
-
-    /**
-     * @param $hg_id
-     * @param $hostgroup
-     *
-     * @return int|void
-     * @throws PDOException
-     */
-    private function addHostgroup($hg_id, $hostgroup)
-    {
-        if ($this->use_cache == 0) {
-            if (is_null($this->stmt_hg)) {
-                $this->stmt_hg = $this->backend_instance->db->prepare("SELECT 
-                        escalation_esc_id
-                    FROM escalation_hostgroup_relation
-                    WHERE hostgroup_hg_id = :hg_id
-                ");
-            }
-
-            $this->stmt_hg->bindParam(':hg_id', $hg_id, PDO::PARAM_INT);
-            $this->stmt_hg->execute();
-            $this->escalation_linked_hg_cache[$hg_id] = $this->stmt_hg->fetchAll(PDO::FETCH_COLUMN);
-        }
-        if (!isset($this->escalation_linked_hg_cache[$hg_id])) {
-            return 0;
-        }
-
-        foreach ($this->escalation_linked_hg_cache[$hg_id] as $escalation_id) {
-            if (isset($this->escalation_cache[$escalation_id]['hostgroup_inheritance_to_services']) &&
-                $this->escalation_cache[$escalation_id]['hostgroup_inheritance_to_services'] == 1
-            ) {
-                $services = $this->service_instance->getGeneratedServices();
-
-                foreach ($hostgroup['members'] as $host_name) {
-                    $host_id = $this->host_instance->getHostIdByHostName($host_name);
-                    // host without services
-                    if (!isset($services[$host_id])) {
-                        continue;
-                    }
-                    foreach ($services[$host_id] as $service_id) {
-                        if (!isset($this->services_build[$escalation_id])) {
-                            $this->services_build[$escalation_id] = [$host_id => []];
-                        }
-                        $this->services_build[$escalation_id][$host_id][$service_id] = 1;
-                    }
-                }
-            }
-
-
-            if (!isset($this->hg_build[$escalation_id])) {
-                $this->hg_build[$escalation_id] = [];
-            }
-            $hostgroup_name = $this->hg_instance->getString($hg_id, 'hostgroup_name');
-            if (!is_null($hostgroup_name)) {
-                $this->hg_build[$escalation_id][] = $hostgroup_name;
-            }
-        }
-    }
-
-    /**
-     * @param $host_id
-     * @param $service_id
-     *
-     * @return int|void
-     * @throws PDOException
-     */
-    private function addService($host_id, $service_id)
-    {
-        if ($this->use_cache == 0) {
-            if (is_null($this->stmt_service)) {
-                $this->stmt_service = $this->backend_instance->db->prepare("SELECT 
-                         escalation_esc_id
-                    FROM escalation_service_relation
-                    WHERE host_host_id = :host_id AND service_service_id = :service_id
-                ");
-            }
-
-            $this->stmt_service->bindParam(':host_id', $host_id, PDO::PARAM_INT);
-            $this->stmt_service->bindParam(':service_id', $service_id, PDO::PARAM_INT);
-            $this->stmt_service->execute();
-            $this->escalation_linked_service_cache[$host_id . '_' . $service_id] =
-                $this->stmt_service->fetchAll(PDO::FETCH_COLUMN);
-        }
-        if (!isset($this->escalation_linked_service_cache[$host_id . '_' . $service_id])) {
-            return 0;
-        }
-
-        foreach ($this->escalation_linked_service_cache[$host_id . '_' . $service_id] as $escalation_id) {
-            if (!isset($this->services_build[$escalation_id])) {
-                $this->services_build[$escalation_id] = [$host_id => []];
-            }
-            $this->services_build[$escalation_id][$host_id][$service_id] = 1;
-        }
-    }
-
-    /**
-     * @param $sg_id
-     *
-     * @return int|void
-     * @throws PDOException
-     */
-    private function addServicegroup($sg_id)
-    {
-        if ($this->use_cache == 0) {
-            if (is_null($this->stmt_sg)) {
-                $this->stmt_sg = $this->backend_instance->db->prepare("SELECT 
-                        escalation_esc_id
-                    FROM escalation_servicegroup_relation
-                    WHERE servicegroup_sg_id = :sg_id
-                ");
-            }
-
-            $this->stmt_sg->bindParam(':sg_id', $sg_id, PDO::PARAM_INT);
-            $this->stmt_sg->execute();
-            $this->escalation_linked_sg_cache[$sg_id] = $this->stmt_sg->fetchAll(PDO::FETCH_COLUMN);
-        }
-        if (!isset($this->escalation_linked_sg_cache[$sg_id])) {
-            return 0;
-        }
-
-        foreach ($this->escalation_linked_sg_cache[$sg_id] as $escalation_id) {
-            if (!isset($this->sg_build[$escalation_id])) {
-                $this->sg_build[$escalation_id] = [];
-            }
-            $servicegroup_name = $this->sg_instance->getString($sg_id, 'servicegroup_name');
-            if (!is_null($servicegroup_name)) {
-                $this->sg_build[$escalation_id][] = $servicegroup_name;
-            }
-        }
-    }
-
-    /**
-     * @param $meta_id
-     *
-     * @return array|false|mixed
-     * @throws PDOException
-     */
-    private function getEscalationFromMetaId($meta_id)
-    {
-        if ($this->use_cache == 0) {
-            if (is_null($this->stmt_meta)) {
-                $this->stmt_service = $this->backend_instance->db->prepare("SELECT 
-                         escalation_esc_id
-                    FROM escalation_meta_service_relation
-                    WHERE meta_service_meta_id = :meta_id
-                ");
-            }
-
-            $this->stmt_service->bindParam(':meta_id', $meta_id, PDO::PARAM_INT);
-            $this->stmt_service->execute();
-            $this->escalation_linked_meta_cache[$meta_id] = $this->stmt_service->fetchAll(PDO::FETCH_COLUMN);
-        }
-        if (!isset($this->escalation_linked_meta_cache[$meta_id])) {
-            return [];
-        }
-
-        return $this->escalation_linked_meta_cache[$meta_id];
-    }
-
-    /**
      * @return void
-     * @throws LogicException
-     * @throws PDOException
-     * @throws ServiceCircularReferenceException
-     * @throws ServiceNotFoundException
-     */
-    private function generateHosts(): void
-    {
-        $this->object_name = 'hostescalation';
-        foreach ($this->hosts_build as $escalation_id => $values) {
-            $object = $this->getEscalationFromId($escalation_id);
-            $object['host_name'] = &$values;
-            $object['escalation_options'] = $object['escalation_options_host'];
-            # Dont care of the id (we set 0)
-            $this->generateSubObjects($object, $escalation_id);
-            $this->generateObjectInFile($object, 0);
-        }
-    }
-
-    /**
-     * @return void
-     * @throws LogicException
-     * @throws PDOException
-     * @throws ServiceCircularReferenceException
-     * @throws ServiceNotFoundException
-     */
-    private function generateServices(): void
-    {
-        $this->object_name = 'serviceescalation';
-        foreach ($this->services_build as $escalation_id => $hosts) {
-            foreach ($hosts as $host_id => $services) {
-                foreach ($services as $service_id => $service) {
-                    $object = $this->getEscalationFromId($escalation_id);
-                    $object['host_name'] = [$this->host_instance->getString($host_id, 'host_name')];
-                    $object['service_description'] = [$this->service_instance->getString($service_id, 'service_description')];
-                    $object['escalation_options'] = $object['escalation_options_service'];
-                    # Dont care of the id (we set 0)
-                    $this->generateSubObjects($object, $escalation_id);
-                    $this->generateObjectInFile($object, 0);
-                }
-            }
-        }
-    }
-
-    /**
-     * @return void
-     * @throws LogicException
-     * @throws PDOException
-     * @throws ServiceCircularReferenceException
-     * @throws ServiceNotFoundException
-     */
-    private function generateHostgroups(): void
-    {
-        $this->object_name = 'hostescalation';
-        foreach ($this->hg_build as $escalation_id => $values) {
-            $object = $this->getEscalationFromId($escalation_id);
-            # No hosgroup enabled
-            if (count($values) == 0) {
-                continue;
-            }
-            $object['hostgroup_name'] = &$values;
-            $object['escalation_options'] = $object['escalation_options_host'];
-            # Dont care of the id (we set 0)
-            $this->generateSubObjects($object, $escalation_id);
-            $this->generateObjectInFile($object, 0);
-        }
-    }
-
-    /**
-     * @return void
-     * @throws LogicException
-     * @throws PDOException
-     * @throws ServiceCircularReferenceException
-     * @throws ServiceNotFoundException
-     */
-    private function generateServicegroups(): void
-    {
-        $this->object_name = 'serviceescalation';
-        foreach ($this->sg_build as $escalation_id => $values) {
-            $object = $this->getEscalationFromId($escalation_id);
-            # No servicegroup enabled
-            if (count($values) == 0) {
-                continue;
-            }
-            $object['servicegroup_name'] = &$values;
-            $object['escalation_options'] = $object['escalation_options_service'];
-            # Dont care of the id (we set 0)
-            $this->generateSubObjects($object, $escalation_id);
-            $this->generateObjectInFile($object, 0);
-        }
-    }
-
-    /**
-     * @return void
-     * @throws LogicException
-     * @throws PDOException
-     * @throws ServiceCircularReferenceException
-     * @throws ServiceNotFoundException
      */
     public function doHostService(): void
     {
@@ -607,11 +170,11 @@ class Escalation extends AbstractObject
     }
 
     /**
-     * @return void
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return void
      */
     public function doHostgroup(): void
     {
@@ -624,11 +187,11 @@ class Escalation extends AbstractObject
     }
 
     /**
-     * @return void
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return void
      */
     public function doServicegroup(): void
     {
@@ -641,15 +204,15 @@ class Escalation extends AbstractObject
     }
 
     /**
-     * @return int|void
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return int|void
      */
     public function doMetaService()
     {
-        if (!MetaService::getInstance($this->dependencyInjector)->hasMetaServices()) {
+        if (! MetaService::getInstance($this->dependencyInjector)->hasMetaServices()) {
             return 0;
         }
         $this->object_name = 'serviceescalation';
@@ -660,7 +223,7 @@ class Escalation extends AbstractObject
                 $object['host_name'] = ['_Module_Meta'];
                 $object['service_description'] = ['meta_' . $meta_id];
                 $object['escalation_options'] = $object['escalation_options_service'];
-                # Dont care of the id (we set 0)
+                // Dont care of the id (we set 0)
                 $this->generateSubObjects($object, $escalation_id);
                 $this->generateObjectInFile($object, 0);
             }
@@ -668,11 +231,11 @@ class Escalation extends AbstractObject
     }
 
     /**
-     * @return int|void
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return int|void
      */
     public function generateObjects()
     {
@@ -686,8 +249,8 @@ class Escalation extends AbstractObject
     }
 
     /**
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function reset(): void
     {
@@ -696,5 +259,455 @@ class Escalation extends AbstractObject
         $this->hg_build = [];
         $this->sg_build = [];
         parent::reset();
+    }
+
+    /**
+     * @throws PDOException
+     * @return void
+     */
+    private function getEscalationCache(): void
+    {
+        $stmt = $this->backend_instance->db->prepare("SELECT 
+                    {$this->attributes_select}
+                FROM escalation
+        ");
+        $stmt->execute();
+        $this->escalation_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
+
+        $stmt = $this->backend_instance->db->prepare('SELECT 
+                    escalation_esc_id, contactgroup_cg_id
+                FROM escalation_contactgroup_relation
+        ');
+        $stmt->execute();
+        $this->escalation_linked_cg_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
+
+        if (count($this->escalation_cache) == 0) {
+            $this->has_escalation = 0;
+        }
+    }
+
+    /**
+     * @throws PDOException
+     * @return int|void
+     */
+    private function getEscalationLinkedCache()
+    {
+        if ($this->has_escalation == 0) {
+            return 0;
+        }
+
+        $stmt = $this->backend_instance->db->prepare('SELECT 
+                    host_host_id, escalation_esc_id
+                FROM escalation_host_relation
+        ');
+        $stmt->execute();
+        $this->escalation_linked_host_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
+
+        $stmt = $this->backend_instance->db->prepare('SELECT 
+                    hostgroup_hg_id, escalation_esc_id
+                FROM escalation_hostgroup_relation
+        ');
+        $stmt->execute();
+        $this->escalation_linked_hg_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
+
+        $stmt = $this->backend_instance->db->prepare('SELECT 
+                    servicegroup_sg_id, escalation_esc_id
+                FROM escalation_servicegroup_relation
+        ');
+        $stmt->execute();
+        $this->escalation_linked_sg_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
+
+        $stmt = $this->backend_instance->db->prepare('SELECT 
+                    meta_service_meta_id, escalation_esc_id
+                FROM escalation_meta_service_relation
+        ');
+        $stmt->execute();
+        $this->escalation_linked_meta_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
+
+        $stmt = $this->backend_instance->db->prepare("SELECT 
+                    CONCAT(host_host_id, '_', service_service_id), escalation_esc_id
+                FROM escalation_service_relation
+        ");
+        $stmt->execute();
+        $this->escalation_linked_service_cache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * @throws PDOException
+     * @return int|void
+     */
+    private function buildCache()
+    {
+        if ($this->done_cache == 1) {
+            return 0;
+        }
+
+        $this->getEscalationCache();
+        $this->getEscalationLinkedCache();
+        $this->done_cache = 1;
+    }
+
+    /**
+     * @param $escalation
+     * @param $esc_id
+     *
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     * @return void
+     */
+    private function generateSubObjects(&$escalation, $esc_id): void
+    {
+        $period = Timeperiod::getInstance($this->dependencyInjector);
+        $cg = Contactgroup::getInstance($this->dependencyInjector);
+
+        $escalation['escalation_period'] = $period->generateFromTimeperiodId($escalation['escalation_period_id']);
+        $escalation['contact_groups'] = [];
+        foreach ($this->escalation_linked_cg_cache[$esc_id] as $cg_id) {
+            $escalation['contact_groups'][] = $cg->generateFromCgId($cg_id);
+        }
+    }
+
+    /**
+     * @param $escalation_id
+     *
+     * @throws PDOException
+     * @return mixed|null
+     */
+    private function getEscalationFromId($escalation_id)
+    {
+        if (isset($this->escalation_cache[$escalation_id])) {
+            return $this->escalation_cache[$escalation_id];
+        }
+        if ($this->use_cache == 1) {
+            return null;
+        }
+
+        if (is_null($this->stmt_escalation)) {
+            $this->stmt_escalation = $this->backend_instance->db->prepare("SELECT 
+                    {$this->attributes_select}
+                FROM escalation
+                WHERE esc_id = :esc_id
+            ");
+        }
+        $this->stmt_escalation->bindParam(':esc_id', $escalation_id, PDO::PARAM_INT);
+        $this->stmt_escalation->execute();
+        $this->escalation_cache[$escalation_id] = array_pop($this->stmt_escalation->fetchAll(PDO::FETCH_ASSOC));
+        if (is_null($this->escalation_cache[$escalation_id])) {
+            return null;
+        }
+
+        if (is_null($this->stmt_cg)) {
+            $this->stmt_cg = $this->backend_instance->db->prepare('SELECT 
+                    contactgroup_cg_id
+                FROM escalation_contactgroup_relation
+                WHERE escalation_esc_id = :esc_id
+            ');
+        }
+        $this->stmt_cg->bindParam(':esc_id', $escalation_id, PDO::PARAM_INT);
+        $this->stmt_cg->execute();
+        $this->escalation_linked_cg_cache[$escalation_id] = $this->stmt_cg->fetchAll(PDO::FETCH_COLUMN);
+
+        return $this->escalation_cache[$escalation_id];
+    }
+
+    /**
+     * @param $host_id
+     *
+     * @throws PDOException
+     * @return int|void
+     */
+    private function addHost($host_id)
+    {
+        if ($this->use_cache == 0) {
+            if (is_null($this->stmt_host)) {
+                $this->stmt_host = $this->backend_instance->db->prepare('SELECT 
+                        escalation_esc_id
+                    FROM escalation_host_relation
+                    WHERE host_host_id = :host_id
+                ');
+            }
+
+            $this->stmt_host->bindParam(':host_id', $host_id, PDO::PARAM_INT);
+            $this->stmt_host->execute();
+            $this->escalation_linked_host_cache[$host_id] = $this->stmt_host->fetchAll(PDO::FETCH_COLUMN);
+        }
+        if (! isset($this->escalation_linked_host_cache[$host_id])) {
+            return 0;
+        }
+
+        foreach ($this->escalation_linked_host_cache[$host_id] as $escalation_id) {
+            if (! isset($this->hosts_build[$escalation_id])) {
+                $this->hosts_build[$escalation_id] = [];
+            }
+            $this->hosts_build[$escalation_id][] = $this->host_instance->getString($host_id, 'host_name');
+
+            if (isset($this->escalation_cache[$escalation_id]['host_inheritance_to_services'])
+                && $this->escalation_cache[$escalation_id]['host_inheritance_to_services'] == 1
+            ) {
+                $services = $this->service_instance->getGeneratedServices();
+                // host without services
+                if (! isset($services[$host_id])) {
+                    continue;
+                }
+                foreach ($services[$host_id] as $service_id) {
+                    if (! isset($this->services_build[$escalation_id])) {
+                        $this->services_build[$escalation_id] = [$host_id => []];
+                    }
+                    $this->services_build[$escalation_id][$host_id][$service_id] = 1;
+                }
+            }
+        }
+    }
+
+    /**
+     * @param $hg_id
+     * @param $hostgroup
+     *
+     * @throws PDOException
+     * @return int|void
+     */
+    private function addHostgroup($hg_id, $hostgroup)
+    {
+        if ($this->use_cache == 0) {
+            if (is_null($this->stmt_hg)) {
+                $this->stmt_hg = $this->backend_instance->db->prepare('SELECT 
+                        escalation_esc_id
+                    FROM escalation_hostgroup_relation
+                    WHERE hostgroup_hg_id = :hg_id
+                ');
+            }
+
+            $this->stmt_hg->bindParam(':hg_id', $hg_id, PDO::PARAM_INT);
+            $this->stmt_hg->execute();
+            $this->escalation_linked_hg_cache[$hg_id] = $this->stmt_hg->fetchAll(PDO::FETCH_COLUMN);
+        }
+        if (! isset($this->escalation_linked_hg_cache[$hg_id])) {
+            return 0;
+        }
+
+        foreach ($this->escalation_linked_hg_cache[$hg_id] as $escalation_id) {
+            if (isset($this->escalation_cache[$escalation_id]['hostgroup_inheritance_to_services'])
+                && $this->escalation_cache[$escalation_id]['hostgroup_inheritance_to_services'] == 1
+            ) {
+                $services = $this->service_instance->getGeneratedServices();
+
+                foreach ($hostgroup['members'] as $host_name) {
+                    $host_id = $this->host_instance->getHostIdByHostName($host_name);
+                    // host without services
+                    if (! isset($services[$host_id])) {
+                        continue;
+                    }
+                    foreach ($services[$host_id] as $service_id) {
+                        if (! isset($this->services_build[$escalation_id])) {
+                            $this->services_build[$escalation_id] = [$host_id => []];
+                        }
+                        $this->services_build[$escalation_id][$host_id][$service_id] = 1;
+                    }
+                }
+            }
+
+            if (! isset($this->hg_build[$escalation_id])) {
+                $this->hg_build[$escalation_id] = [];
+            }
+            $hostgroup_name = $this->hg_instance->getString($hg_id, 'hostgroup_name');
+            if (! is_null($hostgroup_name)) {
+                $this->hg_build[$escalation_id][] = $hostgroup_name;
+            }
+        }
+    }
+
+    /**
+     * @param $host_id
+     * @param $service_id
+     *
+     * @throws PDOException
+     * @return int|void
+     */
+    private function addService($host_id, $service_id)
+    {
+        if ($this->use_cache == 0) {
+            if (is_null($this->stmt_service)) {
+                $this->stmt_service = $this->backend_instance->db->prepare('SELECT 
+                         escalation_esc_id
+                    FROM escalation_service_relation
+                    WHERE host_host_id = :host_id AND service_service_id = :service_id
+                ');
+            }
+
+            $this->stmt_service->bindParam(':host_id', $host_id, PDO::PARAM_INT);
+            $this->stmt_service->bindParam(':service_id', $service_id, PDO::PARAM_INT);
+            $this->stmt_service->execute();
+            $this->escalation_linked_service_cache[$host_id . '_' . $service_id]
+                = $this->stmt_service->fetchAll(PDO::FETCH_COLUMN);
+        }
+        if (! isset($this->escalation_linked_service_cache[$host_id . '_' . $service_id])) {
+            return 0;
+        }
+
+        foreach ($this->escalation_linked_service_cache[$host_id . '_' . $service_id] as $escalation_id) {
+            if (! isset($this->services_build[$escalation_id])) {
+                $this->services_build[$escalation_id] = [$host_id => []];
+            }
+            $this->services_build[$escalation_id][$host_id][$service_id] = 1;
+        }
+    }
+
+    /**
+     * @param $sg_id
+     *
+     * @throws PDOException
+     * @return int|void
+     */
+    private function addServicegroup($sg_id)
+    {
+        if ($this->use_cache == 0) {
+            if (is_null($this->stmt_sg)) {
+                $this->stmt_sg = $this->backend_instance->db->prepare('SELECT 
+                        escalation_esc_id
+                    FROM escalation_servicegroup_relation
+                    WHERE servicegroup_sg_id = :sg_id
+                ');
+            }
+
+            $this->stmt_sg->bindParam(':sg_id', $sg_id, PDO::PARAM_INT);
+            $this->stmt_sg->execute();
+            $this->escalation_linked_sg_cache[$sg_id] = $this->stmt_sg->fetchAll(PDO::FETCH_COLUMN);
+        }
+        if (! isset($this->escalation_linked_sg_cache[$sg_id])) {
+            return 0;
+        }
+
+        foreach ($this->escalation_linked_sg_cache[$sg_id] as $escalation_id) {
+            if (! isset($this->sg_build[$escalation_id])) {
+                $this->sg_build[$escalation_id] = [];
+            }
+            $servicegroup_name = $this->sg_instance->getString($sg_id, 'servicegroup_name');
+            if (! is_null($servicegroup_name)) {
+                $this->sg_build[$escalation_id][] = $servicegroup_name;
+            }
+        }
+    }
+
+    /**
+     * @param $meta_id
+     *
+     * @throws PDOException
+     * @return array|false|mixed
+     */
+    private function getEscalationFromMetaId($meta_id)
+    {
+        if ($this->use_cache == 0) {
+            if (is_null($this->stmt_meta)) {
+                $this->stmt_service = $this->backend_instance->db->prepare('SELECT 
+                         escalation_esc_id
+                    FROM escalation_meta_service_relation
+                    WHERE meta_service_meta_id = :meta_id
+                ');
+            }
+
+            $this->stmt_service->bindParam(':meta_id', $meta_id, PDO::PARAM_INT);
+            $this->stmt_service->execute();
+            $this->escalation_linked_meta_cache[$meta_id] = $this->stmt_service->fetchAll(PDO::FETCH_COLUMN);
+        }
+        if (! isset($this->escalation_linked_meta_cache[$meta_id])) {
+            return [];
+        }
+
+        return $this->escalation_linked_meta_cache[$meta_id];
+    }
+
+    /**
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     * @return void
+     */
+    private function generateHosts(): void
+    {
+        $this->object_name = 'hostescalation';
+        foreach ($this->hosts_build as $escalation_id => $values) {
+            $object = $this->getEscalationFromId($escalation_id);
+            $object['host_name'] = &$values;
+            $object['escalation_options'] = $object['escalation_options_host'];
+            // Dont care of the id (we set 0)
+            $this->generateSubObjects($object, $escalation_id);
+            $this->generateObjectInFile($object, 0);
+        }
+    }
+
+    /**
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     * @return void
+     */
+    private function generateServices(): void
+    {
+        $this->object_name = 'serviceescalation';
+        foreach ($this->services_build as $escalation_id => $hosts) {
+            foreach ($hosts as $host_id => $services) {
+                foreach ($services as $service_id => $service) {
+                    $object = $this->getEscalationFromId($escalation_id);
+                    $object['host_name'] = [$this->host_instance->getString($host_id, 'host_name')];
+                    $object['service_description'] = [$this->service_instance->getString($service_id, 'service_description')];
+                    $object['escalation_options'] = $object['escalation_options_service'];
+                    // Dont care of the id (we set 0)
+                    $this->generateSubObjects($object, $escalation_id);
+                    $this->generateObjectInFile($object, 0);
+                }
+            }
+        }
+    }
+
+    /**
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     * @return void
+     */
+    private function generateHostgroups(): void
+    {
+        $this->object_name = 'hostescalation';
+        foreach ($this->hg_build as $escalation_id => $values) {
+            $object = $this->getEscalationFromId($escalation_id);
+            // No hosgroup enabled
+            if (count($values) == 0) {
+                continue;
+            }
+            $object['hostgroup_name'] = &$values;
+            $object['escalation_options'] = $object['escalation_options_host'];
+            // Dont care of the id (we set 0)
+            $this->generateSubObjects($object, $escalation_id);
+            $this->generateObjectInFile($object, 0);
+        }
+    }
+
+    /**
+     * @throws LogicException
+     * @throws PDOException
+     * @throws ServiceCircularReferenceException
+     * @throws ServiceNotFoundException
+     * @return void
+     */
+    private function generateServicegroups(): void
+    {
+        $this->object_name = 'serviceescalation';
+        foreach ($this->sg_build as $escalation_id => $values) {
+            $object = $this->getEscalationFromId($escalation_id);
+            // No servicegroup enabled
+            if (count($values) == 0) {
+                continue;
+            }
+            $object['servicegroup_name'] = &$values;
+            $object['escalation_options'] = $object['escalation_options_service'];
+            // Dont care of the id (we set 0)
+            $this->generateSubObjects($object, $escalation_id);
+            $this->generateObjectInFile($object, 0);
+        }
     }
 }

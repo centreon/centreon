@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 $help = [];
 
 /**
@@ -25,7 +26,7 @@ $help = [];
  */
 $help['tip_gorgone_cmd_timeout'] = dgettext(
     'help',
-    "Timeout value in seconds. Used to make actions calls timeout."
+    'Timeout value in seconds. Used to make actions calls timeout.'
 );
 $help['tip_enable_broker_stats'] = dgettext(
     'help',
@@ -35,36 +36,36 @@ $help['tip_enable_broker_stats'] = dgettext(
 );
 $help['tip_gorgone_illegal_characters'] = dgettext(
     'help',
-    'Illegal characters in external commands. Those characters will be removed ' .
-    'before being processed by Centreon Gorgone.'
+    'Illegal characters in external commands. Those characters will be removed '
+    . 'before being processed by Centreon Gorgone.'
 );
 $help['tip_gorgone_api_address'] = dgettext(
     'help',
-    'IP Address or hostname to communicate with Gorgone API. Should remain default value ' .
-    '(Default: "127.0.0.1").'
+    'IP Address or hostname to communicate with Gorgone API. Should remain default value '
+    . '(Default: "127.0.0.1").'
 );
 $help['tip_gorgone_api_port'] = dgettext(
     'help',
-    'Port on which Gorgone API is listening. It must match Gorgone httpserver module definition. ' .
-    'Should remain default value (Default: "8085").'
+    'Port on which Gorgone API is listening. It must match Gorgone httpserver module definition. '
+    . 'Should remain default value (Default: "8085").'
 );
 $help['tip_gorgone_api_username'] = dgettext(
     'help',
-    'Username used to connect to Gorgone API. It must match Gorgone httpserver module definition ' .
-    '(Default: none).'
+    'Username used to connect to Gorgone API. It must match Gorgone httpserver module definition '
+    . '(Default: none).'
 );
 $help['tip_gorgone_api_password'] = dgettext(
     'help',
-    'Password used to connect to Gorgone API. It must match Gorgone httpserver module definition ' .
-    '(Default: none).'
+    'Password used to connect to Gorgone API. It must match Gorgone httpserver module definition '
+    . '(Default: none).'
 );
 $help['tip_gorgone_api_ssl'] = dgettext(
     'help',
-    'Define if SSL/TLS must be used to connect to API. It must match Gorgone httpserver module definition ' .
-    '(Default: no).'
+    'Define if SSL/TLS must be used to connect to API. It must match Gorgone httpserver module definition '
+    . '(Default: no).'
 );
 $help['tip_gorgone_api_allow_self_signed'] = dgettext(
     'help',
-    'Define if connection to Gorgone API can be done even if a self signed certificat is used ' .
-    '(Default: yes).'
+    'Define if connection to Gorgone API can be done even if a self signed certificat is used '
+    . '(Default: yes).'
 );

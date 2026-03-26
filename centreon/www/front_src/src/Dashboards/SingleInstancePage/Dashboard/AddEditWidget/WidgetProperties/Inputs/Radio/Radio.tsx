@@ -1,21 +1,28 @@
-import { ChangeEvent, useMemo } from 'react';
+import {
+  FormControlLabel,
+  Radio,
+  RadioGroup,
+  Stack,
+  Typography
+} from '@mui/material';
 
 import { useFormikContext } from 'formik';
 import { equals } from 'ramda';
+import { ChangeEvent, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { FormControlLabel, Radio, RadioGroup, Typography } from '@mui/material';
 
 import Subtitle from '../../../../components/Subtitle';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import { Widget, WidgetPropertyProps } from '../../../models';
+import Tooltip from '../common/Tooltip';
 import { getProperty } from '../utils';
 
 const WidgetRadio = ({
   propertyName,
   options,
   label,
-  isInGroup
+  isInGroup,
+  secondaryLabel
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
 
@@ -37,8 +44,11 @@ const WidgetRadio = ({
 
   return (
     <div>
-      <Label>{t(label)}</Label>
-      <RadioGroup value={value} onChange={change}>
+      <Stack alignItems="center" direction="row" gap={1.5}>
+        <Label>{t(label)}</Label>
+        <Tooltip propertyName={propertyName} secondaryLabel={secondaryLabel} />
+      </Stack>
+      <RadioGroup onChange={change} value={value}>
         {(options || []).map(({ id, name }) => (
           <FormControlLabel
             aria-label={t(name)}

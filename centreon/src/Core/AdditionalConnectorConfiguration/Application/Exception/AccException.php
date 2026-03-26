@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -125,7 +125,7 @@ class AccException extends \Exception
     public static function nameAlreadyExists(string $name): self
     {
         return new self(
-            sprintf( _("The additional configuration name '%s' already exists"), $name),
+            sprintf(_("The additional configuration name '%s' already exists"), $name),
             self::CODE_CONFLICT
         );
     }
@@ -134,6 +134,18 @@ class AccException extends \Exception
     {
         return new self(
             _('Changing type of an existing additional connector configuration is not allowed'),
+            self::CODE_CONFLICT
+        );
+    }
+
+    public static function invalidArgument(string $argumentName, string $expectedType): self
+    {
+        return new self(
+            sprintf(
+                _("Invalid argument for '%s', expected type: %s"),
+                $argumentName,
+                $expectedType
+            ),
             self::CODE_CONFLICT
         );
     }

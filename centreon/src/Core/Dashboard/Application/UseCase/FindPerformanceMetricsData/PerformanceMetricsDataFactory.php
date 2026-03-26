@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,7 +131,7 @@ class PerformanceMetricsDataFactory
         $metrics = [];
         $times = [];
         foreach ($metricsData as $index => $metricData) {
-            $metricBases[] = $metricData['global']['base'];
+            $metricBases[] = $metricData['global']['base'] ?? PerformanceMetricsData::DEFAULT_BASE;
             $metrics[
                 'index:' . $index . ';host_name:' . $metricData['global']['host_name'] . ';service_name:'
                     . $metricData['global']['service_description']

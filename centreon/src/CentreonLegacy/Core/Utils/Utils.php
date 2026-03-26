@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,9 @@
 
 namespace CentreonLegacy\Core\Utils;
 
+use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class Utils
 {
@@ -68,6 +70,8 @@ class Utils
      * @param array $customMacros
      * @param mixed $monitoring
      *
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      * @throws \Exception
      */
     public function executeSqlFile($fileName, $customMacros = [], $monitoring = false): void
@@ -82,13 +86,21 @@ class Utils
 
         $file = fopen($fileName, 'r');
         $str = '';
+        $delimiter = ';';
         while (! feof($file)) {
             $line = fgets($file);
             if (! preg_match('/^(--|#)/', $line)) {
-                $pos = strrpos($line, ';');
+                if (preg_match('/DELIMITER\s+(\S+)/i', $line, $matches)) {
+                    $delimiter = $matches[1];
+                    continue;
+                }
+                $pos = strrpos($line, $delimiter);
                 $str .= $line;
                 if ($pos !== false) {
                     $str = rtrim($this->replaceMacros($str, $customMacros));
+                    if ($delimiter !== ';') {
+                        $str = preg_replace('/' . preg_quote($delimiter, '/') . '$/', '', $str);
+                    }
                     $this->services->get($dbName)->query($str);
                     $str = '';
                 }
@@ -218,7 +230,7 @@ class Utils
         if (isset($patternData[1])) {
             return $patternData[0];
         }
-  
-            return;
+
+        return;
     }
 }

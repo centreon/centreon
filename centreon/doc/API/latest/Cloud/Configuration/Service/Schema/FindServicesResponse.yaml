@@ -15,21 +15,25 @@ allOf:
           - $ref: 'simpleEntity.yaml'
       service_template:
         description: "Service template linked to this service."
+        type: object
         nullable: true
         allOf:
           - $ref: 'simpleEntity.yaml'
       check_timeperiod:
         description: "Time period of the check command."
+        type: object
         nullable: true
         allOf:
           - $ref: 'simpleEntity.yaml'
       notification_timeperiod:
         description: "Time period of the notification command."
+        type: object
         nullable: true
         allOf:
           - $ref: 'simpleEntity.yaml'
       severity:
         description: "Severity linked to this service."
+        type: object
         nullable: true
         allOf:
           - $ref: 'simpleEntity.yaml'

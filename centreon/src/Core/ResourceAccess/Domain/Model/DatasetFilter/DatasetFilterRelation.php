@@ -39,7 +39,7 @@ final class DatasetFilterRelation
         private readonly ?int $parentId,
         private readonly int $resourceAccessGroupId,
         private readonly int $aclGroupId,
-        private readonly array $resourceIds
+        private readonly array $resourceIds,
     ) {
     }
 

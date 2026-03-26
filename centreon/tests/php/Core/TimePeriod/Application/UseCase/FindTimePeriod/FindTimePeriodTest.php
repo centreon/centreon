@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,13 +26,11 @@ namespace Tests\Core\TimePeriod\Application\UseCase\FindTimePeriod;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, NotFoundResponse};
-use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\JsonFormatter;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\{ReadTimePeriodRepositoryInterface, WriteTimePeriodRepositoryInterface};
 use Core\TimePeriod\Application\UseCase\FindTimePeriod\{FindTimePeriod, FindTimePeriodResponse};
 use Core\TimePeriod\Domain\Model\{Day, ExtraTimePeriod, Template, TimePeriod, TimeRange};
-use Tests\Core\TimePeriod\Application\UseCase\ExtractResponse;
 
 beforeEach(function (): void {
     $this->readRepository = $this->createMock(ReadTimePeriodRepositoryInterface::class);
@@ -166,7 +164,6 @@ it('should present a FindTimePeriodResponse if the time response is found and us
         ->toBe($timePeriod->getExtraTimePeriods());
 });
 
-
 it('should present a FindTimePeriodResponse if the time response is found and user has read-write rigths', function (): void {
     $timePeriod = new TimePeriod(1, 'fake_name', 'fake_alias');
     $timePeriod->addDay(new Day(1, new TimeRange('00:30-04:00')));
@@ -178,14 +175,14 @@ it('should present a FindTimePeriodResponse if the time response is found and us
     $timePeriodId = 1;
 
     $this->user
-    ->expects($this->atMost(2))
-    ->method('hasTopologyRole')
-    ->willReturnMap(
-        [
-            [Contact::ROLE_CONFIGURATION_TIME_PERIODS_READ, false],
-            [Contact::ROLE_CONFIGURATION_TIME_PERIODS_READ_WRITE, true],
-        ]
-    );
+        ->expects($this->atMost(2))
+        ->method('hasTopologyRole')
+        ->willReturnMap(
+            [
+                [Contact::ROLE_CONFIGURATION_TIME_PERIODS_READ, false],
+                [Contact::ROLE_CONFIGURATION_TIME_PERIODS_READ_WRITE, true],
+            ]
+        );
 
     $this->readRepository
         ->expects($this->once())

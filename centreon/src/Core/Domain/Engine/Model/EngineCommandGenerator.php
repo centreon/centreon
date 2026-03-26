@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ class EngineCommandGenerator
      */
     public function addHandler(HandlerInterface $handler): void
     {
-        if ([] === $this->handlers) {
+        if ($this->handlers === []) {
             $this->handlers[] = $handler;
         } else {
             $lastHandler = $this->handlers[array_key_last($this->handlers)];
@@ -64,7 +64,7 @@ class EngineCommandGenerator
      */
     public function getEngineCommand(string $command): string
     {
-        if ([] === $this->handlers) {
+        if ($this->handlers === []) {
             return $command;
         }
 

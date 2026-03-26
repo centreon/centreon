@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ interface ReadServiceTemplateRepositoryInterface
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array;
 
     /**
@@ -121,4 +121,15 @@ interface ReadServiceTemplateRepositoryInterface
      * @return ServiceTemplate[]
      */
     public function findByHostId(int $hostId): array;
+
+    /**
+     * Find service template IDs by command names.
+     *
+     * @param string[] $commandNames
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function findIdsByCommandNames(array $commandNames): array;
 }

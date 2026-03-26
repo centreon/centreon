@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,22 +18,21 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Tests\Security\Infrastructure\Authentication\Repository\Model;
 
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
-use Security\Infrastructure\Repository\Model\ProviderConfigurationFactoryRdb;
 use PHPUnit\Framework\TestCase;
+use Security\Infrastructure\Repository\Model\ProviderConfigurationFactoryRdb;
 
 /**
  * @package Tests\Security\Infrastructure\Authentication\API\Model_2110
  */
 class ProviderConfigurationFactoryRdbTest extends TestCase
 {
-    /**
-     * @var array<string,int|string|bool> $dbData
-     */
+    /** @var array<string,int|string|bool> */
     private $dbData;
 
     protected function setUp(): void
@@ -44,7 +43,7 @@ class ProviderConfigurationFactoryRdbTest extends TestCase
             'name' => 'local',
             'is_active' => true,
             'is_forced' => true,
-            'custom_configuration' => '{}'
+            'custom_configuration' => '{}',
         ];
     }
 
@@ -63,7 +62,7 @@ class ProviderConfigurationFactoryRdbTest extends TestCase
         $this->assertEquals($this->dbData['is_forced'], $providerConfiguration->isForced());
     }
 
-     /**
+    /**
      * Tests model is properly created
      */
     public function testCreateFromResponseWithMissingProperty(): void

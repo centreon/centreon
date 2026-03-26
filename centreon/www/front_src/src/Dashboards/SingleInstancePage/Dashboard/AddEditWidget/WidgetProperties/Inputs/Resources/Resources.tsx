@@ -1,7 +1,3 @@
-import { equals, isNil } from 'ramda';
-/* eslint-disable react/no-array-index-key */
-import { useTranslation } from 'react-i18next';
-
 import AddIcon from '@mui/icons-material/Add';
 import {
   CircularProgress,
@@ -10,27 +6,28 @@ import {
   Typography
 } from '@mui/material';
 
-import {
-  MultiConnectedAutocompleteField,
-  SelectField,
-  SingleConnectedAutocompleteField
-} from '@centreon/ui';
+import { SelectField } from '@centreon/ui';
 import { Avatar, ItemComposition } from '@centreon/ui/components';
+
+import { equals, isNil } from 'ramda';
+import { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import {
   labelAddFilter,
   labelDelete,
-  labelResourceType,
   labelResources,
-  labelSelectAResource,
+  labelResourceType,
   labelSelectResourceType
 } from '../../../../translatedLabels';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { WidgetPropertyProps, WidgetResourceType } from '../../../models';
 import { useResourceStyles } from '../Inputs.styles';
 import { areResourcesFullfilled } from '../utils';
-
+import ConfirmationResourceTypeToggleRegexModal from './ConfirmationResourceTypeToggleRegexModal';
+import ResourceField from './ResourceField';
+import useDefaultSelectTypeData from './useDefaultSelectType';
 import useResources from './useResources';
 
 const Resources = ({
@@ -39,8 +36,13 @@ const Resources = ({
   restrictedResourceTypes,
   excludedResourceTypes,
   required,
-  useAdditionalResources
-}: WidgetPropertyProps): JSX.Element => {
+  useAdditionalResources,
+  forcedResourceType,
+  defaultResourceTypes,
+  selectType,
+  forceSingleAutocompleteConditions,
+  allowRegexOnResourceTypes
+}: WidgetPropertyProps): ReactElement => {
   const { classes } = useResourceStyles();
   const { classes: avatarClasses } = useAddWidgetStyles();
   const { t } = useTranslation();
@@ -63,14 +65,26 @@ const Resources = ({
     changeIdValue,
     hasSelectedHostForSingleMetricwidget,
     isValidatingResources,
-    hideResourceDeleteButton
+    hideResourceDeleteButton,
+    checkForceSingleAutocomplete,
+    getIsRegexAllowedOnResourceType,
+    getIsRegexFieldOnResourceType,
+    changeRegexFieldOnResourceType,
+    changeRegexField
   } = useResources({
+    allowRegexOnResourceTypes,
+    defaultResourceTypes,
     excludedResourceTypes,
+    forcedResourceType,
     propertyName,
     required,
     restrictedResourceTypes,
+    selectType,
     useAdditionalResources
   });
+
+  const { getDefaultDisabledSelectType, getDefaultRequiredSelectType } =
+    useDefaultSelectTypeData({ selectType, value });
 
   const { canEditField } = useCanEditProperties();
 
@@ -83,10 +97,15 @@ const Resources = ({
   const isAddButtonDisabled =
     !areResourcesFullfilled(value) || isLastResourceInTree;
 
+  const getResourceTypeSelectedOptionId = (resourceType: WidgetResourceType) =>
+    equals(resourceType, 'hostgroup')
+      ? WidgetResourceType.hostGroup
+      : resourceType;
+
   return (
     <div className={classes.resourcesContainer}>
       <div className={classes.resourcesHeader}>
-        <Avatar compact className={avatarClasses.widgetAvatar}>
+        <Avatar className={avatarClasses.widgetAvatar} compact>
           2
         </Avatar>
         <Typography className={classes.resourceTitle}>
@@ -97,20 +116,25 @@ const Resources = ({
       </div>
       <div className={classes.resourceComposition}>
         <ItemComposition
-          displayItemsAsLinked
-          IconAdd={<AddIcon />}
           addButtonHidden={isAddButtonHidden}
           addbuttonDisabled={isAddButtonDisabled}
+          displayItemsAsLinked
+          IconAdd={<AddIcon />}
           labelAdd={t(labelAddFilter)}
           onAddItem={addResource}
         >
           {value.map((resource, index) => {
-            const resourceTypeSelectedOptionId = equals(
-              resource.resourceType,
-              'hostgroup'
-            )
-              ? WidgetResourceType.hostGroup
-              : resource.resourceType;
+            const forceSingleAutocomplete = checkForceSingleAutocomplete({
+              forceSingleAutocompleteConditions,
+              resourceType: resource.resourceType
+            });
+
+            const allowRegex = getIsRegexAllowedOnResourceType(
+              resource.resourceType
+            );
+            const isRegexField = getIsRegexFieldOnResourceType(
+              resource.resourceType
+            );
 
             return (
               <ItemComposition.Item
@@ -118,7 +142,8 @@ const Resources = ({
                 deleteButtonHidden={
                   deleteButtonHidden ||
                   getResourceStatic(resource.resourceType) ||
-                  hideResourceDeleteButton()
+                  hideResourceDeleteButton() ||
+                  getDefaultRequiredSelectType(resource.resourceType)
                 }
                 key={`${index}${resource.resourceType}`}
                 labelDelete={t(labelDelete)}
@@ -130,78 +155,67 @@ const Resources = ({
                   disabled={
                     !canEditField ||
                     isValidatingResources ||
-                    getResourceStatic(resource.resourceType)
+                    getResourceStatic(resource.resourceType) ||
+                    getDefaultDisabledSelectType(resource.resourceType)
                   }
+                  formControlProps={{
+                    required: getDefaultRequiredSelectType(
+                      resource.resourceType
+                    )
+                  }}
                   label={t(labelSelectResourceType) as string}
-                  options={getResourceTypeOptions(index, resource)}
-                  selectedOptionId={resourceTypeSelectedOptionId}
                   onChange={changeResourceType(index)}
+                  options={getResourceTypeOptions(index, resource)}
+                  selectedOptionId={getResourceTypeSelectedOptionId(
+                    resource.resourceType
+                  )}
                 />
-                {singleResourceSelection ? (
-                  <SingleConnectedAutocompleteField
-                    exclusionOptionProperty="name"
-                    changeIdValue={changeIdValue(resource.resourceType)}
-                    className={classes.resources}
-                    disableClearable={singleResourceSelection}
-                    disabled={
-                      !canEditField ||
-                      isValidatingResources ||
-                      (equals(
-                        resource.resourceType,
-                        WidgetResourceType.service
-                      ) &&
-                        !hasSelectedHostForSingleMetricwidget) ||
-                      !resource.resourceType
-                    }
-                    field={getSearchField(resource.resourceType)}
-                    getEndpoint={getResourceResourceBaseEndpoint({
-                      index,
-                      resourceType: resource.resourceType
-                    })}
-                    label={t(labelSelectAResource)}
-                    limitTags={2}
-                    queryKey={`${resource.resourceType}-${index}`}
-                    value={resource.resources[0] || null}
-                    onChange={changeResource(index)}
-                  />
-                ) : (
-                  <MultiConnectedAutocompleteField
-                    exclusionOptionProperty="name"
-                    changeIdValue={changeIdValue(resource.resourceType)}
-                    chipProps={{
-                      color: 'primary',
-                      onDelete: (_, option): void =>
-                        deleteResourceItem({
-                          index,
-                          option,
-                          resources: resource.resources
-                        })
-                    }}
-                    className={classes.resources}
-                    disabled={
-                      !canEditField ||
-                      isValidatingResources ||
-                      !resource.resourceType
-                    }
-                    field={getSearchField(resource.resourceType)}
-                    getEndpoint={getResourceResourceBaseEndpoint({
-                      index,
-                      resourceType: resource.resourceType
-                    })}
-                    label={t(labelSelectAResource)}
-                    limitTags={2}
-                    placeholder=""
-                    queryKey={`${resource.resourceType}-${index}`}
-                    value={resource.resources || []}
-                    onChange={changeResources(index)}
-                  />
-                )}
+                <ResourceField
+                  allowRegex={allowRegex}
+                  changeIdValue={changeIdValue}
+                  changeRegexField={changeRegexField}
+                  changeRegexFieldOnResourceType={
+                    changeRegexFieldOnResourceType
+                  }
+                  changeResource={changeResource}
+                  changeResources={changeResources}
+                  deleteResourceItem={deleteResourceItem}
+                  disabled={
+                    singleResourceSelection || forceSingleAutocomplete
+                      ? !canEditField ||
+                        isValidatingResources ||
+                        (equals(
+                          resource.resourceType,
+                          defaultResourceTypes?.[1]
+                        ) &&
+                          !hasSelectedHostForSingleMetricwidget) ||
+                        !resource.resourceType ||
+                        getDefaultDisabledSelectType(resource.resourceType)
+                      : !canEditField ||
+                        isValidatingResources ||
+                        !resource.resourceType ||
+                        getDefaultDisabledSelectType(resource.resourceType)
+                  }
+                  getResourceResourceBaseEndpoint={
+                    getResourceResourceBaseEndpoint
+                  }
+                  getSearchField={getSearchField}
+                  index={index}
+                  isRegexField={isRegexField}
+                  resource={resource}
+                  singleResourceSelection={
+                    singleResourceSelection || forceSingleAutocomplete
+                  }
+                />
               </ItemComposition.Item>
             );
           })}
         </ItemComposition>
         {error && <FormHelperText error>{t(error)}</FormHelperText>}
       </div>
+      <ConfirmationResourceTypeToggleRegexModal
+        changeRegexFieldOnResourceType={changeRegexFieldOnResourceType}
+      />
     </div>
   );
 };

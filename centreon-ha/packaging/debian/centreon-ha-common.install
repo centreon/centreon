@@ -1,6 +1,0 @@
-etc/centreon-ha/*                       etc/centreon-ha
-etc/sudoers.d/centreon-cluster-db       etc/sudoers.d
-ocf-scripts/mariadb-centreon            usr/lib/ocf/resource.d/heartbeat
-ocf-scripts/mariadb-centreon-common.sh  usr/lib/ocf/lib/heartbeat
-bin/*                                   usr/share/centreon-ha/bin
-lib/mysql-functions.sh                  usr/share/centreon-ha/lib

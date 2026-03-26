@@ -1,6 +1,6 @@
-import { Dispatch, SetStateAction } from 'react';
-
 import { SelectEntry } from '@centreon/ui';
+
+import { Dispatch, SetStateAction } from 'react';
 
 import { Token } from '../Listing/models';
 

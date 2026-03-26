@@ -82,7 +82,7 @@ check_php_version
 if [ "$?" -eq 1 ] ; then
     echo_info "\n\t$(gettext "Your php version does not meet the requirements")"
 
-    echo -e "\t$(gettext "Please read the documentation available here") : documentation.centreon.com"
+    echo -e "\t$(gettext "Please read the documentation available here") : docs.centreon.com"
     echo -e "\n\t$(gettext "Installation aborted")"
 
     purge_centreon_tmp_dir

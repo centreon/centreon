@@ -1,9 +1,8 @@
-import { useMemo } from 'react';
+import { SelectEntry } from '@centreon/ui';
 
 import { useFormikContext } from 'formik';
 import { pick } from 'ramda';
-
-import { SelectEntry } from '@centreon/ui';
+import { useMemo } from 'react';
 
 import { Widget, WidgetPropertyProps } from '../../../models';
 import { getProperty } from '../utils';

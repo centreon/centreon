@@ -52,9 +52,8 @@ final class FindDashboardContactGroupsController extends AbstractController
      */
     public function __invoke(
         FindDashboardContactGroups $useCase,
-        StandardPresenter $presenter
-    ): Response
-    {
+        StandardPresenter $presenter,
+    ): Response {
         $response = $useCase();
 
         if ($response instanceof ResponseStatusInterface) {

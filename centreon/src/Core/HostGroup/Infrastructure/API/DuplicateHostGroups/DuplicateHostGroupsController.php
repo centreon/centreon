@@ -43,7 +43,7 @@ final class DuplicateHostGroupsController extends AbstractController
     public function __invoke(
         DuplicateHostGroups $useCase,
         #[MapRequestPayload()] DuplicateHostGroupsInput $request,
-        StandardPresenter $presenter
+        StandardPresenter $presenter,
     ): Response {
         $response = $useCase(DuplicateHostGroupsRequestTransformer::transform($request));
 

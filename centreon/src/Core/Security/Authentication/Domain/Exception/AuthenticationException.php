@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,17 +25,11 @@ namespace Core\Security\Authentication\Domain\Exception;
 
 class AuthenticationException extends \Exception
 {
-    /**
-     * @return self
-     */
-    public static function notAuthenticated(): self
+    public static function notAuthenticated(?\Throwable $throwable = null): self
     {
-        return new self(_('Authentication failed'));
+        return new self(_('Authentication failed'), previous: $throwable);
     }
 
-    /**
-     * @return self
-     */
     public static function userBlocked(): self
     {
         return new self(_('Authentication failed'));

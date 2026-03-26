@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,9 +33,9 @@ use Core\Service\Domain\Model\NotificationType;
 beforeEach(function (): void {
     $this->createService = static function (array $fields = []): NewService {
         $service = new NewService(
-                name: 'service-name',
-                hostId: 1,
-                commandId: 1,
+            name: 'service-name',
+            hostId: 1,
+            commandId: 1,
         );
 
         $additionalProperties = [
@@ -81,7 +81,7 @@ beforeEach(function (): void {
 
         foreach ($fields as $fieldName => $fieldValue) {
             if (in_array($fieldName, ['commandArguments', 'eventHandlerArguments', 'notificationTypes'], true)) {
-                $setterMethod = 'add' . ucfirst(mb_substr($fieldName, 0, mb_strlen($fieldName) - 1 ));
+                $setterMethod = 'add' . ucfirst(mb_substr($fieldName, 0, mb_strlen($fieldName) - 1));
                 foreach ($fieldValue as $value) {
                     $service->{$setterMethod}($value);
                 }
@@ -190,7 +190,7 @@ it('should return properly set host instance (mandatory properties only)', funct
 // mandatory fields
 it(
     'should throw an exception when service name is an empty string',
-    fn() => ($this->createService)(['name' => '    '])
+    fn () => ($this->createService)(['name' => '    '])
 )->throws(
     InvalidArgumentException::class,
     AssertionException::notEmptyString('NewService::name')->getMessage()
@@ -212,7 +212,7 @@ foreach (
 ) {
     it(
         "should throw an exception when service {$field} is not > 0",
-        fn() => ($this->createService)([$field => 0])
+        fn () => ($this->createService)([$field => 0])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::positiveInt(0, "NewService::{$field}")->getMessage()
@@ -261,7 +261,7 @@ foreach (
     $tooLong = str_repeat('a', $length + 1);
     it(
         "should throw an exception when service {$field} is too long",
-        fn() => ($this->createService)([$field => $tooLong])
+        fn () => ($this->createService)([$field => $tooLong])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::maxLength($tooLong, $length + 1, $length, "NewService::{$field}")->getMessage()
@@ -285,7 +285,7 @@ foreach (
 ) {
     it(
         "should throw an exception when service {$field} is not >= 0",
-        fn() => ($this->createService)([$field => -1])
+        fn () => ($this->createService)([$field => -1])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::min(-1, 0, "NewService::{$field}")->getMessage()

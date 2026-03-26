@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Media\Infrastructure\API\UpdateMedia;
 
@@ -98,7 +98,7 @@ final class UpdateMediaController extends AbstractController
     /**
      * @param UploadedFile $file
      *
-     * @throws FileException
+     * @throws FileException|MediaException
      * @return string
      */
     private function sanitizeData(UploadedFile $file): string
@@ -111,7 +111,12 @@ final class UpdateMediaController extends AbstractController
         ) {
             $this->svgSanitizer->minify(true);
 
-            return $this->svgSanitizer->sanitize($file->getContent());
+            $content = $this->svgSanitizer->sanitize($file->getContent());
+            if ($content === false) {
+                throw MediaException::errorUploadingFile($file->getClientOriginalName());
+            }
+
+            return $content;
         }
 
         return $file->getContent();

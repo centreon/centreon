@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ class ACLConditions
         private bool $applyOnlyFirstRole,
         private string $attributePath,
         private ?Endpoint $endpoint,
-        private array $relations = []
+        private array $relations = [],
     ) {
         $this->guard();
     }
@@ -96,7 +96,7 @@ class ACLConditions
      */
     public function getClaimValues(): array
     {
-        return array_map(static fn($relation) => $relation->getClaimValue(), $this->relations);
+        return array_map(static fn ($relation) => $relation->getClaimValue(), $this->relations);
     }
 
     /**
@@ -135,7 +135,7 @@ class ACLConditions
                 $missing[] = 'relations';
             }
 
-            if (! empty($missing)) {
+            if ($missing !== []) {
                 throw ACLConditionsException::missingFields($missing);
             }
         }

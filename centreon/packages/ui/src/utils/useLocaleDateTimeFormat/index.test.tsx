@@ -1,103 +1,103 @@
-import { useEffect } from 'react';
+import dayjs from "dayjs";
+import { useEffect } from "react";
+import "dayjs/locale/en";
 
-import dayjs from 'dayjs';
-import 'dayjs/locale/en';
-import { RenderResult, render } from '@testing-library/react';
-import localizedFormatPlugin from 'dayjs/plugin/localizedFormat';
-import timezonePlugin from 'dayjs/plugin/timezone';
-import utcPlugin from 'dayjs/plugin/utc';
-import { Provider, useSetAtom } from 'jotai';
+import { ThemeMode, userAtom } from "@centreon/ui-context";
+import { type RenderResult, render } from "@testing-library/react";
+import localizedFormatPlugin from "dayjs/plugin/localizedFormat";
+import timezonePlugin from "dayjs/plugin/timezone";
+import utcPlugin from "dayjs/plugin/utc";
+import { Provider, useSetAtom } from "jotai";
 
-import { ThemeMode, userAtom } from '@centreon/ui-context';
-
-import { useLocaleDateTimeFormat } from '.';
+import { useLocaleDateTimeFormat } from ".";
 
 dayjs.extend(timezonePlugin);
 dayjs.extend(utcPlugin);
 dayjs.extend(localizedFormatPlugin);
 
+// biome-ignore lint/suspicious/noImplicitAnyLet: need it
 let context;
 
 const TestComponent = (): JSX.Element => {
-  const localeDateTimeFormat = useLocaleDateTimeFormat();
-  const setUser = useSetAtom(userAtom);
+	const localeDateTimeFormat = useLocaleDateTimeFormat();
+	const setUser = useSetAtom(userAtom);
 
-  useEffect(() => {
-    setUser({
-      alias: 'admin',
-      default_page: '/monitoring/resources',
-      isExportButtonEnabled: false,
-      locale: 'en',
-      name: 'admin',
-      themeMode: ThemeMode.light,
-      timezone: 'Europe/Paris',
-      use_deprecated_pages: false
-    });
-  }, []);
+	useEffect(() => {
+		setUser({
+			alias: "admin",
+			default_page: "/monitoring/resources",
+			isExportButtonEnabled: false,
+			locale: "en",
+			name: "admin",
+			themeMode: ThemeMode.light,
+			timezone: "Europe/Paris",
+			use_deprecated_pages: false,
+		});
+	}, [setUser]);
 
-  context = localeDateTimeFormat;
+	context = localeDateTimeFormat;
 
-  return <div />;
+	return <div />;
 };
 
 const renderLocaleDateTimeFormat = (): RenderResult => {
-  return render(
-    <Provider>
-      <TestComponent />
-    </Provider>
-  );
+	return render(
+		<Provider>
+			<TestComponent />
+		</Provider>,
+	);
 };
 
-const dateTime = '1995-12-17T03:24:00Z';
+const dateTime = "1995-12-17T03:24:00Z";
 
 describe(useLocaleDateTimeFormat, () => {
-  describe('toDateTime', () => {
-    it('formats the given Date to a string showing the date and the time', () => {
-      renderLocaleDateTimeFormat();
+	describe("toDateTime", () => {
+		it("formats the given Date to a string showing the date and the time", () => {
+			renderLocaleDateTimeFormat();
 
-      const formattedDateTime = context.toDateTime(new Date(dateTime));
+			const formattedDateTime = context.toDateTime(new Date(dateTime));
 
-      expect(formattedDateTime).toEqual('12/17/1995 4:24 AM');
-    });
-  });
+			expect(formattedDateTime).toEqual("12/17/1995 4:24 AM");
+		});
+	});
 
-  describe('toDate', () => {
-    it('formats the given Date to a string showing the date', () => {
-      renderLocaleDateTimeFormat();
+	describe("toDate", () => {
+		it("formats the given Date to a string showing the date", () => {
+			renderLocaleDateTimeFormat();
 
-      const formattedDateTime = context.toDate(new Date(dateTime));
+			const formattedDateTime = context.toDate(new Date(dateTime));
 
-      expect(formattedDateTime).toEqual('12/17/1995');
-    });
-  });
+			expect(formattedDateTime).toEqual("12/17/1995");
+		});
+	});
 
-  describe('toTime', () => {
-    it('formats the given Date to a string showing the time', () => {
-      renderLocaleDateTimeFormat();
+	describe("toTime", () => {
+		it("formats the given Date to a string showing the time", () => {
+			renderLocaleDateTimeFormat();
 
-      const formattedDateTime = context.toTime(new Date(dateTime));
+			const formattedDateTime = context.toTime(new Date(dateTime));
 
-      expect(formattedDateTime).toEqual('4:24 AM');
-    });
-  });
+			expect(formattedDateTime).toEqual("4:24 AM");
+		});
+	});
 
-  describe('toIsoString', () => {
-    it('formats the given Date to an ISO complient string', () => {
-      renderLocaleDateTimeFormat();
+	describe("toIsoString", () => {
+		it("formats the given Date to an ISO complient string", () => {
+			renderLocaleDateTimeFormat();
 
-      const formattedDateTime = context.toIsoString(new Date(dateTime));
+			const formattedDateTime = context.toIsoString(new Date(dateTime));
 
-      expect(formattedDateTime).toEqual('1995-12-17T03:24:00Z');
-    });
-  });
+			expect(formattedDateTime).toEqual("1995-12-17T03:24:00Z");
+		});
+	});
 
-  describe('toHumanizedDuration', () => {
-    it('formats the given duration to a humanized duration', () => {
-      renderLocaleDateTimeFormat();
+	describe("toHumanizedDuration", () => {
+		it("formats the given duration to a humanized duration", () => {
+			renderLocaleDateTimeFormat();
 
-      const formattedDateTime = context.toHumanizedDuration(22141);
+			const formattedDateTime = context.toHumanizedDuration(22141);
 
-      expect(formattedDateTime).toEqual('6h 9m 1s');
-    });
-  });
+			expect(formattedDateTime).toEqual("6h 9m 1s");
+		});
+	});
 });

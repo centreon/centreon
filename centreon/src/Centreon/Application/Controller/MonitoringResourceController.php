@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,12 +18,13 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Application\Controller;
 
-use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\Exception\ResourceException;
+use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Core\Infrastructure\RealTime\Hypermedia\HypermediaProviderInterface;
 
 /**
@@ -33,19 +34,12 @@ use Core\Infrastructure\RealTime\Hypermedia\HypermediaProviderInterface;
  */
 class MonitoringResourceController extends AbstractController
 {
-    /*
-     * @var HypermediaProviderInterface[]
-     */
-    private array $hyperMediaProviders = [];
-
-    private const RESOURCE_LISTING_URI = '/monitoring/resources';
-
     public const TAB_DETAILS_NAME = 'details';
     public const TAB_GRAPH_NAME = 'graph';
     public const TAB_SERVICES_NAME = 'services';
     public const TAB_TIMELINE_NAME = 'timeline';
     public const TAB_SHORTCUTS_NAME = 'shortcuts';
-
+    private const RESOURCE_LISTING_URI = '/monitoring/resources';
     private const ALLOWED_TABS = [
         self::TAB_DETAILS_NAME,
         self::TAB_GRAPH_NAME,
@@ -54,71 +48,23 @@ class MonitoringResourceController extends AbstractController
         self::TAB_SHORTCUTS_NAME,
     ];
 
+    // @var HypermediaProviderInterface[]
+    private array $hyperMediaProviders = [];
+
     /**
      * @param \Traversable<HypermediaProviderInterface> $hyperMediaProviders
      */
     public function __construct(
-        \Traversable $hyperMediaProviders
+        \Traversable $hyperMediaProviders,
     ) {
         $this->hasProviders($hyperMediaProviders);
         $this->hyperMediaProviders = iterator_to_array($hyperMediaProviders);
     }
 
     /**
-     * @param \Traversable<mixed> $providers
-     * @return void
-     */
-    private function hasProviders(\Traversable $providers): void
-    {
-        if ($providers instanceof \Countable && count($providers) === 0) {
-            throw new \InvalidArgumentException(
-                _('You must add at least one provider')
-            );
-        }
-    }
-
-    /**
-     * Generates a resource details endpoint
-     *
-     * @param array<string, integer> $urlParameters
-     * @param string $resourceType
-     * @return string
-     */
-    private function generateResourceDetailsEndpoint(array $urlParameters, string $resourceType): string
-    {
-        $resourceDetailsEndpoint = null;
-        foreach ($this->hyperMediaProviders as $hyperMediaProvider) {
-            if ($hyperMediaProvider->isValidFor($resourceType)) {
-                $resourceDetailsEndpoint = $hyperMediaProvider->generateResourceDetailsUri($urlParameters);
-            }
-        }
-
-        return $resourceDetailsEndpoint;
-    }
-
-    /**
-     * Generates a resource details redirection link
-     *
-     * @param string $resourceType
-     * @param integer $resourceId
-     * @param array<string, integer> $parameters
-     * @return string
-     */
-    private function buildResourceDetailsUri(string $resourceType, int $resourceId, array $parameters): string
-    {
-        return $this->buildListingUri([
-            'details' => json_encode([
-                'id' => $resourceId,
-                'tab' => self::TAB_DETAILS_NAME,
-                'resourcesDetailsEndpoint' => $this->getBaseUri() . $this->generateResourceDetailsEndpoint($parameters, $resourceType)
-            ])
-        ]);
-    }
-
-    /**
      * Build uri to access host panel with details tab
      *
-     * @param integer $hostId
+     * @param int $hostId
      * @return string
      */
     public function buildHostDetailsUri(int $hostId): string
@@ -133,13 +79,13 @@ class MonitoringResourceController extends AbstractController
     /**
      * Build uri to access host panel
      *
-     * @param integer $hostId
+     * @param int $hostId
      * @param string $tab tab name
      * @return string
      */
     public function buildHostUri(int $hostId, string $tab = self::TAB_DETAILS_NAME): string
     {
-        if (!in_array($tab, self::ALLOWED_TABS)) {
+        if (! in_array($tab, self::ALLOWED_TABS)) {
             throw new ResourceException(sprintf(_('Cannot build uri to unknown tab : %s'), $tab));
         }
 
@@ -151,7 +97,7 @@ class MonitoringResourceController extends AbstractController
                 'type' => ResourceEntity::TYPE_HOST,
                 'id' => $hostId,
                 'tab' => $tab,
-                'uuid' => 'h' . $hostId
+                'uuid' => 'h' . $hostId,
             ], JSON_UNESCAPED_SLASHES),
         ]);
     }
@@ -159,8 +105,8 @@ class MonitoringResourceController extends AbstractController
     /**
      * Build uri to access service service panel with details tab
      *
-     * @param integer $hostId
-     * @param integer $serviceId
+     * @param int $hostId
+     * @param int $serviceId
      * @return string
      */
     public function buildServiceDetailsUri(int $hostId, int $serviceId): string
@@ -170,7 +116,7 @@ class MonitoringResourceController extends AbstractController
             $serviceId,
             [
                 'hostId' => $hostId,
-                'serviceId' => $serviceId
+                'serviceId' => $serviceId,
             ]
         );
     }
@@ -178,14 +124,14 @@ class MonitoringResourceController extends AbstractController
     /**
      * Build uri to access service panel
      *
-     * @param integer $hostId
-     * @param integer $serviceId
+     * @param int $hostId
+     * @param int $serviceId
      * @param string $tab tab name
      * @return string
      */
     public function buildServiceUri(int $hostId, int $serviceId, string $tab = self::TAB_DETAILS_NAME): string
     {
-        if (!in_array($tab, self::ALLOWED_TABS)) {
+        if (! in_array($tab, self::ALLOWED_TABS)) {
             throw new ResourceException(sprintf(_('Cannot build uri to unknown tab : %s'), $tab));
         }
 
@@ -196,7 +142,7 @@ class MonitoringResourceController extends AbstractController
                 'resourcesDetailsEndpoint' => $this->getBaseUri() . $this->generateResourceDetailsEndpoint($parameters, 'service'),
                 'id' => $serviceId,
                 'tab' => $tab,
-                'uuid' => 'h' . $hostId . '-s' . $serviceId
+                'uuid' => 'h' . $hostId . '-s' . $serviceId,
             ], JSON_UNESCAPED_SLASHES),
         ]);
     }
@@ -204,7 +150,7 @@ class MonitoringResourceController extends AbstractController
     /**
      * Build uri to access meta service panel
      *
-     * @param integer $metaId
+     * @param int $metaId
      * @return string
      */
     public function buildMetaServiceDetailsUri(int $metaId): string
@@ -213,7 +159,7 @@ class MonitoringResourceController extends AbstractController
             ResourceEntity::TYPE_META,
             $metaId,
             [
-                'metaId' => $metaId
+                'metaId' => $metaId,
             ]
         );
     }
@@ -233,5 +179,56 @@ class MonitoringResourceController extends AbstractController
         }
 
         return $baseListingUri;
+    }
+
+    /**
+     * @param \Traversable<mixed> $providers
+     * @return void
+     */
+    private function hasProviders(\Traversable $providers): void
+    {
+        if ($providers instanceof \Countable && count($providers) === 0) {
+            throw new \InvalidArgumentException(
+                _('You must add at least one provider')
+            );
+        }
+    }
+
+    /**
+     * Generates a resource details endpoint
+     *
+     * @param array<string, int> $urlParameters
+     * @param string $resourceType
+     * @return string
+     */
+    private function generateResourceDetailsEndpoint(array $urlParameters, string $resourceType): string
+    {
+        $resourceDetailsEndpoint = null;
+        foreach ($this->hyperMediaProviders as $hyperMediaProvider) {
+            if ($hyperMediaProvider->isValidFor($resourceType)) {
+                $resourceDetailsEndpoint = $hyperMediaProvider->generateResourceDetailsUri($urlParameters);
+            }
+        }
+
+        return $resourceDetailsEndpoint;
+    }
+
+    /**
+     * Generates a resource details redirection link
+     *
+     * @param string $resourceType
+     * @param int $resourceId
+     * @param array<string, int> $parameters
+     * @return string
+     */
+    private function buildResourceDetailsUri(string $resourceType, int $resourceId, array $parameters): string
+    {
+        return $this->buildListingUri([
+            'details' => json_encode([
+                'id' => $resourceId,
+                'tab' => self::TAB_DETAILS_NAME,
+                'resourcesDetailsEndpoint' => $this->getBaseUri() . $this->generateResourceDetailsEndpoint($parameters, $resourceType),
+            ]),
+        ]);
     }
 }

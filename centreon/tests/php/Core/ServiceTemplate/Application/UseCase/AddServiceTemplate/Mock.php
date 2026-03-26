@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ namespace Tests\Core\ServiceTemplate\Application\UseCase\AddServiceTemplate;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Option\OptionService;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
@@ -70,6 +71,7 @@ class Mock extends TestCase
             $testCase->user = $testCase->createMock(ContactInterface::class),
             $testCase->writeVaultRepository = $testCase->createMock(WriteVaultRepositoryInterface::class),
             $testCase->readVaultRepository = $testCase->createMock(ReadVaultRepositoryInterface::class),
+            $testCase->readCommandRepository = $testCase->createMock(ReadCommandRepositoryInterface::class),
         );
     }
 

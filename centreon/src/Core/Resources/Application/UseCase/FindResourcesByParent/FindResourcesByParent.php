@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ final class FindResourcesByParent
         private readonly ContactInterface $contact,
         private readonly RequestParametersInterface $requestParameters,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private readonly \Traversable $extraDataProviders
+        private readonly \Traversable $extraDataProviders,
     ) {
     }
 
@@ -70,7 +70,7 @@ final class FindResourcesByParent
      */
     public function __invoke(
         FindResourcesByParentPresenterInterface $presenter,
-        ResourceFilter $filter
+        ResourceFilter $filter,
     ): void {
         try {
             // Save the search and sort provided to be restored later on
@@ -86,7 +86,7 @@ final class FindResourcesByParent
 
             $parents = new FindResourcesResponse([]);
 
-            $this->requestParameters->setSort(json_encode($servicesSort) ?: '');
+            $this->requestParameters->setSort(json_encode(value: $servicesSort, flags: JSON_THROW_ON_ERROR) ?: '');
 
             $resources = [];
             $parentResources = [];
@@ -138,9 +138,14 @@ final class FindResourcesByParent
             $presenter->presentResponse(
                 FindResourcesByParentFactory::createResponse($parents->resources, $children->resources, $extraData)
             );
-        } catch (\Throwable $ex) {
-            $presenter->presentResponse(new ErrorResponse(ResourceException::errorWhileSearching()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+        } catch (\Throwable $e) {
+            $presenter->presentResponse(
+                new ErrorResponse(
+                    message: ResourceException::errorWhileSearching(),
+                    context: ['filter' => $filter],
+                    exception: $e,
+                )
+            );
         }
     }
 

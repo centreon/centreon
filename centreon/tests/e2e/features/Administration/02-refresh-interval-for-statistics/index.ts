@@ -1,5 +1,5 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 const refreshValue = 40;
 
@@ -31,11 +31,7 @@ Given('a user is logged in a Centreon server', () => {
 });
 
 When('the user goes to Administration > Parameters > Centreon UI page', () => {
-  cy.navigateTo({
-    page: 'Centreon UI',
-    rootItemNumber: 4,
-    subMenu: 'Parameters'
-  });
+  cy.visit(PAGES.configuration.centreonUiLegacy);
   cy.wait('@getTimeZone');
 });
 
@@ -62,10 +58,10 @@ When('the user reconnect to the centreon plateform', () => {
 Then(
   'the top counter refresh request must be called each "defined value" seconds',
   () => {
-    cy.wait('@getTopCounter').then((interception) => {
+    cy.wait('@getTopCounter').then(() => {
       const firstRequestTime = Date.now();
       cy.wait(refreshValue * 1000);
-      cy.wait('@getTopCounter').then((interception) => {
+      cy.wait('@getTopCounter').then(() => {
         const secondRequestTime = Date.now();
         const timeDifference = (secondRequestTime - firstRequestTime) / 1000;
         expect(timeDifference).to.be.at.least(

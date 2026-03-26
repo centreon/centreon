@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\Validation;
 
-use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentConfigurationRequest;
 use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\UpdateAgentConfigurationRequest;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
@@ -39,7 +39,7 @@ class TelegrafValidator implements TypeValidatorInterface
      */
     public function isValidFor(Type $type): bool
     {
-        return Type::TELEGRAF === $type;
+        return $type === Type::TELEGRAF;
     }
 
     /**
@@ -50,13 +50,18 @@ class TelegrafValidator implements TypeValidatorInterface
         /** @var _TelegrafParameters $configuration */
         $configuration = $request->configuration;
         foreach ($configuration as $key => $value) {
+            // validate file extension
             if (str_ends_with($key, '_certificate') && (is_string($value) || is_null($value))) {
-                if (1 === preg_match('/\.\/|\.\.\/|\/\/|^(?!.*\.(cer|crt)$).+$/', (string) $value)) {
-                    throw AgentConfigurationException::invalidFilename("configuration.{$key}", (string) $value);
+                if (preg_match('/^(?!.*\.(cer|crt|cert)$).+$/', (string) $value) === 1) {
+                    throw new AssertionException(
+                        sprintf("File path or format '%s' (%s) is invalid", (string) $value, "configuration.{$key}")
+                    );
                 }
             } elseif (str_ends_with($key, '_key') && (is_string($value) || is_null($value))) {
-                if (1 === preg_match('/\.\/|\.\.\/|\/\/|^(?!.*\.key$).+$/', (string) $value)) {
-                    throw AgentConfigurationException::invalidFilename("configuration.{$key}", (string) $value);
+                if (preg_match('/^(?!.*\.key$).+$/', (string) $value) === 1) {
+                    throw new AssertionException(
+                        sprintf("File path or format '%s' (%s) is invalid", (string) $value, "configuration.{$key}")
+                    );
                 }
             }
         }

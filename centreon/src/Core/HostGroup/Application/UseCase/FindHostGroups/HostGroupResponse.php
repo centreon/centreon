@@ -33,7 +33,6 @@ final class HostGroupResponse
         public HostGroup $hostgroup,
         public ?HostGroupRelationCount $hostsCount = null,
         public ?Media $icon = null,
-    )
-    {
+    ) {
     }
 }

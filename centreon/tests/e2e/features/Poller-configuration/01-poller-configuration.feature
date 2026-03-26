@@ -12,7 +12,7 @@ Feature: Generate poller configuration
     And some post-generation commands are configured for each poller
 
   @TEST_MON-22135
-  Scenario: Generate the configuration on multiple pollers
+  Scenario Outline: Generate the configuration on multiple pollers
     When I visit the export configuration page
     Then there is an indication that the configuration have changed on the listed pollers
     When I select some pollers

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,15 +29,15 @@ use Centreon\Domain\MonitoringServer\MonitoringServerResource;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 /**
-  * @package Centreon\Domain\MonitoringServer\Interfaces
+ * @package Centreon\Domain\MonitoringServer\Interfaces
  */
 interface MonitoringServerRepositoryInterface
 {
     /**
      * Find monitoring servers taking into account the request parameters.
      *
-     * @return MonitoringServer[]
      * @throws \Exception
+     * @return MonitoringServer[]
      */
     public function findServersWithRequestParameters(): array;
 
@@ -48,7 +48,7 @@ interface MonitoringServerRepositoryInterface
      *
      * @return MonitoringServer[]
      */
-  public function findAllServersWithAccessGroups(array $accessGroups): array;
+    public function findAllServersWithAccessGroups(array $accessGroups): array;
 
     /**
      * @param AccessGroup[] $accessGroups
@@ -62,8 +62,8 @@ interface MonitoringServerRepositoryInterface
     /**
      * Find monitoring servers without taking into account the request parameters.
      *
-     * @return MonitoringServer[]
      * @throws \Exception
+     * @return MonitoringServer[]
      */
     public function findServersWithoutRequestParameters(): array;
 
@@ -79,8 +79,8 @@ interface MonitoringServerRepositoryInterface
     /**
      * Find the local monitoring server.
      *
-     * @return MonitoringServer|null
      * @throws \Exception
+     * @return MonitoringServer|null
      */
     public function findLocalServer(): ?MonitoringServer;
 
@@ -96,8 +96,8 @@ interface MonitoringServerRepositoryInterface
      * Find a monitoring server.
      *
      * @param int $monitoringServerId Id of the monitoring server to be found
-     * @return MonitoringServer|null
      * @throws \Exception
+     * @return MonitoringServer|null
      */
     public function findServer(int $monitoringServerId): ?MonitoringServer;
 
@@ -117,8 +117,8 @@ interface MonitoringServerRepositoryInterface
      * Find a monitoring server by its name.
      *
      * @param string $monitoringServerName Name to find
-     * @return MonitoringServer|null
      * @throws MonitoringServerException
+     * @return MonitoringServer|null
      */
     public function findServerByName(string $monitoringServerName): ?MonitoringServer;
 
@@ -132,8 +132,8 @@ interface MonitoringServerRepositoryInterface
     /**
      * Find remote servers IPs.
      *
-     * @return string[]
      * @throws MonitoringServerException
+     * @return string[]
      */
     public function findRemoteServersIps(): array;
 }

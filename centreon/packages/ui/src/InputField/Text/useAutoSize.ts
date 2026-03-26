@@ -1,6 +1,12 @@
-import { ChangeEvent, RefObject, useEffect, useRef, useState } from 'react';
-
 import { useTheme } from '@mui/material';
+
+import {
+  type ChangeEvent,
+  type RefObject,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 
 interface UseAutoSizeProps {
   autoSize: boolean;
@@ -37,7 +43,7 @@ const useAutoSize = ({
     setInnerValue(event.target.value);
   };
 
-  const textFieldValue = autoSize && (value || innerValue);
+  const _textFieldValue = autoSize && (value || innerValue);
 
   useEffect(() => {
     if (!autoSize) {
@@ -47,7 +53,7 @@ const useAutoSize = ({
     const newWidth = inputRef.current?.getBoundingClientRect().width || 0;
 
     setWidth(newWidth < autoSizeDefaultWidth ? autoSizeDefaultWidth : newWidth);
-  }, [textFieldValue]);
+  }, [autoSize, autoSizeDefaultWidth]);
 
   return {
     changeInputValue,

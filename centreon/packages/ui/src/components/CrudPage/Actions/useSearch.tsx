@@ -1,5 +1,6 @@
 import { useAtom } from 'jotai';
-import { ChangeEvent, useCallback, useRef } from 'react';
+import { type ChangeEvent, useCallback, useRef } from 'react';
+
 import { searchAtom } from '../atoms';
 
 interface UseSearchState {
@@ -12,13 +13,16 @@ export const useSearch = (): UseSearchState => {
 
   const [search, setSearch] = useAtom(searchAtom);
 
-  const change = useCallback((event: ChangeEvent<HTMLInputElement>): void => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
+  const change = useCallback(
+    (event: ChangeEvent<HTMLInputElement>): void => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
 
-    timeoutRef.current = setTimeout(() => setSearch(event.target.value), 500);
-  }, []);
+      timeoutRef.current = setTimeout(() => setSearch(event.target.value), 500);
+    },
+    [setSearch]
+  );
 
-  return { search, change };
+  return { change, search };
 };

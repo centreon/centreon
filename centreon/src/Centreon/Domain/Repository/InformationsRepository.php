@@ -1,8 +1,28 @@
 <?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
 namespace Centreon\Domain\Repository;
 
-use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 use Centreon\Domain\Entity\Informations;
+use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 use PDO;
 
 class InformationsRepository extends ServiceEntityRepository
@@ -10,7 +30,7 @@ class InformationsRepository extends ServiceEntityRepository
     /**
      * Export options
      *
-     * @return \Centreon\Domain\Entity\Informations[]
+     * @return Informations[]
      */
     public function getAll(): array
     {
@@ -80,9 +100,7 @@ class InformationsRepository extends ServiceEntityRepository
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
 
-        /*
-         * resolve the address down to IP
-         */
+        // resolve the address down to IP
         $ipAddress = gethostbyname($ip);
         $sql = "INSERT INTO `informations` (`key`, `value`) VALUES ('authorizedMaster', :ip)";
         $stmt = $this->db->prepare($sql);

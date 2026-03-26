@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Command\Application\Exception\CommandException;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Domain\Model\CommandType;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
@@ -46,6 +48,7 @@ use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\Type\NoValue;
 use Core\Common\Application\UseCase\VaultTrait;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Contact\Domain\AdminResolver;
 use Core\Domain\Common\GeoCoords;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Exception\HostException;
@@ -67,13 +70,15 @@ use Core\Macro\Domain\Model\MacroDifference;
 use Core\Macro\Domain\Model\MacroManager;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Utility\Difference\BasicDifference;
 
 final class PartialUpdateHost
 {
-    use LoggerTrait,VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
     private const VERTICAL_INHERITANCE_MODE = 1;
 
     /** @var AccessGroup[] */
@@ -97,6 +102,9 @@ final class PartialUpdateHost
         private readonly PartialUpdateHostValidation $validation,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly ReadCommandRepositoryInterface $readCommandRepository,
+        private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
+        private readonly AdminResolver $adminResolver,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
     }
@@ -109,9 +117,8 @@ final class PartialUpdateHost
     public function __invoke(
         PartialUpdateHostRequest $request,
         PresenterInterface $presenter,
-        int $hostId
-    ): void
-    {
+        int $hostId,
+    ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_WRITE)) {
                 $this->error(
@@ -125,14 +132,14 @@ final class PartialUpdateHost
                 return;
             }
 
-            if (! $this->user->isAdmin()) {
+            if (! $this->adminResolver->isAdmin($this->user)) {
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $this->validation->accessGroups = $this->accessGroups;
             }
 
             if (
                 (
-                    ! $this->user->isAdmin()
+                    ! $this->adminResolver->isAdmin($this->user)
                     && ! $this->readHostRepository->existsByAccessGroups($hostId, $this->accessGroups)
                 )
                 || ! ($host = $this->readHostRepository->findById($hostId))
@@ -178,15 +185,21 @@ final class PartialUpdateHost
             $previousMonitoringServer = $host->getMonitoringServerId();
             $this->updateHost($request, $host);
             $this->updateHostCategories($request, $host);
-            $this->updateHostGroups($request, $host);
+            $hostGroupsChanged = $this->updateHostGroups($request, $host);
             $this->updateParentTemplates($request, $host);
             // Note: parent templates must be updated before macros for macro inheritance resolution
             $this->updateMacros($request, $host);
 
+            if ($hostGroupsChanged) {
+                $this->adminResolver->isAdmin($this->user)
+                    ? $this->writeAccessGroupRepository->updateAclResourcesFlag()
+                    : $this->writeAccessGroupRepository->updateAclGroupsFlag($this->accessGroups);
+            }
+
             $this->writeMonitoringServerRepository->notifyConfigurationChange($host->getMonitoringServerId());
             if ($previousMonitoringServer !== $host->getMonitoringServerId()) {
                 // Monitoring server has changed, notify previous monitoring server of configuration changes.
-                 $this->writeMonitoringServerRepository->notifyConfigurationChange($previousMonitoringServer);
+                $this->writeMonitoringServerRepository->notifyConfigurationChange($previousMonitoringServer);
             }
 
             $this->dataStorageEngine->commitTransaction();
@@ -213,160 +226,166 @@ final class PartialUpdateHost
             ? (int) $inheritanceMode[0]->getValue()
             : null;
 
-        if (! $dto->name instanceOf NoValue) {
+        if (! $dto->name instanceof NoValue) {
             $this->validation->assertIsValidName($dto->name, $host);
             $host->setName($dto->name);
         }
 
-        if (! $dto->address instanceOf NoValue) {
+        if (! $dto->address instanceof NoValue) {
             $host->setAddress($dto->address);
         }
 
-        if (! $dto->monitoringServerId instanceOf NoValue) {
+        if (! $dto->monitoringServerId instanceof NoValue) {
             $this->validation->assertIsValidMonitoringServer($dto->monitoringServerId);
             $host->setMonitoringServerId($dto->monitoringServerId);
         }
 
-        if (! $dto->alias instanceOf NoValue) {
+        if (! $dto->alias instanceof NoValue) {
             $host->setAlias($dto->alias ?? '');
         }
 
-        if (! $dto->snmpCommunity instanceOf NoValue) {
-            $host->setSnmpCommunity($dto->snmpCommunity ?? '');
-        }
-
-        if (! $dto->noteUrl instanceOf NoValue) {
+        if (! $dto->noteUrl instanceof NoValue) {
             $host->setNoteUrl($dto->noteUrl ?? '');
         }
 
-        if (! $dto->note instanceOf NoValue) {
+        if (! $dto->note instanceof NoValue) {
             $host->setNote($dto->note ?? '');
         }
 
-        if (! $dto->actionUrl instanceOf NoValue) {
+        if (! $dto->actionUrl instanceof NoValue) {
             $host->setActionUrl($dto->actionUrl ?? '');
         }
 
-        if (! $dto->iconId instanceOf NoValue) {
+        if (! $dto->iconId instanceof NoValue) {
             $this->validation->assertIsValidIcon($dto->iconId);
             $host->setIconId($dto->iconId);
         }
 
-        if (! $dto->iconAlternative instanceOf NoValue) {
+        if (! $dto->iconAlternative instanceof NoValue) {
             $host->setIconAlternative($dto->iconAlternative ?? '');
         }
 
-        if (! $dto->comment instanceOf NoValue) {
+        if (! $dto->comment instanceof NoValue) {
             $host->setComment($dto->comment ?? '');
         }
 
-        if (! $dto->checkCommandArgs instanceOf NoValue) {
+        if (! $dto->checkCommandArgs instanceof NoValue) {
             $host->setCheckCommandArgs($dto->checkCommandArgs);
         }
 
-        if (! $dto->eventHandlerCommandArgs instanceOf NoValue) {
+        if (! $dto->eventHandlerCommandArgs instanceof NoValue) {
             $host->setEventHandlerCommandArgs($dto->eventHandlerCommandArgs);
         }
 
-        if (! $dto->timezoneId instanceOf NoValue) {
+        if (! $dto->timezoneId instanceof NoValue) {
             $this->validation->assertIsValidTimezone($dto->timezoneId);
             $host->setTimezoneId($dto->timezoneId);
         }
 
-        if (! $dto->severityId instanceOf NoValue) {
+        if (! $dto->severityId instanceof NoValue) {
             $this->validation->assertIsValidSeverity($dto->severityId);
             $host->setSeverityId($dto->severityId);
         }
 
-        if (! $dto->checkCommandId instanceOf NoValue) {
-            $this->validation->assertIsValidCommand($dto->checkCommandId, CommandType::Check, 'checkCommandId');
-            $host->setCheckCommandId($dto->checkCommandId);
+        if (! $dto->freshnessThreshold instanceof NoValue) {
+            $host->setFreshnessThreshold($dto->freshnessThreshold);
         }
 
-        if (! $dto->checkTimeperiodId instanceOf NoValue) {
+        if (! $dto->freshnessChecked instanceof NoValue) {
+            $host->setFreshnessChecked(YesNoDefaultConverter::fromScalar($dto->freshnessChecked));
+        }
+
+        if (! $dto->checkCommandId instanceof NoValue) {
+            $this->validation->assertIsValidCommand($dto->checkCommandId, CommandType::Check, 'checkCommandId');
+            $host->setCheckCommandId($dto->checkCommandId);
+            if ($dto->checkCommandId !== null) {
+                $command = $this->readCommandRepository->findById($dto->checkCommandId);
+                if ($command === null) {
+                    throw CommandException::errorWhileRetrieving();
+                }
+                if ($command->isCentreonMonitoringAgentCommand()) {
+                    $host->setFreshnessChecked(YesNoDefaultConverter::fromScalar(1));
+                    $host->setFreshnessThreshold(120);
+                }
+            }
+        }
+
+        if (! $dto->checkTimeperiodId instanceof NoValue) {
             $this->validation->assertIsValidTimePeriod($dto->checkTimeperiodId, 'checkTimeperiodId');
             $host->setCheckTimeperiodId($dto->checkTimeperiodId);
         }
 
-        if (! $dto->notificationTimeperiodId instanceOf NoValue) {
+        if (! $dto->notificationTimeperiodId instanceof NoValue) {
             $this->validation->assertIsValidTimePeriod($dto->notificationTimeperiodId, 'notificationTimeperiodId');
             $host->setNotificationTimeperiodId($dto->notificationTimeperiodId);
         }
 
-        if (! $dto->eventHandlerCommandId instanceOf NoValue) {
+        if (! $dto->eventHandlerCommandId instanceof NoValue) {
             $this->validation->assertIsValidCommand($dto->eventHandlerCommandId, null, 'eventHandlerCommandId');
             $host->setEventHandlerCommandId($dto->eventHandlerCommandId);
         }
 
-        if (! $dto->maxCheckAttempts instanceOf NoValue) {
+        if (! $dto->maxCheckAttempts instanceof NoValue) {
             $host->setMaxCheckAttempts($dto->maxCheckAttempts);
         }
 
-        if (! $dto->normalCheckInterval instanceOf NoValue) {
+        if (! $dto->normalCheckInterval instanceof NoValue) {
             $host->setNormalCheckInterval($dto->normalCheckInterval);
         }
 
-        if (! $dto->retryCheckInterval instanceOf NoValue) {
+        if (! $dto->retryCheckInterval instanceof NoValue) {
             $host->setRetryCheckInterval($dto->retryCheckInterval);
         }
 
-        if (! $dto->notificationInterval instanceOf NoValue) {
+        if (! $dto->notificationInterval instanceof NoValue) {
             $host->setNotificationInterval($dto->notificationInterval);
         }
 
-        if (! $dto->firstNotificationDelay instanceOf NoValue) {
+        if (! $dto->firstNotificationDelay instanceof NoValue) {
             $host->setFirstNotificationDelay($dto->firstNotificationDelay);
         }
 
-        if (! $dto->recoveryNotificationDelay instanceOf NoValue) {
+        if (! $dto->recoveryNotificationDelay instanceof NoValue) {
             $host->setRecoveryNotificationDelay($dto->recoveryNotificationDelay);
         }
 
-        if (! $dto->acknowledgementTimeout instanceOf NoValue) {
+        if (! $dto->acknowledgementTimeout instanceof NoValue) {
             $host->setAcknowledgementTimeout($dto->acknowledgementTimeout);
         }
 
-        if (! $dto->freshnessThreshold instanceOf NoValue) {
-            $host->setFreshnessThreshold($dto->freshnessThreshold);
-        }
-
-        if (! $dto->lowFlapThreshold instanceOf NoValue) {
+        if (! $dto->lowFlapThreshold instanceof NoValue) {
             $host->setLowFlapThreshold($dto->lowFlapThreshold);
         }
 
-        if (! $dto->highFlapThreshold instanceOf NoValue) {
+        if (! $dto->highFlapThreshold instanceof NoValue) {
             $host->setHighFlapThreshold($dto->highFlapThreshold);
         }
 
-        if (! $dto->isActivated instanceOf NoValue) {
+        if (! $dto->isActivated instanceof NoValue) {
             $host->setIsActivated($dto->isActivated);
         }
 
-        if (! $dto->activeCheckEnabled instanceOf NoValue) {
+        if (! $dto->activeCheckEnabled instanceof NoValue) {
             $host->setActiveCheckEnabled(YesNoDefaultConverter::fromScalar($dto->activeCheckEnabled));
         }
 
-        if (! $dto->passiveCheckEnabled instanceOf NoValue) {
+        if (! $dto->passiveCheckEnabled instanceof NoValue) {
             $host->setPassiveCheckEnabled(YesNoDefaultConverter::fromScalar($dto->passiveCheckEnabled));
         }
 
-        if (! $dto->notificationEnabled instanceOf NoValue) {
+        if (! $dto->notificationEnabled instanceof NoValue) {
             $host->setNotificationEnabled(YesNoDefaultConverter::fromScalar($dto->notificationEnabled));
         }
 
-        if (! $dto->freshnessChecked instanceOf NoValue) {
-            $host->setFreshnessChecked(YesNoDefaultConverter::fromScalar($dto->freshnessChecked));
-        }
-
-        if (! $dto->flapDetectionEnabled instanceOf NoValue) {
+        if (! $dto->flapDetectionEnabled instanceof NoValue) {
             $host->setFlapDetectionEnabled(YesNoDefaultConverter::fromScalar($dto->flapDetectionEnabled));
         }
 
-        if (! $dto->eventHandlerEnabled instanceOf NoValue) {
+        if (! $dto->eventHandlerEnabled instanceof NoValue) {
             $host->setEventHandlerEnabled(YesNoDefaultConverter::fromScalar($dto->eventHandlerEnabled));
         }
 
-        if (! $dto->snmpVersion instanceOf NoValue) {
+        if (! $dto->snmpVersion instanceof NoValue) {
             $host->setSnmpVersion(
                 $dto->snmpVersion === '' || $dto->snmpVersion === null
                     ? null
@@ -374,7 +393,7 @@ final class PartialUpdateHost
             );
         }
 
-        if (! $dto->geoCoordinates instanceOf NoValue) {
+        if (! $dto->geoCoordinates instanceof NoValue) {
             $host->setGeoCoordinates(
                 $dto->geoCoordinates === '' || $dto->geoCoordinates === null
                     ? null
@@ -382,7 +401,7 @@ final class PartialUpdateHost
             );
         }
 
-        if (! $dto->notificationOptions instanceOf NoValue) {
+        if (! $dto->notificationOptions instanceof NoValue) {
             $host->setNotificationOptions(
                 $dto->notificationOptions === null
                     ? []
@@ -390,31 +409,19 @@ final class PartialUpdateHost
             );
         }
 
-        if (! $dto->addInheritedContactGroup instanceOf NoValue) {
+        if (! $dto->addInheritedContactGroup instanceof NoValue) {
             $host->setAddInheritedContactGroup(
                 $inheritanceMode === self::VERTICAL_INHERITANCE_MODE ? $dto->addInheritedContactGroup : false
             );
         }
 
-        if (! $dto->addInheritedContact instanceOf NoValue) {
+        if (! $dto->addInheritedContact instanceof NoValue) {
             $host->setAddInheritedContact(
                 $inheritanceMode === self::VERTICAL_INHERITANCE_MODE ? $dto->addInheritedContact : false
             );
         }
 
-        if (
-            $this->writeVaultRepository->isVaultConfigured()
-            && ! $dto->snmpCommunity instanceOf NoValue
-            && ! $this->isAVaultPath((string) $dto->snmpCommunity)
-        ) {
-            $vaultPaths = $this->writeVaultRepository->upsert(
-                $this->uuid ?? null,
-                [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $host->getSnmpCommunity()]
-            );
-            $this->uuid ??= $this->getUuidFromPath($vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY]);
-            $host->setSnmpCommunity($vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY]);
-        }
-
+        $this->updateSnmpCommunity($host, $dto->snmpCommunity);
         $this->writeHostRepository->update($host);
     }
 
@@ -431,26 +438,36 @@ final class PartialUpdateHost
             ['host_id' => $host->getId(), 'categories' => $dto->categories]
         );
 
-        if ($dto->categories instanceOf NoValue) {
+        if ($dto->categories instanceof NoValue) {
             $this->info('Categories not provided, nothing to update');
 
             return;
         }
 
         $categoryIds = array_unique($dto->categories);
-        $this->validation->assertAreValidCategories($categoryIds);
 
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
+            $accessibleCategoryIds = $this->readHostCategoryRepository->exist($categoryIds);
             $originalCategories = $this->readHostCategoryRepository->findByHost($host->getId());
         } else {
+            // For non-admin users, filter submitted IDs to only those the user can access.
+            // Categories outside the user's ACL scope are silently preserved (not touched by the diff).
+            $accessibleCategoryIds = $this->readHostCategoryRepository->existByAccessGroups($categoryIds, $this->accessGroups);
             $originalCategories = $this->readHostCategoryRepository->findByHostAndAccessGroups(
                 $host->getId(),
                 $this->accessGroups
             );
         }
-
+        $droppedIds = array_diff($categoryIds, $accessibleCategoryIds);
+        if ($droppedIds !== []) {
+            $this->warning(
+                'PartialUpdateHost: submitted category IDs not found, they will be ignored',
+                ['dropped_category_ids' => $droppedIds, 'host_id' => $host->getId()]
+            );
+        }
+        $categoryIds = array_values(array_intersect($categoryIds, $accessibleCategoryIds));
         $originalCategoryIds = array_map(
-            static fn(HostCategory $category): int => $category->getId(),
+            static fn (HostCategory $category): int => $category->getId(),
             $originalCategories
         );
 
@@ -469,33 +486,43 @@ final class PartialUpdateHost
      * @throws HostException
      * @throws \Throwable
      */
-    private function updateHostGroups(PartialUpdateHostRequest $dto, Host $host): void
+    private function updateHostGroups(PartialUpdateHostRequest $dto, Host $host): bool
     {
         $this->info(
             'PartialUpdateHost: update groups',
             ['host_id' => $host->getId(), 'groups' => $dto->groups]
         );
 
-        if ($dto->groups instanceOf NoValue) {
+        if ($dto->groups instanceof NoValue) {
             $this->info('Groups not provided, nothing to update');
 
-            return;
+            return false;
         }
 
         $groupIds = array_unique($dto->groups);
-        $this->validation->assertAreValidGroups($groupIds);
-
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
+            $accessibleGroupIds = $this->readHostGroupRepository->exist($groupIds);
             $originalGroups = $this->readHostGroupRepository->findByHost($host->getId());
         } else {
+            // For non-admin users, filter submitted IDs to only those the user can access.
+            // Groups outside the user's ACL scope are silently preserved (not touched by the diff).
+            $accessibleGroupIds = $this->readHostGroupRepository->existByAccessGroups($groupIds, $this->accessGroups);
             $originalGroups = $this->readHostGroupRepository->findByHostAndAccessGroups(
                 $host->getId(),
                 $this->accessGroups
             );
         }
 
+        $droppedIds = array_diff($groupIds, $accessibleGroupIds);
+        if ($droppedIds !== []) {
+            $this->warning(
+                'PartialUpdateHost: submitted group IDs not found, they will be ignored',
+                ['dropped_group_ids' => $droppedIds, 'host_id' => $host->getId()]
+            );
+        }
+        $groupIds = array_values(array_intersect($groupIds, $accessibleGroupIds));
         $originalGroupIds = array_map(
-            static fn(HostGroup $group): int => $group->getId(),
+            static fn (HostGroup $group): int => $group->getId(),
             $originalGroups
         );
 
@@ -505,6 +532,8 @@ final class PartialUpdateHost
 
         $this->writeHostGroupRepository->linkToHost($host->getId(), $addedGroups);
         $this->writeHostGroupRepository->unlinkFromHost($host->getId(), $removedGroups);
+
+        return $addedGroups !== [] || $removedGroups !== [];
     }
 
     /**
@@ -520,7 +549,7 @@ final class PartialUpdateHost
             ['host_id' => $host->getId(), 'template_ids' => $dto->templates]
         );
 
-        if ($dto->templates instanceOf NoValue) {
+        if ($dto->templates instanceof NoValue) {
             $this->info('Parent templates not provided, nothing to update');
 
             return;
@@ -549,13 +578,13 @@ final class PartialUpdateHost
      */
     private function updateMacros(PartialUpdateHostRequest $dto, Host $host): void
     {
-        $this->info(
+        $this->debug(
             'PartialUpdateHost: update macros',
             ['host_id' => $host->getId(), 'macros' => $dto->macros]
         );
 
-        if ($dto->macros instanceOf NoValue) {
-            $this->info('Macros not provided, nothing to update');
+        if ($dto->macros instanceof NoValue) {
+            $this->debug('Macros not provided, nothing to update');
 
             return;
         }
@@ -659,14 +688,13 @@ final class PartialUpdateHost
     private function retrieveHostUuidFromVault(Host $host): void
     {
         $this->uuid = $this->getUuidFromPath($host->getSnmpCommunity());
-        if (null === $this->uuid) {
+        if ($this->uuid === null) {
             $macros = $this->readHostMacroRepository->findByHostId($host->getId());
             foreach ($macros as $macro) {
                 if (
                     $macro->isPassword() === true
                     && null !== ($this->uuid = $this->getUuidFromPath($macro->getValue()))
                 ) {
-
                     break;
                 }
             }
@@ -692,9 +720,15 @@ final class PartialUpdateHost
                 $action === 'INSERT' ? [$macroPrefixedName => $macro->getValue()] : [],
                 $action === 'DELETE' ? [$macroPrefixedName => $macro->getValue()] : [],
             );
+
+            // No need to update the macro if it is being deleted
+            if ($action === 'DELETE') {
+                return $macro;
+            }
+
             $this->uuid ??= $this->getUuidFromPath($vaultPaths[$macroPrefixedName]);
 
-            $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPaths[$macroPrefixedName]);
+            $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultPaths[$macroPrefixedName]);
             $inVaultMacro->setDescription($macro->getDescription());
             $inVaultMacro->setIsPassword($macro->isPassword());
             $inVaultMacro->setOrder($macro->getOrder());
@@ -716,7 +750,7 @@ final class PartialUpdateHost
     {
         $updatedMacros = [];
         foreach ($macros as $key => $macro) {
-            if (false === $macro->isPassword() || false === $this->isAVaultPath($macro->getValue())) {
+            if ($macro->isPassword() === false || $this->isAVaultPath($macro->getValue()) === false) {
                 $updatedMacros[$key] = $macro;
                 continue;
             }
@@ -724,7 +758,7 @@ final class PartialUpdateHost
             $vaultData = $this->readVaultRepository->findFromPath($macro->getValue());
             $vaultKey = '_HOST' . $macro->getName();
             if (isset($vaultData[$vaultKey])) {
-                $inVaultMacro = new Macro($macro->getOwnerId(),$macro->getName(), $vaultData[$vaultKey]);
+                $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
                 $inVaultMacro->setDescription($macro->getDescription());
                 $inVaultMacro->setIsPassword($macro->isPassword());
                 $inVaultMacro->setOrder($macro->getOrder());
@@ -734,5 +768,56 @@ final class PartialUpdateHost
         }
 
         return $updatedMacros;
+    }
+
+    /**
+     * Update SNMP community for a host, handling vault storage and clearing logic.
+     *
+     * @param Host $host
+     * @param NoValue|string|null $snmpCommunity
+     *
+     * @throws \Throwable
+     */
+    private function updateSnmpCommunity(Host $host, NoValue|string|null $snmpCommunity): void
+    {
+        if ($snmpCommunity instanceof NoValue) {
+            return;
+        }
+
+        // If vault is not configured, just set the value directly
+        if (! $this->writeVaultRepository->isVaultConfigured()) {
+            $host->setSnmpCommunity($snmpCommunity ?? '');
+
+            return;
+        }
+
+        // If the value is already a vault path, do nothing
+        if ($this->isAVaultPath($snmpCommunity ?? '')) {
+            return;
+        }
+
+        // If the current value is a vault path and we want to clear it
+        if ($this->isAVaultPath($host->getSnmpCommunity()) && empty($snmpCommunity)) {
+            $this->writeVaultRepository->upsert(
+                uuid: $this->getUuidFromPath($host->getSnmpCommunity()),
+                deletes: [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $snmpCommunity ?? '']
+            );
+            $host->setSnmpCommunity($snmpCommunity ?? '');
+
+            return;
+        }
+
+        // If the new value is empty, do nothing
+        if (empty($snmpCommunity)) {
+            return;
+        }
+
+        // Otherwise, store in vault and update host
+        $vaultPaths = $this->writeVaultRepository->upsert(
+            uuid: $this->uuid ?? null,
+            inserts: [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $snmpCommunity],
+        );
+        $this->uuid ??= $this->getUuidFromPath($vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY]);
+        $host->setSnmpCommunity($vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY]);
     }
 }

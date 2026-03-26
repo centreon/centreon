@@ -408,6 +408,10 @@ CREATE TABLE `instances` (
   `version` varchar(16) DEFAULT NULL,
   `deleted` boolean NOT NULL default false,
   `outdated` boolean NOT NULL default false,
+  `is_encryption_ready` BOOLEAN NOT NULL DEFAULT 0,
+  `cma_certificate_sha` VARCHAR(255) DEFAULT NULL COMMENT 'CMA certificate fingerprint',
+  `cma_certificate_cn` VARCHAR(255) DEFAULT NULL COMMENT 'CMA certificate host name',
+  `cma_certificate_peremption` INT(11) DEFAULT NULL COMMENT 'CMA certificate peremption timestamp',
   PRIMARY KEY (`instance_id`),
   KEY `instances_name_idx` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -704,4 +708,3 @@ UNLOCK TABLES;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-

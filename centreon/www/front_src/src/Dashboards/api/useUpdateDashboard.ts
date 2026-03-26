@@ -1,6 +1,7 @@
+import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
+
 import { UseMutationResult, useQueryClient } from '@tanstack/react-query';
 
-import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 import { getDashboardEndpoint } from './endpoints';
 import { Dashboard, resource } from './models';
 

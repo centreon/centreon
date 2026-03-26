@@ -1,10 +1,9 @@
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { LexicalCommand, createCommand } from 'lexical';
-
 import MacrosIcon from '@mui/icons-material/TerminalOutlined';
 
-import { Menu } from '../../../components';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { createCommand, type LexicalCommand } from 'lexical';
 
+import { Menu } from '../../../components';
 import { useStyles } from './ToolbarPlugin.styles';
 
 const LowPriority = 1;

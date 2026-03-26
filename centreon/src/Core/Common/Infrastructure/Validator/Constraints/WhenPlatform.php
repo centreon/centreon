@@ -64,7 +64,7 @@ final class WhenPlatform extends Composite
         public array|Constraint|null $constraints = null,
         ?array $groups = null,
         $payload = null,
-        array $options = []
+        array $options = [],
     ) {
         if (! \in_array($platform, PlatformType::AVAILABLE_TYPES, true)) {
             throw new LogicException(\sprintf('The platform "%s" is not valid.', $platform));
@@ -77,11 +77,11 @@ final class WhenPlatform extends Composite
             $options['constraints'] = [$options['constraints']];
         }
 
-        if (null !== $groups) {
+        if ($groups !== null) {
             $options['groups'] = $groups;
         }
 
-        if (null !== $payload) {
+        if ($payload !== null) {
             $options['payload'] = $payload;
         }
 
@@ -93,7 +93,10 @@ final class WhenPlatform extends Composite
         return ['platform', 'constraints'];
     }
 
-    public function getTargets(): string|array
+    /**
+     * @return string[]
+     */
+    public function getTargets(): array
     {
         return [self::CLASS_CONSTRAINT, self::PROPERTY_CONSTRAINT];
     }

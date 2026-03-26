@@ -1,21 +1,20 @@
-import { renderHook } from '@testing-library/react';
-import { Provider, createStore, useAtomValue } from 'jotai';
-
 import {
-  ThemeMode,
   platformVersionsAtom,
+  ThemeMode,
   userAtom
 } from '@centreon/ui-context';
 
-import { PlatformVersions } from '../api/models';
+import { renderHook } from '@testing-library/react';
+import { createStore, Provider, useAtomValue } from 'jotai';
 
+import { PlatformVersions } from '../api/models';
 import About from './About';
 import { contributors } from './Sections/Contibutors';
 import { developers } from './Sections/Developers';
 import { projectLeaders } from './Sections/ProjectLeaders';
 import {
-  labelCentreonWebsite,
   labelCentreonsGithub,
+  labelCentreonWebsite,
   labelCommunity
 } from './translatedLabels';
 
@@ -37,8 +36,12 @@ const externalLinks = [
 const platformVersion: PlatformVersions = {
   modules: {},
   web: {
+    fix: '0',
+    major: '23',
+    minor: '04',
     version: '23.04.0'
-  }
+  },
+  widgets: {}
 };
 
 const store = createStore();

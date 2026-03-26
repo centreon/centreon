@@ -1,5 +1,3 @@
-import { useCallback, useMemo, useRef } from 'react';
-
 import {
   compose,
   flatten,
@@ -13,10 +11,10 @@ import {
   sortBy,
   toLower
 } from 'ramda';
+import { useCallback, useMemo, useRef } from 'react';
 
 import type { LineChartData } from '../common/models';
 import { emphasizeCurveColor } from '../common/utils';
-
 import { adjustGraphData } from './helpers';
 import type { Data } from './models';
 
@@ -31,8 +29,17 @@ interface Props {
 }
 
 const getBoolean = (value) => Boolean(Number(value));
+const defaultDsData = {
+  ds_color_line: '#000000',
+  ds_filled: false,
+  ds_invert: false,
+  ds_legend: '',
+  ds_order: '0',
+  ds_stack: '0',
+  ds_transparency: 80
+};
 
-const useGraphData = ({ data, end, start }: Props): GraphDataResult => {
+const useGraphData = ({ data }: Props): GraphDataResult => {
   const adjustedDataRef = useRef<Data>();
 
   const dataWithAdjustedMetricsColor = useMemo(() => {
@@ -40,13 +47,25 @@ const useGraphData = ({ data, end, start }: Props): GraphDataResult => {
       return data;
     }
 
-    if (isEmpty(data.metrics) || isEmpty(data.times)) {
+    if (isEmpty(data.metrics)) {
       return undefined;
     }
 
+    const metricsWithValidDsData = (data?.metrics || []).map((metric) => ({
+      ...metric,
+      ds_data: {
+        ...defaultDsData,
+        ...(metric?.ds_data || {}),
+        ds_color_area:
+          metric?.ds_data?.ds_color_area ??
+          metric?.ds_data?.ds_color_line ??
+          defaultDsData.ds_color_line
+      }
+    }));
+
     const metricsGroupedByColor = groupBy(
-      (metric) => metric.ds_data.ds_color_line
-    )(data?.metrics || []);
+      (metric) => metric.ds_data?.ds_color_line || '#000000'
+    )(metricsWithValidDsData);
 
     const newMetrics = Object.entries(metricsGroupedByColor).map(
       ([color, value]) => {
@@ -54,8 +73,8 @@ const useGraphData = ({ data, end, start }: Props): GraphDataResult => {
           ...item,
           ds_data: {
             ...item?.ds_data,
-            ds_invert: getBoolean(item?.ds_data?.ds_invert),
-            ds_filled: getBoolean(item?.ds_data?.ds_filled)
+            ds_filled: getBoolean(item?.ds_data?.ds_filled),
+            ds_invert: getBoolean(item?.ds_data?.ds_invert)
           }
         }));
 
@@ -96,7 +115,7 @@ const useGraphData = ({ data, end, start }: Props): GraphDataResult => {
       timeSeries,
       title
     };
-  }, [dataWithAdjustedMetricsColor, end, start]);
+  }, [dataWithAdjustedMetricsColor]);
 
   prepareData();
 

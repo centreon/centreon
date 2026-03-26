@@ -1,17 +1,3 @@
-import { useAtomValue } from 'jotai';
-import {
-  F,
-  T,
-  always,
-  cond,
-  equals,
-  head,
-  identity,
-  lensPath,
-  pluck,
-  set
-} from 'ramda';
-
 import {
   BarChart,
   LineChart,
@@ -21,15 +7,28 @@ import {
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import NoResources from '../../NoResources';
+import { useAtomValue } from 'jotai';
+import {
+  always,
+  cond,
+  equals,
+  F,
+  head,
+  identity,
+  lensPath,
+  pluck,
+  set,
+  T
+} from 'ramda';
+
 import type { CommonWidgetProps, Data } from '../../models';
+import NoResources from '../../NoResources';
 import useThresholds from '../../useThresholds';
 import {
   areResourcesFullfilled,
   getIsMetaServiceSelected,
   getWidgetEndpoint
 } from '../../utils';
-
 import { graphEndpoint } from './api/endpoints';
 import type { PanelOptions } from './models';
 
@@ -99,9 +98,9 @@ const WidgetLineChart = ({
 
   const formattedThresholds = useThresholds({
     data: graphData,
+    isMetaServiceSelected,
     metricName: head(metricNames),
-    thresholds: panelOptions.threshold,
-    isMetaServiceSelected
+    thresholds: panelOptions.threshold
   });
 
   if (!areResourcesOk || (!isMetaServiceSelected && isMetricsEmpty)) {
@@ -135,9 +134,10 @@ const WidgetLineChart = ({
       placement: panelOptions.legendPlacement
     },
     loading: isGraphLoading,
+    skipIntersectionObserver: isFromPreview,
     start,
-    thresholdUnit: panelData.metrics[0]?.unit,
     thresholds: formattedThresholds,
+    thresholdUnit: panelData.metrics[0]?.unit,
     timeShiftZones: {
       enable: false
     },
@@ -147,8 +147,7 @@ const WidgetLineChart = ({
     },
     zoomPreview: {
       enable: false
-    },
-    skipIntersectionObserver: isFromPreview
+    }
   };
 
   if (isLineChart) {

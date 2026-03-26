@@ -1,12 +1,13 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
-import { createNotification, enableNotificationFeature } from '../common';
-import notificationBody from '../../../fixtures/notifications/notification-creation.json';
 import data from '../../../fixtures/notifications/data-for-notification.json';
+import notificationBody from '../../../fixtures/notifications/notification-creation.json';
+import { createNotification, enableNotificationFeature } from '../common';
 
 const previousPageLabel = 'Previous page';
 const nextPageLabel = 'Next page';
@@ -71,11 +72,7 @@ afterEach(() => {
 });
 
 Given('a user with access to the Notification Rules page', () => {
-  cy.navigateTo({
-    page: 'Notifications',
-    rootItemNumber: 3,
-    subMenu: 'Notifications'
-  });
+  cy.visit(PAGES.configuration.cloudNotifications);
 });
 
 When('no Notification Rules are configured', () => {
@@ -83,18 +80,12 @@ When('no Notification Rules are configured', () => {
     method: 'GET',
     url: 'centreon/api/latest/configuration/notifications'
   }).then((response) => {
-    // https://github.com/cypress-io/eslint-plugin-cypress?tab=readme-ov-file#chai-and-no-unused-expressions
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     expect(response.body.result).to.be.an('array').that.is.empty;
   });
 });
 
 When('the user goes to Notification Rules Listing', () => {
-  cy.navigateTo({
-    page: 'Notifications',
-    rootItemNumber: 3,
-    subMenu: 'Notifications'
-  });
+  cy.visit(PAGES.configuration.cloudNotifications);
 });
 
 Then(
@@ -105,8 +96,8 @@ Then(
 );
 
 Then('the pagination is disabled', () => {
-  cy.get('.MuiTablePagination-toolbar > > button').each(($button) => {
-    cy.wrap($button).should('be.disabled');
+  cy.get('.MuiTablePagination-toolbar > > button').each((button) => {
+    cy.wrap(button).should('be.disabled');
   });
 });
 
@@ -155,9 +146,9 @@ Then(
 Then(
   'the user clicks on the link to navigate to the previous page with status enabled',
   () => {
-    cy.getByLabel({ label: `${previousPageLabel}` }).then(($button) => {
-      if (!$button.prop('disabled')) {
-        cy.wrap($button).click();
+    cy.getByLabel({ label: `${previousPageLabel}` }).then((button) => {
+      if (!button.prop('disabled')) {
+        cy.wrap(button).click();
       } else {
         cy.log('The previous page is disabled and cannot be clicked.');
       }
@@ -175,9 +166,9 @@ Then(
 Then(
   'the user clicks on the link to navigate to the next page with status enabled',
   () => {
-    cy.getByLabel({ label: `${nextPageLabel}` }).then(($button) => {
-      if (!$button.prop('disabled')) {
-        cy.wrap($button).click();
+    cy.getByLabel({ label: `${nextPageLabel}` }).then((button) => {
+      if (!button.prop('disabled')) {
+        cy.wrap(button).click();
       } else {
         cy.log('The next page is disabled and cannot be clicked.');
       }

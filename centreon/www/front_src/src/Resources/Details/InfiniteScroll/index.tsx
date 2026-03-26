@@ -1,21 +1,3 @@
-import { type RefObject, useEffect, useRef, useState } from 'react';
-
-import { useAtomValue } from 'jotai';
-import {
-  T,
-  always,
-  concat,
-  cond,
-  equals,
-  gt,
-  isEmpty,
-  isNil,
-  length,
-  not
-} from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {
   CircularProgress,
@@ -25,14 +7,31 @@ import {
   Tooltip
 } from '@mui/material';
 
-import { useIntersectionObserver } from '@centreon/ui';
 import type { ListingModel } from '@centreon/ui';
+import { useIntersectionObserver } from '@centreon/ui';
+
+import { useAtomValue } from 'jotai';
+import {
+  always,
+  concat,
+  cond,
+  equals,
+  gt,
+  isEmpty,
+  isNil,
+  length,
+  not,
+  T
+} from 'ramda';
+import { type RefObject, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import memoizeComponent from '../../memoizedComponent';
 import { labelScrollToTop } from '../../translatedLabels';
-import NoResultsMessage from '../NoResultsMessage';
 import { selectedResourcesDetailsAtom } from '../detailsAtoms';
 import type { ResourceDetails } from '../models';
+import NoResultsMessage from '../NoResultsMessage';
 import type { GraphTimeParameters } from '../tabs/Graph/models';
 
 const useStyles = makeStyles()((theme) => ({
@@ -234,8 +233,8 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
   return (
     <div
       className={classes.scrollableContainer}
-      ref={scrollableContainerRef as RefObject<HTMLDivElement>}
       onScroll={scroll}
+      ref={scrollableContainerRef as RefObject<HTMLDivElement>}
     >
       <div className={classes.container}>
         <div className={classes.filter}>{filter}</div>
@@ -254,8 +253,8 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
                 always(
                   children({
                     entities,
-                    infiniteScrollTriggerRef,
-                    graphTimeParameters
+                    graphTimeParameters,
+                    infiniteScrollTriggerRef
                   })
                 )
               ]
@@ -267,8 +266,8 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
                 <Fab
                   aria-label={t(labelScrollToTop)}
                   color="primary"
-                  size="small"
                   onClick={scrollToTop}
+                  size="small"
                 >
                   <KeyboardArrowUpIcon />
                 </Fab>

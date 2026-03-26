@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ class DbContactHostNotificationFactory
             'r' => HostNotification::EVENT_HOST_RECOVERY,
             'f' => HostNotification::EVENT_HOST_FLAPPING,
             's' => HostNotification::EVENT_HOST_SCHEDULED_DOWNTIME,
-            default => null
+            default => null,
         };
     }
 }

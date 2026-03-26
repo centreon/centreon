@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ use Core\Common\Application\Type\NoValue;
 
 it(
     'should return the same value if not a NoValue object',
-    fn(mixed $value) => expect(
-        \Core\Common\Application\Type\NoValue::coalesce($value, uniqid('random-default', true))
+    fn (mixed $value) => expect(
+        NoValue::coalesce($value, uniqid('random-default', true))
     )->toBe($value)
 )->with([
     [null],
@@ -42,7 +42,7 @@ it(
 
 it(
     'should return the default value if it is a NoValue object',
-    fn() => expect(
-        NoValue::coalesce(new \Core\Common\Application\Type\NoValue(), $default = uniqid('random-default', true))
+    fn () => expect(
+        NoValue::coalesce(new NoValue(), $default = uniqid('random-default', true))
     )->toBe($default)
 );

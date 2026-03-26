@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,14 +18,15 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Tests\Centreon\Domain\MonitoringServer\Model;
 
-use DateTime;
-use PHPUnit\Framework\TestCase;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\MonitoringServer\Model\RealTimeMonitoringServer;
+use DateTime;
+use PHPUnit\Framework\TestCase;
 
 /**
  * This class is designed to test all setters of the RealTimeMonitoringServer entity, especially those with exceptions.
@@ -109,25 +110,6 @@ class RealTimeMonitoringServerTest extends TestCase
     }
 
     /**
-     * Too long address test
-     */
-    public function testDescriptionTooLongException(): void
-    {
-        $description = str_repeat('.', RealTimeMonitoringServer::MAX_DESCRIPTION_LENGTH + 1);
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            AssertionException::maxLength(
-                $description,
-                strlen($description),
-                RealTimeMonitoringServer::MAX_DESCRIPTION_LENGTH,
-                'RealTimeMonitoringServer::description'
-            )->getMessage()
-        );
-        (new RealTimeMonitoringServer(1, 'Central'))
-            ->setDescription($description);
-    }
-
-    /**
      * isRunning property test
      */
     public function testIsRunningProperty(): void
@@ -139,13 +121,12 @@ class RealTimeMonitoringServerTest extends TestCase
     }
 
     /**
-     * @return RealTimeMonitoringServer
      * @throws \Assert\AssertionFailedException
+     * @return RealTimeMonitoringServer
      */
     public static function createEntity(): RealTimeMonitoringServer
     {
         return (new RealTimeMonitoringServer(1, 'Central'))
-            ->setDescription('Monitoring Server description')
             ->setLastAlive((new DateTime())->getTimestamp())
             ->setVersion('99.99.99')
             ->setAddress('0.0.0.0')

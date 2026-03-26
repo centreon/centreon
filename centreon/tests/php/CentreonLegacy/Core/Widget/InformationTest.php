@@ -1,34 +1,41 @@
 <?php
-/**
- * Copyright 2016 Centreon
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 namespace CentreonLegacy\Core\Widget;
 
-use Pimple\Psr11\Container;
 use Centreon\Test\Mock\CentreonDB;
-use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
 use Centreon\Test\Mock\DependencyInjector\ConfigurationDBProvider;
 use Centreon\Test\Mock\DependencyInjector\FilesystemProvider;
 use Centreon\Test\Mock\DependencyInjector\FinderProvider;
+use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
+use Pimple\Psr11\Container;
 
 class InformationTest extends \PHPUnit\Framework\TestCase
 {
     private $container;
+
     private $db;
+
     private $utils;
+
     private $configuration;
 
     public function setUp(): void
@@ -81,8 +88,8 @@ class InformationTest extends \PHPUnit\Framework\TestCase
     {
         $expectedResult = ['type1' => ['id' => 1, 'name' => 'type1']];
 
-        $query = 'SELECT ft_typename, field_type_id ' .
-            'FROM widget_parameters_field_type ';
+        $query = 'SELECT ft_typename, field_type_id '
+            . 'FROM widget_parameters_field_type ';
         $this->db->addResultSet(
             $query,
             [['ft_typename' => 'type1', 'field_type_id' => 1]]
@@ -98,9 +105,9 @@ class InformationTest extends \PHPUnit\Framework\TestCase
 
     public function testGetParameterIdByName(): void
     {
-        $query = 'SELECT parameter_id ' .
-            'FROM widget_parameters ' .
-            'WHERE parameter_code_name = :name ';
+        $query = 'SELECT parameter_id '
+            . 'FROM widget_parameters '
+            . 'WHERE parameter_code_name = :name ';
         $this->db->addResultSet(
             $query,
             [['parameter_id' => 1]]
@@ -118,9 +125,9 @@ class InformationTest extends \PHPUnit\Framework\TestCase
     {
         $expectedResult = ['parameter1' => ['parameter_id' => 1, 'parameter_name' => 'parameter 1', 'parameter_code_name' => 'parameter1', 'default_value' => '', 'parameter_order' => 1, 'header_title' => 'title', 'require_permission' => null, 'widget_model_id' => 1, 'field_type_id' => 1]];
 
-        $query = 'SELECT * ' .
-            'FROM widget_parameters ' .
-            'WHERE widget_model_id = :id ';
+        $query = 'SELECT * '
+            . 'FROM widget_parameters '
+            . 'WHERE widget_model_id = :id ';
         $this->db->addResultSet(
             $query,
             [['parameter_id' => 1, 'parameter_name' => 'parameter 1', 'parameter_code_name' => 'parameter1', 'default_value' => '', 'parameter_order' => 1, 'header_title' => 'title', 'require_permission' => null, 'widget_model_id' => 1, 'field_type_id' => 1]]
@@ -136,9 +143,9 @@ class InformationTest extends \PHPUnit\Framework\TestCase
 
     public function testGetIdByName(): void
     {
-        $query = 'SELECT widget_model_id ' .
-            'FROM widget_models ' .
-            'WHERE directory = :directory';
+        $query = 'SELECT widget_model_id '
+            . 'FROM widget_models '
+            . 'WHERE directory = :directory';
         $this->db->addResultSet(
             $query,
             [['widget_model_id' => 1]]

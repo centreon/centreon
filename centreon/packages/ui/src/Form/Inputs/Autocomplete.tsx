@@ -1,18 +1,16 @@
-import { useCallback, useMemo, useState } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { path, equals, isNil, map, not, prop, type } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { FormHelperText, Stack } from '@mui/material';
 
-import { SelectEntry } from '../../InputField/Select';
+import { type FormikValues, useFormikContext } from 'formik';
+import { equals, isNil, map, not, path, prop, type } from 'ramda';
+import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import type { SelectEntry } from '../../InputField/Select';
 import SingleAutocompleteField from '../../InputField/Select/Autocomplete';
 import MultiAutocompleteField from '../../InputField/Select/Autocomplete/Multi';
 import { useMemoComponent } from '../../utils';
 import { labelPressEnterToAccept } from '../translatedLabels';
-
-import { InputPropsWithoutGroup, InputType } from './models';
+import { type InputPropsWithoutGroup, InputType } from './models';
 
 const normalizeNewValues = ({
   newValues,
@@ -77,12 +75,12 @@ const Autocomplete = ({
     if (change) {
       setFieldTouched(fieldName, true, false);
       change({
-        setFieldValue,
-        value: normalizedNewValues,
         setFieldTouched,
+        setFieldValue,
+        setTouched,
         setValues,
-        values,
-        setTouched
+        value: normalizedNewValues,
+        values
       });
 
       return;
@@ -181,16 +179,16 @@ const Autocomplete = ({
             equals(option, selectedValue)
           }
           label={`${t(label)}${additionalLabel}`}
+          onChange={changeValues}
+          onTextChange={textChange}
           open={isCreatable ? false : undefined}
           options={autocomplete?.options || []}
           popupIcon={isCreatable ? null : undefined}
           required={isRequired}
-          value={getValues() ?? null}
-          onChange={changeValues}
-          onTextChange={textChange}
           style={{
             width: (autocomplete?.fullWidth ?? true) ? 'auto' : '180px'
           }}
+          value={getValues() ?? null}
         />
         {inputErrors && (
           <Stack>

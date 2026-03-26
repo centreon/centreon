@@ -1,7 +1,7 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { Contact, Token, durationMap } from '../common';
 import tokens from '../../../fixtures/api-token/tokens.json';
+import { Contact, durationMap, Token } from '../common';
 
 const tokenToDelete = tokens.Token_2.name;
 
@@ -30,8 +30,8 @@ afterEach(() => {
 
 Given('I am logged in as an administrator', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
-  cy.get('.MuiAlert-message').then(($snackbar) => {
-    if ($snackbar.text().includes('Login succeeded')) {
+  cy.get('.MuiAlert-message').then((snackbar) => {
+    if (snackbar.text().includes('Login succeeded')) {
       cy.get('.MuiAlert-message').should('not.be.visible');
     }
   });
@@ -45,13 +45,13 @@ Given('Authentication tokens with predefined details are created', () => {
       const duration = durationMap[token.duration];
       expirationDate.setDate(today.getDate() + duration);
       // Get the ISO string without milliseconds
-      const expirationDateISOString = expirationDate.toISOString().split('.')[0] + "Z";
+      const expirationDateIsoString = `${expirationDate.toISOString().split('.')[0]}Z`;
 
       const payload = {
-        expiration_date: expirationDateISOString,
+        expiration_date: expirationDateIsoString,
         name: token.name,
-        user_id: token.userId,
-        type: token.type
+        type: token.type,
+        user_id: token.userId
       };
       cy.request({
         body: payload,

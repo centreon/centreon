@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Service\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Service\Domain\Model\ServiceStatusesCount;
 
 interface ReadRealTimeServiceRepositoryInterface
@@ -43,11 +44,13 @@ interface ReadRealTimeServiceRepositoryInterface
      */
     public function findUniqueServiceNamesByRequestParametersAndAccessGroupIds(
         RequestParametersInterface $requestParameters,
-        array $accessGroupIds
+        array $accessGroupIds,
     ): array;
 
     /**
      * @param RequestParametersInterface $requestParameters
+     *
+     * @throws RepositoryException
      *
      * @return ServiceStatusesCount
      */
@@ -57,10 +60,35 @@ interface ReadRealTimeServiceRepositoryInterface
      * @param RequestParametersInterface $requestParameters
      * @param int[] $accessGroupIds
      *
+     * @throws RepositoryException
+     *
      * @return ServiceStatusesCount
      */
     public function findStatusesByRequestParametersAndAccessGroupIds(
         RequestParametersInterface $requestParameters,
-        array $accessGroupIds
+        array $accessGroupIds,
     ): ServiceStatusesCount;
+
+    /**
+     * Indicates whether the service already exists for the given service ID and host ID
+     *
+     * @param int $serviceId
+     * @param int $hostId
+     *
+     * @throws RepositoryException
+     *
+     * @return bool
+     */
+    public function exists(int $serviceId, int $hostId): bool;
+
+    /**
+     * Indicates whether the service already exists for a meta service ID
+     *
+     * @param int $metaServiceId
+     *
+     * @throws RepositoryException
+     *
+     * @return array<int>|false
+     */
+    public function existsByDescription(int $metaServiceId): array|false;
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Host\Application\Exception\HostException;
@@ -51,7 +50,7 @@ final class FindRealTimeHostStatusesCount
         private readonly ContactInterface $user,
         private readonly ReadRealTimeHostRepositoryInterface $repository,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private readonly RequestParametersInterface $requestParameters
+        private readonly RequestParametersInterface $requestParameters,
     ) {
     }
 
@@ -89,12 +88,11 @@ final class FindRealTimeHostStatusesCount
             );
 
             $presenter->presentResponse($this->createResponse($statuses));
-        } catch (RequestParametersTranslatorException $ex) {
-            $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-        } catch (\Throwable $exception) {
-            $presenter->presentResponse(new ErrorResponse(HostException::errorWhileRetrievingHostStatusesCount()));
-            $this->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+        } catch (\Exception $exception) {
+            $presenter->presentResponse(new ErrorResponse(
+                message: $exception->getMessage(),
+                exception: $exception,
+            ));
         }
     }
 

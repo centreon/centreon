@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS `mod_open_tickets_rule` (
     `rule_id` int(11) NOT NULL AUTO_INCREMENT,
     `alias` varchar(255) DEFAULT NULL,
     `provider_id` int(11) NOT NULL,
+    `provider_name` varchar(255) NOT NULL,
     `activate` enum('0','1') NOT NULL DEFAULT '1',
     PRIMARY KEY (`rule_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;

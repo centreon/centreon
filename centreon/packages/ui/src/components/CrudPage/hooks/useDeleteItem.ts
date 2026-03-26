@@ -1,12 +1,14 @@
 import {
   Method,
-  ResponseError,
+  type ResponseError,
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
+
 import { useQueryClient } from '@tanstack/react-query';
-import { ReactElement } from 'react';
-import { ItemToDelete } from '../models';
+import type { ReactElement } from 'react';
+
+import type { ItemToDelete } from '../models';
 import { isAFunction } from '../utils';
 
 interface UseDeleteItem {
@@ -47,7 +49,7 @@ export const useDeleteItem = ({
     mutateAsync({ _meta: item });
 
   return {
-    isMutating,
-    deleteItem
+    deleteItem,
+    isMutating
   };
 };

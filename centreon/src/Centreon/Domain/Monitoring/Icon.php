@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring;
@@ -32,19 +33,13 @@ class Icon
     // Groups for serializing
     public const SERIALIZER_GROUP_MAIN = 'icon_main';
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $id;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $name;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $url;
 
     /**
@@ -76,7 +71,7 @@ class Icon
 
     /**
      * @param string|null $name
-     * @return \Centreon\Domain\Monitoring\Icon
+     * @return Icon
      */
     public function setName(?string $name): self
     {
@@ -95,7 +90,7 @@ class Icon
 
     /**
      * @param string|null $url
-     * @return \Centreon\Domain\Monitoring\Icon
+     * @return Icon
      */
     public function setUrl(?string $url): self
     {

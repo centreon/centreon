@@ -1,28 +1,27 @@
 <?php
 
 /*
- * Copyright 2016-2023 Centreon (http://www.centreon.com/)
- *
- * Centreon is a full-fledged industry-strength solution that meets
- * the needs in IT infrastructure and application monitoring for
- * service performance.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,*
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 $result = [
-    "code" => 0,
-    "msg" => 'ok',
+    'code' => 0,
+    'msg' => 'ok',
 ];
 
 // We get Host or Service
@@ -33,7 +32,7 @@ $db_storage = new CentreonDBManager('centstorage');
 
 $problems = [];
 
-# check services and hosts
+// check services and hosts
 $selected_str = '';
 $selected_str_append = '';
 $hosts_selected_str = '';
@@ -45,19 +44,19 @@ foreach ($selected_values as $value) {
     $selected_str .= $selected_str_append . 'services.host_id = ' . $str[0] . ' AND services.service_id = ' . $str[1];
     $selected_str_append = ' OR ';
 
-    if (!isset($hosts_done[$str[0]])) {
+    if (! isset($hosts_done[$str[0]])) {
         $hosts_selected_str .= $hosts_selected_str_append . $str[0];
         $hosts_selected_str_append = ', ';
         $hosts_done[$str[0]] = 1;
     }
 }
 
-$query = "(SELECT DISTINCT services.description, hosts.name as host_name, hosts.instance_id
+$query = '(SELECT DISTINCT services.description, hosts.name as host_name, hosts.instance_id
     FROM hosts
     INNER JOIN services
         ON services.host_id = hosts.host_id
-    WHERE (" . $selected_str . ')';
-if (!$centreon_bg->is_admin) {
+    WHERE (' . $selected_str . ')';
+if (! $centreon_bg->is_admin) {
     $query .= " AND EXISTS (
         SELECT *
         FROM centreon_acl
@@ -70,14 +69,14 @@ $query .= ") UNION ALL (
     SELECT DISTINCT NULL as description, hosts.name as host_name, hosts.instance_id
     FROM hosts
     WHERE hosts.host_id IN ({$hosts_selected_str})";
-if (!$centreon_bg->is_admin) {
+if (! $centreon_bg->is_admin) {
     $query .= " AND EXISTS (
         SELECT * FROM centreon_acl
         WHERE centreon_acl.group_id IN ({$centreon_bg->grouplistStr})
         AND hosts.host_id = centreon_acl.host_id
     )";
 }
-$query .= ") ORDER BY `host_name`, `description`";
+$query .= ') ORDER BY `host_name`, `description`';
 
 $hosts_done = [];
 
@@ -92,7 +91,7 @@ while (($row = $dbResult->fetch())) {
 }
 
 try {
-    #fwrite($fp, print_r($problems, true) . "===\n");
+    // fwrite($fp, print_r($problems, true) . "===\n");
     require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
     $oreon = $_SESSION['centreon'];
     $external_cmd = new CentreonExternalCommand();
@@ -106,7 +105,7 @@ try {
     foreach ($problems as $row) {
         // host check action and service description from database is empty (meaning entry is about a host)
         if (! $isService && (is_null($row['description']) || $row['description'] == '')) {
-            $command = $forced ? "SCHEDULE_FORCED_HOST_CHECK;%s;%s" : "SCHEDULE_HOST_CHECK;%s;%s";
+            $command = $forced ? 'SCHEDULE_FORCED_HOST_CHECK;%s;%s' : 'SCHEDULE_HOST_CHECK;%s;%s';
             call_user_func_array(
                 [$external_cmd, $method_external_name],
                 [sprintf(
@@ -116,13 +115,14 @@ try {
                 ), $row['instance_id']]
             );
             continue;
-        // servuce check action and service description from database is empty (meaning entry is about a host)
-        } elseif ($isService && (is_null($row['description']) || $row['description'] == '')) {
+            // servuce check action and service description from database is empty (meaning entry is about a host)
+        }
+        if ($isService && (is_null($row['description']) || $row['description'] == '')) {
             continue;
         }
 
         if ($isService) {
-            $command = $forced ? "SCHEDULE_FORCED_SVC_CHECK;%s;%s;%s" : "SCHEDULE_SVC_CHECK;%s;%s;%s";
+            $command = $forced ? 'SCHEDULE_FORCED_SVC_CHECK;%s;%s;%s' : 'SCHEDULE_SVC_CHECK;%s;%s;%s';
             call_user_func_array(
                 [$external_cmd, $method_external_name],
                 [sprintf(

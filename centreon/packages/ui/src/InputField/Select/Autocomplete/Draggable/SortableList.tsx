@@ -1,16 +1,14 @@
+import { lighten } from '@mui/material';
+
 import { rectIntersection } from '@dnd-kit/core';
 import { rectSortingStrategy } from '@dnd-kit/sortable';
 import { find, map, propEq } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { lighten } from '@mui/material';
-
-import { SelectEntry } from '../..';
 import SortableItems from '../../../../SortableItems';
-
+import type { SelectEntry } from '../..';
+import type { ItemActionProps } from '.';
 import SortableListContent from './SortableListContent';
-
-import { ItemActionProps } from '.';
 
 export interface DraggableSelectEntry extends SelectEntry {
   id: string;
@@ -56,7 +54,6 @@ const SortableList = ({
 
   return (
     <SortableItems
-      updateSortableItemsOnItemsChange
       Content={SortableListContent({
         classes,
         deleteValue,
@@ -67,8 +64,9 @@ const SortableList = ({
       collisionDetection={rectIntersection}
       itemProps={['id', 'name', 'createOption']}
       items={items}
-      sortingStrategy={rectSortingStrategy}
       onDragEnd={dragEnd}
+      sortingStrategy={rectSortingStrategy}
+      updateSortableItemsOnItemsChange
     />
   );
 };

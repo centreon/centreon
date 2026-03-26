@@ -23,7 +23,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Domain\ResponseCodeEnum;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
@@ -34,10 +34,11 @@ use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface
 use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->useCase = new DeleteHostGroups(
         $this->contact = $this->createMock(ContactInterface::class),
         $this->writeRepository = $this->createMock(WriteHostGroupRepositoryInterface::class),
@@ -50,15 +51,15 @@ beforeEach(function () {
         $this->readResourceAccessRepository = $this->createMock(ReadResourceAccessRepositoryInterface::class),
         $this->writeResourceAccessRepository = $this->createMock(WriteResourceAccessRepositoryInterface::class),
         $this->storageEngine = $this->createMock(DataStorageEngineInterface::class),
-        $this->isCloudPlatform = false
+        $this->isCloudPlatform = false,
+        $this->adminResolver = $this->createMock(AdminResolver::class)
     );
 
     $this->request = new DeleteHostGroupsRequest([1, 2, 3]);
 });
 
-it('should check that HostGroups exists as admin', function () {
-
-    $this->contact
+it('should check that HostGroups exists as admin', function (): void {
+    $this->adminResolver
         ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(true);
@@ -70,9 +71,8 @@ it('should check that HostGroups exists as admin', function () {
     ($this->useCase)($this->request);
 });
 
-it('should check that HostGroups exists as user', function () {
-
-    $this->contact
+it('should check that HostGroups exists as user', function (): void {
+    $this->adminResolver
         ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(false);
@@ -84,8 +84,8 @@ it('should check that HostGroups exists as user', function () {
     ($this->useCase)($this->request);
 });
 
-it('should return a DeleteHostGroupsResponse', function () {
-    $this->contact
+it('should return a DeleteHostGroupsResponse', function (): void {
+    $this->adminResolver
         ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(true);
@@ -93,9 +93,9 @@ it('should return a DeleteHostGroupsResponse', function () {
     $this->readRepository
         ->expects($this->exactly(3))
         ->method('existsOne')
-        ->willReturnOnConsecutiveCalls(true,false,true);
+        ->willReturnOnConsecutiveCalls(true, false, true);
 
-    $ex = new \Exception('Error while deleting a HostGroup configuration');
+    $ex = new Exception('Error while deleting a HostGroup configuration');
 
     $this->writeRepository
         ->expects($this->exactly(2))

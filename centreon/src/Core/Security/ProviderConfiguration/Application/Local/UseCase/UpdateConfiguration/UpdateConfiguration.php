@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ class UpdateConfiguration
     public function __construct(
         private WriteConfigurationRepositoryInterface $writeConfigurationRepository,
         private ReadUserRepositoryInterface $readUserRepository,
-        private ProviderAuthenticationFactoryInterface $providerFactory
+        private ProviderAuthenticationFactoryInterface $providerFactory,
     ) {
     }
 
@@ -57,7 +57,7 @@ class UpdateConfiguration
      */
     public function __invoke(
         UpdateConfigurationPresenterInterface $presenter,
-        UpdateConfigurationRequest $request
+        UpdateConfigurationRequest $request,
     ): void {
         $this->info('Updating Security Policy');
 

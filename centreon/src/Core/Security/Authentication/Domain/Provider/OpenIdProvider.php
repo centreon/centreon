@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -122,7 +122,7 @@ class OpenIdProvider implements OpenIdProviderInterface
         private readonly GroupsMappingSecurityAccess $groupsMapping,
         private readonly AttributePathFetcher $attributePathFetcher,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -423,6 +423,20 @@ class OpenIdProvider implements OpenIdProviderInterface
     public function getUserContactGroups(): array
     {
         return $this->groupsMapping->getUserContactGroups();
+    }
+
+    /**
+     * Get OIDC token for session.
+     *
+     * @return string|null
+     */
+    public function getTokenForSession(): ?string
+    {
+        if (! array_key_exists('id_token', $this->connectionTokenResponseContent)) {
+            throw SSOAuthenticationException::requestForConnectionTokenFail();
+        }
+
+        return $this->connectionTokenResponseContent['id_token'];
     }
 
     /**
@@ -746,16 +760,16 @@ class OpenIdProvider implements OpenIdProviderInterface
             $this->configuration,
             $authenticationConditions->isEnabled()
                 ? array_merge(
-                $this->idTokenPayload,
-                array_diff_key(
-                    $this->attributePathFetcher->fetch(
-                        $accessToken,
-                        $this->configuration,
-                        $authenticationConditions->getEndpoint() ?? throw new \LogicException()
-                    ),
-                    $this->idTokenPayload
+                    $this->idTokenPayload,
+                    array_diff_key(
+                        $this->attributePathFetcher->fetch(
+                            $accessToken,
+                            $this->configuration,
+                            $authenticationConditions->getEndpoint() ?? throw new \LogicException()
+                        ),
+                        $this->idTokenPayload
+                    )
                 )
-            )
                 : $this->idTokenPayload
         );
 
@@ -763,16 +777,16 @@ class OpenIdProvider implements OpenIdProviderInterface
             $this->configuration,
             $rolesMapping->isEnabled()
                 ? array_merge(
-                $this->idTokenPayload,
-                array_diff_key(
-                    $this->attributePathFetcher->fetch(
-                        $accessToken,
-                        $this->configuration,
-                        $rolesMapping->getEndpoint() ?? throw new \LogicException()
-                    ),
-                    $this->idTokenPayload
+                    $this->idTokenPayload,
+                    array_diff_key(
+                        $this->attributePathFetcher->fetch(
+                            $accessToken,
+                            $this->configuration,
+                            $rolesMapping->getEndpoint() ?? throw new \LogicException()
+                        ),
+                        $this->idTokenPayload
+                    )
                 )
-            )
                 : $this->idTokenPayload
         );
         $this->aclConditionsMatches = $this->rolesMapping->getConditionMatches();
@@ -781,16 +795,16 @@ class OpenIdProvider implements OpenIdProviderInterface
             $this->configuration,
             $groupsMapping->isEnabled()
                 ? array_merge(
-                $this->idTokenPayload,
-                array_diff_key(
-                    $this->attributePathFetcher->fetch(
-                        $accessToken,
-                        $this->configuration,
-                        $groupsMapping->getEndpoint() ?? throw new \LogicException()
-                    ),
-                    $this->idTokenPayload
+                    $this->idTokenPayload,
+                    array_diff_key(
+                        $this->attributePathFetcher->fetch(
+                            $accessToken,
+                            $this->configuration,
+                            $groupsMapping->getEndpoint() ?? throw new \LogicException()
+                        ),
+                        $this->idTokenPayload
+                    )
                 )
-            )
                 : $this->idTokenPayload
         );
     }
@@ -871,8 +885,8 @@ class OpenIdProvider implements OpenIdProviderInterface
         }
         if ($customConfiguration->getAuthenticationType() === CustomConfiguration::AUTHENTICATION_BASIC) {
             $headers['Authorization'] = 'Basic ' . base64_encode(
-                    $customConfiguration->getClientId() . ':' . $customConfiguration->getClientSecret()
-                );
+                $customConfiguration->getClientId() . ':' . $customConfiguration->getClientSecret()
+            );
         } else {
             $data['client_id'] = $customConfiguration->getClientId();
             $data['client_secret'] = $customConfiguration->getClientSecret();
@@ -1066,7 +1080,7 @@ class OpenIdProvider implements OpenIdProviderInterface
     private function urlSafeTokenDecode(string $token): string
     {
         $decoded = base64_decode(str_replace(['-', '_'], ['+', '/'], $token), true);
-        if (false === $decoded) {
+        if ($decoded === false) {
             throw new \ValueError('The token cannot be base64 decoded');
         }
 

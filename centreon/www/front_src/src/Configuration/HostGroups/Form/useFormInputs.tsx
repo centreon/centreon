@@ -1,19 +1,18 @@
 import { Group, InputProps, InputType } from '@centreon/ui';
-import { useTranslation } from 'react-i18next';
-
 import { platformFeaturesAtom } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
-import IconFiled from './IconFilled';
+import { useTranslation } from 'react-i18next';
 
 import {
   hostListEndpoint,
   resourceAccessRulesEndpoint
 } from '../api/endpoints';
 import {
+  labelAdditionalInformation,
   labelAlias,
   labelApplyResourceAccessRule,
   labelComments,
-  labelExtendedInformation,
   labelGeneralInformation,
   labelGeographicCoordinates,
   labelGroupMembers,
@@ -22,6 +21,7 @@ import {
   labelSelectHosts
 } from '../translatedLabels';
 import { useFormStyles } from './Form.styles';
+import IconFiled from './IconFilled';
 
 interface FormInputsState {
   inputs: Array<InputProps>;
@@ -42,109 +42,110 @@ const useFormInputs = ({ canEdit }: { canEdit: boolean }): FormInputsState => {
 
   const groups = [
     {
+      isDividerHidden: true,
       name: t(labelGeneralInformation),
       order: 1,
-      titleAttributes,
-      isDividerHidden: true
+      titleAttributes
     },
     {
+      isDividerHidden: true,
       name: t(labelGroupMembers),
       order: 2,
-      titleAttributes,
-      isDividerHidden: true
+      titleAttributes
     },
     ...(isCloudPlatform
       ? [
           {
+            isDividerHidden: true,
             name: t(labelResourceAccessRule),
             order: 3,
-            titleAttributes,
-            isDividerHidden: true
+            titleAttributes
           }
         ]
       : []),
-    { name: t(labelExtendedInformation), order: 4, titleAttributes }
+    { name: t(labelAdditionalInformation), order: 4, titleAttributes }
   ];
 
   const inputs = [
     {
-      type: InputType.Grid,
-      group: t(labelGeneralInformation),
       grid: {
         columns: [
           {
             dataTestId: labelName,
             fieldName: 'name',
+            getDisabled: () => !canEdit,
             group: t(labelGeneralInformation),
             label: t(labelName),
             required: canEdit,
-            type: InputType.Text,
-            getDisabled: () => !canEdit
+            type: InputType.Text
           },
           {
             fieldName: 'alias',
+            getDisabled: () => !canEdit,
             group: t(labelGeneralInformation),
             label: t(labelAlias),
-            type: InputType.Text,
-            getDisabled: () => !canEdit
+            type: InputType.Text
           }
         ]
-      }
+      },
+      group: t(labelGeneralInformation),
+      type: InputType.Grid
     },
     {
       connectedAutocomplete: {
-        chipColor: 'primary',
         additionalConditionParameters: [],
+        chipColor: 'primary',
+        disableSelectAll: false,
         endpoint: hostListEndpoint,
         filterKey: 'name',
-        disableSelectAll: false,
         limitTags: 15
       },
       fieldName: 'hosts',
+      getDisabled: () => !canEdit,
       group: t(labelGroupMembers),
       label: t(labelSelectHosts),
-      getDisabled: () => !canEdit,
       type: InputType.MultiConnectedAutocomplete
     },
     {
       connectedAutocomplete: {
-        chipColor: 'primary',
         additionalConditionParameters: [],
+        chipColor: 'primary',
+        disableSelectAll: false,
         endpoint: resourceAccessRulesEndpoint,
         filterKey: 'name',
-        disableSelectAll: false,
         limitTags: 15
       },
       fieldName: 'resourceAccessRules',
+      getDisabled: () => !canEdit,
       group: t(labelResourceAccessRule),
       label: t(labelApplyResourceAccessRule),
-      getDisabled: () => !canEdit,
+      required: canEdit,
       type: InputType.MultiConnectedAutocomplete
     },
     {
-      type: InputType.Grid,
-      group: t(labelExtendedInformation),
       grid: {
         columns: [
           {
             fieldName: 'geoCoords',
-            label: t(labelGeographicCoordinates),
             getDisabled: () => !canEdit,
+            label: t(labelGeographicCoordinates),
             type: InputType.Text
           },
           {
             custom: { Component: IconFiled },
-            type: InputType.Custom,
-            disabled: !canEdit
+            disabled: !canEdit,
+            type: InputType.Custom
           }
         ]
-      }
+      },
+      group: t(labelAdditionalInformation),
+      type: InputType.Grid
     },
     {
       fieldName: 'comment',
-      group: t(labelExtendedInformation),
-      label: t(labelComments),
       getDisabled: () => !canEdit,
+      group: t(labelAdditionalInformation),
+      label: t(labelComments),
       text: {
         multilineRows: 3
       },
@@ -152,7 +153,7 @@ const useFormInputs = ({ canEdit }: { canEdit: boolean }): FormInputsState => {
     }
   ];
 
-  return { inputs, groups };
+  return { groups, inputs };
 };
 
 export default useFormInputs;

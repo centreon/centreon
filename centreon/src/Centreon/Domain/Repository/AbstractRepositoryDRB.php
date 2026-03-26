@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Repository;
@@ -41,6 +42,22 @@ class AbstractRepositoryDRB
     protected ConnectionInterface $db;
 
     /**
+     * Formats the access group ids in string. (values are separated by coma)
+     *
+     * @param AccessGroup[] $accessGroups
+     * @return string
+     */
+    public function accessGroupIdToString(array $accessGroups): string
+    {
+        $ids = [];
+        foreach ($accessGroups as $accessGroup) {
+            $ids[] = $accessGroup->getId();
+        }
+
+        return implode(',', $ids);
+    }
+
+    /**
      * Replace all instances of :dbstg and :db by the real db names.
      * The table names of the database are defined in the services.yaml
      * configuration file.
@@ -55,20 +72,5 @@ class AbstractRepositoryDRB
             [$this->db->getConnectionConfig()->getDatabaseNameRealTime(), $this->db->getConnectionConfig()->getDatabaseNameConfiguration()],
             $request
         );
-    }
-
-    /**
-     * Formats the access group ids in string. (values are separated by coma)
-     *
-     * @param AccessGroup[] $accessGroups
-     * @return string
-     */
-    public function accessGroupIdToString(array $accessGroups): string
-    {
-        $ids = [];
-        foreach ($accessGroups as $accessGroup) {
-            $ids[] = $accessGroup->getId();
-        }
-        return implode(',', $ids);
     }
 }

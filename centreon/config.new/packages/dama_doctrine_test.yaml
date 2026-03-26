@@ -1,0 +1,6 @@
+when@test:
+    dama_doctrine_test:
+        enable_static_connection:
+            default: true
+            realtime: true
+            test_setup_default: false

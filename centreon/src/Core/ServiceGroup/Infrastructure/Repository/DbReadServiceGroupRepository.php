@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,12 +55,12 @@ use Utility\SqlConcatenator;
  */
 class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements ReadServiceGroupRepositoryInterface
 {
-    use SqlMultipleBindTrait,
-        HostRepositoryTrait,
-        HostGroupRepositoryTrait,
-        ServiceCategoryRepositoryTrait,
-        HostCategoryRepositoryTrait,
-        ServiceGroupRepositoryTrait;
+    use SqlMultipleBindTrait;
+    use HostRepositoryTrait;
+    use HostGroupRepositoryTrait;
+    use ServiceCategoryRepositoryTrait;
+    use HostCategoryRepositoryTrait;
+    use ServiceGroupRepositoryTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -167,7 +167,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
      */
     public function findAllByAccessGroupIds(?RequestParametersInterface $requestParameters, array $accessGroupIds): \Traversable&\Countable
     {
-        if ([] === $accessGroupIds) {
+        if ($accessGroupIds === []) {
             return new \ArrayIterator([]);
         }
 
@@ -300,7 +300,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
      */
     public function findOneByAccessGroups(int $serviceGroupId, array $accessGroups): ?ServiceGroup
     {
-        if ([] === $accessGroups) {
+        if ($accessGroups === []) {
             return null;
         }
 
@@ -329,7 +329,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
      */
     public function existsOneByAccessGroups(int $serviceGroupId, array $accessGroups): bool
     {
-        if ([] === $accessGroups) {
+        if ($accessGroups === []) {
             return false;
         }
 
@@ -376,7 +376,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
      */
     public function existByAccessGroups(array $serviceGroupIds, array $accessGroups): array
     {
-        if ([] === $accessGroups) {
+        if ($accessGroups === []) {
             return [];
         }
 
@@ -405,7 +405,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
      */
     public function findByServiceAndAccessGroups(int $serviceId, array $accessGroups): array
     {
-        if ([] === $accessGroups) {
+        if ($accessGroups === []) {
             return [];
         }
 
@@ -526,7 +526,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                     SQL
             );
 
-        if ([] !== $accessGroupIds) {
+        if ($accessGroupIds !== []) {
             $concatenator
                 ->appendJoins(
                     <<<'SQL'

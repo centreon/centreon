@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\User\Application\UseCase\FindUsers\FindUsersPresenterInterface;
 use Core\User\Application\UseCase\FindUsers\FindUsersResponse;
+use Core\User\Application\UseCase\FindUsers\TinyUserDto;
 
 class FindUsersPresenter extends AbstractPresenter implements FindUsersPresenterInterface
 {
@@ -49,6 +50,13 @@ class FindUsersPresenter extends AbstractPresenter implements FindUsersPresenter
         } else {
             $result = [];
             foreach ($response->users as $dto) {
+                if ($dto instanceof TinyUserDto) {
+                    $result[] = [
+                        'id' => $dto->id,
+                        'alias' => $dto->alias,
+                    ];
+                    continue;
+                }
                 $result[] = [
                     'id' => $dto->id,
                     'name' => $dto->name,

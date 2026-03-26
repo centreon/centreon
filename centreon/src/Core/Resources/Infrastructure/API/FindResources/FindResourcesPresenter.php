@@ -45,7 +45,8 @@ use Core\Resources\Infrastructure\API\ExtraDataNormalizer\ExtraDataNormalizerInt
  */
 class FindResourcesPresenter extends AbstractPresenter implements FindResourcesPresenterInterface
 {
-    use HttpUrlTrait, PresenterTrait;
+    use HttpUrlTrait;
+    use PresenterTrait;
     private const IMAGE_DIRECTORY = '/img/media/';
     private const SERVICE_RESOURCE_TYPE = 'service';
 
@@ -61,7 +62,7 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
         protected RequestParametersInterface $requestParameters,
         PresenterFormatterInterface $presenterFormatter,
         private readonly \Traversable $extraDataNormalizers,
-        private readonly ExceptionLogger $exceptionLogger
+        private readonly ExceptionLogger $exceptionLogger,
     ) {
         parent::__construct($presenterFormatter);
     }

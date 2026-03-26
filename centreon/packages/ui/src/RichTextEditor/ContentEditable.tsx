@@ -1,11 +1,12 @@
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+/** biome-ignore-all lint/a11y/noStaticElementInteractions: need it */
+/** biome-ignore-all lint/a11y/useAriaPropsSupportedByRole: nedd it */
+import { Typography } from '@mui/material';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { isEmpty, isNil } from 'ramda';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-
-import { Typography } from '@mui/material';
 
 interface StyleProps {
   editable: boolean;
@@ -108,7 +109,7 @@ const ContentEditable = ({
 
       editor.setEditorState(newEditorState);
     }
-  }, [editor, editorState]);
+  }, [editor, editorState, editable]);
 
   useEffect(() => {
     editor.registerTextContentListener((currentRoot) => {
@@ -120,7 +121,7 @@ const ContentEditable = ({
     }
 
     setRoot(' ');
-  }, [editor]);
+  }, [editor, hasInitialTextContent]);
 
   useEffect(() => {
     const shouldResetEditorToInitialState =
@@ -135,7 +136,12 @@ const ContentEditable = ({
     );
 
     editor.setEditorState(newEditorState);
-  }, [editorState]);
+  }, [
+    editor.parseEditorState,
+    editor.setEditorState,
+    initialEditorState,
+    resetEditorToInitialStateCondition
+  ]);
 
   const isTextEmpty =
     isEmpty(root) &&
@@ -154,11 +160,11 @@ const ContentEditable = ({
     }
 
     editor.setEditable(!disabled);
-  }, [disabled]);
+  }, [disabled, editor.setEditable]);
 
   useEffect(() => {
     initialize?.(editor);
-  }, []);
+  }, [editor, initialize]);
 
   return (
     <div
@@ -184,9 +190,9 @@ const ContentEditable = ({
         )}
         contentEditable={isEditable}
         data-testid={namespace}
-        ref={ref}
         onBlur={handleBlur}
         onFocus={(): void => setFocused(true)}
+        ref={ref}
       />
     </div>
   );

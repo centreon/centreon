@@ -1,5 +1,5 @@
 --
--- Copyright 2023 Centreon
+-- Copyright 2025 Centreon
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -24,31 +24,31 @@ broker_api_version = 2
 local data = {
   base_url = "http://localhost/centreon/api/latest",
   aws_region = "eu-west-1",
-  authfile = "",      -- Should give a json file with two entries: 'user' and 'password'.
-                       -- If not defined it is ignored, and if it contains a wrong content,
-                       -- it is also ignored. If authfile, user and password are filled, the
-                       -- authfile content will overwrite user and password.
+  authfile = "", -- Should give a json file with two entries: 'user' and 'password'.
+  -- If not defined it is ignored, and if it contains a wrong content,
+  -- it is also ignored. If authfile, user and password are filled, the
+  -- authfile content will overwrite user and password.
   user = "admin",
   password = "Centreon!2021",
   token = "",
   log_file = "/tmp/log",
-  log_level = 0,           -- Set 3 to enable all the logs.
-  refresh_delay = 500,     -- Delay in seconds before reloading a new notification configuration
+  log_level = 0, -- Set 3 to enable all the logs.
+  refresh_delay = 500, -- Delay in seconds before reloading a new notification configuration
   sender = "admin@centreon.com",
-  mail_command = 'aws ses send-email --region {{AWS_REGION}} --from "{{SENDER}}" --bcc {{RECIPIENTS}} --subject "{{SUBJECT}}" --html "{{MESSAGE}}"',
-  last_refresh = 0,        -- internal.
+  mail_command = 'aws ses send-email --region {{AWS_REGION}} --from "{{SENDER}}" --destination "file://{{DESTINATION_FILE}}" --message "file://{{MESSAGE_FILE}}"',
+  last_refresh = 0, -- internal.
   current_uid = "unknown", -- internal
-  host = {},               -- internal: the configuration raised by the API.
+  host = {} -- internal: the configuration raised by the API.
 }
 
 --- Get the user token from data.user/data.password. The token is stored into
 -- data.token.
 local function login()
-  local c = cURL.easy{
+  local c = cURL.easy {
     url = data.base_url .. "/login",
     post = true,
     postfields = '{ "security": {"credentials": {"login": "' .. string.gsub(data.user, '"', '\\"') .. '","password": "' .. string.gsub(data.password, '"', '\\"') .. '"}}}',
-    writefunction = function (resp)
+    writefunction = function(resp)
       local content = broker.json_decode(resp)
       if not content then
         broker_log:error(0, "Unable to get a new token, is it the good url '" .. tostring(data.base_url) .. "'?")
@@ -56,7 +56,7 @@ local function login()
         broker_log:info(1, "Got a new token")
         data.token = content.security.token
       end
-    end,
+    end
   }
 
   ok, err = c:perform()
@@ -94,22 +94,27 @@ local function update_conf(full_conf)
   data.current_uid = uid
 
   data.host = {}
-  for i,n in ipairs(content.result) do
+  for i, n in ipairs(content.result) do
     -- For each notification defined in result
-    for ii,h in ipairs(n.hosts) do
+    for ii, h in ipairs(n.hosts) do
       -- For each host defined in the notification
       local host_id = h.id
       if not data.host[host_id] then
-        data.host[host_id] = { name = h.name, alias = h.alias, notification = {}}
+        data.host[host_id] = {name = h.name, alias = h.alias, notification = {}}
       end
       local host_conf = data.host[host_id]
-      local hnotif = { events = h.events, notification_id = n.notification_id, service = {} }
+      local hnotif = {events = h.events, notification_id = n.notification_id, service = {}}
       host_conf.notification[#host_conf.notification + 1] = hnotif
       if #h.services > 0 then
-        for iii,s in ipairs(h.services) do
+        for iii, s in ipairs(h.services) do
           if s.events > 0 then
             -- Some notifications are configured on this service
-            hnotif.service[s.id] = { name = s.name, alias = s.alias, events = s.events, notification_id = n.notification_id }
+            hnotif.service[s.id] = {
+              name = s.name,
+              alias = s.alias,
+              events = s.events,
+              notification_id = n.notification_id
+            }
           end
         end
       end
@@ -127,16 +132,16 @@ local function get_configuration()
   local loop = true
   while loop do
     data.last_refresh = os.time()
-    local c = cURL.easy{
+    local c = cURL.easy {
       url = data.base_url .. "/configuration/notifications/resources",
       post = false,
       httpheader = {
-        'Content-Type: application/json',
-        'x-notifiable-resources-UID: ' .. tostring(data.current_uid),
-        'x-AUTH-TOKEN: ' .. tostring(data.token),
-      },
+        "Content-Type: application/json",
+        "x-notifiable-resources-UID: " .. tostring(data.current_uid),
+        "x-AUTH-TOKEN: " .. tostring(data.token)
+      }
     }
-    local full = { resp = "" }
+    local full = {resp = ""}
     c:setopt_writefunction(fill_conf, full)
     ok, err = c:perform()
     if not ok then
@@ -171,12 +176,12 @@ local function get_notification_rule(id)
   local content = {}
   local loop = true
   while loop do
-    local c = cURL.easy{
+    local c = cURL.easy {
       url = data.base_url .. "/configuration/notifications/" .. id .. "/rules",
       post = false,
       httpheader = {
-        'Content-Type: application/json',
-        'x-AUTH-TOKEN: ' .. tostring(data.token),
+        "Content-Type: application/json",
+        "x-AUTH-TOKEN: " .. tostring(data.token)
       },
       writefunction = function(resp)
         content = broker.json_decode(resp)
@@ -185,7 +190,7 @@ local function get_notification_rule(id)
         else
           broker_log:error(0, "Unable to decode the message '" .. tostring(resp) .. "'")
         end
-      end,
+      end
     }
     ok, err = c:perform()
     if not ok then
@@ -204,7 +209,6 @@ local function get_notification_rule(id)
   return content
 end
 
-
 --- Get the notification configuration from the API. The parameter is the
 --  notification ID.
 --  @param id The notification ID we know from the first API configuration.
@@ -213,12 +217,12 @@ local function get_notification(id)
   local content = {}
   local loop = true
   while loop do
-    local c = cURL.easy{
+    local c = cURL.easy {
       url = data.base_url .. "/configuration/notifications/" .. id,
       post = false,
       httpheader = {
-        'Content-Type: application/json',
-        'x-AUTH-TOKEN: ' .. tostring(data.token),
+        "Content-Type: application/json",
+        "x-AUTH-TOKEN: " .. tostring(data.token)
       },
       writefunction = function(resp)
         content = broker.json_decode(resp)
@@ -227,7 +231,7 @@ local function get_notification(id)
         else
           broker_log:error(0, "Unable to decode the message '" .. tostring(resp) .. "'")
         end
-      end,
+      end
     }
     ok, err = c:perform()
     if not ok then
@@ -252,12 +256,12 @@ local function get_time_period(id)
   local content = {}
   local loop = true
   while loop do
-    local c = cURL.easy{
+    local c = cURL.easy {
       url = data.base_url .. "/configuration/timeperiods/" .. id,
       post = false,
       httpheader = {
-        'Content-Type: application/json',
-        'x-AUTH-TOKEN: ' .. tostring(data.token),
+        "Content-Type: application/json",
+        "x-AUTH-TOKEN: " .. tostring(data.token)
       },
       writefunction = function(resp)
         content = broker.json_decode(resp)
@@ -266,7 +270,7 @@ local function get_time_period(id)
         else
           broker_log:error(0, "Unable to decode the message '" .. tostring(resp) .. "'")
         end
-      end,
+      end
     }
     ok, err = c:perform()
     if not ok then
@@ -305,18 +309,18 @@ local function get_macros(event, conf, hostname)
 
   -- PbServiceStatus
   if event._type == 65565 then
-    states = { "OK", "WARNING", "CRITICAL", "UNKNOWN" }
+    states = {"OK", "WARNING", "CRITICAL", "UNKNOWN"}
     -- Real service or Anomalydetection
     if event.type == 0 or event.type == 4 then
       id = tostring(event.host_id) .. ":" .. tostring(event.service_id)
       name = tostring(hostname) .. '/' .. name
-    -- Meta-service or BA
+      -- Meta-service or BA
     elseif event.type == 2 or event.type == 3 then
       id = tostring(event.internal_id)
     end
-  -- PbHostStatus
+    -- PbHostStatus
   elseif event._type == 65568 then
-    states = { "UP", "DOWN", "UNREACHABLE" }
+    states = {"UP", "DOWN", "UNREACHABLE"}
     id = tostring(event.host_id)
   end
 
@@ -328,7 +332,7 @@ local function get_macros(event, conf, hostname)
     SHORTDATETIME = os.date("%x %X", event.last_hard_state_change),
     LONGDATETIME = os.date("%A %B %d, %Y, %X", event.last_hard_state_change),
     OUTPUT = tostring(event.output),
-    ALIAS = tostring(conf.alias),
+    ALIAS = tostring(conf.alias)
   }
   return retval
 end
@@ -340,7 +344,7 @@ end
 --  @return The resulting text.
 local function replace_macros(text, macros)
   retval = text
-  for k,v in pairs(macros) do
+  for k, v in pairs(macros) do
     broker_log:info(2, "replacing {{" .. k .. "}} by its value <<" .. v .. ">>")
     -- '%' is a specific character in gsub, we must escape it.
     local vv = string.gsub(v, "%%", "%%%%")
@@ -349,61 +353,100 @@ local function replace_macros(text, macros)
   return retval
 end
 
+--- Escape shell characters in a string to prevent command injection.
+---  This function escapes only what expands inside double quotes: \, ", $, `, '.
+--- Keep content (spaces/HTML) intact.
+--- @param str The string to escape.
+local function escape_shell_chars(str)
+  if str == nil then
+    return ""
+  end
+  -- order matters: escape backslash first
+  str = str:gsub("\\", "\\\\")
+           :gsub('"', '\\"')
+           :gsub("%$", "\\$")
+           :gsub("`", "\\`")
+           :gsub("'", "\\'")
+  return str
+end
+
 --- Send a notification by mail.
 --  @param notif The notification configuration.
 --  @param event The event received from broker (service status/host status)
 --  @param conf The resource associated to the event.
---  @param hostname This is the hostname only given when the event is a
---                  ServiceStatus.
+--  @param hostname This is the hostname only given when the event is a ServiceStatus.
 local function send_mail(notif, event, conf, hostname)
   local macros = get_macros(event, conf, hostname)
   local message = replace_macros(notif.formatted_message, macros)
   local subject = replace_macros(notif.subject, macros)
 
-  -- Constructing the recipients string
-  local recipients = ""
-  for _,c in ipairs(notif.contacts) do
+  --- Constructing the recipients json
+  local destination_json = {
+    ToAddresses = {},
+    CcAddresses = {},
+    BccAddresses = {}
+  }
+  for _, c in ipairs(notif.contacts) do
     local mail = c.email_address
-    if #mail > 0 then
-      if #recipients == 0 then
-        recipients = mail
-      else
-        recipients = recipients .. " " .. mail
-      end
+    if mail and #mail > 0 then
+      table.insert(destination_json.BccAddresses, mail)
     end
   end
 
-  -- Protection of the strings.
-  message = string.gsub(message, '"', '\\"')
-  -- '%' is a specific character in gsub, we must escape it.
-  message = string.gsub(message, "%%", "%%%%")
-  subject = string.gsub(subject, '"', '\\"')
-  -- '%' is a specific character in gsub, we must escape it.
-  subject = string.gsub(subject, "%%", "%%%%")
-  recipients = string.gsub(recipients, '"', '\\"')
-  -- '%' is a specific character in gsub, we must escape it.
-  recipients = string.gsub(recipients, "%%", "%%%%")
-  sender = string.gsub(data.sender, '"', '\\"')
-  -- '%' is a specific character in gsub, we must escape it.
-  sender = string.gsub(sender, "%%", "%%%%")
+  --- Constructing the message json
+  local message_json = {
+    Subject = {
+      Data = subject,
+      Charset = "UTF-8"
+    },
+    Body = {
+      Html = {
+        Data = message,
+        Charset = "UTF-8"
+      }
+    }
+  }
+
+  --- Create temporary files for destination and message json files
+  local dest_tmpname = os.tmpname() .. ".json"
+  local dest_file = io.open(dest_tmpname, "w")
+  if not dest_file then
+    broker_log:error(0, "Unable to create destination file: " .. dest_tmpname)
+    return
+  end
+  dest_file:write(broker.json_encode(destination_json))
+  dest_file:close()
+
+  local msg_tmpname = os.tmpname() .. ".json"
+  local msg_file = io.open(msg_tmpname, "w")
+  if not msg_file then
+    broker_log:error(0, "Unable to create message file: " .. msg_tmpname)
+    os.remove(dest_tmpname)
+    return
+  end
+  msg_file:write(broker.json_encode(message_json))
+  msg_file:close()
 
   -- Constructing the mail command
   local cmd = data.mail_command
-  cmd = string.gsub(cmd, "{{RECIPIENTS}}", recipients)
-  cmd = string.gsub(cmd, "{{SENDER}}", sender)
-  cmd = string.gsub(cmd, "{{MESSAGE}}", message)
-  cmd = string.gsub(cmd, "{{SUBJECT}}", subject)
+  cmd = string.gsub(cmd, "{{SENDER}}", escape_shell_chars(data.sender))
+  cmd = string.gsub(cmd, "{{DESTINATION_FILE}}", escape_shell_chars(dest_tmpname))
+  cmd = string.gsub(cmd, "{{MESSAGE_FILE}}", escape_shell_chars(msg_tmpname))
 
   broker_log:info(1, "command content: " .. cmd)
   -- Execution of the command
-  local f = io.popen(cmd, 'r')
+  local f = io.popen(cmd, "r")
   if f then
-    local s = f:read('*a')
+    local s = f:read("*a")
     f:close()
     broker_log:info(0, "Sending notification -- output: " .. tostring(s))
   else
     broker_log:error(0, "Unable to get '" .. cmd .. "' output.")
   end
+
+  -- Removing temporary files
+  os.remove(dest_tmpname)
+  os.remove(msg_tmpname)
 end
 
 --- The init function of the stream connector. It is mandatory and must be not
@@ -412,7 +455,7 @@ end
 function init(conf)
   local unknown = ""
   local errors_count = 0
-  for k,v in pairs(conf) do
+  for k, v in pairs(conf) do
     if data[k] then
       data[k] = v
     else
@@ -445,11 +488,9 @@ function init(conf)
   end
   if errors_count > 0 then
     if errors_count == 1 then
-      broker_log:error(0, "Parameters " .. unknown ..
-                          " is not recognized by the cloud notification stream connector")
+      broker_log:error(0, "Parameters " .. unknown .. " is not recognized by the cloud notification stream connector")
     else
-      broker_log:error(0, "Parameters " .. unknown ..
-                          " are not recognized by the cloud notification stream connector")
+      broker_log:error(0, "Parameters " .. unknown .. " are not recognized by the cloud notification stream connector")
     end
   end
   login()
@@ -466,9 +507,9 @@ function init(conf)
 end
 
 local function is_notifiable(notification)
-    local notif = get_notification(notification.notification_id)
-    local time_period = get_time_period(notif.timeperiod.id)
-    return time_period.in_period == true
+  local notif = get_notification(notification.notification_id)
+  local time_period = get_time_period(notif.timeperiod.id)
+  return time_period.in_period == true
 end
 
 function write(d)
@@ -491,19 +532,17 @@ function write(d)
           local svc = hnotif.service[d.service_id]
           if svc then
             broker_log:info(3, "Service (" .. d.host_id .. "," .. d.service_id ..
-                               ") --- state: " .. d.state ..
-                               " ; state_type: " .. d.state_type ..
-                               " ; last_check: " .. d.last_check ..
-                               " ; last_hard_state: " .. d.last_hard_state_change ..
-                               " ; notif flags: " .. ((1 << d.state) & svc.events))
+              ") --- state: " .. d.state ..
+              " ; state_type: " .. d.state_type ..
+              " ; last_check: " .. d.last_check ..
+              " ; last_hard_state: " .. d.last_hard_state_change ..
+              " ; notif flags: " .. ((1 << d.state) & svc.events))
             -- We check that:
             --   the state matches with the notification configuration
             --   the state is HARD
             --   the change just occured.
             if ((1 << d.state) & svc.events) ~= 0 and d.state_type == 1 and d.last_check <= d.last_hard_state_change then
-              broker_log:info(2, "Notification on service (" .. d.host_id .. "," .. d.service_id ..
-                                 ") --- state: " .. d.state ..
-                                 " ; notification_id: " .. svc.notification_id)
+              broker_log:info(2, "Notification on service (" .. d.host_id .. "," .. d.service_id .. ") --- state: " .. d.state .. " ; notification_id: " .. svc.notification_id)
               local notif = get_notification_rule(svc.notification_id)
               if is_notifiable(notif) == false then
                 goto continue
@@ -516,7 +555,7 @@ function write(d)
             end
           end
 
-          ::continue::
+          :: continue ::
         end
       else
         broker_log:info(2, "host " .. d.host_id .. " not found")
@@ -528,7 +567,7 @@ function write(d)
         broker_log:info(2, "Service (" .. d.host_id .. "," .. d.service_id .. ") acknowledged, so no notification")
       end
     end
-  -- PbHostStatus
+    -- PbHostStatus
   elseif d._type == 65568 then
     -- Notification is done only on resources not in downtime and not acknowledged.
     if (d.scheduled_downtime_depth == 0 or d.scheduled_downtime_depth == nil) and (d.acknowledgement_type == 0 or d.acknowledgement_type == nil) then
@@ -542,19 +581,19 @@ function write(d)
       if hst then
         for _, hnotif in ipairs(hst.notification) do
           broker_log:info(3, "Host " .. d.host_id ..
-                             " found -- state = " .. d.state ..
-                             " -- type = " .. d.state_type ..
-                             " -- last_check = " .. d.last_check ..
-                             " -- last_hard_state_change = " .. d.last_hard_state_change ..
-                             " ; notif flags: " .. ((1 << d.state) & hnotif.events))
+            " found -- state = " .. d.state ..
+            " -- type = " .. d.state_type ..
+            " -- last_check = " .. d.last_check ..
+            " -- last_hard_state_change = " .. d.last_hard_state_change ..
+            " ; notif flags: " .. ((1 << d.state) & hnotif.events))
           if ((1 << d.state) & hnotif.events) ~= 0 and d.state_type == 1 and d.last_check <= d.last_hard_state_change then
             broker_log:info(2, "Notification on host " .. d.host_id ..
-                               " --- notification_id: " .. hnotif.notification_id ..
-                               " state: " .. d.state)
+              " --- notification_id: " .. hnotif.notification_id ..
+              " state: " .. d.state)
 
             local notif = get_notification_rule(hnotif.notification_id)
             if is_notifiable(notif) == false then
-            	goto continue
+              goto continue
             end
 
             if notif.channels and notif.channels.email then
@@ -567,7 +606,7 @@ function write(d)
             end
           end
 
-          ::continue::
+          :: continue ::
         end
       else
         broker_log:info(2, "host " .. d.host_id .. " not found")

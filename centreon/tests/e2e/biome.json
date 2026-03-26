@@ -1,0 +1,13 @@
+{
+	"extends": ["../../packages/js-config/biome/biome.json"],
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"style": {
+				"useNamingConvention": {
+					"level": "warn"
+				}
+			}
+		}
+	}
+}

@@ -45,7 +45,7 @@ class TokenResponseNormalizer implements NormalizerInterface, NormalizerAwareInt
     public function normalize(
         mixed $object,
         ?string $format = null,
-        array $context = []
+        array $context = [],
     ): array {
         /**
          * @var array<string, mixed> $response
@@ -55,7 +55,7 @@ class TokenResponseNormalizer implements NormalizerInterface, NormalizerAwareInt
 
         $matches = array_filter(
             $context['groups'] ?? [],
-            fn(string $group): bool => in_array($group, ['Token:Add', 'Token:Get'], true)
+            fn (string $group): bool => in_array($group, ['Token:Add', 'Token:Get'], true)
         );
         if ($matches !== []) {
             $response['token'] = $object->getData()->tokenString;

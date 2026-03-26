@@ -1,10 +1,11 @@
+import FormGroup, { type FormGroupProps } from '@mui/material/FormGroup';
+import type { TypographyProps } from '@mui/material/Typography';
+
 import { equals, includes } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import FormGroup, { FormGroupProps } from '@mui/material/FormGroup';
-import { TypographyProps } from '@mui/material/Typography';
-
-import Checkbox, { LabelPlacement } from '../Checkbox';
+import Checkbox, { type LabelPlacement } from '../Checkbox';
 
 interface Props {
   className?: string;
@@ -45,6 +46,8 @@ const CheckboxGroup = ({
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
 
+  const { t } = useTranslation();
+
   const row = !equals(direction, 'vertical');
 
   return (
@@ -60,8 +63,9 @@ const CheckboxGroup = ({
             checked={includes(value, values)}
             className={cx(classes.checkbox, className)}
             disabled={disabled}
+            id={value}
             key={value}
-            label={value}
+            label={t(value)}
             labelPlacement={labelPlacement}
             labelProps={labelProps}
             onChange={onChange}

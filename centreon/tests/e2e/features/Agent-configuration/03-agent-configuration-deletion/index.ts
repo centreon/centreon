@@ -1,10 +1,15 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
+
 import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
 
 before(() => {
   cy.startContainers();
   cy.setUserTokenApiV1().executeCommandsViaClapi(
     'resources/clapi/config-ACL/ac-acl-user.json'
+  );
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/pollers/poller-5.json'
   );
 });
 
@@ -36,19 +41,25 @@ Given('a non-admin user is in the Agents Configuration page', () => {
     jsonName: 'user-non-admin-for-AC',
     loginViaApi: false
   });
-  cy.visit('/centreon/configuration/pollers/agent-configurations');
+  cy.visit(PAGES.configuration.agentConfigurations);
   cy.wait('@getAgentsPage');
 });
 
 Given('an already existing agent configuration', () => {
-  cy.contains('button', 'Add poller/agent configuration').click();
-  cy.addTelegrafAgent(agentsConfiguration.telegraf1);
+  cy.getByTestId({ tag: 'button', testId: 'add-agent-configuration' }).click();
+  cy.addTelegrafAgent({
+    ...agentsConfiguration.telegraf1,
+    certificateFileName: agentsConfiguration.telegraf1.certfFileName,
+    privateKeyFileName: agentsConfiguration.telegraf1.privateKFileName,
+    publicCertificationFileName:
+      agentsConfiguration.telegraf1.publicCertfFileName
+  });
   cy.getByTestId({ testId: 'submit' }).click();
   cy.wait('@addAgents');
 });
 
 When('the user deletes the agent configuration', () => {
-  cy.getByTestId({ testId: 'Delete' }).click();
+  cy.getByTestId({ testId: 'Delete' }).eq(1).click();
 });
 
 When('the user confirms on the pop-up', () => {
@@ -59,9 +70,6 @@ When('the user confirms on the pop-up', () => {
 Then(
   'the agent configuration is no longer displayed in the listing page',
   () => {
-    cy.contains('Welcome to the poller/agent configuration page').should(
-      'be.visible'
-    );
     cy.contains('telegraf-001').should('not.exist');
   }
 );

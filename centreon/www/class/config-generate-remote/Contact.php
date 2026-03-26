@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,8 +21,8 @@
 
 namespace ConfigGenerateRemote;
 
-use PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use PDO;
 use PDOStatement;
 
 /**
@@ -34,20 +35,22 @@ class Contact extends AbstractObject
 {
     /** @var int */
     protected $useCache = 1;
-    /** @var int */
-    private $doneCache = 0;
-    /** @var array */
-    private $contactsServiceLinkedCache = [];
+
     /** @var array */
     protected $contactsCache = [];
+
     /** @var array */
     protected $contacts = [];
+
     /** @var string */
     protected $table = 'contact';
+
     /** @var string */
     protected $generateFilename = 'contacts.infile';
+
     /** @var string */
     protected $objectName = 'contact';
+
     /** @var string */
     protected $attributesSelect = '
         contact_id,
@@ -65,6 +68,7 @@ class Contact extends AbstractObject
         reach_api,
         reach_api_rt
     ';
+
     /** @var string[] */
     protected $attributesWrite = [
         'contact_id',
@@ -79,56 +83,28 @@ class Contact extends AbstractObject
         'contact_enable_notifications',
         'reach_api',
         'reach_api_rt',
-        'contact_register'
+        'contact_register',
     ];
+
     /** @var PDOStatement|null */
     protected $stmtContact = null;
+
     /** @var <string,PDOStatement[]> */
     protected $stmtCommands = ['host' => null, 'service' => null];
+
     /** @var PDOStatement|null */
     protected $stmtContactService = null;
 
-    /**
-     * Store contacts in cache
-     *
-     * @return void
-     */
-    private function getContactCache(): void
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            "SELECT $this->attributesSelect
-            FROM contact
-            WHERE contact_activate = '1'"
-        );
-        $stmt->execute();
-        $this->contactsCache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
-    }
+    /** @var int */
+    private $doneCache = 0;
 
-    /**
-     * Store contacts linked to a service in cache
-     *
-     * @return void
-     */
-    private function getContactForServiceCache(): void
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            "SELECT contact_id, service_service_id
-            FROM contact_service_relation"
-        );
-        $stmt->execute();
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
-            if (isset($this->contactsServiceLinkedCache[$value['service_service_id']])) {
-                $this->contactsServiceLinkedCache[$value['service_service_id']][] = $value['contact_id'];
-            } else {
-                $this->contactsServiceLinkedCache[$value['service_service_id']] = [$value['contact_id']];
-            }
-        }
-    }
+    /** @var array */
+    private $contactsServiceLinkedCache = [];
 
     /**
      * Get contact information linked to a service id
      *
-     * @param integer $serviceId
+     * @param int $serviceId
      * @return array
      */
     public function getContactForService(int $serviceId): array
@@ -145,92 +121,17 @@ class Contact extends AbstractObject
 
         if (is_null($this->stmtContactService)) {
             $this->stmtContactService = $this->backendInstance->db->prepare(
-                "SELECT contact_id
+                'SELECT contact_id
                 FROM contact_service_relation
-                WHERE service_service_id = :service_id"
+                WHERE service_service_id = :service_id'
             );
         }
 
         $this->stmtContactService->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
         $this->stmtContactService->execute();
         $this->contactsServiceLinkedCache[$serviceId] = $this->stmtContactService->fetchAll(PDO::FETCH_COLUMN);
+
         return $this->contactsServiceLinkedCache[$serviceId];
-    }
-
-    /**
-     * Store contact in contacts cache
-     *
-     * @param int $contactId
-     * @return void
-     */
-    protected function getContactFromId(int $contactId)
-    {
-        if (is_null($this->stmtContact)) {
-            $this->stmtContact = $this->backendInstance->db->prepare(
-                "SELECT $this->attributesSelect
-                FROM contact
-                WHERE contact_id = :contact_id AND contact_activate = '1'"
-            );
-        }
-        $this->stmtContact->bindParam(':contact_id', $contactId, PDO::PARAM_INT);
-        $this->stmtContact->execute();
-        $results = $this->stmtContact->fetchAll(PDO::FETCH_ASSOC);
-        $this->contacts[$contactId] = array_pop($results);
-        if (is_null($this->contacts[$contactId])) {
-            return 1;
-        }
-    }
-
-    /**
-     * Generate notification commands linked to contact id
-     *
-     * @param int $contactId
-     * @param string $label
-     * @param object $instance
-     * @return void|null
-     */
-    protected function getContactNotificationCommands(int $contactId, string $label, object $instance)
-    {
-        // avoid sql injection with label
-        if (in_array($label, ['host', 'service'])) {
-            return null;
-        }
-
-        if (!isset($this->contacts[$contactId][$label . '_commands_cache'])) {
-            if (is_null($this->stmtCommands[$label])) {
-                $this->stmtCommands[$label] = $this->backendInstance->db->prepare(
-                    "SELECT command_command_id
-                    FROM contact_" . $label . "commands_relation
-                    WHERE contact_contact_id = :contact_id"
-                );
-            }
-            $this->stmtCommands[$label]->bindParam(':contact_id', $contactId, PDO::PARAM_INT);
-            $this->stmtCommands[$label]->execute();
-            $this->contacts[$contactId][$label . '_commands_cache'] =
-                $this->stmtCommands[$label]->fetchAll(PDO::FETCH_COLUMN);
-        }
-
-        $command = Command::getInstance($this->dependencyInjector);
-        foreach ($this->contacts[$contactId][$label . '_commands_cache'] as $commandId) {
-            $command->generateFromCommandId($commandId);
-            $instance->addRelation($contactId, $commandId);
-        }
-    }
-
-    /**
-     * Build contact cache
-     *
-     * @return int|null
-     */
-    protected function buildCache(): ?int
-    {
-        if ($this->doneCache == 1) {
-            return 0;
-        }
-
-        $this->getContactCache();
-        $this->getContactForServiceCache();
-        $this->doneCache = 1;
     }
 
     /**
@@ -238,8 +139,8 @@ class Contact extends AbstractObject
      *
      * @param null|int $contactId
      *
-     * @return string|null the contact name or alias
      * @throws \Exception
+     * @return string|null the contact name or alias
      */
     public function generateFromContactId(?int $contactId): ?string
     {
@@ -250,11 +151,11 @@ class Contact extends AbstractObject
         $this->buildCache();
 
         if ($this->useCache == 1) {
-            if (!isset($this->contactsCache[$contactId])) {
+            if (! isset($this->contactsCache[$contactId])) {
                 return null;
             }
             $this->contacts[$contactId] = &$this->contactsCache[$contactId];
-        } elseif (!isset($this->contacts[$contactId])) {
+        } elseif (! isset($this->contacts[$contactId])) {
             $this->getContactFromId($contactId);
         }
 
@@ -285,8 +186,120 @@ class Contact extends AbstractObject
 
         $this->contacts[$contactId]['contact_id'] = $contactId;
         $this->generateObjectInFile($this->contacts[$contactId], $contactId);
+
         return $this->contacts[$contactId]['contact_register'] == 1
             ? $this->contacts[$contactId]['contact_name']
             : $this->contacts[$contactId]['contact_alias'];
+    }
+
+    /**
+     * Store contact in contacts cache
+     *
+     * @param int $contactId
+     * @return void
+     */
+    protected function getContactFromId(int $contactId)
+    {
+        if (is_null($this->stmtContact)) {
+            $this->stmtContact = $this->backendInstance->db->prepare(
+                "SELECT {$this->attributesSelect}
+                FROM contact
+                WHERE contact_id = :contact_id AND contact_activate = '1'"
+            );
+        }
+        $this->stmtContact->bindParam(':contact_id', $contactId, PDO::PARAM_INT);
+        $this->stmtContact->execute();
+        $results = $this->stmtContact->fetchAll(PDO::FETCH_ASSOC);
+        $this->contacts[$contactId] = array_pop($results);
+        if (is_null($this->contacts[$contactId])) {
+            return 1;
+        }
+    }
+
+    /**
+     * Generate notification commands linked to contact id
+     *
+     * @param int $contactId
+     * @param string $label
+     * @param object $instance
+     * @return void|null
+     */
+    protected function getContactNotificationCommands(int $contactId, string $label, object $instance)
+    {
+        // avoid sql injection with label
+        if (in_array($label, ['host', 'service'])) {
+            return null;
+        }
+
+        if (! isset($this->contacts[$contactId][$label . '_commands_cache'])) {
+            if (is_null($this->stmtCommands[$label])) {
+                $this->stmtCommands[$label] = $this->backendInstance->db->prepare(
+                    'SELECT command_command_id
+                    FROM contact_' . $label . 'commands_relation
+                    WHERE contact_contact_id = :contact_id'
+                );
+            }
+            $this->stmtCommands[$label]->bindParam(':contact_id', $contactId, PDO::PARAM_INT);
+            $this->stmtCommands[$label]->execute();
+            $this->contacts[$contactId][$label . '_commands_cache']
+                = $this->stmtCommands[$label]->fetchAll(PDO::FETCH_COLUMN);
+        }
+
+        $command = Command::getInstance($this->dependencyInjector);
+        foreach ($this->contacts[$contactId][$label . '_commands_cache'] as $commandId) {
+            $command->generateFromCommandId($commandId);
+            $instance->addRelation($contactId, $commandId);
+        }
+    }
+
+    /**
+     * Build contact cache
+     */
+    protected function buildCache(): void
+    {
+        if ($this->doneCache == 1) {
+            return;
+        }
+
+        $this->getContactCache();
+        $this->getContactForServiceCache();
+        $this->doneCache = 1;
+    }
+
+    /**
+     * Store contacts in cache
+     *
+     * @return void
+     */
+    private function getContactCache(): void
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            "SELECT {$this->attributesSelect}
+            FROM contact
+            WHERE contact_activate = '1'"
+        );
+        $stmt->execute();
+        $this->contactsCache = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Store contacts linked to a service in cache
+     *
+     * @return void
+     */
+    private function getContactForServiceCache(): void
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            'SELECT contact_id, service_service_id
+            FROM contact_service_relation'
+        );
+        $stmt->execute();
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            if (isset($this->contactsServiceLinkedCache[$value['service_service_id']])) {
+                $this->contactsServiceLinkedCache[$value['service_service_id']][] = $value['contact_id'];
+            } else {
+                $this->contactsServiceLinkedCache[$value['service_service_id']] = [$value['contact_id']];
+            }
+        }
     }
 }

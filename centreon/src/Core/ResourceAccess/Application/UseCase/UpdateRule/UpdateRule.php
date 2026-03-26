@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,14 +26,14 @@ namespace Core\ResourceAccess\Application\UseCase\UpdateRule;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Common\Application\Repository\RepositoryManagerInterface;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
@@ -44,9 +44,8 @@ use Core\ResourceAccess\Domain\Model\Rule;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
-final class UpdateRule
+final readonly class UpdateRule
 {
-    use LoggerTrait;
     public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     /**
@@ -56,18 +55,18 @@ final class UpdateRule
      * @param WriteResourceAccessRepositoryInterface $writeRepository
      * @param UpdateRuleValidation $validator
      * @param DatasetFilterValidator $datasetValidator
-     * @param DataStorageEngineInterface $dataStorageEngine
+     * @param RepositoryManagerInterface $repositoryManager
      * @param bool $isCloudPlatform
      */
     public function __construct(
-        private readonly ContactInterface $user,
-        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private readonly ReadResourceAccessRepositoryInterface $readRepository,
-        private readonly WriteResourceAccessRepositoryInterface $writeRepository,
-        private readonly UpdateRuleValidation $validator,
-        private readonly DatasetFilterValidator $datasetValidator,
-        private readonly DataStorageEngineInterface $dataStorageEngine,
-        private readonly bool $isCloudPlatform
+        private ContactInterface $user,
+        private ReadAccessGroupRepositoryInterface $accessGroupRepository,
+        private ReadResourceAccessRepositoryInterface $readRepository,
+        private WriteResourceAccessRepositoryInterface $writeRepository,
+        private UpdateRuleValidation $validator,
+        private DatasetFilterValidator $datasetValidator,
+        private RepositoryManagerInterface $repositoryManager,
+        private bool $isCloudPlatform,
     ) {
     }
 
@@ -77,23 +76,18 @@ final class UpdateRule
      */
     public function __invoke(UpdateRuleRequest $request, UpdateRulePresenterInterface $presenter): void
     {
-        if (! $this->isAuthorized()) {
-            $this->error(
-                "User doesn't have sufficient rights to update a resource access rule",
-                [
-                    'user_id' => $this->user->getId(),
-                ]
-            );
-            $presenter->presentResponse(
-                new ForbiddenResponse(RuleException::notAllowed()->getMessage())
-            );
-
-            return;
-        }
-
         try {
-            $this->info('Start resource access rule update process');
-            $this->debug('Find resource access rule to update', ['id' => $request->id]);
+            if (! $this->isAuthorized()) {
+                $presenter->presentResponse(
+                    new ForbiddenResponse(
+                        message: RuleException::notAllowed()->getMessage(),
+                        context: ['user_id' => $this->user->getId(), 'request' => $request]
+                    )
+                );
+
+                return;
+            }
+
             $rule = $this->readRepository->findById($request->id);
 
             if ($rule === null) {
@@ -105,21 +99,48 @@ final class UpdateRule
             $this->updateInTransaction($rule, $request);
             $presenter->presentResponse(new NoContentResponse());
         } catch (AssertionFailedException|\ValueError $exception) {
-            $presenter->presentResponse(new InvalidArgumentResponse($exception));
-            $this->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            $presenter->presentResponse(
+                new InvalidArgumentResponse(
+                    message: $exception->getMessage(),
+                    context: [
+                        'user_id' => $this->user->getId(),
+                        'request' => $request,
+                        'exception' => $exception,
+                    ]
+                )
+            );
         } catch (RuleException $exception) {
             $presenter->presentResponse(
                 match ($exception->getCode()) {
-                    RuleException::CODE_CONFLICT => new ConflictResponse($exception),
-                    default => new ErrorResponse($exception),
+                    RuleException::CODE_CONFLICT => new ConflictResponse(
+                        message: $exception->getMessage(),
+                        context: [
+                            'user_id' => $this->user->getId(),
+                            'request' => $request,
+                            'exception' => $exception,
+                        ]
+                    ),
+                    default => new ErrorResponse(
+                        message: $exception->getMessage(),
+                        context: [
+                            'user_id' => $this->user->getId(),
+                            'request' => $request,
+                        ],
+                        exception: $exception,
+                    ),
                 }
             );
-            $this->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
         } catch (\Throwable $exception) {
             $presenter->presentResponse(
-                new ErrorResponse(RuleException::updateRule())
+                new ErrorResponse(
+                    message: RuleException::updateRule(),
+                    context: [
+                        'user_id' => $this->user->getId(),
+                        'request' => $request,
+                    ],
+                    exception: $exception,
+                )
             );
-            $this->error((string) $exception);
         }
     }
 
@@ -132,8 +153,7 @@ final class UpdateRule
     private function updateInTransaction(Rule $rule, UpdateRuleRequest $request): void
     {
         try {
-            $this->debug('Starting resource access rule update transaction process');
-            $this->dataStorageEngine->startTransaction();
+            $this->repositoryManager->startTransaction();
             $this->updateBasicInformation($rule, $request);
 
             // At least one ID must be provided for contact or contactgroup
@@ -148,11 +168,9 @@ final class UpdateRule
             $this->updateLinkedContactGroups($rule, $request);
             $this->updateResourceLinks($request);
 
-            $this->debug('Commit resource access rule update transaction process');
-            $this->dataStorageEngine->commitTransaction();
+            $this->repositoryManager->commitTransaction();
         } catch (\Throwable $exception) {
-            $this->error("Rollback of 'Update resource access rule' transaction");
-            $this->dataStorageEngine->rollbackTransaction();
+            $this->repositoryManager->rollbackTransaction();
 
             throw $exception;
         }
@@ -166,6 +184,8 @@ final class UpdateRule
      *
      * @throws RuleException
      * @throws \InvalidArgumentException
+     * @throws AssertionFailedException
+     * @throws RepositoryException
      *
      * @return DatasetFilter[]
      */
@@ -175,7 +195,7 @@ final class UpdateRule
 
         $validateAndBuildDatasetFilter = function (
             array $data,
-            ?DatasetFilter $parentDatasetFilter
+            ?DatasetFilter $parentDatasetFilter,
         ) use (&$validateAndBuildDatasetFilter, &$datasetFilter): void {
             /**
              * In any case we want to make sure that
@@ -247,16 +267,9 @@ final class UpdateRule
         $saveDatasetFiltersHierarchy = function (
             int $ruleId,
             int $datasetId,
-            DatasetFilter $filter
+            DatasetFilter $filter,
         ) use (&$parentFilterId, &$saveDatasetFiltersHierarchy): void {
             // First iteration we save the root filter
-            $this->debug(
-                'Add dataset filter',
-                [
-                    'type' => $filter->getType(),
-                    'resource_ids' => $filter->getResourceIds(),
-                ]
-            );
             $parentFilterId = $this->writeRepository->addDatasetFilter($ruleId, $datasetId, $filter, $parentFilterId);
 
             // if there is a next level then save next level until final level reached
@@ -271,31 +284,29 @@ final class UpdateRule
     /**
      * @param UpdateRuleRequest $updateRequest
      *
+     * @throws AssertionFailedException
+     * @throws RepositoryException
      * @throws RuleException
      */
     private function updateResourceLinks(UpdateRuleRequest $updateRequest): void
     {
         // validate the updated datasets sent before doing anything
-        $this->debug('Validating updated datasets', ['datasetFilters' => $updateRequest->datasetFilters]);
         $datasetFilters = $this->validateAndCreateDatasetFiltersFromRequest($updateRequest);
 
         /*
          * At this point we've made sure that the updated dataset filters are valid. Update can start...
          * Update will consist in a delete / add actions (replace)
          */
-        $this->debug('Find datasets linked to the resource access rule', ['id' => $updateRequest->id]);
         $datasetIds = $this->readRepository->findDatasetIdsByRuleId($updateRequest->id);
 
         /* Deleting datasets found. Constraint on the database tables will automatically
          * - delete the dataset_filters associated to the dataset
          * - delete the relations between datasets and the rule
          */
-        $this->debug('Deleting datasets linked to the resource access rule', ['id' => $updateRequest->id]);
         $this->writeRepository->deleteDatasets($datasetIds);
 
         $index = 0;
 
-        $this->debug('Creating new datasets linked to resource access rule', ['id' => $updateRequest->id]);
         foreach ($datasetFilters as $datasetFilter) {
             // create formatted name for dataset
             $datasetName = 'dataset_for_rule_' . $updateRequest->id . '_' . $index;
@@ -312,7 +323,8 @@ final class UpdateRule
                     name: $datasetName,
                     accessAllHosts: false,
                     accessAllHostGroups: false,
-                    accessAllServiceGroups: false
+                    accessAllServiceGroups: false,
+                    accessAllImageFolders: false
                 );
 
                 // And link it to the rule
@@ -324,7 +336,7 @@ final class UpdateRule
                 // Extract from the DatasetFilter the final filter level and its parent.
                 [
                     'parent' => $parentApplicableFilter,
-                    'last' => $applicableFilter
+                    'last' => $applicableFilter,
                 ] = DatasetFilter::findApplicableFilters($datasetFilter);
 
                 /* Specific behaviour when the last level of filtering is of type
@@ -380,6 +392,8 @@ final class UpdateRule
     /**
      * @param DatasetFilter $parent
      * @param DatasetFilter $child
+     *
+     * @return bool
      */
     private function shouldBothFiltersBeSaved(DatasetFilter $parent, DatasetFilter $child): bool
     {
@@ -409,7 +423,8 @@ final class UpdateRule
             name: $datasetName,
             accessAllHosts: true,
             accessAllHostGroups: true,
-            accessAllServiceGroups: true
+            accessAllServiceGroups: true,
+            accessAllImageFolders: true
         );
 
         // And link it to the rule
@@ -439,17 +454,7 @@ final class UpdateRule
             && ! $updateRequest->applyToAllContactGroups
         ) {
             $this->validator->assertContactGroupIdsAreValid($updateRequest->contactGroupIds);
-
-            $this->debug(
-                'Deleting contact groups - resource access rule relations',
-                ['id' => $updateRequest->id, 'contact_group_ids' => $rule->getLinkedContactGroupIds()]
-            );
             $this->writeRepository->deleteContactGroupRuleRelations($updateRequest->id);
-
-            $this->debug(
-                'Creating contact groups - resource access rule relations',
-                ['id' => $updateRequest->id, 'contact_group_ids' => $updateRequest->contactGroupIds]
-            );
             $this->writeRepository->linkContactGroupsToRule($updateRequest->id, $updateRequest->contactGroupIds);
         }
     }
@@ -474,17 +479,7 @@ final class UpdateRule
             && ! $updateRequest->applyToAllContacts
         ) {
             $this->validator->assertContactIdsAreValid($updateRequest->contactIds);
-
-            $this->debug(
-                'Deleting contacts - resource access rule relations',
-                ['id' => $updateRequest->id, 'contact_ids' => $rule->getLinkedContactIds()]
-            );
             $this->writeRepository->deleteContactRuleRelations($updateRequest->id);
-
-            $this->debug(
-                'Creating contacts - resource access rule relations',
-                ['id' => $updateRequest->id, 'contact_ids' => $updateRequest->contactIds]
-            );
             $this->writeRepository->linkContactsToRule($updateRequest->id, $updateRequest->contactIds);
         }
     }
@@ -510,17 +505,6 @@ final class UpdateRule
             $rule->setApplyToAllContacts($updateRequest->applyToAllContacts);
             $rule->setApplyToAllContactGroups($updateRequest->applyToAllContactGroups);
 
-            $this->debug(
-                'Updating basic resource access rule information',
-                [
-                    'id' => $updateRequest->id,
-                    'name' => $rule->getName(),
-                    'description' => $rule->getDescription() ?? '',
-                    'is_enabled' => $rule->isEnabled(),
-                    'all_contacts' => $rule->doesApplyToAllContacts(),
-                    'all_contact_groups' => $rule->doesApplyToAllContactGroups(),
-                ]
-            );
             $this->writeRepository->update($rule);
         }
     }
@@ -560,6 +544,7 @@ final class UpdateRule
      * Only users linked to AUTHORIZED_ACL_GROUPS acl_group and having access in Read/Write rights on the page
      * are authorized to add a Resource Access Rule.
      *
+     * @throws RepositoryException
      * @return bool
      */
     private function isAuthorized(): bool

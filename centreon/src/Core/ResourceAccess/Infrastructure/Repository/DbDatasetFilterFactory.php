@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ class DbDatasetFilterFactory
         $buildDatasetFilterWithHierarchy = function (
             array $data,
             ?int $parentId,
-            ?DatasetFilter $parentDatasetFilter
+            ?DatasetFilter $parentDatasetFilter,
         ) use (&$datasetFilter, &$buildDatasetFilterWithHierarchy, $datasetValidator): void {
             if ($datasetFilter === null) {
                 /** @var non-empty-array<_DatasetFilter> $data */

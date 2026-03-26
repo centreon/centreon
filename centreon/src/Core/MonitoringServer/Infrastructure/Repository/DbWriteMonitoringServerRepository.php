@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,10 +28,12 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
+use Core\MonitoringServer\Model\MonitoringServer;
 
 class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements WriteMonitoringServerRepositoryInterface
 {
-    use LoggerTrait, SqlMultipleBindTrait;
+    use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -86,6 +88,45 @@ class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements
             $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
         }
 
+        $statement->execute();
+    }
+
+    public function update(MonitoringServer $monitoringServer): void
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.`nagios_server`
+                SET `name` = :name,
+                    `engine_reload_command` = :engineReloadCommand,
+                    `engine_restart_command` = :engineRestartCommand,
+                    `engine_stop_command` = :engineStopCommand,
+                    `engine_start_command` = :engineStartCommand,
+                    `broker_reload_command` = :brokerReloadCommand
+                WHERE `id` = :monitoringServerId
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':name', $monitoringServer->getName(), \PDO::PARAM_STR);
+        $statement->bindValue(':engineReloadCommand', $monitoringServer->getEngineReloadCommand(), \PDO::PARAM_STR);
+        $statement->bindValue(':engineRestartCommand', $monitoringServer->getEngineRestartCommand(), \PDO::PARAM_STR);
+        $statement->bindValue(':engineStopCommand', $monitoringServer->getEngineStopCommand(), \PDO::PARAM_STR);
+        $statement->bindValue(':engineStartCommand', $monitoringServer->getEngineStartCommand(), \PDO::PARAM_STR);
+        $statement->bindValue(':brokerReloadCommand', $monitoringServer->getBrokerReloadCommand(), \PDO::PARAM_STR);
+        $statement->bindValue(':monitoringServerId', $monitoringServer->getId(), \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    public function updateAllEncryptionReadyFromRealtime(): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.nagios_server ns
+                    INNER JOIN `:dbstg`.instances i
+                    ON ns.id = i.instance_id
+                SET ns.is_encryption_ready = i.is_encryption_ready
+                SQL
+        ));
         $statement->execute();
     }
 }

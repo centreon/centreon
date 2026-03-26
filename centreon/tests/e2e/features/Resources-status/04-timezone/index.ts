@@ -4,6 +4,7 @@ import {
   Then,
   When
 } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import {
   checkMetricsAreMonitored,
@@ -15,14 +16,14 @@ const serviceInDtName = 'service_downtime_1';
 const secondServiceInDtName = 'service_downtime_2';
 const serviceInAcknowledgementName = 'service_ack_1';
 
-const chosenTZ = 'Africa/Casablanca';
+const chosenTz = 'Africa/Casablanca';
 
 const convert12hFormatToDate = (timeString: string): Date => {
   const currentDate = new Date();
   const dateString = currentDate.toLocaleDateString('en-US', {
     day: 'numeric',
     month: 'long',
-    timeZone: chosenTZ,
+    timeZone: chosenTz,
     year: 'numeric'
   });
 
@@ -170,11 +171,7 @@ Given('the platform is configured with at least one resource', () => {
 });
 
 When('the user clicks on Timezone field in his profile menu', () => {
-  cy.navigateTo({
-    page: 'My Account',
-    rootItemNumber: 4,
-    subMenu: 'Parameters'
-  }).wait('@getTimeZone');
+  cy.visit(PAGES.configuration.accountParametersLegacy).wait('@getTimeZone');
 
   cy.getIframeBody()
     .find('span[aria-labelledby="select2-contact_location-container"]')
@@ -189,13 +186,13 @@ When('the user clicks on Timezone field in his profile menu', () => {
 When('the user selects a Timezone \\/ Location', () => {
   cy.getIframeBody()
     .find('input[class="select2-search__field"]')
-    .type(`{selectall}{backspace}${chosenTZ}`);
+    .type(`{selectall}{backspace}${chosenTz}`);
 
   cy.wait('@getTimezonesList');
 
   cy.getIframeBody()
     .find('ul[id="select2-contact_location-results"] li')
-    .contains(chosenTZ)
+    .contains(chosenTz)
     .eq(0)
     .click();
 });
@@ -218,16 +215,16 @@ Then('timezone information are updated on the banner', () => {
     .wait(['@getTimeZone', '@getUserParameters'])
     .getTimeFromHeader()
     .then((localTime: string) => {
-      const timeofTZ = new Date().toLocaleTimeString('en-US', {
+      const timeofTz = new Date().toLocaleTimeString('en-US', {
         hour: 'numeric',
         minute: '2-digit',
-        timeZone: chosenTZ
+        timeZone: chosenTz
       });
 
       expect(
         calculateMinuteInterval(
           convert12hFormatToDate(localTime),
-          convert12hFormatToDate(timeofTZ)
+          convert12hFormatToDate(timeofTz)
         )
       ).to.be.lte(2);
     });
@@ -237,7 +234,7 @@ Then("new timezone information is displayed in user's profile menu", () => {
   cy.getIframeBody()
     .find('span[aria-labelledby="select2-contact_location-container"]')
     .eq(0)
-    .should('contain.text', chosenTZ);
+    .should('contain.text', chosenTz);
 });
 
 Given('a user with a custom timezone set in his profile', function _() {
@@ -254,10 +251,7 @@ Given('a user with a custom timezone set in his profile', function _() {
 });
 
 When('the user creates a downtime on a resource', () => {
-  cy.navigateTo({
-    page: 'Resources Status',
-    rootItemNumber: 1
-  });
+  cy.visit(PAGES.monitoring.resourcesStatus);
 
   cy.contains(serviceInDtName)
     .parent()
@@ -298,8 +292,8 @@ Then(
 
       return cy
         .get('#panel-content :contains("Status information")')
-        .then(($el) => {
-          if ($el.find(':contains("Downtime duration")').length === 0) {
+        .then((el) => {
+          if (el.find(':contains("Downtime duration")').length === 0) {
             cy.get('button#Close').click();
 
             return false;
@@ -325,10 +319,7 @@ Then(
 );
 
 When('the user creates an acknowledgement on a resource', () => {
-  cy.navigateTo({
-    page: 'Resources Status',
-    rootItemNumber: 1
-  });
+  cy.visit(PAGES.monitoring.resourcesStatus);
 
   cy.submitResults([
     {
@@ -390,9 +381,9 @@ Then(
       .eq(1)
       .find('td')
       .eq(1)
-      .then(($date) => {
+      .then((date) => {
         cy.getTimeFromHeader().then((localTime: string) => {
-          const toDate = $date[0].textContent || '';
+          const toDate = date[0].textContent || '';
 
           expect(
             calculateMinuteInterval(
@@ -497,8 +488,8 @@ Then(
       .its('0.contentDocument.body')
       .find('.ListTable td.isTimestamp')
       .contains(/\d+:\d+/)
-      .then(($el) => {
-        const downtimeStartTime = $el.text().trim();
+      .then((el) => {
+        const downtimeStartTime = el.text().trim();
 
         cy.getTimeFromHeader().then((localTime: string) => {
           cy.log(`Downtime start time : ${downtimeStartTime}`);
@@ -522,11 +513,7 @@ When('the user opens a chart from Monitoring>Performances>Graphs', () => {
     }
   ]);
 
-  cy.navigateTo({
-    page: 'Graphs',
-    rootItemNumber: 1,
-    subMenu: 'Performances'
-  }).wait('@getTimeZone');
+  cy.visit(PAGES.monitoring.performancesGraphsLegacy).wait('@getTimeZone');
 });
 
 When('the user selects a chart', () => {

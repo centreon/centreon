@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,13 +18,14 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Tests\Core\Domain\Configuration\User\Model;
 
-use PHPUnit\Framework\TestCase;
-use Core\Domain\Configuration\User\Model\User;
 use Centreon\Domain\Common\Assertion\AssertionException;
+use Core\Domain\Configuration\User\Model\User;
+use PHPUnit\Framework\TestCase;
 
 class UserTest extends TestCase
 {
@@ -39,7 +40,7 @@ class UserTest extends TestCase
         $this->expectExceptionMessage(
             AssertionException::minLength(
                 $alias,
-                strlen($alias),
+                mb_strlen($alias),
                 User::MIN_ALIAS_LENGTH,
                 'User::alias'
             )->getMessage()
@@ -68,7 +69,7 @@ class UserTest extends TestCase
         $this->expectExceptionMessage(
             AssertionException::maxLength(
                 $alias,
-                strlen($alias),
+                mb_strlen($alias),
                 User::MAX_ALIAS_LENGTH,
                 'User::alias'
             )->getMessage()
@@ -97,7 +98,7 @@ class UserTest extends TestCase
         $this->expectExceptionMessage(
             AssertionException::minLength(
                 $name,
-                strlen($name),
+                mb_strlen($name),
                 User::MIN_NAME_LENGTH,
                 'User::name'
             )->getMessage()
@@ -126,7 +127,7 @@ class UserTest extends TestCase
         $this->expectExceptionMessage(
             AssertionException::maxLength(
                 $name,
-                strlen($name),
+                mb_strlen($name),
                 User::MAX_NAME_LENGTH,
                 'User::name'
             )->getMessage()
@@ -155,7 +156,7 @@ class UserTest extends TestCase
         $this->expectExceptionMessage(
             AssertionException::minLength(
                 $email,
-                strlen($email),
+                mb_strlen($email),
                 User::MIN_EMAIL_LENGTH,
                 'User::email'
             )->getMessage()
@@ -184,7 +185,7 @@ class UserTest extends TestCase
         $this->expectExceptionMessage(
             AssertionException::maxLength(
                 $email,
-                strlen($email),
+                mb_strlen($email),
                 User::MAX_EMAIL_LENGTH,
                 'User::email'
             )->getMessage()
@@ -213,7 +214,7 @@ class UserTest extends TestCase
         $this->expectExceptionMessage(
             AssertionException::maxLength(
                 $userInterfaceViewMode,
-                strlen($userInterfaceViewMode),
+                mb_strlen($userInterfaceViewMode),
                 User::MAX_USER_INTERFACE_DENSITY_LENGTH,
                 'User::userInterfaceViewMode'
             )->getMessage()

@@ -1,8 +1,8 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react';
-import { makeStyles } from 'tss-react/mui';
-
 import AccessibilityIcon from '@mui/icons-material/Accessibility';
-import { Theme } from '@mui/material';
+import type { Theme } from '@mui/material';
+
+import type { ComponentMeta, ComponentStory } from '@storybook/react';
+import { makeStyles } from 'tss-react/mui';
 
 import { IconButton } from '.';
 
@@ -41,8 +41,8 @@ const CustomIconButton = (): JSX.Element => {
   return (
     <IconButton
       className={classes.root}
-      title="custom Button"
       onClick={(): void => undefined}
+      title="custom Button"
     >
       <AccessibilityIcon />
     </IconButton>

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\Token\Application\UseCase\PartialUpdateToken;
 
+use Adaptation\Log\LoggerToken;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
@@ -32,12 +33,15 @@ use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Common\Application\Type\NoValue;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Security\Token\Domain\Model\ApiToken;
 use Core\Security\Token\Domain\Model\JwtToken;
 use Core\Security\Token\Domain\Model\Token;
+use Exception;
+use Psr\Log\LogLevel;
 
 final class PartialUpdateToken
 {
@@ -65,14 +69,26 @@ final class PartialUpdateToken
         PartialUpdateTokenRequest $requestDto,
         PresenterInterface $presenter,
         string $tokenName,
-        int $userId
+        int $userId,
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_AUTHENTICATION_TOKENS_RW)) {
-                $this->error(
-                    'User is not allowed to partially update token',
-                    ['token_name' => $tokenName, 'user_id' => $userId, 'requester_id' => $this->user->getId()]
+                ExceptionLogger::create()->log(
+                    TokenException::notAllowedToPartiallyUpdateToken(),
+                    [
+                        'message' => 'User is not allowed to partially update token',
+                        'token_name' => $tokenName,
+                        'user_id' => $this->user->getId(),
+                    ]
                 );
+
+                LoggerToken::create()->warning(
+                    event: 'partial update',
+                    reason: 'insufficient rights',
+                    userId: $this->user->getId(),
+                    tokenName: $tokenName
+                );
+
                 $presenter->setResponseStatus(
                     new ForbiddenResponse(TokenException::notAllowedToPartiallyUpdateToken())
                 );
@@ -82,9 +98,20 @@ final class PartialUpdateToken
 
             $token = $this->readRepository->findByNameAndUserId($tokenName, $userId);
             if ($token === null) {
-                $this->error(
-                    'Token not found',
-                    ['token_name' => $tokenName, 'user_id' => $userId, 'requester_id' => $this->user->getId()]
+                ExceptionLogger::create()->log(
+                    TokenException::tokenNotFound(),
+                    [
+                        'message' => 'Token not found',
+                        'token_name' => $tokenName,
+                        'user_id' => $this->user->getId(),
+                    ]
+                );
+
+                LoggerToken::create()->warning(
+                    event: 'partial update',
+                    reason: 'not found',
+                    userId: $this->user->getId(),
+                    tokenName: $tokenName
                 );
 
                 $presenter->setResponseStatus(new NotFoundResponse('Token'));
@@ -93,9 +120,20 @@ final class PartialUpdateToken
             }
 
             if (! $this->canUserUpdateToken($token)) {
-                $this->error(
-                    'User is not allowed to partially update token',
-                    ['token_name' => $tokenName, 'user_id' => $userId, 'requester_id' => $this->user->getId()]
+                ExceptionLogger::create()->log(
+                    TokenException::notAllowedToPartiallyUpdateToken(),
+                    [
+                        'message' => 'User is not allowed to partially update token',
+                        'token_name' => $tokenName,
+                        'user_id' => $this->user->getId(),
+                    ]
+                );
+
+                LoggerToken::create()->warning(
+                    event: 'partial update',
+                    reason: 'insufficient rights on token',
+                    userId: $this->user->getId(),
+                    tokenName: $tokenName
                 );
                 $presenter->setResponseStatus(
                     new ForbiddenResponse(TokenException::notAllowedToPartiallyUpdateToken())
@@ -104,11 +142,54 @@ final class PartialUpdateToken
                 return;
             }
 
+            if ($requestDto->isRevoked instanceof NoValue) {
+                ExceptionLogger::create()->log(
+                    new Exception('is_revoked property is not provided'),
+                    [
+                        'message' => 'is_revoked property is not provided. Nothing to update',
+                        'token_name' => $token->getName(),
+                        'user_id' => $this->user->getId(),
+                    ],
+                    LogLevel::DEBUG
+                );
+
+                LoggerToken::create()->warning(
+                    event: 'revocation/activation',
+                    reason: 'is_revoked property is not provided',
+                    userId: $this->user->getId(),
+                    tokenName: $token->getName(),
+                );
+
+                return;
+            }
+
             $this->updateToken($requestDto, $token);
+
+            LoggerToken::create()->success(
+                event: $requestDto->isRevoked ? 'revocation' : 'activation',
+                userId: $this->user->getId(),
+                tokenName: $tokenName,
+                tokenType: $token->getType()->name
+            );
 
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            ExceptionLogger::create()->log(
+                $ex,
+                [
+                    'user_id' => $this->user->getId(),
+                    'token_name' => $tokenName,
+                ]
+            );
+
+            LoggerToken::create()->warning(
+                event: $requestDto->isRevoked ? 'revocation' : 'activation',
+                reason: 'unexpected error',
+                userId: $this->user->getId(),
+                tokenName: $tokenName,
+                exception: $ex
+            );
+
             $presenter->setResponseStatus(
                 new ErrorResponse(TokenException::errorWhilePartiallyUpdatingToken())
             );
@@ -133,13 +214,7 @@ final class PartialUpdateToken
      */
     private function updateToken(PartialUpdateTokenRequest $requestDto, Token $token): void
     {
-        if ($requestDto->isRevoked instanceof NoValue) {
-            $this->debug('is_revoked property is not provided. Nothing to update');
-
-            return;
-        }
-
-        $token->setIsRevoked($requestDto->isRevoked);
+        $token->setIsRevoked((bool) $requestDto->isRevoked);
 
         $this->writeRepository->update($token);
     }

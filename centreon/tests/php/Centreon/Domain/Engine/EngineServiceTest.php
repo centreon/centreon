@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,34 +21,46 @@
 
 namespace Tests\Centreon\Domain\Engine;
 
-use PHPUnit\Framework\TestCase;
 use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Monitoring\Host;
-use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\Engine\EngineService;
+use Centreon\Domain\Engine\Interfaces\EngineConfigurationRepositoryInterface;
+use Centreon\Domain\Engine\Interfaces\EngineRepositoryInterface;
+use Centreon\Domain\Engine\Interfaces\EngineServiceInterface;
 use Centreon\Domain\Entity\EntityValidator;
 use Centreon\Domain\Monitoring\Comment\Comment;
-use Symfony\Component\Validator\ConstraintViolationList;
-use Centreon\Domain\Monitoring\SubmitResult\SubmitResult;
-use Centreon\Domain\Engine\Interfaces\EngineServiceInterface;
-use Centreon\Domain\Engine\Interfaces\EngineRepositoryInterface;
+use Centreon\Domain\Monitoring\Host;
 use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
-use Centreon\Domain\Engine\Interfaces\EngineConfigurationRepositoryInterface;
+use Centreon\Domain\Monitoring\Service;
+use Centreon\Domain\Monitoring\SubmitResult\SubmitResult;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 class EngineServiceTest extends TestCase
 {
     protected $engineRepository;
+
     protected $entityValidator;
+
     protected $host;
+
     protected $service;
+
     protected $hostResult;
+
     protected $serviceResult;
+
     protected $adminContact;
+
     protected $engineService;
+
     protected $commandHeaderRegex;
+
     protected $monitoringRepository;
+
     protected $engineConfigurationService;
+
     protected $hostComment;
+
     protected $serviceComment;
 
     protected function setUp(): void
@@ -86,8 +98,8 @@ class EngineServiceTest extends TestCase
         /**
          * commandHeader should look like 'EXTERNALCMD:<pollerid>:[timestamp] '
          */
-        $this->commandHeaderRegex = 'EXTERNALCMD\:' .
-            $this->host->getPollerId() . '\:\[\d+\] ';
+        $this->commandHeaderRegex = 'EXTERNALCMD\:'
+            . $this->host->getPollerId() . '\:\[\d+\] ';
 
         $this->engineRepository = $this->createMock(EngineRepositoryInterface::class);
         $this->engineConfigurationService = $this->createMock(EngineConfigurationRepositoryInterface::class);
@@ -136,13 +148,13 @@ class EngineServiceTest extends TestCase
     }
 
     /**
-    * Testing the addServiceComment EngineService function in a nominal case.
-    */
+     * Testing the addServiceComment EngineService function in a nominal case.
+     */
     public function testServiceComment(): void
     {
         $this->entityValidator->expects($this->once())
-           ->method('validate')
-           ->willReturn(new ConstraintViolationList());
+            ->method('validate')
+            ->willReturn(new ConstraintViolationList());
 
         /**
          * Creating the command to check that the code
@@ -158,12 +170,12 @@ class EngineServiceTest extends TestCase
         );
 
         $this->engineRepository->expects($this->once())
-           ->method('sendExternalCommand')
-           ->with(
-               $this->matchesRegularExpression(
-                   '/^' . $this->commandHeaderRegex . str_replace('|', '\|', $command) . '$/'
-               )
-           );
+            ->method('sendExternalCommand')
+            ->with(
+                $this->matchesRegularExpression(
+                    '/^' . $this->commandHeaderRegex . str_replace('|', '\|', $command) . '$/'
+                )
+            );
 
         $engineService = new EngineService(
             $this->engineRepository,

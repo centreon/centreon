@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,12 +32,15 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Command\Domain\Model\Command;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
@@ -60,10 +63,11 @@ use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Tests\Core\Host\Infrastructure\API\PartialUpdateHost\PartialUpdateHostPresenterStub;
 
 beforeEach(function (): void {
-     $this->presenter = new PartialUpdateHostPresenterStub($this->createMock(PresenterFormatterInterface::class));
+    $this->presenter = new PartialUpdateHostPresenterStub($this->createMock(PresenterFormatterInterface::class));
 
     $this->useCase = new PartialUpdateHost(
         writeHostRepository: $this->writeHostRepository = $this->createMock(WriteHostRepositoryInterface::class),
@@ -83,6 +87,9 @@ beforeEach(function (): void {
         validation: $this->validation = $this->createMock(PartialUpdateHostValidation::class),
         writeVaultRepository: $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         readVaultRepository: $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
+        readCommandRepository:  $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
+        writeAccessGroupRepository: $this->writeAccessGroupRepository = $this->createMock(WriteAccessGroupRepositoryInterface::class),
+        adminResolver: $this->adminResolver = $this->createMock(AdminResolver::class),
     );
 
     $this->inheritanceModeOption = new Option();
@@ -195,9 +202,9 @@ beforeEach(function (): void {
     $this->request->templates = $this->parentTemplates;
 
     // Settup macros
-    $this->macroA = new Macro($this->hostId, 'macroNameA', 'macroValueA');
+    $this->macroA = new Macro(null, $this->hostId, 'macroNameA', 'macroValueA');
     $this->macroA->setOrder(0);
-    $this->macroB = new Macro($this->hostId, 'macroNameB', 'macroValueB');
+    $this->macroB = new Macro(null, $this->hostId, 'macroNameB', 'macroValueB');
     $this->macroB->setOrder(1);
     $this->commandMacro = new CommandMacro(1, CommandMacroType::Host, 'commandMacroName');
     $this->commandMacros = [
@@ -278,17 +285,16 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
     $this->readAccessGroupRepository
         ->expects($this->once())
         ->method('findByContact')
-        ->willThrowException(new \Exception);
+        ->willThrowException(new \Exception());
 
     ($this->useCase)($this->request, $this->presenter, $this->hostId);
-
     expect($this->presenter->response)
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->response->getMessage())
@@ -300,7 +306,7 @@ it('should present a NotFoundResponse when the host does not exist', function ()
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -317,14 +323,14 @@ it('should present a NotFoundResponse when the host does not exist', function ()
         ->toBe('Host not found');
 });
 
- // Tests for host
+// Tests for host
 
 it('should present a ConflictResponse when name is already used', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -361,7 +367,7 @@ it('should present a ConflictResponse when host severity ID is not valid', funct
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -390,7 +396,7 @@ it('should present a ConflictResponse when a host timezone ID is not valid', fun
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -415,11 +421,12 @@ it('should present a ConflictResponse when a host timezone ID is not valid', fun
 });
 
 it('should present a ConflictResponse when a timeperiod ID is not valid', function (): void {
+    $this->request->checkCommandId = null;
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -439,7 +446,6 @@ it('should present a ConflictResponse when a timeperiod ID is not valid', functi
         );
 
     ($this->useCase)($this->request, $this->presenter, $this->hostId);
-
     expect($this->presenter->response)
         ->toBeInstanceOf(ConflictResponse::class)
         ->and($this->presenter->response->getMessage())
@@ -456,7 +462,7 @@ it('should present a ConflictResponse when a command ID is not valid', function 
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -493,7 +499,7 @@ it('should present a ConflictResponse when the host icon ID is not valid', funct
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -525,101 +531,15 @@ it('should present a ConflictResponse when the host icon ID is not valid', funct
         );
 });
 
-// Tests for categories
-
-it('should present a ConflictResponse when a host category does not exist', function (): void {
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(true);
-    $this->user
-        ->expects($this->exactly(2))
-        ->method('isAdmin')
-        ->willReturn(true);
-    $this->readHostRepository
-        ->expects($this->once())
-        ->method('findById')
-        ->willReturn($this->originalHost);
-
-    // Host
-    $this->optionService
-        ->expects($this->once())
-        ->method('findSelectedOptions')
-        ->willReturn([$this->inheritanceModeOption]);
-    $this->writeHostRepository
-        ->expects($this->once())
-        ->method('update');
-
-    // Categories
-    $this->validation
-        ->expects($this->once())
-        ->method('assertAreValidCategories')
-        ->willThrowException(HostException::idsDoNotExist('categories', $this->request->categories));
-
-    ($this->useCase)($this->request, $this->presenter, $this->hostId);
-
-    expect($this->presenter->response)
-        ->toBeInstanceOf(ConflictResponse::class)
-        ->and($this->presenter->response->getMessage())
-        ->toBe(HostException::idsDoNotExist('categories', $this->request->categories)->getMessage());
-});
-
-// Tests for groups
-
-it('should present a ConflictResponse when a host group does not exist', function (): void {
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(true);
-    $this->user
-        ->expects($this->exactly(3))
-        ->method('isAdmin')
-        ->willReturn(true);
-    $this->readHostRepository
-        ->expects($this->once())
-        ->method('findById')
-        ->willReturn($this->originalHost);
-
-    // Host
-    $this->optionService
-        ->expects($this->once())
-        ->method('findSelectedOptions')
-        ->willReturn([$this->inheritanceModeOption]);
-    $this->writeHostRepository
-        ->expects($this->once())
-        ->method('update');
-
-    // Categories
-    $this->readHostCategoryRepository
-        ->expects($this->once())
-        ->method('findByHost')
-        ->willReturn([]);
-    $this->writeHostCategoryRepository
-        ->expects($this->once())
-        ->method('linkToHost');
-
-    // Groups
-    $this->validation
-        ->expects($this->once())
-        ->method('assertAreValidGroups')
-        ->willThrowException(HostException::idsDoNotExist('groups', $this->request->groups));
-
-    ($this->useCase)($this->request, $this->presenter, $this->hostId);
-
-    expect($this->presenter->response)
-        ->toBeInstanceOf(ConflictResponse::class)
-        ->and($this->presenter->response->getMessage())
-        ->toBe(HostException::idsDoNotExist('groups', $this->request->groups)->getMessage());
-});
-
 // Tests for parents templates
 
 it('should present a ConflictResponse when a parent template ID is not valid', function (): void {
+    $this->request->checkCommandId = null;
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(4))
         ->method('isAdmin')
         ->willReturn(true);
@@ -661,7 +581,7 @@ it('should present a ConflictResponse when a parent template ID is not valid', f
         ->method('assertAreValidTemplates')
         ->willThrowException(HostException::idsDoNotExist('templates', $this->request->templates));
 
-    ($this->useCase)($this->request, $this->presenter, $this->hostId );
+    ($this->useCase)($this->request, $this->presenter, $this->hostId);
 
     expect($this->presenter->response)
         ->toBeInstanceOf(ConflictResponse::class)
@@ -675,11 +595,12 @@ it('should present a ConflictResponse when a parent template ID is not valid', f
 });
 
 it('should present a ConflictResponse when a parent template creates a circular inheritance', function (): void {
+    $this->request->checkCommandId = null;
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(4))
         ->method('isAdmin')
         ->willReturn(true);
@@ -721,7 +642,7 @@ it('should present a ConflictResponse when a parent template creates a circular 
         ->method('assertAreValidTemplates')
         ->willThrowException(HostException::circularTemplateInheritance());
 
-    ($this->useCase)($this->request, $this->presenter, $this->hostId );
+    ($this->useCase)($this->request, $this->presenter, $this->hostId);
 
     expect($this->presenter->response)
         ->toBeInstanceOf(ConflictResponse::class)
@@ -738,8 +659,8 @@ it('should present a NoContentResponse on success', function (): void {
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
-        ->expects($this->exactly(4))
+    $this->adminResolver
+        ->expects($this->exactly(5))
         ->method('isAdmin')
         ->willReturn(true);
     $this->readHostRepository
@@ -748,6 +669,14 @@ it('should present a NoContentResponse on success', function (): void {
         ->willReturn($this->originalHost);
 
     // Host
+    $this->readCommandRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn(new Command(
+            id: $this->request->checkCommandId,
+            name: 'check_command_name',
+            commandLine: 'command_line',
+        ));
     $this->optionService
         ->expects($this->once())
         ->method('findSelectedOptions')
@@ -765,9 +694,6 @@ it('should present a NoContentResponse on success', function (): void {
         ->method('update');
 
     // Categories
-    $this->validation
-        ->expects($this->once())
-        ->method('assertAreValidCategories');
     $this->readHostCategoryRepository
         ->expects($this->once())
         ->method('findByHost')
@@ -780,9 +706,6 @@ it('should present a NoContentResponse on success', function (): void {
         ->method('unlinkFromHost');
 
     // Groups
-    $this->validation
-        ->expects($this->once())
-        ->method('assertAreValidGroups');
     $this->readHostGroupRepository
         ->expects($this->once())
         ->method('findByHost')
@@ -804,6 +727,11 @@ it('should present a NoContentResponse on success', function (): void {
     $this->writeHostRepository
         ->expects($this->exactly(2))
         ->method('addParent');
+
+    // ACL flag
+    $this->writeAccessGroupRepository
+        ->expects($this->once())
+        ->method('updateAclResourcesFlag');
 
     // Macros
     $this->readHostRepository

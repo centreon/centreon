@@ -1,4 +1,5 @@
 import { buildListingEndpoint } from '@centreon/ui';
+
 import dayjs from 'dayjs';
 
 export const getAgentConfigurationsEndpoint =
@@ -47,8 +48,8 @@ export const tokensSearchConditions = [
   {
     field: 'expiration_date',
     values: {
-      $ge: dayjs(Date.now()),
-      $eq: null
+      $eq: null,
+      $ge: dayjs(Date.now())
     }
   }
 ];
@@ -63,6 +64,18 @@ export const getTokensEndpoint = (parameters): string => {
           ...(parameters?.search?.conditions || []),
           ...tokensSearchConditions
         ]
+      }
+    }
+  });
+};
+
+export const getHostsEndpoint = (parameters): string => {
+  return buildListingEndpoint({
+    baseEndpoint: hostsConfigurationEndpoint,
+    parameters: {
+      ...parameters,
+      search: {
+        conditions: [parameters?.search?.conditions?.[1] || []]
       }
     }
   });

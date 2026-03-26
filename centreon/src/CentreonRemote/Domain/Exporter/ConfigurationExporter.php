@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,15 +83,27 @@ class ConfigurationExporter extends ExporterServiceAbstract
             }
         }
 
-        // start transaction
+        $import = $manifest->get('import');
+
+        // Phase 1: clear tables and reset auto_increment outside transaction.
+        // ALTER TABLE (DDL) causes an implicit commit in MySQL/MariaDB, so it must
+        // run before beginTransaction() to avoid breaking the import transaction.
+        $truncated = [];
+        foreach ($import['data'] as $data) {
+            if (! isset($truncated[$data['table']]) && isset($tables[$data['table']])) {
+                $db->query('DELETE FROM `' . $data['table'] . '`');
+                $db->query('ALTER TABLE `' . $data['table'] . '` AUTO_INCREMENT = 1');
+                $truncated[$data['table']] = 1;
+            }
+        }
+
+        // Phase 2: import data inside a transaction.
         $db->beginTransaction();
 
         try {
-            $truncated = [];
             // allow insert records without foreign key checks
             $db->query('SET FOREIGN_KEY_CHECKS=0;');
 
-            $import = $manifest->get('import');
             foreach ($import['data'] as $data) {
                 $exportPathFile = $this->getFile($data['filename']);
                 $size = filesize($exportPathFile);
@@ -100,12 +112,6 @@ class ConfigurationExporter extends ExporterServiceAbstract
                 if ($size > 0 && ! isset($tables[$data['table']])) {
                     echo date('Y-m-d H:i:s') . " - ERROR - cannot import table '" . $data['table'] . "': not exist.\n";
                     continue;
-                }
-
-                if (! isset($truncated[$data['table']]) && isset($tables[$data['table']])) {
-                    // empty table
-                    $db->query('DELETE FROM `' . $data['table'] . '`');
-                    $truncated[$data['table']] = 1;
                 }
 
                 // insert data
@@ -123,11 +129,15 @@ class ConfigurationExporter extends ExporterServiceAbstract
             // restore foreign key checks
             $db->query('SET FOREIGN_KEY_CHECKS=1;');
 
-            // commit transaction
-            $db->commit();
+            if ($db->getCentreonDBInstance()->inTransaction()) {
+                // commit transaction
+                $db->commit();
+            }
         } catch (\ErrorException $e) {
             // rollback changes
-            $db->rollBack();
+            if ($db->getCentreonDBInstance()->inTransaction()) {
+                $db->rollBack();
+            }
             echo date('Y-m-d H:i:s') . " - ERROR - Loading failed.\n";
         }
 

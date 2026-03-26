@@ -1,11 +1,10 @@
-import { RefObject, forwardRef } from 'react';
-
-import { equals, isNil } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import { Checkbox, Stack, Typography } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
+
+import { equals, isNil } from 'ramda';
+import { forwardRef, type ReactElement, type RefObject } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   checkbox: {
@@ -28,12 +27,12 @@ const useStyles = makeStyles()((theme) => ({
 
 interface Props {
   checkboxSelected?: boolean;
-  children: string;
+  children: string | ReactElement;
   thumbnailUrl?: string;
 }
 
 const Option = forwardRef(
-  ({ children, checkboxSelected, thumbnailUrl }: Props, ref): JSX.Element => {
+  ({ children, checkboxSelected, thumbnailUrl }: Props, ref): ReactElement => {
     const { classes } = useStyles();
 
     return (

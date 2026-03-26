@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,10 @@ class NagiosServer
 {
     // ZMQ enum value
     public const ZMQ = '1';
+    public const DEFAULT_ENGINE_START_COMMAND = 'systemctl start centengine';
+    public const DEFAULT_ENGINE_STOP_COMMAND = 'systemctl stop centengine';
+    public const DEFAULT_ENGINE_RESTART_COMMAND = 'systemctl restart centengine';
+    public const DEFAULT_ENGINE_RELOAD_COMMAND = 'systemctl reload centengine';
 
     /**
      * Get template configuration.
@@ -48,10 +52,10 @@ class NagiosServer
             'ns_ip_address' => $ip,
             'ns_activate' => '1',
             'ns_status' => '0',
-            'engine_start_command' => 'service centengine start',
-            'engine_stop_command' => 'service centengine stop',
-            'engine_restart_command' => 'service centengine restart',
-            'engine_reload_command' => 'service centengine reload',
+            'engine_start_command' => self::DEFAULT_ENGINE_START_COMMAND,
+            'engine_stop_command' => self::DEFAULT_ENGINE_STOP_COMMAND,
+            'engine_restart_command' => self::DEFAULT_ENGINE_RESTART_COMMAND,
+            'engine_reload_command' => self::DEFAULT_ENGINE_RELOAD_COMMAND,
             'nagios_bin' => '/usr/sbin/centengine',
             'nagiostats_bin' => '/usr/sbin/centenginestats',
             'nagios_perfdata' => '/var/log/centreon-engine/service-perfdata',

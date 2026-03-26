@@ -1,17 +1,18 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
-import {
-  configureSAML,
-  initializeSAMLUser,
-  navigateToSAMLConfigPage
-} from '../common';
 import { configureProviderAcls } from '../../../../commons';
+import {
+  configureSaml,
+  initializeSamlUser,
+  navigateToSamlConfigPage,
+  saveSamlFormIfEnabled
+} from '../common';
 
 before(() => {
   cy.startContainers({ profiles: ['saml'] }).then(() => {
     configureProviderAcls();
-    initializeSAMLUser();
+    initializeSamlUser();
   });
 });
 
@@ -49,22 +50,20 @@ Given('an administrator is logged on the platform', () => {
 When(
   'the administrator sets valid settings in the SAML configuration form and saves',
   () => {
-    navigateToSAMLConfigPage();
+    navigateToSamlConfigPage();
 
-    configureSAML();
-
-    cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+    configureSaml();
   }
 );
 
 Then('the configuration is saved', () => {
-  cy.wait('@updateSAMLProvider').its('response.statusCode').should('eq', 204);
+  saveSamlFormIfEnabled();
 
   cy.logout();
 });
 
 When('the administrator first configures the authentication mode', () => {
-  navigateToSAMLConfigPage();
+  navigateToSamlConfigPage();
 });
 
 Then(
@@ -102,21 +101,28 @@ Then(
 );
 
 When('the administrator activates SAML authentication on the platform', () => {
-  cy.navigateTo({
-    page: 'Authentication',
-    rootItemNumber: 4
-  })
+  cy.visit(PAGES.configuration.authentication)
     .get('div[role="tablist"] button:nth-child(4)')
     .click();
 
-  cy.getByLabel({
-    label: 'Enable SAMLv2 authentication',
-    tag: 'input'
-  }).check();
+  cy.wait('@getSAMLProvider')
+    .getByLabel({
+      label: 'Enable SAMLv2 authentication',
+      tag: 'input'
+    })
+    .then((input) => {
+      if (input.is(':checked')) {
+        return;
+      }
 
-  cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+      cy.wrap(input).check();
 
-  cy.wait('@updateSAMLProvider').its('response.statusCode').should('eq', 204);
+      cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+
+      cy.wait('@updateSAMLProvider')
+        .its('response.statusCode')
+        .should('eq', 204);
+    });
 });
 
 Then(

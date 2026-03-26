@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +42,7 @@ final class GetHostGroupResponse implements StandardResponseInterface
         public readonly array $hosts = [],
         public readonly array $rules = [],
         public readonly ?Media $icon = null,
-    )
-    {
+    ) {
     }
 
     /**

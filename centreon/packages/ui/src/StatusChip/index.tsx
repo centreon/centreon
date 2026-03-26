@@ -1,11 +1,10 @@
-import { ReactNode } from 'react';
+import { Chip, type ChipProps } from '@mui/material';
 
 import { equals } from 'ramda';
+import type { ReactNode } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
-import { Chip, ChipProps } from '@mui/material';
-
-import { SeverityCode, getStatusColors } from '../utils/statuses';
+import { getStatusColors, SeverityCode } from '../utils/statuses';
 
 export type Props = {
   clickable?: boolean;

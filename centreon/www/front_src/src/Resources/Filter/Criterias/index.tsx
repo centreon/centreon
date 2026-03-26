@@ -1,14 +1,13 @@
-import { useState } from 'react';
-
-import { useAtomValue, useSetAtom } from 'jotai';
-import { isNil, pipe, reject, sortBy } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import TuneIcon from '@mui/icons-material/Tune';
 import { Grid } from '@mui/material';
 
 import { PopoverMenu, useMemoComponent } from '@centreon/ui';
+
+import { useAtomValue, useSetAtom } from 'jotai';
+import { isNil, pipe, reject, sortBy } from 'ramda';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import { hoveredNavigationItemsAtom } from '../../../Navigation/Sidebar/sideBarAtoms';
 import { labelSearchOptions } from '../../translatedLabels';
@@ -29,14 +28,13 @@ import {
   isCriteriasPanelOpenAtom
 } from '../filterAtoms';
 import useFilterByModule from '../useFilterByModule';
-
-import SaveActions from './SaveActions';
 import {
   CriteriaDisplayProps,
   Criteria as CriteriaModel,
   PopoverData,
   SearchDataPropsCriterias
 } from './models';
+import SaveActions from './SaveActions';
 import { criteriaNameSortOrder } from './searchQueryLanguage/models';
 
 interface Styles {
@@ -143,10 +141,10 @@ const CriteriasContent = ({
         dataTestId={labelSearchOptions}
         getPopoverData={getPopoverData}
         icon={<TuneIcon fontSize="small" />}
-        popperPlacement="bottom-end"
-        title={t(labelSearchOptions) as string}
         onClose={onClose}
         onOpen={open}
+        popperPlacement="bottom-end"
+        title={t(labelSearchOptions) as string}
       >
         {({ close }): JSX.Element => {
           const closePopover = (): void => {
@@ -156,23 +154,23 @@ const CriteriasContent = ({
 
           return (
             <Grid
-              container
               alignItems="stretch"
               className={classes.container}
+              container
               direction="column"
               spacing={1}
             >
               <CriteriasNewInterface
                 actions={
                   <Actions
+                    onClear={clearFilters}
+                    onSearch={applyCurrentFilter}
                     save={
                       <Save
                         closePopover={closePopover}
                         getIsCreateFilter={getIsCreateFilter}
                       />
                     }
-                    onClear={clearFilters}
-                    onSearch={applyCurrentFilter}
                   />
                 }
                 data={{

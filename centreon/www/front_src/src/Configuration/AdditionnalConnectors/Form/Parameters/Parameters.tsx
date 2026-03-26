@@ -1,8 +1,7 @@
-import { ReactElement } from 'react';
+import { Divider } from '@mui/material';
 
 import { equals, keys } from 'ramda';
-
-import { Divider } from '@mui/material';
+import { ReactElement } from 'react';
 
 import AddParameterGroupButton from './AddButton';
 import DeleteParameterGroupButton from './DeleteButton';

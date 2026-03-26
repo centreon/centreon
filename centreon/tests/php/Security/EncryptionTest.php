@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,8 +34,10 @@ class EncryptionTest extends TestCase
 {
     /** @var string */
     private $firstKey;
+
     /** @var string */
     private $secondKey;
+
     /** @var string */
     private $falseKey;
 
@@ -97,7 +99,7 @@ class EncryptionTest extends TestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('openssl_cipher_iv_length(): Unknown cipher algorithm');
 
-        set_error_handler(function($errNo, $errStr, ...$args): void {
+        set_error_handler(function ($errNo, $errStr, ...$args): void {
             throw new \Exception($errStr);
             restore_error_handler();
         });
@@ -150,7 +152,7 @@ class EncryptionTest extends TestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('openssl_cipher_iv_length(): Unknown cipher algorithm');
 
-        set_error_handler(function($errNo, $errStr, ...$args): void {
+        set_error_handler(function ($errNo, $errStr, ...$args): void {
             throw new \Exception($errStr);
             restore_error_handler();
         });

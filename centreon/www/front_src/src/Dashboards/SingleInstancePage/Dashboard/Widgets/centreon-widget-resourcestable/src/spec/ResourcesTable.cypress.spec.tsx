@@ -1,6 +1,3 @@
-import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router';
-
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
   aclAtom,
@@ -9,22 +6,23 @@ import {
   platformVersionsAtom
 } from '@centreon/ui-context';
 
+import { createStore, Provider } from 'jotai';
+import { BrowserRouter } from 'react-router';
+
 import { SortOrder } from '../../../models';
 import { getPublicWidgetEndpoint } from '../../../utils';
-import { DisplayType } from '../Listing/models';
-import ResourcesTable from '../ResourcesTable';
 import {
   closeTicketEndpoint,
   resourcesEndpoint,
   viewByHostEndpoint
 } from '../api/endpoints';
-import type { Data, PanelOptions } from '../models';
-
+import Widget from '../index';
 import {
   acknowledgeEndpoint,
   checkEndpoint,
   downtimeEndpoint
 } from '../Listing/Actions/api/endpoint';
+import { DisplayType } from '../Listing/models';
 import {
   labelAcknowledge,
   labelAcknowledgeCommandSent,
@@ -51,6 +49,7 @@ import {
   metaServiceResources,
   resources,
   options as resourcesOptions,
+  resourcesRegex,
   selectedColumnIds
 } from './testUtils';
 
@@ -110,6 +109,7 @@ const store = createStore();
 const render = ({ options, data, isPublic = false }: Props): void => {
   store.set(isOnPublicPageAtom, isPublic);
   store.set(aclAtom, mockAcl());
+  store.set(platformVersionsAtom, platformVersions);
 
   cy.window().then((window) => {
     cy.stub(window, 'open').as('windowOpen');
@@ -124,17 +124,19 @@ const render = ({ options, data, isPublic = false }: Props): void => {
           <SnackbarProvider>
             <Provider store={store}>
               <div style={{ height: '100vh', width: '100%' }}>
-                <ResourcesTable
+                <Widget
                   dashboardId={1}
                   globalRefreshInterval={{
                     interval: 30,
                     type: 'manual'
                   }}
+                  hasDescription={false}
                   id="1"
                   panelData={data}
                   panelOptions={options}
                   playlistHash="hash"
                   refreshCount={0}
+                  widgetPrefixQuery="widget"
                 />
               </div>
             </Provider>
@@ -258,6 +260,16 @@ describe('View by all', () => {
     cy.makeSnapshot();
   });
 
+  it('handles regex resources when the appropriate data is provided', () => {
+    render({ data: { resources: resourcesRegex }, options: resourcesOptions });
+
+    cy.waitForRequest('@getResources').then(({ request }) => {
+      expect(request.url.searchParams.get('search')).to.equal(
+        '{"$and":[{"$or":[{"parent_name":{"$rg":"^H1$"}}]},{"$or":[{"name":{"$rg":"^Loa"}}]}]}'
+      );
+    });
+  });
+
   it('executes a listing request with limit from widget properties', () => {
     render({
       data: { resources },
@@ -293,7 +305,6 @@ describe('View by all', () => {
 
     cy.contains('Load')
       .parent()
-      .parent()
       .should('have.css', 'background-color', 'rgb(223, 210, 185)');
 
     cy.makeSnapshot();
@@ -306,7 +317,6 @@ describe('View by all', () => {
     });
 
     cy.contains('Disk-/')
-      .parent()
       .parent()
       .should('have.css', 'background-color', 'rgb(229, 216, 243)');
 
@@ -382,6 +392,9 @@ describe('View by all', () => {
 
     cy.waitForRequest('@getResources');
 
+    cy.findByLabelText('Select row 19').click();
+    cy.findByLabelText('Select row 24').click();
+
     cy.findByLabelText('arrow').click();
     cy.contains(labelCheck).click();
     cy.findByLabelText('arrow').click();
@@ -409,6 +422,9 @@ describe('View by all', () => {
     });
 
     cy.waitForRequest('@getResources');
+
+    cy.findByLabelText('Select row 19').click();
+    cy.findByLabelText('Select row 24').click();
 
     cy.findByLabelText(labelAcknowledge).click();
     cy.contains(labelSticky).click();
@@ -689,6 +705,7 @@ describe('View by host', () => {
 
     cy.makeSnapshot();
   });
+
   it('executes a listing request with limit from widget properties', () => {
     cy.contains('Centreon-Server').should('be.visible');
 
@@ -719,6 +736,8 @@ describe('Open tickets', () => {
       options: {
         ...resourcesOptions,
         displayResources: 'withoutTicket',
+        enableHostTicketCreation: true,
+        enableServiceTicketCreation: true,
         isOpenTicketEnabled: true,
         provider: { id: 1, name: 'Rule 1' },
         selectedColumnIds: [...selectedColumnIds, 'open_ticket']
@@ -738,6 +757,8 @@ describe('Open tickets', () => {
       options: {
         ...resourcesOptions,
         displayResources: 'withTicket',
+        enableHostTicketCreation: true,
+        enableServiceTicketCreation: true,
         isOpenTicketEnabled: true,
         provider: { id: 1, name: 'Rule 1' },
         selectedColumnIds: [
@@ -766,6 +787,8 @@ describe('Open tickets', () => {
       options: {
         ...resourcesOptions,
         displayResources: 'withoutTicket',
+        enableHostTicketCreation: true,
+        enableServiceTicketCreation: true,
         isOpenTicketEnabled: true,
         provider: { id: 1, name: 'Rule 1' },
         selectedColumnIds: [...selectedColumnIds, 'open_ticket']
@@ -803,6 +826,8 @@ describe('Open tickets', () => {
       options: {
         ...resourcesOptions,
         displayResources: 'withTicket',
+        enableHostTicketCreation: true,
+        enableServiceTicketCreation: true,
         isOpenTicketEnabled: true,
         provider: { id: 1, name: 'Rule 1' },
         selectedColumnIds: [
@@ -829,8 +854,8 @@ describe('Open tickets', () => {
     cy.waitForRequest('@postTicketClose').then(({ request }) => {
       expect(request.body).to.deep.equal({
         data: {
-          selection: '14;19',
-          rule_id: '1'
+          rule_id: '1',
+          selection: '14;19'
         }
       });
     });
@@ -846,6 +871,8 @@ describe('Open tickets', () => {
       options: {
         ...resourcesOptions,
         displayResources: 'withTicket',
+        enableHostTicketCreation: true,
+        enableServiceTicketCreation: true,
         isOpenTicketEnabled: true,
         provider: { id: 1, name: 'Rule 1' },
         selectedColumnIds: [
@@ -872,8 +899,8 @@ describe('Open tickets', () => {
     cy.waitForRequest('@postTicketClose').then(({ request }) => {
       expect(request.body).to.deep.equal({
         data: {
-          selection: '6',
-          rule_id: '1'
+          rule_id: '1',
+          selection: '6'
         }
       });
     });

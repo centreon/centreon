@@ -1,15 +1,17 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
-import {
-  configureOpenIDConnect,
-  initializeOIDCUserAndGetLoginPage
-} from '../common';
 import { configureProviderAcls } from '../../../../commons';
+import {
+  configureOpenIdConnect,
+  initializeOidcUserAndGetLoginPage,
+  saveOpenIdFormIfEnabled
+} from '../common';
 
 before(() => {
   cy.startContainers({ profiles: ['openid'] }).then(() => {
     configureProviderAcls();
-    initializeOIDCUserAndGetLoginPage();
+    initializeOidcUserAndGetLoginPage();
   });
 });
 
@@ -43,26 +45,20 @@ Given('an administrator is logged on the platform', () => {
 When(
   'the administrator sets valid settings in the OpenID Connect configuration form and saves the form',
   () => {
-    cy.navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
+    cy.visit(PAGES.configuration.authentication)
       .get('div[role="tablist"] button:nth-child(2)')
       .click();
 
     cy.wait('@getOIDCProvider');
 
-    configureOpenIDConnect();
+    configureOpenIdConnect();
   }
 );
 
 Then('the configuration is saved and secrets are not visible', () => {
-  cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+  saveOpenIdFormIfEnabled();
 
-  cy.wait('@updateOIDCProvider')
-    .its('response.statusCode')
-    .should('eq', 204)
-    .getByLabel({ label: 'Client secret', tag: 'input' })
+  cy.getByLabel({ label: 'Client secret', tag: 'input' })
     .should('have.attr', 'type', 'password')
     .logout();
 
@@ -70,10 +66,7 @@ Then('the configuration is saved and secrets are not visible', () => {
 });
 
 When('the administrator configures the authentication mode', () => {
-  cy.navigateTo({
-    page: 'Authentication',
-    rootItemNumber: 4
-  })
+  cy.visit(PAGES.configuration.authentication)
     .get('div[role="tablist"] button:nth-child(2)')
     .click();
 });
@@ -103,10 +96,7 @@ Then(
 
 Given('an administrator is relogged on the platform', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: true })
-    .navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
+    .visit(PAGES.configuration.authentication)
     .get('div[role="tablist"] button:nth-child(2)')
     .click();
 
@@ -116,10 +106,7 @@ Given('an administrator is relogged on the platform', () => {
 When(
   'the administrator activates OpenID Connect authentication on the platform',
   () => {
-    cy.navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
+    cy.visit(PAGES.configuration.authentication)
       .get('div[role="tablist"] button:nth-child(2)')
       .click();
 
@@ -128,20 +115,17 @@ When(
         label: 'Enable OpenID Connect authentication',
         tag: 'input'
       })
-      .check();
+      .then((input) => {
+        if (input.is(':checked')) {
+          return;
+        }
 
-    cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+        cy.wrap(input).check();
 
-    cy.wait('@updateOIDCProvider')
-      .its('response.statusCode')
-      .should('eq', 204)
-      .getByLabel({
-        label: 'Enable OpenID Connect authentication',
-        tag: 'input'
-      })
-      .should('be.checked')
-      .and('have.value', 'on')
-      .logout();
+        saveOpenIdFormIfEnabled();
+      });
+
+    cy.logout();
 
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
   }
@@ -153,7 +137,9 @@ Then(
     const username = 'user-non-admin-for-OIDC-authentication';
 
     cy.visit('/');
+
     cy.contains('Login with openid').should('be.visible').click();
+
     cy.loginKeycloak(username);
 
     cy.url().should('include', '/monitoring/resources');

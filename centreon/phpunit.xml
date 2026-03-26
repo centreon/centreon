@@ -29,6 +29,7 @@
     <testsuite name="Symfony Test Suite">
       <directory>./tests/php/*/</directory>
       <directory>./src/*/Tests/</directory>
+      <exclude>./tests/php/App</exclude>
     </testsuite>
   </testsuites>
   <groups>

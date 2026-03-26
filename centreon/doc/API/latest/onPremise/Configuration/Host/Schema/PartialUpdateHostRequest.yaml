@@ -276,6 +276,11 @@ properties:
       type: object
       required: ['name', 'value', 'is_password', 'description']
       properties:
+        id:
+          type: integer
+          description: "Macro ID (only for existing macros)"
+          example: 1
+          nullable: true
         name:
           type: string
           description: "Name of the macro"

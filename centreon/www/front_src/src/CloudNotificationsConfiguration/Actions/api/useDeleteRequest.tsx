@@ -1,13 +1,13 @@
-import { useQueryClient } from '@tanstack/react-query';
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import {
   Method,
   ResponseError,
   useBulkResponse,
   useMutationQuery
 } from '@centreon/ui';
+
+import { useQueryClient } from '@tanstack/react-query';
+import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { DeleteType } from '../../models';
 import {
@@ -17,7 +17,6 @@ import {
   labelNotificationSuccessfullyDeleted,
   labelNotificationsSuccessfullyDeleted
 } from '../../translatedLabels';
-
 import {
   deleteMultipleNotificationEndpoint,
   deleteSingleNotificationEndpoint
@@ -71,10 +70,10 @@ const useDeleteRequest = ({
 
         handleBulkResponse({
           data: results,
-          labelWarning: t(labelFailedToDeleteNotifications),
+          items: selectedRows,
           labelFailed: t(labelFailed),
           labelSuccess: t(labelSuccess),
-          items: selectedRows
+          labelWarning: t(labelFailedToDeleteNotifications)
         });
 
         queryClient.invalidateQueries({ queryKey: ['notifications'] });

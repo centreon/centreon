@@ -1,62 +1,58 @@
 <?php
 
 /*
- * Copyright 2005-2021 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-require_once "../../require.php";
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Security\AccessGroup\Domain\Collection\AccessGroupCollection;
+
+require_once '../../require.php';
+require_once '../../widget-error-handling.php';
 require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonDuration.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
-require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/widgets/hostgroup-monitoring/src/class/HostgroupMonitoring.class.php';
 require_once $centreon_path . 'www/include/common/sqlCommonFunction.php';
+require_once $centreon_path . 'www/class/centreonAclLazy.class.php';
 
 CentreonSession::start(1);
 
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId']) || !isset($_REQUEST['page'])) {
+if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId']) || ! isset($_REQUEST['page'])) {
     exit;
 }
-$db = $dependencyInjector['configuration_db'];
-if (CentreonSession::checkSession(session_id(), $db) == 0) {
+
+/**
+ * @var CentreonDB $configurationDatabase
+ */
+$configurationDatabase = $dependencyInjector['configuration_db'];
+
+if (CentreonSession::checkSession(session_id(), $configurationDatabase) == 0) {
     exit;
 }
 
 // Smarty template initialization
-$path = $centreon_path . "www/widgets/hostgroup-monitoring/src/";
+$path = $centreon_path . 'www/widgets/hostgroup-monitoring/src/';
 $template = SmartyBC::createSmartyTemplate($path, './');
 
 $centreon = $_SESSION['centreon'];
@@ -76,39 +72,109 @@ try {
     if ($page === false) {
         throw new InvalidArgumentException('Page must be an integer');
     }
-} catch (InvalidArgumentException $e) {
-    echo $e->getMessage();
+
+    $variablesThemeCSS = match ($centreon->user->theme) {
+        'light' => 'Generic-theme',
+        'dark' => 'Centreon-Dark',
+        default => throw new Exception('Unknown user theme : ' . $centreon->user->theme),
+    };
+
+    $theme = $variablesThemeCSS === 'Generic-theme'
+        ? $variablesThemeCSS . '/Variables-css'
+        : $variablesThemeCSS;
+} catch (Exception $exception) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+        message: 'Error while using hostgroup-monitoring widget: ' . $exception->getMessage(),
+        customContext: [
+            'widget_id' => $widgetId,
+        ],
+        exception: $exception
+    );
+    showError($exception->getMessage(), $theme ?? 'Generic-theme/Variables-css');
+
     exit;
 }
 
 /**
- * @var $dbb CentreonDB
+ * @var CentreonDB $realtimeDatabase
  */
-$dbb = $dependencyInjector['realtime_db'];
-$widgetObj = new CentreonWidget($centreon, $db);
-$hgMonObj = new HostgroupMonitoring($dbb);
+$realtimeDatabase = $dependencyInjector['realtime_db'];
+
+$widgetObj = new CentreonWidget($centreon, $configurationDatabase);
+$hostGroupMonitoringService = new HostgroupMonitoring($realtimeDatabase);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
-$aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 
-$aColorHost = [0 => 'host_up', 1 => 'host_down', 2 => 'host_unreachable', 4 => 'host_pending'];
-$aColorService = [0 => 'service_ok', 1 => 'service_warning', 2 => 'service_critical', 3 => 'service_unknown', 4 => 'pending'];
+$aColorHost = [
+    0 => 'host_up',
+    1 => 'host_down',
+    2 => 'host_unreachable',
+    4 => 'host_pending',
+];
+$aColorService = [
+    0 => 'service_ok',
+    1 => 'service_warning',
+    2 => 'service_critical',
+    3 => 'service_unknown',
+    4 => 'pending',
+];
 
+$hostStateLabels = [
+    0 => 'Up',
+    1 => 'Down',
+    2 => 'Unreachable',
+    4 => 'Pending',
+];
 
-$hostStateLabels = [0 => "Up", 1 => "Down", 2 => "Unreachable", 4 => "Pending"];
-
-$serviceStateLabels = [0 => "Ok", 1 => "Warning", 2 => "Critical", 3 => "Unknown", 4 => "Pending"];
+$serviceStateLabels = [
+    0 => 'Ok',
+    1 => 'Warning',
+    2 => 'Critical',
+    3 => 'Unknown',
+    4 => 'Pending',
+];
 
 const ORDER_DIRECTION_ASC = 'ASC';
 const ORDER_DIRECTION_DESC = 'DESC';
-const DEFAULT_ENTRIES_PER_PAGE= 10;
+const DEFAULT_ENTRIES_PER_PAGE = 10;
+
+$accessGroups = new AccessGroupCollection();
+
+if (! $centreon->user->admin) {
+    $acls = new CentreonAclLazy($centreon->user->user_id);
+    $accessGroups->mergeWith($acls->getAccessGroups());
+}
 
 try {
     $columns = 'SELECT DISTINCT 1 AS REALTIME, name, hostgroup_id ';
     $baseQuery = ' FROM hostgroups';
 
-    $bindParams = [];
+    $queryParameters = [];
+
+    if (! $centreon->user->admin) {
+        // Shortcut the request and make it return nothing if user has no accessgroups.
+        if ($accessGroups->isEmpty()) {
+            $baseQuery .= ' WHERE 1 = 0';
+        } else {
+            $accessGroupsList = implode(',', $accessGroups->getIds());
+            $configurationDatabaseName = $configurationDatabase->getConnectionConfig()->getDatabaseNameConfiguration();
+            $baseQuery .= <<<SQL
+                    INNER JOIN `{$configurationDatabaseName}`.acl_resources_hg_relations arhr
+                        ON hostgroups.hostgroup_id = arhr.hg_hg_id
+                    INNER JOIN `{$configurationDatabaseName}`.acl_resources res
+                        ON arhr.acl_res_id = res.acl_res_id
+                    INNER JOIN `{$configurationDatabaseName}`.acl_res_group_relations argr
+                        ON res.acl_res_id = argr.acl_res_id
+                    INNER JOIN `{$configurationDatabaseName}`.acl_groups ag
+                        ON argr.acl_group_id = ag.acl_group_id
+                        AND ag.acl_group_id IN ({$accessGroupsList})
+                SQL;
+        }
+
+    }
+
     if (isset($preferences['hg_name_search']) && trim($preferences['hg_name_search']) !== '') {
-        $tab = explode(" ", $preferences['hg_name_search']);
+        $tab = explode(' ', $preferences['hg_name_search']);
         $op = $tab[0];
         if (isset($tab[1])) {
             $search = $tab[1];
@@ -116,19 +182,13 @@ try {
         if ($op && isset($search) && trim($search) !== '') {
             $baseQuery = CentreonUtils::conditionBuilder(
                 $baseQuery,
-                "name " . CentreonUtils::operandToMysqlFormat($op) . " :search "
+                'name ' . CentreonUtils::operandToMysqlFormat($op) . ' :search '
             );
-            $bindParams[':search'] = [$search, PDO::PARAM_STR];
+            $queryParameters[] = QueryParameter::string('search', $search);
         }
     }
 
-    if (!$centreon->user->admin) {
-        [$bindValues, $bindQuery] = createMultipleBindQuery($aclObj->getHostGroups(), ':hostgroup_name_', PDO::PARAM_STR);
-        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, "name IN ($bindQuery)");
-        $bindParams = array_merge($bindParams, $bindValues);
-    }
-
-    $orderby = "name " . ORDER_DIRECTION_ASC;
+    $orderby = 'name ' . ORDER_DIRECTION_ASC;
 
     $allowedOrderColumns = ['name'];
     $allowedDirections = [ORDER_DIRECTION_ASC, ORDER_DIRECTION_DESC];
@@ -139,7 +199,7 @@ try {
         : null;
 
     if ($orderByToAnalyse !== null) {
-        $orderByToAnalyse .= " $defaultDirection";
+        $orderByToAnalyse .= " {$defaultDirection}";
         [$column, $direction] = explode(' ', $orderByToAnalyse);
 
         if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
@@ -155,33 +215,17 @@ try {
     $offset = max(0, $page) * $entriesPerPage;
 
     // Query to count total rows
-    $countQuery = "SELECT COUNT(*) " . $baseQuery;
+    $countQuery = 'SELECT COUNT(DISTINCT hostgroups.hostgroup_id) ' . $baseQuery;
+
+    $nbRows = (int) $realtimeDatabase->fetchOne($countQuery, QueryParameters::create($queryParameters));
 
     // Main SELECT query with LIMIT
     $query = $columns . $baseQuery;
-    $query .= " ORDER BY $orderby";
-    $query .= " LIMIT :offset, :entriesPerPage";
+    $query .= " ORDER BY {$orderby}";
+    $query .= ' LIMIT :offset, :entriesPerPage';
 
-    // Execute count query
-    if (! empty($bindParams)) {
-        $countStatement = $dbb->prepareQuery($countQuery);
-        $dbb->executePreparedQuery($countStatement, $bindParams, true);
-    } else {
-        $countStatement= $dbb->executeQuery($countQuery);
-    }
-
-    $nbRows = (int) $dbb->fetchColumn($countStatement);
-
-    $bindParams[':offset'] = [$offset, PDO::PARAM_INT];
-    $bindParams[':entriesPerPage'] = [$entriesPerPage, PDO::PARAM_INT];
-
-    // Execute main query
-    if (! empty($bindParams)) {
-        $statement = $dbb->prepareQuery($query);
-        $dbb->executePreparedQuery($statement, $bindParams, true);
-    } else {
-        $statement = $dbb->executeQuery($query);
-    }
+    $queryParameters[] = QueryParameter::int('offset', $offset);
+    $queryParameters[] = QueryParameter::int('entriesPerPage', $entriesPerPage);
 
     $data = [];
     $detailMode = false;
@@ -189,9 +233,9 @@ try {
         $detailMode = true;
     }
 
-    $kernel = \App\Kernel::createForWeb();
+    $kernel = App\Kernel::createForWeb();
     $resourceController = $kernel->getContainer()->get(
-        \Centreon\Application\Controller\MonitoringResourceController::class
+        Centreon\Application\Controller\MonitoringResourceController::class
     );
 
     $buildHostgroupUri = function (array $hostgroup, array $types, array $statuses) use ($resourceController) {
@@ -208,12 +252,12 @@ try {
                 [
                     'name' => 'statuses',
                     'value' => $statuses,
-                ]
+                ],
             ],
         ];
 
         try {
-             $encodedFilter = json_encode($filter, JSON_THROW_ON_ERROR);
+            $encodedFilter = json_encode($filter, JSON_THROW_ON_ERROR);
 
             return $resourceController->buildListingUri(
                 [
@@ -223,10 +267,11 @@ try {
         } catch (JsonException $e) {
             CentreonLog::create()->error(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-                message: "Error while handling hostgroup monitoring data: " . $e->getMessage(),
+                message: 'Error while handling hostgroup monitoring data: ' . $e->getMessage(),
                 exception: $e
             );
-            throw new \Exception('Error while handling hostgroup monitoring data: ' . $e->getMessage());
+
+            throw new Exception('Error while handling hostgroup monitoring data: ' . $e->getMessage());
         }
     };
 
@@ -248,7 +293,7 @@ try {
     $downStatus = $buildParameter('DOWN', 'Down');
     $unreachableStatus = $buildParameter('UNREACHABLE', 'Unreachable');
 
-    while ($row = $dbb->fetch($statement)) {
+    foreach ($realtimeDatabase->fetchAllAssociative($query, QueryParameters::create($queryParameters)) as $row) {
         $hostgroup = [
             'id' => (int) $row['hostgroup_id'],
             'name' => HtmlSanitizer::createFromString($row['name'])->sanitize()->getString(),
@@ -317,17 +362,18 @@ try {
             'service_state' => [],
         ];
     }
-} catch (CentreonDbException $e) {
+} catch (ConnectionException $e) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-        message: "Error while fetching hostgroup monitoring data: " . $e->getMessage(),
+        message: 'Error while fetching hostgroup monitoring data: ' . $e->getMessage(),
         exception: $e
     );
 
-    throw new \Exception("Error while fetching hostgroup monitoring data: " . $e->getMessage());
+    throw new Exception('Error while fetching hostgroup monitoring data: ' . $e->getMessage());
 }
-$hgMonObj->getHostStates($data, $centreon->user->admin, $aclObj, $preferences, $detailMode);
-$hgMonObj->getServiceStates($data, $centreon->user->admin, $aclObj, $preferences, $detailMode);
+
+$hostGroupMonitoringService->getHostStates($data, (int) $centreon->user->admin === 1, $accessGroups, $detailMode);
+$hostGroupMonitoringService->getServiceStates($data, (int) $centreon->user->admin === 1, $accessGroups, $detailMode);
 
 if ($detailMode === true) {
     foreach ($data as $hostgroupName => &$properties) {

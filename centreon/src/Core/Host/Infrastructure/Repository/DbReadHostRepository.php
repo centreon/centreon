@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -161,12 +161,13 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
      */
     public function exists(int $hostId): bool
     {
-        $request = $this->translateDbName(<<<'SQL'
-            SELECT 1
-            FROM `:db`.host
-            WHERE host_id = :host_id
-              AND host_register = '1'
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.host
+                WHERE host_id = :host_id
+                  AND host_register = '1'
+                SQL
         );
 
         $statement = $this->db->prepare($request);
@@ -183,7 +184,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
     {
         $this->info('Check existence of hosts', ['host_ids' => $hostIds]);
 
-        if ([] === $hostIds) {
+        if ($hostIds === []) {
             return [];
         }
 
@@ -410,6 +411,48 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
     /**
      * @inheritDoc
      */
+    public function findParentsByHostIds(array $hostIds): array
+    {
+        if ($hostIds === []) {
+            return [];
+        }
+
+        [$bindValues, $hostIdsQuery] = $this->createMultipleBindQuery($hostIds, ':host_');
+
+        $request = $this->translateDbName(
+            <<<SQL
+                WITH RECURSIVE parents AS (
+                    SELECT * FROM `:db`.`host_template_relation`
+                    WHERE `host_host_id` IN ({$hostIdsQuery})
+                    UNION
+                    SELECT rel.* FROM `:db`.`host_template_relation` AS rel, parents AS p
+                    WHERE rel.`host_host_id` = p.`host_tpl_id`
+                )
+                SELECT `host_host_id` AS child_id, `host_tpl_id` AS parent_id, `order`
+                FROM parents
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        /** @var array<array{child_id: int, parent_id: int, order: int}> $allParents */
+        $allParents = $statement->fetchAll(\PDO::FETCH_ASSOC);
+
+        $result = [];
+        foreach ($hostIds as $hostId) {
+            $result[$hostId] = $this->filterParentsForHost($hostId, $allParents);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findNames(array $hostIds): HostNamesById
     {
         $concatenator = new SqlConcatenator();
@@ -446,7 +489,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->setConcordanceArray([
@@ -822,6 +865,42 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
     }
 
     /**
+     * Filter the global parent list to get only relations reachable from a specific host.
+     *
+     * @param int $hostId
+     * @param array<array{child_id: int|string, parent_id: int|string, order: int|string}> $allParents
+     *
+     * @return array<array{parent_id: int, child_id: int, order: int}>
+     */
+    private function filterParentsForHost(int $hostId, array $allParents): array
+    {
+        $relevant = [];
+        $idsToProcess = [$hostId];
+        $processed = [];
+
+        while ($idsToProcess !== []) {
+            $currentId = array_shift($idsToProcess);
+            if (isset($processed[$currentId])) {
+                continue;
+            }
+            $processed[$currentId] = true;
+
+            foreach ($allParents as $parent) {
+                if ((int) $parent['child_id'] === $currentId) {
+                    $relevant[] = [
+                        'parent_id' => (int) $parent['parent_id'],
+                        'child_id' => (int) $parent['child_id'],
+                        'order' => (int) $parent['order'],
+                    ];
+                    $idsToProcess[] = (int) $parent['parent_id'];
+                }
+            }
+        }
+
+        return $relevant;
+    }
+
+    /**
      * @param string $accessGroupIdsQuery
      * @param array<string, mixed> $accessGroupsBindValues
      *
@@ -929,7 +1008,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
             iconId: $result['ehi_icon_image'],
             iconAlternative: (string) $result['ehi_icon_image_alt'],
             comment: (string) $result['host_comment'],
-            timezoneId: 0 === $result['host_location'] ? null : $result['host_location'],
+            timezoneId: $result['host_location'] === 0 ? null : $result['host_location'],
             severityId: $result['severity_id'],
             checkCommandId: $result['command_command_id'],
             checkTimeperiodId: $result['timeperiod_tp_id'],

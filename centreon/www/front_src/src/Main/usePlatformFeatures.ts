@@ -1,9 +1,8 @@
-import { useCallback } from 'react';
-
-import { useSetAtom } from 'jotai';
-
 import { getData, useRequest } from '@centreon/ui';
 import { PlatformFeatures, platformFeaturesAtom } from '@centreon/ui-context';
+
+import { useSetAtom } from 'jotai';
+import { useCallback } from 'react';
 
 import { platformFeaturesDecoder } from '../api/decoders';
 import { platformFeaturesEndpoint } from '../api/endpoint';

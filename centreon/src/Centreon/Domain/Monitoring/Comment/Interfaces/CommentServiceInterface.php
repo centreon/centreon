@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,21 +18,22 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring\Comment\Interfaces;
 
+use Centreon\Domain\Contact\Interfaces\ContactFilterInterface;
+use Centreon\Domain\Monitoring\Comment\Comment;
 use Centreon\Domain\Monitoring\Host;
 use Centreon\Domain\Monitoring\Service;
-use Centreon\Domain\Monitoring\Comment\Comment;
-use Centreon\Domain\Contact\Interfaces\ContactFilterInterface;
 
 interface CommentServiceInterface extends ContactFilterInterface
 {
     /**
      * Function allowing contact to add a comment to a service
      *
-     * @param  Comment $comment Comment to add to the service
+     * @param Comment $comment Comment to add to the service
      * @param Service $service Service that will receive the comment
      */
     public function addServiceComment(Comment $comment, Service $service): void;
@@ -40,7 +41,7 @@ interface CommentServiceInterface extends ContactFilterInterface
     /**
      * Function allowing contact to add a comment to a service
      *
-     * @param  Comment $comment Comment to add to the service
+     * @param Comment $comment Comment to add to the service
      * @param Service $metaService Meta service that will receive the comment
      */
     public function addMetaServiceComment(Comment $comment, Service $metaService): void;
@@ -48,7 +49,7 @@ interface CommentServiceInterface extends ContactFilterInterface
     /**
      * Function allowing contact to add a comment to a host
      *
-     * @param  Comment $comment Comment to add to the host
+     * @param Comment $comment Comment to add to the host
      * @param Host $host Host that will receive the comment
      * @return void
      */

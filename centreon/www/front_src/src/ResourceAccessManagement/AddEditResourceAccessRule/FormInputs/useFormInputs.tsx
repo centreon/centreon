@@ -1,9 +1,9 @@
-import { useTranslation } from 'react-i18next';
-
 import { Divider, Typography } from '@mui/material';
 import { Variant } from '@mui/material/styles/createTypography';
 
 import { Group, InputProps, InputType } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import {
   labelAddResourceDatasets,
@@ -15,12 +15,11 @@ import {
   labelRuleProperies,
   labelStatus
 } from '../../translatedLabels';
-
-import { useFormInputStyles } from './FormInputs.styles';
 import ActivateSwitch from './components/ActivateSwitch';
 import ContactGroupsSelector from './components/ContactGroupsSelector';
 import ContactsSelector from './components/ContactsSelector';
 import ResourceSelection from './components/ResourceSelection';
+import { useFormInputStyles } from './FormInputs.styles';
 
 interface UseFormInputsState {
   groups: Array<Group>;

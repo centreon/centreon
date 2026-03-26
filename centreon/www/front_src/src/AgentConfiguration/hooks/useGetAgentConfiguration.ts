@@ -1,13 +1,13 @@
-import { useEffect } from 'react';
-
 import { useFetchQuery } from '@centreon/ui';
+
 import { useSetAtom } from 'jotai';
 import { equals, isEmpty, isNil, isNotNil, map, or } from 'ramda';
+import { useEffect } from 'react';
 
-import { agentTypes, connectionModes } from '../Form/useInputs';
 import { agentConfigurationDecoder } from '../api/decoders';
 import { getAgentConfigurationEndpoint } from '../api/endpoints';
 import { agentTypeFormAtom } from '../atoms';
+import { agentTypes, connectionModes } from '../Form/useInputs';
 import {
   AgentConfiguration,
   AgentConfigurationForm,
@@ -18,39 +18,35 @@ const adaptAgentConfigurationToForm = (
   agentConfiguration: AgentConfiguration
 ): AgentConfigurationForm => ({
   ...agentConfiguration,
-  type: agentTypes.find(({ id }) => equals(id, agentConfiguration.type)),
+  configuration: {
+    ...agentConfiguration.configuration,
+    ...(equals(AgentType.CMA, agentConfiguration.type) && {
+      hosts: map(
+        (host) => ({
+          ...host,
+          token: or(isNil(host.token), isEmpty(host.token))
+            ? null
+            : {
+                id: `${host.token?.name}_${host.token?.creatorId}`,
+                ...host.token
+              }
+        }),
+        agentConfiguration.configuration?.hosts || []
+      ),
+      tokens: map(
+        ({ name, creatorId }) => ({
+          creatorId,
+          id: `${name}_${creatorId}`,
+          name
+        }),
+        agentConfiguration.configuration?.tokens || []
+      )
+    })
+  },
   connectionMode: connectionModes.find(({ id }) =>
     equals(id, agentConfiguration.connectionMode)
   ),
-  configuration: {
-    ...agentConfiguration.configuration,
-    ...(equals(AgentType.CMA, agentConfiguration.type) &&
-      (!agentConfiguration.configuration.isReverse
-        ? {
-            tokens: map(
-              ({ name, creatorId }) => ({
-                id: `${name}_${creatorId}`,
-                name,
-                creatorId
-              }),
-              agentConfiguration.configuration?.tokens || []
-            )
-          }
-        : {
-            hosts: map(
-              (host) => ({
-                ...host,
-                token: or(isNil(host.token), isEmpty(host.token))
-                  ? null
-                  : {
-                      id: `${host.token?.name}_${host.token?.creatorId}`,
-                      ...host.token
-                    }
-              }),
-              agentConfiguration.configuration?.hosts
-            )
-          }))
-  }
+  type: agentTypes.find(({ id }) => equals(id, agentConfiguration.type))
 });
 
 interface UseGetAgentConfigurationState {
@@ -66,9 +62,9 @@ export const useGetAgentConfiguration = (
   const enabled = isNotNil(id) && !equals('add', id);
 
   const { data, isLoading } = useFetchQuery({
+    decoder: agentConfigurationDecoder,
     getEndpoint: () => getAgentConfigurationEndpoint(id),
     getQueryKey: () => ['agent-configuration', id],
-    decoder: agentConfigurationDecoder,
     queryOptions: {
       enabled,
       suspense: false

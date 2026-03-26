@@ -40,7 +40,7 @@ final class DuplicateHostGroupsInput
         public readonly array $ids,
         #[Assert\NotNull()]
         #[Assert\Type('integer')]
-        public readonly int $nbDuplicates
+        public readonly int $nbDuplicates,
     ) {
     }
 }

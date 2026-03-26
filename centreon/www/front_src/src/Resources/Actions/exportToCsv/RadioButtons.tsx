@@ -1,4 +1,3 @@
-import { SelectEntry } from '@centreon/ui';
 import {
   FormControlLabel,
   FormLabel,
@@ -6,10 +5,14 @@ import {
   RadioGroup,
   Typography
 } from '@mui/material';
+
+import { SelectEntry } from '@centreon/ui';
+
 import { PrimitiveAtom, useAtom } from 'jotai';
 import { equals } from 'ramda';
 import { SyntheticEvent, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import useExportCsvStyles from './exportCsv.styles';
 
 interface Props<T> {
@@ -51,25 +54,25 @@ const RadioButtons = <T extends string>({
   return (
     <RadioGroup aria-labelledby={title}>
       <FormLabel id={title}>
-        <Typography variant="subtitle2" className={classes.subTitle}>
+        <Typography className={classes.subTitle} variant="subtitle2">
           {title}
         </Typography>
       </FormLabel>
       {options.map(({ id, name }) => (
         <FormControlLabel
-          key={id}
-          value={id}
           control={
             <Radio
               checked={getCheckedValue(id)}
+              className={classes.radioInput}
               size="small"
               slotProps={{ input: { 'data-testid': name } }}
-              className={classes.radioInput}
             />
           }
+          key={id}
+          label={t(name)}
           labelPlacement="end"
           onChange={change}
-          label={t(name)}
+          value={id}
         />
       ))}
     </RadioGroup>

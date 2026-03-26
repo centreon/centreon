@@ -1,9 +1,7 @@
+import { PrimitiveAtom } from 'jotai';
 import { ReactNode } from 'react';
 
-import { PrimitiveAtom } from 'jotai';
-
 import { Resource } from '../models';
-
 import { CheckActionAtom } from './Resource/Check/checkAtoms';
 
 export enum Action {

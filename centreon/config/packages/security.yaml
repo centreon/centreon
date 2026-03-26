@@ -9,7 +9,7 @@ security:
             id: contact.provider
     firewalls:
         dev:
-            pattern: ^.*/api/beta/(_(profiler|wdt)|css|images|js)/
+            pattern: ^.*/api/(?:latest|beta|v[0-9]+|v[0-9]+\.[0-9]+)/(_(profiler|wdt)|css|images|js)/
             security: false
         free:
             stateless: true

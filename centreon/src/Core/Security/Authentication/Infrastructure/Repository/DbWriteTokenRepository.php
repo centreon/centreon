@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
         int $providerConfigurationId,
         int $contactId,
         NewProviderToken $providerToken,
-        ?NewProviderToken $providerRefreshToken
+        ?NewProviderToken $providerRefreshToken,
     ): void {
         // We avoid to start again a database transaction
         $isAlreadyInTransaction = $this->db->inTransaction();
@@ -173,7 +173,7 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
         int $providerConfigurationId,
         int $contactId,
         NewProviderToken $providerToken,
-        ?NewProviderToken $providerRefreshToken
+        ?NewProviderToken $providerRefreshToken,
     ): void {
 
         $this->insertSecurityToken($providerToken);
@@ -235,7 +235,7 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
         int $contactId,
         int $securityTokenId,
         ?int $securityRefreshTokenId,
-        int $providerConfigurationId
+        int $providerConfigurationId,
     ): void {
         $insertSecurityAuthenticationStatement = $this->db->prepare(
             $this->translateDbName(

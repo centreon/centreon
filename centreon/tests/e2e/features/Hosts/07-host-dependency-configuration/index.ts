@@ -1,6 +1,5 @@
-/* eslint-disable no-script-url */
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import data from '../../../fixtures/hosts-dependency/host-dependency.json';
 
@@ -76,14 +75,29 @@ Given('some hosts and services are configured', () => {
 });
 
 Given('a host dependency is configured', () => {
-  cy.navigateTo({
-    page: 'Hosts',
-    rootItemNumber: 3,
-    subMenu: 'Notifications'
-  });
+  cy.visit(PAGES.configuration.hostsDependenciesLegacy);
   cy.getIframeBody().contains('a', 'Add').click();
   cy.wait('@getTimeZone');
-  cy.addHostDependency(data.default);
+  cy.addHostDependency({
+    comment: data.default.comment,
+    dependentHostNames: data.default.dependentHostNames,
+    dependentServices: data.default.dependentServices,
+    description: data.default.description,
+    executionFailsOnDown: data.default.execution_fails_on_down,
+    executionFailsOnNone: data.default.notification_fails_on_none,
+    executionFailsOnOk: data.default.execution_fails_on_ok,
+    executionFailsOnPending: data.default.execution_fails_on_pending,
+    executionFailsOnUnreachable: data.default.execution_fails_on_unreachable,
+    hostNames: data.default.hostNames,
+    name: data.default.name,
+    notificationFailsOnDown: data.default.notification_fails_on_down,
+    notificationFailsOnNone: data.default.notification_fails_on_none,
+    notificationFailsOnOk: data.default.notification_fails_on_ok,
+    notificationFailsOnPending: data.default.notification_fails_on_pending,
+    notificationFailsOnUnreachable:
+      data.default.notification_fails_on_unreachable,
+    parentRelationship: data.default.parent_relationship
+  });
 });
 
 When('the user changes the properties of a host dependency', () => {
@@ -94,7 +108,28 @@ When('the user changes the properties of a host dependency', () => {
   cy.getIframeBody().contains(data.default.name).click();
   cy.wait('@getTopCounter');
   cy.wait('@getTimeZone');
-  cy.updateHostDependency(data.HostDependency1);
+  cy.updateHostDependency({
+    comment: data.HostDependency1.comment,
+    dependentHostNames: data.HostDependency1.dependentHostNames,
+    dependentServices: data.HostDependency1.dependentServices,
+    description: data.HostDependency1.description,
+    executionFailsOnDown: data.HostDependency1.execution_fails_on_down,
+    executionFailsOnNone: data.HostDependency1.execution_fails_on_none,
+    executionFailsOnOk: data.HostDependency1.execution_fails_on_ok,
+    executionFailsOnPending: data.HostDependency1.execution_fails_on_pending,
+    executionFailsOnUnreachable:
+      data.HostDependency1.execution_fails_on_unreachable,
+    hostNames: data.HostDependency1.hostNames,
+    name: data.HostDependency1.name,
+    notificationFailsOnDown: data.HostDependency1.notification_fails_on_down,
+    notificationFailsOnNone: data.HostDependency1.notification_fails_on_none,
+    notificationFailsOnOk: data.HostDependency1.notification_fails_on_ok,
+    notificationFailsOnPending:
+      data.HostDependency1.notification_fails_on_pending,
+    notificationFailsOnUnreachable:
+      data.HostDependency1.notification_fails_on_unreachable,
+    parentRelationship: data.HostDependency1.parent_relationship
+  });
 });
 
 Then('the properties are updated', () => {
@@ -121,7 +156,7 @@ Then('the properties are updated', () => {
     .should('have.length', 2)
     .then((options) => {
       const selectedTexts = Array.from(options).map((option) =>
-        option.text.trim()
+        (option.textContent || '').trim()
       );
       expect(selectedTexts).to.include.members([
         data.HostDependency1.hostNames[0],

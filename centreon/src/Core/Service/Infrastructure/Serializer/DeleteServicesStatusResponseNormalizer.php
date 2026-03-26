@@ -39,7 +39,7 @@ class DeleteServicesStatusResponseNormalizer implements NormalizerInterface
      * @param Router $router
      */
     public function __construct(
-        private readonly Router $router
+        private readonly Router $router,
     ) {
     }
 
@@ -55,7 +55,7 @@ class DeleteServicesStatusResponseNormalizer implements NormalizerInterface
     public function normalize(
         mixed $object,
         ?string $format = null,
-        array $context = []
+        array $context = [],
     ): array {
         return [
             'href' => $this->router->generateLegacyHref(self::SERVICE_TOPOLOGY_PAGE, ['o' => 'w', 'service_id' => $object->id]),
@@ -97,7 +97,7 @@ class DeleteServicesStatusResponseNormalizer implements NormalizerInterface
         return match ($code) {
             ResponseCodeEnum::OK => Response::HTTP_NO_CONTENT,
             ResponseCodeEnum::NotFound => Response::HTTP_NOT_FOUND,
-            ResponseCodeEnum::Error => Response::HTTP_INTERNAL_SERVER_ERROR
+            ResponseCodeEnum::Error => Response::HTTP_INTERNAL_SERVER_ERROR,
         };
     }
 }

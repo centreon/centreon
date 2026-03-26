@@ -1,8 +1,7 @@
 import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
 
 import { listTokensDecoder, listTokensEndpoint, useGetAll } from '../api';
-
-import { equals } from 'ramda';
 import { filtersAtom } from '../atoms';
 import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 
@@ -84,14 +83,14 @@ const useLoadData = (): LoadDataState => {
   ];
 
   const { data, isLoading } = useGetAll({
-    sortField,
-    sortOrder,
-    page,
-    limit,
-    searchConditions,
-    queryKey: ['listTokens', sortField, sortOrder, limit, page],
     baseEndpoint: listTokensEndpoint,
-    decoder: listTokensDecoder
+    decoder: listTokensDecoder,
+    limit,
+    page,
+    queryKey: ['listTokens', sortField, sortOrder, limit, page],
+    searchConditions,
+    sortField,
+    sortOrder
   });
 
   return { data, isLoading };

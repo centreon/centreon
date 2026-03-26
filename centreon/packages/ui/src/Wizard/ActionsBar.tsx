@@ -1,8 +1,8 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { Button, CircularProgress, Grid, Typography } from '@mui/material';
 
-import { ActionsBarProps } from './models';
+import { makeStyles } from 'tss-react/mui';
+
+import type { ActionsBarProps } from './models';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -39,9 +39,9 @@ const ActionsBar = ({
 
   return (
     <Grid
-      container
       alignItems="center"
       className={classes.container}
+      container
       direction="row"
       justifyContent="flex-end"
     >

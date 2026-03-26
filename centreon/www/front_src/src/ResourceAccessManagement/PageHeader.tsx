@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { Box, Typography } from '@mui/material';
+
+import { useTranslation } from 'react-i18next';
 
 import Filter from './Filter';
 import usePageHeaderStyles from './PageHeader.styles';

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,7 +96,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         private ProviderAuthenticationFactoryInterface $providerFactory,
         private ContactRepositoryInterface $contactRepository,
         private MenuServiceInterface $menuService,
-        private PlatformRepositoryInterface $platformRepository
+        private PlatformRepositoryInterface $platformRepository,
     ) {
         /** @var string */
         $webVersion = $this->platformRepository->getWebVersion();
@@ -249,7 +249,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
 
             // @todo: why are we not using findUserOrFail()?
             $authenticatedUser = $provider->getAuthenticatedUser();
-            if (null === $authenticatedUser) {
+            if ($authenticatedUser === null) {
                 throw new \Centreon\Domain\Authentication\Exception\AuthenticationException(
                     'No authenticated user could be found for provider'
                 );
@@ -279,7 +279,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         string $sessionId,
         int $webSSOConfigurationId,
         ContactInterface $user,
-        string $clientIp
+        string $clientIp,
     ): void {
         $this->info('creating token');
         $authenticationTokens = $this->authenticationService->findAuthenticationTokensByToken(
@@ -320,7 +320,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         ContactInterface $contact,
         NewProviderToken $providerToken,
         ?NewProviderToken $providerRefreshToken,
-        ?string $clientIp
+        ?string $clientIp,
     ): void {
         $isAlreadyInTransaction = $this->dataStorageEngine->isAlreadyinTransaction();
 
@@ -362,10 +362,10 @@ class WebSSOAuthenticator extends AbstractAuthenticator
      */
     private function getRedirectionUri(
         ?ContactInterface $authenticatedUser,
-        ?string $refererQueryParameters
+        ?string $refererQueryParameters,
     ): string {
         $redirectionUri = '/monitoring/resources';
-        if (null === $authenticatedUser) {
+        if ($authenticatedUser === null) {
             // The previous version assummed that if no conditions were met, just send this var as-is
             return $redirectionUri;
         }

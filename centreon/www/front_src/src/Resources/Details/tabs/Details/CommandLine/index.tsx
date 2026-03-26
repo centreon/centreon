@@ -1,8 +1,9 @@
-import { isNil } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import { Typography } from '@mui/material';
 
+import { equals, isNil } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
+
+import { primaryCommand, secondaryCommand } from './CommandeLine.module.css';
 import { getCommandsWithArguments } from './utils';
 
 const useStyles = makeStyles()((theme) => ({
@@ -15,9 +16,6 @@ const useStyles = makeStyles()((theme) => ({
   },
   command: {
     fontWeight: 'bold'
-  },
-  pipe: {
-    marginRight: theme.spacing(1)
   },
   pipedCommand: {
     display: 'flex',
@@ -41,11 +39,14 @@ const CommandWithArguments = ({ commandLine }: Props): JSX.Element => {
           <div key={command}>
             <div className={classes.pipedCommand}>
               {index > 0 && (
-                <Typography className={classes.pipe} variant="body2">
-                  |
+                <Typography className={secondaryCommand} variant="body2">
+                  --
                 </Typography>
               )}
-              <Typography className={classes.command} variant="body2">
+              <Typography
+                className={equals(index, 0) ? primaryCommand : secondaryCommand}
+                variant="body2"
+              >
                 {command}
               </Typography>
             </div>

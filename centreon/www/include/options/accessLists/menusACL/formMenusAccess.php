@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -41,8 +26,7 @@
 /** @var int|false $aclTopologyId */
 /** @var array<int|false> $duplicateNbr */
 /** @var array<int|false> $selectIds */
-
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -57,8 +41,8 @@ if ($o === ACL_ADD || $o === ACL_MODIFY) {
             $topologyId = (int) $topologyId;
             $accessRight = (int) $accessRight;
             // Only 1 or 2 are allowed
-            $hasAccessNotAllowed =
-                $accessRight != CentreonACL::ACL_ACCESS_READ_WRITE
+            $hasAccessNotAllowed
+                = $accessRight != CentreonACL::ACL_ACCESS_READ_WRITE
                 && $accessRight != CentreonACL::ACL_ACCESS_READ_ONLY;
 
             if ($hasAccessNotAllowed) {
@@ -68,9 +52,7 @@ if ($o === ACL_ADD || $o === ACL_MODIFY) {
     }
 }
 
-/*
- * Database retrieve information for LCA
- */
+// Database retrieve information for LCA
 
 /** @var array{
  *     acl_topo_id?: int,
@@ -145,19 +127,15 @@ foreach ($statementAclGroups as $group) {
 }
 unset($statementAclGroups);
 
-/*
- * Var information to format the element
- */
+// Var information to format the element
 
 $attrsText = ['size' => '30'];
 $attrsAdvSelect = ['style' => 'width: 300px; height: 180px;'];
 $attrsTextarea = ['rows' => '5', 'cols' => '80'];
-$eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />' .
-    '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
+$eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />'
+    . '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
-/*
- * Form begin
- */
+// Form begin
 
 $form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
 if ($o === ACL_ADD) {
@@ -168,9 +146,7 @@ if ($o === ACL_ADD) {
     $form->addElement('header', 'title', _('View an ACL'));
 }
 
-/*
- * LCA basic information
- */
+// LCA basic information
 $form->addElement('header', 'information', _('General Information'));
 $form->addElement('text', 'acl_topo_name', _('ACL Definition'), $attrsText);
 $form->addElement('text', 'acl_topo_alias', _('Alias'), $attrsText);
@@ -182,7 +158,7 @@ $ams1 = $form->addElement(
     [
         _('Linked Groups'),
         _('Available'),
-        _('Selected')
+        _('Selected'),
     ],
     $groups,
     $attrsAdvSelect,
@@ -199,15 +175,11 @@ $tab[] = $form->createElement('radio', 'acl_topo_activate', null, _('Disabled'),
 $form->addGroup($tab, 'acl_topo_activate', _('Status'), '&nbsp;');
 $form->setDefaults(['acl_topo_activate' => '1']);
 
-/*
- * Further informations
- */
+// Further informations
 $form->addElement('header', 'furtherInfos', _('Additional Information'));
 $form->addElement('textarea', 'acl_comments', _('Comments'), $attrsTextarea);
 
-/*
- * Create buffer group list for Foorth level.
- */
+// Create buffer group list for Foorth level.
 /** @var array<int, array<int, string>> $groupMenus */
 $groupMenus = [];
 $statementTopology = $pearDB->query(
@@ -224,9 +196,7 @@ foreach ($statementTopology as $group) {
 }
 unset($statementTopology);
 
-/*
- * Topology concerned
- */
+// Topology concerned
 $form->addElement('header', 'pages', _('Accessible Pages'));
 $statementTopo1 = $pearDB->query(
     <<<'SQL'
@@ -271,7 +241,7 @@ foreach ($statementTopo1 as $topo1) {
             ORDER BY topology_order
             SQL
     );
-    $statementTopo2->bindValue(':topology_parent', (int) $topo1['topology_page'], \PDO::PARAM_INT);
+    $statementTopo2->bindValue(':topology_parent', (int) $topo1['topology_page'], PDO::PARAM_INT);
     $statementTopo2->execute();
     foreach ($statementTopo2 as $topo2) {
         if (! is_enabled_feature_flag($topo2['topology_feature_flag'] ?? null)) {
@@ -303,7 +273,7 @@ foreach ($statementTopo1 as $topo1) {
                 ORDER BY topology_group, topology_order
                 SQL
         );
-        $statementTopo3->bindValue(':topology_parent', (int) $topo2['topology_page'], \PDO::PARAM_INT);
+        $statementTopo3->bindValue(':topology_parent', (int) $topo2['topology_page'], PDO::PARAM_INT);
         $statementTopo3->execute();
 
         foreach ($statementTopo3 as $topo3) {
@@ -343,7 +313,7 @@ foreach ($statementTopo1 as $topo1) {
                     ORDER BY topology_order
                     SQL
             );
-            $statementTopo4->bindValue(':topology_parent', (int) $topo3['topology_page'], \PDO::PARAM_INT);
+            $statementTopo4->bindValue(':topology_parent', (int) $topo3['topology_page'], PDO::PARAM_INT);
             $statementTopo4->execute();
 
             foreach ($statementTopo4 as $topo4) {
@@ -357,8 +327,8 @@ foreach ($statementTopo1 as $topo1) {
                 $d++;
             }
             unset($statementTopo4);
-            $acl_topos2[$a]['childs'][$b]['childs'][$c]['childNumber'] =
-                count($acl_topos2[$a]['childs'][$b]['childs'][$c]['childs']);
+            $acl_topos2[$a]['childs'][$b]['childs'][$c]['childNumber']
+                = count($acl_topos2[$a]['childs'][$b]['childs'][$c]['childs']);
             $c++;
         }
         unset($statementTopo3);
@@ -377,9 +347,7 @@ $form->addElement('hidden', 'acl_topo_id');
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
-/*
- * Form Rules
- */
+// Form Rules
 $form->applyFilter('__ALL__', 'myTrim');
 $form->addRule('acl_topo_name', _('Required'), 'required');
 $form->registerRule('exist', 'callback', 'hasTopologyNameNeverUsed');
@@ -391,21 +359,19 @@ $form->setRequiredNote(_('Required field'));
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
-/*
- * Just watch a LCA information
- */
+// Just watch a LCA information
 if ($o === ACL_WATCH) {
     $form->addElement('button', 'change', _('Modify'), [
         'onClick' => "javascript:window.location.href='?p=" . $p . '&o=c&acl_id=' . $aclTopologyId . "'",
-        'class' => 'btc bt_success'
+        'class' => 'btc bt_success',
     ]);
     $form->setDefaults($acl);
     $form->freeze();
-} elseif ($o === ACL_MODIFY) { # Modify a LCA information
+} elseif ($o === ACL_MODIFY) { // Modify a LCA information
     $subC = $form->addElement('submit', 'submitC', _('Save'), ['class' => 'btc bt_success']);
     $res = $form->addElement('reset', 'reset', _('Delete'), ['class' => 'btc bt_danger']);
     $form->setDefaults($acl);
-} elseif ($o === ACL_ADD) {  # Add a LCA information
+} elseif ($o === ACL_ADD) {  // Add a LCA information
     $subA = $form->addElement('submit', 'submitA', _('Save'), ['class' => 'btc bt_success']);
     $res = $form->addElement('reset', 'reset', _('Delete'), ['class' => 'btc bt_danger']);
 }

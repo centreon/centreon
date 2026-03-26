@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,8 @@ use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 
 final class DeleteHost
 {
-    use LoggerTrait,VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
 
     public function __construct(
         private readonly ReadHostRepositoryInterface $readHostRepository,
@@ -113,9 +114,10 @@ final class DeleteHost
         $this->storageEngine->startTransaction();
         $isVaultActive = $this->writeVaultRepository->isVaultConfigured();
         try {
-            $serviceIds = $this->readServiceRepository->findServiceIdsLinkedToHostId($host->getId());
+            // Only delete services that are exclusively linked to this host
+            $serviceIds = $this->readServiceRepository->findServiceIdsExclusivelyLinkedToHostId($host->getId());
             if ($serviceIds !== []) {
-                $this->info('Services to delete', ['user_id' => $this->contact->getId(), 'services' => $serviceIds]);
+                $this->info('Services to delete (exclusively linked to this host)', ['user_id' => $this->contact->getId(), 'services' => $serviceIds]);
                 if ($isVaultActive) {
                     $serviceUuids = $this->retrieveServiceUuidsFromVault($serviceIds);
                     $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
@@ -184,7 +186,7 @@ final class DeleteHost
     private function retrieveHostUuidFromVault(Host $host): void
     {
         $this->uuid = $this->getUuidFromPath($host->getSnmpCommunity());
-        if (null === $this->uuid) {
+        if ($this->uuid === null) {
             $macros = $this->readHostMacroRepository->findByHostId($host->getId());
             foreach ($macros as $macro) {
                 if (

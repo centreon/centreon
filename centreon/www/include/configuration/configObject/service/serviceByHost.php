@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ $linkType = '';
 if ($service_id !== false) {
     // Check if a service is a service by hostgroup or not
     $statement = $pearDB->prepare('SELECT * FROM host_service_relation WHERE service_service_id = :service_id');
-    $statement->bindValue(':service_id', $service_id, \PDO::PARAM_INT);
+    $statement->bindValue(':service_id', $service_id, PDO::PARAM_INT);
     $statement->execute();
     while ($data = $statement->fetch()) {
         if (isset($data['hostgroup_hg_id']) && $data['hostgroup_hg_id'] !== '') {

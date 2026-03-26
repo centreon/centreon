@@ -2,6 +2,11 @@ import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   dataTable: {
+    '&[data-variant][data-is-empty="true"]': {
+      display: 'flex',
+      justifyContent: 'center',
+      width: '100%'
+    },
     '&[data-variant="grid"]': {
       '& > *': {
         width: 'auto'
@@ -12,11 +17,6 @@ const useStyles = makeStyles()((theme) => ({
     },
     '&[data-variant="listing"]': {
       height: '100%'
-    },
-    '&[data-variant][data-is-empty="true"]': {
-      display: 'flex',
-      justifyContent: 'center',
-      width: '100%'
     },
     display: 'flex'
   },

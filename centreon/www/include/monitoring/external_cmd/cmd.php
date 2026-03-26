@@ -1,55 +1,38 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-include_once('./include/monitoring/external_cmd/functions.php');
+include_once './include/monitoring/external_cmd/functions.php';
 
-/*
- * Get Parameters
- */
-$param = !isset($_GET['cmd']) && isset($_POST['cmd']) ? $_POST : $_GET;
+// Get Parameters
+$param = ! isset($_GET['cmd']) && isset($_POST['cmd']) ? $_POST : $_GET;
 
 if (isset($param['en'])) {
     $en = $param['en'];
 }
 
-if (!isset($param['select']) || !isset($param['cmd'])) {
+if (! isset($param['select']) || ! isset($param['cmd'])) {
     return;
 }
 
@@ -63,7 +46,7 @@ if ($serverIsRemote && in_array($param['cmd'], $disabledCommandsForRemote)) {
 
 foreach ($param['select'] as $key => $value) {
     switch ($param['cmd']) {
-        /* Re-Schedule SVC Checks */
+        // Re-Schedule SVC Checks
         case 1:
             schedule_host_svc_checks($key, 0);
             break;
@@ -76,8 +59,7 @@ foreach ($param['select'] as $key => $value) {
         case 4:
             schedule_svc_checks($key, 1);
             break;
-
-        /* Scheduling svc */
+            // Scheduling svc
         case 5:
             host_svc_checks($key, $en);
             break;
@@ -87,8 +69,7 @@ foreach ($param['select'] as $key => $value) {
         case 7:
             svc_check($key, $en);
             break;
-
-        /* Notifications */
+            // Notifications
         case 8:
             host_svc_notifications($key, $en);
             break;
@@ -98,8 +79,7 @@ foreach ($param['select'] as $key => $value) {
         case 10:
             svc_notifications($key, $en);
             break;
-
-        /* Auto Notification */
+            // Auto Notification
         case 80:
             autoNotificationServiceStart($key);
             break;
@@ -112,8 +92,7 @@ foreach ($param['select'] as $key => $value) {
         case 83:
             autoNotificationHostStop($key);
             break;
-
-        /* Auto Check */
+            // Auto Check
         case 90:
             autoCheckServiceStart($key);
             break;
@@ -126,24 +105,21 @@ foreach ($param['select'] as $key => $value) {
         case 93:
             autoCheckHostStop($key);
             break;
-
-        /* Scheduling host */
+            // Scheduling host
         case 94:
             schedule_host_checks($key, 0);
             break;
         case 95:
             schedule_host_checks($key, 1);
             break;
-
-        /* Acknowledge status */
+            // Acknowledge status
         case 14:
             acknowledgeHost($param);
             break;
         case 15:
             acknowledgeService($param);
             break;
-
-        /* Configure nagios Core */
+            // Configure nagios Core
         case 20:
             send_cmd('ENABLE_ALL_NOTIFICATIONS_BEYOND_HOST', '');
             break;
@@ -213,8 +189,7 @@ foreach ($param['select'] as $key => $value) {
         case 42:
             send_cmd('DISABLE_PERFORMANCE_DATA', '');
             break;
-
-        /* End Configuration Nagios Core */
+            // End Configuration Nagios Core
         case 43:
             host_flapping_enable($key, $en);
             break;
@@ -227,7 +202,6 @@ foreach ($param['select'] as $key => $value) {
         case 46:
             svc_event_handler($key, $en);
             break;
-
         case 49:
             // @TODO : seems like dead code - to check in other repo
             host_flap_detection($key, 1);
@@ -242,7 +216,6 @@ foreach ($param['select'] as $key => $value) {
         case 52:
             host_event_handler($key, 0);
             break;
-
         case 59:
             // @TODO : seems like dead code - to check in other repo
             add_hostgroup_downtime($param['dtm']);
@@ -276,8 +249,7 @@ foreach ($param['select'] as $key => $value) {
         case 67:
             schedule_svc_check($key, 1, 1);
             break;
-
-        /* Auto Aknowledge */
+            // Auto Aknowledge
         case 70:
             autoAcknowledgeServiceStart($key);
             break;
@@ -290,8 +262,7 @@ foreach ($param['select'] as $key => $value) {
         case 73:
             autoAcknowledgeHostStop($key);
             break;
-
-        /* Auto Notification */
+            // Auto Notification
         case 80:
             autoNotificationServiceStart($key);
             break;
@@ -304,8 +275,7 @@ foreach ($param['select'] as $key => $value) {
         case 83:
             autoNotificationHostStop($key);
             break;
-
-        /* Auto Check */
+            // Auto Check
         case 90:
             autoCheckServiceStart($key);
             break;

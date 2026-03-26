@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,35 +18,33 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Tests\Core\Application\Configuration\NotificationPolicy\UseCase;
 
-use Core\Application\Configuration\NotificationPolicy\UseCase\FindServiceNotificationPolicy;
-use Core\Application\Configuration\NotificationPolicy\UseCase\FindNotificationPolicyPresenterInterface;
-use Core\Application\Configuration\NotificationPolicy\UseCase\FindNotificationPolicyResponse;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Engine\EngineConfiguration;
 use Centreon\Domain\Engine\Interfaces\EngineConfigurationServiceInterface;
-use Core\Application\Configuration\User\Repository\ReadUserRepositoryInterface;
+use Centreon\Domain\HostConfiguration\Host;
 use Centreon\Domain\HostConfiguration\Interfaces\HostConfigurationRepositoryInterface;
 use Centreon\Domain\ServiceConfiguration\Interfaces\ServiceConfigurationRepositoryInterface;
-use Core\Application\Configuration\UserGroup\Repository\ReadUserGroupRepositoryInterface;
-use Core\Application\Configuration\Notification\Repository\ReadNotificationRepositoryInterface;
+use Centreon\Domain\ServiceConfiguration\Service;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Configuration\Notification\Repository\ReadServiceNotificationRepositoryInterface;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Core\Application\Configuration\NotificationPolicy\UseCase\FindNotificationPolicyPresenterInterface;
+use Core\Application\Configuration\NotificationPolicy\UseCase\FindNotificationPolicyResponse;
+use Core\Application\Configuration\NotificationPolicy\UseCase\FindServiceNotificationPolicy;
 use Core\Application\RealTime\Repository\ReadHostRepositoryInterface as ReadRealTimeHostRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadServiceRepositoryInterface as ReadRealTimeServiceRepositoryInterface;
-use Centreon\Domain\Engine\EngineConfiguration;
-use Centreon\Domain\HostConfiguration\Host;
-use Centreon\Domain\ServiceConfiguration\Service;
-use Core\Domain\RealTime\Model\Service as RealTimeService;
-use Core\Domain\RealTime\Model\ServiceStatus;
-use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Domain\Configuration\Notification\Model\HostNotification;
 use Core\Domain\Configuration\Notification\Model\NotifiedContact;
 use Core\Domain\Configuration\Notification\Model\NotifiedContactGroup;
-use Core\Domain\Configuration\Notification\Model\HostNotification;
 use Core\Domain\Configuration\Notification\Model\ServiceNotification;
 use Core\Domain\Configuration\TimePeriod\Model\TimePeriod;
+use Core\Domain\RealTime\Model\Service as RealTimeService;
+use Core\Domain\RealTime\Model\ServiceStatus;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
     $this->readServiceNotificationRepository = $this->createMock(ReadServiceNotificationRepositoryInterface::class);
@@ -68,10 +66,10 @@ beforeEach(function (): void {
         new ServiceStatus(ServiceStatus::STATUS_NAME_CRITICAL, ServiceStatus::STATUS_CODE_CRITICAL, 1),
     );
 
-    $hostNotification = new HostNotification(new Timeperiod(1, '24x7', '24/24 7/7'));
+    $hostNotification = new HostNotification(new TimePeriod(1, '24x7', '24/24 7/7'));
     $hostNotification->addEvent(HostNotification::EVENT_HOST_DOWN);
 
-    $serviceNotification = new ServiceNotification(new Timeperiod(1, '24x7', '24/24 7/7'));
+    $serviceNotification = new ServiceNotification(new TimePeriod(1, '24x7', '24/24 7/7'));
     $serviceNotification->addEvent(ServiceNotification::EVENT_SERVICE_CRITICAL);
 
     $this->notifiedContact = new NotifiedContact(
@@ -136,7 +134,6 @@ it('does not find service notification policy when acl user does not have access
 
     ($this->useCase)(1, 1, $this->findNotificationPolicyPresenter);
 });
-
 
 it('does not find service notification policy when acl user does not have access to service', function (): void {
     $this->contact

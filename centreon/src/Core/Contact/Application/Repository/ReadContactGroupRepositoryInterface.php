@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ namespace Core\Contact\Application\Repository;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -89,7 +90,7 @@ interface ReadContactGroupRepositoryInterface
     public function findByAccessGroupsAndUserAndRequestParameter(
         array $accessGroups,
         ContactInterface $user,
-        ?RequestParametersInterface $requestParameters = null
+        ?RequestParametersInterface $requestParameters = null,
     ): array;
 
     /**
@@ -124,7 +125,7 @@ interface ReadContactGroupRepositoryInterface
      *
      * @param int ...$ids
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return array<int, array{id: int, name: string}>
      */

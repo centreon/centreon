@@ -58,7 +58,7 @@ final class ShareDashboard
         private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
         private readonly ContactInterface $user,
         private readonly DataStorageEngineInterface $dataStorageEngine,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -229,7 +229,8 @@ final class ShareDashboard
      *
      * @throws \Throwable
      */
-    private function updateDashboardSharesAsAdmin(int $dashboardId, array $contactRoles, array $contactGroupRoles): void {
+    private function updateDashboardSharesAsAdmin(int $dashboardId, array $contactRoles, array $contactGroupRoles): void
+    {
         try {
             $this->dataStorageEngine->startTransaction();
             $this->writeDashboardShareRepository->deleteDashboardShares($dashboardId);
@@ -270,7 +271,7 @@ final class ShareDashboard
         array $contactRoles,
         array $contactGroupRoles,
         array $userContactGroupIds,
-        array $contactIdsInUserAccessGroups
+        array $contactIdsInUserAccessGroups,
     ): void {
         try {
             $this->dataStorageEngine->startTransaction();

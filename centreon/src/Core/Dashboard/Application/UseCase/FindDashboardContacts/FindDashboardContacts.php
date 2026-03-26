@@ -63,7 +63,7 @@ final class FindDashboardContacts
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadContactRepositoryInterface $readContactRepository,
         private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -141,7 +141,7 @@ final class FindDashboardContacts
             $this->requestParameters
         );
 
-        if ($this->isCloudPlatform === false ) {
+        if ($this->isCloudPlatform === false) {
             $total = $this->requestParameters->getTotal();
             $admins = $this->readContactRepository->findAdminWithRequestParameters(
                 $this->requestParameters

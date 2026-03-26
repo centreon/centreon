@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -79,24 +79,24 @@ it(
         $id = 1;
         $name = ' fake_name ';
         $alias = ' fake_alias ';
-        $tp = new TimePeriod($id, $name, $alias);
-        expect($tp->getId())->toBe($id);
-        expect($tp->getName())->toBe(trim($name));
-        expect($tp->getAlias())->toBe(trim($alias));
+        $timePeriod = new TimePeriod($id, $name, $alias);
+        expect($timePeriod->getId())->toBe($id);
+        expect($timePeriod->getName())->toBe(trim($name));
+        expect($timePeriod->getAlias())->toBe(trim($alias));
 
         $timeRange = new TimeRange('00:00-01:00');
 
         $extra = [new ExtraTimePeriod(1, 'monday 1', $timeRange)];
-        $tp->setExtraTimePeriods($extra);
-        expect($tp->getExtraTimePeriods())->toBe($extra);
+        $timePeriod->setExtraTimePeriods($extra);
+        expect($timePeriod->getExtraTimePeriods())->toBe($extra);
 
         $templates = [new Template(1, 'fake_template')];
-        $tp->setTemplates($templates);
-        expect($tp->getTemplates())->toBe($templates);
+        $timePeriod->setTemplates($templates);
+        expect($timePeriod->getTemplates())->toBe($templates);
 
         $days = [new Day(1, $timeRange)];
-        $tp->setDays($days);
-        expect($tp->getDays())->toBe($days);
+        $timePeriod->setDays($days);
+        expect($timePeriod->getDays())->toBe($days);
     }
 );
 
@@ -118,9 +118,9 @@ it(
 it(
     'should throw an exception if the given extra periods are not of the right type',
     function (): void {
-        $tp = new TimePeriod(1, 'fake_name', 'fake_alias');
-        $tp->setExtraTimePeriods([
-            new \stdClass()
+        $timePeriod = new TimePeriod(1, 'fake_name', 'fake_alias');
+        $timePeriod->setExtraTimePeriods([
+            new \stdClass(),
         ]);
     }
 )->throws(
@@ -130,9 +130,9 @@ it(
 it(
     'should throw an exception if the given templates are not of the right type',
     function (): void {
-        $tp = new TimePeriod(1, 'fake_name', 'fake_alias');
-        $tp->setTemplates([
-            new \stdClass()
+        $timePeriod = new TimePeriod(1, 'fake_name', 'fake_alias');
+        $timePeriod->setTemplates([
+            new \stdClass(),
         ]);
     }
 )->throws(
@@ -142,9 +142,9 @@ it(
 it(
     'should throw an exception if the given days are not of the right type',
     function (): void {
-        $tp = new TimePeriod(1, 'fake_name', 'fake_alias');
-        $tp->setDays([
-            new \stdClass()
+        $timePeriod = new TimePeriod(1, 'fake_name', 'fake_alias');
+        $timePeriod->setDays([
+            new \stdClass(),
         ]);
     }
 )->throws(

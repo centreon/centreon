@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,12 @@ declare(strict_types=1);
 
 namespace Security;
 
+use Adaptation\Log\LoggerToken;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Exception\ContactDisabledException;
+use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
+use Core\Security\Token\Domain\Model\ApiToken;
 use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
 use Security\Domain\Authentication\Model\LocalProvider;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -48,6 +51,8 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
  */
 class TokenAPIAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
 {
+    use LoggerTrait;
+
     /**
      * TokenAPIAuthenticator constructor.
      *
@@ -101,6 +106,8 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
      */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey): ?Response
     {
+        $this->logTokenUsage($request);
+
         return null;
     }
 
@@ -115,7 +122,7 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
     public function authenticate(Request $request): SelfValidatingPassport
     {
         $apiToken = $request->headers->get('X-AUTH-TOKEN');
-        if (null === $apiToken) {
+        if ($apiToken === null) {
             // The token header was empty, authentication fails with HTTP Status
             // Code 401 "Unauthorized"
             throw new TokenNotFoundException('API token not provided');
@@ -162,5 +169,28 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
         }
 
         return $contact;
+    }
+
+    private function logTokenUsage(Request $request): void
+    {
+        try {
+            $tokenString = $request->headers->get('X-AUTH-TOKEN');
+            if ($tokenString && ! $this->readTokenRepository->isTokenTypeAuto($tokenString)) {
+                /** @var ApiToken|null $apiToken */
+                $apiToken = $this->readTokenRepository->find($tokenString);
+                if ($apiToken instanceof ApiToken) {
+                    LoggerToken::create()->success(
+                        event: 'usage',
+                        userId: $apiToken->getCreatorId(),
+                        tokenName: $apiToken->getName(),
+                        tokenType: 'api',
+                        endpoint: $request->getRequestUri(),
+                        httpMethod: $request->getMethod(),
+                    );
+                }
+            }
+        } catch (\Throwable $ex) {
+            $this->error('Token usage log failure', ['exception' => $ex]);
+        }
     }
 }

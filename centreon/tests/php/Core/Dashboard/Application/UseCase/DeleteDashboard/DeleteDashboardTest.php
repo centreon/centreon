@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,20 +23,20 @@ declare(strict_types=1);
 
 namespace Tests\Core\Dashboard\Application\UseCase\DeleteDashboard;
 
-use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Dashboard\Domain\Model\DashboardRights;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Dashboard\Domain\Model\Refresh;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Dashboard\Application\Exception\DashboardException;
-use Core\Dashboard\Domain\Model\Refresh\RefreshType;
-use Core\Dashboard\Application\UseCase\DeleteDashboard\DeleteDashboard;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
-use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
+use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
+use Core\Dashboard\Application\UseCase\DeleteDashboard\DeleteDashboard;
+use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Dashboard\Domain\Model\Refresh;
+use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 use Core\Media\Application\Repository\WriteMediaRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
