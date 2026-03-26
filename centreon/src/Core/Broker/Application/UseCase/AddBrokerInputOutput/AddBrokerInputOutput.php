@@ -176,6 +176,9 @@ final class AddBrokerInputOutput
         $updatedParameters = $inputOutput->getParameters();
 
         foreach ($updatedParameters as $paramName => $paramValue) {
+            if (! array_key_exists($paramName, $inputOutputFields)) {
+                continue;
+            }
             if (is_array($inputOutputFields[$paramName])) {
                 if (! is_array($paramValue)) {
                     // for phpstan, should not happen.
