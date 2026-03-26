@@ -64,6 +64,8 @@ use Core\Macro\Domain\Model\Macro;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
+use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
+use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Tests\Core\Host\Infrastructure\API\PartialUpdateHost\PartialUpdateHostPresenterStub;
 
 beforeEach(function (): void {
@@ -90,6 +92,8 @@ beforeEach(function (): void {
         readCommandRepository:  $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
         writeAccessGroupRepository: $this->writeAccessGroupRepository = $this->createMock(WriteAccessGroupRepositoryInterface::class),
         adminResolver: $this->adminResolver = $this->createMock(AdminResolver::class),
+        readServiceTemplateRepository: $this->readServiceTemplateRepository = $this->createMock(ReadServiceTemplateRepositoryInterface::class),
+        writeServiceRepository: $this->writeServiceRepository = $this->createMock(WriteServiceRepositoryInterface::class),
     );
 
     $this->inheritanceModeOption = new Option();
@@ -725,34 +729,55 @@ it('should call deleteServicesFromRemovedTemplates when a template is removed', 
         ->expects($this->exactly(2))
         ->method('addParent');
 
-    // findParents is called twice:
+    // findParents is called multiple times:
     //   1st: in updateParentTemplates to compute removed templates (before delete)
-    //   2nd: in updateMacros to resolve inheritance chain
+    //   2nd+3rd: in cleanServicesFromRemovedTemplates to expand template chains
+    //   4th: in deleteServicesFromTemplate to find parents of removed template 4
+    //   5th: in updateMacros to resolve inheritance chain
     $initialParents = [
         ['child_id' => 1, 'parent_id' => 2, 'order' => 0],
         ['child_id' => 1, 'parent_id' => 3, 'order' => 1],
         ['child_id' => 1, 'parent_id' => 4, 'order' => 2],
         ['child_id' => 2, 'parent_id' => 3, 'order' => 0],
     ];
+    $template2Parents = [
+        ['child_id' => 2, 'parent_id' => 3, 'order' => 0],
+    ];
+    $template3Parents = [];
+    $template4Parents = [];
     $updatedParents = [
         ['child_id' => 1, 'parent_id' => 2, 'order' => 0],
         ['child_id' => 1, 'parent_id' => 3, 'order' => 1],
         ['child_id' => 2, 'parent_id' => 3, 'order' => 0],
     ];
     $this->readHostRepository
-        ->expects($this->exactly(2))
+        ->expects($this->exactly(5))
         ->method('findParents')
-        ->willReturnOnConsecutiveCalls($initialParents, $updatedParents);
-
-    // Expect service cleanup for removed template 4
-    $this->writeHostRepository
-        ->expects($this->once())
-        ->method('deleteServicesFromRemovedTemplates')
-        ->with(
-            $this->hostId,
-            [4],       // removedTemplateIds
-            [2, 3],   // remainingTemplateIds
+        ->willReturnOnConsecutiveCalls(
+            $initialParents,      // updateParentTemplates: compute removed templates
+            $template2Parents,    // expandTemplateChain: expand template 2
+            $template3Parents,    // expandTemplateChain: expand template 3
+            $template4Parents,    // deleteServicesFromTemplate: parents of template 4
+            $updatedParents,      // updateMacros: resolve inheritance chain
         );
+
+    // Service template cleanup for removed template 4
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('findIdsByHostTemplateId')
+        ->with(4)
+        ->willReturn([10]); // template 4 provides service template 10
+
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('isLinkedToAnyHostTemplate')
+        ->with(10, [2, 3]) // check against remaining expanded template IDs
+        ->willReturn(false); // not provided by remaining templates
+
+    $this->writeServiceRepository
+        ->expects($this->once())
+        ->method('deleteByHostIdAndServiceTemplateId')
+        ->with($this->hostId, 10);
 
     // Macros
     $this->readHostMacroRepository

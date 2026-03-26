@@ -268,21 +268,6 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
     }
 
     /**
-     * @inheritDoc
-     */
-    public function deleteServicesFromRemovedTemplates(
-        int $hostId,
-        array $removedTemplateIds,
-        array $remainingTemplateIds,
-    ): void {
-        $this->writeHostRepository->deleteServicesFromRemovedTemplates(
-            $hostId,
-            $removedTemplateIds,
-            $remainingTemplateIds,
-        );
-    }
-
-    /**
      * @param NewHost $host
      *
      * @return array<string,int|bool|string>
