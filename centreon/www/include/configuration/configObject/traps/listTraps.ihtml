@@ -1,20 +1,5 @@
 <script type="text/javascript" src="./include/common/javascript/tool.js"></script>
 
-{literal}
-<style>
-.cl-filter-box { background:var(--body-background,#fff); border:1px solid var(--listing-border-botom-color,#E3E3E3); border-radius:6px; padding:10px 16px; margin-bottom:8px; }
-.cl-filter-bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-.cl-filter-label { font-size:12px; font-weight:600; color:var(--body-color,#555); margin-right:2px; }
-.cl-clear-select { background:none; border:none; cursor:pointer; font-size:14px; color:var(--color-danger,#FF4A4A); padding:0 2px; margin-left:-2px; margin-right:4px; opacity:.6; }
-.cl-clear-select:hover { opacity:1; }
-.cl-status-ok { color:#88B922; }
-.cl-status-warning { color:#FD9B27; }
-.cl-status-critical { color:#FF4A4A; }
-.cl-status-unknown { color:#818285; }
-.cl-status-pending { color:#1EBEB3; }
-</style>
-{/literal}
-
 <form name='form' method='POST'>
     <div class="cl-filter-box">
         <div class="cl-filter-bar">

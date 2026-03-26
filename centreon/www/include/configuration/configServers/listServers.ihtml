@@ -1,13 +1,5 @@
 <script type="text/javascript" src="./include/common/javascript/tool.js"></script>
 
-{literal}
-<style>
-/* Poller-specific tooltip */
-/* Stale last-update highlight */
-.cl-stale { background-color:#F7D507 !important; color:#333 !important; padding:2px 6px; border-radius:3px; }
-</style>
-{/literal}
-
 <form name='form' method='POST'>
     <div class="cl-listing-container">
         <div class="cl-actions-bar">

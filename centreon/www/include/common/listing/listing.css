@@ -518,3 +518,118 @@
     background: var(--list-hover-background-color, #E6EDF5);
     text-decoration: none;
 }
+
+/* ==========================================================================
+   Filter box (advanced search with multiple fields)
+   ========================================================================== */
+
+.cl-filter-box {
+    background: var(--body-background, #fff);
+    border: 1px solid var(--listing-border-botom-color, #E3E3E3);
+    border-radius: 6px;
+    padding: 10px 16px;
+    margin-bottom: 8px;
+}
+
+.cl-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.cl-filter-bar .cl-search-input {
+    max-width: none;
+    width: 200px;
+    height: 28px;
+    padding: 4px 8px;
+    font-size: 13px;
+}
+
+.cl-filter-bar .select2-container {
+    width: 180px !important;
+}
+
+.cl-filter-bar .select2-container .select2-selection {
+    height: 30px;
+    min-height: 30px;
+}
+
+.cl-filter-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--body-color, #555);
+    margin-right: 4px;
+}
+
+/* ==========================================================================
+   Clear button for individual select2 dropdowns
+   ========================================================================== */
+
+.cl-clear-select {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--color-danger, #FF4A4A);
+    padding: 0 2px;
+    margin-left: -2px;
+    margin-right: 4px;
+    opacity: 0.6;
+}
+
+.cl-clear-select:hover {
+    opacity: 1;
+}
+
+/* ==========================================================================
+   Monitoring status badges (real-time host/poller status)
+   ========================================================================== */
+
+.cl-mon-badge {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.cl-mon-up {
+    background: var(--color-success, #88B922);
+    box-shadow: 0 0 4px var(--color-success, #88B922);
+}
+
+.cl-mon-down {
+    background: var(--color-danger, #FF4A4A);
+    box-shadow: 0 0 4px var(--color-danger, #FF4A4A);
+}
+
+.cl-mon-unreach {
+    background: var(--color-aluminium, #818285);
+    box-shadow: 0 0 4px var(--color-aluminium, #818285);
+}
+
+.cl-mon-pending {
+    background: var(--color-pending, #1EBEB3);
+    box-shadow: 0 0 4px var(--color-pending, #1EBEB3);
+}
+
+/* ==========================================================================
+   Stale last-update highlight (pollers)
+   ========================================================================== */
+
+.cl-stale {
+    background-color: #F7D507 !important;
+    color: #333 !important;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+/* ==========================================================================
+   Trap status colors
+   ========================================================================== */
+
+.cl-status-ok { color: var(--color-success, #88B922); }
+.cl-status-warning { color: var(--color-warning, #FD9B27); }
+.cl-status-critical { color: var(--color-danger, #FF4A4A); }
+.cl-status-unknown { color: var(--color-aluminium, #818285); }
+.cl-status-pending { color: var(--color-pending, #1EBEB3); }

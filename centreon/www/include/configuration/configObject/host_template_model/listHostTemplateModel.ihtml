@@ -1,13 +1,5 @@
 <script type="text/javascript" src="./include/common/javascript/tool.js"></script>
 
-{literal}
-<style>
-.cl-filter-box { background:var(--body-background,#fff); border:1px solid var(--listing-border-botom-color,#E3E3E3); border-radius:6px; padding:10px 16px; margin-bottom:8px; }
-.cl-filter-bar { display:flex; align-items:center; gap:10px; }
-.cl-filter-label { font-size:12px; font-weight:600; color:var(--body-color,#555); margin-right:4px; }
-</style>
-{/literal}
-
 <form name='form' method='POST'>
     <div class="cl-filter-box">
         <div class="cl-filter-bar">
