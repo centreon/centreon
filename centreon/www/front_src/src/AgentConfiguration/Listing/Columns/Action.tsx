@@ -11,7 +11,6 @@ import { useTranslation } from 'react-i18next';
 import { itemToDeleteAtom, pollerToGenerateCommandAtom } from '../../atoms';
 import { AgentConfigurationListing, AgentType } from '../../models';
 import { labelCommand, labelDelete } from '../../translatedLabels';
-import { useStyles } from './Action.styles';
 
 interface Props {
   row: AgentConfigurationListing & {
@@ -21,7 +20,6 @@ interface Props {
 }
 
 const Action = ({ row }: Props): JSX.Element => {
-  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const { isAdmin } = useAtomValue(userAtom);
@@ -66,7 +64,7 @@ const Action = ({ row }: Props): JSX.Element => {
             onClick={displayCommandModal}
             title={t(labelCommand)}
           >
-            <CodeOffTwoTone className="text-xl" />
+            <CodeOffTwoTone className="text-5" />
           </IconButton>
         )}
       </div>
@@ -74,11 +72,11 @@ const Action = ({ row }: Props): JSX.Element => {
         {isDeleteButtonDisplayed && (
           <IconButton
             ariaLabel={t(labelDelete)}
-            className={classes.removeButton}
+            className="text-primary-main hover:text-error-main"
             onClick={askBeforeDelete}
             title={t(labelDelete)}
           >
-            <DeleteOutline className="text-x" />
+            <DeleteOutline className="text-5 text-error-main" />
           </IconButton>
         )}
       </div>
