@@ -21,11 +21,6 @@ const InstallationCommandButton = ({ rows }: Props): ReactElement => {
   const setOpenFormModal = useSetAtom(pollerToGenerateCommanAtom);
 
   const displayModal = (): void => {
-    const getCentralPoller = pipe(
-      chain(propOr([], 'pollers')),
-      find(propEq(true, 'isCentral')),
-      defaultTo({})
-    );
 
     setOpenFormModal(getCentralPoller(rows) as { id?: number; name?: string });
   };
