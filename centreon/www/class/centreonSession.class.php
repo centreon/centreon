@@ -206,9 +206,9 @@ class CentreonSession
             if (isset($_COOKIE[$sessionName]) && is_string($_COOKIE[$sessionName])) {
                 $sessionId = $_COOKIE[$sessionName];
             } else {
-                // Last resort: find any cookie starting with PHPSESSID (e.g., PHPSESSID_{SITE})
+                // Last resort: find any cookie starting with session name (e.g., PHPSESSID_{SITE})
                 foreach ($_COOKIE as $cookieKey => $cookieVal) {
-                    if (is_string($cookieKey) && str_starts_with($cookieKey, 'PHPSESSID') && is_string($cookieVal)) {
+                    if (is_string($cookieKey) && str_starts_with($cookieKey, $sessionName) && is_string($cookieVal)) {
                         $sessionName = $cookieKey;
                         $sessionId = $cookieVal;
                         break;

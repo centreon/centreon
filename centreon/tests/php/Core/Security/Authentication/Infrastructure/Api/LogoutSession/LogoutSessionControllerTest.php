@@ -63,7 +63,7 @@ class LogoutSessionControllerTest extends TestCase
     {
         $logoutSessionController = new LogoutSessionController();
 
-        $this->request->cookies = new InputBag(['PHPSESSID' => 'token']);
+        $this->request->cookies = new InputBag([session_name() => 'token']);
 
         $this->logoutSessionPresenter->setResponseStatus(new NoContentResponse());
 
