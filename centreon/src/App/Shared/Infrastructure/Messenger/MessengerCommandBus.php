@@ -44,6 +44,7 @@ final class MessengerCommandBus implements CommandBus
         } catch (HandlerFailedException $e) {
             /** @var list<\Throwable> $exceptions */
             $exceptions = $e->getWrappedExceptions();
+
             throw $exceptions[0] ?? $e->getPrevious() ?? $e;
         }
     }
