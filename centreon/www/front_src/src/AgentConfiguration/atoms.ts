@@ -25,7 +25,7 @@ export const agentTypeFormAtom = atom<AgentType | null>(null);
 export const openFormModalAtom = atom<number | 'add' | null>(null);
 export const askBeforeCloseFormModalAtom = atom(false);
 
-export const pollerToGenerateCommanAtom = atom<{
+export const pollerToGenerateCommandAtom = atom<{
   id?: number;
   name?: string;
 } | null>(null);
