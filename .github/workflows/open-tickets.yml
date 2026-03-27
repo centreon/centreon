@@ -49,25 +49,20 @@ jobs:
   dependency-scan:
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
-  dispatch-to-maintained-branches:
-    if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' && github.repository == 'centreon/centreon' }}
+  dispatch-to-maintenance-branches:
+    if: |
+      github.run_attempt == 1 &&
+      github.event_name == 'schedule' &&
+      github.ref_name == 'develop' &&
+      github.repository == 'centreon/centreon'
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
-      - name: Run nightly on a different maintenance branch depending on the day
-        run: |
-          NIGHTLY_TARGETS=("dev-24.04.x" "dev-24.10.x" "dev-25.10.x")
-          TARGET_BRANCH=${NIGHTLY_TARGETS[$(( $(date +%u) - 1 ))]}
-          if [[ -z "$TARGET_BRANCH" ]]; then
-            echo "[INFO] - The target branch was not properly defined for that day (out-of-bounds array)."
-            exit 0
-          else
-            gh workflow run open-tickets.yml -r "$TARGET_BRANCH" -f nightly_manual_trigger=true
-            echo "[INFO] - Dispatching nightly run to $TARGET_BRANCH branch."
-          fi
-        shell: bash
+      - name: Select maintenance branch and run nightly workflow on it
+        uses: ./.github/actions/dispatch-to-maintenance-branch
+
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
