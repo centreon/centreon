@@ -25,6 +25,7 @@ namespace Tests\Core\Service\Application\UseCase\PartialUpdateService;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\PerformanceGraph\Application\Repository\ReadPerformanceGraphRepositoryInterface;
 use Core\Service\Application\Exception\ServiceException;
@@ -53,6 +54,7 @@ beforeEach(closure: function (): void {
         $this->readServiceCategoryRepository = $this->createMock(ReadServiceCategoryRepositoryInterface::class),
         $this->readServiceGroupRepository = $this->createMock(ReadServiceGroupRepositoryInterface::class),
         $this->contact = $this->createMock(ContactInterface::class),
+        $this->adminResolver = $this->createMock(AdminResolver::class),
     );
 });
 

@@ -222,30 +222,20 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         // Only JOIN if search request has been provided...
         if ($searchRequest !== null) {
             $hostCategoryAcls = $this->generateHostCategoryAclSubRequest($accessGroupIds);
-            if ($hostCategoryAcls !== '') {
-                $request .= <<<SQL
+            $hostCategoryCondition = $hostCategoryAcls !== ''
+                ? "AND hcr.hostcategories_hc_id IN ({$hostCategoryAcls})"
+                : '';
+            $request .= <<<SQL
 
-                    LEFT JOIN `:db`.hostgroup_relation hgr
-                        ON hgr.hostgroup_hg_id = hg.hg_id
-                    LEFT JOIN `:db`.hostcategories_relation hcr
-                        ON hcr.host_host_id = hgr.host_host_id
-                        AND hcr.hostcategories_hc_id IN ({$hostCategoryAcls})
-                    LEFT JOIN `:db`.hostcategories hc
-                        ON hc.hc_id = hcr.hostcategories_hc_id
-                        AND hc.level IS NULL
-                    SQL;
-            } else {
-                $request .= <<<'SQL'
-
-                    LEFT JOIN `:db`.hostgroup_relation hgr
-                        ON hgr.hostgroup_hg_id = hg.hg_id
-                    LEFT JOIN `:db`.hostcategories_relation hcr
-                        ON hcr.host_host_id = hgr.host_host_id
-                    LEFT JOIN `:db`.hostcategories hc
-                        ON hc.hc_id = hcr.hostcategories_hc_id
-                        AND hc.level IS NULL
-                    SQL;
-            }
+                LEFT JOIN `:db`.hostgroup_relation hgr
+                    ON hgr.hostgroup_hg_id = hg.hg_id
+                LEFT JOIN `:db`.hostcategories_relation hcr
+                    ON hcr.host_host_id = hgr.host_host_id
+                    {$hostCategoryCondition}
+                LEFT JOIN `:db`.hostcategories hc
+                    ON hc.hc_id = hcr.hostcategories_hc_id
+                    AND hc.level IS NULL
+                SQL;
         }
 
         $request .= $searchRequest ? $searchRequest . ' AND ' : ' WHERE ';
