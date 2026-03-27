@@ -39,6 +39,7 @@ use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface
 use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
 class PartialUpdateServiceValidation
@@ -60,6 +61,7 @@ class PartialUpdateServiceValidation
         private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
         private readonly ReadServiceGroupRepositoryInterface $readServiceGroupRepository,
         private readonly ContactInterface $user,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -70,7 +72,7 @@ class PartialUpdateServiceValidation
      */
     public function assertIsValidHost(int $hostId): void
     {
-        $hostIdFound = $this->user->isAdmin()
+        $hostIdFound = $this->adminResolver->isAdmin($this->user)
                 ? $this->readHostRepository->exists($hostId)
                 : $this->readHostRepository->existsByAccessGroups($hostId, $this->accessGroups);
         if ($hostIdFound === false) {
@@ -226,7 +228,7 @@ class PartialUpdateServiceValidation
      */
     public function assertAreValidCategories(array $categoriesIds): void
     {
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             $categoriesIdsFound = $this->readServiceCategoryRepository->findAllExistingIds(
                 $categoriesIds
             );
@@ -255,7 +257,7 @@ class PartialUpdateServiceValidation
             return;
         }
 
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             $groupIdsFound = $this->readServiceGroupRepository->exist($groupIds);
         } else {
             $groupIdsFound = $this->readServiceGroupRepository->existByAccessGroups(

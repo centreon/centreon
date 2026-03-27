@@ -39,6 +39,7 @@ use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface
 use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
 class AddServiceValidation
@@ -60,6 +61,7 @@ class AddServiceValidation
         private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
         private readonly ReadServiceGroupRepositoryInterface $readServiceGroupRepository,
         private readonly ContactInterface $user,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -106,7 +108,7 @@ class AddServiceValidation
      */
     public function assertIsValidHost(int $hostId): void
     {
-        $hostIdFound = $this->user->isAdmin()
+        $hostIdFound = $this->adminResolver->isAdmin($this->user)
                 ? $this->readHostRepository->exists($hostId)
                 : $this->readHostRepository->existsByAccessGroups($hostId, $this->accessGroups);
         if ($hostIdFound === false) {
@@ -127,7 +129,7 @@ class AddServiceValidation
             return;
         }
 
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             $serviceCategoriesIdsFound = $this->readServiceCategoryRepository->findAllExistingIds(
                 $serviceCategoriesIds
             );
@@ -272,7 +274,7 @@ class AddServiceValidation
             return;
         }
 
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             $serviceGroupIdsFound = $this->readServiceGroupRepository->exist($serviceGroupIds);
         } else {
             $serviceGroupIdsFound = $this->readServiceGroupRepository->existByAccessGroups(
