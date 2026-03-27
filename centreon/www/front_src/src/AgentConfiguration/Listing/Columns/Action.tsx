@@ -66,7 +66,7 @@ const Action = ({ row }: Props): JSX.Element => {
             onClick={displayCommandModal}
             title={t(labelCommand)}
           >
-            <CodeOffTwoTone className={classes.commandIcon} />
+            <CodeOffTwoTone className="text-xl" />
           </IconButton>
         )}
       </div>
