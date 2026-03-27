@@ -520,8 +520,12 @@ jobs:
           feature="${feature##*/}"
           feature="${feature%%.postman*}"
           deprecation_file_for_archive="$feature-deprecation.log"
-          deprecation_file_container=$(docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -c "find /var/log/centreon/ -regex \".*deprecations.*\" || echo 'deprecation file not found'")
-          docker compose -f ../../../.github/docker/docker-compose.yml cp web:$deprecation_file_container ./$deprecation_file_for_archive
+          deprecation_file_container=$(docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -c "find /var/log/centreon/ -regex \".*deprecations.*\" | grep . || echo 'NOT_FOUND'")
+          if [[ "$deprecation_file_container" == "NOT_FOUND" || -z "$deprecation_file_container" ]]; then
+            echo "No deprecation log found in container, skipping copy."
+          else
+            docker compose -f ../../../.github/docker/docker-compose.yml cp web:$deprecation_file_container ./$deprecation_file_for_archive
+          fi
           echo "Deprecation log file name generated: $deprecation_file_for_archive"
           echo "Feature"
           echo "deprecation_file_for_archive=$deprecation_file_for_archive" >> $GITHUB_OUTPUT
@@ -553,7 +557,7 @@ jobs:
 
       - name: Upload deprecation logs
         if: ${{ ! cancelled() }}
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: newman-${{ inputs.os }}-${{ steps.feature-path.outputs.feature_name_with_dash }}-deprecation-logs
           path: "centreon/tests/rest_api/*-deprecation.log"
@@ -850,6 +854,7 @@ jobs:
           name: newman-${{ inputs.os }}-deprecation-logs
           pattern: newman-${{ inputs.os }}-*-deprecation-logs
           retention-days: 1
+          failOnError: false
 
       - name: Delete merged artifacts
         uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
