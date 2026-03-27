@@ -85,10 +85,10 @@ runs:
         export VERSION="${{ inputs.major_version }}.${{ inputs.minor_version }}"
         export RELEASE="${{ inputs.release }}"
         export ARCH="${{ inputs.arch }}"
-        if [[ "${{ steps.parse-distrib.outputs.package_distrib }}" == "el9" ]]; then
+        if [[ "${{ steps.parse-distrib.outputs.package_distrib_name }}" == "el9" ]]; then
           export PHP_MIN_VERSION="8.2"
           export PHP_MAX_VERSION="8.3"
-        elif [[ "${{ steps.parse-distrib.outputs.package_distrib }}" == "el10" || "${{ steps.parse-distrib.outputs.package_distrib }}" == "trixie" ]]; then
+        elif [[ "${{ steps.parse-distrib.outputs.package_distrib_name }}" == "el10" || "${{ steps.parse-distrib.outputs.package_distrib_name }}" == "deb13u1" ]]; then
           export PHP_MIN_VERSION="8.4"
           export PHP_MAX_VERSION="8.5"
         fi
