@@ -33,6 +33,7 @@ use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\Exception\RepositoryException as CoreRepositoryException;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParametersTransformer;
 use Core\Contact\Domain\Model\ContactGroup;
@@ -1109,9 +1110,10 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             }
 
             return $dashboardContactGroupRoles;
-        } catch (\Throwable $exception) {
-            throw new RepositoryException(
+        } catch (\Exception $exception) {
+            throw new CoreRepositoryException(
                 message: 'Error while searching contact groups by ACL groups',
+                context: ['aclGroupIds' => $aclGroupIds],
                 previous: $exception
             );
         }
