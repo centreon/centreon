@@ -608,6 +608,16 @@
     box-shadow: 0 0 4px var(--color-aluminium, #818285);
 }
 
+.cl-mon-warning {
+    background: var(--color-warning, #FD9B27);
+    box-shadow: 0 0 4px var(--color-warning, #FD9B27);
+}
+
+.cl-mon-unknown {
+    background: var(--color-aluminium, #818285);
+    box-shadow: 0 0 4px var(--color-aluminium, #818285);
+}
+
 .cl-mon-pending {
     background: var(--color-pending, #1EBEB3);
     box-shadow: 0 0 4px var(--color-pending, #1EBEB3);

@@ -205,6 +205,12 @@ function CentreonListing(config) {
     // =====================================================================
 
     this.renderRows = function (rows) {
+        // Allow custom renderRows from config
+        if (typeof cfg.renderRows === 'function') {
+            cfg.renderRows.call(self, rows);
+            return;
+        }
+
         var tbody = jQuery('#' + cfg.tableBodyId);
         tbody.empty();
 
