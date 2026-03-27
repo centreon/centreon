@@ -78,7 +78,7 @@ const Action = ({ row }: Props): JSX.Element => {
             onClick={askBeforeDelete}
             title={t(labelDelete)}
           >
-            <DeleteOutline className={classes.removeIcon} />
+            <DeleteOutline className="text-x" />
           </IconButton>
         )}
       </div>
