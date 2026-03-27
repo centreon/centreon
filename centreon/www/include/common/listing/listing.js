@@ -61,6 +61,14 @@ function CentreonListing(config) {
         // Extra GET parameters appended to every fetch request
         extraParams: config.extraParams || {},
 
+        // Show row checkboxes (default true)
+        showCheckboxes: config.showCheckboxes !== undefined ? config.showCheckboxes : true,
+
+        // Infinite scroll mode (default false) — appends rows on scroll instead of pagination
+        infiniteScroll: config.infiniteScroll || false,
+        infiniteScrollBuffer: config.infiniteScrollBuffer || 200, // px from bottom to trigger load
+        scrollContainerId: config.scrollContainerId || null, // custom scroll container for infinite scroll
+
         // Callbacks
         onDataLoaded: config.onDataLoaded || null,
     };
@@ -81,6 +89,11 @@ function CentreonListing(config) {
     var currentNum    = (savedState && typeof savedState.num === 'number') ? savedState.num : 0;
     var currentLimit  = parseInt(localStorage.getItem(cfg.storageKey), 10) || (savedState && savedState.limit) || cfg.defaultLimit;
     var currentSearch = (savedState && savedState.search) || '';
+
+    // Infinite scroll state
+    var isLoadingMore  = false;
+    var allLoaded      = false;
+    var totalLoaded    = 0;
 
     // =====================================================================
     // Public: HTML escape utility
@@ -139,6 +152,8 @@ function CentreonListing(config) {
     // =====================================================================
 
     this.fetch = function (num, limit, search, silent) {
+        var isAppend = cfg.infiniteScroll && num > 0 && !firstLoad;
+
         currentNum    = num;
         currentLimit  = limit;
         currentSearch = search;
@@ -168,6 +183,15 @@ function CentreonListing(config) {
             );
         }
 
+        if (isAppend) {
+            isLoadingMore = true;
+            // Show loading indicator at bottom
+            jQuery('#' + cfg.tableBodyId).find('.cl-infinite-loader').remove();
+            jQuery('#' + cfg.tableBodyId).append(
+                '<tr class="cl-infinite-loader"><td colspan="99" style="text-align:center;padding:12px;color:#a7a9ac;">Loading more...</td></tr>'
+            );
+        }
+
         jQuery.ajax({
             url: cfg.ajaxListUrl,
             type: 'GET',
@@ -176,14 +200,34 @@ function CentreonListing(config) {
             success: function (data) {
                 csrfToken = data.centreon_token || '';
                 var tbody = jQuery('#' + cfg.tableBodyId);
-                tbody.removeClass('cl-fade-in');
-                self.renderRows(data.rows);
-                self.renderPagination(data.total, data.num, data.limit);
-                restoreCheckedIds(checkedIds);
-                jQuery('#' + cfg.limitInputId).val(data.limit);
-                if (!silent) {
-                    void tbody[0].offsetWidth;
-                    tbody.addClass('cl-fade-in');
+
+                if (cfg.infiniteScroll && isAppend) {
+                    // Remove loader row
+                    tbody.find('.cl-infinite-loader').remove();
+                    // Append new rows
+                    self.appendRows(data.rows);
+                    totalLoaded += data.rows.length;
+                    allLoaded = totalLoaded >= data.total;
+                    isLoadingMore = false;
+                    // Update info
+                    self.renderScrollInfo(totalLoaded, data.total);
+                } else {
+                    tbody.removeClass('cl-fade-in');
+                    self.renderRows(data.rows);
+                    if (cfg.infiniteScroll) {
+                        totalLoaded = data.rows.length;
+                        allLoaded = totalLoaded >= data.total;
+                        isLoadingMore = false;
+                        self.renderScrollInfo(totalLoaded, data.total);
+                    } else {
+                        self.renderPagination(data.total, data.num, data.limit);
+                    }
+                    restoreCheckedIds(checkedIds);
+                    jQuery('#' + cfg.limitInputId).val(data.limit);
+                    if (!silent) {
+                        void tbody[0].offsetWidth;
+                        tbody.addClass('cl-fade-in');
+                    }
                 }
                 firstLoad = false;
                 // Reset bulk action dropdowns to default
@@ -191,6 +235,8 @@ function CentreonListing(config) {
                 if (cfg.onDataLoaded) cfg.onDataLoaded(data);
             },
             error: function () {
+                isLoadingMore = false;
+                jQuery('#' + cfg.tableBodyId).find('.cl-infinite-loader').remove();
                 if (firstLoad) {
                     jQuery('#' + cfg.tableBodyId).html(
                         '<tr><td colspan="99" style="text-align:center;padding:24px;color:#FF4A4A;">Error loading data</td></tr>'
@@ -224,14 +270,16 @@ function CentreonListing(config) {
             var row = rows[i];
             var rowId = row[cfg.rowIdField];
 
-            // Checkbox cell
-            var tr = '<tr>' +
-                '<td class="cl-col-picker">' +
+            // Checkbox cell (optional)
+            var tr = '<tr>';
+            if (cfg.showCheckboxes) {
+                tr += '<td class="cl-col-picker">' +
                     '<div class="md-checkbox md-checkbox-inline">' +
                         '<input type="checkbox" id="select_' + rowId + '" name="select[' + rowId + ']" value="1" />' +
                         '<label class="empty-label" for="select_' + rowId + '"></label>' +
                     '</div>' +
                 '</td>';
+            }
 
             // Data columns
             for (var c = 0; c < cfg.columns.length; c++) {
@@ -255,6 +303,74 @@ function CentreonListing(config) {
             tr += '</tr>';
             tbody.append(tr);
         }
+    };
+
+    // =====================================================================
+    // Public: append rows (infinite scroll mode — adds to existing tbody)
+    // =====================================================================
+
+    this.appendRows = function (rows) {
+        if (!rows || rows.length === 0) return;
+
+        var tbody = jQuery('#' + cfg.tableBodyId);
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            var rowId = row[cfg.rowIdField];
+
+            var tr = '<tr>';
+            if (cfg.showCheckboxes) {
+                tr += '<td class="cl-col-picker">' +
+                    '<div class="md-checkbox md-checkbox-inline">' +
+                        '<input type="checkbox" id="select_' + rowId + '" name="select[' + rowId + ']" value="1" />' +
+                        '<label class="empty-label" for="select_' + rowId + '"></label>' +
+                    '</div>' +
+                '</td>';
+            }
+
+            for (var c = 0; c < cfg.columns.length; c++) {
+                var col = cfg.columns[c];
+                var align = col.align ? ' class="cl-col-' + col.align + '"' : '';
+                var cellHtml = col.render ? col.render(row, self) : self.escape(row[col.id] || '');
+                tr += '<td' + align + '>' + cellHtml + '</td>';
+            }
+
+            if (cfg.renderOptions) {
+                var optHtml = cfg.renderOptions(row, self, cfg.writeAccess);
+                if (!cfg.writeAccess) {
+                    optHtml = optHtml.replace(/onchange="[^"]*"/g, '').replace(/<input[^>]*cl-dup-input[^>]*>/g, '');
+                    optHtml = optHtml.replace(/<input type="checkbox"/g, '<input type="checkbox" disabled');
+                }
+                tr += '<td class="cl-col-right"><div class="cl-options-cell">' + optHtml + '</div></td>';
+            }
+
+            tr += '</tr>';
+            tbody.append(tr);
+        }
+    };
+
+    // =====================================================================
+    // Public: render scroll info (infinite scroll mode)
+    // =====================================================================
+
+    this.renderScrollInfo = function (loaded, total) {
+        var html = '<span class="cl-page-info">' + loaded + ' / ' + total + '</span>';
+        if (!allLoaded) {
+            html += '<span style="color:#a7a9ac;margin-left:8px;font-size:11px;">Scroll for more</span>';
+        }
+        jQuery('#' + cfg.paginationTopId).html(html);
+        jQuery('#' + cfg.paginationBottomId).html(html);
+    };
+
+    // =====================================================================
+    // Public: reset infinite scroll (used on filter change)
+    // =====================================================================
+
+    this.resetScroll = function () {
+        totalLoaded = 0;
+        allLoaded = false;
+        isLoadingMore = false;
+        currentNum = 0;
+        self.fetch(0, currentLimit, currentSearch);
     };
 
     // =====================================================================
@@ -406,10 +522,14 @@ function CentreonListing(config) {
             });
         }
 
-        // Search button (resets to page 0)
+        // Search button (resets to page 0; in infinite scroll mode, resets scroll state)
         jQuery('#' + cfg.searchBtnId).on('click', function () {
             currentSearch = jQuery('#' + cfg.searchInputId).val();
-            self.fetch(0, currentLimit, currentSearch);
+            if (cfg.infiniteScroll) {
+                self.resetScroll();
+            } else {
+                self.fetch(0, currentLimit, currentSearch);
+            }
         });
 
         // Search on Enter key
@@ -420,11 +540,48 @@ function CentreonListing(config) {
             }
         });
 
+        // In infinite scroll mode, always start at page 0 and use a larger batch size
+        if (cfg.infiniteScroll) {
+            currentNum = 0;
+            if (currentLimit < 50) currentLimit = 50;
+        }
+
         // Initial data load (restore page from session)
         self.fetch(currentNum, currentLimit, currentSearch);
 
-        // Auto-refresh
-        if (cfg.autoRefresh > 0) {
+        // Infinite scroll: listen for scroll on the specified container or window
+        if (cfg.infiniteScroll) {
+            var scrollParent;
+            if (cfg.scrollContainerId) {
+                scrollParent = jQuery('#' + cfg.scrollContainerId);
+            } else {
+                scrollParent = jQuery('#main-content');
+                if (!scrollParent.length) scrollParent = jQuery(window);
+            }
+
+            scrollParent.on('scroll', function () {
+                if (isLoadingMore || allLoaded) return;
+
+                var scrollTop, scrollHeight, clientHeight;
+                if (scrollParent.is(jQuery(window))) {
+                    scrollTop = jQuery(window).scrollTop();
+                    scrollHeight = jQuery(document).height();
+                    clientHeight = jQuery(window).height();
+                } else {
+                    scrollTop = scrollParent.scrollTop();
+                    scrollHeight = scrollParent[0].scrollHeight;
+                    clientHeight = scrollParent[0].clientHeight;
+                }
+
+                if (scrollTop + clientHeight >= scrollHeight - cfg.infiniteScrollBuffer) {
+                    currentNum++;
+                    self.fetch(currentNum, currentLimit, currentSearch, true);
+                }
+            });
+        }
+
+        // Auto-refresh (disabled in infinite scroll mode to avoid resetting the list)
+        if (cfg.autoRefresh > 0 && !cfg.infiniteScroll) {
             setInterval(function () {
                 self.fetch(currentNum, currentLimit, currentSearch, true);
             }, cfg.autoRefresh);
