@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { installationCommandDecoder } from '../../api/decoders';
 import { getInstallationCommandEndpoint } from '../../api/endpoints';
-import { pollerToGenerateCommanAtom } from '../../atoms';
+import { pollerToGenerateCommandAtom } from '../../atoms';
 import { InstallationCommand } from '../../models';
 
 enum Os {
@@ -15,7 +15,7 @@ enum Os {
 }
 
 export const useInstallationCommand = () => {
-  const [poller, setPoller] = useAtom(pollerToGenerateCommanAtom);
+  const [poller, setPoller] = useAtom(pollerToGenerateCommandAtom);
   const [state, setState] = useState({
     os: Os.windows,
     scriptCommand: ''

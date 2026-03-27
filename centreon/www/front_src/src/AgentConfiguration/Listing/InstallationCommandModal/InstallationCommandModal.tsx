@@ -7,8 +7,8 @@ import { equals } from 'ramda';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import linuxIcon from '../../../assets/linux.png';
-import windowsIcon from '../../../assets/windows.png';
+import linuxIcon from '../../../assets/linux.svg';
+import windowsIcon from '../../../assets/windows.svg';
 import { getPollersEndpoint } from '../../api/endpoints';
 import {
   labelCommandWarning,

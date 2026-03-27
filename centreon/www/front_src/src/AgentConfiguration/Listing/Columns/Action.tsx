@@ -8,7 +8,7 @@ import { equals, isNotNil, pick } from 'ramda';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { itemToDeleteAtom, pollerToGenerateCommanAtom } from '../../atoms';
+import { itemToDeleteAtom, pollerToGenerateCommandAtom } from '../../atoms';
 import { AgentConfigurationListing, AgentType } from '../../models';
 import { labelCommand, labelDelete } from '../../translatedLabels';
 import { useStyles } from './Action.styles';
@@ -33,7 +33,7 @@ const Action = ({ row }: Props): JSX.Element => {
   )?.some((poller) => equals(poller?.isCentral, true));
 
   const setItemToDelete = useSetAtom(itemToDeleteAtom);
-  const setOpenFormModal = useSetAtom(pollerToGenerateCommanAtom);
+  const setOpenFormModal = useSetAtom(pollerToGenerateCommandAtom);
 
   const askBeforeDelete = (): void => {
     setItemToDelete({

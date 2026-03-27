@@ -7,14 +7,15 @@ import { chain, defaultTo, find, pipe, propEq, propOr } from 'ramda';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { pollerToGenerateCommanAtom } from '../../atoms';
+import { pollerToGenerateCommandAtom } from '../../atoms';
 import { AgentConfigurationListing } from '../../models';
 import { labelCommand } from '../../translatedLabels';
+
 const getCentralPoller = pipe(
-      chain(propOr([], 'pollers')),
-      find(propEq(true, 'isCentral')),
-      defaultTo({})
-    );
+  chain(propOr([], 'pollers')),
+  find(propEq(true, 'isCentral')),
+  defaultTo({})
+);
 interface Props {
   rows: Array<AgentConfigurationListing>;
 }
@@ -22,10 +23,9 @@ interface Props {
 const InstallationCommandButton = ({ rows }: Props): ReactElement => {
   const { t } = useTranslation();
 
-  const setOpenFormModal = useSetAtom(pollerToGenerateCommanAtom);
+  const setOpenFormModal = useSetAtom(pollerToGenerateCommandAtom);
 
   const displayModal = (): void => {
-
     setOpenFormModal(getCentralPoller(rows) as { id?: number; name?: string });
   };
 
