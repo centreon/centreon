@@ -23,6 +23,54 @@ if (! isset($oreon)) {
     exit;
 }
 
+/**
+ * Validates that the RPN function syntax is valid for the selected DEF type.
+ * For VDEF, the expression must end with a valid aggregation function.
+ *
+ * @return bool
+ */
+function testVdefRpnSyntax()
+{
+    global $form;
+    $gsvs = null;
+    if (isset($form)) {
+        $gsvs = $form->getSubmitValues();
+    }
+
+    // Only validate for VDEF type (def_type = 1)
+    if (! isset($gsvs['def_type']) || (int) $gsvs['def_type'] !== 1) {
+        return true;
+    }
+
+    $rpnFunction = trim($gsvs['rpn_function'] ?? '');
+    if ($rpnFunction === '') {
+        return true; // the 'required' rule handles empty values
+    }
+
+    $validVdefFunctions = [
+        'MAXIMUM', 'MINIMUM', 'AVERAGE', 'STDEV', 'LAST', 'FIRST', 'TOTAL',
+        'PERCENT', 'PERCENTNAN', 'LSLSLOPE', 'LSLINT', 'LSLCORREL',
+    ];
+
+    $parts = array_map('trim', explode(',', $rpnFunction));
+    $partCount = count($parts);
+
+    if ($partCount < 2) {
+        return false;
+    }
+
+    $lastPart = strtoupper($parts[$partCount - 1]);
+
+    // PERCENT and PERCENTNAN take an extra numeric argument: metric,N,PERCENT
+    if (is_numeric($lastPart) && $partCount >= 3) {
+        $functionPart = strtoupper($parts[$partCount - 2]);
+
+        return in_array($functionPart, ['PERCENT', 'PERCENTNAN'], true);
+    }
+
+    return in_array($lastPart, $validVdefFunctions, true);
+}
+
 function _TestRPNInfinityLoop()
 {
     global $form;

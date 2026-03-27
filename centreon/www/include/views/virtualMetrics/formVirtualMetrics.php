@@ -141,6 +141,7 @@ $form->addRule('host_id', _('Required service'), 'required');
 
 $form->registerRule('existName', 'callback', 'hasVirtualNameNeverUsed');
 $form->registerRule('RPNInfinityLoop', 'callback', '_TestRPNInfinityLoop');
+$form->registerRule('validVdefRpn', 'callback', 'testVdefRpnSyntax');
 $form->addRule(
     'vmetric_name',
     _('Name already in use for this Host/Service'),
@@ -153,6 +154,13 @@ $form->addRule(
             ? htmlentities($_POST['vmetric_name'], ENT_QUOTES, 'UTF-8')
             : '') . "' In This RPN Function"),
     'RPNInfinityLoop'
+);
+$form->addRule(
+    'rpn_function',
+    _('Invalid VDEF RPN syntax. Expression must end with a valid aggregation function'
+        . ' (MAXIMUM, MINIMUM, AVERAGE, STDEV, LAST, FIRST, TOTAL, PERCENT, PERCENTNAN,'
+        . ' LSLSLOPE, LSLINT, LSLCORREL).'),
+    'validVdefRpn'
 );
 
 $form->setRequiredNote("<font style='color: red;'>*</font>" . _(' Required fields'));
