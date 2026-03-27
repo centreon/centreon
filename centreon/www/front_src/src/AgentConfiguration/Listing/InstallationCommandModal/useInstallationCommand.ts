@@ -28,7 +28,7 @@ export const useInstallationCommand = () => {
   }, []);
 
   const changePoller = (_, value): void => {
-    const selectedPoller = value ? pick(['id', 'name'], value) : {};
+    const selectedPoller = value ? pick(['id', 'name'], value) : null;
 
     setPoller(selectedPoller);
   };
