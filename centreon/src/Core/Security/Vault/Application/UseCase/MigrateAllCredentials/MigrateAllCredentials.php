@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 
 use Centreon\Domain\Log\LoggerTrait;
+use CentreonLog;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
 use Core\AdditionalConnectorConfiguration\Application\Repository\WriteAccRepositoryInterface;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Acc;
@@ -32,7 +33,6 @@ use Core\Broker\Application\Repository\ReadBrokerInputOutputRepositoryInterface;
 use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface;
 use Core\Broker\Domain\Model\BrokerInputOutput;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
-use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
@@ -173,7 +173,7 @@ final class MigrateAllCredentials
             );
             $presenter->presentResponse($this->response);
         } catch (\Throwable $e) {
-            ExceptionLogger::create()->log($e);
+            CentreonLog::create()->error(logTypeId: CentreonLog::TYPE_BUSINESS_LOG, message: $e->getMessage(), exception: $e);
             $presenter->presentResponse(new ErrorResponse(VaultException::unableToMigrateCredentials()));
         }
     }
