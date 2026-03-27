@@ -176,7 +176,7 @@ it('throws an exception when performance graph ID does not exist', function (): 
 );
 
 it('throws an exception when host ID does not exist', function (): void {
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -192,7 +192,7 @@ it('throws an exception when host ID does not exist', function (): void {
 );
 
 it('throws an exception when category ID does not exist with admin user', function (): void {
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -208,7 +208,7 @@ it('throws an exception when category ID does not exist with admin user', functi
 );
 
 it('throws an exception when category ID does not exist with non-admin user', function (): void {
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
@@ -224,7 +224,7 @@ it('throws an exception when category ID does not exist with non-admin user', fu
 );
 
 it('throws an exception when group ID does not exist with admin user', function (): void {
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -240,7 +240,7 @@ it('throws an exception when group ID does not exist with admin user', function 
 );
 
 it('throws an exception when group ID does not exist with non-admin user', function (): void {
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);

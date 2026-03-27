@@ -166,7 +166,7 @@ it('should raise an exception when the icon ID does not exist', function (): voi
 );
 
 it('should raise an exception when the host ID does not exist, as an administrator', function (): void {
-    $this->contact
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -183,7 +183,7 @@ it('should raise an exception when the host ID does not exist, as an administrat
 );
 
 it('should raise an exception when the host ID does not exist, as a non-administrator', function (): void {
-    $this->contact
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
@@ -200,7 +200,7 @@ it('should raise an exception when the host ID does not exist, as a non-administ
 );
 
 it('should raise an exception when the service category IDs do not exist, as an administrator', function (): void {
-    $this->contact
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -217,7 +217,7 @@ it('should raise an exception when the service category IDs do not exist, as an 
 );
 
 it('should raise an exception when the service category IDs do not exist, as a non-administrator', function (): void {
-    $this->contact
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
@@ -236,7 +236,7 @@ it('should raise an exception when the service category IDs do not exist, as a n
 it('should raise an exception when the service group IDs do not exist, as an administrator', function (): void {
     $serviceGroupIds = [1, 2, 3];
 
-    $this->contact
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -255,7 +255,7 @@ it('should raise an exception when the service group IDs do not exist, as an adm
 it('should raise an exception when the service group IDs do not exist, as a non-administrator', function (): void {
     $serviceGroupIds = [1, 2, 3];
 
-    $this->contact
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
