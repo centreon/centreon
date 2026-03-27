@@ -3,18 +3,14 @@
 <form name='form' method='POST'>
     <div class="cl-filter-box">
         <div class="cl-filter-bar">
-            <span class="cl-filter-label">{t}Host{/t}</span>
-            <input type="text" id="clSearchH" name="searchH" value="{$searchH}" class="cl-search-input" placeholder="{t}Host name, alias or IP{/t}" style="max-width:none;width:160px;">
+            <span class="cl-filter-label">{t}Hostgroup{/t}</span>
+            <input type="text" id="clSearchHG" name="searchHG" value="{$searchHG}" class="cl-search-input" placeholder="{t}Hostgroup name{/t}" style="max-width:none;width:160px;">
             <span class="cl-filter-label">{t}Service{/t}</span>
             <input type="text" id="clSearchS" name="searchS" value="{$searchS}" class="cl-search-input" placeholder="{t}Service name{/t}" style="max-width:none;width:160px;">
             <span class="cl-filter-label">{t}Template{/t}</span>
             {$form.template.html}<button type="button" class="cl-clear-select" onclick="jQuery('#template').val('').trigger('change');">&times;</button>
             <span class="cl-filter-label">{t}Status{/t}</span>
             {$form.status.html}<button type="button" class="cl-clear-select" onclick="jQuery('#status').val('').trigger('change');">&times;</button>
-            <div class="md-checkbox md-checkbox-inline" style="margin:0;">
-                <input type="checkbox" id="hostStatusCb" name="hostStatus" {if $hostStatusChecked}checked{/if} />
-                <label for="hostStatusCb" style="font-size:12px;">{t}Disabled hosts{/t}</label>
-            </div>
             <button type="button" id="clSearchBtn" class="btc bt_success">{t}Search{/t}</button>
         </div>
     </div>
@@ -37,20 +33,19 @@
                 <tr>
                     <th class="cl-col-picker">
                         <div class="md-checkbox md-checkbox-inline">
-                            <input type="checkbox" id="checkall" name="checkall" onclick="svcListing.checkUncheckAll(this);"/>
+                            <input type="checkbox" id="checkall" name="checkall" onclick="svcHgListing.checkUncheckAll(this);"/>
                             <label class="empty-label" for="checkall"></label>
                         </div>
                     </th>
                     <th>{$headerMenu_name}</th>
                     <th>{$headerMenu_desc}</th>
-                    <th class="cl-col-center">{$headerMenu_mon}</th>
                     <th class="cl-col-center">{$headerMenu_sched}</th>
                     <th class="cl-col-center">{$headerMenu_parent}</th>
                     <th class="cl-col-right">{$headerMenu_options}</th>
                 </tr>
             </thead>
             <tbody id="clTableBody">
-                <tr><td colspan="8" class="cl-loading">{t}Loading...{/t}</td></tr>
+                <tr><td colspan="6" class="cl-loading">{t}Loading...{/t}</td></tr>
             </tbody>
         </table>
 
@@ -73,47 +68,44 @@
 
 {literal}
 <script type="text/javascript">
-var svcListing = new CentreonListing({
-    instanceName:  'svcListing',
-    ajaxListUrl:   './include/configuration/configObject/service/ajaxServiceByHostListing.php',
+var svcHgListing = new CentreonListing({
+    instanceName:  'svcHgListing',
+    ajaxListUrl:   './include/configuration/configObject/service/ajaxServiceByHgListing.php',
     ajaxToggleUrl: './include/configuration/configObject/service/ajaxServiceToggle.php',
     searchInputId: 'clSearchS',
-    pageId:        {/literal}'{$svcPage}'{literal},
+    pageId:        {/literal}'{$svcHgPage}'{literal},
     writeAccess:   {/literal}'{$mode_access}'{literal} === 'w',
     defaultLimit:  {/literal}{$defaultLimit}{literal},
-    storageKey:    'svc_byhost_listing_limit',
+    storageKey:    'svc_byhg_listing_limit',
     emptyMessage:  'No services found',
-    autoRefresh:   15000,
+    autoRefresh:   30000,
     rowIdField:    'id',
     extraParams:   function() {
         var p = {};
-        var sh = jQuery('#clSearchH').val(); if (sh) p.searchH = sh;
+        var shg = jQuery('#clSearchHG').val(); if (shg) p.searchHG = shg;
         var ss = jQuery('#clSearchS').val(); if (ss) p.searchS = ss;
         p.search = '';
         var tp = jQuery('#template').val(); if (tp) p.template = tp;
         var st = jQuery('#status').val(); if (st) p.status = st;
-        if (jQuery('#hostStatusCb').is(':checked')) p.hostStatus = 1;
         return p;
     }
 });
 
-// Custom renderRows for host grouping (assigned after construction to avoid Smarty issues)
-var _svcPageId = {/literal}'{$svcPage}'{literal};
-var _svcWriteAccess = {/literal}'{$mode_access}'{literal} === 'w';
+// Custom renderRows for hostgroup grouping
+var _svcHgPageId = {/literal}'{$svcHgPage}'{literal};
+var _svcHgWriteAccess = {/literal}'{$mode_access}'{literal} === 'w';
 
-svcListing.renderRows = function(rows) {
-    var self = svcListing;
+svcHgListing.renderRows = function(rows) {
+    var self = svcHgListing;
     var tbody = jQuery('#clTableBody');
     tbody.empty();
 
     if (!rows || !rows.length) {
-        tbody.html('<tr><td colspan="8" style="text-align:center;padding:24px;color:#a7a9ac;">No services found</td></tr>');
+        tbody.html('<tr><td colspan="6" style="text-align:center;padding:24px;color:#a7a9ac;">No services found</td></tr>');
         return;
     }
 
-    var lastHost = null;
-    var monLabels = ['OK','WARNING','CRITICAL','UNKNOWN','PENDING'];
-    var monClasses = ['cl-mon-up','cl-mon-warning','cl-mon-down','cl-mon-unknown','cl-mon-pending'];
+    var lastHg = null;
 
     for (var i = 0; i < rows.length; i++) {
         var row = rows[i];
@@ -121,46 +113,21 @@ svcListing.renderRows = function(rows) {
 
         var tr = '<tr><td class="cl-col-picker"><div class="md-checkbox md-checkbox-inline"><input type="checkbox" id="select_'+rid+'" name="select['+rid+']" value="1" /><label class="empty-label" for="select_'+rid+'"></label></div></td>';
 
-        // Host (grouped)
-        if (row.host_name !== lastHost) {
-            var hostLink = 'main.php?p=60101&o=c&host_id=' + row.host_id;
-            var hostIcon = row.host_icon
-                ? '<img src="'+self.escape(row.host_icon)+'" class="ico-16" style="vertical-align:middle;margin-right:6px;" onerror="this.src=\'./img/icons/host.svg\'" />'
-                : '<img src="./img/icons/host.svg" class="ico-16" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;" />';
-            // Host monitoring badge
-            var hBadge = '';
-            if (row.host_mon_state !== null && row.host_mon_state !== undefined) {
-                var hCls = ['cl-mon-up','cl-mon-down','cl-mon-unreach'][row.host_mon_state] || 'cl-mon-pending';
-                var hLabels = ['UP','DOWN','UNREACHABLE'];
-                var hLabel = hLabels[row.host_mon_state] || 'PENDING';
-                var hTip = '<b>'+hLabel+'</b>';
-                if (row.host_mon_output) hTip += '<br>' + self.escape(row.host_mon_output).substring(0,100);
-                hBadge = ' <span class="cl-mon-badge '+hCls+'" data-cl-tooltip="'+hTip.replace(/"/g,'&quot;')+'" style="cursor:help;margin-left:4px;"></span>';
-            }
-            tr += '<td><a href="'+hostLink+'">'+hostIcon+self.escape(row.host_name)+'</a>'+hBadge+'</td>';
-            lastHost = row.host_name;
+        // Hostgroup (grouped)
+        if (row.hg_name !== lastHg) {
+            var hgLink = './configuration/hosts/groups?mode=edit&id=' + row.hg_id;
+            tr += '<td><a href="'+hgLink+'">'+self.escape(row.hg_name)+'</a></td>';
+            lastHg = row.hg_name;
         } else {
             tr += '<td></td>';
         }
 
         // Service
-        var svcLink = 'main.php?p=' + _svcPageId + '&o=c&service_id=' + rid;
+        var svcLink = 'main.php?p=' + _svcHgPageId + '&o=c&service_id=' + rid;
         var svcIcon = row.svc_icon
             ? '<img src="'+self.escape(row.svc_icon)+'" class="ico-14" style="vertical-align:middle;margin-right:4px;" onerror="this.src=\'./img/icons/service.svg\'" />'
             : '<img src="./img/icons/service.svg" class="ico-14" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;" />';
         tr += '<td><a href="'+svcLink+'">'+svcIcon+self.escape(row.desc||'')+'</a></td>';
-
-        // Monitoring status
-        if (row.mon_state === null || row.mon_state === undefined) {
-            tr += '<td class="cl-col-center"><span style="opacity:.3;">-</span></td>';
-        } else {
-            var mCls = monClasses[row.mon_state] || 'cl-mon-pending';
-            var mLabel = monLabels[row.mon_state] || 'PENDING';
-            var tip = '<b>'+mLabel+'</b>';
-            if (row.mon_last) tip += '<br>Last: ' + new Date(row.mon_last*1000).toLocaleString();
-            if (row.mon_output) tip += '<br>' + self.escape(row.mon_output).substring(0,100);
-            tr += '<td class="cl-col-center"><span class="cl-mon-badge '+mCls+'" data-cl-tooltip="'+tip.replace(/"/g,'&quot;')+'" style="cursor:help;"></span></td>';
-        }
 
         // Scheduling
         tr += '<td class="cl-col-center" style="font-size:11px;">' + self.escape(row.scheduling||'') + '</td>';
@@ -178,9 +145,9 @@ svcListing.renderRows = function(rows) {
 
         // Options
         var checked = row.activate ? ' checked' : '';
-        var optHtml = '<label class="cl-toggle"><input type="checkbox" data-row-id="'+rid+'"'+checked+' onchange="svcListing.toggleActivation(this);"/><span class="cl-toggle-slider"></span></label>' +
+        var optHtml = '<label class="cl-toggle"><input type="checkbox" data-row-id="'+rid+'"'+checked+' onchange="svcHgListing.toggleActivation(this);"/><span class="cl-toggle-slider"></span></label>' +
             '<input onKeypress="if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))event.returnValue=false;if(event.which>31&&(event.which<45||event.which>57))return false;" maxlength="3" size="3" value="1" class="cl-dup-input" name="dupNbr['+rid+']"/>';
-        if (!_svcWriteAccess) {
+        if (!_svcHgWriteAccess) {
             optHtml = optHtml.replace(/onchange="[^"]*"/g, '').replace(/<input[^>]*cl-dup-input[^>]*>/g, '');
             optHtml = optHtml.replace(/<input type="checkbox"/g, '<input type="checkbox" disabled');
         }
@@ -191,39 +158,14 @@ svcListing.renderRows = function(rows) {
     }
 };
 
-// Override search to use both host and service fields
+// Search handlers
 jQuery('#clSearchBtn').off('click').on('click', function() {
-    svcListing.fetch(0, svcListing.getState().limit, '');
+    svcHgListing.fetch(0, svcHgListing.getState().limit, '');
 });
-jQuery('#clSearchH, #clSearchS').on('keypress', function(e) {
+jQuery('#clSearchHG, #clSearchS').on('keypress', function(e) {
     if (e.which === 13) { e.preventDefault(); jQuery('#clSearchBtn').click(); }
 });
 
-svcListing.init();
-
-// Instant tooltip
-(function() {
-    var tip = null;
-    jQuery(document).on('mouseenter', '[data-cl-tooltip]', function() {
-        var content = jQuery(this).attr('data-cl-tooltip');
-        if (!content) return;
-        if (tip) tip.remove();
-        tip = jQuery('<div></div>').html(content).css({
-            position:'fixed', zIndex:99999,
-            background:'#222', color:'#eee',
-            border:'1px solid #555', borderRadius:'6px',
-            padding:'8px 12px', fontSize:'12px',
-            whiteSpace:'nowrap', boxShadow:'0 2px 8px rgba(0,0,0,.3)',
-            pointerEvents:'none', maxWidth:'400px'
-        });
-        jQuery('body').append(tip);
-        var r = this.getBoundingClientRect();
-        var t = r.top - tip.outerHeight() - 6;
-        if (t < 0) t = r.bottom + 6;
-        tip.css({ top:t+'px', left:(r.left + r.width/2 - tip.outerWidth()/2)+'px' });
-    }).on('mouseleave', '[data-cl-tooltip]', function() {
-        if (tip) { tip.remove(); tip = null; }
-    });
-})();
+svcHgListing.init();
 </script>
 {/literal}
