@@ -10,7 +10,11 @@ import { useTranslation } from 'react-i18next';
 import { pollerToGenerateCommanAtom } from '../../atoms';
 import { AgentConfigurationListing } from '../../models';
 import { labelCommand } from '../../translatedLabels';
-
+const getCentralPoller = pipe(
+      chain(propOr([], 'pollers')),
+      find(propEq(true, 'isCentral')),
+      defaultTo({})
+    );
 interface Props {
   rows: Array<AgentConfigurationListing>;
 }
