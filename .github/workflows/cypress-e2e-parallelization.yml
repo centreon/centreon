@@ -280,7 +280,7 @@ jobs:
           echo "feature_name_with_dash=$feature_name_with_dash" >> $GITHUB_OUTPUT
 
       - name: Upload test results
-        if: failure()
+        if: ${{ ! cancelled() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.cypress-e2e-test-list.outputs.db_id }}-test-results-${{ steps.feature-path.outputs.feature_name_with_dash }}

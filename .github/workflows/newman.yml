@@ -512,7 +512,26 @@ jobs:
           echo "::endgroup::"
         shell: bash
 
-      - name: Gather deprecation logs
+      # - name: Gather legacy deprecation logs
+      #   id: deprecation-logs-legacy
+      #   if: ${{ ! cancelled() }}
+      #   run: |
+      #     feature="${{ matrix.feature }}"
+      #     feature="${feature##*/}"
+      #     feature="${feature%%.postman*}"
+      #     deprecation_file_for_archive="$feature-deprecation.log"
+      #     deprecation_file_container=$(docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -c "find /var/log/centreon/ -regex \".*deprecations.*\" | grep . || echo 'NOT_FOUND'")
+      #     if [[ "$deprecation_file_container" == "NOT_FOUND" || -z "$deprecation_file_container" ]]; then
+      #       echo "No deprecation log found in container, skipping copy."
+      #     else
+      #       docker compose -f ../../../.github/docker/docker-compose.yml cp web:$deprecation_file_container ./$deprecation_file_for_archive
+      #       echo "Deprecation log file name generated: $deprecation_file_for_archive"
+      #     fi
+      #     echo "Feature"
+      #     echo "deprecation_file_for_archive=$deprecation_file_for_archive" >> $GITHUB_OUTPUT
+      #   shell: bash
+
+      - name: Gather symfony deprecation logs
         id: deprecation-logs
         if: ${{ ! cancelled() }}
         run: |
@@ -520,9 +539,13 @@ jobs:
           feature="${feature##*/}"
           feature="${feature%%.postman*}"
           deprecation_file_for_archive="$feature-deprecation.log"
-          deprecation_file_container=$(docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -c "find /var/log/centreon/ -regex \".*deprecations.*\" || echo 'deprecation file not found'")
-          docker compose -f ../../../.github/docker/docker-compose.yml cp web:$deprecation_file_container ./$deprecation_file_for_archive
-          echo "Deprecation log file name generated: $deprecation_file_for_archive"
+          deprecation_file_container=$(docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -c "find /var/log/centreon/symfony.new/ -regex \".*deprecations.*\" | grep . || echo 'NOT_FOUND'")
+          if [[ "$deprecation_file_container" == "NOT_FOUND" || -z "$deprecation_file_container" ]]; then
+            echo "No deprecation log found in container, skipping copy."
+          else
+            docker compose -f ../../../.github/docker/docker-compose.yml cp web:$deprecation_file_container ./$deprecation_file_for_archive
+            echo "Deprecation log file name generated: $deprecation_file_for_archive"
+          fi
           echo "Feature"
           echo "deprecation_file_for_archive=$deprecation_file_for_archive" >> $GITHUB_OUTPUT
         shell: bash
@@ -553,7 +576,7 @@ jobs:
 
       - name: Upload deprecation logs
         if: ${{ ! cancelled() }}
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: newman-${{ inputs.os }}-${{ steps.feature-path.outputs.feature_name_with_dash }}-deprecation-logs
           path: "centreon/tests/rest_api/*-deprecation.log"
@@ -845,7 +868,7 @@ jobs:
           failOnError: false
 
       - name: Merge deprecation logs
-        uses: actions/upload-artifact/merge@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact/merge@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: newman-${{ inputs.os }}-deprecation-logs
           pattern: newman-${{ inputs.os }}-*-deprecation-logs
@@ -856,25 +879,3 @@ jobs:
         with:
           name: newman-${{ inputs.os }}-*-deprecation-logs
           failOnError: false
-
-  create-jira-nightly-ticket:
-    needs: [newman-test-run, synchronize-with-xray, regroup-artifacts]
-    runs-on: ubuntu-24.04
-    if: |
-      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
-      (failure() || cancelled()) &&
-      startsWith(github.ref_name, 'dev') &&
-      github.repository == 'centreon/centreon'
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Create Jira ticket on nightly build failure
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.jira_base_url }}
-          jira_user_email: ${{ secrets.jira_user_email }}
-          jira_api_token: ${{ secrets.jira_api_token }}
-          module_name: "centreon-web"
-          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "newman-${{ inputs.os }}-${{ inputs.database_image }}"]'
-          ticket_squad: "Product Backlog"

@@ -11,7 +11,7 @@ when@dev:
                 type: stream
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
                 level: debug
-                channels: ["!event"]
+                channels: ["!event", "!deprecation"]
                 formatter: monolog.formatter.line
                 date_format: !php/const DateTimeInterface::RFC3339
             console:
@@ -34,6 +34,12 @@ when@dev:
                 channels: ["token"]
                 formatter: monolog.formatter.line
                 date_format: !php/const DateTimeInterface::RFC3339
+            deprecation:
+                type: rotating_file
+                path: "%kernel.logs_dir%/%kernel.environment%.deprecations.log"
+                max_files: 2
+                channels: ['deprecation']
+                file_permission: 0660
 
 when@test:
     monolog:
@@ -52,6 +58,12 @@ when@test:
                 level: debug
                 formatter: monolog.formatter.line
                 date_format: !php/const DateTimeInterface::RFC3339
+            deprecation:
+                type: rotating_file
+                path: "%kernel.logs_dir%/%kernel.environment%.deprecations.log"
+                max_files: 2
+                channels: ['deprecation']
+                file_permission: 0660
 
 when@prod:
     monolog:
@@ -76,12 +88,18 @@ when@prod:
                 channels: ["!event", "!doctrine"]
                 formatter: monolog.formatter.line
                 date_format: !php/const DateTimeInterface::RFC3339
+            # deprecation:
+            #     type: stream
+            #     channels: [deprecation]
+            #     path: php://stderr
+            #     formatter: monolog.formatter.line
+            #     date_format: !php/const DateTimeInterface::RFC3339
             deprecation:
-                type: stream
-                channels: [deprecation]
-                path: php://stderr
-                formatter: monolog.formatter.line
-                date_format: !php/const DateTimeInterface::RFC3339
+                type: rotating_file
+                path: "%kernel.logs_dir%/%kernel.environment%.deprecations.log"
+                max_files: 2
+                channels: ['deprecation']
+                file_permission: 0660
             authentication:
                 type: stream
                 path: "%kernel.logs_dir%/login.log"
