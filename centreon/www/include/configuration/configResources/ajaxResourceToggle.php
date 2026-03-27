@@ -25,30 +25,40 @@ $helper   = AjaxListingHelper::boot();
 $centreon = $helper->requireCentreon();
 $pearDB   = $helper->getDb();
 
-$resId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
+$objId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 $action = $_POST['action'] ?? null;
 
-if (! $resId || ! in_array($action, ['s', 'u'], true)) {
+if (! $objId || ! in_array($action, ['s', 'u'], true)) {
     AjaxListingHelper::jsonError('Invalid parameters', 400);
 }
 
 $newToken = $helper->validateCsrfToken();
 
-// ACL: require write access
 $helper->requireWriteAccess(60904);
 
+// Verify exists
 $checkStmt = $pearDB->prepare('SELECT resource_id FROM cfg_resource WHERE resource_id = :id');
-$checkStmt->bindValue(':id', $resId, PDO::PARAM_INT);
+$checkStmt->bindValue(':id', $objId, PDO::PARAM_INT);
 $checkStmt->execute();
 if (! $checkStmt->fetch()) {
-    AjaxListingHelper::jsonError('Resource not found', 404);
+    AjaxListingHelper::jsonError('Object not found', 404);
 }
 
+// Get name for logging
+$nameStmt = $pearDB->prepare('SELECT resource_name FROM cfg_resource WHERE resource_id = :id');
+$nameStmt->bindValue(':id', $objId, PDO::PARAM_INT);
+$nameStmt->execute();
+$objName = $nameStmt->fetchColumn() ?: '';
+
+// Perform enable/disable
 $activate = ($action === 's') ? '1' : '0';
-$statement = $pearDB->prepare("UPDATE cfg_resource SET resource_activate = :activate WHERE resource_id = :id");
-$statement->bindValue(':activate', $activate, PDO::PARAM_STR);
-$statement->bindValue(':id', $resId, PDO::PARAM_INT);
-$statement->execute();
+$stmt = $pearDB->prepare("UPDATE cfg_resource SET resource_activate = :activate WHERE resource_id = :id");
+$stmt->bindValue(':activate', $activate, PDO::PARAM_STR);
+$stmt->bindValue(':id', $objId, PDO::PARAM_INT);
+$stmt->execute();
+
+// Audit log
+$helper->logToggleAction('resource', $objId, $objName, $action === 's' ? 'enable' : 'disable');
 
 echo json_encode(['success' => true, 'centreon_token' => $newToken]);
 

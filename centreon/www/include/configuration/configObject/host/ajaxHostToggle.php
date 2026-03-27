@@ -25,30 +25,40 @@ $helper   = AjaxListingHelper::boot();
 $centreon = $helper->requireCentreon();
 $pearDB   = $helper->getDb();
 
-$hostId = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
+$objId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 $action = $_POST['action'] ?? null;
 
-if (! $hostId || ! in_array($action, ['s', 'u'], true)) {
+if (! $objId || ! in_array($action, ['s', 'u'], true)) {
     AjaxListingHelper::jsonError('Invalid parameters', 400);
 }
 
 $newToken = $helper->validateCsrfToken();
 
-// ACL: require write access
 $helper->requireWriteAccess(60101);
 
+// Verify exists
 $checkStmt = $pearDB->prepare("SELECT host_id FROM host WHERE host_id = :id AND host_register = '1'");
-$checkStmt->bindValue(':id', $hostId, PDO::PARAM_INT);
+$checkStmt->bindValue(':id', $objId, PDO::PARAM_INT);
 $checkStmt->execute();
 if (! $checkStmt->fetch()) {
-    AjaxListingHelper::jsonError('Host not found', 404);
+    AjaxListingHelper::jsonError('Object not found', 404);
 }
 
+// Get name for logging
+$nameStmt = $pearDB->prepare('SELECT host_name FROM host WHERE host_id = :id');
+$nameStmt->bindValue(':id', $objId, PDO::PARAM_INT);
+$nameStmt->execute();
+$objName = $nameStmt->fetchColumn() ?: '';
+
+// Perform enable/disable
 $activate = ($action === 's') ? '1' : '0';
-$statement = $pearDB->prepare("UPDATE host SET host_activate = :activate WHERE host_id = :id");
-$statement->bindValue(':activate', $activate, PDO::PARAM_STR);
-$statement->bindValue(':id', $hostId, PDO::PARAM_INT);
-$statement->execute();
+$stmt = $pearDB->prepare("UPDATE host SET host_activate = :activate WHERE host_id = :id");
+$stmt->bindValue(':activate', $activate, PDO::PARAM_STR);
+$stmt->bindValue(':id', $objId, PDO::PARAM_INT);
+$stmt->execute();
+
+// Audit log
+$helper->logToggleAction('host', $objId, $objName, $action === 's' ? 'enable' : 'disable');
 
 echo json_encode(['success' => true, 'centreon_token' => $newToken]);
 

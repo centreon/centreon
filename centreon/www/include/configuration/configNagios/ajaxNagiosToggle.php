@@ -25,37 +25,40 @@ $helper   = AjaxListingHelper::boot();
 $centreon = $helper->requireCentreon();
 $pearDB   = $helper->getDb();
 
-$nagiosId = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
-$action   = $_POST['action'] ?? null;
+$objId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
+$action = $_POST['action'] ?? null;
 
-if (! $nagiosId || ! in_array($action, ['s', 'u'], true)) {
+if (! $objId || ! in_array($action, ['s', 'u'], true)) {
     AjaxListingHelper::jsonError('Invalid parameters', 400);
 }
 
 $newToken = $helper->validateCsrfToken();
 
-// ACL: require write access
 $helper->requireWriteAccess(60903);
 
-// Verify config exists
-$checkStmt = $pearDB->prepare('SELECT nagios_id, nagios_server_id FROM cfg_nagios WHERE nagios_id = :id');
-$checkStmt->bindValue(':id', $nagiosId, PDO::PARAM_INT);
+// Verify exists
+$checkStmt = $pearDB->prepare('SELECT nagios_id FROM cfg_nagios WHERE nagios_id = :id');
+$checkStmt->bindValue(':id', $objId, PDO::PARAM_INT);
 $checkStmt->execute();
-$cfg = $checkStmt->fetch(PDO::FETCH_ASSOC);
-if (! $cfg) {
-    AjaxListingHelper::jsonError('Configuration not found', 404);
+if (! $checkStmt->fetch()) {
+    AjaxListingHelper::jsonError('Object not found', 404);
 }
 
-if ($action === 's') {
-    // Enable: deactivate all others on the same server first
-    $pearDB->prepare("UPDATE cfg_nagios SET nagios_activate = '0' WHERE nagios_server_id = :sid")
-        ->execute([':sid' => $cfg['nagios_server_id']]);
-    $pearDB->prepare("UPDATE cfg_nagios SET nagios_activate = '1' WHERE nagios_id = :id")
-        ->execute([':id' => $nagiosId]);
-} else {
-    $pearDB->prepare("UPDATE cfg_nagios SET nagios_activate = '0' WHERE nagios_id = :id")
-        ->execute([':id' => $nagiosId]);
-}
+// Get name for logging
+$nameStmt = $pearDB->prepare('SELECT nagios_name FROM cfg_nagios WHERE nagios_id = :id');
+$nameStmt->bindValue(':id', $objId, PDO::PARAM_INT);
+$nameStmt->execute();
+$objName = $nameStmt->fetchColumn() ?: '';
+
+// Perform enable/disable
+$activate = ($action === 's') ? '1' : '0';
+$stmt = $pearDB->prepare("UPDATE cfg_nagios SET nagios_activate = :activate WHERE nagios_id = :id");
+$stmt->bindValue(':activate', $activate, PDO::PARAM_STR);
+$stmt->bindValue(':id', $objId, PDO::PARAM_INT);
+$stmt->execute();
+
+// Audit log
+$helper->logToggleAction('engine_cfg', $objId, $objName, $action === 's' ? 'enable' : 'disable');
 
 echo json_encode(['success' => true, 'centreon_token' => $newToken]);
 

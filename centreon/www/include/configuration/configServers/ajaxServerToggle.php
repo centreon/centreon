@@ -25,31 +25,40 @@ $helper   = AjaxListingHelper::boot();
 $centreon = $helper->requireCentreon();
 $pearDB   = $helper->getDb();
 
-$serverId = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
-$action   = $_POST['action'] ?? null;
+$objId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
+$action = $_POST['action'] ?? null;
 
-if (! $serverId || ! in_array($action, ['s', 'u'], true)) {
+if (! $objId || ! in_array($action, ['s', 'u'], true)) {
     AjaxListingHelper::jsonError('Invalid parameters', 400);
 }
 
 $newToken = $helper->validateCsrfToken();
 
-// ACL: require write access
 $helper->requireWriteAccess(60901);
 
-// Verify server exists
+// Verify exists
 $checkStmt = $pearDB->prepare('SELECT id FROM nagios_server WHERE id = :id');
-$checkStmt->bindValue(':id', $serverId, PDO::PARAM_INT);
+$checkStmt->bindValue(':id', $objId, PDO::PARAM_INT);
 $checkStmt->execute();
 if (! $checkStmt->fetch()) {
-    AjaxListingHelper::jsonError('Server not found', 404);
+    AjaxListingHelper::jsonError('Object not found', 404);
 }
 
+// Get name for logging
+$nameStmt = $pearDB->prepare('SELECT name FROM nagios_server WHERE id = :id');
+$nameStmt->bindValue(':id', $objId, PDO::PARAM_INT);
+$nameStmt->execute();
+$objName = $nameStmt->fetchColumn() ?: '';
+
+// Perform enable/disable
 $activate = ($action === 's') ? '1' : '0';
-$statement = $pearDB->prepare("UPDATE nagios_server SET ns_activate = :activate WHERE id = :id");
-$statement->bindValue(':activate', $activate, PDO::PARAM_STR);
-$statement->bindValue(':id', $serverId, PDO::PARAM_INT);
-$statement->execute();
+$stmt = $pearDB->prepare("UPDATE nagios_server SET ns_activate = :activate WHERE id = :id");
+$stmt->bindValue(':activate', $activate, PDO::PARAM_STR);
+$stmt->bindValue(':id', $objId, PDO::PARAM_INT);
+$stmt->execute();
+
+// Audit log
+$helper->logToggleAction('poller', $objId, $objName, $action === 's' ? 'enable' : 'disable');
 
 echo json_encode(['success' => true, 'centreon_token' => $newToken]);
 

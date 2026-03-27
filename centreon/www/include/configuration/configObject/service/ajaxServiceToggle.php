@@ -25,16 +25,16 @@ $helper   = AjaxListingHelper::boot();
 $centreon = $helper->requireCentreon();
 $pearDB   = $helper->getDb();
 
-$svcId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
+$objId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 $action = $_POST['action'] ?? null;
 
-if (! $svcId || ! in_array($action, ['s', 'u'], true)) {
+if (! $objId || ! in_array($action, ['s', 'u'], true)) {
     AjaxListingHelper::jsonError('Invalid parameters', 400);
 }
 
 $newToken = $helper->validateCsrfToken();
 
-// ACL: require write access on services page (60201 by host OR 60202 by hostgroup)
+// ACL: require write access on services page (60201 or 60202)
 if (! $helper->isAdmin()) {
     $acl = $helper->getAcl();
     if ($acl->page(60201) !== 1 && $acl->page(60202) !== 1) {
@@ -42,18 +42,29 @@ if (! $helper->isAdmin()) {
     }
 }
 
+// Verify exists
 $checkStmt = $pearDB->prepare("SELECT service_id FROM service WHERE service_id = :id AND service_register = '1'");
-$checkStmt->bindValue(':id', $svcId, PDO::PARAM_INT);
+$checkStmt->bindValue(':id', $objId, PDO::PARAM_INT);
 $checkStmt->execute();
 if (! $checkStmt->fetch()) {
-    AjaxListingHelper::jsonError('Service not found', 404);
+    AjaxListingHelper::jsonError('Object not found', 404);
 }
 
+// Get name for logging
+$nameStmt = $pearDB->prepare('SELECT service_description FROM service WHERE service_id = :id');
+$nameStmt->bindValue(':id', $objId, PDO::PARAM_INT);
+$nameStmt->execute();
+$objName = $nameStmt->fetchColumn() ?: '';
+
+// Perform enable/disable
 $activate = ($action === 's') ? '1' : '0';
-$statement = $pearDB->prepare("UPDATE service SET service_activate = :activate WHERE service_id = :id");
-$statement->bindValue(':activate', $activate, PDO::PARAM_STR);
-$statement->bindValue(':id', $svcId, PDO::PARAM_INT);
-$statement->execute();
+$stmt = $pearDB->prepare("UPDATE service SET service_activate = :activate WHERE service_id = :id");
+$stmt->bindValue(':activate', $activate, PDO::PARAM_STR);
+$stmt->bindValue(':id', $objId, PDO::PARAM_INT);
+$stmt->execute();
+
+// Audit log
+$helper->logToggleAction('service', $objId, $objName, $action === 's' ? 'enable' : 'disable');
 
 echo json_encode(['success' => true, 'centreon_token' => $newToken]);
 

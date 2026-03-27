@@ -21,52 +21,44 @@
 
 require_once realpath(__DIR__ . '/../../..') . '/common/listing/AjaxListingHelper.php';
 
-$helper  = AjaxListingHelper::boot();
+$helper   = AjaxListingHelper::boot();
 $centreon = $helper->requireCentreon();
-$pearDB  = $helper->getDb();
+$pearDB   = $helper->getDb();
 
-// Input validation
-$sgId   = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
+$objId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 $action = $_POST['action'] ?? null;
 
-if (! $sgId || ! in_array($action, ['s', 'u'], true)) {
+if (! $objId || ! in_array($action, ['s', 'u'], true)) {
     AjaxListingHelper::jsonError('Invalid parameters', 400);
 }
 
-// CSRF validation (consumes token, returns a fresh one)
 $newToken = $helper->validateCsrfToken();
 
-// ACL: require write access
 $helper->requireWriteAccess(60203);
 
-// ACL: write access on service groups page (60801)
-$acl = $helper->getAcl();
-if (! $acl || $acl->page(60801) !== 1) {
-    AjaxListingHelper::jsonError('Write access denied', 403);
-}
-
-// ACL: non-admin must have access to this specific service group
-if (! $helper->isAdmin()) {
-    $sgs = $acl->getServiceGroupAclConf(null, 'broker');
-    if (! array_key_exists($sgId, $sgs)) {
-        AjaxListingHelper::jsonError('Access denied to this service group', 403);
-    }
-}
-
-// Verify service group exists
-$checkStmt = $pearDB->prepare('SELECT sg_id FROM servicegroup WHERE sg_id = :sg_id');
-$checkStmt->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
+// Verify exists
+$checkStmt = $pearDB->prepare('SELECT sg_id FROM servicegroup WHERE sg_id = :id');
+$checkStmt->bindValue(':id', $objId, PDO::PARAM_INT);
 $checkStmt->execute();
 if (! $checkStmt->fetch()) {
-    AjaxListingHelper::jsonError('Service group not found', 404);
+    AjaxListingHelper::jsonError('Object not found', 404);
 }
+
+// Get name for logging
+$nameStmt = $pearDB->prepare('SELECT sg_name FROM servicegroup WHERE sg_id = :id');
+$nameStmt->bindValue(':id', $objId, PDO::PARAM_INT);
+$nameStmt->execute();
+$objName = $nameStmt->fetchColumn() ?: '';
 
 // Perform enable/disable
 $activate = ($action === 's') ? '1' : '0';
-$statement = $pearDB->prepare("UPDATE servicegroup SET sg_activate = :activate WHERE sg_id = :sg_id");
-$statement->bindValue(':activate', $activate, PDO::PARAM_STR);
-$statement->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
-$statement->execute();
+$stmt = $pearDB->prepare("UPDATE servicegroup SET sg_activate = :activate WHERE sg_id = :id");
+$stmt->bindValue(':activate', $activate, PDO::PARAM_STR);
+$stmt->bindValue(':id', $objId, PDO::PARAM_INT);
+$stmt->execute();
+
+// Audit log
+$helper->logToggleAction('servicegroup', $objId, $objName, $action === 's' ? 'enable' : 'disable');
 
 echo json_encode(['success' => true, 'centreon_token' => $newToken]);
 

@@ -184,6 +184,45 @@ class AjaxListingHelper
     }
 
     /**
+     * Log a toggle action (enable/disable) to the audit log.
+     * Uses direct SQL to avoid dependencies on CentreonLogAction.
+     *
+     * @param string $objectType Object type (e.g. 'servicegroup', 'host', 'contact')
+     * @param int $objectId Object ID
+     * @param string $objectName Object name for display
+     * @param string $actionType Action type ('enable' or 'disable')
+     */
+    public function logToggleAction(string $objectType, int $objectId, string $objectName, string $actionType): void
+    {
+        try {
+            $pearDBO = new CentreonDB('centstorage');
+
+            // Check if audit log is enabled
+            $optResult = $pearDBO->query("SELECT audit_log_option FROM `config` LIMIT 1");
+            $auditOpt = $optResult->fetchColumn();
+            if ($auditOpt != '1') {
+                return;
+            }
+
+            $userId = $this->centreon ? $this->centreon->user->get_id() : 0;
+
+            $stmt = $pearDBO->prepare(
+                "INSERT INTO `log_action` (action_log_date, object_type, object_id, object_name, action_type, log_contact_id)"
+                . " VALUES (:ts, :obj_type, :obj_id, :obj_name, :action, :uid)"
+            );
+            $stmt->bindValue(':ts', time(), PDO::PARAM_INT);
+            $stmt->bindValue(':obj_type', $objectType, PDO::PARAM_STR);
+            $stmt->bindValue(':obj_id', $objectId, PDO::PARAM_INT);
+            $stmt->bindValue(':obj_name', $objectName, PDO::PARAM_STR);
+            $stmt->bindValue(':action', $actionType, PDO::PARAM_STR);
+            $stmt->bindValue(':uid', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+        } catch (\Throwable $e) {
+            // Silently fail logging — don't break the toggle
+        }
+    }
+
+    /**
      * Send a successful JSON listing response and exit.
      */
     public function jsonResponse(array $rows, int $total, int $num, int $limit): void

@@ -25,39 +25,45 @@ $helper   = AjaxListingHelper::boot();
 $centreon = $helper->requireCentreon();
 $pearDB   = $helper->getDb();
 
-// Input validation
-$contactId = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
-$action    = $_POST['action'] ?? null;
+$objId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
+$action = $_POST['action'] ?? null;
 
-if (! $contactId || ! in_array($action, ['s', 'u'], true)) {
+if (! $objId || ! in_array($action, ['s', 'u'], true)) {
     AjaxListingHelper::jsonError('Invalid parameters', 400);
 }
 
 // Cannot toggle yourself
-if ((int) $contactId === (int) $centreon->user->get_id()) {
+if ((int) $objId === (int) $centreon->user->get_id()) {
     AjaxListingHelper::jsonError('Cannot toggle your own account', 403);
 }
 
-// CSRF validation
 $newToken = $helper->validateCsrfToken();
 
-// ACL: require write access
 $helper->requireWriteAccess(60301);
 
-// Verify contact exists and is registered (not a template)
+// Verify exists
 $checkStmt = $pearDB->prepare("SELECT contact_id FROM contact WHERE contact_id = :id AND contact_register = '1'");
-$checkStmt->bindValue(':id', $contactId, PDO::PARAM_INT);
+$checkStmt->bindValue(':id', $objId, PDO::PARAM_INT);
 $checkStmt->execute();
 if (! $checkStmt->fetch()) {
-    AjaxListingHelper::jsonError('Contact not found', 404);
+    AjaxListingHelper::jsonError('Object not found', 404);
 }
+
+// Get name for logging
+$nameStmt = $pearDB->prepare('SELECT contact_name FROM contact WHERE contact_id = :id');
+$nameStmt->bindValue(':id', $objId, PDO::PARAM_INT);
+$nameStmt->execute();
+$objName = $nameStmt->fetchColumn() ?: '';
 
 // Perform enable/disable
 $activate = ($action === 's') ? '1' : '0';
-$statement = $pearDB->prepare("UPDATE contact SET contact_activate = :activate WHERE contact_id = :id");
-$statement->bindValue(':activate', $activate, PDO::PARAM_STR);
-$statement->bindValue(':id', $contactId, PDO::PARAM_INT);
-$statement->execute();
+$stmt = $pearDB->prepare("UPDATE contact SET contact_activate = :activate WHERE contact_id = :id");
+$stmt->bindValue(':activate', $activate, PDO::PARAM_STR);
+$stmt->bindValue(':id', $objId, PDO::PARAM_INT);
+$stmt->execute();
+
+// Audit log
+$helper->logToggleAction('contact', $objId, $objName, $action === 's' ? 'enable' : 'disable');
 
 echo json_encode(['success' => true, 'centreon_token' => $newToken]);
 

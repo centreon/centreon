@@ -25,43 +25,40 @@ $helper   = AjaxListingHelper::boot();
 $centreon = $helper->requireCentreon();
 $pearDB   = $helper->getDb();
 
-// Input validation
-$metaId = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
+$objId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 $action = $_POST['action'] ?? null;
 
-if (! $metaId || ! in_array($action, ['s', 'u'], true)) {
+if (! $objId || ! in_array($action, ['s', 'u'], true)) {
     AjaxListingHelper::jsonError('Invalid parameters', 400);
 }
 
-// CSRF validation
 $newToken = $helper->validateCsrfToken();
 
-// ACL: require write access
 $helper->requireWriteAccess(60204);
 
-// ACL: non-admin must have access to this meta service
-if (! $helper->isAdmin()) {
-    $acl = $helper->getAcl();
-    $metaStr = $acl->getMetaServiceString();
-    if (strpos($metaStr, "'" . $metaId . "'") === false) {
-        AjaxListingHelper::jsonError('Access denied to this meta service', 403);
-    }
-}
-
-// Verify meta service exists
-$checkStmt = $pearDB->prepare('SELECT meta_id FROM meta_service WHERE meta_id = :meta_id');
-$checkStmt->bindValue(':meta_id', $metaId, PDO::PARAM_INT);
+// Verify exists
+$checkStmt = $pearDB->prepare('SELECT meta_id FROM meta_service WHERE meta_id = :id');
+$checkStmt->bindValue(':id', $objId, PDO::PARAM_INT);
 $checkStmt->execute();
 if (! $checkStmt->fetch()) {
-    AjaxListingHelper::jsonError('Meta service not found', 404);
+    AjaxListingHelper::jsonError('Object not found', 404);
 }
+
+// Get name for logging
+$nameStmt = $pearDB->prepare('SELECT meta_name FROM meta_service WHERE meta_id = :id');
+$nameStmt->bindValue(':id', $objId, PDO::PARAM_INT);
+$nameStmt->execute();
+$objName = $nameStmt->fetchColumn() ?: '';
 
 // Perform enable/disable
 $activate = ($action === 's') ? '1' : '0';
-$statement = $pearDB->prepare("UPDATE meta_service SET meta_activate = :activate WHERE meta_id = :meta_id");
-$statement->bindValue(':activate', $activate, PDO::PARAM_STR);
-$statement->bindValue(':meta_id', $metaId, PDO::PARAM_INT);
-$statement->execute();
+$stmt = $pearDB->prepare("UPDATE meta_service SET meta_activate = :activate WHERE meta_id = :id");
+$stmt->bindValue(':activate', $activate, PDO::PARAM_STR);
+$stmt->bindValue(':id', $objId, PDO::PARAM_INT);
+$stmt->execute();
+
+// Audit log
+$helper->logToggleAction('meta_service', $objId, $objName, $action === 's' ? 'enable' : 'disable');
 
 echo json_encode(['success' => true, 'centreon_token' => $newToken]);
 

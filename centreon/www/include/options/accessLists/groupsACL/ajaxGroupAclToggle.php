@@ -25,36 +25,40 @@ $helper   = AjaxListingHelper::boot();
 $centreon = $helper->requireCentreon();
 $pearDB   = $helper->getDb();
 
-$grpId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
+$objId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 $action = $_POST['action'] ?? null;
 
-if (! $grpId || ! in_array($action, ['s', 'u'], true)) {
+if (! $objId || ! in_array($action, ['s', 'u'], true)) {
     AjaxListingHelper::jsonError('Invalid parameters', 400);
 }
 
 $newToken = $helper->validateCsrfToken();
 
-// ACL: require write access
 $helper->requireWriteAccess(50203);
 
+// Verify exists
 $checkStmt = $pearDB->prepare('SELECT acl_group_id FROM acl_groups WHERE acl_group_id = :id');
-$checkStmt->bindValue(':id', $grpId, PDO::PARAM_INT);
+$checkStmt->bindValue(':id', $objId, PDO::PARAM_INT);
 $checkStmt->execute();
 if (! $checkStmt->fetch()) {
-    AjaxListingHelper::jsonError('ACL group not found', 404);
+    AjaxListingHelper::jsonError('Object not found', 404);
 }
 
+// Get name for logging
+$nameStmt = $pearDB->prepare('SELECT acl_group_name FROM acl_groups WHERE acl_group_id = :id');
+$nameStmt->bindValue(':id', $objId, PDO::PARAM_INT);
+$nameStmt->execute();
+$objName = $nameStmt->fetchColumn() ?: '';
+
+// Perform enable/disable
 $activate = ($action === 's') ? '1' : '0';
-$statement = $pearDB->prepare("UPDATE acl_groups SET acl_group_activate = :activate WHERE acl_group_id = :id");
-$statement->bindValue(':activate', $activate, PDO::PARAM_STR);
-$statement->bindValue(':id', $grpId, PDO::PARAM_INT);
-$statement->execute();
+$stmt = $pearDB->prepare("UPDATE acl_groups SET acl_group_activate = :activate WHERE acl_group_id = :id");
+$stmt->bindValue(':activate', $activate, PDO::PARAM_STR);
+$stmt->bindValue(':id', $objId, PDO::PARAM_INT);
+$stmt->execute();
 
-// Mark ACL as changed when enabling
-if ($action === 's') {
-    $pearDB->prepare("UPDATE acl_groups SET acl_group_changed = '1' WHERE acl_group_id = :id")
-        ->execute([':id' => $grpId]);
-}
+// Audit log
+$helper->logToggleAction('acl_group', $objId, $objName, $action === 's' ? 'enable' : 'disable');
 
 echo json_encode(['success' => true, 'centreon_token' => $newToken]);
 

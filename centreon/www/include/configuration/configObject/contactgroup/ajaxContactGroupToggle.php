@@ -25,34 +25,40 @@ $helper   = AjaxListingHelper::boot();
 $centreon = $helper->requireCentreon();
 $pearDB   = $helper->getDb();
 
-// Input validation
-$cgId   = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
+$objId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 $action = $_POST['action'] ?? null;
 
-if (! $cgId || ! in_array($action, ['s', 'u'], true)) {
+if (! $objId || ! in_array($action, ['s', 'u'], true)) {
     AjaxListingHelper::jsonError('Invalid parameters', 400);
 }
 
-// CSRF validation
 $newToken = $helper->validateCsrfToken();
 
-// ACL: require write access
 $helper->requireWriteAccess(60302);
 
-// Verify contact group exists
-$checkStmt = $pearDB->prepare('SELECT cg_id FROM contactgroup WHERE cg_id = :cg_id');
-$checkStmt->bindValue(':cg_id', $cgId, PDO::PARAM_INT);
+// Verify exists
+$checkStmt = $pearDB->prepare('SELECT cg_id FROM contactgroup WHERE cg_id = :id');
+$checkStmt->bindValue(':id', $objId, PDO::PARAM_INT);
 $checkStmt->execute();
 if (! $checkStmt->fetch()) {
-    AjaxListingHelper::jsonError('Contact group not found', 404);
+    AjaxListingHelper::jsonError('Object not found', 404);
 }
+
+// Get name for logging
+$nameStmt = $pearDB->prepare('SELECT cg_name FROM contactgroup WHERE cg_id = :id');
+$nameStmt->bindValue(':id', $objId, PDO::PARAM_INT);
+$nameStmt->execute();
+$objName = $nameStmt->fetchColumn() ?: '';
 
 // Perform enable/disable
 $activate = ($action === 's') ? '1' : '0';
-$statement = $pearDB->prepare("UPDATE contactgroup SET cg_activate = :activate WHERE cg_id = :cg_id");
-$statement->bindValue(':activate', $activate, PDO::PARAM_STR);
-$statement->bindValue(':cg_id', $cgId, PDO::PARAM_INT);
-$statement->execute();
+$stmt = $pearDB->prepare("UPDATE contactgroup SET cg_activate = :activate WHERE cg_id = :id");
+$stmt->bindValue(':activate', $activate, PDO::PARAM_STR);
+$stmt->bindValue(':id', $objId, PDO::PARAM_INT);
+$stmt->execute();
+
+// Audit log
+$helper->logToggleAction('contactgroup', $objId, $objName, $action === 's' ? 'enable' : 'disable');
 
 echo json_encode(['success' => true, 'centreon_token' => $newToken]);
 

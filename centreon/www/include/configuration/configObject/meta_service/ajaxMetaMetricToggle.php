@@ -25,34 +25,34 @@ $helper   = AjaxListingHelper::boot();
 $centreon = $helper->requireCentreon();
 $pearDB   = $helper->getDb();
 
-// Input validation
-$msrId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
+$objId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 $action = $_POST['action'] ?? null;
 
-if (! $msrId || ! in_array($action, ['s', 'u'], true)) {
+if (! $objId || ! in_array($action, ['s', 'u'], true)) {
     AjaxListingHelper::jsonError('Invalid parameters', 400);
 }
 
-// CSRF validation
 $newToken = $helper->validateCsrfToken();
 
-// ACL: require write access
 $helper->requireWriteAccess(60204);
 
-// Verify metric relation exists
-$checkStmt = $pearDB->prepare('SELECT msr_id FROM meta_service_relation WHERE msr_id = :msr_id');
-$checkStmt->bindValue(':msr_id', $msrId, PDO::PARAM_INT);
+// Verify exists
+$checkStmt = $pearDB->prepare('SELECT msr_id FROM meta_service_relation WHERE msr_id = :id');
+$checkStmt->bindValue(':id', $objId, PDO::PARAM_INT);
 $checkStmt->execute();
 if (! $checkStmt->fetch()) {
-    AjaxListingHelper::jsonError('Metric relation not found', 404);
+    AjaxListingHelper::jsonError('Object not found', 404);
 }
 
 // Perform enable/disable
 $activate = ($action === 's') ? '1' : '0';
-$statement = $pearDB->prepare("UPDATE meta_service_relation SET activate = :activate WHERE msr_id = :msr_id");
-$statement->bindValue(':activate', $activate, PDO::PARAM_STR);
-$statement->bindValue(':msr_id', $msrId, PDO::PARAM_INT);
-$statement->execute();
+$stmt = $pearDB->prepare("UPDATE meta_service_relation SET activate = :activate WHERE msr_id = :id");
+$stmt->bindValue(':activate', $activate, PDO::PARAM_STR);
+$stmt->bindValue(':id', $objId, PDO::PARAM_INT);
+$stmt->execute();
+
+// Audit log
+$helper->logToggleAction('meta_service_metric', $objId, (string) $objId, $action === 's' ? 'enable' : 'disable');
 
 echo json_encode(['success' => true, 'centreon_token' => $newToken]);
 
