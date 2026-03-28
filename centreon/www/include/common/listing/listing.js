@@ -66,7 +66,7 @@ function CentreonListing(config) {
 
         // Infinite scroll mode (default false) — appends rows on scroll instead of pagination
         infiniteScroll: config.infiniteScroll || false,
-        infiniteScrollBuffer: config.infiniteScrollBuffer || 200, // px from bottom to trigger load
+        infiniteScrollBuffer: config.infiniteScrollBuffer || 600, // px from bottom to trigger load
         scrollContainerId: config.scrollContainerId || null, // custom scroll container for infinite scroll
 
         // Callbacks

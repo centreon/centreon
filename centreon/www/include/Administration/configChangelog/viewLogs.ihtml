@@ -1,142 +1,6 @@
 <script type="text/javascript" src="./include/common/javascript/tool.js"></script>
 
-{literal}
-<style>
-.cl-changelog-wrapper {
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 60px);
-    overflow: hidden;
-}
-.cl-changelog-wrapper .cl-filter-box,
-.cl-changelog-wrapper .cl-actions-bar {
-    flex-shrink: 0;
-}
-.cl-changelog-scroll {
-    flex: 1;
-    overflow-y: auto;
-    min-height: 0;
-}
-.cl-changelog-scroll table {
-    width: 100%;
-}
-.cl-changelog-table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: var(--table-header-background, #6b7888);
-}
-
-/* Expand toggle */
-.cl-expand-btn {
-    cursor: pointer;
-    user-select: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 22px;
-    border-radius: 4px;
-    font-size: 14px;
-    color: var(--list-color, #555);
-    background: var(--color-divider, #e8e8e8);
-    transition: background 0.15s, color 0.15s;
-    line-height: 1;
-}
-.cl-expand-btn:hover {
-    background: #3a7bbf;
-    color: #fff;
-}
-.cl-expand-btn.open {
-    background: #3a7bbf;
-    color: #fff;
-}
-.cl-expand-btn.disabled {
-    cursor: default;
-    opacity: 0.3;
-    pointer-events: none;
-}
-
-/* Detail row */
-.cl-detail-row td {
-    padding: 0 !important;
-    background: var(--body-background, #f9f9f9);
-}
-.cl-diff-container {
-    margin: 6px 16px 10px 36px;
-    border: 1px solid var(--color-divider, #ddd);
-    border-radius: 6px;
-    overflow: hidden;
-    font-size: 12px;
-}
-.cl-diff-header {
-    display: flex;
-    background: var(--table-header-background, #6b7888);
-    color: #fff;
-    font-weight: 600;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-.cl-diff-header span {
-    flex: 1;
-    padding: 6px 10px;
-}
-.cl-diff-header span:first-child {
-    flex: 0 0 200px;
-}
-.cl-diff-row {
-    display: flex;
-    border-bottom: 1px solid var(--color-divider, #eee);
-}
-.cl-diff-row:last-child {
-    border-bottom: none;
-}
-.cl-diff-row:hover {
-    background: rgba(0,0,0,0.02);
-}
-.cl-diff-field {
-    flex: 0 0 200px;
-    padding: 5px 10px;
-    font-weight: 500;
-    color: var(--list-color, #555);
-    word-break: break-all;
-    border-right: 1px solid var(--color-divider, #eee);
-}
-.cl-diff-before, .cl-diff-after {
-    flex: 1;
-    padding: 5px 10px;
-    word-break: break-all;
-    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-    font-size: 11px;
-}
-.cl-diff-before {
-    background: rgba(255, 74, 74, 0.06);
-    color: #c0392b;
-    border-right: 1px solid var(--color-divider, #eee);
-}
-.cl-diff-after {
-    background: rgba(39, 174, 96, 0.06);
-    color: #27ae60;
-}
-.cl-diff-before:empty, .cl-diff-after:empty {
-    background: transparent;
-}
-.cl-diff-empty {
-    padding: 12px 16px;
-    color: #a7a9ac;
-    font-style: italic;
-    text-align: center;
-}
-.cl-diff-loading {
-    padding: 12px 16px;
-    text-align: center;
-    color: #a7a9ac;
-}
-</style>
-{/literal}
-
-<div class="cl-changelog-wrapper">
+<div class="cl-scroll-wrapper">
     <div class="cl-filter-box">
         <div class="cl-filter-bar">
             <span class="cl-filter-label">{t}Object{/t}</span>
@@ -156,8 +20,8 @@
         <div class="cl-pagination" id="clPaginationTop" style="font-size:12px;"></div>
     </div>
 
-    <div class="cl-changelog-scroll" id="clScrollContainer">
-        <table class="cl-listing-table cl-changelog-table">
+    <div class="cl-scroll-area" id="clScrollContainer">
+        <table class="cl-listing-table">
             <thead>
                 <tr>
                     <th style="width:30px"></th>
