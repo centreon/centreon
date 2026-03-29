@@ -113,7 +113,8 @@ const MultiAutocompleteField = ({
         onChange,
         isOptionSelected,
         disableSelectAll,
-        options
+        options,
+        value: values
       })}
       onChange={onChange}
       {...props}

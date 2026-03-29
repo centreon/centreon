@@ -340,11 +340,11 @@ const ConnectedAutocompleteField = (
     );
 
     useEffect(() => {
-      if (!autocompleteChangedValue && !props?.value) {
+      if (!autocompleteChangedValue) {
         return;
       }
       setSearchParameter(undefined);
-    }, [autocompleteChangedValue, props?.value]);
+    }, [autocompleteChangedValue]);
 
     useEffect(() => {
       if (!optionsOpen) {
