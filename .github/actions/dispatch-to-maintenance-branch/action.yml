@@ -1,0 +1,39 @@
+name: "dispatch-to-maintenance-branch"
+description: "Dispatch to maintenance branch according to reference date"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Select maintenance branch and run nightly workflow on it
+      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+      env:
+        GH_TOKEN: ${{ github.token }}
+      with:
+        script: |
+          const { execSync } = require('child_process');
+          const today = new Date();
+          const currentDayOfWeek = today.getDay();
+          if (currentDayOfWeek === 0 || currentDayOfWeek === 6) {
+            throw new Error(`❌ Nightly should not be run on weekend days.`);
+          }
+
+          const maintenanceBranches = ['dev-24.04.x', 'dev-24.10.x', 'dev-25.10.x'];
+          const referenceDate = new Date('2025-01-01');
+
+          // Calculate the number of working days since the reference date
+          let workingDays = 0;
+          let currentDate = new Date(referenceDate);
+
+          while (currentDate < today) {
+            const dayOfWeek = currentDate.getDay();
+            if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+              workingDays++;
+            }
+            currentDate.setDate(currentDate.getDate() + 1);
+            console.log(`Number of working days since January, 1st 2025: ${workingDays}`);
+          }
+
+          const branchIndex = workingDays % maintenanceBranches.length;
+
+          execSync(`gh workflow run "${{ github.workflow }}" --ref "${maintenanceBranches[branchIndex]}" --raw-field nightly_manual_trigger=true`);
+          console.log(`🌃 Nightly workflow triggered for component ${maintenanceBranches[branchIndex]}`);
