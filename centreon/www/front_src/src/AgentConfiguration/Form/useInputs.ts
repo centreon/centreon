@@ -12,8 +12,8 @@ import { AgentType, ConnectionMode } from '../models';
 import {
   labelAgent,
   labelAgentType,
-  labelCMA,
   labelCaCertificate,
+  labelCMA,
   labelConfigurationServer,
   labelConnectionInitiated,
   labelEncryptionLevel,
