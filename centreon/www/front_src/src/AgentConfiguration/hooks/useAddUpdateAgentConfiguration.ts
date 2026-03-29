@@ -1,9 +1,4 @@
-import {
-  Method,
-  SelectEntry,
-  useMutationQuery,
-  useSnackbar
-} from '@centreon/ui';
+import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { FormikHelpers } from 'formik';
@@ -62,8 +57,7 @@ const adaptTelegrafConfigurationToAPI = (
       )
     },
     connection_mode: agentConfiguration?.connectionMode?.id,
-    poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
-    type: (agentConfiguration.type as SelectEntry).id
+    poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>
   };
 };
 
@@ -119,8 +113,7 @@ const adaptCMAConfigurationToAPI = (
         : []
     },
     connection_mode: agentConfiguration?.connectionMode?.id,
-    poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
-    type: (agentConfiguration.type as SelectEntry).id
+    poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>
   };
 };
 
@@ -174,14 +167,22 @@ export const useAddUpdateAgentConfiguration =
       values: AgentConfiguration,
       { setSubmitting }: FormikHelpers<AgentConfigurationAPI>
     ) => {
-      mutateAsync({
+      const agentConfiguration = equals(openFormModal, 'add')
+        ? { ...values, type: values.type.id }
+        : omit(['type'], values);
+
+      const payload = (
+        equals(agentTypeForm, AgentType.Telegraf)
+          ? adaptTelegrafConfigurationToAPI
+          : adaptCMAConfigurationToAPI
+      )(agentConfiguration);
+
+      return mutateAsync({
         _meta: {
           id: equals(openFormModal, 'add') ? null : openFormModal,
           setSubmitting
         },
-        payload: equals(agentTypeForm, AgentType.Telegraf)
-          ? adaptTelegrafConfigurationToAPI(values)
-          : adaptCMAConfigurationToAPI(values)
+        payload
       });
     };
 
