@@ -1,0 +1,7 @@
+GetHost:
+  methods: GET
+  path: /configuration/hosts/{hostId}
+  requirements:
+    hostId: '\d+'
+  controller: 'Core\Host\Infrastructure\API\GetHost\GetHostController'
+  condition: "request.attributes.get('version') >= 25.10"
