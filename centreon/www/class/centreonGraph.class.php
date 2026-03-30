@@ -1267,9 +1267,9 @@ class CentreonGraph
             }
 
             return null;
-        } else {
-            return $commandLine;
         }
+
+        return $commandLine;
     }
 
     /**
