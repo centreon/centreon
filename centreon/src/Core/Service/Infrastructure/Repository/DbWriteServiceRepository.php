@@ -234,9 +234,9 @@ class DbWriteServiceRepository extends AbstractRepositoryRDB implements WriteSer
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
-                DELETE hsr, svc
-                FROM `:db`.`host_service_relation` hsr
-                INNER JOIN `:db`.`service` svc ON hsr.service_service_id = svc.service_id
+                DELETE svc
+                FROM `:db`.`service` svc
+                INNER JOIN `:db`.`host_service_relation` hsr ON hsr.service_service_id = svc.service_id
                 WHERE svc.service_template_model_stm_id = :serviceTemplateId
                 AND svc.service_register = '1'
                 AND hsr.host_host_id = :hostId
