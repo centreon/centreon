@@ -152,6 +152,10 @@ it('throws an exception when notification time period ID does not exist', functi
 );
 
 it('throws an exception when severity ID does not exist', function (): void {
+    $this->adminResolver
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
     $this->serviceSeverityRepository
         ->expects($this->once())
         ->method('exists')

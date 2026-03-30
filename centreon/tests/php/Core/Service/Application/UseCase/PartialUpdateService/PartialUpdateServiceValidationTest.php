@@ -127,6 +127,10 @@ it('should raise an exception when the time period ID does not exist', function 
 );
 
 it('should raise an exception when the severity ID does not exist', function (): void {
+    $this->adminResolver
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
     $this->serviceSeverityRepository
         ->expects($this->once())
         ->method('exists')
