@@ -286,14 +286,19 @@ if ($maxHeight > 0 && ! $obj->checkcurve) {
         CentreonGraph::displayError();
     }
 
-    $image = @imagecreatefromstring($imageData);
-    if ($image === false) {
+    $imageSize = @getimagesizefromstring($imageData);
+    if ($imageSize === false) {
         CentreonGraph::displayError();
     }
 
-    if (imagesy($image) > $maxHeight) {
-        $width = imagesx($image);
-        $height = imagesy($image);
+    [$width, $height] = $imageSize;
+    if ($height > $maxHeight) {
+        $image = @imagecreatefromstring($imageData);
+        if ($image === false) {
+            CentreonGraph::displayError();
+        }
+        unset($imageData);
+
         $newWidth = max(1, (int) round($width * $maxHeight / $height));
         $scaled = imagecreatetruecolor($newWidth, $maxHeight);
         if ($scaled === false) {
@@ -307,7 +312,6 @@ if ($maxHeight > 0 && ! $obj->checkcurve) {
         imagepng($scaled);
         imagedestroy($scaled);
     } else {
-        imagedestroy($image);
         $obj->setHeaders(false, mb_strlen($imageData, '8bit'));
         echo $imageData;
     }

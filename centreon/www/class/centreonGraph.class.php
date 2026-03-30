@@ -1169,7 +1169,7 @@ class CentreonGraph
         }
 
         $imageData = $this->getImageData();
-        if ($imageData !== null) {
+        if ($imageData !== null && @getimagesizefromstring($imageData) !== false) {
             // Force no compress for image
             $this->setHeaders(false, mb_strlen($imageData, '8bit'));
             echo $imageData;
