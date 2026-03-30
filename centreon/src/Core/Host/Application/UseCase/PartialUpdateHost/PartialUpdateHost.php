@@ -63,7 +63,6 @@ use Core\HostCategory\Domain\Model\HostCategory;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
-
 use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
