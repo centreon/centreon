@@ -112,6 +112,9 @@ if ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
 
     <!-- Modern form styles -->
     <link href="./include/common/form/form.css<?php echo $versionParam; ?>" rel="stylesheet" type="text/css" />
+    <!-- Modern listing styles and JS module -->
+    <link href="./include/common/listing/listing.css<?php echo $versionParam; ?>" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="./include/common/listing/listing.js<?php echo $versionParam; ?>"></script>
 
     <!-- Translated strings for the shared listing lib's JS-built UI (e.g. the
          "More actions" confirmation modal) — listing.js is a plain static

@@ -1,0 +1,1980 @@
+/*
+ * Centreon Modern Listing Styles
+ *
+ * Shared CSS for AJAX-based configuration listing pages.
+ * Prefix: cl- (centreon-listing)
+ *
+ * Usage: Include this file in any Smarty listing template, then use
+ * the CentreonListing JS module for AJAX data loading and rendering.
+ */
+
+/* ==========================================================================
+   Layout container
+   ========================================================================== */
+
+.cl-listing-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    padding-bottom: 16px;
+}
+
+/* ==========================================================================
+   Actions bar (top toolbar: add button, bulk actions, search, pagination)
+   ========================================================================== */
+
+.cl-actions-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    gap: 12px;
+    /* Keep the search/toolbar visible while the table body scrolls
+       underneath, same pattern as the Monitoring listings. Being sticky
+       makes this the containing stacking context for its children, so its
+       own z-index must clear the advanced-filters click-outside backdrop
+       (.cl-adv-backdrop, z-index 55) or the popover nested inside it gets
+       trapped underneath and becomes unclickable. */
+    position: sticky;
+    top: 0;
+    z-index: 65;
+    background: var(--body-background, #fff);
+}
+
+.cl-actions-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* "More actions" dropdown in actions bar */
+.cl-actions-left select {
+    padding: 8px 32px 8px 12px;
+    font-size: 14px;
+    border: 1px solid var(--listing-border-botom-color, #E3E3E3);
+    border-radius: 4px;
+    background-color: var(--select-background, #fff);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='14' height='14' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    line-height: 1.4;
+    height: auto;
+}
+
+/* Bulk action selects stay disabled until at least one row is checked
+   (see listing.js updateBulkActionState) */
+.cl-actions-left select:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* "More actions" custom dropdown — replaces the plain <select>'s look,
+   since native <option> elements can't really be styled (see
+   listing.js enhanceBulkActionSelect). The underlying <select> stays in
+   the DOM (hidden) so its existing value/onchange behavior is untouched. */
+.cl-more-actions {
+    position: relative;
+    display: inline-block;
+}
+
+.cl-more-actions-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid var(--listing-border-botom-color, #E3E3E3);
+    border-radius: 4px;
+    background: var(--select-background, #fff);
+    color: var(--body-color, #333);
+    cursor: pointer;
+    line-height: 1.4;
+    transition: border-color 0.15s ease;
+    outline: none;
+}
+
+.cl-more-actions-btn:hover {
+    border-color: var(--color-primary-light, #2E68AA);
+}
+
+.cl-more-actions-btn:focus-visible {
+    border-color: var(--color-primary-light, #2E68AA);
+    outline: 2px solid var(--color-primary-light, #2E68AA);
+    outline-offset: 2px;
+}
+
+.cl-more-actions--disabled .cl-more-actions-btn {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.cl-more-actions--disabled .cl-more-actions-btn:hover {
+    border-color: var(--listing-border-botom-color, #E3E3E3);
+}
+
+.cl-more-actions-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 190px;
+    background: var(--body-background, #fff);
+    border: 1px solid var(--listing-border-botom-color, #e3e3e3);
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+    padding: 6px;
+    z-index: 60;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0s linear 0.15s;
+}
+
+.cl-more-actions.open .cl-more-actions-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.cl-more-actions-item {
+    padding: 8px 12px;
+    font-size: 14px;
+    color: var(--body-color, #333);
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    outline: none;
+}
+
+.cl-more-actions-item:hover,
+.cl-more-actions-item:focus {
+    background: var(--list-hover-background-color, #E6EDF5);
+}
+
+.cl-more-actions-item--danger {
+    color: var(--color-danger, #FF4A4A);
+}
+
+.cl-more-actions-item--danger:hover,
+.cl-more-actions-item--danger:focus {
+    background: rgba(255, 74, 74, 0.1);
+}
+
+/* ==========================================================================
+   Add button (blue with "+" prefix)
+   ========================================================================== */
+
+.cl-btn-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    /* Same tokens as the legacy .btc buttons (Monitoring's Set downtime /
+       Forced check): background lightens and text switches to black in
+       dark mode instead of staying a dark blue with white text. */
+    color: var(--btc-color, #fff);
+    background-color: var(--bt-info-background-color, #2E68AA);
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    line-height: 1.4;
+    transition: background-color 0.15s ease;
+}
+
+.cl-btn-add:hover {
+    background-color: var(--bt-info-hover-background-color, #255891);
+    color: var(--btc-hover-color, #fff);
+    text-decoration: none;
+}
+
+.cl-btn-add::before {
+    content: '+';
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1;
+}
+
+/* Bigger variant used by the "nothing here yet" empty state below. Built
+   with a real inline SVG plus icon (listing.js renderEmptyState) rather
+   than the small ::before character, so it stays crisp at this size —
+   suppress the inherited ::before so the two don't double up. */
+.cl-btn-add--lg {
+    padding: 14px 28px;
+    gap: 10px;
+    font-size: 17px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.cl-btn-add--lg::before {
+    content: none;
+}
+
+/* "Nothing here yet" empty state — a big, centered "Welcome to the X page"
+   prompt shown in place of the table body when the listing has zero rows
+   and no search or advanced filter is currently applied (see listing.js
+   renderEmptyState). Reuses the page's own title/subtitle/"+Add" button
+   verbatim, so there is nothing to configure per listing. */
+.cl-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 80px 24px;
+    text-align: center;
+}
+
+.cl-empty-state-title {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--body-color, #1b1b1b);
+}
+
+.cl-empty-state-text {
+    margin: 0;
+    font-size: 16px;
+    color: var(--body-color, #6b7280);
+    max-width: 520px;
+    line-height: 1.5;
+}
+
+/* Secondary toolbar button — same footprint as .cl-btn-add, neutral/outlined,
+   for auxiliary actions next to Add (e.g. LDAP import). */
+.cl-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--body-color, #333);
+    background-color: transparent;
+    border: 1px solid var(--select-border-color, #b0b7c3);
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    line-height: 1.4;
+    transition: background-color 0.15s ease;
+}
+
+.cl-btn-secondary:hover {
+    background-color: var(--listing-border-botom-color, #e8e8e8);
+    color: var(--body-color, #333);
+    text-decoration: none;
+}
+
+/* ==========================================================================
+   Search bar (centered between actions and pagination)
+   ========================================================================== */
+
+.cl-search-center {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 24px;
+}
+
+/* Keep the inline search input and its button the same height */
+.cl-search-center .cl-search-input,
+.cl-search-center .btc {
+    height: 36px;
+    box-sizing: border-box;
+}
+
+.cl-search-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid var(--listing-border-botom-color, #E3E3E3);
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+
+.cl-search-input:focus {
+    border-color: var(--color-primary-light, #2E68AA);
+}
+
+.cl-search-input::placeholder {
+    color: var(--color-grey-chateau, #a7a9ac);
+}
+
+/* ==========================================================================
+   Pagination (page numbers, nav arrows, limit selector, row count)
+   ========================================================================== */
+
+.cl-pagination {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.cl-pagination a,
+.cl-pagination span.cl-page-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    font-size: 13px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.cl-pagination a {
+    color: var(--cl-link-color, #2E68AA);
+}
+
+.cl-pagination a:hover {
+    background-color: var(--list-hover-background-color, #E6EDF5);
+    text-decoration: none;
+}
+
+/* Navigation arrows (first, prev, next, last) — outlined chevrons, tight */
+.cl-pagination a.cl-page-nav {
+    min-width: 16px;
+    padding: 0;
+    color: var(--body-color, #8a8a8a);
+}
+
+.cl-pagination a.cl-page-nav svg {
+    width: 16px;
+    height: 16px;
+    fill: none !important;
+    stroke: currentColor;
+}
+
+.cl-pagination a.cl-page-nav:hover {
+    background: none;
+}
+
+.cl-pagination a.cl-page-nav:hover svg {
+    stroke: var(--cl-link-color, #2E68AA);
+}
+
+/* Current page indicator */
+.cl-pagination span.cl-page-current {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    background-color: var(--bt-info-background-color, #2E68AA);
+    color: var(--btc-color, #fff);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* "X-Y of Z" label */
+.cl-pagination .cl-page-info {
+    font-size: 13px;
+    color: var(--body-color, #555);
+    padding: 0 4px;
+}
+
+/* Rows-per-page selector */
+.cl-pagination .cl-limit-select {
+    padding: 4px 8px;
+    font-size: 13px;
+    border: 1px solid var(--listing-border-botom-color, #E3E3E3);
+    border-radius: 4px;
+    background: var(--select-background, #fff);
+    cursor: pointer;
+    min-width: 50px;
+}
+
+/* ==========================================================================
+   Data table
+   ========================================================================== */
+
+.cl-listing-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    background: var(--select-background, #fff);
+    border: none;
+}
+
+/* -- Table header --------------------------------------------------------- */
+
+.cl-listing-table thead th {
+    padding: 6px 16px;
+    font-weight: 600;
+    font-size: 13px;
+    color: #fff;
+    text-align: left;
+    border-bottom: none;
+    background: #8C8C8C;
+    white-space: nowrap;
+    user-select: none;
+    /* Stick right under the actions bar so only the rows scroll. */
+    position: sticky;
+    top: 54px;
+    z-index: 15;
+}
+
+.cl-listing-table thead th.cl-col-center {
+    text-align: center;
+}
+
+.cl-listing-table thead th.cl-col-right {
+    text-align: right;
+}
+
+.cl-listing-table thead th.cl-col-picker {
+    width: 16px;
+    text-align: center;
+    padding: 6px 6px;
+    vertical-align: middle;
+}
+
+/* -- Table body rows ------------------------------------------------------ */
+
+.cl-listing-table tbody tr {
+    background: var(--select-background, #fff);
+    transition: background-color 0.15s ease;
+}
+
+.cl-listing-table tbody tr:hover {
+    background-color: var(--list-hover-background-color, #E6EDF5);
+}
+
+.cl-listing-table tbody td {
+    padding: 4px 16px;
+    font-size: 13px;
+    color: var(--body-color, #555);
+    border-bottom: 1px solid var(--listing-border-botom-color, #E3E3E3);
+    vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 300px;
+}
+
+.cl-listing-table tbody td.cl-col-center {
+    text-align: center;
+}
+
+.cl-listing-table tbody td.cl-col-right {
+    text-align: right;
+}
+
+.cl-listing-table tbody td.cl-col-picker {
+    width: 16px;
+    text-align: center;
+    padding: 4px 6px;
+}
+
+/* -- Links inside rows ---------------------------------------------------- */
+
+.cl-listing-table tbody td a {
+    color: var(--cl-link-color, #2E68AA);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.cl-listing-table tbody td a:hover {
+    text-decoration: underline;
+}
+
+.cl-listing-table tbody tr:hover td {
+    color: var(--body-color, #444);
+}
+
+.cl-listing-table tbody tr:hover td a {
+    color: var(--cl-link-hover-color, #255891);
+}
+
+/* ==========================================================================
+   Options cell (actions column: toggle + duplication input)
+   ========================================================================== */
+
+.cl-options-cell {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.cl-dup-input {
+    width: 36px;
+    height: 22px;
+    text-align: center;
+    border: 1px solid var(--listing-border-botom-color, #E3E3E3);
+    border-radius: 4px;
+    font-size: 11px;
+    margin: 0;
+    padding: 0 2px;
+    line-height: 20px;
+}
+
+.cl-dup-input:focus {
+    border-color: var(--color-primary-light, #2E68AA);
+    outline: none;
+}
+
+/* ==========================================================================
+   Toggle switch (iPhone style enable/disable)
+   ========================================================================== */
+
+.cl-toggle {
+    position: relative;
+    display: inline-block;
+    width: 42px;
+    height: 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.cl-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.cl-toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--switch-off-color, #c2c7ce);
+    border-radius: 20px;
+    transition: background 0.2s ease;
+}
+
+.cl-toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    left: -2px;
+    top: -2px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cl-toggle input:checked + .cl-toggle-slider {
+    background: var(--color-success, #88B922);
+}
+
+.cl-toggle input:checked + .cl-toggle-slider::before {
+    transform: translateX(22px);
+}
+
+/* Hover: subtle grey halo around the knob */
+.cl-toggle:hover .cl-toggle-slider::before {
+    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+/* Focus: light-blue halo */
+.cl-toggle input:focus-visible + .cl-toggle-slider::before {
+    box-shadow: 0 0 0 6px rgba(46, 104, 170, 0.25), 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.cl-toggle input:disabled + .cl-toggle-slider {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Checkbox alignment (header and body rows)
+   ========================================================================== */
+
+.cl-listing-table .cl-col-picker .md-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    height: 100%;
+}
+
+.cl-listing-table .cl-col-picker .md-checkbox input[type="checkbox"] {
+    margin: 0;
+}
+
+/* Nudge the header "check all" checkbox up to align with the header label */
+.cl-listing-table thead .cl-col-picker .md-checkbox {
+    position: relative;
+    top: -2px;
+}
+
+/* Listing page title + description (breadcrumb stays visible above) */
+.cl-page-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 8px 0 4px;
+    color: var(--body-color, #333);
+}
+.cl-page-desc {
+    margin: 0 0 14px;
+    font-size: 14px;
+    color: var(--body-color, #6b7280);
+}
+
+/* Modifier: title, a vertical separator and the description sit on one row
+   instead of the title stacked above the description. */
+.cl-page-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 8px 0 14px;
+}
+.cl-page-header .cl-page-title {
+    margin: 0;
+}
+.cl-page-header .cl-page-title-sep {
+    align-self: center;
+    width: 1px;
+    height: 16px;
+    background: var(--listing-border-botom-color, #e3e3e3);
+}
+.cl-page-header .cl-page-desc {
+    margin: 0;
+}
+.cl-title-sep {
+    border: none;
+    border-top: 1px solid rgba(0,0,0,0.045);
+    margin: 0 0 8px;
+}
+
+.cl-listing-table .cl-col-picker .md-checkbox label {
+    margin: 0;
+    padding: 0;
+    min-height: auto;
+    line-height: 1;
+}
+
+/* White checkbox border on dark header */
+.cl-listing-table thead th .md-checkbox label::before {
+    border-color: #fff;
+}
+
+/* ==========================================================================
+   States: loading, empty, fade-in animation
+   ========================================================================== */
+
+.cl-loading {
+    text-align: center;
+    padding: 24px;
+    color: var(--color-grey-chateau, #a7a9ac);
+    font-size: 14px;
+}
+
+.cl-listing-table tbody {
+    transition: opacity 0.2s ease;
+}
+
+.cl-listing-table tbody.cl-fade-in {
+    animation: clFadeIn 0.25s ease;
+}
+
+@keyframes clFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ==========================================================================
+   Sub-listing header (e.g. meta service metric listing)
+   ========================================================================== */
+
+.cl-meta-header {
+    padding: 10px 16px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--body-color, #555);
+    background: var(--body-background, #fff);
+    border: 1px solid var(--listing-border-botom-color, #E3E3E3);
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+/* ==========================================================================
+   Tooltip (instant, no-delay, fixed position in body)
+   ========================================================================== */
+
+.cl-tooltip-popup {
+    position: fixed;
+    z-index: 99999;
+    background: var(--body-background, #222);
+    color: var(--body-color, #eee);
+    border: 1px solid var(--listing-border-botom-color, #555);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 12px;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+}
+
+.cl-tooltip-popup b {
+    margin-right: 4px;
+}
+
+/* ==========================================================================
+   Add button dropdown (two-level: Wizard / Advanced)
+   ========================================================================== */
+
+.cl-add-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.cl-add-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--body-background, #fff);
+    border: 1px solid var(--listing-border-botom-color, #E3E3E3);
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 160px;
+    margin-top: 4px;
+    overflow: hidden;
+}
+
+.cl-add-dropdown.cl-open .cl-add-dropdown-menu {
+    display: block;
+}
+
+.cl-add-dropdown-menu a {
+    display: block;
+    padding: 8px 16px;
+    color: var(--body-color, #444);
+    text-decoration: none;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.cl-add-dropdown-menu a:hover {
+    background: var(--list-hover-background-color, #E6EDF5);
+    text-decoration: none;
+}
+
+/* ==========================================================================
+   Filter box (advanced search with multiple fields)
+   ========================================================================== */
+
+.cl-filter-box {
+    background: var(--body-background, #fff);
+    border: 1px solid var(--listing-border-botom-color, #E3E3E3);
+    border-radius: 6px;
+    padding: 10px 16px;
+    margin-bottom: 8px;
+}
+
+.cl-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.cl-filter-bar .cl-search-input {
+    max-width: none;
+    width: 200px;
+    height: 28px;
+    padding: 4px 8px;
+    font-size: 13px;
+}
+
+.cl-filter-bar .select2-container {
+    width: 180px !important;
+}
+
+.cl-filter-bar .select2-container .select2-selection {
+    height: 30px;
+    min-height: 30px;
+}
+
+.cl-filter-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--body-color, #555);
+    margin-right: 4px;
+}
+
+/* ==========================================================================
+   Clear button for individual select2 dropdowns
+   ========================================================================== */
+
+.cl-clear-select {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--color-danger, #FF4A4A);
+    padding: 0 2px;
+    margin-left: -2px;
+    margin-right: 4px;
+    opacity: 0.6;
+}
+
+.cl-clear-select:hover {
+    opacity: 1;
+}
+
+/* ==========================================================================
+   Filter bar fields with floating labels (same look as the form fields).
+   Reuses .cf-field / .cf-label-float from form.css; only the horizontal
+   sizing is set here.
+   ========================================================================== */
+
+.cl-filter-bar .cf-field {
+    flex: 0 0 auto;
+    width: 190px;
+}
+
+.cl-filter-bar .cf-field--search {
+    width: 230px;
+}
+
+.cl-filter-bar .cf-field > input {
+    height: 38px;
+}
+
+.cl-filter-bar .cf-field .select2-container {
+    width: 100% !important;
+}
+
+.cl-filter-bar .cf-field .select2-container .select2-selection {
+    height: 38px;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+}
+
+.cl-filter-bar .btc {
+    height: 38px;
+}
+
+/* Keep only the single × clear; hide the select2 built-in (circled) clear */
+.cl-filter-bar .clearAllSelect2,
+.cl-filter-bar .select2-selection__clear,
+.cl-adv-panel .clearAllSelect2,
+.cl-adv-panel .select2-selection__clear {
+    display: none !important;
+}
+
+/* Search bar hosted inside the actions bar (between more-actions and pagination):
+   drop the standalone box chrome so it blends into the bar. */
+.cl-actions-bar .cl-filter-box {
+    flex: 1;
+    border: 0;
+    background: none;
+    padding: 0;
+    margin: 0;
+}
+
+.cl-actions-bar .cl-filter-bar {
+    justify-content: center;
+}
+
+/* Inline toggle used as a filter (e.g. "Locked") */
+.cl-filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--body-color, #555);
+    white-space: nowrap;
+}
+
+/* ==========================================================================
+   Standard toolbar search: single live-search field + optional advanced panel
+   Reusable across listings. Some pages use only the search field; others add
+   the "Advanced filters" button and panel.
+   ========================================================================== */
+
+.cl-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* Toolbar layout: actions stay left, search cluster pinned to the right.
+   .cl-actions-bar uses justify-content:space-between, so the left group and
+   the right group are pushed to opposite edges. */
+.cl-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+/* Vertical separator between the search area and the pagination */
+.cl-toolbar-sep {
+    flex: 0 0 auto;
+    align-self: center;
+    width: 1px;
+    height: 26px;
+    margin: 0 2px;
+    background: var(--listing-border-botom-color, #e3e3e3);
+}
+
+/* Single live-search field with a leading magnifier icon.
+   flex/min-width/max-width let it shrink fluidly with the window instead of
+   overflowing at a fixed size (the input itself just follows at width:100%). */
+.cl-search {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    flex: 1 1 auto;
+    min-width: 100px;
+    max-width: 320px;
+}
+
+.cl-search .cl-search-icon {
+    position: absolute;
+    left: 12px;
+    display: flex;
+    color: var(--body-color, #6b7280);
+    pointer-events: none;
+}
+
+.cl-search .cl-search-icon svg {
+    width: 16px;
+    height: 16px;
+    /* Override the theme's global svg { fill } so the magnifier stays outlined */
+    fill: none !important;
+    stroke: currentColor;
+}
+
+.cl-search .cl-search-simple {
+    width: 100%;
+    height: 38px;
+    padding: 0 12px 0 36px;
+    border: 1px solid var(--select-border-color, #c2c7ce);
+    border-radius: 4px;
+    font-family: Roboto, sans-serif;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.cl-search .cl-search-simple:focus {
+    border-color: var(--color-primary-light, #2E68AA);
+}
+
+/* Compact variant for multi-field toolbars (e.g. host + service).
+   Width caps live on .cl-search itself (not the input) so the field still
+   shrinks fluidly with the window instead of jumping straight to 0. */
+.cl-search--sm {
+    max-width: 210px;
+}
+
+/* Wide variant for a centered search field with no advanced-filters icon */
+.cl-search--wide {
+    max-width: 640px;
+}
+
+/* Modifier: the advanced-filters toggle lives inside the search field itself
+   (right edge) instead of a separate button + separator next to it. */
+.cl-search--with-adv {
+    max-width: 640px;
+}
+
+.cl-search--with-adv .cl-search-simple {
+    padding-right: 36px;
+}
+
+/* Compact + advanced-filters combo (two-search-box toolbars, e.g. host +
+   service): keep the narrow width, just reserve room for the icon button */
+.cl-search--sm.cl-search--with-adv {
+    max-width: 210px;
+}
+
+.cl-search--with-adv .cl-adv-icon-btn {
+    position: absolute;
+    right: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--cl-link-color, #2E68AA);
+    cursor: pointer;
+}
+
+.cl-search--with-adv .cl-adv-icon-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: none !important;
+    stroke: currentColor;
+}
+
+.cl-search--with-adv .cl-adv-icon-btn:hover {
+    background: rgba(46, 104, 170, 0.08);
+}
+
+.cl-search--with-adv .cl-adv-icon-btn.active {
+    background: rgba(46, 104, 170, 0.14);
+}
+
+/* Active-filter count badge, top-right corner of the icon (hidden until a
+   filter has a value — see clUpdateAdvBadge in listing.js) */
+.cl-search--with-adv .cl-adv-badge {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #1B2550;
+    color: #fff;
+    font-family: Roboto, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* Modifier: centers the search field between the left actions and the
+   right-aligned pagination, used once the advanced-filters button and the
+   toolbar separator have been folded into the search field (see
+   .cl-search--with-adv above). */
+.cl-actions-bar--centered {
+    display: grid;
+    /* A bare "auto" (or minmax(0, auto)) track sizes off the content's
+       intrinsic/max-content width — which collapses to ~0 now that the
+       search field is width:100% (a percentage has no intrinsic size to
+       report), so the column shrank to its floor instead of the ~640px it
+       used to occupy. A fixed cap sidesteps intrinsic sizing entirely: the
+       column is exactly min(640px, available space), matching the widest
+       search variant (.cl-search--with-adv) and still shrinking below that
+       when the window is narrow. */
+    grid-template-columns: 1fr minmax(0, 640px) 1fr;
+}
+
+.cl-toolbar-center {
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+}
+
+/* Advanced filters toggle button (outline, primary color, sliders icon) */
+.cl-adv-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 38px;
+    padding: 0 14px;
+    border: 1px solid var(--listing-border-botom-color, #b5b5b5);
+    border-radius: 4px;
+    background: var(--body-background, #fff);
+    color: var(--cl-link-color, #2E68AA);
+    font-family: Roboto, sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.cl-adv-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: none !important;
+    stroke: currentColor;
+}
+
+.cl-adv-btn:hover {
+    background: rgba(46, 104, 170, 0.06);
+}
+
+.cl-adv-btn.active {
+    border-color: var(--color-primary-light, #2E68AA);
+    background: rgba(46, 104, 170, 0.10);
+}
+
+/* Advanced filters panel (expands below the toolbar) */
+.cl-adv-panel {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: max-height 0.28s ease, opacity 0.25s ease, transform 0.28s ease;
+}
+
+.cl-adv-panel.open {
+    max-height: 400px;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.cl-adv-inner {
+    margin-top: 8px;
+    padding: 16px;
+    background: var(--body-background, #f8f9fa);
+    border: 1px solid var(--listing-border-botom-color, #e3e3e3);
+    border-radius: 6px;
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+}
+
+.cl-adv-fields {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 16px;
+    flex: 1 1 auto;
+}
+
+.cl-adv-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 230px;
+}
+
+.cl-adv-field > input {
+    height: 38px;
+    box-sizing: border-box;
+}
+
+/* Control row: select + per-field clear cross */
+.cl-adv-control {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.cl-adv-control .select2-container {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.cl-adv-clear-field {
+    flex: 0 0 auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 0 2px;
+    color: var(--color-danger, #FF4A4A);
+    opacity: 0.55;
+}
+
+.cl-adv-clear-field:hover {
+    opacity: 1;
+}
+
+.cl-adv-field .select2-container {
+    width: 100% !important;
+}
+
+.cl-adv-field .select2-container .select2-selection {
+    height: 38px;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+}
+
+.cl-adv-field > label,
+.cl-adv-caption {
+    font-family: Roboto, sans-serif;
+    font-size: 12px;
+    color: var(--body-color, #6b7280);
+}
+
+.cl-adv-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    gap: 8px;
+    margin-left: auto;
+    flex: 0 0 auto;
+}
+
+.cl-adv-clear {
+    height: 38px;
+    padding: 0 16px;
+    border: 1px solid var(--listing-border-botom-color, #b5b5b5);
+    border-radius: 4px;
+    background: var(--body-background, #fff);
+    color: var(--body-color, #333);
+    font-family: Roboto, sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.cl-adv-search {
+    height: 38px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 4px;
+    background: var(--color-primary-light, #2E68AA);
+    color: #fff;
+    font-family: Roboto, sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   Modifier: advanced filters as a floating popover card anchored below the
+   search field, instead of an inline accordion that pushes the table down.
+   Nested inside .cl-search (position:relative already set on that element),
+   so `top: 100%` sits right under the search input regardless of page width.
+   ========================================================================== */
+
+/* Invisible full-page click target behind the popover (created/removed by
+   clSetAdvBackdrop in listing.js) — closing on outside click this way means
+   it can't be swallowed by some other handler's stopPropagation(). */
+.cl-adv-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 55;
+    background: transparent;
+}
+
+.cl-adv-panel--popover {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 100%;
+    min-width: 320px;
+    max-height: none;
+    overflow: visible;
+    /* width:100% must include the padding/border below, or the rendered box
+       ends up wider than the search bar it's meant to match (skewed to the
+       left, since `right: 0` pins the right edge). */
+    box-sizing: border-box;
+    background: var(--body-background, #fff);
+    border: 1px solid var(--listing-border-botom-color, #e3e3e3);
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+    padding: 20px;
+    z-index: 60;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-6px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s;
+    text-align: left;
+}
+
+.cl-adv-panel--popover.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.cl-adv-panel--popover .cl-adv-inner {
+    margin-top: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    display: block;
+}
+
+.cl-adv-panel--popover .cl-adv-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.cl-adv-panel--popover .cl-adv-field {
+    width: 100%;
+}
+
+.cl-adv-panel--popover .cl-adv-actions {
+    margin-left: 0;
+    justify-content: space-between;
+}
+
+.cl-adv-panel--popover .cl-adv-clear {
+    height: 38px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(46, 104, 170, 0.10);
+    color: var(--cl-link-color, #2E68AA);
+    font-weight: 600;
+}
+
+.cl-adv-panel--popover .cl-adv-clear:hover {
+    background: rgba(46, 104, 170, 0.18);
+}
+
+.cl-adv-panel--popover .cl-adv-search {
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 0 24px;
+}
+
+/* ==========================================================================
+   Monitoring status badges (real-time host/poller status)
+   ========================================================================== */
+
+.cl-mon-badge {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+/* ==========================================================================
+   Value tags — tonal pills for boolean/enum cell values (Access, Admin, ...)
+   ========================================================================== */
+.cl-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 18px;
+    white-space: nowrap;
+}
+.cl-tag--success { background: rgba(136, 185, 34, 0.18); color: #4f7a0b; }
+.cl-tag--neutral { background: rgba(0, 0, 0, 0.06); color: #6b7280; }
+.cl-tag--info    { background: rgba(46, 104, 170, 0.15); color: #255891; }
+.cl-tag--warning { background: rgba(255, 166, 0, 0.18); color: #9a6a00; }
+
+.cl-mon-up {
+    background: var(--color-success, #88B922);
+    box-shadow: 0 0 4px var(--color-success, #88B922);
+}
+
+.cl-mon-down {
+    background: var(--color-danger, #FF4A4A);
+    box-shadow: 0 0 4px var(--color-danger, #FF4A4A);
+}
+
+.cl-mon-unreach {
+    background: var(--color-aluminium, #818285);
+    box-shadow: 0 0 4px var(--color-aluminium, #818285);
+}
+
+.cl-mon-warning {
+    background: var(--color-warning, #FD9B27);
+    box-shadow: 0 0 4px var(--color-warning, #FD9B27);
+}
+
+.cl-mon-unknown {
+    background: var(--color-aluminium, #818285);
+    box-shadow: 0 0 4px var(--color-aluminium, #818285);
+}
+
+.cl-mon-pending {
+    background: var(--color-pending, #1EBEB3);
+    box-shadow: 0 0 4px var(--color-pending, #1EBEB3);
+}
+
+/* ==========================================================================
+   Stale last-update highlight (pollers)
+   ========================================================================== */
+
+.cl-stale {
+    background-color: #F7D507 !important;
+    color: #333 !important;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+/* ==========================================================================
+   Trap status colors
+   ========================================================================== */
+
+.cl-status-ok { color: var(--color-success, #88B922); }
+.cl-status-warning { color: var(--color-warning, #FD9B27); }
+.cl-status-critical { color: var(--color-danger, #FF4A4A); }
+.cl-status-unknown { color: var(--color-aluminium, #818285); }
+.cl-status-pending { color: var(--color-pending, #1EBEB3); }
+
+/* ==========================================================================
+   Object icons (host.svg, service.svg, ...): loaded via <img>, so they carry
+   their own flat-black fill that color/currentColor can't override — a
+   filter is the only theme-aware lever available.
+   ========================================================================== */
+
+.ico-14, .ico-16, .ico-18, .ico-20 {
+    filter: var(--cl-icon-filter, none);
+}
+
+/* ==========================================================================
+   Infinite scroll wrapper (full-height flex layout)
+   ========================================================================== */
+
+.cl-scroll-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 60px);
+    overflow: hidden;
+}
+.cl-scroll-wrapper .cl-filter-box,
+.cl-scroll-wrapper .cl-actions-bar {
+    flex-shrink: 0;
+}
+.cl-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+.cl-scroll-area table {
+    width: 100%;
+}
+.cl-scroll-area .cl-listing-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--table-header-background, #6b7888);
+}
+
+/* ==========================================================================
+   Expand button (inline detail toggle: +/− in listing rows)
+   ========================================================================== */
+
+.cl-expand-btn {
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    font-size: 14px;
+    color: var(--body-color, #555);
+    background: var(--listing-border-botom-color, #e8e8e8);
+    transition: background 0.15s, color 0.15s;
+    line-height: 1;
+}
+.cl-expand-btn:hover {
+    background: #3a7bbf;
+    color: #fff;
+}
+.cl-expand-btn.open {
+    background: #3a7bbf;
+    color: #fff;
+}
+.cl-expand-btn.disabled {
+    cursor: default;
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   Inline detail row (expanded diff inside listing)
+   ========================================================================== */
+
+.cl-detail-row td {
+    padding: 0 !important;
+    background: var(--body-background, #f9f9f9);
+}
+.cl-diff-container {
+    margin: 6px 16px 10px 36px;
+    border: 1px solid var(--listing-border-botom-color, #ddd);
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 12px;
+}
+.cl-diff-header {
+    display: flex;
+    background: var(--table-header-background, #6b7888);
+    color: #fff;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.2px;
+}
+.cl-diff-header span {
+    flex: 1;
+    padding: 6px 10px;
+}
+.cl-diff-header span:first-child {
+    flex: 0 0 200px;
+}
+.cl-diff-row {
+    display: flex;
+    border-bottom: 1px solid var(--listing-border-botom-color, #eee);
+}
+.cl-diff-row:last-child {
+    border-bottom: none;
+}
+.cl-diff-row:hover {
+    background: rgba(0,0,0,0.02);
+}
+.cl-diff-field {
+    flex: 0 0 200px;
+    padding: 5px 10px;
+    font-weight: 500;
+    color: var(--body-color, #555);
+    word-break: break-all;
+    border-right: 1px solid var(--listing-border-botom-color, #eee);
+}
+.cl-diff-before, .cl-diff-after {
+    flex: 1;
+    padding: 5px 10px;
+    word-break: break-all;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 11px;
+}
+.cl-diff-before {
+    background: rgba(255, 74, 74, 0.06);
+    color: #c0392b;
+    border-right: 1px solid var(--listing-border-botom-color, #eee);
+}
+.cl-diff-after {
+    background: rgba(39, 174, 96, 0.06);
+    color: #27ae60;
+}
+.cl-diff-before:empty, .cl-diff-after:empty {
+    background: transparent;
+}
+.cl-diff-empty {
+    padding: 12px 16px;
+    color: #a7a9ac;
+    font-style: italic;
+    text-align: center;
+}
+.cl-diff-loading {
+    padding: 12px 16px;
+    text-align: center;
+    color: #a7a9ac;
+}
+
+/* ==========================================================================
+   Changelog detail page — Timeline layout (cld- prefix)
+   ========================================================================== */
+
+.cld-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px 20px;
+}
+
+/* Header card */
+.cld-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--body-background, #fff);
+    border: 1px solid var(--listing-border-botom-color, #ddd);
+    border-radius: 8px;
+    padding: 16px 24px;
+    margin-bottom: 24px;
+}
+.cld-header-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.cld-header-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #3a7bbf, #2c5f8f);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+.cld-header-text h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--body-color, #333);
+}
+.cld-header-text .cld-subtitle {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: #888;
+    letter-spacing: 0.2px;
+}
+.cld-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    background: var(--listing-border-botom-color, #e8e8e8);
+    color: var(--body-color, #555);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.15s;
+}
+.cld-back-btn:hover {
+    background: #3a7bbf;
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Timeline */
+.cld-timeline {
+    position: relative;
+    padding-left: 40px;
+}
+.cld-timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--listing-border-botom-color, #ddd);
+    border-radius: 1px;
+}
+.cld-entry {
+    position: relative;
+    margin-bottom: 16px;
+}
+.cld-entry:last-child {
+    margin-bottom: 0;
+}
+
+/* Timeline dot */
+.cld-dot {
+    position: absolute;
+    left: -33px;
+    top: 16px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px var(--listing-border-botom-color, #ddd);
+}
+.cld-dot.dot-create  { background: #27ae60; box-shadow: 0 0 0 2px #27ae60; }
+.cld-dot.dot-change  { background: #e67e22; box-shadow: 0 0 0 2px #e67e22; }
+.cld-dot.dot-delete  { background: #e74c3c; box-shadow: 0 0 0 2px #e74c3c; }
+.cld-dot.dot-enable  { background: #27ae60; box-shadow: 0 0 0 2px #27ae60; }
+.cld-dot.dot-disable { background: #e74c3c; box-shadow: 0 0 0 2px #e74c3c; }
+
+/* Entry card */
+.cld-card {
+    background: var(--body-background, #fff);
+    border: 1px solid var(--listing-border-botom-color, #ddd);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.15s;
+}
+.cld-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.cld-card-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+}
+.cld-card-header:hover {
+    background: rgba(0,0,0,0.015);
+}
+.cld-card-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    font-size: 14px;
+    color: var(--body-color, #555);
+    background: var(--listing-border-botom-color, #e8e8e8);
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+}
+.cld-card-header:hover .cld-card-toggle {
+    background: #3a7bbf;
+    color: #fff;
+}
+.cld-card-toggle.open {
+    background: #3a7bbf;
+    color: #fff;
+}
+.cld-card-toggle.no-expand {
+    opacity: 0.2;
+    cursor: default;
+    pointer-events: none;
+}
+.cld-card-date {
+    font-size: 13px;
+    color: #888;
+    white-space: nowrap;
+    min-width: 130px;
+}
+.cld-card-badge {
+    flex-shrink: 0;
+    margin-left: 30px;
+}
+/* Center the label inside status badges (they have a min-width) */
+.cl-listing-table .badge,
+.cld-card-badge .badge,
+.cld-diff-panel .badge {
+    text-align: center;
+}
+.cld-card-author {
+    font-size: 12px;
+    color: #999;
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+/* Diff panel (inside timeline cards) */
+.cld-diff-panel {
+    display: none;
+    border-top: 1px solid var(--listing-border-botom-color, #eee);
+}
+.cld-diff-panel.open {
+    display: block;
+}
+.cld-diff-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+.cld-diff-table th {
+    background: var(--table-header-background, #6b7888);
+    color: #fff;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.2px;
+    padding: 7px 12px;
+    text-align: left;
+}
+.cld-diff-table td {
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--listing-border-botom-color, #eee);
+    vertical-align: top;
+    word-break: break-all;
+}
+.cld-diff-table tr:last-child td {
+    border-bottom: none;
+}
+.cld-diff-table .cld-fname {
+    width: 220px;
+    font-weight: 500;
+    color: var(--body-color, #555);
+}
+.cld-diff-table .cld-fbefore {
+    background: rgba(255, 74, 74, 0.05);
+    color: #c0392b;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 11px;
+}
+.cld-diff-table .cld-fafter {
+    background: rgba(39, 174, 96, 0.05);
+    color: #27ae60;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 11px;
+}
+.cld-no-changes {
+    padding: 14px 16px;
+    color: #aaa;
+    font-style: italic;
+    text-align: center;
+    font-size: 12px;
+}
+
+/* ==========================================================================
+   Toast notifications (bottom-right) for listing actions
+   ========================================================================== */
+.cl-toast-wrap {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 100000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.cl-toast {
+    min-width: 260px;
+    max-width: 420px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 13px;
+    line-height: 1.4;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.cl-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+.cl-toast.success { background: var(--color-success, #88B922); }
+.cl-toast.error { background: #FF4A4A; }
+/* Unlike success/error (status colors, stay vivid enough for white text in
+   both themes), info reuses the swappable button blue, so its text needs to
+   follow the same swap (white in light mode, black in dark mode). */
+.cl-toast.info {
+    background: var(--bt-info-background-color, #2E68AA);
+    color: var(--btc-color, #fff);
+}
+
+/* ==========================================================================
+   Confirmation modal — replaces native confirm()/alert() for the "Delete"
+   and "Disable" bulk actions in the "More actions" menu (see listing.js
+   clConfirmAction / enhanceBulkActionSelect).
+   ========================================================================== */
+
+.cl-confirm-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.cl-confirm-overlay.open {
+    opacity: 1;
+}
+
+.cl-confirm-modal {
+    width: 420px;
+    max-width: calc(100vw - 32px);
+    background: var(--body-background, #fff);
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    padding: 20px 24px;
+    transform: translateY(-12px);
+    transition: transform 0.15s ease;
+}
+
+.cl-confirm-overlay.open .cl-confirm-modal {
+    transform: translateY(0);
+}
+
+.cl-confirm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.cl-confirm-title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--body-color, #1b1b1b);
+}
+
+.cl-confirm-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--body-color, #6b7280);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.cl-confirm-close:hover {
+    background: var(--list-hover-background-color, #E6EDF5);
+}
+
+.cl-confirm-body {
+    margin: 0 0 20px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--body-color, #444);
+}
+
+.cl-confirm-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.cl-confirm-cancel {
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--body-color, #333);
+    background: rgba(127, 127, 127, 0.14);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cl-confirm-cancel:hover {
+    background: rgba(127, 127, 127, 0.22);
+}
+
+.cl-confirm-confirm-btn {
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Delete / Disable — destructive */
+.cl-confirm-confirm-btn--danger {
+    background: var(--color-danger, #FF4A4A);
+}
+
+.cl-confirm-confirm-btn--danger:hover {
+    background: #e23e3e;
+}
+
+/* Duplicate and other non-destructive actions */
+.cl-confirm-confirm-btn--primary {
+    background: var(--bt-info-background-color, #2E68AA);
+    color: var(--btc-color, #fff);
+}
+
+.cl-confirm-confirm-btn--primary:hover {
+    background: var(--bt-info-hover-background-color, #255891);
+}
