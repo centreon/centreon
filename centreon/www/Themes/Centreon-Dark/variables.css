@@ -1,6 +1,17 @@
 @import "../Generic-theme/Variables-css/variables.css";
 
 :root{
+    /* Lighter shade for links/icons in the modern listing/form design system
+       (cl-/cf- prefixes) — --color-primary-light reads too dark against this
+       theme's near-black background. Uses --color-malibu instead of
+       --color-primary-dark for a brighter, more legible blue. */
+    --cl-link-color: var(--color-malibu-2);
+    --cl-link-hover-color: var(--color-primary-hover-dark);
+
+    /* Flip flat-black object icons (host.svg, service.svg, ...) to white so
+       they're visible on this theme's near-black background. */
+    --cl-icon-filter: invert(1);
+
     --scrollbar-background: var(--color-gray-medium);
     --scrollbar-thumb-background: var(--color-secondary);
     --scrollbar-thumb-background-hover: var(--color-primary-dark);
