@@ -64,6 +64,9 @@ function CentreonListing(config) {
         // Show row checkboxes (default true)
         showCheckboxes: config.showCheckboxes !== undefined ? config.showCheckboxes : true,
 
+        // Field name in row data that indicates a locked/non-selectable row (checkbox disabled)
+        lockedField: config.lockedField || null,
+
         // Infinite scroll mode (default false) — appends rows on scroll instead of pagination
         infiniteScroll: config.infiniteScroll || false,
         infiniteScrollBuffer: config.infiniteScrollBuffer || 600, // px from bottom to trigger load
@@ -271,11 +274,13 @@ function CentreonListing(config) {
             var rowId = row[cfg.rowIdField];
 
             // Checkbox cell (optional)
+            var isLocked = cfg.lockedField && row[cfg.lockedField];
             var tr = '<tr>';
             if (cfg.showCheckboxes) {
+                var disabledAttr = isLocked ? ' disabled' : '';
                 tr += '<td class="cl-col-picker">' +
                     '<div class="md-checkbox md-checkbox-inline">' +
-                        '<input type="checkbox" id="select_' + rowId + '" name="select[' + rowId + ']" value="1" />' +
+                        '<input type="checkbox" id="select_' + rowId + '" name="select[' + rowId + ']" value="1"' + disabledAttr + ' />' +
                         '<label class="empty-label" for="select_' + rowId + '"></label>' +
                     '</div>' +
                 '</td>';
@@ -316,12 +321,14 @@ function CentreonListing(config) {
         for (var i = 0; i < rows.length; i++) {
             var row = rows[i];
             var rowId = row[cfg.rowIdField];
+            var isLocked = cfg.lockedField && row[cfg.lockedField];
 
             var tr = '<tr>';
             if (cfg.showCheckboxes) {
+                var disabledAttr = isLocked ? ' disabled' : '';
                 tr += '<td class="cl-col-picker">' +
                     '<div class="md-checkbox md-checkbox-inline">' +
-                        '<input type="checkbox" id="select_' + rowId + '" name="select[' + rowId + ']" value="1" />' +
+                        '<input type="checkbox" id="select_' + rowId + '" name="select[' + rowId + ']" value="1"' + disabledAttr + ' />' +
                         '<label class="empty-label" for="select_' + rowId + '"></label>' +
                     '</div>' +
                 '</td>';
