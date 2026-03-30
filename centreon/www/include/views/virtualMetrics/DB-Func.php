@@ -61,11 +61,9 @@ function testVdefRpnSyntax()
 
     $lastPart = strtoupper($parts[$partCount - 1]);
 
-    // PERCENT and PERCENTNAN take an extra numeric argument: metric,N,PERCENT
-    if (is_numeric($lastPart) && $partCount >= 3) {
-        $functionPart = strtoupper($parts[$partCount - 2]);
-
-        return in_array($functionPart, ['PERCENT', 'PERCENTNAN'], true);
+    // PERCENT and PERCENTNAN require a numeric argument before the function: metric,N,PERCENT
+    if (in_array($lastPart, ['PERCENT', 'PERCENTNAN'], true)) {
+        return $partCount >= 3 && is_numeric($parts[$partCount - 2]);
     }
 
     return in_array($lastPart, $validVdefFunctions, true);
