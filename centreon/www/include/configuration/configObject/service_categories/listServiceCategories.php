@@ -23,48 +23,9 @@ if (! isset($oreon)) {
     exit();
 }
 
+include_once './class/centreonUtils.class.php';
+
 include './include/common/autoNumLimit.php';
-
-$search = HtmlAnalyzer::sanitizeAndRemoveTags(
-    $_POST['searchSC'] ?? $_GET['searchSC'] ?? null
-);
-
-if (isset($_POST['searchSC']) || isset($_GET['searchSC'])) {
-    // saving filters values
-    $centreon->historySearch[$url] = [];
-    $centreon->historySearch[$url]['search'] = $search;
-} else {
-    // restoring saved values
-    $search = $centreon->historySearch[$url]['search'] ?? null;
-}
-
-$searchTool = '';
-$searchBindValues = [];
-if ($search) {
-    $searchTool = 'WHERE (sc_name LIKE :searchName OR sc_description LIKE :searchDesc) ';
-    $searchBindValues[':searchName'] = '%' . $search . '%';
-    $searchBindValues[':searchDesc'] = '%' . $search . '%';
-}
-
-$aclCond = '';
-if (! $oreon->user->admin && $scString != "''") {
-    $clause = $searchTool === '' ? ' WHERE ' : ' AND ';
-    $aclCond .= $acl->queryBuilder($clause, 'sc_id', $scString);
-}
-
-// Services Categories Lists
-$stmt = $pearDB->prepare(
-    'SELECT SQL_CALC_FOUND_ROWS * FROM service_categories ' . $searchTool . $aclCond
-    . 'ORDER BY sc_name LIMIT ' . (int) ($num * $limit) . ', ' . (int) $limit
-);
-foreach ($searchBindValues as $param => $value) {
-    $stmt->bindValue($param, $value);
-}
-$stmt->execute();
-$dbResult = $stmt;
-$rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
-
-include './include/common/checkPagination.php';
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
@@ -73,60 +34,30 @@ $tpl = SmartyBC::createSmartyTemplate($path);
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
-// start header menu
 $tpl->assign('headerMenu_name', _('Name'));
 $tpl->assign('headerMenu_desc', _('Description'));
-$tpl->assign('headerMenu_status', _('Status'));
-$tpl->assign('headerMenu_linked_svc', _('Number of linked services'));
+$tpl->assign('headerMenu_linked_svc', _('Linked services'));
 $tpl->assign('headerMenu_sc_type', _('Type'));
 $tpl->assign('headerMenu_options', _('Options'));
 
-$search = tidySearchKey($search, $advanced_search);
+$tpl->assign('scPage', $p);
 
+// Restore search from history
+$search = $centreon->historySearch[$url]['search'] ?? '';
+$tpl->assign('searchSC', $search);
+
+// Default limit from DB
+$dbResult = $pearDB->query("SELECT * FROM `options` WHERE `key` = 'maxViewConfiguration'");
+$gopt = $dbResult->fetch();
+$defaultLimit = (int) ($gopt['value'] ?? 30) ?: 30;
+$tpl->assign('defaultLimit', $defaultLimit);
+
+// Form for bulk actions
 $form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
-
-// Different style between each lines
-$style = 'one';
 
 $attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];
 $form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
 
-// Fill a tab with a multidimensional Array we put in $tpl
-$elemArr = [];
-$centreonToken = createCSRFToken();
-
-$statement = $pearDB->prepare('SELECT COUNT(*) FROM `service_categories_relation` WHERE `sc_id` = :sc_id');
-for ($i = 0; $sc = $dbResult->fetch(); $i++) {
-    $moptions = '';
-    $statement->bindValue(':sc_id', (int) $sc['sc_id'], PDO::PARAM_INT);
-    $statement->execute();
-    $nb_svc = $statement->fetch();
-
-    $selectedElements = $form->addElement('checkbox', 'select[' . $sc['sc_id'] . ']');
-
-    if ($sc['sc_activate']) {
-        $moptions .= "<a href='main.php?p=" . $p . '&sc_id=' . $sc['sc_id'] . '&o=u&limit=' . $limit
-            . '&num=' . $num . '&search=' . $search . '&centreon_token=' . $centreonToken
-            . "'><img src='img/icons/disabled.png' class='ico-14 margin_right' "
-            . "border='0' alt='" . _('Disabled') . "'></a>&nbsp;&nbsp;";
-    } else {
-        $moptions .= "<a href='main.php?p=" . $p . '&sc_id=' . $sc['sc_id'] . '&o=s&limit=' . $limit
-            . '&num=' . $num . '&search=' . $search . '&centreon_token=' . $centreonToken
-            . "'><img src='img/icons/enabled.png' class='ico-14 margin_right' "
-            . "border='0' alt='" . _('Enabled') . "'></a>&nbsp;&nbsp;";
-    }
-    $moptions .= '&nbsp;';
-    $moptions .= '<input onKeypress="if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) '
-        . 'event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) '
-        . "return false;\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" "
-        . "name='dupNbr[" . $sc['sc_id'] . "]' />";
-
-    $elemArr[$i] = ['MenuClass' => 'list_' . $style, 'RowMenu_select' => $selectedElements->toHtml(), 'sc_name' => htmlentities($sc['sc_name'], ENT_QUOTES, 'UTF-8'), 'sc_link' => 'main.php?p=' . $p . '&o=c&sc_id=' . $sc['sc_id'], 'sc_description' => htmlentities($sc['sc_description'], ENT_QUOTES, 'UTF-8'), 'svc_linked' => $nb_svc['COUNT(*)'], 'sc_type' => ($sc['level'] ? _('Severity') . ' (' . $sc['level'] . ')' : _('Regular')), 'sc_activated' => $sc['sc_activate'] ? _('Enabled') : _('Disabled'), 'RowMenu_badge' => $sc['sc_activate'] ? 'service_ok' : 'service_critical', 'RowMenu_options' => $moptions];
-    $style = $style != 'two' ? 'two' : 'one';
-}
-$tpl->assign('elemArr', $elemArr);
-
-// Different messages we put in the template
 $tpl->assign('msg', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add')]);
 
 ?>
@@ -146,8 +77,7 @@ $attrs1 = ['onchange' => 'javascript: '
     . "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('"
     . _('Do you confirm the deletion ?') . "')) {"
     . " 	setO(this.form.elements['o1'].value); submit();} "
-    . "else if (this.form.elements['o1'].selectedIndex == 3 || this.form.elements['o1'].selectedIndex == 4 "
-    . "||this.form.elements['o1'].selectedIndex == 5){"
+    . "else if (this.form.elements['o1'].selectedIndex == 3 || this.form.elements['o1'].selectedIndex == 4){"
     . " 	setO(this.form.elements['o1'].value); submit();} "
     . "this.form.elements['o1'].selectedIndex = 0"];
 $form->addElement(
@@ -157,7 +87,8 @@ $form->addElement(
     [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'ms' => _('Enable'), 'mu' => _('Disable')],
     $attrs1
 );
-$form->setDefaults(['o1' => null]);
+$o1 = $form->getElement('o1');
+$o1->setValue(null);
 
 $attrs2 = ['onchange' => 'javascript: '
     . ' var bChecked = isChecked(); '
@@ -169,29 +100,18 @@ $attrs2 = ['onchange' => 'javascript: '
     . "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('"
     . _('Do you confirm the deletion ?') . "')) {"
     . " 	setO(this.form.elements['o2'].value); submit();} "
-    . "else if (this.form.elements['o2'].selectedIndex == 3 || "
-    . "this.form.elements['o2'].selectedIndex == 4 ||this.form.elements['o2'].selectedIndex == 5){"
+    . "else if (this.form.elements['o2'].selectedIndex == 3 || this.form.elements['o2'].selectedIndex == 4){"
     . " 	setO(this.form.elements['o2'].value); submit();} "
     . "this.form.elements['o2'].selectedIndex = 0"];
 $form->addElement(
     'select',
     'o2',
     null,
-    [null => _('More actions'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'ms' => _('Enable'), 'mu' => _('Disable')],
+    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'ms' => _('Enable'), 'mu' => _('Disable')],
     $attrs2
 );
-$form->setDefaults(['o2' => null]);
-
-$o1 = $form->getElement('o1');
-$o1->setValue(null);
-$o1->setSelected(null);
-
 $o2 = $form->getElement('o2');
 $o2->setValue(null);
-$o2->setSelected(null);
-
-$tpl->assign('limit', $limit);
-$tpl->assign('searchSC', $search);
 
 // Apply a template definition
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);

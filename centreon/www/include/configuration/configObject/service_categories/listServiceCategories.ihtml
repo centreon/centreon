@@ -1,81 +1,152 @@
 <script type="text/javascript" src="./include/common/javascript/tool.js"></script>
-<form name='form' method='POST'>
-    <table class="ajaxOption table">
-        <tbody>
-        <tr>
-            <th><h5>{t}Filters{/t}</h5></th>
-        </tr>
-        <tr>
-            <td><h4>{t}Name{/t}</h4></td>
-        </tr>
-        <tr>
-            <td><input type="text" name="searchSC" value="{$searchSC}" class="mr-1">{$form.Search.html}</td>
-        </tr>
-        </tbody>
-    </table>
-    <table class="ToolbarTable table">
-        <tr class="ToolbarTR">
-            { if $mode_access == 'w' }
-            <td>
-                {$form.o1.html}
-                {if isset($ldap) && $ldap == "1" }<a href="{$msg.ldap_importL}" class="ml-2">{$msg.ldap_importT}</a>{/if}
-                <a href="{$msg.addL}" class="btc bt_success ml-2">{$msg.addT}</a>
-            </td>
-            { else }
-            <td>&nbsp;</td>
-            { /if }
-            {pagination}
-        </tr>
-    </table>
-    <table class="ListTable">
-        <tr class="ListHeader">
-            <td class="ListColHeaderPicker">
-                <div class="md-checkbox md-checkbox-inline">
-                    <input type="checkbox" id="checkall" name="checkall" onclick="checkUncheckAll(this);"/>
-                    <label class="empty-label" for="checkall"></label>
-                </div>
-            </td>
-            <td class="ListColHeaderLeft">{$headerMenu_name}</td>
-            <td class="ListColHeaderCenter">{$headerMenu_desc}</td>
-            <td class="ListColHeaderCenter">{$headerMenu_linked_svc}</td>
-            <td class="ListColHeaderCenter">{$headerMenu_sc_type}</td>
-            <td class="ListColHeaderCenter">{$headerMenu_status}</td>
-            <td class="ListColHeaderRight">{$headerMenu_options}</td>
-        </tr>
-        {section name=elem loop=$elemArr}
-        <tr class={$elemArr[elem].MenuClass}>
-            <td class="ListColPicker">{$elemArr[elem].RowMenu_select}</td>
-            <td class="ListColLeft"><a href="{$elemArr[elem].sc_link}">{$elemArr[elem].sc_name}</a></td>
-            <td class="ListColCenter"><a href="{$elemArr[elem].sc_link}">{$elemArr[elem].sc_description}</a></td>
-            <td class="ListColCenter">{$elemArr[elem].svc_linked}</td>
-            <td class="ListColCenter">{$elemArr[elem].sc_type}</td>
-            <td class="ListColCenter"><span
-                    class="badge {$elemArr[elem].RowMenu_badge}">{$elemArr[elem].sc_activated}</span></td>
-            <td class="ListColRight">{if $mode_access == 'w' }{$elemArr[elem].RowMenu_options}{else}&nbsp;{/if}</td>
-        </tr>
-        {/section}
 
-    </table>
-    <table class="ToolbarTable ToolbarTR table">
-        <tr>
-            { if $mode_access == 'w' }
-            <td class="Toolbar_TDSelectAction_Bottom">
-                {$form.o2.html}
-                {if isset($ldap) && $ldap == "1" }<a href="{$msg.ldap_importL}" class="ml-1">{$msg.ldap_importT}</a>{/if}
-                <a href="{$msg.addL}" class="btc bt_success ml-2" >{$msg.addT}</a>
-            </td>
-            { else }
-            <td>&nbsp;</td>
-            { /if }
-            {pagination}
-        </tr>
-    </table>
-    <input type='hidden' name='o' id='o' value='42'>
-    <input type='hidden' id='limit' name='limit' value='{$limit}'>
-    {$form.hidden}
-</form>
 {literal}
-<script type='text/javascript'>
-    setDisabledRowStyle();
+<script type="text/javascript">
+if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
+    try { window.parent.cfClosePanel(); } catch(e) {}
+}
+</script>
+{/literal}
+
+<form name='form' method='POST'>
+    <h1 class="cl-page-title">{t}Service categories{/t}</h1>
+    <p class="cl-page-desc">{t}Group services into categories to organize and filter your configuration.{/t}</p>
+    <div class="cl-listing-container">
+        <div class="cl-actions-bar">
+            { if $mode_access == 'w' }
+            <div class="cl-actions-left">
+                <a href="#" class="cl-btn-add" onclick="cfOpenPanel('main.get.php?p={$scPage}&o=a', '{t}Add a Service Category{/t}'); return false;">{$msg.addT}</a>
+                {$form.o1.html}
+            </div>
+            { else }
+            <div class="cl-actions-left">&nbsp;</div>
+            { /if }
+            <div class="cl-toolbar-right">
+                <div class="cl-search">
+                    <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+                    <input type="text" id="clSearchInput" name="searchSC" value="{$searchSC}" class="cl-search-simple" placeholder="{t}Search service categories{/t}" autocomplete="off">
+                </div>
+                <span class="cl-toolbar-sep"></span>
+                <div class="cl-pagination" id="clPaginationTop"></div>
+            </div>
+        </div>
+
+        <table class="cl-listing-table">
+            <thead>
+                <tr>
+                    <th class="cl-col-picker">
+                        <div class="md-checkbox md-checkbox-inline">
+                            <input type="checkbox" id="checkall" name="checkall" onclick="scListing.checkUncheckAll(this);"/>
+                            <label class="empty-label" for="checkall"></label>
+                        </div>
+                    </th>
+                    <th>{$headerMenu_name}</th>
+                    <th>{$headerMenu_desc}</th>
+                    <th class="cl-col-center">{$headerMenu_linked_svc}</th>
+                    <th class="cl-col-center">{$headerMenu_sc_type}</th>
+                    { if $mode_access == 'w' }
+                    <th class="cl-col-right">{t}Actions{/t}</th>
+                    { /if }
+                </tr>
+            </thead>
+            <tbody id="clTableBody">
+                <tr><td colspan="6" class="cl-loading">{t}Loading...{/t}</td></tr>
+            </tbody>
+        </table>
+
+    </div>
+
+<input type='hidden' name='o' id='o' value='42'>
+<input type='hidden' id='limit' name='limit' value=''>
+{$form.hidden}
+</form>
+
+<!-- Side panel -->
+<div class="cf-side-overlay" id="cfSideOverlay" onclick="cfClosePanel();"></div>
+<div class="cf-side-panel" id="cfSidePanel">
+    <div class="cf-side-panel-resize" id="cfSidePanelResize"></div>
+    <div class="cf-side-panel-header">
+        <span class="cf-side-panel-title" id="cfSidePanelTitle"></span>
+        <button class="cf-side-panel-close" onclick="cfClosePanel();">&times;</button>
+    </div>
+    <div class="cf-side-panel-body">
+        <iframe id="cfSidePanelFrame" src="about:blank"></iframe>
+    </div>
+</div>
+
+{literal}
+<script type="text/javascript">
+function cfOpenPanel(url, title) {
+    document.getElementById('cfSidePanelTitle').textContent = title || '';
+    document.getElementById('cfSidePanelFrame').src = url;
+    document.getElementById('cfSideOverlay').classList.add('open');
+    document.getElementById('cfSidePanel').classList.add('open');
+}
+function cfClosePanel() {
+    document.getElementById('cfSideOverlay').classList.remove('open');
+    document.getElementById('cfSidePanel').classList.remove('open');
+    setTimeout(function() { document.getElementById('cfSidePanelFrame').src = 'about:blank'; }, 300);
+    scListing.fetch(scListing.getState().num, scListing.getState().limit, scListing.getState().search, true);
+}
+(function() {
+    var handle = document.getElementById('cfSidePanelResize');
+    var panel = document.getElementById('cfSidePanel');
+    var dragging = false;
+    handle.addEventListener('mousedown', function(e) {
+        e.preventDefault(); dragging = true; handle.classList.add('active');
+        document.body.style.cursor = 'col-resize';
+        var iframe = document.getElementById('cfSidePanelFrame');
+        if (iframe) iframe.style.pointerEvents = 'none';
+    });
+    document.addEventListener('mousemove', function(e) {
+        if (!dragging) return;
+        var w = window.innerWidth - e.clientX;
+        if (w < 400) w = 400; if (w > window.innerWidth * 0.95) w = window.innerWidth * 0.95;
+        panel.style.width = w + 'px';
+    });
+    document.addEventListener('mouseup', function() {
+        if (!dragging) return; dragging = false; handle.classList.remove('active');
+        document.body.style.cursor = '';
+        var iframe = document.getElementById('cfSidePanelFrame');
+        if (iframe) iframe.style.pointerEvents = '';
+    });
+})();
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') cfClosePanel(); });
+
+var scListing = new CentreonListing({
+    instanceName:  'scListing',
+    ajaxListUrl:   './include/configuration/configObject/service_categories/ajaxServiceCategoriesListing.php',
+    ajaxToggleUrl: './include/configuration/configObject/service_categories/ajaxServiceCategoriesToggle.php',
+    pageId:        {/literal}'{$scPage}'{literal},
+    writeAccess:   {/literal}'{$mode_access}'{literal} === 'w',
+    defaultLimit:  {/literal}{$defaultLimit}{literal},
+    storageKey:    'sc_listing_limit',
+    emptyMessage:  'No service categories found',
+    autoRefresh:   30000,
+    liveSearch:    true,
+    rowIdField:    'id',
+    columns: [
+        { id:'name', render: function(row, l) {
+            var editUrl = 'main.get.php?p={/literal}{$scPage}{literal}&o=c&sc_id=' + row.id;
+            var title = '{/literal}{t}Modify a Service Category{/t}{literal} - ' + row.name;
+            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+l.escape(title)+'\'); return false;">'+l.escape(row.name)+'</a>';
+        }},
+        { id:'description', render: function(row, l) {
+            var editUrl = 'main.get.php?p={/literal}{$scPage}{literal}&o=c&sc_id=' + row.id;
+            var title = '{/literal}{t}Modify a Service Category{/t}{literal} - ' + row.name;
+            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+l.escape(title)+'\'); return false;">'+l.escape(row.description||'')+'</a>';
+        }},
+        { id:'svc_count', align:'center', render: function(row) { return row.svc_count; }},
+        { id:'level', align:'center', render: function(row, l) {
+            return row.level ? l.escape('Severity (' + row.level + ')') : 'Regular';
+        }}
+    ],
+    renderOptions: function(row, l) {
+        var checked = row.activate ? ' checked' : '';
+        return '<label class="cl-toggle"><input type="checkbox" data-row-id="'+row.id+'"'+checked+' onchange="scListing.toggleActivation(this);"/><span class="cl-toggle-slider"></span></label>' +
+            '<input onKeypress="if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))event.returnValue=false;if(event.which>31&&(event.which<45||event.which>57))return false;" maxlength="3" size="3" value="1" class="cl-dup-input" name="dupNbr['+row.id+']"/>';
+    }
+});
+scListing.init();
 </script>
 {/literal}
