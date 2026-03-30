@@ -553,11 +553,16 @@ it('should delete a command macro from an inherited template command when its va
         commandId: $inheritedCommandId
     );
 
-    $savedCommandMacro = new Macro(null, $this->service->getId(), 'commandMacroName', 'somevalue');
+    $savedCommandMacro = new Macro(
+        null,
+        $this->service->getId(),
+        $this->commandMacro->getName(),
+        'somevalue'
+    );
 
-    $this->request->macros = [
-        new MacroDto(name: 'commandMacroName', value: '', isPassword: false, description: null),
-    ];
+     $this->request->macros = [
+        new MacroDto(name: $this->commandMacro->getName(), value: '', isPassword: false, description: null),
+     ];
 
     $this->user
         ->expects($this->once())
