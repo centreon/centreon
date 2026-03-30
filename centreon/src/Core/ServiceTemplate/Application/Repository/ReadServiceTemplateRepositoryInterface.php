@@ -132,4 +132,27 @@ interface ReadServiceTemplateRepositoryInterface
      * @return int[]
      */
     public function findIdsByCommandNames(array $commandNames): array;
+
+    /**
+     * Find service template IDs linked to a host template via the host_service_relation table.
+     *
+     * @param int $hostTemplateId
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function findIdsByHostTemplateId(int $hostTemplateId): array;
+
+    /**
+     * Check if a service template is linked to any of the given host template IDs.
+     *
+     * @param int $serviceTemplateId
+     * @param int[] $hostTemplateIds
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function isLinkedToAnyHostTemplate(int $serviceTemplateId, array $hostTemplateIds): bool;
 }
