@@ -18,3 +18,22 @@
  * For more information : contact@centreon.com
  *
  */
+
+declare(strict_types=1);
+
+namespace Tests\Core\Host\Infrastructure\API\GetHost;
+
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Host\Application\UseCase\GetHost\GetHostPresenterInterface;
+use Core\Host\Application\UseCase\GetHost\GetHostResponse;
+
+class GetHostPresenterStub extends AbstractPresenter implements GetHostPresenterInterface
+{
+    public ResponseStatusInterface|GetHostResponse $response;
+
+    public function presentResponse(ResponseStatusInterface|GetHostResponse $response): void
+    {
+        $this->response = $response;
+    }
+}
