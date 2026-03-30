@@ -74,7 +74,7 @@ class AddServiceValidation
     public function assertIsValidSeverity(?int $severityId): void
     {
         if ($severityId !== null) {
-            $exists = ($this->accessGroups === [])
+            $exists = $this->adminResolver->isAdmin($this->user)
                 ? $this->serviceSeverityRepository->exists($severityId)
                 : $this->serviceSeverityRepository->existsByAccessGroups($severityId, $this->accessGroups);
 
