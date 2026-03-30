@@ -71,12 +71,17 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
                 throw new RepositoryException('Command ID cannot be 0');
             }
 
+            $contactId = $this->getContactId();
+            if ($contactId === null) {
+                return $commandId;
+            }
+
             $actionLog = new ActionLog(
                 objectType: ActionLog::OBJECT_TYPE_COMMAND,
                 objectId: $commandId,
                 objectName: $command->getName(),
                 actionType: ActionLog::ACTION_TYPE_ADD,
-                contactId: $this->contact->getId()
+                contactId: $contactId
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -172,5 +177,14 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
         }
 
         return $macrosAsString;
+    }
+
+    private function getContactId(): ?int
+    {
+        try {
+            return $this->contact->getId();
+        } catch (\TypeError) {
+            return null;
+        }
     }
 }

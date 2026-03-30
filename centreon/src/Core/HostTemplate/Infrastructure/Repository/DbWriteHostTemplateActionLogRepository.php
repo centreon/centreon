@@ -74,12 +74,17 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
 
             $this->writeHostTemplateRepository->delete($hostTemplateId);
 
+            $contactId = $this->getContactId();
+            if ($contactId === null) {
+                return;
+            }
+
             $actionLog = new ActionLog(
                 ActionLog::OBJECT_TYPE_HOST_TEMPLATE,
                 $hostTemplateId,
                 $hostTemplate->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
-                $this->contact->getId()
+                $contactId
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
@@ -100,12 +105,17 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
                 throw new RepositoryException('Host template ID cannot be 0');
             }
 
+            $contactId = $this->getContactId();
+            if ($contactId === null) {
+                return $hostTemplateId;
+            }
+
             $actionLog = new ActionLog(
                 ActionLog::OBJECT_TYPE_HOST_TEMPLATE,
                 $hostTemplateId,
                 $hostTemplate->getName(),
                 ActionLog::ACTION_TYPE_ADD,
-                $this->contact->getId()
+                $contactId
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -140,12 +150,17 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
 
             $this->writeHostTemplateRepository->update($hostTemplate);
 
+            $contactId = $this->getContactId();
+            if ($contactId === null) {
+                return;
+            }
+
             $actionLog = new ActionLog(
                 ActionLog::OBJECT_TYPE_HOST_TEMPLATE,
                 $hostTemplate->getId(),
                 $hostTemplate->getName(),
                 ActionLog::ACTION_TYPE_CHANGE,
-                $this->contact->getId()
+                $contactId
             );
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             if ($actionLogId === 0) {
@@ -215,5 +230,14 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
 
         /** @var array<string,int|bool|string> $hostTemplatePropertiesArray */
         return $hostTemplatePropertiesArray;
+    }
+
+    private function getContactId(): ?int
+    {
+        try {
+            return $this->contact->getId();
+        } catch (\TypeError) {
+            return null;
+        }
     }
 }

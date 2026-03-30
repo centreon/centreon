@@ -70,12 +70,17 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
 
             $this->writeServiceSeverityRepository->deleteById($serviceSeverityId);
 
+            $contactId = $this->getContactId();
+            if ($contactId === null) {
+                return;
+            }
+
             $actionLog = new ActionLog(
                 ActionLog::OBJECT_TYPE_SERVICE_SEVERITY,
                 $serviceSeverity->getId(),
                 $serviceSeverity->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
-                $this->contact->getId()
+                $contactId
             );
 
             $this->writeActionLogRepository->addAction($actionLog);
@@ -96,12 +101,18 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
     {
         try {
             $serviceSeverityId = $this->writeServiceSeverityRepository->add($serviceSeverity);
+
+            $contactId = $this->getContactId();
+            if ($contactId === null) {
+                return $serviceSeverityId;
+            }
+
             $actionLog = new ActionLog(
                 ActionLog::OBJECT_TYPE_SERVICE_SEVERITY,
                 $serviceSeverityId,
                 $serviceSeverity->getName(),
                 ActionLog::ACTION_TYPE_ADD,
-                $this->contact->getId()
+                $contactId
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -136,6 +147,11 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
 
             $diff = $this->getServiceSeverityDiff($initialSeverity, $serviceSeverity);
 
+            $contactId = $this->getContactId();
+            if ($contactId === null) {
+                return;
+            }
+
             // If enable/disable has been changed
             if (array_key_exists('sc_activate', $diff)) {
                 // If only the activation has been changed
@@ -145,7 +161,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
                         $serviceSeverity->getId(),
                         $serviceSeverity->getName(),
                         (bool) $diff['sc_activate'] ? ActionLog::ACTION_TYPE_ENABLE : ActionLog::ACTION_TYPE_DISABLE,
-                        $this->contact->getId()
+                        $contactId
                     );
 
                     $this->writeActionLogRepository->addAction($actionLog);
@@ -158,7 +174,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
                     $serviceSeverity->getId(),
                     $serviceSeverity->getName(),
                     (bool) $diff['sc_activate'] ? ActionLog::ACTION_TYPE_ENABLE : ActionLog::ACTION_TYPE_DISABLE,
-                    $this->contact->getId()
+                    $contactId
                 );
 
                 $this->writeActionLogRepository->addAction($actionLog);
@@ -169,7 +185,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
                     $serviceSeverity->getId(),
                     $serviceSeverity->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,
-                    $this->contact->getId()
+                    $contactId
                 );
 
                 $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -185,7 +201,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
                 $serviceSeverity->getId(),
                 $serviceSeverity->getName(),
                 ActionLog::ACTION_TYPE_CHANGE,
-                $this->contact->getId()
+                $contactId
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -256,5 +272,14 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
         }
 
         return $diff;
+    }
+
+    private function getContactId(): ?int
+    {
+        try {
+            return $this->contact->getId();
+        } catch (\TypeError) {
+            return null;
+        }
     }
 }

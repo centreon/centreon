@@ -63,12 +63,17 @@ class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB impleme
 
             $this->writeTimePeriodRepository->delete($timePeriodId);
 
+            $contactId = $this->getContactId();
+            if ($contactId === null) {
+                return;
+            }
+
             $actionLog = new ActionLog(
                 self::TIMEPERIOD_OBJECT_TYPE,
                 $timePeriodId,
                 $timePeriod->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
-                $this->contact->getId()
+                $contactId
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
@@ -89,12 +94,17 @@ class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB impleme
                 throw new RepositoryException('Timeperiod ID cannot be 0');
             }
 
+            $contactId = $this->getContactId();
+            if ($contactId === null) {
+                return $timePeriodId;
+            }
+
             $actionLog = new ActionLog(
                 self::TIMEPERIOD_OBJECT_TYPE,
                 $timePeriodId,
                 $timePeriod->getName(),
                 ActionLog::ACTION_TYPE_ADD,
-                $this->contact->getId()
+                $contactId
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -127,12 +137,17 @@ class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB impleme
 
             $this->writeTimePeriodRepository->update($timePeriod);
 
+            $contactId = $this->getContactId();
+            if ($contactId === null) {
+                return;
+            }
+
             $actionLog = new ActionLog(
                 self::TIMEPERIOD_OBJECT_TYPE,
                 $timePeriod->getId(),
                 $timePeriod->getName(),
                 ActionLog::ACTION_TYPE_CHANGE,
-                $this->contact->getId()
+                $contactId
             );
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             if ($actionLogId === 0) {
@@ -215,5 +230,14 @@ class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB impleme
         }
 
         return $timePeriodAsArray;
+    }
+
+    private function getContactId(): ?int
+    {
+        try {
+            return $this->contact->getId();
+        } catch (\TypeError) {
+            return null;
+        }
     }
 }
