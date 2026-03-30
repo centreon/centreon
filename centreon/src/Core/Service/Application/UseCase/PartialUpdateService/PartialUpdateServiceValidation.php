@@ -28,7 +28,6 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Domain\Model\CommandType;
 use Core\Common\Domain\TrimmedString;
-use Core\Contact\Domain\AdminResolver;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\PerformanceGraph\Application\Repository\ReadPerformanceGraphRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -61,7 +60,6 @@ class PartialUpdateServiceValidation
         private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
         private readonly ReadServiceGroupRepositoryInterface $readServiceGroupRepository,
         private readonly ContactInterface $user,
-        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -72,7 +70,7 @@ class PartialUpdateServiceValidation
      */
     public function assertIsValidHost(int $hostId): void
     {
-        $hostIdFound = $this->adminResolver->isAdmin($this->user)
+        $hostIdFound = $this->user->isAdmin()
                 ? $this->readHostRepository->exists($hostId)
                 : $this->readHostRepository->existsByAccessGroups($hostId, $this->accessGroups);
         if ($hostIdFound === false) {
@@ -228,7 +226,7 @@ class PartialUpdateServiceValidation
      */
     public function assertAreValidCategories(array $categoriesIds): void
     {
-        if ($this->adminResolver->isAdmin($this->user)) {
+        if ($this->user->isAdmin()) {
             $categoriesIdsFound = $this->readServiceCategoryRepository->findAllExistingIds(
                 $categoriesIds
             );
@@ -257,7 +255,7 @@ class PartialUpdateServiceValidation
             return;
         }
 
-        if ($this->adminResolver->isAdmin($this->user)) {
+        if ($this->user->isAdmin()) {
             $groupIdsFound = $this->readServiceGroupRepository->exist($groupIds);
         } else {
             $groupIdsFound = $this->readServiceGroupRepository->existByAccessGroups(
