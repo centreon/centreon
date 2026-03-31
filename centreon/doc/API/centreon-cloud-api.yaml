@@ -72,7 +72,7 @@ paths:
   /configuration/hosts:
     $ref: './latest/Cloud/Configuration/Host/AddAndFindHosts.yaml'
   /configuration/hosts/{host_id}:
-    $ref: './latest/Cloud/Configuration/Host/PartialUpdateHost.yaml'
+    $ref: './latest/Cloud/Configuration/Host/GetAndPartialUpdateHost.yaml'
   /configuration/hosts/groups:
     $ref: './latest/Cloud/Configuration/HostGroup/AddAndFindHostGroups.yaml'
   /configuration/hosts/groups/{hostgroup_id}:
@@ -80,7 +80,7 @@ paths:
   /configuration/hosts/templates:
     $ref: './latest/Cloud/Configuration/HostTemplate/AddAndFindHostTemplates.yaml'
   /configuration/hosts/templates/{host_template_id}:
-    $ref: './latest/Cloud/Configuration/HostTemplate/PartialUpdateHostTemplate.yaml'
+    $ref: './latest/Cloud/Configuration/HostTemplate/GetAndPartialUpdateHostTemplate.yaml'
   /configuration/hosts/{host_id}/services/deploy:
     $ref: './latest/Cloud/Configuration/Service/DeployServices.yaml'
   /configuration/services:
