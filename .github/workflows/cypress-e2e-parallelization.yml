@@ -229,7 +229,10 @@ jobs:
 
       - name: Pull keycloak image
         if: ${{ contains(matrix.feature, 'Authentication') }}
-        run: docker pull ghcr.io/${{ github.repository }}/keycloak:${{ inputs.major_version }}
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          MAJOR_VERSION: ${{ inputs.major_version }}
+        run: docker pull ghcr.io/$GITHUB_REPOSITORY/keycloak:$MAJOR_VERSION
         shell: bash
 
       - name: Get test execution Key
