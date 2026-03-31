@@ -24,143 +24,96 @@ if (! isset($oreon)) {
 }
 
 /**
- * Validates the RPN function syntax for VDEF type.
- * The expression must end with a valid VDEF aggregation function.
+ * Validates the RPN function syntax by building a minimal rrdtool command
+ * and executing it. Works for both CDEF (def_type=0) and VDEF (def_type=1).
  *
- * @return bool
+ * @param array<string,mixed> $fields Form fields
+ *
+ * @return true|array<string,string>
  */
-function testVdefRpnSyntax()
+function testRpnSyntaxWithRrdtool(array $fields): array|true
 {
-    global $form;
-    $gsvs = null;
-    if (isset($form)) {
-        $gsvs = $form->getSubmitValues();
-    }
+    global $pearDBO, $oreon;
 
-    // Only validate for VDEF type (def_type = 1)
-    if (! isset($gsvs['def_type']) || (int) $gsvs['def_type'] !== 1) {
+    if (! isset($fields['def_type'])) {
         return true;
     }
 
-    $rpnFunction = trim($gsvs['rpn_function'] ?? '');
+    $rpnFunction = trim($fields['rpn_function'] ?? '');
     if ($rpnFunction === '') {
-        return true; // the 'required' rule handles empty values
-    }
-
-    $validVdefFunctions = [
-        'MAXIMUM', 'MINIMUM', 'AVERAGE', 'STDEV', 'LAST', 'FIRST', 'TOTAL',
-        'PERCENT', 'PERCENTNAN', 'LSLSLOPE', 'LSLINT', 'LSLCORREL',
-    ];
-
-    $parts = array_map('trim', explode(',', $rpnFunction));
-    $partCount = count($parts);
-
-    if ($partCount < 2) {
-        return false;
-    }
-
-    $lastPart = strtoupper($parts[$partCount - 1]);
-
-    // PERCENT and PERCENTNAN require a numeric argument before the function: metric,N,PERCENT
-    if (in_array($lastPart, ['PERCENT', 'PERCENTNAN'], true)) {
-        return $partCount >= 3 && is_numeric($parts[$partCount - 2]);
-    }
-
-    return in_array($lastPart, $validVdefFunctions, true);
-}
-
-/**
- * Validates the RPN function syntax for CDEF type by simulating the RPN stack.
- * Rejects VDEF-only functions and detects stack underflows/overflows.
- *
- * @return bool
- */
-function testCdefRpnSyntax()
-{
-    global $form;
-    $gsvs = null;
-    if (isset($form)) {
-        $gsvs = $form->getSubmitValues();
-    }
-
-    // Only validate for CDEF type (def_type = 0)
-    if (! isset($gsvs['def_type']) || (int) $gsvs['def_type'] !== 0) {
         return true;
     }
 
-    $rpnFunction = trim($gsvs['rpn_function'] ?? '');
-    if ($rpnFunction === '') {
-        return true; // the 'required' rule handles empty values
+    $defType = (int) $fields['def_type'] === 1 ? 'VDEF' : 'CDEF';
+    $hostServiceId = $fields['host_id'] ?? '';
+
+    $indexId = getIndexIdFromHostServiceId($pearDBO, $hostServiceId);
+    if ($indexId === null) {
+        return true;
     }
 
-    // Operators that pop 2 values, push 1
-    $binaryOps = ['+', '-', '*', '/', '%', 'LT', 'LE', 'GT', 'GE', 'EQ', 'NE', 'MIN', 'MAX', 'ADDNAN', 'ATAN2'];
-    // Operators that pop 1 value, push 1
-    $unaryOps = ['UN', 'ISINF', 'SIN', 'COS', 'LOG', 'EXP', 'SQRT', 'ATAN', 'FLOOR', 'CEIL', 'ABS', 'DEG2RAD', 'RAD2DEG', 'DUP'];
-    // Operators that pop 3 values, push 1
-    $ternaryOps = ['IF', 'LIMIT'];
-    // Operators that push 1 value (no pop)
-    $constantOps = ['UNKN', 'INF', 'NEGINF', 'NOW', 'TIME', 'LTIME', 'STEPWIDTH', 'NEWDAY', 'NEWWEEK', 'NEWMONTH', 'NEWYEAR', 'COUNT', 'PREV'];
-    // Operators that pop 1 value, push 0
-    $sinkOps = ['POP'];
-    // Operators that pop 2 values, push 2 (swap)
-    $swapOps = ['EXC'];
-    // VDEF-only functions that are invalid in CDEF context
-    $vdefOnlyFunctions = ['MAXIMUM', 'MINIMUM', 'AVERAGE', 'LAST', 'FIRST', 'TOTAL', 'PERCENT', 'PERCENTNAN', 'LSLSLOPE', 'LSLINT', 'LSLCORREL'];
-    // Set operations that consume N values from stack based on count prefix
-    $setOps = ['SORT', 'REV', 'AVG', 'SMIN', 'SMAX', 'STDEV', 'MEDIAN'];
+    $config = $pearDBO->fetchAssociative('SELECT RRDdatabase_path FROM config LIMIT 1');
+    $rrdPath = rtrim($config['RRDdatabase_path'] ?? '/var/lib/centreon/metrics', '/') . '/';
 
-    $parts = array_map('trim', explode(',', $rpnFunction));
-    $stack = 0;
+    $metricsStmt = $pearDBO->prepare(
+        'SELECT metric_id, metric_name FROM metrics WHERE index_id = :index_id'
+    );
+    $metricsStmt->bindValue(':index_id', (int) $indexId, PDO::PARAM_INT);
+    $metricsStmt->execute();
 
-    foreach ($parts as $part) {
-        $upper = strtoupper($part);
-
-        if (in_array($upper, $vdefOnlyFunctions, true)) {
-            return false;
-        }
-
-        if (in_array($upper, $binaryOps, true)) {
-            if ($stack < 2) {
-                return false;
-            }
-            $stack--;
-        } elseif (in_array($upper, $unaryOps, true)) {
-            if ($stack < 1) {
-                return false;
-            }
-        } elseif (in_array($upper, $ternaryOps, true)) {
-            if ($stack < 3) {
-                return false;
-            }
-            $stack -= 2;
-        } elseif (in_array($upper, $constantOps, true)) {
-            $stack++;
-        } elseif (in_array($upper, $sinkOps, true)) {
-            if ($stack < 1) {
-                return false;
-            }
-            $stack--;
-        } elseif (in_array($upper, $swapOps, true)) {
-            if ($stack < 2) {
-                return false;
-            }
-        } elseif (in_array($upper, $setOps, true)) {
-            // Set ops expect a count on top of stack + that many values below
-            if ($stack < 1) {
-                return false;
-            }
-            // We can't know the runtime count at validation time, just check stack isn't empty
-        } elseif (is_numeric($part)) {
-            $stack++;
-        } else {
-            // Metric name reference: pushes 1 value onto the stack
-            $stack++;
-        }
+    $metrics = [];
+    while ($row = $metricsStmt->fetch(PDO::FETCH_ASSOC)) {
+        $metrics[$row['metric_name']] = $row['metric_id'];
     }
 
-    // Valid CDEF must leave exactly 1 value on the stack
-    return $stack === 1;
+    if (empty($metrics)) {
+        return true;
+    }
+
+    $rpnParts = explode(',', $rpnFunction);
+    $defArgs = [];
+    $usedMetrics = [];
+
+    foreach ($rpnParts as &$part) {
+        $trimmed = trim($part);
+        if (isset($metrics[$trimmed]) && ! isset($usedMetrics[$trimmed])) {
+            $metricId = $metrics[$trimmed];
+            $rrdFile = $rrdPath . $metricId . '.rrd';
+            if (file_exists($rrdFile)) {
+                $defArgs[] = 'DEF:v' . $metricId . '=' . $rrdFile . ':value:AVERAGE';
+                $usedMetrics[$trimmed] = 'v' . $metricId;
+            }
+        }
+        if (isset($usedMetrics[$trimmed])) {
+            $part = $usedMetrics[$trimmed];
+        }
+    }
+    unset($part);
+
+    $rpnResolved = implode(',', $rpnParts);
+
+    if ($defType === 'VDEF' && empty($defArgs)) {
+        return true;
+    }
+
+    $rrdtoolBin = $oreon->optGen['rrdtool_path_bin'] ?? '/usr/bin/rrdtool';
+    $cmd = escapeshellarg($rrdtoolBin) . ' graph /dev/null --start now-1h';
+    foreach ($defArgs as $def) {
+        $cmd .= ' ' . escapeshellarg($def);
+    }
+    $cmd .= ' ' . escapeshellarg($defType . ':vtest=' . $rpnResolved);
+    $cmd .= ' 2>&1';
+
+    exec($cmd, $output, $rc);
+
+    if ($rc !== 0) {
+        $lastLine = end($output) ?: 'unknown error';
+        $rrdtoolError = preg_replace('/^ERROR:\s*/', '', $lastLine);
+
+        return ['rpn_function' => _('Invalid RPN syntax') . ' (RRDtool: ' . $rrdtoolError . ')'];
+    }
+
+    return true;
 }
 
 function _TestRPNInfinityLoop()
