@@ -419,15 +419,3 @@ parameters:
 			identifier: function.notFound
 			count: 1
 			path: www/include/configuration/configObject/meta_service/DB-Func.php
-
-		-
-			message: '#^Missing parameter \$hostGroupId \(int\) in call to function createNewDatasetFilter\.$#'
-			identifier: argument.missing
-			count: 1
-			path: www/include/configuration/configObject/servicegroup/DB-Func.php
-
-		-
-			message: '#^Unknown parameter \$serviceGroupId in call to function createNewDatasetFilter\.$#'
-			identifier: argument.unknown
-			count: 1
-			path: www/include/configuration/configObject/servicegroup/DB-Func.php

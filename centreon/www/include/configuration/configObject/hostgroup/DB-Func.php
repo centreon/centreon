@@ -575,7 +575,7 @@ function updateHostGroupAcl(int $hostGroupId, bool $isCloudPlatform, $submittedV
                         $datasetId = createNewDataset(datasetName: $newDatasetName);
                         linkDatasetToRule(datasetId: $datasetId, ruleId: $ruleId);
                         linkHostGroupToDataset(datasetId: $datasetId, hostGroupId: $hostGroupId);
-                        createNewDatasetFilter(datasetId: $datasetId, ruleId: $ruleId, hostGroupId: $hostGroupId);
+                        createNewHostGroupDatasetFilter(datasetId: $datasetId, ruleId: $ruleId, hostGroupId: $hostGroupId);
                         $pearDB->commit();
                     } catch (Throwable $exception) {
                         $pearDB->rollBack();
@@ -613,7 +613,7 @@ function updateHostGroupAcl(int $hostGroupId, bool $isCloudPlatform, $submittedV
                             $datasetId = createNewDataset(datasetName: $newDatasetName);
                             linkDatasetToRule(datasetId: $datasetId, ruleId: $ruleId);
                             linkHostGroupToDataset(datasetId: $datasetId, hostGroupId: $hostGroupId);
-                            createNewDatasetFilter(datasetId: $datasetId, ruleId: $ruleId, hostGroupId: $hostGroupId);
+                            createNewHostGroupDatasetFilter(datasetId: $datasetId, ruleId: $ruleId, hostGroupId: $hostGroupId);
                             $pearDB->commit();
                         } catch (Throwable $exception) {
                             $pearDB->rollBack();
@@ -798,7 +798,7 @@ function createNewDataset(string $datasetName): int
  * @param int $ruleId
  * @param int $hostGroupId
  */
-function createNewDatasetFilter(int $datasetId, int $ruleId, int $hostGroupId): void
+function createNewHostGroupDatasetFilter(int $datasetId, int $ruleId, int $hostGroupId): void
 {
     global $pearDB;
 
