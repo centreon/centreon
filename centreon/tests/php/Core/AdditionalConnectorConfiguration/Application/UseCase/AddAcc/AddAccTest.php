@@ -43,6 +43,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Common\Infrastructure\FeatureFlags;
+use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 
 beforeEach(function (): void {
     $this->presenter = new AddAccPresenterStub();
@@ -54,7 +55,8 @@ beforeEach(function (): void {
         dataStorageEngine: $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
         user: $this->user = $this->createMock(ContactInterface::class),
         flags: $this->flags = new FeatureFlags(false, ''),
-        writeVaultAccRepositories: $this->writeVaultAccRepositories = new \ArrayIterator([])
+        writeVaultAccRepositories: $this->writeVaultAccRepositories = new \ArrayIterator([]),
+        writeMonitoringServerRepository: $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class),
     );
 
     $this->testedAddAccRequest = new AddAccRequest();
