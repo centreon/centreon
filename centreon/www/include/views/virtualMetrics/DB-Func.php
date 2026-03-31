@@ -24,8 +24,8 @@ if (! isset($oreon)) {
 }
 
 /**
- * Validates that the RPN function syntax is valid for the selected DEF type.
- * For VDEF, the expression must end with a valid aggregation function.
+ * Validates the RPN function syntax for VDEF type.
+ * The expression must end with a valid VDEF aggregation function.
  *
  * @return bool
  */
@@ -70,9 +70,8 @@ function testVdefRpnSyntax()
 }
 
 /**
- * Validates that the RPN function syntax is valid for the CDEF DEF type.
- * Each token must be a metric name, a number, or a valid CDEF RPN operator.
- * VDEF-only functions (AVERAGE, MINIMUM, etc.) are rejected.
+ * Validates the RPN function syntax for CDEF type by simulating the RPN stack.
+ * Rejects VDEF-only functions and detects stack underflows/overflows.
  *
  * @return bool
  */
@@ -94,22 +93,74 @@ function testCdefRpnSyntax()
         return true; // the 'required' rule handles empty values
     }
 
-    // VDEF-only functions that must be rejected in CDEF context
-    $vdefOnlyFunctions = [
-        'MAXIMUM', 'MINIMUM', 'AVERAGE', 'LAST', 'FIRST', 'TOTAL',
-        'PERCENT', 'PERCENTNAN', 'LSLSLOPE', 'LSLINT', 'LSLCORREL',
-    ];
+    // Operators that pop 2 values, push 1
+    $binaryOps = ['+', '-', '*', '/', '%', 'LT', 'LE', 'GT', 'GE', 'EQ', 'NE', 'MIN', 'MAX', 'ADDNAN', 'ATAN2'];
+    // Operators that pop 1 value, push 1
+    $unaryOps = ['UN', 'ISINF', 'SIN', 'COS', 'LOG', 'EXP', 'SQRT', 'ATAN', 'FLOOR', 'CEIL', 'ABS', 'DEG2RAD', 'RAD2DEG', 'DUP'];
+    // Operators that pop 3 values, push 1
+    $ternaryOps = ['IF', 'LIMIT'];
+    // Operators that push 1 value (no pop)
+    $constantOps = ['UNKN', 'INF', 'NEGINF', 'NOW', 'TIME', 'LTIME', 'STEPWIDTH', 'NEWDAY', 'NEWWEEK', 'NEWMONTH', 'NEWYEAR', 'COUNT', 'PREV'];
+    // Operators that pop 1 value, push 0
+    $sinkOps = ['POP'];
+    // Operators that pop 2 values, push 2 (swap)
+    $swapOps = ['EXC'];
+    // VDEF-only functions that are invalid in CDEF context
+    $vdefOnlyFunctions = ['MAXIMUM', 'MINIMUM', 'AVERAGE', 'LAST', 'FIRST', 'TOTAL', 'PERCENT', 'PERCENTNAN', 'LSLSLOPE', 'LSLINT', 'LSLCORREL'];
+    // Set operations that consume N values from stack based on count prefix
+    $setOps = ['SORT', 'REV', 'AVG', 'SMIN', 'SMAX', 'STDEV', 'MEDIAN'];
 
     $parts = array_map('trim', explode(',', $rpnFunction));
+    $stack = 0;
 
     foreach ($parts as $part) {
         $upper = strtoupper($part);
+
         if (in_array($upper, $vdefOnlyFunctions, true)) {
             return false;
         }
+
+        if (in_array($upper, $binaryOps, true)) {
+            if ($stack < 2) {
+                return false;
+            }
+            $stack--;
+        } elseif (in_array($upper, $unaryOps, true)) {
+            if ($stack < 1) {
+                return false;
+            }
+        } elseif (in_array($upper, $ternaryOps, true)) {
+            if ($stack < 3) {
+                return false;
+            }
+            $stack -= 2;
+        } elseif (in_array($upper, $constantOps, true)) {
+            $stack++;
+        } elseif (in_array($upper, $sinkOps, true)) {
+            if ($stack < 1) {
+                return false;
+            }
+            $stack--;
+        } elseif (in_array($upper, $swapOps, true)) {
+            if ($stack < 2) {
+                return false;
+            }
+        } elseif (in_array($upper, $setOps, true)) {
+            // Set ops expect a count on top of stack + that many values below
+            if ($stack < 1) {
+                return false;
+            }
+            // We can't know the runtime count at validation time, just check stack isn't empty
+        } elseif (is_numeric($part)) {
+            $stack++;
+        } else {
+            // Metric name reference: pushes 1 value onto the stack
+            $stack++;
+        }
     }
 
-    return true;
+    // Valid CDEF must leave exactly 1 value on the stack
+    return $stack === 1;
 }
 
 function _TestRPNInfinityLoop()

@@ -165,8 +165,8 @@ $form->addRule(
 );
 $form->addRule(
     'rpn_function',
-    _('Invalid CDEF RPN syntax. VDEF-only functions (AVERAGE, MINIMUM, MAXIMUM, LAST, FIRST,'
-        . ' TOTAL, PERCENT, PERCENTNAN, LSLSLOPE, LSLINT, LSLCORREL) cannot be used in CDEF expressions.'),
+    _('Invalid CDEF RPN syntax: expression contains invalid operators or produces a stack error'
+        . ' (e.g. underflow or result count != 1).'),
     'validCdefRpn'
 );
 
