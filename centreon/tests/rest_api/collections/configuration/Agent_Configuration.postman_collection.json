@@ -1280,7 +1280,7 @@
           "response": []
         },
         {
-          "name": "POST /agent-configurations - Change the type of the agent not allowed - HTTP 500",
+          "name": "PUT /agent-configurations - Send wrong configuration for agent type - HTTP 400",
           "event": [
             {
               "listen": "prerequest",
@@ -1298,8 +1298,8 @@
               "script": {
                 "exec": [
                   "const responseJson = pm.response.json();\r",
-                  "pm.test(\"Change type of agent is not allowed\", function () {\r",
-                  "    pm.response.to.have.status(500);\r",
+                  "pm.test(\"Sending wrong configuration for agent type is not allowed\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
                   "});"
                 ],
                 "type": "text/javascript",
