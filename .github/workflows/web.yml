@@ -541,13 +541,17 @@ jobs:
     services:
       db:
         image: mysql:8.4
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -ppassword --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=12
         ports:
           - 3306:3306
         env:
           MYSQL_USER: centreon
           MYSQL_PASSWORD: password
           MYSQL_ROOT_PASSWORD: password
-
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
