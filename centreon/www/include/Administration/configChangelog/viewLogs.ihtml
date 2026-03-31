@@ -1,96 +1,220 @@
-<form name='form' method='POST'>
-<table class="ajaxOption table">
-    <tbody>
-        <tr>
-            <th><h5>{t}Filters{/t}</h5></th>
-        </tr>
-        <tr>
-            <td><h4>{$search_object_str}</h4></td>
-            <td><h4>{$search_user_str}</h4></td>
-            <td><h4>{$obj_str}</h4></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td><input type='text' name='searchO' value="{$searchO}" /></td>
-            <td><input type='text' name='searchU' value="{$searchU}" /></td>
-            <td><select name='otype'>{$obj_type}</select></td>
-            <td>{$form.SearchB.html}</td>
-        </tr>
-    </tbody>
-</table>
-<table class="ToolbarTable table">
-    <tr class="ToolbarTR">
-        <td style='width:30%;'>&nbsp;</td>
-        {pagination}
-    </tr>
-</table>
-<table class="ListTable">
-    <tr class="ListHeader">
-        <td class="ListColHeaderCenter" style='width:180px'>{t}Date{/t}</td>
-        <td class="ListColHeaderCenter" style="white-space:nowrap;">{t}Modificaton type{/t}</td>
-        <td class="ListColHeaderCenter" style="white-space:nowrap;">{t}Objects{/t}</td>
-        <td class="ListColHeaderCenter" style="white-space:nowrap;">{t}Object Name{/t}</td>
-        <td class="ListColHeaderCenter" style="white-space:nowrap;">{t}Authors{/t}</td>
-    </tr>
-{assign var='classStyle' value='list_two'}
-{foreach item=elem from=$elemArray}
-    {if $classStyle == 'list_two'}
-        {assign var='classStyle' value='list_one'}
-    {else}
-        {assign var='classStyle' value='list_two'}
-    {/if}
-    <tr class='{$classStyle}'>
-        <!-- using a class to format the timestamp -->
-        <td class='ListColCenter isTimestamp'>{$elem.date}</td>
-        <td class='ListColCenter' style='width:120px;'><span class="badge service_{$elem.badge}">{$elem.modification_type}</span></td>
-        <td class='ListColCenter'>{$elem.type}</td>
-        <td class='ListColLeft'>
-        {if isset($elem.host)}
-            <a href="./main.php?p={$p}&object_type={$elem.type}&object_id={$elem.object_id}&searchU={$searchU}&searchO={$searchO}&otype={$type_id}">{$elem.host} / {$elem.object_name}</a>
-        {elseif isset($elem.hostgroup)}
-            <a href="./main.php?p={$p}&object_type={$elem.type}&object_id={$elem.object_id}&searchU={$searchU}&searchO={$searchO}&otype={$type_id}">{$elem.hostgroup} / {$elem.object_name}</a>
-        {elseif isset($elem.hosts)}
-            <a href="./main.php?p={$p}&object_type={$elem.type}&object_id={$elem.object_id}&searchU={$searchU}&searchO={$searchO}&otype={$type_id}">
-            (
-            {assign var=flag value=0}
-            {foreach key=key2 item=item2 from=$elem.hosts}
-                 {if $flag == 1} / {/if}
-                 {$item2}
-                 {assign var=flag value=1}
-            {/foreach}
-            ) {$elem.object_name}</a>
-        {elseif isset($elem.hostgroups)}
-            <a href="./main.php?p={$p}&object_type={$elem.type}&object_id={$elem.object_id}&searchU={$searchU}&searchO={$searchO}&otype={$type_id}">
-            (
-            {assign var=flag value=0}
-            {foreach key=key2 item=item2 from=$elem.hostgroups}
-                 {if $flag == 1} / {/if}
-                 {$item2}
-                 {assign var=flag value=1}
-            {/foreach}
-            ) {$elem.object_name}</a>
-        {else}
-            <a href="./main.php?p={$p}&object_type={$elem.type}&object_id={$elem.object_id}&searchU={$searchU}&searchO={$searchO}&otype={$type_id}">{$elem.object_name}</a>
-        {/if}
-        </td>
-        <td class='ListColCenter'>{$elem.author}</td>
-    </tr>
-{/foreach}
-</table>
-<table class="ToolbarTable table">
-    <tr class="ToolbarTR">
-        <td style='width:30%;'>&nbsp;</td>
-        {pagination}
-    </tr>
-</table>
-<input type='hidden' name='o' id='o' value='42'>
-<input type='hidden' id='limit' name='limit' value='{$limit}'>
-{$form.hidden}
-</form>
+<script type="text/javascript" src="./include/common/javascript/tool.js"></script>
+
+<div class="cl-scroll-wrapper">
+    <div class="cl-filter-box">
+        <div class="cl-filter-bar">
+            <span class="cl-filter-label">{t}Object{/t}</span>
+            <input type="text" id="clSearchInput" name="searchO" value="" placeholder="{t}Object name{/t}" class="cl-search-input" style="max-width:none;width:180px;">
+            <span class="cl-filter-label">{t}User{/t}</span>
+            <input type="text" id="clSearchUser" name="searchU" value="" placeholder="{t}User name{/t}" class="cl-search-input" style="max-width:none;width:160px;">
+            <span class="cl-filter-label">{t}Type{/t}</span>
+            <select id="clSearchType" class="cl-search-input" style="min-width:160px;">
+                <option value="">{t}All object types{/t}</option>
+            </select>
+            <button type="button" id="clSearchBtn" class="btc bt_success">{t}Search{/t}</button>
+        </div>
+    </div>
+
+    <div class="cl-actions-bar">
+        <div class="cl-actions-left">&nbsp;</div>
+        <div class="cl-pagination" id="clPaginationTop" style="font-size:12px;"></div>
+    </div>
+
+    <div class="cl-scroll-area" id="clScrollContainer">
+        <table class="cl-listing-table">
+            <thead>
+                <tr>
+                    <th style="width:30px"></th>
+                    <th style="width:170px">{t}Date{/t}</th>
+                    <th style="width:120px">{t}Modification type{/t}</th>
+                    <th style="width:140px">{t}Object type{/t}</th>
+                    <th>{t}Object Name{/t}</th>
+                    <th style="width:180px">{t}Author{/t}</th>
+                </tr>
+            </thead>
+            <tbody id="clTableBody">
+                <tr><td colspan="6" class="cl-loading">{t}Loading...{/t}</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="cl-pagination" id="clPaginationBottom" style="font-size:12px;padding:4px 8px;flex-shrink:0;"></div>
+</div>
 
 {literal}
-<script>
-    //formatting the tags containing a class isTimestamp
-    formatDateMoment();
+<script type="text/javascript">
+(function() {
+    // Populate object type dropdown
+    var types = [
+        'command','timeperiod','contact','contactgroup',
+        'host','hostgroup','service','servicegroup',
+        'traps','escalation',
+        'host dependency','hostgroup dependency','service dependency','servicegroup dependency',
+        'poller','engine','broker','resources',
+        'meta','access group','menu access','resource access','action access',
+        'manufacturer','hostcategories','servicecategories'
+    ];
+    var sel = document.getElementById('clSearchType');
+    types.forEach(function(t) {
+        var opt = document.createElement('option');
+        opt.value = t;
+        opt.textContent = t.charAt(0).toUpperCase() + t.slice(1);
+        sel.appendChild(opt);
+    });
+
+    var badgeClass = {
+        'ok': 'service_ok',
+        'warning': 'service_warning',
+        'critical': 'service_critical'
+    };
+
+    var detailUrl = './include/Administration/configChangelog/ajaxChangelogDetail.php';
+
+    // Escape HTML helper
+    function esc(str) {
+        if (!str) return '';
+        var d = document.createElement('div');
+        d.appendChild(document.createTextNode(str));
+        return d.innerHTML;
+    }
+
+    // Toggle detail row
+    function toggleDetail(btn, actionLogId) {
+        var tr = jQuery(btn).closest('tr');
+        var detailId = 'cl-detail-' + actionLogId;
+        var existing = jQuery('#' + detailId);
+
+        if (existing.length) {
+            existing.remove();
+            jQuery(btn).removeClass('open').text('+');
+            return;
+        }
+
+        jQuery(btn).addClass('open').text('\u2212');
+
+        // Insert detail row after current row
+        var colCount = tr.find('td').length;
+        var detailRow = jQuery(
+            '<tr id="' + detailId + '" class="cl-detail-row">' +
+            '<td colspan="' + colCount + '">' +
+            '<div class="cl-diff-container"><div class="cl-diff-loading">Loading changes...</div></div>' +
+            '</td></tr>'
+        );
+        tr.after(detailRow);
+
+        // Fetch detail
+        jQuery.ajax({
+            url: detailUrl,
+            type: 'GET',
+            dataType: 'json',
+            data: { action_log_id: actionLogId },
+            success: function(data) {
+                var container = detailRow.find('.cl-diff-container');
+                container.empty();
+
+                if (!data.diff || data.diff.length === 0) {
+                    container.html('<div class="cl-diff-empty">No field changes recorded</div>');
+                    return;
+                }
+
+                var isCreate = data.action_type === 'a';
+                var isDelete = data.action_type === 'd';
+
+                // Header
+                var header = '<div class="cl-diff-header">' +
+                    '<span>Field</span>';
+                if (!isCreate) {
+                    header += '<span>Before</span>';
+                }
+                header += '<span>' + (isCreate ? 'Value' : 'After') + '</span></div>';
+                container.append(header);
+
+                // Rows
+                for (var i = 0; i < data.diff.length; i++) {
+                    var d = data.diff[i];
+                    var row = '<div class="cl-diff-row">' +
+                        '<div class="cl-diff-field">' + esc(d.field) + '</div>';
+                    if (!isCreate) {
+                        row += '<div class="cl-diff-before">' + esc(d.before) + '</div>';
+                    }
+                    row += '<div class="cl-diff-after">' + esc(d.after) + '</div>';
+                    row += '</div>';
+                    container.append(row);
+                }
+            },
+            error: function() {
+                detailRow.find('.cl-diff-container').html(
+                    '<div class="cl-diff-empty" style="color:#FF4A4A;">Error loading details</div>'
+                );
+            }
+        });
+    }
+
+    // Make toggleDetail available globally for onclick
+    window._clToggleDetail = toggleDetail;
+
+    var logListing = new CentreonListing({
+        instanceName:  'logListing',
+        ajaxListUrl:   './include/Administration/configChangelog/ajaxChangelogListing.php',
+        pageId:        '{/literal}{$p}{literal}',
+        writeAccess:   false,
+        showCheckboxes: false,
+        defaultLimit:  50,
+        storageKey:    'changelog_listing',
+        emptyMessage:  'No log entries found',
+        infiniteScroll: true,
+        scrollContainerId: 'clScrollContainer',
+        rowIdField:    'action_log_id',
+        extraParams:   function() {
+            return {
+                searchUser: document.getElementById('clSearchUser').value,
+                objectType: document.getElementById('clSearchType').value
+            };
+        },
+        columns: [
+            { id:'_expand', render: function(row) {
+                var noDetail = (row.action_type === 'Enabled' || row.action_type === 'Disabled' || row.action_type === 'Deleted');
+                if (noDetail) {
+                    return '<span class="cl-expand-btn disabled">+</span>';
+                }
+                return '<span class="cl-expand-btn" onclick="window._clToggleDetail(this,' + row.action_log_id + ')">+</span>';
+            }},
+            { id:'date', render: function(row) {
+                if (!row.date) return '';
+                var d = new Date(row.date * 1000);
+                var pad = function(n) { return n < 10 ? '0'+n : n; };
+                return pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()+' '+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+            }},
+            { id:'action_type', render: function(row) {
+                var cls = badgeClass[row.badge] || 'service_warning';
+                return '<span class="badge '+cls+'">'+row.action_type+'</span>';
+            }},
+            { id:'object_type', render: function(row, l) {
+                return l.escape(row.object_type);
+            }},
+            { id:'object_name', render: function(row, l) {
+                var pageId = '{/literal}{$p}{literal}';
+                var link = 'main.php?p='+pageId+'&object_type='+encodeURIComponent(row.object_type)+'&object_id='+row.object_id;
+                return '<a href="'+link+'">'+l.escape(row.object_name)+'</a>';
+            }},
+            { id:'author', render: function(row, l) {
+                return l.escape(row.author);
+            }}
+        ]
+    });
+
+    // Extra search fields
+    var userInput = document.getElementById('clSearchUser');
+    var typeSelect = document.getElementById('clSearchType');
+
+    userInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); logListing.resetScroll(); }
+    });
+    typeSelect.addEventListener('change', function() {
+        logListing.resetScroll();
+    });
+
+    logListing.init();
+})();
 </script>
 {/literal}

@@ -1,74 +1,106 @@
-<form name='form' method='POST'>
-<table class="ToolbarTable table">
-    <tr class="ToolbarTR">
-        <td>
-            <a href="./main.php?p=508" class="btc bt_success">{t}Back{/t}</a>
-        </td>
-    </tr>
-</table>
-<table class="ListTable">
-    <tr class="ListHeader">
-        <td class="ListColHeaderCenter" style="white-space:nowrap;">Changes for {$action[0].object_name}</td>
-    </tr>
-    {assign var='classStyle' value='list_two'}
-    {assign var='firstFlag' value=1}
+<div class="cld-wrapper">
+    <!-- Header -->
+    <div class="cld-header">
+        <div class="cld-header-info">
+            <div class="cld-header-icon">
+                {if isset($action[0].object_type) && $action[0].object_type == 'host'}H
+                {elseif isset($action[0].object_type) && $action[0].object_type == 'service'}S
+                {elseif isset($action[0].object_type) && $action[0].object_type == 'contact'}C
+                {else}&#9881;{/if}
+            </div>
+            <div class="cld-header-text">
+                <h2>{$action[0].object_name}</h2>
+                <div class="cld-subtitle">{$action[0].object_type} &middot; {$action|@count} {t}changes recorded{/t}</div>
+            </div>
+        </div>
+        <a href="./main.php?p=508" class="cld-back-btn">&larr; {t}Back to logs{/t}</a>
+    </div>
+
+    <!-- Timeline -->
+    <div class="cld-timeline">
     {foreach item=list from=$action}
-        {if $classStyle == 'list_two'}
-            {assign var='classStyle' value='list_one'}
-        {else}
-            {assign var='classStyle' value='list_two'}
+        {assign var='atype' value=$list.action_type}
+        {if $atype == 'Create'}{assign var='dotClass' value='dot-create'}
+        {elseif $atype == 'Change' || $atype == 'Mass change'}{assign var='dotClass' value='dot-change'}
+        {elseif $atype == 'Delete'}{assign var='dotClass' value='dot-delete'}
+        {elseif $atype == 'Enable'}{assign var='dotClass' value='dot-enable'}
+        {elseif $atype == 'Disable'}{assign var='dotClass' value='dot-disable'}
+        {else}{assign var='dotClass' value='dot-change'}{/if}
+
+        {* Create/Change/Mass change always have expandable diff *}
+        {assign var='canExpand' value=false}
+        {if $atype == 'Create' || $atype == 'Change' || $atype == 'Mass change'}
+            {assign var='canExpand' value=true}
         {/if}
-        <tr>
-            <!-- converting the db formatted date to timestamp then using the class to call moment-->
-            <td>{$list.action_type} by {$list.log_contact_id} at <span class="isTimestamp">{$list.action_log_date|strtotime}</span></td>
-        </tr>
-        <tr class={$classStyle}>
-            <td class="ListColCenter">
-            {if $list.action_type == "Create" || $list.action_type == "Change" || $list.action_type == "Mass change"}
-                <table class="ListTable"
-                        {if $firstFlag}
-                        {assign var='firstFlag' value=0}
-                        <tr class="ListHeader">
-                            <td class="ListColHeaderCenter" style="white-space:nowrap;">{$field_name}</td>
-                            <td class="ListColHeaderCenter" style="white-space:nowrap;">{$before}</td>
-                            <td class="ListColHeaderCenter" style="white-space:nowrap;">{$after}</td>
-                        </tr>
-                        {/if}
-                        {assign var='cpt' value=0}
+
+        <div class="cld-entry">
+            <div class="cld-dot {$dotClass}"></div>
+            <div class="cld-card">
+                <div class="cld-card-header" {if $canExpand}onclick="cldToggle(this)"{/if}>
+                    <span class="cld-card-toggle {if !$canExpand}no-expand{/if}">+</span>
+                    <span class="cld-card-date">{$list.action_log_date}</span>
+                    <span class="cld-card-badge">
+                        {if $atype == 'Create'}<span class="badge service_ok">{$atype}</span>
+                        {elseif $atype == 'Change' || $atype == 'Mass change'}<span class="badge service_warning">{$atype}</span>
+                        {elseif $atype == 'Delete'}<span class="badge service_critical">{$atype}</span>
+                        {elseif $atype == 'Enable'}<span class="badge service_ok">{$atype}</span>
+                        {elseif $atype == 'Disable'}<span class="badge service_critical">{$atype}</span>
+                        {else}<span class="badge service_warning">{$atype}</span>{/if}
+                    </span>
+                    <span class="cld-card-author">{$list.log_contact_id}</span>
+                </div>
+
+                {if $atype == 'Create' || $atype == 'Change' || $atype == 'Mass change'}
+                <div class="cld-diff-panel">
+                    {assign var='cpt' value=0}
+                    <table class="cld-diff-table">
+                        <thead>
+                            <tr>
+                                <th>{$field_name}</th>
+                                {if $atype != 'Create'}<th>{$before}</th>{/if}
+                                <th>{if $atype == 'Create'}{t}Value{/t}{else}{$after}{/if}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                         {foreach item=modif from=$modification}
                             {if $modif.action_log_id == $list.action_log_id}
                                 <tr>
-                                    <td class="ListColCenter" width="250">
-                                        {$modif.field_name|escape:'html'}
-                                    </td>
-                                    <td class="ListColCenter" width="200">
-                                        {$modif.field_value_before|escape:'html'}
-                                    </td>
-                                    <td class="ListColCenter" width="200">
-                                        {$modif.field_value_after|escape:'html'}
-                                    </td>
+                                    <td class="cld-fname">{$modif.field_name|escape:'html'}</td>
+                                    {if $atype != 'Create'}<td class="cld-fbefore">{$modif.field_value_before|escape:'html'}</td>{/if}
+                                    <td class="cld-fafter">{$modif.field_value_after|escape:'html'}</td>
                                 </tr>
                                 {assign var='cpt' value=$cpt+1}
                             {/if}
                         {/foreach}
                         {if $cpt == 0}
-                            <tr>
-                                <td colspan="3">{$noModifLabel}</td>
-                            </tr>
+                            <tr><td colspan="3" class="cld-no-changes">{$noModifLabel}</td></tr>
                         {/if}
-                </table>
-            {/if}
-            </td>
-        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                {/if}
+            </div>
+        </div>
     {/foreach}
-</table>
-{$form.hidden}
-</form>
-<br>
+    </div>
+</div>
 
 {literal}
 <script>
-    //formatting the tags containing a class isTimestamp
-    formatDateMoment();
+function cldToggle(header) {
+    var card = header.parentElement;
+    var panel = card.querySelector('.cld-diff-panel');
+    var toggle = header.querySelector('.cld-card-toggle');
+    if (!panel) return;
+    if (panel.classList.contains('open')) {
+        panel.classList.remove('open');
+        toggle.classList.remove('open');
+        toggle.textContent = '+';
+    } else {
+        panel.classList.add('open');
+        toggle.classList.add('open');
+        toggle.textContent = '\u2212';
+    }
+}
 </script>
 {/literal}
