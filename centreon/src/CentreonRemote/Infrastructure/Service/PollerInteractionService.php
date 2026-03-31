@@ -144,6 +144,30 @@ class PollerInteractionService
                 if ($return) {
                     throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
                 }
+
+                // Send VMWARERESTART only if VMWare config has changed
+                $vmwareStatement = $this->db->prepare(
+                    'SELECT vmware_updated FROM nagios_server WHERE id = :pollerId'
+                );
+                $vmwareStatement->bindValue(':pollerId', (int) $host['id'], \PDO::PARAM_INT);
+                $vmwareStatement->execute();
+                $vmwareRow = $vmwareStatement->fetch(\PDO::FETCH_ASSOC);
+                if ($vmwareRow && $vmwareRow['vmware_updated'] === '1') {
+                    if (isset($host['localhost']) && $host['localhost'] == 1) {
+                        shell_exec('sudo systemctl restart centreon_vmware');
+                    } else {
+                        $centCoreDir = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ . '/centcore' : '/var/lib/centreon/centcore';
+                        if (is_dir($centCoreDir)) {
+                            $vmwarePipe = $centCoreDir . '/' . microtime(true) . '-externalcommand.cmd';
+                        } else {
+                            $vmwarePipe = $centCorePipe;
+                        }
+                        passthru("echo 'VMWARERESTART:{$host['id']}' >> {$vmwarePipe}", $vmwareReturn);
+                    }
+                    $this->db->query(
+                        "UPDATE nagios_server SET vmware_updated = '0' WHERE id = " . (int) $host['id']
+                    );
+                }
             }
         }
     }
