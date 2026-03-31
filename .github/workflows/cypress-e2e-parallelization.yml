@@ -227,14 +227,6 @@ jobs:
           docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }}
         shell: bash
 
-      - name: Pull keycloak image
-        if: ${{ contains(matrix.feature, 'Authentication') }}
-        env:
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          MAJOR_VERSION: ${{ inputs.major_version }}
-        run: docker pull ghcr.io/$GITHUB_REPOSITORY/keycloak:$MAJOR_VERSION
-        shell: bash
-
       - name: Get test execution Key
         id: get-test-execution-key
         run: |
