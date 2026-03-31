@@ -74,17 +74,12 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
 
             $this->writeServiceRepository->delete($serviceId);
 
-            $contactId = $this->getContactId();
-            if ($contactId === null) {
-                return;
-            }
-
             $actionLog = new ActionLog(
                 ActionLog::OBJECT_TYPE_SERVICE,
                 $serviceId,
                 $service->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
-                $contactId
+                $this->contact->getId()
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
@@ -111,17 +106,14 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
 
                 $this->writeServiceRepository->delete($serviceId);
 
-                $contactId = $this->getContactId();
-                if ($contactId !== null) {
-                    $actionLog = new ActionLog(
-                        ActionLog::OBJECT_TYPE_SERVICE,
-                        $serviceId,
-                        $serviceName,
-                        ActionLog::ACTION_TYPE_DELETE,
-                        $contactId
-                    );
-                    $this->writeActionLogRepository->addAction($actionLog);
-                }
+                $actionLog = new ActionLog(
+                    ActionLog::OBJECT_TYPE_SERVICE,
+                    $serviceId,
+                    $serviceName,
+                    ActionLog::ACTION_TYPE_DELETE,
+                    $this->contact->getId()
+                );
+                $this->writeActionLogRepository->addAction($actionLog);
             } catch (\Throwable $ex) {
                 $this->error($ex->getMessage(), ['service_id' => $serviceId, 'trace' => $ex->getTraceAsString()]);
                 $failedDeletions[] = $serviceId;
@@ -144,17 +136,12 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                 throw new RepositoryException('Service ID cannot be 0');
             }
 
-            $contactId = $this->getContactId();
-            if ($contactId === null) {
-                return $serviceId;
-            }
-
             $actionLog = new ActionLog(
                 ActionLog::OBJECT_TYPE_SERVICE,
                 $serviceId,
                 $newService->getName(),
                 ActionLog::ACTION_TYPE_ADD,
-                $contactId
+                $this->contact->getId()
             );
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             $actionLog->setId($actionLogId);
@@ -187,11 +174,6 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
 
             $this->writeServiceRepository->update($service);
 
-            $contactId = $this->getContactId();
-            if ($contactId === null) {
-                return;
-            }
-
             $actionsToLog = [];
 
             if (array_key_exists('isActivated', $diff)) {
@@ -204,7 +186,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                     $service->getId(),
                     $service->getName(),
                     $actionType,
-                    $contactId
+                    $this->contact->getId()
                 );
 
                 unset($diff['isActivated']);
@@ -216,7 +198,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                     $service->getId(),
                     $service->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,
-                    $contactId
+                    $this->contact->getId()
                 );
             }
 
@@ -281,14 +263,5 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
         }
 
         return $servicePropertiesArray;
-    }
-
-    private function getContactId(): ?int
-    {
-        try {
-            return $this->contact->getId();
-        } catch (\TypeError) {
-            return null;
-        }
     }
 }

@@ -116,17 +116,12 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
                 throw new RepositoryException('Host ID cannot be 0');
             }
 
-            $contactId = $this->getContactId();
-            if ($contactId === null) {
-                return $hostId;
-            }
-
             $actionLog = new ActionLog(
                 ActionLog::OBJECT_TYPE_HOST,
                 $hostId,
                 $host->getName(),
                 ActionLog::ACTION_TYPE_ADD,
-                $contactId
+                $this->contact->getId()
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -159,17 +154,12 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
             }
             $this->writeHostRepository->deleteById($hostId);
 
-            $contactId = $this->getContactId();
-            if ($contactId === null) {
-                return;
-            }
-
             $actionLog = new ActionLog(
                 ActionLog::OBJECT_TYPE_HOST,
                 $hostId,
                 $host->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
-                $contactId
+                $this->contact->getId()
             );
 
             $this->writeActionLogRepository->addAction($actionLog);
@@ -197,11 +187,6 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
 
             $this->writeHostRepository->update($host);
 
-            $contactId = $this->getContactId();
-            if ($contactId === null) {
-                return;
-            }
-
             if (array_key_exists('isActivated', $diff) && count($diff) === 1) {
                 $action = (bool) $diff['isActivated']
                     ? ActionLog::ACTION_TYPE_ENABLE
@@ -211,7 +196,7 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
                     $host->getId(),
                     $host->getName(),
                     $action,
-                    $contactId
+                    $this->contact->getId()
                 );
                 $this->writeActionLogRepository->addAction($actionLog);
             }
@@ -225,7 +210,7 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
                     $host->getId(),
                     $host->getName(),
                     $action,
-                    $contactId
+                    $this->contact->getId()
                 );
                 $this->writeActionLogRepository->addAction($actionLog);
 
@@ -234,7 +219,7 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
                     $host->getId(),
                     $host->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,
-                    $contactId
+                    $this->contact->getId()
                 );
                 $actionLogChangeId = $this->writeActionLogRepository->addAction($actionLogChange);
                 if ($actionLogChangeId === 0) {
@@ -250,7 +235,7 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
                     $host->getId(),
                     $host->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,
-                    $contactId
+                    $this->contact->getId()
                 );
                 $actionLogChangeId = $this->writeActionLogRepository->addAction($actionLogChange);
                 if ($actionLogChangeId === 0) {
@@ -328,14 +313,5 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
 
         /** @var array<string,int|bool|string> $hostPropertiesArray */
         return $hostPropertiesArray;
-    }
-
-    private function getContactId(): ?int
-    {
-        try {
-            return $this->contact->getId();
-        } catch (\TypeError) {
-            return null;
-        }
     }
 }

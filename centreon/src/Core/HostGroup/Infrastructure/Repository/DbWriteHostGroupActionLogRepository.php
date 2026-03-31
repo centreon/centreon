@@ -78,17 +78,12 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
 
             $this->writeHostGroupRepository->deleteHostGroup($hostGroupId);
 
-            $contactId = $this->getContactId();
-            if ($contactId === null) {
-                return;
-            }
-
             $actionLog = new ActionLog(
                 ActionLog::OBJECT_TYPE_HOSTGROUP,
                 $hostGroupId,
                 $hostGroup->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
-                $contactId
+                $this->contact->getId()
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
@@ -109,17 +104,12 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
                 throw new RepositoryException('Hostgroup ID cannot be 0');
             }
 
-            $contactId = $this->getContactId();
-            if ($contactId === null) {
-                return $hostGroupId;
-            }
-
             $actionLog = new ActionLog(
                 ActionLog::OBJECT_TYPE_HOSTGROUP,
                 $hostGroupId,
                 $newHostGroup->getName(),
                 ActionLog::ACTION_TYPE_ADD,
-                $contactId
+                $this->contact->getId()
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -152,12 +142,6 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
             $diff = array_diff_assoc($updatedHostGroupDetails, $currentHostGroupDetails);
 
             $this->writeHostGroupRepository->update($hostGroup);
-
-            $contactId = $this->getContactId();
-            if ($contactId === null) {
-                return;
-            }
-
             if (array_key_exists('isActivated', $diff) && count($diff) === 1) {
                 $action = (bool) $diff['isActivated']
                     ? ActionLog::ACTION_TYPE_ENABLE
@@ -167,7 +151,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
                     $hostGroup->getId(),
                     $hostGroup->getName(),
                     $action,
-                    $contactId
+                    $this->contact->getId()
                 );
                 $this->writeActionLogRepository->addAction($actionLog);
             }
@@ -181,7 +165,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
                     $hostGroup->getId(),
                     $hostGroup->getName(),
                     $action,
-                    $contactId
+                    $this->contact->getId()
                 );
                 $this->writeActionLogRepository->addAction($actionLog);
 
@@ -190,7 +174,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
                     $hostGroup->getId(),
                     $hostGroup->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,
-                    $contactId
+                    $this->contact->getId()
                 );
                 $actionLogChangeId = $this->writeActionLogRepository->addAction($actionLogChange);
                 if ($actionLogChangeId === 0) {
@@ -206,7 +190,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
                     $hostGroup->getId(),
                     $hostGroup->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,
-                    $contactId
+                    $this->contact->getId()
                 );
                 $actionLogChangeId = $this->writeActionLogRepository->addAction($actionLogChange);
                 if ($actionLogChangeId === 0) {
@@ -256,17 +240,12 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
 
             $this->writeHostGroupRepository->enableDisableHostGroup($hostGroupId, $isEnable);
 
-            $contactId = $this->getContactId();
-            if ($contactId === null) {
-                return;
-            }
-
             $actionLog = new ActionLog(
                 ActionLog::OBJECT_TYPE_HOSTGROUP,
                 $hostGroupId,
                 $hostGroup->getName(),
                 $isEnable ? ActionLog::ACTION_TYPE_ENABLE : ActionLog::ACTION_TYPE_DISABLE,
-                $contactId
+                $this->contact->getId()
             );
             $this->writeActionLogRepository->addAction($actionLog);
 
@@ -293,17 +272,12 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
                 throw new RepositoryException('Cannot find duplicated hostgroup');
             }
 
-            $contactId = $this->getContactId();
-            if ($contactId === null) {
-                return $newHostGroupId;
-            }
-
             $actionLog = new ActionLog(
                 ActionLog::OBJECT_TYPE_HOSTGROUP,
                 $newHostGroupId,
                 $newHostGroup->getName(),
                 ActionLog::ACTION_TYPE_ADD,
-                $contactId
+                $this->contact->getId()
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -352,14 +326,5 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
         }
 
         return $hostGroupPropertiesArray;
-    }
-
-    private function getContactId(): ?int
-    {
-        try {
-            return $this->contact->getId();
-        } catch (\TypeError) {
-            return null;
-        }
     }
 }

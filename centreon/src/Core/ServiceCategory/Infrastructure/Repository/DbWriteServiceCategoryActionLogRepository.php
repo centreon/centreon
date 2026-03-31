@@ -66,18 +66,12 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
                 return;
             }
             $this->writeServiceCategoryRepository->deleteById($serviceCategoryId);
-
-            $contactId = $this->getContactId();
-            if ($contactId === null) {
-                return;
-            }
-
             $actionLog = new ActionLog(
                 objectType: ActionLog::OBJECT_TYPE_SERVICECATEGORIES,
                 objectId: $serviceCategoryId,
                 objectName: $serviceCategory->getName(),
                 actionType: ActionLog::ACTION_TYPE_DELETE,
-                contactId: $contactId
+                contactId: $this->user->getId()
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
@@ -100,18 +94,12 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
             if ($serviceCategoryId === 0) {
                 throw new RepositoryException('Service Category ID cannot be 0');
             }
-
-            $contactId = $this->getContactId();
-            if ($contactId === null) {
-                return $serviceCategoryId;
-            }
-
             $actionLog = new ActionLog(
                 objectType: ActionLog::OBJECT_TYPE_SERVICECATEGORIES,
                 objectId: $serviceCategoryId,
                 objectName: $serviceCategory->getName(),
                 actionType: ActionLog::ACTION_TYPE_ADD,
-                contactId: $contactId
+                contactId: $this->user->getId()
             );
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             $actionLog->setId($actionLogId);
@@ -153,17 +141,12 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
         try {
             $this->writeServiceCategoryRepository->update($serviceCategory);
 
-            $contactId = $this->getContactId();
-            if ($contactId === null) {
-                return;
-            }
-
             $actionLog = new ActionLog(
                 objectType: ActionLog::OBJECT_TYPE_SERVICECATEGORIES,
                 objectId: $serviceCategory->getId(),
                 objectName: $serviceCategory->getName(),
                 actionType: ActionLog::ACTION_TYPE_CHANGE,
-                contactId: $contactId
+                contactId: $this->user->getId()
             );
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             $actionLog->setId($actionLogId);
@@ -213,14 +196,5 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
         }
 
         return $serviceCategoryAsArray;
-    }
-
-    private function getContactId(): ?int
-    {
-        try {
-            return $this->user->getId();
-        } catch (\TypeError) {
-            return null;
-        }
     }
 }

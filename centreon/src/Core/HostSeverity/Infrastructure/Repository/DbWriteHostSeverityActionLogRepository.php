@@ -77,17 +77,12 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
 
             $this->writeHostSeverityRepository->deleteById($hostSeverityId);
 
-            $contactId = $this->getContactId();
-            if ($contactId === null) {
-                return;
-            }
-
             $actionLog = new ActionLog(
                 ActionLog::OBJECT_TYPE_HOST_SEVERITY,
                 $hostSeverityId,
                 $hostSeverity->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
-                $contactId
+                $this->contact->getId()
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
@@ -107,18 +102,12 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
     {
         try {
             $hostSeverityId = $this->writeHostSeverityRepository->add($hostSeverity);
-
-            $contactId = $this->getContactId();
-            if ($contactId === null) {
-                return $hostSeverityId;
-            }
-
             $actionLog = new ActionLog(
                 ActionLog::OBJECT_TYPE_HOST_SEVERITY,
                 $hostSeverityId,
                 $hostSeverity->getName(),
                 ActionLog::ACTION_TYPE_ADD,
-                $contactId
+                $this->contact->getId()
             );
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             $actionLog->setId($actionLogId);
@@ -153,11 +142,6 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
 
             $diff = $this->getHostSeverityDiff($initialHostSeverity, $hostSeverity);
 
-            $contactId = $this->getContactId();
-            if ($contactId === null) {
-                return;
-            }
-
             // If enable/disable has been changed
             if (array_key_exists('hc_activate', $diff)) {
                 // If only the activation has been changed
@@ -171,7 +155,7 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
                         $hostSeverity->getId(),
                         $hostSeverity->getName(),
                         $action,
-                        $contactId
+                        $this->contact->getId()
                     );
 
                     $this->writeActionLogRepository->addAction($actionLog);
@@ -188,7 +172,7 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
                         $hostSeverity->getId(),
                         $hostSeverity->getName(),
                         $action,
-                        $contactId
+                        $this->contact->getId()
                     );
 
                     $this->writeActionLogRepository->addAction($actionLog);
@@ -199,7 +183,7 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
                         $hostSeverity->getId(),
                         $hostSeverity->getName(),
                         ActionLog::ACTION_TYPE_CHANGE,
-                        $contactId
+                        $this->contact->getId()
                     );
 
                     $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -216,7 +200,7 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
                 $hostSeverity->getId(),
                 $hostSeverity->getName(),
                 ActionLog::ACTION_TYPE_CHANGE,
-                $contactId
+                $this->contact->getId()
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -282,14 +266,5 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
         }
 
         return $hostSeverityPropertiesArray;
-    }
-
-    private function getContactId(): ?int
-    {
-        try {
-            return $this->contact->getId();
-        } catch (\TypeError) {
-            return null;
-        }
     }
 }

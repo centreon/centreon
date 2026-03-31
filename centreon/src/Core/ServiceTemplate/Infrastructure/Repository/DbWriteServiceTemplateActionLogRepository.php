@@ -66,17 +66,12 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
 
             $this->writeServiceTemplateRepository->deleteById($serviceTemplateId);
 
-            $contactId = $this->getContactId();
-            if ($contactId === null) {
-                return;
-            }
-
             $actionLog = new ActionLog(
                 ActionLog::OBJECT_TYPE_SERVICE,
                 $serviceTemplateId,
                 $serviceTemplate ? $serviceTemplate->getName() : '',
                 ActionLog::ACTION_TYPE_DELETE,
-                $contactId
+                $this->contact->getId()
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
@@ -91,17 +86,12 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
         try {
             $serviceTemplateId = $this->writeServiceTemplateRepository->add($newServiceTemplate);
 
-            $contactId = $this->getContactId();
-            if ($contactId === null) {
-                return $serviceTemplateId;
-            }
-
             $actionLog = new ActionLog(
                 ActionLog::OBJECT_TYPE_SERVICE,
                 $serviceTemplateId,
                 $newServiceTemplate->getName(),
                 ActionLog::ACTION_TYPE_ADD,
-                $contactId
+                $this->contact->getId()
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -141,17 +131,12 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
 
             $this->writeServiceTemplateRepository->update($serviceTemplate);
 
-            $contactId = $this->getContactId();
-            if ($contactId === null) {
-                return;
-            }
-
             $actionLog = new ActionLog(
                 ActionLog::OBJECT_TYPE_SERVICE,
                 $serviceTemplate->getId(),
                 $serviceTemplate->getName(),
                 ActionLog::ACTION_TYPE_CHANGE,
-                $contactId
+                $this->contact->getId()
             );
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             $actionLog->setId($actionLogId);
@@ -200,14 +185,5 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
         }
 
         return $serviceTemplatePropertiesArray;
-    }
-
-    private function getContactId(): ?int
-    {
-        try {
-            return $this->contact->getId();
-        } catch (\TypeError) {
-            return null;
-        }
     }
 }
