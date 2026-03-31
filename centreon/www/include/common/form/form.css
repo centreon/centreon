@@ -1082,6 +1082,10 @@
 :is(.cf-form-wrapper, .gen-wrap) .cl-toggle:has(input:disabled) {
     cursor: not-allowed;
 }
+/* Read-only (frozen form): keep the real on/off colour, only block interaction */
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle--readonly input:disabled + .cl-toggle-slider {
+    opacity: 1;
+}
 
 /* A field turned into a toggle row: control + label side by side */
 .cf-field-toggle {
