@@ -494,6 +494,10 @@ msgstr ""
 msgid "Action URL"
 msgstr ""
 
+#: unknown
+msgid "Action access"
+msgstr ""
+
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 msgid "Action access list link"
 msgstr ""
@@ -2118,6 +2122,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Breadcrumb copied"
+msgstr ""
+
+#: unknown
+msgid "Broker"
 msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
@@ -6311,6 +6319,10 @@ msgstr ""
 msgid "Ends at"
 msgstr ""
 
+#: unknown
+msgid "Engine"
+msgstr ""
+
 #: centreon/www/include/Administration/parameters/engine/form.php
 msgid "Engine Directories"
 msgstr ""
@@ -9022,6 +9034,10 @@ msgstr ""
 msgid "Host group (%s) not found"
 msgstr ""
 
+#: unknown
+msgid "Host group dependency"
+msgstr ""
+
 #: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
@@ -11572,6 +11588,10 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Mode"
+msgstr ""
+
+#: unknown
+msgid "Modification type"
 msgstr ""
 
 #: centreon/www/install/smarty_translate.php
@@ -15030,6 +15050,10 @@ msgstr ""
 msgid "Resource Type"
 msgstr ""
 
+#: unknown
+msgid "Resource access"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Resource access rule name"
 msgstr ""
@@ -16304,6 +16328,10 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 msgid "Service group"
+msgstr ""
+
+#: unknown
+msgid "Service group dependency"
 msgstr ""
 
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
@@ -21223,6 +21251,10 @@ msgstr ""
 
 #: centreon/src/Core/Application/Platform/UseCase/FindInstallationStatus/FindInstallationStatus.php
 msgid "centreon is not properly installed"
+msgstr ""
+
+#: unknown
+msgid "changes recorded"
 msgstr ""
 
 #: centreon/www/install/front_translate.php

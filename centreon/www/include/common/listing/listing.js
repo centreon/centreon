@@ -283,6 +283,19 @@ function CentreonListing(config) {
         if (currentSearch && currentSearch.trim() !== '') return true;
         var panel = document.querySelector('.cl-adv-panel');
         if (panel && typeof clCountActiveFilters === 'function' && clCountActiveFilters(panel) > 0) return true;
+        // Filters that live outside an advanced panel (a page's own filter bar)
+        // reach the server through extraParams — without this, narrowing such a
+        // filter down to zero rows renders the "nothing configured yet" welcome
+        // state instead of "no results".
+        var extra = typeof cfg.extraParams === 'function' ? cfg.extraParams() : cfg.extraParams;
+        for (var key in extra) {
+            if (Object.prototype.hasOwnProperty.call(extra, key)
+                && extra[key] !== null && extra[key] !== undefined
+                && String(extra[key]).trim() !== ''
+            ) {
+                return true;
+            }
+        }
         return false;
     }
 

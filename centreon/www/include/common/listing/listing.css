@@ -1650,7 +1650,6 @@
     color: var(--cl-header-color, #000);
     font-weight: 700;
     font-size: 11px;
-    text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 .cl-diff-header span {
@@ -1735,17 +1734,20 @@
     align-items: center;
     gap: 14px;
 }
+/* Bare icon, no badge behind it. The SVGs are inline and fill with
+   currentColor, so the theme-aware --icons-fill-color is what keeps them
+   legible on both the light and the dark background. */
 .cld-header-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #3a7bbf, #2c5f8f);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
-    font-size: 18px;
     flex-shrink: 0;
+    color: var(--icons-fill-color, #2E68AA);
+}
+.cld-header-icon svg {
+    width: 32px;
+    height: 32px;
+    display: block;
 }
 .cld-header-text h2 {
     margin: 0;
@@ -1759,22 +1761,29 @@
     color: #888;
     letter-spacing: 0.2px;
 }
+/* Outlined button: transparent fill, blue border and blue label. The blue comes
+   from the +Add button token, which the dark theme remaps to a brighter shade —
+   so the label stays legible on both backgrounds without a theme-specific rule. */
 .cld-back-btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
-    padding: 8px 16px;
-    border-radius: 6px;
-    background: var(--listing-border-botom-color, #e8e8e8);
-    color: var(--body-color, #555);
+    height: 36px;
+    padding: 0 18px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--bt-info-background-color, #2E68AA);
+    border: 1px solid var(--bt-info-background-color, #2E68AA);
     text-decoration: none;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
-    transition: background 0.15s;
+    transition: background 0.15s, color 0.15s;
 }
 .cld-back-btn:hover {
-    background: #3a7bbf;
-    color: #fff;
+    background: var(--color-listing-hover, #E6EDF5);
+    color: var(--bt-info-background-color, #2E68AA);
     text-decoration: none;
 }
 
@@ -1907,7 +1916,6 @@
     color: var(--cl-header-color, #000);
     font-weight: 700;
     font-size: 11px;
-    text-transform: uppercase;
     letter-spacing: 0.5px;
     padding: 7px 12px;
     text-align: center;

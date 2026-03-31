@@ -493,6 +493,10 @@ msgstr "Nom de l'action"
 msgid "Action URL"
 msgstr "URL d'action"
 
+#: unknown
+msgid "Action access"
+msgstr "Accès aux actions"
+
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 msgid "Action access list link"
 msgstr "Liens vers les actions autorisées"
@@ -2086,6 +2090,10 @@ msgstr "Bas"
 #: centreon/www/install/front_translate.php
 msgid "Breadcrumb copied"
 msgstr "Fil d'Ariane copié"
+
+#: unknown
+msgid "Broker"
+msgstr "Broker"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Broker Module"
@@ -5972,6 +5980,10 @@ msgstr "Heure de fin"
 msgid "Ends at"
 msgstr "Se termine à"
 
+#: unknown
+msgid "Engine"
+msgstr "Engine"
+
 #: centreon/www/include/Administration/parameters/engine/form.php
 msgid "Engine Directories"
 msgstr "Répertoires de l'ordonnanceur"
@@ -8602,6 +8614,10 @@ msgstr "Groupe d'hôtes"
 msgid "Host group (%s) not found"
 msgstr "Groupe d'hôte (%s) non trouvé"
 
+#: unknown
+msgid "Host group dependency"
+msgstr "Dépendance de groupe d'hôtes"
+
 #: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 msgid "Host groups"
@@ -11019,6 +11035,10 @@ msgstr "Fenêtre de confirmation"
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Mode"
 msgstr "Mode"
+
+#: unknown
+msgid "Modification type"
+msgstr "Type de modification"
 
 #: centreon/www/install/smarty_translate.php
 msgid "Modificaton type"
@@ -14071,6 +14091,10 @@ msgstr "Nom de la ressource"
 msgid "Resource Type"
 msgstr "Type de ressource"
 
+#: unknown
+msgid "Resource access"
+msgstr "Accès aux ressources"
+
 #: centreon/www/install/front_translate.php
 msgid "Resource access rule name"
 msgstr "Nom de la règle d'accès aux ressources"
@@ -15234,6 +15258,10 @@ msgstr "Graphiques de services"
 #: centreon/www/install/front_translate.php
 msgid "Service group"
 msgstr "Groupe de services"
+
+#: unknown
+msgid "Service group dependency"
+msgstr "Dépendance de groupe de services"
 
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
 msgid "Service group state"
@@ -20030,6 +20058,10 @@ msgstr "octets"
 #: centreon/src/Core/Application/Platform/UseCase/FindInstallationStatus/FindInstallationStatus.php
 msgid "centreon is not properly installed"
 msgstr "centreon n'est pas correctement installé"
+
+#: unknown
+msgid "changes recorded"
+msgstr "modifications enregistrées"
 
 #: centreon/www/install/front_translate.php
 msgid "characters"

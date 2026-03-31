@@ -1,74 +1,119 @@
-<form name='form' method='POST'>
-<table class="ToolbarTable table">
-    <tr class="ToolbarTR">
-        <td>
-            <a href="./main.php?p=508" class="btc bt_success">{t}Back{/t}</a>
-        </td>
-    </tr>
-</table>
-<table class="ListTable">
-    <tr class="ListHeader">
-        <td class="ListColHeaderCenter" style="white-space:nowrap;">Changes for {$action[0].object_name}</td>
-    </tr>
-    {assign var='classStyle' value='list_two'}
-    {assign var='firstFlag' value=1}
+{include file="file:$centreon_path/www/include/common/templates/clI18n.ihtml"}
+
+<div class="cld-wrapper">
+    <!-- Header -->
+    <div class="cld-header">
+        <div class="cld-header-info">
+            <div class="cld-header-icon">
+                {* Hosts and services reuse their top-counter icon
+                   (packages/ui/src/Icon); any other type falls back to an
+                   outlined gear. The fill is theme-aware, see .cld-header-icon. *}
+                {if isset($action[0].object_type) && $action[0].object_type == 'host'}
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 21C3.45 21 2.97917 20.8042 2.5875 20.4125C2.19583 20.0208 2 19.55 2 19V5C2 4.45 2.19583 3.97917 2.5875 3.5875C2.97917 3.19583 3.45 3 4 3H9C9.55 3 10.0208 3.19583 10.4125 3.5875C10.8042 3.97917 11 4.45 11 5V19C11 19.55 10.8042 20.0208 10.4125 20.4125C10.0208 20.8042 9.55 21 9 21H4ZM15 21C14.45 21 13.9792 20.8042 13.5875 20.4125C13.1958 20.0208 13 19.55 13 19V5C13 4.45 13.1958 3.97917 13.5875 3.5875C13.9792 3.19583 14.45 3 15 3H20C20.55 3 21.0208 3.19583 21.4125 3.5875C21.8042 3.97917 22 4.45 22 5V19C22 19.55 21.8042 20.0208 21.4125 20.4125C21.0208 20.8042 20.55 21 20 21H15ZM4 19H9V5H4V19ZM15 19H20V5H15V19ZM5 15H8V13H5V15ZM16 15H19V13H16V15ZM5 12H8V10H5V12ZM16 12H19V10H16V12ZM5 9H8V7H5V9ZM16 9H19V7H16V9Z"/></svg>
+                {elseif isset($action[0].object_type) && $action[0].object_type == 'service'}
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2M6 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m0 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m12-8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2m-4 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m4-4c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m-4-4c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m-4-4c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2"/></svg>
+                {else}
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.09-.16-.26-.25-.44-.25-.06 0-.12.01-.17.03l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1q-.09-.03-.18-.03c-.17 0-.34.09-.43.25l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.09.16.26.25.44.25.06 0 .12-.01.17-.03l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1q.09.03.18.03c.17 0 .34-.09.43-.25l2-3.46c.12-.22.07-.49-.12-.64zm-1.98-1.71c.04.31.05.52.05.73s-.02.43-.05.73l-.14 1.13.89.7 1.08.84-.7 1.21-1.27-.51-1.04-.42-.9.68c-.43.32-.84.56-1.25.73l-1.06.43-.16 1.13-.2 1.35h-1.4l-.19-1.35-.16-1.13-1.06-.43c-.43-.18-.83-.41-1.23-.71l-.91-.7-1.06.43-1.27.51-.7-1.21 1.08-.84.89-.7-.14-1.13c-.03-.31-.05-.54-.05-.74s.02-.43.05-.73l.14-1.13-.89-.7-1.08-.84.7-1.21 1.27.51 1.04.42.9-.68c.43-.32.84-.56 1.25-.73l1.06-.43.16-1.13.2-1.35h1.39l.19 1.35.16 1.13 1.06.43c.43.18.83.41 1.23.71l.91.7 1.06-.43 1.27-.51.7 1.21-1.07.85-.89.7zM12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4m0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2"/></svg>
+                {/if}
+            </div>
+            <div class="cld-header-text">
+                <h2>{$action[0].object_name|escape:'html'}</h2>
+                <div class="cld-subtitle">{$objectTypeLabel|escape:'html'} &middot; {$action|@count} {t}changes recorded{/t}</div>
+            </div>
+        </div>
+        <a href="./main.php?p={$p}" class="cld-back-btn">&larr; {t}Back{/t}</a>
+    </div>
+
+    <!-- Timeline -->
+    <div class="cld-timeline">
     {foreach item=list from=$action}
-        {if $classStyle == 'list_two'}
-            {assign var='classStyle' value='list_one'}
-        {else}
-            {assign var='classStyle' value='list_two'}
+        {assign var='atype' value=$list.action_type}
+        {if $atype == 'Create'}{assign var='dotClass' value='dot-create'}
+        {elseif $atype == 'Change' || $atype == 'Mass change'}{assign var='dotClass' value='dot-change'}
+        {elseif $atype == 'Delete'}{assign var='dotClass' value='dot-delete'}
+        {elseif $atype == 'Enable'}{assign var='dotClass' value='dot-enable'}
+        {elseif $atype == 'Disable'}{assign var='dotClass' value='dot-disable'}
+        {else}{assign var='dotClass' value='dot-change'}{/if}
+
+        {* Create/Change/Mass change are the only actions that record field changes *}
+        {assign var='canExpand' value=false}
+        {if $atype == 'Create' || $atype == 'Change' || $atype == 'Mass change'}
+            {assign var='canExpand' value=true}
         {/if}
-        <tr>
-            <!-- converting the db formatted date to timestamp then using the class to call moment-->
-            <td>{$list.action_type} by {$list.log_contact_id} at <span class="isTimestamp">{$list.action_log_date|strtotime}</span></td>
-        </tr>
-        <tr class={$classStyle}>
-            <td class="ListColCenter">
-            {if $list.action_type == "Create" || $list.action_type == "Change" || $list.action_type == "Mass change"}
-                <table class="ListTable"
-                        {if $firstFlag}
-                        {assign var='firstFlag' value=0}
-                        <tr class="ListHeader">
-                            <td class="ListColHeaderCenter" style="white-space:nowrap;">{$field_name}</td>
-                            <td class="ListColHeaderCenter" style="white-space:nowrap;">{$before}</td>
-                            <td class="ListColHeaderCenter" style="white-space:nowrap;">{$after}</td>
-                        </tr>
-                        {/if}
-                        {assign var='cpt' value=0}
+
+        <div class="cld-entry">
+            <div class="cld-dot {$dotClass}"></div>
+            <div class="cld-card">
+                <div class="cld-card-header" {if $canExpand}onclick="cldToggle(this)"{/if}>
+                    <span class="cld-card-toggle {if !$canExpand}no-expand{/if}">+</span>
+                    <span class="cld-card-date isTimestamp">{$list.action_log_date|strtotime}</span>
+                    {* Same labels as the "Modification type" column of the listing *}
+                    <span class="cld-card-badge">
+                        {if $atype == 'Create'}<span class="badge service_ok">{t}Added{/t}</span>
+                        {elseif $atype == 'Change'}<span class="badge service_warning">{t}Changed{/t}</span>
+                        {elseif $atype == 'Mass change'}<span class="badge service_warning">{t}Mass Change{/t}</span>
+                        {elseif $atype == 'Delete'}<span class="badge service_critical">{t}Deleted{/t}</span>
+                        {elseif $atype == 'Enable'}<span class="badge service_ok">{t}Enabled{/t}</span>
+                        {elseif $atype == 'Disable'}<span class="badge service_critical">{t}Disabled{/t}</span>
+                        {else}<span class="badge service_warning">{$atype|escape:'html'}</span>{/if}
+                    </span>
+                    <span class="cld-card-author">{$list.log_contact_id|escape:'html'}</span>
+                </div>
+
+                {if $canExpand}
+                <div class="cld-diff-panel">
+                    {assign var='cpt' value=0}
+                    <table class="cld-diff-table">
+                        <thead>
+                            <tr>
+                                <th>{$field_name}</th>
+                                {if $atype != 'Create'}<th>{$before}</th>{/if}
+                                <th>{if $atype == 'Create'}{t}Value{/t}{else}{$after}{/if}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                         {foreach item=modif from=$modification}
                             {if $modif.action_log_id == $list.action_log_id}
                                 <tr>
-                                    <td class="ListColCenter" width="250">
-                                        {$modif.field_name|escape:'html'}
-                                    </td>
-                                    <td class="ListColCenter" width="200">
-                                        {$modif.field_value_before|escape:'html'}
-                                    </td>
-                                    <td class="ListColCenter" width="200">
-                                        {$modif.field_value_after|escape:'html'}
-                                    </td>
+                                    <td class="cld-fname">{$modif.field_name|escape:'html'}</td>
+                                    {if $atype != 'Create'}<td class="cld-fbefore">{$modif.field_value_before|escape:'html'}</td>{/if}
+                                    <td class="cld-fafter">{$modif.field_value_after|escape:'html'}</td>
                                 </tr>
                                 {assign var='cpt' value=$cpt+1}
                             {/if}
                         {/foreach}
                         {if $cpt == 0}
-                            <tr>
-                                <td colspan="3">{$noModifLabel}</td>
-                            </tr>
+                            <tr><td colspan="3" class="cld-no-changes">{$noModifLabel}</td></tr>
                         {/if}
-                </table>
-            {/if}
-            </td>
-        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                {/if}
+            </div>
+        </div>
     {/foreach}
-</table>
-{$form.hidden}
-</form>
-<br>
+    </div>
+</div>
 
 {literal}
 <script>
-    //formatting the tags containing a class isTimestamp
-    formatDateMoment();
+function cldToggle(header) {
+    var card = header.parentElement;
+    var panel = card.querySelector('.cld-diff-panel');
+    var toggle = header.querySelector('.cld-card-toggle');
+    if (!panel) return;
+    if (panel.classList.contains('open')) {
+        panel.classList.remove('open');
+        toggle.classList.remove('open');
+        toggle.textContent = '+';
+    } else {
+        panel.classList.add('open');
+        toggle.classList.add('open');
+        toggle.textContent = '−';
+    }
+}
+
+// Renders the timestamps in the user's timezone and locale.
+formatDateMoment();
 </script>
 {/literal}
