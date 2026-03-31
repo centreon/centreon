@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -23,159 +24,59 @@ if (! isset($centreon)) {
 }
 
 include_once './class/centreonUtils.class.php';
-
 include './include/common/autoNumLimit.php';
 
-$list = $_GET['list'] ?? null;
-
-$aclCond = '';
-if (! $centreon->user->admin) {
-    $aclCond = " AND servicegroup_sg_id IN ({$sgstring}) ";
-}
-
-$search = HtmlAnalyzer::sanitizeAndRemoveTags(
-    $_POST['searchSGD'] ?? $_GET['searchSGD'] ?? null
-);
-if (isset($_POST['searchSGD']) || isset($_GET['searchSGD'])) {
-    // saving filters values
-    $centreon->historySearch[$url] = [];
-    $centreon->historySearch[$url]['search'] = $search;
-} else {
-    // restoring saved values
-    $search = $centreon->historySearch[$url]['search'] ?? null;
-}
-
-// Dependencies list
-$rq = 'SELECT SQL_CALC_FOUND_ROWS dep_id, dep_name, dep_description FROM dependency dep';
-$rq .= ' WHERE ((SELECT DISTINCT COUNT(*)
-                    FROM dependency_servicegroupParent_relation dsgpr
-                    WHERE dsgpr.dependency_dep_id = dep.dep_id ' . $aclCond . ') > 0
-             OR    (SELECT DISTINCT COUNT(*)
-                    FROM dependency_servicegroupChild_relation dsgpr
-                    WHERE dsgpr.dependency_dep_id = dep.dep_id ' . $aclCond . ') > 0)';
-// Search Case
-$searchBindValues = [];
-if ($search) {
-    $rq .= ' AND (dep_name LIKE :searchName OR dep_description LIKE :searchDesc)';
-    $searchBindValues[':searchName'] = '%' . $search . '%';
-    $searchBindValues[':searchDesc'] = '%' . $search . '%';
-}
-$rq .= ' ORDER BY dep_name, dep_description LIMIT ' . (int) ($num * $limit) . ', ' . (int) $limit;
-$stmt = $pearDB->prepare($rq);
-foreach ($searchBindValues as $param => $value) {
-    $stmt->bindValue($param, $value);
-}
-$stmt->execute();
-$dbResult = $stmt;
-$rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
-
-include './include/common/checkPagination.php';
-
-// Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
-// Access level
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
-//  start header menu
 $tpl->assign('headerMenu_name', _('Name'));
-$tpl->assign('headerMenu_description', _('Description'));
+$tpl->assign('headerMenu_desc', _('Description'));
 $tpl->assign('headerMenu_options', _('Options'));
 
-$search = tidySearchKey($search, $advanced_search);
+$tpl->assign('depSGDPage', $p);
 
-$form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
-
-// Different style between each lines
-$style = 'one';
-
-$attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];
-$form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
-
-// Fill a tab with a multidimensional Array we put in $tpl
-$elemArr = [];
-for ($i = 0; $dep = $dbResult->fetch(); $i++) {
-    $moptions = '';
-    $selectedElements = $form->addElement('checkbox', 'select[' . $dep['dep_id'] . ']');
-    $moptions .= '&nbsp;<input onKeypress="if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) '
-        . 'event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;'
-        . "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" . $dep['dep_id'] . "]' />";
-    $elemArr[$i] = ['MenuClass' => 'list_' . $style, 'RowMenu_select' => $selectedElements->toHtml(), 'RowMenu_name' => CentreonUtils::escapeSecure(htmlentities($dep['dep_name'])), 'RowMenu_link' => 'main.php?p=' . $p . '&o=c&dep_id=' . $dep['dep_id'], 'RowMenu_description' => CentreonUtils::escapeSecure(htmlentities($dep['dep_description'])), 'RowMenu_options' => $moptions];
-    $style = $style != 'two' ? 'two' : 'one';
-}
-$tpl->assign('elemArr', $elemArr);
-
-// Different messages we put in the template
-$tpl->assign(
-    'msg',
-    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion ?')]
-);
-
-// Toolbar select
-?>
-<script type="text/javascript">
-    function setO(_i) {
-        document.forms['form'].elements['o'].value = _i;
-    }
-</script>
-<?php
-$attrs1 = ['onchange' => 'javascript: '
-    . ' var bChecked = isChecked(); '
-    . " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {"
-    . " alert('" . _('Please select one or more items') . "'); return false;} "
-    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('"
-    . _('Do you confirm the duplication ?') . "')) {"
-    . " 	setO(this.form.elements['o1'].value); submit();} "
-    . "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('"
-    . _('Do you confirm the deletion ?') . "')) {"
-    . " 	setO(this.form.elements['o1'].value); submit();} "
-    . "else if (this.form.elements['o1'].selectedIndex == 3) {"
-    . " 	setO(this.form.elements['o1'].value); submit();} "
-    . ''];
-$form->addElement(
-    'select',
-    'o1',
-    null,
-    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')],
-    $attrs1
-);
-$form->setDefaults(['o1' => null]);
-
-$attrs2 = ['onchange' => 'javascript: '
-    . ' var bChecked = isChecked(); '
-    . " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {"
-    . " alert('" . _('Please select one or more items') . "'); return false;} "
-    . "if (this.form.elements['o2'].selectedIndex == 1 && confirm('"
-    . _('Do you confirm the duplication ?') . "')) {"
-    . " 	setO(this.form.elements['o2'].value); submit();} "
-    . "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('"
-    . _('Do you confirm the deletion ?') . "')) {"
-    . " 	setO(this.form.elements['o2'].value); submit();} "
-    . "else if (this.form.elements['o2'].selectedIndex == 3) {"
-    . " 	setO(this.form.elements['o2'].value); submit();} "
-    . ''];
-$form->addElement(
-    'select',
-    'o2',
-    null,
-    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')],
-    $attrs2
-);
-$form->setDefaults(['o2' => null]);
-
-$o1 = $form->getElement('o1');
-$o1->setValue(null);
-$o1->setSelected(null);
-
-$o2 = $form->getElement('o2');
-$o2->setValue(null);
-$o2->setSelected(null);
-
-$tpl->assign('limit', $limit);
+$search = $centreon->historySearch[$url]['search'] ?? '';
 $tpl->assign('searchSGD', $search);
 
-// Apply a template definition
+$dbResult = $pearDB->query("SELECT * FROM `options` WHERE `key` = 'maxViewConfiguration'");
+$gopt = $dbResult->fetch();
+$defaultLimit = (int) ($gopt['value'] ?? 30) ?: 30;
+$tpl->assign('defaultLimit', $defaultLimit);
+
+$form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
+$attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];
+$form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
+$tpl->assign('msg', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add')]);
+
+?>
+<script type="text/javascript">
+    function setO(_i) { document.forms['form'].elements['o'].value = _i; }
+</script>
+<?php
+
+foreach (['o1', 'o2'] as $option) {
+    $attrs = ['onchange' => 'javascript: '
+        . ' var bChecked = isChecked(); '
+        . " if (this.form.elements['" . $option . "'].selectedIndex != 0 && !bChecked) {"
+        . " alert('" . _('Please select one or more items') . "'); return false;} "
+        . "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('"
+        . _('Do you confirm the duplication ?') . "')) {"
+        . "     setO(this.form.elements['" . $option . "'].value); submit();} "
+        . "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('"
+        . _('Do you confirm the deletion ?') . "')) {"
+        . "     setO(this.form.elements['" . $option . "'].value); submit();} "
+        . "this.form.elements['" . $option . "'].selectedIndex = 0"];
+    $form->addElement('select', $option, null,
+        [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')], $attrs);
+    $form->setDefaults([$option => null]);
+    $el = $form->getElement($option);
+    $el->setValue(null);
+    $el->setSelected(null);
+}
+
+$tpl->assign('limit', $limit);
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
