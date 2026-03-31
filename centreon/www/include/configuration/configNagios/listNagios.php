@@ -25,54 +25,6 @@ if (! isset($centreon)) {
 
 include './include/common/autoNumLimit.php';
 
-$search = $_POST['searchN'] ?? $_GET['searchN'] ?? null;
-
-if (! is_null($search)) {
-    $search = HtmlSanitizer::createFromString($search)->sanitize()->getString();
-    // saving filters values
-    $centreon->historySearch[$url] = [];
-    $centreon->historySearch[$url]['search'] = $search;
-} else {
-    // restoring saved values
-    $search = $centreon->historySearch[$url]['search'] ?? null;
-}
-
-$SearchTool = '';
-$searchBind = null;
-if (! is_null($search)) {
-    $SearchTool .= ' WHERE nagios_name LIKE :search ';
-    $searchBind = '%' . $search . '%';
-}
-
-$aclCond = '';
-if (! $centreon->user->admin && count($allowedMainConf)) {
-    $aclCond = isset($search) && $search ? ' AND ' : ' WHERE ';
-    $aclCond .= 'nagios_id IN (' . implode(',', array_keys($allowedMainConf)) . ') ';
-}
-
-// nagios servers comes from DB
-$nagios_servers = [null => ''];
-$dbResult = $pearDB->query('SELECT * FROM nagios_server ORDER BY name');
-while ($nagios_server = $dbResult->fetch()) {
-    $nagios_servers[$nagios_server['id']] = HtmlSanitizer::createFromString($nagios_server['name'])->sanitize()->getString();
-}
-$dbResult->closeCursor();
-
-$dbResult = $pearDB->prepare(
-    'SELECT SQL_CALC_FOUND_ROWS nagios_id, nagios_name, nagios_comment, nagios_activate, nagios_server_id '
-    . 'FROM cfg_nagios ' . $SearchTool . $aclCond . ' ORDER BY nagios_name LIMIT :offset, :limit'
-);
-if (! is_null($searchBind)) {
-    $dbResult->bindValue(':search', $searchBind, PDO::PARAM_STR);
-}
-$dbResult->bindValue(':offset', (int) ($num * $limit), PDO::PARAM_INT);
-$dbResult->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
-$dbResult->execute();
-
-$rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
-
-include './include/common/checkPagination.php';
-
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate(__DIR__);
 
@@ -80,52 +32,30 @@ $tpl = SmartyBC::createSmartyTemplate(__DIR__);
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
-// start header menu
 $tpl->assign('headerMenu_name', _('Name'));
-$tpl->assign('headerMenu_instance', _('Satellites'));
 $tpl->assign('headerMenu_desc', _('Description'));
-$tpl->assign('headerMenu_status', _('Status'));
+$tpl->assign('headerMenu_instance', _('Satellites/Instances'));
 $tpl->assign('headerMenu_options', _('Options'));
 
-// Nagios list
+$tpl->assign('nagiosPage', $p);
+
+// Restore search from history
+$search = $centreon->historySearch[$url]['search'] ?? '';
+$tpl->assign('searchN', $search);
+
+// Default limit
+$dbResult = $pearDB->query("SELECT * FROM `options` WHERE `key` = 'maxViewConfiguration'");
+$gopt = $dbResult->fetch();
+$defaultLimit = (int) ($gopt['value'] ?? 30) ?: 30;
+$tpl->assign('defaultLimit', $defaultLimit);
+
+// Form for bulk actions
 $form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
 
-// Different style between each lines
-$style = 'one';
+$attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];
+$form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
 
-// Fill a tab with a multidimensional Array we put in $tpl
-$elemArr = [];
-$centreonToken = createCSRFToken();
-
-for ($i = 0; $nagios = $dbResult->fetch(); $i++) {
-    $moptions = '';
-    $selectedElements = $form->addElement('checkbox', 'select[' . $nagios['nagios_id'] . ']');
-    if ($nagios['nagios_activate']) {
-        $moptions .= "<a href='main.php?p=" . $p . '&nagios_id=' . $nagios['nagios_id'] . '&o=u&limit=' . $limit
-            . '&num=' . $num . '&search=' . $search . '&centreon_token=' . $centreonToken
-            . "'><img src='img/icons/disabled.png' class='ico-14' border='0' "
-            . "alt='" . _('Disabled') . "'></a>&nbsp;&nbsp;";
-    } else {
-        $moptions .= "<a href='main.php?p=" . $p . '&nagios_id=' . $nagios['nagios_id'] . '&o=s&limit=' . $limit
-            . '&num=' . $num . '&search=' . $search . '&centreon_token=' . $centreonToken
-            . "'><img src='img/icons/enabled.png' "
-            . "class='ico-14' border='0' alt='" . _('Enabled') . "'></a>&nbsp;&nbsp;";
-    }
-    $moptions .= '&nbsp;<input onKeypress="if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) '
-        . 'event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) '
-        . "return false;\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr["
-        . $nagios['nagios_id'] . "]' />";
-    $elemArr[$i] = ['MenuClass' => 'list_' . $style, 'RowMenu_select' => $selectedElements->toHtml(), 'RowMenu_name' => $nagios['nagios_name'], 'RowMenu_instance' => $nagios_servers[$nagios['nagios_server_id']], 'RowMenu_link' => 'main.php?p=' . $p . '&o=c&nagios_id=' . $nagios['nagios_id'], 'RowMenu_desc' => substr($nagios['nagios_comment'], 0, 40), 'RowMenu_status' => $nagios['nagios_activate'] ? _('Enabled') : _('Disabled'), 'RowMenu_badge' => $nagios['nagios_activate'] ? 'service_ok' : 'service_critical', 'RowMenu_options' => $moptions];
-    $style = $style != 'two' ? 'two' : 'one';
-}
-
-$tpl->assign('elemArr', $elemArr);
-
-// Different messages we put in the template
-$tpl->assign(
-    'msg',
-    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion ?')]
-);
+$tpl->assign('msg', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add')]);
 
 ?>
 <script type="text/javascript">
@@ -137,15 +67,16 @@ $tpl->assign(
 
 foreach (['o1', 'o2'] as $option) {
     $attrs = ['onchange' => 'javascript: '
+        . ' var bChecked = isChecked(); '
+        . " if (this.form.elements['" . $option . "'].selectedIndex != 0 && !bChecked) {"
+        . " alert('" . _('Please select one or more items') . "'); return false;} "
         . "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('"
         . _('Do you confirm the duplication ?') . "')) {"
         . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
         . "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('"
         . _('Do you confirm the deletion ?') . "')) {"
         . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "else if (this.form.elements['" . $option . "'].selectedIndex == 3) {"
-        . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
-        . ''];
+        . "this.form.elements['" . $option . "'].selectedIndex = 0"];
     $form->addElement(
         'select',
         $option,
@@ -154,12 +85,12 @@ foreach (['o1', 'o2'] as $option) {
         $attrs
     );
     $form->setDefaults([$option => null]);
-    $o1 = $form->getElement($option);
-    $o1->setValue(null);
+    $el = $form->getElement($option);
+    $el->setValue(null);
+    $el->setSelected(null);
 }
 
 $tpl->assign('limit', $limit);
-$tpl->assign('searchN', $search);
 
 // Apply a template definition
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
