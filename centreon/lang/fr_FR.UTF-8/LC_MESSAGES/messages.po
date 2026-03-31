@@ -6424,6 +6424,10 @@ msgstr "Erreur durant la suppression d'un groupe d'hôtes"
 msgid "Error while deleting a host template"
 msgstr "Erreur lors de la suppression du modèle d'hôtes"
 
+#: centreon/src/Core/Media/Application/Exception/MediaException.php
+msgid "Error while deleting a media"
+msgstr ""
+
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "Error while deleting a notification configuration"
 msgstr "Erreur lors de la suppression de la configuration de notification"
@@ -6590,6 +6594,10 @@ msgstr "Erreur durant la récupération d'un groupe d'hôtes"
 #: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
 msgid "Error while retrieving a host template"
 msgstr "Error lors de la récupération d'un modèle d'hôtes"
+
+#: centreon/src/Core/Media/Application/Exception/MediaException.php
+msgid "Error while retrieving a media"
+msgstr ""
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "Error while retrieving a notification configuration"
