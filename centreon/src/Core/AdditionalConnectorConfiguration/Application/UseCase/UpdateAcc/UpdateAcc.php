@@ -269,7 +269,6 @@ final class UpdateAcc
             );
 
             $allAffectedPollers = array_values(array_unique(array_merge($previousPollerIds, $pollers)));
-            $this->writeMonitoringServerRepository->notifyConfigurationChanges($allAffectedPollers);
             $this->writeMonitoringServerRepository->notifyVmwareConfigurationChanges($allAffectedPollers);
 
             $this->dataStorageEngine->commitTransaction();
