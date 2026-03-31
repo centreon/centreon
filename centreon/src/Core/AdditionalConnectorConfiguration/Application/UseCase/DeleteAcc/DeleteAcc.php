@@ -127,7 +127,6 @@ final class DeleteAcc
                 $this->readAccRepository->findPollersByAccId($id)
             );
             $this->writeAccRepository->delete($id);
-            $this->writeMonitoringServerRepository->notifyConfigurationChanges($pollerIds);
             $this->writeMonitoringServerRepository->notifyVmwareConfigurationChanges($pollerIds);
 
             $presenter->setResponseStatus(new NoContentResponse());
