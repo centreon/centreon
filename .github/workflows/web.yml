@@ -534,7 +534,10 @@ jobs:
   backend-integration-test:
     runs-on: ubuntu-24.04
     needs: [get-environment, changes]
-    if: contains(github.event.pull_request.labels.*.name, 'trigger-backend-integration-tests')
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      contains(needs.get-environment.outputs.labels, 'trigger-backend-integration-tests')
     services:
       db:
         image: mysql:8.4
@@ -789,6 +792,7 @@ jobs:
         backend-dependencies,
         backend-lint,
         backend-unit-test,
+        backend-integration-test,
         frontend-web-build,
         frontend-web-lint,
         frontend-unit-test,
