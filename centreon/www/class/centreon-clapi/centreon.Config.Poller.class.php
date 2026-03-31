@@ -570,6 +570,29 @@ class CentreonConfigPoller
                 }
             }
 
+            // VMWare configuration
+            $listVmWareFile = glob($this->vmWareCachePath . '/' . $pollerId . '/*.json', GLOB_BRACE);
+            if (is_array($listVmWareFile) && count($listVmWareFile) === 1) {
+                if (! @copy($listVmWareFile[0], _CENTREON_ETC_ . '/centreon_vmware.json')) {
+                    $msg_copy .= _('Could not copy VMWare configuration file') . " - KO\n";
+                    $return = 1;
+                }
+            }
+
+            // Restart centreon_vmware on central only if VMWare config has changed
+            $vmwareStatement = $pearDB->prepare(
+                'SELECT vmware_updated FROM nagios_server WHERE id = :pollerId'
+            );
+            $vmwareStatement->bindValue(':pollerId', (int) $pollerId, PDO::PARAM_INT);
+            $vmwareStatement->execute();
+            $vmwareRow = $vmwareStatement->fetch(PDO::FETCH_ASSOC);
+            if ($vmwareRow && $vmwareRow['vmware_updated'] === '1') {
+                shell_exec('sudo systemctl restart centreon_vmware');
+                $pearDB->query(
+                    "UPDATE nagios_server SET vmware_updated = '0' WHERE id = " . (int) $pollerId
+                );
+            }
+
             if (strlen($msg_copy) == 0) {
                 $msg_copy .= _('OK: All configuration files copied with success.');
             }
@@ -628,6 +651,20 @@ class CentreonConfigPoller
                 );
             }
             $return = $this->writeToCentcorePipe('SENDCFGFILE', $host['id']);
+
+            // Send VMWARERESTART to remote poller only if VMWare config has changed
+            $vmwareStatement = $pearDB->prepare(
+                'SELECT vmware_updated FROM nagios_server WHERE id = :pollerId'
+            );
+            $vmwareStatement->bindValue(':pollerId', (int) $host['id'], PDO::PARAM_INT);
+            $vmwareStatement->execute();
+            $vmwareRow = $vmwareStatement->fetch(PDO::FETCH_ASSOC);
+            if ($vmwareRow && $vmwareRow['vmware_updated'] === '1') {
+                $this->writeToCentcorePipe('VMWARERESTART', $host['id']);
+                $pearDB->query(
+                    "UPDATE nagios_server SET vmware_updated = '0' WHERE id = " . (int) $host['id']
+                );
+            }
 
             $msg_copy .= _(
                 "OK: All configuration will be send to '"

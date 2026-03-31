@@ -40,6 +40,47 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDB
  * @var ConnectionInterface $pearDBO
  */
+
+/** ------------------------------------- Notify vmware modification  ------------------------------------- */
+$addVmwareUpdatedField = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add vmware_updated field into nagios_server table';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Adding vmware_updated field into nagios_server table",
+    );
+    $hasField = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT 1 FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+            AND TABLE_NAME = 'nagios_server'
+            AND COLUMN_NAME = 'vmware_updated'
+            SQL
+    );
+
+    if ($hasField) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Field vmware_updated already exists in nagios_server table, skipping modification",
+        );
+
+        return;
+    }
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server`
+            ADD COLUMN `vmware_updated` enum('1','0') NOT NULL DEFAULT '0' AFTER `updated`
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully added vmware_updated field into nagios_server table",
+    );
+};
+
+
+/** ------------------------------------- Deploy Default Agent Configuration ------------------------------------- */
 $deployDefaultAgentConfiguration = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to deploy default agent configuration to central poller';
     CentreonLog::create()->info(
@@ -872,7 +913,7 @@ try {
     );
 
     // DDL statements for configuration database
-    // TODO add your function calls to update the configuration database structure here
+    $addVmwareUpdatedField();
 
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {

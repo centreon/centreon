@@ -44,6 +44,7 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
+use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 final class UpdateAcc
@@ -68,6 +69,7 @@ final class UpdateAcc
      * @param FeatureFlags $flags
      * @param \Traversable<WriteVaultAccRepositoryInterface> $writeVaultAccRepositories
      * @param \Traversable<ReadVaultAccRepositoryInterface> $readVaultAccRepositories
+     * @param WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository
      */
     public function __construct(
         private readonly ReadAccRepositoryInterface $readAccRepository,
@@ -81,6 +83,7 @@ final class UpdateAcc
         private readonly FeatureFlags $flags,
         \Traversable $writeVaultAccRepositories,
         \Traversable $readVaultAccRepositories,
+        private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
     ) {
         $this->writeVaultAccRepositories = iterator_to_array($writeVaultAccRepositories);
         $this->readVaultAccRepositories = iterator_to_array($readVaultAccRepositories);
@@ -252,12 +255,22 @@ final class UpdateAcc
         try {
             $this->dataStorageEngine->startTransaction();
 
+            // Get previous pollers before re-linking (they may need VMWare restart too if removed)
+            $previousPollerIds = array_map(
+                static fn (Poller $poller): int => $poller->id,
+                $this->readAccRepository->findPollersByAccId($acc->getId())
+            );
+
             $this->writeAccRepository->update($acc);
             $this->writeAccRepository->removePollers($acc->getId());
             $this->writeAccRepository->linkToPollers(
                 $acc->getId(),
                 $pollers
             );
+
+            $allAffectedPollers = array_values(array_unique(array_merge($previousPollerIds, $pollers)));
+            $this->writeMonitoringServerRepository->notifyConfigurationChanges($allAffectedPollers);
+            $this->writeMonitoringServerRepository->notifyVmwareConfigurationChanges($allAffectedPollers);
 
             $this->dataStorageEngine->commitTransaction();
         } catch (\Throwable $ex) {
