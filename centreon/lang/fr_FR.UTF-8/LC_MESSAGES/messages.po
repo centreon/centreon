@@ -24915,7 +24915,3 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
-
-#: www/include/views/virtualMetrics/formVirtualMetrics.php
-msgid "Invalid VDEF RPN syntax. Expression must end with a valid aggregation function (MAXIMUM, MINIMUM, AVERAGE, STDEV, LAST, FIRST, TOTAL, PERCENT, PERCENTNAN, LSLSLOPE, LSLINT, LSLCORREL)."
-msgstr "Syntaxe RPN VDEF invalide. L'expression doit se terminer par une fonction d'agrégation valide (MAXIMUM, MINIMUM, AVERAGE, STDEV, LAST, FIRST, TOTAL, PERCENT, PERCENTNAN, LSLSLOPE, LSLINT, LSLCORREL)."

@@ -110,7 +110,7 @@ function testRpnSyntaxWithRrdtool(array $fields): array|true
         $lastLine = end($output) ?: 'unknown error';
         $rrdtoolError = preg_replace('/^ERROR:\s*/', '', $lastLine);
 
-        return ['rpn_function' => _('Invalid RPN syntax') . ' (RRDtool: ' . $rrdtoolError . ')'];
+        return ['rpn_function' => 'Invalid RPN syntax (RRDtool: ' . $rrdtoolError . ')'];
     }
 
     return true;
