@@ -10,6 +10,7 @@ on:
     paths:
       - ".version"
       - ".github/docker/keycloak/**"
+      - ".github/workflows/docker-keycloak.yml"
   push:
     branches:
       - develop
