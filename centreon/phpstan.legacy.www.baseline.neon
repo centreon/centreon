@@ -229,18 +229,6 @@ parameters:
 			path: www/include/configuration/configGenerateTraps/formGenerateTraps.php
 
 		-
-			message: '#^Function duplicateArgDesc\(\) should return unknown_type but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: www/include/configuration/configObject/command/DB-Func.php
-
-		-
-			message: '#^Undefined variable\: \$form$#'
-			identifier: variable.undefined
-			count: 2
-			path: www/include/configuration/configObject/command/DB-Func.php
-
-		-
 			message: '#^Undefined variable\: \$oreon$#'
 			identifier: variable.undefined
 			count: 1

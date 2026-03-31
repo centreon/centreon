@@ -256,11 +256,7 @@ class CentreonAuthLDAP
                     $stmt->bindValue(':userDisplay', $userDisplay, PDO::PARAM_STR);
                     $stmt->bindValue(':userEmail', $userEmail, PDO::PARAM_STR);
                     $stmt->bindValue(':userPager', $userPager, PDO::PARAM_STR);
-                    $stmt->bindValue(
-                        ':reachApiRt',
-                        $this->contactInfos['contact_oreon'] === '1' ? 1 : 0,
-                        PDO::PARAM_INT
-                    );
+                    $stmt->bindValue(':reachApiRt', $this->contactInfos['reach_api_rt'], PDO::PARAM_INT);
                     $stmt->bindValue(':arId', $this->arId, PDO::PARAM_INT);
                     $stmt->bindValue(':contactId', $this->contactInfos['contact_id'], PDO::PARAM_INT);
                     $stmt->execute();

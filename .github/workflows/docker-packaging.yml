@@ -38,8 +38,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - dockerfile: packaging-alma8
-            image: packaging-alma8
           - dockerfile: packaging-alma9
             image: packaging-alma9
           - dockerfile: packaging-debian

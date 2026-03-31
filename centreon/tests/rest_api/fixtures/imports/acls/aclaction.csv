@@ -1,0 +1,3 @@
+ACLACTION;ADD;customer_admin_action;customer_admin_action
+ACLACTION;ADD;customer_user_action;customer_user_action
+ACLACTION;ADD;customer_editor_action;customer_editor_action

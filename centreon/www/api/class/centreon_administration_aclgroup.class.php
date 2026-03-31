@@ -172,6 +172,92 @@ class CentreonAdministrationAclgroup extends CentreonConfigurationObjects
         ];
     }
 
+    public function getSelectedValues(): array
+    {
+        global $centreon;
+
+        /**
+         * Determine if the connected user is an admin (or not). User is admin if
+         *  - he is configured as being an admin (onPrem) - is_admin = true
+         *  - he belongs to the customer_admin_acl acl_group (cloud).
+         */
+        $serviceGroupId = isset($this->arguments['serviceGroupId'])
+            ? filter_var($this->arguments['serviceGroupId'], FILTER_VALIDATE_INT)
+            : null;
+
+        if (! is_int($serviceGroupId)) {
+            return [];
+        }
+        $isUserAdmin = $this->isUserAdmin();
+        $filterAclGroup = null;
+
+        $aclBindings = [];
+        if (! $isUserAdmin) {
+            $acl = new CentreonACL($centreon->user->user_id, false);
+            $accessGroups = $acl->getAccessGroups();
+            if ($accessGroups === []) {
+                // Not admin user with no access group defined
+                return [];
+            }
+
+            foreach (array_keys($accessGroups) as $index => $groupId) {
+                $key = ':aclGroup' . $index;
+                $aclBindings[$key] = (int) $groupId;
+            }
+            $filterAclGroup = ' AND ag.acl_group_id IN (' . implode(',', array_keys($aclBindings)) . ') ';
+        }
+
+        $useResourceAccessManagement = filter_var(
+            $this->arguments['use_ram'] ?? false,
+            FILTER_VALIDATE_BOOL
+        );
+
+        $query = <<<'SQL'
+            SELECT ag.acl_group_id, ag.acl_group_name
+            FROM acl_groups ag
+            INNER JOIN acl_res_group_relations rgl
+                ON ag.acl_group_id = rgl.acl_group_id
+            INNER JOIN acl_resources ar
+                ON ar.acl_res_id = rgl.acl_res_id
+            INNER JOIN acl_resources_sg_relations rsr
+                ON ar.acl_res_id = rsr.acl_res_id
+            SQL;
+
+        $whereCondition = '';
+
+        // In cloud environment we only want to return ACL defines through Resource Access Management page
+        if ($useResourceAccessManagement === true) {
+            $whereCondition = ' WHERE ag.cloud_specific = 1';
+        }
+
+        $whereCondition .= empty($whereCondition) ? ' WHERE ' : ' AND ';
+        $whereCondition .= ' rsr.sg_id = :serviceGroupId';
+
+        if (! $isUserAdmin) {
+            $whereCondition .= $filterAclGroup;
+        }
+
+        $query .= $whereCondition;
+        $query .= ' GROUP BY ag.acl_group_id ORDER BY ag.acl_group_name';
+
+        $statement = $this->pearDB->prepare($query);
+        $statement->bindValue(':serviceGroupId', $serviceGroupId, PDO::PARAM_INT);
+        foreach ($aclBindings as $placeholder => $value) {
+            $statement->bindValue($placeholder, $value, PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        $aclGroupList = [];
+        while ($data = $statement->fetch()) {
+            $aclGroupList[] = [
+                'id' => $data['acl_group_id'],
+                'text' => $data['acl_group_name'],
+            ];
+        }
+
+        return $aclGroupList;
+    }
+
     /**
      * @return bool
      */

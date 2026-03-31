@@ -28,8 +28,8 @@
     "url": "git+https://github.com/centreon/centreon.git"
   },
   "keywords": [
-    "centreon",
-    "react"
+    "react",
+    "centreon"
   ],
   "author": {
     "name": "centreon@centreon.com"
@@ -54,6 +54,7 @@
     "test/*"
   ],
   "devDependencies": {
+    "@biomejs/biome": "2.3.11",
     "@cypress/react": "^9.0.0",
     "@cypress/webpack-dev-server": "^4.0.1",
     "@faker-js/faker": "^9.5.1",

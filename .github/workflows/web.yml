@@ -50,25 +50,20 @@ jobs:
   dependency-scan:
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
-  dispatch-to-maintained-branches:
-    if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' && github.repository == 'centreon/centreon' }}
+  dispatch-to-maintenance-branches:
+    if: |
+      github.run_attempt == 1 &&
+      github.event_name == 'schedule' &&
+      github.ref_name == 'develop' &&
+      github.repository == 'centreon/centreon'
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Run nightly on a different maintenance branch depending on the day
-        run: |
-          NIGHTLY_TARGETS=("dev-24.04.x" "dev-24.10.x" "dev-25.10.x")
-          TARGET_BRANCH=${NIGHTLY_TARGETS[$(( $(date +%u) - 1 ))]}
-          if [[ -z "$TARGET_BRANCH" ]]; then
-            echo "[INFO] - The target branch was not properly defined for that day (out-of-bounds array)."
-            exit 0
-          else
-            gh workflow run web.yml -r "$TARGET_BRANCH" -f nightly_manual_trigger=true
-            echo "[INFO] - Dispatching nightly run to $TARGET_BRANCH branch."
-          fi
-        shell: bash
+      - name: Select maintenance branch and run nightly workflow on it
+        uses: ./.github/actions/dispatch-to-maintenance-branch
+
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -738,17 +733,11 @@ jobs:
       matrix:
         include:
           - package_extension: rpm
-            image: packaging-alma8
-            distrib: el8
-          - package_extension: rpm
             image: packaging-alma9
             distrib: el9
           - package_extension: deb
             image: packaging-debian
             distrib: bookworm
-          # - package_extension: deb
-          #   image: packaging-nfpm-jammy
-          #   distrib: jammy
 
     name: package ${{ matrix.distrib }}
     runs-on: ubuntu-24.04
@@ -874,7 +863,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
     name: dockerize ${{ matrix.operating_system }}
     steps:
       - name: Checkout sources
@@ -883,10 +872,7 @@ jobs:
       - name: Generate information according to matrix os
         id: matrix_include
         run: |
-          if [ "${{ matrix.operating_system }}" = "alma8" ]; then
-            DISTRIB=el8
-            PACKAGE_EXTENSION=rpm
-          elif [ "${{ matrix.operating_system }}" = "alma9" ]; then
+          if [ "${{ matrix.operating_system }}" = "alma9" ]; then
             DISTRIB=el9
             PACKAGE_EXTENSION=rpm
           elif [ "${{ matrix.operating_system }}" = "bookworm" ]; then
@@ -902,6 +888,21 @@ jobs:
 
           echo "distrib=$DISTRIB" >> $GITHUB_OUTPUT
           echo "package_extension=$PACKAGE_EXTENSION" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Compute image tag
+        id: image_tag
+        env:
+          REF: ${{ github.head_ref || github.ref_name }}
+          MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
+        run: |
+          if [[ "$REF" == "develop" ]]; then
+            echo "tag=develop-${MAJOR_VERSION}" >> $GITHUB_OUTPUT
+            echo "additional_tag=develop" >> $GITHUB_OUTPUT
+          else
+            echo "tag=$REF" >> $GITHUB_OUTPUT
+            echo "additional_tag=" >> $GITHUB_OUTPUT
+          fi
         shell: bash
 
       - name: Login to registry
@@ -1011,6 +1012,31 @@ jobs:
           path: ./docker-image
           key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.meta.outputs.version }}
 
+      - name: Store keycloak image in local archive
+        if: ${{ needs.get-environment.outputs.stability == 'unstable' && matrix.operating_system == 'alma9' }}
+        run: |
+          docker pull docker.centreon.com/centreon/keycloak:${{ needs.get-environment.outputs.major_version }}
+          mkdir -p docker-image-keycloak
+          docker save --output ./docker-image-keycloak/keycloak.tar docker.centreon.com/centreon/keycloak:${{ needs.get-environment.outputs.major_version }}
+        shell: bash
+
+      - name: Clear previous keycloak image from cache
+        if: ${{ needs.get-environment.outputs.stability == 'unstable' && matrix.operating_system == 'alma9' }}
+        run: |
+          curl \
+            -X DELETE \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-keycloak-${{ needs.get-environment.outputs.major_version }}
+        shell: bash
+
+      - name: Store keycloak image in cache
+        if: ${{ needs.get-environment.outputs.stability == 'unstable' && matrix.operating_system == 'alma9' }}
+        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        with:
+          path: ./docker-image-keycloak
+          key: docker-image-keycloak-${{ needs.get-environment.outputs.major_version }}
+
   create-xray-test-plan-and-test-execution:
     needs: [get-environment, changes, dockerize]
     if: |
@@ -1019,7 +1045,7 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' ) &&
+      (needs.get-environment.outputs.stability == 'testing' || needs.get-environment.outputs.is_nightly == 'true') &&
       github.repository == 'centreon/centreon'
     strategy:
       fail-fast: false
@@ -1031,6 +1057,7 @@ jobs:
       major_version: ${{ needs.get-environment.outputs.major_version }}
       minor_version: ${{ needs.get-environment.outputs.minor_version }}
       os: ${{ matrix.operating_system }}
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
     secrets:
       xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
       xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
@@ -1063,6 +1090,7 @@ jobs:
       collection_path: centreon/tests/rest_api/collections
       image_name: centreon-web
       os: ${{ matrix.operating_system }}
+      db_id: ${{ matrix.db_id }}
       container_name: my_centreon_container
       centreon_url: http://localhost
       centreon_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
@@ -1106,6 +1134,7 @@ jobs:
       os: ${{ matrix.operating_system }}
       features_path: features
       test_tags: ${{ matrix.test_tags }}
+      major_version: ${{ needs.get-environment.outputs.major_version }}
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
       labels: ${{ needs.get-environment.outputs.labels }}
     secrets:
@@ -1152,7 +1181,7 @@ jobs:
       minor_version: ${{ needs.get-environment.outputs.minor_version }}
       stability: ${{ needs.get-environment.outputs.stability }}
       target_stability: ${{ needs.get-environment.outputs.target_stability }}
-      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma8' && 'rpm-el8' || matrix.operating_system == 'alma9' && 'rpm-el9' || 'deb-bookworm' ) }}
+      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma9' && 'rpm-el9' || 'deb-bookworm' ) }}
       package_directory: fixtures/packages
       test_tags: ${{ needs.changes.outputs.trigger_upgrade_testing == 'true' && matrix.test_tags || format('{0} and not @update and not @upgrade', matrix.test_tags) }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
@@ -1364,7 +1393,7 @@ jobs:
       github.repository == 'centreon/centreon'
     strategy:
       matrix:
-        distrib: [el8, el9]
+        distrib: [el9]
     name: deliver-rpm ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
@@ -1435,7 +1464,7 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [el8, el9, bookworm]
+        distrib: [el9, bookworm]
     name: promote ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
