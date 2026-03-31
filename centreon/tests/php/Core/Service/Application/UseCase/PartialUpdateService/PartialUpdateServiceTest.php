@@ -560,9 +560,9 @@ it('should delete a command macro from an inherited template command when its va
         'somevalue'
     );
 
-     $this->request->macros = [
+    $this->request->macros = [
         new MacroDto(name: $this->commandMacro->getName(), value: '', isPassword: false, description: null),
-     ];
+    ];
 
     $this->user
         ->expects($this->once())
