@@ -970,7 +970,7 @@ it('should load command macros from an inherited check command when the host def
     // Macros: host has no checkCommandId; InheritanceManager resolves it from a parent template
     $inheritedCommandId = 42;
     $this->readHostRepository
-        ->expects($this->once())
+        ->expects($this->exactly(2))
         ->method('findParents')
         ->willReturn($this->inheritanceLineIds);
     $this->readHostMacroRepository
@@ -1064,7 +1064,7 @@ it('should delete a command macro from an inherited check command when its value
 
     // Macros: host has no checkCommandId; commandMacroName was previously saved with a value
     $this->readHostRepository
-        ->expects($this->once())
+        ->expects($this->exactly(2))
         ->method('findParents')
         ->willReturn($this->inheritanceLineIds);
     $this->readHostMacroRepository
@@ -1133,7 +1133,7 @@ it('should not save a command macro inherited from a parent template when its va
     $this->writeHostRepository->expects($this->exactly(2))->method('addParent');
 
     // No existing macro saved; submitting empty value must not create a new macro
-    $this->readHostRepository->expects($this->once())->method('findParents')->willReturn($this->inheritanceLineIds);
+    $this->readHostRepository->expects($this->exactly(2))->method('findParents')->willReturn($this->inheritanceLineIds);
     $this->readHostMacroRepository->expects($this->once())->method('findByHostIds')->willReturn([]);
     $this->inheritanceManager->expects($this->once())->method('findInheritedCheckCommandId')->willReturn($inheritedCommandId);
     $this->readCommandMacroRepository->expects($this->once())->method('findByCommandIdAndType')
@@ -1188,7 +1188,7 @@ it('should add a command macro inherited from a parent template when its value i
     $this->writeHostRepository->expects($this->exactly(2))->method('addParent');
 
     // No existing macro saved; filling in a value must add the macro to the host
-    $this->readHostRepository->expects($this->once())->method('findParents')->willReturn($this->inheritanceLineIds);
+    $this->readHostRepository->expects($this->exactly(2))->method('findParents')->willReturn($this->inheritanceLineIds);
     $this->readHostMacroRepository->expects($this->once())->method('findByHostIds')->willReturn([]);
     $this->inheritanceManager->expects($this->once())->method('findInheritedCheckCommandId')->willReturn($inheritedCommandId);
     $this->readCommandMacroRepository->expects($this->once())->method('findByCommandIdAndType')
