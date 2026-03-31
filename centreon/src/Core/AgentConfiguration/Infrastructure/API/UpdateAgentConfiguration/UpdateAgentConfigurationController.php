@@ -25,9 +25,11 @@ namespace Core\AgentConfiguration\Infrastructure\API\UpdateAgentConfiguration;
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
+use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\UpdateAgentConfiguration;
 use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\UpdateAgentConfigurationRequest;
 use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
+use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
@@ -37,6 +39,11 @@ use Symfony\Component\HttpFoundation\Response;
 final class UpdateAgentConfigurationController extends AbstractController
 {
     use LoggerTrait;
+
+    public function __construct(
+        private readonly ReadAgentConfigurationRepositoryInterface $readAcRepository,
+    ) {
+    }
 
     public function __invoke(
         int $id,
@@ -79,6 +86,15 @@ final class UpdateAgentConfigurationController extends AbstractController
          * } $data
          */
         $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/UpdateAgentConfigurationSchema.json');
+
+        $agentConfiguration = $this->readAcRepository->find($id);
+        if ($agentConfiguration !== null) {
+            $schemaFile = match ($agentConfiguration->getType()) {
+                Type::TELEGRAF => 'TelegrafConfigurationSchema.json',
+                Type::CMA => 'CmaConfigurationSchema.json',
+            };
+            $this->validateDataSent($request, __DIR__ . "/../Schema/{$schemaFile}");
+        }
 
         $updateRequest = new UpdateAgentConfigurationRequest();
         $updateRequest->id = $id;

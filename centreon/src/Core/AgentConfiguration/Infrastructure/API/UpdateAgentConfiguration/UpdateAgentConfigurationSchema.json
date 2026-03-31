@@ -9,6 +9,13 @@
     ],
     "additionalProperties": false,
     "properties": {
+        "type": {
+            "type": "string",
+            "enum": [
+                "telegraf",
+                "centreon-agent"
+            ]
+        },
         "name": {
             "type": "string"
         },
