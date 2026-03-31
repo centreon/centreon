@@ -157,11 +157,7 @@ class PollerInteractionService
                         shell_exec('sudo systemctl restart centreon_vmware');
                     } else {
                         $centCoreDir = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ . '/centcore' : '/var/lib/centreon/centcore';
-                        if (is_dir($centCoreDir)) {
-                            $vmwarePipe = $centCoreDir . '/' . microtime(true) . '-externalcommand.cmd';
-                        } else {
-                            $vmwarePipe = $centCorePipe;
-                        }
+                        $vmwarePipe = is_dir($centCoreDir) ? $centCoreDir . '/' . microtime(true) . '-externalcommand.cmd' : $centCorePipe;
                         passthru("echo 'VMWARERESTART:{$host['id']}' >> {$vmwarePipe}", $vmwareReturn);
                     }
                     $this->db->query(

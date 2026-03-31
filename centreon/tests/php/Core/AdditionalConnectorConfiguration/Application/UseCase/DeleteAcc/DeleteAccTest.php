@@ -39,6 +39,7 @@ use Core\Common\Infrastructure\FeatureFlags;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
+use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
@@ -50,6 +51,7 @@ beforeEach(function (): void {
         $this->user = $this->createMock(ContactInterface::class),
         $this->flags = new FeatureFlags(false, ''),
         $this->writeVaultAccRepositories = new \ArrayIterator([]),
+        $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class),
     );
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new DefaultPresenter($this->presenterFormatter);

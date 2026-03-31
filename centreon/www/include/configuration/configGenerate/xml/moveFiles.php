@@ -344,13 +344,13 @@ try {
                 }
                 // Restart centreon_vmware on central only if VMWare config has changed
                 $vmwareUpdatedResult = $pearDB->query(
-                    "SELECT vmware_updated FROM nagios_server WHERE id = " . (int) $host['id']
+                    'SELECT vmware_updated FROM nagios_server WHERE id = ' . (int) $host['id']
                 );
                 $vmwareRow = $vmwareUpdatedResult->fetch();
                 if ($vmwareRow && $vmwareRow['vmware_updated'] === '1') {
                     shell_exec('sudo systemctl restart centreon_vmware');
                     $pearDB->query(
-                        "UPDATE nagios_server SET vmware_updated = '0' WHERE id = " . (int) $host['id']
+                        'UPDATE nagios_server SET vmware_updated = \'0\' WHERE id = ' . (int) $host['id']
                     );
                 }
             } else {
@@ -363,22 +363,18 @@ try {
                 }
                 // Send VMWARERESTART to remote poller only if VMWare config has changed
                 $vmwareUpdatedResult = $pearDB->query(
-                    "SELECT vmware_updated FROM nagios_server WHERE id = " . (int) $host['id']
+                    'SELECT vmware_updated FROM nagios_server WHERE id = ' . (int) $host['id']
                 );
                 $vmwareRow = $vmwareUpdatedResult->fetch();
                 if ($vmwareRow && $vmwareRow['vmware_updated'] === '1') {
                     $centcoreDir = _CENTREON_VARLIB_ . '/centcore';
-                    if (is_dir($centcoreDir)) {
-                        $vmwarePipe = $centcoreDir . '/' . microtime(true) . '-externalcommand.cmd';
-                    } else {
-                        $vmwarePipe = $centcore_pipe;
-                    }
+                    $vmwarePipe = is_dir($centcoreDir) ? $centcoreDir . '/' . microtime(true) . '-externalcommand.cmd' : $centcore_pipe;
                     passthru(
                         escapeshellcmd("echo 'VMWARERESTART:{$host['id']}'") . ' >> ' . escapeshellcmd($vmwarePipe),
                         $vmwareReturn
                     );
                     $pearDB->query(
-                        "UPDATE nagios_server SET vmware_updated = '0' WHERE id = " . (int) $host['id']
+                        'UPDATE nagios_server SET vmware_updated = \'0\' WHERE id = ' . (int) $host['id']
                     );
                 }
                 if (! isset($msg_restart[$host['id']])) {

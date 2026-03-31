@@ -41,7 +41,7 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDBO
  */
 
-/** ------------------------------------- Notify vmware modification  ------------------------------------- */
+/** ------------------------------------- Additional configuration ------------------------------------- */
 $addVmwareUpdatedField = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to add vmware_updated field into nagios_server table';
     CentreonLog::create()->info(
@@ -78,7 +78,6 @@ $addVmwareUpdatedField = function () use ($pearDB, &$errorMessage, $version): vo
         message: "UPGRADE - {$version}: Successfully added vmware_updated field into nagios_server table",
     );
 };
-
 
 /** ------------------------------------- Deploy Default Agent Configuration ------------------------------------- */
 $deployDefaultAgentConfiguration = function () use ($pearDB, &$errorMessage, $version): void {
