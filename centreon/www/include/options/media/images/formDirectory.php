@@ -204,6 +204,7 @@ $redirect->setValue($o);
 $form->applyFilter('__ALL__', 'myTrim');
 if ($o == IMAGE_MODIFY_DIRECTORY && $directoryId) {
     $form->addRule('dir_name', _('Compulsory Name'), 'required');
+    $form->addRule('dir_name', _('Invalid directory name. Only alphanumeric characters, hyphens and underscores are allowed.'), 'regex', '/^[a-zA-Z0-9_-]+$/');
     $form->setRequiredNote(_('Required Field'));
 }
 
