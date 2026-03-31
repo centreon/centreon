@@ -23,48 +23,7 @@ if (! isset($centreon)) {
     exit();
 }
 
-include_once './class/centreonUtils.class.php';
-
 include './include/common/autoNumLimit.php';
-
-$contactTypeIcone = [1 => returnSvg('www/img/icons/admin.svg', 'var(--icons-fill-color)', 22, 22), 2 => returnSvg('www/img/icons/user.svg', 'var(--icons-fill-color)', 22, 22), 3 => returnSvg('www/img/icons/user-template.svg', 'var(--icons-fill-color)', 22, 22)];
-
-// Create Timeperiod Cache
-$tpCache = ['' => ''];
-$dbResult = $pearDB->query('SELECT tp_name, tp_id FROM timeperiod');
-while ($data = $dbResult->fetch()) {
-    $tpCache[$data['tp_id']] = $data['tp_name'];
-}
-unset($data);
-$dbResult->closeCursor();
-
-$search = HtmlAnalyzer::sanitizeAndRemoveTags(
-    $_POST['searchCT'] ?? $_GET['searchCT'] ?? null
-);
-
-if (isset($_POST['searchCT']) || isset($_GET['searchCT'])) {
-    // saving filters values
-    $centreon->historySearch[$url] = [];
-    $centreon->historySearch[$url]['search'] = $search;
-} else {
-    // restoring saved values
-    $search = $centreon->historySearch[$url]['search'] ?? null;
-}
-
-$clauses = [];
-if ($search) {
-    $clauses = ['contact_name' => '%' . $search . '%'];
-}
-
-$fields = ['contact_id', 'contact_name', 'contact_alias', 'timeperiod_tp_id', 'timeperiod_tp_id2', 'contact_activate'];
-$contacts = $contactObj->getContactTemplates(
-    $fields,
-    $clauses,
-    ['contact_name', 'ASC'],
-    [($num * $limit), $limit]
-);
-$rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
-include './include/common/checkPagination.php';
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
@@ -73,85 +32,32 @@ $tpl = SmartyBC::createSmartyTemplate($path);
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
-// start header menu
+$tpl->assign('headerMenu_desc', _('Description'));
 $tpl->assign('headerMenu_name', _('Full Name'));
-$tpl->assign('headerMenu_desc', _('Alias / Login'));
-$tpl->assign('headerMenu_email', _('Email'));
 $tpl->assign('headerMenu_hostNotif', _('Host Notification Period'));
 $tpl->assign('headerMenu_svNotif', _('Services Notification Period'));
-$tpl->assign('headerMenu_lang', _('Language'));
-$tpl->assign('headerMenu_status', _('Status'));
-$tpl->assign('headerMenu_access', _('Access'));
-$tpl->assign('headerMenu_admin', _('Admin'));
 $tpl->assign('headerMenu_options', _('Options'));
 
-// Contact list
-$search = tidySearchKey($search, $advanced_search);
+$tpl->assign('ctPage', $p);
 
+// Restore search from history
+$search = $centreon->historySearch[$url]['search'] ?? '';
+$tpl->assign('searchCT', $search);
+
+// Default limit from DB
+$dbResult = $pearDB->query("SELECT * FROM `options` WHERE `key` = 'maxViewConfiguration'");
+$gopt = $dbResult->fetch();
+$defaultLimit = (int) ($gopt['value'] ?? 30) ?: 30;
+$tpl->assign('defaultLimit', $defaultLimit);
+
+// Form for bulk actions
 $form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
-
-// Different style between each lines
-$style = 'one';
 
 $attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];
 $form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
 
-// Fill a tab with a multidimensional Array we put in $tpl
-$elemArr = [];
-$centreonToken = createCSRFToken();
-
-foreach ($contacts as $contact) {
-    $selectedElements = $form->addElement('checkbox', 'select[' . $contact['contact_id'] . ']');
-
-    $moptions = '';
-    if ($contact['contact_id'] != $centreon->user->get_id()) {
-        if ($contact['contact_activate']) {
-            $moptions .= "<a href='main.php?p=" . $p . '&contact_id=' . $contact['contact_id']
-                . '&o=u&limit=' . $limit . '&num=' . $num . '&search=' . $search . '&centreon_token=' . $centreonToken
-                . "'><img src='img/icons/disabled.png' class='ico-14 margin_right' border='0' alt='"
-                . _('Disabled') . "'></a>&nbsp;&nbsp;";
-        } else {
-            $moptions .= "<a href='main.php?p=" . $p . '&contact_id=' . $contact['contact_id']
-                . '&o=s&limit=' . $limit . '&num=' . $num . '&search=' . $search . '&centreon_token=' . $centreonToken
-                . "'><img src='img/icons/enabled.png' class='ico-14 margin_right' border='0' alt='"
-                . _('Enabled') . "'></a>&nbsp;&nbsp;";
-        }
-    } else {
-        $moptions .= '&nbsp;&nbsp;';
-    }
-    $moptions .= '&nbsp;&nbsp;&nbsp;';
-    $moptions .= '<input onKeypress="if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) '
-        . 'event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;'
-        . "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr["
-        . $contact['contact_id'] . "]' />";
-
-    $contact_type = 0;
-    if (isset($contact['contact_register']) && $contact['contact_register']) {
-        $contact_type = $contact['contact_admin'] == 1 ? 1 : 2;
-    } else {
-        $contact_type = 3;
-    }
-
-    $elemArr[] = ['MenuClass' => 'list_' . $style, 'RowMenu_select' => $selectedElements->toHtml(), 'RowMenu_name' => html_entity_decode($contact['contact_name'], ENT_QUOTES, 'UTF-8'), 'RowMenu_ico' => $contactTypeIcone[$contact_type] ?? '', 'RowMenu_ico_title' => _('This is a contact template.'), 'RowMenu_link' => 'main.php?p=' . $p . '&o=c&contact_id=' . $contact['contact_id'], 'RowMenu_desc' => CentreonUtils::escapeSecure(
-        html_entity_decode(
-            $contact['contact_alias'],
-            ENT_QUOTES,
-            'UTF-8'
-        )
-    ), 'RowMenu_hostNotif' => html_entity_decode($tpCache[($contact['timeperiod_tp_id'] ?? '')], ENT_QUOTES, 'UTF-8') . ' ('
-        . ($contact['contact_host_notification_options'] ?? '') . ')', 'RowMenu_svNotif' => html_entity_decode($tpCache[($contact['timeperiod_tp_id2'] ?? '')], ENT_QUOTES, 'UTF-8') . ' ('
-        . ($contact['contact_service_notification_options'] ?? '') . ')', 'RowMenu_status' => $contact['contact_activate'] ? _('Enabled') : _('Disabled'), 'RowMenu_badge' => $contact['contact_activate'] ? 'service_ok' : 'service_critical', 'RowMenu_options' => $moptions];
-    $style = $style != 'two' ? 'two' : 'one';
-}
-$tpl->assign('elemArr', $elemArr);
-
-// Different messages we put in the template
 $tpl->assign('msg', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add')]);
-if ($centreon->optGen['ldap_auth_enable']) {
-    $tpl->assign('ldap', $centreon->optGen['ldap_auth_enable']);
-}
 
-// Toolbar select
 ?>
 <script type="text/javascript">
     function setO(_i) {
@@ -160,66 +66,39 @@ if ($centreon->optGen['ldap_auth_enable']) {
 </script>
 <?php
 
-$attrs1 = ['onchange' => 'javascript: '
-    . ' var bChecked = isChecked(); '
-    . " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {"
-    . " alert('" . _('Please select one or more items') . "'); return false;} "
-    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('"
-    . _('Do you confirm the duplication ?') . "')) {"
-    . "   setO(this.form.elements['o1'].value); submit();} "
-    . "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('"
-    . _('Do you confirm the deletion ?') . "')) {"
-    . "   setO(this.form.elements['o1'].value); submit();} "
-    . "else if (this.form.elements['o1'].selectedIndex == 3 || this.form.elements['o1'].selectedIndex == 4 ||"
-    . "this.form.elements['o1'].selectedIndex == 5){"
-    . "   setO(this.form.elements['o1'].value); submit();} "
-    . "this.form.elements['o1'].selectedIndex = 0"];
-$form->addElement(
-    'select',
-    'o1',
-    null,
-    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'mc' => _('Mass Change'), 'ms' => _('Enable'), 'mu' => _('Disable')],
-    $attrs1
-);
-$form->setDefaults(['o1' => null]);
-
-$attrs2 = ['onchange' => 'javascript: '
-    . ' var bChecked = isChecked(); '
-    . " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {"
-    . " alert('" . _('Please select one or more items') . "'); return false;} "
-    . "if (this.form.elements['o2'].selectedIndex == 1 && confirm('"
-    . _('Do you confirm the duplication ?') . "')) {"
-    . "   setO(this.form.elements['o2'].value); submit();} "
-    . "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('"
-    . _('Do you confirm the deletion ?') . "')) {"
-    . "   setO(this.form.elements['o2'].value); submit();} "
-    . "else if (this.form.elements['o2'].selectedIndex == 3 || this.form.elements['o2'].selectedIndex == 4 ||"
-    . "this.form.elements['o2'].selectedIndex == 5){"
-    . "   setO(this.form.elements['o2'].value); submit();} "
-    . "this.form.elements['o1'].selectedIndex = 0"];
-$form->addElement(
-    'select',
-    'o2',
-    null,
-    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'mc' => _('Mass Change'), 'ms' => _('Enable'), 'mu' => _('Disable')],
-    $attrs2
-);
-$form->setDefaults(['o2' => null]);
-
-$o1 = $form->getElement('o1');
-$o1->setValue(null);
-$o1->setSelected(null);
-
-$o2 = $form->getElement('o2');
-$o2->setValue(null);
-$o2->setSelected(null);
+foreach (['o1', 'o2'] as $option) {
+    $attrs = ['onchange' => 'javascript: '
+        . ' var bChecked = isChecked(); '
+        . " if (this.form.elements['" . $option . "'].selectedIndex != 0 && !bChecked) {"
+        . " alert('" . _('Please select one or more items') . "'); return false;} "
+        . "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('"
+        . _('Do you confirm the duplication ?') . "')) {"
+        . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
+        . "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('"
+        . _('Do you confirm the deletion ?') . "')) {"
+        . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
+        . "else if (this.form.elements['" . $option . "'].selectedIndex == 3 || "
+        . "this.form.elements['" . $option . "'].selectedIndex == 4 || "
+        . "this.form.elements['" . $option . "'].selectedIndex == 5) {"
+        . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
+        . "this.form.elements['" . $option . "'].selectedIndex = 0"];
+    $form->addElement(
+        'select',
+        $option,
+        null,
+        [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'mc' => _('Mass Change'), 'ms' => _('Enable'), 'mu' => _('Disable')],
+        $attrs
+    );
+    $form->setDefaults([$option => null]);
+    $el = $form->getElement($option);
+    $el->setValue(null);
+    $el->setSelected(null);
+}
 
 $tpl->assign('limit', $limit);
-$tpl->assign('searchCT', $search);
 
 // Apply a template definition
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
 $tpl->display('listContactTemplateModel.ihtml');
-?>
