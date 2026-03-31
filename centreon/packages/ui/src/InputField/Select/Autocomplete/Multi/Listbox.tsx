@@ -38,7 +38,8 @@ const ListboxComponent = ({
   options,
   isOptionSelected,
   onChange,
-  total
+  total,
+  value = []
 }) => {
   if (disableSelectAll) {
     return;
@@ -54,12 +55,19 @@ const ListboxComponent = ({
       const syntheticEvent = {} as React.SyntheticEvent;
 
       if (allSelected) {
-        onChange?.(syntheticEvent, [], 'selectOption');
+        const remaining = value.filter(
+          (v) => !options.some((opt) => opt.id === v.id)
+        );
+        onChange?.(syntheticEvent, remaining, 'selectOption');
 
         return;
       }
 
-      onChange?.(syntheticEvent, options, 'selectOption');
+      const merged = [
+        ...value,
+        ...options.filter((opt) => !isOptionSelected(opt))
+      ];
+      onChange?.(syntheticEvent, merged, 'selectOption');
     };
 
     return (
