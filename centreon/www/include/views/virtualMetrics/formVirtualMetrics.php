@@ -142,6 +142,7 @@ $form->addRule('host_id', _('Required service'), 'required');
 $form->registerRule('existName', 'callback', 'hasVirtualNameNeverUsed');
 $form->registerRule('RPNInfinityLoop', 'callback', '_TestRPNInfinityLoop');
 $form->registerRule('validVdefRpn', 'callback', 'testVdefRpnSyntax');
+$form->registerRule('validCdefRpn', 'callback', 'testCdefRpnSyntax');
 $form->addRule(
     'vmetric_name',
     _('Name already in use for this Host/Service'),
@@ -161,6 +162,12 @@ $form->addRule(
         . ' (MAXIMUM, MINIMUM, AVERAGE, STDEV, LAST, FIRST, TOTAL, PERCENT, PERCENTNAN,'
         . ' LSLSLOPE, LSLINT, LSLCORREL).'),
     'validVdefRpn'
+);
+$form->addRule(
+    'rpn_function',
+    _('Invalid CDEF RPN syntax. VDEF-only functions (AVERAGE, MINIMUM, MAXIMUM, LAST, FIRST,'
+        . ' TOTAL, PERCENT, PERCENTNAN, LSLSLOPE, LSLINT, LSLCORREL) cannot be used in CDEF expressions.'),
+    'validCdefRpn'
 );
 
 $form->setRequiredNote("<font style='color: red;'>*</font>" . _(' Required fields'));

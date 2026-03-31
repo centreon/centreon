@@ -69,6 +69,49 @@ function testVdefRpnSyntax()
     return in_array($lastPart, $validVdefFunctions, true);
 }
 
+/**
+ * Validates that the RPN function syntax is valid for the CDEF DEF type.
+ * Each token must be a metric name, a number, or a valid CDEF RPN operator.
+ * VDEF-only functions (AVERAGE, MINIMUM, etc.) are rejected.
+ *
+ * @return bool
+ */
+function testCdefRpnSyntax()
+{
+    global $form;
+    $gsvs = null;
+    if (isset($form)) {
+        $gsvs = $form->getSubmitValues();
+    }
+
+    // Only validate for CDEF type (def_type = 0)
+    if (! isset($gsvs['def_type']) || (int) $gsvs['def_type'] !== 0) {
+        return true;
+    }
+
+    $rpnFunction = trim($gsvs['rpn_function'] ?? '');
+    if ($rpnFunction === '') {
+        return true; // the 'required' rule handles empty values
+    }
+
+    // VDEF-only functions that must be rejected in CDEF context
+    $vdefOnlyFunctions = [
+        'MAXIMUM', 'MINIMUM', 'AVERAGE', 'LAST', 'FIRST', 'TOTAL',
+        'PERCENT', 'PERCENTNAN', 'LSLSLOPE', 'LSLINT', 'LSLCORREL',
+    ];
+
+    $parts = array_map('trim', explode(',', $rpnFunction));
+
+    foreach ($parts as $part) {
+        $upper = strtoupper($part);
+        if (in_array($upper, $vdefOnlyFunctions, true)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 function _TestRPNInfinityLoop()
 {
     global $form;
