@@ -120,6 +120,9 @@ jobs:
     if: ${{ needs.cypress-e2e-test-list.outputs.features != '' && toJson(fromJson(needs.cypress-e2e-test-list.outputs.features)) != '[]' }}
     needs: [cypress-e2e-test-list]
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: read
     strategy:
       fail-fast: false
       matrix:
@@ -199,6 +202,13 @@ jobs:
           username: ${{ secrets.registry_username }}
           password: ${{ secrets.registry_password }}
 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
       - name: Restore standard slim image from cache
         id: cache-docker-slim
         uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -217,22 +227,9 @@ jobs:
           docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }}
         shell: bash
 
-      - name: Restore keycloak image from cache
+      - name: Pull keycloak image
         if: ${{ contains(matrix.feature, 'Authentication') }}
-        id: cache-docker-keycloak
-        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
-        continue-on-error: true
-        timeout-minutes: 6
-        with:
-          path: ./docker-image-keycloak
-          key: docker-image-keycloak-${{ inputs.major_version}}
-        env:
-          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
-
-      - name: Load keycloak image
-        if: ${{ contains(matrix.feature, 'Authentication') && steps.cache-docker-keycloak.outputs.cache-hit == 'true' }}
-        run: |
-          docker load --input ../../../docker-image-keycloak/keycloak.tar
+        run: docker pull ghcr.io/${{ github.repository }}/keycloak:${{ inputs.major_version }}
         shell: bash
 
       - name: Get test execution Key
