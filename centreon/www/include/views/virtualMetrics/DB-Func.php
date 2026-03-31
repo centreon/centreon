@@ -66,7 +66,7 @@ function testRpnSyntaxWithRrdtool(array $fields): array|true
         $metrics[$row['metric_name']] = $row['metric_id'];
     }
 
-    if (empty($metrics)) {
+    if ($metrics === []) {
         return true;
     }
 
@@ -92,7 +92,7 @@ function testRpnSyntaxWithRrdtool(array $fields): array|true
 
     $rpnResolved = implode(',', $rpnParts);
 
-    if ($defType === 'VDEF' && empty($defArgs)) {
+    if ($defType === 'VDEF' && $defArgs === []) {
         return true;
     }
 
