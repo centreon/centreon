@@ -1,195 +1,228 @@
-{literal}
 <script type="text/javascript" src="./include/common/javascript/tool.js"></script>
-<script type='text/javascript'>
-    function applyConfiguration() {
-        var pollers = [];
-        jQuery('form tr').not('.row_disabled').find('input[id^="poller_"]:checked').each(function() {
-            pollers.push(this.id.substr(7));
-        });
-        var href = "main.php?p=60902&poller=" + pollers.join(',');
-        jQuery('#exportConfigurationLink').attr('href', href);
-    }
-
-    function setO(_i) {
-        document.forms['form'].elements['o'].value = _i;
-    }
-
-    function hasPollersSelected(){
-        var nbSelectedPollers = jQuery('form tr').find('input[id^="poller_"]:checked').length;
-        var buttons = jQuery('form').find('button[name="delete_action"],button[name="duplicate_action"]');
-
-        if (nbSelectedPollers > 0) {
-            buttons.each(function() {
-                $(this).prop("disabled",false);
-            });
-        } else {
-            buttons.each(function() {
-                $(this).prop("disabled",true);
-            });
-        }
-    }
-    hasPollersSelected();
-
-    jQuery(document).ready(function() {
-        jQuery('#exportConfigurationLink').on('click', function(event) {
-            event.preventDefault(); 
-            applyConfiguration();
-        });
-    })
-
+{literal}
+<script type="text/javascript">
+CentreonForm.detectSidePanelClose();
 </script>
 {/literal}
+
 <form name='form' method='POST'>
-    <table class="ajaxOption table">
-    <tbody>
-      <tr>
-        <th><h5>{t}Filters{/t}</h5></th>
-      </tr>
-      <tr>
-        <td><h4>{t}Poller{/t}</h4></td>
-      </tr>
-      <tr>
-        <td><input type="text" name="searchP" value="{$searchP}" class="mr-1"><input type="submit" value="{t}Search{/t}" class="btc bt_success"></td>
-      </tr>
-    </tbody>
-    </table>
-    <table class="ToolbarTable table">
-        <tr class="ToolbarTR">
-            <td>
+    <div class="cl-page-header">
+        <h1 class="cl-page-title">{t}Pollers{/t}</h1>
+        <span class="cl-page-title-sep"></span>
+        <p class="cl-page-desc">{t}Configure the monitoring pollers that run your checks.{/t}</p>
+    </div>
+    <div class="cl-listing-container">
+        <div class="cl-actions-bar cl-actions-bar--centered">
+            <div class="cl-actions-left">
                 {if !$isRemote}
                     {if $can_create_edit == 1}
-                        <a href="{$wizardAddBtn.link}" class="{$wizardAddBtn.class} " isreact="true" target="_top">
-                            {$wizardAddBtn.icon} {$wizardAddBtn.text}
-                        </a>
-                        <a href="{$addBtn.link}" class="{$addBtn.class}">
-                            {$addBtn.icon} {$addBtn.text}
-                        </a>
+                        <div class="cl-add-dropdown" id="clAddDropdown">
+                            <a href="#" class="cl-btn-add" onclick="this.closest('.cl-add-dropdown').classList.toggle('cl-open'); return false;">{t}Add{/t}</a>
+                            <div class="cl-add-dropdown-menu">
+                                <a href="{$wizardAddBtn.link}" isreact="true" target="_top">{$wizardAddBtn.icon} {t}Wizard{/t}</a>
+                                <a href="#" onclick="cfOpenPanel('main.get.php?p={$pollerPage}&o=a', '{t}Add a Poller{/t}'); return false;">{$addBtn.icon} {t}Advanced{/t}</a>
+                            </div>
+                        </div>
                     {/if}
+                    {$form.o1.html}
                     {if $can_generate == 1}
-                            <a id="exportConfigurationLink" href="{$exportBtn.link}" class="{$exportBtn.class}">
+                        <a id="exportConfigurationLink" href="#" class="btc bt_success" style="padding:8px 16px;font-size:14px;border-radius:4px;line-height:1.4;white-space:nowrap;opacity:0.5;pointer-events:none;">
                             {$exportBtn.icon} {$exportBtn.text}
                         </a>
                     {/if}
-                    {if $can_create_edit == 1}
-                        <button type="submit" class="{$duplicateBtn.class}" name="{$duplicateBtn.name}" onClick="{$duplicateBtn.onClickAction}">
-                            {$duplicateBtn.icon} {$duplicateBtn.text}
-                        </button>
-                    {/if}
-                    {if $can_delete == 1}
-                        <button type="submit" class="{$deleteBtn.class}" name="{$deleteBtn.name}" onClick="{$deleteBtn.onClickAction}">
-                            {$deleteBtn.icon} {$deleteBtn.text}
-                        </button>
-                    {/if}
                 {/if}
-            </td>
-            {pagination}
-        </tr>
-    </table>
-    <table class="ListTable">
-        <tr class="ListHeader">
-            <td class="ListColHeaderPicker">
-            {if !$isRemote}
-                <div class="md-checkbox md-checkbox-inline">
-                    <input type="checkbox" id="checkall" name="checkall"
-                        onclick="checkUncheckAll(this); hasPollersSelected();"/>
-                    <label class="empty-label" for="checkall"></label>
+            </div>
+            <div class="cl-toolbar-center">
+                <div class="cl-search cl-search--wide">
+                    <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+                    <input type="text" id="clSearchInput" name="searchP" value="{$searchP}" class="cl-search-simple" placeholder="{t}Search pollers{/t}" autocomplete="off">
                 </div>
-            {/if}
-            </td>
-            <td class="ListColHeaderLeft">{$headerMenu_name}</td>
-            <td class="ListColHeaderCenter">{$headerMenu_ip_address}</td>
-            <td class="ListColHeaderCenter">{$headerMenu_type}</td>
-            <td class="ListColHeaderCenter">{$headerMenu_is_running}</td>
-            <td class="ListColHeaderCenter">{$headerMenu_hasChanged}<font color='red' style='padding-left:3px;'>*</font></td>
-            <td class="ListColHeaderCenter">{$headerMenu_pid}</td>
-            <td class="ListColHeaderCenter">{$headerMenu_uptime}</td>
-            <td class="ListColHeaderCenter">{$headerMenu_lastUpdateTime}</td>
-            <td class="ListColHeaderCenter">{$headerMenu_version}</td>
-            <td class="ListColHeaderCenter">{$headerMenu_default}</td>
-            <td class="ListColHeaderCenter">{$headerMenu_status}</td>
-            <td class="ListColHeaderCenter">{t}Actions{/t}</td>
-            <td class="ListColHeaderRight">{$headerMenu_options}</td>
-        </tr>
-        {section name=elem loop=$elemArr}
-        <tr class={$elemArr[elem].MenuClass}>
-            <td class="ListColPicker">{if !$isRemote}{$elemArr[elem].RowMenu_select} {/if}</td>
-            <td class="ListColLeft">{if $can_create_edit == 1}<a href="{$elemArr[elem].RowMenu_link}">{/if}{$elemArr[elem].RowMenu_name}{if $can_create_edit == 1}</a>{/if}</td>
-            <td class="ListColCenter">{if $can_create_edit == 1}<a href="{$elemArr[elem].RowMenu_link}">{/if}{$elemArr[elem].RowMenu_ip_address}{if $can_create_edit == 1}</a>{/if}</td>
-            <td class="ListColCenter">{$elemArr[elem].RowMenu_type}</td>
-            <td class="ListColCenter">
-              <span class="badge {if $elemArr[elem].RowMenu_is_runningFlag}service_ok{else}service_critical{/if}">
-                {$elemArr[elem].RowMenu_is_running}
-              </span>
-            </td>
-            <td class="ListColCenter">
-                <span class="badge {if $elemArr[elem].RowMenu_hasChangedFlag == 0}service_ok{else}service_critical{/if}">
-                    {$elemArr[elem].RowMenu_hasChanged}
-                </span>
-            </td>
-            <td class="ListColCenter">{$elemArr[elem].RowMenu_pid}</td>
-            <!-- using a class to format the timestamp -->
-            <td class="ListColCenter">{$elemArr[elem].RowMenu_uptime}</td>
-            <td class="ListColCenter isTimestamp"{if $elemArr[elem].RowMenu_statusVal == 1} style='background-color:#{if $elemArr[elem].RowMenu_lastUpdateTimeFlag}F7D507;{/if}'{/if}>{$elemArr[elem].RowMenu_lastUpdateTime}</td>
-            <td class="ListColCenter">{$elemArr[elem].RowMenu_version}</td>
-            <td class="ListColCenter">{$elemArr[elem].RowMenu_is_default}</td>
-            <td class="ListColCenter"><span class="badge {$elemArr[elem].RowMenu_badge}">{$elemArr[elem].RowMenu_status}</span></td>
-            <td class="ListColCenter">
-                {if $can_create_edit == 1 && $elemArr[elem].RowMenu_cfg_id != "" && !$isRemote}
-                <!-- Link for edit poller monitoring engine configuration -->
-                <a href="./main.php?p=60903&o=c&nagios_id={$elemArr[elem].RowMenu_cfg_id}">
-                    <img src="./img/icons/edit_conf.png" class="ico-16" title="Edit monitoring engine configuration">
-                </a>
-                {/if}
+            </div>
+            <div class="cl-toolbar-right">
+                <div class="cl-pagination" id="clPaginationTop"></div>
+            </div>
+        </div>
 
-                {if ($elemArr[elem].RowMenu_gorgone_protocol == 1 && $elemArr[elem].RowMenu_statusVal == 1)
-                || $elemArr[elem].RowMenu_type == 'Central'}
-                <!-- Link for edit poller monitoring engine configuration -->
-                <span  {literal}onclick="displayPopup('{/literal}{$elemArr[elem].RowMenu_server_id}{literal}'){/literal}" >
-                    <img src="./img/icons/show_template.png" class="ico-16" style="cursor: pointer" title="Gorgone configuration">
-                </span>
-                {/if}
-            </td>
-            <td class="ListColRight">{if $can_create_edit == 1 && !$isRemote }{$elemArr[elem].RowMenu_options}{else}&nbsp;{/if}</td>
-        </tr>
-        {/section}
-    </table>
-    <table class="ToolbarTable table">
-        <tr class="ToolbarTR">
-            {pagination}
-        </tr>
-        <tr>
-            <td colspan='3' style='text-align:right;vertical-align:bottom; height: 50px;'><font color='red'>*</font>&nbsp;{$notice}</td>
-        </tr>
-    </table>
+        <table class="cl-listing-table">
+            <thead>
+                <tr>
+                    <th class="cl-col-picker">
+                        {if !$isRemote}
+                        <div class="md-checkbox md-checkbox-inline">
+                            <input type="checkbox" id="checkall" name="checkall" onclick="pollerListing.checkUncheckAll(this);"/>
+                            <label class="empty-label" for="checkall"></label>
+                        </div>
+                        {/if}
+                    </th>
+                    <th>{$headerMenu_name}</th>
+                    <th class="cl-col-center">{$headerMenu_ip_address}</th>
+                    <th class="cl-col-center">{$headerMenu_type}</th>
+                    <th class="cl-col-center">{$headerMenu_is_running}</th>
+                    <th class="cl-col-center"><span style="border-bottom:1px dotted #fff;cursor:help;" title="{$notice}">{$headerMenu_hasChanged}</span></th>
+                    <th class="cl-col-center">{$headerMenu_lastUpdateTime}</th>
+                    <th class="cl-col-center">{$headerMenu_default}</th>
+                    {if !$isRemote && $can_create_edit == 1}
+                    <th class="cl-col-right">{t}Actions{/t}</th>
+                    {/if}
+                </tr>
+            </thead>
+            <tbody id="clTableBody">
+                <tr><td colspan="10" class="cl-loading">{t}Loading...{/t}</td></tr>
+            </tbody>
+        </table>
+
+    </div>
+
 <input type='hidden' name='o' id='o' value='42'>
-<input type='hidden' id='limit' name='limit' value='{$limit}'>
+<input type='hidden' id='limit' name='limit' value=''>
 {$form.hidden}
 </form>
+
+<!-- Side panel -->
+<div class="cf-side-overlay" id="cfSideOverlay" onclick="cfClosePanel();"></div>
+<div class="cf-side-panel" id="cfSidePanel">
+    <div class="cf-side-panel-resize" id="cfSidePanelResize"></div>
+    <div class="cf-side-panel-header">
+        <span class="cf-side-panel-title" id="cfSidePanelTitle"></span>
+        <button class="cf-side-panel-close" onclick="cfClosePanel();">&times;</button>
+    </div>
+    <div class="cf-side-panel-body">
+        <iframe id="cfSidePanelFrame" src="about:blank"></iframe>
+    </div>
+</div>
+
 {literal}
-<script type='text/javascript'>
-    function displayPopup(id) {
-        let popin = jQuery(
-            '<div id="config-popin">' +
-                '<div id="loading">' +
-                    '<img src="./img/misc/ajax-loader.gif" />' +
-                '</div>' +
-            '</div>'
-        );
-        let url = './include/configuration/configServers/popup/popup.php?id=' + id;
-        popin.centreonPopin({
-            url: url,
-            open: true,
-            ajaxType: 'GET',
-            ajaxDataType: 'html'
-        });
-    };
+<script type="text/javascript">
 
-    setDisabledRowStyle();
-    //formatting the tags containing a class isTimestamp
-    formatDateMoment();
-
-    jQuery(document).ready(function () {
-        hasPollersSelected();
+function displayPopup(id) {
+    var popin = jQuery(
+        '<div id="config-popin"><div id="loading"><img src="./img/misc/ajax-loader.gif" /></div></div>'
+    );
+    popin.centreonPopin({
+        url: './include/configuration/configServers/popup/popup.php?id=' + id,
+        open: true,
+        ajaxType: 'GET',
+        ajaxDataType: 'html'
     });
+}
+
+function applyConfiguration() {
+    var pollers = [];
+    jQuery('#clTableBody .cl-col-picker input[type=checkbox]:checked').each(function() {
+        var name = jQuery(this).attr('name');
+        var match = name && name.match(/select\[(\d+)\]/);
+        if (match) pollers.push(match[1]);
+    });
+    var href = 'main.php?p=60902&poller=' + pollers.join(',');
+    jQuery('#exportConfigurationLink').attr('href', href);
+}
+
+jQuery(document).ready(function() {
+    jQuery('#exportConfigurationLink').on('click', function(e) {
+        applyConfiguration();
+        var href = jQuery(this).attr('href');
+        if (!href || href === '#' || href === 'DYNAMIC_LINK') {
+            e.preventDefault();
+            return;
+        }
+    });
+});
+
+var canCreateEdit = {/literal}{$can_create_edit}{literal};
+var isRemoteSrv = {/literal}{if $isRemote}true{else}false{/if}{literal};
+var pollerPage = '{/literal}{$pollerPage}{literal}';
+
+var pollerListing = new CentreonListing({
+    instanceName:  'pollerListing',
+    ajaxListUrl:   './include/configuration/configServers/ajaxServerListing.php',
+    ajaxToggleUrl: './include/configuration/configServers/ajaxServerToggle.php',
+    pageId:        pollerPage,
+    writeAccess:   canCreateEdit === 1 && !isRemoteSrv,
+    defaultLimit:  {/literal}{$defaultLimit}{literal},
+    storageKey:    'poller_listing_limit',
+    emptyMessage:  'No pollers found',
+    autoRefresh:   15000,
+    liveSearch:    true,
+    rowIdField:    'id',
+    columns: [
+        { id:'name', render: function(row, l) {
+            var mode = isRemoteSrv ? 'w' : 'c';
+            var editUrl = 'main.get.php?p=' + pollerPage + '&o=' + mode + '&server_id=' + row.id;
+            var title = (mode === 'c' ? '{/literal}{t}Modify Poller{/t}{literal}' : '{/literal}{t}View Poller{/t}{literal}') + ' - ' + row.name;
+            if (canCreateEdit) {
+                return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+clEscapeAttr(title)+'\'); return false;">'+l.escape(row.name)+'</a>';
+            }
+            return l.escape(row.name);
+        }},
+        { id:'ip_address', align:'center', render: function(row, l) {
+            if (canCreateEdit) {
+                var mode = isRemoteSrv ? 'w' : 'c';
+                var editUrl = 'main.get.php?p=' + pollerPage + '&o=' + mode + '&server_id=' + row.id;
+                var title = (mode === 'c' ? '{/literal}{t}Modify Poller{/t}{literal}' : '{/literal}{t}View Poller{/t}{literal}') + ' - ' + row.name;
+                return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+clEscapeAttr(title)+'\'); return false;">'+l.escape(row.ip_address)+'</a>';
+            }
+            return l.escape(row.ip_address);
+        }},
+        { id:'type', align:'center' },
+        { id:'is_running', align:'center', render: function(row, l) {
+            var color = row.is_running ? 'var(--color-success,#88B922)' : 'var(--color-danger,#FF4A4A)';
+            var tipContent = '<b>PID:</b> '+l.escape(row.pid)+'<br><b>Uptime:</b> '+l.escape(row.uptime)+'<br><b>Version:</b> '+l.escape(row.version);
+            return '<span data-cl-tooltip="'+tipContent.replace(/"/g,'&quot;')+'" style="display:inline-block;width:14px;height:14px;border-radius:50%;background:'+color+';box-shadow:0 0 5px '+color+';cursor:help;"></span>';
+        }},
+        { id:'conf_changed', align:'center', render: function(row) {
+            if (row.conf_changed === 'N/A') return '<span style="opacity:.4;">&#8212;</span>';
+            if (row.conf_changed_flag === 0) {
+                return '<span class="cl-tag cl-tag--success" title="Configuration up to date">Up to date</span>';
+            }
+            return '<span class="cl-tag cl-tag--warning" data-cl-tooltip="<b>Configuration changed</b><br>An export and restart is required to apply changes." style="cursor:help;">Changed</span>';
+        }},
+        { id:'last_alive', align:'center', render: function(row) {
+            if (!row.last_alive) return '-';
+            var d = new Date(row.last_alive * 1000);
+            var str = d.toLocaleString();
+            return row.last_alive_stale ? '<span class="cl-stale">'+str+'</span>' : str;
+        }},
+        { id:'is_default', align:'center', render: function(row) { return row.is_default ? '<span style="color:var(--color-success,#88B922);font-size:16px;">&#10003;</span>' : ''; }}
+    ],
+    renderOptions: function(row, l) {
+        var html = '';
+        // Edit engine config — opens in the side panel (save closes it and refreshes)
+        if (row.cfg_id && canCreateEdit && !isRemoteSrv) {
+            html += '<a href="#" title="Edit monitoring engine configuration" style="margin-right:8px;color:var(--c-primary-main,#2E68AA);vertical-align:middle;" onclick="cfOpenPanel(\'main.get.php?p=60903&o=c&nagios_id='+row.cfg_id+'\', \'Engine configuration\'); return false;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></a>';
+        }
+        // Gorgone popup
+        if ((row.gorgone_comm === 1 && row.activate) || row.type === 'Central') {
+            html += '<span onclick="displayPopup('+row.id+')" style="cursor:pointer;margin-right:8px;color:var(--c-primary-main,#2E68AA);vertical-align:middle;" title="Gorgone configuration"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></span>';
+        }
+        // Toggle
+        var checked = row.activate ? ' checked' : '';
+        html += '<label class="cl-toggle"><input type="checkbox" data-row-id="'+row.id+'"'+checked+' onchange="pollerListing.toggleActivation(this);"/><span class="cl-toggle-slider"></span></label>';
+        // Dup input
+        html += '<input onKeypress="if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))event.returnValue=false;if(event.which>31&&(event.which<45||event.which>57))return false;" maxlength="3" size="3" value="1" class="cl-dup-input" name="dupNbr['+row.id+']"/>';
+        return html;
+    }
+});
+pollerListing.init();
+CentreonForm.initSidePanel(pollerListing);
+
+// Enable/disable Export button based on poller selection
+function updateExportBtn() {
+    var btn = document.getElementById('exportConfigurationLink');
+    if (!btn) return;
+    var checked = jQuery('#clTableBody .cl-col-picker input[type=checkbox]:checked').length;
+    btn.style.opacity = checked > 0 ? '1' : '0.5';
+    btn.style.pointerEvents = checked > 0 ? 'auto' : 'none';
+}
+jQuery(document).on('change', '#clTableBody input[type=checkbox], #checkall', function() {
+    updateExportBtn();
+});
+
+// Close Add dropdown on click outside
+document.addEventListener('click', function(e) {
+    var dd = document.getElementById('clAddDropdown');
+    if (dd && !dd.contains(e.target)) {
+        dd.classList.remove('cl-open');
+    }
+});
 </script>
 {/literal}

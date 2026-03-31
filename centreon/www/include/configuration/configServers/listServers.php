@@ -25,256 +25,42 @@ if (! isset($centreon)) {
 
 include './include/common/autoNumLimit.php';
 
-// Init GMT class
-$centreonGMT = new CentreonGMT();
-$centreonGMT->getMyGMTFromSession(session_id());
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
-$search = $_POST['searchP'] ?? $_GET['searchP'] ?? null;
+// Access level and permissions
+$lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
+$tpl->assign('mode_access', $lvl_access);
 
-if (! is_null($search)) {
-    // saving filters values
-    $centreon->historySearch[$url] = [];
-    $centreon->historySearch[$url]['search'] = $search;
-} else {
-    // restoring saved values
-    $search = $centreon->historySearch[$url]['search'] ?? null;
-}
-
-$LCASearch = '';
-$searchBind = null;
-if (! is_null($search)) {
-    $search = HtmlSanitizer::createFromString($search)->sanitize()->getString();
-    $LCASearch .= ' name LIKE :search';
-    $searchBind = '%' . $search . '%';
-}
-
-// Get Authorized Actions
 $can_generate = $centreon->user->access->checkAction('generate_cfg');
 $can_create_edit = $centreon->user->access->checkAction('create_edit_poller_cfg');
 $can_delete = $centreon->user->access->checkAction('delete_poller_cfg');
 
-// nagios servers comes from DB
-$nagiosServers = [];
-$nagiosRestart = [];
-foreach ($serverResult as $nagiosServer) {
-    $nagiosServers[$nagiosServer['id']] = $nagiosServer['name'];
-    $nagiosRestart[$nagiosServer['id']] = $nagiosServer['last_restart'];
-}
-
-$pollerstring = implode(',', array_keys($nagiosServers));
-
-// Get information info RTM
-$nagiosInfo = [];
-$dbResult = $pearDBO->query(
-    'SELECT start_time AS program_start_time, running AS is_currently_running, pid AS process_id, instance_id, '
-    . 'name AS instance_name , last_alive FROM instances WHERE deleted = 0'
-);
-while ($info = $dbResult->fetch()) {
-    $nagiosInfo[$info['instance_id']] = $info;
-}
-$dbResult->closeCursor();
-
-// Get Scheduler version
-$dbResult = $pearDBO->query(
-    'SELECT DISTINCT instance_id, version AS program_version, engine AS program_name, name AS instance_name '
-    . 'FROM instances WHERE deleted = 0 '
-);
-while ($info = $dbResult->fetch()) {
-    if (isset($nagiosInfo[$info['instance_id']])) {
-        $nagiosInfo[$info['instance_id']]['version'] = $info['program_name'] . ' ' . $info['program_version'];
-    }
-}
-$dbResult->closeCursor();
-
-$query = 'SELECT ip FROM remote_servers';
-$dbResult = $pearDB->query($query);
-$remotesServerIPs = $dbResult->fetchAll(PDO::FETCH_COLUMN);
-$dbResult->closeCursor();
-
-// Smarty template initialization
-$tpl = SmartyBC::createSmartyTemplate($path);
-
-// Access level
-$lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
-$tpl->assign('mode_access', $lvl_access);
-
-// start header menu
 $tpl->assign('headerMenu_name', _('Name'));
 $tpl->assign('headerMenu_ip_address', _('Address'));
 $tpl->assign('headerMenu_type', _('Server type'));
 $tpl->assign('headerMenu_is_running', _('Is running ?'));
 $tpl->assign('headerMenu_hasChanged', _('Conf Changed'));
-$tpl->assign('headerMenu_pid', _('PID'));
-$tpl->assign('headerMenu_version', _('Version'));
-$tpl->assign('headerMenu_uptime', _('Uptime'));
 $tpl->assign('headerMenu_lastUpdateTime', _('Last Update'));
-$tpl->assign('headerMenu_status', _('Status'));
 $tpl->assign('headerMenu_default', _('Default'));
+$tpl->assign('headerMenu_status', _('Status'));
 $tpl->assign('headerMenu_options', _('Options'));
 
-// Poller list
-$ACLString = $centreon->user->access->queryBuilder('WHERE', 'id', $pollerstring);
+$tpl->assign('pollerPage', $p);
 
-$query = 'SELECT SQL_CALC_FOUND_ROWS id, name, ns_activate, ns_ip_address, localhost, is_default, updated '
-    . ', gorgone_communication_type, uid FROM `nagios_server` ' . $ACLString . ' '
-    . ($LCASearch != '' ? ($ACLString != '' ? 'AND ' : 'WHERE ') . $LCASearch : '')
-    . ' ORDER BY name LIMIT :offset, :limit';
-$dbResult = $pearDB->prepare($query);
-if (! is_null($searchBind)) {
-    $dbResult->bindValue(':search', $searchBind, PDO::PARAM_STR);
-}
-$dbResult->bindValue(':offset', (int) ($num * $limit), PDO::PARAM_INT);
-$dbResult->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
-$dbResult->execute();
+// Restore search from history
+$search = $centreon->historySearch[$url]['search'] ?? '';
+$tpl->assign('searchP', $search);
 
-$rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
+// Default limit
+$defaultLimit = (int) ($centreon->optGen['maxViewConfiguration'] ?? 30) ?: 30;
+$tpl->assign('defaultLimit', $defaultLimit);
 
-$servers = [];
-while (($config = $dbResult->fetch())) {
-    $servers[] = $config;
-}
-
-include './include/common/checkPagination.php';
-
-$form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
-
-// Fill a tab with a multidimensional Array we put in $tpl
-$elemArr = [];
-$i = -1;
-$centreonToken = createCSRFToken();
-
-foreach ($servers as $config) {
-    $i++;
-    $moptions = '';
-    $selectedElements = $form->addElement(
-        'checkbox',
-        'select[' . $config['id'] . ']',
-        null,
-        '',
-        ['id' => 'poller_' . $config['id'], 'onClick' => 'hasPollersSelected();']
-    );
-    if (! $isRemote) {
-        if ($config['ns_activate']) {
-            $moptions .= "<a href='main.php?p=" . $p . '&server_id=' . $config['id'] . '&o=u&limit=' . $limit
-                . '&num=' . $num . '&search=' . $search . '&centreon_token=' . $centreonToken
-                . "'><img src='img/icons/disabled.png' class='ico-14 margin_right' "
-                . "border='0' alt='" . _('Disabled') . "'></a>";
-        } else {
-            $moptions .= "<a href='main.php?p=" . $p . '&server_id=' . $config['id'] . '&o=s&limit=' . $limit
-                . '&num=' . $num . '&search=' . $search . '&centreon_token=' . $centreonToken
-                . "'><img src='img/icons/enabled.png' class='ico-14 margin_right' "
-                . "border='0' alt='" . _('Enabled') . "'></a>";
-        }
-    }
-    $moptions .= '<input onKeypress="if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) '
-        . 'event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) '
-        . "return false;\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" "
-        . "name='dupNbr[" . $config['id'] . "]' />";
-
-    // instances.instance_id holds the Snowflake uid for up-to-date pollers; legacy pollers
-    // (older Engine/Broker) still report their config id as instance_id. Resolve the runtime
-    // row by uid, then fall back to the config id so a mixed-version platform shows the real
-    // running state.
-    $runtimeKey = isset($nagiosInfo[$config['uid']]) ? $config['uid'] : $config['id'];
-
-    if (! isset($nagiosInfo[$runtimeKey]['is_currently_running'])) {
-        $nagiosInfo[$runtimeKey]['is_currently_running'] = 0;
-    }
-
-    // Manage flag for changes
-    $confChangedMessage = _('N/A');
-    if ($config['ns_activate'] && isset($nagiosRestart[$config['id']])) {
-        $confChangedMessage = $config['updated'] ? _('Yes') : _('No');
-    }
-
-    // Manage flag for update time
-    $lastUpdateTimeFlag = 0;
-    if (! isset($nagiosInfo[$runtimeKey]['last_alive'])) {
-        $lastUpdateTimeFlag = 0;
-    } elseif (time() - $nagiosInfo[$runtimeKey]['last_alive'] > 10 * 60) {
-        $lastUpdateTimeFlag = 1;
-    }
-
-    // Get cfg_id
-    $dbResult2 = $pearDB->query(
-        'SELECT nagios_id FROM cfg_nagios '
-        . 'WHERE nagios_server_id = ' . (int) $config['id'] . " AND nagios_activate = '1'"
-    );
-    $cfg_id = $dbResult2->rowCount() ? $dbResult2->fetch() : -1;
-
-    $uptime = '-';
-    $isRunning = (isset($nagiosInfo[$runtimeKey]['is_currently_running'])
-        && $nagiosInfo[$runtimeKey]['is_currently_running'] == 1)
-        ? true
-        : false;
-    $version = $nagiosInfo[$runtimeKey]['version'] ?? _('N/A');
-    $updateTime = (isset($nagiosInfo[$runtimeKey]['last_alive'])
-        && $nagiosInfo[$runtimeKey]['last_alive'])
-        ? $nagiosInfo[$runtimeKey]['last_alive']
-        : '-';
-    $serverType = $config['localhost'] ? _('Central') : _('Poller');
-    $serverType = in_array($config['ns_ip_address'], $remotesServerIPs)
-        ? _('Remote Server')
-        : $serverType;
-
-    if (
-        isset($nagiosInfo[$runtimeKey]['is_currently_running'])
-        && $nagiosInfo[$runtimeKey]['is_currently_running'] == 1
-    ) {
-        $now = new DateTime();
-        $startDate = (new DateTime())->setTimestamp($nagiosInfo[$runtimeKey]['program_start_time']);
-        $interval = date_diff($now, $startDate);
-        if (intval($interval->format('%a')) >= 2) {
-            $uptime = $interval->format('%a days');
-        } elseif (intval($interval->format('%a')) == 1) {
-            $uptime = $interval->format('%a days %i minutes');
-        } elseif (intval($interval->format('%a')) < 1 && intval($interval->format('%h')) >= 1) {
-            $uptime = $interval->format('%h hours %i minutes');
-        } elseif (intval($interval->format('%h')) < 1) {
-            $uptime = $interval->format('%i minutes %s seconds');
-        } else {
-            $uptime = $interval->format('%a days %h hours %i minutes %s seconds');
-        }
-    }
-
-    $pollerProcessId = $isRunning
-        ? $nagiosInfo[$runtimeKey]['process_id']
-        : '-';
-
-    // Manage different styles between each line
-    $style = ($i % 2) ? 'two' : 'one';
-
-    $serverLink = $isRemote
-        ? "main.php?p={$p}&o=w&server_id={$config['id']}"
-        : "main.php?p={$p}&o=c&server_id={$config['id']}";
-
-    $elemArr[$i] = [
-        'MenuClass' => "list_{$style}",
-        'RowMenu_select' => $selectedElements->toHtml(),
-        'RowMenu_name' => HtmlSanitizer::createFromString($config['name'])->sanitize()->getString(),
-        'RowMenu_ip_address' => $config['ns_ip_address'],
-        'RowMenu_server_id' => $config['id'],
-        'RowMenu_gorgone_protocol' => $config['gorgone_communication_type'],
-        'RowMenu_link' => $serverLink,
-        'RowMenu_type' => $serverType,
-        'RowMenu_is_running' => $isRunning ? _('Yes') : _('No'),
-        'RowMenu_is_runningFlag' => $nagiosInfo[$runtimeKey]['is_currently_running'],
-        'RowMenu_is_default' => $config['is_default'] ? _('Yes') : _('No'),
-        'RowMenu_hasChanged' => $confChangedMessage,
-        'RowMenu_pid' => $pollerProcessId,
-        'RowMenu_hasChangedFlag' => $config['updated'],
-        'RowMenu_version' => $version,
-        'RowMenu_uptime' => $uptime,
-        'RowMenu_lastUpdateTime' => $updateTime,
-        'RowMenu_lastUpdateTimeFlag' => $lastUpdateTimeFlag,
-        'RowMenu_status' => $config['ns_activate'] ? _('Enabled') : _('Disabled'),
-        'RowMenu_badge' => $config['ns_activate'] ? 'service_ok' : 'service_critical',
-        'RowMenu_statusVal' => $config['ns_activate'],
-        'RowMenu_cfg_id' => ($cfg_id == -1) ? '' : $cfg_id['nagios_id'],
-        'RowMenu_options' => $moptions,
-    ];
-}
-$tpl->assign('elemArr', $elemArr);
+$tpl->assign('can_generate', $can_generate);
+$tpl->assign('can_create_edit', $can_create_edit);
+$tpl->assign('can_delete', $can_delete);
+$tpl->assign('is_admin', $is_admin);
+$tpl->assign('isRemote', $isRemote);
 
 $tpl->assign(
     'notice',
@@ -285,55 +71,74 @@ $tpl->assign(
 
 // Action buttons
 if (! $isRemote) {
-    $tpl->assign(
-        'wizardAddBtn',
-        ['link' => './poller-wizard/1', 'text' => _('Add'), 'class' => 'btc bt-poller-action bt_success', 'icon' => returnSvg('www/img/icons/add.svg', 'var(--button-icons-fill-color)', 16, 16)]
-    );
-
-    $tpl->assign(
-        'addBtn',
-        ['link' => 'main.php?p=' . $p . '&o=a', 'text' => _('Add (advanced)'), 'class' => 'btc bt-poller-action bt_success', 'icon' => returnSvg('www/img/icons/add.svg', 'var(--button-icons-fill-color)', 16, 16)]
-    );
-
-    $tpl->assign(
-        'duplicateBtn',
-        ['text' => _('Duplicate'), 'class' => 'btc bt-poller-action bt_success', 'name' => 'duplicate_action', 'icon' => returnSvg('www/img/icons/duplicate.svg', 'var(--button-icons-fill-color)', 16, 14), 'onClickAction' => 'javascript: '
+    $tpl->assign('wizardAddBtn', [
+        'link' => './poller-wizard/1',
+        'text' => _('Add'),
+        'class' => 'btc bt-poller-action bt_success',
+        'icon' => returnSvg('www/img/icons/add.svg', 'var(--button-icons-fill-color)', 16, 16),
+    ]);
+    $tpl->assign('addBtn', [
+        'link' => 'main.php?p=' . $p . '&o=a',
+        'text' => _('Add (advanced)'),
+        'class' => 'btc bt-poller-action bt_success',
+        'icon' => returnSvg('www/img/icons/add.svg', 'var(--button-icons-fill-color)', 16, 16),
+    ]);
+    $tpl->assign('duplicateBtn', [
+        'text' => _('Duplicate'),
+        'class' => 'btc bt-poller-action bt_success',
+        'name' => 'duplicate_action',
+        'icon' => returnSvg('www/img/icons/duplicate.svg', 'var(--button-icons-fill-color)', 16, 14),
+        'onClickAction' => 'javascript: '
             . ' var bChecked = isChecked(); '
             . " if (!bChecked) { alert('" . _('Please select one or more items') . "'); return false;} "
-            . " if (confirm('" . _('Do you confirm the duplication ?') . "')) { setO('m'); submit();} "]
-    );
-
-    $tpl->assign(
-        'deleteBtn',
-        ['text' => _('Delete'), 'class' => 'btc bt-poller-action bt_danger', 'name' => 'delete_action', 'icon' => returnSvg('www/img/icons/trash.svg', 'var(--button-icons-fill-color)', 16, 16), 'onClickAction' => 'javascript: '
+            . " if (confirm('" . _('Do you confirm the duplication ?') . "')) { setO('m'); submit();} ",
+    ]);
+    $tpl->assign('deleteBtn', [
+        'text' => _('Delete'),
+        'class' => 'btc bt-poller-action bt_danger',
+        'name' => 'delete_action',
+        'icon' => returnSvg('www/img/icons/trash.svg', 'var(--button-icons-fill-color)', 16, 16),
+        'onClickAction' => 'javascript: '
             . ' var bChecked = isChecked(); '
             . " if (!bChecked) { alert('" . _('Please select one or more items') . "'); return false;} "
-            . " if (confirm('"
-            . _('You are about to delete one or more pollers.\\nThis action is IRREVERSIBLE.\\n'
-            . 'Do you confirm the deletion ?')
-            . "')) { setO('d'); submit();} "]
-    );
-
-    $tpl->assign(
-        'exportBtn',
-        [
-            'link' => 'DYNAMIC_LINK', // Placeholder for dynamic link
-            'text' => _('Export configuration'),
-            'class' => 'btc bt-poller-action bt_info',
-            'icon' => returnSvg('www/img/icons/export.svg', 'var(--button-icons-fill-color)', 14, 14),
-            'id' => 'exportConfigurationLink',
-        ]
-    );
-
+            . " if (confirm('" . _('You are about to delete one or more pollers.\\nThis action is IRREVERSIBLE.\\nDo you confirm the deletion ?')
+            . "')) { setO('d'); submit();} ",
+    ]);
+    $tpl->assign('exportBtn', [
+        'link' => 'DYNAMIC_LINK',
+        'text' => _('Export configuration'),
+        'class' => 'btc bt-poller-action bt_info',
+        'icon' => returnSvg('www/img/icons/export.svg', 'var(--button-icons-fill-color)', 14, 14),
+    ]);
 }
 
+$form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
 $tpl->assign('limit', $limit);
-$tpl->assign('searchP', $search);
-$tpl->assign('can_generate', $can_generate);
-$tpl->assign('can_create_edit', $can_create_edit);
-$tpl->assign('can_delete', $can_delete);
-$tpl->assign('is_admin', $is_admin);
-$tpl->assign('isRemote', $isRemote);
+
+?>
+<script type="text/javascript">
+    function setO(_i) {
+        document.forms['form'].elements['o'].value = _i;
+    }
+</script>
+<?php
+
+if (! $isRemote) {
+    $attrs = ['onchange' => 'javascript: '
+        . ' var bChecked = isChecked(); '
+        . " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {"
+        . " alert('" . _('Please select one or more items') . "'); return false;} "
+        . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('"
+        . _('Do you confirm the duplication ?') . "')) {"
+        . " 	setO(this.form.elements['o1'].value); submit();} "
+        . "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('"
+        . _('You are about to delete one or more pollers.\\nThis action is IRREVERSIBLE.\\nDo you confirm the deletion ?')
+        . "')) { setO(this.form.elements['o1'].value); submit();} "
+        . "this.form.elements['o1'].selectedIndex = 0"];
+    $form->addElement('select', 'o1', null, [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')], $attrs);
+    $o1 = $form->getElement('o1');
+    $o1->setValue(null);
+}
 
 // Apply a template definition
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
