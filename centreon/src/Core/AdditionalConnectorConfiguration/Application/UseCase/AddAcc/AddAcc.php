@@ -159,7 +159,6 @@ final class AddAcc
             $newAccId = $this->writeAccRepository->add($acc);
             $this->writeAccRepository->linkToPollers($newAccId, $pollers);
 
-            $this->writeMonitoringServerRepository->notifyConfigurationChanges($pollers);
             $this->writeMonitoringServerRepository->notifyVmwareConfigurationChanges($pollers);
 
             $this->dataStorageEngine->commitTransaction();
