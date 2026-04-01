@@ -71,14 +71,14 @@ services:
   openid:
     env_file:
       - .env
-    image: "${OPENID_IMAGE:-docker.centreon.com/centreon/keycloak:26.01}"
+    image: "${OPENID_IMAGE:-ghcr.io/centreon/centreon/keycloak:26.05}"
     ports: []
     profiles: ["openid"]
 
   saml:
     env_file:
       - .env
-    image: "${SAML_IMAGE:-docker.centreon.com/centreon/keycloak:26.01}"
+    image: "${SAML_IMAGE:-ghcr.io/centreon/centreon/keycloak:26.05}"
     ports: ["8080:8080"]
     profiles: ["saml"]
 
