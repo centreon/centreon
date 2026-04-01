@@ -59,9 +59,6 @@ jobs:
           labels: |
             org.opencontainers.image.description=Keycloak image for Centreon E2E tests
             com.centreon.stability=${{ needs.get-environment.outputs.stability }}
-          annotations: |
-            manifest:org.opencontainers.image.description=Keycloak image for Centreon E2E tests
-
       - name: Compute image tag
         id: image_tag
         run: |
@@ -80,7 +77,6 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository }}/keycloak:${{ steps.image_tag.outputs.value }}
           labels: ${{ steps.meta.outputs.labels }}
-          annotations: ${{ steps.meta.outputs.annotations }}
 
   set-skip-label:
     needs: [get-environment, dockerize]
