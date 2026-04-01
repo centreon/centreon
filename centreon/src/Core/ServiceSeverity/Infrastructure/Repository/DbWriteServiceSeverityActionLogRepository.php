@@ -27,7 +27,6 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\DatabaseConnection;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface;
 use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
@@ -35,6 +34,7 @@ use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInt
 use Core\ServiceSeverity\Application\Repository\WriteServiceSeverityRepositoryInterface;
 use Core\ServiceSeverity\Domain\Model\NewServiceSeverity;
 use Core\ServiceSeverity\Domain\Model\ServiceSeverity;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB implements WriteServiceSeverityRepositoryInterface
 {
