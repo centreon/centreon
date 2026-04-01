@@ -308,7 +308,7 @@ function updateServiceGroupAcl(int $serviceGroupId, array $submittedValues = [])
                     $datasetId = createNewDataset(datasetName: $newDatasetName);
                     linkDatasetToRule(datasetId: $datasetId, ruleId: $ruleId);
                     linkServiceGroupToDataset(datasetId: $datasetId, serviceGroupId: $serviceGroupId);
-                    createNewDatasetFilter(datasetId: $datasetId, ruleId: $ruleId, serviceGroupId: $serviceGroupId);
+                    createNewServiceGroupDatasetFilter(datasetId: $datasetId, ruleId: $ruleId, serviceGroupId: $serviceGroupId);
                     $pearDB->commit();
                 } catch (Throwable $exception) {
                     $pearDB->rollBack();
@@ -377,7 +377,7 @@ function linkServiceGroupToDataset(int $datasetId, int $serviceGroupId): void
  * @param int $ruleId
  * @param int $serviceGroupId
  */
-function createNewDatasetFilter(int $datasetId, int $ruleId, int $serviceGroupId): void
+function createNewServiceGroupDatasetFilter(int $datasetId, int $ruleId, int $serviceGroupId): void
 {
     global $pearDB;
 
