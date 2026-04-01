@@ -13,9 +13,9 @@ RUN bash -e <<EOF
 
 if [[ "$STABILITY" == "stable" ]]; then
   dnf install -y \
-    centreon-awie-${MAJOR_VERSION}.${AWIE_MINOR_VERSION} \
-    centreon-dsm-${MAJOR_VERSION}.${DSM_MINOR_VERSION} \
-    centreon-open-tickets-${MAJOR_VERSION}.${OPEN_TICKETS_MINOR_VERSION}
+    centreon-awie-${MAJOR_VERSION}.0 \
+    centreon-dsm-${MAJOR_VERSION}.0 \
+    centreon-open-tickets-${MAJOR_VERSION}.0
 else
   dnf install -y /tmp/packages-centreon/centreon-*.rpm
 fi

@@ -141,11 +141,11 @@ RUN bash -e <<EOF
 
 if [[ "$STABILITY" == "stable" ]]; then
   dnf install -y \
-    centreon-common-${MAJOR_VERSION}.${COMMON_MINOR_VERSION} \
-    centreon-gorgone-${MAJOR_VERSION}.${GORGONE_MINOR_VERSION} \
-    centreon-engine-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
-    centreon-broker-cbd-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
-    centreon-connector-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}
+    centreon-common-${MAJOR_VERSION}.0 \
+    centreon-gorgone-${MAJOR_VERSION}.0 \
+    centreon-engine-${MAJOR_VERSION}.0 \
+    centreon-broker-cbd-${MAJOR_VERSION}.0 \
+    centreon-connector-${MAJOR_VERSION}.0
 else
   dnf install -y \
     centreon-common \

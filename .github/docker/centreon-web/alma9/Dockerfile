@@ -27,9 +27,9 @@ dnf config-manager --set-disabled 'centreon-plugin*unstable*' --set-disabled 'ce
 
 if [[ "$STABILITY" == "stable" ]]; then
   dnf install -y \
-    centreon-poller-${MAJOR_VERSION}.${WEB_MINOR_VERSION} \
-    centreon-trap-${MAJOR_VERSION}.${WEB_MINOR_VERSION} \
-    centreon-web-${MAJOR_VERSION}.${WEB_MINOR_VERSION}
+    centreon-poller-${MAJOR_VERSION}.0 \
+    centreon-trap-${MAJOR_VERSION}.0 \
+    centreon-web-${MAJOR_VERSION}.0
 else
   dnf install -y /tmp/packages-centreon/centreon-*.rpm
 fi
