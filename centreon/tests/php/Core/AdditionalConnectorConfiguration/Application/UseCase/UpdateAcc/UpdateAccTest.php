@@ -228,6 +228,11 @@ it(
 
         $this->user
             ->expects($this->any())
+            ->method('isAdmin')
+            ->willReturn(true);
+
+        $this->user
+            ->expects($this->any())
             ->method('getId')
             ->willReturn($this->accCreatedBy);
 
@@ -237,11 +242,23 @@ it(
 
         $this->factory
             ->expects($this->once())
-            ->method('updateAcc');
+            ->method('updateAcc')
+            ->willReturn($this->acc);
 
         $this->writeAccRepository
             ->expects($this->once())
             ->method('update');
+
+        $this->readAccRepository
+            ->expects($this->once())
+            ->method('findPollersByAccId')
+            ->with($this->accId)
+            ->willReturn([$this->poller]);
+
+        $this->writeMonitoringServerRepository
+            ->expects($this->once())
+            ->method('notifyVmwareConfigurationChanges')
+            ->with($this->request->pollers);
 
         ($this->useCase)($this->request, $this->presenter);
 
