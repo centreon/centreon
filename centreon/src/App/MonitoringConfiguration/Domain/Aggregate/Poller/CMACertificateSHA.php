@@ -33,7 +33,7 @@ final readonly class CMACertificateSHA
     {
         $value = trim($value);
         Assert::lengthBetween($value, 1, 255);
-        Assert::regex($value, '/^[A-Fa-f0-9:]+$/', 'CMACertificateSHA must contain only hexadecimal characters and colons. Got: %s');
+        Assert::regex($value, '/^[A-Za-z0-9+\/=:]+$/', 'CMACertificateSHA must be a valid base64-encoded string. Got: %s');
         $this->value = $value;
     }
 }

@@ -42,6 +42,11 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
     {
         $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
 
+        // No ACL resources means no restrictions apply — the user has access to all pollers.
+        if (! $this->connection->fetchOne($accessibleAclResQb->getSQL(), ['contactId' => $userId->value])) {
+            return true;
+        }
+
         $qb = $this->connection->createQueryBuilder();
         $qb
             ->select('1')
