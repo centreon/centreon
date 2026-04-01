@@ -101,6 +101,52 @@ services:
     ports: ["80"]
     profiles: ["mediawiki"]
 
+  remote-server:
+    platform: linux/amd64
+    env_file:
+      - .env
+    image: "${WEB_IMAGE:-docker.centreon.com/centreon/centreon-web-alma9:dev-25.10.x}"
+    ports: ["4001:80"]
+    profiles: ["remote-server"]
+    depends_on:
+      db-remote:
+        condition: service_started
+      web:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: db-remote
+      CENTREON_DATASET: 0
+      CENTREON_LANG: ${CENTREON_LANG:-en_US}
+      DATABASE_PARTITIONING: 0
+      DEBUG: ${DEBUG:-0}
+      CENTRAL_HOST: web
+      CENTRAL_API_USERNAME: ${CENTRAL_API_USERNAME:-admin}
+      CENTRAL_API_PASSWORD: ${CENTRAL_API_PASSWORD:-Centreon!2021}
+      REMOTE_SERVER_NAME: ${REMOTE_SERVER_NAME:-remote-server}
+    volumes:
+      - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/81-register_remote_server_background.sh:/usr/share/centreon/container.d/81-register_remote_server_background.sh
+    healthcheck:
+      test: bash -c "[ -f /tmp/docker.ready ] && [ -f /tmp/remote-server.registered ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
+      interval: 5s
+      retries: 120
+      timeout: 5s
+
+  db-remote:
+    platform: linux/amd64
+    env_file:
+      - .env
+    image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:10.11}"
+    ports: ["3306"]
+    profiles: ["remote-server"]
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 400M
+        reservations:
+          cpus: '0.25'
+          memory: 100M
+
   sso-proxy:
     image: nginx:stable-alpine
     depends_on:
