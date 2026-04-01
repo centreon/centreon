@@ -1,7 +1,5 @@
 FROM quay.io/keycloak/keycloak:26.5.0
 
-LABEL org.opencontainers.image.description="Keycloak image for Centreon E2E tests"
-
 COPY .github/docker/keycloak/configuration/Centreon_SSO_realm.json /realms/Centreon_SSO_realm.json
 
 # change these values to point to a running postgres instance
