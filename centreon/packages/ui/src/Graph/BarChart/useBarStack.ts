@@ -1,13 +1,11 @@
-import { useCallback, useMemo } from 'react';
-
 import { scaleOrdinal } from '@visx/scale';
 import { BarStack, BarStackHorizontal } from '@visx/shape';
 import { useSetAtom } from 'jotai';
 import { equals, keys, omit } from 'ramda';
+import { useCallback, useMemo } from 'react';
 
 import { useDeepMemo } from '../../utils';
-import { Line, TimeValue } from '../common/timeSeries/models';
-
+import type { Line, TimeValue } from '../common/timeSeries/models';
 import { tooltipDataAtom } from './atoms';
 
 interface HoverBarProps {
@@ -67,7 +65,7 @@ export const useBarStack = ({
         domain: lineKeys,
         range: colors
       }),
-    [...lineKeys, ...colors]
+    [...lineKeys, ...colors, colors, lineKeys]
   );
 
   const commonBarStackProps = isHorizontal
@@ -96,12 +94,12 @@ export const useBarStack = ({
           index: barIndex
         });
       },
-    []
+    [lines, timeSeries, setTooltipData]
   );
 
   const exitBar = useCallback((): void => {
     setTooltipData(null);
-  }, []);
+  }, [setTooltipData]);
 
   return {
     BarStackComponent,

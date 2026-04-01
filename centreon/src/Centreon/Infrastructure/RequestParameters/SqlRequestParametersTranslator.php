@@ -98,7 +98,7 @@ class SqlRequestParametersTranslator
      * @throws RequestParametersTranslatorException
      * @return string|null SQL request according to the search parameters
      */
-    public function translateSearchParameterToSql(): ?string
+    public function translateSearchParameterToSql(bool $prependWhere = true): ?string
     {
         $whereQuery = '';
         $search = $this->requestParameters->getSearch();
@@ -106,14 +106,19 @@ class SqlRequestParametersTranslator
             $whereQuery .= $this->createDatabaseQuery($search);
         }
 
-        return ! empty($whereQuery) ? ' WHERE ' . $whereQuery : null;
+        if (empty($whereQuery)) {
+            return null;
+        }
+
+        return $prependWhere ? ' WHERE ' . $whereQuery : ' AND ' . $whereQuery;
     }
 
     public function appendQueryBuilderWithSearchParameter(QueryBuilderInterface $queryBuilder): void
     {
-        $search = $this->requestParameters->getSearch();
-        if (! empty($search)) {
-            $queryBuilder->where($this->createDatabaseQuery($search));
+        if (! empty($search = $this->requestParameters->getSearch())) {
+            if (! empty($whereQuery = $this->createDatabaseQuery($search))) {
+                $queryBuilder->where($whereQuery);
+            }
         }
     }
 

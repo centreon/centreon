@@ -25,6 +25,7 @@ namespace Tests\Notification\Application\UseCase\FindNotifiableResources;
 
 use Centreon\Domain\Contact\Contact;
 use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, NotModifiedResponse};
+use Core\Contact\Domain\AdminResolver;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\ReadNotifiableResourceRepositoryInterface;
@@ -41,13 +42,19 @@ beforeEach(function (): void {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new FindNotifiableResourcesPresenterStub($this->presenterFormatter);
     $this->readRepository = $this->createMock(ReadNotifiableResourceRepositoryInterface::class);
+    $this->adminResolver = $this->createMock(AdminResolver::class);
 });
 
 it('should present a Forbidden Response when user doesn\'t have access to endpoint.', function (): void {
     $contact = (new Contact())->setAdmin(false)->setId(1);
     $requestUid = '';
 
-    $useCase = new FindNotifiableResources($contact, $this->readRepository);
+    $useCase = new FindNotifiableResources($contact, $this->readRepository, $this->adminResolver);
+    $this->adminResolver
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->with($contact)
+        ->willReturn(false);
 
     $useCase($this->presenter, $requestUid);
 
@@ -61,7 +68,12 @@ it('should present an Error Response when an unhandled error occurs.', function 
     $contact = (new Contact())->setAdmin(true)->setId(1);
     $requestUid = '';
 
-    $useCase = new FindNotifiableResources($contact, $this->readRepository);
+    $useCase = new FindNotifiableResources($contact, $this->readRepository, $this->adminResolver);
+    $this->adminResolver
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->with($contact)
+        ->willReturn(true);
     $this->readRepository
         ->expects($this->once())
         ->method('findAllForActivatedNotifications')
@@ -81,7 +93,12 @@ it(
         $contact = (new Contact())->setAdmin(true)->setId(1);
         $requestUid = '40f7bc75fcc26954c7190dc743d0a9a6';
 
-        $useCase = new FindNotifiableResources($contact, $this->readRepository);
+        $useCase = new FindNotifiableResources($contact, $this->readRepository, $this->adminResolver);
+        $this->adminResolver
+            ->expects($this->once())
+            ->method('isAdmin')
+            ->with($contact)
+            ->willReturn(true);
         $this->readRepository
             ->expects($this->once())
             ->method('findAllForActivatedNotifications')
@@ -117,7 +134,12 @@ it(
         $contact = (new Contact())->setAdmin(true)->setId(1);
         $requestUid = '';
 
-        $useCase = new FindNotifiableResources($contact, $this->readRepository);
+        $useCase = new FindNotifiableResources($contact, $this->readRepository, $this->adminResolver);
+        $this->adminResolver
+            ->expects($this->once())
+            ->method('isAdmin')
+            ->with($contact)
+            ->willReturn(true);
         $this->readRepository
             ->expects($this->once())
             ->method('findAllForActivatedNotifications')

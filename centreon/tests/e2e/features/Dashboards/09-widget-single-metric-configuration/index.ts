@@ -164,8 +164,8 @@ Then('a second Single Metric widget is displayed on the dashboard', () => {
 Then('the second widget reports on the same metric as the first widget', () => {
   cy.get('[class*="MuiTypography-h2"]')
     .eq(1)
-    .then(($element) => {
-      const text = $element.text();
+    .then((element) => {
+      const text = element.text();
       expect(text).to.include('%');
     });
 });

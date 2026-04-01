@@ -26,7 +26,6 @@ namespace Core\Security\Token\Infrastructure\Repository;
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
-use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\RequestParameters\Interfaces\NormalizerInterface;
@@ -59,10 +58,9 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
 
     public function __construct(
         ConnectionInterface $connection,
-        QueryBuilderInterface $queryBuilder,
         SqlRequestParametersTranslator $sqlRequestTranslator,
     ) {
-        parent::__construct($connection, $queryBuilder);
+        parent::__construct($connection);
         $this->sqlRequestTranslator = $sqlRequestTranslator;
         $this->sqlRequestTranslator
             ->getRequestParameters()

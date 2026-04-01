@@ -1,5 +1,5 @@
-import { Thresholds } from '../common/models';
-import { Metric } from '../common/timeSeries/models';
+import type { Thresholds } from '../common/models';
+import type { Metric } from '../common/timeSeries/models';
 
 export interface GaugeProps {
   adaptedMaxValue: number;

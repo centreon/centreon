@@ -3,9 +3,11 @@ import {
   type Parameters,
   useFetchQuery
 } from '@centreon/ui';
+
 import { useAtomValue } from 'jotai';
 import { path } from 'ramda';
 import { useCallback } from 'react';
+
 import { graphOptionsAtom } from '../../../Graph/Performance/ExportableGraphWithTimeline/graphOptionsAtoms';
 import { GraphOptionId } from '../../../Graph/Performance/models';
 import { buildListTimelineEventsEndpoint } from '../Timeline/api';
@@ -29,6 +31,9 @@ const useRetrieveTimeLine = ({
     [GraphOptionId.displayEvents, 'value'],
     graphOptions
   );
+  const shouldBypassApiPrefix = Boolean(
+    timelineEndpoint?.includes('/api/latest/')
+  );
 
   const parameters = {
     limit: timelineEventsLimit,
@@ -45,6 +50,7 @@ const useRetrieveTimeLine = ({
     }
   };
   const { data } = useFetchQuery<ListingModel<TimelineEvent>>({
+    baseEndpoint: shouldBypassApiPrefix ? '' : undefined,
     decoder: listTimelineEventsDecoder,
     getEndpoint: () =>
       buildListTimelineEventsEndpoint({

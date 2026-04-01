@@ -1,9 +1,8 @@
-import { ReactNode } from 'react';
+import { Typography } from '@mui/material';
 
+import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-
-import { Typography } from '@mui/material';
 
 import { labelSeverity } from '../../../../translatedLabels';
 import { ResourceDetails } from '../../../models';

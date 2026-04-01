@@ -102,7 +102,7 @@ When('a host is configured', () => {
 
 When('the admin changes the name of a host to {string}', (name: string) => {
   hostName = name;
-  cy.visitHostsListingPage();
+  cy.visitHostsListingPage(3);
   cy.getIframeBody().contains(services.serviceOk.host).click({
     force: true
   });
@@ -123,7 +123,7 @@ Then(
 );
 
 When('the admin duplicates a host', () => {
-  cy.visitHostsListingPage();
+  cy.visitHostsListingPage(3);
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(2).click();
   cy.getIframeBody()
     .find('select')
@@ -143,7 +143,7 @@ Then('a new host is created with identical fields', () => {
 });
 
 When('the admin deletes the host', () => {
-  cy.visitHostsListingPage();
+  cy.visitHostsListingPage(3);
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(2).click();
   cy.getIframeBody()
     .find('select')
@@ -163,7 +163,7 @@ Then('the host is not visible in the host list', () => {
 });
 
 Given('the admin is on the hosts listing page', () => {
-  cy.visitHostsListingPage();
+  cy.visitHostsListingPage(3);
 });
 
 Given('the admin fills in the required fields to create a host', () => {

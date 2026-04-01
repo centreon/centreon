@@ -274,11 +274,12 @@ When(
     cy.getByTestId({ testId: 'Widget type' }).click();
     cy.contains('Status grid').click();
     cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
+    cy.get('input[name="unhandled_problems"]').click();
+    cy.get('[data-testid="Select all"]').eq(1).click();
     cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains('Linux-Servers').realClick();
-    cy.get('input[name="success"]').click();
     cy.getByTestId({ testId: 'confirm' }).click();
     cy.getByTestId({ testId: 'save_dashboard' }).click();
   }
@@ -422,16 +423,10 @@ Then(
 
       case 'status grid': {
         cy.url().should('include', '/centreon/monitoring/resources?filter=');
-        const statusGridStatuses = [
-          'Critical',
-          'Unknown',
-          'Unknown',
-          'Ok',
-          'Up'
-        ];
+        const statusGridStatuses = ['Up', 'Up', 'Up'];
         cy.get('[class$="chip-statusColumnChip"]')
-          .each(($chip) => {
-            if (statusGridStatuses.includes($chip.text()) && !statusFound) {
+          .each((chip) => {
+            if (statusGridStatuses.includes(chip.text()) && !statusFound) {
               statusFound = true;
               return false;
             }
@@ -457,8 +452,8 @@ Then(
           'OK'
         ];
         cy.get('[class$="chip-statusColumnChip"]')
-          .each(($chip) => {
-            if (topButtomStatuses.includes($chip.text()) && !statusFound) {
+          .each((chip) => {
+            if (topButtomStatuses.includes(chip.text()) && !statusFound) {
               statusFound = true;
               return false;
             }

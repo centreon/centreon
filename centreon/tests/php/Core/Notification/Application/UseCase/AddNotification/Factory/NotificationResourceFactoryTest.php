@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\Core\Notification\Application\UseCase\AddNotification\Factory;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
@@ -34,10 +35,12 @@ beforeEach(function (): void {
     $this->notificationResourceRepositoryProvider = $this->createMock(NotificationResourceRepositoryProviderInterface::class);
     $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
+    $this->adminResolver = $this->createMock(AdminResolver::class);
     $this->notificationResouceFactory = new NotificationResourceFactory(
         $this->notificationResourceRepositoryProvider,
         $this->readAccessGroupRepository,
         $this->user,
+        $this->adminResolver,
     );
     $this->resourceRepository = $this->createMock(NotificationResourceRepositoryInterface::class);
     $this->requestResources =  [
@@ -50,9 +53,10 @@ it('should throw a NotificationException if at least one of the resource IDs doe
         ->method('getRepository')
         ->willReturn($this->resourceRepository);
 
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
+        ->with($this->user)
         ->willReturn(true);
 
     $this->resourceRepository
@@ -69,9 +73,10 @@ it('should throw a NotificationException if at least one resource ID is not prov
         ->method('getRepository')
         ->willReturn($this->resourceRepository);
 
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
+        ->with($this->user)
         ->willReturn(true);
 
     $this->notificationResouceFactory->createNotificationResources($this->requestResources);

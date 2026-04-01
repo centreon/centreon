@@ -1,10 +1,9 @@
-import { Formik } from 'formik';
-import { Provider, createStore } from 'jotai';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 
-import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
+import { Formik } from 'formik';
+import { createStore, Provider } from 'jotai';
 
+import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import ConnectedAutocomplete from './ConnectedAutocomplete';
 
 const optionsData = {

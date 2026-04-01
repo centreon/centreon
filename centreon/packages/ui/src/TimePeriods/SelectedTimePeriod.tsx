@@ -1,11 +1,11 @@
+import { Button, ButtonGroup, Tooltip, useTheme } from '@mui/material';
+
 import { useAtomValue, useSetAtom } from 'jotai';
-import { T, always, cond, equals, lte, map, pick } from 'ramda';
+import { always, cond, equals, lte, map, pick, T } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Button, ButtonGroup, Tooltip, useTheme } from '@mui/material';
-
-import { TimePeriod, timePeriods } from './models';
+import { type TimePeriod, timePeriods } from './models';
 import {
   changeSelectedTimePeriodDerivedAtom,
   selectedTimePeriodAtom
@@ -72,16 +72,16 @@ const SelectedTimePeriod = ({
             <Button
               className={classes.button}
               data-testid={id}
-              variant={
-                equals(selectedTimePeriodData?.id, id)
-                  ? 'contained'
-                  : 'outlined'
-              }
               onClick={(): void =>
                 changeSelectedTimePeriod({
                   id,
                   timePeriods: currentTimePeriods
                 })
+              }
+              variant={
+                equals(selectedTimePeriodData?.id, id)
+                  ? 'contained'
+                  : 'outlined'
               }
             >
               {

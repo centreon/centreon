@@ -1,17 +1,15 @@
-import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
+
+import { createStore, Provider } from 'jotai';
+import { BrowserRouter } from 'react-router';
 
 import { Data, FormThreshold } from '../../models';
 import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 import { getPublicWidgetEndpoint } from '../../utils';
-
+import Widget from '.';
 import { metricsTopEndpoint } from './api/endpoint';
 import { TopBottomSettings } from './models';
-
-import Widget from '.';
 
 interface Props {
   data?: Data;
@@ -37,22 +35,22 @@ const widgetData: Data = {
   ],
   resources: [
     {
-      resourceType: 'host-group',
       resources: [
         {
           id: 1,
           name: 'HG1'
         }
-      ]
+      ],
+      resourceType: 'host-group'
     },
     {
-      resourceType: 'host',
       resources: [
         {
           id: 1,
           name: 'H1'
         }
-      ]
+      ],
+      resourceType: 'host'
     }
   ]
 };
@@ -67,13 +65,13 @@ const metaServiceData: Data = {
   ],
   resources: [
     {
-      resourceType: 'meta-service',
       resources: [
         {
           id: 1,
           name: 'M1'
         }
-      ]
+      ],
+      resourceType: 'meta-service'
     }
   ]
 };
@@ -88,17 +86,17 @@ const widgetDataRegex: Data = {
   ],
   resources: [
     {
-      resourceType: 'service',
-      resources: '^Loa'
+      resources: '^Loa',
+      resourceType: 'service'
     },
     {
-      resourceType: 'host',
       resources: [
         {
           id: 1,
           name: 'H1'
         }
-      ]
+      ],
+      resourceType: 'host'
     }
   ]
 };
@@ -237,6 +235,7 @@ describe('TopBottom', () => {
 
     cy.waitForRequest('@getTop').then(({ request }) => {
       expect(request.url.searchParams.get('search')).to.equal(
+        // biome-ignore lint/security/noSecrets: false positive
         '{"$and":[{"$and":[{"host.id":{"$in":[1]}}]},{"$and":[{"$or":[{"name":{"$rg":"^Loa"}}]}]}]}'
       );
     });
@@ -289,12 +288,12 @@ describe('TopBottom', () => {
 
   it('does not display the labels when the corresponding setting is disabled', () => {
     initializeComponent({
-      topMetricsPath: 'Widgets/Graph/topBottom.json',
       topBottomSettings: {
         numberOfValues: 5,
         order: 'bottom',
         showLabels: false
-      }
+      },
+      topMetricsPath: 'Widgets/Graph/topBottom.json'
     });
 
     cy.contains('#1 Centreon_server_Ping_1').should('be.visible');
@@ -352,8 +351,8 @@ resolutionData.forEach(({ height, width }) => {
 
     it(`adapt the resource name area without exceeding the longest name when screen resolution is ${width}px`, () => {
       initializeComponent({
-        viewport: [width, height],
-        topMetricsPath: 'Widgets/Graph/topMetricsWithLongRSname.json'
+        topMetricsPath: 'Widgets/Graph/topMetricsWithLongRSname.json',
+        viewport: [width, height]
       });
       cy.waitForRequest('@getTop');
       cy.contains('#1 Centreon_server_Ping_1').should('be.visible');
@@ -372,8 +371,8 @@ resolutionData.forEach(({ height, width }) => {
 
     it(`maintain a fixed 24px space between resource name and bar chart when screen resolution is ${width}px`, () => {
       initializeComponent({
-        viewport: [width, height],
-        topMetricsPath: 'Widgets/Graph/topMetricsWithUniqueRS.json'
+        topMetricsPath: 'Widgets/Graph/topMetricsWithUniqueRS.json',
+        viewport: [width, height]
       });
       cy.waitForRequest('@getTop');
       cy.contains('#1 Centreon_server_Ping_1').should('be.visible');

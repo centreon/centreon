@@ -1,6 +1,7 @@
 import { useAtomValue } from 'jotai';
 import { equals, filter, length, pipe, toPairs } from 'ramda';
-import { configurationAtom, filtersAtom } from '../../atoms';
+
+import { configurationAtom } from '../../atoms';
 
 const countDifferences = (defaultValues, values) =>
   pipe(
@@ -14,7 +15,7 @@ interface Props {
   changedFiltersCount: number;
 }
 
-const useCoutChangedFilters = (): Props => {
+const useCoutChangedFilters = ({ filtersAtom }): Props => {
   const configuration = useAtomValue(configurationAtom);
   const filters = useAtomValue(filtersAtom);
   const initialValues = configuration?.filtersInitialValues;
@@ -22,8 +23,8 @@ const useCoutChangedFilters = (): Props => {
   const changedFiltersCount = countDifferences(initialValues, filters);
 
   return {
-    isClear: equals(changedFiltersCount, 0),
-    changedFiltersCount
+    changedFiltersCount,
+    isClear: equals(changedFiltersCount, 0)
   };
 };
 

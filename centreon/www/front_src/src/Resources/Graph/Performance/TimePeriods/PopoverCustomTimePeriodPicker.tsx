@@ -1,23 +1,19 @@
-import { useEffect, useState } from 'react';
-
-import dayjs from 'dayjs';
-import { and, cond, equals, isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import { FormHelperText, Popover, Typography } from '@mui/material';
 
 import { DateTimePickerInput } from '@centreon/ui';
 
+import dayjs from 'dayjs';
+import { and, cond, equals, isNil } from 'ramda';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
+
 import { CustomTimePeriodProperty } from '../../../Details/tabs/Graph/models';
 import {
-  labelEndDate,
   labelEndDateGreaterThanStartDate,
   labelFrom,
-  labelStartDate,
   labelTo
 } from '../../../translatedLabels';
-
 import {
   AnchorReferenceEnum,
   CustomStyle,
@@ -151,15 +147,15 @@ const PopoverCustomTimePeriodPickers = ({
       anchorPosition={anchorPosition}
       anchorReference={anchorReference}
       className={cx(classes.paper)}
+      onClose={onClose}
       open={open}
       transformOrigin={transformOrigin}
-      onClose={onClose}
     >
       <div className={classNamePaper} data-testid="popover">
         {renderTitle}
         <div className={classNamePicker}>
           <Typography>{t(labelFrom)}</Typography>
-          <div aria-label={t(labelStartDate) as string}>
+          <div>
             <DateTimePickerInput
               changeDate={changeDate}
               date={start}
@@ -170,7 +166,7 @@ const PopoverCustomTimePeriodPickers = ({
             />
           </div>
           <Typography>{t(labelTo)}</Typography>
-          <div aria-label={t(labelEndDate) as string}>
+          <div>
             <DateTimePickerInput
               changeDate={changeDate}
               date={end}
@@ -182,7 +178,7 @@ const PopoverCustomTimePeriodPickers = ({
           </div>
         </div>
         {error && (
-          <FormHelperText error className={classNameError}>
+          <FormHelperText className={classNameError} error>
             {t(labelEndDateGreaterThanStartDate)}
           </FormHelperText>
         )}

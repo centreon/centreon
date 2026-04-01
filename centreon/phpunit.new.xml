@@ -18,6 +18,9 @@
         <testsuite name="shared">
             <directory>tests/php/App/Shared</directory>
         </testsuite>
+        <testsuite name="shared">
+            <directory>tests/php/App/Shared</directory>
+        </testsuite>
     </testsuites>
 
     <php>

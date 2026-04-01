@@ -27,6 +27,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\Contact\Domain\Model\BasicContact;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Exception\NotificationException;
@@ -43,6 +44,7 @@ class NotificationValidator
         private readonly ReadContactRepositoryInterface $contactRepository,
         private readonly ReadContactGroupRepositoryInterface $contactGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -64,11 +66,12 @@ class NotificationValidator
             throw NotificationException::emptyArrayNotAllowed('users, contactgroups');
         }
         $this->currentContact = $currentContact;
+        $isAdmin = $this->adminResolver->isAdmin($currentContact);
         if ($userIds !== []) {
-            $this->validateUsers($userIds);
+            $this->validateUsers($userIds, $isAdmin);
         }
         if ($contactGroupsIds !== []) {
-            $this->validateContactGroups($contactGroupsIds);
+            $this->validateContactGroups($contactGroupsIds, $isAdmin);
         }
     }
 
@@ -79,11 +82,11 @@ class NotificationValidator
      *
      * @throws \Throwable|NotificationException
      */
-    private function validateUsers(array $contactIdsToValidate): void
+    private function validateUsers(array $contactIdsToValidate, bool $isAdmin): void
     {
         $contactIdsToValidate = array_unique($contactIdsToValidate);
 
-        if ($this->currentContact->isAdmin()) {
+        if ($isAdmin === true) {
             $existingContactIds = $this->contactRepository->retrieveExistingContactIds($contactIdsToValidate);
         } else {
             $accessGroups = $this->accessGroupRepository->findByContact($this->currentContact);
@@ -114,11 +117,11 @@ class NotificationValidator
      *
      * @throws \Throwable|NotificationException
      */
-    private function validateContactGroups(array $contactGroupIds): void
+    private function validateContactGroups(array $contactGroupIds, bool $isAdmin): void
     {
         $contactGroupIds = array_unique($contactGroupIds);
 
-        if ($this->currentContact->isAdmin()) {
+        if ($isAdmin === true) {
             $contactGroups = $this->contactGroupRepository->findByIds($contactGroupIds);
         } else {
             $accessGroups = $this->accessGroupRepository->findByContact($this->currentContact);

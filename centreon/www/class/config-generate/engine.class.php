@@ -19,7 +19,6 @@
  *
  */
 
-use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
@@ -196,8 +195,8 @@ class Engine extends AbstractObject
         'log_level_macros',
         'log_level_process',
         'log_level_runtime',
+        'log_level_otl',
         'broker_module_cfg_file',
-        'credentials_encryption',
     ];
 
     /** @var string[] */
@@ -359,7 +358,11 @@ class Engine extends AbstractObject
         $pollerStmt->execute();
         $pollerVersion = $pollerStmt->fetchColumn();
 
-        if ($pollerVersion === false || version_compare($pollerVersion, '25.05.0', '<')) {
+        if ($pollerVersion === false) {
+            // Unknown version, both broker_module and broker_module_cfg_file configurations are needed
+            $this->engine['broker_module'][] = '/usr/lib64/nagios/cbmod.so ' . $this->engine['broker_module_cfg_file'];
+        } elseif (version_compare($pollerVersion, '25.05.0', '<')) {
+            // Version is less than 25.05.0, add the legacy broker module and remove the cfg file reference
             $this->engine['broker_module'][] = '/usr/lib64/nagios/cbmod.so ' . $this->engine['broker_module_cfg_file'];
             unset($this->engine['broker_module_cfg_file']);
         }
@@ -396,7 +399,8 @@ class Engine extends AbstractObject
             $stmt = $this->backend_instance->db->prepare(
                 'SELECT log_v2_logger, log_level_functions, log_level_config, log_level_events, log_level_checks,
                     log_level_notifications, log_level_eventbroker, log_level_external_command, log_level_commands,
-                    log_level_downtimes, log_level_comments, log_level_macros, log_level_process, log_level_runtime
+                    log_level_downtimes, log_level_comments, log_level_macros, log_level_process, log_level_runtime,
+                    log_level_otl
                 FROM cfg_nagios_logger
                 WHERE cfg_nagios_id = :id'
             );
@@ -423,13 +427,6 @@ class Engine extends AbstractObject
             && $this->engine['enable_notifications'] === '1'
                 ? '1'
                 : '0';
-    }
-
-    private function setEncryptionReady(int $pollerId): void
-    {
-        $readMonitoringServerRepository = $this->kernel->getContainer()->get(ReadMonitoringServerRepositoryInterface::class);
-        $this->engine['credentials_encryption'] = $readMonitoringServerRepository->isEncryptionReady($pollerId);
-
     }
 
     /**
@@ -467,7 +464,6 @@ class Engine extends AbstractObject
         $this->setLoggerCfg();
         $this->getBrokerModules();
         $this->getIntervalLength();
-        $this->setEncryptionReady((int) $poller_id);
         $object = $this->engine;
 
         $timezoneInstance = Timezone::getInstance($this->dependencyInjector);

@@ -1,16 +1,14 @@
-import { ChangeEvent, useMemo } from 'react';
-
-import { useFormikContext } from 'formik';
-import { useTranslation } from 'react-i18next';
-
 import { Box, FormControlLabel, Typography } from '@mui/material';
 
 import { Switch } from '@centreon/ui/components';
 
+import { useFormikContext } from 'formik';
+import { ChangeEvent, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import Subtitle from '../../../components/Subtitle';
 import { useCanEditProperties } from '../../../hooks/useCanEditDashboard';
 import { Widget, WidgetPropertyProps } from '../../models';
-
 import { useSwitchStyles } from './Inputs.styles';
 import { getProperty } from './utils';
 
@@ -43,12 +41,12 @@ const WidgetSwitch = ({
         control={
           <Switch
             checked={value}
+            onChange={changeSwitchValue}
             slotProps={{
               input: {
                 'aria-label': t(label) || ''
               }
             }}
-            onChange={changeSwitchValue}
           />
         }
         disabled={!canEditField}

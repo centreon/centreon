@@ -1,14 +1,12 @@
-import { useMemo } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import { Typography } from '@mui/material';
+
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Subtitle from '../../../../components/Subtitle';
 import { labelDisplayAs } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
 import { useResourceStyles } from '../Inputs.styles';
-
 import { useStyles } from './DisplayType.styles';
 import Option from './Option';
 import useDisplayType from './useDisplayType';

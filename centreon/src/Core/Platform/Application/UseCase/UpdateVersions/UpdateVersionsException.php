@@ -106,4 +106,9 @@ class UpdateVersionsException extends \Exception
     {
         return new self(_('An error occurred when applying post update actions'), 0, $ex);
     }
+
+    public static function errorWhenWritingEngineContextConfiguration(\Throwable $ex): self
+    {
+        return new self(_('An error occurred when writing engine context configuration'), 0, $ex);
+    }
 }

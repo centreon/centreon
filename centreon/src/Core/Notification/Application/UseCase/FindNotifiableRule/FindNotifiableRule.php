@@ -31,6 +31,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Contact\Domain\Model\BasicContact;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Exception\NotificationException;
@@ -55,6 +56,7 @@ final class FindNotifiableRule
         private readonly ReadNotificationRepositoryInterface $notificationRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ContactInterface $user,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -116,7 +118,7 @@ final class FindNotifiableRule
      */
     private function findContactGroupsByNotificationId(int $notificationId): array
     {
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             return $this->notificationRepository->findContactGroupsByNotificationId($notificationId);
         }
 
@@ -136,7 +138,7 @@ final class FindNotifiableRule
      */
     private function findUsersByNotificationId(int $notificationId): array
     {
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             return $this->notificationRepository->findUsersByNotificationId($notificationId);
         }
 

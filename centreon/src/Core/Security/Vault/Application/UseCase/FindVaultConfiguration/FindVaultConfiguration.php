@@ -61,7 +61,7 @@ final class FindVaultConfiguration
             }
 
             if (! $this->readVaultConfigurationRepository->exists()) {
-                $this->error('Vault configuration not found');
+                $this->info('Vault configuration not found');
                 $presenter->presentResponse(
                     new NotFoundResponse('Vault configuration')
                 );

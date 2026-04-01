@@ -1,7 +1,7 @@
+import { DashboardGlobalRole, userAtom } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
-
-import { DashboardGlobalRole, userAtom } from '@centreon/ui-context';
 
 const useIsViewerUser = (): boolean => {
   const { dashboard } = useAtomValue(userAtom);

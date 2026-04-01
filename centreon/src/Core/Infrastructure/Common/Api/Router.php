@@ -96,9 +96,17 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
         // Manage URL Generation for HTTPS and Legacy nested route generation calls
         $context = $this->router->getContext();
-        if ($_SERVER['REQUEST_SCHEME'] === 'https') {
+        $forwardedProtoHeader = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null;
+        if ($forwardedProtoHeader) {
+            // It could be possible that HTTP_X_FORWARDED_PROTO contains multiple comma-separated values e.g "https,http"
+            $proto = mb_strtolower(trim(explode(',', $forwardedProtoHeader)[0]));
+            $scheme = $proto === 'https' ? 'https' : 'http';
+            $context = $this->router->getContext();
+            $context->setScheme($scheme);
+        } elseif ($_SERVER['REQUEST_SCHEME'] === 'https') {
             $context->setScheme($_SERVER['REQUEST_SCHEME']);
         }
+
         if ($_SERVER['SERVER_NAME'] !== 'localhost') {
             $context->setHost($_SERVER['SERVER_NAME']);
         }
@@ -195,5 +203,45 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         return $options === []
             ? $this->getBaseUrl() . '/main.php?p=' . $topologyPage
             : $this->getBaseUrl() . '/main.php?p=' . $topologyPage . '&' . http_build_query($options);
+    }
+
+    /**
+     * Generate a URL for internal API calls using localhost.
+     * This avoids issues with proxies, load balancers, and HTTPS termination.
+     *
+     * @param string $name Route name
+     * @param array<string, mixed> $parameters Route parameters
+     *
+     * @throws \Exception
+     *
+     * @return string The local URL pointing to 127.0.0.1
+     */
+    public function generateLocalUrl(string $name, array $parameters = []): string
+    {
+        $context = $this->router->getContext();
+
+        // Save original context values
+        $originalHost = $context->getHost();
+        $originalScheme = $context->getScheme();
+        $originalHttpPort = $context->getHttpPort();
+
+        // Force local context for internal calls
+        $context->setHost('127.0.0.1');
+        $context->setScheme('http');
+        $context->setHttpPort(80);
+
+        try {
+            $parameters['base_uri'] ??= $this->getBaseUri();
+            if (! empty($parameters['base_uri'])) {
+                $parameters['base_uri'] .= '/';
+            }
+
+            return $this->generate($name, $parameters, self::ABSOLUTE_URL);
+        } finally {
+            // Restore original context
+            $context->setHost($originalHost);
+            $context->setScheme($originalScheme);
+            $context->setHttpPort($originalHttpPort);
+        }
     }
 }

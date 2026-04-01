@@ -549,6 +549,90 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findIdsByCommandNames(array $commandNames): array
+    {
+        if ($commandNames === []) {
+            return [];
+        }
+
+        [$commandBindValues, $commandPlaceholders] = $this->createMultipleBindQuery($commandNames, ':command_');
+
+        $sql = <<<SQL
+                SELECT DISTINCT s.service_id
+                FROM `:db`.service s
+                INNER JOIN `:db`.command c ON s.command_command_id = c.command_id
+                WHERE s.service_register = '0'
+                AND c.command_name IN ({$commandPlaceholders})
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($sql));
+        foreach ($commandBindValues as $placeHolder => $value) {
+            $statement->bindValue($placeHolder, $value, \PDO::PARAM_STR);
+        }
+        $statement->execute();
+
+        return array_map(
+            fn ($row) => (int) $row['service_id'],
+            $statement->fetchAll(\PDO::FETCH_ASSOC)
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findIdsByHostTemplateId(int $hostTemplateId): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT hsr.service_service_id
+                FROM `:db`.`host_service_relation` hsr
+                INNER JOIN `:db`.`service` svc ON svc.service_id = hsr.service_service_id
+                WHERE svc.service_register = '0'
+                AND hsr.host_host_id = :hostTemplateId
+                SQL
+        ));
+        $statement->bindValue(':hostTemplateId', $hostTemplateId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return array_map('intval', $statement->fetchAll(\PDO::FETCH_COLUMN));
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isLinkedToAnyHostTemplate(int $serviceTemplateId, array $hostTemplateIds): bool
+    {
+        if ($hostTemplateIds === []) {
+            return false;
+        }
+
+        $bindIds = [];
+        foreach ($hostTemplateIds as $index => $id) {
+            $bindIds[':tmpl_' . $index] = $id;
+        }
+        $inClause = implode(', ', array_keys($bindIds));
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT 1
+                FROM `:db`.`host_service_relation` hsr
+                WHERE hsr.service_service_id = :serviceTemplateId
+                AND hsr.host_host_id IN ({$inClause})
+                LIMIT 1
+                SQL
+        ));
+        $statement->bindValue(':serviceTemplateId', $serviceTemplateId, \PDO::PARAM_INT);
+        foreach ($bindIds as $key => $id) {
+            $statement->bindValue($key, $id, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return $statement->fetchColumn() !== false;
+    }
+
+    /**
      * @param _ServiceTemplate $data
      *
      * @throws AssertionFailedException

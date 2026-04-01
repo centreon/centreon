@@ -1,10 +1,9 @@
+import type { Point, ProvidedZoom, Translate } from '@visx/zoom/lib/types';
+import { equals } from 'ramda';
 import { useCallback, useState } from 'react';
 
-import { Point, ProvidedZoom, Translate } from '@visx/zoom/lib/types';
-import { equals } from 'ramda';
-
 import { localPoint } from './localPoint';
-import { ZoomState } from './models';
+import type { ZoomState } from './models';
 
 const isLeftMouseButtonClicked = (e: MouseEvent): boolean =>
   equals(e.buttons, 1);

@@ -1,13 +1,11 @@
-import { useMemo } from 'react';
+import { useTheme } from '@mui/material';
 
 import type { Axis } from '@visx/visx';
 import { isNil } from 'ramda';
-
-import { useTheme } from '@mui/material';
+import { useMemo } from 'react';
 
 import { formatMetricValueWithUnit, getUnits } from '../timeSeries';
 import { commonTickLabelProps } from '../utils';
-
 import type { Data, LabelProps } from './models';
 
 interface AxisYData {

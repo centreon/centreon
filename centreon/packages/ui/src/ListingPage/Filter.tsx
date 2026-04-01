@@ -1,8 +1,8 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { Box } from '@mui/material';
 
-import { ReactElement, forwardRef } from 'react';
+import { forwardRef, type ReactElement } from 'react';
+import { makeStyles } from 'tss-react/mui';
+
 import { useMemoComponent } from '..';
 
 const useStyles = makeStyles()((theme) => ({

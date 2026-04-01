@@ -19,6 +19,10 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 require_once '../../require.php';
 require_once './DB-Func.php';
 require_once $centreon_path . 'bootstrap.php';
@@ -27,7 +31,7 @@ require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonDuration.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
-require_once $centreon_path . 'www/class/centreonACL.class.php';
+require_once $centreon_path . 'www/class/centreonAclLazy.class.php';
 require_once $centreon_path . 'www/class/centreonHost.class.php';
 require_once $centreon_path . 'www/class/centreonMedia.class.php';
 require_once $centreon_path . 'www/class/centreonCriticality.class.php';
@@ -39,18 +43,34 @@ if (! isset($_SESSION['centreon'], $_GET['widgetId'], $_GET['list'])) {
     exit;
 }
 
-$db = $dependencyInjector['configuration_db'];
-if (CentreonSession::checkSession(session_id(), $db) == 0) {
+/**
+ * @var CentreonDB $configurationDatabase
+ */
+$configurationDatabase = $dependencyInjector['configuration_db'];
+if (CentreonSession::checkSession(session_id(), $configurationDatabase) == 0) {
     exit;
 }
-$dbb = $dependencyInjector['realtime_db'];
+
+/**
+ * @var CentreonDB $realtimeDatabase
+ */
+$realtimeDatabase = $dependencyInjector['realtime_db'];
 
 // Init Objects
-$criticality = new CentreonCriticality($db);
-$aStateType = ['1' => 'H', '0' => 'S'];
+$criticality = new CentreonCriticality($configurationDatabase);
+$aStateType = [
+    '1' => 'H',
+    '0' => 'S',
+];
 
 $centreon = $_SESSION['centreon'];
-$widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
+
+$widgetId = filter_input(
+    INPUT_GET,
+    'widgetId',
+    FILTER_VALIDATE_INT,
+    ['options' => ['default' => 0]],
+);
 
 /**
  * Sanitize and concatenate selected resources for the query
@@ -62,20 +82,31 @@ if (str_contains($_GET['list'], ',')) {
     $exportList[] = $_GET['list'];
 }
 
+// if export list contains a 0, that means all checkboxes a checked.
+if (in_array('0', $exportList, true)) {
+    $exportList = $_SESSION[sprintf('w_hm_%d', $widgetId)];
+}
+
 // Filter out invalid host IDs
 $filteredHostList = array_filter($exportList, static function ($hostId) {
     return (int) $hostId > 0; // Keep only valid positive integers
 });
 
-[$hostBindValues, $hostQuery] = createMultipleBindQuery(
-    $filteredHostList,
-    ':host_',
-    PDO::PARAM_INT
-);
 $mainQueryParameters = [];
 
-$widgetObj = new CentreonWidget($centreon, $db);
-$preferences = $widgetObj->getWidgetPreferences($widgetId);
+try {
+    $widgetObj = new CentreonWidget($centreon, $configurationDatabase);
+    $preferences = $widgetObj->getWidgetPreferences($widgetId);
+} catch (Exception $e) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        'Error while getting widget preferences for the host monitoring custom view',
+        ['widget_id' => $widgetId],
+        $e
+    );
+
+    throw $e;
+}
 
 // Get status labels
 $stateLabels = getLabels();
@@ -111,18 +142,47 @@ $columns = <<<'SQL'
             cv2.value AS criticality_id,
             cv.name IS NULL as isnull
     SQL;
+
 $baseQuery = <<<'SQL'
         FROM hosts h
         LEFT JOIN `customvariables` cv
             ON (cv.host_id = h.host_id AND cv.service_id IS NULL AND cv.name = 'CRITICALITY_LEVEL')
         LEFT JOIN `customvariables` cv2
             ON (cv2.host_id = h.host_id AND cv2.service_id IS NULL AND cv2.name = 'CRITICALITY_ID')
-        WHERE enabled = 1
-        AND h.name NOT LIKE '_Module_%'
     SQL;
 
+if (! $centreon->user->admin) {
+    $acls = new CentreonAclLazy($centreon->user->user_id);
+    $accessGroups = $acls->getAccessGroups()->getIds();
+
+    ['parameters' => $accessGroupParameters, 'placeholderList' => $accessGroupList] = createMultipleBindParameters(
+        $accessGroups,
+        'access_group',
+        QueryParameterTypeEnum::INTEGER
+    );
+
+    $baseQuery .= <<<SQL
+            INNER JOIN centreon_acl acl
+                ON h.host_id = acl.host_id
+                AND acl.service_id IS NULL
+                AND acl.group_id IN ({$accessGroupList})
+        SQL;
+
+    $mainQueryParameters = [...$accessGroupParameters, ...$mainQueryParameters];
+}
+
+$baseQuery .= " WHERE enabled = 1 AND h.name NOT LIKE '_Module_%'";
+
+['parameters' => $hostQueryParameters, 'placeholderList' => $hostQuery] = createMultipleBindParameters(
+    $filteredHostList,
+    'host_',
+    QueryParameterTypeEnum::INTEGER,
+);
+
+$mainQueryParameters = [...$hostQueryParameters, ...$mainQueryParameters];
+
 if (! empty($hostQuery)) {
-    $baseQuery .= 'AND h.host_id IN (' . $hostQuery . ') ';
+    $baseQuery .= ' AND h.host_id IN (' . $hostQuery . ') ';
 }
 
 if (isset($preferences['host_name_search']) && $preferences['host_name_search'] != '') {
@@ -132,11 +192,7 @@ if (isset($preferences['host_name_search']) && $preferences['host_name_search'] 
         $search = $tab[1];
     }
     if ($op && isset($search) && $search != '') {
-        $mainQueryParameters[] = [
-            'parameter' => ':host_name_search',
-            'value' => $search,
-            'type' => PDO::PARAM_STR,
-        ];
+        $mainQueryParameters[] = QueryParameter::string('host_name_search', $search);
         $hostNameCondition = 'h.name ' . CentreonUtils::operandToMysqlFormat($op) . ' :host_name_search ';
         $baseQuery = CentreonUtils::conditionBuilder($baseQuery, $hostNameCondition);
     }
@@ -194,52 +250,42 @@ if (isset($preferences['state_type_filter']) && $preferences['state_type_filter'
 
 if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
     $results = explode(',', $preferences['hostgroup']);
-    $queryHg = '';
-    foreach ($results as $result) {
-        if ($queryHg != '') {
-            $queryHg .= ', ';
-        }
-        $queryHg .= ':id_' . $result;
-        $mainQueryParameters[] = [
-            'parameter' => ':id_' . $result,
-            'value' => (int) $result,
-            'type' => PDO::PARAM_INT,
-        ];
-    }
+    ['parameters' => $hostGroupIdsParameters, 'placeholderList' => $hostGroupList] = createMultipleBindParameters(
+        $results,
+        'hg_id',
+        QueryParameterTypeEnum::INTEGER,
+    );
+
     $hostgroupHgIdCondition = <<<SQL
         h.host_id IN (
               SELECT host_id
               FROM hosts_hostgroups
-              WHERE hostgroup_id IN ({$queryHg}))
+              WHERE hostgroup_id IN ({$hostGroupList}))
         SQL;
+
     $baseQuery = CentreonUtils::conditionBuilder($baseQuery, $hostgroupHgIdCondition);
+
+    $mainQueryParameters = [...$mainQueryParameters, ...$hostGroupIdsParameters];
 }
+
 if (! empty($preferences['display_severities']) && ! empty($preferences['criticality_filter'])) {
-    $tab = explode(',', $preferences['criticality_filter']);
-    $labels = '';
-    foreach ($tab as $p) {
-        if ($labels != '') {
-            $labels .= ',';
-        }
-        $labels .= ':id_' . $p;
-        $mainQueryParameters[] = [
-            'parameter' => ':id_' . $p,
-            'value' => (int) $p,
-            'type' => PDO::PARAM_INT,
-        ];
-    }
+    $severities = explode(',', $preferences['criticality_filter']);
+    ['parameters' => $severityParameters, 'placeholderList' => $severityList] = createMultipleBindParameters(
+        $severities,
+        'severity_id',
+        QueryParameterTypeEnum::INTEGER,
+    );
+
     $SeverityIdCondition
         = "h.host_id IN (
             SELECT DISTINCT host_host_id
             FROM `{$conf_centreon['db']}`.hostcategories_relation
-            WHERE hostcategories_hc_id IN ({$labels}))";
+            WHERE hostcategories_hc_id IN ({$severityList}))";
+
+    $mainQueryParameters = [...$mainQueryParameters, ...$severityParameters];
     $baseQuery = CentreonUtils::conditionBuilder($baseQuery, $SeverityIdCondition);
 }
-if (! $centreon->user->admin) {
-    $pearDB = $db;
-    $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
-    $baseQuery .= $aclObj->queryBuilder('AND', 'h.host_id', $aclObj->getHostsString('ID', $dbb));
-}
+
 $orderBy = 'h.name ASC';
 
 $allowedOrderColumns = [
@@ -292,37 +338,17 @@ if ($orderByToAnalyse !== null) {
 $data = [];
 
 try {
-    // Query to count total rows
-    $countQuery = 'SELECT COUNT(*) ' . $baseQuery;
-
     // Main SELECT query
     $query = $columns . $baseQuery;
     $query .= " ORDER BY {$orderBy}";
 
-    $countStatement = $dbb->prepareQuery($countQuery);
-    $statement = $dbb->prepareQuery($query);
-
-    // Bind parameters
-    foreach ($mainQueryParameters as $parameter) {
-        $countStatement->bindValue($parameter['parameter'], $parameter['value'], $parameter['type']);
-        $statement->bindValue($parameter['parameter'], $parameter['value'], $parameter['type']);
-    }
-
-    $dbb->executePreparedQuery($countStatement, $hostBindValues, true);
-    $nbRows = (int) $dbb->fetchColumn($countStatement);
-
-    // Execute the query
-    $dbb->executePreparedQuery($statement, $hostBindValues, true);
-    // Unset parameters
-    unset($parameter, $mainQueryParameters);
-
     $outputLength = $preferences['output_length'] ?? 50;
     $commentLength = $preferences['comment_length'] ?? 50;
-    $hostObj = new CentreonHost($db);
+    $hostObj = new CentreonHost($configurationDatabase);
     $gmt = new CentreonGMT();
     $gmt->getMyGMTFromSession(session_id());
 
-    while ($row = $dbb->fetch($statement)) {
+    foreach ($realtimeDatabase->iterateAssociative($query, QueryParameters::create($mainQueryParameters)) as $row) {
         foreach ($row as $key => $value) {
             if ($key == 'last_check') {
                 $value = $gmt->getDate('Y-m-d H:i:s', $value);
@@ -349,9 +375,9 @@ try {
         }
 
         if (isset($preferences['display_last_comment']) && $preferences['display_last_comment']) {
-            $res2 = $dbb->prepare(
+            $res2 = $realtimeDatabase->prepare(
                 <<<'SQL'
-                    SELECT 
+                    SELECT
                         1 AS REALTIME,
                         data
                     FROM comments

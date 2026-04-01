@@ -19,18 +19,25 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 require_once '../require.php';
+require_once '../widget-error-handling.php';
 require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonUser.class.php';
-require_once $centreon_path . 'www/class/centreonACL.class.php';
+require_once $centreon_path . 'www/class/centreonAclLazy.class.php';
+require_once $centreon_path . 'www/include/common/sqlCommonFunction.php';
 
-$pearDB = $dependencyInjector['configuration_db'];
+/** @var CentreonDB $configurationDatabase */
+$configurationDatabase = $dependencyInjector['configuration_db'];
 
 CentreonSession::start(1);
-if (! CentreonSession::checkSession(session_id(), $pearDB)) {
+if (! CentreonSession::checkSession(session_id(), $configurationDatabase)) {
     echo 'Bad Session';
 
     exit();
@@ -41,93 +48,114 @@ if (! isset($_REQUEST['widgetId'])) {
 }
 
 $centreon = $_SESSION['centreon'];
-$widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
+
+$widgetId = filter_var(
+    $_REQUEST['widgetId'],
+    FILTER_VALIDATE_INT,
+);
 
 try {
-    if ($widgetId === false) {
-        throw new InvalidArgumentException('Widget ID must be an integer');
-    }
-
-    global $pearDB;
-    $pearDB = $dependencyInjector['configuration_db'];
-    $dbAcl = $dependencyInjector['configuration_db'];
-    $db = $dependencyInjector['configuration_db'];
-    $db2 = $dependencyInjector['realtime_db'];
-
-    $widgetObj = new CentreonWidget($centreon, $db);
-    $preferences = $widgetObj->getWidgetPreferences($widgetId);
-
-    $autoRefresh = filter_var($preferences['refresh_interval'], FILTER_VALIDATE_INT);
-
-    if ($autoRefresh === false || $autoRefresh < 5) {
-        $autoRefresh = 30;
-    }
     $variablesThemeCSS = match ($centreon->user->theme) {
         'light' => 'Generic-theme',
         'dark' => 'Centreon-Dark',
         default => throw new Exception('Unknown user theme : ' . $centreon->user->theme),
     };
-} catch (Exception $e) {
-    echo $e->getMessage() . '<br/>';
+
+    $theme = $variablesThemeCSS === 'Generic-theme'
+        ? $variablesThemeCSS . '/Variables-css'
+        : $variablesThemeCSS;
+
+    if ($widgetId === false) {
+        throw new InvalidArgumentException('Widget ID must be an integer');
+    }
+
+    /** @var CentreonDB $realTimeDatabase */
+    $realTimeDatabase = $dependencyInjector['realtime_db'];
+
+    $widgetObj = new CentreonWidget($centreon, $configurationDatabase);
+
+    /**
+     * @var array{
+     *     service: string,
+     *     graph_period: string,
+     *     refresh_interval: string,
+     * } $preferences
+     */
+    $preferences = $widgetObj->getWidgetPreferences($widgetId);
+
+    if (! preg_match('/^(\d+)-(\d+)$/', $preferences['service'], $matches)) {
+        throw new InvalidArgumentException(_('Please select a resource first'));
+    }
+
+    [, $hostId, $serviceId] = $matches;
+
+    if (empty($preferences['graph_period'])) {
+        throw new InvalidArgumentException(_('Please select a graph period'));
+    }
+
+    $autoRefresh = filter_var(
+        $preferences['refresh_interval'],
+        FILTER_VALIDATE_INT,
+    );
+
+    if ($autoRefresh === false || $autoRefresh < 5) {
+        $autoRefresh = 30;
+    }
+
+    if (! $centreon->user->admin) {
+        $acls = new CentreonAclLazy($centreon->user->user_id);
+        $accessGroups = $acls->getAccessGroups();
+
+        if ($accessGroups->isEmpty()) {
+            throw new Exception(sprintf('You are not allowed to see graphs for service identified by ID %d', $serviceId));
+        }
+
+        $queryParameters = [
+            QueryParameter::int('serviceId', (int) $serviceId),
+            QueryParameter::int('hostId', (int) $hostId),
+        ];
+
+        ['parameters' => $aclParameters, 'placeholderList' => $bindQuery] = createMultipleBindParameters(
+            $accessGroups->getIds(),
+            'access_group_id',
+            QueryParameterTypeEnum::INTEGER,
+        );
+
+        $request = <<<SQL
+                SELECT
+                    1 AS REALTIME,
+                    host_id
+                FROM
+                    centreon_acl
+                WHERE
+                    host_id = :hostId
+                    AND service_id = :serviceId
+                    AND group_id IN ({$bindQuery})
+            SQL;
+
+        if ($realTimeDatabase->fetchAllAssociative($request, QueryParameters::create([...$queryParameters, ...$aclParameters])) === []) {
+            throw new Exception(sprintf('You are not allowed to see graphs for service identified by ID %d', $serviceId));
+        }
+    }
+} catch (Exception $exception) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+        message: 'Error fetching data for graph-monitoring widget: ' . $exception->getMessage(),
+        exception: $exception
+    );
+    showError($exception->getMessage(), $theme ?? 'Generic-theme/Variables-css');
 
     exit;
-}
-
-if ($centreon->user->admin == 0) {
-    $access = new CentreonACL($centreon->user->get_id());
-    $grouplist = $access->getAccessGroups();
-    $grouplistStr = $access->getAccessGroupsString();
 }
 
 // Smarty template initialization
 $path = $centreon_path . 'www/widgets/graph-monitoring/src/';
 $template = SmartyBC::createSmartyTemplate($path, '/');
-
-// Check ACL
-
-$acl = 1;
-if (isset($tab[0], $tab[1])   && $centreon->user->admin == 0) {
-    $sql = <<<'SQL'
-        SELECT
-            1 AS REALTIME,
-            host_id
-        FROM centreon_acl
-        WHERE host_id = :hostId
-        AND service_id = :serviceId
-        AND group_id IN (:groupList)
-        SQL;
-
-    $res = $dbAcl->prepare($sql);
-    $res->bindValue(':hostId', $tab[0], PDO::PARAM_INT);
-    $res->bindValue(':serviceId', $tab[1], PDO::PARAM_INT);
-    $res->bindValue(':groupList', $grouplistStr, PDO::PARAM_STR);
-    $res->execute();
-
-    if (! $res->rowCount()) {
-        $acl = 0;
-    }
-}
-
-$servicePreferences = '';
-
-if ($acl === 0) {
-    $servicePreferences = '';
-} elseif (isset($preferences['service']) === false || trim($preferences['service']) === '') {
-    $servicePreferences = "<div class='update' style='text-align:center;margin-left: auto;margin-right: "
-        . "auto;width:350px;'>" . _('Please select a resource first') . '</div>';
-} elseif (isset($preferences['graph_period']) === false || trim($preferences['graph_period']) === '') {
-    $servicePreferences = "<div class='update' style='text-align:center;margin-left: auto;margin-right: "
-        . "auto;width:350px;'>" . _('Please select a graph period') . '</div>';
-}
-$template->assign(
-    'theme',
-    $variablesThemeCSS === 'Generic-theme' ? $variablesThemeCSS . '/Variables-css' : $variablesThemeCSS
-);
+$template->assign('theme', $theme);
 $template->assign('widgetId', $widgetId);
 $template->assign('preferences', $preferences);
 $template->assign('interval', $preferences['graph_period']);
 $template->assign('autoRefresh', $autoRefresh);
-$template->assign('graphId', str_replace('-', '_', $preferences['service']));
-$template->assign('servicePreferences', $servicePreferences);
+$template->assign('graphId', sprintf('%d_%d', (int) $hostId, (int) $serviceId));
 
 $template->display('index.ihtml');

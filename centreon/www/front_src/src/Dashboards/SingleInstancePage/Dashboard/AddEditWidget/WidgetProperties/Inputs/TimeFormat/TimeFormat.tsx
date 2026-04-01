@@ -1,7 +1,6 @@
-import { WidgetButtonGroup } from '..';
 import { label12Hours, label24Hours } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
-
+import { WidgetButtonGroup } from '..';
 import { useTimeFormat } from './useTimeFormat';
 
 const options = [

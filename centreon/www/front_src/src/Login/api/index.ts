@@ -1,7 +1,6 @@
 import axios from 'axios';
 
 import { Login, Redirect } from '../models';
-
 import { loginEndpoint } from './endpoint';
 
 const postLogin =

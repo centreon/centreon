@@ -6,7 +6,6 @@ import {
   CriteriaDisplayProps,
   CriteriaNames
 } from '../Criterias/models';
-
 import {
   CategoryHostStatus,
   CategoryServiceStatus,
@@ -93,7 +92,7 @@ export const replaceValueFromSearchInput = ({
 }): string => {
   const array = search.split(' ');
 
-  const targetByIndex = array.findIndex((item) => item === targetField);
+  const targetByIndex = array.indexOf(targetField);
 
   const result = array.map((item, index) => {
     return index === targetByIndex ? newContent : item;

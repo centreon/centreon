@@ -19,4 +19,4 @@
  *
  */
 
-require __DIR__ . '/generate_routes.php';
+require __DIR__ . '/clear_cache.php';

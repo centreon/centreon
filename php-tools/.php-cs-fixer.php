@@ -28,8 +28,8 @@ $config = require_once __DIR__ . '/../php-tools/php-cs-fixer/config/base.strict.
 
 $finder = Finder::create()
     ->in([
-        __DIR__ . '/php-cs-fixer/src/',
-        __DIR__ . '/phpstan/src/',
+        __DIR__ . '/php-cs-fixer/',
+        __DIR__ . '/phpstan/',
         __DIR__ . '/rector/',
     ])
     ->append([

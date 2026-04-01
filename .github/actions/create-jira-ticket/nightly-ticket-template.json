@@ -21,22 +21,32 @@
       "content": [
         {
           "type": "text",
-          "text": "This incident ticket relates to the @MODULE_NAME@ nightly on the @GITHUB_BRANCH@ branch which failed on @DATE@. This ticket covers the failure on @FAILED_JOB@."
+          "text": "This incident ticket relates to the @MODULE_NAME@ nightly on the @GITHUB_BRANCH@ branch. This ticket covers the failure on @FAILED_JOB@."
         }
       ]
     },
     {
-      "type": "paragraph",
-      "content": [
+      "type":"bulletList",
+      "content":[
         {
-          "type": "text",
-          "text": "Link to the failed nightly",
-          "marks": [
+          "type":"listItem",
+          "content":[
             {
-              "type": "link",
-              "attrs": {
-                "href": "@GITHUB_SERVER_URL@/@GITHUB_REPOSITORY@/actions/runs/@GITHUB_RUN_ID@/attempts/@GITHUB_RUN_ATTEMPT@"
-              }
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Link to the failed nightly on @DATE@",
+                  "marks": [
+                    {
+                      "type": "link",
+                      "attrs": {
+                        "href": "@GITHUB_SERVER_URL@/@GITHUB_REPOSITORY@/actions/runs/@GITHUB_RUN_ID@/attempts/@GITHUB_RUN_ATTEMPT@"
+                      }
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }

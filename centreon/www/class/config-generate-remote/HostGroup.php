@@ -44,7 +44,7 @@ class HostGroup extends AbstractObject
         hg_name,
         hg_alias,
         hg_icon_image,
-        geo_coords,
+        geo_coords
     ';
 
     /** @var string[] */

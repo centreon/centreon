@@ -1,3 +1,5 @@
+import { getUrlQueryParameters } from '@centreon/ui';
+
 import { atom } from 'jotai';
 import { atomWithDefault, atomWithStorage } from 'jotai/utils';
 import {
@@ -18,16 +20,13 @@ import {
 } from 'ramda';
 import { TFunction } from 'react-i18next';
 
-import { getUrlQueryParameters } from '@centreon/ui';
-
 import { baseKey } from '../storage';
 import { labelNewFilter } from '../translatedLabels';
-
 import { Criteria, CriteriaValue } from './Criterias/models';
 import { build, parse } from './Criterias/searchQueryLanguage';
 import {
-  Filter,
   allFilter,
+  Filter,
   isCustom,
   newFilter,
   resourceProblemsFilter,

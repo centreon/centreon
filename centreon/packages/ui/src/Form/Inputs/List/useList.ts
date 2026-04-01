@@ -1,6 +1,4 @@
-import { useMemo, useRef } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
+import { type FormikValues, useFormikContext } from 'formik';
 import {
   append,
   equals,
@@ -11,8 +9,9 @@ import {
   reject,
   sortBy
 } from 'ramda';
+import { useMemo, useRef } from 'react';
 
-import { SelectEntry } from '../../..';
+import type { SelectEntry } from '../../..';
 
 interface UseListState {
   addItem: (newItem: SelectEntry) => void;
@@ -75,7 +74,7 @@ export const useList = ({ fieldName }): UseListState => {
   return {
     addItem,
     deleteItem,
-    sortList,
-    sortedList
+    sortedList,
+    sortList
   };
 };

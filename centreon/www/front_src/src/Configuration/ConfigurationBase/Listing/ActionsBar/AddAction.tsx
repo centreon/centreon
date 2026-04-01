@@ -1,11 +1,11 @@
-import { useTranslation } from 'react-i18next';
-
 import AddIcon from '@mui/icons-material/Add';
 
 import { Button } from '@centreon/ui/components';
 
 import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
+
 import { modalStateAtom } from '../../atoms';
 import { labelAdd } from '../../translatedLabels';
 
@@ -28,9 +28,9 @@ const Add = (): JSX.Element => {
       data-testid="add-resource"
       icon={<AddIcon />}
       iconVariant="start"
+      onClick={openCreatetModal}
       size="medium"
       variant="primary"
-      onClick={openCreatetModal}
     >
       {t(labelAdd)}
     </Button>

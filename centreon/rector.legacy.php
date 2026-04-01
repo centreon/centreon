@@ -22,32 +22,9 @@
 declare(strict_types=1);
 
 $rectorConfig = require_once __DIR__ . '/../php-tools/rector/config/base.unstrict.php';
+$pathsConfig = require_once __DIR__ . '/rector.conf.php';
 
 return $rectorConfig
     ->withCache(__DIR__ . '/var/cache/rector.legacy')
-    ->withPaths([
-        // directories
-        __DIR__ . '/api',
-        __DIR__ . '/config',
-        __DIR__ . '/cron',
-        __DIR__ . '/lib',
-        __DIR__ . '/libinstall',
-        __DIR__ . '/packaging',
-        __DIR__ . '/src',
-        __DIR__ . '/tests/php',
-        __DIR__ . '/tools',
-        __DIR__ . '/www',
-        // files
-        __DIR__ . '/bootstrap.php',
-        __DIR__ . '/container.php',
-    ])
-    ->withSkip([
-        // directories
-        __DIR__ . '/www/class/centreon-clapi/',
-        __DIR__ . '/src/Adaptation',
-        __DIR__ . '/src/App',
-        __DIR__ . '/src/Core',
-        __DIR__ . '/tests/php/Adaptation',
-        __DIR__ . '/tests/php/App',
-        __DIR__ . '/tests/php/Core',
-    ]);
+    ->withPaths($pathsConfig['legacy']['paths'])
+    ->withSkip($pathsConfig['legacy']['skip']);

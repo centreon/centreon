@@ -1,16 +1,14 @@
-import { useCallback, useMemo } from 'react';
-
 import { FormikValues, useFormikContext } from 'formik';
-import { path, equals, isEmpty, propEq, reject, split } from 'ramda';
+import { equals, isEmpty, path, propEq, reject, split } from 'ramda';
+import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
-  SingleConnectedAutocompleteField,
   buildListingEndpoint,
+  SingleConnectedAutocompleteField,
   useMemoComponent
 } from '../..';
 import MultiConnectedAutocompleteField from '../../InputField/Select/Autocomplete/Connected/Multi';
-
 import { InputPropsWithoutGroup, InputType } from './models';
 
 const defaultFilterKey = 'name';
@@ -44,9 +42,26 @@ const ConnectedAutocomplete = ({
 
   const isMultiple = equals(type, InputType.MultiConnectedAutocomplete);
 
-  const getEndpoint = (parameters): string =>
-    buildListingEndpoint({
+  const getEndpoint = (parameters): string => {
+    const nameQueryParameters =
+      connectedAutocomplete?.useNewAPIFormat && parameters?.search
+        ? [
+            {
+              name: 'name[lk]',
+              value: parameters.search.conditions[0].values.$lk.slice(1, -1)
+            }
+          ]
+        : [];
+
+    return buildListingEndpoint({
+      apiFormat: connectedAutocomplete?.useNewAPIFormat
+        ? 'JSON-LD'
+        : 'Standard',
       baseEndpoint: connectedAutocomplete?.endpoint,
+      customQueryParameters: [
+        ...(connectedAutocomplete?.customQueryParameters || []),
+        ...nameQueryParameters
+      ],
       parameters: {
         ...parameters,
         search: {
@@ -57,9 +72,9 @@ const ConnectedAutocomplete = ({
           ...parameters.search
         },
         sort: { [filterKey]: 'ASC' }
-      },
-      customQueryParameters: connectedAutocomplete?.customQueryParameters || []
+      }
     });
+  };
 
   const fieldNamePath = split('.', fieldName);
 
@@ -67,12 +82,12 @@ const ConnectedAutocomplete = ({
     (_, value): void => {
       if (change) {
         change({
-          setFieldValue,
-          value,
           setFieldTouched,
+          setFieldValue,
+          setTouched,
           setValues,
-          values,
-          setTouched
+          value,
+          values
         });
 
         return;
@@ -129,25 +144,28 @@ const ConnectedAutocomplete = ({
       <AutocompleteField
         chipProps={chipProps}
         dataTestId={dataTestId}
+        decoder={connectedAutocomplete?.decoder}
         disableClearable={false}
-        disableSortedOptions={disableSortedOptions}
         disabled={disabled}
+        disableSelectAll={connectedAutocomplete?.disableSelectAll}
+        disableSortedOptions={disableSortedOptions}
         error={error}
         field={filterKey}
         getEndpoint={getEndpoint}
-        decoder={connectedAutocomplete?.decoder}
+        getOptionLabel={connectedAutocomplete?.getOptionLabel}
         getRenderedOptionText={connectedAutocomplete?.getRenderedOptionText}
+        helperText={connectedAutocomplete?.helperText}
         initialPage={1}
         isOptionEqualToValue={isOptionEqualToValue}
         label={t(label)}
+        limitTags={connectedAutocomplete?.limitTags}
         name={fieldName}
-        required={isRequired}
-        value={value ?? null}
         onBlur={blur}
         onChange={changeAutocomplete}
-        disableSelectAll={connectedAutocomplete?.disableSelectAll}
-        limitTags={connectedAutocomplete?.limitTags}
+        optionProperty={connectedAutocomplete?.optionProperty}
+        required={isRequired}
         searchConditions={connectedAutocomplete?.additionalConditionParameters}
+        value={value ?? null}
       />
     ),
     memoProps: [

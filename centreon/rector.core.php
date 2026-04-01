@@ -22,11 +22,9 @@
 declare(strict_types=1);
 
 $rectorConfig = require_once __DIR__ . '/../php-tools/rector/config/base.unstrict.php';
+$pathsConfig = require_once __DIR__ . '/rector.conf.php';
 
 return $rectorConfig
     ->withCache(__DIR__ . '/var/cache/rector.core')
-    ->withPaths([
-        // directories
-        __DIR__ . '/src/Core',
-        __DIR__ . '/tests/php/Core',
-    ]);
+    ->withPaths($pathsConfig['core']['paths'])
+    ->withSkip($pathsConfig['core']['skip']);

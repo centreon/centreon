@@ -1,12 +1,12 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react/no-unused-prop-types */
 
+import { ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
+
 import DOMPurify from 'dompurify';
 import parse from 'html-react-parser';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-
-import { ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
 
 import {
   labelAuthor,
@@ -15,7 +15,6 @@ import {
   labelPersistent,
   labelSticky
 } from '../../../../translatedLabels';
-
 import DetailsTable, { DetailsTableProps, getYesNoLabel } from '.';
 
 const useStyles = makeStyles()({

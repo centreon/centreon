@@ -17,71 +17,64 @@
  *
  */
 
-/**
- * Load Page
- */
 function loadPage() {
-    jQuery.ajax("./src/index.php?widgetId=" + widgetId + "&page=" + pageNumber, {
-        success: function (htmlData) {
-            jQuery("#hostMonitoringTable").empty().append(htmlData).append(function () {
-                var h = jQuery("#hostMonitoringTable").prop("scrollHeight");
-                parent.iResize(window.name, h);
-            });
-            jQuery('.checkall').on('change', function () {
-                var chck = this.checked;
-                $(this).parents().find(':checkbox').each(function () {
-                    $(this).prop('checked', chck);
-                    clickedCb[$(this).attr('id')] = chck;
-                    try {
-                        localStorage.setItem('w_hm_' + $(this).attr('id'), chck ? '1' : '0');
-                    } catch (e) {
-                        console.warn('Failed to save checkbox state:', e);
-                    }
-                });
-            });
-        }
-    });
-    if (autoRefresh) {
-        if (timeout) {
-            clearTimeout(timeout);
-        }
-        timeout = setTimeout(loadPage, (autoRefresh * 1000));
+  $.ajax(`./src/index.php?widgetId=${widgetId}&page=${pageNumber}`, {
+    success: function (htmlData) {
+      $("#hostMonitoringTable").empty().append(htmlData).append(function () {
+        var h = $("#hostMonitoringTable").prop("scrollHeight");
+        parent.iResize(window.name, h);
+      });
+      $('.checkall').on('change', function () {
+        var chck = this.checked;
+        $(this).parents().find(':checkbox').each(function () {
+          $(this).prop('checked', chck);
+          clickedCb[$(this).attr('id')] = chck;
+          try {
+            localStorage.setItem('w_hm_' + $(this).attr('id'), chck ? '1' : '0');
+          } catch (e) {
+            console.warn('Failed to save checkbox state:', e);
+          }
+        });
+      });
     }
+  });
+
+  if (autoRefresh) {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+
+    timeout = setTimeout(loadPage, (autoRefresh * 1000));
+  }
 }
 
-/*
- * Load toolbar
- */
 function loadToolBar() {
-    jQuery("#toolBar").load("./src/toolbar.php", { widgetId: widgetId });
+  $("#toolBar").load('./src/toolbar.php', { widgetId: widgetId });
 }
 
-jQuery(function () {
-    loadToolBar();
-    loadPage();
+$(function () {
+  loadToolBar();
+  loadPage();
 });
 
-/**
- * retrieve selected resources
- */
 function exportChecked() {
-    let exportList = '';
-    let selection = jQuery('.selection');
-    // get checked resource list from local storage
-    $(".selection").each(function () {
-        let itemSaved = 'w_hm_' + $(this).attr('id');
-        let toRemove = 'w_hm_selection_'
-        if (localStorage.getItem(itemSaved)) {
-            exportList += itemSaved.substring(toRemove.length, itemSaved.length) + ',';
-        }
-    });
-    // remove last comma
-    exportList = exportList.substring(0, exportList.length - 1);
+  let exportList = '';
 
-    // if at least one resource is found, redirect to the export.php
-    if (0 < exportList.length) {
-        window.location.href = './src/export.php?widgetId=' + widgetId + '&list=' + exportList;
-    } else {
-        alert('Please select at least one resource');
+  $('.selection').each(function () {
+    let itemSaved = `w_hm_${$(this).attr('id')}`;
+    let toRemove = 'w_hm_selection_'
+    if (localStorage.getItem(itemSaved) === '1') {
+      exportList += itemSaved.substring(toRemove.length, itemSaved.length) + ',';
     }
+  });
+
+  // remove last comma
+  exportList = exportList.substring(0, exportList.length - 1);
+
+  // if at least one resource is found, redirect to the export.php
+  if (exportList.length > 0) {
+    window.location.href = `./src/export.php?widgetId=${widgetId}&list=${exportList}`;
+  } else {
+    alert('Please select at least one resource');
+  }
 }

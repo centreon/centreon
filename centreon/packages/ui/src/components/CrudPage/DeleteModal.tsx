@@ -1,11 +1,13 @@
 import { Box, CircularProgress, Typography } from '@mui/material';
+
 import { useAtom } from 'jotai';
 import { useCallback, useRef } from 'react';
+
 import { Button } from '../Button';
 import { Modal } from '../Modal';
 import { itemToDeleteAtom } from './atoms';
 import { useDeleteItem } from './hooks/useDeleteItem';
-import { DeleteItem, ItemToDelete } from './models';
+import type { DeleteItem, ItemToDelete } from './models';
 import { isAFunction } from './utils';
 
 const DeleteModal = <TData extends { id: number; name: string }>({
@@ -30,18 +32,18 @@ const DeleteModal = <TData extends { id: number; name: string }>({
 
   const close = useCallback(() => {
     setItemToDelete(null);
-  }, []);
+  }, [setItemToDelete]);
 
   const confirm = useCallback(() => {
     deleteItem(itemToDeleteRef.current).then(close);
-  }, [itemToDeleteRef.current]);
+  }, [close, deleteItem]);
 
   if (isOpen) {
     itemToDeleteRef.current = itemToDelete;
   }
 
   return (
-    <Modal open={isOpen} onClose={close} size={modalSize}>
+    <Modal onClose={close} open={isOpen} size={modalSize}>
       <Modal.Header>
         {isAFunction(labels.title)
           ? labels.title(itemToDeleteRef.current as TData)
@@ -63,10 +65,10 @@ const DeleteModal = <TData extends { id: number; name: string }>({
         }}
       >
         {isMutating && <CircularProgress size={20} />}
-        <Button variant="ghost" onClick={close} disabled={isMutating}>
+        <Button disabled={isMutating} onClick={close} variant="ghost">
           {labels.cancel}
         </Button>
-        <Button isDanger onClick={confirm} disabled={isMutating}>
+        <Button disabled={isMutating} isDanger onClick={confirm}>
           {labels.confirm}
         </Button>
       </Box>

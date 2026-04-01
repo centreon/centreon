@@ -1,13 +1,12 @@
 import { useAtom, useSetAtom } from 'jotai';
 import { isEmpty, isNil, not } from 'ramda';
 import { JSX, useEffect, useMemo } from 'react';
+
 import { ConfigurationBase } from '../models';
-import { configurationAtom, filtersAtom, selectedColumnIdsAtom } from './atoms';
-
+import { configurationAtom } from './atoms';
 import Page from './Page';
-import { columnsAtomKey, filtersAtomKey } from './constants';
 
-const Base = ({
+const Base = <TFilters,>({
   columns,
   resourceType,
   form,
@@ -16,20 +15,26 @@ const Base = ({
   filtersInitialValues,
   defaultSelectedColumnIds,
   actions,
-  labels
-}: ConfigurationBase): JSX.Element => {
+  labels,
+  selectedColumnIdsAtom,
+  columnsAtomKey,
+  filtersAtom,
+  filtersAtomKey,
+  isWelcomePageDisplayedAtom,
+  navbar
+}: ConfigurationBase<TFilters>): JSX.Element => {
   const [configuration, setConfiguration] = useAtom(configurationAtom);
   const [filters, setFilters] = useAtom(filtersAtom);
   const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
 
   useEffect(() => {
     setConfiguration({
-      resourceType,
+      actions,
       api,
+      defaultSelectedColumnIds,
       filtersConfiguration,
       filtersInitialValues,
-      defaultSelectedColumnIds,
-      actions
+      resourceType
     });
 
     if (isNil(localStorage.getItem(filtersAtomKey))) {
@@ -64,12 +69,17 @@ const Base = ({
   }
 
   return (
-    <Page
-      columns={columns}
-      resourceType={resourceType}
-      form={form}
+    <Page<TFilters>
       actions={actions}
+      columns={columns}
+      filtersAtom={filtersAtom}
+      filtersAtomKey={filtersAtomKey}
+      form={form}
+      isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
       labels={labels}
+      navbar={navbar}
+      resourceType={resourceType}
+      selectedColumnIdsAtom={selectedColumnIdsAtom}
     />
   );
 };

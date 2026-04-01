@@ -1,0 +1,117 @@
+name: "centreon-ha-web"
+arch: "${ARCH}"
+platform: "linux"
+version_schema: "none"
+version: "${VERSION}"
+release: "${RELEASE}${DIST}"
+section: "default"
+priority: "optional"
+maintainer: "Centreon <contact@centreon.com>"
+description: |
+  Centreon High Availability.
+  This add-on is built to manage a failover solution for Centreon.
+  It provides scripts and config files for central servers.
+  Commit: @COMMIT_HASH@
+vendor: "Centreon"
+homepage: "https://github.com/centreon/centreon"
+license: "Apache-2.0"
+
+contents:
+  # etc
+  - src: "../etc/centreon-ha/centreon_central_sync.pm"
+    dst: "/etc/centreon-ha/centreon_central_sync.pm"
+    type: config|noreplace
+    file_info:
+      owner: "root"
+      group: "root"
+      mode: 0644
+  - src: "../etc/sysconfig/centreon_central_sync"
+    dst: "/etc/sysconfig/centreon_central_sync"
+    type: config|noreplace
+    file_info:
+      owner: "root"
+      group: "root"
+      mode: 0644
+  - src: "../etc/centreon-gorgone/config.d/cron.d/10-centreon-ha.yaml"
+    dst: "/etc/centreon-gorgone/config.d/cron.d/10-centreon-ha.yaml"
+    type: config|noreplace
+    file_info:
+      owner: "root"
+      group: "root"
+      mode: 0644
+  - src: "../etc/centreon-gorgone/config.d/cron.d/20-centreon-ha-centreon-autodisco.yaml"
+    dst: "/etc/centreon-gorgone/config.d/cron.d/20-centreon-ha-centreon-autodisco.yaml"
+    type: config|noreplace
+    file_info:
+      owner: "root"
+      group: "root"
+      mode: 0644
+  - src: "../etc/centreon-gorgone/config.d/cron.d/30-centreon-ha-centreon-statistics.yaml"
+    dst: "/etc/centreon-gorgone/config.d/cron.d/30-centreon-ha-centreon-statistics.yaml"
+    type: config|noreplace
+    file_info:
+      owner: "root"
+      group: "root"
+      mode: 0644
+  - src: "../etc/sudoers.d/centreon-cluster"
+    dst: "/etc/sudoers.d/centreon-cluster"
+    file_info:
+      owner: "root"
+      group: "root"
+      mode: 0440
+  - src: "../etc/sysconfig/cbd_sql"
+    dst: "/etc/sysconfig/cbd_sql"
+    type: config|noreplace
+    file_info:
+      owner: "root"
+      group: "root"
+      mode: 0644
+  - src: "../etc/sysconfig/cbd_rrd"
+    dst: "/etc/sysconfig/cbd_rrd"
+    type: config|noreplace
+    file_info:
+      owner: "root"
+      group: "root"
+      mode: 0644
+
+  # systemd unit files (- root:root)
+  - src: "../systemd/cbd-sql.service"
+    dst: "/lib/systemd/system/cbd-sql.service"
+    file_info:
+      owner: "root"
+      group: "root"
+      mode: 0644
+  - src: "../systemd/cbd-rrd.service"
+    dst: "/lib/systemd/system/cbd-rrd.service"
+    file_info:
+      owner: "root"
+      group: "root"
+      mode: 0644
+  - src: "../systemd/centreon-central-sync.service"
+    dst: "/lib/systemd/system/centreon-central-sync.service"
+    file_info:
+      owner: "root"
+      group: "root"
+      mode: 0644
+
+scripts:
+  postinstall: ./scripts/centreon-ha-web-postinst.sh
+
+overrides:
+  rpm:
+    depends:
+      - centreon-gorgone-centreon-config >= ${MAJOR_VERSION}
+      - centreon-gorgone-centreon-config < ${NEXT_MAJOR_VERSION}
+      - centreon-web >= ${MAJOR_VERSION}
+      - centreon-web < ${NEXT_MAJOR_VERSION}
+      - centreon-ha-common = ${VERSION}-${RELEASE}${DIST}
+      - resource-agents
+  deb:
+    depends:
+      - "centreon-gorgone-centreon-config (>= ${MAJOR_VERSION}~)"
+      - "centreon-gorgone-centreon-config (<< ${NEXT_MAJOR_VERSION}~)"
+      - "centreon-web (>= ${MAJOR_VERSION}~)"
+      - "centreon-web (<< ${NEXT_MAJOR_VERSION}~)"
+      - "centreon-ha-common (>= ${MAJOR_VERSION}~)"
+      - "centreon-ha-common (<< ${NEXT_MAJOR_VERSION}~)"
+      - resource-agents

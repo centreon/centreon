@@ -1,36 +1,36 @@
+import { useTheme } from '@mui/material';
+
 import {
-  CollisionDetection,
+  type CollisionDetection,
   DndContext,
-  DragEndEvent,
-  DragOverEvent,
+  type DragEndEvent,
+  type DraggableSyntheticListeners,
+  type DragOverEvent,
   DragOverlay,
-  DragStartEvent,
-  DraggableSyntheticListeners,
+  type DragStartEvent,
   KeyboardSensor,
   MouseSensor,
-  Over,
+  type Over,
   PointerSensor,
   useSensor,
   useSensors
 } from '@dnd-kit/core';
-import { SortableContext, SortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, type SortingStrategy } from '@dnd-kit/sortable';
 import {
-  path,
   equals,
   find,
   indexOf,
   isNil,
   move,
   not,
+  path,
   pick,
   pipe,
   pluck,
   propEq
 } from 'ramda';
+import { type RefObject, useEffect, useState } from 'react';
 
-import { useTheme } from '@mui/material';
-
-import { RefObject, useEffect, useState } from 'react';
 import Item from './Item';
 import SortableItem from './SortableItem';
 
@@ -172,55 +172,52 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
       return;
     }
     setSortableItemsIds(getItemsIds());
-  }, [items]);
+  }, [updateSortableItemsOnItemsChange, items]);
 
   return (
     <DndContext
       collisionDetection={collisionDetection}
-      sensors={sensors}
       onDragCancel={dragCancel}
       onDragEnd={dragEnd}
       onDragOver={dragOver}
       onDragStart={dragStart}
+      sensors={sensors}
     >
       <SortableContext items={sortableItemsIds} strategy={sortingStrategy}>
         <RootComponent>
-          {/* biome-ignore lint: */}
-          <>
-            {sortableItemsIds.map((sortableItemId, index) => {
-              const item = getItemById(sortableItemId) as
-                | Record<string, unknown>
-                | undefined;
+          {sortableItemsIds.map((sortableItemId, index) => {
+            const item = getItemById(sortableItemId) as
+              | Record<string, unknown>
+              | undefined;
 
-              if (isNil(item)) {
-                return null;
-              }
+            if (isNil(item)) {
+              return null;
+            }
 
-              return (
-                not(getDisableItemCondition(item as T)) && (
-                  <SortableItem
-                    Content={Content}
-                    index={index}
-                    itemId={sortableItemId}
-                    itemProps={itemProps}
-                    key={sortableItemId}
-                    memoProps={memoProps}
-                    {...pick(itemProps, item)}
-                    additionalProps={additionalProps}
-                  />
-                )
-              );
-            })}
-          </>
+            return (
+              not(getDisableItemCondition(item as T)) && (
+                <SortableItem
+                  Content={Content}
+                  index={index}
+                  itemId={sortableItemId}
+                  itemProps={itemProps}
+                  key={sortableItemId}
+                  memoProps={memoProps}
+                  {...pick(itemProps, item)}
+                  additionalProps={additionalProps}
+                />
+              )
+            );
+          })}
         </RootComponent>
       </SortableContext>
       <DragOverlay style={{ zIndex: theme.zIndex.tooltip }}>
         <RootComponent isInDragOverlay>
           {activeId ? (
             <Item
+              Content={Content}
               isDragging
               isInDragOverlay
-              Content={Content}
               title={activeId}
               {...pick(itemProps, activeItem)}
               {...additionalProps}

@@ -1,13 +1,12 @@
-import { useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
-
 import { SingleAutocompleteField } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
+
+import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import { labelSelectTimezone } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
-
 import timezones from './timezones.json';
 import { useTimezone } from './useTimezone';
 
@@ -23,9 +22,9 @@ const Timezone = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     <SingleAutocompleteField
       disabled={!canEditField}
       label={t(labelSelectTimezone)}
+      onChange={changeValue}
       options={timezones}
       value={value ?? { id: timezone, name: timezone }}
-      onChange={changeValue}
     />
   );
 };

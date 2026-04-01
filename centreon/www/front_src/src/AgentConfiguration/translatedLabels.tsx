@@ -27,8 +27,8 @@ export const labelSave = 'Save';
 export const labelPortExpectedAtMost = 'Port number must be at most 65535';
 export const labelPortMustStartFrom1 = 'Port number must be at least 1';
 export const labelExtensionNotAllowed = 'Extension not allowed';
-export const labelPublicCertificate = 'Public certificate (.crt,.cer)';
-export const labelCaCertificate = 'CA (.crt,.cer)';
+export const labelPublicCertificate = 'Public certificate (.crt, .cert, .cer)';
+export const labelCaCertificate = 'CA (.crt, .cert, .cer)';
 export const labelPrivateKey = 'Private key (.key)';
 export const labelOTLPReceiver = 'OTLP Receiver';
 export const labelAddressInvalid = 'Invalid address';
@@ -88,7 +88,9 @@ export const labelByPollerTooltip =
   'If the agent is not allowed to connect to the poller for security reasons (e.g. when the poller is in a DMZ), you can use a poller-initiated connection.';
 
 export const labelAtLeastOneConnexionMode =
-  'Au moins un des modes de connexion doit être activé.';
+  'At least one connection mode must be enabled.';
 
 export const labelSelectAtLeastOneColumn =
   'At least one column must be selected';
+
+export const labelCreateHostAutomatically = 'Create hosts automatically';

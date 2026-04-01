@@ -1,10 +1,9 @@
+import { useTheme } from '@mui/material/styles';
+
 import { curveBasis } from '@visx/curve';
 import { LinePath } from '@visx/shape';
 
-import { useTheme } from '@mui/material/styles';
-
-import { TimeValue } from '../../../../common/timeSeries/models';
-
+import type { TimeValue } from '../../../../common/timeSeries/models';
 import BasicThreshold from './BasicThreshold';
 
 interface Props {

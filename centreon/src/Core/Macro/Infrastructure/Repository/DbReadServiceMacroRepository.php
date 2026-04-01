@@ -33,13 +33,14 @@ use Core\Macro\Domain\Model\Macro;
 
 /**
  * @phpstan-type _Macro array{
+ *    svc_macro_id: int,
  *    svc_svc_id:int,
  *    svc_macro_name:string,
  *    svc_macro_value:string,
  *    is_password:int|null,
  *    description:string|null,
  *    macro_order:int,
- *    is_encryption_ready?:string
+ *    is_encryption_ready?:int
  * }
  */
 class DbReadServiceMacroRepository extends DatabaseRepository implements ReadServiceMacroRepositoryInterface
@@ -65,6 +66,7 @@ class DbReadServiceMacroRepository extends DatabaseRepository implements ReadSer
             $this->translateDbName(
                 <<<SQL
                     SELECT
+                        m.svc_macro_id,
                         m.svc_macro_name,
                         m.svc_macro_value,
                         m.is_password,
@@ -96,6 +98,7 @@ class DbReadServiceMacroRepository extends DatabaseRepository implements ReadSer
             $this->translateDbName(
                 <<<'SQL'
                     SELECT
+                            m.svc_macro_id,
                             m.svc_macro_name,
                             m.svc_macro_value,
                             m.is_password,
@@ -126,6 +129,7 @@ class DbReadServiceMacroRepository extends DatabaseRepository implements ReadSer
             $this->translateDbName(
                 <<<'SQL'
                     SELECT
+                        odms.svc_macro_id,
                         odms.svc_svc_id,
                         odms.svc_macro_name,
                         odms.svc_macro_value,
@@ -149,13 +153,14 @@ class DbReadServiceMacroRepository extends DatabaseRepository implements ReadSer
         $macros = [];
         foreach ($results as $result) {
             /** @var array{
+             *    svc_macro_id:int,
              *    svc_svc_id:int,
              *    svc_macro_name:string,
              *    svc_macro_value:string,
              *    is_password:int|null,
              *    description:string|null,
              *    macro_order:int,
-             *    is_encryption_ready:string
+             *    is_encryption_ready:int
              * } $result */
             $macros[] = $this->createMacro($result);
         }
@@ -172,6 +177,7 @@ class DbReadServiceMacroRepository extends DatabaseRepository implements ReadSer
             $this->translateDbName(
                 <<<'SQL'
                     SELECT
+                        odms.svc_macro_id,
                         odms.svc_svc_id,
                         odms.svc_macro_name,
                         odms.svc_macro_value,
@@ -197,13 +203,14 @@ class DbReadServiceMacroRepository extends DatabaseRepository implements ReadSer
         $macros = [];
         foreach ($results as $result) {
             /** @var array{
+             *    svc_macro_id:int,
              *    svc_svc_id:int,
              *    svc_macro_name:string,
              *    svc_macro_value:string,
              *    is_password:int|null,
              *    description:string|null,
              *    macro_order:int,
-             *    is_encryption_ready:string
+             *    is_encryption_ready:int
              * } $result */
             $macros[] = $this->createMacro($result);
         }
@@ -225,6 +232,7 @@ class DbReadServiceMacroRepository extends DatabaseRepository implements ReadSer
         $macroName = $matches['macro_name'] ?? '';
 
         $macro = new Macro(
+            (int) $data['svc_macro_id'],
             (int) $data['svc_svc_id'],
             $macroName,
             $data['svc_macro_value'],

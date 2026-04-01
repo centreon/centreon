@@ -24,6 +24,9 @@ declare(strict_types=1);
 namespace Core\Security\ProviderConfiguration\Infrastructure\SAML\Api\FindSAMLConfiguration;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Security\ProviderConfiguration\Application\SAML\UseCase\FindSAMLConfiguration\{
     FindSAMLConfigurationPresenterInterface,
     FindSAMLConfigurationResponse
@@ -31,32 +34,35 @@ use Core\Security\ProviderConfiguration\Application\SAML\UseCase\FindSAMLConfigu
 
 class FindSAMLConfigurationPresenter extends AbstractPresenter implements FindSAMLConfigurationPresenterInterface
 {
-    /**
-     * {@inheritDoc}
-     *
-     * @param FindSAMLConfigurationResponse $data
-     */
-    public function present(mixed $data): void
+    public function presentResponse(FindSAMLConfigurationResponse|ResponseStatusInterface $response): void
     {
-        $presenterResponse = [
-            'is_active' => $data->isActive,
-            'is_forced' => $data->isForced,
-            'entity_id_url' => $data->entityIdUrl,
-            'remote_login_url' => $data->remoteLoginUrl,
-            'certificate' => $data->publicCertificate,
-            'user_id_attribute' => $data->userIdAttribute,
-            'requested_authn_context' => $data->requestedAuthnContext,
-            'logout_from' => $data->logoutFrom,
-            'logout_from_url' => $data->logoutFromUrl,
-            'auto_import' => $data->isAutoImportEnabled,
-            'contact_template' => $data->contactTemplate,
-            'email_bind_attribute' => $data->emailBindAttribute,
-            'fullname_bind_attribute' => $data->userNameBindAttribute,
-            'roles_mapping' => $data->aclConditions,
-            'authentication_conditions' => $data->authenticationConditions,
-            'groups_mapping' => $data->groupsMapping,
-        ];
+        if ($response instanceof ResponseStatusInterface) {
+            if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
+                ExceptionLogger::create()->log($response->getException());
+            }
+            $this->setResponseStatus($response);
 
-        parent::present($presenterResponse);
+            return;
+        }
+
+        $this->present([
+            'is_active' => $response->isActive,
+            'is_forced' => $response->isForced,
+            'entity_id_url' => $response->entityIdUrl,
+            'remote_login_url' => $response->remoteLoginUrl,
+            'certificate' => $response->publicCertificate,
+            'user_id_attribute' => $response->userIdAttribute,
+            'requested_authn_context' => $response->requestAuthnContext,
+            'requested_authn_context_comparison' => $response->requestedAuthnContextComparison->value,
+            'logout_from' => $response->logoutFrom,
+            'logout_from_url' => $response->logoutFromUrl,
+            'auto_import' => $response->isAutoImportEnabled,
+            'contact_template' => $response->contactTemplate,
+            'email_bind_attribute' => $response->emailBindAttribute,
+            'fullname_bind_attribute' => $response->userNameBindAttribute,
+            'roles_mapping' => $response->aclConditions,
+            'authentication_conditions' => $response->authenticationConditions,
+            'groups_mapping' => $response->groupsMapping,
+        ]);
     }
 }

@@ -1,0 +1,44 @@
+{
+  "@context": "/centreon/api/latest/contexts/ConnectorResource",
+  "@id": "/centreon/api/latest/configuration/connectors",
+  "@type": "Collection",
+  "totalItems": 4,
+  "member": [
+  {
+  "@id": "/centreon/api/latest/configuration/connectors/1",
+  "@type": "Connector",
+  "id": 1,
+  "name": "Perl Connector",
+  "command_line": "centreon_connector_perl --log-file=/var/log/centreon-engine/connector-perl.log",
+  "description": "",
+  "is_activated": true
+  },
+  {
+  "@id": "/centreon/api/latest/configuration/connectors/2",
+  "@type": "Connector",
+  "id": 2,
+  "name": "SSH Connector",
+  "command_line": "centreon_connector_ssh --log-file=/var/log/centreon-engine/connector-ssh.log",
+  "description": "",
+  "is_activated": true
+  },
+  {
+  "@id": "/centreon/api/latest/configuration/connectors/3",
+  "@type": "Connector",
+  "id": 3,
+  "name": "Centreon Monitoring Agent",
+  "command_line": "opentelemetry --processor=centreon_agent --extractor=attributes --host_path=resource_metrics.resource.attributes.host.name --service_path=resource_metrics.resource.attributes.service.name",
+  "description": "Centreon Monitoring Agent",
+  "is_activated": true
+  },
+  {
+  "@id": "/centreon/api/latest/configuration/connectors/4",
+  "@type": "Connector",
+  "id": 4,
+  "name": "Telegraf",
+  "command_line": "opentelemetry --processor=nagios_telegraf --extractor=attributes --host_path=resource_metrics.scope_metrics.data.data_points.attributes.host --service_path=resource_metrics.scope_metrics.data.data_points.attributes.service",
+  "description": "Telegraf",
+  "is_activated": true
+  }
+  ]
+  }

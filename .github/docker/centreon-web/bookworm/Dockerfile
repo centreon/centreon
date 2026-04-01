@@ -4,6 +4,8 @@ ARG FROM_IMAGE_VERSION=develop
 FROM ${REGISTRY_URL}/centreon-web-dependencies-collect-bookworm:${FROM_IMAGE_VERSION}
 
 ARG STABILITY
+ARG MAJOR_VERSION
+ARG WEB_MINOR_VERSION
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -24,13 +26,31 @@ fi
 
 apt-get update
 
-apt-get install -y /tmp/packages-centreon/centreon-*.deb
+if [[ "$STABILITY" == "stable" ]]; then
+  apt-get install -y \
+    centreon-poller=${MAJOR_VERSION}.${WEB_MINOR_VERSION}-*+deb12u1 \
+    centreon-trap=${MAJOR_VERSION}.${WEB_MINOR_VERSION}-*+deb12u1 \
+    centreon-web=${MAJOR_VERSION}.${WEB_MINOR_VERSION}-*+deb12u1
+else
+  apt-get install -y /tmp/packages-centreon/centreon-*.deb
+fi
 
 sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php/8.2/mods-available/timezone.ini
 phpenmod -v 8.2 timezone
 
 touch /var/log/php8.2-fpm-centreon-error.log
 chown www-data:www-data /var/log/php8.2-fpm-centreon-error.log
+
+# Tune php-fpm for CI: ondemand mode to avoid spawning idle workers at startup
+sed -i 's/^pm = .*/pm = ondemand/' /etc/php/8.2/fpm/pool.d/*.conf
+sed -i 's/^pm\.max_children = .*/pm.max_children = 10/' /etc/php/8.2/fpm/pool.d/*.conf
+for conf in /etc/php/8.2/fpm/pool.d/*.conf; do
+  if grep -Eq '^[;[:space:]]*pm\.process_idle_timeout\s*=' "\$conf"; then
+    sed -Ei 's|^[;[:space:]]*pm\.process_idle_timeout\s*=.*|pm.process_idle_timeout = 10s|' "\$conf"
+  else
+    echo 'pm.process_idle_timeout = 10s' >> "\$conf"
+  fi
+done
 
 systemctl stop gorgoned
 systemctl stop centengine
@@ -40,6 +60,7 @@ systemctl stop php8.2-fpm
 systemctl stop snmpd
 
 apt-get clean
+rm -rf /usr/share/doc /usr/share/man /usr/share/info
 
 EOF
 

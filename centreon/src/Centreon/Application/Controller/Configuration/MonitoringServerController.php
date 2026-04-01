@@ -258,8 +258,8 @@ class MonitoringServerController extends AbstractController
             $this->error($ex->getMessage());
 
             throw new MonitoringServerException(
-                'There was an consistency error in the exported files  - please use the legacy export menu to '
-                . 'troubleshoot'
+                'There was an consistency error in the exported files - please use the legacy export menu to troubleshoot',
+                previous: $ex,
             );
         }
     }

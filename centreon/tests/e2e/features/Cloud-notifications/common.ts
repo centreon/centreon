@@ -378,7 +378,6 @@ const initializeDataFiles = (): void => {
   cy.log('Values generated and stored in host_service_relation.txt.');
 
   const data = {
-    // biome-ignore lint/style/useNamingConvention: <explanation>
     check: { is_forced: true },
     resources
   };

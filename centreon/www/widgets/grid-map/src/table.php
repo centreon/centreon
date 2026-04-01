@@ -26,10 +26,10 @@ require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonDuration.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
-require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/class/centreonHost.class.php';
 require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/include/common/sqlCommonFunction.php';
+require_once $centreon_path . 'www/class/centreonAclLazy.class.php';
 
 CentreonSession::start(1);
 
@@ -56,16 +56,15 @@ try {
         throw new InvalidArgumentException('Widget ID must be an integer');
     }
 
-    $db_centreon = $dependencyInjector['configuration_db'];
-    $db = $dependencyInjector['realtime_db'];
+    $configurationDatabase = $dependencyInjector['configuration_db'];
+    $realTimeDatabase = $dependencyInjector['realtime_db'];
 
     if ($centreon->user->admin == 0) {
-        $access = new CentreonACL($centreon->user->get_id());
+        $access = new CentreonAclLazy($centreon->user->user_id);
         $accessGroups = $access->getAccessGroups();
-        $arrayKeysAccessGroups = array_keys($accessGroups);
     }
 
-    $widgetObj = new CentreonWidget($centreon, $db_centreon);
+    $widgetObj = new CentreonWidget($centreon, $configurationDatabase);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
     $autoRefresh = filter_var($preferences['refresh_interval'], FILTER_VALIDATE_INT);
     if ($autoRefresh === false || $autoRefresh < 5) {
@@ -107,7 +106,7 @@ if (! empty($preferences['host_group'])) {
     if ($accessGroups !== []) {
         $aclJoin = $centreon->user->admin == 0 ? ' INNER JOIN centreon_acl acl ON T1.host_id = acl.host_id' : '';
         [$bindValuesAcl, $bindQueryAcl] = createMultipleBindQuery(
-            list: $arrayKeysAccessGroups,
+            list: $accessGroups->getIds(),
             prefix: ':access_group_id_host_',
             bindType: PDO::PARAM_INT
         );
@@ -128,9 +127,9 @@ if (! empty($preferences['host_group'])) {
     $bindParams1 = array_merge($bindParams1, $bindValuesAcl);
 
     try {
-        $stmt1 = $db->prepareQuery($query1);
-        $db->executePreparedQuery($stmt1, $bindParams1, true);
-        while ($row = $db->fetch($stmt1)) {
+        $stmt1 = $realTimeDatabase->prepareQuery($query1);
+        $realTimeDatabase->executePreparedQuery($stmt1, $bindParams1, true);
+        while ($row = $realTimeDatabase->fetch($stmt1)) {
             $row['details_uri'] = $useDeprecatedPages
                 ? '../../main.php?p=20202&o=hd&host_name=' . $row['name']
                 : $resourceController->buildHostDetailsUri($row['host_id']);
@@ -187,9 +186,9 @@ if (! empty($preferences['host_group'])) {
     $bindParams2 = array_merge($bindValues, $bindValuesAcl);
 
     try {
-        $stmt2 = $db->prepareQuery($query2);
-        $db->executePreparedQuery($stmt2, $bindParams2, true);
-        while ($row = $db->fetch($stmt2)) {
+        $stmt2 = $realTimeDatabase->prepareQuery($query2);
+        $realTimeDatabase->executePreparedQuery($stmt2, $bindParams2, true);
+        while ($row = $realTimeDatabase->fetch($stmt2)) {
             $data_service[$row['description']] = [
                 'description' => $row['description'],
                 'hosts' => [],
@@ -233,9 +232,9 @@ if (! empty($preferences['host_group'])) {
     $bindParams3 = $bindParams2;
 
     try {
-        $stmt3 = $db->prepareQuery($query3);
-        $db->executePreparedQuery($stmt3, $bindParams3, true);
-        while ($row = $db->fetch($stmt3)) {
+        $stmt3 = $realTimeDatabase->prepareQuery($query3);
+        $realTimeDatabase->executePreparedQuery($stmt3, $bindParams3, true);
+        while ($row = $realTimeDatabase->fetch($stmt3)) {
             if (isset($data_service[$row['description']])) {
                 $data_service[$row['description']]['hosts'][] = $row['host_id'];
                 $data_service[$row['description']]['hostsStatus'][$row['host_id']] = $colors[$row['state']];

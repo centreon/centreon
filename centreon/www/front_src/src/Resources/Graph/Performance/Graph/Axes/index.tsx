@@ -1,10 +1,9 @@
+import { useLocaleDateTimeFormat } from '@centreon/ui';
+
 import { Axis } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 
-import { useLocaleDateTimeFormat } from '@centreon/ui';
-
 import { Line } from '../../models';
-
 import YAxes from './Y';
 
 const commonTickLabelProps = {

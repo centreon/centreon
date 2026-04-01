@@ -28,6 +28,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Domain\ResponseCodeEnum;
+use Core\Contact\Domain\AdminResolver;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
@@ -44,20 +45,8 @@ final class DeleteHostGroups
 {
     use LoggerTrait;
 
-    /**
-     * @param ContactInterface $user
-     * @param WriteHostGroupRepositoryInterface $writeHostGroupRepository
-     * @param ReadHostGroupRepositoryInterface $readHostGroupRepository
-     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
-     * @param ReadNotificationRepositoryInterface $readNotificationRepository
-     * @param WriteNotificationRepositoryInterface $writeNotificationRepository
-     * @param ReadServiceRepositoryInterface $readServiceRepository
-     * @param WriteServiceRepositoryInterface $writeServiceRepository
-     * @param ReadResourceAccessRepositoryInterface $readResourceAccessRepository
-     * @param WriteResourceAccessRepositoryInterface $writeResourceAccessRepository
-     * @param DataStorageEngineInterface $storageEngine
-     * @param bool $isCloudPlatform
-     */
+    private bool $isUserAdmin = false;
+
     public function __construct(
         private readonly ContactInterface $user,
         private readonly WriteHostGroupRepositoryInterface $writeHostGroupRepository,
@@ -71,6 +60,7 @@ final class DeleteHostGroups
         private readonly WriteResourceAccessRepositoryInterface $writeResourceAccessRepository,
         private readonly DataStorageEngineInterface $storageEngine,
         private readonly bool $isCloudPlatform,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -81,6 +71,8 @@ final class DeleteHostGroups
      */
     public function __invoke(DeleteHostGroupsRequest $request): DeleteHostGroupsResponse
     {
+        $this->isUserAdmin = $this->adminResolver->isAdmin($this->user);
+
         $results = [];
         foreach ($request->hostGroupIds as $hostGroupId) {
             $statusResponse = new DeleteHostGroupsStatusResponse();
@@ -138,7 +130,7 @@ final class DeleteHostGroups
      */
     private function hostGroupExists(int $hostGroupId): bool
     {
-        return $this->user->isAdmin()
+        return $this->isUserAdmin
             ? $this->readHostGroupRepository->existsOne($hostGroupId)
             : $this->readHostGroupRepository->existsOneByAccessGroups(
                 $hostGroupId,

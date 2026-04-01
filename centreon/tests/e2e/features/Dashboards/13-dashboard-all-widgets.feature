@@ -20,7 +20,7 @@ Feature: Configuring dashboard with all widgets
     Then the dashboard is updated with the new widget layout
 
   @TEST_MON-37044
-  Scenario: Accessing the resource status page when clicking on the <widgetType> widget
+  Scenario Outline: Accessing the resource status page when clicking on the <widgetType> widget
     Given the dashboard administrator with a configured multi-widget dashboard
     When the dashboard administrator clicks on the "view Resource Status" button from the '<widgetType>' widget
     Then the dashboard administrator should be redirected to the '<widgetType>' widget resources

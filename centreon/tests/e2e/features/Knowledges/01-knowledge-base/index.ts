@@ -1,4 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
+
 import { configureKb, getMediaWikiContainerPort } from '../common';
 
 const kbUrl = 'http://mediawiki';
@@ -56,9 +58,9 @@ Given(
 Given('a host is configured', () => {
   cy.addHost({
     activeCheckEnabled: false,
-    passiveCheckEnabled: true,
     hostGroup: 'Linux-Servers',
     name: services.serviceOk.host,
+    passiveCheckEnabled: true,
     template: 'generic-host'
   })
     .addService({
@@ -72,20 +74,16 @@ Given('a host is configured', () => {
 });
 
 When('the user adds a procedure concerning this host in MediaWiki', () => {
-  cy.navigateTo({
-    page: 'Hosts',
-    rootItemNumber: 3,
-    subMenu: 'Knowledge Base'
-  });
+  cy.visit(PAGES.configuration.hostsKnowledgeBaseLegacy);
   cy.wait('@getTimeZone');
   // Wait until the 'Host' search field is visible in the DOM page
   cy.waitForElementInIframe('#main-content', 'input[name="searchHost"]');
   cy.getIframeBody()
     .find('a[target="_blank"]')
     .eq(5)
-    .then(($elt) => {
+    .then((elt) => {
       // Get the href of the mediawiki link of the host
-      const linkUrl = $elt.prop('href');
+      const linkUrl = elt.prop('href');
       // Check that the href is as expected
       expect(linkUrl).to.contains(`Host_:_${services.serviceOk.host}`);
       // Get MediaWiki container port and visit the link
@@ -109,11 +107,7 @@ When('the user adds a procedure concerning this host in MediaWiki', () => {
 Then(
   'a link towards this host procedure is available in the configuration',
   () => {
-    cy.navigateTo({
-      page: 'Hosts',
-      rootItemNumber: 3,
-      subMenu: 'Hosts'
-    });
+    cy.visit(PAGES.configuration.hostsLegacy);
     cy.wait('@getTimeZone');
     // Wait until the 'Name' search field is visible in the DOM page
     cy.waitForElementInIframe('#main-content', 'input[name="searchH"]');
@@ -135,11 +129,7 @@ Then(
 );
 
 Given('a service is configured', () => {
-  cy.navigateTo({
-    page: 'Services by host',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesByHostLegacy);
   cy.wait('@getTimeZone');
   // Wait until the 'Hosts' search field is visible in the DOM page
   cy.waitForElementInIframe('#main-content', 'input[name="searchH"]');
@@ -148,20 +138,16 @@ Given('a service is configured', () => {
 });
 
 When('the user adds a procedure concerning this service in MediaWiki', () => {
-  cy.navigateTo({
-    page: 'Services',
-    rootItemNumber: 3,
-    subMenu: 'Knowledge Base'
-  });
+  cy.visit(PAGES.configuration.servicesKnowledgeBaseLegacy);
   cy.wait('@getTimeZone');
   // Wait until the 'Host' search field is visible in the DOM page
   cy.waitForElementInIframe('#main-content', 'input[name="searchHost"]');
   cy.getIframeBody()
     .find('a[name="Create wiki page"]')
     .eq(10)
-    .then(($elt) => {
+    .then((elt) => {
       // Get the href of the mediawiki link of the service
-      const linkUrl = $elt.prop('href');
+      const linkUrl = elt.prop('href');
       // Check that the href is as expected
       expect(linkUrl).to.contains(
         `Service_:_${services.serviceOk.host}_/_${services.serviceOk.name}`
@@ -187,11 +173,7 @@ When('the user adds a procedure concerning this service in MediaWiki', () => {
 Then(
   'a link towards this service procedure is available in configuration',
   () => {
-    cy.navigateTo({
-      page: 'Services by host',
-      rootItemNumber: 3,
-      subMenu: 'Services'
-    });
+    cy.visit(PAGES.configuration.servicesByHostLegacy);
     cy.wait('@getTimeZone');
     // Wait until the 'Hosts' search field is visible in the DOM page
     cy.waitForElementInIframe('#main-content', 'input[name="searchH"]');
@@ -210,11 +192,7 @@ Then(
 );
 
 Given('the knowledge configuration page with procedure', () => {
-  cy.navigateTo({
-    page: 'Hosts',
-    rootItemNumber: 3,
-    subMenu: 'Knowledge Base'
-  });
+  cy.visit(PAGES.configuration.hostsKnowledgeBaseLegacy);
   cy.wait('@getTimeZone');
   // Wait until the 'Host' search field is visible in the DOM page
   cy.waitForElementInIframe('#main-content', 'input[name="searchHost"]');

@@ -61,7 +61,7 @@ final class FindNotificationResponse
     /**
      * @var array<array{
      *  id: int,
-     *  name: string
+     *  alias: string
      * }>
      */
     public array $users = [];

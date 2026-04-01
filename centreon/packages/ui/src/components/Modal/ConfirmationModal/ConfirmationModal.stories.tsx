@@ -1,8 +1,7 @@
-import { Meta, StoryObj } from '@storybook/react';
-import { Provider, atom, createStore, useSetAtom } from 'jotai';
+import type { Meta, StoryObj } from '@storybook/react';
+import { atom, createStore, Provider, useSetAtom } from 'jotai';
 
 import { Button } from '../../Button';
-
 import { ConfirmationModal } from './ConfirmationModal';
 import '../../../ThemeProvider/tailwindcss.css';
 

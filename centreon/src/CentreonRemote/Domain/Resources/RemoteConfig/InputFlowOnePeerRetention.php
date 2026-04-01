@@ -52,7 +52,7 @@ class InputFlowOnePeerRetention
             new CfgCentreonBrokerInfo('private_key', ''),
             new CfgCentreonBrokerInfo('public_cert', ''),
             new CfgCentreonBrokerInfo('ca_certificate', ''),
-            new CfgCentreonBrokerInfo('negociation', 'yes'),
+            new CfgCentreonBrokerInfo('negotiation', 'yes'),
             new CfgCentreonBrokerInfo('one_peer_retention_mode', 'no'),
             new CfgCentreonBrokerInfo('compression', 'no'),
             new CfgCentreonBrokerInfo('compression_level', ''),

@@ -1,8 +1,8 @@
-import type { MutableRefObject } from 'react';
-
 import type { ScaleLinear } from 'd3-scale';
 import { isNil } from 'ramda';
+import type { MutableRefObject } from 'react';
 
+import { Axis, AxisYRight } from '../../../common/Axes/models';
 import {
   getDates,
   getTimeSeriesForLines,
@@ -10,13 +10,12 @@ import {
 } from '../../../common/timeSeries';
 import type { Line, TimeValue } from '../../../common/timeSeries/models';
 import { getPointRadius, getStyle } from '../../../common/utils';
+import { displayArea } from '../../helpers/index';
 import GuidingLines from '../../InteractiveComponents/AnchorPoint/GuidingLines';
 import RegularAnchorPoint, {
   getYAnchorPoint
 } from '../../InteractiveComponents/AnchorPoint/RegularAnchorPoint';
-import { displayArea } from '../../helpers/index';
 import type { DisplayAnchor, GlobalAreaLines, LineStyle } from '../../models';
-
 import Point from './Point';
 import RegularLine from './RegularLines';
 import useRegularLines from './RegularLines/useRegularLines';
@@ -42,6 +41,12 @@ interface Props extends GlobalAreaLines {
   lineStyle: LineStyle | Array<LineStyle>;
   hasSecondUnit?: boolean;
   maxLeftAxisCharacters: number;
+  firstUnit?: string;
+  secondUnit?: string;
+  axis?: {
+    axisYLeft?: Axis;
+    axisYRight?: AxisYRight;
+  };
 }
 
 const Lines = ({
@@ -60,7 +65,10 @@ const Lines = ({
   scaleLogarithmicBase,
   lineStyle,
   hasSecondUnit,
-  maxLeftAxisCharacters
+  maxLeftAxisCharacters,
+  firstUnit,
+  secondUnit,
+  axis
 }: Props): JSX.Element => {
   const { stackedLinesData, invertedStackedLinesData } = useStackedLines({
     lines: displayedLines,
@@ -82,10 +90,19 @@ const Lines = ({
     graphHeight: height,
     graphSvgRef,
     graphWidth: width,
-    xScale,
     hasSecondUnit,
-    maxLeftAxisCharacters
+    maxLeftAxisCharacters,
+    xScale
   };
+  const leftScale = yScalesPerUnit[axis?.axisYLeft?.unit ?? firstUnit];
+  const rightScale = yScalesPerUnit[axis?.axisYRight?.unit ?? secondUnit];
+  const hasUnitDisplayed =
+    Boolean(firstUnit || secondUnit) ||
+    Boolean(
+      axis?.axisYLeft?.unit ||
+        axis?.axisYLeft?.displayUnit ||
+        (axis?.axisYRight?.unit && axis?.axisYRight?.displayUnit)
+    );
 
   return (
     <g>
@@ -93,6 +110,12 @@ const Lines = ({
         <GuidingLines
           graphHeight={height}
           graphWidth={width}
+          hasSecondUnit={hasSecondUnit}
+          hasUnit={hasUnitDisplayed}
+          leftScale={leftScale}
+          lines={displayedLines}
+          maxLeftAxisCharacters={maxLeftAxisCharacters}
+          rightScale={rightScale}
           timeSeries={timeSeries}
           xScale={xScale}
         />
@@ -101,34 +124,48 @@ const Lines = ({
       {(areaStackedLines?.display ?? true) && (
         <>
           {Object.entries(stackedLinesData).map(
-            ([unit, { lines, timeSeries: stackedTimeSeries }]) => (
-              <StackedLines
-                lineStyle={lineStyle}
-                key={`stacked-${unit}`}
-                lines={lines}
-                timeSeries={stackedTimeSeries}
-                yScale={yScalesPerUnit[unit]}
-                {...commonStackedLinesProps}
-              />
-            )
+            ([stackedKey, { lines, timeSeries: stackedTimeSeries }]) => {
+              const [, unit] = stackedKey.split('-');
+              const yScale =
+                unit === '' && yScalesPerUnit[unit] === undefined
+                  ? yScalesPerUnit[undefined]
+                  : yScalesPerUnit[unit];
+
+              return (
+                <StackedLines
+                  key={`stacked-${unit}`}
+                  lineStyle={lineStyle}
+                  lines={lines}
+                  timeSeries={stackedTimeSeries}
+                  yScale={yScale}
+                  {...commonStackedLinesProps}
+                />
+              );
+            }
           )}
           {Object.entries(invertedStackedLinesData).map(
-            ([unit, { lines, timeSeries: stackedTimeSeries }]) => (
-              <StackedLines
-                lineStyle={lineStyle}
-                key={`invert-stacked-${unit}`}
-                lines={lines}
-                timeSeries={stackedTimeSeries}
-                yScale={getYScale({
-                  invert: '1',
-                  scale,
-                  scaleLogarithmicBase,
-                  unit,
-                  yScalesPerUnit
-                })}
-                {...commonStackedLinesProps}
-              />
-            )
+            ([stackedKey, { lines, timeSeries: stackedTimeSeries }]) => {
+              const [, unit] = stackedKey.split('-');
+              return (
+                <StackedLines
+                  key={`invert-stacked-${unit}`}
+                  lineStyle={lineStyle}
+                  lines={lines}
+                  timeSeries={stackedTimeSeries}
+                  yScale={getYScale({
+                    invert: '1',
+                    scale,
+                    scaleLogarithmicBase,
+                    unit:
+                      unit === '' && yScalesPerUnit[unit] === undefined
+                        ? undefined
+                        : unit,
+                    yScalesPerUnit
+                  })}
+                  {...commonStackedLinesProps}
+                />
+              );
+            }
           )}
         </>
       )}
@@ -183,8 +220,8 @@ const Lines = ({
               });
 
               const style = getStyle({
-                style: lineStyle,
-                metricId: metric_id
+                metricId: metric_id,
+                style: lineStyle
               }) as LineStyle;
 
               return (
@@ -192,14 +229,14 @@ const Lines = ({
                   {displayGuidingLines && (
                     <RegularAnchorPoint
                       areaColor={areaColor || lineColor}
+                      hasSecondUnit={hasSecondUnit}
                       lineColor={lineColor}
+                      maxLeftAxisCharacters={maxLeftAxisCharacters}
                       metric_id={metric_id}
                       timeSeries={relatedTimeSeries}
                       transparency={transparency}
                       xScale={xScale}
                       yScale={yScale}
-                      maxLeftAxisCharacters={maxLeftAxisCharacters}
-                      hasSecondUnit={hasSecondUnit}
                     />
                   )}
                   {style?.showPoints &&

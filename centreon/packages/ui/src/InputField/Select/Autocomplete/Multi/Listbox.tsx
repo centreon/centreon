@@ -1,13 +1,14 @@
 import { ListSubheader, Typography } from '@mui/material';
-import { useTranslation } from 'react-i18next';
-import { Button } from '../../../../components/Button';
-import { useListboxStyles } from './Multi.styles';
 
+import { useTranslation } from 'react-i18next';
+
+import { Button } from '../../../../components/Button';
 import {
   labelElementsFound,
   labelSelectAll,
   labelUnSelectAll
 } from '../../../translatedLabels';
+import { useListboxStyles } from './Multi.styles';
 
 const CustomListbox = ({
   children,
@@ -23,7 +24,7 @@ const CustomListbox = ({
       <ListSubheader sx={{ padding: 0 }}>
         <div className={classes.lisSubHeader}>
           <Typography variant="body2">{labelTotal}</Typography>
-          <Button variant="ghost" size="small" onClick={handleSelectAllToggle}>
+          <Button onClick={handleSelectAllToggle} size="small" variant="ghost">
             {label}
           </Button>
         </div>
@@ -38,15 +39,16 @@ const ListboxComponent = ({
   options,
   isOptionSelected,
   onChange,
-  total
+  total,
+  value = []
 }) => {
+  const { t } = useTranslation();
+
   if (disableSelectAll) {
     return;
   }
 
   return (listboxProps): JSX.Element | undefined => {
-    const { t } = useTranslation();
-
     const allSelected =
       options.length > 0 && options.every((opt) => isOptionSelected(opt));
 
@@ -54,19 +56,26 @@ const ListboxComponent = ({
       const syntheticEvent = {} as React.SyntheticEvent;
 
       if (allSelected) {
-        onChange?.(syntheticEvent, [], 'selectOption');
+        const remaining = value.filter(
+          (v) => !options.some((opt) => opt.id === v.id)
+        );
+        onChange?.(syntheticEvent, remaining, 'selectOption');
 
         return;
       }
 
-      onChange?.(syntheticEvent, options, 'selectOption');
+      const merged = [
+        ...value,
+        ...options.filter((opt) => !isOptionSelected(opt))
+      ];
+      onChange?.(syntheticEvent, merged, 'selectOption');
     };
 
     return (
       <CustomListbox
         {...listboxProps}
-        label={t(allSelected ? labelUnSelectAll : labelSelectAll)}
         handleSelectAllToggle={handleSelectAllToggle}
+        label={t(allSelected ? labelUnSelectAll : labelSelectAll)}
         labelTotal={t(labelElementsFound, {
           total: total || options.length
         })}

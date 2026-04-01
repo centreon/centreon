@@ -1,10 +1,5 @@
 #!/bin/bash
 
-if [ "$#" -ne 3 ]; then
-  echo "Usage: $0 <api_base_url> <username> <password>"
-  exit 1
-fi
-
 # Ensure positional parameters are handled correctly
 INSECURE_FLAG=""
 POSITIONAL=()
@@ -20,6 +15,12 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+
+if [ "${#POSITIONAL[@]}" -ne 3 ]; then
+  echo "Usage: $0 <api_base_url> <username> <password> [--insecure]"
+  exit 1
+fi
+
 set -- "${POSITIONAL[@]}"
 
 API_URL="$1"

@@ -2,10 +2,10 @@ import dayjs from 'dayjs';
 import { find, propEq } from 'ramda';
 
 import {
-  CustomTimePeriod,
-  TimePeriod,
-  TimePeriodById,
-  lastDayPeriod
+  type CustomTimePeriod,
+  lastDayPeriod,
+  type TimePeriod,
+  type TimePeriodById
 } from '../models';
 
 export const defaultTimePeriod = lastDayPeriod;

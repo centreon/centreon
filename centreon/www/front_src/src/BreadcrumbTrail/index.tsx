@@ -1,19 +1,18 @@
-import { useCallback, useMemo, useState } from 'react';
-
-import { useAtomValue } from 'jotai';
-import { isNil, pluck } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Box, Breadcrumbs as MuiBreadcrumbs } from '@mui/material';
 
-import navigationAtom from '../Navigation/navigationAtoms';
-
 import { useCopyToClipboard } from '@centreon/ui';
 import { IconButton, Tooltip } from '@centreon/ui/components';
+
+import { useAtomValue } from 'jotai';
+import { isNil, pluck } from 'ramda';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
+
+import navigationAtom from '../Navigation/navigationAtoms';
 import Breadcrumb from './Breadcrumb';
 import getBreadcrumbsByPath from './getBreadcrumbsByPath';
 import { Breadcrumb as BreadcrumbModel, BreadcrumbsByPath } from './models';
@@ -24,17 +23,17 @@ import {
 } from './translatedLabels';
 
 const useStyles = makeStyles()((theme) => ({
-  item: {
-    display: 'flex'
-  },
-  root: {
-    padding: theme.spacing(0.5, 0, 0.5, 3)
-  },
   breadcrumbCopyIcon: {
     '&[data-is-hovered="true"]': {
       opacity: 1
     },
     opacity: 0
+  },
+  item: {
+    display: 'flex'
+  },
+  root: {
+    padding: theme.spacing(0.5, 0, 0.5, 3)
   }
 }));
 
@@ -67,8 +66,8 @@ const BreadcrumbTrail = ({ breadcrumbsByPath, path }: Props): JSX.Element => {
   const [isHovered, setIsHovered] = useState(false);
 
   const { copy } = useCopyToClipboard({
-    successMessage: t(labelBreadcrumbCopied),
-    errorMessage: t(labelFailedToCopyBreadcrumb)
+    errorMessage: t(labelFailedToCopyBreadcrumb),
+    successMessage: t(labelBreadcrumbCopied)
   });
 
   const breadcrumbs = useMemo(
@@ -86,14 +85,14 @@ const BreadcrumbTrail = ({ breadcrumbsByPath, path }: Props): JSX.Element => {
 
   return (
     <Box
+      onMouseEnter={hover}
+      onMouseLeave={leave}
       sx={{
         display: 'flex',
         flexDirection: 'row',
         gap: 1,
         width: 'fit-content'
       }}
-      onMouseEnter={hover}
-      onMouseLeave={leave}
     >
       <MuiBreadcrumbs
         aria-label="Breadcrumb"
@@ -108,19 +107,19 @@ const BreadcrumbTrail = ({ breadcrumbsByPath, path }: Props): JSX.Element => {
           />
         ))}
       </MuiBreadcrumbs>
-      <Tooltip label={t(labelCopyBreadcrumb)} followCursor={false}>
+      <Tooltip followCursor={false} label={t(labelCopyBreadcrumb)}>
         <IconButton
-          size="small"
-          onClick={copyBreadcrumb}
+          className={classes.breadcrumbCopyIcon}
+          data-is-hovered={isHovered}
           icon={
             <ContentCopyIcon
-              fontSize="small"
               color="primary"
               data-testid={labelCopyBreadcrumb}
+              fontSize="small"
             />
           }
-          data-is-hovered={isHovered}
-          className={classes.breadcrumbCopyIcon}
+          onClick={copyBreadcrumb}
+          size="small"
           sx={{
             transition: 'all 175ms ease-out'
           }}

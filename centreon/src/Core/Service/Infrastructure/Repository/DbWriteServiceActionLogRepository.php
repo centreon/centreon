@@ -221,6 +221,37 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
     }
 
     /**
+     * @inheritDoc
+     */
+    public function deleteByHostIdAndServiceTemplateId(int $hostId, int $serviceTemplateId): void
+    {
+        try {
+            $services = $this->readServiceRepository->findByHostIdAndServiceTemplateId($hostId, $serviceTemplateId);
+
+            $this->writeServiceRepository->deleteByHostIdAndServiceTemplateId($hostId, $serviceTemplateId);
+
+            foreach ($services as $service) {
+                $actionLog = new ActionLog(
+                    ActionLog::OBJECT_TYPE_SERVICE,
+                    $service['id'],
+                    $service['name'],
+                    ActionLog::ACTION_TYPE_DELETE,
+                    $this->contact->getId()
+                );
+                $this->writeActionLogRepository->addAction($actionLog);
+            }
+        } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), [
+                'host_id' => $hostId,
+                'service_template_id' => $serviceTemplateId,
+                'trace' => $ex->getTraceAsString(),
+            ]);
+
+            throw $ex;
+        }
+    }
+
+    /**
      * @param NewService|Service $service
      *
      * @return array<string,int|bool|string>

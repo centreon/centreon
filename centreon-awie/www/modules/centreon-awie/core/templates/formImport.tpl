@@ -1,6 +1,7 @@
 <script type='text/javascript' src="./modules/centreon-awie/core/js/Import.js"></script>
 
 <form method="post" id="importForm" name="importForm" enctype="multipart/form-data">
+    <input type="hidden" id="centreon_token" name="centreon_token" value="{$csrfToken}" />
     <div class="loadingWrapper" style="display: none">
         {include file='loading.tpl'}
     </div>

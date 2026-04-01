@@ -57,10 +57,12 @@ class ConfigurationMonitoringServerException extends \Exception
      * @param string $errorMessage
      * @return self
      */
-    public static function errorOnGeneration(int $monitoringServerId, string $errorMessage): self
+    public static function errorOnGeneration(int $monitoringServerId, string $errorMessage, int $code = 0, ?\Throwable $previous = null): self
     {
         return new self(
-            sprintf(_('Generation error on monitoring server #%d: %s'), $monitoringServerId, $errorMessage)
+            sprintf(_('Generation error on monitoring server #%d: %s'), $monitoringServerId, $errorMessage),
+            $code,
+            $previous,
         );
     }
 

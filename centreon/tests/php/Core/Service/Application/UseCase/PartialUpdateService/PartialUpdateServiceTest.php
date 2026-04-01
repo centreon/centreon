@@ -31,11 +31,14 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Command\Domain\Model\Command;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
@@ -44,6 +47,7 @@ use Core\Macro\Domain\Model\Macro;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\Service\Application\Exception\ServiceException;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
@@ -59,6 +63,7 @@ use Core\ServiceCategory\Domain\Model\ServiceCategory;
 use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Application\Repository\WriteServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Domain\Model\ServiceGroup;
+use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 use Exception;
 
 beforeEach(closure: function (): void {
@@ -86,6 +91,9 @@ beforeEach(closure: function (): void {
         $this->isCloudPlatform = false,
         $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
+        $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
+        $this->writeAccessGroupRepository = $this->createMock(WriteAccessGroupRepositoryInterface::class),
+        $this->adminResolver = $this->createMock(AdminResolver::class),
     );
 
     $this->service = new Service(id: 1, name: 'service-name', hostId: 2);
@@ -115,9 +123,9 @@ beforeEach(closure: function (): void {
     $this->request->groups = [$this->groupB->getId()];
 
     // Settup macros
-    $this->macroA = new Macro($this->service->getId(), 'macroNameA', 'macroValueA');
+    $this->macroA = new Macro(null, $this->service->getId(), 'macroNameA', 'macroValueA');
     $this->macroA->setOrder(0);
-    $this->macroB = new Macro($this->service->getId(), 'macroNameB', 'macroValueB');
+    $this->macroB = new Macro(null, $this->service->getId(), 'macroNameB', 'macroValueB');
     $this->macroB->setOrder(1);
     $this->commandMacro = new CommandMacro(1, CommandMacroType::Service, 'commandMacroName');
     $this->commandMacros = [
@@ -169,7 +177,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
@@ -191,7 +199,7 @@ it('should present a NotFoundResponse when the service does not exist', function
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -214,7 +222,7 @@ it('should present a ConflictResponse when the host ID does not exist', function
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -239,11 +247,12 @@ it('should present a ConflictResponse when the host ID does not exist', function
 });
 
 it('should present a ConflictResponse when a category does not exist', function (): void {
+    $this->request->commandId = null;
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -275,11 +284,12 @@ it('should present a ConflictResponse when a category does not exist', function 
 });
 
 it('should present a ConflictResponse when a group does not exist', function (): void {
+    $this->request->commandId = null;
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(3))
         ->method('isAdmin')
         ->willReturn(true);
@@ -327,8 +337,8 @@ it('should present a NoContentResponse on success', function (): void {
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
-        ->expects($this->exactly(4))
+    $this->adminResolver
+        ->expects($this->exactly(5))
         ->method('isAdmin')
         ->willReturn(true);
     $this->readServiceRepository
@@ -337,6 +347,14 @@ it('should present a NoContentResponse on success', function (): void {
         ->willReturn($this->service);
 
     // Service
+    $this->readCommandRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn(new Command(
+            id: $this->request->commandId,
+            name: 'check_command_name',
+            commandLine: 'command_line',
+        ));
     $this->optionService
         ->expects($this->once())
         ->method('findSelectedOptions');
@@ -372,7 +390,16 @@ it('should present a NoContentResponse on success', function (): void {
     $this->readServiceGroupRepository
         ->expects($this->once())
         ->method('findByService')
-        ->willReturn([$this->groupA]);
+        ->willReturn([
+            [
+                'relation' => new ServiceGroupRelation(
+                    $this->groupA->getId(),
+                    $this->service->getId(),
+                    $this->service->getHostId()
+                ),
+                'serviceGroup' => $this->groupA,
+            ],
+        ]);
     $this->writeServiceGroupRepository
         ->expects($this->once())
         ->method('unlink');
@@ -403,8 +430,11 @@ it('should present a NoContentResponse on success', function (): void {
         ->expects($this->once())
         ->method('update');
 
-    ($this->useCase)($this->request, $this->presenter, $this->service->getId());
+    $this->writeAccessGroupRepository
+        ->expects($this->once())
+        ->method('updateAclResourcesFlag');
 
+    ($this->useCase)($this->request, $this->presenter, $this->service->getId());
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(NoContentResponse::class);
 });

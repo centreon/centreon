@@ -55,6 +55,9 @@ class CentreonCeip extends CentreonWebService
     /** @var FeatureFlags */
     private FeatureFlags $featureFlags;
 
+    /** @var CentreonDB */
+    private $pearDBO;
+
     /**
      * CentreonCeip constructor
      *
@@ -64,6 +67,8 @@ class CentreonCeip extends CentreonWebService
      */
     public function __construct()
     {
+        $this->pearDBO = new CentreonDB('centstorage');
+
         parent::__construct();
 
         global $centreon;
@@ -93,12 +98,65 @@ class CentreonCeip extends CentreonWebService
                 'visitor' => $this->getVisitorInformation(),
                 'account' => $this->getAccountInformation(),
                 'excludeAllText' => true,
+                'agents' => $this->getAgentInformation(),
                 'ceip' => true,
             ]
             // Don't compute data if CEIP is disabled
             : [
                 'ceip' => false,
             ];
+    }
+
+    /**
+     * Fetch Agents info.
+     *
+     * @throws PDOException
+     * @return array{
+     *   poller_id: int,
+     *   nb_agents: int
+     * }
+     */
+    private function getAgentInformation(): array
+    {
+        $agents = [];
+        try {
+            $query = <<<'SQL'
+                    SELECT `poller_id`, `enabled`, `infos`
+                    FROM `agent_information`
+                SQL;
+
+            $rows = $this->pearDBO->fetchAllAssociative($query);
+            foreach ($rows as $row) {
+                /** @var array{poller_id:int,enabled:int,infos:string} $row */
+                if ((bool) $row['enabled'] === false) {
+                    continue;
+                }
+
+                $decodedInfos = json_decode($row['infos'], true);
+                if (! is_array($decodedInfos)) {
+                    CentreonLog::create()->error(
+                        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                        message: "Invalid JSON format in agent_information table for poller_id {$row['poller_id']}",
+                        customContext: ['agent_data' => $row]
+                    );
+
+                    continue;
+                }
+
+                $agents[] = [
+                    'poller_id' => $row['poller_id'],
+                    'nb_agents' => array_sum(array_map(static fn (array $info): int => $info['nb_agent'] ?? 0, $decodedInfos)),
+                ];
+            }
+        } catch (Throwable $exception) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: $exception->getMessage(),
+                customContext: ['context' => $exception]
+            );
+        }
+
+        return $agents;
     }
 
     /**
@@ -322,7 +380,11 @@ class CentreonCeip extends CentreonWebService
         } catch (UnknownIdentifierException) {
             // The licence does not exist, 99.99% chance we are on Open source. No need to log.
         } catch (Throwable $exception) {
-            $this->logger->error($exception->getMessage(), ['context' => $exception]);
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: $exception->getMessage(),
+                customContext: ['context' => $exception]
+            );
         }
 
         $licenseInformation = [
@@ -384,15 +446,19 @@ class CentreonCeip extends CentreonWebService
     {
         $sql = "SELECT `value` FROM `options` WHERE `key` = 'impCompanyToken' LIMIT 1";
         $impCompanyToken = (string) $this->sqlFetchValue($sql);
+        if ($impCompanyToken === '') {
+            return '';
+        }
 
         $decodedToken = json_decode($impCompanyToken, true);
-        if (is_array($decodedToken) && isset($decodedToken['token'])) {
+        if (is_array($decodedToken) && is_string($decodedToken['token'] ?? null)) {
             return $decodedToken['token'];
         }
 
-        $this->logger->error(
-            "Invalid JSON format in options table for key 'impCompanyToken'",
-            ['context' => $impCompanyToken]
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Invalid JSON format in options table for key 'impCompanyToken'",
+            customContext: ['context' => $impCompanyToken]
         );
 
         return '';
@@ -419,7 +485,11 @@ class CentreonCeip extends CentreonWebService
 
             return is_string($value) || is_int($value) || is_float($value) ? $value : null;
         } catch (PDOException $exception) {
-            $this->logger->error($exception->getMessage(), ['context' => $exception]);
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: $exception->getMessage(),
+                customContext: ['context' => $exception]
+            );
 
             return null;
         }

@@ -37,6 +37,8 @@ use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 final class ContactRepositoryRDB implements ContactRepositoryInterface
 {
     use SqlMultipleBindTrait;
+    private const MENU_ACCESS_NO_ACCESS = 0;
+    private const MENU_ACCESS_READ_WRITE_ACCESS = 1;
 
     /** @var DatabaseConnection */
     private $db;
@@ -292,12 +294,27 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
         $topologies = [];
         $rightsCounter = 0;
         while ($row = $prepare->fetch(\PDO::FETCH_ASSOC)) {
-            $topologies[$row['topology_page']] = [
-                'name' => $row['topology_name'],
-                'right' => (int) $row['access_right'],
-            ];
-            if ($row['access_right'] !== null) {
-                $rightsCounter++;
+            $topologyAccess = (int) $row['access_right'];
+            $topologyPage = $row['topology_page'];
+            $topologyName = $row['topology_name'];
+
+            // No point in adding topology if no access.
+            if ($topologyAccess > self::MENU_ACCESS_NO_ACCESS) {
+                // If topology_page already registered only update the rights when needed (ie: giving more access though menu access)
+                if (isset($topologies[$topologyPage])) {
+                    if (
+                        $topologyAccess === self::MENU_ACCESS_READ_WRITE_ACCESS
+                        && $topologies[$topologyPage]['right'] !== self::MENU_ACCESS_READ_WRITE_ACCESS
+                    ) {
+                        $topologies[$topologyPage]['right'] = self::MENU_ACCESS_READ_WRITE_ACCESS;
+                    }
+                } else {
+                    $topologies[$topologyPage] = [
+                        'name' => $topologyName,
+                        'right' => $topologyAccess,
+                    ];
+                    $rightsCounter++; // increment when a new topology is added
+                }
             }
         }
 
@@ -305,9 +322,6 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
         if ($rightsCounter > 0) {
             foreach ($topologies as $topologyPage => $details) {
                 $originalTopologyPage = $topologyPage;
-                if ($details['right'] === 0) {
-                    continue;
-                }
                 $ruleName = null;
                 $lvl2Name = null;
                 $lvl3Name = null;
@@ -575,6 +589,30 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                 break;
             case 'poller_stats':
                 $contact->addRole(Contact::ROLE_DISPLAY_TOP_COUNTER_POLLERS_STATISTICS);
+                break;
+            case 'see_check_commands':
+                $contact->addRole(Contact::ROLE_SEE_CHECK_COMMANDS);
+                break;
+            case 'manage_check_commands':
+                $contact->addRole(Contact::ROLE_MANAGE_CHECK_COMMANDS);
+                break;
+            case 'see_notification_commands':
+                $contact->addRole(Contact::ROLE_SEE_NOTIFICATION_COMMANDS);
+                break;
+            case 'manage_notification_commands':
+                $contact->addRole(Contact::ROLE_MANAGE_NOTIFICATION_COMMANDS);
+                break;
+            case 'see_discovery_commands':
+                $contact->addRole(Contact::ROLE_SEE_DISCOVERY_COMMANDS);
+                break;
+            case 'manage_discovery_commands':
+                $contact->addRole(Contact::ROLE_MANAGE_DISCOVERY_COMMANDS);
+                break;
+            case 'see_miscellaneous_commands':
+                $contact->addRole(Contact::ROLE_SEE_MISCELLANEOUS_COMMANDS);
+                break;
+            case 'manage_miscellaneous_commands':
+                $contact->addRole(Contact::ROLE_MANAGE_MISCELLANEOUS_COMMANDS);
                 break;
         }
     }

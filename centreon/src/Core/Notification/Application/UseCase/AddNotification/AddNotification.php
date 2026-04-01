@@ -33,6 +33,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
@@ -63,6 +64,7 @@ final class AddNotification
         private readonly NotificationResourceFactory $notificationResourceFactory,
         private readonly NotificationValidator $notificationValidator,
         private readonly ContactInterface $user,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -175,7 +177,7 @@ final class AddNotification
     {
         $resources = [];
         foreach ($this->resourceRepositoryProvider->getRepositories() as $repository) {
-            if ($this->user->isAdmin()) {
+            if ($this->adminResolver->isAdmin($this->user)) {
                 $resource = $repository->findByNotificationId($notificationId);
             } else {
                 $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);

@@ -2,7 +2,6 @@ import { ScaleTime } from 'd3-scale';
 import { filter, isNil, propEq } from 'ramda';
 
 import { TimelineEvent } from '../../../../Details/tabs/Timeline/models';
-
 import AreaAnnotation from './Annotation/Area';
 import LineAnnotation from './Annotation/Line';
 
@@ -33,11 +32,11 @@ const EventAnnotations = ({
     <>
       {events.map((event) => {
         const props = {
-          Icon,
           ariaLabel,
           color,
           event,
           graphHeight,
+          Icon,
           resourceId,
           xScale
         };

@@ -58,8 +58,8 @@ export const getListingColumns = (): Array<Column> => {
       getFormattedString: ({ name }): string => name,
       id: 'name',
       label: labelName,
-      sortField: 'name',
       sortable: true,
+      sortField: 'name',
       type: ColumnType.string
     },
     {
