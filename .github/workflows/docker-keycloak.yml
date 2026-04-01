@@ -56,6 +56,8 @@ jobs:
         uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
         with:
           images: ghcr.io/${{ github.repository }}/keycloak
+          labels: |
+            com.centreon.stability=${{ needs.get-environment.outputs.stability }}
 
       - name: Compute image tag
         id: image_tag
