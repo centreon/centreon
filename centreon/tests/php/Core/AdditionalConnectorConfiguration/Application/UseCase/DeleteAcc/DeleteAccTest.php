@@ -30,6 +30,7 @@ use Core\AdditionalConnectorConfiguration\Application\Repository\WriteAccReposit
 use Core\AdditionalConnectorConfiguration\Application\UseCase\DeleteAcc\DeleteAcc;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Acc;
 use Core\AdditionalConnectorConfiguration\Domain\Model\AccParametersInterface;
+use Core\AdditionalConnectorConfiguration\Domain\Model\Poller;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
@@ -131,9 +132,18 @@ it('should present a NoContentResponse on success', function (): void {
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
+    $this->readAccRepository
+        ->expects($this->once())
+        ->method('findPollersByAccId')
+        ->with($this->testedAccId)
+        ->willReturn([new Poller(1, 'poller-name')]);
     $this->writeAccRepository
         ->expects($this->once())
         ->method('delete');
+    $this->writeMonitoringServerRepository
+        ->expects($this->once())
+        ->method('notifyVmwareConfigurationChanges')
+        ->with([1]);
 
     ($this->useCase)($this->testedAccId, $this->presenter);
 

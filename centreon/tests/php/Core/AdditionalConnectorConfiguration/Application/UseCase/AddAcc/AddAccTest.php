@@ -234,6 +234,11 @@ it(
             ->method('add')
             ->willReturn($this->testedAccId);
 
+        $this->writeMonitoringServerRepository
+            ->expects($this->once())
+            ->method('notifyVmwareConfigurationChanges')
+            ->with($this->testedAddAccRequest->pollers);
+
         $this->readAccRepository
             ->expects($this->once())
             ->method('find')
@@ -274,6 +279,11 @@ it(
             ->expects($this->once())
             ->method('add')
             ->willReturn($this->testedAccId);
+
+        $this->writeMonitoringServerRepository
+            ->expects($this->once())
+            ->method('notifyVmwareConfigurationChanges')
+            ->with($this->testedAddAccRequest->pollers);
 
         $this->readAccRepository
             ->expects($this->once())
