@@ -105,7 +105,7 @@ services:
     platform: linux/amd64
     env_file:
       - .env
-    image: "${WEB_IMAGE:-docker.centreon.com/centreon/centreon-web-alma9:develop}"
+    image: "${WEB_IMAGE:-docker.centreon.com/centreon/centreon-web-alma9:dev-25.10.x}"
     ports: ["4001:80"]
     profiles: ["remote-server"]
     depends_on:
