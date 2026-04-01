@@ -26,6 +26,7 @@ namespace Core\ServiceTemplate\Infrastructure\Repository;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface;
 use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
@@ -44,14 +45,14 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
 
     /**
      * @param WriteServiceTemplateRepositoryInterface $writeServiceTemplateRepository
-     * @param ContactInterface $contact
+     * @param TokenStorageInterface $tokenStorage
      * @param ReadServiceTemplateRepositoryInterface $readServiceTemplateRepository
      * @param WriteActionLogRepositoryInterface $writeActionLogRepository
      * @param DatabaseConnection $db
      */
     public function __construct(
         private readonly WriteServiceTemplateRepositoryInterface $writeServiceTemplateRepository,
-        private readonly ContactInterface $contact,
+        private readonly TokenStorageInterface $tokenStorage,
         private readonly ReadServiceTemplateRepositoryInterface $readServiceTemplateRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
         DatabaseConnection $db,
@@ -71,7 +72,7 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
                 $serviceTemplateId,
                 $serviceTemplate ? $serviceTemplate->getName() : '',
                 ActionLog::ACTION_TYPE_DELETE,
-                $this->contact->getId()
+                $this->getContactId()
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
@@ -91,7 +92,7 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
                 $serviceTemplateId,
                 $newServiceTemplate->getName(),
                 ActionLog::ACTION_TYPE_ADD,
-                $this->contact->getId()
+                $this->getContactId()
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -136,7 +137,7 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
                 $serviceTemplate->getId(),
                 $serviceTemplate->getName(),
                 ActionLog::ACTION_TYPE_CHANGE,
-                $this->contact->getId()
+                $this->getContactId()
             );
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             $actionLog->setId($actionLogId);
@@ -146,6 +147,13 @@ class DbWriteServiceTemplateActionLogRepository extends AbstractRepositoryRDB im
 
             throw $ex;
         }
+    }
+
+    private function getContactId(): ?int
+    {
+        $user = $this->tokenStorage->getToken()?->getUser();
+
+        return $user instanceof ContactInterface ? $user->getId() : null;
     }
 
     /**

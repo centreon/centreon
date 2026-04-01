@@ -27,6 +27,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\DatabaseConnection;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface;
 use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
@@ -49,7 +50,7 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
         private readonly WriteServiceCategoryRepositoryInterface $writeServiceCategoryRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
         private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
-        private readonly ContactInterface $user,
+        private readonly TokenStorageInterface $tokenStorage,
         DatabaseConnection $db,
     ) {
         $this->db = $db;
@@ -71,7 +72,7 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
                 objectId: $serviceCategoryId,
                 objectName: $serviceCategory->getName(),
                 actionType: ActionLog::ACTION_TYPE_DELETE,
-                contactId: $this->user->getId()
+                contactId: $this->getContactId()
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
@@ -99,7 +100,7 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
                 objectId: $serviceCategoryId,
                 objectName: $serviceCategory->getName(),
                 actionType: ActionLog::ACTION_TYPE_ADD,
-                contactId: $this->user->getId()
+                contactId: $this->getContactId()
             );
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             $actionLog->setId($actionLogId);
@@ -146,7 +147,7 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
                 objectId: $serviceCategory->getId(),
                 objectName: $serviceCategory->getName(),
                 actionType: ActionLog::ACTION_TYPE_CHANGE,
-                contactId: $this->user->getId()
+                contactId: $this->getContactId()
             );
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             $actionLog->setId($actionLogId);
@@ -163,6 +164,13 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
 
             throw $ex;
         }
+    }
+
+    private function getContactId(): ?int
+    {
+        $user = $this->tokenStorage->getToken()?->getUser();
+
+        return $user instanceof ContactInterface ? $user->getId() : null;
     }
 
     /**

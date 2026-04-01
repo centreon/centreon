@@ -27,6 +27,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\DatabaseConnection;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface;
 use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
@@ -43,7 +44,7 @@ class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB impleme
     public function __construct(
         private readonly WriteTimePeriodRepositoryInterface $writeTimePeriodRepository,
         private readonly ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
-        private readonly ContactInterface $contact,
+        private readonly TokenStorageInterface $tokenStorage,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
         DatabaseConnection $db,
     ) {
@@ -68,7 +69,7 @@ class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB impleme
                 $timePeriodId,
                 $timePeriod->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
-                $this->contact->getId()
+                $this->getContactId()
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
@@ -94,7 +95,7 @@ class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB impleme
                 $timePeriodId,
                 $timePeriod->getName(),
                 ActionLog::ACTION_TYPE_ADD,
-                $this->contact->getId()
+                $this->getContactId()
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -132,7 +133,7 @@ class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB impleme
                 $timePeriod->getId(),
                 $timePeriod->getName(),
                 ActionLog::ACTION_TYPE_CHANGE,
-                $this->contact->getId()
+                $this->getContactId()
             );
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             if ($actionLogId === 0) {
@@ -145,6 +146,13 @@ class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB impleme
 
             throw $ex;
         }
+    }
+
+    private function getContactId(): ?int
+    {
+        $user = $this->tokenStorage->getToken()?->getUser();
+
+        return $user instanceof ContactInterface ? $user->getId() : null;
     }
 
     /**

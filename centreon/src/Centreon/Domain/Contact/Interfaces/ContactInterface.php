@@ -33,9 +33,9 @@ interface ContactInterface
     public function getTimezoneId(): int;
 
     /**
-     * @return int|null Returns the contact id
+     * @return int Returns the contact id
      */
-    public function getId(): ?int;
+    public function getId(): int;
 
     /**
      * Indicates whether the contact is an administrator.
