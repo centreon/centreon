@@ -43,6 +43,7 @@ use Core\Service\Infrastructure\Model\NotificationTypeConverter;
 
 class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements WriteServiceRepositoryInterface
 {
+    public $contact;
     use LoggerTrait;
 
     /**
