@@ -154,12 +154,14 @@ class PollerInteractionService
                 $vmwareRow = $vmwareStatement->fetch(\PDO::FETCH_ASSOC);
                 if ($vmwareRow && $vmwareRow['vmware_updated'] === '1') {
                     if (isset($host['localhost']) && $host['localhost'] == 1) {
-                        exec(escapeshellcmd("sudo -n -- systemctl restart centreon_vmware"), $restartOutput, $restartReturnCode);
+                        exec(escapeshellcmd('sudo -n -- systemctl restart centreon_vmware'), $restartOutput, $restartReturnCode);
                         $vmwareRestartSucceeded = $restartReturnCode === 0;
                     } else {
-                        $centCoreDir = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ . '/centcore' : '/var/lib/centreon/centcore';
-                        $vmwarePipe = is_dir($centCoreDir) ? $centCoreDir . '/' . microtime(true) . '-externalcommand.cmd' : $centCorePipe;
-                        passthru("echo 'VMWARERESTART:{$host['id']}' >> {$vmwarePipe}", $vmwareReturn);
+                        passthru("echo 'VMWARERESTART:{$host['id']}' >> {$centCorePipe}", $vmwareReturn);
+                        if ($vmwareReturn) {
+                            throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
+                        }
+
                         $vmwareRestartSucceeded = $vmwareReturn === 0;
                     }
                     if ($vmwareRestartSucceeded) {
