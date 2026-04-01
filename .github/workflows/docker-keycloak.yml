@@ -17,6 +17,7 @@ on:
     paths:
       - ".version"
       - ".github/docker/keycloak/**"
+      - ".github/workflows/docker-keycloak.yml"
 
 jobs:
   dependency-scan:
@@ -56,13 +57,23 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}/keycloak
 
+      - name: Compute image tag
+        id: image_tag
+        run: |
+          if [ "${{ needs.get-environment.outputs.stability }}" = "unstable" ]; then
+            echo "value=${{ needs.get-environment.outputs.major_version }}" >> "$GITHUB_OUTPUT"
+          else
+            raw_ref="${{ github.head_ref || github.ref_name }}"
+            echo "value=${raw_ref//\//-}" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
           file: .github/docker/keycloak/Dockerfile
           context: .
           pull: true
           push: true
-          tags: ghcr.io/${{ github.repository }}/keycloak:${{ needs.get-environment.outputs.stability == 'unstable' && needs.get-environment.outputs.major_version || github.head_ref || github.ref_name }}
+          tags: ghcr.io/${{ github.repository }}/keycloak:${{ steps.image_tag.outputs.value }}
           labels: ${{ steps.meta.outputs.labels }}
 
   set-skip-label:
