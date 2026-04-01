@@ -59,6 +59,7 @@ jobs:
           labels: |
             org.opencontainers.image.description=Keycloak image for Centreon E2E tests
             com.centreon.stability=${{ needs.get-environment.outputs.stability }}
+            com.centreon.version=${{ needs.get-environment.outputs.major_version }}
       - name: Compute image tag
         id: image_tag
         run: |
