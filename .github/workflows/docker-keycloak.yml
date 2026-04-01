@@ -57,6 +57,7 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}/keycloak
           labels: |
+            org.opencontainers.image.description=Keycloak image for Centreon E2E tests
             com.centreon.stability=${{ needs.get-environment.outputs.stability }}
 
       - name: Compute image tag
