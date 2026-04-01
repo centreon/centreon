@@ -154,11 +154,14 @@ if [[ "$STABILITY" == "stable" ]]; then
     centreon-gorgone=${MAJOR_VERSION}.0-*+deb12u1 \
     centreon-engine=${MAJOR_VERSION}.0-*+deb12u1 \
     centreon-engine-daemon=${MAJOR_VERSION}.0-*+deb12u1 \
+    centreon-broker=${MAJOR_VERSION}.0-*+deb12u1 \
     centreon-broker-cbd=${MAJOR_VERSION}.0-*+deb12u1 \
     centreon-broker-core=${MAJOR_VERSION}.0-*+deb12u1 \
+    centreon-clib=${MAJOR_VERSION}.0-*+deb12u1 \
     centreon-connector=${MAJOR_VERSION}.0-*+deb12u1 \
     centreon-connector-perl=${MAJOR_VERSION}.0-*+deb12u1 \
-    centreon-connector-ssh=${MAJOR_VERSION}.0-*+deb12u1
+    centreon-connector-ssh=${MAJOR_VERSION}.0-*+deb12u1 \
+    centreon-engine-opentelemetry=${MAJOR_VERSION}.0-*+deb12u1
 else
   apt-get install -y \
     centreon-common \
