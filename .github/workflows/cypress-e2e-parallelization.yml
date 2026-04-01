@@ -152,6 +152,19 @@ jobs:
             echo "tag=$REF" >> $GITHUB_OUTPUT
           fi
 
+      - name: Compute keycloak image tag
+        id: keycloak_image_tag
+        env:
+          REF: ${{ github.head_ref || github.ref_name }}
+          MAJOR_VERSION: ${{ inputs.major_version }}
+          STABILITY: ${{ inputs.stability }}
+        run: |
+          if [ "$STABILITY" = "unstable" ]; then
+            echo "tag=${MAJOR_VERSION}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${REF//\//-}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Restore packages
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
         uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -250,8 +263,8 @@ jobs:
           CYPRESS_DATABASE_IMAGE: ${{ inputs.database_image }}
           CYPRESS_WEB_IMAGE_OS: ${{ inputs.os }}
           CYPRESS_WEB_IMAGE_VERSION: ${{ steps.image_tag.outputs.tag }}
-          CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.major_version }}
-          CYPRESS_SAML_IMAGE_VERSION: ${{ inputs.major_version }}
+          CYPRESS_OPENID_IMAGE_VERSION: ${{ steps.keycloak_image_tag.outputs.tag }}
+          CYPRESS_SAML_IMAGE_VERSION: ${{ steps.keycloak_image_tag.outputs.tag }}
           CYPRESS_STABILITY: ${{ inputs.stability }}
           CYPRESS_TARGET_STABILITY: ${{ inputs.target_stability }}
           CYPRESS_IS_CLOUD: ${{ inputs.is_cloud }}
