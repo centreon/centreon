@@ -348,7 +348,7 @@ try {
                 );
                 $vmwareRow = $vmwareUpdatedResult->fetch();
                 if ($vmwareRow && $vmwareRow['vmware_updated'] === '1') {
-                    exec(escapeshellcmd("sudo -n -- systemctl restart centreon_vmware"), $restartOutput, $restartReturnCode);
+                    exec(escapeshellcmd('sudo -n -- systemctl restart centreon_vmware'), $restartOutput, $restartReturnCode);
                     if ($restartReturnCode === 0) {
                         $pearDB->query(
                             'UPDATE nagios_server SET vmware_updated = \'0\' WHERE id = ' . (int) $host['id']
@@ -369,17 +369,16 @@ try {
                 );
                 $vmwareRow = $vmwareUpdatedResult->fetch();
                 if ($vmwareRow && $vmwareRow['vmware_updated'] === '1') {
-                    $centcoreDir = _CENTREON_VARLIB_ . '/centcore';
-                    $vmwarePipe = is_dir($centcoreDir) ? $centcoreDir . '/' . microtime(true) . '-externalcommand.cmd' : $centcore_pipe;
                     passthru(
-                        escapeshellcmd("echo 'VMWARERESTART:{$host['id']}'") . ' >> ' . escapeshellcmd($vmwarePipe),
+                        escapeshellcmd("echo 'VMWARERESTART:{$host['id']}'") . ' >> ' . escapeshellcmd($centcore_pipe),
                         $vmwareReturn
                     );
-                    if ($vmwareReturn === 0) {
-                        $pearDB->query(
-                            'UPDATE nagios_server SET vmware_updated = \'0\' WHERE id = ' . (int) $host['id']
-                        );
+                    if ($vmwareReturn) {
+                        throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
                     }
+                    $pearDB->query(
+                        'UPDATE nagios_server SET vmware_updated = \'0\' WHERE id = ' . (int) $host['id']
+                    );
                 }
                 if (! isset($msg_restart[$host['id']])) {
                     $msg_restart[$host['id']] = '';

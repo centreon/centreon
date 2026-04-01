@@ -571,8 +571,8 @@ class CentreonConfigPoller
             }
 
             // VMWare configuration
-            $listVmWareFile = glob($this->vmWareCachePath . '/' . $pollerId . '/*.json', GLOB_BRACE);
-            if (is_array($listVmWareFile) && count($listVmWareFile) === 1) {
+            $listVmWareFile = glob($this->vmWareCachePath . '/' . $pollerId . '/*.json');
+            if (is_array($listVmWareFile) && count($listVmWareFile) > 0) {
                 if (! @copy($listVmWareFile[0], _CENTREON_ETC_ . '/centreon_vmware.json')) {
                     $msg_copy .= _('Could not copy VMWare configuration file') . " - KO\n";
                     $return = 1;
@@ -587,7 +587,7 @@ class CentreonConfigPoller
             $vmwareStatement->execute();
             $vmwareRow = $vmwareStatement->fetch(PDO::FETCH_ASSOC);
             if ($vmwareRow && $vmwareRow['vmware_updated'] === '1') {
-                exec(escapeshellcmd("sudo -n -- systemctl restart centreon_vmware"), $restartOutput, $restartReturnCode);
+                exec(escapeshellcmd('sudo -n -- systemctl restart centreon_vmware'), $restartOutput, $restartReturnCode);
                 if ($restartReturnCode === 0) {
                     $pearDB->query(
                         "UPDATE nagios_server SET vmware_updated = '0' WHERE id = " . (int) $pollerId
@@ -662,10 +662,12 @@ class CentreonConfigPoller
             $vmwareStatement->execute();
             $vmwareRow = $vmwareStatement->fetch(PDO::FETCH_ASSOC);
             if ($vmwareRow && $vmwareRow['vmware_updated'] === '1') {
-                $this->writeToCentcorePipe('VMWARERESTART', $host['id']);
-                $pearDB->query(
-                    "UPDATE nagios_server SET vmware_updated = '0' WHERE id = " . (int) $host['id']
-                );
+                $vmwareReturn = $this->writeToCentcorePipe('VMWARERESTART', $host['id']);
+                if ($vmwareReturn === 0) {
+                    $pearDB->query(
+                        "UPDATE nagios_server SET vmware_updated = '0' WHERE id = " . (int) $host['id']
+                    );
+                }
             }
 
             $msg_copy .= _(
