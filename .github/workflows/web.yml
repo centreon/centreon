@@ -866,18 +866,18 @@ jobs:
       - name: Generate information according to matrix os
         id: matrix_include
         run: |
-          if [ "${{ matrix.operating_system }}" = "alma9" ]; then
-            DISTRIB=el9
-            PACKAGE_EXTENSION=rpm
-          elif [ "${{ matrix.operating_system }}" = "alma10" ]; then
+          # if [ "${{ matrix.operating_system }}" = "alma9" ]; then
+          #   DISTRIB=el9
+          #   PACKAGE_EXTENSION=rpm
+          if [ "${{ matrix.operating_system }}" = "alma10" ]; then
             DISTRIB=el10
             PACKAGE_EXTENSION=rpm
           elif [ "${{ matrix.operating_system }}" = "trixie" ]; then
             DISTRIB=trixie
             PACKAGE_EXTENSION=deb
-          elif [ "${{ matrix.operating_system }}" = "trixie" ]; then
-            DISTRIB=bookworm
-            PACKAGE_EXTENSION=deb
+          # elif [ "${{ matrix.operating_system }}" = "bookworm" ]; then
+          #   DISTRIB=bookworm
+          #   PACKAGE_EXTENSION=deb
           elif [ "${{ matrix.operating_system }}" = "jammy" ]; then
             DISTRIB=jammy
             PACKAGE_EXTENSION=deb
@@ -999,7 +999,7 @@ jobs:
           key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.image_tag.outputs.tag }}
 
       - name: Store keycloak image in local archive
-        if: ${{ needs.get-environment.outputs.stability == 'unstable' && matrix.operating_system == 'alma9' }}
+        if: ${{ needs.get-environment.outputs.stability == 'unstable' && matrix.operating_system == 'alma10' }}
         run: |
           docker pull docker.centreon.com/centreon/keycloak:${{ needs.get-environment.outputs.major_version }}
           mkdir -p docker-image-keycloak
@@ -1007,7 +1007,7 @@ jobs:
         shell: bash
 
       - name: Clear previous keycloak image from cache
-        if: ${{ needs.get-environment.outputs.stability == 'unstable' && matrix.operating_system == 'alma9' }}
+        if: ${{ needs.get-environment.outputs.stability == 'unstable' && matrix.operating_system == 'alma10' }}
         run: |
           curl \
             -X DELETE \
@@ -1017,7 +1017,7 @@ jobs:
         shell: bash
 
       - name: Store keycloak image in cache
-        if: ${{ needs.get-environment.outputs.stability == 'unstable' && matrix.operating_system == 'alma9' }}
+        if: ${{ needs.get-environment.outputs.stability == 'unstable' && matrix.operating_system == 'alma10' }}
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ./docker-image-keycloak
@@ -1167,7 +1167,7 @@ jobs:
       minor_version: ${{ needs.get-environment.outputs.minor_version }}
       stability: ${{ needs.get-environment.outputs.stability }}
       target_stability: ${{ needs.get-environment.outputs.target_stability }}
-      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma9' && 'rpm-el9' || 'deb-trixie' ) }}
+      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma10' && 'rpm-el10' || 'deb-trixie' ) }}
       package_directory: fixtures/packages
       test_tags: ${{ needs.changes.outputs.trigger_upgrade_testing == 'true' && matrix.test_tags || format('{0} and not @update and not @upgrade', matrix.test_tags) }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
@@ -1379,7 +1379,8 @@ jobs:
       github.repository == 'centreon/centreon'
     strategy:
       matrix:
-        distrib: [el9, el10]
+        # distrib: [el9, el10]
+        distrib: [el10]
     name: deliver-rpm ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
@@ -1450,7 +1451,8 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [el9, el10, trixie]
+        # distrib: [el9, el10, trixie]
+        distrib: [el10, trixie]
     name: promote ${{ matrix.distrib }}
     steps:
       - name: Checkout sources

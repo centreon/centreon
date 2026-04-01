@@ -24,6 +24,14 @@ on:
         value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_key_alma9 }}
       test_execution_id_alma9:
         value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_id_alma9 }}
+      test_plan_key_alma10:
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_key_alma10 }}
+      test_plan_id_alma10:
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_id_alma10 }}
+      test_execution_key_alma10:
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_key_alma10 }}
+      test_execution_id_alma10:
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_id_alma10 }}
       test_plan_key_bullseye:
         value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_key_bullseye }}
       test_plan_id_bullseye:
@@ -59,6 +67,10 @@ jobs:
       test_plan_id_alma9: ${{ steps.get_test_plan_id.outputs.test_plan_id_alma9 }}
       test_execution_key_alma9: ${{ steps.get_test_execution_key.outputs.test_execution_key_alma9 }}
       test_execution_id_alma9: ${{ steps.get_test_execution_id.outputs.test_execution_id_alma9 }}
+      test_plan_key_alma10: ${{ steps.get_test_plan_key.outputs.test_plan_key_alma10 }}
+      test_plan_id_alma10: ${{ steps.get_test_plan_id.outputs.test_plan_id_alma10 }}
+      test_execution_key_alma10: ${{ steps.get_test_execution_key.outputs.test_execution_key_alma10 }}
+      test_execution_id_alma10: ${{ steps.get_test_execution_id.outputs.test_execution_id_alma10 }}
       test_plan_key_bullseye: ${{ steps.get_test_plan_key.outputs.test_plan_key_bullseye }}
       test_plan_id_bullseye: ${{ steps.get_test_plan_id.outputs.test_plan_id_bullseye }}
       test_execution_key_bullseye: ${{ steps.get_test_execution_key.outputs.test_execution_key_bullseye }}
@@ -211,6 +223,10 @@ jobs:
             alma9)
               linux_distribution="ALMA9"
               mariadb_version="MARIADB_10_5"
+              ;;
+            alma10)
+              linux_distribution="ALMA10"
+              mariadb_version="MARIADB_11_8"
               ;;
             bullseye)
               linux_distribution="DEBIAN11"

@@ -91,7 +91,8 @@ jobs:
           major_version=${MAJOR}
           if ! [[ ${major_version} =~ ^2[0-9]\.(04|10)$ ]]; then
             echo "is_cloud=true" >> $GITHUB_OUTPUT
-            DISTRIBS=("alma9")
+            # DISTRIBS=("alma9")
+            DISTRIBS=("alma10")
           else
             echo "is_cloud=false" >> $GITHUB_OUTPUT
             case "${major_version}" in
@@ -106,7 +107,8 @@ jobs:
                 DISTRIBS=("alma8" "alma9" "bookworm")
                 ;;
               26.10)
-                DISTRIBS=("alma9" "alma10" "trixie")
+                # DISTRIBS=("alma9" "alma10" "trixie")
+                DISTRIBS=("alma10" "trixie")
                 ;;
               *)
                 echo "::error::Major version has not been properly detected."

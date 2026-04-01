@@ -742,11 +742,14 @@ jobs:
               return configs[configIndex];
             };
 
-            const configs = [alma9_mariadb_10_11, alma9_mysql_8_0, alma10_mariadb_11_8, trixie_mysql_8_4];
+            // const configs = [alma9_mariadb_10_11, alma9_mysql_8_0, alma10_mariadb_11_8, trixie_mysql_8_4];
+            const configs = [alma10_mariadb_11_8, trixie_mysql_8_4];
 
-            const cloud = alma9_mysql_8_0;
+            // const cloud = alma9_mysql_8_0;
+            const cloud = alma10_mariadb_11_8;
 
-            let main = alma9_mariadb_10_11;
+            // let main = alma9_mariadb_10_11;
+            let main = alma10_mariadb_11_8;
             if ('${{ steps.detect_cloud_version.outputs.isCloud }}' == 'true') {
               main = cloud;
             }
@@ -803,7 +806,7 @@ jobs:
               || process.env.HAS_DATABASE === 'true';
 
             const distribMap = {
-              alma9:    { distrib: 'el9',      package_extension: 'rpm' },
+              // alma9:    { distrib: 'el9',      package_extension: 'rpm' },
               alma10:   { distrib: 'el10',     package_extension: 'rpm' },
               trixie:   { distrib: 'trixie',   package_extension: 'deb' },
             };

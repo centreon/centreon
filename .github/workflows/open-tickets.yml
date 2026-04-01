@@ -315,11 +315,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el9, el10, trixie]
+        # distrib: [el9, el10, trixie]
+        distrib: [el10, trixie]
         include:
-          - package_extension: rpm
-            image: packaging-nfpm-alma9
-            distrib: el9
+          # - package_extension: rpm
+          #   image: packaging-nfpm-alma9
+          #   distrib: el9
           - package_extension: rpm
             image: packaging-nfpm-alma10
             distrib: el10
@@ -389,7 +390,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        operating_system: [alma9, alma10]
+        # operating_system: [alma9, alma10]
+        operating_system: [alma10]
 
     name: dockerize ${{ matrix.operating_system }}
 
@@ -400,10 +402,10 @@ jobs:
       - name: Generate information according to matrix os
         id: matrix_include
         run: |
-          if [ "${{ matrix.operating_system }}" = "alma9" ]; then
-            DISTRIB=el9
-            PACKAGE_EXTENSION=rpm
-          elif [ "${{ matrix.operating_system }}" = "alma10" ]; then
+          # if [ "${{ matrix.operating_system }}" = "alma9" ]; then
+          #   DISTRIB=el9
+          #   PACKAGE_EXTENSION=rpm
+          if [ "${{ matrix.operating_system }}" = "alma10" ]; then
             DISTRIB=el10
             PACKAGE_EXTENSION=rpm
           elif [ "${{ matrix.operating_system }}" = "trixie" ]; then
@@ -536,7 +538,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        operating_system: [alma9]
+        # operating_system: [alma9]
+        operating_system: [alma10]
     name: create-xray-test-plan-and-test-execution-${{ matrix.operating_system }}
 
     uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
@@ -564,7 +567,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        operating_system: [alma9]
+        # operating_system: [alma9]
+        operating_system: [alma10]
         database: ["mariadb:10.11"]
         test_tags: ["not @ignore"]
     name: e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
@@ -581,7 +585,7 @@ jobs:
       minor_version: ${{ needs.get-environment.outputs.minor_version }}
       stability: ${{ needs.get-environment.outputs.stability }}
       target_stability: ${{ needs.get-environment.outputs.target_stability }}
-      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma9' && 'rpm-el9' || 'deb-trixie' ) }}
+      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma10' && 'rpm-el10' || 'deb-trixie' ) }}
       package_directory: centreon-open-tickets/tests/e2e/fixtures/packages
       test_tags: ${{ matrix.test_tags }}
       dependencies_lock_file: centreon-open-tickets/tests/e2e/pnpm-lock.yaml
@@ -613,7 +617,8 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [el9, el10]
+        # distrib: [el9, el10]
+        distrib: [el10]
 
     steps:
       - name: Checkout sources
@@ -676,7 +681,8 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [el9, el10, trixie]
+        # distrib: [el9, el10, trixie]
+        distrib: [el10, trixie]
 
     steps:
       - name: Checkout sources
