@@ -74,7 +74,7 @@ jobs:
           file: .github/docker/keycloak/Dockerfile
           context: .
           pull: true
-          push: true
+          outputs: type=image,push=true,annotation-index.org.opencontainers.image.description=Keycloak image for Centreon E2E tests
           tags: ghcr.io/${{ github.repository }}/keycloak:${{ steps.image_tag.outputs.value }}
           labels: ${{ steps.meta.outputs.labels }}
 
