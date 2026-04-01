@@ -251,8 +251,8 @@ jobs:
           CYPRESS_DATABASE_IMAGE: ${{ inputs.database_image }}
           CYPRESS_WEB_IMAGE_OS: ${{ inputs.os }}
           CYPRESS_WEB_IMAGE_VERSION: ${{ steps.image_tag.outputs.tag }}
-          CYPRESS_OPENID_IMAGE_VERSION: MON-151834-keycloak-ghcr
-          CYPRESS_SAML_IMAGE_VERSION: MON-151834-keycloak-ghcr
+          CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.major_version }}
+          CYPRESS_SAML_IMAGE_VERSION: ${{ inputs.major_version }}
           CYPRESS_STABILITY: ${{ inputs.stability }}
           CYPRESS_TARGET_STABILITY: ${{ inputs.target_stability }}
           CYPRESS_IS_CLOUD: ${{ inputs.is_cloud }}
