@@ -154,15 +154,19 @@ class PollerInteractionService
                 $vmwareRow = $vmwareStatement->fetch(\PDO::FETCH_ASSOC);
                 if ($vmwareRow && $vmwareRow['vmware_updated'] === '1') {
                     if (isset($host['localhost']) && $host['localhost'] == 1) {
-                        shell_exec('sudo systemctl restart centreon_vmware');
+                        exec(escapeshellcmd("sudo -n -- systemctl restart centreon_vmware"), $restartOutput, $restartReturnCode);
+                        $vmwareRestartSucceeded = $restartReturnCode === 0;
                     } else {
                         $centCoreDir = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ . '/centcore' : '/var/lib/centreon/centcore';
                         $vmwarePipe = is_dir($centCoreDir) ? $centCoreDir . '/' . microtime(true) . '-externalcommand.cmd' : $centCorePipe;
                         passthru("echo 'VMWARERESTART:{$host['id']}' >> {$vmwarePipe}", $vmwareReturn);
+                        $vmwareRestartSucceeded = $vmwareReturn === 0;
                     }
-                    $this->db->query(
-                        "UPDATE nagios_server SET vmware_updated = '0' WHERE id = " . (int) $host['id']
-                    );
+                    if ($vmwareRestartSucceeded) {
+                        $this->db->query(
+                            "UPDATE nagios_server SET vmware_updated = '0' WHERE id = " . (int) $host['id']
+                        );
+                    }
                 }
             }
         }

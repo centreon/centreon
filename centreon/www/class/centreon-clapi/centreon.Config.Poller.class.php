@@ -587,10 +587,12 @@ class CentreonConfigPoller
             $vmwareStatement->execute();
             $vmwareRow = $vmwareStatement->fetch(PDO::FETCH_ASSOC);
             if ($vmwareRow && $vmwareRow['vmware_updated'] === '1') {
-                shell_exec('sudo systemctl restart centreon_vmware');
-                $pearDB->query(
-                    "UPDATE nagios_server SET vmware_updated = '0' WHERE id = " . (int) $pollerId
-                );
+                exec(escapeshellcmd("sudo -n -- systemctl restart centreon_vmware"), $restartOutput, $restartReturnCode);
+                if ($restartReturnCode === 0) {
+                    $pearDB->query(
+                        "UPDATE nagios_server SET vmware_updated = '0' WHERE id = " . (int) $pollerId
+                    );
+                }
             }
 
             if (strlen($msg_copy) == 0) {
