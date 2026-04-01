@@ -78,8 +78,10 @@ jobs:
           context: .
           pull: true
           push: true
+          provenance: false
           tags: ghcr.io/${{ github.repository }}/keycloak:${{ steps.image_tag.outputs.value }}
           labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
 
   set-skip-label:
     needs: [get-environment, dockerize]
