@@ -73,10 +73,6 @@ on:
         required: true
       xray_client_secret:
         required: true
-      artifactory_internal_repo_username:
-        required: false
-      artifactory_internal_repo_password:
-        required: false
       jira_base_url:
         required: true
       jira_user_email:
@@ -263,8 +259,6 @@ jobs:
           CYPRESS_STABILITY: ${{ inputs.stability }}
           CYPRESS_TARGET_STABILITY: ${{ inputs.target_stability }}
           CYPRESS_IS_CLOUD: ${{ inputs.is_cloud }}
-          CYPRESS_INTERNAL_REPO_USERNAME: ${{ secrets.artifactory_internal_repo_username }}
-          CYPRESS_INTERNAL_REPO_PASSWORD: ${{ secrets.artifactory_internal_repo_password }}
 
       - name: Ensure logs directory exists
         run: mkdir -p ${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/
