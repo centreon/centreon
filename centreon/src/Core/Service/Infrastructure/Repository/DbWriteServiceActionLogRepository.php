@@ -43,6 +43,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 
 class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements WriteServiceRepositoryInterface
 {
+    public $contact;
     use LoggerTrait;
 
     /**
