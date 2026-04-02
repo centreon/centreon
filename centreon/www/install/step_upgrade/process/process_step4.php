@@ -27,7 +27,6 @@ require_once __DIR__ . '/../../steps/functions.php';
 use Core\Platform\Application\Repository\ReadUpdateRepositoryInterface;
 use Core\Platform\Application\Repository\UpdateLockerRepositoryInterface;
 use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
-use Core\Platform\Application\UseCase\UpdateVersions\UpdateVersionsException;
 
 $current = $_POST['current'];
 $next = $_POST['next'];
@@ -40,7 +39,7 @@ $updateWriteRepository = $kernel->getContainer()->get(WriteUpdateRepositoryInter
 
 try {
     if (! $updateLockerRepository->lock()) {
-        throw UpdateVersionsException::updateAlreadyInProgress();
+        throw new \RuntimeException('Update already in progress.');
     }
 
     $updateWriteRepository->runUpdate($next);
