@@ -162,7 +162,7 @@ class PollerInteractionService
                             throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
                         }
 
-                        $vmwareRestartSucceeded = $vmwareReturn === 0;
+                        $vmwareRestartSucceeded = true;
                     }
                     if ($vmwareRestartSucceeded) {
                         $this->db->query(
