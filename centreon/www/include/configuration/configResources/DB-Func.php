@@ -172,7 +172,8 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
     global $pearDB;
 
     foreach (array_keys($resourceIds) as $resourceId) {
-        if (is_int($resourceId)) {
+        $resourceId = (int) $resourceId;
+        if ($resourceId > 0) {
             $dbResult = $pearDB->query("SELECT * FROM cfg_resource WHERE resource_id = {$resourceId} LIMIT 1");
             /**
              * @var array{
