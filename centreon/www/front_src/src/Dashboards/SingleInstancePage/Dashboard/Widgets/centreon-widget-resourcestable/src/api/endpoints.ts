@@ -123,7 +123,16 @@ export const buildCountEndpoint = ({
   statusTypes,
   hostSeverities,
   serviceSeverities
-}: Omit<BuildResourcesEndpointProps, 'cursor' | 'limit' | 'sort' | 'displayResources' | 'provider' | 'isDownHostHidden' | 'isUnreachableHostHidden'>): string => {
+}: Omit<
+  BuildResourcesEndpointProps,
+  | 'cursor'
+  | 'limit'
+  | 'sort'
+  | 'displayResources'
+  | 'provider'
+  | 'isDownHostHidden'
+  | 'isUnreachableHostHidden'
+>): string => {
   const formattedType = getFormattedType(type);
   const formattedStatuses = formatStatus(statuses);
 
@@ -137,10 +146,20 @@ export const buildCountEndpoint = ({
       { name: 'statuses', value: formattedStatuses },
       { name: 'status_types', value: statusTypes },
       ...(hostSeverities
-        ? [{ name: 'host_severity_names', value: pluck('name', hostSeverities) }]
+        ? [
+            {
+              name: 'host_severity_names',
+              value: pluck('name', hostSeverities)
+            }
+          ]
         : []),
       ...(serviceSeverities
-        ? [{ name: 'service_severity_names', value: pluck('name', serviceSeverities) }]
+        ? [
+            {
+              name: 'service_severity_names',
+              value: pluck('name', serviceSeverities)
+            }
+          ]
         : []),
       { name: 'states', value: states },
       { name: 'all_pages', value: true },

@@ -136,17 +136,17 @@ const Listing = ({
           sortable: true
         }}
         columns={columns}
-        currentPage={currentCursorIndex}
-        getHighlightRowCondition={({ status }): boolean =>
-          equals(status?.severity_code, SeverityCode.High)
-        }
         countConfig={{
           count: resourceCount,
           isLoading: isCountLoading,
           threshold: 1000
         }}
-        isCursorPaginated
+        currentPage={currentCursorIndex}
+        getHighlightRowCondition={({ status }): boolean =>
+          equals(status?.severity_code, SeverityCode.High)
+        }
         isActionBarVisible={!isOnPublicPage}
+        isCursorPaginated
         limit={limit}
         loading={isLoading}
         memoProps={[

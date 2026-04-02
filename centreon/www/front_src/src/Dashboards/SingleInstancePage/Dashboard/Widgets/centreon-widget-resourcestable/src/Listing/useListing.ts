@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { getResourcesUrl, goToUrl } from '../../../utils';
+import { buildCountEndpoint } from '../api/endpoints';
 import {
   openTicketContextAtom,
   resourcesToAcknowledgeAtom,
@@ -14,7 +15,6 @@ import {
   resourcesToSetDowntimeAtom,
   selectedResourcesAtom
 } from '../atom';
-import { buildCountEndpoint } from '../api/endpoints';
 import type { PanelOptions } from '../models';
 import useColumns from './Columns/useColumns';
 import {
@@ -25,8 +25,6 @@ import {
 } from './models';
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
 import useLoadResources from './useLoadResources';
-
-const countThreshold = 1000;
 
 interface UseListingState {
   cancelAcknowledge: () => void;
@@ -177,7 +175,9 @@ const useListing = ({
     type: displayType
   });
 
-  const { data: countData, isLoading: isCountLoading } = useFetchQuery<{ count: number }>({
+  const { data: countData, isLoading: isCountLoading } = useFetchQuery<{
+    count: number;
+  }>({
     getEndpoint: () => countEndpoint,
     getQueryKey: () => ['resourcesTableCount', countEndpoint, refreshCount],
     queryOptions: {
@@ -331,10 +331,10 @@ const useListing = ({
     isLoading,
     onTicketClose,
     resetColumns,
+    resourceCount,
     resourcesToAcknowledge,
     resourcesToOpenTicket,
     resourcesToSetDowntime,
-    resourceCount,
     selectColumns,
     selectedResources,
     setSelectedResources
