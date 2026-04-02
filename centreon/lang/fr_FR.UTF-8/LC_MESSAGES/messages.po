@@ -24923,7 +24923,7 @@ msgid "The command is only valid for hosts with an agent-initiated connection to
 msgstr "La commande n'est valide que pour les hôtes avec une connexion à ce collecteur initiée par l'agent."
 
 msgid "Select the poller that will monitor your hosts"
-msgstr "Sélectionnez le collecteur qui surveillera vos hôtes"
+msgstr "Sélectionnez le collecteur qui supervisera vos hôtes"
 
 msgid "Select poller"
 msgstr "Sélectionner le collecteur"
