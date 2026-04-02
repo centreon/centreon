@@ -27,18 +27,11 @@ use App\Upgrade\Domain\Repository\UpdateScriptFinder;
 
 final class FakeUpdateScriptFinder implements UpdateScriptFinder
 {
-    public bool $installsDirWritable = true;
-
     /** @var string[] */
     public array $availableUpdates = [];
 
     public function findOrderedAvailableUpdates(string $currentVersion): array
     {
         return $this->availableUpdates;
-    }
-
-    public function isInstallsDirWritable(): bool
-    {
-        return $this->installsDirWritable;
     }
 }

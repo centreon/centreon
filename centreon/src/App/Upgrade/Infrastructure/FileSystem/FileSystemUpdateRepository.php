@@ -34,8 +34,6 @@ final readonly class FileSystemUpdateRepository implements UpdateScriptFinder
     private const FILE_NAME_VERSION_REGEX = '/Update-(?<version>[a-zA-Z0-9\-\.]+)\.php/';
 
     public function __construct(
-        #[Autowire(param: 'upgrade.lib_dir')]
-        private string $libDir,
         #[Autowire(param: 'upgrade.install_dir')]
         private string $installDir,
         private Filesystem $filesystem,
@@ -76,12 +74,5 @@ final readonly class FileSystemUpdateRepository implements UpdateScriptFinder
         }
 
         return $updates;
-    }
-
-    public function isInstallsDirWritable(): bool
-    {
-        $installsDir = $this->libDir . '/installs';
-
-        return is_dir($installsDir) && is_writable($installsDir);
     }
 }

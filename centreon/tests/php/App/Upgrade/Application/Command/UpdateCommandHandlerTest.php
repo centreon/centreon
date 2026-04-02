@@ -96,16 +96,6 @@ final class UpdateCommandHandlerTest extends TestCase
         self::assertTrue($this->locker->unlockCalled);
     }
 
-    public function testThrowsWhenInstallsDirNotWritable(): void
-    {
-        $this->scriptFinder->installsDirWritable = false;
-
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessageMatches('/installs backup directory/');
-
-        ($this->handler)(new UpdateCommand());
-    }
-
     public function testThrowsWhenLockAlreadyAcquired(): void
     {
         $this->locker->lockAvailable = false;

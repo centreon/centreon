@@ -49,12 +49,6 @@ final readonly class UpdateCommandHandler
     public function __invoke(UpdateCommand $command): void
     {
         $this->dbmsVersionValidator->validateOrFail();
-        if (! $this->updateScriptFinder->isInstallsDirWritable()) {
-            throw new \RuntimeException(
-                'The installs backup directory does not exist or is not writable. '
-                . 'Please create it with write permissions for the web server user.'
-            );
-        }
         if (! $this->updateLocker->lock()) {
             throw new \RuntimeException('An update is already in progress');
         }

@@ -31,9 +31,4 @@ interface UpdateScriptFinder
      * @return string[]
      */
     public function findOrderedAvailableUpdates(string $currentVersion): array;
-
-    /**
-     * Check whether the installs backup directory exists and is writable.
-     */
-    public function isInstallsDirWritable(): bool;
 }

@@ -70,7 +70,15 @@ final readonly class DbalUpdateRepository implements UpdateRepository
             return;
         }
 
-        $backupDirectory = $this->libDir . '/installs/install-' . $currentVersion . '-' . date('Ymd_His');
+        $installsDir = $this->libDir . '/installs';
+        if (! is_dir($installsDir) || ! is_writable($installsDir)) {
+            throw new \RuntimeException(
+                'The installs backup directory does not exist or is not writable. '
+                . 'Please create it with write permissions for the web server user.'
+            );
+        }
+
+        $backupDirectory = $installsDir . '/install-' . $currentVersion . '-' . date('Ymd_His');
 
         $this->logger->info('Backing up installation directory', [
             'source' => $this->installDir,
