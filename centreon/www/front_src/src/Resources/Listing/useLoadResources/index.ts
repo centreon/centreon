@@ -227,9 +227,17 @@ const useLoadResources = (): LoadResources => {
       statusTypes: getCriteriaIds('status_types')
     }).then((response) => {
       // Append next_cursor to the stack only when navigating forward for the first time.
+      // Use functional update so the length check uses the current stack (not the stale
+      // closure value that may predate a filter-change reset).
       const nextCursor = response.meta.next_cursor;
-      if (nextCursor !== null && cursorStack.length <= currentCursorIndex + 1) {
-        setCursorStack((prev) => [...prev, nextCursor]);
+      if (nextCursor !== null) {
+        setCursorStack((prev) => {
+          if (prev.length <= currentCursorIndex + 1) {
+            return [...prev, nextCursor];
+          }
+
+          return prev;
+        });
       }
 
       if (!equals(visualization, Visualization.Host)) {

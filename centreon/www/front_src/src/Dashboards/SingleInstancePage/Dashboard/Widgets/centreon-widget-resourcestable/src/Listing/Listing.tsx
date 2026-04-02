@@ -77,8 +77,11 @@ const Listing = ({
     changeLimit,
     changePage,
     columns,
-    page,
+    currentCursorIndex,
+    cursorStack,
     isLoading,
+    isCountLoading,
+    resourceCount,
     data,
     goToResourceStatusPage,
     hasMetaService,
@@ -136,10 +139,16 @@ const Listing = ({
           sortable: true
         }}
         columns={columns}
-        currentPage={(page || 1) - 1}
+        currentPage={currentCursorIndex}
         getHighlightRowCondition={({ status }): boolean =>
           equals(status?.severity_code, SeverityCode.High)
         }
+        countConfig={{
+          count: resourceCount,
+          isLoading: isCountLoading,
+          threshold: 1000
+        }}
+        isCursorPaginated
         isActionBarVisible={!isOnPublicPage}
         limit={limit}
         loading={isLoading}
@@ -147,8 +156,11 @@ const Listing = ({
           data,
           sortField,
           sortOrder,
-          page,
+          currentCursorIndex,
+          cursorStack,
           isLoading,
+          isCountLoading,
+          resourceCount,
           columns,
           displayType,
           selectedResources
@@ -172,7 +184,7 @@ const Listing = ({
           labelCollapse: 'Collapse',
           labelExpand: 'Expand'
         }}
-        totalRows={data?.meta?.total}
+        totalRows={cursorStack.length * (limit || 10)}
       />
       {resourcesToAcknowledge.length > 0 && (
         <AcknowledgeForm

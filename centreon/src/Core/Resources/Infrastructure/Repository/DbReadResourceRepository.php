@@ -553,7 +553,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
         $resourceType = self::RESOURCE_TYPE_HOST;
 
-        $hasStatusOrStateFilter = $filter->getStatuses() !== []
+        $hasStatusOrStateFilter = ($filter->getStatuses() !== [] && ! $this->areAllStatusesSelected($filter->getStatuses()))
             || $filter->getStates() !== []
             || $filter->getStatusTypes() !== [];
 
@@ -1256,7 +1256,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         // be used for resource_id-based lookups, causing the optimizer to degrade to a full index scan.
         // The index hint is also skipped when a severity filter is active (LEFT JOIN present):
         // the join flips the optimizer's access strategy and FORCE INDEX becomes counterproductive.
-        $hasStatusOrStateFilter = $filter->getStatuses() !== []
+        $hasStatusOrStateFilter = ($filter->getStatuses() !== [] && ! $this->areAllStatusesSelected($filter->getStatuses()))
             || $filter->getStates() !== []
             || $filter->getStatusTypes() !== [];
 
@@ -1941,11 +1941,34 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      *
      * @return string
      */
+    /**
+     * Returns true when all 8 possible status constants are present in $statuses,
+     * which means the filter has zero selectivity (equivalent to no filter).
+     *
+     * @param array<string> $statuses
+     */
+    private function areAllStatusesSelected(array $statuses): bool
+    {
+        $allStatuses = [
+            ResourceFilter::STATUS_OK,
+            ResourceFilter::STATUS_UP,
+            ResourceFilter::STATUS_WARNING,
+            ResourceFilter::STATUS_DOWN,
+            ResourceFilter::STATUS_CRITICAL,
+            ResourceFilter::STATUS_UNREACHABLE,
+            ResourceFilter::STATUS_UNKNOWN,
+            ResourceFilter::STATUS_PENDING,
+        ];
+
+        return \count($statuses) >= \count($allStatuses)
+            && empty(array_diff($allStatuses, $statuses));
+    }
+
     private function addResourceStatusSubRequest(ResourceFilter $filter): string
     {
         $subRequest = '';
         $sqlStatuses = [];
-        if (! empty($filter->getStatuses())) {
+        if (! empty($filter->getStatuses()) && ! $this->areAllStatusesSelected($filter->getStatuses())) {
             foreach ($filter->getStatuses() as $status) {
                 switch ($status) {
                     case ResourceFilter::STATUS_PENDING:

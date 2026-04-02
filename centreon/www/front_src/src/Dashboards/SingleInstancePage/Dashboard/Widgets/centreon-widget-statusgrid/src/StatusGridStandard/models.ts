@@ -20,6 +20,17 @@ export interface StatusGridProps extends CommonWidgetProps<PanelOptions> {
   panelOptions: PanelOptions;
 }
 
+export interface ResourceStatusListingMeta {
+  limit: number;
+  next_cursor?: string | null;
+  total?: number;
+}
+
+export type ResourceStatusListing = {
+  meta: ResourceStatusListingMeta;
+  result: Array<ResourceStatus>;
+};
+
 interface Icon {
   id?: number;
   name: string;
