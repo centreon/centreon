@@ -897,7 +897,7 @@ jobs:
             echo "tag=develop-${MAJOR_VERSION}" >> $GITHUB_OUTPUT
             echo "additional_tag=develop" >> $GITHUB_OUTPUT
           else
-            echo "tag=$REF" >> $GITHUB_OUTPUT
+            echo "tag=${REF//\//-}" >> $GITHUB_OUTPUT
             echo "additional_tag=" >> $GITHUB_OUTPUT
           fi
         shell: bash
