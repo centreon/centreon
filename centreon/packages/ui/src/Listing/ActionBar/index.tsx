@@ -6,6 +6,7 @@ import { ListingVariant, userAtom } from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
 import { equals, isEmpty, isNil, not, pick } from 'ramda';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -51,6 +52,12 @@ const useStyles = makeStyles<StyleProps>()(
       marginRight: theme.spacing((width - marginWidthTableListing) / 8)
     },
     pagination: {
+      '& .MuiTablePagination-actions': {
+        order: 1
+      },
+      '& .MuiTablePagination-input': {
+        order: 2
+      },
       '& .MuiToolbar-root': {
         paddingLeft: 0
       },
@@ -74,6 +81,8 @@ type Props = Pick<
   | 'onLimitChange'
   | 'onPaginate'
   | 'paginated'
+  | 'isCursorPaginated'
+  | 'countConfig'
   | 'currentPage'
   | 'limit'
   | 'totalRows'
@@ -92,6 +101,8 @@ type Props = Pick<
 const MemoListingActionBar = ({
   actions,
   paginated,
+  isCursorPaginated = false,
+  countConfig,
   totalRows,
   currentPage,
   limit,
@@ -126,8 +137,34 @@ const MemoListingActionBar = ({
     onPaginate?.(value);
   };
 
-  const labelDisplayedRows = ({ from, to, count }): string =>
-    `${from}-${to} ${t(labelOf)} ${count}`;
+  const labelDisplayedRows = isCursorPaginated
+    ? (): string => ''
+    : ({ from, to, count }): string => `${from}-${to} ${t(labelOf)} ${count}`;
+
+  const count = countConfig?.count ?? 0;
+
+  const formatNumber = (n: number): string =>
+    n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0');
+
+  const countLabel = (() => {
+    if (!isCursorPaginated || !countConfig) {
+      return null;
+    }
+
+    if (countConfig.isLoading) {
+      return '...';
+    }
+
+    return formatNumber(count);
+  })();
+
+  const PaginationActionsComponent = useMemo(
+    () =>
+      function CursorAwarePaginationActions(props) {
+        return <PaginationActions {...props} isCursorPaginated={isCursorPaginated} />;
+      },
+    [isCursorPaginated]
+  );
 
   return useMemoComponent({
     Component: (
@@ -181,9 +218,17 @@ const MemoListingActionBar = ({
                 onSelectColumns={onSelectColumns}
               />
             )}
+          {countLabel !== null && (
+            <span className="text-sm px-2 text-[var(--mui-palette-text-secondary)] whitespace-nowrap">
+              {!countConfig?.isLoading && (
+                <>{formatNumber(Math.min(limit * ((currentPage ?? 0) + 1), count))} {t(labelOf)}{' '}</>
+              )}
+              {countLabel}
+            </span>
+          )}
           {paginated && (
             <StyledPagination
-              ActionsComponent={PaginationActions}
+              ActionsComponent={PaginationActionsComponent}
               className={cx(classes.pagination, customPaginationClassName, {
                 [classes.moving]: moveTablePagination
               })}
@@ -209,8 +254,11 @@ const MemoListingActionBar = ({
     ),
     memoProps: [
       paginated,
-      totalRows,
+      isCursorPaginated,
+      countConfig?.count,
+      countConfig?.isLoading,
       currentPage,
+      totalRows,
       moveTablePagination,
       widthToMoveTablePagination,
       listingVariant,
@@ -231,6 +279,8 @@ const ListingActionBar = ({
   onPaginate,
   onLimitChange,
   paginated,
+  isCursorPaginated,
+  countConfig,
   totalRows,
   currentPage,
   limit,
@@ -259,8 +309,10 @@ const ListingActionBar = ({
       actionsBarMemoProps={actionsBarMemoProps}
       columnConfiguration={columnConfiguration}
       columns={columns}
+      countConfig={countConfig}
       currentPage={currentPage}
       customPaginationClassName={customPaginationClassName}
+      isCursorPaginated={isCursorPaginated}
       limit={limit}
       listingVariant={listingVariant}
       moveTablePagination={moveTablePagination}

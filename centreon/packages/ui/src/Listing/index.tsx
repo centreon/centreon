@@ -104,6 +104,8 @@ export interface Props<TRow> {
   getId?: (row: TRow) => RowId;
   headerMemoProps?: Array<unknown>;
   innerScrollDisabled?: boolean;
+  countConfig?: { count?: number; isLoading?: boolean; threshold?: number };
+  isCursorPaginated?: boolean;
   isResponsive?: boolean;
   limit?: number;
   listingVariant?: ListingVariant;
@@ -154,6 +156,8 @@ const Listing = <
   columns,
   columnConfiguration = defaultColumnConfiguration,
   customPaginationClassName,
+  countConfig,
+  isCursorPaginated = false,
   isResponsive = false,
   onResetColumns,
   onSelectColumns,
@@ -519,8 +523,10 @@ const Listing = <
               actionsBarMemoProps={actionsBarMemoProps}
               columnConfiguration={columnConfiguration}
               columns={columns}
+              countConfig={countConfig}
               currentPage={currentPage}
               customPaginationClassName={customPaginationClassName}
+              isCursorPaginated={isCursorPaginated}
               limit={limit}
               listingVariant={listingVariant}
               moveTablePagination={moveTablePagination}
@@ -727,6 +733,8 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
   rowColorConditions = [],
   loading = false,
   paginated = true,
+  isCursorPaginated = false,
+  countConfig,
   selectedRows = [],
   sortOrder = undefined,
   sortField = undefined,
@@ -744,8 +752,10 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
         checkable={checkable}
         columnConfiguration={columnConfiguration}
         columns={columns}
+        countConfig={countConfig}
         currentPage={currentPage}
         innerScrollDisabled={innerScrollDisabled}
+        isCursorPaginated={isCursorPaginated}
         labelNoResultFound={labelNoResultFound}
         limit={limit}
         listingVariant={listingVariant}
@@ -776,6 +786,9 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
       checkable,
       loading,
       paginated,
+      isCursorPaginated,
+      countConfig?.count,
+      countConfig?.isLoading,
       selectedRows,
       sortOrder,
       sortField,

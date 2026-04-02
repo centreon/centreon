@@ -11,14 +11,15 @@ import type { DisplayType } from '../Listing/models';
 
 export const resourcesEndpoint = '/monitoring/resources';
 export const viewByHostEndpoint = '/monitoring/resources/hosts';
+export const countResourcesEndpoint = '/monitoring/resources/count';
 
 interface BuildResourcesEndpointProps {
+  cursor: string | null;
   displayResources?: 'withTicket' | 'withoutTicket';
   hostSeverities: Array<NamedEntity>;
   isDownHostHidden?: boolean;
   isUnreachableHostHidden?: boolean;
   limit: number;
-  page: number;
   provider?: { id: number; name: string };
   resources: Array<Resource>;
   serviceSeverities: Array<NamedEntity>;
@@ -42,7 +43,7 @@ export const buildResourcesEndpoint = ({
   sort,
   limit,
   resources,
-  page,
+  cursor,
   statusTypes,
   hostSeverities,
   serviceSeverities,
@@ -93,11 +94,11 @@ export const buildResourcesEndpoint = ({
           ]
         : []),
       { name: 'states', value: states },
+      { name: 'cursor', value: cursor ?? undefined },
       ...resourcesCustomParameters
     ],
     parameters: {
       limit,
-      page,
       search: {
         conditions: [
           ...resourcesSearchConditions,
@@ -110,6 +111,45 @@ export const buildResourcesEndpoint = ({
         ]
       },
       sort
+    }
+  });
+};
+
+export const buildCountEndpoint = ({
+  type,
+  statuses,
+  states,
+  resources,
+  statusTypes,
+  hostSeverities,
+  serviceSeverities
+}: Omit<BuildResourcesEndpointProps, 'cursor' | 'limit' | 'sort' | 'displayResources' | 'provider' | 'isDownHostHidden' | 'isUnreachableHostHidden'>): string => {
+  const formattedType = getFormattedType(type);
+  const formattedStatuses = formatStatus(statuses);
+
+  const { resourcesSearchConditions, resourcesCustomParameters } =
+    getResourcesSearchQueryParameters(resources);
+
+  return buildListingEndpoint({
+    baseEndpoint: countResourcesEndpoint,
+    customQueryParameters: [
+      { name: 'types', value: formattedType },
+      { name: 'statuses', value: formattedStatuses },
+      { name: 'status_types', value: statusTypes },
+      ...(hostSeverities
+        ? [{ name: 'host_severity_names', value: pluck('name', hostSeverities) }]
+        : []),
+      ...(serviceSeverities
+        ? [{ name: 'service_severity_names', value: pluck('name', serviceSeverities) }]
+        : []),
+      { name: 'states', value: states },
+      { name: 'all_pages', value: true },
+      ...resourcesCustomParameters
+    ],
+    parameters: {
+      search: {
+        conditions: resourcesSearchConditions
+      }
     }
   });
 };
