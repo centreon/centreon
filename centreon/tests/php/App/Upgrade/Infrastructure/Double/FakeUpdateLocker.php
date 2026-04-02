@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Infrastructure\Double;
 
-use App\Upgrade\Domain\Repository\UpdateLocker;
+use App\Upgrade\Application\UpdateLocker;
 
 final class FakeUpdateLocker implements UpdateLocker
 {

@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\Upgrade\Domain\Repository;
+namespace App\Upgrade\Application;
 
 interface UpdateLocker
 {

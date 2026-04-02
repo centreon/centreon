@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Infrastructure\Lock;
 
-use App\Upgrade\Domain\Repository\UpdateLocker;
+use App\Upgrade\Application\UpdateLocker;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\LockInterface;
 

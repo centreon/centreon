@@ -28,7 +28,7 @@ use App\Upgrade\Application\CacheClearer;
 use App\Upgrade\Application\DbmsVersionValidator;
 use App\Upgrade\Application\EngineContextWriter;
 use App\Upgrade\Application\ModuleUpdater;
-use App\Upgrade\Domain\Repository\UpdateLocker;
+use App\Upgrade\Application\UpdateLocker;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use App\Upgrade\Domain\Repository\UpdateScriptFinder;
 
