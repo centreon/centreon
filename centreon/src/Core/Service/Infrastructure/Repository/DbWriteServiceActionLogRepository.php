@@ -45,7 +45,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
 {
     use LoggerTrait;
 
-    public $contact;
+    public mixed $contact;
 
     /**
      * @param WriteServiceRepositoryInterface $writeServiceRepository
