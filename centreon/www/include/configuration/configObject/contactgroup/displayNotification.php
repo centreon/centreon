@@ -55,6 +55,8 @@ $style = 'one';
 $groups = "''";
 if (isset($_POST['contact'])) {
     $contactgroup_id = (int) htmlentities($_POST['contact'], ENT_QUOTES, 'UTF-8');
+} elseif (isset($_GET['cg_id'])) {
+    $contactgroup_id = (int) $_GET['cg_id'];
 } else {
     $contactgroup_id = 0;
     $formData = ['contact' => $contactgroup_id];
