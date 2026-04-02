@@ -24944,7 +24944,7 @@ msgid "Download"
 msgstr "Télécharger"
 
 msgid "then copy the script to each host you want to monitor."
-msgstr "puis copiez le script sur chaque hôte que vous souhaitez surveiller."
+msgstr "puis copiez le script sur chaque hôte que vous souhaitez superviser."
 
 msgid "Execute the script"
 msgstr "Exécuter le script"
