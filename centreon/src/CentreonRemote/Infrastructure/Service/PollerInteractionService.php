@@ -26,6 +26,7 @@ use Centreon\ServiceProvider;
 use CentreonBroker;
 use CentreonContactgroup;
 use CentreonDB;
+use Core\MonitoringServer\Model\MonitoringServer;
 use Exception;
 use Generate;
 use Pimple\Container;
@@ -139,9 +140,7 @@ class PollerInteractionService
 
         foreach ($tabServer as $host) {
             if (in_array($host['id'], $pollerIDs)) {
-                passthru("echo 'SENDCFGFILE:{$host['id']}' >> {$centCorePipe}", $return);
-
-                if ($return) {
+                if (file_put_contents($centCorePipe, 'SENDCFGFILE:' . (int) $host['id'] . "\n", FILE_APPEND) === false) {
                     throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
                 }
             }
@@ -182,8 +181,11 @@ class PollerInteractionService
 
         foreach ($tabServers as $poller) {
             if (isset($poller['localhost']) && $poller['localhost'] == 1) {
-                if ($poller['engine_restart_command'] != '') {
-                    shell_exec(escapeshellcmd("sudo -n -- {$poller['engine_restart_command']}"));
+                if (
+                    ! empty($poller['engine_restart_command'])
+                    && preg_match(MonitoringServer::VALID_COMMAND_RESTART_REGEX, $poller['engine_restart_command'])
+                ) {
+                    shell_exec('sudo -n -- ' . escapeshellcmd($poller['engine_restart_command']));
                 }
             } elseif ($fh = @fopen($centCorePipe, 'a+')) {
                 fwrite($fh, 'RESTART:' . $poller['id'] . "\n");

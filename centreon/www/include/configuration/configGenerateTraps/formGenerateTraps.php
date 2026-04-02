@@ -125,7 +125,10 @@ if ($form->validate()) {
                 $output = [];
                 $returnVal = 0;
                 exec(
-                    escapeshellcmd(_CENTREON_PATH_ . "/bin/generateSqlLite '{$host['id']}' '{$filename}'") . ' 2>&1',
+                    escapeshellarg(_CENTREON_PATH_ . '/bin/generateSqlLite')
+                    . ' ' . escapeshellarg((string) $host['id'])
+                    . ' ' . escapeshellarg($filename)
+                    . ' 2>&1',
                     $output,
                     $returnVal
                 );
@@ -139,11 +142,7 @@ if ($form->validate()) {
         if (isset($ret['apply']) && $ret['apply'] && $returnVal == 0) {
             $msg_generate .= sprintf('<strong>%s</strong><br/>', _('Centcore commands'));
             foreach ($tab_server as $host) {
-                passthru(
-                    escapeshellcmd("echo 'SYNCTRAP:{$host['id']}'") . ' >> ' . escapeshellcmd($centcore_pipe),
-                    $return
-                );
-                if ($return) {
+                if (file_put_contents($centcore_pipe, 'SYNCTRAP:' . (int) $host['id'] . "\n", FILE_APPEND) === false) {
                     $msg_generate .= "Error while writing into {$centcore_pipe}<br/>";
                 } else {
                     $msg_generate .= "Poller (id:{$host['id']}): SYNCTRAP sent to centcore.cmd<br/>";
@@ -152,11 +151,12 @@ if ($form->validate()) {
         }
         if (isset($ret['signal']) && in_array($ret['signal'], ['RELOADCENTREONTRAPD', 'RESTARTCENTREONTRAPD'])) {
             foreach ($tab_server as $host) {
-                passthru(
-                    escapeshellcmd("echo '{$ret['signal']}:{$host['id']}'") . ' >> ' . escapeshellcmd($centcore_pipe),
-                    $return
+                $written = file_put_contents(
+                    $centcore_pipe,
+                    $ret['signal'] . ':' . (int) $host['id'] . "\n",
+                    FILE_APPEND
                 );
-                if ($return) {
+                if ($written === false) {
                     $msg_generate .= "Error while writing into {$centcore_pipe}<br/>";
                 } else {
                     $msg_generate .= "Poller (id:{$host['id']}): {$ret['signal']} sent to centcore.cmd<br/>";
