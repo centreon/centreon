@@ -24920,7 +24920,7 @@ msgid "Generate your CMA installation command"
 msgstr "Générez votre commande d'installation CMA"
 
 msgid "The command is only valid for hosts with an agent-initiated connection to this poller."
-msgstr "La commande n'est valide que pour les hôtes avec une connexion initiée par l'agent à ce collecteur."
+msgstr "La commande n'est valide que pour les hôtes avec une connexion à ce collecteur initiée par l'agent."
 
 msgid "Select the poller that will monitor your hosts"
 msgstr "Sélectionnez le collecteur qui surveillera vos hôtes"
