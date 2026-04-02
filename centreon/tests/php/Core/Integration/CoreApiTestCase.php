@@ -125,19 +125,25 @@ abstract class CoreApiTestCase extends WebTestCase
 
         /** @var DatabaseConnection $db */
         self::$db = static::getContainer()->get(DatabaseConnection::class);
+
+        // Start a transaction for test isolation.
+        // All changes made during the test (including those made by the kernel through
+        // the same DatabaseConnection singleton) will be rolled back in tearDown().
+        self::$db->startTransaction();
     }
 
     /**
-     * Removes the auth token inserted by login() and shuts down the kernel.
+     * Rolls back the transaction opened in setUp() to restore the database to its
+     * original state, then shuts down the kernel.
      *
-     * Note: unlike the App suite (which uses DAMA to wrap all connections in a shared
-     * transaction), Core tests cannot use transaction-based isolation — the security layer
-     * may use a separate DB connection that would not see uncommitted data. Tokens are
-     * committed immediately by login() and deleted explicitly here.
+     * This works because DatabaseConnection is a singleton PDO instance shared between
+     * the test and the Symfony kernel — both see uncommitted data within the same transaction.
      */
     protected function tearDown(): void
     {
-        $this->logout();
+        if (self::$db?->inTransaction()) {
+            self::$db->rollBackTransaction();
+        }
         parent::tearDown();
     }
 
@@ -152,21 +158,31 @@ abstract class CoreApiTestCase extends WebTestCase
     final public function request(string $method, string $url, array $options = []): Response
     {
         $server = $options['server'] ?? [];
+        $body = $options['body'] ?? null;
 
         if ($this->token !== null) {
             $server['HTTP_X_AUTH_TOKEN'] = $this->token;
         }
 
-        $_SERVER['REMOTE_ADDR'] = '8.8.8.8';
+        if ($body !== null) {
+            $server['CONTENT_TYPE'] = 'application/json';
+        }
 
-        $this->client->request($method, $url, server: $server);
+        $server['REMOTE_ADDR'] = '8.8.8.8';
+
+        // Legacy Router accesses $_SERVER directly instead of the Request object.
+        $_SERVER['REMOTE_ADDR'] = '8.8.8.8';
+        $_SERVER['REQUEST_SCHEME'] ??= 'http';
+        $_SERVER['SERVER_NAME'] ??= 'localhost';
+
+        $this->client->request($method, $url, server: $server, content: $body);
 
         return $this->client->getResponse();
     }
 
     /**
-     * Inserts an authentication token for the given user directly into the database (committed).
-     * The token is deleted by logout(), called automatically in tearDown().
+     * Inserts an authentication token for the given user directly into the database.
+     * The token is rolled back automatically with the transaction in tearDown().
      */
     final protected function login(string $login = 'admin'): void
     {
@@ -191,8 +207,8 @@ abstract class CoreApiTestCase extends WebTestCase
 
         $stmt = self::$db->prepare(
             'INSERT INTO security_authentication_tokens'
-            . ' (provider_token_id, user_id, token, provider_token_refresh_id, provider_configuration_id, is_revoked)'
-            . ' VALUES (:tokenId, :userId, :token, NULL, 1, 0)'
+            . ' (provider_token_id, user_id, token, provider_token_refresh_id, provider_configuration_id, token_type, is_revoked)'
+            . " VALUES (:tokenId, :userId, :token, NULL, 1, 'manual', 0)"
         );
         $stmt->execute([':tokenId' => $tokenId, ':userId' => (int) $contactId, ':token' => $this->token]);
     }
