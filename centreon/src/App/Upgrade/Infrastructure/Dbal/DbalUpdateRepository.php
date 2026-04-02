@@ -56,6 +56,7 @@ final readonly class DbalUpdateRepository implements UpdateRepository
 
     public function runUpdate(string $version): void
     {
+        $this->logger->info('Running update', ['version' => $version]);
         $this->runMonitoringSql($version);
         $this->runScript($version);
         $this->runConfigurationSql($version);

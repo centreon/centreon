@@ -31,7 +31,6 @@ use App\Upgrade\Application\EngineContextWriter;
 use App\Upgrade\Application\ModuleUpdater;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\NullLogger;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateLocker;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateRepository;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateScriptFinder;
@@ -72,7 +71,6 @@ final class UpdateCommandHandlerTest extends TestCase
             $this->moduleUpdater,
             $this->engineContextWriter,
             $this->cacheClearer,
-            new NullLogger(),
         );
     }
 
@@ -166,7 +164,6 @@ final class UpdateCommandHandlerTest extends TestCase
             $this->moduleUpdater,
             $this->engineContextWriter,
             $this->cacheClearer,
-            new NullLogger(),
         );
 
         $this->expectException(\RuntimeException::class);

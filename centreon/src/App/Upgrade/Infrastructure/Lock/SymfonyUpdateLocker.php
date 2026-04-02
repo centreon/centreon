@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace App\Upgrade\Infrastructure\Lock;
 
 use App\Upgrade\Domain\Repository\UpdateLocker;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\LockInterface;
 
@@ -36,22 +35,17 @@ final class SymfonyUpdateLocker implements UpdateLocker
 
     public function __construct(
         LockFactory $lockFactory,
-        private readonly LoggerInterface $logger,
     ) {
         $this->lock = $lockFactory->createLock(self::LOCK_NAME);
     }
 
     public function lock(): bool
     {
-        $this->logger->info('Locking centreon update process...');
-
         return $this->lock->acquire();
     }
 
     public function unlock(): void
     {
-        $this->logger->info('Unlocking centreon update process...');
-
         $this->lock->release();
     }
 }

@@ -31,7 +31,6 @@ use App\Upgrade\Application\ModuleUpdater;
 use App\Upgrade\Domain\Repository\UpdateLocker;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use App\Upgrade\Domain\Repository\UpdateScriptFinder;
-use Psr\Log\LoggerInterface;
 
 #[AsCommandHandler]
 final readonly class UpdateCommandHandler
@@ -44,7 +43,6 @@ final readonly class UpdateCommandHandler
         private ModuleUpdater $moduleUpdater,
         private EngineContextWriter $engineContextWriter,
         private CacheClearer $cacheClearer,
-        private LoggerInterface $logger,
     ) {
     }
 
@@ -69,15 +67,8 @@ final readonly class UpdateCommandHandler
 
             $availableUpdates = $this->updateScriptFinder->findOrderedAvailableUpdates($currentVersion);
 
-            if ($availableUpdates !== []) {
-                $this->logger->info('Available updates found', ['updates' => $availableUpdates]);
-
-                foreach ($availableUpdates as $version) {
-                    $this->logger->info('Running update', ['version' => $version]);
-                    $this->updateRepository->runUpdate($version);
-                }
-            } else {
-                $this->logger->info('No available updates to perform');
+            foreach ($availableUpdates as $version) {
+                $this->updateRepository->runUpdate($version);
             }
 
             // Must always run whether there are updates or not.

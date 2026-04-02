@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\Upgrade\Infrastructure\FileSystem;
 
 use App\Upgrade\Domain\Repository\UpdateScriptFinder;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -38,6 +39,7 @@ final readonly class FileSystemUpdateRepository implements UpdateScriptFinder
         #[Autowire(param: 'upgrade.install_dir')]
         private string $installDir,
         private Filesystem $filesystem,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -66,6 +68,12 @@ final readonly class FileSystemUpdateRepository implements UpdateScriptFinder
             $updates,
             fn (string $versionA, string $versionB): int => version_compare($versionA, $versionB),
         );
+
+        if ($updates !== []) {
+            $this->logger->info('Available updates found', ['updates' => $updates]);
+        } else {
+            $this->logger->info('No available updates to perform', ['current_version' => $currentVersion]);
+        }
 
         return $updates;
     }
