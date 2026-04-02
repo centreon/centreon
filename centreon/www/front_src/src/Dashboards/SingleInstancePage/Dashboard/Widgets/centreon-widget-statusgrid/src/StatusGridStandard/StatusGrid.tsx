@@ -1,10 +1,6 @@
 import { useTheme } from '@mui/material';
 
-import {
-  HeatMap,
-  useFetchQuery,
-  useRefreshInterval
-} from '@centreon/ui';
+import { HeatMap, useFetchQuery, useRefreshInterval } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
@@ -152,9 +148,10 @@ const StatusGrid = ({
     useLongCache: true
   });
 
-  const hasMoreResources = isBVResourceType || isBAResourceType
-    ? gt(data?.meta?.total || 0, tiles)
-    : data?.meta?.next_cursor != null;
+  const hasMoreResources =
+    isBVResourceType || isBAResourceType
+      ? gt(data?.meta?.total || 0, tiles)
+      : data?.meta?.next_cursor != null;
 
   const resourceTiles = useMemo(
     () =>

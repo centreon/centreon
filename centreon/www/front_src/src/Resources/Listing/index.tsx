@@ -58,7 +58,9 @@ import {
   sendingAtom
 } from './listingAtoms';
 import useLoadResources from './useLoadResources';
-import useResourceCount, { countThreshold } from './useLoadResources/useResourceCount';
+import useResourceCount, {
+  countThreshold
+} from './useLoadResources/useResourceCount';
 import useViewerMode from './useViewerMode';
 
 export const okStatuses = ['OK', 'UP'];
@@ -105,7 +107,8 @@ const ResourceListing = (): JSX.Element => {
   );
 
   const { initAutorefreshAndLoad } = useLoadResources();
-  const { count: resourceCount, isLoading: isCountLoading } = useResourceCount();
+  const { count: resourceCount, isLoading: isCountLoading } =
+    useResourceCount();
 
   const { mutateAsync } = useMutationQuery({
     getEndpoint: () => userEndpoint,
@@ -252,20 +255,21 @@ const ResourceListing = (): JSX.Element => {
         sortable: areColumnsSortable
       }}
       columns={columns}
+      countConfig={{
+        count: resourceCount,
+        isLoading: isCountLoading,
+        threshold: countThreshold
+      }}
       currentPage={currentCursorIndex}
       getHighlightRowCondition={({ status }): boolean =>
         equals(status?.severity_code, SeverityCode.High)
       }
       getId={getId}
       headerMemoProps={[search]}
+      isCursorPaginated
       limit={limit}
       listingVariant={user_interface_density}
       loading={loading}
-      countConfig={{
-        count: resourceCount,
-        isLoading: isCountLoading,
-        threshold: countThreshold
-      }}
       memoProps={[
         listing,
         sortField,
@@ -307,7 +311,6 @@ const ResourceListing = (): JSX.Element => {
         labelCollapse: 'Collapse',
         labelExpand: 'Expand'
       }}
-      isCursorPaginated
       totalRows={cursorStack.length * limit}
       viewerModeConfiguration={{
         disabled: isPending,
