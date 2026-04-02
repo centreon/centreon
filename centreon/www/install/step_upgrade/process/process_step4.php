@@ -39,7 +39,7 @@ $updateWriteRepository = $kernel->getContainer()->get(WriteUpdateRepositoryInter
 
 try {
     if (! $updateLockerRepository->lock()) {
-        throw new \RuntimeException('Update already in progress.');
+        throw new RuntimeException('Update already in progress.');
     }
 
     $updateWriteRepository->runUpdate($next);
