@@ -24950,7 +24950,7 @@ msgid "Execute the script"
 msgstr "Exécuter le script"
 
 msgid "Run the following command on each host you want to monitor with the agent."
-msgstr "Exécutez la commande suivante sur chaque hôte que vous souhaitez surveiller avec l'agent."
+msgstr "Exécutez la commande suivante sur chaque hôte que vous souhaitez superviser avec l'agent."
 
 msgid "Copy command"
 msgstr "Copier la commande"
