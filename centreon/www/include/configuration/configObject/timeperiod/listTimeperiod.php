@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -24,31 +25,6 @@ if (! isset($centreon)) {
 
 include './include/common/autoNumLimit.php';
 
-$search = HtmlAnalyzer::sanitizeAndRemoveTags(
-    $_POST['searchTP'] ?? $_GET['searchTP'] ?? null
-);
-if (isset($_POST['searchTP']) || isset($_GET['searchTP'])) {
-    // saving filters values
-    $centreon->historySearch[$url] = [];
-    $centreon->historySearch[$url]['search'] = $search;
-} else {
-    // restoring saved values
-    $search = $centreon->historySearch[$url]['search'] ?? null;
-}
-
-$SearchTool = '';
-if ($search) {
-    $SearchTool .= " WHERE tp_name LIKE '%" . htmlentities($search, ENT_QUOTES, 'UTF-8') . "%'";
-}
-
-// Timeperiod list
-$query = "SELECT SQL_CALC_FOUND_ROWS tp_id, tp_name, tp_alias FROM timeperiod {$SearchTool} "
-    . 'ORDER BY tp_name LIMIT ' . $num * $limit . ', ' . $limit;
-$dbResult = $pearDB->query($query);
-$rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
-
-include './include/common/checkPagination.php';
-
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
@@ -56,42 +32,33 @@ $tpl = SmartyBC::createSmartyTemplate($path);
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
-// start header menu
 $tpl->assign('headerMenu_name', _('Name'));
 $tpl->assign('headerMenu_desc', _('Description'));
 $tpl->assign('headerMenu_options', _('Options'));
 
-$search = tidySearchKey($search, $advanced_search);
+$tpl->assign('tpPage', $p);
 
+// Restore search from history
+$search = $centreon->historySearch[$url]['search'] ?? '';
+$tpl->assign('searchTP', $search);
+
+// Default limit from DB
+$dbResult = $pearDB->query("SELECT * FROM `options` WHERE `key` = 'maxViewConfiguration'");
+$gopt = $dbResult->fetch();
+$defaultLimit = (int) ($gopt['value'] ?? 30) ?: 30;
+$tpl->assign('defaultLimit', $defaultLimit);
+
+// Form for bulk actions
 $form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
-// Different style between each lines
-$style = 'one';
 
 $attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];
 $form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
 
-// Fill a tab with a multidimensional Array we put in $tpl
-$elemArr = [];
-
-for ($i = 0; $timeperiod = $dbResult->fetch(); $i++) {
-    $moptions = '';
-    $selectedElements = $form->addElement('checkbox', 'select[' . $timeperiod['tp_id'] . ']');
-    $moptions .= '&nbsp;<input onKeypress="if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) '
-        . 'event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;'
-        . "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr["
-        . $timeperiod['tp_id'] . "]' />";
-    $elemArr[$i] = ['MenuClass' => 'list_' . $style, 'RowMenu_select' => $selectedElements->toHtml(), 'RowMenu_name' => $timeperiod['tp_name'], 'RowMenu_link' => 'main.php?p=' . $p . '&o=c&tp_id=' . $timeperiod['tp_id'], 'RowMenu_desc' => $timeperiod['tp_alias'], 'RowMenu_options' => $moptions, 'resultingLink' => 'main.php?p=' . $p . '&o=s&tp_id=' . $timeperiod['tp_id']];
-    $style = $style != 'two' ? 'two' : 'one';
-}
-$tpl->assign('elemArr', $elemArr);
-
-// Different messages we put in the template
 $tpl->assign(
     'msg',
-    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion ?')]
+    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add')]
 );
 
-// Toolbar select
 ?>
 <script type="text/javascript">
     function setO(_i) {
@@ -101,7 +68,7 @@ $tpl->assign(
 <?php
 
 foreach (['o1', 'o2'] as $option) {
-    $attrs1 = ['onchange' => 'javascript: '
+    $attrs = ['onchange' => 'javascript: '
         . ' var bChecked = isChecked(); '
         . "if (this.form.elements['" . $option . "'].selectedIndex != 0 && !bChecked) {"
         . " alert('" . _('Please select one or more items') . "'); return false;} "
@@ -119,16 +86,15 @@ foreach (['o1', 'o2'] as $option) {
         $option,
         null,
         [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')],
-        $attrs1
+        $attrs
     );
     $form->setDefaults([$option => null]);
-    $o1 = $form->getElement($option);
-    $o1->setValue(null);
-    $o1->setSelected(null);
+    $el = $form->getElement($option);
+    $el->setValue(null);
+    $el->setSelected(null);
 }
 
 $tpl->assign('limit', $limit);
-$tpl->assign('searchTP', $search);
 
 // Apply a template definition
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
