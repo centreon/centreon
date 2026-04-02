@@ -43,8 +43,9 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 
 class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements WriteServiceRepositoryInterface
 {
-    public $contact;
     use LoggerTrait;
+
+    public $contact;
 
     /**
      * @param WriteServiceRepositoryInterface $writeServiceRepository
@@ -222,13 +223,6 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
         }
     }
 
-    private function getContactId(): ?int
-    {
-        $user = $this->tokenStorage->getToken()?->getUser();
-
-        return $user instanceof ContactInterface ? $user->getId() : null;
-    }
-
     /**
      * @inheritDoc
      */
@@ -303,5 +297,12 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
         }
 
         return $servicePropertiesArray;
+    }
+
+    private function getContactId(): ?int
+    {
+        $user = $this->tokenStorage->getToken()?->getUser();
+
+        return $user instanceof ContactInterface ? $user->getId() : null;
     }
 }
