@@ -138,9 +138,6 @@ jobs:
           pull: true
           push: true
           tags: ${{ steps.docker_tags.outputs.tags_deps }}
-          secrets: |
-            "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
-            "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
 
       - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         if: |
@@ -162,9 +159,6 @@ jobs:
           pull: false
           push: true
           tags: ${{ steps.docker_tags.outputs.tags_deps_collect }}
-          secrets: |
-            "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
-            "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
 
   set-skip-label:
     needs: [get-environment, dockerize]
