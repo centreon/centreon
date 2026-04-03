@@ -1,5 +1,4 @@
 import { Given } from '@badeball/cypress-cucumber-preprocessor';
-
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { Contact } from '../common';
 

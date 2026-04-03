@@ -1,5 +1,4 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
@@ -34,10 +33,7 @@ beforeEach(() => {
     method: 'GET',
     url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
-  cy.intercept(
-    'HEAD',
-    INTERCEPTORS.static.pendo
-  ).as('pendoRequest');
+  cy.intercept('HEAD',INTERCEPTORS.static.pendo).as('pendoRequest');
 });
 
 afterEach(() => {

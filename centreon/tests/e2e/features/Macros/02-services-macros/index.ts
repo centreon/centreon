@@ -1,5 +1,4 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import serviceMacros from '../../../fixtures/macros/services.json';
 
