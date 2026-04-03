@@ -18,3 +18,13 @@
  * For more information : contact@centreon.com
  *
  */
+
+declare(strict_types=1);
+
+namespace App\MonitoringConfiguration\Domain\Exception;
+
+use App\Shared\Domain\Exception\AggregateNotFoundException;
+
+final class PollerNotFoundException extends AggregateNotFoundException
+{
+}

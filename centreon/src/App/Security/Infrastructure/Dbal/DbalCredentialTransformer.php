@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\Security\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Security\AgentConfigurationPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ConnectorPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\GlobalMacroPermissionEnum;
@@ -50,6 +51,7 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
         'ROLE_CONFIGURATION_POLLERS_GLOBAL_MACROS_RW' => GlobalMacroPermissionEnum::CanRead->value,
         'ROLE_CONFIGURATION_COMMANDS_CONNECTORS_R' => ConnectorPermissionEnum::CanRead->value,
         'ROLE_CONFIGURATION_COMMANDS_CONNECTORS_RW' => ConnectorPermissionEnum::CanReadAndWrite->value,
+        'ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW' => AgentConfigurationPermissionEnum::CanReadAndWrite->value,
     ];
 
     /**
@@ -78,7 +80,6 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
             userId: new UserId($from['c_id']),
             active: $from['c_active'] === '1',
         );
-
         foreach ($from['topology_permissions'] as $topology) {
             if (($permission = $this->mapTopologyToPermission($topology)) instanceof Permission) {
                 $credential->grantPermission($permission);

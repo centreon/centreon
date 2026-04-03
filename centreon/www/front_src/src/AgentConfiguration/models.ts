@@ -15,7 +15,12 @@ export interface AgentConfigurationListing {
   id: number;
   name: string;
   type: AgentType | null;
-  pollers: Array<{ id: number; name: string; isCentral?: boolean }>;
+  isAgentInitiated: boolean;
+  pollers: Array<{
+    id: number;
+    name: string;
+    isCentral?: boolean;
+  }>;
 }
 
 export interface TelegrafConfiguration {
@@ -100,4 +105,9 @@ export interface AgentConfigurationAPI
 export enum FormVariant {
   Add = 0,
   Update = 1
+}
+
+export interface InstallationCommand {
+  windowsScriptCommand: string;
+  linuxScriptCommand: string;
 }
