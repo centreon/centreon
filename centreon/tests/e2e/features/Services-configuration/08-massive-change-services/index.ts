@@ -1,6 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { checkHostsAreMonitored, checkServicesAreMonitored } from 'commons';
-
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 

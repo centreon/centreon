@@ -7,7 +7,10 @@ import {
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
-import { checkMetricsAreMonitored, checkServicesAreMonitored } from '../../../commons';
+import {
+  checkMetricsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
 import { actionBackgroundColors } from '../common';
 
 const serviceInDtName = 'service_downtime_1';

@@ -1,4 +1,8 @@
-import { DataTable, Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { DataTable,
+  Given,
+  Then,
+  When
+} from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 const token = {

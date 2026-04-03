@@ -20,11 +20,11 @@ beforeEach(() => {
   cy.intercept({
     method: 'GET',
     url: INTERCEPTORS.api.navigation_list
-    }).as('getNavigationList');
+  }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
     url: INTERCEPTORS.pages.time_zone
-    }).as('getTimeZone');
+  }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
     url: INTERCEPTORS.api.generate_reload_pollers
