@@ -14,7 +14,7 @@ export const INTERCEPTORS = {
     users_configuration: '/centreon/api/latest/configuration/users',
     events_view_users: '/centreon/api/latest/users/filters/events-view',
     monitor_event_view: '/monitor/api/latest/users/filters/events-view',
-    monitor_resources: '/monitor/api/latest/monitoring/resources',
+    monitor_resources: '/centreon/api/latest/monitoring/resources',
     authentication_provider: '/centreon/api/latest/administration/authentication/providers',
     local_authentication: '/centreon/api/latest/authentication/providers/configurations/local',
     contacts_templates: '/centreon/api/latest/configuration/contacts/templates',
