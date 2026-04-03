@@ -100,7 +100,7 @@ if (! $obj->is_admin) {
             INNER JOIN acl_res_group_relations argr
                 ON argr.acl_res_id = ar.acl_res_id
             WHERE
-                argr.acl_group_id IN ({$grouplistStr})
+                argr.acl_group_id IN ({$groupStr})
                 AND ar.all_hostgroups = '1'
                 AND ar.acl_res_activate = '1'
         SQL;
@@ -112,7 +112,7 @@ if (! $obj->is_admin) {
             message: 'Error while checking if all host groups are allowed: ' . $e->getMessage(),
             context: [
                 'query' => $query,
-                'grouplistStr' => $grouplistStr,
+                'groupStr' => $groupStr,
             ],
             previous: $e
         );
@@ -128,7 +128,7 @@ if (! $obj->is_admin) {
                     ON argr.acl_res_id = arhr.acl_res_id
                 INNER JOIN acl_resources ar
                     ON ar.acl_res_id = argr.acl_res_id
-                WHERE argr.acl_group_id IN ({$grouplistStr})
+                WHERE argr.acl_group_id IN ({$groupStr})
                     AND ar.acl_res_activate = '1'
             SQL;
 
@@ -141,7 +141,7 @@ if (! $obj->is_admin) {
                 message: 'Error while fetching allowed host group IDs: ' . $e->getMessage(),
                 context: [
                     'query' => $query,
-                    'grouplistStr' => $grouplistStr,
+                    'groupStr' => $groupStr,
                 ],
                 previous: $e
             );
