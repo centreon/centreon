@@ -157,7 +157,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
                 ])
             );
 
-            if ($result !== false && $result !== []) {
+            if ($result !== []) {
                 /** @var _Token $result */
                 return TokenFactory::create(
                     $result['token_type'] === 'JWT' ? TokenTypeEnum::CMA : TokenTypeEnum::API,
