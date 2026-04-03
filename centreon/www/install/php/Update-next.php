@@ -21,11 +21,6 @@
 
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
-use App\Kernel;
-use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\{
-    DeployDefaultAgentConfigurationForPoller,
-    DeployDefaultAgentConfigurationForPollerRequest
-};
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
@@ -37,62 +32,6 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDB
  * @var ConnectionInterface $pearDBO
  */
-$deployDefaultAgentConfiguration = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = 'Unable to deploy default agent configuration to central poller';
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: Deploying default agent configuration to central poller",
-    );
-    $kernel = Kernel::createForWeb();
-    $deployAgentConfiguration = $kernel->getContainer()
-        ->get(DeployDefaultAgentConfigurationForPoller::class);
-    if (! $deployAgentConfiguration instanceof DeployDefaultAgentConfigurationForPoller) {
-        CentreonLog::create()->warning(
-            CentreonLog::TYPE_BUSINESS_LOG,
-            'DeployDefaultAgentConfigurationForPoller service not found, skipping default agent configuration deployment'
-        );
-
-        return;
-    }
-
-    $errorMessage = 'Unable to find central poller to deploy default agent configuration';
-    $centralId = $pearDB->fetchOne(
-        "SELECT `id` FROM `nagios_server` WHERE `is_default` = 1 AND `localhost` = '1'"
-    );
-    if ($centralId === false) {
-        CentreonLog::create()->warning(
-            CentreonLog::TYPE_BUSINESS_LOG,
-            'Default central poller not found, skipping default agent configuration deployment'
-        );
-
-        return;
-    }
-
-    $errorMessage = 'Unable to find admin contact to deploy default agent configuration';
-    $adminInfos = $pearDB->fetchAssociative(
-        "SELECT `contact_id`, `contact_alias` FROM `contact` WHERE `contact_admin` = '1' LIMIT 1"
-    );
-    if ($adminInfos === false) {
-        CentreonLog::create()->warning(
-            CentreonLog::TYPE_BUSINESS_LOG,
-            'No admin contact found, skipping default agent configuration deployment'
-        );
-
-        return;
-    }
-
-    $errorMessage = 'Error during default agent configuration deployment';
-    $request = new DeployDefaultAgentConfigurationForPollerRequest(
-        pollerId: (int) $centralId,
-        creatorId: (int) $adminInfos['contact_id'],
-        creatorName: $adminInfos['contact_alias'],
-    );
-    $deployAgentConfiguration($request);
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: Successfully deployed default agent configuration to central poller",
-    );
-};
 
 // TODO add your functions here
 
@@ -110,19 +49,8 @@ try {
 
     // TODO add your function calls to update the configuration database data here
 
-    if ($pearDB->isTransactionActive()) {
-        $pearDB->commitTransaction();
-    }
+    $pearDB->commitTransaction();
 
-    try {
-        $deployDefaultAgentConfiguration();
-    } catch (Throwable $e) {
-        CentreonLog::create()->warning(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: Default agent configuration deployment failed, it can be done manually",
-            exception: $e
-        );
-    }
 } catch (Throwable $throwable) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
