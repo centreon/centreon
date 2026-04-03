@@ -127,8 +127,9 @@ abstract class CoreApiTestCase extends WebTestCase
         $this->client = static::createClient();
         $this->token = null;
 
-        /** @var DatabaseConnection $db */
-        self::$db = static::getContainer()->get(DatabaseConnection::class);
+        /** @var DatabaseConnection $connection */
+        $connection = static::getContainer()->get(DatabaseConnection::class);
+        self::$db = $connection;
 
         // Start a transaction for test isolation.
         // All changes made during the test (including those made by the kernel through
