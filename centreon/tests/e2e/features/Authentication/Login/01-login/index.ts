@@ -8,9 +8,7 @@ before(() => {
     .then(() => {
       return initializeConfigAclAndGetLoginPage();
     })
-    .intercept(
-      `${INTERCEPTORS.api.centreon_topcounter}&action=user`
-    )
+    .intercept(`${INTERCEPTORS.api.centreon_topcounter}&action=user`)
     .as('userTopCounterEndpoint');
 });
 

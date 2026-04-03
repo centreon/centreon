@@ -23,7 +23,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url:  `${INTERCEPTORS.api.authentication_provider}/saml`
+    url: `${INTERCEPTORS.api.authentication_provider}/saml`
   }).as('getSAMLProvider');
   cy.intercept({
     method: 'GET',

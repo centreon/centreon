@@ -7,13 +7,13 @@ import severities from '../../../fixtures/host-categories/severity.json';
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
-      method: 'GET',
-      url: INTERCEPTORS.api.navigation_list
-    }).as('getNavigationList');
+    method: 'GET',
+    url: INTERCEPTORS.api.navigation_list
+  }).as('getNavigationList');
   cy.intercept({
-      method: 'GET',
-      url: INTERCEPTORS.pages.time_zone
-    }).as('getTimeZone');
+    method: 'GET',
+    url: INTERCEPTORS.pages.time_zone
+  }).as('getTimeZone');
 });
 
 afterEach(() => {

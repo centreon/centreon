@@ -7,13 +7,13 @@ import periods from '../../../fixtures/time-periods/time-period.json';
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
-      method: 'GET',
-      url: INTERCEPTORS.api.navigation_list
-    }).as('getNavigationList');
+    method: 'GET',
+    url: INTERCEPTORS.api.navigation_list
+  }).as('getNavigationList');
   cy.intercept({
-      method: 'GET',
-      url: INTERCEPTORS.pages.time_zone
-    }).as('getTimeZone');
+    method: 'GET',
+    url: INTERCEPTORS.pages.time_zone
+  }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
     url: `${INTERCEPTORS.pages.time_period_object}&object_id=5&searchU=&searchO=&otype=`

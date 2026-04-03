@@ -33,7 +33,7 @@ beforeEach(() => {
     method: 'GET',
     url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
-  cy.intercept('HEAD',INTERCEPTORS.static.pendo).as('pendoRequest');
+  cy.intercept('HEAD', INTERCEPTORS.static.pendo).as('pendoRequest');
 });
 
 afterEach(() => {

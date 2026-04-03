@@ -29,7 +29,7 @@ beforeEach(() => {
   }).as('getSAMLProvider');
   cy.intercept({
     method: 'GET',
-    url:  INTERCEPTORS.api.authentication_configuration
+    url: INTERCEPTORS.api.authentication_configuration
   }).as('getCentreonAuthConfigs');
   cy.intercept({
     method: 'PUT',

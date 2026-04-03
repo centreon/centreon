@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { checkHostsAreMonitored, checkServicesAreMonitored } from 'commons';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 let hostName = '';
 let hostWithGeoCoords = 'New-Host-Name-for-geo';
