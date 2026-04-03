@@ -20,7 +20,7 @@ beforeEach(() => {
   }).as('getTimeZone');
   cy.intercept({
     method: 'POST',
-    url: `${INTERCEPTORS.api.centreon_proxy}&action=checkConfiguration`
+    url: `${INTERCEPTORS.pages.centreon_proxy}&action=checkConfiguration`
   }).as('testProxy');
 });
 

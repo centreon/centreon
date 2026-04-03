@@ -7,7 +7,6 @@ export const INTERCEPTORS = {
     connector_configurations:
     '/centreon/api/latest/configuration/additional-connector-configurations',
     centreon_keepalive: 'centreon/api/internal.php?object=centreon_keepalive',
-    centreon_proxy: '/centreon/include/common/webServices/rest/internal.php?object=centreon_proxy',
     agent_configurations: '/centreon/api/latest/configuration/agent-configurations',
     administartion_tokens: '/centreon/api/latest/administration/tokens',
     monitoring_servers: '/centreon/api/latest/configuration/monitoring-servers',
@@ -42,6 +41,7 @@ export const INTERCEPTORS = {
   pages: {
     time_zone: '/centreon/include/common/userTimezone.php',
     monitor_time_zone: '/monitor/include/common/userTimezone.php',
+    centreon_proxy: '/centreon/include/common/webServices/rest/internal.php?object=centreon_proxy',
     centreon_administration_aclgroup: '/centreon/include/common/webServices/rest/internal.php?object=centreon_administration_aclgroup',
     centreon_configuration_contact: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_contact',
     centreon_configuration_timeperiod: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_timeperiod',
