@@ -31,7 +31,7 @@ beforeEach(() => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
   cy.intercept({
     method: 'GET',
-    url: `${INTERCEPTORS.api.notifications_configuration}/?page=1&limit=10*`
+    url: `${INTERCEPTORS.api.notifications_configuration}?page=1&limit=10*`
   }).as('getNotifications');
 
   cy.addHostGroup({
