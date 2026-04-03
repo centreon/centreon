@@ -36,14 +36,6 @@ use Tests\Core\Integration\CoreApiTestCase;
  */
 final class FindContactGroupsIntegrationTest extends CoreApiTestCase
 {
-    protected static function apiUsers(): array
-    {
-        return [
-            ['identifier' => 'test-cg-admin', 'admin' => true],
-            ['identifier' => 'test-cg-user', 'admin' => false],
-        ];
-    }
-
     public function testAdminCanListContactGroups(): void
     {
         $this->login('test-cg-admin');
@@ -58,11 +50,62 @@ final class FindContactGroupsIntegrationTest extends CoreApiTestCase
         $this->assertIsArray($body['result']);
     }
 
+    public function testNonAdminCanListContactGroupsHeIsMemberOf(): void
+    {
+        $contactGroupId = $this->createContactGroup('test-cg-integration', 'Test CG Integration');
+        $this->addUserToContactGroup('test-cg-user', $contactGroupId);
+
+        $this->login('test-cg-user');
+
+        $response = $this->request('GET', '/api/latest/configuration/contacts/groups');
+
+        $this->assertSame(200, $response->getStatusCode(), $response->getContent());
+
+        /** @var array<string, mixed> $body */
+        $body = json_decode((string) $response->getContent(), associative: true);
+        $this->assertArrayHasKey('result', $body);
+        $this->assertIsArray($body['result']);
+        $this->assertNotEmpty($body['result'], 'Non-admin user should see contact groups they are a member of.');
+
+        $contactGroupNames = array_column($body['result'], 'name');
+        $this->assertContains('test-cg-integration', $contactGroupNames);
+    }
+
+    public function testNonAdminWithoutMembershipSeesEmptyList(): void
+    {
+        $this->login('test-cg-user');
+
+        $response = $this->request('GET', '/api/latest/configuration/contacts/groups');
+
+        $this->assertSame(200, $response->getStatusCode(), $response->getContent());
+
+        /** @var array<string, mixed> $body */
+        $body = json_decode((string) $response->getContent(), associative: true);
+        $this->assertArrayHasKey('result', $body);
+        $this->assertEmpty($body['result'], 'Non-admin user without contact group membership should see an empty list.');
+    }
+
     public function testUnauthenticatedRequestIsRejected(): void
     {
         // No login() call — no token injected.
         $response = $this->request('GET', '/api/latest/configuration/contacts/groups');
 
         $this->assertContains($response->getStatusCode(), [401, 403]);
+    }
+
+    protected static function apiUsers(): array
+    {
+        return [
+            ['identifier' => 'test-cg-admin', 'admin' => true],
+            [
+                'identifier' => 'test-cg-user',
+                'admin' => false,
+                'topologyPages' => [
+                    ['id' => 6, 'access_right' => 1],   // Configuration (parent)
+                    ['id' => 66, 'access_right' => 1],   // Users (parent)
+                    ['id' => 85, 'access_right' => 2],   // Contact Groups (read-only)
+                ],
+            ],
+        ];
     }
 }

@@ -44,9 +44,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 abstract class CoreApiTestCase extends WebTestCase
 {
-    /**
-     * Shared DatabaseConnection instance, refreshed in setUp() after each kernel boot.
-     */
+    /** Shared DatabaseConnection instance, refreshed in setUp() after each kernel boot. */
     protected static ?DatabaseConnection $db = null;
 
     protected ?string $token = null;
@@ -72,7 +70,13 @@ abstract class CoreApiTestCase extends WebTestCase
                     $user = ['identifier' => $user, 'admin' => true];
                 }
 
-                self::createApiUser($db, $user['identifier'], $user['admin'] ?? false, $user['actions'] ?? []);
+                self::createApiUser(
+                    $db,
+                    $user['identifier'],
+                    $user['admin'] ?? false,
+                    $user['actions'] ?? [],
+                    $user['topologyPages'] ?? [],
+                );
             }
 
             $db->commitTransaction();
@@ -153,7 +157,7 @@ abstract class CoreApiTestCase extends WebTestCase
      * Sends an HTTP request through the Symfony kernel browser.
      * Automatically injects the X-AUTH-TOKEN header when login() has been called.
      *
-     * @param array<string, mixed> $options  Optional extra server variables (e.g. ['HTTP_ACCEPT' => 'application/json'])
+     * @param array<string, mixed> $options Optional extra server variables (e.g. ['HTTP_ACCEPT' => 'application/json'])
      */
     final public function request(string $method, string $url, array $options = []): Response
     {
@@ -186,7 +190,7 @@ abstract class CoreApiTestCase extends WebTestCase
      */
     final protected function login(string $login = 'admin'): void
     {
-        $this->token = "token_for_test";
+        $this->token = 'token_for_test';
 
         $stmt = self::$db->prepare('SELECT contact_id FROM contact WHERE contact_alias = :login');
         $stmt->execute([':login' => $login]);
@@ -233,35 +237,74 @@ abstract class CoreApiTestCase extends WebTestCase
     /**
      * Override in subclasses to declare the test users to create before the suite.
      *
-     * @return list<array{identifier: string, admin?: bool, actions?: array<string>}|string>
+     * @return list<array{identifier: string, admin?: bool, actions?: array<string>, topologyPages?: array<array{id: int, access_right: int}>}|string>
      */
     protected static function apiUsers(): array
     {
         return [];
     }
 
+    // ------------------------------------------- CONTACT GROUP HELPERS ------------------------------------------
+
+    /**
+     * Creates a contact group in the current transaction (rolled back in tearDown).
+     *
+     * @return int The created contact group ID
+     */
+    final protected function createContactGroup(string $name, string $alias): int
+    {
+        $stmt = self::$db->prepare(
+            "INSERT INTO contactgroup (cg_name, cg_alias, cg_activate, cg_type) VALUES (:name, :alias, '1', 'local')"
+        );
+        $stmt->execute([':name' => $name, ':alias' => $alias]);
+
+        return (int) self::$db->lastInsertId();
+    }
+
+    /**
+     * Adds a user to a contact group in the current transaction (rolled back in tearDown).
+     */
+    final protected function addUserToContactGroup(string $userAlias, int $contactGroupId): void
+    {
+        $stmt = self::$db->prepare('SELECT contact_id FROM contact WHERE contact_alias = :alias');
+        $stmt->execute([':alias' => $userAlias]);
+        $contactId = $stmt->fetchColumn();
+
+        if ($contactId === false) {
+            self::fail("User '{$userAlias}' not found in database.");
+        }
+
+        $stmt = self::$db->prepare(
+            'INSERT INTO contactgroup_contact_relation (contact_contact_id, contactgroup_cg_id) VALUES (:contactId, :cgId)'
+        );
+        $stmt->execute([':contactId' => (int) $contactId, ':cgId' => $contactGroupId]);
+    }
+
     // ------------------------------------------------- HELPERS -------------------------------------------------
 
     /**
      * @param array<string> $actions
+     * @param array<array{id: int, access_right: int}> $topologyPages
      */
     private static function createApiUser(
         DatabaseConnection $db,
         string $identifier,
         bool $admin = false,
         array $actions = [],
+        array $topologyPages = [],
     ): void {
         $stmt = $db->prepare(
             'INSERT INTO contact (contact_name, contact_alias, contact_admin, contact_register, contact_activate, contact_email, reach_api, reach_api_rt)'
             . " VALUES (:name, :alias, :admin, 1, '1', :email, :reachApi, :reachApiRt)"
         );
+        $hasAcl = $actions !== [] || $topologyPages !== [];
         $stmt->execute([
             ':name' => $identifier,
             ':alias' => $identifier,
             ':admin' => $admin ? '1' : '0',
             ':email' => $identifier . '@email.com',
-            ':reachApi' => $admin ? 1 : 0,
-            ':reachApiRt' => $admin ? 1 : 0,
+            ':reachApi' => ($admin || $hasAcl) ? 1 : 0,
+            ':reachApiRt' => ($admin || $hasAcl) ? 1 : 0,
         ]);
         $contactId = (int) $db->lastInsertId();
 
@@ -274,46 +317,78 @@ abstract class CoreApiTestCase extends WebTestCase
             ':date' => (new \DateTimeImmutable())->getTimestamp(),
         ]);
 
-        if (! $admin && $actions !== []) {
-            self::setupAclForUser($db, $contactId, $identifier, $actions);
+        if (! $admin && ($actions !== [] || $topologyPages !== [])) {
+            self::setupAclForUser($db, $contactId, $identifier, $actions, $topologyPages);
         }
     }
 
     /**
      * @param array<string> $actions
+     * @param array<array{id: int, access_right: int}> $topologyPages
      */
     private static function setupAclForUser(
         DatabaseConnection $db,
         int $contactId,
         string $identifier,
         array $actions,
+        array $topologyPages = [],
     ): void {
+        // Create ACL group and link contact to it.
         $stmt = $db->prepare(
-            'INSERT INTO acl_groups (acl_group_name, acl_group_alias, acl_group_activate) VALUES (:name, :alias, 1)'
+            "INSERT INTO acl_groups (acl_group_name, acl_group_alias, acl_group_activate) VALUES (:name, :alias, '1')"
         );
         $stmt->execute([':name' => "Test ACL Group for {$identifier}", ':alias' => "test_acl_{$identifier}"]);
         $aclGroupId = (int) $db->lastInsertId();
-
-        $stmt = $db->prepare('INSERT INTO acl_actions (acl_action_name, acl_action_activate) VALUES (:name, 1)');
-        $stmt->execute([':name' => "test_actions_{$identifier}"]);
-        $aclActionId = (int) $db->lastInsertId();
-
-        $stmt = $db->prepare(
-            'INSERT INTO acl_group_actions_relations (acl_group_id, acl_action_id) VALUES (:groupId, :actionId)'
-        );
-        $stmt->execute([':groupId' => $aclGroupId, ':actionId' => $aclActionId]);
-
-        foreach ($actions as $action) {
-            $stmt = $db->prepare(
-                'INSERT INTO acl_actions_rules (acl_action_rule_id, acl_action_name) VALUES (:ruleId, :name)'
-            );
-            $stmt->execute([':ruleId' => $aclActionId, ':name' => $action]);
-        }
 
         $stmt = $db->prepare(
             'INSERT INTO acl_group_contacts_relations (acl_group_id, contact_contact_id) VALUES (:groupId, :contactId)'
         );
         $stmt->execute([':groupId' => $aclGroupId, ':contactId' => $contactId]);
+
+        // Setup action ACLs.
+        if ($actions !== []) {
+            $stmt = $db->prepare('INSERT INTO acl_actions (acl_action_name, acl_action_activate) VALUES (:name, 1)');
+            $stmt->execute([':name' => "test_actions_{$identifier}"]);
+            $aclActionId = (int) $db->lastInsertId();
+
+            $stmt = $db->prepare(
+                'INSERT INTO acl_group_actions_relations (acl_group_id, acl_action_id) VALUES (:groupId, :actionId)'
+            );
+            $stmt->execute([':groupId' => $aclGroupId, ':actionId' => $aclActionId]);
+
+            foreach ($actions as $action) {
+                $stmt = $db->prepare(
+                    'INSERT INTO acl_actions_rules (acl_action_rule_id, acl_action_name) VALUES (:ruleId, :name)'
+                );
+                $stmt->execute([':ruleId' => $aclActionId, ':name' => $action]);
+            }
+        }
+
+        // Setup topology (menu) ACLs.
+        if ($topologyPages !== []) {
+            $stmt = $db->prepare(
+                "INSERT INTO acl_topology (acl_topo_name, acl_topo_alias, acl_topo_activate) VALUES (:name, :alias, '1')"
+            );
+            $stmt->execute([':name' => "test_topo_{$identifier}", ':alias' => "test_topo_{$identifier}"]);
+            $aclTopoId = (int) $db->lastInsertId();
+
+            $stmt = $db->prepare(
+                'INSERT INTO acl_group_topology_relations (acl_group_id, acl_topology_id) VALUES (:groupId, :topoId)'
+            );
+            $stmt->execute([':groupId' => $aclGroupId, ':topoId' => $aclTopoId]);
+
+            foreach ($topologyPages as $page) {
+                $stmt = $db->prepare(
+                    'INSERT INTO acl_topology_relations (topology_topology_id, acl_topo_id, access_right)'
+                    . ' VALUES (:topoPageId, :aclTopoId, :accessRight)'
+                );
+                $stmt->execute([
+                    ':topoPageId' => $page['id'],
+                    ':aclTopoId' => $aclTopoId,
+                    ':accessRight' => $page['access_right'],
+                ]);
+            }
+        }
     }
 
     private static function deleteApiUser(DatabaseConnection $db, string $identifier): void
@@ -332,6 +407,7 @@ abstract class CoreApiTestCase extends WebTestCase
             $aclGroupIds = $stmt->fetchAll(\PDO::FETCH_COLUMN);
 
             foreach ($aclGroupIds as $aclGroupId) {
+                // Clean action ACLs.
                 $stmt = $db->prepare(
                     'SELECT acl_action_id FROM acl_group_actions_relations WHERE acl_group_id = :aclGroupId'
                 );
@@ -347,6 +423,24 @@ abstract class CoreApiTestCase extends WebTestCase
 
                 $stmt = $db->prepare('DELETE FROM acl_group_actions_relations WHERE acl_group_id = :id');
                 $stmt->execute([':id' => $aclGroupId]);
+
+                // Clean topology ACLs.
+                $stmt = $db->prepare(
+                    'SELECT acl_topology_id FROM acl_group_topology_relations WHERE acl_group_id = :aclGroupId'
+                );
+                $stmt->execute([':aclGroupId' => $aclGroupId]);
+                $aclTopoIds = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+
+                foreach ($aclTopoIds as $aclTopoId) {
+                    $stmt = $db->prepare('DELETE FROM acl_topology_relations WHERE acl_topo_id = :id');
+                    $stmt->execute([':id' => $aclTopoId]);
+                    $stmt = $db->prepare('DELETE FROM acl_topology WHERE acl_topo_id = :id');
+                    $stmt->execute([':id' => $aclTopoId]);
+                }
+
+                $stmt = $db->prepare('DELETE FROM acl_group_topology_relations WHERE acl_group_id = :id');
+                $stmt->execute([':id' => $aclGroupId]);
+
                 $stmt = $db->prepare('DELETE FROM acl_group_contacts_relations WHERE acl_group_id = :id');
                 $stmt->execute([':id' => $aclGroupId]);
                 $stmt = $db->prepare('DELETE FROM acl_groups WHERE acl_group_id = :id');

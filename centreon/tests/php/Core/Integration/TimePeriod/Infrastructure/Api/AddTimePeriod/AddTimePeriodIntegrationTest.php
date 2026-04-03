@@ -38,13 +38,6 @@ final class AddTimePeriodIntegrationTest extends CoreApiTestCase
 {
     private const TP_NAME = 'integration-test-tp';
 
-    protected static function apiUsers(): array
-    {
-        return [
-            ['identifier' => 'test-tp-admin', 'admin' => true],
-        ];
-    }
-
     public function testAdminCanCreateTimePeriod(): void
     {
         $this->login('test-tp-admin');
@@ -80,5 +73,12 @@ final class AddTimePeriodIntegrationTest extends CoreApiTestCase
         $stmt = self::$db->prepare('SELECT COUNT(*) FROM timeperiod WHERE tp_name = :name');
         $stmt->execute([':name' => self::TP_NAME]);
         $this->assertSame(0, (int) $stmt->fetchColumn(), 'Time period should have been rolled back');
+    }
+
+    protected static function apiUsers(): array
+    {
+        return [
+            ['identifier' => 'test-tp-admin', 'admin' => true],
+        ];
     }
 }
