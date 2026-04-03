@@ -88,8 +88,8 @@ if ($form->validate()) {
         $msg .= '<br />Moving traps in database...';
 
         $command = '@CENTREONTRAPD_BINDIR@/centFillTrapDB -f '
-            . escapeshellarg($values['tmp_name'])
-            . ' -m ' . escapeshellarg((string) $manufacturerId) . ' --severity=info 2>&1';
+            . escapeshellarg((string) $values['tmp_name'])
+            . ' -m ' . $manufacturerId . ' --severity=info 2>&1';
 
         if ($debug) {
             echo $command;

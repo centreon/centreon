@@ -345,7 +345,7 @@ try {
             } else {
                 $written = file_put_contents(
                     $centcore_pipe,
-                    "SENDCFGFILE:{$host['id']}\n",
+                    'SENDCFGFILE:' . (int) $host['id'] . "\n",
                     FILE_APPEND | LOCK_EX
                 );
                 if ($written === false) {

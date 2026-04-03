@@ -24,9 +24,9 @@ namespace CentreonRemote\Infrastructure\Service;
 use Centreon;
 use Centreon\ServiceProvider;
 use CentreonBroker;
-use Core\MonitoringServer\Model\MonitoringServer;
 use CentreonContactgroup;
 use CentreonDB;
+use Core\MonitoringServer\Model\MonitoringServer;
 use Exception;
 use Generate;
 use Pimple\Container;
@@ -118,7 +118,9 @@ class PollerInteractionService
     {
         $centreonBrokerPath = _CENTREON_CACHEDIR_ . '/config/broker/';
 
-        $centCorePipe = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ . '/centcore.cmd' : '/var/lib/centreon/centcore.cmd';
+        $centCorePipe = defined('_CENTREON_VARLIB_')
+            ? _CENTREON_VARLIB_ . '/centcore.cmd'
+            : '/var/lib/centreon/centcore.cmd';
 
         $tabServer = [];
         $tabs = $this->centreon->user->access->getPollerAclConf([
@@ -142,7 +144,7 @@ class PollerInteractionService
             if (in_array($host['id'], $pollerIDs)) {
                 $written = file_put_contents(
                     $centCorePipe,
-                    "SENDCFGFILE:{$host['id']}\n",
+                    'SENDCFGFILE:' . (int) $host['id'] . "\n",
                     FILE_APPEND | LOCK_EX
                 );
 
@@ -162,7 +164,9 @@ class PollerInteractionService
     {
         $tabServers = [];
 
-        $centCorePipe = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ . '/centcore.cmd' : '/var/lib/centreon/centcore.cmd';
+        $centCorePipe = defined('_CENTREON_VARLIB_')
+            ? _CENTREON_VARLIB_ . '/centcore.cmd'
+            : '/var/lib/centreon/centcore.cmd';
 
         $tabs = $this->centreon->user->access->getPollerAclConf([
             'fields' => ['name', 'id', 'localhost', 'engine_restart_command'],
@@ -186,18 +190,18 @@ class PollerInteractionService
         }
 
         foreach ($tabServers as $poller) {
-            if (isset($poller['localhost']) && $poller['localhost'] == 1) {
-                if ($poller['engine_restart_command'] != '') {
-                    if (preg_match(MonitoringServer::VALID_COMMAND_RESTART_REGEX, $poller['engine_restart_command']) !== 1) {
-                        throw new Exception(_('Engine restart command does not match the expected format. Please check the monitoring server configuration.'));
-                    }
-                    shell_exec(escapeshellcmd("sudo -n -- {$poller['engine_restart_command']}"));
-                }
-            } elseif ($fh = @fopen($centCorePipe, 'a+')) {
-                fwrite($fh, 'RESTART:' . $poller['id'] . "\n");
-                fclose($fh);
+            if (isset($poller['localhost']) && (int) $poller['localhost'] === 1) {
+                $this->restartEngine($poller['engine_restart_command']);
             } else {
-                throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
+                $written = file_put_contents(
+                    $centCorePipe,
+                    'RESTART:' . (int) $poller['id'] . "\n",
+                    FILE_APPEND | LOCK_EX
+                );
+
+                if ($written === false) {
+                    throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
+                }
             }
 
             $restartTimeQuery = "UPDATE `nagios_server`
@@ -215,6 +219,25 @@ class PollerInteractionService
                     include $fileName;
                 }
             }
+        }
+    }
+
+    /**
+     * @param string|null $engineRestartCommand
+     *
+     * @throws Exception
+     * @return void
+     */
+    private function restartEngine(?string $engineRestartCommand): void
+    {
+        if (! empty($engineRestartCommand)) {
+            if (preg_match(MonitoringServer::VALID_COMMAND_RESTART_REGEX, $engineRestartCommand) !== 1) {
+                throw new Exception(_(
+                    'Engine restart command does not match the expected format.'
+                    . ' Please check the monitoring server configuration.'
+                ));
+            }
+            shell_exec(escapeshellcmd('sudo -n -- ' . $engineRestartCommand));
         }
     }
 }

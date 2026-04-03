@@ -126,7 +126,7 @@ if ($form->validate()) {
                 $returnVal = 0;
                 exec(
                     _CENTREON_PATH_ . '/bin/generateSqlLite '
-                    . escapeshellarg($host['id']) . ' '
+                    . escapeshellarg((string) $host['id']) . ' '
                     . escapeshellarg($filename) . ' 2>&1',
                     $output,
                     $returnVal
@@ -143,7 +143,7 @@ if ($form->validate()) {
             foreach ($tab_server as $host) {
                 $return = file_put_contents(
                     $centcore_pipe,
-                    "SYNCTRAP:{$host['id']}\n",
+                    'SYNCTRAP:' . (int) $host['id'] . "\n",
                     FILE_APPEND | LOCK_EX
                 );
                 if ($return === false) {
@@ -157,7 +157,7 @@ if ($form->validate()) {
             foreach ($tab_server as $host) {
                 $return = file_put_contents(
                     $centcore_pipe,
-                    "{$ret['signal']}:{$host['id']}\n",
+                    $ret['signal'] . ':' . (int) $host['id'] . "\n",
                     FILE_APPEND | LOCK_EX
                 );
                 if ($return === false) {

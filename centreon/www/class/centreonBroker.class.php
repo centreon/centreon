@@ -48,7 +48,7 @@ class CentreonBroker
     public function reload(): void
     {
         $command = $this->getReloadCommand();
-        if ($command !== null && $command !== '') {
+        if (! empty($command)) {
             if (preg_match(Core\MonitoringServer\Model\MonitoringServer::VALID_COMMAND_RELOAD_REGEX, $command) !== 1) {
                 throw new RuntimeException(_('Broker reload command does not match the expected format. Please check the monitoring server configuration.'));
             }
