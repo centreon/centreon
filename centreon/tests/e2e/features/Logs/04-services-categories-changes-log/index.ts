@@ -7,12 +7,12 @@ import categories from '../../../fixtures/services/category.json';
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
-      method: 'GET',
-      url: INTERCEPTORS.api.navigation_list
+    method: 'GET',
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
-      method: 'GET',
-      url: INTERCEPTORS.pages.time_zone
+    method: 'GET',
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
 });
 
