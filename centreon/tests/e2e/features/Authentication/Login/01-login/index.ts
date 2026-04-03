@@ -1,5 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+
 import { initializeConfigAclAndGetLoginPage } from '../common';
 
 before(() => {
@@ -8,7 +10,7 @@ before(() => {
       return initializeConfigAclAndGetLoginPage();
     })
     .intercept(
-      '/centreon/api/internal.php?object=centreon_topcounter&action=user'
+      `${INTERCEPTORS.api.centreon_topcounter}&action=user`
     )
     .as('userTopCounterEndpoint');
 });

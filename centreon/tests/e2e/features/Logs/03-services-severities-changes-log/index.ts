@@ -1,4 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import severities from '../../../fixtures/services/severity.json';
@@ -6,13 +8,13 @@ import severities from '../../../fixtures/services/severity.json';
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-  }).as('getNavigationList');
+      method: 'GET',
+      url: INTERCEPTORS.api.navigation_list
+    }).as('getNavigationList');
   cy.intercept({
-    method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
-  }).as('getTimeZone');
+      method: 'GET',
+      url: INTERCEPTORS.pages.time_zone
+    }).as('getTimeZone');
 });
 
 afterEach(() => {

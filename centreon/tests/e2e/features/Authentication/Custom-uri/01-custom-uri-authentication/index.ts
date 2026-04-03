@@ -1,4 +1,6 @@
 import { Then, When } from '@badeball/cypress-cucumber-preprocessor';
+
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import {
@@ -25,19 +27,19 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/monitor/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/monitor/api/latest/users/filters/events-view?page=1&limit=100'
+    url: `${INTERCEPTORS.api.monitor_event_view}?page=1&limit=100`
   }).as('getLastestUserFilters');
   cy.intercept({
     method: 'GET',
-    url: '/monitor/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.monitor_time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/monitor/api/latest/monitoring/resources/hosts/*/services/*'
+    url: `${INTERCEPTORS.api.monitor_resources}/hosts/*/services/*`
   }).as('getResourceDetails');
 });
 

@@ -1,5 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+
 import { Contact, columns, durationMap, Token } from '../common';
 
 beforeEach(() => {
@@ -7,11 +9,11 @@ beforeEach(() => {
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: 'centreon/api/latest/administration/tokens?*desc*'
+    url: `${INTERCEPTORS.api.administartion_tokens}?*desc*`
   }).as('getDescendingOrderedTokens');
 
   cy.fixture('api-token/users.json').then((users: Record<string, Contact>) => {

@@ -5,6 +5,8 @@ import {
   When
 } from '@badeball/cypress-cucumber-preprocessor';
 
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+
 const token = {
   duration: '7 days',
   name: 'myToken',
@@ -16,15 +18,15 @@ beforeEach(() => {
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: 'centreon/api/latest/administration/tokens?*'
+    url: `${INTERCEPTORS.api.administartion_tokens}?*`
   }).as('getTokens');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/users?*'
+    url: `${INTERCEPTORS.api.users_configuration}?*`
   }).as('getUsers');
 });
 

@@ -1,5 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+
 import {
   navigateToTimePeriodsAndInitiateAddition,
   setTimePeriod,
@@ -10,12 +12,12 @@ beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
-  }).as('getUserTimezone');
+    url: INTERCEPTORS.api.navigation_list
+  }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-  }).as('getNavigationList');
+    url: INTERCEPTORS.pages.time_zone
+  }).as('getTimeZone');
 });
 
 Given('a user is logged in Centreon', () => {

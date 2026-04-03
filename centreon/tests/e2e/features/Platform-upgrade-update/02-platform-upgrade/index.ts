@@ -1,5 +1,7 @@
 import { Given } from '@badeball/cypress-cucumber-preprocessor';
 
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+
 import {
   checkPlatformVersion,
   getCentreonPreviousMajorVersion,
@@ -34,59 +36,59 @@ beforeEach(() => {
     })
   );
 
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-  }).as('getNavigationList');
+    cy.intercept({
+      method: 'GET',
+      url: INTERCEPTORS.api.navigation_list
+      }).as('getNavigationList');
 
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
-  }).as('getTimeZone');
+    cy.intercept({
+      method: 'GET',
+      url: INTERCEPTORS.pages.time_zone
+      }).as('getTimeZone');
 
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
-  }).as('getLastestUserFilters');
+    cy.intercept({
+      method: 'GET',
+      url: `${INTERCEPTORS.api.events_view_users}?page=1&limit=100`
+    }).as('getLastestUserFilters');
 
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/install/step_upgrade/step1.php'
-  }).as('getStep1');
+    cy.intercept({
+      method: 'GET',
+      url: INTERCEPTORS.pages.step1_upgrade
+    }).as('getStep1');
 
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/install/step_upgrade/step2.php'
-  }).as('getStep2');
+    cy.intercept({
+      method: 'GET',
+      url: INTERCEPTORS.pages.step2_upgrade
+    }).as('getStep2');
 
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/install/step_upgrade/step3.php'
-  }).as('getStep3');
+    cy.intercept({
+      method: 'GET',
+      url: INTERCEPTORS.pages.step3_upgrade
+    }).as('getStep3');
 
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/install/step_upgrade/step4.php'
-  }).as('getStep4');
+    cy.intercept({
+      method: 'GET',
+      url: INTERCEPTORS.pages.step4_upgrade
+    }).as('getStep4');
 
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/install/step_upgrade/step5.php'
-  }).as('getStep5');
+    cy.intercept({
+      method: 'GET',
+      url: INTERCEPTORS.pages.step5_upgrade
+    }).as('getStep5');
 
-  cy.intercept({
-    method: 'POST',
-    url: '/centreon/install/steps/process/generationCache.php'
-  }).as('generatingCache');
+    cy.intercept({
+      method: 'POST',
+      url: INTERCEPTORS.pages.generation_cache
+    }).as('generatingCache');
 
-  cy.intercept('/centreon/api/latest/monitoring/resources*').as(
-    'monitoringEndpoint'
-  );
+    cy.intercept(`${INTERCEPTORS.api.monitor_resources}*`).as(
+      'monitoringEndpoint'
+    );
 
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/latest/configuration/monitoring-servers/generate-and-reload'
-  }).as('generateAndReloadPollers');
+    cy.intercept({
+      method: 'GET',
+      url: INTERCEPTORS.api.generate_reload_pollers
+    }).as('generateAndReloadPollers');
 });
 
 Given(
