@@ -10506,6 +10506,10 @@ msgstr ""
 msgid "Legend Name"
 msgstr ""
 
+#: centreon/www/include/views/componentTemplates/formComponentTemplate.php
+msgid "Legend is disabled for the default template because it cannot be displayed in the graph. Metric name will be displayed by default."
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Less"
 msgstr ""
