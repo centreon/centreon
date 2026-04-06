@@ -49,7 +49,13 @@ const Radio = ({
     }
 
     if (change) {
-      change({ setFieldTouched, setFieldValue, setValues, value, values });
+      change({
+        setFieldTouched,
+        setFieldValue,
+        setValues,
+        value,
+        values
+      } as Parameters<NonNullable<InputPropsWithoutGroup['change']>>[0]);
 
       return;
     }
