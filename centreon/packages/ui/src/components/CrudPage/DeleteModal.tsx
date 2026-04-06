@@ -1,7 +1,7 @@
 import { Box, CircularProgress, Typography } from '@mui/material';
 
 import { useAtom } from 'jotai';
-import { useCallback, useRef } from 'react';
+import { type ReactElement, useCallback, useRef } from 'react';
 
 import { Button } from '../Button';
 import { Modal } from '../Modal';
@@ -35,7 +35,9 @@ const DeleteModal = <TData extends { id: number; name: string }>({
   }, [setItemToDelete]);
 
   const confirm = useCallback(() => {
-    deleteItem(itemToDeleteRef.current).then(close);
+    if (itemToDeleteRef.current) {
+      deleteItem(itemToDeleteRef.current).then(close);
+    }
   }, [close, deleteItem]);
 
   if (isOpen) {
@@ -46,14 +48,20 @@ const DeleteModal = <TData extends { id: number; name: string }>({
     <Modal onClose={close} open={isOpen} size={modalSize}>
       <Modal.Header>
         {isAFunction(labels.title)
-          ? labels.title(itemToDeleteRef.current as TData)
-          : labels.title}
+          ? (labels.title as (item: ItemToDelete) => string | ReactElement)(
+              itemToDeleteRef.current as TData
+            )
+          : (labels.title as string | ReactElement)}
       </Modal.Header>
       <Modal.Body>
         <Typography>
           {isAFunction(labels.description)
-            ? labels.description(itemToDeleteRef.current as TData)
-            : labels.description}
+            ? (
+                labels.description as (
+                  item: ItemToDelete
+                ) => string | ReactElement
+              )(itemToDeleteRef.current as TData)
+            : (labels.description as string | ReactElement)}
         </Typography>
       </Modal.Body>
       <Box

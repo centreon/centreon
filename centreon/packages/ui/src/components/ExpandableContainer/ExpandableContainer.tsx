@@ -12,7 +12,7 @@ interface Props {
 }
 
 const ExpandableContainer = ({ children }: Props) => {
-  const { classes } = useStyles();
+  const { classes: _classes } = useStyles();
 
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -41,20 +41,7 @@ const ExpandableContainer = ({ children }: Props) => {
     <>
       {children(reducedChildrenData)}
       {isExpanded && (
-        <Modal
-          classes={{
-            paper: classes.papper
-          }}
-          hasCloseButton={false}
-          open={isExpanded}
-          PaperProps={{
-            style: {
-              maxWidth: '90vw',
-              width: '90vw'
-            }
-          }}
-          size="xlarge"
-        >
+        <Modal hasCloseButton={false} open={isExpanded} size="xlarge">
           {children(expandedChildrenData)}
         </Modal>
       )}

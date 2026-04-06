@@ -77,7 +77,7 @@ const OptionalLabelInputAdornment = ({
 type SizeVariant = 'large' | 'medium' | 'small' | 'compact';
 
 export type TextProps = {
-  EndAdornment?: React.FC | JSX.Element;
+  EndAdornment?: React.FC | React.ReactNode;
   StartAdornment?: React.FC;
   ariaLabel?: string;
   autoSize?: boolean;
@@ -192,9 +192,17 @@ const TextField = forwardRef(
                 endAdornment: (
                   <OptionalLabelInputAdornment label={label} position="end">
                     {EndAdornment ? (
-                      <EndAdornment />
+                      typeof EndAdornment === 'function' ? (
+                        <EndAdornment />
+                      ) : (
+                        EndAdornment
+                      )
                     ) : (
-                      textFieldSlotsAndSlotProps?.slotProps?.input?.endAdornment
+                      (
+                        textFieldSlotsAndSlotProps?.slotProps?.input as
+                          | Record<string, React.ReactNode>
+                          | undefined
+                      )?.endAdornment
                     )}
                   </OptionalLabelInputAdornment>
                 ),
