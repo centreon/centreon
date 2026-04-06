@@ -34,7 +34,6 @@ const CheckboxGroup = ({
       checked: false
     }));
     setFieldValue(fieldName, resetedValue);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disabled, hideCheckbox, fieldName, setFieldValue]);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
