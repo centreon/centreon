@@ -326,9 +326,6 @@ jobs:
     runs-on: ubuntu-24.04
     container:
       image: ghcr.io/${{ github.repository }}/translation:${{ needs.get-environment.outputs.major_version }}
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -743,9 +740,6 @@ jobs:
     runs-on: ubuntu-24.04
     container:
       image: ghcr.io/${{ github.repository }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout sources
