@@ -32,6 +32,7 @@ use Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations\FindAgen
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations\FindAgentConfigurationsResponse;
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations\PollerDto;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
+use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
 use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Poller;
@@ -242,4 +243,85 @@ it('should present a FindAgentConfigurationsResponse when no errors occurred', f
         ->toBe($pollerTwo->getId())
         ->and($this->presenter->data->agentConfigurations[1]->pollers[1]->name)
         ->toBe($pollerTwo->getName());
+});
+
+it('Should present a FindAgentConfigurationsResponse with isAgentInitiated set to true when the type is not centreon-agent', function (): void {
+    $acOne = new AgentConfiguration(
+        id: 1,
+        name: 'acOne',
+        type: Type::TELEGRAF,
+        connectionMode: ConnectionModeEnum::SECURE,
+        configuration: new TelegrafConfigurationParameters(
+            [
+                'otel_server_address' => '10.10.10.11',
+                'otel_server_port' => 453,
+                'otel_public_certificate' => 'public_certif',
+                'otel_ca_certificate' => 'ca_certif',
+                'otel_private_key' => 'otel-key',
+                'conf_server_port' => 454,
+                'conf_certificate' => 'conf-certif',
+                'conf_private_key' => 'conf-key',
+            ]
+        )
+    );
+
+    $acTwo = new AgentConfiguration(
+        id: 2,
+        name: 'acTwo',
+        type: Type::CMA,
+        connectionMode: ConnectionModeEnum::SECURE,
+        configuration: new CmaConfigurationParameters(
+            [
+                'agent_initiated' => false,
+                'otel_public_certificate' => null,
+                'otel_private_key' => null,
+                'otel_ca_certificate' => null,
+                'tokens' => [],
+                'port' => 453,
+                'poller_initiated' => false,
+                'hosts' => [],
+            ],
+        )
+    );
+
+    $pollerOne = new Poller(1, 'poller_1', true);
+    $pollerTwo = new Poller(2, 'poller_2', false);
+
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+
+    $this->readRepository
+        ->expects($this->once())
+        ->method('findAllByRequestParametersAndAccessGroups')
+        ->willReturn([$acOne, $acTwo]);
+
+    $this->readAccessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->willReturn([new AccessGroup(1, 'customer_non_admin_acl', 'not an admin')]);
+
+    $this->readRepository
+        ->expects($this->any())
+        ->method('findPollersByAcId')
+        ->willReturn([$pollerOne, $pollerTwo]);
+
+    ($this->useCase)($this->presenter);
+
+    expect(value: $this->presenter->data)
+        ->toBeInstanceOf(FindAgentConfigurationsResponse::class)
+        ->and(value: $this->presenter->data->agentConfigurations)
+        ->toBeArray()
+        ->and($this->presenter->data->agentConfigurations[0])
+        ->toBeInstanceOf(AgentConfigurationDto::class)
+        ->and($this->presenter->data->agentConfigurations[0]->isAgentInitiated)
+        ->toBe(true)
+        ->and($this->presenter->data->agentConfigurations[1]->isAgentInitiated)
+        ->toBe($acTwo->getConfiguration()->getData()['agent_initiated']);
 });

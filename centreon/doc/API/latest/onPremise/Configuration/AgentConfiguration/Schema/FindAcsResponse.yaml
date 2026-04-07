@@ -16,6 +16,10 @@ properties:
         * telegraf
         * centreon-agent
     example: telegraf
+  is_agent_initiated:
+    type: boolean
+    description: "Tells whether the configuration is agent-initiated or not"
+    example: false
   pollers:
     type: array
     description: "List of pollers that are attached to this object"
