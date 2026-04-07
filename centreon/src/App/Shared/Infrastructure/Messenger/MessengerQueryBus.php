@@ -23,24 +23,24 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Messenger;
 
-use App\Shared\Application\Command\CommandBus;
+use App\Shared\Application\Query\QueryBus;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\HandleTrait;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-final class MessengerCommandBus implements CommandBus
+final class MessengerQueryBus implements QueryBus
 {
     use HandleTrait;
 
-    public function __construct(MessageBusInterface $commandBus)
+    public function __construct(MessageBusInterface $queryBus)
     {
-        $this->messageBus = $commandBus;
+        $this->messageBus = $queryBus;
     }
 
-    public function execute(object $command): mixed
+    public function ask(object $query): mixed
     {
         try {
-            return $this->handle($command);
+            return $this->handle($query);
         } catch (HandlerFailedException $e) {
             /** @var list<\Throwable> $exceptions */
             $exceptions = $e->getWrappedExceptions();
