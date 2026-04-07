@@ -77,7 +77,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        if: github.event_name == 'pull_request' || inputs.base_sha != ''
+        if: inputs.base_sha != ''
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Fetch tags
@@ -126,6 +126,7 @@ jobs:
         id: get_changed_files
         uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891 # v47.0.1
         with:
+          use_rest_api: true
           base_sha: ${{ github.event_name == 'pull_request' && ' ' || inputs.base_sha }}
           files_yaml: |
             frontend_production:
