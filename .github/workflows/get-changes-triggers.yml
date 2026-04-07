@@ -244,6 +244,7 @@ jobs:
                   || process.env.HAS_FRONTEND_PRODUCTION_CHANGES === 'true'
                   || process.env.HAS_BACKEND_PRODUCTION_CHANGES === 'true'
                   || process.env.HAS_E2E_TEST_CHANGES === 'true'
+                  || (process.env.HAS_TRANSLATION_CHANGES === 'true' && process.env.GITHUB_ACTOR !== 'weblate-service-account')
                 ),
               'trigger_upgrade_testing':
                 !isWeblateTranslationOnly && (
