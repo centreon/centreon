@@ -338,32 +338,9 @@ UPDATE cfg_centreonbroker_info SET config_value = '1' WHERE config_key = 'read_t
 UPDATE cfg_centreonbroker_info SET config_value = '1' WHERE config_key = 'queries_per_transaction';
 UPDATE cfg_centreonbroker_info SET config_value = '5' WHERE config_key = 'retry_interval';
 
+-- Note: options data is now provided by insertBaseConf.sql
+
 -- Enable authentication debug
 UPDATE `options` SET `value` = '1' WHERE `key` = 'debug_auth';
 
--- Authentication provider configurations (required by security_authentication_tokens FK)
-INSERT INTO `provider_configuration` (type, name, custom_configuration, is_active, is_forced)
-VALUES (
-  'local',
-  'local',
-  '{"password_security_policy": {"password_length": 12, "has_uppercase_characters": true, "has_lowercase_characters": true, "has_numbers": true, "has_special_characters": true, "attempts": 5, "blocking_duration": 900, "password_expiration_delay": 15552000, "delay_before_new_password": 3600, "can_reuse_passwords": false }}',
-  true,
-  true
-),
-(
-  'openid',
-  'openid',
-  '{"base_url":null,"authorization_endpoint":null,"token_endpoint":null,"introspection_token_endpoint":null,"userinfo_endpoint":null,"endsession_endpoint":null,"connection_scopes":[],"login_claim":null,"client_id":null,"client_secret":null,"authentication_type":"client_secret_post","verify_peer":true, "auto_import": false, "contact_template_id": null, "email_bind_attribute": null, "fullname_bind_attribute": null, "authentication_conditions":{"is_enabled": false, "endpoint": {"type": "introspection_endpoint", "custom_endpoint": null}, "attribute_path": "", "authorized_values": [], "trusted_client_addresses":[], "blacklist_client_addresses":[]}, "roles_mapping":{"is_enabled":false,"apply_only_first_role":false,"attribute_path":"","endpoint":{"type":"introspection_endpoint","custom_endpoint":""}}, "groups_mapping": {"is_enabled": false, "attribute_path": "", "endpoint": {"type": "introspection_endpoint", "custom_endpoint": null}}, "redirect_url": null}',
-  false,
-  false
-),
-(
-  'web-sso',
-  'web-sso',
-  '{"trusted_client_addresses": [], "blacklist_client_addresses": [], "login_header_attribute": "HTTP_AUTH_USER", "pattern_matching_login": null, "pattern_replace_login": null}',
-  false,
-  false
-);
-
-INSERT INTO provider_configuration (`type`, `name`, `custom_configuration`, `is_active`, `is_forced`)
-VALUES ('saml', 'SAML', '{"remote_login_url":"","entity_id_url":"","certificate":"","user_id_attribute":"","requested_authn_context":false,"requested_authn_context_comparison":"exact","logout_from":false,"logout_from_url":null,"auto_import":false,"contact_template_id":null,"email_bind_attribute":null,"fullname_bind_attribute":null,"authentication_conditions":{"is_enabled":false,"attribute_path":"","authorized_values":[]},"roles_mapping":{"is_enabled":false,"apply_only_first_role":false,"attribute_path":""},"groups_mapping":{"is_enabled":false,"attribute_path":""}}', 0, 0);
+-- Note: provider_configuration data is now provided by insertBaseConf.sql
