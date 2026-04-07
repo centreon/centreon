@@ -10,12 +10,18 @@ import {
   agentConfigurationPollersEndpoint,
   getAgentConfigurationEndpoint,
   getAgentConfigurationsEndpoint,
+  getInstallationCommandEndpoint,
   getPollerAgentEndpoint,
   hostsConfigurationEndpoint,
   listTokensEndpoint,
   pollersEndpoint
 } from '../api/endpoints';
 import AgentConfigurationPage from '../Page';
+
+export const windowsCommandLine =
+  'installcma.ps /FINGERPRINT=wwwww  /COMPONENTS=agent,plugins /HOST=host_1 /ENDPOINT=https://central/centreon:4318';
+export const linuxCommandLine =
+  'installcma.ps /FINGERPRINT=lllllll  /COMPONENTS=agent,plugins /HOST=host_1 /ENDPOINT=https://central/centreon:4317';
 
 const mockRequest = (isListingEmpty): void => {
   if (isListingEmpty) {
@@ -135,6 +141,17 @@ const mockRequest = (isListingEmpty): void => {
       ]
     }
   });
+
+  cy.fixture('AgentConfigurations/installation-command.json').then(
+    (response): void => {
+      cy.interceptAPIRequest({
+        alias: 'getCommandDetails',
+        method: Method.GET,
+        path: `./api/latest${getInstallationCommandEndpoint(1)}`,
+        response
+      });
+    }
+  );
 };
 
 const initialize = ({ isListingEmpty = false }) => {
