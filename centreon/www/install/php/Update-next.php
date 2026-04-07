@@ -32,8 +32,6 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDB
  * @var ConnectionInterface $pearDBO
  */
-
-
 $clearDefaultCurveTemplateLegend = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to clear ds_legend for default curve templates';
     CentreonLog::create()->info(
