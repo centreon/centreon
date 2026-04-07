@@ -178,18 +178,20 @@ $request = <<<'SQL_WRAP'
     SQL_WRAP;
 
 if (! $obj->is_admin) {
+    $ids = $obj->access->getAccessGroups()->getIds();
+    $accessGroupIds = empty($ids) ? '0' : implode(',', $ids);
     $request .= <<<SQL
-        
+
         INNER JOIN centreon_acl
             ON centreon_acl.host_id = h.host_id
             AND centreon_acl.service_id = s.service_id
-            AND group_id IN ({$obj->grouplistStr})
+            AND group_id IN ({$accessGroupIds})
         SQL;
 }
 
 if (isset($hostgroups) && $hostgroups != 0) {
     $request .= <<<'SQL'
-        
+
         INNER JOIN hosts_hostgroups hg
             ON hg.host_id = h.host_id
             AND hg.hostgroup_id = :hostGroupId
@@ -202,7 +204,7 @@ if (isset($hostgroups) && $hostgroups != 0) {
 
 if (isset($servicegroups) && $servicegroups != 0) {
     $request .= <<<'SQL'
-        
+
         INNER JOIN services_servicegroups ssg
             ON ssg.service_id = s.service_id
             AND ssg.servicegroup_id = :serviceGroupId
@@ -215,7 +217,7 @@ if (isset($servicegroups) && $servicegroups != 0) {
 
 if ($criticalityId) {
     $request .= <<<'SQL'
-        
+
         INNER JOIN customvariables cvs
             ON cvs.service_id = s.service_id
             AND cvs.host_id = h.host_id
@@ -242,7 +244,7 @@ $request .= <<<SQL
 
 if ($hostToSearch) {
     $request .= <<<'SQL'
-        
+
         AND (h.name LIKE :hostToSearch
         OR h.alias LIKE :hostToSearch
         OR h.address LIKE :hostToSearch)
