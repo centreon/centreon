@@ -95,6 +95,12 @@ final readonly class DuplicateCommandsCommandHandler
         }
 
         $this->repository->add(...$commandsToDuplicate);
+
+        foreach ($commandsToDuplicate as $duplicatedCommand) {
+            $this->repository->saveCommandArguments($duplicatedCommand->id(), $duplicatedCommand->commandLine->extractArguments());
+            $this->repository->saveCommandMacros($duplicatedCommand->id(), $duplicatedCommand->commandLine->extractHostMacros(), $duplicatedCommand->commandLine->extractServiceMacros());
+        }
+
         $this->eventBus->fire(
             new CommandDuplicated($commandsToDuplicate, $duplicateCommandsCommand->duplicatedBy)
         );

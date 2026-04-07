@@ -303,6 +303,57 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         $qb->executeStatement();
     }
 
+    public function saveCommandArguments(CommandId $commandId, array $arguments): void
+    {
+        $this->connection->executeStatement(
+            'DELETE FROM command_arg_description WHERE cmd_id = :cmd_id',
+            ['cmd_id' => $commandId->value]
+        );
+
+        foreach ($arguments as $argNumber) {
+            $this->connection->executeStatement(
+                'INSERT INTO command_arg_description (cmd_id, macro_name, macro_description) VALUES (:cmd_id, :macro_name, :macro_description)',
+                [
+                    'cmd_id' => $commandId->value,
+                    'macro_name' => 'ARG' . $argNumber,
+                    'macro_description' => '',
+                ]
+            );
+        }
+    }
+
+    public function saveCommandMacros(CommandId $commandId, array $hostMacros, array $serviceMacros): void
+    {
+        $this->connection->executeStatement(
+            'DELETE FROM on_demand_macro_command WHERE command_command_id = :cmd_id',
+            ['cmd_id' => $commandId->value]
+        );
+
+        foreach ($hostMacros as $macroName) {
+            $this->connection->executeStatement(
+                'INSERT INTO on_demand_macro_command (command_command_id, command_macro_name, command_macro_desciption, command_macro_type) VALUES (:cmd_id, :macro_name, :macro_description, :macro_type)',
+                [
+                    'cmd_id' => $commandId->value,
+                    'macro_name' => $macroName,
+                    'macro_description' => '',
+                    'macro_type' => '1',
+                ]
+            );
+        }
+
+        foreach ($serviceMacros as $macroName) {
+            $this->connection->executeStatement(
+                'INSERT INTO on_demand_macro_command (command_command_id, command_macro_name, command_macro_desciption, command_macro_type) VALUES (:cmd_id, :macro_name, :macro_description, :macro_type)',
+                [
+                    'cmd_id' => $commandId->value,
+                    'macro_name' => $macroName,
+                    'macro_description' => '',
+                    'macro_type' => '2',
+                ]
+            );
+        }
+    }
+
     public function filterByCriteria(QueryBuilder $qb, CommandCriteria $criteria): void
     {
         if ($nameCriteria = $criteria->getNames()) {

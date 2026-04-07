@@ -69,6 +69,9 @@ final readonly class CreateCommandCommandHandler
         // Ensure the repository assigned an ID
         $newCommand->id();
 
+        $this->repository->saveCommandArguments($newCommand->id(), $command->commandLine->extractArguments());
+        $this->repository->saveCommandMacros($newCommand->id(), $command->commandLine->extractHostMacros(), $command->commandLine->extractServiceMacros());
+
         $this->eventBus->fire(new CommandCreated($newCommand, $command->creatorId));
 
         return $newCommand;
