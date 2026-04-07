@@ -212,27 +212,32 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
             $hostGroupAcl = $this->generateHostGroupAclSubRequest($accessGroupIds);
             $hostCategoryAcl = $this->generateHostCategoryAclSubRequest($accessGroupIds);
 
+            $hostAclCondition = $hostAcl !== '' ? "AND sgr.host_host_id IN ({$hostAcl})" : '';
+            $serviceCategoryCondition = $serviceCategoryAcl !== '' ? "AND scr.sc_id IN ({$serviceCategoryAcl})" : '';
+            $hostCategoryCondition = $hostCategoryAcl !== '' ? "AND hcr.hostcategories_hc_id IN ({$hostCategoryAcl})" : '';
+            $hostGroupCondition = $hostGroupAcl !== '' ? "AND hgr.hostgroup_hg_id IN ({$hostGroupAcl})" : '';
+
             $request .= <<<SQL
                     LEFT JOIN `:db`.servicegroup_relation sgr
                         ON sgr.servicegroup_sg_id = sg.sg_id
                     LEFT JOIN `:db`.host h
                         ON h.host_id = sgr.host_host_id
-                        AND sgr.host_host_id IN ({$hostAcl})
+                        {$hostAclCondition}
                     LEFT JOIN `:db`.service_categories_relation scr
                         ON scr.service_service_id = sgr.service_service_id
                     LEFT JOIN `:db`.service_categories sc
                         ON sc.sc_id = scr.sc_id
-                        AND scr.sc_id IN ({$serviceCategoryAcl})
+                        {$serviceCategoryCondition}
                     LEFT JOIN `:db`.hostcategories_relation hcr
                         ON hcr.host_host_id = sgr.host_host_id
                     LEFT JOIN `:db`.hostcategories hc
                         ON hc.hc_id = hcr.hostcategories_hc_id
-                        AND hcr.hostcategories_hc_id IN ({$hostCategoryAcl})
+                        {$hostCategoryCondition}
                     LEFT JOIN `:db`.hostgroup_relation hgr
                         ON hgr.hostgroup_hg_id = sgr.hostgroup_hg_id
                     LEFT JOIN `:db`.hostgroup hg
                         ON hg.hg_id = hgr.hostgroup_hg_id
-                        AND hgr.hostgroup_hg_id IN ({$hostGroupAcl})
+                        {$hostGroupCondition}
                 SQL;
         }
 

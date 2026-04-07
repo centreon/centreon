@@ -1913,7 +1913,8 @@ class CentreonConfigCentreonBroker
             foreach ($output as &$value) {
                 if (is_string($value) && $this->isAVaultPath($value)) {
                     $vaultValue = $readVaultRepository->findFromPath($value);
-                    $parameterKey = end(explode('::', $value));
+                    $vaultParts = explode('::', $value);
+                    $parameterKey = end($vaultParts);
                     $value = $vaultValue[$parameterKey] ?? $value;
                 }
             }
