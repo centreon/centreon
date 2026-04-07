@@ -161,101 +161,67 @@ jobs:
           LABELS: ${{ inputs.labels }}
         with:
           script: |
+            const isNightly  = process.env.IS_NIGHTLY === 'true';
+            const isWeblate  = process.env.GITHUB_ACTOR === 'weblate-service-account';
+
+            let hasBackendProd  = process.env.HAS_BACKEND_PRODUCTION_CHANGES === 'true';
+            let hasFrontendProd = process.env.HAS_FRONTEND_PRODUCTION_CHANGES === 'true';
+            let hasBackendTest  = process.env.HAS_BACKEND_TEST_CHANGES === 'true';
+            let hasFrontendTest = process.env.HAS_FRONTEND_TEST_CHANGES === 'true';
+            let hasApiTest      = process.env.HAS_API_TEST_CHANGES === 'true';
+            let hasE2eTest      = process.env.HAS_E2E_TEST_CHANGES === 'true';
+            let hasUpgradeTest  = process.env.HAS_UPGRADE_TEST_CHANGES === 'true';
+            let hasTranslation  = process.env.HAS_TRANSLATION_CHANGES === 'true';
+
             try {
               const labels = JSON.parse(process.env.LABELS);
               if (labels.includes('force-backend-tests')) {
                 core.info('Label force-backend-tests found: forcing backend testing trigger to true');
-                process.env.HAS_BACKEND_TEST_CHANGES = 'true';
+                hasBackendTest = true;
               }
               if (labels.includes('force-frontend-tests')) {
                 core.info('Label force-frontend-tests found: forcing frontend testing trigger to true');
-                process.env.HAS_FRONTEND_TEST_CHANGES = 'true';
+                hasFrontendTest = true;
               }
               if (labels.includes('force-api-tests')) {
                 core.info('Label force-api-tests found: forcing API testing trigger to true');
-                process.env.HAS_API_TEST_CHANGES = 'true';
+                hasApiTest = true;
               }
               if (labels.includes('force-e2e-tests')) {
                 core.info('Label force-e2e-tests found: forcing E2E testing trigger to true');
-                process.env.HAS_E2E_TEST_CHANGES = 'true';
+                hasE2eTest = true;
               }
               if (labels.includes('force-upgrade-tests')) {
                 core.info('Label force-upgrade-tests found: forcing upgrade testing trigger to true');
-                process.env.HAS_UPGRADE_TEST_CHANGES = 'true';
+                hasUpgradeTest = true;
               }
               if (labels.includes('force-all-tests')) {
                 core.info('Label force-all-tests found: forcing all testing triggers to true');
-                process.env.HAS_BACKEND_TEST_CHANGES = 'true';
-                process.env.HAS_FRONTEND_TEST_CHANGES = 'true';
-                process.env.HAS_API_TEST_CHANGES = 'true';
-                process.env.HAS_E2E_TEST_CHANGES = 'true';
-                process.env.HAS_UPGRADE_TEST_CHANGES = 'true';
+                hasBackendTest = hasFrontendTest = hasApiTest = hasE2eTest = hasUpgradeTest = true;
               }
             } catch (e) {
               core.warning(`Could not parse labels: ${e}`);
             }
 
-            // When weblate-service-account only changed translation files, skip all testing
-            // but keep packaging and delivery enabled.
-            const isWeblateTranslationOnly =
-              process.env.GITHUB_ACTOR === 'weblate-service-account'
-              && process.env.HAS_TRANSLATION_CHANGES === 'true'
-              && process.env.HAS_BACKEND_PRODUCTION_CHANGES !== 'true'
-              && process.env.HAS_FRONTEND_PRODUCTION_CHANGES !== 'true'
-              && process.env.HAS_BACKEND_TEST_CHANGES !== 'true'
-              && process.env.HAS_FRONTEND_TEST_CHANGES !== 'true'
-              && process.env.HAS_API_TEST_CHANGES !== 'true'
-              && process.env.HAS_E2E_TEST_CHANGES !== 'true'
-              && process.env.HAS_UPGRADE_TEST_CHANGES !== 'true';
+            const translationTriggersE2e = hasTranslation && !isWeblate;
+
+            const isWeblateTranslationOnly = isWeblate && hasTranslation
+              && !hasBackendProd && !hasFrontendProd
+              && !hasBackendTest && !hasFrontendTest
+              && !hasApiTest && !hasE2eTest && !hasUpgradeTest;
 
             if (isWeblateTranslationOnly) {
-              core.info('weblate-service-account with translation-only changes detected — skipping all test and lint triggers.');
+              core.info('weblate-service-account with translation-only changes — skipping all test triggers.');
             }
 
             const outputs = {
-              'trigger_backend_testing':
-                !isWeblateTranslationOnly && (
-                  process.env.IS_NIGHTLY === 'true'
-                  || process.env.HAS_BACKEND_TEST_CHANGES === 'true'
-                  || process.env.HAS_BACKEND_PRODUCTION_CHANGES === 'true'
-                ),
-              'trigger_frontend_testing':
-                !isWeblateTranslationOnly && (
-                  process.env.IS_NIGHTLY === 'true'
-                  || process.env.HAS_FRONTEND_TEST_CHANGES === 'true'
-                  || process.env.HAS_FRONTEND_PRODUCTION_CHANGES === 'true'
-                ),
-              'trigger_packaging':
-                process.env.IS_NIGHTLY === 'true'
-                || process.env.HAS_FRONTEND_PRODUCTION_CHANGES === 'true'
-                || process.env.HAS_BACKEND_PRODUCTION_CHANGES === 'true'
-                || process.env.HAS_API_TEST_CHANGES === 'true'
-                || process.env.HAS_E2E_TEST_CHANGES === 'true'
-                || isWeblateTranslationOnly,
-              'trigger_api_testing':
-                !isWeblateTranslationOnly && (
-                  process.env.IS_NIGHTLY === 'true'
-                  || process.env.HAS_BACKEND_PRODUCTION_CHANGES === 'true'
-                  || process.env.HAS_API_TEST_CHANGES === 'true'
-                ),
-              'trigger_e2e_testing':
-                !isWeblateTranslationOnly && (
-                  process.env.IS_NIGHTLY === 'true'
-                  || process.env.HAS_FRONTEND_PRODUCTION_CHANGES === 'true'
-                  || process.env.HAS_BACKEND_PRODUCTION_CHANGES === 'true'
-                  || process.env.HAS_E2E_TEST_CHANGES === 'true'
-                  || (process.env.HAS_TRANSLATION_CHANGES === 'true' && process.env.GITHUB_ACTOR !== 'weblate-service-account')
-                ),
-              'trigger_upgrade_testing':
-                !isWeblateTranslationOnly && (
-                  process.env.IS_NIGHTLY === 'true'
-                  || process.env.HAS_UPGRADE_TEST_CHANGES === 'true'
-                ),
-              'trigger_delivery':
-                process.env.IS_NIGHTLY === 'true'
-                || process.env.HAS_FRONTEND_PRODUCTION_CHANGES === 'true'
-                || process.env.HAS_BACKEND_PRODUCTION_CHANGES === 'true'
-                || isWeblateTranslationOnly,
+              trigger_backend_testing:  !isWeblateTranslationOnly && (isNightly || hasBackendTest  || hasBackendProd),
+              trigger_frontend_testing: !isWeblateTranslationOnly && (isNightly || hasFrontendTest || hasFrontendProd),
+              trigger_packaging:        isNightly || hasFrontendProd || hasBackendProd || hasApiTest || hasE2eTest || isWeblateTranslationOnly,
+              trigger_api_testing:      !isWeblateTranslationOnly && (isNightly || hasBackendProd  || hasApiTest),
+              trigger_e2e_testing:      !isWeblateTranslationOnly && (isNightly || hasFrontendProd || hasBackendProd || hasE2eTest || translationTriggersE2e),
+              trigger_upgrade_testing:  !isWeblateTranslationOnly && (isNightly || hasUpgradeTest),
+              trigger_delivery:         isNightly || hasFrontendProd || hasBackendProd || isWeblateTranslationOnly,
             };
 
             for (const [key, value] of Object.entries(outputs)) {
