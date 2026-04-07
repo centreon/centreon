@@ -615,7 +615,6 @@ jobs:
           mysql -h 127.0.0.1 -u root 'centreon_storage' < centreon/www/install/createTablesCentstorage.sql
           mysql -h 127.0.0.1 -u root 'centreon_storage' < centreon/www/install/installBroker.sql
           { echo "SET FOREIGN_KEY_CHECKS=0;"; cat .github/docker/centreon-web/sql/10-standard.sql; echo "SET FOREIGN_KEY_CHECKS=1;"; } | mysql -h 127.0.0.1 -u root 'centreon'
-          { echo "SET FOREIGN_KEY_CHECKS=0;"; cat centreon/www/install/insertBaseConf.sql; echo "SET FOREIGN_KEY_CHECKS=1;"; } | mysql -h 127.0.0.1 -u root 'centreon'
 
       - name: Run App integration tests
         run: composer run test:new
