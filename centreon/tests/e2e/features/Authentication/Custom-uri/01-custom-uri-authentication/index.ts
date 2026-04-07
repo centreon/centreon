@@ -38,7 +38,7 @@ beforeEach(() => {
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: `${INTERCEPTORS.api.monitor_resources}/hosts/*/services/*`
+    url: `${INTERCEPTORS.api.monitor_resources_details}`
   }).as('getResourceDetails');
 });
 

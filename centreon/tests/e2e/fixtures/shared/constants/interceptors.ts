@@ -38,6 +38,7 @@ export const INTERCEPTORS = {
     users_parameters: '/centreon/api/latest/configuration/users/current/parameters',
     centreon_metric: '/centreon/api/internal.php?object=centreon_metric',
     monitor_navigation_list: '/monitor/api/internal.php?object=centreon_topology&action=navigationList',
+    monitor_resources_details: '/monitor/api/latest/monitoring/resources/hosts/*/services/*'
   },
   pages: {
     time_zone: '/centreon/include/common/userTimezone.php',
