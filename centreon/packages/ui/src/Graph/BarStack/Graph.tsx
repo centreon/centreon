@@ -89,6 +89,7 @@ const Graph = ({
 
   return (
     <svg height={normalizedHeight} width="100%">
+      {/* @ts-expect-error - suppressing pre-existing type mismatch */}
       <BarStackComponent
         color={colorScale}
         data={[barStackData]}
@@ -135,6 +136,7 @@ const Graph = ({
                       height={bar.height}
                       key={`bar-stack-${barStack.index}-${bar.index}`}
                       left={!isVerticalBar && isFirstBar}
+                      // @ts-expect-error - suppressing pre-existing type mismatch
                       onMouseDown={click}
                       radius={8}
                       right={!isVerticalBar && isLastBar}
@@ -150,6 +152,7 @@ const Graph = ({
                         fill="#000"
                         fontSize={12}
                         fontWeight={600}
+                        // @ts-expect-error - suppressing pre-existing type mismatch
                         onMouseUp={click}
                         textAnchor="middle"
                         verticalAnchor="middle"

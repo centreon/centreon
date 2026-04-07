@@ -216,9 +216,8 @@ const MemoListingActionBar = ({
       listingVariant,
       themeMode,
       limit,
-      pick(
-        ['id', 'label', 'disabled', 'width', 'shortLabel', 'sortField'],
-        columns
+      columns.map(
+        pick(['id', 'label', 'disabled', 'width', 'shortLabel', 'sortField'])
       ),
       columnConfiguration,
       customPaginationClassName,

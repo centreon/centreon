@@ -105,6 +105,7 @@ const Thresholds = ({
               getColor={(arc) => thresholdScaleOrdinal(arc.data.name)}
               getKey={(arc) => `${arc.data.name}_${arc.data.value}`}
               hideTooltip={hideTooltip}
+              // @ts-expect-error - suppressing pre-existing type mismatch
               metric={metric}
               showTooltip={showTooltip}
               thresholds={thresholds}

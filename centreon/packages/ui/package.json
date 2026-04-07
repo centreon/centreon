@@ -4,6 +4,7 @@
   "description": "Centreon UI Components",
   "scripts": {
     "update:deps": "pnpx npm-check-updates -i --format group",
+    "type-check": "tsc --project tsconfig.typecheck.json",
     "lint": "biome check ./src/ --error-on-warnings",
     "lint:fix": "pnpm lint --fix",
     "lint:ci": "biome ci ./src/ --error-on-warnings",

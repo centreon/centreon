@@ -12,7 +12,9 @@ export const useDebounce = ({
   memoProps = []
 }: Props): ((...args) => void) => {
   const timeoutRef = useRef<number | null>(null);
-  const ref = useRef();
+  const ref = useRef<((...args: Array<unknown>) => void) | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     ref.current = functionToDebounce;

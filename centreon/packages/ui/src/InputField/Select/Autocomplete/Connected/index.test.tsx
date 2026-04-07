@@ -95,7 +95,7 @@ describe(SingleConnectedAutocompleteField, () => {
 		});
 
 		await waitFor(() => {
-			expect(decodeURIComponent(getFetchCall(2))).toEqual(
+			expect(decodeURIComponent(getFetchCall(2) as string)).toEqual(
 				'endpoint?page=1&search={"$and":[{"$and":[{"host.name":{"$lk":"%My Option 2%"}}]}]}',
 			);
 		});
