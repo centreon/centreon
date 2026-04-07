@@ -834,6 +834,21 @@ $moveCommandACLTopologyIntoACLActions = function () use ($pearDB, &$errorMessage
     }
 };
 
+$clearDefaultCurveTemplateLegend = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to clear ds_legend for default curve templates';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Clearing ds_legend for default curve templates",
+    );
+    $pearDB->executeStatement(
+        <<<'SQL'
+            UPDATE `giv_components_template`
+            SET `ds_legend` = NULL
+            WHERE `default_tpl1` = '1'
+            SQL
+    );
+};
+
 $deleteOldCommandsTopologies = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to remove old command pages from topology';
     CentreonLog::create()->info(
@@ -864,6 +879,8 @@ try {
     if ($isMachineACentral()) {
         $insertEventScriptOutputForCMA();
     }
+
+    $clearDefaultCurveTemplateLegend();
 
     // Command redesign updates
     $addNewCommandPage();
