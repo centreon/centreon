@@ -1,15 +1,16 @@
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
-  DashboardGlobalRole,
-  ListingVariant,
   additionalResourcesAtom,
+  DashboardGlobalRole,
   federatedWidgetsAtom,
+  ListingVariant,
   platformVersionsAtom,
   refreshIntervalAtom,
   userAtom
 } from '@centreon/ui-context';
+
 import i18next from 'i18next';
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 import { equals } from 'ramda';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter } from 'react-router';
@@ -42,18 +43,12 @@ import {
   labelSharesSaved,
   labelUpdate
 } from '../../translatedLabels';
-import Dashboard from './Dashboard';
-import widgetGenericTextProperties from './Widgets/centreon-widget-generictext/properties.json';
-import widgetInputProperties from './Widgets/centreon-widget-input/properties.json';
-import widgetSingleMetricProperties from './Widgets/centreon-widget-singlemetric/properties.json';
-import widgetTextProperties from './Widgets/centreon-widget-text/properties.json';
-import widgetWebpageProperties from './Widgets/centreon-widget-webpage/properties.json';
-import { internalWidgetComponents } from './Widgets/widgets';
 import {
   dashboardAtom,
   isEditingAtom,
   isRedirectionBlockedAtom
 } from './atoms';
+import Dashboard from './Dashboard';
 import { routerParams } from './hooks/useDashboardDetails';
 import { saveBlockerHooks } from './hooks/useDashboardSaveBlocker';
 import {
@@ -77,6 +72,12 @@ import {
   labelYourDashboardHasBeenSaved,
   labelYourRightsOnlyAllowToView
 } from './translatedLabels';
+import widgetGenericTextProperties from './Widgets/centreon-widget-generictext/properties.json';
+import widgetInputProperties from './Widgets/centreon-widget-input/properties.json';
+import widgetSingleMetricProperties from './Widgets/centreon-widget-singlemetric/properties.json';
+import widgetTextProperties from './Widgets/centreon-widget-text/properties.json';
+import widgetWebpageProperties from './Widgets/centreon-widget-webpage/properties.json';
+import { internalWidgetComponents } from './Widgets/widgets';
 
 const widgetProperties = [
   widgetTextProperties,
