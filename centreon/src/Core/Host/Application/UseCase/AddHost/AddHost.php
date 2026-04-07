@@ -74,6 +74,7 @@ final class AddHost
         private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
+        private readonly InheritanceManager $inheritanceManager,
         private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly WriteHostCategoryRepositoryInterface $writeHostCategoryRepository,
@@ -410,9 +411,10 @@ final class AddHost
 
         /** @var array<string,CommandMacro> $commandMacros */
         $commandMacros = [];
-        if ($checkCommandId !== null) {
+        $effectiveCommandId = $checkCommandId ?? $this->inheritanceManager->findInheritedCheckCommandId($inheritanceLine);
+        if ($effectiveCommandId !== null) {
             $existingCommandMacros = $this->readCommandMacroRepository->findByCommandIdAndType(
-                $checkCommandId,
+                $effectiveCommandId,
                 CommandMacroType::Host
             );
 
