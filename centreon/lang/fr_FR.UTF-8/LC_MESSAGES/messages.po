@@ -19013,6 +19013,10 @@ msgid "You are not allowed to access host templates"
 msgstr "Vous n'avez pas la permission d'accéder aux modèles d'hôtes"
 
 #: centreon/src/Core/Host/Application/Exception/HostException.php
+msgid "You are not allowed to access hosts"
+msgstr ""
+
+#: centreon/src/Core/Host/Application/Exception/HostException.php
 msgid "You are not allowed to access hosts in the real time context"
 msgstr ""
 "Vous n'avez pas la permission d'accéder aux hôtes dans le cadre du temps réel"
