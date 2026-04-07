@@ -203,7 +203,9 @@ jobs:
               core.warning(`Could not parse labels: ${e}`);
             }
 
-            const translationTriggersE2e = hasTranslation && !isWeblate;
+            // Non-weblate translation changes behave like backend production changes,
+            // except they don't trigger backend/frontend testing (lint + unit tests).
+            const nonWeblateTranslation = hasTranslation && !isWeblate;
 
             const isWeblateTranslationOnly = isWeblate && hasTranslation
               && !hasBackendProd && !hasFrontendProd
@@ -217,11 +219,11 @@ jobs:
             const outputs = {
               trigger_backend_testing:  !isWeblateTranslationOnly && (isNightly || hasBackendTest  || hasBackendProd),
               trigger_frontend_testing: !isWeblateTranslationOnly && (isNightly || hasFrontendTest || hasFrontendProd),
-              trigger_packaging:        isNightly || hasFrontendProd || hasBackendProd || hasApiTest || hasE2eTest || isWeblateTranslationOnly,
-              trigger_api_testing:      !isWeblateTranslationOnly && (isNightly || hasBackendProd  || hasApiTest),
-              trigger_e2e_testing:      !isWeblateTranslationOnly && (isNightly || hasFrontendProd || hasBackendProd || hasE2eTest || translationTriggersE2e),
+              trigger_packaging:        isNightly || hasFrontendProd || hasBackendProd || hasApiTest || hasE2eTest || nonWeblateTranslation || isWeblateTranslationOnly,
+              trigger_api_testing:      !isWeblateTranslationOnly && (isNightly || hasBackendProd  || hasApiTest || nonWeblateTranslation),
+              trigger_e2e_testing:      !isWeblateTranslationOnly && (isNightly || hasFrontendProd || hasBackendProd || hasE2eTest || nonWeblateTranslation),
               trigger_upgrade_testing:  !isWeblateTranslationOnly && (isNightly || hasUpgradeTest),
-              trigger_delivery:         isNightly || hasFrontendProd || hasBackendProd || isWeblateTranslationOnly,
+              trigger_delivery:         isNightly || hasFrontendProd || hasBackendProd || nonWeblateTranslation || isWeblateTranslationOnly,
             };
 
             for (const [key, value] of Object.entries(outputs)) {
