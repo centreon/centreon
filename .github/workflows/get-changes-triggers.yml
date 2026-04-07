@@ -80,15 +80,6 @@ jobs:
       trigger_delivery: ${{ github.event_name == 'workflow_dispatch' && steps.get_dispatch_triggers.outputs.trigger_delivery || steps.get_triggers.outputs.trigger_delivery || 'true' }}
 
     steps:
-      - name: Checkout sources
-        if: inputs.base_sha != ''
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-
-      - name: Fetch tags
-        if: inputs.base_sha != ''
-        run: git fetch origin tag ${{ inputs.base_sha }} --no-tags || true
-        shell: bash
-
       - name: Convert inputs to yaml list
         if: github.event_name == 'pull_request' || inputs.base_sha != ''
         id: inline_inputs
