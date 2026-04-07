@@ -35,6 +35,7 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Domain\Model\Command;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
+use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
@@ -604,6 +605,107 @@ it('should present a NoContentResponse when everything has gone well for a non-a
         ->expects($this->once())
         ->method('assertServiceCategories')
         ->with($request->serviceCategories, $this->user, $accessGroups);
+
+    ($this->useCase)($request, $this->presenter);
+
+    expect($this->presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
+});
+
+it('should load command macros from an inherited template command when the service template defines none', function (): void {
+    $serviceTemplateId = 20;
+    $parentTemplateId = 9;
+    $inheritedCommandId = 42;
+
+    $serviceTemplate = new ServiceTemplate(
+        id: $serviceTemplateId,
+        name: 'fake_name',
+        alias: 'fake_alias',
+        commandId: null,
+    );
+    $parentTemplate = new ServiceTemplate(
+        id: $parentTemplateId,
+        name: 'parent_name',
+        alias: 'parent_alias',
+        commandId: $inheritedCommandId,
+    );
+    $commandMacro = new CommandMacro(1, CommandMacroType::Service, 'TIMEOUT');
+
+    // Existing direct macro saved from a previous update with a non-empty value
+    $existingMacro = new Macro(null, $serviceTemplateId, 'TIMEOUT', 'myvalue');
+
+    $request = new PartialUpdateServiceTemplateRequest($serviceTemplateId);
+    // Submit TIMEOUT with empty value — should remove the macro from the service template
+    $request->macros = [new MacroDto('TIMEOUT', '', false, null)];
+
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->with($serviceTemplateId)
+        ->willReturn($serviceTemplate);
+
+    $this->writeVaultRepository
+        ->method('isVaultConfigured')
+        ->willReturn(false);
+
+    $this->storageEngine
+        ->expects($this->once())
+        ->method('startTransaction');
+    $this->storageEngine
+        ->expects($this->once())
+        ->method('commitTransaction');
+
+    $this->optionService
+        ->expects($this->once())
+        ->method('findSelectedOptions')
+        ->willReturn([]);
+
+    $this->writeServiceTemplateRepository
+        ->expects($this->once())
+        ->method('update');
+
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('findParents')
+        ->willReturn([new ServiceTemplateInheritance($parentTemplateId, $serviceTemplateId)]);
+
+    $this->readServiceMacroRepository
+        ->expects($this->once())
+        ->method('findByServiceIds')
+        ->with($serviceTemplateId, $parentTemplateId)
+        ->willReturn([$existingMacro]);
+
+    // The fix: look up parent templates to find the inherited command
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('findByIds')
+        ->with($parentTemplateId)
+        ->willReturn([$parentTemplate]);
+
+    $this->readCommandMacroRepository
+        ->expects($this->once())
+        ->method('findByCommandIdAndType')
+        ->with($inheritedCommandId, CommandMacroType::Service)
+        ->willReturn([$commandMacro->getName() => $commandMacro]);
+
+    // Clearing a previously-set value matching the command macro default should delete it
+    $this->writeServiceMacroRepository
+        ->expects($this->once())
+        ->method('delete');
+    $this->writeServiceMacroRepository
+        ->expects($this->never())
+        ->method('add');
+    $this->writeServiceMacroRepository
+        ->expects($this->never())
+        ->method('update');
 
     ($this->useCase)($request, $this->presenter);
 
