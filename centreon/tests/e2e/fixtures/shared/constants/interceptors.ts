@@ -36,10 +36,10 @@ export const INTERCEPTORS = {
     host_services: '/centreon/api/latest/monitoring/hosts/*/services',
     centreon_configuration_service: '/centreon/api/internal.php?object=centreon_configuration_service',
     users_parameters: '/centreon/api/latest/configuration/users/current/parameters',
-    centreon_metric: '/centreon/api/internal.php?object=centreon_metric'
+    centreon_metric: '/centreon/api/internal.php?object=centreon_metric',
+    monitor_navigation_list: '/monitor/api/internal.php?object=centreon_topology&action=navigationList',
   },
   pages: {
-    monitor_navigation_list: '/monitor/api/internal.php?object=centreon_topology&action=navigationList',
     time_zone: '/centreon/include/common/userTimezone.php',
     monitor_time_zone: '/monitor/include/common/userTimezone.php',
     centreon_proxy: '/centreon/include/common/webServices/rest/internal.php?object=centreon_proxy',
