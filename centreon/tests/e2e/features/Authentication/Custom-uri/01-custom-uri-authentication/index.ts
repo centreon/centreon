@@ -26,7 +26,7 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: INTERCEPTORS.api.navigation_list
+    url: INTERCEPTORS.pages.monitor_navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',

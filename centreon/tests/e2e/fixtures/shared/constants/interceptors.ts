@@ -39,6 +39,7 @@ export const INTERCEPTORS = {
     centreon_metric: '/centreon/api/internal.php?object=centreon_metric'
   },
   pages: {
+    monitor_navigation_list: '/monitor/api/internal.php?object=centreon_topology&action=navigationList',
     time_zone: '/centreon/include/common/userTimezone.php',
     monitor_time_zone: '/monitor/include/common/userTimezone.php',
     centreon_proxy: '/centreon/include/common/webServices/rest/internal.php?object=centreon_proxy',
