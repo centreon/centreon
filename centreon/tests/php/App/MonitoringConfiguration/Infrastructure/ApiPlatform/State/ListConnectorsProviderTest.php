@@ -162,5 +162,4 @@ final class ListConnectorsProviderTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         $this->assertCount(1, (array) $response->toArray()['member']);
     }
-
 }
