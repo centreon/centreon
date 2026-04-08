@@ -146,7 +146,7 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
     {
         return [
             'port' => $port,
-            'agent_initiated' => false,
+            'agent_initiated' => true,
             'poller_initiated' => false,
         ];
     }

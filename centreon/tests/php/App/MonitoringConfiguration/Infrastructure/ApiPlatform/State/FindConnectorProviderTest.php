@@ -56,14 +56,15 @@ final class FindConnectorProviderTest extends ApiTestCase
 
     public function testGetConnectorIsUnauthorizedForUserWithoutSufficientACL(): void
     {
-        $this->login('user');
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $username = bin2hex(random_bytes(8));
+
+        $this->createApiUser($connection, $username, admin: false);
+        $this->login($username);
+
         $this->request('GET', '/api/latest/configuration/connectors/1');
 
         $this->assertResponseStatusCodeSame(403);
-    }
-
-    protected static function apiUsers(): array
-    {
-        return ['user'];
     }
 }
