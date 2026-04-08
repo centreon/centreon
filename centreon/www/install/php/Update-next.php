@@ -32,20 +32,8 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDB
  * @var ConnectionInterface $pearDBO
  */
-$clearDefaultCurveTemplateLegend = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = 'Unable to clear ds_legend for default curve templates';
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: Clearing ds_legend for default curve templates",
-    );
-    $pearDB->executeStatement(
-        <<<'SQL'
-            UPDATE `giv_components_template`
-            SET `ds_legend` = NULL
-            WHERE `default_tpl1` = '1'
-            SQL
-    );
-};
+
+// TODO add your functions here
 
 try {
     // DDL statements for real time database
@@ -59,7 +47,7 @@ try {
         $pearDB->startTransaction();
     }
 
-    $clearDefaultCurveTemplateLegend();
+    // TODO add your function calls to update the configuration database data here
 
     $pearDB->commitTransaction();
 
