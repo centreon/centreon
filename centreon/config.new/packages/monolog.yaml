@@ -49,7 +49,7 @@ when@test:
             nested:
                 type: stream
                 path: php://stderr
-                level: debug
+                level: error
                 formatter: monolog.formatter.line
                 date_format: !php/const DateTimeInterface::RFC3339
 
