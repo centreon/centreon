@@ -464,7 +464,7 @@ const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
           );
           cy.log('Incrementing minor version to test Update-next.php content');
 
-          targetMinor = (Number.parseInt(minor_version) + 1).toString();
+          targetMinor = (Number.parseInt(minor_version, 10) + 1).toString();
           targetUpdateFile = `/usr/share/centreon/www/install/php/Update-${major_version}.${targetMinor}.php`;
         }
         Cypress.env('upgrade_target_minor_version', targetMinor);
