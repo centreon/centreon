@@ -32,6 +32,20 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDB
  * @var ConnectionInterface $pearDBO
  */
+$clearDefaultCurveTemplateLegend = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to clear ds_legend for default curve templates';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Clearing ds_legend for default curve templates",
+    );
+    $pearDB->executeStatement(
+        <<<'SQL'
+            UPDATE `giv_components_template`
+            SET `ds_legend` = NULL
+            WHERE `default_tpl1` = '1'
+            SQL
+    );
+};
 
 /** -------------------------------------- ACC -------------------------------------- */
 $createAccTables = function () use ($pearDB, &$errorMessage, $version): void {
@@ -294,6 +308,7 @@ try {
     }
 
     $dropParametersColumn();
+    $clearDefaultCurveTemplateLegend();
 
 } catch (Throwable $throwable) {
     CentreonLog::create()->error(
