@@ -746,7 +746,7 @@ jobs:
     name: package ${{ matrix.distrib }}
     runs-on: ubuntu-24.04
     container:
-      image: ghcr.io/${{ github.repository }}/packaging:develop-${{ matrix.image }}
+      image: ghcr.io/centreon/delivery-tooling/packaging:develop-${{ matrix.image }}
 
     steps:
       - name: Checkout sources
