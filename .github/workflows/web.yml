@@ -917,13 +917,6 @@ jobs:
           username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
           password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ github.token }}
-
       - name: Get FROM image tag
         id: from_image_version
         uses: ./.github/actions/get-docker-from-image-version
@@ -959,8 +952,8 @@ jobs:
         uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
         with:
           images: |
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}
+            docker.centreon.com/centreon/${{ env.project }}-${{ matrix.operating_system }}
+            docker.centreon.com/centreon/${{ env.project }}-slim-${{ matrix.operating_system }}
           tags: |
             type=raw,value=${{ github.head_ref || github.ref_name }}
 
@@ -986,7 +979,7 @@ jobs:
 
       - name: Store slim image in local archive
         run: |
-          docker tag ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.meta.outputs.version }} ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.meta.outputs.version }}
+          docker tag docker.centreon.com/centreon/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.meta.outputs.version }} ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.meta.outputs.version }}
           mkdir -p docker-image
           docker save --output ./docker-image/${{ env.project }}-slim-${{ matrix.operating_system }}.tar ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.meta.outputs.version }}
         shell: bash
