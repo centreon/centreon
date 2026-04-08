@@ -578,6 +578,59 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findIdsByHostTemplateId(int $hostTemplateId): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT hsr.service_service_id
+                FROM `:db`.`host_service_relation` hsr
+                INNER JOIN `:db`.`service` svc ON svc.service_id = hsr.service_service_id
+                WHERE svc.service_register = '0'
+                AND hsr.host_host_id = :hostTemplateId
+                SQL
+        ));
+        $statement->bindValue(':hostTemplateId', $hostTemplateId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return array_map('intval', $statement->fetchAll(\PDO::FETCH_COLUMN));
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isLinkedToAnyHostTemplate(int $serviceTemplateId, array $hostTemplateIds): bool
+    {
+        if ($hostTemplateIds === []) {
+            return false;
+        }
+
+        $bindIds = [];
+        foreach ($hostTemplateIds as $index => $id) {
+            $bindIds[':tmpl_' . $index] = $id;
+        }
+        $inClause = implode(', ', array_keys($bindIds));
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT 1
+                FROM `:db`.`host_service_relation` hsr
+                WHERE hsr.service_service_id = :serviceTemplateId
+                AND hsr.host_host_id IN ({$inClause})
+                LIMIT 1
+                SQL
+        ));
+        $statement->bindValue(':serviceTemplateId', $serviceTemplateId, \PDO::PARAM_INT);
+        foreach ($bindIds as $key => $id) {
+            $statement->bindValue($key, $id, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return $statement->fetchColumn() !== false;
+    }
+
+    /**
      * @param _ServiceTemplate $data
      *
      * @throws AssertionFailedException

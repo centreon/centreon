@@ -209,4 +209,16 @@ interface ReadServiceRepositoryInterface
         array $pollerIds = [],
         array $hostIds = [],
     ): array;
+
+    /**
+     * Find services on a host that are based on a given service template.
+     *
+     * @param int $hostId
+     * @param int $serviceTemplateId
+     *
+     * @throws \Throwable
+     *
+     * @return list<array{id: int, name: string}>
+     */
+    public function findByHostIdAndServiceTemplateId(int $hostId, int $serviceTemplateId): array;
 }

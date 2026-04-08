@@ -655,6 +655,38 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findByHostIdAndServiceTemplateId(int $hostId, int $serviceTemplateId): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT svc.service_id, svc.service_description
+                FROM `:db`.`service` svc
+                INNER JOIN `:db`.`host_service_relation` hsr
+                    ON hsr.service_service_id = svc.service_id
+                WHERE hsr.host_host_id = :hostId
+                    AND svc.service_template_model_stm_id = :serviceTemplateId
+                    AND svc.service_register = '1'
+                SQL
+        ));
+        $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+        $statement->bindValue(':serviceTemplateId', $serviceTemplateId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $services = [];
+        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array{service_id: int, service_description: string} $row */
+            $services[] = [
+                'id' => (int) $row['service_id'],
+                'name' => $row['service_description'],
+            ];
+        }
+
+        return $services;
+    }
+
+    /**
      * @param int[] $accessGroupIds
      *
      * @throws \Throwable
