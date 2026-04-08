@@ -325,7 +325,8 @@ jobs:
     # needed to deliver sources
     runs-on: ubuntu-24.04
     container:
-      image: ghcr.io/${{ github.repository }}/translation:${{ needs.get-environment.outputs.major_version }}
+      image: ghcr.io/centreon/delivery-tooling/translation:25.10
+      # image: ghcr.io/centreon/delivery-tooling/translation:${{ needs.get-environment.outputs.major_version }}
 
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
