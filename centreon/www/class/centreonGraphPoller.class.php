@@ -181,7 +181,7 @@ class centreonGraphPoller
         foreach ($metrics as $metric) {
             $path = $this->nagiosStatsPath . '/perfmon-' . $this->pollerId . '/' . $this->options[$this->graphName];
             if (file_exists($path) === false) {
-                throw new RuntimeException();
+                continue;
             }
 
             $displayformat = '%7.2lf';
@@ -190,7 +190,16 @@ class centreonGraphPoller
             $this->addArgument('LINE1:v' . $i . '#0000ff:v' . $i);
             $this->addArgument('GPRINT:v' . $i . $metric . ':"' . $metric . "\:" . $displayformat . '" ');
 
-            $this->metrics[] = ['metric_id' => $i, 'metric' => $metric, 'metric_legend' => $metric, 'legend' => $metric, 'ds_data' => ['ds_filled' => 0, 'ds_color_line' => $this->colors[$metric]]];
+            $this->metrics[] = [
+                'metric_id' => $i,
+                'metric' => $metric,
+                'metric_legend' => $metric,
+                'legend' => $metric,
+                'ds_data' => [
+                    'ds_filled' => 0,
+                    'ds_color_line' => $this->colors[$metric]
+                ]
+            ];
 
             $i++;
         }
@@ -326,7 +335,7 @@ class centreonGraphPoller
             $rrdData = json_decode($str, true);
         }
 
-        $this->formatByMetrics($rrdData);
+        $this->formatByMetrics($rrdData ?? []);
 
         return $this->graphData;
     }
@@ -334,15 +343,15 @@ class centreonGraphPoller
     /**
      * Parse rrdtool result
      *
-     * @param mixed $rrdData
+     * @param array $rrdData
      *
      * @return void
      */
-    private function formatByMetrics($rrdData): void
+    private function formatByMetrics(array $rrdData): void
     {
         $this->graphData['times'] = [];
-        $size = count($rrdData['data']);
-        $gprintsSize = count($rrdData['meta']['gprints']);
+        $size = count($rrdData['data'] ?? []);
+        $gprintsSize = count($rrdData['meta']['gprints'] ?? []);
 
         for ($i = 0; $i < $size; $i++) {
             $this->graphData['times'][] = $rrdData['data'][$i][0];
