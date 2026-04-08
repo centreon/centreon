@@ -25,7 +25,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: `${INTERCEPTORS.api.administartion_tokens}?*`
+    url: `${INTERCEPTORS.api.administration_tokens}?*`
   }).as('getTokens');
 });
 

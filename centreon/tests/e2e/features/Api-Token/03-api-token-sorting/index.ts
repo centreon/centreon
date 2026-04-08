@@ -12,7 +12,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: `${INTERCEPTORS.api.administartion_tokens}?*desc*`
+    url: `${INTERCEPTORS.api.administration_tokens}?*desc*`
   }).as('getDescendingOrderedTokens');
 
   cy.fixture('api-token/users.json').then((users: Record<string, Contact>) => {

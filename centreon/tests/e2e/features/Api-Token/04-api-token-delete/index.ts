@@ -15,7 +15,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: `${INTERCEPTORS.api.administartion_tokens}?*`
+    url: `${INTERCEPTORS.api.administration_tokens}?*`
   }).as('getTokens');
 
   cy.fixture('api-token/users.json').then((users: Record<string, Contact>) => {

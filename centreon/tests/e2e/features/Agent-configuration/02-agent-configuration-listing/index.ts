@@ -42,11 +42,11 @@ beforeEach(() => {
   }).as('getAgentsDetails');
   cy.intercept({
     method: 'GET',
-    url: `${INTERCEPTORS.api.administartion_tokens}?*`
+    url: `${INTERCEPTORS.api.administration_tokens}?*`
   }).as('getTokens');
   cy.intercept({
     method: 'POST',
-    url: INTERCEPTORS.api.administartion_tokens
+    url: INTERCEPTORS.api.administration_tokens
   }).as('addToken');
 });
 

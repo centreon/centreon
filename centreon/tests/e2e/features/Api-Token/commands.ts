@@ -5,7 +5,7 @@ Cypress.Commands.add('visitApiTokens', () => {
   cy.intercept({
     method: 'GET',
     times: 1,
-    url: `${INTERCEPTORS.api.administartion_tokens}?*`
+    url: `${INTERCEPTORS.api.administration_tokens}?*`
   }).as('getTokens');
 
   cy.visit(PAGES.configuration.authenticationTokens);

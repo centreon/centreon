@@ -8,7 +8,7 @@ export const INTERCEPTORS = {
     '/centreon/api/latest/configuration/additional-connector-configurations',
     centreon_keepalive: 'centreon/api/internal.php?object=centreon_keepalive',
     agent_configurations: '/centreon/api/latest/configuration/agent-configurations',
-    administartion_tokens: '/centreon/api/latest/administration/tokens',
+    administration_tokens: '/centreon/api/latest/administration/tokens',
     monitoring_servers: '/centreon/api/latest/configuration/monitoring-servers',
     users_configuration: '/centreon/api/latest/configuration/users',
     events_view_users: '/centreon/api/latest/users/filters/events-view',
