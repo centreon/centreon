@@ -1549,7 +1549,7 @@
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "e63acf038946c813acadfab8050bf3eb1dd43df0"
+                "reference": "0ae68e0b6b02db680546b13c6350cd36cbaa84a7"
             },
             "require": {
                 "amphp/http-client": "4.6.*",
@@ -1644,7 +1644,7 @@
             "require-dev": {
                 "behat/mink-selenium2-driver": "1.6.*",
                 "centreon/centreon-test-lib": "dev-master",
-                "dama/doctrine-test-bundle": "8.2.*",
+                "dama/doctrine-test-bundle": "8.3.*",
                 "friends-of-behat/mink": "1.11.*",
                 "friends-of-behat/mink-extension": "2.7.*",
                 "mockery/mockery": "1.6.*",
