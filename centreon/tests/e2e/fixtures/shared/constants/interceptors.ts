@@ -6,7 +6,7 @@ export const INTERCEPTORS = {
     '/centreon/api/internal.php?object=centreon_topcounter',
     connector_configurations:
     '/centreon/api/latest/configuration/additional-connector-configurations',
-    centreon_keepalive: 'centreon/api/internal.php?object=centreon_keepalive',
+    centreon_keepalive: '/centreon/api/internal.php?object=centreon_keepalive',
     agent_configurations: '/centreon/api/latest/configuration/agent-configurations',
     administration_tokens: '/centreon/api/latest/administration/tokens',
     monitoring_servers: '/centreon/api/latest/configuration/monitoring-servers',
@@ -61,12 +61,11 @@ export const INTERCEPTORS = {
     step5_upgrade: '/centreon/install/step_upgrade/step5.php',
     generation_cache: '/centreon/install/steps/process/generationCache.php',
     centreon_configuration_timezone: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_timezone',
-    centreon_performance_service: '/centreon/include/common/webServices/rest/internal.php?object=centreon_performance_servic',
-    centreon_configuration_meta: '/entreon/include/common/webServices/rest/internal.php?object=centreon_configuration_meta',
+    centreon_performance_service: '/centreon/include/common/webServices/rest/internal.php?object=centreon_performance_service',
+    centreon_configuration_meta: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_meta',
     centreon_configuration_trap: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_trap'
-
   },
-  static:{
+  static: {
     pendo: 'https://guide.centreon.com/agent/static/b06b875d-4a10-4365-7edf-8efeaf53dfdd/pendo.js'
   }
 };
