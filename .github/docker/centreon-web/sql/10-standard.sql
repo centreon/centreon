@@ -338,9 +338,5 @@ UPDATE cfg_centreonbroker_info SET config_value = '1' WHERE config_key = 'read_t
 UPDATE cfg_centreonbroker_info SET config_value = '1' WHERE config_key = 'queries_per_transaction';
 UPDATE cfg_centreonbroker_info SET config_value = '5' WHERE config_key = 'retry_interval';
 
--- Note: options data is now provided by insertBaseConf.sql
-
 -- Enable authentication debug
 UPDATE `options` SET `value` = '1' WHERE `key` = 'debug_auth';
-
--- Note: provider_configuration data is now provided by insertBaseConf.sql
