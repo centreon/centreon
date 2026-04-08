@@ -25,6 +25,7 @@ namespace Tests\Core\Service\Application\UseCase\AddService;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\PerformanceGraph\Application\Repository\ReadPerformanceGraphRepositoryInterface;
 use Core\Service\Application\Exception\ServiceException;
@@ -52,6 +53,7 @@ beforeEach(function (): void {
         $this->readServiceCategoryRepository = $this->createMock(ReadServiceCategoryRepositoryInterface::class),
         $this->readServiceGroupRepository = $this->createMock(ReadServiceGroupRepositoryInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
+        $this->adminResolver = $this->createMock(AdminResolver::class),
     );
 });
 
@@ -150,6 +152,10 @@ it('throws an exception when notification time period ID does not exist', functi
 );
 
 it('throws an exception when severity ID does not exist', function (): void {
+    $this->adminResolver
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
     $this->serviceSeverityRepository
         ->expects($this->once())
         ->method('exists')
@@ -174,7 +180,7 @@ it('throws an exception when performance graph ID does not exist', function (): 
 );
 
 it('throws an exception when host ID does not exist', function (): void {
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -190,7 +196,7 @@ it('throws an exception when host ID does not exist', function (): void {
 );
 
 it('throws an exception when category ID does not exist with admin user', function (): void {
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -206,7 +212,7 @@ it('throws an exception when category ID does not exist with admin user', functi
 );
 
 it('throws an exception when category ID does not exist with non-admin user', function (): void {
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
@@ -222,7 +228,7 @@ it('throws an exception when category ID does not exist with non-admin user', fu
 );
 
 it('throws an exception when group ID does not exist with admin user', function (): void {
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -238,7 +244,7 @@ it('throws an exception when group ID does not exist with admin user', function 
 );
 
 it('throws an exception when group ID does not exist with non-admin user', function (): void {
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);

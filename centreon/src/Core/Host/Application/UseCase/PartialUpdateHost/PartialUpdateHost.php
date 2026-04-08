@@ -73,6 +73,8 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
+use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Utility\Difference\BasicDifference;
 
 final class PartialUpdateHost
@@ -87,6 +89,7 @@ final class PartialUpdateHost
     public function __construct(
         private readonly WriteHostRepositoryInterface $writeHostRepository,
         private readonly ReadHostRepositoryInterface $readHostRepository,
+        private readonly InheritanceManager $inheritanceManager,
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
         private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
@@ -105,6 +108,8 @@ final class PartialUpdateHost
         private readonly ReadCommandRepositoryInterface $readCommandRepository,
         private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
         private readonly AdminResolver $adminResolver,
+        private readonly ReadServiceTemplateRepositoryInterface $readServiceTemplateRepository,
+        private readonly WriteServiceRepositoryInterface $writeServiceRepository,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
     }
@@ -559,6 +564,18 @@ final class PartialUpdateHost
         $parentTemplateIds = array_unique($dto->templates);
         $this->validation->assertAreValidTemplates($parentTemplateIds, $host->getId());
 
+        // Read current DIRECT parent templates BEFORE deleting them, to compute which were removed.
+        // findParents() returns the full inheritance chain, so we filter to direct parents only
+        // (rows where child_id matches the host) to avoid false positives with indirect ancestors.
+        $currentParents = $this->readHostRepository->findParents($host->getId());
+        $currentDirectParentIds = [];
+        foreach ($currentParents as $parent) {
+            if ((int) $parent['child_id'] === $host->getId()) {
+                $currentDirectParentIds[] = (int) $parent['parent_id'];
+            }
+        }
+        $currentDirectParentIds = array_values(array_unique($currentDirectParentIds));
+
         $this->info('Remove parent templates from a host', ['host_id' => $host->getId()]);
         $this->writeHostRepository->deleteParents($host->getId());
 
@@ -568,6 +585,105 @@ final class PartialUpdateHost
             ]);
             $this->writeHostRepository->addParent($host->getId(), $templateId, $order);
         }
+
+        $this->cleanServicesFromRemovedTemplates($host->getId(), $currentDirectParentIds, $parentTemplateIds);
+    }
+
+    /**
+     * Clean up services from templates that were removed from a host.
+     *
+     * @param int $hostId
+     * @param int[] $previousDirectParentIds Direct parent template IDs before the update
+     * @param int[] $newDirectParentIds Direct parent template IDs after the update
+     */
+    private function cleanServicesFromRemovedTemplates(
+        int $hostId,
+        array $previousDirectParentIds,
+        array $newDirectParentIds,
+    ): void {
+        $removedTemplateIds = array_values(array_diff($previousDirectParentIds, $newDirectParentIds));
+        if ($removedTemplateIds === []) {
+            return;
+        }
+
+        $this->info('Clean up services from removed templates', [
+            'host_id' => $hostId,
+            'removed_template_ids' => $removedTemplateIds,
+        ]);
+
+        // Expand remaining templates to include their full inheritance chains
+        $allRemainingIds = $this->expandTemplateChain($newDirectParentIds);
+
+        // Process each removed template and its inheritance chain
+        $visited = [];
+        foreach ($removedTemplateIds as $removedTemplateId) {
+            $this->deleteServicesFromTemplate($hostId, $removedTemplateId, $allRemainingIds, $visited);
+        }
+    }
+
+    /**
+     * Recursively process a template and its parents to delete services
+     * that are no longer provided by any remaining template.
+     *
+     * @param int $hostId
+     * @param int $templateId
+     * @param int[] $allRemainingIds Expanded remaining template IDs
+     * @param array<int, bool> $visited Anti-loop tracker
+     */
+    private function deleteServicesFromTemplate(
+        int $hostId,
+        int $templateId,
+        array $allRemainingIds,
+        array &$visited,
+    ): void {
+        if (isset($visited[$templateId])) {
+            return;
+        }
+        $visited[$templateId] = true;
+
+        // Find service templates linked to this host template
+        $serviceTemplateIds = $this->readServiceTemplateRepository->findIdsByHostTemplateId($templateId);
+
+        foreach ($serviceTemplateIds as $serviceTemplateId) {
+            // Only delete if this service template is not provided by any remaining template
+            if (! $this->readServiceTemplateRepository->isLinkedToAnyHostTemplate($serviceTemplateId, $allRemainingIds)) {
+                $this->writeServiceRepository->deleteByHostIdAndServiceTemplateId($hostId, $serviceTemplateId);
+            }
+        }
+
+        // Recursively process this template's own parent templates
+        $parentChain = $this->readHostRepository->findParents($templateId);
+        $directParentIds = [];
+        foreach ($parentChain as $row) {
+            if ((int) $row['child_id'] === $templateId) {
+                $directParentIds[] = (int) $row['parent_id'];
+            }
+        }
+
+        foreach ($directParentIds as $parentId) {
+            $this->deleteServicesFromTemplate($hostId, $parentId, $allRemainingIds, $visited);
+        }
+    }
+
+    /**
+     * Expand a list of template IDs to include their full inheritance chains.
+     *
+     * @param int[] $templateIds
+     *
+     * @return int[]
+     */
+    private function expandTemplateChain(array $templateIds): array
+    {
+        $allIds = [];
+        foreach ($templateIds as $templateId) {
+            $allIds[] = $templateId;
+            $parentChain = $this->readHostRepository->findParents($templateId);
+            foreach ($parentChain as $row) {
+                $allIds[] = (int) $row['parent_id'];
+            }
+        }
+
+        return array_values(array_unique($allIds));
     }
 
     /**
@@ -660,9 +776,11 @@ final class PartialUpdateHost
 
         /** @var array<string,CommandMacro> $commandMacros */
         $commandMacros = [];
-        if ($host->getCheckCommandId() !== null) {
+        $effectiveCommandId = $host->getCheckCommandId()
+            ?? $this->inheritanceManager->findInheritedCheckCommandId($inheritanceLine);
+        if ($effectiveCommandId !== null) {
             $existingCommandMacros = $this->readCommandMacroRepository->findByCommandIdAndType(
-                $host->getCheckCommandId(),
+                $effectiveCommandId,
                 CommandMacroType::Host
             );
 
