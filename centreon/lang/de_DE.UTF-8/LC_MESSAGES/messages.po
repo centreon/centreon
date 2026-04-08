@@ -9272,11 +9272,6 @@ msgstr ""
 msgid "Invalid Image Format."
 msgstr "Ungültiges Bildformat."
 
-#: centreon/www/include/options/media/images/formDirectory.php
-#: centreon/www/include/options/media/images/formImg.php
-msgid "Invalid directory name. Only alphanumeric characters, hyphens and underscores are allowed."
-msgstr ""
-
 #: centreon/www/include/Administration/parameters/ldap/form.php
 msgid "Invalid LDAP Host parameters"
 msgstr "Ungültige LDAP-Hostparameter"
@@ -9304,6 +9299,13 @@ msgstr ""
 
 #: centreon/src/Core/Domain/Exception/InvalidGeoCoordException.php
 msgid "Invalid coordinates values specified"
+msgstr ""
+
+#: centreon/www/include/options/media/images/formDirectory.php
+#: centreon/www/include/options/media/images/formImg.php
+msgid ""
+"Invalid directory name. Only alphanumeric characters, hyphens and "
+"underscores are allowed."
 msgstr ""
 
 #: centreon/src/Core/Domain/Configuration/Notification/Exception/NotificationException.php
