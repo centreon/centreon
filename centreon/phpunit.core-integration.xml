@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
-         bootstrap="tests/php/Core/Integration/bootstrap.php"
+         bootstrap="tests/php/integration-bootstrap.php"
          cacheResultFile=".phpunit.core-integration.cache/test-results"
          executionOrder="depends,defects"
          beStrictAboutOutputDuringTests="true"
@@ -21,6 +21,11 @@
         <server name="KERNEL_CLASS" value="App\Kernel" />
         <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[self]=0&amp;quiet[]=indirect&amp;quiet[]=other" />
         <server name="SHELL_VERBOSITY" value="-1" />
+        <const name="_CENTREON_LOG_" value="/tmp/centreon-test-logs/" />
+        <const name="_CENTREON_CACHEDIR_" value="/tmp/centreon-test-cache/" />
+        <const name="_CENTREON_VARLIB_" value="/tmp/centreon-test-varlib/" />
+        <const name="_CENTREON_PHP_VERSION_" value="8.2" />
+        <const name="_CENTREON_MARIA_DB_MIN_VERSION_" value="10.5" />
     </php>
 
     <!-- No DAMA extension: DatabaseConnection extends PDO and cannot be wrapped by DAMA.

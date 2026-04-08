@@ -31,6 +31,34 @@ final class ListCommandsProviderTest extends ApiTestCase
 {
     private const BASE_ENDPOINT = '/api/latest/configuration/commands';
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+
+        $commands = [
+            ['command_id' => 1, 'command_name' => 'check_host_alive', 'command_line' => '$USER1$/check_icmp -H $HOSTADDRESS$', 'command_type' => 2],
+            ['command_id' => 2, 'command_name' => 'check_centreon_ping', 'command_line' => '$USER1$/check_centreon_ping -H $HOSTADDRESS$', 'command_type' => 2],
+            ['command_id' => 3, 'command_name' => 'check_centreon_cpu', 'command_line' => '$USER1$/check_centreon_cpu', 'command_type' => 2],
+            ['command_id' => 4, 'command_name' => 'check_centreon_memory', 'command_line' => '$USER1$/check_centreon_memory', 'command_type' => 2],
+            ['command_id' => 5, 'command_name' => 'host-notify-by-email', 'command_line' => '/usr/bin/mail -s "Host $HOSTNAME$"', 'command_type' => 1],
+            ['command_id' => 6, 'command_name' => 'host-notify-by-sms', 'command_line' => '/usr/bin/sms "$HOSTNAME$"', 'command_type' => 1],
+            ['command_id' => 7, 'command_name' => 'host-notify-by-slack', 'command_line' => '/usr/bin/slack "$HOSTNAME$"', 'command_type' => 1],
+            ['command_id' => 8, 'command_name' => 'service-notify-by-email', 'command_line' => '/usr/bin/mail -s "Service $SERVICEDESC$"', 'command_type' => 1],
+            ['command_id' => 9, 'command_name' => 'submit-service-check-result', 'command_line' => '/usr/bin/submit_result', 'command_type' => 3],
+        ];
+
+        foreach ($commands as $cmd) {
+            $connection->insert('command', array_merge($cmd, [
+                'enable_shell' => '0',
+                'command_activate' => '1',
+                'command_locked' => '0',
+            ]));
+        }
+    }
+
     public function testItFindCommands(): void
     {
         $this->login();
@@ -47,7 +75,7 @@ final class ListCommandsProviderTest extends ApiTestCase
         );
         self::assertJsonContains(
             [
-                'totalItems' => 52,
+                'totalItems' => 9,
             ]
         );
     }
@@ -58,7 +86,7 @@ final class ListCommandsProviderTest extends ApiTestCase
 
         $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => ['check', 'ping']]]]);
         self::assertResponseIsSuccessful();
-        $this->assertCount(30, (array) $response->toArray()['member']);
+        $this->assertCount(5, (array) $response->toArray()['member']);
         self::assertJsonContains(
             [
                 'member' => [
@@ -100,7 +128,7 @@ final class ListCommandsProviderTest extends ApiTestCase
         $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['type' => 'Check']]);
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
-        $this->assertCount(30, (array) $response->toArray()['member']);
+        $this->assertCount(4, (array) $response->toArray()['member']);
         self::assertJsonContains(
             [
                 'member' => [
@@ -117,7 +145,7 @@ final class ListCommandsProviderTest extends ApiTestCase
         $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['type' => ['Check', 'Notification']]]);
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
-        $this->assertCount(30, (array) $response->toArray()['member']);
+        $this->assertCount(8, (array) $response->toArray()['member']);
     }
 
     public function testItFindAllCommandsWithStatusFilterActivated(): void
@@ -127,7 +155,7 @@ final class ListCommandsProviderTest extends ApiTestCase
         $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['status' => 1]]);
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
-        $this->assertCount(30, (array) $response->toArray()['member']);
+        $this->assertCount(9, (array) $response->toArray()['member']);
         self::assertJsonContains(
             [
                 'member' => [
@@ -154,7 +182,7 @@ final class ListCommandsProviderTest extends ApiTestCase
         $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['status' => 0]]);
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
-        $this->assertCount(30, (array) $response->toArray()['member']);
+        $this->assertCount(9, (array) $response->toArray()['member']);
         self::assertJsonContains(
             [
                 'member' => [
@@ -171,8 +199,8 @@ final class ListCommandsProviderTest extends ApiTestCase
         $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['page' => '2', 'itemsPerPage' => '5']]);
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
-        $this->assertCount(5, (array) $response->toArray()['member']);
-        $this->assertEquals(52, $response->toArray()['totalItems']);
+        $this->assertCount(4, (array) $response->toArray()['member']);
+        $this->assertEquals(9, $response->toArray()['totalItems']);
     }
 
     public function testItFindAllCommandsWithPaginationAndFilters(): void
@@ -202,7 +230,7 @@ final class ListCommandsProviderTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         /** @var array<int, array{name: string}> $members */
         $members = (array) $response->toArray()['member'];
-        $this->assertCount(30, $members);
+        $this->assertCount(9, $members);
         $this->assertEquals('check_centreon_cpu', $members[0]['name']);
     }
 
@@ -218,7 +246,7 @@ final class ListCommandsProviderTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         /** @var array<int, array{name: string}> $members */
         $members = (array) $response->toArray()['member'];
-        $this->assertCount(30, $members);
+        $this->assertCount(9, $members);
         $this->assertEquals('submit-service-check-result', $members[0]['name']);
     }
 
@@ -234,7 +262,7 @@ final class ListCommandsProviderTest extends ApiTestCase
             ]
         );
         self::assertResponseIsSuccessful();
-        $this->assertCount(30, (array) $response->toArray()['member']);
+        $this->assertCount(5, (array) $response->toArray()['member']);
     }
 
     public function testItFindCommandsWithCombinedFilters(): void

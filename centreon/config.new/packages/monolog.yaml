@@ -48,7 +48,7 @@ when@test:
                 date_format: !php/const DateTimeInterface::RFC3339
             nested:
                 type: stream
-                path: "%kernel.logs_dir%/%kernel.environment%.log"
+                path: php://stderr
                 level: debug
                 formatter: monolog.formatter.line
                 date_format: !php/const DateTimeInterface::RFC3339

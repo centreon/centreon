@@ -205,7 +205,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
     private function createPollers(array $rows, ?array $globalMacroRowsByPollerId = null): Collection
     {
         // fetch all global macros of given pollers
-        if ($globalMacroRowsByPollerId !== null) {
+        if ($globalMacroRowsByPollerId !== null && $rows !== []) {
             $globalMacroQb = $this->connection->createQueryBuilder();
             $globalMacroQb->select('p.id AS poller_id', ...DbalGlobalMacroRepository::getSelectColumns())
                 ->from(self::TABLE_NAME, 'p')

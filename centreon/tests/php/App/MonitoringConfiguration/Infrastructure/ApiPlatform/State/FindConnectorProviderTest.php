@@ -23,10 +23,22 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
+use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
 
 final class FindConnectorProviderTest extends ApiTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->executeStatement(
+            "UPDATE connector SET command_line = 'centreon_connector_perl --log-file=/var/log/centreon-engine/connector-perl.log' WHERE id = 1"
+        );
+    }
+
     public function testGetConnector(): void
     {
         $this->login();
