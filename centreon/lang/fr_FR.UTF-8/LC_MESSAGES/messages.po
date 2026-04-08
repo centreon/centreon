@@ -9392,8 +9392,12 @@ msgid "Legend Name"
 msgstr "Légende"
 
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
-msgid "Legend is disabled for the default template because it cannot be displayed in the graph. Metric name will be displayed by default."
-msgstr "La légende est désactivée pour le modèle par défaut car elle ne peut pas s'afficher dans le graphique. Le nom de la métrique s'affichera par défaut."
+msgid ""
+"Legend is disabled for the default template because it cannot be displayed "
+"in the graph. Metric name will be displayed by default."
+msgstr ""
+"La légende est désactivée pour le modèle par défaut car elle ne peut pas "
+"s'afficher dans le graphique. Le nom de la métrique s'affichera par défaut."
 
 #: centreon/www/install/front_translate.php
 msgid "Less"
