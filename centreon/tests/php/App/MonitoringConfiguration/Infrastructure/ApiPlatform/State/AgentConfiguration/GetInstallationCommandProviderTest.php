@@ -148,6 +148,11 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
             'port' => $port,
             'agent_initiated' => true,
             'poller_initiated' => false,
+            'otel_public_certificate' => null,
+            'otel_private_key' => null,
+            'otel_ca_certificate' => null,
+            'tokens' => [],
+            'hosts' => [],
         ];
     }
 
