@@ -28,7 +28,6 @@ import HeatMapSkeleton from './LoadingSkeleton';
 import {
   IndicatorType,
   type ResourceData,
-  type ResourceStatus,
   type ResourceStatusListing,
   type StatusGridProps
 } from './models';
