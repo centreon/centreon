@@ -325,7 +325,7 @@ jobs:
     # needed to deliver sources
     runs-on: ubuntu-24.04
     container:
-      image: ghcr.io/centreon/delivery-tooling/translation:25.10
+      image: ghcr.io/centreon/delivery-tooling/translation:develop
       # image: ghcr.io/centreon/delivery-tooling/translation:${{ needs.get-environment.outputs.major_version }}
 
     steps:
@@ -737,16 +737,16 @@ jobs:
       matrix:
         include:
           - package_extension: rpm
-            image: packaging-alma9
+            image: alma9
             distrib: el9
           - package_extension: deb
-            image: packaging-debian
+            image: bookworm
             distrib: bookworm
 
     name: package ${{ matrix.distrib }}
     runs-on: ubuntu-24.04
     container:
-      image: ghcr.io/${{ github.repository }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
+      image: ghcr.io/${{ github.repository }}/packaging:develop-${{ matrix.image }}
 
     steps:
       - name: Checkout sources
