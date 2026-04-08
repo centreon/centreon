@@ -24,42 +24,35 @@ declare(strict_types=1);
 require dirname(__DIR__, 2) . '/vendor/autoload.php';
 require dirname(__DIR__, 2) . '/config/bootstrap.php';
 
-use Doctrine\DBAL\DriverManager;
-
 $projectDir = dirname(__DIR__, 2);
 
-$centreonConnection = DriverManager::getConnection([
-    'driver' => 'pdo_mysql',
-    'host' => $_ENV['hostCentreon'],
-    'port' => (int) $_ENV['port'],
-    'user' => $_ENV['user'],
-    'password' => $_ENV['password'],
-    'dbname' => $_ENV['db'],
-]);
+$centreonPdo = new PDO(
+    sprintf('mysql:host=%s;port=%s;dbname=%s', $_ENV['hostCentreon'], $_ENV['port'], $_ENV['db']),
+    $_ENV['user'],
+    $_ENV['password'],
+    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+);
 
-$centstorageConnection = DriverManager::getConnection([
-    'driver' => 'pdo_mysql',
-    'host' => $_ENV['hostCentstorage'],
-    'port' => (int) $_ENV['port'],
-    'user' => $_ENV['user'],
-    'password' => $_ENV['password'],
-    'dbname' => $_ENV['dbcstg'],
-]);
+$censtoragePdo = new PDO(
+    sprintf('mysql:host=%s;port=%s;dbname=%s', $_ENV['hostCentstorage'], $_ENV['port'], $_ENV['dbcstg']),
+    $_ENV['user'],
+    $_ENV['password'],
+    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+);
 
-$centreonTables = $centreonConnection->executeQuery('SHOW TABLES')->fetchFirstColumn();
+$centreonTables = $centreonPdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN);
 if ($centreonTables === []) {
-    $centreonConnection->executeStatement(file_get_contents($projectDir . '/www/install/createTables.sql'));
-    $centreonConnection->executeStatement('SET FOREIGN_KEY_CHECKS=0');
-    $centreonConnection->executeStatement(file_get_contents($projectDir . '/www/install/insertBaseConf.sql'));
-    $centreonConnection->executeStatement(file_get_contents($projectDir . '/www/install/insertTopology.sql'));
-    $centreonConnection->executeStatement('SET FOREIGN_KEY_CHECKS=1');
+    $centreonPdo->exec(file_get_contents($projectDir . '/www/install/createTables.sql'));
+    $centreonPdo->exec('SET FOREIGN_KEY_CHECKS=0');
+    $centreonPdo->exec(file_get_contents($projectDir . '/www/install/insertBaseConf.sql'));
+    $centreonPdo->exec(file_get_contents($projectDir . '/www/install/insertTopology.sql'));
+    $centreonPdo->exec('SET FOREIGN_KEY_CHECKS=1');
 }
 
-$censtorageTables = $centstorageConnection->executeQuery('SHOW TABLES')->fetchFirstColumn();
+$censtorageTables = $censtoragePdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN);
 if ($censtorageTables === []) {
-    $centstorageConnection->executeStatement(file_get_contents($projectDir . '/www/install/createTablesCentstorage.sql'));
-    $centstorageConnection->executeStatement(file_get_contents($projectDir . '/www/install/installBroker.sql'));
+    $censtoragePdo->exec(file_get_contents($projectDir . '/www/install/createTablesCentstorage.sql'));
+    $censtoragePdo->exec(file_get_contents($projectDir . '/www/install/installBroker.sql'));
 }
 
-$centreonConnection->close();
-$centstorageConnection->close();
+unset($centreonPdo, $censtoragePdo);
