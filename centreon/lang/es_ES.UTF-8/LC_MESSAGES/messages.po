@@ -10595,6 +10595,11 @@ msgstr ""
 msgid "Invalid Image Format."
 msgstr ""
 
+#: centreon/www/include/options/media/images/formDirectory.php
+#: centreon/www/include/options/media/images/formImg.php
+msgid "Invalid directory name. Only alphanumeric characters, hyphens and underscores are allowed."
+msgstr ""
+
 #: centreon/www/include/Administration/parameters/ldap/form.php
 msgid "Invalid LDAP Host parameters"
 msgstr "Configuración de servidor LDAP no válida"
