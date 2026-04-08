@@ -34,6 +34,7 @@ use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInt
 use Core\ServiceSeverity\Application\Repository\WriteServiceSeverityRepositoryInterface;
 use Core\ServiceSeverity\Domain\Model\NewServiceSeverity;
 use Core\ServiceSeverity\Domain\Model\ServiceSeverity;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB implements WriteServiceSeverityRepositoryInterface
 {
@@ -50,7 +51,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
         private readonly WriteServiceSeverityRepositoryInterface $writeServiceSeverityRepository,
         private readonly ReadServiceSeverityRepositoryInterface $readServiceSeverityRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
-        private readonly ContactInterface $contact,
+        private readonly TokenStorageInterface $tokenStorage,
         DatabaseConnection $db,
     ) {
         $this->db = $db;
@@ -75,7 +76,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
                 $serviceSeverity->getId(),
                 $serviceSeverity->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
-                $this->contact->getId()
+                $this->getContactId()
             );
 
             $this->writeActionLogRepository->addAction($actionLog);
@@ -101,7 +102,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
                 $serviceSeverityId,
                 $serviceSeverity->getName(),
                 ActionLog::ACTION_TYPE_ADD,
-                $this->contact->getId()
+                $this->getContactId()
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -145,7 +146,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
                         $serviceSeverity->getId(),
                         $serviceSeverity->getName(),
                         (bool) $diff['sc_activate'] ? ActionLog::ACTION_TYPE_ENABLE : ActionLog::ACTION_TYPE_DISABLE,
-                        $this->contact->getId()
+                        $this->getContactId()
                     );
 
                     $this->writeActionLogRepository->addAction($actionLog);
@@ -158,7 +159,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
                     $serviceSeverity->getId(),
                     $serviceSeverity->getName(),
                     (bool) $diff['sc_activate'] ? ActionLog::ACTION_TYPE_ENABLE : ActionLog::ACTION_TYPE_DISABLE,
-                    $this->contact->getId()
+                    $this->getContactId()
                 );
 
                 $this->writeActionLogRepository->addAction($actionLog);
@@ -169,7 +170,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
                     $serviceSeverity->getId(),
                     $serviceSeverity->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,
-                    $this->contact->getId()
+                    $this->getContactId()
                 );
 
                 $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -185,7 +186,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
                 $serviceSeverity->getId(),
                 $serviceSeverity->getName(),
                 ActionLog::ACTION_TYPE_CHANGE,
-                $this->contact->getId()
+                $this->getContactId()
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -200,6 +201,13 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
 
             throw $ex;
         }
+    }
+
+    private function getContactId(): ?int
+    {
+        $user = $this->tokenStorage->getToken()?->getUser();
+
+        return $user instanceof ContactInterface ? $user->getId() : null;
     }
 
     /**
