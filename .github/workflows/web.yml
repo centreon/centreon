@@ -611,7 +611,7 @@ jobs:
           mysql -h 127.0.0.1 -u root -e "CREATE DATABASE \`centreon_storage\`"
           mysql -h 127.0.0.1 -u root -e "GRANT ALL PRIVILEGES ON centreon.* TO 'centreon'@'%'"
           mysql -h 127.0.0.1 -u root -e "GRANT ALL PRIVILEGES ON  \`centreon_storage\`.* TO 'centreon'@'%'"
-      
+
       - name: Run App integration tests
         run: composer run test:new
         working-directory: centreon
