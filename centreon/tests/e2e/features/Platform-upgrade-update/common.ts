@@ -469,8 +469,6 @@ const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
         }
         Cypress.env('upgrade_target_minor_version', targetMinor);
 
-        Cypress.env('upgrade_target_minor_version', targetMinor);
-
         // If version-specific file does not exist => copy content from Update-next.php
         return cy
           .exec(`ls ../../www/install/php/Update-next.php || echo ""`)
