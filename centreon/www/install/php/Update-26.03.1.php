@@ -18,24 +18,3 @@
  * For more information : contact@centreon.com
  *
  */
-
-declare(strict_types=1);
-
-namespace Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration;
-
-use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
-
-final class UpdateAgentConfigurationRequest
-{
-    public int $id = 0;
-
-    public string $name = '';
-
-    public ConnectionModeEnum $connectionMode = ConnectionModeEnum::SECURE;
-
-    /** @var int[] */
-    public array $pollerIds = [];
-
-    /** @var array<string,mixed> */
-    public array $configuration = [];
-}

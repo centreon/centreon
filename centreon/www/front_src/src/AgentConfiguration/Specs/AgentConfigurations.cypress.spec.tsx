@@ -444,8 +444,7 @@ describe('Agent configurations modal', () => {
         },
         connection_mode: 'secure',
         name: 'agent updated',
-        poller_ids: [1, 2],
-        type: 'telegraf'
+        poller_ids: [1, 2]
       });
     });
 
@@ -475,12 +474,23 @@ describe('Agent configurations modal', () => {
         },
         connection_mode: 'secure',
         name: 'agent updated',
-        poller_ids: [1, 2],
-        type: 'telegraf'
+        poller_ids: [1, 2]
       });
     });
 
     cy.contains(labelAgentConfigurationUpdated).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('disables the agent type field when editing an existing configuration', () => {
+    initialize({});
+
+    cy.contains('AC 1').click();
+
+    cy.waitForRequest('@getAgentConfiguration');
+
+    cy.findByLabelText(labelAgentType).should('be.disabled');
 
     cy.makeSnapshot();
   });
@@ -980,8 +990,7 @@ describe('Agent configurations modal', () => {
         },
         connection_mode: 'insecure',
         name: 'Insecure Agent',
-        poller_ids: [1, 2],
-        type: 'telegraf'
+        poller_ids: [1, 2]
       });
     });
 
