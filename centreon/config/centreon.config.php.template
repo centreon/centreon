@@ -117,9 +117,7 @@ if (file_exists(_CENTREON_ETC_ . '/centreon.conf.php')) {
 
 
     if (
-        ! defined('user')
-        && ! defined('password')
-        && file_exists(_CENTREON_VARLIB_ . '/vault/vault.json')
+        file_exists(_CENTREON_VARLIB_ . '/vault/vault.json')
         && str_starts_with($conf_centreon['user'], 'secret::')
         && str_starts_with($conf_centreon['password'], 'secret::')
     ) {
