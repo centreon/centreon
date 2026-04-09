@@ -67,7 +67,12 @@ jobs:
         with:
           version: 10
       - name: Install Centreon dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          pnpm install \
+            --frozen-lockfile \
+            --config.trustPolicy=no-downgrade \
+            --config.minimumReleaseAge=2880 \
+            --config.blockExoticSubdeps=true
         working-directory: centreon
       - name: Unit test
         run: pnpm t
