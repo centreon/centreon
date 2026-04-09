@@ -81,61 +81,61 @@ $serviceClassLabel = [0 => 'success', 1 => 'warning', 2 => 'error', 3 => 'alert'
 $hostStateLabel = [0 => 'Up', 1 => 'Down', 2 => 'Unreachable'];
 $hostClassLabel = [0 => 'success', 1 => 'error', 2 => 'alert'];
 
-$sql = "SELECT name, description, s.state
-        FROM services s, hosts h %s
-        WHERE h.host_id = s.host_id
-        AND h.name NOT LIKE '\_Module\_%%'
-        AND (description NOT LIKE 'meta\_%%' AND description NOT LIKE 'ba\_%%')
-        AND s.last_hard_state_change > (UNIX_TIMESTAMP(NOW()) - " . (int) $refreshRate . ")
-        AND s.scheduled_downtime_depth=0
-        AND s.acknowledged=0
-        %s
-        UNION
-        SELECT 'Meta Service', s.display_name, s.state
-        FROM services s, hosts h %s
-        WHERE h.host_id = s.host_id
-        AND h.name LIKE '\_Module\_Meta%%'
-        AND description LIKE 'meta\_%%'
-        AND s.last_hard_state_change > (UNIX_TIMESTAMP(NOW()) - " . (int) $refreshRate . ")
-        AND s.scheduled_downtime_depth=0
-        AND s.acknowledged=0
-        %s
-        UNION
-        SELECT 'Business Activity', s.display_name, s.state
-        FROM services s, hosts h %s
-        WHERE h.host_id = s.host_id
-        AND h.name LIKE '\_Module\_BAM%%'
-        AND description LIKE 'ba\_%%'
-        AND s.last_hard_state_change > (UNIX_TIMESTAMP(NOW()) - " . (int) $refreshRate . ")
-        AND s.scheduled_downtime_depth=0
-        AND s.acknowledged=0
-        %s
-        UNION
-        SELECT name, NULL, h.state
-        FROM hosts h %s
-        WHERE name NOT LIKE '\_Module\_%%'
-        AND h.last_hard_state_change > (UNIX_TIMESTAMP(NOW()) - " . (int) $refreshRate . ')
-        AND h.scheduled_downtime_depth=0
-        AND h.acknowledged=0
-        %s';
+$accessGroupIds = implode(',', $obj->access->getAccessGroups()->getIds());
+
 if ($obj->is_admin) {
-    $sql = sprintf($sql, '', '', '', '', '', '', '', '');
+    $aclJoin = '';
+    $svcAclFilter = '';
+    $hostAclFilter = '';
+} elseif ($accessGroupIds !== '') {
+    $aclJoin = ', centreon_acl acl';
+    $svcAclFilter = 'AND acl.service_id = s.service_id AND acl.host_id = h.host_id AND acl.group_id IN (' . $accessGroupIds . ')';
+    $hostAclFilter = 'AND acl.host_id = h.host_id AND acl.group_id IN (' . $accessGroupIds . ')';
 } else {
-    $sql = sprintf(
-        $sql,
-        ', centreon_acl acl',
-        'AND acl.service_id = s.service_id AND acl.host_id = h.host_id '
-        . $obj->access->queryBuilder('AND', 'acl.group_id', $obj->grouplistStr),
-        ', centreon_acl acl',
-        'AND acl.service_id = s.service_id AND acl.host_id = h.host_id '
-        . $obj->access->queryBuilder('AND', 'acl.group_id', $obj->grouplistStr),
-        ', centreon_acl acl',
-        'AND acl.service_id = s.service_id AND acl.host_id = h.host_id '
-        . $obj->access->queryBuilder('AND', 'acl.group_id', $obj->grouplistStr),
-        ', centreon_acl acl',
-        'AND acl.host_id = h.host_id' . $obj->access->queryBuilder('AND', 'acl.group_id', $obj->grouplistStr)
-    );
+    $aclJoin = '';
+    $svcAclFilter = 'AND 1=0';
+    $hostAclFilter = 'AND 1=0';
 }
+
+$sql = <<<SQL
+    SELECT name, description, s.state
+    FROM services s, hosts h {$aclJoin}
+    WHERE h.host_id = s.host_id
+    AND h.name NOT LIKE '\_Module\_%'
+    AND (description NOT LIKE 'meta\_%' AND description NOT LIKE 'ba\_%')
+    AND s.last_hard_state_change > (UNIX_TIMESTAMP(NOW()) - {$refreshRate})
+    AND s.scheduled_downtime_depth=0
+    AND s.acknowledged=0
+    {$svcAclFilter}
+    UNION
+    SELECT 'Meta Service', s.display_name, s.state
+    FROM services s, hosts h {$aclJoin}
+    WHERE h.host_id = s.host_id
+    AND h.name LIKE '\_Module\_Meta%'
+    AND description LIKE 'meta\_%'
+    AND s.last_hard_state_change > (UNIX_TIMESTAMP(NOW()) - {$refreshRate})
+    AND s.scheduled_downtime_depth=0
+    AND s.acknowledged=0
+    {$svcAclFilter}
+    UNION
+    SELECT 'Business Activity', s.display_name, s.state
+    FROM services s, hosts h {$aclJoin}
+    WHERE h.host_id = s.host_id
+    AND h.name LIKE '\_Module\_BAM%'
+    AND description LIKE 'ba\_%'
+    AND s.last_hard_state_change > (UNIX_TIMESTAMP(NOW()) - {$refreshRate})
+    AND s.scheduled_downtime_depth=0
+    AND s.acknowledged=0
+    {$svcAclFilter}
+    UNION
+    SELECT name, NULL, h.state
+    FROM hosts h {$aclJoin}
+    WHERE name NOT LIKE '\_Module\_%'
+    AND h.last_hard_state_change > (UNIX_TIMESTAMP(NOW()) - {$refreshRate})
+    AND h.scheduled_downtime_depth=0
+    AND h.acknowledged=0
+    {$hostAclFilter}
+    SQL;
 $res = $obj->DBC->query($sql);
 $obj->XML->startElement('data');
 while ($row = $res->fetch()) {

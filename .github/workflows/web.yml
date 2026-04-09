@@ -450,7 +450,12 @@ jobs:
           cache-dependency-path: ${{ env.base_directory }}/pnpm-lock.yaml
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          pnpm install \
+            --frozen-lockfile \
+            --config.trustPolicy=no-downgrade \
+            --config.minimumReleaseAge=2880 \
+            --config.blockExoticSubdeps=true
         working-directory: centreon
         env:
           CYPRESS_INSTALL_BINARY: "0"
@@ -531,6 +536,90 @@ jobs:
         with:
           path: "centreon/build/phpunit.xml"
           format: "php-junit"
+
+  backend-integration-test:
+    runs-on: ubuntu-24.04
+    needs: [get-environment, changes]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      contains(needs.get-environment.outputs.labels, 'trigger-backend-integration-tests')
+    services:
+      db:
+        image: mysql:8.4
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -ppassword --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=12
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_USER: centreon
+          MYSQL_PASSWORD: password
+          MYSQL_ROOT_PASSWORD: password
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.36.0
+        with:
+          php-version: 8.2
+          coverage: none
+
+      - name: Create configuration files
+        run: |
+          cp config/centreon.config.php.template config/centreon.config.php
+          sed -i \
+            -e "s|'@CENTREON_ETC@'|realpath(__DIR__) . '/'|" \
+            -e "s|'@CENTREON_LOG@'|'/var/lib/centreon'|" \
+            -e "s|'@CENTREON_CACHEDIR@'|'/var/cache/centreon'|" \
+            -e "s|'@CENTREON_VARLIB@'|'/var/lib/centreon'|" \
+            config/centreon.config.php
+          cat config/centreon.config.php
+
+          cp www/install/var/configFileTemplate config/centreon.conf.php
+          sed -i \
+            -e "s|--ADDRESS--|127.0.0.1|" \
+            -e "s|--DBUSER--|centreon|" \
+            -e "s|--DBPASS--|password|" \
+            -e "s|--CONFDB--|centreon|" \
+            -e "s|--STORAGEDB--|centreon_storage|" \
+            -e "s|--DBPORT--|3306|" \
+            -e "s|--CENTREONDIR--|$(pwd)|" \
+            config/centreon.conf.php
+          cat config/centreon.conf.php
+        working-directory: centreon
+
+      - name: Ensure Symfony cache directories exist and are writable (legacy and new)
+        run: |
+          echo "Ensure Symfony cache directories exist"
+          sudo mkdir -p /var/cache/centreon/symfony{,.new}
+          echo "Set permissions on Symfony cache directories with user: '$USER'"
+          sudo chown -R $USER:$USER /var/cache/centreon/symfony{,.new}
+
+      - name: Install dependencies
+        uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+        with:
+          working-directory: centreon
+          composer-options: "--optimize-autoloader"
+
+      - name: Create databases
+        env:
+          MYSQL_PWD: password
+        run: |
+          mysql -h 127.0.0.1 -u root -e "CREATE DATABASE \`centreon\`"
+          mysql -h 127.0.0.1 -u root -e "CREATE DATABASE \`centreon_storage\`"
+          mysql -h 127.0.0.1 -u root -e "GRANT ALL PRIVILEGES ON centreon.* TO 'centreon'@'%'"
+          mysql -h 127.0.0.1 -u root -e "GRANT ALL PRIVILEGES ON  \`centreon_storage\`.* TO 'centreon'@'%'"
+
+      - name: Run App integration tests
+        run: composer run test:new
+        working-directory: centreon
+
+      - name: Run Core integration tests
+        run: composer run test:core
+        working-directory: centreon
 
   backend-lint:
     runs-on: ubuntu-24.04
@@ -715,6 +804,7 @@ jobs:
         backend-dependencies,
         backend-lint,
         backend-unit-test,
+        backend-integration-test,
         frontend-web-build,
         frontend-web-lint,
         frontend-unit-test,
