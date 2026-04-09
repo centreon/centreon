@@ -212,14 +212,19 @@ jobs:
               && !hasBackendTest && !hasFrontendTest
               && !hasApiTest && !hasE2eTest && !hasUpgradeTest;
 
+            // On PRs, skip everything for Weblate translation-only changes.
+            // On direct pushes to unstable/testing branches, still trigger packaging so
+            // translations are included in the build artifacts.
+            const isPR = context.eventName === 'pull_request';
+
             if (isWeblateTranslationOnly) {
-              core.info('weblate-service-account with translation-only changes — skipping all test triggers.');
+              core.info(`weblate-service-account with translation-only changes — skipping all test triggers${isPR ? ' (PR mode)' : ', but keeping packaging for branch push'}.`);
             }
 
             const outputs = {
               trigger_backend_testing:  !isWeblateTranslationOnly && (isNightly || hasBackendTest  || hasBackendProd),
               trigger_frontend_testing: !isWeblateTranslationOnly && (isNightly || hasFrontendTest || hasFrontendProd),
-              trigger_packaging:        isNightly || hasFrontendProd || hasBackendProd || hasApiTest || hasE2eTest || nonWeblateTranslation,
+              trigger_packaging:        isNightly || hasFrontendProd || hasBackendProd || hasApiTest || hasE2eTest || nonWeblateTranslation || (isWeblateTranslationOnly && !isPR),
               trigger_api_testing:      !isWeblateTranslationOnly && (isNightly || hasBackendProd  || hasApiTest || nonWeblateTranslation),
               trigger_e2e_testing:      !isWeblateTranslationOnly && (isNightly || hasFrontendProd || hasBackendProd || hasE2eTest || nonWeblateTranslation),
               trigger_upgrade_testing:  !isWeblateTranslationOnly && (isNightly || hasUpgradeTest),
