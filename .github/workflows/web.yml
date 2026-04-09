@@ -542,7 +542,7 @@ jobs:
     needs: [get-environment, changes]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable' &&
+      needs.get-environment.outputs.stability != 'stable'
     services:
       db:
         image: mysql:8.4
