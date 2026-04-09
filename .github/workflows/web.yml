@@ -80,7 +80,6 @@ jobs:
         "centreon/cron/**"
         "centreon/doc/API/**"
         "centreon/GPL_LIB/**"
-        "centreon/lang/**"
         "centreon/lib/**"
         "centreon/libinstall/**"
         "centreon/logrotate/**"
@@ -136,6 +135,8 @@ jobs:
         "centreon/www/install/**"
         "centreon/packaging/**"
         "centreon/tests/e2e/features/Platform-upgrade-update/**"
+      translation_paths: |
+        "centreon/lang/**"
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
       base_sha: ${{ needs.get-environment.outputs.previous_release_bundle_tag }}
       labels: ${{ needs.get-environment.outputs.labels }}
