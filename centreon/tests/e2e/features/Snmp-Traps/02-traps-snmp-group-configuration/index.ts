@@ -1,6 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'e2e/fixtures/shared/constants/pages';
+
 import data from '../../../fixtures/snmp-traps/snmp-trap.json';
 import { createOrUpdateTrapGroup } from '../common';
 
@@ -20,15 +21,15 @@ beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
-  }).as('getTimeZone');
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_trap&action=list*'
+    url: INTERCEPTORS.pages.time_zone
+  }).as('getTimeZone');
+  cy.intercept({
+    method: 'GET',
+    url: `${INTERCEPTORS.pages.centreon_configuration_trap}&action=list*`
   }).as('listTraps');
 });
 

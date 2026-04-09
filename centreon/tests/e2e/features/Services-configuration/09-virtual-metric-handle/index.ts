@@ -1,6 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'e2e/fixtures/shared/constants/pages';
+
 import vms from '../../../fixtures/services/virtual-metric.json';
 
 const checkFirstVmFromListing = () => {
@@ -23,15 +24,15 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-  }).as('getNavigationList');
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_metric&action=ListOfMetricsByService&*'
+    url: INTERCEPTORS.api.navigation_list
+  }).as('getNavigationList');
+  cy.intercept({
+    method: 'GET',
+    url: `${INTERCEPTORS.api.centreon_metric}&action=ListOfMetricsByService&*`
   }).as('getListOfMetricsByService');
 });
 
