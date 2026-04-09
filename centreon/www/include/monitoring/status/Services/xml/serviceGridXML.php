@@ -245,9 +245,15 @@ if (isset($tab_svc)) {
                 : $resourceController->buildListingUri([
                     'filter' => json_encode([
                         'criterias' => [
-                            'search' => 'h.name:^' . $host_name . '$',
+                            [
+                                'name' => 'search',
+                                'object_type' => null,
+                                'type' => 'text',
+                                'value' => 'h.name:^' . $host_name . '$',
+                            ],
                         ],
                     ]),
+                    'fromTopCounter' => 'true',
                 ])
         );
         $centreonXMLBGRequest->XML->writeElement(
