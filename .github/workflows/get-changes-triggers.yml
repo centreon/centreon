@@ -123,7 +123,7 @@ jobs:
         id: get_changed_files
         uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891 # v47.0.1
         with:
-          use_rest_api: true
+          use_rest_api: ${{ github.event_name == 'pull_request' }}
           base_sha: ${{ github.event_name == 'pull_request' && ' ' || inputs.base_sha }}
           files_yaml: |
             frontend_production:
@@ -219,7 +219,7 @@ jobs:
             const outputs = {
               trigger_backend_testing:  !isWeblateTranslationOnly && (isNightly || hasBackendTest  || hasBackendProd),
               trigger_frontend_testing: !isWeblateTranslationOnly && (isNightly || hasFrontendTest || hasFrontendProd),
-              trigger_packaging:        isNightly || hasFrontendProd || hasBackendProd || hasApiTest || hasE2eTest || nonWeblateTranslation || isWeblateTranslationOnly,
+              trigger_packaging:        isNightly || hasFrontendProd || hasBackendProd || hasApiTest || hasE2eTest || nonWeblateTranslation,
               trigger_api_testing:      !isWeblateTranslationOnly && (isNightly || hasBackendProd  || hasApiTest || nonWeblateTranslation),
               trigger_e2e_testing:      !isWeblateTranslationOnly && (isNightly || hasFrontendProd || hasBackendProd || hasE2eTest || nonWeblateTranslation),
               trigger_upgrade_testing:  !isWeblateTranslationOnly && (isNightly || hasUpgradeTest),
