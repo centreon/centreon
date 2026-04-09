@@ -228,7 +228,7 @@ jobs:
               trigger_api_testing:      !isWeblateTranslationOnly && (isNightly || hasBackendProd  || hasApiTest || nonWeblateTranslation),
               trigger_e2e_testing:      !isWeblateTranslationOnly && (isNightly || hasFrontendProd || hasBackendProd || hasE2eTest || nonWeblateTranslation),
               trigger_upgrade_testing:  !isWeblateTranslationOnly && (isNightly || hasUpgradeTest),
-              trigger_delivery:         isNightly || hasFrontendProd || hasBackendProd || nonWeblateTranslation || isWeblateTranslationOnly,
+              trigger_delivery:         isNightly || hasFrontendProd || hasBackendProd || nonWeblateTranslation || (isWeblateTranslationOnly && !isPR),
             };
 
             for (const [key, value] of Object.entries(outputs)) {
