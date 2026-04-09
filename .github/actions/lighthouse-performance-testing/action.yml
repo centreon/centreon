@@ -32,7 +32,12 @@ runs:
         run_install: false
 
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      run: |
+        pnpm install \
+          --frozen-lockfile \
+          --config.trustPolicy=no-downgrade \
+          --config.minimumReleaseAge=2880 \
+          --config.blockExoticSubdeps=true
       shell: bash
       working-directory: ${{ inputs.path }}
       env:
