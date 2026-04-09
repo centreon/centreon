@@ -64,11 +64,11 @@ const DescendantNodes = <TData extends BaseProp>({
       <Group key={key} left={left} top={top}>
         <foreignObject
           height={nodeSize.height}
+          overflow="visible"
           style={{ userSelect: 'none' }}
           width={nodeSize.width}
           x={-nodeSize.width / 2}
           y={-nodeSize.height / 2}
-          overflow="visible"
         >
           {children({
             ancestors: pluck('data', node.ancestors()),
