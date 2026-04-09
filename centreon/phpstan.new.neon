@@ -38,7 +38,7 @@ services:
               - ApiPlatform\Metadata\ApiResource
           classes:
               - ApiPlatform\State\ProcessorInterface
-              - App\ResourceConfiguration\Infrastructure\Legacy\LegacyServiceCategoryPermissionVoter
+              - App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceCategoryPermissionVoter
       tags: [phpstan.rules.rule]
 
 #    - class: Tools\PhpStan\CustomRules\MiscRules\MarkedClassesHaveTestRule
