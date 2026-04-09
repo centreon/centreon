@@ -65,6 +65,7 @@ final class AddHostTemplate
     public function __construct(
         private readonly WriteHostTemplateRepositoryInterface $writeHostTemplateRepository,
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
+        private readonly InheritanceManager $inheritanceManager,
         private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
         private readonly WriteHostCategoryRepositoryInterface $writeHostCategoryRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
@@ -357,9 +358,10 @@ final class AddHostTemplate
 
         /** @var array<string,CommandMacro> $commandMacros */
         $commandMacros = [];
-        if ($checkCommandId !== null) {
+        $effectiveCommandId = $checkCommandId ?? $this->inheritanceManager->findInheritedCheckCommandId($inheritanceLine);
+        if ($effectiveCommandId !== null) {
             $existingCommandMacros = $this->readCommandMacroRepository->findByCommandIdAndType(
-                $checkCommandId,
+                $effectiveCommandId,
                 CommandMacroType::Host
             );
 
