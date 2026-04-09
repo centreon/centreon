@@ -286,14 +286,20 @@ if ($maxHeight > 0 && ! $obj->checkcurve) {
         CentreonGraph::displayError();
     }
 
-    $imageSize = @getimagesizefromstring($imageData);
+    // Prevent PHP warnings from corrupting the binary image response (they still reach the error log).
+    ob_start();
+    $imageSize = getimagesizefromstring($imageData);
+    ob_end_clean();
     if ($imageSize === false) {
         CentreonGraph::displayError();
     }
 
     [$width, $height] = $imageSize;
     if ($height > $maxHeight) {
-        $image = @imagecreatefromstring($imageData);
+        // See comment above about ob_start().
+        ob_start();
+        $image = imagecreatefromstring($imageData);
+        ob_end_clean();
         if ($image === false) {
             CentreonGraph::displayError();
         }

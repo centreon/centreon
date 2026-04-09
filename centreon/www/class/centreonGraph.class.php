@@ -1169,7 +1169,11 @@ class CentreonGraph
         }
 
         $imageData = $this->getImageData();
-        if ($imageData !== null && @getimagesizefromstring($imageData) !== false) {
+        // Prevent PHP warnings from corrupting the binary image response (they still reach the error log).
+        ob_start();
+        $validImage = $imageData !== null && getimagesizefromstring($imageData) !== false;
+        ob_end_clean();
+        if ($validImage) {
             // Force no compress for image
             $this->setHeaders(false, mb_strlen($imageData, '8bit'));
             echo $imageData;
