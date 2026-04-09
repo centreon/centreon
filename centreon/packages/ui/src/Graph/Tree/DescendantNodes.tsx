@@ -68,6 +68,7 @@ const DescendantNodes = <TData extends BaseProp>({
           width={nodeSize.width}
           x={-nodeSize.width / 2}
           y={-nodeSize.height / 2}
+          overflow="visible"
         >
           {children({
             ancestors: pluck('data', node.ancestors()),
