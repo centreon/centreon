@@ -3,7 +3,7 @@ import { Box, capitalize } from '@mui/material';
 import { useAtom } from 'jotai';
 import { equals, isNil, map } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { agentTypeFormAtom } from '../atoms';
+import { agentTypeFormAtom, isEditingAtom } from '../atoms';
 import { AgentType, ConnectionMode } from '../models';
 import {
   labelAgent,
@@ -57,6 +57,7 @@ export const useInputs = (): {
   const { t } = useTranslation();
 
   const [agentTypeForm, setAgentTypeForm] = useAtom(agentTypeFormAtom);
+  const isEditing = useAtomValue(isEditingAtom);
 
   const titleAttributes = {
     classes: { root: classes.titleGroup },
@@ -102,6 +103,7 @@ export const useInputs = (): {
               type: InputType.SingleAutocomplete,
               fieldName: 'type',
               required: true,
+              getDisabled: () => isEditing,
               label: t(labelAgentType),
               autocomplete: {
                 options: agentTypes
