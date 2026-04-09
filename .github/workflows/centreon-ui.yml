@@ -1,4 +1,4 @@
-name: centreon-ui-tests
+name: centreon-ui
 
 on:
   pull_request:
