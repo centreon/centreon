@@ -26,6 +26,30 @@ require dirname(__DIR__, 2) . '/config/bootstrap.php';
 
 $projectDir = dirname(__DIR__, 2);
 
+$rootUser = $_ENV['rootUser'] ?? 'root';
+$rootPassword = $_ENV['rootPassword'] ?? $_ENV['password'];
+
+$rootPdo = new PDO(
+    sprintf('mysql:host=%s;port=%s', $_ENV['hostCentreon'], $_ENV['port']),
+    $rootUser,
+    $rootPassword,
+    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+);
+
+$rootPdo->exec(sprintf('CREATE DATABASE IF NOT EXISTS `%s`', $_ENV['db']));
+$rootPdo->exec(sprintf('CREATE DATABASE IF NOT EXISTS `%s`', $_ENV['dbcstg']));
+$rootPdo->exec(sprintf(
+    "GRANT ALL PRIVILEGES ON `%s`.* TO '%s'@'%%'",
+    $_ENV['db'],
+    $_ENV['user']
+));
+$rootPdo->exec(sprintf(
+    "GRANT ALL PRIVILEGES ON `%s`.* TO '%s'@'%%'",
+    $_ENV['dbcstg'],
+    $_ENV['user']
+));
+unset($rootPdo);
+
 $centreonPdo = new PDO(
     sprintf('mysql:host=%s;port=%s;dbname=%s', $_ENV['hostCentreon'], $_ENV['port'], $_ENV['db']),
     $_ENV['user'],
