@@ -97,6 +97,17 @@ services:
     ports: ["3128"]
     profiles: ["squid-basic-auth"]
 
+  grafana:
+    image: grafana/grafana:12.0.0
+    ports: ["3000:3000"]
+    environment:
+      GF_INSTALL_PLUGINS: yesoreyeram-infinity-datasource
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    depends_on:
+      web:
+        condition: service_healthy
+    profiles: ["grafana"]
+
   mediawiki:
     image: docker.centreon.com/centreon/mon-mediawiki-22.10:latest
     ports: ["80"]
