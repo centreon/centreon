@@ -25,7 +25,12 @@ jobs:
           version: 10
 
       - name: Install action dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          pnpm install \
+            --frozen-lockfile \
+            --config.trustPolicy=no-downgrade \
+            --config.minimumReleaseAge=2880 \
+            --config.blockExoticSubdeps=true
         working-directory: ./.github/actions/clean-up-npm-tags
         shell: bash
 
