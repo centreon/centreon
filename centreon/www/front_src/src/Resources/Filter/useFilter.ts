@@ -7,7 +7,6 @@ import {
 import { useAtomValue, useSetAtom } from 'jotai';
 import { omit } from 'ramda';
 import { useEffect } from 'react';
-import { useLocation } from 'react-router';
 import useDeepCompareEffect from 'use-deep-compare-effect';
 
 import { listCustomFilters } from './api';
@@ -43,8 +42,6 @@ const useFilter = (): void => {
     decoder: listCustomFiltersDecoder,
     request: listCustomFilters
   });
-
-  const location = useLocation();
 
   const currentFilter = useAtomValue(currentFilterAtom);
   const filterWithParsedSearch = useAtomValue(
@@ -111,7 +108,7 @@ const useFilter = (): void => {
       return;
     }
     applyFilter(getDefaultFilter());
-  }, [location.search]);
+  }, []);
 
   useEffect(() => {
     setSendingFilter(sending);
