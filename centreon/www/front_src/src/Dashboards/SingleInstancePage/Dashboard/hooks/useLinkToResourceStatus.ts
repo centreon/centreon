@@ -2,11 +2,6 @@ import { useSetAtom } from 'jotai';
 import { all, equals, has, isNil, pluck } from 'ramda';
 
 import { selectedVisualizationAtom } from '../../../../Resources/Actions/actionsAtoms';
-import {
-  defaultSelectedColumnIds,
-  defaultSelectedColumnIdsforViewByHost
-} from '../../../../Resources/Listing/columns';
-import { selectedColumnIdsAtom } from '../../../../Resources/Listing/listingAtoms';
 import { Visualization } from '../../../../Resources/models';
 import {
   labelBusinessActivity,
@@ -24,8 +19,7 @@ interface UseLinkToResourceStatus {
 }
 
 const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
-  const selectedVisualization = useSetAtom(selectedVisualizationAtom);
-  const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
+  const setVisualization = useSetAtom(selectedVisualizationAtom);
 
   const getLinkToResourceStatusPage = (data, name, options): string => {
     const resourcesInput = Object.entries(data).find(
@@ -97,21 +91,15 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
     }
 
     if (equals(displayType, 'all')) {
-      selectedVisualization(Visualization.All);
-
-      setSelectedColumnIds(defaultSelectedColumnIds);
+      setVisualization(Visualization.All);
     }
 
     if (equals(displayType, 'service')) {
-      selectedVisualization(Visualization.Service);
-
-      setSelectedColumnIds(defaultSelectedColumnIds);
+      setVisualization(Visualization.Service);
     }
 
     if (equals(displayType, 'host')) {
-      setSelectedColumnIds(defaultSelectedColumnIdsforViewByHost);
-
-      selectedVisualization(Visualization.Host);
+      setVisualization(Visualization.Host);
     }
   };
 
