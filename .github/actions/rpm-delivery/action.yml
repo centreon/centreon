@@ -108,7 +108,7 @@ runs:
         IS_CLOUD: ${{ inputs.is_cloud }}
         DELIVERY_TYPE: ${{ inputs.delivery_type }}
       run: |
-        set -eux
+        set -euo pipefail
 
         FILES="*.rpm"
 
