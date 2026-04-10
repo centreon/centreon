@@ -17,7 +17,6 @@ on:
     paths:
       - ".version"
       - ".github/docker/Dockerfile.packaging-*"
-      - ".github/workflows/docker-packaging.yml"
 
 jobs:
   dependency-scan:
@@ -32,18 +31,41 @@ jobs:
 
   dockerize:
     needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
+#    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
 
     strategy:
       fail-fast: false
       matrix:
         include:
-          - dockerfile: packaging-alma9
+          - runner: ubuntu-24.04
+            dockerfile: packaging-alma9
             image: packaging-alma9
-          - dockerfile: packaging-debian
-            image: packaging-debian
+          - runner: ubuntu-24.04
+            dockerfile: packaging-nfpm-alma9
+            image: packaging-nfpm-alma9
+          - runner: ubuntu-24.04
+            dockerfile: packaging-bullseye
+            image: packaging-bullseye
+          - runner: ubuntu-24.04
+            dockerfile: packaging-nfpm-bullseye
+            image: packaging-nfpm-bullseye
+          - runner: ubuntu-24.04
+            dockerfile: packaging-bookworm
+            image: packaging-bookworm
+          - runner: ubuntu-24.04
+            dockerfile: packaging-nfpm-bookworm
+            image: packaging-nfpm-bookworm
+          - runner: ubuntu-24.04
+            dockerfile: packaging-nfpm-jammy
+            image: packaging-nfpm-jammy
+          - runner: centreon-collect-arm64
+            dockerfile: packaging-bullseye
+            image: packaging-bullseye-arm64
+          - runner: centreon-collect-arm64
+            dockerfile: packaging-nfpm-bullseye
+            image: packaging-nfpm-bullseye-arm64
 
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.runner }}
 
     name: build container ${{ matrix.image }}
 
@@ -54,17 +76,11 @@ jobs:
       - name: Login to registry
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
 
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
-
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
-        with:
-          images: ghcr.io/${{ github.repository }}/${{ matrix.image }}
 
       - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
@@ -72,7 +88,7 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: ghcr.io/${{ github.repository }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
 
   set-skip-label:
     needs: [get-environment, dockerize]
