@@ -86,7 +86,7 @@ if [ -z "$response" ]; then
   exit 1
 fi
 
-if echo "$response" | jq -e '.errors // empty' > /dev/null 2>&1; then
+if echo "$response" | jq -e '(.errors // []) | length > 0' > /dev/null 2>&1; then
   echo "ERROR: GraphQL errors in response:" >&2
   echo "$response" >&2
   exit 1

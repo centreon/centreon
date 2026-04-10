@@ -156,8 +156,8 @@ for issue_id in "${issue_ids[@]}"; do
   summary=$(echo "$response" | jq -r '.fields.summary')
 
   if [ "$response_code" -eq 404 ]; then
-    echo "The issue with ID $issue_id does not exist or you do not have permission to see it."
-    break
+    echo "The issue with ID $issue_id does not exist or you do not have permission to see it." >&2
+    exit 1
   else
     echo "The issue with ID $issue_id exists."
     summaries+=("$summary")
@@ -185,7 +185,8 @@ for collection_file in "${collections[@]}"; do
     echo "The test case for $collection_name_sanitized already exists in the test plan."
   else
     # Adding a new test case
-    response=$(curl --request POST \
+    create_body=$(mktemp)
+    create_status=$(curl --request POST \
       --url 'https://centreon.atlassian.net/rest/api/2/issue' \
       --user "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" \
       --header 'Accept: application/json' \
@@ -204,35 +205,42 @@ for collection_file in "${collections[@]}"; do
           }
         }
       }' \
+      --silent --output "$create_body" --write-out "%{http_code}" \
       --max-time 20)
+    response=$(cat "$create_body")
+    rm -f "$create_body"
 
-    if [ -z "$response" ]; then
-      echo "Failed to create the test case within the specified time."
+    if [[ -z "$response" || "$create_status" -lt 200 || "$create_status" -ge 300 ]]; then
+      echo "Failed to create the test case for $collection_name_sanitized (HTTP $create_status)." >&2
     else
-      test_case_id=$(echo "$response" | jq -r '.id')
-
-      # Checking if the test case is a new one
-      if [[ ! " ${existing_test_case_ids[*]} " =~ " ${test_case_id} " ]]; then
-        echo "New Test Case with ID: $test_case_id"
-        summaries+=("$collection_name_sanitized")
-
-        # Update GraphQL query to add this test to the test plan
-        xray_graphql_AddingTestsToTestPlan_variables=$(echo "$xray_graphql_AddingTestsToTestPlan" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
-
-        # Execute the GraphQL mutation to update the testType only for new test cases
-        testType_mutation_response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $XRAY_TOKEN" --data '{"query": "mutation { updateTestType(issueId: \"'$test_case_id'\", testType: {name: \"API\"} ) { issueId testType { name kind } } }"}' "https://xray.cloud.getxray.app/api/v2/graphql")
-
-        # Checking if the mutation was successful
-        if [ "$(echo "$testType_mutation_response" | jq -r '.data.updateTestType')" != "null" ]; then
-          echo "Successfully updated testType to API for Test Case with ID: $test_case_id"
-        else
-          echo "Failed to update testType for Test Case with ID: $test_case_id"
-        fi
-
-        # Execute the GraphQL mutation to add tests to the test plan
-        response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $XRAY_TOKEN" --data "$xray_graphql_AddingTestsToTestPlan_variables" "https://xray.cloud.getxray.app/api/v2/graphql")
+      test_case_id=$(echo "$response" | jq -r '.id // empty')
+      if [[ -z "$test_case_id" ]]; then
+        echo "Failed to extract test case ID from response:" >&2
+        echo "$response" >&2
       else
-        echo "Test Case with ID $test_case_id already exists in the test plan."
+        # Checking if the test case is a new one
+        if [[ ! " ${existing_test_case_ids[*]} " =~ " ${test_case_id} " ]]; then
+          echo "New Test Case with ID: $test_case_id"
+          summaries+=("$collection_name_sanitized")
+
+          # Update GraphQL query to add this test to the test plan
+          xray_graphql_AddingTestsToTestPlan_variables=$(echo "$xray_graphql_AddingTestsToTestPlan" | jq --arg test_case_id "$test_case_id" '.variables.testIssueIds += [$test_case_id]')
+
+          # Execute the GraphQL mutation to update the testType only for new test cases
+          testType_mutation_response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $XRAY_TOKEN" --data '{"query": "mutation { updateTestType(issueId: \"'$test_case_id'\", testType: {name: \"API\"} ) { issueId testType { name kind } } }"}' "https://xray.cloud.getxray.app/api/v2/graphql")
+
+          # Checking if the mutation was successful
+          if [ "$(echo "$testType_mutation_response" | jq -r '.data.updateTestType')" != "null" ]; then
+            echo "Successfully updated testType to API for Test Case with ID: $test_case_id"
+          else
+            echo "Failed to update testType for Test Case with ID: $test_case_id"
+          fi
+
+          # Execute the GraphQL mutation to add tests to the test plan
+          response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $XRAY_TOKEN" --data "$xray_graphql_AddingTestsToTestPlan_variables" "https://xray.cloud.getxray.app/api/v2/graphql")
+        else
+          echo "Test Case with ID $test_case_id already exists in the test plan."
+        fi
       fi
     fi
   fi
