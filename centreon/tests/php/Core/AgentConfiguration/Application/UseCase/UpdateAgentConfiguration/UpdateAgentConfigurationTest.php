@@ -63,7 +63,6 @@ beforeEach(function (): void {
 
     $this->request = new UpdateAgentConfigurationRequest();
     $this->request->name = 'ac edited';
-    $this->request->type = 'telegraf';
     $this->request->pollerIds = [1];
     $this->request->configuration = [
         'conf_server_port' => 454,

@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 import { configureProviderAcls } from '../../../../commons';
 import {
@@ -18,19 +19,19 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/administration/authentication/providers/saml'
+    url: `${INTERCEPTORS.api.authentication_provider}/saml`
   }).as('getSAMLProvider');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/authentication/providers/configurations'
+    url: INTERCEPTORS.api.authentication_configuration
   }).as('getCentreonAuthConfigs');
   cy.intercept({
     method: 'PUT',
-    url: '/centreon/api/latest/administration/authentication/providers/saml'
+    url: `${INTERCEPTORS.api.authentication_provider}/saml`
   }).as('updateSAMLProvider');
 });
 
