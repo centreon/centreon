@@ -52,7 +52,7 @@ const DashboardLayout = <T extends LayoutItem>({
 
   const resize = useCallback((): void => {
     setColumns(getColumnsFromScreenSize());
-  }, []);
+  }, [JSON.stringify(getColumnsFromScreenSize())]);
 
   const startResize = useCallback(
     (_: Layout, _e: LayoutItem | null, newItem: LayoutItem | null) => {
