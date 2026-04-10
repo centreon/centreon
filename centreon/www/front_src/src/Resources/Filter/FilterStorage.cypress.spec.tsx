@@ -1,4 +1,5 @@
 import { Method, TestQueryProvider } from '@centreon/ui';
+import { BrowserRouter as Router } from 'react-router';
 
 import useListing from '../Listing/useListing';
 import useLoadResources from '../Listing/useLoadResources';
@@ -363,7 +364,11 @@ describe('Filter storage', () => {
     });
 
     cy.mount({
-      Component: <FilterWithProvider />
+      Component: (
+        <Router>
+          <FilterWithProvider />
+        </Router>
+      )
     });
     localStorage.setItem(filterKey, JSON.stringify(filter));
 
