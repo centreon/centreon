@@ -789,15 +789,6 @@ jobs:
               };
             }
 
-            if (process.env.IS_FORK === 'true') {
-              matrix = {
-                "cloud": [bookworm_mysql_8_4],
-                "main": [bookworm_mysql_8_4],
-                "operating_systems": [bookworm_mysql_8_4],
-                "databases": [bookworm_mysql_8_4],
-              };
-            }
-
             console.log(matrix);
 
             return matrix;
