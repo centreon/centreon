@@ -220,7 +220,7 @@ jobs:
         if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
         run: |
           docker load --input ../../../docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
-          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }}
+          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }} docker.centreon.com/centreon/${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }}
         shell: bash
 
       - name: Pull keycloak image
