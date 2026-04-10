@@ -203,8 +203,8 @@ jobs:
           pull: true
           load: true
           tags: |
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ needs.check-inputs.outputs.major_version }}-latest
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
+            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies:${{ needs.check-inputs.outputs.major_version }}-latest-${{ matrix.distrib }}
+            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies:${{ inputs.release_bundle_tag }}-${{ matrix.distrib }}
 
       - name: Build dependencies collect image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
@@ -227,8 +227,8 @@ jobs:
           pull: false
           push: true
           tags: |
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-collect-${{ matrix.distrib }}:${{ needs.check-inputs.outputs.major_version }}-latest
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-collect-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
+            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-collect:${{ needs.check-inputs.outputs.major_version }}-latest-${{ matrix.distrib }}
+            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-collect:${{ inputs.release_bundle_tag }}-${{ matrix.distrib }}
 
       - name: Build and push web image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
@@ -238,7 +238,7 @@ jobs:
           build-args: |
             "WEB_MINOR_VERSION=${{ steps.export-minor-versions.outputs.web_minor_version }}"
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "FROM_IMAGE_VERSION=${{ inputs.release_bundle_tag }}"
+            "FROM_IMAGE_VERSION=${{ inputs.release_bundle_tag }}-${{ matrix.distrib }}"
             "VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "STABILITY=stable"
