@@ -455,6 +455,7 @@ const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
           targetMinor = (Number.parseInt(minor_version) + 1).toString();
           targetUpdateFile = `/usr/share/centreon/www/install/php/Update-${major_version}.${targetMinor}.php`;
         }
+        Cypress.env('upgrade_target_minor_version', targetMinor);
 
         // If version-specific file does not exist => copy content from Update-next.php
         return cy
@@ -527,8 +528,10 @@ When('administrator runs the update procedure', () => {
 
     if (['testing', 'stable'].includes(Cypress.env('STABILITY'))) {
       cy.getWebVersion().then(({ major_version, minor_version }) => {
+        const targetMinorVersion =
+          Cypress.env('upgrade_target_minor_version') || minor_version;
         cy.contains(
-          `upgraded from version ${installedVersion} to ${major_version}.${minor_version}`
+          `upgraded from version ${installedVersion} to ${major_version}.${targetMinorVersion}`
         ).should('be.visible');
       });
     }
@@ -587,7 +590,11 @@ Then(
     cy.visit('/');
     if (['testing', 'stable'].includes(Cypress.env('STABILITY'))) {
       cy.getWebVersion().then(({ major_version, minor_version }) => {
-        cy.contains(`${major_version}.${minor_version}`).should('be.visible');
+        const targetMinorVersion =
+          Cypress.env('upgrade_target_minor_version') || minor_version;
+        cy.contains(`${major_version}.${targetMinorVersion}`).should(
+          'be.visible'
+        );
       });
     }
     cy.loginByTypeOfUser({

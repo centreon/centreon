@@ -9455,6 +9455,15 @@ msgstr "Format de coordonnées invalide"
 msgid "Invalid coordinates values specified"
 msgstr "Valeurs de coordonnées invalides"
 
+#: centreon/www/include/options/media/images/formDirectory.php
+#: centreon/www/include/options/media/images/formImg.php
+msgid ""
+"Invalid directory name. Only alphanumeric characters, hyphens and "
+"underscores are allowed."
+msgstr ""
+"Nom de répertoire invalide. Seuls les caractères alphanumériques, les tirets "
+"et les underscores sont autorisés."
+
 #: centreon/src/Core/Domain/Configuration/Notification/Exception/NotificationException.php
 #, php-format
 msgid "Invalid event provided (%s)"
