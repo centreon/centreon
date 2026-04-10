@@ -69,10 +69,7 @@ export const entities = fillEntities({});
 export const retrievedListing = {
   meta: {
     limit: 10,
-    page: 1,
-    search: {},
-    sort_by: {},
-    total: entities.length
+    next_cursor: 'cursor_page_2'
   },
   result: entities
 };
@@ -85,10 +82,7 @@ export const entitiesWithCriticalResources = fillEntities({
 export const retrievedListingWithCriticalResources = {
   meta: {
     limit: 10,
-    page: 1,
-    search: {},
-    sort_by: {},
-    total: entitiesWithCriticalResources.length
+    next_cursor: null
   },
   result: entitiesWithCriticalResources
 };
@@ -118,13 +112,7 @@ export const columnToSort = columns
 export const retrievedListingByHosts = {
   meta: {
     limit: 30,
-    page: 1,
-    search: {},
-    sort_by: {
-      last_status_change: 'DESC',
-      status_severity_code: 'DESC'
-    },
-    total: 8
+    next_cursor: null
   },
   result: [
     {
