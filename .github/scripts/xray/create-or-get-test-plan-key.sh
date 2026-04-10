@@ -13,6 +13,7 @@ set -euo pipefail
 
 # Initialize start value
 start=0
+test_plan_key=""
 
 # Loop to fetch all test plans
 while true; do
@@ -63,35 +64,36 @@ while true; do
     fi
   done <<< "$test_plans"
 
-  echo "The test plan key for now is: ${test_plan_key:-}"
+  echo "The test plan key for now is: ${test_plan_key}"
 
-  # If no matching test plan was found, create one
-  if [[ -z "${test_plan_key:-}" ]]; then
-    echo "TestPlan doesn't exist yet"
-
-    # Create the test plan using a GraphQL mutation
-    create_test_plan_mutation="{
-      \"query\": \"mutation CreateTestPlan(\$testIssueIds: [String], \$jira: JSON!) { createTestPlan(testIssueIds: \$testIssueIds, jira: \$jira) { testPlan { issueId jira(fields: [\\\"key\\\"]) }warnings } }\",
-      \"variables\": {
-        \"testIssueIds\": [],
-        \"jira\": {
-          \"fields\": {
-            \"summary\": \"$input_summary\",
-            \"project\": { \"key\": \"MON\" }
-          }
-        }
-      }
-    }"
-    create_result=$(curl -sS -H "Content-Type: application/json" -X POST -H "Authorization: Bearer $XRAY_TOKEN" -d "$create_test_plan_mutation" "https://xray.cloud.getxray.app/api/v2/graphql")
-    echo "API response: $create_result "
-
-    # Extract the key of the created test plan
-    test_plan_key=$(echo "$create_result" | jq -r '.data.createTestPlan.testPlan.jira.key')
-    echo "New TP created with key: $test_plan_key"
+  # Exit outer loop if we found a matching test plan
+  if [[ -n "$test_plan_key" ]]; then
+    break
   fi
 
-  # Update start value for the next iteration
-  start=$((start + 100))
+  # If no matching test plan was found, create one
+  echo "TestPlan doesn't exist yet"
+
+  # Create the test plan using a GraphQL mutation
+  create_test_plan_mutation="{
+    \"query\": \"mutation CreateTestPlan(\$testIssueIds: [String], \$jira: JSON!) { createTestPlan(testIssueIds: \$testIssueIds, jira: \$jira) { testPlan { issueId jira(fields: [\\\"key\\\"]) }warnings } }\",
+    \"variables\": {
+      \"testIssueIds\": [],
+      \"jira\": {
+        \"fields\": {
+          \"summary\": \"$input_summary\",
+          \"project\": { \"key\": \"MON\" }
+        }
+      }
+    }
+  }"
+  create_result=$(curl -sS -H "Content-Type: application/json" -X POST -H "Authorization: Bearer $XRAY_TOKEN" -d "$create_test_plan_mutation" "https://xray.cloud.getxray.app/api/v2/graphql")
+  echo "API response: $create_result "
+
+  # Extract the key of the created test plan
+  test_plan_key=$(echo "$create_result" | jq -r '.data.createTestPlan.testPlan.jira.key')
+  echo "New TP created with key: $test_plan_key"
+  break
 done
 
 # Set the testPlanKey as an output

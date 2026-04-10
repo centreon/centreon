@@ -52,6 +52,10 @@ case "$OS" in
     linux_distribution="DEBIAN12"
     mariadb_version="MARIADB_10_11"
     ;;
+  *)
+    echo "ERROR: Unknown OS value: '$OS'. Expected one of: alma9, bullseye, bookworm." >&2
+    exit 1
+    ;;
 esac
 
 xray_graphql_createTestExecution="{
@@ -72,9 +76,27 @@ xray_graphql_createTestExecution="{
 
 echo "this is the graphql mutation : $xray_graphql_createTestExecution"
 
-response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $XRAY_TOKEN" --data "$xray_graphql_createTestExecution" "https://xray.cloud.getxray.app/api/v2/graphql")
+response=$(curl -sS -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $XRAY_TOKEN" --data "$xray_graphql_createTestExecution" "https://xray.cloud.getxray.app/api/v2/graphql")
 
 echo -e "Response from Create Test Execution:\n$response"
+
+# Validate the response
+if [ -z "$response" ]; then
+  echo "ERROR: Empty response from Xray API." >&2
+  exit 1
+fi
+
+if echo "$response" | jq -e '.errors // empty' > /dev/null 2>&1; then
+  echo "ERROR: GraphQL errors in response:" >&2
+  echo "$response" >&2
+  exit 1
+fi
+
+if [ "$(echo "$response" | jq -r '.data.createTestExecution.testExecution')" = "null" ]; then
+  echo "ERROR: TestExecution creation returned null. Full response:" >&2
+  echo "$response" >&2
+  exit 1
+fi
 
 # Extract the ID of the created TE
 test_execution_id=$(echo "$response" | jq -r '.data.createTestExecution.testExecution.issueId')

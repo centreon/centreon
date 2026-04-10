@@ -114,11 +114,11 @@ get_test_plan_issue_ids() {
       echo "Current Issue IDs: ${current_issue_ids[*]}"
 
       # Concatenate the current batch of results to the overall issue_ids array
-      issue=("${issue[@]}" "${current_issue_ids[@]}")
+      issue+=("${current_issue_ids[@]}")
 
       # Parsing and processing test IDs for API tests and adding them to api_issue_ids
       current_api_issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[] | select(.testType.name == "API") | .issueId'))
-      api_issue_ids=("${api_issue_ids[@]}" "${current_api_issue_ids[@]}")
+      api_issue_ids+=("${current_api_issue_ids[@]}")
 
       # Increment the start value for the next iteration
       start=$((start + 100))
@@ -144,10 +144,14 @@ for issue_id in "${issue_ids[@]}"; do
   echo "Processing issue ID: $issue_id"
   jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
 
-  response=$(curl --request GET \
+  response_body=$(mktemp)
+  response_code=$(curl --request GET \
     --url "$jira_issue_url" \
     --user "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" \
-    --header 'Accept: application/json')
+    --header 'Accept: application/json' \
+    --silent --output "$response_body" --write-out "%{http_code}")
+  response=$(cat "$response_body")
+  rm -f "$response_body"
 
   summary=$(echo "$response" | jq -r '.fields.summary')
 
@@ -160,7 +164,7 @@ for issue_id in "${issue_ids[@]}"; do
   fi
 done
 
-collections=($(find ./collections -type f -name "*.postman_collection.json"))
+mapfile -t collections < <(find ./collections -type f -name "*.postman_collection.json")
 test_case_ids=()
 
 xray_graphql_AddingTestsToTestPlan='{
