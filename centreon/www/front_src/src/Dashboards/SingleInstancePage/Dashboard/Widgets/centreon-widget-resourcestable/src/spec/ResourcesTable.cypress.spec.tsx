@@ -150,20 +150,27 @@ const render = ({ options, data, isPublic = false }: Props): void => {
 const resourcesRequests = (): void => {
   cy.fixture('Widgets/ResourcesTable/resourcesStatus.json').then((data) => {
     cy.interceptAPIRequest({
+      alias: 'getResourceCount',
+      method: Method.GET,
+      path: `./monitoring/resources/count?**`,
+      response: { count: 5 }
+    });
+
+    cy.interceptAPIRequest({
       alias: 'getResources',
       method: Method.GET,
-      path: `./api/latest${resourcesEndpoint}?page=1**`,
+      path: `./api/latest${resourcesEndpoint}?**`,
       response: data
     });
 
     cy.interceptAPIRequest({
       alias: 'getPublicWidget',
       method: Method.GET,
-      path: `./api/latest${getPublicWidgetEndpoint({
+      path: `**${getPublicWidgetEndpoint({
         dashboardId: 1,
         playlistHash: 'hash',
         widgetId: '1'
-      })}?&limit=40&page=1&sort_by=%7B%22status%22%3A%22desc%22%7D`,
+      })}?**`,
       response: data
     });
   });
@@ -173,7 +180,7 @@ const resourcesRequests = (): void => {
       cy.interceptAPIRequest({
         alias: 'getResourcesByHost',
         method: Method.GET,
-        path: `./api/latest${viewByHostEndpoint}?page=1**`,
+        path: `./api/latest${viewByHostEndpoint}?**`,
         response: data
       });
     }
