@@ -1076,12 +1076,13 @@ jobs:
         shell: bash
 
       - name: Clear previous docker image from cache
+        if: ${{ needs.get-environment.outputs.is_fork == 'false' }}
         run: |
           curl \
             -X DELETE \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.meta.outputs.version }}
+            https://api.github.com/repos/${{ github.repository }}/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.meta.outputs.version }}
         shell: bash
 
       - name: Store slim image in cache
