@@ -157,7 +157,7 @@ jobs:
     if: |
       ! cancelled() &&
       ! contains(needs.*.result, 'cancelled') &&
-      ! github.event.pull_request.head.repo.fork
+      github.event.pull_request.head.repo.fork != true
     runs-on: ubuntu-24.04
 
     steps:
