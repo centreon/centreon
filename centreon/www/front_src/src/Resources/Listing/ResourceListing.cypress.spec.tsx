@@ -9,7 +9,6 @@ import { createStore, Provider } from 'jotai';
 import {
   __,
   equals,
-  filter,
   find,
   head,
   includes,
@@ -55,11 +54,6 @@ import {
 } from './testUtils';
 import useLoadDetails from './useLoadResources/useLoadDetails';
 
-const pageNavigationCalls = [
-  { expectedCall: 1, param: 'page=2&limit=30' },
-  { expectedCall: 3, param: 'page=1&limit=30' },
-  { expectedCall: 1, param: 'page=4&limit=30' }
-];
 
 const configureUserAtomViewMode = (
   listingVariant: ListingVariant = ListingVariant.compact
@@ -453,7 +447,7 @@ describe('Listing request', () => {
     interceptRequestsAndMountBeforeEach();
   });
 
-  it('executes a listing request with an updated page param when a change page action is clicked', () => {
+  it('executes a listing request with an updated cursor param when a change page action is clicked', () => {
     cy.waitFiltersAndListingRequests();
 
     cy.findByLabelText('Next page')
@@ -462,7 +456,9 @@ describe('Listing request', () => {
       })
       .click();
 
-    cy.waitForRequest('@dataToListingTable');
+    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
+      expect(JSON.parse(request.url.searchParams.get('cursor'))).to.equal('cursor_page_2');
+    });
 
     cy.findByLabelText('Previous page')
       .should((label) => {
@@ -470,32 +466,11 @@ describe('Listing request', () => {
       })
       .click();
 
-    cy.waitForRequest('@dataToListingTable');
-
-    cy.findByLabelText('Last page')
-      .should((label) => {
-        expect(label).to.be.enabled;
-      })
-      .click();
-
-    cy.waitForRequest('@dataToListingTable');
-
-    cy.findByLabelText('First page')
-      .should((label) => {
-        expect(label).to.be.enabled;
-      })
-      .click();
-
-    cy.waitForRequest('@dataToListingTable');
-
-    cy.getRequestCalls('@dataToListingTable').then((calls) => {
-      expect(calls).to.have.length(5);
-      pageNavigationCalls.forEach(({ param, expectedCall }) => {
-        expect(
-          filter((call) => includes(param, call.request.url.search), calls)
-        ).to.have.length(expectedCall);
-      });
+    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
+      expect(request.url.searchParams.has('cursor')).to.be.false;
     });
+
+    cy.findByLabelText('Last page').should('not.exist');
 
     cy.makeSnapshot();
   });
@@ -507,7 +482,7 @@ describe('Listing request', () => {
     cy.contains(/^30$/).click({ force: true });
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(includes('&limit=30', request.url.search)).to.be.true;
+      expect(request.url.searchParams.get('limit')).to.equal('30');
     });
 
     cy.makeSnapshot();
