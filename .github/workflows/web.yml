@@ -830,7 +830,7 @@ jobs:
     name: package ${{ matrix.distrib }}
     runs-on: ubuntu-24.04
     container:
-      image: ghcr.io/${{ github.repository }}/packaging:${{ needs.get-environment.outputs.major_version }}${{ inputs.tag_suffix }}
+      image: ghcr.io/${{ github.repository }}/packaging:${{ needs.get-environment.outputs.major_version }}${{ matrix.tag_suffix }}
 
     steps:
       - name: Checkout sources
