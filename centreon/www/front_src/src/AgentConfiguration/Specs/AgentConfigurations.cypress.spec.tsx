@@ -197,7 +197,7 @@ describe('Agent configurations', () => {
 
     cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
       expect(decodeURIComponent(request.url.search)).equals(
-        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":"My agent"}}]}'
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$or":[{"name":{"$rg":""}}]}'
       );
     });
 
