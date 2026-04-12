@@ -590,7 +590,11 @@ Then(
     cy.visit('/');
     if (['testing', 'stable'].includes(Cypress.env('STABILITY'))) {
       cy.getWebVersion().then(({ major_version, minor_version }) => {
-        cy.contains(`${major_version}.${minor_version}`).should('be.visible');
+        const targetMinorVersion =
+          Cypress.env('upgrade_target_minor_version') || minor_version;
+        cy.contains(`${major_version}.${targetMinorVersion}`).should(
+          'be.visible'
+        );
       });
     }
     cy.loginByTypeOfUser({
