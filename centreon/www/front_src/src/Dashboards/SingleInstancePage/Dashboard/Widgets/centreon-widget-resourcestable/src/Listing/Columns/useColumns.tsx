@@ -118,7 +118,7 @@ const useColumns = ({
     isOpenTicketColumnsVisible && equals(displayResources, 'withTicket');
 
   const defaultSelectedColumnIds = [
-    'status',
+    ...(equals(displayType, DisplayType.Host) ? [] : ['status']),
     'resource',
     'parent_resource',
     ...(isOpenTicketActionColumnVisible ? ['open_ticket'] : []),
