@@ -1,6 +1,6 @@
 import { Group, InputProps, InputType } from '@centreon/ui';
 import { Box, capitalize } from '@mui/material';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { equals, isNil, map } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { agentTypeFormAtom, isEditingAtom } from '../atoms';
