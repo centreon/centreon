@@ -18,7 +18,6 @@ import Actions from './Actions/Actions';
 import { useColumns } from './Columns/useColumns';
 import DeleteModal from './DeleteModal';
 import InstallationCommandModal from './InstallationCommandModal';
-import { useListing } from './useListing';
 
 interface Props {
   rows: Array<AgentConfigurationListing>;
@@ -63,10 +62,6 @@ const ACListing = ({ rows, total, isLoading }: Props): JSX.Element => {
     <>
       <Listing
         actions={<Actions rows={rows} />}
-        columnConfiguration={{
-          selectedColumnIds,
-          sortable: true
-        }}
         columns={columns}
         subItems={{
           canCheckSubItems: false,
