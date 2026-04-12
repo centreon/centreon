@@ -1,6 +1,6 @@
-import { useCallback, useState } from 'react';
 import { useAtom } from 'jotai';
 import { isNil } from 'ramda';
+import { useCallback, useState } from 'react';
 
 import type { ListingModel } from '@centreon/ui';
 import { TimePeriods, useRequest } from '@centreon/ui';

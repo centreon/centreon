@@ -3,7 +3,7 @@ import { and, equals, or } from 'ramda';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { IconButton, type ComponentColumnProps } from '@centreon/ui';
+import { type ComponentColumnProps, IconButton } from '@centreon/ui';
 import { useTheme } from '@mui/system';
 import {
   openTicketContextAtom,

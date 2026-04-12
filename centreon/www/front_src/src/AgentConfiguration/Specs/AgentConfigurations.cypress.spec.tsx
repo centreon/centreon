@@ -1,5 +1,4 @@
 import { labelPortExpectedAtMost } from '../../VaultConfiguration/translatedLabels';
-import initialize from './initialize';
 
 import {
   labelAction,
