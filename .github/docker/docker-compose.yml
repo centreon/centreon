@@ -98,7 +98,7 @@ services:
     profiles: ["squid-basic-auth"]
 
   mediawiki:
-    image: docker.centreon.com/centreon/mon-mediawiki-22.10:latest
+    image: "${MEDIAWIKI_IMAGE:-ghcr.io/centreon/centreon/mediawiki:26.05}"
     ports: ["80"]
     profiles: ["mediawiki"]
 
