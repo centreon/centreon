@@ -394,14 +394,7 @@
         }
     ],
     "meta": {
-        "page": 1,
         "limit": 30,
-        "search": {
-            "$and": []
-        },
-        "sort_by": {
-            "last_status_change": "DESC"
-        },
-        "total": 5
+        "next_cursor": null
     }
 }
