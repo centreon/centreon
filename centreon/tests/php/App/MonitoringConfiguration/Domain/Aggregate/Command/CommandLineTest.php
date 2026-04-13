@@ -32,14 +32,14 @@ final class CommandLineTest extends TestCase
     {
         $commandLine = new CommandLine('/usr/lib/nagios/plugins/check_ping -H $HOSTADDRESS$ -w $ARG1$ -c $ARG2$');
 
-        self::assertSame(['1', '2'], $commandLine->extractArguments());
+        self::assertSame(['ARG1', 'ARG2'], $commandLine->extractArguments());
     }
 
     public function testExtractArgumentsWithDuplicates(): void
     {
         $commandLine = new CommandLine('/check -w $ARG1$ -c $ARG1$');
 
-        self::assertSame(['1'], $commandLine->extractArguments());
+        self::assertSame(['ARG1'], $commandLine->extractArguments());
     }
 
     public function testExtractArgumentsEmpty(): void
@@ -95,7 +95,7 @@ final class CommandLineTest extends TestCase
     {
         $commandLine = new CommandLine('/check -H $_HOSTSNMP_COMMUNITY$ -w $ARG1$ -c $ARG2$ -p $_SERVICEPORT$');
 
-        self::assertSame(['1', '2'], $commandLine->extractArguments());
+        self::assertSame(['ARG1', 'ARG2'], $commandLine->extractArguments());
         self::assertSame(['SNMP_COMMUNITY'], $commandLine->extractHostMacros());
         self::assertSame(['PORT'], $commandLine->extractServiceMacros());
     }

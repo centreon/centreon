@@ -104,11 +104,4 @@ final class FakeCommandRepository implements CommandRepository
         return $results;
     }
 
-    public function saveCommandArguments(CommandId $commandId, array $arguments): void
-    {
-    }
-
-    public function saveCommandMacros(CommandId $commandId, array $hostMacros, array $serviceMacros): void
-    {
-    }
 }

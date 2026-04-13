@@ -55,15 +55,4 @@ interface CommandRepository
      * @return array<int, CommandResourceCount>
      */
     public function countLinkedResources(array $commandIds): array;
-
-    /**
-     * @param array<string> $arguments argument numbers (e.g. ['1', '2'])
-     */
-    public function saveCommandArguments(CommandId $commandId, array $arguments): void;
-
-    /**
-     * @param array<string> $hostMacros host macro names (e.g. ['SOME_MACRO'])
-     * @param array<string> $serviceMacros service macro names (e.g. ['SOME_MACRO'])
-     */
-    public function saveCommandMacros(CommandId $commandId, array $hostMacros, array $serviceMacros): void;
 }

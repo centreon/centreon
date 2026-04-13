@@ -206,6 +206,12 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
 
         foreach ($commands as $command) {
             $this->setId($command, new CommandId($newIds[$command->name->value]));
+            $this->saveCommandArguments($command->id(), $command->commandLine->extractArguments());
+            $this->saveCommandMacros(
+                $command->id(),
+                $command->commandLine->extractHostMacros(),
+                $command->commandLine->extractServiceMacros()
+            );
         }
     }
 
@@ -287,6 +293,13 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             ->setParameter('connector_id', $command->connector() instanceof Connector ? $command->connector()->id()->value : null);
 
         $qb->executeStatement();
+
+        $this->saveCommandArguments($command->id(), $command->commandLine->extractArguments());
+        $this->saveCommandMacros(
+            $command->id(),
+            $command->commandLine->extractHostMacros(),
+            $command->commandLine->extractServiceMacros()
+        );
     }
 
     public function delete(Command $command): void
@@ -303,26 +316,26 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         $qb->executeStatement();
     }
 
-    public function saveCommandArguments(CommandId $commandId, array $arguments): void
+    private function saveCommandArguments(CommandId $commandId, array $arguments): void
     {
         $this->connection->executeStatement(
             'DELETE FROM command_arg_description WHERE cmd_id = :cmd_id',
             ['cmd_id' => $commandId->value]
         );
 
-        foreach ($arguments as $argNumber) {
+        foreach ($arguments as $argName) {
             $this->connection->executeStatement(
                 'INSERT INTO command_arg_description (cmd_id, macro_name, macro_description) VALUES (:cmd_id, :macro_name, :macro_description)',
                 [
                     'cmd_id' => $commandId->value,
-                    'macro_name' => 'ARG' . $argNumber,
+                    'macro_name' => $argName,
                     'macro_description' => '',
                 ]
             );
         }
     }
 
-    public function saveCommandMacros(CommandId $commandId, array $hostMacros, array $serviceMacros): void
+    private function saveCommandMacros(CommandId $commandId, array $hostMacros, array $serviceMacros): void
     {
         $this->connection->executeStatement(
             'DELETE FROM on_demand_macro_command WHERE command_command_id = :cmd_id',

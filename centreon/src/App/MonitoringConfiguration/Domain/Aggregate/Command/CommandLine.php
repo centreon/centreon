@@ -38,7 +38,7 @@ final readonly class CommandLine
      */
     public function extractArguments(): array
     {
-        preg_match_all('/\$ARG(\d+)\$/', $this->value, $matches);
+        preg_match_all('/\$(ARG\d+)\$/', $this->value, $matches);
 
         return array_values(array_unique($matches[1]));
     }

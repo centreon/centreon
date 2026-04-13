@@ -99,9 +99,6 @@ final readonly class UpdateCommandCommandHandler
 
         $this->commandRepository->update($existingCommand);
 
-        $this->commandRepository->saveCommandArguments($existingCommand->id(), $existingCommand->commandLine->extractArguments());
-        $this->commandRepository->saveCommandMacros($existingCommand->id(), $existingCommand->commandLine->extractHostMacros(), $existingCommand->commandLine->extractServiceMacros());
-
         $this->eventBus->fire(new CommandUpdated($existingCommand, $command->updatedBy));
 
         return $existingCommand;
