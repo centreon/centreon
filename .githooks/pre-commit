@@ -1,15 +1,25 @@
 #!/usr/bin/env sh
-set -eu
 
-# ensure gitleaks is available
+# Check for gitleaks installation
+echo "Beginning Gitleaks check"
 if ! command -v gitleaks >/dev/null 2>&1; then
-  echo "Error: gitleaks is not installed or not in PATH." >&2
-  echo "Install: https://github.com/gitleaks/gitleaks#install" >&2
+  echo "Error: gitleaks is not installed. Please install it to use this hook."
+  echo "Visit https://github.com/gitleaks/gitleaks for installation instructions."
   exit 1
 fi
 
-# scan for secrets in staged content before commit
-gitleaks git --staged --verbose
+# Set commits range
+LATEST_COMMIT="$(git rev-parse HEAD)"
+PARENT_LATEST_COMMIT_BRANCH="$(git rev-parse -q --verify develop)"
+COMMITS_RANGE="$PARENT_LATEST_COMMIT..$LATEST_COMMIT"
+#debug
+echo "LATEST_COMMIT = $LATEST_COMMIT"
+echo "PARENT_LATEST_COMMIT = $PARENT_LATEST_COMMIT_BRANCH"
+echo "COMMITS_RANGE = $COMMITS_RANGE"
+
+# Check fo secrets
+gitleaks git -v --log-opts="--no-merges $PARENT_LATEST_COMMIT..$LATEST_COMMIT"
+
 
 # type-check staged files in centreon/packages/ui
 if git diff --cached --name-only --diff-filter=ACMR | grep -qE '^centreon/packages/ui/src/.*\.(ts|tsx)$'; then
