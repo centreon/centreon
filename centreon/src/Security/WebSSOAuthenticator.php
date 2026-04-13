@@ -261,7 +261,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
                 $authenticatedUser,
                 $request->getClientIp() ?? '' // @todo: what should happen if no IP was found?
             );
-            $request->headers->set('Set-Cookie', 'PHPSESSID=' . $sessionId);
+            $request->headers->set('Set-Cookie', session_name() . '=' . $sessionId);
         }
     }
 
