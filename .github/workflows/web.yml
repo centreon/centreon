@@ -397,7 +397,7 @@ jobs:
                 git status
                 git add .
                 git commit -m "chore(lang): update translations"
-                git push
+                git push || echo "::warning::Failed to push translations commit (technique-ci may not have push access)."
               else
                 echo "::notice::Last commit author is technique-ci. Skipping commit to avoid infinite loop."
                 cd ..
