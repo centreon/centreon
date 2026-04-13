@@ -73,10 +73,6 @@ on:
         required: true
       xray_client_secret:
         required: true
-      artifactory_internal_repo_username:
-        required: false
-      artifactory_internal_repo_password:
-        required: false
       jira_base_url:
         required: true
       jira_user_email:
@@ -120,6 +116,9 @@ jobs:
     if: ${{ needs.cypress-e2e-test-list.outputs.features != '' && toJson(fromJson(needs.cypress-e2e-test-list.outputs.features)) != '[]' }}
     needs: [cypress-e2e-test-list]
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: read
     strategy:
       fail-fast: false
       matrix:
@@ -149,6 +148,7 @@ jobs:
             echo "tag=$REF" >> $GITHUB_OUTPUT
           fi
 
+
       - name: Restore packages
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
         uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -169,7 +169,12 @@ jobs:
           cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          pnpm install \
+            --frozen-lockfile \
+            --config.trustPolicy=no-downgrade \
+            --config.minimumReleaseAge=2880 \
+            --config.blockExoticSubdeps=true
         shell: bash
         env:
           CYPRESS_INSTALL_BINARY: "0"
@@ -217,24 +222,6 @@ jobs:
           docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }}
         shell: bash
 
-      - name: Restore keycloak image from cache
-        if: ${{ contains(matrix.feature, 'Authentication') }}
-        id: cache-docker-keycloak
-        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
-        continue-on-error: true
-        timeout-minutes: 6
-        with:
-          path: ./docker-image-keycloak
-          key: docker-image-keycloak-${{ inputs.major_version}}
-        env:
-          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
-
-      - name: Load keycloak image
-        if: ${{ contains(matrix.feature, 'Authentication') && steps.cache-docker-keycloak.outputs.cache-hit == 'true' }}
-        run: |
-          docker load --input ../../../docker-image-keycloak/keycloak.tar
-        shell: bash
-
       - name: Get test execution Key
         id: get-test-execution-key
         run: |
@@ -263,8 +250,6 @@ jobs:
           CYPRESS_STABILITY: ${{ inputs.stability }}
           CYPRESS_TARGET_STABILITY: ${{ inputs.target_stability }}
           CYPRESS_IS_CLOUD: ${{ inputs.is_cloud }}
-          CYPRESS_INTERNAL_REPO_USERNAME: ${{ secrets.artifactory_internal_repo_username }}
-          CYPRESS_INTERNAL_REPO_PASSWORD: ${{ secrets.artifactory_internal_repo_password }}
 
       - name: Ensure logs directory exists
         run: mkdir -p ${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/
