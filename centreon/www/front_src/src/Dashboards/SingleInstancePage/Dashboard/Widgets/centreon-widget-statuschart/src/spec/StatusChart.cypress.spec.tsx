@@ -1,5 +1,5 @@
 import { Method, TestQueryProvider } from '@centreon/ui';
-import { isOnPublicPageAtom } from '@centreon/ui-context';
+import { isOnPublicPageAtom, userAtom } from '@centreon/ui-context';
 
 import { createStore, Provider } from 'jotai';
 import { equals, last } from 'ramda';
@@ -32,6 +32,7 @@ const initialize = ({ options, data, isPublic = false }: Props): void => {
   cy.viewport('macbook-11');
   const store = createStore();
   store.set(isOnPublicPageAtom, isPublic);
+  store.set(userAtom, { locale: 'en_US', timezone: 'Europe/Paris' });
 
   cy.mount({
     Component: (
@@ -64,7 +65,7 @@ const interceptRequests = (): void => {
     cy.interceptAPIRequest({
       alias: 'getResources',
       method: Method.GET,
-      path: `./api/latest${resourcesEndpoint}?page=1**`,
+      path: `./api/latest${resourcesEndpoint}?**`,
       response: data
     });
   });

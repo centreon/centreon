@@ -422,15 +422,7 @@
     }
   ],
   "meta": {
-    "page": 1,
     "limit": 30,
-    "search": {
-      "$and": []
-    },
-    "sort_by": {
-      "status_severity_code": "ASC",
-      "last_status_change": "DESC"
-    },
-    "total": 6
+    "next_cursor": "cursor_page_2"
   }
 }

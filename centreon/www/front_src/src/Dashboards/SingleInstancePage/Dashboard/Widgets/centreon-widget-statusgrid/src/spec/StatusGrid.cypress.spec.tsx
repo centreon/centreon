@@ -140,7 +140,7 @@ const servicesRequests = (noValues = false): void => {
     cy.interceptAPIRequest({
       alias: 'getServiceResources',
       method: Method.GET,
-      path: `./api/latest${resourcesEndpoint}?page=1&limit=20**`,
+      path: `./api/latest${resourcesEndpoint}?**`,
       response: noValues ? emptyData : data
     });
   });
