@@ -103,5 +103,4 @@ final class FakeCommandRepository implements CommandRepository
 
         return $results;
     }
-
 }
