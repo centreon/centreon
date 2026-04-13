@@ -53,8 +53,8 @@ runs:
       env:
         JF_URL: https://packages.centreon.com
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
-        GH_HEAD_REF: ${{ github.event.pull_request.head.ref }}
-        CENTREON_TECHNIQUE_PAT: ${{ inputs.centreon_technique_pat }}
+GH_HEAD_REF: ${{ github.head_ref || github.ref_name }}
+CENTREON_TECHNIQUE_PAT: ${{ inputs.centreon_technique_pat }}
       run: |
         set -eu
         . .version
