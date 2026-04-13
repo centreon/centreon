@@ -8,5 +8,10 @@ if ! command -v gitleaks >/dev/null 2>&1; then
   exit 1
 fi
 
-# scan for secrets before commit
-gitleaks detect --no-git --verbose
+# scan for secrets in staged content before commit
+gitleaks git --staged --verbose
+
+# type-check staged files in centreon/packages/ui
+if git diff --cached --name-only --diff-filter=ACMR | grep -qE '^centreon/packages/ui/src/.*\.(ts|tsx)$'; then
+  pnpm --filter @centreon/ui type-check:staged
+fi

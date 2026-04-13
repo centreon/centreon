@@ -5,6 +5,7 @@
   "scripts": {
     "update:deps": "pnpx npm-check-updates -i --format group",
     "type-check": "tsc --project tsconfig.typecheck.json",
+    "type-check:staged": "node typecheck-staged.mjs",
     "lint": "biome check ./src/ --error-on-warnings",
     "lint:fix": "pnpm lint --fix",
     "lint:ci": "biome ci ./src/ --error-on-warnings",
