@@ -24,8 +24,5 @@ while true ; do
       fi
       sleep "$RESTART_WAIT"
       ;;
-    *)
-      echo "No new pollers to register."
-      ;;
   esac
 done

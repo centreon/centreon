@@ -1,21 +1,10 @@
 type: object
-required: ["name", "type", "pollerIds", "configuration"]
+required: ["name", "pollerIds", "configuration"]
 properties:
   name:
     type: string
     description: Configuration name.
     example: my-cfg-name
-
-  type:
-    type: string
-    description: |
-      Type of agent configuration.
-
-      Supported values:
-        - telegraf
-        - centreon-agent
-    enum: [telegraf, centreon-agent]
-    example: centreon-agent
 
   connection_mode:
     type: string

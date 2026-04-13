@@ -95,6 +95,14 @@ const StackLines = ({
             ? transparency || 80
             : style.areaTransparency;
 
+          const linePartStack = stack.map((stackValue, index) => {
+            if (isNil(timeSeries[index][metric_id])) {
+              return [stackValue[0], null];
+            }
+
+            return stackValue;
+          });
+
           return (
             <g key={`stack-${prop('key', stack)}`}>
               {displayAnchor && (
@@ -140,6 +148,16 @@ const StackLines = ({
                       })
                 }
                 opacity={highlight === false ? 0.3 : 1}
+                stroke="none"
+              />
+              <Shape.LinePath
+                curve={curveType}
+                data={linePartStack}
+                defined={(d) => {
+                  return !isNil(d[1]);
+                }}
+                fill="none"
+                opacity={highlight === false ? 0.3 : 1}
                 stroke={lineColor}
                 strokeDasharray={getStrokeDashArray({
                   dashLength: style?.dashLength,
@@ -152,6 +170,8 @@ const StackLines = ({
                     ? Math.ceil(formattedLineWidth * 1.3)
                     : formattedLineWidth
                 }
+                x={(d) => xScale(getTime(d.data)) ?? 0}
+                y={(d) => yScale(d[1]) ?? 0}
               />
             </g>
           );
