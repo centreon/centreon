@@ -26,7 +26,7 @@ interface UseInfiniteScrollListingWithCursor<T> {
   isLoading: boolean;
 }
 
-interface UseInfiniteScrollListingWithCursorProps<T> {
+interface UseInfiniteScrollListingWithCursorProps<_T> {
   customQueryParameters?: Array<QueryParameter>;
   enabled?: boolean;
   endpoint: string;
