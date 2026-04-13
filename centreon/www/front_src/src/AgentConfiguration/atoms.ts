@@ -1,6 +1,6 @@
 import { SelectEntry } from '@centreon/ui';
 import { atom } from 'jotai';
-import { equals, findIndex, remove } from 'ramda';
+import { equals, findIndex, isNotNil, remove } from 'ramda';
 import { AgentType } from './models';
 
 export const pageAtom = atom(0);
@@ -18,6 +18,11 @@ export const itemToDeleteAtom = atom<{
 } | null>(null);
 export const agentTypeFormAtom = atom<AgentType | null>(null);
 export const openFormModalAtom = atom<number | 'add' | null>(null);
+export const isEditingAtom = atom<boolean>((get) => {
+  const modal = get(openFormModalAtom);
+
+  return isNotNil(modal) && !equals(modal, 'add');
+});
 export const askBeforeCloseFormModalAtom = atom(false);
 
 export const changeSortAtom = atom(
