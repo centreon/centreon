@@ -161,7 +161,9 @@ const MemoListingActionBar = ({
   const PaginationActionsComponent = useMemo(
     () =>
       function CursorAwarePaginationActions(props) {
-        return <PaginationActions {...props} isCursorPaginated={isCursorPaginated} />;
+        return (
+          <PaginationActions {...props} isCursorPaginated={isCursorPaginated} />
+        );
       },
     [isCursorPaginated]
   );
@@ -221,7 +223,12 @@ const MemoListingActionBar = ({
           {countLabel !== null && (
             <span className="text-sm px-2 text-[var(--mui-palette-text-secondary)] whitespace-nowrap">
               {!countConfig?.isLoading && (
-                <>{formatNumber(Math.min(limit * ((currentPage ?? 0) + 1), count))} {t(labelOf)}{' '}</>
+                <>
+                  {formatNumber(
+                    Math.min(limit * ((currentPage ?? 0) + 1), count)
+                  )}{' '}
+                  {t(labelOf)}{' '}
+                </>
               )}
               {countLabel}
             </span>
