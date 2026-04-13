@@ -53,8 +53,8 @@ runs:
       env:
         JF_URL: https://packages.centreon.com
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
-GH_HEAD_REF: ${{ github.head_ref || github.ref_name }}
-CENTREON_TECHNIQUE_PAT: ${{ inputs.centreon_technique_pat }}
+        GH_HEAD_REF: ${{ github.head_ref || github.ref_name }}
+        CENTREON_TECHNIQUE_PAT: ${{ inputs.centreon_technique_pat }}
       run: |
         set -eu
         . .version
@@ -62,7 +62,7 @@ CENTREON_TECHNIQUE_PAT: ${{ inputs.centreon_technique_pat }}
         feature_ticket=$(echo "$GH_HEAD_REF" | grep -oE 'MON-[0-9]+')
         echo "[INFO] Creating a rpm feature repository if it does not exist"
 
-        curl -X POST \
+        curl --fail-with-body -X POST \
             -H "Authorization: Bearer $CENTREON_TECHNIQUE_PAT" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/centreon/delivery-tooling/dispatches \
@@ -176,5 +176,5 @@ CENTREON_TECHNIQUE_PAT: ${{ inputs.centreon_technique_pat }}
             jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --sync-deletes="$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat  --detailed-summary
           fi
 
-          curl -H "Authorization: Bearer $JF_ACCESS_TOKEN" -X POST "$JF_URL/artifactory/api/yum/$ROOT_REPO_PATH?path=/$VERSION/$DISTRIB/${REINDEX_STABILITY}/$ARCH&async=1"
+          curl --fail-with-body -H "Authorization: Bearer $JF_ACCESS_TOKEN" -X POST "$JF_URL/artifactory/api/yum/$ROOT_REPO_PATH?path=/$VERSION/$DISTRIB/${REINDEX_STABILITY}/$ARCH&async=1"
         done
