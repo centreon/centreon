@@ -21,25 +21,19 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Domain\Event;
+namespace App\Shared\Domain\Repository;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
-use App\Shared\Domain\Aggregate\AggregateRootId;
-
-abstract readonly class AggregateCreated implements EventInterface
+interface SortableCriteria
 {
-    /**
-     * @param AggregateRoot<AggregateRootId> $aggregate
-     */
-    public function __construct(
-        public AggregateRoot $aggregate,
-        public int $creatorId,
-        public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
-    ) {
-    }
+    public function withSort(string $field, string|SortDirectionEnum $direction): static;
 
-    public function firedAt(): \DateTimeImmutable
-    {
-        return $this->firedAt;
-    }
+    /**
+     * @return array<string, SortDirectionEnum>
+     */
+    public function getSort(): array;
+
+    /**
+     * @return array<string, string>
+     */
+    public function getFieldMapping(): array;
 }

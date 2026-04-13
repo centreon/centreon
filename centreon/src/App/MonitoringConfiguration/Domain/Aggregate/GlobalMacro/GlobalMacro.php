@@ -21,21 +21,39 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate;
+namespace App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Collection;
 
 /**
- * @extends AggregateRoot<ServiceCategoryId>
+ * @extends AggregateRoot<GlobalMacroId>
  */
-final class ServiceCategory extends AggregateRoot
+final class GlobalMacro extends AggregateRoot
 {
+    /**
+     * @param Collection<Poller> $pollers
+     */
     public function __construct(
-        ?ServiceCategoryId $id,
-        public readonly ServiceCategoryName $name,
-        public readonly ServiceCategoryName $alias,
+        ?GlobalMacroId $id,
+        public readonly GlobalMacroName $name,
+        public readonly GlobalMacroExpression $expression,
+        public readonly ?GlobalMacroComment $comment,
+        public readonly bool $isPassword,
         public readonly bool $activated,
+        public readonly Collection $pollers,
     ) {
         parent::__construct($id);
+    }
+
+    public function addPoller(Poller $poller): void
+    {
+        if ($this->pollers->contains($poller)) {
+            return;
+        }
+
+        $this->pollers->add($poller);
+        $poller->addGlobalMacro($this);
     }
 }

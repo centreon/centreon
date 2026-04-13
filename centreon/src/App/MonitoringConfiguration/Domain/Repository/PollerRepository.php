@@ -21,25 +21,25 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Domain\Event;
+namespace App\MonitoringConfiguration\Domain\Repository;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
-use App\Shared\Domain\Aggregate\AggregateRootId;
+use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
+use App\Shared\Domain\Collection;
 
-abstract readonly class AggregateCreated implements EventInterface
+interface PollerRepository
 {
     /**
-     * @param AggregateRoot<AggregateRootId> $aggregate
+     * @return Collection<Poller>
      */
-    public function __construct(
-        public AggregateRoot $aggregate,
-        public int $creatorId,
-        public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
-    ) {
-    }
+    public function findAllByGlobalMacro(GlobalMacro $globalMacro): Collection;
 
-    public function firedAt(): \DateTimeImmutable
-    {
-        return $this->firedAt;
-    }
+    /**
+     * @throws PollerNotFoundException
+     */
+    public function get(PollerId $pollerId): Poller;
+
+    public function withCmaCertificates(): self;
 }

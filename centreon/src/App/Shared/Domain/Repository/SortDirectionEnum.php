@@ -21,25 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Domain\Event;
+namespace App\Shared\Domain\Repository;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
-use App\Shared\Domain\Aggregate\AggregateRootId;
-
-abstract readonly class AggregateCreated implements EventInterface
+enum SortDirectionEnum: string
 {
-    /**
-     * @param AggregateRoot<AggregateRootId> $aggregate
-     */
-    public function __construct(
-        public AggregateRoot $aggregate,
-        public int $creatorId,
-        public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
-    ) {
-    }
-
-    public function firedAt(): \DateTimeImmutable
-    {
-        return $this->firedAt;
-    }
+    case ASC = 'ASC';
+    case DESC = 'DESC';
 }

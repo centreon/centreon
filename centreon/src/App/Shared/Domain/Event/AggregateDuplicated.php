@@ -26,16 +26,37 @@ namespace App\Shared\Domain\Event;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 
-abstract readonly class AggregateCreated implements EventInterface
+/**
+ * @template T of AggregateRoot<AggregateRootId>
+ */
+abstract readonly class AggregateDuplicated implements EventInterface
 {
     /**
-     * @param AggregateRoot<AggregateRootId> $aggregate
+     * @param T|array<T> $aggregate
      */
     public function __construct(
-        public AggregateRoot $aggregate,
+        public AggregateRoot|array $aggregate,
         public int $creatorId,
         public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
     ) {
+        if (is_array($this->aggregate)) {
+            if ($this->aggregate === []) {
+                throw new \InvalidArgumentException('Aggregate array cannot be empty');
+            }
+
+            $firstType = $this->aggregate[0]::class;
+            foreach ($this->aggregate as $item) {
+                if (! $item instanceof AggregateRoot) {
+                    throw new \InvalidArgumentException('All elements must be instances of AggregateRoot');
+                }
+
+                if ($item::class !== $firstType) {
+                    throw new \InvalidArgumentException(
+                        sprintf('All aggregates must be of the same type. Expected %s, got %s', $firstType, $item::class)
+                    );
+                }
+            }
+        }
     }
 
     public function firedAt(): \DateTimeImmutable

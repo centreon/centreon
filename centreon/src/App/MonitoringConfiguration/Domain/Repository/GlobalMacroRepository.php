@@ -21,25 +21,15 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Domain\Event;
+namespace App\MonitoringConfiguration\Domain\Repository;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
-use App\Shared\Domain\Aggregate\AggregateRootId;
+use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\GlobalMacroCriteria;
 
-abstract readonly class AggregateCreated implements EventInterface
+interface GlobalMacroRepository
 {
     /**
-     * @param AggregateRoot<AggregateRootId> $aggregate
+     * @return \IteratorAggregate<int, GlobalMacro>&\Countable
      */
-    public function __construct(
-        public AggregateRoot $aggregate,
-        public int $creatorId,
-        public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
-    ) {
-    }
-
-    public function firedAt(): \DateTimeImmutable
-    {
-        return $this->firedAt;
-    }
+    public function findAll(?GlobalMacroCriteria $criteria = null): \IteratorAggregate&\Countable;
 }

@@ -21,25 +21,19 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Domain\Event;
+namespace App\Shared\Domain\Exception;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
-use App\Shared\Domain\Aggregate\AggregateRootId;
-
-abstract readonly class AggregateCreated implements EventInterface
+abstract class AggregateNotFoundException extends \RuntimeException
 {
     /**
-     * @param AggregateRoot<AggregateRootId> $aggregate
+     * @param array<string, mixed> $criteria
      */
     public function __construct(
-        public AggregateRoot $aggregate,
-        public int $creatorId,
-        public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
+        public readonly array $criteria,
+        string $message = 'Resource not found.',
+        int $code = 0,
+        ?\Throwable $previous = null,
     ) {
-    }
-
-    public function firedAt(): \DateTimeImmutable
-    {
-        return $this->firedAt;
+        parent::__construct($message, $code, $previous);
     }
 }

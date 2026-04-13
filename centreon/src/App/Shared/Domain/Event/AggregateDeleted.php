@@ -26,7 +26,7 @@ namespace App\Shared\Domain\Event;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 
-abstract readonly class AggregateCreated implements EventInterface
+abstract readonly class AggregateDeleted implements EventInterface
 {
     /**
      * @param AggregateRoot<AggregateRootId> $aggregate

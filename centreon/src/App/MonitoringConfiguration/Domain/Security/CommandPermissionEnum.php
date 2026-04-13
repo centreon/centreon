@@ -21,25 +21,16 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Domain\Event;
+namespace App\MonitoringConfiguration\Domain\Security;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
-use App\Shared\Domain\Aggregate\AggregateRootId;
-
-abstract readonly class AggregateCreated implements EventInterface
+enum CommandPermissionEnum: string
 {
-    /**
-     * @param AggregateRoot<AggregateRootId> $aggregate
-     */
-    public function __construct(
-        public AggregateRoot $aggregate,
-        public int $creatorId,
-        public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
-    ) {
-    }
-
-    public function firedAt(): \DateTimeImmutable
-    {
-        return $this->firedAt;
-    }
+    case CanReadChecks = 'can_read_command_checks';
+    case CanReadAndWriteChecks = 'can_read_and_write_command_checks';
+    case CanReadNotifications = 'can_read_command_notifications';
+    case CanReadAndWriteNotifications = 'can_read_and_write_command_notifications';
+    case CanReadMiscellaneous = 'can_read_command_miscellaneous';
+    case CanReadAndWriteMiscellaneous = 'can_read_and_write_command_miscellaneous';
+    case CanReadDiscovery = 'can_read_command_discovery';
+    case CanReadAndWriteDiscovery = 'can_read_and_write_command_discovery';
 }

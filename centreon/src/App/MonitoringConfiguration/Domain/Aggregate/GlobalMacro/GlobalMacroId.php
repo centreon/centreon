@@ -21,25 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Domain\Event;
+namespace App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 
-abstract readonly class AggregateCreated implements EventInterface
+final readonly class GlobalMacroId extends AggregateRootId
 {
-    /**
-     * @param AggregateRoot<AggregateRootId> $aggregate
-     */
-    public function __construct(
-        public AggregateRoot $aggregate,
-        public int $creatorId,
-        public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
-    ) {
-    }
-
-    public function firedAt(): \DateTimeImmutable
-    {
-        return $this->firedAt;
-    }
 }

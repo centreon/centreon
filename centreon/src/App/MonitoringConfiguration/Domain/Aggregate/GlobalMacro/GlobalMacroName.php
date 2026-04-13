@@ -21,25 +21,18 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Domain\Event;
+namespace App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
-use App\Shared\Domain\Aggregate\AggregateRootId;
+use Webmozart\Assert\Assert;
 
-abstract readonly class AggregateCreated implements EventInterface
+final readonly class GlobalMacroName
 {
-    /**
-     * @param AggregateRoot<AggregateRootId> $aggregate
-     */
-    public function __construct(
-        public AggregateRoot $aggregate,
-        public int $creatorId,
-        public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
-    ) {
-    }
+    public const NAMING_VALIDATION_REGEX = '/^\$.*\$$/';
 
-    public function firedAt(): \DateTimeImmutable
-    {
-        return $this->firedAt;
+    public function __construct(
+        public string $value,
+    ) {
+        Assert::lengthBetween($value, 1, 255);
+        Assert::regex($value, self::NAMING_VALIDATION_REGEX);
     }
 }
