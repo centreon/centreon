@@ -89,6 +89,11 @@ response_addTestsToTestPlan=$(curl -X POST \
 
 echo "Response from Add Tests to Test Plan:"
 echo "$response_addTestsToTestPlan"
+if echo "$response_addTestsToTestPlan" | jq -e '.errors' > /dev/null 2>&1; then
+  echo "GraphQL error on addTestsToTestPlan:" >&2
+  echo "$response_addTestsToTestPlan" >&2
+  exit 1
+fi
 
 get_test_plan_issue_ids() {
   start=0
@@ -153,15 +158,21 @@ for issue_id in "${issue_ids[@]}"; do
   response=$(cat "$response_body")
   rm -f "$response_body"
 
-  summary=$(echo "$response" | jq -r '.fields.summary')
-
-  if [ "$response_code" -eq 404 ]; then
-    echo "The issue with ID $issue_id does not exist or you do not have permission to see it." >&2
+  if [[ "$response_code" -lt 200 || "$response_code" -ge 300 ]]; then
+    echo "Failed to fetch Jira issue $issue_id (HTTP $response_code)." >&2
+    echo "$response" >&2
     exit 1
-  else
-    echo "The issue with ID $issue_id exists."
-    summaries+=("$summary")
   fi
+
+  summary=$(echo "$response" | jq -r '.fields.summary // empty')
+  if [[ -z "$summary" ]]; then
+    echo "Jira issue $issue_id returned no summary." >&2
+    echo "$response" >&2
+    exit 1
+  fi
+
+  echo "The issue with ID $issue_id exists."
+  summaries+=("$summary")
 done
 
 mapfile -t collections < <(find ./collections -type f -name "*.postman_collection.json")
@@ -233,11 +244,18 @@ for collection_file in "${collections[@]}"; do
           if [ "$(echo "$testType_mutation_response" | jq -r '.data.updateTestType')" != "null" ]; then
             echo "Successfully updated testType to API for Test Case with ID: $test_case_id"
           else
-            echo "Failed to update testType for Test Case with ID: $test_case_id"
+            echo "Failed to update testType for Test Case with ID: $test_case_id" >&2
+            echo "$testType_mutation_response" >&2
+            exit 1
           fi
 
           # Execute the GraphQL mutation to add tests to the test plan
           response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $XRAY_TOKEN" --data "$xray_graphql_AddingTestsToTestPlan_variables" "https://xray.cloud.getxray.app/api/v2/graphql")
+          if echo "$response" | jq -e '.errors' > /dev/null 2>&1; then
+            echo "GraphQL error on addTestsToTestPlan (loop) for test case $test_case_id:" >&2
+            echo "$response" >&2
+            exit 1
+          fi
         else
           echo "Test Case with ID $test_case_id already exists in the test plan."
         fi
@@ -271,3 +289,8 @@ response_addTestsToTestExecution=$(curl -X POST -H "Content-Type: application/js
 
 echo "Response from Add Tests to Test Execution:"
 echo "$response_addTestsToTestExecution"
+if echo "$response_addTestsToTestExecution" | jq -e '.errors' > /dev/null 2>&1; then
+  echo "GraphQL error on addTestsToTestExecution:" >&2
+  echo "$response_addTestsToTestExecution" >&2
+  exit 1
+fi
