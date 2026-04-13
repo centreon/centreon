@@ -376,7 +376,7 @@ jobs:
                 git status
                 git add .
                 git commit -m "chore(lang): update translations"
-                git push
+                git push || echo "::warning::Failed to push translations commit (technique-ci may not have push access)."
               else
                 echo "::notice::Last commit author is technique-ci. Skipping commit to avoid infinite loop."
                 cd ..
@@ -934,6 +934,12 @@ jobs:
   dockerize:
     runs-on: ubuntu-24.04
     needs: [get-environment, changes, package]
+    permissions:
+      contents: read
+      packages: read
+      actions: write
+    outputs:
+      image_tag: ${{ steps.image_tag.outputs.tag }}
     if: |
       needs.changes.outputs.trigger_packaging == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -985,7 +991,12 @@ jobs:
             echo "tag=develop-${MAJOR_VERSION}" >> $GITHUB_OUTPUT
             echo "additional_tag=develop" >> $GITHUB_OUTPUT
           else
-            echo "tag=$REF" >> $GITHUB_OUTPUT
+            SANITIZED_REF="$(printf '%s' "$REF" | sed -E 's#[^[:alnum:]_.-]+#-#g; s#^[.-]+##; s#-+#-#g' | cut -c1-128)"
+            if [[ -z "$SANITIZED_REF" ]]; then
+              echo "::error::Unable to derive a valid Docker tag from ref '$REF'"
+              exit 1
+            fi
+            echo "tag=$SANITIZED_REF" >> $GITHUB_OUTPUT
             echo "additional_tag=" >> $GITHUB_OUTPUT
           fi
         shell: bash
@@ -997,14 +1008,22 @@ jobs:
           username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
           password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
       - name: Get FROM image tag
         id: from_image_version
         uses: ./.github/actions/get-docker-from-image-version
         with:
-          from_image: centreon-web-dependencies-collect-${{ matrix.operating_system }}
+          from_image: centreon-web-dependencies-collect
           current_tag: ${{ steps.image_tag.outputs.tag }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
-          registry_url: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          registry_url: ghcr.io/${{ github.repository }}
+          tag_suffix: -${{ matrix.operating_system }}
 
       - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
         uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -1052,7 +1071,7 @@ jobs:
           file: .github/docker/${{ env.project }}/${{ matrix.operating_system }}/Dockerfile
           context: .
           build-args: |
-            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+            "REGISTRY_URL=ghcr.io/${{ github.repository }}"
             "MAJOR_VERSION=${{ needs.get-environment.outputs.major_version }}"
             "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
@@ -1140,7 +1159,7 @@ jobs:
       db_id: ${{ matrix.db_id }}
       container_name: my_centreon_container
       centreon_url: http://localhost
-      centreon_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
+      centreon_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-${{ matrix.operating_system }}:${{ needs.dockerize.outputs.image_tag }}
       database_image: bitnamilegacy/${{ matrix.database }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
       major_version: ${{ needs.get-environment.outputs.major_version }}
@@ -1241,8 +1260,6 @@ jobs:
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
       xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
       xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
-      artifactory_internal_repo_username: ${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}
-      artifactory_internal_repo_password: ${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}
       jira_base_url: ${{ secrets.JIRA_BASE_URL }}
       jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}

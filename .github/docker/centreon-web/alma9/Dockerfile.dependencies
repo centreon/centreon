@@ -6,9 +6,7 @@ ARG MAJOR_VERSION
 ARG IS_CLOUD
 ARG STABILITY
 
-RUN --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_USERNAME \
-    --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_PASSWORD \
-    bash -e <<EOF
+RUN bash -e <<EOF
 
 ######################################
 # install and configure repositories #
@@ -24,8 +22,7 @@ dnf config-manager --set-enabled crb
 dnf install -y epel-release
 
 if [[ "${IS_CLOUD}" == "true" ]]; then
-  dnf config-manager --add-repo https://$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal/${MAJOR_VERSION}/el9/centreon-${MAJOR_VERSION}-internal.repo
-  sed -i "s#packages.centreon.com/rpm-standard-internal#$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-${MAJOR_VERSION}-internal.repo
+  dnf config-manager --add-repo https://packages.centreon.com/rpm-standard-internal/${MAJOR_VERSION}/el9/centreon-${MAJOR_VERSION}-internal.repo
 else
   dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${MAJOR_VERSION}/el9/centreon-${MAJOR_VERSION}.repo
 fi
