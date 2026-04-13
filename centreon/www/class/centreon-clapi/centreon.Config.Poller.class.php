@@ -580,17 +580,16 @@ class CentreonConfigPoller
             }
 
             // Restart centreon_vmware on central only if VMWare config has changed
-            $vmwareStatement = $pearDB->prepare(
-                'SELECT vmware_updated FROM nagios_server WHERE id = :pollerId'
+            // Atomically claim the flag to avoid race conditions with concurrent exports
+            $claimedRows = $pearDB->exec(
+                "UPDATE nagios_server SET vmware_updated = '0' WHERE vmware_updated = '1' AND id = " . (int) $pollerId
             );
-            $vmwareStatement->bindValue(':pollerId', (int) $pollerId, PDO::PARAM_INT);
-            $vmwareStatement->execute();
-            $vmwareRow = $vmwareStatement->fetch(PDO::FETCH_ASSOC);
-            if ($vmwareRow && $vmwareRow['vmware_updated'] === '1') {
-                exec(escapeshellcmd('sudo -n -- systemctl restart centreon_vmware'), $restartOutput, $restartReturnCode);
-                if ($restartReturnCode === 0) {
+            if ($claimedRows > 0) {
+                exec(escapeshellcmd('sudo -n -- systemctl restart centreon_vmware'), $_, $restartReturnCode);
+                if ($restartReturnCode !== 0) {
+                    // Restart failed, restore the flag so it is retried on next export
                     $pearDB->query(
-                        "UPDATE nagios_server SET vmware_updated = '0' WHERE id = " . (int) $pollerId
+                        "UPDATE nagios_server SET vmware_updated = '1' WHERE id = " . (int) $pollerId
                     );
                 }
             }
@@ -655,17 +654,16 @@ class CentreonConfigPoller
             $return = $this->writeToCentcorePipe('SENDCFGFILE', $host['id']);
 
             // Send VMWARERESTART to remote poller only if VMWare config has changed
-            $vmwareStatement = $pearDB->prepare(
-                'SELECT vmware_updated FROM nagios_server WHERE id = :pollerId'
+            // Atomically claim the flag to avoid race conditions with concurrent exports
+            $claimedRows = $pearDB->exec(
+                "UPDATE nagios_server SET vmware_updated = '0' WHERE vmware_updated = '1' AND id = " . (int) $host['id']
             );
-            $vmwareStatement->bindValue(':pollerId', (int) $host['id'], PDO::PARAM_INT);
-            $vmwareStatement->execute();
-            $vmwareRow = $vmwareStatement->fetch(PDO::FETCH_ASSOC);
-            if ($vmwareRow && $vmwareRow['vmware_updated'] === '1') {
+            if ($claimedRows > 0) {
                 $vmwareReturn = $this->writeToCentcorePipe('VMWARERESTART', $host['id']);
-                if ($vmwareReturn === 0) {
+                if ($vmwareReturn !== 0) {
+                    // Write failed, restore the flag so it is retried on next export
                     $pearDB->query(
-                        "UPDATE nagios_server SET vmware_updated = '0' WHERE id = " . (int) $host['id']
+                        "UPDATE nagios_server SET vmware_updated = '1' WHERE id = " . (int) $host['id']
                     );
                 }
             }

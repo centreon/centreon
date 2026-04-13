@@ -146,27 +146,32 @@ class PollerInteractionService
                 }
 
                 // Send VMWARERESTART only if VMWare config has changed
-                $vmwareStatement = $this->db->prepare(
-                    'SELECT vmware_updated FROM nagios_server WHERE id = :pollerId'
+                // Atomically claim the flag to avoid race conditions with concurrent exports
+                $claimedRows = $this->db->exec(
+                    "UPDATE nagios_server SET vmware_updated = '0' WHERE vmware_updated = '1' AND id = " . (int) $host['id']
                 );
-                $vmwareStatement->bindValue(':pollerId', (int) $host['id'], \PDO::PARAM_INT);
-                $vmwareStatement->execute();
-                $vmwareRow = $vmwareStatement->fetch(\PDO::FETCH_ASSOC);
-                if ($vmwareRow && $vmwareRow['vmware_updated'] === '1') {
+                if ($claimedRows > 0) {
+                    $vmwareRestartSucceeded = false;
                     if (isset($host['localhost']) && $host['localhost'] == 1) {
                         exec(escapeshellcmd('sudo -n -- systemctl restart centreon_vmware'), $restartOutput, $restartReturnCode);
                         $vmwareRestartSucceeded = $restartReturnCode === 0;
                     } else {
-                        passthru("echo 'VMWARERESTART:{$host['id']}' >> {$centCorePipe}", $vmwareReturn);
+                        passthru(escapeshellcmd("echo 'VMWARERESTART:{$host['id']}'") . ' >> ' . escapeshellcmd($centCorePipe), $vmwareReturn);
                         if ($vmwareReturn) {
+                            // Write failed, restore the flag so it is retried on next export
+                            $this->db->query(
+                                "UPDATE nagios_server SET vmware_updated = '1' WHERE id = " . (int) $host['id']
+                            );
+
                             throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
                         }
 
                         $vmwareRestartSucceeded = true;
                     }
-                    if ($vmwareRestartSucceeded) {
+                    if (! $vmwareRestartSucceeded) {
+                        // Restart failed, restore the flag so it is retried on next export
                         $this->db->query(
-                            "UPDATE nagios_server SET vmware_updated = '0' WHERE id = " . (int) $host['id']
+                            "UPDATE nagios_server SET vmware_updated = '1' WHERE id = " . (int) $host['id']
                         );
                     }
                 }

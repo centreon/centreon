@@ -343,15 +343,16 @@ try {
                     ));
                 }
                 // Restart centreon_vmware on central only if VMWare config has changed
-                $vmwareUpdatedResult = $pearDB->query(
-                    'SELECT vmware_updated FROM nagios_server WHERE id = ' . (int) $host['id']
+                // Atomically claim the flag to avoid race conditions with concurrent exports
+                $claimedRows = $pearDB->exec(
+                    'UPDATE nagios_server SET vmware_updated = \'0\' WHERE vmware_updated = \'1\' AND id = ' . (int) $host['id']
                 );
-                $vmwareRow = $vmwareUpdatedResult->fetch();
-                if ($vmwareRow && $vmwareRow['vmware_updated'] === '1') {
-                    exec(escapeshellcmd('sudo -n -- systemctl restart centreon_vmware'), $restartOutput, $restartReturnCode);
-                    if ($restartReturnCode === 0) {
+                if ($claimedRows > 0) {
+                    exec(escapeshellcmd('sudo -n -- systemctl restart centreon_vmware'), $_, $restartReturnCode);
+                    if ($restartReturnCode !== 0) {
+                        // Restart failed, restore the flag so it is retried on next export
                         $pearDB->query(
-                            'UPDATE nagios_server SET vmware_updated = \'0\' WHERE id = ' . (int) $host['id']
+                            'UPDATE nagios_server SET vmware_updated = \'1\' WHERE id = ' . (int) $host['id']
                         );
                     }
                 }
@@ -364,21 +365,23 @@ try {
                     throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
                 }
                 // Send VMWARERESTART to remote poller only if VMWare config has changed
-                $vmwareUpdatedResult = $pearDB->query(
-                    'SELECT vmware_updated FROM nagios_server WHERE id = ' . (int) $host['id']
+                // Atomically claim the flag to avoid race conditions with concurrent exports
+                $claimedRows = $pearDB->exec(
+                    'UPDATE nagios_server SET vmware_updated = \'0\' WHERE vmware_updated = \'1\' AND id = ' . (int) $host['id']
                 );
-                $vmwareRow = $vmwareUpdatedResult->fetch();
-                if ($vmwareRow && $vmwareRow['vmware_updated'] === '1') {
+                if ($claimedRows > 0) {
                     passthru(
                         escapeshellcmd("echo 'VMWARERESTART:{$host['id']}'") . ' >> ' . escapeshellcmd($centcore_pipe),
                         $vmwareReturn
                     );
                     if ($vmwareReturn) {
+                        // Write failed, restore the flag so it is retried on next export
+                        $pearDB->query(
+                            'UPDATE nagios_server SET vmware_updated = \'1\' WHERE id = ' . (int) $host['id']
+                        );
+
                         throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
                     }
-                    $pearDB->query(
-                        'UPDATE nagios_server SET vmware_updated = \'0\' WHERE id = ' . (int) $host['id']
-                    );
                 }
                 if (! isset($msg_restart[$host['id']])) {
                     $msg_restart[$host['id']] = '';
