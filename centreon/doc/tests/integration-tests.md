@@ -37,7 +37,7 @@ rootPassword=your_root_password
 
 ## 3. Run the tests
 
-From `centreon/centreon/`:
+From `centreon/`:
 
 ```bash
 # App tests (API Platform)
