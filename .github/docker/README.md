@@ -72,7 +72,7 @@ Currently, the following profiles are available:
   * centreon configuration is done automatically with auto import enabled
   * login user: **saml** / **Centreon!2021**
   * :warning: ACLs must be configured manually
-* `openldap`: run a docker image of openldap
+* `ldap`: run a docker image of ldap
   * centreon configuration is done automatically with auto import enabled
   * login user: **centreon-ldap** / **centreon**
   * :warning: ACLs must be configured manually

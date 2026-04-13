@@ -13,7 +13,7 @@ services:
       VAULT_HOST: vault
       OPENID_HOST: sso-proxy
       SAML_HOST: saml
-      LDAP_HOST: openldap
+      LDAP_HOST: ldap
       CENTREON_DATASET: ${CENTREON_DATASET:-1}
       CENTREON_LANG: ${CENTREON_LANG:-en_US}
       DATABASE_PARTITIONING: ${DATABASE_PARTITIONING:-1}
@@ -82,8 +82,8 @@ services:
     ports: ["8080:8080"]
     profiles: ["saml"]
 
-  openldap:
-    image: docker.centreon.com/centreon/mon-openldap:latest
+  ldap:
+    image: "${LDAP_IMAGE:-ghcr.io/centreon/centreon/ldap:26.05}"
     ports: ["389"]
     profiles: ["openldap", "ldap"]
 
