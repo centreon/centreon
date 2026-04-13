@@ -54,7 +54,6 @@ import {
 } from './testUtils';
 import useLoadDetails from './useLoadResources/useLoadDetails';
 
-
 const configureUserAtomViewMode = (
   listingVariant: ListingVariant = ListingVariant.compact
 ): void => {
@@ -457,7 +456,9 @@ describe('Listing request', () => {
       .click();
 
     cy.waitForRequest('@dataToListingTable').then(({ request }) => {
-      expect(JSON.parse(request.url.searchParams.get('cursor'))).to.equal('cursor_page_2');
+      expect(JSON.parse(request.url.searchParams.get('cursor'))).to.equal(
+        'cursor_page_2'
+      );
     });
 
     cy.findByLabelText('Previous page')
