@@ -93,9 +93,7 @@ jobs:
 
       - name: Remove tag from merged branch
         if: github.event.action == 'closed'
-        env:
-          head_ref: ${{ github.event.pull_request.head.ref }}
-        run: npm dist-tag rm @centreon/${{ steps.get-package-info.outputs.package_name }} ${{ env.head_ref }}
+        run: npm dist-tag rm ${{ steps.get-package-info.outputs.package_name }} ${{ github.event.pull_request.head.ref }} || echo "::warning::Tag ${{ github.event.pull_request.head.ref }} does not exist, skipping removal"
         working-directory: ${{ inputs.package_directory }}
 
   set-skip-label:
