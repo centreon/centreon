@@ -69,13 +69,20 @@ function testExistence($name = null, $instanceId = null)
     if ($instanceIds === []) {
         return true;
     }
+    $instancePlaceholders = [];
+    foreach (array_values($instanceIds) as $i => $instId) {
+        $instancePlaceholders[] = ':instanceId' . $i;
+    }
     $prepare = $pearDB->prepare(
         'SELECT cr.resource_name, crir.resource_id, crir.instance_id '
         . 'FROM cfg_resource cr, cfg_resource_instance_relations crir '
         . 'WHERE cr.resource_id = crir.resource_id '
-        . 'AND crir.instance_id IN (' . implode(',', $instanceIds) . ') '
+        . 'AND crir.instance_id IN (' . implode(', ', $instancePlaceholders) . ') '
         . 'AND cr.resource_name = :resource_name'
     );
+    foreach (array_values($instanceIds) as $i => $instId) {
+        $prepare->bindValue(':instanceId' . $i, (int) $instId, PDO::PARAM_INT);
+    }
     $prepare->bindValue(':resource_name', $name, PDO::PARAM_STR);
     $prepare->execute();
     $total = $prepare->rowCount();
