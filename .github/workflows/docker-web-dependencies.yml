@@ -10,6 +10,7 @@ on:
     paths:
       - ".version*"
       - '.github/docker/centreon-web/**/Dockerfile.dependencies'
+      - ".github/workflows/docker-web-dependencies.yml"
   push:
     branches:
       - develop
@@ -17,6 +18,7 @@ on:
     paths:
       - ".version*"
       - '.github/docker/centreon-web/**/Dockerfile.dependencies'
+      - ".github/workflows/docker-web-dependencies.yml"
   schedule:
     - cron: "0 2 * * 1-5"
 
@@ -52,6 +54,9 @@ jobs:
     needs: [get-environment]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
 
     strategy:
       fail-fast: false
@@ -64,9 +69,9 @@ jobs:
       - name: Login to registry
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
-          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-          username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
-          password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Compute image tag
         id: image_tag
@@ -84,7 +89,7 @@ jobs:
             echo "additional_tag=" >> $GITHUB_OUTPUT
             echo "major_version_tag=" >> $GITHUB_OUTPUT
           else
-            echo "tag=$REF" >> $GITHUB_OUTPUT
+            echo "tag=${REF//\//-}" >> $GITHUB_OUTPUT
             echo "additional_tag=" >> $GITHUB_OUTPUT
             echo "major_version_tag=" >> $GITHUB_OUTPUT
           fi
@@ -93,28 +98,36 @@ jobs:
       - name: Compute docker tags
         id: docker_tags
         env:
-          REGISTRY: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           DISTRIB: ${{ matrix.distrib }}
           TAG: ${{ steps.image_tag.outputs.tag }}
           ADDITIONAL: ${{ steps.image_tag.outputs.additional_tag }}
           MAJOR_VERSION_TAG: ${{ steps.image_tag.outputs.major_version_tag }}
         run: |
-          WEB_DEPS="${REGISTRY}/centreon-web-dependencies-${DISTRIB}"
-          WEB_DEPS_COLLECT="${REGISTRY}/centreon-web-dependencies-collect-${DISTRIB}"
+          WEB_DEPS="ghcr.io/${{ github.repository }}/centreon-web-dependencies"
+          WEB_DEPS_COLLECT="ghcr.io/${{ github.repository }}/centreon-web-dependencies-collect"
 
-          TAGS_DEPS="${WEB_DEPS}:${TAG}"
-          TAGS_DEPS_COLLECT="${WEB_DEPS_COLLECT}:${TAG}"
+          TAGS_DEPS="${WEB_DEPS}:${TAG}-${DISTRIB}"
+          TAGS_DEPS_COLLECT="${WEB_DEPS_COLLECT}:${TAG}-${DISTRIB}"
           if [[ -n "$ADDITIONAL" ]]; then
-            TAGS_DEPS="${TAGS_DEPS},${WEB_DEPS}:${ADDITIONAL}"
-            TAGS_DEPS_COLLECT="${TAGS_DEPS_COLLECT},${WEB_DEPS_COLLECT}:${ADDITIONAL}"
+            TAGS_DEPS="${TAGS_DEPS},${WEB_DEPS}:${ADDITIONAL}-${DISTRIB}"
+            TAGS_DEPS_COLLECT="${TAGS_DEPS_COLLECT},${WEB_DEPS_COLLECT}:${ADDITIONAL}-${DISTRIB}"
           fi
           if [[ -n "$MAJOR_VERSION_TAG" ]]; then
-            TAGS_DEPS="${TAGS_DEPS},${WEB_DEPS}:${MAJOR_VERSION_TAG}"
-            TAGS_DEPS_COLLECT="${TAGS_DEPS_COLLECT},${WEB_DEPS_COLLECT}:${MAJOR_VERSION_TAG}"
+            TAGS_DEPS="${TAGS_DEPS},${WEB_DEPS}:${MAJOR_VERSION_TAG}-${DISTRIB}"
+            TAGS_DEPS_COLLECT="${TAGS_DEPS_COLLECT},${WEB_DEPS_COLLECT}:${MAJOR_VERSION_TAG}-${DISTRIB}"
           fi
           echo "tags_deps=${TAGS_DEPS}" >> $GITHUB_OUTPUT
           echo "tags_deps_collect=${TAGS_DEPS_COLLECT}" >> $GITHUB_OUTPUT
         shell: bash
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
+        with:
+          images: ghcr.io/${{ github.repository }}/centreon-web-dependencies
+          labels: |
+            com.centreon.stability=${{ needs.get-environment.outputs.stability }}
+            com.centreon.version=${{ needs.get-environment.outputs.major_version }}
 
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
@@ -136,11 +149,9 @@ jobs:
             "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
           pull: true
-          push: true
+          outputs: type=image,push=true,annotation-index.org.opencontainers.image.description=Centreon web dependencies image
           tags: ${{ steps.docker_tags.outputs.tags_deps }}
-          secrets: |
-            "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
-            "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
+          labels: ${{ steps.meta.outputs.labels }}
 
       - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         if: |
@@ -160,11 +171,9 @@ jobs:
             "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
           pull: false
-          push: true
+          outputs: type=image,push=true,annotation-index.org.opencontainers.image.description=Centreon web dependencies collect image
           tags: ${{ steps.docker_tags.outputs.tags_deps_collect }}
-          secrets: |
-            "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
-            "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
+          labels: ${{ steps.meta.outputs.labels }}
 
   set-skip-label:
     needs: [get-environment, dockerize]

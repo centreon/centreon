@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 import serviceMacros from '../../../fixtures/macros/services.json';
 
@@ -21,19 +22,19 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_host&*'
+    url: `${INTERCEPTORS.pages.centreon_configuration_host}&*`
   }).as('getHostsList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/monitoring-servers/generate-and-reload'
+    url: INTERCEPTORS.api.generate_reload_pollers
   }).as('exportConf');
 });
 
