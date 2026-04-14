@@ -436,15 +436,23 @@ function insertInstanceRelations($resourceId, $instanceId = null): void
             $instances = CentreonUtils::mergeWithInitialValues($form, 'instance_id');
         }
 
-        $insertStmt = $pearDB->prepare(
-            'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id) VALUES (:resourceId, :instanceId)'
-        );
-        foreach ($instances as $instanceId) {
-            if (is_numeric($instanceId)) {
-                $insertStmt->bindValue(':resourceId', (int) $resourceId, PDO::PARAM_INT);
-                $insertStmt->bindValue(':instanceId', (int) $instanceId, PDO::PARAM_INT);
-                $insertStmt->execute();
+        $validInstances = array_filter($instances, 'is_numeric');
+        if ($validInstances !== []) {
+            $placeholders = [];
+            $bindValues = [];
+            foreach (array_values($validInstances) as $i => $instId) {
+                $placeholders[] = '(:resourceId' . $i . ', :instanceId' . $i . ')';
+                $bindValues[':resourceId' . $i] = [(int) $resourceId, PDO::PARAM_INT];
+                $bindValues[':instanceId' . $i] = [(int) $instId, PDO::PARAM_INT];
             }
+            $stmt = $pearDB->prepare(
+                'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id) VALUES '
+                . implode(', ', $placeholders)
+            );
+            foreach ($bindValues as $param => [$value, $type]) {
+                $stmt->bindValue($param, $value, $type);
+            }
+            $stmt->execute();
         }
     }
 }
