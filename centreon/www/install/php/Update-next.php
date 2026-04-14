@@ -863,6 +863,34 @@ $deleteOldCommandsTopologies = function () use ($pearDB, &$errorMessage, $versio
     );
 };
 
+$addPollerTypeColumn = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add poller_type column to nagios_server';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Adding poller_type column to nagios_server",
+    );
+
+    if ($pearDB->columnExists('nagios_server', 'poller_type')) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Column poller_type already exists on nagios_server, skipping",
+        );
+
+        return;
+    }
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server` ADD COLUMN `poller_type` varchar(10) NOT NULL DEFAULT 'vm'
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully added poller_type column to nagios_server",
+    );
+};
+
 try {
     // DDL statements for real time database
     $pearDBO->executeStatement(
@@ -872,7 +900,7 @@ try {
     );
 
     // DDL statements for configuration database
-    // TODO add your function calls to update the configuration database structure here
+    $addPollerTypeColumn();
 
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {
