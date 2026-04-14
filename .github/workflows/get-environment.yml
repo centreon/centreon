@@ -474,11 +474,11 @@ jobs:
             const developMajorVersion = "${{ steps.latest_major_version.outputs.latest_major_version }}";
             const currentMajorVersion = "${{ steps.get_version.outputs.major_version }}";
             // if major version is higher than develop major version => it is a cloud version
-            // if month number is not 04 or 10 => it is a cloud version
+            // if month number is not 10 => it is a cloud version
             // anything else => onprem
             const isCloudCandidate =
               Number(currentMajorVersion) >= Number(developMajorVersion) ||
-              !currentMajorVersion.match(/\.(04|10)$/);
+              !currentMajorVersion.match(/\.10$/);
 
             let releaseScope = "unknown";
 
