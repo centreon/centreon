@@ -19,12 +19,11 @@
  *
  */
 
-use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
-\$version = '26.04.0';
+$version = '26.04.0';
 
 $errorMessage = '';
 
