@@ -863,6 +863,7 @@ $deleteOldCommandsTopologies = function () use ($pearDB, &$errorMessage, $versio
     );
 };
 
+/** ------------------------------------- Pollers ------------------------------------- */
 $addPollerTypeColumn = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to add poller_type column to nagios_server';
     CentreonLog::create()->info(
@@ -870,7 +871,11 @@ $addPollerTypeColumn = function () use ($pearDB, &$errorMessage, $version): void
         message: "UPGRADE - {$version}: Adding poller_type column to nagios_server",
     );
 
-    if ($pearDB->columnExists('nagios_server', 'poller_type')) {
+    if ($pearDB->columnExists(
+            $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
+            'nagios_server',
+            'poller_type'
+        )) {
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: Column poller_type already exists on nagios_server, skipping",
