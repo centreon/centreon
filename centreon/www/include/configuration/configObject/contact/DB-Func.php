@@ -355,11 +355,12 @@ function unblockContactInDB(int|array|null $contact = null): void
 
     try {
         // Build IN() clause safely
-        [$inClause, $queryParameters] = createMultipleBindParameters(
+        ['placeholderList' => $inClause, 'parameters' => $parameters] = createMultipleBindParameters(
             $contactIds,
             'contact_id_',
             QueryParameterTypeEnum::INTEGER,
         );
+        $queryParameters = QueryParameters::create($parameters);
 
         // Retrieve contacts for logging
         $selectQuery = <<<SQL
