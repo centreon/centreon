@@ -1047,11 +1047,12 @@ function updateServer(int $id, array $data): void
     } else {
         $rq .= "'1' ";
     }
-    $rq .= 'WHERE id = ' . (int) $id;
+    $rq .= 'WHERE id = :where_id';
     $stmt = $pearDB->prepare($rq);
     foreach ($retValue as $key => $value) {
         $stmt->bindValue($key, $value);
     }
+    $stmt->bindValue(':where_id', $id, PDO::PARAM_INT);
     $stmt->execute();
 
     // if the poller is activated, always keep cfg file activated
