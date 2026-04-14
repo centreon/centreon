@@ -254,9 +254,11 @@ function multipleLCAInDB($acls = [], $duplicateNbr = [])
 
         $topology['acl_topo_id'] = '';
         for ($newIndex = 1; $newIndex <= $duplicateNbr[$currentTopologyId]; $newIndex++) {
-            $val = null;
             $aclName = null;
             $fields = [];
+            $columns = [];
+            $values = [];
+
             foreach ($topology as $column => $value) {
                 if ($column === 'acl_topo_name') {
                     $count = 1;
@@ -268,25 +270,28 @@ function multipleLCAInDB($acls = [], $duplicateNbr = [])
                     $value = $aclName;
                     $fields['acl_topo_name'] = $aclName;
                 }
-                if (is_null($val)) {
-                    $val .= (is_null($value) || empty($value))
-                        ? 'NULL'
-                        : "'" . $pearDB->escape($value) . "'";
-                } else {
-                    $val .= (is_null($value) || empty($value))
-                        ? ', NULL'
-                        : ", '" . $pearDB->escape($value) . "'";
-                }
 
                 if ($column !== 'acl_topo_id' && $column !== 'acl_topo_name') {
                     $fields[$column] = $value;
                 }
+
+                $columns[] = $column;
+                $values[$column] = $value;
             }
 
-            if (! is_null($val)) {
-                $pearDB->query(
-                    "INSERT INTO acl_topology VALUES ({$val})"
+            if ($values !== []) {
+                $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+                $insertStmt = $pearDB->prepare(
+                    'INSERT INTO acl_topology (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
                 );
+                foreach ($values as $col => $val) {
+                    if ($val === null || $val === '') {
+                        $insertStmt->bindValue(':' . $col, null, PDO::PARAM_NULL);
+                    } else {
+                        $insertStmt->bindValue(':' . $col, $val, PDO::PARAM_STR);
+                    }
+                }
+                $insertStmt->execute();
                 $newTopologyId = $pearDB->lastInsertId();
 
                 $prepareInsertRelation = $pearDB->prepare(
