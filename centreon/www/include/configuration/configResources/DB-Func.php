@@ -56,6 +56,9 @@ function testExistence($name = null, $instanceId = null)
     if (isset($form)) {
         $id = (int) $form->getSubmitValue('resource_id');
         $instanceIds = $form->getSubmitValue('instance_id');
+        if (! is_array($instanceIds)) {
+            return true;
+        }
         $instanceIds = filter_var_array(
             $instanceIds,
             FILTER_VALIDATE_INT
