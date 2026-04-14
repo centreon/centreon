@@ -139,14 +139,15 @@ function deleteNagiosInDB($nagios = [])
 {
     global $pearDB;
 
-    foreach ($nagios as $key => $value) {
-        $statement = $pearDB->prepare('DELETE FROM cfg_nagios WHERE nagios_id = :nagios_id');
-        $statement->bindValue(':nagios_id', (int) $key, PDO::PARAM_INT);
-        $statement->execute();
+    $deleteNagiosStmt = $pearDB->prepare('DELETE FROM cfg_nagios WHERE nagios_id = :id');
+    $deleteBrokerStmt = $pearDB->prepare('DELETE FROM cfg_nagios_broker_module WHERE cfg_nagios_id = :id');
 
-        $statement = $pearDB->prepare('DELETE FROM cfg_nagios_broker_module WHERE cfg_nagios_id = :cfg_nagios_id');
-        $statement->bindValue(':cfg_nagios_id', (int) $key, PDO::PARAM_INT);
-        $statement->execute();
+    foreach ($nagios as $key => $value) {
+        $deleteNagiosStmt->bindValue(':id', (int) $key, PDO::PARAM_INT);
+        $deleteNagiosStmt->execute();
+
+        $deleteBrokerStmt->bindValue(':id', (int) $key, PDO::PARAM_INT);
+        $deleteBrokerStmt->execute();
     }
     $dbResult = $pearDB->query(
         "SELECT nagios_id FROM cfg_nagios WHERE nagios_activate = '1'"
