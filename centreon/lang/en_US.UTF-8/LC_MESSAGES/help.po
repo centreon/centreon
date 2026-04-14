@@ -1945,7 +1945,7 @@ msgid ""
 "Information note displayed as a tooltip in the Notes column of the Resources "
 "Status page."
 msgstr ""
-"Information note displayed as a tooltip in the Notes column of the Resources "
+"Information note displayed as a tooltip in the Notes column of the Resource "
 "Status page."
 
 #: centreon/www/include/Administration/parameters/engine/help.php
