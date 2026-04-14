@@ -565,6 +565,18 @@ msgstr ""
 "vous n'utilisez pas les mises à jour cumulatives de données d'état, cette "
 "option n'a aucun effet. L'intervalle minimal est de 2 secondes."
 
+#: centreon/www/include/Administration/parameters/general/help.php
+msgid ""
+"Comma-separated list of domains allowed to embed public pages (playlists) "
+"in iframes. Example: https://dashboard.example.com, "
+"https://monitoring.example.com. When empty, embedding is blocked (equivalent "
+"to sameorigin)."
+msgstr ""
+"Liste de domaines (séparés par des virgules) autorisés à intégrer les pages "
+"publiques (playlists) dans des iframes. Exemple : "
+"https://dashboard.example.com, https://monitoring.example.com. Si vide, "
+"l'intégration est bloquée (équivalent à sameorigin)."
+
 #: centreon/www/include/configuration/configServers/help.php
 msgid "Command to reload Centreon Broker process"
 msgstr "Commande pour recharger le processus Centreon Broker"

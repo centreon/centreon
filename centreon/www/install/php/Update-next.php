@@ -879,6 +879,17 @@ try {
         $pearDB->startTransaction();
     }
 
+    // Add allowed_embedding_domains option if it does not exist
+    $errorMessage = 'Unable to insert allowed_embedding_domains option';
+    $embeddingOptionExists = $pearDB->fetchOne(
+        "SELECT COUNT(*) FROM `options` WHERE `key` = 'allowed_embedding_domains'"
+    );
+    if ((int) $embeddingOptionExists === 0) {
+        $pearDB->executeStatement(
+            "INSERT INTO `options` (`key`, `value`) VALUES ('allowed_embedding_domains', NULL)"
+        );
+    }
+
     $createBrokerOutputEventScript();
     if ($isMachineACentral()) {
         $insertEventScriptOutputForCMA();

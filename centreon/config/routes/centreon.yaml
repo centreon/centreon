@@ -25,3 +25,9 @@ core_attribute:
       version: "latest"
     requirements:
         base_uri: ".*"
+public_page:
+    resource: "./../../src/Core/PublicPage/Infrastructure/**/*Controller.php"
+    type: attribute
+    prefix: "{base_uri}"
+    requirements:
+        base_uri: ".*"

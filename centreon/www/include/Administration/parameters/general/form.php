@@ -190,6 +190,9 @@ $form->addGroup(
 $options3[] = $form->createElement('checkbox', 'yes', '&nbsp;', '');
 $form->addGroup($options3, 'enable_gmt', _('Enable Timezone management'), '&nbsp;&nbsp;');
 
+// Embedding options
+$form->addElement('text', 'allowed_embedding_domains', _('Allowed Embedding Domains'), $attrsText);
+
 // Support Email
 $form->addElement('text', 'centreon_support_email', _('Centreon Support Email'), $attrsText);
 
@@ -198,6 +201,13 @@ $form->applyFilter('nagios_path', 'slash');
 $form->applyFilter('nagios_path_plugins', 'slash');
 $form->applyFilter('oreon_path', 'slash');
 $form->applyFilter('debug_path', 'slash');
+$form->registerRule('is_valid_embedding_domains', 'callback', 'is_valid_embedding_domains');
+$form->addRule(
+    'allowed_embedding_domains',
+    _('Each domain must be a valid URL (e.g. https://example.com). Separate multiple domains with commas.'),
+    'is_valid_embedding_domains'
+);
+
 $form->registerRule('is_valid_path', 'callback', 'is_valid_path');
 $form->registerRule('is_readable_path', 'callback', 'is_readable_path');
 $form->registerRule('is_executable_binary', 'callback', 'is_executable_binary');
@@ -301,6 +311,7 @@ $tpl->assign('genOpt_global_display', _('Display properties'));
 $tpl->assign('genOpt_problem_display', _('Problem display properties'));
 $tpl->assign('genOpt_time_zone', _('Time Zone'));
 $tpl->assign('genOpt_auth', _('Authentication properties'));
+$tpl->assign('embedding', _('Embedding options'));
 $tpl->assign('support', _('Support Information'));
 $tpl->assign('statistics', _('Statistics'));
 $tpl->assign('resource_status_performance', _('Resource status performance'));

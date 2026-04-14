@@ -204,6 +204,14 @@
       </td>
     </tr>
      	<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_default_timezone">{$form.gmt.label}</td><td class="FormRowValue">{$form.gmt.html}</td></tr>
+    <!-- Embedding options -->
+    <tr class="list_lvl_1">
+      <td class="ListColLvl1_name" colspan="2">
+        <h4>{$embedding}</h4>
+      </td>
+    </tr>
+    <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_allowed_embedding_domains">{$form.allowed_embedding_domains.label}</td><td class="FormRowValue">{$form.allowed_embedding_domains.html}</td></tr>
+
   	<tr class="list_lvl_1">
       <td class="ListColLvl1_name" colspan="2">
         <h4>{$support}</h4>

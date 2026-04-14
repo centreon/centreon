@@ -2604,6 +2604,10 @@ msgid "Centreon Storage Path"
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/general/form.php
+msgid "Allowed Embedding Domains"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/general/form.php
 msgid "Centreon Support Email"
 msgstr ""
 
@@ -5784,6 +5788,12 @@ msgstr ""
 msgid "E-mail"
 msgstr ""
 
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid ""
+"Each domain must be a valid URL (e.g. https://example.com). Separate "
+"multiple domains with commas."
+msgstr ""
+
 #: centreon/www/install/menu_translation.php
 msgid "Edit View"
 msgstr ""
@@ -5875,6 +5885,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Email template for the notification message"
+msgstr ""
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Embedding options"
 msgstr ""
 
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php

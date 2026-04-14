@@ -2567,6 +2567,10 @@ msgid "Centreon Storage Path"
 msgstr "Chemin du stockage Centreon"
 
 #: centreon/www/include/Administration/parameters/general/form.php
+msgid "Allowed Embedding Domains"
+msgstr "Domaines autorisés pour l'intégration"
+
+#: centreon/www/include/Administration/parameters/general/form.php
 msgid "Centreon Support Email"
 msgstr "Mail du service de support"
 
@@ -5477,6 +5481,14 @@ msgstr "Durée"
 msgid "E-mail"
 msgstr "Email"
 
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid ""
+"Each domain must be a valid URL (e.g. https://example.com). Separate "
+"multiple domains with commas."
+msgstr ""
+"Chaque domaine doit être une URL valide (ex. https://example.com). Séparez "
+"les domaines par des virgules."
+
 #: centreon/www/install/menu_translation.php
 msgid "Edit View"
 msgstr "Éditer la vue"
@@ -5563,6 +5575,10 @@ msgstr "Chemin de l'attribut de l'email"
 #: centreon/www/install/front_translate.php
 msgid "Email template for the notification message"
 msgstr "Modèle d'email pour le message de notification"
+
+#: centreon/www/include/Administration/parameters/general/form.php
+msgid "Embedding options"
+msgstr "Options d'intégration"
 
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 msgid "Empty Line After This Legend"

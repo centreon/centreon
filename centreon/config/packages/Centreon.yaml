@@ -387,6 +387,8 @@ services:
             tags: ['dashboard.playlist.widget.data.providers']
         Symfony\Component\Console\Command\Command:
             tags: ['script.command']
+        Core\PublicPage\Application\Repository\EmbeddingDomainProviderInterface:
+            tags: ['public_page.embedding_domain.providers']
         Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface:
             tags: ['monitoring.resource.extra.providers']
         Core\Resources\Infrastructure\API\ExtraDataNormalizer\ExtraDataNormalizerInterface:

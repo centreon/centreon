@@ -158,7 +158,8 @@ INSERT INTO `options` (`key`, `value`) VALUES
 ('brokercfg_event_script_timeout', 15),
 ('brokercfg_event_script_managed_event_ttl', 3600),
 ('brokercfg_event_script_script_path', '/usr/share/centreon/bin/console agent-configuration:host:create'),
-('brokercfg_event_script_event', 'neb:UnknownHost');
+('brokercfg_event_script_event', 'neb:UnknownHost'),
+('allowed_embedding_domains', NULL);
 
 --
 -- Contenu de la table `giv_components_template`

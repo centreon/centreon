@@ -66,6 +66,23 @@ function updateInformations($pearDB, string $key, string $value): void
     $stmt->execute();
 }
 
+function is_valid_embedding_domains($value)
+{
+    if ($value === null || trim($value) === '') {
+        return true;
+    }
+
+    $domains = array_filter(array_map('trim', explode(',', $value)));
+
+    foreach ($domains as $domain) {
+        if (! preg_match('/^https?:\/\/(\*\.)?[a-zA-Z0-9]([a-zA-Z0-9.-]*[a-zA-Z0-9])?(:\d+)?$/', $domain)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 function is_valid_path_images($path)
 {
     if (trim($path) == '') {
@@ -648,6 +665,12 @@ function updateGeneralConfigData()
         'display_autologin_shortcut',
         isset($ret['display_autologin_shortcut']['yes']) && $ret['display_autologin_shortcut']['yes'] != null
             ? htmlentities($ret['display_autologin_shortcut']['yes'], ENT_QUOTES, 'UTF-8') : '0'
+    );
+    updateOption(
+        $pearDB,
+        'allowed_embedding_domains',
+        isset($ret['allowed_embedding_domains']) && $ret['allowed_embedding_domains'] != null
+            ? htmlentities($ret['allowed_embedding_domains'], ENT_QUOTES, 'UTF-8') : null
     );
     updateOption(
         $pearDB,

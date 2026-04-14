@@ -216,6 +216,14 @@ $help['strict_hostParent_poller_management'] = dgettext(
     . ' but kept with Centreon Broker Correlation module.'
 );
 
+// Embedding options
+$help['tip_allowed_embedding_domains'] = dgettext(
+    'help',
+    'Comma-separated list of domains allowed to embed public pages (playlists) in iframes. '
+    . 'Example: https://dashboard.example.com, https://monitoring.example.com. '
+    . 'When empty, embedding is blocked (equivalent to sameorigin).'
+);
+
 // Support Informations
 $help['tip_centreon_support_email'] = dgettext(
     'help',
