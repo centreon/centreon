@@ -117,13 +117,13 @@ Centreon\Domain\Check\Check:
             - Type:
                 type: int
                 groups: [Default, check_host, check_service, check_meta_service]
-            - GreaterThan: 0
+            - GreaterThan: { value: 0 }
             - NotNull: ~
         parentResourceId:
             - Type:
                 type: int
                 groups: [Default, check_service]
-            - GreaterThan: 0
+            - GreaterThan: { value: 0 }
         withServices:
             - Type:
                 type: boolean
@@ -143,20 +143,20 @@ Centreon\Domain\Monitoring\SubmitResult\SubmitResult:
             - Type:
                 type: int
                 groups: [Default, submit_result_host, submit_result_service]
-            - GreaterThan: 0
-            - LessThanOrEqual: 3
+            - GreaterThan: { value: 0 }
+            - LessThanOrEqual: { value: 3 }
             - NotNull: ~
         resourceId:
             - Type:
                 type: int
                 groups: [Default, submit_result_host, submit_result_service]
-            - GreaterThan: 0
+            - GreaterThan: { value: 0 }
             - NotNull: ~
         parentResourceId:
             - Type:
                 type: int
                 groups: [Default, submit_result_service]
-            - GreaterThan: 0
+            - GreaterThan: { value: 0 }
 
 # Used to validate the Proxy entity
 Centreon\Domain\Proxy\Proxy:
@@ -169,7 +169,7 @@ Centreon\Domain\Proxy\Proxy:
             - Type:
                   type: integer
             - PositiveOrZero: ~
-            - LessThanOrEqual: 65535
+            - LessThanOrEqual: { value: 65535 }
             - NotNull: ~
         user:
             - Type:
