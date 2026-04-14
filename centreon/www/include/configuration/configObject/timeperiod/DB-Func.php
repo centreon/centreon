@@ -26,8 +26,8 @@ if (! isset($centreon)) {
 }
 
 use Core\ActionLog\Domain\Model\ActionLog;
-use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Infrastructure\Common\Api\Router;
+use Symfony\Component\HttpClient\CurlHttpClient;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 function includeExcludeTimeperiods($tpId, $includeTab = [], $excludeTab = [])
@@ -36,31 +36,27 @@ function includeExcludeTimeperiods($tpId, $includeTab = [], $excludeTab = [])
 
     // Insert inclusions
     if (isset($includeTab) && is_array($includeTab)) {
-        $str = '';
+        $includeStmt = $pearDB->prepare(
+            'INSERT INTO timeperiod_include_relations (timeperiod_id, timeperiod_include_id)
+            VALUES (:tpId, :tpIncludeId)'
+        );
         foreach ($includeTab as $tpIncludeId) {
-            if ($str != '') {
-                $str .= ', ';
-            }
-            $str .= "('" . $tpId . "', '" . $tpIncludeId . "')";
-        }
-        if (strlen($str)) {
-            $query = 'INSERT INTO timeperiod_include_relations (timeperiod_id, timeperiod_include_id ) VALUES ' . $str;
-            $pearDB->query($query);
+            $includeStmt->bindValue(':tpId', (int) $tpId, PDO::PARAM_INT);
+            $includeStmt->bindValue(':tpIncludeId', (int) $tpIncludeId, PDO::PARAM_INT);
+            $includeStmt->execute();
         }
     }
 
     // Insert exclusions
     if (isset($excludeTab) && is_array($excludeTab)) {
-        $str = '';
+        $excludeStmt = $pearDB->prepare(
+            'INSERT INTO timeperiod_exclude_relations (timeperiod_id, timeperiod_exclude_id)
+            VALUES (:tpId, :tpExcludeId)'
+        );
         foreach ($excludeTab as $tpExcludeId) {
-            if ($str != '') {
-                $str .= ', ';
-            }
-            $str .= "('" . $tpId . "', '" . $tpExcludeId . "')";
-        }
-        if (strlen($str)) {
-            $query = 'INSERT INTO timeperiod_exclude_relations (timeperiod_id, timeperiod_exclude_id ) VALUES ' . $str;
-            $pearDB->query($query);
+            $excludeStmt->bindValue(':tpId', (int) $tpId, PDO::PARAM_INT);
+            $excludeStmt->bindValue(':tpExcludeId', (int) $tpExcludeId, PDO::PARAM_INT);
+            $excludeStmt->execute();
         }
     }
 }
@@ -99,17 +95,20 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
         global $pearDB;
 
         $fields = [];
-        $dbResult = $pearDB->query("SELECT * FROM timeperiod WHERE tp_id = '" . $key . "' LIMIT 1");
+        $stmt = $pearDB->prepare('SELECT * FROM timeperiod WHERE tp_id = :tpId LIMIT 1');
+        $stmt->bindValue(':tpId', (int) $key, PDO::PARAM_INT);
+        $stmt->execute();
 
-        $query = "SELECT days, timerange FROM timeperiod_exceptions WHERE timeperiod_id = '" . $key . "'";
-        $res = $pearDB->query($query);
-        while ($row = $res->fetch()) {
+        $exStmt = $pearDB->prepare('SELECT days, timerange FROM timeperiod_exceptions WHERE timeperiod_id = :tpId');
+        $exStmt->bindValue(':tpId', (int) $key, PDO::PARAM_INT);
+        $exStmt->execute();
+        while ($row = $exStmt->fetch()) {
             foreach ($row as $keyz => $valz) {
                 $fields[$keyz] = $valz;
             }
         }
 
-        $row = $dbResult->fetch();
+        $row = $stmt->fetch();
         $row['tp_id'] = null;
         for ($i = 1; $i <= $nbrDup[$key]; $i++) {
             $val = [];
@@ -200,9 +199,11 @@ function getTimeperiodIdByName($name)
     global $pearDB;
 
     $id = 0;
-    $res = $pearDB->query("SELECT tp_id FROM timeperiod WHERE tp_name = '" . $pearDB->escape($name) . "'");
-    if ($res->rowCount()) {
-        $row = $res->fetch();
+    $stmt = $pearDB->prepare('SELECT tp_id FROM timeperiod WHERE tp_name = :tpName');
+    $stmt->bindValue(':tpName', $name, PDO::PARAM_STR);
+    $stmt->execute();
+    if ($stmt->rowCount()) {
+        $row = $stmt->fetch();
         $id = $row['tp_id'];
     }
 
@@ -423,6 +424,7 @@ function insertTimeperiodByApi(array $formData, string $basePath): int
     $kernel = Kernel::createForWeb();
     /** @var Router $router */
     $router = $kernel->getContainer()->get(Router::class);
+    $client = new CurlHttpClient();
 
     $payload = getPayloadForTimePeriod($formData);
     $url = $router->generate(
@@ -431,17 +433,29 @@ function insertTimeperiodByApi(array $formData, string $basePath): int
         UrlGeneratorInterface::ABSOLUTE_URL,
     );
 
-    $client = new InternalApiClient();
-    $response = $client->request($url, 'POST', CentreonSession::resolveSessionCookie(), $payload);
+    $headers = [
+        'Content-Type' => 'application/json',
+        'Cookie' => CentreonSession::resolveSessionCookie(),
+    ];
+    $response = $client->request(
+        'POST',
+        $url,
+        [
+            'headers' => $headers,
+            'body' => json_encode(value: $payload, flags: JSON_THROW_ON_ERROR),
+        ],
+    );
 
-    if ($response['status_code'] !== 201) {
-        $message = $response['content']['message'] ?? 'Unexpected return status';
+    if ($response->getStatusCode() !== 201) {
+        $content = json_decode(json: $response->getContent(false), flags: JSON_THROW_ON_ERROR);
 
-        throw new Exception($message);
+        throw new Exception($content->message ?? 'Unexpected return status');
     }
 
-    /** @var array{id:int} $response['content'] */
-    return $response['content']['id'];
+    $data = $response->toArray();
+
+    /** @var array{id:int} $data */
+    return $data['id'];
 }
 
 /**
@@ -493,6 +507,7 @@ function updateTimeperiodByApi(array $formData, string $basePath): void
     $kernel = Kernel::createForWeb();
     /** @var Router $router */
     $router = $kernel->getContainer()->get(Router::class);
+    $client = new CurlHttpClient();
 
     $payload = getPayloadForTimePeriod($formData);
     $url = $router->generate(
@@ -501,13 +516,23 @@ function updateTimeperiodByApi(array $formData, string $basePath): void
         UrlGeneratorInterface::ABSOLUTE_URL,
     );
 
-    $client = new InternalApiClient();
-    $response = $client->request($url, 'PUT', CentreonSession::resolveSessionCookie(), $payload);
+    $headers = [
+        'Content-Type' => 'application/json',
+        'Cookie' => CentreonSession::resolveSessionCookie(),
+    ];
+    $response = $client->request(
+        'PUT',
+        $url,
+        [
+            'headers' => $headers,
+            'body' => json_encode(value: $payload, flags: JSON_THROW_ON_ERROR),
+        ],
+    );
 
-    if ($response['status_code'] !== 204) {
-        $message = $response['content']['message'] ?? 'Unexpected return status';
+    if ($response->getStatusCode() !== 204) {
+        $content = json_decode(json: $response->getContent(false), flags: JSON_THROW_ON_ERROR);
 
-        throw new Exception($message);
+        throw new Exception($content->message ?? 'Unexpected return status');
     }
 }
 
@@ -549,8 +574,12 @@ function deleteTimePeriodByAPI(string $basePath, array $timePeriodIds): void
     $kernel = Kernel::createForWeb();
     /** @var Router $router */
     $router = $kernel->getContainer()->get(Router::class);
-    $client = new InternalApiClient();
-    $sessionCookie = CentreonSession::resolveSessionCookie();
+    $client = new CurlHttpClient();
+
+    $headers = [
+        'Content-Type' => 'application/json',
+        'Cookie' => CentreonSession::resolveSessionCookie(),
+    ];
 
     foreach ($timePeriodIds as $id) {
         $url = $router->generate(
@@ -559,10 +588,11 @@ function deleteTimePeriodByAPI(string $basePath, array $timePeriodIds): void
             UrlGeneratorInterface::ABSOLUTE_URL,
         );
 
-        $response = $client->request($url, 'DELETE', $sessionCookie);
+        $response = $client->request('DELETE', $url, ['headers' => $headers]);
 
-        if ($response['status_code'] !== 204) {
-            $message = $response['content']['message'] ?? 'Unknown error';
+        if ($response->getStatusCode() !== 204) {
+            $content = json_decode($response->getContent(false), true);
+            $message = $content['message'] ?? 'Unknown error';
 
             CentreonLog::create()->error(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,

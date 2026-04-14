@@ -23,99 +23,6 @@ if (! isset($oreon)) {
     exit;
 }
 
-/**
- * Validates the RPN function syntax by building a minimal rrdtool command
- * and executing it. Works for both CDEF (def_type=0) and VDEF (def_type=1).
- *
- * @param array<string,mixed> $fields Form fields
- *
- * @return true|array<string,string>
- */
-function testRpnSyntaxWithRrdtool(array $fields): array|true
-{
-    global $pearDBO, $oreon;
-
-    if (! isset($fields['def_type'])) {
-        return true;
-    }
-
-    $rpnFunction = trim($fields['rpn_function'] ?? '');
-    if ($rpnFunction === '') {
-        return true;
-    }
-
-    $defType = (int) $fields['def_type'] === 1 ? 'VDEF' : 'CDEF';
-    $hostServiceId = $fields['host_id'] ?? '';
-
-    $indexId = getIndexIdFromHostServiceId($pearDBO, $hostServiceId);
-    if ($indexId === null) {
-        return true;
-    }
-
-    $config = $pearDBO->fetchAssociative('SELECT RRDdatabase_path FROM config LIMIT 1');
-    $rrdPath = rtrim($config['RRDdatabase_path'] ?? '/var/lib/centreon/metrics', '/') . '/';
-
-    $metricsStmt = $pearDBO->prepare(
-        'SELECT metric_id, metric_name FROM metrics WHERE index_id = :index_id'
-    );
-    $metricsStmt->bindValue(':index_id', (int) $indexId, PDO::PARAM_INT);
-    $metricsStmt->execute();
-
-    $metrics = [];
-    while ($row = $metricsStmt->fetch(PDO::FETCH_ASSOC)) {
-        $metrics[$row['metric_name']] = $row['metric_id'];
-    }
-
-    if ($metrics === []) {
-        return true;
-    }
-
-    $rpnParts = explode(',', $rpnFunction);
-    $defArgs = [];
-    $usedMetrics = [];
-
-    foreach ($rpnParts as &$part) {
-        $trimmed = trim($part);
-        if (isset($metrics[$trimmed]) && ! isset($usedMetrics[$trimmed])) {
-            $metricId = $metrics[$trimmed];
-            $rrdFile = $rrdPath . $metricId . '.rrd';
-            if (file_exists($rrdFile)) {
-                $defArgs[] = 'DEF:v' . $metricId . '=' . $rrdFile . ':value:AVERAGE';
-                $usedMetrics[$trimmed] = 'v' . $metricId;
-            }
-        }
-        if (isset($usedMetrics[$trimmed])) {
-            $part = $usedMetrics[$trimmed];
-        }
-    }
-    unset($part);
-
-    $rpnResolved = implode(',', $rpnParts);
-
-    if ($defType === 'VDEF' && $defArgs === []) {
-        return true;
-    }
-
-    $rrdtoolBin = $oreon->optGen['rrdtool_path_bin'] ?? '/usr/bin/rrdtool';
-    $cmd = escapeshellarg($rrdtoolBin) . ' graph /dev/null --start now-1h';
-    foreach ($defArgs as $def) {
-        $cmd .= ' ' . escapeshellarg($def);
-    }
-    $cmd .= ' ' . escapeshellarg($defType . ':vtest=' . $rpnResolved);
-    $cmd .= ' 2>&1';
-
-    exec($cmd, $output, $rc);
-
-    if ($rc !== 0) {
-        $lastLine = end($output) ?: 'unknown error';
-        $rrdtoolError = preg_replace('/^ERROR:\s*/', '', $lastLine);
-
-        return ['rpn_function' => 'Invalid RPN syntax (RRDtool: ' . $rrdtoolError . ')'];
-    }
-
-    return true;
-}
-
 function _TestRPNInfinityLoop()
 {
     global $form;
@@ -244,10 +151,9 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
         }
 
         $vmConfiguration = $prepareStatement->fetch();
-        $vmConfiguration['vmetric_id'] = '';
+        unset($vmConfiguration['vmetric_id']);
 
         for ($newIndex = 1; $newIndex <= $nbrDup[$vmetricId]; $newIndex++) {
-            $val = null;
             $virtualMetricName = null;
             foreach ($vmConfiguration as $cfgName => $cfgValue) {
                 if ($cfgName == 'vmetric_name') {
@@ -258,25 +164,25 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
                         $count++;
                         $virtualMetricName = $cfgValue . '_' . $count;
                     }
-                    $cfgValue = $virtualMetricName;
-                }
-
-                if (is_null($val)) {
-                    $val .= ($cfgValue == null)
-                        ? 'NULL'
-                        : "'" . $pearDB->escape($cfgValue) . "'";
-                } else {
-                    $val .= ($cfgValue == null)
-                        ? ', NULL'
-                        : ", '" . $pearDB->escape($cfgValue) . "'";
+                    $vmConfiguration['vmetric_name'] = $virtualMetricName;
                 }
             }
-            if (! is_null($val)) {
-                try {
-                    $pearDB->query("INSERT INTO virtual_metrics VALUES ({$val})");
-                } catch (PDOException $e) {
-                    echo 'DB Error : ' . $e->getMessage();
-                }
+
+            $columns = array_keys($vmConfiguration);
+            $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+            $insertStmt = $pearDB->prepare(
+                'INSERT INTO virtual_metrics (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+            );
+
+            foreach ($columns as $col) {
+                $value = $vmConfiguration[$col];
+                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            }
+
+            try {
+                $insertStmt->execute();
+            } catch (PDOException $e) {
+                echo 'DB Error : ' . $e->getMessage();
             }
         }
     }
