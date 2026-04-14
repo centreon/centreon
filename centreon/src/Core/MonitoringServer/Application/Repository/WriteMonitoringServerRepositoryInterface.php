@@ -57,16 +57,9 @@ interface WriteMonitoringServerRepositoryInterface
     public function updateAllEncryptionReadyFromRealtime(): void;
 
     /**
-     * Define the monitoring server as changed since its last configuration export for VMware configuration.
-     *
-     * @param int $monitoringServerId
-     */
-    public function notifyVmwareConfigurationChange(int $monitoringServerId): void;
-
-    /**
      * Define the monitoring servers as changed since their last configuration export for VMware configuration.
      *
-     * @param int[] $monitoringServerIds
+     * @param int ...$monitoringServerIds
      */
-    public function notifyVmwareConfigurationChanges(array $monitoringServerIds): void;
+    public function notifyVmwareConfigurationChange(int ...$monitoringServerIds): void;
 }

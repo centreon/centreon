@@ -236,8 +236,8 @@ it(
 
         $this->writeMonitoringServerRepository
             ->expects($this->once())
-            ->method('notifyVmwareConfigurationChanges')
-            ->with($this->testedAddAccRequest->pollers);
+            ->method('notifyVmwareConfigurationChange')
+            ->with(...$this->testedAddAccRequest->pollers);
 
         $this->readAccRepository
             ->expects($this->once())
@@ -282,8 +282,8 @@ it(
 
         $this->writeMonitoringServerRepository
             ->expects($this->once())
-            ->method('notifyVmwareConfigurationChanges')
-            ->with($this->testedAddAccRequest->pollers);
+            ->method('notifyVmwareConfigurationChange')
+            ->with(...$this->testedAddAccRequest->pollers);
 
         $this->readAccRepository
             ->expects($this->once())

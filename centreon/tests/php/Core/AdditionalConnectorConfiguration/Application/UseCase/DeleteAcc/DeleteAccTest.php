@@ -142,8 +142,8 @@ it('should present a NoContentResponse on success', function (): void {
         ->method('delete');
     $this->writeMonitoringServerRepository
         ->expects($this->once())
-        ->method('notifyVmwareConfigurationChanges')
-        ->with([1]);
+        ->method('notifyVmwareConfigurationChange')
+        ->with(1);
 
     ($this->useCase)($this->testedAccId, $this->presenter);
 

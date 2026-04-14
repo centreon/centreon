@@ -133,26 +133,7 @@ class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements
     /**
      * @inheritDoc
      */
-    public function notifyVmwareConfigurationChange(int $monitoringServerId): void
-    {
-        $this->debug('Signal VMware configuration change on monitoring server with ID #' . $monitoringServerId);
-
-        $request = $this->translateDbName(
-            <<<'SQL'
-                UPDATE `:db`.`nagios_server`
-                SET `vmware_updated` =  '1'
-                WHERE `id` = :monitoringServerId
-                SQL
-        );
-        $statement = $this->db->prepare($request);
-        $statement->bindValue(':monitoringServerId', $monitoringServerId, \PDO::PARAM_INT);
-        $statement->execute();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function notifyVmwareConfigurationChanges(array $monitoringServerIds): void
+    public function notifyVmwareConfigurationChange(int ...$monitoringServerIds): void
     {
         if ($monitoringServerIds === []) {
             return;

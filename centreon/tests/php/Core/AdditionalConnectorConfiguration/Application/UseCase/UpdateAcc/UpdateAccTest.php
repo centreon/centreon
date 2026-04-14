@@ -257,8 +257,8 @@ it(
 
         $this->writeMonitoringServerRepository
             ->expects($this->once())
-            ->method('notifyVmwareConfigurationChanges')
-            ->with($this->request->pollers);
+            ->method('notifyVmwareConfigurationChange')
+            ->with(...$this->request->pollers);
 
         ($this->useCase)($this->request, $this->presenter);
 
