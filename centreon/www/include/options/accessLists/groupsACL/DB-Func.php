@@ -280,11 +280,6 @@ function insertGroup($groupInfos)
         PDO::PARAM_STR
     );
     $prepare->bindValue(
-        ':group_alias',
-        $groupInfos['acl_group_alias'],
-        PDO::PARAM_STR
-    );
-    $prepare->bindValue(
         ':is_activate',
         ($isAclGroupActivate ? '1' : '0'),
         PDO::PARAM_STR
