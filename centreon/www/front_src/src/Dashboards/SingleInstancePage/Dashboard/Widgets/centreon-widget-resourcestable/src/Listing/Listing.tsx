@@ -127,9 +127,9 @@ const Listing = ({
         actionsBarMemoProps={[displayType, hasMetaService, isOpenTicketEnabled]}
         checkable
         columnConfiguration={{
-          selectedColumnIds: (selectedColumnIds ?? defaultSelectedColumnIds).filter(
-            (id) => columns.some((col) => col.id === id)
-          ),
+          selectedColumnIds: (
+            selectedColumnIds ?? defaultSelectedColumnIds
+          ).filter((id) => columns.some((col) => col.id === id)),
           sortable: true
         }}
         columns={columns}
