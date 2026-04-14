@@ -96,7 +96,7 @@ const DashboardLayout = <T extends LayoutItem>({
         </Box>
       </Box>
     ),
-    memoProps: [columns, currentLayout, isStatic, ...additionalMemoProps]
+    memoProps: [columns, currentLayout, isStatic, width, ...additionalMemoProps]
   });
 };
 
