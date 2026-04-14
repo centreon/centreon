@@ -165,8 +165,9 @@ function multipleLCAInDB($lcas = [], $nbrDup = [])
 {
     global $pearDB, $centreon;
 
+    $selectStmt = $pearDB->prepare('SELECT * FROM `acl_resources` WHERE acl_res_id = :acl_res_id LIMIT 1');
+
     foreach ($lcas as $key => $value) {
-        $selectStmt = $pearDB->prepare('SELECT * FROM `acl_resources` WHERE acl_res_id = :acl_res_id LIMIT 1');
         $selectStmt->bindValue(':acl_res_id', (int) $key, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch();

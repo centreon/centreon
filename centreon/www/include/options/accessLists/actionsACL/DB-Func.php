@@ -214,8 +214,23 @@ function multipleActionInDB($actions = [], $nbrDup = [])
 {
     global $pearDB, $centreon;
 
+    $selectStmt = $pearDB->prepare('SELECT * FROM acl_actions WHERE acl_action_id = :id LIMIT 1');
+    $selectGroupStmt = $pearDB->prepare(
+        'SELECT DISTINCT acl_group_id,acl_action_id FROM acl_group_actions_relations '
+        . 'WHERE acl_action_id = :id'
+    );
+    $insertGroupStmt = $pearDB->prepare(
+        'INSERT INTO acl_group_actions_relations VALUES (:acl_action_id, :acl_group_id)'
+    );
+    $selectRulesStmt = $pearDB->prepare(
+        'SELECT acl_action_rule_id,acl_action_name FROM acl_actions_rules '
+        . 'WHERE acl_action_rule_id = :id'
+    );
+    $insertRulesStmt = $pearDB->prepare(
+        'INSERT INTO acl_actions_rules VALUES (NULL, :acl_action_id, :acl_action_name)'
+    );
+
     foreach (array_keys($actions) as $key) {
-        $selectStmt = $pearDB->prepare('SELECT * FROM acl_actions WHERE acl_action_id = :id LIMIT 1');
         $selectStmt->bindValue(':id', (int) $key, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch();
@@ -244,33 +259,21 @@ function multipleActionInDB($actions = [], $nbrDup = [])
                 $maxId = $dbResult->fetch();
                 $dbResult->closeCursor();
                 if (isset($maxId['MAX(acl_action_id)'])) {
-                    $selectGroupStmt = $pearDB->prepare(
-                        'SELECT DISTINCT acl_group_id,acl_action_id FROM acl_group_actions_relations '
-                        . 'WHERE acl_action_id = :id'
-                    );
                     $selectGroupStmt->bindValue(':id', (int) $key, PDO::PARAM_INT);
                     $selectGroupStmt->execute();
-                    $query = 'INSERT INTO acl_group_actions_relations VALUES (:acl_action_id, :acl_group_id)';
-                    $statement = $pearDB->prepare($query);
                     while ($cct = $selectGroupStmt->fetch()) {
-                        $statement->bindValue(':acl_action_id', (int) $maxId['MAX(acl_action_id)'], PDO::PARAM_INT);
-                        $statement->bindValue(':acl_group_id', (int) $cct['acl_group_id'], PDO::PARAM_INT);
-                        $statement->execute();
+                        $insertGroupStmt->bindValue(':acl_action_id', (int) $maxId['MAX(acl_action_id)'], PDO::PARAM_INT);
+                        $insertGroupStmt->bindValue(':acl_group_id', (int) $cct['acl_group_id'], PDO::PARAM_INT);
+                        $insertGroupStmt->execute();
                     }
 
                     // Duplicate Actions
-                    $selectRulesStmt = $pearDB->prepare(
-                        'SELECT acl_action_rule_id,acl_action_name FROM acl_actions_rules '
-                        . 'WHERE acl_action_rule_id = :id'
-                    );
                     $selectRulesStmt->bindValue(':id', (int) $key, PDO::PARAM_INT);
                     $selectRulesStmt->execute();
-                    $query = 'INSERT INTO acl_actions_rules VALUES (NULL, :acl_action_id, :acl_action_name)';
-                    $statement = $pearDB->prepare($query);
                     while ($acl = $selectRulesStmt->fetch()) {
-                        $statement->bindValue(':acl_action_id', (int) $maxId['MAX(acl_action_id)'], PDO::PARAM_INT);
-                        $statement->bindValue(':acl_action_name', $acl['acl_action_name'], PDO::PARAM_STR);
-                        $statement->execute();
+                        $insertRulesStmt->bindValue(':acl_action_id', (int) $maxId['MAX(acl_action_id)'], PDO::PARAM_INT);
+                        $insertRulesStmt->bindValue(':acl_action_name', $acl['acl_action_name'], PDO::PARAM_STR);
+                        $insertRulesStmt->execute();
                     }
 
                     $centreon->CentreonLogAction->insertLog(
