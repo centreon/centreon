@@ -482,7 +482,7 @@ jobs:
             // anything else => onprem
             const isCloudCandidate =
               Number(currentMajorVersion) >= Number(developMajorVersion) ||
-              !currentMajorVersion.match(/\.(04|10)$/);
+              !currentMajorVersion.match(/\.10$/);
 
             let releaseScope = "unknown";
 
