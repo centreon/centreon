@@ -449,16 +449,42 @@ class Broker extends AbstractObjectJSON
                     $this->processVaultOutput($output, $outputIndex, $object);
                 }
             }
-
             $shouldBeEncrypted = $this->readMonitoringServerRepository->isEncryptionReady($pollerId);
+            $dbSslEnabled = null;
+            if (isset($_ENV['DATABASE_SSL_ENABLED'])) {
+                $dbSslEnabled = filter_var($_ENV['DATABASE_SSL_ENABLED'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+                if ($dbSslEnabled === null) {
+                    throw new InvalidArgumentException(
+                        sprintf('Invalid value "%s" for DATABASE_SSL_ENABLED: expected a boolean value.', $_ENV['DATABASE_SSL_ENABLED'])
+                    );
+                }
+            }
+            $dbSslVerifyCert = null;
+            if (isset($_ENV['DATABASE_VERIFY_SERVER_CERT'])) {
+                $dbSslVerifyCert = filter_var($_ENV['DATABASE_VERIFY_SERVER_CERT'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+                if ($dbSslVerifyCert === null) {
+                    throw new InvalidArgumentException(
+                        sprintf('Invalid value "%s" for DATABASE_VERIFY_SERVER_CERT: expected a boolean value.', $_ENV['DATABASE_VERIFY_SERVER_CERT'])
+                    );
+                }
+            }
+            $dbSslCa = $_ENV['DATABASE_CA_PATH'] ?? null;
             foreach ($object['output'] as &$output) {
-                if (
-                    ($output['type'] === 'sql' || $output['type'] === 'storage')
-                    && array_key_exists('db_password', $output)
-                ) {
-                    $output['db_password'] = $shouldBeEncrypted
-                        ? 'encrypt::' . $this->engineContextEncryption->crypt($output['db_password'])
-                        : $output['db_password'];
+                if (in_array($output['type'], ['sql', 'storage', 'unified_sql'])) {
+                    if ($dbSslEnabled !== null) {
+                        $output['db_ssl_enabled'] = $dbSslEnabled;
+                    }
+                    if ($dbSslVerifyCert !== null) {
+                        $output['db_ssl_verify_cert'] = $dbSslVerifyCert;
+                    }
+                    if ($dbSslCa !== null) {
+                        $output['db_ssl_ca'] = $dbSslCa;
+                    }
+                    if (array_key_exists('db_password', $output)) {
+                        $output['db_password'] = $shouldBeEncrypted
+                            ? 'encrypt::' . $this->engineContextEncryption->crypt($output['db_password'])
+                            : $output['db_password'];
+                    }
                 }
                 if (! isset($output['lua_parameter']) || ! is_array($output['lua_parameter'])) {
                     continue;
