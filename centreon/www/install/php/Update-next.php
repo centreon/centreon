@@ -37,11 +37,7 @@ $errorMessage = '';
 
 try {
     // DDL statements for real time database
-    $pearDBO->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `log_action` MODIFY COLUMN `log_contact_id` int(11) DEFAULT NULL
-            SQL
-    );
+    // TODO add your function calls to update the real time database structure here
 
     // DDL statements for configuration database
     // TODO add your function calls to update the configuration database structure here
