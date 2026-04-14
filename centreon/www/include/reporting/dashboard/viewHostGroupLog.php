@@ -27,7 +27,7 @@ if (! isset($oreon)) {
 require_once './include/reporting/dashboard/initReport.php';
 
 // Getting hostgroup to report
-$id = filter_var($_GET['item'] ?? $_POST['itemElement'] ?? false, FILTER_VALIDATE_INT);
+$id = filter_var($_GET['item'] ?? $_GET['itemElement'] ?? $_POST['itemElement'] ?? false, FILTER_VALIDATE_INT);
 /*
  * Formulary
  *
@@ -35,7 +35,8 @@ $id = filter_var($_GET['item'] ?? $_POST['itemElement'] ?? false, FILTER_VALIDAT
  *
  */
 
-$formHostGroup = new HTML_QuickFormCustom('formHostGroup', 'post', '?p=' . $p);
+$formHostGroup = new HTML_QuickFormCustom('formHostGroup', 'get', '');
+$formHostGroup->addElement('hidden', 'p', $p);
 $redirect = $formHostGroup->addElement('hidden', 'o');
 $redirect->setValue($o);
 
@@ -108,6 +109,7 @@ if ($id !== false) {
     }
 
     $tpl->assign('components', $hostgroupFinalStats);
+    $tpl->assign('components_avg', $hostgroupStats['average']);
     $tpl->assign('period_name', _('From'));
     $tpl->assign('date_start', $start_date);
     $tpl->assign('to', _('to'));
@@ -142,6 +144,7 @@ if ($id !== false) {
     ?><script type="text/javascript"> function initTimeline() {;} </script><?php
 }
 $tpl->assign('resumeTitle', _('Hosts group state'));
+$tpl->assign('svcTitle', _('State Breakdowns For Hosts In Group'));
 
 // Rendering Forms
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);

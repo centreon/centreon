@@ -55,6 +55,17 @@ $tpl->assign('centreon_path', _CENTREON_PATH_);
 $colors = ['up' => '88b917', 'down' => 'e00b3d', 'unreachable' => '818285', 'maintenance' => 'cc99ff', 'downtime' => 'cc99ff', 'ok' => '88b917', 'warning' => 'ff9a13', 'critical' => 'e00b3d', 'unknown' => 'bcbdc0', 'undetermined' => 'd1d2d4'];
 $tpl->assign('colors', $colors);
 
+// Convert hex colors to RGB triplets for rgba() usage in CSS
+$colorsRgb = [];
+foreach ($colors as $key => $hex) {
+    $hex = ltrim($hex, '#');
+    $r = hexdec(substr($hex, 0, 2));
+    $g = hexdec(substr($hex, 2, 2));
+    $b = hexdec(substr($hex, 4, 2));
+    $colorsRgb[$key] = "$r, $g, $b";
+}
+$tpl->assign('colors_rgb', $colorsRgb);
+
 $color = [];
 $color['UNKNOWN'] = $colors['unknown'];
 $color['UP'] = $colors['up'];
@@ -71,37 +82,23 @@ $endDate = 0;
 
 // Translations and styles
 
-$tpl->assign('style_ok', "class='ListColCenter' style='padding:5px;background:#" . $colors['ok'] . "'");
+// Modern styles: neutral background, colored indicator dot instead of full background
+$tpl->assign('style_ok', "class='ListColCenter reporting-cell' style='padding:5px;'");
 $tpl->assign('style_ok_top', " style='color:#" . $colors['ok'] . "'");
-$tpl->assign('style_ok_alert', "class='ListColCenter' style='width: 25px; background:#" . $colors['ok'] . "'");
-$tpl->assign('style_warning', "class='ListColCenter' style='padding:5px;background:#" . $colors['warning'] . "'");
+$tpl->assign('style_ok_alert', "class='ListColCenter reporting-cell-alert' style='padding:5px;'");
+$tpl->assign('style_warning', "class='ListColCenter reporting-cell' style='padding:5px;'");
 $tpl->assign('style_warning_top', "style='color:#" . $colors['warning'] . "'");
-$tpl->assign(
-    'style_warning_alert',
-    "class='ListColCenter' style='width: 25px; background:#" . $colors['warning'] . "'"
-);
-$tpl->assign('style_critical', "class='ListColCenter' style='padding:5px;background:#" . $colors['critical'] . "'");
+$tpl->assign('style_warning_alert', "class='ListColCenter reporting-cell-alert' style='padding:5px;'");
+$tpl->assign('style_critical', "class='ListColCenter reporting-cell' style='padding:5px;'");
 $tpl->assign('style_critical_top', "style='color:#" . $colors['critical'] . "'");
-$tpl->assign(
-    'style_critical_alert',
-    "class='ListColCenter' style='width: 25px; background:#" . $colors['critical'] . "'"
-);
-$tpl->assign('style_unknown', "class='ListColCenter' style='padding:5px;background:#" . $colors['unknown'] . "'");
+$tpl->assign('style_critical_alert', "class='ListColCenter reporting-cell-alert' style='padding:5px;'");
+$tpl->assign('style_unknown', "class='ListColCenter reporting-cell' style='padding:5px;'");
 $tpl->assign('style_unknown_top', '');
-$tpl->assign(
-    'style_unknown_alert',
-    "class='ListColCenter' style='width: 25px; background:#" . $colors['unknown'] . "'"
-);
-$tpl->assign('style_pending', "class='ListColCenter' style='padding:5px;background:#" . $colors['undetermined'] . "'");
+$tpl->assign('style_unknown_alert', "class='ListColCenter reporting-cell-alert' style='padding:5px;'");
+$tpl->assign('style_pending', "class='ListColCenter reporting-cell' style='padding:5px;'");
 $tpl->assign('style_pending_top', '');
-$tpl->assign(
-    'style_pending_alert',
-    "class='ListColCenter' style='width: 25px; background:#" . $colors['undetermined'] . "'"
-);
-$tpl->assign(
-    'style_maintenance',
-    "class='ListColCenter' style='padding:5px;background:#" . $colors['maintenance'] . "'"
-);
+$tpl->assign('style_pending_alert', "class='ListColCenter reporting-cell-alert' style='padding:5px;'");
+$tpl->assign('style_maintenance', "class='ListColCenter reporting-cell' style='padding:5px;'");
 $tpl->assign('style_maintenance_top', "style='color:#" . $colors['maintenance'] . "'");
 
 $tpl->assign('badge_UP', "class='ListColCenter state_badge host_up'");
@@ -119,7 +116,7 @@ $tpl->assign('badge_maintenance', "class='ListColCenter state_badge badge_downti
 
 $tpl->assign('actualTitle', _('Actual'));
 
-$tpl->assign('serviceTitle', _('Service'));
+$tpl->assign('serviceTitle', _('Services'));
 $tpl->assign('hostTitle', _('Host name'));
 $tpl->assign('allTilte', _('All'));
 $tpl->assign('averageTilte', _('Average'));
@@ -147,6 +144,64 @@ $tpl->assign('periodORlabel', _('or'));
 $tpl->assign('logTitle', _("Today's Host log"));
 $tpl->assign('svcTitle', _('State Breakdowns For Host Services'));
 
+// Additional translatable labels for reporting UI
+$tpl->assign('availabilityReportTitle', _('Availability Report'));
+$tpl->assign('hostLabel', _('Host'));
+$tpl->assign('backToHostReport', _('Back to Host Report'));
+$tpl->assign('statusLabel', _('Status'));
+$tpl->assign('mtTtLabel', 'MT / TT');
+$tpl->assign('ttLabel', 'TT');
+
+// Labels for donut chart (passed to JS via Smarty)
+$tpl->assign('upLabel', _('Up'));
+$tpl->assign('downLabel', _('Down'));
+$tpl->assign('unreachableLabel', _('Unreachable'));
+$tpl->assign('downtimeLabel', _('Downtime'));
+$tpl->assign('undeterminedLabel', _('Undetermined'));
+$tpl->assign('okLabel', _('Ok'));
+$tpl->assign('warningLabel', _('Warning'));
+$tpl->assign('criticalLabel', _('Critical'));
+$tpl->assign('unknownLabel', _('Unknown'));
+
+// Page-level ACL: show nav pills only for pages the user can access (no extra query, read from session)
+$tpl->assign('canAccessHostReport', $centreon->user->admin || $centreon->user->access->page(30701));
+$tpl->assign('canAccessHostGroupReport', $centreon->user->admin || $centreon->user->access->page(30703));
+$tpl->assign('canAccessServiceGroupReport', $centreon->user->admin || $centreon->user->access->page(30704));
+
+// Tooltip descriptions
+$tpl->assign('downtimeTooltip', _('Scheduled downtime — Planned maintenance periods during which the resource is intentionally taken offline.'));
+$tpl->assign('undeterminedTooltip', _('Undetermined time — Periods with no monitoring data available, typically due to missing collection or incomplete history.'));
+
+// Translatable strings for JS heatmap/charts (JSON-encoded for safe embedding)
+$jsTranslations = [
+    'noDataAvailable' => _('No data available'),
+    'noData' => _('No data'),
+    'evolution30days' => _('Evolution on the last 30 days'),
+    'less' => _('Less'),
+    'moreAvailable' => _('More available'),
+    'alerts' => _('Alerts'),
+    'alert' => _('alert'),
+    'alertsPlural' => _('alerts'),
+    'zeroAlerts' => _('0 alerts'),
+    'twentyPlusAlerts' => _('20+ alerts'),
+    'availability' => _('Availability'),
+    'up' => _('Up'),
+    'down' => _('Down'),
+    'unreachable' => _('Unreachable'),
+    'downtime' => _('Downtime'),
+    'undetermined' => _('Undetermined'),
+    'ok' => _('Ok'),
+    'warning' => _('Warning'),
+    'critical' => _('Critical'),
+    'unknown' => _('Unknown'),
+    'months' => [
+        _('Jan'), _('Feb'), _('Mar'), _('Apr'), _('May'), _('Jun'),
+        _('Jul'), _('Aug'), _('Sep'), _('Oct'), _('Nov'), _('Dec')
+    ],
+    'days' => [_('Sun'), _('Mon'), _('Tue'), _('Wed'), _('Thu'), _('Fri'), _('Sat')],
+];
+$tpl->assign('jsTranslationsJson', json_encode($jsTranslations));
+
 // Definition of status
 $state['UP'] = _('UP');
 $state['DOWN'] = _('DOWN');
@@ -157,15 +212,15 @@ $tpl->assign('states', $state);
 
 // CSS Definition for status colors
 $style['UP'] = "style='padding:5px;color:#" . $colors['up'] . "'";
-$style['UP_BOTTOM'] = "style='padding:5px;background-color:#" . $colors['up'] . "'";
+$style['UP_BOTTOM'] = "style='padding:5px;'";
 $style['DOWN'] = "style='padding:5px;color:#" . $colors['down'] . "'";
-$style['DOWN_BOTTOM'] = "style='padding:5px;background-color:#" . $colors['down'] . "'";
+$style['DOWN_BOTTOM'] = "style='padding:5px;'";
 $style['UNREACHABLE'] = "style='padding:5px'";
-$style['UNREACHABLE_BOTTOM'] = "style='padding:5px;background-color:#" . $colors['unreachable'] . "'";
+$style['UNREACHABLE_BOTTOM'] = "style='padding:5px;'";
 $style['UNDETERMINED'] = "style='padding:5px'";
-$style['UNDETERMINED_BOTTOM'] = "style='padding:5px;background-color:#" . $colors['undetermined'] . "'";
+$style['UNDETERMINED_BOTTOM'] = "style='padding:5px;'";
 $style['MAINTENANCE'] = "style='padding:5px;color:#" . $colors['maintenance'] . "'";
-$style['MAINTENANCE_BOTTOM'] = "style='padding:5px;background-color:#" . $colors['maintenance'] . "'";
+$style['MAINTENANCE_BOTTOM'] = "style='padding:5px;'";
 $tpl->assign('style', $style);
 
 // Init Timeperiod List
@@ -186,7 +241,7 @@ $lcaSvcstr    = $centreon->user->access->getServicesString('ID', $pearDBO);
 
 // setting variables for link with services
 $period_choice = HtmlAnalyzer::sanitizeAndRemoveTags(
-    $_POST['period_choice'] ?? 'preset'
+    $_POST['period_choice'] ?? $_GET['period_choice'] ?? 'preset'
 );
 
 $period = HtmlAnalyzer::sanitizeAndRemoveTags(
@@ -194,11 +249,11 @@ $period = HtmlAnalyzer::sanitizeAndRemoveTags(
 );
 
 $get_date_start = HtmlAnalyzer::sanitizeAndRemoveTags(
-    $_GET['start'] ?? $_POST['StartDate'] ?? ''
+    $_GET['start'] ?? $_POST['StartDate'] ?? $_GET['StartDate'] ?? ''
 );
 
 $get_date_end = HtmlAnalyzer::sanitizeAndRemoveTags(
-    $_GET['end'] ?? $_POST['EndDate'] ?? ''
+    $_GET['end'] ?? $_POST['EndDate'] ?? $_GET['EndDate'] ?? ''
 );
 
 if ($get_date_start == '' && $get_date_end == '' && $period == '') {
@@ -326,9 +381,198 @@ $formPeriod->setDefaults(
 );
 
 ?>
+<style>
+/* === Shared reporting dark-theme-aware styles === */
+.rpt-period-group { display:inline; }
+.rpt-period-group.rpt-disabled { opacity:0.35; pointer-events:none; }
+.rpt-period-group.rpt-disabled select,
+.rpt-period-group.rpt-disabled input[type="text"] { background: var(--list-lvl-1-background-color, #f0f0f0); }
+/* Keep radio buttons always clickable even in disabled group */
+.rpt-period-group.rpt-disabled input[type="radio"],
+.rpt-period-group.rpt-disabled label,
+.rpt-period-group.rpt-disabled .md-radio-modified { pointer-events:auto; opacity:1; }
+
+/* Report title */
+.rpt-title {
+    margin: 0 0 8px 0; padding: 0;
+    font-size: 18px; font-weight: 600;
+    color: var(--body-color, #2d3436);
+}
+/* Title bar with nav pills */
+.rpt-title-bar {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    margin: 0 0 8px 0; max-width: 1400px;
+}
+.rpt-title-bar .rpt-title { margin: 0; }
+.rpt-nav-pills { display: flex; gap: 8px; }
+.rpt-nav-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: transparent;
+    border: 1px solid #2e7dba;
+    border-radius: 4px; padding: 4px 12px;
+    font-size: 12px; color: #2e7dba;
+    text-decoration: none; transition: all 0.2s;
+}
+.rpt-nav-pill:hover {
+    background: #2e7dba;
+    color: #fff;
+}
+.rpt-nav-pill img { vertical-align: middle; filter: var(--icons-filter, none); }
+.rpt-nav-pill:hover img { filter: none; }
+/* Date row */
+.rpt-date-row td {
+    padding: 6px 10px;
+    background: var(--list-lvl-1-background-color, #f5f5f0);
+    color: var(--body-color, #333);
+    font-weight: 600; font-size: 12px;
+    border-bottom: 1px solid var(--list-table-border-color, #ddd);
+}
+/* Dot indicator */
+.rpt-dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:4px; vertical-align:middle; }
+/* Summary header/footer (donut table) */
+.reporting-summary .rpt-summary-header {
+    background: var(--list-lvl-1-background-color, #f5f5f0);
+}
+.reporting-summary .rpt-summary-header td {
+    color: var(--body-color, #333);
+    font-weight: 600;
+    border-bottom: 1px solid var(--list-table-border-color, #ddd);
+}
+.reporting-summary .rpt-summary-footer {
+    background: var(--list-lvl-1-background-color, #f5f5f0);
+    border-top: 2px solid var(--list-table-border-color, #ddd);
+}
+.reporting-summary .rpt-summary-footer td {
+    font-weight: 600;
+    color: var(--body-color, #333);
+}
+/* Alert badges — semi-transparent for dark theme compatibility */
+.rpt-alert-badge {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+}
+.rpt-alert-up, .rpt-alert-ok, .rpt-alert-none {
+    background: rgba(46, 125, 50, 0.15);
+    color: #4caf50;
+}
+.rpt-alert-down, .rpt-alert-crit {
+    background: rgba(198, 40, 40, 0.15);
+    color: #ef5350;
+}
+.rpt-alert-unreach, .rpt-alert-unk {
+    background: rgba(106, 27, 154, 0.15);
+    color: #ab47bc;
+}
+.rpt-alert-warn {
+    background: rgba(230, 81, 0, 0.15);
+    color: #ff9800;
+}
+.rpt-alert-total {
+    background: rgba(21, 101, 192, 0.15);
+    color: #42a5f5;
+}
+/* Tooltip overlay for column headers */
+.rpt-tooltip-wrap {
+    position: relative;
+    cursor: help;
+    border-bottom: 1px dotted var(--body-color, #999);
+}
+.rpt-tooltip {
+    visibility: hidden; opacity: 0;
+    position: absolute; bottom: calc(100% + 8px); left: 50%;
+    transform: translateX(-50%); width: 220px;
+    padding: 8px 10px; background: #24292f; color: #fff;
+    font-size: 11px; font-weight: 400; line-height: 1.4;
+    border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    text-align: left; white-space: normal; z-index: 100;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    pointer-events: none;
+}
+.rpt-tooltip::after {
+    content: ''; position: absolute; top: 100%; left: 50%;
+    transform: translateX(-50%); border: 6px solid transparent;
+    border-top-color: #24292f;
+}
+.rpt-tooltip-wrap:hover .rpt-tooltip { visibility: visible; opacity: 1; }
+/* Modern services/hostgroup table */
+.reporting-modern .rpt-dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:4px; vertical-align:middle; }
+.reporting-modern .rpt-val { white-space: nowrap; }
+.reporting-modern .rpt-val .rpt-mp { font-weight: 600; color: var(--body-color, #24292f); }
+.reporting-modern .rpt-val .rpt-sep { color: var(--body-color, #bbb); opacity: 0.5; margin: 0 2px; }
+.reporting-modern .rpt-val .rpt-tp { font-size: 11px; color: var(--body-color, #999); opacity: 0.6; }
+.reporting-modern .rpt-alerts { white-space: nowrap; }
+.reporting-modern tr.list_lvl_1 { background: var(--list-lvl-1-background-color, #f5f5f0) !important; }
+.reporting-modern tr.list_lvl_1 td { color: var(--body-color, #333) !important; font-weight: 600; }
+.reporting-modern .rpt-avg { background: var(--list-lvl-1-background-color, #f5f5f0) !important; border-top: 2px solid var(--list-table-border-color, #ddd); }
+.reporting-modern .rpt-avg td { font-weight: 600; color: var(--body-color, #333); }
+/* Subtle colored column backgrounds — transparent for dark theme compatibility */
+.reporting-modern .rpt-bg-up { background: rgba(<?php echo $colorsRgb['up']; ?>, 0.05) !important; }
+.reporting-modern .rpt-bg-down { background: rgba(<?php echo $colorsRgb['down']; ?>, 0.05) !important; }
+.reporting-modern .rpt-bg-unreachable { background: rgba(<?php echo $colorsRgb['unreachable']; ?>, 0.05) !important; }
+.reporting-modern .rpt-bg-ok { background: rgba(<?php echo $colorsRgb['ok']; ?>, 0.05) !important; }
+.reporting-modern .rpt-bg-warning { background: rgba(<?php echo $colorsRgb['warning']; ?>, 0.05) !important; }
+.reporting-modern .rpt-bg-critical { background: rgba(<?php echo $colorsRgb['critical']; ?>, 0.05) !important; }
+.reporting-modern .rpt-bg-unknown { background: rgba(<?php echo $colorsRgb['unknown']; ?>, 0.05) !important; }
+.reporting-modern .rpt-bg-maintenance { background: rgba(<?php echo $colorsRgb['maintenance']; ?>, 0.05) !important; }
+.reporting-modern .rpt-bg-undetermined { background: rgba(<?php echo $colorsRgb['undetermined']; ?>, 0.05) !important; }
+/* Status bar track */
+.status-bar { background: var(--list-lvl-1-background-color, #f0f0f0) !important; }
+</style>
 <script type='text/javascript'>
 function togglePeriodType()
 {
     document.getElementById("presetPeriod").selectedIndex = 0;
 }
+function updatePeriodToggle() {
+    var isPreset = document.getElementById('preset').checked;
+    var presetGroup = document.getElementById('rpt-preset-group');
+    var customGroup = document.getElementById('rpt-custom-group');
+    if (presetGroup && customGroup) {
+        if (isPreset) {
+            presetGroup.className = 'rpt-period-group';
+            customGroup.className = 'rpt-period-group rpt-disabled';
+        } else {
+            presetGroup.className = 'rpt-period-group rpt-disabled';
+            customGroup.className = 'rpt-period-group';
+        }
+    }
+}
+document.addEventListener('DOMContentLoaded', function() {
+    updatePeriodToggle();
+    var presetRadio = document.getElementById('preset');
+    var customRadio = document.getElementById('custom');
+    if (presetRadio) {
+        presetRadio.addEventListener('change', updatePeriodToggle);
+    }
+    if (customRadio) {
+        customRadio.addEventListener('change', updatePeriodToggle);
+    }
+    // Also toggle when clicking on the period select
+    var periodSelect = document.getElementById('presetPeriod');
+    if (periodSelect) {
+        periodSelect.addEventListener('click', function() {
+            presetRadio.checked = true;
+            updatePeriodToggle();
+        });
+    }
+    // Toggle when clicking on date fields
+    var startDate = document.getElementById('StartDate');
+    var endDate = document.getElementById('EndDate');
+    if (startDate) {
+        startDate.addEventListener('click', function() {
+            customRadio.checked = true;
+            updatePeriodToggle();
+        });
+    }
+    if (endDate) {
+        endDate.addEventListener('click', function() {
+            customRadio.checked = true;
+            updatePeriodToggle();
+        });
+    }
+});
 </script>

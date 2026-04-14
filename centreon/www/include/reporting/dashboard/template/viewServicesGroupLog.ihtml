@@ -1,164 +1,213 @@
 <div class="cachediv">
 	<form id="datareport">
-		<input type="hidden" name="id" value="{$servicegroup_id}"><br/>
+		<input type="hidden" name="id" value="{$servicegroup_id}">
 		<input type="hidden" name="color_UP" value="{$color.UP}">
 		<input type="hidden" name="color_DOWN" value="{$color.DOWN}" >
 		<input type="hidden" name="color_UNREACHABLE" value="{$color.UNREACHABLE}" >
 		<input type="hidden" name="color_UNDETERMINED" value="{$color.UNDETERMINED}" >
 	</form>
 </div>
-<table style='width:100%;' class="ListTable">
+<div class="rpt-title-bar">
+	<h2 class="rpt-title">{$availabilityReportTitle}</h2>
+	<div class="rpt-nav-pills">
+		{if $canAccessHostReport}<a href="main.php?p=30701" class="rpt-nav-pill">Go to Host Report</a>{/if}
+		{if $canAccessHostGroupReport}<a href="main.php?p=30703" class="rpt-nav-pill">Go to Host Group Report</a>{/if}
+	</div>
+</div>
+<table style='width:100%; max-width:1400px;' class="ListTable">
 	<tr class='ListHeader'>
 		<!-- servicegroup selection -->
-		<form {$serviceGroupForm.attributes} style="margin:0px;padding:0px;">&nbsp;
-		<td class="ListColHeaderLeft" style='white-space: nowrap; border-left-width:0.0px;border-left-style:none;'>
+		<form {$serviceGroupForm.attributes} style="margin:0px;padding:0px;">
+		<td class="ListColHeaderLeft" style='white-space:nowrap;width:1%;border-left-width:0.0px;border-left-style:none;'>
 				&nbsp;&nbsp;{$formPeriod.itemElement.html}{$serviceGroupForm.hidden}
 		</td>
-		<td style='padding:5px;vertical-align:top;'>
-			{if $date_start != 0}&nbsp;&nbsp;&nbsp;{$period_name}
-					<!-- using a span to add a class to format the timestamp -->
-					<span class="isTimestamp isDate">{$date_start} </span> {$to}
-					<span class="isTimestamp isDate"> {$date_end}</span>
-				{/if}
-            <div class="md-radio-modified md-radio-inline">
-                <input type="radio" id="preset" value="preset" name="period_choice" {if $period_choice == "preset" } checked="checked" {/if}/>
-                <label for="preset"></label>
-            </div>
-				{$periodTitle} : {$formPeriod.period.html}{$periodORlabel}
-            <div class="md-radio-modified md-radio-inline">
-                <input type="radio" id="custom" name="period_choice" value="custom" {if $period_choice == "custom" } checked="checked" {/if} />
-                <label for="custom"></label>
-            </div>
-					{$formPeriod.StartDate.label} {$formPeriod.StartDate.html}&nbsp;
-					{$formPeriod.EndDate.label} {$formPeriod.EndDate.html}
-					{$formPeriod.button.html}{$formPeriod.hidden}
+		<td style='padding:5px 5px 5px 8px;vertical-align:top;border-left:1px solid rgba(0,0,0,0.15);'>
+                {$periodTitle} :
+            <span class="rpt-period-group" id="rpt-preset-group">
+                <div class="md-radio-modified md-radio-inline">
+                    <input type="radio" id="preset" value="preset" name="period_choice" {if $period_choice == "preset" } checked="checked" {/if}/>
+                    <label for="preset"></label>
+                </div>
+                {$formPeriod.period.html}
+            </span>
+            {$periodORlabel}
+            <span class="rpt-period-group" id="rpt-custom-group">
+                <div class="md-radio-modified md-radio-inline">
+                    <input type="radio" id="custom" name="period_choice" value="custom" {if $period_choice == "custom" } checked="checked" {/if} />
+                    <label for="custom"></label>
+                </div>
+                {$formPeriod.StartDate.label} {$formPeriod.StartDate.html}&nbsp;
+                {$formPeriod.EndDate.label} {$formPeriod.EndDate.html}
+            </span>
+            {$formPeriod.button.html}{$formPeriod.hidden}
 		</td>
 		</form>
-		<td>
-			<a href="{$link_csv_url}"><img src="./img/icons/csv.png" class="ico-20" alt="Export CSV" title="{t}Export CSV{/t}" target="_blank"/></a>
+		<td style="text-align:right;">
+			<a href="{$link_csv_url}"><img src="./img/icons/csv.png" class="ico-16" alt="Export CSV" title="{t}Export CSV{/t}" target="_blank"/></a>
 		</td>
 	</tr>
-	<tr class='list_lvl_3'>
-		<td style='width:300px; padding:5px'>
-			<!-- chart drawing -->
-			{if isset($servicegroup_id)}
-				<div id="chart" style="text-align: center; max-height: 180px; position: relative;" ></div>
-			{/if}
+	{if $date_start != 0}
+	<tr class="rpt-date-row">
+		<td colspan="3">
+			{$period_name} <span class="isTimestamp isDate">{$date_start}</span> {$to} <span class="isTimestamp isDate">{$date_end}</span>
 		</td>
-		<!-- period selection -->
-		<!-- services group statistics -->
-		<td style='vertical-align:top;padding:5px;' colspan="2">
-			<table class="ListTable">
+	</tr>
+	{/if}
+	<tr>
+		<td colspan="3" style="padding:5px;">
+			<table class="ListTable reporting-summary" style="width:100%;">
 				<tr class='ListHeader'>
-					<td colspan=5>&nbsp;{$resumeTitle}</td>
+					<td class="FormHeader" colspan="6">&nbsp;<b>{$resumeTitle}</b></td>
 				</tr>
-				<!-- headers -->
-				<tr class='list_lvl_1'>
-					<td style="padding:5px;" class="ListColHeaderCenter">{$stateLabel}</td>
-					<td style="padding:5px;" class="ListColHeaderCenter">{$totalTimeLabel}</td>
-					<td style="padding:5px;" class="ListColHeaderCenter">{$meanTimeLabel}</td>
-					<td style="padding:5px;" class="ListColHeaderCenter">{$alertsLabel}</td>
-				</tr>
-				<!-- Values -->
-				<tr class="list_one">
-					<td {$style_ok_top}><span {$badge_ok}></span> <b>{$OKTitle}</b></td>
-					<td style="padding:5px;" class='ListColCenter'>{$summary.OK_TP}%</td>
-					<td style="padding:5px;" class='ListColCenter'>{$summary.OK_MP}%</td>
-					<td style="padding:5px;" class='ListColCenter'>{$summary.OK_A}</td>
-				</tr>
-				<tr class="list_two">
-					<td {$style_warning_top}><span {$badge_warning}></span> <b>{$WarningTitle}</b></td>
-					<td style="padding:5px;" class='ListColCenter'>{$summary.WARNING_TP}%</td>
-					<td style="padding:5px;" class='ListColCenter'>{$summary.WARNING_MP}%</td>
-					<td style="padding:5px;" class='ListColCenter'>{$summary.WARNING_A}</td>
-				</tr>
-				<tr class="list_one">
-					<td {$style_critical_top}><span {$badge_critical}></span> <b>{$CriticalTitle}</b></td>
-					<td style="padding:5px;" class='ListColCenter'>{$summary.CRITICAL_TP}%</td>
-					<td style="padding:5px;" class='ListColCenter'>{$summary.CRITICAL_MP}%</td>
-					<td style="padding:5px;" class='ListColCenter'>{$summary.CRITICAL_A}</td>
-				</tr>
-				<tr class="list_two">
-					<td {$style_unknown_top}><span {$badge_unknown}></span> <b>{$UnknownTitle}</b></td>
-					<td style="padding:5px;" class='ListColCenter'>{$summary.UNKNOWN_TP}%</td>
-					<td style="padding:5px;" class='ListColCenter'>{$summary.UNKNOWN_MP}%</td>
-					<td style="padding:5px;" class='ListColCenter'>{$summary.UNKNOWN_A}</td>
-				</tr>
-				<tr class="list_two">
-					<td {$style_maintenance_top}><span {$badge_maintenance}></span> <b>{$MaintenanceTitle}</b></td>
-					<td style="padding:5px;" class='ListColCenter'>{$summary.MAINTENANCE_TP}%</td>
-					<td style="padding:5px;" class='ListColCenter'></td>
-					<td style="padding:5px;" class='ListColCenter'></td>
-				</tr>
-				<tr class="list_two">
-					<td {$style_pending_top}><span {$badge_pending}></span> <b>{$PendingTitle}</b></td>
-					<td style="padding:5px;" class='ListColCenter'>{$summary.UNDETERMINED_TP}%</td>
-					<td style="padding:5px;" class='ListColCenter'></td>
-					<td style="padding:5px;" class='ListColCenter'></td>
-				</tr>
-				<!-- Total -->
-				<tr class='list_lvl_2'>
-					<td style="padding:5px;" class="ListColHeaderCenter">{$totalLabel}</td>
-					<td style="padding:5px;" class='ListColCenter'></td>
-					<td style="padding:5px;" class='ListColCenter'></td>
-					<td style="padding:5px;" class='ListColCenter'>{$totalAlert}</td>
+				<tr>
+					<td style="width:220px; padding:5px 5px 5px 15px; vertical-align:middle;">
+						{if isset($servicegroup_id)}
+							<div style="text-align: center; position: relative;">
+								<canvas id="chartCanvas" width="260" height="160"></canvas>
+							</div>
+						{/if}
+					</td>
+					<td style="padding:0; vertical-align:top; border-left:1px solid var(--list-table-border-color, #ddd);">
+						<table style="width:100%; height:100%;">
+							<tr class='rpt-summary-header'>
+								<td style="padding:5px;" class="ListColHeaderCenter">{$stateLabel}</td>
+								<td style="padding:5px;" class="ListColHeaderCenter">{$totalTimeLabel}</td>
+								<td style="padding:5px;" class="ListColHeaderCenter">{$meanTimeLabel}</td>
+								<td style="padding:5px;" class="ListColHeaderCenter">{$alertsLabel}</td>
+							</tr>
+							<tr class="list_one">
+								<td style="padding:5px;"><span class="rpt-dot" style="background:#{$colors.ok}"></span> {$okLabel}</td>
+								<td style="padding:5px;" class='ListColCenter'>{$summary.OK_TP}%</td>
+								<td style="padding:5px;" class='ListColCenter'>{$summary.OK_MP}%</td>
+								<td style="padding:5px;" class='ListColCenter'><span class="rpt-alert-badge rpt-alert-ok">{$summary.OK_A}</span></td>
+							</tr>
+							<tr class="list_two">
+								<td style="padding:5px;"><span class="rpt-dot" style="background:#{$colors.warning}"></span> {$warningLabel}</td>
+								<td style="padding:5px;" class='ListColCenter'>{$summary.WARNING_TP}%</td>
+								<td style="padding:5px;" class='ListColCenter'>{$summary.WARNING_MP}%</td>
+								<td style="padding:5px;" class='ListColCenter'><span class="rpt-alert-badge rpt-alert-warn">{$summary.WARNING_A}</span></td>
+							</tr>
+							<tr class="list_one">
+								<td style="padding:5px;"><span class="rpt-dot" style="background:#{$colors.critical}"></span> {$criticalLabel}</td>
+								<td style="padding:5px;" class='ListColCenter'>{$summary.CRITICAL_TP}%</td>
+								<td style="padding:5px;" class='ListColCenter'>{$summary.CRITICAL_MP}%</td>
+								<td style="padding:5px;" class='ListColCenter'><span class="rpt-alert-badge rpt-alert-crit">{$summary.CRITICAL_A}</span></td>
+							</tr>
+							<tr class="list_two">
+								<td style="padding:5px;"><span class="rpt-dot" style="background:#{$colors.unknown}"></span> {$unknownLabel}</td>
+								<td style="padding:5px;" class='ListColCenter'>{$summary.UNKNOWN_TP}%</td>
+								<td style="padding:5px;" class='ListColCenter'>{$summary.UNKNOWN_MP}%</td>
+								<td style="padding:5px;" class='ListColCenter'><span class="rpt-alert-badge rpt-alert-unk">{$summary.UNKNOWN_A}</span></td>
+							</tr>
+							<tr class="list_one">
+								<td style="padding:5px;"><span class="rpt-dot" style="background:#{$colors.maintenance}"></span> <span class="rpt-tooltip-wrap">{$downtimeLabel}<span class="rpt-tooltip">{$downtimeTooltip}</span></span></td>
+								<td style="padding:5px;" class='ListColCenter'>{$summary.MAINTENANCE_TP}%</td>
+								<td style="padding:5px;" class='ListColCenter'></td>
+								<td style="padding:5px;" class='ListColCenter'></td>
+							</tr>
+							<tr class="list_two">
+								<td style="padding:5px;"><span class="rpt-dot" style="background:#{$colors.undetermined}"></span> <span class="rpt-tooltip-wrap">{$undeterminedLabel}<span class="rpt-tooltip">{$undeterminedTooltip}</span></span></td>
+								<td style="padding:5px;" class='ListColCenter'>{$summary.UNDETERMINED_TP}%</td>
+								<td style="padding:5px;" class='ListColCenter'></td>
+								<td style="padding:5px;" class='ListColCenter'></td>
+							</tr>
+							<tr class="rpt-summary-footer">
+								<td style="padding:5px;" class="ListColHeaderCenter">{$totalLabel}</td>
+								<td style="padding:5px;" class='ListColCenter'></td>
+								<td style="padding:5px;" class='ListColCenter'></td>
+								<td style="padding:5px;" class='ListColCenter'><span class="rpt-alert-badge rpt-alert-total">{$totalAlert}</span></td>
+							</tr>
+						</table>
+					</td>
 				</tr>
 			</table>
 		</td>
 	</tr>
 	<tr>
 		<td colspan="3" style=' padding:5px;'>
-			<table class="ListTable">
+			<table class="ListTable reporting-modern">
 				<tr class='ListHeader'>
-					<td class="FormHeader" colspan=13>&nbsp;{$svcTitle}</td>
-				</tr>
-				<tr class='list_lvl_1'>
-					<td class="ListColHeaderCenter" colspan="2"></td>
-					<td colspan=2 class="ListColHeaderCenter">{$OKTitle}</td>
-					<td colspan=2 class="ListColHeaderCenter">{$WarningTitle}</td>
-					<td colspan=2 class="ListColHeaderCenter">{$CriticalTitle}</td>
-					<td colspan=2 class="ListColHeaderCenter">{$UnknownTitle}</td>
-					<td class="ListColHeaderCenter">{$MaintenanceTitle}</td>
-					<td class="ListColHeaderCenter">{$PendingTitle}</td>
+					<td class="FormHeader" colspan="10">&nbsp;{$svcTitle}</td>
 				</tr>
 				<tr class='list_lvl_1'>
 					<td class="ListColHeaderCenter">{$hostTitle}</td>
 					<td class="ListColHeaderCenter">{$serviceTitle}</td>
-					<td class="ListColHeaderCenter">%</td>
-					<td class="ListColHeaderCenter">{$Alert}</td>
-					<td class="ListColHeaderCenter">%</td>
-					<td class="ListColHeaderCenter">{$Alert}</td>
-					<td class="ListColHeaderCenter">%</td>
-					<td class="ListColHeaderCenter">{$Alert}</td>
-					<td class="ListColHeaderCenter">%</td>
-					<td class="ListColHeaderCenter">{$Alert}</td>
-					<td class="ListColHeaderCenter">%</td>
-					<td class="ListColHeaderCenter">%</td>
+					<td class="ListColHeaderCenter"><span class="rpt-dot" style="background:#{$colors.ok}"></span> {$OKTitle}</td>
+					<td class="ListColHeaderCenter"><span class="rpt-dot" style="background:#{$colors.warning}"></span> {$WarningTitle}</td>
+					<td class="ListColHeaderCenter"><span class="rpt-dot" style="background:#{$colors.critical}"></span> {$CriticalTitle}</td>
+					<td class="ListColHeaderCenter"><span class="rpt-dot" style="background:#{$colors.unknown}"></span> {$UnknownTitle}</td>
+					<td class="ListColHeaderCenter"><span class="rpt-dot" style="background:#{$colors.maintenance}"></span> {$MaintenanceTitle}</td>
+					<td class="ListColHeaderCenter"><span class="rpt-dot" style="background:#{$colors.undetermined}"></span> {$PendingTitle}</td>
+					<td class="ListColHeaderCenter">{$alertsLabel}</td>
+				</tr>
+				<tr class='list_lvl_1'>
+					<td class="ListColHeaderCenter"></td>
+					<td class="ListColHeaderCenter"></td>
+					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">MT / TT</td>
+					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">MT / TT</td>
+					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">MT / TT</td>
+					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">MT / TT</td>
+					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">TT</td>
+					<td class="ListColHeaderCenter" style="font-size:10px;font-weight:normal;">TT</td>
+					<td class="ListColHeaderCenter"></td>
 				</tr>
 				{foreach item=tb from=$components}
 				<tr class={cycle values="list_two, list_one"}>
 					<td class="ListColHeaderLeft">
 						<a href="main.php?p=30701&host={$tb.HOST_ID}&period={$get_period}&start={$get_date_start}&end={$get_date_end}">{$tb.HOST_NAME}</a></td>
 					<td class="ListColHeaderLeft">
-						<a href="main.php?p=30702&host_id={$tb.HOST_ID}&item={$tb.SERVICE_ID}&period={$get_period}&start={$get_date_start}&end={$get_date_end}">{$tb.SERVICE_DESC}</a></td>
-					<td {$style_ok}>{$tb.OK_TP}% ({$tb.OK_MP}%)</td>
-					<td {$style_ok_alert} >{$tb.OK_A}</td>
-					<td {$style_warning}>{$tb.WARNING_TP}% ({$tb.WARNING_MP}%)</td>
-					<td {$style_warning_alert} style="width:30px;">{$tb.WARNING_A}</td>
-					<td {$style_critical}>{$tb.CRITICAL_TP}% ({$tb.CRITICAL_MP}%)</td>
-					<td {$style_critical_alert} style="width:30px;">{$tb.CRITICAL_A}</td>
-					<td {$style_unknown}>{$tb.UNKNOWN_TP}% ({$tb.UNKNOWN_MP}%)</td>
-					<td {$style_unknown_alert} style="width:30px;">{$tb.UNKNOWN_A}</td>
-					<td {$style_maintenance}>{$tb.MAINTENANCE_TP}%</td>
-					<td {$style_pending}>{$tb.UNDETERMINED_TP}%</td>
+						{if isset($tb.SVC_ICON)}{$tb.SVC_ICON}{/if}<a href="main.php?p=30702&host_id={$tb.HOST_ID}&item={$tb.SERVICE_ID}&period={$get_period}&start={$get_date_start}&end={$get_date_end}">{$tb.SERVICE_DESC}</a></td>
+					<td class="ListColCenter rpt-val rpt-bg-ok" style="padding:5px;">
+						<span class="rpt-mp">{$tb.OK_MP}%</span><span class="rpt-sep">/</span><span class="rpt-tp">{$tb.OK_TP}%</span>
+					</td>
+					<td class="ListColCenter rpt-val rpt-bg-warning" style="padding:5px;">
+						<span class="rpt-mp">{$tb.WARNING_MP}%</span><span class="rpt-sep">/</span><span class="rpt-tp">{$tb.WARNING_TP}%</span>
+					</td>
+					<td class="ListColCenter rpt-val rpt-bg-critical" style="padding:5px;">
+						<span class="rpt-mp">{$tb.CRITICAL_MP}%</span><span class="rpt-sep">/</span><span class="rpt-tp">{$tb.CRITICAL_TP}%</span>
+					</td>
+					<td class="ListColCenter rpt-val rpt-bg-unknown" style="padding:5px;">
+						<span class="rpt-mp">{$tb.UNKNOWN_MP}%</span><span class="rpt-sep">/</span><span class="rpt-tp">{$tb.UNKNOWN_TP}%</span>
+					</td>
+					<td class="ListColCenter rpt-bg-maintenance" style="padding:5px;">{$tb.MAINTENANCE_TP}%</td>
+					<td class="ListColCenter rpt-bg-undetermined" style="padding:5px;">{$tb.UNDETERMINED_TP}%</td>
+					<td class="ListColCenter rpt-alerts" style="padding:5px;">
+						{if $tb.WARNING_A > 0}<span class="rpt-alert-badge rpt-alert-warn">{$tb.WARNING_A}</span>{/if}
+						{if $tb.CRITICAL_A > 0}<span class="rpt-alert-badge rpt-alert-crit">{$tb.CRITICAL_A}</span>{/if}
+						{if $tb.UNKNOWN_A > 0}<span class="rpt-alert-badge rpt-alert-unk">{$tb.UNKNOWN_A}</span>{/if}
+						{if $tb.WARNING_A == 0 && $tb.CRITICAL_A == 0 && $tb.UNKNOWN_A == 0}<span class="rpt-alert-badge rpt-alert-none">0</span>{/if}
+					</td>
 				</tr>
 				{/foreach}
+				<tr class="rpt-avg">
+					<td class="ListColHeaderCenter" style="padding:5px;" colspan="2">{$averageTilte}</td>
+					<td class="ListColCenter rpt-val rpt-bg-ok" style="padding:5px;">
+						<span class="rpt-mp">{$components_avg.OK_MP}%</span><span class="rpt-sep">/</span><span class="rpt-tp">{$components_avg.OK_TP}%</span>
+					</td>
+					<td class="ListColCenter rpt-val rpt-bg-warning" style="padding:5px;">
+						<span class="rpt-mp">{$components_avg.WARNING_MP}%</span><span class="rpt-sep">/</span><span class="rpt-tp">{$components_avg.WARNING_TP}%</span>
+					</td>
+					<td class="ListColCenter rpt-val rpt-bg-critical" style="padding:5px;">
+						<span class="rpt-mp">{$components_avg.CRITICAL_MP}%</span><span class="rpt-sep">/</span><span class="rpt-tp">{$components_avg.CRITICAL_TP}%</span>
+					</td>
+					<td class="ListColCenter rpt-val rpt-bg-unknown" style="padding:5px;">
+						<span class="rpt-mp">{$components_avg.UNKNOWN_MP}%</span><span class="rpt-sep">/</span><span class="rpt-tp">{$components_avg.UNKNOWN_TP}%</span>
+					</td>
+					<td class="ListColCenter rpt-bg-maintenance" style="padding:5px;">{$components_avg.MAINTENANCE_TP}%</td>
+					<td class="ListColCenter rpt-bg-undetermined" style="padding:5px;">{$components_avg.UNDETERMINED_TP}%</td>
+					<td class="ListColCenter rpt-alerts" style="padding:5px;">
+						{if $components_avg.WARNING_A > 0}<span class="rpt-alert-badge rpt-alert-warn">{$components_avg.WARNING_A}</span>{/if}
+						{if $components_avg.CRITICAL_A > 0}<span class="rpt-alert-badge rpt-alert-crit">{$components_avg.CRITICAL_A}</span>{/if}
+						{if $components_avg.UNKNOWN_A > 0}<span class="rpt-alert-badge rpt-alert-unk">{$components_avg.UNKNOWN_A}</span>{/if}
+					</td>
+				</tr>
 			</table>
 		</td>
 	</tr>
 	<tr>
 		<td colspan="3" style=' padding:5px;'>
-			<div id="my-timeline" style="height: 250px; border: 1px solid #aaa"></div>
+			<div id="availability-heatmap"></div>
+			<div id="alerts-heatmap" style="margin-top: 10px;"></div>
 		</td>
 	</tr>
 </table>
@@ -171,37 +220,62 @@
     /* initializing datepicker and the alternative format field */
     initDatepicker("datepicker", "mm/dd/yy", null);
 
-    jQuery("select[name='period']").click(function() {
-        jQuery("input[value='preset'][name='period_choice'][type='radio']").prop('checked', true);
-    });
 
     jQuery(function () {
-        c3.generate({
-            bindto: d3.select('#chart'),
-            data: {
-                // iris data from R
-                columns: [
-                    ['Ok', {/literal}{$servicegroup_ok|number_format:2:".":""}{literal}],
-                    ['Warning', {/literal}{$servicegroup_warning|number_format:2:".":""}{literal}],
-                    ['Critical', {/literal}{$servicegroup_critical|number_format:2:".":""}{literal}],
-                    ['Unknown', {/literal}{$servicegroup_unknown|number_format:2:".":""}{literal}],
-                    ['Downtime', {/literal}{$servicegroup_maintenance|number_format:2:".":""}{literal}],
-                    ['Undetermined', {/literal}{$servicegroup_undetermined|number_format:2:".":""}{literal}]
-                ],
-                type : 'pie',
-                colors : {
-                    'Ok' : '#{/literal}{$colors.ok}{literal}',
-                    'Warning' : '#{/literal}{$colors.warning}{literal}',
-                    'Critical' : '#{/literal}{$colors.critical}{literal}',
-                    'Unknown' : '#{/literal}{$colors.unknown}{literal}',
-                    'Downtime' : '#{/literal}{$colors.maintenance}{literal}',
-                    'Undetermined' : '#{/literal}{$colors.undetermined}{literal}'
+        // Availability heatmap calendar
+        if (typeof initTimeline === 'function') { initTimeline(); }
+
+        var ctx = document.getElementById('chartCanvas');
+        if (ctx) {
+            var bodyBg = getComputedStyle(document.body).backgroundColor || '';
+            var isDark = bodyBg.indexOf('33, 33, 33') !== -1 || bodyBg.indexOf('21, 21, 21') !== -1;
+            var borderCol = isDark ? 'rgba(255,255,255,0.1)' : '#fff';
+            var legendColor = isDark ? '#b2aca2' : '#666';
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['{/literal}{$okLabel}{literal}', '{/literal}{$warningLabel}{literal}', '{/literal}{$criticalLabel}{literal}', '{/literal}{$unknownLabel}{literal}', '{/literal}{$downtimeLabel}{literal}', '{/literal}{$undeterminedLabel}{literal}'],
+                    datasets: [{
+                        data: [
+                            {/literal}{$servicegroup_ok|number_format:2:".":""}{literal},
+                            {/literal}{$servicegroup_warning|number_format:2:".":""}{literal},
+                            {/literal}{$servicegroup_critical|number_format:2:".":""}{literal},
+                            {/literal}{$servicegroup_unknown|number_format:2:".":""}{literal},
+                            {/literal}{$servicegroup_maintenance|number_format:2:".":""}{literal},
+                            {/literal}{$servicegroup_undetermined|number_format:2:".":""}{literal}
+                        ],
+                        backgroundColor: [
+                            '#{/literal}{$colors.ok}{literal}',
+                            '#{/literal}{$colors.warning}{literal}',
+                            '#{/literal}{$colors.critical}{literal}',
+                            '#{/literal}{$colors.unknown}{literal}',
+                            '#{/literal}{$colors.maintenance}{literal}',
+                            '#{/literal}{$colors.undetermined}{literal}'
+                        ],
+                        borderWidth: 1,
+                        borderColor: borderCol
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    cutout: '40%',
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { boxWidth: 12, padding: 8, font: { size: 11 }, color: legendColor }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed.toFixed(2) + '%';
+                                }
+                            }
+                        }
+                    }
                 }
-            },
-            size: {
-                height: 200
-            }
-        });
+            });
+        }
     });
 {/literal}
 </script>

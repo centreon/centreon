@@ -27,11 +27,13 @@ if (! isset($centreon)) {
 require_once './include/reporting/dashboard/initReport.php';
 
 // Getting service to report
-$hostId = filter_var($_GET['host_id'] ?? $_POST['host_id'] ?? false, FILTER_VALIDATE_INT);
-$serviceId = filter_var($_GET['item'] ?? $_POST['itemElement'] ?? false, FILTER_VALIDATE_INT);
+$hostId = filter_var($_GET['host_id'] ?? $_GET['host_id'] ?? $_POST['host_id'] ?? false, FILTER_VALIDATE_INT);
+
+$serviceId = filter_var($_GET['item'] ?? $_GET['itemElement'] ?? $_POST['itemElement'] ?? false, FILTER_VALIDATE_INT);
 
 // FORMS
-$form = new HTML_QuickFormCustom('formItem', 'post', '?p=' . $p);
+$form = new HTML_QuickFormCustom('formItem', 'get', '');
+$form->addElement('hidden', 'p', $p);
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
@@ -145,6 +147,7 @@ if ($serviceId !== false && $hostId !== false) {
 
     // Exporting variables for ihtml
     $tpl->assign('host_name', $host_name);
+    $tpl->assign('host_id', $hostId);
     $tpl->assign('name', $itemsForUrl[$serviceId]);
     $tpl->assign('totalAlert', $serviceStats['TOTAL_ALERTS']);
     $tpl->assign('totalTime', $serviceStats['TOTAL_TIME_F']);

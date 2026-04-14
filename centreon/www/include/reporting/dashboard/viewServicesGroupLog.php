@@ -27,10 +27,12 @@ if (! isset($centreon)) {
 require_once './include/reporting/dashboard/initReport.php';
 
 // Getting service group to report
-$id = filter_var($_GET['item'] ?? $_POST['itemElement'] ?? false, FILTER_VALIDATE_INT);
+$id = filter_var($_GET['item'] ?? $_GET['itemElement'] ?? $_POST['itemElement'] ?? false, FILTER_VALIDATE_INT);
+
 // FORMS
 
-$serviceGroupForm = new HTML_QuickFormCustom('formServiceGroup', 'post', '?p=' . $p);
+$serviceGroupForm = new HTML_QuickFormCustom('formServiceGroup', 'get', '');
+$serviceGroupForm->addElement('hidden', 'p', $p);
 $redirect = $serviceGroupForm->addElement('hidden', 'o');
 $redirect->setValue($o);
 
@@ -106,7 +108,31 @@ if ($id !== false) {
         }
     }
 
+    // Resolve service icons (custom icon or default SVG)
+    require_once './class/centreonMedia.class.php';
+    $mediaObj = new CentreonMedia($pearDB);
+    $defaultSvcIcon = returnSvg('www/img/icons/service.svg', 'var(--icons-fill-color)', 14, 14);
+    foreach ($servicesgroupFinalStats as &$svcData) {
+        if (isset($svcData['SERVICE_ID'])) {
+            $svcIcon = '';
+            $iconId = getMyServiceExtendedInfoField($svcData['SERVICE_ID'], 'esi_icon_image');
+            if ($iconId) {
+                $iconFile = $mediaObj->getFilename($iconId);
+                if ($iconFile) {
+                    $svcIcon = '<img src="./img/media/' . htmlspecialchars($iconFile)
+                        . '" width="14" height="14" style="vertical-align:middle;" />';
+                }
+            }
+            if (empty($svcIcon)) {
+                $svcIcon = $defaultSvcIcon;
+            }
+            $svcData['SVC_ICON'] = '<span style="margin-right:6px;vertical-align:middle;display:inline-block;">' . $svcIcon . '</span>';
+        }
+    }
+    unset($svcData);
+
     $tpl->assign('components', $servicesgroupFinalStats);
+    $tpl->assign('components_avg', $servicesgroupStats['average']);
     $tpl->assign('period_name', _('From'));
     $tpl->assign('date_start', $startDate);
     $tpl->assign('to', _('to'));
@@ -144,6 +170,7 @@ if ($id !== false) {
     ?><script type="text/javascript"> function initTimeline() {;} </script> <?php
 }
 $tpl->assign('resumeTitle', _('Service group state'));
+$tpl->assign('svcTitle', _('State Breakdowns For Services In Group'));
 $tpl->assign('p', $p);
 
 // Rendering forms

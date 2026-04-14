@@ -26,12 +26,13 @@ if (! isset($centreon)) {
 require_once './include/reporting/dashboard/initReport.php';
 
 // Getting host to report
-$id = filter_var($_GET['host'] ?? $_POST['hostElement'] ?? false, FILTER_VALIDATE_INT);
+$id = filter_var($_GET['host'] ?? $_GET['hostElement'] ?? $_POST['hostElement'] ?? false, FILTER_VALIDATE_INT);
 
 // Formulary
 
 // Host Selection
-$formHost = new HTML_QuickFormCustom('formHost', 'post', '?p=' . $p);
+$formHost = new HTML_QuickFormCustom('formHost', 'get', '');
+$formHost->addElement('hidden', 'p', $p);
 $redirect = $formHost->addElement('hidden', 'o');
 $redirect->setValue($o);
 
@@ -91,6 +92,30 @@ if ($id !== false) {
     $hostStats = getLogInDbForHost($id, $startDate, $endDate, $reportingTimePeriod);
 
     $hostServicesStats = getLogInDbForHostSVC($id, $startDate, $endDate, $reportingTimePeriod);
+
+    // Resolve service icons (custom icon or default SVG)
+    require_once './class/centreonMedia.class.php';
+    $mediaObj = new CentreonMedia($pearDB);
+    $defaultSvcIcon = returnSvg('www/img/icons/service.svg', 'var(--icons-fill-color)', 14, 14);
+    foreach ($hostServicesStats as $svcId => &$svcData) {
+        if ($svcId === 'average') {
+            continue;
+        }
+        $svcIcon = '';
+        $iconId = getMyServiceExtendedInfoField($svcId, 'esi_icon_image');
+        if ($iconId) {
+            $iconFile = $mediaObj->getFilename($iconId);
+            if ($iconFile) {
+                $svcIcon = '<img src="./img/media/' . htmlspecialchars($iconFile)
+                    . '" width="14" height="14" style="vertical-align:middle;" />';
+            }
+        }
+        if (empty($svcIcon)) {
+            $svcIcon = $defaultSvcIcon;
+        }
+        $svcData['ICON'] = '<span style="margin-right:6px;vertical-align:middle;display:inline-block;">' . $svcIcon . '</span>';
+    }
+    unset($svcData);
 
     // Chart datas
     $tpl->assign('host_up', $hostStats['UP_TP']);

@@ -172,6 +172,7 @@ if (! isset($_REQUEST['iframe']) || (isset($_REQUEST['iframe']) && $_REQUEST['if
     <!-- graph js -->
     <script src="./include/common/javascript/charts/d3.min.js"></script>
     <script src="./include/common/javascript/charts/c3.min.js"></script>
+    <script src="./include/common/javascript/charts/chart.umd.min.js"></script>
     <script src="./include/common/javascript/charts/d3-timeline.js"></script>
     <script src="./include/views/graphs/javascript/centreon-graph.js"></script>
     <script src="./include/views/graphs/javascript/centreon-c3.js"></script>
