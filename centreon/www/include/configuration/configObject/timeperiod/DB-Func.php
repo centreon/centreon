@@ -35,27 +35,41 @@ function includeExcludeTimeperiods($tpId, $includeTab = [], $excludeTab = [])
     global $pearDB;
 
     // Insert inclusions
-    if (isset($includeTab) && is_array($includeTab)) {
-        $includeStmt = $pearDB->prepare(
-            'INSERT INTO timeperiod_include_relations (timeperiod_id, timeperiod_include_id) VALUES (:tpId, :tpIncludeId)'
-        );
-        foreach ($includeTab as $tpIncludeId) {
-            $includeStmt->bindValue(':tpId', (int) $tpId, PDO::PARAM_INT);
-            $includeStmt->bindValue(':tpIncludeId', (int) $tpIncludeId, PDO::PARAM_INT);
-            $includeStmt->execute();
+    if (isset($includeTab) && is_array($includeTab) && $includeTab !== []) {
+        $placeholders = [];
+        $bindValues = [];
+        foreach (array_values($includeTab) as $i => $tpIncludeId) {
+            $placeholders[] = '(:tpId' . $i . ', :tpIncludeId' . $i . ')';
+            $bindValues[':tpId' . $i] = [(int) $tpId, PDO::PARAM_INT];
+            $bindValues[':tpIncludeId' . $i] = [(int) $tpIncludeId, PDO::PARAM_INT];
         }
+        $stmt = $pearDB->prepare(
+            'INSERT INTO timeperiod_include_relations (timeperiod_id, timeperiod_include_id) VALUES '
+            . implode(', ', $placeholders)
+        );
+        foreach ($bindValues as $param => [$value, $type]) {
+            $stmt->bindValue($param, $value, $type);
+        }
+        $stmt->execute();
     }
 
     // Insert exclusions
-    if (isset($excludeTab) && is_array($excludeTab)) {
-        $excludeStmt = $pearDB->prepare(
-            'INSERT INTO timeperiod_exclude_relations (timeperiod_id, timeperiod_exclude_id) VALUES (:tpId, :tpExcludeId)'
-        );
-        foreach ($excludeTab as $tpExcludeId) {
-            $excludeStmt->bindValue(':tpId', (int) $tpId, PDO::PARAM_INT);
-            $excludeStmt->bindValue(':tpExcludeId', (int) $tpExcludeId, PDO::PARAM_INT);
-            $excludeStmt->execute();
+    if (isset($excludeTab) && is_array($excludeTab) && $excludeTab !== []) {
+        $placeholders = [];
+        $bindValues = [];
+        foreach (array_values($excludeTab) as $i => $tpExcludeId) {
+            $placeholders[] = '(:tpId' . $i . ', :tpExcludeId' . $i . ')';
+            $bindValues[':tpId' . $i] = [(int) $tpId, PDO::PARAM_INT];
+            $bindValues[':tpExcludeId' . $i] = [(int) $tpExcludeId, PDO::PARAM_INT];
         }
+        $stmt = $pearDB->prepare(
+            'INSERT INTO timeperiod_exclude_relations (timeperiod_id, timeperiod_exclude_id) VALUES '
+            . implode(', ', $placeholders)
+        );
+        foreach ($bindValues as $param => [$value, $type]) {
+            $stmt->bindValue($param, $value, $type);
+        }
+        $stmt->execute();
     }
 }
 
