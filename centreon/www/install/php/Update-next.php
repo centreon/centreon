@@ -872,10 +872,10 @@ $addPollerTypeColumn = function () use ($pearDB, &$errorMessage, $version): void
     );
 
     if ($pearDB->columnExists(
-            $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
-            'nagios_server',
-            'poller_type'
-        )) {
+        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
+        'nagios_server',
+        'poller_type'
+    )) {
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: Column poller_type already exists on nagios_server, skipping",
