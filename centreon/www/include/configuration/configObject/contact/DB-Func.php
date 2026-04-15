@@ -1277,6 +1277,9 @@ function updateContact_MC(int $contact_id): void
         $logStmt->bindValue(':contactId', $contact_id, PDO::PARAM_INT);
         $logStmt->execute();
         $row = $logStmt->fetch();
+        if ($row === false) {
+            return;
+        }
     } catch (PDOException $e) {
         throw new RepositoryException(
             message: 'Database error while updating contact by massive change for contact id ' . $contact_id,
@@ -1672,9 +1675,8 @@ function updateContactContactGroup_MC(int $contactId): bool
     }
 
     try {
-        $cgStmt = $pearDB->prepare('SELECT contactgroup_cg_id FROM contactgroup_contact_relation WHERE contact_contact_id = :contactId');
-        $cgStmt->bindValue(':contactId', $contactId, PDO::PARAM_INT);
-        $cgStmt->execute();
+        $cgStmt = $pearDB->prepareQuery('SELECT contactgroup_cg_id FROM contactgroup_contact_relation WHERE contact_contact_id = :contactId');
+        $pearDB->executePreparedQuery($cgStmt, ['contactId' => $contactId]);
         $contactGroupIdsFromDb = $cgStmt->fetchAll(PDO::FETCH_COLUMN);
 
         $query = 'INSERT INTO contactgroup_contact_relation (contact_contact_id, contactgroup_cg_id) VALUES (:contact_id, :contactgroup_id)';

@@ -130,6 +130,9 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
         $selectStmt->execute();
 
         $row = $selectStmt->fetch();
+        if ($row === false) {
+            continue;
+        }
         unset($row['cg_id']);
         $columns = array_keys($row);
         $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));

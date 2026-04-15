@@ -153,6 +153,7 @@ function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
                         $insertHostChildStmt->execute();
                         $fields['dep_hostPar'] .= $host['host_host_id'] . ',';
                     }
+                    $selectHostChildStmt->closeCursor();
                     $fields['dep_hostPar'] = trim($fields['dep_hostPar'], ',');
 
                     $selectServiceParentStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
@@ -169,6 +170,7 @@ function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
                         $insertServiceParentStmt->execute();
                         $fields['dep_hSvPar'] .= $service['service_service_id'] . ',';
                     }
+                    $selectServiceParentStmt->closeCursor();
                     $fields['dep_hSvPar'] = trim($fields['dep_hSvPar'], ',');
 
                     $selectServiceChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
@@ -185,6 +187,7 @@ function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
                         $insertServiceChildStmt->execute();
                         $fields['dep_hSvChi'] .= $service['service_service_id'] . ',';
                     }
+                    $selectServiceChildStmt->closeCursor();
                     $fields['dep_hSvChi'] = trim($fields['dep_hSvChi'], ',');
                     $oreon->CentreonLogAction->insertLog(
                         'service dependency',
