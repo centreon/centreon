@@ -345,14 +345,14 @@ try {
                 // Restart centreon_vmware on central only if VMWare config has changed
                 // Atomically claim the flag to avoid race conditions with concurrent exports
                 $claimedRows = $pearDB->exec(
-                    'UPDATE nagios_server SET vmware_updated = \'0\' WHERE vmware_updated = \'1\' AND id = ' . (int) $host['id']
+                    'UPDATE nagios_server SET vmware_updated = 0 WHERE vmware_updated = 1 AND id = ' . (int) $host['id']
                 );
                 if ($claimedRows > 0) {
                     exec(escapeshellcmd('sudo -n -- systemctl restart centreon_vmware'), $_, $restartReturnCode);
                     if ($restartReturnCode !== 0) {
                         // Restart failed, restore the flag so it is retried on next export
                         $pearDB->query(
-                            'UPDATE nagios_server SET vmware_updated = \'1\' WHERE id = ' . (int) $host['id']
+                            'UPDATE nagios_server SET vmware_updated = 1 WHERE id = ' . (int) $host['id']
                         );
                     }
                 }
@@ -367,7 +367,7 @@ try {
                 // Send VMWARERESTART to remote poller only if VMWare config has changed
                 // Atomically claim the flag to avoid race conditions with concurrent exports
                 $claimedRows = $pearDB->exec(
-                    'UPDATE nagios_server SET vmware_updated = \'0\' WHERE vmware_updated = \'1\' AND id = ' . (int) $host['id']
+                    'UPDATE nagios_server SET vmware_updated = 0 WHERE vmware_updated = 1 AND id = ' . (int) $host['id']
                 );
                 if ($claimedRows > 0) {
                     passthru(
@@ -377,7 +377,7 @@ try {
                     if ($vmwareReturn) {
                         // Write failed, restore the flag so it is retried on next export
                         $pearDB->query(
-                            'UPDATE nagios_server SET vmware_updated = \'1\' WHERE id = ' . (int) $host['id']
+                            'UPDATE nagios_server SET vmware_updated = 1 WHERE id = ' . (int) $host['id']
                         );
 
                         throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));

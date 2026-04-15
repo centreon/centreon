@@ -48,16 +48,11 @@ $addVmwareUpdatedField = function () use ($pearDB, &$errorMessage, $version): vo
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: Adding vmware_updated field into nagios_server table",
     );
-    $hasField = $pearDB->fetchOne(
-        <<<'SQL'
-            SELECT 1 FROM information_schema.COLUMNS
-            WHERE TABLE_SCHEMA = DATABASE()
-            AND TABLE_NAME = 'nagios_server'
-            AND COLUMN_NAME = 'vmware_updated'
-            SQL
-    );
-
-    if ($hasField) {
+    if ($pearDB->columnExists(
+        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
+        'nagios_server',
+        'vmware_updated'
+    )) {
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: Field vmware_updated already exists in nagios_server table, skipping modification",
@@ -69,7 +64,7 @@ $addVmwareUpdatedField = function () use ($pearDB, &$errorMessage, $version): vo
     $pearDB->executeStatement(
         <<<'SQL'
             ALTER TABLE `nagios_server`
-            ADD COLUMN `vmware_updated` enum('1','0') NOT NULL DEFAULT '0' AFTER `updated`
+            ADD COLUMN `vmware_updated` BOOLEAN NOT NULL DEFAULT 0 AFTER `updated`
             SQL
     );
 
@@ -903,13 +898,23 @@ $deleteOldCommandsTopologies = function () use ($pearDB, &$errorMessage, $versio
     );
 };
 
-try {
-    // DDL statements for real time database
+/** -------------------------------------- Log Action -------------------------------------- */
+$modifyLogContactId = function () use ($pearDBO, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to modify column log_contact_id';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Modifying column log_contact_id",
+    );
     $pearDBO->executeStatement(
         <<<'SQL'
             ALTER TABLE `log_action` MODIFY COLUMN `log_contact_id` int(11) DEFAULT NULL
             SQL
     );
+}
+
+try {
+    // DDL statements for real time database
+    $modifyLogContactId();
 
     // DDL statements for configuration database
     $addVmwareUpdatedField();

@@ -146,7 +146,7 @@ class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements
         $request = $this->translateDbName(
             <<<SQL
                 UPDATE `:db`.`nagios_server`
-                SET `vmware_updated` =  '1'
+                SET `vmware_updated` = 1
                 WHERE `id` IN ({$bindQuery})
                 SQL
         );
