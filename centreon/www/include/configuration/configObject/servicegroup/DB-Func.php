@@ -374,8 +374,9 @@ function updateDatasetFiltersResourceIds(int $datasetFilterId, string $resourceI
 }
 
 /**
- * @param int $datasetId
  * @param int $serviceGroupId
+ *
+ * @return void
  */
 function deleteServiceGroupFromDataset(int $serviceGroupId): void
 {
@@ -386,6 +387,10 @@ function deleteServiceGroupFromDataset(int $serviceGroupId): void
     $statement->execute();
 }
 
+/**
+ * @param int $datasetId
+ * @param int $serviceGroupId
+ */
 function linkServiceGroupToDataset(int $datasetId, int $serviceGroupId): void
 {
     global $pearDB;
