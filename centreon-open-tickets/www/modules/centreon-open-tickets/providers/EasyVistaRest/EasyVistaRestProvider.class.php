@@ -128,9 +128,11 @@ class EasyVistaRestProvider extends AbstractProvider
 
         require_once $centreon_path . 'www/modules/centreon-open-tickets/class/centreonDBManager.class.php';
         $db_storage = new CentreonDBManager('centstorage');
+        $configurationDatabase = new CentreonDBManager();
+        $configDbName = $configurationDatabase->getConnectionConfig()->getDatabaseNameConfiguration();
 
         $query = 'SELECT name FROM hostgroups WHERE hostgroup_id IN'
-            . ' (SELECT hostgroup_hg_id FROM centreon.hostgroup_relation WHERE host_host_id IN (' . $listIds . ')'
+            . ' (SELECT hostgroup_hg_id FROM `' . $configDbName . '`.hostgroup_relation WHERE host_host_id IN (' . $listIds . ')'
             . ' GROUP BY hostgroup_hg_id HAVING count(hostgroup_hg_id) = :host_count)';
 
         $dbQuery = $db_storage->prepare($query);
