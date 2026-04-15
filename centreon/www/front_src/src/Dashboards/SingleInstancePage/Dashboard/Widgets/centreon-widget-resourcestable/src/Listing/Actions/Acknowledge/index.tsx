@@ -1,5 +1,5 @@
 import { useRequest, useSnackbar } from '@centreon/ui';
-import { acknowledgementAtom, userAtom } from '@centreon/ui-context';
+import { userAtom } from '@centreon/ui-context';
 
 import { useFormik } from 'formik';
 import { useAtomValue } from 'jotai';
@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { boolean, object, string } from 'yup';
 
+import { acknowledgementLocalAtom } from '../../../atom';
 import { Resource } from '../../models';
 import {
   labelAcknowledgeCommandSent,
@@ -55,7 +56,7 @@ const AcknowledgeForm = ({
   });
 
   const { alias } = useAtomValue(userAtom);
-  const acknowledgement = useAtomValue(acknowledgementAtom);
+  const acknowledgement = useAtomValue(acknowledgementLocalAtom);
 
   const form = useFormik<AcknowledgeFormValues>({
     initialValues: {

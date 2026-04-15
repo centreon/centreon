@@ -1,4 +1,9 @@
-import { defaultAcl, type PlatformVersions } from '@centreon/ui-context';
+import {
+  defaultAcknowledgement,
+  defaultAcl,
+  type Acknowledgement,
+  type PlatformVersions
+} from '@centreon/ui-context';
 
 import { atom } from 'jotai';
 
@@ -20,6 +25,7 @@ export const selectedResourcesAtom = atom<Array<Resource>>([]);
  * These are initialized in WidgetProvider with values from global Jotai atoms,
  */
 export const aclLocalAtom = atom(defaultAcl);
+export const acknowledgementLocalAtom = atom<Acknowledgement>(defaultAcknowledgement);
 export const isOnPublicPageLocalAtom = atom(false);
 export const platformLocalAtom = atom<PlatformVersions | null>(null);
 export const openTicketContextAtom = atom<OpenTicketContext>({

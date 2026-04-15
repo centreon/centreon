@@ -1,10 +1,11 @@
-import type { Acl, PlatformVersions } from '@centreon/ui-context';
+import type { Acknowledgement, Acl, PlatformVersions } from '@centreon/ui-context';
 
 import { createStore, Provider } from 'jotai';
 import { equals } from 'ramda';
 import { type ReactElement, type ReactNode, useEffect, useMemo } from 'react';
 
 import {
+  acknowledgementLocalAtom,
   aclLocalAtom,
   isOnPublicPageLocalAtom,
   openTicketContextAtom,
@@ -13,6 +14,7 @@ import {
 import type { OpenTicketContext } from './models';
 
 interface WidgetProviderProps {
+  acknowledgement: Acknowledgement;
   acl: Acl;
   children: ReactNode;
   isOnPublicPage: boolean;
@@ -21,6 +23,7 @@ interface WidgetProviderProps {
 }
 
 export const WidgetProvider = ({
+  acknowledgement,
   acl,
   children,
   isOnPublicPage,
@@ -29,13 +32,18 @@ export const WidgetProvider = ({
 }: WidgetProviderProps): ReactElement => {
   const store = useMemo(() => {
     const newStore = createStore();
+    newStore.set(acknowledgementLocalAtom, acknowledgement);
     newStore.set(aclLocalAtom, acl);
     newStore.set(isOnPublicPageLocalAtom, isOnPublicPage);
     newStore.set(platformLocalAtom, platform);
     newStore.set(openTicketContextAtom, openTicketContext);
 
     return newStore;
-  }, [acl, isOnPublicPage, openTicketContext, platform]);
+  }, [acknowledgement, acl, isOnPublicPage, openTicketContext, platform]);
+
+  useEffect(() => {
+    store.set(acknowledgementLocalAtom, acknowledgement);
+  }, [acknowledgement, store]);
 
   useEffect(() => {
     store.set(aclLocalAtom, acl);

@@ -1,4 +1,5 @@
 import {
+  acknowledgementAtom,
   aclAtom,
   isOnPublicPageAtom,
   platformVersionsAtom
@@ -13,6 +14,7 @@ import ResourcesTable from './ResourcesTable';
 import { WidgetProvider } from './WidgetContext';
 
 const Widget = (props: ResourcesTableProps): ReactElement => {
+  const acknowledgement = useAtomValue(acknowledgementAtom);
   const acl = useAtomValue(aclAtom);
   const platform = useAtomValue(platformVersionsAtom);
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
@@ -43,6 +45,7 @@ const Widget = (props: ResourcesTableProps): ReactElement => {
 
   return (
     <WidgetProvider
+      acknowledgement={acknowledgement}
       acl={acl}
       isOnPublicPage={isOnPublicPage}
       openTicketContext={openTicketContext}
