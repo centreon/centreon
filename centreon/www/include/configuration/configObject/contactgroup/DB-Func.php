@@ -92,13 +92,14 @@ function deleteContactGroupInDB($contactGroups = [])
 {
     global $pearDB, $centreon;
 
+    $stmt = $pearDB->prepare('SELECT cg_name FROM `contactgroup` WHERE `cg_id` = :cgId LIMIT 1');
+    $deleteStmt = $pearDB->prepare('DELETE FROM `contactgroup` WHERE `cg_id` = :cgId');
+
     foreach ($contactGroups as $key => $value) {
-        $stmt = $pearDB->prepare('SELECT cg_name FROM `contactgroup` WHERE `cg_id` = :cgId LIMIT 1');
         $stmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
         $stmt->execute();
         $row = $stmt->fetch();
 
-        $deleteStmt = $pearDB->prepare('DELETE FROM `contactgroup` WHERE `cg_id` = :cgId');
         $deleteStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
         $deleteStmt->execute();
         $centreon->CentreonLogAction->insertLog('contactgroup', $key, $row['cg_name'], 'd');
@@ -109,13 +110,26 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
 {
     global $pearDB, $centreon;
 
+    $selectStmt = $pearDB->prepare('SELECT * FROM `contactgroup` WHERE `cg_id` = :cgId LIMIT 1');
+    $aclSelectStmt = $pearDB->prepare(
+        'SELECT DISTINCT `acl_group_id` FROM `acl_group_contactgroups_relations` WHERE `cg_cg_id` = :cgId'
+    );
+    $aclInsertStmt = $pearDB->prepare(
+        'INSERT INTO `acl_group_contactgroups_relations` VALUES (:maxId, :cgAcl)'
+    );
+    $contactSelectStmt = $pearDB->prepare(
+        'SELECT DISTINCT `cgcr`.`contact_contact_id` FROM `contactgroup_contact_relation` `cgcr`'
+        . ' WHERE `cgcr`.`contactgroup_cg_id` = :cgId'
+    );
+    $contactInsertStmt = $pearDB->prepare(
+        'INSERT INTO `contactgroup_contact_relation` VALUES (:cct, :maxId)'
+    );
+
     foreach ($contactGroups as $key => $value) {
-        $selectStmt = $pearDB->prepare('SELECT * FROM `contactgroup` WHERE `cg_id` = :cgId LIMIT 1');
         $selectStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
         $selectStmt->execute();
-        $dbResult = $selectStmt;
 
-        $row = $dbResult->fetch();
+        $row = $selectStmt->fetch();
         unset($row['cg_id']);
         $columns = array_keys($row);
         $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
@@ -138,35 +152,22 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
                 $maxId = $dbResult->fetch();
 
                 if (isset($maxId['MAX(cg_id)'])) {
-                    $aclStmt = $pearDB->prepare(
-                        'SELECT DISTINCT `acl_group_id` FROM `acl_group_contactgroups_relations` WHERE `cg_cg_id` = :cgId'
-                    );
-                    $aclStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
-                    $aclStmt->execute();
-                    $dbResult = $aclStmt;
+                    $aclSelectStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
+                    $aclSelectStmt->execute();
                     $fields['cg_aclRelation'] = '';
-                    $aclContactStatement = $pearDB->prepare('INSERT INTO `acl_group_contactgroups_relations` '
-                        . 'VALUES (:maxId, :cgAcl)');
-                    while ($cgAcl = $dbResult->fetch()) {
-                        $aclContactStatement->bindValue(':maxId', (int) $maxId['MAX(cg_id)'], PDO::PARAM_INT);
-                        $aclContactStatement->bindValue(':cgAcl', (int) $cgAcl['acl_group_id'], PDO::PARAM_INT);
-                        $aclContactStatement->execute();
+                    while ($cgAcl = $aclSelectStmt->fetch()) {
+                        $aclInsertStmt->bindValue(':maxId', (int) $maxId['MAX(cg_id)'], PDO::PARAM_INT);
+                        $aclInsertStmt->bindValue(':cgAcl', (int) $cgAcl['acl_group_id'], PDO::PARAM_INT);
+                        $aclInsertStmt->execute();
                         $fields['cg_aclRelation'] .= $cgAcl['acl_group_id'] . ',';
                     }
-                    $contactStmt = $pearDB->prepare(
-                        'SELECT DISTINCT `cgcr`.`contact_contact_id` FROM `contactgroup_contact_relation` `cgcr`'
-                        . ' WHERE `cgcr`.`contactgroup_cg_id` = :cgId'
-                    );
-                    $contactStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
-                    $contactStmt->execute();
-                    $dbResult = $contactStmt;
+                    $contactSelectStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
+                    $contactSelectStmt->execute();
                     $fields['cg_contacts'] = '';
-                    $contactStatement = $pearDB->prepare('INSERT INTO `contactgroup_contact_relation` '
-                        . 'VALUES (:cct, :maxId)');
-                    while ($cct = $dbResult->fetch()) {
-                        $contactStatement->bindValue(':cct', (int) $cct['contact_contact_id'], PDO::PARAM_INT);
-                        $contactStatement->bindValue(':maxId', (int) $maxId['MAX(cg_id)'], PDO::PARAM_INT);
-                        $contactStatement->execute();
+                    while ($cct = $contactSelectStmt->fetch()) {
+                        $contactInsertStmt->bindValue(':cct', (int) $cct['contact_contact_id'], PDO::PARAM_INT);
+                        $contactInsertStmt->bindValue(':maxId', (int) $maxId['MAX(cg_id)'], PDO::PARAM_INT);
+                        $contactInsertStmt->execute();
                         $fields['cg_contacts'] .= $cct['contact_contact_id'] . ',';
                     }
                     $fields['cg_contacts'] = trim($fields['cg_contacts'], ',');
