@@ -1,24 +1,27 @@
+parameters:
+    env(DATABASE_SERVER_VERSION): 'mariadb-10.11'
+
 doctrine:
    dbal:
        default_connection: default
        connections:
            default:
                use_savepoints: true
-               server_version: '8.0'
+               server_version: '%env(DATABASE_SERVER_VERSION)%'
                dbname: '%env(db)%'
                user: '%env(user)%'
                password: '%env(password)%'
                host: '%env(hostCentreon)%'
            realtime:
                use_savepoints: true
-               server_version: '8.0'
+               server_version: '%env(DATABASE_SERVER_VERSION)%'
                dbname: '%env(dbcstg)%'
                user: '%env(user)%'
                password: '%env(password)%'
                host: '%env(hostCentreon)%'
            test_setup_default:
                use_savepoints: true
-               server_version: '8.0'
+               server_version: '%env(DATABASE_SERVER_VERSION)%'
                dbname: '%env(db)%'
                user: '%env(user)%'
                password: '%env(password)%'
