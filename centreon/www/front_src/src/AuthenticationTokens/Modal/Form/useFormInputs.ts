@@ -76,7 +76,7 @@ const useFormInputs = (): FormInputsState => {
       },
       fieldName: 'user',
       getDisabled: () => !canManageApiTokens || token,
-      hideInput: (values) => equals(values?.type?.id, TokenType.CMA),
+      hideInput: (values) => !equals(values?.type?.id, TokenType.API),
       label: t(labelUser),
       required: true,
       type: InputType.SingleConnectedAutocomplete
