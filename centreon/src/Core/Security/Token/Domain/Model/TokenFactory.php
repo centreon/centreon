@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace Core\Security\Token\Domain\Model;
 
 use Core\Common\Domain\TrimmedString;
+use Core\Security\Token\Domain\Model\NewPollerToken;
+use Core\Security\Token\Domain\Model\PollerToken;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Respect\Validation\Exceptions\DateTimeException;
@@ -51,6 +53,16 @@ use Respect\Validation\Exceptions\DateTimeException;
  *      is_revoked: int,
  *      token_string:string,
  *      encoding_key: string
+ *  }
+ *
+ * @phpstan-type _PollerToken array{
+ *      name: string,
+ *      creator_id: ?int,
+ *      creator_name: string,
+ *      creation_date: int,
+ *      expiration_date: ?int,
+ *      token_type: string,
+ *      is_revoked: int
  *  }
  *
  * @phpstan-type _Token array{
@@ -91,6 +103,13 @@ use Respect\Validation\Exceptions\DateTimeException;
  *      expiration_date: ?DateTimeInterface,
  *      configuration_provider_id: int,
  *  }
+ *
+ * @phpstan-type _NewPollerToken array{
+ *      name: string,
+ *      creator_id: ?int,
+ *      creator_name: ?string,
+ *      expiration_date: ?DateTimeInterface,
+ *  }
  */
 final class TokenFactory
 {
@@ -105,35 +124,53 @@ final class TokenFactory
         TokenTypeEnum $type,
         array $data,
     ): Token {
-        if ($type === TokenTypeEnum::CMA) {
-            /** @var _JwtToken $data */
-            return new JwtToken(
-                new TrimmedString($data['name']),
-                $data['creator_id'],
-                new TrimmedString($data['creator_name']),
-                (new DateTimeImmutable())->setTimestamp($data['creation_date']),
-                $data['expiration_date'] !== null
+        switch ($type) {
+            case TokenTypeEnum::CMA:
+                /** @var _JwtToken $data */
+                $token = new JwtToken(
+                    new TrimmedString($data['name']),
+                    $data['creator_id'],
+                    new TrimmedString($data['creator_name']),
+                    (new DateTimeImmutable())->setTimestamp($data['creation_date']),
+                    $data['expiration_date'] !== null
                     ? (new DateTimeImmutable())->setTimestamp($data['expiration_date'])
                     : null,
-                (bool) $data['is_revoked'],
-                $data['encoding_key'],
-                $data['token_string'],
-            );
+                    (bool) $data['is_revoked'],
+                    $data['encoding_key'],
+                    $data['token_string'],
+                );
+                break;
+            case TokenTypeEnum::POLLER:
+                /** @var _PollerToken $data */
+                $token = new PollerToken(
+                    new TrimmedString($data['name']),
+                    $data['creator_id'] ?? null,
+                    $data['creator_name'] ? new TrimmedString($data['creator_name']) : null,
+                    (new DateTimeImmutable())->setTimestamp($data['creation_date']),
+                    $data['expiration_date'] !== null
+                    ? (new DateTimeImmutable())->setTimestamp($data['expiration_date'])
+                    : null,
+                    (bool) $data['is_revoked']
+                );
+                break;
+            default:
+                /** @var _ApiToken $data */
+                $token = new ApiToken(
+                    new TrimmedString($data['name']),
+                    $data['user_id'],
+                    new TrimmedString($data['user_name']),
+                    $data['creator_id'],
+                    new TrimmedString($data['creator_name']),
+                    (new DateTimeImmutable())->setTimestamp($data['creation_date']),
+                    $data['expiration_date'] !== null
+                    ? (new DateTimeImmutable())->setTimestamp($data['expiration_date'])
+                    : null,
+                    (bool) $data['is_revoked'],
+                );
+                break;
         }
 
-        /** @var _ApiToken $data */
-        return new ApiToken(
-            new TrimmedString($data['name']),
-            $data['user_id'],
-            new TrimmedString($data['user_name']),
-            $data['creator_id'],
-            new TrimmedString($data['creator_name']),
-            (new DateTimeImmutable())->setTimestamp($data['creation_date']),
-            $data['expiration_date'] !== null
-                ? (new DateTimeImmutable())->setTimestamp($data['expiration_date'])
-                : null,
-            (bool) $data['is_revoked'],
-        );
+        return $token;
     }
 
     /**
@@ -145,24 +182,38 @@ final class TokenFactory
      */
     public static function createNew(TokenTypeEnum $type, array $data): NewToken
     {
-        if ($type === TokenTypeEnum::CMA) {
-            /** @var _NewJwtToken $data */
-            return new NewJwtToken(
-                new TrimmedString($data['name']),
-                $data['creator_id'],
-                new TrimmedString($data['creator_name']),
-                $data['expiration_date'],
-            );
+        switch ($type) {
+            case TokenTypeEnum::CMA:
+                /** @var _NewJwtToken $data */
+                $token =  new NewJwtToken(
+                    new TrimmedString($data['name']),
+                    $data['creator_id'],
+                    new TrimmedString($data['creator_name']),
+                    $data['expiration_date'],
+                );
+                break;
+            case TokenTypeEnum::POLLER:
+                /** @var _NewPollerToken $data */
+                $token = new NewPollerToken(
+                    new TrimmedString($data['name']),
+                    $data['expiration_date'],
+                    $data['creator_id'] ?? null,
+                    $data['creator_name'] ? new TrimmedString($data['creator_name']): null,
+                );
+                break;
+            default:
+                /** @var _NewApiToken $data */
+                $token = new NewApiToken(
+                    $data['configuration_provider_id'],
+                    new TrimmedString($data['name']),
+                    $data['user_id'],
+                    $data['creator_id'],
+                    new TrimmedString($data['creator_name']),
+                    $data['expiration_date'],
+                );
+                break;
         }
 
-        /** @var _NewApiToken $data */
-        return new NewApiToken(
-            $data['configuration_provider_id'],
-            new TrimmedString($data['name']),
-            $data['user_id'],
-            $data['creator_id'],
-            new TrimmedString($data['creator_name']),
-            $data['expiration_date'],
-        );
+        return $token;
     }
 }
