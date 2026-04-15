@@ -402,7 +402,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                 $newMetaId = $pearDB->getLastInsertId();
                 if ($newMetaId) {
                     $metaObj = new CentreonMeta($pearDB);
-                    $metaObj->insertVirtualService($newMetaId, addslashes($metaName));
+                    $metaObj->insertVirtualService($newMetaId, $metaName);
 
                     // Duplicate contacts
                     $qbContacts = $pearDB->createQueryBuilder();
@@ -748,7 +748,7 @@ function insertMetaService($ret = [])
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog('meta', $metaId, $ret['meta_name'], 'a', $fields);
     $metaObj = new CentreonMeta($pearDB);
-    $metaObj->insertVirtualService($metaId, addslashes($ret['meta_name']));
+    $metaObj->insertVirtualService($metaId, $ret['meta_name']);
 
     return $metaId;
 }
@@ -833,7 +833,7 @@ function updateMetaService($metaId = null)
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog('meta', $metaId, $ret['meta_name'], 'c', $fields);
     $metaObj = new CentreonMeta($pearDB);
-    $metaObj->insertVirtualService($metaId, addslashes($ret['meta_name']));
+    $metaObj->insertVirtualService($metaId, $ret['meta_name']);
 }
 
 /**
