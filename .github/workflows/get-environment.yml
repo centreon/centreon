@@ -688,17 +688,11 @@ jobs:
               "database": "mariadb:10.11",
               "test_tags": "not @ignore"
             };
-            const alma8_mysql_8_0 = {
-              "operating_system": "alma8",
+            const alma9_mysql_8_0 = {
+              "operating_system": "alma9",
               "database": "mysql:8.0",
               "test_tags": "not @ignore"
             };
-            const bookworm_mysql_8_4 = {
-              "operating_system": "bookworm",
-              "database": "mysql:8.4",
-              "test_tags": "not @ignore"
-            };
-
             const getDailyConfig = (configs) => {
               const today = new Date();
               const dayOfWeek = today.getDay(); // 0=sunday, 1=monday, ..., 6=saturday
@@ -729,9 +723,9 @@ jobs:
               return configs[configIndex];
             };
 
-            const configs = [alma9_mariadb_10_11, alma8_mysql_8_0, bookworm_mysql_8_4];
+            const configs = [alma9_mariadb_10_11, alma9_mysql_8_0];
 
-            const cloud = alma8_mysql_8_0;
+            const cloud = alma9_mysql_8_0;
 
             let main = alma9_mariadb_10_11;
             if ('${{ steps.detect_cloud_version.outputs.isCloud }}' == 'true') {

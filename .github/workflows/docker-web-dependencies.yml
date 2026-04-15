@@ -56,7 +56,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [alma8, alma9, bookworm]
+        distrib: [alma9]
     steps:
       - name: Checkout sources
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -73,8 +73,7 @@ jobs:
       - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         if: |
           needs.get-environment.outputs.is_cloud == 'false' ||
-          ! contains(fromJson('["testing", "stable"]'), needs.get-environment.outputs.stability) ||
-          matrix.distrib != 'bookworm'
+          ! contains(fromJson('["testing", "stable"]'), needs.get-environment.outputs.stability)
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
           DOCKER_BUILD_SUMMARY: false
@@ -97,8 +96,7 @@ jobs:
       - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         if: |
           needs.get-environment.outputs.is_cloud == 'false' ||
-          ! contains(fromJson('["testing", "stable"]'), needs.get-environment.outputs.stability) ||
-          matrix.distrib != 'bookworm'
+          ! contains(fromJson('["testing", "stable"]'), needs.get-environment.outputs.stability)
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
           DOCKER_BUILD_SUMMARY: false
