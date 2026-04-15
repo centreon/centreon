@@ -32,8 +32,11 @@ $wgMetaNamespace = "Centreon_Wiki";
 $wgScriptPath = "";
 
 ## The protocol and server name to use in fully-qualified URLs
-// $wgServer = "http://localhost";
-$wgServer = '//' . $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT'];
+if (PHP_SAPI === 'cli') {
+    $wgServer = 'http://localhost';
+} else {
+    $wgServer = '//' . $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT'];
+}
 
 ## The URL path to static resources (images, scripts, etc.)
 $wgResourceBasePath = $wgScriptPath;
@@ -171,3 +174,4 @@ wfLoadSkin( 'Vector' );
 # End of automatically generated settings.
 # Add more configuration options below.
 
+$wgShowExceptionDetails = true;
