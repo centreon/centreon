@@ -6,7 +6,7 @@ import {
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { omit } from 'ramda';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import useDeepCompareEffect from 'use-deep-compare-effect';
 
 import { listCustomFilters } from './api';
@@ -53,6 +53,8 @@ const useFilter = (): void => {
   const applyFilter = useSetAtom(applyFilterDerivedAtom);
   const storeFilter = useSetAtom(storedFilterAtom);
   const setSendingFilter = useSetAtom(sendingFilterAtom);
+
+  const initialUrlFilterRef = useRef(getUrlQueryParameters().filter);
 
   const loadCustomFilters = (): Promise<Array<Filter>> => {
     return sendListCustomFiltersRequest().then(({ result }) => {
@@ -103,8 +105,7 @@ const useFilter = (): void => {
   }, [getUrlQueryParameters().fromTopCounter]);
 
   useEffect(() => {
-    const urlParams = getUrlQueryParameters();
-    if (!urlParams.filter || urlParams.fromTopCounter) {
+    if (!initialUrlFilterRef.current || getUrlQueryParameters().fromTopCounter) {
       return;
     }
     applyFilter(getDefaultFilter());
