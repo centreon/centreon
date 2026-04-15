@@ -1,5 +1,5 @@
 parameters:
-    env(DATABASE_SERVER_VERSION): 'mariadb-10.11'
+    env(DATABASE_SERVER_VERSION): 'mariadb-10.11.0'
 
 doctrine:
    dbal:
