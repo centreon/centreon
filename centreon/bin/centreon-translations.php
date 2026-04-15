@@ -120,9 +120,10 @@ function createTranslationFile(
                     $translation .= $matches[2];
                 }
             } elseif (!empty($id) && !empty($translation)) {
-                $englishTranslation[$id] = $id;
-                if (!$isDefaultTranslation) {
-                    // Only if the code of language is not 'en'
+                if ($isDefaultTranslation) {
+                    $englishTranslation[$id] = $translation;
+                } else {
+                    $englishTranslation[$id] = $id;
                     $translations[$id] = $translation;
                 }
                 $id = null;
@@ -134,8 +135,10 @@ function createTranslationFile(
     }
 
     if (!empty($id) && !empty($translation)) {
-        $englishTranslation[$id] = $id;
-        if (!$isDefaultTranslation) {
+        if ($isDefaultTranslation) {
+            $englishTranslation[$id] = $translation;
+        } else {
+            $englishTranslation[$id] = $id;
             $translations[$id] = $translation;
         }
     }
