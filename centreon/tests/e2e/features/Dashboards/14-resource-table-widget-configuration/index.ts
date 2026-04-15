@@ -184,7 +184,7 @@ beforeEach(() => {
   }).as('resourceRequest');
   cy.intercept({
     method: 'GET',
-    url: `${INTERCEPTORS.api.monitor_resources}/hosts?page=1&limit=10&sort_by=**`
+    url: `${INTERCEPTORS.api.monitor_resources}/hosts?limit=10&sort_by=**`
   }).as('resourceRequestByHost');
   cy.intercept({
     method: 'POST',
