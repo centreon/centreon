@@ -380,14 +380,15 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
         }
         $row['meta_id'] = null;
         $originalName = $row['meta_name'];
+        $columns = array_keys($row);
+        $qbInsert = $pearDB->createQueryBuilder();
+        $insertQuery = $qbInsert->insert('meta_service')
+            ->values(array_combine($columns, array_map(fn ($col) => ':' . $col, $columns)))
+            ->getQuery();
+
         for ($i = 1; $i <= $nbrDup[$metaId]; $i++) {
             $metaName = $originalName . '_' . $i;
             $row['meta_name'] = $metaName;
-            $columns = array_keys($row);
-            $qbInsert = $pearDB->createQueryBuilder();
-            $insertQuery = $qbInsert->insert('meta_service')
-                ->values(array_combine($columns, array_map(fn ($col) => ':' . $col, $columns)))
-                ->getQuery();
 
             try {
                 if (! testExistence($metaName)) {
