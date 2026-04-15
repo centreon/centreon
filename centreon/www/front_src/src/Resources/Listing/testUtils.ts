@@ -100,6 +100,8 @@ export const getPlatformFeatures = ({
   };
 };
 
+// Intentional non-listing stub: used only as an empty mock for the events-view endpoint,
+// not as a resources listing fixture — the meta shape is intentionally different.
 export const fakeData = {
   meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 0 },
   result: []

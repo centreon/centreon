@@ -25,17 +25,18 @@ const ServicesTab = (): JSX.Element => {
   const limit = 30;
 
   const sendListingRequest = ({
-    atPage
+    cursor
   }: {
     atPage?: number;
+    cursor?: string | null;
   }): Promise<ListingModel<Resource>> => {
     const resourceTypes = has('centreon-anomaly-detection', platform?.modules)
       ? ['service', 'anomaly-detection']
       : ['service'];
 
     return sendRequest({
+      cursor,
       limit,
-      page: atPage,
       resourceTypes,
       search: {
         conditions: [

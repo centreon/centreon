@@ -127,15 +127,6 @@ export const useInfiniteScrollListingWithCursor = <T>({
     page: currentCursorIndex
   });
 
-  // Reset on unmount.
-  useEffect(() => {
-    return () => {
-      setCursorStack([null]);
-      setCurrentCursorIndex(0);
-      setHasMore(false);
-    };
-  }, []);
-
   return {
     elementRef,
     elements: elements.current || [],

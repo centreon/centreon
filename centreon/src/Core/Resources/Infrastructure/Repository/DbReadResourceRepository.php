@@ -60,6 +60,16 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      */
     private const ACL_CTE_THRESHOLD = 20_000;
 
+    /** @var array<string, string> */
+    /**
+     * Sort columns that are SELECT aliases (from JOINed tables, not resources.*) but are safe to use
+     * as cursor sort columns. Maps the alias name to the SQL expression to use in WHERE comparisons.
+     */
+    private const CURSOR_ALIAS_SORT_EXPRESSIONS = [
+        'severity_level'        => 'severities.level',
+        'monitoring_server_name' => 'instances.name',
+    ];
+
     /** @var ResourceEntity[] */
     private array $resources = [];
 
@@ -548,6 +558,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         bool $useTagExistsForFilters = false,
         bool $useAclCte = false,
         ?ResourceCursor $cursor = null,
+        bool $withCursorLookahead = false,
     ): string {
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
 
@@ -764,7 +775,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
          */
         if (! $withoutPagination) {
             $limit = $this->sqlRequestTranslator->getRequestParameters()->getLimit();
-            $query .= sprintf(' LIMIT %d', $limit + 1);
+            $query .= sprintf(' LIMIT %d', $limit + ($withCursorLookahead ? 1 : 0));
         }
 
         return $query;
@@ -856,7 +867,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
         return <<<SQL
             {$prefix} acl_accessible AS (
-                SELECT r.resource_id
+                SELECT DISTINCT r.resource_id
                 FROM `:dbstg`.`centreon_acl` acl
                 INNER JOIN `:dbstg`.`resources` r
                     ON r.type = 1
@@ -868,7 +879,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
                 UNION ALL
 
-                SELECT r.resource_id
+                SELECT DISTINCT r.resource_id
                 FROM `:dbstg`.`centreon_acl` acl
                 INNER JOIN `:dbstg`.`resources` r
                     ON r.id = acl.service_id
@@ -1192,6 +1203,10 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         array $accessGroupIds = [],
         bool $useAclCte = false,
     ): string {
+        // Must be set here because generateCountResourcesQuery() is called independently by the
+        // CountResources use case (count endpoint), which never goes through generateFindResourcesQuery().
+        $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
+
         $tagHeaders = $this->createQueryHeaders($filter, $queryParametersFromRequestParameter);
         if ($useAclCte) {
             // Pre-compute accessible resource IDs via the acl_accessible CTE and drive the COUNT
@@ -1206,29 +1221,15 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 : '';
         }
 
-        // LEFT JOIN to parent_resource is needed when severity filter is active
-        // (addSeveritySubRequest references parent_resource.severity_id).
-        // For search conditions that reference parent_resource columns (h.alias, h.address, parent_alias,
-        // parent_status), we use COUNT-specific inline approximations instead of the LEFT JOIN.
-        // This avoids 960k × parent PK lookups on every COUNT query that includes a text search.
-        // The approximations (e.g. parent_alias → resources.parent_name) are close enough for pagination
-        // counts and produce a correct result for the vast majority of searches. The DATA query still
-        // uses the full LEFT JOIN with proper concordances and returns accurate results.
+        // LEFT JOIN to parent_resource is needed when:
+        // - a severity filter is active (addSeveritySubRequest references parent_resource.severity_id), or
+        // - the search itself references parent_resource.* columns (h.alias, h.address, parent_alias, parent_status).
+        // Translate with accurate concordances; presence of "parent_resource." in the result drives the JOIN decision.
+        // When the search uses only resources.* columns the JOIN is skipped, avoiding 960k × parent PK lookups.
         $hasSeverityFilter = $filter->getHostSeverityNames() !== []
             || $filter->getServiceSeverityNames() !== []
             || $filter->getHostSeverityLevels() !== []
             || $filter->getServiceSeverityLevels() !== [];
-
-        // Temporarily override concordances for parent-resource-dependent search fields so that
-        // translateSearchParameterToSql() generates SQL without any parent_resource.* references.
-        // When a severity filter is active the LEFT JOIN is still added via $hasSeverityFilter,
-        // so the approximations are safe even when both search and severity are present simultaneously.
-        $this->sqlRequestTranslator->setConcordanceArray(array_merge($this->resourceConcordances, [
-            'h.alias'       => 'resources.alias',
-            'h.address'     => 'resources.address',
-            'parent_alias'  => 'resources.parent_name',
-            'parent_status' => 'resources.status',
-        ]));
 
         $searchSubRequest = null;
         try {
@@ -1238,13 +1239,10 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 message: 'An error occurred while generating the count request',
                 previous: $exception
             );
-        } finally {
-            $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
         }
 
-        // With the inlined concordances above, searchSubRequest no longer contains parent_resource.*,
-        // so needsParentResourceJoin is only true when a severity filter is active.
-        $needsParentResourceJoin = $hasSeverityFilter;
+        $needsParentResourceJoin = $hasSeverityFilter
+            || ($searchSubRequest !== null && str_contains($searchSubRequest, 'parent_resource.'));
 
         $resourceTypeHost = self::RESOURCE_TYPE_HOST;
 
@@ -1356,8 +1354,18 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             }
         }
 
+        // Ensure the concordance is set before resolveActiveSortCols() reads it.
+        // generateFindResourcesQuery() also calls setConcordanceArray internally, but
+        // resolveActiveSortCols() is called first and needs the correct mapping.
+        $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
+
         // Determine active sort columns for next-cursor construction.
+        // null = the requested sort uses expressions incompatible with keyset pagination (e.g.
+        // CASE expressions, parent_resource.* joins) — cursor must be disabled for this request.
         $activeSortCols = $this->resolveActiveSortCols();
+        if ($activeSortCols === null) {
+            $cursor = null; // Ignore incoming cursor: keyset WHERE would compare the wrong columns.
+        }
 
         // Decide ACL strategy once; the result is reused by count() via the aclCountCache.
         $useAclCte = $this->shouldUseAclCte($accessGroupIds);
@@ -1371,6 +1379,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             useTagExistsForFilters: true,
             useAclCte: $useAclCte,
             cursor: $cursor,
+            withCursorLookahead: true,
         );
 
         $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
@@ -1399,7 +1408,9 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         $this->completeResourcesWithIcons($icons);
 
         // Build next-cursor from the last record of the current page.
-        if ($hasNextPage && $records !== []) {
+        // Skip when $activeSortCols is null: the sort is incompatible with keyset pagination,
+        // cursor was disabled for this request, and emitting a cursor token would be misleading.
+        if ($hasNextPage && $records !== [] && $activeSortCols !== null) {
             /** @var array<string, int|string|null> $lastRecord */
             $lastRecord = end($records);
             $this->nextCursor = $this->buildNextCursorFromRecord($lastRecord, $activeSortCols);
@@ -1485,11 +1496,15 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      * Determine the sort column(s) active for the current request, expressed as resource-table column
      * names (without the "resources." prefix). Used to build and decode cursors.
      *
+     * Returns null when at least one requested sort field cannot be mapped to a cursor column
+     * (e.g. CASE expressions, parent_resource.* columns). Callers must disable cursor pagination
+     * in that case to avoid keyset WHERE conditions that reference the wrong columns.
+     *
      * Returns the default sort when no sort_by parameter is provided.
      *
-     * @return list<array{col: string, dir: string}>
+     * @return list<array{col: string, dir: string}>|null null = cursor pagination not supported for this sort
      */
-    private function resolveActiveSortCols(): array
+    private function resolveActiveSortCols(): ?array
     {
         $sort = $this->sqlRequestTranslator->getRequestParameters()->getSort();
 
@@ -1504,16 +1519,20 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         $concordance = $this->sqlRequestTranslator->getConcordanceArray();
         foreach ($sort as $field => $dir) {
             $dbExpr = $concordance[$field] ?? null;
-            // Only use simple "resources.<column>" expressions as cursor components.
+            // Accept simple "resources.<column>" expressions.
             if ($dbExpr !== null && preg_match('/^resources\.(\w+)$/', $dbExpr, $matches)) {
                 $cols[] = ['col' => $matches[1], 'dir' => mb_strtoupper((string) $dir)];
+            } elseif (isset(self::CURSOR_ALIAS_SORT_EXPRESSIONS[$field])) {
+                // Accept known SELECT aliases backed by a JOIN'd column.
+                $cols[] = ['col' => $field, 'dir' => mb_strtoupper((string) $dir)];
+            } else {
+                // Sort field maps to a CASE expression or a JOIN'd column (e.g. parent_resource.*).
+                // Using it in a keyset WHERE would compare wrong values → disable cursor for this sort.
+                return null;
             }
         }
 
-        return $cols !== [] ? $cols : [
-            ['col' => 'status_ordered', 'dir' => 'DESC'],
-            ['col' => 'last_status_change', 'dir' => 'DESC'],
-        ];
+        return $cols;
     }
 
     /**
@@ -1530,7 +1549,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $sorts[] = [
                 'col' => $def['col'],
                 'dir' => $def['dir'],
-                'val' => is_numeric($raw) ? (int) $raw : (string) $raw,
+                'val' => $raw === null ? null : (is_numeric($raw) ? (int) $raw : (string) $raw),
             ];
         }
 
@@ -1538,17 +1557,58 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     }
 
     /**
+     * Resolve the SQL column expression to use for a cursor sort column.
+     * Known SELECT aliases (e.g. severity_level, monitoring_server_name) map to their JOIN'd expressions;
+     * direct resources.* columns are returned as "resources.<col>".
+     *
+     * Throws when $col is not in the known whitelist, preventing forged cursors from introducing
+     * arbitrary column references into the keyset WHERE clause.
+     *
+     * @throws \InvalidArgumentException on unknown column name
+     */
+    private function resolveCursorColExpression(string $col): string
+    {
+        if (isset(self::CURSOR_ALIAS_SORT_EXPRESSIONS[$col])) {
+            return self::CURSOR_ALIAS_SORT_EXPRESSIONS[$col];
+        }
+
+        // Allow only columns that can be produced by resolveActiveSortCols():
+        // those matching "resources.<word>" in the concordance array.
+        foreach ($this->sqlRequestTranslator->getConcordanceArray() as $expression) {
+            if (preg_match('/^resources\.(\w+)$/', $expression, $matches) && $matches[1] === $col) {
+                return "resources.{$col}";
+            }
+        }
+
+        throw new \InvalidArgumentException("Unknown cursor sort column: {$col}");
+    }
+
+    /**
      * Build the keyset WHERE fragment for cursor pagination and bind the cursor parameter values.
      *
-     * For an n-column sort (all same direction), this generates:
+     * Uses a NULL-aware OR-expanded keyset condition to correctly handle sort columns that can
+     * contain NULLs (e.g. last_status_change, last_check for PENDING resources). For a 2-column
+     * DESC sort with cursor values (v0, v1) this generates:
+     *
      *   AND (
-     *     (col1 OP v1)
-     *     OR (col1 = v1 AND col2 OP v2)
-     *     ...
-     *     OR (col1 = v1 AND ... AND colN = vN AND resource_id OP rid)
+     *     (col0 < :v0 OR col0 IS NULL)                                 -- col0 strictly after cursor
+     *     OR (col0 = :v0 AND (col1 < :v1 OR col1 IS NULL))             -- col0 ties, col1 strictly after
+     *     OR (col0 = :v0 AND col1 = :v1 AND resource_id < :cursor_rid) -- tiebreaker
      *   )
      *
-     * where OP is "<" for DESC sorts and ">" for ASC sorts.
+     * When a cursor value is NULL (e.g. last_status_change for PENDING resources), the "strictly after"
+     * branch for that column is omitted entirely (nothing can come after NULL in DESC), and equality
+     * uses IS NULL instead of = :val.
+     *
+     * NULL semantics (MariaDB ORDER BY):
+     *   - DESC: NULLs sort LAST  → "strictly after" a non-NULL cursor = (col < :val OR col IS NULL)
+     *                            → "strictly after" a NULL cursor     = impossible (nothing after last)
+     *   - ASC:  NULLs sort FIRST → "strictly after" a non-NULL cursor = col > :val (NULLs already before)
+     *                            → "strictly after" a NULL cursor     = col IS NOT NULL
+     *
+     * Note: the row-value comparison optimisation (col1, col2) < (v1, v2) is intentionally NOT used
+     * here because it cannot handle NULL sort-column values — MariaDB evaluates NULL < x as NULL
+     * (neither TRUE nor FALSE), causing rows with NULL sort values to be silently skipped.
      */
     private function buildCursorWhereCondition(ResourceCursor $cursor, QueryParameters $queryParams): string
     {
@@ -1558,11 +1618,22 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             return '';
         }
 
-        $dir = mb_strtoupper($sorts[0]['dir'] ?? 'DESC');
-        $cmp = $dir === 'DESC' ? '<' : '>';
+        // Validate all column names against the whitelist before building any SQL.
+        // A forged cursor with an unrecognised column would otherwise interpolate it into the WHERE
+        // clause. Return '' (no keyset filter) when validation fails, equivalent to first page.
+        try {
+            foreach ($sorts as $sort) {
+                $this->resolveCursorColExpression($sort['col']);
+            }
+        } catch (\InvalidArgumentException) {
+            return '';
+        }
 
-        // Bind all cursor values once.
+        // Bind only non-null cursor values; NULL values are expressed as IS NULL in the SQL.
         foreach ($sorts as $idx => $sort) {
+            if ($sort['val'] === null) {
+                continue;
+            }
             $key = "cursor_col{$idx}";
             if (is_int($sort['val'])) {
                 $queryParams->add($key, QueryParameter::int($key, $sort['val']));
@@ -1572,50 +1643,102 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         }
         $queryParams->add('cursor_rid', QueryParameter::int('cursor_rid', $cursor->resourceId));
 
-        // When all sort directions are identical, use a row value comparison:
-        //   (col1, col2, ..., resource_id) < (v1, v2, ..., rid)
-        // MariaDB recognises this as a single range predicate on the composite index
-        // (enabled, col1 DESC, col2 DESC, resource_id DESC) and can seek directly to
-        // the cursor position without a filesort — O(log N) instead of O(N).
-        // Fall back to the OR-expansion only for mixed-direction sorts.
-        $allSameDir = count(array_unique(array_column($sorts, 'dir'))) === 1;
+        $dir = mb_strtoupper($sorts[0]['dir'] ?? 'DESC');
+        $cmp = $dir === 'DESC' ? '<' : '>';
 
-        if ($allSameDir) {
-            $cols = implode(', ', array_map(
-                static fn (array $sortEntry): string => "resources.{$sortEntry['col']}",
-                $sorts
-            ));
-            $placeholders = implode(', ', array_map(
-                static fn (int $idx): string => ":cursor_col{$idx}",
-                array_keys($sorts)
-            ));
-
-            return " AND ({$cols}, resources.resource_id) {$cmp} ({$placeholders}, :cursor_rid)";
-        }
-
-        // Mixed-direction fallback: OR-expanded keyset condition.
+        // Build one OR branch per sort column: "all preceding columns tie, this one is strictly after".
         $conditions = [];
         $count = count($sorts);
 
         for ($idx = 0; $idx < $count; $idx++) {
             $colDir = mb_strtoupper($sorts[$idx]['dir'] ?? 'DESC');
-            $colCmp = $colDir === 'DESC' ? '<' : '>';
+            $colVal = $sorts[$idx]['val'];
+            $colExpr = $this->resolveCursorColExpression($sorts[$idx]['col']);
+
+            // "Strictly after" predicate for the current column — returns '' when impossible.
+            $strictPart = $this->buildCursorStrictPredicate(
+                $colExpr,
+                $colVal,
+                $colDir,
+                $idx,
+            );
+
+            if ($strictPart === '') {
+                // Impossible condition: skip this branch entirely.
+                continue;
+            }
+
+            // Equality predicates for all preceding columns.
             $parts = [];
             for ($jdx = 0; $jdx < $idx; $jdx++) {
-                $parts[] = sprintf('resources.%s = :cursor_col%d', $sorts[$jdx]['col'], $jdx);
+                $parts[] = $this->buildCursorEqualityPredicate(
+                    $this->resolveCursorColExpression($sorts[$jdx]['col']),
+                    $sorts[$jdx]['val'],
+                    $jdx,
+                );
             }
-            $parts[] = sprintf('resources.%s %s :cursor_col%d', $sorts[$idx]['col'], $colCmp, $idx);
+            $parts[] = $strictPart;
             $conditions[] = '(' . implode(' AND ', $parts) . ')';
         }
 
+        // Tiebreaker branch: all sort columns tie, resource_id breaks the tie.
         $tiebreaker = [];
         for ($jdx = 0; $jdx < $count; $jdx++) {
-            $tiebreaker[] = sprintf('resources.%s = :cursor_col%d', $sorts[$jdx]['col'], $jdx);
+            $tiebreaker[] = $this->buildCursorEqualityPredicate(
+                $this->resolveCursorColExpression($sorts[$jdx]['col']),
+                $sorts[$jdx]['val'],
+                $jdx,
+            );
         }
-        $tiebreaker[] = sprintf('resources.resource_id %s :cursor_rid', $cmp);
+        $tiebreaker[] = "resources.resource_id {$cmp} :cursor_rid";
         $conditions[] = '(' . implode(' AND ', $tiebreaker) . ')';
 
         return ' AND (' . implode("\n    OR ", $conditions) . ')';
+    }
+
+    /**
+     * Build the equality predicate for one cursor sort column.
+     *
+     * - NULL cursor value  → `col IS NULL`
+     * - Non-NULL cursor value → `col = :cursor_colN`
+     */
+    private function buildCursorEqualityPredicate(string $col, int|string|null $val, int $idx): string
+    {
+        if ($val === null) {
+            return "{$col} IS NULL";
+        }
+
+        return "{$col} = :cursor_col{$idx}";
+    }
+
+    /**
+     * Build the strictly-less/greater predicate for one cursor sort column, NULL-aware.
+     * Returns '' when the condition is structurally impossible (DESC + NULL cursor = nothing after it).
+     *
+     * MariaDB ORDER BY NULL semantics:
+     *   - DESC: NULLs sort LAST  → rows after a non-NULL cursor include NULLs: (col < :val OR col IS NULL)
+     *                            → rows after a NULL cursor: impossible — NULL is last, return ''
+     *   - ASC:  NULLs sort FIRST → rows after a non-NULL cursor exclude NULLs: col > :val
+     *                            → rows after a NULL cursor include all non-NULLs: col IS NOT NULL
+     */
+    private function buildCursorStrictPredicate(string $col, int|string|null $val, string $dir, int $idx): string
+    {
+        if ($dir === 'DESC') {
+            if ($val === null) {
+                // NULL is last in DESC — nothing can come after it in this column's dimension.
+                return '';
+            }
+
+            return "({$col} < :cursor_col{$idx} OR {$col} IS NULL)";
+        }
+
+        // ASC direction.
+        if ($val === null) {
+            // NULL is first in ASC — all non-NULL values come after it.
+            return "{$col} IS NOT NULL";
+        }
+
+        return "{$col} > :cursor_col{$idx}";
     }
 
     /**
@@ -1935,13 +2058,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     }
 
     /**
-     * This adds the sub request filter on resource status.
-     *
-     * @param ResourceFilter $filter
-     *
-     * @return string
-     */
-    /**
      * Returns true when all 8 possible status constants are present in $statuses,
      * which means the filter has zero selectivity (equivalent to no filter).
      *
@@ -1964,6 +2080,13 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             && empty(array_diff($allStatuses, $statuses));
     }
 
+    /**
+     * This adds the sub request filter on resource status.
+     *
+     * @param ResourceFilter $filter
+     *
+     * @return string
+     */
     private function addResourceStatusSubRequest(ResourceFilter $filter): string
     {
         $subRequest = '';

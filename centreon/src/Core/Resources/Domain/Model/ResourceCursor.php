@@ -32,7 +32,7 @@ namespace Core\Resources\Domain\Model;
  *
  * Each entry in $sorts is: ['col' => '<resources table column>', 'dir' => 'ASC'|'DESC', 'val' => mixed]
  *
- * @phpstan-type _SortEntry array{col: string, dir: string, val: int|string}
+ * @phpstan-type _SortEntry array{col: string, dir: string, val: int|string|null}
  */
 final class ResourceCursor
 {
@@ -68,9 +68,21 @@ final class ResourceCursor
             throw new \InvalidArgumentException('Invalid cursor: unexpected structure');
         }
 
-        /** @var list<array{col: string, dir: string, val: int|string}> $sorts */
         $sorts = array_values($data['sorts']);
+        foreach ($sorts as $entry) {
+            if (
+                ! is_array($entry)
+                || ! isset($entry['col'], $entry['dir'])
+                || ! array_key_exists('val', $entry)
+                || ! preg_match('/^\w+$/', (string) $entry['col'])
+                || ! in_array(mb_strtoupper((string) $entry['dir']), ['ASC', 'DESC'], true)
+                || ($entry['val'] !== null && ! is_int($entry['val']) && ! is_string($entry['val']))
+            ) {
+                throw new \InvalidArgumentException('Invalid cursor: malformed sort entry');
+            }
+        }
 
+        /** @var list<array{col: string, dir: string, val: int|string|null}> $sorts */
         return new self($sorts, $data['rid']);
     }
 
