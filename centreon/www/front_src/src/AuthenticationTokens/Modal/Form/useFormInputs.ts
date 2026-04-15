@@ -95,7 +95,7 @@ const useFormInputs = (): FormInputsState => {
         Component: TokenCopyWarning
       },
       fieldName: 'warning',
-      hideInput: (values) => !token || equals(values?.type?.id, TokenType.CMA),
+      hideInput: (values) => !token || !equals(values?.type?.id, TokenType.API),
       label: t(labelToken),
       type: InputType.Custom
     }

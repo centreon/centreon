@@ -12,8 +12,8 @@ import { useTranslation } from 'react-i18next';
 import { selectedColumnIdsAtom } from '../atoms';
 import ActionsColumn from './ActionsColumn';
 import ExpirationDate from './ExpirationDate/ExpirationDate';
-import { Column, ColumnId } from './models';
 import Status from './Status/Status';
+import { Column, ColumnId } from './models';
 
 const dateFormat = 'L';
 
@@ -34,6 +34,12 @@ export interface UseColumnsState {
   onSelectColumns: (updatedColumnIds: Array<ColumnId>) => void;
   selectedColumnIds: Array<string>;
 }
+
+const tokenType = {
+  api: 'API',
+  cma: 'CMA',
+  poller: 'Poller'
+};
 
 export const useColumns = (): UseColumnsState => {
   const { t } = useTranslation();
@@ -64,7 +70,7 @@ export const useColumns = (): UseColumnsState => {
         type: ColumnType.string
       },
       {
-        getFormattedString: (row): string => row?.type.toUpperCase(),
+        getFormattedString: (row): string => tokenType[row?.type],
         id: ColumnId.Type,
         label: t(Column.Type),
         sortable: true,

@@ -2,8 +2,8 @@ import {
   labelAdd,
   labelCreateAuthenticationToken,
   labelDeleteToken,
-  labelDisabled,
   labelDisableToken,
+  labelDisabled,
   labelDone,
   labelEnableToken,
   labelFilters,
@@ -232,7 +232,7 @@ describe('Authentication tokens', () => {
     cy.findAllByTestId(labelName).eq(1).type('token 1');
 
     cy.findByTestId(labelType).click();
-    cy.contains('Poller').click();
+    cy.findByRole('option', { name: 'Poller' }).click();
 
     cy.findByTestId(labelUser).should('not.exist');
 
