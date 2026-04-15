@@ -1,27 +1,21 @@
 #!/usr/bin/env sh
+set -eu
 
-# Check for gitleaks installation
-echo "Beginning Gitleaks check"
+# ensure gitleaks is available
 if ! command -v gitleaks >/dev/null 2>&1; then
-  echo "Error: gitleaks is not installed. Please install it to use this hook."
-  echo "Visit https://github.com/gitleaks/gitleaks for installation instructions."
+  echo "Error: gitleaks is not installed or not in PATH." >&2
+  echo "Install: https://github.com/gitleaks/gitleaks#install" >&2
   exit 1
 fi
 
-# Set commits range
-LATEST_COMMIT="$(git rev-parse HEAD)"
-PARENT_LATEST_COMMIT_BRANCH="$(git rev-parse -q --verify develop)"
-COMMITS_RANGE="$PARENT_LATEST_COMMIT..$LATEST_COMMIT"
-#debug
-echo "LATEST_COMMIT = $LATEST_COMMIT"
-echo "PARENT_LATEST_COMMIT = $PARENT_LATEST_COMMIT_BRANCH"
-echo "COMMITS_RANGE = $COMMITS_RANGE"
-
-# Check fo secrets
-gitleaks git -v --log-opts="--no-merges $PARENT_LATEST_COMMIT..$LATEST_COMMIT"
-
+# scan for secrets before commit
+gitleaks detect --no-git --verbose
 
 # type-check staged files in centreon/packages/ui
 if git diff --cached --name-only --diff-filter=ACMR | grep -qE '^centreon/packages/ui/src/.*\.(ts|tsx)$'; then
+  if ! command -v pnpm >/dev/null 2>&1; then
+    echo "Error: pnpm is not installed or not in PATH." >&2
+    exit 1
+  fi
   pnpm --filter @centreon/ui type-check:staged
 fi
