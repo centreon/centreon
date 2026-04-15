@@ -21,11 +21,16 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Infrastructure\Legacy;
+namespace App\Security\Infrastructure\Security\Legacy;
 
+use App\Shared\Infrastructure\Legacy\LegacyContainer;
 use Security\TokenAPIAuthenticator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Exception\MethodNotAllowedException;
+use Symfony\Component\Routing\Exception\NoConfigurationException;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface;
@@ -37,8 +42,10 @@ final readonly class LegacyTokenApiAuthenticatorWrapper implements Authenticator
 {
     private TokenAPIAuthenticator $legacyAuthenticator;
 
-    public function __construct(LegacyContainer $legacyContainer)
-    {
+    public function __construct(
+        LegacyContainer $legacyContainer,
+        private readonly RouterInterface $router,
+    ) {
         $legacyAuthenticator = $legacyContainer->get('security.provider.tokenapi');
         Assert::isInstanceOf($legacyAuthenticator, TokenAPIAuthenticator::class);
 
@@ -47,7 +54,13 @@ final readonly class LegacyTokenApiAuthenticatorWrapper implements Authenticator
 
     public function supports(Request $request): bool
     {
-        return $this->legacyAuthenticator->supports($request);
+        try {
+            $this->router->match($request->getPathInfo());
+
+            return false;
+        } catch (ResourceNotFoundException|MethodNotAllowedException|NoConfigurationException) {
+            return $this->legacyAuthenticator->supports($request);
+        }
     }
 
     public function authenticate(Request $request): Passport

@@ -21,10 +21,11 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\Legacy;
+namespace App\MonitoringConfiguration\Infrastructure\Security;
 
 use App\MonitoringConfiguration\Domain\Security\ServiceCategoryPermissionEnum;
-use Centreon\Domain\Contact\Contact;
+use App\Security\Domain\Aggregate\Permission;
+use App\Security\Infrastructure\Security\CredentialUser;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -32,16 +33,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 /**
  * @extends Voter<value-of<ServiceCategoryPermissionEnum>, mixed>
  */
-final class LegacyServiceCategoryPermissionVoter extends Voter
+final class ServiceCategoryPermissionVoter extends Voter
 {
-    /**
-     * @var array<value-of<ServiceCategoryPermissionEnum>, string>
-     */
-    private const LEGACY_PERMISSION_MAP = [
-        ServiceCategoryPermissionEnum::CanRead->value => Contact::ROLE_CONFIGURATION_SERVICES_CATEGORIES_READ,
-        ServiceCategoryPermissionEnum::CanWrite->value => Contact::ROLE_CONFIGURATION_SERVICES_CATEGORIES_READ_WRITE,
-    ];
-
     protected function supports(string $attribute, mixed $subject): bool
     {
         return ServiceCategoryPermissionEnum::tryFrom($attribute) !== null;
@@ -51,14 +44,14 @@ final class LegacyServiceCategoryPermissionVoter extends Voter
     {
         $user = $token->getUser();
 
-        if (! $user instanceof Contact) {
+        if (! $user instanceof CredentialUser) {
             $vote?->addReason('The user is not logged in.');
 
             return false;
         }
 
-        if (! $user->hasTopologyRole(self::LEGACY_PERMISSION_MAP[$attribute])) {
-            $vote?->addReason('The user has not the required topology role.');
+        if (! $user->credential->isPermissionGranted(new Permission($attribute))) {
+            $vote?->addReason('The user has not the required permission.');
 
             return false;
         }
