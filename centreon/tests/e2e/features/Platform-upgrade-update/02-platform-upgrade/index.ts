@@ -10,16 +10,6 @@ import {
 } from '../common';
 
 before(() => {
-  if (
-    Cypress.env('IS_CLOUD') &&
-    (!Cypress.env('INTERNAL_REPO_USERNAME') ||
-      !Cypress.env('INTERNAL_REPO_PASSWORD'))
-  ) {
-    throw new Error(
-      'Missing environment variables: INTERNAL_REPO_USERNAME and/or INTERNAL_REPO_PASSWORD required for cloud repository configuration.'
-    );
-  }
-
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
     cy.exec(`ls ${localPackageDirectory}/centreon-web-*.rpm`);
   } else {
@@ -237,19 +227,13 @@ Given(
                         if (Cypress.env('IS_CLOUD')) {
                           cy.log('Configuring cloud internal repository...');
 
-                          const repository = `https://${Cypress.env('INTERNAL_REPO_USERNAME')}:${Cypress.env('INTERNAL_REPO_PASSWORD')}@packages.centreon.com/rpm-standard-internal/${major_version}/${distrib}/centreon-${major_version}-internal.repo`;
-
-                          return cy.execInContainer(
-                            {
-                              command: [
-                                `dnf config-manager --add-repo ${repository}`,
-                                `sed -i "s#packages.centreon.com/rpm-standard-internal#${Cypress.env('INTERNAL_REPO_USERNAME')}:${Cypress.env('INTERNAL_REPO_PASSWORD')}@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-${major_version}-internal.repo`,
-                                `dnf config-manager --set-enabled 'centreon*'`
-                              ],
-                              name: 'web'
-                            },
-                            { log: false }
-                          );
+                          return cy.execInContainer({
+                            command: [
+                              `dnf config-manager --add-repo https://packages.centreon.com/rpm-standard-internal/${major_version}/${distrib}/centreon-${major_version}-internal.repo`,
+                              `dnf config-manager --set-enabled 'centreon*'`
+                            ],
+                            name: 'web'
+                          });
                         }
 
                         return cy.execInContainer({
@@ -274,16 +258,13 @@ EOF`,
                       if (Cypress.env('IS_CLOUD')) {
                         cy.log('Configuring cloud internal repository...');
 
-                        return cy.execInContainer(
-                          {
-                            command: `bash -e <<EOF
-                            echo "deb https://${Cypress.env('INTERNAL_REPO_USERNAME')}:${Cypress.env('INTERNAL_REPO_PASSWORD')}@packages.centreon.com/apt-standard-internal/ ${Cypress.env('WEB_IMAGE_OS')}-${major_version}-unstable main" > /etc/apt/sources.list.d/centreon-unstable.list
-                            apt-get update
+                        return cy.execInContainer({
+                          command: `bash -e <<EOF
+                          echo "deb https://packages.centreon.com/apt-standard-internal/ ${Cypress.env('WEB_IMAGE_OS')}-${major_version}-unstable main" > /etc/apt/sources.list.d/centreon-unstable.list
+                          apt-get update
 EOF`,
-                            name: 'web'
-                          },
-                          { log: false }
-                        );
+                          name: 'web'
+                        });
                       }
 
                       return cy.execInContainer({
