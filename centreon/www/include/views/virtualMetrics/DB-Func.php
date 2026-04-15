@@ -23,22 +23,12 @@ if (! isset($oreon)) {
     exit;
 }
 
-function _TestRPNInfinityLoop()
-{
-    global $form;
-    $gsvs = null;
-    if (isset($form)) {
-        $gsvs = $form->getSubmitValues();
-    }
-
-    return ! (
-        $gsvs['vmetric_name'] != null
-        && preg_match('/' . $gsvs['vmetric_name'] . '/i', $gsvs['rpn_function'])
-    );
-
-}
-
 /**
+ * Validates the RPN function syntax by building a minimal rrdtool command
+ * and executing it. Works for both CDEF (def_type=0) and VDEF (def_type=1).
+ *
+ * @param array<string,mixed> $fields Form fields
+ *
  * @return true|array<string,string>
  */
 function testRpnSyntaxWithRrdtool(array $fields): array|true
@@ -114,7 +104,7 @@ function testRpnSyntaxWithRrdtool(array $fields): array|true
     $cmd .= ' ' . escapeshellarg($defType . ':vtest=' . $rpnResolved);
     $cmd .= ' 2>&1';
 
-    exec($cmd, $output, $rc); // phpcs:ignore -- pre-existing code, inputs are escaped
+    exec($cmd, $output, $rc);
 
     if ($rc !== 0) {
         $lastLine = end($output) ?: 'unknown error';
@@ -124,6 +114,21 @@ function testRpnSyntaxWithRrdtool(array $fields): array|true
     }
 
     return true;
+}
+
+function _TestRPNInfinityLoop()
+{
+    global $form;
+    $gsvs = null;
+    if (isset($form)) {
+        $gsvs = $form->getSubmitValues();
+    }
+
+    return ! (
+        $gsvs['vmetric_name'] != null
+        && preg_match('/' . $gsvs['vmetric_name'] . '/i', $gsvs['rpn_function'])
+    );
+
 }
 
 /**
