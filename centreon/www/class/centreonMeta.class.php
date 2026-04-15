@@ -291,9 +291,8 @@ class CentreonMeta
 
         $selectStmt = $this->db->prepare(
             'SELECT service_id, display_name FROM service
-            WHERE service_register = :register AND service_description = :description'
+            WHERE service_register = "2" AND service_description = :description'
         );
-        $selectStmt->bindValue(':register', '2', PDO::PARAM_STR);
         $selectStmt->bindValue(':description', $composedName, PDO::PARAM_STR);
         $selectStmt->execute();
         $row = $selectStmt->fetch();
@@ -310,11 +309,10 @@ class CentreonMeta
         } else {
             $insertStmt = $this->db->prepare(
                 'INSERT INTO service (service_description, display_name, service_register)
-                VALUES (:description, :display_name, :register)'
+                VALUES (:description, :display_name, "2")'
             );
             $insertStmt->bindValue(':description', $composedName, PDO::PARAM_STR);
             $insertStmt->bindValue(':display_name', $metaName, PDO::PARAM_STR);
-            $insertStmt->bindValue(':register', '2', PDO::PARAM_STR);
             $insertStmt->execute();
 
             $relStmt = $this->db->prepare(
