@@ -1663,7 +1663,7 @@ CREATE TABLE `nagios_server` (
   `remote_server_use_as_proxy` enum('0','1') NOT NULL DEFAULT '1',
   `updated` enum('1','0') NOT NULL DEFAULT '0',
   `is_encryption_ready` BOOLEAN NOT NULL DEFAULT 1,
-  `poller_type` varchar(10) NOT NULL DEFAULT 'vm',
+  `poller_type` enum('vm','docker') NOT NULL DEFAULT 'vm',
   PRIMARY KEY (`id`),
   CONSTRAINT `nagios_server_remote_id_id` FOREIGN KEY (`remote_id`) REFERENCES `nagios_server` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

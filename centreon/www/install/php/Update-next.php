@@ -886,7 +886,7 @@ $addPollerTypeColumn = function () use ($pearDB, &$errorMessage, $version): void
 
     $pearDB->executeStatement(
         <<<'SQL'
-            ALTER TABLE `nagios_server` ADD COLUMN `poller_type` varchar(10) NOT NULL DEFAULT 'vm'
+            ALTER TABLE `nagios_server` ADD COLUMN `poller_type` enum('vm','docker') NOT NULL DEFAULT 'vm'
             SQL
     );
 
