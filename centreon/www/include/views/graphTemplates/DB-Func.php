@@ -57,8 +57,8 @@ function deleteGraphTemplateInDB($graphs = []): void
 {
     global $pearDB;
 
+    $stmt = $pearDB->prepare('DELETE FROM giv_graphs_template WHERE graph_id = :graphTemplateId');
     foreach ($graphs as $key => $value) {
-        $stmt = $pearDB->prepare('DELETE FROM giv_graphs_template WHERE graph_id = :graphTemplateId');
         $stmt->bindValue(':graphTemplateId', $key, PDO::PARAM_INT);
         $stmt->execute();
     }

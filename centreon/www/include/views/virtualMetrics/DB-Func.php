@@ -203,11 +203,11 @@ function hasVirtualNameNeverUsed($vmetricName = null, $indexId = null)
 function deleteVirtualMetricInDB($vmetrics = [])
 {
     global $pearDB;
+    $prepareStatement = $pearDB->prepare(
+        'DELETE FROM virtual_metrics WHERE vmetric_id = :vmetric_id'
+    );
     foreach (array_keys($vmetrics) as $vmetricId) {
         try {
-            $prepareStatement = $pearDB->prepare(
-                'DELETE FROM virtual_metrics WHERE vmetric_id = :vmetric_id'
-            );
             $prepareStatement->bindValue(':vmetric_id', $vmetricId, PDO::PARAM_INT);
             $prepareStatement->execute();
         } catch (PDOException $e) {
@@ -226,20 +226,27 @@ function deleteVirtualMetricInDB($vmetrics = [])
 function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
 {
     global $pearDB;
+    $selectStmt = $pearDB->prepare(
+        'SELECT * FROM virtual_metrics WHERE vmetric_id = :vmetric_id LIMIT 1'
+    );
+
     foreach (array_keys($vmetrics) as $vmetricId) {
-        $prepareStatement = $pearDB->prepare(
-            'SELECT * FROM virtual_metrics WHERE vmetric_id = :vmetric_id LIMIT 1'
-        );
-        $prepareStatement->bindValue(':vmetric_id', $vmetricId, PDO::PARAM_INT);
+        $selectStmt->bindValue(':vmetric_id', $vmetricId, PDO::PARAM_INT);
 
         try {
-            $prepareStatement->execute();
+            $selectStmt->execute();
         } catch (PDOException $e) {
             echo 'DB Error : ' . $e->getMessage();
         }
 
-        $vmConfiguration = $prepareStatement->fetch();
+        $vmConfiguration = $selectStmt->fetch();
         unset($vmConfiguration['vmetric_id']);
+
+        $columns = array_keys($vmConfiguration);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO virtual_metrics (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
 
         for ($newIndex = 1; $newIndex <= $nbrDup[$vmetricId]; $newIndex++) {
             $virtualMetricName = null;
@@ -255,12 +262,6 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
                     $vmConfiguration['vmetric_name'] = $virtualMetricName;
                 }
             }
-
-            $columns = array_keys($vmConfiguration);
-            $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
-            $insertStmt = $pearDB->prepare(
-                'INSERT INTO virtual_metrics (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
-            );
 
             foreach ($columns as $col) {
                 $value = $vmConfiguration[$col];

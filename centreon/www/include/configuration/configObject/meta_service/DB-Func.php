@@ -379,8 +379,9 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
             continue;
         }
         $row['meta_id'] = null;
+        $originalName = $row['meta_name'];
         for ($i = 1; $i <= $nbrDup[$metaId]; $i++) {
-            $metaName = $row['meta_name'] . '_' . $i;
+            $metaName = $originalName . '_' . $i;
             $row['meta_name'] = $metaName;
             $columns = array_keys($row);
             $qbInsert = $pearDB->createQueryBuilder();
