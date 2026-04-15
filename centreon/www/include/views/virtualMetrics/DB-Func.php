@@ -248,20 +248,17 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
             'INSERT INTO virtual_metrics (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
         );
 
+        $originalVmetricName = $vmConfiguration['vmetric_name'];
+        $indexId = (int) $vmConfiguration['index_id'];
+
         for ($newIndex = 1; $newIndex <= $nbrDup[$vmetricId]; $newIndex++) {
-            $virtualMetricName = null;
-            foreach ($vmConfiguration as $cfgName => $cfgValue) {
-                if ($cfgName == 'vmetric_name') {
-                    $indexId = (int) $vmConfiguration['index_id'];
-                    $count = 1;
-                    $virtualMetricName = $cfgValue . '_' . $count;
-                    while (! hasVirtualNameNeverUsed($virtualMetricName, $indexId)) {
-                        $count++;
-                        $virtualMetricName = $cfgValue . '_' . $count;
-                    }
-                    $vmConfiguration['vmetric_name'] = $virtualMetricName;
-                }
+            $count = 1;
+            $virtualMetricName = $originalVmetricName . '_' . $count;
+            while (! hasVirtualNameNeverUsed($virtualMetricName, $indexId)) {
+                $count++;
+                $virtualMetricName = $originalVmetricName . '_' . $count;
             }
+            $vmConfiguration['vmetric_name'] = $virtualMetricName;
 
             foreach ($columns as $col) {
                 $value = $vmConfiguration[$col];
