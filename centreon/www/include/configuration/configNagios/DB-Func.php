@@ -234,20 +234,28 @@ function multipleNagiosInDB($nagios = [], $nbrDup = [])
  */
 function duplicateLoggerV2Cfg(CentreonDB $pearDB, int $originalNagiosId, int $duplicatedNagiosId): void
 {
-    $statement = $pearDB->prepare(
-        'INSERT INTO cfg_nagios_logger
-        SELECT null, :duplicatedNagiosId, `log_v2_logger`, `log_level_functions`,
-               `log_level_config`, `log_level_events`, `log_level_checks`,
-               `log_level_notifications`, `log_level_eventbroker`, `log_level_external_command`,
-               `log_level_commands`, `log_level_downtimes`, `log_level_comments`,
-               `log_level_macros`, `log_level_process`, `log_level_runtime`,
-               `log_level_otl`
-               FROM cfg_nagios_logger
-               WHERE cfg_nagios_id = :originalNagiosId'
+    $selectStmt = $pearDB->prepare(
+        'SELECT * FROM cfg_nagios_logger WHERE cfg_nagios_id = :originalNagiosId LIMIT 1'
     );
-    $statement->bindValue(':duplicatedNagiosId', $duplicatedNagiosId, PDO::PARAM_INT);
-    $statement->bindValue(':originalNagiosId', $originalNagiosId, PDO::PARAM_INT);
-    $statement->execute();
+    $selectStmt->bindValue(':originalNagiosId', $originalNagiosId, PDO::PARAM_INT);
+    $selectStmt->execute();
+    $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
+    if ($row === false) {
+        return;
+    }
+    unset($row['id']);
+    $row['cfg_nagios_id'] = $duplicatedNagiosId;
+
+    $columns = array_keys($row);
+    $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+    $insertStmt = $pearDB->prepare(
+        'INSERT INTO cfg_nagios_logger (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+    );
+    foreach ($columns as $col) {
+        $value = $row[$col];
+        $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : ($col === 'cfg_nagios_id' ? PDO::PARAM_INT : PDO::PARAM_STR));
+    }
+    $insertStmt->execute();
 }
 
 function updateNagiosInDB($nagios_id = null)
