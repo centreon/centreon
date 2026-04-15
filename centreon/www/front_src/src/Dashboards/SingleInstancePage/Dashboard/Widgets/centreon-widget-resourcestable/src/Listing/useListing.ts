@@ -101,7 +101,8 @@ const useListing = ({
 }: UseListingProps): UseListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
-  const { isOpenTicketEnabled } = useAtomValue(openTicketContextAtom);
+  const { isOpenTicketEnabled, isDownHostHidden, isUnreachableHostHidden } =
+    useAtomValue(openTicketContextAtom);
 
   const [cursorStack, setCursorStack] = useState<Array<string | null>>([null]);
   const [currentCursorIndex, setCurrentCursorIndex] = useState(0);
@@ -169,6 +170,8 @@ const useListing = ({
 
   const countEndpoint = buildCountEndpoint({
     hostSeverities,
+    isDownHostHidden,
+    isUnreachableHostHidden,
     resources,
     serviceSeverities,
     states,

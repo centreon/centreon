@@ -1,4 +1,4 @@
-import { useInfiniteScrollListing } from '@centreon/ui';
+import { useInfiniteScrollListingWithCursor } from '@centreon/ui';
 
 import { equals, flatten } from 'ramda';
 
@@ -11,7 +11,6 @@ import {
   resourcesEndpoint
 } from '../../api/endpoints';
 import { ResourceStatus } from '../../StatusGridStandard/models';
-import { tooltipPageAtom } from '../../StatusGridStandard/Tooltip/atoms';
 
 interface UseLoadResourcesProps {
   bypassRequest: boolean;
@@ -26,7 +25,6 @@ interface UseLoadResourcesState {
   elementRef;
   elements: Array<ResourceStatus>;
   isLoading: boolean;
-  total?: number;
 }
 
 export const useLoadResources = ({
@@ -95,8 +93,8 @@ export const useLoadResources = ({
     ...statusSearchConditions
   ];
 
-  const { elementRef, elements, isLoading, total } =
-    useInfiniteScrollListing<ResourceStatus>({
+  const { elementRef, elements, isLoading } =
+    useInfiniteScrollListingWithCursor<ResourceStatus>({
       customQueryParameters: getListingCustomQueryParameters({
         resources,
         statuses: [status],
@@ -105,7 +103,6 @@ export const useLoadResources = ({
       enabled: !bypassRequest,
       endpoint: getEndpoint(),
       limit: 10,
-      pageAtom: tooltipPageAtom,
       parameters: {
         search: {
           conditions: flatten(searchConditions)
@@ -119,7 +116,6 @@ export const useLoadResources = ({
   return {
     elementRef,
     elements,
-    isLoading,
-    total
+    isLoading
   };
 };

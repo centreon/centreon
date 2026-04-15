@@ -1,28 +1,25 @@
-import { SeverityCode, useInfiniteScrollListing } from '@centreon/ui';
+import { SeverityCode, useInfiniteScrollListingWithCursor } from '@centreon/ui';
 
 import { equals } from 'ramda';
 
 import { resourcesEndpoint } from '../../api/endpoints';
 import { ResourceStatus } from '../models';
-import { tooltipPageAtom } from './atoms';
 
 interface UseHostTooltipContentState {
   elementRef;
   isLoading: boolean;
   services: Array<ResourceStatus>;
-  total?: number;
 }
 
 export const useHostTooltipContent = ({ name }): UseHostTooltipContentState => {
-  const { elementRef, elements, isLoading, total } =
-    useInfiniteScrollListing<ResourceStatus>({
+  const { elementRef, elements, isLoading } =
+    useInfiniteScrollListingWithCursor<ResourceStatus>({
       customQueryParameters: [
         { name: 'types', value: ['service'] },
         { name: 'statuses', value: ['WARNING', 'CRITICAL'] }
       ],
       endpoint: resourcesEndpoint,
       limit: 10,
-      pageAtom: tooltipPageAtom,
       parameters: {
         search: {
           conditions: [
@@ -49,7 +46,6 @@ export const useHostTooltipContent = ({ name }): UseHostTooltipContentState => {
   return {
     elementRef,
     isLoading,
-    services: serviceswithProblems,
-    total
+    services: serviceswithProblems
   };
 };

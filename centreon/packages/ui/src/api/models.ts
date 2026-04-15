@@ -1,5 +1,6 @@
 export interface ListingMeta {
   limit: number;
+  next_cursor?: string | null;
   page: number;
   total: number;
 }

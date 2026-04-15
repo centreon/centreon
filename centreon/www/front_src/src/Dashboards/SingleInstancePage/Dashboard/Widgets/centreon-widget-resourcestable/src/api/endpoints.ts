@@ -122,16 +122,12 @@ export const buildCountEndpoint = ({
   resources,
   statusTypes,
   hostSeverities,
-  serviceSeverities
+  serviceSeverities,
+  isDownHostHidden,
+  isUnreachableHostHidden
 }: Omit<
   BuildResourcesEndpointProps,
-  | 'cursor'
-  | 'limit'
-  | 'sort'
-  | 'displayResources'
-  | 'provider'
-  | 'isDownHostHidden'
-  | 'isUnreachableHostHidden'
+  'cursor' | 'limit' | 'sort' | 'displayResources' | 'provider'
 >): string => {
   const formattedType = getFormattedType(type);
   const formattedStatuses = formatStatus(statuses);
@@ -167,7 +163,15 @@ export const buildCountEndpoint = ({
     ],
     parameters: {
       search: {
-        conditions: resourcesSearchConditions
+        conditions: [
+          ...resourcesSearchConditions,
+          ...(isDownHostHidden
+            ? [{ field: 'parent_status', values: { $neq: 1 } }]
+            : []),
+          ...(isUnreachableHostHidden
+            ? [{ field: 'parent_status', values: { $neq: 2 } }]
+            : [])
+        ]
       }
     }
   });
