@@ -70,10 +70,6 @@ msgid "*The timezone used is configured on your user settings"
 msgstr "*The timezone used is configured on your user settings"
 
 #: centreon/www/install/front_translate.php
-msgid "/*+&"
-msgstr "/*+&"
-
-#: centreon/www/install/front_translate.php
 msgid "0-9"
 msgstr "0-9"
 
@@ -198,6 +194,10 @@ msgstr ""
 #: centreon/www/install/step_upgrade/step4.php
 msgid "<p>Currently upgrading... please do not interrupt this process.</p>"
 msgstr "<p>Currently upgrading... please do not interrupt this process.</p>"
+
+#: centreon/www/install/front_translate.php
+msgid "@$!%*?&"
+msgstr ""
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
@@ -732,6 +732,10 @@ msgstr "Add a Meta Service indicator"
 msgid "Add a Monitoring Engine Configuration File"
 msgstr "Add a Monitoring Engine Configuration File"
 
+#: centreon/www/include/configuration/configResources/formResources.php
+msgid "Add a Resource"
+msgstr ""
+
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "Add a Service"
 msgstr "Add a Service"
@@ -797,10 +801,6 @@ msgstr "Add a contact group"
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "Add a downtime"
 msgstr "Add a downtime"
-
-#: centreon/www/include/configuration/configResources/formResources.php
-msgid "Add a global macro"
-msgstr "Add a global macro"
 
 #: centreon/www/install/front_translate.php
 msgid "Add a host"
@@ -1040,8 +1040,6 @@ msgstr "Additional information"
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
-#: centreon/www/include/configuration/configServers/formServers.php
-#: centreon/www/include/configuration/configServers/listServers.php
 msgid "Address"
 msgstr "Address"
 
@@ -1172,7 +1170,6 @@ msgstr "Aggregation frequency"
 #: centreon/www/include/reporting/dashboard/viewHostLog.php
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
 #: centreon/www/include/reporting/dashboard/xmlInformations/common-Func.php
-#: centreon/www/install/dashboard_widgets.php
 msgid "Alert"
 msgstr "Alert"
 
@@ -1690,7 +1687,6 @@ msgstr "Audit log activation"
 msgid "Authentication"
 msgstr "Authentication"
 
-#: centreon/src/App/Security/Infrastructure/Security/TokenAuthenticator.php
 #: centreon/src/Security/TokenAPIAuthenticator.php
 msgid "Authentication Required"
 msgstr "Authentication Required"
@@ -2513,8 +2509,8 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
-msgid "Centreon Central address, as seen by this server"
-msgstr "Centreon Central address, as seen by this server"
+msgid "Centreon Central IP address, as seen by this server"
+msgstr ""
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Centreon Connector"
@@ -3692,6 +3688,10 @@ msgstr "Create authentication token"
 #: centreon/www/install/front_translate.php
 msgid "Create dashboard"
 msgstr "Create dashboard"
+
+#: centreon/www/install/front_translate.php
+msgid "Create hosts automatically"
+msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Create new CMA token"
@@ -4959,14 +4959,6 @@ msgid ""
 msgstr ""
 "Displays a detailed view of the current status for selected resources as a "
 "chart."
-
-#: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Displays a list of storage with saturation foreseen, current usage, days "
-"until saturation, and evolution of usage since the past day."
-msgstr ""
-"Displays a list of storage with saturation foreseen, current usage, days "
-"until saturation, and evolution of usage since the past day."
 
 #: centreon/www/install/dashboard_widgets.php
 msgid ""
@@ -6340,6 +6332,10 @@ msgstr "Error while deleting a host group"
 msgid "Error while deleting a host template"
 msgstr "Error while deleting a host template"
 
+#: centreon/src/Core/Media/Application/Exception/MediaException.php
+msgid "Error while deleting a media"
+msgstr ""
+
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "Error while deleting a notification configuration"
 msgstr "Error while deleting a notification configuration"
@@ -6506,6 +6502,10 @@ msgstr "Error while retrieving a host group"
 msgid "Error while retrieving a host template"
 msgstr "Error while retrieving a host template"
 
+#: centreon/src/Core/Media/Application/Exception/MediaException.php
+msgid "Error while retrieving a media"
+msgstr ""
+
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "Error while retrieving a notification configuration"
 msgstr "Error while retrieving a notification configuration"
@@ -6591,6 +6591,18 @@ msgstr "Error while retrieving recently created service severity"
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Error while retrieving remote server information"
 msgstr "Error while retrieving remote server information"
+
+#: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
+msgid "Error while retrieving service category"
+msgstr ""
+
+#: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
+msgid "Error while retrieving service group"
+msgstr ""
+
+#: centreon/src/Core/ServiceSeverity/Application/Exception/ServiceSeverityException.php
+msgid "Error while retrieving service severity"
+msgstr ""
 
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "Error while retrieving service statuses distribution"
@@ -6802,6 +6814,10 @@ msgstr "Error while updating a poller/agent configuration"
 msgid "Error while updating a service"
 msgstr "Error while updating a service"
 
+#: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
+msgid "Error while updating a service group"
+msgstr ""
+
 #: centreon/src/Core/ServiceTemplate/Application/Exception/ServiceTemplateException.php
 msgid "Error while updating a service template"
 msgstr "Error while updating a service template"
@@ -6825,6 +6841,10 @@ msgstr "Error while updating contact (massive change)"
 #: centreon/src/Core/HostSeverity/Application/Exception/HostSeverityException.php
 msgid "Error while updating host severity"
 msgstr "Error while updating host severity"
+
+#: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
+msgid "Error while updating service category"
+msgstr ""
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while updating the dashboard share"
@@ -6869,6 +6889,7 @@ msgid "Escalations"
 msgstr "Escalations"
 
 #: centreon/www/include/reporting/dashboard/initReport.php
+#: centreon/www/install/centreon_broker_translation.php
 #: centreon/www/install/front_translate.php
 msgid "Event"
 msgstr "Event"
@@ -7868,10 +7889,6 @@ msgstr "Global Monitoring Engine Actions (External Process Commands)"
 msgid "Global Service Event Handler"
 msgstr "Global Service Event Handler"
 
-#: centreon/www/install/menu_translation.php
-msgid "Global macros"
-msgstr "Global macros"
-
 #: centreon/www/install/front_translate.php
 msgid "Global refresh interval"
 msgstr "Global refresh interval"
@@ -8866,6 +8883,8 @@ msgstr "Human readable"
 msgid "IP"
 msgstr "IP"
 
+#: centreon/www/include/configuration/configServers/formServers.php
+#: centreon/www/include/configuration/configServers/listServers.php
 #: centreon/www/include/monitoring/status/Hosts/hostJS.php
 #: centreon/www/include/options/accessLists/reloadACL/reloadACL.php
 #: centreon/www/include/options/session/connected_user.php
@@ -9299,6 +9318,11 @@ msgstr "Invalid URL"
 msgid "Invalid address"
 msgstr "Invalid address"
 
+#: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
+#, php-format
+msgid "Invalid argument for '%s', expected type: %s"
+msgstr ""
+
 #: centreon/src/Core/Domain/Exception/InvalidGeoCoordException.php
 msgid "Invalid coordinates format specified"
 msgstr "Invalid coordinates format specified"
@@ -9306,6 +9330,13 @@ msgstr "Invalid coordinates format specified"
 #: centreon/src/Core/Domain/Exception/InvalidGeoCoordException.php
 msgid "Invalid coordinates values specified"
 msgstr "Invalid coordinates values specified"
+
+#: centreon/www/include/options/media/images/formDirectory.php
+#: centreon/www/include/options/media/images/formImg.php
+msgid ""
+"Invalid directory name. Only alphanumeric characters, hyphens and "
+"underscores are allowed."
+msgstr ""
 
 #: centreon/src/Core/Domain/Configuration/Notification/Exception/NotificationException.php
 #, php-format
@@ -9868,6 +9899,12 @@ msgstr "Legend"
 msgid "Legend Name"
 msgstr "Legend Name"
 
+#: centreon/www/include/views/componentTemplates/formComponentTemplate.php
+msgid ""
+"Legend is disabled for the default template because it cannot be displayed "
+"in the graph. Metric name will be displayed by default."
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Less"
 msgstr "Less"
@@ -10242,6 +10279,10 @@ msgstr "Low Service Flap Threshold"
 msgid "Lower Limit"
 msgstr "Lower Limit"
 
+#: centreon/www/include/configuration/configResources/formResources.php
+msgid "MACRO Expression"
+msgstr ""
+
 #: centreon/www/install/smarty_translate.php
 msgid "MB"
 msgstr "MB"
@@ -10332,6 +10373,10 @@ msgstr "Manage envelope size"
 #: centreon/www/install/front_translate.php
 msgid "Manage filters"
 msgstr "Manage filters"
+
+#: centreon/www/install/centreon_broker_translation.php
+msgid "Managed event TTL"
+msgstr ""
 
 #: centreon/www/install/menu_translation.php
 msgid "Manager"
@@ -10961,6 +11006,10 @@ msgstr "Modify a Meta Service indicator"
 msgid "Modify a Monitoring Engine Configuration File"
 msgstr "Modify a Monitoring Engine Configuration File"
 
+#: centreon/www/include/configuration/configResources/formResources.php
+msgid "Modify a Resource"
+msgstr ""
+
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "Modify a Service"
 msgstr "Modify a Service"
@@ -11000,10 +11049,6 @@ msgstr "Modify a Virtual Metric"
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "Modify a downtime"
 msgstr "Modify a downtime"
-
-#: centreon/www/include/configuration/configResources/formResources.php
-msgid "Modify a global macro"
-msgstr "Modify a global macro"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Modify a poller Configuration"
@@ -11383,7 +11428,6 @@ msgstr "N/A"
 #: centreon/www/include/configuration/configObject/timeperiod/listTimeperiod.php
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/traps/listTraps.php
-#: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/include/configuration/configResources/listResources.php
 #: centreon/www/include/configuration/configServers/listServers.php
 #: centreon/www/include/home/customViews/index.php
@@ -11444,10 +11488,6 @@ msgstr "Name cannot be empty"
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
 msgid "Name is already in use"
 msgstr "Name is already in use"
-
-#: centreon/www/include/configuration/configResources/formResources.php
-msgid "Name must start and end with a '$'"
-msgstr "Name must start and end with a '$'"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Name of the logger"
@@ -13816,6 +13856,7 @@ msgid "Resource Access Rule"
 msgstr "Resource Access Rule"
 
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
+#: centreon/www/include/configuration/configResources/formResources.php
 msgid "Resource Name"
 msgstr "Resource Name"
 
@@ -13858,6 +13899,7 @@ msgstr "Resource used by one of the instances"
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 #: centreon/www/include/options/accessLists/menusACL/formMenusAccess.php
 #: centreon/www/install/front_translate.php
+#: centreon/www/install/menu_translation.php
 #: centreon/www/install/smarty_translate.php
 msgid "Resources"
 msgstr "Resources"
@@ -14349,6 +14391,10 @@ msgstr "Scheduling options"
 msgid "Scopes"
 msgstr "Scopes"
 
+#: centreon/www/install/centreon_broker_translation.php
+msgid "Script path"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Scroll to top"
 msgstr "Scroll to top"
@@ -14679,6 +14725,11 @@ msgstr "Server Configuration"
 msgid "Server Configuration Wizard"
 msgstr "Server Configuration Wizard"
 
+#: centreon/www/install/front_translate.php
+#: centreon/www/install/react_translation.php
+msgid "Server IP address"
+msgstr ""
+
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Server Information"
 msgstr "Server Information"
@@ -14689,8 +14740,6 @@ msgid "Server Name"
 msgstr "Server Name"
 
 #: centreon/www/install/centreon_broker_translation.php
-#: centreon/www/install/front_translate.php
-#: centreon/www/install/react_translation.php
 msgid "Server address"
 msgstr "Server address"
 
@@ -15468,10 +15517,6 @@ msgstr "Show thresholds"
 msgid "Show time zone"
 msgstr "Show time zone"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Show value label"
-msgstr "Show value label"
-
 #: centreon/www/install/front_translate.php
 msgid "Show value labels"
 msgstr "Show value labels"
@@ -16026,10 +16071,6 @@ msgstr "Storage database name"
 msgid "Storage folders"
 msgstr "Storage folders"
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Storage near saturation"
-msgstr "Storage near saturation"
-
 #: centreon/www/include/Administration/parameters/ldap/form.php
 msgid "Store LDAP password"
 msgstr "Store LDAP password"
@@ -16269,6 +16310,18 @@ msgstr "The %s with value '%d' does not exist"
 msgid "The '%s' command name already exists"
 msgstr "The '%s' command name already exists"
 
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The IP address is already registered"
+msgstr ""
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The IP address is already registered on another poller"
+msgstr ""
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "The IP address is incorrect"
+msgstr ""
+
 #: centreon/src/Centreon/Domain/Service/JsonValidator/Validator.php
 msgid "The JSON cannot be decoded"
 msgstr "The JSON cannot be decoded"
@@ -16292,18 +16345,6 @@ msgstr "The additional configuration name '%s' already exists"
 #, php-format
 msgid "The address '%s' of '%s' is not valid or not resolvable"
 msgstr "The address '%s' of '%s' is not valid or not resolvable"
-
-#: centreon/www/include/configuration/configServers/formServers.php
-msgid "The address is already registered"
-msgstr "The address is already registered"
-
-#: centreon/www/include/configuration/configServers/formServers.php
-msgid "The address is already registered on another poller"
-msgstr "The address is already registered on another poller"
-
-#: centreon/www/include/configuration/configServers/formServers.php
-msgid "The address is incorrect"
-msgstr "The address is incorrect"
 
 #: centreon/www/install/front_translate.php
 msgid "The address is invalid"
@@ -16728,6 +16769,11 @@ msgid ""
 msgstr ""
 "The server type '%s' : '%s'@'%s' does not match the one configured in "
 "Centreon or is disabled"
+
+#: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
+#, php-format
+msgid "The service category name '%s' already exists"
+msgstr ""
 
 #: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
 #, php-format
@@ -17185,6 +17231,7 @@ msgid "Timeline"
 msgstr "Timeline"
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
+#: centreon/www/install/centreon_broker_translation.php
 msgid "Timeout"
 msgstr "Timeout"
 
@@ -17959,7 +18006,6 @@ msgstr "Valid Email"
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service/xml/argumentsXml.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
-#: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/install/centreon_broker_translation.php
 #: centreon/www/install/front_translate.php
 msgid "Value"
@@ -18103,6 +18149,10 @@ msgstr "View Group"
 #: centreon/www/include/options/media/images/formImg.php
 msgid "View Image"
 msgstr "View Image"
+
+#: centreon/www/include/configuration/configResources/formResources.php
+msgid "View Resource"
+msgstr ""
 
 #: centreon/www/include/configuration/configObject/traps-manufacturer/formMnftr.php
 msgid "View Vendor"
@@ -18266,10 +18316,6 @@ msgstr "View contact notifications"
 #: centreon/www/include/monitoring/downtime/listDowntime.php
 msgid "View downtimes of hosts"
 msgstr "View downtimes of hosts"
-
-#: centreon/www/include/configuration/configResources/formResources.php
-msgid "View global macro"
-msgstr "View global macro"
 
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
@@ -18778,6 +18824,10 @@ msgid "You are not allowed to access host templates"
 msgstr "You are not allowed to access host templates"
 
 #: centreon/src/Core/Host/Application/Exception/HostException.php
+msgid "You are not allowed to access hosts"
+msgstr ""
+
+#: centreon/src/Core/Host/Application/Exception/HostException.php
 msgid "You are not allowed to access hosts in the real time context"
 msgstr "You are not allowed to access hosts in the real time context"
 
@@ -19062,6 +19112,14 @@ msgstr "You are not allowed to update a service template"
 #: centreon/src/Core/Media/Application/Exception/MediaException.php
 msgid "You are not allowed to update media"
 msgstr "You are not allowed to update media"
+
+#: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
+msgid "You are not allowed to update service categories"
+msgstr ""
+
+#: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
+msgid "You are not allowed to update service groups"
+msgstr ""
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "You are not allowed to update the notification configuration"
@@ -19988,3 +20046,59 @@ msgstr "{{label}} should be at least {{min}} characters long"
 #: centreon/www/install/front_translate.php
 msgid "{{total}} element(s) found"
 msgstr "{{total}} element(s) found"
+
+#: unknown
+msgid "/*+&"
+msgstr "/*+&"
+
+#: unknown
+msgid "Add a global macro"
+msgstr "Add a global macro"
+
+#: unknown
+msgid "Centreon Central address, as seen by this server"
+msgstr "Centreon Central address, as seen by this server"
+
+#: unknown
+msgid ""
+"Displays a list of storage with saturation foreseen, current usage, days "
+"until saturation, and evolution of usage since the past day."
+msgstr ""
+"Displays a list of storage with saturation foreseen, current usage, days "
+"until saturation, and evolution of usage since the past day."
+
+#: unknown
+msgid "Global macros"
+msgstr "Global macros"
+
+#: unknown
+msgid "Modify a global macro"
+msgstr "Modify a global macro"
+
+#: unknown
+msgid "Name must start and end with a '$'"
+msgstr "Name must start and end with a '$'"
+
+#: unknown
+msgid "Show value label"
+msgstr "Show value label"
+
+#: unknown
+msgid "Storage near saturation"
+msgstr "Storage near saturation"
+
+#: unknown
+msgid "The address is already registered"
+msgstr "The address is already registered"
+
+#: unknown
+msgid "The address is already registered on another poller"
+msgstr "The address is already registered on another poller"
+
+#: unknown
+msgid "The address is incorrect"
+msgstr "The address is incorrect"
+
+#: unknown
+msgid "View global macro"
+msgstr "View global macro"

@@ -63,10 +63,6 @@ msgstr "Absolute value for warning level (low threshold)."
 msgid "Additional Remote Server to which this server will be attached"
 msgstr "Additional Remote Server to which this server will be attached"
 
-#: centreon/www/include/configuration/configServers/help.php
-msgid "Address of the poller"
-msgstr "Address of the poller"
-
 #: centreon/www/include/configuration/configObject/contact/help.php
 msgid ""
 "Addresses 1-6 are optional and used to define additional \"addresses\" for "
@@ -1753,6 +1749,10 @@ msgstr ""
 "IP Address or hostname to communicate with Gorgone API. Should remain "
 "default value (Default: \"127.0.0.1\")."
 
+#: centreon/www/include/configuration/configServers/help.php
+msgid "IP address of the poller"
+msgstr ""
+
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "IP address or hostname of the database server."
 msgstr "IP address or hostname of the database server."
@@ -2129,12 +2129,8 @@ msgstr ""
 "information."
 
 #: centreon/www/include/Administration/parameters/backup/help.php
-msgid ""
-"MySQL configuration file path (e.g. /etc/my.cnf.d/centreon.cnf); leave empty "
-"to use the default value."
+msgid "MySQL configuration file path (i.e. /etc/my.cnf.d/centreon.cnf)"
 msgstr ""
-"MySQL configuration file path (e.g. /etc/my.cnf.d/centreon.cnf); leave empty "
-"to use the default value."
 
 #: centreon/www/include/options/accessLists/groupsACL/help.php
 msgid "Name of access group."
@@ -5831,3 +5827,15 @@ msgid ""
 msgstr ""
 "number of partitions created in advance to prevent issues, by default 10 "
 "days."
+
+#: unknown
+msgid "Address of the poller"
+msgstr "Address of the poller"
+
+#: unknown
+msgid ""
+"MySQL configuration file path (e.g. /etc/my.cnf.d/centreon.cnf); leave "
+"empty to use the default value."
+msgstr ""
+"MySQL configuration file path (e.g. /etc/my.cnf.d/centreon.cnf); leave "
+"empty to use the default value."
