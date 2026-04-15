@@ -12,8 +12,8 @@ import { useTranslation } from 'react-i18next';
 import { selectedColumnIdsAtom } from '../atoms';
 import ActionsColumn from './ActionsColumn';
 import ExpirationDate from './ExpirationDate/ExpirationDate';
-import Status from './Status/Status';
 import { Column, ColumnId } from './models';
+import Status from './Status/Status';
 
 const dateFormat = 'L';
 
