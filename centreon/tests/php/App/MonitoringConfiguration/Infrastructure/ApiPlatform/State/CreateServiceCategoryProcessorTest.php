@@ -100,6 +100,7 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
         $this->request('POST', '/api/latest/configuration/services/categories', [
             'json' => [
                 'name' => '',
+                'alias' => '',
             ],
         ]);
 
@@ -107,7 +108,7 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
         self::assertJsonContains([
             'code' => 400,
             'message' => "[name] This value is too short. It should have 1 character or more.\n"
-                . "[alias] This value should not be null.\n",
+                . "[alias] This value is too short. It should have 1 character or more.\n",
         ]);
     }
 
