@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 
 import { useSetAtom } from 'jotai';
-import { ReactElement, useCallback, useEffect, useState } from 'react';
+import { type ReactElement, useCallback, useEffect, useState } from 'react';
 import {
   type Layout,
   LayoutItem,
@@ -50,9 +50,9 @@ const DashboardLayout = <T extends LayoutItem>({
 
   const setIsResizingItem = useSetAtom(isResizingItemAtom);
 
-  const resize = (): void => {
+  const resize = useCallback((): void => {
     setColumns(getColumnsFromScreenSize());
-  };
+  }, [JSON.stringify(getColumnsFromScreenSize())]);
 
   const startResize = useCallback(
     (_: Layout, _e: LayoutItem | null, newItem: LayoutItem | null) => {
