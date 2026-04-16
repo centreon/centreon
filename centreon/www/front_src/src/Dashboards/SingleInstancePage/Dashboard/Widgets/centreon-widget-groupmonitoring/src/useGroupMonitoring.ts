@@ -83,7 +83,7 @@ export const useGroupMonitoring = ({
     refreshCount
   ];
 
-  const { data } = useFetchQuery<ListingModel<Group>>({
+  const { data, isLoading } = useFetchQuery<ListingModel<Group>>({
     decoder: groupsDecoder,
     getEndpoint: () =>
       getWidgetEndpoint({
@@ -136,7 +136,7 @@ export const useGroupMonitoring = ({
       }),
     getQueryKey: () => key,
     queryOptions: {
-      enabled: isInViewport && hasResourceTypeDefined,
+      enabled: !!isInViewport && hasResourceTypeDefined,
       refetchInterval: !isFromPreview ? refreshIntervalToUse : false,
       suspense: false
     },
@@ -187,6 +187,7 @@ export const useGroupMonitoring = ({
     groupType: resource?.resourceType || '',
     groupTypeName: getResourceTypeName(resource?.resourceType),
     hasResourceTypeDefined,
+    isLoading,
     limit: limitToUse,
     listing: formattedListing,
     page: pageToUse,
