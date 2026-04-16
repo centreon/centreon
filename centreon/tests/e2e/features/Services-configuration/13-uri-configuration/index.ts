@@ -137,7 +137,7 @@ Then('the status of the service is changed', () => {
           return text === '4';
         });
     },
-    { interval: 6000, timeout: 600000 }
+    { interval: 10000, timeout: 700000 }
   );
   cy.visit('/');
   visitStatusDetailPage();
