@@ -227,8 +227,11 @@ jobs:
         env:
           MYSQL_IMAGE: ${{ env.DATABASE_IMAGE }}
           WEB_IMAGE: docker.centreon.com/centreon/${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }}
+          FEATURE: ${{ matrix.feature }}
+          UPLOAD_ARTIFACTS: ${{ inputs.upload_artifacts }}
+          OS_INPUT: ${{ inputs.os }}
         run: |
-          COLLECTION_DIRECTORY=$(dirname "collections/${{ matrix.feature }}")
+          COLLECTION_DIRECTORY=$(dirname "collections/$FEATURE")
 
           if [[ -f "${COLLECTION_DIRECTORY}/.env" ]]; then
             echo "Using environment file ${COLLECTION_DIRECTORY}/.env"
@@ -237,8 +240,8 @@ jobs:
 
           docker compose --profile web -f ../../../.github/docker/docker-compose.yml up -d --wait
 
-          if ${{ inputs.upload_artifacts == 'true' }}; then
-            if [[ "${{ inputs.os }}" == "alma9" ]]; then
+          if [[ "$UPLOAD_ARTIFACTS" == "true" ]]; then
+            if [[ "$OS_INPUT" == "alma9" ]]; then
               WEB_USER="apache"
             else
               WEB_USER="www-data"
@@ -256,14 +259,14 @@ jobs:
           fi
 
           if [[ -f "${COLLECTION_DIRECTORY}/setup.sh" ]]; then
-            echo "Running script ${COLLECTION_DIRECTORY}/setup.sh with ${{ matrix.feature }} ..."
-              bash -ex ${COLLECTION_DIRECTORY}/setup.sh "${{ matrix.feature }}"
+            echo "Running script ${COLLECTION_DIRECTORY}/setup.sh with $FEATURE ..."
+              bash -ex ${COLLECTION_DIRECTORY}/setup.sh "$FEATURE"
             fi
 
             if [[ -f "${COLLECTION_DIRECTORY}/setup-web.sh" ]]; then
-              echo "Running script ${COLLECTION_DIRECTORY}/setup-web.sh with ${{ matrix.feature }} ..."
+              echo "Running script ${COLLECTION_DIRECTORY}/setup-web.sh with $FEATURE ..."
               docker compose -f ../../../.github/docker/docker-compose.yml cp ${COLLECTION_DIRECTORY}/setup-web.sh web:/tmp/setup-web.sh
-              docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -ex /tmp/setup-web.sh "${{ matrix.feature }}"
+              docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -ex /tmp/setup-web.sh "$FEATURE"
             fi
         shell: bash
 
