@@ -105,7 +105,10 @@ const useFilter = (): void => {
   }, [getUrlQueryParameters().fromTopCounter]);
 
   useEffect(() => {
-    if (!initialUrlFilterRef.current || getUrlQueryParameters().fromTopCounter) {
+    if (
+      !initialUrlFilterRef.current ||
+      getUrlQueryParameters().fromTopCounter
+    ) {
       return;
     }
     applyFilter(getDefaultFilter());
