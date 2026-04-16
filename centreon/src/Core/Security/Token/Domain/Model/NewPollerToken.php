@@ -44,7 +44,7 @@ final class NewPollerToken extends NewToken
         TrimmedString $name,
         ?\DateTimeInterface $expirationDate = null,
         ?int $creatorId = null,
-        TrimmedString $creatorName = 'system',
+        TrimmedString $creatorName = new TrimmedString('system'),
     ) {
         $this->shortName = (new \ReflectionClass($this))->getShortName();
 

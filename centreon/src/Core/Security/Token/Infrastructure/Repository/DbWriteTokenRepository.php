@@ -37,8 +37,11 @@ use Core\Security\Token\Domain\Model\ApiToken;
 use Core\Security\Token\Domain\Model\JwtToken;
 use Core\Security\Token\Domain\Model\NewApiToken;
 use Core\Security\Token\Domain\Model\NewJwtToken;
+use Core\Security\Token\Domain\Model\NewPollerToken;
 use Core\Security\Token\Domain\Model\NewToken;
+use Core\Security\Token\Domain\Model\PollerToken;
 use Core\Security\Token\Domain\Model\Token;
+use Core\Security\Token\Domain\Model\TokenTypeEnum;
 
 class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRepositoryInterface
 {
@@ -66,7 +69,7 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
             );
 
             $this->connection->delete(
-                $this->connection->createQueryBuilder()->delete('jwt_tokens')
+                $this->connection->createQueryBuilder()->delete('authentication_tokens')
                     ->where('token_name = :tokenName')
                     ->andWhere('creator_id = :userId')
                     ->getQuery(),
@@ -99,11 +102,10 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
     public function add(NewToken $newToken): void
     {
         try {
-            if ($newToken instanceof NewJwtToken) {
-                $this->addJwtToken($newToken);
-            } else {
-                /** @var NewApiToken $newToken */
+            if ($newToken instanceof NewApiToken) {
                 $this->addApiToken($newToken);
+            } else {
+                $this->addAuthenticationToken($newToken);
             }
         } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             $this->error(
@@ -129,11 +131,10 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
     public function update(Token $token): void
     {
         try {
-            if ($token instanceof JwtToken) {
-                $this->updateJwtToken($token);
-            } else {
-                /** @var ApiToken $token */
+            if ($token instanceof ApiToken) {
                 $this->updateApiToken($token);
+            } else {
+                $this->updateAuthenticationToken($token);
             }
         } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             $this->error(
@@ -153,16 +154,16 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
         }
     }
 
-    // ------------------------------ JWT TOKEN METHODS ------------------------------
+    // ------------------------------ JWT&POLLER TOKEN METHODS ------------------------------
 
     /**
      * @param NewJwtToken $token
      * @throws \Throwable
      */
-    private function addJwtToken(NewJwtToken $token): void
+    private function addAuthenticationToken(NewJwtToken|NewPollerToken $token): void
     {
         $this->connection->insert(
-            $this->connection->createQueryBuilder()->insert('jwt_tokens')
+            $this->connection->createQueryBuilder()->insert('authentication_tokens')
                 ->values([
                     'token_string' => ':tokenString',
                     'token_name' => ':tokenName',
@@ -178,7 +179,7 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
                 QueryParameter::string('tokenName', $token->getName()),
                 QueryParameter::int('creatorId', $token->getCreatorId()),
                 QueryParameter::string('creatorName', $token->getCreatorName()),
-                QueryParameter::string('encodingKey', $token->getEncodingKey()),
+                QueryParameter::string('encodingKey', $token->getType() === TokenTypeEnum::CMA ? $token->getEncodingKey() : null),
                 QueryParameter::int('createdAt', $token->getCreationDate()->getTimestamp()),
                 QueryParameter::int('expireAt', $token->getExpirationDate()?->getTimestamp()),
             ])
@@ -189,10 +190,10 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
      * @param JwtToken $token
      * @throws \Throwable
      */
-    private function updateJwtToken(JwtToken $token): void
+    private function updateAuthenticationToken(JwtToken|PollerToken $token): void
     {
         $this->connection->update(
-            $this->connection->createQueryBuilder()->update('jwt_tokens')
+            $this->connection->createQueryBuilder()->update('authentication_tokens')
                 ->set('is_revoked', ':isRevoked')
                 ->where('token_name = :tokenName')
                 ->getQuery(),
