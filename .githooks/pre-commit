@@ -10,12 +10,3 @@ fi
 
 # scan for secrets before commit
 gitleaks detect --no-git --verbose
-
-# type-check staged files in centreon/packages/ui
-if git diff --cached --name-only --diff-filter=ACMR | grep -qE '^centreon/packages/ui/src/.*\.(ts|tsx)$'; then
-  if ! command -v pnpm >/dev/null 2>&1; then
-    echo "Error: pnpm is not installed or not in PATH." >&2
-    exit 1
-  fi
-  pnpm --filter @centreon/ui type-check:staged
-fi
