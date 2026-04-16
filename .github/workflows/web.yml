@@ -54,8 +54,7 @@ jobs:
     if: |
       github.run_attempt == 1 &&
       github.event_name == 'schedule' &&
-      github.ref_name == 'develop' &&
-      github.repository == 'centreon/centreon'
+      github.ref_name == 'develop'
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
@@ -97,7 +96,6 @@ jobs:
         "centreon/cron/**"
         "centreon/doc/API/**"
         "centreon/GPL_LIB/**"
-        "centreon/lang/**"
         "centreon/lib/**"
         "centreon/libinstall/**"
         "centreon/logrotate/**"
@@ -151,6 +149,8 @@ jobs:
         "centreon/www/install/**"
         "centreon/packaging/**"
         "centreon/tests/e2e/features/Platform-upgrade-update/**"
+      translation_paths: |
+        "centreon/lang/**"
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
       base_sha: ${{ needs.get-environment.outputs.previous_release_bundle_tag }}
       labels: ${{ needs.get-environment.outputs.labels }}
@@ -325,14 +325,12 @@ jobs:
     # needed to deliver sources
     runs-on: ubuntu-24.04
     container:
-      image: ghcr.io/${{ github.repository }}/translation:${{ needs.get-environment.outputs.major_version }}
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+      image: ghcr.io/centreon/delivery-tooling/translation:${{ needs.get-environment.outputs.major_version }}
 
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
           ref: ${{ github.head_ref || github.ref_name }}
           fetch-depth: 10
           token: ${{ needs.get-environment.outputs.is_fork == 'true' && secrets.GITHUB_TOKEN || secrets.CENTREON_TECHNIQUE_PAT }}
@@ -344,55 +342,7 @@ jobs:
           STABILITY: ${{ needs.get-environment.outputs.stability }}
           EVENT_NAME: ${{ github.event_name }}
           HAS_UPDATE_TRANSLATIONS_LABEL: ${{ contains(needs.get-environment.outputs.labels, 'update-translations') }}
-        run: |
-          TRANSLATIONS_PATCH_FILE=""
-
-          git config --global --add safe.directory $GITHUB_WORKSPACE
-
-          cd centreon
-
-          for i in lang/*.UTF-8 ; do
-            localefull="$(basename "$i")"
-            langName="$(echo "$localefull" | cut -d . -f 1)"
-            langShortName="$(echo "$localefull" | cut -d _ -f 1)"
-            mkdir -p "www/locale/$localefull/LC_MESSAGES"
-            bash -e ../.github/scripts/translation/make_translation.sh centreon $langName
-            msgfmt "lang/$localefull/LC_MESSAGES/messages.po" -o "www/locale/$localefull/LC_MESSAGES/messages.mo" || exit 1
-            msgfmt "lang/$localefull/LC_MESSAGES/help.po" -o "www/locale/$localefull/LC_MESSAGES/help.mo" || exit 1
-            php bin/centreon-translations.php "$langShortName" "lang/$localefull/LC_MESSAGES/messages.po" "www/locale/$localefull/LC_MESSAGES/messages.ser"
-          done
-
-          mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
-          php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
-
-          if [[ "$(git diff --ignore-matching-lines="POT-Creation-Date" | wc -l)" != "0" ]]; then
-            # avoid to always update POT-Creation-Date field
-            find -type f -regex '.+\.pot?' -exec sed -i -e 's/"POT-Creation-Date.*$/"POT-Creation-Date: 2025-01-01 00:00+0000\\n"/g' {} \;
-            if [[ ( "$IS_NIGHTLY" == "false" && "$STABILITY" == "unstable" ) || ( "$EVENT_NAME" == 'pull_request' && "$HAS_UPDATE_TRANSLATIONS_LABEL" == "true" ) ]]; then
-              if [[ "$(git log -1 --pretty=format:'%an')" != "technique-ci" ]]; then
-                git config user.name "technique-ci"
-                git config user.email "technique+ci@centreon.com"
-                git status
-                git add .
-                git commit -m "chore(lang): update translations"
-                git push
-              else
-                echo "::notice::Last commit author is technique-ci. Skipping commit to avoid infinite loop."
-                cd ..
-                git diff > translations.patch
-                TRANSLATIONS_PATCH_FILE="translations.patch"
-              fi
-            else
-              echo "::notice::Translations have been updated, but the workflow is a nightly run or does not have the update-translations label. Skipping commit. Git patch will be available as artifact."
-              cd ..
-              git diff > translations.patch
-              TRANSLATIONS_PATCH_FILE="translations.patch"
-            fi
-          else
-            echo "No changes in translations"
-          fi
-
-          echo "translations_patch_file=$TRANSLATIONS_PATCH_FILE" >> $GITHUB_OUTPUT
+        run: bash .github/scripts/translation/build-translations.sh
         shell: bash
 
       - name: Upload translations patch
@@ -449,7 +399,12 @@ jobs:
           cache-dependency-path: ${{ env.base_directory }}/pnpm-lock.yaml
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          pnpm install \
+            --frozen-lockfile \
+            --config.trustPolicy=no-downgrade \
+            --config.minimumReleaseAge=2880 \
+            --config.blockExoticSubdeps=true
         working-directory: centreon
         env:
           CYPRESS_INSTALL_BINARY: "0"
@@ -530,6 +485,90 @@ jobs:
         with:
           path: "centreon/build/phpunit.xml"
           format: "php-junit"
+
+  backend-integration-test:
+    runs-on: ubuntu-24.04
+    needs: [get-environment, changes]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      contains(needs.get-environment.outputs.labels, 'trigger-backend-integration-tests')
+    services:
+      db:
+        image: mysql:8.4
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -ppassword --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=12
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_USER: centreon
+          MYSQL_PASSWORD: password
+          MYSQL_ROOT_PASSWORD: password
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.36.0
+        with:
+          php-version: 8.2
+          coverage: none
+
+      - name: Create configuration files
+        run: |
+          cp config/centreon.config.php.template config/centreon.config.php
+          sed -i \
+            -e "s|'@CENTREON_ETC@'|realpath(__DIR__) . '/'|" \
+            -e "s|'@CENTREON_LOG@'|'/var/lib/centreon'|" \
+            -e "s|'@CENTREON_CACHEDIR@'|'/var/cache/centreon'|" \
+            -e "s|'@CENTREON_VARLIB@'|'/var/lib/centreon'|" \
+            config/centreon.config.php
+          cat config/centreon.config.php
+
+          cp www/install/var/configFileTemplate config/centreon.conf.php
+          sed -i \
+            -e "s|--ADDRESS--|127.0.0.1|" \
+            -e "s|--DBUSER--|centreon|" \
+            -e "s|--DBPASS--|password|" \
+            -e "s|--CONFDB--|centreon|" \
+            -e "s|--STORAGEDB--|centreon_storage|" \
+            -e "s|--DBPORT--|3306|" \
+            -e "s|--CENTREONDIR--|$(pwd)|" \
+            config/centreon.conf.php
+          cat config/centreon.conf.php
+        working-directory: centreon
+
+      - name: Ensure Symfony cache directories exist and are writable (legacy and new)
+        run: |
+          echo "Ensure Symfony cache directories exist"
+          sudo mkdir -p /var/cache/centreon/symfony{,.new}
+          echo "Set permissions on Symfony cache directories with user: '$USER'"
+          sudo chown -R $USER:$USER /var/cache/centreon/symfony{,.new}
+
+      - name: Install dependencies
+        uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+        with:
+          working-directory: centreon
+          composer-options: "--optimize-autoloader"
+
+      - name: Create databases
+        env:
+          MYSQL_PWD: password
+        run: |
+          mysql -h 127.0.0.1 -u root -e "CREATE DATABASE \`centreon\`"
+          mysql -h 127.0.0.1 -u root -e "CREATE DATABASE \`centreon_storage\`"
+          mysql -h 127.0.0.1 -u root -e "GRANT ALL PRIVILEGES ON centreon.* TO 'centreon'@'%'"
+          mysql -h 127.0.0.1 -u root -e "GRANT ALL PRIVILEGES ON  \`centreon_storage\`.* TO 'centreon'@'%'"
+
+      - name: Run App integration tests
+        run: composer run test:new
+        working-directory: centreon
+
+      - name: Run Core integration tests
+        run: composer run test:core
+        working-directory: centreon
 
   backend-lint:
     runs-on: ubuntu-24.04
@@ -714,6 +753,7 @@ jobs:
         backend-dependencies,
         backend-lint,
         backend-unit-test,
+        backend-integration-test,
         frontend-web-build,
         frontend-web-lint,
         frontend-unit-test,
@@ -733,19 +773,16 @@ jobs:
       matrix:
         include:
           - package_extension: rpm
-            image: packaging-alma9
+            tag_suffix: -alma9
             distrib: el9
           - package_extension: deb
-            image: packaging-debian
+            tag_suffix: -bookworm
             distrib: bookworm
 
     name: package ${{ matrix.distrib }}
     runs-on: ubuntu-24.04
     container:
-      image: ghcr.io/${{ github.repository }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}${{ matrix.tag_suffix }}
 
     steps:
       - name: Checkout sources
@@ -849,14 +886,19 @@ jobs:
   dockerize:
     runs-on: ubuntu-24.04
     needs: [get-environment, changes, package]
+    permissions:
+      contents: read
+      packages: read
+      actions: write
+    outputs:
+      image_tag: ${{ steps.image_tag.outputs.tag }}
     if: |
       needs.changes.outputs.trigger_packaging == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      needs.get-environment.outputs.stability != 'stable' &&
-      github.repository == 'centreon/centreon'
+      needs.get-environment.outputs.stability != 'stable'
 
     env:
       project: centreon-web
@@ -900,7 +942,12 @@ jobs:
             echo "tag=develop-${MAJOR_VERSION}" >> $GITHUB_OUTPUT
             echo "additional_tag=develop" >> $GITHUB_OUTPUT
           else
-            echo "tag=$REF" >> $GITHUB_OUTPUT
+            SANITIZED_REF="$(printf '%s' "$REF" | sed -E 's#[^[:alnum:]_.-]+#-#g; s#^[.-]+##; s#-+#-#g' | cut -c1-128)"
+            if [[ -z "$SANITIZED_REF" ]]; then
+              echo "::error::Unable to derive a valid Docker tag from ref '$REF'"
+              exit 1
+            fi
+            echo "tag=$SANITIZED_REF" >> $GITHUB_OUTPUT
             echo "additional_tag=" >> $GITHUB_OUTPUT
           fi
         shell: bash
@@ -913,32 +960,15 @@ jobs:
           username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
           password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
 
-      - name: Login to github registry
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Get FROM image tag
         id: from_image_version
-        run: |
-          FROM_IMAGE_VERSION="${{ needs.get-environment.outputs.major_version }}"
-          FROM_IMAGE="centreon-web-dependencies-collect-${{ matrix.operating_system }}"
-          IMAGE_TAG_EXISTS=$(docker manifest inspect ghcr.io/${{ github.repository }}/${FROM_IMAGE}:${{ github.head_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
-          if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
-            FROM_IMAGE_VERSION="${{ github.head_ref || github.ref_name }}"
-            echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
-          else
-            IMAGE_TAG_EXISTS=$(docker manifest inspect ghcr.io/${{ github.repository }}/${FROM_IMAGE}:${{ github.base_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
-            if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
-              FROM_IMAGE_VERSION="${{ github.base_ref || github.ref_name }}"
-              echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
-            fi
-          fi
-
-          echo "from_image_version=$FROM_IMAGE_VERSION" >> $GITHUB_OUTPUT
-        shell: bash
+        uses: ./.github/actions/get-docker-from-image-version
+        with:
+          from_image: centreon-web-dependencies-collect
+          current_tag: ${{ steps.image_tag.outputs.tag }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          registry_url: ghcr.io/${{ github.repository }}
+          tag_suffix: -${{ matrix.operating_system }}
 
       - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
         uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -965,8 +995,8 @@ jobs:
         uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
         with:
           images: |
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}
+            docker.centreon.com/centreon/${{ env.project }}-${{ matrix.operating_system }}
+            docker.centreon.com/centreon/${{ env.project }}-slim-${{ matrix.operating_system }}
           tags: |
             type=raw,value=${{ github.head_ref || github.ref_name }}
 
@@ -992,18 +1022,19 @@ jobs:
 
       - name: Store slim image in local archive
         run: |
-          docker tag ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.meta.outputs.version }} ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.meta.outputs.version }}
+          docker tag docker.centreon.com/centreon/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.meta.outputs.version }} ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.meta.outputs.version }}
           mkdir -p docker-image
           docker save --output ./docker-image/${{ env.project }}-slim-${{ matrix.operating_system }}.tar ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.meta.outputs.version }}
         shell: bash
 
       - name: Clear previous docker image from cache
+        if: ${{ needs.get-environment.outputs.is_fork == 'false' }}
         run: |
           curl \
             -X DELETE \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.meta.outputs.version }}
+            https://api.github.com/repos/${{ github.repository }}/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.meta.outputs.version }}
         shell: bash
 
       - name: Store slim image in cache
@@ -1022,7 +1053,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       (needs.get-environment.outputs.stability == 'testing' || needs.get-environment.outputs.is_nightly == 'true') &&
-      github.repository == 'centreon/centreon'
+      needs.get-environment.outputs.is_fork == 'false'
     strategy:
       fail-fast: false
       matrix:
@@ -1054,8 +1085,7 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      needs.get-environment.outputs.stability != 'stable' &&
-      github.repository == 'centreon/centreon'
+      needs.get-environment.outputs.stability != 'stable'
     strategy:
       fail-fast: false
       matrix:
@@ -1069,7 +1099,7 @@ jobs:
       db_id: ${{ matrix.db_id }}
       container_name: my_centreon_container
       centreon_url: http://localhost
-      centreon_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
+      centreon_image: docker.centreon.com/centreon/centreon-web-slim-${{ matrix.operating_system }}:${{ needs.dockerize.outputs.image_tag }}
       database_image: bitnamilegacy/${{ matrix.database }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
       major_version: ${{ needs.get-environment.outputs.major_version }}
@@ -1094,8 +1124,7 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      needs.get-environment.outputs.stability != 'stable' &&
-      github.repository == 'centreon/centreon'
+      needs.get-environment.outputs.stability != 'stable'
     strategy:
       fail-fast: false
       matrix:
@@ -1138,8 +1167,7 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      needs.get-environment.outputs.stability != 'stable' &&
-      github.repository == 'centreon/centreon'
+      needs.get-environment.outputs.stability != 'stable'
     strategy:
       fail-fast: false
       matrix:
@@ -1170,8 +1198,6 @@ jobs:
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
       xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
       xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
-      artifactory_internal_repo_username: ${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}
-      artifactory_internal_repo_password: ${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}
       jira_base_url: ${{ secrets.JIRA_BASE_URL }}
       jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
@@ -1186,8 +1212,7 @@ jobs:
   #     ! cancelled() &&
   #     ! contains(needs.*.result, 'failure') &&
   #     ! contains(needs.*.result, 'cancelled') &&
-  #     needs.get-environment.outputs.stability != 'stable' &&
-  #     github.repository == 'centreon/centreon'
+  #     needs.get-environment.outputs.stability != 'stable'
   #   strategy:
   #     fail-fast: false
   #     matrix:
@@ -1240,7 +1265,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       github.event_name != 'workflow_dispatch' &&
-      github.repository == 'centreon/centreon' &&
+      needs.get-environment.outputs.is_fork == 'false' &&
       needs.get-environment.outputs.is_cloud == 'false'
 
     steps:
@@ -1272,7 +1297,7 @@ jobs:
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability == 'stable' &&
       github.event_name != 'workflow_dispatch' &&
-      github.repository == 'centreon/centreon'
+      needs.get-environment.outputs.is_fork == 'false'
     steps:
       - name: Checkout sources
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -1366,7 +1391,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       needs.changes.outputs.trigger_delivery == 'true' &&
-      github.repository == 'centreon/centreon'
+      needs.get-environment.outputs.is_fork == 'false'
     strategy:
       matrix:
         distrib: [el9]
@@ -1406,7 +1431,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       needs.changes.outputs.trigger_delivery == 'true' &&
-      github.repository == 'centreon/centreon' &&
+      needs.get-environment.outputs.is_fork == 'false' &&
       (needs.get-environment.outputs.is_cloud == 'false' || needs.get-environment.outputs.stability == 'unstable')
     strategy:
       matrix:
@@ -1436,7 +1461,7 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      github.repository == 'centreon/centreon'
+      needs.get-environment.outputs.is_fork == 'false'
     runs-on: centreon-common
     strategy:
       matrix:
@@ -1503,7 +1528,7 @@ jobs:
       needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
       (failure() || cancelled() || contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) &&
       startsWith(github.ref_name, 'dev') &&
-      github.repository == 'centreon/centreon'
+      needs.get-environment.outputs.is_fork == 'false'
     steps:
       - name: Checkout sources
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1

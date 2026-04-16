@@ -1,4 +1,4 @@
-name: docker-packaging
+name: docker-ldap
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -6,18 +6,19 @@ concurrency:
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - ".version"
+      - '.github/docker/ldap/**'
+      - ".github/workflows/docker-ldap.yml"
   push:
     branches:
       - develop
       - dev-[2-9][0-9].[0-9][0-9].x
     paths:
       - ".version"
-      - ".github/docker/Dockerfile.packaging-*"
-  pull_request:
-    paths:
-      - ".version"
-      - ".github/docker/Dockerfile.packaging-*"
-      - ".github/workflows/docker-packaging.yml"
+      - '.github/docker/ldap/**'
+      - ".github/workflows/docker-ldap.yml"
 
 jobs:
   dependency-scan:
@@ -33,19 +34,10 @@ jobs:
   dockerize:
     needs: [get-environment]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - dockerfile: packaging-alma9
-            image: packaging-alma9
-          - dockerfile: packaging-debian
-            image: packaging-debian
-
     runs-on: ubuntu-24.04
-
-    name: build container ${{ matrix.image }}
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout sources
@@ -64,15 +56,34 @@ jobs:
         id: meta
         uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
         with:
-          images: ghcr.io/${{ github.repository }}/${{ matrix.image }}
+          images: ghcr.io/${{ github.repository }}/ldap
+          labels: |
+            org.opencontainers.image.description=LDAP image for Centreon E2E tests
+            com.centreon.stability=${{ needs.get-environment.outputs.stability }}
+            com.centreon.version=${{ needs.get-environment.outputs.major_version }}
+
+      - name: Compute image tag
+        id: image_tag
+        run: |
+          if [ "${{ needs.get-environment.outputs.stability }}" = "unstable" ]; then
+            echo "value=${{ needs.get-environment.outputs.major_version }}" >> "$GITHUB_OUTPUT"
+          else
+            raw_ref="${{ github.head_ref || github.ref_name }}"
+            echo "value=${raw_ref//\//-}" >> "$GITHUB_OUTPUT"
+          fi
 
       - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        env:
+          DOCKER_BUILD_RECORD_UPLOAD: false
+          DOCKER_BUILD_SUMMARY: false
+          DOCKER_BUILD_CHECKS_ANNOTATIONS: false
         with:
-          file: .github/docker/Dockerfile.${{ matrix.dockerfile }}
-          context: .
+          file: .github/docker/ldap/Dockerfile
+          context: .github/docker/ldap
           pull: true
-          push: true
-          tags: ghcr.io/${{ github.repository }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
+          outputs: type=image,push=true,annotation-index.org.opencontainers.image.description=LDAP image for Centreon E2E tests
+          tags: ghcr.io/${{ github.repository }}/ldap:${{ steps.image_tag.outputs.value }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   set-skip-label:
     needs: [get-environment, dockerize]

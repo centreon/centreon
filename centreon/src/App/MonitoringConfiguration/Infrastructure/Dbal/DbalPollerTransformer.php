@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\Shared\Domain\Collection;
@@ -42,7 +43,10 @@ final readonly class DbalPollerTransformer implements TransformerInterface
         return new Poller(
             id: new PollerId($from['poller_id']),
             name: new PollerName($from['poller_name']),
+            address: new PollerAddress($from['poller_address']),
+            isCentral: (bool) $from['is_central'],
             globalMacros: new Collection([], GlobalMacro::class), // must be filled by callers
+            cmaCertificates: null
         );
     }
 }

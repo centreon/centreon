@@ -25,86 +25,89 @@ use App\Kernel;
 use Centreon\Application\Validation\Constraints\UniqueEntity;
 use Centreon\Application\Validation\Validator\Interfaces\CentreonValidatorInterface;
 use Centreon\ServiceProvider;
-use LogicException;
-use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
-use function is_array;
-use function is_string;
-
 class UniqueEntityValidator extends ConstraintValidator implements CentreonValidatorInterface
 {
+    private ?ContainerInterface $container = null;
+
     /**
-     * @param $entity
-     * @param Constraint $constraint
-     *
-     * @throws ConstraintDefinitionException
-     * @throws UnexpectedTypeException
-     * @throws LogicException
-     * @throws ServiceCircularReferenceException
-     * @throws ServiceNotFoundException
-     * @return void|null
+     * {@inheritDoc}
      */
-    public function validate($entity, Constraint $constraint)
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (! $constraint instanceof UniqueEntity) {
             throw new UnexpectedTypeException($constraint, __NAMESPACE__ . '\UniqueEntity');
         }
 
-        if (! is_array($constraint->fields) && ! is_string($constraint->fields)) {
-            throw new UnexpectedTypeException($constraint->fields, 'array');
+        $field = $constraint->field;
+        $methodValueGetter = 'get' . ucfirst($field);
+        if (
+            $value === null
+            || ! (
+                is_object($value)
+                && method_exists($value, $methodValueGetter)
+            )
+        ) {
+            return;
+        }
+        $repository = $this->getContainer()->get($constraint->repository);
+
+        $methodRepository = 'findOneBy';
+        if (! method_exists($repository, $methodRepository)) {
+            throw new ConstraintDefinitionException(sprintf(
+                'The repository "%s" must expose "%s()" for UniqueEntity validation.',
+                $constraint->repository,
+                $methodRepository
+            ));
         }
 
-        if ($constraint->errorPath !== null && ! is_string($constraint->errorPath)) {
-            throw new UnexpectedTypeException($constraint->errorPath, 'string or null');
+        $retrieveValue = $value->{$methodValueGetter}();
+        $result = $repository->{$methodRepository}([$field => $retrieveValue]);
+        if (! $result) {
+            return;
         }
 
-        // define fields to check
-        $fields = (array) $constraint->fields;
-        $methodRepository = $constraint->repositoryMethod;
-        $methodIdGetter = $constraint->entityIdentificatorMethod;
-
-        if ($fields === []) {
-            throw new ConstraintDefinitionException('At least one field has to be specified.');
-        }
-        if ($entity === null) {
-            return null;
+        $methodIdGetter = 'getId';
+        if (! method_exists($result, $methodIdGetter) || ! method_exists($value, $methodIdGetter)) {
+            throw new ConstraintDefinitionException(sprintf(
+                'The entity must expose a "%s()" method for UniqueEntity validation.',
+                $methodIdGetter
+            ));
         }
 
-        foreach ($fields as $field) {
-            $methodValueGetter = 'get' . ucfirst($field);
-            $value = $entity->{$methodValueGetter}();
+        $isSameEntity = $result->{$methodIdGetter}() === $value->{$methodIdGetter}();
 
-            $repository = (Kernel::createForWeb())
-                ->getContainer()
-                ->get($constraint->repository);
-
-            $result = $repository->{$methodRepository}([$field => $value]);
-
-            if ($result && $result->{$methodIdGetter}() !== $entity->{$methodIdGetter}()) {
-                $this->context->buildViolation($constraint->message)
-                    ->atPath($field)
-                    ->setInvalidValue($value)
-                    ->setCode(UniqueEntity::NOT_UNIQUE_ERROR)
-                    ->setCause($result)
-                    ->addViolation();
-            }
+        if (! $isSameEntity) {
+            $this->context->buildViolation('Name already in use')
+                ->atPath($field)
+                ->setInvalidValue($retrieveValue)
+                ->setCode(UniqueEntity::NOT_UNIQUE_ERROR)
+                ->setCause($result)
+                ->addViolation();
         }
     }
 
     /**
      * List of required services
-     *
-     * @return array
      */
     public static function dependencies(): array
     {
         return [
             ServiceProvider::CENTREON_DB_MANAGER,
         ];
+    }
+
+    private function getContainer(): ContainerInterface
+    {
+        if (! $this->container instanceof ContainerInterface) {
+            $this->container = (Kernel::createForWeb())->getContainer();
+        }
+
+        return $this->container;
     }
 }

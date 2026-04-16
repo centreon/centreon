@@ -1,4 +1,4 @@
-name: docker-translation
+name: docker-mediawiki
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -6,18 +6,19 @@ concurrency:
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - ".version"
+      - '.github/docker/mediawiki/**'
+      - ".github/workflows/docker-mediawiki.yml"
   push:
     branches:
       - develop
       - dev-[2-9][0-9].[0-9][0-9].x
     paths:
       - ".version"
-      - ".github/docker/Dockerfile.translation"
-  pull_request:
-    paths:
-      - ".version"
-      - ".github/docker/Dockerfile.translation"
-      - ".github/workflows/docker-translation.yml"
+      - '.github/docker/mediawiki/**'
+      - ".github/workflows/docker-mediawiki.yml"
 
 jobs:
   dependency-scan:
@@ -55,16 +56,33 @@ jobs:
         id: meta
         uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
         with:
-          images: ghcr.io/${{ github.repository }}/translation
+          images: ghcr.io/${{ github.repository }}/mediawiki
+          labels: |
+            org.opencontainers.image.description=Mediawiki image for Centreon E2E tests
+            com.centreon.stability=${{ needs.get-environment.outputs.stability }}
+            com.centreon.version=${{ needs.get-environment.outputs.major_version }}
+
+      - name: Compute image tag
+        id: image_tag
+        run: |
+          if [ "${{ needs.get-environment.outputs.stability }}" = "unstable" ]; then
+            echo "value=${{ needs.get-environment.outputs.major_version }}" >> "$GITHUB_OUTPUT"
+          else
+            raw_ref="${{ github.head_ref || github.ref_name }}"
+            echo "value=${raw_ref//\//-}" >> "$GITHUB_OUTPUT"
+          fi
 
       - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        env:
+          DOCKER_BUILD_RECORD_UPLOAD: false
+          DOCKER_BUILD_SUMMARY: false
+          DOCKER_BUILD_CHECKS_ANNOTATIONS: false
         with:
-          file: .github/docker/Dockerfile.translation
-          context: .
+          file: .github/docker/mediawiki/Dockerfile
+          context: .github/docker/mediawiki
           pull: true
-          push: true
-          platforms: linux/amd64
-          tags: ghcr.io/${{ github.repository }}/translation:${{ needs.get-environment.outputs.major_version }}
+          outputs: type=image,push=true,annotation-index.org.opencontainers.image.description=Mediawiki image for Centreon E2E tests
+          tags: ghcr.io/${{ github.repository }}/mediawiki:${{ steps.image_tag.outputs.value }}
           labels: ${{ steps.meta.outputs.labels }}
 
   set-skip-label:
