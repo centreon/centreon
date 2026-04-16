@@ -131,7 +131,7 @@ const useTopBottom = ({
     ],
     queryOptions: {
       enabled:
-        isInViewport &&
+        (isInViewport ?? true) &&
         areResourcesFullfilled(resources) &&
         !!metricName &&
         topBottomSettings.numberOfValues > 0,

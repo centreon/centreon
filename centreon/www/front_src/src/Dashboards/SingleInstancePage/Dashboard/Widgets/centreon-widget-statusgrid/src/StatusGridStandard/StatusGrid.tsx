@@ -145,7 +145,7 @@ const StatusGrid = ({
       refreshCount
     ],
     queryOptions: {
-      enabled: !!isInViewport,
+      enabled: isInViewport ?? true,
       refetchInterval: refreshIntervalToUse,
       suspense: false
     },

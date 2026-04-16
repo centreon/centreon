@@ -33,7 +33,9 @@ export const useViewportIntersection = (
     }
 
     observer.current = new window.IntersectionObserver(
-      ([newEntry]) => setEntry(newEntry),
+      ([newEntry]) => {
+        setEntry(newEntry);
+      },
       options
     );
 

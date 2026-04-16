@@ -107,7 +107,7 @@ export const useStatusGridCondensed = ({
       refreshCount
     ],
     queryOptions: {
-      enabled: !!isInViewport && !!resourceTypeToUse,
+      enabled: (isInViewport ?? true) && !!resourceTypeToUse,
       refetchInterval: refreshIntervalToUse,
       suspense: false
     },
