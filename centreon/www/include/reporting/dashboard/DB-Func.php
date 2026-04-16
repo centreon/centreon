@@ -452,7 +452,7 @@ function getServicesLogs(array $services, $startDate, $endDate, $reportTimePerio
                 }
                 $aclCondition = 'AND EXISTS (SELECT 1 FROM centreon_acl acl '
                     . 'WHERE las.host_id = acl.host_id AND las.service_id = acl.service_id '
-                    . 'AND acl.group_id IN (' . implode(', ', $aclPlaceholders) . ') )';
+                    . 'AND acl.group_id IN (' . implode(', ', $aclPlaceholders) . ') LIMIT 1)';
             }
         }
 
