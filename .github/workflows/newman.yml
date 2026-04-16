@@ -238,9 +238,15 @@ jobs:
           docker compose --profile web -f ../../../.github/docker/docker-compose.yml up -d --wait
 
           if ${{ inputs.upload_artifacts == 'true' }}; then
+            if [[ "${{ inputs.os }}" == "alma9" ]]; then
+              WEB_USER="apache"
+            else
+              WEB_USER="www-data"
+            fi
+
             # Necessary for collecting deprecation logs
             docker compose -f ../../../.github/docker/docker-compose.yml exec web \
-              bash -c "mkdir -p /var/log/centreon/symfony.new && chown apache:apache /var/log/centreon/symfony.new"
+              bash -c "mkdir -p /var/log/centreon/symfony.new && chown ${WEB_USER}:${WEB_USER} /var/log/centreon/symfony.new"
 
             docker compose -f ../../../.github/docker/docker-compose.yml exec web \
               bash -c "sed -i 's/^error_reporting\s*=.*/error_reporting = E_ALL/' /etc/php.ini"
@@ -333,10 +339,10 @@ jobs:
           feature="${feature%%.postman*}"
           deprecation_file_for_archive="$feature-deprecation.log"
           found=false
-          deprecation_file_container=$(docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -c "find /var/log/centreon/symfony.new/ -maxdepth 1 -regex \".*deprecations.*\" 2>/dev/null | grep . || echo 'NOT_FOUND'")
+          deprecation_file_container=$(docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -c "find /var/log/centreon/symfony.new/ -maxdepth 1 -regex \".*deprecations.*\" 2>/dev/null | grep -m1 . || echo 'NOT_FOUND'")
           if [[ "$deprecation_file_container" != "NOT_FOUND" && -n "$deprecation_file_container" ]]; then
-            docker compose -f ../../../.github/docker/docker-compose.yml cp "web:$deprecation_file_container" - >> ./$deprecation_file_for_archive
-            echo "Appended deprecation log from $dep_file"
+            docker compose -f ../../../.github/docker/docker-compose.yml exec -T web cat "$deprecation_file_container" >> ./$deprecation_file_for_archive
+            echo "Appended deprecation log from $deprecation_file_container"
             found=true
           fi
           if [[ "$found" == "false" ]]; then
