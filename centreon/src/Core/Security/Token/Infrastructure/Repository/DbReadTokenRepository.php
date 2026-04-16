@@ -584,7 +584,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
             foreach ($results as $result) {
                 /** @var _Token $result */
                 $tokens[] = TokenFactory::create(
-                    TokenTypeEnum::{$result['token_type']},
+                    \constant("TokenTypeEnum::{$result['token_type']}"),
                     $result
                 );
             }

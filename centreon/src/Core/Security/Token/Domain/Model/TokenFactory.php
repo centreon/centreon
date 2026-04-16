@@ -24,8 +24,6 @@ declare(strict_types=1);
 namespace Core\Security\Token\Domain\Model;
 
 use Core\Common\Domain\TrimmedString;
-use Core\Security\Token\Domain\Model\NewPollerToken;
-use Core\Security\Token\Domain\Model\PollerToken;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Respect\Validation\Exceptions\DateTimeException;
@@ -198,7 +196,7 @@ final class TokenFactory
                     new TrimmedString($data['name']),
                     $data['expiration_date'],
                     $data['creator_id'] ?? null,
-                    $data['creator_name'] ? new TrimmedString($data['creator_name']): null,
+                    $data['creator_name'] ? new TrimmedString($data['creator_name']) : null,
                 );
                 break;
             default:

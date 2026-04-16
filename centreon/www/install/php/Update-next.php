@@ -865,7 +865,7 @@ $deleteOldCommandsTopologies = function () use ($pearDB, &$errorMessage, $versio
 
 /** -------------------------------------- Poller tokens -------------------------------------- */
 $updateAuthenticationTable = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = "Unable to update and rename jwt_tokens table";
+    $errorMessage = 'Unable to update and rename jwt_tokens table';
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: Updating jwt_tokens table",
@@ -896,9 +896,9 @@ $updateAuthenticationTable = function () use ($pearDB, &$errorMessage, $version)
     );
 
     if ($pearDB->columnExists(
-            $pearDB->getConnectionConfig()->getDatabaseNameRealTime(),
-            'authentication_tokens',
-            'type'
+        $pearDB->getConnectionConfig()->getDatabaseNameRealTime(),
+        'authentication_tokens',
+        'type'
     )) {
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
@@ -920,7 +920,6 @@ $updateAuthenticationTable = function () use ($pearDB, &$errorMessage, $version)
             SQL
     );
 };
-
 
 try {
     // DDL statements for real time database

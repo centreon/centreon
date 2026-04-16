@@ -54,7 +54,7 @@ final class GetToken
 
             if (
                 $token === null
-                || ! in_array($token->getType(),[TokenTypeEnum::CMA, TokenTypeEnum::POLLER], true)
+                || ! in_array($token->getType(), [TokenTypeEnum::CMA, TokenTypeEnum::POLLER], true)
             ) {
 
                 return new NotFoundResponse('Token');
