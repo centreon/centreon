@@ -127,7 +127,7 @@ const useLoadResources = ({
       id
     ],
     queryOptions: {
-      enabled: isInViewport,
+      enabled: !!isInViewport,
       refetchInterval: refreshIntervalToUse,
       suspense: false
     },
