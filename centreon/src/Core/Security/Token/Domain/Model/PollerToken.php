@@ -55,7 +55,7 @@ final class PollerToken extends Token
             $creatorName,
             $creationDate,
             $expirationDate,
-            TokenTypeEnum::API,
+            TokenTypeEnum::POLLER,
             $isRevoked
         );
     }

@@ -53,7 +53,7 @@ final class NewPollerToken extends NewToken
             $creatorId,
             $creatorName,
             $expirationDate,
-            TokenTypeEnum::API,
+            TokenTypeEnum::POLLER,
         );
 
         $this->generateToken();
