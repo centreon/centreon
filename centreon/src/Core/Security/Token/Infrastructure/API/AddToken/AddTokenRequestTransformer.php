@@ -40,8 +40,12 @@ final class AddTokenRequestTransformer
 
         return new AddTokenRequest(
             $input->name,
-            $input->type === 'cma' ? TokenTypeEnum::CMA : TokenTypeEnum::API,
-            $input->userId,
+            match ($input->type) {
+                AddTokenInput::API_TYPE => TokenTypeEnum::API,
+                AddTokenInput::CMA_TYPE => TokenTypeEnum::CMA,
+                AddTokenInput::POLLER_TYPE => TokenTypeEnum::POLLER,
+            },
+            $input->userId ?? null,
             $expirationDate
         );
     }
