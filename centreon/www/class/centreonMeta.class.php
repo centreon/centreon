@@ -314,22 +314,15 @@ class CentreonMeta
             $insertStmt->bindValue(':description', $composedName, PDO::PARAM_STR);
             $insertStmt->bindValue(':display_name', $metaName, PDO::PARAM_STR);
             $insertStmt->execute();
+            $serviceId = (int) $this->db->lastInsertId();
 
             $relStmt = $this->db->prepare(
                 'INSERT INTO host_service_relation (host_host_id, service_service_id)
-                VALUES (:host_id,
-                (SELECT service_id
-                    FROM service
-                    WHERE service_description = :service_description AND service_register = "2" LIMIT 1))'
+                VALUES (:host_id, :service_id)'
             );
             $relStmt->bindValue(':host_id', (int) $hostId, PDO::PARAM_INT);
-            $relStmt->bindValue(':service_description', $composedName, PDO::PARAM_STR);
+            $relStmt->bindValue(':service_id', $serviceId, PDO::PARAM_INT);
             $relStmt->execute();
-            $selectStmt->execute();
-            $row = $selectStmt->fetch();
-            if ($row !== false) {
-                $serviceId = $row['service_id'];
-            }
         }
 
         return $serviceId;
