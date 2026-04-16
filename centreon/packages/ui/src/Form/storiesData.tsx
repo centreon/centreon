@@ -327,7 +327,8 @@ export const basicFormInputs: Array<InputProps> = [
         {
           connectedAutocomplete: {
             additionalConditionParameters: [],
-            endpoint: 'endpoint'
+            endpoint: 'endpoint',
+            helperText: 'Hello I am testing'
           },
           fieldName: 'group',
           label: 'Group (Single connected autocomplete)',

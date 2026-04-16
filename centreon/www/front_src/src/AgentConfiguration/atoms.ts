@@ -2,7 +2,7 @@ import { SelectEntry } from '@centreon/ui';
 
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-import { equals, findIndex, remove } from 'ramda';
+import { equals, findIndex, isNotNil, remove } from 'ramda';
 
 import { AgentType } from './models';
 import {
@@ -23,7 +23,17 @@ export const itemToDeleteAtom = atom<{
 } | null>(null);
 export const agentTypeFormAtom = atom<AgentType | null>(null);
 export const openFormModalAtom = atom<number | 'add' | null>(null);
+export const isEditingAtom = atom<boolean>((get) => {
+  const modal = get(openFormModalAtom);
+
+  return isNotNil(modal) && !equals(modal, 'add');
+});
 export const askBeforeCloseFormModalAtom = atom(false);
+
+export const pollerToGenerateCommandAtom = atom<{
+  id?: number;
+  name?: string;
+} | null>(null);
 
 export const changeSortAtom = atom(
   null,

@@ -222,8 +222,11 @@ const Chart = ({
     ]
   );
 
-  const leftScale = yScalesPerUnit[axis?.axisYLeft?.unit ?? firstUnit];
-  const rightScale = yScalesPerUnit[axis?.axisYRight?.unit ?? secondUnit];
+  const fallbackLeftUnit = axis?.axisYLeft?.unit ?? firstUnit ?? allUnits[0];
+  const fallbackRightUnit = axis?.axisYRight?.unit ?? secondUnit ?? allUnits[1];
+
+  const leftScale = yScalesPerUnit[fallbackLeftUnit];
+  const rightScale = yScalesPerUnit[fallbackRightUnit];
 
   const linesDisplayedAsLine = useMemo(
     () =>

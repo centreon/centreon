@@ -27,6 +27,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 
+/**
+ * @extends AggregateRoot<PollerId>
+ */
 final class Poller extends AggregateRoot
 {
     /**
@@ -35,7 +38,10 @@ final class Poller extends AggregateRoot
     public function __construct(
         ?PollerId $id,
         public readonly PollerName $name,
+        public readonly PollerAddress $address,
+        public readonly bool $isCentral,
         public readonly Collection $globalMacros,
+        public ?PollerCMACertificates $cmaCertificates = null,
     ) {
         parent::__construct($id);
     }
@@ -48,5 +54,10 @@ final class Poller extends AggregateRoot
 
         $this->globalMacros->add($globalMacro);
         $globalMacro->addPoller($this);
+    }
+
+    public function addPollerCMACertificates(PollerCMACertificates $cmaCertificates): void
+    {
+        $this->cmaCertificates = $cmaCertificates;
     }
 }

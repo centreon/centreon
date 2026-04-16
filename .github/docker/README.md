@@ -58,6 +58,7 @@ Docker compose has a useful feature which is called `profile`.
 It allows to run additional services (containers) by specifying profiles which are declared in `docker-compose.yml`.
 Currently, the following profiles are available:
 * `poller`: register automatically a poller to centreon web image (:danger: EXPERIMENTAL)
+* `remote-server`: run a Remote Server alongside the Central, each with its own database — registers automatically (see [Remote Server setup](#satellite-remote-server-setup))
 * `glpi`: must be used with `centreon-open-tickets` image to link glpi automatically in open-tickets providers
 * `vault`: register automatically hashicorp vault and migrate credentials
 * `openid`: run a docker image of keycloak
@@ -71,9 +72,9 @@ Currently, the following profiles are available:
   * centreon configuration is done automatically with auto import enabled
   * login user: **saml** / **Centreon!2021**
   * :warning: ACLs must be configured manually
-* `openldap`: run a docker image of openldap
+* `ldap`: run a docker image of ldap
   * centreon configuration is done automatically with auto import enabled
-  * login user: **centreon-ldap** / **centreon**
+  * login user: **centreon-ldap** / **centreon-ldap** (admin bind: `cn=admin,dc=centreon,dc=com` / **centreon**)
   * :warning: ACLs must be configured manually
 * `squid-simple`: run a docker image of squid without authentication (centreon configuration must be done manually)
 * `squid-basic-auth`: run a docker image of squid with authentication (centreon configuration must be done manually)
@@ -100,6 +101,49 @@ docker compose --profile poller --profile vault -f .github/docker/docker-compose
 > Container logs can be displayed with the following command: `docker logs <container_id>`
 
 
+## :satellite: Remote Server setup
+
+Use the `remote-server` profile to run a Central server alongside a Remote Server, each with its own database.
+
+Run the following command from the **repository root directory**:
+
+```bash
+docker compose --profile remote-server -f .github/docker/docker-compose.yml up -d --wait
+```
+
+Once up, both interfaces are accessible:
+* Central: `http://localhost:4000/centreon`
+* Remote Server: `http://localhost:4001/centreon`
+* Credentials: **admin** / **Centreon!2021**
+
+The Remote Server is fully configured automatically in the background after the containers become healthy. The following steps run without manual intervention:
+
+1. Convert the Remote Server node type and register its topology to the Central (`registerServerTopology.sh`)
+2. Link the Remote Server to the Central via the wizard API (`linkCentreonRemoteServer`), which creates the monitoring server entry and configures Broker
+3. Export the initial configuration from the Central to the Remote Server
+4. Retrieve the Central's Gorgone public key thumbprint
+5. Generate the Gorgone ZMQ configuration on the Remote Server (`/etc/centreon-gorgone/config.d/40-gorgoned.yaml`)
+6. Restart Gorgone on the Remote Server to establish the ZMQ connection with the Central
+7. Generate and reload the monitoring configuration for the Remote Server from the Central
+8. Restart `cbd` and `centengine` on the Remote Server to apply the generated configuration
+9. Generate and reload the monitoring configuration for the Central to apply the Broker changes introduced by the wizard
+
+The Remote Server should appear as **running** in `Configuration > Pollers` on the Central within a minute of `--wait` returning.
+
+To follow the registration progress:
+
+```bash
+docker logs $(docker ps -qf "name=remote-server") 2>&1 | grep -i "step\|register\|link\|thumbprint\|gorgone\|generat\|running\|error\|failed"
+```
+
+The following environment variables are available to customize the setup:
+
+* `WEB_IMAGE`: centreon-web image to use for both Central and Remote Server (default: `docker.centreon.com/centreon/centreon-web-alma9:develop`)
+* `CENTREON_WEB_OS`: OS variant used to resolve the registration script path (`alma9`, `bookworm`, `jammy` — default: `alma9`)
+* `REMOTE_SERVER_NAME`: name displayed for the Remote Server in the Central UI (default: `remote-server`)
+* `CENTRAL_API_USERNAME`: API account used for registration (default: `admin`)
+* `CENTRAL_API_PASSWORD`: password for the API account (default: `Centreon!2021`)
+
 ## :hand: Stop services
 
 Services can be stopped with the following command:
@@ -108,8 +152,9 @@ Services can be stopped with the following command:
 docker compose -f .github/docker/docker-compose.yml down
 ```
 
-Do not forget to specify profiles if you used it. Otherwise, additional services will not be stopped:
+Do not forget to specify profiles if you used them. Otherwise, additional services will not be stopped:
 
 ```bash
 docker compose --profile poller --profile vault -f .github/docker/docker-compose.yml down
+docker compose --profile remote-server -f .github/docker/docker-compose.yml down
 ```

@@ -1,6 +1,6 @@
 {
   "name": "centreon/centreon-awie",
-  "version": "26.03",
+  "version": "26.05",
   "type": "project",
   "license": "Apache-2.0",
   "require": {
@@ -78,7 +78,7 @@
   "extra": {
     "symfony": {
       "allow-contrib": true,
-      "require": "7.3.*"
+      "require": "7.4.*"
     }
   }
 }

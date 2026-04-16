@@ -73,10 +73,6 @@ on:
         required: true
       xray_client_secret:
         required: true
-      artifactory_internal_repo_username:
-        required: false
-      artifactory_internal_repo_password:
-        required: false
       jira_base_url:
         required: true
       jira_user_email:
@@ -92,10 +88,19 @@ jobs:
     outputs:
       features: ${{ steps.list-features.outputs.specs }}
       has_features: ${{ steps.list-features.outputs.specs != '' && toJson(fromJson(steps.list-features.outputs.specs)) != '[]' && 'true' || 'false' }}
+      db_id: ${{ steps.get-db-id.outputs.db_id }}
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Get database identifier
+        id: get-db-id
+        run: |
+          db_id=$(echo "$DATABASE_IMAGE" | sed 's|.*/||' | tr ':' '-')
+          echo "db_id=$db_id" >> $GITHUB_OUTPUT
+        env:
+          DATABASE_IMAGE: ${{ inputs.database_image }}
 
       - name: Detect relevant E2E specs
         id: list-features
@@ -111,6 +116,9 @@ jobs:
     if: ${{ needs.cypress-e2e-test-list.outputs.features != '' && toJson(fromJson(needs.cypress-e2e-test-list.outputs.features)) != '[]' }}
     needs: [cypress-e2e-test-list]
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: read
     strategy:
       fail-fast: false
       matrix:
@@ -122,12 +130,24 @@ jobs:
     name: ${{ matrix.feature }}
 
     env:
-      IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
       SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Compute image tag
+        id: image_tag
+        env:
+          REF: ${{ github.head_ref || github.ref_name }}
+          MAJOR_VERSION: ${{ inputs.major_version }}
+        run: |
+          if [[ "$REF" == "develop" ]]; then
+            echo "tag=develop-${MAJOR_VERSION}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=$REF" >> $GITHUB_OUTPUT
+          fi
+
 
       - name: Restore packages
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
@@ -149,7 +169,12 @@ jobs:
           cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          pnpm install \
+            --frozen-lockfile \
+            --config.trustPolicy=no-downgrade \
+            --config.minimumReleaseAge=2880 \
+            --config.blockExoticSubdeps=true
         shell: bash
         env:
           CYPRESS_INSTALL_BINARY: "0"
@@ -173,6 +198,7 @@ jobs:
         shell: bash
 
       - name: Login to Registry
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
@@ -186,7 +212,7 @@ jobs:
         timeout-minutes: 6
         with:
           path: ./docker-image
-          key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
+          key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ steps.image_tag.outputs.tag }}
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
 
@@ -194,7 +220,7 @@ jobs:
         if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
         run: |
           docker load --input ../../../docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
-          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }} docker.centreon.com/centreon/${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }}
         shell: bash
 
       - name: Get test execution Key
@@ -219,14 +245,12 @@ jobs:
           CYPRESS_VERIFY_TIMEOUT: "60000"
           CYPRESS_DATABASE_IMAGE: ${{ inputs.database_image }}
           CYPRESS_WEB_IMAGE_OS: ${{ inputs.os }}
-          CYPRESS_WEB_IMAGE_VERSION: ${{ env.IMAGE_TAG }}
+          CYPRESS_WEB_IMAGE_VERSION: ${{ steps.image_tag.outputs.tag }}
           CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.major_version }}
           CYPRESS_SAML_IMAGE_VERSION: ${{ inputs.major_version }}
           CYPRESS_STABILITY: ${{ inputs.stability }}
           CYPRESS_TARGET_STABILITY: ${{ inputs.target_stability }}
           CYPRESS_IS_CLOUD: ${{ inputs.is_cloud }}
-          CYPRESS_INTERNAL_REPO_USERNAME: ${{ secrets.artifactory_internal_repo_username }}
-          CYPRESS_INTERNAL_REPO_PASSWORD: ${{ secrets.artifactory_internal_repo_password }}
 
       - name: Ensure logs directory exists
         run: mkdir -p ${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/
@@ -245,7 +269,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-results-${{ steps.feature-path.outputs.feature_name_with_dash }}
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.cypress-e2e-test-list.outputs.db_id }}-test-results-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/
           retention-days: 1
 
@@ -265,7 +289,7 @@ jobs:
         if: ${{ ! cancelled() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.cypress-e2e-test-list.outputs.db_id }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/reports/*.json
           retention-days: 1
 
@@ -273,7 +297,7 @@ jobs:
         if: ${{ ! cancelled() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.cypress-e2e-test-list.outputs.db_id }}-xray-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/*.json
           retention-days: 1
 
@@ -283,7 +307,7 @@ jobs:
     if: |
       ! cancelled() &&
       ! contains(needs.*.result, 'cancelled') &&
-      (inputs.stability == 'testing' || github.event_name == 'schedule') &&
+      (inputs.stability == 'testing' || inputs.is_nightly == 'true') &&
       needs.cypress-e2e-test-list.outputs.has_features == 'true'
     runs-on: ubuntu-24.04
     steps:
@@ -296,7 +320,7 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          pattern: ${{ inputs.name }}-${{ inputs.os }}-xray-reports-*
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.cypress-e2e-test-list.outputs.db_id }}-xray-reports-*
           path: ${{ inputs.name }}-json-xray-reports
           merge-multiple: true
 
@@ -340,7 +364,7 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          pattern: ${{ inputs.name }}-${{ inputs.os }}-test-reports-*
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.cypress-e2e-test-list.outputs.db_id }}-test-reports-*
           path: ${{ inputs.name }}-json-reports
           merge-multiple: true
 
@@ -409,8 +433,8 @@ jobs:
         uses: actions/upload-artifact/merge@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: ${{ ( contains(needs.cypress-e2e-test-run.result, 'failure') && ( matrix.type_of_report == 'test-results' || matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'xray-reports' }}
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
-          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.cypress-e2e-test-list.outputs.db_id }}-${{ matrix.type_of_report }}
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.cypress-e2e-test-list.outputs.db_id }}-${{ matrix.type_of_report }}-*
           delete-merged: false # cannot be set to true due to random fails: Failed to DeleteArtifact: Unable to make request: ECONNRESET
           retention-days: 1
 
@@ -420,5 +444,5 @@ jobs:
           ( failure() && matrix.type_of_report == 'test-results' )
         uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.cypress-e2e-test-list.outputs.db_id }}-${{ matrix.type_of_report }}-*
           failOnError: false

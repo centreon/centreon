@@ -36,6 +36,14 @@ final class FindUserPermissions
         'top_counter' => Contact::ROLE_DISPLAY_TOP_COUNTER,
         'poller_statistics' => Contact::ROLE_DISPLAY_TOP_COUNTER_POLLERS_STATISTICS,
         'configuration_host_group_write' => Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE,
+        'see_check_commands' => Contact::ROLE_SEE_CHECK_COMMANDS,
+        'manage_check_commands' => Contact::ROLE_MANAGE_CHECK_COMMANDS,
+        'see_notification_commands' => Contact::ROLE_SEE_NOTIFICATION_COMMANDS,
+        'manage_notification_commands' => Contact::ROLE_MANAGE_NOTIFICATION_COMMANDS,
+        'see_discovery_commands' => Contact::ROLE_SEE_DISCOVERY_COMMANDS,
+        'manage_discovery_commands' => Contact::ROLE_MANAGE_DISCOVERY_COMMANDS,
+        'see_miscellaneous_commands' => Contact::ROLE_SEE_MISCELLANEOUS_COMMANDS,
+        'manage_miscellaneous_commands' => Contact::ROLE_MANAGE_MISCELLANEOUS_COMMANDS,
     ];
 
     public function __invoke(ContactInterface $user): FindUserPermissionsResponse|ResponseStatusInterface
