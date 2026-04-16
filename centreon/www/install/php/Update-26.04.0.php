@@ -18,3 +18,68 @@
  * For more information : contact@centreon.com
  *
  */
+
+use Adaptation\Database\Connection\Exception\ConnectionException;
+
+require_once __DIR__ . '/../../../bootstrap.php';
+
+$version = '26.04.0';
+
+$errorMessage = '';
+
+/**
+ * @var ConnectionInterface $pearDB
+ * @var ConnectionInterface $pearDBO
+ */
+
+// TODO add your functions here
+
+try {
+    // DDL statements for real time database
+    $pearDBO->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `log_action` MODIFY COLUMN `log_contact_id` int(11) DEFAULT NULL
+            SQL
+    );
+
+    // DDL statements for configuration database
+    // TODO add your function calls to update the configuration database structure here
+
+    // Transactional queries for configuration database
+    if (! $pearDB->isTransactionActive()) {
+        $pearDB->startTransaction();
+    }
+
+    // TODO add your function calls to update the configuration database data here
+
+    $pearDB->commitTransaction();
+
+} catch (Throwable $throwable) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: " . $errorMessage,
+        exception: $throwable
+    );
+
+    try {
+        if ($pearDB->isTransactionActive()) {
+            $pearDB->rollBackTransaction();
+        }
+    } catch (ConnectionException $rollbackException) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            exception: $rollbackException
+        );
+
+        throw new RuntimeException(
+            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            previous: $rollbackException
+        );
+    }
+
+    throw new RuntimeException(
+        message: "UPGRADE - {$version}: " . $errorMessage,
+        previous: $throwable
+    );
+}

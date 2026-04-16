@@ -33,6 +33,8 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Domain\Model\NewServiceCategory;
+use Core\ServiceCategory\Domain\Model\ServiceCategory;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB implements WriteServiceCategoryRepositoryInterface
 {
@@ -47,7 +49,7 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
         private readonly WriteServiceCategoryRepositoryInterface $writeServiceCategoryRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
         private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
-        private readonly ContactInterface $user,
+        private readonly TokenStorageInterface $tokenStorage,
         DatabaseConnection $db,
     ) {
         $this->db = $db;
@@ -69,7 +71,7 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
                 objectId: $serviceCategoryId,
                 objectName: $serviceCategory->getName(),
                 actionType: ActionLog::ACTION_TYPE_DELETE,
-                contactId: $this->user->getId()
+                contactId: $this->getContactId()
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
@@ -97,7 +99,7 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
                 objectId: $serviceCategoryId,
                 objectName: $serviceCategory->getName(),
                 actionType: ActionLog::ACTION_TYPE_ADD,
-                contactId: $this->user->getId()
+                contactId: $this->getContactId()
             );
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             $actionLog->setId($actionLogId);
@@ -129,6 +131,45 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
     public function unlinkFromService(int $serviceId, array $serviceCategoriesIds): void
     {
         $this->writeServiceCategoryRepository->unlinkFromService($serviceId, $serviceCategoriesIds);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function update(ServiceCategory $serviceCategory): void
+    {
+        try {
+            $this->writeServiceCategoryRepository->update($serviceCategory);
+
+            $actionLog = new ActionLog(
+                objectType: ActionLog::OBJECT_TYPE_SERVICECATEGORIES,
+                objectId: $serviceCategory->getId(),
+                objectName: $serviceCategory->getName(),
+                actionType: ActionLog::ACTION_TYPE_CHANGE,
+                contactId: $this->getContactId()
+            );
+            $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
+            $actionLog->setId($actionLogId);
+            $details = $this->getServiceCategoryAsArray($serviceCategory);
+
+            $this->writeActionLogRepository->addActionDetails($actionLog, $details);
+
+            return;
+        } catch (\Throwable $ex) {
+            $this->error(
+                'Error while updating a service category',
+                ['serviceCategory' => $serviceCategory, 'trace' => (string) $ex]
+            );
+
+            throw $ex;
+        }
+    }
+
+    private function getContactId(): ?int
+    {
+        $user = $this->tokenStorage->getToken()?->getUser();
+
+        return $user instanceof ContactInterface ? $user->getId() : null;
     }
 
     /**
