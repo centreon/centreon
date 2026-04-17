@@ -439,7 +439,12 @@ jobs:
             echo "tag=develop-${MAJOR_VERSION}" >> $GITHUB_OUTPUT
             echo "additional_tag=develop" >> $GITHUB_OUTPUT
           else
-            echo "tag=$REF" >> $GITHUB_OUTPUT
+            SANITIZED_REF="$(printf '%s' "$REF" | sed -E 's#[^[:alnum:]_.-]+#-#g; s#^[.-]+##; s#-+#-#g' | cut -c1-128)"
+            if [[ -z "$SANITIZED_REF" ]]; then
+              echo "::error::Unable to derive a valid Docker tag from ref '$REF'"
+              exit 1
+            fi
+            echo "tag=$SANITIZED_REF" >> $GITHUB_OUTPUT
             echo "additional_tag=" >> $GITHUB_OUTPUT
           fi
         shell: bash
