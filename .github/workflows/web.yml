@@ -333,7 +333,7 @@ jobs:
           repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
           ref: ${{ github.head_ref || github.ref_name }}
           fetch-depth: 10
-          token: ${{ needs.get-environment.outputs.is_fork == 'true' && secrets.GITHUB_TOKEN || secrets.CENTREON_TECHNIQUE_PAT }}
+          token: ${{ github.event.pull_request.head.repo.fork == true && secrets.GITHUB_TOKEN || secrets.CENTREON_TECHNIQUE_PAT }}
 
       - name: Build translations
         id: build-translations
@@ -373,7 +373,7 @@ jobs:
           frontend_directory: ${{ env.base_directory }}
           module_name: centreon
           dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-          pat: ${{ needs.get-environment.outputs.is_fork == 'true' && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
+          pat: ${{ github.event.pull_request.head.repo.fork == true && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
           lint_path: ./www/front_src/
 
   frontend-unit-test:
@@ -740,7 +740,7 @@ jobs:
           frontend_directory: ${{ env.e2e_directory }}
           module_name: ${{ env.base_directory }}
           dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-          pat: ${{ needs.get-environment.outputs.is_fork == 'true' && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
+          pat: ${{ github.event.pull_request.head.repo.fork == true && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
           lint_path: './features'
 
   package:
@@ -876,9 +876,9 @@ jobs:
           arch: all
           commit_hash: ${{ github.sha }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
-          rpm_gpg_key: ${{ needs.get-environment.outputs.is_fork == 'false' && secrets.RPM_GPG_SIGNING_KEY || '' }}
-          rpm_gpg_signing_key_id: ${{ needs.get-environment.outputs.is_fork == 'false' && secrets.RPM_GPG_SIGNING_KEY_ID || '' }}
-          rpm_gpg_signing_passphrase: ${{ needs.get-environment.outputs.is_fork == 'false' && secrets.RPM_GPG_SIGNING_PASSPHRASE || '' }}
+          rpm_gpg_key: ${{ github.event.pull_request.head.repo.fork != true && secrets.RPM_GPG_SIGNING_KEY || '' }}
+          rpm_gpg_signing_key_id: ${{ github.event.pull_request.head.repo.fork != true && secrets.RPM_GPG_SIGNING_KEY_ID || '' }}
+          rpm_gpg_signing_passphrase: ${{ github.event.pull_request.head.repo.fork != true && secrets.RPM_GPG_SIGNING_PASSPHRASE || '' }}
           stability: ${{ needs.get-environment.outputs.stability }}
           is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
           upload_artifacts: ${{ needs.get-environment.outputs.is_nightly == 'true' || contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
@@ -953,7 +953,7 @@ jobs:
         shell: bash
 
       - name: Login to registry
-        if: ${{ needs.get-environment.outputs.is_fork == 'false' }}
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
@@ -1015,7 +1015,7 @@ jobs:
             "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
           pull: true
-          push: ${{ needs.get-environment.outputs.is_fork == 'false' }}
+          push: ${{ github.event.pull_request.head.repo.fork != true }}
           load: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -1028,7 +1028,7 @@ jobs:
         shell: bash
 
       - name: Clear previous docker image from cache
-        if: ${{ needs.get-environment.outputs.is_fork == 'false' }}
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
         run: |
           curl \
             -X DELETE \
@@ -1053,7 +1053,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       (needs.get-environment.outputs.stability == 'testing' || needs.get-environment.outputs.is_nightly == 'true') &&
-      needs.get-environment.outputs.is_fork == 'false'
+      github.event.pull_request.head.repo.fork != true
     strategy:
       fail-fast: false
       matrix:
@@ -1265,7 +1265,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       github.event_name != 'workflow_dispatch' &&
-      needs.get-environment.outputs.is_fork == 'false' &&
+      github.event.pull_request.head.repo.fork != true &&
       needs.get-environment.outputs.is_cloud == 'false'
 
     steps:
@@ -1297,7 +1297,7 @@ jobs:
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability == 'stable' &&
       github.event_name != 'workflow_dispatch' &&
-      needs.get-environment.outputs.is_fork == 'false'
+      github.event.pull_request.head.repo.fork != true
     steps:
       - name: Checkout sources
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -1391,7 +1391,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       needs.changes.outputs.trigger_delivery == 'true' &&
-      needs.get-environment.outputs.is_fork == 'false'
+      github.event.pull_request.head.repo.fork != true
     strategy:
       matrix:
         distrib: [el9]
@@ -1431,7 +1431,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       needs.changes.outputs.trigger_delivery == 'true' &&
-      needs.get-environment.outputs.is_fork == 'false' &&
+      github.event.pull_request.head.repo.fork != true &&
       (needs.get-environment.outputs.is_cloud == 'false' || needs.get-environment.outputs.stability == 'unstable')
     strategy:
       matrix:
@@ -1461,7 +1461,7 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      needs.get-environment.outputs.is_fork == 'false'
+      github.event.pull_request.head.repo.fork != true
     runs-on: centreon-common
     strategy:
       matrix:
@@ -1497,7 +1497,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [get-environment, deliver-deb, deliver-rpm]
     env:
-      GH_TOKEN: ${{ needs.get-environment.outputs.is_fork == 'true' && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
+      GH_TOKEN: ${{ github.event.pull_request.head.repo.fork == true && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
     if: |
       needs.get-environment.outputs.is_nightly == 'true' &&
       ! cancelled() &&
@@ -1528,7 +1528,7 @@ jobs:
       needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
       (failure() || cancelled() || contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) &&
       startsWith(github.ref_name, 'dev') &&
-      needs.get-environment.outputs.is_fork == 'false'
+      github.event.pull_request.head.repo.fork != true
     steps:
       - name: Checkout sources
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
