@@ -82,24 +82,21 @@ jobs:
       github.event.pull_request.head.repo.fork != true
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         distrib: [el9, bookworm]
         include:
           - package_extension: rpm
-            image: packaging-nfpm-alma9
+            tag_suffix: -alma9
             distrib: el9
           - package_extension: deb
-            image: packaging-nfpm-bookworm
+            tag_suffix: -bookworm
             distrib: bookworm
 
     runs-on: ubuntu-24.04
 
     container:
-      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
-      credentials:
-        username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
-        password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}${{ matrix.tag_suffix }}
 
     name: package ${{ matrix.distrib }}
 
