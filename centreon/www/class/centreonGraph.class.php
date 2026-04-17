@@ -230,7 +230,7 @@ class CentreonGraph
         $this->getIndexData();
 
         $this->filename = $this->indexData['host_name'] . '-' . $this->indexData['service_description'];
-        $this->filename = str_replace(['/', '\\'], ['-', '-'], $this->filename);
+        $this->filename = str_replace(['/', '\\', '"', "\r", "\n"], '-', $this->filename);
 
         $this->colorCache = null;
         $this->templateInformations = [];
