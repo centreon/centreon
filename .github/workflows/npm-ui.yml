@@ -29,7 +29,7 @@ jobs:
       id-token: write  # Required for OIDC
       contents: read
     needs: [dependency-scan]
-    if: github.repository == 'centreon/centreon'
+    if: github.event.pull_request.head.repo.fork != true
     uses: ./.github/workflows/npm-publish-package.yml
     with:
       package_directory: "centreon/packages/ui"
