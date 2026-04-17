@@ -1,29 +1,29 @@
 import {
   ContentWithCircularLoading,
   useGraphQuery,
-  useRefreshInterval,
-} from "@centreon/ui";
-import { isOnPublicPageAtom } from "@centreon/ui-context";
+  useRefreshInterval
+} from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import { useAtomValue } from "jotai";
-import { equals, isNil, last } from "ramda";
-import { type ReactElement } from "react";
+import { useAtomValue } from 'jotai';
+import { equals, isNil, last } from 'ramda';
+import { type ReactElement } from 'react';
 
-import type { GlobalRefreshInterval, Metric, Resource } from "../../models";
-import NoResources from "../../NoResources";
-import useThresholds from "../../useThresholds";
+import type { GlobalRefreshInterval, Metric, Resource } from '../../models';
+import NoResources from '../../NoResources';
+import useThresholds from '../../useThresholds';
 import {
   areResourcesFullfilled,
   getIsMetaServiceSelected,
-  getWidgetEndpoint,
-} from "../../utils";
-import { selectEndpoint } from "./api/endpoints";
+  getWidgetEndpoint
+} from '../../utils';
+import { selectEndpoint } from './api/endpoints';
 import type {
   FormThreshold,
   SingleMetricGraphType,
-  ValueFormat,
-} from "./models";
-import SingleMetricRenderer from "./SingleMetricRenderer";
+  ValueFormat
+} from './models';
+import SingleMetricRenderer from './SingleMetricRenderer';
 
 interface Props {
   dashboardId: number | string;
@@ -34,7 +34,7 @@ interface Props {
   metrics: Array<Metric>;
   playlistHash?: string;
   refreshCount: number;
-  refreshInterval: "default" | "custom" | "manual";
+  refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
   resources: Array<Resource>;
   threshold: FormThreshold;
@@ -58,13 +58,13 @@ const Graph = ({
   dashboardId,
   id,
   widgetPrefixQuery,
-  isInViewport,
+  isInViewport
 }: Props): ReactElement => {
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,
     refreshInterval,
-    refreshIntervalCustom,
+    refreshIntervalCustom
   });
 
   const isMetaServiceSelected = getIsMetaServiceSelected(resources);
@@ -74,8 +74,8 @@ const Graph = ({
 
   const getServiceId = () => {
     const service = last(
-      resources.find(({ resourceType }) => equals(resourceType, "service"))
-        ?.resources || [],
+      resources.find(({ resourceType }) => equals(resourceType, 'service'))
+        ?.resources || []
     );
 
     if (isMetaServiceSelected) {
@@ -87,8 +87,8 @@ const Graph = ({
   };
 
   const hostId = last(
-    resources.find(({ resourceType }) => !equals(resourceType, "service"))
-      ?.resources || [],
+    resources.find(({ resourceType }) => !equals(resourceType, 'service'))
+      ?.resources || []
   )?.id;
 
   const baseEndpoint = getWidgetEndpoint({
@@ -97,12 +97,12 @@ const Graph = ({
       hostId,
       idForService: getServiceId(),
       isMetaServiceSelected,
-      metricName,
+      metricName
     }),
     displayType,
     isOnPublicPage,
     playlistHash,
-    widgetId: id,
+    widgetId: id
   });
 
   const { graphData, isGraphLoading, isMetricsEmpty } = useGraphQuery({
@@ -116,19 +116,19 @@ const Graph = ({
     prefix: widgetPrefixQuery,
     refreshCount,
     refreshInterval: refreshIntervalToUse,
-    resources,
+    resources
   });
 
-  const displayAsRaw = equals("raw")(valueFormat);
+  const displayAsRaw = equals('raw')(valueFormat);
 
   const formattedGraphData = graphData
     ? {
-      ...graphData,
-      metrics: graphData?.metrics?.map((metric) => ({
-        ...metric,
-        data: [metric?.current_value],
-      })),
-    }
+        ...graphData,
+        metrics: graphData?.metrics?.map((metric) => ({
+          ...metric,
+          data: [metric?.current_value]
+        }))
+      }
     : undefined;
 
   const formattedThresholds = useThresholds({
@@ -136,7 +136,7 @@ const Graph = ({
     displayAsRaw,
     isMetaServiceSelected,
     metricName,
-    thresholds: threshold,
+    thresholds: threshold
   });
 
   const areResourcesOk = areResourcesFullfilled(resources);
@@ -151,20 +151,20 @@ const Graph = ({
 
   const filteredGraphData = formattedGraphData
     ? {
-      ...formattedGraphData,
-      metrics: isMetaServiceSelected
-        ? formattedGraphData.metrics
-        : formattedGraphData.metrics.filter((metric) =>
-          equals(metricId, metric.metric_id),
-        ),
-    }
+        ...formattedGraphData,
+        metrics: isMetaServiceSelected
+          ? formattedGraphData.metrics
+          : formattedGraphData.metrics.filter((metric) =>
+              equals(metricId, metric.metric_id)
+            )
+      }
     : formattedGraphData;
 
   const props = {
     baseColor: threshold.baseColor,
     data: filteredGraphData,
     displayAsRaw,
-    thresholds: formattedThresholds,
+    thresholds: formattedThresholds
   };
 
   return (

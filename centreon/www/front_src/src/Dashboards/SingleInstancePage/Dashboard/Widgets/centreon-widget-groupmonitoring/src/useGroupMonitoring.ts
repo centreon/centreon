@@ -3,20 +3,20 @@ import {
   type ListingModel,
   useDeepCompare,
   useFetchQuery,
-  useRefreshInterval,
-} from "@centreon/ui";
-import { isOnPublicPageAtom } from "@centreon/ui-context";
+  useRefreshInterval
+} from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import { useAtomValue } from "jotai";
-import { inc, isEmpty, pluck } from "ramda";
-import { useEffect, useRef } from "react";
+import { useAtomValue } from 'jotai';
+import { inc, isEmpty, pluck } from 'ramda';
+import { useEffect, useRef } from 'react';
 
-import { SortOrder } from "../../models";
-import { getWidgetEndpoint, isResourceString } from "../../utils";
-import { groupsDecoder } from "./api/decoders";
-import { getEndpoint } from "./api/endpoints";
-import type { FormattedGroup, Group, WidgetProps } from "./models";
-import { getResourceTypeName } from "./utils";
+import { SortOrder } from '../../models';
+import { getWidgetEndpoint, isResourceString } from '../../utils';
+import { groupsDecoder } from './api/decoders';
+import { getEndpoint } from './api/endpoints';
+import type { FormattedGroup, Group, WidgetProps } from './models';
+import { getResourceTypeName } from './utils';
 
 interface UseGroupMonitoringState {
   changeLimit: (newLimit: number) => void;
@@ -47,7 +47,7 @@ export const useGroupMonitoring = ({
   id,
   playlistHash,
   widgetPrefixQuery,
-  isInViewport,
+  isInViewport
 }: WidgetProps): UseGroupMonitoringState => {
   const isFirstMountRef = useRef(true);
   const limitRef = useRef(10);
@@ -57,7 +57,7 @@ export const useGroupMonitoring = ({
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,
     refreshInterval: panelOptions.refreshInterval,
-    refreshIntervalCustom: panelOptions.refreshIntervalCustom,
+    refreshIntervalCustom: panelOptions.refreshIntervalCustom
   });
 
   const resource = panelData.resources[0];
@@ -67,12 +67,12 @@ export const useGroupMonitoring = ({
 
   const limitToUse = limit || 10;
   const pageToUse = page || 0;
-  const sortFieldToUse = sortField || "name";
+  const sortFieldToUse = sortField || 'name';
   const sortOrderToUse = sortOrder || SortOrder.Asc;
 
   const key = [
     widgetPrefixQuery,
-    "groupmonitoring",
+    'groupmonitoring',
     resource?.resourceType,
     JSON.stringify(resource?.resources),
     JSON.stringify(statuses),
@@ -80,7 +80,7 @@ export const useGroupMonitoring = ({
     pageToUse,
     sortFieldToUse,
     sortOrderToUse,
-    refreshCount,
+    refreshCount
   ];
 
   const { data, isLoading } = useFetchQuery<ListingModel<Group>>({
@@ -92,55 +92,55 @@ export const useGroupMonitoring = ({
           baseEndpoint: getEndpoint(resource?.resourceType),
           customQueryParameters: [
             {
-              name: "show_service",
-              value: true,
+              name: 'show_service',
+              value: true
             },
             {
-              name: "show_host",
-              value: true,
-            },
+              name: 'show_host',
+              value: true
+            }
           ],
           parameters: {
             limit: limitToUse,
             page: inc(pageToUse),
             search: hasResourcesDefined
               ? {
-                conditions: isResourceString(resource?.resources)
-                  ? [
-                    {
-                      field: "name",
-                      values: {
-                        $rg: resource?.resources,
-                      },
-                    },
-                  ]
-                  : undefined,
-                lists: !isResourceString(resource?.resources)
-                  ? [
-                    {
-                      field: "name",
-                      values: pluck("name", resource?.resources),
-                    },
-                  ]
-                  : undefined,
-              }
+                  conditions: isResourceString(resource?.resources)
+                    ? [
+                        {
+                          field: 'name',
+                          values: {
+                            $rg: resource?.resources
+                          }
+                        }
+                      ]
+                    : undefined,
+                  lists: !isResourceString(resource?.resources)
+                    ? [
+                        {
+                          field: 'name',
+                          values: pluck('name', resource?.resources)
+                        }
+                      ]
+                    : undefined
+                }
               : undefined,
             sort: {
-              [sortFieldToUse]: sortOrderToUse.toUpperCase(),
-            },
-          },
+              [sortFieldToUse]: sortOrderToUse.toUpperCase()
+            }
+          }
         }),
         isOnPublicPage,
         playlistHash,
-        widgetId: id,
+        widgetId: id
       }),
     getQueryKey: () => key,
     queryOptions: {
       enabled: (isInViewport ?? true) && hasResourceTypeDefined,
       refetchInterval: !isFromPreview ? refreshIntervalToUse : false,
-      suspense: false,
+      suspense: false
     },
-    useLongCache: true,
+    useLongCache: true
   });
 
   const changeLimit = (newLimit: number): void => {
@@ -169,22 +169,22 @@ export const useGroupMonitoring = ({
 
       changePage(0);
     },
-    useDeepCompare([resource?.resources]),
+    useDeepCompare([resource?.resources])
   );
 
   const formattedListing: ListingModel<FormattedGroup> | undefined = data && {
     ...data,
     result: data.result.map((hosts) => ({
       ...hosts,
-      statuses,
-    })),
+      statuses
+    }))
   };
 
   return {
     changeLimit,
     changePage,
     changeSort,
-    groupType: resource?.resourceType || "",
+    groupType: resource?.resourceType || '',
     groupTypeName: getResourceTypeName(resource?.resourceType),
     hasResourceTypeDefined,
     isLoading,
@@ -192,6 +192,6 @@ export const useGroupMonitoring = ({
     listing: formattedListing,
     page: pageToUse,
     sortField: sortFieldToUse,
-    sortOrder: sortOrderToUse,
+    sortOrder: sortOrderToUse
   };
 };
