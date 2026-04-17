@@ -63,6 +63,10 @@ msgstr "Absolute value for warning level (low threshold)."
 msgid "Additional Remote Server to which this server will be attached"
 msgstr "Additional Remote Server to which this server will be attached"
 
+#: centreon/www/include/configuration/configServers/help.php
+msgid "Address of the poller"
+msgstr "Address of the poller"
+
 #: centreon/www/include/configuration/configObject/contact/help.php
 msgid ""
 "Addresses 1-6 are optional and used to define additional \"addresses\" for "
@@ -548,6 +552,10 @@ msgstr ""
 "send. Additionally the format and the parameters of the trap can be "
 "described."
 
+#: centreon/www/include/configuration/configObject/hostgroup/help.php
+msgid "Comments on this host group."
+msgstr ""
+
 #: centreon/www/include/configuration/configObject/command/help.php
 msgid "Comments regarding the command."
 msgstr "Comments regarding the command."
@@ -710,6 +718,15 @@ msgstr "Define a short name for this dependency."
 msgid "Define a short name to identify the time period."
 msgstr "Define a short name to identify the time period."
 
+#: centreon/www/include/configuration/configObject/hostgroup/help.php
+msgid ""
+"Define an image that should be associated with this host group in the "
+"statusmap CGI in monitoring engine. You can choose a JPEG, PNG, and GIF "
+"image. The GD2 image format is preferred, as other image formats must be "
+"converted first when the statusmap image is generated. The image will look "
+"best if it is 40x40 pixels in size."
+msgstr ""
+
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
 "Define an image that should be associated with this host in the statusmap "
@@ -723,6 +740,13 @@ msgstr ""
 "image format is preferred, as other image formats must be converted first "
 "when the statusmap image is generated. The image will look best if it is "
 "40x40 pixels in size."
+
+#: centreon/www/include/configuration/configObject/hostgroup/help.php
+msgid ""
+"Define an optional URL that can be used to provide more actions to be "
+"performed on the host group. You will see the link to the action URL in the "
+"host group details."
+msgstr ""
 
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
@@ -744,7 +768,20 @@ msgstr ""
 "performed on the service. You will see the link to the action URL in the "
 "service details."
 
+#: centreon/www/include/configuration/configObject/hostgroup/help.php
+msgid ""
+"Define an optional URL that can be used to provide more information about "
+"the host group. Any valid URL can be used. This can be very useful if you "
+"want to make detailed information on the host group, emergency contact "
+"methods, etc. available to other support staff."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/hostgroup/help.php
+msgid "Define an optional string of notes pertaining to the host group."
+msgstr ""
+
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/hostgroup/help.php
 #: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
 "Define an optional string that is used in the alternative description of the "
@@ -898,6 +935,13 @@ msgstr ""
 "Define the host states for which notifications can be sent out to this "
 "contact. If you specify None as an option, the contact will not receive any "
 "type of host notifications."
+
+#: centreon/www/include/configuration/configObject/hostgroup/help.php
+msgid ""
+"Define the image that should be associated with this host group here. This "
+"image will be displayed in the various places. The image will look best if "
+"it is 40x40 pixels in size."
+msgstr ""
 
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
@@ -1640,6 +1684,13 @@ msgstr "Generate a light database for traps."
 msgid "Generates configuration files and stores them in cache directory."
 msgstr "Generates configuration files and stores them in cache directory."
 
+#: centreon/www/include/configuration/configObject/hostgroup/help.php
+msgid ""
+"Geographic coordinates to allow Centreon MAP to plot the host group on a "
+"geographic view. Format: Latitude,Longitude. For example, Paris' coordinates "
+"are 48.51,2.20"
+msgstr ""
+
 #: centreon/www/include/configuration/configObject/host/help.php
 #: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
@@ -1713,6 +1764,10 @@ msgstr ""
 msgid "Host(s) to which the service is attached"
 msgstr "Host(s) to which the service is attached"
 
+#: centreon/www/include/configuration/configObject/hostgroup/help.php
+msgid "Hosts belonging to the group"
+msgstr ""
+
 #: centreon/www/include/options/accessLists/resourcesACL/help.php
 msgid ""
 "Hosts that will be displayed to users. Services that belong to these hosts "
@@ -1748,10 +1803,6 @@ msgid ""
 msgstr ""
 "IP Address or hostname to communicate with Gorgone API. Should remain "
 "default value (Default: \"127.0.0.1\")."
-
-#: centreon/www/include/configuration/configServers/help.php
-msgid "IP address of the poller"
-msgstr ""
 
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "IP address or hostname of the database server."
@@ -1912,14 +1963,6 @@ msgid ""
 msgstr ""
 "Illegal characters in external commands. Those characters will be removed "
 "before being processed by Centreon Gorgone."
-
-#: centreon/www/include/options/accessLists/resourcesACL/help.php
-msgid ""
-"Image folders that will be displayed to users. Images that belong to these "
-"folders will be visible."
-msgstr ""
-"Image folders that will be displayed to users. Images that belong to these "
-"folders will be visible."
 
 #: centreon/www/include/options/media/images/help.php
 msgid "Images."
@@ -2159,6 +2202,12 @@ msgstr "Name of menu rule."
 #: centreon/www/include/options/accessLists/resourcesACL/help.php
 msgid "Name of resource rule."
 msgstr "Name of resource rule."
+
+#: centreon/www/include/configuration/configObject/hostgroup/help.php
+msgid ""
+"Name of the host group. It must be unique and cannot contain white spaces, "
+"or special characters like ~!$%^&*\"|'<>?,()=."
+msgstr ""
 
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
@@ -2451,6 +2500,12 @@ msgstr "RRD file directory, for example /var/lib/centreon/metrics"
 msgid "RRD file directory, for example /var/lib/centreon/status"
 msgstr "RRD file directory, for example /var/lib/centreon/status"
 
+#: centreon/www/include/configuration/configObject/hostgroup/help.php
+msgid ""
+"RRD retention duration of all the services that are in this host group. If "
+"service is in multiple host groups, the highest retention value will be used."
+msgstr ""
+
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "RRD storage duration in seconds."
 msgstr "RRD storage duration in seconds."
@@ -2518,6 +2573,10 @@ msgstr "Remote host to copy by SCP"
 #: centreon/www/include/Administration/parameters/backup/help.php
 msgid "Remote user used by SCP"
 msgstr "Remote user used by SCP"
+
+#: centreon/www/include/configuration/configObject/hostgroup/help.php
+msgid "Resource access rule to which the host group should be linked"
+msgstr ""
 
 #: centreon/www/include/configuration/configObject/servicegroup/help.php
 msgid "Resource access rule to which the service group should be linked"
@@ -2589,13 +2648,10 @@ msgstr "Search timeout"
 
 #: centreon/www/include/options/media/images/help.php
 msgid ""
-"Select a local file to upload. You can upload jpg, png, gif, gd2 and svg "
-"files. Multiple images can be uploaded together inside archives like zip, "
-"tar, tar.gz or tar.bz2."
+"Select a local file to upload. You can upload jpg, png, gif and gd2 files. "
+"Multiple images can be uploaded together inside archives like zip, tar, "
+"tar.gz or tar.bz2."
 msgstr ""
-"Select a local file to upload. You can upload jpg, png, gif, gd2 and svg "
-"files. Multiple images can be uploaded together inside archives like zip, "
-"tar, tar.gz or tar.bz2."
 
 #: centreon/www/include/configuration/configObject/escalation/help.php
 msgid ""
@@ -3130,6 +3186,7 @@ msgstr ""
 "by login in autologin or * in LDAP import"
 
 #: centreon/www/include/configuration/configObject/host/help.php
+#: centreon/www/include/configuration/configObject/hostgroup/help.php
 msgid ""
 "The SNMP community and version specified here can be referenced in the check "
 "command by using the $_HOSTSNMPCOMMUNITY$ and $_HOSTSNMPVERSION$ macros."
@@ -3557,6 +3614,13 @@ msgstr ""
 "the service group. If you specify a note here, you will see it in the "
 "extended information CGI (when you are viewing information about the "
 "specified service group)."
+
+#: centreon/www/include/configuration/configObject/hostgroup/help.php
+msgid ""
+"This directive is used to define is a longer name or description used to "
+"identify the host group.It is provided in order to allow you to more easily "
+"identify a particular host group."
+msgstr ""
 
 #: centreon/www/include/configuration/configObject/host_dependency/help.php
 #: centreon/www/include/configuration/configObject/service_dependency/help.php
@@ -5267,6 +5331,12 @@ msgstr ""
 "contact groups in this contact group. Specify a list of other contact groups "
 "whose members should be included in this group."
 
+#: centreon/www/include/configuration/configObject/hostgroup/help.php
+msgid ""
+"This optional directive can be used to include hosts from other host groups "
+"in this host group."
+msgstr ""
+
 #: centreon/www/include/configuration/configObject/servicegroup/help.php
 msgid ""
 "This optional directive can be used to include services from other \"sub\" "
@@ -5676,6 +5746,10 @@ msgstr ""
 "Whether this category is a severity. Severities appear on the monitoring "
 "consoles."
 
+#: centreon/www/include/configuration/configObject/hostgroup/help.php
+msgid "Whether this host group is enabled."
+msgstr ""
+
 #: centreon/www/include/views/graphTemplates/help.php
 msgid "Width of grid. Used to export the chart."
 msgstr "Width of grid. Used to export the chart."
@@ -5829,8 +5903,12 @@ msgstr ""
 "days."
 
 #: unknown
-msgid "Address of the poller"
-msgstr "Address of the poller"
+msgid ""
+"Image folders that will be displayed to users. Images that belong to "
+"these folders will be visible."
+msgstr ""
+"Image folders that will be displayed to users. Images that belong to "
+"these folders will be visible."
 
 #: unknown
 msgid ""
@@ -5839,3 +5917,13 @@ msgid ""
 msgstr ""
 "MySQL configuration file path (e.g. /etc/my.cnf.d/centreon.cnf); leave "
 "empty to use the default value."
+
+#: unknown
+msgid ""
+"Select a local file to upload. You can upload jpg, png, gif, gd2 and svg "
+"files. Multiple images can be uploaded together inside archives like zip, "
+"tar, tar.gz or tar.bz2."
+msgstr ""
+"Select a local file to upload. You can upload jpg, png, gif, gd2 and svg "
+"files. Multiple images can be uploaded together inside archives like zip, "
+"tar, tar.gz or tar.bz2."
