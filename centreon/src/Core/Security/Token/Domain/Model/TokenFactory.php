@@ -60,7 +60,8 @@ use Respect\Validation\Exceptions\DateTimeException;
  *      creation_date: int,
  *      expiration_date: ?int,
  *      token_type: string,
- *      is_revoked: int
+ *      is_revoked: int,
+ *      token_string:string,
  *  }
  *
  * @phpstan-type _Token array{
@@ -116,7 +117,7 @@ final class TokenFactory
      * @param _Token $data
      *
      * @throws DateTimeException
-     * @return ApiToken|JwtToken
+     * @return ApiToken|JwtToken|PollerToken
      */
     public static function create(
         TokenTypeEnum $type,
@@ -143,12 +144,13 @@ final class TokenFactory
                 $token = new PollerToken(
                     new TrimmedString($data['name']),
                     $data['creator_id'] ?? null,
-                    $data['creator_name'] ? new TrimmedString($data['creator_name']) : null,
+                    new TrimmedString($data['creator_name']),
                     (new DateTimeImmutable())->setTimestamp($data['creation_date']),
                     $data['expiration_date'] !== null
                     ? (new DateTimeImmutable())->setTimestamp($data['expiration_date'])
                     : null,
-                    (bool) $data['is_revoked']
+                    (bool) $data['is_revoked'],
+                    $data['token_string'],
                 );
                 break;
             default:
@@ -176,7 +178,7 @@ final class TokenFactory
      * @param _NewToken $data
      *
      * @throws DateTimeException
-     * @return NewApiToken|NewJwtToken
+     * @return NewApiToken|NewJwtToken|NewPollerToken
      */
     public static function createNew(TokenTypeEnum $type, array $data): NewToken
     {
@@ -194,9 +196,9 @@ final class TokenFactory
                 /** @var _NewPollerToken $data */
                 $token = new NewPollerToken(
                     new TrimmedString($data['name']),
+                    $data['creator_name'] ? new TrimmedString($data['creator_name']) : new TrimmedString('system'),
                     $data['expiration_date'],
                     $data['creator_id'] ?? null,
-                    $data['creator_name'] ? new TrimmedString($data['creator_name']) : null,
                 );
                 break;
             default:

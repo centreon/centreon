@@ -41,7 +41,6 @@ use Core\Security\Token\Domain\Model\NewPollerToken;
 use Core\Security\Token\Domain\Model\NewToken;
 use Core\Security\Token\Domain\Model\PollerToken;
 use Core\Security\Token\Domain\Model\Token;
-use Core\Security\Token\Domain\Model\TokenTypeEnum;
 
 class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRepositoryInterface
 {
@@ -105,6 +104,7 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
             if ($newToken instanceof NewApiToken) {
                 $this->addApiToken($newToken);
             } else {
+                /** @var NewJwtToken|NewPollerToken $newToken */
                 $this->addAuthenticationToken($newToken);
             }
         } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
@@ -134,6 +134,7 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
             if ($token instanceof ApiToken) {
                 $this->updateApiToken($token);
             } else {
+                /** @var JwtToken|PollerToken $token */
                 $this->updateAuthenticationToken($token);
             }
         } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
@@ -165,6 +166,7 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
         $this->connection->insert(
             $this->connection->createQueryBuilder()->insert('authentication_tokens')
                 ->values([
+                    'type' => ':tokenType',
                     'token_string' => ':tokenString',
                     'token_name' => ':tokenName',
                     'creator_id' => ':creatorId',
@@ -175,11 +177,12 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
                 ])
                 ->getQuery(),
             QueryParameters::create([
+                QueryParameter::string('tokenType', mb_strtolower($token->getType()->name)),
                 QueryParameter::string('tokenString', $token->getToken()),
                 QueryParameter::string('tokenName', $token->getName()),
                 QueryParameter::int('creatorId', $token->getCreatorId()),
                 QueryParameter::string('creatorName', $token->getCreatorName()),
-                QueryParameter::string('encodingKey', $token->getType() === TokenTypeEnum::CMA ? $token->getEncodingKey() : null),
+                QueryParameter::string('encodingKey', $token instanceof NewJwtToken ? $token->getEncodingKey() : null),
                 QueryParameter::int('createdAt', $token->getCreationDate()->getTimestamp()),
                 QueryParameter::int('expireAt', $token->getExpirationDate()?->getTimestamp()),
             ])

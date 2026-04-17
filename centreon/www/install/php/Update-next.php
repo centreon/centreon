@@ -873,8 +873,11 @@ $updateAuthenticationTable = function () use ($pearDB, &$errorMessage, $version)
     $tableExistWithOldName = $pearDB->fetchOne(
         <<<'SQL'
             SELECT true FROM INFORMATION_SCHEMA.TABLES
-            WHERE table_schema = 'db_name' AND table_name LIKE 'jwt_tokens'
-            SQL
+            WHERE table_schema = :db_name AND table_name LIKE 'jwt_tokens'
+            SQL,
+        QueryParameters::create([
+            QueryParameter::create('db_name', $pearDB->getDatabaseName()),
+        ])
     );
     if (! $tableExistWithOldName) {
         CentreonLog::create()->info(
@@ -891,7 +894,7 @@ $updateAuthenticationTable = function () use ($pearDB, &$errorMessage, $version)
     );
     $pearDB->executeStatement(
         <<<'SQL'
-            ALTER TABLE `jwt_tokens` RENAME TO `authentication_tokens`, MODIFY COMMENT 'Table for tokens not used for api/ui login'
+            ALTER TABLE `jwt_tokens` RENAME TO `authentication_tokens`, COMMENT 'Table for tokens not used for api/ui login'
             SQL
     );
 
@@ -916,7 +919,7 @@ $updateAuthenticationTable = function () use ($pearDB, &$errorMessage, $version)
         <<<'SQL'
             ALTER TABLE `authentication_tokens`
             ADD COLUMN `type` enum('cma','poller') DEFAULT 'cma' COMMENT 'Define token usage',
-            ALTER COLUMN `token_string` SET COMMENT 'token string',
+            MODIFY COLUMN `token_string` varchar(4096) DEFAULT NULL COMMENT 'token string'
             SQL
     );
 };

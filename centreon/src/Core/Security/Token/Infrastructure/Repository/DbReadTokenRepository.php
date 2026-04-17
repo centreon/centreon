@@ -160,7 +160,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
             if ($result !== []) {
                 /** @var _Token $result */
                 return TokenFactory::create(
-                    $result['token_type'] === 'JWT' ? TokenTypeEnum::CMA : TokenTypeEnum::API,
+                    \constant(TokenTypeEnum::class . '::' . mb_strtoupper($result['token_type'])),
                     $result
                 );
             }
@@ -241,7 +241,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
             foreach ($data as $row) {
                 /** @var _Token $row */
                 $results[$row['name']] = TokenFactory::create(
-                    TokenTypeEnum::CMA,
+                    \constant(TokenTypeEnum::class . '::' . mb_strtoupper($row['token_type'])),
                     $row
                 );
             }
@@ -341,7 +341,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
 
             /** @var _Token $result */
             return TokenFactory::create(
-                $result['token_type'] === 'JWT' ? TokenTypeEnum::CMA : TokenTypeEnum::API,
+                \constant(TokenTypeEnum::class . '::' . mb_strtoupper($result['token_type'])),
                 $result
             );
 
@@ -584,7 +584,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
             foreach ($results as $result) {
                 /** @var _Token $result */
                 $tokens[] = TokenFactory::create(
-                    \constant("TokenTypeEnum::{$result['token_type']}"),
+                    \constant(TokenTypeEnum::class . '::' . mb_strtoupper($result['token_type'])),
                     $result
                 );
             }

@@ -42,9 +42,9 @@ final class NewPollerToken extends NewToken
      */
     public function __construct(
         TrimmedString $name,
+        TrimmedString $creatorName,
         ?\DateTimeInterface $expirationDate = null,
         ?int $creatorId = null,
-        TrimmedString $creatorName = new TrimmedString('system'),
     ) {
         $this->shortName = (new \ReflectionClass($this))->getShortName();
 
