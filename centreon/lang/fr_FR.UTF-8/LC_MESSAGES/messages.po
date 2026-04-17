@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: Centreon web\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
-"PO-Revision-Date: 2026-03-20 10:47+0000\n"
+"PO-Revision-Date: 2026-04-17 09:26+0000\n"
 "Last-Translator: Cécile GENIER <cgenier@centreon.com>\n"
 "Language-Team: French <https://translate.apps.centreon.com/projects/"
 "centreon-infra-monitoring/develop/web-messages/fr/>\n"
@@ -6400,7 +6400,7 @@ msgstr "Erreur lors de la suppression du modèle d'hôtes"
 
 #: centreon/src/Core/Media/Application/Exception/MediaException.php
 msgid "Error while deleting a media"
-msgstr ""
+msgstr "Erreur lors de la suppression du média"
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "Error while deleting a notification configuration"
@@ -6573,7 +6573,7 @@ msgstr "Error lors de la récupération d'un modèle d'hôtes"
 
 #: centreon/src/Core/Media/Application/Exception/MediaException.php
 msgid "Error while retrieving a media"
-msgstr ""
+msgstr "Erreur lors de la récupération du média"
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "Error while retrieving a notification configuration"
@@ -19078,7 +19078,7 @@ msgstr "Vous n'avez pas la permission d'accéder aux modèles d'hôtes"
 
 #: centreon/src/Core/Host/Application/Exception/HostException.php
 msgid "You are not allowed to access hosts"
-msgstr ""
+msgstr "Vous n'avez pas la permission d'accéder aux hôtes"
 
 #: centreon/src/Core/Host/Application/Exception/HostException.php
 msgid "You are not allowed to access hosts in the real time context"
