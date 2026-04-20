@@ -58,11 +58,10 @@ runs:
           echo "::error::OpenAPI file not found"
           exit 1
         fi
-
-        echo "Building API doc from $OPENAPI_FILE"
-        pnpm run build $OPENAPI_FILE
         echo "doc_version=$doc_version" >> $GITHUB_OUTPUT
 
+        echo "Building API doc from $OPENAPI_FILE"
+        pnpm run redoc-latest
       shell: bash
       working-directory: ${{ inputs.openapi_file_reference || github.ref_name }}/${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API
 

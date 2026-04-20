@@ -48,7 +48,7 @@ runs:
         BUCKET_PATH="s3://centreon-documentation-api/api/${{ inputs.module_name }}/${{ inputs.doc_version }}"
 
         aws s3 cp "${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API/index.html" "${BUCKET_PATH}/index.html"
-        aws s3 cp "centreon-logo.png" "${BUCKET_PATH}/centreon-logo.png"
+        aws s3 cp "${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API/centreon-logo.png" "${BUCKET_PATH}/centreon-logo.png"
       shell: bash
 
     - name: Invalidate AWS Cloudfront cache
