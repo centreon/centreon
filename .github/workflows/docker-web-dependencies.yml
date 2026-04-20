@@ -27,7 +27,11 @@ jobs:
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
   dispatch-to-maintained-branches:
-    if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' && github.repository == 'centreon/centreon' }}
+    if: |
+      github.run_attempt == 1 &&
+      github.event_name == 'schedule' &&
+      github.ref_name == 'develop' &&
+      github.event.pull_request.head.repo.fork != true
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
@@ -45,14 +49,15 @@ jobs:
 
   get-environment:
     needs: [dependency-scan]
-    if: github.repository == 'centreon/centreon'
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
   dockerize:
     needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      github.event.pull_request.head.repo.fork != true
     runs-on: ubuntu-24.04
     permissions:
       contents: read
