@@ -910,7 +910,7 @@ $modifyLogContactId = function () use ($pearDBO, &$errorMessage, $version): void
             ALTER TABLE `log_action` MODIFY COLUMN `log_contact_id` int(11) DEFAULT NULL
             SQL
     );
-}
+};
 
 /** ------------------------------------- Pollers ------------------------------------- */
 $addPollerTypeColumn = function () use ($pearDB, &$errorMessage, $version): void {
