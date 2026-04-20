@@ -44,7 +44,7 @@ interface ContentProps {
 }
 
 export interface RootComponentProps {
-  children: JSX.Element | null;
+  children: React.ReactNode;
   isInDragOverlay?: boolean;
 }
 

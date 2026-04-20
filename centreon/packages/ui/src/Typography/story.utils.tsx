@@ -5,6 +5,7 @@ import {
   CardHeader,
   Stack,
   Typography,
+  type TypographyVariant,
   useTheme
 } from '@mui/material';
 
@@ -29,7 +30,7 @@ const TypographyStory = (): JSX.Element => {
   const { classes } = useStyles();
   const { typography } = useTheme();
 
-  const variants = [
+  const variants: Array<TypographyVariant> = [
     'h1',
     'h2',
     'h3',
@@ -77,7 +78,7 @@ const TypographyStory = (): JSX.Element => {
                       {key}
                     </Typography>
                     <Typography color="text.secondary" variant="body2">
-                      {value}
+                      {value as string}
                     </Typography>
                   </Box>
                 ))}

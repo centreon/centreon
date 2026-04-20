@@ -45,7 +45,7 @@ const ActionsBar = ({
       direction="row"
       justifyContent="flex-end"
     >
-      <Grid item>
+      <Grid>
         {!isFirstStep && (
           <Button
             aria-label={labelPrevious}
@@ -56,7 +56,7 @@ const ActionsBar = ({
           </Button>
         )}
       </Grid>
-      <Grid item>
+      <Grid>
         <Button
           aria-label={labelNextFinish}
           color="primary"

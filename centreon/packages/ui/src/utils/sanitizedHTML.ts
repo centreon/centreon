@@ -12,7 +12,7 @@ const sanitizedHTML = ({
 }: UseSanitizedHTMLProps): JSX.Element => {
   const sanitizedContent = sanitizeHtml(initialContent, sanitizeOptions);
 
-  return ReactHtmlParser(sanitizedContent);
+  return ReactHtmlParser(sanitizedContent) as JSX.Element;
 };
 
 export { sanitizedHTML };

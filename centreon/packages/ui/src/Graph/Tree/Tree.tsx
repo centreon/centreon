@@ -98,6 +98,7 @@ export const Tree = <TData extends BaseProp>({
             <DescendantNodes
               descendants={subTree.descendants()}
               expandCollapseNode={expandCollapseNode}
+              // @ts-expect-error - suppressing pre-existing type mismatch
               getExpanded={getExpanded}
               nodeSize={{
                 height: node.height,

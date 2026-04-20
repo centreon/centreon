@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import { useEffect } from "react";
 import "dayjs/locale/en";
 
-import { ThemeMode, userAtom } from "@centreon/ui-context";
+import { ListingVariant, ThemeMode, userAtom } from "@centreon/ui-context";
 import { type RenderResult, render } from "@testing-library/react";
 import localizedFormatPlugin from "dayjs/plugin/localizedFormat";
 import timezonePlugin from "dayjs/plugin/timezone";
@@ -25,6 +25,7 @@ const TestComponent = (): JSX.Element => {
 	useEffect(() => {
 		setUser({
 			alias: "admin",
+			canManageApiTokens: false,
 			default_page: "/monitoring/resources",
 			isExportButtonEnabled: false,
 			locale: "en",
@@ -32,6 +33,7 @@ const TestComponent = (): JSX.Element => {
 			themeMode: ThemeMode.light,
 			timezone: "Europe/Paris",
 			use_deprecated_pages: false,
+			user_interface_density: ListingVariant.compact,
 		});
 	}, [setUser]);
 
