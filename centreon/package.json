@@ -15,6 +15,7 @@
     "lint": "biome check ./www/front_src --error-on-warnings",
     "lint:fix": "pnpm lint --fix",
     "lint:ci": "biome ci ./www/front_src --error-on-warnings",
+    "redoc-latest": "redocly build-docs --theme.openapi.hideDownloadButton=true --output ./index.html $OPENAPI_FILE",
     "test": "jest",
     "test:watch": "pnpm test --watch",
     "test:coverage": "jest --coverage",
