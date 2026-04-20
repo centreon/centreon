@@ -237,19 +237,18 @@ sub syncDay ($$) {
 
 sub main {
 	# Prepare DB URI depending on configured RDBMS
-	my $rdbms_kind = $centreon_config->{rdbms_kind};
-	my $dbh_prefix = "";
-	if (!defined($rdbms_kind)) {
-	  die "Error : RDBMS kind not defined. Please set rdbms_kind in \@CENTREON_ETC@/conf.pm\n";
-	}
-	if ($rdbms_kind eq "mysql") {
-		$dbh_prefix = "DBI:mysql";
-	}
-	elsif ($rdbms_kind eq "mariadb") {
-		$dbh_prefix = "DBI:MariaDB";
-	}
-	else {
-		die "Error : RDBMS kind not defined. Please set rdbms_kind in @CENTREON_ETC@/conf.pm\n";
+	my $dbh_prefix = "DBI:mysql";
+	my $rdbms_kind = $centreon_config->{rdbms_kind} // "";
+	if($centreon_config->{rdbms_kind}) {
+		if ($rdbms_kind eq "mysql") {
+			$dbh_prefix = "DBI:mysql";
+		}
+		elsif ($rdbms_kind eq "mariadb") {
+			$dbh_prefix = "DBI:MariaDB";
+		}
+		else {
+			print "Warn : RDBMS kind not supported or undefined. Using default Mysql prefix\n";
+		}
 	}
 
 	# Initializing MySQL DB connection
