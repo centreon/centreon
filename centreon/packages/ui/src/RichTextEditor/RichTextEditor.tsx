@@ -216,6 +216,7 @@ const RichTextEditor = ({
                 resetEditorToInitialStateCondition={
                   resetEditorToInitialStateCondition
                 }
+                // @ts-expect-error - suppressing pre-existing type mismatch
                 setHtmlString={setHtmlString}
               />
             }

@@ -234,13 +234,18 @@ const Inputs = ({
                         : inputProps.additionalLabel;
 
                     if (isLoading) {
-                      return <LoadingSkeleton input={inputProps} key={key} />;
+                      return (
+                        <LoadingSkeleton
+                          input={inputProps}
+                          key={key as string}
+                        />
+                      );
                     }
 
                     const Input = getInput(inputProps.type);
 
                     return (
-                      <div className={classes.inputWrapper} key={key}>
+                      <div className={classes.inputWrapper} key={key as string}>
                         {inputProps.additionalLabel && (
                           <Typography
                             className={cx(

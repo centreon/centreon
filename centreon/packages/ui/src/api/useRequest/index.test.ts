@@ -22,7 +22,7 @@ const request = jest.fn();
 
 const renderUseRequest = (
   requestParams: RequestParams<Result>
-): RenderHookResult<unknown, RequestResult<Result>> =>
+): RenderHookResult<RequestResult<Result>, unknown> =>
   renderHook(() => useRequest(requestParams));
 
 describe(useRequest, () => {

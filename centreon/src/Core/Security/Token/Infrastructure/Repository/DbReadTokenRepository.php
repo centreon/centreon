@@ -157,7 +157,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
                 ])
             );
 
-            if ($result !== []) {
+            if ($result !== false && $result !== []) {
                 /** @var _Token $result */
                 return TokenFactory::create(
                     \constant(TokenTypeEnum::class . '::' . mb_strtoupper($result['token_type'])),

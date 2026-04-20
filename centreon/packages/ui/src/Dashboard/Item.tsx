@@ -85,7 +85,7 @@ const Item = ({
 
   const newTransform =
     style?.transform &&
-    `translate3d(${style.transform.match(/translate\(([a-z0-9 ,-]+)\)/)[1]}, 0px)`;
+    `translate3d(${style.transform.match(/translate\(([a-z0-9 ,-]+)\)/)?.[1]}, 0px)`;
 
   return useMemoComponent({
     Component: (
@@ -107,10 +107,10 @@ const Item = ({
                   isExpanded,
                   key,
                   label,
-                  ref,
+                  ref: ref as RefObject<HTMLDivElement>,
                   ...rest
                 })
-              : header;
+              : (header as ReactElement);
 
             return (
               <div className={classes.widgetSubContainer} key={key}>

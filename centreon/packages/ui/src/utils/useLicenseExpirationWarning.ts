@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { find, isNil, lt, path, pipe, propEq } from 'ramda';
+import { isNil, lt, path } from 'ramda';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -24,11 +24,16 @@ export const useLicenseExpirationWarning = ({ module }: Props): void => {
 
   const currentDate = dayjs();
 
-  const getExpirationDate = pipe(
-    path(['result', 'module', 'entities']),
-    find(propEq(module, 'id')),
-    path(['license', 'expiration_date'])
-  ) as (data) => string;
+  const getExpirationDate = (obj: unknown): string => {
+    const entities = path(['result', 'module', 'entities'], obj) as
+      | Array<Record<string, unknown>>
+      | undefined;
+    const entity = entities ? entities.find((e) => e.id === module) : undefined;
+    return path(
+      ['license', 'expiration_date'],
+      entity as Record<string, unknown>
+    ) as string;
+  };
 
   useEffect(() => {
     if (isNil(data)) {

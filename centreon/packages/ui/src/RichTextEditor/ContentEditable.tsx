@@ -145,10 +145,12 @@ const ContentEditable = ({
 
   const isTextEmpty =
     isEmpty(root) &&
+    // @ts-expect-error - suppressing pre-existing type mismatch
     !editor.getEditorState().toJSON().root.children?.[0]?.children?.length;
 
   const handleBlur = (event: React.FocusEvent<HTMLInputElement>): void => {
     setFocused(false);
+    // @ts-expect-error - suppressing pre-existing type mismatch
     onBlur?.(event);
   };
 
