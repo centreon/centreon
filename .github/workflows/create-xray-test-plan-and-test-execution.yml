@@ -117,79 +117,6 @@ jobs:
 
       - name: Create TestExecution and Get the TestExecutionID
         id: get_test_execution_id
-<<<<<<< HEAD
-        run: |
-          # Determine the summary's prefix
-          summary_prefix=''
-          if [[ ${{ inputs.is_nightly || '' }} == 'true' ]]; then
-            summary_prefix="NIGHTLY"
-          else
-            echo "The github_ref_name is: $GITHUB_REF_NAME"
-            case "$GITHUB_REF_NAME" in
-              hotfix*)
-                summary_prefix="HOTFIX"
-                ;;
-              release*)
-                summary_prefix="RLZ"
-                ;;
-            esac
-          fi
-
-          current_date=$(date +'%d/%m/%Y')
-
-          workflow_run_url="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-
-          input_summary="$summary_prefix WEB ${{ inputs.major_version }}.${{ inputs.minor_version }} $current_date"
-          echo "The summary of the TE is: $input_summary"
-
-          linux_distribution=''
-          case "${{ inputs.os }}" in
-            alma8)
-              linux_distribution="ALMA8"
-              mariadb_version="MARIADB_10_5"
-              ;;
-            alma9)
-              linux_distribution="ALMA9"
-              mariadb_version="MARIADB_10_5"
-              ;;
-            bullseye)
-              linux_distribution="DEBIAN11"
-              mariadb_version="MARIADB_10_5"
-              ;;
-            bookworm)
-              linux_distribution="DEBIAN12"
-              mariadb_version="MARIADB_10_11"
-            ;;
-          esac
-
-          xray_graphql_createTestExecution="{
-            \"query\": \"mutation CreateTestExecution(\$testEnvironments: [String], \$jira: JSON!) { createTestExecution(testEnvironments: \$testEnvironments, jira: \$jira) { testExecution { issueId jira(fields: [\\\"key\\\"]) } warnings createdTestEnvironments } }\",
-            \"variables\": {
-              \"testEnvironments\": [\"$linux_distribution\",\"$mariadb_version\",\"CHROME\"],
-              \"jira\": {
-                \"fields\": {
-                  \"summary\": \"$input_summary\",
-                  \"description\": \"$workflow_run_url\",
-                  \"project\": { \"key\": \"MON\" },
-                  \"components\": [{\"name\": \"centreon-web\"}],
-                  \"priority\":{\"name\":\"Low\"}
-                }
-              }
-            }
-          }"
-
-          echo "this is the graphql mutation : $xray_graphql_createTestExecution"
-
-          response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate_xray_token.outputs.xray_token }}" --data "$xray_graphql_createTestExecution" "https://xray.cloud.getxray.app/api/v2/graphql")
-
-          echo -e "Response from Create Test Execution:\n$response"
-
-          # Extract the ID of the created TE
-          test_execution_id=$(echo "$response" | jq -r '.data.createTestExecution.testExecution.issueId')
-          echo "test_execution_id_${{ inputs.os }}=$test_execution_id" >> $GITHUB_OUTPUT
-
-          echo "TestExecution created with ID:  $test_execution_id"
-=======
         env:
           XRAY_TOKEN: ${{ steps.generate_xray_token.outputs.xray_token }}
           IS_NIGHTLY: ${{ inputs.is_nightly || '' }}
@@ -197,7 +124,6 @@ jobs:
           MINOR_VERSION: ${{ inputs.minor_version }}
           OS: ${{ inputs.os }}
         run: bash .github/scripts/xray/create-test-execution.sh
->>>>>>> 8473078a48 (MON-192988 extract workflow inline scripts to dedicated files)
         shell: bash
 
       - name: Get TestExecutionKey
