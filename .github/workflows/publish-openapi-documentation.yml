@@ -55,7 +55,6 @@ jobs:
         with:
           module_name: ${{ inputs.module_name }}
           openapi_file_reference: ${{ inputs.openapi_file_reference }}
-          is_cloud: ${{ inputs.is_cloud }}
 
   publish-openapi-documentation:
     needs: [check-inputs, build-openapi-documentation]

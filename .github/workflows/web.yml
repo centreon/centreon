@@ -1374,11 +1374,10 @@ jobs:
         id: build-openapi-documentation
         with:
           module_name: centreon-web
-          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
       - uses: ./.github/actions/publish-openapi-documentation
         with:
-          doc_version: ${{ needs.build-openapi-documentation.outputs.doc_version }}
+          doc_version: ${{ steps.build-openapi-documentation.outputs.doc_version }}
           module_name: centreon-web
           cloudfront_role_doc_production: ${{ secrets.CLOUDFRONT_ROLE_DOC_PRODUCTION }}
           cloudfront_id_doc_api: ${{ secrets.CLOUDFRONT_ID_DOC_API }}
