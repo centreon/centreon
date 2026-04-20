@@ -541,6 +541,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [get-environment, changes]
     if: |
+      needs.changes.outputs.trigger_backend_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
     services:
