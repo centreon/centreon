@@ -144,7 +144,7 @@ final class DbalModuleRepository implements ModuleRepository
                 continue;
             }
             $subDeps = $this->getModuleDependencies($dependency, $alreadyProcessed);
-            $dependencies = [...$subDeps, $dependency];
+            $dependencies = [...$dependencies, ...$subDeps, $dependency];
         }
 
         return array_unique($dependencies);
