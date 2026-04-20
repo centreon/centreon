@@ -863,6 +863,67 @@ $deleteOldCommandsTopologies = function () use ($pearDB, &$errorMessage, $versio
     );
 };
 
+/** -------------------------------------- Poller tokens -------------------------------------- */
+$updateAuthenticationTable = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to update and rename jwt_tokens table';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Updating jwt_tokens table",
+    );
+    $tableExistWithOldName = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT true FROM INFORMATION_SCHEMA.TABLES
+            WHERE table_schema = :db_name AND table_name LIKE 'jwt_tokens'
+            SQL,
+        QueryParameters::create([
+            QueryParameter::create('db_name', $pearDB->getDatabaseName()),
+        ])
+    );
+    if (! $tableExistWithOldName) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: jwt_tokens table not found, skipping update",
+        );
+
+        return;
+    }
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Renaming jwt_tokens table",
+    );
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `jwt_tokens` RENAME TO `authentication_tokens`, COMMENT 'Table for tokens not used for api/ui login'
+            SQL
+    );
+
+    if ($pearDB->columnExists(
+        $pearDB->getConnectionConfig()->getDatabaseNameRealTime(),
+        'authentication_tokens',
+        'type'
+    )) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Nothing to update in authentication_tokens table",
+        );
+
+        return;
+    }
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Updating authentication_tokens table",
+    );
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `authentication_tokens`
+            ADD COLUMN `type` enum('cma','poller') DEFAULT 'cma' COMMENT 'Define token usage',
+            MODIFY COLUMN `token_string` varchar(4096) DEFAULT NULL COMMENT 'token string'
+            SQL
+    );
+};
+
 try {
     // DDL statements for real time database
     $pearDBO->executeStatement(
@@ -872,7 +933,7 @@ try {
     );
 
     // DDL statements for configuration database
-    // TODO add your function calls to update the configuration database structure here
+    $updateAuthenticationTable();
 
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {
