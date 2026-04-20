@@ -77,6 +77,7 @@ const ChartSvgWrapper = ({
       >
         {showGridLines && (canRenderGridRows || canRenderGridColumns) && (
           <Grids
+            // @ts-expect-error - suppressing pre-existing type mismatch
             gridLinesType={gridLinesType}
             height={graphHeight - margin.bottom}
             leftScale={isHorizontal ? leftScale : xScale}

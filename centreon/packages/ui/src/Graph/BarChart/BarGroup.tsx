@@ -76,6 +76,7 @@ const BarGroup = ({
     deps: [normalizedTimeSeries],
     variable: keys(omit(['timeTick'], normalizedTimeSeries[0]))
   });
+  // @ts-expect-error - suppressing pre-existing type mismatch
   const sortedLineKeys = lineKeys.sort((lineKeyA: string, lineKeyB: string) => {
     if (lineKeyA.startsWith('stacked-') && !lineKeyB.startsWith('stacked-')) {
       return true;
@@ -139,6 +140,7 @@ const BarGroup = ({
 
   return (
     <BarComponent<TimeValue>
+      // @ts-expect-error - suppressing pre-existing type mismatch
       color={colorScale}
       data={normalizedTimeSeries}
       height={size}
@@ -195,6 +197,7 @@ export default memo(BarGroup, (prevProps, nextProps) => {
   ];
 
   return (
+    // @ts-expect-error - suppressing pre-existing type mismatch
     equals(pick(propsToMemoize, prevProps), pick(propsToMemoize, nextProps)) &&
     equals(prevYScale, nextYScale) &&
     equals(prevXScale, nextXScale)

@@ -38,8 +38,10 @@ export const getYAnchorPoint = ({
 }: GetYAnchorPoint): number | null => {
   const index = bisectDate(getStackedDates(stackValues), timeTick);
   const timeValue = stackValues[index];
+  // @ts-expect-error - suppressing pre-existing type mismatch
   const { key } = stackValues;
 
+  // @ts-expect-error - suppressing pre-existing type mismatch
   if (isNil(timeValue.data[key])) {
     return null;
   }

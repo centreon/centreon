@@ -223,6 +223,8 @@
     "test": "pest --do-not-cache-result",
     "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml",
     "test:new": "./vendor/bin/phpunit --configuration phpunit.new.xml",
+    "test:new:integration": "./vendor/bin/phpunit --configuration phpunit.new.integration.xml",
+    "test:core": "./vendor/bin/phpunit --configuration phpunit.core-integration.xml",
     "test:new:wip": "@test:new --group wip",
     "rector": [
       "@rector:legacy",

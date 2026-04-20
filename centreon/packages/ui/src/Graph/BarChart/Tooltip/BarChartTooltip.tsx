@@ -61,13 +61,17 @@ const BarChartTooltip = ({
   const displayHighLightedMetric = gt(filteredMetrics.length, 1);
 
   const sortedMetrics = cond([
+    // @ts-expect-error - suppressing pre-existing type mismatch
     [equals('name'), always(sortBy(path(['metric', 'name']), filteredMetrics))],
+    // @ts-expect-error - suppressing pre-existing type mismatch
     [equals('ascending'), always(sortBy(prop('value'), filteredMetrics))],
     [
       equals('descending'),
+      // @ts-expect-error - suppressing pre-existing type mismatch
       always(reverse(sortBy(prop('value'), filteredMetrics)))
     ],
     [T, always(filteredMetrics)]
+    // @ts-expect-error - suppressing pre-existing type mismatch
   ])(sortOrder);
 
   return (

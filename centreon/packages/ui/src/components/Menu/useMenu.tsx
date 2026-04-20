@@ -37,9 +37,9 @@ const MenuProvider = ({
     [
       [isMenuOpenAtom, initialIsOpen ?? false],
       [anchorElAtom, null],
-      [onOpenAtom, onOpen],
-      [onCloseAtom, onClose]
-    ],
+      [onOpenAtom, onOpen ?? null],
+      [onCloseAtom, onClose ?? null]
+    ] as unknown as Parameters<typeof useHydrateAtoms>[0],
     { store: menuStore }
   );
 

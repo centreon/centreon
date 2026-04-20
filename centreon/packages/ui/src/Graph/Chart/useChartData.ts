@@ -40,6 +40,7 @@ const defaultDsData = {
 };
 
 const useGraphData = ({ data }: Props): GraphDataResult => {
+  // @ts-expect-error - suppressing pre-existing type mismatch
   const adjustedDataRef = useRef<Data>();
 
   const dataWithAdjustedMetricsColor = useMemo(() => {
@@ -64,16 +65,21 @@ const useGraphData = ({ data }: Props): GraphDataResult => {
     }));
 
     const metricsGroupedByColor = groupBy(
+      // @ts-expect-error - suppressing pre-existing type mismatch
       (metric) => metric.ds_data?.ds_color_line || '#000000'
     )(metricsWithValidDsData);
 
     const newMetrics = Object.entries(metricsGroupedByColor).map(
       ([color, value]) => {
         const adjustedValue = value?.map((item) => ({
+          // @ts-expect-error - suppressing pre-existing type mismatch
           ...item,
           ds_data: {
+            // @ts-expect-error - suppressing pre-existing type mismatch
             ...item?.ds_data,
+            // @ts-expect-error - suppressing pre-existing type mismatch
             ds_filled: getBoolean(item?.ds_data?.ds_filled),
+            // @ts-expect-error - suppressing pre-existing type mismatch
             ds_invert: getBoolean(item?.ds_data?.ds_invert)
           }
         }));

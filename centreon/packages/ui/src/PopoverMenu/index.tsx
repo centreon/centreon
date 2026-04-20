@@ -6,7 +6,6 @@ import {
 } from '@mui/material';
 import type { PopperProps } from '@mui/material/Popper';
 
-import { equals, type } from 'ramda';
 import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
@@ -108,17 +107,12 @@ const PopoverMenu = ({
           <Popper
             anchorEl={anchorEl}
             className={classes.popover}
-            nonce={undefined}
-            onResize={(): undefined => undefined}
-            onResizeCapture={(): undefined => undefined}
             open
             placement={popperPlacement}
             {...popperProps}
           >
             <Paper className={tooltipClassName}>
-              {equals(type(children), 'Function')
-                ? children({ close })
-                : children}
+              {typeof children === 'function' ? children({ close }) : children}
             </Paper>
           </Popper>
         </ClickAwayListener>
