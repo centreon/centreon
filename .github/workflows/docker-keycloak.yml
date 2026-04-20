@@ -23,14 +23,16 @@ jobs:
 
   get-environment:
     needs: [dependency-scan]
-    if: github.repository == 'centreon/centreon'
+    if: github.event.pull_request.head.repo.fork != true
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
   dockerize:
     needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      github.event.pull_request.head.repo.fork != true
     runs-on: ubuntu-24.04
     permissions:
       contents: read
