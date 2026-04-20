@@ -19,7 +19,7 @@ if [ -d $apache_dir_deb ] && grep -qr "<VirtualHost *:443>" $apache_dir_deb ; th
   echo "apache listen on port 443, so it should be configured for tls."
   is_apache_tls=1;
 fi
-apache_dir_rpm="/etc/httpd/sites-enabled/"
+apache_dir_rpm="/etc/httpd/"
 if [ -d $apache_dir_rpm ] && grep -qr "<VirtualHost *:443>" $apache_dir_rpm ; then
   echo "apache listen on port 443, so it should be configured for tls."
   is_apache_tls=1;
