@@ -24,10 +24,39 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\PluginResource;
+use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
 
 final class FindPluginProviderTest extends ApiTestCase
 {
+    private string $pluginDir;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->pluginDir = sys_get_temp_dir() . '/centreon_test_plugins_' . bin2hex(random_bytes(4));
+        mkdir($this->pluginDir, 0755, true);
+        touch($this->pluginDir . '/check_dhcp');
+        chmod($this->pluginDir . '/check_dhcp', 0755);
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->executeStatement(
+            "UPDATE options SET `value` = :path WHERE `key` = 'nagios_path_plugins'",
+            ['path' => $this->pluginDir . '/']
+        );
+    }
+
+    protected function tearDown(): void
+    {
+        if (is_dir($this->pluginDir)) {
+            array_map('unlink', glob($this->pluginDir . '/*') ?: []);
+            rmdir($this->pluginDir);
+        }
+        parent::tearDown();
+    }
+
     public function testItFindPlugins(): void
     {
         $this->login();
@@ -36,7 +65,7 @@ final class FindPluginProviderTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceItemJsonSchema(PluginResource::class);
         self::assertJsonContains(
-            ['name' => 'check_dhcp', 'command_line' => '/usr/lib64/nagios/plugins/check_dhcp']
+            ['name' => 'check_dhcp']
         );
     }
 

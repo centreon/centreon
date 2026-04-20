@@ -73,10 +73,6 @@ on:
         required: true
       xray_client_secret:
         required: true
-      artifactory_internal_repo_username:
-        required: false
-      artifactory_internal_repo_password:
-        required: false
       jira_base_url:
         required: true
       jira_user_email:
@@ -149,7 +145,12 @@ jobs:
           if [[ "$REF" == "develop" ]]; then
             echo "tag=develop-${MAJOR_VERSION}" >> $GITHUB_OUTPUT
           else
-            echo "tag=$REF" >> $GITHUB_OUTPUT
+            SANITIZED_REF="$(printf '%s' "$REF" | sed -E 's#[^[:alnum:]_.-]+#-#g; s#^[.-]+##; s#-+#-#g' | cut -c1-128)"
+            if [[ -z "$SANITIZED_REF" ]]; then
+              echo "::error::Unable to derive a valid Docker tag from ref '$REF'"
+              exit 1
+            fi
+            echo "tag=$SANITIZED_REF" >> $GITHUB_OUTPUT
           fi
 
 
@@ -202,6 +203,7 @@ jobs:
         shell: bash
 
       - name: Login to Registry
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
@@ -223,7 +225,7 @@ jobs:
         if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
         run: |
           docker load --input ../../../docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
-          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }}
+          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }} docker.centreon.com/centreon/${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }}
         shell: bash
 
       - name: Get test execution Key
@@ -254,8 +256,6 @@ jobs:
           CYPRESS_STABILITY: ${{ inputs.stability }}
           CYPRESS_TARGET_STABILITY: ${{ inputs.target_stability }}
           CYPRESS_IS_CLOUD: ${{ inputs.is_cloud }}
-          CYPRESS_INTERNAL_REPO_USERNAME: ${{ secrets.artifactory_internal_repo_username }}
-          CYPRESS_INTERNAL_REPO_PASSWORD: ${{ secrets.artifactory_internal_repo_password }}
 
       - name: Ensure logs directory exists
         run: mkdir -p ${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/

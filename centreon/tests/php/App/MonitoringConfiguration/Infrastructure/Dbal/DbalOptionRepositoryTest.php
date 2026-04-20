@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Option\Option;
 use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
 use App\MonitoringConfiguration\Domain\Exception\OptionDoesNotExistException;
 use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
+use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class DbalOptionRepositoryTest extends KernelTestCase
@@ -37,8 +38,13 @@ final class DbalOptionRepositoryTest extends KernelTestCase
     {
         /** @var OptionRepository $repository */
         $repository = self::getContainer()->get(OptionRepository::class);
-
         $this->repository = $repository;
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->executeStatement(
+            "UPDATE `options` SET `value` = '/usr/lib64/nagios/plugins/' WHERE `key` = 'nagios_path_plugins'"
+        );
     }
 
     public function testItFindByName(): void

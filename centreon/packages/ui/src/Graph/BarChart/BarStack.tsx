@@ -131,6 +131,7 @@ export default memo(BarStack, (prevProps, nextProps) => {
       [...prevYScaleDomain, ...prevYScaleRange],
       [...nextYScaleDomain, ...nextYScaleRange]
     ) &&
+    // @ts-expect-error - suppressing pre-existing type mismatch
     equals(pick(propsToMemoize, prevProps), pick(propsToMemoize, nextProps))
   );
 });

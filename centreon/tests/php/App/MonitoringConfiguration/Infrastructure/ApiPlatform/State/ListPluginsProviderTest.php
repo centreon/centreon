@@ -24,10 +24,41 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ListPluginResource;
+use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
 
 final class ListPluginsProviderTest extends ApiTestCase
 {
+    private string $pluginDir;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->pluginDir = sys_get_temp_dir() . '/centreon_test_plugins_' . bin2hex(random_bytes(4));
+        mkdir($this->pluginDir, 0755, true);
+        touch($this->pluginDir . '/check_ping');
+        chmod($this->pluginDir . '/check_ping', 0755);
+        touch($this->pluginDir . '/urlize');
+        chmod($this->pluginDir . '/urlize', 0755);
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->executeStatement(
+            "UPDATE options SET `value` = :path WHERE `key` = 'nagios_path_plugins'",
+            ['path' => $this->pluginDir . '/']
+        );
+    }
+
+    protected function tearDown(): void
+    {
+        if (is_dir($this->pluginDir)) {
+            array_map('unlink', glob($this->pluginDir . '/*') ?: []);
+            rmdir($this->pluginDir);
+        }
+        parent::tearDown();
+    }
+
     public function testItFindPlugins(): void
     {
         $this->login();

@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalCommandRepository;
 use App\Shared\Domain\Collection;
+use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class DbalCommandRepositoryTest extends KernelTestCase
@@ -43,6 +44,18 @@ final class DbalCommandRepositoryTest extends KernelTestCase
         $repository = self::getContainer()->get(DbalCommandRepository::class);
 
         $this->repository = $repository;
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->insert('command', [
+            'command_id' => 2,
+            'command_name' => 'check_disk_smb',
+            'command_line' => '$USER1$/check_disk_smb -H $HOSTADDRESS$',
+            'command_type' => 2,
+            'enable_shell' => '0',
+            'command_activate' => '1',
+            'command_locked' => '0',
+        ]);
     }
 
     public function testGetById(): void

@@ -183,7 +183,9 @@ const useGraphQuery = ({
       : data.current.metrics.filter(({ metric_id }) => {
           return pipe(
             pluck('excludedMetrics'),
-            flatten,
+            flatten as unknown as (
+              list: Array<unknown>
+            ) => ReadonlyArray<number>,
             includes(metric_id),
             not
           )(metrics);
@@ -273,7 +275,7 @@ const useGraphQuery = ({
           base: data.current.base,
           title: ''
         },
-        metrics: getFormattedMetrics(),
+        metrics: getFormattedMetrics() ?? [],
         times: data.current.times
       }
     : undefined;

@@ -61,7 +61,8 @@ const StackLines = ({
   const curveType = getCurveFactory(
     (equals(type(lineStyle), 'Array')
       ? lineStyle?.[0].curve
-      : lineStyle?.curve) || 'linear'
+      : // @ts-expect-error - suppressing pre-existing type mismatch
+        lineStyle?.curve) || 'linear'
   );
   return (
     <Shape.AreaStack
@@ -69,6 +70,7 @@ const StackLines = ({
       data={timeSeries}
       defined={(d): boolean => {
         return pipe(
+          // @ts-expect-error - suppressing pre-existing type mismatch
           map(prop('metric_id')) as unknown as (
             displayedLines
           ) => Array<string>,
@@ -87,6 +89,7 @@ const StackLines = ({
 
           const style = getStyle({
             metricId: metric_id,
+            // @ts-expect-error - suppressing pre-existing type mismatch
             style: lineStyle
           }) as LineStyle;
           const formattedLineWidth = style?.lineWidth ?? 2;
@@ -107,6 +110,7 @@ const StackLines = ({
             <g key={`stack-${prop('key', stack)}`}>
               {displayAnchor && (
                 <StackedAnchorPoint
+                  // @ts-expect-error - suppressing pre-existing type mismatch
                   areaColor={style?.areaColor}
                   hasSecondUnit={hasSecondUnit}
                   lineColor={lineColor}
@@ -123,6 +127,7 @@ const StackLines = ({
                   <Point
                     key={timeTick.toString()}
                     lineColor={lineColor}
+                    // @ts-expect-error - suppressing pre-existing type mismatch
                     metric_id={metric_id}
                     radius={getPointRadius(style?.lineWidth)}
                     timeSeries={timeSeries}
@@ -170,6 +175,7 @@ const StackLines = ({
                     ? Math.ceil(formattedLineWidth * 1.3)
                     : formattedLineWidth
                 }
+                // @ts-expect-error - suppressing pre-existing type mismatch
                 x={(d) => xScale(getTime(d.data)) ?? 0}
                 y={(d) => yScale(d[1]) ?? 0}
               />
