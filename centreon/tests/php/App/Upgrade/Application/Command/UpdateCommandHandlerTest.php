@@ -28,7 +28,8 @@ use App\Upgrade\Application\Command\UpdateCommand;
 use App\Upgrade\Application\Command\UpdateCommandHandler;
 use App\Upgrade\Application\DbmsVersionValidator;
 use App\Upgrade\Application\EngineContextWriter;
-use App\Upgrade\Application\ModuleUpdater;
+use App\Upgrade\Domain\Repository\ModuleRepository;
+use App\Upgrade\Domain\Repository\WidgetRepository;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateLocker;
@@ -45,7 +46,9 @@ final class UpdateCommandHandlerTest extends TestCase
 
     private DbmsVersionValidator&MockObject $dbmsValidator;
 
-    private ModuleUpdater&MockObject $moduleUpdater;
+    private ModuleRepository&MockObject $moduleRepository;
+
+    private WidgetRepository&MockObject $widgetRepository;
 
     private EngineContextWriter&MockObject $engineContextWriter;
 
@@ -59,7 +62,8 @@ final class UpdateCommandHandlerTest extends TestCase
         $this->scriptFinder = new FakeUpdateScriptFinder();
         $this->locker = new FakeUpdateLocker();
         $this->dbmsValidator = $this->createMock(DbmsVersionValidator::class);
-        $this->moduleUpdater = $this->createMock(ModuleUpdater::class);
+        $this->moduleRepository = $this->createMock(ModuleRepository::class);
+        $this->widgetRepository = $this->createMock(WidgetRepository::class);
         $this->engineContextWriter = $this->createMock(EngineContextWriter::class);
         $this->cacheClearer = $this->createMock(CacheClearer::class);
 
@@ -68,7 +72,8 @@ final class UpdateCommandHandlerTest extends TestCase
             $this->scriptFinder,
             $this->locker,
             $this->dbmsValidator,
-            $this->moduleUpdater,
+            $this->moduleRepository,
+            $this->widgetRepository,
             $this->engineContextWriter,
             $this->cacheClearer,
         );
@@ -151,7 +156,8 @@ final class UpdateCommandHandlerTest extends TestCase
             $this->scriptFinder,
             $this->locker,
             $this->dbmsValidator,
-            $this->moduleUpdater,
+            $this->moduleRepository,
+            $this->widgetRepository,
             $this->engineContextWriter,
             $this->cacheClearer,
         );

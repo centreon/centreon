@@ -21,17 +21,9 @@
 
 declare(strict_types=1);
 
-namespace App\Upgrade\Application;
+namespace App\Upgrade\Domain\Repository;
 
-interface ModuleUpdater
+interface ModuleRepository
 {
-    /**
-     * Update all installed modules.
-     */
-    public function updateModules(): void;
-
-    /**
-     * Update all installed widgets.
-     */
-    public function updateWidgets(): void;
+    public function updateAll(): void;
 }

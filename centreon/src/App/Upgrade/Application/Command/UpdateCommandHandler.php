@@ -27,10 +27,11 @@ use App\Shared\Application\Command\AsCommandHandler;
 use App\Upgrade\Application\CacheClearer;
 use App\Upgrade\Application\DbmsVersionValidator;
 use App\Upgrade\Application\EngineContextWriter;
-use App\Upgrade\Application\ModuleUpdater;
 use App\Upgrade\Application\UpdateLocker;
+use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use App\Upgrade\Domain\Repository\UpdateScriptFinder;
+use App\Upgrade\Domain\Repository\WidgetRepository;
 
 #[AsCommandHandler]
 final readonly class UpdateCommandHandler
@@ -40,7 +41,8 @@ final readonly class UpdateCommandHandler
         private UpdateScriptFinder $updateScriptFinder,
         private UpdateLocker $updateLocker,
         private DbmsVersionValidator $dbmsVersionValidator,
-        private ModuleUpdater $moduleUpdater,
+        private ModuleRepository $moduleRepository,
+        private WidgetRepository $widgetRepository,
         private EngineContextWriter $engineContextWriter,
         private CacheClearer $cacheClearer,
     ) {
@@ -68,8 +70,8 @@ final readonly class UpdateCommandHandler
             // Must always run whether there are updates or not.
             $this->updateRepository->runPostUpdate($currentVersion);
 
-            $this->moduleUpdater->updateModules();
-            $this->moduleUpdater->updateWidgets();
+            $this->moduleRepository->updateAll();
+            $this->widgetRepository->updateAll();
         } finally {
             $this->updateLocker->unlock();
         }
