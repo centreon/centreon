@@ -409,7 +409,6 @@ describe('Agent configurations modal', () => {
     cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
       expect(request.body).to.deep.equal({
         name: 'agent updated',
-        type: 'telegraf',
         connection_mode: 'secure',
         configuration: {
           otel_private_key: 'test.key',
@@ -440,7 +439,6 @@ describe('Agent configurations modal', () => {
     cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
       expect(request.body).to.deep.equal({
         name: 'agent updated',
-        type: 'telegraf',
         connection_mode: 'secure',
         configuration: {
           otel_private_key: 'test.key',
@@ -455,6 +453,18 @@ describe('Agent configurations modal', () => {
     });
 
     cy.contains(labelAgentConfigurationUpdated).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('disables the agent type field when editing an existing configuration', () => {
+    initialize({});
+
+    cy.contains('AC 1').click();
+
+    cy.waitForRequest('@getAgentConfiguration');
+
+    cy.findByLabelText(labelAgentType).should('be.disabled');
 
     cy.makeSnapshot();
   });
@@ -940,7 +950,6 @@ describe('Agent configurations modal', () => {
     cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
       expect(request.body).to.deep.equal({
         name: 'Insecure Agent',
-        type: 'telegraf',
         connection_mode: 'insecure',
         configuration: {
           otel_private_key: 'test.key',
