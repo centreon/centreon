@@ -912,12 +912,46 @@ $modifyLogContactId = function () use ($pearDBO, &$errorMessage, $version): void
     );
 }
 
+/** ------------------------------------- Pollers ------------------------------------- */
+$addPollerTypeColumn = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add poller_type column to nagios_server';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Adding poller_type column to nagios_server",
+    );
+
+    if ($pearDB->columnExists(
+        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
+        'nagios_server',
+        'poller_type'
+    )) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Column poller_type already exists on nagios_server, skipping",
+        );
+
+        return;
+    }
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server` ADD COLUMN `poller_type` enum('vm','docker') NOT NULL DEFAULT 'vm'
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully added poller_type column to nagios_server",
+    );
+};
+
 try {
     // DDL statements for real time database
     $modifyLogContactId();
 
     // DDL statements for configuration database
     $addVmwareUpdatedField();
+    $addPollerTypeColumn();
 
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {

@@ -42,7 +42,7 @@ const Grid = ({
         }
 
         return (
-          <Box key={key} sx={{ width: '100%' }}>
+          <Box key={key as string} sx={{ width: '100%' }}>
             {field.additionalLabel && (
               <Typography
                 className={field?.additionalLabelClassName}

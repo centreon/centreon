@@ -59,7 +59,7 @@ type Props = {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   options: Array<SelectEntry>;
   selectedOptionId: number | string;
-  formControlProps: FormControlProps;
+  formControlProps?: FormControlProps;
 } & Omit<SelectProps, 'error'>;
 
 const SelectField = ({
@@ -112,9 +112,9 @@ const SelectField = ({
               [classes.noLabelInput]: !label && !compact,
               [classes.compact]: compact
             }),
-            'data-testid': dataTestId,
             id: getNormalizedId(dataTestId || ''),
-            ...inputProps
+            ...inputProps,
+            ...({ 'data-testid': dataTestId } as Record<string, string>)
           }
         }}
         value={selectedOptionId}
