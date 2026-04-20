@@ -531,6 +531,10 @@ jobs:
         run: XDEBUG_MODE=coverage composer run-script test:ci
         working-directory: centreon
 
+      - name: App unit test
+        run: composer run test:new
+        working-directory: centreon
+
       - if: failure()
         uses: ./.github/actions/publish-report
         with:
@@ -539,7 +543,7 @@ jobs:
 
   backend-integration-test:
     runs-on: ubuntu-24.04
-    needs: [get-environment, changes]
+    needs: [get-environment, changes, backend-unit-test]
     if: |
       needs.changes.outputs.trigger_backend_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -605,7 +609,7 @@ jobs:
           composer-options: "--optimize-autoloader"
 
       - name: Run App integration tests
-        run: composer run test:new
+        run: composer run test:new:integration
         working-directory: centreon
 
       - name: Run Core integration tests
