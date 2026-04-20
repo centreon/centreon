@@ -357,9 +357,15 @@ foreach ($aTab as $key => $element) {
                 : $resourceController->buildListingUri([
                     'filter' => json_encode([
                         'criterias' => [
-                            'search' => 'h.name:^' . $host['hn'] . '$',
+                            [
+                                'name' => 'search',
+                                'object_type' => null,
+                                'type' => 'text',
+                                'value' => 'h.name:^' . $host['hn'] . '$',
+                            ],
                         ],
                     ]),
+                    'fromTopCounter' => 'true',
                 ])
         );
         foreach ($host['service'] as $service) {

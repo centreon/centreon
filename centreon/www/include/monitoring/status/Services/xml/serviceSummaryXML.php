@@ -174,11 +174,27 @@ $buildServicesUri = function (string $hostname, array $statuses) use ($resourceC
     return $resourceController->buildListingUri([
         'filter' => json_encode([
             'criterias' => [
-                'search' => 'h.name:^' . $hostname . '$',
-                'resourceTypes' => [$buildParameter('service', 'Service')],
-                'statuses' => $statuses,
+                [
+                    'name' => 'search',
+                    'object_type' => null,
+                    'type' => 'text',
+                    'value' => 'h.name:^' . $hostname . '$',
+                ],
+                [
+                    'name' => 'resource_types',
+                    'object_type' => null,
+                    'type' => 'multi_select',
+                    'value' => [$buildParameter('service', 'Service')],
+                ],
+                [
+                    'name' => 'statuses',
+                    'object_type' => null,
+                    'type' => 'multi_select',
+                    'value' => $statuses,
+                ],
             ],
         ]),
+        'fromTopCounter' => 'true',
     ]);
 };
 
@@ -251,9 +267,15 @@ foreach ($tabFinal as $host_name => $tab) {
             : $resourceController->buildListingUri([
                 'filter' => json_encode([
                     'criterias' => [
-                        'search' => 'h.name:^' . $host_name . '$',
+                        [
+                            'name' => 'search',
+                            'object_type' => null,
+                            'type' => 'text',
+                            'value' => 'h.name:^' . $host_name . '$',
+                        ],
                     ],
                 ]),
+                'fromTopCounter' => 'true',
             ])
     );
     $obj->XML->writeElement('ico', $tabIcone[$host_name]);
