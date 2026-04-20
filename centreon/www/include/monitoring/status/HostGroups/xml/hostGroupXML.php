@@ -270,11 +270,27 @@ $buildHostgroupUri = function (array $hostgroups, array $types, array $statuses)
     return $resourceController->buildListingUri([
         'filter' => json_encode([
             'criterias' => [
-                'hostGroups' => $hostgroups,
-                'resourceTypes' => $types,
-                'statuses' => $statuses,
+                [
+                    'name' => 'host_groups',
+                    'object_type' => 'host_groups',
+                    'type' => 'multi_select',
+                    'value' => $hostgroups,
+                ],
+                [
+                    'name' => 'resource_types',
+                    'object_type' => null,
+                    'type' => 'multi_select',
+                    'value' => $types,
+                ],
+                [
+                    'name' => 'statuses',
+                    'object_type' => null,
+                    'type' => 'multi_select',
+                    'value' => $statuses,
+                ],
             ],
         ]),
+        'fromTopCounter' => 'true',
     ]);
 };
 

@@ -15,6 +15,9 @@ framework:
         cookie_httponly: false # handled by apache
         cookie_path: /
 
+    property_info:
+        with_constructor_extractor: true
+
     serializer:
         enabled: true
         name_converter: 'serializer.name_converter.camel_case_to_snake_case'

@@ -116,6 +116,11 @@ runs:
           DIRNAME=$(dirname $FILE)
           BASENAME=$(basename $FILE)
           cd $DIRNAME
+          if [[ "$RPM_SIGNING_KEY_ID" == "" ]]; then
+            sed -i "/signature:/d" $BASENAME
+            sed -i "/RPM_SIGNING_KEY_FILE/d" $BASENAME
+            sed -i "/RPM_SIGNING_KEY_ID/d" $BASENAME
+          fi
           sed -i "s/@APACHE_USER@/$APACHE_USER/g" $BASENAME
           sed -i "s/@APACHE_GROUP@/$APACHE_GROUP/g" $BASENAME
           sed -i "s/@COMMIT_HASH@/${{ inputs.commit_hash }}/g" $BASENAME

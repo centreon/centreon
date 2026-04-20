@@ -35,6 +35,7 @@ parameters:
               - { type: classNameRegex, value: '#^Symfony\\Component\\Uid\\#' }
               - { type: classNameRegex, value: '#^Webmozart\\Assert\\Assert#' }
               - { type: classNameRegex, value: '#TypeAlias$#' } # needed because deptrac does not parse phpstan type aliases
+              - { type: classNameRegex, value: '#^Deprecated$#' } # PHP built-in attribute
 
         - name: Legacy
           collectors:
