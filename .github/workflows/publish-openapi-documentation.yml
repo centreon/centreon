@@ -15,6 +15,7 @@ on:
         description: Branch or tag on which the doc files are fetched
         required: true
         default: ""
+  pull_request:
 
 env:
   GH_TOKEN: ${{ github.token }}
@@ -23,6 +24,7 @@ jobs:
   check-inputs:
     runs-on: ubuntu-24.04
     steps:
+      - run: exit 1
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Verify that the workflow is run in a develop context
