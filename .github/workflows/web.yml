@@ -1285,8 +1285,8 @@ jobs:
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
-  publish-openapi-documentation:
-    runs-on: documentation
+  build-openapi-documentation:
+    runs-on: ubuntu-24.04
     needs: [get-environment]
     outputs:
       doc_version: ${{ steps.build-openapi-documentation.outputs.doc_version }}
@@ -1294,10 +1294,7 @@ jobs:
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
       github.event_name != 'workflow_dispatch' &&
-      github.event.pull_request.head.repo.fork != true &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled')
+      github.event.pull_request.head.repo.fork != true
     steps:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -1307,9 +1304,16 @@ jobs:
         with:
           module_name: centreon-web
 
+  publish-openapi-documentation:
+    runs-on: documentation
+    needs: [get-environment, build-openapi-documentation]
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
       - uses: ./.github/actions/publish-openapi-documentation
         with:
-          doc_version: ${{ steps.build-openapi-documentation.outputs.doc_version }}
+          doc_version: ${{ needs.build-openapi-documentation.outputs.doc_version }}
           module_name: centreon-web
           cloudfront_role_doc_production: ${{ secrets.CLOUDFRONT_ROLE_DOC_PRODUCTION }}
           cloudfront_id_doc_api: ${{ secrets.CLOUDFRONT_ID_DOC_API }}
