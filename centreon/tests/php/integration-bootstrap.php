@@ -24,6 +24,10 @@ declare(strict_types=1);
 require dirname(__DIR__, 2) . '/vendor/autoload.php';
 require dirname(__DIR__, 2) . '/config/bootstrap.php';
 
+if (! defined('INTEGRATION_BOOTSTRAP') || INTEGRATION_BOOTSTRAP !== true) {
+    return;
+}
+
 $projectDir = dirname(__DIR__, 2);
 
 $rootUser = $_ENV['rootUser'] ?? 'root';
