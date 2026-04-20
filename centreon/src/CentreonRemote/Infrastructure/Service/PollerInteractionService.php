@@ -148,7 +148,7 @@ class PollerInteractionService
                 // Send VMWARERESTART only if VMWare config has changed
                 // Atomically claim the flag to avoid race conditions with concurrent exports
                 $claimedRows = $this->db->exec(
-                    "UPDATE nagios_server SET vmware_updated = 0 WHERE vmware_updated = 1 AND id = " . (int) $host['id']
+                    'UPDATE nagios_server SET vmware_updated = 0 WHERE vmware_updated = 1 AND id = ' . (int) $host['id']
                 );
                 if ($claimedRows > 0) {
                     $vmwareRestartSucceeded = false;
@@ -160,7 +160,7 @@ class PollerInteractionService
                         if ($vmwareReturn) {
                             // Write failed, restore the flag so it is retried on next export
                             $this->db->query(
-                                "UPDATE nagios_server SET vmware_updated = 1 WHERE id = " . (int) $host['id']
+                                'UPDATE nagios_server SET vmware_updated = 1 WHERE id = ' . (int) $host['id']
                             );
 
                             throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
@@ -171,7 +171,7 @@ class PollerInteractionService
                     if (! $vmwareRestartSucceeded) {
                         // Restart failed, restore the flag so it is retried on next export
                         $this->db->query(
-                            "UPDATE nagios_server SET vmware_updated = 1 WHERE id = " . (int) $host['id']
+                            'UPDATE nagios_server SET vmware_updated = 1 WHERE id = ' . (int) $host['id']
                         );
                     }
                 }
