@@ -1,6 +1,25 @@
 name: create-xray-test-plan-and-test-execution
 
 on:
+  workflow_dispatch:
+    inputs:
+      major_version:
+        required: true
+        type: string
+      minor_version:
+        required: true
+        type: string
+      os:
+        required: true
+        type: choice
+        options:
+          - alma8
+          - alma9
+          - bullseye
+          - bookworm
+      is_nightly:
+        required: false
+        type: string
   workflow_call:
     inputs:
       major_version:
