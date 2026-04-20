@@ -328,6 +328,7 @@ jobs:
           STABILITY: ${{ needs.get-environment.outputs.stability }}
           EVENT_NAME: ${{ github.event_name }}
           HAS_UPDATE_TRANSLATIONS_LABEL: ${{ contains(needs.get-environment.outputs.labels, 'update-translations') }}
+<<<<<<< HEAD
         run: |
           TRANSLATIONS_PATCH_FILE=""
 
@@ -377,6 +378,9 @@ jobs:
           fi
 
           echo "translations_patch_file=$TRANSLATIONS_PATCH_FILE" >> $GITHUB_OUTPUT
+=======
+        run: bash .github/scripts/translation/build-translations.sh
+>>>>>>> 8473078a48 (MON-192988 extract workflow inline scripts to dedicated files)
         shell: bash
 
       - name: Upload translations patch
