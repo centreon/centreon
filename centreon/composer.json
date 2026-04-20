@@ -36,7 +36,7 @@
     "dragonmantank/cron-expression": "3.1.*",
     "enshrined/svg-sanitize": "0.22.*",
     "firebase/php-jwt": "6.11.*",
-    "friendsofsymfony/rest-bundle": "3.8.*",
+    "friendsofsymfony/rest-bundle": "3.9.*",
     "jms/serializer-bundle": "5.5.*",
     "justinrainbow/json-schema": "5.3.*",
     "monolog/monolog": "3.7.*",
