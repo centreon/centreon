@@ -45,7 +45,7 @@ runs:
       run: |
         source ../.version
         major_version=${MAJOR}
-        OPENAPI_FILE_PATH=${{ inputs.openapi_file_reference || github.ref_name }}/${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API/
+        OPENAPI_FILE_PATH=${{ inputs.openapi_file_reference || github.ref_name }}/${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API
 
         if ! [[ $major_version =~ ^2[0-9]\.10$ ]] && [[ -f "$OPENAPI_FILE_PATH/${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}-cloud-api.yaml" ]]; then
           doc_version="cloud"
