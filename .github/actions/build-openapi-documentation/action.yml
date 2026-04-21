@@ -34,11 +34,10 @@ runs:
       shell: bash
       run: |
         pnpm install \
-          --frozen-lockfile \
           --config.trustPolicy=no-downgrade \
           --config.minimumReleaseAge=2880 \
           --config.blockExoticSubdeps=true
-      working-directory: ${{ inputs.openapi_file_reference || github.ref_name }}/${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}
+      working-directory: ${{ inputs.openapi_file_reference || github.ref_name }}/${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API
 
     - name: Build OpenAPI documentation
       id: build_documentation
@@ -61,9 +60,6 @@ runs:
         echo "doc_version=$doc_version" >> $GITHUB_OUTPUT
 
         echo "Building API doc from $OPENAPI_FILE"
-        OPENAPI_FILE="doc/API/$OPENAPI_FILE"
-        cd ../..
-        pnpm list -r --depth 0
         pnpm --filter "redoc-centreon-web-openapi" run redoc-latest
       shell: bash
       working-directory: ${{ inputs.openapi_file_reference || github.ref_name }}/${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API
