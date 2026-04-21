@@ -45,8 +45,11 @@ runs:
 
     - name: Copy to AWS S3 centreon-documentation-api
       run: |
-        BUCKET_PATH="s3://centreon-documentation-api/api/${{ inputs.module_name }}/${{ inputs.doc_version }}"
-
+        if [[ ${{ inputs.module_name }} == "centreon-web" ]] && [[ ${{ inputs.doc_version }} == "cloud" ]]; then
+          BUCKET_PATH="s3://centreon-documentation-api/api/${{ inputs.module_name }}-${{ inputs.doc_version }}"
+        else
+          BUCKET_PATH="s3://centreon-documentation-api/api/${{ inputs.module_name }}/${{ inputs.doc_version }}"
+        fi
         ls -lah
         aws s3 cp "index.html" "${BUCKET_PATH}/index.html"
         aws s3 cp "centreon-logo.png" "${BUCKET_PATH}/centreon-logo.png"
