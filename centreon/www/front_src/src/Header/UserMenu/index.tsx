@@ -4,7 +4,6 @@ import CheckIcon from '@mui/icons-material/Check';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import LogoutIcon from '@mui/icons-material/Logout';
-import UserIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {
   Badge,
@@ -150,9 +149,19 @@ const useStyles = makeStyles()((theme) => ({
     whiteSpace: 'nowrap'
   },
   userIcon: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.20)',
+    borderRadius: '50%',
     color: theme.palette.common.white,
     cursor: 'pointer',
-    fontSize: theme.spacing(4)
+    display: 'flex',
+    fontSize: theme.typography.body1.fontSize,
+    fontWeight: 600,
+    height: theme.spacing(4),
+    justifyContent: 'center',
+    lineHeight: 1,
+    userSelect: 'none',
+    width: theme.spacing(4)
   },
   wrapper: {
     alignItems: 'center',
@@ -178,13 +187,13 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
 
   const [copied, setCopied] = useState(false);
   const [data, setData] = useState<UserData | null>(null);
-  const [anchorEl, setAnchorEl] = useState<SVGSVGElement | null>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
   const [anchorHeight, setAnchorHeight] = useState(12);
   const profile = useRef<HTMLDivElement>();
   const userMenu = useRef<HTMLDivElement>();
   const autologinNode = useRef<HTMLTextAreaElement>();
   const refreshTimeout = useRef<NodeJS.Timeout>();
-  const userIconRef = useRef<SVGSVGElement | null>(null);
+  const userIconRef = useRef<HTMLDivElement | null>(null);
   const { sendRequest } = useRequest<UserData>({
     request: getData
   });
@@ -234,7 +243,7 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
     setAnchorHeight(headerHeight - userMenuBottom);
   };
 
-  const toggle = (event: MouseEvent<SVGSVGElement>): void => {
+  const toggle = (event: MouseEvent<HTMLDivElement>): void => {
     if (anchorEl) {
       setAnchorEl(null);
 
@@ -324,6 +333,10 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
     toggleFullscreen(document.querySelector('body'));
   };
 
+  const userInitial =
+    (data.fullname || data.username || '?').trim().charAt(0).toUpperCase() ||
+    '?';
+
   return (
     <div className={classes.wrapper} ref={profile as RefObject<HTMLDivElement>}>
       <div className={classes.clock}>
@@ -345,14 +358,17 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
             invisible={passwordIsNotYetAboutToExpire}
             variant="dot"
           >
-            <UserIcon
+            <div
               aria-label={t(labelProfile)}
               className={classes.userIcon}
               data-cy="userIcon"
-              fontSize="large"
               onClick={toggle}
               ref={userIconRef}
-            />
+              role="button"
+              tabIndex={0}
+            >
+              {userInitial}
+            </div>
           </Badge>
         </Tooltip>
         <Popper
