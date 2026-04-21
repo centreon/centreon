@@ -53,8 +53,6 @@ final class GetTokenController extends AbstractController
             return $this->createResponse($response);
         }
 
-        \CentreonLog::create()->error(logTypeId: \CentreonLog::TYPE_BUSINESS_LOG, message: 'get token', customContext: ['response' => $response]);
-
         return JsonResponse::fromJsonString($presenter->present(
             $response,
             ['groups' => ['Token:Get']]

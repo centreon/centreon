@@ -879,7 +879,7 @@ $addPollerTypeColumn = function () use ($pearDB, &$errorMessage, $version): void
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: Column poller_type already exists on nagios_server, skipping",
-            );
+        );
 
         return;
     }
@@ -906,33 +906,31 @@ $updateAuthenticationTable = function () use ($pearDB, &$errorMessage, $version)
     $tableExistWithOldName = $pearDB->fetchOne(
         <<<'SQL'
             SELECT true FROM INFORMATION_SCHEMA.TABLES
-            WHERE table_schema = :db_name AND table_name LIKE 'jwt_tokens'
+            WHERE table_schema = :db_name AND table_name = 'jwt_tokens'
             SQL,
         QueryParameters::create([
-            QueryParameter::create('db_name', $pearDB->getDatabaseName()),
+            QueryParameter::string('db_name', $pearDB->getDatabaseName()),
         ])
     );
-    if (! $tableExistWithOldName) {
+    if ($tableExistWithOldName) {
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: jwt_tokens table not found, skipping update",
-            );
-
-        return;
+            message: "UPGRADE - {$version}: Renaming jwt_tokens table",
+        );
+        $pearDB->executeStatement(
+            <<<'SQL'
+                ALTER TABLE `jwt_tokens` RENAME TO `authentication_tokens`, COMMENT 'Table for tokens not used for api/ui login'
+                SQL
+        );
+    } else {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: jwt_tokens table not found, skipping rename",
+        );
     }
 
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: Renaming jwt_tokens table",
-    );
-    $pearDB->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `jwt_tokens` RENAME TO `authentication_tokens`, COMMENT 'Table for tokens not used for api/ui login'
-            SQL
-    );
-
     if ($pearDB->columnExists(
-        $pearDB->getConnectionConfig()->getDatabaseNameRealTime(),
+        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
         'authentication_tokens',
         'type'
     )) {
@@ -959,7 +957,7 @@ $updateAuthenticationTable = function () use ($pearDB, &$errorMessage, $version)
 
 /** -------------------------------------- Log Actions -------------------------------------- */
 $updateLogActionTable = function () use ($pearDBO, &$errorMessage, $version): void {
-    $errorMessage = "Unable to update'log_action' table";
+    $errorMessage = "Unable to update 'log_action' table";
 
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
@@ -970,7 +968,7 @@ $updateLogActionTable = function () use ($pearDBO, &$errorMessage, $version): vo
             ALTER TABLE `log_action` MODIFY COLUMN `log_contact_id` int(11) DEFAULT NULL
             SQL
     );
-}
+};
 
 try {
     // DDL statements for real time database
