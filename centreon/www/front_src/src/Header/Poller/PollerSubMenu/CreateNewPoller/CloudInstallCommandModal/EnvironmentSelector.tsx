@@ -1,15 +1,21 @@
 import ComputerIcon from '@mui/icons-material/Computer';
 import { Typography } from '@mui/material';
 
-import type { InputPropsWithoutGroup } from '@centreon/ui';
 import { IconButton } from '@centreon/ui';
 
 import { useFormikContext } from 'formik';
+import { useAtomValue } from 'jotai';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { labelDocker, labelVM } from '../../../translatedLabels';
+import { Section } from '../../../../../AgentConfiguration/Listing/InstallationCommandModal/Components';
+import {
+  labelDocker,
+  labelSelectPollerEnvironment,
+  labelVM
+} from '../../../translatedLabels';
 import { PollerEnvironment } from '../../models';
+import { isGeneratedAtom } from './atoms';
 import type { CloudInstallCommandFormValues } from './models';
 
 const dockerIcon = (
@@ -31,14 +37,11 @@ const environments = [
   }
 ];
 
-const EnvironmentSelector = ({
-  getDisabled
-}: InputPropsWithoutGroup): ReactElement => {
+const EnvironmentSelector = (): ReactElement => {
   const { t } = useTranslation();
+  const isGenerated = useAtomValue(isGeneratedAtom);
   const { values, setFieldValue, setFieldTouched } =
     useFormikContext<CloudInstallCommandFormValues>();
-
-  const disabled = getDisabled?.(values) || false;
 
   const selectEnvironment = (env: PollerEnvironment): void => {
     setFieldTouched('environment', true, false);
@@ -46,28 +49,30 @@ const EnvironmentSelector = ({
   };
 
   return (
-    <div className="flex gap-12 my-2">
-      {environments.map(({ env, icon, label }) => (
-        <div className="flex flex-col gap-2.5 items-center" key={label}>
-          <IconButton
-            ariaLabel={t(label)}
-            className={`flex justify-center items-center w-16 h-16 rounded-sm ${values.environment === env ? 'border-2 border-primary-main' : ''}`}
-            data-selected={values.environment === env}
-            disabled={disabled}
-            onClick={() => selectEnvironment(env)}
-          >
-            {icon}
-          </IconButton>
-          <Typography
-            className="font-medium cursor-pointer"
-            onClick={() => !disabled && selectEnvironment(env)}
-            variant="subtitle2"
-          >
-            {t(label)}
-          </Typography>
-        </div>
-      ))}
-    </div>
+    <Section order={2} title={t(labelSelectPollerEnvironment)}>
+      <div className="flex gap-12 my-2">
+        {environments.map(({ env, icon, label }) => (
+          <div className="flex flex-col gap-2.5 items-center" key={label}>
+            <IconButton
+              ariaLabel={t(label)}
+              className={`flex justify-center items-center w-16 h-16 rounded-sm ${values.environment === env ? 'border-2 border-primary-main' : ''}`}
+              data-selected={values.environment === env}
+              disabled={isGenerated}
+              onClick={() => selectEnvironment(env)}
+            >
+              {icon}
+            </IconButton>
+            <Typography
+              className="font-medium cursor-pointer"
+              onClick={() => !isGenerated && selectEnvironment(env)}
+              variant="subtitle2"
+            >
+              {t(label)}
+            </Typography>
+          </div>
+        ))}
+      </div>
+    </Section>
   );
 };
 

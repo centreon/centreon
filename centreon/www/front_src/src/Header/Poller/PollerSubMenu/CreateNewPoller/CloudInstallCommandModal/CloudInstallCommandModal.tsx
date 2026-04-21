@@ -21,7 +21,7 @@ const CloudInstallCommandModal = (): ReactElement => {
   const { t } = useTranslation();
 
   const { isOpen, close, submit } = useCloudInstallCommand();
-  const { groups, inputs } = useInputs();
+  const inputs = useInputs();
   const validationSchema = useValidationSchema();
 
   return (
@@ -29,10 +29,7 @@ const CloudInstallCommandModal = (): ReactElement => {
       <Modal.Header>{t(labelCopyInstallCommand)}</Modal.Header>
       <Modal.Body>
         <Form<CloudInstallCommandFormValues>
-          isIncludeTabs={false}
-          areGroupsOpen
           Buttons={Buttons}
-          groups={groups}
           initialValues={initialValues}
           inputs={inputs}
           isCollapsible={false}
