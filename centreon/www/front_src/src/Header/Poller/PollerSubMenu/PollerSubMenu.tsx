@@ -1,9 +1,10 @@
 import { Button, List, ListItem, Typography } from '@mui/material';
 
+import { platformFeaturesAtom } from '@centreon/ui-context';
+import { useAtomValue } from 'jotai';
 import { isEmpty } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
-
-import FederatedComponent from '../../../components/FederatedComponents';
+import CreateNewPoller from './CreateNewPoller';
 import ExportConfiguration from './ExportConfiguration';
 
 const useStyles = makeStyles()((theme) => ({
@@ -60,6 +61,9 @@ export const PollerSubMenu = ({
 }: PollerSubMenuProps): JSX.Element => {
   const { classes, cx } = useStyles();
 
+  const platformFeatures = useAtomValue(platformFeaturesAtom);
+  const isCreatePollerDisplayed = !platformFeatures?.isCloudPlatform;
+
   return (
     <List className={classes.list} data-testid="poller-menu">
       {!isEmpty(issues) ? (
@@ -101,9 +105,12 @@ export const PollerSubMenu = ({
           <ExportConfiguration closeSubMenu={closeSubMenu} />
         </ListItem>
       )}
-      <ListItem className={classes.listItem}>
-        <FederatedComponent path="/cloud-extensions" />
-      </ListItem>
+
+      {isCreatePollerDisplayed && (
+        <ListItem className={classes.listItem}>
+          <CreateNewPoller closeSubMenu={closeSubMenu} />
+        </ListItem>
+      )}
     </List>
   );
 };
