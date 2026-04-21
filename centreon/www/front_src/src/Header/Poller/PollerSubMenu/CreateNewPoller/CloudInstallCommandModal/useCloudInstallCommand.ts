@@ -6,9 +6,8 @@ import {
   useSnackbar
 } from '@centreon/ui';
 
-import { useAtom } from 'jotai';
-import { isNotNil } from 'ramda';
-import { useCallback, useMemo, useState } from 'react';
+import { useAtom, useSetAtom } from 'jotai';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -18,7 +17,8 @@ import {
 } from '../../../../api/endpoints';
 
 import { isCloudInstallCommandModalOpenAtom } from '../../atoms';
-import { PollerEnvironment } from '../../models';
+import { generatedCommandAtom, pollerIdAtom } from './atoms';
+import type { CloudInstallCommandFormValues } from './models';
 
 import {
   labelConfigurationExported,
@@ -27,86 +27,37 @@ import {
   labelPollerCreatedSuccessfully
 } from '../../../translatedLabels';
 
-interface CloudInstallCommandState {
-  pollerName: string;
-  environment: PollerEnvironment | null;
-  token: { id: string; name: string } | null;
-  generatedCommand: string | null;
-  isGenerated: boolean;
-  pollerId: number | null;
-}
-
-const initialState: CloudInstallCommandState = {
-  environment: null,
-  generatedCommand: null,
-  isGenerated: false,
-  pollerId: null,
-  pollerName: '',
-  token: null
-};
-
 export const useCloudInstallCommand = () => {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useAtom(isCloudInstallCommandModalOpenAtom);
-  const [state, setState] = useState<CloudInstallCommandState>(initialState);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const setGeneratedCommand = useSetAtom(generatedCommandAtom);
+  const setPollerId = useSetAtom(pollerIdAtom);
 
   const { showSuccessMessage, showErrorMessage } = useSnackbar();
-
-  const { sendRequest: sendExportRequest, sending: isExporting } = useRequest({
-    defaultFailureMessage: t(labelFailedToExportConfiguration),
-    request: getData
-  });
 
   const { mutateAsync: createPoller } = useMutationQuery({
     getEndpoint: () => createPollerEndpoint,
     method: Method.POST
   });
 
-  const close = useCallback(() => {
-    setIsOpen(false);
-    setState(initialState);
-  }, []);
-
   const open = useCallback(() => {
     setIsOpen(true);
   }, []);
 
-  const setPollerName = useCallback((name: string) => {
-    setState((prev) => ({ ...prev, pollerName: name }));
+  const close = useCallback(() => {
+    setIsOpen(false);
+    setGeneratedCommand(null);
+    setPollerId(null);
   }, []);
 
-  const setEnvironment = useCallback((env: PollerEnvironment) => {
-    setState((prev) => ({ ...prev, environment: env }));
-  }, []);
-
-  const setToken = useCallback((_, value) => {
-    setState((prev) => ({
-      ...prev,
-      token: value ? { id: value.id, name: value.name } : null
-    }));
-  }, []);
-
-  const canGenerate = useMemo(
-    () =>
-      state.pollerName.trim().length > 0 &&
-      isNotNil(state.environment) &&
-      isNotNil(state.token),
-    [state.pollerName, state.environment, state.token]
-  );
-
-  const generate = useCallback(async () => {
-    if (!canGenerate) return;
-
-    setIsGenerating(true);
-
+  const submit = useCallback(async (values: CloudInstallCommandFormValues) => {
     try {
       const pollerResponse = await createPoller({
         payload: {
-          environment: state.environment,
-          name: state.pollerName.trim(),
+          environment: values.environment,
+          name: values.pollerName.trim(),
           token: {
-            name: state.token?.name
+            name: values.token?.name
           }
         }
       });
@@ -115,7 +66,6 @@ export const useCloudInstallCommand = () => {
 
       if (!pollerId) {
         showErrorMessage(t(labelFailedToCreatePoller));
-        setIsGenerating(false);
 
         return;
       }
@@ -126,47 +76,54 @@ export const useCloudInstallCommand = () => {
 
       const command = commandResponse?.command;
 
-      setState((prev) => ({
-        ...prev,
-        generatedCommand: command || '',
-        isGenerated: true,
-        pollerId
-      }));
+      setGeneratedCommand(command || '');
+      setPollerId(pollerId);
 
       showSuccessMessage(t(labelPollerCreatedSuccessfully));
     } catch {
       showErrorMessage(t(labelFailedToCreatePoller));
-    } finally {
-      setIsGenerating(false);
     }
-  }, [canGenerate, state.pollerName, state.environment, state.token]);
+  }, []);
+
+  return {
+    open,
+    close,
+    isOpen,
+    submit
+  };
+};
+
+export const useValidatePoller = () => {
+  const { t } = useTranslation();
+  const setIsOpen = useSetAtom(isCloudInstallCommandModalOpenAtom);
+  const [pollerId, setPollerId] = useAtom(pollerIdAtom);
+  const setGeneratedCommand = useSetAtom(generatedCommandAtom);
+
+  const { showSuccessMessage, showErrorMessage } = useSnackbar();
+
+  const { sendRequest: sendExportRequest, sending: isExporting } = useRequest({
+    defaultFailureMessage: t(labelFailedToExportConfiguration),
+    request: getData
+  });
 
   const validate = useCallback(async () => {
-    if (!state.pollerId) return;
+    if (!pollerId) return;
 
     try {
       await sendExportRequest({
-        endpoint: exportPollerConfigurationEndpoint(state.pollerId)
+        endpoint: exportPollerConfigurationEndpoint(pollerId)
       });
       showSuccessMessage(t(labelConfigurationExported));
-      close();
+      setIsOpen(false);
+      setGeneratedCommand(null);
+      setPollerId(null);
     } catch {
       showErrorMessage(t(labelFailedToExportConfiguration));
     }
-  }, [state.pollerId]);
+  }, [pollerId]);
 
   return {
-    canGenerate,
-    close,
-    generate,
     isExporting,
-    isGenerating,
-    isOpen,
-    open,
-    setEnvironment,
-    setPollerName,
-    setToken,
-    state,
     validate
   };
 };

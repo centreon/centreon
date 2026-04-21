@@ -30,6 +30,7 @@ export type FormProps<T> = {
   inputs: Array<InputProps>;
   isCollapsible?: boolean;
   isLoading?: boolean;
+  isIncludeTabs?: boolean;
   submit: (values: T, bag: FormikHelpers<T>) => void | Promise<void>;
   validate?: (values: FormikValues) => void;
   validationSchema: Schema<T>;
@@ -50,6 +51,7 @@ const Form = <T extends object>({
   isLoading = false,
   isCollapsible = false,
   groupDirection = GroupDirection.Vertical,
+  isIncludeTabs = true,
   ...formikSharedConfig
 }: FormProps<T>): JSX.Element => {
   const { cx, classes } = useStyles();
@@ -77,7 +79,7 @@ const Form = <T extends object>({
       {...formikSharedConfig}
     >
       <div>
-        <FormSection groups={groups} />
+        {isIncludeTabs && <FormSection groups={groups} />}
         {children}
         <div className={cx(className, classes.form)}>
           <Inputs
