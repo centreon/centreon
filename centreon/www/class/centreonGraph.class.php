@@ -1213,7 +1213,7 @@ class CentreonGraph
         $commandLine = preg_replace('/(\\$|`)/', '', $commandLine);
         $timezone = $this->GMT->getMyTimezone();
         if (! empty($timezone)) {
-            $gmt_export = "export TZ='" . $timezone . "'; ";
+            $gmt_export = 'export TZ=' . escapeshellarg($timezone) . '; ';
         }
         $this->log($commandLine);
         // Send Binary Data

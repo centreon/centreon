@@ -363,11 +363,12 @@ try {
                     }
                 }
             } else {
-                passthru(
-                    escapeshellcmd("echo 'SENDCFGFILE:{$host['id']}'") . ' >> ' . escapeshellcmd($centcore_pipe),
-                    $return
+                $written = file_put_contents(
+                    $centcore_pipe,
+                    'SENDCFGFILE:' . (int) $host['id'] . "\n",
+                    FILE_APPEND | LOCK_EX
                 );
-                if ($return) {
+                if ($written === false) {
                     throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
                 }
                 // Send VMWARERESTART to remote poller only if VMWare config has changed
