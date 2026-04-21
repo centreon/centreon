@@ -1,5 +1,7 @@
 <?php
 
+use Core\Security\Token\Domain\Model\PollerToken;
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -144,6 +146,27 @@ if ($row = $centralServerQuery->fetch()) {
             exception: $ex
         );
     }
+}
+
+// Create default poller token
+try {
+    $tokenStatement = $link->prepare(
+        <<<'SQL'
+            INSERT INTO `authentication_tokens`
+                (`token_string`, `token_name`, `creator_id`, `creator_name`, `encoding_key`, `is_revoked`, `creation_date`, `expiration_date`, `type`)
+            VALUES
+                (:token_string, 'poller-default', 1, 'admin', NULL, 0, :creation_date, NULL, 'poller')
+            SQL
+    );
+    $tokenStatement->bindValue(':token_string', \Security\Encryption::generateRandomString());
+    $tokenStatement->bindValue(':creation_date', time());
+    $tokenStatement->execute();
+} catch (Throwable $ex) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+        message: 'An error occurred while creating the default poller token, skipping.',
+        exception: $ex
+    );
 }
 
 // Manage timezone
