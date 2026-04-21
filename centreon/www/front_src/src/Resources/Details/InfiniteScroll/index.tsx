@@ -99,7 +99,6 @@ interface Props<TEntity> {
 }
 
 const InfiniteScrollContent = <TEntity extends { id: number }>({
-  limit,
   filter,
   reloadDependencies = [],
   loadingSkeleton,
