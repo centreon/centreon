@@ -79,6 +79,55 @@ jobs:
           echo "GITHUB_OUTPUT contents:"
           cat $GITHUB_OUTPUT
 
+  associate-test-cases:
+    runs-on: ubuntu-24.04
+    if: |
+      inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) &&
+      inputs.is_nightly == 'true'
+    outputs:
+      test_execution_id: ${{ steps.get-test-ids.outputs.test_execution_id }}
+      test_plan_id: ${{ steps.get-test-ids.outputs.test_plan_id }}
+      issue_list_ids: ${{ steps.xray-newman.outputs.issue_list_ids }}
+      api-issue-ids: ${{ steps.xray-newman.outputs.api-issue-ids }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: centreon/tests/rest_api
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Test Execution and test plan Keys
+        id: get-test-ids
+        run: |
+          test_execution_id=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_execution_id_'${{ inputs.os }})
+          test_plan_id=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_plan_id_'${{ inputs.os }})
+          echo "The Test Execution ID : $test_execution_id"
+          echo "The Test Plan ID : $test_plan_id"
+          echo "test_plan_id=$test_plan_id" >> $GITHUB_OUTPUT
+          echo "test_execution_id=$test_execution_id" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Generate Xray Token
+        id: generate-xray-token
+        run: |
+          token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.client_id }}\", \"client_secret\": \"${{ secrets.client_secret }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
+          xray_token=$(echo "$token_response" | sed -n 's/.*"\(.*\)".*/\1/p')
+          echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Associate Test Cases with Test plan
+        id: xray-newman
+        env:
+          XRAY_TOKEN: ${{ steps.generate-xray-token.outputs.xray_token }}
+          TEST_PLAN_ID: ${{ steps.get-test-ids.outputs.test_plan_id }}
+          TEST_EXECUTION_ID: ${{ steps.get-test-ids.outputs.test_execution_id }}
+          JIRA_USER_EMAIL: ${{ secrets.jira_user_email }}
+          JIRA_API_TOKEN: ${{ secrets.jira_api_token }}
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/xray/associate-test-cases.sh"
+
+
   newman-test-run:
     needs: [newman-test-list]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
