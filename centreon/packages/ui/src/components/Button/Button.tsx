@@ -7,7 +7,6 @@ import { type ReactElement, type ReactNode, useMemo } from 'react';
 
 import type { AriaLabelingAttributes } from '../../@types/aria-attributes';
 import type { DataTestAttributes } from '../../@types/data-attributes';
-import styles from './Button.module.css';
 
 const muiVariantMap: Record<
   Required<ButtonProps>['variant'],
@@ -34,6 +33,44 @@ export type ButtonProps = AriaLabelingAttributes &
     variant?: 'primary' | 'secondary' | 'ghost';
   };
 
+const sizeClasses: Record<string, string> = {
+  medium: 'text-[16px] h-auto leading-[24px]',
+  small: 'text-[14px] h-auto leading-[22px]'
+};
+
+const getButtonClasses = ({
+  size,
+  variant,
+  isDanger,
+  disabled
+}: {
+  disabled: boolean;
+  isDanger: boolean;
+  size: string;
+  variant: string;
+}): string => {
+  const classes = ['text-nowrap', sizeClasses[size] ?? ''];
+
+  if (size === 'small' && variant === 'primary') {
+    classes.push('px-4');
+  }
+
+  if (!disabled) {
+    if (variant === 'primary') {
+      classes.push(isDanger ? 'bg-error-main' : 'bg-primary-main');
+    }
+    if (variant === 'secondary') {
+      classes.push(
+        isDanger
+          ? 'border-error-main text-error-main'
+          : 'border-primary-main text-primary-main'
+      );
+    }
+  }
+
+  return classes.filter(Boolean).join(' ');
+};
+
 const Button = ({
   children,
   variant = 'primary',
@@ -56,9 +93,11 @@ const Button = ({
     [icon, iconVariant]
   );
 
+  const buttonClasses = getButtonClasses({ disabled, isDanger, size, variant });
+
   return (
     <MuiButton
-      className={`${styles.button} ${className}`}
+      className={`${buttonClasses} ${className}`}
       data-icon-variant={iconVariant}
       data-is-danger={isDanger}
       data-size={size}

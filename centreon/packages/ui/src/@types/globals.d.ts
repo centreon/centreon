@@ -3,14 +3,6 @@ import '@testing-library/jest-dom/types/jest';
 
 declare module '*.scss';
 
-declare module '*.module.css' {
-  const classes: { readonly [key: string]: string };
-  export default classes;
-  export const button: string;
-  export const modalBody: string;
-  export const modalHeader: string;
-}
-
 declare module '*.svg' {
   export const ReactComponent: FunctionComponent<
     SVGProps<SVGSVGElement> & { title?: string }
