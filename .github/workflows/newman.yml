@@ -251,11 +251,30 @@ jobs:
             docker compose -f ../../../.github/docker/docker-compose.yml exec web \
               bash -c "mkdir -p /var/log/centreon/symfony.new && chown ${WEB_USER}:${WEB_USER} /var/log/centreon/symfony.new"
 
-            docker compose -f ../../../.github/docker/docker-compose.yml exec web \
-              bash -c "sed -i 's/^error_reporting\s*=.*/error_reporting = E_ALL/' /etc/php.ini"
+            docker compose -f ../../../.github/docker/docker-compose.yml exec -e OS_INPUT="$OS_INPUT" web \
+              bash -c '
+                if [[ "$OS_INPUT" == "alma9" ]]; then
+                  PHP_INI="/etc/php.ini"
+                else
+                  PHP_INI=$(find /etc/php -name "php.ini" -path "*/fpm/*" 2>/dev/null | head -1)
+                fi
+                if [[ -z "$PHP_INI" ]] || [[ ! -f "$PHP_INI" ]]; then
+                  echo "WARNING: Could not locate PHP FPM ini file; skipping error_reporting update"
+                elif grep -q "^error_reporting" "$PHP_INI"; then
+                  sed -i "s/^error_reporting[[:space:]]*=.*/error_reporting = E_ALL/" "$PHP_INI"
+                else
+                  echo "error_reporting = E_ALL" >> "$PHP_INI"
+                fi
+              '
 
             docker compose -f ../../../.github/docker/docker-compose.yml exec web \
-              service php-fpm restart
+              bash -c '
+                PHP_FPM_UNIT=$(systemctl list-units --type=service --state=loaded --full --no-legend 2>/dev/null \
+                  | awk '"'"'{print $1}'"'"' | grep -E "^php[0-9.]*-fpm\.service$" | head -1 | sed "s/\.service$//")
+                [[ -z "$PHP_FPM_UNIT" ]] && PHP_FPM_UNIT="php-fpm"
+                echo "Restarting PHP-FPM unit: ${PHP_FPM_UNIT}"
+                systemctl restart "${PHP_FPM_UNIT}"
+              '
           fi
 
           if [[ -f "${COLLECTION_DIRECTORY}/setup.sh" ]]; then
@@ -342,8 +361,8 @@ jobs:
           feature="${feature%%.postman*}"
           deprecation_file_for_archive="$feature-deprecation.log"
           found=false
-          deprecation_file_container=$(docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -c "find /var/log/centreon/symfony.new/ -maxdepth 1 -regex \".*deprecations.*\" 2>/dev/null | grep -m1 . || echo 'NOT_FOUND'")
-          if [[ "$deprecation_file_container" != "NOT_FOUND" && -n "$deprecation_file_container" ]]; then
+          deprecation_file_container=$(docker compose -f ../../../.github/docker/docker-compose.yml exec -T web bash -c "find /var/log/centreon/symfony.new/ -maxdepth 1 -regex \".*deprecations.*\" 2>/dev/null | grep -m1 ." | tr -d '\r')
+          if [[ -n "$deprecation_file_container" ]]; then
             docker compose -f ../../../.github/docker/docker-compose.yml exec -T web cat "$deprecation_file_container" >> ./$deprecation_file_for_archive
             echo "Appended deprecation log from $deprecation_file_container"
             found=true
@@ -358,7 +377,7 @@ jobs:
         if: ${{ steps.symfony-deprecation-logs.outcome == 'success' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: newman-${{ inputs.os }}-${{ steps.feature-path.outputs.feature_name_with_dash }}-deprecation-logs
+          name: newman-${{ inputs.os }}${{ inputs.db_id && format('-{0}', inputs.db_id) || '' }}-${{ steps.feature-path.outputs.feature_name_with_dash }}-deprecation-logs
           path: "centreon/tests/rest_api/*-deprecation.log"
           retention-days: 1
           if-no-files-found: ignore
@@ -639,8 +658,8 @@ jobs:
         if: ${{ inputs.upload_artifacts == 'true' }}
         continue-on-error: true
         with:
-          name: newman-${{ inputs.os }}-deprecation-logs
-          pattern: newman-${{ inputs.os }}-*-deprecation-logs
+          name: newman-${{ inputs.os }}${{ inputs.db_id && format('-{0}', inputs.db_id) || '' }}-deprecation-logs
+          pattern: newman-${{ inputs.os }}${{ inputs.db_id && format('-{0}', inputs.db_id) || '' }}-*-deprecation-logs
           retention-days: 1
           delete-merged: true
 
