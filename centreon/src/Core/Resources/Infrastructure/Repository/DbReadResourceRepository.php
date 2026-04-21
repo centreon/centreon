@@ -559,6 +559,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         bool $useAclCte = false,
         ?ResourceCursor $cursor = null,
         bool $withCursorLookahead = false,
+        ?string $tiebreakDir = null,
     ): string {
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
 
@@ -759,10 +760,12 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $sortSql = $this->sqlRequestTranslator->translateSortParameterToSql()
                 ?: ' ORDER BY resources.status_ordered DESC, resources.last_status_change DESC';
 
-            if ($cursor !== null) {
-                // Append resource_id as tiebreaker to guarantee a stable sort for keyset pagination.
-                $dir = mb_strtoupper($cursor->sorts[0]['dir'] ?? 'DESC');
-                $sortSql .= ", resources.resource_id {$dir}";
+            if ($tiebreakDir !== null) {
+                // Append resource_id as tiebreaker unconditionally (page 1 and subsequent pages) to
+                // guarantee a stable sort. Without it, ties on the primary sort columns produce
+                // non-deterministic ordering on page 1, so the cursor built from that page cannot
+                // reliably seek to page 2.
+                $sortSql .= ", resources.resource_id {$tiebreakDir}";
             }
 
             $query .= $sortSql;
@@ -1370,6 +1373,13 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         // Decide ACL strategy once; the result is reused by count() via the aclCountCache.
         $useAclCte = $this->shouldUseAclCte($accessGroupIds);
 
+        // Derive tiebreaker direction from the primary sort column so that both the ORDER BY and
+        // the cursor WHERE condition use the same direction on every page (including page 1).
+        // null when $activeSortCols is null (cursor disabled) — tiebreaker is not emitted then.
+        $tiebreakDir = $activeSortCols !== null
+            ? mb_strtoupper($activeSortCols[0]['dir'] ?? 'DESC')
+            : null;
+
         // Build and execute data query.
         $queryParametersFromRequestParameter = new QueryParameters();
         $queryFind = $this->generateFindResourcesQuery(
@@ -1380,6 +1390,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             useAclCte: $useAclCte,
             cursor: $cursor,
             withCursorLookahead: true,
+            tiebreakDir: $tiebreakDir,
         );
 
         $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
