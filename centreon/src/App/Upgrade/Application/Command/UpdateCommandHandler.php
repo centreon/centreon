@@ -72,10 +72,11 @@ final readonly class UpdateCommandHandler
 
             $this->moduleRepository->updateAll();
             $this->widgetRepository->updateAll();
+
+            $this->engineContextWriter->writeIfMissing();
+            $this->cacheClearer->clear();
         } finally {
             $this->updateLocker->unlock();
         }
-        $this->engineContextWriter->writeIfMissing();
-        $this->cacheClearer->clear();
     }
 }

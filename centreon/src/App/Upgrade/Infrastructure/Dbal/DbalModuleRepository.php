@@ -70,6 +70,9 @@ final class DbalModuleRepository implements ModuleRepository
             return;
         }
 
+        // Mark early to prevent infinite recursion on cyclic dependencies.
+        $this->alreadyUpgraded[] = $moduleName;
+
         if (! isset($this->installedModuleVersions[$moduleName])) {
             return;
         }
@@ -82,9 +85,7 @@ final class DbalModuleRepository implements ModuleRepository
         $installedVersion = $this->installedModuleVersions[$moduleName];
         $codeVersion = $this->asString($codeConfig['mod_release'] ?? '');
 
-        if ($installedVersion === $codeVersion) {
-            $this->alreadyUpgraded[] = $moduleName;
-
+        if ($codeVersion === '' || version_compare($installedVersion, $codeVersion) >= 0) {
             return;
         }
 
@@ -106,7 +107,6 @@ final class DbalModuleRepository implements ModuleRepository
         $this->updateModuleVersion($moduleId, $codeVersion);
 
         $this->installedModuleVersions[$moduleName] = $codeVersion;
-        $this->alreadyUpgraded[] = $moduleName;
     }
 
     private function upgradeModuleDependencies(string $moduleName): void
