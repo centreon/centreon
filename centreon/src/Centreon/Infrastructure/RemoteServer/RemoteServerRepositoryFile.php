@@ -45,7 +45,7 @@ class RemoteServerRepositoryFile implements RemoteServerLocalConfigurationReposi
     {
         system(
             "sed -i -r 's/(\\\$instance_mode?\s+=?\s+\")([a-z]+)(\";)/\\1central\\3/' "
-            . $this->centreonConfFilePath
+            . escapeshellarg($this->centreonConfFilePath)
         );
     }
 
@@ -56,7 +56,7 @@ class RemoteServerRepositoryFile implements RemoteServerLocalConfigurationReposi
     {
         system(
             "sed -i -r 's/(\\\$instance_mode?\s+=?\s+\")([a-z]+)(\";)/\\1remote\\3/' "
-            . $this->centreonConfFilePath
+            . escapeshellarg($this->centreonConfFilePath)
         );
     }
 }
