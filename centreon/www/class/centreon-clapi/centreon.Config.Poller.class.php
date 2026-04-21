@@ -35,6 +35,7 @@ use Pimple\Container;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Symfony\Component\Process\Process;
 
 require_once 'centreonUtils.class.php';
 require_once 'centreonClapiException.class.php';
@@ -581,16 +582,21 @@ class CentreonConfigPoller
 
             // Restart centreon_vmware on central only if VMWare config has changed
             // Atomically claim the flag to avoid race conditions with concurrent exports
-            $claimedRows = $pearDB->exec(
-                'UPDATE nagios_server SET vmware_updated = 0 WHERE vmware_updated = 1 AND id = ' . (int) $pollerId
+            $claimStatement = $pearDB->prepare(
+                'UPDATE nagios_server SET vmware_updated = 0 WHERE vmware_updated = 1 AND id = :pollerId'
             );
-            if ($claimedRows > 0) {
-                exec(escapeshellcmd('sudo -n -- systemctl restart centreon_vmware'), $_, $restartReturnCode);
-                if ($restartReturnCode !== 0) {
+            $claimStatement->bindValue(':pollerId', (int) $pollerId, PDO::PARAM_INT);
+            $claimStatement->execute();
+            if ($claimStatement->rowCount() > 0) {
+                $process = new Process(['sudo', '-n', '--', 'systemctl', 'restart', 'centreon_vmware']);
+                $process->run();
+                if (! $process->isSuccessful()) {
                     // Restart failed, restore the flag so it is retried on next export
-                    $pearDB->query(
-                        'UPDATE nagios_server SET vmware_updated = 1 WHERE id = ' . (int) $pollerId
+                    $restoreStatement = $pearDB->prepare(
+                        'UPDATE nagios_server SET vmware_updated = 1 WHERE id = :pollerId'
                     );
+                    $restoreStatement->bindValue(':pollerId', (int) $pollerId, PDO::PARAM_INT);
+                    $restoreStatement->execute();
                 }
             }
 
@@ -655,16 +661,20 @@ class CentreonConfigPoller
 
             // Send VMWARERESTART to remote poller only if VMWare config has changed
             // Atomically claim the flag to avoid race conditions with concurrent exports
-            $claimedRows = $pearDB->exec(
-                'UPDATE nagios_server SET vmware_updated = 0 WHERE vmware_updated = 1 AND id = ' . (int) $host['id']
+            $claimStatement = $pearDB->prepare(
+                'UPDATE nagios_server SET vmware_updated = 0 WHERE vmware_updated = 1 AND id = :pollerId'
             );
-            if ($claimedRows > 0) {
+            $claimStatement->bindValue(':pollerId', (int) $host['id'], PDO::PARAM_INT);
+            $claimStatement->execute();
+            if ($claimStatement->rowCount() > 0) {
                 $vmwareReturn = $this->writeToCentcorePipe('VMWARERESTART', $host['id']);
                 if ($vmwareReturn !== 0) {
                     // Write failed, restore the flag so it is retried on next export
-                    $pearDB->query(
-                        'UPDATE nagios_server SET vmware_updated = 1 WHERE id = ' . (int) $host['id']
+                    $restoreStatement = $pearDB->prepare(
+                        'UPDATE nagios_server SET vmware_updated = 1 WHERE id = :pollerId'
                     );
+                    $restoreStatement->bindValue(':pollerId', (int) $host['id'], PDO::PARAM_INT);
+                    $restoreStatement->execute();
                 }
             }
 

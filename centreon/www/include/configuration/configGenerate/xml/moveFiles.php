@@ -24,6 +24,7 @@ ini_set('display_errors', 'Off');
 use App\Kernel;
 use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
 use Centreon\Domain\Entity\Task;
+use Symfony\Component\Process\Process;
 
 require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
 require_once realpath(__DIR__ . '/../../../../../config/bootstrap.php');
@@ -344,16 +345,21 @@ try {
                 }
                 // Restart centreon_vmware on central only if VMWare config has changed
                 // Atomically claim the flag to avoid race conditions with concurrent exports
-                $claimedRows = $pearDB->exec(
-                    'UPDATE nagios_server SET vmware_updated = 0 WHERE vmware_updated = 1 AND id = ' . (int) $host['id']
+                $claimStatement = $pearDB->prepare(
+                    'UPDATE nagios_server SET vmware_updated = 0 WHERE vmware_updated = 1 AND id = :pollerId'
                 );
-                if ($claimedRows > 0) {
-                    exec(escapeshellcmd('sudo -n -- systemctl restart centreon_vmware'), $_, $restartReturnCode);
-                    if ($restartReturnCode !== 0) {
+                $claimStatement->bindValue(':pollerId', (int) $host['id'], PDO::PARAM_INT);
+                $claimStatement->execute();
+                if ($claimStatement->rowCount() > 0) {
+                    $process = new Process(['sudo', '-n', '--', 'systemctl', 'restart', 'centreon_vmware']);
+                    $process->run();
+                    if (! $process->isSuccessful()) {
                         // Restart failed, restore the flag so it is retried on next export
-                        $pearDB->query(
-                            'UPDATE nagios_server SET vmware_updated = 1 WHERE id = ' . (int) $host['id']
+                        $restoreStatement = $pearDB->prepare(
+                            'UPDATE nagios_server SET vmware_updated = 1 WHERE id = :pollerId'
                         );
+                        $restoreStatement->bindValue(':pollerId', (int) $host['id'], PDO::PARAM_INT);
+                        $restoreStatement->execute();
                     }
                 }
             } else {
@@ -366,19 +372,24 @@ try {
                 }
                 // Send VMWARERESTART to remote poller only if VMWare config has changed
                 // Atomically claim the flag to avoid race conditions with concurrent exports
-                $claimedRows = $pearDB->exec(
-                    'UPDATE nagios_server SET vmware_updated = 0 WHERE vmware_updated = 1 AND id = ' . (int) $host['id']
+                $claimStatement = $pearDB->prepare(
+                    'UPDATE nagios_server SET vmware_updated = 0 WHERE vmware_updated = 1 AND id = :pollerId'
                 );
-                if ($claimedRows > 0) {
-                    passthru(
-                        escapeshellcmd("echo 'VMWARERESTART:{$host['id']}'") . ' >> ' . escapeshellcmd($centcore_pipe),
-                        $vmwareReturn
+                $claimStatement->bindValue(':pollerId', (int) $host['id'], PDO::PARAM_INT);
+                $claimStatement->execute();
+                if ($claimStatement->rowCount() > 0) {
+                    $written = @file_put_contents(
+                        $centcore_pipe,
+                        'VMWARERESTART:' . (int) $host['id'] . "\n",
+                        FILE_APPEND
                     );
-                    if ($vmwareReturn) {
+                    if ($written === false) {
                         // Write failed, restore the flag so it is retried on next export
-                        $pearDB->query(
-                            'UPDATE nagios_server SET vmware_updated = 1 WHERE id = ' . (int) $host['id']
+                        $restoreStatement = $pearDB->prepare(
+                            'UPDATE nagios_server SET vmware_updated = 1 WHERE id = :pollerId'
                         );
+                        $restoreStatement->bindValue(':pollerId', (int) $host['id'], PDO::PARAM_INT);
+                        $restoreStatement->execute();
 
                         throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
                     }

@@ -28,7 +28,9 @@ use CentreonContactgroup;
 use CentreonDB;
 use Exception;
 use Generate;
+use PDO;
 use Pimple\Container;
+use Symfony\Component\Process\Process;
 
 /**
  * Class
@@ -147,21 +149,30 @@ class PollerInteractionService
 
                 // Send VMWARERESTART only if VMWare config has changed
                 // Atomically claim the flag to avoid race conditions with concurrent exports
-                $claimedRows = $this->db->exec(
-                    'UPDATE nagios_server SET vmware_updated = 0 WHERE vmware_updated = 1 AND id = ' . (int) $host['id']
+                $claimStatement = $this->db->prepare(
+                    'UPDATE nagios_server SET vmware_updated = 0 WHERE vmware_updated = 1 AND id = :pollerId'
                 );
-                if ($claimedRows > 0) {
+                $claimStatement->bindValue(':pollerId', (int) $host['id'], PDO::PARAM_INT);
+                $claimStatement->execute();
+                if ($claimStatement->rowCount() > 0) {
                     $vmwareRestartSucceeded = false;
                     if (isset($host['localhost']) && $host['localhost'] == 1) {
-                        exec(escapeshellcmd('sudo -n -- systemctl restart centreon_vmware'), $restartOutput, $restartReturnCode);
-                        $vmwareRestartSucceeded = $restartReturnCode === 0;
+                        $process = new Process(['sudo', '-n', '--', 'systemctl', 'restart', 'centreon_vmware']);
+                        $process->run();
+                        $vmwareRestartSucceeded = $process->isSuccessful();
                     } else {
-                        passthru(escapeshellcmd("echo 'VMWARERESTART:{$host['id']}'") . ' >> ' . escapeshellcmd($centCorePipe), $vmwareReturn);
-                        if ($vmwareReturn) {
+                        $written = @file_put_contents(
+                            $centCorePipe,
+                            'VMWARERESTART:' . (int) $host['id'] . "\n",
+                            FILE_APPEND
+                        );
+                        if ($written === false) {
                             // Write failed, restore the flag so it is retried on next export
-                            $this->db->query(
-                                'UPDATE nagios_server SET vmware_updated = 1 WHERE id = ' . (int) $host['id']
+                            $restoreStatement = $this->db->prepare(
+                                'UPDATE nagios_server SET vmware_updated = 1 WHERE id = :pollerId'
                             );
+                            $restoreStatement->bindValue(':pollerId', (int) $host['id'], PDO::PARAM_INT);
+                            $restoreStatement->execute();
 
                             throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
                         }
@@ -170,9 +181,11 @@ class PollerInteractionService
                     }
                     if (! $vmwareRestartSucceeded) {
                         // Restart failed, restore the flag so it is retried on next export
-                        $this->db->query(
-                            'UPDATE nagios_server SET vmware_updated = 1 WHERE id = ' . (int) $host['id']
+                        $restoreStatement = $this->db->prepare(
+                            'UPDATE nagios_server SET vmware_updated = 1 WHERE id = :pollerId'
                         );
+                        $restoreStatement->bindValue(':pollerId', (int) $host['id'], PDO::PARAM_INT);
+                        $restoreStatement->execute();
                     }
                 }
             }
