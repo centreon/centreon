@@ -1651,7 +1651,7 @@
             "require-dev": {
                 "behat/mink-selenium2-driver": "1.6.*",
                 "centreon/centreon-test-lib": "dev-master",
-                "dama/doctrine-test-bundle": "8.2.*",
+                "dama/doctrine-test-bundle": "8.3.*",
                 "friends-of-behat/mink": "1.11.*",
                 "friends-of-behat/mink-extension": "2.7.*",
                 "mockery/mockery": "1.6.*",
