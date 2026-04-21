@@ -62,7 +62,8 @@ runs:
 
         echo "Building API doc from $OPENAPI_FILE"
         ls -lah
-        cd ../.. && pnpm --filter "redoc-centreon-web-openapi" run redoc-latest
+        cd ../.. && ls -lah && pnpm --filter "redoc-centreon-web-openapi" run redoc-latest
+        ls -lah ./doc/API
       shell: bash
       working-directory: ${{ inputs.openapi_file_reference || github.ref_name }}/${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API
 
