@@ -103,7 +103,7 @@ final class DbalModuleRepository implements ModuleRepository
         }
 
         $this->updateModuleMetadata($moduleId, $codeConfig);
-        $this->runModuleUpgradeScripts($moduleName, $moduleId, $installedVersion);
+        $this->runModuleUpgradeScripts($moduleName, $moduleId, $installedVersion, $codeVersion);
         $this->updateModuleVersion($moduleId, $codeVersion);
 
         $this->installedModuleVersions[$moduleName] = $codeVersion;
@@ -241,7 +241,7 @@ final class DbalModuleRepository implements ModuleRepository
         );
     }
 
-    private function runModuleUpgradeScripts(string $moduleName, int $moduleId, string $installedVersion): void
+    private function runModuleUpgradeScripts(string $moduleName, int $moduleId, string $installedVersion, string $targetVersion): void
     {
         $upgradesPath = $this->modulesDir . '/' . $moduleName . '/upgrade';
         if (! is_dir($upgradesPath)) {
@@ -266,6 +266,9 @@ final class DbalModuleRepository implements ModuleRepository
         foreach ($versions as $version) {
             if (version_compare($installedVersion, $version) >= 0) {
                 continue;
+            }
+            if (version_compare($version, $targetVersion) > 0) {
+                break;
             }
 
             $versionPath = $upgradesPath . '/' . $version;
@@ -343,6 +346,21 @@ final class DbalModuleRepository implements ModuleRepository
                         throw $exception;
                     }
                     $query = '';
+                }
+            }
+
+            $remainingQuery = trim($query);
+            if ($remainingQuery !== '') {
+                try {
+                    $this->configConnection->executeStatement($remainingQuery);
+                } catch (\Throwable $exception) {
+                    $this->logger->error('Module SQL execution failed', [
+                        'file' => $filePath,
+                        'query' => $remainingQuery,
+                        'error' => $exception->getMessage(),
+                    ]);
+
+                    throw $exception;
                 }
             }
         } finally {

@@ -202,8 +202,10 @@ final readonly class DbalWidgetRepository implements WidgetRepository
                 continue;
             }
 
+            $parameterName = $this->asString($attrs['name']);
             $typeName = $this->asString($attrs['type']);
             if (! isset($types[$typeName])) {
+                $processedNames[] = $parameterName;
                 $this->logger->warning('Unknown widget parameter type', ['type' => $typeName]);
 
                 continue;
