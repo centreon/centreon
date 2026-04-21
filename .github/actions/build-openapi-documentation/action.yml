@@ -83,6 +83,6 @@ runs:
       with:
         name: openapi-doc-${{ inputs.module_name }}-${{ inputs.openapi_file_reference || github.ref_name }}
         path: |
-          ${{ inputs.openapi_file_reference || github.ref_name }}/${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API/index.html
-          ${{ inputs.openapi_file_reference || github.ref_name }}/${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API/centreon-logo.png
+          ${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API/index.html
+          ${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API/centreon-logo.png
         retention-days: 1
