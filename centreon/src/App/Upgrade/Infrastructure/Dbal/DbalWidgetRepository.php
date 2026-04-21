@@ -184,9 +184,14 @@ final readonly class DbalWidgetRepository implements WidgetRepository
             return;
         }
 
-        $preferenceGroups = is_array($preferences['preference'] ?? null)
-            ? $preferences['preference']
-            : [$preferences['preference'] ?? null];
+        $preferenceGroups = $preferences['preference'] ?? null;
+        if (! is_array($preferenceGroups)) {
+            return;
+        }
+        // Normalize single preference to array of preferences.
+        if (isset($preferenceGroups['@attributes'])) {
+            $preferenceGroups = [$preferenceGroups];
+        }
 
         $order = 1;
         foreach ($preferenceGroups as $preference) {
