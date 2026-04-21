@@ -38,7 +38,7 @@ runs:
           --config.trustPolicy=no-downgrade \
           --config.minimumReleaseAge=2880 \
           --config.blockExoticSubdeps=true
-      working-directory: ${{ inputs.openapi_file_reference || github.ref_name }}/${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API
+      working-directory: ${{ inputs.openapi_file_reference || github.ref_name }}/${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}
 
     - name: Build OpenAPI documentation
       id: build_documentation
@@ -62,7 +62,7 @@ runs:
 
         echo "Building API doc from $OPENAPI_FILE"
         ls -lah
-        pnpm run redoc-latest
+        cd ../.. && pnpm --filter "redoc-centreon-web-openapi" run redoc-latest
       shell: bash
       working-directory: ${{ inputs.openapi_file_reference || github.ref_name }}/${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API
 
