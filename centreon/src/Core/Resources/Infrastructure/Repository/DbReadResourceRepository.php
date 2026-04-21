@@ -982,7 +982,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $joins .= <<<SQL
 
                 INNER JOIN (
-                    SELECT rt.resource_id
+                    SELECT DISTINCT rt.resource_id
                     FROM `:dbstg`.`resources_tags` rt
                     INNER JOIN `:dbstg`.`tags` t ON t.tag_id = rt.tag_id
                     WHERE t.type = 0 AND t.name IN ({$keysStr})
@@ -1001,7 +1001,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $joins .= <<<SQL
 
                 INNER JOIN (
-                    SELECT rt.resource_id
+                    SELECT DISTINCT rt.resource_id
                     FROM `:dbstg`.`resources_tags` rt
                     INNER JOIN `:dbstg`.`tags` t ON t.tag_id = rt.tag_id
                     WHERE t.type = 2 AND t.name IN ({$keysStr})
