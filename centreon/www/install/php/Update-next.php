@@ -863,6 +863,39 @@ $deleteOldCommandsTopologies = function () use ($pearDB, &$errorMessage, $versio
     );
 };
 
+/** ------------------------------------- Pollers ------------------------------------- */
+$addPollerTypeColumn = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add poller_type column to nagios_server';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Adding poller_type column to nagios_server",
+    );
+
+    if ($pearDB->columnExists(
+        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
+        'nagios_server',
+        'poller_type'
+    )) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Column poller_type already exists on nagios_server, skipping",
+            );
+
+        return;
+    }
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server` ADD COLUMN `poller_type` enum('vm','docker') NOT NULL DEFAULT 'vm'
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully added poller_type column to nagios_server",
+    );
+};
+
 /** -------------------------------------- Poller tokens -------------------------------------- */
 $updateAuthenticationTable = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to update and rename jwt_tokens table';
@@ -883,7 +916,7 @@ $updateAuthenticationTable = function () use ($pearDB, &$errorMessage, $version)
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: jwt_tokens table not found, skipping update",
-        );
+            );
 
         return;
     }
@@ -924,15 +957,27 @@ $updateAuthenticationTable = function () use ($pearDB, &$errorMessage, $version)
     );
 };
 
-try {
-    // DDL statements for real time database
+/** -------------------------------------- Log Actions -------------------------------------- */
+$updateLogActionTable = function () use ($pearDBO, &$errorMessage, $version): void {
+    $errorMessage = "Unable to update'log_action' table";
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Updating log_action table",
+    );
     $pearDBO->executeStatement(
         <<<'SQL'
             ALTER TABLE `log_action` MODIFY COLUMN `log_contact_id` int(11) DEFAULT NULL
             SQL
     );
+}
+
+try {
+    // DDL statements for real time database
+    $updateLogActionTable();
 
     // DDL statements for configuration database
+    $addPollerTypeColumn();
     $updateAuthenticationTable();
 
     // Transactional queries for configuration database
