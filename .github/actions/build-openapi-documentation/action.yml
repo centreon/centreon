@@ -63,11 +63,11 @@ runs:
 
         if ! [[ $major_version =~ ^2[0-9]\.10$ ]] && [[ -f "${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}-cloud-api.yaml" ]]; then
           doc_version="cloud"
-          OPENAPI_FILE="${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}-cloud-api.yaml"
+          export OPENAPI_FILE="${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}-cloud-api.yaml"
           sed -i "s#version: 'latest'#version: 'Cloud'#" $OPENAPI_FILE
         elif [[ -f "${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}-api.yaml" ]]; then
           doc_version=$major_version
-          OPENAPI_FILE="${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}-api.yaml"
+          export OPENAPI_FILE="${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}-api.yaml"
           sed -i "s#version: 'latest'#version: '$doc_version'#" $OPENAPI_FILE
         else
           echo "::error::OpenAPI file not found"
