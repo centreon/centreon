@@ -6,8 +6,6 @@ import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
-
-import { PAGES } from 'fixtures/shared/constants/pages';
 import hostGroups from '../../../fixtures/host-groups/host-group.json';
 
 const services = {
