@@ -143,7 +143,7 @@ final class TokenFactory
                 /** @var _PollerToken $data */
                 $token = new PollerToken(
                     new TrimmedString($data['name']),
-                    $data['creator_id'] ?? null,
+                    $data['creator_id'],
                     new TrimmedString($data['creator_name']),
                     (new DateTimeImmutable())->setTimestamp($data['creation_date']),
                     $data['expiration_date'] !== null
@@ -196,9 +196,9 @@ final class TokenFactory
                 /** @var _NewPollerToken $data */
                 $token = new NewPollerToken(
                     new TrimmedString($data['name']),
+                    $data['creator_id'],
                     $data['creator_name'] ? new TrimmedString($data['creator_name']) : new TrimmedString('system'),
                     $data['expiration_date'],
-                    $data['creator_id'] ?? null,
                 );
                 break;
             default:
