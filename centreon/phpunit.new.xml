@@ -13,7 +13,7 @@
             <directory>tests/php/App/ActivityLogging</directory>
         </testsuite>
         <testsuite name="resource_configuration">
-            <directory>tests/php/App/ResourceConfiguration</directory>
+            <directory>tests/php/App/MonitoringConfiguration</directory>
         </testsuite>
     </testsuites>
 
