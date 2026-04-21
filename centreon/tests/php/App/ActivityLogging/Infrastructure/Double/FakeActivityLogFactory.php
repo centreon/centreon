@@ -32,9 +32,10 @@ use App\ActivityLogging\Domain\Aggregate\TargetName;
 use App\ActivityLogging\Domain\Aggregate\TargetTypeEnum;
 use App\ActivityLogging\Domain\Factory\ActivityLogFactoryInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 
 /**
- * @implements ActivityLogFactoryInterface<AggregateRoot>
+ * @implements ActivityLogFactoryInterface<AggregateRoot<AggregateRootId>>
  */
 final class FakeActivityLogFactory implements ActivityLogFactoryInterface
 {

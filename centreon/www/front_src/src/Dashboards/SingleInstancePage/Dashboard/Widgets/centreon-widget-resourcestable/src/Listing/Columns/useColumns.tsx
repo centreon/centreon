@@ -7,6 +7,7 @@ import {
 } from '@centreon/ui';
 import { useAtomValue } from 'jotai';
 import {
+  T,
   always,
   cond,
   equals,
@@ -16,8 +17,7 @@ import {
   or,
   pipe,
   propOr,
-  split,
-  T
+  split
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
