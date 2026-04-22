@@ -54,3 +54,12 @@ Feature: Generate poller configuration
     Then I am redirected to generate page
     When I click on the export button
     Then the configuration is not generated on selected pollers
+
+  @TEST_MON-198192
+  Scenario: Duplicate an existing remote poller
+    Given an admin user is logged in a Centreon server
+    And a remote poller is configured
+    When the user duplicates the configured poller
+    Then a new disabled poller is created with identical properties
+    When the user export the configuration
+    Then a success message is displayed
