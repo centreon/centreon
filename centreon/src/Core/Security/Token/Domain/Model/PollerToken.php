@@ -30,7 +30,7 @@ final class PollerToken extends Token
 {
     /**
      * @param TrimmedString $name
-     * @param ?int $creatorId
+     * @param int $creatorId
      * @param TrimmedString $creatorName
      * @param \DateTimeInterface $creationDate
      * @param ?\DateTimeInterface $expirationDate
@@ -40,7 +40,7 @@ final class PollerToken extends Token
      */
     public function __construct(
         TrimmedString $name,
-        ?int $creatorId,
+        int $creatorId,
         TrimmedString $creatorName,
         \DateTimeInterface $creationDate,
         ?\DateTimeInterface $expirationDate,

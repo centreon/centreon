@@ -955,6 +955,59 @@ $updateAuthenticationTable = function () use ($pearDB, &$errorMessage, $version)
     );
 };
 
+$createDefaultPollerToken = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to create default poller token';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Creating default poller token",
+    );
+
+    if ($pearDB->fetchOne(
+        <<<'SQL'
+            SELECT 1 FROM `authentication_tokens` WHERE `token_name` = 'poller-default'
+            SQL
+    )) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Default poller token already exists, skipping creation",
+        );
+
+        return;
+    }
+
+    $adminInfos = $pearDB->fetchAssociative(
+        "SELECT `contact_id`, `contact_alias` FROM `contact` WHERE `contact_admin` = '1' LIMIT 1"
+    );
+    if ($adminInfos === false) {
+        CentreonLog::create()->warning(
+            CentreonLog::TYPE_BUSINESS_LOG,
+            'No admin contact found, skipping default poller token creation'
+        );
+
+        return;
+    }
+
+    $pearDB->insert(
+        <<<'SQL'
+            INSERT INTO `authentication_tokens`
+                (`token_string`, `token_name`, `creator_id`, `creator_name`, `encoding_key`, `is_revoked`, `creation_date`, `expiration_date`, `type`)
+            VALUES
+                (:token_string, 'poller-default', :creator_id, :creator_name, NULL, 0, :creation_date, NULL, 'poller')
+            SQL,
+        QueryParameters::create([
+            QueryParameter::string('token_string', Security\Encryption::generateRandomString()),
+            QueryParameter::int('creator_id', (int) $adminInfos['contact_id']),
+            QueryParameter::string('creator_name', $adminInfos['contact_alias']),
+            QueryParameter::int('creation_date', time()),
+        ])
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully created default poller token",
+    );
+};
+
 /** -------------------------------------- Log Actions -------------------------------------- */
 $updateLogActionTable = function () use ($pearDBO, &$errorMessage, $version): void {
     $errorMessage = "Unable to update 'log_action' table";
@@ -982,6 +1035,8 @@ try {
     if (! $pearDB->isTransactionActive()) {
         $pearDB->startTransaction();
     }
+
+    $createDefaultPollerToken();
 
     $createBrokerOutputEventScript();
     if ($isMachineACentral()) {

@@ -33,7 +33,7 @@ final class NewPollerToken extends NewToken
 
     /**
      * @param TrimmedString $name
-     * @param ?int $creatorId
+     * @param int $creatorId
      * @param TrimmedString $creatorName
      * @param \DateTimeInterface|null $expirationDate
      *
@@ -42,9 +42,9 @@ final class NewPollerToken extends NewToken
      */
     public function __construct(
         TrimmedString $name,
+        int $creatorId,
         TrimmedString $creatorName,
         ?\DateTimeInterface $expirationDate = null,
-        ?int $creatorId = null,
     ) {
         $this->shortName = (new \ReflectionClass($this))->getShortName();
 

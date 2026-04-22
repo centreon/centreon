@@ -55,7 +55,7 @@ use Respect\Validation\Exceptions\DateTimeException;
  *
  * @phpstan-type _PollerToken array{
  *      name: string,
- *      creator_id: ?int,
+ *      creator_id: int,
  *      creator_name: string,
  *      creation_date: int,
  *      expiration_date: ?int,
@@ -105,7 +105,7 @@ use Respect\Validation\Exceptions\DateTimeException;
  *
  * @phpstan-type _NewPollerToken array{
  *      name: string,
- *      creator_id: ?int,
+ *      creator_id: int,
  *      creator_name: ?string,
  *      expiration_date: ?DateTimeInterface,
  *  }
@@ -143,7 +143,7 @@ final class TokenFactory
                 /** @var _PollerToken $data */
                 $token = new PollerToken(
                     new TrimmedString($data['name']),
-                    $data['creator_id'] ?? null,
+                    $data['creator_id'],
                     new TrimmedString($data['creator_name']),
                     (new DateTimeImmutable())->setTimestamp($data['creation_date']),
                     $data['expiration_date'] !== null
@@ -196,9 +196,9 @@ final class TokenFactory
                 /** @var _NewPollerToken $data */
                 $token = new NewPollerToken(
                     new TrimmedString($data['name']),
+                    $data['creator_id'],
                     $data['creator_name'] ? new TrimmedString($data['creator_name']) : new TrimmedString('system'),
                     $data['expiration_date'],
-                    $data['creator_id'] ?? null,
                 );
                 break;
             default:
