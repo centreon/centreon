@@ -1,15 +1,24 @@
-import { Box } from '@mui/material';
+import { AgentConfigurationListing } from '../../models';
+
 import AddButton from './AddButton';
+import InstallationCommandButton from './InstallationCommandButton';
 import Search from './Search';
 
-const Actions = (): JSX.Element => {
+interface Props {
+  rows: Array<AgentConfigurationListing>;
+}
+
+const Actions = ({ rows }: Props): JSX.Element => {
   return (
-    <Box
-      sx={{ display: 'grid', gridTemplateColumns: 'min-content auto', gap: 2 }}
-    >
-      <AddButton />
-      <Search />
-    </Box>
+    <div className="flex items-center">
+      <div className="flex gap-3">
+        <AddButton />
+        <InstallationCommandButton rows={rows} />
+      </div>
+      <div className="flex items-center justify-center px-2 w-full">
+        <Search />
+      </div>
+    </div>
   );
 };
 

@@ -17,6 +17,7 @@ import { labelCollapse, labelExpand } from '../translatedLabels';
 import Actions from './Actions/Actions';
 import { useColumns } from './Columns/useColumns';
 import DeleteModal from './DeleteModal';
+import InstallationCommandModal from './InstallationCommandModal';
 
 interface Props {
   rows: Array<AgentConfigurationListing>;
@@ -60,7 +61,7 @@ const ACListing = ({ rows, total, isLoading }: Props): JSX.Element => {
   return (
     <>
       <Listing
-        actions={<Actions />}
+        actions={<Actions rows={rows} />}
         columns={columns}
         subItems={{
           canCheckSubItems: false,
@@ -82,6 +83,7 @@ const ACListing = ({ rows, total, isLoading }: Props): JSX.Element => {
         onSort={changeSort}
       />
       <DeleteModal />
+      <InstallationCommandModal />
     </>
   );
 };
