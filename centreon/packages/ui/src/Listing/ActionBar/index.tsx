@@ -18,12 +18,13 @@ import StyledPagination from './Pagination';
 import PaginationActions from './PaginationActions';
 
 interface StyleProps {
+  isCursorPaginated: boolean;
   marginWidthTableListing: number;
   width: number;
 }
 
 const useStyles = makeStyles<StyleProps>()(
-  (theme, { width, marginWidthTableListing }) => ({
+  (theme, { width, marginWidthTableListing, isCursorPaginated }) => ({
     actions: {
       flex: 1,
       padding: theme.spacing(1, 1, 1, 0)
