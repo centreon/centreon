@@ -174,7 +174,7 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
         s.service_id = cv3.service_id AND s.host_id = cv3.host_id AND cv3.name = '" . $macro_tickets['ticket_id'] . "'
     )
     LEFT JOIN mod_open_tickets mop2 ON (
-        cv3.value = mop2.ticket_value AND (
+        cv3.value REGEXP CONCAT('(raw::)?', mop2.ticket_value) AND (
             mop2.timestamp > s.last_time_ok OR s.last_time_ok IS NULL
         )
     )

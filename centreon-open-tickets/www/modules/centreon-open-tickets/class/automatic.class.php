@@ -1095,7 +1095,7 @@ class Automatic
             LEFT JOIN customvariables cv ON (h.host_id = cv.host_id
             AND (cv.service_id IS NULL or cv.service_id = 0)
             AND cv.name = :macro_name)
-            LEFT JOIN mod_open_tickets mot ON cv.value = mot.ticket_value
+            LEFT JOIN mod_open_tickets mot ON cv.value REGEXP CONCAT("(raw::)?", mot.ticket_value)
             WHERE h.host_id = :host_id'
         );
         $stmt->bindParam(':macro_name', $macroName, PDO::PARAM_STR);
@@ -1119,7 +1119,7 @@ class Automatic
         $query = <<<'SQL'
                 SELECT mot.ticket_value AS ticket_id
                 FROM customvariables cv
-                LEFT JOIN mod_open_tickets mot ON cv.value = mot.ticket_value
+                LEFT JOIN mod_open_tickets mot ON cv.value REGEXP CONCAT('(raw::)?', mot.ticket_value)
                 WHERE cv.service_id = :service_id
                     AND cv.host_id = :host_id
                     AND cv.name = :macro_name
