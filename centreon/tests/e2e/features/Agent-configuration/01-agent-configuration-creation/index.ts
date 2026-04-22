@@ -402,7 +402,7 @@ Then('a pop-up is displayed', () => {
 });
 
 Then('the title of this pop-up is {string}', (popupTitle: string) => {
-  cy.get('[data-testid="modal-header""]')
+  cy.get('[data-testid="modal-header"]')
     .eq(1)
     .within(() => {
       cy.get('h2').should('contain.text', popupTitle);
