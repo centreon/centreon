@@ -964,7 +964,8 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
         );
     }
 
-    // Add covering index for unfiltered COUNT queries (avoids row reads)
+    // resources_enabled_type_ismodule_idx is a left-prefix of resources_name_search_idx
+    // (enabled, type, is_module, poller_id, name) so it is redundant — drop it if present.
     $hasIsModuleIdx = $pearDBO->fetchOne(
         <<<'SQL'
             SELECT 1 FROM information_schema.STATISTICS
@@ -973,11 +974,10 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
               AND INDEX_NAME = 'resources_enabled_type_ismodule_idx'
             SQL
     );
-    if (! $hasIsModuleIdx) {
+    if ($hasIsModuleIdx) {
         $pearDBO->executeStatement(
             <<<'SQL'
-                ALTER TABLE `resources`
-                ADD INDEX `resources_enabled_type_ismodule_idx` (`enabled`, `type`, `is_module`, `poller_id`)
+                ALTER TABLE `resources` DROP INDEX `resources_enabled_type_ismodule_idx`
                 SQL
         );
     }

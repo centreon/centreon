@@ -1,9 +1,13 @@
 import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
-import { isResourceStatusFullSearchEnabledAtom } from '@centreon/ui-context';
+import {
+  isResourceStatusFullSearchEnabledAtom,
+  refreshIntervalAtom
+} from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
 
 import { countResourcesEndpoint } from '../../api/endpoint';
+import { enabledAutorefreshAtom } from '../listingAtoms';
 import useGetCriteriaName from './useGetCriteriaName';
 import { getSearch } from './utils';
 
@@ -24,6 +28,8 @@ const useResourceCount = (): UseResourceCount => {
   const isResourceStatusFullSearchEnabled = useAtomValue(
     isResourceStatusFullSearchEnabledAtom
   );
+  const refreshInterval = useAtomValue(refreshIntervalAtom);
+  const enabledAutoRefresh = useAtomValue(enabledAutorefreshAtom);
 
   const getCountEndpoint = (): string => {
     const names = getCriteriaNames('names');
@@ -94,6 +100,7 @@ const useResourceCount = (): UseResourceCount => {
     getEndpoint: () => endpoint,
     getQueryKey: () => ['resourceCount', endpoint],
     queryOptions: {
+      refetchInterval: enabledAutoRefresh ? refreshInterval * 1000 : false,
       suspense: false
     }
   });
