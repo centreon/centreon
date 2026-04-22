@@ -59,5 +59,7 @@ runs:
       shell: bash
 
     - name: Invalidate AWS Cloudfront cache
-      run: aws cloudfront create-invalidation --distribution-id ${{ inputs.cloudfront_id_doc_api }} --paths "/*"
+      env:
+        CLOUDFRONT_ID: ${{ inputs.cloudfront_id_doc_api }}
+      run: aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_ID --paths "/*"
       shell: bash
