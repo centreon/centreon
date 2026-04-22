@@ -36,7 +36,7 @@ export const CrudPageRoot = <
   deleteItem,
   form
 }: CrudPageRootProps<TData, TFilters, TItem, TItemForm>): JSX.Element => {
-  const previousCanDeleteSubItemRef = useRef<boolean | undefined>();
+  const previousCanDeleteSubItemRef = useRef<boolean | undefined>(undefined);
   const previousFormLabelButtonsRef = useRef<unknown | null>(null);
   const { isDataEmpty, hasItems, isLoading, items, total } = useGetItems<
     TData,

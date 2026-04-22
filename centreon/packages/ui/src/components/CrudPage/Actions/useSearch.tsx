@@ -9,7 +9,7 @@ interface UseSearchState {
 }
 
 export const useSearch = (): UseSearchState => {
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [search, setSearch] = useAtom(searchAtom);
 

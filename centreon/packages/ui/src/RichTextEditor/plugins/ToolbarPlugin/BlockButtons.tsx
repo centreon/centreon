@@ -81,6 +81,7 @@ const BlockButtons = ({ disabled }: Props): JSX.Element => {
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
+    // @ts-expect-error - suppressing pre-existing type mismatch
     const anchorNode = selection?.anchor.getNode();
     const element = equals(anchorNode?.getKey(), 'root')
       ? anchorNode

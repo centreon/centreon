@@ -73,15 +73,16 @@ when@prod:
             console:
                 type: console
                 process_psr_3_messages: false
-                channels: ["!event", "!doctrine"]
+                channels: ["!event", "!doctrine", "!deprecation"]
                 formatter: monolog.formatter.line
                 date_format: !php/const DateTimeInterface::RFC3339
             deprecation:
-                type: stream
+                type: rotating_file
                 channels: [deprecation]
-                path: php://stderr
+                path: "%kernel.logs_dir%/%kernel.environment%.deprecations.log"
                 formatter: monolog.formatter.line
-                date_format: !php/const DateTimeInterface::RFC3339
+                max_files: 1
+                file_permission: 0660
             authentication:
                 type: stream
                 path: "%kernel.logs_dir%/login.log"
