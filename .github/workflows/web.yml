@@ -467,8 +467,10 @@ jobs:
         run: |
           echo "Ensure Symfony cache directories exist"
           sudo mkdir -p /var/cache/centreon/symfony{,.new}
+          sudo mkdir -p /var/log/centreon/symfony.new
           echo "Set permissions on Symfony cache directories with user: '$USER'"
           sudo chown -R $USER:$USER /var/cache/centreon/symfony{,.new}
+          sudo chown -R $USER:$USER /var/log/centreon/symfony.new
 
       - name: Install dependencies
         uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
@@ -548,8 +550,10 @@ jobs:
         run: |
           echo "Ensure Symfony cache directories exist"
           sudo mkdir -p /var/cache/centreon/symfony{,.new}
+          sudo mkdir -p /var/log/centreon/symfony.new
           echo "Set permissions on Symfony cache directories with user: '$USER'"
           sudo chown -R $USER:$USER /var/cache/centreon/symfony{,.new}
+          sudo chown -R $USER:$USER /var/log/centreon/symfony.new
 
       - name: Install dependencies
         uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
@@ -598,9 +602,11 @@ jobs:
           echo "Ensure Symfony cache directories exist" && set -e
           sudo mkdir -p /var/cache/centreon/symfony.new
           sudo mkdir -p /var/cache/centreon/symfony
+          sudo mkdir -p /var/log/centreon/symfony.new
           echo "Set permissions on Symfony cache directories with user: '$USER'" && set -e
           sudo chown -R $USER:$USER /var/cache/centreon/symfony.new
           sudo chown -R $USER:$USER /var/cache/centreon/symfony
+          sudo chown -R $USER:$USER /var/log/centreon/symfony.new
 
       - name: Install dependencies for centreon-web
         run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
@@ -1101,6 +1107,7 @@ jobs:
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
       stability: ${{ needs.get-environment.outputs.stability }}
       xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
+      upload_artifacts: ${{ contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
 
     secrets:
       registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
