@@ -6,7 +6,7 @@ import {
 } from '@centreon/ui';
 
 import { equals, isNil, reduce } from 'ramda';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { Parameters } from '../api/buildListingEndpoint/models';
 
@@ -115,11 +115,15 @@ export const useInfiniteScrollListingWithCursor = <T>({
   }, [data]);
 
   // Accumulate elements across cursor pages (reset on first page).
-  useEffect(() => {
+  // useMemo runs synchronously during render so the consumer receives the
+  // updated array on the same render cycle as the data — a useEffect would
+  // update the ref AFTER render and never trigger a re-render.
+  elements.current = useMemo(() => {
     if (isNil(data) || !equals(fetchStatus, 'idle')) {
-      return;
+      return elements.current;
     }
-    elements.current = reduce<T, Array<T>>(
+
+    return reduce<T, Array<T>>(
       (acc, element) => [...acc, element],
       currentCursorIndexRef.current === 0 ? [] : elements.current || [],
       data.result

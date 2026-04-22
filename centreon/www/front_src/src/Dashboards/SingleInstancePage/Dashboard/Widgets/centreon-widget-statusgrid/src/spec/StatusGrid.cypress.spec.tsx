@@ -82,8 +82,7 @@ const initialize = ({ options, data, isPublic = false }: Props): void => {
 const emptyData = {
   meta: {
     limit: 10,
-    page: 1,
-    total: 0
+    next_cursor: null
   },
   result: []
 };

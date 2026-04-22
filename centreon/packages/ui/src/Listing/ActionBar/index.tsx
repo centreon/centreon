@@ -53,12 +53,14 @@ const useStyles = makeStyles<StyleProps>()(
       marginRight: theme.spacing((width - marginWidthTableListing) / 8)
     },
     pagination: {
-      '& .MuiTablePagination-actions': {
-        order: 1
-      },
-      '& .MuiTablePagination-input': {
-        order: 2
-      },
+      ...(isCursorPaginated && {
+        '& .MuiTablePagination-actions': {
+          order: 1
+        },
+        '& .MuiTablePagination-input': {
+          order: 2
+        }
+      }),
       '& .MuiToolbar-root': {
         paddingLeft: 0
       },
@@ -122,6 +124,7 @@ const MemoListingActionBar = ({
 }: Props): JSX.Element => {
   const marginWidthTableListing = 30;
   const { classes, cx } = useStyles({
+    isCursorPaginated,
     marginWidthTableListing,
     width: widthToMoveTablePagination
   });
