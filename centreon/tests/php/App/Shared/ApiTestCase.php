@@ -145,7 +145,7 @@ abstract class ApiTestCase extends SymfonyApiTestCase
         $this->token = null;
     }
 
-    private static function createApiUser(Connection $connection, string $identifier, bool $admin = false): void
+    protected static function createApiUser(Connection $connection, string $identifier, bool $admin = false): void
     {
         $connection->insert('contact', [
             'contact_name' => $identifier,

@@ -25,6 +25,11 @@ export const isEditingAtom = atom<boolean>((get) => {
 });
 export const askBeforeCloseFormModalAtom = atom(false);
 
+export const pollerToGenerateCommandAtom = atom<{
+  id?: number;
+  name?: string;
+} | null>(null);
+
 export const changeSortAtom = atom(
   null,
   (_get, set, { sortOrder, sortField }) => {

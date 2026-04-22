@@ -98,6 +98,7 @@
   --color-primary-main: #2e68aa;
   --color-primary-light: #cde7fc;
   --color-primary-dark: #255891;
+  --color-primary-contrastText: #fff;
   --color-secondary-main: #c772d6;
   --color-secondary-light: #e5a5f0;
   --color-secondary-dark: #ac28c1;
@@ -185,6 +186,7 @@
     --color-primary-main: #6eaff8;
     --color-primary-light: #8bbff9;
     --color-primary-dark: #4974a5;
+    --color-primary-contrastText: #000;
     --color-secondary-main: #7c1fa2;
     --color-status-background-error: #d60101;
     --color-status-background-none: --alpha(#2e68aa / 10%);
