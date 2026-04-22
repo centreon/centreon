@@ -55,7 +55,7 @@ use Respect\Validation\Exceptions\DateTimeException;
  *
  * @phpstan-type _PollerToken array{
  *      name: string,
- *      creator_id: ?int,
+ *      creator_id: int,
  *      creator_name: string,
  *      creation_date: int,
  *      expiration_date: ?int,
@@ -105,7 +105,7 @@ use Respect\Validation\Exceptions\DateTimeException;
  *
  * @phpstan-type _NewPollerToken array{
  *      name: string,
- *      creator_id: ?int,
+ *      creator_id: int,
  *      creator_name: ?string,
  *      expiration_date: ?DateTimeInterface,
  *  }

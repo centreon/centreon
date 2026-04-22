@@ -1,7 +1,5 @@
 <?php
 
-use Core\Security\Token\Domain\Model\PollerToken;
-
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -158,7 +156,7 @@ try {
                 (:token_string, 'poller-default', 1, 'admin', NULL, 0, :creation_date, NULL, 'poller')
             SQL
     );
-    $tokenStatement->bindValue(':token_string', \Security\Encryption::generateRandomString());
+    $tokenStatement->bindValue(':token_string', Security\Encryption::generateRandomString());
     $tokenStatement->bindValue(':creation_date', time());
     $tokenStatement->execute();
 } catch (Throwable $ex) {

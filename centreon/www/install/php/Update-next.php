@@ -995,7 +995,7 @@ $createDefaultPollerToken = function () use ($pearDB, &$errorMessage, $version):
                 (:token_string, 'poller-default', :creator_id, :creator_name, NULL, 0, :creation_date, NULL, 'poller')
             SQL,
         QueryParameters::create([
-            QueryParameter::string('token_string', \Security\Encryption::generateRandomString()),
+            QueryParameter::string('token_string', Security\Encryption::generateRandomString()),
             QueryParameter::int('creator_id', (int) $adminInfos['contact_id']),
             QueryParameter::string('creator_name', $adminInfos['contact_alias']),
             QueryParameter::int('creation_date', time()),
