@@ -135,7 +135,7 @@ export interface Props<TRow> {
   totalRows?: number;
   viewerModeConfiguration?: ViewerModeConfiguration;
   widthToMoveTablePagination?: number;
-  isActionBarVisible: boolean;
+  isActionBarVisible?: boolean;
   labelNoResultFound?: string | JSX.Element;
 }
 
