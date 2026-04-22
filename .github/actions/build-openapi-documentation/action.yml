@@ -49,25 +49,28 @@ runs:
     - name: Build OpenAPI documentation
       shell: bash
       id: build_documentation
+      env:
+        MODULE_PATH: ${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}
+        OPENAPI_FILE_REF: ${{ inputs.openapi_file_reference }}
       run: |
         source .version
         major_version=${MAJOR}
-        OPENAPI_FILE_PATH="${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API"
+        OPENAPI_FILE_PATH="$MODULE_PATH/doc/API"
 
-        if [[ -n ${{ inputs.openapi_file_reference }} ]]; then
-          mv -f ./${{ inputs.openapi_file_reference }}/$OPENAPI_FILE_PATH/${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}*-api.yaml \
+        if [[ -n $OPENAPI_FILE_REF ]]; then
+          mv -f ./$OPENAPI_FILE_REF/$OPENAPI_FILE_PATH/$MODULE_PATH*-api.yaml \
             ./$OPENAPI_FILE_PATH
         fi
 
         cd ./$OPENAPI_FILE_PATH
 
-        if ! [[ $major_version =~ ^2[0-9]\.10$ ]] && [[ -f "${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}-cloud-api.yaml" ]]; then
+        if ! [[ $major_version =~ ^2[0-9]\.10$ ]] && [[ -f "$MODULE_PATH-cloud-api.yaml" ]]; then
           doc_version="cloud"
-          export OPENAPI_FILE="${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}-cloud-api.yaml"
+          export OPENAPI_FILE="$MODULE_PATH-cloud-api.yaml"
           sed -i "s#version: 'latest'#version: 'Cloud'#" $OPENAPI_FILE
-        elif [[ -f "${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}-api.yaml" ]]; then
+        elif [[ -f "$MODULE_PATH-api.yaml" ]]; then
           doc_version=$major_version
-          export OPENAPI_FILE="${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}-api.yaml"
+          export OPENAPI_FILE="$MODULE_PATH-api.yaml"
           sed -i "s#version: 'latest'#version: '$doc_version'#" $OPENAPI_FILE
         else
           echo "::error::OpenAPI file not found"
