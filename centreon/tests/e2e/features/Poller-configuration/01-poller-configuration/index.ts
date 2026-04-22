@@ -19,7 +19,9 @@ let dateBeforeLogin: Date;
 
 before(() => {
   cy.startContainers();
-
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/pollers/poller-1.json'
+  );
   cy.addCheckCommand({
     command: 'echo "Post command"',
     enableShell: true,
@@ -257,6 +259,45 @@ Given('broken pollers', () => {
 
 Then('the configuration is not generated on selected pollers', () => {
   checkIfConfigurationIsNotExported();
+});
+
+Given("an admin user is logged in a Centreon server", () => {
+  cy.logoutViaAPI();
+  cy.loginByTypeOfUser({
+    jsonName: 'admin',
+    loginViaApi: false
+  });
+});
+
+Given("a remote poller is configured", () => {
+  cy.visit(PAGES.configuration.pollersLegacy);
+  cy.wait("@getNavigationList");
+  cy.wait("@getTimeZone");
+  cy.getIframeBody().contains("td", "Poller-1");
+});
+
+When("the user duplicates the configured poller", () => {
+  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').last().click();
+  cy.getIframeBody()
+    .find('button[name="duplicate_action"]')
+    .invoke(
+      'attr',
+      'onclick',
+      "javascript: { setO('m'); submit(); }"
+    );
+  cy.getIframeBody().find('button[name="duplicate_action"]').click();
+  cy.wait("@getTimeZone");
+});
+
+Then("a new disabled poller is created with identical properties", () => {
+  cy.getIframeBody().find('table tbody tr.row_disabled').within(() => {
+    cy.contains('td', 'Poller-1_1').should('exist');
+    cy.contains('td', '10.30.2.55').should('exist');
+  });
+});
+
+When("the user export the configuration", () => {
+  cy.exportConfig();
 });
 
 after(() => {
