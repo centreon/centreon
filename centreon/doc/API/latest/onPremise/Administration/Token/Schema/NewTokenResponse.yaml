@@ -42,7 +42,7 @@ properties:
     description: "Expiration date of the API authentication token"
     format: date-time
     example: '2024-08-31T00:00:00+00:00'
-    nullalbe: true
+    nullable: true
   is_revoked:
     type: boolean
     description: "Indicate if the token has been revoked"
