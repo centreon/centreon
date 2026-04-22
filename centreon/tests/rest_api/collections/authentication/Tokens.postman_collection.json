@@ -2039,7 +2039,7 @@
                   "const responseJson = pm.response.json();\r",
                   "\r",
                   "pm.test(\"5 tokens exist\", function () {\r",
-                  "    pm.expect(responseJson.result.length).to.eql5);\r",
+                  "    pm.expect(responseJson.result.length).to.eql(5);\r",
                   "});\r",
                   "\r",
                   "// Récupération par nom (robuste)\r",
