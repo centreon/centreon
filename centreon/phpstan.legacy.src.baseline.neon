@@ -420,11 +420,6 @@ parameters:
 			path: src/Centreon/Application/Validation/Constraints/UniqueEntity.php
 
 		-
-			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) i must contain 3 or more characters\.$#'
-			count: 4
-			path: src/Centreon/Domain/Service/I18nService.php
-
-		-
 			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Centreon/Infrastructure/HostConfiguration/Repository/HostGroupRepositoryRDB\.php\:226\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1

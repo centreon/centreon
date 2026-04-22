@@ -31,6 +31,15 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class I18nService
 {
+    private const SUPPORTED_LANGUAGES = [
+        'fr_FR.UTF-8',
+        'de_DE.UTF-8',
+        'es_ES.UTF-8',
+        'pt_PT.UTF-8',
+        'pt_BR.UTF-8',
+        'en_US.UTF-8',
+    ];
+
     /** @var Information */
     private $modulesInformation;
 
@@ -190,9 +199,7 @@ class I18nService
     {
         $data = [];
 
-        $languages = array_map(static function ($i) {
-            return $i . '.UTF-8';
-        }, self::getAvailableCentreonLanguages());
+        $languages = self::SUPPORTED_LANGUAGES;
 
         foreach ($languages as $language) {
             $translationPath = __DIR__ . "/../../../../www/locale/{$language}/LC_MESSAGES";
@@ -204,7 +211,7 @@ class I18nService
                     ->in($translationPath);
 
                 foreach ($files as $file) {
-                    $data += unserialize($file->getContents());
+                    $data = array_replace_recursive($data, unserialize($file->getContents()));
                 }
             }
         }
@@ -252,9 +259,7 @@ class I18nService
     {
         $data = [];
 
-        $languages = array_map(static function ($i) {
-            return $i . '.UTF-8';
-        }, self::getAvailableCentreonLanguages());
+        $languages = self::SUPPORTED_LANGUAGES;
 
         foreach ($languages as $language) {
             // loop over each installed modules to get translation
