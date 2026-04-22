@@ -42,6 +42,7 @@ const ExpandableContainer = ({ children }: Props) => {
       {children(reducedChildrenData)}
       {isExpanded && (
         <Modal
+          // @ts-expect-error - MUI Dialog classes prop passed through spread but not in ModalProps
           classes={{
             paper: classes.papper
           }}

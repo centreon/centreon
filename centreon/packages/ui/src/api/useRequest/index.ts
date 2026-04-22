@@ -64,7 +64,7 @@ const useRequest = <TResult>({
       .catch((error) => {
         setSending(false);
         if (axios.isCancel(error)) {
-          warnLog(error);
+          warnLog(error as unknown as string);
 
           throw error;
         }

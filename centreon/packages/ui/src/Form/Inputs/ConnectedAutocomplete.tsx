@@ -99,7 +99,7 @@ const ConnectedAutocomplete = ({
     [fieldName, touched, additionalMemoProps]
   );
 
-  const blur = (): void => setFieldTouched(fieldName, true);
+  const blur = (): void => void setFieldTouched(fieldName, true);
 
   const isOptionEqualToValue = useCallback(
     (option, value): boolean => {
@@ -110,7 +110,10 @@ const ConnectedAutocomplete = ({
     [filterKey]
   );
 
-  const value = path(fieldNamePath, values);
+  const value = path(fieldNamePath, values) as
+    | Record<string, unknown>
+    | Array<Record<string, unknown>>
+    | undefined;
 
   const error = path(fieldNamePath, touched)
     ? path(fieldNamePath, errors)
@@ -128,7 +131,10 @@ const ConnectedAutocomplete = ({
   );
 
   const deleteItem = (_, option): void => {
-    const newValue = reject(propEq(option.id, 'id'), value);
+    const newValue = reject(
+      propEq(option.id, 'id'),
+      (value ?? []) as Array<Record<string, unknown>>
+    );
 
     setFieldTouched(fieldName, true, false);
     setFieldValue(fieldName, newValue);

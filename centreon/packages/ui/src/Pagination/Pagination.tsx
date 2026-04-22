@@ -65,7 +65,7 @@ const Pagination = ({
     }
   });
 
-  const pagesCount = Math.ceil(data?.meta.total / limit);
+  const pagesCount = Math.ceil((data?.meta?.total ?? 0) / limit);
   const arePaginationComponentsDisplayed = !equals(pagesCount, 1);
 
   const hasNoElements = useMemo(

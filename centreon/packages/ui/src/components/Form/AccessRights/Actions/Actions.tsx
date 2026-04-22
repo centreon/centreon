@@ -32,7 +32,7 @@ const Actions = ({
   });
 
   const onCancel = (): void => {
-    cancel({ dirty, values: formattedValues });
+    cancel?.({ dirty, values: formattedValues });
   };
 
   return (

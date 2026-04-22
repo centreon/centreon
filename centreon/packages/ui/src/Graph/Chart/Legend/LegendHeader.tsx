@@ -46,6 +46,7 @@ const LegendHeader = ({
               <div className="flex flex-wrap gap-1 whitespace-nowrap">
                 {minMaxAvg.map(({ label, value: subValue }) => (
                   <LegendContent
+                    // @ts-expect-error - suppressing pre-existing type mismatch
                     data={formatMetricValue({
                       unit: line.unit,
                       value: subValue
