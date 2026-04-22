@@ -964,7 +964,7 @@ $createDefaultPollerToken = function () use ($pearDB, &$errorMessage, $version):
 
     if ($pearDB->fetchOne(
         <<<'SQL'
-            SELECT 1 FROM `authentication_tokens` WHERE `token_name` = 'poller-default'
+            SELECT 1 FROM `authentication_tokens` WHERE `token_name` = 'poller-default' AND `type` = 'poller'
             SQL
     )) {
         CentreonLog::create()->info(
