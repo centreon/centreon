@@ -225,7 +225,7 @@ const MemoListingActionBar = ({
               {!countConfig?.isLoading && (
                 <>
                   {formatNumber(
-                    Math.min(limit * ((currentPage ?? 0) + 1), count)
+                    Math.min((limit ?? 0) * ((currentPage ?? 0) + 1), count)
                   )}{' '}
                   {t(labelOf)}{' '}
                 </>
