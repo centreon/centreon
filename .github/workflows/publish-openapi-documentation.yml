@@ -30,13 +30,15 @@ jobs:
 
       - name: Check that input ${{ inputs.openapi_file_reference }} exists on the repository
         shell: bash
+        env:
+          OPENAPI_FILE_REFERENCE: ${{ inputs.openapi_file_reference }}
         run: |
-          if gh api repos/centreon/centreon/branches/${{ inputs.openapi_file_reference }} --silent 2>/dev/null; then
-            echo "Found branch: ${{ inputs.openapi_file_reference }}"
-          elif gh api repos/centreon/centreon/git/refs/tags/${{ inputs.openapi_file_reference }} --silent 2>/dev/null; then
-            echo "Found tag: ${{ inputs.openapi_file_reference }}"
+          if gh api repos/centreon/centreon/branches/$OPENAPI_FILE_REFERENCE --silent 2>/dev/null; then
+            echo "Found branch: $OPENAPI_FILE_REFERENCE"
+          elif gh api repos/centreon/centreon/git/refs/tags/$OPENAPI_FILE_REFERENCE --silent 2>/dev/null; then
+            echo "Found tag: $OPENAPI_FILE_REFERENCE"
           else
-            echo "::error:: Reference ${{ inputs.openapi_file_reference }} not found as branch or tag in centreon"
+            echo "::error:: Reference $OPENAPI_FILE_REFERENCE not found as branch or tag in centreon"
             exit 1
           fi
 
