@@ -6,7 +6,7 @@ import {
 } from '@centreon/ui';
 
 import { equals, isNil, reduce } from 'ramda';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import type { Parameters } from '../api/buildListingEndpoint/models';
 
@@ -52,9 +52,20 @@ export const useInfiniteScrollListingWithCursor = <T>({
 
   const elements = useRef<Array<T>>([]);
 
+  const serializedParameters = JSON.stringify(parameters);
+  const serializedCustomQueryParameters = JSON.stringify(customQueryParameters);
+
   useEffect(() => {
     currentCursorIndexRef.current = currentCursorIndex;
   }, [currentCursorIndex]);
+
+  // Reset pagination state when query inputs change to avoid sending stale cursors.
+  useEffect(() => {
+    setCursorStack([null]);
+    setCurrentCursorIndex(0);
+    setHasMore(false);
+    elements.current = [];
+  }, [serializedParameters, serializedCustomQueryParameters, endpoint, limit]);
 
   const currentCursor = cursorStack[currentCursorIndex] ?? null;
 
@@ -71,8 +82,8 @@ export const useInfiniteScrollListingWithCursor = <T>({
     getQueryKey: () => [
       queryKeyName,
       currentCursor,
-      JSON.stringify(parameters),
-      JSON.stringify(customQueryParameters)
+      serializedParameters,
+      serializedCustomQueryParameters
     ],
     queryOptions: {
       enabled,
@@ -104,17 +115,16 @@ export const useInfiniteScrollListingWithCursor = <T>({
   }, [data]);
 
   // Accumulate elements across cursor pages (reset on first page).
-  elements.current = useMemo(() => {
+  useEffect(() => {
     if (isNil(data) || !equals(fetchStatus, 'idle')) {
-      return elements.current;
+      return;
     }
-
-    return reduce<T, Array<T>>(
+    elements.current = reduce<T, Array<T>>(
       (acc, element) => [...acc, element],
-      currentCursorIndex === 0 ? [] : elements.current || [],
+      currentCursorIndexRef.current === 0 ? [] : elements.current || [],
       data.result
     );
-  }, [currentCursorIndex, data, fetchStatus]);
+  }, [data, fetchStatus]);
 
   // Intersection observer: page = currentCursorIndex, maxPage = currentCursorIndex + 1
   // when hasMore, else maxPage = currentCursorIndex — so page < maxPage iff hasMore.
