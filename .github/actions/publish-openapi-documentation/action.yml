@@ -26,15 +26,6 @@ runs:
       with:
         name: openapi-doc-${{ inputs.module_name }}-${{ inputs.openapi_file_reference || github.ref_name }}
 
-    - name: Setup awscli
-      run: |
-        if ! command -v aws >/dev/null 2>&1; then
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          sudo unzip -q awscliv2.zip
-          sudo ./aws/install
-        fi
-      shell: bash
-
     - uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
       with:
         aws-region: eu-west-1
