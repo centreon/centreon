@@ -33,44 +33,6 @@ export type ButtonProps = AriaLabelingAttributes &
     variant?: 'primary' | 'secondary' | 'ghost';
   };
 
-const sizeClasses: Record<string, string> = {
-  medium: 'text-[16px] h-auto leading-[24px]',
-  small: 'text-[14px] h-auto leading-[22px]'
-};
-
-const getButtonClasses = ({
-  size,
-  variant,
-  isDanger,
-  disabled
-}: {
-  disabled: boolean;
-  isDanger: boolean;
-  size: string;
-  variant: string;
-}): string => {
-  const classes = ['text-nowrap', sizeClasses[size] ?? ''];
-
-  if (size === 'small' && variant === 'primary') {
-    classes.push('px-4');
-  }
-
-  if (!disabled) {
-    if (variant === 'primary') {
-      classes.push(isDanger ? 'bg-error-main' : 'bg-primary-main');
-    }
-    if (variant === 'secondary') {
-      classes.push(
-        isDanger
-          ? 'border-error-main text-error-main'
-          : 'border-primary-main text-primary-main'
-      );
-    }
-  }
-
-  return classes.filter(Boolean).join(' ');
-};
-
 const Button = ({
   children,
   variant = 'primary',
@@ -93,11 +55,19 @@ const Button = ({
     [icon, iconVariant]
   );
 
-  const buttonClasses = getButtonClasses({ disabled, isDanger, size, variant });
-
   return (
     <MuiButton
-      className={`${buttonClasses} ${className}`}
+      className={`
+    text-nowrap
+    data-[size=medium]:text-base data-[size=medium]:leading-6 data-[size=medium]:h-auto
+    data-[size=small]:text-sm data-[size=small]:leading-[22px] data-[size=small]:h-auto
+    data-[size=small]:data-[variant=primary]:px-[var(--spacing-4)]
+    [&:not(:disabled)]:data-[variant=primary]:bg-[var(--color-primary-main)]
+    [&:not(:disabled)]:data-[variant=primary]:data-[is-danger=true]:bg-[var(--color-error-main)]
+    [&:not(:disabled)]:data-[variant=secondary]:border-[var(--color-primary-main)]
+    [&:not(:disabled)]:data-[variant=secondary]:text-[var(--color-primary-main)]
+    [&:not(:disabled)]:data-[variant=secondary]:data-[is-danger=true]:border-[var(--color-error-main)]
+    [&:not(:disabled)]:data-[variant=secondary]:data-[is-danger=true]:text-[var(--color-error-main)] ${className}`}
       data-icon-variant={iconVariant}
       data-is-danger={isDanger}
       data-size={size}

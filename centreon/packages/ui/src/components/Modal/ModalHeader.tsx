@@ -16,7 +16,10 @@ const ModalHeader = ({
   ...rest
 }: ModalHeaderProps & DialogTitleProps): ReactElement => {
   return (
-    <div className="flex gap-4 justify-between [&_.MuiDialogTitle-root]:p-0">
+    <div
+      className="flex gap-4 justify-between [&_.MuiDialogTitle-root]:p-0"
+      data-testid="modal-header"
+    >
       <MuiDialogTitle
         className="p-0 font-bold text-2xl"
         color="primary"
