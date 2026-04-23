@@ -25,6 +25,7 @@
     </php>
 
     <extensions>
+        <bootstrap class="Symfony\Bridge\PhpUnit\SymfonyExtension" />
         <bootstrap class="DAMA\DoctrineTestBundle\PHPUnit\PHPUnitExtension" />
     </extensions>
 

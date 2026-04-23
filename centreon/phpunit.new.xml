@@ -24,4 +24,8 @@
         <server name="SHELL_VERBOSITY" value="-1" />
     </php>
 
+    <extensions>
+        <bootstrap class="Symfony\Bridge\PhpUnit\SymfonyExtension" />
+    </extensions>
+
 </phpunit>
