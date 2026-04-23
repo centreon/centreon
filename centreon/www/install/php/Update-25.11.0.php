@@ -237,7 +237,11 @@ $updateSamlProviderConfiguration = function () use ($pearDB, &$errorMessage, $ve
         message: "UPGRADE - {$version}: SAML provider configuration found, checking for requested_authn_context"
     );
 
-    $customConfiguration = json_decode($samlConfiguration['custom_configuration'], true, JSON_THROW_ON_ERROR);
+    $customConfiguration = json_decode(
+        json: $samlConfiguration['custom_configuration'],
+        associative: true,
+        flags: JSON_THROW_ON_ERROR
+    );
 
     $validComparisonValues = ['minimum', 'exact', 'better', 'maximum'];
     $existingComparison = $customConfiguration['requested_authn_context_comparison'] ?? null;

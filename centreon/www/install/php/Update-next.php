@@ -927,7 +927,11 @@ $fixSamlRequestedAuthnContextComparison = function () use ($pearDB, &$errorMessa
         return;
     }
 
-    $customConfiguration = json_decode($samlConfiguration['custom_configuration'], true, JSON_THROW_ON_ERROR);
+    $customConfiguration = json_decode(
+        json: $samlConfiguration['custom_configuration'],
+        associative: true,
+        flags: JSON_THROW_ON_ERROR
+    );
 
     $validComparisonValues = ['minimum', 'exact', 'better', 'maximum'];
     $currentComparison = $customConfiguration['requested_authn_context_comparison'] ?? null;
