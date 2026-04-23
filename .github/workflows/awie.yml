@@ -204,12 +204,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # distrib: [el9, el10, trixie]
-        distrib: [el10, trixie]
+        distrib: [el9, el10, trixie]
         include:
-          # - package_extension: rpm
-          #   image: packaging-nfpm-alma9
-          #   distrib: el9
+          - package_extension: rpm
+            tag_suffix: -alma9
+            distrib: el9
           - package_extension: rpm
             tag_suffix: -alma10
             distrib: el10
@@ -287,8 +286,7 @@ jobs:
 
     strategy:
       matrix:
-        # distrib: [el9, el10]
-        distrib: [el10]
+        distrib: [el9, el10]
 
     steps:
       - name: Checkout sources
@@ -353,8 +351,7 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        # distrib: [el9, el10, trixie]
-        distrib: [el10, trixie]
+        distrib: [el9, el10, trixie]
 
     steps:
       - name: Checkout sources

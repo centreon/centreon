@@ -323,22 +323,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # distrib: [el9, el10, trixie]
-        distrib: [el10, trixie]
+        distrib: [el9, el10, trixie]
         include:
-          # - package_extension: rpm
-          #   image: packaging-nfpm-alma9
-          #   distrib: el9
+          - package_extension: rpm
+            tag_suffix: -alma9
+            distrib: el9
           - package_extension: rpm
             tag_suffix: -alma10
             distrib: el10
           - package_extension: deb
             tag_suffix: -trixie
             distrib: trixie
-
-          # - package_extension: deb
-          #   tag_suffix: -jammy
-          #   distrib: jammy
 
     runs-on: ubuntu-24.04
 
@@ -395,8 +390,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # operating_system: [alma9, alma10]
-        operating_system: [alma10]
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
     name: dockerize ${{ matrix.operating_system }}
 
@@ -407,10 +401,10 @@ jobs:
       - name: Generate information according to matrix os
         id: matrix_include
         run: |
-          # if [ "${{ matrix.operating_system }}" = "alma9" ]; then
-          #   DISTRIB=el9
-          #   PACKAGE_EXTENSION=rpm
-          if [ "${{ matrix.operating_system }}" = "alma10" ]; then
+          if [ "${{ matrix.operating_system }}" = "alma9" ]; then
+            DISTRIB=el9
+            PACKAGE_EXTENSION=rpm
+          elif [ "${{ matrix.operating_system }}" = "alma10" ]; then
             DISTRIB=el10
             PACKAGE_EXTENSION=rpm
           elif [ "${{ matrix.operating_system }}" = "trixie" ]; then
