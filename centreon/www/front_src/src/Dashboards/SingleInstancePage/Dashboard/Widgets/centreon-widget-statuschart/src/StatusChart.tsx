@@ -1,6 +1,7 @@
 import { useRefreshInterval } from '@centreon/ui';
 
 import { equals, includes } from 'ramda';
+import { ReactElement } from 'react';
 
 import { getResourcesUrl } from '../../utils';
 import Chart from './Chart/Chart';
@@ -16,8 +17,9 @@ const StatusChart = ({
   id,
   dashboardId,
   playlistHash,
-  widgetPrefixQuery
-}: StatusChartProps): JSX.Element => {
+  widgetPrefixQuery,
+  isInViewport
+}: StatusChartProps): ReactElement => {
   const { cx, classes } = useStyles();
 
   const {
@@ -75,6 +77,7 @@ const StatusChart = ({
             getLinkToResourceStatusPage={getLinkToResourceStatusPage}
             id={id}
             isHorizontalBar={isHorizontalBar}
+            isInViewport={isInViewport}
             isSingleChart={isSingleChart}
             key={resourceType}
             playlistHash={playlistHash}
