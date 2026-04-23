@@ -1,6 +1,7 @@
-import { Button } from '@mui/material';
-
 import { ReactElement } from 'react';
+
+import { Button } from '@mui/material';
+import { pipe } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import CloudInstallCommandModal from './CloudInstallCommandModal';
@@ -22,7 +23,7 @@ const CreateNewPoller = ({ closeSubMenu }: Props): ReactElement => {
       <Button
         data-testid={labelCreateNewPoller}
         fullWidth
-        onClick={open}
+        onClick={pipe(closeSubMenu, open)}
         size="small"
         variant="contained"
       >
