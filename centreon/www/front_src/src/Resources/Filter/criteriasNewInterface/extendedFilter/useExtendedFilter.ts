@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-
 import { SelectEntry } from '@centreon/ui';
+
+import { useEffect, useState } from 'react';
 
 import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
 import { ExtendedCriteria } from '../model';

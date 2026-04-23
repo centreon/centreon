@@ -1,5 +1,5 @@
-import { InputType } from '@centreon/ui';
 import type { InputProps } from '@centreon/ui';
+import { InputType } from '@centreon/ui';
 
 import {
   labelLast3PasswordsCanBeReused,
@@ -8,7 +8,6 @@ import {
   labelPasswordCasePolicy,
   labelPasswordExpirationPolicy
 } from '../translatedLabels';
-
 import Attempts from './Attempts';
 import BlockingDuration from './BlockingDuration';
 import CaseButtons from './CaseButtons';

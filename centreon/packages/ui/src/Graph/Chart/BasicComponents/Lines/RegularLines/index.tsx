@@ -1,11 +1,10 @@
+import { Shape } from '@visx/visx';
+import type { ScaleLinear, ScaleTime } from 'd3-scale';
+import { equals, isNil, pick, prop } from 'ramda';
 import { memo } from 'react';
 
-import { Shape } from '@visx/visx';
-import { ScaleLinear, ScaleTime } from 'd3-scale';
-import { equals, isNil, pick, prop } from 'ramda';
-
 import { getTime } from '../../../../common/timeSeries';
-import { TimeValue } from '../../../../common/timeSeries/models';
+import type { TimeValue } from '../../../../common/timeSeries/models';
 import { getStrokeDashArray } from '../../../../common/utils';
 import { getCurveFactory, getFillColor } from '../../../common';
 
@@ -127,6 +126,9 @@ export default memo(RegularLine, (prevProps, nextProps) => {
     equals(prevHighlight, nextHighlight) &&
     equals(prevXScaleRange, nextXScaleRange) &&
     equals(prevYScaleDomain, nextYScaleDomain) &&
-    equals(pick(memoizedProps, prevProps), pick(memoizedProps, nextProps))
+    equals(
+      pick(memoizedProps as Array<keyof Props>, prevProps),
+      pick(memoizedProps as Array<keyof Props>, nextProps)
+    )
   );
 });

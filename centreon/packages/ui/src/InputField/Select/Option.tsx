@@ -1,11 +1,10 @@
-import { ReactElement, RefObject, forwardRef } from 'react';
-
-import { equals, isNil } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import { Checkbox, Stack, Typography } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
+
+import { equals, isNil } from 'ramda';
+import { forwardRef, type ReactElement, type RefObject } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   checkbox: {
@@ -48,7 +47,12 @@ const Option = forwardRef(
         )}
         <Stack alignItems="center" direction="row" spacing={1}>
           {thumbnailUrl && (
-            <img alt={children} height={20} src={thumbnailUrl} width={20} />
+            <img
+              alt={typeof children === 'string' ? children : ''}
+              height={20}
+              src={thumbnailUrl}
+              width={20}
+            />
           )}
           <Typography variant="body2">{children}</Typography>
         </Stack>

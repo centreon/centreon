@@ -668,7 +668,7 @@ class CentreonHost
               FROM host
               LEFT JOIN ns_host_relation ns
                 ON ns.host_host_id = host.host_id
-              WHERE host_id = :hostId 
+              WHERE host_id = :hostId
               LIMIT 1';
             $stmt = $this->db->prepare($query);
             $stmt->bindValue(':hostId', (int) $hostParam, PDO::PARAM_INT);
@@ -875,7 +875,7 @@ class CentreonHost
         $i = 0;
 
         if ($hostId) {
-            $sSql = 'SELECT host_macro_name, host_macro_value, is_password, description '
+            $sSql = 'SELECT host_macro_id, host_macro_name, host_macro_value, is_password, description '
                 . 'FROM on_demand_macro_host '
                 . 'WHERE host_host_id = :hostId '
                 . 'ORDER BY macro_order ASC';
@@ -888,6 +888,7 @@ class CentreonHost
 
             while ($row = $stmt->fetch()) {
                 if (preg_match('/\$_HOST(.*)\$$/', $row['host_macro_name'], $matches)) {
+                    $arr[$i]['macroId_#index#'] = $row['host_macro_id'];
                     $arr[$i]['macroInput_#index#'] = $matches[1];
                     $arr[$i]['macroValue_#index#'] = $row['host_macro_value'];
                     $arr[$i]['macroPassword_#index#'] = $row['is_password'] ? 1 : null;
@@ -916,7 +917,7 @@ class CentreonHost
         $i = 0;
 
         if (! isset($_REQUEST['macroInput']) && $hostId) {
-            $sSql = 'SELECT host_macro_name, host_macro_value, is_password, description '
+            $sSql = 'SELECT host_macro_id, host_macro_name, host_macro_value, is_password, description '
                 . 'FROM on_demand_macro_host '
                 . 'WHERE host_host_id = :hostId '
                 . 'ORDER BY macro_order ASC';
@@ -928,6 +929,7 @@ class CentreonHost
             }
             while ($row = $stmt->fetch()) {
                 if (preg_match('/\$_HOST(.*)\$$/', $row['host_macro_name'], $matches)) {
+                    $arr[$i]['macroId_#index#'] = $row['host_macro_id'];
                     $arr[$i]['macroInput_#index#'] = $matches[1];
                     $arr[$i]['macroValue_#index#'] = $row['host_macro_value'];
                     $arr[$i]['macroPassword_#index#'] = $row['is_password'] ? 1 : null;
@@ -942,6 +944,7 @@ class CentreonHost
                 if ($realKeys) {
                     $index = $key;
                 }
+                $arr[$index]['macroId_#index#'] = $_REQUEST['macroId'][$key] ?? null;
                 $arr[$index]['macroInput_#index#'] = $val;
                 $arr[$index]['macroValue_#index#'] = $_REQUEST['macroValue'][$key];
                 $arr[$index]['macroPassword_#index#'] = isset($_REQUEST['macroPassword'][$key]) ? 1 : null;
@@ -1314,6 +1317,9 @@ class CentreonHost
             }
 
             foreach ($aMacroTemplate as $key => $macr) {
+                if ($macr['macroPassword_#index#'] === 1) {
+                    $macr['macroValue_#index#'] = '**********';
+                }
                 $macr['macroOldValue_#index#'] = $macr['macroValue_#index#'];
                 $macr['macroFrom_#index#'] = 'fromTpl';
                 $macr['source'] = 'fromTpl';

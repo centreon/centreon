@@ -1,10 +1,9 @@
-import { ChangeEvent } from 'react';
+import { buildListingEndpoint } from '@centreon/ui';
 
 import { useFormikContext } from 'formik';
 import { useSetAtom } from 'jotai';
 import { propEq, reject } from 'ramda';
-
-import { buildListingEndpoint } from '@centreon/ui';
+import { ChangeEvent } from 'react';
 
 import { allContactsSelectedAtom } from '../../../atom';
 import { NamedEntity, ResourceAccessRule } from '../../../models';

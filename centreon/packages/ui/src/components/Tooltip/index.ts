@@ -1,2 +1,2 @@
-export * from './Tooltip';
 export * from './ConfirmationTooltip';
+export * from './Tooltip';

@@ -160,7 +160,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $statement = $this->db->prepare(
             $this->translateDbName(
                 <<<'SQL'
-                    SELECT contact.contact_id, contact.contact_name, contact.contact_email
+                    SELECT contact.contact_id, contact.contact_name, contact.contact_email, contact.contact_alias
                     FROM `:db`.contact
                     LEFT JOIN `:db`.notification_user_relation nur
                         ON nur.user_id = contact.contact_id
@@ -181,13 +181,15 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
              * @var array{
              *     contact_id: int,
              *     contact_name: string,
-             *     contact_email: string
+             *     contact_email: string,
+             *     contact_alias: string
              * } $result
              */
             $users[] = new Contact(
                 $result['contact_id'],
                 $result['contact_name'],
                 $result['contact_email'],
+                $result['contact_alias'],
             );
         }
 
@@ -267,13 +269,15 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
              * @var array{
              *     contact_id: int,
              *     contact_name: string,
-             *     contact_email: string
+             *     contact_email: string,
+             *     contact_alias: string
              * } $result
              */
             $users[] = new Contact(
                 $result['contact_id'],
                 $result['contact_name'],
                 $result['contact_email'],
+                $result['contact_alias'],
             );
         }
 
@@ -291,7 +295,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $statement = $this->db->prepare(
             $this->translateDbName(
                 <<<SQL
-                    SELECT DISTINCT c.contact_id, c.contact_name, c.contact_email
+                    SELECT DISTINCT c.contact_id, c.contact_name, c.contact_email, c.contact_alias
                     FROM `:db`.contactgroup_contact_relation cgcr
                     INNER JOIN `:db`.contactgroup cg
                         ON cg.cg_id=cgcr.contactgroup_cg_id
@@ -315,13 +319,15 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
              * @var array{
              *     contact_id: int,
              *     contact_name: string,
-             *     contact_email: string
+             *     contact_email: string,
+             *     contact_alias: string
              * } $result
              */
             $users[$result['contact_id']] = new Contact(
                 $result['contact_id'],
                 $result['contact_name'],
                 $result['contact_email'],
+                $result['contact_alias'],
             );
         }
 

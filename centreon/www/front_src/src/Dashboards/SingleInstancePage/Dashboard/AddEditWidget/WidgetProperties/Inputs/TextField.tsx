@@ -1,16 +1,15 @@
-import { type ChangeEvent, useCallback, useMemo } from 'react';
-
-import { useFormikContext } from 'formik';
-import { clamp, equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
+import { Typography } from '@mui/material';
 
 import { TextField, usePluralizedTranslation } from '@centreon/ui';
 
+import { useFormikContext } from 'formik';
+import { clamp, equals } from 'ramda';
+import { type ChangeEvent, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import Subtitle from '../../../components/Subtitle';
 import { useCanEditProperties } from '../../../hooks/useCanEditDashboard';
 import type { Widget, WidgetPropertyProps } from '../../models';
-
-import { Typography } from '@mui/material';
-import Subtitle from '../../../components/Subtitle';
 import { useTextFieldStyles } from './Inputs.styles';
 import { getProperty } from './utils';
 
@@ -85,14 +84,20 @@ const WidgetTextField = ({
       {secondaryLabel && <Label>{t(secondaryLabel)}</Label>}
       <div className={classes.inputContainer}>
         <TextField
-          fullWidth
           autoSize={text?.autoSize}
           autoSizeDefaultWidth={30}
           className={className}
           dataTestId={label}
           disabled={!canEditField || disabled}
           error={ignoreError ? undefined : isTouched && error}
+          fullWidth
           helperText={ignoreError ? undefined : isTouched && error}
+          label={t(label) || ''}
+          multiline={text?.multiline || false}
+          onBlur={blur}
+          onChange={change}
+          required={required}
+          size={text?.size || 'small'}
           textFieldSlotsAndSlotProps={{
             slotProps: {
               htmlInput: {
@@ -103,23 +108,17 @@ const WidgetTextField = ({
               }
             }
           }}
-          label={t(label) || ''}
-          onBlur={blur}
-          multiline={text?.multiline || false}
-          required={required}
-          size={text?.size || 'small'}
           type={text?.type || 'text'}
           value={value ?? ''}
-          onChange={change}
         />
         {text?.unit && (
           <Typography>
             {pluralizedT({
-              label: text.unit,
               count:
                 equals(text.type, 'number') && text?.pluralize
                   ? Number(value)
-                  : 1
+                  : 1,
+              label: text.unit
             })}
           </Typography>
         )}

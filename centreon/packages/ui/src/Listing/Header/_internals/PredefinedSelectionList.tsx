@@ -1,6 +1,6 @@
-import { List, ListItem, ListItemText } from '@mui/material';
+import { List, ListItemButton, ListItemText } from '@mui/material';
 
-import { PredefinedRowSelection } from '../../models';
+import type { PredefinedRowSelection } from '../../models';
 
 interface Props {
   close: () => void;
@@ -21,9 +21,9 @@ const PredefinedSelectionList = ({
       };
 
       return (
-        <ListItem button key={label} onClick={onSelectionClick}>
+        <ListItemButton key={label} onClick={onSelectionClick}>
           <ListItemText>{label}</ListItemText>
-        </ListItem>
+        </ListItemButton>
       );
     })}
   </List>

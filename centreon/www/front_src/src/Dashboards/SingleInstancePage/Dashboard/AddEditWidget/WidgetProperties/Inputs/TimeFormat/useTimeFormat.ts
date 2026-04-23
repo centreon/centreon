@@ -1,11 +1,10 @@
-import { useEffect } from 'react';
+import { SelectEntry } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
 import dayjs from 'dayjs';
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
-
-import { SelectEntry } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
+import { useEffect } from 'react';
 
 import { localeInputKeyDerivedAtom } from '../../../atoms';
 import { Widget, WidgetPropertyProps } from '../../../models';

@@ -1,6 +1,5 @@
-import { useLayoutEffect } from 'react';
-
 import { useSetAtom } from 'jotai';
+import { useLayoutEffect } from 'react';
 
 const loadImage = (imagePath: string): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -22,5 +21,5 @@ export const useLoadImage = ({ imagePath, atom }): void => {
       .catch(() => {
         setImage(null);
       });
-  }, [imagePath]);
+  }, [imagePath, setImage]);
 };

@@ -1,4 +1,5 @@
-import { ReactElement, ReactNode } from 'react';
+import { type } from 'ramda';
+import type { ReactElement, ReactNode } from 'react';
 
 import { useStyles } from './PageLayout.styles';
 
@@ -18,8 +19,8 @@ export const PageLayoutBody = ({
   return (
     <section
       className={cx(classes.pageLayoutBody, className)}
+      data-has-actions={type(children) === 'Array'}
       data-has-background={hasBackground}
-      data-has-actions={!!children?.length}
       id="page-body"
     >
       {children}

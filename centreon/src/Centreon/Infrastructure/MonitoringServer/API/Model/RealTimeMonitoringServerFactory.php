@@ -44,7 +44,6 @@ class RealTimeMonitoringServerFactory
             $newRealTimeMonitoringServer->id = $realTimeMonitoringServer['id'];
             $newRealTimeMonitoringServer->name = $realTimeMonitoringServer['name'];
             $newRealTimeMonitoringServer->address = $realTimeMonitoringServer['address'];
-            $newRealTimeMonitoringServer->description = $realTimeMonitoringServer['description'];
             $newRealTimeMonitoringServer->version = $realTimeMonitoringServer['version'];
             $newRealTimeMonitoringServer->isRunning = $realTimeMonitoringServer['is_running'];
             $newRealTimeMonitoringServer->lastAlive = $realTimeMonitoringServer['last_alive'];

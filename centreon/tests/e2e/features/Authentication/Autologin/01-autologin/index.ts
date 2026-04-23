@@ -1,4 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import { initializeConfigAclAndGetLoginPage } from '../common';
 
@@ -11,26 +13,22 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
+    url: `${INTERCEPTORS.api.events_view_users}?page=1&limit=100`
   }).as('getLastestUserFilters');
 });
 
 Given('an administrator is logged in the platform', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: true })
     .wait('@getLastestUserFilters')
-    .navigateTo({
-      page: 'Centreon UI',
-      rootItemNumber: 4,
-      subMenu: 'Parameters'
-    })
+    .visit(PAGES.configuration.centreonUiLegacy)
     .wait('@getTimeZone');
 });
 
@@ -53,7 +51,7 @@ Then(
   () => {
     cy.isInProfileMenu('Edit profile').click();
 
-    cy.visit('/centreon/main.php?p=50104&o=c')
+    cy.visit(PAGES.configuration.accountParametersLegacy)
       .wait('@getTimeZone')
       .getIframeBody()
       .find('form #tab1')
@@ -62,11 +60,7 @@ Then(
         cy.get('#aKey').invoke('val').should('not.be.undefined');
       });
 
-    cy.navigateTo({
-      page: 'Contacts / Users',
-      rootItemNumber: 3,
-      subMenu: 'Users'
-    })
+    cy.visit(PAGES.configuration.contactsUsersLegacy)
       .reload()
       .wait('@getTimeZone')
       .getIframeBody()
@@ -92,7 +86,7 @@ Given(
       loginViaApi: true
     })
       .isInProfileMenu('Edit profile')
-      .visit('/centreon/main.php?p=50104&o=c')
+      .visit(PAGES.configuration.accountParametersLegacy)
       .wait('@getTimeZone')
       .getIframeBody()
       .find('form #tab1')
@@ -133,11 +127,7 @@ Given('a user with an autologin key generated', () => {
 });
 
 When('a user generates an autologin link', () => {
-  cy.navigateTo({
-    page: 'Templates',
-    rootItemNumber: 2,
-    subMenu: 'Hosts'
-  })
+  cy.visit(PAGES.configuration.hostsTemplatesLegacy)
     .wait('@getTimeZone')
     .getIframeBody()
     .find('form')
@@ -163,12 +153,12 @@ Given(
       jsonName: 'user',
       loginViaApi: true
     });
-    cy.visit('/centreon/main.php?p=50104&o=c')
+    cy.visit(PAGES.configuration.accountParametersLegacy)
       .wait('@getTimeZone')
       .isInProfileMenu('Copy autologin link')
       .get('#autologin-input')
-      .then(($text) =>
-        cy.wrap($text.text()).as('link').should('not.be.undefined')
+      .then((text) =>
+        cy.wrap(text.text()).as('link').should('not.be.undefined')
       );
 
     cy.contains('Logout').click();

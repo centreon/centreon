@@ -1,7 +1,7 @@
+import { ComponentColumnProps, IconButton } from '@centreon/ui';
+
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-
-import { ComponentColumnProps, IconButton } from '@centreon/ui';
 
 import { resourcesToCloseTicketAtom } from '../../../atom';
 import { labelCloseTicket } from '../../translatedLabels';
@@ -40,8 +40,8 @@ const CloseTicket = ({ row }: ComponentColumnProps): JSX.Element | null => {
         ariaLabel={t(labelCloseTicket)}
         color="primary"
         data-testid={labelCloseTicket}
-        size="large"
         onClick={askBeforeClosingTicket}
+        size="large"
       >
         <IconCloseTicket />
       </IconButton>

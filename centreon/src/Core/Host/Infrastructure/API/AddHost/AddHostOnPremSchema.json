@@ -305,6 +305,12 @@
                     "description"
                 ],
                 "properties": {
+                    "id": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
+                    },
                     "name": {
                         "type": "string"
                     },

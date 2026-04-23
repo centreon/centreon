@@ -1,21 +1,19 @@
-import { useRef } from 'react';
+import { Box, useTheme } from '@mui/material';
 
 import { Group } from '@visx/group';
 import { Tooltip } from '@visx/visx';
 import { flatten, head, pluck } from 'ramda';
-
-import { Box, useTheme } from '@mui/material';
+import { useRef } from 'react';
 
 import { Tooltip as MuiTooltip } from '../../components/Tooltip';
 import { margins } from '../common/margins';
 import { formatMetricValueWithUnit } from '../common/timeSeries';
-import { Metric } from '../common/timeSeries/models';
+import type { Metric } from '../common/timeSeries/models';
 import { useTooltipStyles } from '../common/useTooltipStyles';
 import { getColorFromDataAndTresholds } from '../common/utils';
-
+import type { GaugeProps } from './models';
 import PieData from './PieData';
 import Thresholds from './Thresholds';
-import { GaugeProps } from './models';
 
 interface Props extends Pick<GaugeProps, 'thresholds' | 'baseColor'> {
   displayAsRaw?: boolean;
@@ -65,6 +63,7 @@ const ResponsiveGauge = ({
 
   const pieColor = getColorFromDataAndTresholds({
     baseColor,
+    // @ts-expect-error - suppressing pre-existing type mismatch
     data: metric.data[0],
     theme,
     thresholds
@@ -90,11 +89,13 @@ const ResponsiveGauge = ({
         classes={{
           tooltip: classes.tooltip
         }}
+        // @ts-expect-error - suppressing pre-existing type mismatch
         label={tooltipData}
         open={thresholds.enabled && tooltipOpen}
         placement="top"
       >
         <svg height={height} ref={svgRef} width={width}>
+          <title>gauge</title>
           <Group
             left={centerX + margins.left}
             top={centerY + margins.top + baseSize / 8}

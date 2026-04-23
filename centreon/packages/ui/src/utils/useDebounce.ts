@@ -12,19 +12,24 @@ export const useDebounce = ({
   memoProps = []
 }: Props): ((...args) => void) => {
   const timeoutRef = useRef<number | null>(null);
-  const ref = useRef();
+  const ref = useRef<((...args: Array<unknown>) => void) | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     ref.current = functionToDebounce;
   }, [functionToDebounce]);
 
-  return useCallback((...args): void => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
+  return useCallback(
+    (...args): void => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
 
-    timeoutRef.current = setTimeout(() => {
-      ref.current?.(...args);
-    }, wait);
-  }, memoProps);
+      timeoutRef.current = setTimeout(() => {
+        ref.current?.(...args);
+      }, wait);
+    },
+    [...memoProps, wait]
+  );
 };

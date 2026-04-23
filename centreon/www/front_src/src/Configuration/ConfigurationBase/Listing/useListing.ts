@@ -1,14 +1,12 @@
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-
 import { useSnackbar } from '@centreon/ui';
 
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 
 import { configurationAtom, modalStateAtom } from '../atoms';
-import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
-
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';
+import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 
 interface UseListing {
   changePage: (updatedPage: number) => void;
@@ -22,6 +20,7 @@ interface UseListing {
   sorto: 'asc' | 'desc';
   openEditModal: (row) => void;
   disableRowCondition: (row) => boolean;
+  limit: number;
 }
 
 const useListing = ({ selectedColumnIdsAtom }): UseListing => {
@@ -42,7 +41,7 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
   const [sorto, setSorto] = useAtom(sortOrderAtom);
   const [sortf, setSortf] = useAtom(sortFieldAtom);
   const [page, setPage] = useAtom(pageAtom);
-  const setLimit = useSetAtom(limitAtom);
+  const [limit, setLimit] = useAtom(limitAtom);
 
   const resetColumns = (): void => {
     setSelectedColumnIds(defaultSelectedColumnIds);
@@ -68,12 +67,12 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
   };
 
   const openEditModal = (row) => {
-    setSearchParams({ mode: 'edit', id: row.id });
+    setSearchParams({ id: row.id, mode: 'edit' });
 
     setModalState({
+      id: row.id,
       isOpen: true,
-      mode: 'edit',
-      id: row.id
+      mode: 'edit'
     });
   };
 
@@ -83,15 +82,16 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
   return {
     changePage,
     changeSort,
+    disableRowCondition,
+    limit,
+    openEditModal,
     page,
     resetColumns,
     selectColumns,
     selectedColumnIds,
     setLimit,
     sortf,
-    sorto,
-    openEditModal,
-    disableRowCondition
+    sorto
   };
 };
 

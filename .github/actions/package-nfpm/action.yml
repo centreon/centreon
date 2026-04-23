@@ -98,13 +98,12 @@ runs:
 
         MAJOR_LEFT=$( echo $MAJOR_VERSION | cut -d "." -f1 )
         MAJOR_RIGHT=$( echo $MAJOR_VERSION | cut -d "-" -f1 | cut -d "." -f2 )
-        BUMP_MAJOR_RIGHT=$(( MAJOR_RIGHT_PART + 1 ))
-        if [ "$MAJOR_RIGHT" = "04" ]; then
-          BUMP_MAJOR_LEFT="$MAJOR_LEFT"
-          BUMP_MAJOR_RIGHT="10"
-        else
+        if [ "$MAJOR_RIGHT" = "12" ]; then
           BUMP_MAJOR_LEFT=$(( $MAJOR_LEFT + 1 ))
-          BUMP_MAJOR_RIGHT="04"
+          BUMP_MAJOR_RIGHT="01"
+        else
+          BUMP_MAJOR_LEFT=$MAJOR_LEFT
+          BUMP_MAJOR_RIGHT=$(( $MAJOR_RIGHT + 1 ))
         fi
 
         export NEXT_MAJOR_VERSION="$BUMP_MAJOR_LEFT.$BUMP_MAJOR_RIGHT"
@@ -117,6 +116,11 @@ runs:
           DIRNAME=$(dirname $FILE)
           BASENAME=$(basename $FILE)
           cd $DIRNAME
+          if [[ "$RPM_SIGNING_KEY_ID" == "" ]]; then
+            sed -i "/signature:/d" $BASENAME
+            sed -i "/RPM_SIGNING_KEY_FILE/d" $BASENAME
+            sed -i "/RPM_SIGNING_KEY_ID/d" $BASENAME
+          fi
           sed -i "s/@APACHE_USER@/$APACHE_USER/g" $BASENAME
           sed -i "s/@APACHE_GROUP@/$APACHE_GROUP/g" $BASENAME
           sed -i "s/@COMMIT_HASH@/${{ inputs.commit_hash }}/g" $BASENAME
@@ -135,7 +139,7 @@ runs:
     # Add 'upload-artifacts' label to pull request to get packages as artifacts
     - if: inputs.upload_artifacts == 'true'
       name: Upload package artifacts
-      uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+      uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
       with:
         name: ${{ inputs.module_name }}-${{ inputs.arch != '' && format('packages-{0}-{1}', inputs.distrib, inputs.arch) || format('packages-{0}', inputs.distrib) }}
         path: ./*.${{ inputs.package_extension }}

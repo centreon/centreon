@@ -6,7 +6,6 @@ import {
   labelNewFilter,
   labelUnhandledAlerts
 } from '../translatedLabels';
-
 import getDefaultCriterias from './Criterias/default';
 import {
   Criteria,
@@ -41,8 +40,8 @@ const newFilter = {
 const unhandledProblemsFilter: Filter = {
   criterias: getDefaultCriterias({
     states: [unhandledState],
-    statusTypes: [hardStateType],
-    statuses: [warningStatus, downStatus, criticalStatus, unknownStatus]
+    statuses: [warningStatus, downStatus, criticalStatus, unknownStatus],
+    statusTypes: [hardStateType]
   }),
   id: 'unhandled_problems',
   name: labelUnhandledAlerts

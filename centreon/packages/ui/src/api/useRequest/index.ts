@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
-
 import axios from 'axios';
-import { path, defaultTo, includes, or, pathOr } from 'ramda';
-import { JsonDecoder } from 'ts.data.json';
+import { defaultTo, includes, or, path, pathOr } from 'ramda';
+import { useEffect, useState } from 'react';
+import type { JsonDecoder } from 'ts.data.json';
 
 import useSnackbar from '../../Snackbar/useSnackbar';
 import { errorLog, warnLog } from '../logger';
@@ -35,7 +34,7 @@ const useRequest = <TResult>({
 
   useEffect(() => {
     return (): void => cancel();
-  }, []);
+  }, [cancel]);
 
   const showRequestErrorMessage = (error): void => {
     errorLog(error.message);
@@ -65,7 +64,7 @@ const useRequest = <TResult>({
       .catch((error) => {
         setSending(false);
         if (axios.isCancel(error)) {
-          warnLog(error);
+          warnLog(error as unknown as string);
 
           throw error;
         }
@@ -85,7 +84,7 @@ const useRequest = <TResult>({
       });
   };
 
-  return { sendRequest, sending };
+  return { sending, sendRequest };
 };
 
 export default useRequest;

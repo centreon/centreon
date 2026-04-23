@@ -1,8 +1,7 @@
-import { ReactElement } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import { AccessRights, Modal } from '@centreon/ui/components';
+
+import { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   dashboardsContactGroupsEndpoint,
@@ -31,7 +30,6 @@ import {
   labelUserRights,
   labelViewer
 } from '../../../translatedLabels';
-
 import { useDashboardAccessRights } from './useDashboardAccessRights';
 
 const labels = {
@@ -70,7 +68,7 @@ const DashboardAccessRightsModal = (): ReactElement => {
   });
 
   return (
-    <Modal open={modalOpen} size="medium" onClose={close}>
+    <Modal onClose={close} open={modalOpen} size="medium">
       <Modal.Header>{t(labelEditAccessRights)}</Modal.Header>
       <Modal.Body>
         <AccessRights

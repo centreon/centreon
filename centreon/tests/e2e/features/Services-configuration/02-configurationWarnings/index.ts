@@ -1,4 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import data from '../../../fixtures/notifications/data-for-notification.json';
 
@@ -6,11 +8,11 @@ beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getUserTimezone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
 });
 
@@ -30,11 +32,7 @@ Given('a service with notifications enabled', () => {
     name: data.hosts.host1.name,
     template: 'generic-host'
   });
-  cy.navigateTo({
-    page: 'Services by host',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesByHostLegacy);
   cy.getIframeBody()
     .find('tr.ToolbarTR')
     .find('.btc.bt_success')
@@ -89,7 +87,7 @@ Given('the service has no notification period', () => {
 });
 
 When('the configuration is exported', () => {
-  cy.navigateTo({ page: 'Pollers', rootItemNumber: 3, subMenu: 'Pollers' });
+  cy.visit(PAGES.configuration.pollersLegacy);
   cy.wait('@getUserTimezone');
   cy.waitForElementInIframe('#main-content', 'input[name="searchP"]');
   cy.getIframeBody().find('h4').contains('Poller').should('exist');

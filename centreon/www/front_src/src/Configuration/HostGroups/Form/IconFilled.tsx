@@ -7,6 +7,7 @@ import {
 
 import { FormikValues, useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
+
 import { getListImagesSearchEndpoint } from '../api/endpoints';
 import { labelIcon } from '../translatedLabels';
 import { useIconStyles } from './Form.styles';
@@ -24,16 +25,16 @@ const IconFiled = ({ disabled }: { disabled: boolean }): JSX.Element => {
   return (
     <div className={classes.icon}>
       <SingleConnectedAutocompleteField
-        fullWidth
-        displayOptionThumbnail
         disableClearable={false}
+        disabled={disabled}
+        displayOptionThumbnail
         field="name"
+        fullWidth
         getEndpoint={getListImagesSearchEndpoint}
         id="icon"
         label={t(labelIcon)}
-        value={values.icon}
         onChange={changeIcon}
-        disabled={disabled}
+        value={values.icon}
       />
       {values.icon && (
         <Image
@@ -41,8 +42,8 @@ const IconFiled = ({ disabled }: { disabled: boolean }): JSX.Element => {
           fallback={<LoadingSkeleton />}
           height={25}
           imagePath={values.icon.url}
-          width={25}
           variant={ImageVariant.Contain}
+          width={25}
         />
       )}
     </div>

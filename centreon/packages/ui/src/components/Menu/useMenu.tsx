@@ -1,14 +1,13 @@
-import { ReactElement, ReactNode, useRef } from 'react';
-
 import {
-  Provider,
   atom,
   createStore,
+  Provider,
   useAtom,
   useAtomValue,
   useStore
 } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
+import { type ReactElement, type ReactNode, useRef } from 'react';
 
 /** state */
 
@@ -38,9 +37,9 @@ const MenuProvider = ({
     [
       [isMenuOpenAtom, initialIsOpen ?? false],
       [anchorElAtom, null],
-      [onOpenAtom, onOpen],
-      [onCloseAtom, onClose]
-    ],
+      [onOpenAtom, onOpen ?? null],
+      [onCloseAtom, onClose ?? null]
+    ] as unknown as Parameters<typeof useHydrateAtoms>[0],
     { store: menuStore }
   );
 

@@ -1,13 +1,11 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import groups from '../../../fixtures/users/contact.json';
 
 const checkFirstContactGroupFromListing = () => {
-  cy.navigateTo({
-    page: 'Contact Groups',
-    rootItemNumber: 3,
-    subMenu: 'Users'
-  });
+  cy.visit(PAGES.configuration.contactGroupsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
   cy.getIframeBody()
@@ -23,19 +21,19 @@ beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_contact*'
+    url: `${INTERCEPTORS.pages.centreon_configuration_contact}*`
   }).as('getContacts');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_administration_aclgroup*'
+    url: `${INTERCEPTORS.pages.centreon_administration_aclgroup}*`
   }).as('getACLGroups');
 });
 
@@ -51,11 +49,7 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 When('a contact group is configured', () => {
-  cy.navigateTo({
-    page: 'Contact Groups',
-    rootItemNumber: 3,
-    subMenu: 'Users'
-  });
+  cy.visit(PAGES.configuration.contactGroupsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'Add').click();
   cy.addOrUpdateContactGroup(groups.defaultGroup);
@@ -80,8 +74,8 @@ Then('the properties are updated', () => {
   cy.getIframeBody()
     .find('#cg_contacts')
     .find('option:selected')
-    .then(($selectedOptions) => {
-      const selectedTexts = Array.from($selectedOptions).map(
+    .then((selectedOptions) => {
+      const selectedTexts = Array.from(selectedOptions).map(
         (option) => option.textContent
       );
       expect(selectedTexts).to.include.members([
@@ -92,8 +86,8 @@ Then('the properties are updated', () => {
   cy.getIframeBody()
     .find('#cg_acl_groups')
     .find('option:selected')
-    .then(($selectedOptions) => {
-      const selectedTexts = Array.from($selectedOptions).map(
+    .then((selectedOptions) => {
+      const selectedTexts = Array.from(selectedOptions).map(
         (option) => option.textContent
       );
       expect(selectedTexts).to.include.members(['ALL']);
@@ -125,8 +119,8 @@ Then('a new contact group is created with identical properties', () => {
   cy.getIframeBody()
     .find('#cg_contacts')
     .find('option:selected')
-    .then(($selectedOptions) => {
-      const selectedTexts = Array.from($selectedOptions).map(
+    .then((selectedOptions) => {
+      const selectedTexts = Array.from(selectedOptions).map(
         (option) => option.textContent
       );
       expect(selectedTexts).to.include.members([
@@ -136,8 +130,8 @@ Then('a new contact group is created with identical properties', () => {
   cy.getIframeBody()
     .find('#cg_acl_groups')
     .find('option:selected')
-    .then(($selectedOptions) => {
-      const selectedTexts = Array.from($selectedOptions).map(
+    .then((selectedOptions) => {
+      const selectedTexts = Array.from(selectedOptions).map(
         (option) => option.textContent
       );
       expect(selectedTexts).to.include.members(['ALL']);

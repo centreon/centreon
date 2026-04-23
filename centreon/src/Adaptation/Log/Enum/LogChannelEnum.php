@@ -26,4 +26,5 @@ namespace Adaptation\Log\Enum;
 enum LogChannelEnum: string
 {
     case PASSWORD = 'password';
+    case TOKEN = 'token';
 }

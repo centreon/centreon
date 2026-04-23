@@ -1,19 +1,18 @@
 import {
-  MutateOptions,
-  UseMutationResult,
-  useQueryClient
-} from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
-
-import {
   Method,
   ResponseError,
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
 
-import { labelUserDeleted } from '../translatedLabels';
+import {
+  MutateOptions,
+  UseMutationResult,
+  useQueryClient
+} from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
+import { labelUserDeleted } from '../translatedLabels';
 import { getDashboardAccessRightsContactEndpoint } from './endpoints';
 import { DeleteAccessRightDto, resource } from './models';
 
@@ -59,34 +58,54 @@ const useDeleteAccessRightsContact = (): UseDeleteAccessRightsContact => {
     const { onSettled, ...restOptions } = options || {};
 
     const onSettledWithInvalidateQueries = (
-      data: undefined,
-      error: ResponseError | null,
-      vars: DeleteAccessRightDto
+      data:
+        | {
+            _meta?:
+              | { dashboardId: string | number; id: string | number }
+              | undefined;
+            payload: object;
+          }
+        | undefined,
+      error: Error | null,
+      vars: {
+        _meta?:
+          | { dashboardId: string | number; id: string | number }
+          | undefined;
+        payload?: object;
+      },
+      context: unknown
     ): void => {
-      invalidateQueries(vars);
-      onSettled?.(data, error, vars, undefined);
+      if (vars._meta) {
+        invalidateQueries({ _meta: vars._meta });
+      }
+      onSettled?.(data, error, variables, context);
     };
 
     const { id, dashboardId } = variables;
 
-    return mutateAsync(
-      {
-        _meta: {
-          dashboardId,
-          id
+    try {
+      const result = await mutateAsync(
+        {
+          _meta: {
+            dashboardId,
+            id
+          }
+        },
+        {
+          onSettled: onSettledWithInvalidateQueries,
+          ...restOptions
         }
-      },
-      {
-        onSettled: onSettledWithInvalidateQueries,
-        ...restOptions
-      }
-    ).then(() => {
-      queryClient.invalidateQueries({
+      );
+
+      await queryClient.invalidateQueries({
         queryKey: [resource.dashboards]
       });
 
       showSuccessMessage(t(labelUserDeleted));
-    });
+      return result;
+    } catch (error) {
+      return error as ResponseError;
+    }
   };
 
   return {

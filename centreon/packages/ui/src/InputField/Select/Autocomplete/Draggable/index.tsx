@@ -1,6 +1,8 @@
+import { Typography } from '@mui/material';
+
 import {
-  F,
   equals,
+  F,
   findIndex,
   inc,
   isEmpty,
@@ -11,18 +13,14 @@ import {
   pipe,
   pluck,
   propEq,
-  remove,
-  type
+  remove
 } from 'ramda';
+import { type ChangeEvent, useEffect, useState } from 'react';
 
-import { Typography } from '@mui/material';
-
-import { Props as SingleAutocompletefieldProps } from '..';
 import TextField from '../../../Text';
-import { ConnectedAutoCompleteFieldProps } from '../Connected';
-
-import { ChangeEvent, useEffect, useState } from 'react';
-import SortableList, { DraggableSelectEntry } from './SortableList';
+import type { Props as SingleAutocompletefieldProps } from '..';
+import type { ConnectedAutoCompleteFieldProps } from '../Connected';
+import SortableList, { type DraggableSelectEntry } from './SortableList';
 
 export interface ItemActionProps {
   anchorElement?: HTMLElement | null;
@@ -94,8 +92,8 @@ const DraggableAutocomplete = (
         return;
       }
       const lastValue = last(newValue);
-      if (pipe(type, equals('String'))(lastValue)) {
-        const lastDraggableItem = {
+      if (typeof lastValue === 'string') {
+        const lastDraggableItem: DraggableSelectEntry = {
           createOption: lastValue,
           id: `${lastValue}_${totalValues}`,
           name: lastValue
@@ -116,7 +114,7 @@ const DraggableAutocomplete = (
         newValue
       ) as DraggableSelectEntry;
 
-      const lastDraggableItem = {
+      const lastDraggableItem: DraggableSelectEntry = {
         id: `${lastItem.name}_${totalValues}`,
         name: lastItem.name
       };
@@ -181,24 +179,24 @@ const DraggableAutocomplete = (
         {...renderProps}
         error={error}
         helperText={error}
+        label={label}
+        onBlur={blurInput}
+        onChange={changeInput}
+        required={required}
         textFieldSlotsAndSlotProps={{
           slotProps: {
+            htmlInput: {
+              ...renderProps.inputProps,
+              value: inputText || ''
+            },
             input: {
               ...renderProps?.InputProps
             },
             inputLabel: {
               ...renderProps?.inputLabel
-            },
-            htmlInput: {
-              ...renderProps.inputProps,
-              value: inputText || ''
             }
           }
         }}
-        label={label}
-        required={required}
-        onBlur={blurInput}
-        onChange={changeInput}
       />
     );
 
@@ -217,21 +215,21 @@ const DraggableAutocomplete = (
       }
 
       setSelectedValues(initialValues);
-    }, [initialValues]);
+    }, [initialValues, selectedValues]);
 
     return (
       <MultiAutocomplete
+        disableCloseOnSelect={false}
         disableSortedOptions
         freeSolo
         handleHomeEndKeys
-        selectOnFocus
-        disableCloseOnSelect={false}
         isOptionEqualToValue={F}
+        onChange={onChange}
         renderInput={renderInput}
         renderOption={renderOption}
         renderTags={renderTags}
+        selectOnFocus
         value={selectedValues}
-        onChange={onChange}
         {...props}
       />
     );

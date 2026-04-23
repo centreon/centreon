@@ -1,7 +1,7 @@
-import { useTranslation } from 'react-i18next';
-
 import { Link, Typography } from '@mui/material';
 import { Box } from '@mui/system';
+
+import { useTranslation } from 'react-i18next';
 
 import {
   labelAnd,

@@ -1,12 +1,12 @@
+import { Chip, type ChipProps, Tooltip } from '@mui/material';
+import type { UseAutocompleteProps } from '@mui/material/useAutocomplete';
+
 import { compose, includes, map, prop, reject, sortBy, toLower } from 'ramda';
-import { JSX } from 'react';
+import type { JSX } from 'react';
 
-import { Chip, ChipProps, Tooltip } from '@mui/material';
-import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
-
-import Autocomplete, { Props as AutocompleteProps } from '..';
-import { SelectEntry } from '../..';
+import type { SelectEntry } from '../..';
 import Option from '../../Option';
+import Autocomplete, { type Props as AutocompleteProps } from '..';
 import ListboxComponent from './Listbox';
 import { useStyles } from './Multi.styles';
 
@@ -36,7 +36,8 @@ const MultiAutocompleteField = ({
   disableSortedOptions = false,
   disableSelectAll = true,
   optionProperty = 'name',
-  getOptionLabel = (option): string => option.name,
+  getOptionLabel = (option): string =>
+    typeof option === 'string' ? option : option?.name,
   getTagLabel = (option): string => option[optionProperty],
   getOptionTooltipLabel,
   chipProps,
@@ -65,7 +66,13 @@ const MultiAutocompleteField = ({
             size="medium"
             {...getTagProps({ index })}
             {...chipProps}
-            onDelete={(event) => chipProps?.onDelete?.(event, option)}
+            onDelete={(event) =>
+              (
+                chipProps?.onDelete as
+                  | ((event: React.SyntheticEvent, option: SelectEntry) => void)
+                  | undefined
+              )?.(event, option)
+            }
           />
         </Tooltip>
       );
@@ -89,34 +96,42 @@ const MultiAutocompleteField = ({
 
   return (
     <Autocomplete
-      disableCloseOnSelect
-      displayOptionThumbnail
-      multiple
-      getLimitTagsText={getLimitTagsText}
-      options={autocompleteOptions}
-      renderOption={(renderProps, option, { selected }): JSX.Element => (
-        <li
-          key={option.id}
-          {...(renderProps as React.HTMLAttributes<HTMLLIElement>)}
-        >
-          <Option checkboxSelected={selected}>{getOptionLabel(option)}</Option>
-        </li>
-      )}
-      value={values}
-      renderTags={(renderedValue, getTagProps): React.ReactNode =>
-        customRenderTags
-          ? customRenderTags(renderTags(renderedValue, getTagProps))
-          : renderTags(renderedValue, getTagProps)
-      }
-      ListboxComponent={ListboxComponent({
-        total,
+      {...({
+        disableCloseOnSelect: true,
+        displayOptionThumbnail: true,
+        getLimitTagsText,
+        ListboxComponent: ListboxComponent({
+          disableSelectAll,
+          isOptionSelected,
+          onChange: onChange as (
+            event: React.SyntheticEvent,
+            value: Array<SelectEntry>,
+            reason: string
+          ) => void,
+          options: options as Array<SelectEntry>,
+          total,
+          value: values
+        }),
+        multiple: true,
         onChange,
-        isOptionSelected,
-        disableSelectAll,
-        options
-      })}
-      onChange={onChange}
-      {...props}
+        options: autocompleteOptions,
+        renderOption: (renderProps, option, { selected }): JSX.Element => (
+          <li
+            key={option.id}
+            {...(renderProps as React.HTMLAttributes<HTMLLIElement>)}
+          >
+            <Option checkboxSelected={selected}>
+              {getOptionLabel(option)}
+            </Option>
+          </li>
+        ),
+        renderTags: (renderedValue, getTagProps): React.ReactNode =>
+          customRenderTags
+            ? customRenderTags(renderTags(renderedValue, getTagProps))
+            : renderTags(renderedValue, getTagProps),
+        value: values,
+        ...props
+      } as React.ComponentProps<typeof Autocomplete>)}
     />
   );
 };

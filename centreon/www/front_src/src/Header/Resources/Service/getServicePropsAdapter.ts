@@ -18,7 +18,6 @@ import {
   formatUnhandledOverTotal,
   getNavigationFunction
 } from '../utils';
-
 import {
   labelAll,
   labelCritical,

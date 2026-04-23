@@ -1,11 +1,10 @@
-import { useEffect } from 'react';
+import { useDeepCompare, useFetchQuery } from '@centreon/ui';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, propOr } from 'ramda';
+import { useEffect } from 'react';
 import { useParams } from 'react-router';
-
-import { useDeepCompare, useFetchQuery } from '@centreon/ui';
-import { federatedWidgetsAtom } from '@centreon/ui-context';
 
 import { FederatedModule } from '../../../../federatedModules/models';
 import {
@@ -107,7 +106,7 @@ const useDashboardDetails = ({
     getQueryKey: () => [resource.dashboard, dashboardId],
     queryOptions: {
       enabled: !!(playlistHash || dashboardId),
-      refetchInterval: 30000,
+      refetchInterval: 30000
     }
   });
 

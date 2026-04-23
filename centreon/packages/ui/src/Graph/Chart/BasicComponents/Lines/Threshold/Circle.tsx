@@ -1,7 +1,7 @@
 import { Shape } from '@visx/visx';
 import { isEmpty, isNil } from 'ramda';
 
-import { Circle as CircleModel } from './models';
+import type { Circle as CircleModel } from './models';
 import useCoordinateCircle from './useCoordinateCircle';
 
 const Circle = ({

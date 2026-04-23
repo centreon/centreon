@@ -31,9 +31,9 @@ use Core\Dashboard\Application\UseCase\AddDashboardThumbnail\AddDashboardThumbna
 use Core\Media\Application\UseCase\UpdateMedia\UpdateMedia;
 use Core\Media\Application\UseCase\UpdateMedia\UpdateMediaPresenterInterface;
 use Core\Media\Application\UseCase\UpdateMedia\UpdateMediaRequest;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
-final readonly class DashboardUpdatedSubscriber implements EventSubscriberInterface
+final readonly class DashboardUpdatedSubscriber
 {
     /**
      * @param UpdateMedia $thumbnailUpdater
@@ -50,18 +50,11 @@ final readonly class DashboardUpdatedSubscriber implements EventSubscriberInterf
     }
 
     /**
-     * @inheritDoc
-     */
-    public static function getSubscribedEvents(): array
-    {
-        return [DashboardUpdatedEvent::class => 'createOrUpdateDashboardThumbnail'];
-    }
-
-    /**
      * @param DashboardUpdatedEvent $event
      *
      * @throws \Exception
      */
+    #[AsEventListener]
     public function createOrUpdateDashboardThumbnail(DashboardUpdatedEvent $event): void
     {
         if ($event->getThumbnailId() === null) {

@@ -1,19 +1,18 @@
+import { Box } from '@mui/material';
+
 import {
   NumberField,
   SingleConnectedAutocompleteField,
   TextField
 } from '@centreon/ui';
-import { Box } from '@mui/material';
+
+import { or } from 'ramda';
+import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getHostsEndpoint, getTokensEndpoint } from '../../../api/endpoints';
-import { HostConfiguration as HostConfigurationModel } from '../../../models';
-
-import RedirectToTokensPage from '../RedirectToTokensPage';
-import { useHostConfiguration } from './useHostConfiguration';
-
-import { useHostConfigurationsStyle } from './HostConfigurationsStyle';
 
 import { listTokensDecoder } from '../../../api/decoders';
+import { getHostsEndpoint, getTokensEndpoint } from '../../../api/endpoints';
+import { HostConfiguration as HostConfigurationModel } from '../../../models';
 import {
   labelCACommonName,
   labelCaCertificate,
@@ -22,13 +21,16 @@ import {
   labelSelectExistingCMAToken,
   labelSelectHost
 } from '../../../translatedLabels';
+import RedirectToTokensPage from '../RedirectToTokensPage';
+import { useHostConfigurationsStyle } from './HostConfigurationsStyle';
+import { useHostConfiguration } from './useHostConfiguration';
 
 interface Props {
   index: number;
   host: HostConfigurationModel;
 }
 
-const HostConfiguration = ({ index, host }: Props): JSX.Element => {
+const HostConfiguration = ({ index, host }: Props): ReactElement => {
   const { classes } = useHostConfigurationsStyle();
 
   const { t } = useTranslation();
@@ -51,27 +53,27 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
     <Box
       sx={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
         gap: 2,
+        gridTemplateColumns: 'repeat(3, 1fr)',
         width: 'calc(100% - 24px)'
       }}
     >
       <SingleConnectedAutocompleteField
-        required
+        field="name"
+        getEndpoint={getHostsEndpoint}
         label={t(labelSelectHost)}
         onChange={selectHost}
-        getEndpoint={getHostsEndpoint}
+        required
         value={{ id: host.id, name: host.name }}
-        field="name"
       />
       <TextField
-        required
         className={classes.input}
-        value={host.address}
-        onChange={changeAddress}
-        label={t(labelDNSIP)}
         dataTestId={labelDNSIP}
+        error={hostTouched?.address && hostErrors?.address}
         fullWidth
+        label={t(labelDNSIP)}
+        onChange={changeAddress}
+        required
         textFieldSlotsAndSlotProps={{
           slotProps: {
             htmlInput: {
@@ -79,74 +81,76 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
             }
           }
         }}
-        error={hostTouched?.address && hostErrors?.address}
+        value={host.address}
       />
       <NumberField
-        required
-        value={host.port.toString()}
-        onChange={changePort}
-        label={t(labelPort)}
+        className={classes.input}
         dataTestId={labelPort}
-        fullWidth
         error={hostTouched?.port && hostErrors?.port}
+        fullWidth
+        label={t(labelPort)}
+        onChange={changePort}
+        required
         textFieldSlotsAndSlotProps={{
           slotProps: {
             htmlInput: {
               'data-testid': 'portInput',
-              min: 1,
-              max: 65535
+              max: 65535,
+              min: 1
             }
           }
         }}
-        className={classes.input}
+        value={host.port.toString()}
       />
 
-      {(isInsecureMode || isSecureMode) && (
-        <>
-          <Box className="flex flex-col">
-            <SingleConnectedAutocompleteField
-              required
-              disableClearable={false}
-              dataTestId={labelSelectExistingCMAToken}
-              field="token_name"
-              getEndpoint={getTokensEndpoint}
-              label={t(labelSelectExistingCMAToken)}
-              value={token || null}
-              onChange={changeCMAToken}
-              decoder={listTokensDecoder}
-              error={(hostTouched?.token && hostErrors?.token) || undefined}
-            />
-            <RedirectToTokensPage />
-          </Box>
+      <Box className="flex flex-col">
+        <SingleConnectedAutocompleteField
+          dataTestId={labelSelectExistingCMAToken}
+          decoder={listTokensDecoder}
+          disableClearable={false}
+          error={(hostTouched?.token && hostErrors?.token) || undefined}
+          field="token_name"
+          getEndpoint={getTokensEndpoint}
+          label={t(labelSelectExistingCMAToken)}
+          onChange={changeCMAToken}
+          required
+          value={token || null}
+        />
+        <RedirectToTokensPage />
+      </Box>
 
-          <TextField
-            value={host?.pollerCaCertificate || ''}
-            onChange={changeStringInput('pollerCaCertificate')}
-            label={t(labelCaCertificate)}
-            dataTestId={labelCaCertificate}
-            textFieldSlotsAndSlotProps={{
-              slotProps: {
-                htmlInput: {
-                  'aria-label': labelCaCertificate
-                }
+      {or(isInsecureMode, isSecureMode) && (
+        <TextField
+          className={classes.input}
+          dataTestId={labelCaCertificate}
+          error={
+            (hostTouched?.pollerCaCertificate &&
+              hostErrors?.pollerCaCertificate) ||
+            undefined
+          }
+          fullWidth
+          label={t(labelCaCertificate)}
+          onChange={changeStringInput('pollerCaCertificate')}
+          textFieldSlotsAndSlotProps={{
+            slotProps: {
+              htmlInput: {
+                'aria-label': labelCaCertificate
               }
-            }}
-            fullWidth
-            error={
-              (hostTouched?.pollerCaCertificate &&
-                hostErrors?.pollerCaCertificate) ||
-              undefined
             }
-            className={classes.input}
-          />
-        </>
+          }}
+          value={host?.pollerCaCertificate || ''}
+        />
       )}
-
       {isInsecureMode && (
         <TextField
-          value={host?.pollerCaName || ''}
-          onChange={changeStringInput('pollerCaName')}
+          className={classes.input}
+          dataTestId={labelCACommonName}
+          error={
+            (hostTouched?.pollerCaName && hostErrors?.pollerCaName) || undefined
+          }
+          fullWidth
           label={t(labelCACommonName)}
+          onChange={changeStringInput('pollerCaName')}
           textFieldSlotsAndSlotProps={{
             slotProps: {
               htmlInput: {
@@ -154,12 +158,7 @@ const HostConfiguration = ({ index, host }: Props): JSX.Element => {
               }
             }
           }}
-          dataTestId={labelCACommonName}
-          fullWidth
-          error={
-            (hostTouched?.pollerCaName && hostErrors?.pollerCaName) || undefined
-          }
-          className={classes.input}
+          value={host?.pollerCaName || ''}
         />
       )}
     </Box>

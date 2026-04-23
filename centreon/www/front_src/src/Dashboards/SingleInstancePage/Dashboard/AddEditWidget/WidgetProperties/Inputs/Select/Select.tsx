@@ -1,15 +1,13 @@
-import { useMemo } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import { Stack, Typography } from '@mui/material';
 
 import { SelectField } from '@centreon/ui';
 
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import Subtitle from '../../../../components/Subtitle';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import { WidgetPropertyProps } from '../../../models';
-
 import Tooltip from '../common/Tooltip';
 import { useSelectStyles } from './Select.styles';
 import useSelect from './useSelect';
@@ -39,14 +37,14 @@ const Select = ({
     <div className={classes.container}>
       <Stack alignItems="center" direction="row" gap={1.5}>
         <Label>{t(label)}</Label>
-        <Tooltip secondaryLabel={secondaryLabel} propertyName={propertyName} />
+        <Tooltip propertyName={propertyName} secondaryLabel={secondaryLabel} />
       </Stack>
       <SelectField
         dataTestId={label}
         disabled={!canEditField}
+        onChange={setSelect}
         options={translatedOptions}
         selectedOptionId={value || ''}
-        onChange={setSelect}
       />
     </div>
   );

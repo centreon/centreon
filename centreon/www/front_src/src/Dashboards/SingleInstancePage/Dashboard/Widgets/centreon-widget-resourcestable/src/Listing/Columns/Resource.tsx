@@ -1,10 +1,9 @@
-import { equals, isNil } from 'ramda';
-
 import { type ComponentColumnProps, truncate } from '@centreon/ui';
+
+import { equals, isNil } from 'ramda';
 
 import { DisplayType } from '../models';
 import { getStatus } from '../utils';
-
 import StatusChip from './ServiceSubItemColumn/StatusChip';
 import ShortTypeChip from './ShortTypeChip';
 

@@ -326,25 +326,28 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                 $lvl2Name = null;
                 $lvl3Name = null;
                 $lvl4Name = null;
-                if (strlen((string) $topologyPage) === 7) {
+                if (mb_strlen((string) $topologyPage) === 7) {
                     $lvl4Name = $topologies[$topologyPage]['name'];
-                    $topologyPage = (int) substr((string) $topologyPage, 0, 5);
+                    $topologyPage = (int) mb_substr((string) $topologyPage, 0, 5);
 
                     // To avoid create entry for the parent menu
                     $nameOfTopologiesRules[$topologyPage] = null;
                 }
-                if (strlen((string) $topologyPage) === 5) {
+                if (mb_strlen((string) $topologyPage) === 5) {
                     if ($lvl4Name === null && array_key_exists($topologyPage, $nameOfTopologiesRules)) {
                         continue;
                     }
-                    $lvl3Name = $topologies[$topologyPage]['name'];
-                    $topologyPage = (int) substr((string) $topologyPage, 0, 3);
+                    $lvl3Name = $topologies[$topologyPage]['name'] ?? null;
+                    $topologyPage = (int) mb_substr((string) $topologyPage, 0, 3);
                 }
-                if (strlen((string) $topologyPage) === 3) {
-                    $lvl2Name = $topologies[$topologyPage]['name'];
-                    $topologyPage = (int) substr((string) $topologyPage, 0, 1);
+                if (mb_strlen((string) $topologyPage) === 3) {
+                    $lvl2Name = $topologies[$topologyPage]['name'] ?? null;
+                    $topologyPage = (int) mb_substr((string) $topologyPage, 0, 1);
                 }
-                if (strlen((string) $topologyPage) === 1) {
+                if (mb_strlen((string) $topologyPage) === 1) {
+                    if (! isset($topologies[$topologyPage])) {
+                        continue;
+                    }
                     $ruleName = 'ROLE_' . $topologies[$topologyPage]['name'];
                 }
                 if ($lvl2Name !== null) {
@@ -364,7 +367,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
             foreach ($nameOfTopologiesRules as $page => $name) {
                 if ($name !== null) {
                     $name = preg_replace(['/\s/', '/\W/'], ['_', ''], $name);
-                    $name = strtoupper($name);
+                    $name = mb_strtoupper($name);
                     $contact->addTopologyRule($name);
                 }
             }
@@ -589,6 +592,30 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                 break;
             case 'poller_stats':
                 $contact->addRole(Contact::ROLE_DISPLAY_TOP_COUNTER_POLLERS_STATISTICS);
+                break;
+            case 'see_check_commands':
+                $contact->addRole(Contact::ROLE_SEE_CHECK_COMMANDS);
+                break;
+            case 'manage_check_commands':
+                $contact->addRole(Contact::ROLE_MANAGE_CHECK_COMMANDS);
+                break;
+            case 'see_notification_commands':
+                $contact->addRole(Contact::ROLE_SEE_NOTIFICATION_COMMANDS);
+                break;
+            case 'manage_notification_commands':
+                $contact->addRole(Contact::ROLE_MANAGE_NOTIFICATION_COMMANDS);
+                break;
+            case 'see_discovery_commands':
+                $contact->addRole(Contact::ROLE_SEE_DISCOVERY_COMMANDS);
+                break;
+            case 'manage_discovery_commands':
+                $contact->addRole(Contact::ROLE_MANAGE_DISCOVERY_COMMANDS);
+                break;
+            case 'see_miscellaneous_commands':
+                $contact->addRole(Contact::ROLE_SEE_MISCELLANEOUS_COMMANDS);
+                break;
+            case 'manage_miscellaneous_commands':
+                $contact->addRole(Contact::ROLE_MANAGE_MISCELLANEOUS_COMMANDS);
                 break;
         }
     }

@@ -385,6 +385,12 @@ $cloneSetTemplate = [
 
 $cloneSetMacro = [
     $form->addElement(
+        'hidden',
+        'macroId[#index#]',
+        null,
+        ['id' => 'macroId_#index#', 'size' => 25]
+    ),
+    $form->addElement(
         'text',
         'macroInput[#index#]',
         _('Macro name'),

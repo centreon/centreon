@@ -4,6 +4,8 @@ import {
   Then,
   When
 } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import {
   checkMetricsAreMonitored,
@@ -47,52 +49,52 @@ beforeEach(() => {
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
+    url: `${INTERCEPTORS.api.events_view_users}?page=1&limit=100`
   }).as('getLastestUserFilters');
 
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/monitoring/resources/downtime'
+    url: `${INTERCEPTORS.api.monitor_resources}/downtime`
   }).as('postSaveDowntime');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_timezone&action=list*'
+    url: `${INTERCEPTORS.pages.centreon_configuration_timezone}&action=list*`
   }).as('getTimezonesList');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/monitoring/hosts/*/services/*/acknowledgements?limit=1'
+    url: `${INTERCEPTORS.api.host_services}/*/acknowledgements?limit=1`
   }).as('getAckToolTip');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_configuration_service&action=list&e=enable&page_limit=60&page=1'
+    url: `${INTERCEPTORS.api.centreon_configuration_service}&action=list&e=enable&page_limit=60&page=1`
   }).as('getServices');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/users/current/parameters'
+    url: INTERCEPTORS.api.users_parameters
   }).as('getUserParameters');
 
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/monitoring/resources/acknowledge'
+    url: `${INTERCEPTORS.api.monitor_resources}/acknowledge`
   }).as('postAcknowledgments');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_performance_service&action=list&q=*&page_limit=20&page=1'
+    url: `${INTERCEPTORS.pages.centreon_performance_service}&action=list&q=*&page_limit=20&page=1`
   }).as('getCharts');
 });
 
@@ -170,11 +172,7 @@ Given('the platform is configured with at least one resource', () => {
 });
 
 When('the user clicks on Timezone field in his profile menu', () => {
-  cy.navigateTo({
-    page: 'My Account',
-    rootItemNumber: 4,
-    subMenu: 'Parameters'
-  }).wait('@getTimeZone');
+  cy.visit(PAGES.configuration.accountParametersLegacy).wait('@getTimeZone');
 
   cy.getIframeBody()
     .find('span[aria-labelledby="select2-contact_location-container"]')
@@ -254,10 +252,7 @@ Given('a user with a custom timezone set in his profile', function _() {
 });
 
 When('the user creates a downtime on a resource', () => {
-  cy.navigateTo({
-    page: 'Resources Status',
-    rootItemNumber: 1
-  });
+  cy.visit(PAGES.monitoring.resourcesStatus);
 
   cy.contains(serviceInDtName)
     .parent()
@@ -298,8 +293,8 @@ Then(
 
       return cy
         .get('#panel-content :contains("Status information")')
-        .then(($el) => {
-          if ($el.find(':contains("Downtime duration")').length === 0) {
+        .then((el) => {
+          if (el.find(':contains("Downtime duration")').length === 0) {
             cy.get('button#Close').click();
 
             return false;
@@ -325,10 +320,7 @@ Then(
 );
 
 When('the user creates an acknowledgement on a resource', () => {
-  cy.navigateTo({
-    page: 'Resources Status',
-    rootItemNumber: 1
-  });
+  cy.visit(PAGES.monitoring.resourcesStatus);
 
   cy.submitResults([
     {
@@ -390,9 +382,9 @@ Then(
       .eq(1)
       .find('td')
       .eq(1)
-      .then(($date) => {
+      .then((date) => {
         cy.getTimeFromHeader().then((localTime: string) => {
-          const toDate = $date[0].textContent || '';
+          const toDate = date[0].textContent || '';
 
           expect(
             calculateMinuteInterval(
@@ -497,8 +489,8 @@ Then(
       .its('0.contentDocument.body')
       .find('.ListTable td.isTimestamp')
       .contains(/\d+:\d+/)
-      .then(($el) => {
-        const downtimeStartTime = $el.text().trim();
+      .then((el) => {
+        const downtimeStartTime = el.text().trim();
 
         cy.getTimeFromHeader().then((localTime: string) => {
           cy.log(`Downtime start time : ${downtimeStartTime}`);
@@ -522,11 +514,7 @@ When('the user opens a chart from Monitoring>Performances>Graphs', () => {
     }
   ]);
 
-  cy.navigateTo({
-    page: 'Graphs',
-    rootItemNumber: 1,
-    subMenu: 'Performances'
-  }).wait('@getTimeZone');
+  cy.visit(PAGES.monitoring.performancesGraphsLegacy).wait('@getTimeZone');
 });
 
 When('the user selects a chart', () => {

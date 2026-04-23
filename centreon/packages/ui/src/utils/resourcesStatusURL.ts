@@ -1,5 +1,4 @@
 import {
-  T,
   always,
   cond,
   equals,
@@ -8,11 +7,11 @@ import {
   identity,
   includes,
   map,
-  pipe
+  pipe,
+  T
 } from 'ramda';
 
-import { SelectEntry } from '..';
-
+import type { SelectEntry } from '..';
 import { centreonBaseURL } from './centreonBaseURL';
 
 export interface Resource {

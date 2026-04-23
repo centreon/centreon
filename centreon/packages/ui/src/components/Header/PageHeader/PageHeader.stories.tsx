@@ -1,14 +1,13 @@
-import { Meta, StoryObj } from '@storybook/react';
-
 import {
   Edit as EditIcon,
   Settings as SettingsIcon,
   StarOutline as StarOutlineIcon
 } from '@mui/icons-material';
 
+import type { Meta, StoryObj } from '@storybook/react';
+
 import { Button, IconButton } from '../../Button';
 import { Menu } from '../../Menu';
-
 import { PageHeader } from './index';
 
 type PageHeaderComponent = typeof PageHeader & typeof PageHeader.Title;

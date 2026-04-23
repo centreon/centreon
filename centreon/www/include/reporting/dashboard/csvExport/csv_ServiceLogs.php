@@ -88,7 +88,7 @@ $serviceDescription = getServiceDescriptionFromId($serviceId);
 header('Cache-Control: public');
 header('Pragma: public');
 header('Content-Type: application/octet-stream');
-header('Content-disposition: attachment ; filename=' . $hostName . '_' . $serviceDescription . '.csv');
+header('Content-Disposition: attachment; filename="' . str_replace(['"', "\r", "\n"], '', $hostName . '_' . $serviceDescription) . '.csv"');
 
 echo _('Host') . ';'
     . _('Service') . ';'

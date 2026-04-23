@@ -1,14 +1,13 @@
-import { useEffect, useMemo } from 'react';
-
-import { useAtomValue, useSetAtom } from 'jotai';
-import { equals, isEmpty, isNil, pick, type, update } from 'ramda';
-import { CSSObject } from 'tss-react';
-
-import { Theme } from '@mui/material';
+import type { Theme } from '@mui/material';
 
 import { ListingVariant } from '@centreon/ui-context';
 
-import { Column, TableStyleAtom as Style } from './models';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals, isEmpty, isNil, pick, type, update } from 'ramda';
+import { useEffect, useMemo } from 'react';
+import type { CSSObject } from 'tss-react';
+
+import type { Column, TableStyleAtom as Style } from './models';
 import { tableStyleAtom, tableStyleDerivedAtom } from './tableAtoms';
 
 interface TableStyle {
@@ -35,7 +34,7 @@ export const getTextStyleByViewMode = ({
   pick(
     ['color', 'fontSize', 'lineHeight'],
     theme.typography[isCompactMode(listingVariant) ? 'body2' : 'body1']
-  );
+  ) as CSSObject;
 
 const useStyleTable = ({ listingVariant }: TableStyle): TableStyleState => {
   const dataStyle = useAtomValue(tableStyleAtom);
@@ -46,7 +45,7 @@ const useStyleTable = ({ listingVariant }: TableStyle): TableStyleState => {
     if (listingVariant) {
       updateStyleTable({ listingVariant });
     }
-  }, [listingVariant]);
+  }, [listingVariant, updateStyleTable]);
 
   return {
     dataStyle

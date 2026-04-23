@@ -1,11 +1,11 @@
 /* eslint-disable react/no-unused-prop-types */
 
+import { ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
+
 import DOMPurify from 'dompurify';
 import parse from 'html-react-parser';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-
-import { ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
 
 import {
   labelAuthor,
@@ -14,7 +14,6 @@ import {
   labelFixed,
   labelStartTime
 } from '../../../../translatedLabels';
-
 import DetailsTable, { getYesNoLabel } from '.';
 
 const useStyles = makeStyles()({

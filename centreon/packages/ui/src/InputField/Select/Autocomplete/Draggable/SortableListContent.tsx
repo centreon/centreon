@@ -1,11 +1,11 @@
-import { DraggableSyntheticListeners } from '@dnd-kit/core';
-import clsx from 'clsx';
-import { findIndex, not, propEq } from 'ramda';
-
 import { Chip, Typography, useTheme } from '@mui/material';
 
-import { RefObject, useRef } from 'react';
-import { DraggableSelectEntry, SortableListProps } from './SortableList';
+import type { DraggableSyntheticListeners } from '@dnd-kit/core';
+import clsx from 'clsx';
+import { findIndex, not, propEq } from 'ramda';
+import { type RefObject, useRef } from 'react';
+
+import type { DraggableSelectEntry, SortableListProps } from './SortableList';
 
 interface ContentProps
   extends Pick<DraggableSelectEntry, 'name' | 'createOption' | 'id'> {
@@ -68,29 +68,29 @@ const SortableListContent = ({
     return (
       <div ref={itemRef} style={style}>
         <Chip
-          clickable
-          className={clsx(classes.tag, createOption && classes.createdTag)}
           classes={{
             deleteIcon: classes.deleteIcon
           }}
+          className={clsx(classes.tag, createOption && classes.createdTag)}
+          clickable
           label={
             <Typography
+              onMouseUp={mouseUp}
               ref={labelItemRef}
               variant="body2"
-              onMouseUp={mouseUp}
               {...attributes}
               {...listeners}
             >
               {name}
             </Typography>
           }
+          onDelete={deleteItem}
+          onMouseEnter={mouseEnter}
+          onMouseLeave={mouseLeave}
           size="medium"
           style={{
             backgroundColor: isDragging ? theme.palette.grey[300] : undefined
           }}
-          onDelete={deleteItem}
-          onMouseEnter={mouseEnter}
-          onMouseLeave={mouseLeave}
         />
       </div>
     );

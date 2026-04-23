@@ -1,10 +1,14 @@
+import { Skeleton, Typography } from '@mui/material';
+
 import {
-  type MutableRefObject,
-  type ReactNode,
-  useEffect,
-  useRef,
-  useState
-} from 'react';
+  getData,
+  type LineChartData,
+  NoData,
+  ParentSize,
+  timeFormat,
+  useLocaleDateTimeFormat,
+  useRequest
+} from '@centreon/ui';
 
 import { useAtomValue } from 'jotai';
 import {
@@ -23,27 +27,20 @@ import {
   reject,
   sortBy
 } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
-import { Skeleton, Typography } from '@mui/material';
-
 import {
-  type LineChartData,
-  ParentSize,
-  getData,
-  timeFormat,
-  useLocaleDateTimeFormat,
-  useRequest
-} from '@centreon/ui';
+  type MutableRefObject,
+  type ReactNode,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 import type { CommentParameters } from '../../Actions/api';
 import { selectedResourcesDetailsAtom } from '../../Details/detailsAtoms';
 import type { ResourceDetails } from '../../Details/models';
 import type { TimelineEvent } from '../../Details/tabs/Timeline/models';
 import type { Resource } from '../../models';
-import { labelNoDataForThisPeriod } from '../../translatedLabels';
-
 import Graph from './Graph';
 import {
   isListingGraphOpenAtom,
@@ -122,12 +119,6 @@ const useStyles = makeStyles<MakeStylesProps>()(
       height: theme.spacing(2),
       width: theme.spacing(2)
     },
-    noDataContainer: {
-      alignItems: 'center',
-      display: 'flex',
-      height: '100%',
-      justifyContent: 'center'
-    },
     title: {
       maxWidth: '100%',
       overflow: 'hidden',
@@ -165,7 +156,6 @@ const PerformanceGraph = <T,>({
     displayTitle,
     graphHeight
   });
-  const { t } = useTranslation();
 
   const [timeSeries, setTimeSeries] = useState<Array<TimeValue>>([]);
   const [lineData, setLineData] = useState<Array<LineModel>>();
@@ -263,13 +253,7 @@ const PerformanceGraph = <T,>({
   }
 
   if (isEmpty(timeSeries) || isEmpty(lineData)) {
-    return (
-      <div className={classes.noDataContainer}>
-        <Typography align="center" variant="body1">
-          {t(labelNoDataForThisPeriod)}
-        </Typography>
-      </div>
-    );
+    return <NoData />;
   }
 
   const getLineByMetric = (metric): LineModel => {
@@ -393,15 +377,15 @@ const PerformanceGraph = <T,>({
               interactWithGraph={interactWithGraph}
               lines={displayedLines}
               loading={sendingGetGraphDataRequest}
+              onAddComment={onAddComment}
               performanceGraphData={performanceGraphData}
               renderAdditionalLines={renderAdditionalLines}
               resource={resource}
               start={start}
-              timeSeries={timeSeries}
               timeline={timeline}
+              timeSeries={timeSeries}
               width={width}
               xAxisTickFormat={xAxisTickFormat}
-              onAddComment={onAddComment}
             />
           )}
         </ParentSize>
@@ -413,12 +397,12 @@ const PerformanceGraph = <T,>({
         displayTimeValues={displayTimeValues}
         limitLegendRows={limitLegendRows}
         lines={sortedLines}
-        timeSeries={timeSeries}
-        toggable={toggableLegend}
         onClearHighlight={clearHighlight}
         onHighlight={highlightLine}
         onSelect={selectMetricLine}
         onToggle={toggleMetricLine}
+        timeSeries={timeSeries}
+        toggable={toggableLegend}
       />
     </div>
   );

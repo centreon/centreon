@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { Box, Link, Typography } from '@mui/material';
+
+import { useTranslation } from 'react-i18next';
 
 import NamesList from '../NamesList';
 import {

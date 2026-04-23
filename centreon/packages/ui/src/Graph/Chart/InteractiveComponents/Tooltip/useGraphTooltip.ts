@@ -1,15 +1,13 @@
+import { Event, Tooltip } from '@visx/visx';
+import type { ScaleLinear } from 'd3-scale';
+import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
 
-import { Event, Tooltip } from '@visx/visx';
-import { ScaleLinear } from 'd3-scale';
-import { useAtomValue } from 'jotai';
-
-import { TimeValue } from '../../../common/timeSeries/models';
+import type { TimeValue } from '../../../common/timeSeries/models';
 import { getDate } from '../../helpers/index';
-import { applyingZoomAtomAtom } from '../ZoomPreview/zoomPreviewAtoms';
 import { eventMouseUpAtom } from '../interactionWithGraphAtoms';
-
-import { GraphTooltip, width } from './models';
+import { applyingZoomAtomAtom } from '../ZoomPreview/zoomPreviewAtoms';
+import { type GraphTooltip, width } from './models';
 
 interface Props {
   graphWidth: number;
@@ -53,7 +51,15 @@ const useGraphTooltip = ({
       tooltipLeft: displayLeft ? x - tooltipWidth : x,
       tooltipTop: y
     });
-  }, [mouseUpEvent]);
+  }, [
+    mouseUpEvent,
+    graphWidth,
+    isZoomApplied,
+    showTooltip,
+    timeSeries,
+    tooltipWidth,
+    xScale
+  ]);
 
   return {
     hideTooltip,

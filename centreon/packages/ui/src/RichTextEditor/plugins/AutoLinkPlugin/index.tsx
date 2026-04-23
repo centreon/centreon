@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react';
-
 import {
   AutoLinkPlugin,
-  LinkMatcher
+  type LinkMatcher
 } from '@lexical/react/LexicalAutoLinkPlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { BLUR_COMMAND, COMMAND_PRIORITY_LOW, FOCUS_COMMAND } from 'lexical';
+import { useEffect, useState } from 'react';
 
 interface LinkAttributes {
   rel?: null | string;
@@ -75,7 +74,7 @@ const AutoCompleteLinkPlugin = ({
         },
         COMMAND_PRIORITY_LOW
       ),
-    []
+    [editor.registerCommand]
   );
 
   useEffect(
@@ -89,7 +88,7 @@ const AutoCompleteLinkPlugin = ({
         },
         COMMAND_PRIORITY_LOW
       ),
-    []
+    [editor.registerCommand]
   );
 
   if (!hasFocus) {

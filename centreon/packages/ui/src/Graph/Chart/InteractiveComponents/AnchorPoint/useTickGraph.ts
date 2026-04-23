@@ -1,16 +1,14 @@
-import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react';
-
-import { ScaleLinear } from 'd3-scale';
+import type { ScaleLinear } from 'd3-scale';
 import { useAtomValue } from 'jotai';
+import { type MutableRefObject, useEffect, useState } from 'react';
 
 import useAxisY from '../../../common/Axes/useAxisY';
 import { getTimeValue } from '../../../common/timeSeries';
-import { Line, TimeValue } from '../../../common/timeSeries/models';
+import type { Line, TimeValue } from '../../../common/timeSeries/models';
 import {
-  computPixelsToShiftMouse,
-  computeGElementMarginLeft
+  computeGElementMarginLeft,
+  computPixelsToShiftMouse
 } from '../../../common/utils';
-import { margin } from '../../common';
 import { mousePositionAtom } from '../interactionWithGraphAtoms';
 
 interface AnchorPointResult {
@@ -31,6 +29,7 @@ interface Props {
   xScale: ScaleLinear<number, number>;
   hasSecondUnit?: boolean;
   maxLeftAxisCharacters: number;
+  hasUnit?: boolean;
 }
 
 const useTickGraph = ({
@@ -41,33 +40,28 @@ const useTickGraph = ({
   lines = [],
   baseAxis = 1000,
   hasSecondUnit,
-  maxLeftAxisCharacters
+  maxLeftAxisCharacters,
+  hasUnit
 }: Props): AnchorPointResult => {
-  const guidingLinesRef = useRef<SVGGElement | null>(null);
   const [tickAxisBottom, setTickAxisBottom] = useState<Date | null>(null);
   const [tickAxisLeft, setTickAxisLeft] = useState<string | null>(null);
   const [tickAxisRight, setTickAxisRight] = useState<string | null>(null);
 
+  // @ts-expect-error - suppressing pre-existing type mismatch
   const { axisRight, axisLeft } = useAxisY({ data: { baseAxis, lines } });
 
   const mousePosition = useAtomValue(mousePositionAtom);
 
-  const paddingLeftString = useMemo(
-    () =>
-      (
-        guidingLinesRef.current?.parentElement?.parentElement?.attributes
-          ?.transform.value || ''
-      ).match(/translate\(([0-9\.]+), ([0-9\.]+)\)/)?.[1] || '0',
-    [
-      guidingLinesRef.current?.parentElement?.parentElement?.attributes
-        ?.transform.value
-    ]
-  );
-
   const positionX = mousePosition
-    ? mousePosition[0] - Number(paddingLeftString) - 1
+    ? mousePosition[0] -
+      computeGElementMarginLeft({
+        hasSecondUnit,
+        maxCharacters: maxLeftAxisCharacters
+      })
     : undefined;
-  const positionY = mousePosition ? mousePosition[1] - margin.top : undefined;
+  const positionY = mousePosition
+    ? mousePosition[1] - (hasUnit ? 29 : 4)
+    : undefined;
 
   useEffect(() => {
     if (!mousePosition) {
@@ -80,13 +74,13 @@ const useTickGraph = ({
     const pixelToShift = computPixelsToShiftMouse(xScale);
     const mousePositionTimeTick = mousePosition
       ? getTimeValue({
+          marginLeft: computeGElementMarginLeft({
+            hasSecondUnit,
+            maxCharacters: maxLeftAxisCharacters
+          }),
           timeSeries,
           x: mousePosition[0] - pixelToShift,
-          xScale,
-          marginLeft: computeGElementMarginLeft({
-            maxCharacters: maxLeftAxisCharacters,
-            hasSecondUnit
-          })
+          xScale
         })?.timeTick
       : 0;
     const timeTickValue = mousePosition
@@ -110,13 +104,13 @@ const useTickGraph = ({
     setTickAxisRight(formattedTickAxisRight);
   }, [mousePosition]);
 
+  // @ts-expect-error - suppressing pre-existing type mismatch
   return {
     positionX,
     positionY,
     tickAxisBottom,
     tickAxisLeft,
-    tickAxisRight,
-    guidingLinesRef
+    tickAxisRight
   };
 };
 export default useTickGraph;

@@ -30,6 +30,7 @@
       <directory>./tests/php/*/</directory>
       <directory>./src/*/Tests/</directory>
       <exclude>./tests/php/App</exclude>
+      <exclude>./tests/php/Core/Integration</exclude>
     </testsuite>
   </testsuites>
   <groups>

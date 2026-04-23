@@ -37,7 +37,7 @@ final class FindRuleResponse
 
     public bool $applyToAllContactGroups = false;
 
-    /** @var array<int, array{id: int, name: string}> */
+    /** @var array<int, array{id: int, alias: string}> */
     public array $contacts = [];
 
     /** @var array<int, array{id: int, name: string}> */

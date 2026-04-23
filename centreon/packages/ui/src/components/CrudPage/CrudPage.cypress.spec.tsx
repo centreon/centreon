@@ -1,17 +1,19 @@
 import { FormControlLabel, Switch, Typography } from '@mui/material';
-import { Provider, atom, createStore, useAtom, useSetAtom } from 'jotai';
+
+import { atom, createStore, Provider, useAtom, useSetAtom } from 'jotai';
 import { identity, isNil, prop } from 'ramda';
-import { ChangeEvent, useEffect } from 'react';
-import { CrudPage } from '.';
+import { type ChangeEvent, useEffect } from 'react';
+
 import {
-  Column,
+  type Column,
   ColumnType,
   Method,
   SnackbarProvider,
   TestQueryProvider
 } from '../..';
+import { CrudPage } from '.';
 import { CrudPageRoot } from './CrudPageRoot';
-import { CrudPageRootProps } from './models';
+import type { CrudPageRootProps } from './models';
 
 interface Item {
   id: number;
@@ -29,9 +31,9 @@ const generateItems = (count: number) =>
   Array(count)
     .fill(0)
     .map((_, idx) => ({
+      description: `Description ${idx}`,
       id: idx,
       name: `Item ${idx}`,
-      description: `Description ${idx}`,
       subItems: [{ id: 1, name: 'SubItem' }]
     }));
 
@@ -90,49 +92,66 @@ const getSearchParameters = ({ filters }) => ({
 });
 
 const labels = {
-  title: 'Items',
-  welcome: {
-    title: 'Welcome to the items page',
-    description: 'This page handles item'
-  },
   actions: {
     create: 'Create item'
   },
   listing: {
     search: 'Search'
+  },
+  title: 'Items',
+  welcome: {
+    description: 'This page handles item',
+    title: 'Welcome to the items page'
   }
 };
 
 const columns: Array<Column> = [
   {
-    type: ColumnType.string,
+    displaySubItemsCaret: true,
+    getFormattedString: prop('name'),
     id: 'name',
     label: 'Name',
-    getFormattedString: prop('name'),
-    displaySubItemsCaret: true
+    type: ColumnType.string
   },
   {
-    type: ColumnType.string,
+    getFormattedString: prop('description'),
     id: 'description',
     label: 'Description',
-    getFormattedString: prop('description')
+    type: ColumnType.string
   }
 ];
 
 const defaultProps: CrudPageRootProps<Item, Filters, Item, Item> = {
   baseEndpoint: '/listing',
-  queryKeyName: 'listing',
-  filtersAtom,
-  getSearchParameters,
-  labels,
   columns,
+  deleteItem: {
+    deleteEndpoint: (item) =>
+      !isNil(item?.parent)
+        ? `/listing/${item?.parent?.id}/subItems/${item?.id}`
+        : `/listing/${item?.id}`,
+    labels: {
+      cancel: 'Cancel',
+      confirm: 'Delete',
+      description: (item) =>
+        !isNil(item?.parent) ? (
+          <Typography>
+            The sub item <strong>{item?.name}</strong> from the item{' '}
+            <strong>{item?.parent?.name}</strong> will be deleted
+          </Typography>
+        ) : (
+          <Typography>
+            The item <strong>{item?.name}</strong> will be deleted
+          </Typography>
+        ),
+      successMessage: (item) =>
+        !isNil(item?.parent) ? 'Sub item deleted' : 'Item deleted',
+      title: (item) =>
+        !isNil(item?.parent) ? 'Delete sub item' : 'Delete item'
+    }
+  },
   filters: <Filters />,
+  filtersAtom,
   form: {
-    getItem: {
-      baseEndpoint: (id) => `/item/${id}`,
-      adapter: identity,
-      itemQueryKey: 'item'
-    },
     Form: ({ initialValues }) => {
       const [askBeforeCloseForm, setAskBeforeCloseFormModal] = useAtom(
         CrudPage.askBeforeCloseFormModalAtom
@@ -146,7 +165,7 @@ const defaultProps: CrudPageRootProps<Item, Filters, Item, Item> = {
 
         setOpenFormModal(null);
         setAskBeforeCloseFormModal(false);
-      }, [askBeforeCloseForm]);
+      }, [askBeforeCloseForm, setAskBeforeCloseFormModal, setOpenFormModal]);
 
       return (
         <Typography>
@@ -156,62 +175,45 @@ const defaultProps: CrudPageRootProps<Item, Filters, Item, Item> = {
         </Typography>
       );
     },
+    getItem: {
+      adapter: identity,
+      baseEndpoint: (id) => `/item/${id}`,
+      itemQueryKey: 'item'
+    },
     labels: {
       add: {
-        title: 'Add item',
         cancel: 'Cancel',
-        confirm: 'Add'
+        confirm: 'Add',
+        title: 'Add item'
       },
       update: {
-        title: 'Update item',
         cancel: 'Cancel',
-        confirm: 'Update'
+        confirm: 'Update',
+        title: 'Update item'
       }
     }
   },
-  deleteItem: {
-    deleteEndpoint: (item) =>
-      !isNil(item?.parent)
-        ? `/listing/${item?.parent?.id}/subItems/${item?.id}`
-        : `/listing/${item?.id}`,
-    labels: {
-      successMessage: (item) =>
-        !isNil(item?.parent) ? 'Sub item deleted' : 'Item deleted',
-      confirm: 'Delete',
-      cancel: 'Cancel',
-      title: (item) =>
-        !isNil(item?.parent) ? 'Delete sub item' : 'Delete item',
-      description: (item) =>
-        !isNil(item?.parent) ? (
-          <Typography>
-            The sub item <strong>{item?.name}</strong> from the item{' '}
-            <strong>{item?.parent?.name}</strong> will be deleted
-          </Typography>
-        ) : (
-          <Typography>
-            The item <strong>{item?.name}</strong> will be deleted
-          </Typography>
-        )
-    }
-  }
+  getSearchParameters,
+  labels,
+  queryKeyName: 'listing'
 };
 
 const listing = {
-  result: generateItems(30),
   meta: {
+    limit: 30,
     page: 1,
-    total: 60,
-    limit: 30
-  }
+    total: 60
+  },
+  result: generateItems(30)
 };
 
 const emptyListing = {
-  result: [],
   meta: {
+    limit: 30,
     page: 1,
-    total: 0,
-    limit: 30
-  }
+    total: 0
+  },
+  result: []
 };
 
 const initialize = (props: CrudPageRootProps<Item, Filters, Item, Item>) => {
@@ -278,8 +280,8 @@ describe('CrudPage', () => {
   it('displays a welcome message when no data are retrieved', () => {
     initialize({
       ...defaultProps,
-      queryKeyName: 'empty-listing',
-      baseEndpoint: '/empty-listing'
+      baseEndpoint: '/empty-listing',
+      queryKeyName: 'empty-listing'
     });
 
     cy.waitForRequest('@getEmptyListing');
@@ -295,8 +297,8 @@ describe('CrudPage', () => {
   it('opens the form modal when no data are retrieved and the corresponding button is clicked', () => {
     initialize({
       ...defaultProps,
-      queryKeyName: 'empty-listing',
-      baseEndpoint: '/empty-listing'
+      baseEndpoint: '/empty-listing',
+      queryKeyName: 'empty-listing'
     });
 
     cy.waitForRequest('@getEmptyListing');
@@ -401,8 +403,8 @@ describe('CrudPage', () => {
           canCheckSubItems: false,
           enable: true,
           getRowProperty: () => 'subItems',
-          labelExpand: 'Expand',
-          labelCollapse: 'Collapse'
+          labelCollapse: 'Collapse',
+          labelExpand: 'Expand'
         }
       });
 
@@ -431,11 +433,11 @@ describe('CrudPage', () => {
         deleteItem: {
           ...defaultProps.deleteItem,
           labels: {
-            title: 'Title',
-            successMessage: 'This is a success',
-            description: 'A small description',
             cancel: 'Cancel',
-            confirm: 'Delete'
+            confirm: 'Delete',
+            description: 'A small description',
+            successMessage: 'This is a success',
+            title: 'Title'
           }
         }
       });
@@ -457,22 +459,22 @@ describe('CrudPage', () => {
     it('deletes a sub-item when items are retrieved and the corresponding button is clicked', () => {
       initialize({
         ...defaultProps,
+        deleteItem: {
+          ...defaultProps.deleteItem,
+          labels: {
+            cancel: 'Cancel',
+            confirm: 'Delete',
+            description: 'A small description',
+            successMessage: 'This is a success',
+            title: 'Title'
+          }
+        },
         subItems: {
           canCheckSubItems: false,
           enable: true,
           getRowProperty: () => 'subItems',
-          labelExpand: 'Expand',
-          labelCollapse: 'Collapse'
-        },
-        deleteItem: {
-          ...defaultProps.deleteItem,
-          labels: {
-            title: 'Title',
-            successMessage: 'This is a success',
-            description: 'A small description',
-            cancel: 'Cancel',
-            confirm: 'Delete'
-          }
+          labelCollapse: 'Collapse',
+          labelExpand: 'Expand'
         }
       });
 
@@ -495,23 +497,23 @@ describe('CrudPage', () => {
   it('cannot delete a sub-item when items are retrieved and the corresponding button is clicked', () => {
     initialize({
       ...defaultProps,
-      subItems: {
-        canDeleteSubItems: false,
-        canCheckSubItems: false,
-        enable: true,
-        getRowProperty: () => 'subItems',
-        labelExpand: 'Expand',
-        labelCollapse: 'Collapse'
-      },
       deleteItem: {
         ...defaultProps.deleteItem,
         labels: {
-          title: 'Title',
-          successMessage: 'This is a success',
-          description: 'A small description',
           cancel: 'Cancel',
-          confirm: 'Delete'
+          confirm: 'Delete',
+          description: 'A small description',
+          successMessage: 'This is a success',
+          title: 'Title'
         }
+      },
+      subItems: {
+        canCheckSubItems: false,
+        canDeleteSubItems: false,
+        enable: true,
+        getRowProperty: () => 'subItems',
+        labelCollapse: 'Collapse',
+        labelExpand: 'Expand'
       }
     });
 
@@ -531,7 +533,7 @@ describe('CrudPage', () => {
     cy.contains('Update item').should('be.visible');
     cy.contains('This is a placeholder for the form').should('be.visible');
     cy.contains(
-      'Initial values: {"id":0,"name":"Item 0","description":"Description 0","subItems":[{"id":1,"name":"SubItem"}]}'
+      'Initial values: {"description":"Description 0","id":0,"name":"Item 0","subItems":[{"id":1,"name":"SubItem"}]}'
     ).should('be.visible');
 
     cy.makeSnapshot();
@@ -547,7 +549,7 @@ describe('CrudPage', () => {
     cy.contains('Update item').should('be.visible');
     cy.contains('This is a placeholder for the form').should('be.visible');
     cy.contains(
-      'Initial values: {"id":0,"name":"Item 0","description":"Description 0","subItems":[{"id":1,"name":"SubItem"}]}'
+      'Initial values: {"description":"Description 0","id":0,"name":"Item 0","subItems":[{"id":1,"name":"SubItem"}]}'
     ).should('be.visible');
 
     cy.findByLabelText('close').click();

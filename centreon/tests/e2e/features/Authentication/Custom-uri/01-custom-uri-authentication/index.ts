@@ -1,10 +1,16 @@
 import { Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../../commons';
-import { reloadWebServer, updateWebServerConfig } from '../common';
+import {
+  reloadWebServer,
+  replaceCustomUri,
+  updateWebServerConfig
+} from '../common';
 
 const service = 'Ping';
 const host = 'Centreon-Server';
@@ -20,19 +26,19 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/monitor/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.monitor_navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/monitor/api/latest/users/filters/events-view?page=1&limit=100'
+    url: `${INTERCEPTORS.api.monitor_event_view}?page=1&limit=100`
   }).as('getLastestUserFilters');
   cy.intercept({
     method: 'GET',
-    url: '/monitor/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.monitor_time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/monitor/api/latest/monitoring/resources/hosts/*/services/*'
+    url: `${INTERCEPTORS.api.monitor_resources_details}`
   }).as('getResourceDetails');
 });
 
@@ -83,11 +89,7 @@ Then(
 
     cy.contains(host).parent().get('.MuiChip-root').should('contain', 'h');
 
-    cy.navigateTo({
-      page: 'Hosts',
-      rootItemNumber: 3,
-      subMenu: 'Hosts'
-    });
+    cy.visit(replaceCustomUri(PAGES.configuration.hostsLegacy, '/monitor'));
 
     cy.wait('@getTimeZone').then(() => {
       cy.getIframeBody()
@@ -103,11 +105,9 @@ Then(
         .should('be.gte', 21);
     });
 
-    cy.navigateTo({
-      page: 'Services by host',
-      rootItemNumber: 3,
-      subMenu: 'Services'
-    });
+    cy.visit(
+      replaceCustomUri(PAGES.configuration.servicesByHostLegacy, '/monitor')
+    );
 
     cy.wait('@getTimeZone').then(() => {
       cy.getIframeBody()
@@ -142,10 +142,7 @@ Then(
       }
     ]);
 
-    cy.navigateTo({
-      page: 'Resources Status',
-      rootItemNumber: 1
-    });
+    cy.visit(replaceCustomUri(PAGES.monitoring.resourcesStatus, '/monitor'));
 
     cy.get('header').parent().children().eq(1).contains('OK').should('exist');
 

@@ -46,6 +46,7 @@ class VariableLengthCustomRule implements Rule
         'e', // Exception
         'th', // Throwable
         'qb', // Query Builder
+        'io', // Input Output
     ];
 
     public function getNodeType(): string

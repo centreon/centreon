@@ -1,6 +1,6 @@
 {
   "name": "centreon/centreon-dsm",
-  "version": "25.11",
+  "version": "26.05",
   "type": "project",
   "license": "GPL-2.0-only",
   "require": {
@@ -72,7 +72,7 @@
   "extra": {
     "symfony": {
       "allow-contrib": true,
-      "require": "7.3.*"
+      "require": "7.4.*"
     }
   }
 }

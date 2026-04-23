@@ -1,13 +1,13 @@
-import { MutableRefObject } from 'react';
-
 import { Group } from '@visx/visx';
 import { equals } from 'ramda';
+import type { MutableRefObject, ReactElement } from 'react';
 
 import { margin } from '../../Chart/common';
-import { ChartAxis } from '../../Chart/models';
+import type { ChartAxis } from '../../Chart/models';
 import Axes from '../Axes';
 import Grids from '../Grids';
-import { Line, TimeValue } from '../timeSeries/models';
+import type { Line, TimeValue } from '../timeSeries/models';
+import { useMarginTop } from '../useMarginTop';
 import { computeGElementMarginLeft } from '../utils';
 
 interface Props {
@@ -28,6 +28,7 @@ interface Props {
   xScale;
   maxAxisCharacters?: number;
   hasSecondUnit?: boolean;
+  title?: string;
 }
 
 const ChartSvgWrapper = ({
@@ -47,48 +48,60 @@ const ChartSvgWrapper = ({
   orientation = 'horizontal',
   allUnits,
   maxAxisCharacters = 0,
-  hasSecondUnit
-}: Props): JSX.Element => {
+  hasSecondUnit,
+  title
+}: Props): ReactElement => {
   const isHorizontal = equals(orientation, 'horizontal');
+  const hasValidLeftScale = Boolean(leftScale);
+  const hasValidXScale = Boolean(xScale);
+  const canRenderAxes = hasValidLeftScale && hasValidXScale;
+  const canRenderGridRows = Boolean(isHorizontal ? leftScale : xScale);
+  const canRenderGridColumns = Boolean(isHorizontal ? xScale : leftScale);
+
+  const marginTop = useMarginTop({ title, units: allUnits });
 
   return (
     <svg
       aria-label="graph"
-      height={graphHeight + margin.top}
+      height={graphHeight + marginTop}
       ref={svgRef}
       width="100%"
     >
+      <title>chart</title>
       <Group.Group
         left={computeGElementMarginLeft({
-          maxCharacters: maxAxisCharacters,
-          hasSecondUnit
+          hasSecondUnit,
+          maxCharacters: maxAxisCharacters
         })}
-        top={margin.top}
+        top={marginTop}
       >
-        {showGridLines && (
+        {showGridLines && (canRenderGridRows || canRenderGridColumns) && (
           <Grids
+            // @ts-expect-error - suppressing pre-existing type mismatch
             gridLinesType={gridLinesType}
-            height={graphHeight - margin.top}
+            height={graphHeight - margin.bottom}
             leftScale={isHorizontal ? leftScale : xScale}
             width={graphWidth}
             xScale={isHorizontal ? xScale : leftScale}
           />
         )}
-        <Axes
-          allUnits={allUnits}
-          data={{
-            baseAxis: base,
-            lines: displayedLines,
-            timeSeries,
-            ...axis
-          }}
-          height={graphHeight}
-          leftScale={leftScale}
-          orientation={orientation}
-          rightScale={rightScale}
-          width={graphWidth}
-          xScale={xScale}
-        />
+        {canRenderAxes && (
+          <Axes
+            allUnits={allUnits}
+            data={{
+              baseAxis: base,
+              lines: displayedLines,
+              timeSeries,
+              ...axis
+            }}
+            height={graphHeight}
+            leftScale={leftScale}
+            orientation={orientation}
+            rightScale={rightScale}
+            width={graphWidth}
+            xScale={xScale}
+          />
+        )}
         {children}
       </Group.Group>
     </svg>

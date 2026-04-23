@@ -1,6 +1,6 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { alpha } from '@mui/system';
+
+import { makeStyles } from 'tss-react/mui';
 
 export const useWidgetPropertiesStyles = makeStyles()((theme) => ({
   groupContent: {
@@ -80,14 +80,14 @@ export const useWidgetPropertiesStyles = makeStyles()((theme) => ({
 
 export const useWidgetSelectionStyles = makeStyles()((theme) => ({
   groupContainer: {
-    width: '100%',
-    paddingLeft: theme.spacing(4),
-    backgroundColor: theme.palette.background.listingHeader,
-    color: theme.palette.common.white,
     '&:hover': {
       backgroundColor: theme.palette.background.listingHeader,
       color: theme.palette.common.white
-    }
+    },
+    backgroundColor: theme.palette.background.listingHeader,
+    color: theme.palette.common.white,
+    paddingLeft: theme.spacing(4),
+    width: '100%'
   },
   selectField: {
     flexGrow: 1
@@ -110,13 +110,10 @@ export const useWidgetSelectionStyles = makeStyles()((theme) => ({
 }));
 
 export const useWidgetMessageStyles = makeStyles()((theme) => ({
-  label: {
-    color: theme.palette.action.disabled
-  },
   container: {
-    marginTop: theme.spacing(4),
+    alignItems: 'center',
     display: 'flex',
-    alignItems: 'center'
+    marginTop: theme.spacing(4)
   },
   icon: {
     fill: theme.palette.primary.main,
@@ -124,5 +121,8 @@ export const useWidgetMessageStyles = makeStyles()((theme) => ({
     marginRight: theme.spacing(1),
     marginTop: theme.spacing(0.5),
     width: theme.spacing(3)
+  },
+  label: {
+    color: theme.palette.action.disabled
   }
 }));

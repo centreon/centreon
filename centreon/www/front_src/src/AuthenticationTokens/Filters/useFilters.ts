@@ -1,13 +1,12 @@
-import { equals, isNil, map, pick, propEq, reject } from 'ramda';
-
 import { SelectEntry } from '@centreon/ui';
-
-import { Filter, NamedEntity } from '../models';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
+import { equals, isNil, map, pick, propEq, reject } from 'ramda';
 import { useEffect, useState } from 'react';
+
 import { filtersAtom } from '../atoms';
+import { Filter, NamedEntity } from '../models';
 import { filtersInitialValues } from '../utils';
 
 interface UseFiltersState {
@@ -57,7 +56,7 @@ const useFilters = (): UseFiltersState => {
   };
 
   const changeUser = (_, values): void => {
-    const users = map(pick(['id', 'name']), values);
+    const users = map(pick(['id', 'alias']), values);
     setFilters({ ...filters, users });
   };
 
@@ -82,7 +81,10 @@ const useFilters = (): UseFiltersState => {
   };
 
   const deleteUser = (_, item): void => {
-    const users = reject(({ name }) => equals(item.name, name), filters.users);
+    const users = reject(
+      ({ alias }) => equals(item.alias, alias),
+      filters.users
+    );
 
     setFilters({ ...filters, users });
   };
@@ -99,7 +101,7 @@ const useFilters = (): UseFiltersState => {
   const isOptionEqualToValue = (option, selectedValue): boolean => {
     return isNil(option)
       ? false
-      : equals(option.name.toString(), selectedValue.name.toString());
+      : equals(option.name?.toString(), selectedValue.name?.toString());
   };
 
   const reload = (): void => {
@@ -120,19 +122,19 @@ const useFilters = (): UseFiltersState => {
   }, [filters, isClearClicked]);
 
   return {
-    isClearDisabled,
+    changeCreator,
     changeName,
     changeTypes,
     changeUser,
-    changeCreator,
-    filterCreators,
     deleteCreator,
-    deleteUser,
     deleteType,
+    deleteUser,
+    filterCreators,
+    filters,
+    isClearDisabled,
     isOptionEqualToValue,
     reload,
-    reset,
-    filters
+    reset
   };
 };
 

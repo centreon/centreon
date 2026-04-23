@@ -1,5 +1,5 @@
-import { ChartAxis } from '../../Chart/models';
-import { Line, TimeValue } from '../timeSeries/models';
+import type { ChartAxis } from '../../Chart/models';
+import type { Line, TimeValue } from '../timeSeries/models';
 
 export interface LabelProps {
   [x: string]: unknown;
@@ -18,6 +18,7 @@ export interface AxisYRight extends Axis {
 
 export interface AxisX {
   xAxisTickFormat?: string;
+  dx?: number;
 }
 export interface Data
   extends Omit<ChartAxis, 'axisX' | 'axisYLeft' | 'axisYRight'> {

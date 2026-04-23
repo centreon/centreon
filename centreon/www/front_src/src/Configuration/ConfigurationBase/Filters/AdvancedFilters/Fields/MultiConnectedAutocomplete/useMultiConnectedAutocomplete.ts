@@ -1,7 +1,7 @@
-import { equals, isNil, map, pick, propEq, reject } from 'ramda';
-
 import { SelectEntry } from '@centreon/ui';
+
 import { SetStateAction } from 'jotai';
+import { equals, isNil, map, pick, propEq, reject } from 'ramda';
 import { Dispatch } from 'react';
 
 interface Props<TFilters> {
@@ -43,9 +43,9 @@ const useMultiAutocomplete = <TFilters>({
   };
 
   return {
-    isOptionEqualToValue,
-    deleteItem,
     change,
+    deleteItem,
+    isOptionEqualToValue,
     value: filters?.[name]
   };
 };

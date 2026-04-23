@@ -90,6 +90,7 @@
 var defaultCharts = {$defaultCharts};
 var nbDisplayedCharts = {$nbDisplayedCharts};
 var tooManyChartMsg = "{t}You cannot add more charts. The maximum charts is {/t}" + nbDisplayedCharts;
+var tooManyMetricsMessage = "{$metricExceededWarningMessage|escape:'javascript'}";
 
 {literal}
 
@@ -135,7 +136,7 @@ const templateGraph = ({ graphId, graphType, graphTitle, hostId, serviceId }) =>
                     data-graph-type="${graphType}"
                     class="btc bt_info performance_button"
                 >
-                    Display Chart
+                    {/literal}{t}Display anyway{/t}{literal}
                 </button>
                 <div class="action left">
                     <button class="bt_action">&lt;&lt;</button>
@@ -223,6 +224,9 @@ function addChart(id, name, times, hostId, serviceId) {
     if (autoRefresh) {
         times.refresh = 300;
     }
+
+    times.tooManyMetricsMessage = tooManyMetricsMessage;
+
     /* Add zoom */
     times.zoom = {
         enabled: true,
@@ -260,6 +264,7 @@ function addChart(id, name, times, hostId, serviceId) {
             serviceId: serviceId,
         })
     );
+
     jQuery('#graph-' + id).centreonGraph(times);
     jQuery('#graph-status-' + id).centreonGraph(times);
 }

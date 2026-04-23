@@ -1,10 +1,9 @@
-import { useLayoutEffect } from 'react';
+import { getData, useLocale, useRequest } from '@centreon/ui';
 
 import i18next, { i18n, Resource, ResourceLanguage } from 'i18next';
 import { mergeAll, pipe, reduce, toPairs } from 'ramda';
+import { useLayoutEffect } from 'react';
 import { initReactI18next } from 'react-i18next';
-
-import { getData, useLocale, useRequest } from '@centreon/ui';
 
 import {
   externalTranslationEndpoint,

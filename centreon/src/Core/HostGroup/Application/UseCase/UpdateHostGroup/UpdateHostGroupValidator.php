@@ -23,16 +23,19 @@ declare(strict_types=1);
 
 namespace Core\HostGroup\Application\UseCase\UpdateHostGroup;
 
+use Centreon\Domain\Common\Assertion\Assertion;
 use Centreon\Domain\Configuration\Icon\IconException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Common\Domain\TrimmedString;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
+use Core\HostGroup\Domain\Model\NewHostGroup;
+use Core\MonitoringServer\Model\MonitoringServer;
 use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -42,6 +45,8 @@ class UpdateHostGroupValidator
 {
     use LoggerTrait;
 
+    private bool $isUserAdmin = false;
+
     public function __construct(
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly ReadResourceAccessRepositoryInterface $readResourceAccessRepository,
@@ -50,7 +55,9 @@ class UpdateHostGroupValidator
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadViewImgRepositoryInterface $readViewImgRepository,
         private readonly ContactInterface $user,
+        private readonly AdminResolver $adminResolver,
     ) {
+        $this->isUserAdmin = $this->adminResolver->isAdmin($this->user);
     }
 
     /**
@@ -61,14 +68,21 @@ class UpdateHostGroupValidator
      *
      * @throws HostGroupException|\Throwable
      */
-    public function assertNameDoesNotAlreadyExists(HostGroup $hostGroup, string $hostGroupName): void
+    public function assertNameIsValid(HostGroup $hostGroup, string $hostGroupName): void
     {
-        $hostGroupName = new TrimmedString($hostGroupName);
+        Assertion::unauthorizedCharacters(
+            $hostGroupName,
+            MonitoringServer::ILLEGAL_CHARACTERS,
+            'HostGroup::name'
+        );
+
+        $formattedName = NewHostGroup::formatName($hostGroupName);
+
         if (
-            $hostGroup->getName() !== (string) $hostGroupName
-            && $this->readHostGroupRepository->nameAlreadyExists((string) $hostGroupName)
+            $hostGroup->getName() !== $formattedName
+            && $this->readHostGroupRepository->nameAlreadyExists($formattedName)
         ) {
-            throw HostGroupException::nameAlreadyExists((string) $hostGroupName);
+            throw HostGroupException::nameAlreadyExists($formattedName);
         }
     }
 
@@ -80,12 +94,12 @@ class UpdateHostGroupValidator
      */
     public function assertHostsExist(array $hostIds): void
     {
-        $unexistentHosts = $this->user->isAdmin()
-        ? array_diff($hostIds, $this->readHostRepository->exist($hostIds))
-        : array_filter($hostIds, fn ($hostId) => ! $this->readHostRepository->existsByAccessGroups(
-            $hostId,
-            $this->readAccessGroupRepository->findByContact($this->user)
-        ));
+        $unexistentHosts = $this->isUserAdmin
+            ? array_diff($hostIds, $this->readHostRepository->exist($hostIds))
+            : array_filter($hostIds, fn ($hostId) => ! $this->readHostRepository->existsByAccessGroups(
+                $hostId,
+                $this->readAccessGroupRepository->findByContact($this->user)
+            ));
 
         if ($unexistentHosts !== []) {
             throw HostException::idsDoNotExist('hosts', $unexistentHosts);
@@ -114,25 +128,27 @@ class UpdateHostGroupValidator
             throw RuleException::idsDoNotExist('rules', $unexistentAccessRules);
         }
 
-        $existentRulesByContact = $this->readResourceAccessRepository->existByContact(
-            ruleIds: $resourceAccessRuleIds,
-            userId: $this->user->getId()
-        );
-        $existentRulesByContactGroup = $this->readResourceAccessRepository->existByContactGroup(
-            ruleIds: $resourceAccessRuleIds,
-            contactGroups: $this->readContactGroupRepository->findAllByUserId($this->user->getId())
-        );
+        if (! $this->isUserAdmin) {
+            $existentRulesByContact = $this->readResourceAccessRepository->existByContact(
+                ruleIds: $resourceAccessRuleIds,
+                userId: $this->user->getId()
+            );
+            $existentRulesByContactGroup = $this->readResourceAccessRepository->existByContactGroup(
+                ruleIds: $resourceAccessRuleIds,
+                contactGroups: $this->readContactGroupRepository->findAllByUserId($this->user->getId())
+            );
 
-        $existentRules = array_unique(
-            array_merge($existentRulesByContact, $existentRulesByContactGroup)
-        );
+            $existentRules = array_unique(
+                array_merge($existentRulesByContact, $existentRulesByContactGroup)
+            );
 
-        if ([] !== $unexistentAccessRulesByContact = array_diff($resourceAccessRuleIds, $existentRules)) {
-            throw RuleException::idsDoNotExist('rules', $unexistentAccessRulesByContact);
-        }
+            if ([] !== $unexistentAccessRulesByContact = array_diff($resourceAccessRuleIds, $existentRules)) {
+                throw RuleException::idsDoNotExist('rules', $unexistentAccessRulesByContact);
+            }
 
-        if ($existentRules === []) {
-            throw HostGroupException::errorResourceAccessRulesEmpty();
+            if ($existentRules === []) {
+                throw HostGroupException::errorResourceAccessRulesEmpty();
+            }
         }
     }
 

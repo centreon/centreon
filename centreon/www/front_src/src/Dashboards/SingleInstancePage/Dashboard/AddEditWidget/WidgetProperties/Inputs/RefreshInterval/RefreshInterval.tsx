@@ -1,7 +1,3 @@
-import { useMemo } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import {
   Box,
   FormControlLabel,
@@ -10,11 +6,13 @@ import {
   Typography
 } from '@mui/material';
 
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import Subtitle from '../../../../components/Subtitle';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import { labelRefreshInterval } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
-
 import useRefreshInterval from './useRefreshInterval';
 
 const RefreshInterval = ({
@@ -34,7 +32,7 @@ const RefreshInterval = ({
   return (
     <Box>
       <Label>{t(labelRefreshInterval)}</Label>
-      <RadioGroup value={value} onChange={changeRefreshIntervalOption}>
+      <RadioGroup onChange={changeRefreshIntervalOption} value={value}>
         {options.map(({ value: optionValue, label }) => (
           <FormControlLabel
             control={<Radio data-testid={optionValue} />}

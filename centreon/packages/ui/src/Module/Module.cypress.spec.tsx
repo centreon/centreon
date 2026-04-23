@@ -1,10 +1,8 @@
 import { createStore } from 'jotai';
 
 import { Method } from '..';
-
-import LicensedModule from './LicensedModule';
-
 import Module from '.';
+import LicensedModule from './LicensedModule';
 
 const initializeModule = (): void => {
   cy.mount({
