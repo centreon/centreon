@@ -72,6 +72,8 @@ apt-get install -y \
   python3 \
   sed \
   snmpd \
+  systemd \
+  systemd-sysv \
   sudo
 
 #############################
