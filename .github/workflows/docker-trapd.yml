@@ -75,7 +75,6 @@ jobs:
           repository: centreon/centreon-collect
           ref: ${{ github.base_ref || 'develop' }}
           path: centreon-collect
-          token: ${{ secrets.GITHUB_CENTREON_BOT_TOKEN }}
 
       - name: Set PERL_VENDORLIB for deb
         run: echo "PERL_VENDORLIB=/usr/share/perl5" >> $GITHUB_ENV
