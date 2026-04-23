@@ -43,7 +43,8 @@ const StatusGrid = ({
   id: widgetId,
   dashboardId,
   playlistHash,
-  widgetPrefixQuery
+  widgetPrefixQuery,
+  isInViewport
 }: Omit<StatusGridProps, 'store' | 'queryClient'>): ReactElement => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -139,6 +140,7 @@ const StatusGrid = ({
       refreshCount
     ],
     queryOptions: {
+      enabled: isInViewport ?? true,
       refetchInterval: refreshIntervalToUse,
       suspense: false
     },

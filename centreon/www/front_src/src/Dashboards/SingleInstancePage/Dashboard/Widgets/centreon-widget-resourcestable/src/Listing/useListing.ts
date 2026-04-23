@@ -74,6 +74,7 @@ interface UseListingProps
   states: Array<string>;
   statusTypes: Array<'hard' | 'soft'>;
   statuses: Array<string>;
+  isInViewport: boolean;
 }
 
 const useListing = ({
@@ -95,7 +96,8 @@ const useListing = ({
   widgetPrefixQuery,
   statusTypes,
   hostSeverities,
-  serviceSeverities
+  serviceSeverities,
+  isInViewport
 }: UseListingProps): UseListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
@@ -197,6 +199,7 @@ const useListing = ({
     displayType,
     hostSeverities,
     id,
+    isInViewport,
     limit,
     playlistHash,
     refreshCount,
