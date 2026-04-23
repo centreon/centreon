@@ -293,7 +293,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - operating_system: "bookworm"
+          - operating_system: "bookworm-tmp"
             database: "mysql:8.0"
 
     name: dockerize ${{ matrix.operating_system }}
@@ -311,6 +311,9 @@ jobs:
           elif [ "${{ matrix.operating_system }}" = "alma9" ]; then
             DISTRIB=el9
             PACKAGE_EXTENSION=rpm
+          elif [ "${{ matrix.operating_system }}" = "bookworm-tmp" ]; then
+            DISTRIB=bookworm
+            PACKAGE_EXTENSION=deb
           elif [ "${{ matrix.operating_system }}" = "bookworm" ]; then
             DISTRIB=bookworm
             PACKAGE_EXTENSION=deb
