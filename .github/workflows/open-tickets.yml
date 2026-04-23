@@ -542,8 +542,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # operating_system: [alma9]
-        operating_system: [alma10]
+        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
     name: create-xray-test-plan-and-test-execution-${{ matrix.operating_system }}
 
     uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
@@ -590,7 +589,7 @@ jobs:
       minor_version: ${{ needs.get-environment.outputs.minor_version }}
       stability: ${{ needs.get-environment.outputs.stability }}
       target_stability: ${{ needs.get-environment.outputs.target_stability }}
-      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma10' && 'rpm-el10' || 'deb-trixie' ) }}
+      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, case(matrix.operating_system == 'alma10', 'rpm-el10', matrix.operating_system == 'alma9', 'rpm-el9', 'deb-trixie') ) }}
       package_directory: centreon-open-tickets/tests/e2e/fixtures/packages
       test_tags: ${{ matrix.test_tags }}
       dependencies_lock_file: centreon-open-tickets/tests/e2e/pnpm-lock.yaml
@@ -620,8 +619,7 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        # distrib: [el9, el10]
-        distrib: [el10]
+        distrib: [el9, el10]
 
     steps:
       - name: Checkout sources
@@ -684,8 +682,7 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        # distrib: [el9, el10, trixie]
-        distrib: [el10, trixie]
+        distrib: [el9, el10, trixie]
 
     steps:
       - name: Checkout sources
