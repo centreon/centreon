@@ -1,4 +1,5 @@
 import { equals, isEmpty, isNil, lte } from 'ramda';
+import { ReactElement } from 'react';
 import type { Layout } from 'react-grid-layout';
 
 import { DashboardLayout } from '@centreon/ui';
@@ -34,7 +35,7 @@ const PanelsLayout = ({
   displayMoreActions = true,
   playlistHash,
   dashboardId
-}: Props): JSX.Element => {
+}: Props): ReactElement => {
   const { getLinkToResourceStatusPage, changeViewMode, getPageType } =
     useLinkToResourceStatus();
 
@@ -102,17 +103,20 @@ const PanelsLayout = ({
             id={i}
             key={i}
           >
-            {panelConfiguration?.isAddWidgetPanel ? (
-              <AddWidgetPanel />
-            ) : (
-              <DashboardPanel
-                dashboardId={dashboardId}
-                id={i}
-                playlistHash={playlistHash}
-                refreshCount={refreshCount}
-                name={name}
-              />
-            )}
+            {({ isInViewport }) =>
+              panelConfiguration?.isAddWidgetPanel ? (
+                <AddWidgetPanel />
+              ) : (
+                <DashboardPanel
+                  dashboardId={dashboardId}
+                  id={i}
+                  isInViewport={isInViewport}
+                  name={name}
+                  playlistHash={playlistHash}
+                  refreshCount={refreshCount}
+                />
+              )
+            }
           </DashboardLayout.Item>
         )
       )}

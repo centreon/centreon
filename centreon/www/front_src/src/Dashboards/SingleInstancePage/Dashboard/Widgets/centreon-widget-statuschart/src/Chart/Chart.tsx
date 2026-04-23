@@ -1,5 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { equals, isEmpty, isNil, reject } from 'ramda';
+import type { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { BarStack, PieChart } from '@centreon/ui';
@@ -35,9 +36,10 @@ const Chart = ({
   id,
   playlistHash,
   dashboardId,
+  isInViewport,
   widgetPrefixQuery,
   stateList
-}: ChartType): JSX.Element => {
+}: ChartType): ReactElement => {
   const { cx, classes } = useStyles();
   const { t } = useTranslation();
 
@@ -50,6 +52,7 @@ const Chart = ({
   const { data, isLoading } = useLoadResources({
     dashboardId,
     id,
+    isInViewport,
     playlistHash,
     refreshCount,
     refreshIntervalToUse,
