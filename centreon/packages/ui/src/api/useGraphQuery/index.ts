@@ -35,6 +35,7 @@ interface UseMetricsQueryProps {
     timePeriodType: number;
   };
   isEnabled?: boolean;
+  enforceIsEnabled?: boolean;
 }
 
 interface UseMetricsQueryState {
@@ -101,7 +102,8 @@ const useGraphQuery = ({
   refreshCount,
   bypassQueryParams = false,
   prefix,
-  isEnabled = true
+  isEnabled = true,
+  enforceIsEnabled
 }: UseMetricsQueryProps): UseMetricsQueryState => {
   const timePeriodToUse = equals(timePeriod?.timePeriodType, -1)
     ? {
@@ -159,9 +161,10 @@ const useGraphQuery = ({
     ],
     queryOptions: {
       enabled:
-        areResourcesFullfilled(resources) &&
-        !isEmpty(definedMetrics) &&
-        isEnabled,
+        enforceIsEnabled ??
+        (areResourcesFullfilled(resources) &&
+          !isEmpty(definedMetrics) &&
+          isEnabled),
       refetchInterval: refreshInterval,
       suspense: false
     },
