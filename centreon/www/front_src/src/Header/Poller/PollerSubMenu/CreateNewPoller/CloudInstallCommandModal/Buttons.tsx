@@ -4,6 +4,9 @@ import { useTranslation } from 'react-i18next';
 
 import { useCloudInstallCommand } from './useCloudInstallCommand';
 
+import { useAtomValue } from 'jotai';
+import { generatedCommandAtom } from './atoms';
+
 import {
   labelCancel,
   labelExportConfiguration
@@ -11,6 +14,8 @@ import {
 
 const Buttons = (): ReactElement => {
   const { t } = useTranslation();
+  const generatedCommand = useAtomValue(generatedCommandAtom);
+
   const { close } = useCloudInstallCommand();
 
   return (
@@ -20,7 +25,7 @@ const Buttons = (): ReactElement => {
       </Button>
       <Button
         data-testid="generate-command"
-        disabled={true}
+        disabled={!!generatedCommand}
         onClick={() => undefined}
         size="medium"
       >

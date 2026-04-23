@@ -17,9 +17,9 @@ import type { CloudInstallCommandFormValues } from './models';
 import { Button } from '@centreon/ui/components';
 import {
   labelClickToGenerate,
+  labelCommandGenerationStep,
   labelCopyTheFollowingCommand,
-  labelGenerateInstallationCommand,
-  labelGeneratingCommand
+  labelGenerateInstallationCommand
 } from '../../../translatedLabels';
 
 const CommandSection = (): ReactElement => {
@@ -31,13 +31,15 @@ const CommandSection = (): ReactElement => {
 
   return (
     <Section order={4} title={t(labelGenerateInstallationCommand)}>
-      <div className="flex flex-col gap-2 my-2">
-        {generatedCommand ? (
-          <div className="flex flex-col gap-1">
-            <Typography>{t(labelCopyTheFollowingCommand)}</Typography>
-            <CommandLine commandLine={generatedCommand} />
-          </div>
-        ) : (
+      {generatedCommand ? (
+        <div className="flex flex-col gap-1">
+          <Typography variant="body2">
+            {t(labelCopyTheFollowingCommand)}
+          </Typography>
+          <CommandLine commandLine={generatedCommand} />
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2 my-2">
           <div className="flex items-start gap-3">
             <Button size="small" disabled={isSubmitting || !isValid || !dirty}>
               <img
@@ -46,20 +48,19 @@ const CommandSection = (): ReactElement => {
                 src={InstallCommandLogo}
               />
             </Button>
-            <div className="flex flex-col gap-2 flex-1">
-              <Typography variant="body2">{t(labelClickToGenerate)}</Typography>
-              {isSubmitting && (
-                <>
-                  <LinearProgress />
-                  <Typography color="text.secondary" variant="caption">
-                    {t(labelGeneratingCommand)}
-                  </Typography>
-                </>
-              )}
-            </div>
+            <Typography variant="body2">{t(labelClickToGenerate)}</Typography>
           </div>
-        )}
-      </div>
+          {isSubmitting && (
+            <div className="flex flex-col gap-2">
+              <LinearProgress />
+              <CommandLine
+                commandLine={generatedCommand}
+                defaultMessage={labelCommandGenerationStep}
+              />
+            </div>
+          )}
+        </div>
+      )}
     </Section>
   );
 };
