@@ -109,8 +109,8 @@ rm -rf /var/lib/apt/lists/* \
 
 EOF
 
-COPY --chmod=755 ./.github/docker/centreon-web/bookworm/entrypoint /usr/share/centreon
-COPY --chown=www-data:www-data ./.github/docker/centreon-web/bookworm/configuration /usr/share/centreon/www/install/tmp
+COPY --chmod=755 ./.github/docker/centreon-web/bookworm-tmp/entrypoint /usr/share/centreon
+COPY --chown=www-data:www-data ./.github/docker/centreon-web/bookworm-tmp/configuration /usr/share/centreon/www/install/tmp
 COPY --chown=www-data:www-data ./.github/docker/centreon-web/scripts/ /usr/share/centreon/www/install
 COPY --chmod=600 ./centreon/packaging/src/sudoersCentreon /etc/sudoers.d/centreon
 COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /usr/local/bin/systemctl 

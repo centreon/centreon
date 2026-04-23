@@ -122,10 +122,18 @@ New environment variables you can set:
 
 ```yaml
 environment:
+  # Optimization settings
   - DEBUG=true           # Enable verbose logging
   - DB_TIMEOUT=300       # Database connection timeout (seconds)
   - PUID=900             # User ID (existing feature)
   - PGID=900             # Group ID (existing feature)
+
+  # etcd integration (optional)
+  - USE_ETCD=false                      # Enable etcd sync
+  - ETCD_HOST=etcd                      # etcd hostname
+  - ETCD_PORT=2379                      # etcd port
+  - ETCD_KEY_PREFIX=/centreon/config    # etcd key prefix
+  - CONFIG_DIR=/etc/centreon/config.d   # Config directory
 ```
 
 ## Troubleshooting
@@ -167,9 +175,29 @@ If these changes cause issues in production:
    - Database data is preserved
    - Only application code changes
 
+### 8. **etcd Integration** - HA/Cloud-Ready Configuration Distribution
+- ✅ Added `25-create-yaml-config.sh` - Creates YAML configs for Gorgone compatibility
+- ✅ Added `65-sync-etcd.sh` - Syncs configs to etcd (optional, disabled by default)
+- ✅ Updated Dockerfile with etcd environment variables
+- ✅ Supports both shared volume (default) and etcd-based config distribution
+- **Benefit:** Enables HA deployments and distributed Gorgone instances without shared volumes
+
+**New Environment Variables:**
+```yaml
+environment:
+  - USE_ETCD=false              # Enable etcd sync (default: false)
+  - ETCD_HOST=etcd              # etcd hostname
+  - ETCD_PORT=2379              # etcd port
+  - ETCD_KEY_PREFIX=/centreon/config  # etcd key prefix
+  - CONFIG_DIR=/etc/centreon/config.d # Config directory
+```
+
+**See [ETCD_INTEGRATION.md](./ETCD_INTEGRATION.md) for detailed documentation**
+
 ## Notes
 
 - The init container pattern is widely used in Kubernetes and works great with Docker Compose
 - Password security fix is critical and should not be rolled back
 - Permission optimization significantly improves restart times
 - All changes maintain backward compatibility with existing volumes
+- **etcd integration is optional and disabled by default** - existing deployments will work unchanged
