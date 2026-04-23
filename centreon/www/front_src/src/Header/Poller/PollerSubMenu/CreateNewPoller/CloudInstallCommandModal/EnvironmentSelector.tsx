@@ -1,5 +1,6 @@
 import ComputerIcon from '@mui/icons-material/Computer';
-import { Typography } from '@mui/material';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import { Tooltip, Typography } from '@mui/material';
 
 import { IconButton } from '@centreon/ui';
 
@@ -10,9 +11,9 @@ import { useTranslation } from 'react-i18next';
 
 import { Section } from '../../../../../AgentConfiguration/Listing/InstallationCommandModal/Components';
 import {
-  labelDocker,
+  labelDockerCompose,
   labelSelectPollerEnvironment,
-  labelVM
+  labelVMOrPhysical
 } from '../../../translatedLabels';
 import { PollerEnvironment } from '../../models';
 import { isGeneratedAtom } from './atoms';
@@ -28,12 +29,12 @@ const environments = [
   {
     env: PollerEnvironment.VM,
     icon: <ComputerIcon className="h-12 w-12" />,
-    label: labelVM
+    label: labelVMOrPhysical
   },
   {
     env: PollerEnvironment.Docker,
     icon: dockerIcon,
-    label: labelDocker
+    label: labelDockerCompose
   }
 ];
 
@@ -48,8 +49,17 @@ const EnvironmentSelector = (): ReactElement => {
     setFieldValue('environment', env);
   };
 
+  const title = (
+    <div className="flex items-center gap-1">
+      {t(labelSelectPollerEnvironment)}
+      <Tooltip title={t(labelSelectPollerEnvironment)}>
+        <HelpOutlineIcon className="text-text-secondary" fontSize="small" />
+      </Tooltip>
+    </div>
+  );
+
   return (
-    <Section order={2} title={t(labelSelectPollerEnvironment)}>
+    <Section order={2} title={title}>
       <div className="flex gap-12 my-2">
         {environments.map(({ env, icon, label }) => (
           <div className="flex flex-col gap-2.5 items-center" key={label}>

@@ -4,7 +4,7 @@ import { Modal } from '@centreon/ui/components';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { labelCopyInstallCommand } from '../../../translatedLabels';
+import { labelCreateNewPoller } from '../../../translatedLabels';
 import Buttons from './Buttons';
 import type { CloudInstallCommandFormValues } from './models';
 import { useCloudInstallCommand } from './useCloudInstallCommand';
@@ -26,7 +26,7 @@ const CloudInstallCommandModal = (): ReactElement => {
 
   return (
     <Modal onClose={close} open={isOpen} size="medium">
-      <Modal.Header>{t(labelCopyInstallCommand)}</Modal.Header>
+      <Modal.Header>{t(labelCreateNewPoller)}</Modal.Header>
       <Modal.Body>
         <Form<CloudInstallCommandFormValues>
           Buttons={Buttons}

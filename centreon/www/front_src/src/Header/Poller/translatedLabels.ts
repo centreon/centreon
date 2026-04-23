@@ -30,20 +30,21 @@ export const labelAllPollers = 'All pollers:';
 export const labelPollers = 'Pollers';
 
 export const labelCreateNewPoller = 'Create new poller';
-export const labelCopyInstallCommand = 'Copy install command';
-export const labelEnterPollerName = 'Enter a poller name';
-export const labelPollerName = 'Poller name';
-export const labelSelectPollerEnvironment = 'Select the poller environment';
-export const labelVM = 'VM';
-export const labelDocker = 'Docker';
-export const labelSelectPollerToken = 'Select the poller token';
-export const labelSelectToken = 'Select token';
-export const labelGenerateAndCopyCommand = 'Generate and copy command';
-export const labelGenerate = 'Generate';
+export const labelEnterPollerName = "Enter your poller's name";
+export const labelPollerName = 'Poller Name';
+export const labelSelectPollerEnvironment = 'Select your poller environment';
+export const labelVMOrPhysical = 'VM or physical';
+export const labelDockerCompose = 'Docker compose';
+export const labelSelectToken = 'Select Token';
+export const labelSelectTokenPlaceholder = 'Select token';
+export const labelGenerateInstallationCommand = 'Generate installation command';
+export const labelClickToGenerate =
+  "Click to generate the command. Once it's ready, copy it and run it in your environment.";
 export const labelGeneratingCommand = 'Generating...';
+export const labelCommandGenerationStep =
+  'La commande est en cours de génération';
 export const labelCopyTheFollowingCommand =
   'Copy the following command and run it on your poller to register it.';
-export const labelValidate = 'Validate';
 export const labelPollerCreatedSuccessfully = 'Poller created successfully';
 export const labelFailedToCreatePoller = 'Failed to create poller';
 export const labelConfigurationExported = 'Configuration exported successfully';

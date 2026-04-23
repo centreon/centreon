@@ -8,13 +8,16 @@ import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
-  labelGenerate,
-  labelGeneratingCommand,
-  labelValidate
+  labelCancel,
+  labelExportConfiguration,
+  labelGeneratingCommand
 } from '../../../translatedLabels';
 import { isGeneratedAtom } from './atoms';
 import type { CloudInstallCommandFormValues } from './models';
-import { useValidatePoller } from './useCloudInstallCommand';
+import {
+  useCloudInstallCommand,
+  useValidatePoller
+} from './useCloudInstallCommand';
 
 const Buttons = (): ReactElement => {
   const { t } = useTranslation();
@@ -22,19 +25,26 @@ const Buttons = (): ReactElement => {
   const { isSubmitting, isValid, submitForm } =
     useFormikContext<CloudInstallCommandFormValues>();
   const { validate, isExporting } = useValidatePoller();
+  const { close } = useCloudInstallCommand();
 
   if (isGenerated) {
     return (
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <Button onClick={close} size="medium" variant="ghost">
+          {t(labelCancel)}
+        </Button>
         <Button disabled={isExporting} onClick={validate} size="medium">
-          {t(labelValidate)}
+          {t(labelExportConfiguration)}
         </Button>
       </div>
     );
   }
 
   return (
-    <div className="flex justify-end">
+    <div className="flex justify-end gap-2">
+      <Button onClick={close} size="medium" variant="ghost">
+        {t(labelCancel)}
+      </Button>
       <Button
         data-testid="generate-command"
         disabled={!isValid || isSubmitting}
@@ -47,7 +57,7 @@ const Buttons = (): ReactElement => {
             {t(labelGeneratingCommand)}
           </div>
         ) : (
-          t(labelGenerate)
+          t(labelExportConfiguration)
         )}
       </Button>
     </div>

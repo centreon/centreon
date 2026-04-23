@@ -1,9 +1,9 @@
 import { Typography } from '@mui/material';
 
-import { ReactElement } from 'react';
+import { ReactElement, ReactNode } from 'react';
 
 interface Props {
-  title: string;
+  title: ReactNode;
   order: number;
 }
 
@@ -13,7 +13,7 @@ const SubTitle = ({ title, order }: Props): ReactElement => {
       <div className="w-6 h-6 bg-text-primary text-primary-contrastText text-center rounded-xl">
         {order}
       </div>
-      <Typography className="font-medium" variant="subtitle1">
+      <Typography className="font-medium" component="div" variant="subtitle1">
         {title}
       </Typography>
     </div>
@@ -27,7 +27,7 @@ export const Section = ({
 }: {
   children;
   order: number;
-  title: string;
+  title: ReactNode;
 }) => {
   return (
     <div>

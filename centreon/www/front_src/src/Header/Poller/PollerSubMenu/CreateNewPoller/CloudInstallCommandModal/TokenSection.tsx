@@ -9,8 +9,8 @@ import { getTokensEndpoint } from '../../../../../AgentConfiguration/api/endpoin
 import { Section } from '../../../../../AgentConfiguration/Listing/InstallationCommandModal/Components';
 import { listTokensDecoder } from '../../../../../AuthenticationTokens/api';
 import {
-  labelSelectPollerToken,
-  labelSelectToken
+  labelSelectToken,
+  labelSelectTokenPlaceholder
 } from '../../../translatedLabels';
 import { isGeneratedAtom } from './atoms';
 import type { CloudInstallCommandFormValues } from './models';
@@ -22,14 +22,14 @@ const TokenSection = (): ReactElement => {
     useFormikContext<CloudInstallCommandFormValues>();
 
   return (
-    <Section order={3} title={t(labelSelectPollerToken)}>
+    <Section order={3} title={t(labelSelectToken)}>
       <div className="my-2">
         <SingleConnectedAutocompleteField
           decoder={listTokensDecoder}
           disabled={isGenerated}
           field="token_name"
           getEndpoint={getTokensEndpoint}
-          label={t(labelSelectToken)}
+          label={t(labelSelectTokenPlaceholder)}
           onChange={(_, value) => {
             setFieldTouched('token', true, false);
             setFieldValue(
