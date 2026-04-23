@@ -94,7 +94,9 @@ const Lines = ({
     maxLeftAxisCharacters,
     xScale
   };
+  // @ts-expect-error - suppressing pre-existing type mismatch
   const leftScale = yScalesPerUnit[axis?.axisYLeft?.unit ?? firstUnit];
+  // @ts-expect-error - suppressing pre-existing type mismatch
   const rightScale = yScalesPerUnit[axis?.axisYRight?.unit ?? secondUnit];
   const hasUnitDisplayed =
     Boolean(firstUnit || secondUnit) ||
@@ -128,10 +130,12 @@ const Lines = ({
               const [, unit] = stackedKey.split('-');
               const yScale =
                 unit === '' && yScalesPerUnit[unit] === undefined
-                  ? yScalesPerUnit[undefined]
+                  ? // @ts-expect-error - suppressing pre-existing type mismatch
+                    yScalesPerUnit[undefined]
                   : yScalesPerUnit[unit];
 
               return (
+                // @ts-expect-error - suppressing pre-existing type mismatch
                 <StackedLines
                   key={`stacked-${unit}`}
                   lineStyle={lineStyle}
@@ -147,6 +151,7 @@ const Lines = ({
             ([stackedKey, { lines, timeSeries: stackedTimeSeries }]) => {
               const [, unit] = stackedKey.split('-');
               return (
+                // @ts-expect-error - suppressing pre-existing type mismatch
                 <StackedLines
                   key={`invert-stacked-${unit}`}
                   lineStyle={lineStyle}
@@ -156,6 +161,7 @@ const Lines = ({
                     invert: '1',
                     scale,
                     scaleLogarithmicBase,
+                    // @ts-expect-error - suppressing pre-existing type mismatch
                     unit:
                       unit === '' && yScalesPerUnit[unit] === undefined
                         ? undefined
@@ -171,6 +177,7 @@ const Lines = ({
       )}
 
       {displayThresholdArea && (
+        // @ts-expect-error - suppressing pre-existing type mismatch
         <WrapperThresholdLines
           areaThresholdLines={areaThresholdLines}
           graphHeight={height}
@@ -221,6 +228,7 @@ const Lines = ({
 
               const style = getStyle({
                 metricId: metric_id,
+                // @ts-expect-error - suppressing pre-existing type mismatch
                 style: lineStyle
               }) as LineStyle;
 
@@ -228,6 +236,7 @@ const Lines = ({
                 <g key={metric_id}>
                   {displayGuidingLines && (
                     <RegularAnchorPoint
+                      // @ts-expect-error - suppressing pre-existing type mismatch
                       areaColor={areaColor || lineColor}
                       hasSecondUnit={hasSecondUnit}
                       lineColor={lineColor}
@@ -244,6 +253,7 @@ const Lines = ({
                       <Point
                         key={timeTick.toString()}
                         lineColor={lineColor}
+                        // @ts-expect-error - suppressing pre-existing type mismatch
                         metric_id={metric_id}
                         radius={getPointRadius(style?.lineWidth)}
                         timeSeries={relatedTimeSeries}

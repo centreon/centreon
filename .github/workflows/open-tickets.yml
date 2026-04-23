@@ -54,7 +54,7 @@ jobs:
       github.run_attempt == 1 &&
       github.event_name == 'schedule' &&
       github.ref_name == 'develop' &&
-      github.repository == 'centreon/centreon'
+      github.event.pull_request.head.repo.fork != true
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
@@ -68,6 +68,7 @@ jobs:
 
   get-environment:
     needs: [dependency-scan]
+    if: github.event.pull_request.head.repo.fork != true
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon-open-tickets/www/modules/centreon-open-tickets/conf.php
@@ -78,7 +79,8 @@ jobs:
     needs: [get-environment]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability == 'testing'
+      needs.get-environment.outputs.stability == 'testing' &&
+      github.event.pull_request.head.repo.fork != true
     env:
       version: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
       version_file: .version.centreon-open-tickets
@@ -108,7 +110,8 @@ jobs:
   changes:
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable'
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.event.pull_request.head.repo.fork != true
     needs: [get-environment]
     uses: ./.github/workflows/get-changes-triggers.yml
     with:
@@ -146,7 +149,8 @@ jobs:
     if: |
       needs.changes.outputs.trigger_backend_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable'
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.event.pull_request.head.repo.fork != true
 
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -232,7 +236,8 @@ jobs:
     if: |
       needs.changes.outputs.trigger_backend_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable'
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.event.pull_request.head.repo.fork != true
 
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -266,7 +271,8 @@ jobs:
     if: |
       needs.changes.outputs.trigger_e2e_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable'
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.event.pull_request.head.repo.fork != true
     runs-on: centreon-ubuntu-22.04
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -280,7 +286,8 @@ jobs:
     if: |
       needs.changes.outputs.trigger_e2e_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable'
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.event.pull_request.head.repo.fork != true
     runs-on: centreon-ubuntu-22.04
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -310,7 +317,8 @@ jobs:
       needs.get-environment.outputs.stability != 'stable' &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'cancelled') &&
+      github.event.pull_request.head.repo.fork != true
 
     strategy:
       fail-fast: false
@@ -322,23 +330,20 @@ jobs:
           #   image: packaging-nfpm-alma9
           #   distrib: el9
           - package_extension: rpm
-            image: packaging-nfpm-alma10
+            tag_suffix: -alma10
             distrib: el10
           - package_extension: deb
-            image: packaging-nfpm-trixie
+            tag_suffix: -trixie
             distrib: trixie
 
           # - package_extension: deb
-          #   image: packaging-nfpm-jammy
+          #   tag_suffix: -jammy
           #   distrib: jammy
 
     runs-on: ubuntu-24.04
 
     container:
-      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
-      credentials:
-        username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
-        password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}${{ matrix.tag_suffix }}
 
     name: package ${{ matrix.distrib }}
 
@@ -383,7 +388,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       needs.get-environment.outputs.stability != 'stable' &&
-      github.repository == 'centreon/centreon'
+      github.event.pull_request.head.repo.fork != true
 
     env:
       project: centreon-open-tickets
@@ -440,7 +445,12 @@ jobs:
             echo "tag=develop-${MAJOR_VERSION}" >> $GITHUB_OUTPUT
             echo "additional_tag=develop" >> $GITHUB_OUTPUT
           else
-            echo "tag=$REF" >> $GITHUB_OUTPUT
+            SANITIZED_REF="$(printf '%s' "$REF" | sed -E 's#[^[:alnum:]_.-]+#-#g; s#^[.-]+##; s#-+#-#g' | cut -c1-128)"
+            if [[ -z "$SANITIZED_REF" ]]; then
+              echo "::error::Unable to derive a valid Docker tag from ref '$REF'"
+              exit 1
+            fi
+            echo "tag=$SANITIZED_REF" >> $GITHUB_OUTPUT
             echo "additional_tag=" >> $GITHUB_OUTPUT
           fi
         shell: bash
@@ -506,10 +516,10 @@ jobs:
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
       github.event_name != 'workflow_dispatch' &&
-      github.repository == 'centreon/centreon' &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'cancelled') &&
+      github.event.pull_request.head.repo.fork != true
 
     steps:
       - name: Checkout sources
@@ -534,7 +544,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       (needs.get-environment.outputs.stability == 'testing' || needs.get-environment.outputs.is_nightly == 'true') &&
-      github.repository == 'centreon/centreon'
+      github.event.pull_request.head.repo.fork != true
     strategy:
       fail-fast: false
       matrix:
@@ -563,7 +573,8 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      needs.get-environment.outputs.stability != 'stable'
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.event.pull_request.head.repo.fork != true
     strategy:
       fail-fast: false
       matrix:
@@ -597,8 +608,6 @@ jobs:
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
       xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
       xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
-      artifactory_internal_repo_username: ${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}
-      artifactory_internal_repo_password: ${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}
       jira_base_url: ${{ secrets.JIRA_BASE_URL }}
       jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
@@ -613,7 +622,7 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      github.repository == 'centreon/centreon'
+      github.event.pull_request.head.repo.fork != true
     runs-on: centreon-common
     strategy:
       matrix:
@@ -647,7 +656,7 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      github.repository == 'centreon/centreon' &&
+      github.event.pull_request.head.repo.fork != true &&
       (needs.get-environment.outputs.is_cloud == 'false' || needs.get-environment.outputs.stability == 'unstable')
     runs-on: centreon-common
     strategy:
@@ -677,7 +686,7 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      github.repository == 'centreon/centreon'
+      github.event.pull_request.head.repo.fork != true
     runs-on: centreon-common
     strategy:
       matrix:
@@ -719,7 +728,8 @@ jobs:
       needs.get-environment.outputs.is_nightly == 'true' &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'cancelled') &&
+      github.event.pull_request.head.repo.fork != true
     steps:
       - name: Checkout sources
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -745,7 +755,7 @@ jobs:
       needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
       (failure() || cancelled() || contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) &&
       startsWith(github.ref_name, 'dev') &&
-      github.repository == 'centreon/centreon'
+      github.event.pull_request.head.repo.fork != true
     steps:
       - name: Checkout sources
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1

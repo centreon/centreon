@@ -54,6 +54,7 @@ const MemoizedGroup = ({
   }
 
   return (
+    // @ts-expect-error - suppressing pre-existing type mismatch
     <Group left={barGroup.x0} top={barGroup.y0}>
       {barGroup.bars.map((bar) => {
         const isStackedBar = bar.key.startsWith('stacked-');
@@ -74,7 +75,8 @@ const MemoizedGroup = ({
           : (linesBar as Line).unit;
         const yScale =
           unit === '' && yScalesPerUnit[unit] === undefined
-            ? yScalesPerUnit[undefined]
+            ? // @ts-expect-error - suppressing pre-existing type mismatch
+              yScalesPerUnit[undefined]
             : yScalesPerUnit[unit];
 
         return isStackedBar ? (

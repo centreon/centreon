@@ -393,9 +393,10 @@ final class PartialUpdateServiceTemplate
 
         /** @var array<string,CommandMacro> $commandMacros */
         $commandMacros = [];
-        if ($checkCommandId !== null) {
+        $effectiveCommandId = $checkCommandId ?? $this->findInheritedCommandId($inheritanceLine);
+        if ($effectiveCommandId !== null) {
             $existingCommandMacros = $this->readCommandMacroRepository->findByCommandIdAndType(
-                $checkCommandId,
+                $effectiveCommandId,
                 CommandMacroType::Service
             );
 
@@ -411,6 +412,34 @@ final class PartialUpdateServiceTemplate
                 : $inheritedMacros,
             $commandMacros,
         ];
+    }
+
+    /**
+     * Return the command ID of the first ancestor service template that defines one.
+     *
+     * @param int[] $inheritanceLine
+     *
+     * @throws \Throwable
+     *
+     * @return int|null
+     */
+    private function findInheritedCommandId(array $inheritanceLine): ?int
+    {
+        if ($inheritanceLine === []) {
+            return null;
+        }
+        $templates = $this->readServiceTemplateRepository->findByIds(...$inheritanceLine);
+        $indexed = [];
+        foreach ($templates as $template) {
+            $indexed[$template->getId()] = $template;
+        }
+        foreach ($inheritanceLine as $parentId) {
+            if (isset($indexed[$parentId]) && $indexed[$parentId]->getCommandId() !== null) {
+                return $indexed[$parentId]->getCommandId();
+            }
+        }
+
+        return null;
     }
 
     /**

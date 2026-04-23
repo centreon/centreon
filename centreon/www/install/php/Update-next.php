@@ -834,6 +834,21 @@ $moveCommandACLTopologyIntoACLActions = function () use ($pearDB, &$errorMessage
     }
 };
 
+$clearDefaultCurveTemplateLegend = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to clear ds_legend for default curve templates';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Clearing ds_legend for default curve templates",
+    );
+    $pearDB->executeStatement(
+        <<<'SQL'
+            UPDATE `giv_components_template`
+            SET `ds_legend` = NULL
+            WHERE `default_tpl1` = '1'
+            SQL
+    );
+};
+
 $deleteOldCommandsTopologies = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to remove old command pages from topology';
     CentreonLog::create()->info(
@@ -848,12 +863,49 @@ $deleteOldCommandsTopologies = function () use ($pearDB, &$errorMessage, $versio
     );
 };
 
+/** ------------------------------------- Pollers ------------------------------------- */
+$addPollerTypeColumn = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add poller_type column to nagios_server';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Adding poller_type column to nagios_server",
+    );
+
+    if ($pearDB->columnExists(
+        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
+        'nagios_server',
+        'poller_type'
+    )) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Column poller_type already exists on nagios_server, skipping",
+        );
+
+        return;
+    }
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server` ADD COLUMN `poller_type` enum('vm','docker') NOT NULL DEFAULT 'vm'
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully added poller_type column to nagios_server",
+    );
+};
+
 try {
     // DDL statements for real time database
-    // TODO add your function calls to update the real time database structure here
+    $pearDBO->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `log_action` MODIFY COLUMN `log_contact_id` int(11) DEFAULT NULL
+            SQL
+    );
 
     // DDL statements for configuration database
-    // TODO add your function calls to update the configuration database structure here
+    $addPollerTypeColumn();
 
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {
@@ -864,6 +916,8 @@ try {
     if ($isMachineACentral()) {
         $insertEventScriptOutputForCMA();
     }
+
+    $clearDefaultCurveTemplateLegend();
 
     // Command redesign updates
     $addNewCommandPage();

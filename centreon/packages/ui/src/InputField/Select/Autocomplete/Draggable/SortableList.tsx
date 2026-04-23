@@ -2,7 +2,7 @@ import { lighten } from '@mui/material';
 
 import { rectIntersection } from '@dnd-kit/core';
 import { rectSortingStrategy } from '@dnd-kit/sortable';
-import { find, map, propEq } from 'ramda';
+import { find, propEq } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import SortableItems from '../../../../SortableItems';
@@ -46,10 +46,9 @@ const SortableList = ({
 
   const dragEnd = ({ items: newItems }): void =>
     changeItemsOrder(
-      map(
-        (item) => find(propEq(item, 'id'), items),
-        newItems
-      ) as Array<DraggableSelectEntry>
+      (newItems as Array<string>).map(
+        (item) => find(propEq(item, 'id'), items) as DraggableSelectEntry
+      )
     );
 
   return (

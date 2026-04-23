@@ -34,7 +34,7 @@ const useAutoSize = ({
 }: UseAutoSizeProps): UseAutoSizeState => {
   const [innerValue, setInnerValue] = useState(value || '');
   const [width, setWidth] = useState(autoSizeDefaultWidth);
-  const inputRef = useRef();
+  const inputRef = useRef<HTMLDivElement>(null);
   const theme = useTheme();
 
   const changeInputValue = (
@@ -58,7 +58,7 @@ const useAutoSize = ({
   return {
     changeInputValue,
     innerValue,
-    inputRef,
+    inputRef: inputRef as RefObject<HTMLDivElement>,
     width: `calc(${width}px + ${theme.spacing(
       autoSizeCustomPadding || defaultPaddingTotal
     )})`

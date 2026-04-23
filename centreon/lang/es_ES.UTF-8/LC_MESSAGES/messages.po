@@ -3222,6 +3222,10 @@ msgstr ""
 msgid "Command copied to clipboard"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Command copied!"
+msgstr ""
+
 #: centreon/www/include/monitoring/external_cmd/functions.php
 msgid "Command execution problem"
 msgstr "Problema de ejecución del comando."
@@ -3806,6 +3810,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Copy breadcrumb"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Copy command"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -5444,6 +5452,14 @@ msgstr "No disponible (hora conocida)"
 
 #: centreon/www/install/front_translate.php
 msgid "Down status hosts"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Download"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Download the script"
 msgstr ""
 
 #: centreon/src/Core/Metric/Application/Exception/MetricException.php
@@ -7187,6 +7203,10 @@ msgid "Execute special command"
 msgstr "Ejecutar una orden especial"
 
 #: centreon/www/install/front_translate.php
+msgid "Execute the script"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Execute this script as root on the central."
 msgstr ""
 
@@ -8393,6 +8413,10 @@ msgid "Failed to copy link"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Failed to copy the command!"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Failed to create the dashboard"
 msgstr ""
 
@@ -9088,6 +9112,10 @@ msgstr ""
 #: centreon/www/include/configuration/configGenerateTraps/formGenerateTraps.php
 msgid "Generate trap database "
 msgstr "Generar base de definición de captura SNMP"
+
+#: centreon/www/install/front_translate.php
+msgid "Generate your CMA installation command"
+msgstr ""
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
@@ -10596,6 +10624,13 @@ msgstr ""
 msgid "Invalid coordinates values specified"
 msgstr ""
 
+#: centreon/www/include/options/media/images/formDirectory.php
+#: centreon/www/include/options/media/images/formImg.php
+msgid ""
+"Invalid directory name. Only alphanumeric characters, hyphens and "
+"underscores are allowed."
+msgstr ""
+
 #: centreon/src/Core/Domain/Configuration/Notification/Exception/NotificationException.php
 #, php-format
 msgid "Invalid event provided (%s)"
@@ -11156,6 +11191,12 @@ msgstr "leyenda"
 msgid "Legend Name"
 msgstr "leyenda"
 
+#: centreon/www/include/views/componentTemplates/formComponentTemplate.php
+msgid ""
+"Legend is disabled for the default template because it cannot be displayed "
+"in the graph. Metric name will be displayed by default."
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Less"
 msgstr ""
@@ -11336,6 +11377,10 @@ msgstr "Vínculos"
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "Links Management"
 msgstr "Gestión de enlaces"
+
+#: centreon/www/install/front_translate.php
+msgid "Linux"
+msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configResources/formResources.php
@@ -15529,6 +15574,11 @@ msgstr ""
 msgid "Run monitoring engine debug (-v)"
 msgstr "Iniciar la depuración del motor de monitoreo (-v)"
 
+#: centreon/www/install/front_translate.php
+msgid ""
+"Run the following command on each host you want to monitor with the agent."
+msgstr ""
+
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 msgid "Running debug mode"
 msgstr "Ejecutando en modo debug"
@@ -16052,6 +16102,10 @@ msgid "Select pages"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Select poller"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Select poller(s)"
 msgstr ""
 
@@ -16081,6 +16135,10 @@ msgid "Select service severities"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Select the poller that will monitor your hosts"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Select time format"
 msgstr ""
 
@@ -16098,6 +16156,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Select users"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Select your hosts' operating system"
 msgstr ""
 
 #: centreon/www/class/centreonConfigCentreonBroker.php
@@ -17838,6 +17900,12 @@ msgstr ""
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "The command format is invalid"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"The command is only valid for hosts with an agent-initiated connection to "
+"this poller."
 msgstr ""
 
 #: centreon/src/Centreon/Domain/Engine/EngineService.php
@@ -20065,6 +20133,10 @@ msgstr "ancho"
 msgid "Wiki page defined"
 msgstr "Pagina definida"
 
+#: centreon/www/install/front_translate.php
+msgid "Windows"
+msgstr ""
+
 #: centreon/www/install/dashboard_widgets.php
 msgid "Workhours"
 msgstr ""
@@ -21364,6 +21436,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "the community"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "then copy the script to each host you want to monitor."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php

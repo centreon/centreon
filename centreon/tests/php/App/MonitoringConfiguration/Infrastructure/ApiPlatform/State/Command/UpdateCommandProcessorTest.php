@@ -24,10 +24,28 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
+use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
 
 final class UpdateCommandProcessorTest extends ApiTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->insert('command', [
+            'command_id' => 1,
+            'command_name' => 'check_host_alive',
+            'command_line' => '$USER1$/check_icmp -H $HOSTADDRESS$',
+            'command_type' => 2,
+            'enable_shell' => '0',
+            'command_activate' => '1',
+            'command_locked' => '0',
+        ]);
+    }
+
     public function testUpdateCommandSuccessfully(): void
     {
         $this->login();
