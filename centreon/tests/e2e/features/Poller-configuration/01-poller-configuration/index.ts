@@ -270,7 +270,10 @@ Given('a remote poller is configured', () => {
 });
 
 When('the user duplicates the configured poller', () => {
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').last().click();
+  cy.getIframeBody()
+    .contains('tr', 'Poller-1')
+    .find('div.md-checkbox.md-checkbox-inline')
+    .click();
   cy.getIframeBody()
     .find('button[name="duplicate_action"]')
     .invoke('attr', 'onclick', "javascript: { setO('m'); submit(); }");
@@ -287,7 +290,7 @@ Then('a new disabled poller is created with identical properties', () => {
     });
 });
 
-When('the user export the configuration', () => {
+When('the user exports the configuration', () => {
   cy.exportConfig();
 });
 
