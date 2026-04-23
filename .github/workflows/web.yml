@@ -921,7 +921,7 @@ jobs:
           if [ "${{ matrix.operating_system }}" = "alma9" ]; then
             DISTRIB=el9
             PACKAGE_EXTENSION=rpm
-          if [ "${{ matrix.operating_system }}" = "alma10" ]; then
+          elif [ "${{ matrix.operating_system }}" = "alma10" ]; then
             DISTRIB=el10
             PACKAGE_EXTENSION=rpm
           elif [ "${{ matrix.operating_system }}" = "trixie" ]; then

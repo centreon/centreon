@@ -806,7 +806,7 @@ jobs:
               || process.env.HAS_DATABASE === 'true';
 
             const distribMap = {
-              // alma9:    { distrib: 'el9',      package_extension: 'rpm' },
+              alma9:    { distrib: 'el9',      package_extension: 'rpm' },
               alma10:   { distrib: 'el10',     package_extension: 'rpm' },
               trixie:   { distrib: 'trixie',   package_extension: 'deb' },
             };
