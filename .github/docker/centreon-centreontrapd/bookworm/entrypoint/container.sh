@@ -11,7 +11,7 @@ BASEDIR="/usr/local/lib/centreon-centreontrapd/container.d"
 for file in $(find "$BASEDIR" -maxdepth 1 -type f | xargs -n1 basename | sort); do
   case "$file" in
     *_background*)
-      if . "$BASEDIR/$file" > /tmp/bg_${file}.log & then
+      if . "$BASEDIR/$file" > /proc/1/fd/1 2>/proc/1/fd/2 & then
         pid=$!
         echo $pid >> /tmp/background_pids
       else
