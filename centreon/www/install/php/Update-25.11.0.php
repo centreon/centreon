@@ -195,10 +195,13 @@ $fixTypoInStandardMacroName = function () use ($pearDB, &$errorMessage, $version
 
 /**
  * Update SAML provider configuration:
- *      - If requested_authn_context_comparison is already a string, keep it (idempotent rerun).
- *      - Else if requested_authn_context is a string, move that value to requested_authn_context_comparison.
- *      - Else default requested_authn_context_comparison to 'exact' (recovers from a prior buggy run that stored a boolean).
+ *      - If requested_authn_context_comparison is already a valid comparison value, keep it (idempotent rerun).
+ *      - Else if requested_authn_context is a valid legacy comparison value, move it to requested_authn_context_comparison.
+ *      - Else default requested_authn_context_comparison to 'exact' (recovers from a prior buggy run that stored a boolean or an invalid string).
  *      - In all cases, force requested_authn_context to false.
+ *
+ * Valid comparison values mirror RequestedAuthnContextComparisonEnum and are whitelisted locally so the
+ * migration never writes a value that CustomConfiguration::createFromValues() would reject.
  */
 $updateSamlProviderConfiguration = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to retrieve SAML provider configuration';
@@ -236,20 +239,21 @@ $updateSamlProviderConfiguration = function () use ($pearDB, &$errorMessage, $ve
 
     $customConfiguration = json_decode($samlConfiguration['custom_configuration'], true, JSON_THROW_ON_ERROR);
 
+    $validComparisonValues = ['minimum', 'exact', 'better', 'maximum'];
     $existingComparison = $customConfiguration['requested_authn_context_comparison'] ?? null;
     $legacyValue = $customConfiguration['requested_authn_context'] ?? null;
 
-    if (is_string($existingComparison)) {
+    if (is_string($existingComparison) && in_array($existingComparison, $validComparisonValues, true)) {
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: requested_authn_context_comparison already set to a valid string, keeping existing value"
+            message: "UPGRADE - {$version}: requested_authn_context_comparison already set to a valid value, keeping existing value"
         );
-    } elseif (is_string($legacyValue)) {
+    } elseif (is_string($legacyValue) && in_array($legacyValue, $validComparisonValues, true)) {
         $customConfiguration['requested_authn_context_comparison'] = $legacyValue;
 
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: requested_authn_context found as string, moved its value to requested_authn_context_comparison"
+            message: "UPGRADE - {$version}: requested_authn_context holds a valid legacy value, moved it to requested_authn_context_comparison"
         );
     } else {
         $customConfiguration['requested_authn_context_comparison'] = 'exact';
