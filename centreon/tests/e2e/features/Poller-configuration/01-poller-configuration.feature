@@ -61,5 +61,5 @@ Feature: Generate poller configuration
     And a remote poller is configured
     When the user duplicates the configured poller
     Then a new disabled poller is created with identical properties
-    When the user export the configuration
+    When the user exports the configuration
     Then a success message is displayed
