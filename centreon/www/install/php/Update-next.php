@@ -955,10 +955,13 @@ $fixSamlRequestedAuthnContextComparison = function () use ($pearDB, &$errorMessa
     $query = <<<'SQL'
             UPDATE `provider_configuration`
             SET `custom_configuration` = :custom_configuration
-            WHERE `type` = 'saml'
+            WHERE `id` = :id
         SQL;
     $queryParameters = QueryParameters::create(
-        [QueryParameter::string('custom_configuration', json_encode($customConfiguration, JSON_THROW_ON_ERROR))]
+        [
+            QueryParameter::string('custom_configuration', json_encode($customConfiguration, JSON_THROW_ON_ERROR)),
+            QueryParameter::int('id', (int) $samlConfiguration['id']),
+        ]
     );
     $pearDB->update($query, $queryParameters);
 
