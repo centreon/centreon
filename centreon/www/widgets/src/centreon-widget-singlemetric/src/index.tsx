@@ -2,6 +2,7 @@ import { extend } from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 
 import { Module } from '@centreon/ui';
+import { type ReactElement } from 'react';
 
 import { CommonWidgetProps, Data } from '../../models';
 
@@ -32,8 +33,9 @@ const SingleMetric = ({
   dashboardId,
   id,
   queryClient,
-  widgetPrefixQuery
-}: Props): JSX.Element => (
+  widgetPrefixQuery,
+  isInViewport
+}: Props): ReactElement => (
   <Module
     maxSnackbars={1}
     queryClient={queryClient}
@@ -41,6 +43,7 @@ const SingleMetric = ({
     store={store}
   >
     <Graph
+      isInViewport={isInViewport}
       {...panelData}
       {...panelOptions}
       dashboardId={dashboardId}

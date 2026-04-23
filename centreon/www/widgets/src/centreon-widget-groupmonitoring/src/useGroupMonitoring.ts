@@ -4,7 +4,7 @@ import { useAtomValue } from 'jotai';
 import { inc, isEmpty, pluck } from 'ramda';
 
 import {
-  ListingModel,
+  type ListingModel,
   buildListingEndpoint,
   useDeepCompare,
   useFetchQuery,
@@ -17,7 +17,7 @@ import { getWidgetEndpoint } from '../../utils';
 
 import { groupsDecoder } from './api/decoders';
 import { getEndpoint } from './api/endpoints';
-import { FormattedGroup, Group, WidgetProps } from './models';
+import type { FormattedGroup, Group, WidgetProps } from './models';
 import { getResourceTypeName } from './utils';
 
 interface UseGroupMonitoringState {
@@ -48,7 +48,8 @@ export const useGroupMonitoring = ({
   dashboardId,
   id,
   playlistHash,
-  widgetPrefixQuery
+  widgetPrefixQuery,
+  isInViewport
 }: Omit<WidgetProps, 'store' | 'queryClient'>): UseGroupMonitoringState => {
   const isFirstMountRef = useRef(true);
   const limitRef = useRef(10);
@@ -84,7 +85,7 @@ export const useGroupMonitoring = ({
     refreshCount
   ];
 
-  const { data } = useFetchQuery<ListingModel<Group>>({
+  const { data, isLoading } = useFetchQuery<ListingModel<Group>>({
     decoder: groupsDecoder,
     getEndpoint: () =>
       getWidgetEndpoint({
@@ -125,7 +126,7 @@ export const useGroupMonitoring = ({
       }),
     getQueryKey: () => key,
     queryOptions: {
-      enabled: hasResourceTypeDefined,
+      enabled: (isInViewport ?? true) && hasResourceTypeDefined,
       refetchInterval: !isFromPreview ? refreshIntervalToUse : false,
       suspense: false
     },
@@ -176,6 +177,7 @@ export const useGroupMonitoring = ({
     groupType: resource?.resourceType || '',
     groupTypeName: getResourceTypeName(resource?.resourceType),
     hasResourceTypeDefined,
+    isLoading,
     limit: limitToUse,
     listing: formattedListing,
     page: pageToUse,

@@ -92,6 +92,7 @@ export interface CommonWidgetProps<T extends object> {
   setPanelOptions?: (panelOptions: Partial<T>) => void;
   store: ReturnType<typeof createStore>;
   widgetPrefixQuery: string;
+  isInViewport: boolean;
 }
 
 export type StatusDetail = {

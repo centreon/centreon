@@ -22,7 +22,10 @@ import { isResizingItemAtom } from './atoms';
 interface DashboardItemProps {
   additionalMemoProps?: Array<unknown>;
   canMove?: boolean;
-  children: ReactElement;
+  children: Array<
+    | ReactElement
+    | (({ isInViewport }: { isInViewport: boolean }) => ReactElement)
+  >;
   className?: string;
   disablePadding?: boolean;
   header?: ReactElement;
@@ -127,7 +130,9 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
                   width="100%"
                 />
               ) : (
-                children
+                children.map((child) =>
+                  typeof child === 'function' ? child({ isInViewport }) : child
+                )
               )}
             </div>
           </Card>

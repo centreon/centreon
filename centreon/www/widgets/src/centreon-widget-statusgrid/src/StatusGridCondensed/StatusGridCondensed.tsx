@@ -1,4 +1,5 @@
 import { equals, last, pipe, pluck, reject } from 'ramda';
+import { type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
@@ -21,8 +22,9 @@ const StatusGridCondensed = ({
   dashboardId,
   playlistHash,
   id,
-  widgetPrefixQuery
-}: Omit<StatusGridProps, 'store' | 'queryClient'>): JSX.Element => {
+  widgetPrefixQuery,
+  isInViewport
+}: Omit<StatusGridProps, 'store' | 'queryClient'>): ReactElement => {
   const { classes } = useStatusGridCondensedStyles();
   const { t } = useTranslation();
   const { pluralizedT } = usePluralizedTranslation();
@@ -57,6 +59,7 @@ const StatusGridCondensed = ({
       id,
       isBAResourceType,
       isBVResourceType,
+      isInViewport,
       lastSelectedResourceType,
       panelData,
       panelOptions,

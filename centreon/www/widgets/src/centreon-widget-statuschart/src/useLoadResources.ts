@@ -22,6 +22,8 @@ interface LoadResourcesProps
   refreshIntervalToUse: number | false;
   resourceType: 'host' | 'service';
   resources: Array<Resource>;
+  isInViewport: boolean;
+  stateList: Array<StateSelection>;
 }
 
 interface LoadResources {
@@ -37,7 +39,9 @@ const useLoadResources = ({
   id,
   dashboardId,
   playlistHash,
-  widgetPrefixQuery
+  widgetPrefixQuery,
+  isInViewport,
+  stateList
 }: LoadResourcesProps): LoadResources => {
   const theme = useTheme();
 
@@ -64,6 +68,7 @@ const useLoadResources = ({
       resourceType
     ],
     queryOptions: {
+      enabled: isInViewport ?? true,
       refetchInterval: refreshIntervalToUse,
       suspense: false
     },
