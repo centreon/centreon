@@ -6,12 +6,13 @@ import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Section } from '../../../../../AgentConfiguration/Listing/InstallationCommandModal/Components';
+import { isGeneratedAtom } from './atoms';
+import type { CloudInstallCommandFormValues } from './models';
+
 import {
   labelEnterPollerName,
   labelPollerName
 } from '../../../translatedLabels';
-import { isGeneratedAtom } from './atoms';
-import type { CloudInstallCommandFormValues } from './models';
 
 const PollerNameSection = (): ReactElement => {
   const { t } = useTranslation();

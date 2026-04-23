@@ -6,13 +6,16 @@ import { useTranslation } from 'react-i18next';
 
 import { labelCreateNewPoller } from '../../../translatedLabels';
 import Buttons from './Buttons';
-import type { CloudInstallCommandFormValues } from './models';
+import {
+  type CloudInstallCommandFormValues,
+  PollerEnvironment
+} from './models';
 import { useCloudInstallCommand } from './useCloudInstallCommand';
 import { useInputs } from './useInputs';
 import { useValidationSchema } from './useValidationSchema';
 
 const initialValues: CloudInstallCommandFormValues = {
-  environment: null,
+  environment: PollerEnvironment.VM,
   pollerName: '',
   token: null
 };

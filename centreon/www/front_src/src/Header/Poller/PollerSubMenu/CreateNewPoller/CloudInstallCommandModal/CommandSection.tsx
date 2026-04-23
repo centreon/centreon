@@ -9,21 +9,25 @@ import {
   CommandLine,
   Section
 } from '../../../../../AgentConfiguration/Listing/InstallationCommandModal/Components';
-import centreonLogo from '../../../../../assets/logo-centreon-colors.svg';
+import InstallCommandLogo from '../../../../../assets/InstallCommand.svg';
+
+import { generatedCommandAtom } from './atoms';
+import type { CloudInstallCommandFormValues } from './models';
+
+import { Button } from '@centreon/ui/components';
 import {
   labelClickToGenerate,
-  labelCommandGenerationStep,
   labelCopyTheFollowingCommand,
   labelGenerateInstallationCommand,
   labelGeneratingCommand
 } from '../../../translatedLabels';
-import { generatedCommandAtom } from './atoms';
-import type { CloudInstallCommandFormValues } from './models';
 
 const CommandSection = (): ReactElement => {
   const { t } = useTranslation();
   const generatedCommand = useAtomValue(generatedCommandAtom);
-  const { isSubmitting } = useFormikContext<CloudInstallCommandFormValues>();
+
+  const { isSubmitting, isValid, dirty } =
+    useFormikContext<CloudInstallCommandFormValues>();
 
   return (
     <Section order={4} title={t(labelGenerateInstallationCommand)}>
@@ -35,15 +39,15 @@ const CommandSection = (): ReactElement => {
           </div>
         ) : (
           <div className="flex items-start gap-3">
-            <img
-              alt="Centreon"
-              className="w-10 h-10"
-              src={centreonLogo}
-            />
+            <Button size="small" disabled={isSubmitting || !isValid || !dirty}>
+              <img
+                alt="Install command"
+                className="w-7 h-7"
+                src={InstallCommandLogo}
+              />
+            </Button>
             <div className="flex flex-col gap-2 flex-1">
-              <Typography variant="body2">
-                {t(labelClickToGenerate)}
-              </Typography>
+              <Typography variant="body2">{t(labelClickToGenerate)}</Typography>
               {isSubmitting && (
                 <>
                   <LinearProgress />

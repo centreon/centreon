@@ -1,6 +1,6 @@
 import {
-  getData,
   Method,
+  getData,
   useMutationQuery,
   useRequest,
   useSnackbar
@@ -15,15 +15,16 @@ import {
   exportPollerConfigurationEndpoint,
   getPollerRegistrationCommandEndpoint
 } from '../../../../api/endpoints';
+import { isCloudInstallCommandModalOpenAtom } from '../../atoms';
+import { generatedCommandAtom, pollerIdAtom } from './atoms';
+import type { CloudInstallCommandFormValues } from './models';
+
 import {
   labelConfigurationExported,
   labelFailedToCreatePoller,
   labelFailedToExportConfiguration,
   labelPollerCreatedSuccessfully
 } from '../../../translatedLabels';
-import { isCloudInstallCommandModalOpenAtom } from '../../atoms';
-import { generatedCommandAtom, pollerIdAtom } from './atoms';
-import type { CloudInstallCommandFormValues } from './models';
 
 export const useCloudInstallCommand = () => {
   const { t } = useTranslation();
@@ -91,6 +92,7 @@ export const useCloudInstallCommand = () => {
   };
 };
 
+// re-check later
 export const useValidatePoller = () => {
   const { t } = useTranslation();
   const setIsOpen = useSetAtom(isCloudInstallCommandModalOpenAtom);
