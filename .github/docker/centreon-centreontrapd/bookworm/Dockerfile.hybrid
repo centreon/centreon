@@ -66,6 +66,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     snmp \
     tzdata \
     ca-certificates \
+    inotify-tools \
+    procps \
     && rm -rf /var/lib/apt/lists/*
 
 # Create directory structure
