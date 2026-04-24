@@ -69,7 +69,10 @@ export const entities = fillEntities({});
 export const retrievedListing = {
   meta: {
     limit: 10,
-    next_cursor: 'cursor_page_2'
+    page: 1,
+    search: {},
+    sort_by: {},
+    total: entities.length
   },
   result: entities
 };
@@ -82,7 +85,10 @@ export const entitiesWithCriticalResources = fillEntities({
 export const retrievedListingWithCriticalResources = {
   meta: {
     limit: 10,
-    next_cursor: null
+    page: 1,
+    search: {},
+    sort_by: {},
+    total: entitiesWithCriticalResources.length
   },
   result: entitiesWithCriticalResources
 };
@@ -100,8 +106,6 @@ export const getPlatformFeatures = ({
   };
 };
 
-// Intentional non-listing stub: used only as an empty mock for the events-view endpoint,
-// not as a resources listing fixture — the meta shape is intentionally different.
 export const fakeData = {
   meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 0 },
   result: []
@@ -114,7 +118,13 @@ export const columnToSort = columns
 export const retrievedListingByHosts = {
   meta: {
     limit: 30,
-    next_cursor: null
+    page: 1,
+    search: {},
+    sort_by: {
+      last_status_change: 'DESC',
+      status_severity_code: 'DESC'
+    },
+    total: 8
   },
   result: [
     {

@@ -1111,9 +1111,10 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
         );
     }
 
-    // Add/recreate sort index for cursor pagination: must include resource_id as tiebreaker
-    // so MariaDB can satisfy ORDER BY status_ordered DESC, last_status_change DESC, resource_id DESC
-    // without a filesort on page 2+. Drop and recreate if the old index (without resource_id) exists.
+    // Add/recreate sort index to allow MariaDB to satisfy the default
+    // ORDER BY status_ordered DESC, last_status_change DESC without a filesort.
+    // Also includes resource_id DESC as a stable tiebreaker for deterministic ordering.
+    // Drop and recreate if the old index (without resource_id) exists.
     // Note: descending index columns (DESC keyword) are fully honoured only from MariaDB 10.8+.
     // On MariaDB 10.5–10.7 they are silently treated as ascending; the optimizer can still use
     // the index via a backward scan for DESC ORDER BY, so the index remains beneficial but slightly

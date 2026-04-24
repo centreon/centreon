@@ -30,15 +30,14 @@ const HostGraph = ({ details }: TabProps): JSX.Element => {
   const limit = 6;
 
   const sendListingRequest = ({
-    cursor
+    atPage
   }: {
     atPage?: number;
-    cursor?: string | null;
   }): Promise<ListingModel<Resource>> => {
     return sendRequest({
-      cursor,
       limit,
       onlyWithPerformanceData: true,
+      page: atPage,
       resourceTypes: ['service'],
       search: {
         conditions: [

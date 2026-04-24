@@ -29,7 +29,6 @@ use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Common\Domain\Exception\RepositoryException;
-use Core\Contact\Domain\AdminResolver;
 use Core\Resources\Application\Exception\ResourceException;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface;
@@ -51,7 +50,6 @@ final class FindResources
         private readonly ContactInterface $contact,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private readonly \Traversable $extraDataProviders,
-        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -64,20 +62,14 @@ final class FindResources
         ResourceFilter $filter,
     ): void {
         try {
-            $resources = $this->adminResolver->isAdmin($this->contact)
-                ? $this->findResourcesAsAdmin($filter)
-                : $this->findResourcesAsUser($filter);
+            $resources = $this->contact->isAdmin() ? $this->findResourcesAsAdmin($filter) : $this->findResourcesAsUser($filter);
 
             $extraData = [];
             foreach (iterator_to_array($this->extraDataProviders) as $provider) {
                 $extraData[$provider->getExtraDataSourceName()] = $provider->getExtraDataForResources($filter, $resources);
             }
 
-            $presenter->presentResponse(FindResourcesFactory::createResponse(
-                $resources,
-                $extraData,
-                $this->repository->getNextCursor(),
-            ));
+            $presenter->presentResponse(FindResourcesFactory::createResponse($resources, $extraData));
         } catch (RepositoryException $exception) {
             $presenter->presentResponse(
                 new ErrorResponse(

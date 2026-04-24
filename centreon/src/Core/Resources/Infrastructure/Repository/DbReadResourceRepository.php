@@ -43,7 +43,6 @@ use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParametersTransformer;
 use Core\Domain\RealTime\ResourceTypeInterface;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
-use Core\Resources\Domain\Model\ResourceCursor;
 use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface;
 use Core\Severity\RealTime\Domain\Model\Severity;
 
@@ -60,16 +59,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      */
     private const ACL_CTE_THRESHOLD = 20_000;
 
-    /** @var array<string, string> */
-    /**
-     * Sort columns that are SELECT aliases (from JOINed tables, not resources.*) but are safe to use
-     * as cursor sort columns. Maps the alias name to the SQL expression to use in WHERE comparisons.
-     */
-    private const CURSOR_ALIAS_SORT_EXPRESSIONS = [
-        'severity_level'        => 'severities.level',
-        'monitoring_server_name' => 'instances.name',
-    ];
-
     /** @var ResourceEntity[] */
     private array $resources = [];
 
@@ -81,9 +70,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
     /** @var ExtraDataProviderInterface[] */
     private array $extraDataProviders;
-
-    /** Next-page cursor token set by find(), consumed by the use case via getNextCursor(). */
-    private ?string $nextCursor = null;
 
     /** @var array<string, int> */
     private array $aclCountCache = [];
@@ -147,11 +133,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
         $this->resourceTypes = iterator_to_array($resourceTypes);
         $this->extraDataProviders = iterator_to_array($extraDataProviders);
-    }
-
-    public function getNextCursor(): ?string
-    {
-        return $this->nextCursor;
     }
 
     public function findParentResourcesById(ResourceFilter $filter): array
@@ -557,9 +538,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         bool $withoutPagination = false,
         bool $useTagExistsForFilters = false,
         bool $useAclCte = false,
-        ?ResourceCursor $cursor = null,
-        bool $withCursorLookahead = false,
-        ?string $tiebreakDir = null,
     ): string {
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
 
@@ -747,38 +725,18 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         $query .= $this->addSeveritySubRequest($filter, $queryParametersFromRequestParameter);
 
         /**
-         * Cursor keyset condition (replaces OFFSET-based pagination).
-         */
-        if ($cursor !== null) {
-            $query .= $this->buildCursorWhereCondition($cursor, $queryParametersFromRequestParameter);
-        }
-
-        /**
          * Handle sort parameters.
          */
         if (! $withoutSort) {
-            $sortSql = $this->sqlRequestTranslator->translateSortParameterToSql()
+            $query .= $this->sqlRequestTranslator->translateSortParameterToSql()
                 ?: ' ORDER BY resources.status_ordered DESC, resources.last_status_change DESC';
-
-            if ($tiebreakDir !== null) {
-                // Append resource_id as tiebreaker unconditionally (page 1 and subsequent pages) to
-                // guarantee a stable sort. Without it, ties on the primary sort columns produce
-                // non-deterministic ordering on page 1, so the cursor built from that page cannot
-                // reliably seek to page 2.
-                $sortSql .= ", resources.resource_id {$tiebreakDir}";
-            }
-
-            $query .= $sortSql;
         }
 
         /**
-         * Handle pagination — cursor-only, no offset.
-         * Always fetch limit+1 rows: the extra row reveals whether a next page exists.
-         * The cursor WHERE condition (or absence thereof) positions the window.
+         * Handle pagination.
          */
         if (! $withoutPagination) {
-            $limit = $this->sqlRequestTranslator->getRequestParameters()->getLimit();
-            $query .= sprintf(' LIMIT %d', $limit + ($withCursorLookahead ? 1 : 0));
+            $query .= $this->sqlRequestTranslator->translatePaginationToSql();
         }
 
         return $query;
@@ -1344,43 +1302,9 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      */
     private function find(ResourceFilter $filter, array $accessGroupIds = []): void
     {
-        $this->nextCursor = null;
-        $limit = $this->sqlRequestTranslator->getRequestParameters()->getLimit();
-
-        // Decode cursor if present (null = first page).
-        $cursor = null;
-        if ($filter->getCursor() !== null) {
-            try {
-                $cursor = ResourceCursor::decode($filter->getCursor());
-            } catch (\InvalidArgumentException) {
-                // Malformed cursor: treat as first page.
-            }
-        }
-
-        // Ensure the concordance is set before resolveActiveSortCols() reads it.
-        // generateFindResourcesQuery() also calls setConcordanceArray internally, but
-        // resolveActiveSortCols() is called first and needs the correct mapping.
-        $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
-
-        // Determine active sort columns for next-cursor construction.
-        // null = the requested sort uses expressions incompatible with keyset pagination (e.g.
-        // CASE expressions, parent_resource.* joins) — cursor must be disabled for this request.
-        $activeSortCols = $this->resolveActiveSortCols();
-        if ($activeSortCols === null) {
-            $cursor = null; // Ignore incoming cursor: keyset WHERE would compare the wrong columns.
-        }
-
         // Decide ACL strategy once; the result is reused by count() via the aclCountCache.
         $useAclCte = $this->shouldUseAclCte($accessGroupIds);
 
-        // Derive tiebreaker direction from the primary sort column so that both the ORDER BY and
-        // the cursor WHERE condition use the same direction on every page (including page 1).
-        // null when $activeSortCols is null (cursor disabled) — tiebreaker is not emitted then.
-        $tiebreakDir = $activeSortCols !== null
-            ? mb_strtoupper($activeSortCols[0]['dir'] ?? 'DESC')
-            : null;
-
-        // Build and execute data query.
         $queryParametersFromRequestParameter = new QueryParameters();
         $queryFind = $this->generateFindResourcesQuery(
             filter: $filter,
@@ -1388,9 +1312,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             accessGroupIds: $accessGroupIds,
             useTagExistsForFilters: true,
             useAclCte: $useAclCte,
-            cursor: $cursor,
-            withCursorLookahead: true,
-            tiebreakDir: $tiebreakDir,
         );
 
         $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
@@ -1398,36 +1319,14 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         );
         $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameter);
 
-        // Collect all rows so we can detect the extra (limit+1) row.
-        $records = [];
         foreach ($this->connection->iterateAssociative($this->translateDbName($queryFind), $queryParameters) as $record) {
             /** @var array<string, int|string|null> $record */
-            $records[] = $record;
-        }
-
-        $hasNextPage = count($records) > $limit;
-        if ($hasNextPage) {
-            array_pop($records); // Remove the extra look-ahead row.
-        }
-
-        foreach ($records as $resourceRecord) {
-            $this->resources[] = DbResourceFactory::createFromRecord($resourceRecord, $this->resourceTypes);
+            $this->resources[] = DbResourceFactory::createFromRecord($record, $this->resourceTypes);
         }
 
         $iconIds = $this->getIconIdsFromResources();
         $icons = $this->getIconsDataForResources($iconIds);
         $this->completeResourcesWithIcons($icons);
-
-        // Build next-cursor from the last record of the current page.
-        // Skip when $activeSortCols is null: the sort is incompatible with keyset pagination,
-        // cursor was disabled for this request, and emitting a cursor token would be misleading.
-        if ($hasNextPage && $records !== [] && $activeSortCols !== null) {
-            /** @var array<string, int|string|null> $lastRecord */
-            $lastRecord = end($records);
-            $this->nextCursor = $this->buildNextCursorFromRecord($lastRecord, $activeSortCols);
-        }
-
-        // COUNT query is intentionally omitted — cursor pagination does not need a total.
     }
 
     /**
@@ -1499,257 +1398,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
             yield $this->resources[0];
         }
-    }
-
-    // ------------------------------------- CURSOR PAGINATION HELPERS -------------------------------------
-
-    /**
-     * Determine the sort column(s) active for the current request, expressed as resource-table column
-     * names (without the "resources." prefix). Used to build and decode cursors.
-     *
-     * Returns null when at least one requested sort field cannot be mapped to a cursor column
-     * (e.g. CASE expressions, parent_resource.* columns). Callers must disable cursor pagination
-     * in that case to avoid keyset WHERE conditions that reference the wrong columns.
-     *
-     * Returns the default sort when no sort_by parameter is provided.
-     *
-     * @return list<array{col: string, dir: string}>|null null = cursor pagination not supported for this sort
-     */
-    private function resolveActiveSortCols(): ?array
-    {
-        $sort = $this->sqlRequestTranslator->getRequestParameters()->getSort();
-
-        if ($sort === []) {
-            return [
-                ['col' => 'status_ordered', 'dir' => 'DESC'],
-                ['col' => 'last_status_change', 'dir' => 'DESC'],
-            ];
-        }
-
-        $cols = [];
-        $concordance = $this->sqlRequestTranslator->getConcordanceArray();
-        foreach ($sort as $field => $dir) {
-            $dbExpr = $concordance[$field] ?? null;
-            // Accept simple "resources.<column>" expressions.
-            if ($dbExpr !== null && preg_match('/^resources\.(\w+)$/', $dbExpr, $matches)) {
-                $cols[] = ['col' => $matches[1], 'dir' => mb_strtoupper((string) $dir)];
-            } elseif (isset(self::CURSOR_ALIAS_SORT_EXPRESSIONS[$field])) {
-                // Accept known SELECT aliases backed by a JOIN'd column.
-                $cols[] = ['col' => $field, 'dir' => mb_strtoupper((string) $dir)];
-            } else {
-                // Sort field maps to a CASE expression or a JOIN'd column (e.g. parent_resource.*).
-                // Using it in a keyset WHERE would compare wrong values → disable cursor for this sort.
-                return null;
-            }
-        }
-
-        return $cols;
-    }
-
-    /**
-     * Encode a ResourceCursor from the last DB record and active sort columns.
-     *
-     * @param array<string, int|string|null> $record
-     * @param list<array{col: string, dir: string}> $sortCols
-     */
-    private function buildNextCursorFromRecord(array $record, array $sortCols): string
-    {
-        $sorts = [];
-        foreach ($sortCols as $def) {
-            $raw = $record[$def['col']] ?? null;
-            $sorts[] = [
-                'col' => $def['col'],
-                'dir' => $def['dir'],
-                'val' => $raw === null ? null : (is_numeric($raw) ? (int) $raw : (string) $raw),
-            ];
-        }
-
-        return (new ResourceCursor($sorts, (int) ($record['resource_id'] ?? 0)))->encode();
-    }
-
-    /**
-     * Resolve the SQL column expression to use for a cursor sort column.
-     * Known SELECT aliases (e.g. severity_level, monitoring_server_name) map to their JOIN'd expressions;
-     * direct resources.* columns are returned as "resources.<col>".
-     *
-     * Throws when $col is not in the known whitelist, preventing forged cursors from introducing
-     * arbitrary column references into the keyset WHERE clause.
-     *
-     * @throws \InvalidArgumentException on unknown column name
-     */
-    private function resolveCursorColExpression(string $col): string
-    {
-        if (isset(self::CURSOR_ALIAS_SORT_EXPRESSIONS[$col])) {
-            return self::CURSOR_ALIAS_SORT_EXPRESSIONS[$col];
-        }
-
-        // Allow only columns that can be produced by resolveActiveSortCols():
-        // those matching "resources.<word>" in the concordance array.
-        foreach ($this->sqlRequestTranslator->getConcordanceArray() as $expression) {
-            if (preg_match('/^resources\.(\w+)$/', $expression, $matches) && $matches[1] === $col) {
-                return "resources.{$col}";
-            }
-        }
-
-        throw new \InvalidArgumentException("Unknown cursor sort column: {$col}");
-    }
-
-    /**
-     * Build the keyset WHERE fragment for cursor pagination and bind the cursor parameter values.
-     *
-     * Uses a NULL-aware OR-expanded keyset condition to correctly handle sort columns that can
-     * contain NULLs (e.g. last_status_change, last_check for PENDING resources). For a 2-column
-     * DESC sort with cursor values (v0, v1) this generates:
-     *
-     *   AND (
-     *     (col0 < :v0 OR col0 IS NULL)                                 -- col0 strictly after cursor
-     *     OR (col0 = :v0 AND (col1 < :v1 OR col1 IS NULL))             -- col0 ties, col1 strictly after
-     *     OR (col0 = :v0 AND col1 = :v1 AND resource_id < :cursor_rid) -- tiebreaker
-     *   )
-     *
-     * When a cursor value is NULL (e.g. last_status_change for PENDING resources), the "strictly after"
-     * branch for that column is omitted entirely (nothing can come after NULL in DESC), and equality
-     * uses IS NULL instead of = :val.
-     *
-     * NULL semantics (MariaDB ORDER BY):
-     *   - DESC: NULLs sort LAST  → "strictly after" a non-NULL cursor = (col < :val OR col IS NULL)
-     *                            → "strictly after" a NULL cursor     = impossible (nothing after last)
-     *   - ASC:  NULLs sort FIRST → "strictly after" a non-NULL cursor = col > :val (NULLs already before)
-     *                            → "strictly after" a NULL cursor     = col IS NOT NULL
-     *
-     * Note: the row-value comparison optimisation (col1, col2) < (v1, v2) is intentionally NOT used
-     * here because it cannot handle NULL sort-column values — MariaDB evaluates NULL < x as NULL
-     * (neither TRUE nor FALSE), causing rows with NULL sort values to be silently skipped.
-     */
-    private function buildCursorWhereCondition(ResourceCursor $cursor, QueryParameters $queryParams): string
-    {
-        $sorts = $cursor->sorts;
-
-        if ($sorts === []) {
-            return '';
-        }
-
-        // Validate all column names against the whitelist before building any SQL.
-        // A forged cursor with an unrecognised column would otherwise interpolate it into the WHERE
-        // clause. Return '' (no keyset filter) when validation fails, equivalent to first page.
-        try {
-            foreach ($sorts as $sort) {
-                $this->resolveCursorColExpression($sort['col']);
-            }
-        } catch (\InvalidArgumentException) {
-            return '';
-        }
-
-        // Bind only non-null cursor values; NULL values are expressed as IS NULL in the SQL.
-        foreach ($sorts as $idx => $sort) {
-            if ($sort['val'] === null) {
-                continue;
-            }
-            $key = "cursor_col{$idx}";
-            if (is_int($sort['val'])) {
-                $queryParams->add($key, QueryParameter::int($key, $sort['val']));
-            } else {
-                $queryParams->add($key, QueryParameter::string($key, (string) $sort['val']));
-            }
-        }
-        $queryParams->add('cursor_rid', QueryParameter::int('cursor_rid', $cursor->resourceId));
-
-        $dir = mb_strtoupper($sorts[0]['dir'] ?? 'DESC');
-        $cmp = $dir === 'DESC' ? '<' : '>';
-
-        // Build one OR branch per sort column: "all preceding columns tie, this one is strictly after".
-        $conditions = [];
-        $count = count($sorts);
-
-        for ($idx = 0; $idx < $count; $idx++) {
-            $colDir = mb_strtoupper($sorts[$idx]['dir'] ?? 'DESC');
-            $colVal = $sorts[$idx]['val'];
-            $colExpr = $this->resolveCursorColExpression($sorts[$idx]['col']);
-
-            // "Strictly after" predicate for the current column — returns '' when impossible.
-            $strictPart = $this->buildCursorStrictPredicate(
-                $colExpr,
-                $colVal,
-                $colDir,
-                $idx,
-            );
-
-            if ($strictPart === '') {
-                // Impossible condition: skip this branch entirely.
-                continue;
-            }
-
-            // Equality predicates for all preceding columns.
-            $parts = [];
-            for ($jdx = 0; $jdx < $idx; $jdx++) {
-                $parts[] = $this->buildCursorEqualityPredicate(
-                    $this->resolveCursorColExpression($sorts[$jdx]['col']),
-                    $sorts[$jdx]['val'],
-                    $jdx,
-                );
-            }
-            $parts[] = $strictPart;
-            $conditions[] = '(' . implode(' AND ', $parts) . ')';
-        }
-
-        // Tiebreaker branch: all sort columns tie, resource_id breaks the tie.
-        $tiebreaker = [];
-        for ($jdx = 0; $jdx < $count; $jdx++) {
-            $tiebreaker[] = $this->buildCursorEqualityPredicate(
-                $this->resolveCursorColExpression($sorts[$jdx]['col']),
-                $sorts[$jdx]['val'],
-                $jdx,
-            );
-        }
-        $tiebreaker[] = "resources.resource_id {$cmp} :cursor_rid";
-        $conditions[] = '(' . implode(' AND ', $tiebreaker) . ')';
-
-        return ' AND (' . implode("\n    OR ", $conditions) . ')';
-    }
-
-    /**
-     * Build the equality predicate for one cursor sort column.
-     *
-     * - NULL cursor value  → `col IS NULL`
-     * - Non-NULL cursor value → `col = :cursor_colN`
-     */
-    private function buildCursorEqualityPredicate(string $col, int|string|null $val, int $idx): string
-    {
-        if ($val === null) {
-            return "{$col} IS NULL";
-        }
-
-        return "{$col} = :cursor_col{$idx}";
-    }
-
-    /**
-     * Build the strictly-less/greater predicate for one cursor sort column, NULL-aware.
-     * Returns '' when the condition is structurally impossible (DESC + NULL cursor = nothing after it).
-     *
-     * MariaDB ORDER BY NULL semantics:
-     *   - DESC: NULLs sort LAST  → rows after a non-NULL cursor include NULLs: (col < :val OR col IS NULL)
-     *                            → rows after a NULL cursor: impossible — NULL is last, return ''
-     *   - ASC:  NULLs sort FIRST → rows after a non-NULL cursor exclude NULLs: col > :val
-     *                            → rows after a NULL cursor include all non-NULLs: col IS NOT NULL
-     */
-    private function buildCursorStrictPredicate(string $col, int|string|null $val, string $dir, int $idx): string
-    {
-        if ($dir === 'DESC') {
-            if ($val === null) {
-                // NULL is last in DESC — nothing can come after it in this column's dimension.
-                return '';
-            }
-
-            return "({$col} < :cursor_col{$idx} OR {$col} IS NULL)";
-        }
-
-        // ASC direction.
-        if ($val === null) {
-            // NULL is first in ASC — all non-NULL values come after it.
-            return "{$col} IS NOT NULL";
-        }
-
-        return "{$col} > :cursor_col{$idx}";
     }
 
     /**

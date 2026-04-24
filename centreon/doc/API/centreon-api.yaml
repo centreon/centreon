@@ -8,23 +8,6 @@ info:
     There are two modes of authentication:
     * By token: after identification with your login credentials
     * By cookie: by reusing a valid session ID
-    # Changelog
-    ## v25.10
-    ### ⚠️ Breaking changes
-    #### ⚠️ `GET /monitoring/resources` — Cursor-based pagination replaces offset-based pagination
-    The pagination mechanism for `GET /monitoring/resources` has changed from **offset/page-based** to **cursor-based** (keyset pagination).
-
-    **What changed:**
-    - The `page` query parameter is **removed**. Passing it has no effect.
-    - A new `cursor` query parameter is introduced. Pass the opaque token returned in `meta.next_cursor` to fetch the next page.
-    - The response `meta` object no longer contains `page` or `total`. It now contains `next_cursor` (a string token, or `null` when there is no next page).
-
-    **Migration guide:**
-    - Remove any `?page=N` parameter from your requests.
-    - To iterate through pages, read `meta.next_cursor` from each response and pass it as `?cursor=<token>` in the next request.
-    - When `meta.next_cursor` is `null`, you have reached the last page.
-
-    **Rationale:** Cursor-based pagination avoids full table scans for deep pages, reducing response time from ~45 s to under 200 ms on large datasets.
   x-logo:
     url: ./centreon-logo.png
   contact:
@@ -2047,11 +2030,6 @@ paths:
       description: |
         List all the resources in real-time monitoring : hosts and services.
 
-        **Pagination:** This endpoint uses **cursor-based pagination**. Use the `cursor` parameter
-        to navigate pages. The response `meta.next_cursor` field contains the token to pass as
-        `?cursor=<token>` for the next page. When `meta.next_cursor` is `null`, you are on the
-        last page. The `page` parameter is not supported.
-
         The available parameters to **search** / **sort_by** are:
 
         * id
@@ -2090,7 +2068,7 @@ paths:
         -
           $ref: '#/components/parameters/Limit'
         -
-          $ref: '#/components/parameters/ResourceCursor'
+          $ref: '#/components/parameters/Page'
         -
           $ref: '#/components/parameters/SortBy'
         -
@@ -2128,7 +2106,7 @@ paths:
                 type: object
                 properties:
                   result: { type: array, items: { $ref: '#/components/schemas/Monitoring.ResourceMain' } }
-                  meta: { $ref: '#/components/schemas/Meta.ResourcesCursor' }
+                  meta: { $ref: '#/components/schemas/Meta' }
         '403':
           $ref: '#/components/responses/Forbidden'
         '500':
@@ -5198,17 +5176,6 @@ components:
         minimum: 1
         default: 1
         example: 4
-    ResourceCursor:
-      in: query
-      name: cursor
-      required: false
-      description: |
-        Opaque cursor token for keyset pagination. Pass the value of `meta.next_cursor` returned
-        by the previous response to fetch the next page. Omit (or leave empty) to start from
-        the first page.
-      schema:
-        type: string
-        example: 'eyJzb3J0cyI6W3siY29sIjoic3RhdHVzX29yZGVyZWQiLCJkaXIiOiJERVNDIiwidmFsIjoyfV0sInJpZCI6NDF9'
     SortBy:
       in: query
       name: sort_by
@@ -5709,29 +5676,6 @@ components:
           type: integer
           description: 'Number of items found'
           example: 1
-    Meta.ResourcesCursor:
-      type: object
-      description: 'Pagination metadata returned by cursor-based endpoints (e.g. GET /monitoring/resources).'
-      required:
-        - next_cursor
-      properties:
-        limit:
-          type: integer
-          description: 'Maximum number of items returned per page'
-          example: 30
-        search:
-          type: object
-          description: 'Search filter passed to the request'
-        sort_by:
-          type: object
-          description: 'Sort parameter passed to the request'
-        next_cursor:
-          type: string
-          nullable: true
-          description: |
-            Opaque cursor token to pass as `?cursor=<token>` to retrieve the next page.
-            `null` when the current page is the last one.
-          example: 'eyJzb3J0cyI6W3siY29sIjoic3RhdHVzX29yZGVyZWQiLCJkaXIiOiJERVNDIiwidmFsIjoyfV0sInJpZCI6NDF9'
     AuthenticationLocalProvider:
       type: object
       required:

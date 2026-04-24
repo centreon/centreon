@@ -48,11 +48,10 @@ import {
 } from '../../translatedLabels';
 import { listResources } from '../api';
 import {
-  currentCursorIndexAtom,
-  cursorStackAtom,
   enabledAutorefreshAtom,
   limitAtom,
   listingAtom,
+  pageAtom,
   sendingAtom
 } from '../listingAtoms';
 import useGetCriteriaName from './useGetCriteriaName';
@@ -90,10 +89,7 @@ const useLoadResources = (): LoadResources => {
       request: getData
     });
 
-  const [cursorStack, setCursorStack] = useAtom(cursorStackAtom);
-  const [currentCursorIndex, setCurrentCursorIndex] = useAtom(
-    currentCursorIndexAtom
-  );
+  const [page, setPage] = useAtom(pageAtom);
   const [details, setDetails] = useAtom(detailsAtom);
   const refreshInterval = useAtomValue(refreshIntervalAtom);
   const selectedResourceUuid = useAtomValue(selectedResourceUuidAtom);
@@ -116,10 +112,6 @@ const useLoadResources = (): LoadResources => {
   const clearSelectedResource = useSetAtom(clearSelectedResourceDerivedAtom);
   const refreshTimeoutRef = useRef<number>(undefined);
   const scheduleRef = useRef<() => void>(() => {});
-  const prevLimitRef = useRef(limit);
-  const prevFilterRef = useRef(appliedFilter);
-  // Incremented each time filter/limit changes to invalidate in-flight requests from the previous context.
-  const filterGenerationRef = useRef(0);
 
   const refreshIntervalMs = refreshInterval * 1000;
 
@@ -187,12 +179,7 @@ const useLoadResources = (): LoadResources => {
     const names = getCriteriaNames('names');
     const parentNames = getCriteriaNames('parent_names');
 
-    const currentCursor = cursorStack[currentCursorIndex] ?? null;
-    // Capture the generation at request time; responses from a previous generation are discarded.
-    const requestGeneration = filterGenerationRef.current;
-
     const listingPromise = sendRequest({
-      cursor: currentCursor,
       endpoint: resourcesEndpoint,
       hostCategories: getCriteriaNames('host_categories'),
       hostGroups: getCriteriaNames('host_groups'),
@@ -200,6 +187,7 @@ const useLoadResources = (): LoadResources => {
       hostSeverityLevels: getCriteriaLevels('host_severity_levels'),
       limit,
       monitoringServers: getCriteriaNames('monitoring_servers'),
+      page,
       resourceTypes: getCriteriaIds('resource_types'),
       search: mergeRight(
         getSearch({
@@ -232,25 +220,6 @@ const useLoadResources = (): LoadResources => {
       statuses: getCriteriaIds('statuses'),
       statusTypes: getCriteriaIds('status_types')
     }).then((response) => {
-      // Append next_cursor to the stack only when navigating forward for the first time.
-      // Use functional update so the length check uses the current stack (not the stale
-      // closure value that may predate a filter-change reset).
-      const nextCursor = response.meta.next_cursor;
-      if (nextCursor !== null) {
-        setCursorStack((prev) => {
-          // Discard responses from a previous filter/limit context to prevent stale cursors
-          // from polluting the stack after a filter reset.
-          if (
-            prev.length === currentCursorIndex + 1 &&
-            requestGeneration === filterGenerationRef.current
-          ) {
-            return [...prev, nextCursor];
-          }
-
-          return prev;
-        });
-      }
-
       if (!equals(visualization, Visualization.Host)) {
         setListing(response);
 
@@ -315,32 +284,16 @@ const useLoadResources = (): LoadResources => {
   }, [isNil(details)]);
 
   useEffect(() => {
-    const filterOrLimitChanged =
-      !equals(prevFilterRef.current, appliedFilter) ||
-      prevLimitRef.current !== limit;
-    prevLimitRef.current = limit;
-    prevFilterRef.current = appliedFilter;
-
-    if (filterOrLimitChanged) {
-      // Increment generation so that any in-flight request from the previous filter context
-      // will discard its next_cursor instead of appending it to the new stack.
-      filterGenerationRef.current += 1;
-    }
-
-    if (filterOrLimitChanged && currentCursorIndex !== 0) {
-      // Filter/limit changed while paginated: reset cursor. The index change will retrigger this effect.
-      setCursorStack([null]);
-      setCurrentCursorIndex(0);
+    if (isNil(page)) {
       return;
     }
 
-    if (filterOrLimitChanged) {
-      // Filter/limit changed on page 1: reset the stack but proceed with loading.
-      setCursorStack([null]);
-    }
-
     initAutorefreshAndLoad();
-  }, [currentCursorIndex, limit, appliedFilter]);
+  }, [page, limit, appliedFilter]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [limit, appliedFilter]);
 
   useEffect(() => {
     setSending(sending);

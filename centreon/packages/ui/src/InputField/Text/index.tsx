@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 
 import { equals, isNil } from 'ramda';
-import { createElement, forwardRef, isValidElement, useCallback } from 'react';
+import { forwardRef, useCallback } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
 import { getNormalizedId } from '../../utils';
@@ -191,15 +191,19 @@ const TextField = forwardRef(
                 ),
                 endAdornment: (
                   <OptionalLabelInputAdornment label={label} position="end">
-                    {EndAdornment
-                      ? isValidElement(EndAdornment)
-                        ? EndAdornment
-                        : createElement(EndAdornment as React.ElementType)
-                      : (
-                          textFieldSlotsAndSlotProps?.slotProps?.input as
-                            | Record<string, React.ReactNode>
-                            | undefined
-                        )?.endAdornment}
+                    {EndAdornment ? (
+                      typeof EndAdornment === 'function' ? (
+                        <EndAdornment />
+                      ) : (
+                        EndAdornment
+                      )
+                    ) : (
+                      (
+                        textFieldSlotsAndSlotProps?.slotProps?.input as
+                          | Record<string, React.ReactNode>
+                          | undefined
+                      )?.endAdornment
+                    )}
                   </OptionalLabelInputAdornment>
                 ),
                 startAdornment: StartAdornment && (

@@ -16,7 +16,6 @@ export * from './useDeepCallback';
 export * from './useDeepMemo';
 export * from './useFullscreen';
 export * from './useInfiniteScrollListing';
-export * from './useInfiniteScrollListingWithCursor';
 export * from './useIntersectionObserver';
 export * from './useKeyObserver';
 export * from './useLicenseExpirationWarning';

@@ -1,6 +1,11 @@
 import { useTheme } from '@mui/material';
 
-import { HeatMap, useFetchQuery, useRefreshInterval } from '@centreon/ui';
+import {
+  HeatMap,
+  type ListingModel,
+  useFetchQuery,
+  useRefreshInterval
+} from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
@@ -28,7 +33,7 @@ import HeatMapSkeleton from './LoadingSkeleton';
 import {
   IndicatorType,
   type ResourceData,
-  type ResourceStatusListing,
+  type ResourceStatus,
   type StatusGridProps
 } from './models';
 import Tile from './Tile';
@@ -102,7 +107,7 @@ const StatusGrid = ({
     return t(labelNoServicesFound);
   };
 
-  const { data, isLoading } = useFetchQuery<ResourceStatusListing>({
+  const { data, isLoading } = useFetchQuery<ListingModel<ResourceStatus>>({
     getEndpoint: () =>
       getWidgetEndpoint({
         dashboardId,
@@ -147,10 +152,7 @@ const StatusGrid = ({
     useLongCache: true
   });
 
-  const hasMoreResources =
-    isBVResourceType || isBAResourceType
-      ? gt(data?.meta?.total || 0, tiles)
-      : data?.meta?.next_cursor != null;
+  const hasMoreResources = gt(data?.meta.total || 0, tiles);
 
   const resourceTiles = useMemo(
     () =>
@@ -209,7 +211,7 @@ const StatusGrid = ({
     return <HeatMapSkeleton />;
   }
 
-  if (!data?.result?.length) {
+  if (equals(data?.meta.total, 0)) {
     return <NoResourcesFound label={getLabelNoResourceFound()} />;
   }
 

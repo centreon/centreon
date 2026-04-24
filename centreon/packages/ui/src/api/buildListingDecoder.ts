@@ -6,7 +6,6 @@ import { Listing, ListingMeta } from './models';
 const metaDecoder = JsonDecoder.object<ListingMeta>(
   {
     limit: JsonDecoder.number,
-    next_cursor: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
     page: JsonDecoder.number,
     total: JsonDecoder.number
   },

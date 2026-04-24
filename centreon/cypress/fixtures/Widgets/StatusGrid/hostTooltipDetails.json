@@ -142,7 +142,24 @@
     }
   ],
   "meta": {
+    "page": 1,
     "limit": 10,
-    "next_cursor": null
+    "search": {
+      "$and": [
+        {
+          "$or": [
+            {
+              "parent_name": {
+                "$rg": "^Centreon-Server$"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "sort_by": {
+      "status": "DESC"
+    },
+    "total": 2
   }
 }

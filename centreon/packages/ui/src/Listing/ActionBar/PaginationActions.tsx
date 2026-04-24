@@ -14,17 +14,12 @@ import {
   labelPreviousPage
 } from '../translatedLabels';
 
-interface PaginationActionsProps extends TablePaginationActionsProps {
-  isCursorPaginated?: boolean;
-}
-
 const PaginationActions = ({
   onPageChange,
   page,
   rowsPerPage,
-  count,
-  isCursorPaginated = false
-}: PaginationActionsProps): JSX.Element => {
+  count
+}: TablePaginationActionsProps): JSX.Element => {
   const { t } = useTranslation();
 
   const changeToFirstPage = (event): void => {
@@ -74,16 +69,14 @@ const PaginationActions = ({
       >
         <KeyboardArrowRight />
       </IconButton>
-      {!isCursorPaginated && (
-        <IconButton
-          aria-label={t(labelLastPage) || ''}
-          disabled={isLastPage}
-          onClick={changeToLastPage}
-          size="large"
-        >
-          <LastPageIcon />
-        </IconButton>
-      )}
+      <IconButton
+        aria-label={t(labelLastPage) || ''}
+        disabled={isLastPage}
+        onClick={changeToLastPage}
+        size="large"
+      >
+        <LastPageIcon />
+      </IconButton>
     </div>
   );
 };

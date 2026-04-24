@@ -19,10 +19,10 @@ interface LoadResourcesProps
     CommonWidgetProps<PanelOptions>,
     'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
   > {
-  cursor: string | null;
   displayType: DisplayType;
   hostSeverities: Array<NamedEntity>;
   limit?: number;
+  page: number | undefined;
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resources: Array<Resource>;
@@ -47,7 +47,7 @@ const useLoadResources = ({
   displayType,
   refreshCount,
   refreshIntervalToUse,
-  cursor,
+  page,
   limit,
   sortField,
   sortOrder,
@@ -76,9 +76,9 @@ const useLoadResources = ({
       getWidgetEndpoint({
         dashboardId,
         defaultEndpoint: buildResourcesEndpoint({
-          cursor,
           hostSeverities,
           limit: limit || 10,
+          page: page || 1,
           resources,
           serviceSeverities,
           sort: sort || { status_severity_code: SortOrder.Desc },
@@ -96,8 +96,8 @@ const useLoadResources = ({
             : {})
         }),
         extraQueryParameters: {
-          cursor,
           limit: limit || 10,
+          page: page || 1,
           sort_by: sort || { status_severity_code: SortOrder.Desc }
         },
         isOnPublicPage,
@@ -120,7 +120,7 @@ const useLoadResources = ({
       sortOrder,
       limit,
       JSON.stringify(resources),
-      cursor,
+      page,
       refreshCount,
       isDownHostHidden,
       isUnreachableHostHidden,

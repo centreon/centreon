@@ -93,12 +93,12 @@ interface Props<TEntity> {
   reloadDependencies?: Array<unknown>;
   sendListingRequest?: (parameters: {
     atPage?: number;
-    cursor?: string | null;
   }) => Promise<ListingModel<TEntity>>;
   graphTimeParameters?: GraphTimeParameters;
 }
 
 const InfiniteScrollContent = <TEntity extends { id: number }>({
+  limit,
   filter,
   reloadDependencies = [],
   loadingSkeleton,
@@ -114,8 +114,7 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
 
   const [entities, setEntities] = useState<Array<TEntity>>();
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
-  const nextCursorRef = useRef<string | null>(null);
+  const [total, setTotal] = useState(0);
   const [loadingMoreEvents, setLoadingMoreEvents] = useState(false);
   const [isScrolling, setIsScrolling] = useState(false);
   const scrollableContainerRef = useRef<HTMLDivElement | undefined>();
@@ -124,17 +123,14 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
   const selectedResource = useAtomValue(selectedResourcesDetailsAtom);
 
   const listEntities = (
-    { atPage, cursor } = {
-      atPage: page,
-      cursor: nextCursorRef.current
+    { atPage } = {
+      atPage: page
     }
   ): Promise<ListingModel<TEntity>> | undefined => {
-    return sendListingRequest?.({ atPage, cursor })
+    return sendListingRequest?.({ atPage })
       .then((retrievedListing) => {
         const { meta } = retrievedListing;
-        const nextCursor = meta.next_cursor ?? null;
-        nextCursorRef.current = nextCursor;
-        setHasMore(nextCursor !== null);
+        setTotal(meta.total);
 
         return retrievedListing;
       })
@@ -145,9 +141,7 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
 
   const reload = (): void => {
     setPage(1);
-    nextCursorRef.current = null;
-    setHasMore(false);
-    listEntities({ atPage: 1, cursor: null })
+    listEntities({ atPage: 1 })
       ?.then(({ result }) => {
         setEntities(result);
       })
@@ -171,7 +165,7 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
       return;
     }
 
-    listEntities({ atPage: page, cursor: nextCursorRef.current })
+    listEntities()
       ?.then(({ result }) => {
         setEntities(concat(entities, result));
       })
@@ -195,10 +189,10 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
     }
   }, [selectedResource?.resourceId]);
 
-  const maxPage = hasMore ? page + 1 : page;
+  const maxPage = Math.ceil(total / limit);
 
   const loadMoreEvents = (): void => {
-    if (!hasMore) {
+    if (equals(page, maxPage)) {
       return;
     }
     setLoadingMoreEvents(true);

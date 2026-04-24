@@ -82,7 +82,8 @@ const initialize = ({ options, data, isPublic = false }: Props): void => {
 const emptyData = {
   meta: {
     limit: 10,
-    next_cursor: null
+    page: 1,
+    total: 0
   },
   result: []
 };
@@ -139,7 +140,7 @@ const servicesRequests = (noValues = false): void => {
     cy.interceptAPIRequest({
       alias: 'getServiceResources',
       method: Method.GET,
-      path: `./api/latest${resourcesEndpoint}?**`,
+      path: `./api/latest${resourcesEndpoint}?page=1&limit=20**`,
       response: noValues ? emptyData : data
     });
   });

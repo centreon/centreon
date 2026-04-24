@@ -27,7 +27,6 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Common\Domain\Exception\RepositoryException;
-use Core\Contact\Domain\AdminResolver;
 use Core\Resources\Application\Exception\ResourceException;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Resources\Application\UseCase\FindResources\FindResources;
@@ -37,15 +36,11 @@ use Mockery;
 
 beforeEach(function (): void {
     $this->presenter = new FindResourcesPresenterStub();
-    $this->resourcesRepository = Mockery::mock(ReadResourceRepositoryInterface::class);
-    $this->contact = Mockery::mock(ContactInterface::class);
-    $this->accessGroupRepository = Mockery::mock(ReadAccessGroupRepositoryInterface::class);
     $this->useCase = new FindResources(
-        $this->resourcesRepository,
-        $this->contact,
-        $this->accessGroupRepository,
-        new \ArrayObject([]),
-        new AdminResolver($this->accessGroupRepository, false),
+        $this->resourcesRepository = Mockery::mock(ReadResourceRepositoryInterface::class),
+        $this->contact = Mockery::mock(ContactInterface::class),
+        $this->accessGroupRepository = Mockery::mock(ReadAccessGroupRepositoryInterface::class),
+        new \ArrayObject([])
     );
 });
 
@@ -74,7 +69,6 @@ it(
         $this->resourcesRepository
             ->shouldReceive('findResources')
             ->andReturn([]);
-        $this->resourcesRepository->shouldReceive('getNextCursor')->andReturn(null);
         $this->accessGroupRepository->shouldReceive('findByContact')->never();
 
         ($this->useCase)($this->presenter, new ResourceFilter());
@@ -93,7 +87,6 @@ it(
         $this->resourcesRepository
             ->shouldReceive('findResourcesByAccessGroupIds')
             ->andReturn([]);
-        $this->resourcesRepository->shouldReceive('getNextCursor')->andReturn(null);
 
         ($this->useCase)($this->presenter, new ResourceFilter());
 

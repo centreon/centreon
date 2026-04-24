@@ -36,8 +36,8 @@ export const getBooleanRuleEndpoint = (id: number): string =>
 
 interface BuildResourcesEndpointProps {
   baseEndpoint: string;
-  cursor?: string | null;
   limit?: number;
+  page?: number;
   resources: Array<Resource>;
   sortBy?: string;
   states?: Array<string>;
@@ -96,6 +96,7 @@ export const getListingCustomQueryParameters = ({
 
 interface GetListingQueryParametersProps {
   limit?: number;
+  page?: number;
   resources: Array<Resource>;
   sortBy?: string;
   sortOrder?: string;
@@ -105,7 +106,8 @@ export const getListingQueryParameters = ({
   resources,
   sortBy,
   sortOrder,
-  limit
+  limit,
+  page
 }: GetListingQueryParametersProps): ListingParameters => {
   const resourcesToApplyToSearchParameters = resources.filter(
     ({ resourceType, resources: resourcesToApply }) =>
@@ -148,6 +150,7 @@ export const getListingQueryParameters = ({
 
   return {
     limit,
+    page: page || undefined,
     ...search,
     sort:
       sortBy && sortOrder
@@ -166,7 +169,7 @@ export const buildResourcesEndpoint = ({
   limit,
   resources,
   baseEndpoint,
-  cursor = null
+  page = 1
 }: BuildResourcesEndpointProps): string => {
   const formattedStatuses = formatStatus(statuses || []);
 
@@ -174,17 +177,15 @@ export const buildResourcesEndpoint = ({
 
   return buildListingEndpoint({
     baseEndpoint,
-    customQueryParameters: [
-      ...getListingCustomQueryParameters({
-        resources,
-        states,
-        statuses: formattedStatuses,
-        types: type ? [type] : undefined
-      }),
-      { name: 'cursor', value: cursor ?? undefined }
-    ],
+    customQueryParameters: getListingCustomQueryParameters({
+      resources,
+      states,
+      statuses: formattedStatuses,
+      types: type ? [type] : undefined
+    }),
     parameters: getListingQueryParameters({
       limit,
+      page,
       resources,
       sortBy,
       sortOrder

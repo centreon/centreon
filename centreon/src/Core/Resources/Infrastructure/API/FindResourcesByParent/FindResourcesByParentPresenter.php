@@ -88,7 +88,7 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
 
         $this->present([
             'result' => $result,
-            'meta' => array_merge($this->requestParameters->toArray(), ['next_cursor' => $response->nextCursor]),
+            'meta' => $this->requestParameters->toArray(),
         ]);
     }
 

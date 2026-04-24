@@ -155,13 +155,6 @@ class ResourceFilter
     private bool $onlyWithTicketsOpened = false;
 
     /**
-     * Opaque cursor token for keyset pagination (null = first page).
-     *
-     * @var string|null
-     */
-    private ?string $cursor = null;
-
-    /**
      * Transform result by map.
      *
      * @param array<mixed, mixed> $list
@@ -610,17 +603,5 @@ class ResourceFilter
     public function getOnlyWithTicketsOpened(): bool
     {
         return $this->onlyWithTicketsOpened;
-    }
-
-    public function getCursor(): ?string
-    {
-        return $this->cursor;
-    }
-
-    public function setCursor(?string $cursor): self
-    {
-        $this->cursor = $cursor;
-
-        return $this;
     }
 }

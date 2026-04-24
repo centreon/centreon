@@ -1,3 +1,5 @@
+import type { ListingModel } from '@centreon/ui';
+
 export enum DisplayType {
   All = 'all',
   Host = 'host',
@@ -93,15 +95,7 @@ export interface Resource extends NamedEntity {
   type: ResourceType;
 }
 
-export interface ResourceListingMeta {
-  limit: number;
-  next_cursor: string | null;
-}
-
-export type ResourceListing = {
-  meta: ResourceListingMeta;
-  result: Array<Resource>;
-};
+export type ResourceListing = ListingModel<Resource>;
 
 export enum ResourceCategory {
   'anomaly-detection' = 'anomaly-detection',

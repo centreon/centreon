@@ -72,7 +72,7 @@ beforeEach(() => {
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: `${INTERCEPTORS.api.monitor_resources}?limit=*`
+    url: `${INTERCEPTORS.api.monitor_resources}?page=*`
   }).as('getResources');
   cy.intercept({
     method: 'GET',

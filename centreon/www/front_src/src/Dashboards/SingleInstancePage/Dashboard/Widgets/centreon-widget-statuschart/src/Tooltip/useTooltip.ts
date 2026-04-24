@@ -1,10 +1,11 @@
-import { useInfiniteScrollListingWithCursor } from '@centreon/ui';
+import { useInfiniteScrollListing } from '@centreon/ui';
 
 import { ResourceStatus } from 'src/centreon-widget-statusgrid/src/StatusGridStandard/models';
 
 import { Resource } from '../../../models';
 import { getResourcesSearchQueryParameters } from '../../../utils';
 import { resourcesEndpoint } from '../api/endpoint';
+import { tooltipPageAtom } from '../atom';
 
 interface UseTooltipContentProps {
   resources: Array<Resource>;
@@ -16,6 +17,7 @@ interface UseTooltipContentState {
   elementRef;
   isLoading: boolean;
   resources: Array<ResourceStatus>;
+  total?: number;
 }
 
 export const useTooltipContent = ({
@@ -25,8 +27,8 @@ export const useTooltipContent = ({
 }: UseTooltipContentProps): UseTooltipContentState => {
   const { resourcesSearchConditions, resourcesCustomParameters } =
     getResourcesSearchQueryParameters(resources);
-  const { elementRef, elements, isLoading } =
-    useInfiniteScrollListingWithCursor<ResourceStatus>({
+  const { elementRef, elements, isLoading, total } =
+    useInfiniteScrollListing<ResourceStatus>({
       customQueryParameters: [
         { name: 'types', value: [type] },
         { name: 'statuses', value: [status.toUpperCase()] },
@@ -34,6 +36,7 @@ export const useTooltipContent = ({
       ],
       endpoint: resourcesEndpoint,
       limit: 10,
+      pageAtom: tooltipPageAtom,
       parameters: {
         search: {
           conditions: resourcesSearchConditions
@@ -46,6 +49,7 @@ export const useTooltipContent = ({
   return {
     elementRef,
     isLoading,
-    resources: elements
+    resources: elements,
+    total
   };
 };

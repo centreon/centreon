@@ -49,18 +49,14 @@ import {
   getColumns
 } from './columns';
 import {
-  currentCursorIndexAtom,
-  cursorStackAtom,
   enabledAutorefreshAtom,
   limitAtom,
   listingAtom,
+  pageAtom,
   selectedColumnIdsAtom,
   sendingAtom
 } from './listingAtoms';
 import useLoadResources from './useLoadResources';
-import useResourceCount, {
-  countThreshold
-} from './useLoadResources/useResourceCount';
 import useViewerMode from './useViewerMode';
 
 export const okStatuses = ['OK', 'UP'];
@@ -74,10 +70,7 @@ const ResourceListing = (): JSX.Element => {
   const [selectedResourceUuid, setSelectedResourceUuid] = useAtom(
     selectedResourceUuidAtom
   );
-  const [currentCursorIndex, setCurrentCursorIndex] = useAtom(
-    currentCursorIndexAtom
-  );
-  const cursorStack = useAtomValue(cursorStackAtom);
+  const [page, setPage] = useAtom(pageAtom);
   const [selectedColumnIds, setSelectedColumnIds] = useAtom(
     selectedColumnIdsAtom
   );
@@ -99,7 +92,7 @@ const ResourceListing = (): JSX.Element => {
   const featureFlags = useAtomValue(featureFlagsDerivedAtom);
 
   const setOpenDetailsTabId = useSetAtom(openDetailsTabIdAtom);
-  const [limit, setLimit] = useAtom(limitAtom);
+  const setLimit = useSetAtom(limitAtom);
   const setResourcesToAcknowledge = useSetAtom(resourcesToAcknowledgeAtom);
   const setResourcesToSetDowntime = useSetAtom(resourcesToSetDowntimeAtom);
   const setCriteriaAndNewFilter = useSetAtom(
@@ -107,8 +100,6 @@ const ResourceListing = (): JSX.Element => {
   );
 
   const { initAutorefreshAndLoad } = useLoadResources();
-  const { count: resourceCount, isLoading: isCountLoading } =
-    useResourceCount();
 
   const { mutateAsync } = useMutationQuery({
     getEndpoint: () => userEndpoint,
@@ -133,8 +124,8 @@ const ResourceListing = (): JSX.Element => {
     setLimit(Number(value));
   };
 
-  const changePage = (updatedPage: number): void => {
-    setCurrentCursorIndex(updatedPage);
+  const changePage = (updatedPage): void => {
+    setPage(updatedPage + 1);
   };
 
   const selectResource = ({ id, links, uuid }: Resource): void => {
@@ -255,27 +246,20 @@ const ResourceListing = (): JSX.Element => {
         sortable: areColumnsSortable
       }}
       columns={columns}
-      countConfig={{
-        count: resourceCount,
-        isLoading: isCountLoading,
-        threshold: countThreshold
-      }}
-      currentPage={currentCursorIndex}
+      currentPage={(page || 1) - 1}
       getHighlightRowCondition={({ status }): boolean =>
         equals(status?.severity_code, SeverityCode.High)
       }
       getId={getId}
       headerMemoProps={[search]}
-      isCursorPaginated
-      limit={limit}
+      limit={listing?.meta.limit}
       listingVariant={user_interface_density}
       loading={loading}
       memoProps={[
         listing,
         sortField,
         sortOrder,
-        currentCursorIndex,
-        cursorStack,
+        page,
         selectedResources,
         selectedResourceUuid,
         sending,
@@ -283,9 +267,7 @@ const ResourceListing = (): JSX.Element => {
         selectedResourceDetails,
         themeMode,
         columns,
-        selectedColumnIds,
-        resourceCount,
-        isCountLoading
+        selectedColumnIds
       ]}
       moveTablePagination={isPanelOpen}
       onLimitChange={changeLimit}
@@ -311,7 +293,7 @@ const ResourceListing = (): JSX.Element => {
         labelCollapse: 'Collapse',
         labelExpand: 'Expand'
       }}
-      totalRows={cursorStack.length * limit}
+      totalRows={listing?.meta.total}
       viewerModeConfiguration={{
         disabled: isPending,
         onClick: changeViewModeTableResources,

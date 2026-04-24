@@ -1,13 +1,12 @@
-import { type Column, useFetchQuery, useSnackbar } from '@centreon/ui';
+import { type Column, useSnackbar } from '@centreon/ui';
 
 import { useAtom, useAtomValue } from 'jotai';
 import { equals } from 'ramda';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { getResourcesUrl, goToUrl } from '../../../utils';
-import { buildCountEndpoint } from '../api/endpoints';
 import {
   openTicketContextAtom,
   resourcesToAcknowledgeAtom,
@@ -35,20 +34,17 @@ interface UseListingState {
   columns: Array<Column>;
   confirmAcknowledge: () => void;
   confirmSetDowntime: () => void;
-  currentCursorIndex: number;
-  cursorStack: Array<string | null>;
   data: ResourceListing | undefined;
   defaultSelectedColumnIds: Array<string>;
   goToResourceStatusPage?: (row) => void;
   hasMetaService: boolean;
-  isCountLoading: boolean;
   isLoading: boolean;
   onTicketClose: () => void;
+  page: number | undefined;
   resetColumns: () => void;
   resourcesToAcknowledge;
   resourcesToOpenTicket: Array<Ticket>;
   resourcesToSetDowntime;
-  resourceCount: number | undefined;
   selectColumns: (updatedColumnIds: Array<string>) => void;
   selectedResources;
   setSelectedResources;
@@ -101,12 +97,9 @@ const useListing = ({
 }: UseListingProps): UseListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
-  const { isOpenTicketEnabled, isDownHostHidden, isUnreachableHostHidden } =
-    useAtomValue(openTicketContextAtom);
+  const { isOpenTicketEnabled } = useAtomValue(openTicketContextAtom);
 
-  const [cursorStack, setCursorStack] = useState<Array<string | null>>([null]);
-  const [currentCursorIndex, setCurrentCursorIndex] = useState(0);
-  const currentCursorIndexRef = useRef(currentCursorIndex);
+  const [page, setPage] = useState(1);
   const [resourcesToOpenTicket, setResourcesToOpenTicket] = useAtom(
     resourcesToOpenTicketAtom
   );
@@ -130,77 +123,14 @@ const useListing = ({
     }
   }, [isOpenTicketEnabled]);
 
-  useEffect(() => {
-    currentCursorIndexRef.current = currentCursorIndex;
-  }, [currentCursorIndex]);
-
-  // Key derived from all filter inputs — changes when any filter/sort/limit changes.
-  const filterKey = useMemo(
-    () =>
-      JSON.stringify({
-        displayType,
-        hostSeverities,
-        limit,
-        resources,
-        serviceSeverities,
-        sortField,
-        sortOrder,
-        states,
-        statuses,
-        statusTypes
-      }),
-    [
-      displayType,
-      hostSeverities,
-      limit,
-      resources,
-      serviceSeverities,
-      sortField,
-      sortOrder,
-      states,
-      statuses,
-      statusTypes
-    ]
-  );
-
-  useEffect(() => {
-    setCursorStack([null]);
-    setCurrentCursorIndex(0);
-  }, [filterKey]);
-
-  const countEndpoint = buildCountEndpoint({
-    hostSeverities,
-    isDownHostHidden,
-    isUnreachableHostHidden,
-    resources,
-    serviceSeverities,
-    states,
-    statuses,
-    statusTypes,
-    type: displayType
-  });
-
-  const { data: countData, isLoading: isCountLoading } = useFetchQuery<{
-    count: number;
-  }>({
-    getEndpoint: () => countEndpoint,
-    getQueryKey: () => ['resourcesTableCount', countEndpoint, refreshCount],
-    queryOptions: {
-      refetchInterval: refreshIntervalToUse,
-      suspense: false
-    }
-  });
-
-  const resourceCount = countData?.count;
-
   const { data, isLoading } = useLoadResources({
-    cursor: cursorStack[currentCursorIndex] ?? null,
     dashboardId,
     displayType,
     hostSeverities,
     id,
     isInViewport,
     limit,
+    page,
     playlistHash,
     refreshCount,
     refreshIntervalToUse,
@@ -213,22 +143,6 @@ const useListing = ({
     statusTypes,
     widgetPrefixQuery
   });
-
-  useEffect(() => {
-    const nextCursor = data?.meta?.next_cursor;
-    if (nextCursor === undefined) {
-      return;
-    }
-    if (nextCursor !== null) {
-      setCursorStack((prev) => {
-        if (prev.length <= currentCursorIndexRef.current + 1) {
-          return [...prev, nextCursor];
-        }
-
-        return prev;
-      });
-    }
-  }, [data]);
 
   const goToResourceStatusPage = (row): void => {
     if (isFromPreview) {
@@ -264,8 +178,8 @@ const useListing = ({
     setPanelOptions?.({ limit: value });
   };
 
-  const changePage = (updatedPage: number): void => {
-    setCurrentCursorIndex(updatedPage);
+  const changePage = (updatedPage): void => {
+    setPage(updatedPage + 1);
   };
 
   const { columns, defaultSelectedColumnIds } = useColumns({
@@ -327,17 +241,14 @@ const useListing = ({
     columns,
     confirmAcknowledge,
     confirmSetDowntime,
-    currentCursorIndex,
-    cursorStack,
     data,
     defaultSelectedColumnIds,
     goToResourceStatusPage,
     hasMetaService,
-    isCountLoading,
     isLoading,
     onTicketClose,
+    page,
     resetColumns,
-    resourceCount,
     resourcesToAcknowledge,
     resourcesToOpenTicket,
     resourcesToSetDowntime,

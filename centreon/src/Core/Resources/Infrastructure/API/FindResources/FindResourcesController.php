@@ -58,18 +58,7 @@ final class FindResourcesController extends AbstractController
 
         $filter = $this->validator->validateAndRetrieveRequestParameters($request->query->all());
 
-        $resourceFilter = $this->createResourceFilter($filter);
-
-        /** @var string|null $cursorToken */
-        $cursorToken = $request->query->get('cursor');
-        if ($cursorToken !== null && $cursorToken !== '') {
-            // The frontend JSON-encodes all query parameters, so the cursor
-            // arrives as a JSON-encoded string (e.g. `"eyJ..."` with quotes).
-            $decoded = json_decode($cursorToken, true);
-            $resourceFilter->setCursor(is_string($decoded) ? $decoded : $cursorToken);
-        }
-
-        $useCase($presenter, $resourceFilter);
+        $useCase($presenter, $this->createResourceFilter($filter));
 
         return $presenter->show();
     }

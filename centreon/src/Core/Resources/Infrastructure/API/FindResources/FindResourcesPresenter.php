@@ -213,16 +213,9 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
             ];
         }
 
-        $meta = [
-            'limit' => $this->requestParameters->getLimit(),
-            'search' => $this->requestParameters->getSearch(),
-            'sort_by' => $this->requestParameters->getSort(),
-            'next_cursor' => $response->nextCursor,
-        ];
-
         $this->present([
             'result' => $result,
-            'meta' => $meta,
+            'meta' => $this->requestParameters->toArray(),
         ]);
     }
 
