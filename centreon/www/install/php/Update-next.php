@@ -922,11 +922,11 @@ $fixSamlRequestedAuthnContextComparison = function () use ($pearDB, &$errorMessa
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: no SAML provider configuration found, skipping"
-          );
+        );
 
         return;
     }
-  
+
     $customConfiguration = json_decode(
         json: $samlConfiguration['custom_configuration'],
         associative: true,
@@ -940,11 +940,11 @@ $fixSamlRequestedAuthnContextComparison = function () use ($pearDB, &$errorMessa
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: requested_authn_context_comparison already valid, no recovery needed"
-          );
+        );
 
         return;
     }
-  
+
     $customConfiguration['requested_authn_context_comparison'] = 'exact';
 
     CentreonLog::create()->info(
@@ -1012,11 +1012,11 @@ $updateAuthenticationTable = function () use ($pearDB, &$errorMessage, $version)
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: Nothing to update in authentication_tokens table",
-          );
+        );
 
         return;
     }
-  
+
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: Updating authentication_tokens table",
@@ -1045,11 +1045,11 @@ $createDefaultPollerToken = function () use ($pearDB, &$errorMessage, $version):
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: Default poller token already exists, skipping creation",
-          );
+        );
 
         return;
     }
-  
+
     $adminInfos = $pearDB->fetchAssociative(
         "SELECT `contact_id`, `contact_alias` FROM `contact` WHERE `contact_admin` = '1' LIMIT 1"
     );
@@ -1091,7 +1091,7 @@ $updateLogActionTable = function () use ($pearDBO, &$errorMessage, $version): vo
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: Updating log_action table",
     );
-  
+
     $pearDBO->executeStatement(
         <<<'SQL'
             ALTER TABLE `log_action` MODIFY COLUMN `log_contact_id` int(11) DEFAULT NULL
