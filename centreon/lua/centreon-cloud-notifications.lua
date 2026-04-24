@@ -59,7 +59,7 @@ local function login()
     end
   }
 
-  ok, err = c:perform()
+  local ok, err = c:perform()
   if not ok then
     broker_log:error(0, "Unable to get a token for the '" .. data.user .. "' user")
   end
@@ -81,7 +81,7 @@ local function update_conf(full_conf)
   broker_log:info(1, "Reading notification configuration: " .. tostring(full_conf))
   local content = broker.json_decode(full_conf)
   if not content then
-    broker_log:error(0, "Unable to decode '" .. tostring(resp) .. "'. Is the URL still accessible?")
+    broker_log:error(0, "Unable to decode '" .. tostring(full_conf) .. "'. Is the URL still accessible?")
     return
   end
   local uid = content.uid
@@ -94,9 +94,9 @@ local function update_conf(full_conf)
   data.current_uid = uid
 
   data.host = {}
-  for i, n in ipairs(content.result) do
+  for _, n in ipairs(content.result) do
     -- For each notification defined in result
-    for ii, h in ipairs(n.hosts) do
+    for _, h in ipairs(n.hosts) do
       -- For each host defined in the notification
       local host_id = h.id
       if not data.host[host_id] then
@@ -106,7 +106,7 @@ local function update_conf(full_conf)
       local hnotif = {events = h.events, notification_id = n.notification_id, service = {}}
       host_conf.notification[#host_conf.notification + 1] = hnotif
       if #h.services > 0 then
-        for iii, s in ipairs(h.services) do
+        for _, s in ipairs(h.services) do
           if s.events > 0 then
             -- Some notifications are configured on this service
             hnotif.service[s.id] = {
@@ -130,6 +130,7 @@ end
 --  configuration in data.host.
 local function get_configuration()
   local loop = true
+  local resp_code = 0
   while loop do
     data.last_refresh = os.time()
     local c = cURL.easy {
@@ -143,11 +144,11 @@ local function get_configuration()
     }
     local full = {resp = ""}
     c:setopt_writefunction(fill_conf, full)
-    ok, err = c:perform()
+    local ok, err = c:perform()
     if not ok then
       broker_log:error(0, "Unable to call the API to get the configuration.: " .. tostring(err))
     end
-    local resp_code = c:getinfo(cURL.INFO_RESPONSE_CODE)
+    resp_code = c:getinfo(cURL.INFO_RESPONSE_CODE)
     broker_log:info(2, "Response code: " .. resp_code)
     if resp_code == 200 then
       update_conf(full.resp)
@@ -168,8 +169,7 @@ local function get_configuration()
   end
 end
 
---- Get the notification configuration from the API. The parameter is the
---  notification ID.
+--- Get the notification configuration from the API. The parameter is the notification ID.
 --  @param id The notification ID we know from the first API configuration.
 --  @return A table with the notification content.
 local function get_notification_rule(id)
@@ -184,15 +184,16 @@ local function get_notification_rule(id)
         "x-AUTH-TOKEN: " .. tostring(data.token)
       },
       writefunction = function(resp)
-        content = broker.json_decode(resp)
-        if content then
+        local decoded = broker.json_decode(resp)
+        if decoded then
+          content = decoded
           broker_log:info(2, resp)
         else
           broker_log:error(0, "Unable to decode the message '" .. tostring(resp) .. "'")
         end
       end
     }
-    ok, err = c:perform()
+    local ok, err = c:perform()
     if not ok then
       broker_log:error(0, "Unable to call the API to get the notification " .. id .. ": " .. tostring(err))
     end
@@ -209,10 +210,9 @@ local function get_notification_rule(id)
   return content
 end
 
---- Get the notification configuration from the API. The parameter is the
---  notification ID.
+--- Get the notification details from the API (timeperiod, name, etc.).
 --  @param id The notification ID we know from the first API configuration.
---  @return A table with the notification content.
+--  @return A table with the notification details (including timeperiod).
 local function get_notification(id)
   local content = {}
   local loop = true
@@ -225,15 +225,16 @@ local function get_notification(id)
         "x-AUTH-TOKEN: " .. tostring(data.token)
       },
       writefunction = function(resp)
-        content = broker.json_decode(resp)
-        if content then
+        local decoded = broker.json_decode(resp)
+        if decoded then
+          content = decoded
           broker_log:info(2, resp)
         else
           broker_log:error(0, "Unable to decode the message '" .. tostring(resp) .. "'")
         end
       end
     }
-    ok, err = c:perform()
+    local ok, err = c:perform()
     if not ok then
       broker_log:error(0, "Unable to call the API to get the notif " .. id .. ": " .. tostring(err))
     end
@@ -264,15 +265,16 @@ local function get_time_period(id)
         "x-AUTH-TOKEN: " .. tostring(data.token)
       },
       writefunction = function(resp)
-        content = broker.json_decode(resp)
-        if content then
+        local decoded = broker.json_decode(resp)
+        if decoded then
+          content = decoded
           broker_log:info(2, resp)
         else
           broker_log:error(0, "Unable to decode the message '" .. tostring(resp) .. "'")
         end
       end
     }
-    ok, err = c:perform()
+    local ok, err = c:perform()
     if not ok then
       broker_log:error(0, "Unable to call the API to get time period : " .. tostring(err))
     end
@@ -324,7 +326,7 @@ local function get_macros(event, conf, hostname)
     id = tostring(event.host_id)
   end
 
-  retval = {
+  local retval = {
     NOTIFICATIONTYPE = notif_type,
     NAME = name,
     STATE = tostring(states[event.state + 1]),
@@ -343,7 +345,7 @@ end
 --  @param macros The table containing the key/value.
 --  @return The resulting text.
 local function replace_macros(text, macros)
-  retval = text
+  local retval = text
   for k, v in pairs(macros) do
     broker_log:info(2, "replacing {{" .. k .. "}} by its value <<" .. v .. ">>")
     -- '%' is a specific character in gsub, we must escape it.
@@ -354,7 +356,7 @@ local function replace_macros(text, macros)
 end
 
 --- Escape shell characters in a string to prevent command injection.
----  This function escapes only what expands inside double quotes: \, ", $, `, '.
+---  This function escapes only what expands inside double quotes: \, ", $, `.
 --- Keep content (spaces/HTML) intact.
 --- @param str The string to escape.
 local function escape_shell_chars(str)
@@ -366,7 +368,6 @@ local function escape_shell_chars(str)
            :gsub('"', '\\"')
            :gsub("%$", "\\$")
            :gsub("`", "\\`")
-           :gsub("'", "\\'")
   return str
 end
 
@@ -408,7 +409,7 @@ local function send_mail(notif, event, conf, hostname)
   }
 
   --- Create temporary files for destination and message json files
-  local dest_tmpname = os.tmpname() .. ".json"
+  local dest_tmpname = os.tmpname()
   local dest_file = io.open(dest_tmpname, "w")
   if not dest_file then
     broker_log:error(0, "Unable to create destination file: " .. dest_tmpname)
@@ -417,7 +418,7 @@ local function send_mail(notif, event, conf, hostname)
   dest_file:write(broker.json_encode(destination_json))
   dest_file:close()
 
-  local msg_tmpname = os.tmpname() .. ".json"
+  local msg_tmpname = os.tmpname()
   local msg_file = io.open(msg_tmpname, "w")
   if not msg_file then
     broker_log:error(0, "Unable to create message file: " .. msg_tmpname)
@@ -434,14 +435,22 @@ local function send_mail(notif, event, conf, hostname)
   cmd = string.gsub(cmd, "{{MESSAGE_FILE}}", escape_shell_chars(msg_tmpname))
 
   broker_log:info(1, "command content: " .. cmd)
-  -- Execution of the command
-  local f = io.popen(cmd, "r")
-  if f then
-    local s = f:read("*a")
-    f:close()
-    broker_log:info(0, "Sending notification -- output: " .. tostring(s))
+  -- Execution of the command; stderr is merged into stdout so aws errors are captured.
+  local f = io.popen(cmd .. " 2>&1", "r")
+  if not f then
+    broker_log:error(0, "Unable to start mail command: " .. cmd)
   else
-    broker_log:error(0, "Unable to get '" .. cmd .. "' output.")
+    local output = f:read("*a")
+    local ok, exit_type, exit_code = f:close()
+    output = output and output:gsub("%s+$", "") or ""
+    if ok then
+      broker_log:info(0, "Notification sent" .. (#output > 0 and (": " .. output) or ""))
+    else
+      broker_log:error(0, "Mail command failed"
+        .. " (exit_type=" .. tostring(exit_type)
+        .. " code=" .. tostring(exit_code) .. ")"
+        .. (#output > 0 and (" -- " .. output) or ""))
+    end
   end
 
   -- Removing temporary files
@@ -476,7 +485,7 @@ function init(conf)
       local content = f:read("*a")
       f:close()
       local j = broker.json_decode(content)
-      if j.user and j.password then
+      if j and j.user and j.password then
         data.user = j.user
         data.password = j.password
       else
@@ -507,9 +516,15 @@ function init(conf)
 end
 
 local function is_notifiable(notification)
+  if not notification or not notification.notification_id then
+    return false
+  end
   local notif = get_notification(notification.notification_id)
+  if not notif or not notif.timeperiod then
+    return false
+  end
   local time_period = get_time_period(notif.timeperiod.id)
-  return time_period.in_period == true
+  return time_period ~= nil and time_period.in_period == true
 end
 
 function write(d)
