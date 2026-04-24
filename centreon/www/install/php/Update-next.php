@@ -896,6 +896,81 @@ $addPollerTypeColumn = function () use ($pearDB, &$errorMessage, $version): void
     );
 };
 
+/** ------------------------------------- SAML ------------------------------------- */
+/**
+ * Recover SAML provider configurations whose requested_authn_context_comparison field was left in an
+ * invalid state by the non-idempotent 25.11.0 migration (MON-198174): a boolean, a missing value, or
+ * a string outside RequestedAuthnContextComparisonEnum breaks CustomConfiguration::createFromValues()
+ * and the login page. When detected, reset the value to 'exact'.
+ */
+$fixSamlRequestedAuthnContextComparison = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to recover SAML provider configuration';
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: checking SAML provider configuration for invalid requested_authn_context_comparison"
+    );
+
+    $samlConfiguration = $pearDB->fetchAssociative(
+        <<<'SQL'
+            SELECT * FROM `provider_configuration`
+            WHERE `type` = 'saml'
+            SQL
+    );
+
+    if (! $samlConfiguration || ! isset($samlConfiguration['custom_configuration'])) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: no SAML provider configuration found, skipping"
+          );
+
+        return;
+    }
+  
+    $customConfiguration = json_decode(
+        json: $samlConfiguration['custom_configuration'],
+        associative: true,
+        flags: JSON_THROW_ON_ERROR
+    );
+
+    $validComparisonValues = ['minimum', 'exact', 'better', 'maximum'];
+    $currentComparison = $customConfiguration['requested_authn_context_comparison'] ?? null;
+
+    if (is_string($currentComparison) && in_array($currentComparison, $validComparisonValues, true)) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: requested_authn_context_comparison already valid, no recovery needed"
+          );
+
+        return;
+    }
+  
+    $customConfiguration['requested_authn_context_comparison'] = 'exact';
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: requested_authn_context_comparison was not a valid string, reset to 'exact'"
+    );
+
+    $query = <<<'SQL'
+            UPDATE `provider_configuration`
+            SET `custom_configuration` = :custom_configuration
+            WHERE `id` = :id
+        SQL;
+    $queryParameters = QueryParameters::create(
+        [
+            QueryParameter::string('custom_configuration', json_encode($customConfiguration, JSON_THROW_ON_ERROR)),
+            QueryParameter::int('id', (int) $samlConfiguration['id']),
+        ]
+    );
+    $pearDB->update($query, $queryParameters);
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: SAML provider configuration recovered successfully"
+    );
+};
+
 /** -------------------------------------- Poller tokens -------------------------------------- */
 $updateAuthenticationTable = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to update and rename jwt_tokens table';
@@ -937,11 +1012,11 @@ $updateAuthenticationTable = function () use ($pearDB, &$errorMessage, $version)
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: Nothing to update in authentication_tokens table",
-        );
+          );
 
         return;
     }
-
+  
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: Updating authentication_tokens table",
@@ -970,11 +1045,11 @@ $createDefaultPollerToken = function () use ($pearDB, &$errorMessage, $version):
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: Default poller token already exists, skipping creation",
-        );
+          );
 
         return;
     }
-
+  
     $adminInfos = $pearDB->fetchAssociative(
         "SELECT `contact_id`, `contact_alias` FROM `contact` WHERE `contact_admin` = '1' LIMIT 1"
     );
@@ -1016,6 +1091,7 @@ $updateLogActionTable = function () use ($pearDBO, &$errorMessage, $version): vo
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: Updating log_action table",
     );
+  
     $pearDBO->executeStatement(
         <<<'SQL'
             ALTER TABLE `log_action` MODIFY COLUMN `log_contact_id` int(11) DEFAULT NULL
@@ -1030,6 +1106,9 @@ try {
     // DDL statements for configuration database
     $addPollerTypeColumn();
     $updateAuthenticationTable();
+
+    // SAML recovery for platforms affected by MON-198174
+    $fixSamlRequestedAuthnContextComparison();
 
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {

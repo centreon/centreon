@@ -45,6 +45,8 @@ abstract class ServerConnectionConfigurationService
 
     protected string|null $centralIp = null;
 
+    protected string $dbHost = 'localhost';
+
     protected string|null $dbUser = null;
 
     protected string|null $dbPassword = null;
@@ -86,6 +88,11 @@ abstract class ServerConnectionConfigurationService
     public function setCentralIp($ip): void
     {
         $this->centralIp = $ip;
+    }
+
+    public function setDbHost(string $host): void
+    {
+        $this->dbHost = $host;
     }
 
     /**
