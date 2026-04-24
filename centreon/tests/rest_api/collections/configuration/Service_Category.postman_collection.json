@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "16fbff3e-4817-4221-a60e-ff0b0b499078",
+		"_postman_id": "a3567a5c-dd07-4922-a31a-c1bb098dd982",
 		"name": "Service_Category",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525"
+		"_exporter_id": "28117716",
+		"_collection_link": "https://go.postman.co/collection/28117716-a3567a5c-dd07-4922-a31a-c1bb098dd982?source=collection_link"
 	},
 	"item": [
 		{
@@ -47,12 +48,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["login"]
 						}
 					},
 					"response": []
@@ -107,9 +104,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -120,9 +115,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -158,9 +151,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -171,9 +162,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -209,9 +198,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -222,9 +209,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -260,9 +245,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -273,9 +256,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -311,9 +292,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -324,9 +303,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -362,9 +339,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -375,9 +350,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -413,9 +386,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -426,9 +397,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -464,9 +433,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -477,9 +444,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -515,9 +480,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -572,9 +535,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -585,9 +546,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -623,9 +582,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -636,9 +593,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -674,9 +629,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -687,9 +640,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -725,9 +676,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -738,9 +687,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -776,9 +723,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -789,9 +734,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -827,9 +770,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -840,9 +781,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -878,9 +817,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -891,9 +828,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -929,9 +864,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -986,9 +919,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -999,9 +930,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -1037,9 +966,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -1050,9 +977,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -1088,9 +1013,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -1101,9 +1024,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -1139,9 +1060,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -1152,9 +1071,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -1190,9 +1107,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -1203,9 +1118,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -1241,9 +1154,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -1254,9 +1165,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -1292,9 +1201,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -1305,9 +1212,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -1343,9 +1248,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -1356,9 +1259,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -1394,9 +1295,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -1451,9 +1350,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -1464,9 +1361,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -1502,9 +1397,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -1515,9 +1408,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -1553,9 +1444,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -1566,9 +1455,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -1604,9 +1491,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -1617,9 +1502,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -1655,9 +1538,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -1668,9 +1549,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -1706,9 +1585,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -1719,9 +1596,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -1757,9 +1632,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -1814,9 +1687,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -1827,9 +1698,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -1865,9 +1734,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -1878,9 +1745,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -1916,9 +1781,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -1929,9 +1792,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -1967,9 +1828,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -1980,9 +1839,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -2018,9 +1875,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -2031,9 +1886,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -2069,9 +1922,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -2082,9 +1933,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -2120,9 +1969,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -2133,9 +1980,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						},
@@ -2171,9 +2016,7 @@
 						},
 						"url": {
 							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
+							"host": ["{{baseUriCentreonCLAPI}}"]
 						}
 					},
 					"response": []
@@ -2221,12 +2064,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["login"]
 						}
 					},
 					"response": []
@@ -2305,14 +2144,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["configuration", "services", "categories"]
 						}
 					},
 					"response": []
@@ -2439,14 +2272,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["configuration", "services", "categories"]
 						}
 					},
 					"response": []
@@ -2525,14 +2352,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["configuration", "services", "categories"]
 						}
 					},
 					"response": []
@@ -2666,14 +2487,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["configuration", "services", "categories"]
 						}
 					},
 					"response": []
@@ -2689,7 +2504,7 @@
 									"pm.test(\"The service category has not been created, because the name is mandatory.\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"[name] This value should be of type string.\\n\");\r",
+									"    pm.expect(responseJson.message).to.contains(\"value should not be null\");\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation test for the service category creation response\", function () {\r",
@@ -2707,17 +2522,17 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2731,18 +2546,17 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"alias\":\"Oh I'm your third category!\"\n}"
+							"raw": "{\n    \"alias\": \"Oh I'm your third category!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["configuration", "services", "categories"]
 						}
 					},
 					"response": []
@@ -2782,9 +2596,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript",
 								"packages": {}
 							}
@@ -2804,14 +2616,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["configuration", "services", "categories"]
 						}
 					},
 					"response": []
@@ -2827,7 +2633,7 @@
 									"pm.test(\"The service category has not been created, because the alias is mandatory.\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"[alias] This value should be of type string.\\n\");\r",
+									"    pm.expect(responseJson.message).to.contains(\"value should not be null\");\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation test for the service category creation response\", function () {\r",
@@ -2845,17 +2651,17 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2869,18 +2675,17 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"name\":\"Test_S_Category_2.5\"\n}"
+							"raw": "{\n    \"name\": \"Test_S_Category_2.5\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["configuration", "services", "categories"]
 						}
 					},
 					"response": []
@@ -2920,9 +2725,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript",
 								"packages": {}
 							}
@@ -2942,14 +2745,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["configuration", "services", "categories"]
 						}
 					},
 					"response": []
@@ -3028,14 +2825,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["configuration", "services", "categories"]
 						}
 					},
 					"response": []
@@ -3176,14 +2967,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["configuration", "services", "categories"]
 						}
 					},
 					"response": []
@@ -3208,9 +2993,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						}
@@ -3229,9 +3012,7 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories/{{ServiceCategory1Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
+							"host": ["{{baseUrl}}"],
 							"path": [
 								"configuration",
 								"services",
@@ -3371,14 +3152,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["configuration", "services", "categories"]
 						}
 					},
 					"response": []
@@ -3428,12 +3203,8 @@
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/logout",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"logout"
-							],
+							"host": ["{{baseUrl}}"],
+							"path": ["logout"],
 							"variable": [
 								{
 									"key": "protocol",
@@ -3504,12 +3275,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["login"]
 						}
 					},
 					"response": []
@@ -3589,14 +3356,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["configuration", "services", "categories"]
 						}
 					},
 					"response": []
@@ -3737,14 +3498,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["configuration", "services", "categories"]
 						}
 					},
 					"response": []
@@ -3769,9 +3524,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript"
 							}
 						}
@@ -3790,9 +3543,7 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories/{{ServiceCategory2Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
+							"host": ["{{baseUrl}}"],
 							"path": [
 								"configuration",
 								"services",
@@ -3932,14 +3683,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["configuration", "services", "categories"]
 						}
 					},
 					"response": []
@@ -3989,12 +3734,8 @@
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/logout",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"logout"
-							],
+							"host": ["{{baseUrl}}"],
+							"path": ["logout"],
 							"variable": [
 								{
 									"key": "protocol",
@@ -4068,12 +3809,8 @@
 								},
 								"url": {
 									"raw": "{{baseUrl}}/login",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"login"
-									]
+									"host": ["{{baseUrl}}"],
+									"path": ["login"]
 								}
 							},
 							"response": []
@@ -4098,9 +3835,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"exec": [
-											""
-										],
+										"exec": [""],
 										"type": "text/javascript"
 									}
 								}
@@ -4123,9 +3858,7 @@
 								},
 								"url": {
 									"raw": "{{baseUriCentreonCLAPI}}?action=action&object=centreon_clapi",
-									"host": [
-										"{{baseUriCentreonCLAPI}}"
-									],
+									"host": ["{{baseUriCentreonCLAPI}}"],
 									"query": [
 										{
 											"key": "action",
@@ -4157,9 +3890,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"exec": [
-											""
-										],
+										"exec": [""],
 										"type": "text/javascript"
 									}
 								}
@@ -4182,9 +3913,7 @@
 								},
 								"url": {
 									"raw": "{{baseUriCentreonCLAPI}}?action=action&object=centreon_clapi",
-									"host": [
-										"{{baseUriCentreonCLAPI}}"
-									],
+									"host": ["{{baseUriCentreonCLAPI}}"],
 									"query": [
 										{
 											"key": "action",
@@ -4244,12 +3973,8 @@
 								"header": [],
 								"url": {
 									"raw": "{{baseUrl}}/logout",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"logout"
-									],
+									"host": ["{{baseUrl}}"],
+									"path": ["logout"],
 									"variable": [
 										{
 											"key": "protocol",
@@ -4317,12 +4042,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["login"]
 						}
 					},
 					"response": []
@@ -4402,14 +4123,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["configuration", "services", "categories"]
 						}
 					},
 					"response": []
@@ -4508,14 +4223,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["configuration", "services", "categories"]
 						}
 					},
 					"response": []
@@ -4554,9 +4263,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript",
 								"packages": {}
 							}
@@ -4576,9 +4283,7 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories/{{ServiceCategory4Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
+							"host": ["{{baseUrl}}"],
 							"path": [
 								"configuration",
 								"services",
@@ -4634,12 +4339,8 @@
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/logout",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"logout"
-							],
+							"host": ["{{baseUrl}}"],
+							"path": ["logout"],
 							"variable": [
 								{
 									"key": "protocol",
@@ -4710,12 +4411,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["login"]
 						}
 					},
 					"response": []
@@ -4755,9 +4452,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript",
 								"packages": {}
 							}
@@ -4777,14 +4472,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["configuration", "services", "categories"]
 						}
 					},
 					"response": []
@@ -4823,9 +4512,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript",
 								"packages": {}
 							}
@@ -4845,9 +4532,7 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories/{{ServiceCategory4Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
+							"host": ["{{baseUrl}}"],
 							"path": [
 								"configuration",
 								"services",
@@ -4994,14 +4679,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["configuration", "services", "categories"]
 						}
 					},
 					"response": []
@@ -5051,12 +4730,8 @@
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/logout",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"logout"
-							],
+							"host": ["{{baseUrl}}"],
+							"path": ["logout"],
 							"variable": [
 								{
 									"key": "protocol",
@@ -5130,12 +4805,8 @@
 								},
 								"url": {
 									"raw": "{{baseUrl}}/login",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"login"
-									]
+									"host": ["{{baseUrl}}"],
+									"path": ["login"]
 								}
 							},
 							"response": []
@@ -5157,9 +4828,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"exec": [
-											""
-										],
+										"exec": [""],
 										"type": "text/javascript"
 									}
 								}
@@ -5182,9 +4851,7 @@
 								},
 								"url": {
 									"raw": "{{baseUriCentreonCLAPI}}?action=action&object=centreon_clapi",
-									"host": [
-										"{{baseUriCentreonCLAPI}}"
-									],
+									"host": ["{{baseUriCentreonCLAPI}}"],
 									"query": [
 										{
 											"key": "action",
@@ -5216,9 +4883,7 @@
 								{
 									"listen": "prerequest",
 									"script": {
-										"exec": [
-											""
-										],
+										"exec": [""],
 										"type": "text/javascript"
 									}
 								}
@@ -5241,9 +4906,7 @@
 								},
 								"url": {
 									"raw": "{{baseUriCentreonCLAPI}}?action=action&object=centreon_clapi",
-									"host": [
-										"{{baseUriCentreonCLAPI}}"
-									],
+									"host": ["{{baseUriCentreonCLAPI}}"],
 									"query": [
 										{
 											"key": "action",
@@ -5303,12 +4966,8 @@
 								"header": [],
 								"url": {
 									"raw": "{{baseUrl}}/logout",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"logout"
-									],
+									"host": ["{{baseUrl}}"],
+									"path": ["logout"],
 									"variable": [
 										{
 											"key": "protocol",
@@ -5376,12 +5035,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["login"]
 						}
 					},
 					"response": []
@@ -5421,9 +5076,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript",
 								"packages": {}
 							}
@@ -5443,14 +5096,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["configuration", "services", "categories"]
 						}
 					},
 					"response": []
@@ -5549,14 +5196,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["configuration", "services", "categories"]
 						}
 					},
 					"response": []
@@ -5595,9 +5236,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript",
 								"packages": {}
 							}
@@ -5617,9 +5256,7 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories/{{ServiceCategory4Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
+							"host": ["{{baseUrl}}"],
 							"path": [
 								"configuration",
 								"services",
@@ -5675,12 +5312,8 @@
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/logout",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"logout"
-							],
+							"host": ["{{baseUrl}}"],
+							"path": ["logout"],
 							"variable": [
 								{
 									"key": "protocol",
@@ -5751,12 +5384,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["login"]
 						}
 					},
 					"response": []
@@ -5796,9 +5425,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript",
 								"packages": {}
 							}
@@ -5818,14 +5445,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["configuration", "services", "categories"]
 						}
 					},
 					"response": []
@@ -5864,9 +5485,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [
-									""
-								],
+								"exec": [""],
 								"type": "text/javascript",
 								"packages": {}
 							}
@@ -5886,9 +5505,7 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories/{{ServiceCategory4Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
+							"host": ["{{baseUrl}}"],
 							"path": [
 								"configuration",
 								"services",
@@ -5957,14 +5574,8 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"categories"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["configuration", "services", "categories"]
 						}
 					},
 					"response": []
@@ -6014,12 +5625,8 @@
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/logout",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"logout"
-							],
+							"host": ["{{baseUrl}}"],
+							"path": ["logout"],
 							"variable": [
 								{
 									"key": "protocol",
@@ -6081,19 +5688,81 @@
 			"listen": "prerequest",
 			"script": {
 				"type": "text/javascript",
-				"exec": [
-					""
-				]
+				"exec": [""]
 			}
 		},
 		{
 			"listen": "test",
 			"script": {
 				"type": "text/javascript",
-				"exec": [
-					""
-				]
+				"exec": [""]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "api_login_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_RW_filters",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_RW_filters",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Read",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Read",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Read_filters",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Read_filters",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory1Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory1Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory1Id",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory2Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory2Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory2Id",
+			"value": ""
 		}
 	]
 }
