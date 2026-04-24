@@ -76,7 +76,6 @@ contents:
       mode: 0600
 
 scripts:
-  preinstall: ./scripts/centreon-poller-preinstall.sh
   postinstall: ./scripts/centreon-poller-postinstall.sh
 
 overrides:

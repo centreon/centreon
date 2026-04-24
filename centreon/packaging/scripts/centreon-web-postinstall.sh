@@ -3,14 +3,12 @@
 manageUsersAndGroups() {
   echo "Managing users and groups for apache ..."
   if [ "$1" = "rpm" ]; then
-    usermod apache -a -G nagios,centreon-engine,centreon-broker,centreon-gorgone,centreon
-    usermod nagios -a -G apache
+    usermod apache -a -G centreon-engine,centreon-broker,centreon-gorgone,centreon
     usermod centreon-gorgone -a -G apache
     usermod centreon-broker -a -G apache
     usermod centreon -a -G apache
   else
-    usermod www-data -a -G nagios,centreon-engine,centreon-broker,centreon-gorgone,centreon
-    usermod nagios -a -G www-data
+    usermod www-data -a -G centreon-engine,centreon-broker,centreon-gorgone,centreon
     usermod centreon-gorgone -a -G www-data
     usermod centreon-broker -a -G www-data
     usermod centreon -a -G www-data

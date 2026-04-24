@@ -2,6 +2,12 @@
 
 manageUsersAndGroups() {
   echo "Managing users and groups for centreon ..."
+  if ! getent group nagios &>/dev/null; then
+    groupadd -r nagios
+  fi
+  if ! id nagios &>/dev/null; then
+    useradd -r -g nagios -s /sbin/nologin nagios
+  fi
   usermod centreon-engine -a -G centreon,nagios,centreon-broker
   usermod centreon-broker -a -G centreon,nagios
   usermod nagios -a -G centreon-engine
@@ -30,6 +36,15 @@ access notConfigGroup \"\" any noauth exact centreon none none" \
     /etc/snmp/snmpd.conf
 }
 
+fixPluginsPermissions() {
+  echo "Updating nagios plugins permissions ..."
+  for plugin in /usr/lib64/nagios/plugins/check_icmp /usr/lib64/nagios/plugins/check_dhcp; do
+    if [ -f "$plugin" ]; then
+      chgrp nagios "$plugin"
+    fi
+  done
+}
+
 package_type="rpm"
 if  [ "$1" = "configure" ]; then
   package_type="deb"
@@ -49,6 +64,7 @@ case "$action" in
     manageUsersAndGroups $package_type
     updateEngineBrokerConfigurationRights
     updateSnmpConfiguration
+    fixPluginsPermissions
     ;;
   "2" | "upgrade")
     manageUsersAndGroups $package_type
