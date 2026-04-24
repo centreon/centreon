@@ -1092,6 +1092,10 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
     );
 
     // Add is_module virtual column (pre-computes the NOT LIKE filter used to exclude internal Module/BAM resources)
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Adding is_module virtual column to centreon_storage.resources",
+    );
     $hasIsModule = $pearDBO->fetchOne(
         <<<'SQL'
             SELECT 1 FROM information_schema.COLUMNS
@@ -1100,7 +1104,12 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
               AND COLUMN_NAME = 'is_module'
             SQL
     );
-    if (! $hasIsModule) {
+    if ($hasIsModule) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Column is_module already exists on resources, skipping",
+        );
+    } else {
         $pearDBO->executeStatement(
             <<<'SQL'
                 ALTER TABLE `resources`
@@ -1108,6 +1117,10 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
                     CASE WHEN `name` LIKE '\_Module\_%' OR `parent_name` LIKE '\_Module\_BAM%' THEN 1 ELSE 0 END
                 ) VIRTUAL COMMENT 'computed flag: 1 if internal Module/BAM resource to exclude from listings'
                 SQL
+        );
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Successfully added is_module virtual column to resources",
         );
     }
 
@@ -1119,6 +1132,10 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
     // On MariaDB 10.5–10.7 they are silently treated as ascending; the optimizer can still use
     // the index via a backward scan for DESC ORDER BY, so the index remains beneficial but slightly
     // less efficient than on 10.8+.
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Adding resources_enabled_status_sort_idx index to centreon_storage.resources",
+    );
     $hasStatusSortIdxWithResourceId = $pearDBO->fetchOne(
         <<<'SQL'
             SELECT 1 FROM information_schema.STATISTICS
@@ -1128,7 +1145,12 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
               AND COLUMN_NAME = 'resource_id'
             SQL
     );
-    if (! $hasStatusSortIdxWithResourceId) {
+    if ($hasStatusSortIdxWithResourceId) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Index resources_enabled_status_sort_idx already up to date, skipping",
+        );
+    } else {
         $hasStatusSortIdx = $pearDBO->fetchOne(
             <<<'SQL'
                 SELECT 1 FROM information_schema.STATISTICS
@@ -1138,10 +1160,18 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
                 SQL
         );
         if ($hasStatusSortIdx) {
+            CentreonLog::create()->info(
+                logTypeId: CentreonLog::TYPE_UPGRADE,
+                message: "UPGRADE - {$version}: Dropping outdated resources_enabled_status_sort_idx index (missing resource_id column)",
+            );
             $pearDBO->executeStatement(
                 <<<'SQL'
                     ALTER TABLE `resources` DROP INDEX `resources_enabled_status_sort_idx`
                     SQL
+            );
+            CentreonLog::create()->info(
+                logTypeId: CentreonLog::TYPE_UPGRADE,
+                message: "UPGRADE - {$version}: Successfully dropped outdated resources_enabled_status_sort_idx index",
             );
         }
         $pearDBO->executeStatement(
@@ -1150,10 +1180,18 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
                 ADD INDEX `resources_enabled_status_sort_idx` (`enabled`, `status_ordered` DESC, `last_status_change` DESC, `resource_id` DESC)
                 SQL
         );
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Successfully added resources_enabled_status_sort_idx index to resources",
+        );
     }
 
     // resources_enabled_type_ismodule_idx is a left-prefix of resources_name_search_idx
     // (enabled, type, is_module, poller_id, name) so it is redundant — drop it if present.
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Checking for redundant resources_enabled_type_ismodule_idx index on centreon_storage.resources",
+    );
     $hasIsModuleIdx = $pearDBO->fetchOne(
         <<<'SQL'
             SELECT 1 FROM information_schema.STATISTICS
@@ -1163,14 +1201,31 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
             SQL
     );
     if ($hasIsModuleIdx) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Dropping redundant resources_enabled_type_ismodule_idx index (covered by resources_name_search_idx)",
+        );
         $pearDBO->executeStatement(
             <<<'SQL'
                 ALTER TABLE `resources` DROP INDEX `resources_enabled_type_ismodule_idx`
                 SQL
         );
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Successfully dropped resources_enabled_type_ismodule_idx index",
+        );
+    } else {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Index resources_enabled_type_ismodule_idx not present, skipping",
+        );
     }
 
     // Add covering index for status/state filter COUNT queries (status-first for tight seek on status IN (...))
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Adding resources_status_filter_idx index to centreon_storage.resources",
+    );
     $hasStatusFilterIdx = $pearDBO->fetchOne(
         <<<'SQL'
             SELECT 1 FROM information_schema.STATISTICS
@@ -1179,16 +1234,29 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
               AND INDEX_NAME = 'resources_status_filter_idx'
             SQL
     );
-    if (! $hasStatusFilterIdx) {
+    if ($hasStatusFilterIdx) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Index resources_status_filter_idx already exists on resources, skipping",
+        );
+    } else {
         $pearDBO->executeStatement(
             <<<'SQL'
                 ALTER TABLE `resources`
                 ADD INDEX `resources_status_filter_idx` (`enabled`, `status`, `type`, `is_module`, `acknowledged`, `in_downtime`, `status_confirmed`, `poller_id`)
                 SQL
         );
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Successfully added resources_status_filter_idx index to resources",
+        );
     }
 
     // Add covering index for name search queries (includes name column to avoid row reads for REGEXP/LIKE)
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Adding resources_name_search_idx index to centreon_storage.resources",
+    );
     $hasNameSearchIdx = $pearDBO->fetchOne(
         <<<'SQL'
             SELECT 1 FROM information_schema.STATISTICS
@@ -1197,17 +1265,30 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
               AND INDEX_NAME = 'resources_name_search_idx'
             SQL
     );
-    if (! $hasNameSearchIdx) {
+    if ($hasNameSearchIdx) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Index resources_name_search_idx already exists on resources, skipping",
+        );
+    } else {
         $pearDBO->executeStatement(
             <<<'SQL'
                 ALTER TABLE `resources`
                 ADD INDEX `resources_name_search_idx` (`enabled`, `type`, `is_module`, `poller_id`, `name`)
                 SQL
         );
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Successfully added resources_name_search_idx index to resources",
+        );
     }
 
     // Add index for severity filter queries: allows direct seeks on severity_id instead of a full scan.
     // Used by the non-correlated IN subquery rewrite in DbReadResourceRepository::addSeveritySubRequest().
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Adding resources_severity_filter_idx index to centreon_storage.resources",
+    );
     $hasSeverityFilterIdx = $pearDBO->fetchOne(
         <<<'SQL'
             SELECT 1 FROM information_schema.STATISTICS
@@ -1216,18 +1297,27 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
               AND INDEX_NAME = 'resources_severity_filter_idx'
             SQL
     );
-    if (! $hasSeverityFilterIdx) {
+    if ($hasSeverityFilterIdx) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Index resources_severity_filter_idx already exists on resources, skipping",
+        );
+    } else {
         $pearDBO->executeStatement(
             <<<'SQL'
                 ALTER TABLE `resources`
                 ADD INDEX `resources_severity_filter_idx` (`severity_id`, `enabled`, `is_module`, `type`)
                 SQL
         );
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Successfully added resources_severity_filter_idx index to resources",
+        );
     }
 
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: Successfully added performance indexes to centreon_storage.resources",
+        message: "UPGRADE - {$version}: Successfully completed performance indexes setup on centreon_storage.resources",
     );
 };
 
