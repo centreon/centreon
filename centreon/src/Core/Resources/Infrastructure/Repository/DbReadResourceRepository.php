@@ -1327,6 +1327,20 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         $iconIds = $this->getIconIdsFromResources();
         $icons = $this->getIconsDataForResources($iconIds);
         $this->completeResourcesWithIcons($icons);
+
+        // Calculate total for pagination meta using the optimised COUNT query.
+        $queryParametersForCount = new QueryParameters();
+        $queryCount = $this->generateCountResourcesQuery(
+            filter: $filter,
+            queryParametersFromRequestParameter: $queryParametersForCount,
+            accessGroupIds: $accessGroupIds,
+            useAclCte: $useAclCte,
+        );
+        $countQueryParameters = SearchRequestParametersTransformer::reverseToQueryParameters(
+            $this->sqlRequestTranslator->getSearchValues()
+        )->mergeWith($queryParametersForCount);
+        $total = (int) $this->connection->fetchOne($this->translateDbName($queryCount), $countQueryParameters);
+        $this->sqlRequestTranslator->getRequestParameters()->setTotal($total);
     }
 
     /**

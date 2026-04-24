@@ -29,6 +29,7 @@ use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Resources\Application\Exception\ResourceException;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Resources\Application\UseCase\FindResources\FindResourcesFactory;
@@ -61,6 +62,7 @@ final class FindResourcesByParent
         private readonly RequestParametersInterface $requestParameters,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private readonly \Traversable $extraDataProviders,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -91,7 +93,7 @@ final class FindResourcesByParent
             $resources = [];
             $parentResources = [];
 
-            if ($this->contact->isAdmin()) {
+            if ($this->adminResolver->isAdmin($this->contact)) {
                 $resources = $this->findResourcesAsAdmin($filter);
                 // Save total children found
                 $totalChildrenFound = $this->requestParameters->getTotal();
