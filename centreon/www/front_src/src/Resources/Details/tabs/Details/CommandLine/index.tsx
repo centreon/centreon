@@ -4,7 +4,6 @@ import { equals, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { primaryCommand, secondaryCommand } from './CommandeLine.module.css';
-
 import { getCommandsWithArguments } from './utils';
 
 const useStyles = makeStyles()((theme) => ({
