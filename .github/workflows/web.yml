@@ -290,7 +290,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.36.0
         with:
-          php-version: 8.2
+          php-version: ${{ needs.get-environment.outputs.php_version }}
         env:
           runner: ubuntu-24.04
 
@@ -454,7 +454,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.36.0
         with:
-          php-version: 8.2
+          php-version: ${{ needs.get-environment.outputs.php_version }}
           coverage: none
         env:
           runner: ubuntu-24.04
@@ -519,7 +519,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.36.0
         with:
-          php-version: 8.2
+          php-version: ${{ needs.get-environment.outputs.php_version }}
           coverage: none
 
       - name: Create configuration files
@@ -583,7 +583,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.36.0
         with:
-          php-version: 8.2
+          php-version: ${{ needs.get-environment.outputs.php_version }}
           coverage: none
         env:
           runner: ubuntu-24.04
@@ -1021,6 +1021,7 @@ jobs:
             "MAJOR_VERSION=${{ needs.get-environment.outputs.major_version }}"
             "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
+            "PHP_VERSION=${{ needs.get-environment.outputs.php_version }}"
           pull: true
           push: ${{ github.event.pull_request.head.repo.fork != true }}
           load: true

@@ -153,6 +153,7 @@ jobs:
             "MAJOR_VERSION=${{ needs.get-environment.outputs.major_version }}"
             "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
+            "PHP_VERSION=${{ needs.get-environment.outputs.php_version }}"
           pull: true
           outputs: type=image,push=true,annotation-index.org.opencontainers.image.description=Centreon web dependencies image
           tags: ${{ steps.docker_tags.outputs.tags_deps }}
@@ -175,6 +176,7 @@ jobs:
             "MAJOR_VERSION=${{ needs.get-environment.outputs.major_version }}"
             "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
+            "PHP_VERSION=${{ needs.get-environment.outputs.php_version }}"
           pull: false
           outputs: type=image,push=true,annotation-index.org.opencontainers.image.description=Centreon web dependencies collect image
           tags: ${{ steps.docker_tags.outputs.tags_deps_collect }}

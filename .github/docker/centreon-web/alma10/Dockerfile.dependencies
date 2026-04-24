@@ -1,8 +1,10 @@
 ARG MAJOR_VERSION
+ARG PHP_VERSION=8.4
 
 FROM almalinux:10 AS web_dependencies
 
 ARG MAJOR_VERSION
+ARG PHP_VERSION=8.4
 ARG IS_CLOUD
 ARG STABILITY
 
@@ -87,11 +89,8 @@ dnf install -y libfaketime
 # install php dependencies #
 ############################
 
-# Use remi
-dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
 dnf install -y https://rpms.remirepo.net/enterprise/remi-release-10.rpm
-crb enable
-dnf module -y switch-to php:remi-8.4/common
+dnf module -y switch-to php:remi-${PHP_VERSION}/common
 dnf install -y \
   php-common \
   php-cli \
@@ -125,6 +124,8 @@ echo 'agentaddress  127.0.0.1' >> /etc/snmp/snmpd.conf
 dnf clean all --enablerepo=*
 
 EOF
+
+ENV PHP_VERSION=${PHP_VERSION}
 
 COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /usr/bin/systemctl
 COPY --chmod=755 ./.github/docker/centreon-web/init/journalctl /usr/bin/journalctl

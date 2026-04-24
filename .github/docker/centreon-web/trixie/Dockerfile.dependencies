@@ -1,8 +1,10 @@
 ARG MAJOR_VERSION
+ARG PHP_VERSION=8.4
 
 FROM debian:trixie AS web_dependencies
 
 ARG MAJOR_VERSION
+ARG PHP_VERSION=8.4
 ARG STABILITY
 ARG IS_CLOUD
 
@@ -35,9 +37,10 @@ VERSION_CODENAME=\$(
   echo \$VERSION_CODENAME
 )
 
-# Disable to force php 8.4
-#echo "deb https://packages.sury.org/php/ \$VERSION_CODENAME main" | tee /etc/apt/sources.list.d/sury-php.list
-#wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
+if [[ "${PHP_VERSION}" != "8.4" ]]; then
+  echo "deb https://packages.sury.org/php/ \$VERSION_CODENAME main" | tee /etc/apt/sources.list.d/sury-php.list
+  wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
+fi
 
 if [[ "${IS_CLOUD}" == "true" ]]; then
   echo "deb https://packages.centreon.com/apt-standard-internal/ \$VERSION_CODENAME-${MAJOR_VERSION}-unstable main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
@@ -99,19 +102,19 @@ apt-get install -y faketime
 ############################
 
 apt-get install -y \
-  php8.4-common \
-  php8.4-cli \
-  php8.4-pdo \
-  php8.4-mysqlnd \
-  php8.4-gd \
-  php8.4-xml \
-  php8.4-mbstring \
-  php8.4-ldap \
-  php8.4-snmp \
-  php8.4-intl \
-  php8.4-fpm \
-  php8.4-curl \
-  php8.4-zip
+  php${PHP_VERSION}-common \
+  php${PHP_VERSION}-cli \
+  php${PHP_VERSION}-pdo \
+  php${PHP_VERSION}-mysqlnd \
+  php${PHP_VERSION}-gd \
+  php${PHP_VERSION}-xml \
+  php${PHP_VERSION}-mbstring \
+  php${PHP_VERSION}-ldap \
+  php${PHP_VERSION}-snmp \
+  php${PHP_VERSION}-intl \
+  php${PHP_VERSION}-fpm \
+  php${PHP_VERSION}-curl \
+  php${PHP_VERSION}-zip
 
 ###################
 # install plugins #
@@ -130,6 +133,8 @@ sed -i 's/^rocommunity[[:space:]]*public.*/rocommunity  public default -V centre
 apt-get clean
 
 EOF
+
+ENV PHP_VERSION=${PHP_VERSION}
 
 COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
 
