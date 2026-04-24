@@ -44,7 +44,8 @@ class RemoteConnectionConfigurationService extends ServerConnectionConfiguration
         $brokerInfoConfiguration = CfgCentreonBrokerInfo::getConfiguration(
             $this->name,
             $this->dbUser,
-            $this->dbPassword
+            $this->dbPassword,
+            $this->dbHost,
         );
 
         $this->brokerID = (int) $this->insertWithAdapter('cfg_centreonbroker', $brokerConfiguration['broker']);
