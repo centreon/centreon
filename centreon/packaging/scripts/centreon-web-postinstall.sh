@@ -111,9 +111,21 @@ manageLocales() {
   fi
 }
 
+fixPhpFpmDefaultPoolAclUsers() {
+  # AlmaLinux 10 (and minimal installs): php-fpm's default www.conf lists nginx in
+  # listen.acl_users, but nginx may not be installed. Remove it to prevent FPM init failure.
+  if [ "$1" = "rpm" ] && [ -f /etc/php-fpm.d/www.conf ] && ! id -u nginx &>/dev/null 2>&1; then
+    sed -i -E \
+      -e 's/^(listen\.acl_users\s*=\s*.+),\s*nginx\s*$/\1/' \
+      -e 's/^(listen\.acl_users\s*=\s*)nginx\s*,\s*/\1/' \
+      /etc/php-fpm.d/www.conf
+  fi
+}
+
 manageApacheAndPhpFpm() {
   echo "Managing apache and php fpm configuration and services ..."
   if [ "$1" = "rpm" ]; then
+    fixPhpFpmDefaultPoolAclUsers "$1"
     systemctl restart php-fpm || :
     systemctl restart httpd || :
   else

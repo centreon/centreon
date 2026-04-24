@@ -30,6 +30,8 @@ services:
       - .env
     image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:10.11}"
     ports: ["3306"]
+    environment:
+      MARIADB_EXTRA_FLAGS: "--skip-ssl"
     deploy:
       resources:
         limits:
@@ -139,6 +141,8 @@ services:
     image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:10.11}"
     ports: ["3306"]
     profiles: ["remote-server"]
+    environment:
+      MARIADB_EXTRA_FLAGS: "--skip-ssl"
     deploy:
       resources:
         limits:
