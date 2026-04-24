@@ -742,14 +742,11 @@ jobs:
               return configs[configIndex];
             };
 
-            // const configs = [alma9_mariadb_10_11, alma9_mysql_8_0, alma10_mariadb_11_8, trixie_mysql_8_4];
-            const configs = [alma10_mariadb_11_8, trixie_mysql_8_4];
+            const configs = [alma9_mysql_8_0, alma10_mariadb_11_8, trixie_mysql_8_4];
 
-            // const cloud = alma9_mysql_8_0;
-            const cloud = alma10_mariadb_11_8;
+            const cloud = alma9_mysql_8_0;
 
-            // let main = alma9_mariadb_10_11;
-            let main = alma10_mariadb_11_8;
+            let main = alma9_mysql_8_0;
             if ('${{ steps.detect_cloud_version.outputs.isCloud }}' == 'true') {
               main = cloud;
             }
