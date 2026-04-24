@@ -36,7 +36,7 @@ setPhpTimezone() {
     PHP_CONFIG_DIR="/etc/php.d"
     PHP_CONFIG_FILE="20-timezone.ini"
   else
-    PHP_CONFIG_DIR="/etc/php/8.4/mods-available"
+    PHP_CONFIG_DIR="/etc/php/@PHP_MIN_VERSION@/mods-available"
     PHP_CONFIG_FILE="timezone.ini"
   fi
 
@@ -67,7 +67,7 @@ setPhpTimezone() {
     echo "Setting php timezone to ${PHP_TIMEZONE} ..."
     echo "date.timezone = ${PHP_TIMEZONE}" >> $PHP_CONFIG_DIR/$PHP_CONFIG_FILE
     if [ "$1" = "deb" ]; then
-      phpenmod -v 8.4 timezone
+      phpenmod -v @PHP_MIN_VERSION@ timezone
     fi
   fi
 }
@@ -75,14 +75,14 @@ setPhpTimezone() {
 migratePhpTimezone() {
   if [ "$1" = "deb" ]; then
     OLD_PHP_CONFIG_DIR="/etc/php/8.1/mods-available"
-    PHP_CONFIG_DIR="/etc/php/8.4/mods-available"
+    PHP_CONFIG_DIR="/etc/php/@PHP_MIN_VERSION@/mods-available"
     PHP_CONFIG_FILE="timezone.ini"
 
     if ! grep -REq "^date.timezone" $PHP_CONFIG_DIR && test -d $OLD_PHP_CONFIG_DIR && PHP_TIMEZONE=$(grep -RE "^date.timezone\s*=\s*.+" $OLD_PHP_CONFIG_DIR 2>/dev/null | head -n 1 | cut -d "=" -f2 | tr -d '[:space:]'); then
       if [ -n "${PHP_TIMEZONE}" ]; then
         echo "Setting php timezone to ${PHP_TIMEZONE} ..."
         echo "date.timezone = ${PHP_TIMEZONE}" >> $PHP_CONFIG_DIR/$PHP_CONFIG_FILE
-        phpenmod -v 8.4 timezone
+        phpenmod -v @PHP_MIN_VERSION@ timezone
       fi
     fi
   fi
@@ -129,12 +129,12 @@ manageApacheAndPhpFpm() {
     systemctl restart php-fpm || :
     systemctl restart httpd || :
   else
-    update-alternatives --set php /usr/bin/php8.4 > /dev/null 2>&1 || :
+    update-alternatives --set php /usr/bin/php@PHP_MIN_VERSION@ > /dev/null 2>&1 || :
     a2enmod headers proxy_fcgi setenvif proxy rewrite alias proxy proxy_fcgi > /dev/null 2>&1 || :
-    a2enconf php8.4-fpm > /dev/null 2>&1 || :
+    a2enconf php@PHP_MIN_VERSION@-fpm > /dev/null 2>&1 || :
     a2dissite 000-default > /dev/null 2>&1 || :
     a2ensite centreon > /dev/null 2>&1 || :
-    systemctl restart php8.4-fpm || :
+    systemctl restart php@PHP_MIN_VERSION@-fpm || :
     systemctl restart apache2 || :
   fi
 }

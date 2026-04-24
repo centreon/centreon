@@ -40,6 +40,10 @@ inputs:
   rpm_gpg_signing_passphrase:
     description: The rpm gpg signing passphrase
     required: true
+  php_version:
+    description: "PHP version override (e.g. 8.2 or 8.4). When set, overrides the distrib-based PHP_MIN_VERSION. Leave empty to use the distrib default."
+    required: false
+    default: ""
   stability:
     description: "branch stability (stable, testing, unstable, canary)"
     required: true
@@ -84,7 +88,12 @@ runs:
         export VERSION="${{ inputs.major_version }}.${{ inputs.minor_version }}"
         export RELEASE="${{ inputs.release }}"
         export ARCH="${{ inputs.arch }}"
-        if [[ "${{ steps.parse-distrib.outputs.package_distrib_name }}" == "el9" ]]; then
+        if [[ -n "${{ inputs.php_version }}" ]]; then
+          PHP_MINOR=$(echo "${{ inputs.php_version }}" | cut -d'.' -f2)
+          PHP_NEXT_MINOR=$((PHP_MINOR + 1))
+          export PHP_MIN_VERSION="${{ inputs.php_version }}"
+          export PHP_MAX_VERSION="8.${PHP_NEXT_MINOR}"
+        elif [[ "${{ steps.parse-distrib.outputs.package_distrib_name }}" == "el9" ]]; then
           export PHP_MIN_VERSION="8.2"
           export PHP_MAX_VERSION="8.3"
         elif [[ "${{ steps.parse-distrib.outputs.package_distrib_name }}" == "el10" || "${{ steps.parse-distrib.outputs.package_distrib_name }}" == "deb13u1" ]]; then
@@ -131,6 +140,9 @@ runs:
           sed -i "s/@APACHE_USER@/$APACHE_USER/g" $BASENAME
           sed -i "s/@APACHE_GROUP@/$APACHE_GROUP/g" $BASENAME
           sed -i "s/@COMMIT_HASH@/${{ inputs.commit_hash }}/g" $BASENAME
+          if [[ -n "$PHP_MIN_VERSION" ]]; then
+            grep -rl "@PHP_MIN_VERSION@" . 2>/dev/null | xargs -r sed -i "s/@PHP_MIN_VERSION@/$PHP_MIN_VERSION/g"
+          fi
           nfpm package --config $BASENAME --packager ${{ inputs.package_extension }}
           cd -
           mv $DIRNAME/*.${{ inputs.package_extension }} ./
