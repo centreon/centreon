@@ -3,22 +3,17 @@
 manageUsersAndGroups() {
   echo "Managing users and groups for apache ..."
   if [ "$1" = "rpm" ]; then
-    usermod apache -a -G centreon-engine,centreon-broker,centreon-gorgone,centreon
+    usermod apache -a -G nagios,centreon-engine,centreon-broker,centreon-gorgone,centreon
+    usermod nagios -a -G apache
     usermod centreon-gorgone -a -G apache
     usermod centreon-broker -a -G apache
     usermod centreon -a -G apache
   else
-    usermod www-data -a -G centreon-engine,centreon-broker,centreon-gorgone,centreon
+    usermod www-data -a -G nagios,centreon-engine,centreon-broker,centreon-gorgone,centreon
+    usermod nagios -a -G www-data
     usermod centreon-gorgone -a -G www-data
     usermod centreon-broker -a -G www-data
     usermod centreon -a -G www-data
-  fi
-
-  if ! getent group nagios &>/dev/null; then
-    groupadd -r nagios
-  fi
-  if ! id nagios &>/dev/null; then
-    useradd -r -g nagios -s /sbin/nologin nagios
   fi
 }
 

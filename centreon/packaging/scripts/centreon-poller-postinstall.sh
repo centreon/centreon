@@ -2,20 +2,12 @@
 
 manageUsersAndGroups() {
   echo "Managing users and groups for centreon ..."
-  usermod centreon-engine -a -G centreon,centreon-broker
-  usermod centreon-broker -a -G centreon
+  usermod centreon-engine -a -G centreon,nagios,centreon-broker
+  usermod centreon-broker -a -G centreon,nagios
+  usermod nagios -a -G centreon-engine
   usermod centreon -a -G centreon-engine,centreon-broker
   usermod centreon-gorgone -a -G centreon-engine
   usermod centreon-gorgone -a -G centreon-broker
-  if ! getent group nagios &>/dev/null; then
-    groupadd -r nagios
-  fi
-  if ! id nagios &>/dev/null; then
-    useradd -r -g nagios -s /sbin/nologin nagios
-  fi
-  usermod centreon-engine -a -G nagios
-  usermod centreon-broker -a -G nagios
-  usermod nagios -a -G centreon-engine
 }
 
 updateEngineBrokerConfigurationRights() {
