@@ -412,7 +412,8 @@ local function send_mail(notif, event, conf, hostname)
   local dest_tmpname = os.tmpname()
   local dest_file = io.open(dest_tmpname, "w")
   if not dest_file then
-    broker_log:error(0, "Unable to create destination file: " .. dest_tmpname)
+    broker_log:error(0, "Unable to open destination file: " .. dest_tmpname)
+    os.remove(dest_tmpname)
     return
   end
   dest_file:write(broker.json_encode(destination_json))
@@ -421,8 +422,9 @@ local function send_mail(notif, event, conf, hostname)
   local msg_tmpname = os.tmpname()
   local msg_file = io.open(msg_tmpname, "w")
   if not msg_file then
-    broker_log:error(0, "Unable to create message file: " .. msg_tmpname)
+    broker_log:error(0, "Unable to open message file: " .. msg_tmpname)
     os.remove(dest_tmpname)
+    os.remove(msg_tmpname)
     return
   end
   msg_file:write(broker.json_encode(message_json))
