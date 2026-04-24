@@ -24,6 +24,10 @@ namespace CentreonRemote\Application\Webservice;
 use Centreon\Domain\Entity\Task;
 use Centreon\Domain\PlatformTopology\Model\PlatformPending;
 use CentreonRemote\Application\Validator\WizardConfigurationRequestValidator;
+use CentreonRemote\Domain\Service\ConfigurationWizard\{
+    PollerConnectionConfigurationService,
+    RemoteConnectionConfigurationService
+};
 use CentreonRemote\Domain\Value\ServerWizardIdentity;
 
 /**
@@ -320,6 +324,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *              description="database password"
      *          ),
      *          @OA\Property(
+     *               property="db_host",
+     *               type="string",
+     *               description="database host"
+     *           ),
+     *          @OA\Property(
      *              property="server_type",
      *              type="string",
      *              description="type of server - remote or poller"
@@ -382,6 +391,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         $noProxy = isset($this->arguments['no_proxy']) && $this->arguments['no_proxy'] === true;
         $serverWizardIdentity = new ServerWizardIdentity();
         $isRemoteConnection = $serverWizardIdentity->requestConfigurationIsRemote();
+
         $configurationServiceName = $isRemoteConnection
             ? 'centreon_remote.remote_connection_service'
             : 'centreon_remote.poller_connection_service';
@@ -390,6 +400,9 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         WizardConfigurationRequestValidator::validate();
 
         $pollerConfigurationService = $this->getDi()['centreon_remote.poller_config_service'];
+        /**
+         * @var RemoteConnectionConfigurationService|PollerConnectionConfigurationService $serverConfigurationService
+         */
         $serverConfigurationService = $this->getDi()[$configurationServiceName];
         $pollerConfigurationBridge = $this->getDi()['centreon_remote.poller_config_bridge'];
 
@@ -447,6 +460,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         if ($isRemoteConnection) {
             $serverConfigurationService->setDbUser($this->arguments['db_user']);
             $serverConfigurationService->setDbPassword($this->arguments['db_password']);
+            $serverConfigurationService->setDbHost($this->arguments['db_host'] ?? 'localhost');
             if (
                 $serverWizardIdentity->checkBamOnRemoteServer(
                     $httpMethod . '://' . $serverIP . ':' . $httpPort . '/' . trim($centreonPath, '/'),
