@@ -77,16 +77,19 @@ contents:
   - src: "./src/php.ini"
     dst: "/etc/php/${PHP_MIN_VERSION}/mods-available/centreon.ini"
     type: config|noreplace
+    expand: true
     file_info:
       mode: 0644
     packager: deb
   - src: "/etc/php/${PHP_MIN_VERSION}/mods-available/centreon.ini"
     dst: "/etc/php/${PHP_MIN_VERSION}/fpm/conf.d/50-centreon.ini"
     type: symlink
+    expand: true
     packager: deb
   - src: "/etc/php/${PHP_MIN_VERSION}/mods-available/centreon.ini"
     dst: "/etc/php/${PHP_MIN_VERSION}/cli/conf.d/50-centreon.ini"
     type: symlink
+    expand: true
     packager: deb
 
   - src: "./src/php-fpm.rpm.conf"
@@ -98,6 +101,7 @@ contents:
   - src: "./src/php-fpm.deb.conf"
     dst: "/etc/php/${PHP_MIN_VERSION}/fpm/pool.d/centreon.conf"
     type: config|noreplace
+    expand: true
     file_info:
       mode: 0644
     packager: deb
@@ -111,6 +115,7 @@ contents:
   - src: "./src/php-fpm-systemd.conf"
     dst: "/lib/systemd/system/php${PHP_MIN_VERSION}-fpm.service.d/centreon.conf"
     type: config|noreplace
+    expand: true
     file_info:
       mode: 0644
     packager: deb
