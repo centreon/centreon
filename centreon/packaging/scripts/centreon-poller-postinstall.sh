@@ -2,20 +2,11 @@
 
 manageUsersAndGroups() {
   echo "Managing users and groups for centreon ..."
-  if [ "$1" = "rpm" ]; then
-    usermod centreon-engine -a -G centreon,nagios,centreon-broker
-    usermod centreon-broker -a -G centreon,nagios
-    usermod nagios -a -G centreon-engine
-    usermod centreon -a -G centreon-engine,centreon-broker
-    usermod centreon-gorgone -a -G centreon-engine
-    usermod centreon-gorgone -a -G centreon-broker
-  else
-    usermod centreon-engine -a -G centreon,centreon-broker
-    usermod centreon-broker -a -G centreon
-    usermod centreon -a -G centreon-engine,centreon-broker
-    usermod centreon-gorgone -a -G centreon-engine
-    usermod centreon-gorgone -a -G centreon-broker
-  fi
+  usermod centreon-engine -a -G centreon,centreon-broker
+  usermod centreon-broker -a -G centreon
+  usermod centreon -a -G centreon-engine,centreon-broker
+  usermod centreon-gorgone -a -G centreon-engine
+  usermod centreon-gorgone -a -G centreon-broker
 }
 
 updateEngineBrokerConfigurationRights() {
