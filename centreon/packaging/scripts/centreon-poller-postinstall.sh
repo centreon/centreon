@@ -41,6 +41,7 @@ fixPluginsPermissions() {
   for plugin in /usr/lib64/nagios/plugins/check_icmp /usr/lib64/nagios/plugins/check_dhcp; do
     if [ -f "$plugin" ]; then
       chgrp nagios "$plugin"
+      chmod u+s "$plugin"
     fi
   done
 }
