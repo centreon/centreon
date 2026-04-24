@@ -520,11 +520,11 @@ local function is_notifiable(notification)
     return false
   end
   local notif = get_notification(notification.notification_id)
-  if not notif or not notif.timeperiod then
+  if not notif or not notif.timeperiod or notif.timeperiod.id == nil then
     return false
   end
   local time_period = get_time_period(notif.timeperiod.id)
-  return time_period ~= nil and time_period.in_period == true
+  return time_period.in_period == true
 end
 
 function write(d)
