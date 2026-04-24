@@ -18,6 +18,16 @@ const getBaseConfiguration = ({
   cache,
   module: {
     ...getModuleConfiguration(enableCoverage, postCssBase),
+    parser: {
+      'css/auto': {
+        namedExports: false
+      }
+    },
+    generator: {
+      'css/auto': {
+        exportsOnly: false
+      }
+    }
   },
   optimization,
   output: {
