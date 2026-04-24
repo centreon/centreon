@@ -19,8 +19,10 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use App\Kernel;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\{
     DeployDefaultAgentConfigurationForPoller,
@@ -109,21 +111,89 @@ $deployDefaultAgentConfiguration = function () use ($pearDB, &$errorMessage, $ve
     );
 };
 
-// TODO add your functions here
+/** ------------------------------------- SAML ------------------------------------- */
+/**
+ * Recover SAML provider configurations whose requested_authn_context_comparison field was left in an
+ * invalid state by the non-idempotent 25.11.0 migration (MON-198174): a boolean, a missing value, or
+ * a string outside RequestedAuthnContextComparisonEnum breaks CustomConfiguration::createFromValues()
+ * and the login page. When detected, reset the value to 'exact'.
+ */
+$fixSamlRequestedAuthnContextComparison = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to recover SAML provider configuration';
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: checking SAML provider configuration for invalid requested_authn_context_comparison"
+    );
+
+    $samlConfiguration = $pearDB->fetchAssociative(
+        <<<'SQL'
+            SELECT * FROM `provider_configuration`
+            WHERE `type` = 'saml'
+            SQL
+    );
+
+    if (! $samlConfiguration || ! isset($samlConfiguration['custom_configuration'])) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: no SAML provider configuration found, skipping"
+        );
+
+        return;
+    }
+
+    $customConfiguration = json_decode(
+        json: $samlConfiguration['custom_configuration'],
+        associative: true,
+        flags: JSON_THROW_ON_ERROR
+    );
+
+    $validComparisonValues = ['minimum', 'exact', 'better', 'maximum'];
+    $currentComparison = $customConfiguration['requested_authn_context_comparison'] ?? null;
+
+    if (is_string($currentComparison) && in_array($currentComparison, $validComparisonValues, true)) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: requested_authn_context_comparison already valid, no recovery needed"
+        );
+
+        return;
+    }
+
+    $customConfiguration['requested_authn_context_comparison'] = 'exact';
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: requested_authn_context_comparison was not a valid string, reset to 'exact'"
+    );
+
+    $query = <<<'SQL'
+            UPDATE `provider_configuration`
+            SET `custom_configuration` = :custom_configuration
+            WHERE `id` = :id
+        SQL;
+    $queryParameters = QueryParameters::create(
+        [
+            QueryParameter::string('custom_configuration', json_encode($customConfiguration, JSON_THROW_ON_ERROR)),
+            QueryParameter::int('id', (int) $samlConfiguration['id']),
+        ]
+    );
+    $pearDB->update($query, $queryParameters);
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: SAML provider configuration recovered successfully"
+    );
+};
 
 try {
-    // DDL statements for real time database
-    // TODO add your function calls to update the real time database structure here
-
-    // DDL statements for configuration database
-    // TODO add your function calls to update the configuration database structure here
-
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {
         $pearDB->startTransaction();
     }
 
-    // TODO add your function calls to update the configuration database data here
+    // SAML recovery for platforms affected by MON-198174
+    $fixSamlRequestedAuthnContextComparison();
 
     if ($pearDB->isTransactionActive()) {
         $pearDB->commitTransaction();
@@ -132,6 +202,7 @@ try {
     try {
         $deployDefaultAgentConfiguration();
         $clearDefaultCurveTemplateLegend();
+
     } catch (Throwable $e) {
         CentreonLog::create()->warning(
             logTypeId: CentreonLog::TYPE_UPGRADE,
