@@ -1006,7 +1006,8 @@ jobs:
             docker.centreon.com/centreon/${{ env.project }}-${{ matrix.operating_system }}
             docker.centreon.com/centreon/${{ env.project }}-slim-${{ matrix.operating_system }}
           tags: |
-            type=raw,value=${{ github.head_ref || github.ref_name }}
+            type=raw,value=${{ steps.image_tag.outputs.tag }}
+            type=raw,value=${{ steps.image_tag.outputs.additional_tag }},enable=${{ steps.image_tag.outputs.additional_tag != '' }}
 
       - name: Build and push web image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
