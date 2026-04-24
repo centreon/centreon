@@ -883,7 +883,7 @@ jobs:
           rpm_gpg_key: ${{ github.event.pull_request.head.repo.fork != true && secrets.RPM_GPG_SIGNING_KEY || '' }}
           rpm_gpg_signing_key_id: ${{ github.event.pull_request.head.repo.fork != true && secrets.RPM_GPG_SIGNING_KEY_ID || '' }}
           rpm_gpg_signing_passphrase: ${{ github.event.pull_request.head.repo.fork != true && secrets.RPM_GPG_SIGNING_PASSPHRASE || '' }}
-          php_version: ${{ needs.get-environment.outputs.stability == 'canary' && needs.get-environment.outputs.php_version || '' }}
+          php_version: ${{ needs.get-environment.outputs.php_version }}
           stability: ${{ needs.get-environment.outputs.stability }}
           is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
           upload_artifacts: ${{ needs.get-environment.outputs.is_nightly == 'true' || contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}

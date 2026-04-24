@@ -41,9 +41,8 @@ inputs:
     description: The rpm gpg signing passphrase
     required: true
   php_version:
-    description: "PHP version override (e.g. 8.2 or 8.4). When set, overrides the distrib-based PHP_MIN_VERSION. Leave empty to use the distrib default."
-    required: false
-    default: ""
+    description: "PHP version to use (e.g. 8.2 or 8.4). Overrides the distrib-based PHP_MIN_VERSION."
+    required: true
   stability:
     description: "branch stability (stable, testing, unstable, canary)"
     required: true
@@ -141,7 +140,7 @@ runs:
           sed -i "s/@APACHE_GROUP@/$APACHE_GROUP/g" $BASENAME
           sed -i "s/@COMMIT_HASH@/${{ inputs.commit_hash }}/g" $BASENAME
           if [[ -n "$PHP_MIN_VERSION" ]]; then
-            grep -rl "@PHP_MIN_VERSION@" . 2>/dev/null | xargs -r sed -i "s/@PHP_MIN_VERSION@/$PHP_MIN_VERSION/g"
+            grep -rl "@PHP_MIN_VERSION@" . 2>/dev/null | xargs -r sed -i "s/@PHP_MIN_VERSION@/$PHP_MIN_VERSION/g" || true
           fi
           nfpm package --config $BASENAME --packager ${{ inputs.package_extension }}
           cd -
