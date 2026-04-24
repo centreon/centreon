@@ -186,7 +186,6 @@ $fixSamlRequestedAuthnContextComparison = function () use ($pearDB, &$errorMessa
     );
 };
 
-
 try {
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {
