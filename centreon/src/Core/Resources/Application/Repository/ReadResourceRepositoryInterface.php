@@ -108,6 +108,14 @@ interface ReadResourceRepositoryInterface
     ): int;
 
     /**
+     * Returns true when the last count operation was capped by the bounded COUNT limit,
+     * meaning the actual number of matching resources may be higher than the returned value.
+     *
+     * @return bool
+     */
+    public function isLastCountApproximate(): bool;
+
+    /**
      * @throws RepositoryException
      * @return int
      */

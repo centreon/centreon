@@ -1,4 +1,4 @@
-import { type Column, useSnackbar } from '@centreon/ui';
+import { type Column, getData, useRequest, useSnackbar } from '@centreon/ui';
 
 import { useAtom, useAtomValue } from 'jotai';
 import { equals } from 'ramda';
@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { getResourcesUrl, goToUrl } from '../../../utils';
+import { buildCountEndpoint } from '../api/endpoints';
 import {
   openTicketContextAtom,
   resourcesToAcknowledgeAtom,
@@ -25,6 +26,11 @@ import {
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
 import useLoadResources from './useLoadResources';
 
+interface CountResponse {
+  count: number;
+  is_approximate: boolean;
+}
+
 interface UseListingState {
   cancelAcknowledge: () => void;
   cancelSetDowntime: () => void;
@@ -36,11 +42,14 @@ interface UseListingState {
   confirmSetDowntime: () => void;
   data: ResourceListing | undefined;
   defaultSelectedColumnIds: Array<string>;
+  exactCount: number | null;
   goToResourceStatusPage?: (row) => void;
   hasMetaService: boolean;
+  isExactCountLoading: boolean;
   isLoading: boolean;
   onTicketClose: () => void;
   page: number | undefined;
+  requestExactCount: () => void;
   resetColumns: () => void;
   resourcesToAcknowledge;
   resourcesToOpenTicket: Array<Ticket>;
@@ -97,7 +106,13 @@ const useListing = ({
 }: UseListingProps): UseListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
-  const { isOpenTicketEnabled } = useAtomValue(openTicketContextAtom);
+  const {
+    displayResources,
+    isDownHostHidden,
+    isOpenTicketEnabled,
+    isUnreachableHostHidden,
+    provider
+  } = useAtomValue(openTicketContextAtom);
 
   const [page, setPage] = useState(1);
   const [resourcesToOpenTicket, setResourcesToOpenTicket] = useAtom(
@@ -114,6 +129,52 @@ const useListing = ({
   const [resourcesToSetDowntime, setResourcesToSetDowntime] = useAtom(
     resourcesToSetDowntimeAtom
   );
+
+  const [exactCount, setExactCount] = useState<number | null>(null);
+  const [isExactCountLoading, setIsExactCountLoading] = useState(false);
+
+  const { sendRequest: sendCountRequest } = useRequest<CountResponse>({
+    request: getData
+  });
+
+  const requestExactCount = (): void => {
+    const endpoint = buildCountEndpoint({
+      displayResources: isOpenTicketEnabled ? displayResources : undefined,
+      hostSeverities,
+      isDownHostHidden: isOpenTicketEnabled ? isDownHostHidden : undefined,
+      isUnreachableHostHidden: isOpenTicketEnabled
+        ? isUnreachableHostHidden
+        : undefined,
+      provider: isOpenTicketEnabled ? provider : undefined,
+      resources,
+      serviceSeverities,
+      states,
+      statuses,
+      statusTypes,
+      type: displayType
+    });
+    setIsExactCountLoading(true);
+    sendCountRequest({ endpoint: `./api/latest${endpoint}` })
+      .then((response) => {
+        setExactCount(response.count);
+      })
+      .finally(() => {
+        setIsExactCountLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    setExactCount(null);
+    setIsExactCountLoading(false);
+  }, [
+    displayType,
+    JSON.stringify(resources),
+    JSON.stringify(states),
+    JSON.stringify(statuses),
+    JSON.stringify(statusTypes),
+    JSON.stringify(hostSeverities),
+    JSON.stringify(serviceSeverities)
+  ]);
 
   useEffect(() => {
     if (isOpenTicketEnabled && isFromPreview) {
@@ -243,11 +304,14 @@ const useListing = ({
     confirmSetDowntime,
     data,
     defaultSelectedColumnIds,
+    exactCount,
     goToResourceStatusPage,
     hasMetaService,
+    isExactCountLoading,
     isLoading,
     onTicketClose,
     page,
+    requestExactCount,
     resetColumns,
     resourcesToAcknowledge,
     resourcesToOpenTicket,

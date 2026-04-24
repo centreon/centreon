@@ -1096,13 +1096,10 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: Adding is_module virtual column to centreon_storage.resources",
     );
-    $hasIsModule = $pearDBO->fetchOne(
-        <<<'SQL'
-            SELECT 1 FROM information_schema.COLUMNS
-            WHERE TABLE_SCHEMA = DATABASE()
-              AND TABLE_NAME = 'resources'
-              AND COLUMN_NAME = 'is_module'
-            SQL
+    $hasIsModule = $pearDBO->columnExists(
+        $pearDBO->getConnectionConfig()->getDatabaseNameRealTime(),
+        'resources',
+        'is_module'
     );
     if ($hasIsModule) {
         CentreonLog::create()->info(
@@ -1136,14 +1133,16 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: Adding resources_enabled_status_sort_idx index to centreon_storage.resources",
     );
+    $dbRealTime = $pearDBO->getConnectionConfig()->getDatabaseNameRealTime();
     $hasStatusSortIdxWithResourceId = $pearDBO->fetchOne(
         <<<'SQL'
             SELECT 1 FROM information_schema.STATISTICS
-            WHERE TABLE_SCHEMA = DATABASE()
+            WHERE TABLE_SCHEMA = :db_name
               AND TABLE_NAME = 'resources'
               AND INDEX_NAME = 'resources_enabled_status_sort_idx'
               AND COLUMN_NAME = 'resource_id'
-            SQL
+            SQL,
+        QueryParameters::create([QueryParameter::string('db_name', $dbRealTime)])
     );
     if ($hasStatusSortIdxWithResourceId) {
         CentreonLog::create()->info(
@@ -1154,10 +1153,11 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
         $hasStatusSortIdx = $pearDBO->fetchOne(
             <<<'SQL'
                 SELECT 1 FROM information_schema.STATISTICS
-                WHERE TABLE_SCHEMA = DATABASE()
+                WHERE TABLE_SCHEMA = :db_name
                   AND TABLE_NAME = 'resources'
                   AND INDEX_NAME = 'resources_enabled_status_sort_idx'
-                SQL
+                SQL,
+            QueryParameters::create([QueryParameter::string('db_name', $dbRealTime)])
         );
         if ($hasStatusSortIdx) {
             CentreonLog::create()->info(
@@ -1195,10 +1195,11 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
     $hasIsModuleIdx = $pearDBO->fetchOne(
         <<<'SQL'
             SELECT 1 FROM information_schema.STATISTICS
-            WHERE TABLE_SCHEMA = DATABASE()
+            WHERE TABLE_SCHEMA = :db_name
               AND TABLE_NAME = 'resources'
               AND INDEX_NAME = 'resources_enabled_type_ismodule_idx'
-            SQL
+            SQL,
+        QueryParameters::create([QueryParameter::string('db_name', $dbRealTime)])
     );
     if ($hasIsModuleIdx) {
         CentreonLog::create()->info(
@@ -1229,10 +1230,11 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
     $hasStatusFilterIdx = $pearDBO->fetchOne(
         <<<'SQL'
             SELECT 1 FROM information_schema.STATISTICS
-            WHERE TABLE_SCHEMA = DATABASE()
+            WHERE TABLE_SCHEMA = :db_name
               AND TABLE_NAME = 'resources'
               AND INDEX_NAME = 'resources_status_filter_idx'
-            SQL
+            SQL,
+        QueryParameters::create([QueryParameter::string('db_name', $dbRealTime)])
     );
     if ($hasStatusFilterIdx) {
         CentreonLog::create()->info(
@@ -1260,10 +1262,11 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
     $hasNameSearchIdx = $pearDBO->fetchOne(
         <<<'SQL'
             SELECT 1 FROM information_schema.STATISTICS
-            WHERE TABLE_SCHEMA = DATABASE()
+            WHERE TABLE_SCHEMA = :db_name
               AND TABLE_NAME = 'resources'
               AND INDEX_NAME = 'resources_name_search_idx'
-            SQL
+            SQL,
+        QueryParameters::create([QueryParameter::string('db_name', $dbRealTime)])
     );
     if ($hasNameSearchIdx) {
         CentreonLog::create()->info(
@@ -1292,10 +1295,11 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
     $hasSeverityFilterIdx = $pearDBO->fetchOne(
         <<<'SQL'
             SELECT 1 FROM information_schema.STATISTICS
-            WHERE TABLE_SCHEMA = DATABASE()
+            WHERE TABLE_SCHEMA = :db_name
               AND TABLE_NAME = 'resources'
               AND INDEX_NAME = 'resources_severity_filter_idx'
-            SQL
+            SQL,
+        QueryParameters::create([QueryParameter::string('db_name', $dbRealTime)])
     );
     if ($hasSeverityFilterIdx) {
         CentreonLog::create()->info(

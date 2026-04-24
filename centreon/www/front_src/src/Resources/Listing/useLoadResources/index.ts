@@ -46,6 +46,10 @@ import {
   labelNoResourceFound,
   labelSomethingWentWrong
 } from '../../translatedLabels';
+import {
+  exactCountAtom,
+  exactCountLoadingAtom
+} from '../ApproximateCountBadge';
 import { listResources } from '../api';
 import {
   enabledAutorefreshAtom,
@@ -108,6 +112,8 @@ const useLoadResources = (): LoadResources => {
   );
   const setListing = useSetAtom(listingAtom);
   const setSending = useSetAtom(sendingAtom);
+  const setExactCount = useSetAtom(exactCountAtom);
+  const setExactCountLoading = useSetAtom(exactCountLoadingAtom);
   const setSendingDetails = useSetAtom(sendingDetailsAtom);
   const clearSelectedResource = useSetAtom(clearSelectedResourceDerivedAtom);
   const refreshTimeoutRef = useRef<number>(undefined);
@@ -152,6 +158,10 @@ const useLoadResources = (): LoadResources => {
   };
 
   const load = (): Promise<void> => {
+    // Reset approximate count state so the badge reappears when filters change.
+    setExactCount(null);
+    setExactCountLoading(false);
+
     const getCriteriaIds = (
       name: string
     ): Array<string | number> | undefined => {

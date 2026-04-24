@@ -75,6 +75,9 @@ it('count resources with admin mode should throw a response with all resources',
         ->shouldReceive('countAllResources')
         ->withNoArgs()
         ->andReturn(10);
+    $this->resourcesRepository
+        ->shouldReceive('isLastCountApproximate')
+        ->andReturn(false);
     $request = new CountResourcesRequest(
         resourceFilter: $this->filters,
         allPages: true,
@@ -100,6 +103,9 @@ it('count resources with acl should throw a response with allowed resources', fu
         ->shouldReceive('countAllResourcesByAccessGroupIds')
         ->with([1])
         ->andReturn(10);
+    $this->resourcesRepository
+        ->shouldReceive('isLastCountApproximate')
+        ->andReturn(false);
     $request = new CountResourcesRequest(
         resourceFilter: $this->filters,
         allPages: true,

@@ -1,4 +1,4 @@
-import type { ListingModel } from '@centreon/ui';
+import type { Listing, ListingMeta } from '@centreon/ui';
 
 export enum ResourceType {
   anomalyDetection = 'anomaly-detection',
@@ -62,7 +62,13 @@ export interface Resource extends NamedEntity {
   type: ResourceType;
 }
 
-export type ResourceListing = ListingModel<Resource>;
+export interface ResourceListingMeta extends ListingMeta {
+  is_approximate?: boolean;
+}
+
+export interface ResourceListing extends Omit<Listing<Resource>, 'meta'> {
+  meta: ResourceListingMeta;
+}
 
 export interface Downtime {
   author_name: string;

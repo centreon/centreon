@@ -2,6 +2,7 @@ import { useMediaQuery, useTheme } from '@mui/material';
 import Grid from '@mui/material/Grid';
 
 import { equals } from 'ramda';
+import type { ReactNode } from 'react';
 import { lazy, Suspense } from 'react';
 
 import ExportCsv from './exportToCsv';
@@ -16,7 +17,14 @@ import { useStyles } from './Visualization/Visualization.styles';
 const WrapperResourceActions = lazy(() => import('./WrapperResourceActions'));
 const GlobalActions = lazy(() => import('./Refresh'));
 
-const Actions = ({ onRefresh }: Props): JSX.Element => {
+interface ActionsProps extends Props {
+  approximateCountBadge?: ReactNode;
+}
+
+const Actions = ({
+  onRefresh,
+  approximateCountBadge
+}: ActionsProps): JSX.Element => {
   const { classes, cx } = useStyles();
   const theme = useTheme();
 
@@ -64,6 +72,7 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
         size={5}
         wrap="nowrap"
       >
+        {approximateCountBadge}
         <VisualizationActions displayCondensed={displayCondensed} />
         <ExportCsv />
       </Grid>

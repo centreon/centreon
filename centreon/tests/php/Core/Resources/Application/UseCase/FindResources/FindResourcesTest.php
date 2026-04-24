@@ -74,6 +74,9 @@ it(
         $this->resourcesRepository
             ->shouldReceive('findResources')
             ->andReturn([]);
+        $this->resourcesRepository
+            ->shouldReceive('isLastCountApproximate')
+            ->andReturn(false);
         $this->accessGroupRepository->shouldReceive('findByContact')->never();
 
         ($this->useCase)($this->presenter, new ResourceFilter());
@@ -92,6 +95,9 @@ it(
         $this->resourcesRepository
             ->shouldReceive('findResourcesByAccessGroupIds')
             ->andReturn([]);
+        $this->resourcesRepository
+            ->shouldReceive('isLastCountApproximate')
+            ->andReturn(false);
 
         ($this->useCase)($this->presenter, new ResourceFilter());
 

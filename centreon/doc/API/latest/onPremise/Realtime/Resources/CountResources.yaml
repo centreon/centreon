@@ -66,6 +66,10 @@ get:
             properties:
               count:
                 type: integer
+                description: "Number of resources matching the filters. Capped at 10,000 when is_approximate is true."
+              is_approximate:
+                type: boolean
+                description: "True when the count was capped at 10,000 because a full-text search over multiple columns would exceed the time budget. The actual number of matching resources may be higher. Call this endpoint with the same filters to retrieve the exact count (which will run without the bounded limit)."
               meta:
                 $ref: 'Schema//CountResources/CountResourcesMeta.yaml'
     '404':

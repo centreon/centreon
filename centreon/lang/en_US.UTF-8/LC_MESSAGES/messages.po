@@ -19988,3 +19988,11 @@ msgstr "{{label}} should be at least {{min}} characters long"
 #: centreon/www/install/front_translate.php
 msgid "{{total}} element(s) found"
 msgstr "{{total}} element(s) found"
+
+#: packages/ui/src/Listing/translatedLabels.ts
+msgid "More than 1,000 resources match your search. Click to compute the exact count."
+msgstr ""
+
+#: packages/ui/src/Listing/translatedLabels.ts
+msgid "Computing exact count…"
+msgstr ""

@@ -73,7 +73,9 @@ final class FindResources
                 $extraData[$provider->getExtraDataSourceName()] = $provider->getExtraDataForResources($filter, $resources);
             }
 
-            $presenter->presentResponse(FindResourcesFactory::createResponse($resources, $extraData));
+            $response = FindResourcesFactory::createResponse($resources, $extraData);
+            $response->isCountApproximate = $this->repository->isLastCountApproximate();
+            $presenter->presentResponse($response);
         } catch (RepositoryException $exception) {
             $presenter->presentResponse(
                 new ErrorResponse(

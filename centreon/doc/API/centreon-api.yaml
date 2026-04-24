@@ -2027,6 +2027,11 @@ paths:
       tags:
         - Resource
       summary: 'List all resources including hosts and services'
+      x-remarks: |
+        The `meta.total` field may be approximate when a free-text search spans multiple columns
+        (alias, address, information). In that case `meta.is_approximate` is `true` and `meta.total`
+        is capped at 10,000. To retrieve the exact count, call `GET /monitoring/resources/count`
+        with the same query parameters.
       description: |
         List all the resources in real-time monitoring : hosts and services.
 
@@ -2106,7 +2111,14 @@ paths:
                 type: object
                 properties:
                   result: { type: array, items: { $ref: '#/components/schemas/Monitoring.ResourceMain' } }
-                  meta: { $ref: '#/components/schemas/Meta' }
+                  meta:
+                    allOf:
+                      - $ref: '#/components/schemas/Meta'
+                      - type: object
+                        properties:
+                          is_approximate:
+                            type: boolean
+                            description: 'True when meta.total is capped at 10,000 because a multi-column free-text search would exceed the time budget. Call GET /monitoring/resources/count with the same filters to retrieve the exact count.'
         '403':
           $ref: '#/components/responses/Forbidden'
         '500':

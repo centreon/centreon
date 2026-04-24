@@ -49,6 +49,15 @@ use Core\Severity\RealTime\Domain\Model\Severity;
 class DbReadResourceRepository extends DatabaseRepository implements ReadResourceRepositoryInterface
 {
     use LoggerTrait;
+
+    /**
+     * Maximum number of rows to scan when computing a bounded (approximate) COUNT.
+     * When a free-text search spans multiple columns (alias, address, output) the exact COUNT
+     * can take 10-15 s because no covering index is available for those columns. For result sets
+     * larger than this limit the query stops early and returns this value; the caller signals to
+     * the client that the count is approximate via the is_approximate flag.
+     */
+    public const BOUNDED_COUNT_LIMIT = 1_000;
     private const RESOURCE_TYPE_HOST = 1;
 
     /**
@@ -61,6 +70,12 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
     /** @var ResourceEntity[] */
     private array $resources = [];
+
+    /** Tracks whether the last count operation was capped by BOUNDED_COUNT_LIMIT. */
+    private bool $isLastCountApproximate = false;
+
+    /** Tracks whether generateCountResourcesQuery() actually applied bounded mode (LIMIT scan). */
+    private bool $lastCountWasBounded = false;
 
     /** @var ResourceTypeInterface[] */
     private array $resourceTypes;
@@ -514,6 +529,11 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 previous: $exception
             );
         }
+    }
+
+    public function isLastCountApproximate(): bool
+    {
+        return $this->isLastCountApproximate;
     }
 
     // ------------------------------------- PRIVATE METHODS -------------------------------------
@@ -1141,21 +1161,11 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     }
 
     /**
-     * Generates a direct SELECT COUNT(*) query without a subquery wrapper.
-     *
-     * This avoids the costly full-column SELECT that prevents the optimizer from using
-     * the covering index (enabled, type, is_module, poller_id). LEFT JOIN to parent_resource
-     * is only added when the severity filter is active (addSeveritySubRequest references
-     * parent_resource.severity_id) or when a search parameter references parent_resource columns,
-     * because that JOIN breaks the covering index.
-     *
      * @param ResourceFilter $filter
      * @param QueryParameters $queryParametersFromRequestParameter
      * @param int[] $accessGroupIds
-     *
-     * @throws CollectionException
-     * @throws RepositoryException
-     * @throws ValueObjectException
+     * @param bool $useAclCte
+     * @param bool $bounded
      * @return string
      */
     private function generateCountResourcesQuery(
@@ -1163,6 +1173,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         QueryParameters $queryParametersFromRequestParameter,
         array $accessGroupIds = [],
         bool $useAclCte = false,
+        bool $bounded = false,
     ): string {
         // Must be set here because generateCountResourcesQuery() is called independently by the
         // CountResources use case (count endpoint), which never goes through generateFindResourcesQuery().
@@ -1237,9 +1248,23 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             ? 'FORCE INDEX (`resources_name_search_idx`)'
             : '';
 
+        // When bounded=true, always use the bounded scan: SELECT 1 … LIMIT N stops once N rows match.
+        // This applies to all search types — multi-column OR searches need it to avoid 14s+ full scans,
+        // and simple searches benefit too (stops at BOUNDED_COUNT_LIMIT instead of scanning all rows).
+        // When the returned count equals BOUNDED_COUNT_LIMIT the result is approximate (more rows may exist).
+        $useBoundedCount = $bounded;
+        $this->lastCountWasBounded = $useBoundedCount;
+
         $query = $queryHeaders;
+
+        // Open the outer COUNT wrapper for bounded mode (CTEs defined above remain in scope).
+        if ($useBoundedCount) {
+            $query .= ' SELECT COUNT(*) FROM ( ';
+        }
+
+        $innerSelect = $useBoundedCount ? 'SELECT 1' : 'SELECT COUNT(*)';
         $query .= <<<SQL
-            SELECT COUNT(*)
+            {$innerSelect}
             FROM `:dbstg`.`resources` {$indexHint}
             INNER JOIN `:dbstg`.`instances`
                 ON `instances`.instance_id = `resources`.poller_id
@@ -1283,6 +1308,12 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         $query .= $this->addStatusTypeSubRequest($filter);
         $query .= $this->addMonitoringServerSubRequest($filter, $queryParametersFromRequestParameter);
         $query .= $this->addSeveritySubRequest($filter, $queryParametersFromRequestParameter);
+
+        if ($useBoundedCount) {
+            // Scan one extra row so we can distinguish "exactly N" from "more than N".
+            $limit = self::BOUNDED_COUNT_LIMIT + 1;
+            $query .= " LIMIT {$limit} ) AS bounded_count";
+        }
 
         return $query;
     }
@@ -1329,18 +1360,24 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         $this->completeResourcesWithIcons($icons);
 
         // Calculate total for pagination meta using the optimised COUNT query.
+        // Bounded mode caps the scan at BOUNDED_COUNT_LIMIT rows for multi-column OR searches,
+        // preventing 10-15 s full scans when alias/address/output columns are involved.
         $queryParametersForCount = new QueryParameters();
         $queryCount = $this->generateCountResourcesQuery(
             filter: $filter,
             queryParametersFromRequestParameter: $queryParametersForCount,
             accessGroupIds: $accessGroupIds,
             useAclCte: $useAclCte,
+            bounded: true,
         );
         $countQueryParameters = SearchRequestParametersTransformer::reverseToQueryParameters(
             $this->sqlRequestTranslator->getSearchValues()
         )->mergeWith($queryParametersForCount);
         $total = (int) $this->connection->fetchOne($this->translateDbName($queryCount), $countQueryParameters);
-        $this->sqlRequestTranslator->getRequestParameters()->setTotal($total);
+        $this->isLastCountApproximate = $this->lastCountWasBounded && ($total > self::BOUNDED_COUNT_LIMIT);
+        $this->sqlRequestTranslator->getRequestParameters()->setTotal(
+            $this->isLastCountApproximate ? self::BOUNDED_COUNT_LIMIT : $total
+        );
     }
 
     /**
@@ -1368,12 +1405,16 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $this->sqlRequestTranslator->getRequestParameters()->setLimit(0);
         }
 
+        // When exporting all pages (allPages = true) the exact count is required to drive the export loop.
+        // For regular paginated count requests, bounded mode caps expensive multi-column OR scans.
+        $bounded = ! $allPages;
         $queryParametersFromRequestParameter = new QueryParameters();
         $queryCount = $this->generateCountResourcesQuery(
             filter: $filter,
             queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
             accessGroupIds: $accessGroupIds,
             useAclCte: $this->shouldUseAclCte($accessGroupIds),
+            bounded: $bounded,
         );
 
         $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
@@ -1382,7 +1423,10 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
         $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameter);
 
-        return (int) $this->connection->fetchOne($this->translateDbName($queryCount), $queryParameters);
+        $result = (int) $this->connection->fetchOne($this->translateDbName($queryCount), $queryParameters);
+        $this->isLastCountApproximate = $this->lastCountWasBounded && ($result > self::BOUNDED_COUNT_LIMIT);
+
+        return $this->isLastCountApproximate ? self::BOUNDED_COUNT_LIMIT : $result;
     }
 
     /**

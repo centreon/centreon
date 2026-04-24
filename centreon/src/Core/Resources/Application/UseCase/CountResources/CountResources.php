@@ -82,6 +82,7 @@ final readonly class CountResources
 
             $response->setTotalFilteredResources($countFilteredResources);
             $response->setTotalResources($countTotalResources);
+            $response->setIsApproximate($this->readResourceRepository->isLastCountApproximate());
 
             $presenter->presentResponse($response);
         } catch (RepositoryException $exception) {
