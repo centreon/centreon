@@ -21,22 +21,18 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
+namespace App\MonitoringConfiguration\Application\Command;
 
-use Webmozart\Assert\Assert;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 
-final readonly class GorgoneConfiguration
+final readonly class CreatePollerCommand
 {
-    public const int DEFAULT_GORGONE_PORT = 5556;
-    public const int DEFAULT_SSH_PORT = 22;
-
     public function __construct(
-        public GorgoneCommunicationTypeEnum $communicationType = GorgoneCommunicationTypeEnum::ZMQ,
-        public int $gorgonePort = self::DEFAULT_GORGONE_PORT,
-        public int $sshPort = self::DEFAULT_SSH_PORT,
-        public bool $useRemoteServerAsProxy = true,
+        public PollerName $name,
+        public PollerTypeEnum $pollerType,
+        public ?PollerAddress $address,
     ) {
-        Assert::range($gorgonePort, 1, 65535);
-        Assert::range($sshPort, 1, 65535);
     }
 }

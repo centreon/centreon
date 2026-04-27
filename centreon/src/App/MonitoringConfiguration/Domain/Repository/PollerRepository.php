@@ -26,11 +26,16 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\Shared\Domain\Collection;
 
 interface PollerRepository
 {
+    public function add(Poller $poller): void;
+
+    public function findOneByName(PollerName $name): ?Poller;
+
     /**
      * @return Collection<Poller>
      */

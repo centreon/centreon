@@ -29,7 +29,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateSHA;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineConfiguration;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
@@ -429,12 +428,7 @@ final class InstallationCommandFactoryTest extends TestCase
             trapConfiguration: new TrapConfiguration(),
             pollerCommands: new Collection([], PollerCommand::class),
             engineConfiguration: new EngineConfiguration(),
-            gorgoneConfiguration: new GorgoneConfiguration(
-                communicationType: GorgoneCommunicationTypeEnum::ZMQ,
-                gorgonePort: 5556,
-                sshPort: 22,
-                useRemoteServerAsProxy: true,
-            ),
+            gorgoneConfiguration: new GorgoneConfiguration(),
             cmaCertificates: $cmaCertificates,
         );
     }

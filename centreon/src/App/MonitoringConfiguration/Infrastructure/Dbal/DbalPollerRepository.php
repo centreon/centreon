@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateSHA;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCMACertificates;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\Shared\Domain\Collection;
@@ -127,6 +128,94 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
 
         private bool $withCmaCertificates = false,
     ) {
+    }
+
+    public function add(Poller $poller): void
+    {
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->insert(self::TABLE_NAME)
+            ->values([
+                'name' => ':name',
+                'ns_ip_address' => ':address',
+                'localhost' => ':is_central',
+                'is_default' => ':is_default',
+                'ns_activate' => ':is_activated',
+                'poller_type' => ':poller_type',
+                'uuid' => ':uuid',
+                'gorgone_communication_type' => ':gorgone_communication_type',
+                'gorgone_port' => ':gorgone_port',
+                'ssh_port' => ':ssh_port',
+                'remote_server_use_as_proxy' => ':remote_server_use_as_proxy',
+                'engine_start_command' => ':engine_start_command',
+                'engine_stop_command' => ':engine_stop_command',
+                'engine_restart_command' => ':engine_restart_command',
+                'engine_reload_command' => ':engine_reload_command',
+                'nagios_bin' => ':nagios_bin',
+                'nagiostats_bin' => ':nagiostats_bin',
+                'nagios_perfdata' => ':nagios_perfdata',
+                'broker_reload_command' => ':broker_reload_command',
+                'centreonbroker_cfg_path' => ':centreonbroker_cfg_path',
+                'centreonbroker_module_path' => ':centreonbroker_module_path',
+                'centreonbroker_logs_path' => ':centreonbroker_logs_path',
+                'centreonconnector_path' => ':centreonconnector_path',
+                'init_script_centreontrapd' => ':init_script_centreontrapd',
+                'snmp_trapd_path_conf' => ':snmp_trapd_path_conf',
+            ])
+            ->setParameter('name', $poller->name->value)
+            ->setParameter('address', $poller->address->value)
+            ->setParameter('is_central', $poller->isCentral ? '1' : '0')
+            ->setParameter('is_default', $poller->isDefault ? 1 : 0)
+            ->setParameter('is_activated', $poller->isActivated ? '1' : '0')
+            ->setParameter('poller_type', $poller->pollerType->value)
+            ->setParameter('uuid', $poller->uuid?->value)
+            ->setParameter('gorgone_communication_type', $poller->gorgoneConfiguration->communicationType->value)
+            ->setParameter('gorgone_port', $poller->gorgoneConfiguration->gorgonePort)
+            ->setParameter('ssh_port', $poller->gorgoneConfiguration->sshPort)
+            ->setParameter('remote_server_use_as_proxy', $poller->gorgoneConfiguration->useRemoteServerAsProxy ? '1' : '0')
+            ->setParameter('engine_start_command', $poller->engineConfiguration->startCommand)
+            ->setParameter('engine_stop_command', $poller->engineConfiguration->stopCommand)
+            ->setParameter('engine_restart_command', $poller->engineConfiguration->restartCommand)
+            ->setParameter('engine_reload_command', $poller->engineConfiguration->reloadCommand)
+            ->setParameter('nagios_bin', $poller->engineConfiguration->binaryPath)
+            ->setParameter('nagiostats_bin', $poller->engineConfiguration->statisticsBinaryPath)
+            ->setParameter('nagios_perfdata', $poller->engineConfiguration->perfdataFilePath)
+            ->setParameter('broker_reload_command', $poller->brokerConfiguration->reloadCommand)
+            ->setParameter('centreonbroker_cfg_path', $poller->brokerConfiguration->configurationPath)
+            ->setParameter('centreonbroker_module_path', $poller->brokerConfiguration->modulesPath)
+            ->setParameter('centreonbroker_logs_path', $poller->brokerConfiguration->logsPath)
+            ->setParameter('centreonconnector_path', $poller->connectorConfiguration->connectorPath)
+            ->setParameter('init_script_centreontrapd', $poller->trapConfiguration->initScriptPath)
+            ->setParameter('snmp_trapd_path_conf', $poller->trapConfiguration->snmpTrapPathConf)
+            ->executeStatement();
+
+        $pollerId = (int) $this->connection->lastInsertId();
+
+        if ($pollerId === 0) {
+            throw new \RuntimeException(sprintf('Unable to retrieve last insert ID for "%s".', self::TABLE_NAME));
+        }
+
+        $this->setId($poller, new PollerId($pollerId));
+    }
+
+    public function findOneByName(PollerName $name): ?Poller
+    {
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->select(...self::getSelectColumns())
+            ->from(self::TABLE_NAME, 'p')
+            ->where('p.name = :name')
+            ->setParameter('name', $name->value)
+            ->setMaxResults(1);
+
+        /** @var RowTypeAlias|false $row */
+        $row = $qb->executeQuery()->fetchAssociative();
+
+        if ($row === false) {
+            return null;
+        }
+
+        return $this->createPoller($row);
     }
 
     public function findAllByGlobalMacro(GlobalMacro $globalMacro): Collection

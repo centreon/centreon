@@ -21,22 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
-use Webmozart\Assert\Assert;
+use App\Shared\Domain\Exception\AggregateAlreadyExistsException;
 
-final readonly class GorgoneConfiguration
+final class PollerAlreadyExistsException extends AggregateAlreadyExistsException
 {
-    public const int DEFAULT_GORGONE_PORT = 5556;
-    public const int DEFAULT_SSH_PORT = 22;
-
-    public function __construct(
-        public GorgoneCommunicationTypeEnum $communicationType = GorgoneCommunicationTypeEnum::ZMQ,
-        public int $gorgonePort = self::DEFAULT_GORGONE_PORT,
-        public int $sshPort = self::DEFAULT_SSH_PORT,
-        public bool $useRemoteServerAsProxy = true,
-    ) {
-        Assert::range($gorgonePort, 1, 65535);
-        Assert::range($sshPort, 1, 65535);
-    }
 }

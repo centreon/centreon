@@ -21,22 +21,9 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
+namespace App\MonitoringConfiguration\Domain\Security;
 
-use Webmozart\Assert\Assert;
-
-final readonly class GorgoneConfiguration
+enum PollerPermissionEnum: string
 {
-    public const int DEFAULT_GORGONE_PORT = 5556;
-    public const int DEFAULT_SSH_PORT = 22;
-
-    public function __construct(
-        public GorgoneCommunicationTypeEnum $communicationType = GorgoneCommunicationTypeEnum::ZMQ,
-        public int $gorgonePort = self::DEFAULT_GORGONE_PORT,
-        public int $sshPort = self::DEFAULT_SSH_PORT,
-        public bool $useRemoteServerAsProxy = true,
-    ) {
-        Assert::range($gorgonePort, 1, 65535);
-        Assert::range($sshPort, 1, 65535);
-    }
+    case CanCreateEdit = 'can_create_edit_poller';
 }
