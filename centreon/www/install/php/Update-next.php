@@ -25,11 +25,11 @@ use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use App\Kernel;
-use Symfony\Component\Uid\Uuid;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\{
     DeployDefaultAgentConfigurationForPoller,
     DeployDefaultAgentConfigurationForPollerRequest
 };
+use Symfony\Component\Uid\Uuid;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
