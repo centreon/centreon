@@ -13,7 +13,6 @@ import {
 
 import ExpandableContainer from '../components/ExpandableContainer';
 import type { Parameters } from '../components/ExpandableContainer/models';
-import LoadingSkeleton from '../LoadingSkeleton';
 import { useMemoComponent, useViewportIntersection } from '../utils';
 import { isResizingItemAtom } from './atoms';
 import { useDashboardItemStyles } from './Dashboard.styles';
@@ -21,7 +20,10 @@ import { useDashboardItemStyles } from './Dashboard.styles';
 interface DashboardItemProps {
   additionalMemoProps?: Array<unknown>;
   canMove?: boolean;
-  children: ReactElement;
+  children: Array<
+    | ReactElement
+    | (({ isInViewport }: { isInViewport: boolean }) => ReactElement)
+  >;
   className?: string;
   disablePadding?: boolean;
   header?: ReactElement | ((params: Parameters) => ReactElement);
@@ -139,15 +141,10 @@ const Item = ({
                       !disablePadding && classes.widgetPadding
                     )}
                   >
-                    {!isInViewport ? (
-                      <LoadingSkeleton
-                        animation={false}
-                        data-widget-skeleton={id}
-                        height="100%"
-                        width="100%"
-                      />
-                    ) : (
-                      children
+                    {children.map((child) =>
+                      typeof child === 'function'
+                        ? child({ isInViewport })
+                        : child
                     )}
                   </div>
                 </Card>

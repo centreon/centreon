@@ -1,6 +1,7 @@
 import { MemoizedListing } from '@centreon/ui';
 
 import { includes, isNotNil } from 'ramda';
+import { ReactElement } from 'react';
 
 import NoResources from '../../NoResources';
 import { useColumns } from './Columns/useColumns';
@@ -18,8 +19,9 @@ const GroupMonitoring = ({
   dashboardId,
   playlistHash,
   widgetPrefixQuery,
-  hasDescription
-}: WidgetProps): JSX.Element => {
+  hasDescription,
+  isInViewport
+}: WidgetProps): ReactElement => {
   const {
     hasResourceTypeDefined,
     changeLimit,
@@ -38,6 +40,7 @@ const GroupMonitoring = ({
     hasDescription,
     id,
     isFromPreview,
+    isInViewport,
     panelData,
     panelOptions,
     playlistHash,
