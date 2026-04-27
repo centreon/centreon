@@ -1,8 +1,7 @@
-import PollerIcon from '@mui/icons-material/DeviceHub';
-
 import { MenuSkeleton, TopCounterLayout } from '@centreon/ui';
-
+import PollerIcon from '@mui/icons-material/DeviceHub';
 import { flatten, includes } from 'ramda';
+import { ReactElement } from 'react';
 
 import useNavigation from '../../Navigation/useNavigation';
 import PollerStatusIcon from './PollerStatusIcon';
@@ -11,7 +10,7 @@ import { usePollerData } from './usePollerData';
 
 export const pollerConfigurationPageNumber = '60901';
 
-const ServiceStatusCounter = (): JSX.Element | null => {
+const ServiceStatusCounter = (): ReactElement | null => {
   const { isLoading, data, isAllowed } = usePollerData();
   const { allowedPages } = useNavigation();
 
@@ -30,10 +29,10 @@ const ServiceStatusCounter = (): JSX.Element | null => {
   return (
     <TopCounterLayout
       Icon={PollerIcon}
-      renderIndicators={(): JSX.Element => (
+      renderIndicators={(): ReactElement => (
         <PollerStatusIcon iconSeverities={data.iconSeverities} />
       )}
-      renderSubMenu={({ closeSubMenu }): JSX.Element => (
+      renderSubMenu={({ closeSubMenu }): ReactElement => (
         <PollerSubMenu
           {...data.subMenu}
           closeSubMenu={closeSubMenu}
