@@ -896,6 +896,38 @@ $addPollerTypeColumn = function () use ($pearDB, &$errorMessage, $version): void
     );
 };
 
+$addPollerUuidColumn = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add uuid column to nagios_server';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Adding uuid column to nagios_server",
+    );
+
+    if ($pearDB->columnExists(
+        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
+        'nagios_server',
+        'uuid'
+    )) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Column uuid already exists on nagios_server, skipping",
+        );
+
+        return;
+    }
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server` ADD COLUMN `uuid` VARCHAR(36) DEFAULT NULL COMMENT 'UUIDv7 (36 chars with hyphens)'
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully added uuid column to nagios_server",
+    );
+};
+
 /** ------------------------------------- SAML ------------------------------------- */
 /**
  * Recover SAML provider configurations whose requested_authn_context_comparison field was left in an
@@ -981,6 +1013,7 @@ try {
 
     // DDL statements for configuration database
     $addPollerTypeColumn();
+    $addPollerUuidColumn();
 
     // SAML recovery for platforms affected by MON-198174
     $fixSamlRequestedAuthnContextComparison();
