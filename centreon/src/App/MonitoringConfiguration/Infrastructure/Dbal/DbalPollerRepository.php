@@ -49,6 +49,10 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   is_activated: '0'|'1',
  *   poller_type: 'vm'|'docker',
  *   poller_uuid: string|null,
+ *   gorgone_communication_type: '1'|'2',
+ *   gorgone_port: int|null,
+ *   ssh_port: int|null,
+ *   remote_server_use_as_proxy: '0'|'1',
  * }
  * @phpstan-type JoinRowTypeAlias = array{
  *   poller_id: int,
@@ -59,6 +63,10 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   is_activated: '0'|'1',
  *   poller_type: 'vm'|'docker',
  *   poller_uuid: string|null,
+ *   gorgone_communication_type: '1'|'2',
+ *   gorgone_port: int|null,
+ *   ssh_port: int|null,
+ *   remote_server_use_as_proxy: '0'|'1',
  *   gm_resource_id: int,
  *   gm_resource_name: string,
  *   gm_resource_line: string,
@@ -186,6 +194,10 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             "{$alias}.ns_activate AS is_activated",
             "{$alias}.poller_type AS poller_type",
             "{$alias}.uuid AS poller_uuid",
+            "{$alias}.gorgone_communication_type AS gorgone_communication_type",
+            "{$alias}.gorgone_port AS gorgone_port",
+            "{$alias}.ssh_port AS ssh_port",
+            "{$alias}.remote_server_use_as_proxy AS remote_server_use_as_proxy",
         ];
     }
 

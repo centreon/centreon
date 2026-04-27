@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationType;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
@@ -52,6 +54,12 @@ final readonly class DbalPollerTransformer implements TransformerInterface
             pollerType: PollerType::from($from['poller_type']),
             uuid: $from['poller_uuid'] !== null ? new PollerUuid($from['poller_uuid']) : null,
             globalMacros: new Collection([], GlobalMacro::class),
+            gorgoneConfiguration: new GorgoneConfiguration(
+                communicationType: GorgoneCommunicationType::from((int) $from['gorgone_communication_type']),
+                gorgonePort: (int) ($from['gorgone_port'] ?? 5556),
+                sshPort: (int) ($from['ssh_port'] ?? 22),
+                useRemoteServerAsProxy: $from['remote_server_use_as_proxy'] === '1',
+            ),
             cmaCertificates: null,
         );
     }
