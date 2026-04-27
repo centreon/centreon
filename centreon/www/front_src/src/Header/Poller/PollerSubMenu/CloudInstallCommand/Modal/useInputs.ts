@@ -5,7 +5,7 @@ import {
   EnvironmentSelector,
   PollerNameSection,
   TokenSection
-} from '../Components';
+} from './Components';
 
 export const useInputs = (): Array<InputProps> => {
   return [

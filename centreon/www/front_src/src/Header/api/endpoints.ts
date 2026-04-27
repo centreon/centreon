@@ -10,12 +10,5 @@ export const exportAndReloadConfigurationEndpoint = `${baseEndpoint}/configurati
 export const userEndpoint =
   './api/internal.php?object=centreon_topcounter&action=user';
 
-export const createPollerEndpoint = '/configuration/monitoring-servers';
-
-export const getPollerRegistrationCommandEndpoint = (
-  pollerId: number
-): string =>
-  `/configuration/monitoring-servers/${pollerId}/registration-command`;
-
-export const exportPollerConfigurationEndpoint = (pollerId: number): string =>
-  `/configuration/monitoring-servers/${pollerId}/generate-and-reload`;
+export const createPollerEndpoint =
+  '/configuration/agent-configurations/installation-command';

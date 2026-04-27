@@ -4,15 +4,15 @@ import { useAtomValue } from 'jotai';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { isGeneratedAtom } from '../atoms';
-import type { CloudInstallCommandFormValues } from '../models';
+import { isGeneratedAtom } from '../../atoms';
+import type { CloudInstallCommandFormValues } from '../../models';
 
-import { Section } from '../../../../../AgentConfiguration/Listing/InstallationCommandModal/Components';
+import { Section } from '../../../../../../AgentConfiguration/Listing/InstallationCommandModal/Components';
 
 import {
   labelEnterPollerName,
   labelPollerName
-} from '../../../translatedLabels';
+} from '../../../../translatedLabels';
 
 const PollerNameSection = (): ReactElement => {
   const { t } = useTranslation();

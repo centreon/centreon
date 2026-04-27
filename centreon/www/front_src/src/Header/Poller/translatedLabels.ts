@@ -45,8 +45,4 @@ export const labelCommandGenerationStep =
   'La commande est en cours de génération';
 export const labelCopyTheFollowingCommand =
   'Copy the following command and run it on your poller to register it.';
-export const labelPollerCreatedSuccessfully = 'Poller created successfully';
 export const labelFailedToCreatePoller = 'Failed to create poller';
-export const labelConfigurationExported = 'Configuration exported successfully';
-export const labelFailedToExportConfiguration =
-  'Failed to export configuration';

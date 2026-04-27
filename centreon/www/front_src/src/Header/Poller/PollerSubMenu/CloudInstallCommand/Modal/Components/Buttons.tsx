@@ -3,13 +3,13 @@ import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-import { isExportConfigModalOpenAtom } from '../../ExportConfiguration/atoms';
-import { isGeneratedAtom, isModalOpenAtom } from '../atoms';
+import { isExportConfigModalOpenAtom } from '../../../ExportConfiguration/atoms';
+import { isGeneratedAtom, isModalOpenAtom } from '../../atoms';
 
 import {
   labelCancel,
   labelExportConfiguration
-} from '../../../translatedLabels';
+} from '../../../../translatedLabels';
 
 interface Props {
   close: () => void;

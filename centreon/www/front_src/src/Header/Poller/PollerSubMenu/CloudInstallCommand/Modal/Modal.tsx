@@ -3,7 +3,7 @@ import { Modal } from '@centreon/ui/components';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Buttons } from '../Components';
+import { Buttons } from './Components';
 import { useInputs } from './useInputs';
 import { useInstallCommand } from './useInstallCommand';
 import { useValidationSchema } from './useValidationSchema';

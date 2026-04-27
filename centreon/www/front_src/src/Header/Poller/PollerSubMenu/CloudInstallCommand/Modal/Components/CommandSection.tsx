@@ -9,24 +9,24 @@ import { useTranslation } from 'react-i18next';
 import {
   CommandLine,
   Section
-} from '../../../../../AgentConfiguration/Listing/InstallationCommandModal/Components';
-import InstallCommandLogo from '../../../../../assets/InstallCommand.svg';
+} from '../../../../../../AgentConfiguration/Listing/InstallationCommandModal/Components';
+import InstallCommandLogo from '../../../../../../assets/InstallCommand.svg';
 
-import { generatedCommandAtom } from '../atoms';
-import type { CloudInstallCommandFormValues } from '../models';
+import { generatedCommandAtom } from '../../atoms';
+import type { CloudInstallCommandFormValues } from '../../models';
 
 import {
   labelClickToGenerate,
   labelCommandGenerationStep,
   labelCopyTheFollowingCommand,
   labelGenerateInstallationCommand
-} from '../../../translatedLabels';
+} from '../../../../translatedLabels';
 
 const CommandSection = (): ReactElement => {
   const { t } = useTranslation();
   const generatedCommand = useAtomValue(generatedCommandAtom);
 
-  const { isSubmitting, isValid, dirty } =
+  const { isSubmitting, isValid, dirty, submitForm } =
     useFormikContext<CloudInstallCommandFormValues>();
 
   return (
@@ -41,7 +41,11 @@ const CommandSection = (): ReactElement => {
       ) : (
         <div className="flex flex-col gap-2 my-2">
           <div className="flex items-start gap-3">
-            <Button size="small" disabled={isSubmitting || !isValid || !dirty}>
+            <Button
+              size="small"
+              disabled={isSubmitting || !isValid || !dirty}
+              onClick={submitForm}
+            >
               <img
                 alt="Install command"
                 className="w-7 h-7"

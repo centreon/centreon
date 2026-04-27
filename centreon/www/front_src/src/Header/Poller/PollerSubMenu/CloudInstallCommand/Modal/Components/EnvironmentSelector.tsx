@@ -7,19 +7,19 @@ import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-import { isGeneratedAtom } from '../atoms';
-import { CloudInstallCommandFormValues, PollerEnvironment } from '../models';
+import { isGeneratedAtom } from '../../atoms';
+import { CloudInstallCommandFormValues, PollerEnvironment } from '../../models';
 
-import { Section } from '../../../../../AgentConfiguration/Listing/InstallationCommandModal/Components';
+import { Section } from '../../../../../../AgentConfiguration/Listing/InstallationCommandModal/Components';
 
-import dockerLogo from '../../../../../assets/docker.svg';
-import linuxLogo from '../../../../../assets/linux.svg';
+import dockerLogo from '../../../../../../assets/docker.svg';
+import linuxLogo from '../../../../../../assets/linux.svg';
 
 import {
   labelDockerCompose,
   labelSelectPollerEnvironment,
   labelVMOrPhysical
-} from '../../../translatedLabels';
+} from '../../../../translatedLabels';
 
 const environments = [
   {
