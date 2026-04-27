@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationType;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
@@ -54,6 +55,15 @@ final readonly class DbalPollerTransformer implements TransformerInterface
             pollerType: PollerType::from($from['poller_type']),
             uuid: $from['poller_uuid'] !== null ? new PollerUuid($from['poller_uuid']) : null,
             globalMacros: new Collection([], GlobalMacro::class),
+            engineConfiguration: new EngineConfiguration(
+                startCommand: $from['engine_start_command'],
+                stopCommand: $from['engine_stop_command'],
+                restartCommand: $from['engine_restart_command'],
+                reloadCommand: $from['engine_reload_command'],
+                binaryPath: $from['nagios_bin'],
+                statisticsBinaryPath: $from['nagiostats_bin'],
+                perfdataFilePath: $from['nagios_perfdata'],
+            ),
             gorgoneConfiguration: new GorgoneConfiguration(
                 communicationType: GorgoneCommunicationType::from((int) $from['gorgone_communication_type']),
                 gorgonePort: (int) ($from['gorgone_port'] ?? 5556),

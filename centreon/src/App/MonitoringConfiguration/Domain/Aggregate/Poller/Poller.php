@@ -46,6 +46,7 @@ final class Poller extends AggregateRoot
         public readonly ?PollerUuid $uuid,
         public readonly Collection $globalMacros,
         public readonly GorgoneConfiguration $gorgoneConfiguration,
+        public readonly EngineConfiguration $engineConfiguration,
         public ?PollerCMACertificates $cmaCertificates = null,
         public readonly ?PollerRemoteAttachment $remoteAttachment = null,
     ) {

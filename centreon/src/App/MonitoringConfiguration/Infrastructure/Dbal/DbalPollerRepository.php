@@ -53,6 +53,13 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   gorgone_port: int|null,
  *   ssh_port: int|null,
  *   remote_server_use_as_proxy: '0'|'1',
+ *   engine_start_command: string|null,
+ *   engine_stop_command: string|null,
+ *   engine_restart_command: string|null,
+ *   engine_reload_command: string|null,
+ *   nagios_bin: string|null,
+ *   nagiostats_bin: string|null,
+ *   nagios_perfdata: string|null,
  * }
  * @phpstan-type JoinRowTypeAlias = array{
  *   poller_id: int,
@@ -67,6 +74,13 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   gorgone_port: int|null,
  *   ssh_port: int|null,
  *   remote_server_use_as_proxy: '0'|'1',
+ *   engine_start_command: string|null,
+ *   engine_stop_command: string|null,
+ *   engine_restart_command: string|null,
+ *   engine_reload_command: string|null,
+ *   nagios_bin: string|null,
+ *   nagiostats_bin: string|null,
+ *   nagios_perfdata: string|null,
  *   gm_resource_id: int,
  *   gm_resource_name: string,
  *   gm_resource_line: string,
@@ -198,6 +212,13 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             "{$alias}.gorgone_port AS gorgone_port",
             "{$alias}.ssh_port AS ssh_port",
             "{$alias}.remote_server_use_as_proxy AS remote_server_use_as_proxy",
+            "{$alias}.engine_start_command AS engine_start_command",
+            "{$alias}.engine_stop_command AS engine_stop_command",
+            "{$alias}.engine_restart_command AS engine_restart_command",
+            "{$alias}.engine_reload_command AS engine_reload_command",
+            "{$alias}.nagios_bin AS nagios_bin",
+            "{$alias}.nagiostats_bin AS nagiostats_bin",
+            "{$alias}.nagios_perfdata AS nagios_perfdata",
         ];
     }
 
