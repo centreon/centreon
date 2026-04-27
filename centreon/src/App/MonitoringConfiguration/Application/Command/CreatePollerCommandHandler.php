@@ -53,6 +53,10 @@ final readonly class CreatePollerCommandHandler
         }
 
         $address = $command->address ?? new PollerAddress($command->name->value);
+
+        if ($this->repository->findOneByAddress($address) instanceof Poller) {
+            throw new PollerAlreadyExistsException(['address' => $address->value]);
+        }
         $uuid = new PollerUuid(Uuid::v7()->toRfc4122());
 
         $poller = new Poller(

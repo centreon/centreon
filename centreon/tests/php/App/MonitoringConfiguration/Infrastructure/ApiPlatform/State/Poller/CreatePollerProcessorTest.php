@@ -122,6 +122,29 @@ final class CreatePollerProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(409);
     }
 
+    public function testCannotCreatePollerWithSameAddress(): void
+    {
+        $this->login();
+
+        $this->request('POST', '/api/latest/configuration/pollers', [
+            'json' => [
+                'name' => 'Poller1',
+                'poller_type' => 'vm',
+                'address' => '192.168.1.200',
+            ],
+        ]);
+        self::assertResponseIsSuccessful();
+
+        $this->request('POST', '/api/latest/configuration/pollers', [
+            'json' => [
+                'name' => 'Poller2',
+                'poller_type' => 'vm',
+                'address' => '192.168.1.200',
+            ],
+        ]);
+        self::assertResponseStatusCodeSame(409);
+    }
+
     public function testCannotCreatePollerWithInvalidType(): void
     {
         $this->login();

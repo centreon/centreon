@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateCN;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateSHA;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCMACertificates;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
@@ -206,6 +207,26 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             ->from(self::TABLE_NAME, 'p')
             ->where('p.name = :name')
             ->setParameter('name', $name->value)
+            ->setMaxResults(1);
+
+        /** @var RowTypeAlias|false $row */
+        $row = $qb->executeQuery()->fetchAssociative();
+
+        if ($row === false) {
+            return null;
+        }
+
+        return $this->createPoller($row);
+    }
+
+    public function findOneByAddress(PollerAddress $address): ?Poller
+    {
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->select(...self::getSelectColumns())
+            ->from(self::TABLE_NAME, 'p')
+            ->where('p.ns_ip_address = :address')
+            ->setParameter('address', $address->value)
             ->setMaxResults(1);
 
         /** @var RowTypeAlias|false $row */

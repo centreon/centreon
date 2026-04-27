@@ -25,6 +25,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
@@ -54,6 +55,17 @@ final class FakePollerRepository implements PollerRepository
     {
         foreach ($this->pollers as $poller) {
             if ($poller->name->value === $name->value) {
+                return $poller;
+            }
+        }
+
+        return null;
+    }
+
+    public function findOneByAddress(PollerAddress $address): ?Poller
+    {
+        foreach ($this->pollers as $poller) {
+            if ($poller->address->value === $address->value) {
                 return $poller;
             }
         }
