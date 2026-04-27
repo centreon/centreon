@@ -2,10 +2,14 @@ import { Button, Typography } from '@mui/material';
 
 import { Dialog, getData, useRequest, useSnackbar } from '@centreon/ui';
 
-import { ReactElement, useState } from 'react';
+import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { useAtom } from 'jotai';
 import { exportAndReloadConfigurationEndpoint } from '../../../api/endpoints';
+
+import { isExportConfigModalOpenAtom } from './atoms';
+
 import {
   labelCancel,
   labelConfigurationExportedAndReloaded,
@@ -24,7 +28,7 @@ interface Props {
 const ExportConfiguration = ({ closeSubMenu }: Props): ReactElement | null => {
   const { t } = useTranslation();
   const [askingBeforeExportConfiguration, setAskingBeforeExportConfiguration] =
-    useState(false);
+    useAtom(isExportConfigModalOpenAtom);
   const { sendRequest, sending } = useRequest({
     defaultFailureMessage: t(labelFailedToExportAndReloadConfiguration),
     request: getData
