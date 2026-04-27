@@ -918,9 +918,25 @@ $addPollerUuidColumn = function () use ($pearDB, &$errorMessage, $version): void
 
     $pearDB->executeStatement(
         <<<'SQL'
-            ALTER TABLE `nagios_server` ADD COLUMN `uuid` VARCHAR(36) DEFAULT NULL COMMENT 'UUIDv7 (36 chars with hyphens)'
+            ALTER TABLE `nagios_server`
+                ADD COLUMN `uuid` VARCHAR(36) DEFAULT NULL COMMENT 'UUIDv7 (36 chars with hyphens)',
+                ADD UNIQUE KEY `uniq_uuid` (`uuid`)
             SQL
     );
+
+    $pollersWithoutUuid = $pearDB->fetchAllAssociative(
+        'SELECT id FROM `nagios_server` WHERE `uuid` IS NULL'
+    );
+
+    foreach ($pollersWithoutUuid as $poller) {
+        $pearDB->executeStatement(
+            'UPDATE `nagios_server` SET `uuid` = :uuid WHERE `id` = :id',
+            QueryParameters::create([
+                QueryParameter::string('uuid', \Symfony\Component\Uid\Uuid::v7()->toRfc4122()),
+                QueryParameter::int('id', (int) $poller['id']),
+            ])
+        );
+    }
 
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,

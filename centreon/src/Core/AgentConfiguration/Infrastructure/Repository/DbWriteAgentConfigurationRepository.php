@@ -282,7 +282,7 @@ class DbWriteAgentConfigurationRepository extends DatabaseRepository implements 
                     ])
                 );
             }
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             throw new RepositoryException(
                 message: 'Error while adding broker directive in agent configuration',
                 context: ['pollerIds' => $pollerIds, 'broker_module' => $module],

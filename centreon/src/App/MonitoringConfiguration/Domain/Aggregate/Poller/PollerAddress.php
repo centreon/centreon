@@ -30,15 +30,5 @@ final readonly class PollerAddress
     public function __construct(public string $value)
     {
         Assert::lengthBetween($value, 1, 255);
-        $this->assertValidIpOrFqdn($value);
-    }
-
-    private function assertValidIpOrFqdn(string $ipAddress): void
-    {
-        Assert::true(
-            filter_var($ipAddress, FILTER_VALIDATE_IP) !== false
-            || filter_var($ipAddress, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) !== false,
-            'The value "%s" is not a valid IPv4, IPv6 address or FQDN.'
-        );
     }
 }

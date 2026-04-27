@@ -30,6 +30,6 @@ final readonly class PollerName
     public function __construct(
         public string $value,
     ) {
-        Assert::lengthBetween($value, 1, 255);
+        Assert::lengthBetween($value, 1, 40);
     }
 }

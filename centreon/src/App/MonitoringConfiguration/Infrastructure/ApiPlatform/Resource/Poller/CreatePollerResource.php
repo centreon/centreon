@@ -50,7 +50,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class CreatePollerResource
 {
     public function __construct(
-        #[Assert\Length(min: 1, max: 255)]
+        #[Assert\Length(min: 1, max: 40)]
         public string $name,
 
         #[Assert\Choice(choices: ['vm', 'docker'])]

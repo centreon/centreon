@@ -75,8 +75,6 @@ final readonly class CreatePollerCommandHandler
 
         $this->repository->add($poller);
 
-        $poller->id();
-
         return $poller;
     }
 }

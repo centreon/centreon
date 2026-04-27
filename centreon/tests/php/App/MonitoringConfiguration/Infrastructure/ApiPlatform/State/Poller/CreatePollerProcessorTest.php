@@ -156,7 +156,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
 
         $this->request('POST', '/api/latest/configuration/pollers', [
             'json' => [
-                'name' => str_repeat('a', 256),
+                'name' => str_repeat('a', 41),
                 'poller_type' => 'vm',
             ],
         ]);
@@ -174,6 +174,30 @@ final class CreatePollerProcessorTest extends ApiTestCase
         ]);
 
         self::assertResponseStatusCodeSame(401);
+    }
+
+    public function testNonAdminWithPermissionCanCreatePoller(): void
+    {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $username = bin2hex(random_bytes(8));
+
+        $this->createApiUser($connection, $username, admin: false, actions: [
+            'create_edit_poller_cfg',
+        ]);
+        $this->login($username);
+
+        $this->request('POST', '/api/latest/configuration/pollers', [
+            'json' => [
+                'name' => 'NonAdminPoller',
+                'poller_type' => 'vm',
+            ],
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertJsonContains([
+            'name' => 'NonAdminPoller',
+        ]);
     }
 
     public function testCannotCreatePollerIfNotEnoughPermission(): void
