@@ -16,11 +16,7 @@ import {
   getPollerRegistrationCommandEndpoint
 } from '../../../../api/endpoints';
 
-import {
-  generatedCommandAtom,
-  isCloudInstallCommandModalOpenAtom,
-  pollerIdAtom
-} from '../atoms';
+import { generatedCommandAtom, isModalOpenAtom, pollerIdAtom } from '../atoms';
 import type { CloudInstallCommandFormValues } from '../models';
 
 import {
@@ -30,15 +26,15 @@ import {
   labelPollerCreatedSuccessfully
 } from '../../../translatedLabels';
 
-interface UseCloudInstallCommandState {
+interface UseInstallCommandState {
   submit: (values: CloudInstallCommandFormValues) => Promise<void>;
   close: () => void;
   isOpen: boolean;
 }
 
-export const useCloudInstallCommand = (): UseCloudInstallCommandState => {
+export const useInstallCommand = (): UseInstallCommandState => {
   const { t } = useTranslation();
-  const [isOpen, setIsOpen] = useAtom(isCloudInstallCommandModalOpenAtom);
+  const [isOpen, setIsOpen] = useAtom(isModalOpenAtom);
   const setGeneratedCommand = useSetAtom(generatedCommandAtom);
   const setPollerId = useSetAtom(pollerIdAtom);
 
@@ -98,7 +94,7 @@ export const useCloudInstallCommand = (): UseCloudInstallCommandState => {
 // re-check later
 export const useValidatePoller = () => {
   const { t } = useTranslation();
-  const setIsOpen = useSetAtom(isCloudInstallCommandModalOpenAtom);
+  const setIsOpen = useSetAtom(isModalOpenAtom);
   const [pollerId, setPollerId] = useAtom(pollerIdAtom);
   const setGeneratedCommand = useSetAtom(generatedCommandAtom);
 

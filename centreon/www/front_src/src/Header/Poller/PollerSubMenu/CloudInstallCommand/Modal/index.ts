@@ -1,3 +1,3 @@
-import CloudInstallCommandModal from './CloudInstallCommandModal';
+import Modal from './Modal';
 
-export default CloudInstallCommandModal;
+export default Modal;

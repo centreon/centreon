@@ -2,7 +2,7 @@ import { Button } from '@centreon/ui/components';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useCloudInstallCommand } from './useCloudInstallCommand';
+import { useInstallCommand } from './useInstallCommand';
 
 import { useAtomValue } from 'jotai';
 import { isGeneratedAtom } from '../atoms';
@@ -16,7 +16,7 @@ const Buttons = (): ReactElement => {
   const { t } = useTranslation();
   const isCommandGenerated = useAtomValue(isGeneratedAtom);
 
-  const { close } = useCloudInstallCommand();
+  const { close } = useInstallCommand();
 
   return (
     <div className="flex justify-end gap-2">

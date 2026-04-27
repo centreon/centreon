@@ -4,8 +4,8 @@ import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import Buttons from './Buttons';
-import { useCloudInstallCommand } from './useCloudInstallCommand';
 import { useInputs } from './useInputs';
+import { useInstallCommand } from './useInstallCommand';
 import { useValidationSchema } from './useValidationSchema';
 
 import { labelCreateNewPoller } from '../../../translatedLabels';
@@ -20,10 +20,10 @@ const initialValues: CloudInstallCommandFormValues = {
   token: []
 };
 
-const CloudInstallCommandModal = (): ReactElement => {
+const InstallCommandModal = (): ReactElement => {
   const { t } = useTranslation();
 
-  const { isOpen, close, submit } = useCloudInstallCommand();
+  const { isOpen, close, submit } = useInstallCommand();
   const inputs = useInputs();
   const validationSchema = useValidationSchema();
 
@@ -44,4 +44,4 @@ const CloudInstallCommandModal = (): ReactElement => {
   );
 };
 
-export default CloudInstallCommandModal;
+export default InstallCommandModal;

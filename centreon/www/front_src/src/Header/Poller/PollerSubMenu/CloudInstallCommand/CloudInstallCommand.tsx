@@ -4,7 +4,7 @@ import { ReactElement, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import Modal from './Modal';
-import { isCloudInstallCommandModalOpenAtom } from './atoms';
+import { isModalOpenAtom } from './atoms';
 
 import { labelCreateNewPoller } from '../../translatedLabels';
 
@@ -15,7 +15,7 @@ interface Props {
 const CloudInstallCommand = ({ closeSubMenu }: Props): ReactElement => {
   const { t } = useTranslation();
 
-  const setIsOpen = useSetAtom(isCloudInstallCommandModalOpenAtom);
+  const setIsOpen = useSetAtom(isModalOpenAtom);
 
   const open = useCallback(() => {
     closeSubMenu();
