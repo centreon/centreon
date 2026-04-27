@@ -25,6 +25,7 @@ use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use App\Kernel;
+use Symfony\Component\Uid\Uuid;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\{
     DeployDefaultAgentConfigurationForPoller,
     DeployDefaultAgentConfigurationForPollerRequest
@@ -932,7 +933,7 @@ $addPollerUuidColumn = function () use ($pearDB, &$errorMessage, $version): void
         $pearDB->executeStatement(
             'UPDATE `nagios_server` SET `uuid` = :uuid WHERE `id` = :id',
             QueryParameters::create([
-                QueryParameter::string('uuid', \Symfony\Component\Uid\Uuid::v7()->toRfc4122()),
+                QueryParameter::string('uuid', Uuid::v7()->toRfc4122()),
                 QueryParameter::int('id', (int) $poller['id']),
             ])
         );

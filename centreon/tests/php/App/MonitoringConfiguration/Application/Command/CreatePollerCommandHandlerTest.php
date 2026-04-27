@@ -149,7 +149,6 @@ final class CreatePollerCommandHandlerTest extends TestCase
         $handler(new CreatePollerCommand(
             name: new PollerName('SameName'),
             pollerType: PollerTypeEnum::VM,
-            address: new PollerAddress('unique-address'),
         ));
 
         $this->expectException(PollerAlreadyExistsException::class);
