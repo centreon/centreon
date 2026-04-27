@@ -28,7 +28,7 @@ use Webmozart\Assert\Assert;
 final readonly class GorgoneConfiguration
 {
     public function __construct(
-        public GorgoneCommunicationType $communicationType,
+        public GorgoneCommunicationTypeEnum $communicationType,
         public int $gorgonePort,
         public int $sshPort,
         public bool $useRemoteServerAsProxy,

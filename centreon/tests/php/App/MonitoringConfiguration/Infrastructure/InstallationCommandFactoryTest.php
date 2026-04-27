@@ -29,7 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateSHA;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineConfiguration;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationType;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
@@ -37,7 +37,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCMACertificates;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCommand;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerType;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\MonitoringConfiguration\Infrastructure\InstallationCommandFactory;
 use App\Shared\Domain\Collection;
@@ -421,7 +421,7 @@ final class InstallationCommandFactoryTest extends TestCase
             isCentral: $isCentral,
             isDefault: false,
             isActivated: true,
-            pollerType: PollerType::VM,
+            pollerType: PollerTypeEnum::VM,
             uuid: null,
             globalMacros: new Collection([], GlobalMacro::class),
             brokerConfiguration: new BrokerConfiguration(),
@@ -430,7 +430,7 @@ final class InstallationCommandFactoryTest extends TestCase
             pollerCommands: new Collection([], PollerCommand::class),
             engineConfiguration: new EngineConfiguration(),
             gorgoneConfiguration: new GorgoneConfiguration(
-                communicationType: GorgoneCommunicationType::ZMQ,
+                communicationType: GorgoneCommunicationTypeEnum::ZMQ,
                 gorgonePort: 5556,
                 sshPort: 22,
                 useRemoteServerAsProxy: true,

@@ -27,7 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineConfiguration;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationType;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCommand;
@@ -35,7 +35,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerType;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUuid;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -56,7 +56,7 @@ final readonly class DbalPollerTransformer implements TransformerInterface
             isCentral: (bool) $from['is_central'],
             isDefault: (bool) $from['is_default'],
             isActivated: $from['is_activated'] === '1',
-            pollerType: PollerType::from($from['poller_type']),
+            pollerType: PollerTypeEnum::from($from['poller_type']),
             uuid: $from['poller_uuid'] !== null ? new PollerUuid($from['poller_uuid']) : null,
             globalMacros: new Collection([], GlobalMacro::class),
             pollerCommands: new Collection([], PollerCommand::class),
@@ -83,7 +83,7 @@ final readonly class DbalPollerTransformer implements TransformerInterface
                 snmpTrapPathConf: $from['snmp_trapd_path_conf'],
             ),
             gorgoneConfiguration: new GorgoneConfiguration(
-                communicationType: GorgoneCommunicationType::from((int) $from['gorgone_communication_type']),
+                communicationType: GorgoneCommunicationTypeEnum::from((int) $from['gorgone_communication_type']),
                 gorgonePort: (int) ($from['gorgone_port'] ?? 5556),
                 sshPort: (int) ($from['ssh_port'] ?? 22),
                 useRemoteServerAsProxy: $from['remote_server_use_as_proxy'] === '1',

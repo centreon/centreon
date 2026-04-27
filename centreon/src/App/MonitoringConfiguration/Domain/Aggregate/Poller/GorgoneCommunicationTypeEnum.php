@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
 
-enum GorgoneCommunicationType: int
+enum GorgoneCommunicationTypeEnum: int
 {
     case ZMQ = 1;
     case SSH = 2;

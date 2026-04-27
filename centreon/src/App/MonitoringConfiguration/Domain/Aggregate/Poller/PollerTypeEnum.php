@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
 
-enum PollerType: string
+enum PollerTypeEnum: string
 {
     case VM = 'vm';
     case Docker = 'docker';
