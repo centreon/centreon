@@ -32,7 +32,7 @@ final readonly class CreatePollerCommand
     public function __construct(
         public PollerName $name,
         public PollerTypeEnum $pollerType,
-        public ?PollerAddress $address,
+        public ?PollerAddress $address = null,
     ) {
     }
 }
