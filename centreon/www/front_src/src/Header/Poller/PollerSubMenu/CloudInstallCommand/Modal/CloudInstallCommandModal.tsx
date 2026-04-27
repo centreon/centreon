@@ -17,7 +17,7 @@ import {
 const initialValues: CloudInstallCommandFormValues = {
   environment: PollerEnvironment.VM,
   pollerName: '',
-  token: null
+  token: []
 };
 
 const CloudInstallCommandModal = (): ReactElement => {

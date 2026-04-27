@@ -1,4 +1,4 @@
-import { SingleConnectedAutocompleteField } from '@centreon/ui';
+import { MultiConnectedAutocompleteField } from '@centreon/ui';
 
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
@@ -26,20 +26,34 @@ const TokenSection = (): ReactElement => {
   return (
     <Section order={3} title={t(labelSelectToken)}>
       <div className="my-2">
-        <SingleConnectedAutocompleteField
+        <MultiConnectedAutocompleteField
+          chipProps={{
+            color: 'primary',
+            onDelete: (
+              _: React.SyntheticEvent,
+              option: { id: string; name: string }
+            ): void => {
+              const updated = values.token.filter(
+                (t) => t.id !== option.id
+              );
+              setFieldValue('token', updated);
+            }
+          }}
           decoder={listTokensDecoder}
           disabled={isGenerated}
           field="token_name"
           getEndpoint={getTokensEndpoint}
           label={t(labelSelectTokenPlaceholder)}
-          onChange={(_, value) => {
+          onChange={(
+            _: React.SyntheticEvent,
+            updatedValues: Array<{ id: string; name: string }>
+          ) => {
             setFieldTouched('token', true, false);
             setFieldValue(
               'token',
-              value ? { id: value.id, name: value.name } : null
+              updatedValues.map((v) => ({ id: v.id, name: v.name }))
             );
           }}
-          required
           value={values.token}
         />
       </div>

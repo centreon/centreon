@@ -61,9 +61,7 @@ export const useCloudInstallCommand = (): UseCloudInstallCommandState => {
         payload: {
           environment: values.environment,
           name: values.pollerName.trim(),
-          token: {
-            name: values.token?.name
-          }
+          tokens: values.token.map((t) => ({ name: t.name }))
         }
       });
 
