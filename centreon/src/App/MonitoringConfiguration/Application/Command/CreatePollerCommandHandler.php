@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
+use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineConfiguration;
@@ -68,7 +69,7 @@ final readonly class CreatePollerCommandHandler
             isActivated: true,
             pollerType: $command->pollerType,
             uuid: $uuid,
-            globalMacros: new Collection([], \App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro::class),
+            globalMacros: new Collection([], GlobalMacro::class),
             gorgoneConfiguration: new GorgoneConfiguration(),
             engineConfiguration: new EngineConfiguration(),
             brokerConfiguration: new BrokerConfiguration(),
