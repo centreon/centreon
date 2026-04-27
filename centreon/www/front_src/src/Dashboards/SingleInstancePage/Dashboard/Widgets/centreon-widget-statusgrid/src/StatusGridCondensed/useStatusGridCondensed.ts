@@ -40,7 +40,8 @@ export const useStatusGridCondensed = ({
   widgetPrefixQuery,
   isBAResourceType,
   isBVResourceType,
-  lastSelectedResourceType
+  lastSelectedResourceType,
+  isInViewport
 }: Pick<
   StatusGridProps,
   | 'panelOptions'
@@ -51,6 +52,7 @@ export const useStatusGridCondensed = ({
   | 'id'
   | 'playlistHash'
   | 'widgetPrefixQuery'
+  | 'isInViewport'
 > & {
   isBAResourceType;
   isBVResourceType;
@@ -105,6 +107,7 @@ export const useStatusGridCondensed = ({
       refreshCount
     ],
     queryOptions: {
+      enabled: (isInViewport ?? true) && !!resourceTypeToUse,
       refetchInterval: refreshIntervalToUse,
       suspense: false
     },
