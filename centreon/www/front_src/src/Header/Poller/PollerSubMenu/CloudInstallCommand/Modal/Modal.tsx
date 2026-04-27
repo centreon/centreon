@@ -3,7 +3,7 @@ import { Modal } from '@centreon/ui/components';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import Buttons from './Buttons';
+import { Buttons } from '../Components';
 import { useInputs } from './useInputs';
 import { useInstallCommand } from './useInstallCommand';
 import { useValidationSchema } from './useValidationSchema';
@@ -32,7 +32,7 @@ const InstallCommandModal = (): ReactElement => {
       <Modal.Header>{t(labelCreateNewPoller)}</Modal.Header>
       <Modal.Body>
         <Form<CloudInstallCommandFormValues>
-          Buttons={Buttons}
+          Buttons={(): ReactElement => <Buttons close={close} />}
           initialValues={initialValues}
           inputs={inputs}
           isCollapsible={false}

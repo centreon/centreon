@@ -2,8 +2,6 @@ import { Button } from '@centreon/ui/components';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useInstallCommand } from './useInstallCommand';
-
 import { useAtomValue } from 'jotai';
 import { isGeneratedAtom } from '../atoms';
 
@@ -12,11 +10,13 @@ import {
   labelExportConfiguration
 } from '../../../translatedLabels';
 
-const Buttons = (): ReactElement => {
+interface Props {
+  close: () => void;
+}
+
+const Buttons = ({ close }: Props): ReactElement => {
   const { t } = useTranslation();
   const isCommandGenerated = useAtomValue(isGeneratedAtom);
-
-  const { close } = useInstallCommand();
 
   return (
     <div className="flex justify-end gap-2">

@@ -1,9 +1,11 @@
 import { InputProps, InputType } from '@centreon/ui';
 
-import CommandSection from './CommandSection';
-import EnvironmentSelector from './EnvironmentSelector';
-import PollerNameSection from './PollerNameSection';
-import TokenSection from './TokenSection';
+import {
+  CommandSection,
+  EnvironmentSelector,
+  PollerNameSection,
+  TokenSection
+} from '../Components';
 
 export const useInputs = (): Array<InputProps> => {
   return [
