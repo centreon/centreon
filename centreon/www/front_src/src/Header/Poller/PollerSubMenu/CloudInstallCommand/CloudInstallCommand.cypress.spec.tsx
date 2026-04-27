@@ -1,0 +1,437 @@
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+
+import i18next from 'i18next';
+import { Provider, createStore } from 'jotai';
+import { initReactI18next } from 'react-i18next';
+import { BrowserRouter as Router } from 'react-router';
+
+import { listTokensEndpoint } from '../../../../AuthenticationTokens/api';
+import { createPollerEndpoint } from '../../../api/endpoints';
+
+import CloudInstallCommand from './CloudInstallCommand';
+import { generatedCommandAtom, isModalOpenAtom } from './atoms';
+
+import {
+  labelCancel,
+  labelClickToGenerate,
+  labelCopyTheFollowingCommand,
+  labelCreateNewPoller,
+  labelDockerCompose,
+  labelEnterPollerName,
+  labelExportConfiguration,
+  labelFailedToCreatePoller,
+  labelGenerateInstallationCommand,
+  labelPollerName,
+  labelSelectPollerEnvironment,
+  labelSelectToken,
+  labelSelectTokenPlaceholder,
+  labelVMOrPhysical
+} from '../../translatedLabels';
+
+const createPollerSuccessResponse = {
+  '@context': '/centreon/api/latest/contexts/Poller',
+  '@id': '/centreon/api/latest/pollers/11',
+  '@type': 'Poller',
+  address: '192.0.0.98',
+  command:
+    'installcma.ps /FINGERPRINT=lllllll  /COMPONENTS=agent,plugins /HOST=host_1 /ENDPOINT=https://central/centreon:4317',
+  id: 11,
+  name: 'poller-docker_07',
+  poller_type: 'docker',
+  uuid: '019dcf18-bdb1-7f89-a61f-45b8fcfb27e6'
+};
+
+const initializeI18n = (): void => {
+  i18next.use(initReactI18next).init({
+    lng: 'en',
+    resources: {}
+  });
+};
+
+const mockRequests = ({
+  createPollerResponse = createPollerSuccessResponse,
+  createPollerStatusCode = 200
+}: {
+  createPollerResponse?: object;
+  createPollerStatusCode?: number;
+} = {}): void => {
+  cy.fixture('authenticationTokens/listTokens.json').then((tokens): void => {
+    cy.interceptAPIRequest({
+      alias: 'getTokens',
+      method: Method.GET,
+      path: `*${listTokensEndpoint}**`,
+      response: tokens
+    });
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'createPoller',
+    method: Method.POST,
+    path: `./api/latest${createPollerEndpoint}`,
+    response: createPollerResponse,
+    statusCode: createPollerStatusCode
+  });
+};
+
+interface InitializeOptions {
+  createPollerResponse?: object;
+  createPollerStatusCode?: number;
+  isModalOpen?: boolean;
+  generatedCommand?: string | null;
+}
+
+const initialize = ({
+  isModalOpen = false,
+  generatedCommand = null,
+  createPollerResponse,
+  createPollerStatusCode
+}: InitializeOptions = {}): ReturnType<typeof createStore> => {
+  const store = createStore();
+
+  store.set(isModalOpenAtom, isModalOpen);
+  store.set(generatedCommandAtom, generatedCommand);
+
+  initializeI18n();
+
+  mockRequests({ createPollerResponse, createPollerStatusCode });
+
+  const closeSubMenu = cy.stub().as('closeSubMenu');
+
+  cy.mount({
+    Component: (
+      <TestQueryProvider>
+        <Provider store={store}>
+          <Router>
+            <SnackbarProvider maxSnackbars={2}>
+              <CloudInstallCommand closeSubMenu={closeSubMenu} />
+            </SnackbarProvider>
+          </Router>
+        </Provider>
+      </TestQueryProvider>
+    )
+  });
+
+  return store;
+};
+
+describe('CloudInstallCommand', () => {
+  describe('Button', () => {
+    it('displays a "Create new poller" button', () => {
+      initialize();
+
+      cy.findByTestId(labelCreateNewPoller).should('be.visible');
+      cy.findByTestId(labelCreateNewPoller).should(
+        'contain.text',
+        labelCreateNewPoller
+      );
+
+      cy.makeSnapshot();
+    });
+
+    it('opens the modal and calls closeSubMenu when the button is clicked', () => {
+      initialize();
+
+      cy.findByTestId(labelCreateNewPoller).click();
+
+      cy.get('@closeSubMenu').should('have.been.calledOnce');
+
+      cy.findByRole('dialog').should('be.visible');
+    });
+  });
+
+  describe('Modal', () => {
+    it('displays the modal with the correct title', () => {
+      initialize({ isModalOpen: true });
+
+      cy.findByRole('dialog').should('be.visible');
+      cy.findByRole('dialog')
+        .findByText(labelCreateNewPoller)
+        .should('be.visible');
+    });
+
+    it('displays all form sections', () => {
+      initialize({ isModalOpen: true });
+
+      cy.findByText(labelEnterPollerName).should('be.visible');
+      cy.findByText(labelSelectPollerEnvironment).should('be.visible');
+      cy.findByText(labelSelectToken).should('be.visible');
+      cy.findByText(labelGenerateInstallationCommand).should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    describe('Poller name section', () => {
+      it('displays a text field for the poller name', () => {
+        initialize({ isModalOpen: true });
+
+        cy.findByTestId('cloud-poller-name').should('be.visible');
+        cy.findByLabelText(`${labelPollerName} *`).should('be.visible');
+      });
+
+      it('allows typing a poller name', () => {
+        initialize({ isModalOpen: true });
+
+        cy.findByLabelText(`${labelPollerName} *`).type('my-poller');
+        cy.findByLabelText(`${labelPollerName} *`).should(
+          'have.value',
+          'my-poller'
+        );
+      });
+    });
+
+    describe('Environment selector', () => {
+      it('displays VM and Docker environment options', () => {
+        initialize({ isModalOpen: true });
+
+        cy.findByLabelText(labelVMOrPhysical).should('be.visible');
+        cy.findByLabelText(labelDockerCompose).should('be.visible');
+      });
+
+      it('has VM selected by default', () => {
+        initialize({ isModalOpen: true });
+
+        cy.findByLabelText(labelVMOrPhysical)
+          .closest('[data-selected]')
+          .should('have.attr', 'data-selected', 'true');
+      });
+
+      it('allows switching to Docker environment', () => {
+        initialize({ isModalOpen: true });
+
+        cy.findByLabelText(labelDockerCompose).click();
+
+        cy.findByLabelText(labelDockerCompose)
+          .closest('[data-selected]')
+          .should('have.attr', 'data-selected', 'true');
+
+        cy.findByLabelText(labelVMOrPhysical)
+          .closest('[data-selected]')
+          .should('have.attr', 'data-selected', 'false');
+
+        cy.makeSnapshot();
+      });
+    });
+
+    describe('Token section', () => {
+      it('displays the token autocomplete field', () => {
+        initialize({ isModalOpen: true });
+
+        cy.findByLabelText(labelSelectTokenPlaceholder).should('be.visible');
+      });
+    });
+
+    describe('Command section', () => {
+      it('displays a generate button with helper text when no command is generated', () => {
+        initialize({ isModalOpen: true });
+
+        cy.findByText(labelClickToGenerate).should('be.visible');
+        cy.findByAltText('Install command').should('be.visible');
+      });
+
+      it('the generate button is disabled when the form is not valid or not dirty', () => {
+        initialize({ isModalOpen: true });
+
+        cy.findByAltText('Install command')
+          .closest('button')
+          .should('be.disabled');
+      });
+
+      it('displays the generated command when available', () => {
+        const command = createPollerSuccessResponse.command;
+        initialize({
+          generatedCommand: command,
+          isModalOpen: true
+        });
+
+        cy.findByText(labelCopyTheFollowingCommand)
+          .scrollIntoView()
+          .should('be.visible');
+        cy.findByTestId('Command')
+          .scrollIntoView()
+          .should('contain.text', command);
+
+        cy.makeSnapshot();
+      });
+    });
+
+    describe('Buttons', () => {
+      it('displays Cancel and Export configuration buttons', () => {
+        initialize({ isModalOpen: true });
+
+        cy.findByRole('dialog')
+          .findByText(labelCancel)
+          .scrollIntoView()
+          .should('be.visible');
+
+        cy.findByRole('dialog')
+          .scrollIntoView()
+          .findByText(labelExportConfiguration)
+          .should('be.visible');
+
+        cy.makeSnapshot();
+      });
+
+      it('the Export configuration button is disabled when no command is generated', () => {
+        initialize({ isModalOpen: true });
+
+        cy.findByTestId('generate-command').should('be.disabled');
+      });
+
+      it('closes the modal when clicking Cancel', () => {
+        initialize({ isModalOpen: true });
+
+        cy.findByRole('dialog').findByText(labelCancel).click();
+
+        cy.findByRole('dialog').should('not.exist');
+      });
+
+      it('the Export configuration button is enabled when a command has been generated', () => {
+        initialize({
+          generatedCommand: 'some-command',
+          isModalOpen: true
+        });
+
+        cy.findByTestId('generate-command').should('not.be.disabled');
+      });
+
+      it('closes the install command modal when clicking Export configuration', () => {
+        initialize({
+          generatedCommand: 'some-command',
+          isModalOpen: true
+        });
+
+        cy.findByTestId('generate-command').click();
+
+        cy.findByRole('dialog').should('not.exist');
+      });
+    });
+
+    describe('Fields disabled after generation', () => {
+      it('disables the poller name field when command is generated', () => {
+        initialize({
+          generatedCommand: 'some-command',
+          isModalOpen: true
+        });
+
+        cy.findByLabelText(`${labelPollerName} *`).should('be.disabled');
+
+        cy.makeSnapshot();
+      });
+
+      it('disables the environment selector when command is generated', () => {
+        initialize({
+          generatedCommand: 'some-command',
+          isModalOpen: true
+        });
+
+        cy.findByLabelText(labelVMOrPhysical)
+          .closest('button')
+          .should('be.disabled');
+        cy.findByLabelText(labelDockerCompose)
+          .closest('button')
+          .should('be.disabled');
+      });
+
+      it('disables the token field when command is generated', () => {
+        initialize({
+          generatedCommand: 'some-command',
+          isModalOpen: true
+        });
+
+        cy.findByLabelText(labelSelectTokenPlaceholder).should('be.disabled');
+      });
+    });
+
+    describe('Close modal resets state', () => {
+      it('resets generated command when modal is closed via Cancel', () => {
+        initialize({
+          generatedCommand: 'some-command',
+          isModalOpen: true
+        });
+
+        cy.findByText(labelCopyTheFollowingCommand).should('be.visible');
+
+        cy.findByRole('dialog').findByText(labelCancel).click();
+
+        cy.findByRole('dialog').should('not.exist');
+
+        cy.findByTestId(labelCreateNewPoller).click();
+
+        cy.findByRole('dialog').should('be.visible');
+        cy.findByText(labelCopyTheFollowingCommand).should('not.exist');
+        cy.findByText(labelClickToGenerate).should('be.visible');
+      });
+    });
+
+    describe('Form submission and command generation', () => {
+      it('generates a command when the form is valid and the generate button is clicked', () => {
+        initialize({ isModalOpen: true });
+
+        cy.findByLabelText(`${labelPollerName} *`).type('my-poller');
+
+        cy.findByLabelText(labelSelectTokenPlaceholder).click();
+        cy.waitForRequest('@getTokens');
+        cy.findByText('a-token').click();
+
+        cy.findByAltText('Install command')
+          .closest('button')
+          .should('not.be.disabled');
+
+        cy.findByAltText('Install command').closest('button').click();
+
+        cy.waitForRequest('@createPoller');
+
+        cy.findByText(labelCopyTheFollowingCommand)
+          .scrollIntoView()
+          .should('be.visible');
+
+        cy.findByTestId('Command')
+          .scrollIntoView()
+          .should('contain.text', createPollerSuccessResponse.command);
+
+        cy.makeSnapshot();
+      });
+
+      it('shows an error message when the API call fails', () => {
+        initialize({
+          createPollerStatusCode: 500,
+          createPollerResponse: { message: 'Internal server error' },
+          isModalOpen: true
+        });
+
+        cy.findByLabelText(`${labelPollerName} *`).type('my-poller');
+
+        cy.findByLabelText(labelSelectTokenPlaceholder).click();
+        cy.waitForRequest('@getTokens');
+        cy.findByText('a-token').click();
+
+        cy.findByAltText('Install command').closest('button').click();
+
+        cy.waitForRequest('@createPoller');
+
+        cy.findByText(labelFailedToCreatePoller).should('be.visible');
+
+        cy.makeSnapshot();
+      });
+
+      it('submits with Docker environment when Docker is selected', () => {
+        initialize({ isModalOpen: true });
+
+        cy.findByLabelText(`${labelPollerName} *`).type('docker-poller');
+
+        cy.findByLabelText(labelDockerCompose).click();
+
+        cy.findByLabelText(labelSelectTokenPlaceholder).click();
+        cy.waitForRequest('@getTokens');
+        cy.findByText('a-token').click();
+
+        cy.findByAltText('Install command').closest('button').click();
+
+        cy.waitForRequest('@createPoller').then(({ request }) => {
+          expect(request.body.environment).to.equal('docker');
+          expect(request.body.name).to.equal('docker-poller');
+        });
+      });
+    });
+  });
+});
