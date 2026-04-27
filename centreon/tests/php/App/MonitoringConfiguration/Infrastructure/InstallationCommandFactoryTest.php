@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCMACertificates;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerType;
 use App\MonitoringConfiguration\Infrastructure\InstallationCommandFactory;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\TestCase;
@@ -411,6 +412,10 @@ final class InstallationCommandFactoryTest extends TestCase
             name: new PollerName('Central'),
             address: new PollerAddress(self::POLLER_ADDRESS),
             isCentral: $isCentral,
+            isDefault: false,
+            isActivated: true,
+            pollerType: PollerType::VM,
+            uuid: null,
             globalMacros: new Collection([], GlobalMacro::class),
             cmaCertificates: $cmaCertificates,
         );

@@ -40,8 +40,13 @@ final class Poller extends AggregateRoot
         public readonly PollerName $name,
         public readonly PollerAddress $address,
         public readonly bool $isCentral,
+        public readonly bool $isDefault,
+        public readonly bool $isActivated,
+        public readonly PollerType $pollerType,
+        public readonly ?PollerUuid $uuid,
         public readonly Collection $globalMacros,
         public ?PollerCMACertificates $cmaCertificates = null,
+        public readonly ?PollerRemoteAttachment $remoteAttachment = null,
     ) {
         parent::__construct($id);
     }

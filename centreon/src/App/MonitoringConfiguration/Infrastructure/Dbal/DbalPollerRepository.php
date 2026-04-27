@@ -45,12 +45,20 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   poller_name: string,
  *   poller_address: string,
  *   is_central: '0'|'1',
+ *   is_default: int,
+ *   is_activated: '0'|'1',
+ *   poller_type: 'vm'|'docker',
+ *   poller_uuid: string|null,
  * }
  * @phpstan-type JoinRowTypeAlias = array{
  *   poller_id: int,
  *   poller_name: string,
  *   poller_address: string,
  *   is_central: '0'|'1',
+ *   is_default: int,
+ *   is_activated: '0'|'1',
+ *   poller_type: 'vm'|'docker',
+ *   poller_uuid: string|null,
  *   gm_resource_id: int,
  *   gm_resource_name: string,
  *   gm_resource_line: string,
@@ -174,6 +182,10 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             "{$alias}.name AS poller_name",
             "{$alias}.localhost AS is_central",
             "{$alias}.ns_ip_address AS poller_address",
+            "{$alias}.is_default AS is_default",
+            "{$alias}.ns_activate AS is_activated",
+            "{$alias}.poller_type AS poller_type",
+            "{$alias}.uuid AS poller_uuid",
         ];
     }
 
