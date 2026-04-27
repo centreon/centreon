@@ -1,15 +1,15 @@
 import { Button } from '@centreon/ui/components';
-import { ReactElement } from 'react';
-import { useTranslation } from 'react-i18next';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-import { isExportConfigModalOpenAtom } from '../../../ExportConfiguration/atoms';
-import { isGeneratedAtom, isModalOpenAtom } from '../../atoms';
+import { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   labelCancel,
   labelExportConfiguration
 } from '../../../../translatedLabels';
+import { isExportConfigModalOpenAtom } from '../../../ExportConfiguration/atoms';
+import { isGeneratedAtom, isModalOpenAtom } from '../../atoms';
 
 interface Props {
   close: () => void;

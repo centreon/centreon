@@ -5,11 +5,9 @@ import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { createPollerEndpoint } from '../../../../api/endpoints';
-
+import { labelFailedToCreatePoller } from '../../../translatedLabels';
 import { generatedCommandAtom, isModalOpenAtom } from '../atoms';
 import type { CloudInstallCommandFormValues } from '../models';
-
-import { labelFailedToCreatePoller } from '../../../translatedLabels';
 
 interface UseInstallCommandState {
   submit: (values: CloudInstallCommandFormValues) => Promise<void>;

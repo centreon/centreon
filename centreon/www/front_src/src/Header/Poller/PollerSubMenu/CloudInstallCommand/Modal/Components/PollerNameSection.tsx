@@ -1,18 +1,17 @@
 import { TextField } from '@mui/material';
+
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { isGeneratedAtom } from '../../atoms';
-import type { CloudInstallCommandFormValues } from '../../models';
-
 import { Section } from '../../../../../../AgentConfiguration/Listing/InstallationCommandModal/Components';
-
 import {
   labelEnterPollerName,
   labelPollerName
 } from '../../../../translatedLabels';
+import { isGeneratedAtom } from '../../atoms';
+import type { CloudInstallCommandFormValues } from '../../models';
 
 const PollerNameSection = (): ReactElement => {
   const { t } = useTranslation();

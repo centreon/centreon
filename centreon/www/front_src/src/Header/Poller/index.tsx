@@ -1,5 +1,7 @@
-import { MenuSkeleton, TopCounterLayout } from '@centreon/ui';
 import PollerIcon from '@mui/icons-material/DeviceHub';
+
+import { MenuSkeleton, TopCounterLayout } from '@centreon/ui';
+
 import { flatten, includes } from 'ramda';
 import { ReactElement } from 'react';
 

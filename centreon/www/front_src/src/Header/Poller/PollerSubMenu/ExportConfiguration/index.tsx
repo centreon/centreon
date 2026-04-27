@@ -2,14 +2,11 @@ import { Button, Typography } from '@mui/material';
 
 import { Dialog, getData, useRequest, useSnackbar } from '@centreon/ui';
 
+import { useAtom } from 'jotai';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useAtom } from 'jotai';
 import { exportAndReloadConfigurationEndpoint } from '../../../api/endpoints';
-
-import { isExportConfigModalOpenAtom } from './atoms';
-
 import {
   labelCancel,
   labelConfigurationExportedAndReloaded,
@@ -20,6 +17,7 @@ import {
   labelFailedToExportAndReloadConfiguration,
   labelThisWillExportAndReloadOnAllOfYourPlatform
 } from '../../translatedLabels';
+import { isExportConfigModalOpenAtom } from './atoms';
 
 interface Props {
   closeSubMenu: () => void;

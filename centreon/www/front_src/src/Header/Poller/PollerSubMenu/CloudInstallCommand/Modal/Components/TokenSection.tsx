@@ -5,17 +5,15 @@ import { useAtomValue } from 'jotai';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Section } from '../../../../../../AgentConfiguration/Listing/InstallationCommandModal/Components';
 import { getTokensEndpoint } from '../../../../../../AgentConfiguration/api/endpoints';
+import { Section } from '../../../../../../AgentConfiguration/Listing/InstallationCommandModal/Components';
 import { listTokensDecoder } from '../../../../../../AuthenticationTokens/api';
-
-import { isGeneratedAtom } from '../../atoms';
-import type { CloudInstallCommandFormValues } from '../../models';
-
 import {
   labelSelectToken,
   labelSelectTokenPlaceholder
 } from '../../../../translatedLabels';
+import { isGeneratedAtom } from '../../atoms';
+import type { CloudInstallCommandFormValues } from '../../models';
 
 const TokenSection = (): ReactElement => {
   const { t } = useTranslation();

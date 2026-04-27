@@ -1,6 +1,7 @@
 import { LinearProgress, Typography } from '@mui/material';
 
 import { Button } from '@centreon/ui/components';
+
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
 import { ReactElement } from 'react';
@@ -11,16 +12,14 @@ import {
   Section
 } from '../../../../../../AgentConfiguration/Listing/InstallationCommandModal/Components';
 import InstallCommandLogo from '../../../../../../assets/InstallCommand.svg';
-
-import { generatedCommandAtom } from '../../atoms';
-import type { CloudInstallCommandFormValues } from '../../models';
-
 import {
   labelClickToGenerate,
   labelCommandGenerationStep,
   labelCopyTheFollowingCommand,
   labelGenerateInstallationCommand
 } from '../../../../translatedLabels';
+import { generatedCommandAtom } from '../../atoms';
+import type { CloudInstallCommandFormValues } from '../../models';
 
 const CommandSection = (): ReactElement => {
   const { t } = useTranslation();
@@ -42,9 +41,9 @@ const CommandSection = (): ReactElement => {
         <div className="flex flex-col gap-2 my-2">
           <div className="flex items-start gap-3">
             <Button
-              size="small"
               disabled={isSubmitting || !isValid || !dirty}
               onClick={submitForm}
+              size="small"
             >
               <img
                 alt="Install command"

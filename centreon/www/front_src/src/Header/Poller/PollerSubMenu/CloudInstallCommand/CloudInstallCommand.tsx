@@ -1,12 +1,12 @@
 import { Button } from '@mui/material';
+
 import { useSetAtom } from 'jotai';
 import { ReactElement, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import Modal from './Modal';
-import { isModalOpenAtom } from './atoms';
-
 import { labelCreateNewPoller } from '../../translatedLabels';
+import { isModalOpenAtom } from './atoms';
+import Modal from './Modal';
 
 interface Props {
   closeSubMenu: () => void;

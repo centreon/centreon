@@ -1,9 +1,11 @@
 import { Button, List, ListItem, Typography } from '@mui/material';
 
 import { platformFeaturesAtom } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
 import { isEmpty } from 'ramda';
 import { ReactElement } from 'react';
+
 import CloudInstallCommand from './CloudInstallCommand/CloudInstallCommand';
 import ExportConfiguration from './ExportConfiguration';
 
