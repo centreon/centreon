@@ -24,9 +24,9 @@ dnf config-manager --set-enabled crb
 dnf install -y epel-release
 
 if [[ "${IS_CLOUD}" == "true" ]]; then
-  dnf config-manager --add-repo https://packages.centreon.com/rpm-standard-internal/${MAJOR_VERSION}/el9/centreon-${MAJOR_VERSION}-internal.repo
+  dnf config-manager --add-repo https://packages.centreon.com/rpm-standard-internal/${MAJOR_VERSION}/el10/centreon-${MAJOR_VERSION}-internal.repo
 else
-  dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${MAJOR_VERSION}/el9/centreon-${MAJOR_VERSION}.repo
+  dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${MAJOR_VERSION}/el10/centreon-${MAJOR_VERSION}.repo
 fi
 
 dnf config-manager --set-enabled 'centreon*'
