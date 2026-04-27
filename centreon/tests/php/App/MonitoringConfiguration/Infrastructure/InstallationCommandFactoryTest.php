@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateCN;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateSHA;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationType;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
@@ -36,6 +37,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCMACertificates;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerType;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\MonitoringConfiguration\Infrastructure\InstallationCommandFactory;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\TestCase;
@@ -422,6 +424,8 @@ final class InstallationCommandFactoryTest extends TestCase
             uuid: null,
             globalMacros: new Collection([], GlobalMacro::class),
             brokerConfiguration: new BrokerConfiguration(),
+            connectorConfiguration: new ConnectorConfiguration(),
+            trapConfiguration: new TrapConfiguration(),
             engineConfiguration: new EngineConfiguration(),
             gorgoneConfiguration: new GorgoneConfiguration(
                 communicationType: GorgoneCommunicationType::ZMQ,

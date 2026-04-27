@@ -48,6 +48,8 @@ final class Poller extends AggregateRoot
         public readonly GorgoneConfiguration $gorgoneConfiguration,
         public readonly EngineConfiguration $engineConfiguration,
         public readonly BrokerConfiguration $brokerConfiguration,
+        public readonly ConnectorConfiguration $connectorConfiguration,
+        public readonly TrapConfiguration $trapConfiguration,
         public ?PollerCMACertificates $cmaCertificates = null,
         public readonly ?PollerRemoteAttachment $remoteAttachment = null,
     ) {

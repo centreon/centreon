@@ -25,10 +25,12 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationType;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
@@ -70,6 +72,13 @@ final readonly class DbalPollerTransformer implements TransformerInterface
                 binaryPath: $from['nagios_bin'],
                 statisticsBinaryPath: $from['nagiostats_bin'],
                 perfdataFilePath: $from['nagios_perfdata'],
+            ),
+            connectorConfiguration: new ConnectorConfiguration(
+                connectorPath: $from['centreonconnector_path'],
+            ),
+            trapConfiguration: new TrapConfiguration(
+                initScriptPath: $from['init_script_centreontrapd'],
+                snmpTrapPathConf: $from['snmp_trapd_path_conf'],
             ),
             gorgoneConfiguration: new GorgoneConfiguration(
                 communicationType: GorgoneCommunicationType::from((int) $from['gorgone_communication_type']),

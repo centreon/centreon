@@ -64,6 +64,9 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   centreonbroker_cfg_path: string|null,
  *   centreonbroker_module_path: string|null,
  *   centreonbroker_logs_path: string|null,
+ *   centreonconnector_path: string|null,
+ *   init_script_centreontrapd: string|null,
+ *   snmp_trapd_path_conf: string|null,
  * }
  * @phpstan-type JoinRowTypeAlias = array{
  *   poller_id: int,
@@ -89,6 +92,9 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   centreonbroker_cfg_path: string|null,
  *   centreonbroker_module_path: string|null,
  *   centreonbroker_logs_path: string|null,
+ *   centreonconnector_path: string|null,
+ *   init_script_centreontrapd: string|null,
+ *   snmp_trapd_path_conf: string|null,
  *   gm_resource_id: int,
  *   gm_resource_name: string,
  *   gm_resource_line: string,
@@ -231,6 +237,9 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             "{$alias}.centreonbroker_cfg_path AS centreonbroker_cfg_path",
             "{$alias}.centreonbroker_module_path AS centreonbroker_module_path",
             "{$alias}.centreonbroker_logs_path AS centreonbroker_logs_path",
+            "{$alias}.centreonconnector_path AS centreonconnector_path",
+            "{$alias}.init_script_centreontrapd AS init_script_centreontrapd",
+            "{$alias}.snmp_trapd_path_conf AS snmp_trapd_path_conf",
         ];
     }
 
