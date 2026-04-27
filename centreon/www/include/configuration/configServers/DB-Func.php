@@ -346,6 +346,7 @@ function duplicateServer(array $server, array $nbrDup): void
         $rowServer['ns_activate'] = '0';
         $rowServer['is_default'] = '0';
         $rowServer['localhost'] = '0';
+        $rowServer['vmware_updated'] = '0';
         $result->closeCursor();
 
         if (! isset($rowServer['name'])) {
