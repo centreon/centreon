@@ -19988,3 +19988,81 @@ msgstr "{{label}} should be at least {{min}} characters long"
 #: centreon/www/install/front_translate.php
 msgid "{{total}} element(s) found"
 msgstr "{{total}} element(s) found"
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Create new poller"
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Enter your poller's name"
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Poller Name"
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Select your poller environment"
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "VM or physical"
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Docker compose"
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Select Token"
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Select token"
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Generate installation command"
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Click to generate the command. Once it's ready, copy it and run it in your environment."
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Generating..."
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Copy the following command and run it on your poller to register it."
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Failed to create poller"
+msgstr ""
