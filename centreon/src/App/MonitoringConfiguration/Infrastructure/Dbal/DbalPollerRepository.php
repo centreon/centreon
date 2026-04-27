@@ -60,6 +60,10 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   nagios_bin: string|null,
  *   nagiostats_bin: string|null,
  *   nagios_perfdata: string|null,
+ *   broker_reload_command: string|null,
+ *   centreonbroker_cfg_path: string|null,
+ *   centreonbroker_module_path: string|null,
+ *   centreonbroker_logs_path: string|null,
  * }
  * @phpstan-type JoinRowTypeAlias = array{
  *   poller_id: int,
@@ -81,6 +85,10 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   nagios_bin: string|null,
  *   nagiostats_bin: string|null,
  *   nagios_perfdata: string|null,
+ *   broker_reload_command: string|null,
+ *   centreonbroker_cfg_path: string|null,
+ *   centreonbroker_module_path: string|null,
+ *   centreonbroker_logs_path: string|null,
  *   gm_resource_id: int,
  *   gm_resource_name: string,
  *   gm_resource_line: string,
@@ -219,6 +227,10 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             "{$alias}.nagios_bin AS nagios_bin",
             "{$alias}.nagiostats_bin AS nagiostats_bin",
             "{$alias}.nagios_perfdata AS nagios_perfdata",
+            "{$alias}.broker_reload_command AS broker_reload_command",
+            "{$alias}.centreonbroker_cfg_path AS centreonbroker_cfg_path",
+            "{$alias}.centreonbroker_module_path AS centreonbroker_module_path",
+            "{$alias}.centreonbroker_logs_path AS centreonbroker_logs_path",
         ];
     }
 

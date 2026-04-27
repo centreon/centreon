@@ -26,6 +26,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateCN;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateSHA;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationType;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
@@ -420,6 +421,7 @@ final class InstallationCommandFactoryTest extends TestCase
             pollerType: PollerType::VM,
             uuid: null,
             globalMacros: new Collection([], GlobalMacro::class),
+            brokerConfiguration: new BrokerConfiguration(),
             engineConfiguration: new EngineConfiguration(),
             gorgoneConfiguration: new GorgoneConfiguration(
                 communicationType: GorgoneCommunicationType::ZMQ,

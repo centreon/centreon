@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationType;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
@@ -55,6 +56,12 @@ final readonly class DbalPollerTransformer implements TransformerInterface
             pollerType: PollerType::from($from['poller_type']),
             uuid: $from['poller_uuid'] !== null ? new PollerUuid($from['poller_uuid']) : null,
             globalMacros: new Collection([], GlobalMacro::class),
+            brokerConfiguration: new BrokerConfiguration(
+                reloadCommand: $from['broker_reload_command'],
+                configurationPath: $from['centreonbroker_cfg_path'],
+                modulesPath: $from['centreonbroker_module_path'],
+                logsPath: $from['centreonbroker_logs_path'],
+            ),
             engineConfiguration: new EngineConfiguration(
                 startCommand: $from['engine_start_command'],
                 stopCommand: $from['engine_stop_command'],
