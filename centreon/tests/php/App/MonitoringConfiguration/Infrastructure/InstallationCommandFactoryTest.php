@@ -36,6 +36,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCMACertificates;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerType;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\MonitoringConfiguration\Infrastructure\InstallationCommandFactory;
@@ -426,6 +427,7 @@ final class InstallationCommandFactoryTest extends TestCase
             brokerConfiguration: new BrokerConfiguration(),
             connectorConfiguration: new ConnectorConfiguration(),
             trapConfiguration: new TrapConfiguration(),
+            pollerCommands: new Collection([], PollerCommand::class),
             engineConfiguration: new EngineConfiguration(),
             gorgoneConfiguration: new GorgoneConfiguration(
                 communicationType: GorgoneCommunicationType::ZMQ,

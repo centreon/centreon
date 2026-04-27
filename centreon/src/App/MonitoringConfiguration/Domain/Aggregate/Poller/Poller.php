@@ -34,6 +34,7 @@ final class Poller extends AggregateRoot
 {
     /**
      * @param Collection<GlobalMacro> $globalMacros
+     * @param Collection<PollerCommand> $pollerCommands
      */
     public function __construct(
         ?PollerId $id,
@@ -50,6 +51,7 @@ final class Poller extends AggregateRoot
         public readonly BrokerConfiguration $brokerConfiguration,
         public readonly ConnectorConfiguration $connectorConfiguration,
         public readonly TrapConfiguration $trapConfiguration,
+        public readonly Collection $pollerCommands,
         public ?PollerCMACertificates $cmaCertificates = null,
         public readonly ?PollerRemoteAttachment $remoteAttachment = null,
     ) {
