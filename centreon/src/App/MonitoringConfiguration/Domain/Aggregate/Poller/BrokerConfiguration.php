@@ -27,10 +27,10 @@ use Webmozart\Assert\Assert;
 
 final readonly class BrokerConfiguration
 {
-    public const string DEFAULT_RELOAD_COMMAND = 'systemctl reload cbd';
-    public const string DEFAULT_CONFIGURATION_PATH = '/etc/centreon-broker';
-    public const string DEFAULT_MODULES_PATH = '/usr/share/centreon/lib/centreon-broker';
-    public const string DEFAULT_LOGS_PATH = '/var/log/centreon-broker';
+    public const DEFAULT_RELOAD_COMMAND = 'systemctl reload cbd';
+    public const DEFAULT_CONFIGURATION_PATH = '/etc/centreon-broker';
+    public const DEFAULT_MODULES_PATH = '/usr/share/centreon/lib/centreon-broker';
+    public const DEFAULT_LOGS_PATH = '/var/log/centreon-broker';
 
     public function __construct(
         public ?string $reloadCommand = self::DEFAULT_RELOAD_COMMAND,

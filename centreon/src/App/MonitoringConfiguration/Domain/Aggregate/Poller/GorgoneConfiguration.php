@@ -27,8 +27,8 @@ use Webmozart\Assert\Assert;
 
 final readonly class GorgoneConfiguration
 {
-    public const int DEFAULT_GORGONE_PORT = 5556;
-    public const int DEFAULT_SSH_PORT = 22;
+    public const DEFAULT_GORGONE_PORT = 5556;
+    public const DEFAULT_SSH_PORT = 22;
 
     public function __construct(
         public GorgoneCommunicationTypeEnum $communicationType = GorgoneCommunicationTypeEnum::ZMQ,

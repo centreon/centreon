@@ -27,13 +27,13 @@ use Webmozart\Assert\Assert;
 
 final readonly class EngineConfiguration
 {
-    public const string DEFAULT_START_COMMAND = 'systemctl start centengine';
-    public const string DEFAULT_STOP_COMMAND = 'systemctl stop centengine';
-    public const string DEFAULT_RESTART_COMMAND = 'systemctl restart centengine';
-    public const string DEFAULT_RELOAD_COMMAND = 'systemctl reload centengine';
-    public const string DEFAULT_BINARY_PATH = '/usr/sbin/centengine';
-    public const string DEFAULT_STATISTICS_BINARY_PATH = '/usr/sbin/centenginestats';
-    public const string DEFAULT_PERFDATA_FILE_PATH = '/var/log/centreon-engine/service-perfdata';
+    public const DEFAULT_START_COMMAND = 'systemctl start centengine';
+    public const DEFAULT_STOP_COMMAND = 'systemctl stop centengine';
+    public const DEFAULT_RESTART_COMMAND = 'systemctl restart centengine';
+    public const DEFAULT_RELOAD_COMMAND = 'systemctl reload centengine';
+    public const DEFAULT_BINARY_PATH = '/usr/sbin/centengine';
+    public const DEFAULT_STATISTICS_BINARY_PATH = '/usr/sbin/centenginestats';
+    public const DEFAULT_PERFDATA_FILE_PATH = '/var/log/centreon-engine/service-perfdata';
 
     public function __construct(
         public ?string $startCommand = self::DEFAULT_START_COMMAND,

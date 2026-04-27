@@ -27,8 +27,8 @@ use Webmozart\Assert\Assert;
 
 final readonly class TrapConfiguration
 {
-    public const string DEFAULT_INIT_SCRIPT_PATH = 'centreontrapd';
-    public const string DEFAULT_SNMP_TRAP_PATH_CONF = '/etc/snmp/centreon_traps/';
+    public const DEFAULT_INIT_SCRIPT_PATH = 'centreontrapd';
+    public const DEFAULT_SNMP_TRAP_PATH_CONF = '/etc/snmp/centreon_traps/';
 
     public function __construct(
         public ?string $initScriptPath = self::DEFAULT_INIT_SCRIPT_PATH,
