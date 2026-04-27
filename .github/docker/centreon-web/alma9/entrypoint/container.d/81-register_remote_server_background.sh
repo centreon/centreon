@@ -7,6 +7,7 @@ CENTRAL_HOST="${CENTRAL_HOST}"
 CENTRAL_API_USERNAME="${CENTRAL_API_USERNAME:-admin}"
 CENTRAL_API_PASSWORD="${CENTRAL_API_PASSWORD:-Centreon!2021}"
 REMOTE_SERVER_NAME="${REMOTE_SERVER_NAME:-remote-server}"
+DB_HOST="${MYSQL_HOST:-localhost}"
 DB_USER="${MYSQL_USER:-centreon}"
 DB_PASSWORD="${MYSQL_PASSWORD:-centreon}"
 MAX_RETRIES=120
@@ -71,6 +72,7 @@ echo "Linking remote server to central via wizard API ..."
 LINK_PAYLOAD=$(jq -n \
   --arg server_name "$REMOTE_SERVER_NAME" \
   --arg central_ip "$CENTRAL_HOST" \
+  --arg db_host "$DB_HOST" \
   --arg db_user "$DB_USER" \
   --arg db_password "$DB_PASSWORD" \
   '{
@@ -79,6 +81,7 @@ LINK_PAYLOAD=$(jq -n \
     server_name: $server_name,
     server_ip: $server_name,
     centreon_central_ip: $central_ip,
+    db_host: $db_host,
     db_user: $db_user,
     db_password: $db_password,
     centreon_folder: "/centreon/",

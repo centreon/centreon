@@ -31,12 +31,12 @@ class OutputUnifiedSql
      *
      * @todo move it as yml
      *
-     * @param string|null $dbUser the database user
-     * @param string|null $dbPassword the database password
+     * @param string $dbUser the database user
+     * @param string $dbPassword the database password
      *
      * @return array<int, string[]> the configuration template
      */
-    public static function getConfiguration($dbUser, $dbPassword): array
+    public static function getConfiguration(string $dbHost, string $dbUser, string $dbPassword): array
     {
         return [
             [
@@ -69,7 +69,7 @@ class OutputUnifiedSql
             ],
             [
                 'config_key' => 'db_host',
-                'config_value' => 'localhost',
+                'config_value' => $dbHost,
                 'config_group' => 'output',
                 'config_group_id' => '0',
                 'grp_level' => '0',
