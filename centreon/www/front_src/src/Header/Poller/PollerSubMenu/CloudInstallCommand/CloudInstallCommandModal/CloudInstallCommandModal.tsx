@@ -1,18 +1,18 @@
 import { Form } from '@centreon/ui';
 import { Modal } from '@centreon/ui/components';
-
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { labelCreateNewPoller } from '../../../translatedLabels';
 import Buttons from './Buttons';
-import {
-  type CloudInstallCommandFormValues,
-  PollerEnvironment
-} from './models';
 import { useCloudInstallCommand } from './useCloudInstallCommand';
 import { useInputs } from './useInputs';
 import { useValidationSchema } from './useValidationSchema';
+
+import { labelCreateNewPoller } from '../../../translatedLabels';
+import {
+  type CloudInstallCommandFormValues,
+  PollerEnvironment
+} from '../models';
 
 const initialValues: CloudInstallCommandFormValues = {
   environment: PollerEnvironment.VM,

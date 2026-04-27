@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useCloudInstallCommand } from './useCloudInstallCommand';
 
 import { useAtomValue } from 'jotai';
-import { isGeneratedAtom } from './atoms';
+import { isGeneratedAtom } from '../atoms';
 
 import {
   labelCancel,

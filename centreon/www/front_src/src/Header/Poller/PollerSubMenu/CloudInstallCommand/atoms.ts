@@ -6,3 +6,5 @@ export const pollerIdAtom = atom<number | null>(null);
 export const isGeneratedAtom = atom(
   (get) => get(generatedCommandAtom) !== null
 );
+
+export const isCloudInstallCommandModalOpenAtom = atom(false);

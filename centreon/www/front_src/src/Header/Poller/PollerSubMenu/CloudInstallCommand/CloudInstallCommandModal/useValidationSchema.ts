@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { mixed, object, string } from 'yup';
 
-import { PollerEnvironment } from './models';
+import { PollerEnvironment } from '../models';
 
 export const useValidationSchema = () => {
   return useMemo(

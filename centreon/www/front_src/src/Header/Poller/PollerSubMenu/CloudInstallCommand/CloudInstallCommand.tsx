@@ -1,22 +1,26 @@
-import { ReactElement } from 'react';
-
 import { Button } from '@mui/material';
 import { pipe } from 'ramda';
+import { ReactElement, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import CloudInstallCommandModal from './CloudInstallCommandModal';
+import { useSetAtom } from 'jotai';
+import { isCloudInstallCommandModalOpenAtom } from './atoms';
 
 import { labelCreateNewPoller } from '../../translatedLabels';
-import { useCloudInstallCommand } from './CloudInstallCommandModal/useCloudInstallCommand';
+import CloudInstallCommandModal from './CloudInstallCommandModal';
 
 interface Props {
   closeSubMenu: () => void;
 }
 
-const CreateNewPoller = ({ closeSubMenu }: Props): ReactElement => {
+const CloudInstallCommand = ({ closeSubMenu }: Props): ReactElement => {
   const { t } = useTranslation();
 
-  const { open } = useCloudInstallCommand();
+  const setIsOpen = useSetAtom(isCloudInstallCommandModalOpenAtom);
+
+  const open = useCallback(() => {
+    setIsOpen(true);
+  }, []);
 
   return (
     <>
@@ -35,4 +39,4 @@ const CreateNewPoller = ({ closeSubMenu }: Props): ReactElement => {
   );
 };
 
-export default CreateNewPoller;
+export default CloudInstallCommand;

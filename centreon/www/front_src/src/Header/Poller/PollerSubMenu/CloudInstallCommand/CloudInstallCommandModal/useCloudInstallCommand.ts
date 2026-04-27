@@ -15,9 +15,13 @@ import {
   exportPollerConfigurationEndpoint,
   getPollerRegistrationCommandEndpoint
 } from '../../../../api/endpoints';
-import { isCloudInstallCommandModalOpenAtom } from '../../atoms';
-import { generatedCommandAtom, pollerIdAtom } from './atoms';
-import type { CloudInstallCommandFormValues } from './models';
+
+import {
+  generatedCommandAtom,
+  isCloudInstallCommandModalOpenAtom,
+  pollerIdAtom
+} from '../atoms';
+import type { CloudInstallCommandFormValues } from '../models';
 
 import {
   labelConfigurationExported,
@@ -26,7 +30,13 @@ import {
   labelPollerCreatedSuccessfully
 } from '../../../translatedLabels';
 
-export const useCloudInstallCommand = () => {
+interface UseCloudInstallCommandState {
+  submit: (values: CloudInstallCommandFormValues) => Promise<void>;
+  close: () => void;
+  isOpen: boolean;
+}
+
+export const useCloudInstallCommand = (): UseCloudInstallCommandState => {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useAtom(isCloudInstallCommandModalOpenAtom);
   const setGeneratedCommand = useSetAtom(generatedCommandAtom);
@@ -38,10 +48,6 @@ export const useCloudInstallCommand = () => {
     getEndpoint: () => createPollerEndpoint,
     method: Method.POST
   });
-
-  const open = useCallback(() => {
-    setIsOpen(true);
-  }, []);
 
   const close = useCallback(() => {
     setIsOpen(false);
@@ -87,7 +93,6 @@ export const useCloudInstallCommand = () => {
   return {
     close,
     isOpen,
-    open,
     submit
   };
 };

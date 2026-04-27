@@ -1,5 +1,6 @@
 import { LinearProgress, Typography } from '@mui/material';
 
+import { Button } from '@centreon/ui/components';
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
 import { ReactElement } from 'react';
@@ -11,10 +12,9 @@ import {
 } from '../../../../../AgentConfiguration/Listing/InstallationCommandModal/Components';
 import InstallCommandLogo from '../../../../../assets/InstallCommand.svg';
 
-import { generatedCommandAtom } from './atoms';
-import type { CloudInstallCommandFormValues } from './models';
+import { generatedCommandAtom } from '../atoms';
+import type { CloudInstallCommandFormValues } from '../models';
 
-import { Button } from '@centreon/ui/components';
 import {
   labelClickToGenerate,
   labelCommandGenerationStep,
