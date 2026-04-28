@@ -21502,80 +21502,54 @@ msgstr "Standard"
 msgid "it's required"
 msgstr "es ist erforderlich"
 
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-#, fuzzy
-#~ needs translation
-msgid "Create new poller"
-msgstr ""
+#: unknown
+# msgid "Create new poller"
+# msgstr ""
 
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-#, fuzzy
-#~ needs translation
-msgid "Enter your poller's name"
-msgstr ""
+#: unknown
+# msgid "Enter your poller's name"
+# msgstr ""
 
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-#, fuzzy
-#~ needs translation
-msgid "Poller Name"
-msgstr ""
+#: unknown
+# msgid "Poller Name"
+# msgstr ""
 
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-#, fuzzy
-#~ needs translation
-msgid "Select your poller environment"
-msgstr ""
+#: unknown
+# msgid "Select your poller environment"
+# msgstr ""
 
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-#, fuzzy
-#~ needs translation
-msgid "VM or physical"
-msgstr ""
+#: unknown
+# msgid "VM or physical"
+# msgstr ""
 
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-#, fuzzy
-#~ needs translation
-msgid "Docker compose"
-msgstr ""
+#: unknown
+# msgid "Docker compose"
+# msgstr ""
 
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-#, fuzzy
-#~ needs translation
-msgid "Select Token"
-msgstr ""
+#: unknown
+# msgid "Select Token"
+# msgstr ""
 
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-#, fuzzy
-#~ needs translation
-msgid "Select token"
-msgstr ""
+#: unknown
+# msgid "Select token"
+# msgstr ""
 
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-#, fuzzy
-#~ needs translation
-msgid "Generate installation command"
-msgstr ""
+#: unknown
+# msgid "Generate installation command"
+# msgstr ""
 
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-#, fuzzy
-#~ needs translation
-msgid "Click to generate the command. Once it's ready, copy it and run it in your environment."
-msgstr ""
+#: unknown
+# msgid "Click to generate the command. Once it's ready, copy it and run it in your environment."
+# msgstr ""
 
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-#, fuzzy
-#~ needs translation
-msgid "Generating..."
-msgstr ""
+#: unknown
+# msgid "Generating..."
+# msgstr ""
 
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-#, fuzzy
-#~ needs translation
-msgid "Copy the following command and run it on your poller to register it."
-msgstr ""
+#: unknown
+# msgid "Copy the following command and run it on your poller to register it."
+# msgstr ""
 
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-#, fuzzy
-#~ needs translation
-msgid "Failed to create poller"
-msgstr ""
+#: unknown
+# msgid "Failed to create poller"
+# msgstr ""

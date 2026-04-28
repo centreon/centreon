@@ -25049,10 +25049,6 @@ msgid "Select Token"
 msgstr "Sélectionner un jeton"
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts
-msgid "Select token"
-msgstr "Sélectionner un jeton"
-
-#: www/front_src/src/Header/Poller/translatedLabels.ts
 msgid "Generate installation command"
 msgstr "Générer la commande d'installation"
 
