@@ -40,7 +40,7 @@ beforeEach(() => {
   }).as('getNotifications');
   cy.intercept({
     method: 'GET',
-    url: `${INTERCEPTORS.api.users_configuration}/?page=1*`
+    url: `${INTERCEPTORS.api.users_configuration}?page=1*`
   }).as('getUsers');
   cy.intercept({
     method: 'GET',
@@ -170,7 +170,6 @@ When('the user defines a time period', () => {
 When('the user selects the {string}', (contactSettings: string) => {
   if (contactSettings === 'two contacts') {
     cy.get('#Searchcontacts').click();
-    cy.wait('@getUsers');
     cy.contains(data.contacts.contact1.name).click();
     cy.contains(data.contacts.contact2.name).click();
   } else {
