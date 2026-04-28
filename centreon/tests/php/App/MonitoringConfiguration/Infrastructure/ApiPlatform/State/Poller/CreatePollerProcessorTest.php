@@ -31,19 +31,25 @@ use Tests\App\Shared\ApiTestCase;
 
 final class CreatePollerProcessorTest extends ApiTestCase
 {
+    private function uniqueName(string $prefix = 'Poller'): string
+    {
+        return $prefix . '_' . bin2hex(random_bytes(4));
+    }
+
     public function testCreatePoller(): void
     {
         /** @var PollerRepository $repository */
         $repository = self::getContainer()->get(PollerRepository::class);
+        $name = $this->uniqueName('Test');
 
-        $poller = $repository->findOneByName(new PollerName('TestPoller'));
+        $poller = $repository->findOneByName(new PollerName($name));
         self::assertNull($poller);
 
         $this->login();
 
         $response = $this->request('POST', '/api/latest/configuration/pollers', [
             'json' => [
-                'name' => 'TestPoller',
+                'name' => $name,
                 'poller_type' => 'vm',
             ],
         ]);
@@ -51,7 +57,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceItemJsonSchema(CreatePollerResource::class);
         self::assertJsonContains([
-            'name' => 'TestPoller',
+            'name' => $name,
             'poller_type' => 'vm',
         ]);
 
@@ -59,28 +65,30 @@ final class CreatePollerProcessorTest extends ApiTestCase
         self::assertArrayHasKey('id', $responseData);
         self::assertArrayHasKey('uuid', $responseData);
         self::assertNotNull($responseData['uuid']);
-        self::assertSame('TestPoller', $responseData['address']);
+        self::assertSame($name, $responseData['address']);
 
-        $poller = $repository->findOneByName(new PollerName('TestPoller'));
+        $poller = $repository->findOneByName(new PollerName($name));
         self::assertNotNull($poller);
     }
 
     public function testCreatePollerWithAddress(): void
     {
         $this->login();
+        $name = $this->uniqueName('WithAddr');
+        $address = '10.' . mt_rand(0, 255) . '.' . mt_rand(0, 255) . '.' . mt_rand(1, 254);
 
         $this->request('POST', '/api/latest/configuration/pollers', [
             'json' => [
-                'name' => 'PollerWithAddress',
+                'name' => $name,
                 'poller_type' => 'vm',
-                'address' => '192.168.1.100',
+                'address' => $address,
             ],
         ]);
 
         self::assertResponseIsSuccessful();
         self::assertJsonContains([
-            'name' => 'PollerWithAddress',
-            'address' => '192.168.1.100',
+            'name' => $name,
+            'address' => $address,
         ]);
     }
 
@@ -90,7 +98,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
 
         $this->request('POST', '/api/latest/configuration/pollers', [
             'json' => [
-                'name' => 'DockerPoller',
+                'name' => $this->uniqueName('Docker'),
                 'poller_type' => 'docker',
             ],
         ]);
@@ -104,10 +112,11 @@ final class CreatePollerProcessorTest extends ApiTestCase
     public function testCannotCreatePollerWithSameName(): void
     {
         $this->login();
+        $name = $this->uniqueName('Dup');
 
         $this->request('POST', '/api/latest/configuration/pollers', [
             'json' => [
-                'name' => 'DuplicatePoller',
+                'name' => $name,
                 'poller_type' => 'vm',
             ],
         ]);
@@ -115,7 +124,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
 
         $this->request('POST', '/api/latest/configuration/pollers', [
             'json' => [
-                'name' => 'DuplicatePoller',
+                'name' => $name,
                 'poller_type' => 'vm',
             ],
         ]);
@@ -125,21 +134,22 @@ final class CreatePollerProcessorTest extends ApiTestCase
     public function testCannotCreatePollerWithSameAddress(): void
     {
         $this->login();
+        $address = '10.' . mt_rand(0, 255) . '.' . mt_rand(0, 255) . '.' . mt_rand(1, 254);
 
         $this->request('POST', '/api/latest/configuration/pollers', [
             'json' => [
-                'name' => 'Poller1',
+                'name' => $this->uniqueName('Addr1'),
                 'poller_type' => 'vm',
-                'address' => '192.168.1.200',
+                'address' => $address,
             ],
         ]);
         self::assertResponseIsSuccessful();
 
         $this->request('POST', '/api/latest/configuration/pollers', [
             'json' => [
-                'name' => 'Poller2',
+                'name' => $this->uniqueName('Addr2'),
                 'poller_type' => 'vm',
-                'address' => '192.168.1.200',
+                'address' => $address,
             ],
         ]);
         self::assertResponseStatusCodeSame(409);
@@ -151,7 +161,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
 
         $this->request('POST', '/api/latest/configuration/pollers', [
             'json' => [
-                'name' => 'InvalidPoller',
+                'name' => $this->uniqueName('Invalid'),
                 'poller_type' => 'invalid',
             ],
         ]);
@@ -191,7 +201,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
     {
         $this->request('POST', '/api/latest/configuration/pollers', [
             'json' => [
-                'name' => 'UnauthorizedPoller',
+                'name' => $this->uniqueName('Unauth'),
                 'poller_type' => 'vm',
             ],
         ]);
@@ -210,16 +220,18 @@ final class CreatePollerProcessorTest extends ApiTestCase
         ]);
         $this->login($username);
 
+        $name = $this->uniqueName('NonAdmin');
+
         $this->request('POST', '/api/latest/configuration/pollers', [
             'json' => [
-                'name' => 'NonAdminPoller',
+                'name' => $name,
                 'poller_type' => 'vm',
             ],
         ]);
 
         self::assertResponseIsSuccessful();
         self::assertJsonContains([
-            'name' => 'NonAdminPoller',
+            'name' => $name,
         ]);
     }
 
@@ -234,7 +246,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
 
         $this->request('POST', '/api/latest/configuration/pollers', [
             'json' => [
-                'name' => 'ForbiddenPoller',
+                'name' => $this->uniqueName('Forbidden'),
                 'poller_type' => 'vm',
             ],
         ]);
