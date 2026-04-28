@@ -116,13 +116,9 @@ tags:
   -
     name: InstallationCommandResource
     description: "Resource 'InstallationCommandResource' operations."
-    external_docs: null
-    extension_properties: []
   -
     name: Poller
     description: "Resource 'Poller' operations."
-    external_docs: null
-    extension_properties: []
 security:
   -
     Token: []
@@ -5067,236 +5063,99 @@ paths:
           explode: false
           example: centreon-plugin-1
   '/configuration/agent-configurations/installation-command/{pollerId}':
-    ref: null
-    summary: null
-    description: null
     get:
-      operation_id: api_configurationagent-configurationsinstallation-command_pollerId_get
+      operationId: api_configurationagent-configurationsinstallation-command_pollerId_get
       tags:
         - InstallationCommandResource
+      summary: 'Retrieves an InstallationCommandResource resource.'
+      description: 'Retrieves an InstallationCommandResource resource.'
+      parameters:
+        -
+          name: pollerId
+          in: path
+          description: 'Poller identifier'
+          required: true
+          schema:
+            type: integer
       responses:
-        '404':
-          description: 'Poller not found'
-          content: null
-          headers: null
-          links: null
-          extension_properties: []
-        '403':
-          description: 'You are not allowed to access this resource'
-          content: null
-          headers: null
-          links: null
-          extension_properties: []
         '200':
           description: 'InstallationCommandResource resource'
           content:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/InstallationCommandResource.jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/InstallationCommandResource'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: null
-          extension_properties: []
-      summary: 'Retrieves a InstallationCommandResource resource.'
-      description: 'Retrieves a InstallationCommandResource resource.'
-      external_docs: null
-      parameters:
-        -
-          name: pollerId
-          in: path
-          description: 'InstallationCommandResource identifier'
-          required: true
-          deprecated: false
-          allow_empty_value: null
-          schema:
-            type: string
-          style: simple
-          explode: false
-          allow_reserved: null
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
-      request_body: null
-      callbacks: null
-      deprecated: null
-      security: null
-      servers: null
-      extension_properties: []
-    put: null
-    post: null
-    delete: null
-    options: null
-    head: null
-    patch: null
-    trace: null
-    servers: null
-    parameters: null
-    extension_properties: []
+        '403':
+          description: 'You are not allowed to access this resource'
+        '404':
+          description: 'Poller not found'
   /configuration/pollers:
-    ref: null
-    summary: null
-    description: null
-    get: null
-    put: null
     post:
-      operation_id: api_configurationpollers_post
+      operationId: api_configurationpollers_post
       tags:
         - Poller
+      summary: 'Creates a Poller resource.'
+      description: 'Creates a Poller resource.'
+      requestBody:
+        description: 'The new Poller resource'
+        required: true
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/Poller'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Poller'
       responses:
-        '409':
-          description: 'Poller resource already exists'
-          content: null
-          headers: null
-          links: null
-          extension_properties: []
         '201':
           description: 'Poller resource created'
           content:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Poller.jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/Poller'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: []
-          extension_properties: []
         '400':
           description: 'Invalid input'
           content:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Error.jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: []
-          extension_properties: []
-        '422':
-          description: 'An error occurred'
-          content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/ConstraintViolation.jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/ConstraintViolation'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConstraintViolation'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: []
-          extension_properties: []
         '403':
           description: Forbidden
           content:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Error.jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: []
-          extension_properties: []
-      summary: 'Creates a Poller resource.'
-      description: 'Creates a Poller resource.'
-      external_docs: null
-      parameters: []
-      request_body:
-        description: 'The new Poller resource'
-        content:
-          application/ld+json:
-            schema:
-              $ref: '#/components/schemas/Poller'
-            example: null
-            examples: null
-            encoding: null
-            extension_properties: []
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Poller'
-            example: null
-            examples: null
-            encoding: null
-            extension_properties: []
-        required: true
-        extension_properties: []
-      callbacks: null
-      deprecated: null
-      security: null
-      servers: null
-      extension_properties: []
-    delete: null
-    options: null
-    head: null
-    patch: null
-    trace: null
-    servers: null
-    parameters: null
-    extension_properties: []
+        '409':
+          description: 'Poller resource already exists'
+        '422':
+          description: 'An error occurred'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
 components:
   securitySchemes:
     Token:
@@ -9940,55 +9799,59 @@ components:
               type: boolean
     Poller:
       type: object
+      required:
+        - name
+        - poller_type
       properties:
+        id:
+          type: integer
+          nullable: true
+          readOnly: true
         name:
           minLength: 1
           maxLength: 40
           type: string
         poller_type:
+          type: string
           enum:
             - vm
             - docker
-          type: string
-        id:
-          type:
-            - integer
-            - 'null'
         address:
+          type: string
           maxLength: 255
-          type:
-            - string
-            - 'null'
+          nullable: true
         uuid:
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable: true
+          readOnly: true
     Poller.jsonld:
       allOf:
         -
           $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
+          required:
+            - name
+            - poller_type
           properties:
+            id:
+              type: integer
+              nullable: true
+              readOnly: true
             name:
               minLength: 1
               maxLength: 40
               type: string
             poller_type:
+              type: string
               enum:
                 - vm
                 - docker
-              type: string
-            id:
-              type:
-                - integer
-                - 'null'
             address:
+              type: string
               maxLength: 255
-              type:
-                - string
-                - 'null'
+              nullable: true
             uuid:
-              type:
-                - string
-                - 'null'
+              type: string
+              nullable: true
+              readOnly: true
