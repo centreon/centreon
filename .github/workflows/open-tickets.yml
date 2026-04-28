@@ -572,10 +572,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # operating_system: [alma9]
-        operating_system: [alma10]
-        database: ["mariadb:10.11"]
-        test_tags: ["not @ignore"]
+        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
     name: e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     uses: ./.github/workflows/cypress-e2e-parallelization.yml
