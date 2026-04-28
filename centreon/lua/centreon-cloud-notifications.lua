@@ -81,7 +81,7 @@ local function update_conf(full_conf)
   broker_log:info(1, "Reading notification configuration: " .. tostring(full_conf))
   local content = broker.json_decode(full_conf)
   if not content then
-    broker_log:error(0, "Unable to decode '" .. tostring(full_conf) .. "'. Is the URL still accessible?")
+    broker_log:error(0, "[update_conf] Unable to decode '" .. tostring(full_conf) .. "'. Is the URL still accessible?")
     return
   end
   local uid = content.uid
@@ -130,7 +130,7 @@ end
 --  configuration in data.host.
 local function get_configuration()
   local loop = true
-  local resp_code = 0
+  local resp_code = -1
   while loop do
     data.last_refresh = os.time()
     local c = cURL.easy {
@@ -166,6 +166,8 @@ local function get_configuration()
     broker_log:info(1, "No change in the configuration")
   elseif resp_code == 200 then
     broker_log:info(1, "Changes available in the configuration")
+  else
+    broker_log:error(0, "[get_configuration] Unexpected response code " .. tostring(resp_code) .. " (API unreachable or perform() failed)")
   end
 end
 
@@ -189,7 +191,7 @@ local function get_notification_rule(id)
           content = decoded
           broker_log:info(2, resp)
         else
-          broker_log:error(0, "Unable to decode the message '" .. tostring(resp) .. "'")
+          broker_log:error(0, "[get_notification_rule] Unable to decode the message: " .. tostring(resp))
         end
       end
     }
@@ -230,7 +232,7 @@ local function get_notification(id)
           content = decoded
           broker_log:info(2, resp)
         else
-          broker_log:error(0, "Unable to decode the message '" .. tostring(resp) .. "'")
+          broker_log:error(0, "[get_notification] Unable to decode the message: " .. tostring(resp))
         end
       end
     }
@@ -270,7 +272,7 @@ local function get_time_period(id)
           content = decoded
           broker_log:info(2, resp)
         else
-          broker_log:error(0, "Unable to decode the message '" .. tostring(resp) .. "'")
+          broker_log:error(0, "[get_time_period] Unable to decode the message: " .. tostring(resp))
         end
       end
     }
@@ -487,11 +489,13 @@ function init(conf)
       local content = f:read("*a")
       f:close()
       local j = broker.json_decode(content)
-      if j and j.user and j.password then
+      if not j then
+        broker_log:error(0, "The file '" .. data.authfile .. "' is not valid JSON")
+      elseif not j.user or not j.password then
+        broker_log:error(0, "The file '" .. data.authfile .. "' doesn't contain the good entries")
+      else
         data.user = j.user
         data.password = j.password
-      else
-        broker_log:error(0, "The file '" .. data.authfile .. "' doesn't contain the good entries")
       end
     else
       broker_log:error(0, "The specified file '" .. data.authfile .. "' doesn't exist")
@@ -519,10 +523,16 @@ end
 
 local function is_notifiable(notification)
   if not notification or not notification.notification_id then
+    broker_log:error(0, "is_notifiable: missing notification_id (API call may have failed)")
     return false
   end
   local notif = get_notification(notification.notification_id)
-  if not notif or not notif.timeperiod or notif.timeperiod.id == nil then
+  if not notif.timeperiod then
+    broker_log:error(0, "is_notifiable: notification " .. tostring(notification.notification_id) .. " has no timeperiod (API call may have failed)")
+    return false
+  end
+  if notif.timeperiod.id == nil then
+    broker_log:error(0, "is_notifiable: notification " .. tostring(notification.notification_id) .. " has a timeperiod with no id")
     return false
   end
   local time_period = get_time_period(notif.timeperiod.id)
