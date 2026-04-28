@@ -27,4 +27,5 @@ enum TokenTypeEnum
 {
     case API;
     case CMA;
+    case POLLER;
 }

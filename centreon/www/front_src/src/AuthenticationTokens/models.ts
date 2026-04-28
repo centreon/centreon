@@ -10,7 +10,8 @@ export interface User {
 
 export enum TokenType {
   API = 'api',
-  CMA = 'cma'
+  CMA = 'cma',
+  Poller = 'poller'
 }
 
 export interface ModalState {
