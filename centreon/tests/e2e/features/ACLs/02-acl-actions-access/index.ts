@@ -2,7 +2,6 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
-import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import data from '../../../fixtures/acls/acl-data.json';
 import { AclActionType, Action } from '../commands';
 
