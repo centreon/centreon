@@ -5,9 +5,9 @@ import { useAtomValue } from 'jotai';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { getTokensEndpoint } from '../../../../../../AgentConfiguration/api/endpoints';
 import { Section } from '../../../../../../AgentConfiguration/Listing/InstallationCommandModal/Components';
 import { listTokensDecoder } from '../../../../../../AuthenticationTokens/api';
+import { getTokensEndpoint } from '../../../../../api/endpoints';
 import {
   labelSelectToken,
   labelSelectTokenPlaceholder
