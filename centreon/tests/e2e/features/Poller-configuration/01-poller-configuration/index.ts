@@ -208,7 +208,7 @@ Then('no poller names are displayed', () => {
       .find(
         'span.selection span.select2-selection--multiple input[placeholder="Pollers"]'
       ) 
-        .should('have.value', '');
+       .should('have.value', '');
   });
 });
 
