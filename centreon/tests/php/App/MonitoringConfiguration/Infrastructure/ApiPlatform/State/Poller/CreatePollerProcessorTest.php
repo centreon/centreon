@@ -31,11 +31,6 @@ use Tests\App\Shared\ApiTestCase;
 
 final class CreatePollerProcessorTest extends ApiTestCase
 {
-    private function uniqueName(string $prefix = 'Poller'): string
-    {
-        return $prefix . '_' . bin2hex(random_bytes(4));
-    }
-
     public function testCreatePoller(): void
     {
         /** @var PollerRepository $repository */
@@ -255,5 +250,10 @@ final class CreatePollerProcessorTest extends ApiTestCase
         self::assertJsonContains([
             'message' => 'You are not allowed to create pollers',
         ]);
+    }
+
+    private function uniqueName(string $prefix = 'Poller'): string
+    {
+        return $prefix . '_' . bin2hex(random_bytes(4));
     }
 }
