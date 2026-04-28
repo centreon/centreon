@@ -1,7 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { checkHostsAreMonitored } from 'e2e/commons';
-import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import { INTERCEPTORS } from 'e2e/fixtures/shared/constants/interceptors';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 import hostCategories from '../../../fixtures/host-categories/category.json';
 

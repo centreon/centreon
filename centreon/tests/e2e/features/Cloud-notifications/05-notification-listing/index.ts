@@ -1,7 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'e2e/fixtures/shared/constants/interceptors';
-
 import { PAGES } from 'e2e/fixtures/shared/constants/pages';
+
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
