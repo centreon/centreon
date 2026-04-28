@@ -9370,9 +9370,8 @@ components:
             name: 'SSH Connector'
         comment:
           description: 'Additional information about the command'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable: true
           example: 'This command is used to check the HTTP service'
     ConstraintViolation:
       type: object
@@ -9413,14 +9412,12 @@ components:
           type: string
         title:
           readOnly: true
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable: true
         instance:
           readOnly: true
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable: true
     ConstraintViolation.jsonld:
       allOf:
         -
@@ -9455,14 +9452,12 @@ components:
               type: string
             title:
               readOnly: true
-              type:
-                - string
-                - 'null'
+              type: string
+              nullable: true
             instance:
               readOnly: true
-              type:
-                - string
-                - 'null'
+              type: string
+              nullable: true
       description: 'Unprocessable entity'
     CreateCommandResource:
       type: object
@@ -9493,16 +9488,14 @@ components:
           description: 'Indicates whether the command can be executed through a shell'
           type: boolean
         connector:
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable: true
           format: iri-reference
           example: 'https://example.com/'
         comment:
           description: 'Additional information about the command'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable: true
           example: 'This command is used to check the HTTP service'
     CreateCommandResource.jsonld:
       allOf:
@@ -9537,24 +9530,21 @@ components:
               description: 'Indicates whether the command can be executed through a shell'
               type: boolean
             connector:
-              type:
-                - string
-                - 'null'
+              type: string
+              nullable: true
               format: iri-reference
               example: 'https://example.com/'
             comment:
               description: 'Additional information about the command'
-              type:
-                - string
-                - 'null'
+              type: string
+              nullable: true
               example: 'This command is used to check the HTTP service'
     DuplicateCommandResource:
       type: object
       properties:
         command:
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable: true
           format: iri-reference
           example: 'https://example.com/'
         status:
@@ -9582,9 +9572,8 @@ components:
           type: object
           properties:
             command:
-              type:
-                - string
-                - 'null'
+              type: string
+              nullable: true
               format: iri-reference
               example: 'https://example.com/'
             status:
@@ -9651,7 +9640,7 @@ components:
                 properties:
                   '@type': { type: string }
                   variable: { type: string }
-                  property: { type: [string, 'null'] }
+                  property: { type: string, nullable: true }
                   required: { type: boolean }
     HydraItemBaseSchema:
       type: object
@@ -9817,6 +9806,7 @@ components:
             - vm
             - docker
         address:
+          description: 'Poller address. Defaults to the poller name when omitted.'
           type: string
           maxLength: 255
           nullable: true

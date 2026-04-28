@@ -904,26 +904,48 @@ $addPollerUuidColumn = function () use ($pearDB, &$errorMessage, $version): void
         message: "UPGRADE - {$version}: Adding uuid column to nagios_server",
     );
 
-    if ($pearDB->columnExists(
+    $hasUuidColumn = $pearDB->columnExists(
         $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
         'nagios_server',
         'uuid'
-    )) {
+    );
+
+    if (! $hasUuidColumn) {
+        $pearDB->executeStatement(
+            <<<'SQL'
+                ALTER TABLE `nagios_server`
+                    ADD COLUMN `uuid` VARCHAR(36) DEFAULT NULL COMMENT 'UUIDv7 (36 chars with hyphens)'
+                SQL
+        );
+    } else {
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: Column uuid already exists on nagios_server, skipping",
+            message: "UPGRADE - {$version}: Column uuid already exists on nagios_server",
         );
-
-        return;
     }
 
-    $pearDB->executeStatement(
+    $hasUniqUuidIndex = (bool) $pearDB->fetchOne(
         <<<'SQL'
-            ALTER TABLE `nagios_server`
-                ADD COLUMN `uuid` VARCHAR(36) DEFAULT NULL COMMENT 'UUIDv7 (36 chars with hyphens)',
-                ADD UNIQUE KEY `uniq_uuid` (`uuid`)
-            SQL
+            SELECT 1
+            FROM INFORMATION_SCHEMA.STATISTICS
+            WHERE TABLE_SCHEMA = :db_name
+              AND TABLE_NAME = 'nagios_server'
+              AND INDEX_NAME = 'uniq_uuid'
+            LIMIT 1
+            SQL,
+        QueryParameters::create([
+            QueryParameter::string('db_name', $pearDB->getDatabaseName()),
+        ])
     );
+
+    if (! $hasUniqUuidIndex) {
+        $pearDB->executeStatement(
+            <<<'SQL'
+                ALTER TABLE `nagios_server`
+                    ADD UNIQUE KEY `uniq_uuid` (`uuid`)
+                SQL
+        );
+    }
 
     $pollersWithoutUuid = $pearDB->fetchAllAssociative(
         'SELECT id FROM `nagios_server` WHERE `uuid` IS NULL'
