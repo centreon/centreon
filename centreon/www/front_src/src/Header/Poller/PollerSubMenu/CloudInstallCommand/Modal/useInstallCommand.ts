@@ -36,8 +36,8 @@ export const useInstallCommand = (): UseInstallCommandState => {
     try {
       const pollerResponse = await createPoller({
         payload: {
-          poller_type: values.environment,
           name: values.pollerName.trim(),
+          poller_type: values.environment,
           tokens: values.token.map((t) => ({ name: t.name }))
         }
       });
