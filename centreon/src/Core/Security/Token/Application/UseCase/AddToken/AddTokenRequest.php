@@ -30,13 +30,13 @@ final class AddTokenRequest
     /**
      * @param string $name
      * @param TokenTypeEnum $type
-     * @param int $userId
+     * @param ?int $userId
      * @param \DateTimeInterface|null $expirationDate
      */
     public function __construct(
         public string $name = '',
         public TokenTypeEnum $type = TokenTypeEnum::API,
-        public int $userId = 0,
+        public ?int $userId = null,
         public ?\DateTimeInterface $expirationDate = null,
     ) {
     }
