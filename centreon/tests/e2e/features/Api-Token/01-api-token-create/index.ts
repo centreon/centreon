@@ -1,8 +1,4 @@
-import {
-  Given,
-  Then,
-  When
-} from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 const token = {
