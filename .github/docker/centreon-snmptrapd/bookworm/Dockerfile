@@ -58,8 +58,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Create centreon user/group (same UID as other Centreon containers for volume consistency)
 RUN groupadd -g 33 www-data 2>/dev/null || true && \
     groupadd -g 900 centreon && \
-    useradd -u 900 -g centreon -m -r -d /var/spool/centreon -s /bin/bash centreon && \
-    usermod -aG Debian-snmp centreon
+    useradd -u 900 -g centreon -m -r -d /var/spool/centreon -s /bin/bash centreon
 
 # Create directory structure
 RUN mkdir -p /var/spool/centreontrapd \
@@ -70,9 +69,9 @@ RUN mkdir -p /var/spool/centreontrapd \
              /usr/local/lib/centreon-snmptrapd && \
     chmod 1777 /var/spool/centreontrapd && \
     chown centreon:centreon /var/spool/centreontrapd \
-                            /etc/snmp \
                             /etc/centreon \
-                            /var/log/centreon
+                            /var/log/centreon && \
+    chown -R centreon:centreon /etc/snmp
 
 # Copy Perl modules from selected source
 COPY --from=centreon-perl-selected /centreon-modules/ /usr/share/perl5/centreon/
