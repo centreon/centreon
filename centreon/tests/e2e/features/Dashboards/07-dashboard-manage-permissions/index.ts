@@ -1,5 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { INTERCEPTORS } from 'e2e/fixtures/shared/constants/interceptors';
 
 import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';

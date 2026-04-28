@@ -1,5 +1,5 @@
 import { PAGES } from 'e2e/fixtures/shared/constants/pages';
-import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { INTERCEPTORS } from 'e2e/fixtures/shared/constants/interceptors';
 
 Cypress.Commands.add('visitApiTokens', () => {
   cy.intercept({
