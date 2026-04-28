@@ -55,7 +55,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: `${INTERCEPTORS.api.administration_tokens}?*`
+    url: `${INTERCEPTORS.api.administration_tokens}?page=*`
   }).as('getTokens');
   cy.intercept({
     method: 'GET',
@@ -207,7 +207,7 @@ Then(
                       break;
                     case 'Creator':
                       allPromisesResolved.push(
-                        value === tokensToSearch.creator
+                        tokensToSearch.creator.includes(value.trim())
                       );
                       break;
                     default:
