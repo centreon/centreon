@@ -207,8 +207,8 @@ Then('no poller names are displayed', () => {
     cy.getIframeBody()
       .find(
         'span.selection span.select2-selection--multiple input[placeholder="Pollers"]'
-      )
-    .should('have.value', '');
+      ) 
+        .should('have.value', '');
   });
 });
 
