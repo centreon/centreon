@@ -45,7 +45,7 @@ abstract class NewToken
      */
     public function __construct(
         private readonly TrimmedString $name,
-        private readonly int $creatorId,
+        private readonly ?int $creatorId,
         private readonly TrimmedString $creatorName,
         private readonly ?\DateTimeInterface $expirationDate,
         private readonly TokenTypeEnum $type,
@@ -56,7 +56,9 @@ abstract class NewToken
         }
         Assertion::notEmptyString($this->name->value, "{$this->shortName}::name");
         Assertion::maxLength($this->name->value, Token::MAX_TOKEN_NAME_LENGTH, "{$this->shortName}::name");
-        Assertion::positiveInt($this->creatorId, "{$this->shortName}::creatorId");
+        if ($this->creatorId !== null) {
+            Assertion::positiveInt($this->creatorId, "{$this->shortName}::creatorId");
+        }
         Assertion::notEmptyString($this->creatorName->value, "{$this->shortName}::creatorName");
         Assertion::maxLength($this->creatorName->value, Token::MAX_USER_NAME_LENGTH, "{$this->shortName}::creatorName");
     }
@@ -78,7 +80,7 @@ abstract class NewToken
         return $this->name->value;
     }
 
-    public function getCreatorId(): int
+    public function getCreatorId(): ?int
     {
         return $this->creatorId;
     }

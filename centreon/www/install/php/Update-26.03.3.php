@@ -18,14 +18,3 @@
  * For more information : contact@centreon.com
  *
  */
-
-declare(strict_types=1);
-
-namespace Core\Security\Token\Domain\Model;
-
-enum TokenTypeEnum
-{
-    case API;
-    case CMA;
-    case POLLER;
-}

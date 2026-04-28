@@ -146,6 +146,27 @@ if ($row = $centralServerQuery->fetch()) {
     }
 }
 
+// Create default poller token
+try {
+    $tokenStatement = $link->prepare(
+        <<<'SQL'
+            INSERT INTO `authentication_tokens`
+                (`token_string`, `token_name`, `creator_id`, `creator_name`, `encoding_key`, `is_revoked`, `creation_date`, `expiration_date`, `type`)
+            VALUES
+                (:token_string, 'poller-default', 1, 'admin', NULL, 0, :creation_date, NULL, 'poller')
+            SQL
+    );
+    $tokenStatement->bindValue(':token_string', Security\Encryption::generateRandomString());
+    $tokenStatement->bindValue(':creation_date', time());
+    $tokenStatement->execute();
+} catch (Throwable $ex) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+        message: 'An error occurred while creating the default poller token, skipping.',
+        exception: $ex
+    );
+}
+
 // Manage timezone
 $timezone = date_default_timezone_get();
 $statement = $link->prepare('SELECT timezone_id FROM timezone WHERE timezone_name= :timezone_name');
