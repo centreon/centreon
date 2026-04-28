@@ -11,13 +11,14 @@ BASEDIR="/usr/local/lib/centreon-centreontrapd/container.d"
 for file in $(find "$BASEDIR" -maxdepth 1 -type f | xargs -n1 basename | sort); do
   case "$file" in
     *_background*)
-      if . "$BASEDIR/$file" > /proc/1/fd/1 2>/proc/1/fd/2 & then
-        pid=$!
-        echo $pid >> /tmp/background_pids
-      else
+      . "$BASEDIR/$file" > /proc/1/fd/1 2>/proc/1/fd/2 &
+      pid=$!
+      sleep 1
+      if ! kill -0 "$pid" 2>/dev/null; then
         echo "Error starting background script $file"
         exit 1
       fi
+      echo $pid >> /tmp/background_pids
       ;;
     *)
       if ! . "$BASEDIR/$file"; then

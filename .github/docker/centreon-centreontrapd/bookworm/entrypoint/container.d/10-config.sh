@@ -1,10 +1,8 @@
 #!/bin/sh
-SPOOL="${SPOOL_DIR:-/var/spool/centreontrapd}"
-SDB="${TRAP_SDB_PATH:-/etc/snmp/centreon_traps/centreontrapd.sdb}"
+SPOOL="/var/spool/centreontrapd"
+SDB="/etc/snmp/centreon_traps/centreontrapd.sdb"
 
 echo "=== Generating centreontrapd configuration ==="
-echo "Spool dir  : $SPOOL"
-echo "SQLite .sdb: $SDB"
 
 # Minimal conf.pm required by centreon::script base class
 cat > /etc/centreon/conf.pm <<EOF
@@ -23,6 +21,7 @@ chown centreon:centreon /etc/centreon/conf.pm
 cat > /etc/centreon/centreontrapd.pm <<EOF
 our %centreontrapd_config = (
     mode              => 1,
+    spool_directory   => "${SPOOL}/",
     db_type           => "SQLite",
     centreon_db       => "dbname=${SDB}",
     centstorage_db    => "dbname=${SDB}",

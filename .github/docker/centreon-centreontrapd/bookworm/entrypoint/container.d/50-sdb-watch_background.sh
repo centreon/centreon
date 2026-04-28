@@ -2,7 +2,7 @@
 # Reload centreontrapd via SIGHUP when centreontrapd.sdb is updated.
 # Handles both in-place writes (close_write) and atomic replacements (moved_to/create).
 
-SDB="${TRAP_SDB_PATH:-/etc/snmp/centreon_traps/centreontrapd.sdb}"
+SDB="/etc/snmp/centreon_traps/centreontrapd.sdb"
 SDB_DIR=$(dirname "$SDB")
 SDB_FILE=$(basename "$SDB")
 

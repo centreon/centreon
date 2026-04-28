@@ -39,60 +39,80 @@ FROM centreon-perl-${USE_SOURCE_TRAPD} AS centreon-perl-selected
 #############################################
 # Stage 2: Runtime - Debian 12 slim image
 #############################################
-FROM debian:12-slim AS snmptrapd
+FROM debian:12-slim AS centreontrapd
 
 ARG VERSION
 ARG IS_CLOUD
 ARG STABILITY
 
-# Create centreon user/group (same UID as other Centreon containers for volume consistency)
+# Create users and groups (same UIDs as other Centreon containers for volume consistency)
+# centreon-engine group needed: centreontrapd writes to centengine.cmd pipe (owned by centreon-engine)
 RUN groupadd -g 33 www-data 2>/dev/null || true && \
     groupadd -g 900 centreon && \
-    useradd -u 900 -g centreon -m -r -d /var/spool/centreon -s /bin/bash centreon
+    useradd -u 900 -g centreon -m -r -d /var/spool/centreon -s /bin/bash centreon && \
+    groupadd -g 901 centreon-engine && \
+    useradd -u 901 -g centreon-engine -m -r -d /var/lib/centreon-engine -s /bin/bash centreon-engine && \
+    usermod -aG centreon-engine centreon
 
 # Install runtime dependencies
-# centreontrapdforward only writes spool files — no SQLite or SNMP libs needed here
+# libdbd-sqlite3-perl: SQLite access for centreontrapd.sdb (poller mode=1)
+# snmp: SNMP OID resolution via Net::SNMP Perl bindings
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    snmptrapd \
     perl \
     libdbi-perl \
+    libdbd-sqlite3-perl \
+    libconfig-inifiles-perl \
+    libsnmp-perl \
+    snmp \
     tzdata \
     ca-certificates \
+    inotify-tools \
+    procps \
     && rm -rf /var/lib/apt/lists/*
 
 # Create directory structure
 RUN mkdir -p /var/spool/centreontrapd \
-             /etc/snmp \
+             /etc/snmp/centreon_traps \
              /etc/centreon \
              /var/log/centreon \
+             /var/lib/centreon-engine/rw \
              /usr/share/centreon/bin \
-             /usr/local/lib/centreon-snmptrapd && \
+             /usr/local/lib/centreon-centreontrapd && \
     chmod 1777 /var/spool/centreontrapd && \
     chown centreon:centreon /var/spool/centreontrapd && \
+    chown centreon:centreon /etc/snmp/centreon_traps && \
+    chmod 0775 /etc/snmp/centreon_traps && \
+    chown centreon:centreon /var/log/centreon && \
     chown centreon:centreon /etc/centreon && \
-    chown centreon:centreon /var/log/centreon
+    chmod 0775 /etc/centreon
 
 # Copy Perl modules from selected source
 COPY --from=centreon-perl-selected /centreon-modules/ /usr/share/perl5/centreon/
 
-# Copy centreontrapdforward binary from extractor
-COPY --from=extractor --chmod=755 /extracted/usr/share/centreon/bin/centreontrapdforward /usr/share/centreon/bin/centreontrapdforward
+# Copy centreontrapd binary from extractor
+COPY --from=extractor --chmod=755 /extracted/usr/share/centreon/bin/centreontrapd /usr/share/centreon/bin/centreontrapd
 
 # Copy entrypoint scripts
-COPY --chmod=755 .github/docker/centreon-snmptrapd/bookworm/entrypoint /usr/local/lib/centreon-snmptrapd/
+COPY --chmod=755 .github/docker/centreon-centreontrapd/bookworm/entrypoint /usr/local/lib/centreon-centreontrapd/
 
 # Verify Perl modules are loadable
 RUN echo "=== Verification ===" && \
-    perl -e "require centreon::script::centreontrapdforward; print 'centreontrapdforward OK\n'" && \
-    ls -lah /usr/share/centreon/bin/centreontrapdforward && \
+    perl -e "require centreon::script::centreontrapd; print 'centreontrapd OK\n'" && \
+    perl -e "require centreon::trapd::lib; print 'trapd::lib OK\n'" && \
+    perl -e "require DBI; require DBD::SQLite; print 'SQLite OK\n'" && \
+    ls -lah /usr/share/centreon/bin/centreontrapd && \
     echo "=== Files verified ==="
 
 ENV PERL5LIB=/usr/share/perl5:/usr/lib/perl5
 ENV DEBUG=false
 
-EXPOSE 162/udp
+WORKDIR /etc/centreon
 
-WORKDIR /etc/snmp
+USER centreon
 
-ENTRYPOINT ["/usr/local/lib/centreon-snmptrapd/container.sh"]
-CMD ["/usr/sbin/snmptrapd", "-f", "-On", "-Lo", "-c", "/etc/snmp/snmptrapd.conf"]
+ENTRYPOINT ["/usr/local/lib/centreon-centreontrapd/container.sh"]
+CMD ["/usr/bin/perl", "/usr/share/centreon/bin/centreontrapd", \
+     "--logfile=/dev/stdout", \
+     "--severity=error", \
+     "--config=/etc/centreon/conf.pm", \
+     "--config-extra=/etc/centreon/centreontrapd.pm"]
