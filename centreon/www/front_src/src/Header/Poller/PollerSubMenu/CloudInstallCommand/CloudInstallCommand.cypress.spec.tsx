@@ -128,8 +128,6 @@ describe('CloudInstallCommand', () => {
         'contain.text',
         labelCreateNewPoller
       );
-
-      cy.makeSnapshot();
     });
 
     it('opens the modal and calls closeSubMenu when the button is clicked', () => {
@@ -160,8 +158,6 @@ describe('CloudInstallCommand', () => {
       cy.findByText(labelSelectPollerEnvironment).should('be.visible');
       cy.findByText(labelSelectToken).should('be.visible');
       cy.findByText(labelGenerateInstallationCommand).should('be.visible');
-
-      cy.makeSnapshot();
     });
 
     describe('Poller name section', () => {
@@ -211,8 +207,6 @@ describe('CloudInstallCommand', () => {
         cy.findByLabelText(labelVMOrPhysical)
           .closest('[data-selected]')
           .should('have.attr', 'data-selected', 'false');
-
-        cy.makeSnapshot();
       });
     });
 
@@ -253,8 +247,6 @@ describe('CloudInstallCommand', () => {
         cy.findByTestId('Command')
           .scrollIntoView()
           .should('contain.text', command);
-
-        cy.makeSnapshot();
       });
     });
 
@@ -271,8 +263,6 @@ describe('CloudInstallCommand', () => {
           .scrollIntoView()
           .findByText(labelExportConfiguration)
           .should('be.visible');
-
-        cy.makeSnapshot();
       });
 
       it('the Export configuration button is disabled when no command is generated', () => {
@@ -318,8 +308,6 @@ describe('CloudInstallCommand', () => {
         });
 
         cy.findByLabelText(`${labelPollerName} *`).should('be.disabled');
-
-        cy.makeSnapshot();
       });
 
       it('disables the environment selector when command is generated', () => {
@@ -392,8 +380,6 @@ describe('CloudInstallCommand', () => {
         cy.findByTestId('Command')
           .scrollIntoView()
           .should('contain.text', createPollerSuccessResponse.command);
-
-        cy.makeSnapshot();
       });
 
       it('shows an error message when the API call fails', () => {
@@ -414,8 +400,6 @@ describe('CloudInstallCommand', () => {
         cy.waitForRequest('@createPoller');
 
         cy.findByText(labelFailedToCreatePoller).should('be.visible');
-
-        cy.makeSnapshot();
       });
 
       it('replaces <CENTRAL_URL> placeholder in the generated command with the actual central URL', () => {
