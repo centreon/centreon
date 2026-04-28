@@ -73,7 +73,7 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           repository: centreon/centreon-collect
-          ref: ${{ github.base_ref || 'develop' }}
+          ref: ${{ needs.get-environment.outputs.linked_dev_branch || github.ref_name }}
           path: centreon-collect
 
       - name: Set PERL_VENDORLIB for deb
