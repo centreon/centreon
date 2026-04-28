@@ -1,4 +1,9 @@
-import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
+import {
+  Method,
+  centreonBaseURL,
+  useMutationQuery,
+  useSnackbar
+} from '@centreon/ui';
 
 import { useAtom, useSetAtom } from 'jotai';
 import { useCallback } from 'react';
@@ -38,7 +43,7 @@ export const useInstallCommand = (): UseInstallCommandState => {
         payload: {
           name: values.pollerName.trim(),
           poller_type: values.environment,
-          tokens: values.token ? [{ name: values.token.name }] : []
+          token: values?.token?.name
         }
       });
 
@@ -50,9 +55,13 @@ export const useInstallCommand = (): UseInstallCommandState => {
         return;
       }
 
-      const command = pollerResponse?.command;
+      const centralUrl = `${window.location.origin}${centreonBaseURL}`;
+      const command = (pollerResponse?.command || '').replaceAll(
+        '<CENTRAL_URL>',
+        centralUrl
+      );
 
-      setGeneratedCommand(command || '');
+      setGeneratedCommand(command);
     } catch {
       showErrorMessage(t(labelFailedToCreatePoller));
     }

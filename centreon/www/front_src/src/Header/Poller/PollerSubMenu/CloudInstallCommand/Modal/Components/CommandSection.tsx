@@ -6,7 +6,6 @@ import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-
 import {
   CommandLine,
   Section
@@ -57,7 +56,7 @@ const CommandSection = (): ReactElement => {
             <div className="flex flex-col gap-2">
               <LinearProgress />
               <CommandLine
-                commandLine={generatedCommand}
+                commandLine={generatedCommand || ''}
                 defaultMessage={labelCommandGenerationStep}
               />
             </div>

@@ -1,7 +1,7 @@
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
 import i18next from 'i18next';
-import { createStore, Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 
@@ -23,8 +23,8 @@ import {
   labelSelectTokenPlaceholder,
   labelVMOrPhysical
 } from '../../translatedLabels';
-import { generatedCommandAtom, isModalOpenAtom } from './atoms';
 import CloudInstallCommand from './CloudInstallCommand';
+import { generatedCommandAtom, isModalOpenAtom } from './atoms';
 
 const createPollerSuccessResponse = {
   '@context': '/centreon/api/latest/contexts/Poller',
@@ -37,6 +37,12 @@ const createPollerSuccessResponse = {
   name: 'poller-docker_07',
   poller_type: 'docker',
   uuid: '019dcf18-bdb1-7f89-a61f-45b8fcfb27e6'
+};
+
+const createPollerResponseWithPlaceholder = {
+  ...createPollerSuccessResponse,
+  command:
+    'installcma.ps /FINGERPRINT=lllllll /ENDPOINT=<CENTRAL_URL>/api/latest'
 };
 
 const initializeI18n = (): void => {
@@ -412,6 +418,33 @@ describe('CloudInstallCommand', () => {
         cy.makeSnapshot();
       });
 
+      it('replaces <CENTRAL_URL> placeholder in the generated command with the actual central URL', () => {
+        initialize({
+          createPollerResponse: createPollerResponseWithPlaceholder,
+          isModalOpen: true
+        });
+
+        cy.findByLabelText(`${labelPollerName} *`).type('my-poller');
+
+        cy.findByLabelText(labelSelectTokenPlaceholder).click();
+        cy.waitForRequest('@getTokens');
+        cy.findByText('a-token').click();
+
+        cy.findByAltText('Install command').closest('button').click();
+
+        cy.waitForRequest('@createPoller');
+
+        const expectedUrl = `${window.location.origin}`;
+
+        cy.findByTestId('Command')
+          .scrollIntoView()
+          .should(
+            'contain.text',
+            `installcma.ps /FINGERPRINT=lllllll /ENDPOINT=${expectedUrl}/api/latest`
+          );
+        cy.findByTestId('Command').should('not.contain.text', '<CENTRAL_URL>');
+      });
+
       it('submits with Docker environment when Docker is selected', () => {
         initialize({ isModalOpen: true });
 
@@ -426,7 +459,7 @@ describe('CloudInstallCommand', () => {
         cy.findByAltText('Install command').closest('button').click();
 
         cy.waitForRequest('@createPoller').then(({ request }) => {
-          expect(request.body.environment).to.equal('docker');
+          expect(request.body.poller_type).to.equal('docker');
           expect(request.body.name).to.equal('docker-poller');
         });
       });

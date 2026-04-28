@@ -9,7 +9,7 @@ import {
   labelExportConfiguration
 } from '../../../../translatedLabels';
 import { isExportConfigModalOpenAtom } from '../../../ExportConfiguration/atoms';
-import { isGeneratedAtom, isModalOpenAtom } from '../../atoms';
+import { isGeneratedAtom } from '../../atoms';
 
 interface Props {
   close: () => void;
@@ -23,11 +23,9 @@ const Buttons = ({ close }: Props): ReactElement => {
     isExportConfigModalOpenAtom
   );
 
-  const openCommandModal = useSetAtom(isModalOpenAtom);
-
   const onClick = (): void => {
     displayExportConfigurationModal(true);
-    openCommandModal(false);
+    close();
   };
 
   return (
