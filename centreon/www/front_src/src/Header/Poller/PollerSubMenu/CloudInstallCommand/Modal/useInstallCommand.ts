@@ -38,7 +38,7 @@ export const useInstallCommand = (): UseInstallCommandState => {
         payload: {
           name: values.pollerName.trim(),
           poller_type: values.environment,
-          tokens: values.token.map((t) => ({ name: t.name }))
+          tokens: values.token ? [{ name: values.token.name }] : []
         }
       });
 

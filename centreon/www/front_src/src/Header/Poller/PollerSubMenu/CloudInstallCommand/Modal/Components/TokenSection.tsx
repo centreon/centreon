@@ -1,4 +1,4 @@
-import { MultiConnectedAutocompleteField } from '@centreon/ui';
+import { SingleConnectedAutocompleteField } from '@centreon/ui';
 
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
@@ -18,23 +18,13 @@ import type { CloudInstallCommandFormValues } from '../../models';
 const TokenSection = (): ReactElement => {
   const { t } = useTranslation();
   const isGenerated = useAtomValue(isGeneratedAtom);
-  const { values, setFieldValue, setFieldTouched } =
+  const { setFieldValue, setFieldTouched } =
     useFormikContext<CloudInstallCommandFormValues>();
 
   return (
     <Section order={3} title={t(labelSelectToken)}>
       <div className="my-2">
-        <MultiConnectedAutocompleteField
-          chipProps={{
-            color: 'primary',
-            onDelete: (
-              _: React.SyntheticEvent,
-              option: { id: string; name: string }
-            ): void => {
-              const updated = values.token.filter((t) => t.id !== option.id);
-              setFieldValue('token', updated);
-            }
-          }}
+        <SingleConnectedAutocompleteField
           decoder={listTokensDecoder}
           disabled={isGenerated}
           field="token_name"
@@ -42,15 +32,14 @@ const TokenSection = (): ReactElement => {
           label={t(labelSelectTokenPlaceholder)}
           onChange={(
             _: React.SyntheticEvent,
-            updatedValues: Array<{ id: string; name: string }>
+            value: { id: string; name: string } | null
           ) => {
             setFieldTouched('token', true, false);
             setFieldValue(
               'token',
-              updatedValues.map((v) => ({ id: v.id, name: v.name }))
+              value ? { id: value.id, name: value.name } : null
             );
           }}
-          value={values.token}
         />
       </div>
     </Section>

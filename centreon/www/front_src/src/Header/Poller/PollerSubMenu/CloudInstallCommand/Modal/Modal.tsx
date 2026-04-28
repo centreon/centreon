@@ -17,7 +17,7 @@ import { useValidationSchema } from './useValidationSchema';
 const initialValues: CloudInstallCommandFormValues = {
   environment: PollerEnvironment.VM,
   pollerName: '',
-  token: []
+  token: null
 };
 
 const InstallCommandModal = (): ReactElement => {
