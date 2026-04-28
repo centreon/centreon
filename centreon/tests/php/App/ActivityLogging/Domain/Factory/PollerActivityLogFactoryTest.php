@@ -21,8 +21,13 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Application\Command;
+namespace Tests\App\ActivityLogging\Domain\Factory;
 
+use App\ActivityLogging\Domain\Aggregate\ActionEnum;
+use App\ActivityLogging\Domain\Aggregate\Actor;
+use App\ActivityLogging\Domain\Aggregate\ActorId;
+use App\ActivityLogging\Domain\Aggregate\TargetTypeEnum;
+use App\ActivityLogging\Domain\Factory\PollerActivityLogFactory;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
@@ -31,47 +36,30 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCommand;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUuid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
-use App\MonitoringConfiguration\Domain\Event\PollerCreated;
-use App\MonitoringConfiguration\Domain\Exception\PollerAlreadyExistsException;
-use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
-use App\Shared\Application\Command\AsCommandHandler;
+use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
-use App\Shared\Domain\Event\EventBus;
-use Symfony\Component\Uid\Uuid;
+use PHPUnit\Framework\TestCase;
 
-#[AsCommandHandler]
-final readonly class CreatePollerCommandHandler
+final class PollerActivityLogFactoryTest extends TestCase
 {
-    public function __construct(
-        private PollerRepository $repository,
-        private EventBus $eventBus,
-    ) {
-    }
-
-    public function __invoke(CreatePollerCommand $command): Poller
+    public function testCreate(): void
     {
-        if ($this->repository->findOneByName($command->name) instanceof Poller) {
-            throw new PollerAlreadyExistsException(['name' => $command->name->value]);
-        }
-
-        $address = $command->address ?? new PollerAddress($command->name->value);
-
-        if ($this->repository->findOneByAddress($address) instanceof Poller) {
-            throw new PollerAlreadyExistsException(['address' => $address->value]);
-        }
-        $uuid = new PollerUuid(Uuid::v7()->toRfc4122());
+        $factory = new PollerActivityLogFactory();
 
         $poller = new Poller(
             id: null,
-            name: $command->name,
-            address: $address,
+            name: new PollerName('MyPoller'),
+            address: new PollerAddress('192.168.1.1'),
             isCentral: false,
             isDefault: false,
             isActivated: true,
-            pollerType: $command->pollerType,
-            uuid: $uuid,
+            pollerType: PollerTypeEnum::VM,
+            uuid: new PollerUuid('01234567-0123-7890-abcd-0123456789ab'),
             globalMacros: new Collection([], GlobalMacro::class),
             gorgoneConfiguration: new GorgoneConfiguration(),
             engineConfiguration: new EngineConfiguration(),
@@ -81,12 +69,30 @@ final readonly class CreatePollerCommandHandler
             pollerCommands: new Collection([], PollerCommand::class),
         );
 
-        $this->repository->add($poller);
+        $reflection = new \ReflectionProperty(AggregateRoot::class, 'id');
+        $reflection->setAccessible(true);
+        $reflection->setValue($poller, new PollerId(42));
 
-        $poller->id();
+        $firedAt = new \DateTimeImmutable();
 
-        $this->eventBus->fire(new PollerCreated($poller, $command->creatorId));
+        $activityLog = $factory->create(
+            action: ActionEnum::Add,
+            aggregate: $poller,
+            firedBy: new Actor(id: new ActorId(1)),
+            firedAt: $firedAt,
+        );
 
-        return $poller;
+        self::assertSame(ActionEnum::Add, $activityLog->action);
+        self::assertSame(42, $activityLog->target->id->value);
+        self::assertSame('MyPoller', $activityLog->target->name->value);
+        self::assertSame(TargetTypeEnum::Poller, $activityLog->target->type);
+        self::assertSame(1, $activityLog->actor->id->value);
+        self::assertSame($firedAt, $activityLog->performedAt);
+        self::assertSame([
+            'ns_name' => 'MyPoller',
+            'ns_ip_address' => '192.168.1.1',
+            'ns_activate' => '1',
+            'poller_type' => 'vm',
+        ], $activityLog->details);
     }
 }

@@ -31,8 +31,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\CreatePollerResource;
+use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Infrastructure\TransformerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Webmozart\Assert\Assert;
 
@@ -48,14 +50,19 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         private CommandBus $commandBus,
         #[Autowire(service: ResourceCreatePollerTransformer::class)]
         private TransformerInterface $transformer,
+        private Security $security,
     ) {
     }
 
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): CreatePollerResource
     {
+        $credentialUser = $this->security->getUser();
+        Assert::isInstanceOf($credentialUser, CredentialUser::class);
+
         $command = new CreatePollerCommand(
             name: new PollerName($data->name),
             pollerType: PollerTypeEnum::from($data->pollerType),
+            creatorId: $credentialUser->credential->userId->value,
             address: $data->address !== null ? new PollerAddress($data->address) : null,
         );
 

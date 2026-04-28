@@ -28,20 +28,24 @@ use App\MonitoringConfiguration\Application\Command\CreatePollerCommandHandler;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
+use App\MonitoringConfiguration\Domain\Event\PollerCreated;
 use App\MonitoringConfiguration\Domain\Exception\PollerAlreadyExistsException;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
+use Tests\App\Shared\Double\EventBusSpy;
 
 final class CreatePollerCommandHandlerTest extends TestCase
 {
     public function testCreatePoller(): void
     {
         $repository = new FakePollerRepository();
-        $handler = new CreatePollerCommandHandler($repository);
+        $eventBus = new EventBusSpy();
+        $handler = new CreatePollerCommandHandler($repository, $eventBus);
 
         $command = new CreatePollerCommand(
             name: new PollerName('MyPoller'),
             pollerType: PollerTypeEnum::VM,
+            creatorId: 1,
         );
 
         $poller = $handler($command);
@@ -57,11 +61,13 @@ final class CreatePollerCommandHandlerTest extends TestCase
     public function testCreatePollerDefaultsAddressToName(): void
     {
         $repository = new FakePollerRepository();
-        $handler = new CreatePollerCommandHandler($repository);
+        $eventBus = new EventBusSpy();
+        $handler = new CreatePollerCommandHandler($repository, $eventBus);
 
         $command = new CreatePollerCommand(
             name: new PollerName('MyPoller'),
             pollerType: PollerTypeEnum::VM,
+            creatorId: 1,
         );
 
         $poller = $handler($command);
@@ -72,11 +78,13 @@ final class CreatePollerCommandHandlerTest extends TestCase
     public function testCreatePollerWithExplicitAddress(): void
     {
         $repository = new FakePollerRepository();
-        $handler = new CreatePollerCommandHandler($repository);
+        $eventBus = new EventBusSpy();
+        $handler = new CreatePollerCommandHandler($repository, $eventBus);
 
         $command = new CreatePollerCommand(
             name: new PollerName('MyPoller'),
             pollerType: PollerTypeEnum::VM,
+            creatorId: 1,
             address: new PollerAddress('192.168.1.100'),
         );
 
@@ -88,11 +96,13 @@ final class CreatePollerCommandHandlerTest extends TestCase
     public function testCannotCreatePollerWithSameName(): void
     {
         $repository = new FakePollerRepository();
-        $handler = new CreatePollerCommandHandler($repository);
+        $eventBus = new EventBusSpy();
+        $handler = new CreatePollerCommandHandler($repository, $eventBus);
 
         $command = new CreatePollerCommand(
             name: new PollerName('MyPoller'),
             pollerType: PollerTypeEnum::VM,
+            creatorId: 1,
         );
 
         $handler($command);
@@ -105,11 +115,13 @@ final class CreatePollerCommandHandlerTest extends TestCase
     public function testCreatePollerGeneratesUuidV7(): void
     {
         $repository = new FakePollerRepository();
-        $handler = new CreatePollerCommandHandler($repository);
+        $eventBus = new EventBusSpy();
+        $handler = new CreatePollerCommandHandler($repository, $eventBus);
 
         $command = new CreatePollerCommand(
             name: new PollerName('MyPoller'),
             pollerType: PollerTypeEnum::VM,
+            creatorId: 1,
         );
 
         $poller = $handler($command);
@@ -124,11 +136,13 @@ final class CreatePollerCommandHandlerTest extends TestCase
     public function testCannotCreatePollerWithSameAddress(): void
     {
         $repository = new FakePollerRepository();
-        $handler = new CreatePollerCommandHandler($repository);
+        $eventBus = new EventBusSpy();
+        $handler = new CreatePollerCommandHandler($repository, $eventBus);
 
         $handler(new CreatePollerCommand(
             name: new PollerName('Poller1'),
             pollerType: PollerTypeEnum::VM,
+            creatorId: 1,
             address: new PollerAddress('192.168.1.100'),
         ));
 
@@ -137,6 +151,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
         $handler(new CreatePollerCommand(
             name: new PollerName('Poller2'),
             pollerType: PollerTypeEnum::VM,
+            creatorId: 1,
             address: new PollerAddress('192.168.1.100'),
         ));
     }
@@ -144,11 +159,13 @@ final class CreatePollerCommandHandlerTest extends TestCase
     public function testCannotCreatePollerWithSameDefaultAddress(): void
     {
         $repository = new FakePollerRepository();
-        $handler = new CreatePollerCommandHandler($repository);
+        $eventBus = new EventBusSpy();
+        $handler = new CreatePollerCommandHandler($repository, $eventBus);
 
         $handler(new CreatePollerCommand(
             name: new PollerName('SameName'),
             pollerType: PollerTypeEnum::VM,
+            creatorId: 1,
         ));
 
         $this->expectException(PollerAlreadyExistsException::class);
@@ -156,6 +173,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
         $handler(new CreatePollerCommand(
             name: new PollerName('OtherPoller'),
             pollerType: PollerTypeEnum::VM,
+            creatorId: 1,
             address: new PollerAddress('SameName'),
         ));
     }
@@ -163,15 +181,32 @@ final class CreatePollerCommandHandlerTest extends TestCase
     public function testCreatePollerWithDockerType(): void
     {
         $repository = new FakePollerRepository();
-        $handler = new CreatePollerCommandHandler($repository);
+        $eventBus = new EventBusSpy();
+        $handler = new CreatePollerCommandHandler($repository, $eventBus);
 
         $command = new CreatePollerCommand(
             name: new PollerName('DockerPoller'),
             pollerType: PollerTypeEnum::Docker,
+            creatorId: 1,
         );
 
         $poller = $handler($command);
 
         self::assertSame(PollerTypeEnum::Docker, $poller->pollerType);
+    }
+
+    public function testDispatchPollerCreatedEvent(): void
+    {
+        $repository = new FakePollerRepository();
+        $eventBus = new EventBusSpy();
+        $handler = new CreatePollerCommandHandler($repository, $eventBus);
+
+        $handler(new CreatePollerCommand(
+            name: new PollerName('MyPoller'),
+            pollerType: PollerTypeEnum::VM,
+            creatorId: 1,
+        ));
+
+        self::assertTrue($eventBus->shouldHaveDispatched(PollerCreated::class));
     }
 }

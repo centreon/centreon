@@ -21,19 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Application\Command;
+namespace App\MonitoringConfiguration\Domain\Event;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
+use App\Shared\Domain\Event\AggregateCreated;
 
-final readonly class CreatePollerCommand
+final readonly class PollerCreated extends AggregateCreated
 {
-    public function __construct(
-        public PollerName $name,
-        public PollerTypeEnum $pollerType,
-        public int $creatorId,
-        public ?PollerAddress $address = null,
-    ) {
-    }
 }
