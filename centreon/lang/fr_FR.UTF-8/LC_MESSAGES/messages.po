@@ -25029,10 +25029,6 @@ msgid "Enter your poller's name"
 msgstr "Entrez le nom de votre collecteur"
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts
-msgid "Poller Name"
-msgstr "Nom du collecteur"
-
-#: www/front_src/src/Header/Poller/translatedLabels.ts
 msgid "Select your poller environment"
 msgstr "Sélectionnez l'environnement de votre collecteur"
 
