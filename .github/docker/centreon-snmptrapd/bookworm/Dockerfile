@@ -45,11 +45,6 @@ ARG VERSION
 ARG IS_CLOUD
 ARG STABILITY
 
-# Create centreon user/group (same UID as other Centreon containers for volume consistency)
-RUN groupadd -g 33 www-data 2>/dev/null || true && \
-    groupadd -g 900 centreon && \
-    useradd -u 900 -g centreon -m -r -d /var/spool/centreon -s /bin/bash centreon
-
 # Install runtime dependencies
 # centreontrapdforward only writes spool files — no SQLite or SNMP libs needed here
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -59,6 +54,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     tzdata \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
+
+# Create centreon user/group (same UID as other Centreon containers for volume consistency)
+RUN groupadd -g 33 www-data 2>/dev/null || true && \
+    groupadd -g 900 centreon && \
+    useradd -u 900 -g centreon -m -r -d /var/spool/centreon -s /bin/bash centreon && \
+    usermod -aG Debian-snmp centreon
 
 # Create directory structure
 RUN mkdir -p /var/spool/centreontrapd \

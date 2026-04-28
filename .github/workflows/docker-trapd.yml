@@ -156,7 +156,10 @@ jobs:
         id: sanitize-tag
         run: |
           raw_tag="${{ github.head_ref || github.ref_name }}"
-          docker_tag=$(echo "$raw_tag" | sed 's/[^A-Za-z0-9._-]/-/g' | sed 's/^[^A-Za-z0-9]*//')
+          docker_tag=$(echo "$raw_tag" | sed 's/[^A-Za-z0-9._-]/-/g' | sed 's/^[^A-Za-z0-9]*//' | cut -c1-128)
+          if [ -z $docker_tag ]; then
+            docker_tag="sha-${GITHUB_SHA::12}"
+          fi
           echo "docker_tag=$docker_tag" >> "$GITHUB_OUTPUT"
         shell: bash
 
