@@ -22,6 +22,18 @@ while true ; do
         echo "Failed to restart gorgoned"
         continue
       fi
+      i=0
+      while [ "$i" -lt 30 ]; do
+        if curl --max-time 1 --connect-timeout 1 -s http://127.0.0.1:8085/ > /dev/null 2>&1; then
+          echo "Gorgone is ready."
+          break
+        fi
+        sleep 1
+        i=$((i + 1))
+      done
+      if [ "$i" -eq 30 ]; then
+        echo "Warning: Gorgone did not become ready within 30 seconds."
+      fi
       sleep "$RESTART_WAIT"
       ;;
   esac
