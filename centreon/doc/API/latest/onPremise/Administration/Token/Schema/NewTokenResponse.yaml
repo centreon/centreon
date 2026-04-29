@@ -47,6 +47,6 @@ properties:
     example: false
   type:
     type: string
-    enums: ["cma", "api"]
+    enum: ["cma", "api"]
     description: "Type of the token"
     example: "cma"
