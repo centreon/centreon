@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'e2e/fixtures/shared/constants/interceptors';
 
 import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/commands';
 
@@ -30,20 +31,20 @@ beforeEach(() => {
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.loginByTypeOfUser({ jsonName: 'admin' });
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/notifications?page=1&limit=10*'
+    url: `${INTERCEPTORS.api.notifications_configuration}?page=1&limit=10*`
   }).as('getNotifications');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/users?page=1*'
+    url: `${INTERCEPTORS.api.users_configuration}?page=1*`
   }).as('getUsers');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/timeperiods*'
+    url: `${INTERCEPTORS.api.timeperiods_configuration}*`
   }).as('getTimeperiods');
 
   globalResourceType = '';
@@ -169,7 +170,6 @@ When('the user defines a time period', () => {
 When('the user selects the {string}', (contactSettings: string) => {
   if (contactSettings === 'two contacts') {
     cy.get('#Searchcontacts').click();
-    cy.wait('@getUsers');
     cy.contains(data.contacts.contact1.name).click();
     cy.contains(data.contacts.contact2.name).click();
   } else {

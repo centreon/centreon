@@ -1,6 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
+import { INTERCEPTORS } from 'e2e/fixtures/shared/constants/interceptors';
 import { PAGES } from 'e2e/fixtures/shared/constants/pages';
+
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
@@ -33,20 +34,20 @@ beforeEach(() => {
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.loginByTypeOfUser({ jsonName: 'admin' });
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/notifications?page=1&limit=10*'
+    url: `${INTERCEPTORS.api.notifications_configuration}?page=1&limit=10*`
   }).as('getNotifications');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/users?page=1*'
+    url: `${INTERCEPTORS.api.users_configuration}?page=1*`
   }).as('getUsers');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/notifications/*'
+    url: `${INTERCEPTORS.api.notifications_configuration}/*`
   }).as('getNotification');
 
   cy.addHostGroup({
