@@ -68,5 +68,6 @@ final class CreatePollerResource
 
         #[ApiProperty(writable: false)]
         public ?string $uuid = null,
-    ) {}
+    ) {
+    }
 }
