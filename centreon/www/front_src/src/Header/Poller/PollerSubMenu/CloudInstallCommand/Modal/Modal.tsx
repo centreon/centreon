@@ -38,6 +38,7 @@ const InstallCommandModal = (): ReactElement => {
           isCollapsible={false}
           submit={submit}
           validationSchema={validationSchema}
+          inputsClassName="mt-2 mb-2"
         />
       </Modal.Body>
     </Modal>
