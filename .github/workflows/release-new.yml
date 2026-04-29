@@ -1,5 +1,6 @@
 ---
 name: release-new
+run-name: '${{ inputs.release_scope }} ${{ inputs.release_type }} of branch ${{ inputs.release_branch }} (release number ${{ inputs.release_number }})'
 
 on:
   workflow_dispatch:
