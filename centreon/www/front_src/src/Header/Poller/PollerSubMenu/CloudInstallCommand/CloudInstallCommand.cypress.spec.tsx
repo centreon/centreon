@@ -10,20 +10,23 @@ import { createPollerEndpoint } from '../../../api/endpoints';
 import {
   labelCancel,
   labelClickToGenerate,
+  labelConfigurationExportedAndReloaded,
   labelCopyTheFollowingCommand,
   labelCreateNewPoller,
   labelDockerCompose,
   labelEnterPollerName,
   labelExportConfiguration,
   labelFailedToCreatePoller,
+  labelFailedToExportAndReloadConfiguration,
   labelGenerateInstallationCommand,
+  labelPleaseWait,
   labelPollerName,
   labelSelectPollerEnvironment,
   labelSelectToken,
   labelSelectTokenPlaceholder,
   labelVMOrPhysical
 } from '../../translatedLabels';
-import { generatedCommandAtom, isModalOpenAtom } from './atoms';
+import { generatedCommandAtom, isModalOpenAtom, pollerIdAtom } from './atoms';
 import CloudInstallCommand from './CloudInstallCommand';
 
 const createPollerSuccessResponse = {
@@ -54,10 +57,12 @@ const initializeI18n = (): void => {
 
 const mockRequests = ({
   createPollerResponse = createPollerSuccessResponse,
-  createPollerStatusCode = 200
+  createPollerStatusCode = 200,
+  exportConfigStatusCode = 204
 }: {
   createPollerResponse?: object;
   createPollerStatusCode?: number;
+  exportConfigStatusCode?: number;
 } = {}): void => {
   cy.fixture('authenticationTokens/listTokens.json').then((tokens): void => {
     cy.interceptAPIRequest({
@@ -75,29 +80,42 @@ const mockRequests = ({
     response: createPollerResponse,
     statusCode: createPollerStatusCode
   });
+
+  cy.interceptAPIRequest({
+    alias: 'exportConfig',
+    method: Method.GET,
+    path: '**/configuration/monitoring-servers/*/generate-and-reload',
+    response: undefined,
+    statusCode: exportConfigStatusCode
+  });
 };
 
 interface InitializeOptions {
   createPollerResponse?: object;
   createPollerStatusCode?: number;
+  exportConfigStatusCode?: number;
   isModalOpen?: boolean;
   generatedCommand?: string | null;
+  pollerId?: number | null;
 }
 
 const initialize = ({
   isModalOpen = false,
   generatedCommand = null,
+  pollerId = null,
   createPollerResponse,
-  createPollerStatusCode
+  createPollerStatusCode,
+  exportConfigStatusCode
 }: InitializeOptions = {}): ReturnType<typeof createStore> => {
   const store = createStore();
 
   store.set(isModalOpenAtom, isModalOpen);
   store.set(generatedCommandAtom, generatedCommand);
+  store.set(pollerIdAtom, pollerId);
 
   initializeI18n();
 
-  mockRequests({ createPollerResponse, createPollerStatusCode });
+  mockRequests({ createPollerResponse, createPollerStatusCode, exportConfigStatusCode });
 
   const closeSubMenu = cy.stub().as('closeSubMenu');
 
@@ -279,24 +297,76 @@ describe('CloudInstallCommand', () => {
         cy.findByRole('dialog').should('not.exist');
       });
 
-      it('the Export configuration button is enabled when a command has been generated', () => {
+      it('the Export configuration button is disabled when pollerId is null', () => {
         initialize({
           generatedCommand: 'some-command',
-          isModalOpen: true
+          isModalOpen: true,
+          pollerId: null
+        });
+
+        cy.findByTestId('generate-command').should('be.disabled');
+      });
+
+      it('the Export configuration button is enabled when a command has been generated and pollerId is set', () => {
+        initialize({
+          generatedCommand: 'some-command',
+          isModalOpen: true,
+          pollerId: 11
         });
 
         cy.findByTestId('generate-command').should('not.be.disabled');
       });
 
-      it('closes the install command modal when clicking Export configuration', () => {
+      it('calls the export config API and shows a success message when clicking Export configuration', () => {
         initialize({
           generatedCommand: 'some-command',
-          isModalOpen: true
+          isModalOpen: true,
+          pollerId: 11
         });
 
         cy.findByTestId('generate-command').click();
 
+        cy.waitForRequest('@exportConfig');
+
+        cy.findByText(labelConfigurationExportedAndReloaded).should(
+          'be.visible'
+        );
+
         cy.findByRole('dialog').should('not.exist');
+      });
+
+      it('shows an error message when the export config API fails', () => {
+        initialize({
+          exportConfigStatusCode: 500,
+          generatedCommand: 'some-command',
+          isModalOpen: true,
+          pollerId: 11
+        });
+
+        cy.findByTestId('generate-command').click();
+
+        cy.waitForRequest('@exportConfig');
+
+        cy.findByText(labelFailedToExportAndReloadConfiguration).should(
+          'be.visible'
+        );
+      });
+
+      it('displays "Please wait..." text while the export is in progress', () => {
+        initialize({
+          generatedCommand: 'some-command',
+          isModalOpen: true,
+          pollerId: 11
+        });
+
+        cy.findByTestId('generate-command').should(
+          'contain.text',
+          labelExportConfiguration
+        );
+
+        cy.findByTestId('generate-command').click();
+
+        cy.findByText(labelPleaseWait).should('be.visible');
       });
     });
 

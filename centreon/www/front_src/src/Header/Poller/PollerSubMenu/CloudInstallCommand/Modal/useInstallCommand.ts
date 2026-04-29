@@ -1,6 +1,6 @@
 import {
-  centreonBaseURL,
   Method,
+  centreonBaseURL,
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 
 import { createPollerEndpoint } from '../../../../api/endpoints';
 import { labelFailedToCreatePoller } from '../../../translatedLabels';
-import { generatedCommandAtom, isModalOpenAtom } from '../atoms';
+import { generatedCommandAtom, isModalOpenAtom, pollerIdAtom } from '../atoms';
 import type { CloudInstallCommandFormValues } from '../models';
 
 interface UseInstallCommandState {
@@ -24,6 +24,7 @@ export const useInstallCommand = (): UseInstallCommandState => {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useAtom(isModalOpenAtom);
   const setGeneratedCommand = useSetAtom(generatedCommandAtom);
+  const setPollerId = useSetAtom(pollerIdAtom);
 
   const { showErrorMessage } = useSnackbar();
 
@@ -54,6 +55,8 @@ export const useInstallCommand = (): UseInstallCommandState => {
 
         return;
       }
+
+      setPollerId(pollerId);
 
       const centralUrl = `${window.location.origin}${centreonBaseURL}`;
       const command = (pollerResponse?.command || '').replaceAll(

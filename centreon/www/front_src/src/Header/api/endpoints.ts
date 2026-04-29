@@ -11,6 +11,9 @@ export const hostStatusEndpoint =
 export const pollerListIssuesEndPoint =
   './api/internal.php?object=centreon_topcounter&action=pollersListIssues';
 export const exportAndReloadConfigurationEndpoint = `${baseEndpoint}/configuration/monitoring-servers/generate-and-reload`;
+export const getExportConfigEndpoint = (id: number) =>
+  `/configuration/monitoring-servers/${id}/generate-and-reload`;
+
 export const userEndpoint =
   './api/internal.php?object=centreon_topcounter&action=user';
 
