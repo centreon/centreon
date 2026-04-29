@@ -1,6 +1,7 @@
 import { Button, Typography } from '@mui/material';
 
 import { Dialog, getData, useRequest, useSnackbar } from '@centreon/ui';
+
 import { ReactElement, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 

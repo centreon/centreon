@@ -7,8 +7,6 @@ import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { getExportConfigEndpoint } from '../../../../../api/endpoints';
-import { isGeneratedAtom, pollerIdAtom } from '../../atoms';
-
 import {
   labelCancel,
   labelConfigurationExportedAndReloaded,
@@ -16,6 +14,7 @@ import {
   labelFailedToExportAndReloadConfiguration,
   labelPleaseWait
 } from '../../../../translatedLabels';
+import { isGeneratedAtom, pollerIdAtom } from '../../atoms';
 
 interface Props {
   close: () => void;
@@ -41,8 +40,8 @@ const Buttons = ({ close }: Props): ReactElement => {
   return (
     <div className="flex justify-end gap-2">
       <Button
-        onClick={close}
         disabled={isMutating}
+        onClick={close}
         size="medium"
         variant="ghost"
       >

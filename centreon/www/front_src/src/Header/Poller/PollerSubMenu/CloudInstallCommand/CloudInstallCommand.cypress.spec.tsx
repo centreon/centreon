@@ -115,7 +115,11 @@ const initialize = ({
 
   initializeI18n();
 
-  mockRequests({ createPollerResponse, createPollerStatusCode, exportConfigStatusCode });
+  mockRequests({
+    createPollerResponse,
+    createPollerStatusCode,
+    exportConfigStatusCode
+  });
 
   const closeSubMenu = cy.stub().as('closeSubMenu');
 

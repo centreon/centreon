@@ -35,10 +35,10 @@ const InstallCommandModal = (): ReactElement => {
           Buttons={(): ReactElement => <Buttons close={close} />}
           initialValues={initialValues}
           inputs={inputs}
+          inputsClassName="mt-2 mb-2"
           isCollapsible={false}
           submit={submit}
           validationSchema={validationSchema}
-          inputsClassName="mt-2 mb-2"
         />
       </Modal.Body>
     </Modal>

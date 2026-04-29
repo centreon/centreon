@@ -1,6 +1,6 @@
 import {
-  Method,
   centreonBaseURL,
+  Method,
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
