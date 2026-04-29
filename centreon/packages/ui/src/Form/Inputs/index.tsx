@@ -2,7 +2,6 @@ import { Divider, Typography } from '@mui/material';
 
 import { type FormikValues, useFormikContext } from 'formik';
 import {
-  T,
   always,
   any,
   ascend,
@@ -23,6 +22,7 @@ import {
   propEq,
   reduce,
   sort,
+  T,
   toPairs
 } from 'ramda';
 import { Fragment, useMemo } from 'react';
@@ -40,16 +40,16 @@ import File from './File';
 import Grid from './Grid';
 import List from './List/List';
 import LoadingSkeleton from './LoadingSkeleton';
-import RadioInput from './Radio';
-import { SubgroupDivider } from './SubGroupDivider';
-import SwitchInput from './Switch';
-import TextInput from './Text';
 import {
   type Group,
   type InputProps,
   type InputPropsWithoutGroup,
   InputType
 } from './models';
+import RadioInput from './Radio';
+import { SubgroupDivider } from './SubGroupDivider';
+import SwitchInput from './Switch';
+import TextInput from './Text';
 
 export const getInput = cond<
   Array<InputType>,
