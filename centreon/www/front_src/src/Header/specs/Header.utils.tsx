@@ -250,7 +250,7 @@ export const initialize = (stubs: DeepPartial<Stubs> = {}): unknown => {
     top_counter: true
   });
 
-  store.set(navigationAtom, allowedPages);
+  store.set(navigationAtom, (stubs.navigationList || allowedPages) as Navigation);
 
   const generateClassName = createGenerateClassName({
     seed: 'seedName'

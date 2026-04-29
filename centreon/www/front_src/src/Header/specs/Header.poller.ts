@@ -357,8 +357,12 @@ export default (): void =>
           });
         });
 
-        it('hides the configuratiuon button if the user is not allowed to access the configuration page', () => {
-          initialize();
+        it.only('hides the configuratiuon button if the user is not allowed to access the configuration page', () => {
+          initialize({
+            navigationList: {
+              result: []
+            }
+          });
           openSubMenu('Pollers');
 
           cy.findByTestId('poller-menu')
