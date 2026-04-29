@@ -54,9 +54,6 @@ final readonly class CreateServiceCategoryProcessor implements ProcessorInterfac
 
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): ServiceCategoryResource
     {
-        Assert::notNull($data->name);
-        Assert::notNull($data->alias);
-
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 

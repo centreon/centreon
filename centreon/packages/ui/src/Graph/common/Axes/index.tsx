@@ -72,7 +72,7 @@ const Axes = ({
         strokeWidth={!isNil(showBorder) && !showBorder ? 0 : 1}
         tickFormat={formatAxisTick}
         tickLabelProps={() => ({
-          ...axisLeft.tickLabelProps(),
+          ...(axisLeft.tickLabelProps as () => Record<string, unknown>)(),
           dx: data?.axisX?.dx ?? (isHorizontal ? 16 : -4)
         })}
         top={isHorizontal ? height - margin.bottom : 0}
@@ -94,7 +94,7 @@ const Axes = ({
         strokeWidth={!isNil(showBorder) && !showBorder ? 0 : 1}
         tickFormat={axisLeft.tickFormat}
         tickLabelProps={() => ({
-          ...axisLeft.tickLabelProps(),
+          ...(axisLeft.tickLabelProps as () => Record<string, unknown>)(),
           angle: yAxisTickLabelRotation,
           dx: isHorizontal ? -4 : 4,
           dy: isHorizontal ? 4 : -6
@@ -110,7 +110,7 @@ const Axes = ({
           strokeWidth={!isNil(showBorder) && !showBorder ? 0 : 1}
           tickFormat={axisRight.tickFormat}
           tickLabelProps={() => ({
-            ...axisRight.tickLabelProps(),
+            ...(axisRight.tickLabelProps as () => Record<string, unknown>)(),
             angle: yAxisTickLabelRotation,
             dx: isHorizontal ? 4 : -4,
             dy: 4

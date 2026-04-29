@@ -183,7 +183,12 @@ const MainLegend = ({
                 {!shouldDisplayLegendInCompactMode && !isListMode && (
                   <div>
                     <div className="flex flex-wrap gap-1 whitespace-nowrap">
-                      {minMaxAvg.map(({ label, value }) => (
+                      {(
+                        minMaxAvg as Array<{
+                          label: string;
+                          value: number | null;
+                        }>
+                      ).map(({ label, value }) => (
                         <LegendContent
                           data={getMetricValue({ unit: line.unit, value })}
                           key={label}

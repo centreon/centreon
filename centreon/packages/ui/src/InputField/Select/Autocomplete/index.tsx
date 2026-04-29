@@ -153,7 +153,13 @@ const AutocompleteField = forwardRef(
             root: classes.textfield
           }}
           error={error}
-          externalValueForAutoSize={autocompleteProps?.value?.name}
+          externalValueForAutoSize={
+            typeof autocompleteProps?.value === 'object' &&
+            autocompleteProps?.value !== null &&
+            !Array.isArray(autocompleteProps.value)
+              ? (autocompleteProps.value as SelectEntry).name
+              : undefined
+          }
           helperText={helperText}
           label={label}
           onChange={onTextChange}

@@ -7,7 +7,9 @@ import { usePluralizedTranslation } from './usePluralizedTranslation';
 
 const baseUser = {
   alias: 'admin',
+  canManageApiTokens: false,
   isExportButtonEnabled: false,
+  locale: 'en' as string | null,
   name: 'admin',
   timezone: 'Europe/Paris',
   use_deprecated_pages: false,

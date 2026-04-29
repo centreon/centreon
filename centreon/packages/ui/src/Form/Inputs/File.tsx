@@ -32,7 +32,9 @@ const File = ({
 
   const changeFiles = (newFiles: FileList | null): void => {
     if (change) {
-      change({ setFieldTouched, setFieldValue, value: newFiles });
+      change({ setFieldTouched, setFieldValue, value: newFiles } as Parameters<
+        NonNullable<InputPropsWithoutGroup['change']>
+      >[0]);
 
       return;
     }

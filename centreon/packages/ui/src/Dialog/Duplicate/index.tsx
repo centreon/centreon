@@ -38,7 +38,7 @@ const Duplicate = ({
 
   const isConfirmDisabled = or(
     isEmpty(value),
-    Number.parseInt(value, 10) > limit
+    Number.parseInt(value as unknown as string, 10) > limit
   );
 
   return (

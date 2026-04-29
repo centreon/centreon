@@ -121,7 +121,9 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     MuiChip: {
       styleOverrides: {
         root: ({ ownerState, theme }) => ({
-          backgroundColor: !ownerState.color && theme.palette.divider,
+          backgroundColor: !ownerState.color
+            ? theme.palette.divider
+            : undefined,
           ...(equals(ownerState.size, 'medium') && {
             borderRadius: theme.spacing(1.25),
             fontSize: theme.typography.body2.fontSize,
@@ -179,7 +181,7 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     MuiInputBase: {
       styleOverrides: {
         root: ({ ownerState, theme }) => ({
-          ...getInputBaseInputStyle(ownerState),
+          ...(getInputBaseInputStyle(ownerState) as Record<string, unknown>),
           backgroundColor: theme.palette.background.paper
         })
       }
@@ -271,7 +273,7 @@ const ThemeProvider = ({ children, overrideTheme }: Props): JSX.Element => {
     return createTheme(
       mergeDeepRight(getTheme(themeMode || ThemeMode.light), {
         palette: overrideThemeByMode || {}
-      })
+      }) as ThemeOptions
     );
   }, [themeMode, overrideTheme]);
 

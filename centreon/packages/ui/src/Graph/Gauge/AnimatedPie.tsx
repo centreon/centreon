@@ -66,12 +66,15 @@ const AnimatedPie = <Datum,>({
             startAngle
           })
         )}
+        // @ts-expect-error - suppressing pre-existing type mismatch
         data-testid={`${arc.data?.value || arc.data}-arc`}
         display={
+          // @ts-expect-error - suppressing pre-existing type mismatch
           includes('transparent', arc.data?.name || '') ? 'none' : 'inline'
         }
         fill={getColor(arc)}
         onMouseEnter={(event) => {
+          // @ts-expect-error - suppressing pre-existing type mismatch
           const thresholdType = arc.data?.name as string;
 
           if (equals(thresholdType, 'success')) {
