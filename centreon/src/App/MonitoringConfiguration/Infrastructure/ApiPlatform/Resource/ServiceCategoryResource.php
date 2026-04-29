@@ -32,7 +32,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\CreateServiceCa
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
-    shortName: 'ServiceCategory',
+    shortName: 'Service Category',
     operations: [
         new Post(
             uriTemplate: '/configuration/services/categories',

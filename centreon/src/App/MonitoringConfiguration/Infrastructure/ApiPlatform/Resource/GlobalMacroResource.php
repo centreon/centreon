@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ListGlobalMacro
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
+    shortName: 'Global Macro',
     operations: [
         new GetCollection(
             uriTemplate: '/configuration/global-macros',
