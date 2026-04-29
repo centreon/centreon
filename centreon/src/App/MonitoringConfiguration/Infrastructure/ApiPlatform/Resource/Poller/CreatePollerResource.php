@@ -59,11 +59,14 @@ final class CreatePollerResource
         #[ApiProperty(identifier: true, writable: false)]
         public ?int $id = null,
 
+        /**
+         * Could be nullable has it is not mandatory. The Poller is connecting to the Central so the Central don't need
+         * to know the Poller Address
+         */
         #[Assert\Length(max: 255)]
         public ?string $address = null,
 
         #[ApiProperty(writable: false)]
         public ?string $uuid = null,
-    ) {
-    }
+    ) {}
 }
