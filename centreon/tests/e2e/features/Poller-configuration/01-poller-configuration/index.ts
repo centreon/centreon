@@ -19,6 +19,7 @@ let dateBeforeLogin: Date;
 
 before(() => {
   cy.startContainers();
+
   cy.addCheckCommand({
     command: 'echo "Post command"',
     enableShell: true,
@@ -205,7 +206,7 @@ Then('no poller names are displayed', () => {
       .find(
         'span.selection span.select2-selection--multiple input[placeholder="Pollers"]'
       )
-    .should('have.value', '');
+      .should('have.value', '');
   });
 });
 
