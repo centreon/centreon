@@ -73,6 +73,7 @@ jobs:
             raw_ref="${{ github.head_ref || github.ref_name }}"
             echo "value=${raw_ref//\//-}" >> "$GITHUB_OUTPUT"
           fi
+          echo "value=${{ needs.get-environment.outputs.major_version }}" >> "$GITHUB_OUTPUT"
 
       - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         env:
