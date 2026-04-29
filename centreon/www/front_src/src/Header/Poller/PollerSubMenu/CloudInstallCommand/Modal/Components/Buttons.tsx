@@ -1,6 +1,6 @@
 import { Button } from '@centreon/ui/components';
 
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -8,7 +8,6 @@ import {
   labelCancel,
   labelExportConfiguration
 } from '../../../../translatedLabels';
-import { isExportConfigModalOpenAtom } from '../../../ExportConfiguration/atoms';
 import { isGeneratedAtom } from '../../atoms';
 
 interface Props {
@@ -19,12 +18,7 @@ const Buttons = ({ close }: Props): ReactElement => {
   const { t } = useTranslation();
   const isCommandGenerated = useAtomValue(isGeneratedAtom);
 
-  const displayExportConfigurationModal = useSetAtom(
-    isExportConfigModalOpenAtom
-  );
-
   const onClick = (): void => {
-    displayExportConfigurationModal(true);
     close();
   };
 
