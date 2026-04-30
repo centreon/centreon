@@ -1,7 +1,8 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { checkHostsAreMonitored } from 'e2e/commons';
-
+import { INTERCEPTORS } from 'e2e/fixtures/shared/constants/interceptors';
 import { PAGES } from 'e2e/fixtures/shared/constants/pages';
+
 import hostCategories from '../../../fixtures/host-categories/category.json';
 
 const checkFirstHostCategoryFromListing = () => {
@@ -22,11 +23,11 @@ beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.addHost({
     hostGroup: 'Linux-Servers',
