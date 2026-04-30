@@ -27,9 +27,11 @@ use Webmozart\Assert\Assert;
 
 final readonly class PollerUuid
 {
+    public const UUID_V7_PATTERN = '/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i';
+
     public function __construct(
         public string $value,
     ) {
-        Assert::regex($value, '/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i');
+        Assert::regex($value, self::UUID_V7_PATTERN);
     }
 }

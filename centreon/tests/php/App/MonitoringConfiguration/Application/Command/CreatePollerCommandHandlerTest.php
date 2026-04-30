@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Application\Command\CreatePollerCommandHandler;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUuid;
 use App\MonitoringConfiguration\Domain\Event\PollerCreated;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
@@ -76,7 +77,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
 
         self::assertNotNull($poller->uuid);
         self::assertMatchesRegularExpression(
-            '/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i',
+            PollerUuid::UUID_V7_PATTERN,
             $poller->uuid->value
         );
     }
