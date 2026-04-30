@@ -172,10 +172,6 @@ jobs:
         with:
           context: .
           file: .github/docker/${{ matrix.component }}/${{ matrix.operating_system }}/Dockerfile
-          build-args: |
-            VERSION=${{ needs.get-environment.outputs.major_version }}
-            IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}
-            STABILITY=${{ needs.get-environment.outputs.stability }}
           platforms: linux/amd64,linux/arm64
           pull: true
           push: true
