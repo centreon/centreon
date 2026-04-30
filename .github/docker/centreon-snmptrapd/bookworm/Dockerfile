@@ -41,10 +41,6 @@ FROM centreon-perl-${USE_SOURCE_TRAPD} AS centreon-perl-selected
 #############################################
 FROM debian:12-slim AS snmptrapd
 
-ARG VERSION
-ARG IS_CLOUD
-ARG STABILITY
-
 # Install runtime dependencies
 # centreontrapdforward only writes spool files — no SQLite or SNMP libs needed here
 RUN apt-get update && apt-get install -y --no-install-recommends \
