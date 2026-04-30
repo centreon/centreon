@@ -57,7 +57,7 @@ final readonly class MergeDocumentationCommand
 
         /**
          * @var array{
-         *   paths: array<string, mixed>,
+         *   paths: array<string, array<string, mixed>>,
          *   tags: array<array{name: string, ...}>,
          *   components: array{
          *     parameters: array<string, mixed>,
@@ -70,7 +70,7 @@ final readonly class MergeDocumentationCommand
 
         /**
          * @var array{
-         *   paths: array<string, mixed>,
+         *   paths: array<string, array<string, mixed>>,
          *   tags: array<array{name: string, ...}>,
          *   components: array{
          *     parameters: array<string, mixed>,
@@ -80,12 +80,13 @@ final readonly class MergeDocumentationCommand
          * }
          */
         $newDoc = $this->normalizer->normalize(($this->openApiFactory)(), 'json', ['spec_version' => '3.0.0']);
+        /** @var array{paths: array<string, array<string, mixed>>, tags: array<array{name: string, ...}>, components: array{parameters: array<string, mixed>, responses: array<string, mixed>, schemas: array<string, mixed>}} $newDoc */
         $newDoc = $this->toOpenApi30($newDoc);
 
         $io->section('Paths...');
         foreach ($newDoc['paths'] as $url => $path) {
             /** @var string $url */
-            $url = preg_replace('#/api/latest#', '', (string) $url);
+            $url = preg_replace('#/api/latest#', '', (string) $url) ?? '';
             $io->text($url);
 
             if (! isset($doc['paths'][$url])) {
@@ -94,7 +95,7 @@ final readonly class MergeDocumentationCommand
             }
 
             foreach ($path as $method => $operation) {
-                $label = strtoupper($method) . ' ' . $url;
+                $label = mb_strtoupper($method) . ' ' . $url;
                 $io->text('  ' . $label);
 
                 if (! $override && isset($doc['paths'][$url][$method]) && ! $this->askOverride($io, $label)) {
@@ -193,7 +194,7 @@ final readonly class MergeDocumentationCommand
     {
         // type: ['string', 'null'] → type: string, nullable: true
         if (isset($schema['type']) && \is_array($schema['type'])) {
-            $types = array_values(array_filter($schema['type'], static fn ($t) => $t !== 'null'));
+            $types = array_values(array_filter($schema['type'], static fn ($type): bool => $type !== 'null'));
             if (\count($types) < \count($schema['type'])) {
                 $schema['nullable'] = true;
                 $schema['type'] = \count($types) === 1 ? $types[0] : $types;
@@ -206,9 +207,9 @@ final readonly class MergeDocumentationCommand
         // anyOf: [{...}, {type: 'null'}] → merge inner schema + nullable: true
         if (isset($schema['anyOf']) && \is_array($schema['anyOf'])) {
             $nullKey = null;
-            foreach ($schema['anyOf'] as $i => $sub) {
+            foreach ($schema['anyOf'] as $nullIdx => $sub) {
                 if (\is_array($sub) && $sub === ['type' => 'null']) {
-                    $nullKey = $i;
+                    $nullKey = $nullIdx;
                     break;
                 }
             }
@@ -218,7 +219,14 @@ final readonly class MergeDocumentationCommand
                 $schema['nullable'] = true;
                 if (\count($remaining) === 1) {
                     unset($schema['anyOf']);
-                    $schema = array_merge($remaining[0], $schema);
+                    /** @var array<mixed> $firstSchema */
+                    $firstSchema = $remaining[0];
+                    if (isset($firstSchema['$ref'])) {
+                        // $ref cannot have sibling keys in OAS 3.0; wrap in allOf
+                        $schema = ['allOf' => [$firstSchema, $schema]];
+                    } else {
+                        $schema = array_merge($firstSchema, $schema);
+                    }
                 } else {
                     $schema['anyOf'] = $remaining;
                 }
