@@ -1,7 +1,7 @@
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
 import i18next from 'i18next';
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 
@@ -27,8 +27,8 @@ import {
   labelSelectTokenPlaceholder,
   labelVMOrPhysical
 } from '../../translatedLabels';
-import CloudInstallCommand from './CloudInstallCommand';
 import { generatedCommandAtom, isModalOpenAtom, pollerIdAtom } from './atoms';
+import CloudInstallCommand from './CloudInstallCommand';
 
 const createPollerSuccessResponse = {
   '@context': '/centreon/api/latest/contexts/Poller',
