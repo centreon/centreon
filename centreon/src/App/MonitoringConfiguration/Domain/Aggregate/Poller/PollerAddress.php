@@ -27,9 +27,11 @@ use Webmozart\Assert\Assert;
 
 final readonly class PollerAddress
 {
+    public const MIN_LENGTH = 1;
+    public const MAX_LENGTH = 255;
     public function __construct(public string $value)
     {
-        Assert::lengthBetween($value, 1, 255);
+        Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
         Assert::true(
             filter_var($value, FILTER_VALIDATE_IP) !== false
             || filter_var($value, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) !== false,

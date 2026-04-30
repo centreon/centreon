@@ -27,11 +27,13 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Security\PollerPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\CreatePollerProcessor;
 use App\MonitoringConfiguration\Infrastructure\Validator\UniquePollerName;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
@@ -40,6 +42,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(
             uriTemplate: '/configuration/pollers',
             processor: CreatePollerProcessor::class,
+            normalizationContext: ['groups' => ['poller:read']],
+            denormalizationContext: ['groups' => ['poller:write']],
             openapi: new Model\Operation(
                 responses: [
                     409 => new Model\Response('Poller resource already exists'),
@@ -55,18 +59,23 @@ final class CreatePollerResource
     public function __construct(
         #[Assert\Length(min: PollerName::MIN_LENGTH, max: PollerName::MAX_LENGTH)]
         #[UniquePollerName]
+        #[Groups(['poller:read', 'poller:write'])]
         public string $name,
 
         #[Assert\Choice(choices: [PollerTypeEnum::VM->value, PollerTypeEnum::Docker->value])]
+        #[Groups(['poller:read', 'poller:write'])]
         public string $pollerType,
 
-        #[Assert\Length(min: 1, max: 255)]
+        #[Assert\Length(min: PollerAddress::MIN_LENGTH, max: PollerAddress::MAX_LENGTH)]
+        #[Groups(['poller:read', 'poller:write'])]
         public string $address,
 
         #[ApiProperty(identifier: true, writable: false)]
+        #[Groups(['poller:read'])]
         public ?int $id = null,
 
         #[ApiProperty(writable: false)]
+        #[Groups(['poller:read'])]
         public ?string $uuid = null,
     ) {
     }
