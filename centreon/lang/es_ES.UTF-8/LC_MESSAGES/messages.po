@@ -25408,10 +25408,6 @@ msgstr "Nombre de la topología."
 # msgstr ""
 
 #: unknown
-# msgid "Select token"
-# msgstr ""
-
-#: unknown
 # msgid "Generate installation command"
 # msgstr ""
 

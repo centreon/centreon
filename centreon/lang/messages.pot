@@ -21669,12 +21669,6 @@ msgstr ""
 #: www/front_src/src/Header/Poller/translatedLabels.ts
 #, fuzzy
 #~ needs translation
-msgid "Select token"
-msgstr ""
-
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-#, fuzzy
-#~ needs translation
 msgid "Generate installation command"
 msgstr ""
 

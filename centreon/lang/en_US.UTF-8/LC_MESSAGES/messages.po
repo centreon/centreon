@@ -20018,10 +20018,6 @@ msgstr "{{total}} element(s) found"
 # msgstr ""
 
 #: unknown
-# msgid "Select token"
-# msgstr ""
-
-#: unknown
 # msgid "Generate installation command"
 # msgstr ""
 
