@@ -25025,8 +25025,8 @@ msgid "Create new poller"
 msgstr "Créer un nouveau collecteur"
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts
-msgid "Enter your poller's name"
-msgstr "Entrez le nom de votre collecteur"
+msgid "Enter your poller's name and address"
+msgstr "Entrez le nom et l'adresse de votre collecteur"
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts
 msgid "Select your poller's environment"
@@ -25041,7 +25041,7 @@ msgid "Docker compose"
 msgstr "Docker compose"
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts
-msgid "Select Token"
+msgid "Select token"
 msgstr "Sélectionner un jeton"
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts

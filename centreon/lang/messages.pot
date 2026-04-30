@@ -21633,7 +21633,7 @@ msgstr ""
 #: www/front_src/src/Header/Poller/translatedLabels.ts
 #, fuzzy
 #~ needs translation
-msgid "Enter your poller's name"
+msgid "Enter your poller's name and address"
 msgstr ""
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts
@@ -21663,7 +21663,7 @@ msgstr ""
 #: www/front_src/src/Header/Poller/translatedLabels.ts
 #, fuzzy
 #~ needs translation
-msgid "Select Token"
+msgid "Select token"
 msgstr ""
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts

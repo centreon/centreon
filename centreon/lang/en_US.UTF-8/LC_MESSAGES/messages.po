@@ -19994,7 +19994,7 @@ msgstr "{{total}} element(s) found"
 # msgstr ""
 
 #: unknown
-# msgid "Enter your poller's name"
+# msgid "Enter your poller's name and address"
 # msgstr ""
 
 #: unknown
@@ -20014,7 +20014,7 @@ msgstr "{{total}} element(s) found"
 # msgstr ""
 
 #: unknown
-# msgid "Select Token"
+# msgid "Select token"
 # msgstr ""
 
 #: unknown

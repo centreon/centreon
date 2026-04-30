@@ -23833,7 +23833,7 @@ msgstr "Nome da Topologia"
 # msgstr ""
 
 #: unknown
-# msgid "Enter your poller's name"
+# msgid "Enter your poller's name and address"
 # msgstr ""
 
 #: unknown
@@ -23853,7 +23853,7 @@ msgstr "Nome da Topologia"
 # msgstr ""
 
 #: unknown
-# msgid "Select Token"
+# msgid "Select token"
 # msgstr ""
 
 #: unknown
