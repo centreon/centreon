@@ -24,7 +24,7 @@ ini_set('display_errors', 'Off');
 use App\Kernel;
 use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
 use Centreon\Domain\Entity\Task;
-use Symfony\Component\Process\Process;
+use Centreon\Infrastructure\Service\VmwareConfigurationService;
 
 require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
 require_once realpath(__DIR__ . '/../../../../../config/bootstrap.php');
@@ -224,6 +224,10 @@ try {
     // Centcore pipe path
     $centcore_pipe = _CENTREON_VARLIB_ . '/centcore.cmd';
 
+    $vmwareConfigurationService = Kernel::createForWeb()
+        ->getContainer()
+        ->get(VmwareConfigurationService::class);
+
     $tab_server = [];
     $tabs = $centreon->user->access->getPollerAclConf(['fields' => ['name', 'id', 'localhost'], 'order' => ['name'], 'conditions' => ['ns_activate' => '1'], 'keys' => ['id']]);
 
@@ -343,25 +347,7 @@ try {
                         $host['name']
                     ));
                 }
-                // Restart centreon_vmware on central only if VMWare config has changed
-                // Atomically claim the flag to avoid race conditions with concurrent exports
-                $claimStatement = $pearDB->prepare(
-                    'UPDATE nagios_server SET vmware_updated = 0 WHERE vmware_updated = 1 AND id = :pollerId'
-                );
-                $claimStatement->bindValue(':pollerId', (int) $host['id'], PDO::PARAM_INT);
-                $claimStatement->execute();
-                if ($claimStatement->rowCount() > 0) {
-                    $process = new Process(['sudo', '-n', '--', 'systemctl', 'restart', 'centreon_vmware']);
-                    $process->run();
-                    if (! $process->isSuccessful()) {
-                        // Restart failed, restore the flag so it is retried on next export
-                        $restoreStatement = $pearDB->prepare(
-                            'UPDATE nagios_server SET vmware_updated = 1 WHERE id = :pollerId'
-                        );
-                        $restoreStatement->bindValue(':pollerId', (int) $host['id'], PDO::PARAM_INT);
-                        $restoreStatement->execute();
-                    }
-                }
+                $vmwareConfigurationService->restartIfConfigurationChanged((int) $host['id'], true);
             } else {
                 $written = file_put_contents(
                     $centcore_pipe,
@@ -371,30 +357,7 @@ try {
                 if ($written === false) {
                     throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
                 }
-                // Send VMWARERESTART to remote poller only if VMWare config has changed
-                // Atomically claim the flag to avoid race conditions with concurrent exports
-                $claimStatement = $pearDB->prepare(
-                    'UPDATE nagios_server SET vmware_updated = 0 WHERE vmware_updated = 1 AND id = :pollerId'
-                );
-                $claimStatement->bindValue(':pollerId', (int) $host['id'], PDO::PARAM_INT);
-                $claimStatement->execute();
-                if ($claimStatement->rowCount() > 0) {
-                    $written = @file_put_contents(
-                        $centcore_pipe,
-                        'VMWARERESTART:' . (int) $host['id'] . "\n",
-                        FILE_APPEND
-                    );
-                    if ($written === false) {
-                        // Write failed, restore the flag so it is retried on next export
-                        $restoreStatement = $pearDB->prepare(
-                            'UPDATE nagios_server SET vmware_updated = 1 WHERE id = :pollerId'
-                        );
-                        $restoreStatement->bindValue(':pollerId', (int) $host['id'], PDO::PARAM_INT);
-                        $restoreStatement->execute();
-
-                        throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
-                    }
-                }
+                $vmwareConfigurationService->restartIfConfigurationChanged((int) $host['id'], false);
                 if (! isset($msg_restart[$host['id']])) {
                     $msg_restart[$host['id']] = '';
                 }

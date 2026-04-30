@@ -118,7 +118,17 @@ final class UpdateAcc
 
             $this->validator->validateRequestOrFail($request, $acc);
 
-            $updatedAcc = $this->updateAcc($request, $acc);
+            $decryptedPreviousAcc = $this->retrieveCredentials($acc);
+            $updatedAcc = $this->factory->updateAcc(
+                acc: $decryptedPreviousAcc,
+                name: $request->name,
+                updatedBy: $this->user->getId(),
+                description: $request->description,
+                parameters: $request->parameters
+            );
+
+            $parametersChanged = $decryptedPreviousAcc->getParameters()->getDecryptedData()
+                !== $updatedAcc->getParameters()->getDecryptedData();
 
             if ($this->flags->isEnabled('vault_gorgone')) {
                 $parameters = $updatedAcc->getParameters();
@@ -145,7 +155,7 @@ final class UpdateAcc
                 $updatedAcc = $vaultedAcc;
             }
 
-            $this->update($updatedAcc, $request->pollers);
+            $this->update($updatedAcc, $request->pollers, $parametersChanged);
 
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (AssertionFailedException|\InvalidArgumentException $ex) {
@@ -195,27 +205,6 @@ final class UpdateAcc
     }
 
     /**
-     * @param UpdateAccRequest $request
-     * @param Acc $acc
-     *
-     * @throws AssertionFailedException
-     *
-     * @return Acc
-     */
-    private function updateAcc(UpdateAccRequest $request, Acc $acc): Acc
-    {
-        $acc = $this->retrieveCredentials($acc);
-
-        return $this->factory->updateAcc(
-            acc: $acc,
-            name: $request->name,
-            updatedBy: $this->user->getId(),
-            description: $request->description,
-            parameters: $request->parameters
-        );
-    }
-
-    /**
      * @param Acc $acc
      *
      * @throws \Throwable
@@ -247,10 +236,11 @@ final class UpdateAcc
     /**
      * @param Acc $acc
      * @param int[] $pollers
+     * @param bool $parametersChanged
      *
      * @throws \Throwable
      */
-    private function update(Acc $acc, array $pollers): void
+    private function update(Acc $acc, array $pollers, bool $parametersChanged): void
     {
         try {
             $this->dataStorageEngine->startTransaction();
@@ -268,8 +258,19 @@ final class UpdateAcc
                 $pollers
             );
 
-            $allAffectedPollers = array_values(array_unique(array_merge($previousPollerIds, $pollers)));
-            $this->writeMonitoringServerRepository->notifyVmwareConfigurationChange(...$allAffectedPollers);
+            // Pollers needing a VMWare restart:
+            //  - if the parameters changed: every poller that had or now has the ACC linked
+            //  - otherwise: only pollers that just gained or lost the link
+            $pollersToNotify = $parametersChanged
+                ? array_values(array_unique(array_merge($previousPollerIds, $pollers)))
+                : array_values(array_unique(array_merge(
+                    array_diff($pollers, $previousPollerIds),
+                    array_diff($previousPollerIds, $pollers)
+                )));
+
+            if ($pollersToNotify !== []) {
+                $this->writeMonitoringServerRepository->notifyVmwareConfigurationChange(...$pollersToNotify);
+            }
 
             $this->dataStorageEngine->commitTransaction();
         } catch (\Throwable $ex) {

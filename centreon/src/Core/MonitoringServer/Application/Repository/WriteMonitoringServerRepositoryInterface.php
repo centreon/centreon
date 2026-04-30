@@ -62,4 +62,12 @@ interface WriteMonitoringServerRepositoryInterface
      * @param int ...$monitoringServerIds
      */
     public function notifyVmwareConfigurationChange(int ...$monitoringServerIds): void;
+
+    /**
+     * Atomically reset the VMware configuration change flag.
+     * Returns true if the flag was set, false otherwise.
+     *
+     * @param int $monitoringServerId
+     */
+    public function resetVmwareConfigurationChange(int $monitoringServerId): bool;
 }

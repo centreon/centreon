@@ -23,6 +23,7 @@ namespace CentreonClapi;
 
 use App\Kernel;
 use Centreon\Domain\Entity\Task;
+use Centreon\Infrastructure\Service\VmwareConfigurationService;
 use CentreonDB;
 use CentreonRemote\ServiceProvider;
 use Core\Domain\Engine\Model\EngineCommandGenerator;
@@ -35,7 +36,6 @@ use Pimple\Container;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
-use Symfony\Component\Process\Process;
 
 require_once 'centreonUtils.class.php';
 require_once 'centreonClapiException.class.php';
@@ -580,25 +580,8 @@ class CentreonConfigPoller
                 }
             }
 
-            // Restart centreon_vmware on central only if VMWare config has changed
-            // Atomically claim the flag to avoid race conditions with concurrent exports
-            $claimStatement = $pearDB->prepare(
-                'UPDATE nagios_server SET vmware_updated = 0 WHERE vmware_updated = 1 AND id = :pollerId'
-            );
-            $claimStatement->bindValue(':pollerId', (int) $pollerId, PDO::PARAM_INT);
-            $claimStatement->execute();
-            if ($claimStatement->rowCount() > 0) {
-                $process = new Process(['sudo', '-n', '--', 'systemctl', 'restart', 'centreon_vmware']);
-                $process->run();
-                if (! $process->isSuccessful()) {
-                    // Restart failed, restore the flag so it is retried on next export
-                    $restoreStatement = $pearDB->prepare(
-                        'UPDATE nagios_server SET vmware_updated = 1 WHERE id = :pollerId'
-                    );
-                    $restoreStatement->bindValue(':pollerId', (int) $pollerId, PDO::PARAM_INT);
-                    $restoreStatement->execute();
-                }
-            }
+            $this->container->get(VmwareConfigurationService::class)
+                ->restartIfConfigurationChanged((int) $pollerId, true);
 
             if (strlen($msg_copy) == 0) {
                 $msg_copy .= _('OK: All configuration files copied with success.');
@@ -659,24 +642,8 @@ class CentreonConfigPoller
             }
             $return = $this->writeToCentcorePipe('SENDCFGFILE', $host['id']);
 
-            // Send VMWARERESTART to remote poller only if VMWare config has changed
-            // Atomically claim the flag to avoid race conditions with concurrent exports
-            $claimStatement = $pearDB->prepare(
-                'UPDATE nagios_server SET vmware_updated = 0 WHERE vmware_updated = 1 AND id = :pollerId'
-            );
-            $claimStatement->bindValue(':pollerId', (int) $host['id'], PDO::PARAM_INT);
-            $claimStatement->execute();
-            if ($claimStatement->rowCount() > 0) {
-                $vmwareReturn = $this->writeToCentcorePipe('VMWARERESTART', $host['id']);
-                if ($vmwareReturn !== 0) {
-                    // Write failed, restore the flag so it is retried on next export
-                    $restoreStatement = $pearDB->prepare(
-                        'UPDATE nagios_server SET vmware_updated = 1 WHERE id = :pollerId'
-                    );
-                    $restoreStatement->bindValue(':pollerId', (int) $host['id'], PDO::PARAM_INT);
-                    $restoreStatement->execute();
-                }
-            }
+            $this->container->get(VmwareConfigurationService::class)
+                ->restartIfConfigurationChanged((int) $host['id'], false);
 
             $msg_copy .= _(
                 "OK: All configuration will be send to '"

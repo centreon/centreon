@@ -21,7 +21,9 @@
 
 namespace CentreonRemote\Infrastructure\Service;
 
+use App\Kernel;
 use Centreon;
+use Centreon\Infrastructure\Service\VmwareConfigurationService;
 use Centreon\ServiceProvider;
 use CentreonBroker;
 use CentreonContactgroup;
@@ -29,9 +31,7 @@ use CentreonDB;
 use Core\MonitoringServer\Model\MonitoringServer;
 use Exception;
 use Generate;
-use PDO;
 use Pimple\Container;
-use Symfony\Component\Process\Process;
 
 /**
  * Class
@@ -124,6 +124,10 @@ class PollerInteractionService
             ? _CENTREON_VARLIB_ . '/centcore.cmd'
             : '/var/lib/centreon/centcore.cmd';
 
+        $vmwareConfigurationService = Kernel::createForWeb()
+            ->getContainer()
+            ->get(VmwareConfigurationService::class);
+
         $tabServer = [];
         $tabs = $this->centreon->user->access->getPollerAclConf([
             'fields' => ['name', 'id', 'localhost'],
@@ -154,47 +158,10 @@ class PollerInteractionService
                     throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
                 }
 
-                // Send VMWARERESTART only if VMWare config has changed
-                // Atomically claim the flag to avoid race conditions with concurrent exports
-                $claimStatement = $this->db->prepare(
-                    'UPDATE nagios_server SET vmware_updated = 0 WHERE vmware_updated = 1 AND id = :pollerId'
+                $vmwareConfigurationService->restartIfConfigurationChanged(
+                    (int) $host['id'],
+                    isset($host['localhost']) && $host['localhost'] == 1
                 );
-                $claimStatement->bindValue(':pollerId', (int) $host['id'], PDO::PARAM_INT);
-                $claimStatement->execute();
-                if ($claimStatement->rowCount() > 0) {
-                    $vmwareRestartSucceeded = false;
-                    if (isset($host['localhost']) && $host['localhost'] == 1) {
-                        $process = new Process(['sudo', '-n', '--', 'systemctl', 'restart', 'centreon_vmware']);
-                        $process->run();
-                        $vmwareRestartSucceeded = $process->isSuccessful();
-                    } else {
-                        $written = @file_put_contents(
-                            $centCorePipe,
-                            'VMWARERESTART:' . (int) $host['id'] . "\n",
-                            FILE_APPEND
-                        );
-                        if ($written === false) {
-                            // Write failed, restore the flag so it is retried on next export
-                            $restoreStatement = $this->db->prepare(
-                                'UPDATE nagios_server SET vmware_updated = 1 WHERE id = :pollerId'
-                            );
-                            $restoreStatement->bindValue(':pollerId', (int) $host['id'], PDO::PARAM_INT);
-                            $restoreStatement->execute();
-
-                            throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
-                        }
-
-                        $vmwareRestartSucceeded = true;
-                    }
-                    if (! $vmwareRestartSucceeded) {
-                        // Restart failed, restore the flag so it is retried on next export
-                        $restoreStatement = $this->db->prepare(
-                            'UPDATE nagios_server SET vmware_updated = 1 WHERE id = :pollerId'
-                        );
-                        $restoreStatement->bindValue(':pollerId', (int) $host['id'], PDO::PARAM_INT);
-                        $restoreStatement->execute();
-                    }
-                }
             }
         }
     }

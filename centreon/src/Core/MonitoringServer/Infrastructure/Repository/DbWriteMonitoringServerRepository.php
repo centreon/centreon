@@ -158,4 +158,25 @@ class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements
 
         $statement->execute();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function resetVmwareConfigurationChange(int $monitoringServerId): bool
+    {
+        $this->debug('Reset VMware configuration change flag on monitoring server with ID #' . $monitoringServerId);
+
+        $request = $this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.`nagios_server`
+                SET `vmware_updated` = 0
+                WHERE `vmware_updated` = 1 AND `id` = :monitoringServerId
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':monitoringServerId', $monitoringServerId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return $statement->rowCount() > 0;
+    }
 }
