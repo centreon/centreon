@@ -278,16 +278,15 @@ function getLogInDbForHostSVC($host_id, $start_date, $end_date, $reportTimePerio
         if (! $centreon->user->admin) {
             $aclGroupIds = array_keys($centreon->user->access->getAccessGroups());
             if ($aclGroupIds === []) {
-                $aclCondition = 'AND 1=0';
-            } else {
-                $aclPlaceholders = [];
-                foreach ($aclGroupIds as $j => $id) {
-                    $aclPlaceholders[] = ':aclGroup' . $j;
-                }
-                $aclCondition = 'AND EXISTS (SELECT 1 FROM centreon_acl acl '
-                    . 'WHERE las.host_id = acl.host_id AND las.service_id = acl.service_id '
-                    . 'AND acl.group_id IN (' . implode(', ', $aclPlaceholders) . ') LIMIT 1)';
+                return $hostServiceStats;
             }
+            $aclPlaceholders = [];
+            foreach ($aclGroupIds as $j => $id) {
+                $aclPlaceholders[] = ':aclGroup' . $j;
+            }
+            $aclCondition = 'AND EXISTS (SELECT 1 FROM centreon_acl acl '
+                . 'WHERE las.host_id = acl.host_id AND las.service_id = acl.service_id '
+                . 'AND acl.group_id IN (' . implode(', ', $aclPlaceholders) . ') LIMIT 1)';
         }
         $rq = 'SELECT DISTINCT las.service_id, '
             . 'sum(OKTimeScheduled) as OK_T, '
@@ -444,16 +443,15 @@ function getServicesLogs(array $services, $startDate, $endDate, $reportTimePerio
         if (! $centreon->user->admin) {
             $aclGroupIds = array_keys($centreon->user->access->getAccessGroups());
             if ($aclGroupIds === []) {
-                $aclCondition = 'AND 1=0';
-            } else {
-                $aclPlaceholders = [];
-                foreach ($aclGroupIds as $j => $id) {
-                    $aclPlaceholders[] = ':aclGroup' . $j;
-                }
-                $aclCondition = 'AND EXISTS (SELECT 1 FROM centreon_acl acl '
-                    . 'WHERE las.host_id = acl.host_id AND las.service_id = acl.service_id '
-                    . 'AND acl.group_id IN (' . implode(', ', $aclPlaceholders) . ') LIMIT 1)';
+                return $servicesStats;
             }
+            $aclPlaceholders = [];
+            foreach ($aclGroupIds as $j => $id) {
+                $aclPlaceholders[] = ':aclGroup' . $j;
+            }
+            $aclCondition = 'AND EXISTS (SELECT 1 FROM centreon_acl acl '
+                . 'WHERE las.host_id = acl.host_id AND las.service_id = acl.service_id '
+                . 'AND acl.group_id IN (' . implode(', ', $aclPlaceholders) . ') LIMIT 1)';
         }
 
         $bindValues = [
