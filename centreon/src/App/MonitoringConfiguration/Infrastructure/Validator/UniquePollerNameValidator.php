@@ -48,7 +48,7 @@ final class UniquePollerNameValidator extends ConstraintValidator
         }
 
         $length = mb_strlen($value);
-        if ($length < PollerName::MIN_LENGTH || $length > PollerName::MAX_LENGTH) {
+        if ($length > PollerName::MAX_LENGTH) {
             return;
         }
 
