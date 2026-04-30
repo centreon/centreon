@@ -35,6 +35,12 @@ export interface UseColumnsState {
   selectedColumnIds: Array<string>;
 }
 
+const tokenType = {
+  api: 'API',
+  cma: 'CMA',
+  poller: 'Poller'
+};
+
 export const useColumns = (): UseColumnsState => {
   const { t } = useTranslation();
 
@@ -64,7 +70,7 @@ export const useColumns = (): UseColumnsState => {
         type: ColumnType.string
       },
       {
-        getFormattedString: (row): string => row?.type.toUpperCase(),
+        getFormattedString: (row): string => tokenType[row?.type],
         id: ColumnId.Type,
         label: t(Column.Type),
         sortable: true,

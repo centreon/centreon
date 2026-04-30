@@ -32,7 +32,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   });
 
   const isCopyButtonVisible =
-    equals(row.type, TokenType.CMA) &&
+    (equals(row.type, TokenType.CMA) || equals(row.type, TokenType.Poller)) &&
     (canManageApiTokens || equals(id, row.creator.id));
 
   return (

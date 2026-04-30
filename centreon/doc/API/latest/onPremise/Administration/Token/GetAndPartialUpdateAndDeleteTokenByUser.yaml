@@ -3,7 +3,7 @@ get:
     - Authentication token
   summary: "Get an API token"
   description: |
-    Get an API token (only if type is CMA)
+    Get an API token (only if type is CMA or POLLER)
   parameters:
     - $ref: 'QueryParameter/TokenName.yaml'
     - $ref: 'QueryParameter/UserId.yaml'
