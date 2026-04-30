@@ -997,6 +997,28 @@ $addPollerNameUniqueConstraint = function () use ($pearDB, &$errorMessage, $vers
         return;
     }
 
+    $duplicates = $pearDB->fetchAllAssociative(
+        <<<'SQL'
+            SELECT `name`, GROUP_CONCAT(`id` ORDER BY `id`) AS poller_ids
+            FROM `nagios_server`
+            GROUP BY `name`
+            HAVING COUNT(*) > 1
+            SQL
+    );
+
+    if ($duplicates !== []) {
+        $details = array_map(
+            static fn (array $row): string => "'{$row['name']}' (ids: {$row['poller_ids']})",
+            $duplicates
+        );
+
+        throw new RuntimeException(
+            "Cannot add unique constraint on nagios_server.name: duplicate poller names found — "
+            . implode(', ', $details)
+            . '. Please rename the duplicates manually before upgrading.'
+        );
+    }
+
     $pearDB->executeStatement(
         <<<'SQL'
             ALTER TABLE `nagios_server` ADD UNIQUE KEY `uniq_name` (`name`)

@@ -198,8 +198,11 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             if ($pollerId === 0) {
                 throw new \RuntimeException(sprintf('Unable to retrieve last insert ID for "%s".', self::TABLE_NAME));
             }
-        } catch (UniqueConstraintViolationException) {
-            throw new PollerAlreadyExistsException(['name' => $poller->name->value]);
+        } catch (UniqueConstraintViolationException $exception) {
+            $field = str_contains($exception->getMessage(), 'uniq_uuid') ? 'uuid' : 'name';
+            $value = $field === 'uuid' ? $poller->uuid?->value : $poller->name->value;
+
+            throw new PollerAlreadyExistsException([$field => $value], previous: $exception);
         }
 
         $this->setId($poller, new PollerId($pollerId));

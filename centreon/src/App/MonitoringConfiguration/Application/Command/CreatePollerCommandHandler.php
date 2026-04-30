@@ -29,12 +29,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUuid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\MonitoringConfiguration\Domain\Event\PollerCreated;
-use App\MonitoringConfiguration\Domain\Exception\PollerAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Domain\Collection;
@@ -52,21 +50,12 @@ final readonly class CreatePollerCommandHandler
 
     public function __invoke(CreatePollerCommand $command): Poller
     {
-        if ($this->repository->findOneByName($command->name) instanceof Poller) {
-            throw new PollerAlreadyExistsException(['name' => $command->name->value]);
-        }
-
-        $address = $command->address ?? new PollerAddress($command->name->value);
-
-        if ($this->repository->findOneByAddress($address) instanceof Poller) {
-            throw new PollerAlreadyExistsException(['address' => $address->value]);
-        }
         $uuid = new PollerUuid(Uuid::v7()->toRfc4122());
 
         $poller = new Poller(
             id: null,
             name: $command->name,
-            address: $address,
+            address: $command->address,
             isCentral: false,
             isDefault: false,
             isActivated: true,
@@ -82,8 +71,6 @@ final readonly class CreatePollerCommandHandler
         );
 
         $this->repository->add($poller);
-
-        $poller->id();
 
         $this->eventBus->fire(new PollerCreated($poller, $command->creatorId));
 

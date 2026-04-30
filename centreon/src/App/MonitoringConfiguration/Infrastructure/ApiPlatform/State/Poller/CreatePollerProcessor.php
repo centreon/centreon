@@ -62,8 +62,8 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         $command = new CreatePollerCommand(
             name: new PollerName($data->name),
             pollerType: PollerTypeEnum::from($data->pollerType),
+            address: new PollerAddress($data->address),
             creatorId: $credentialUser->credential->userId->value,
-            address: $data->address !== null ? new PollerAddress($data->address) : null,
         );
 
         $model = $this->commandBus->execute($command);

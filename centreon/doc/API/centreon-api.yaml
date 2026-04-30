@@ -9791,6 +9791,7 @@ components:
       required:
         - name
         - poller_type
+        - address
       properties:
         id:
           type: integer
@@ -9806,10 +9807,10 @@ components:
             - vm
             - docker
         address:
-          description: 'Poller address. Defaults to the poller name when omitted.'
           type: string
+          description: 'Poller address (valid IPv4, IPv6 or FQDN).'
+          minLength: 1
           maxLength: 255
-          nullable: true
         uuid:
           type: string
           nullable: true
@@ -9823,6 +9824,7 @@ components:
           required:
             - name
             - poller_type
+            - address
           properties:
             id:
               type: integer
@@ -9839,8 +9841,9 @@ components:
                 - docker
             address:
               type: string
+              description: 'Poller address (valid IPv4, IPv6 or FQDN).'
+              minLength: 1
               maxLength: 255
-              nullable: true
             uuid:
               type: string
               nullable: true

@@ -21,19 +21,12 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Application\Command;
+namespace App\MonitoringConfiguration\Infrastructure\Validator;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
+use Symfony\Component\Validator\Constraint;
 
-final readonly class CreatePollerCommand
+#[\Attribute(\Attribute::TARGET_PROPERTY)]
+final class UniquePollerName extends Constraint
 {
-    public function __construct(
-        public PollerName $name,
-        public PollerTypeEnum $pollerType,
-        public PollerAddress $address,
-        public int $creatorId,
-    ) {
-    }
+    public string $message = 'A poller with this name already exists.';
 }
