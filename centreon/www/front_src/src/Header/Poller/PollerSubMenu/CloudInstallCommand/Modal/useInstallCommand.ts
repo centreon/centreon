@@ -20,9 +20,6 @@ interface UseInstallCommandState {
   isOpen: boolean;
 }
 
-const dummyCommand =
-  'curl -fsSL https://<CENTRAL_URL>/poller/install.sh | bash -s -- --poller_token fedIjfgDSige.gzfhgyz --uuid 1234-abcd --name paris-edge-01 --type onprem/docker --central_url <CENTRAL_URL>';
-
 export const useInstallCommand = (): UseInstallCommandState => {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useAtom(isModalOpenAtom);
@@ -52,7 +49,7 @@ export const useInstallCommand = (): UseInstallCommandState => {
         }
       });
 
-      const pollerId = 1; //pollerResponse?.id;
+      const pollerId = pollerResponse?.id;
 
       if (!pollerId) {
         showErrorMessage(t(labelFailedToCreatePoller));
@@ -63,7 +60,7 @@ export const useInstallCommand = (): UseInstallCommandState => {
       setPollerId(pollerId);
 
       const centralUrl = `${window.location.origin}${centreonBaseURL}`;
-      const command = (pollerResponse?.command || dummyCommand).replaceAll(
+      const command = (pollerResponse?.command || '').replaceAll(
         '<CENTRAL_URL>',
         centralUrl
       );
