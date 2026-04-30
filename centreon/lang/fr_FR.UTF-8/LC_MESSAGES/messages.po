@@ -25049,6 +25049,10 @@ msgid "Generate installation command"
 msgstr "Générer la commande d'installation"
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts
+msgid "The command is being generated…"
+msgstr "La commande est en cours de génération…"
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
 msgid "Click to generate the command. Once it's ready, copy it and run it in your environment."
 msgstr "Cliquez pour générer la commande. Une fois prête, copiez-la et exécutez-la dans votre environnement."
 

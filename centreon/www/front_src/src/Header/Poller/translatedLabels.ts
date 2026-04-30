@@ -43,7 +43,7 @@ export const labelGenerateInstallationCommand = 'Generate installation command';
 export const labelClickToGenerate =
   "Click to generate the command. Once it's ready, copy it and run it in your environment.";
 export const labelGeneratingCommand = 'Generating...';
-export const labelCommandGenerationStep = 'Generate installation command';
+export const labelCommandGenerationStep = 'The command is being generated…';
 export const labelCopyTheFollowingCommand =
   'Copy the following command and run it on your poller to register it.';
 export const labelFailedToCreatePoller = 'Failed to create poller';

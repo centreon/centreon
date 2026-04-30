@@ -21539,6 +21539,10 @@ msgstr "es ist erforderlich"
 # msgstr ""
 
 #: unknown
+# msgid "The command is being generated…"
+# msgstr ""
+
+#: unknown
 # msgid "Click to generate the command. Once it's ready, copy it and run it in your environment."
 # msgstr ""
 
