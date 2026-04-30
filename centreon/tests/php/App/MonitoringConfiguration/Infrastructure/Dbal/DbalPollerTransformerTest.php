@@ -24,11 +24,14 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
+use App\MonitoringConfiguration\Infrastructure\Dbal\DbalPollerRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalPollerTransformer;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @phpstan-import-type RowTypeAlias from DbalPollerRepository
+ */
 final class DbalPollerTransformerTest extends TestCase
 {
     private DbalPollerTransformer $transformer;
@@ -44,7 +47,6 @@ final class DbalPollerTransformerTest extends TestCase
 
         $poller = $this->transformer->transform($row);
 
-        self::assertInstanceOf(Poller::class, $poller);
         self::assertSame(42, $poller->id()->value);
         self::assertSame('MyPoller', $poller->name->value);
         self::assertSame('192.168.1.1', $poller->address->value);
@@ -135,10 +137,11 @@ final class DbalPollerTransformerTest extends TestCase
     /**
      * @param array<string, mixed> $overrides
      *
-     * @return array<string, mixed>
+     * @phpstan-return RowTypeAlias
      */
     private function buildRow(array $overrides = []): array
     {
+        /** @var RowTypeAlias */
         return array_merge([
             'poller_id' => 42,
             'poller_name' => 'MyPoller',
