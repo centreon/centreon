@@ -36,6 +36,8 @@ if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId'])) {
     exit;
 }
 
+$centreon = $_SESSION['centreon'];
+
 $db = $dependencyInjector['configuration_db'];
 
 if (CentreonSession::checkSession(session_id(), $db) == 0) {
@@ -48,6 +50,15 @@ $dbb = $dependencyInjector['realtime_db'];
 $criticality = new CentreonCriticality($db);
 $media = new CentreonMedia($db);
 
+$variablesThemeCSS = match ($centreon->user->theme) {
+    'light' => 'Generic-theme',
+    'dark' => 'Centreon-Dark',
+    default => throw new Exception('Unknown user theme : ' . $centreon->user->theme),
+};
+$theme = $variablesThemeCSS === 'Generic-theme'
+    ? $variablesThemeCSS . '/Variables-css'
+    : $variablesThemeCSS;
+
 // Smarty template initialization
 $path = $centreon_path . 'www/widgets/global-health/src/';
 $template = SmartyBC::createSmartyTemplate($path, './');
@@ -55,6 +66,7 @@ $template = SmartyBC::createSmartyTemplate($path, './');
 $template->assign('session', session_id());
 $template->assign('host_label', _('Hosts'));
 $template->assign('svc_label', _('Services'));
+$template->assign('theme', $variablesThemeCSS);
 
 $centreon = $_SESSION['centreon'];
 
