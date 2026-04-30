@@ -30,12 +30,13 @@ use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ListStandardMacrosProvider;
 
 #[ApiResource(
-    shortName: 'Standard Macro',
+    shortName: 'StandardMacro',
     operations: [
         new GetCollection(
             uriTemplate: '/configuration/standard-macros',
             provider: ListStandardMacrosProvider::class,
             openapi: new Model\Operation(
+                tags: ['Standard Macro'],
                 parameters: [
                     new Model\Parameter(
                         name: 'name[lk]',
