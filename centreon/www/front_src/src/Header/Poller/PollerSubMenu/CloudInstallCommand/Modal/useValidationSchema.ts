@@ -10,6 +10,7 @@ export const useValidationSchema = () => {
         environment: mixed<PollerEnvironment>()
           .oneOf(Object.values(PollerEnvironment))
           .required(),
+        pollerAddress: string().trim().required(),
         pollerName: string().trim().required(),
         token: object({
           id: string().required(),

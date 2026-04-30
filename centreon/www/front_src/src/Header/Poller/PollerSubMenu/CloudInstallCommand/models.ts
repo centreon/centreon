@@ -5,6 +5,7 @@ export enum PollerEnvironment {
 
 export interface CloudInstallCommandFormValues {
   environment: PollerEnvironment | null;
+  pollerAddress: string;
   pollerName: string;
   token: { id: string; name: string } | null;
 }

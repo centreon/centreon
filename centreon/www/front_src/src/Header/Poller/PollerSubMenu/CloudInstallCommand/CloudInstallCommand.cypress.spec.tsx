@@ -1,7 +1,7 @@
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
 import i18next from 'i18next';
-import { createStore, Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 
@@ -14,20 +14,21 @@ import {
   labelCopyTheFollowingCommand,
   labelCreateNewPoller,
   labelDockerCompose,
-  labelEnterPollerName,
+  labelEnterPollerNameAndAddress,
   labelExportConfiguration,
   labelFailedToCreatePoller,
   labelFailedToExportAndReloadConfiguration,
   labelGenerateInstallationCommand,
   labelPleaseWait,
+  labelPollerAddress,
   labelPollerName,
   labelSelectPollerEnvironment,
   labelSelectToken,
   labelSelectTokenPlaceholder,
   labelVMOrPhysical
 } from '../../translatedLabels';
-import { generatedCommandAtom, isModalOpenAtom, pollerIdAtom } from './atoms';
 import CloudInstallCommand from './CloudInstallCommand';
+import { generatedCommandAtom, isModalOpenAtom, pollerIdAtom } from './atoms';
 
 const createPollerSuccessResponse = {
   '@context': '/centreon/api/latest/contexts/Poller',
@@ -176,7 +177,7 @@ describe('CloudInstallCommand', () => {
     it('displays all form sections', () => {
       initialize({ isModalOpen: true });
 
-      cy.findByText(labelEnterPollerName).should('be.visible');
+      cy.findByText(labelEnterPollerNameAndAddress).should('be.visible');
       cy.findByText(labelSelectPollerEnvironment).should('be.visible');
       cy.findByText(labelSelectToken).should('be.visible');
       cy.findByText(labelGenerateInstallationCommand).should('be.visible');
@@ -197,6 +198,25 @@ describe('CloudInstallCommand', () => {
         cy.findByLabelText(`${labelPollerName} *`).should(
           'have.value',
           'my-poller'
+        );
+      });
+    });
+
+    describe('Poller address section', () => {
+      it('displays a text field for the poller address', () => {
+        initialize({ isModalOpen: true });
+
+        cy.findByTestId('cloud-poller-address').should('be.visible');
+        cy.findByLabelText(`${labelPollerAddress} *`).should('be.visible');
+      });
+
+      it('allows typing a poller address', () => {
+        initialize({ isModalOpen: true });
+
+        cy.findByLabelText(`${labelPollerAddress} *`).type('192.168.1.1');
+        cy.findByLabelText(`${labelPollerAddress} *`).should(
+          'have.value',
+          '192.168.1.1'
         );
       });
     });
@@ -384,6 +404,15 @@ describe('CloudInstallCommand', () => {
         cy.findByLabelText(`${labelPollerName} *`).should('be.disabled');
       });
 
+      it('disables the poller address field when command is generated', () => {
+        initialize({
+          generatedCommand: 'some-command',
+          isModalOpen: true
+        });
+
+        cy.findByLabelText(`${labelPollerAddress} *`).should('be.disabled');
+      });
+
       it('disables the environment selector when command is generated', () => {
         initialize({
           generatedCommand: 'some-command',
@@ -434,6 +463,7 @@ describe('CloudInstallCommand', () => {
         initialize({ isModalOpen: true });
 
         cy.findByLabelText(`${labelPollerName} *`).type('my-poller');
+        cy.findByLabelText(`${labelPollerAddress} *`).type('192.168.1.1');
 
         cy.findByLabelText(labelSelectTokenPlaceholder).click();
         cy.waitForRequest('@getTokens');
@@ -456,6 +486,24 @@ describe('CloudInstallCommand', () => {
           .should('contain.text', createPollerSuccessResponse.command);
       });
 
+      it('sends the address in the API payload', () => {
+        initialize({ isModalOpen: true });
+
+        cy.findByLabelText(`${labelPollerName} *`).type('my-poller');
+        cy.findByLabelText(`${labelPollerAddress} *`).type('192.168.1.1');
+
+        cy.findByLabelText(labelSelectTokenPlaceholder).click();
+        cy.waitForRequest('@getTokens');
+        cy.findByText('a-token').click();
+
+        cy.findByAltText('Install command').closest('button').click();
+
+        cy.waitForRequest('@createPoller').then(({ request }) => {
+          expect(request.body.address).to.equal('192.168.1.1');
+          expect(request.body.name).to.equal('my-poller');
+        });
+      });
+
       it('shows an error message when the API call fails', () => {
         initialize({
           createPollerResponse: { message: 'Internal server error' },
@@ -464,6 +512,7 @@ describe('CloudInstallCommand', () => {
         });
 
         cy.findByLabelText(`${labelPollerName} *`).type('my-poller');
+        cy.findByLabelText(`${labelPollerAddress} *`).type('192.168.1.1');
 
         cy.findByLabelText(labelSelectTokenPlaceholder).click();
         cy.waitForRequest('@getTokens');
@@ -483,6 +532,7 @@ describe('CloudInstallCommand', () => {
         });
 
         cy.findByLabelText(`${labelPollerName} *`).type('my-poller');
+        cy.findByLabelText(`${labelPollerAddress} *`).type('192.168.1.1');
 
         cy.findByLabelText(labelSelectTokenPlaceholder).click();
         cy.waitForRequest('@getTokens');
@@ -507,6 +557,7 @@ describe('CloudInstallCommand', () => {
         initialize({ isModalOpen: true });
 
         cy.findByLabelText(`${labelPollerName} *`).type('docker-poller');
+        cy.findByLabelText(`${labelPollerAddress} *`).type('10.0.0.1');
 
         cy.findByLabelText(labelDockerCompose).click();
 

@@ -16,6 +16,7 @@ import { useValidationSchema } from './useValidationSchema';
 
 const initialValues: CloudInstallCommandFormValues = {
   environment: PollerEnvironment.VM,
+  pollerAddress: '',
   pollerName: '',
   token: null
 };

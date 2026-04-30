@@ -30,12 +30,14 @@ export const labelAllPollers = 'All pollers:';
 export const labelPollers = 'Pollers';
 
 export const labelCreateNewPoller = 'Create new poller';
-export const labelEnterPollerName = "Enter your poller's name";
-export const labelPollerName = 'Poller Name';
+export const labelEnterPollerNameAndAddress =
+  "Enter your poller's name and address";
+export const labelPollerName = 'Name';
+export const labelPollerAddress = 'Address';
 export const labelSelectPollerEnvironment = 'Select your poller environment';
 export const labelVMOrPhysical = 'VM or physical';
 export const labelDockerCompose = 'Docker compose';
-export const labelSelectToken = 'Select Token';
+export const labelSelectToken = 'Select token';
 export const labelSelectTokenPlaceholder = 'Select token';
 export const labelGenerateInstallationCommand = 'Generate installation command';
 export const labelClickToGenerate =

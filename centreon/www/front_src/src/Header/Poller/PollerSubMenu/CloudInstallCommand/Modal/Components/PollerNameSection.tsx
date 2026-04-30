@@ -7,7 +7,8 @@ import { useTranslation } from 'react-i18next';
 
 import { Section } from '../../../../../../AgentConfiguration/Listing/InstallationCommandModal/Components';
 import {
-  labelEnterPollerName,
+  labelEnterPollerNameAndAddress,
+  labelPollerAddress,
   labelPollerName
 } from '../../../../translatedLabels';
 import { isGeneratedAtom } from '../../atoms';
@@ -20,7 +21,7 @@ const PollerNameSection = (): ReactElement => {
     useFormikContext<CloudInstallCommandFormValues>();
 
   return (
-    <Section order={1} title={t(labelEnterPollerName)}>
+    <Section order={1} title={t(labelEnterPollerNameAndAddress)}>
       <div className="my-2">
         <TextField
           data-testid="cloud-poller-name"
@@ -36,6 +37,23 @@ const PollerNameSection = (): ReactElement => {
           required
           size="small"
           value={values.pollerName}
+        />
+      </div>
+      <div className="my-2">
+        <TextField
+          data-testid="cloud-poller-address"
+          disabled={isGenerated}
+          error={touched.pollerAddress && Boolean(errors.pollerAddress)}
+          fullWidth
+          helperText={touched.pollerAddress && errors.pollerAddress}
+          label={t(labelPollerAddress)}
+          onChange={(e) => {
+            setFieldTouched('pollerAddress', true, false);
+            setFieldValue('pollerAddress', e.target.value);
+          }}
+          required
+          size="small"
+          value={values.pollerAddress}
         />
       </div>
     </Section>

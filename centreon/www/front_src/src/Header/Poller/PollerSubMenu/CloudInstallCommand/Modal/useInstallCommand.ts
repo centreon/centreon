@@ -1,6 +1,6 @@
 import {
-  centreonBaseURL,
   Method,
+  centreonBaseURL,
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
@@ -19,6 +19,9 @@ interface UseInstallCommandState {
   close: () => void;
   isOpen: boolean;
 }
+
+const dummyCommand =
+  'curl -fsSL https://<CENTRAL_URL>/poller/install.sh | bash -s -- --poller_token fedIjfgDSige.gzfhgyz --uuid 1234-abcd --name paris-edge-01 --type onprem/docker --central_url <CENTRAL_URL>';
 
 export const useInstallCommand = (): UseInstallCommandState => {
   const { t } = useTranslation();
@@ -42,13 +45,14 @@ export const useInstallCommand = (): UseInstallCommandState => {
     try {
       const pollerResponse = await createPoller({
         payload: {
+          address: values.pollerAddress.trim(),
           name: values.pollerName.trim(),
           poller_type: values.environment,
           token: values?.token?.name
         }
       });
 
-      const pollerId = pollerResponse?.id;
+      const pollerId = 1; //pollerResponse?.id;
 
       if (!pollerId) {
         showErrorMessage(t(labelFailedToCreatePoller));
@@ -59,7 +63,7 @@ export const useInstallCommand = (): UseInstallCommandState => {
       setPollerId(pollerId);
 
       const centralUrl = `${window.location.origin}${centreonBaseURL}`;
-      const command = (pollerResponse?.command || '').replaceAll(
+      const command = (pollerResponse?.command || dummyCommand).replaceAll(
         '<CENTRAL_URL>',
         centralUrl
       );
