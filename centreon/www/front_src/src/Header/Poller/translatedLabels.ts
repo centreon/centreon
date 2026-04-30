@@ -31,7 +31,7 @@ export const labelPollers = 'Pollers';
 
 export const labelCreateNewPoller = 'Create new poller';
 export const labelEnterPollerNameAndAddress =
-  "Enter your poller's name and address and address";
+  "Enter your poller's name and address";
 export const labelPollerName = 'Name';
 export const labelPollerAddress = 'Address';
 export const labelSelectPollerEnvironment = "Select your poller's environment";
