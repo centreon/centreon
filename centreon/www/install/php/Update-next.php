@@ -1013,7 +1013,7 @@ $addPollerNameUniqueConstraint = function () use ($pearDB, &$errorMessage, $vers
         );
 
         throw new RuntimeException(
-            "Cannot add unique constraint on nagios_server.name: duplicate poller names found — "
+            'Cannot add unique constraint on nagios_server.name: duplicate poller names found — '
             . implode(', ', $details)
             . '. Please rename the duplicates manually before upgrading.'
         );

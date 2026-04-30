@@ -47,6 +47,11 @@ final class UniquePollerNameValidator extends ConstraintValidator
             return;
         }
 
+        $length = mb_strlen($value);
+        if ($length < PollerName::MIN_LENGTH || $length > PollerName::MAX_LENGTH) {
+            return;
+        }
+
         if ($this->repository->findOneByName(new PollerName($value)) instanceof Poller) {
             $this->context->buildViolation($constraint->message)
                 ->addViolation();
