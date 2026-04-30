@@ -25388,10 +25388,6 @@ msgstr "Nombre de la topología."
 # msgstr ""
 
 #: unknown
-# msgid "Poller Name"
-# msgstr ""
-
-#: unknown
 # msgid "Select your poller's environment"
 # msgstr ""
 
