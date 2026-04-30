@@ -41,10 +41,6 @@ FROM centreon-perl-${USE_SOURCE_TRAPD} AS centreon-perl-selected
 #############################################
 FROM debian:12-slim AS centreontrapd
 
-ARG VERSION
-ARG IS_CLOUD
-ARG STABILITY
-
 # Create users and groups (same UIDs as other Centreon containers for volume consistency)
 # centreon-engine group needed: centreontrapd writes to centengine.cmd pipe (owned by centreon-engine)
 RUN groupadd -g 33 www-data 2>/dev/null || true && \
