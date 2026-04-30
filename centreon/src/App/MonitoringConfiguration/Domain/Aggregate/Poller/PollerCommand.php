@@ -32,8 +32,6 @@ final readonly class PollerCommand
         public CommandId $commandId,
         public ?int $order,
     ) {
-        if ($order !== null) {
-            Assert::greaterThanEq($order, 0);
-        }
+        Assert::nullOrGreaterThanEq($order, 0);
     }
 }

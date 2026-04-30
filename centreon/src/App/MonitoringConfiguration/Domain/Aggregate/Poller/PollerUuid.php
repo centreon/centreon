@@ -30,7 +30,6 @@ final readonly class PollerUuid
     public function __construct(
         public string $value,
     ) {
-        Assert::length($value, 36);
         Assert::regex($value, '/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i');
     }
 }

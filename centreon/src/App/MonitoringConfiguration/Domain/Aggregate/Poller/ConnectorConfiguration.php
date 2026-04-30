@@ -30,8 +30,6 @@ final readonly class ConnectorConfiguration
     public function __construct(
         public ?string $connectorPath = null,
     ) {
-        if ($connectorPath !== null) {
-            Assert::maxLength($connectorPath, 255);
-        }
+        Assert::nullOrMaxLength($connectorPath, 255);
     }
 }

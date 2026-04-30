@@ -34,11 +34,7 @@ final readonly class TrapConfiguration
         public ?string $initScriptPath = self::DEFAULT_INIT_SCRIPT_PATH,
         public ?string $snmpTrapPathConf = self::DEFAULT_SNMP_TRAP_PATH_CONF,
     ) {
-        if ($initScriptPath !== null) {
-            Assert::maxLength($initScriptPath, 255);
-        }
-        if ($snmpTrapPathConf !== null) {
-            Assert::maxLength($snmpTrapPathConf, 255);
-        }
+        Assert::nullOrMaxLength($initScriptPath, 255);
+        Assert::nullOrMaxLength($snmpTrapPathConf, 255);
     }
 }

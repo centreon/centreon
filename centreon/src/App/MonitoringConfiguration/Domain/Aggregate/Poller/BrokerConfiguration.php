@@ -38,17 +38,9 @@ final readonly class BrokerConfiguration
         public ?string $modulesPath = self::DEFAULT_MODULES_PATH,
         public ?string $logsPath = self::DEFAULT_LOGS_PATH,
     ) {
-        if ($reloadCommand !== null) {
-            Assert::maxLength($reloadCommand, 255);
-        }
-        if ($configurationPath !== null) {
-            Assert::maxLength($configurationPath, 255);
-        }
-        if ($modulesPath !== null) {
-            Assert::maxLength($modulesPath, 255);
-        }
-        if ($logsPath !== null) {
-            Assert::maxLength($logsPath, 255);
-        }
+        Assert::nullOrMaxLength($reloadCommand, 255);
+        Assert::nullOrMaxLength($configurationPath, 255);
+        Assert::nullOrMaxLength($modulesPath, 255);
+        Assert::nullOrMaxLength($logsPath, 255);
     }
 }

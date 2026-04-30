@@ -35,9 +35,9 @@ final readonly class ResourceCreatePollerTransformer implements TransformerInter
     public function transform(mixed $from): CreatePollerResource
     {
         return new CreatePollerResource(
+            id: $from->id()->value,
             name: $from->name->value,
             pollerType: $from->pollerType->value,
-            id: $from->id()->value,
             address: $from->address->value,
             uuid: $from->uuid?->value,
         );

@@ -27,6 +27,7 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Security\PollerPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\CreatePollerProcessor;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -50,7 +51,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class CreatePollerResource
 {
     public function __construct(
-        #[Assert\Length(min: 1, max: 40)]
+        #[Assert\Length(min: PollerName::MIN_LENGTH, max: PollerName::MAX_LENGTH)]
         public string $name,
 
         #[Assert\Choice(choices: ['vm', 'docker'])]

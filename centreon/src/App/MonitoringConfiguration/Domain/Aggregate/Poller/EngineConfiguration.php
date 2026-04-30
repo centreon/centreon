@@ -44,26 +44,12 @@ final readonly class EngineConfiguration
         public ?string $statisticsBinaryPath = self::DEFAULT_STATISTICS_BINARY_PATH,
         public ?string $perfdataFilePath = self::DEFAULT_PERFDATA_FILE_PATH,
     ) {
-        if ($startCommand !== null) {
-            Assert::maxLength($startCommand, 255);
-        }
-        if ($stopCommand !== null) {
-            Assert::maxLength($stopCommand, 255);
-        }
-        if ($restartCommand !== null) {
-            Assert::maxLength($restartCommand, 255);
-        }
-        if ($reloadCommand !== null) {
-            Assert::maxLength($reloadCommand, 255);
-        }
-        if ($binaryPath !== null) {
-            Assert::maxLength($binaryPath, 255);
-        }
-        if ($statisticsBinaryPath !== null) {
-            Assert::maxLength($statisticsBinaryPath, 255);
-        }
-        if ($perfdataFilePath !== null) {
-            Assert::maxLength($perfdataFilePath, 255);
-        }
+        Assert::nullOrMaxLength($startCommand, 255);
+        Assert::nullOrMaxLength($stopCommand, 255);
+        Assert::nullOrMaxLength($restartCommand, 255);
+        Assert::nullOrMaxLength($reloadCommand, 255);
+        Assert::nullOrMaxLength($binaryPath, 255);
+        Assert::nullOrMaxLength($statisticsBinaryPath, 255);
+        Assert::nullOrMaxLength($perfdataFilePath, 255);
     }
 }
