@@ -967,6 +967,43 @@ $addPollerUuidColumn = function () use ($pearDB, &$errorMessage, $version): void
     );
 };
 
+$addPollerNameUniqueConstraint = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add unique constraint on nagios_server.name';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Adding unique constraint on nagios_server.name",
+    );
+
+    $hasUniqNameIndex = (bool) $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT 1
+            FROM INFORMATION_SCHEMA.STATISTICS
+            WHERE TABLE_SCHEMA = :db_name
+              AND TABLE_NAME = 'nagios_server'
+              AND INDEX_NAME = 'uniq_name'
+            LIMIT 1
+            SQL,
+        QueryParameters::create([
+            QueryParameter::string('db_name', $pearDB->getDatabaseName()),
+        ])
+    );
+
+    if ($hasUniqNameIndex) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Unique constraint on nagios_server.name already exists, skipping",
+        );
+
+        return;
+    }
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server` ADD UNIQUE KEY `uniq_name` (`name`)
+            SQL
+    );
+};
+
 /** ------------------------------------- SAML ------------------------------------- */
 /**
  * Recover SAML provider configurations whose requested_authn_context_comparison field was left in an
@@ -1177,6 +1214,7 @@ try {
     // DDL statements for configuration database
     $addPollerTypeColumn();
     $addPollerUuidColumn();
+    $addPollerNameUniqueConstraint();
     $updateAuthenticationTable();
 
     // SAML recovery for platforms affected by MON-198174
