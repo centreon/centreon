@@ -34,7 +34,7 @@ export const labelEnterPollerNameAndAddress =
   "Enter your poller's name and address";
 export const labelPollerName = 'Name';
 export const labelPollerAddress = 'Address';
-export const labelSelectPollerEnvironment = 'Select your poller environment';
+export const labelSelectPollerEnvironment = "Select your poller's environment";
 export const labelVMOrPhysical = 'VM or physical';
 export const labelDockerCompose = 'Docker compose';
 export const labelSelectToken = 'Select token';

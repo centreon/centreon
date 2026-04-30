@@ -179,7 +179,7 @@ describe('CloudInstallCommand', () => {
 
       cy.findByText(labelEnterPollerNameAndAddress).should('be.visible');
       cy.findByText(labelSelectPollerEnvironment).should('be.visible');
-      cy.findByText(labelSelectToken).should('be.visible');
+      cy.findAllByText(labelSelectToken).should('have.length', 3);
       cy.findByText(labelGenerateInstallationCommand).should('be.visible');
     });
 
@@ -264,8 +264,12 @@ describe('CloudInstallCommand', () => {
       it('displays a generate button with helper text when no command is generated', () => {
         initialize({ isModalOpen: true });
 
-        cy.findByText(labelClickToGenerate).should('be.visible');
-        cy.findByAltText('Install command').should('be.visible');
+        cy.findByText(labelClickToGenerate)
+          .scrollIntoView()
+          .should('be.visible');
+        cy.findByAltText('Install command')
+          .scrollIntoView()
+          .should('be.visible');
       });
 
       it('the generate button is disabled when the form is not valid or not dirty', () => {
@@ -444,9 +448,14 @@ describe('CloudInstallCommand', () => {
           isModalOpen: true
         });
 
-        cy.findByText(labelCopyTheFollowingCommand).should('be.visible');
+        cy.findByText(labelCopyTheFollowingCommand)
+          .scrollIntoView()
+          .should('be.visible');
 
-        cy.findByRole('dialog').findByText(labelCancel).click();
+        cy.findByRole('dialog')
+          .scrollIntoView()
+          .findByText(labelCancel)
+          .click();
 
         cy.findByRole('dialog').should('not.exist');
 
@@ -454,7 +463,9 @@ describe('CloudInstallCommand', () => {
 
         cy.findByRole('dialog').should('be.visible');
         cy.findByText(labelCopyTheFollowingCommand).should('not.exist');
-        cy.findByText(labelClickToGenerate).should('be.visible');
+        cy.findByText(labelClickToGenerate)
+          .scrollIntoView()
+          .should('be.visible');
       });
     });
 
