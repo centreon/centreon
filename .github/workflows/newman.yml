@@ -339,14 +339,14 @@ jobs:
 
       - name: Upload HTML Reports
         if: failure()
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: newman-${{ inputs.os }}${{ inputs.db_id && format('-{0}', inputs.db_id) || '' }}-html-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: centreon/tests/rest_api/newman/
 
       - name: Upload test reports
         if: always()
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: newman-${{ inputs.os }}${{ inputs.db_id && format('-{0}', inputs.db_id) || '' }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: centreon/tests/rest_api/postman_summaries/*.json
@@ -375,7 +375,7 @@ jobs:
 
       - name: Upload deprecation logs
         if: ${{ steps.symfony-deprecation-logs.outcome == 'success' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: newman-${{ inputs.os }}${{ inputs.db_id && format('-{0}', inputs.db_id) || '' }}-${{ steps.feature-path.outputs.feature_name_with_dash }}-deprecation-logs
           path: "centreon/tests/rest_api/*-deprecation.log"
@@ -654,7 +654,7 @@ jobs:
 
     steps:
       - name: Merge deprecation logs
-        uses: actions/upload-artifact/merge@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact/merge@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ inputs.upload_artifacts == 'true' }}
         continue-on-error: true
         with:
@@ -664,7 +664,7 @@ jobs:
           delete-merged: true
 
       - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact/merge@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ contains(needs.newman-test-run.result, 'failure') }}
         with:
           name: newman-${{ inputs.os }}${{ inputs.db_id && format('-{0}', inputs.db_id) || '' }}-html-reports
