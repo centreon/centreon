@@ -404,7 +404,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate release summary
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           BASE_SHA: ${{ steps.get_and_set_references_information.outputs.previous_stable_bundle_tag_sha }}
           HEAD_SHA: ${{ steps.create_requested_release_hotfix_branch.outputs.new_branch_sha }}

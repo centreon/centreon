@@ -93,7 +93,7 @@ jobs:
     steps:
       - name: Check if PR has skip label
         id: has_skip_label
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             let hasSkipLabel = false;
@@ -142,7 +142,7 @@ jobs:
       - if: ${{ steps.has_skip_label.outputs.result == 'true' }}
         name: Get workflow triggered paths
         id: get_workflow_triggered_paths
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const fs = require('fs');
@@ -204,7 +204,7 @@ jobs:
 
       - name: Check if current workflow should be skipped
         id: skip_workflow
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             if (/^bump-.+/.test('${{ github.head_ref || github.ref_name }}')) {
@@ -245,7 +245,7 @@ jobs:
       - if: ${{ github.event_name == 'pull_request' }}
         name: Get nested pull request path
         id: pr_path
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const prPath = ['${{ github.head_ref }}', '${{ github.base_ref }}'];
@@ -272,7 +272,7 @@ jobs:
 
       - name: Get stability
         id: get_stability
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const ref = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME;
@@ -442,7 +442,7 @@ jobs:
         shell: bash
 
       - name: Detect nightly status
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         id: get_nightly_status
         env:
           NIGHTLY_MANUAL_TRIGGER: ${{ inputs.nightly_manual_trigger }}
@@ -463,7 +463,7 @@ jobs:
 
       - name: "Detect cloud version"
         id: detect_cloud_version
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           IS_NIGHTLY: ${{ steps.get_nightly_status.outputs.is_nightly }}
         with:
@@ -605,7 +605,7 @@ jobs:
 
       - name: "Detect delivery type"
         id: detect_delivery_type
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             let delivery_type  = 'classic';
@@ -617,7 +617,7 @@ jobs:
 
       - name: Detect linked dev and stable branches
         id: linked_branches
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             let linkedDevBranch = 'develop';
@@ -635,7 +635,7 @@ jobs:
           IS_CLOUD: ${{ steps.detect_cloud_version.outputs.isCloud }}
           STABILITY: ${{ steps.get_stability.outputs.stability }}
           MAJOR_VERSION: ${{ steps.get_version.outputs.major_version }}
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             if (process.env.STABILITY !== 'testing' && process.env.STABILITY !== 'stable') {
@@ -683,7 +683,7 @@ jobs:
             core.setOutput('previous_release_bundle_tag', previousStableBundleTag);
 
       - name: Detect operating systems and databases to test
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         id: get_os_database_matrix
         with:
           script: |
@@ -779,7 +779,7 @@ jobs:
             return matrix;
 
       - name: Get operating systems matrix for package and dockerize jobs
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         id: get_package_matrix
         env:
           STABILITY: ${{ steps.get_stability.outputs.stability }}
@@ -813,7 +813,7 @@ jobs:
             return result;
 
       - name: Display info in job summary
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const outputTable = [
