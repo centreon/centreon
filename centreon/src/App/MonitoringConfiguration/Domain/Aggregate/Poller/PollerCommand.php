@@ -21,12 +21,17 @@
 
 declare(strict_types=1);
 
-namespace App\ActivityLogging\Domain\Aggregate;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
 
-enum TargetTypeEnum: string
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use Webmozart\Assert\Assert;
+
+final readonly class PollerCommand
 {
-    case Command = 'Command';
-    case Host = 'Host';
-    case Poller = 'Poller';
-    case ServiceCategory = 'ServiceCategory';
+    public function __construct(
+        public CommandId $commandId,
+        public ?int $order,
+    ) {
+        Assert::nullOrGreaterThanEq($order, 0);
+    }
 }
