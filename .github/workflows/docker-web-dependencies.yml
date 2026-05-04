@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - run: |
-          NIGHTLY_TARGETS=("dev-24.04.x" "dev-24.10.x" "dev-25.10.x")
+          NIGHTLY_TARGETS=("dev-24.10.x" "dev-25.10.x")
           for target in "${NIGHTLY_TARGETS[@]}"; do
             echo "[INFO] - Dispatching nightly run to $target branch."
             gh workflow run docker-web-dependencies.yml -r "$target"
