@@ -21,12 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\ActivityLogging\Domain\Aggregate;
+namespace App\MonitoringConfiguration\Domain\Event;
 
-enum TargetTypeEnum: string
+use App\Shared\Domain\Event\AggregateCreated;
+
+final readonly class PollerCreated extends AggregateCreated
 {
-    case Command = 'Command';
-    case Host = 'Host';
-    case Poller = 'Poller';
-    case ServiceCategory = 'ServiceCategory';
 }

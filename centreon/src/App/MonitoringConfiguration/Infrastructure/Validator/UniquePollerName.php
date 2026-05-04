@@ -21,12 +21,12 @@
 
 declare(strict_types=1);
 
-namespace App\ActivityLogging\Domain\Aggregate;
+namespace App\MonitoringConfiguration\Infrastructure\Validator;
 
-enum TargetTypeEnum: string
+use Symfony\Component\Validator\Constraint;
+
+#[\Attribute(\Attribute::TARGET_PROPERTY)]
+final class UniquePollerName extends Constraint
 {
-    case Command = 'Command';
-    case Host = 'Host';
-    case Poller = 'Poller';
-    case ServiceCategory = 'ServiceCategory';
+    public string $message = 'A poller with this name already exists.';
 }
