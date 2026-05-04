@@ -29,6 +29,7 @@ final readonly class PollerAddress
 {
     public const MIN_LENGTH = 1;
     public const MAX_LENGTH = 255;
+
     public function __construct(public string $value)
     {
         Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
