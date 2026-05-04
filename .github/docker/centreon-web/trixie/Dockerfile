@@ -61,7 +61,6 @@ systemctl stop php${PHP_VERSION}-fpm
 systemctl stop snmpd
 
 apt-get clean
-rm -rf /usr/share/doc /usr/share/man /usr/share/info
 
 EOF
 
