@@ -21,12 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\ActivityLogging\Domain\Aggregate;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
-enum TargetTypeEnum: string
+use App\Shared\Domain\Exception\AggregateAlreadyExistsException;
+
+final class PollerAlreadyExistsException extends AggregateAlreadyExistsException
 {
-    case Command = 'Command';
-    case Host = 'Host';
-    case Poller = 'Poller';
-    case ServiceCategory = 'ServiceCategory';
 }

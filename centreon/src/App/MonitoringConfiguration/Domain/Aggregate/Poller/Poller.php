@@ -34,14 +34,26 @@ final class Poller extends AggregateRoot
 {
     /**
      * @param Collection<GlobalMacro> $globalMacros
+     * @param Collection<PollerCommand> $pollerCommands
      */
     public function __construct(
         ?PollerId $id,
         public readonly PollerName $name,
         public readonly PollerAddress $address,
         public readonly bool $isCentral,
+        public readonly bool $isDefault,
+        public readonly bool $isActivated,
+        public readonly PollerTypeEnum $pollerType,
+        public readonly ?PollerUuid $uuid,
         public readonly Collection $globalMacros,
+        public readonly GorgoneConfiguration $gorgoneConfiguration,
+        public readonly EngineConfiguration $engineConfiguration,
+        public readonly BrokerConfiguration $brokerConfiguration,
+        public readonly ConnectorConfiguration $connectorConfiguration,
+        public readonly TrapConfiguration $trapConfiguration,
+        public readonly Collection $pollerCommands,
         public ?PollerCMACertificates $cmaCertificates = null,
+        public readonly ?PollerRemoteAttachment $remoteAttachment = null,
     ) {
         parent::__construct($id);
     }

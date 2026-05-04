@@ -29,6 +29,7 @@ use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationF
     DeployDefaultAgentConfigurationForPoller,
     DeployDefaultAgentConfigurationForPollerRequest
 };
+use Symfony\Component\Uid\Uuid;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
@@ -931,6 +932,135 @@ $addPollerTypeColumn = function () use ($pearDB, &$errorMessage, $version): void
     );
 };
 
+$addPollerUuidColumn = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add uuid column to nagios_server';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Adding uuid column to nagios_server",
+    );
+
+    $hasUuidColumn = $pearDB->columnExists(
+        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
+        'nagios_server',
+        'uuid'
+    );
+
+    if (! $hasUuidColumn) {
+        $pearDB->executeStatement(
+            <<<'SQL'
+                ALTER TABLE `nagios_server`
+                    ADD COLUMN `uuid` VARCHAR(36) DEFAULT NULL COMMENT 'UUIDv7 (36 chars with hyphens)'
+                SQL
+        );
+    } else {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Column uuid already exists on nagios_server",
+        );
+    }
+
+    $hasUniqUuidIndex = (bool) $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT 1
+            FROM INFORMATION_SCHEMA.STATISTICS
+            WHERE TABLE_SCHEMA = :db_name
+              AND TABLE_NAME = 'nagios_server'
+              AND INDEX_NAME = 'uniq_uuid'
+            LIMIT 1
+            SQL,
+        QueryParameters::create([
+            QueryParameter::string('db_name', $pearDB->getDatabaseName()),
+        ])
+    );
+
+    if (! $hasUniqUuidIndex) {
+        $pearDB->executeStatement(
+            <<<'SQL'
+                ALTER TABLE `nagios_server`
+                    ADD UNIQUE KEY `uniq_uuid` (`uuid`)
+                SQL
+        );
+    }
+
+    $pollersWithoutUuid = $pearDB->fetchAllAssociative(
+        'SELECT id FROM `nagios_server` WHERE `uuid` IS NULL'
+    );
+
+    foreach ($pollersWithoutUuid as $poller) {
+        $pearDB->executeStatement(
+            'UPDATE `nagios_server` SET `uuid` = :uuid WHERE `id` = :id',
+            QueryParameters::create([
+                QueryParameter::string('uuid', Uuid::v7()->toRfc4122()),
+                QueryParameter::int('id', (int) $poller['id']),
+            ])
+        );
+    }
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully added uuid column to nagios_server",
+    );
+};
+
+$addPollerNameUniqueConstraint = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add unique constraint on nagios_server.name';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Adding unique constraint on nagios_server.name",
+    );
+
+    $hasUniqNameIndex = (bool) $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT 1
+            FROM INFORMATION_SCHEMA.STATISTICS
+            WHERE TABLE_SCHEMA = :db_name
+              AND TABLE_NAME = 'nagios_server'
+              AND INDEX_NAME = 'uniq_name'
+            LIMIT 1
+            SQL,
+        QueryParameters::create([
+            QueryParameter::string('db_name', $pearDB->getDatabaseName()),
+        ])
+    );
+
+    if ($hasUniqNameIndex) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Unique constraint on nagios_server.name already exists, skipping",
+        );
+
+        return;
+    }
+
+    $duplicates = $pearDB->fetchAllAssociative(
+        <<<'SQL'
+            SELECT `name`, GROUP_CONCAT(`id` ORDER BY `id`) AS poller_ids
+            FROM `nagios_server`
+            GROUP BY `name`
+            HAVING COUNT(*) > 1
+            SQL
+    );
+
+    if ($duplicates !== []) {
+        $details = array_map(
+            static fn (array $row): string => "'{$row['name']}' (ids: {$row['poller_ids']})",
+            $duplicates
+        );
+
+        throw new RuntimeException(
+            'Cannot add unique constraint on nagios_server.name: duplicate poller names found — '
+            . implode(', ', $details)
+            . '. Please rename the duplicates manually before upgrading.'
+        );
+    }
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server` ADD UNIQUE KEY `uniq_name` (`name`)
+            SQL
+    );
+};
+
 /** ------------------------------------- SAML ------------------------------------- */
 /**
  * Recover SAML provider configurations whose requested_authn_context_comparison field was left in an
@@ -1141,6 +1271,8 @@ try {
     // DDL statements for configuration database
     $addVmwareUpdatedField();
     $addPollerTypeColumn();
+    $addPollerUuidColumn();
+    $addPollerNameUniqueConstraint();
     $updateAuthenticationTable();
 
     // SAML recovery for platforms affected by MON-198174

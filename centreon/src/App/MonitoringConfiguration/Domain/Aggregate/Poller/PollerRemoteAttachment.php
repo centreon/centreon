@@ -21,12 +21,18 @@
 
 declare(strict_types=1);
 
-namespace App\ActivityLogging\Domain\Aggregate;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
 
-enum TargetTypeEnum: string
+use App\Shared\Domain\Collection;
+
+final readonly class PollerRemoteAttachment
 {
-    case Command = 'Command';
-    case Host = 'Host';
-    case Poller = 'Poller';
-    case ServiceCategory = 'ServiceCategory';
+    /**
+     * @param Collection<PollerId> $additionalRemoteServerIds
+     */
+    public function __construct(
+        public PollerId $remoteServerId,
+        public Collection $additionalRemoteServerIds,
+    ) {
+    }
 }
