@@ -21,6 +21,7 @@
 
 declare(strict_types=1);
 
+use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
@@ -47,6 +48,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->defaults()
         ->autowire()
         ->autoconfigure();
+
+    $services->set(ConnectionConfig::class)
+        ->args([
+            '%env(hostCentreon)%',
+            '%env(user)%',
+            '%env(password)%',
+            '%env(db)%',
+            '%env(dbcstg)%',
+        ]);
 
     $services->load('App\\Upgrade\\', __DIR__ . '/../../src/App/Upgrade');
 };

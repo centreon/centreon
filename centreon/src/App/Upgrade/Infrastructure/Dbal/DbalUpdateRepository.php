@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Infrastructure\Dbal;
 
+use Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter;
+use Adaptation\Database\Connection\Model\ConnectionConfig;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
@@ -36,6 +38,7 @@ final readonly class DbalUpdateRepository implements UpdateRepository
         private Connection $configConnection,
         #[Autowire(service: 'doctrine.dbal.realtime_connection')]
         private Connection $realtimeConnection,
+        private ConnectionConfig $connectionConfig,
         #[Autowire(param: 'upgrade.lib_dir')]
         private string $libDir,
         #[Autowire(param: 'upgrade.install_dir')]
@@ -106,8 +109,9 @@ final readonly class DbalUpdateRepository implements UpdateRepository
     private function runScript(string $version): void
     {
         // $pearDB and $pearDBO are exposed as local variables to the included update script.
-        $pearDB = $this->configConnection->getNativeConnection();
-        $pearDBO = $this->realtimeConnection->getNativeConnection();
+        // Scripts expect ConnectionInterface (Adaptation), not raw PDO.
+        $pearDB = DbalConnectionAdapter::createFromDbalConnection($this->configConnection, $this->connectionConfig);
+        $pearDBO = DbalConnectionAdapter::createFromDbalConnection($this->realtimeConnection, $this->connectionConfig);
 
         $filePath = $this->installDir . '/php/Update-' . $version . '.php';
         if (is_readable($filePath)) {
@@ -127,8 +131,9 @@ final readonly class DbalUpdateRepository implements UpdateRepository
     private function runPostScript(string $version): void
     {
         // $pearDB and $pearDBO are exposed as local variables to the included post-update script.
-        $pearDB = $this->configConnection->getNativeConnection();
-        $pearDBO = $this->realtimeConnection->getNativeConnection();
+        // Scripts expect ConnectionInterface (Adaptation), not raw PDO.
+        $pearDB = DbalConnectionAdapter::createFromDbalConnection($this->configConnection, $this->connectionConfig);
+        $pearDBO = DbalConnectionAdapter::createFromDbalConnection($this->realtimeConnection, $this->connectionConfig);
 
         $filePath = $this->installDir . '/php/Update-' . $version . '.post.php';
         if (is_readable($filePath)) {
