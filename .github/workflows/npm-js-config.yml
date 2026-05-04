@@ -21,10 +21,14 @@ on:
       - "centreon/packages/js-config/**"
 
 jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
+
   publish-package:
-    if: github.repository == 'centreon/centreon'
+    permissions:
+      contents: read  # Required by actions/checkout in called workflow
+      id-token: write  # Required for OIDC
+    if: github.event.pull_request.head.repo.fork != true
     uses: ./.github/workflows/npm-publish-package.yml
     with:
       package_directory: "centreon/packages/js-config"
-    secrets:
-      npm_token: ${{ secrets.NPM_TOKEN }}

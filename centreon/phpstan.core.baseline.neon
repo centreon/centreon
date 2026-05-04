@@ -161,12 +161,6 @@ parameters:
 			path: src/Core/Common/Infrastructure/Upload/ZipFileIterator.php
 
 		-
-			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Core/Connector/Infrastructure/Repository/DbReadConnectorRepository.php
-
-		-
 			message: '#^PHPDoc tag @var with type array\<string, string\> is not subtype of native type non\-empty\-array\|false\.$#'
 			identifier: varTag.nativeType
 			count: 1
@@ -311,12 +305,6 @@ parameters:
 			path: src/Core/Host/Application/UseCase/AddHost/AddHostValidation.php
 
 		-
-			message: '#^Property Core\\Host\\Application\\UseCase\\FindHosts\\FindHosts\:\:\$accessGroups \(list\<Core\\Security\\AccessGroup\\Domain\\Model\\AccessGroup\>\) does not accept array\<Core\\Security\\AccessGroup\\Domain\\Model\\AccessGroup\>\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: src/Core/Host/Application/UseCase/FindHosts/FindHosts.php
-
-		-
 			message: '#^Strict comparison using \!\=\= between int and null will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
@@ -353,19 +341,19 @@ parameters:
 			path: src/Core/Host/Infrastructure/Repository/DbReadHostRepository.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository\.php\:160\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository\.php\:253\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository\.php\:160\:\:normalize\(\) never returns null so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository\.php\:253\:\:normalize\(\) never returns null so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository\.php\:160\:\:normalize\(\) never returns string so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository\.php\:253\:\:normalize\(\) never returns string so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository.php
@@ -775,19 +763,19 @@ parameters:
 			path: src/Core/Service/Infrastructure/Repository/ApiReadServiceRepository.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:417\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:494\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:417\:\:normalize\(\) never returns null so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:494\:\:normalize\(\) never returns null so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:417\:\:normalize\(\) never returns string so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:494\:\:normalize\(\) never returns string so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository.php

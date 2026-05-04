@@ -1,14 +1,12 @@
-import { ChangeEvent } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { path, split } from 'ramda';
-
 import { Box } from '@mui/material';
+
+import { type FormikValues, useFormikContext } from 'formik';
+import { path, split } from 'ramda';
+import type { ChangeEvent } from 'react';
 
 import { useMemoComponent } from '../..';
 import { Checkbox as CheckboxComponent } from '../../Checkbox';
-
-import { InputPropsWithoutGroup } from './models';
+import type { InputPropsWithoutGroup } from './models';
 
 const Checkbox = ({
   checkbox,
@@ -22,7 +20,9 @@ const Checkbox = ({
 
   const fieldNamePath = split('.', fieldName);
 
-  const value = path(fieldNamePath, values);
+  const value = path(fieldNamePath, values) as
+    | { Icon?: React.ComponentType; checked?: boolean; label?: string }
+    | undefined;
 
   const disabled = getDisabled?.(values) || false;
   const hideCheckbox = hideInput?.(values) || false;
@@ -42,10 +42,11 @@ const Checkbox = ({
       <Box />
     ) : (
       <CheckboxComponent
-        Icon={value?.Icon}
-        checked={value?.checked}
+        checked={value?.checked ?? false}
         dataTestId={dataTestId || ''}
         disabled={disabled}
+        Icon={value?.Icon as Parameters<typeof CheckboxComponent>[0]['Icon']}
+        id={fieldName}
         label={label}
         labelPlacement={checkbox?.labelPlacement || 'end'}
         onChange={handleChange}

@@ -1,11 +1,3 @@
-import { KeyboardEvent, useState } from 'react';
-
-import { useFormik } from 'formik';
-import { useAtom, useSetAtom } from 'jotai';
-import { all, any, equals, findIndex, omit, reject, update } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import {
@@ -17,7 +9,14 @@ import {
   useSnackbar
 } from '@centreon/ui';
 
+import { useFormik } from 'formik';
+import { useAtom, useSetAtom } from 'jotai';
+import { all, any, equals, findIndex, omit, reject, update } from 'ramda';
+import { KeyboardEvent, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 import { object, string } from 'yup';
+
 import {
   labelAskDelete,
   labelCancel,
@@ -169,31 +168,31 @@ const EditFilterCard = ({ filter }: Props): JSX.Element => {
       >
         <IconButton
           aria-label={t(labelDelete)}
+          onClick={askDelete}
           size="large"
           title={t(labelDelete)}
-          onClick={askDelete}
         >
           <DeleteIcon fontSize="small" />
         </IconButton>
       </ContentWithCircularLoading>
       <TextField
-        transparent
         ariaLabel={`${t(labelFilter)}-${id}-${t(labelName)}`}
         error={form.errors.name}
-        value={form.values.name}
         onBlur={rename}
         onChange={form.handleChange('name') as (event) => void}
         onKeyDown={renameOnEnterKey}
+        transparent
+        value={form.values.name}
       />
 
       {deleting && (
         <ConfirmDialog
-          open
           labelCancel={t(labelCancel)}
           labelConfirm={t(labelDelete)}
           labelTitle={t(labelAskDelete)}
           onCancel={cancelDelete}
           onConfirm={confirmDelete}
+          open
         />
       )}
     </div>

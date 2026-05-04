@@ -1,11 +1,11 @@
-import { useEffect } from 'react';
+import { useRequest, useSnackbar } from '@centreon/ui';
+import { acknowledgementAtom, userAtom } from '@centreon/ui-context';
 
 import { useFormik } from 'formik';
 import { useAtomValue } from 'jotai';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { useRequest, useSnackbar } from '@centreon/ui';
-import { acknowledgementAtom, userAtom } from '@centreon/ui-context';
+import { boolean, object, string } from 'yup';
 
 import { Resource } from '../../../models';
 import {
@@ -14,8 +14,6 @@ import {
   labelRequired
 } from '../../../translatedLabels';
 import { acknowledgeResources } from '../../api';
-
-import { boolean, object, string } from 'yup';
 import DialogAcknowledge from './Dialog';
 
 const validationSchema = object().shape({
@@ -89,11 +87,11 @@ const AcknowledgeForm = ({
       canConfirm={form.isValid}
       errors={form.errors}
       handleChange={form.handleChange}
+      onCancel={onClose}
+      onConfirm={form.submitForm}
       resources={resources}
       submitting={sendingAcknowledgeResources}
       values={form.values}
-      onCancel={onClose}
-      onConfirm={form.submitForm}
     />
   );
 };

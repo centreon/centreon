@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 import contacts from '../../../fixtures/users/contact.json';
 
@@ -21,29 +22,60 @@ const checkContactFromListing = () => {
     );
 };
 
-beforeEach(() => {
+before(() => {
   cy.startContainers();
-  cy.setUserTokenApiV1().executeCommandsViaClapi(
-    'resources/clapi/config-ACL/contacts-management-acl-user.json'
-  );
-  cy.setUserTokenApiV1().executeCommandsViaClapi(
-    'resources/clapi/config-ACL/contacts-management-acl-user-readonly-rights.json'
-  );
+});
+
+beforeEach(() => {
+  cy.setUserTokenApiV1()
+    .executeCommandsViaClapi(
+      'resources/clapi/config-ACL/contacts-management-acl-user.json'
+    )
+    .executeCommandsViaClapi(
+      'resources/clapi/config-ACL/contacts-management-acl-user-readonly-rights.json'
+    );
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_administration_aclgroup&action=list*'
+    url: `${INTERCEPTORS.pages.centreon_administration_aclgroup}&action=list*`
   }).as('getAclGroups');
 });
 
 afterEach(() => {
+  cy.setUserTokenApiV1()
+    .executeCommandsViaClapi(
+      'resources/clapi/config-ACL/delete-contacts-management-acl-user-readonly-rights.json'
+    )
+    .executeCommandsViaClapi(
+      'resources/clapi/config-ACL/delete-contacts-management-acl-user.json'
+    );
+  for (const contact of [contacts.default, contacts.contactForUpdate]) {
+    for (const contactAlias of [
+      contact.alias,
+      `${contact.alias}_1`,
+      `${contact.alias}-1`
+    ]) {
+      cy.executeActionViaClapi({
+        bodyContent: {
+          action: 'DEL',
+          object: 'CONTACT',
+          values: contactAlias
+        },
+        failOnError: false
+      });
+    }
+  }
+  cy.logoutViaAPI({ failOnError: false });
+});
+
+after(() => {
   cy.stopContainers();
 });
 
@@ -78,7 +110,9 @@ When('a contact is configured', () => {
 });
 
 When('the user updates some contact properties', () => {
-  cy.getIframeBody().contains(contacts.default.alias).click();
+  cy.getIframeBody().within(() => {
+    cy.contains(contacts.default.alias).click();
+  });
   cy.addOrUpdateContact(contacts.contactForUpdate);
   cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
   cy.wait('@getTimeZone');
@@ -86,8 +120,9 @@ When('the user updates some contact properties', () => {
 });
 
 Then('these properties are updated', () => {
-  cy.getIframeBody().contains(contacts.contactForUpdate.alias).should('exist');
-  cy.getIframeBody().contains(contacts.contactForUpdate.alias).click();
+  cy.getIframeBody().within(() => {
+    cy.contains(contacts.contactForUpdate.alias).click();
+  });
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'input[id="contact_alias"]');
   cy.getIframeBody()
@@ -114,8 +149,9 @@ When('the user duplicates the configured contact', () => {
 });
 
 Then('a new contact is created with identical properties', () => {
-  cy.getIframeBody().contains(`${contacts.default.alias}_1`).should('exist');
-  cy.getIframeBody().contains(`${contacts.default.alias}_1`).click();
+  cy.getIframeBody().within(() => {
+    cy.contains(`${contacts.default.alias}_1`).click();
+  });
   cy.waitForElementInIframe('#main-content', 'input[name="contact_alias"]');
 
   cy.getIframeBody()
@@ -156,18 +192,17 @@ When('the user clicks on the contact creation button', () => {
 When('he does not fill in the {string} field', (field: string) => {
   cy.waitForElementInIframe('#main-content', 'input[id="contact_alias"]');
   // Fill All the required fields first
-  cy.getIframeBody()
-    .find('input[id="contact_alias"]')
-    .clear()
-    .type(contacts.default.alias);
-  cy.getIframeBody()
-    .find('input[id="contact_name"]')
-    .clear()
-    .type(contacts.default.name);
-  cy.getIframeBody()
-    .find('input[id="contact_email"]')
-    .clear()
-    .type(contacts.default.email);
+  cy.getIframeBody().within(() => {
+    cy.get('input[id="contact_alias"]').type(
+      `{selectAll}{backspace}${contacts.default.alias}`
+    );
+    cy.get('input[id="contact_name"]').type(
+      `{selectAll}{backspace}${contacts.default.name}`
+    );
+    cy.get('input[id="contact_email"]').type(
+      `{selectAll}{backspace}${contacts.default.email}`
+    );
+  });
 
   // Remove the content of one of the required field that we have already filled
   switch (field) {
@@ -299,7 +334,7 @@ When(
 Then('the form of this contact is displayed in READ ONLY mode', () => {
   cy.getIframeBody()
     .find('#tab1 input:not([class*="select"])')
-    .each(($input) => {
-      cy.wrap($input).should('have.attr', 'type', 'hidden');
+    .each((input) => {
+      cy.wrap(input).should('have.attr', 'type', 'hidden');
     });
 });

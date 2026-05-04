@@ -1,21 +1,19 @@
-import { useMemo } from 'react';
-
-import { useAtomValue } from 'jotai';
-import { filter, isNil, map, pipe } from 'ramda';
-
 import { SeverityCode, useFetchQuery, useRefreshInterval } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
+import { useAtomValue } from 'jotai';
+import { filter, isNil, map, pipe } from 'ramda';
+import { useMemo } from 'react';
+
 import { SeverityStatus, StatusDetail, StatusType } from '../../../models';
 import {
-  getStatusNameByStatusSeverityandResourceType,
   getStatusesByResourcesAndResourceType,
+  getStatusNameByStatusSeverityandResourceType,
   getWidgetEndpoint,
   severityCodeBySeverityStatus
 } from '../../../utils';
-import { StatusGridProps } from '../StatusGridStandard/models';
 import { buildCondensedViewEndpoint } from '../api/endpoints';
-
+import { StatusGridProps } from '../StatusGridStandard/models';
 import { getStatusesEndpoint } from './api/endpoints';
 
 interface FormattedStatus {
@@ -42,7 +40,8 @@ export const useStatusGridCondensed = ({
   widgetPrefixQuery,
   isBAResourceType,
   isBVResourceType,
-  lastSelectedResourceType
+  lastSelectedResourceType,
+  isInViewport
 }: Pick<
   StatusGridProps,
   | 'panelOptions'
@@ -53,6 +52,7 @@ export const useStatusGridCondensed = ({
   | 'id'
   | 'playlistHash'
   | 'widgetPrefixQuery'
+  | 'isInViewport'
 > & {
   isBAResourceType;
   isBVResourceType;
@@ -107,6 +107,7 @@ export const useStatusGridCondensed = ({
       refreshCount
     ],
     queryOptions: {
+      enabled: (isInViewport ?? true) && !!resourceTypeToUse,
       refetchInterval: refreshIntervalToUse,
       suspense: false
     },

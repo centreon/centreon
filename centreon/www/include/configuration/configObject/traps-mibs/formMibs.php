@@ -87,8 +87,9 @@ if ($form->validate()) {
         $msg .= str_replace("\n", '<br />', $stdout);
         $msg .= '<br />Moving traps in database...';
 
-        $command = "@CENTREONTRAPD_BINDIR@/centFillTrapDB -f '" . $values['tmp_name']
-            . "' -m " . $manufacturerId . ' --severity=info 2>&1';
+        $command = '@CENTREONTRAPD_BINDIR@/centFillTrapDB -f '
+            . escapeshellarg((string) $values['tmp_name'])
+            . ' -m ' . $manufacturerId . ' --severity=info 2>&1';
 
         if ($debug) {
             echo $command;
@@ -100,7 +101,7 @@ if ($form->validate()) {
         if ($stdout === null) {
             $msg .= '<br />An error occured during generation.';
         } else {
-            $msg .= '<br />' . str_replace('\n', '<br />', $stdout)
+            $msg .= '<br />' . str_replace("\n", '<br />', $stdout)
                 . '<br />Generate Traps configuration files from Monitoring Engine configuration form!';
         }
 

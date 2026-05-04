@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 import {
   checkHostsAreMonitored,
@@ -52,11 +53,11 @@ const resultsToSubmit = [
 before(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/monitoring-servers/generate-and-reload'
+    url: INTERCEPTORS.api.generate_reload_pollers
   }).as('generateAndReloadPollers');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.startContainers();
   cy.enableDashboardFeature();
@@ -146,15 +147,15 @@ after(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards'
+    url: INTERCEPTORS.api.dashboard_configuration
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/dashboards'
+    url: INTERCEPTORS.api.dashboard_configuration
   }).as('createDashboard');
   cy.intercept({
     method: 'GET',
@@ -173,13 +174,10 @@ afterEach(() => {
   });
 });
 
-Given(
-  "a dashboard exists in the dashboard administrator's library",
-  () => {
-    cy.insertDashboard({ ...dashboards.default });
-    cy.visitDashboard(dashboards.default.name);
-  }
-);
+Given("a dashboard exists in the dashboard administrator's library", () => {
+  cy.insertDashboard({ ...dashboards.default });
+  cy.visitDashboard(dashboards.default.name);
+});
 
 When(
   'the dashboard administrator user selects the option to add a new widget',
@@ -235,11 +233,11 @@ When(
         cy
           .get('[class$="-status"]')
           .eq(0)
-          .then(($el) => Cypress.dom.isVisible($el)),
+          .then((el) => Cypress.dom.isVisible(el)),
       {
-        timeout: 20000,
+        errorMsg: '❌ Status element not visible within timeout',
         interval: 2000,
-        errorMsg: '❌ Status element not visible within timeout'
+        timeout: 20000
       }
     );
   }
@@ -352,17 +350,17 @@ Then(
           )
           .should('be.visible')
           .find('p')
-          .then(($paragraphs) => {
-            const found = [...$paragraphs].some(
+          .then((paragraphs) => {
+            const found = [...paragraphs].some(
               (el) => el.textContent?.trim() === 'Centreon-Server'
             );
             return found;
           }),
       {
-        interval: 2000,
-        timeout: 20000,
         errorMsg:
-          '❌ "Centreon-Server" not found as exact text in <p> tags of the 3rd cell of the first row'
+          '❌ "Centreon-Server" not found as exact text in <p> tags of the 3rd cell of the first row',
+        interval: 2000,
+        timeout: 20000
       }
     );
   }
@@ -396,17 +394,17 @@ Then(
           )
           .should('be.visible')
           .find('p')
-          .then(($paragraphs) => {
-            const found = [...$paragraphs].some(
+          .then((paragraphs) => {
+            const found = [...paragraphs].some(
               (el) => el.textContent?.trim() === 'service3'
             );
             return found;
           }),
       {
-        interval: 2000,
-        timeout: 20000,
         errorMsg:
-          '❌ "service3" not found as exact text in <p> tags of the 3rd cell of the first row'
+          '❌ "service3" not found as exact text in <p> tags of the 3rd cell of the first row',
+        interval: 2000,
+        timeout: 20000
       }
     );
   }

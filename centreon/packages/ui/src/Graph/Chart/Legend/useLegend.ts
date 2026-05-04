@@ -1,5 +1,3 @@
-import { Dispatch, SetStateAction, useEffect } from 'react';
-
 import {
   equals,
   find,
@@ -11,8 +9,9 @@ import {
   propEq,
   reject
 } from 'ramda';
+import { type Dispatch, type SetStateAction, useEffect } from 'react';
 
-import { Line } from '../../common/timeSeries/models';
+import type { Line } from '../../common/timeSeries/models';
 
 interface LegendActions {
   clearHighlight: () => void;
@@ -96,7 +95,7 @@ const useLegend = ({ lines, setLinesGraph }: Props): LegendActions => {
     }));
 
     setLinesGraph(newLines);
-  }, [lines]);
+  }, [JSON.stringify(lines), setLinesGraph]);
 
   return { clearHighlight, highlightLine, selectMetricLine, toggleMetricLine };
 };

@@ -1,20 +1,18 @@
 import { useTheme } from '@mui/material';
-import { useQueryClient } from '@tanstack/react-query';
-import { toBlob } from 'html-to-image';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
 
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
-import { getDashboardEndpoint } from '../../../api/endpoints';
+import { useQueryClient } from '@tanstack/react-query';
+import { toBlob } from 'html-to-image';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { isEmpty, isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
+import { getDashboardEndpoint } from '../../../api/endpoints';
 import { resource } from '../../../api/models';
 import { dashboardAtom, switchPanelsEditionModeDerivedAtom } from '../atoms';
 import { Panel, PanelDetailsToAPI } from '../models';
 import { labelYourDashboardHasBeenSaved } from '../translatedLabels';
-
-import { isEmpty, isNil } from 'ramda';
-
 import { routerParams } from './useDashboardDetails';
 
 const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
@@ -118,7 +116,7 @@ const useSaveDashboard = (): UseSaveDashboardState => {
   const saveDashboard = (): void => {
     const formData = new FormData();
 
-    dataToFormData({ panels: formatPanelsToAPI(dashboard.layout), formData });
+    dataToFormData({ formData, panels: formatPanelsToAPI(dashboard.layout) });
 
     const node = document.querySelector('.react-grid-layout') as HTMLElement;
 

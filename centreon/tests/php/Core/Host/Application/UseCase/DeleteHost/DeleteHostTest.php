@@ -140,7 +140,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
 
     $this->readServiceRepository
         ->expects($this->once())
-        ->method('findServiceIdsLinkedToHostId')
+        ->method('findServiceIdsExclusivelyLinkedToHostId')
         ->with($hostId)
         ->willThrowException(new Exception());
 
@@ -187,7 +187,7 @@ it('should present a NoContentResponse when the service template has been delete
 
     $this->readServiceRepository
         ->expects($this->once())
-        ->method('findServiceIdsLinkedToHostId')
+        ->method('findServiceIdsExclusivelyLinkedToHostId')
         ->with($hostId)
         ->willReturn($serviceIdsFound);
 

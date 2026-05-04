@@ -30,12 +30,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class FindRulesController extends AbstractController
 {
-    /**
-     * @param FindRules $useCase
-     * @param FindRulesPresenterInterface $presenter
-     *
-     * @return Response
-     */
     public function __invoke(
         FindRules $useCase,
         FindRulesPresenterInterface $presenter,

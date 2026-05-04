@@ -458,6 +458,12 @@ $form->addElement('static', 'tplText', _('Using a Template allows you to have mu
 
 $cloneSetMacro = [
     $form->addElement(
+        'hidden',
+        'macroId[#index#]',
+        null,
+        ['id' => 'macroId_#index#', 'size' => 25]
+    ),
+    $form->addElement(
         'text',
         'macroInput[#index#]',
         _('Name'),
@@ -936,6 +942,7 @@ foreach ($critList as $critId => $critData) {
 }
 $form->addElement('select', 'criticality_id', _('Host severity'), $criticalityIds);
 
+// MAYBE dead code - to verify
 // Sort 5 - Macros - Nagios 3
 if ($o === HOST_ADD) {
     $form->addElement('header', 'title5', _('Add macros'));

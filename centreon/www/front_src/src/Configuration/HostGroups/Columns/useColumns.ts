@@ -1,6 +1,7 @@
+import { Column, ColumnType, truncate } from '@centreon/ui';
+
 import { useTranslation } from 'react-i18next';
 
-import { Column, ColumnType, truncate } from '@centreon/ui';
 import {
   labelAlias,
   labelDisabledHosts,
@@ -19,12 +20,12 @@ const useColumns = (): Props => {
 
   const columns = [
     {
-      disablePadding: false,
       Component: Name,
+      disablePadding: false,
       id: 'name',
       label: t(labelName),
-      sortField: 'name',
       sortable: true,
+      sortField: 'name',
       type: ColumnType.component
     },
     {
@@ -33,14 +34,14 @@ const useColumns = (): Props => {
         truncate({ content: alias, maxLength: 50 }),
       id: 'alias',
       label: t(labelAlias),
-      sortField: 'alias',
       sortable: true,
+      sortField: 'alias',
       type: ColumnType.string
     },
     {
       Component: Hosts({ enabled: true }),
-      id: 'enabled_hosts_count',
       clickable: true,
+      id: 'enabled_hosts_count',
       label: t(labelEnabledHosts),
       type: ColumnType.component
     },

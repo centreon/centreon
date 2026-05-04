@@ -1,5 +1,4 @@
-import { CancelToken } from 'axios';
-
+import type { ListingModel } from '@centreon/ui';
 import {
   buildListingEndpoint,
   deleteData,
@@ -8,7 +7,8 @@ import {
   postData,
   putData
 } from '@centreon/ui';
-import type { ListingModel } from '@centreon/ui';
+
+import { CancelToken } from 'axios';
 
 import { baseEndpoint } from '../../../api/endpoint';
 import { Filter } from '../models';

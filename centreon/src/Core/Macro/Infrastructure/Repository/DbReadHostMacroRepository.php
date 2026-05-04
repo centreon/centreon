@@ -58,6 +58,7 @@ class DbReadHostMacroRepository extends DatabaseRepository implements ReadHostMa
             $this->translateDbName(
                 <<<SQL
                     SELECT
+                        m.host_macro_id,
                         m.host_macro_name,
                         m.host_macro_value,
                         m.is_password,
@@ -74,6 +75,7 @@ class DbReadHostMacroRepository extends DatabaseRepository implements ReadHostMa
         $macros = [];
         foreach ($results as $result) {
             /** @var array{
+             *    host_macro_id:int,
              *    host_host_id:int,
              *    host_macro_name:string,
              *    host_macro_value:string,
@@ -98,6 +100,7 @@ class DbReadHostMacroRepository extends DatabaseRepository implements ReadHostMa
             $this->translateDbName(
                 <<<'SQL'
                     SELECT
+                        m.host_macro_id,
                         m.host_macro_name,
                         m.host_macro_value,
                         m.is_password,
@@ -114,6 +117,7 @@ class DbReadHostMacroRepository extends DatabaseRepository implements ReadHostMa
         $macros = [];
         foreach ($results as $result) {
             /** @var array{
+             *    host_macro_id:int,
              *    host_host_id:int,
              *    host_macro_name:string,
              *    host_macro_value:string,
@@ -135,6 +139,7 @@ class DbReadHostMacroRepository extends DatabaseRepository implements ReadHostMa
         $results = $this->connection->fetchAllAssociative($this->translateDbName(
             <<<'SQL'
                 SELECT
+                    m.host_macro_id,
                     m.host_macro_name,
                     m.host_macro_value,
                     m.is_password,
@@ -149,6 +154,7 @@ class DbReadHostMacroRepository extends DatabaseRepository implements ReadHostMa
         $macros = [];
         foreach ($results as $result) {
             /** @var array{
+             *    host_macro_id:int,
              *    host_host_id:int,
              *    host_macro_name:string,
              *    host_macro_value:string,
@@ -164,6 +170,7 @@ class DbReadHostMacroRepository extends DatabaseRepository implements ReadHostMa
 
     /**
      * @param array{
+     *    host_macro_id:int,
      *    host_host_id:int,
      *    host_macro_name:string,
      *    host_macro_value:string,
@@ -184,6 +191,7 @@ class DbReadHostMacroRepository extends DatabaseRepository implements ReadHostMa
         $macroName = $matches['macro_name'] ?? '';
 
         $macro = new Macro(
+            (int) $data['host_macro_id'],
             (int) $data['host_host_id'],
             $macroName,
             $data['host_macro_value'],

@@ -15,7 +15,12 @@ export interface AgentConfigurationListing {
   id: number;
   name: string;
   type: AgentType | null;
-  pollers: Array<{ id: number; name: string; isCentral?: boolean }>;
+  isAgentInitiated: boolean;
+  pollers: Array<{
+    id: number;
+    name: string;
+    isCentral?: boolean;
+  }>;
 }
 
 export interface TelegrafConfiguration {
@@ -37,6 +42,7 @@ export interface HostConfiguration {
 }
 
 export interface CMAConfiguration {
+  port?: number | null;
   agentInitiated: boolean;
   pollerInitiated: boolean;
   otelPublicCertificate: string | null;
@@ -44,6 +50,7 @@ export interface CMAConfiguration {
   otelPrivateKey: string | null;
   hosts: Array<HostConfiguration>;
   tokens?: Array<{ name: string; creatorId: number }>;
+  createHostAuto?: boolean;
 }
 
 export interface TelegrafConfigurationAPI {
@@ -71,7 +78,8 @@ export interface CMAConfigurationAPI {
   otel_private_key: string | null;
   hosts: Array<HostConfigurationToAPI>;
   connection_mode: string;
-  tokens?: Array<{ name: string; creatorId: number }>; // optional for now
+  tokens?: Array<{ name: string; creatorId: number }>;
+  create_host_auto?: boolean;
 }
 
 export interface AgentConfiguration
@@ -97,4 +105,9 @@ export interface AgentConfigurationAPI
 export enum FormVariant {
   Add = 0,
   Update = 1
+}
+
+export interface InstallationCommand {
+  windowsScriptCommand: string;
+  linuxScriptCommand: string;
 }

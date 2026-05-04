@@ -6,9 +6,6 @@ on:
       package_directory:
         required: true
         type: string
-    secrets:
-      npm_token:
-        required: true
 
 jobs:
   get-environment:
@@ -19,15 +16,16 @@ jobs:
   publish-package:
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      github.repository == 'centreon/centreon'
+      github.event.pull_request.head.repo.fork != true
     needs: [get-environment]
+
     runs-on: ubuntu-24.04
 
     env:
       tag: ${{ github.ref_name == 'develop' && 'latest' || github.head_ref || github.ref_name }}
 
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Get current package information
         id: get-package-info
@@ -81,19 +79,17 @@ jobs:
             } catch (error) {
               core.setFailed(error.message);
             }
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version: 24
 
       - name: Write NPM package version
         run: npm version ${{ steps.get-next-package-version.outputs.package_version }} --no-commit-hooks --no-git-tag-version --no-workspaces-update
         working-directory: ${{ inputs.package_directory }}
-        shell: bash
 
       - name: Publish npm package ${{ steps.get-package-info.outputs.package_name }}@${{ steps.get-next-package-version.outputs.package_version }} (${{ env.tag }})
-        uses: JS-DevTools/npm-publish@19c28f1ef146469e409470805ea4279d47c3d35c # v3.1.1
-        with:
-          access: public
-          package: ${{ inputs.package_directory }}/package.json
-          tag: ${{ env.tag }}
-          token: ${{ secrets.npm_token }}
+        run: npm publish --access=public --tag=${{ env.tag }}
+        working-directory: ${{ inputs.package_directory }}
 
   set-skip-label:
     needs: [get-environment, publish-package]

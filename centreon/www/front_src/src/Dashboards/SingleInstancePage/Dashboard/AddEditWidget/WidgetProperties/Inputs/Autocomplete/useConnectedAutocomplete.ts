@@ -1,9 +1,8 @@
-import { useMemo } from 'react';
+import { buildListingEndpoint, SelectEntry } from '@centreon/ui';
 
 import { useFormikContext } from 'formik';
 import { map, pick, propEq, reject } from 'ramda';
-
-import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
+import { useMemo } from 'react';
 
 import {
   Widget,

@@ -1,6 +1,5 @@
 import { ActionsList } from '../../..';
-import { ActionVariants } from '../../../ActionsList/models';
-
+import type { ActionVariants } from '../../../ActionsList/models';
 import { useStyles } from './ConfirmationTooltip.styles';
 
 interface Props {

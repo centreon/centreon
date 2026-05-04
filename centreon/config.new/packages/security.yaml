@@ -4,11 +4,6 @@ security:
 
     role_hierarchy:
         ROLE_ADMIN: ROLE_USER
-
-    providers:
-        contact_user_provider:
-            id: App\Shared\Infrastructure\Legacy\LegacyContactProviderWrapper
-
     firewalls:
         dev:
             pattern: '/api/latest/_(profiler|wdt)'
@@ -17,11 +12,11 @@ security:
         api:
             pattern: '/api/latest'
             stateless: true
-            entry_point: App\Shared\Infrastructure\Legacy\LegacyTokenApiAuthenticatorWrapper
+            entry_point: App\Security\Infrastructure\Security\Legacy\LegacyTokenApiAuthenticatorWrapper
             custom_authenticators:
-                - App\Shared\Infrastructure\Legacy\LegacyTokenApiAuthenticatorWrapper
-                - App\Shared\Infrastructure\Legacy\LegacyWebSsoAuthenticatorWrapper
-                - App\Shared\Infrastructure\Legacy\LegacySessionApiAuthenticatorWrapper
+                - App\Security\Infrastructure\Security\Legacy\LegacyTokenApiAuthenticatorWrapper
+                - App\Security\Infrastructure\Security\TokenAuthenticator
+                - App\Security\Infrastructure\Security\SessionAuthenticator
 
     access_control:
         - { path: '/api/latest$', roles: PUBLIC_ACCESS }         # Allows accessing the Swagger UI

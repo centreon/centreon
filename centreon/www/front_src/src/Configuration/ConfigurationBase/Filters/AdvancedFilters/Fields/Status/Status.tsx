@@ -1,8 +1,3 @@
-import { SetStateAction } from 'jotai';
-import { Dispatch, JSX } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useFilterStyles } from '../../../Filters.styles';
-
 import {
   Checkbox,
   FormControlLabel,
@@ -10,13 +5,16 @@ import {
   Typography
 } from '@mui/material';
 
-import useStatus from './useStatus';
+import { SetStateAction } from 'jotai';
+import { Dispatch, JSX } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   labelDisabled,
   labelEnabled,
   labelStatus
 } from '../../../../translatedLabels';
+import useStatus from './useStatus';
 
 interface Props<TFilters> {
   filters: TFilters;
@@ -28,7 +26,6 @@ const Status = <TFilters,>({
   setFilters
 }: Props<TFilters>): JSX.Element => {
   const { t } = useTranslation();
-  const { classes } = useFilterStyles();
 
   const { valueEnable, valueDisable, change } = useStatus<TFilters>({
     filters,
@@ -36,16 +33,14 @@ const Status = <TFilters,>({
   });
 
   return (
-    <div className={classes.statusFilter}>
-      <Typography className={classes.statusFilterName}>
-        {t(labelStatus)}
-      </Typography>
+    <div className="flex flex-col justify-between items-start pl-2">
+      <Typography className="font-medium">{t(labelStatus)}</Typography>
       <FormGroup row>
         <FormControlLabel
           control={
             <Checkbox
-              data-testid={labelEnabled}
               checked={valueEnable}
+              data-testid={labelEnabled}
               name={t(labelEnabled)}
               onChange={change('enabled')}
             />
@@ -55,8 +50,8 @@ const Status = <TFilters,>({
         <FormControlLabel
           control={
             <Checkbox
-              data-testid={labelDisabled}
               checked={valueDisable}
+              data-testid={labelDisabled}
               name={t(labelDisabled)}
               onChange={change('disabled')}
             />

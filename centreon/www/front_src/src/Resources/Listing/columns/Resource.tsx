@@ -1,15 +1,14 @@
+import type { ComponentColumnProps } from '@centreon/ui';
+
 import { useAtomValue } from 'jotai';
 import { equals, isNil } from 'ramda';
 
-import type { ComponentColumnProps } from '@centreon/ui';
-
 import { selectedVisualizationAtom } from '../../Actions/actionsAtoms';
-import ShortTypeChip from '../../ShortTypeChip';
 import { Visualization } from '../../models';
-
+import ShortTypeChip from '../../ShortTypeChip';
+import useColumnStyles from './colomuns.style';
 import StatusChip from './ServiceSubItemColumn/StatusChip';
 import { getStatus } from './ServiceSubItemColumn/SubItem';
-import useColumnStyles from './colomuns.style';
 
 const ResourceColumn = ({
   row,

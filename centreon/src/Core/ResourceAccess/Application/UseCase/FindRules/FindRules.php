@@ -29,30 +29,20 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\TinyRule;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class FindRules
 {
     use LoggerTrait;
-    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
-    /**
-     * @param ContactInterface $user
-     * @param ReadResourceAccessRepositoryInterface $repository
-     * @param RequestParametersInterface $requestParameters
-     * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
-     * @param bool $isCloudPlatform
-     */
     public function __construct(
         private readonly ContactInterface $user,
         private readonly ReadResourceAccessRepositoryInterface $repository,
         private readonly RequestParametersInterface $requestParameters,
-        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private readonly bool $isCloudPlatform,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -61,20 +51,12 @@ final class FindRules
      */
     public function __invoke(FindRulesPresenterInterface $presenter): void
     {
-        $this->info('Finding resource access rules', ['request_parameters' => $this->requestParameters]);
-
         try {
-            if ($this->canUserListAllRules()) {
-                $rules = $this->repository->findAllByRequestParameters($this->requestParameters);
-            } else {
-                $rules = $this->repository->findAllByRequestParametersAndUserId(
-                    $this->requestParameters,
-                    $this->user->getId()
-                );
-            }
-            $presenter->presentResponse(
-                $this->createResponse($rules)
-            );
+            $presenter->presentResponse($this->createResponse(
+                $this->canUserListAllRules()
+                    ? $this->repository->findAllByRequestParameters($this->requestParameters)
+                    : $this->repository->findAllByRequestParametersAndUserId($this->requestParameters, $this->user->getId())
+            ));
         } catch (RequestParametersTranslatorException $ex) {
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
@@ -115,17 +97,10 @@ final class FindRules
      */
     private function canUserListAllRules(): bool
     {
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             return true;
         }
 
-        $userAccessGroupNames = array_map(
-            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
-            $this->accessGroupRepository->findByContact($this->user)
-        );
-
-        return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
-            && $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW)
-            && $this->isCloudPlatform;
+        return $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
     }
 }

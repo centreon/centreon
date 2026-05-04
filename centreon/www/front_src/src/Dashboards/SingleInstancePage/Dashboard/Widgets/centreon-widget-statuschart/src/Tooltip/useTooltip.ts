@@ -1,11 +1,11 @@
 import { useInfiniteScrollListing } from '@centreon/ui';
 
+import { ResourceStatus } from 'src/centreon-widget-statusgrid/src/StatusGridStandard/models';
+
 import { Resource } from '../../../models';
 import { getResourcesSearchQueryParameters } from '../../../utils';
 import { resourcesEndpoint } from '../api/endpoint';
 import { tooltipPageAtom } from '../atom';
-
-import { ResourceStatus } from 'src/centreon-widget-statusgrid/src/StatusGridStandard/models';
 
 interface UseTooltipContentProps {
   resources: Array<Resource>;

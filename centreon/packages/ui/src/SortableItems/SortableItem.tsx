@@ -3,7 +3,6 @@ import { CSS } from '@dnd-kit/utilities';
 import { props } from 'ramda';
 
 import { useMemoComponent } from '../utils';
-
 import Item from './Item';
 
 interface Props extends Record<string, unknown> {

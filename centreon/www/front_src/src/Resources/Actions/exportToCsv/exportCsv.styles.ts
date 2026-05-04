@@ -6,41 +6,41 @@ const useExportCsvStyles = makeStyles()((theme) => ({
     flexDirection: 'column',
     gap: theme.spacing(2)
   },
+  error: {
+    color: theme.palette.error.main
+  },
+  information: {
+    backgroundColor: theme.palette.background.default,
+    borderRadius: theme.shape.borderRadius,
+    display: 'flex',
+    flex: 0.6,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    padding: theme.spacing(1)
+  },
   label: {
     paddingLeft: theme.spacing(0.25)
+  },
+  lines: {
+    fontWeight: 'bold'
+  },
+  radioButtonsContainer: {
+    display: 'flex',
+    flex: 0.4,
+    flexDirection: 'column',
+    gap: theme.spacing(2)
+  },
+  radioInput: {
+    marginLeft: theme.spacing(0.5),
+    padding: theme.spacing(0.5)
   },
   subContainer: {
     display: 'flex',
     flexDirection: 'row'
   },
-  radioButtonsContainer: {
-    flex: 0.4,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(2)
-  },
-  information: {
-    backgroundColor: theme.palette.background.default,
-    flex: 0.6,
-    borderRadius: theme.shape.borderRadius,
-    display: 'flex',
-    flexDirection: 'column',
-    padding: theme.spacing(1),
-    justifyContent: 'space-between'
-  },
-  lines: {
-    fontWeight: 'bold'
-  },
-  error: {
-    color: theme.palette.error.main
-  },
-  radioInput: {
-    padding: theme.spacing(0.5),
-    marginLeft: theme.spacing(0.5)
-  },
   subTitle: {
-    paddingBottom: 0.5,
-    color: theme.palette.text.primary
+    color: theme.palette.text.primary,
+    paddingBottom: 0.5
   }
 }));
 

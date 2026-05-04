@@ -1,10 +1,9 @@
+import { Group } from '@visx/group';
+import type { HierarchyPointNode } from '@visx/hierarchy/lib/types';
+import { gt, isNil, pluck } from 'ramda';
 import { useState } from 'react';
 
-import { Group } from '@visx/group';
-import { HierarchyPointNode } from '@visx/hierarchy/lib/types';
-import { gt, isNil, pluck } from 'ramda';
-
-import { BaseProp, Node, TreeProps } from './models';
+import type { BaseProp, Node, TreeProps } from './models';
 
 interface Props<TData> extends Pick<TreeProps<TData>, 'children'> {
   descendants: Array<HierarchyPointNode<Node<TData>>>;
@@ -65,6 +64,7 @@ const DescendantNodes = <TData extends BaseProp>({
       <Group key={key} left={left} top={top}>
         <foreignObject
           height={nodeSize.height}
+          overflow="visible"
           style={{ userSelect: 'none' }}
           width={nodeSize.width}
           x={-nodeSize.width / 2}

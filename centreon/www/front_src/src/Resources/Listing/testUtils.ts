@@ -1,10 +1,10 @@
 import type { Column } from '@centreon/ui';
 import { PlatformFeatures } from '@centreon/ui-context';
 
+import { identity, includes } from 'ramda';
+
 import { resourcesToAcknowledgeAtom } from '../Actions/actionsAtoms';
 import { Resource, ResourceType } from '../models';
-
-import { identity, includes } from 'ramda';
 import { defaultSelectedColumnIds, getColumns } from './columns';
 
 export const columns = getColumns({

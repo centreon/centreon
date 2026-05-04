@@ -1,14 +1,14 @@
 /* eslint-disable react/no-array-index-key */
-import { ReactElement } from 'react';
-
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
 
 import AddIcon from '@mui/icons-material/Add';
 import { FormHelperText } from '@mui/material';
 
 import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';
 import { ItemComposition } from '@centreon/ui/components';
+
+import { equals } from 'ramda';
+import { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Dataset, ResourceTypeEnum } from '../../../models';
 import {
@@ -19,7 +19,6 @@ import {
 } from '../../../translatedLabels';
 import useDatasetFilter from '../hooks/useDatasetFilter';
 import { useDatasetFilterStyles } from '../styles/DatasetFilter.styles';
-
 import AllOfResourceTypeCheckbox from './AllOfResourceTypeCheckbox';
 
 type Props = {
@@ -55,10 +54,10 @@ const DatasetFilter = ({
   return (
     <div className={classes.resourceComposition}>
       <ItemComposition
-        IconAdd={<AddIcon />}
         addbuttonDisabled={
           !areResourcesFilled(datasetFilter) || lowestResourceTypeReached()
         }
+        IconAdd={<AddIcon />}
         labelAdd={t(labelAddFilter)}
         onAddItem={addResource}
       >
@@ -78,9 +77,9 @@ const DatasetFilter = ({
                 aria-label={`${labelSelectResourceType}`}
                 className={classes.resourceType}
                 label={t(labelSelectResourceType) as string}
+                onChange={changeResourceType(resourceIndex)}
                 options={getResourceTypeOptions(resourceIndex)}
                 selectedOptionId={resource.resourceType}
-                onChange={changeResourceType(resourceIndex)}
               />
               <MultiConnectedAutocompleteField
                 allowUniqOption
@@ -107,13 +106,13 @@ const DatasetFilter = ({
                 )}
                 label={t(getLabelForSelectedResources(resourceIndex))}
                 limitTags={5}
+                onChange={changeResources(resourceIndex)}
                 queryKey={`${resource.resourceType}-${resourceIndex}`}
                 value={
                   datasetFilter[resourceIndex].allOfResourceType
                     ? []
                     : resource.resources || []
                 }
-                onChange={changeResources(resourceIndex)}
               />
             </ItemComposition.Item>
             {displayAllOfResourceTypeCheckbox(resource.resourceType) && (

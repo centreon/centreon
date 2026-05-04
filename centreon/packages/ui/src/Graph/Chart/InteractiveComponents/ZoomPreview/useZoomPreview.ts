@@ -1,10 +1,10 @@
-import { RefObject, useEffect, useState } from 'react';
-
 import { Event } from '@visx/visx';
-import { ScaleTime } from 'd3-scale';
+import type { ScaleTime } from 'd3-scale';
 import { useAtom, useAtomValue } from 'jotai';
 import { equals, gte, isNil, lt } from 'ramda';
-import { Interval } from '../../models';
+import { type RefObject, useCallback, useEffect, useState } from 'react';
+
+import type { Interval } from '../../models';
 import {
   eventMouseDownAtom,
   eventMouseUpAtom,
@@ -38,8 +38,8 @@ const useZoomPreview = ({
 }: Props): ZoomPreview => {
   const [zoomBoundaries, setZoomBoundaries] = useState<Boundaries | null>(null);
   const [isApplyingZoom, setApplyingZoom] = useAtom(applyingZoomAtomAtom);
+  const [eventMouseUp, setEventMouseUp] = useAtom(eventMouseUpAtom);
   const eventMouseDown = useAtomValue(eventMouseDownAtom);
-  const eventMouseUp = useAtomValue(eventMouseUpAtom);
   const mousePosition = useAtomValue(mousePositionAtom);
 
   const mousePointDown =
@@ -55,12 +55,13 @@ const useZoomPreview = ({
     ? mousePosition[0] - graphMarginLeft
     : null;
 
-  const applyZoom = (): void => {
+  const applyZoom = useCallback((): void => {
     getInterval?.({
       end: xScale?.invert(zoomBoundaries?.end || graphWidth),
       start: xScale?.invert(zoomBoundaries?.start || 0)
     });
-  };
+    setEventMouseUp(null);
+  }, [xScale, zoomBoundaries, graphWidth, getInterval]);
 
   useEffect(() => {
     if (isNil(mouseDownPositionX) || isNil(movingMousePositionX)) {
@@ -86,7 +87,7 @@ const useZoomPreview = ({
     }
     applyZoom();
     setApplyingZoom(false);
-  }, [eventMouseUp]);
+  }, [eventMouseUp, applyZoom, setApplyingZoom, zoomBoundaries]);
 
   useEffect(() => {
     if (isNil(zoomBoundaries)) {
@@ -96,13 +97,14 @@ const useZoomPreview = ({
       return;
     }
     setApplyingZoom(true);
-  }, [zoomBoundaries]);
+  }, [zoomBoundaries, setApplyingZoom]);
 
   useEffect(() => {
     if (isApplyingZoom) {
       return;
     }
     setZoomBoundaries(null);
+    setEventMouseUp(null);
   }, [isApplyingZoom]);
 
   const zoomBarWidth = Math.abs(

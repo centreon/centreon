@@ -1,28 +1,28 @@
-import {
-  T,
-  always,
-  cond,
-  equals,
-  head,
-  isEmpty,
-  isNotNil,
-  pipe,
-  propOr,
-  split
-} from 'ramda';
-import { useTranslation } from 'react-i18next';
-
-import { isOnPublicPageAtom } from '@centreon/ui-context';
-import { useAtomValue } from 'jotai';
-
+import type { Column } from '@centreon/ui';
 import {
   ColumnType,
   truncate,
   useLocaleDateTimeFormat,
   useStyleTable
 } from '@centreon/ui';
-import type { Column } from '@centreon/ui';
 
+import { useAtomValue } from 'jotai';
+import {
+  always,
+  cond,
+  equals,
+  head,
+  isEmpty,
+  isNotNil,
+  or,
+  pipe,
+  propOr,
+  split,
+  T
+} from 'ramda';
+import { useTranslation } from 'react-i18next';
+
+import { isOnPublicPageLocalAtom, openTicketContextAtom } from '../../atom';
 import { DisplayType } from '../models';
 import {
   labelAction,
@@ -47,10 +47,7 @@ import {
   labelTicketSubject,
   labelTries
 } from '../translatedLabels';
-
-import useIsOpenTicketInstalled from '../useIsOpenTicketInstalled';
 import CloseTicket from './CloseTicket/CloseTicket';
-
 import { useStatusStyles } from './Columns.styles';
 import OpenTicket from './OpenTicket/OpenTicket';
 import { TicketLink } from './OpenTicket/TicketLink';
@@ -62,10 +59,7 @@ import StateColumn from './State';
 import StatusColumn from './Status';
 
 interface ColumnProps {
-  displayResources: 'withTicket' | 'withoutTicket';
   displayType?: DisplayType;
-  isOpenTicketEnabled: boolean;
-  provider?: { id: number; name: string };
 }
 
 interface ColumnsState {
@@ -78,22 +72,25 @@ const getTicketInformations = (row) =>
   row?.parent?.extra?.open_tickets?.tickets;
 
 const useColumns = ({
-  displayType = DisplayType.All,
-  displayResources,
-  provider,
-  isOpenTicketEnabled
+  displayType = DisplayType.All
 }: ColumnProps): ColumnsState => {
   const { dataStyle } = useStyleTable({});
   const { classes: statusClasses } = useStatusStyles({
     data: dataStyle.statusColumnChip
   });
 
-  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+  const isOnPublicPage = useAtomValue(isOnPublicPageLocalAtom);
+  const {
+    displayResources,
+    enableHostTicketCreation,
+    enableServiceTicketCreation,
+    isOpenTicketEnabled,
+    isOpenTicketInstalled,
+    provider
+  } = useAtomValue(openTicketContextAtom);
 
   const { format } = useLocaleDateTimeFormat();
   const { t } = useTranslation();
-
-  const isOpenTicketInstalled = useIsOpenTicketInstalled();
 
   const resourceLabel = cond([
     [equals(DisplayType.Host), always(labelHost)],
@@ -109,7 +106,10 @@ const useColumns = ({
 
   const hasProvider = isNotNil(provider) && !isEmpty(provider);
   const isOpenTicketColumnsVisible =
-    isOpenTicketInstalled && isOpenTicketEnabled && hasProvider;
+    isOpenTicketInstalled &&
+    isOpenTicketEnabled &&
+    hasProvider &&
+    or(enableHostTicketCreation, enableServiceTicketCreation);
 
   const isOpenTicketActionColumnVisible =
     isOpenTicketColumnsVisible && equals(displayResources, 'withoutTicket');
@@ -118,7 +118,7 @@ const useColumns = ({
     isOpenTicketColumnsVisible && equals(displayResources, 'withTicket');
 
   const defaultSelectedColumnIds = [
-    'status',
+    ...(equals(displayType, DisplayType.Host) ? [] : ['status']),
     'resource',
     'parent_resource',
     ...(isOpenTicketActionColumnVisible ? ['open_ticket'] : []),
@@ -132,6 +132,7 @@ const useColumns = ({
       Component: StatusColumn({
         classes: statusClasses,
         displayType,
+        isOnPublicPage,
         t
       }),
       clickable: true,
@@ -140,8 +141,8 @@ const useColumns = ({
       id: 'status',
       label: t(labelStatus),
       rowMemoProps: ['status', 'severity_code', 'type'],
-      sortField: 'status_severity_code',
       sortable: true,
+      sortField: 'status_severity_code',
       type: ColumnType.component,
       width: 'max-content'
     },
@@ -151,8 +152,8 @@ const useColumns = ({
       id: 'resource',
       label: t(resourceLabel),
       rowMemoProps: ['icon', 'short_type', 'name'],
-      sortField: 'name',
       sortable: true,
+      sortField: 'name',
       type: ColumnType.component,
       width: 'max-content'
     },
@@ -164,8 +165,8 @@ const useColumns = ({
       getRenderComponentOnRowUpdateCondition: T,
       id: 'parent_resource',
       label: t(parentLabel),
-      sortField: 'parent_name',
       sortable: true,
+      sortField: 'parent_name',
       type: ColumnType.component,
       width: 'max-content'
     },
@@ -183,11 +184,11 @@ const useColumns = ({
     ...(areTicketColumnsVisible
       ? [
           {
-            id: 'ticket_id',
+            Component: TicketLink,
             clickable: true,
+            id: 'ticket_id',
             label: t(labelTicketID),
-            type: ColumnType.component,
-            Component: TicketLink
+            type: ColumnType.component
           },
           {
             getFormattedString: (row): string =>
@@ -214,8 +215,8 @@ const useColumns = ({
       getFormattedString: ({ duration }): string => duration,
       id: 'duration',
       label: t(labelDuration),
-      sortField: 'last_status_change',
       sortable: true,
+      sortField: 'last_status_change',
       type: ColumnType.string
     },
     {
@@ -252,8 +253,8 @@ const useColumns = ({
       id: 'severity',
       label: t(labelSeverity),
       rowMemoProps: ['severity_level'],
-      sortField: 'severity_level',
       sortable: true,
+      sortField: 'severity_level',
       type: ColumnType.component,
       width: 'minmax(50px, auto)'
     },
@@ -279,8 +280,8 @@ const useColumns = ({
       id: 'parent_alias',
       label: t(labelParentAlias),
       rowMemoProps: ['parent'],
-      sortField: 'parent_alias',
       sortable: true,
+      sortField: 'parent_alias',
       type: ColumnType.string,
       width: 'max-content'
     },
@@ -305,11 +306,11 @@ const useColumns = ({
       ? [
           {
             Component: CloseTicket,
+            clickable: true,
             getRenderComponentOnRowUpdateCondition: T,
             id: 'action',
             label: t(labelAction),
-            type: ColumnType.component,
-            clickable: true
+            type: ColumnType.component
           }
         ]
       : [])

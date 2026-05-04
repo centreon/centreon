@@ -2,54 +2,54 @@
   "global": {},
   "metrics": [
     {
-      "metric": "count",
-      "metric_id": 1,
-      "legend": "count",
-      "displayAs": "bar",
-      "unit": "",
-      "ds_data": {
-        "ds_stack": true,
-        "ds_transparency": 0,
-        "ds_filled": false,
-        "ds_color_area": "#4269d0",
-        "ds_color_line": "#4269d0"
-      },
-      "datasourceOptions": {
-        "field": null,
-        "group_by": null,
-        "op": "count-doc",
-        "query": "severity_text:\"Fatal\" OR severity_text:\"Error\"",
-        "period": 3600
-      },
       "data": [
         217, 270, 293, 300, 303, 295, 298, 283, 299, 299, 297, 285, 270, 248,
         274, 292, 284, 47
-      ]
-    },
-    {
-      "metric": "count",
-      "metric_id": 2,
-      "legend": "count",
-      "displayAs": "bar",
-      "unit": "",
-      "ds_data": {
-        "ds_stack": true,
-        "ds_transparency": 0,
-        "ds_filled": false,
-        "ds_color_area": "#efb118",
-        "ds_color_line": "#efb118"
-      },
+      ],
       "datasourceOptions": {
         "field": null,
         "group_by": null,
         "op": "count-doc",
-        "query": "",
-        "period": 3600
+        "period": 3600,
+        "query": "severity_text:\"Fatal\" OR severity_text:\"Error\""
       },
+      "displayAs": "bar",
+      "ds_data": {
+        "ds_color_area": "#4269d0",
+        "ds_color_line": "#4269d0",
+        "ds_filled": false,
+        "ds_stack": true,
+        "ds_transparency": 0
+      },
+      "legend": "count",
+      "metric": "count",
+      "metric_id": 1,
+      "unit": ""
+    },
+    {
       "data": [
         32, 825, 939, 922, 918, 939, 943, 947, 946, 909, 931, 939, 883, 907,
         928, 904, 923, 893, 139
-      ]
+      ],
+      "datasourceOptions": {
+        "field": null,
+        "group_by": null,
+        "op": "count-doc",
+        "period": 3600,
+        "query": ""
+      },
+      "displayAs": "bar",
+      "ds_data": {
+        "ds_color_area": "#efb118",
+        "ds_color_line": "#efb118",
+        "ds_filled": false,
+        "ds_stack": true,
+        "ds_transparency": 0
+      },
+      "legend": "count",
+      "metric": "count",
+      "metric_id": 2,
+      "unit": ""
     }
   ],
   "times": [

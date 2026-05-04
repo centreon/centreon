@@ -1,12 +1,12 @@
-import { equals, includes } from 'ramda';
-
 import { useRefreshInterval } from '@centreon/ui';
 
-import { getResourcesUrl } from '../../utils';
+import { equals, includes } from 'ramda';
+import { ReactElement } from 'react';
 
+import { getResourcesUrl } from '../../utils';
 import Chart from './Chart/Chart';
-import { useStyles } from './StatusChart.styles';
 import { DisplayType, StatusChartProps } from './models';
+import { useStyles } from './StatusChart.styles';
 import { labelHosts, labelServices } from './translatedLabels';
 
 const StatusChart = ({
@@ -17,8 +17,9 @@ const StatusChart = ({
   id,
   dashboardId,
   playlistHash,
-  widgetPrefixQuery
-}: StatusChartProps): JSX.Element => {
+  widgetPrefixQuery,
+  isInViewport
+}: StatusChartProps): ReactElement => {
   const { cx, classes } = useStyles();
 
   const {
@@ -28,7 +29,8 @@ const StatusChart = ({
     displayLegend,
     displayValues,
     resourceTypes,
-    unit
+    unit,
+    stateList
   } = panelOptions;
 
   const isHorizontalBar = equals(displayType, DisplayType.Horizontal);
@@ -75,14 +77,16 @@ const StatusChart = ({
             getLinkToResourceStatusPage={getLinkToResourceStatusPage}
             id={id}
             isHorizontalBar={isHorizontalBar}
+            isInViewport={isInViewport}
             isSingleChart={isSingleChart}
             key={resourceType}
             playlistHash={playlistHash}
             refreshCount={refreshCount}
             refreshIntervalToUse={refreshIntervalToUse}
+            resources={resources}
             resourceType={resourceType}
             resourceTypes={resourceTypes}
-            resources={resources}
+            stateList={stateList}
             title={isOfTypeHost ? labelHosts : labelServices}
             unit={unit}
             widgetPrefixQuery={widgetPrefixQuery}

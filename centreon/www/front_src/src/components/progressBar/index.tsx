@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { Step, StepLabel, Stepper } from '@mui/material';
+
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   activeStep: number;
@@ -11,7 +11,7 @@ const ProgressBar = ({ steps, activeStep }: Props): JSX.Element => {
   const { t } = useTranslation();
 
   return (
-    <Stepper alternativeLabel activeStep={activeStep}>
+    <Stepper activeStep={activeStep} alternativeLabel>
       {steps.map((label) => (
         <Step key={label}>
           <StepLabel>{t(label)}</StepLabel>

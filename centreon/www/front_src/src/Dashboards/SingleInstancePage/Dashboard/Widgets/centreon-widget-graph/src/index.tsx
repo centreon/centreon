@@ -1,5 +1,6 @@
-import { CommonWidgetProps, Data } from '../../models';
+import { ReactElement } from 'react';
 
+import { CommonWidgetProps, Data } from '../../models';
 import LineChart from './LineChart';
 import { PanelOptions } from './models';
 
@@ -17,19 +18,21 @@ const Input = ({
   playlistHash,
   dashboardId,
   widgetPrefixQuery,
-  isFromPreview
-}: Props): JSX.Element => {
+  isFromPreview,
+  isInViewport
+}: Props): ReactElement => {
   return (
     <LineChart
       dashboardId={dashboardId}
       globalRefreshInterval={globalRefreshInterval}
       id={id}
+      isFromPreview={isFromPreview}
+      isInViewport={isInViewport}
       panelData={panelData}
       panelOptions={panelOptions}
       playlistHash={playlistHash}
       refreshCount={refreshCount}
       widgetPrefixQuery={widgetPrefixQuery}
-      isFromPreview={isFromPreview}
     />
   );
 };

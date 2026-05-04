@@ -1,5 +1,6 @@
 import { PrimitiveAtom } from 'jotai';
 import { JSX } from 'react';
+
 import Filters from '../../Filters';
 import { useActionsStyles } from './Actions.styles';
 import AddHostGroups from './AddAction';

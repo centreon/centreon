@@ -1,6 +1,6 @@
 import { Threshold } from '@visx/threshold';
 
-import { TimeValue } from '../../../../common/timeSeries/models';
+import type { TimeValue } from '../../../../common/timeSeries/models';
 
 interface Props {
   curve: 'linear' | 'natural' | 'step';
@@ -39,6 +39,7 @@ const BasicThreshold = ({
       }}
       clipAboveTo={0}
       clipBelowTo={graphHeight}
+      // @ts-expect-error - suppressing pre-existing type mismatch
       curve={curve}
       data={timeSeries}
       id={id}

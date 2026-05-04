@@ -36,6 +36,7 @@ use Core\Application\Common\UseCase\{
     ResponseStatusInterface,
 };
 use Core\Common\Domain\SimpleEntity;
+use Core\Contact\Domain\AdminResolver;
 use Core\Domain\Common\GeoCoords;
 use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\Host\Application\Exception\HostException;
@@ -81,6 +82,7 @@ final class UpdateHostGroup
         private readonly WriteResourceAccessRepositoryInterface $writeResourceAccessRepository,
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
         private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -90,7 +92,7 @@ final class UpdateHostGroup
     public function __invoke(UpdateHostGroupRequest $request): ResponseStatusInterface
     {
         try {
-            $existingHostGroup = $this->user->isAdmin()
+            $existingHostGroup = $this->adminResolver->isAdmin($this->user)
                 ? $this->readHostGroupRepository->findOne($request->id)
                 : $this->readHostGroupRepository->findOneByAccessGroups(
                     $request->id,
@@ -100,8 +102,10 @@ final class UpdateHostGroup
             if ($existingHostGroup === null) {
                 return new NotFoundResponse('Host Group');
             }
-            $this->validator->assertNameDoesNotAlreadyExists($existingHostGroup, $request->name);
-            $this->validator->assertHostsExist($request->hosts);
+            $this->validator->assertNameIsValid($existingHostGroup, $request->name);
+            if ($request->hosts !== null) {
+                $this->validator->assertHostsExist($request->hosts);
+            }
             if ($request->iconId !== null) {
                 $this->validator->assertIconExists($request->iconId);
             }
@@ -115,7 +119,9 @@ final class UpdateHostGroup
             }
 
             $this->updateHostGroup($request, $existingHostGroup);
-            $this->updateHostLinks($request);
+            if ($request->hosts !== null) {
+                $this->updateHostLinks($request);
+            }
             if ($this->isCloudPlatform) {
                 $this->updateResourceAccess($request);
             }
@@ -186,7 +192,10 @@ final class UpdateHostGroup
      */
     private function updateHostLinks(UpdateHostGroupRequest $request): void
     {
-        if ($this->user->isAdmin()) {
+        /** @var int[] $hosts */
+        $hosts = $request->hosts;
+
+        if ($this->adminResolver->isAdmin($this->user)) {
             $existingHosts = $this->readHostRepository->findByHostGroup($request->id);
             $hostsToRemove = array_map(fn (SimpleEntity $host): int => $host->getId(), $existingHosts);
         } else {
@@ -197,13 +206,13 @@ final class UpdateHostGroup
 
             $hostsToRemove = (new BasicDifference(
                 array_map(fn (SmallHost $host) => $host->getId(), $reachableHosts),
-                $request->hosts
+                $hosts
             ))->getRemoved();
         }
 
         $this->writeHostGroupRepository->deleteHostLinks($request->id, $hostsToRemove);
-        $this->writeHostGroupRepository->addHostLinks($request->id, $request->hosts);
-        $this->notifyConfigurationChange($request->hosts);
+        $this->writeHostGroupRepository->addHostLinks($request->id, $hosts);
+        $this->notifyConfigurationChange($hosts);
     }
 
     /**

@@ -1,14 +1,13 @@
-import { useEffect, useMemo } from 'react';
-
-import { useFormikContext } from 'formik';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { path, find, propEq } from 'ramda';
-
 import { useDeepCompare } from '@centreon/ui';
 import {
   featureFlagsDerivedAtom,
   platformVersionsAtom
 } from '@centreon/ui-context';
+
+import { useFormikContext } from 'formik';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { find, path, propEq } from 'ramda';
+import { useEffect, useMemo } from 'react';
 
 import { federatedWidgetsPropertiesAtom } from '../../../../../federatedModules/atoms';
 import {
@@ -21,7 +20,7 @@ import {
   widgetPropertiesAtom
 } from '../atoms';
 import { Widget, WidgetPropertyProps } from '../models';
-
+import { handleHiddenConditions } from './handleHiddenConditions';
 import {
   WidgetBoundaries,
   WidgetButtonGroup,
@@ -50,7 +49,6 @@ import {
   WidgetValueFormat,
   WidgetWarning
 } from './Inputs';
-import { handleHiddenConditions } from './handleHiddenConditions';
 
 export interface WidgetPropertiesRenderer {
   Component: (props: WidgetPropertyProps) => JSX.Element;
@@ -120,10 +118,10 @@ export const useWidgetInputs = (
     () =>
       selectedWidgetProperties
         ? handleHiddenConditions({
-            modules,
             featureFlags,
-            widgetProperties: selectedWidgetProperties,
-            values
+            modules,
+            values,
+            widgetProperties: selectedWidgetProperties
           }).map(([key, value]) => {
             const Component =
               propertiesInputType[value.type] || DefaultComponent;

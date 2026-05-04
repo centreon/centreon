@@ -1,9 +1,9 @@
 export {
-  additionalConnectorsListDecoder,
-  additionalConnectorDecoder
+  additionalConnectorDecoder,
+  additionalConnectorsListDecoder
 } from './decoders';
 export {
-  getAdditionalConnectorEndpoint,
   additionalConnectorsEndpoint,
+  getAdditionalConnectorEndpoint,
   getPollersEndpoint
 } from './endpoints';

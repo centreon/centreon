@@ -1,7 +1,6 @@
-import { useState } from 'react';
-
 import { useAtom, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
+import { useState } from 'react';
 import { generatePath } from 'react-router';
 
 import routeMap from '../../../../reactRoutes/routeMap';
@@ -14,7 +13,6 @@ import {
 import { useDeleteAccessRightsContact } from '../../../api/useDeleteAccessRightsContact';
 import { useDeleteAccessRightsContactGroup } from '../../../api/useDeleteAccessRightsContactGroup';
 import { routerHooks } from '../../../routerHooks';
-
 import {
   askBeforeRevokeAtom,
   limitAtom,

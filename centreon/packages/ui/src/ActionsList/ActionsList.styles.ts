@@ -1,7 +1,7 @@
+import type { Theme } from '@mui/material';
+
 import { equals } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
-
-import { Theme } from '@mui/material';
 
 interface GetBackgroundAndColorProps {
   status: string;

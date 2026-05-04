@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "3ae43bab-ae46-47ee-a395-91acfcc6e553",
+		"_postman_id": "06ffc492-24fc-4ecb-a5e4-81f9cbbe94f8",
 		"name": "Additional_Connector_Configuration",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525"
+		"_exporter_id": "28117716",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/28117716-06ffc492-24fc-4ecb-a5e4-81f9cbbe94f8?action=share&source=collection_link&creator=28117716"
 	},
 	"item": [
 		{
@@ -238,6 +239,7 @@
 									"\r",
 									"    // Creation of a variable with the ID of the new ACC \r",
 									"    pm.collectionVariables.set(\"ACC1Id\", responseJson.id);\r",
+									"    pm.collectionVariables.set(\"ACC1VcenterId\", responseJson.parameters.vcenters[0].id);\r",
 									"\r",
 									"    pm.expect(responseJson).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"ACC1Id\"),\r",
@@ -248,9 +250,10 @@
 									"    pm.expect(responseJson.parameters).to.eql({\r",
 									"        \"port\": 5780,\r",
 									"        \"vcenters\": [{\r",
+									"            \"id\": pm.collectionVariables.get(\"ACC1VcenterId\"),\r",
 									"            \"name\": \"my-vcenter\",\r",
 									"            \"url\": \"http://10.10.10.10/sdk\",\r",
-									"            \"username\": null,\r",
+									"            \"username\": \"admin\",\r",
 									"            \"password\": null\r",
 									"        }]\r",
 									"    });\r",
@@ -283,12 +286,13 @@
 									"                        \"items\": {\r",
 									"                            \"type\": \"object\",\r",
 									"                            \"properties\": {\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
 									"                                \"name\": { \"type\": \"string\" },\r",
 									"                                \"url\": { \"type\": \"string\", \"format\": \"uri\" },\r",
 									"                                \"username\": { \"type\": [ \"string\", \"null\" ] },\r",
 									"                                \"password\": { \"type\": [ \"string\", \"null\" ] }\r",
 									"                            },\r",
-									"                            \"required\": [\"name\", \"url\", \"username\", \"password\"]\r",
+									"                            \"required\": [\"id\", \"name\", \"url\", \"username\", \"password\"]\r",
 									"                        }\r",
 									"                    }\r",
 									"                },\r",
@@ -322,7 +326,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -334,7 +339,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -502,7 +508,8 @@
 									"pm.collectionVariables.set(\"ACC2Name\", \"acc-002\");"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -515,6 +522,7 @@
 									"\r",
 									"    // Creation of a variable with the ID of the new ACC \r",
 									"    pm.collectionVariables.set(\"ACC2Id\", responseJson.id);\r",
+									"    pm.collectionVariables.set(\"ACC2VcenterId\", responseJson.parameters.vcenters[0].id);\r",
 									"\r",
 									"    pm.expect(responseJson).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"ACC2Id\"),\r",
@@ -525,9 +533,10 @@
 									"    pm.expect(responseJson.parameters).to.eql({\r",
 									"        \"port\": 5780,\r",
 									"        \"vcenters\": [{\r",
+									"            \"id\": pm.collectionVariables.get(\"ACC2VcenterId\"),\r",
 									"            \"name\": \"my-vcenter-2\",\r",
 									"            \"url\": \"http://10.10.10.10/sdk\",\r",
-									"            \"username\": null,\r",
+									"            \"username\": \"admin\",\r",
 									"            \"password\": null\r",
 									"        }]\r",
 									"    });\r",
@@ -559,12 +568,13 @@
 									"                        \"items\": {\r",
 									"                            \"type\": \"object\",\r",
 									"                            \"properties\": {\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
 									"                                \"name\": { \"type\": \"string\" },\r",
 									"                                \"url\": { \"type\": \"string\", \"format\": \"uri\" },\r",
 									"                                \"username\": { \"type\": [ \"string\", \"null\" ] },\r",
 									"                                \"password\": { \"type\": [ \"string\", \"null\" ] }\r",
 									"                            },\r",
-									"                            \"required\": [\"name\", \"url\", \"username\", \"password\"]\r",
+									"                            \"required\": [\"id\", \"name\", \"url\", \"username\", \"password\"]\r",
 									"                        }\r",
 									"                    }\r",
 									"                },\r",
@@ -598,7 +608,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1404,7 +1415,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1417,6 +1429,7 @@
 									"\r",
 									"    // Creation of a variable with the ID of the new ACC \r",
 									"    pm.collectionVariables.set(\"ACC3Id\", responseJson.id);\r",
+									"    pm.collectionVariables.set(\"ACC3VcenterId\", responseJson.parameters.vcenters[0].id);\r",
 									"\r",
 									"    pm.expect(responseJson).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"ACC3Id\"),\r",
@@ -1427,9 +1440,10 @@
 									"    pm.expect(responseJson.parameters).to.eql({\r",
 									"        \"port\": 5780,\r",
 									"        \"vcenters\": [{\r",
+									"            \"id\": pm.collectionVariables.get(\"ACC3VcenterId\"),\r",
 									"            \"name\": \"my-vcenter-3\",\r",
 									"            \"url\": \"http://10.10.10.10/sdk\",\r",
-									"            \"username\": null,\r",
+									"            \"username\": \"admin\",\r",
 									"            \"password\": null\r",
 									"        }]\r",
 									"    });\r",
@@ -1461,12 +1475,13 @@
 									"                        \"items\": {\r",
 									"                            \"type\": \"object\",\r",
 									"                            \"properties\": {\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
 									"                                \"name\": { \"type\": \"string\" },\r",
 									"                                \"url\": { \"type\": \"string\", \"format\": \"uri\" },\r",
 									"                                \"username\": { \"type\": [ \"string\", \"null\" ] },\r",
 									"                                \"password\": { \"type\": [ \"string\", \"null\" ] }\r",
 									"                            },\r",
-									"                            \"required\": [\"name\", \"url\", \"username\", \"password\"]\r",
+									"                            \"required\": [\"id\", \"name\", \"url\", \"username\", \"password\"]\r",
 									"                        }\r",
 									"                    }\r",
 									"                },\r",
@@ -1500,7 +1515,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1540,7 +1556,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1560,9 +1577,10 @@
 									"    pm.expect(responseJson.parameters).to.eql({\r",
 									"        \"port\": 5780,\r",
 									"        \"vcenters\": [{\r",
+									"            \"id\": 3,\r",
 									"            \"name\": \"my-vcenter-3\",\r",
 									"            \"url\": \"http://10.10.10.10/sdk\",\r",
-									"            \"username\": null,\r",
+									"            \"username\": \"admin\",\r",
 									"            \"password\": null\r",
 									"        }]\r",
 									"    });\r",
@@ -1599,12 +1617,13 @@
 									"                        \"items\": {\r",
 									"                            \"type\": \"object\",\r",
 									"                            \"properties\": {\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
 									"                                \"name\": { \"type\": \"string\" },\r",
 									"                                \"url\": { \"type\": \"string\", \"format\": \"uri\" },\r",
 									"                                \"username\": { \"type\": [ \"string\", \"null\" ] },\r",
 									"                                \"password\": { \"type\": [ \"string\", \"null\" ] }\r",
 									"                            },\r",
-									"                            \"required\": [\"name\", \"url\", \"username\", \"password\"]\r",
+									"                            \"required\": [\"id\", \"name\", \"url\", \"username\", \"password\"]\r",
 									"                        }\r",
 									"                    }\r",
 									"                },\r",
@@ -1638,7 +1657,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1712,7 +1732,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{ACC1Name}}\",\r\n    \"description\": \"{{ACC1Description}}\",\r\n    \"pollers\": [4],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 5780,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter-updated\",\r\n            \"url\": \"http://10.20.20.10/sdk\",\r\n            \"username\": \"admin-v2\",\r\n            \"password\": \"my-pwd-v2\"\r\n        }]\r\n    }\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{ACC1Name}}\",\r\n    \"description\": \"{{ACC1Description}}\",\r\n    \"pollers\": [4],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 5780,\r\n        \"vcenters\": [{\r\n            \"id\": {{ACC1VcenterId}},\r\n            \"name\": \"my-vcenter-updated\",\r\n            \"url\": \"http://10.20.20.10/sdk\",\r\n            \"username\": \"admin-v2\",\r\n            \"password\": \"my-pwd-v2\"\r\n        }]\r\n    }\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/{{ACC1Id}}",
@@ -3319,7 +3339,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -3332,6 +3353,7 @@
 									"\r",
 									"    // Creation of a variable with the ID of the new ACC \r",
 									"    pm.collectionVariables.set(\"ACC4Id\", responseJson.id);\r",
+									"    pm.collectionVariables.set(\"ACC4VcenterId\", responseJson.parameters.vcenters[0].id);\r",
 									"\r",
 									"    pm.expect(responseJson).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"ACC4Id\"),\r",
@@ -3342,9 +3364,10 @@
 									"    pm.expect(responseJson.parameters).to.eql({\r",
 									"        \"port\": 5780,\r",
 									"        \"vcenters\": [{\r",
+									"            \"id\": pm.collectionVariables.get(\"ACC4VcenterId\"),\r",
 									"            \"name\": \"my-vcenter\",\r",
 									"            \"url\": \"http://10.10.10.10/sdk\",\r",
-									"            \"username\": null,\r",
+									"            \"username\": \"admin\",\r",
 									"            \"password\": null\r",
 									"        }]\r",
 									"    });\r",
@@ -3381,12 +3404,13 @@
 									"                        \"items\": {\r",
 									"                            \"type\": \"object\",\r",
 									"                            \"properties\": {\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
 									"                                \"name\": { \"type\": \"string\" },\r",
 									"                                \"url\": { \"type\": \"string\", \"format\": \"uri\" },\r",
 									"                                \"username\": { \"type\": [ \"string\", \"null\" ] },\r",
 									"                                \"password\": { \"type\": [ \"string\", \"null\" ] }\r",
 									"                            },\r",
-									"                            \"required\": [\"name\", \"url\", \"username\", \"password\"]\r",
+									"                            \"required\": [\"id\", \"name\", \"url\", \"username\", \"password\"]\r",
 									"                        }\r",
 									"                    }\r",
 									"                },\r",
@@ -3420,7 +3444,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3648,7 +3673,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{ACC3Name}}\",\r\n    \"description\": \"{{ACC3Description}}\",\r\n    \"pollers\": [3],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 6000,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter-up\",\r\n            \"url\": \"http://10.10.10.11/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{ACC3Name}}\",\r\n    \"description\": \"{{ACC3Description}}\",\r\n    \"pollers\": [3],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 6000,\r\n        \"vcenters\": [{\r\n            \"id\": {{ACC3VcenterId}},\r\n            \"name\": \"my-vcenter-up\",\r\n            \"url\": \"http://10.10.10.11/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/{{ACC3Id}}",
@@ -3674,7 +3699,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -3694,9 +3720,10 @@
 									"    pm.expect(responseJson.parameters).to.eql({\r",
 									"        \"port\": 6000,\r",
 									"        \"vcenters\": [{\r",
+									"            \"id\": pm.collectionVariables.get(\"ACC3VcenterId\"),\r",
 									"            \"name\": \"my-vcenter-up\",\r",
 									"            \"url\": \"http://10.10.10.11/sdk\",\r",
-									"            \"username\": null,\r",
+									"            \"username\": \"admin\",\r",
 									"            \"password\": null\r",
 									"        }]\r",
 									"    });\r",
@@ -3733,12 +3760,13 @@
 									"                        \"items\": {\r",
 									"                            \"type\": \"object\",\r",
 									"                            \"properties\": {\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
 									"                                \"name\": { \"type\": \"string\" },\r",
 									"                                \"url\": { \"type\": \"string\", \"format\": \"uri\" },\r",
 									"                                \"username\": { \"type\": [ \"string\", \"null\" ] },\r",
 									"                                \"password\": { \"type\": [ \"string\", \"null\" ] }\r",
 									"                            },\r",
-									"                            \"required\": [\"name\", \"url\", \"username\", \"password\"]\r",
+									"                            \"required\": [\"id\", \"name\", \"url\", \"username\", \"password\"]\r",
 									"                        }\r",
 									"                    }\r",
 									"                },\r",
@@ -3772,7 +3800,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -4580,7 +4609,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -4600,9 +4630,10 @@
 									"    pm.expect(responseJson.parameters).to.eql({\r",
 									"        \"port\": 6000,\r",
 									"        \"vcenters\": [{\r",
+									"            \"id\": pm.collectionVariables.get(\"ACC3VcenterId\"),\r",
 									"            \"name\": \"my-vcenter-up\",\r",
 									"            \"url\": \"http://10.10.10.11/sdk\",\r",
-									"            \"username\": null,\r",
+									"            \"username\": \"admin\",\r",
 									"            \"password\": null\r",
 									"        }]\r",
 									"    });\r",
@@ -4639,12 +4670,13 @@
 									"                        \"items\": {\r",
 									"                            \"type\": \"object\",\r",
 									"                            \"properties\": {\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
 									"                                \"name\": { \"type\": \"string\" },\r",
 									"                                \"url\": { \"type\": \"string\", \"format\": \"uri\" },\r",
 									"                                \"username\": { \"type\": [ \"string\", \"null\" ] },\r",
 									"                                \"password\": { \"type\": [ \"string\", \"null\" ] }\r",
 									"                            },\r",
-									"                            \"required\": [\"name\", \"url\", \"username\", \"password\"]\r",
+									"                            \"required\": [\"id\", \"name\", \"url\", \"username\", \"password\"]\r",
 									"                        }\r",
 									"                    }\r",
 									"                },\r",
@@ -4678,7 +4710,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -4826,7 +4859,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{ACC3Name}}\",\r\n    \"description\": \"{{ACC3Description}}\",\r\n    \"pollers\": [3],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 6000,\r\n        \"vcenters\": [{\r\n            \"name\": \"my-vcenter-up-v2\",\r\n            \"url\": \"http://10.10.10.11/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{ACC3Name}}\",\r\n    \"description\": \"{{ACC3Description}}\",\r\n    \"pollers\": [3],\r\n    \"type\": \"vmware_v6\",\r\n    \"parameters\": {\r\n        \"port\": 6000,\r\n        \"vcenters\": [{\r\n            \"id\": {{ACC3VcenterId}},\r\n            \"name\": \"my-vcenter-up-v2\",\r\n            \"url\": \"http://10.10.10.11/sdk\",\r\n            \"username\": \"admin\",\r\n            \"password\": \"my-pwd\"\r\n        }]\r\n    }\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/{{ACC3Id}}",
@@ -5160,6 +5193,52 @@
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "api_login_user",
+			"value": ""
+		},
+		{
+			"key": "api_password_user",
+			"value": ""
+		},
+		{
+			"key": "ACC4Name",
+			"value": ""
+		},
+		{
+			"key": "ACC4Description",
+			"value": ""
+		},
+		{
+			"key": "ACC4Id",
+			"value": ""
+		},
+		{
+			"key": "ACC1Name",
+			"value": ""
+		},
+		{
+			"key": "ACC1Description",
+			"value": ""
+		},
+		{
+			"key": "ACC1VcenterId",
+			"value": ""
+		},
+		{
+			"key": "ACC2VcenterId",
+			"value": ""
+		},
+		{
+			"key": "ACC3VcenterId",
+			"value": ""
+		},
+		{
+			"key": "ACC4VcenterId",
+			"value": ""
 		}
 	]
 }

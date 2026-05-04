@@ -12,10 +12,9 @@ describe(formatMetricValue, () => {
     [null, 'B', 1024, null]
   ];
 
-  it.each(cases)(
-    'formats the given value to a human readable form according to the given unit and base',
-    (value, unit, base, formattedResult) => {
-      expect(formatMetricValue({ base, unit, value })).toEqual(formattedResult);
-    }
-  );
+  it.each(
+    cases
+  )('formats the given value to a human readable form according to the given unit and base', (value, unit, base, formattedResult) => {
+    expect(formatMetricValue({ base, unit, value })).toEqual(formattedResult);
+  });
 });

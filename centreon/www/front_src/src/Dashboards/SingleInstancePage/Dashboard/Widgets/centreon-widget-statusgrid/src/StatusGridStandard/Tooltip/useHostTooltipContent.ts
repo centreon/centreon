@@ -1,10 +1,9 @@
-import { equals } from 'ramda';
-
 import { SeverityCode, useInfiniteScrollListing } from '@centreon/ui';
+
+import { equals } from 'ramda';
 
 import { resourcesEndpoint } from '../../api/endpoints';
 import { ResourceStatus } from '../models';
-
 import { tooltipPageAtom } from './atoms';
 
 interface UseHostTooltipContentState {

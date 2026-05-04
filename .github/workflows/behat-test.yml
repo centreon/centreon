@@ -32,6 +32,14 @@ on:
       is_nightly:
         required: true
         type: string
+      major_version:
+        required: true
+        type: string
+      labels:
+        description: "The list of PR labels"
+        required: false
+        type: string
+        default: ''
     secrets:
       registry_username:
         required: true
@@ -45,35 +53,39 @@ on:
         required: true
       jira_api_token:
         required: true
+      github_models_token:
+        required: true
 
 jobs:
   behat-test-list:
     runs-on: ubuntu-24.04
     outputs:
-      test_tags: ${{ steps.list-features.outputs.test_tags }}
-      features: ${{ steps.list-features.outputs.features }}
+      test_tags: ${{ steps.list-features.outputs.tags }}
+      features: ${{ steps.list-features.outputs.specs }}
+      has_features: ${{ steps.list-features.outputs.specs != '' && toJson(fromJson(steps.list-features.outputs.specs)) != '[]' && 'true' || 'false' }}
+      db_id: ${{ steps.get-db-id.outputs.db_id }}
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
-      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
-        with:
-          version: 8
-          run_install: false
-          standalone: true
-
-      - name: List features
-        id: list-features
+      - name: Get database identifier
+        id: get-db-id
         run: |
-          pnpm add -g @cucumber/cucumber@10.8.0
-          cd ${{ inputs.module_name }}
-          cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]'
-          echo "features=$(cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          db_id=$(echo "$DATABASE_IMAGE" | sed 's|.*/||' | tr ':' '-')
+          echo "db_id=$db_id" >> $GITHUB_OUTPUT
+        env:
+          DATABASE_IMAGE: ${{ inputs.database_image }}
 
-          # Update test tags format for behat compatibility
-          TEST_TAGS=$(echo "${{ inputs.test_tags }}" | sed -e 's#not #~#' -e 's# and #\&\&#')
-          echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
+      - name: Detect relevant E2E specs
+        id: list-features
+        uses: ./.github/actions/e2e-test-list
+        with:
+          module_name: ${{ inputs.module_name }}
+          feature_directory: ${{ inputs.features_path }}
+          tags: ${{ inputs.test_tags }}
+          use_ai: ${{ contains(inputs.labels, 'experimental-ai-e2e-test-list-generation') && 'true' || 'false' }}
+          github_token: ${{ secrets.github_models_token }}
 
   behat-test-run:
     if: ${{ needs.behat-test-list.outputs.features != '' && toJson(fromJson(needs.behat-test-list.outputs.features)) != '[]' }}
@@ -86,14 +98,32 @@ jobs:
     name: ${{ matrix.feature }}
 
     env:
-      IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
       SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Compute image tag
+        id: image_tag
+        env:
+          REF: ${{ github.head_ref || github.ref_name }}
+          MAJOR_VERSION: ${{ inputs.major_version }}
+        run: |
+          if [[ "$REF" == "develop" ]]; then
+            echo "tag=develop-${MAJOR_VERSION}" >> $GITHUB_OUTPUT
+          else
+            SANITIZED_REF="$(printf '%s' "$REF" | sed -E 's#[^[:alnum:]_.-]+#-#g; s#^[.-]+##; s#-+#-#g' | cut -c1-128)"
+            if [[ -z "$SANITIZED_REF" ]]; then
+              echo "::error::Unable to derive a valid Docker tag from ref '$REF'"
+              exit 1
+            fi
+            echo "tag=$SANITIZED_REF" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
 
       - name: Login to registry
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
@@ -101,7 +131,7 @@ jobs:
           password: ${{ secrets.registry_password }}
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # v2.35.5
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.36.0
         with:
           php-version: 8.2
           coverage: none
@@ -114,10 +144,15 @@ jobs:
           sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
 
-      - if: ${{ contains(matrix.feature, 'RestApi') }}
-        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+      - name: Setup pnpm
+        if: ${{ contains(matrix.feature, 'RestApi') }}
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
         with:
-          node-version: 20
+          version: 10
+          run_install: |
+            cwd: "centreon/tests/rest_api"
+            args: [--ignore-scripts, --frozen-lockfile]
+          standalone: true
 
       - name: Create configuration file
         run: cp config/centreon.config.php.template config/centreon.config.php
@@ -129,12 +164,12 @@ jobs:
 
       - name: Restore standard slim image from cache
         id: cache-docker-slim
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         continue-on-error: true
         timeout-minutes: 6
         with:
           path: ./docker-image
-          key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
+          key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ steps.image_tag.outputs.tag }}
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
 
@@ -142,20 +177,20 @@ jobs:
         if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
         run: |
           docker load --input ./docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
-          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }} docker.centreon.com/centreon/${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }}
         shell: bash
 
       - name: Behat acceptance testing
         env:
           PANTHER_CHROME_BINARY: /usr/bin/google-chrome
-          WEB_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          WEB_IMAGE: docker.centreon.com/centreon/${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }}
           MYSQL_IMAGE: ${{ inputs.database_image }}
         run: |
           rm -rf acceptance-logs && mkdir acceptance-logs
           rm -rf xunit-reports && mkdir xunit-reports
           BASE_DIRECTORY=$(pwd)
           cd ${{ inputs.module_name }}
-          ./vendor/bin/behat --config="${{ inputs.config_file }}" --tags '${{ needs.behat-test-list.outputs.test_tags }}' --colors --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
+          ./vendor/bin/behat --config="${{ inputs.config_file }}" --tags '${{ needs.behat-test-list.outputs.test_tags }}' --colors --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}.feature"
 
       - name: Clean empty reports
         if: ${{ !cancelled() }}
@@ -175,34 +210,34 @@ jobs:
         run: find ./acceptance-logs -type f | grep '.txt' | xargs -r more | cat
         shell: bash
 
-      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: failure()
         name: Upload acceptance test logs
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-logs-${{ steps.feature-path.outputs.feature_name_with_dash }}
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.behat-test-list.outputs.db_id }}-test-logs-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: acceptance-logs
           retention-days: 1
 
       - name: Upload Test Results
         if: failure()
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.behat-test-list.outputs.db_id }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: xunit-reports
           retention-days: 1
 
   behat-test-report:
-    needs: [behat-test-run]
+    needs: [behat-test-list, behat-test-run]
     if: failure()
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Download Artifacts
-        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          pattern: ${{ inputs.name }}-${{ inputs.os }}-test-reports-*
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.behat-test-list.outputs.db_id }}-test-reports-*
           path: ${{ inputs.name }}-xunit-reports
           merge-multiple: true
 
@@ -212,8 +247,11 @@ jobs:
           path: '${{ inputs.name }}-xunit-reports/**/*.xml'
 
   regroup-artifacts:
-    needs: [behat-test-run, behat-test-report]
-    if: always()
+    needs: [behat-test-list, behat-test-run, behat-test-report]
+    if: |
+      ! cancelled() &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.behat-test-list.outputs.has_features == 'true'
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -221,15 +259,15 @@ jobs:
         type_of_report: [test-logs, test-reports]
     steps:
       - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact/merge@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: ${{ contains(needs.behat-test-run.result, 'failure') }}
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
-          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.behat-test-list.outputs.db_id }}-${{ matrix.type_of_report }}
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.behat-test-list.outputs.db_id }}-${{ matrix.type_of_report }}-*
           retention-days: 1
 
       - name: Delete merged artifacts
         uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.behat-test-list.outputs.db_id }}-${{ matrix.type_of_report }}-*
           failOnError: false

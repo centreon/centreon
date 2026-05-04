@@ -1,7 +1,7 @@
-import { JSX, useCallback, useState } from 'react';
-
 import { TabContext } from '@mui/lab';
 import { Tabs as MuiTabs, Tab, TabsProps } from '@mui/material';
+
+import { JSX, useCallback, useState } from 'react';
 
 import { useStyles } from './ConnectionInitiated.styles';
 

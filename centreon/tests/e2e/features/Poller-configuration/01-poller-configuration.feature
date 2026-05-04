@@ -12,7 +12,7 @@ Feature: Generate poller configuration
     And some post-generation commands are configured for each poller
 
   @TEST_MON-22135
-  Scenario: Generate the configuration on multiple pollers
+  Scenario Outline: Generate the configuration on multiple pollers
     When I visit the export configuration page
     Then there is an indication that the configuration have changed on the listed pollers
     When I select some pollers
@@ -54,3 +54,12 @@ Feature: Generate poller configuration
     Then I am redirected to generate page
     When I click on the export button
     Then the configuration is not generated on selected pollers
+
+  @TEST_MON-198192
+  Scenario: Duplicate an existing remote poller
+    Given an admin user is logged in a Centreon server
+    And a remote poller is configured
+    When the user duplicates the configured poller
+    Then a new disabled poller is created with identical properties
+    When the user exports the configuration
+    Then a success message is displayed

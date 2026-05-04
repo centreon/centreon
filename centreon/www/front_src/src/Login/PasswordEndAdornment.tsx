@@ -1,10 +1,10 @@
-import { useTranslation } from 'react-i18next';
-
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { InputAdornment } from '@mui/material';
 
 import { IconButton } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import {
   labelDisplayThePassword,
@@ -27,7 +27,7 @@ const PasswordEndAdornment = ({
 
   return (
     <InputAdornment position="end">
-      <IconButton ariaLabel={t(label)} size="small" onClick={changeVisibility}>
+      <IconButton ariaLabel={t(label)} onClick={changeVisibility} size="small">
         {icon}
       </IconButton>
     </InputAdornment>

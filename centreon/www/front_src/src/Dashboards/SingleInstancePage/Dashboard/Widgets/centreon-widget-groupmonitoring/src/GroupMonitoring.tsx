@@ -1,9 +1,9 @@
-import { includes, isNotNil } from 'ramda';
-
 import { MemoizedListing } from '@centreon/ui';
 
-import NoResources from '../../NoResources';
+import { includes, isNotNil } from 'ramda';
+import { ReactElement } from 'react';
 
+import NoResources from '../../NoResources';
 import { useColumns } from './Columns/useColumns';
 import { FormattedGroup, WidgetProps } from './models';
 import { useGroupMonitoring } from './useGroupMonitoring';
@@ -19,8 +19,9 @@ const GroupMonitoring = ({
   dashboardId,
   playlistHash,
   widgetPrefixQuery,
-  hasDescription
-}: WidgetProps): JSX.Element => {
+  hasDescription,
+  isInViewport
+}: WidgetProps): ReactElement => {
   const {
     hasResourceTypeDefined,
     changeLimit,
@@ -36,15 +37,16 @@ const GroupMonitoring = ({
   } = useGroupMonitoring({
     dashboardId,
     globalRefreshInterval,
+    hasDescription,
     id,
     isFromPreview,
+    isInViewport,
     panelData,
     panelOptions,
     playlistHash,
     refreshCount,
     setPanelOptions,
-    widgetPrefixQuery,
-    hasDescription
+    widgetPrefixQuery
   });
 
   const columns = useColumns({
@@ -65,21 +67,21 @@ const GroupMonitoring = ({
 
   return (
     <MemoizedListing<FormattedGroup>
-      isResponsive
       columnConfiguration={{
         selectedColumnIds: columnsToDisplay,
         sortable: false
       }}
       columns={columns}
       currentPage={page}
+      isResponsive
       limit={limit}
+      onLimitChange={changeLimit}
+      onPaginate={changePage}
+      onSort={changeSort}
       rows={listing?.result || []}
       sortField={sortField}
       sortOrder={sortOrder}
       totalRows={listing?.meta.total || 0}
-      onLimitChange={changeLimit}
-      onPaginate={changePage}
-      onSort={changeSort}
     />
   );
 };

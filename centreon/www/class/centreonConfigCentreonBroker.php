@@ -24,6 +24,7 @@ use Centreon\Domain\Log\Logger;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
@@ -432,20 +433,23 @@ class CentreonConfigCentreonBroker
             }
 
             // If get information for read-only in database
+            $roValue = false;
             if (! is_null($field['value']) && $field['value'] !== false) {
-                $elementType = null;
                 $roValue = $this->getInfoDb($field['value']);
-                $field['value'] = $roValue;
-                if (is_array($roValue)) {
-                    $qf->addElement('select', $elementName, $displayName, $roValue);
-                } else {
-                    $qf->addElement('text', $elementName, $displayName, $this->attrText);
+                if ($elementType !== 'advmultiselect') {
+                    $elementType = null;
+                    $field['value'] = $roValue;
+                    if (is_array($roValue)) {
+                        $qf->addElement('select', $elementName, $displayName, $roValue);
+                    } else {
+                        $qf->addElement('text', $elementName, $displayName, $this->attrText);
+                    }
+                    $qf->freeze($elementName);
                 }
-                $qf->freeze($elementName);
             }
 
             // Add required informations
-            if ($field['required'] && is_null($field['value']) && $elementType != 'select') {
+            if ($field['required'] && is_null($field['value']) && ! in_array($elementType, ['select', 'advmultiselect'])) {
                 $elementAttr = array_merge($elementAttr, ['id' => $elementName, 'class' => 'v_required']);
             }
 
@@ -478,6 +482,10 @@ class CentreonConfigCentreonBroker
                     $el->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
                     $el->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
                     $el->setElementTemplate($this->advMultiTemplate);
+                    if ($roValue !== false) {
+                        $field['value'] = $roValue;
+                        $qf->freeze($elementName);
+                    }
                 } else {
                     $el = $qf->addElement($elementType, $elementName, $displayName, $elementAttr, $elementAttrSelect);
                 }
@@ -1302,11 +1310,8 @@ class CentreonConfigCentreonBroker
         /** @var Core\Infrastructure\Common\Api\Router $router */
         $router = $kernel->getContainer()->get(Core\Infrastructure\Common\Api\Router::class)
         ?? throw new LogicException('Router not found in container');
-        $client = new Symfony\Component\HttpClient\CurlHttpClient();
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
-        ];
+        $client = new InternalApiClient();
+        $sessionCookie = CentreonSession::resolveSessionCookie();
         $parameters = ['brokerId' => $configId];
         if ($basePath) {
             $parameters['base_uri'] = $basePath;
@@ -1322,42 +1327,42 @@ class CentreonConfigCentreonBroker
 
             foreach ($groups as $group) {
                 $payload = $this->buildPayload($group);
-                $response = $client->request(
-                    'POST',
-                    $url,
-                    [
-                        'headers' => $headers,
-                        'body' => json_encode($payload),
-                    ],
-                );
-                if ($response->getStatusCode() !== 201) {
-                    $content = json_decode($response->getContent(false));
+                $response = $client->request($url, 'POST', $sessionCookie, $payload);
 
-                    throw new Exception($content->message ?? 'Unexpected return status');
+                if ($response['status_code'] !== 201) {
+                    $message = $response['content']['message'] ?? 'Unexpected return status';
+
+                    throw new Exception($message);
                 }
             }
         }
     }
 
     /**
-     * Generate fieldtype array.
+     * Generate fieldinfos array.
      *
      * @param int $typeId The type id
-     * @return array
+     * @return array<string,array<string,{type:string,default:string|null}>|{type:string,default:string|null}>
      */
-    public function getFieldtypesWithGroup($typeId)
+    public function getFieldInfosWithGroup($typeId)
     {
-        $fieldTypes = [];
+        $fields = [];
         $block = $this->getBlockInfos($typeId);
         foreach ($block as $fieldInfos) {
-            if ($fieldInfos['group_name'] !== null) {
-                $fieldTypes[$fieldInfos['group_name']][$fieldInfos['fieldname']] = $fieldInfos['fieldtype'];
+            if (! empty($fieldInfos['group_name']) && $fieldInfos['group_name'] !== null) {
+                $fields[$fieldInfos['group_name']][$fieldInfos['fieldname']] = [
+                    'type' => $fieldInfos['fieldtype'],
+                    'default' => $fieldInfos['value'] ?? $this->getDefaults($fieldInfos['id']) ?? null,
+                ];
             } else {
-                $fieldTypes[$fieldInfos['fieldname']] = $fieldInfos['fieldtype'];
+                $fields[$fieldInfos['fieldname']] = [
+                    'type' => $fieldInfos['fieldtype'],
+                    'default' => $fieldInfos['value'] ?? $this->getDefaults($fieldInfos['id']) ?? null,
+                ];
             }
         }
 
-        return $fieldTypes;
+        return $fields;
     }
 
     /**
@@ -1768,7 +1773,7 @@ class CentreonConfigCentreonBroker
         /** @var string $blockId */
         $blockId = $inputOutput['blockId'];
         [, $typeId] = explode('_', $blockId);
-        $fieldTypes = $this->getFieldtypesWithGroup((int) $typeId);
+        $fieldTypes = $this->getFieldInfosWithGroup((int) $typeId);
 
         $payload = [
             'name' => $inputOutput['name'],
@@ -1782,9 +1787,11 @@ class CentreonConfigCentreonBroker
                     foreach ($groups as $subName => $subValue) {
                         [$groupName, $name] = explode('__', $subName);
 
-                        $fieldType = $fieldTypes[$groupName][$name];
-                        $payload['parameters'][$groupName][$index] ??= [];
-                        $this->addToPayload($payload['parameters'][$groupName][$index], $fieldType, $name, $subValue);
+                        $fieldType = $fieldTypes[$groupName][$name]['type'] ?? null;
+                        if ($fieldType !== null) {
+                            $payload['parameters'][$groupName][$index] ??= [];
+                            $this->addToPayload($payload['parameters'][$groupName][$index], $fieldType, $name, $subValue);
+                        }
                     }
                 }
             } else {
@@ -1794,9 +1801,9 @@ class CentreonConfigCentreonBroker
                     } else {
                         $name = $fieldName;
                     }
-                    $fieldType = $fieldTypes[$name] ?? null;
+                    $fieldType = $fieldTypes[$name]['type'] ?? null;
                 } else {
-                    $fieldType = $fieldTypes[$fieldName] ?? null;
+                    $fieldType = $fieldTypes[$fieldName]['type'] ?? null;
                 }
                 if ($fieldType !== null) {
                     $this->addToPayload($payload['parameters'], $fieldType, $fieldName, $fieldValue);
@@ -1804,15 +1811,16 @@ class CentreonConfigCentreonBroker
             }
         }
 
-        foreach ($fieldTypes as $name => $type) {
-            if ($type == 'multiselect') {
+        foreach ($fieldTypes as $name => $infos) {
+            if (! isset($infos['type'])) {
+                $infos['type'] = 'grouped';
+            } elseif ($infos['type'] === 'multiselect') {
                 $name = "filters_{$name}";
-            } elseif (is_array($type)) {
-                $type = 'grouped';
             }
+
             if (! array_key_exists($name, $payload['parameters'])) {
-                $payload['parameters'][$name] = match ($type) {
-                    'select', 'text', 'password', 'int', 'radio' => null,
+                $payload['parameters'][$name] = match ($infos['type']) {
+                    'select', 'text', 'password', 'int', 'radio' => $infos['default'],
                     'multiselect', 'grouped' => [],
                 };
             }
@@ -1905,7 +1913,8 @@ class CentreonConfigCentreonBroker
             foreach ($output as &$value) {
                 if (is_string($value) && $this->isAVaultPath($value)) {
                     $vaultValue = $readVaultRepository->findFromPath($value);
-                    $parameterKey = end(explode('::', $value));
+                    $vaultParts = explode('::', $value);
+                    $parameterKey = end($vaultParts);
                     $value = $vaultValue[$parameterKey] ?? $value;
                 }
             }

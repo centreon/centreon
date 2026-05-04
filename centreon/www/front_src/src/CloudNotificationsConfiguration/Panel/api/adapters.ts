@@ -1,4 +1,4 @@
-import { T, always, cond, equals, map, pipe, prop, sum } from 'ramda';
+import { always, cond, equals, map, pipe, prop, sum, T } from 'ramda';
 
 import { EventsType } from '../models';
 

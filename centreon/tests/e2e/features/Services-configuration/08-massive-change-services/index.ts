@@ -1,6 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { checkHostsAreMonitored, checkServicesAreMonitored } from 'commons';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 const services = {
   serviceCritical: {
@@ -54,12 +55,12 @@ beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-  }).as('getNavigationList');
+    url: INTERCEPTORS.pages.time_zone
+  }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
-  }).as('getTimeZone');
+    url: INTERCEPTORS.api.navigation_list
+  }).as('getNavigationList');
 });
 
 afterEach(() => {
@@ -111,11 +112,7 @@ Given('several services have been created with mandatory properties', () => {
 });
 
 When('the user has applied "Mass Change" operation on several services', () => {
-  cy.navigateTo({
-    page: 'Services by host',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesByHostLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(13).click();
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(14).click();

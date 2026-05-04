@@ -1,8 +1,9 @@
 import { Box } from '@mui/material';
-import { isNil, keys } from 'ramda';
-import { ReactElement } from 'react';
 
 import { ComponentColumnProps } from '@centreon/ui';
+
+import { isNil, keys } from 'ramda';
+import { ReactElement } from 'react';
 
 import { getStatus } from '../../utils';
 import StatusChip from './StatusChip';

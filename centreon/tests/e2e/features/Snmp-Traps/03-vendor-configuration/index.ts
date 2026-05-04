@@ -1,4 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import traps from '../../../fixtures/snmp-traps/snmp-trap.json';
 import data from '../../../fixtures/snmp-traps/vendor.json';
@@ -28,16 +30,16 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topcounter&action=servicesStatus'
-  }).as('getTopCounter');
+    url: INTERCEPTORS.pages.time_zone
+  }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
-  }).as('getTimeZone');
+    url: `${INTERCEPTORS.api.centreon_topcounter}&action=servicesStatus`
+  }).as('getTopCounter');
 });
 
 after(() => {
@@ -52,11 +54,7 @@ Given('a user is logged in Centreon', () => {
 });
 
 When('the user goes to "Configuration > SNMP Traps > Manufacturer"', () => {
-  cy.navigateTo({
-    page: 'Manufacturer',
-    rootItemNumber: 3,
-    subMenu: 'SNMP Traps'
-  });
+  cy.visit(PAGES.configuration.snmpTrapsManufacturerLegacy);
 });
 
 When('the user adds a new vendor', () => {
@@ -71,11 +69,7 @@ Then('the vendor configuration is added to the listing page', () => {
 });
 
 Given('a vendor {string} is configured', (step) => {
-  cy.navigateTo({
-    page: 'Manufacturer',
-    rootItemNumber: 3,
-    subMenu: 'SNMP Traps'
-  });
+  cy.visit(PAGES.configuration.snmpTrapsManufacturerLegacy);
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe(
     '#main-content',
@@ -173,11 +167,7 @@ Then('the deleted object is not displayed in the list', () => {
 Given('a passive service is linked to the vendor', () => {
   // make the already created service as a passive service
   cy.setPassiveResource('/centreon/api/latest/configuration/services/31');
-  cy.navigateTo({
-    page: 'Services',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesByHostLegacy);
   cy.wait('@getTimeZone');
   // click on the passive service to open edit form
   cy.getIframeBody().contains(services.serviceOk.name).click();
@@ -203,11 +193,7 @@ Given('a passive service is linked to the vendor', () => {
 });
 
 Given('an SNMP Trap is linked to the vendor', () => {
-  cy.navigateTo({
-    page: 'SNMP Traps',
-    rootItemNumber: 3,
-    subMenu: 'SNMP Traps'
-  });
+  cy.visit(PAGES.configuration.snmpTrapsLegacy);
   cy.wait('@getTimeZone');
   // Wait for the "Snmp Traps" search field to be charged on the DOM
   cy.waitForElementInIframe('#main-content', 'input[name="searchT"]');
@@ -242,11 +228,7 @@ Given('an SNMP Trap is linked to the vendor', () => {
 });
 
 When('the user goes to "Configuration > SNMP Traps > Generate"', () => {
-  cy.navigateTo({
-    page: 'Generate',
-    rootItemNumber: 3,
-    subMenu: 'SNMP Traps'
-  });
+  cy.visit(PAGES.configuration.snmpTrapsGenerateLegacy);
   cy.wait('@getTimeZone');
   // Wait for the "Poller" input to be charged on the "DOM"
   cy.waitForElementInIframe('#main-content', 'select[name="host"]');

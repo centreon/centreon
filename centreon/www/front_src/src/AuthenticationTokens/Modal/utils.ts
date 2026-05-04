@@ -1,9 +1,9 @@
+import { SelectEntry } from '@centreon/ui';
+
 import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { equals } from 'ramda';
-
-import { SelectEntry } from '@centreon/ui';
 
 import { TokenType } from '../models';
 import { Duration, UnitDate } from './models';
@@ -60,7 +60,8 @@ export const getDuration = ({
 
 export const tokenTypes = [
   { id: TokenType.API, name: 'API' },
-  { id: TokenType.CMA, name: 'Centreon monitoring agent' }
+  { id: TokenType.CMA, name: 'Centreon monitoring agent' },
+  { id: TokenType.Poller, name: 'Poller' }
 ];
 
 export const dataDuration: Array<Duration> = [

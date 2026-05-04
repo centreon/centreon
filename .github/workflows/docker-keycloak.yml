@@ -10,45 +10,77 @@ on:
     paths:
       - ".version"
       - ".github/docker/keycloak/**"
+      - ".github/workflows/docker-keycloak.yml"
   push:
     branches:
       - develop
     paths:
       - ".version"
       - ".github/docker/keycloak/**"
+      - ".github/workflows/docker-keycloak.yml"
 
 jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
+
   get-environment:
-    if: github.repository == 'centreon/centreon'
+    needs: [dependency-scan]
+    if: github.event.pull_request.head.repo.fork != true
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
   dockerize:
     needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      github.event.pull_request.head.repo.fork != true
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Login to registry
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
-          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-          username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
-          password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
+        with:
+          images: ghcr.io/${{ github.repository }}/keycloak
+          labels: |
+            org.opencontainers.image.description=Keycloak image for Centreon E2E tests
+            com.centreon.stability=${{ needs.get-environment.outputs.stability }}
+            com.centreon.version=${{ needs.get-environment.outputs.major_version }}
+
+      - name: Compute image tag
+        id: image_tag
+        run: |
+          if [ "${{ needs.get-environment.outputs.stability }}" = "unstable" ]; then
+            echo "value=${{ needs.get-environment.outputs.major_version }}" >> "$GITHUB_OUTPUT"
+          else
+            raw_ref="${{ github.head_ref || github.ref_name }}"
+            echo "value=${raw_ref//\//-}" >> "$GITHUB_OUTPUT"
+          fi
 
       - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
           file: .github/docker/keycloak/Dockerfile
           context: .
           pull: true
-          push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/keycloak:${{ needs.get-environment.outputs.major_version }}
+          outputs: type=image,push=true,annotation-index.org.opencontainers.image.description=Keycloak image for Centreon E2E tests
+          tags: ghcr.io/${{ github.repository }}/keycloak:${{ steps.image_tag.outputs.value }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   set-skip-label:
     needs: [get-environment, dockerize]

@@ -109,8 +109,14 @@ class CentreonMonitoring
                     AND h.name = :host_name
                 SQL;
         } else {
-            $accessGroups = $centreonXMLBGRequest->access->getAccessGroups();
-            [$bindValues, $subRequest] = $this->createMultipleBindQuery(array_keys($accessGroups), ':grp_');
+            $accessGroups = $centreonXMLBGRequest->access->getAccessGroups()->getIds();
+
+            // No access groups for non-admin user = 0 result
+            if ($accessGroups === []) {
+                return 0;
+            }
+
+            [$bindValues, $subRequest] = $this->createMultipleBindQuery($accessGroups, ':grp_');
             $query = <<<SQL
                 SELECT count(distinct s.service_id) as count, 1 AS REALTIME
                 FROM services s
@@ -181,8 +187,8 @@ class CentreonMonitoring
             SQL;
 
         if (! $centreonXMLBGRequest->is_admin) {
-            $accessGroups = $centreonXMLBGRequest->access->getAccessGroups();
-            [$bindValues, $accessGroupsSubQuery] = $this->createMultipleBindQuery(array_keys($accessGroups), ':grp_');
+            $accessGroups = $centreonXMLBGRequest->access->getAccessGroups()->getIds();
+            [$bindValues, $accessGroupsSubQuery] = $this->createMultipleBindQuery($accessGroups, ':grp_');
             $toBind = [...$toBind, ...$bindValues];
             $query .= <<<SQL
                 

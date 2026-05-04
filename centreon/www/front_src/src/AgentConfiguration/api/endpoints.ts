@@ -1,4 +1,5 @@
 import { buildListingEndpoint } from '@centreon/ui';
+
 import dayjs from 'dayjs';
 
 export const getAgentConfigurationsEndpoint =
@@ -27,6 +28,9 @@ export const getPollerAgentEndpoint = ({
 export const getAgentConfigurationEndpoint = (id: number) =>
   `${getAgentConfigurationsEndpoint}/${id}`;
 
+export const getInstallationCommandEndpoint = (id: number) =>
+  `/configuration/agent-configurations/installation-command/${id}`;
+
 export const hostsConfigurationEndpoint = '/configuration/hosts';
 
 export const listTokensEndpoint = '/administration/tokens';
@@ -47,8 +51,8 @@ export const tokensSearchConditions = [
   {
     field: 'expiration_date',
     values: {
-      $ge: dayjs(Date.now()),
-      $eq: null
+      $eq: null,
+      $ge: dayjs(Date.now())
     }
   }
 ];

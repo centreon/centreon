@@ -1,14 +1,13 @@
-import { SnackbarContent, useSnackbar } from 'notistack';
-import { isNil, not } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import IconClose from '@mui/icons-material/Close';
 import { Alert, IconButton } from '@mui/material';
 
-import { sanitizedHTML } from '../utils';
-
+import { SnackbarContent, useSnackbar } from 'notistack';
+import { isNil, not } from 'ramda';
 import { forwardRef, useEffect, useRef } from 'react';
-import Severity from './Severity';
+import { makeStyles } from 'tss-react/mui';
+
+import { sanitizedHTML } from '../utils';
+import type Severity from './Severity';
 
 const useStyles = makeStyles()((theme) => ({
   alertIcon: {
@@ -42,13 +41,15 @@ const Snackbar = forwardRef(
   ): JSX.Element => {
     const { classes } = useStyles();
     const { closeSnackbar } = useSnackbar();
-    const timeoutId = useRef<NodeJS.Timeout | undefined>();
+    const timeoutId = useRef<ReturnType<typeof setTimeout> | undefined>(
+      undefined
+    );
 
     useEffect((): void => {
       timeoutId.current = setTimeout(() => {
         closeSnackbar(id);
       }, 6000);
-    }, []);
+    }, [closeSnackbar, id]);
 
     const close = (): void => {
       if (not(isNil(timeoutId.current))) {
@@ -68,8 +69,8 @@ const Snackbar = forwardRef(
             <IconButton
               color="inherit"
               key="close"
-              size="large"
               onClick={close}
+              size="large"
             >
               <IconClose className={classes.closeIcon} />
             </IconButton>

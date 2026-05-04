@@ -1,9 +1,12 @@
-import { IconButton, SearchField } from '@centreon/ui';
 import CloseIcon from '@mui/icons-material/Close';
 import debounce from '@mui/utils/debounce';
+
+import { IconButton, SearchField } from '@centreon/ui';
+
 import { useAtom } from 'jotai';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import { searchAtom } from '../atom';
 import { labelClearFilter, labelSearch } from '../translatedLabels';
 
@@ -14,9 +17,9 @@ export const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
     <IconButton
       ariaLabel={t(labelClearFilter) as string}
       data-testid={labelClearFilter}
+      onClick={onClear}
       size="small"
       title={t(labelClearFilter) as string}
-      onClick={onClear}
     >
       <CloseIcon color="action" fontSize="small" />
     </IconButton>
@@ -47,13 +50,13 @@ const Filter = (): JSX.Element => {
 
   return (
     <SearchField
-      debounced
-      fullWidth
       dataTestId={t(labelSearch)}
+      debounced
+      EndAdornment={renderEndAdornmentFilter(clearFilter)}
+      fullWidth
+      onChange={onChange}
       placeholder={t(labelSearch)}
       value={inputValue}
-      onChange={onChange}
-      EndAdornment={renderEndAdornmentFilter(clearFilter)}
     />
   );
 };

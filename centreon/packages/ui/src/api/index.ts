@@ -1,4 +1,4 @@
-import axios, { CancelToken } from 'axios';
+import axios, { type CancelToken } from 'axios';
 import { isNil, not } from 'ramda';
 
 const contentTypeHeaders = {

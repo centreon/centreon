@@ -1,7 +1,7 @@
 {
   "name": "centreon/centreon-open-tickets",
   "description": "Module dedicated to open case on various Ticket systems",
-  "version": "26.01",
+  "version": "26.05",
   "type": "project",
   "keywords": [
     "centreon",
@@ -27,7 +27,7 @@
     "centreon/centreon": "@dev",
     "centreon/centreon-test-lib": "dev-master",
     "pestphp/pest": "2.36.*",
-    "symfony/console": "7.3.*"
+    "symfony/console": "7.4.*"
   },
   "autoload": {
     "psr-4": {
@@ -121,7 +121,7 @@
   "extra": {
     "symfony": {
       "allow-contrib": true,
-      "require": "7.3.*"
+      "require": "7.4.*"
     }
   }
 }

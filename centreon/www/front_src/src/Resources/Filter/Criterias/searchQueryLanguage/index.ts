@@ -1,3 +1,5 @@
+import type { SelectEntry } from '@centreon/ui';
+
 import pluralize from 'pluralize';
 import {
   __,
@@ -32,8 +34,6 @@ import {
   without
 } from 'ramda';
 
-import type { SelectEntry } from '@centreon/ui';
-
 import getDefaultCriterias from '../default';
 import {
   type Criteria,
@@ -41,7 +41,6 @@ import {
   criteriaValueNameById,
   selectableCriterias
 } from '../models';
-
 import {
   type AutocompleteSuggestionProps,
   type CriteriaId,
@@ -128,9 +127,9 @@ const parse = ({
         }
 
         return {
+          formattedName: value,
           id: index,
-          name: replaceEscapeWithSpace(value),
-          formattedName: value
+          name: replaceEscapeWithSpace(value)
         };
       })
     };

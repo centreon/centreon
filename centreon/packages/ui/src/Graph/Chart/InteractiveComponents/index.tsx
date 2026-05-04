@@ -1,10 +1,3 @@
-import {
-  MouseEvent,
-  type MutableRefObject,
-  ReactElement,
-  useMemo
-} from 'react';
-
 import { Event } from '@visx/visx';
 import type { ScaleLinear, ScaleTime } from 'd3-scale';
 import { useAtom, useSetAtom } from 'jotai';
@@ -26,6 +19,12 @@ import {
   toPairs,
   values
 } from 'ramda';
+import {
+  type MouseEvent,
+  type MutableRefObject,
+  type ReactElement,
+  useMemo
+} from 'react';
 import { makeStyles } from 'tss-react/mui';
 
 import {
@@ -36,6 +35,10 @@ import {
   getYScale
 } from '../../common/timeSeries';
 import type { Line, TimeValue } from '../../common/timeSeries/models';
+import {
+  computeGElementMarginLeft,
+  computPixelsToShiftMouse
+} from '../../common/utils';
 import { margin } from '../common';
 import type {
   AnnotationEvent,
@@ -43,25 +46,20 @@ import type {
   InteractedZone,
   InteractedZone as ZoomPreviewModel
 } from '../models';
-
-import {
-  computPixelsToShiftMouse,
-  computeGElementMarginLeft
-} from '../../common/utils';
 import Annotations from './Annotations';
 import type { TimelineEvent } from './Annotations/models';
 import Bar from './Bar';
-import TimeShiftZones from './TimeShiftZones';
-import ZoomPreview from './ZoomPreview';
-import { applyingZoomAtomAtom } from './ZoomPreview/zoomPreviewAtoms';
 import {
-  type MousePosition,
   changeMousePositionDerivedAtom,
   eventMouseDownAtom,
   eventMouseLeaveAtom,
   eventMouseUpAtom,
-  graphTooltipDataAtom
+  graphTooltipDataAtom,
+  type MousePosition
 } from './interactionWithGraphAtoms';
+import TimeShiftZones from './TimeShiftZones';
+import ZoomPreview from './ZoomPreview';
+import { applyingZoomAtomAtom } from './ZoomPreview/zoomPreviewAtoms';
 
 const useStyles = makeStyles()(() => ({
   overlay: {
@@ -173,8 +171,8 @@ const InteractionWithGraph = ({
   const graphMarginLeft = useMemo(
     () =>
       computeGElementMarginLeft({
-        maxCharacters: maxLeftAxisCharacters,
-        hasSecondUnit
+        hasSecondUnit,
+        maxCharacters: maxLeftAxisCharacters
       }) + additionalZoomMargin,
     [additionalZoomMargin, maxLeftAxisCharacters, hasSecondUnit]
   );
@@ -190,10 +188,10 @@ const InteractionWithGraph = ({
     }
     const pixelToShift = computPixelsToShiftMouse(xScale);
     const timeValue = getTimeValue({
+      marginLeft: graphMarginLeft,
       timeSeries,
       x: pointPosition[0] - pixelToShift,
-      xScale,
-      marginLeft: graphMarginLeft
+      xScale
     });
 
     if (isNil(timeValue)) {
@@ -318,10 +316,10 @@ const InteractionWithGraph = ({
         <ZoomPreview
           {...zoomData}
           graphHeight={graphHeight}
+          graphMarginLeft={graphMarginLeft}
+          graphSvgRef={graphSvgRef}
           graphWidth={graphWidth}
           xScale={xScale}
-          graphSvgRef={graphSvgRef}
-          graphMarginLeft={graphMarginLeft}
         />
       )}
       {displayEventAnnotations && (
@@ -345,14 +343,14 @@ const InteractionWithGraph = ({
         data-testid="graph-interaction-zone"
         fill="transparent"
         height={graphHeight - margin.bottom}
-        width={graphWidth}
-        x={0}
-        y={0}
         onMouseDown={mouseDown}
+        onMouseEnter={mouseEnter}
         onMouseLeave={mouseLeave}
         onMouseMove={mouseMove}
         onMouseUp={mouseUp}
-        onMouseEnter={mouseEnter}
+        width={graphWidth}
+        x={0}
+        y={0}
       />
     </g>
   );
