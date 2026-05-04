@@ -21,12 +21,9 @@
 
 declare(strict_types=1);
 
-namespace App\ActivityLogging\Domain\Aggregate;
+namespace App\MonitoringConfiguration\Domain\Security;
 
-enum TargetTypeEnum: string
+enum PollerPermissionEnum: string
 {
-    case Command = 'Command';
-    case Host = 'Host';
-    case Poller = 'Poller';
-    case ServiceCategory = 'ServiceCategory';
+    case CanCreateEdit = 'can_create_edit_poller';
 }

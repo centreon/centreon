@@ -21,12 +21,15 @@
 
 declare(strict_types=1);
 
-namespace App\ActivityLogging\Domain\Aggregate;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
 
-enum TargetTypeEnum: string
+use Webmozart\Assert\Assert;
+
+final readonly class ConnectorConfiguration
 {
-    case Command = 'Command';
-    case Host = 'Host';
-    case Poller = 'Poller';
-    case ServiceCategory = 'ServiceCategory';
+    public function __construct(
+        public ?string $connectorPath = null,
+    ) {
+        Assert::nullOrMaxLength($connectorPath, 255);
+    }
 }

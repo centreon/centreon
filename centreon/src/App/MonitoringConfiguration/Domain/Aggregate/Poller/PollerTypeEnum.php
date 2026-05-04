@@ -21,12 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\ActivityLogging\Domain\Aggregate;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
 
-enum TargetTypeEnum: string
+enum PollerTypeEnum: string
 {
-    case Command = 'Command';
-    case Host = 'Host';
-    case Poller = 'Poller';
-    case ServiceCategory = 'ServiceCategory';
+    case VM = 'vm';
+    case Docker = 'docker';
 }
