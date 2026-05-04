@@ -348,6 +348,59 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     /**
      * @inheritDoc
      */
+    public function findContactIdsByUser(ContactInterface $user): array
+    {
+        $query = <<<'SQL'
+            SELECT DISTINCT c.contact_id
+            FROM `:db`.contact c
+            LEFT JOIN `:db`.contactgroup_contact_relation ccr
+                ON c.contact_id = ccr.contact_contact_id
+            LEFT JOIN `:db`.acl_group_contacts_relations gcr
+                ON c.contact_id = gcr.contact_contact_id
+            LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
+                ON ccr.contactgroup_cg_id = gcgr.cg_cg_id
+            WHERE gcr.acl_group_id IN (
+                    SELECT acl_group_id
+                    FROM `:db`.acl_group_contacts_relations
+                    WHERE contact_contact_id = :userId1
+                    UNION
+                    SELECT user_acl_cg.acl_group_id
+                    FROM `:db`.acl_group_contactgroups_relations user_acl_cg
+                    INNER JOIN `:db`.contactgroup_contact_relation user_cg
+                        ON user_cg.contactgroup_cg_id = user_acl_cg.cg_cg_id
+                    WHERE user_cg.contact_contact_id = :userId2
+                )
+                OR gcgr.acl_group_id IN (
+                    SELECT acl_group_id
+                    FROM `:db`.acl_group_contacts_relations
+                    WHERE contact_contact_id = :userId3
+                    UNION
+                    SELECT user_acl_cg2.acl_group_id
+                    FROM `:db`.acl_group_contactgroups_relations user_acl_cg2
+                    INNER JOIN `:db`.contactgroup_contact_relation user_cg2
+                        ON user_cg2.contactgroup_cg_id = user_acl_cg2.cg_cg_id
+                    WHERE user_cg2.contact_contact_id = :userId4
+                )
+                OR ccr.contactgroup_cg_id IN (
+                    SELECT contactgroup_cg_id
+                    FROM `:db`.contactgroup_contact_relation
+                    WHERE contact_contact_id = :userId5
+                )
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $userId = $user->getId();
+        foreach ([':userId1', ':userId2', ':userId3', ':userId4', ':userId5'] as $token) {
+            $statement->bindValue($token, $userId, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findContactIdsByAccessGroups(array $accessGroupIds): array
     {
         $bind = [];
