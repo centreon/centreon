@@ -4,7 +4,7 @@
 OPTIONS="hst:v:r:l:p:d:V:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
-declare -A SUPPORTED_VERSION=([24.04]=1 [24.10]=1 [25.10]=1)
+declare -A SUPPORTED_VERSION=([24.10]=1 [25.10]=1)
 declare -A SUPPORTED_REPOSITORY=([testing-hotfix]=1 [testing-release]=1 [unstable]=1 [stable]=1)
 declare -A SUPPORTED_DBMS=([MariaDB]=1 [MySQL]=1)
 default_timeout_in_sec=5
@@ -479,13 +479,6 @@ function set_required_prerequisite() {
 
 			if [ "$topology" == "central" ]; then
 				case "$version" in
-					"24.04")
-					    install_remi_repo
-						log "INFO" "Installing PHP 8.1 and enable it"
-						$PKG_MGR module reset php -y -q
-						$PKG_MGR module install php:remi-8.1 -y -q
-						$PKG_MGR module enable php:remi-8.1 -y -q
-						;;
 					"24.10" | "25.10")
 						log "INFO" "Installing PHP 8.2 and enable it"
 						$PKG_MGR module reset php -y -q
@@ -528,13 +521,6 @@ function set_required_prerequisite() {
 
 			if [ "$topology" == "central" ]; then
 				case "$version" in
-					"24.04")
-						#install_remi_repo
-						log "INFO" "Installing PHP 8.1 and enable it"
-						$PKG_MGR module reset php -y -q
-						$PKG_MGR module install php:8.1 -y -q
-						$PKG_MGR module enable php:8.1 -y -q
-						;;
 					"24.10" | "25.10")
 						#install_remi_repo
 						log "INFO" "Installing PHP 8.2 and enable it"
@@ -580,22 +566,16 @@ function set_required_prerequisite() {
 		debian-release*)
 			case "$detected_os_version" in
 			11)
-				if ! [[ "$version" == "24.04" ]]; then
-					error_and_exit "For Debian $detected_os_version, only Centreon version 24.04 are compatible. You chose $version"
-				fi
-				PHP_SERVICE_UNIT="php8.1-fpm"
+				error_and_exit "Debian $detected_os_version is no longer supported by this script (Centreon 24.04 reached end of life). Please upgrade to Debian 12. See https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 				;;
 			12)
-				if ! [[ "$version" == "24.04" || "$version" == "24.10" || "$version" == "25.10" ]]; then
-					error_and_exit "For Debian $detected_os_version, only Centreon versions >= 24.04 are compatible. You chose $version"
-				elif [[ "$version" == "24.04" ]];then
-					PHP_SERVICE_UNIT="php8.1-fpm"
-				else
-					PHP_SERVICE_UNIT="php8.2-fpm"
+				if ! [[ "$version" == "24.10" || "$version" == "25.10" ]]; then
+					error_and_exit "For Debian $detected_os_version, only Centreon versions >= 24.10 are compatible. You chose $version"
 				fi
+				PHP_SERVICE_UNIT="php8.2-fpm"
 				;;
 			*)
-				error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9), Debian 11/12 and Ubuntu 22.04. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
+				error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 12. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 				;;
 			esac
 			${PKG_MGR} update && ${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl
@@ -609,12 +589,7 @@ function set_required_prerequisite() {
 			fi
 			;;
 		ubuntu-release*)
-			if ! [[ "$version" == "24.04" ]]; then
-				error_and_exit "For Ubuntu, only Centreon versions = 24.04 are compatible. You chose $version"
-			fi
-			PHP_SERVICE_UNIT="php8.1-fpm"
-			${PKG_MGR} update && ${PKG_MGR} install -y apt-transport-https gnupg2
-			repo_prefix="ubuntu"
+			error_and_exit "Ubuntu is no longer supported by this script (only Centreon 24.04 was compatible, and it has reached end of life). Please use Debian 12 or a Red-Hat compatible distribution (v8/v9). See https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 			;;
 		esac
 
@@ -635,12 +610,7 @@ function set_required_prerequisite() {
 
 		if [ "$topology" == "central" ]; then
 			# Add PHP repo
-			# if OLD VERSIONS => PHP 8.1(install remi repos), else PHP 8.2 (do not install remi repos)
 			case "$version" in
-				"24.04")
-					echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
-					wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
-					;;
 				"24.10" | "25.10")
 					echo "Installing php from official os repositories."
 					;;
