@@ -438,7 +438,12 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                 $insertHostQuery = 'INSERT INTO host (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ')';
                 $insertHostStmt = $pearDB->prepare($insertHostQuery);
                 foreach ($columns as $col) {
-                    $insertHostStmt->bindValue(':' . $col, $row[$col]);
+                    $value = $row[$col];
+                    $insertHostStmt->bindValue(
+                        ':' . $col,
+                        $value,
+                        $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR
+                    );
                 }
                 $insertHostStmt->execute();
                 $maxId = (int) $pearDB->lastInsertId();
@@ -612,7 +617,12 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                         $ehiPlaceholders = array_map(fn($col) => ':' . $col, $ehiColumns);
                         $ehiInsertStmt = $pearDB->prepare('INSERT INTO extended_host_information (' . implode(', ', $ehiColumns) . ') VALUES (' . implode(', ', $ehiPlaceholders) . ')');
                         foreach ($ehiColumns as $col) {
-                            $ehiInsertStmt->bindValue(':' . $col, $ehi[$col]);
+                            $val = $ehi[$col];
+                            $ehiInsertStmt->bindValue(
+                                ':' . $col,
+                                $val,
+                                $val === null ? PDO::PARAM_NULL : PDO::PARAM_STR
+                            );
                         }
                         $ehiInsertStmt->execute();
                         foreach ($ehi as $key2 => $value2) {
