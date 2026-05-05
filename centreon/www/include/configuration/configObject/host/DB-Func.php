@@ -413,7 +413,11 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
             continue;
         }
         $row['host_id'] = null;
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
+        $dupCount = (int) ($nbrDup[$key] ?? 0);
+        if ($dupCount < 1) {
+            continue;
+        }
+        for ($i = 1; $i <= $dupCount; $i++) {
             $hostName = null;
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
