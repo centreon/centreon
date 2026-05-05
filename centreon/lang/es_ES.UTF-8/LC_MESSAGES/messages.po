@@ -22617,8 +22617,8 @@ msgstr "Información sobre Centreon Broker"
 msgid "Centreon Broker socket path"
 msgstr "Ruta de socket Unix de Centreon Broker"
 
-#: unknown
 #, php-format
+#: unknown
 msgid ""
 "Centreon Broker's configuration directory '%s' does not exist and could "
 "not\n"
@@ -22841,8 +22841,8 @@ msgstr ""
 "No se pudo encontrar la base de datos de configuración. \n"
 "La sesión probablemente ha expirado"
 
-#: unknown
 #, php-format
+#: unknown
 msgid ""
 "Could not find configuration directory '%s' for monitoring engine '%s'.\n"
 "                                 Please check it's path or create it"
@@ -23651,8 +23651,8 @@ msgstr "La última vez en un estado desconocido."
 msgid "Last warning time"
 msgstr "Última vez en una advertencia estatal"
 
-#: unknown
 #, php-format
+#: unknown
 msgid "Latency detected on %s; check configuration for better optimisation"
 msgstr ""
 "Latencia detectada en %s; Compruebe la configuración para una mejor "
@@ -24732,8 +24732,8 @@ msgstr "Color del texto"
 msgid "The CSRF * token is invalid, please click"
 msgstr "El token * CSRF no es válido, haga clic aquí"
 
-#: unknown
 #, php-format
+#: unknown
 msgid "The SQL files are located in %s"
 msgstr "Los archivos SQL se encuentran en %s"
 
