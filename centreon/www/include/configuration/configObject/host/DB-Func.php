@@ -406,15 +406,18 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     $selectHostStatement = $pearDB->prepare('SELECT * FROM host WHERE host_id = :hostId LIMIT 1');
     foreach ($hosts as $key => $value) {
-        $selectHostStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
+        if (false === ($key = filter_var($key, FILTER_VALIDATE_INT))) {
+            continue;
+        }
+        $selectHostStatement->bindValue(':hostId', $key, PDO::PARAM_INT);
         $selectHostStatement->execute();
         $row = $selectHostStatement->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
             continue;
         }
         $row['host_id'] = null;
-        $dupCount = (int) ($nbrDup[$key] ?? 0);
-        if ($dupCount < 1) {
+        $dupCount = filter_var($nbrDup[$key] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        if ($dupCount === false) {
             continue;
         }
         for ($i = 1; $i <= $dupCount; $i++) {
@@ -2440,8 +2443,11 @@ function updateHostTemplateUsed($useTpls = [])
 
     $statement = $pearDB->prepare('UPDATE host SET host_template_model_htm_id = :templateId WHERE host_id = :hostId');
     foreach ($useTpls as $key => $value) {
+        if (false === ($key = filter_var($key, FILTER_VALIDATE_INT))) {
+            continue;
+        }
         $statement->bindValue(':templateId', getMyHostID($value));
-        $statement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
+        $statement->bindValue(':hostId', $key, PDO::PARAM_INT);
         $statement->execute();
     }
 }
