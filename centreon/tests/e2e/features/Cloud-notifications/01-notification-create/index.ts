@@ -40,7 +40,7 @@ beforeEach(() => {
   }).as('getNotifications');
   cy.intercept({
     method: 'GET',
-    url: `${INTERCEPTORS.api.users_configuration}/?page=1*`
+    url: `${INTERCEPTORS.api.users_configuration}?page=1*`
   }).as('getUsers');
   cy.intercept({
     method: 'GET',
