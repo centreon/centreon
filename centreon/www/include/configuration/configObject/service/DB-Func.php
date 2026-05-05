@@ -382,6 +382,9 @@ function enableServiceInDB($service_id = null, $service_arr = [])
         'SELECT service_description FROM `service` WHERE service_id = :serviceId LIMIT 1'
     );
     foreach (array_keys($service_arr) as $serviceId) {
+        if (filter_var($serviceId, FILTER_VALIDATE_INT) === false) {
+            continue;
+        }
         $updateStatement->bindValue(':serviceId', $serviceId, PDO::PARAM_INT);
         $updateStatement->execute();
 
@@ -413,10 +416,13 @@ function disableServiceInDB($service_id = null, $service_arr = [])
         'SELECT service_description FROM `service` WHERE service_id = :serviceId LIMIT 1'
     );
     foreach (array_keys($service_arr) as $serviceId) {
-        $updateStatement->bindValue(':serviceId', (int) $serviceId, PDO::PARAM_INT);
+        if (filter_var($serviceId, FILTER_VALIDATE_INT) === false) {
+            continue;
+        }
+        $updateStatement->bindValue(':serviceId', $serviceId, PDO::PARAM_INT);
         $updateStatement->execute();
 
-        $selectStatement->bindValue(':serviceId', (int) $serviceId, PDO::PARAM_INT);
+        $selectStatement->bindValue(':serviceId', $serviceId, PDO::PARAM_INT);
         $selectStatement->execute();
         $row = $selectStatement->fetch();
 
@@ -492,6 +498,9 @@ function deleteServiceInDB(array $services = []): void
         'DELETE FROM contact_service_relation WHERE service_service_id = :serviceId'
     );
     foreach ($serviceIds as $serviceId) {
+        if (filter_var($serviceId, FILTER_VALIDATE_INT) === false) {
+            continue;
+        }
         $previousPollerIds = getPollersForConfigChangeFlagFromServiceId($serviceId);
         removeRelationLastServiceDependency((int) $serviceId);
         $selectChildrenStatement->bindValue(':serviceId', (int) $serviceId, PDO::PARAM_INT);
@@ -704,6 +713,9 @@ function multipleServiceInDB(
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     $selectServiceStatement = $pearDB->prepare('SELECT * FROM service WHERE service_id = :serviceId LIMIT 1');
     foreach ($services as $key => $value) {
+        if (filter_var($key, FILTER_VALIDATE_INT) === false) {
+            continue;
+        }
         // Get all information about it
         $selectServiceStatement->bindValue(':serviceId', (int) $key, PDO::PARAM_INT);
         $selectServiceStatement->execute();
@@ -711,8 +723,8 @@ function multipleServiceInDB(
         $row['service_id'] = null;
 
         // Loop on the number of Service we want to duplicate
-        $dupCount = (int) ($nbrDup[$key] ?? 0);
-        if ($dupCount < 1) {
+        $dupCount = filter_var($nbrDup[$key] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        if ($dupCount === false) {
             continue;
         }
         for ($i = 1; $i <= $dupCount; $i++) {
