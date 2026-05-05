@@ -25,14 +25,22 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
 
 use Webmozart\Assert\Assert;
 
-final readonly class PollerName
+final readonly class BrokerConfiguration
 {
-    public const MIN_LENGTH = 1;
-    public const MAX_LENGTH = 40;
+    public const DEFAULT_RELOAD_COMMAND = 'systemctl reload cbd';
+    public const DEFAULT_CONFIGURATION_PATH = '/etc/centreon-broker';
+    public const DEFAULT_MODULES_PATH = '/usr/share/centreon/lib/centreon-broker';
+    public const DEFAULT_LOGS_PATH = '/var/log/centreon-broker';
 
     public function __construct(
-        public string $value,
+        public ?string $reloadCommand = self::DEFAULT_RELOAD_COMMAND,
+        public ?string $configurationPath = self::DEFAULT_CONFIGURATION_PATH,
+        public ?string $modulesPath = self::DEFAULT_MODULES_PATH,
+        public ?string $logsPath = self::DEFAULT_LOGS_PATH,
     ) {
-        Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
+        Assert::nullOrMaxLength($reloadCommand, 255);
+        Assert::nullOrMaxLength($configurationPath, 255);
+        Assert::nullOrMaxLength($modulesPath, 255);
+        Assert::nullOrMaxLength($logsPath, 255);
     }
 }
