@@ -1,5 +1,8 @@
 import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { find, propEq } from 'ramda';
+
+dayjs.extend(isSameOrAfter);
 
 import {
   CustomTimePeriod,

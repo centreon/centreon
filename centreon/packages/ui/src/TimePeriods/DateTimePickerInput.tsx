@@ -80,7 +80,9 @@ const DateTimePickerInput = ({
     >
       <DateTimePicker<dayjs.Dayjs>
         dayOfWeekFormatter={(dayOfWeek) =>
-          dayOfWeek.format('dd').toLocaleUpperCase()
+          typeof dayOfWeek === 'string'
+            ? dayOfWeek.toLocaleUpperCase()
+            : dayOfWeek.format('dd').toLocaleUpperCase()
         }
         desktopModeMediaQuery={desktopMediaQuery ?? desktopPickerMediaQuery}
         disabled={disabled}
