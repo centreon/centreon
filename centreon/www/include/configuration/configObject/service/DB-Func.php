@@ -711,7 +711,11 @@ function multipleServiceInDB(
         $row['service_id'] = null;
 
         // Loop on the number of Service we want to duplicate
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
+        $dupCount = (int) ($nbrDup[$key] ?? 0);
+        if ($dupCount < 1) {
+            continue;
+        }
+        for ($i = 1; $i <= $dupCount; $i++) {
             // Build column list and values for parameterized INSERT
             $columns = [];
             $placeholders = [];
