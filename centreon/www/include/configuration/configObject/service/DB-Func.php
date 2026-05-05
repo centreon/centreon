@@ -765,7 +765,11 @@ function multipleServiceInDB(
                         . implode(', ', $placeholders) . ')';
                     $insertStatement = $pearDB->prepare($insertSql);
                     foreach ($insertValues as $placeholder => $pValue) {
-                        $insertStatement->bindValue($placeholder, $pValue);
+                        $insertStatement->bindValue(
+                            $placeholder,
+                            $pValue,
+                            $pValue === null ? PDO::PARAM_NULL : PDO::PARAM_STR
+                        );
                     }
                     $insertStatement->execute();
                     $maxId = (int) $pearDB->lastInsertId();
@@ -910,12 +914,12 @@ function multipleServiceInDB(
                             $statement->bindValue(
                                 ':host_host_id',
                                 $host_id,
-                                PDO::PARAM_INT
+                                $host_id === null ? PDO::PARAM_NULL : PDO::PARAM_INT
                             );
                             $statement->bindValue(
                                 ':hostgroup_hg_id',
                                 $hg_id,
-                                PDO::PARAM_INT
+                                $hg_id === null ? PDO::PARAM_NULL : PDO::PARAM_INT
                             );
                             $statement->bindValue(
                                 ':service_service_id',
@@ -968,7 +972,11 @@ function multipleServiceInDB(
                                 . implode(', ', $esiColumns) . ') VALUES (' . implode(', ', $esiPlaceholders) . ')';
                             $esiInsertStatement = $pearDB->prepare($esiInsertSql);
                             foreach ($esi as $esiCol => $esiVal) {
-                                $esiInsertStatement->bindValue(':' . $esiCol, $esiVal);
+                                $esiInsertStatement->bindValue(
+                                    ':' . $esiCol,
+                                    $esiVal,
+                                    $esiVal === null ? PDO::PARAM_NULL : PDO::PARAM_STR
+                                );
                             }
                             $esiInsertStatement->execute();
                             foreach ($esi as $key2 => $value2) {
