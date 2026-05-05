@@ -208,11 +208,11 @@ function hasVirtualNameNeverUsed($vmetricName = null, $indexId = null)
 function deleteVirtualMetricInDB($vmetrics = [])
 {
     global $pearDB;
+    $prepareStatement = $pearDB->prepare(
+        'DELETE FROM virtual_metrics WHERE vmetric_id = :vmetric_id'
+    );
     foreach (array_keys($vmetrics) as $vmetricId) {
         try {
-            $prepareStatement = $pearDB->prepare(
-                'DELETE FROM virtual_metrics WHERE vmetric_id = :vmetric_id'
-            );
             $prepareStatement->bindValue(':vmetric_id', $vmetricId, PDO::PARAM_INT);
             $prepareStatement->execute();
         } catch (PDOException $e) {
@@ -231,52 +231,49 @@ function deleteVirtualMetricInDB($vmetrics = [])
 function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
 {
     global $pearDB;
+    $selectStmt = $pearDB->prepare(
+        'SELECT * FROM virtual_metrics WHERE vmetric_id = :vmetric_id LIMIT 1'
+    );
+
     foreach (array_keys($vmetrics) as $vmetricId) {
-        $prepareStatement = $pearDB->prepare(
-            'SELECT * FROM virtual_metrics WHERE vmetric_id = :vmetric_id LIMIT 1'
-        );
-        $prepareStatement->bindValue(':vmetric_id', $vmetricId, PDO::PARAM_INT);
+        $selectStmt->bindValue(':vmetric_id', $vmetricId, PDO::PARAM_INT);
 
         try {
-            $prepareStatement->execute();
+            $selectStmt->execute();
         } catch (PDOException $e) {
             echo 'DB Error : ' . $e->getMessage();
         }
 
-        $vmConfiguration = $prepareStatement->fetch();
-        $vmConfiguration['vmetric_id'] = '';
+        $vmConfiguration = $selectStmt->fetch();
+        unset($vmConfiguration['vmetric_id']);
+
+        $columns = array_keys($vmConfiguration);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO virtual_metrics (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
+
+        $originalVmetricName = $vmConfiguration['vmetric_name'];
+        $indexId = (int) $vmConfiguration['index_id'];
 
         for ($newIndex = 1; $newIndex <= $nbrDup[$vmetricId]; $newIndex++) {
-            $val = null;
-            $virtualMetricName = null;
-            foreach ($vmConfiguration as $cfgName => $cfgValue) {
-                if ($cfgName == 'vmetric_name') {
-                    $indexId = (int) $vmConfiguration['index_id'];
-                    $count = 1;
-                    $virtualMetricName = $cfgValue . '_' . $count;
-                    while (! hasVirtualNameNeverUsed($virtualMetricName, $indexId)) {
-                        $count++;
-                        $virtualMetricName = $cfgValue . '_' . $count;
-                    }
-                    $cfgValue = $virtualMetricName;
-                }
-
-                if (is_null($val)) {
-                    $val .= ($cfgValue == null)
-                        ? 'NULL'
-                        : "'" . $pearDB->escape($cfgValue) . "'";
-                } else {
-                    $val .= ($cfgValue == null)
-                        ? ', NULL'
-                        : ", '" . $pearDB->escape($cfgValue) . "'";
-                }
+            $count = 1;
+            $virtualMetricName = $originalVmetricName . '_' . $count;
+            while (! hasVirtualNameNeverUsed($virtualMetricName, $indexId)) {
+                $count++;
+                $virtualMetricName = $originalVmetricName . '_' . $count;
             }
-            if (! is_null($val)) {
-                try {
-                    $pearDB->query("INSERT INTO virtual_metrics VALUES ({$val})");
-                } catch (PDOException $e) {
-                    echo 'DB Error : ' . $e->getMessage();
-                }
+            $vmConfiguration['vmetric_name'] = $virtualMetricName;
+
+            foreach ($columns as $col) {
+                $value = $vmConfiguration[$col];
+                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            }
+
+            try {
+                $insertStmt->execute();
+            } catch (PDOException $e) {
+                echo 'DB Error : ' . $e->getMessage();
             }
         }
     }
