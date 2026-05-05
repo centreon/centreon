@@ -2387,7 +2387,8 @@ function updateHostTemplateService($hostId = null)
             }
         }
     } elseif ($centreon->user->get_version() >= 3) {
-        if (isset($ret['dupSvTplAssoc']['dupSvTplAssoc']) && $ret['dupSvTplAssoc']['dupSvTplAssoc']) {
+        $submittedValues = $form->getSubmitValues();
+        if (! empty($submittedValues['dupSvTplAssoc']['dupSvTplAssoc'])) {
             generateHostServiceMultiTemplate($hostId, $hostId);
         }
     }
@@ -2426,7 +2427,8 @@ function updateHostTemplateService_MC($host_id = null)
             }
         }
     } elseif ($centreon->user->get_version() >= 3) {
-        if (isset($ret['dupSvTplAssoc']['dupSvTplAssoc']) && $ret['dupSvTplAssoc']['dupSvTplAssoc']) {
+        $submittedValues = $form->getSubmitValues();
+        if (! empty($submittedValues['dupSvTplAssoc']['dupSvTplAssoc'])) {
             generateHostServiceMultiTemplate($host_id, $host_id);
         }
     }
