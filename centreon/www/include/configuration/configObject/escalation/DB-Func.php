@@ -255,10 +255,11 @@ function insertEscalation(CentreonDB $pearDB, array $data, bool $logAction = tru
 
     foreach ($params as $paramName => $paramType) {
         if ($paramType === PDO::PARAM_INT) {
+            $value = isset($data[$paramName]) && $data[$paramName] !== '' ? $data[$paramName] : null;
             $stmt->bindValue(
                 ':' . $paramName,
-                isset($data[$paramName]) && $data[$paramName] !== '' ? $data[$paramName] : null,
-                $paramType
+                $value,
+                $value === null ? PDO::PARAM_NULL : $paramType
             );
         } elseif ($paramType === PDO::PARAM_STR) {
             $value = isset($data[$paramName])
@@ -332,10 +333,11 @@ function updateEscalation(CentreonDB $pearDB, array $data, int $escalationId): v
 
     foreach ($params as $paramName => $paramType) {
         if ($paramType === PDO::PARAM_INT) {
+            $value = isset($data[$paramName]) && $data[$paramName] !== '' ? $data[$paramName] : null;
             $stmt->bindValue(
                 ':' . $paramName,
-                isset($data[$paramName]) && $data[$paramName] !== '' ? $data[$paramName] : null,
-                $paramType
+                $value,
+                $value === null ? PDO::PARAM_NULL : $paramType
             );
         } elseif ($paramType === PDO::PARAM_STR) {
             $value = isset($data[$paramName])
