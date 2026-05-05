@@ -12,9 +12,7 @@
   ],
   "exclude": [
     "./node_modules",
-    "./www/front_src/src/**/*.stories.tsx",
-    "./www/front_src/src/**/*.stories.ts",
-    "./www/front_src/src/**/*.cy.tsx",
+    "./cypress",
     "./www/front_src/src/**/*.cypress.spec.tsx",
     "./www/front_src/src/**/Specs/**",
     "./www/front_src/src/**/specs/**",
