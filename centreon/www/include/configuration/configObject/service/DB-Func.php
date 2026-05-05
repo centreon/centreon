@@ -216,11 +216,7 @@ function getHostServiceCombo($service_id = null, $service_description = null)
     $statement->execute();
     $row = $statement->fetch();
 
-    if ($row === false) {
-        $combo = '- / ' . $service_description;
-    } else {
-        $combo = $row['host_name'] . ' / ' . $service_description;
-    }
+    $combo = $row === false ? '- / ' . $service_description : $row['host_name'] . ' / ' . $service_description;
 
     return $combo;
 }
@@ -1186,8 +1182,7 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
         ? $ret['service_retry_check_interval'] : null;
     $rq .= "service_passive_checks_enabled = '2', service_obsess_over_service = '2', ";
     $rq .= 'service_check_freshness = :service_check_freshness, ';
-    $bindParams[':service_check_freshness'] = isset($ret['service_check_freshness']['service_check_freshness'])
-        ? $ret['service_check_freshness']['service_check_freshness'] : '2';
+    $bindParams[':service_check_freshness'] = $ret['service_check_freshness']['service_check_freshness'] ?? '2';
     $rq .= 'service_freshness_threshold = :service_freshness_threshold, ';
     $bindParams[':service_freshness_threshold'] = isset($ret['service_freshness_threshold']) && $ret['service_freshness_threshold'] != null
         ? $ret['service_freshness_threshold'] : null;
@@ -1378,8 +1373,7 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     $rq .= "service_active_checks_enabled = '2', service_passive_checks_enabled = '2', ";
     $rq .= "service_obsess_over_service = '2', ";
     $rq .= 'service_check_freshness = :service_check_freshness, ';
-    $bindParams[':service_check_freshness'] = isset($ret['service_check_freshness']['service_check_freshness'])
-        ? $ret['service_check_freshness']['service_check_freshness'] : '2';
+    $bindParams[':service_check_freshness'] = $ret['service_check_freshness']['service_check_freshness'] ?? '2';
     $rq .= 'service_freshness_threshold = :service_freshness_threshold, ';
     $bindParams[':service_freshness_threshold'] = isset($ret['service_freshness_threshold']) && $ret['service_freshness_threshold'] != null
         ? $ret['service_freshness_threshold'] : null;
@@ -2095,8 +2089,7 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
         ? $submittedValues['service_normal_check_interval'] : null;
     $bindParams[':service_retry_check_interval'] = isset($submittedValues['service_retry_check_interval']) && $submittedValues['service_retry_check_interval'] != null
         ? $submittedValues['service_retry_check_interval'] : null;
-    $bindParams[':service_check_freshness'] = isset($submittedValues['service_check_freshness']['service_check_freshness'])
-        ? $submittedValues['service_check_freshness']['service_check_freshness'] : '2';
+    $bindParams[':service_check_freshness'] = $submittedValues['service_check_freshness']['service_check_freshness'] ?? '2';
     $bindParams[':service_freshness_threshold'] = isset($submittedValues['service_freshness_threshold']) && $submittedValues['service_freshness_threshold'] != null
         ? $submittedValues['service_freshness_threshold'] : null;
     $bindParams[':service_event_handler_enabled'] = isset($submittedValues['service_event_handler_enabled']['service_event_handler_enabled'])
