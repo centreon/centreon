@@ -650,7 +650,7 @@ function divideHostGroupsToHost($service_id)
             setHostChangeFlag($pearDB, $host_id, null);
         }
     }
-    $dbResult->closeCursor();
+    $selectStatement->closeCursor();
 }
 
 function divideHostsToHost($service_id)
@@ -2068,7 +2068,7 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
         . ':service_template_model_stm_id, :command_command_id, :timeperiod_tp_id, :command_command_id2, '
         . "null, :service_description, :service_alias, '2', :service_max_check_attempts, "
         . ":service_normal_check_interval, :service_retry_check_interval, '2', '2', '2', "
-        . ":service_check_freshness, :service_freshness_threshold, :service_event_handler_enabled, "
+        . ':service_check_freshness, :service_freshness_threshold, :service_event_handler_enabled, '
         . "null, null, '2', '2', '2', null, null, '2', 0, 0, null, null, null, null, null, "
         . ':geo_coords, :command_command_id_arg, null, :service_register, :service_activate, NULL)';
     $bindParams[':service_template_model_stm_id'] = isset($submittedValues['service_template_model_stm_id']) && $submittedValues['service_template_model_stm_id'] != null
