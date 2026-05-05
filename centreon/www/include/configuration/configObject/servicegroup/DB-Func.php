@@ -94,17 +94,22 @@ function removeRelationLastServicegroupDependency(int $servicegroupId): void
 {
     global $pearDB;
 
-    $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
-              FROM dependency_servicegroupParent_relation
-              WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_servicegroupParent_relation
-                                         WHERE servicegroup_sg_id =  ' . $servicegroupId . ')
-              GROUP BY dependency_dep_id';
-    $dbResult = $pearDB->query($query);
-    $result = $dbResult->fetch();
+    $statement = $pearDB->prepare(
+        'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
+         FROM dependency_servicegroupParent_relation
+         WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_servicegroupParent_relation
+                                    WHERE servicegroup_sg_id = :sg_id)
+         GROUP BY dependency_dep_id'
+    );
+    $statement->bindValue(':sg_id', $servicegroupId, PDO::PARAM_INT);
+    $statement->execute();
+    $result = $statement->fetch();
 
     // is last parent
     if (isset($result['nb_dependency']) && $result['nb_dependency'] == 1) {
-        $pearDB->query('DELETE FROM dependency WHERE dep_id = ' . $result['id']);
+        $deleteStmt = $pearDB->prepare('DELETE FROM dependency WHERE dep_id = :dep_id');
+        $deleteStmt->bindValue(':dep_id', $result['id'], PDO::PARAM_INT);
+        $deleteStmt->execute();
     }
 }
 
@@ -286,6 +291,7 @@ function updateServiceGroupAcl(int $serviceGroupId, array $submittedValues = [])
      * @see linkServiceGroupToDataset
      */
     deleteServiceGroupFromDataset($serviceGroupId);
+
     foreach ($ruleIds as $ruleId) {
         $datasets = findDatasetsByRuleId($ruleId);
 
