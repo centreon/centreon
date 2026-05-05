@@ -136,7 +136,8 @@ EOF
 
 ENV PHP_VERSION=${PHP_VERSION}
 
-COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
+COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /usr/bin/systemctl
+COPY --chmod=755 ./.github/docker/centreon-web/init/journalctl /usr/bin/journalctl
 
 COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/
 
