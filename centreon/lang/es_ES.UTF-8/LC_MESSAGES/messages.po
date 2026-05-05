@@ -22444,8 +22444,8 @@ msgstr "La última vez en un estado desconocido."
 msgid "Last warning time"
 msgstr "Última vez en una advertencia estatal"
 
-#: unknown
 #, php-format
+#: unknown
 msgid "Latency detected on %s; check configuration for better optimisation"
 msgstr ""
 "Latencia detectada en %s; Compruebe la configuración para una mejor "
@@ -23577,8 +23577,8 @@ msgstr "Color del texto"
 msgid "The CSRF * token is invalid, please click"
 msgstr "El token * CSRF no es válido, haga clic aquí"
 
-#: unknown
 #, php-format
+#: unknown
 msgid "The SQL files are located in %s"
 msgstr "Los archivos SQL se encuentran en %s"
 

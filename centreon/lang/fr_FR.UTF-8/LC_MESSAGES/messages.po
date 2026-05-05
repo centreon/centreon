@@ -12,8 +12,8 @@ msgstr ""
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
 "PO-Revision-Date: 2026-05-04 13:16+0000\n"
 "Last-Translator: Cécile GENIER <cgenier@centreon.com>\n"
-"Language-Team: French <https://translate.apps.centreon.com/projects/"
-"centreon-infra-monitoring/24-10/web-messages-24-10/fr/>\n"
+"Language-Team: French <https://translate.apps.centreon.com/projects/centreon-"
+"infra-monitoring/24-10/web-messages-24-10/fr/>\n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -6162,7 +6162,8 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Error while retrieving LDAP auth information"
-msgstr "Erreur lors de la récupération des informations d'authentification LDAP"
+msgstr ""
+"Erreur lors de la récupération des informations d'authentification LDAP"
 
 #: centreon/src/Core/Command/Application/Exception/CommandException.php
 msgid "Error while retrieving a command"
@@ -21608,8 +21609,8 @@ msgstr "Dernière fois dans un état inconnu"
 msgid "Last warning time"
 msgstr "Derniere fois dans un état warning"
 
-#: unknown
 #, php-format
+#: unknown
 msgid "Latency detected on %s; check configuration for better optimisation"
 msgstr ""
 "Latence détectée pour %s, contrôler la configuration pour améliorer les "
@@ -23148,8 +23149,8 @@ msgstr "Couleur du texte"
 msgid "The CSRF * token is invalid, please click"
 msgstr "Le jeton * CSRF est invalide, s'il vous plaît cliquer ici"
 
-#: unknown
 #, php-format
+#: unknown
 msgid "The SQL files are located in %s"
 msgstr "Les fichiers SQL sont situés dans %s"
 
