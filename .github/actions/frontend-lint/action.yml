@@ -52,15 +52,17 @@ runs:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
     - name: Setup Biome CLI
-      uses: biomejs/setup-biome@c016c38f26f2c4a6eb3662679143614a254263fd # v2.3.0
+      uses: biomejs/setup-biome@454fa0d884737805f48d7dc236c1761a0ac3cc13 # v2.6.0
       with:
         working-dir: ${{ inputs.frontend_directory }}
         token: ${{ inputs.pat }}
+        version: 1.9.4
 
-    - uses: mongolyy/reviewdog-action-biome@8fa6a2cd987b0c08cb1a860df2df931f6cb9a822 # v1.9.0
+    - uses: mongolyy/reviewdog-action-biome@aed0b35b89586ed70a61e9749f2edd69c89e16fd # v1.13.0
       with:
         workdir: ${{ inputs.frontend_directory }}
         github_token: ${{ inputs.pat }}
         reporter: github-pr-check
+        filter_mode: nofilter
         fail_level: error
         biome_flags: ${{ inputs.lint_path }}
