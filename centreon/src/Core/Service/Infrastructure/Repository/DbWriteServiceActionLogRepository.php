@@ -45,8 +45,6 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
 {
     use LoggerTrait;
 
-    public mixed $contact;
-
     /**
      * @param WriteServiceRepositoryInterface $writeServiceRepository
      * @param TokenStorageInterface $tokenStorage
@@ -239,7 +237,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                     $service['id'],
                     $service['name'],
                     ActionLog::ACTION_TYPE_DELETE,
-                    $this->contact->getId()
+                    $this->getContactId()
                 );
                 $this->writeActionLogRepository->addAction($actionLog);
             }
