@@ -438,7 +438,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
             }
             if (hasHostNameNeverUsed($hostName)) {
                 $columns = array_keys($row);
-                $placeholders = array_map(fn($col) => ':' . $col, $columns);
+                $placeholders = array_map(fn ($col) => ':' . $col, $columns);
                 $insertHostQuery = 'INSERT INTO host (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ')';
                 $insertHostStmt = $pearDB->prepare($insertHostQuery);
                 foreach ($columns as $col) {
@@ -618,7 +618,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                         $ehi['host_host_id'] = $maxId;
                         $ehi['ehi_id'] = null;
                         $ehiColumns = array_keys($ehi);
-                        $ehiPlaceholders = array_map(fn($col) => ':' . $col, $ehiColumns);
+                        $ehiPlaceholders = array_map(fn ($col) => ':' . $col, $ehiColumns);
                         $ehiInsertStmt = $pearDB->prepare('INSERT INTO extended_host_information (' . implode(', ', $ehiColumns) . ') VALUES (' . implode(', ', $ehiPlaceholders) . ')');
                         foreach ($ehiColumns as $col) {
                             $val = $ehi[$col];
