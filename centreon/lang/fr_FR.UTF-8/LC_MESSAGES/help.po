@@ -8,15 +8,16 @@ msgstr ""
 "Project-Id-Version: Centreon web\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
-"PO-Revision-Date: 2017-03-17 09:57+0100\n"
-"Last-Translator: Laurent Pinsivy <lpinsivy@centreon.com>\n"
-"Language-Team: Centreon Team\n"
-"Language: fr\n"
+"PO-Revision-Date: 2026-05-04 13:17+0000\n"
+"Last-Translator: Cécile GENIER <cgenier@centreon.com>\n"
+"Language-Team: French <https://translate.apps.centreon.com/projects/centreon-"
+"infra-monitoring/24-10/web-help-24-10/fr/>\n"
+"Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.7.7\n"
+"X-Generator: Weblate 5.14.3\n"
 
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
@@ -92,7 +93,7 @@ msgstr "Alias de la règle sur les menus."
 #: centreon/www/include/configuration/configObject/contact/help.php
 msgid ""
 "Allow this user to access to Centreon Rest API Realtime with its account."
-msgstr ""
+msgstr "Autoriser ce compte à accéder à l'API REST temps réel Centreon."
 
 #: centreon/www/include/configuration/configObject/contact/help.php
 msgid "Allow this user to access to Centreon Rest API with its account."
@@ -117,6 +118,8 @@ msgid ""
 "Allows user to generate and export configuration, and restart centreontrapd "
 "process."
 msgstr ""
+"Permet à l'utilisateur de générer et d'exporter la configuration, et de "
+"redémarrer le processus centreontrapd."
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
 msgid ""
@@ -367,6 +370,8 @@ msgstr ""
 msgid ""
 "Backup directory to store partition, by default /var/cache/centreon/backup."
 msgstr ""
+"Répertoire de sauvegarde où stocker la partition, par défaut /var/cache/"
+"centreon/backup."
 
 #: centreon/www/include/Administration/parameters/backup/help.php
 msgid "Backup retention (in days)"
@@ -406,6 +411,9 @@ msgid ""
 "when it starts.You can override the initial state for a service by using "
 "this directive."
 msgstr ""
+"Par défaut, l'ordonnanceur considère que tous les services sont dans un état "
+"OK lors de son démarrage. Vous pouvez outrepasser ce comportement en "
+"utilisant cette directive."
 
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
@@ -635,7 +643,7 @@ msgstr "Compatible uniquement avec Centreon Broker."
 
 #: centreon/www/include/Administration/parameters/ldap/help.php
 msgid "Connection timeout"
-msgstr ""
+msgstr "Délai d'attente de connexion au serveur LDAP"
 
 #: centreon/www/include/configuration/configObject/command/help.php
 msgid ""
@@ -667,7 +675,7 @@ msgstr "Épaisseur de la courbe."
 
 #: centreon/www/include/views/componentTemplates/help.php
 msgid "Curve transparency. Used to export the chart."
-msgstr ""
+msgstr "Transparence de la courbe. Utilisée pour exporter le graphique."
 
 #: centreon/www/include/configuration/configObject/traps/help.php
 msgid ""
@@ -863,12 +871,16 @@ msgid ""
 "Define if SSL/TLS must be used to connect to API. It must match Gorgone "
 "httpserver module definition (Default: no)."
 msgstr ""
+"Définir si SSL/TLS doit être utilisé pour se connecter à l'API. La valeur "
+"doit être identique à celle du module Gorgone httpserver (par défaut : non)."
 
 #: centreon/www/include/Administration/parameters/gorgone/help.php
 msgid ""
 "Define if connection to Gorgone API can be done even if a self signed "
 "certificat is used (Default: yes)."
 msgstr ""
+"Définit si la connexion à l'API Gorgone peut être effectuée même si un "
+"certificat auto-signé est utilisé (par défaut : oui)."
 
 #: centreon/www/include/configuration/configObject/contact/help.php
 msgid ""
@@ -993,6 +1005,9 @@ msgid ""
 "Define the default page for this user (displayed when they log in). ACLs "
 "must be defined so the user can access the page"
 msgstr ""
+"Définir la page par défaut pour cet utilisateur (celle qui s'affiche "
+"lorsqu'il se connecte). Ses ACL doivent permettre à l'utilisateur d'accéder "
+"à cette page."
 
 #: centreon/www/include/configuration/configObject/contact/help.php
 msgid ""
@@ -1260,6 +1275,9 @@ msgid ""
 "(parameters). This timezone is used for hosts which have not configured "
 "timezone."
 msgstr ""
+"Définir le fuseau horaire du collecteur. S'il n'est pas défini, le fuseau "
+"horaire par défaut de Centreon est utilisé (paramètres). Ce fuseau horaire "
+"est utilisé pour les hôtes qui n'ont pas de fuseau horaire configuré."
 
 #: centreon/www/include/configuration/configObject/contact/help.php
 msgid ""
@@ -1431,6 +1449,10 @@ msgid ""
 "careful: if disabled, Broker statistics will not be available into Home > "
 "Broker statistics."
 msgstr ""
+"Activer la collecte des statistiques Centreon Broker sur le serveur central. "
+"Attention : si cette option est désactivée, les statistiques Broker ne "
+"seront pas disponibles à la page Administration > Statut de la plateforme > "
+"Statistiques du Broker."
 
 #: centreon/www/include/Administration/parameters/ldap/help.php
 msgid "Enable LDAP authentication"
@@ -1558,6 +1580,8 @@ msgid ""
 "Enable the rrdcached for Centreon. This option is valid only with Centreon "
 "Broker"
 msgstr ""
+"Activer rrdcached pour Centreon. Cette option n'est valide que pour Centreon "
+"Broker."
 
 #: centreon/www/include/Administration/parameters/centstorage/help.php
 msgid "Enable/Disable logging of all modifications in Centreon"
@@ -1830,7 +1854,7 @@ msgstr "Port de communication Gorgone (5556 ou 22)"
 
 #: centreon/www/include/views/graphTemplates/help.php
 msgid "Height of grid. Used to export the chart."
-msgstr ""
+msgstr "Hauteur de la grille. Utilisée pour exporter le graphique."
 
 #: centreon/www/include/views/virtualMetrics/help.php
 msgid "Hides curve and legend."
@@ -1898,12 +1922,21 @@ msgid ""
 "style=\"text-decoration: underline\" href=\"http://ceip.centreon.com/"
 "\">ceip.centreon.com</a>  for further details."
 msgstr ""
+"J'accepte de participer au programme d'amélioration de l'expérience client "
+"de Centreon, dans le cadre duquel des informations anonymes sur "
+"l'utilisation de ce serveur peuvent être envoyées à Centreon. Ces "
+"informations seront uniquement utilisées pour améliorer l'expérience "
+"utilisateur du logiciel. Je pourrai me désinscrire à tout moment. Rendez-"
+"vous sur <a style=\"text-decoration: underline\" href=\"http://"
+"ceip.centreon.com/\">ceip.centreon.com</a> pour plus de détails."
 
 #: centreon/www/include/Administration/parameters/gorgone/help.php
 msgid ""
 "IP Address or hostname to communicate with Gorgone API. Should remain "
 "default value (Default: \"127.0.0.1\")."
 msgstr ""
+"Adresse IP ou nom d'hôte à utiliser pour communiquer avec l'API Gorgone. "
+"Gardez la valeur par défaut (127.0.0.1)."
 
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "IP address or hostname of the database server."
@@ -1944,6 +1977,11 @@ msgid ""
 "pagesIf not checked this option will enable the full use of the new "
 "Monitoring page Resource Status"
 msgstr ""
+"Si l'option est activée, l'utilisation des pages dépréciées sera totalement "
+"rétablie. Cela inclut l'affichage des pages dépréciées, mais également "
+"toutes les redirections entre pages. Si l'option n'est pas activée, "
+"l'utilisation de la nouvelle page de supervision Statut des ressources sera "
+"pleinement activée."
 
 #: centreon/www/include/configuration/configServers/help.php
 msgid ""
@@ -1996,6 +2034,9 @@ msgid ""
 "chart.<br><b>Warning</b> : This option can slow down the display of the "
 "chart."
 msgstr ""
+"Si cette option est activée, les commentaires seront affichés sur les "
+"graphiques de statut.<br><b>Attention</b> : Cette option peut ralentir le "
+"chargement des graphiques."
 
 #: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
@@ -2047,7 +2088,7 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/knowledgeBase/help.php
 msgid "Ignore ssl certificate."
-msgstr ""
+msgstr "Ignorer le certificat SSL."
 
 #: centreon/www/include/configuration/configObject/host_dependency/help.php
 #: centreon/www/include/configuration/configObject/service_dependency/help.php
@@ -2059,6 +2100,8 @@ msgid ""
 "Illegal characters in external commands. Those characters will be removed "
 "before being processed by Centreon Gorgone."
 msgstr ""
+"Caractères illégaux dans les commandes externes. Ces caractères seront "
+"supprimés avant traitement par Centreon Gorgone."
 
 #: centreon/www/include/options/media/images/help.php
 msgid "Images."
@@ -2325,6 +2368,10 @@ msgid ""
 "and cannot contain white spaces, or special characters like ~!$%^&*\"|'<>?,"
 "()="
 msgstr ""
+"Nom de l'hôte ou du modèle d'hôtes. Le nom défini ici est utilisé dans les "
+"définitions de groupes d'hôtes et de services pour faire référence à cet "
+"hôte spécifique. Il doit être unique et ne peut pas contenir d'espaces ni "
+"les caractères spéciaux suivants ~!$%^&*\\\"|'<> ?,()="
 
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "Name of the input or output object that will act as failover."
@@ -2373,12 +2420,20 @@ msgid ""
 "Anonymized: You consent to share your platform data, but your alias and "
 "email will be anonymized."
 msgstr ""
+"Non : Vous ne consentez pas à partager les données de votre plateforme. "
+"Coordonnées : Vous consentez à partager vos données de plateforme, y compris "
+"votre alias et votre adresse email. Anonymisées : Vous consentez à partager "
+"les données de votre plateforme, mais votre alias et votre adresse email "
+"seront anonymisés."
 
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid ""
 "Notification inheritance for hosts and services. Vertical for the legacy "
 "mode, Close for the first valid object and Cumulative for all valid object."
 msgstr ""
+"Héritage des notifications pour les hôtes et les services. \"Vertical\" pour "
+"le mode legacy, \"Le plus proche\" pour le premier objet valide et "
+"\"Cumulatif\" pour tous les objets valides."
 
 #: centreon/www/include/views/componentTemplates/help.php
 msgid "Number of line breaks after the legend."
@@ -2462,13 +2517,15 @@ msgstr "Mot de passe associé au compte d'accès à la base de données."
 
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid "Password of the proxy (Only if you use basic authentication)."
-msgstr ""
+msgstr "Mot de passe du proxy (uniquement pour l'authentification basique)."
 
 #: centreon/www/include/Administration/parameters/gorgone/help.php
 msgid ""
 "Password used to connect to Gorgone API. It must match Gorgone httpserver "
 "module definition (Default: none)."
 msgstr ""
+"Mot de passe utilisé pour se connecter à l'API Gorgone. Il doit être "
+"identique à celui du module httpserver de Gorgone (par défaut : aucun)."
 
 #: centreon/www/include/configuration/configServers/help.php
 msgid "Path of binary of the scheduler"
@@ -2535,7 +2592,7 @@ msgstr "Collecteur distant sur lequel réaliser les opérations."
 
 #: centreon/www/include/Administration/parameters/rrdtool/help.php
 msgid "Port for communicating with rrdcached"
-msgstr ""
+msgstr "Port TCP pour communiquer avec le démon rrdcached."
 
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid "Port of the proxy."
@@ -2546,6 +2603,8 @@ msgid ""
 "Port on which Gorgone API is listening. It must match Gorgone httpserver "
 "module definition. Should remain default value (Default: \"8085\")."
 msgstr ""
+"Port sur lequel l'API Gorgone écoute. Il doit être identique à celui du "
+"module httpserver de Gorgone. Gardez la valeur par défaut (8085)."
 
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "Port on which the DB server listens"
@@ -2664,10 +2723,14 @@ msgstr ""
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid "Refresh interval used for statistics (top counters). Minimum value: 10"
 msgstr ""
+"Intervalle de rafraîchissement utilisé pour les statistiques des états des "
+"hôtes et services (tableaux situés en haut des pages). Valeur minimum : 10."
 
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid "Refresh interval used in monitoring consoles. Minimum value: 10"
 msgstr ""
+"Intervalle de rafraîchissement utilisé dans les pages de supervision. Valeur "
+"minimum : 10."
 
 #: centreon/www/include/Administration/parameters/engine/help.php
 msgid "Refresh interval used in the Tactical Overview page."
@@ -2702,10 +2765,12 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/hostgroup/help.php
 msgid "Resource access rule to which the host group should be linked"
 msgstr ""
+"Règle d'accès aux ressources à laquelle le groupe de services doit être lié."
 
 #: centreon/www/include/configuration/configObject/servicegroup/help.php
 msgid "Resource access rule to which the service group should be linked"
 msgstr ""
+"Règle d'accès aux ressources à laquelle le groupe de services doit être lié."
 
 #: centreon/www/include/configuration/configGenerate/help.php
 msgid "Restart the scheduler: Restart, Reload or External Command."
@@ -2732,6 +2797,8 @@ msgid ""
 "Retention time for partitioned tables (data_bin, logs, log_archive_host, "
 "log_archive_service), by default 365 days."
 msgstr ""
+"Période de rétention pour les tables partitionnées (data_bin, logs, "
+"log_archive_host, log_archive_service). Par défaut 365 jours."
 
 #: centreon/www/include/views/componentTemplates/help.php
 msgid "Rounds the value."
@@ -3311,6 +3378,8 @@ msgid ""
 "Switch token_endpoint_auth_method from client_secret_post to "
 "client_secret_basic"
 msgstr ""
+"Changer la méthode d'authentification token_endpoint_auth_method de "
+"client_secret_post à client_secret_basic."
 
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "Target DBMS."
@@ -3366,6 +3435,8 @@ msgid ""
 " This is a global option, go to Administration > Options > RRDTool to modify "
 "it."
 msgstr ""
+"Le port TCP utilisé pour communiquer avec rrdcached. Il s'agit d'une option "
+"globale. Allez à la page Administration > Options > RRDTool pour la modifier."
 
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid ""
@@ -3373,10 +3444,14 @@ msgid ""
 " This is a global option, go to Administration > Options > RRDTool to modify "
 "it."
 msgstr ""
+"Le socket Unix utilisé pour communiquer avec rrdcached. Il s'agit d'une "
+"option globale. Allez à la page Administration > Options > RRDTool pour la "
+"modifier."
 
 #: centreon/www/include/Administration/parameters/rrdtool/help.php
 msgid "The absolute path to unix socket for communicating with rrdcached"
 msgstr ""
+"Le chemin absolu vers le socket Unix utilisé pour communiquer avec rrdcached."
 
 #: centreon/www/include/configuration/configObject/traps-manufacturer/help.php
 msgid "The alias is a longer name or description for the vendor/manufacturer."
@@ -3816,6 +3891,9 @@ msgid ""
 "identify the host group.It is provided in order to allow you to more easily "
 "identify a particular host group."
 msgstr ""
+"Cette directive est utilisée pour définir un nom long ou une description "
+"identifiant le groupe d'hôtes. Elle vous permet d'identifier plus facilement "
+"un groupe d'hôtes en particulier."
 
 #: centreon/www/include/configuration/configObject/host_dependency/help.php
 #: centreon/www/include/configuration/configObject/service_dependency/help.php
@@ -4298,6 +4376,9 @@ msgid ""
 "This field should be filled only if filtering option is enabled. You can "
 "define the list of macros that should be sent to Centreon Broker."
 msgstr ""
+"Ce champ ne doit être rempli que si l'option de filtrage est activée. Vous "
+"pouvez définir la liste des macros qui doivent être envoyées à Centreon "
+"Broker."
 
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
@@ -4559,6 +4640,16 @@ msgid ""
 "longer than this limit, the monitoring engine will kill it off, thinking it "
 "is a runaway process."
 msgstr ""
+"Ceci est le nombre maximum de secondes allouées par le moteur de supervision "
+"pour le contrôle d'un service. Si le contrôle dépasse ce délai, celui-ci est "
+"tué et un état INCONNU est retourné. Une erreur \\\"timeout\\\" est "
+"également enregistrée dans le log. Cette option est destinée à être utilisée "
+"comme dernier recours pour tuer les sondes qui se comportent mal et qui ne "
+"se terminent pas dans le temps imparti. La valeur doit être suffisamment "
+"élevée (environ 60 secondes ou plus), de sorte que chaque contrôle puisse se "
+"terminer normalement avant ce délai. Si un contrôle de service dure plus que "
+"cette limite, le moteur de supervision le tuera, pensant que c'est un "
+"processus ayant des problèmes."
 
 #: centreon/www/include/Administration/parameters/engine/help.php
 msgid ""
@@ -4837,6 +4928,15 @@ msgid ""
 "field. This is appropriate only if you have a small amount of data, as it "
 "affects performance."
 msgstr ""
+"Cette option peut être utilisée pour éviter les problèmes de performance de "
+"recherche dans la page Statut des ressources, lors de la gestion de grandes "
+"quantités de données.\n"
+"Recherche limitée : la recherche texte libre sera effectuée uniquement sur "
+"les champs suivants : nom d'hôte, alias et adresse, et description du "
+"service. À utiliser si vous avez une grande quantité de données.\n"
+"Recherche complète : la recherche texte libre sera également effectuée sur "
+"le champ \"Informations\". Ceci est approprié uniquement si vous avez une "
+"petite quantité de données, car cela affecte les performances."
 
 #: centreon/www/include/configuration/configNagios/help.php
 msgid ""
@@ -5562,6 +5662,10 @@ msgid ""
 "expected quantity of checks will not have been\n"
 "    performed."
 msgstr ""
+"Cette option désactive tous les contrôles sur les services si l'hôte n'est "
+"pas dans un statut DISPONIBLE. Bien que souhaitable dans certains "
+"environnements, l'activation de cette valeur peut fausser les valeurs de "
+"rapport car la quantité attendue de contrôles n'aura pas été effectuée."
 
 #: centreon/www/include/configuration/configObject/contactgroup/help.php
 msgid ""
@@ -5596,6 +5700,9 @@ msgid ""
 "filtering of macros sent to broker.If you don't understand the purpose of "
 "enabling this option, please do not enable it."
 msgstr ""
+"Cette option de configuration avancée du moteur active ou non le filtrage "
+"des macros envoyées à Broker. Si vous ne comprenez pas le but de "
+"l'activation de cette option, veuillez ne pas l'activer."
 
 #: centreon/www/include/configuration/configObject/host/help.php
 #: centreon/www/include/configuration/configObject/service/help.php
@@ -5729,11 +5836,17 @@ msgid ""
 "responsible of the 'Last Update' column update in the Pollers listing. Value "
 "must be between 5 and 600. Default value is 30."
 msgstr ""
+"Intervalle de temps en secondes entre deux évènements heartbeat. Cet "
+"évènement détermine la valeur de la colonne \"Dernière mise à jour\" dans la "
+"liste des collecteurs. La valeur doit être comprise entre 5 et 600. La "
+"valeur par défaut est 30."
 
 #: centreon/www/include/Administration/parameters/api/help.php
 #: centreon/www/include/Administration/parameters/gorgone/help.php
 msgid "Timeout value in seconds. Used to make actions calls timeout."
 msgstr ""
+"Valeur du délai d'attente (en secondes) après lequel les commandes encore en "
+"cours seront arrêtées."
 
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
@@ -5806,12 +5919,15 @@ msgstr "Utilisateur DN pour la connexion en lecture seule au LDAP."
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid "User of the proxy (Only if you use basic authentication)."
 msgstr ""
+"Utilisateur pour le proxy (uniquement pour l'authentification basique)."
 
 #: centreon/www/include/Administration/parameters/gorgone/help.php
 msgid ""
 "Username used to connect to Gorgone API. It must match Gorgone httpserver "
 "module definition (Default: none)."
 msgstr ""
+"Nom d'utilisateur utilisé pour se connecter à l'API Gorgone. Il doit être "
+"identique à celui du module httpserver de Gorgone (par défaut : aucun)."
 
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "Usually cpus/2."
@@ -5927,6 +6043,10 @@ msgid ""
 "curve line color with transparency.For exported graphs, the area color is "
 "defined with those fields."
 msgstr ""
+"Lorsque la propriété de remplissage est activée, la couleur de la zone "
+"affichée dans Centreon est la couleur de la courbe avec une transparence. "
+"Pour les graphiques exportés, la couleur de la zone est définie dans les "
+"champs ci-contre."
 
 #: centreon/www/include/configuration/configObject/service/help.php
 msgid ""
@@ -6005,7 +6125,7 @@ msgstr "Disponibilité du groupe d'hôtes."
 
 #: centreon/www/include/views/graphTemplates/help.php
 msgid "Width of grid. Used to export the chart."
-msgstr ""
+msgstr "Largeur de la grille. Utilisée pour exporter le graphique."
 
 #: centreon/www/include/Administration/parameters/knowledgeBase/help.php
 msgid "Wiki account password."
@@ -6110,6 +6230,8 @@ msgid ""
 "Your OpenId Connect login claim value (if empty preferred_username will be "
 "used)."
 msgstr ""
+"Votre attribut \"login claim value\" OpenID Connect (si le champ est vide, "
+"l'attribut preferred_username sera utilisé)."
 
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid ""
@@ -6117,6 +6239,10 @@ msgid ""
 "{port} can be used for substitions, default is {scheme}://{hostname}:{port}/"
 "your_centreon_path/index.php if left empty)."
 msgstr ""
+"Votre URL de redirection OpenId Connect (ce serveur, {scheme}, {hostname} et "
+"{port} peuvent être utilisés pour des substitutions, la valeur par défaut "
+"est {scheme}://{hostname}:{port}/your_centreon_path/index.php si elle est "
+"laissée vide)."
 
 #: centreon/www/include/Administration/parameters/engine/help.php
 msgid "[Acknowledge services attached to hosts] option is enabled by default."
@@ -6161,6 +6287,8 @@ msgid ""
 "number of partitions created in advance to prevent issues, by default 10 "
 "days."
 msgstr ""
+"Nombre de partitions créées à l'avance pour éviter les problèmes, par défaut "
+"10 jours."
 
 #: unknown
 msgid "<br/>"
@@ -7049,7 +7177,6 @@ msgstr ""
 "modèle. Un service qui utilise ce modèle de service, complétera la "
 "relation d'hôte manquant et aboutira à une définition de service complet."
 
-#, fuzzy
 #: unknown
 msgid ""
 "Specify one or multiple service templates, that should be linked to this "
@@ -7061,7 +7188,9 @@ msgstr ""
 "Spécifie un ou plusieurs modèles de service, qui doit être lié à ce "
 "modèle. Un hôte, qui utilise ce modèle d'hôte, viendra compléter la "
 "relation hôte manquant et le résultat dans une définition de service "
-"complet."
+"complet. Notez que les fonctionnalités de notification basées sur "
+"l'héritage d'hôte ne fonctionneront pas si les hôtes ne sont pas "
+"supervisés par le même collecteur."
 
 #: unknown
 msgid ""
