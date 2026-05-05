@@ -71,6 +71,7 @@ use Core\ServiceCategory\Domain\Model\ServiceCategory;
 use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Application\Repository\WriteServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
+use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Utility\Difference\BasicDifference;
 
 final class PartialUpdateService
@@ -105,6 +106,7 @@ final class PartialUpdateService
         private readonly ReadCommandRepositoryInterface $readCommandRepository,
         private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
         private readonly AdminResolver $adminResolver,
+        private readonly ReadServiceTemplateRepositoryInterface $readServiceTemplateRepository,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
@@ -585,9 +587,11 @@ final class PartialUpdateService
 
         /** @var array<string,CommandMacro> $commandMacros */
         $commandMacros = [];
-        if ($service->getCommandId() !== null) {
+        $effectiveCommandId = $service->getCommandId()
+            ?? $this->findInheritedCommandId($inheritanceLine);
+        if ($effectiveCommandId !== null) {
             $existingCommandMacros = $this->readCommandMacroRepository->findByCommandIdAndType(
-                $service->getCommandId(),
+                $effectiveCommandId,
                 CommandMacroType::Service
             );
 
@@ -603,6 +607,34 @@ final class PartialUpdateService
                 : $inheritedMacros,
             $commandMacros,
         ];
+    }
+
+    /**
+     * Return the command ID of the first ancestor service template that defines one.
+     *
+     * @param int[] $inheritanceLine
+     *
+     * @throws \Throwable
+     *
+     * @return int|null
+     */
+    private function findInheritedCommandId(array $inheritanceLine): ?int
+    {
+        if ($inheritanceLine === []) {
+            return null;
+        }
+        $templates = $this->readServiceTemplateRepository->findByIds(...$inheritanceLine);
+        $indexed = [];
+        foreach ($templates as $template) {
+            $indexed[$template->getId()] = $template;
+        }
+        foreach ($inheritanceLine as $parentId) {
+            if (isset($indexed[$parentId]) && $indexed[$parentId]->getCommandId() !== null) {
+                return $indexed[$parentId]->getCommandId();
+            }
+        }
+
+        return null;
     }
 
     /**

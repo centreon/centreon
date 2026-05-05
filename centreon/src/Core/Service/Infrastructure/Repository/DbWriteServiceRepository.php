@@ -227,6 +227,26 @@ class DbWriteServiceRepository extends AbstractRepositoryRDB implements WriteSer
 
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function deleteByHostIdAndServiceTemplateId(int $hostId, int $serviceTemplateId): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                DELETE svc
+                FROM `:db`.`service` svc
+                INNER JOIN `:db`.`host_service_relation` hsr ON hsr.service_service_id = svc.service_id
+                WHERE svc.service_template_model_stm_id = :serviceTemplateId
+                AND svc.service_register = '1'
+                AND hsr.host_host_id = :hostId
+                SQL
+        ));
+        $statement->bindValue(':serviceTemplateId', $serviceTemplateId, \PDO::PARAM_INT);
+        $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
     private function updateBasicInformations(Service $service): void
     {
         $request = $this->translateDbName(

@@ -378,11 +378,6 @@ parameters:
 			path: src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
 
 		-
-			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) fh must contain 3 or more characters\.$#'
-			count: 3
-			path: src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
-
-		-
 			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) cc must contain 3 or more characters\.$#'
 			count: 1
 			path: src/CentreonRemote/ServiceProvider.php

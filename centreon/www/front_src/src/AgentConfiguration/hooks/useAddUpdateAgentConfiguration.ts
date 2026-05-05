@@ -1,19 +1,14 @@
-import {
-  Method,
-  SelectEntry,
-  useMutationQuery,
-  useSnackbar
-} from '@centreon/ui';
+import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 import { useQueryClient } from '@tanstack/react-query';
 import { FormikHelpers } from 'formik';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { equals, map, omit, pluck } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import {
   getAgentConfigurationEndpoint,
   getAgentConfigurationsEndpoint
 } from '../api/endpoints';
-import { agentTypeFormAtom, openFormModalAtom } from '../atoms';
+import { agentTypeFormAtom, isEditingAtom, openFormModalAtom } from '../atoms';
 import {
   AgentConfiguration,
   AgentConfigurationAPI,
@@ -43,7 +38,6 @@ const adaptTelegrafConfigurationToAPI = (
     ...omit(['pollers', 'connectionMode'], agentConfiguration),
     connection_mode: agentConfiguration?.connectionMode?.id,
     poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
-    type: (agentConfiguration.type as SelectEntry).id,
     configuration: {
       otel_private_key: getFieldBasedOnCertificate(
         configuration.otelPrivateKey
@@ -80,7 +74,6 @@ const adaptCMAConfigurationToAPI = (
     ...omit(['pollers', 'connectionMode'], agentConfiguration),
     connection_mode: agentConfiguration?.connectionMode?.id,
     poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
-    type: (agentConfiguration.type as SelectEntry).id,
     configuration: {
       port: configuration.agentInitiated ? configuration?.port : null,
       agent_initiated: configuration.agentInitiated,
@@ -137,6 +130,7 @@ export const useAddUpdateAgentConfiguration =
     const queryClient = useQueryClient();
 
     const [openFormModal, setOpenFormModal] = useAtom(openFormModalAtom);
+    const isEditing = useAtomValue(isEditingAtom);
     const [agentTypeForm, setAgentTypeForm] = useAtom(agentTypeFormAtom);
 
     const { mutateAsync } = useMutationQuery<
@@ -145,7 +139,7 @@ export const useAddUpdateAgentConfiguration =
     >({
       getEndpoint: ({ id }) =>
         id ? getAgentConfigurationEndpoint(id) : getAgentConfigurationsEndpoint,
-      method: equals(openFormModal, 'add') ? Method.POST : Method.PUT,
+      method: isEditing ? Method.PUT : Method.POST,
       onMutate: ({ _meta }) => {
         _meta.setSubmitting(true);
       },
@@ -170,13 +164,21 @@ export const useAddUpdateAgentConfiguration =
       values: AgentConfiguration,
       { setSubmitting }: FormikHelpers<AgentConfigurationAPI>
     ) => {
-      mutateAsync({
-        payload: equals(agentTypeForm, AgentType.Telegraf)
-          ? adaptTelegrafConfigurationToAPI(values)
-          : adaptCMAConfigurationToAPI(values),
+      const agentConfiguration = isEditing
+        ? omit(['type'], values)
+        : { ...values, type: values.type.id };
+
+      const payload = (
+        equals(agentTypeForm, AgentType.Telegraf)
+          ? adaptTelegrafConfigurationToAPI
+          : adaptCMAConfigurationToAPI
+      )(agentConfiguration);
+
+      return mutateAsync({
+        payload,
         _meta: {
           setSubmitting,
-          id: equals(openFormModal, 'add') ? null : openFormModal
+          id: isEditing ? openFormModal : null
         }
       });
     };

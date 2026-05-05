@@ -259,7 +259,7 @@ paths:
   /configuration/connectors:
     $ref: "./latest/onPremise/Configuration/Connector/FindConnectors.yaml"
   /configuration/hosts/{host_id}:
-    $ref: './latest/onPremise/Configuration/Host/DeleteAndPartialUpdateHost.yaml'
+    $ref: ./latest/onPremise/Configuration/Host/GetAndDeleteAndPartialUpdateHost.yaml
   /configuration/hosts/templates:
     $ref: './latest/onPremise/Configuration/HostTemplate/AddAndFindHostTemplates.yaml'
   /configuration/hosts/templates/{host_template_id}:
