@@ -420,12 +420,13 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
         if ($dupCount === false) {
             continue;
         }
+        $originalHostName = $row['host_name'];
         for ($i = 1; $i <= $dupCount; $i++) {
             $hostName = null;
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
                 if ($key2 == 'host_name') {
-                    $hostName = $value2 . '_' . $i;
+                    $hostName = $originalHostName . '_' . $i;
                     $row['host_name'] = $hostName;
                 }
                 if ($key2 != 'host_id') {
