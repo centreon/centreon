@@ -6,6 +6,12 @@ concurrency:
 
 on:
   workflow_dispatch:
+    inputs:
+      labels:
+        description: "Labels to add to the run (comma separated)"
+        required: false
+        default: ""
+        type: string
   pull_request:
     paths:
       - ".version*"
@@ -52,6 +58,7 @@ jobs:
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
+      labels: ${{ inputs.labels || '' }}
 
   dockerize:
     needs: [get-environment]

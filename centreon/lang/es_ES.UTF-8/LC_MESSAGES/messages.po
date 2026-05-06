@@ -25386,3 +25386,51 @@ msgstr ""
 #: packages/ui/src/Listing/translatedLabels.ts
 msgid "Loading..."
 msgstr ""
+
+#: unknown
+# msgid "Create new poller"
+# msgstr ""
+
+#: unknown
+# msgid "Enter your poller's name and address"
+# msgstr ""
+
+#: unknown
+# msgid "Select your poller's environment"
+# msgstr ""
+
+#: unknown
+# msgid "VM or physical"
+# msgstr ""
+
+#: unknown
+# msgid "Docker compose"
+# msgstr ""
+
+#: unknown
+# msgid "Select token"
+# msgstr ""
+
+#: unknown
+# msgid "Generate installation command"
+# msgstr ""
+
+#: unknown
+# msgid "The command is being generated…"
+# msgstr ""
+
+#: unknown
+# msgid "Click to generate the command. Once it's ready, copy it and run it in your environment."
+# msgstr ""
+
+#: unknown
+# msgid "Generating..."
+# msgstr ""
+
+#: unknown
+# msgid "Copy the following command and run it on your poller to register it."
+# msgstr ""
+
+#: unknown
+# msgid "Failed to create poller"
+# msgstr ""
