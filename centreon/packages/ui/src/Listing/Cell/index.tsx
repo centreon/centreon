@@ -70,6 +70,8 @@ const getRowTextColor = ({
   if (disableRowCondition(row)) {
     return { color: alpha(theme.palette.text.secondary, 0.5) };
   }
+
+  return undefined;
 };
 
 interface Props
