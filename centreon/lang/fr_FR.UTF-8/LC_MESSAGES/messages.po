@@ -10,15 +10,16 @@ msgstr ""
 "Project-Id-Version: Centreon web\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
-"PO-Revision-Date: 2025-07-02 11:28+0000\n"
-"Last-Translator: Weblate Admin <weblate.admin@example.com>\n"
-"Language-Team: Centreon Team\n"
+"PO-Revision-Date: 2026-04-17 09:26+0000\n"
+"Last-Translator: Cécile GENIER <cgenier@centreon.com>\n"
+"Language-Team: French <https://translate.apps.centreon.com/projects/"
+"centreon-infra-monitoring/develop/web-messages/fr/>\n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Weblate 5.12.1\n"
+"X-Generator: Weblate 5.14.3\n"
 
 #: centreon/www/install/smarty_translate.php
 msgid " + Add a new entry"
@@ -203,7 +204,7 @@ msgstr "<p>Montée de version en cours... N'interrompez pas le processus.</p>"
 
 #: centreon/www/install/front_translate.php
 msgid "@$!%*?&"
-msgstr ""
+msgstr "@$!%*?&"
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
@@ -3167,7 +3168,7 @@ msgstr "Période de temps compacte"
 
 #: centreon/www/install/front_translate.php
 msgid "Comparison rule for the requested authentication context"
-msgstr ""
+msgstr "Règle de comparaison pour le contexte d'authentification demandé"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Compression"
@@ -4838,7 +4839,7 @@ msgstr "Afficher le raccourci de connexion automatique"
 
 #: centreon/www/install/smarty_translate.php
 msgid "Display Chart"
-msgstr ""
+msgstr "Afficher le graphique"
 
 #: centreon/www/include/monitoring/downtime/listDowntime.php
 msgid "Display Finished Downtimes"
@@ -5728,7 +5729,7 @@ msgstr "Activer la négociation du protocole"
 
 #: centreon/www/install/front_translate.php
 msgid "Enable requested authentication context"
-msgstr ""
+msgstr "Activer le contexte d'authentification demandé"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Enable retention"
@@ -6367,7 +6368,7 @@ msgstr "Erreur lors de l'ajout du modèle de service"
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Error while creating contact"
-msgstr ""
+msgstr "Erreur lors de la création du contact"
 
 #: centreon/src/Core/HostCategory/Application/Exception/HostCategoryException.php
 msgid "Error while creating host category"
@@ -6399,7 +6400,7 @@ msgstr "Erreur lors de la suppression du modèle d'hôtes"
 
 #: centreon/src/Core/Media/Application/Exception/MediaException.php
 msgid "Error while deleting a media"
-msgstr ""
+msgstr "Erreur lors de la suppression du média"
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "Error while deleting a notification configuration"
@@ -6479,7 +6480,7 @@ msgstr "Erreur lors de la récupération des topologies ACL"
 
 #: centreon/www/include/configuration/configObject/contact/ldapImportContact.php
 msgid "Error while importing LDAP contact"
-msgstr ""
+msgstr "Erreur lors de l'import du contact LDAP"
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while linking a dashboard to its thumbnail"
@@ -6526,7 +6527,7 @@ msgstr "Erreur lors de la mise à jour partielle du jeton"
 
 #: centreon/www/include/configuration/configObject/contact/contact.php
 msgid "Error while processing contacts"
-msgstr ""
+msgstr "Erreur lors du traitement des contacts"
 
 #: centreon/src/Core/Security/ProviderConfiguration/Infrastructure/Local/Repository/ConfigurationException.php
 msgid "Error while reading local provider configuration"
@@ -6539,10 +6540,12 @@ msgstr "Erreur lors du rafraîchissement du jeton"
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Error while retrieving ACL groups for contact form"
 msgstr ""
+"Erreur lors de la récupération des groupes d'ACL pour le formulaire des "
+"contacts"
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Error while retrieving LDAP auth information"
-msgstr ""
+msgstr "Erreur lors de la récupération des informations d'authentification LDAP"
 
 #: centreon/src/Core/Command/Application/Exception/CommandException.php
 msgid "Error while retrieving a command"
@@ -6570,7 +6573,7 @@ msgstr "Error lors de la récupération d'un modèle d'hôtes"
 
 #: centreon/src/Core/Media/Application/Exception/MediaException.php
 msgid "Error while retrieving a media"
-msgstr ""
+msgstr "Erreur lors de la récupération du média"
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "Error while retrieving a notification configuration"
@@ -6610,10 +6613,12 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Error while retrieving contact information for contact form"
 msgstr ""
+"Erreur lors de la récupération des informations de contact pour le "
+"formulaire des contacts"
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Error while retrieving contact templates"
-msgstr ""
+msgstr "Erreur lors de la récupération des modèles de contact"
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while retrieving contacts allowed to receive a dashboard share"
@@ -6663,19 +6668,19 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Error while retrieving remote server information"
-msgstr ""
+msgstr "Erreur lors de la récupération des informations du serveur distant"
 
 #: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
 msgid "Error while retrieving service category"
-msgstr ""
+msgstr "Erreur lors de la récupération de la catégorie de services"
 
 #: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
 msgid "Error while retrieving service group"
-msgstr ""
+msgstr "Erreur lors de la récupération du groupe de services"
 
 #: centreon/src/Core/ServiceSeverity/Application/Exception/ServiceSeverityException.php
 msgid "Error while retrieving service severity"
-msgstr ""
+msgstr "Erreur lors de la récupération de la sévérité du service"
 
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "Error while retrieving service statuses distribution"
@@ -6692,6 +6697,7 @@ msgstr "Erreur lors de la récupération du nombre de services par statut"
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Error while retrieving topologies for contact form"
 msgstr ""
+"Erreur lors de la récupération des topologies pour le formulaire de contact"
 
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
 msgid "Error while search resource access rules"
@@ -6889,7 +6895,7 @@ msgstr "Erreur lors de la mise à jour d'un service"
 
 #: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
 msgid "Error while updating a service group"
-msgstr ""
+msgstr "Erreur lors de la mise à jour d'un groupe de services"
 
 #: centreon/src/Core/ServiceTemplate/Application/Exception/ServiceTemplateException.php
 msgid "Error while updating a service template"
@@ -6905,11 +6911,11 @@ msgstr "Erreur lors de la mise à jour des jetons d'authentification"
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Error while updating contact"
-msgstr ""
+msgstr "Erreur lors de la mise à jour du contact"
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Error while updating contact (massive change)"
-msgstr ""
+msgstr "Erreur lors de la mise à jour du contact (changement de masse)"
 
 #: centreon/src/Core/HostSeverity/Application/Exception/HostSeverityException.php
 msgid "Error while updating host severity"
@@ -6917,7 +6923,7 @@ msgstr "Erreur lors de la mise à jour de la sévérité d'hôtes"
 
 #: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
 msgid "Error while updating service category"
-msgstr ""
+msgstr "Erreur lors de la mise à jour de la catégorie du service"
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while updating the dashboard share"
@@ -8238,11 +8244,11 @@ msgstr "Cacher les graphiques des services sélectionnés"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Hide services with Down host"
-msgstr ""
+msgstr "Masquer les services avec hôte Indisponible"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Hide services with Unreachable host"
-msgstr ""
+msgstr "Masquer les services avec hôte Injoignable"
 
 #: centreon/www/install/front_translate.php
 msgid "Hide the password"
@@ -9439,7 +9445,7 @@ msgstr "Adresse invalide"
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 #, php-format
 msgid "Invalid argument for '%s', expected type: %s"
-msgstr ""
+msgstr "Argument invalide pour '%s'. Type attendu : %s"
 
 #: centreon/src/Core/Domain/Exception/InvalidGeoCoordException.php
 msgid "Invalid coordinates format specified"
@@ -10486,11 +10492,11 @@ msgstr "Gérer les droits d'accès"
 
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Manage check commands"
-msgstr ""
+msgstr "Gérer les commandes de contrôle"
 
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Manage discovery commands"
-msgstr ""
+msgstr "Gérer les commandes de découverte"
 
 #: centreon/www/install/front_translate.php
 msgid "Manage envelope size"
@@ -10502,11 +10508,11 @@ msgstr "Gérer les filtres"
 
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Manage miscellaneous commands"
-msgstr ""
+msgstr "Gérer les commandes de type Divers"
 
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Manage notification commands"
-msgstr ""
+msgstr "Gérer les commandes de notification"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Managed event TTL"
@@ -14688,15 +14694,15 @@ msgstr "Voir les graphiques pour cet hôte"
 
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "See check commands"
-msgstr ""
+msgstr "Voir les commandes de contrôle"
 
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "See discovery commands"
-msgstr ""
+msgstr "Voir les commandes de découverte"
 
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "See miscellaneous commands"
-msgstr ""
+msgstr "Voir les commandes de type Divers"
 
 #: centreon/www/install/front_translate.php
 msgid "See more information in the geoview"
@@ -14712,7 +14718,7 @@ msgstr "Plus d'informations à la page {{ page }}"
 
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "See notification commands"
-msgstr ""
+msgstr "Voir les commandes de notification"
 
 #: centreon/www/install/front_translate.php
 msgid "Seems that your Apache configuration is not up-to-date"
@@ -15705,7 +15711,7 @@ msgstr "Afficher le fuseau horaire"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Show value label"
-msgstr ""
+msgstr "Afficher les étiquettes de valeurs"
 
 #: centreon/www/install/front_translate.php
 msgid "Show value labels"
@@ -16931,6 +16937,8 @@ msgid ""
 "The requested_authn_context_comparison value is missing but is required when "
 "requested_authn_context is set to true"
 msgstr ""
+"La valeur de requested_authn_context_comparison est manquante, mais elle est "
+"requise lorsque requested_authn_context est à true"
 
 #: centreon/www/install/front_translate.php
 msgid "The resource access rule has been successfully deleted"
@@ -16986,7 +16994,7 @@ msgstr ""
 #: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
 #, php-format
 msgid "The service category name '%s' already exists"
-msgstr ""
+msgstr "Le nom de catégorie de services '%s' existe déjà"
 
 #: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
 #, php-format
@@ -17594,7 +17602,7 @@ msgstr "Les jetons sont obligatoires"
 
 #: centreon/www/install/front_translate.php
 msgid "Too many elements to be displayed (>{{graphsCapNumber}})"
-msgstr ""
+msgstr "Trop d'éléments à afficher (>{{graphsCapNumber}})"
 
 #: centreon/www/include/views/graphs/graphs.php
 msgid "Too many metrics (X). More than 20 may cause performance issues."
@@ -19070,7 +19078,7 @@ msgstr "Vous n'avez pas la permission d'accéder aux modèles d'hôtes"
 
 #: centreon/src/Core/Host/Application/Exception/HostException.php
 msgid "You are not allowed to access hosts"
-msgstr ""
+msgstr "Vous n'avez pas la permission d'accéder aux hôtes"
 
 #: centreon/src/Core/Host/Application/Exception/HostException.php
 msgid "You are not allowed to access hosts in the real time context"
@@ -19393,10 +19401,11 @@ msgstr "Vous n'avez pas la permission de mettre à jour des médias"
 #: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
 msgid "You are not allowed to update service categories"
 msgstr ""
+"Vous n'avez pas la permission de mettre à jour des catégories de services"
 
 #: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
 msgid "You are not allowed to update service groups"
-msgstr ""
+msgstr "Vous n'avez pas la permission de mettre à jour les groupes de services"
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "You are not allowed to update the notification configuration"
@@ -20955,8 +20964,8 @@ msgstr "Information sur Centreon Broker"
 msgid "Centreon Broker socket path"
 msgstr "Chemin d'accès au socket Unix de Centreon Broker"
 
-#, php-format
 #: unknown
+#, php-format
 msgid ""
 "Centreon Broker's configuration directory '%s' does not exist and could "
 "not\n"
@@ -21272,8 +21281,8 @@ msgstr ""
 "Impossible de trouver la base de données de configuration. La session a "
 "probablement expiré."
 
-#, php-format
 #: unknown
+#, php-format
 msgid ""
 "Could not find configuration directory '%s' for monitoring engine '%s'.\n"
 "                                 Please check it's path or create it"
@@ -22604,8 +22613,8 @@ msgstr "Dernière fois dans un état inconnu"
 msgid "Last warning time"
 msgstr "Derniere fois dans un état warning"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "Latency detected on %s; check configuration for better optimisation"
 msgstr ""
 "Latence détectée pour %s, contrôler la configuration pour améliorer les "
@@ -23990,8 +23999,8 @@ msgstr "Couleur du texte"
 msgid "The CSRF * token is invalid, please click"
 msgstr "Le jeton * CSRF est invalide, s'il vous plaît cliquer ici"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "The SQL files are located in %s"
 msgstr "Les fichiers SQL sont situés dans %s"
 

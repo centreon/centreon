@@ -29,6 +29,7 @@ use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationF
     DeployDefaultAgentConfigurationForPoller,
     DeployDefaultAgentConfigurationForPollerRequest
 };
+use Symfony\Component\Uid\Uuid;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
@@ -896,6 +897,135 @@ $addPollerTypeColumn = function () use ($pearDB, &$errorMessage, $version): void
     );
 };
 
+$addPollerUuidColumn = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add uuid column to nagios_server';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Adding uuid column to nagios_server",
+    );
+
+    $hasUuidColumn = $pearDB->columnExists(
+        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
+        'nagios_server',
+        'uuid'
+    );
+
+    if (! $hasUuidColumn) {
+        $pearDB->executeStatement(
+            <<<'SQL'
+                ALTER TABLE `nagios_server`
+                    ADD COLUMN `uuid` VARCHAR(36) DEFAULT NULL COMMENT 'UUIDv7 (36 chars with hyphens)'
+                SQL
+        );
+    } else {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Column uuid already exists on nagios_server",
+        );
+    }
+
+    $hasUniqUuidIndex = (bool) $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT 1
+            FROM INFORMATION_SCHEMA.STATISTICS
+            WHERE TABLE_SCHEMA = :db_name
+              AND TABLE_NAME = 'nagios_server'
+              AND INDEX_NAME = 'uniq_uuid'
+            LIMIT 1
+            SQL,
+        QueryParameters::create([
+            QueryParameter::string('db_name', $pearDB->getDatabaseName()),
+        ])
+    );
+
+    if (! $hasUniqUuidIndex) {
+        $pearDB->executeStatement(
+            <<<'SQL'
+                ALTER TABLE `nagios_server`
+                    ADD UNIQUE KEY `uniq_uuid` (`uuid`)
+                SQL
+        );
+    }
+
+    $pollersWithoutUuid = $pearDB->fetchAllAssociative(
+        'SELECT id FROM `nagios_server` WHERE `uuid` IS NULL'
+    );
+
+    foreach ($pollersWithoutUuid as $poller) {
+        $pearDB->executeStatement(
+            'UPDATE `nagios_server` SET `uuid` = :uuid WHERE `id` = :id',
+            QueryParameters::create([
+                QueryParameter::string('uuid', Uuid::v7()->toRfc4122()),
+                QueryParameter::int('id', (int) $poller['id']),
+            ])
+        );
+    }
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully added uuid column to nagios_server",
+    );
+};
+
+$addPollerNameUniqueConstraint = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add unique constraint on nagios_server.name';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Adding unique constraint on nagios_server.name",
+    );
+
+    $hasUniqNameIndex = (bool) $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT 1
+            FROM INFORMATION_SCHEMA.STATISTICS
+            WHERE TABLE_SCHEMA = :db_name
+              AND TABLE_NAME = 'nagios_server'
+              AND INDEX_NAME = 'uniq_name'
+            LIMIT 1
+            SQL,
+        QueryParameters::create([
+            QueryParameter::string('db_name', $pearDB->getDatabaseName()),
+        ])
+    );
+
+    if ($hasUniqNameIndex) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Unique constraint on nagios_server.name already exists, skipping",
+        );
+
+        return;
+    }
+
+    $duplicates = $pearDB->fetchAllAssociative(
+        <<<'SQL'
+            SELECT `name`, GROUP_CONCAT(`id` ORDER BY `id`) AS poller_ids
+            FROM `nagios_server`
+            GROUP BY `name`
+            HAVING COUNT(*) > 1
+            SQL
+    );
+
+    if ($duplicates !== []) {
+        $details = array_map(
+            static fn (array $row): string => "'{$row['name']}' (ids: {$row['poller_ids']})",
+            $duplicates
+        );
+
+        throw new RuntimeException(
+            'Cannot add unique constraint on nagios_server.name: duplicate poller names found — '
+            . implode(', ', $details)
+            . '. Please rename the duplicates manually before upgrading.'
+        );
+    }
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server` ADD UNIQUE KEY `uniq_name` (`name`)
+            SQL
+    );
+};
+
 /** ------------------------------------- SAML ------------------------------------- */
 /**
  * Recover SAML provider configurations whose requested_authn_context_comparison field was left in an
@@ -971,16 +1101,143 @@ $fixSamlRequestedAuthnContextComparison = function () use ($pearDB, &$errorMessa
     );
 };
 
-try {
-    // DDL statements for real time database
+/** -------------------------------------- Poller tokens -------------------------------------- */
+$updateAuthenticationTable = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to update and rename jwt_tokens table';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Updating jwt_tokens table",
+    );
+    $tableExistWithOldName = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT true FROM INFORMATION_SCHEMA.TABLES
+            WHERE table_schema = :db_name AND table_name = 'jwt_tokens'
+            SQL,
+        QueryParameters::create([
+            QueryParameter::string('db_name', $pearDB->getDatabaseName()),
+        ])
+    );
+    if ($tableExistWithOldName) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Renaming jwt_tokens table",
+        );
+        $pearDB->executeStatement(
+            <<<'SQL'
+                ALTER TABLE `jwt_tokens` RENAME TO `authentication_tokens`, COMMENT 'Table for tokens not used for api/ui login'
+                SQL
+        );
+    } else {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: jwt_tokens table not found, skipping rename",
+        );
+    }
+
+    if ($pearDB->columnExists(
+        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
+        'authentication_tokens',
+        'type'
+    )) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Nothing to update in authentication_tokens table",
+        );
+
+        return;
+    }
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Updating authentication_tokens table",
+    );
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `authentication_tokens`
+            ADD COLUMN `type` enum('cma','poller') DEFAULT 'cma' COMMENT 'Define token usage',
+            MODIFY COLUMN `token_string` varchar(4096) DEFAULT NULL COMMENT 'token string'
+            SQL
+    );
+};
+
+$createDefaultPollerToken = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to create default poller token';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Creating default poller token",
+    );
+
+    if ($pearDB->fetchOne(
+        <<<'SQL'
+            SELECT 1 FROM `authentication_tokens` WHERE `token_name` = 'poller-default' AND `type` = 'poller'
+            SQL
+    )) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Default poller token already exists, skipping creation",
+        );
+
+        return;
+    }
+
+    $adminInfos = $pearDB->fetchAssociative(
+        "SELECT `contact_id`, `contact_alias` FROM `contact` WHERE `contact_admin` = '1' LIMIT 1"
+    );
+    if ($adminInfos === false) {
+        CentreonLog::create()->warning(
+            CentreonLog::TYPE_BUSINESS_LOG,
+            'No admin contact found, skipping default poller token creation'
+        );
+
+        return;
+    }
+
+    $pearDB->insert(
+        <<<'SQL'
+            INSERT INTO `authentication_tokens`
+                (`token_string`, `token_name`, `creator_id`, `creator_name`, `encoding_key`, `is_revoked`, `creation_date`, `expiration_date`, `type`)
+            VALUES
+                (:token_string, 'poller-default', :creator_id, :creator_name, NULL, 0, :creation_date, NULL, 'poller')
+            SQL,
+        QueryParameters::create([
+            QueryParameter::string('token_string', Security\Encryption::generateRandomString()),
+            QueryParameter::int('creator_id', (int) $adminInfos['contact_id']),
+            QueryParameter::string('creator_name', $adminInfos['contact_alias']),
+            QueryParameter::int('creation_date', time()),
+        ])
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully created default poller token",
+    );
+};
+
+/** -------------------------------------- Log Actions -------------------------------------- */
+$updateLogActionTable = function () use ($pearDBO, &$errorMessage, $version): void {
+    $errorMessage = "Unable to update 'log_action' table";
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Updating log_action table",
+    );
+
     $pearDBO->executeStatement(
         <<<'SQL'
             ALTER TABLE `log_action` MODIFY COLUMN `log_contact_id` int(11) DEFAULT NULL
             SQL
     );
+};
+
+try {
+    // DDL statements for real time database
+    $updateLogActionTable();
 
     // DDL statements for configuration database
     $addPollerTypeColumn();
+    $addPollerUuidColumn();
+    $addPollerNameUniqueConstraint();
+    $updateAuthenticationTable();
 
     // SAML recovery for platforms affected by MON-198174
     $fixSamlRequestedAuthnContextComparison();
@@ -989,6 +1246,8 @@ try {
     if (! $pearDB->isTransactionActive()) {
         $pearDB->startTransaction();
     }
+
+    $createDefaultPollerToken();
 
     $createBrokerOutputEventScript();
     if ($isMachineACentral()) {

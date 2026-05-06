@@ -47,8 +47,10 @@ $pearDBO = new CentreonDB('centstorage');
 
 $sid = session_id();
 
-$DBRESULT = $pearDB->query("SELECT * FROM session WHERE session_id = '" . $pearDB->escape($sid) . "'");
-if (! $DBRESULT->rowCount()) {
+$DBRESULT = $pearDB->prepare('SELECT 1 FROM session WHERE session_id = :sid LIMIT 1');
+$DBRESULT->bindValue(':sid', $sid, PDO::PARAM_STR);
+$DBRESULT->execute();
+if ($DBRESULT->fetchColumn() === false) {
     exit();
 }
 
