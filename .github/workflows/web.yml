@@ -1126,6 +1126,40 @@ jobs:
       jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
+  bruno-api-test:
+    needs: [get-environment, changes, create-xray-test-plan-and-test-execution, dockerize]
+    if: |
+      needs.changes.outputs.trigger_api_testing == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
+    name: bruno-test ${{ matrix.operating_system }} ${{ matrix.database }}
+    uses: ./.github/workflows/bruno-api-test.yml
+    with:
+      collection_path: centreon/tests/api/web-api-workspace/collections
+      image_name: centreon-web
+      operating_system: ${{ matrix.operating_system }}
+      database_image: bitnamilegacy/${{ matrix.database }}
+      major_version: ${{ needs.get-environment.outputs.major_version }}
+      stability: ${{ needs.get-environment.outputs.stability }}
+      working_directory: centreon/tests/api/web-api-workspace
+      component-name: centreon
+      xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
+      upload_artifacts: ${{ contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
+    secrets:
+      registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+      registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+      client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+      jira_user: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
+
   legacy-e2e-test:
     needs: [get-environment, changes, dockerize]
     if: |

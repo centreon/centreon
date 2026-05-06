@@ -1,0 +1,30 @@
+meta {
+  name: GET /hosts - Get available hosts - HTTP 403
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/hosts
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  const body = res.getBody();
+  
+  test("Response is a 403 Forbidden error", function () {
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("code").that.equals(403);
+    expect(body.message).to.match(/you are not allowed/i);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

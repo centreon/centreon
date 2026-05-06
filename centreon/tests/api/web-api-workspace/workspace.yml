@@ -1,0 +1,12 @@
+opencollection: 1.0.0
+info:
+  name: "web-api-workspace"
+  type: workspace
+
+collections:
+  - name: "Host"
+    path: "collections/Host"
+
+specs:
+
+docs: ''
