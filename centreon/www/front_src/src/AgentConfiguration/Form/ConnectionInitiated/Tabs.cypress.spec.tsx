@@ -3,7 +3,7 @@ import { Tabs } from './Tabs';
 const defaultTabs = [
   { ariaLabel: 'Tab 1', label: 'Tab 1', value: 'tab1' },
   { ariaLabel: 'Tab 2', label: 'Tab 2', value: 'tab2' },
-  { ariaLabel: 'Tab 2', label: 'Tab 3', value: 'tab3' }
+  { ariaLabel: 'Tab 3', label: 'Tab 3', value: 'tab3' }
 ];
 
 const defaultChildren = [
