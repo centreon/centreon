@@ -1,5 +1,5 @@
 import { prop, sortBy } from 'ramda';
-import type { TabI } from 'src/components/Tabs/Tabs';
+import type { TabI } from '../../components/Tabs/Tabs';
 
 import type { Group } from '../Inputs/models';
 

@@ -70,7 +70,7 @@ export const deleteFilterEntryAtom = atom(
     const fieldEntries = get(filtersAtom)[field];
 
     const entryToDeleteIndex = findIndex(
-      ({ id }) => equals(entryToDelete.id, id),
+      ({ id }: (typeof fieldEntries)[number]) => equals(entryToDelete.id, id),
       fieldEntries
     );
 
