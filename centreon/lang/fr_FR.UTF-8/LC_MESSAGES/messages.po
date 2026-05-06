@@ -25030,9 +25030,9 @@ msgid "Broker reload command does not match the expected format. Please check th
 msgstr "La commande de rechargement du broker ne correspond pas au format attendu. Veuillez vérifier la configuration du serveur de supervision."
 
 #: packages/ui/src/Listing/translatedLabels.ts
-msgid "More than 1,000 resources match your search. Click to compute the exact count."
-msgstr "Plus de 1 000 ressources correspondent à votre recherche. Cliquez pour calculer le nombre exact."
+msgid "More than 1,000 resources match your search. Click to continue."
+msgstr "Plus de 1 000 ressources correspondent à votre recherche. Cliquez pour continuer."
 
 #: packages/ui/src/Listing/translatedLabels.ts
-msgid "Computing exact count…"
-msgstr "Calcul du nombre exact en cours…"
+msgid "Loading..."
+msgstr "Chargement en cours..."

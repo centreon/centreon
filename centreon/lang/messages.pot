@@ -21625,9 +21625,9 @@ msgid "{{total}} element(s) found"
 msgstr ""
 
 #: packages/ui/src/Listing/translatedLabels.ts
-msgid "More than 1,000 resources match your search. Click to compute the exact count."
+msgid "More than 1,000 resources match your search. Click to continue."
 msgstr ""
 
 #: packages/ui/src/Listing/translatedLabels.ts
-msgid "Computing exact count…"
+msgid "Loading..."
 msgstr ""
