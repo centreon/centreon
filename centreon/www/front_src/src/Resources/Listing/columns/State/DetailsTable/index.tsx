@@ -13,7 +13,7 @@ import type { Column, ColumnType, ListingModel } from '@centreon/ui';
 import { getData, useRequest } from '@centreon/ui';
 
 import { map, pipe, prop, sum } from 'ramda';
-import { useEffect, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 
 import {
   labelNo,
@@ -24,7 +24,7 @@ import {
 const getYesNoLabel = (value: boolean): string => (value ? labelYes : labelNo);
 
 interface DetailsTableColumn extends Column {
-  getContent: (details) => string | JSX.Element;
+  getContent: (details) => string | ReactElement;
   id: string;
   label: string;
   type: ColumnType;
@@ -39,7 +39,7 @@ export interface DetailsTableProps {
 const DetailsTable = <TDetails extends { id: number }>({
   endpoint,
   columns
-}: DetailsTableProps): JSX.Element => {
+}: DetailsTableProps): ReactElement => {
   const [details, setDetails] = useState<Array<TDetails> | null>();
 
   const { sendRequest } = useRequest<ListingModel<TDetails>>({
@@ -58,7 +58,10 @@ const DetailsTable = <TDetails extends { id: number }>({
   const error = details === null;
   const success = !loading && !error;
 
-  const tableMaxWidth = pipe(map(prop('width')), sum)(columns);
+  const tableMaxWidth = pipe(
+    map<{ width: number }, number>(prop('width')),
+    sum
+  )(columns);
 
   return (
     <TableContainer component={Paper}>

@@ -11,7 +11,7 @@ export const useDebounce = ({
   wait,
   memoProps = []
 }: Props): ((...args) => void) => {
-  const timeoutRef = useRef<number | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ref = useRef<((...args: Array<unknown>) => void) | undefined>(
     undefined
   );
