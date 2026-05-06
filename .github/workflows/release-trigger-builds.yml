@@ -94,20 +94,29 @@ jobs:
           RELEASE_TYPE="$(echo ${{ inputs.dispatch_target_release_branch }} | cut -d "-" -f1)"
           echo "Release type detected: $RELEASE_TYPE"
 
-          # Get previous stable release bundle tags
-          # Previous release bundle tag
-          if [[ "$RELEASE_SCOPE" == "cloud" ]]; then
-            PREVIOUS_STABLE_BUNDLE_TAG=$(git tag -l --sort=-version:refname "release-cloud-*-${RELEASE_BRANCH_MAJOR_VERSION}" | head -n 1)
-          elif [[ "$RELEASE_SCOPE" == "onprem" ]]; then
-            PREVIOUS_STABLE_BUNDLE_TAG=$(git tag -l --sort=-version:refname "release-onprem-*-${RELEASE_BRANCH_MAJOR_VERSION}" | head -n 1)
-          else
-            echo "Invalid release_scope: $RELEASE_SCOPE"
-          fi
+          # Get previous stable release bundle tag
+          # Step 1: try same major + same scope (normal case for hotfix and subsequent releases).
+          PREVIOUS_STABLE_BUNDLE_TAG=$(git tag -l --sort=-version:refname "release-${RELEASE_SCOPE}-*-${RELEASE_BRANCH_MAJOR_VERSION}" | head -n 1)
 
-          # Check if a tag was found
-          if [ -z "$PREVIOUS_STABLE_BUNDLE_TAG" ]; then
-            echo "Previous stable bundle tag not found: $PREVIOUS_STABLE_BUNDLE_TAG, exiting."
-            exit 1
+          # Step 2: if no same-major tag was found, decide based on RELEASE_TYPE.
+          # - hotfix requires a same-major same-scope tag (no fallback): a hotfix can only be created on top of an existing release.
+          # - release (incl. new major) can fall back to the most recent same-scope tag (any major) so that diff/summary still work.
+          if [[ -z "$PREVIOUS_STABLE_BUNDLE_TAG" ]]; then
+            echo "No previous stable bundle tag found for major '$RELEASE_BRANCH_MAJOR_VERSION' (scope: $RELEASE_SCOPE)."
+
+            if [[ "$RELEASE_TYPE" == "hotfix" ]]; then
+              echo "::error::Hotfix requires a previous stable bundle tag matching major '$RELEASE_BRANCH_MAJOR_VERSION' (scope: $RELEASE_SCOPE) but none was found. Hotfix branches can only be created from an existing release."
+              exit 1
+            fi
+
+            echo "Release type is '$RELEASE_TYPE': falling back to the most recent stable bundle tag for scope '$RELEASE_SCOPE' (any major)."
+            PREVIOUS_STABLE_BUNDLE_TAG=$(git tag -l --sort=-version:refname "release-${RELEASE_SCOPE}-*" | head -n 1)
+
+            if [[ -z "$PREVIOUS_STABLE_BUNDLE_TAG" ]]; then
+              echo "::error::No stable bundle tag found at all for scope '$RELEASE_SCOPE'. Cannot determine a base reference for diff, exiting."
+              exit 1
+            fi
+            echo "::warning::Using fallback previous stable bundle tag '$PREVIOUS_STABLE_BUNDLE_TAG' from a different major than '$RELEASE_BRANCH_MAJOR_VERSION'."
           else
             echo "Previous stable bundle tag found: $PREVIOUS_STABLE_BUNDLE_TAG"
           fi
