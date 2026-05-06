@@ -58,10 +58,11 @@ import {
 } from './listingAtoms';
 import useLoadResources from './useLoadResources';
 import useViewerMode from './useViewerMode';
+import { ReactElement } from 'react';
 
 export const okStatuses = ['OK', 'UP'];
 
-const ResourceListing = (): JSX.Element => {
+const ResourceListing = (): ReactElement => {
   const theme = useTheme();
   const { t } = useTranslation();
   const { isPending, updateUser, viewerMode } = useViewerMode();

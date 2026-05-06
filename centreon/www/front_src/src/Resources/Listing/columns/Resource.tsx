@@ -2,6 +2,7 @@ import type { ComponentColumnProps } from '@centreon/ui';
 
 import { useAtomValue } from 'jotai';
 import { equals, isNil } from 'ramda';
+import { ReactElement } from 'react';
 
 import { selectedVisualizationAtom } from '../../Actions/actionsAtoms';
 import { Visualization } from '../../models';
@@ -12,10 +13,9 @@ import { getStatus } from './ServiceSubItemColumn/SubItem';
 
 const ResourceColumn = ({
   row,
-  isHovered,
   renderEllipsisTypography
-}: ComponentColumnProps): JSX.Element => {
-  const { classes } = useColumnStyles({ isHovered });
+}: ComponentColumnProps): ReactElement => {
+  const { classes } = useColumnStyles();
 
   const visualization = useAtomValue(selectedVisualizationAtom);
 
