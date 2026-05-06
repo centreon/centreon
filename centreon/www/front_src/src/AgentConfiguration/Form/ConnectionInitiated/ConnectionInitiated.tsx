@@ -57,7 +57,7 @@ const TabContent = ({ label, tooltipLabel, name }: TabContentProps) => {
 
 const tabs = [
   {
-    areaLabel: labelByAgent,
+    ariaLabel: labelByAgent,
     label: (
       <TabContent
         label={labelByAgent}
@@ -68,7 +68,7 @@ const tabs = [
     value: 'agent'
   },
   {
-    areaLabel: labelByPoller,
+    ariaLabel: labelByPoller,
     label: (
       <TabContent
         label={labelByPoller}

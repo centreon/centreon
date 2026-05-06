@@ -12,7 +12,7 @@ type Props = {
   tabs: Array<{
     label: string | JSX.Element;
     value: string;
-    areaLabel: string;
+    ariaLabel: string;
   }>;
 };
 
@@ -42,9 +42,9 @@ export const Tabs = ({
         variant="fullWidth"
         {...tabList}
       >
-        {tabs.map(({ value, label, areaLabel }) => (
+        {tabs.map(({ value, label, ariaLabel }) => (
           <Tab
-            aria-label={areaLabel}
+            aria-label={ariaLabel}
             className={classes.tab}
             key={value}
             label={label}
