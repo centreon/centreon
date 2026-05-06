@@ -55,8 +55,8 @@ const Axes = ({
   const tickFormat =
     data?.axisX?.xAxisTickFormat ?? getXAxisTickFormat({ end, start });
 
-  const formatAxisTick = (tick): string =>
-    format({ date: new Date(tick), formatString: tickFormat });
+  const formatAxisTick = (tick: unknown): string =>
+    format({ date: new Date(tick as number | Date), formatString: tickFormat });
 
   const displayAxisRight = !isNil(secondUnit) && !isNil(rightScale);
 

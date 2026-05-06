@@ -48,13 +48,44 @@ const getFirstBarHeight = ({
   return barWidth;
 };
 
-const getPadding = ({ padding, size, isNegativeValue }): number => {
+interface GetPaddingProps {
+  padding: number;
+  size: number;
+  isNegativeValue: boolean;
+}
+
+const getPadding = ({
+  padding,
+  size,
+  isNegativeValue
+}: GetPaddingProps): number => {
   if (!isNegativeValue) {
     return padding;
   }
 
   return padding + size;
 };
+
+interface BarProps {
+  barRoundedProps: Record<string, boolean>;
+  bar: Omit<BarGroupBar<StackKey>, 'key' | 'value'> & {
+    bar: SeriesPoint<unknown>;
+    key: StackKey;
+  };
+  isTooltipHidden: boolean;
+  isHorizontal: boolean;
+  shouldApplyRadiusOnBottom: boolean;
+  barPadding: number;
+  barWidth: number;
+  neutralValue: number;
+  isNegativeValue: boolean;
+  barIndex: number;
+  exitBar: () => void;
+  hoverBar: (props: { barIndex: number; highlightedMetric: number }) => () => void;
+  barY: number;
+  barStyle: BarStyle;
+  yScale: ScaleLinear<number, number>;
+}
 
 export const Bar = ({
   barRoundedProps,
@@ -72,7 +103,7 @@ export const Bar = ({
   barY,
   barStyle,
   yScale
-}): ReactElement => {
+}: BarProps): ReactElement => {
   const style = getStyle({
     metricId: Number(bar.key),
     style: barStyle

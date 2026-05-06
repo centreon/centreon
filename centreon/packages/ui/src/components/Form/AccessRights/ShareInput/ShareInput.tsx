@@ -43,8 +43,8 @@ const ShareInput = ({ labels, endpoints, roles }: Props): ReactElement => {
       <ContactSwitch labels={labels} />
       <div className={classes.inputs}>
         <SingleConnectedAutocompleteField
+          {...({ clearable: true } as Record<string, unknown>)}
           changeIdValue={changeIdValue}
-          clearable
           disableClearable={false}
           field="name"
           fullWidth

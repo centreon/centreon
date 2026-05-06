@@ -27,8 +27,8 @@ interface GetBackgroundColorProps extends Omit<Props, 'isRowHighlighted'> {
 interface GetRowHighlightStyleProps {
   isRowHighlighted?: boolean;
   theme: Theme;
-  disableRowCondition;
-  row;
+  disableRowCondition: (row: Record<string, unknown>) => boolean;
+  row?: Record<string, unknown>;
 }
 
 const getBackgroundColor = ({
@@ -38,7 +38,7 @@ const getBackgroundColor = ({
   disableRowCondition,
   theme
 }: GetBackgroundColorProps): string => {
-  if (disableRowCondition(row)) {
+  if (disableRowCondition(row as Record<string, unknown>)) {
     return alpha(theme.palette.common.black, theme.palette.action.focusOpacity);
   }
 
@@ -47,7 +47,7 @@ const getBackgroundColor = ({
   }
 
   const foundCondition = rowColorConditions?.find(({ condition }) =>
-    condition(row)
+    condition(row as Record<string, unknown>)
   );
 
   if (!isNil(foundCondition)) {
@@ -67,7 +67,7 @@ const getRowTextColor = ({
     return { color: theme.palette.text.primary };
   }
 
-  if (disableRowCondition(row)) {
+  if (disableRowCondition(row as Record<string, unknown>)) {
     return { color: alpha(theme.palette.text.secondary, 0.5) };
   }
 
@@ -77,7 +77,7 @@ const getRowTextColor = ({
 interface Props
   extends Pick<
       DataCellProps,
-      'isRowHovered' | 'row' | 'rowColorConditions' | 'disableRowCondition'
+      'isRowHovered' | 'rowColorConditions' | 'disableRowCondition'
     >,
     TableCellProps {
   displaySubItemsCaret?: boolean;
@@ -85,16 +85,20 @@ interface Props
   labelCollapse?: string;
   labelExpand?: string;
   listingVariant?: ListingVariant;
+  row?: Record<string, unknown>;
   subItemsRowProperty?: string;
 }
 
 const isPivotExistInTheList = (
-  id
+  id: number | string
 ): ((list: Array<number | string>) => boolean) => includes(id);
 
 const handleSubItems = ({
   currentSubItemsPivots,
   id
+}: {
+  currentSubItemsPivots: Array<number | string>;
+  id: number | string;
 }): Array<number | string> => {
   if (isPivotExistInTheList(id)(currentSubItemsPivots)) {
     return reject(equals(id), currentSubItemsPivots);
@@ -123,20 +127,27 @@ const Cell = ({
 
   const { children } = props;
 
-  const rowId = row?.id;
+  const rowId = row?.id as number | string | undefined;
 
-  const click = (e): void => {
+  const click = (e: React.MouseEvent): void => {
     e.preventDefault();
     e.stopPropagation();
 
     setSubItemsPivots((currentSubItemsPivots) =>
-      handleSubItems({ currentSubItemsPivots, id: rowId })
+      handleSubItems({
+        currentSubItemsPivots,
+        id: rowId as number | string
+      })
     );
   };
 
-  const isSubItemsExpanded = isPivotExistInTheList(rowId)(subItemsPivots);
+  const isSubItemsExpanded = isPivotExistInTheList(
+    rowId as number | string
+  )(subItemsPivots);
 
-  const hasSubItems = subItemsRowProperty && row[subItemsRowProperty];
+  const hasSubItems = Boolean(
+    subItemsRowProperty && row?.[subItemsRowProperty]
+  );
 
   return (
     <TableCell
@@ -171,7 +182,7 @@ const Cell = ({
       {displaySubItemsCaret && hasSubItems && (
         <IconButton
           ariaLabel={`${isSubItemsExpanded ? labelCollapse : labelExpand} ${
-            row.id
+            row?.id
           }`}
           onClick={click}
           size="small"

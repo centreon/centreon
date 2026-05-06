@@ -71,7 +71,7 @@ const EntryChip = ({
   );
 };
 
-const EmptyEntry = ({ label }): JSX.Element => {
+const EmptyEntry = ({ label }: { label: string }): JSX.Element => {
   const { classes } = useStyles();
 
   return (
@@ -81,7 +81,9 @@ const EmptyEntry = ({ label }): JSX.Element => {
   );
 };
 
-const Caption = ({ children }): JSX.Element => {
+const Caption = ({
+  children
+}: { children: React.ReactNode }): JSX.Element => {
   const { classes } = useStyles();
 
   return (
@@ -98,7 +100,7 @@ interface Value {
 
 interface Props {
   emptyLabel: string;
-  error?;
+  error?: React.ReactNode;
   gridWidth?: 'auto' | number;
   highlight?: boolean;
   label: string;

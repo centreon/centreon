@@ -27,7 +27,7 @@ export type ButtonProps = AriaLabelingAttributes &
     icon?: string | ReactNode;
     iconVariant?: 'none' | 'start' | 'end';
     isDanger?: boolean;
-    onClick?: (e) => void;
+    onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
     ref?: React.Ref<HTMLButtonElement>;
     size?: 'small' | 'medium' | 'large';
     type?: 'button' | 'submit' | 'reset';

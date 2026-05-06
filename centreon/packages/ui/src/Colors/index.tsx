@@ -1,4 +1,12 @@
-import { Box, Divider, Grid, Stack, Typography, useTheme } from '@mui/material';
+import {
+  Box,
+  Divider,
+  Grid,
+  Stack,
+  Typography,
+  type Theme,
+  useTheme
+} from '@mui/material';
 
 import type { ThemeMode } from '@centreon/ui-context';
 
@@ -52,7 +60,9 @@ const ContainerDescription = ({
     <Box sx={{ width: '100%' }}>
       <Typography variant="h4">{containerTitle}</Typography>
       <Grid columnSpacing={{ md: 3, sm: 2, xs: 1 }} container rowSpacing={5}>
-        {toPairs(palette[keyTheme]).map(
+        {toPairs(
+          palette[keyTheme as keyof Theme['palette']] as Record<string, string>
+        ).map(
           ([key, value]) =>
             !includes(key, keysToRemove) && (
               <Grid key={key} size={6}>

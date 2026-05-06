@@ -11,7 +11,7 @@ import TestQueryProvider from "../api/TestQueryProvider";
 import { useLicenseExpirationWarning } from ".";
 import { labelLicenseWarning } from "./translatedLabel";
 
-const getMockedResponse = (expirationDate): object => ({
+const getMockedResponse = (expirationDate: dayjs.Dayjs): object => ({
 	result: {
 		module: {
 			entities: [
@@ -83,7 +83,9 @@ const getMockedResponse = (expirationDate): object => ({
 	status: true,
 });
 
-const mockRequest = ({ expirationDate }: { expirationDate }): void => {
+const mockRequest = ({
+	expirationDate,
+}: { expirationDate: dayjs.Dayjs }): void => {
 	resetMocks();
 	mockResponse({
 		data: getMockedResponse(expirationDate),

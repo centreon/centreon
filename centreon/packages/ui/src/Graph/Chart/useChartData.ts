@@ -28,7 +28,7 @@ interface Props {
   start?: string;
 }
 
-const getBoolean = (value) => Boolean(Number(value));
+const getBoolean = (value: unknown): boolean => Boolean(Number(value));
 const defaultDsData = {
   ds_color_line: '#000000',
   ds_filled: false,
@@ -108,8 +108,8 @@ const useGraphData = ({ data }: Props): GraphDataResult => {
     }
 
     const { timeSeries } = adjustGraphData(dataWithAdjustedMetricsColor);
-    const baseAxis = dataWithAdjustedMetricsColor.global.base;
-    const { title } = dataWithAdjustedMetricsColor.global;
+    const baseAxis = (dataWithAdjustedMetricsColor.global.base as number) ?? 1000;
+    const title = (dataWithAdjustedMetricsColor.global.title as string) ?? '';
 
     const newLineData = adjustGraphData(dataWithAdjustedMetricsColor).lines;
 

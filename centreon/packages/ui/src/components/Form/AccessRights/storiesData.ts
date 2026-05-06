@@ -81,7 +81,7 @@ export const accessRightsWithStates = [
 
 export const emptyAccessRights = [];
 
-const buildEntities = (from, isGroup): Array<SelectEntry> => {
+const buildEntities = (from: number, isGroup: boolean): Array<SelectEntry> => {
   return Array(10)
     .fill(0)
     .map((_, index) => ({
@@ -92,7 +92,7 @@ const buildEntities = (from, isGroup): Array<SelectEntry> => {
     }));
 };
 
-export const buildResult = (isGroup): Listing<SelectEntry> => ({
+export const buildResult = (isGroup: boolean): Listing<SelectEntry> => ({
   meta: {
     limit: 10,
     page: 1,

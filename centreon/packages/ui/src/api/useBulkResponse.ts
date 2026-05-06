@@ -12,6 +12,24 @@ import {
 
 import useSnackbar from '../Snackbar/useSnackbar';
 
+interface BulkResponseItem {
+  id: number | string;
+  name: string;
+}
+
+interface BulkResponseData {
+  href?: string;
+  status: number;
+}
+
+interface HandleBulkResponseProps {
+  data: Array<BulkResponseData> | undefined;
+  items: Array<BulkResponseItem>;
+  labelFailed: string;
+  labelSuccess: string;
+  labelWarning: string;
+}
+
 const useBulkResponse = () => {
   const { showSuccessMessage, showErrorMessage, showWarningMessage } =
     useSnackbar();
@@ -22,17 +40,17 @@ const useBulkResponse = () => {
     labelWarning,
     labelFailed,
     items
-  }) => {
+  }: HandleBulkResponseProps) => {
     const successfullResponses =
       data?.filter(propEq(204, 'status')) || isNil(data);
 
     const failedResponses = data?.filter(complement(propEq(204, 'status')));
 
-    const failedResponsesIds = failedResponses
+    const failedResponsesIds = (failedResponses
       ?.map(prop('href'))
-      ?.map((item: string) =>
-        Number.parseInt(last(split('/', item || '')) as string, 10)
-      );
+      ?.map((item) =>
+        Number.parseInt(last(split('/', (item as string) || '')) as string, 10)
+      ) || []) as Array<number>;
 
     if (isEmpty(successfullResponses)) {
       showErrorMessage(labelFailed);
@@ -40,10 +58,15 @@ const useBulkResponse = () => {
       return;
     }
 
-    if (length(successfullResponses) < length(data)) {
+    if (
+      length(successfullResponses as ArrayLike<unknown>) <
+      length(data as ArrayLike<unknown>)
+    ) {
       const failedResponsesNames = items
-        ?.filter((item) => includes(item.id, failedResponsesIds))
-        .map((item) => item.name);
+        ?.filter((item: BulkResponseItem) =>
+          includes(item.id, failedResponsesIds)
+        )
+        .map((item: BulkResponseItem) => item.name);
 
       showWarningMessage(`${labelWarning}: ${failedResponsesNames.join(', ')}`);
 

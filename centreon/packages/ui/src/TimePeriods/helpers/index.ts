@@ -26,5 +26,8 @@ export const getTimePeriodById = ({
 }: TimePeriodById): TimePeriod =>
   find<TimePeriod>(propEq(id, 'id'))(timePeriods) as TimePeriod;
 
-export const isInvalidDate = ({ startDate, endDate }): boolean =>
+export const isInvalidDate = ({
+  startDate,
+  endDate
+}: { startDate: Date | null; endDate: Date | null }): boolean =>
   dayjs(startDate).isSameOrAfter(dayjs(endDate), 'minute');

@@ -63,8 +63,8 @@ const FloatingLinkEditor = ({
   const rangeRect = getDOMRangeRect(nativeSelection, rootElement);
 
   const acceptOrCancelNewLinkValue = useCallback(
-    (event): void => {
-      const { value } = event.target;
+    (event: React.KeyboardEvent<HTMLInputElement>): void => {
+      const { value } = event.target as HTMLInputElement;
 
       event.preventDefault();
 
@@ -90,14 +90,13 @@ const FloatingLinkEditor = ({
     setEditMode(true);
   }, [linkUrl, setEditMode]);
 
-  const changeValue = useCallback((event): void => {
+  const changeValue = useCallback((event: React.ChangeEvent<HTMLInputElement>): void => {
     const { value } = event.target;
 
     const matched = value.match(/https?:\/\//g);
 
-    if (gt(matched.length, 1)) {
+    if (matched && gt(matched.length, 1)) {
       setEditedUrl(
-        // @ts-expect-error - suppressing pre-existing type mismatch
         replace(matched.join(''), matched[dec(matched.length)], value)
       );
 

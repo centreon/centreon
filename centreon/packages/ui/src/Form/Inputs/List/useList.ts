@@ -20,7 +20,11 @@ interface UseListState {
   sortedList: Array<unknown>;
 }
 
-export const useList = ({ fieldName }): UseListState => {
+export const useList = ({
+  fieldName
+}: {
+  fieldName: string;
+}): UseListState => {
   const { values, setFieldValue } = useFormikContext<FormikValues>();
   const maxOrder = useRef(0);
 

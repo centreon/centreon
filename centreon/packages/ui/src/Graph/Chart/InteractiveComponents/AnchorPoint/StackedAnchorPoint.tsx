@@ -24,11 +24,14 @@ interface GetYAnchorPoint {
 }
 
 const getStackedDates = (stackValues: Array<StackValue>): Array<Date> => {
-  const toTimeTick = (stackValue): string => stackValue?.data?.timeTick;
+  const toTimeTick = (stackValue: { data?: { timeTick: string } }): string =>
+    stackValue?.data?.timeTick as string;
 
   const toDate = (tick: string): Date => new Date(tick);
 
-  return pipe(map(toTimeTick), map(toDate))(stackValues);
+  return pipe(map(toTimeTick), map(toDate))(
+    stackValues as unknown as Array<{ data?: { timeTick: string } }>
+  );
 };
 
 export const getYAnchorPoint = ({

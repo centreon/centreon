@@ -28,7 +28,9 @@ interface PopoverData {
 
 interface Props {
   canOpen?: boolean;
-  children: (props?) => JSX.Element | JSX.Element;
+  children:
+    | ((props?: { close?: () => void }) => JSX.Element)
+    | JSX.Element;
   className?: string;
   tooltipClassName?: string;
   dataTestId?: string;
@@ -59,7 +61,7 @@ const PopoverMenu = ({
   const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>();
   const isOpen = Boolean(anchorEl);
 
-  const close = (reason?): void => {
+  const close = (reason?: { type?: string }): void => {
     const isClosedByInputClick = reason?.type === 'mousedown';
     if (isClosedByInputClick) {
       return;
@@ -69,7 +71,7 @@ const PopoverMenu = ({
     setAnchorEl(undefined);
   };
 
-  const toggle = (event): void => {
+  const toggle = (event: React.MouseEvent<HTMLButtonElement>): void => {
     if (isOpen) {
       close();
 

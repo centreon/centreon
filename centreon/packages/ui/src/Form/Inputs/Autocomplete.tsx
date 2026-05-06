@@ -12,14 +12,20 @@ import { useMemoComponent } from '../../utils';
 import { labelPressEnterToAccept } from '../translatedLabels';
 import { type InputPropsWithoutGroup, InputType } from './models';
 
+interface NormalizeNewValuesProps {
+  isCreatable?: boolean;
+  isMultiple: boolean;
+  newValues: SelectEntry | Array<SelectEntry | string> | null;
+}
+
 const normalizeNewValues = ({
   newValues,
   isMultiple,
   isCreatable
-}): SelectEntry | Array<string | SelectEntry> => {
+}: NormalizeNewValuesProps): SelectEntry | Array<string | SelectEntry> => {
   const isSingle = not(isMultiple);
   if (isSingle) {
-    return newValues;
+    return newValues as SelectEntry;
   }
 
   return map((newValue: SelectEntry | string) => {
@@ -33,7 +39,7 @@ const normalizeNewValues = ({
     }
 
     return newValue;
-  }, newValues);
+  }, newValues as Array<SelectEntry | string>);
 };
 
 const Autocomplete = ({
@@ -63,7 +69,10 @@ const Autocomplete = ({
 
   const isMultiple = equals(inputType, InputType.MultiAutocomplete);
 
-  const changeValues = (_, newValues): void => {
+  const changeValues = (
+    _: React.SyntheticEvent,
+    newValues: SelectEntry | Array<SelectEntry | string> | null
+  ): void => {
     const normalizedNewValues = normalizeNewValues({
       isCreatable,
       isMultiple,
@@ -116,7 +125,7 @@ const Autocomplete = ({
             return undefined;
           }
 
-          return `${selectedValues?.[index]}: ${errorText}`;
+          return `${(selectedValues as Array<SelectEntry> | undefined)?.[index]}: ${errorText}`;
         }
       );
 
@@ -133,7 +142,8 @@ const Autocomplete = ({
   }, [errors, fieldName, isMultiple, selectedValues, touched]);
 
   const textChange = useCallback(
-    (event): void => setInputText(event.target.value),
+    (event: React.ChangeEvent<HTMLInputElement>): void =>
+      setInputText(event.target.value),
     []
   );
 
@@ -143,9 +153,7 @@ const Autocomplete = ({
     | undefined => {
     if (isMultiple && isCreatable) {
       return equals(type(selectedValues), 'Array')
-        ? (
-            selectedValues as Array<SelectEntry> | Array<string> | undefined
-          )?.map((value) => ({
+        ? (selectedValues as Array<string> | undefined)?.map((value) => ({
             id: value,
             name: value
           }))
@@ -179,7 +187,7 @@ const Autocomplete = ({
             equals(option, selectedValue)
           }
           label={`${t(label)}${additionalLabel}`}
-          onChange={changeValues}
+          onChange={changeValues as never}
           onTextChange={textChange}
           open={isCreatable ? false : undefined}
           options={autocomplete?.options || []}

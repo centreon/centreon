@@ -151,7 +151,10 @@ const MainLegend = ({
               label: labelAvg,
               value: line.average_value
             }
-          ].filter(Boolean);
+          ].filter(Boolean) as Array<{
+            label: string;
+            value: number | null;
+          }>;
 
           return (
             <li

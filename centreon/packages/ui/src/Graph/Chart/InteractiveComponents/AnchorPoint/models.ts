@@ -16,7 +16,7 @@ export interface RegularLinesAnchorPoint extends AnchorPoint {
 }
 
 export interface StackedAnchorPoint extends AnchorPoint {
-  stack;
+  stack: Array<StackValue>;
 }
 
 export interface StackData {

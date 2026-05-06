@@ -27,7 +27,7 @@ const ActionsBar = ({
 }: ActionsBarProps): JSX.Element => {
   const { classes } = useStyles();
 
-  const preventEnterKey = (keyEvent): void => {
+  const preventEnterKey = (keyEvent: React.KeyboardEvent): void => {
     if ((keyEvent.charCode || keyEvent.keyCode) === 13) {
       keyEvent.preventDefault();
     }

@@ -68,10 +68,12 @@ const defaultDsData = {
 const toTimeTickWithMetrics = ({
   metrics,
   times
+}: {
+  metrics: Array<Metric>;
+  times: Array<string>;
 }): Array<TimeTickWithMetrics> =>
-  // @ts-expect-error - suppressing pre-existing type mismatch
   map(
-    (timeTick) => ({
+    (timeTick: string) => ({
       metrics,
       timeTick
     }),
@@ -83,10 +85,14 @@ const toTimeTickValue = (
   timeIndex: number
 ): TimeValue => {
   const getMetricsForIndex = (): Omit<TimeValue, 'timeTick'> => {
-    const addMetricForTimeIndex = (acc, { metric_id, data }): TimeValue => ({
-      ...acc,
-      [metric_id]: data[timeIndex] === undefined ? null : data[timeIndex]
-    });
+    const addMetricForTimeIndex = (
+      acc: TimeValue,
+      { metric_id, data }: Metric
+    ): TimeValue =>
+      ({
+        ...acc,
+        [metric_id]: data[timeIndex] === undefined ? null : data[timeIndex]
+      }) as TimeValue;
 
     return reduce(addMetricForTimeIndex, {} as TimeValue, metrics);
   };
@@ -95,14 +101,14 @@ const toTimeTickValue = (
 };
 
 const getTimeSeries = (graphData: LineChartData): Array<TimeValue> => {
-  const isGreaterThanLowerLimit = (value): boolean => {
+  const isGreaterThanLowerLimit = (value: number | null): boolean => {
     const lowerLimit = path<number>(['global', 'lower-limit'], graphData);
 
     if (isNil(lowerLimit)) {
       return true;
     }
 
-    return value >= lowerLimit;
+    return value !== null && value >= lowerLimit;
   };
 
   const rejectLowerThanLimit = ({
@@ -202,14 +208,14 @@ const getMetricValuesForUnit = ({
   timeSeries,
   unit
 }: ValuesForUnitProps): Array<number> => {
-  const getTimeSeriesValuesForMetric = (metric_id): Array<number> =>
+  const getTimeSeriesValuesForMetric = (metric_id: number): Array<number> =>
     map(
       (timeValue) => getValueForMetric(timeValue)(metric_id),
       timeSeries
     ) as Array<number>;
 
   return pipe(
-    filter(propEq(unit, 'unit')) as (line) => Array<Line>,
+    filter(propEq(unit, 'unit')) as (line: Array<Line>) => Array<Line>,
     map(prop('metric_id')),
     map(getTimeSeriesValuesForMetric),
     flatten,
@@ -266,7 +272,7 @@ const getStackedMetricValues = ({
   lines,
   timeSeries
 }: LinesTimeSeries): Array<number> => {
-  const getTimeSeriesValuesForMetric = (metric_id): Array<number> =>
+  const getTimeSeriesValuesForMetric = (metric_id: number): Array<number> =>
     map(
       (timeValue) => getValueForMetric(timeValue)(metric_id) || 0,
       timeSeries
@@ -295,7 +301,7 @@ const getStackedMetricValues = ({
 const getSortedStackedLines = (lines: Array<Line>): Array<Line> =>
   pipe(
     reject(({ stackOrder }: Line): boolean => isNil(stackOrder)) as (
-      lines
+      lines: Array<Line>
     ) => Array<Line>,
     sortBy(prop('stackOrder'))
   )(lines);
@@ -303,14 +309,18 @@ const getSortedStackedLines = (lines: Array<Line>): Array<Line> =>
 const getInvertedStackedLines = (lines: Array<Line>): Array<Line> =>
   pipe(
     // @ts-expect-error - suppressing pre-existing type mismatch
-    filter(({ invert }: Line): boolean => invert) as (lines) => Array<Line>,
+    filter(({ invert }: Line): boolean => invert) as (
+      lines: Array<Line>
+    ) => Array<Line>,
     getSortedStackedLines
   )(lines);
 
 const getNotInvertedStackedLines = (lines: Array<Line>): Array<Line> =>
   pipe(
     // @ts-expect-error - suppressing pre-existing type mismatch
-    reject(({ invert }: Line): boolean => invert) as (lines) => Array<Line>,
+    reject(({ invert }: Line): boolean => invert) as (
+      lines: Array<Line>
+    ) => Array<Line>,
     getSortedStackedLines
   )(lines);
 
@@ -401,6 +411,23 @@ const getSanitizedValues = reject(
     equals(value, Number.NEGATIVE_INFINITY)
 );
 
+interface GetScaleProps {
+  graphValues: Array<number>;
+  height: number;
+  stackedValues: Array<number>;
+  thresholds: Array<number>;
+  isCenteredZero?: boolean;
+  scale?: 'linear' | 'logarithmic';
+  scaleLogarithmicBase?: number;
+  isHorizontal: boolean;
+  invert?: boolean | string | null;
+  hasDisplayAsBar: boolean;
+  hasLineFilled: boolean;
+  hasStackedLines: boolean;
+  min?: number;
+  max?: number;
+}
+
 const getScale = ({
   graphValues,
   height,
@@ -416,7 +443,7 @@ const getScale = ({
   hasStackedLines,
   min,
   max
-}): ScaleLinear<number, number> => {
+}: GetScaleProps): ScaleLinear<number, number> => {
   const isLogScale = equals(scale, 'logarithmic');
   const sanitizedValuesForMinimum = min
     ? [min]
@@ -429,7 +456,9 @@ const getScale = ({
           getMin([0, ...stackedValues]),
         Math.min(...thresholds)
       ]);
-  const minValue = Math.min(...sanitizedValuesForMinimum.filter(isNotNil));
+  const minValue = Math.min(
+    ...(sanitizedValuesForMinimum.filter(isNotNil) as Array<number>)
+  );
 
   const sanitizedValuesForMaximum = max
     ? [max]
@@ -460,7 +489,7 @@ const getScale = ({
       ? 0
       : maxValue + Math.abs(maxValue) * 0.05;
 
-  const scaleType = getScaleType(scale);
+  const scaleType = getScaleType(scale ?? 'linear');
 
   const upperRangeValue = minValue === maxValue && maxValue === 0 ? height : 0;
   const range = [height, upperRangeValue];
@@ -473,7 +502,7 @@ const getScale = ({
 
     return scaleType<number>({
       base: scaleLogarithmicBase || 2,
-      clamp: min || max,
+      clamp: Boolean(min || max),
       domain: [-greatestValue, greatestValue],
       range: isHorizontal ? range : range.reverse()
     });
@@ -483,7 +512,7 @@ const getScale = ({
 
   return scaleType<number>({
     base: scaleLogarithmicBase || 2,
-    clamp: min || max,
+    clamp: Boolean(min || max),
     domain,
     range: isHorizontal ? range : range.reverse()
   });
@@ -594,6 +623,10 @@ const boundaryToApplyToUnit = ({
   boundary,
   boundariesUnit,
   unit
+}: {
+  boundary?: number;
+  boundariesUnit?: string;
+  unit: string;
 }): number | undefined => {
   if (!boundariesUnit) {
     return boundary;
@@ -655,14 +688,17 @@ const getYScalePerUnit = ({
   return scalePerUnit;
 };
 
-const formatTime = ({ value, unit }): string => {
+const formatTime = ({
+  value,
+  unit
+}: { value: number; unit: string }): string => {
   return `${numeral(value).format('0.[00]a')} ${unit}`;
 };
 
 const registerMsUnitToNumeral = (): null => {
   try {
     numeral.register('format', 'milliseconds', {
-      format: (value) => {
+      format: (value: number) => {
         return formatTime({ unit: 'ms', value });
       },
       regexps: {
@@ -683,7 +719,7 @@ registerMsUnitToNumeral();
 const registerSecondsUnitToNumeral = (): null => {
   try {
     numeral.register('format', 'seconds', {
-      format: (value) => {
+      format: (value: number) => {
         return formatTime({ unit: 's', value });
       },
       regexps: {
@@ -701,7 +737,10 @@ const registerSecondsUnitToNumeral = (): null => {
 
 registerSecondsUnitToNumeral();
 
-const getBase1024 = ({ unit, base }): boolean => {
+const getBase1024 = ({
+  unit,
+  base
+}: { unit: string; base: number | string }): boolean => {
   const base2Units = [
     'B',
     'bytes',
