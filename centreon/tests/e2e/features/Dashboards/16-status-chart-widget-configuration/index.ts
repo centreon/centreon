@@ -1,5 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 import {
   checkHostsAreMonitored,
@@ -13,7 +13,6 @@ import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/ge
 const greenCssBackground = 'background: rgb(136, 185, 34)';
 const orangeCssBackground = 'background: rgb(253, 155, 39)';
 const redCssBackground = 'background: rgb(255, 102, 102)';
-const greyCssBackground = 'background: rgb(227, 227, 227)';
 const blueCssBackground = 'background: rgb(30, 190, 179)';
 
 const hostGroupName = 'Linux-Servers';
@@ -61,11 +60,11 @@ const resultsToSubmit = [
 before(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/monitoring-servers/generate-and-reload'
+    url: INTERCEPTORS.api.generate_reload_pollers
   }).as('generateAndReloadPollers');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
@@ -170,31 +169,31 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards**'
+    url: `${INTERCEPTORS.api.dashboard_configuration}**`
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
+    url: `${INTERCEPTORS.api.dashboard_configuration}/*/access_rights/contacts`
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'PATCH',
-    url: '/centreon/api/latest/configuration/dashboards/*'
+    url: `${INTERCEPTORS.api.dashboard_configuration}/*`
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards/*'
+    url: `${INTERCEPTORS.api.dashboard_configuration}/*`
   }).as('getDashboard');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/monitoring/services/status**'
+    url: `${INTERCEPTORS.api.service_status}**`
   }).as('getServiceStatus');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/monitoring/hosts/status**'
+    url: `${INTERCEPTORS.api.hosts_status}**`
   }).as('getHostStatus');
   cy.intercept({
     method: 'GET',
@@ -280,7 +279,7 @@ Then(
         redCssBackground,
         blueCssBackground
       ],
-      ['100.0%', '41.7%', '50.0%', '8.3%'],
+      ['100.0%', '41.7%', '50.0%', '8.3%']
     );
   }
 );

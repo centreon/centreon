@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 import {
   checkHostsAreMonitored,
@@ -53,11 +54,11 @@ const resultsToSubmit = [
 before(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/monitoring-servers/generate-and-reload'
+    url: INTERCEPTORS.api.generate_reload_pollers
   }).as('generateAndReloadPollers');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
@@ -159,19 +160,19 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards**'
+    url: `${INTERCEPTORS.api.dashboard_configuration}**`
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
+    url: `${INTERCEPTORS.api.dashboard_configuration}/*/access_rights/contacts`
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'PATCH',
-    url: '/centreon/api/latest/configuration/dashboards/*'
+    url: `${INTERCEPTORS.api.dashboard_configuration}/*`
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',
@@ -183,15 +184,15 @@ beforeEach(() => {
   }).as('resourceRequest');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/monitoring/resources/hosts?page=1&limit=10&sort_by=**'
+    url: `${INTERCEPTORS.api.monitor_resources}/hosts?page=1&limit=10&sort_by=**`
   }).as('resourceRequestByHost');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/monitoring/resources/downtime'
+    url: `${INTERCEPTORS.api.monitor_resources}/downtime`
   }).as('setDowntime');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/monitoring/resources/acknowledge'
+    url: `${INTERCEPTORS.api.monitor_resources}/acknowledge`
   }).as('setAcknowledge');
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
