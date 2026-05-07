@@ -33,7 +33,7 @@ use Symfony\Component\Uid\Uuid;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
-$version = 'xx.xx.x';
+$version = '26.05.0';
 
 $errorMessage = '';
 
