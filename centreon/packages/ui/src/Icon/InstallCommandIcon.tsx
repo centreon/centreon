@@ -16,7 +16,7 @@ const icon = (
 export const InstallCommandIcon = (props: SvgIconProps): ReactElement => (
   <BaseIcon
     {...props}
-    dataTestId="YourIconName"
+    dataTestId="Install command"
     Icon={icon}
     viewBox="0 0 48 48"
   />

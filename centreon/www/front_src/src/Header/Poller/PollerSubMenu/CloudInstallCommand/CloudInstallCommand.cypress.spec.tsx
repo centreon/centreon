@@ -267,7 +267,7 @@ describe('CloudInstallCommand', () => {
         cy.findByText(labelClickToGenerate)
           .scrollIntoView()
           .should('be.visible');
-        cy.findByAltText('Install command')
+        cy.findByTestId('Install command')
           .scrollIntoView()
           .should('be.visible');
       });
@@ -275,7 +275,7 @@ describe('CloudInstallCommand', () => {
       it('the generate button is disabled when the form is not valid or not dirty', () => {
         initialize({ isModalOpen: true });
 
-        cy.findByAltText('Install command')
+        cy.findByTestId('Install command')
           .closest('button')
           .should('be.disabled');
       });
@@ -480,11 +480,11 @@ describe('CloudInstallCommand', () => {
         cy.waitForRequest('@getTokens');
         cy.findByText('a-token').click();
 
-        cy.findByAltText('Install command')
+        cy.findByTestId('Install command')
           .closest('button')
           .should('not.be.disabled');
 
-        cy.findByAltText('Install command').closest('button').click();
+        cy.findByTestId('Install command').closest('button').click();
 
         cy.waitForRequest('@createPoller');
 
@@ -507,7 +507,7 @@ describe('CloudInstallCommand', () => {
         cy.waitForRequest('@getTokens');
         cy.findByText('a-token').click();
 
-        cy.findByAltText('Install command').closest('button').click();
+        cy.findByTestId('Install command').closest('button').click();
 
         cy.waitForRequest('@createPoller').then(({ request }) => {
           expect(request.body.address).to.equal('192.168.1.1');
@@ -529,7 +529,7 @@ describe('CloudInstallCommand', () => {
         cy.waitForRequest('@getTokens');
         cy.findByText('a-token').click();
 
-        cy.findByAltText('Install command').closest('button').click();
+        cy.findByTestId('Install command').closest('button').click();
 
         cy.waitForRequest('@createPoller');
 
@@ -549,7 +549,7 @@ describe('CloudInstallCommand', () => {
         cy.waitForRequest('@getTokens');
         cy.findByText('a-token').click();
 
-        cy.findByAltText('Install command').closest('button').click();
+        cy.findByTestId('Install command').closest('button').click();
 
         cy.waitForRequest('@createPoller');
 
@@ -576,7 +576,7 @@ describe('CloudInstallCommand', () => {
         cy.waitForRequest('@getTokens');
         cy.findByText('a-token').click();
 
-        cy.findByAltText('Install command').closest('button').click();
+        cy.findByTestId('Install command').closest('button').click();
 
         cy.waitForRequest('@createPoller').then(({ request }) => {
           expect(request.body.poller_type).to.equal('docker');

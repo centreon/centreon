@@ -45,7 +45,7 @@ const CommandSection = (): ReactElement => {
               onClick={submitForm}
               size="small"
             >
-              <InstallCommandIcon className="w-7 h-7" />
+              <InstallCommandIcon className="w-7 h-7"  />
             </Button>
             <Typography variant="body2">{t(labelClickToGenerate)}</Typography>
           </div>
