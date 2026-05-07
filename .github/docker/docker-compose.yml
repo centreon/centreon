@@ -5,9 +5,9 @@ services:
       - .env
     image: "${WEB_IMAGE:-docker.centreon.com/centreon/centreon-web-alma9:develop}"
     ports: ["4000:80"]
+    restart: on-failure:3
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     environment:
       MYSQL_HOST: db
       GLPI_HOST: glpi
