@@ -52,6 +52,35 @@ Usage:
 CENTREON_DATASET=0 CENTREON_LANG=fr_FR docker compose -f .github/docker/docker-compose.yml up -d --wait
 ```
 
+## :lock: HTTP / HTTPS mode
+
+The stack runs in **HTTP** mode by default (web on `http://localhost:4000`). HTTPS mode is opt-in via the `CENTREON_PROTOCOL` environment variable, which loads an overlay file (`docker-compose.tls.yml`) that:
+
+* Generates a Root CA and a multi-SAN leaf cert at `up` time via the `certgen` one-shot service (built locally from [`.github/docker/certgen/`](certgen/Dockerfile)).
+* Switches web/remote-server to TLS-only on `:4443` / `:4444` (HTTP `:4000` is **not** exposed in HTTPS mode — exclusive, not parallel).
+* Switches db/db-remote to TLS-required (drops `--skip-ssl`, adds `--ssl-ca/--ssl-cert/--ssl-key/--require-secure-transport=ON`).
+* Installs the Root CA into the `centreon-web` trust store and writes `/usr/share/centreon/.env` with `DATABASE_SSL_*` keys consumed by Symfony's [`DatabaseTLSResolver`](../../src/Core/Infrastructure/Common/DatabaseTLSResolver.php).
+
+```bash
+# HTTP (default — unchanged)
+docker compose -f .github/docker/docker-compose.yml up -d --wait
+
+# HTTPS
+docker compose \
+  -f .github/docker/docker-compose.yml \
+  -f .github/docker/docker-compose.tls.yml \
+  up -d --wait
+```
+
+> [!IMPORTANT]
+> HTTPS mode requires a `WEB_IMAGE` containing centreon/centreon **PR #9237** (`feat(database): Use TLS Connection`, branch `MON-192365`) — the application-side TLS resolver. The entrypoint hook `04-tls.sh` fails fast with a copy-pasteable error message if the resolver class is absent from the image. Until #9237 merges to `develop`, set `WEB_IMAGE` to an image built from that branch.
+
+> [!NOTE]
+> Running both HTTP and HTTPS stacks side-by-side from the same checkout is a planned future feature. Today, two `up` invocations from the same directory will collide on container/volume names regardless of port — pick one mode per checkout.
+
+> [!NOTE]
+> The certgen image (`centreon-certgen:local`) is built locally on first `up`. Override with `CERTGEN_IMAGE` if you want to pin a published image.
+
 ## :gear: Additional services using profiles
 
 Docker compose has a useful feature which is called `profile`.

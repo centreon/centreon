@@ -1,0 +1,74 @@
+# HTTPS-mode overlay. Loaded only when CENTREON_PROTOCOL=HTTPS resolves
+# COMPOSE_FILE to base + this file. See README.md "HTTP / HTTPS mode".
+#
+# Adds: certgen one-shot, the `certs` named volume, TLS for web/db/remote-server/db-remote.
+# Replaces (not merges): web.ports, remote-server.ports, web/remote-server healthcheck targets,
+# db/db-remote MARIADB_EXTRA_FLAGS.
+#
+# Requires: docker compose >= 2.20 (for `!override` and `service_completed_successfully`),
+#           a centreon-web image containing centreon/centreon PR #9237 (DatabaseTLSResolver).
+#           The 04-tls.sh entrypoint hook fails fast with a copy-pasteable error otherwise.
+
+services:
+  certgen:
+    build: ./certgen
+    image: "${CERTGEN_IMAGE:-centreon-certgen:local}"
+    command:
+      - web
+      - remote-server
+      - db
+      - db-remote
+      - localhost
+      - "127.0.0.1"
+    volumes:
+      - certs:/out
+
+  web:
+    ports: !override
+      - "4443:443"
+    volumes:
+      - certs:/etc/pki/centreon-tls:ro
+    depends_on:
+      db:
+        condition: service_started
+      certgen:
+        condition: service_completed_successfully
+    healthcheck:
+      test: bash -c "[ -f /tmp/docker.ready ]" && curl -k --fail https://localhost/centreon/api/latest/platform/versions || exit 1
+
+  db:
+    volumes:
+      - certs:/certs:ro
+    environment:
+      MARIADB_EXTRA_FLAGS: "--ssl-ca=/certs/rootCA.pem --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
+    depends_on:
+      certgen:
+        condition: service_completed_successfully
+
+  remote-server:
+    ports: !override
+      - "4444:443"
+    volumes:
+      - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/81-register_remote_server_background.sh:/usr/share/centreon/container.d/81-register_remote_server_background.sh
+      - certs:/etc/pki/centreon-tls:ro
+    depends_on:
+      db-remote:
+        condition: service_started
+      web:
+        condition: service_healthy
+      certgen:
+        condition: service_completed_successfully
+    healthcheck:
+      test: bash -c "[ -f /tmp/docker.ready ] && [ -f /tmp/remote-server.registered ]" && curl -k --fail https://localhost/centreon/api/latest/platform/versions || exit 1
+
+  db-remote:
+    volumes:
+      - certs:/certs:ro
+    environment:
+      MARIADB_EXTRA_FLAGS: "--ssl-ca=/certs/rootCA.pem --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
+    depends_on:
+      certgen:
+        condition: service_completed_successfully
+
+volumes:
+  certs:
