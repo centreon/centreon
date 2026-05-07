@@ -10,7 +10,9 @@ type AnimatedStyles = { endAngle: number; opacity: number; startAngle: number };
 
 const fromLeaveTransition = ({
   endAngle
-}: { endAngle: number }): AnimatedStyles => ({
+}: {
+  endAngle: number;
+}): AnimatedStyles => ({
   endAngle,
   opacity: 0,
   startAngle: -(Math.PI / 2)

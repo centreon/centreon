@@ -3,13 +3,13 @@ import { equals, isEmpty, path, propEq, reject, split } from 'ramda';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { GetEndpointParams } from '../../InputField/Select/Autocomplete/Connected';
-import type { SelectEntry } from '../../InputField/Select';
 import {
   buildListingEndpoint,
   SingleConnectedAutocompleteField,
   useMemoComponent
 } from '../..';
+import type { SelectEntry } from '../../InputField/Select';
+import type { GetEndpointParams } from '../../InputField/Select/Autocomplete/Connected';
 import MultiConnectedAutocompleteField from '../../InputField/Select/Autocomplete/Connected/Multi';
 import { InputPropsWithoutGroup, InputType } from './models';
 
@@ -85,7 +85,10 @@ const ConnectedAutocomplete = ({
   const changeAutocomplete = useCallback(
     (
       _: React.SyntheticEvent,
-      value: NonNullable<string | SelectEntry> | Array<string | SelectEntry> | null
+      value:
+        | NonNullable<string | SelectEntry>
+        | Array<string | SelectEntry>
+        | null
     ): void => {
       if (change) {
         change({
@@ -143,7 +146,7 @@ const ConnectedAutocomplete = ({
   const deleteItem = (_: React.SyntheticEvent, option: SelectEntry): void => {
     const newValue = reject(
       propEq(option.id, 'id'),
-      ((value ?? []) as Array<unknown>) as Array<{ id: string | number }>
+      (value ?? []) as Array<unknown> as Array<{ id: string | number }>
     );
 
     setFieldTouched(fieldName, true, false);
@@ -155,9 +158,10 @@ const ConnectedAutocomplete = ({
     onDelete: deleteItem
   };
 
-  const TypedAutocompleteField = AutocompleteField as unknown as React.ComponentType<
-    Record<string, unknown>
-  >;
+  const TypedAutocompleteField =
+    AutocompleteField as unknown as React.ComponentType<
+      Record<string, unknown>
+    >;
 
   return useMemoComponent({
     Component: (

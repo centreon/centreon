@@ -691,7 +691,10 @@ const getYScalePerUnit = ({
 const formatTime = ({
   value,
   unit
-}: { value: number; unit: string }): string => {
+}: {
+  value: number;
+  unit: string;
+}): string => {
   return `${numeral(value).format('0.[00]a')} ${unit}`;
 };
 
@@ -740,7 +743,10 @@ registerSecondsUnitToNumeral();
 const getBase1024 = ({
   unit,
   base
-}: { unit: string; base: number | string }): boolean => {
+}: {
+  unit: string;
+  base: number | string;
+}): boolean => {
   const base2Units = [
     'B',
     'bytes',

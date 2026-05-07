@@ -43,10 +43,7 @@ interface UseLoadImageProps {
   imageSrc: string;
 }
 
-export const useLoadImage = ({
-  imageSrc,
-  alt
-}: UseLoadImageProps): boolean => {
+export const useLoadImage = ({ imageSrc, alt }: UseLoadImageProps): boolean => {
   const [images, setImages] = useAtom(imagesAtom);
 
   const image = prop(alt, images);

@@ -226,9 +226,10 @@ const Listing = <
       rows.reduce<Array<string | number>>(
         (acc, row) => [
           ...acc,
-          ...(((row as Record<string, unknown>)[
-            subItems?.getRowProperty() || ''
-          ] as Array<{ id: string | number }> | undefined) || []
+          ...(
+            ((row as Record<string, unknown>)[
+              subItems?.getRowProperty() || ''
+            ] as Array<{ id: string | number }> | undefined) || []
           ).map(
             ({ id }: { id: string | number }) =>
               `${subItemPrefixKey}_${getId(row)}_${id}`
@@ -251,13 +252,13 @@ const Listing = <
               return [
                 ...acc,
                 row,
-                ...(
-                  rowAsRecord[subItems.getRowProperty()] as Array<TRow>
-                ).map((subRow: TRow) => ({
-                  ...subRow,
-                  internalListingParentId: row.id,
-                  internalListingParentRow: row
-                }))
+                ...(rowAsRecord[subItems.getRowProperty()] as Array<TRow>).map(
+                  (subRow: TRow) => ({
+                    ...subRow,
+                    internalListingParentId: row.id,
+                    internalListingParentRow: row
+                  })
+                )
               ];
             }
 
@@ -310,7 +311,9 @@ const Listing = <
     setLastSelectionIndex(null);
   };
 
-  const onSelectRowsWithCondition = (condition: (row: TRow) => boolean): void => {
+  const onSelectRowsWithCondition = (
+    condition: (row: TRow) => boolean
+  ): void => {
     onSelectRows(reject(disableRowCheckCondition, filter(condition, rows)));
     setLastSelectionIndex(null);
   };

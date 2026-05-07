@@ -55,9 +55,7 @@ export interface ConnectedAutoCompleteFieldProps<TData> {
   exclusionOptionProperty?: keyof SelectEntry;
   field: string;
   getEndpoint: (params: GetEndpointParams) => string;
-  decoder?: JsonDecoder.Decoder<
-    ListingModel<TData> | ListingMapModel<TData>
-  >;
+  decoder?: JsonDecoder.Decoder<ListingModel<TData> | ListingMapModel<TData>>;
   getRenderedOptionText?: (option: TData) => ReactElement | string;
   getRequestHeaders?: HeadersInit;
   initialPage?: number;
@@ -411,9 +409,7 @@ const ConnectedAutocompleteField = (
       <AutocompleteField
         filterOptions={(opt: Array<SelectEntry>): Array<SelectEntry> => opt}
         loading={isFetching}
-        onChange={
-          handleChange as unknown as AutocompleteFieldProps['onChange']
-        }
+        onChange={handleChange as unknown as AutocompleteFieldProps['onChange']}
         onClose={(): void => setOptionsOpen(false)}
         onOpen={(): void => setOptionsOpen(true)}
         onTextChange={changeText}

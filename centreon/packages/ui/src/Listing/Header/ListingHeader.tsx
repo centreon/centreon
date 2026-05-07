@@ -2,10 +2,7 @@ import { TableHead, TableRow } from '@mui/material';
 
 import type { ListingVariant } from '@centreon/ui-context';
 
-import {
-  closestCenter,
-  type DraggableSyntheticListeners
-} from '@dnd-kit/core';
+import { closestCenter, type DraggableSyntheticListeners } from '@dnd-kit/core';
 import { horizontalListSortingStrategy } from '@dnd-kit/sortable';
 import { equals, find, map, pick, propEq } from 'ramda';
 import { memo, useCallback } from 'react';

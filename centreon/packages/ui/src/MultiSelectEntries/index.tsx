@@ -81,9 +81,7 @@ const EmptyEntry = ({ label }: { label: string }): JSX.Element => {
   );
 };
 
-const Caption = ({
-  children
-}: { children: React.ReactNode }): JSX.Element => {
+const Caption = ({ children }: { children: React.ReactNode }): JSX.Element => {
   const { classes } = useStyles();
 
   return (

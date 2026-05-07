@@ -54,10 +54,7 @@ const DraggableAutocomplete = (
   MultiAutocomplete: MultiAutocompleteLike
 ): ((
   props: Props &
-    (
-      | ConnectedAutoCompleteFieldProps<string>
-      | SingleAutocompletefieldProps
-    )
+    (ConnectedAutoCompleteFieldProps<string> | SingleAutocompletefieldProps)
 ) => JSX.Element) => {
   const InnerDraggableAutocompleteField = ({
     onSelectedValuesChange,

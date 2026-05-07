@@ -9,7 +9,11 @@ declare module 'd3-scale' {
   // biome-ignore lint/suspicious/noExplicitAny: typing fallback
   export type ScaleBand<Domain extends { toString(): string } = any> = any;
   // biome-ignore lint/suspicious/noExplicitAny: typing fallback
-  export type ScaleOrdinal<Domain extends { toString(): string } = any, Range = any, Unknown = never> = any;
+  export type ScaleOrdinal<
+    Domain extends { toString(): string } = any,
+    Range = any,
+    Unknown = never
+  > = any;
   // biome-ignore lint/suspicious/noExplicitAny: typing fallback
   export const scaleLinear: any;
   // biome-ignore lint/suspicious/noExplicitAny: typing fallback

@@ -1,10 +1,6 @@
 import type { SvgIconProps, TypographyProps } from '@mui/material';
 
-import type {
-  FormikErrors,
-  FormikTouched,
-  FormikValues
-} from 'formik';
+import type { FormikErrors, FormikTouched, FormikValues } from 'formik';
 import type { JsonDecoder } from 'ts.data.json';
 
 import type { ConditionsSearchParameter } from '../../api/buildListingEndpoint/models';

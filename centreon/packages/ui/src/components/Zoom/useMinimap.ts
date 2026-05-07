@@ -38,7 +38,9 @@ export const useMinimap = ({
 
   const getMatrixPoint = useCallback(
     (
-      event: React.MouseEvent<SVGRectElement> | React.WheelEvent<SVGRectElement>,
+      event:
+        | React.MouseEvent<SVGRectElement>
+        | React.WheelEvent<SVGRectElement>,
       newScale?: number
     ): { x: number; y: number } => {
       const hasScale = scale > 1;

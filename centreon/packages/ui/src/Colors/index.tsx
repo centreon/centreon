@@ -3,8 +3,8 @@ import {
   Divider,
   Grid,
   Stack,
-  Typography,
   type Theme,
+  Typography,
   useTheme
 } from '@mui/material';
 

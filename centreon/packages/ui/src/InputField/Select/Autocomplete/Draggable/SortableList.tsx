@@ -44,11 +44,7 @@ const SortableList = ({
 }: SortableListProps): JSX.Element => {
   const { classes } = useStyles();
 
-  const dragEnd = ({
-    items: newItems
-  }: {
-    items: Array<string>;
-  }): void =>
+  const dragEnd = ({ items: newItems }: { items: Array<string> }): void =>
     changeItemsOrder(
       newItems.map(
         (item) => find(propEq(item, 'id'), items) as DraggableSelectEntry

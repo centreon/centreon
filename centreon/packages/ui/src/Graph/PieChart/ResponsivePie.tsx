@@ -25,7 +25,10 @@ type Placement = 'left' | 'right' | 'top' | 'bottom';
 const getTooltipPlacement = ({
   radianX,
   radianY
-}: { radianX: number; radianY: number }): Placement => {
+}: {
+  radianX: number;
+  radianY: number;
+}): Placement => {
   if (gt(Math.abs(radianX), Math.abs(radianY))) {
     return ifElse<[b: number], Placement, Placement>(
       lt(0),

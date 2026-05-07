@@ -29,5 +29,7 @@ export const getTimePeriodById = ({
 export const isInvalidDate = ({
   startDate,
   endDate
-}: { startDate: Date | null; endDate: Date | null }): boolean =>
-  dayjs(startDate).isSameOrAfter(dayjs(endDate), 'minute');
+}: {
+  startDate: Date | null;
+  endDate: Date | null;
+}): boolean => dayjs(startDate).isSameOrAfter(dayjs(endDate), 'minute');

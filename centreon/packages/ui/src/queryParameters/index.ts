@@ -10,7 +10,10 @@ interface ToRawQueryParametersProps {
 const toRawQueryParameter = ({
   name,
   value
-}: { name: string; value: unknown }): string => {
+}: {
+  name: string;
+  value: unknown;
+}): string => {
   return `${name}=${encodeURIComponent(value as string)}`;
 };
 

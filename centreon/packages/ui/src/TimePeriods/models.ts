@@ -73,7 +73,10 @@ export interface CustomTimePeriod {
 }
 
 export interface DateTimePickerInputModel {
-  changeDate: (props: { property: CustomTimePeriodProperty | string; date: Date }) => void;
+  changeDate: (props: {
+    property: CustomTimePeriodProperty | string;
+    date: Date;
+  }) => void;
   date: Date | null;
   disabled?: boolean;
   maxDate?: Date;

@@ -34,7 +34,10 @@ const usePickersStartEndDate = ({
   const changeDate = ({
     property,
     date
-  }: { property: CustomTimePeriodProperty | string; date: Date }): void => {
+  }: {
+    property: CustomTimePeriodProperty | string;
+    date: Date;
+  }): void => {
     const currentDate = customTimePeriod[property as keyof CustomTimePeriod];
     cond([
       [equals(CustomTimePeriodProperty?.start), (): void => setStart(date)],

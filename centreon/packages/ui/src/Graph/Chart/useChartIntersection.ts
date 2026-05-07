@@ -6,7 +6,9 @@ interface GraphIntersectionState {
 
 export const useIntersection = ({
   element
-}: { element: Element | null }): GraphIntersectionState => {
+}: {
+  element: Element | null;
+}): GraphIntersectionState => {
   const [entry, setEntry] = useState<IntersectionObserverEntry | null>(null);
 
   const observer = useRef<IntersectionObserver | null>(null);

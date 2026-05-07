@@ -141,9 +141,9 @@ const Cell = ({
     );
   };
 
-  const isSubItemsExpanded = isPivotExistInTheList(
-    rowId as number | string
-  )(subItemsPivots);
+  const isSubItemsExpanded = isPivotExistInTheList(rowId as number | string)(
+    subItemsPivots
+  );
 
   const hasSubItems = Boolean(
     subItemsRowProperty && row?.[subItemsRowProperty]

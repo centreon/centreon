@@ -22,7 +22,9 @@ interface Props {
   api: {
     baseEndpoint: string;
     queryKey: Array<string>;
-    searchConditions?: Array<import('../api/buildListingEndpoint/models').ConditionsSearchParameter>;
+    searchConditions?: Array<
+      import('../api/buildListingEndpoint/models').ConditionsSearchParameter
+    >;
   };
   labelHasNoElements?: string;
   onItemClick?: ({ id }: { id: number }) => void;

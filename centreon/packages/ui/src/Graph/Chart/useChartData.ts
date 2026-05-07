@@ -108,7 +108,8 @@ const useGraphData = ({ data }: Props): GraphDataResult => {
     }
 
     const { timeSeries } = adjustGraphData(dataWithAdjustedMetricsColor);
-    const baseAxis = (dataWithAdjustedMetricsColor.global.base as number) ?? 1000;
+    const baseAxis =
+      (dataWithAdjustedMetricsColor.global.base as number) ?? 1000;
     const title = (dataWithAdjustedMetricsColor.global.title as string) ?? '';
 
     const newLineData = adjustGraphData(dataWithAdjustedMetricsColor).lines;

@@ -28,9 +28,7 @@ interface PopoverData {
 
 interface Props {
   canOpen?: boolean;
-  children:
-    | ((props?: { close?: () => void }) => JSX.Element)
-    | JSX.Element;
+  children: ((props?: { close?: () => void }) => JSX.Element) | JSX.Element;
   className?: string;
   tooltipClassName?: string;
   dataTestId?: string;

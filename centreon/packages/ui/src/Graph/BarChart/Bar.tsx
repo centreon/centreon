@@ -81,7 +81,10 @@ interface BarProps {
   isNegativeValue: boolean;
   barIndex: number;
   exitBar: () => void;
-  hoverBar: (props: { barIndex: number; highlightedMetric: number }) => () => void;
+  hoverBar: (props: {
+    barIndex: number;
+    highlightedMetric: number;
+  }) => () => void;
   barY: number;
   barStyle: BarStyle;
   yScale: ScaleLinear<number, number>;

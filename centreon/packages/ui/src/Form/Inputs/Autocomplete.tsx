@@ -28,18 +28,21 @@ const normalizeNewValues = ({
     return newValues as SelectEntry;
   }
 
-  return map((newValue: SelectEntry | string) => {
-    const isManualValue = equals(type(newValue), 'String');
-    if (isCreatable && isManualValue) {
+  return map(
+    (newValue: SelectEntry | string) => {
+      const isManualValue = equals(type(newValue), 'String');
+      if (isCreatable && isManualValue) {
+        return newValue;
+      }
+
+      if (isCreatable) {
+        return prop('name', newValue as SelectEntry);
+      }
+
       return newValue;
-    }
-
-    if (isCreatable) {
-      return prop('name', newValue as SelectEntry);
-    }
-
-    return newValue;
-  }, newValues as Array<SelectEntry | string>);
+    },
+    newValues as Array<SelectEntry | string>
+  );
 };
 
 const Autocomplete = ({

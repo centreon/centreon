@@ -90,9 +90,7 @@ const IconPopoverMultiAutocomplete = ({
         <IconButton
           ariaLabel={title}
           onClick={
-            toggle as ((
-              event: React.MouseEvent
-            ) => void) &
+            toggle as ((event: React.MouseEvent) => void) &
               React.MouseEventHandler<HTMLButtonElement>
           }
           size="large"

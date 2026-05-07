@@ -154,7 +154,6 @@ const AutocompleteField = forwardRef(
       return (
         <TextField
           {...params}
-          dataTestId={dataTestId || label}
           autoFocus={autoFocus}
           autoSize={autoSize}
           autoSizeCustomPadding={7 + (autoSizeCustomPadding || 0)}
@@ -162,6 +161,7 @@ const AutocompleteField = forwardRef(
           classes={{
             root: classes.textfield
           }}
+          dataTestId={dataTestId || label}
           error={error}
           externalValueForAutoSize={
             typeof autocompleteProps?.value === 'object' &&
@@ -184,9 +184,8 @@ const AutocompleteField = forwardRef(
               ...(forceInputRenderValue
                 ? {
                     value: getOptionItemLabel(
-                      (autocompleteProps?.value as
-                        | SelectEntry
-                        | undefined) || undefined
+                      (autocompleteProps?.value as SelectEntry | undefined) ||
+                        undefined
                     )
                   }
                 : {}),

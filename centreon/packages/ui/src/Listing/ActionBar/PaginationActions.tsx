@@ -22,15 +22,21 @@ const PaginationActions = ({
 }: TablePaginationActionsProps): JSX.Element => {
   const { t } = useTranslation();
 
-  const changeToFirstPage = (event: React.MouseEvent<HTMLButtonElement>): void => {
+  const changeToFirstPage = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ): void => {
     onPageChange(event, 0);
   };
 
-  const changeToPreviousPage = (event: React.MouseEvent<HTMLButtonElement>): void => {
+  const changeToPreviousPage = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ): void => {
     onPageChange(event, page - 1);
   };
 
-  const changeToNextPage = (event: React.MouseEvent<HTMLButtonElement>): void => {
+  const changeToNextPage = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ): void => {
     onPageChange(event, page + 1);
   };
 
@@ -39,7 +45,9 @@ const PaginationActions = ({
   const isFirstPage = page === 0;
   const isLastPage = page >= lastPage;
 
-  const changeToLastPage = (event: React.MouseEvent<HTMLButtonElement>): void => {
+  const changeToLastPage = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ): void => {
     onPageChange(event, Math.max(0, lastPage));
   };
 

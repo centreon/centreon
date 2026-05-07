@@ -29,9 +29,10 @@ const getStackedDates = (stackValues: Array<StackValue>): Array<Date> => {
 
   const toDate = (tick: string): Date => new Date(tick);
 
-  return pipe(map(toTimeTick), map(toDate))(
-    stackValues as unknown as Array<{ data?: { timeTick: string } }>
-  );
+  return pipe(
+    map(toTimeTick),
+    map(toDate)
+  )(stackValues as unknown as Array<{ data?: { timeTick: string } }>);
 };
 
 export const getYAnchorPoint = ({
