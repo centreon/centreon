@@ -5,7 +5,6 @@ services:
       - .env
     image: "${WEB_IMAGE:-docker.centreon.com/centreon/centreon-web-alma9:develop}"
     ports: ["4000:80"]
-    restart: on-failure:3
     depends_on:
       - db
     environment:
@@ -33,12 +32,6 @@ services:
     ports: ["3306"]
     environment:
       MARIADB_EXTRA_FLAGS: "--skip-ssl"
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
-      interval: 5s
-      timeout: 5s
-      retries: 30
-      start_period: 60s
     deploy:
       resources:
         limits:

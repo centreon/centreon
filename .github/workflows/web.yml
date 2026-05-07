@@ -1144,7 +1144,7 @@ jobs:
     uses: ./.github/workflows/bruno-api-test.yml
     with:
       collection_path: centreon/tests/api/web-api-workspace/collections
-      image_name: centreon-web
+      image_name: centreon-web-slim
       operating_system: ${{ matrix.operating_system }}
       database_image: bitnamilegacy/${{ matrix.database }}
       major_version: ${{ needs.get-environment.outputs.major_version }}
