@@ -1,8 +1,9 @@
 import { useMemoComponent } from '@centreon/ui';
 
+import { ReactElement } from 'react';
+
 import SelectInput from '../basicFilter/SelectInput';
 import { findData } from '../utils';
-import { ReactElement } from 'react';
 
 interface MemoizedSelectInputProps {
   changeCriteria: (...args: Array<unknown>) => void;

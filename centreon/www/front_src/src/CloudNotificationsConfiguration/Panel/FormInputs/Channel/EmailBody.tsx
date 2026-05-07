@@ -5,12 +5,12 @@ import { FormikValues, useFormikContext } from 'formik';
 import { useSetAtom } from 'jotai';
 import type { LexicalEditor } from 'lexical';
 import { path } from 'ramda';
+import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { labelTypeYourTextHere } from '../../../translatedLabels';
 import { htmlEmailBodyAtom } from '../../atom';
 import { useStyles } from '../Inputs.styles';
-import { ReactElement } from 'react';
 
 const EmailBody = (): ReactElement => {
   const { classes } = useStyles({});

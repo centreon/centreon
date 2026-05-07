@@ -1,11 +1,11 @@
 import { useAtom } from 'jotai';
+import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { filtersAtom } from '../../atoms';
 import { labelCreationDate } from '../../translatedLabels';
 import { Property } from '../models';
 import DateFilter from './DateFilter';
-import { ReactElement } from 'react';
 
 const CreationDate = (): ReactElement => {
   const { t } = useTranslation();
