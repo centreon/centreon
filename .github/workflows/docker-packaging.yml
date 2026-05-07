@@ -61,9 +61,6 @@ jobs:
           - runner: ubuntu-24.04
             dockerfile: packaging-nfpm-bookworm
             image: packaging-nfpm-bookworm
-          - runner: ubuntu-24.04
-            dockerfile: packaging-nfpm-jammy
-            image: packaging-nfpm-jammy
           - runner: centreon-collect-arm64
             dockerfile: packaging-bullseye
             image: packaging-bullseye-arm64
