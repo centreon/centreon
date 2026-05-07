@@ -1,6 +1,7 @@
 import { LinearProgress, Typography } from '@mui/material';
 
 import { Button } from '@centreon/ui/components';
+import { InstallCommandIcon } from '@centreon/ui';
 
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
@@ -11,7 +12,6 @@ import {
   CommandLine,
   Section
 } from '../../../../../../AgentConfiguration/Listing/InstallationCommandModal/Components';
-import InstallCommandLogo from '../../../../../../assets/InstallCommand.svg';
 import {
   labelClickToGenerate,
   labelCommandGenerationStep,
@@ -45,10 +45,8 @@ const CommandSection = (): ReactElement => {
               onClick={submitForm}
               size="small"
             >
-              <img
-                alt="Install command"
-                className="w-7 h-7"
-                src={InstallCommandLogo}
+              <InstallCommandIcon 
+                className="w-7 h-7"              
               />
             </Button>
             <Typography variant="body2">{t(labelClickToGenerate)}</Typography>

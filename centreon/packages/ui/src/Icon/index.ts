@@ -9,3 +9,4 @@ export { MetaServiceIcon } from './MetaServiceIcon';
 export { RegexIcon } from './RegexIcon';
 export { ServiceGroupIcon } from './ServiceGroupIcon';
 export { ServiceIcon } from './ServiceIcon';
+export { InstallCommandIcon } from './InstallCommandIcon';
