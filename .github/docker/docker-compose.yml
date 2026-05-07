@@ -6,7 +6,8 @@ services:
     image: "${WEB_IMAGE:-docker.centreon.com/centreon/centreon-web-alma9:develop}"
     ports: ["4000:80"]
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       MYSQL_HOST: db
       GLPI_HOST: glpi
@@ -32,6 +33,11 @@ services:
     ports: ["3306"]
     environment:
       MARIADB_EXTRA_FLAGS: "--skip-ssl"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 && sleep 3 && mysqladmin ping -h 127.0.0.1"]
+      interval: 10s
+      timeout: 15s
+      retries: 20
     deploy:
       resources:
         limits:
