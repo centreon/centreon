@@ -39,7 +39,7 @@ const useLoadResources = ({
   dashboardId,
   playlistHash,
   widgetPrefixQuery,
-  isInViewport,
+  isInViewport
 }: LoadResourcesProps): LoadResources => {
   const theme = useTheme();
 
