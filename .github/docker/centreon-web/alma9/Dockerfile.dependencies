@@ -1,6 +1,3 @@
-ARG MAJOR_VERSION
-ARG PHP_VERSION=8.2
-
 FROM almalinux:9 AS web_dependencies
 
 ARG MAJOR_VERSION
