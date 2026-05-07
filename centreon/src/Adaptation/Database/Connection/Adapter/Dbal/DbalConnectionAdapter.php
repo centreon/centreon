@@ -59,6 +59,13 @@ final class DbalConnectionAdapter implements ConnectionInterface
     ) {
     }
 
+    public static function createFromDbalConnection(
+        DoctrineDbalConnection $dbalConnection,
+        ConnectionConfig $connectionConfig,
+    ): self {
+        return new self($dbalConnection, $connectionConfig);
+    }
+
     /**
      * Factory.
      *
