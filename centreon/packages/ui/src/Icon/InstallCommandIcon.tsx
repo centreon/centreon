@@ -1,4 +1,5 @@
 import type { SvgIconProps } from '@mui/material';
+
 import type { ReactElement } from 'react';
 
 import BaseIcon from './BaseIcon';
@@ -17,5 +18,6 @@ export const InstallCommandIcon = (props: SvgIconProps): ReactElement => (
     {...props}
     dataTestId="YourIconName"
     Icon={icon}
-    viewBox="0 0 48 48"  />
+    viewBox="0 0 48 48"
+  />
 );
