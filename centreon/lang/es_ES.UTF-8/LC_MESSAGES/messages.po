@@ -6,15 +6,16 @@ msgstr ""
 "Project-Id-Version: Centreon web 2.x\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-10-15 09:28+0100\n"
-"Last-Translator: Luiz Costa <me@luizgustavo.pro.br>\n"
-"Language-Team: Centreon team\n"
-"Language: es\n"
+"PO-Revision-Date: 2026-03-20 10:46+0000\n"
+"Last-Translator: Cécile GENIER <cgenier@centreon.com>\n"
+"Language-Team: Spanish <https://translate.apps.centreon.com/projects/"
+"centreon-infra-monitoring/develop/web-messages/es/>\n"
+"Language: es_ES\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.7.1\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.14.3\n"
 
 #: centreon/www/install/smarty_translate.php
 msgid " + Add a new entry"
@@ -609,7 +610,7 @@ msgstr "Fin actual"
 #: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
 #: centreon/www/install/front_translate.php
 msgid "Add"
-msgstr "añadir"
+msgstr "Agregar"
 
 #: centreon/www/include/configuration/configServers/listServers.php
 msgid "Add (advanced)"
@@ -22590,8 +22591,8 @@ msgstr "Información sobre Centreon Broker"
 msgid "Centreon Broker socket path"
 msgstr "Ruta de socket Unix de Centreon Broker"
 
-#, php-format
 #: unknown
+#, php-format
 msgid ""
 "Centreon Broker's configuration directory '%s' does not exist and could "
 "not\n"
@@ -22836,8 +22837,8 @@ msgstr ""
 "No se pudo encontrar la base de datos de configuración. \n"
 "La sesión probablemente ha expirado"
 
-#, php-format
 #: unknown
+#, php-format
 msgid ""
 "Could not find configuration directory '%s' for monitoring engine '%s'.\n"
 "                                 Please check it's path or create it"
@@ -23666,8 +23667,8 @@ msgstr "La última vez en un estado desconocido."
 msgid "Last warning time"
 msgstr "Última vez en una advertencia estatal"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "Latency detected on %s; check configuration for better optimisation"
 msgstr ""
 "Latencia detectada en %s; Compruebe la configuración para una mejor "
@@ -24783,8 +24784,8 @@ msgstr "Color del texto"
 msgid "The CSRF * token is invalid, please click"
 msgstr "El token * CSRF no es válido, haga clic aquí"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "The SQL files are located in %s"
 msgstr "Los archivos SQL se encuentran en %s"
 
