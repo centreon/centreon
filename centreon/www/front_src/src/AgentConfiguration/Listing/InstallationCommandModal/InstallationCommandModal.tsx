@@ -52,7 +52,7 @@ const InstallationCommandModal = (): ReactElement => {
                 initialPage={1}
                 label={t(labelSelectPoller)}
                 onChange={changePoller}
-                value={poller}
+                value={poller as unknown as null}
               />
             </div>
           </Section>

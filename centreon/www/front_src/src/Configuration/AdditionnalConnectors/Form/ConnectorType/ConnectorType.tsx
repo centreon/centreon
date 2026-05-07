@@ -15,7 +15,9 @@ const ConnectorType = (): ReactElement => {
   const { values, setFieldValue, errors, touched, handleBlur } =
     useFormikContext<AdditionalConnectorConfiguration>();
 
-  const changeTypeValue = (event): void => {
+  const changeTypeValue = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ): void => {
     setFieldValue('type', event.target.value);
   };
 

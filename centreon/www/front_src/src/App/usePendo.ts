@@ -18,7 +18,9 @@ const centreonPlatformDataAtom = atomWithStorage<CeipData | null>(
 const usePendo = (): void => {
   const [isCeipEnabled, setIsCeipEnabled] = useState(false);
   const { sendRequest } = useRequest<CeipData>({
-    request: getData
+    request: getData as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<CeipData>
   });
 
   const [centreonPlatformData, setCentreonPlatformData] = useAtom(

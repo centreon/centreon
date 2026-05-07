@@ -14,7 +14,7 @@ import useStyles from './State.styles';
 
 interface StateChipProps {
   Chip: () => JSX.Element;
-  DetailsTable: (props) => JSX.Element;
+  DetailsTable: (props: { endpoint: string }) => JSX.Element;
   endpoint: string;
   label: string;
 }
@@ -71,12 +71,17 @@ const AcknowledgeHoverChip = ({
 
 const StateColumn = ({ row }: ComponentColumnProps): JSX.Element => {
   const { classes } = useStyles();
+  const typedRow = row as Resource & {
+    is_in_downtime?: boolean;
+    is_acknowledged?: boolean;
+    is_in_flapping?: boolean;
+  };
 
   return (
     <div className={classes.container}>
-      {row.is_in_downtime && <DowntimeHoverChip resource={row} />}
-      {row.is_acknowledged && <AcknowledgeHoverChip resource={row} />}
-      {row.is_in_flapping && <FlappingChip />}
+      {typedRow.is_in_downtime && <DowntimeHoverChip resource={typedRow} />}
+      {typedRow.is_acknowledged && <AcknowledgeHoverChip resource={typedRow} />}
+      {typedRow.is_in_flapping && <FlappingChip />}
     </div>
   );
 };

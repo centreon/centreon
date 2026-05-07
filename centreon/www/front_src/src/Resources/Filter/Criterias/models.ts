@@ -210,7 +210,7 @@ const selectableStateTypes = [hardStateType, softStateType];
 
 export interface CriteriaDisplayProps {
   autocompleteSearch?: { conditions: Array<Record<string, unknown>> };
-  buildAutocompleteEndpoint?;
+  buildAutocompleteEndpoint?: (...args: Array<unknown>) => string;
   label: string;
   options?: Array<SelectEntry>;
 }
@@ -347,5 +347,5 @@ export interface PopoverData {
 
 export interface SearchDataPropsCriterias {
   search: string;
-  setSearch;
+  setSearch: (search: string) => void;
 }

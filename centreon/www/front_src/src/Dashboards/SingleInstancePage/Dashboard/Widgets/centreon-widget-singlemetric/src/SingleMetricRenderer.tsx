@@ -12,7 +12,7 @@ import { SingleMetricGraphType } from './models';
 interface Props {
   graphProps: {
     baseColor?: string;
-    data?;
+    data?: unknown;
     displayAsRaw?: boolean;
     thresholds: Thresholds;
   };

@@ -78,7 +78,7 @@ const ResourceActions = (): JSX.Element => {
   ];
 
   const extractActionsInformation = (
-    key
+    key: Action
   ): Record<string, boolean | undefined> | Record<string, never> => {
     const item = actions.find(({ action }) => action === key);
 

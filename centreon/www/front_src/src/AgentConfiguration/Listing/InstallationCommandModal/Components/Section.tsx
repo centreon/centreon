@@ -25,7 +25,7 @@ export const Section = ({
   order,
   title
 }: {
-  children;
+  children: React.ReactNode;
   order: number;
   title: string;
 }) => {

@@ -5,7 +5,11 @@ import { loginEndpoint } from './api/endpoint';
 import { Redirect } from './models';
 
 interface UsePostLoginState {
-  sendLogin: ({ payload }) => Promise<Redirect | ResponseError>;
+  sendLogin: ({
+    payload
+  }: {
+    payload: { login: string; password: string };
+  }) => Promise<Redirect | ResponseError>;
 }
 
 const usePostLogin = (): UsePostLoginState => {

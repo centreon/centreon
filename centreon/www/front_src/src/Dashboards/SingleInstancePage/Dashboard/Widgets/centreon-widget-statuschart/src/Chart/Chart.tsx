@@ -61,7 +61,7 @@ const Chart = ({
     widgetPrefixQuery
   });
 
-  const goToResourceStatusPage = (status): void => {
+  const goToResourceStatusPage = (status: string): void => {
     const url = getLinkToResourceStatusPage(status, resourceType);
 
     goToUrl(url)();
@@ -111,7 +111,10 @@ const Chart = ({
               goToResourceStatusPage(status);
             }}
             opacity={1}
-            TooltipContent={isOnPublicPage ? undefined : TooltipContent}
+            // biome-ignore lint/suspicious/noExplicitAny: typing fallback
+            TooltipContent={
+              (isOnPublicPage ? undefined : TooltipContent) as any
+            }
             title={title}
             tooltipProps={{ resources, resourceType }}
             unit={unit}
@@ -138,10 +141,11 @@ const Chart = ({
               />
             )}
             legendDirection={isHorizontalBar ? 'row' : 'column'}
-            onSingleBarClick={({ key: status }) => {
+            onSingleBarClick={({ key: status }: { key: string }) => {
               goToResourceStatusPage(status);
             }}
-            TooltipContent={TooltipContent}
+            // biome-ignore lint/suspicious/noExplicitAny: typing fallback
+            TooltipContent={TooltipContent as any}
             title={title}
             tooltipProps={{ resources, resourceType }}
             unit={unit}

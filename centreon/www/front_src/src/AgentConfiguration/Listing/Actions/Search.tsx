@@ -6,8 +6,9 @@ import { labelSearch } from '../../translatedLabels';
 import { useActionsStyles } from './Actions.styles';
 import PopoverFilter from './PopoverFilter';
 import { useSearch } from './useSearch';
+import { ReactElement } from 'react';
 
-const Search = (): JSX.Element => {
+const Search = (): ReactElement => {
   const { t } = useTranslation();
   const { classes } = useActionsStyles();
 

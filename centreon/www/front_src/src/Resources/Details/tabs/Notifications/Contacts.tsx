@@ -10,7 +10,7 @@ import {
 
 import { t } from 'i18next';
 import { isEmpty, isNil } from 'ramda';
-import { Fragment, useCallback } from 'react';
+import { Fragment, ReactElement, useCallback } from 'react';
 
 import memoizeComponent from '../../../memoizedComponent';
 import {
@@ -21,9 +21,9 @@ import { Contact, ContactGroup } from './models';
 
 interface Props {
   contacts: Array<Contact> | Array<ContactGroup> | undefined;
-  getColumns: (contact) => JSX.Element;
-  headers: JSX.Element;
-  noContactsMessage: JSX.Element;
+  getColumns: (contact: Contact | ContactGroup) => ReactElement;
+  headers: ReactElement;
+  noContactsMessage: ReactElement;
   templateColumns: string;
 }
 
@@ -33,19 +33,20 @@ const Contacts = ({
   getColumns,
   headers,
   noContactsMessage
-}: Props): JSX.Element => {
-  const goToUri = (uri): void => {
+}: Props): ReactElement => {
+  const goToUri = (uri: string): void => {
     window.location.href = uri as string;
   };
 
   const getConfigurationColumn = useCallback(
-    ({ configuration_uri }): JSX.Element => {
+    ({ configuration_uri }: Record<string, unknown>): ReactElement => {
       const canGoToConfiguration = !isNil(configuration_uri);
       const tooltipTitle = canGoToConfiguration
         ? t(labelConfigure)
         : t(labelNotAuthorizedToAccessConfiguration);
       const iconColor = canGoToConfiguration ? 'primary' : 'default';
-      const goToConfiguration = (): void => goToUri(configuration_uri);
+      const goToConfiguration = (): void =>
+        goToUri(configuration_uri as string);
 
       return (
         <Tooltip title={tooltipTitle}>

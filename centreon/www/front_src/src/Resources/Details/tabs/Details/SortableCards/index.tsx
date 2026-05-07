@@ -114,7 +114,7 @@ const SortableCards = ({ panelWidth, details }: Props): JSX.Element => {
     </Grid>
   );
 
-  const dragEnd = ({ items }): void => {
+  const dragEnd = ({ items }: { items: Array<CardsLayout> }): void => {
     storeDetailsCards(items);
   };
 

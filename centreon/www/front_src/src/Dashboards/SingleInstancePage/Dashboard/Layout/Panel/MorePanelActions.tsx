@@ -30,7 +30,7 @@ import { ExpandableData } from './models';
 interface Props {
   anchor: HTMLElement | null;
   close: () => void;
-  duplicate: (event) => void;
+  duplicate: (event: React.MouseEvent) => void;
   id: string;
   expandableData?: ExpandableData;
 }

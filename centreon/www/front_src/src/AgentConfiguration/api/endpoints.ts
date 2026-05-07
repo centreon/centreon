@@ -1,4 +1,4 @@
-import { buildListingEndpoint } from '@centreon/ui';
+import { buildListingEndpoint, type ListingParameters } from '@centreon/ui';
 
 import dayjs from 'dayjs';
 
@@ -8,7 +8,7 @@ export const getAgentConfigurationsEndpoint =
 export const pollersEndpoint = '/configuration/monitoring-servers';
 export const agentConfigurationPollersEndpoint = `${getAgentConfigurationsEndpoint}/pollers`;
 
-export const getPollersEndpoint = (parameters): string =>
+export const getPollersEndpoint = (parameters: ListingParameters): string =>
   buildListingEndpoint({
     baseEndpoint: pollersEndpoint,
     parameters
@@ -57,7 +57,7 @@ export const tokensSearchConditions = [
   }
 ];
 
-export const getTokensEndpoint = (parameters): string => {
+export const getTokensEndpoint = (parameters: ListingParameters): string => {
   return buildListingEndpoint({
     baseEndpoint: listTokensEndpoint,
     parameters: {
@@ -72,7 +72,7 @@ export const getTokensEndpoint = (parameters): string => {
   });
 };
 
-export const getHostsEndpoint = (parameters): string => {
+export const getHostsEndpoint = (parameters: ListingParameters): string => {
   return buildListingEndpoint({
     baseEndpoint: hostsConfigurationEndpoint,
     parameters: {

@@ -34,7 +34,9 @@ const useFilterByModule = (): FilterByModule => {
       return null;
     }
 
-    return authorizedFilterByModules[filterName];
+    return (
+      authorizedFilterByModules as Record<string, Record<string, string>>
+    )[filterName];
   });
 
   const newCriteriaValueNameById = filtersToAdd.reduce(

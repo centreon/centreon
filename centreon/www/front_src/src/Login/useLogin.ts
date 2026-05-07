@@ -99,7 +99,15 @@ const useLogin = (): UseLoginState => {
   );
 
   const checkPasswordExpiration = useCallback(
-    ({ error, alias, setSubmitting }) => {
+    ({
+      error,
+      alias,
+      setSubmitting
+    }: {
+      error: ResponseError;
+      alias: string;
+      setSubmitting: (isSubmitting: boolean) => void;
+    }) => {
       const isUserNotAllowed = propEq(401, 'statusCode', error);
 
       const { password_is_expired: passwordIsExpired } = prop(
@@ -125,7 +133,7 @@ const useLogin = (): UseLoginState => {
 
   const submitLoginForm = (
     values: LoginFormValues,
-    { setSubmitting }
+    { setSubmitting }: Pick<FormikHelpers<FormikValues>, 'setSubmitting'>
   ): void => {
     sendLogin({
       payload: {

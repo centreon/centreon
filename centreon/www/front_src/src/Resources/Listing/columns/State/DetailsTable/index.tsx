@@ -24,7 +24,8 @@ import {
 const getYesNoLabel = (value: boolean): string => (value ? labelYes : labelNo);
 
 interface DetailsTableColumn extends Column {
-  getContent: (details) => string | ReactElement;
+  // biome-ignore lint/suspicious/noExplicitAny: typing fallback
+  getContent: (details: any) => string | ReactElement;
   id: string;
   label: string;
   type: ColumnType;
@@ -43,7 +44,9 @@ const DetailsTable = <TDetails extends { id: number }>({
   const [details, setDetails] = useState<Array<TDetails> | null>();
 
   const { sendRequest } = useRequest<ListingModel<TDetails>>({
-    request: getData
+    request: getData as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<ListingModel<TDetails>>
   });
 
   useEffect(() => {

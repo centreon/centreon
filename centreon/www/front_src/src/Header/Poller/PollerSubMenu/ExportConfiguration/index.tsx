@@ -27,7 +27,9 @@ const ExportConfiguration = ({ closeSubMenu }: Props): JSX.Element | null => {
     useState(false);
   const { sendRequest, sending } = useRequest({
     defaultFailureMessage: t(labelFailedToExportAndReloadConfiguration),
-    request: getData
+    request: getData as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<unknown>
   });
   const { showInfoMessage, showSuccessMessage } = useSnackbar();
 

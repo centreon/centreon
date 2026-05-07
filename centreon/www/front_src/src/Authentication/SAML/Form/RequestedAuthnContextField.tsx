@@ -22,7 +22,7 @@ const RequestedAuthnContextComparisonField = (): React.JSX.Element => {
   const { values, setFieldValue, errors, touched } =
     useFormikContext<SAMLConfiguration>();
 
-  const changeValue = (event): void => {
+  const changeValue = (event: React.ChangeEvent<HTMLInputElement>): void => {
     setFieldValue('requestedAuthnContextComparison', event.target.value);
   };
 

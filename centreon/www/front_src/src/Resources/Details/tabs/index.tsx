@@ -126,7 +126,7 @@ const tabIdByLabel = {
 };
 
 const getTabIdFromLabel = (label: string): TabId => {
-  const tabId = tabIdByLabel[label];
+  const tabId = (tabIdByLabel as Record<string, TabId>)[label];
 
   if (isNil(tabId)) {
     return detailsTabId;

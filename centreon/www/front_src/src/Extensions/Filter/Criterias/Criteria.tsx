@@ -27,14 +27,14 @@ const CriteriaContent = ({ name, value }: Props): JSX.Element => {
     }));
   };
 
-  const changeCriteria = (upToDateValue): void => {
+  const changeCriteria = (upToDateValue: Array<SelectEntry>): void => {
     setFilterCriteria({ name, value: upToDateValue });
   };
 
-  const getUntranslated = (values): Array<SelectEntry> => {
-    return values.map(({ id }) => ({
+  const getUntranslated = (values: Array<SelectEntry>): Array<SelectEntry> => {
+    return values.map(({ id }: SelectEntry) => ({
       id,
-      name: criteriaValueNameById[id]
+      name: criteriaValueNameById[id as keyof typeof criteriaValueNameById]
     }));
   };
 

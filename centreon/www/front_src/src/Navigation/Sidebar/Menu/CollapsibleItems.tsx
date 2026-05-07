@@ -9,6 +9,7 @@ import { equals } from 'ramda';
 import {
   Dispatch,
   MouseEvent,
+  ReactElement,
   SetStateAction,
   useEffect,
   useRef,
@@ -121,7 +122,7 @@ const CollapsibleItems = ({
   collapseScrollMaxWidth,
   setCollapseScrollMaxWidth,
   setCollapseScrollMaxHeight
-}: Props): JSX.Element => {
+}: Props): ReactElement => {
   const { classes, cx } = useStyles({
     collapseScrollMaxHeight,
     collapseScrollMaxWidth,

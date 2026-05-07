@@ -6,7 +6,7 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 import { IconButton } from '@centreon/ui';
 
 import { equals } from 'ramda';
-import { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 
 import { useStyles } from './check.styles';
 import IconArrow from './IconArrow';
@@ -47,7 +47,7 @@ const Check = ({
     setAnchorEl(null);
   };
 
-  const handleClick = (event): void => {
+  const handleClick = (event: React.MouseEvent<HTMLElement>): void => {
     const { target } = event;
     if (
       !equals(target?.id, arrowIconId) &&

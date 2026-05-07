@@ -43,7 +43,7 @@ const MultiConnectedAutocomplete = <TFilters,>({
       getEndpoint={getEndpoint}
       isOptionEqualToValue={isOptionEqualToValue}
       label={t(label)}
-      onChange={change}
+      onChange={change as never}
       value={value}
     />
   );

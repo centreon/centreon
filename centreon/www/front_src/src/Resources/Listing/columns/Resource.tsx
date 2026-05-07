@@ -21,12 +21,20 @@ const ResourceColumn = ({
 
   const isViewByHostMode = equals(visualization, Visualization.Host);
   const isViewByServiceMode = equals(visualization, Visualization.Service);
-  const status = row?.status.name;
-  const isNestedRow = isNil(row?.children) && isViewByHostMode;
+  const typedRow = row as unknown as {
+    children?: unknown;
+    icon?: { name: string; url: string };
+    name?: string;
+    resource_name?: string;
+    short_type?: string;
+    status: { name: string };
+  };
+  const status = typedRow?.status.name;
+  const isNestedRow = isNil(typedRow?.children) && isViewByHostMode;
 
   const resourceName = renderEllipsisTypography?.({
     className: classes.resourceNameText,
-    formattedString: row.name || row.resource_name
+    formattedString: (typedRow.name || typedRow.resource_name) as string
   });
 
   if (isNestedRow) {
@@ -42,8 +50,13 @@ const ResourceColumn = ({
             severityCode={getStatus(status?.toLowerCase())?.severity}
           />
         </div>
-        {row?.icon && (
-          <img alt={row.icon.name} height={16} src={row.icon.url} width={16} />
+        {typedRow?.icon && (
+          <img
+            alt={typedRow.icon.name}
+            height={16}
+            src={typedRow.icon.url}
+            width={16}
+          />
         )}
 
         {resourceName}
@@ -54,11 +67,16 @@ const ResourceColumn = ({
   return (
     <>
       <div className={classes.resourceDetailsCell}>
-        {!isViewByServiceMode && !row.icon && (
-          <ShortTypeChip label={row.short_type} />
+        {!isViewByServiceMode && !typedRow.icon && (
+          <ShortTypeChip label={typedRow.short_type as string} />
         )}
-        {row.icon && (
-          <img alt={row.icon.name} height={16} src={row.icon.url} width={16} />
+        {typedRow.icon && (
+          <img
+            alt={typedRow.icon.name}
+            height={16}
+            src={typedRow.icon.url}
+            width={16}
+          />
         )}
       </div>
       {resourceName}

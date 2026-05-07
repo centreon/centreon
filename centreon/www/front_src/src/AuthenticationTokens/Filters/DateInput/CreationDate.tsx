@@ -5,13 +5,14 @@ import { filtersAtom } from '../../atoms';
 import { labelCreationDate } from '../../translatedLabels';
 import { Property } from '../models';
 import DateFilter from './DateFilter';
+import { ReactElement } from 'react';
 
-const CreationDate = (): JSX.Element => {
+const CreationDate = (): ReactElement => {
   const { t } = useTranslation();
 
   const [filters, setFilters] = useAtom(filtersAtom);
 
-  const setCreationDate = (creationDate): void => {
+  const setCreationDate = (creationDate: unknown): void => {
     setFilters({ ...filters, creationDate });
   };
 

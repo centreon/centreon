@@ -4,6 +4,7 @@ import { Button, CircularProgress } from '@mui/material';
 
 import { TextField } from '@centreon/ui';
 
+import type { FormikErrors, FormikTouched } from 'formik';
 import { FormikValues, useFormikContext } from 'formik';
 import { isEmpty, not, prop } from 'ramda';
 import { useCallback, useState } from 'react';
@@ -25,8 +26,18 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const getTouchedError = ({ fieldName, errors, touched }): string | undefined =>
-  prop(fieldName, touched) && prop(fieldName, errors);
+interface GetTouchedErrorProps {
+  fieldName: string;
+  errors: FormikErrors<FormikValues>;
+  touched: FormikTouched<FormikValues>;
+}
+
+const getTouchedError = ({
+  fieldName,
+  errors,
+  touched
+}: GetTouchedErrorProps): string | undefined =>
+  prop(fieldName, touched) && (prop(fieldName, errors) as string | undefined);
 
 const LoginForm = (): JSX.Element => {
   const { classes } = useStyles();

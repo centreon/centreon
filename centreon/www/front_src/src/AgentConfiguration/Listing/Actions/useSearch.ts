@@ -7,8 +7,8 @@ import { useRef } from 'react';
 import { filtersAtom } from '../../atoms';
 
 interface UseSearch {
-  onChange: (event) => void;
-  filters;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  filters: Record<string, unknown>;
 }
 
 export const useSearch = (): UseSearch => {
@@ -26,7 +26,7 @@ export const useSearch = (): UseSearch => {
     }, 500)
   );
 
-  const onChange = ({ target }): void => {
+  const onChange = ({ target }: React.ChangeEvent<HTMLInputElement>): void => {
     setFilters({ ...filters, name: target.value });
 
     searchDebounced.current(target.value);

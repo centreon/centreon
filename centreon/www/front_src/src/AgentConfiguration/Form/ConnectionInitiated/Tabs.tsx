@@ -26,9 +26,12 @@ export const Tabs = ({
 
   const [selectedTab, setSelectedTab] = useState(defaultTab);
 
-  const changeTab = useCallback((_, newValue: string): void => {
-    setSelectedTab(newValue);
-  }, []);
+  const changeTab = useCallback(
+    (_: React.SyntheticEvent, newValue: string): void => {
+      setSelectedTab(newValue);
+    },
+    []
+  );
 
   return (
     <TabContext value={selectedTab}>

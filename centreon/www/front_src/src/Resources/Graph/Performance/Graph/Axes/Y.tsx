@@ -41,8 +41,8 @@ const YAxes = ({
   graphHeight
 }: Props): JSX.Element => {
   const formatTick =
-    ({ unit }) =>
-    (value): string => {
+    ({ unit }: { unit: string }) =>
+    (value: number): string => {
       if (isNil(value)) {
         return '';
       }

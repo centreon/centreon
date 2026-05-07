@@ -48,7 +48,9 @@ const Status = ({
     ],
     isForOneResource: false,
     states: [],
-    statuses: formatStatusFilter(severityStatusBySeverityCode[severityCode]),
+    statuses: formatStatusFilter(
+      (severityStatusBySeverityCode as Record<number, unknown>)[severityCode]
+    ),
     type: resourceType
   });
 

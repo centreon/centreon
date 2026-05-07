@@ -2,13 +2,21 @@ import { useMemoComponent } from '@centreon/ui';
 
 import SelectInput from '../basicFilter/SelectInput';
 import { findData } from '../utils';
+import { ReactElement } from 'react';
+
+interface MemoizedSelectInputProps {
+  changeCriteria: (...args: Array<unknown>) => void;
+  data: Record<string, unknown>;
+  filterName: string;
+  resourceType?: string;
+}
 
 const MemoizedSelectInput = ({
   data,
   changeCriteria,
   filterName,
   resourceType
-}): JSX.Element => {
+}: MemoizedSelectInputProps): ReactElement => {
   return useMemoComponent({
     Component: (
       <SelectInput

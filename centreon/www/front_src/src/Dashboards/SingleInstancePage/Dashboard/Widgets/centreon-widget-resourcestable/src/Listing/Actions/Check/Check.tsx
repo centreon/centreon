@@ -42,7 +42,7 @@ const Check = ({
     setAnchorEl(null);
   };
 
-  const handleClick = (event): void => {
+  const handleClick = (event: React.MouseEvent<HTMLElement>): void => {
     const { target } = event;
     if (
       !equals(target?.id, arrowIconId) &&
