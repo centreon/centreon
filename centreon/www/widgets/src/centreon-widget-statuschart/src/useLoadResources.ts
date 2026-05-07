@@ -23,7 +23,6 @@ interface LoadResourcesProps
   resourceType: 'host' | 'service';
   resources: Array<Resource>;
   isInViewport: boolean;
-  stateList: Array<StateSelection>;
 }
 
 interface LoadResources {
@@ -41,7 +40,6 @@ const useLoadResources = ({
   playlistHash,
   widgetPrefixQuery,
   isInViewport,
-  stateList
 }: LoadResourcesProps): LoadResources => {
   const theme = useTheme();
 
