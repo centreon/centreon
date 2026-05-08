@@ -1,8 +1,7 @@
-ARG MAJOR_VERSION
-
 FROM almalinux:9 AS web_dependencies
 
 ARG MAJOR_VERSION
+ARG PHP_VERSION=8.2
 ARG IS_CLOUD
 ARG STABILITY
 
@@ -87,7 +86,12 @@ dnf install -y libfaketime
 # install php dependencies #
 ############################
 
-dnf module enable -y php:8.2
+if [[ "${PHP_VERSION}" == "8.2" ]]; then
+  dnf module enable -y php:8.2
+else
+  dnf install -y https://rpms.remirepo.net/enterprise/remi-release-9.rpm
+  dnf module -y switch-to php:remi-${PHP_VERSION}/common
+fi
 dnf install -y \
   php-common \
   php-cli \
@@ -121,6 +125,8 @@ echo 'agentaddress  127.0.0.1' >> /etc/snmp/snmpd.conf
 dnf clean all --enablerepo=*
 
 EOF
+
+ENV PHP_VERSION=${PHP_VERSION}
 
 COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /usr/bin/systemctl
 COPY --chmod=755 ./.github/docker/centreon-web/init/journalctl /usr/bin/journalctl

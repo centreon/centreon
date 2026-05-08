@@ -66,6 +66,9 @@ on:
       labels:
         description: "list of labels on the PR"
         value: ${{ jobs.get-environment.outputs.labels }}
+      php_version:
+        description: "PHP version to use (8.2 or 8.4 based on php84 label)"
+        value: ${{ jobs.get-environment.outputs.php_version }}
 
 jobs:
   get-environment:
@@ -89,6 +92,7 @@ jobs:
       is_nightly: ${{ steps.get_nightly_status.outputs.is_nightly }}
       skip_workflow: ${{ steps.skip_workflow.outputs.result }}
       labels: ${{ steps.has_skip_label.outputs.labels }}
+      php_version: ${{ steps.get_php_version.outputs.php_version }}
 
     steps:
       - name: Check if PR has skip label
@@ -615,6 +619,15 @@ jobs:
 
             core.setOutput('delivery_type', delivery_type);
 
+      - name: Detect PHP version from labels
+        id: get_php_version
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            const labels = ${{ steps.has_skip_label.outputs.labels }};
+            const phpVersion = labels.includes('php84') ? '8.4' : '8.2';
+            core.setOutput('php_version', phpVersion);
+
       - name: Detect linked dev and stable branches
         id: linked_branches
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
@@ -687,10 +700,10 @@ jobs:
         id: get_os_database_matrix
         with:
           script: |
-            const alma9_mariadb_10_11 = {
-              "operating_system": "alma9",
-              "database": "mariadb:10.11",
-              "db_id": "mariadb-10.11",
+            const alma10_mariadb_11_8 = {
+              "operating_system": "alma10",
+              "database": "mariadb:11.8",
+              "db_id": "mariadb-11.8",
               "test_tags": "not @ignore"
             };
             const alma9_mysql_8_0 = {
@@ -699,8 +712,8 @@ jobs:
               "db_id": "mysql-8.0",
               "test_tags": "not @ignore"
             };
-            const bookworm_mysql_8_4 = {
-              "operating_system": "bookworm",
+            const trixie_mysql_8_4 = {
+              "operating_system": "trixie",
               "database": "mysql:8.4",
               "db_id": "mysql-8.4",
               "test_tags": "not @ignore"
@@ -736,11 +749,11 @@ jobs:
               return configs[configIndex];
             };
 
-            const configs = [alma9_mariadb_10_11, alma9_mysql_8_0, bookworm_mysql_8_4];
+            const configs = [alma9_mysql_8_0, alma10_mariadb_11_8, trixie_mysql_8_4];
 
             const cloud = alma9_mysql_8_0;
 
-            let main = alma9_mariadb_10_11;
+            let main = alma10_mariadb_11_8;
             if ('${{ steps.detect_cloud_version.outputs.isCloud }}' == 'true') {
               main = cloud;
             }
@@ -760,6 +773,15 @@ jobs:
                 "main": [dailyConfig],
                 "operating_systems": [dailyConfig],
                 "databases": [dailyConfig],
+              };
+            }
+
+            if (${{ contains(steps.has_skip_label.outputs.labels, 'php84') && 'true' || 'false' }}) {
+              matrix = {
+                ...matrix,
+                "main": [trixie_mysql_8_4],
+                "operating_systems": [trixie_mysql_8_4],
+                "databases": [trixie_mysql_8_4],
               };
             }
 
@@ -786,6 +808,7 @@ jobs:
           HAS_UPLOAD_ARTIFACTS: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'upload-artifacts') }}
           HAS_SYSTEM: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'system') }}
           HAS_DATABASE: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'database') }}
+          HAS_PHP84: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'php84') }}
           IS_NIGHTLY: ${{ steps.get_nightly_status.outputs.is_nightly }}
         with:
           script: |
@@ -794,11 +817,13 @@ jobs:
               || process.env.IS_NIGHTLY === 'true'
               || process.env.HAS_UPLOAD_ARTIFACTS === 'true'
               || process.env.HAS_SYSTEM === 'true'
-              || process.env.HAS_DATABASE === 'true';
+              || process.env.HAS_DATABASE === 'true'
+              || process.env.HAS_PHP84 === 'true';
 
             const distribMap = {
               alma9:    { distrib: 'el9',      package_extension: 'rpm' },
-              bookworm: { distrib: 'bookworm', package_extension: 'deb' },
+              alma10:   { distrib: 'el10',     package_extension: 'rpm' },
+              trixie:   { distrib: 'trixie',   package_extension: 'deb' },
             };
 
             const allDistribs = Object.entries(distribMap).map(([os, info]) => ({
@@ -833,6 +858,7 @@ jobs:
               ['is_nightly', '${{ steps.get_nightly_status.outputs.is_nightly }}'],
               ['skip_workflow', '${{ steps.skip_workflow.outputs.result }}'],
               ['labels', '${{ steps.has_skip_label.outputs.labels }}'],
+              ['php_version', '${{ steps.get_php_version.outputs.php_version }}'],
             ];
 
             outputTable.push(['target_stability', '${{ steps.get_stability.outputs.target_stability || '<em>not defined because current run is not triggered by pull request event</em>' }}']);

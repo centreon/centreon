@@ -130,6 +130,12 @@ tags:
   -
     name: 'Standard Macro'
     description: "Resource 'Standard Macro' operations."
+  -
+    name: Poller
+    description: "Resource 'Poller' operations."
+  -
+    name: Upgrade
+    description: "Resource 'Upgrade' operations."
 security:
   -
     Token: []
@@ -761,14 +767,14 @@ paths:
         '409':
           description: 'ServiceCategory resource already exists'
         '201':
-          description: 'Service Category resource created'
+          description: 'ServiceCategory resource created'
           content:
             application/ld+json:
               schema:
-                $ref: '#/components/schemas/Service.Category.jsonld'
+                $ref: '#/components/schemas/ServiceCategory.jsonld'
             application/json:
               schema:
-                $ref: '#/components/schemas/Service.Category'
+                $ref: '#/components/schemas/ServiceCategory'
           links: {  }
         '400':
           description: 'Invalid input'
@@ -809,18 +815,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           links: {  }
-      summary: 'Creates a Service Category resource.'
-      description: 'Creates a Service Category resource.'
+      summary: 'Creates a ServiceCategory resource.'
+      description: 'Creates a ServiceCategory resource.'
       parameters: []
       requestBody:
-        description: 'The new Service Category resource'
+        description: 'The new ServiceCategory resource'
         content:
           application/ld+json:
             schema:
-              $ref: '#/components/schemas/Service.Category'
+              $ref: '#/components/schemas/ServiceCategory'
           application/json:
             schema:
-              $ref: '#/components/schemas/Service.Category'
+              $ref: '#/components/schemas/ServiceCategory'
         required: true
   '/configuration/services/categories/{service_category_id}':
     delete:
@@ -4227,6 +4233,73 @@ paths:
     $ref: ./latest/onPremise/Platform/Versions.yaml
   /platform/updates:
     $ref: ./latest/onPremise/Administration/Update/updates.yaml
+    post:
+      operationId: api_platformupdates_post
+      tags:
+        - Upgrade
+      responses:
+        '204':
+          description: 'Upgrade resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Upgrade.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Upgrade'
+          links: {  }
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {  }
+        '422':
+          description: 'An error occurred'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {  }
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {  }
+      summary: 'Creates a Upgrade resource.'
+      description: 'Creates a Upgrade resource.'
+      parameters: []
+      requestBody:
+        description: 'The new Upgrade resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/Upgrade'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Upgrade'
+        required: true
   /platform/installation/status:
     get:
       tags:
@@ -4509,20 +4582,20 @@ paths:
         - 'Global Macro'
       responses:
         '200':
-          description: 'Global Macro collection'
+          description: 'GlobalMacro collection'
           content:
             application/ld+json:
               schema:
                 type: object
-                description: 'Global.Macro.jsonld collection.'
+                description: 'GlobalMacro.jsonld collection.'
                 allOf:
                   - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
-                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/Global.Macro.jsonld' } } } }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/GlobalMacro.jsonld' } } } }
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Global.Macro'
+                  $ref: '#/components/schemas/GlobalMacro'
         '403':
           description: Forbidden
           content:
@@ -4536,8 +4609,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           links: {  }
-      summary: 'Retrieves the collection of Global Macro resources.'
-      description: 'Retrieves the collection of Global Macro resources.'
+      summary: 'Retrieves the collection of GlobalMacro resources.'
+      description: 'Retrieves the collection of GlobalMacro resources.'
       parameters:
         -
           name: 'name[lk]'
@@ -4646,22 +4719,22 @@ paths:
         - 'Standard Macro'
       responses:
         '200':
-          description: 'Standard Macro collection'
+          description: 'StandardMacro collection'
           content:
             application/ld+json:
               schema:
                 type: object
-                description: 'Standard.Macro.jsonld collection.'
+                description: 'StandardMacro.jsonld collection.'
                 allOf:
                   - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
-                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/Standard.Macro.jsonld' } } } }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/StandardMacro.jsonld' } } } }
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Standard.Macro'
-      summary: 'Retrieves the collection of Standard Macro resources.'
-      description: 'Retrieves the collection of Standard Macro resources.'
+                  $ref: '#/components/schemas/StandardMacro'
+      summary: 'Retrieves the collection of StandardMacro resources.'
+      description: 'Retrieves the collection of StandardMacro resources.'
       parameters:
         -
           name: 'name[lk]'
@@ -5024,6 +5097,76 @@ paths:
             type: string
           style: simple
           explode: false
+  /configuration/pollers:
+    post:
+      operationId: api_configurationpollers_post
+      tags:
+        - Poller
+      responses:
+        '409':
+          description: 'Poller resource already exists'
+        '201':
+          description: 'Poller resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Poller.jsonld-poller.read'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Poller-poller.read'
+          links: {  }
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {  }
+        '422':
+          description: 'An error occurred'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {  }
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {  }
+      summary: 'Creates a Poller resource.'
+      description: 'Creates a Poller resource.'
+      parameters: []
+      requestBody:
+        description: 'The new Poller resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/Poller-poller.write'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Poller-poller.write'
+        required: true
 components:
   securitySchemes:
     Token:
@@ -8551,24 +8694,25 @@ components:
       description: 'A representation of common errors.'
       properties:
         title:
+          type: string
           readOnly: true
           description: 'A short, human-readable summary of the problem.'
-          type: string
           nullable: true
         detail:
+          type: string
           readOnly: true
           description: 'A human-readable explanation specific to this occurrence of the problem.'
-          type: string
           nullable: true
         status:
           type: number
-          example: 404
           default: 400
+          example:
+            - 404
           nullable: true
         instance:
+          type: string
           readOnly: true
           description: 'A URI reference that identifies the specific occurrence of the problem. It may or may not yield further information if dereferenced.'
-          type: string
           nullable: true
         type:
           readOnly: true
@@ -8722,73 +8866,40 @@ components:
           example: negate
     ServiceCategory:
       type: object
-      description: ''
-      deprecated: false
       properties:
-        id:
-          type: integer
-          nullable: true
         name:
           minLength: 1
           maxLength: 255
           type: string
-          nullable: true
         alias:
           minLength: 1
           maxLength: 255
           type: string
+        id:
+          type: integer
           nullable: true
         is_activated:
           type: boolean
-      required:
-        - name
-        - alias
     ServiceCategory.jsonld:
-      type: object
-      description: ''
-      deprecated: false
-      properties:
-        '@context':
-          readOnly: true
-          oneOf:
-            -
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            name:
+              minLength: 1
+              maxLength: 255
               type: string
-            -
-              type: object
-              properties:
-                '@vocab':
-                  type: string
-                hydra:
-                  type: string
-                  enum: ['http://www.w3.org/ns/hydra/core#']
-              required:
-                - '@vocab'
-                - hydra
-              additionalProperties: true
-        '@id':
-          readOnly: true
-          type: string
-        '@type':
-          readOnly: true
-          type: string
-        id:
-          type: integer
-          nullable: true
-        name:
-          minLength: 1
-          maxLength: 255
-          type: string
-          nullable: true
-        alias:
-          minLength: 1
-          maxLength: 255
-          type: string
-          nullable: true
-        is_activated:
-          type: boolean
-      required:
-        - name
-        - alias
+            alias:
+              minLength: 1
+              maxLength: 255
+              type: string
+            id:
+              type: integer
+              nullable: true
+            is_activated:
+              type: boolean
     StandardMacroResource:
       type: object
       description: ''
@@ -8865,8 +8976,8 @@ components:
             id: 1
             name: 'SSH Connector'
         comment:
-          description: 'Additional information about the command'
           type: string
+          description: 'Additional information about the command'
           example: 'This command is used to check the HTTP service'
           nullable: true
     Command.DuplicateCommandInput:
@@ -8961,8 +9072,8 @@ components:
           type: string
           example: 'centreon_connector_ssh --log-file=/var/log/centreon-engine/connector-ssh.log'
         description:
-          description: 'The connector description'
           type: string
+          description: 'The connector description'
           example: 'Connector using SSH to connect to remote hosts'
           nullable: true
         is_activated:
@@ -9061,8 +9172,8 @@ components:
           type: string
           example: /usr/lib64/nagios/plugins/negate
         description:
-          description: 'description of plugin'
           type: string
+          description: 'description of plugin'
           example: 'This is the help description of the plugin.'
           nullable: true
     Plugin.jsonld:
@@ -9133,8 +9244,8 @@ components:
             id: 1
             name: 'SSH Connector'
         comment:
-          description: 'Additional information about the command'
           type: string
+          description: 'Additional information about the command'
           example: 'This command is used to check the HTTP service'
           nullable: true
     ConstraintViolation:
@@ -9175,12 +9286,12 @@ components:
           readOnly: true
           type: string
         title:
-          readOnly: true
           type: string
+          readOnly: true
           nullable: true
         instance:
-          readOnly: true
           type: string
+          readOnly: true
           nullable: true
     ConstraintViolation.jsonld:
       allOf:
@@ -9257,8 +9368,8 @@ components:
           example: 'https://example.com/'
           nullable: true
         comment:
-          description: 'Additional information about the command'
           type: string
+          description: 'Additional information about the command'
           example: 'This command is used to check the HTTP service'
           nullable: true
     CreateCommandResource.jsonld:
@@ -9628,9 +9739,9 @@ components:
         - name
       properties:
         name:
+          type: string
           maxLength: 255
           description: 'Name of plugin'
-          type: string
           example: negate
           nullable: true
     Plugins.jsonld:
@@ -9706,3 +9817,169 @@ components:
             name:
               type: string
               nullable: true
+    GlobalMacro:
+      type: object
+      properties:
+        id:
+          type: integer
+          nullable: true
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          pattern: '^(\$.*\$)$'
+          description: 'Name of the global macro'
+          example: $USER1$
+          nullable: true
+        expression:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: 'Expression (value) of the global macro'
+          example: /usr/lib64/nagios/plugins
+          nullable: true
+        comment:
+          type: string
+          maxLength: 255
+          description: 'Additional information about the macro'
+          example: 'This macro is used to define the path of plugins'
+          nullable: true
+        is_password:
+          type: boolean
+        is_activated:
+          type: boolean
+      required:
+        - name
+        - expression
+    GlobalMacro.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+              nullable: true
+            name:
+              minLength: 1
+              maxLength: 255
+              pattern: '^(\$.*\$)$'
+              description: 'Name of the global macro'
+              type: string
+              example: $USER1$
+              nullable: true
+            expression:
+              minLength: 1
+              maxLength: 255
+              description: 'Expression (value) of the global macro'
+              type: string
+              example: /usr/lib64/nagios/plugins
+              nullable: true
+            comment:
+              maxLength: 255
+              description: 'Additional information about the macro'
+              type: string
+              example: 'This macro is used to define the path of plugins'
+              nullable: true
+            is_password:
+              type: boolean
+            is_activated:
+              type: boolean
+          required:
+            - name
+            - expression
+    Poller-poller.read:
+      type: object
+      properties:
+        name:
+          minLength: 1
+          maxLength: 40
+          type: string
+        poller_type:
+          enum:
+            - vm
+            - docker
+          type: string
+        address:
+          minLength: 1
+          maxLength: 255
+          type: string
+        id:
+          type: integer
+          nullable: true
+        uuid:
+          type: string
+          nullable: true
+    Poller-poller.write:
+      type: object
+      properties:
+        name:
+          minLength: 1
+          maxLength: 40
+          type: string
+        poller_type:
+          enum:
+            - vm
+            - docker
+          type: string
+        address:
+          minLength: 1
+          maxLength: 255
+          type: string
+    Poller.jsonld-poller.read:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            name:
+              minLength: 1
+              maxLength: 40
+              type: string
+            poller_type:
+              enum:
+                - vm
+                - docker
+              type: string
+            address:
+              minLength: 1
+              maxLength: 255
+              type: string
+            id:
+              type: integer
+              nullable: true
+            uuid:
+              type: string
+              nullable: true
+    StandardMacro:
+      type: object
+      properties:
+        id:
+          type: integer
+          nullable: true
+        name:
+          type: string
+          nullable: true
+    StandardMacro.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+              nullable: true
+            name:
+              type: string
+              nullable: true
+    Upgrade:
+      type: object
+    Upgrade.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
