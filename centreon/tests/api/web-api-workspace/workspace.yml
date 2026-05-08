@@ -6,6 +6,8 @@ info:
 collections:
   - name: "Host"
     path: "collections/Host"
+  - name: "Host_Group"
+    path: "collections/Host_Group"
 
 specs:
 
