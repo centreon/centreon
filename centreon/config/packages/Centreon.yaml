@@ -325,23 +325,6 @@ services:
         class: Core\Infrastructure\Platform\Repository\FileReadPlatformRepository
         arguments: ['%centreon_etc_path%', '%centreon_install_path%']
 
-    Core\Platform\Application\Validator\RequirementValidatorsInterface:
-        class: Core\Platform\Infrastructure\Validator\RequirementValidators
-        arguments:
-            $requirementValidators: !tagged_iterator 'platform.requirement.validators'
-
-    Core\Platform\Infrastructure\Validator\RequirementValidators\DatabaseRequirementValidator:
-        arguments:
-            $dbRequirementValidators: !tagged_iterator 'platform.requirement.database.validators'
-
-    Core\Platform\Infrastructure\Validator\RequirementValidators\PhpRequirementValidator:
-        arguments:
-            $requiredPhpVersion: '%required_php_version%'
-
-    Core\Platform\Infrastructure\Validator\RequirementValidators\DatabaseRequirementValidators\MariaDbRequirementValidator:
-        arguments:
-            $requiredMariaDbMinVersion: '%required_mariadb_min_version%'
-
     Core\Platform\Application\Repository\ReadVersionRepositoryInterface:
         class: Core\Platform\Infrastructure\Repository\DbReadVersionRepository
         public: true
@@ -375,10 +358,6 @@ services:
             tags: ['authentication.provider.repositories']
         Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderConfigurationDtoFactoryInterface:
             tags: ['authentication.provider.response.factories']
-        Core\Platform\Application\Validator\RequirementValidatorInterface:
-            tags: ['platform.requirement.validators']
-        Core\Platform\Infrastructure\Validator\RequirementValidators\DatabaseRequirementValidatorInterface:
-            tags: ['platform.requirement.database.validators']
         Core\Notification\Application\Repository\NotificationResourceRepositoryInterface:
             tags: ['configuration.notification.resource.repositories']
         Core\Notification\Application\Repository\NotifiableResourceRequestProviderInterface:

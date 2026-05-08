@@ -38,8 +38,8 @@ class CfgCentreonBrokerInfo
      * Get template configuration.
      *
      * @param string $serverName the poller name
-     * @param string $dbUser the database user
-     * @param string $dbPassword the database password
+     * @param string|null $dbUser the database user
+     * @param string|null $dbPassword the database password
      * @param string $dbHost
      *
      * @return array<string, array<string, array<int, array<string>>>> the configuration template
@@ -47,8 +47,8 @@ class CfgCentreonBrokerInfo
      */
     public static function getConfiguration(
         string $serverName,
-        string $dbUser,
-        string $dbPassword,
+        ?string $dbUser,
+        ?string $dbPassword,
         string $dbHost = 'localhost',
     ): array {
         $serverName = strtolower(str_replace(' ', '-', $serverName));

@@ -34,57 +34,60 @@ function testExistence($name = null)
 {
     global $pearDB, $centreon;
 
-    $query = "SELECT contact_name, contact_id FROM contact WHERE contact_name = '"
-        . htmlentities($name, ENT_QUOTES, 'UTF-8') . "'";
-    $dbResult = $pearDB->query($query);
-    $contact = $dbResult->fetch();
-    // Modif case
-    if ($dbResult->rowCount() >= 1 && $contact['contact_id'] == $centreon->user->get_id()) {
-        return true;
-    }
+    $userId = (int) $centreon->user->get_id();
+    $statement = $pearDB->prepare(
+        'SELECT 1 FROM contact WHERE contact_name = :name AND contact_id <> :userId LIMIT 1'
+    );
+    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    $statement->bindValue(':userId', $userId, PDO::PARAM_INT);
+    $statement->execute();
 
-    return ! ($dbResult->rowCount() >= 1 && $contact['contact_id'] != $centreon->user->get_id());
-    // Duplicate entry
-
+    return $statement->fetchColumn() === false;
 }
 
 function testAliasExistence($alias = null)
 {
     global $pearDB, $centreon;
 
-    $query = 'SELECT contact_alias, contact_id FROM contact '
-        . "WHERE contact_alias = '" . htmlentities($alias, ENT_QUOTES, 'UTF-8') . "'";
-    $dbResult = $pearDB->query($query);
-    $contact = $dbResult->fetch();
+    $userId = (int) $centreon->user->get_id();
+    $statement = $pearDB->prepare(
+        'SELECT 1 FROM contact WHERE contact_alias = :alias AND contact_id <> :userId LIMIT 1'
+    );
+    $statement->bindValue(':alias', $alias, PDO::PARAM_STR);
+    $statement->bindValue(':userId', $userId, PDO::PARAM_INT);
+    $statement->execute();
 
-    // Modif case
-    if ($dbResult->rowCount() >= 1 && $contact['contact_id'] == $centreon->user->get_id()) {
-        return true;
-    }
-
-    return ! ($dbResult->rowCount() >= 1 && $contact['contact_id'] != $centreon->user->get_id());
-    // Duplicate entry
-
+    return $statement->fetchColumn() === false;
 }
 
 function updateNotificationOptions($userIdConnected)
 {
     global $form, $pearDB;
 
-    $pearDB->query('DELETE FROM contact_param
-        WHERE cp_contact_id = ' . $pearDB->escape($userIdConnected) . "
-        AND cp_key LIKE 'monitoring%notification%'");
+    $deleteStmt = $pearDB->prepare(
+        "DELETE FROM contact_param WHERE cp_contact_id = :contact_id
+         AND (cp_key LIKE 'monitoring%notification%' OR cp_key LIKE 'monitoring_sound%')"
+    );
+    $deleteStmt->bindValue(':contact_id', (int) $userIdConnected, PDO::PARAM_INT);
+    $deleteStmt->execute();
+
     $data = $form->getSubmitValues();
+
+    $insertStmt = $pearDB->prepare(
+        'INSERT INTO contact_param (cp_key, cp_value, cp_contact_id) VALUES (:cp_key, :cp_value, :contact_id)'
+    );
+
     foreach ($data as $k => $v) {
         if (preg_match('/^monitoring_(host|svc)_notification/', $k)) {
-            $query = 'INSERT INTO contact_param (cp_key, cp_value, cp_contact_id) '
-                . "VALUES ('" . $pearDB->escape($k) . "', '1', " . $pearDB->escape($userIdConnected) . ')';
-            $pearDB->query($query);
+            $insertStmt->bindValue(':cp_key', $k, PDO::PARAM_STR);
+            $insertStmt->bindValue(':cp_value', '1', PDO::PARAM_STR);
+            $insertStmt->bindValue(':contact_id', (int) $userIdConnected, PDO::PARAM_INT);
+            $insertStmt->execute();
         } elseif (preg_match('/^monitoring_sound/', $k)) {
-            $query = 'INSERT INTO contact_param (cp_key, cp_value, cp_contact_id) '
-                . "VALUES ('" . $pearDB->escape($k) . "', '" . $pearDB->escape($v) . "', "
-                . $pearDB->escape($userIdConnected) . ')';
-            $pearDB->query($query);
+            $insertStmt->bindValue(':cp_key', $k, PDO::PARAM_STR);
+            $insertStmt->bindValue(':cp_value', $v, PDO::PARAM_STR);
+            $insertStmt->bindValue(':contact_id', (int) $userIdConnected, PDO::PARAM_INT);
+            $insertStmt->execute();
         }
     }
     unset($_SESSION['centreon_notification_preferences']);
