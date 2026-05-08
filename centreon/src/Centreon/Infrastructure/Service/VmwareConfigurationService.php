@@ -23,12 +23,14 @@ declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Service;
 
+use Centreon\Domain\Log\LoggerTrait;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Exception;
 use Symfony\Component\Process\Process;
 
 final class VmwareConfigurationService
 {
+    use LoggerTrait;
     private const DEFAULT_CENTREON_VARLIB = '/var/lib/centreon';
 
     public function __construct(
@@ -76,13 +78,25 @@ final class VmwareConfigurationService
 
     private function writeRestartCommandToCentcorePipe(int $pollerId): bool
     {
-        $written = @file_put_contents(
-            $this->getCentcorePipePath(),
+        $pipePath = $this->getCentcorePipePath();
+        $written = file_put_contents(
+            $pipePath,
             'VMWARERESTART:' . $pollerId . "\n",
             FILE_APPEND
         );
 
-        return $written !== false;
+        if ($written === false) {
+            $error = error_get_last();
+            $this->error(sprintf(
+                'Failed to write VMWARERESTART command to centcore pipe "%s": %s',
+                $pipePath,
+                $error['message'] ?? 'unknown error'
+            ));
+
+            return false;
+        }
+
+        return true;
     }
 
     private function getCentcorePipePath(): string
