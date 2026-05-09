@@ -39,6 +39,9 @@ class Task implements EntityInterface
     public const STATE_PROGRESS = 'inprogress';
     public const STATE_COMPLETED = 'completed';
     public const STATE_FAILED = 'failed';
+    // add more possible states for tasks. Will help understand what happened to a given task
+    public const STATE_TIMEOUT = 'timeout';
+    public const STATE_OUTDATED = 'outdated';
 
     /**
      * Task type
