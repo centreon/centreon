@@ -161,7 +161,6 @@ const AutocompleteField = forwardRef(
           classes={{
             root: classes.textfield
           }}
-          dataTestId={dataTestId || label}
           error={error}
           externalValueForAutoSize={
             typeof autocompleteProps?.value === 'object' &&
