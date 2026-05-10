@@ -12,19 +12,23 @@ export interface ChangeArgs {
     field: string,
     value: unknown,
     shouldValidate?: boolean
+    // biome-ignore lint/suspicious/noConfusingVoidType: matches Formik's type signature
   ) => Promise<void | FormikErrors<FormikValues>>;
   setFieldTouched: (
     field: string,
     isTouched?: boolean,
     shouldValidate?: boolean
+    // biome-ignore lint/suspicious/noConfusingVoidType: matches Formik's type signature
   ) => Promise<void | FormikErrors<FormikValues>>;
   setValues: (
     values: React.SetStateAction<FormikValues>,
     shouldValidate?: boolean
+    // biome-ignore lint/suspicious/noConfusingVoidType: matches Formik's type signature
   ) => Promise<void | FormikErrors<FormikValues>>;
   setTouched: (
     touched: FormikTouched<FormikValues>,
     shouldValidate?: boolean
+    // biome-ignore lint/suspicious/noConfusingVoidType: matches Formik's type signature
   ) => Promise<void | FormikErrors<FormikValues>>;
   value: unknown;
   values: FormikValues;

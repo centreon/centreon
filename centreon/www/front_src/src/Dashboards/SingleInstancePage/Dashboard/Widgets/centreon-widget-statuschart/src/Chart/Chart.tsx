@@ -1,11 +1,11 @@
 // @ts-nocheck
 // TODO: re-enable type-check after fixing this file
-import { BarStack, PieChart } from '@centreon/ui';
+import { BarStack, PieChart, type PieProps } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
 import { equals, isEmpty, isNil, reject } from 'ramda';
-import type { ReactElement } from 'react';
+import { type ComponentProps, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { NoResourcesFound } from '../../../NoResourcesFound';
@@ -113,9 +113,10 @@ const Chart = ({
               goToResourceStatusPage(status);
             }}
             opacity={1}
-            // biome-ignore lint/suspicious/noExplicitAny: typing fallback
             TooltipContent={
-              (isOnPublicPage ? undefined : TooltipContent) as any
+              (isOnPublicPage
+                ? undefined
+                : TooltipContent) as PieProps['TooltipContent']
             }
             title={title}
             tooltipProps={{ resources, resourceType }}
@@ -146,8 +147,11 @@ const Chart = ({
             onSingleBarClick={({ key: status }: { key: string }) => {
               goToResourceStatusPage(status);
             }}
-            // biome-ignore lint/suspicious/noExplicitAny: typing fallback
-            TooltipContent={TooltipContent as any}
+            TooltipContent={
+              TooltipContent as ComponentProps<
+                typeof BarStack
+              >['TooltipContent']
+            }
             title={title}
             tooltipProps={{ resources, resourceType }}
             unit={unit}
