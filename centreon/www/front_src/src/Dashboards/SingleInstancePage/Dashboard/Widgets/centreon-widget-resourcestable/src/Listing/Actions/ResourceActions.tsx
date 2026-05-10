@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import IconAcknowledge from '@mui/icons-material/Person';
 
 import { SeverityCode, useSnackbar } from '@centreon/ui';

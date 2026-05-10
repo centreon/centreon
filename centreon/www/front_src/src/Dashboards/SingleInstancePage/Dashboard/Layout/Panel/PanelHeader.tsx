@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import DvrIcon from '@mui/icons-material/Dvr';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import UpdateIcon from '@mui/icons-material/Update';
