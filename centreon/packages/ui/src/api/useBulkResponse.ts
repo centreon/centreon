@@ -4,7 +4,6 @@ import {
   isEmpty,
   isNil,
   last,
-  length,
   prop,
   propEq,
   split
@@ -58,10 +57,10 @@ const useBulkResponse = () => {
       return;
     }
 
-    if (
-      length(successfullResponses as ArrayLike<unknown>) <
-      length(data as ArrayLike<unknown>)
-    ) {
+    const successCount = (successfullResponses as Array<BulkResponseData>)
+      .length;
+    const totalCount = data?.length ?? 0;
+    if (successCount < totalCount) {
       const failedResponsesNames = items
         ?.filter((item: BulkResponseItem) =>
           includes(item.id, failedResponsesIds)

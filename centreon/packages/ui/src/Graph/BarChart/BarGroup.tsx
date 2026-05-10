@@ -54,9 +54,7 @@ const BarGroup = ({
   const BarComponent = useMemo(
     () =>
       // biome-ignore lint/suspicious/noExplicitAny: visx BarGroup union type
-      (isHorizontal
-        ? VisxBarGroup
-        : BarGroupHorizontal) as ComponentType<any>,
+      (isHorizontal ? VisxBarGroup : BarGroupHorizontal) as ComponentType<any>,
     [isHorizontal]
   );
 

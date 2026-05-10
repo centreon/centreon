@@ -1,18 +1,19 @@
 // Ambient declarations for third-party modules without bundled type definitions.
-// biome-ignore lint/style/useNamingConvention: external module declaration
 
 declare module 'd3-scale' {
   // biome-ignore lint/suspicious/noExplicitAny: typing fallback
-  export type ScaleLinear<Range = any, Output = any, Unknown = never> = any;
+  export type ScaleLinear<_Range = any, _Output = any, _Unknown = never> = any;
   // biome-ignore lint/suspicious/noExplicitAny: typing fallback
-  export type ScaleTime<Range = any, Output = any, Unknown = never> = any;
+  export type ScaleTime<_Range = any, _Output = any, _Unknown = never> = any;
   // biome-ignore lint/suspicious/noExplicitAny: typing fallback
-  export type ScaleBand<Domain extends { toString(): string } = any> = any;
-  // biome-ignore lint/suspicious/noExplicitAny: typing fallback
+  export type ScaleBand<_Domain extends { toString(): string } = any> = any;
   export type ScaleOrdinal<
-    Domain extends { toString(): string } = any,
-    Range = any,
-    Unknown = never
+    // biome-ignore lint/suspicious/noExplicitAny: typing fallback
+    _Domain extends { toString(): string } = any,
+    // biome-ignore lint/suspicious/noExplicitAny: typing fallback
+    _Range = any,
+    _Unknown = never
+    // biome-ignore lint/suspicious/noExplicitAny: typing fallback
   > = any;
   // biome-ignore lint/suspicious/noExplicitAny: typing fallback
   export const scaleLinear: any;

@@ -443,6 +443,7 @@ const getScale = ({
   hasStackedLines,
   min,
   max
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: scale calculation requires multiple branching conditions
 }: GetScaleProps): ScaleLinear<number, number> => {
   const isLogScale = equals(scale, 'logarithmic');
   const sanitizedValuesForMinimum = min

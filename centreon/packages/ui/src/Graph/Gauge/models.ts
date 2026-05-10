@@ -1,7 +1,6 @@
 import type { Thresholds } from '../common/models';
 import type { Metric } from '../common/timeSeries/models';
 
-// biome-ignore lint/complexity/noBannedTypes: matches visx generic default
 export interface ShowTooltipArgs<T = {}> {
   tooltipData?: T;
   tooltipLeft?: number;
