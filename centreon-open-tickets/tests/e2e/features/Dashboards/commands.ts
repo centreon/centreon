@@ -1,4 +1,4 @@
-import { PAGES } from "fixtures/shared/constants/pages";
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 Cypress.Commands.add('visitDashboards', () => {
   cy.intercept({
@@ -7,7 +7,7 @@ Cypress.Commands.add('visitDashboards', () => {
     url: '/centreon/api/latest/configuration/dashboards*'
   }).as('listAllDashboards');
 
-  const dashboardsUrl =  PAGES.monitoring.dashboardsLibrary;
+  const dashboardsUrl = PAGES.monitoring.dashboardsLibrary;
   cy.url().then((url) =>
     url.includes(dashboardsUrl)
       ? cy.visit(dashboardsUrl)
@@ -168,5 +168,3 @@ declare global {
     }
   }
 }
-
-export {};
