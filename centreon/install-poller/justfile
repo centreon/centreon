@@ -1,0 +1,9 @@
+major := "25.10"
+version := "1.0.0"
+
+build centreon-major=major script-version=version:
+    bash build.sh {{centreon-major}} {{script-version}}
+
+deploy centreon-major=major script-version=version:
+    aws s3 cp install-poller-{{script-version}}.sh s3://centreon-cloud-public/{{centreon-major}}/poller/ --acl public-read
+    aws s3 cp install-poller-{{script-version}}.sh s3://centreon-cloud-public/{{centreon-major}}/poller/install-poller-latest.sh --acl public-read
