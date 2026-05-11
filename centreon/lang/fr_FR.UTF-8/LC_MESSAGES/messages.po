@@ -25055,7 +25055,7 @@ msgstr "Sélectionnez un jeton"
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts
 msgid "Generate installation command"
-msgstr "Générer la commande d'installation"
+msgstr "Générez la commande d'installation"
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts
 msgid "The command is being generated…"
