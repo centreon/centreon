@@ -57,6 +57,7 @@ systemctl stop centengine
 systemctl stop cbd
 systemctl stop apache2
 systemctl stop php8.2-fpm
+systemctl stop cron
 
 apt-get clean
 rm -rf /usr/share/doc /usr/share/man /usr/share/info
