@@ -25051,7 +25051,7 @@ msgstr "Docker compose"
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts
 msgid "Select token"
-msgstr "Sélectionner un jeton"
+msgstr "Sélectionnez un jeton"
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts
 msgid "Generate installation command"
