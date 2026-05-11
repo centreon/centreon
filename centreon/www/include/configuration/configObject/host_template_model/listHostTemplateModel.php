@@ -71,13 +71,22 @@ $rq = 'SELECT SQL_CALC_FOUND_ROWS host_id, host_name, host_alias, host_template_
     . 'FROM host '
     . "WHERE host_register = '0' "
     . $lockedFilter;
+$bindParams = [];
 if ($search) {
-    $rq .= "AND (host_name LIKE '%" . CentreonDB::escape($search) . "%' OR host_alias LIKE '%"
-        . CentreonDB::escape($search) . "%')";
+    $rq .= 'AND (host_name LIKE :searchName OR host_alias LIKE :searchAlias)';
+    $searchValue = '%' . $search . '%';
+    $bindParams[':searchName'] = $searchValue;
+    $bindParams[':searchAlias'] = $searchValue;
 }
-$rq .= ' ORDER BY host_name LIMIT ' . $num * $limit . ', ' . $limit;
+$rq .= ' ORDER BY host_name LIMIT :paginationOffset, :paginationLimit';
 
-$DBRESULT = $pearDB->query($rq);
+$DBRESULT = $pearDB->prepare($rq);
+foreach ($bindParams as $param => $value) {
+    $DBRESULT->bindValue($param, $value);
+}
+$DBRESULT->bindValue(':paginationOffset', (int) ($num * $limit), PDO::PARAM_INT);
+$DBRESULT->bindValue(':paginationLimit', (int) $limit, PDO::PARAM_INT);
+$DBRESULT->execute();
 $rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
 
 include './include/common/checkPagination.php';
