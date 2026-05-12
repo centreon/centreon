@@ -1376,7 +1376,11 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         $countQueryParameters = SearchRequestParametersTransformer::reverseToQueryParameters(
             $this->sqlRequestTranslator->getSearchValues()
         )->mergeWith($queryParametersForCount);
-        $total = (int) $this->connection->fetchOne($this->translateDbName($queryCount), $countQueryParameters);
+        $raw = $this->connection->fetchOne($this->translateDbName($queryCount), $countQueryParameters);
+        if ($raw === false) {
+            throw new RepositoryException('Count query returned no result');
+        }
+        $total = (int) $raw;
         $this->isLastCountApproximate = $this->lastCountWasBounded && ($total > self::BOUNDED_COUNT_LIMIT);
         $this->sqlRequestTranslator->getRequestParameters()->setTotal(
             $this->isLastCountApproximate ? self::BOUNDED_COUNT_LIMIT : $total
@@ -1426,7 +1430,11 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
         $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameter);
 
-        $result = (int) $this->connection->fetchOne($this->translateDbName($queryCount), $queryParameters);
+        $raw = $this->connection->fetchOne($this->translateDbName($queryCount), $queryParameters);
+        if ($raw === false) {
+            throw new RepositoryException('Count query returned no result');
+        }
+        $result = (int) $raw;
         $isApproximate = $this->lastCountWasBounded && ($result > self::BOUNDED_COUNT_LIMIT);
 
         return new CountResult(
