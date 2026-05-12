@@ -43,7 +43,6 @@
 			{$form.hidden}
 		</table>
 		<div id="validForm">
-			<p>{$form.action.html}</p>
 			<p>{$form.submit.html}&nbsp;&nbsp;&nbsp;{$form.reset.html}</p>
 		</div>
 	</div>
