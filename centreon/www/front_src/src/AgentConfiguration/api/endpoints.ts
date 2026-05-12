@@ -78,7 +78,7 @@ export const getTokensEndpoint = (parameters: ListingParameters): string => {
 
 export const getHostsEndpoint = (parameters: ListingParameters): string => {
   const condition = parameters?.search?.conditions?.[1];
-  
+
   return buildListingEndpoint({
     baseEndpoint: hostsConfigurationEndpoint,
     parameters: {

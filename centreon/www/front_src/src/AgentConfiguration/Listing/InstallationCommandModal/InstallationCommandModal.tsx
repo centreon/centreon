@@ -48,9 +48,7 @@ const InstallationCommandModal = (): ReactElement => {
             <div className="my-2">
               <SingleConnectedAutocompleteField
                 field="name"
-                getEndpoint={
-                  getPollersEndpoint as (params: unknown) => string
-                }
+                getEndpoint={getPollersEndpoint as (params: unknown) => string}
                 initialPage={1}
                 label={t(labelSelectPoller)}
                 onChange={

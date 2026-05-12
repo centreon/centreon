@@ -67,15 +67,10 @@ const AgentInitiated = (): React.ReactElement => {
     setFieldValue(tokensProperty, tokens);
   };
 
-
   const deleteToken = (_, option): void => {
+    const tokens = configuration?.tokens || ([] as Array<Token>);
 
-    const tokens = configuration?.tokens || []  as Array<Token>
-    
-    const newTokens = reject(
-      propEq(option.id, 'id'),
-      tokens
-    );
+    const newTokens = reject(propEq(option.id, 'id'), tokens);
 
     setFieldValue(tokensProperty, newTokens);
   };
@@ -221,8 +216,7 @@ const AgentInitiated = (): React.ReactElement => {
         <MultiConnectedAutocompleteField
           ChipProps={{
             color: 'primary',
-            onDelete:
-              deleteToken as React.EventHandler<React.SyntheticEvent>
+            onDelete: deleteToken as React.EventHandler<React.SyntheticEvent>
           }}
           dataTestId={labelSelectExistingCMATokens}
           decoder={listTokensDecoder}

@@ -47,7 +47,11 @@ export interface HostConfiguration {
   } | null;
 }
 
-export interface Token {id: number,  name: string; creatorId: number }
+export interface Token {
+  id: number;
+  name: string;
+  creatorId: number;
+}
 
 export interface CMAConfiguration {
   port?: number | null;
@@ -106,7 +110,8 @@ export interface AgentConfigurationForm
 }
 
 export interface AgentConfigurationAPI
-  extends Omit<AgentConfigurationListing, 'id' | 'pollers'> {
+  extends Omit<AgentConfigurationListing, 'id' | 'pollers' | 'type'> {
+  type?: AgentType;
   configuration: TelegrafConfigurationAPI | CMAConfigurationAPI;
   connection_mode?: string;
   poller_ids: Array<number>;

@@ -2,8 +2,8 @@ import { Form } from '@centreon/ui';
 
 import { FormikHelpers } from 'formik';
 import { find, isNil, propEq } from 'ramda';
-import { Schema } from 'yup';
 import { ReactElement } from 'react';
+import { Schema } from 'yup';
 
 import { useAddUpdateAgentConfiguration } from '../hooks/useAddUpdateAgentConfiguration';
 import { AgentConfigurationForm as AgentConfigurationFormModel } from '../models';

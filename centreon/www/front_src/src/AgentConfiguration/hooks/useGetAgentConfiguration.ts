@@ -19,8 +19,7 @@ import {
 const adaptAgentConfigurationToForm = (
   agentConfiguration: AgentConfiguration
 ): AgentConfigurationForm => {
-  const cmaConf =
-    agentConfiguration.configuration as CMAConfiguration;
+  const cmaConf = agentConfiguration.configuration as CMAConfiguration;
   return {
     ...agentConfiguration,
     configuration: {

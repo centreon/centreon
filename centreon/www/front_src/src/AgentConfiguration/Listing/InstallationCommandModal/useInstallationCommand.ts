@@ -31,9 +31,7 @@ export const useInstallationCommand = () => {
     _: unknown,
     value: { id?: number; name?: string } | null
   ): void => {
-    const selectedPoller = value
-      ? pick(['id', 'name'], value)
-      : null;
+    const selectedPoller = value ? pick(['id', 'name'], value) : null;
 
     setPoller(selectedPoller);
   };
