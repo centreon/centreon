@@ -369,7 +369,7 @@ if (! is_null($host_id)) {
 
         // a service is forced to have a command line but if acl user is not allowed to see command line, the command_line "doesn't exist"
         (isset($service_status['command_line']))
-            ? str_replace(' -', "\n\t-", $service_status['command_line'])
+            ? $service_status['command_line'] = str_replace(' -', "\n\t-", $service_status['command_line'])
             : $service_status['command_line'] = "";
 
         $service_status['performance_data'] = CentreonUtils::escapeAll(
