@@ -115,3 +115,50 @@ it('count resources with acl should throw a response with allowed resources', fu
         ->and($this->presenter->response->getTotalResources())->toBe(10)
         ->and($this->presenter->response->isApproximate())->toBeFalse();
 });
+
+it('count resources with admin mode and bounded result should mark response as approximate', function (): void {
+    $this->resourcesRepository
+        ->shouldReceive('countResourcesByFilter')
+        ->with($this->filters, false)
+        ->andReturn(new CountResult(count: 1000, isApproximate: true));
+    $this->resourcesRepository
+        ->shouldReceive('countAllResources')
+        ->withNoArgs()
+        ->andReturn(5000);
+    $request = new CountResourcesRequest(
+        resourceFilter: $this->filters,
+        allPages: false,
+        contactId: 1,
+        isAdmin: true
+    );
+    $useCase = new CountResources($this->resourcesRepository, $this->contactRepository);
+    $useCase($request, $this->presenter);
+    expect($this->presenter->response)->toBeInstanceOf(CountResourcesResponse::class)
+        ->and($this->presenter->response->getTotalFilteredResources())->toBe(1000)
+        ->and($this->presenter->response->isApproximate())->toBeTrue();
+});
+
+it('count resources with acl and bounded result should mark response as approximate', function (): void {
+    $this->contactRepository
+        ->shouldReceive('findByContactId')
+        ->andReturn(AccessGroupCollection::create([new AccessGroup(1, 'test', 'test')]));
+    $this->resourcesRepository
+        ->shouldReceive('countResourcesByFilterAndAccessGroupIds')
+        ->with($this->filters, false, [1])
+        ->andReturn(new CountResult(count: 1000, isApproximate: true));
+    $this->resourcesRepository
+        ->shouldReceive('countAllResourcesByAccessGroupIds')
+        ->with([1])
+        ->andReturn(5000);
+    $request = new CountResourcesRequest(
+        resourceFilter: $this->filters,
+        allPages: false,
+        contactId: 1,
+        isAdmin: false
+    );
+    $useCase = new CountResources($this->resourcesRepository, $this->contactRepository);
+    $useCase($request, $this->presenter);
+    expect($this->presenter->response)->toBeInstanceOf(CountResourcesResponse::class)
+        ->and($this->presenter->response->getTotalFilteredResources())->toBe(1000)
+        ->and($this->presenter->response->isApproximate())->toBeTrue();
+});
