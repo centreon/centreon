@@ -574,7 +574,7 @@ class CentreonConfigPoller
             // VMWare configuration
             $listVmWareFile = glob($this->vmWareCachePath . '/' . $pollerId . '/*.json');
             if (is_array($listVmWareFile) && count($listVmWareFile) > 0) {
-                if (! @copy($listVmWareFile[0], _CENTREON_ETC_ . '/centreon_vmware.json')) {
+                if (! copy($listVmWareFile[0], _CENTREON_ETC_ . '/centreon_vmware.json')) {
                     $msg_copy .= _('Could not copy VMWare configuration file') . " - KO\n";
                     $return = 1;
                 }
