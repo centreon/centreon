@@ -586,6 +586,7 @@ describe('CSV export', () => {
     cy.get('@modal').contains(labelSelecetPages);
 
     cy.get('@modal').findByTestId(labelCurrentPageOnly).click();
+    cy.waitForRequest('@countResources');
     cy.get('@modal').findByTestId(labelAllPages).should('not.be.checked');
 
     cy.get('@modal').contains(labelWarningExportToCsv);
