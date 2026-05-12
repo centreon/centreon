@@ -27,6 +27,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceFilter;
+use Core\Resources\Application\Repository\FindResourcesResult;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Contact\Domain\AdminResolver;
@@ -94,7 +95,7 @@ final class FindResourcesByParent
             $parentResources = [];
 
             if ($this->adminResolver->isAdmin($this->contact)) {
-                $resources = $this->findResourcesAsAdmin($filter);
+                $resources = $this->findResourcesAsAdmin($filter)->resources;
                 // Save total children found
                 $totalChildrenFound = $this->requestParameters->getTotal();
 
@@ -107,7 +108,7 @@ final class FindResourcesByParent
                     $parentResources = $this->findParentResources($parentFilter);
                 }
             } else {
-                $resources = $this->findResourcesAsUser($filter);
+                $resources = $this->findResourcesAsUser($filter)->resources;
 
                 // Save total children found
                 $totalChildrenFound = $this->requestParameters->getTotal();
@@ -183,9 +184,9 @@ final class FindResourcesByParent
      * @param ResourceFilter $filter
      *
      * @throws \Throwable
-     * @return ResourceEntity[]
+     * @return FindResourcesResult
      */
-    private function findResourcesAsAdmin(ResourceFilter $filter): array
+    private function findResourcesAsAdmin(ResourceFilter $filter): FindResourcesResult
     {
         return $this->repository->findResources($filter);
     }
@@ -206,9 +207,9 @@ final class FindResourcesByParent
      *
      * @throws \Throwable
      *
-     * @return ResourceEntity[]
+     * @return FindResourcesResult
      */
-    private function findResourcesAsUser(ResourceFilter $filter): array
+    private function findResourcesAsUser(ResourceFilter $filter): FindResourcesResult
     {
         $accessGroupIds = array_map(
             static fn (AccessGroup $accessGroup) => $accessGroup->getId(),

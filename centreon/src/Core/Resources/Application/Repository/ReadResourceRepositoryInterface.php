@@ -36,9 +36,9 @@ interface ReadResourceRepositoryInterface
      *
      * @throws RepositoryException
      *
-     * @return ResourceEntity[]
+     * @return FindResourcesResult
      */
-    public function findResources(ResourceFilter $filter): array;
+    public function findResources(ResourceFilter $filter): FindResourcesResult;
 
     /**
      * Find all resources with filter on access group IDs.
@@ -48,9 +48,9 @@ interface ReadResourceRepositoryInterface
      *
      * @throws RepositoryException
      *
-     * @return ResourceEntity[]
+     * @return FindResourcesResult
      */
-    public function findResourcesByAccessGroupIds(ResourceFilter $filter, array $accessGroupIds): array;
+    public function findResourcesByAccessGroupIds(ResourceFilter $filter, array $accessGroupIds): FindResourcesResult;
 
     /**
      * @param ResourceFilter $filter
@@ -89,9 +89,9 @@ interface ReadResourceRepositoryInterface
      * @param bool $allPages
      *
      * @throws RepositoryException
-     * @return int
+     * @return CountResult
      */
-    public function countResourcesByFilter(ResourceFilter $filter, bool $allPages): int;
+    public function countResourcesByFilter(ResourceFilter $filter, bool $allPages): CountResult;
 
     /**
      * @param ResourceFilter $filter
@@ -99,21 +99,13 @@ interface ReadResourceRepositoryInterface
      * @param array<int> $accessGroupIds
      *
      * @throws RepositoryException
-     * @return int
+     * @return CountResult
      */
     public function countResourcesByFilterAndAccessGroupIds(
         ResourceFilter $filter,
         bool $allPages,
         array $accessGroupIds,
-    ): int;
-
-    /**
-     * Returns true when the last count operation was capped by the bounded COUNT limit,
-     * meaning the actual number of matching resources may be higher than the returned value.
-     *
-     * @return bool
-     */
-    public function isLastCountApproximate(): bool;
+    ): CountResult;
 
     /**
      * @throws RepositoryException

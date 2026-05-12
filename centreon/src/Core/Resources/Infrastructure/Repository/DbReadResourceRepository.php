@@ -42,6 +42,8 @@ use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParametersTransformer;
 use Core\Domain\RealTime\ResourceTypeInterface;
+use Core\Resources\Application\Repository\CountResult;
+use Core\Resources\Application\Repository\FindResourcesResult;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface;
 use Core\Severity\RealTime\Domain\Model\Severity;
@@ -322,15 +324,18 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      * @param ResourceFilter $filter
      *
      * @throws RepositoryException
-     * @return ResourceEntity[]
+     * @return FindResourcesResult
      */
-    public function findResources(ResourceFilter $filter): array
+    public function findResources(ResourceFilter $filter): FindResourcesResult
     {
         try {
             $this->resources = [];
             $this->find($filter);
 
-            return $this->resources;
+            return new FindResourcesResult(
+                resources: $this->resources,
+                isApproximate: $this->isLastCountApproximate,
+            );
         } catch (AssertionFailedException|\Exception $exception) {
             throw new RepositoryException(
                 message: 'An error occurred while finding resources',
@@ -345,15 +350,18 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      * @param array<int> $accessGroupIds
      *
      * @throws RepositoryException
-     * @return ResourceEntity[]
+     * @return FindResourcesResult
      */
-    public function findResourcesByAccessGroupIds(ResourceFilter $filter, array $accessGroupIds): array
+    public function findResourcesByAccessGroupIds(ResourceFilter $filter, array $accessGroupIds): FindResourcesResult
     {
         try {
             $this->resources = [];
             $this->find($filter, $accessGroupIds);
 
-            return $this->resources;
+            return new FindResourcesResult(
+                resources: $this->resources,
+                isApproximate: $this->isLastCountApproximate,
+            );
         } catch (AssertionFailedException|\Exception $exception) {
             throw new RepositoryException(
                 message: 'An error occurred while finding resources by access group ids',
@@ -446,9 +454,9 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      * @param bool $allPages
      *
      * @throws RepositoryException
-     * @return int
+     * @return CountResult
      */
-    public function countResourcesByFilter(ResourceFilter $filter, bool $allPages): int
+    public function countResourcesByFilter(ResourceFilter $filter, bool $allPages): CountResult
     {
         try {
             return $this->count($filter, $allPages);
@@ -467,13 +475,13 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      * @param array<int> $accessGroupIds
      *
      * @throws RepositoryException
-     * @return int
+     * @return CountResult
      */
     public function countResourcesByFilterAndAccessGroupIds(
         ResourceFilter $filter,
         bool $allPages,
         array $accessGroupIds,
-    ): int {
+    ): CountResult {
         try {
             return $this->count($filter, $allPages, $accessGroupIds);
         } catch (\Exception $exception) {
@@ -529,11 +537,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 previous: $exception
             );
         }
-    }
-
-    public function isLastCountApproximate(): bool
-    {
-        return $this->isLastCountApproximate;
     }
 
     // ------------------------------------- PRIVATE METHODS -------------------------------------
@@ -1391,13 +1394,13 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      * @throws ValueObjectException
      * @throws QueryBuilderException
      * @throws \InvalidArgumentException
-     * @return int
+     * @return CountResult
      */
     private function count(
         ResourceFilter $filter,
         bool $allPages = false,
         array $accessGroupIds = [],
-    ): int {
+    ): CountResult {
         if ($allPages) {
             // For a count, there isn't pagination we limit the number of results
             // page is always 1 and limit is the maxResults in case of an export
@@ -1424,9 +1427,12 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameter);
 
         $result = (int) $this->connection->fetchOne($this->translateDbName($queryCount), $queryParameters);
-        $this->isLastCountApproximate = $this->lastCountWasBounded && ($result > self::BOUNDED_COUNT_LIMIT);
+        $isApproximate = $this->lastCountWasBounded && ($result > self::BOUNDED_COUNT_LIMIT);
 
-        return $this->isLastCountApproximate ? self::BOUNDED_COUNT_LIMIT : $result;
+        return new CountResult(
+            count: $isApproximate ? self::BOUNDED_COUNT_LIMIT : $result,
+            isApproximate: $isApproximate,
+        );
     }
 
     /**

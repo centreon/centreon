@@ -26,6 +26,7 @@ namespace Tests\Core\Resources\Application\UseCase\CountResources;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Common\Domain\Exception\RepositoryException;
+use Core\Resources\Application\Repository\CountResult;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Resources\Application\UseCase\CountResources\CountResources;
 use Core\Resources\Application\UseCase\CountResources\CountResourcesRequest;
@@ -70,14 +71,11 @@ it('count resources with admin mode should throw a response with all resources',
     $this->resourcesRepository
         ->shouldReceive('countResourcesByFilter')
         ->with($this->filters, true)
-        ->andReturn(2);
+        ->andReturn(new CountResult(count: 2, isApproximate: false));
     $this->resourcesRepository
         ->shouldReceive('countAllResources')
         ->withNoArgs()
         ->andReturn(10);
-    $this->resourcesRepository
-        ->shouldReceive('isLastCountApproximate')
-        ->andReturn(false);
     $request = new CountResourcesRequest(
         resourceFilter: $this->filters,
         allPages: true,
@@ -88,7 +86,8 @@ it('count resources with admin mode should throw a response with all resources',
     $useCase($request, $this->presenter);
     expect($this->presenter->response)->toBeInstanceOf(CountResourcesResponse::class)
         ->and($this->presenter->response->getTotalFilteredResources())->toBe(2)
-        ->and($this->presenter->response->getTotalResources())->toBe(10);
+        ->and($this->presenter->response->getTotalResources())->toBe(10)
+        ->and($this->presenter->response->isApproximate())->toBeFalse();
 });
 
 it('count resources with acl should throw a response with allowed resources', function (): void {
@@ -98,14 +97,11 @@ it('count resources with acl should throw a response with allowed resources', fu
     $this->resourcesRepository
         ->shouldReceive('countResourcesByFilterAndAccessGroupIds')
         ->with($this->filters, true, [1])
-        ->andReturn(2);
+        ->andReturn(new CountResult(count: 2, isApproximate: false));
     $this->resourcesRepository
         ->shouldReceive('countAllResourcesByAccessGroupIds')
         ->with([1])
         ->andReturn(10);
-    $this->resourcesRepository
-        ->shouldReceive('isLastCountApproximate')
-        ->andReturn(false);
     $request = new CountResourcesRequest(
         resourceFilter: $this->filters,
         allPages: true,
@@ -116,5 +112,6 @@ it('count resources with acl should throw a response with allowed resources', fu
     $useCase($request, $this->presenter);
     expect($this->presenter->response)->toBeInstanceOf(CountResourcesResponse::class)
         ->and($this->presenter->response->getTotalFilteredResources())->toBe(2)
-        ->and($this->presenter->response->getTotalResources())->toBe(10);
+        ->and($this->presenter->response->getTotalResources())->toBe(10)
+        ->and($this->presenter->response->isApproximate())->toBeFalse();
 });

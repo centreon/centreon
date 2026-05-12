@@ -25,8 +25,8 @@ namespace Core\Resources\Application\UseCase\FindResources;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceFilter;
+use Core\Resources\Application\Repository\FindResourcesResult;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Contact\Domain\AdminResolver;
@@ -64,17 +64,17 @@ final class FindResources
         ResourceFilter $filter,
     ): void {
         try {
-            $resources = $this->adminResolver->isAdmin($this->contact)
+            $result = $this->adminResolver->isAdmin($this->contact)
                 ? $this->findResourcesAsAdmin($filter)
                 : $this->findResourcesAsUser($filter);
 
             $extraData = [];
             foreach (iterator_to_array($this->extraDataProviders) as $provider) {
-                $extraData[$provider->getExtraDataSourceName()] = $provider->getExtraDataForResources($filter, $resources);
+                $extraData[$provider->getExtraDataSourceName()] = $provider->getExtraDataForResources($filter, $result->resources);
             }
 
-            $response = FindResourcesFactory::createResponse($resources, $extraData);
-            $response->isCountApproximate = $this->repository->isLastCountApproximate();
+            $response = FindResourcesFactory::createResponse($result->resources, $extraData);
+            $response->isCountApproximate = $result->isApproximate;
             $presenter->presentResponse($response);
         } catch (RepositoryException $exception) {
             $presenter->presentResponse(
@@ -96,9 +96,9 @@ final class FindResources
      * @param ResourceFilter $filter
      *
      * @throws RepositoryException
-     * @return ResourceEntity[]
+     * @return FindResourcesResult
      */
-    private function findResourcesAsAdmin(ResourceFilter $filter): array
+    private function findResourcesAsAdmin(ResourceFilter $filter): FindResourcesResult
     {
         return $this->repository->findResources($filter);
     }
@@ -107,9 +107,9 @@ final class FindResources
      * @param ResourceFilter $filter
      *
      * @throws RepositoryException
-     * @return ResourceEntity[]
+     * @return FindResourcesResult
      */
-    private function findResourcesAsUser(ResourceFilter $filter): array
+    private function findResourcesAsUser(ResourceFilter $filter): FindResourcesResult
     {
         $accessGroupIds = array_map(
             static fn (AccessGroup $accessGroup) => $accessGroup->getId(),

@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Contact\Domain\AdminResolver;
 use Core\Resources\Application\Exception\ResourceException;
+use Core\Resources\Application\Repository\FindResourcesResult;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Resources\Application\UseCase\FindResources\FindResources;
 use Core\Resources\Application\UseCase\FindResources\FindResourcesResponse;
@@ -73,10 +74,7 @@ it(
         $this->contact->shouldReceive('isAdmin')->once()->andReturn(true);
         $this->resourcesRepository
             ->shouldReceive('findResources')
-            ->andReturn([]);
-        $this->resourcesRepository
-            ->shouldReceive('isLastCountApproximate')
-            ->andReturn(false);
+            ->andReturn(new FindResourcesResult(resources: [], isApproximate: false));
         $this->accessGroupRepository->shouldReceive('findByContact')->never();
 
         ($this->useCase)($this->presenter, new ResourceFilter());
@@ -94,10 +92,7 @@ it(
             ->andReturn([]);
         $this->resourcesRepository
             ->shouldReceive('findResourcesByAccessGroupIds')
-            ->andReturn([]);
-        $this->resourcesRepository
-            ->shouldReceive('isLastCountApproximate')
-            ->andReturn(false);
+            ->andReturn(new FindResourcesResult(resources: [], isApproximate: false));
 
         ($this->useCase)($this->presenter, new ResourceFilter());
 
