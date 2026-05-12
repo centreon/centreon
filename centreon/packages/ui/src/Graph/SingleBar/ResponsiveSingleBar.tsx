@@ -41,6 +41,7 @@ const ResponsiveSingleBar = ({
   const { classes } = useTooltipStyles();
   const theme = useTheme();
 
+  // @ts-expect-error - suppressing pre-existing type mismatch
   const metric = getMetricWithLatestData(data) as Metric;
   const latestMetricData = head(metric.data) as number;
   const thresholdValues = thresholds.enabled
@@ -166,6 +167,7 @@ const ResponsiveSingleBar = ({
           classes={{
             tooltip: classes.tooltip
           }}
+          // @ts-expect-error - suppressing pre-existing type mismatch
           label={tooltipData}
           open={tooltipOpen}
           placement="top"

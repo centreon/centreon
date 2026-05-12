@@ -1,6 +1,6 @@
-import { ScaleType } from '@visx/scale';
 import { BarRounded } from '@visx/shape';
 import { BarGroupBar, SeriesPoint, StackKey } from '@visx/shape/lib/types';
+import type { ScaleLinear } from 'd3-scale';
 import { equals } from 'ramda';
 import { ReactElement } from 'react';
 
@@ -16,7 +16,7 @@ interface GetFirstBarHeightProps {
   barWidth: number;
   y: number;
   isFirstBar: boolean;
-  yScale: ScaleType;
+  yScale: ScaleLinear<number, number>;
   neutralValue: number;
 }
 

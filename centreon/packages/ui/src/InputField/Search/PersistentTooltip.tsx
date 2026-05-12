@@ -2,7 +2,7 @@ import IconHelp from '@mui/icons-material/HelpOutline';
 import IconClose from '@mui/icons-material/HighlightOff';
 import { IconButton, Tooltip } from '@mui/material';
 
-import { cond, isNil, T } from 'ramda';
+import { isNil } from 'ramda';
 import { type ReactElement, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
@@ -41,10 +41,11 @@ const PersistentTooltip = ({
   const [open, setOpen] = useState(openTooltip || false);
 
   const toggleTooltip = (): void => {
-    cond([
-      [isNil, (): void => setOpen(!open)],
-      [T, (): void => toggleTooltipProp?.()]
-    ])(openTooltip);
+    if (isNil(openTooltip)) {
+      setOpen(!open);
+    } else {
+      toggleTooltipProp?.();
+    }
   };
 
   const closeTooltip = (): void => {

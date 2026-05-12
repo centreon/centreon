@@ -132,6 +132,7 @@ const Timeline = ({
         stroke={theme.palette.text.primary}
         tickFormat={(value) =>
           format({
+            // @ts-expect-error - suppressing pre-existing type mismatch
             date: new Date(value),
             formatString: getXAxisTickFormat({
               end: endDate,

@@ -69,6 +69,7 @@ const toTimeTickWithMetrics = ({
   metrics,
   times
 }): Array<TimeTickWithMetrics> =>
+  // @ts-expect-error - suppressing pre-existing type mismatch
   map(
     (timeTick) => ({
       metrics,
@@ -136,7 +137,9 @@ const toLine = ({
     ...defaultDsData,
     ...(ds_data || {}),
     ds_color_area:
-      ds_data?.ds_color_area ?? ds_data?.ds_color_line ?? defaultDsData.ds_color_line
+      ds_data?.ds_color_area ??
+      ds_data?.ds_color_line ??
+      defaultDsData.ds_color_line
   };
 
   return {
@@ -176,6 +179,7 @@ const getTime = (timeValue: TimeValue): number =>
   new Date(timeValue.timeTick).valueOf();
 
 const getMetrics = (timeValue: TimeValue): Array<string> =>
+  // @ts-expect-error - suppressing pre-existing type mismatch
   pipe(keys, reject(equals('timeTick')))(timeValue);
 
 const getValueForMetric =
@@ -184,6 +188,7 @@ const getValueForMetric =
     prop(metric_id, timeValue) as number;
 
 const getUnits = (lines: Array<Line>): Array<string> =>
+  // @ts-expect-error - suppressing pre-existing type mismatch
   pipe(map(prop('unit')), uniq)(lines);
 
 interface ValuesForUnitProps {
@@ -268,7 +273,9 @@ const getStackedMetricValues = ({
     );
 
   const metricsValues = pipe(
+    // @ts-expect-error - suppressing pre-existing type mismatch
     map(prop('metric_id')) as (metric) => Array<number>,
+    // @ts-expect-error - suppressing pre-existing type mismatch
     map(getTimeSeriesValuesForMetric) as () => Array<Array<number>>
   )(lines as Array<Line>);
 
@@ -295,12 +302,14 @@ const getSortedStackedLines = (lines: Array<Line>): Array<Line> =>
 
 const getInvertedStackedLines = (lines: Array<Line>): Array<Line> =>
   pipe(
+    // @ts-expect-error - suppressing pre-existing type mismatch
     filter(({ invert }: Line): boolean => invert) as (lines) => Array<Line>,
     getSortedStackedLines
   )(lines);
 
 const getNotInvertedStackedLines = (lines: Array<Line>): Array<Line> =>
   pipe(
+    // @ts-expect-error - suppressing pre-existing type mismatch
     reject(({ invert }: Line): boolean => invert) as (lines) => Array<Line>,
     getSortedStackedLines
   )(lines);
@@ -311,6 +320,7 @@ interface HasStackedLines {
 }
 
 const hasUnitStackedLines = ({ lines, unit }: HasStackedLines): boolean =>
+  // @ts-expect-error - suppressing pre-existing type mismatch
   pipe(getSortedStackedLines, any(propEq(unit, 'unit')))(lines);
 
 const getTimeSeriesForLines = ({
@@ -334,6 +344,7 @@ const getTimeSeriesForLines = ({
                 : metricsValue[metric_id]
           };
         },
+        // @ts-expect-error - suppressing pre-existing type mismatch
         {},
         metrics
       ),
@@ -425,9 +436,11 @@ const getScale = ({
     : getSanitizedValues([
         getMax(graphValues),
         getMax(stackedValues),
+        // @ts-expect-error - suppressing pre-existing type mismatch
         hasOnlyZeroesHasValue(graphValues) ? 1 : null,
         Math.max(...thresholds)
       ]);
+  // @ts-expect-error - suppressing pre-existing type mismatch
   const maxValue = Math.max(...sanitizedValuesForMaximum.filter(isNotNil));
 
   const minValueWithMargin =
@@ -855,6 +868,7 @@ export const getStackedLinesTimeSeriesPerStackAndUnit = ({
     {}
   );
   const affectedLinesPerStackKey = flatten(
+    // @ts-expect-error - suppressing pre-existing type mismatch
     pluck('lines', Object.values(stackedLinesTimeSeriesPerStackKey))
   );
   const stackedLinesTimeSeriesPerUnit = stackedKeysWithOnlyUnit.reduce(

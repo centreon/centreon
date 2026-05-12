@@ -71,7 +71,6 @@ final class UpdateAgentConfiguration
                         'user_id' => $this->user->getId(),
                         'ac_id' => $request->id,
                         'ac_name' => $request->name,
-                        'ac_type' => $request->type,
                     ],
                 );
                 $presenter->setResponseStatus(
@@ -125,7 +124,6 @@ final class UpdateAgentConfiguration
                 'user_id' => $this->user->getId(),
                 'ac_id' => $request->id,
                 'ac_name' => $request->name,
-                'ac_type' => $request->type,
                 'exception' => [
                     'type' => $ex::class,
                     'message' => $ex->getMessage(),
@@ -140,7 +138,6 @@ final class UpdateAgentConfiguration
                 'user_id' => $this->user->getId(),
                 'ac_id' => $request->id,
                 'ac_name' => $request->name,
-                'ac_type' => $request->type,
                 'exception' => [
                     'type' => $ex::class,
                     'message' => $ex->getMessage(),

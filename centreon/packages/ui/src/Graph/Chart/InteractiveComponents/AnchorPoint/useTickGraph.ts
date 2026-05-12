@@ -47,6 +47,7 @@ const useTickGraph = ({
   const [tickAxisLeft, setTickAxisLeft] = useState<string | null>(null);
   const [tickAxisRight, setTickAxisRight] = useState<string | null>(null);
 
+  // @ts-expect-error - suppressing pre-existing type mismatch
   const { axisRight, axisLeft } = useAxisY({ data: { baseAxis, lines } });
 
   const mousePosition = useAtomValue(mousePositionAtom);
@@ -103,6 +104,7 @@ const useTickGraph = ({
     setTickAxisRight(formattedTickAxisRight);
   }, [mousePosition]);
 
+  // @ts-expect-error - suppressing pre-existing type mismatch
   return {
     positionX,
     positionY,

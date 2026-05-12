@@ -28,7 +28,7 @@ const ModalActions = ({
   disabled,
   isFixed
 }: ModalActionsProps): ReactElement => {
-  const { classes } = useStyles();
+  const { classes } = useStyles({});
 
   return (
     <div className={classes.modalActions} data-fixed={isFixed}>

@@ -90,9 +90,14 @@ if (! $obj->is_admin) {
     $rq1 .= ', centreon_acl ';
 }
 
-$rq1 .= "WHERE hosts.name NOT LIKE '\_Module\_%' AND hosts.enabled = 1 "
-    . $obj->access->queryBuilder('AND', 'hosts.host_id', 'centreon_acl.host_id') . ' '
-    . $obj->access->queryBuilder('AND', 'group_id', $obj->grouplistStr) . ' ';
+$groupStr = implode(',', $obj->access->getAccessGroups()->getIds());
+
+$rq1 .= "WHERE hosts.name NOT LIKE '\_Module\_%' AND hosts.enabled = 1 ";
+if (! $obj->is_admin) {
+    $rq1 .= $groupStr !== ''
+        ? 'AND hosts.host_id = centreon_acl.host_id AND group_id IN (' . $groupStr . ') '
+        : 'AND 1=0 ';
+}
 
 if (str_ends_with($o, '_pb') || str_ends_with($o, '_ack_0')) {
     $rq1 .= 'AND hosts.host_id IN ( '
@@ -169,11 +174,27 @@ $buildServicesUri = function (string $hostname, array $statuses) use ($resourceC
     return $resourceController->buildListingUri([
         'filter' => json_encode([
             'criterias' => [
-                'search' => 'h.name:^' . $hostname . '$',
-                'resourceTypes' => [$buildParameter('service', 'Service')],
-                'statuses' => $statuses,
+                [
+                    'name' => 'search',
+                    'object_type' => null,
+                    'type' => 'text',
+                    'value' => 'h.name:^' . $hostname . '$',
+                ],
+                [
+                    'name' => 'resource_types',
+                    'object_type' => null,
+                    'type' => 'multi_select',
+                    'value' => [$buildParameter('service', 'Service')],
+                ],
+                [
+                    'name' => 'statuses',
+                    'object_type' => null,
+                    'type' => 'multi_select',
+                    'value' => $statuses,
+                ],
             ],
         ]),
+        'fromTopCounter' => 'true',
     ]);
 };
 
@@ -246,9 +267,15 @@ foreach ($tabFinal as $host_name => $tab) {
             : $resourceController->buildListingUri([
                 'filter' => json_encode([
                     'criterias' => [
-                        'search' => 'h.name:^' . $host_name . '$',
+                        [
+                            'name' => 'search',
+                            'object_type' => null,
+                            'type' => 'text',
+                            'value' => 'h.name:^' . $host_name . '$',
+                        ],
                     ],
                 ]),
+                'fromTopCounter' => 'true',
             ])
     );
     $obj->XML->writeElement('ico', $tabIcone[$host_name]);

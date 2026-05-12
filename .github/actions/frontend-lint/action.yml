@@ -38,7 +38,12 @@ runs:
         cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      run: |
+        pnpm install \
+          --frozen-lockfile \
+          --config.trustPolicy=no-downgrade \
+          --config.minimumReleaseAge=2880 \
+          --config.blockExoticSubdeps=true
       working-directory: ${{ inputs.frontend_directory }}
       shell: bash
       env:
@@ -58,5 +63,6 @@ runs:
         workdir: ${{ inputs.frontend_directory }}
         github_token: ${{ inputs.pat }}
         reporter: github-pr-check
+        filter_mode: nofilter
         fail_level: error
         biome_flags: ${{ inputs.lint_path }}

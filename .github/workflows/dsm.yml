@@ -42,6 +42,7 @@ jobs:
 
   get-environment:
     needs: [dependency-scan]
+    if: github.event.pull_request.head.repo.fork != true
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
@@ -52,7 +53,8 @@ jobs:
     needs: [get-environment]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability == 'testing'
+      needs.get-environment.outputs.stability == 'testing' &&
+      github.event.pull_request.head.repo.fork != true
     env:
       version: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
       version_file: .version.centreon-dsm
@@ -75,7 +77,8 @@ jobs:
   changes:
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable'
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.event.pull_request.head.repo.fork != true
     needs: [get-environment]
     uses: ./.github/workflows/get-changes-triggers.yml
     with:
@@ -109,7 +112,8 @@ jobs:
     if: |
       needs.changes.outputs.trigger_backend_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable'
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.event.pull_request.head.repo.fork != true
 
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -117,7 +121,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.36.0
         with:
-          php-version: 8.2
+          php-version: ${{ needs.get-environment.outputs.php_version }}
           coverage: none
         env:
           runner: ubuntu-24.04
@@ -195,33 +199,28 @@ jobs:
       needs.get-environment.outputs.stability != 'stable' &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'cancelled') &&
+      github.event.pull_request.head.repo.fork != true
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
-        distrib: [el8, el9, bookworm]
+        distrib: [el9, el10, trixie]
         include:
           - package_extension: rpm
-            image: packaging-nfpm-alma8
-            distrib: el8
-          - package_extension: rpm
-            image: packaging-nfpm-alma9
+            tag_suffix: -alma9
             distrib: el9
+          - package_extension: rpm
+            tag_suffix: -alma10
+            distrib: el10
           - package_extension: deb
-            image: packaging-nfpm-bookworm
-            distrib: bookworm
-          # - package_extension: deb
-          #   image: packaging-nfpm-jammy
-          #   distrib: jammy
+            tag_suffix: -trixie
+            distrib: trixie
 
     runs-on: ubuntu-24.04
 
     container:
-      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
-      credentials:
-        username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
-        password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}${{ matrix.tag_suffix }}
 
     name: package ${{ matrix.distrib }}
 
@@ -258,6 +257,7 @@ jobs:
           rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
           stability: ${{ needs.get-environment.outputs.stability }}
+          php_version: ${{ needs.get-environment.outputs.php_version }}
           upload_artifacts: ${{ needs.get-environment.outputs.is_nightly == 'true' || contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
 
   deliver-sources:
@@ -270,7 +270,7 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      github.repository == 'centreon/centreon'
+      github.event.pull_request.head.repo.fork != true
 
     steps:
       - name: Checkout sources
@@ -292,7 +292,7 @@ jobs:
       needs.changes.outputs.trigger_delivery == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-      github.repository == 'centreon/centreon' &&
+      github.event.pull_request.head.repo.fork != true &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled')
@@ -300,7 +300,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [el8, el9]
+        distrib: [el9, el10]
 
     steps:
       - name: Checkout sources
@@ -327,7 +327,7 @@ jobs:
       needs.changes.outputs.trigger_delivery == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-      github.repository == 'centreon/centreon' &&
+      github.event.pull_request.head.repo.fork != true &&
       (needs.get-environment.outputs.is_cloud == 'false' || needs.get-environment.outputs.stability == 'unstable') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
@@ -336,7 +336,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bookworm]
+        distrib: [trixie]
     steps:
       - name: Checkout sources
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -361,11 +361,11 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      github.repository == 'centreon/centreon'
+      github.event.pull_request.head.repo.fork != true
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [el8, el9, bookworm]
+        distrib: [el9, el10, trixie]
 
     steps:
       - name: Checkout sources

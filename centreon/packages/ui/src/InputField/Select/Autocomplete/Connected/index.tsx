@@ -347,11 +347,11 @@ const ConnectedAutocompleteField = (
     }, [...useDeepCompare([searchConditions])]);
 
     useEffect(() => {
-      if (!autocompleteChangedValue && !props?.value) {
+      if (!autocompleteChangedValue) {
         return;
       }
       setSearchParameter(undefined);
-    }, [autocompleteChangedValue, props?.value]);
+    }, [autocompleteChangedValue]);
 
     useEffect(() => {
       if (!optionsOpen) {
@@ -375,7 +375,11 @@ const ConnectedAutocompleteField = (
           allowUniqOption ? uniqBy(getRenderedOptionText, options) : options
         }
         renderOption={renderOptions}
-        total={data?.meta?.total || data?.totalElements || 1}
+        total={
+          (data && 'meta' in data ? data.meta.total : undefined) ||
+          (data && 'totalElements' in data ? data.totalElements : undefined) ||
+          1
+        }
         {...props}
       />
     );
