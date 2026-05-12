@@ -30,14 +30,13 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCommand;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUuid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\MonitoringConfiguration\Domain\Event\PollerCreated;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
+use App\MonitoringConfiguration\Domain\Service\PollerUidGenerator;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
-use Symfony\Component\Uid\Uuid;
 
 #[AsCommandHandler]
 final readonly class CreatePollerCommandHandler
@@ -45,12 +44,13 @@ final readonly class CreatePollerCommandHandler
     public function __construct(
         private PollerRepository $repository,
         private EventBus $eventBus,
+        private PollerUidGenerator $uidGenerator,
     ) {
     }
 
     public function __invoke(CreatePollerCommand $command): Poller
     {
-        $uuid = new PollerUuid(Uuid::v7()->toRfc4122());
+        $uid = $this->uidGenerator->generate();
 
         $poller = new Poller(
             id: null,
@@ -60,7 +60,7 @@ final readonly class CreatePollerCommandHandler
             isDefault: false,
             isActivated: true,
             pollerType: $command->pollerType,
-            uuid: $uuid,
+            uid: $uid,
             globalMacros: new Collection([], GlobalMacro::class),
             gorgoneConfiguration: new GorgoneConfiguration(),
             engineConfiguration: new EngineConfiguration(),
