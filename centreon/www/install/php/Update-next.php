@@ -32,22 +32,48 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDB
  * @var ConnectionInterface $pearDBO
  */
+/** ------------------------------------- Additional configuration ------------------------------------- */
+$addVmwareUpdatedField = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add vmware_updated field into nagios_server table';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Adding vmware_updated field into nagios_server table",
+    );
+    if ($pearDB->columnExists(
+        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
+        'nagios_server',
+        'vmware_updated'
+    )) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Field vmware_updated already exists in nagios_server table, skipping modification",
+        );
 
-// TODO add your functions here
+        return;
+    }
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server`
+            ADD COLUMN `vmware_updated` BOOLEAN NOT NULL DEFAULT 0 AFTER `updated`
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully added vmware_updated field into nagios_server table",
+    );
+};
 
 try {
     // DDL statements for real time database
-    // TODO add your function calls to update the real time database structure here
 
     // DDL statements for configuration database
-    // TODO add your function calls to update the configuration database structure here
-
+    $addVmwareUpdatedField();
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {
         $pearDB->startTransaction();
     }
-
-    // TODO add your function calls to update the configuration database data here
 
     $pearDB->commitTransaction();
 
