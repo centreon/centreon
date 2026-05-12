@@ -214,11 +214,15 @@ class CentreonGMT
         }
 
         if (isset($date, $gmt)) {
-            if (! is_numeric($date)) {
-                $sDate = new DateTime($date);
-            } else {
-                $sDate = new DateTime();
-                $sDate->setTimestamp($date);
+            try {
+                if (! is_numeric($date)) {
+                    $sDate = new DateTime($date);
+                } else {
+                    $sDate = new DateTime();
+                    $sDate->setTimestamp($date);
+                }
+            } catch (Exception $e) {
+                return $return;
             }
 
             $sDate->setTimezone(new DateTimeZone($this->getActiveTimezone($gmt)));
@@ -252,11 +256,15 @@ class CentreonGMT
         }
 
         if (isset($date, $gmt)) {
-            if (! is_numeric($date)) {
-                $sDate = new DateTime($date);
-            } else {
-                $sDate = new DateTime();
-                $sDate->setTimestamp($date);
+            try {
+                if (! is_numeric($date)) {
+                    $sDate = new DateTime($date);
+                } else {
+                    $sDate = new DateTime();
+                    $sDate->setTimestamp($date);
+                }
+            } catch (Exception $e) {
+                return $return;
             }
 
             $localDate = new DateTime();
