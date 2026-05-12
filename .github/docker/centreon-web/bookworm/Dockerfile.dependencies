@@ -73,6 +73,7 @@ apt-get install -y \
   python3 \
   sed \
   snmpd \
+  cron \
   software-properties-common \
   sudo
 
