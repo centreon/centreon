@@ -25,13 +25,11 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
 
 use Webmozart\Assert\Assert;
 
-final readonly class PollerUuid
+final readonly class PollerUid
 {
-    public const UUID_V7_PATTERN = '/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i';
-
     public function __construct(
-        public string $value,
+        public int $value,
     ) {
-        Assert::regex($value, self::UUID_V7_PATTERN);
+        Assert::positiveInteger($value);
     }
 }
