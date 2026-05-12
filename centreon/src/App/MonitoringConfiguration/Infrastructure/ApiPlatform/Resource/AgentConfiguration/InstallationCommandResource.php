@@ -35,6 +35,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\AgentConfigurat
         uriTemplate: '/configuration/agent-configurations/installation-command/{pollerId}',
         provider: GetInstallationCommandProvider::class,
         openapi: new Model\Operation(
+            tags: ['Agent Configuration'],
             responses: [
                 404 => new Model\Response('Poller not found'),
                 403 => new Model\Response('You are not allowed to access this resource'),

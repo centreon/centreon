@@ -59,6 +59,7 @@ systemctl stop cbd
 systemctl stop apache2
 systemctl stop php${PHP_VERSION}-fpm
 systemctl stop snmpd
+systemctl stop cron
 
 apt-get clean
 
