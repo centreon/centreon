@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Service;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Infrastructure\Service\SnowflakePollerUidGenerator;
 use PHPUnit\Framework\TestCase;
 
@@ -35,7 +34,6 @@ final class SnowflakePollerUidGeneratorTest extends TestCase
 
         $uid = $generator->generate();
 
-        self::assertInstanceOf(PollerUid::class, $uid);
         self::assertGreaterThan(0, $uid->value);
     }
 

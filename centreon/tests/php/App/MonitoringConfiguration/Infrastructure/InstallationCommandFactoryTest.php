@@ -421,7 +421,7 @@ final class InstallationCommandFactoryTest extends TestCase
             isDefault: false,
             isActivated: true,
             pollerType: PollerTypeEnum::VM,
-            uuid: null,
+            uid: null,
             globalMacros: new Collection([], GlobalMacro::class),
             brokerConfiguration: new BrokerConfiguration(),
             connectorConfiguration: new ConnectorConfiguration(),

@@ -41,7 +41,7 @@ use Godruoyi\Snowflake\Snowflake;
 final readonly class SnowflakePollerUidGenerator implements PollerUidGenerator
 {
     /** 2024-01-01T00:00:00Z in milliseconds. */
-    private const int CUSTOM_EPOCH_MS = 1704067200000;
+    private const CUSTOM_EPOCH_MS = 1704067200000;
 
     private Snowflake $snowflake;
 
