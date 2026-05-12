@@ -23,8 +23,12 @@ declare(strict_types=1);
 
 namespace Core\MonitoringServer\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ConnectionInterface;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
@@ -37,9 +41,12 @@ class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements
 
     /**
      * @param DatabaseConnection $db
+     * @param ConnectionInterface $connection
      */
-    public function __construct(DatabaseConnection $db)
-    {
+    public function __construct(
+        DatabaseConnection $db,
+        private readonly ConnectionInterface $connection,
+    ) {
         $this->db = $db;
     }
 
@@ -139,24 +146,32 @@ class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements
             return;
         }
 
-        $this->debug('Signal VMware configuration change on monitoring servers with IDs ' . implode(', ', $monitoringServerIds));
+        try {
+            [$bindValues, $bindQuery] = $this->createMultipleBindQuery($monitoringServerIds, ':monitoring_server_id_');
 
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($monitoringServerIds, ':monitoring_server_id_');
+            $queryParameters = QueryParameters::create([]);
+            foreach ($bindValues as $key => $value) {
+                /** @var int $value */
+                $queryParameters->add($key, QueryParameter::int($key, $value));
+            }
 
-        $request = $this->translateDbName(
-            <<<SQL
-                UPDATE `:db`.`nagios_server`
-                SET `vmware_updated` = 1
-                WHERE `id` IN ({$bindQuery})
-                SQL
-        );
-        $statement = $this->db->prepare($request);
-
-        foreach ($bindValues as $bindParam => $bindValue) {
-            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+            $this->connection->update(
+                $this->translateDbName(
+                    <<<SQL
+                        UPDATE `:db`.`nagios_server`
+                        SET `vmware_updated` = 1
+                        WHERE `id` IN ({$bindQuery})
+                        SQL
+                ),
+                $queryParameters,
+            );
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(
+                message: 'Error while signaling VMware configuration change on monitoring servers',
+                context: ['monitoringServerIds' => $monitoringServerIds],
+                previous: $exception,
+            );
         }
-
-        $statement->execute();
     }
 
     /**
@@ -164,19 +179,28 @@ class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements
      */
     public function resetVmwareConfigurationChange(int $monitoringServerId): bool
     {
-        $this->debug('Reset VMware configuration change flag on monitoring server with ID #' . $monitoringServerId);
+        try {
+            $queryBuilder = $this->connection->createQueryBuilder();
+            $query = $queryBuilder->update('`:db`.`nagios_server`')
+                ->set('vmware_updated', '0')
+                ->where($queryBuilder->expr()->equal('vmware_updated', '1'))
+                ->andWhere($queryBuilder->expr()->equal('id', ':monitoringServerId'))
+                ->getQuery();
 
-        $request = $this->translateDbName(
-            <<<'SQL'
-                UPDATE `:db`.`nagios_server`
-                SET `vmware_updated` = 0
-                WHERE `vmware_updated` = 1 AND `id` = :monitoringServerId
-                SQL
-        );
-        $statement = $this->db->prepare($request);
-        $statement->bindValue(':monitoringServerId', $monitoringServerId, \PDO::PARAM_INT);
-        $statement->execute();
+            $affectedRows = $this->connection->update(
+                $this->translateDbName($query),
+                QueryParameters::create([
+                    QueryParameter::int('monitoringServerId', $monitoringServerId),
+                ]),
+            );
 
-        return $statement->rowCount() > 0;
+            return $affectedRows > 0;
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(
+                message: 'Error while resetting VMware configuration change flag on monitoring server',
+                context: ['monitoringServerId' => $monitoringServerId],
+                previous: $exception,
+            );
+        }
     }
 }
