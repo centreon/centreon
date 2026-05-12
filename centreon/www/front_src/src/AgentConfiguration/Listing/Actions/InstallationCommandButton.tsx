@@ -1,11 +1,8 @@
-// @ts-nocheck
-// TODO: re-enable type-check after fixing this file
 import Icon from '@mui/icons-material/CodeOffTwoTone';
 
 import { Button } from '@centreon/ui/components';
 
 import { useSetAtom } from 'jotai';
-import { chain, defaultTo, find, pipe, propEq, propOr } from 'ramda';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -13,11 +10,10 @@ import { pollerToGenerateCommandAtom } from '../../atoms';
 import { AgentConfigurationListing } from '../../models';
 import { labelCommand } from '../../translatedLabels';
 
-const getCentralPoller = pipe(
-  chain(propOr([], 'pollers')),
-  find(propEq(true, 'isCentral')),
-  defaultTo({})
-);
+const getCentralPoller = (rows: Array<AgentConfigurationListing>) => {
+  const allPollers = rows.flatMap((row) => row.pollers || []);
+  return allPollers.find((poller) => poller?.isCentral === true) ?? {};
+};
 interface Props {
   rows: Array<AgentConfigurationListing>;
 }

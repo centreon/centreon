@@ -47,6 +47,8 @@ export interface HostConfiguration {
   } | null;
 }
 
+export interface Token {id: number,  name: string; creatorId: number }
+
 export interface CMAConfiguration {
   port?: number | null;
   agentInitiated: boolean;
@@ -55,7 +57,7 @@ export interface CMAConfiguration {
   otelCaCertificate: string | null;
   otelPrivateKey: string | null;
   hosts: Array<HostConfiguration>;
-  tokens?: Array<{ name: string; creatorId: number }>;
+  tokens?: Array<Token>;
   createHostAuto?: boolean;
 }
 
@@ -66,7 +68,6 @@ export interface TelegrafConfigurationAPI {
   conf_server_port: string | number;
   conf_certificate: string | null;
   conf_private_key: string | null;
-  connection_mode: string;
 }
 
 export interface HostConfigurationToAPI {
@@ -85,7 +86,6 @@ export interface CMAConfigurationAPI {
   otel_ca_certificate: string | null;
   otel_private_key: string | null;
   hosts: Array<HostConfigurationToAPI>;
-  connection_mode: string;
   port?: number | null;
   tokens?: Array<{ name: string; creator_id: number }>;
   create_host_auto?: boolean;
