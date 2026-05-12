@@ -38,6 +38,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: '/configuration/services/categories',
             processor: CreateServiceCategoryProcessor::class,
             openapi: new Model\Operation(
+                tags: ['Service Category'],
                 responses: [
                     409 => new Model\Response('ServiceCategory resource already exists'),
                 ],
