@@ -50,11 +50,16 @@ $dbb = $dependencyInjector['realtime_db'];
 $criticality = new CentreonCriticality($db);
 $media = new CentreonMedia($db);
 
+if (!isset($centreon->user->theme)) {
+    throw new Exception('User theme is not set in session');
+}
+
 $variablesThemeCSS = match ($centreon->user->theme) {
     'light' => 'Generic-theme',
     'dark' => 'Centreon-Dark',
-    default => throw new Exception('Unknown user theme : ' . $centreon->user->theme),
+    default => 'Generic-theme',
 };
+
 $theme = $variablesThemeCSS === 'Generic-theme'
     ? $variablesThemeCSS . '/Variables-css'
     : $variablesThemeCSS;
@@ -66,7 +71,7 @@ $template = SmartyBC::createSmartyTemplate($path, './');
 $template->assign('session', session_id());
 $template->assign('host_label', _('Hosts'));
 $template->assign('svc_label', _('Services'));
-$template->assign('theme', $variablesThemeCSS);
+$template->assign('theme', $theme);
 
 $widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
 if ($widgetId === false) {
