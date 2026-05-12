@@ -19,8 +19,10 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
@@ -33,14 +35,82 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDBO
  */
 
-// TODO add your functions here
+$renamePollerUuidToUid = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to rename uuid column to uid on nagios_server';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Renaming uuid column to uid on nagios_server",
+    );
+
+    $hasUidColumn = $pearDB->columnExists(
+        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
+        'nagios_server',
+        'uid'
+    );
+
+    if ($hasUidColumn) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Column uid already exists on nagios_server, skipping",
+        );
+
+        return;
+    }
+
+    $hasUniqUuidIndex = (bool) $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT 1
+            FROM INFORMATION_SCHEMA.STATISTICS
+            WHERE TABLE_SCHEMA = :db_name
+              AND TABLE_NAME = 'nagios_server'
+              AND INDEX_NAME = 'uniq_uuid'
+            LIMIT 1
+            SQL,
+        QueryParameters::create([
+            QueryParameter::string('db_name', $pearDB->getDatabaseName()),
+        ])
+    );
+
+    if ($hasUniqUuidIndex) {
+        $pearDB->executeStatement(
+            <<<'SQL'
+                ALTER TABLE `nagios_server` DROP INDEX `uniq_uuid`
+                SQL
+        );
+    }
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            UPDATE `nagios_server` SET `uuid` = NULL
+            SQL
+    );
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server`
+                CHANGE COLUMN `uuid` `uid` BIGINT DEFAULT NULL COMMENT 'Snowflake 64-bit unique identifier'
+            SQL
+    );
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server`
+                ADD UNIQUE KEY `uniq_uid` (`uid`)
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully renamed uuid column to uid on nagios_server",
+    );
+};
 
 try {
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
 
     // DDL statements for configuration database
-    // TODO add your function calls to update the configuration database structure here
+    $renamePollerUuidToUid();
 
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {

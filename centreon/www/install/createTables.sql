@@ -1664,9 +1664,9 @@ CREATE TABLE `nagios_server` (
   `updated` enum('1','0') NOT NULL DEFAULT '0',
   `is_encryption_ready` BOOLEAN NOT NULL DEFAULT 1,
   `poller_type` enum('vm','docker') NOT NULL DEFAULT 'vm',
-  `uuid` VARCHAR(36) DEFAULT NULL COMMENT 'UUIDv7 (36 chars with hyphens)',
+  `uid` BIGINT DEFAULT NULL COMMENT 'Snowflake 64-bit unique identifier',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uniq_uuid` (`uuid`),
+  UNIQUE KEY `uniq_uid` (`uid`),
   CONSTRAINT `nagios_server_remote_id_id` FOREIGN KEY (`remote_id`) REFERENCES `nagios_server` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
