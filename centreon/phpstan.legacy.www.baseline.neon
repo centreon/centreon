@@ -262,7 +262,7 @@ parameters:
 		-
 			message: '#^Undefined variable\: \$ret$#'
 			identifier: variable.undefined
-			count: 2
+			count: 1
 			path: www/include/configuration/configObject/host/DB-Func.php
 
 		-
