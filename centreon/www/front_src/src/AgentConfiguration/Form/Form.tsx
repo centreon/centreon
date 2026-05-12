@@ -23,7 +23,6 @@ const defaultInitialValues: AgentConfigurationFormModel = {
     propEq('secure', 'id'),
     connectionModes
   ) as AgentConfigurationFormModel['connectionMode'],
-  isAgentInitiated: false,
   name: '',
   pollers: [],
   type: null

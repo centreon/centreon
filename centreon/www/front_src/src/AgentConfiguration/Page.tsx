@@ -102,8 +102,8 @@ const AgentConfigurationPage = (): JSX.Element => {
           ) : (
             <ACListing
               isLoading={isLoading}
-              rows={data?.result}
-              total={data?.meta.total}
+              rows={data?.result ?? []}
+              total={data?.meta.total ?? 0}
             />
           )}
         </DataTable>

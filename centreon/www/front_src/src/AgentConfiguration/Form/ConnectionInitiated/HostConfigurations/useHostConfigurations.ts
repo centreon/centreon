@@ -1,5 +1,3 @@
-// @ts-nocheck
-// TODO: re-enable type-check after fixing this file
 import { useFormikContext } from 'formik';
 import { append, remove } from 'ramda';
 import { useCallback } from 'react';
@@ -29,9 +27,9 @@ export const useHostConfigurations = (): UseHostConfigurationsState => {
           address: '',
           pollerCaCertificate: '',
           pollerCaName: '',
-          port: '',
+          port: '' as unknown as number,
           token: null
-        },
+        } as HostConfiguration,
         hosts
       )
     );

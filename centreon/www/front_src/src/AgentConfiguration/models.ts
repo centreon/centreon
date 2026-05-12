@@ -15,7 +15,7 @@ export interface AgentConfigurationListing {
   id: number;
   name: string;
   type: AgentType | null;
-  isAgentInitiated: boolean;
+  isAgentInitiated?: boolean;
   pollers: Array<{
     id: number;
     name: string;
