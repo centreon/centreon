@@ -22,7 +22,10 @@ interface Props {
 const useCountChangedFilters = (): Props => {
   const filters = useAtomValue(filtersAtom);
 
-  const changedFiltersCount = countDifferences(filtersInitialValues, filters);
+  const changedFiltersCount = countDifferences(
+    filtersInitialValues as unknown as Record<string, unknown>,
+    filters as unknown as Record<string, unknown>
+  );
 
   return {
     changedFiltersCount,

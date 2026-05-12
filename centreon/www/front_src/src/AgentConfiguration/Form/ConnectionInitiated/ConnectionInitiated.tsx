@@ -1,5 +1,3 @@
-// @ts-nocheck
-// TODO: re-enable type-check after fixing this file
 import DoneIcon from '@mui/icons-material/Done';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { TabPanel } from '@mui/lab';
@@ -12,7 +10,7 @@ import { equals } from 'ramda';
 import { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { AgentConfigurationForm } from '../../models';
+import { AgentConfigurationForm, CMAConfiguration } from '../../models';
 import {
   labelByAgent,
   labelByAgentTooltip,
@@ -39,7 +37,9 @@ const TabContent = ({ label, tooltipLabel, name }: TabContentProps) => {
 
   return (
     <div className={classes.tabContent}>
-      {values.configuration[name] && (
+      {(values.configuration as CMAConfiguration)[
+        name as keyof CMAConfiguration
+      ] && (
         <DoneIcon
           className={classes.doneIcon}
           data-testid={`${label} selected`}
@@ -87,9 +87,11 @@ const ConnectionInitiated = (): JSX.Element => {
   const { values, setFieldValue, validateForm } =
     useFormikContext<AgentConfigurationForm>();
 
+  const cmaConfiguration = values.configuration as CMAConfiguration;
+
   const handleChange =
     (name: string) =>
-    (event): void => {
+    (event: React.ChangeEvent<HTMLInputElement>): void => {
       const checked = event.target.checked;
 
       if (equals(name, 'pollerInitiated') && checked) {
@@ -121,7 +123,7 @@ const ConnectionInitiated = (): JSX.Element => {
         <FormControlLabel
           control={
             <Switch
-              checked={values.configuration.agentInitiated}
+              checked={cmaConfiguration.agentInitiated}
               color="success"
               data-testid="enable_agent"
               onChange={handleChange('agentInitiated')}
@@ -138,13 +140,13 @@ const ConnectionInitiated = (): JSX.Element => {
             marginLeft: 0
           }}
         />
-        {values.configuration.agentInitiated && <AgentInitiated />}
+        {cmaConfiguration.agentInitiated && <AgentInitiated />}
       </TabPanel>
       <TabPanel className={classes.tabPanel} value="poller">
         <FormControlLabel
           control={
             <Switch
-              checked={values.configuration.pollerInitiated}
+              checked={cmaConfiguration.pollerInitiated}
               color="success"
               data-testid="enable_poller"
               onChange={handleChange('pollerInitiated')}
@@ -161,7 +163,7 @@ const ConnectionInitiated = (): JSX.Element => {
             marginLeft: 0
           }}
         />
-        {values.configuration.pollerInitiated && <HostConfigurations />}
+        {cmaConfiguration.pollerInitiated && <HostConfigurations />}
       </TabPanel>
     </Tabs>
   );

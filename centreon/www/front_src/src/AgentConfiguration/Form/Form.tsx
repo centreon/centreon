@@ -1,8 +1,8 @@
-// @ts-nocheck
-// TODO: re-enable type-check after fixing this file
 import { Form } from '@centreon/ui';
 
+import { FormikHelpers } from 'formik';
 import { find, isNil, propEq } from 'ramda';
+import { Schema } from 'yup';
 import { ReactElement } from 'react';
 
 import { useAddUpdateAgentConfiguration } from '../hooks/useAddUpdateAgentConfiguration';
@@ -17,9 +17,13 @@ interface Props {
   isLoading?: boolean;
 }
 
-const defaultInitialValues = {
-  configuration: { port: 4317 },
-  connectionMode: find(propEq('secure', 'id'), connectionModes),
+const defaultInitialValues: AgentConfigurationFormModel = {
+  configuration: { port: 4317 } as AgentConfigurationFormModel['configuration'],
+  connectionMode: find(
+    propEq('secure', 'id'),
+    connectionModes
+  ) as AgentConfigurationFormModel['connectionMode'],
+  isAgentInitiated: false,
   name: '',
   pollers: [],
   type: null
@@ -49,8 +53,15 @@ const AgentConfigurationForm = ({
       inputs={inputs}
       isCollapsible
       isLoading={isLoading}
-      submit={submit}
-      validationSchema={validationSchema}
+      submit={
+        submit as unknown as (
+          values: AgentConfigurationFormModel,
+          bag: FormikHelpers<AgentConfigurationFormModel>
+        ) => void
+      }
+      validationSchema={
+        validationSchema as unknown as Schema<AgentConfigurationFormModel>
+      }
     />
   );
 };

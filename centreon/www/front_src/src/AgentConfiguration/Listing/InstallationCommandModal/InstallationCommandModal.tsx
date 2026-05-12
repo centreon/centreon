@@ -1,5 +1,3 @@
-// @ts-nocheck
-// TODO: re-enable type-check after fixing this file
 import { Typography } from '@mui/material';
 
 import { IconButton, SingleConnectedAutocompleteField } from '@centreon/ui';
@@ -50,10 +48,16 @@ const InstallationCommandModal = (): ReactElement => {
             <div className="my-2">
               <SingleConnectedAutocompleteField
                 field="name"
-                getEndpoint={getPollersEndpoint}
+                getEndpoint={
+                  getPollersEndpoint as (params: unknown) => string
+                }
                 initialPage={1}
                 label={t(labelSelectPoller)}
-                onChange={changePoller}
+                onChange={
+                  changePoller as Parameters<
+                    typeof SingleConnectedAutocompleteField
+                  >[0]['onChange']
+                }
                 value={poller as unknown as null}
               />
             </div>

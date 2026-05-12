@@ -39,6 +39,12 @@ export interface HostConfiguration {
   port: number;
   pollerCaCertificate: string | null;
   pollerCaName: string | null;
+  token?: {
+    id: string;
+    name: string;
+    creatorId?: number;
+    token_name?: string;
+  } | null;
 }
 
 export interface CMAConfiguration {
@@ -65,9 +71,11 @@ export interface TelegrafConfigurationAPI {
 
 export interface HostConfigurationToAPI {
   address: string;
+  id?: number;
   port: number;
   poller_ca_certificate: string | null;
   poller_ca_name: string | null;
+  token?: { creator_id?: number; name?: string } | null;
 }
 
 export interface CMAConfigurationAPI {
@@ -78,7 +86,8 @@ export interface CMAConfigurationAPI {
   otel_private_key: string | null;
   hosts: Array<HostConfigurationToAPI>;
   connection_mode: string;
-  tokens?: Array<{ name: string; creatorId: number }>;
+  port?: number | null;
+  tokens?: Array<{ name: string; creator_id: number }>;
   create_host_auto?: boolean;
 }
 
@@ -86,7 +95,7 @@ export interface AgentConfiguration
   extends Omit<AgentConfigurationListing, 'id' | 'type'> {
   configuration: TelegrafConfiguration | CMAConfiguration;
   type: AgentType;
-  connectionMode: { id: ConnectionMode; name: string };
+  connectionMode: ConnectionMode;
 }
 
 export interface AgentConfigurationForm
@@ -99,6 +108,7 @@ export interface AgentConfigurationForm
 export interface AgentConfigurationAPI
   extends Omit<AgentConfigurationListing, 'id' | 'pollers'> {
   configuration: TelegrafConfigurationAPI | CMAConfigurationAPI;
+  connection_mode?: string;
   poller_ids: Array<number>;
 }
 

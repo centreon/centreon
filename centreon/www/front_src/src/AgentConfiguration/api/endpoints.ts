@@ -1,5 +1,3 @@
-// @ts-nocheck
-// TODO: re-enable type-check after fixing this file
 import { buildListingEndpoint, type ListingParameters } from '@centreon/ui';
 
 import dayjs from 'dayjs';
@@ -16,7 +14,7 @@ export const getPollersEndpoint = (parameters: ListingParameters): string =>
     parameters
   });
 
-interface GetPollerAgentEndpointProps {
+export interface GetPollerAgentEndpointProps {
   agentId: number;
   pollerId?: number;
 }
@@ -67,7 +65,11 @@ export const getTokensEndpoint = (parameters: ListingParameters): string => {
       search: {
         conditions: [
           ...(parameters?.search?.conditions || []),
-          ...tokensSearchConditions
+          ...(tokensSearchConditions as NonNullable<
+            NonNullable<
+              Parameters<typeof buildListingEndpoint>[0]['parameters']['search']
+            >['conditions']
+          >)
         ]
       }
     }
@@ -75,12 +77,14 @@ export const getTokensEndpoint = (parameters: ListingParameters): string => {
 };
 
 export const getHostsEndpoint = (parameters: ListingParameters): string => {
+  const condition = parameters?.search?.conditions?.[1];
+  
   return buildListingEndpoint({
     baseEndpoint: hostsConfigurationEndpoint,
     parameters: {
       ...parameters,
       search: {
-        conditions: [parameters?.search?.conditions?.[1] || []]
+        conditions: condition ? [condition] : []
       }
     }
   });

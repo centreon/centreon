@@ -5,10 +5,11 @@ import { useAtom } from 'jotai';
 import { useRef } from 'react';
 
 import { filtersAtom } from '../../atoms';
+import { FiltersState } from '../../utils';
 
 interface UseSearch {
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  filters: Record<string, unknown>;
+  filters: FiltersState;
 }
 
 export const useSearch = (): UseSearch => {

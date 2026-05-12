@@ -1,5 +1,3 @@
-// @ts-nocheck
-// TODO: re-enable type-check after fixing this file
 import { useFetchQuery } from '@centreon/ui';
 
 import { useAtom } from 'jotai';
@@ -29,15 +27,20 @@ export const useInstallationCommand = () => {
     setPoller(null);
   }, []);
 
-  const changePoller = (_, value): void => {
-    const selectedPoller = value ? pick(['id', 'name'], value) : null;
+  const changePoller = (
+    _: unknown,
+    value: { id?: number; name?: string } | null
+  ): void => {
+    const selectedPoller = value
+      ? pick(['id', 'name'], value)
+      : null;
 
     setPoller(selectedPoller);
   };
 
   const { data, isLoading } = useFetchQuery<InstallationCommand>({
     decoder: installationCommandDecoder,
-    getEndpoint: () => getInstallationCommandEndpoint(poller?.id),
+    getEndpoint: () => getInstallationCommandEndpoint(poller?.id as number),
     getQueryKey: () => ['installation-command', poller?.id],
     queryOptions: {
       enabled: isNotNil(poller?.id),
