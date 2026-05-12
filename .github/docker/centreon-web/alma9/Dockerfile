@@ -52,6 +52,7 @@ systemctl stop centengine
 systemctl stop cbd
 systemctl stop httpd
 systemctl stop php-fpm
+systemctl stop crond
 
 dnf clean all
 rm -rf /usr/share/doc /usr/share/man /usr/share/info
