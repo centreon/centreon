@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\MonitoringServer\Infrastructure\Repository;
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
-use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
@@ -41,12 +40,9 @@ class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements
 
     /**
      * @param DatabaseConnection $db
-     * @param ConnectionInterface $connection
      */
-    public function __construct(
-        DatabaseConnection $db,
-        private readonly ConnectionInterface $connection,
-    ) {
+    public function __construct(DatabaseConnection $db)
+    {
         $this->db = $db;
     }
 
@@ -155,7 +151,7 @@ class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements
                 $queryParameters->add($key, QueryParameter::int($key, $value));
             }
 
-            $this->connection->update(
+            $this->db->update(
                 $this->translateDbName(
                     <<<SQL
                         UPDATE `:db`.`nagios_server`
@@ -180,14 +176,14 @@ class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements
     public function resetVmwareConfigurationChange(int $monitoringServerId): bool
     {
         try {
-            $queryBuilder = $this->connection->createQueryBuilder();
+            $queryBuilder = $this->db->createQueryBuilder();
             $query = $queryBuilder->update('`:db`.`nagios_server`')
                 ->set('vmware_updated', '0')
                 ->where($queryBuilder->expr()->equal('vmware_updated', '1'))
                 ->andWhere($queryBuilder->expr()->equal('id', ':monitoringServerId'))
                 ->getQuery();
 
-            $affectedRows = $this->connection->update(
+            $affectedRows = $this->db->update(
                 $this->translateDbName($query),
                 QueryParameters::create([
                     QueryParameter::int('monitoringServerId', $monitoringServerId),
