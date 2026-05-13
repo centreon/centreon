@@ -1039,6 +1039,7 @@ jobs:
             "MAJOR_VERSION=${{ needs.get-environment.outputs.major_version }}"
             "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
+            "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
             "PHP_VERSION=${{ needs.get-environment.outputs.php_version }}"
           pull: true
           push: ${{ github.event.pull_request.head.repo.fork != true }}
