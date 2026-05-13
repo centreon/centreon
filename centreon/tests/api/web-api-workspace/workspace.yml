@@ -8,6 +8,10 @@ collections:
     path: "collections/Host"
   - name: "Host_Group"
     path: "collections/Host_Group"
+  - name: "Host_Category"
+    path: "collections/Host_Category"
+  - name: "Host_Template"
+    path: "collections/Host_Template"
 
 specs:
 
