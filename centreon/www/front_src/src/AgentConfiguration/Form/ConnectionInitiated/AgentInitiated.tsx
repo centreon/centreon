@@ -9,7 +9,7 @@ import {
 
 import { FormikErrors, FormikTouched, useFormikContext } from 'formik';
 import { equals, propEq, reject } from 'ramda';
-import { ChangeEvent, useCallback, useMemo } from 'react';
+import { ChangeEvent, SyntheticEvent, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { listTokensDecoder } from '../../api/decoders';
@@ -67,7 +67,7 @@ const AgentInitiated = (): React.ReactElement => {
     setFieldValue(tokensProperty, tokens);
   };
 
-  const deleteToken = (_, option): void => {
+  const deleteToken = (_: SyntheticEvent, option: Token): void => {
     const tokens = configuration?.tokens || ([] as Array<Token>);
 
     const newTokens = reject(propEq(option.id, 'id'), tokens);
