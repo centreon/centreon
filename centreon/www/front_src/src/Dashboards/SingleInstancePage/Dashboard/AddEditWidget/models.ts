@@ -36,6 +36,7 @@ export interface DefaultResourceType {
   resourceType: string;
   requied?: boolean;
   disabled?: DisabledDefaultResourceType;
+  isSearchBypass?: boolean;
 }
 export interface SelectType {
   defaultResourceType: Array<DefaultResourceType>;
@@ -95,6 +96,8 @@ export interface WidgetPropertyProps {
   forceSingleAutocompleteConditions: ForceSingleAutocompleteConditions;
   selectType?: SelectType;
   allowRegexOnResourceTypes?: Array<WidgetResourceType>;
+  labelDisplayUpToOverride?: string;
+  labelTilesOverride?: string;
   allowEmptyResources?: boolean;
 }
 
