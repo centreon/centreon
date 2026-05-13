@@ -138,32 +138,31 @@ function updateNagiosConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(
         $pearDB,
         'nagios_path_plugins',
         isset($ret['nagios_path_plugins']) && $ret['nagios_path_plugins'] != null
-            ? $pearDB->escape($ret['nagios_path_plugins']) : 'NULL'
+            ? $ret['nagios_path_plugins'] : 'NULL'
     );
     updateOption(
         $pearDB,
         'mailer_path_bin',
         isset($ret['mailer_path_bin']) && $ret['mailer_path_bin'] != null
-            ? $pearDB->escape($ret['mailer_path_bin']) : 'NULL'
+            ? $ret['mailer_path_bin'] : 'NULL'
     );
     updateOption(
         $pearDB,
         'interval_length',
         isset($ret['interval_length']) && $ret['interval_length'] != null
-            ? $pearDB->escape($ret['interval_length']) : 'NULL'
+            ? $ret['interval_length'] : 'NULL'
     );
     updateOption(
         $pearDB,
         'broker',
         isset($ret['broker']) && $ret['broker'] != null
-            ? $pearDB->escape($ret['broker']) : 'broker'
+            ? $ret['broker'] : 'broker'
     );
     $pearDB->query('UPDATE acl_resources SET changed = 1');
 
@@ -204,13 +203,13 @@ function updateNagiosConfigData($gopt_id = null)
         $pearDB,
         'monitoring_dwt_duration',
         isset($ret['monitoring_dwt_duration']) && $ret['monitoring_dwt_duration']
-            ? $pearDB->escape($ret['monitoring_dwt_duration']) : 3600
+            ? $ret['monitoring_dwt_duration'] : 3600
     );
     updateOption(
         $pearDB,
         'monitoring_dwt_duration_scale',
         isset($ret['monitoring_dwt_duration_scale']) && $ret['monitoring_dwt_duration_scale']
-            ? $pearDB->escape($ret['monitoring_dwt_duration_scale']) : 's'
+            ? $ret['monitoring_dwt_duration_scale'] : 's'
     );
     updateOption(
         $pearDB,
@@ -320,7 +319,6 @@ function updateSNMPConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(
@@ -365,7 +363,6 @@ function updateDebugConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(
@@ -493,7 +490,6 @@ function updateGeneralConfigData()
 {
     global $form, $pearDB, $centreon;
 
-    $ret = [];
     $ret = $form->getSubmitValues();
 
     if (! isset($ret['AjaxTimeReloadStatistic'])) {
@@ -679,7 +675,6 @@ function updateRRDToolConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(
@@ -730,7 +725,6 @@ function updateODSConfigData()
 {
     global $form, $pearDBO, $pearDB;
 
-    $ret = [];
     $ret = $form->getSubmitValues();
     if (! isset($ret['audit_log_option'])) {
         $ret['audit_log_option'] = '0';
@@ -766,24 +760,50 @@ function updateODSConfigData()
     if (! isset($ret['audit_log_retention'])) {
         $ret['audit_log_retention'] = 0;
     }
+    if (! isset($ret['archive_retention'])) {
+        $ret['archive_retention'] = 0;
+    }
+    if (! isset($ret['reporting_retention'])) {
+        $ret['reporting_retention'] = 0;
+    }
 
-    $rq = "UPDATE `config` SET `RRDdatabase_path` = '" . $ret['RRDdatabase_path'] . "',
-        `RRDdatabase_status_path` = '" . $ret['RRDdatabase_status_path'] . "',
-        `RRDdatabase_nagios_stats_path` = '" . $ret['RRDdatabase_nagios_stats_path'] . "',
-        `len_storage_rrd` = '" . $ret['len_storage_rrd'] . "',
-        `len_storage_mysql` = '" . $ret['len_storage_mysql'] . "',
-        `autodelete_rrd_db` = '" . $ret['autodelete_rrd_db'] . "',
-        `purge_interval` = '" . $ret['purge_interval'] . "',
-        `archive_log` = '" . $ret['archive_log'] . "',
-        `archive_retention` = '" . $ret['archive_retention'] . "',
-        `reporting_retention` = '" . $ret['reporting_retention'] . "',
-        `audit_log_option` = '" . $ret['audit_log_option'] . "',
-        `storage_type` = " . ($ret['storage_type'] ?? 'NULL') . ",
-        `len_storage_downtimes` = '" . $ret['len_storage_downtimes'] . "',
-        `audit_log_retention` = '" . $ret['audit_log_retention'] . "',
-        `len_storage_comments` = '" . $ret['len_storage_comments'] . "' "
-        . ' WHERE `id` = 1 LIMIT 1 ;';
-    $DBRESULT = $pearDBO->query($rq);
+    $statement = $pearDBO->prepare(
+        'UPDATE `config` SET
+        `RRDdatabase_path` = :rrdPath,
+        `RRDdatabase_status_path` = :rrdStatusPath,
+        `RRDdatabase_nagios_stats_path` = :rrdStatsPath,
+        `len_storage_rrd` = :lenRrd,
+        `len_storage_mysql` = :lenMysql,
+        `autodelete_rrd_db` = :autodeleteRrd,
+        `purge_interval` = :purgeInterval,
+        `archive_log` = :archiveLog,
+        `archive_retention` = :archiveRetention,
+        `reporting_retention` = :reportingRetention,
+        `audit_log_option` = :auditLogOption,
+        `storage_type` = :storageType,
+        `len_storage_downtimes` = :lenDowntimes,
+        `audit_log_retention` = :auditLogRetention,
+        `len_storage_comments` = :lenComments
+        WHERE `id` = 1 LIMIT 1'
+    );
+    $statement->bindValue(':rrdPath', $ret['RRDdatabase_path'], PDO::PARAM_STR);
+    $statement->bindValue(':rrdStatusPath', $ret['RRDdatabase_status_path'], PDO::PARAM_STR);
+    $statement->bindValue(':rrdStatsPath', $ret['RRDdatabase_nagios_stats_path'], PDO::PARAM_STR);
+    $statement->bindValue(':lenRrd', (int) $ret['len_storage_rrd'], PDO::PARAM_INT);
+    $statement->bindValue(':lenMysql', (int) $ret['len_storage_mysql'], PDO::PARAM_INT);
+    $statement->bindValue(':autodeleteRrd', $ret['autodelete_rrd_db'], PDO::PARAM_STR);
+    $statement->bindValue(':purgeInterval', (int) $ret['purge_interval'], PDO::PARAM_INT);
+    $statement->bindValue(':archiveLog', $ret['archive_log'], PDO::PARAM_STR);
+    $statement->bindValue(':archiveRetention', (int) $ret['archive_retention'], PDO::PARAM_INT);
+    $statement->bindValue(':reportingRetention', (int) $ret['reporting_retention'], PDO::PARAM_INT);
+    $statement->bindValue(':auditLogOption', $ret['audit_log_option'], PDO::PARAM_STR);
+    $rawStorageType = $ret['storage_type'] ?? null;
+    $storageType = ($rawStorageType === null || $rawStorageType === '') ? null : (int) $rawStorageType;
+    $statement->bindValue(':storageType', $storageType, $storageType === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+    $statement->bindValue(':lenDowntimes', (int) $ret['len_storage_downtimes'], PDO::PARAM_INT);
+    $statement->bindValue(':auditLogRetention', (int) $ret['audit_log_retention'], PDO::PARAM_INT);
+    $statement->bindValue(':lenComments', (int) $ret['len_storage_comments'], PDO::PARAM_INT);
+    $statement->execute();
 
     updateOption(
         $pearDB,
@@ -795,7 +815,7 @@ function updateODSConfigData()
     updateOption(
         $pearDB,
         'centstorage_drop_file',
-        isset($ret['centstorage_drop_file']) ? $pearDB->escape($ret['centstorage_drop_file']) : ''
+        $ret['centstorage_drop_file'] ?? ''
     );
 }
 
@@ -803,7 +823,6 @@ function updateCASConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(

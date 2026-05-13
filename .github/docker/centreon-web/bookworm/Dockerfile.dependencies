@@ -65,6 +65,7 @@ apt-get install -y \
   curl \
   jq \
   python3 \
+  cron \
   software-properties-common \
   sudo
 

@@ -379,14 +379,16 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
             continue;
         }
         $row['meta_id'] = null;
+        $originalName = $row['meta_name'];
+        $columns = array_keys($row);
+        $qbInsert = $pearDB->createQueryBuilder();
+        $insertQuery = $qbInsert->insert('meta_service')
+            ->values(array_combine($columns, array_map(fn ($col) => ':' . $col, $columns)))
+            ->getQuery();
+
         for ($i = 1; $i <= $nbrDup[$metaId]; $i++) {
-            $metaName = $row['meta_name'] . '_' . $i;
+            $metaName = $originalName . '_' . $i;
             $row['meta_name'] = $metaName;
-            $columns = array_keys($row);
-            $qbInsert = $pearDB->createQueryBuilder();
-            $insertQuery = $qbInsert->insert('meta_service')
-                ->values(array_combine($columns, array_map(fn ($col) => ':' . $col, $columns)))
-                ->getQuery();
 
             try {
                 if (! testExistence($metaName)) {
@@ -400,7 +402,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                 $newMetaId = $pearDB->getLastInsertId();
                 if ($newMetaId) {
                     $metaObj = new CentreonMeta($pearDB);
-                    $metaObj->insertVirtualService($newMetaId, addslashes($metaName));
+                    $metaObj->insertVirtualService($newMetaId, $metaName);
 
                     // Duplicate contacts
                     $qbContacts = $pearDB->createQueryBuilder();
@@ -732,9 +734,9 @@ function insertMetaService($ret = [])
         return 0;
     }
     $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog('meta', $metaId, addslashes($ret['meta_name']), 'a', $fields);
+    $centreon->CentreonLogAction->insertLog('meta', $metaId, $ret['meta_name'], 'a', $fields);
     $metaObj = new CentreonMeta($pearDB);
-    $metaObj->insertVirtualService($metaId, addslashes($ret['meta_name']));
+    $metaObj->insertVirtualService($metaId, $ret['meta_name']);
 
     return $metaId;
 }
@@ -817,9 +819,9 @@ function updateMetaService($metaId = null)
         );
     }
     $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog('meta', $metaId, addslashes($ret['meta_name']), 'c', $fields);
+    $centreon->CentreonLogAction->insertLog('meta', $metaId, $ret['meta_name'], 'c', $fields);
     $metaObj = new CentreonMeta($pearDB);
-    $metaObj->insertVirtualService($metaId, addslashes($ret['meta_name']));
+    $metaObj->insertVirtualService($metaId, $ret['meta_name']);
 }
 
 /**
