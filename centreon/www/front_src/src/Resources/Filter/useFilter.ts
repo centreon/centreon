@@ -1,9 +1,3 @@
-import { useEffect } from 'react';
-
-import { useAtomValue, useSetAtom } from 'jotai';
-import { omit } from 'ramda';
-import useDeepCompareEffect from 'use-deep-compare-effect';
-
 import {
   getUrlQueryParameters,
   setUrlQueryParameters,
@@ -14,9 +8,6 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { omit } from 'ramda';
 import { useEffect, useRef } from 'react';
 import useDeepCompareEffect from 'use-deep-compare-effect';
-
-import { listCustomFilters } from './api';
-import { listCustomFiltersDecoder } from './api/decoders';
 import { CriteriaValue } from './Criterias/models';
 import { build } from './Criterias/searchQueryLanguage';
 import { listCustomFilters } from './api';
