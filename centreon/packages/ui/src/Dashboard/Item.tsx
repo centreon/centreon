@@ -13,7 +13,6 @@ import { equals, isNil, prop } from 'ramda';
 
 import { Card, useTheme } from '@mui/material';
 
-import LoadingSkeleton from '../LoadingSkeleton';
 import { useMemoComponent, useViewportIntersection } from '../utils';
 
 import { useDashboardItemStyles } from './Dashboard.styles';
@@ -122,17 +121,8 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
                 !disablePadding && classes.widgetPadding
               )}
             >
-              {!isInViewport ? (
-                <LoadingSkeleton
-                  animation={false}
-                  data-widget-skeleton={id}
-                  height="100%"
-                  width="100%"
-                />
-              ) : (
-                children.map((child) =>
-                  typeof child === 'function' ? child({ isInViewport }) : child
-                )
+              {children.map((child) =>
+                typeof child === 'function' ? child({ isInViewport }) : child
               )}
             </div>
           </Card>
