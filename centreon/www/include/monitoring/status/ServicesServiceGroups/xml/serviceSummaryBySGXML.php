@@ -404,7 +404,7 @@ if ($numRows > 0) {
                                     'name' => 'search',
                                     'object_type' => null,
                                     'type' => 'text',
-                                    'value' => 'h.name:^' . $host_name . '$',
+                                    'value' => 'h.name:^' . $hostName . '$',
                                 ],
                             ],
                         ]),
