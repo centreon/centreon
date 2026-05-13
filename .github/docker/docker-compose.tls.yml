@@ -27,6 +27,9 @@ services:
     ports: !override
       - "4443:443"
     volumes:
+      # Bind-mount the TLS hook the same way 81-register_remote_server runs on remote-server:
+      # pre-built WEB_IMAGEs don't yet contain 04-tls.sh, so without this the hook never runs.
+      - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/04-tls.sh:/usr/share/centreon/container.d/04-tls.sh:ro
       - certs:/etc/pki/centreon-tls:ro
     depends_on:
       db:
@@ -50,6 +53,7 @@ services:
       - "4444:443"
     volumes:
       - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/81-register_remote_server_background.sh:/usr/share/centreon/container.d/81-register_remote_server_background.sh
+      - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/04-tls.sh:/usr/share/centreon/container.d/04-tls.sh:ro
       - certs:/etc/pki/centreon-tls:ro
     depends_on:
       db-remote:
