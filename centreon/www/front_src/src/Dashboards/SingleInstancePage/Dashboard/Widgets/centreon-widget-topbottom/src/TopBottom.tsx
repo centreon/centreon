@@ -3,6 +3,7 @@ import { LoadingSkeleton } from '@centreon/ui';
 import { equals } from 'ramda';
 import { ReactElement } from 'react';
 
+import NoResources from '../../NoResources';
 import {
   CommonWidgetProps,
   FormThreshold,
