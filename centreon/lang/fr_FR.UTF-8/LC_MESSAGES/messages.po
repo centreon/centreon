@@ -25028,3 +25028,51 @@ msgstr "La commande de redémarrage du moteur ne correspond pas au format attend
 #: www/class/centreonBroker.class.php
 msgid "Broker reload command does not match the expected format. Please check the monitoring server configuration."
 msgstr "La commande de rechargement du broker ne correspond pas au format attendu. Veuillez vérifier la configuration du serveur de supervision."
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+msgid "Create new poller"
+msgstr "Créer un nouveau collecteur"
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+msgid "Enter your poller's name and address"
+msgstr "Entrez le nom et l'adresse de votre collecteur"
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+msgid "Select your poller's environment"
+msgstr "Sélectionnez l'environnement de votre collecteur"
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+msgid "VM or physical"
+msgstr "VM ou physique"
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+msgid "Docker compose"
+msgstr "Docker compose"
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+msgid "Select token"
+msgstr "Sélectionnez un jeton"
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+msgid "Generate installation command"
+msgstr "Générez la commande d'installation"
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+msgid "The command is being generated…"
+msgstr "La commande est en cours de génération…"
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+msgid "Click to generate the command. Once it's ready, copy it and run it in your environment."
+msgstr "Cliquez pour générer la commande. Une fois prête, copiez-la et exécutez-la dans votre environnement."
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+msgid "Generating..."
+msgstr "Génération en cours..."
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+msgid "Copy the following command and run it on your poller to register it."
+msgstr "Copiez la commande suivante et exécutez-la sur votre collecteur pour l'enregistrer."
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+msgid "Failed to create poller"
+msgstr "Échec de la création du collecteur"
