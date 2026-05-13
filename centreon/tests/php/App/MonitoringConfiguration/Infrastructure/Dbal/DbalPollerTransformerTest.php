@@ -54,7 +54,6 @@ final class DbalPollerTransformerTest extends TestCase
         self::assertFalse($poller->isDefault);
         self::assertTrue($poller->isActivated);
         self::assertSame(PollerTypeEnum::VM, $poller->pollerType);
-        self::assertNotNull($poller->uid);
         self::assertSame(123456789012345, $poller->uid->value);
 
         self::assertSame('/usr/sbin/centengine', $poller->engineConfiguration->startCommand);
@@ -84,7 +83,6 @@ final class DbalPollerTransformerTest extends TestCase
     public function testTransformWithNullableFields(): void
     {
         $row = $this->buildRow([
-            'poller_uid' => null,
             'engine_start_command' => null,
             'engine_stop_command' => null,
             'engine_restart_command' => null,
@@ -105,7 +103,6 @@ final class DbalPollerTransformerTest extends TestCase
 
         $poller = $this->transformer->transform($row);
 
-        self::assertNull($poller->uid);
         self::assertNull($poller->engineConfiguration->startCommand);
         self::assertNull($poller->engineConfiguration->binaryPath);
         self::assertNull($poller->engineConfiguration->statisticsBinaryPath);

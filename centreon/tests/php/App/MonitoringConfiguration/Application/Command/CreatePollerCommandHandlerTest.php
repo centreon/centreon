@@ -56,7 +56,6 @@ final class CreatePollerCommandHandlerTest extends TestCase
         self::assertSame('MyPoller', $poller->name->value);
         self::assertSame(PollerTypeEnum::VM, $poller->pollerType);
         self::assertSame('192.168.1.1', $poller->address->value);
-        self::assertNotNull($poller->uid);
         self::assertGreaterThan(0, $poller->uid->value);
         self::assertFalse($poller->isCentral);
         self::assertTrue($poller->isActivated);

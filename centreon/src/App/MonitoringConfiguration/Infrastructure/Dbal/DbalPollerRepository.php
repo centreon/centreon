@@ -52,7 +52,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   is_default: int,
  *   is_activated: '0'|'1',
  *   poller_type: 'vm'|'docker',
- *   poller_uid: int|null,
+ *   poller_uid: int,
  *   gorgone_communication_type: '1'|'2',
  *   gorgone_port: int|null,
  *   ssh_port: int|null,
@@ -80,7 +80,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   is_default: int,
  *   is_activated: '0'|'1',
  *   poller_type: 'vm'|'docker',
- *   poller_uid: int|null,
+ *   poller_uid: int,
  *   gorgone_communication_type: '1'|'2',
  *   gorgone_port: int|null,
  *   ssh_port: int|null,
@@ -172,7 +172,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
                 ->setParameter('is_default', $poller->isDefault ? 1 : 0)
                 ->setParameter('is_activated', $poller->isActivated ? '1' : '0')
                 ->setParameter('poller_type', $poller->pollerType->value)
-                ->setParameter('uid', $poller->uid?->value)
+                ->setParameter('uid', $poller->uid->value)
                 ->setParameter('gorgone_communication_type', $poller->gorgoneConfiguration->communicationType->value)
                 ->setParameter('gorgone_port', $poller->gorgoneConfiguration->gorgonePort)
                 ->setParameter('ssh_port', $poller->gorgoneConfiguration->sshPort)
@@ -199,8 +199,10 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
                 throw new \RuntimeException(sprintf('Unable to retrieve last insert ID for "%s".', self::TABLE_NAME));
             }
         } catch (UniqueConstraintViolationException $exception) {
-            $field = str_contains($exception->getMessage(), 'uniq_uid') ? 'uid' : 'name';
-            $value = $field === 'uid' ? $poller->uid?->value : $poller->name->value;
+            $field = str_contains($exception->getMessage(), 'uniq_uid')
+                || str_contains($exception->getMessage(), 'uniq_uuid')
+                ? 'uid' : 'name';
+            $value = $field === 'uid' ? $poller->uid->value : $poller->name->value;
 
             throw new PollerAlreadyExistsException([$field => $value], previous: $exception);
         }

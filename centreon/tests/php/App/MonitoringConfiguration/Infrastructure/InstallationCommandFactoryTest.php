@@ -37,6 +37,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\MonitoringConfiguration\Infrastructure\InstallationCommandFactory;
 use App\Shared\Domain\Collection;
@@ -421,7 +422,7 @@ final class InstallationCommandFactoryTest extends TestCase
             isDefault: false,
             isActivated: true,
             pollerType: PollerTypeEnum::VM,
-            uid: null,
+            uid: new PollerUid(1),
             globalMacros: new Collection([], GlobalMacro::class),
             brokerConfiguration: new BrokerConfiguration(),
             connectorConfiguration: new ConnectorConfiguration(),

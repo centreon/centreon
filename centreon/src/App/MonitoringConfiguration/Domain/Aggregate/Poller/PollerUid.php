@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
 
 use Webmozart\Assert\Assert;
 
+/** Snowflake 64-bit unique identifier for a poller. */
 final readonly class PollerUid
 {
     public function __construct(

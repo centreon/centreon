@@ -23,6 +23,7 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Godruoyi\Snowflake\Snowflake;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
@@ -57,6 +58,31 @@ $renamePollerUuidToUid = function () use ($pearDB, &$errorMessage, $version): vo
         return;
     }
 
+    $hasUuidColumn = $pearDB->columnExists(
+        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
+        'nagios_server',
+        'uuid'
+    );
+
+    if (! $hasUuidColumn) {
+        $pearDB->executeStatement(
+            <<<'SQL'
+                ALTER TABLE `nagios_server`
+                    ADD COLUMN `uid` BIGINT DEFAULT NULL COMMENT 'Snowflake 64-bit unique identifier',
+                    ADD UNIQUE KEY `uniq_uid` (`uid`)
+                SQL
+        );
+
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Column uuid not found, added uid column directly on nagios_server",
+        );
+
+        generateMissingPollerUids($pearDB, $version);
+
+        return;
+    }
+
     $hasUniqUuidIndex = (bool) $pearDB->fetchOne(
         <<<'SQL'
             SELECT 1
@@ -79,6 +105,7 @@ $renamePollerUuidToUid = function () use ($pearDB, &$errorMessage, $version): vo
         );
     }
 
+    // Existing VARCHAR uuid values are incompatible with the new BIGINT type
     $pearDB->executeStatement(
         <<<'SQL'
             UPDATE `nagios_server` SET `uuid` = NULL
@@ -103,7 +130,48 @@ $renamePollerUuidToUid = function () use ($pearDB, &$errorMessage, $version): vo
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: Successfully renamed uuid column to uid on nagios_server",
     );
+
+    generateMissingPollerUids($pearDB, $version);
 };
+
+/**
+ * Generates Snowflake UIDs for existing pollers that have none, then makes the column NOT NULL.
+ */
+function generateMissingPollerUids(ConnectionInterface $pearDB, string $version): void
+{
+    $snowflake = new Snowflake(0, 0);
+    $snowflake->setStartTimeStamp(1704067200000);
+
+    $pollerIds = $pearDB->fetchAllAssociative(
+        <<<'SQL'
+            SELECT `id` FROM `nagios_server` WHERE `uid` IS NULL
+            SQL
+    );
+
+    foreach ($pollerIds as $row) {
+        $pearDB->executeStatement(
+            <<<'SQL'
+                UPDATE `nagios_server` SET `uid` = :uid WHERE `id` = :id
+                SQL,
+            QueryParameters::create([
+                QueryParameter::int('uid', (int) $snowflake->id()),
+                QueryParameter::int('id', (int) $row['id']),
+            ])
+        );
+    }
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server`
+                MODIFY COLUMN `uid` BIGINT NOT NULL COMMENT 'Snowflake 64-bit unique identifier'
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Generated UIDs for " . count($pollerIds) . " existing pollers, column is now NOT NULL",
+    );
+}
 
 try {
     // DDL statements for real time database

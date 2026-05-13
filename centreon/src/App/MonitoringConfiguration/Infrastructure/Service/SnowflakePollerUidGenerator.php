@@ -33,7 +33,7 @@ use Godruoyi\Snowflake\Snowflake;
  * Snowflake ID structure (64 bits):
  *   [1 bit sign][41 bits timestamp ms][5 bits datacenter][5 bits worker][12 bits sequence]
  *
- * Custom epoch: 2024-01-01T00:00:00Z (1704067200000 ms) — provides ~69 years of unique IDs.
+ * Custom epoch: 2024-01-01T00:00:00Z (1704067200000 ms) — provides ~69 years of unique IDs (until ~2093).
  *
  * @see https://en.wikipedia.org/wiki/Snowflake_ID
  * @see https://github.com/godruoyi/php-snowflake
@@ -45,6 +45,9 @@ final readonly class SnowflakePollerUidGenerator implements PollerUidGenerator
 
     private Snowflake $snowflake;
 
+    /**
+     * Both IDs default to 0: Centreon runs as a single-instance generator.
+     */
     public function __construct(int $datacenterId = 0, int $workerId = 0)
     {
         $this->snowflake = new Snowflake($datacenterId, $workerId);

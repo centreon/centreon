@@ -76,7 +76,7 @@ final class CreatePollerResource
 
         #[ApiProperty(writable: false)]
         #[Groups(['poller:read'])]
-        public ?int $uid = null,
+        public ?string $uid = null,
     ) {
     }
 }

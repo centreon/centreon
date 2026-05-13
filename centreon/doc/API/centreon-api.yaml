@@ -9909,7 +9909,7 @@ components:
           type: integer
           nullable: true
         uid:
-          type: integer
+          type: string
           nullable: true
     Poller-poller.write:
       type: object
@@ -9951,7 +9951,7 @@ components:
               type: integer
               nullable: true
             uid:
-              type: integer
+              type: string
               nullable: true
     StandardMacro:
       type: object

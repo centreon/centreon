@@ -57,7 +57,7 @@ final readonly class DbalPollerTransformer implements TransformerInterface
             isDefault: (bool) $from['is_default'],
             isActivated: $from['is_activated'] === '1',
             pollerType: PollerTypeEnum::from($from['poller_type']),
-            uid: $from['poller_uid'] !== null ? new PollerUid((int) $from['poller_uid']) : null,
+            uid: new PollerUid((int) $from['poller_uid']),
             globalMacros: new Collection([], GlobalMacro::class),
             pollerCommands: new Collection([], PollerCommand::class),
             brokerConfiguration: new BrokerConfiguration(

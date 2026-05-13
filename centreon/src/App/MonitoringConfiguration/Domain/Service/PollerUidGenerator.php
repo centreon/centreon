@@ -27,5 +27,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 
 interface PollerUidGenerator
 {
+    /**
+     * Generate a unique positive 64-bit identifier for a poller.
+     */
     public function generate(): PollerUid;
 }
