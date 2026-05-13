@@ -5,6 +5,7 @@ FROM ${REGISTRY_URL}/centreon-web-dependencies-collect:${FROM_IMAGE_VERSION}
 
 ARG PHP_VERSION=8.4
 ARG STABILITY
+ARG IS_CLOUD=false
 ARG MAJOR_VERSION
 ARG WEB_MINOR_VERSION
 
@@ -19,7 +20,7 @@ COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 
 RUN --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon bash -e <<EOF
 
-if [[ "$STABILITY" == "testing" ]]; then
+if [[ "$STABILITY" == "testing" && "$IS_CLOUD" != "true" ]]; then
   for i in \$( ls /etc/apt/sources.list.d/centreon*unstable* ); do mv \$i \$i.disabled; done
 elif [[ "$STABILITY" == "stable" ]]; then
   for i in \$( ls /etc/apt/sources.list.d/centreon*{unstable,testing}* ); do mv \$i \$i.disabled; done
