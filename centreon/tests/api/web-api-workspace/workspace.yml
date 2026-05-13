@@ -12,6 +12,8 @@ collections:
     path: "collections/Host_Category"
   - name: "Host_Template"
     path: "collections/Host_Template"
+  - name: "Service_Template"
+    path: "collections/Service_Template"
 
 specs:
 

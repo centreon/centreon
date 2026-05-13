@@ -1,0 +1,65 @@
+meta {
+  name: POST /services/templates - Create ST with wrong types - HTTP 400
+  type: http
+  seq: 17
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/templates
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": true,
+    "alias": 1,
+    "service_template_id": "3",
+    "host_templates": true,
+    "check_timeperiod_id": false,
+    "max_check_attempts": -1,
+    "normal_check_interval": "3",
+    "retry_check_interval": "2",
+    "note": 1,
+    "note_url": true,
+    "action_url": "action url",
+    "icon_id": false,
+    "severity_id": "{{ServiceSeverity1Id}}",
+    "macros": [
+      {
+        "name": true,
+        "value": false,
+        "is_password": "false",
+        "description": 1
+      },
+      {
+        "name": 1,
+        "value": 2,
+        "is_password": 0,
+        "description": 1
+      }
+    ],
+    "service_categories": [ "{{ServiceCategory1Id}}" ],
+    "service_groups": [
+      {
+        "service_group_id": "{{ServiceGroup1Id}}",
+        "host_template_id": "3"
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("The service template has not been created, because there are values of the wrong type.", function () {
+    expect(res.getBody().message).to.eql("[name] Boolean value found, but a string is required\n[alias] Integer value found, but a string is required\n[service_template_id] String value found, but a null or an integer is required\n[check_timeperiod_id] Boolean value found, but a null or an integer is required\n[normal_check_interval] String value found, but a null or an integer is required\n[retry_check_interval] String value found, but a null or an integer is required\n[icon_id] Boolean value found, but a null or an integer is required\n[note] Integer value found, but a null or a string is required\n[note_url] Boolean value found, but a null or a string is required\n[severity_id] String value found, but a null or an integer is required\n[host_templates] Boolean value found, but an array is required\n[service_categories[0]] String value found, but an integer is required\n[service_groups[0].host_template_id] String value found, but an integer is required\n[service_groups[0].service_group_id] String value found, but an integer is required\n[macros[0].name] Boolean value found, but a string is required\n[macros[0].value] Boolean value found, but a null or a string is required\n[macros[0].is_password] String value found, but a boolean is required\n[macros[0].description] Integer value found, but a null or a string is required\n[macros[1].name] Integer value found, but a string is required\n[macros[1].value] Integer value found, but a null or a string is required\n[macros[1].is_password] Integer value found, but a boolean is required\n[macros[1].description] Integer value found, but a null or a string is required\n");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
