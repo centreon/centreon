@@ -23,6 +23,7 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use App\MonitoringConfiguration\Infrastructure\Service\SnowflakePollerUidGenerator;
 use Godruoyi\Snowflake\Snowflake;
 
 require_once __DIR__ . '/../../../bootstrap.php';
@@ -172,7 +173,7 @@ $renamePollerUuidToUid = function () use ($pearDB, &$errorMessage, $version): vo
 function generateMissingPollerUids(ConnectionInterface $pearDB, string $version): void
 {
     $snowflake = new Snowflake(0, 0);
-    $snowflake->setStartTimeStamp(1704067200000);
+    $snowflake->setStartTimeStamp(SnowflakePollerUidGenerator::CUSTOM_EPOCH_MS);
 
     $pollerIds = $pearDB->fetchAllAssociative(
         <<<'SQL'
@@ -201,7 +202,7 @@ function generateMissingPollerUids(ConnectionInterface $pearDB, string $version)
 
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: Generated UIDs for " . count($pollerIds) . " existing pollers, column is now NOT NULL",
+        message: "UPGRADE - {$version}: Generated UIDs for " . count($pollerIds) . ' existing pollers, column is now NOT NULL',
     );
 }
 

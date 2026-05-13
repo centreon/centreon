@@ -1665,7 +1665,7 @@ CREATE TABLE `nagios_server` (
   `vmware_updated` BOOLEAN NOT NULL DEFAULT 0,
   `is_encryption_ready` BOOLEAN NOT NULL DEFAULT 1,
   `poller_type` enum('vm','docker') NOT NULL DEFAULT 'vm',
-  `uid` BIGINT DEFAULT NULL COMMENT 'Snowflake 64-bit unique identifier',
+  `uid` BIGINT NOT NULL COMMENT 'Snowflake 64-bit unique identifier',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_uid` (`uid`),
   CONSTRAINT `nagios_server_remote_id_id` FOREIGN KEY (`remote_id`) REFERENCES `nagios_server` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
