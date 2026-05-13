@@ -85,6 +85,16 @@ echo "[tls] mysql client config written: $MYSQL_CLIENT_CFG"
 #    mod_ssl provides Listen 443 via its own conf, so we don't redeclare it here.
 case "$PLATFORM" in
   rhel)
+    # The alma9/alma10 centreon-web images don't ship mod_ssl. Install on demand
+    # so the SSLEngine directive in centreon-tls.conf below isn't an unknown command.
+    if ! rpm -q mod_ssl >/dev/null 2>&1; then
+      echo "[tls] installing mod_ssl (not present in image)"
+      if command -v dnf >/dev/null 2>&1; then
+        dnf install -y mod_ssl >/dev/null || exit 1
+      else
+        yum install -y mod_ssl >/dev/null || exit 1
+      fi
+    fi
     cat > /etc/httpd/conf.d/centreon-tls.conf <<EOF
 <VirtualHost *:443>
   ServerName centreon-tls
