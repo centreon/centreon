@@ -203,7 +203,7 @@ class CentreonGMT
      * @param string|null $gmt
      * @param int $reverseOffset
      *
-     * @throws Exception
+     * @throws InvalidArgumentException
      * @return string
      */
     public function getUTCDate($date, $gmt = null, $reverseOffset = 1)
@@ -222,7 +222,7 @@ class CentreonGMT
                     $sDate->setTimestamp($date);
                 }
             } catch (Exception $e) {
-                return $return;
+                throw new InvalidArgumentException($e->getMessage(), 0, $e);
             }
 
             $sDate->setTimezone(new DateTimeZone($this->getActiveTimezone($gmt)));
@@ -240,7 +240,7 @@ class CentreonGMT
      * @param string|null $gmt
      * @param int $reverseOffset
      *
-     * @throws Exception
+     * @throws InvalidArgumentException
      * @return string
      */
     public function getUTCDateFromString($date, $gmt = null, $reverseOffset = 1)
@@ -264,7 +264,7 @@ class CentreonGMT
                     $sDate->setTimestamp($date);
                 }
             } catch (Exception $e) {
-                return $return;
+                throw new InvalidArgumentException($e->getMessage(), 0, $e);
             }
 
             $localDate = new DateTime();
