@@ -1,6 +1,3 @@
-import { Provider, createStore } from 'jotai';
-import { pick } from 'ramda';
-
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
   acknowledgementAtom,
@@ -10,6 +7,12 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
+import { Provider, createStore } from 'jotai';
+import { pick } from 'ramda';
+
+import Actions from '.';
+import { labelCancel } from '../../Dashboards/SingleInstancePage/Dashboard/translatedLabels';
+import { selectedColumnIdsAtom } from '../Listing/listingAtoms';
 import { resourcesEndpoint } from '../api/endpoint';
 import {
   labelAcknowledge,
@@ -50,7 +53,6 @@ import {
   labelVisibleColumnsOnly,
   labelWarningExportToCsv
 } from '../translatedLabels';
-
 import { disacknowledgeEndpoint } from './Resource/Disacknowledge/api';
 import { selectedResourcesAtom } from './actionsAtoms';
 import {
@@ -59,10 +61,6 @@ import {
   csvExportEndpoint,
   downtimeEndpoint
 } from './api/endpoint';
-
-import Actions from '.';
-import { labelCancel } from '../../Dashboards/SingleInstancePage/Dashboard/translatedLabels';
-import { selectedColumnIdsAtom } from '../Listing/listingAtoms';
 
 const mockUser = {
   alias: 'admin',
@@ -142,7 +140,6 @@ const visibleColumns = [
   'information',
   'tries'
 ];
-const search = { $and: [] };
 
 const initialize = (
   countResourcesPath = 'resources/listing/count/count.json'
