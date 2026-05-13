@@ -73,6 +73,7 @@ const telegrafConfigurationDecoder = JsonDecoder.object<TelegrafConfiguration>(
 );
 
 interface TokenShape {
+  id: number;
   creatorId: number;
   name: string;
 }
@@ -124,6 +125,9 @@ const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
         JsonDecoder.object<TokenShape>(
           {
             creatorId: JsonDecoder.number,
+            id: JsonDecoder.optional(
+              JsonDecoder.number
+            ) as JsonDecoder.Decoder<number>,
             name: JsonDecoder.string
           },
           'token',
