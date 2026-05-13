@@ -95,6 +95,14 @@ case "$PLATFORM" in
         yum install -y mod_ssl >/dev/null || exit 1
       fi
     fi
+    # mod_ssl ships a default /etc/httpd/conf.d/ssl.conf with a "snake-oil" vhost
+    # that points at /etc/pki/tls/certs/localhost.crt — a cert auto-generated on
+    # a normal RHEL host by httpd-init, but absent in container images. Reduce
+    # the file to just the Listen directive so :443 is bound; our centreon-tls.conf
+    # defines the actual <VirtualHost *:443>.
+    cat > /etc/httpd/conf.d/ssl.conf <<'STUB'
+Listen 443 https
+STUB
     cat > /etc/httpd/conf.d/centreon-tls.conf <<EOF
 <VirtualHost *:443>
   ServerName centreon-tls
