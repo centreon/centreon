@@ -35,12 +35,7 @@ tests {
       "retry_check_interval": 1,
       "is_activated": true
     });
-    expect(s3.host).to.eql([
-      {
-        "id": parseInt(bru.getEnvVar("Host1Id")),
-        "name": bru.getEnvVar("Host1Name")
-      }
-    ]);
+    expect(s3.host_id).to.equal(parseInt(bru.getEnvVar("Host1Id")));
     expect(s3.check_timeperiod).to.eql({ "id": 1, "name": "24x7" });
     expect(s3.severity).to.eql({
       "id": parseInt(bru.getEnvVar("ServiceSeverity1Id")),
@@ -64,12 +59,7 @@ tests {
       "retry_check_interval": null,
       "is_activated": true
     });
-    expect(s4.host).to.eql([
-      {
-        "id": parseInt(bru.getEnvVar("Host2Id")),
-        "name": bru.getEnvVar("Host2Name")
-      }
-    ]);
+    expect(s4.host_id).to.equal(parseInt(bru.getEnvVar("Host2Id")));
     expect(s4.categories).to.eql([
       {
         "id": parseInt(bru.getEnvVar("ServiceCategory1Id")),

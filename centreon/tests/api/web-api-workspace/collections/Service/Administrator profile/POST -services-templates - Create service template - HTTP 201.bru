@@ -85,7 +85,7 @@ tests {
       "name": bru.getEnvVar("ServiceCategory1Name")
     });
     expect(body.groups[0]).to.include({
-      "service_group_id": parseInt(bru.getEnvVar("ServiceGroup1Id"))
+      "id": parseInt(bru.getEnvVar("ServiceGroup1Id"))
     });
   });
 }

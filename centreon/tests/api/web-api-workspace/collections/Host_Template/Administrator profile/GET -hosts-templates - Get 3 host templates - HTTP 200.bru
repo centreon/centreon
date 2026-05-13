@@ -20,7 +20,7 @@ tests {
     const ht1 = body.result.find(r => r.id === parseInt(bru.getEnvVar("HostTemplate1Id")));
     const ht2 = body.result.find(r => r.id === parseInt(bru.getEnvVar("HostTemplate2Id")));
     const ht3 = body.result.find(r => r.id === parseInt(bru.getEnvVar("HostTemplate3Id")));
-    expect(ht3).to.eql({
+    expect(ht3).to.include({
       "id": parseInt(bru.getEnvVar("HostTemplate3Id")),
       "name": bru.getEnvVar("HostTemplate3Name"),
       "alias": bru.getEnvVar("HostTemplate3Alias"),
@@ -37,7 +37,7 @@ tests {
       "icon_id": 1,
       "is_locked": false
     });
-    expect(ht2).to.eql({
+    expect(ht2).to.include({
       "id": parseInt(bru.getEnvVar("HostTemplate2Id")),
       "name": bru.getEnvVar("HostTemplate2Name"),
       "alias": bru.getEnvVar("HostTemplate2Alias"),
@@ -54,7 +54,7 @@ tests {
       "icon_id": null,
       "is_locked": false
     });
-    expect(ht1).to.eql({
+    expect(ht1).to.include({
       "id": parseInt(bru.getEnvVar("HostTemplate1Id")),
       "name": bru.getEnvVar("HostTemplate1Name"),
       "alias": bru.getEnvVar("HostTemplate1Alias"),

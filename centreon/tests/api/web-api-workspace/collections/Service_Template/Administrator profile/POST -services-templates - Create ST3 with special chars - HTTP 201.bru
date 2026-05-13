@@ -65,11 +65,11 @@ tests {
       parseInt(bru.getEnvVar("HostTemplate2Id"))
     ]);
     expect(body.groups[0]).to.include({
-      "service_group_id": parseInt(bru.getEnvVar("ServiceGroup1Id")),
+      "id": parseInt(bru.getEnvVar("ServiceGroup1Id")),
       "host_template_id": parseInt(bru.getEnvVar("HostTemplate1Id"))
     });
     expect(body.groups[1]).to.include({
-      "service_group_id": parseInt(bru.getEnvVar("ServiceGroup2Id")),
+      "id": parseInt(bru.getEnvVar("ServiceGroup2Id")),
       "host_template_id": parseInt(bru.getEnvVar("HostTemplate2Id"))
     });
     expect(body.macros).to.eql([]);

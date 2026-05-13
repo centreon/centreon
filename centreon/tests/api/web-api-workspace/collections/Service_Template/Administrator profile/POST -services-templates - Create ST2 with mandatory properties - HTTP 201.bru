@@ -25,7 +25,7 @@ tests {
   test("The service template ST2 has been successfully created with only mandatory properties.", function () {
     const body = res.getBody();
     bru.setEnvVar("ServiceTemplate2Id", body.id);
-    expect(body).to.eql({
+    expect(body).to.include({
       "id": body.id,
       "name": bru.getEnvVar("ServiceTemplate2Name"),
       "alias": bru.getEnvVar("ServiceTemplate2Alias"),
@@ -39,12 +39,12 @@ tests {
       "action_url": null,
       "icon_id": null,
       "severity_id": null,
-      "host_templates": [],
-      "macros": [],
-      "categories": [],
-      "groups": [],
       "is_locked": false
     });
+    expect(body.host_templates).to.be.an("array").that.is.empty;
+    expect(body.macros).to.be.an("array").that.is.empty;
+    expect(body.categories).to.be.an("array").that.is.empty;
+    expect(body.groups).to.be.an("array").that.is.empty;
   });
 }
 

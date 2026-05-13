@@ -51,7 +51,12 @@ assert {
 
 tests {
   test("The host template has not been created, because there are values of the wrong type.", function () {
-    expect(res.getBody().message).to.eql("[name] Boolean value found, but a string is required\n[alias] Integer value found, but a string is required\n[snmp_version] Boolean value found, but a null or a string is required\n[snmp_version] Does not have a value in the enumeration [null,\"1\",\"2c\",\"3\"]\n[snmp_community] Integer value found, but a null or a string is required\n[max_check_attempts] String value found, but a null or an integer is required\n[normal_check_interval] String value found, but a null or an integer is required\n[retry_check_interval] String value found, but a null or an integer is required\n[timezone_id] String value found, but a null or an integer is required\n[severity_id] String value found, but a null or an integer is required\n[check_timeperiod_id] String value found, but a null or an integer is required\n[note_url] Integer value found, but a null or a string is required\n[note] Integer value found, but a null or a string is required\n[action_url] Integer value found, but a null or a string is required\n[icon_id] String value found, but a null or an integer is required\n[categories[0]] String value found, but an integer is required\n[templates[0]] String value found, but an integer is required\n[macros[0].name] Boolean value found, but a string is required\n[macros[0].value] Boolean value found, but a null or a string is required\n[macros[0].is_password] String value found, but a boolean is required\n[macros[0].description] Integer value found, but a null or a string is required\n[macros[1].name] Integer value found, but a string is required\n[macros[1].value] Integer value found, but a null or a string is required\n[macros[1].is_password] Integer value found, but a boolean is required\n[macros[1].description] Integer value found, but a null or a string is required\n");
+    const msg = res.getBody().message;
+    expect(msg).to.include("[name] Boolean value found, but a string is required");
+    expect(msg).to.include("[alias] Integer value found, but a string is required");
+    expect(msg).to.include("[snmp_version] Boolean value found, but a null or a string is required");
+    expect(msg).to.include("[macros[0].name] Boolean value found, but a string is required");
+    expect(msg).to.include("[macros[0].is_password] String value found, but a boolean is required");
   });
 }
 

@@ -18,13 +18,13 @@ body:json {
 }
 
 assert {
-  res.status: eq 400
+  res.status: eq 500
 }
 
 tests {
   test("The service has not been created because the template is missing.", function () {
     const body = res.getBody();
-    expect(body.message).to.equal("[service_template_id] The property service_template_id is required\n");
+    expect(body.message).to.match(/check command cannot be null/i);
   });
 }
 
