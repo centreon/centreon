@@ -128,6 +128,16 @@ foreach ($ids as $arId) {
         $searchResult = $ldap->search($ldap_search_filter, $ldap_base_dn, $ldap_search_limit, $ldap_search_timeout);
         $number_returned = count($searchResult);
         if ($number_returned) {
+            $resServer = $pearDB->prepare(
+                'SELECT `ar_id`, `ar_name` FROM auth_ressource WHERE ar_id = :arId'
+            );
+            $resServer->bindValue(':arId', (int) $arId, PDO::PARAM_INT);
+            $resServer->execute();
+            $serverRow = $resServer->fetch(PDO::FETCH_ASSOC);
+            if ($serverRow === false) {
+                continue;
+            }
+
             $buffer->writeElement('entries', $number_returned);
             for ($i = 0; $i < $number_returned; $i++) {
                 if (isset($searchResult[$i]['dn'])) {
@@ -153,13 +163,8 @@ foreach ($ids as $arId) {
                     $searchResult[$i]['name'] = str_replace("\'", "\\\'", $searchResult[$i]['name']);
 
                     $buffer->startElement('user');
-                    $query = 'SELECT `ar_id`, `ar_name`
-                              FROM auth_ressource
-                              WHERE ar_id = ' . $pearDB->escape($arId);
-                    $resServer = $pearDB->query($query);
-                    $row = $resServer->fetchRow();
-                    $buffer->writeAttribute('server', $row['ar_name']);
-                    $buffer->writeAttribute('ar_id', $row['ar_id']);
+                    $buffer->writeAttribute('server', $serverRow['ar_name']);
+                    $buffer->writeAttribute('ar_id', $serverRow['ar_id']);
                     $buffer->writeAttribute('isvalid', $isvalid);
                     $buffer->startElement('dn');
                     $buffer->writeAttribute('isvalid', (($searchResult[$i]['dn'] != '') ? '1' : '0'));

@@ -1452,40 +1452,6 @@ msgstr "Une erreur est survenue"
 msgid "An error occurred during authentication"
 msgstr "Une erreur est survenue durant l'authentification"
 
-#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
-msgid "An error occurred when applying post update actions"
-msgstr ""
-"Une erreur s'est produite lors de l'application des actions postérieures à "
-"la mise à jour"
-
-#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
-#, php-format
-msgid "An error occurred when applying the update %s (%s)"
-msgstr ""
-"Une erreur s'est produite lors de l'application de la mise à jour %s (%s)"
-
-#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
-#, php-format
-msgid "An error occurred when applying the update (%s)"
-msgstr "Une erreur s'est produite lors de la mise à jour (%s)"
-
-#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
-msgid "An error occurred when retrieving available updates"
-msgstr ""
-"Une erreur s'est produite lors de la récupération des mises à jour "
-"disponibles"
-
-#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
-msgid "An error occurred when retrieving the current version"
-msgstr ""
-"Une erreur s'est produite lors de la récupération de la version actuelle"
-
-#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
-msgid "An error occurred when writing engine context configuration"
-msgstr ""
-"Une erreur s'est produite lors de l'écriture de la configuration du contexte "
-"moteur"
-
 #: centreon/src/Core/Broker/Application/Exception/BrokerException.php
 #, php-format
 msgid "An error occurred while creating the file '%s'"
@@ -2402,16 +2368,6 @@ msgstr "Impossible d'ouvrir le fichier des statistiques"
 msgid "Cannot register the '%s' platform : '%s'@'%s' behind a '%s' platform"
 msgstr ""
 "Impossible d'enregistrer la plateforme '%s' : '%s'@'%s' derrière un '%s'"
-
-#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
-msgid "Cannot retrieve the current version"
-msgstr "La version actuelle n'a pas pu être récupérée"
-
-#: centreon/src/Core/Platform/Infrastructure/Validator/RequirementValidators/DatabaseRequirementException.php
-msgid "Cannot retrieve the database version information"
-msgstr ""
-"Les informations de version de la base de données n'ont pas pu être "
-"récupérées"
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Model/PlatformPending.php
 #: centreon/src/Centreon/Domain/PlatformTopology/Model/PlatformRegistered.php
@@ -6220,10 +6176,6 @@ msgstr "Erreur lors de l'initialisation de l'URI de l'API"
 #: centreon/src/Centreon/Domain/Option/OptionService.php
 msgid "Error when retrieving selected options"
 msgstr "Erreur lors de la récupération des options selectionnées"
-
-#: centreon/src/Core/Platform/Infrastructure/Validator/RequirementValidators/DatabaseRequirementException.php
-msgid "Error when retrieving the database version"
-msgstr "Erreur lors de la récupération de la version de la base de données"
 
 #: centreon/src/Centreon/Domain/Filter/FilterService.php
 #, php-format
@@ -10627,11 +10579,6 @@ msgstr "Constructeur"
 msgid "Many thanks to all the contributors to the security of Centreon"
 msgstr "Un grand merci à tous les contributeurs pour la sécurité de Centreon"
 
-#: centreon/src/Core/Platform/Infrastructure/Validator/RequirementValidators/DatabaseRequirementValidators/MariaDbRequirementException.php
-#, php-format
-msgid "MariaDB version %s required (%s installed)"
-msgstr "La version %s de MariaDB est requise (%s installée)"
-
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/contact/listContact.php
@@ -12651,16 +12598,6 @@ msgstr "Format de la chaîne de sortie (Formatage printf)"
 #: centreon/www/include/configuration/configCentreonBroker/listCentreonBroker.php
 msgid "Outputs"
 msgstr "Sorties"
-
-#: centreon/src/Core/Platform/Infrastructure/Validator/RequirementValidators/PhpRequirementException.php
-#, php-format
-msgid "PHP extension %s not loaded"
-msgstr "L'extension %s de PHP n'est pas chargée"
-
-#: centreon/src/Core/Platform/Infrastructure/Validator/RequirementValidators/PhpRequirementException.php
-#, php-format
-msgid "PHP version %s required (%s installed)"
-msgstr "La version %s de PHP est requise (%s installée)"
 
 #: centreon/www/include/configuration/configServers/listServers.php
 msgid "PID"
@@ -18086,10 +18023,6 @@ msgstr "Mettre à jour la configuration d'agent"
 msgid "Update all"
 msgstr "Tout mettre à jour"
 
-#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
-msgid "Update already in progress"
-msgstr "Une mise à jour est déjà en cours"
-
 #: centreon/www/install/front_translate.php
 msgid "Update dashboard"
 msgstr "Mettre à jour le tableau de bord"
@@ -20667,6 +20600,40 @@ msgid "An error occured while your platform update"
 msgstr "Une erreur est survenue lors de la mise à jour de la platforme"
 
 #: unknown
+msgid "An error occurred when applying post update actions"
+msgstr ""
+"Une erreur s'est produite lors de l'application des actions postérieures "
+"à la mise à jour"
+
+#, php-format
+#: unknown
+msgid "An error occurred when applying the update %s (%s)"
+msgstr ""
+"Une erreur s'est produite lors de l'application de la mise à jour %s (%s)"
+
+#, php-format
+#: unknown
+msgid "An error occurred when applying the update (%s)"
+msgstr "Une erreur s'est produite lors de la mise à jour (%s)"
+
+#: unknown
+msgid "An error occurred when retrieving available updates"
+msgstr ""
+"Une erreur s'est produite lors de la récupération des mises à jour "
+"disponibles"
+
+#: unknown
+msgid "An error occurred when retrieving the current version"
+msgstr ""
+"Une erreur s'est produite lors de la récupération de la version actuelle"
+
+#: unknown
+msgid "An error occurred when writing engine context configuration"
+msgstr ""
+"Une erreur s'est produite lors de l'écriture de la configuration du "
+"contexte moteur"
+
+#: unknown
 msgid "An error occurred while filtering columns"
 msgstr "Une erreur est survenue lors du filtrage des colonnes"
 
@@ -20905,6 +20872,16 @@ msgid "Cannot link a 'remote': '%s'@'%s' to another Remote server type"
 msgstr ""
 "Il n'est pas possible de lier le serveur distant '%s'@'%s' à un autre "
 "serveur distant"
+
+#: unknown
+msgid "Cannot retrieve the current version"
+msgstr "La version actuelle n'a pas pu être récupérée"
+
+#: unknown
+msgid "Cannot retrieve the database version information"
+msgstr ""
+"Les informations de version de la base de données n'ont pas pu être "
+"récupérées"
 
 #: unknown
 msgid "Cannot set parent id on a central server"
@@ -21668,6 +21645,10 @@ msgstr "Erreur lors de l'installation du correctif : %s."
 #: unknown
 msgid "Error when recovering the number of tokens"
 msgstr "Erreur lors de la récupération du nombre de token"
+
+#: unknown
+msgid "Error when retrieving the database version"
+msgstr "Erreur lors de la récupération de la version de la base de données"
 
 #: unknown
 msgid "Error when searching for a resource of monitoring server"
@@ -22684,6 +22665,11 @@ msgstr "Map"
 msgid "Map Icon"
 msgstr "Icône pour la carte"
 
+#, php-format
+#: unknown
+msgid "MariaDB version %s required (%s installed)"
+msgstr "La version %s de MariaDB est requise (%s installée)"
+
 #: unknown
 msgid "Maximum Check Result Reaper Time"
 msgstr "Temp du contrôle des résultats maximal"
@@ -23012,9 +22998,19 @@ msgstr "Vue d'ensemble"
 msgid "PENDING"
 msgstr "EN ATTENTE"
 
+#, php-format
+#: unknown
+msgid "PHP extension %s not loaded"
+msgstr "L'extension %s de PHP n'est pas chargée"
+
 #: unknown
 msgid "PHP file included"
 msgstr "Fichier PHP inclus"
+
+#, php-format
+#: unknown
+msgid "PHP version %s required (%s installed)"
+msgstr "La version %s de PHP est requise (%s installée)"
 
 #: unknown
 msgid "Parent Host Categories"
@@ -24247,6 +24243,10 @@ msgstr "Temps état disponible"
 #: unknown
 msgid "Update additional configuration"
 msgstr "Mettre à jour la configuration additionnelle"
+
+#: unknown
+msgid "Update already in progress"
+msgstr "Une mise à jour est déjà en cours"
 
 #: unknown
 msgid "Update definition in case of double definition"
