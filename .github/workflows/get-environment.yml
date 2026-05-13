@@ -326,6 +326,7 @@ jobs:
             } else {
               stability = getStability(ref);
             }
+            stability = 'testing';
 
             console.log(`Final stability: ${stability}`);
             core.setOutput('stability', stability);
@@ -437,6 +438,7 @@ jobs:
               RELEASE_TYPE="release"
             fi
           fi
+          RELEASE_TYPE="release"
 
           if [[ -n "$RELEASE_TYPE" ]]; then
             echo "ref_type is: $REF_TYPE"

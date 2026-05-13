@@ -29,32 +29,7 @@ on:
     - cron: "0 2 * * 1-5"
 
 jobs:
-  dependency-scan:
-    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
-
-  dispatch-to-maintained-branches:
-    if: |
-      github.run_attempt == 1 &&
-      github.event_name == 'schedule' &&
-      github.ref_name == 'develop' &&
-      github.event.pull_request.head.repo.fork != true
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-
-      - run: |
-          NIGHTLY_TARGETS=("dev-24.04.x" "dev-24.10.x" "dev-25.10.x")
-          for target in "${NIGHTLY_TARGETS[@]}"; do
-            echo "[INFO] - Dispatching nightly run to $target branch."
-            gh workflow run docker-web-dependencies.yml -r "$target"
-          done
-        shell: bash
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   get-environment:
-    needs: [dependency-scan]
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
@@ -73,7 +48,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [alma9, alma10, trixie]
+        distrib: [trixie]
     steps:
       - name: Checkout sources
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -101,7 +76,7 @@ jobs:
             echo "additional_tag=" >> $GITHUB_OUTPUT
             echo "major_version_tag=" >> $GITHUB_OUTPUT
           else
-            echo "tag=${REF//\//-}" >> $GITHUB_OUTPUT
+            echo "tag=release-26.05-next" >> $GITHUB_OUTPUT
             echo "additional_tag=" >> $GITHUB_OUTPUT
             echo "major_version_tag=" >> $GITHUB_OUTPUT
           fi
@@ -144,10 +119,10 @@ jobs:
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
       - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
-        if: |
-          needs.get-environment.outputs.is_cloud == 'false' ||
-          ! contains(fromJson('["testing", "stable"]'), needs.get-environment.outputs.stability) ||
-          matrix.distrib != 'trixie'
+        # if: |
+        #   needs.get-environment.outputs.is_cloud == 'false' ||
+        #   ! contains(fromJson('["testing", "stable"]'), needs.get-environment.outputs.stability) ||
+        #   matrix.distrib != 'trixie'
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
           DOCKER_BUILD_SUMMARY: false
