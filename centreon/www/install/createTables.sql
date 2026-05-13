@@ -1662,6 +1662,7 @@ CREATE TABLE `nagios_server` (
   `remote_id` int(11) NULL,
   `remote_server_use_as_proxy` enum('0','1') NOT NULL DEFAULT '1',
   `updated` enum('1','0') NOT NULL DEFAULT '0',
+  `vmware_updated` BOOLEAN NOT NULL DEFAULT 0,
   `is_encryption_ready` BOOLEAN NOT NULL DEFAULT 1,
   `poller_type` enum('vm','docker') NOT NULL DEFAULT 'vm',
   `uid` BIGINT DEFAULT NULL COMMENT 'Snowflake 64-bit unique identifier',
