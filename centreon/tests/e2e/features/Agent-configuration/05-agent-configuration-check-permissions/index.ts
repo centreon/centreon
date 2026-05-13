@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
@@ -31,27 +32,27 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/agent-configurations?*'
+    url: `${INTERCEPTORS.api.agent_configurations}?*`
   }).as('getAgentsPage');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/agent-configurations'
+    url: INTERCEPTORS.api.agent_configurations
   }).as('addAgents');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/agent-configurations/**'
+    url: `${INTERCEPTORS.api.agent_configurations}/**`
   }).as('getAgentsDetails');
   cy.intercept({
     method: 'PUT',
-    url: '/centreon/api/latest/configuration/agent-configurations/*'
+    url: `${INTERCEPTORS.api.agent_configurations}/*`
   }).as('updateAgents');
   cy.intercept({
     method: 'DELETE',
-    url: '/centreon/api/latest/configuration/agent-configurations/*'
+    url: `${INTERCEPTORS.api.agent_configurations}/*`
   }).as('deleteAgents');
 });
 
@@ -200,15 +201,17 @@ Then(
 );
 
 When('the user deletes the Agents Configuration', () => {
-  cy.getByTestId({ testId: 'Delete' }).eq(1).click();
+  cy.contains('[role="row"]', agentsConfiguration.telegraf2.name).within(() => {
+    cy.getByTestId({ testId: 'Delete' }).click();
+  });
   cy.contains('button', 'Delete').click();
-  cy.wait('@deleteAgents');
+  cy.wait('@deleteAgents').its('response.statusCode').should('eq', 204);
 });
 
 Then(
   'the Agents Configuration is no longer displayed in the listing page',
   () => {
-    cy.contains('telegraf-001-updated').should('not.exist');
+    cy.contains(agentsConfiguration.telegraf2.name).should('not.exist');
   }
 );
 
@@ -426,7 +429,8 @@ Given('a non-admin user is in the Agents Configuration page', () => {
     loginViaApi: false
   });
   cy.visit(PAGES.configuration.agentConfigurations);
-  cy.wait('@getAgentsPage');
+  cy.wait('@getNavigationList');
+  cy.wait('@getAgentsPage').its('response.statusCode').should('eq', 200);
 });
 
 Given('an already existing agent configuration is displayed', () => {
@@ -479,14 +483,17 @@ Then(
   }
 );
 
+When('the non-admin user deletes an Agent Configuration', () => {
+  cy.contains('[role="row"]', agentsConfiguration.telegraf2.name).within(() => {
+    cy.getByTestId({ testId: 'Delete' }).click();
+  });
+  cy.contains('button', 'Delete').click();
+  cy.wait('@deleteAgents').its('response.statusCode').should('eq', 204);
+});
+
 Then(
-  'the first Agents Configuration is no longer displayed in the listing page',
+  'the deleted agent Configuration is no longer displayed in the listing page',
   () => {
-    cy.contains('telegraf-001-updated').should('not.exist');
-    cy.get('*[role="rowgroup"]').should(
-      'contain',
-      agentsConfiguration.telegraf2.name
-    );
-    cy.get('*[role="rowgroup"]').should('contain', 'Telegraf');
+    cy.contains(agentsConfiguration.telegraf2.name).should('not.exist');
   }
 );

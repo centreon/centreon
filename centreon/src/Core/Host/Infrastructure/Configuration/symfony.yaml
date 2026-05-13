@@ -30,7 +30,7 @@ services:
         decorates: Core\Host\Application\Repository\WriteHostRepositoryInterface
         arguments:
           - '@.inner'
-          - '@Centreon\Domain\Contact\Interfaces\ContactInterface'
+          - '@security.token_storage'
           - '@Core\Host\Application\Repository\ReadHostRepositoryInterface'
           - '@Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface'
           - '@Centreon\Infrastructure\DatabaseConnection'

@@ -725,6 +725,195 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findByHostIdAndServiceTemplateId(int $hostId, int $serviceTemplateId): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT svc.service_id, svc.service_description
+                FROM `:db`.`service` svc
+                INNER JOIN `:db`.`host_service_relation` hsr
+                    ON hsr.service_service_id = svc.service_id
+                WHERE hsr.host_host_id = :hostId
+                    AND svc.service_template_model_stm_id = :serviceTemplateId
+                    AND svc.service_register = '1'
+                SQL
+        ));
+        $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+        $statement->bindValue(':serviceTemplateId', $serviceTemplateId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $services = [];
+        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array{service_id: int, service_description: string} $row */
+            $services[] = [
+                'id' => (int) $row['service_id'],
+                'name' => $row['service_description'],
+            ];
+        }
+
+        return $services;
+    }
+
+    public function findServiceIdsLinkedToHostIds(array $hostIds): array
+    {
+        if ($hostIds === []) {
+            return [];
+        }
+
+        [$bindValues, $hostIdsQuery] = $this->createMultipleBindQuery($hostIds, ':host_');
+
+        $request = $this->translateDbName(
+            <<<SQL
+                SELECT hsr.host_host_id, service.service_id
+                FROM `:db`.service
+                INNER JOIN `:db`.host_service_relation hsr
+                    ON hsr.service_service_id = service.service_id
+                WHERE hsr.host_host_id IN ({$hostIdsQuery})
+                    AND service.service_register = '1'
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        $result = [];
+        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array{host_host_id: int, service_id: int} $row */
+            $hostId = (int) $row['host_host_id'];
+            $result[$hostId][] = (int) $row['service_id'];
+        }
+
+        return $result;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findServiceIdsLinkedToHostsThroughHostGroups(array $hostIds): array
+    {
+        if ($hostIds === []) {
+            return [];
+        }
+
+        [$bindValues, $hostIdsQuery] = $this->createMultipleBindQuery($hostIds, ':host_');
+
+        $request = $this->translateDbName(
+            <<<SQL
+                SELECT hgr.host_host_id, service.service_id
+                FROM `:db`.service
+                INNER JOIN `:db`.host_service_relation hsr
+                    ON hsr.service_service_id = service.service_id
+                INNER JOIN `:db`.hostgroup_relation hgr
+                    ON hgr.hostgroup_hg_id = hsr.hostgroup_hg_id
+                WHERE hgr.host_host_id IN ({$hostIdsQuery})
+                    AND service.service_register = '1'
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        $result = [];
+        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array{host_host_id: int, service_id: int} $row */
+            $hostId = (int) $row['host_host_id'];
+            $result[$hostId][] = (int) $row['service_id'];
+        }
+
+        return $result;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findParentsByServiceIds(array $serviceIds): array
+    {
+        if ($serviceIds === []) {
+            return [];
+        }
+
+        [$bindValues, $serviceIdsQuery] = $this->createMultipleBindQuery($serviceIds, ':svc_');
+
+        $request = $this->translateDbName(
+            <<<SQL
+                WITH RECURSIVE parents AS (
+                    SELECT * FROM `:db`.`service`
+                    WHERE `service_id` IN ({$serviceIdsQuery})
+                        AND `service_register` = '1'
+                    UNION
+                    SELECT rel.* FROM `:db`.`service` AS rel, parents AS p
+                    WHERE rel.`service_id` = p.`service_template_model_stm_id`
+                )
+                SELECT `service_id` AS child_id, `service_template_model_stm_id` AS parent_id
+                FROM parents
+                WHERE `service_template_model_stm_id` IS NOT NULL
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        $allInheritances = [];
+        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array{child_id: int, parent_id: int} $row */
+            $allInheritances[] = new ServiceInheritance(
+                (int) $row['parent_id'],
+                (int) $row['child_id']
+            );
+        }
+
+        $result = [];
+        foreach ($serviceIds as $serviceId) {
+            $result[$serviceId] = $this->filterInheritancesForService($serviceId, $allInheritances);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Filter the global inheritance list to get only those relevant to a specific service.
+     *
+     * @param int $serviceId
+     * @param ServiceInheritance[] $allInheritances
+     *
+     * @return ServiceInheritance[]
+     */
+    private function filterInheritancesForService(int $serviceId, array $allInheritances): array
+    {
+        $relevant = [];
+        $idsToProcess = [$serviceId];
+        $processed = [];
+
+        while (! empty($idsToProcess)) {
+            $currentId = array_shift($idsToProcess);
+            if (isset($processed[$currentId])) {
+                continue;
+            }
+            $processed[$currentId] = true;
+
+            foreach ($allInheritances as $inheritance) {
+                if ($inheritance->getChildId() === $currentId) {
+                    $relevant[] = $inheritance;
+                    $idsToProcess[] = $inheritance->getParentId();
+                }
+            }
+        }
+
+        return $relevant;
+    }
+
+    /**
      * @param int[] $accessGroupIds
      *
      * @throws \Throwable

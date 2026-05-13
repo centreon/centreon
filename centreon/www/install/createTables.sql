@@ -1662,8 +1662,12 @@ CREATE TABLE `nagios_server` (
   `remote_id` int(11) NULL,
   `remote_server_use_as_proxy` enum('0','1') NOT NULL DEFAULT '1',
   `updated` enum('1','0') NOT NULL DEFAULT '0',
+  `vmware_updated` BOOLEAN NOT NULL DEFAULT 0,
   `is_encryption_ready` BOOLEAN NOT NULL DEFAULT 1,
+  `poller_type` enum('vm','docker') NOT NULL DEFAULT 'vm',
+  `uuid` VARCHAR(36) DEFAULT NULL COMMENT 'UUIDv7 (36 chars with hyphens)',
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_uuid` (`uuid`),
   CONSTRAINT `nagios_server_remote_id_id` FOREIGN KEY (`remote_id`) REFERENCES `nagios_server` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2750,8 +2754,8 @@ CREATE TABLE IF NOT EXISTS `user_profile_favorite_dashboards` (
     REFERENCES `dashboard` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS `jwt_tokens` (
-    `token_string` varchar(4096) DEFAULT NULL COMMENT 'Encoded JWT token',
+CREATE TABLE IF NOT EXISTS `authentication_tokens` (
+    `token_string` varchar(4096) DEFAULT NULL COMMENT 'token string',
     `token_name` VARCHAR(255) NOT NULL COMMENT 'Token name',
     `creator_id` INT(11) DEFAULT NULL COMMENT 'User ID of the token creator',
     `creator_name` VARCHAR(255) DEFAULT NULL COMMENT 'User name of the token creator',
@@ -2759,10 +2763,11 @@ CREATE TABLE IF NOT EXISTS `jwt_tokens` (
     `is_revoked` BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Define if token is revoked',
     `creation_date` bigint UNSIGNED NOT NULL COMMENT 'Creation date of the token',
     `expiration_date` bigint UNSIGNED DEFAULT NULL COMMENT 'Expiration date of the token',
+    `type` enum('cma','poller') DEFAULT 'cma' COMMENT 'Define token usage',
     PRIMARY KEY (`token_name`),
     CONSTRAINT `jwt_tokens_user_id_fk` FOREIGN KEY (`creator_id`)
     REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table for JWT tokens';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table for tokens not used for api/ui login';
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

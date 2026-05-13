@@ -23,9 +23,11 @@ declare(strict_types=1);
 
 namespace App\Security\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Security\AgentConfigurationPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ConnectorPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\GlobalMacroPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\PollerPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ServiceCategoryPermissionEnum;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
@@ -50,12 +52,15 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
         'ROLE_CONFIGURATION_POLLERS_GLOBAL_MACROS_RW' => GlobalMacroPermissionEnum::CanRead->value,
         'ROLE_CONFIGURATION_COMMANDS_CONNECTORS_R' => ConnectorPermissionEnum::CanRead->value,
         'ROLE_CONFIGURATION_COMMANDS_CONNECTORS_RW' => ConnectorPermissionEnum::CanReadAndWrite->value,
+        'ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW' => AgentConfigurationPermissionEnum::CanReadAndWrite->value,
     ];
 
     /**
      * @var array<string, string>
      */
     private const LEGACY_ROLE_MAP = [
+        // pollers
+        'create_edit_poller_cfg' => PollerPermissionEnum::CanCreateEdit->value,
         // commands
         'see_check_commands' => CommandPermissionEnum::CanReadChecks->value,
         'manage_check_commands' => CommandPermissionEnum::CanReadAndWriteChecks->value,
@@ -78,7 +83,6 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
             userId: new UserId($from['c_id']),
             active: $from['c_active'] === '1',
         );
-
         foreach ($from['topology_permissions'] as $topology) {
             if (($permission = $this->mapTopologyToPermission($topology)) instanceof Permission) {
                 $credential->grantPermission($permission);
@@ -86,6 +90,7 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
         }
 
         if ($isAdmin) {
+            $credential->assignRole(new Role('ROLE_ADMIN'));
             foreach (array_keys(self::LEGACY_ROLE_MAP) as $roleString) {
                 $credential->grantPermission(new Permission(self::LEGACY_ROLE_MAP[$roleString]));
             }

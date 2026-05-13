@@ -36,6 +36,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\Duplica
     input: DuplicateCommandInput::class,
     status: 200,
     openapi: new Model\Operation(
+        summary: 'Duplicate a Command resource',
         responses: [
             403 => new Model\Response('You are not allowed to duplicate commands'),
         ],

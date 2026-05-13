@@ -7,8 +7,9 @@ import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
 import { equals, isNil, last } from 'ramda';
+import { type ReactElement } from 'react';
 
-import { GlobalRefreshInterval, Metric, Resource } from '../../models';
+import type { GlobalRefreshInterval, Metric, Resource } from '../../models';
 import NoResources from '../../NoResources';
 import useThresholds from '../../useThresholds';
 import {
@@ -17,7 +18,11 @@ import {
   getWidgetEndpoint
 } from '../../utils';
 import { selectEndpoint } from './api/endpoints';
-import { FormThreshold, SingleMetricGraphType, ValueFormat } from './models';
+import type {
+  FormThreshold,
+  SingleMetricGraphType,
+  ValueFormat
+} from './models';
 import SingleMetricRenderer from './SingleMetricRenderer';
 
 interface Props {
@@ -35,6 +40,7 @@ interface Props {
   threshold: FormThreshold;
   valueFormat: ValueFormat;
   widgetPrefixQuery: string;
+  isInViewport: boolean;
 }
 
 const Graph = ({
@@ -51,8 +57,9 @@ const Graph = ({
   playlistHash,
   dashboardId,
   id,
-  widgetPrefixQuery
-}: Props): JSX.Element => {
+  widgetPrefixQuery,
+  isInViewport
+}: Props): ReactElement => {
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,
@@ -102,7 +109,9 @@ const Graph = ({
     baseEndpoint,
     bypassMetricsExclusion: true,
     bypassQueryParams: true,
-    isEnabled: Boolean(hostId && (getServiceId() || isMetaServiceSelected)),
+    isEnabled:
+      (isInViewport ?? true) &&
+      Boolean(hostId && (getServiceId() || isMetaServiceSelected)),
     metrics,
     prefix: widgetPrefixQuery,
     refreshCount,

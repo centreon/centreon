@@ -60,7 +60,8 @@ export const getDuration = ({
 
 export const tokenTypes = [
   { id: TokenType.API, name: 'API' },
-  { id: TokenType.CMA, name: 'Centreon monitoring agent' }
+  { id: TokenType.CMA, name: 'Centreon monitoring agent' },
+  { id: TokenType.Poller, name: 'Poller' }
 ];
 
 export const dataDuration: Array<Duration> = [

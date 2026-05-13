@@ -583,6 +583,7 @@ class Contact implements UserInterface, ContactInterface
      * This is important if, at any given point, sensitive information like
      * the plain-text password is stored on this object.
      */
+    #[\Deprecated]
     public function eraseCredentials(): void
     {
         // Nothing to do. But we must to define this method

@@ -97,6 +97,7 @@ const FloatingLinkEditor = ({
 
     if (gt(matched.length, 1)) {
       setEditedUrl(
+        // @ts-expect-error - suppressing pre-existing type mismatch
         replace(matched.join(''), matched[dec(matched.length)], value)
       );
 

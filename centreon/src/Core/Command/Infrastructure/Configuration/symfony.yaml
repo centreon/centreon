@@ -38,6 +38,6 @@ services:
         arguments:
         - '@.inner'
         - '@Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface'
-        - '@Centreon\Domain\Contact\Interfaces\ContactInterface'
+        - '@security.token_storage'
         - '@Centreon\Infrastructure\DatabaseConnection'
 

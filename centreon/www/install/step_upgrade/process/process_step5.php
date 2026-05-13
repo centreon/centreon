@@ -24,7 +24,6 @@ require_once __DIR__ . '/../../../../bootstrap.php';
 require_once '../../steps/functions.php';
 
 use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
-use Core\Platform\Application\UseCase\UpdateVersions\UpdateVersionsException;
 
 $kernel = App\Kernel::createForWeb();
 
@@ -64,7 +63,7 @@ try {
         1,
         $current,
         '',
-        UpdateVersionsException::errorWhenApplyingPostUpdate($e)->getMessage()
+        'Error when applying post update: ' . $e->getMessage()
     );
 }
 

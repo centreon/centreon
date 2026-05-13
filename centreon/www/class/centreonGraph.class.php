@@ -230,7 +230,7 @@ class CentreonGraph
         $this->getIndexData();
 
         $this->filename = $this->indexData['host_name'] . '-' . $this->indexData['service_description'];
-        $this->filename = str_replace(['/', '\\'], ['-', '-'], $this->filename);
+        $this->filename = str_replace(['/', '\\', '"', "\r", "\n"], '-', $this->filename);
 
         $this->colorCache = null;
         $this->templateInformations = [];
@@ -1213,7 +1213,7 @@ class CentreonGraph
         $commandLine = preg_replace('/(\\$|`)/', '', $commandLine);
         $timezone = $this->GMT->getMyTimezone();
         if (! empty($timezone)) {
-            $gmt_export = "export TZ='" . $timezone . "'; ";
+            $gmt_export = 'export TZ=' . escapeshellarg($timezone) . '; ';
         }
         $this->log($commandLine);
         // Send Binary Data

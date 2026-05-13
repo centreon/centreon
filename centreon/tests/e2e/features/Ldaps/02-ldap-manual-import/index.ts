@@ -1,8 +1,9 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 const uiDtoSearchFor = '(&(uid=centréon-ldap4)(objectClass=posixAccount))';
-const dNtoSearchFor = 'cn=centréon-ldap4,ou=users,dc=centreon,dc=com';
+const dNtoSearchFor = 'cn=centréon-ldap4,ou=people,ou=users,dc=centreon,dc=com';
 const ldapLogin = 'centréon-ldap4';
 
 before(() => {
@@ -12,15 +13,15 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/include/configuration/configObject/contact/ldapsearch.php'
+    url: INTERCEPTORS.pages.ldap_search
   }).as('getLdaps');
 });
 

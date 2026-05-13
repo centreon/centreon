@@ -21,7 +21,6 @@ import {
   pick,
   prop,
   propEq,
-  reduce,
   reject,
   slice,
   subtract,
@@ -45,8 +44,6 @@ import DataCell from './Cell/DataCell';
 import Checkbox from './Checkbox';
 import { EmptyResult } from './EmptyResult/EmptyResult';
 import { ListingHeader } from './Header';
-import ListingRow from './Row/Row';
-import { SkeletonLoader } from './Row/SkeletonLoaderRows';
 import type {
   Column,
   ColumnConfiguration,
@@ -55,6 +52,8 @@ import type {
   RowId,
   SortOrder
 } from './models';
+import ListingRow from './Row/Row';
+import { SkeletonLoader } from './Row/SkeletonLoaderRows';
 import { subItemsPivotsAtom } from './tableAtoms';
 import { labelNoResultFound as defaultLabelNoResultFound } from './translatedLabels';
 import useStyleTable, { useColumnStyle } from './useStyleTable';
@@ -146,7 +145,7 @@ const Listing = <
   TRow extends {
     id: RowId;
     internalListingParentId?: RowId;
-    internalListingParentRow: TRow;
+    internalListingParentRow?: TRow;
   }
 >({
   customListingComponent,
@@ -217,22 +216,21 @@ const Listing = <
   const [lastSelectionIndex, setLastSelectionIndex] = useState<number | null>(
     null
   );
-  const containerRef = useRef<HTMLDivElement>();
-  const actionBarRef = useRef<HTMLDivElement>();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const actionBarRef = useRef<HTMLDivElement>(null);
 
   const subItemsPivots = useAtomValue(subItemsPivotsAtom);
 
   const allSubItemIds = useMemo(
     () =>
-      reduce<TRow | number, Array<string | number>>(
+      rows.reduce<Array<string | number>>(
         (acc, row) => [
           ...acc,
           ...(row[subItems?.getRowProperty() || ''] || []).map(
             ({ id }) => `${subItemPrefixKey}_${getId(row)}_${id}`
           )
         ],
-        [],
-        rows
+        []
       ),
     [rows, subItems, getId]
   );
@@ -240,28 +238,24 @@ const Listing = <
   const rowsToDisplay = useMemo(
     () =>
       subItems?.enable
-        ? reduce<TRow, Array<TRow>>(
-            (acc, row): Array<TRow> => {
-              if (
-                row[subItems.getRowProperty()] &&
-                subItemsPivots.includes(row.id)
-              ) {
-                return [
-                  ...acc,
-                  row,
-                  ...row[subItems.getRowProperty()].map((subRow) => ({
-                    ...subRow,
-                    internalListingParentId: row.id,
-                    internalListingParentRow: row
-                  }))
-                ];
-              }
+        ? rows.reduce<Array<TRow>>((acc, row): Array<TRow> => {
+            if (
+              row[subItems.getRowProperty()] &&
+              subItemsPivots.includes(row.id)
+            ) {
+              return [
+                ...acc,
+                row,
+                ...row[subItems.getRowProperty()].map((subRow) => ({
+                  ...subRow,
+                  internalListingParentId: row.id,
+                  internalListingParentRow: row
+                }))
+              ];
+            }
 
-              return [...acc, row];
-            },
-            [],
-            rows
-          )
+            return [...acc, row];
+          }, [])
         : rows,
     [rows, subItemsPivots, subItems]
   );
@@ -434,7 +428,7 @@ const Listing = <
     );
   };
 
-  const selectRow = (event: MouseEvent, row): void => {
+  const selectRow = (event: React.MouseEvent, row): void => {
     event.preventDefault();
     event.stopPropagation();
     // This prevents unwanted text selection
@@ -595,7 +589,7 @@ const Listing = <
                     component="div"
                     onMouseLeave={clearHoveredRow}
                   >
-                    {rowsToDisplay.map((row, index) => {
+                    {rowsToDisplay.map((row) => {
                       const isRowSelected = isSelected(row);
                       const isSubItem = allSubItemIds.includes(
                         getSubItemRowId(row)
@@ -700,7 +694,9 @@ const Listing = <
                         <EmptyResult
                           label={
                             labelNoResultFound
-                              ? t(labelNoResultFound)
+                              ? typeof labelNoResultFound === 'string'
+                                ? t(labelNoResultFound)
+                                : labelNoResultFound
                               : t(defaultLabelNoResultFound)
                           }
                         />
@@ -768,9 +764,8 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
     ),
     memoProps: [
       ...memoProps,
-      pick(
-        ['id', 'label', 'disabled', 'width', 'shortLabel', 'sortField'],
-        columns
+      columns.map(
+        pick(['id', 'label', 'disabled', 'width', 'shortLabel', 'sortField'])
       ),
       columnConfiguration,
       limit,

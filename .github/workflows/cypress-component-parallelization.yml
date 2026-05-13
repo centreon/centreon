@@ -76,7 +76,12 @@ jobs:
           cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          pnpm install \
+            --frozen-lockfile \
+            --config.trustPolicy=no-downgrade \
+            --config.minimumReleaseAge=2880 \
+            --config.blockExoticSubdeps=true
         working-directory: ${{ inputs.module_name }}
         shell: bash
         env:
@@ -151,7 +156,8 @@ jobs:
     needs: [cypress-component-test-run]
     if: |
       ! cancelled() &&
-      ! contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'cancelled') &&
+      github.event.pull_request.head.repo.fork != true
     runs-on: ubuntu-24.04
 
     steps:
@@ -200,7 +206,12 @@ jobs:
         shell: bash
 
       - name: Install action dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          pnpm install \
+            --frozen-lockfile \
+            --config.trustPolicy=no-downgrade \
+            --config.minimumReleaseAge=2880 \
+            --config.blockExoticSubdeps=true
         working-directory: ./.github/actions/code-coverage-gate-keeper
         shell: bash
 

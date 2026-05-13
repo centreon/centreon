@@ -1836,8 +1836,8 @@
                 "exec": [
                   "const responseJson = pm.response.json();\r",
                   "\r",
-                  "pm.test(\"3 tokens exist\", function () {\r",
-                  "    pm.expect(responseJson.result.length).to.eql(3);\r",
+                  "pm.test(\"4 tokens exist\", function () {\r",
+                  "    pm.expect(responseJson.result.length).to.eql(4);\r",
                   "});\r",
                   "\r",
                   "// Récupération par nom (robuste)\r",
@@ -2038,8 +2038,8 @@
                 "exec": [
                   "const responseJson = pm.response.json();\r",
                   "\r",
-                  "pm.test(\"4 tokens exist\", function () {\r",
-                  "    pm.expect(responseJson.result.length).to.eql(4);\r",
+                  "pm.test(\"5 tokens exist\", function () {\r",
+                  "    pm.expect(responseJson.result.length).to.eql(5);\r",
                   "});\r",
                   "\r",
                   "// Récupération par nom (robuste)\r",
@@ -2398,8 +2398,8 @@
                 "exec": [
                   "const responseJson = pm.response.json();\r",
                   "\r",
-                  "pm.test(\"3 tokens exist\", function () {\r",
-                  "    pm.expect(responseJson.result.length).to.eql(3);\r",
+                  "pm.test(\"4 tokens exist\", function () {\r",
+                  "    pm.expect(responseJson.result.length).to.eql(4);\r",
                   "});\r",
                   "\r",
                   "// Recherche robuste par nom\r",
@@ -3874,8 +3874,8 @@
                 "exec": [
                   "const responseJson = pm.response.json();\r",
                   "\r",
-                  "pm.test(\"5 tokens exist\", function () {\r",
-                  "    pm.expect(responseJson.result.length).to.eql(5);\r",
+                  "pm.test(\"6 tokens exist\", function () {\r",
+                  "    pm.expect(responseJson.result.length).to.eql(6);\r",
                   "});\r",
                   "\r",
                   "// Recherche par nom (robuste)\r",

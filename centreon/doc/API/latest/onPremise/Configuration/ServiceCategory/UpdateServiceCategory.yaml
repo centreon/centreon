@@ -1,6 +1,6 @@
 put:
   tags:
-    - Service category
+    - Service Category
   summary: 'Update a service category'
   description: |
     Update a service category configuration
