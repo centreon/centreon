@@ -75,7 +75,9 @@ try {
 
     $snowflake = new Snowflake(0, 0);
     $snowflake->setStartTimeStamp(SnowflakePollerUidGenerator::CUSTOM_EPOCH_MS);
-    $link->exec('UPDATE `nagios_server` SET `uid` = ' . (int) $snowflake->id() . ' WHERE `id` = 1');
+    $stmt = $link->prepare('UPDATE `nagios_server` SET `uid` = :uid WHERE `id` = 1');
+    $stmt->bindValue(':uid', (int) $snowflake->id(), PDO::PARAM_INT);
+    $stmt->execute();
 
     $utils->executeSqlFile(__DIR__ . '/../../var/baseconf/centreon-broker.sql', $macros);
     $utils->executeSqlFile(__DIR__ . '/../../insertTopology.sql', $macros);
