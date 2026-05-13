@@ -385,10 +385,6 @@ function duplicateServer(array $server, array $nbrDup): void
         $rowServer['localhost'] = '0';
         $rowServer['vmware_updated'] = '0';
 
-        $snowflake = new Snowflake(0, 0);
-        $snowflake->setStartTimeStamp(SnowflakePollerUidGenerator::CUSTOM_EPOCH_MS);
-        $rowServer['uid'] = (int) $snowflake->id();
-
         if (! isset($rowServer['name'])) {
             continue;
         }
@@ -401,6 +397,10 @@ function duplicateServer(array $server, array $nbrDup): void
         );
 
         foreach ($availableSuffix as $suffix) {
+            $snowflake = new Snowflake(0, 0);
+            $snowflake->setStartTimeStamp(SnowflakePollerUidGenerator::CUSTOM_EPOCH_MS);
+            $rowServer['uid'] = (int) $snowflake->id();
+
             $serverName = null;
             $columns = [];
             $params = [];
