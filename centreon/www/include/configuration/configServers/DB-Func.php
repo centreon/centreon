@@ -721,7 +721,7 @@ function insertServer(array $data): int
         isset($data['remote_server_use_as_proxy']['remote_server_use_as_proxy'])
         && $data['remote_server_use_as_proxy']['remote_server_use_as_proxy'] != null
     ) {
-        $rq .= ':remote_server_use_as_proxy ';
+        $rq .= ':remote_server_use_as_proxy, ';
         $retValue[':remote_server_use_as_proxy']
             = htmlentities($data['remote_server_use_as_proxy']['remote_server_use_as_proxy'], ENT_QUOTES, 'UTF-8');
     } else {
