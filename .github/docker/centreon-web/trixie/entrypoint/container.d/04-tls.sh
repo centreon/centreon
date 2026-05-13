@@ -77,7 +77,7 @@ mkdir -p "$(dirname "$MYSQL_CLIENT_CFG")"
 cat > "$MYSQL_CLIENT_CFG" <<EOF
 [client]
 ssl-ca=$CA_PEM
-ssl-mode=VERIFY_CA
+ssl-verify-server-cert
 EOF
 echo "[tls] mysql client config written: $MYSQL_CLIENT_CFG"
 
