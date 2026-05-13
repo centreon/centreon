@@ -1,6 +1,6 @@
 FROM alpine:3.20
 
-RUN apk add --no-cache mkcert openssl ca-certificates
+RUN apk add --no-cache openssl
 
 WORKDIR /out
 

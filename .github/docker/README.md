@@ -1,7 +1,7 @@
 ## :memo: Prerequisites
 
 * docker
-* docker compose >= 2
+* docker compose >= 2.20 (HTTPS mode uses the `!override` YAML tag and `service_completed_successfully`)
 
 ## :rocket: Quick start
 
@@ -12,6 +12,42 @@ docker compose -f .github/docker/docker-compose.yml up -d --wait
 ```
 
 Centreon web should be accessible at `http://localhost:4000/centreon`
+
+## :lock: HTTP / HTTPS mode
+
+The stack runs in HTTP mode by default. An opt-in HTTPS mode is available via the `docker-compose.tls.yml` overlay. In HTTPS mode:
+
+* a one-shot `certgen` service issues a Root CA + multi-SAN leaf into the `certs` named volume;
+* `web` and `remote-server` install the CA, drop an Apache TLS vhost (terminates :443, reverse-proxies to :80), and write Symfony `.env` keys consumed by [`DatabaseTLSResolver`](../../src/Core/Infrastructure/Common/DatabaseTLSResolver.php);
+* `db` and `db-remote` run with `--require-secure-transport=ON` using the issued cert;
+* the web UI is exposed on `https://localhost:4443/centreon` (`remote-server` on `:4444`). Port `4000` is not exposed.
+
+HTTP and HTTPS modes are mutually exclusive — side-by-side stacks are not supported yet (port `4443` is reserved for a future feature).
+
+To enable HTTPS mode, set `COMPOSE_FILE` to base + overlay:
+
+```bash
+export CENTREON_PROTOCOL=HTTPS
+export COMPOSE_FILE=.github/docker/docker-compose.yml:.github/docker/docker-compose.tls.yml
+docker compose up -d --wait
+```
+
+Or in a single command:
+
+```bash
+docker compose \
+  -f .github/docker/docker-compose.yml \
+  -f .github/docker/docker-compose.tls.yml \
+  up -d --wait
+```
+
+The certificate is self-signed; trust it with `curl -k …` or import `rootCA.pem` (in the `certs` volume) into your browser/OS trust store.
+
+> [!IMPORTANT]
+> HTTPS mode requires a `WEB_IMAGE` built from a branch that includes [centreon/centreon#9237](https://github.com/centreon/centreon/pull/9237) (`DatabaseTLSResolver`). Without it, the centreon-web container exits early at the `04-tls.sh` hook with a copy-pasteable error. CI tracks this via the `docker-compose-tls-smoke` workflow, which is expected-failing until the PR merges and flips green automatically afterwards.
+
+> [!NOTE]
+> The certgen image is built locally from `.github/docker/certgen/` (alpine + openssl). The first `up` builds the image; subsequent runs reuse the built image and the CA persisted in the `certs` volume. To force a fresh CA, run `docker compose down -v`.
 
 ## :toolbox: Custom database image
 
