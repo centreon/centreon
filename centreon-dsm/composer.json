@@ -4,13 +4,13 @@
   "type": "project",
   "license": "GPL-2.0-only",
   "require": {
-    "php": "8.2.*",
+    "php": "8.4.*",
     "ext-gettext": "*",
     "ext-pdo": "*"
   },
   "require-dev": {
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "dev-master"
+    "centreon/centreon-test-lib": "dev-MON-198133-php-8.4"
   },
   "repositories": [
     {
@@ -22,7 +22,7 @@
     "secure-http": false,
     "sort-packages": true,
     "platform": {
-      "php": "8.2"
+      "php": "8.4"
     },
     "preferred-install": {
       "*": "dist"

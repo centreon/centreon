@@ -4,7 +4,7 @@
   "type": "project",
   "license": "Apache-2.0",
   "require": {
-    "php": "8.2.*",
+    "php": "8.4.*",
     "ext-json": "*",
     "ext-mbstring": "*",
     "ext-pdo": "*",
@@ -13,7 +13,7 @@
   "require-dev": {
     "behat/mink-selenium2-driver": "1.7.*",
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "dev-master",
+    "centreon/centreon-test-lib": "dev-MON-198133-php-8.4",
     "friends-of-behat/mink": "1.11.*",
     "friends-of-behat/mink-extension": "2.7.*",
     "psr/container": "2.0.*"
@@ -28,7 +28,7 @@
     "secure-http": false,
     "sort-packages": true,
     "platform": {
-      "php": "8.2"
+      "php": "8.4"
     },
     "preferred-install": {
       "*": "dist"
