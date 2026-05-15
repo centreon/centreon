@@ -24,7 +24,7 @@ declare(strict_types=1);
 use PhpCsFixer\Config;
 use Tools\PhpCsFixer\PhpCsFixerRuleSet;
 
-return (new Config())
+return new Config()
     // @see https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/pull/7777
     ->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
     ->setRiskyAllowed(false)

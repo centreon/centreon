@@ -38,7 +38,7 @@ class StringBackquotesCustomRule implements Rule
 {
     public const CENTREON_CONFIG_DATABASE = ':db';
     public const CENTREON_REALTIME_DATABASE = ':dbstg';
-    private const REGEX = '/(' . self::CENTREON_REALTIME_DATABASE . '|' . self::CENTREON_CONFIG_DATABASE . ')\./';
+    private const string REGEX = '/(' . self::CENTREON_REALTIME_DATABASE . '|' . self::CENTREON_CONFIG_DATABASE . ')\./';
 
     public function getNodeType(): string
     {
