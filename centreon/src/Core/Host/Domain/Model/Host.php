@@ -222,8 +222,6 @@ class Host extends NewHost
 
     /**
      * @param SnmpVersion|null $snmpVersion
-     *
-     * @throws AssertionFailedException
      */
     public function setSnmpVersion(SnmpVersion|null $snmpVersion): void
     {
