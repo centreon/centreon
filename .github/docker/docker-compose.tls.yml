@@ -34,9 +34,12 @@ services:
       - "4000:80"
       - "4443:443"
     volumes:
-      # Bind-mount the TLS hook the same way 81-register_remote_server runs on remote-server:
-      # pre-built WEB_IMAGEs don't yet contain 04-tls.sh, so without this the hook never runs.
+      # Bind-mount the TLS hooks the same way 81-register_remote_server runs on remote-server:
+      # pre-built WEB_IMAGEs don't yet contain them, so without this the hooks never run.
+      # - 04-tls.sh: certs install, Apache TLS vhost, mysql client cfg, .env keys (runs BEFORE install)
+      # - 16-tls-gorgone.sh: patch gorgone DSN with mysql_ssl=1 (runs AFTER install)
       - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/04-tls.sh:/usr/share/centreon/container.d/04-tls.sh:ro
+      - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/16-tls-gorgone.sh:/usr/share/centreon/container.d/16-tls-gorgone.sh:ro
       - certs:/etc/pki/centreon-tls:ro
     depends_on:
       db:
@@ -62,6 +65,7 @@ services:
     volumes:
       - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/81-register_remote_server_background.sh:/usr/share/centreon/container.d/81-register_remote_server_background.sh
       - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/04-tls.sh:/usr/share/centreon/container.d/04-tls.sh:ro
+      - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/16-tls-gorgone.sh:/usr/share/centreon/container.d/16-tls-gorgone.sh:ro
       - certs:/etc/pki/centreon-tls:ro
     depends_on:
       db-remote:
