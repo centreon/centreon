@@ -81,12 +81,23 @@ ssl-verify-server-cert
 EOF
 echo "[tls] mysql client config written: $MYSQL_CLIENT_CFG"
 
-# 3. Apache TLS vhost — terminates TLS on :443, reverse-proxies to :80 (loop-back).
-#    mod_ssl provides Listen 443 via its own conf, so we don't redeclare it here.
+# 3. Apache TLS vhost — generated from Centreon's official HTTPS template so the
+#    CI HTTPS path is byte-identical to production (security headers, cipher list,
+#    HSTS, FCGI to php-fpm:9042, HTTP→HTTPS redirect). Only cert paths differ.
+#    The 00- prefix sorts before the install-step's 10-centreon.conf, making
+#    our <VirtualHost *:80> redirect block Apache's default-:80 vhost (Apache
+#    picks the first vhost in file order when no ServerName matches).
+TEMPLATE=/usr/share/centreon/examples/centreon-apache-https.conf
+if [ ! -f "$TEMPLATE" ]; then
+  echo "[tls] FATAL: official HTTPS template not found at $TEMPLATE" >&2
+  echo "[tls] The centreon-web image must ship this file (packaging/src/centreon-apache-https.conf)." >&2
+  exit 1
+fi
+
 case "$PLATFORM" in
   rhel)
     # The alma9/alma10 centreon-web images don't ship mod_ssl. Install on demand
-    # so the SSLEngine directive in centreon-tls.conf below isn't an unknown command.
+    # so the SSLEngine directive in the template isn't an unknown command.
     if ! rpm -q mod_ssl >/dev/null 2>&1; then
       echo "[tls] installing mod_ssl (not present in image)"
       if command -v dnf >/dev/null 2>&1; then
@@ -98,40 +109,34 @@ case "$PLATFORM" in
     # mod_ssl ships a default /etc/httpd/conf.d/ssl.conf with a "snake-oil" vhost
     # that points at /etc/pki/tls/certs/localhost.crt — a cert auto-generated on
     # a normal RHEL host by httpd-init, but absent in container images. Reduce
-    # the file to just the Listen directive so :443 is bound; our centreon-tls.conf
+    # the file to just the Listen directive so :443 is bound; our 00-centreon-tls.conf
     # defines the actual <VirtualHost *:443>.
     cat > /etc/httpd/conf.d/ssl.conf <<'STUB'
 Listen 443 https
 STUB
-    cat > /etc/httpd/conf.d/centreon-tls.conf <<EOF
-<VirtualHost *:443>
-  ServerName centreon-tls
-  SSLEngine on
-  SSLCertificateFile      $SRV_PEM
-  SSLCertificateKeyFile   $SRV_KEY
-  ProxyPreserveHost On
-  ProxyPass        / http://127.0.0.1:80/
-  ProxyPassReverse / http://127.0.0.1:80/
-</VirtualHost>
-EOF
+    VHOST_DEST=/etc/httpd/conf.d/00-centreon-tls.conf
     ;;
   debian)
-    cat > /etc/apache2/sites-available/centreon-tls.conf <<EOF
-<VirtualHost *:443>
-  ServerName centreon-tls
-  SSLEngine on
-  SSLCertificateFile      $SRV_PEM
-  SSLCertificateKeyFile   $SRV_KEY
-  ProxyPreserveHost On
-  ProxyPass        / http://127.0.0.1:80/
-  ProxyPassReverse / http://127.0.0.1:80/
-</VirtualHost>
-EOF
-    a2enmod ssl proxy proxy_http >/dev/null || exit 1
-    a2ensite centreon-tls >/dev/null || exit 1
+    VHOST_DEST=/etc/apache2/sites-available/00-centreon-tls.conf
     ;;
 esac
-echo "[tls] Apache TLS vhost configured for $PLATFORM (proxy 443 -> 127.0.0.1:80)"
+
+# Substitute only the cert paths; keep every other directive (cipher list, HSTS,
+# X-Frame-Options, Set-Cookie HttpOnly+SameSite, ServerTokens Prod, FCGI block,
+# Directory blocks, :80→:443 RewriteRule) byte-identical to production.
+sed -e "s|/etc/pki/tls/certs/ca.crt|$SRV_PEM|g" \
+    -e "s|/etc/pki/tls/private/ca.key|$SRV_KEY|g" \
+    "$TEMPLATE" > "$VHOST_DEST" || exit 1
+
+if [ "$PLATFORM" = "debian" ]; then
+  # Modules the official template needs: ssl, proxy, proxy_fcgi (php-fpm:9042
+  # handoff), headers (HSTS / X-Frame-Options / cookie rewrite), deflate
+  # (AddOutputFilterByType), rewrite (the :80 redirect block).
+  a2enmod ssl proxy proxy_fcgi headers deflate rewrite >/dev/null || exit 1
+  a2ensite 00-centreon-tls >/dev/null || exit 1
+fi
+
+echo "[tls] Apache vhost generated for $PLATFORM from $TEMPLATE (redirect :80→:443 enabled)"
 
 # 4. Symfony .env keys consumed by DatabaseTLSResolver (PR #9237). Idempotent:
 #    strip any pre-existing DATABASE_SSL_* lines before appending fresh values.

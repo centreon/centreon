@@ -25,6 +25,13 @@ services:
 
   web:
     ports: !override
+      # :80 stays mapped in HTTPS mode so the :80→:443 redirect emitted by the
+      # official template can be exercised externally (e.g. `curl -I :4000` shows
+      # the 301 Location header). Note: the redirect target uses %{HTTP_HOST}
+      # which includes the request port, so curl -L from the host won't follow
+      # successfully — use `docker compose exec web curl -kL http://localhost/...`
+      # to test the full chain at production-default ports.
+      - "4000:80"
       - "4443:443"
     volumes:
       # Bind-mount the TLS hook the same way 81-register_remote_server runs on remote-server:
@@ -50,6 +57,7 @@ services:
 
   remote-server:
     ports: !override
+      - "4001:80"
       - "4444:443"
     volumes:
       - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/81-register_remote_server_background.sh:/usr/share/centreon/container.d/81-register_remote_server_background.sh
