@@ -22,12 +22,26 @@ monolog:
 
 when@dev:
     monolog:
+        # Same channel layout as prod, but every file goes through
+        # rotating_file so a single dev session does not pile up days
+        # of accumulated debug records. Production keeps `stream` and
+        # delegates rotation to logrotate (cf. MON-151077).
         handlers:
-            main:
-                type: stream
-                path: "%kernel.logs_dir%/%kernel.environment%.log"
+            web:
+                type: rotating_file
+                path: "%kernel.logs_dir%/%kernel.environment%.web.log"
+                max_files: 14
                 level: debug
-                channels: ["!event"]
+                channels:
+                    - "!event"
+                    - "!doctrine"
+                    - "!console"
+                    - "!deprecation"
+                    - "!authentication"
+                    - "!token"
+                    - "!password"
+                    - "!plugin-pack-manager"
+                    - "!upgrade"
                 formatter: monolog.formatter.line
                 date_format: !php/const DateTimeInterface::RFC3339
             console:
@@ -36,18 +50,52 @@ when@dev:
                 channels: ["!event", "!doctrine", "!console"]
                 formatter: monolog.formatter.line
                 date_format: !php/const DateTimeInterface::RFC3339
-            authentication:
-                type: stream
-                path: "%kernel.logs_dir%/login.log"
+            deprecation:
+                type: rotating_file
+                channels: [deprecation]
+                path: "%kernel.logs_dir%/%kernel.environment%.deprecations.log"
+                max_files: 14
                 level: debug
-                channels: ["authentication"]
+                formatter: monolog.formatter.line
+                date_format: !php/const DateTimeInterface::RFC3339
+            authentication:
+                type: rotating_file
+                channels: [authentication]
+                path: "%kernel.logs_dir%/%kernel.environment%.access.log"
+                max_files: 14
+                level: debug
                 formatter: monolog.formatter.line
                 date_format: !php/const DateTimeInterface::RFC3339
             token:
-                type: stream
-                path: "%kernel.logs_dir%/dev.token.log"
+                type: rotating_file
+                channels: [token]
+                path: "%kernel.logs_dir%/%kernel.environment%.token.log"
+                max_files: 14
                 level: debug
-                channels: ["token"]
+                formatter: monolog.formatter.line
+                date_format: !php/const DateTimeInterface::RFC3339
+            password:
+                type: rotating_file
+                channels: [password]
+                path: "%kernel.logs_dir%/%kernel.environment%.password.log"
+                max_files: 14
+                level: debug
+                formatter: monolog.formatter.line
+                date_format: !php/const DateTimeInterface::RFC3339
+            upgrade:
+                type: rotating_file
+                channels: [upgrade]
+                path: "%kernel.logs_dir%/%kernel.environment%.upgrade.log"
+                max_files: 14
+                level: debug
+                formatter: monolog.formatter.line
+                date_format: !php/const DateTimeInterface::RFC3339
+            plugin-pack-manager:
+                type: rotating_file
+                channels: [plugin-pack-manager]
+                path: "%kernel.logs_dir%/%kernel.environment%.plugin-pack-manager.log"
+                max_files: 14
+                level: debug
                 formatter: monolog.formatter.line
                 date_format: !php/const DateTimeInterface::RFC3339
 
