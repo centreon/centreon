@@ -3,6 +3,11 @@ monolog:
         - deprecation
         - token
         - authentication
+        # Channel consumed by App\Shared\Infrastructure\Messenger\LoggingMiddleware.
+        # Declared platform-wide so the bus log records produced on every
+        # command/query dispatch land on a dedicated logger that modules
+        # (e.g. centreon-bam) can attach their own handlers to.
+        - bus
 
 when@dev:
     monolog:
