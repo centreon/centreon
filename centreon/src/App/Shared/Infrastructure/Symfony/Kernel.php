@@ -43,7 +43,11 @@ final class Kernel extends BaseKernel
 
     public function getLogDir(): string
     {
-        return '/var/log/centreon/symfony.new';
+        // Unified log directory under /var/log/centreon for every channel —
+        // legacy / new / module-specific records all converge there
+        // (cf. MON-151077). Operators no longer need to chase a
+        // `symfony.new/` subdirectory for new-kernel logs.
+        return '/var/log/centreon';
     }
 
     public function getProjectDir(): string
