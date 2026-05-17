@@ -116,6 +116,16 @@ when@test:
                 level: critical
                 formatter: monolog.formatter.line
                 date_format: !php/const DateTimeInterface::RFC3339
+            # Test handler attached to the `bus` channel so integration
+            # tests (centreon-web's LoggingMiddlewareTest and downstream
+            # module tests like BAM's LoggingMiddlewareIntegrationTest)
+            # can capture records in-memory via Monolog's TestHandler
+            # without writing to disk.
+            bus_test:
+                type: test
+                channels: [bus]
+                level: debug
+                priority: 256
 
 when@prod:
     monolog:
