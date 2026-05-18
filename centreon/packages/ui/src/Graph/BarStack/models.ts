@@ -1,4 +1,4 @@
-import type { ScaleOrdinal } from 'd3-scale';
+import type { LegendScale } from '../Legend/models';
 
 export interface BarType {
   color: string;
@@ -7,7 +7,7 @@ export interface BarType {
 }
 
 export interface LegendProps {
-  scale: ScaleOrdinal<string, string>;
+  scale: LegendScale;
   data: Array<BarType>;
   title?: string;
   total: number;

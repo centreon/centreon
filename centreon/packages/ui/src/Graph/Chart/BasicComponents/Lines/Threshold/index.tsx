@@ -15,7 +15,7 @@ import ThresholdWithVariation from './ThresholdWithVariation';
 import useScaleThreshold from './useScaleThreshold';
 
 interface Props extends WrapperThresholdLinesModel {
-  curve: 'linear' | 'natural' | 'step';
+  curve?: 'linear' | 'natural' | 'step';
   graphHeight: number;
   timeSeries: Array<TimeValue>;
 }

@@ -20,7 +20,7 @@ interface Props {
 interface GetYAnchorPoint {
   stackValues: Array<StackValue>;
   timeTick: Date | null;
-  yScale: ScaleTime<number, number>;
+  yScale: ScaleLinear<number, number> | ScaleTime<number, number>;
 }
 
 const getStackedDates = (stackValues: Array<StackValue>): Array<Date> => {

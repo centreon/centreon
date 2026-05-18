@@ -28,7 +28,7 @@ export interface GuidingLines {
   graphHeight: number;
   graphWidth: number;
   timeSeries: Array<TimeValue>;
-  xScale: ScaleLinear<number, number>;
+  xScale: ScaleTime<number, number>;
   maxLeftAxisCharacters: number;
   hasSecondUnit?: boolean;
   leftScale?: ScaleLinear<number, number>;

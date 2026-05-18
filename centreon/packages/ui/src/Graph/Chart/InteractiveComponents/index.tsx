@@ -74,7 +74,7 @@ interface CommonData {
   lines: Array<Line>;
   timeSeries: Array<TimeValue>;
   xScale: ScaleTime<number, number>;
-  yScalesPerUnit: Record<string, ScaleLinear<string, string>>;
+  yScalesPerUnit: Record<string, ScaleLinear<number, number>>;
 }
 
 interface TimeShiftZonesData extends InteractedZone {

@@ -1,6 +1,6 @@
 import { BarRounded } from '@visx/shape';
 import { BarGroupBar, SeriesPoint, StackKey } from '@visx/shape/lib/types';
-import type { ScaleLinear } from 'd3-scale';
+import type { ScaleBand, ScaleLinear } from 'd3-scale';
 import { equals } from 'ramda';
 import { ReactElement } from 'react';
 
@@ -16,7 +16,7 @@ interface GetFirstBarHeightProps {
   barWidth: number;
   y: number;
   isFirstBar: boolean;
-  yScale: ScaleLinear<number, number>;
+  yScale: ScaleLinear<number, number> | ScaleBand<number>;
   neutralValue: number;
 }
 
@@ -42,7 +42,7 @@ const getFirstBarHeight = ({
   }
 
   if (isHorizontal) {
-    return Math.abs(bar.width) - (y - yScale(neutralValue));
+    return Math.abs(bar.width) - (y - (yScale(neutralValue) ?? 0));
   }
 
   return barWidth;
@@ -87,7 +87,7 @@ interface BarProps {
   }) => () => void;
   barY: number;
   barStyle: BarStyle;
-  yScale: ScaleLinear<number, number>;
+  yScale: ScaleLinear<number, number> | ScaleBand<number>;
 }
 
 export const Bar = ({
