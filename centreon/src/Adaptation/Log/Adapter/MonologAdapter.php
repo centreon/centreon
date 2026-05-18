@@ -118,18 +118,10 @@ final readonly class MonologAdapter implements LoggerInterface
     private function createLoggerFromChannel(): void
     {
         try {
-            $handler = match ($this->channel) {
-                LogChannelEnum::PASSWORD => new StreamHandler(
-                    $this->getLogFileFromChannel(LogChannelEnum::PASSWORD),
-                    LogLevel::INFO
-                ),
-                LogChannelEnum::TOKEN => new StreamHandler(
-                    $this->getLogFileFromChannel(LogChannelEnum::TOKEN),
-                    LogLevel::INFO
-                ),
-                // TODO if another channel is needed, uncomment the following line
-                // default => throw LoggerException::channelNotConfigured($this->channel->value),
-            };
+            $handler = new StreamHandler(
+                $this->getLogFileFromChannel($this->channel),
+                LogLevel::INFO
+            );
 
             $handler->setFormatter(new LineFormatter(null, Logger::DATE_FORMAT));
 
@@ -140,10 +132,10 @@ final readonly class MonologAdapter implements LoggerInterface
     }
 
     /**
-     * Pattern: _CENTREON_LOG_/<APP_ENV>.<channel>.log
+     * Pattern: _CENTREON_LOG_/<APP_ENV>.<slug>.log
      *  - _CENTREON_LOG_ is defined in the main Centreon configuration file (centreon.conf.php)
      *  - <APP_ENV> is defined by the current Symfony mode (prod, dev, test)
-     *  - <channel> is the channel name defined in LogChannelEnum
+     *  - <slug> is the file-name slug carried by LogChannelEnum (cf. authentication → access)
      * Example: /var/log/centreon/prod.password.log
      */
     private function getLogFileFromChannel(LogChannelEnum $channelEnum): string
@@ -155,7 +147,7 @@ final readonly class MonologAdapter implements LoggerInterface
             '%s/%s.%s.log',
             _CENTREON_LOG_,
             $appEnv,
-            (string) $channelEnum->value
+            $channelEnum->getLogFileSlug()
         );
     }
 }
