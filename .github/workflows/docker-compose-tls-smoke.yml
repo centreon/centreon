@@ -66,7 +66,6 @@ jobs:
 
       - name: Bring up HTTPS stack
         env:
-          CENTREON_PROTOCOL: HTTPS
           COMPOSE_FILE: .github/docker/docker-compose.yml:.github/docker/docker-compose.tls.yml
         run: docker compose up -d --wait --wait-timeout 300
 
