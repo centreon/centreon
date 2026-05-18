@@ -2,6 +2,10 @@
 # Custom MySQL/MariaDB server configuration for Centreon
 #
 [server]
+# Required for `LOAD DATA LOCAL INFILE` used by the central → remote topology link.
+# Defaults to OFF on recent MariaDB versions (>= 10.5.20 / 10.6.13 / 10.11 / 11.x).
+local_infile = ON
+
 innodb_file_per_table=1
 
 open_files_limit = 32000
