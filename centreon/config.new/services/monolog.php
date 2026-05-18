@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 use DateTimeInterface;
 use Monolog\Formatter\LineFormatter;
+use Monolog\Processor\UidProcessor;
 use Symfony\Bridge\Monolog\Processor\RouteProcessor;
 use Symfony\Bridge\Monolog\Processor\TokenProcessor;
 use Symfony\Bridge\Monolog\Processor\WebProcessor;
@@ -32,6 +33,16 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
+
+    // Per-request correlation id. UidProcessor generates a 7-char hex id
+    // once per process and stamps it under `extra.uid` on every record
+    // emitted on every channel (bus, request, app, security, deprecation,
+    // …). Lets an operator pivot from any single log line to the full
+    // set of records produced by the same HTTP call or CLI invocation
+    // via a single `grep <uid>` across prod.web.log + dedicated files.
+    // No channel tag means the processor applies to every logger.
+    $services->set('monolog.processor.uid', UidProcessor::class)
+        ->tag('monolog.processor');
 
     // HTTP / security context processors attached to the channels that
     // benefit from extra request scoping (cf. MON-151077). The same set

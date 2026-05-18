@@ -20,6 +20,45 @@ monolog:
         # (e.g. centreon-bam) can attach their own handlers to.
         - bus
 
+    # Catch-all buffered handler. Captures every record that has no
+    # dedicated channel handler below (notably the Symfony defaults
+    # `main` / `app` / `request`, plus our `web` and `bus` channels)
+    # and flushes the buffer on `error`. Declared at top level so the
+    # platform integration tests can resolve the service in any env.
+    handlers:
+        web_finger_crossed:
+            type: fingers_crossed
+            action_level: error
+            # 404 / 405 are not "real" errors — most of them come from bot
+            # scans hitting /wp-admin, /.env, /phpinfo… Excluding them
+            # prevents the fingers_crossed buffer from flushing on every
+            # such request and flooding prod.web.log.
+            excluded_http_codes: [404, 405]
+            buffer_size: 50
+            stop_buffering: true
+            handler: web_file
+            channels:
+                - "!event"
+                - "!doctrine"
+                - "!console"
+                - "!deprecation"
+                - "!authentication"
+                - "!token"
+                - "!password"
+                - "!plugin-pack-manager"
+                - "!upgrade"
+            bubble: false
+            priority: 255
+        web_file:
+            type: stream
+            path: "%kernel.logs_dir%/%kernel.environment%.web.log"
+            level: debug
+            # Rotation is handled by logrotate on production hosts
+            # (cf. MON-151077). Do NOT use `rotating_file` here —
+            # the two would fight over filename / suffix.
+            formatter: monolog.formatter.line
+            date_format: !php/const DateTimeInterface::RFC3339
+
 when@dev:
     monolog:
         # Same channel layout as prod, but every file goes through
@@ -27,11 +66,19 @@ when@dev:
         # of accumulated debug records. Production keeps `stream` and
         # delegates rotation to logrotate (cf. MON-151077).
         handlers:
-            web:
-                type: rotating_file
-                path: "%kernel.logs_dir%/%kernel.environment%.web.log"
-                max_files: 14
-                level: debug
+            # Override the top-level web_finger_crossed: in dev we want
+            # every record (debug and above) to flush to the file —
+            # action_level: debug bypasses the buffer-on-error semantics
+            # and turns fingers_crossed into a pass-through. This keeps
+            # the prod buffer-and-flush trigger on a single yaml block
+            # while still giving dev a real-time log file.
+            web_finger_crossed:
+                type: fingers_crossed
+                action_level: debug
+                excluded_http_codes: [404, 405]
+                buffer_size: 50
+                stop_buffering: true
+                handler: web_file
                 channels:
                     - "!event"
                     - "!doctrine"
@@ -42,6 +89,12 @@ when@dev:
                     - "!password"
                     - "!plugin-pack-manager"
                     - "!upgrade"
+                priority: 255
+            web_file:
+                type: rotating_file
+                path: "%kernel.logs_dir%/%kernel.environment%.web.log"
+                max_files: 14
+                level: debug
                 formatter: monolog.formatter.line
                 date_format: !php/const DateTimeInterface::RFC3339
             console:
@@ -101,6 +154,12 @@ when@dev:
 
 when@test:
     monolog:
+        # web_finger_crossed and web_file inherit from the top-level
+        # definitions so the platform ChannelFilterIntegrationTest can
+        # resolve them as services. Records flushed during a test land
+        # in /var/log/centreon/test.web.log; tests that need to inspect
+        # records inline push a Monolog\Handler\TestHandler on top of
+        # the channel logger instead.
         handlers:
             main:
                 type: fingers_crossed
@@ -129,38 +188,14 @@ when@test:
 
 when@prod:
     monolog:
+        # web_finger_crossed and web_file are declared at the top level
+        # (above) with the production-ready settings (fingers_crossed +
+        # stream, action_level: error, bubble: false). This block only
+        # carries the dedicated channel handlers that have no shape in
+        # dev/test, plus a console handler for CLI workers (Messenger
+        # consumers, crons) where stderr would otherwise be the only
+        # output channel.
         handlers:
-            # Catch-all buffered handler. Captures every record that has
-            # no dedicated channel handler below (notably the Symfony
-            # defaults `main` / `app` / `request`, plus our `web` and
-            # `bus` channels) and flushes the buffer on `error`.
-            web_finger_crossed:
-                type: fingers_crossed
-                action_level: error
-                buffer_size: 50
-                stop_buffering: true
-                handler: web_file
-                channels:
-                    - "!event"
-                    - "!doctrine"
-                    - "!console"
-                    - "!deprecation"
-                    - "!authentication"
-                    - "!token"
-                    - "!password"
-                    - "!plugin-pack-manager"
-                    - "!upgrade"
-                bubble: false
-                priority: 255
-            web_file:
-                type: stream
-                path: "%kernel.logs_dir%/%kernel.environment%.web.log"
-                level: debug
-                # Rotation is handled by logrotate on production hosts
-                # (cf. MON-151077). Do NOT use `rotating_file` here —
-                # the two would fight over filename / suffix.
-                formatter: monolog.formatter.line
-                date_format: !php/const DateTimeInterface::RFC3339
             console:
                 type: console
                 process_psr_3_messages: false
