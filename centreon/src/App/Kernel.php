@@ -41,18 +41,12 @@ class Kernel extends BaseKernel
     /** @var string cache path */
     private string $cacheDir = '/var/cache/centreon/symfony';
 
-    /** @var string Log path */
-    private string $logDir = '/var/log/centreon/symfony';
-
     /**
      * Kernel constructor.
      */
     public function __construct(string $environment, bool $debug)
     {
         parent::__construct($environment, $debug);
-        if (\defined('_CENTREON_LOG_')) {
-            $this->logDir = _CENTREON_LOG_ . '/symfony';
-        }
         if (\defined('_CENTREON_CACHEDIR_')) {
             $this->cacheDir = _CENTREON_CACHEDIR_ . '/symfony';
         }
@@ -108,7 +102,9 @@ class Kernel extends BaseKernel
 
     public function getLogDir(): string
     {
-        return $this->logDir;
+        // Unified log directory under /var/log/centreon — cf. MON-151077,
+        // and keep parity with src/App/Shared/Infrastructure/Symfony/Kernel.php.
+        return '/var/log/centreon';
     }
 
     protected function build(ContainerBuilder $container): void
