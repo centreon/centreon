@@ -55,12 +55,14 @@ const Axes = ({
   const start = head(domain);
   const end = last(domain);
 
+  const toISOString = (v: number | Date | undefined): string | undefined =>
+    v !== undefined
+      ? (v instanceof Date ? v : new Date(v)).toISOString()
+      : undefined;
+
   const tickFormat =
     data?.axisX?.xAxisTickFormat ??
-    getXAxisTickFormat({
-      end: end !== undefined ? String(end) : undefined,
-      start: start !== undefined ? String(start) : undefined
-    });
+    getXAxisTickFormat({ end: toISOString(end), start: toISOString(start) });
 
   const formatAxisTick = (tick: unknown): string =>
     format({ date: new Date(tick as number | Date), formatString: tickFormat });
