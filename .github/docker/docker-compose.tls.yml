@@ -56,8 +56,8 @@ services:
       # bitnamilegacy/mariadb reads MARIADB_*, bitnamilegacy/mysql reads MYSQL_*.
       # Set both so HTTPS mode applies the same TLS flags regardless of which
       # MYSQL_IMAGE the user selects (matters for mysql 8.0 / 8.4 too).
-      MARIADB_EXTRA_FLAGS: "--ssl-ca=/certs/rootCA.pem --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
-      MYSQL_EXTRA_FLAGS: "--ssl-ca=/certs/rootCA.pem --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
+      MARIADB_EXTRA_FLAGS: "--ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
+      MYSQL_EXTRA_FLAGS: "--ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
     depends_on:
       certgen:
         condition: service_completed_successfully
@@ -86,8 +86,8 @@ services:
       - certs:/certs:ro
     environment:
       # See db service: set both for MariaDB/MySQL image-family compatibility.
-      MARIADB_EXTRA_FLAGS: "--ssl-ca=/certs/rootCA.pem --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
-      MYSQL_EXTRA_FLAGS: "--ssl-ca=/certs/rootCA.pem --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
+      MARIADB_EXTRA_FLAGS: "--ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
+      MYSQL_EXTRA_FLAGS: "--ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
     depends_on:
       certgen:
         condition: service_completed_successfully
