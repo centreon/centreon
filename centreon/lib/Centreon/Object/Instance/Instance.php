@@ -64,7 +64,7 @@ class Centreon_Object_Instance extends Centreon_Object
             throw new InvalidArgumentException('Missing parameters');
         }
 
-        if (! array_key_exists('uid', $params)) {
+        if (empty($params['uid'])) {
             $snowflake = new Snowflake(0, 0);
             $snowflake->setStartTimeStamp(SnowflakePollerUidGenerator::CUSTOM_EPOCH_MS);
             $params['uid'] = (int) $snowflake->id();
