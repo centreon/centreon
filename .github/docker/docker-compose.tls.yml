@@ -3,7 +3,7 @@
 #
 # Adds: certgen one-shot, the `certs` named volume, TLS for web/db/remote-server/db-remote.
 # Replaces (not merges): web.ports, remote-server.ports, web/remote-server healthcheck targets,
-# db/db-remote MARIADB_EXTRA_FLAGS.
+# db/db-remote MARIADB_EXTRA_FLAGS + MYSQL_EXTRA_FLAGS.
 #
 # Requires: docker compose >= 2.20 (for `!override` and `service_completed_successfully`),
 #           a centreon-web image containing centreon/centreon PR #9237 (DatabaseTLSResolver).
@@ -53,7 +53,11 @@ services:
     volumes:
       - certs:/certs:ro
     environment:
+      # bitnamilegacy/mariadb reads MARIADB_*, bitnamilegacy/mysql reads MYSQL_*.
+      # Set both so HTTPS mode applies the same TLS flags regardless of which
+      # MYSQL_IMAGE the user selects (matters for mysql 8.0 / 8.4 too).
       MARIADB_EXTRA_FLAGS: "--ssl-ca=/certs/rootCA.pem --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
+      MYSQL_EXTRA_FLAGS: "--ssl-ca=/certs/rootCA.pem --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
     depends_on:
       certgen:
         condition: service_completed_successfully
@@ -81,7 +85,9 @@ services:
     volumes:
       - certs:/certs:ro
     environment:
+      # See db service: set both for MariaDB/MySQL image-family compatibility.
       MARIADB_EXTRA_FLAGS: "--ssl-ca=/certs/rootCA.pem --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
+      MYSQL_EXTRA_FLAGS: "--ssl-ca=/certs/rootCA.pem --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
     depends_on:
       certgen:
         condition: service_completed_successfully
