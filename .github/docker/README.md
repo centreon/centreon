@@ -87,13 +87,13 @@ sudo update-ca-certificates
 > | `WEB_IMAGE` (OS variant) | `MYSQL_IMAGE`                    | Status |
 > |---|---|---|
 > | `centreon-web-alma9`     | `bitnamilegacy/mariadb:10.11`   | ✅ tested |
-> | `centreon-web-alma9`     | `bitnamilegacy/mysql:8.0`       | ❌ Centreon install fails (`Unknown database 'centreon'` mid-install); alma9 `mysqladmin` client also rejects MySQL's TLS chain |
+> | `centreon-web-alma9`     | `bitnamilegacy/mysql:8.0`       | ❌ Centreon install scripts incompatible with MySQL — fails identically in HTTP and HTTPS modes with `Unknown database 'centreon'`, TLS is not involved |
 > | `centreon-web-alma10`    | `bitnamilegacy/mariadb:11.8`    | ✅ tested |
-> | `centreon-web-alma10`    | `bitnamilegacy/mysql:8.4`       | ❌ same Centreon install incompatibility as above |
+> | `centreon-web-alma10`    | `bitnamilegacy/mysql:8.4`       | ❌ same Centreon install incompatibility (verified independent of TLS) |
 > | `centreon-web-trixie`    | `bitnamilegacy/mariadb:11.8`    | ✅ web/broker tested; gorgone limitation per previous note |
-> | `centreon-web-trixie`    | `bitnamilegacy/mysql:8.4`       | ❌ stacked: same Centreon install incompatibility + gorgone limitation |
+> | `centreon-web-trixie`    | `bitnamilegacy/mysql:8.4`       | ❌ Centreon install incompatibility (independent of TLS); plus gorgone limitation |
 >
-> The pattern is clean: **all MariaDB combinations work; all MySQL combinations fail at the Centreon install step.** The docker-compose stack's TLS configuration is correct for both (both `MARIADB_EXTRA_FLAGS` and `MYSQL_EXTRA_FLAGS` are set), so when MySQL becomes supported upstream by Centreon, no compose changes are needed.
+> The pattern is clean: **all MariaDB combinations work; all MySQL combinations fail at Centreon's install step, independent of TLS.** Confirmed by reproducing the exact `Unknown database 'centreon'` failure in plain HTTP mode (no overlay, zero TLS handshakes on the DB). The docker-compose stack's TLS configuration is correct for both image families — when Centreon's install gains native MySQL support, no compose changes are needed here.
 
 ### Cert generation image
 
