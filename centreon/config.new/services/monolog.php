@@ -21,7 +21,6 @@
 
 declare(strict_types=1);
 
-use DateTimeInterface;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Processor\UidProcessor;
 use Symfony\Bridge\Monolog\Processor\RouteProcessor;
@@ -72,5 +71,5 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // where handler-level `date_format:` configures the FILENAME suffix
     // and rejects RFC3339.
     $services->set('monolog.formatter.line', LineFormatter::class)
-        ->arg('$dateFormat', DateTimeInterface::RFC3339);
+        ->arg('$dateFormat', \DateTimeInterface::RFC3339);
 };
