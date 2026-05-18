@@ -30,6 +30,7 @@ use Core\AdditionalConnectorConfiguration\Application\Repository\WriteAccReposit
 use Core\AdditionalConnectorConfiguration\Application\UseCase\DeleteAcc\DeleteAcc;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Acc;
 use Core\AdditionalConnectorConfiguration\Domain\Model\AccParametersInterface;
+use Core\AdditionalConnectorConfiguration\Domain\Model\Poller;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
@@ -39,6 +40,7 @@ use Core\Common\Infrastructure\FeatureFlags;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
+use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
@@ -50,6 +52,7 @@ beforeEach(function (): void {
         $this->user = $this->createMock(ContactInterface::class),
         $this->flags = new FeatureFlags(false, ''),
         $this->writeVaultAccRepositories = new \ArrayIterator([]),
+        $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class),
     );
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new DefaultPresenter($this->presenterFormatter);
@@ -129,9 +132,18 @@ it('should present a NoContentResponse on success', function (): void {
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
+    $this->readAccRepository
+        ->expects($this->once())
+        ->method('findPollersByAccId')
+        ->with($this->testedAccId)
+        ->willReturn([new Poller(1, 'poller-name')]);
     $this->writeAccRepository
         ->expects($this->once())
         ->method('delete');
+    $this->writeMonitoringServerRepository
+        ->expects($this->once())
+        ->method('notifyVmwareConfigurationChange')
+        ->with(1);
 
     ($this->useCase)($this->testedAccId, $this->presenter);
 

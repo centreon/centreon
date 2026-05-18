@@ -41,6 +41,39 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDB
  * @var ConnectionInterface $pearDBO
  */
+/** ------------------------------------- Additional configuration ------------------------------------- */
+$addVmwareUpdatedField = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add vmware_updated field into nagios_server table';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Adding vmware_updated field into nagios_server table",
+    );
+    if ($pearDB->columnExists(
+        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
+        'nagios_server',
+        'vmware_updated'
+    )) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Field vmware_updated already exists in nagios_server table, skipping modification",
+        );
+
+        return;
+    }
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server`
+            ADD COLUMN `vmware_updated` BOOLEAN NOT NULL DEFAULT 0 AFTER `updated`
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully added vmware_updated field into nagios_server table",
+    );
+};
+
 $deployDefaultAgentConfiguration = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to deploy default agent configuration to central poller';
     CentreonLog::create()->info(
@@ -1477,6 +1510,7 @@ try {
     $updateLogActionTable();
 
     // DDL statements for configuration database
+    $addVmwareUpdatedField();
     $addPollerTypeColumn();
     $addPollerUuidColumn();
     $addPollerNameUniqueConstraint();

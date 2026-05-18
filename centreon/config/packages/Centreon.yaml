@@ -557,6 +557,9 @@ services:
         class: Core\MonitoringServer\Infrastructure\Repository\DbWriteMonitoringServerRepository
         public: true
 
+    Centreon\Infrastructure\Service\VmwareConfigurationService:
+        public: true
+
     Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface:
         class: Core\Macro\Infrastructure\Repository\DbReadHostMacroRepository
         public: true
