@@ -280,7 +280,7 @@ const getStackedMetricValues = ({
 
   const metricsValues = pipe(
     // @ts-expect-error - suppressing pre-existing type mismatch
-    map(prop('metric_id')) as (metric) => Array<number>,
+    map(prop('metric_id')) as (metric: unknown) => Array<number>,
     // @ts-expect-error - suppressing pre-existing type mismatch
     map(getTimeSeriesValuesForMetric) as () => Array<Array<number>>
   )(lines as Array<Line>);
@@ -709,7 +709,7 @@ const registerMsUnitToNumeral = (): null => {
         format: /(ms)/,
         unformat: /(ms)/
       },
-      unformat: () => ''
+      unformat: () => 0
     });
 
     return null;
@@ -730,7 +730,7 @@ const registerSecondsUnitToNumeral = (): null => {
         format: /(s)/,
         unformat: /(s)/
       },
-      unformat: () => ''
+      unformat: () => 0
     });
 
     return null;

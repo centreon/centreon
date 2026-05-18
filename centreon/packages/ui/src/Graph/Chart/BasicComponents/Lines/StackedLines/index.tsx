@@ -176,7 +176,7 @@ const StackLines = ({
                 }
                 // @ts-expect-error - suppressing pre-existing type mismatch
                 x={(d) => xScale(getTime(d.data)) ?? 0}
-                y={(d) => yScale(d[1]) ?? 0}
+                y={(d) => yScale(d[1] ?? 0) ?? 0}
               />
             </g>
           );
