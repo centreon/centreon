@@ -54,6 +54,7 @@ systemctl stop cbd
 systemctl stop httpd
 systemctl stop php-fpm
 systemctl stop snmpd
+systemctl stop crond
 
 dnf clean all
 

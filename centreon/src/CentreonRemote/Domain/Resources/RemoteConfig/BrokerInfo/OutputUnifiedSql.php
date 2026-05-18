@@ -29,14 +29,14 @@ class OutputUnifiedSql
     /**
      * Get template configuration.
      *
-     * @todo move it as yml
-     *
-     * @param string $dbUser the database user
-     * @param string $dbPassword the database password
+     * @param string $dbHost
+     * @param string|null $dbUser the database user
+     * @param string|null $dbPassword the database password
      *
      * @return array<int, string[]> the configuration template
+     * @todo move it as yml
      */
-    public static function getConfiguration(string $dbHost, string $dbUser, string $dbPassword): array
+    public static function getConfiguration(string $dbHost, ?string $dbUser, ?string $dbPassword): array
     {
         return [
             [

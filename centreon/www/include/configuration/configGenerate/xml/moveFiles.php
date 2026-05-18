@@ -24,6 +24,7 @@ ini_set('display_errors', 'Off');
 use App\Kernel;
 use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
 use Centreon\Domain\Entity\Task;
+use Centreon\Infrastructure\Service\VmwareConfigurationService;
 
 require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
 require_once realpath(__DIR__ . '/../../../../../config/bootstrap.php');
@@ -223,6 +224,10 @@ try {
     // Centcore pipe path
     $centcore_pipe = _CENTREON_VARLIB_ . '/centcore.cmd';
 
+    $vmwareConfigurationService = Kernel::createForWeb()
+        ->getContainer()
+        ->get(VmwareConfigurationService::class);
+
     $tab_server = [];
     $tabs = $centreon->user->access->getPollerAclConf(['fields' => ['name', 'id', 'localhost'], 'order' => ['name'], 'conditions' => ['ns_activate' => '1'], 'keys' => ['id']]);
 
@@ -342,6 +347,7 @@ try {
                         $host['name']
                     ));
                 }
+                $vmwareConfigurationService->restartIfConfigurationChanged((int) $host['id'], true);
             } else {
                 $written = file_put_contents(
                     $centcore_pipe,
@@ -351,6 +357,7 @@ try {
                 if ($written === false) {
                     throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
                 }
+                $vmwareConfigurationService->restartIfConfigurationChanged((int) $host['id'], false);
                 if (! isset($msg_restart[$host['id']])) {
                     $msg_restart[$host['id']] = '';
                 }

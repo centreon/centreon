@@ -57,7 +57,7 @@ final readonly class MergeDocumentationCommand
 
         /**
          * @var array{
-         *   paths: array<string, mixed>,
+         *   paths: array<string, array<string, mixed>>,
          *   tags: array<array{name: string, ...}>,
          *   components: array{
          *     parameters: array<string, mixed>,
@@ -70,7 +70,7 @@ final readonly class MergeDocumentationCommand
 
         /**
          * @var array{
-         *   paths: array{paths: array<string, mixed>},
+         *   paths: array<string, array<string, mixed>>,
          *   tags: array<array{name: string, ...}>,
          *   components: array{
          *     parameters: array<string, mixed>,
@@ -79,19 +79,31 @@ final readonly class MergeDocumentationCommand
          *   },
          * }
          */
-        $newDoc = $this->normalizer->normalize(($this->openApiFactory)());
+        $newDoc = $this->normalizer->normalize(($this->openApiFactory)(), 'json', ['spec_version' => '3.0.0']);
+        /** @var array{paths: array<string, array<string, mixed>>, tags: array<array{name: string, ...}>, components: array{parameters: array<string, mixed>, responses: array<string, mixed>, schemas: array<string, mixed>}} $newDoc */
+        $newDoc = $this->toOpenApi30($newDoc);
 
         $io->section('Paths...');
-        foreach ($newDoc['paths']['paths'] as $url => $path) {
+        foreach ($newDoc['paths'] as $url => $path) {
             /** @var string $url */
-            $url = preg_replace('#/api/latest#', '', (string) $url);
+            $url = preg_replace('#/api/latest#', '', (string) $url) ?? '';
             $io->text($url);
 
-            if (! $override && isset($doc['paths'][$url]) && ! $this->askOverride($io, $url)) {
+            if (! isset($doc['paths'][$url])) {
+                $doc['paths'][$url] = $path;
                 continue;
             }
 
-            $doc['paths'][$url] = $path;
+            foreach ($path as $method => $operation) {
+                $label = mb_strtoupper($method) . ' ' . $url;
+                $io->text('  ' . $label);
+
+                if (! $override && isset($doc['paths'][$url][$method]) && ! $this->askOverride($io, $label)) {
+                    continue;
+                }
+
+                $doc['paths'][$url][$method] = $operation;
+            }
         }
 
         $io->section('Tags...');
@@ -163,5 +175,70 @@ final readonly class MergeDocumentationCommand
     private function askOverride(SymfonyStyle $io, string $subject): bool
     {
         return $io->choice(\sprintf('"%s" already exist.', $subject), ['skip', 'override'], 'override') === 'override';
+    }
+
+    /**
+     * Recursively convert OpenAPI 3.1 null patterns to OpenAPI 3.0 nullable: true.
+     *
+     * ApiPlatform generates 3.1-style schemas (type arrays, anyOf with null) regardless
+     * of spec_version context — LegacyOpenApiNormalizer only partially converts them.
+     * This method handles the two patterns that must become nullable: true in 3.0:
+     *   - type: ['string', 'null']           → type: string,  nullable: true
+     *   - anyOf: [{...}, {type: 'null'}]     → merged schema, nullable: true
+     *
+     * @param array<mixed> $schema
+     *
+     * @return array<mixed>
+     */
+    private function toOpenApi30(array $schema): array
+    {
+        // type: ['string', 'null'] → type: string, nullable: true
+        if (isset($schema['type']) && \is_array($schema['type'])) {
+            $types = array_values(array_filter($schema['type'], static fn ($type): bool => $type !== 'null'));
+            if (\count($types) < \count($schema['type'])) {
+                $schema['nullable'] = true;
+                $schema['type'] = \count($types) === 1 ? $types[0] : $types;
+                if ($schema['type'] === []) {
+                    unset($schema['type']);
+                }
+            }
+        }
+
+        // anyOf: [{...}, {type: 'null'}] → merge inner schema + nullable: true
+        if (isset($schema['anyOf']) && \is_array($schema['anyOf'])) {
+            $nullKey = null;
+            foreach ($schema['anyOf'] as $nullIdx => $sub) {
+                if (\is_array($sub) && $sub === ['type' => 'null']) {
+                    $nullKey = $nullIdx;
+                    break;
+                }
+            }
+            if ($nullKey !== null) {
+                unset($schema['anyOf'][$nullKey]);
+                $remaining = array_values($schema['anyOf']);
+                $schema['nullable'] = true;
+                if (\count($remaining) === 1) {
+                    unset($schema['anyOf']);
+                    /** @var array<mixed> $firstSchema */
+                    $firstSchema = $remaining[0];
+                    if (isset($firstSchema['$ref'])) {
+                        // $ref cannot have sibling keys in OAS 3.0; wrap in allOf
+                        $schema = ['allOf' => [$firstSchema, $schema]];
+                    } else {
+                        $schema = array_merge($firstSchema, $schema);
+                    }
+                } else {
+                    $schema['anyOf'] = $remaining;
+                }
+            }
+        }
+
+        foreach ($schema as $key => $value) {
+            if (\is_array($value)) {
+                $schema[$key] = $this->toOpenApi30($value);
+            }
+        }
+
+        return $schema;
     }
 }

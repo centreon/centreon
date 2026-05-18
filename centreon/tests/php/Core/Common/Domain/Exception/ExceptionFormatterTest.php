@@ -28,6 +28,7 @@ use Core\Common\Domain\Exception\RepositoryException;
 
 it('test format native exception without previous', function (): void {
     $exception = new \LogicException('logic_exception_message', 99);
+    $closureMethod = $exception->getTrace()[0]['function'];
     $format = ExceptionFormatter::format($exception);
     expect($format)->toBeArray()
         ->and($format)->toHaveKey('type')
@@ -37,19 +38,20 @@ it('test format native exception without previous', function (): void {
         ->and($format)->toHaveKey('file')
         ->and($format['file'])->toBe(__FILE__)
         ->and($format)->toHaveKey('line')
-        ->and($format['line'])->toBe(__LINE__ - 10)
+        ->and($format['line'])->toBe(__LINE__ - 11)
         ->and($format)->toHaveKey('code')
         ->and($format['code'])->toBe(99)
         ->and($format)->toHaveKey('class')
         ->and($format['class'])->toBe('P\\Tests\\php\\Core\\Common\\Domain\\Exception\\ExceptionFormatterTest')
         ->and($format)->toHaveKey('method')
-        ->and($format['method'])->toBe('Tests\\Core\\Common\\Domain\\Exception\\{closure}')
+        ->and($format['method'])->toBe($closureMethod)
         ->and($format)->toHaveKey('previous')
         ->and($format['previous'])->toBeNull();
 });
 
 it('test format business logic exception without previous', function (): void {
     $exception = new RepositoryException('repository_exception_message');
+    $closureMethod = $exception->getTrace()[0]['function'];
     $format = ExceptionFormatter::format($exception);
     expect($format)->toBeArray()
         ->and($format)->toHaveKey('type')
@@ -59,19 +61,20 @@ it('test format business logic exception without previous', function (): void {
         ->and($format)->toHaveKey('file')
         ->and($format['file'])->toBe(__FILE__)
         ->and($format)->toHaveKey('line')
-        ->and($format['line'])->toBe(__LINE__ - 10)
+        ->and($format['line'])->toBe(__LINE__ - 11)
         ->and($format)->toHaveKey('code')
         ->and($format['code'])->toBe(1)
         ->and($format)->toHaveKey('class')
         ->and($format['class'])->toBe('P\\Tests\\php\\Core\\Common\\Domain\\Exception\\ExceptionFormatterTest')
         ->and($format)->toHaveKey('method')
-        ->and($format['method'])->toBe('Tests\\Core\\Common\\Domain\\Exception\\{closure}')
+        ->and($format['method'])->toBe($closureMethod)
         ->and($format)->toHaveKey('previous')
         ->and($format['previous'])->toBeNull();
 });
 
 it('test format business logic exception without previous with context', function (): void {
     $exception = new RepositoryException('repository_exception_message', ['contact' => 1, 'name' => 'John']);
+    $closureMethod = $exception->getTrace()[0]['function'];
     $format = ExceptionFormatter::format($exception);
     expect($format)->toBeArray()
         ->and($format)->toHaveKey('type')
@@ -81,13 +84,13 @@ it('test format business logic exception without previous with context', functio
         ->and($format)->toHaveKey('file')
         ->and($format['file'])->toBe(__FILE__)
         ->and($format)->toHaveKey('line')
-        ->and($format['line'])->toBe(__LINE__ - 10)
+        ->and($format['line'])->toBe(__LINE__ - 11)
         ->and($format)->toHaveKey('code')
         ->and($format['code'])->toBe(1)
         ->and($format)->toHaveKey('class')
         ->and($format['class'])->toBe('P\\Tests\\php\\Core\\Common\\Domain\\Exception\\ExceptionFormatterTest')
         ->and($format)->toHaveKey('method')
-        ->and($format['method'])->toBe('Tests\\Core\\Common\\Domain\\Exception\\{closure}')
+        ->and($format['method'])->toBe($closureMethod)
         ->and($format)->toHaveKey('previous')
         ->and($format['previous'])->toBeNull();
 });
@@ -100,6 +103,7 @@ it('test format business logic exception with previous', function (): void {
             99
         )
     );
+    $closureMethod = $exception->getTrace()[0]['function'];
     $format = ExceptionFormatter::format($exception);
     expect($format)->toBeArray()
         ->and($format)->toHaveKey('type')
@@ -109,13 +113,13 @@ it('test format business logic exception with previous', function (): void {
         ->and($format)->toHaveKey('file')
         ->and($format['file'])->toBe(__FILE__)
         ->and($format)->toHaveKey('line')
-        ->and($format['line'])->toBe(__LINE__ - 16)
+        ->and($format['line'])->toBe(__LINE__ - 17)
         ->and($format)->toHaveKey('code')
         ->and($format['code'])->toBe(1)
         ->and($format)->toHaveKey('class')
         ->and($format['class'])->toBe('P\\Tests\\php\\Core\\Common\\Domain\\Exception\\ExceptionFormatterTest')
         ->and($format)->toHaveKey('method')
-        ->and($format['method'])->toBe('Tests\\Core\\Common\\Domain\\Exception\\{closure}')
+        ->and($format['method'])->toBe($closureMethod)
         ->and($format)->toHaveKey('previous')
         ->and($format['previous'])->toBeArray()
         ->and($format['previous'])->toHaveKey('type')
@@ -125,7 +129,7 @@ it('test format business logic exception with previous', function (): void {
         ->and($format['previous'])->toHaveKey('file')
         ->and($format['previous']['file'])->toBe(__FILE__)
         ->and($format['previous'])->toHaveKey('line')
-        ->and($format['previous']['line'])->toBe(__LINE__ - 30)
+        ->and($format['previous']['line'])->toBe(__LINE__ - 31)
         ->and($format['previous'])->toHaveKey('code')
         ->and($format['previous']['code'])->toBe(99)
         ->and($format['previous'])->toHaveKey('class')
@@ -133,7 +137,7 @@ it('test format business logic exception with previous', function (): void {
             'P\\Tests\\php\\Core\\Common\\Domain\\Exception\\ExceptionFormatterTest'
         )
         ->and($format['previous'])->toHaveKey('method')
-        ->and($format['previous']['method'])->toBe('Tests\\Core\\Common\\Domain\\Exception\\{closure}')
+        ->and($format['previous']['method'])->toBe($closureMethod)
         ->and($format['previous'])->toHaveKey('previous')
         ->and($format['previous']['previous'])->toBeNull();
 });
