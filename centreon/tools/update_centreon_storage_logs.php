@@ -473,7 +473,7 @@ try {
 
         $nbrRecords = 0;
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            fputcsv($fp, $row);
+            fputcsv($fp, $row, ',', '"', '\\');
             $nbrRecords++;
         }
         fclose($fp);
