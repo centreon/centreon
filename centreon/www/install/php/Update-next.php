@@ -135,21 +135,22 @@ $migrateInstanceIdToBigint = function () use ($pearDBO, &$errorMessage, $version
     );
 };
 
-/** ------------------------------------- Autodiscovery module (optional) ------------------------------------- */
-$migrateAutodiscoveryInstanceId = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = 'Unable to migrate instance_id on mod_auto_disco_inst_rule_relation';
+/** ------------------------------------- Module tables referencing nagios_server (optional) --------------- */
+$migrateModuleTableInstanceIds = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to migrate instance_id on module tables';
     $dbName = $pearDB->getConnectionConfig()->getDatabaseNameConfiguration();
+    $table = 'mod_auto_disco_inst_rule_relation';
+    $constraint = 'mod_auto_disco_inst_rule_relation_fk_1';
 
     $tableExists = (bool) $pearDB->fetchOne(
         <<<'SQL'
-            SELECT 1
-            FROM INFORMATION_SCHEMA.TABLES
-            WHERE TABLE_SCHEMA = :db_name
-              AND TABLE_NAME = 'mod_auto_disco_inst_rule_relation'
+            SELECT 1 FROM INFORMATION_SCHEMA.TABLES
+            WHERE TABLE_SCHEMA = :db_name AND TABLE_NAME = :table_name
             LIMIT 1
             SQL,
         QueryParameters::create([
             QueryParameter::string('db_name', $dbName),
+            QueryParameter::string('table_name', $table),
         ])
     );
 
@@ -159,93 +160,54 @@ $migrateAutodiscoveryInstanceId = function () use ($pearDB, &$errorMessage, $ver
 
     $columnType = $pearDB->fetchOne(
         <<<'SQL'
-            SELECT COLUMN_TYPE
-            FROM INFORMATION_SCHEMA.COLUMNS
-            WHERE TABLE_SCHEMA = :db_name
-              AND TABLE_NAME = 'mod_auto_disco_inst_rule_relation'
-              AND COLUMN_NAME = 'instance_id'
+            SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_SCHEMA = :db_name AND TABLE_NAME = :table_name AND COLUMN_NAME = 'instance_id'
             SQL,
         QueryParameters::create([
             QueryParameter::string('db_name', $dbName),
+            QueryParameter::string('table_name', $table),
         ])
     );
 
     if (is_string($columnType) && str_starts_with($columnType, 'bigint')) {
-        CentreonLog::create()->info(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: mod_auto_disco_inst_rule_relation.instance_id is already BIGINT, skipping",
-        );
-
         return;
     }
 
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: Migrating mod_auto_disco_inst_rule_relation.instance_id to BIGINT UNSIGNED",
+        message: "UPGRADE - {$version}: Migrating {$table}.instance_id to BIGINT UNSIGNED",
     );
 
     $fkExists = (bool) $pearDB->fetchOne(
         <<<'SQL'
-            SELECT 1
-            FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
-            WHERE TABLE_SCHEMA = :db_name
-              AND TABLE_NAME = 'mod_auto_disco_inst_rule_relation'
-              AND CONSTRAINT_NAME = 'mod_auto_disco_inst_rule_relation_fk_1'
-              AND CONSTRAINT_TYPE = 'FOREIGN KEY'
+            SELECT 1 FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+            WHERE TABLE_SCHEMA = :db_name AND TABLE_NAME = :table_name
+              AND CONSTRAINT_NAME = :constraint_name AND CONSTRAINT_TYPE = 'FOREIGN KEY'
             LIMIT 1
             SQL,
         QueryParameters::create([
             QueryParameter::string('db_name', $dbName),
+            QueryParameter::string('table_name', $table),
+            QueryParameter::string('constraint_name', $constraint),
         ])
     );
 
     if ($fkExists) {
-        $pearDB->executeStatement(
-            <<<'SQL'
-                ALTER TABLE `mod_auto_disco_inst_rule_relation`
-                    DROP FOREIGN KEY `mod_auto_disco_inst_rule_relation_fk_1`
-                SQL
-        );
+        $pearDB->executeStatement("ALTER TABLE `{$table}` DROP FOREIGN KEY `{$constraint}`");
     }
 
-    $pearDB->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `mod_auto_disco_inst_rule_relation`
-                MODIFY COLUMN `instance_id` BIGINT UNSIGNED NOT NULL
-            SQL
-    );
+    $pearDB->executeStatement("ALTER TABLE `{$table}` MODIFY COLUMN `instance_id` BIGINT UNSIGNED NOT NULL");
 
-    $nagiosServerIdType = $pearDB->fetchOne(
-        <<<'SQL'
-            SELECT COLUMN_TYPE
-            FROM INFORMATION_SCHEMA.COLUMNS
-            WHERE TABLE_SCHEMA = :db_name
-              AND TABLE_NAME = 'nagios_server'
-              AND COLUMN_NAME = 'id'
-            SQL,
-        QueryParameters::create([
-            QueryParameter::string('db_name', $dbName),
-        ])
-    );
-
-    if (is_string($nagiosServerIdType) && str_starts_with($nagiosServerIdType, 'bigint')) {
+    if ($fkExists) {
         $pearDB->executeStatement(
-            <<<'SQL'
-                ALTER TABLE `mod_auto_disco_inst_rule_relation`
-                    ADD CONSTRAINT `mod_auto_disco_inst_rule_relation_fk_1`
-                    FOREIGN KEY (`instance_id`) REFERENCES `nagios_server` (`id`) ON DELETE CASCADE
-                SQL
-        );
-    } else {
-        CentreonLog::create()->info(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: FK not restored — nagios_server.id is not yet BIGINT UNSIGNED",
+            "ALTER TABLE `{$table}` ADD CONSTRAINT `{$constraint}`"
+            . ' FOREIGN KEY (`instance_id`) REFERENCES `nagios_server` (`id`) ON DELETE CASCADE'
         );
     }
 
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: Successfully migrated mod_auto_disco_inst_rule_relation.instance_id",
+        message: "UPGRADE - {$version}: Successfully migrated {$table}.instance_id",
     );
 };
 
@@ -288,7 +250,7 @@ try {
 
     // DDL statements for configuration database
     $addVmwareUpdatedField();
-    $migrateAutodiscoveryInstanceId();
+    $migrateModuleTableInstanceIds();
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {
         $pearDB->startTransaction();
