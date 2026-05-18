@@ -613,6 +613,16 @@ jobs:
         working-directory: centreon
         shell: bash
 
+      - name: 📁 Provision /var/log/centreon for the Symfony kernel
+        # The new kernel routes every log under /var/log/centreon
+        # (cf. MON-151077). On real prod hosts this directory ships
+        # with the RPM/DEB package; on a GitHub-hosted runner we have
+        # to mkdir it before `lint:container` instantiates the prod
+        # Monolog handlers (any deprecation emitted during compile
+        # would otherwise fail-open StreamHandler).
+        run: sudo mkdir -p /var/log/centreon && sudo chown "$USER:$USER" /var/log/centreon
+        shell: bash
+
       - name: ⚙️ Check Symfony configuration (legacy and new)
         run: composer symfony:check && composer symfony:new:check
         working-directory: centreon
