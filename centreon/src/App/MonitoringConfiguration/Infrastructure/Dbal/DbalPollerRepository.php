@@ -200,7 +200,6 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             }
         } catch (UniqueConstraintViolationException $exception) {
             $field = str_contains($exception->getMessage(), 'uniq_uid')
-                || str_contains($exception->getMessage(), 'uniq_uuid')
                 ? 'uid' : 'name';
             $value = $field === 'uid' ? $poller->uid->value : $poller->name->value;
 

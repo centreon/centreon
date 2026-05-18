@@ -101,7 +101,7 @@ $renamePollerUuidToUid = function () use ($pearDB, &$errorMessage, $version): vo
         $pearDB->executeStatement(
             <<<'SQL'
                 ALTER TABLE `nagios_server`
-                    ADD COLUMN `uid` BIGINT DEFAULT NULL COMMENT 'Snowflake 64-bit unique identifier',
+                    ADD COLUMN `uid` BIGINT UNSIGNED DEFAULT NULL COMMENT 'Snowflake 64-bit unique identifier',
                     ADD UNIQUE KEY `uniq_uid` (`uid`)
                 SQL
         );
@@ -148,7 +148,7 @@ $renamePollerUuidToUid = function () use ($pearDB, &$errorMessage, $version): vo
     $pearDB->executeStatement(
         <<<'SQL'
             ALTER TABLE `nagios_server`
-                CHANGE COLUMN `uuid` `uid` BIGINT DEFAULT NULL COMMENT 'Snowflake 64-bit unique identifier'
+                CHANGE COLUMN `uuid` `uid` BIGINT UNSIGNED DEFAULT NULL COMMENT 'Snowflake 64-bit unique identifier'
             SQL
     );
 
@@ -196,7 +196,7 @@ function generateMissingPollerUids(ConnectionInterface $pearDB, string $version)
     $pearDB->executeStatement(
         <<<'SQL'
             ALTER TABLE `nagios_server`
-                MODIFY COLUMN `uid` BIGINT NOT NULL COMMENT 'Snowflake 64-bit unique identifier'
+                MODIFY COLUMN `uid` BIGINT UNSIGNED NOT NULL COMMENT 'Snowflake 64-bit unique identifier'
             SQL
     );
 
