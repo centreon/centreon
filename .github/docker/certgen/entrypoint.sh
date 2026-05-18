@@ -119,8 +119,16 @@ openssl x509 -req -in "$CSR" \
   -extfile "$EXT" -extensions v3_req
 
 # 3. Expose the CA cert next to the leaf for easy mounting.
+# Cert + CA are public artifacts — world-readable is fine.
+# The leaf KEY is the only sensitive bit on this shared volume: keep it
+# root-readable only (0640 root:root → owner rw, group r, others none).
+# Apache reads it via its root master process before dropping privileges to
+# apache/www-data workers, so 0640 is sufficient. MariaDB has its own chowned
+# copy under /out/db/ below (uid 1001, 0600); other consumers that need the
+# key as non-root should follow the same per-consumer copy pattern.
 cp "$CAROOT/rootCA.pem" "$OUT/rootCA.pem"
-chmod 0644 "$OUT/rootCA.pem" "$OUT/server.pem" "$OUT/server-key.pem"
+chmod 0644 "$OUT/rootCA.pem" "$OUT/server.pem"
+chmod 0640 "$OUT/server-key.pem"
 
 # 4. Per-consumer copy for DB services. Bitnami MariaDB runs as uid 1001 and
 #    refuses a world-readable key. The cp+chown leaves the shared leaf
