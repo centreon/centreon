@@ -195,6 +195,7 @@ class PhpCsFixerRuleSet
             'get_class_to_class_keyword' => true,
             'implode_call' => true,
             'logical_operators' => true,
+            'mb_str_functions' => true,
             'modernize_strpos' => true,
             'modernize_types_casting' => true,
             'no_alias_functions' => true,
