@@ -255,6 +255,7 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
 
         $excludedHttpCodes = (new \ReflectionProperty(HttpCodeActivationStrategy::class, 'exclusions'))
             ->getValue($strategy);
+        \assert(\is_array($excludedHttpCodes));
         $codes = array_column($excludedHttpCodes, 'code');
         self::assertContains(404, $codes);
         self::assertContains(405, $codes);
