@@ -26,21 +26,33 @@ namespace Adaptation\Log\Adapter;
 use Adaptation\Log\Enum\LogChannelEnum;
 use Adaptation\Log\Exception\LoggerException;
 use Adaptation\Log\Logger;
+use App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Level;
 use Monolog\Logger as MonologLogger;
+use Monolog\Processor\UidProcessor;
+use Monolog\Processor\WebProcessor;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
-final readonly class MonologAdapter implements LoggerInterface
+final class MonologAdapter implements LoggerInterface
 {
+    /**
+     * Shared across every channel-specific logger created in the
+     * current process so that records produced on different channels
+     * carry the same `extra.uid` and can be correlated across files —
+     * mirrors the platform-wide UidProcessor wired in
+     * `config.new/services/monolog.php` for the new kernel.
+     */
+    private static ?UidProcessor $uidProcessor = null;
+
     /**
      * @throws LoggerException
      */
     private function __construct(
-        private MonologLogger $logger,
-        private LogChannelEnum $channel,
+        private readonly MonologLogger $logger,
+        private readonly LogChannelEnum $channel,
     ) {
         $this->createLoggerFromChannel();
     }
@@ -126,9 +138,29 @@ final readonly class MonologAdapter implements LoggerInterface
             $handler->setFormatter(new LineFormatter(null, Logger::DATE_FORMAT));
 
             $this->logger->pushHandler($handler);
+
+            $this->pushPlatformProcessors();
         } catch (\InvalidArgumentException $e) {
             throw LoggerException::loggerCreationFailed($this->channel->value, $e);
         }
+    }
+
+    /**
+     * Attach the autonomous halves of the platform processor stack so
+     * legacy records carry the same `extra.uid`, the same HTTP context
+     * and the same exception layout as records produced by the new
+     * kernel (cf. MON-151077, `config.new/services/monolog.php`).
+     *
+     * RouteProcessor and TokenProcessor depend on the Symfony
+     * RequestStack / TokenStorage services and are therefore out of
+     * reach from the legacy stack — records emitted here will not
+     * carry `extra.controller`, `extra.route` or `extra.token`.
+     */
+    private function pushPlatformProcessors(): void
+    {
+        $this->logger->pushProcessor(new ExceptionFormatterProcessor());
+        $this->logger->pushProcessor(new WebProcessor());
+        $this->logger->pushProcessor(self::$uidProcessor ??= new UidProcessor());
     }
 
     /**
