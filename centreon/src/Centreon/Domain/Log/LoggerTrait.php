@@ -23,44 +23,25 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Log;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Symfony\Contracts\Service\Attribute\Required;
 
 /**
- * This class is design to provide all the methods for recording events.
+ * Provides PSR-3 log helpers to the legacy services that still autowire
+ * a `LoggerInterface` through Symfony's `#[Required]` setter.
+ *
+ * New code should not adopt this trait — write to
+ * {@see \Adaptation\Log\Logger} or {@see \App\Logging} directly (cf. MON-151077).
+ * The annotation tag is intentionally omitted so the platform-wide
+ * DebugClassLoader does not cascade a deprecation warning onto every
+ * class still using this trait during the transition.
  */
 trait LoggerTrait
 {
-    private ?ContactInterface $loggerContact = null;
-
     private ?LoggerInterface $logger = null;
 
-    private ?ContactForDebug $loggerContactForDebug = null;
-
-    /**
-     * @param ContactInterface $loggerContact
-     */
-    #[Required]
-    public function setLoggerContact(ContactInterface $loggerContact): void
-    {
-        $this->loggerContact = $loggerContact;
-    }
-
-    /**
-     * @param ContactForDebug $loggerContactForDebug
-     */
-    #[Required]
-    public function setLoggerContactForDebug(ContactForDebug $loggerContactForDebug): void
-    {
-        $this->loggerContactForDebug = $loggerContactForDebug;
-    }
-
-    /**
-     * @param LoggerInterface $centreonLogger
-     */
     #[Required]
     public function setLogger(LoggerInterface $centreonLogger): void
     {
@@ -68,9 +49,7 @@ trait LoggerTrait
     }
 
     /**
-     * @param string $message
      * @param array<string,mixed> $context
-     * @param callable|null $callable
      *
      * @see LoggerInterface::emergency
      */
@@ -80,9 +59,7 @@ trait LoggerTrait
     }
 
     /**
-     * @param string $message
      * @param array<string,mixed> $context
-     * @param callable|null $callable
      *
      * @see LoggerInterface::alert
      */
@@ -92,9 +69,7 @@ trait LoggerTrait
     }
 
     /**
-     * @param string $message
      * @param array<string,mixed> $context
-     * @param callable|null $callable
      *
      * @see LoggerInterface::critical
      */
@@ -104,9 +79,7 @@ trait LoggerTrait
     }
 
     /**
-     * @param string $message
      * @param array<string,mixed> $context
-     * @param callable|null $callable
      *
      * @see LoggerInterface::error
      */
@@ -116,9 +89,7 @@ trait LoggerTrait
     }
 
     /**
-     * @param string $message
      * @param array<string,mixed> $context
-     * @param callable|null $callable
      *
      * @see LoggerInterface::warning
      */
@@ -128,9 +99,7 @@ trait LoggerTrait
     }
 
     /**
-     * @param string $message
      * @param array<string,mixed> $context
-     * @param callable|null $callable
      *
      * @see LoggerInterface::notice
      */
@@ -140,9 +109,7 @@ trait LoggerTrait
     }
 
     /**
-     * @param string $message
      * @param array<string,mixed> $context
-     * @param callable|null $callable
      *
      * @see LoggerInterface::info
      */
@@ -152,9 +119,7 @@ trait LoggerTrait
     }
 
     /**
-     * @param string $message
      * @param array<string,mixed> $context
-     * @param callable|null $callable
      *
      * @see LoggerInterface::debug
      */
@@ -164,38 +129,24 @@ trait LoggerTrait
     }
 
     /**
-     * @param mixed $level
-     * @param string $message
      * @param array<string,mixed> $context
-     * @param callable|null $callable
      *
      * @throws InvalidArgumentException
      *
      * @see LoggerInterface::log
      */
-    private function log($level, string $message, array $context = [], ?callable $callable = null): void
+    private function log(mixed $level, string $message, array $context = [], ?callable $callable = null): void
     {
         $this->executeLog($level, $message, $context, $callable);
     }
 
-    /**
-     * @return bool
-     */
     private function canBeLogged(): bool
     {
-        return $this->logger !== null
-            && $this->loggerContactForDebug !== null
-            && $this->loggerContact !== null
-            && $this->loggerContactForDebug->isValidForContact($this->loggerContact);
+        return $this->logger !== null;
     }
 
     /**
-     * @param string $level
-     * @param string $message
      * @param array<string,mixed> $context
-     * @param callable|null $callable
-     *
-     * @return void
      */
     private function executeLog(
         string $level,
@@ -203,13 +154,15 @@ trait LoggerTrait
         array $context = [],
         ?callable $callable = null,
     ): void {
-        if ($this->canBeLogged()) {
-            if ($callable !== null) {
-                $context = array_merge($context, $callable());
-            }
-            $normalizedContext = $this->normalizeContext($context);
-            $this->logger->log($level, $message, $normalizedContext);
+        if (! $this->canBeLogged()) {
+            return;
         }
+
+        if ($callable !== null) {
+            $context = array_merge($context, $callable());
+        }
+
+        $this->logger->log($level, $message, $this->normalizeContext($context));
     }
 
     /**
@@ -219,7 +172,6 @@ trait LoggerTrait
      */
     private function normalizeContext(array $customContext): array
     {
-        // Add default context with request infos
         $defaultContext = [
             'request_infos' => [
                 'uri' => isset($_SERVER['REQUEST_URI']) ? urldecode($_SERVER['REQUEST_URI']) : null,
