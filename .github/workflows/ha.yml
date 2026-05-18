@@ -158,7 +158,8 @@ jobs:
     if: |
       needs.changes.outputs.trigger_delivery == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["unstable"]'), needs.get-environment.outputs.stability) &&
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      needs.get-environment.outputs.is_cloud == 'false' &&
       github.event.pull_request.head.repo.fork != true
     runs-on: centreon-common
 
