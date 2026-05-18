@@ -81,6 +81,20 @@ sudo update-ca-certificates
 > [!NOTE]
 > **Gorgone DB-TLS on Debian images (`centreon-web-trixie`)** is currently impacted by a DBD::mysql 4.053 + libmariadb 3.x API mismatch — the old `MYSQL_OPT_SSL_ENFORCE` option was removed without a DBD::mysql-compatible replacement. Web (PHP via PR #9237), Broker, and DB-side TLS are unaffected on this image; only the gorgone Perl→DB path is impacted. Workaround in discussion with the gorgone team (DBD::MariaDB has been validated as a working alternative).
 
+> [!NOTE]
+> **DB image compatibility** — HTTPS mode has been validated against the following combinations:
+>
+> | `WEB_IMAGE` (OS variant) | `MYSQL_IMAGE`                    | Status |
+> |---|---|---|
+> | `centreon-web-alma9`     | `bitnamilegacy/mariadb:10.11`   | ✅ tested |
+> | `centreon-web-alma9`     | `bitnamilegacy/mysql:8.0`       | ❌ Centreon install fails (`Unknown database 'centreon'` mid-install); alma9 `mysqladmin` client also rejects MySQL's TLS chain |
+> | `centreon-web-alma10`    | `bitnamilegacy/mariadb:11.8`    | ✅ tested |
+> | `centreon-web-alma10`    | `bitnamilegacy/mysql:8.4`       | ❌ same Centreon install incompatibility as above |
+> | `centreon-web-trixie`    | `bitnamilegacy/mariadb:11.8`    | ✅ web/broker tested; gorgone limitation per previous note |
+> | `centreon-web-trixie`    | `bitnamilegacy/mysql:8.4`       | ❌ stacked: same Centreon install incompatibility + gorgone limitation |
+>
+> The pattern is clean: **all MariaDB combinations work; all MySQL combinations fail at the Centreon install step.** The docker-compose stack's TLS configuration is correct for both (both `MARIADB_EXTRA_FLAGS` and `MYSQL_EXTRA_FLAGS` are set), so when MySQL becomes supported upstream by Centreon, no compose changes are needed.
+
 ### Cert generation image
 
 The certgen image is built locally from [`.github/docker/certgen/`](certgen/Dockerfile) (alpine + openssl, same shape as [`centreon-images/.../gen_cert.sh`](https://github.com/centreon/centreon-images/blob/main/aws/centreon-ova-builder/ova_files/centreon-central/gen_cert.sh) minus the Apache / platform concerns). Override with `CERTGEN_IMAGE=…` to pin a published image.
