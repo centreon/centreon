@@ -26,7 +26,10 @@ interface Props {
   showGridLines: boolean;
   svgRef: MutableRefObject<SVGSVGElement | null>;
   timeSeries: Array<TimeValue>;
-  xScale: ScaleTime<number, number> | ScaleLinear<number, number> | ScaleBand<number>;
+  xScale:
+    | ScaleTime<number, number>
+    | ScaleLinear<number, number>
+    | ScaleBand<number>;
   maxAxisCharacters?: number;
   hasSecondUnit?: boolean;
   title?: string;

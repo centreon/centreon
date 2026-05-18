@@ -19,7 +19,10 @@ interface Props {
   orientation: 'horizontal' | 'vertical';
   rightScale: ScaleLinear<number, number>;
   width: number;
-  xScale: ScaleLinear<number, number> | ScaleTime<number, number> | ScaleBand<number>;
+  xScale:
+    | ScaleLinear<number, number>
+    | ScaleTime<number, number>
+    | ScaleBand<number>;
 }
 
 const Axes = ({

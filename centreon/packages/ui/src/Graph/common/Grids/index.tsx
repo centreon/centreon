@@ -7,9 +7,15 @@ import type { ChartAxis } from '../../Chart/models';
 
 interface Props extends Pick<ChartAxis, 'gridLinesType'> {
   height: number;
-  leftScale?: ScaleLinear<number, number> | ScaleTime<number, number> | ScaleBand<number>;
+  leftScale?:
+    | ScaleLinear<number, number>
+    | ScaleTime<number, number>
+    | ScaleBand<number>;
   width: number;
-  xScale?: ScaleLinear<number, number> | ScaleTime<number, number> | ScaleBand<number>;
+  xScale?:
+    | ScaleLinear<number, number>
+    | ScaleTime<number, number>
+    | ScaleBand<number>;
 }
 
 const Grids = ({
