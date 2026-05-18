@@ -88,3 +88,10 @@ junit.xml
 
 # phpunit
 .phpunit.new.cache
+.phpunit.new.integration.cache
+
+# Stray monolog files produced when unit tests bootstrap CentreonLog
+# without overriding _CENTREON_LOG_ — cf. MON-151077.
+/prod.*.log
+/dev.*.log
+/test.*.log
