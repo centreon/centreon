@@ -211,7 +211,7 @@ docker logs $(docker ps -qf "name=remote-server") 2>&1 | grep -i "step\|register
 The following environment variables are available to customize the setup:
 
 * `WEB_IMAGE`: centreon-web image to use for both Central and Remote Server (default: `docker.centreon.com/centreon/centreon-web-alma9:develop`)
-* `CENTREON_WEB_OS`: OS variant used to resolve the registration script path (`alma9`, `bookworm`, `jammy` — default: `alma9`)
+* `CENTREON_WEB_OS`: OS variant used to resolve entrypoint-script bind-mount paths; must match `WEB_IMAGE`'s OS (`alma9`, `alma10`, `trixie` — default: `alma9`)
 * `REMOTE_SERVER_NAME`: name displayed for the Remote Server in the Central UI (default: `remote-server`)
 * `CENTRAL_API_USERNAME`: API account used for registration (default: `admin`)
 * `CENTRAL_API_PASSWORD`: password for the API account (default: `Centreon!2021`)
