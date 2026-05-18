@@ -266,6 +266,7 @@ it('test writing logs with a custom context and an exception', function (): void
     try {
         throw new RuntimeException('test_message_exception', 99);
     } catch (RuntimeException $e) {
+        $closureMethod = str_replace('\\', '\\\\', $e->getTrace()[0]['function']);
         $logfile = $this->centreonLogTest->pathToLogTest . '/login.log';
         $this->centreonLogTest->loggerTest
             ->notice(CentreonLog::TYPE_LOGIN, 'login_message', ['custom_value1' => 'foo'], $e);
@@ -282,7 +283,7 @@ it('test writing logs with a custom context and an exception', function (): void
                 $e->getLine(),
                 99,
                 'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
-                '{closure}'
+                $closureMethod
             ),
             '"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
         );
@@ -297,6 +298,7 @@ it('test writing logs with a custom context and a native exception with a previo
 
         throw new RuntimeException('test_message_exception', 99, $previous);
     } catch (RuntimeException $e) {
+        $closureMethod = str_replace('\\', '\\\\', $e->getTrace()[0]['function']);
         $logfile = $this->centreonLogTest->pathToLogTest . '/login.log';
         $this->centreonLogTest->loggerTest
             ->notice(CentreonLog::TYPE_LOGIN, 'login_message', ['custom_value1' => 'foo'], $e);
@@ -314,14 +316,14 @@ it('test writing logs with a custom context and a native exception with a previo
                 $e->getLine(),
                 99,
                 'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
-                '{closure}',
+                $closureMethod,
                 'LogicException',
                 'test_message_exception_previous',
                 $e->getPrevious()->getFile(),
                 $e->getPrevious()->getLine(),
                 98,
                 'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
-                '{closure}'
+                $closureMethod
             ),
             '"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}',
         );
@@ -336,6 +338,7 @@ it('test writing logs with a custom context and an exception (BusinessLogicExcep
 
         throw new CentreonDbException('test_message_exception', ['contact' => 1], $previous);
     } catch (CentreonDbException $e) {
+        $closureMethod = str_replace('\\', '\\\\', $e->getTrace()[0]['function']);
         $logfile = $this->centreonLogTest->pathToLogTest . '/login.log';
         $this->centreonLogTest->loggerTest
             ->notice(CentreonLog::TYPE_LOGIN, 'login_message', ['custom_value1' => 'foo'], $e);
@@ -353,14 +356,14 @@ it('test writing logs with a custom context and an exception (BusinessLogicExcep
                 $e->getLine(),
                 1,
                 'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
-                '{closure}',
+                $closureMethod,
                 'LogicException',
                 'test_message_exception_previous',
                 $e->getPrevious()->getFile(),
                 $e->getPrevious()->getLine(),
                 99,
                 'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
-                '{closure}'
+                $closureMethod
             ),
             '"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}',
         );
@@ -376,6 +379,7 @@ it('test writing logs with a custom context and an exception (BusinessLogicExcep
 
         throw new StatisticException('test_message_exception', ['X' => 100.36, 'Y' => 888, 'graph' => true], $previous);
     } catch (StatisticException $e) {
+        $closureMethod = str_replace('\\', '\\\\', $e->getTrace()[0]['function']);
         $logfile = $this->centreonLogTest->pathToLogTest . '/login.log';
         $this->centreonLogTest->loggerTest
             ->notice(CentreonLog::TYPE_LOGIN, 'login_message', ['custom_value1' => 'foo', 'custom_value2' => 'bar'], $e);
@@ -395,21 +399,21 @@ it('test writing logs with a custom context and an exception (BusinessLogicExcep
                 $e->getLine(),
                 0,
                 'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
-                '{closure}',
+                $closureMethod,
                 'CentreonDbException',
                 'test_message_exception_previous',
                 $e->getPrevious()->getFile(),
                 $e->getPrevious()->getLine(),
                 1,
                 'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
-                '{closure}',
+                $closureMethod,
                 'LogicException',
                 'test_message_native_exception_previous',
                 $e->getPrevious()->getPrevious()->getFile(),
                 $e->getPrevious()->getPrevious()->getLine(),
                 99,
                 'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
-                '{closure}'
+                $closureMethod
             ),
             '"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}',
         );
