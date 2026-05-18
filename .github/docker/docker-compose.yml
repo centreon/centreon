@@ -33,6 +33,9 @@ services:
     image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:10.11}"
     ports: ["3306"]
     environment:
+      # bitnamilegacy/mariadb reads MARIADB_*, bitnamilegacy/mysql reads MYSQL_*.
+      # Set both so swapping MYSQL_IMAGE to a mysql variant doesn't silently
+      # drop the --skip-ssl behavior.
       MARIADB_EXTRA_FLAGS: "--skip-ssl"
     healthcheck:
       test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/3306 && sleep 3 && </dev/tcp/127.0.0.1/3306'"]
@@ -148,7 +151,9 @@ services:
     ports: ["3306"]
     profiles: ["remote-server"]
     environment:
+      # See db service: set both for MariaDB/MySQL image-family compatibility.
       MARIADB_EXTRA_FLAGS: "--skip-ssl"
+      MYSQL_EXTRA_FLAGS: "--skip-ssl"
     deploy:
       resources:
         limits:
