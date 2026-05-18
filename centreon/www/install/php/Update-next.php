@@ -19,10 +19,10 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
-use Adaptation\Database\Query\QueryParameter;
-use Adaptation\Database\Query\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
