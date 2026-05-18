@@ -3634,6 +3634,10 @@ msgstr "Copier le lien vers cette ressource"
 msgid "Copy/paste x.509 certificate"
 msgstr "Copier/coller le certificat x.509"
 
+#: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
+msgid "Could not copy VMWare configuration file"
+msgstr ""
+
 #: centreon/www/api/class/centreon_proxy.class.php
 msgid "Could not establish connection to Centreon IMP servers ("
 msgstr "Impossible d'établir une connexion avec les serveurs Centreon IMP ("
@@ -3648,6 +3652,7 @@ msgstr ""
 "supervision '%s'.\n"
 "Veuillez vérifier son chemin ou le créer"
 
+#: centreon/src/Centreon/Infrastructure/Service/VmwareConfigurationService.php
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
 #: centreon/www/include/configuration/configGenerate/xml/restartPollers.php
