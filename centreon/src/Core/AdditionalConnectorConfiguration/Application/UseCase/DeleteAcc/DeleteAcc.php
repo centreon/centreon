@@ -38,6 +38,7 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
+use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 final class DeleteAcc
@@ -55,6 +56,7 @@ final class DeleteAcc
      * @param ContactInterface $user
      * @param FeatureFlags $flags
      * @param \Traversable<WriteVaultAccRepositoryInterface> $writeVaultAccRepositories
+     * @param WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository
      */
     public function __construct(
         private readonly ReadAccRepositoryInterface $readAccRepository,
@@ -64,6 +66,7 @@ final class DeleteAcc
         private readonly ContactInterface $user,
         private readonly FeatureFlags $flags,
         \Traversable $writeVaultAccRepositories,
+        private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
     ) {
         $this->writeVaultAccRepositories = iterator_to_array($writeVaultAccRepositories);
     }
@@ -119,7 +122,12 @@ final class DeleteAcc
                 }
             }
 
+            $pollerIds = array_map(
+                static fn (Poller $poller): int => $poller->id,
+                $this->readAccRepository->findPollersByAccId($id)
+            );
             $this->writeAccRepository->delete($id);
+            $this->writeMonitoringServerRepository->notifyVmwareConfigurationChange(...$pollerIds);
 
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (\Throwable $ex) {

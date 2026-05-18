@@ -23,6 +23,7 @@ namespace CentreonClapi;
 
 use App\Kernel;
 use Centreon\Domain\Entity\Task;
+use Centreon\Infrastructure\Service\VmwareConfigurationService;
 use CentreonDB;
 use CentreonRemote\ServiceProvider;
 use Core\Domain\Engine\Model\EngineCommandGenerator;
@@ -570,6 +571,18 @@ class CentreonConfigPoller
                 }
             }
 
+            // VMWare configuration
+            $listVmWareFile = glob($this->vmWareCachePath . '/' . $pollerId . '/*.json');
+            if (is_array($listVmWareFile) && count($listVmWareFile) > 0) {
+                if (! copy($listVmWareFile[0], _CENTREON_ETC_ . '/centreon_vmware.json')) {
+                    $msg_copy .= _('Could not copy VMWare configuration file') . " - KO\n";
+                    $return = 1;
+                }
+            }
+
+            $this->container->get(VmwareConfigurationService::class)
+                ->restartIfConfigurationChanged((int) $pollerId, true);
+
             if (strlen($msg_copy) == 0) {
                 $msg_copy .= _('OK: All configuration files copied with success.');
             }
@@ -628,6 +641,9 @@ class CentreonConfigPoller
                 );
             }
             $return = $this->writeToCentcorePipe('SENDCFGFILE', $host['id']);
+
+            $this->container->get(VmwareConfigurationService::class)
+                ->restartIfConfigurationChanged((int) $host['id'], false);
 
             $msg_copy .= _(
                 "OK: All configuration will be send to '"
