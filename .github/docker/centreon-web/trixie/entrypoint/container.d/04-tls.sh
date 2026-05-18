@@ -124,6 +124,22 @@ esac
 # Substitute only the cert paths; keep every other directive (cipher list, HSTS,
 # X-Frame-Options, Set-Cookie HttpOnly+SameSite, ServerTokens Prod, FCGI block,
 # Directory blocks, :80→:443 RewriteRule) byte-identical to production.
+#
+# Guard against template drift: the sed substitution is keyed on exact string
+# matches against the production cert/key paths. If Centreon ever renames those
+# paths in centreon-apache-https.conf, the sed silently does nothing and Apache
+# fails with a misleading "file not found" pointing at the old (unrewritten)
+# path. Fail loud here instead with an actionable message.
+if ! grep -q '/etc/pki/tls/certs/ca.crt' "$TEMPLATE"; then
+  echo "[tls] FATAL: expected SSLCertificateFile path '/etc/pki/tls/certs/ca.crt' not found in $TEMPLATE." >&2
+  echo "[tls] The template may have been updated. Update the sed expression in this script accordingly." >&2
+  exit 1
+fi
+if ! grep -q '/etc/pki/tls/private/ca.key' "$TEMPLATE"; then
+  echo "[tls] FATAL: expected SSLCertificateKeyFile path '/etc/pki/tls/private/ca.key' not found in $TEMPLATE." >&2
+  echo "[tls] The template may have been updated. Update the sed expression in this script accordingly." >&2
+  exit 1
+fi
 sed -e "s|/etc/pki/tls/certs/ca.crt|$SRV_PEM|g" \
     -e "s|/etc/pki/tls/private/ca.key|$SRV_KEY|g" \
     "$TEMPLATE" > "$VHOST_DEST" || exit 1
