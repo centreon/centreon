@@ -18,6 +18,7 @@ This document describes the platform pipeline that captures logs emitted by the 
 7. [Log line example](#7-log-line-example)
 8. [Processor scope](#8-processor-scope)
 9. [Routing and output file](#9-routing-and-output-file)
+10. [Legacy bridge — `Adaptation\Log\Logger`](#10-legacy-bridge--adaptationloglogger)
 
 ---
 
@@ -464,7 +465,7 @@ Consequence: every handler using `monolog.formatter.line` (centreon-web + any mo
 | `deprecation` | MON-151077 → dedicated file `prod.deprecations.log`. |
 | `authentication` | MON-151077 → merged into `prod.access.log` on the centreon-web side. |
 | `token` | MON-151077 → dedicated file `prod.token.log`. |
-| `password`, `plugin-pack-manager`, `upgrade` | MON-151077 → dedicated files. Not Monolog channels strictly speaking today (written directly by legacy `CentreonLog` code), but listed in anticipation of a future migration to Monolog. |
+| `password`, `plugin-pack-manager`, `upgrade` | MON-151077 → dedicated files. Each is a regular Monolog channel declared in `config.new/packages/monolog.yaml`; legacy code reaches them through `Adaptation\Log\Logger::create(LogChannelEnum::*)` (or via the `CentreonLog`/`CentreonUserLog` façades, which delegate to the same entry point). See [§10](#10-legacy-bridge--adaptationloglogger). |
 
 | Property | Effect |
 |----------|--------|
@@ -492,3 +493,93 @@ In production, the `prod.*.log` files are rotated by **logrotate** (config `cent
 Default retention: `weekly` × `rotate 52` (1 year), with `compress` + `delaycompress` + `copytruncate`.
 
 In development (`when@dev` in `monolog.yaml`), the handlers use `rotating_file` directly (daily `Y-m-d` suffix, `max_files: 14` retention) — no need for logrotate.
+
+---
+
+## 10. Legacy bridge — `Adaptation\Log\Logger`
+
+The platform pipeline described above runs under `App\Shared\Infrastructure\Symfony\Kernel`. Legacy entry points (procedural `www/` code, classes wired through `App\Kernel`) cannot autowire Monolog services directly; they go through a thin façade so every record still lands on the MON-151077 layout.
+
+```mermaid
+flowchart LR
+    Legacy["Legacy code (www/, CentreonLog, CentreonUserLog)"] --> Facade["Adaptation\\Log\\Logger::create(LogChannelEnum)"]
+    Facade --> Adapter["Adaptation\\Log\\Adapter\\MonologAdapter"]
+    Adapter --> Stream["StreamHandler → /var/log/centreon/&lt;env&gt;.&lt;slug&gt;.log"]
+    Stream --> Fmt["LineFormatter (RFC3339)"]
+
+    classDef src fill:#f5f5f5,stroke:#9e9e9e,color:#212121
+    classDef proc fill:#e0e0e0,stroke:#616161,color:#212121
+    classDef out fill:#bdbdbd,stroke:#424242,stroke-width:2px,color:#000
+    class Legacy src
+    class Facade,Adapter proc
+    class Stream,Fmt out
+```
+
+### `LogChannelEnum`
+
+`Adaptation\Log\Enum\LogChannelEnum` enumerates the Monolog channels the legacy code is allowed to write to. The case value is the **channel name** (matches `config.new/packages/monolog.yaml`); `getLogFileSlug()` returns the **file-name slug** appended to `<env>.<slug>.log`.
+
+| Case | Channel | File slug | Production file |
+|---|---|---|---|
+| `AUTHENTICATION` | `authentication` | `access` | `prod.access.log` |
+| `PASSWORD` | `password` | `password` | `prod.password.log` |
+| `PLUGIN_PACK_MANAGER` | `plugin-pack-manager` | `plugin-pack-manager` | `prod.plugin-pack-manager.log` |
+| `TOKEN` | `token` | `token` | `prod.token.log` |
+| `UPGRADE` | `upgrade` | `upgrade` | `prod.upgrade.log` |
+| `WEB` | `web` | `web` | `prod.web.log` |
+
+Only `AUTHENTICATION` carries a different slug — login/ldap/openid/saml records all converge in the shared `access.log` file (cf. MON-151077).
+
+### `Adaptation\Log\Logger`
+
+```php
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
+Logger::create(LogChannelEnum::WEB)->error(
+    'Could not generate the host configuration',
+    ['host_id' => 42, 'exception' => $e],
+);
+```
+
+`Logger::create()` returns a PSR-3 `LoggerInterface`. Internally it instantiates a `MonologAdapter` carrying a single `StreamHandler` configured with `LineFormatter` + `RFC3339`. Rotation is **not** wired at this layer — production hosts delegate to `logrotate` (cf. `logrotate/centreon`).
+
+If `MonologAdapter::create()` cannot build the handler (e.g. permission error on the log directory), `Logger::create()` falls back to a `NullLogger` and writes the failure reason to `error_log()` — log emission must never break a request.
+
+### Audit loggers — `LoggerPassword` and `LoggerToken`
+
+Two siblings of `Adaptation\Log\Logger` ship with a **constrained API** (`success(...)`, `warning(...)`) instead of the PSR-3 surface:
+
+- `Adaptation\Log\LoggerPassword` — password-change audit events, written to `prod.password.log`.
+- `Adaptation\Log\LoggerToken` — API token lifecycle audit events, written to `prod.token.log`.
+
+They exist because those two files feed downstream tooling (fail2ban filters, SIEM correlation) that expects a stable context schema (`event`, `status`, `user_id`, `ip_address`, `token_type`, …). Hard-coding the schema in the helper guarantees every caller emits the same shape.
+
+There is intentionally no `LoggerWeb`, `LoggerUpgrade`, `LoggerAuthentication`, `LoggerPluginPackManager`: those channels carry **free-form messages with arbitrary context**, so wrapping them adds no value over the PSR-3 facade. Call sites use `Adaptation\Log\Logger::create(LogChannelEnum::*)` directly.
+
+Decision rule for adding a new `Logger<Channel>` class: only when the channel feeds an automated consumer that requires a stable JSON schema. Otherwise, route through `Adaptation\Log\Logger::create()`.
+
+### `CentreonLog` and `CentreonUserLog` façades
+
+Both classes (`www/class/centreonLog.class.php`) keep their public surface but reroute every write through `Adaptation\Log\Logger`. The legacy `TYPE_*` identifiers map onto channels as follows:
+
+| Legacy constant | Channel | Output file |
+|---|---|---|
+| `TYPE_LOGIN`, `TYPE_LDAP` | `AUTHENTICATION` | `prod.access.log` |
+| `TYPE_SQL`, `TYPE_BUSINESS_LOG` | `WEB` | `prod.web.log` |
+| `TYPE_UPGRADE` | `UPGRADE` | `prod.upgrade.log` |
+| `TYPE_PLUGIN_PACK_MANAGER` | `PLUGIN_PACK_MANAGER` | `prod.plugin-pack-manager.log` |
+
+`CentreonLog::pushLogFileHandler()` and `setPathLogFile()` are kept as deprecated no-ops for backward compatibility with extension modules — file routing is now driven exclusively by `LogChannelEnum`.
+
+Both classes are tagged `@deprecated`. The DI/Application code that still autowires them keeps working, but **new code should call `Adaptation\Log\Logger` directly** with an explicit `LogChannelEnum`.
+
+### `Centreon\Domain\Log\LoggerTrait`
+
+`LoggerTrait` (~389 callers) keeps providing the PSR-3 helper shape used by Domain services that autowire a `LoggerInterface` via `#[Required]`. The pre-MON-151077 `ContactForDebug` gate is gone — `canBeLogged()` now only checks that a logger has been injected. The trait carries a descriptive note but no formal `@deprecated` tag, because `Symfony\Component\ErrorHandler\DebugClassLoader` would otherwise cascade the deprecation onto every class still using the trait during the transition.
+
+### Symfony-side configuration
+
+`config/packages/monolog.yaml` (legacy kernel) is a single-line `imports:` pointing at `config.new/packages/monolog.yaml`. There is one source of truth for channels, handlers and processors — adding or renaming a channel for the platform pipeline automatically reaches the legacy kernel too.
+
+Both kernels resolve `kernel.logs_dir` to `/var/log/centreon` (`App\Kernel::getLogDir()` and `App\Shared\Infrastructure\Symfony\Kernel::getLogDir()`), so the path templates in `monolog.yaml` produce identical filenames regardless of which kernel boots a request.
