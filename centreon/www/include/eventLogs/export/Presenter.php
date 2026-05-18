@@ -81,15 +81,15 @@ class Presenter
 
         // print meta data
         foreach ($this->metaData as $metaData) {
-            fputcsv($f, $metaData, self::DELIMITER);
+            fputcsv($f, $metaData, self::DELIMITER, '"', '\\');
         }
 
         // print heads
-        fputcsv($f, $this->heads, self::DELIMITER);
+        fputcsv($f, $this->heads, self::DELIMITER, '"', '\\');
 
         // print data
         foreach ($this->logs as $log) {
-            fputcsv($f, $log, self::DELIMITER);
+            fputcsv($f, $log, self::DELIMITER, '"', '\\');
         }
 
         fclose($f);
