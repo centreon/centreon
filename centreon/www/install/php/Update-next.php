@@ -95,9 +95,9 @@ $migrateInstanceIdToBigint = function () use ($pearDBO, &$errorMessage, $version
         ['modules', 'modules_ibfk_1', 'FOREIGN KEY (`instance_id`) REFERENCES `instances` (`instance_id`) ON DELETE CASCADE'],
     ];
 
-    $pendingColumns = array_filter($columnsToMigrate, fn($col) => ! $isColumnBigint($col[0], $col[1]));
+    $pendingColumns = array_filter($columnsToMigrate, fn ($col) => ! $isColumnBigint($col[0], $col[1]));
     if ($pendingColumns === []) {
-        $missingFks = array_filter($foreignKeys, fn($fk) => ! $foreignKeyExists($fk[0], $fk[1]));
+        $missingFks = array_filter($foreignKeys, fn ($fk) => ! $foreignKeyExists($fk[0], $fk[1]));
         if ($missingFks === []) {
             CentreonLog::create()->info(
                 logTypeId: CentreonLog::TYPE_UPGRADE,
