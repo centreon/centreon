@@ -19,13 +19,20 @@
  *
  */
 
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogFormatter;
+use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
 /**
  * Class
  *
  * @class CentreonUserLog
+ *
+ * @deprecated since MON-151077 — log directly through
+ *             {@see \Adaptation\Log\Logger::create()} with the appropriate
+ *             {@see LogChannelEnum}
  */
 class CentreonUserLog
 {
@@ -37,76 +44,50 @@ class CentreonUserLog
     /** @var CentreonUserLog */
     private static $instance;
 
-    /** @var array */
-    private $errorType = [];
-
     /** @var int */
     private $uid;
-
-    /** @var string */
-    private $path;
 
     /**
      * CentreonUserLog constructor
      *
      * @param int $uid
-     * @param CentreonDB $pearDB
-     *
-     * @throws PDOException
+     * @param CentreonDB $pearDB kept for backward compatibility; the connection
+     *                           is no longer consulted because the log path is
+     *                           driven by APP_ENV / LogChannelEnum now
      */
     public function __construct($uid, $pearDB)
     {
         $this->uid = $uid;
-
-        // Get Log directory path
-        $DBRESULT = $pearDB->query("SELECT * FROM `options` WHERE `key` = 'debug_path'");
-        while ($res = $DBRESULT->fetchRow()) {
-            $optGen[$res['key']] = $res['value'];
-        }
-        $DBRESULT->closeCursor();
-
-        // Init log Directory
-        $this->path = (isset($optGen['debug_path']) && ! empty($optGen['debug_path']))
-            ? $optGen['debug_path'] : _CENTREON_LOG_;
-
-        $this->errorType[self::TYPE_LOGIN] = $this->path . '/login.log';
-        $this->errorType[self::TYPE_SQL] = $this->path . '/sql-error.log';
-        $this->errorType[self::TYPE_LDAP] = $this->path . '/ldap.log';
-        $this->errorType[self::TYPE_UPGRADE] = $this->path . '/upgrade.log';
     }
 
     /**
-     * @param int $id
+     * @param int $id one of the TYPE_* constants
      * @param string $str
      * @param int $print
      * @param int $page
      * @param int $option
-     * @return void
      */
     public function insertLog($id, $str, $print = 0, $page = 0, $option = 0): void
     {
-        /*
-         * Construct alert message
-         * Take care before modifying this message pattern as it may break tools such as fail2ban
-         */
-        $string = date('Y-m-d H:i:s') . '|' . $this->uid . "|{$page}|{$option}|{$str}";
-
-        // Display error on Standard exit
         if ($print) {
             echo htmlspecialchars($str);
         }
 
-        // Replace special char
-        $string = str_replace('`', '', $string);
-        $string = str_replace('*', "\*", $string);
+        // Replace special chars that used to leak through the pipe-separated
+        // legacy format. Kept for parity with the original behaviour.
+        $message = str_replace(['`', '*'], ['', '\*'], (string) $str);
 
-        // Write Error in log file.
-        file_put_contents($this->errorType[$id], $string . "\n", FILE_APPEND);
+        $context = [
+            'uid' => $this->uid,
+            'page' => $page,
+            'option' => $option,
+        ];
+
+        Logger::create(self::resolveChannel((int) $id))->info($message, $context);
     }
 
     /**
      * @param int $uid
-     * @return void
      */
     public function setUID($uid): void
     {
@@ -117,16 +98,25 @@ class CentreonUserLog
      * Singleton
      *
      * @param int $uid The user id
+     *
      * @throws Exception
-     * @return CentreonUserLog
      */
-    public static function singleton($uid = 0)
+    public static function singleton($uid = 0): CentreonUserLog
     {
-        if (is_null(self::$instance)) {
+        if (! self::$instance instanceof self) {
             self::$instance = new CentreonUserLog($uid, CentreonDB::factory('centreon'));
         }
 
         return self::$instance;
+    }
+
+    private static function resolveChannel(int $type): LogChannelEnum
+    {
+        return match ($type) {
+            self::TYPE_LOGIN, self::TYPE_LDAP => LogChannelEnum::AUTHENTICATION,
+            self::TYPE_UPGRADE => LogChannelEnum::UPGRADE,
+            default => LogChannelEnum::WEB,
+        };
     }
 }
 
@@ -134,6 +124,10 @@ class CentreonUserLog
  * Class
  *
  * @class CentreonLog
+ *
+ * @deprecated since MON-151077 — log directly through
+ *             {@see \Adaptation\Log\Logger::create()} with the appropriate
+ *             {@see LogChannelEnum}
  */
 class CentreonLog
 {
@@ -150,7 +144,8 @@ class CentreonLog
     public const LEVEL_EMERGENCY = LogLevel::EMERGENCY;
 
     /**
-     * Log files
+     * Log type ids — kept for backward compatibility with callers that still
+     * pass `CentreonLog::TYPE_*`. Routing is now driven by LogChannelEnum.
      */
     public const TYPE_LOGIN = 1;
     public const TYPE_SQL = 2;
@@ -158,45 +153,20 @@ class CentreonLog
     public const TYPE_UPGRADE = 4;
     public const TYPE_PLUGIN_PACK_MANAGER = 5;
     public const TYPE_BUSINESS_LOG = 6;
-    private const DEFAULT_LOG_FILES = [
-        self::TYPE_LOGIN => 'login.log',
-        self::TYPE_SQL => 'sql-error.log',
-        self::TYPE_LDAP => 'ldap.log',
-        self::TYPE_UPGRADE => 'upgrade.log',
-        self::TYPE_PLUGIN_PACK_MANAGER => 'plugin-pack-manager.log',
-        self::TYPE_BUSINESS_LOG => 'centreon-web.log',
-    ];
-
-    /** @var array<int,string> */
-    private array $logFileHandler;
-
-    /** @var string */
-    private string $pathLogFile;
 
     /**
-     * CentreonLog constructor
-     *
-     * @param array $customLogFiles
-     * @param string $pathLogFile
+     * @param array<int,string> $customLogFiles ignored — kept for BC; channels
+     *                                          are now resolved via LogChannelEnum
+     * @param string $pathLogFile ignored — paths are derived from APP_ENV
      */
     public function __construct(array $customLogFiles = [], string $pathLogFile = '')
     {
-        $this->setPathLogFile(empty($pathLogFile) ? _CENTREON_LOG_ : $pathLogFile);
-        // push default logs in log file handler
-        foreach (self::DEFAULT_LOG_FILES as $logTypeId => $logFileName) {
-            $this->pushLogFileHandler($logTypeId, $logFileName);
-        }
-        // push custom logs in log file handler
-        foreach ($customLogFiles as $logTypeId => $logFileName) {
-            $this->pushLogFileHandler($logTypeId, $logFileName);
-        }
     }
 
     /**
      * Factory
-     * @param array $customLogs
-     * @param string $pathLogFile
-     * @return CentreonLog
+     *
+     * @param array<int,string> $customLogs
      */
     public static function create(array $customLogs = [], string $pathLogFile = ''): CentreonLog
     {
@@ -204,12 +174,9 @@ class CentreonLog
     }
 
     /**
-     * @param int $logTypeId TYPE_* constants
-     * @param string $level LEVEL_* constants
-     * @param string $message
-     * @param array $customContext
-     * @param Throwable|null $exception
-     * @return void
+     * @param int $logTypeId one of the TYPE_* constants
+     * @param string $level one of the LEVEL_* constants (PSR-3)
+     * @param array<string,mixed> $customContext
      */
     public function log(
         int $logTypeId,
@@ -218,21 +185,20 @@ class CentreonLog
         array $customContext = [],
         ?Throwable $exception = null,
     ): void {
-        if (! empty($message)) {
-            $jsonContext = $this->serializeContext($customContext, $exception);
-            $level = (empty($level)) ? strtoupper(self::LEVEL_ERROR) : strtoupper($level);
-            $date = (new DateTime())->format(DateTimeInterface::RFC3339);
-            $log = sprintf('[%s] %s : %s | %s', $date, $level, $message, $jsonContext);
-            $response = file_put_contents($this->logFileHandler[$logTypeId], $log . "\n", FILE_APPEND);
+        if ($message === '') {
+            return;
         }
+
+        $logger = $this->getLoggerForType($logTypeId);
+        $logger->log(
+            $level !== '' ? mb_strtolower($level) : self::LEVEL_ERROR,
+            $message,
+            $this->buildContext($customContext, $exception),
+        );
     }
 
     /**
-     * @param int $logTypeId TYPE_* constants
-     * @param string $message
-     * @param array $customContext
-     * @param Throwable|null $exception
-     * @return void
+     * @param array<string,mixed> $customContext
      */
     public function debug(int $logTypeId, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
@@ -240,11 +206,7 @@ class CentreonLog
     }
 
     /**
-     * @param int $logTypeId TYPE_* constants
-     * @param string $message
-     * @param array $customContext
-     * @param Throwable|null $exception
-     * @return void
+     * @param array<string,mixed> $customContext
      */
     public function notice(int $logTypeId, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
@@ -252,11 +214,7 @@ class CentreonLog
     }
 
     /**
-     * @param int $logTypeId TYPE_ * constants
-     * @param string $message
-     * @param array $customContext
-     * @param Throwable|null $exception
-     * @return void
+     * @param array<string,mixed> $customContext
      */
     public function info(int $logTypeId, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
@@ -264,11 +222,7 @@ class CentreonLog
     }
 
     /**
-     * @param int $logTypeId TYPE_* constants
-     * @param string $message
-     * @param array $customContext
-     * @param Throwable|null $exception
-     * @return void
+     * @param array<string,mixed> $customContext
      */
     public function warning(int $logTypeId, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
@@ -276,11 +230,7 @@ class CentreonLog
     }
 
     /**
-     * @param int $logTypeId TYPE_* constants
-     * @param string $message
-     * @param array $customContext
-     * @param Throwable|null $exception
-     * @return void
+     * @param array<string,mixed> $customContext
      */
     public function error(int $logTypeId, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
@@ -288,11 +238,7 @@ class CentreonLog
     }
 
     /**
-     * @param int $logTypeId TYPE_* constants
-     * @param string $message
-     * @param array $customContext
-     * @param Throwable|null $exception
-     * @return void
+     * @param array<string,mixed> $customContext
      */
     public function critical(int $logTypeId, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
@@ -300,11 +246,7 @@ class CentreonLog
     }
 
     /**
-     * @param int $logTypeId TYPE_* constants
-     * @param string $message
-     * @param array $customContext
-     * @param Throwable|null $exception
-     * @return void
+     * @param array<string,mixed> $customContext
      */
     public function alert(int $logTypeId, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
@@ -312,11 +254,7 @@ class CentreonLog
     }
 
     /**
-     * @param int $logTypeId TYPE_* constants
-     * @param string $message
-     * @param array $customContext
-     * @param Throwable|null $exception
-     * @return void
+     * @param array<string,mixed> $customContext
      */
     public function emergency(int $logTypeId, string $message, array $customContext = [], ?Throwable $exception = null): void
     {
@@ -324,46 +262,25 @@ class CentreonLog
     }
 
     /**
-     * @return array
-     */
-    public function getLogFileHandler(): array
-    {
-        return $this->logFileHandler;
-    }
-
-    /**
      * @param int $logTypeId
      * @param string $logFileName
-     * @return CentreonLog
+     *
+     * @deprecated since MON-151077 — file routing is now driven by LogChannelEnum
+     *             and the monolog config; this method is a no-op kept for
+     *             backward compatibility with legacy callers and modules
      */
     public function pushLogFileHandler(int $logTypeId, string $logFileName): CentreonLog
     {
-        $pathLogFileName = '';
-        $logFile = '';
-        $explodeFileName = explode(DIRECTORY_SEPARATOR, $logFileName);
-        if ($explodeFileName !== []) {
-            $logFile = $explodeFileName[count($explodeFileName) - 1];
-            unset($explodeFileName[count($explodeFileName) - 1]);
-            $pathLogFileName = implode(DIRECTORY_SEPARATOR, $explodeFileName);
-        }
-        $this->logFileHandler[$logTypeId] = ($pathLogFileName !== $this->pathLogFile)
-            ? $this->pathLogFile . '/' . $logFile : $logFileName;
-
         return $this;
     }
 
     /**
-     * @param string $pathLogFile
-     * @return CentreonLog
+     * @deprecated since MON-151077 — paths are derived from APP_ENV
      */
     public function setPathLogFile(string $pathLogFile): CentreonLog
     {
-        $this->pathLogFile = $pathLogFile;
-
         return $this;
     }
-
-    // *********************************************** DEPRECATED *****************************************************//
 
     /**
      * @param int $id
@@ -371,8 +288,8 @@ class CentreonLog
      * @param int $print
      * @param int $page
      * @param int $option
-     * @return void
-     * @deprecated Instead used {@see CentreonLog::log()}
+     *
+     * @deprecated since MON-151077 — use {@see CentreonLog::log()} instead
      */
     public function insertLog($id, $str, $print = 0, $page = 0, $option = 0): void
     {
@@ -385,50 +302,44 @@ class CentreonLog
         $this->log(logTypeId: $id, level: self::LEVEL_ERROR, message: $message);
     }
 
-    /**
-     * @param array $customContext
-     * @param Throwable|null $exception
-     * @return string
-     */
-    private function serializeContext(array $customContext, ?Throwable $exception = null): string
+    private function getLoggerForType(int $logTypeId): LoggerInterface
     {
-        try {
-            $exceptionContext = [];
+        $channel = match ($logTypeId) {
+            self::TYPE_LOGIN, self::TYPE_LDAP => LogChannelEnum::AUTHENTICATION,
+            self::TYPE_UPGRADE => LogChannelEnum::UPGRADE,
+            self::TYPE_PLUGIN_PACK_MANAGER => LogChannelEnum::PLUGIN_PACK_MANAGER,
+            default => LogChannelEnum::WEB,
+        };
 
-            // Add default context with back trace and request infos
-            $defaultContext = [
-                'request_infos' => [
-                    'uri' => isset($_SERVER['REQUEST_URI']) ? urldecode($_SERVER['REQUEST_URI']) : null,
-                    'http_method' => $_SERVER['REQUEST_METHOD'] ?? null,
-                    'server' => $_SERVER['SERVER_NAME'] ?? null,
-                ],
-            ];
+        return Logger::create($channel);
+    }
 
-            // Add exception context with previous exception if exists
-            if (! is_null($exception)) {
-                $exceptionLogContext = ExceptionLogFormatter::format($customContext, $exception);
-                $exceptionContext = $exceptionLogContext['exception'] ?? null;
-                if (array_key_exists('exception', $exceptionLogContext)) {
-                    unset($exceptionLogContext['exception']);
-                }
-                $customContext = $exceptionLogContext;
+    /**
+     * @param array<string,mixed> $customContext
+     *
+     * @return array<string,mixed>
+     */
+    private function buildContext(array $customContext, ?Throwable $exception): array
+    {
+        $exceptionContext = [];
+
+        if ($exception !== null) {
+            $formatted = ExceptionLogFormatter::format($customContext, $exception);
+            if (array_key_exists('exception', $formatted)) {
+                $exceptionContext = $formatted['exception'];
+                unset($formatted['exception']);
             }
-
-            $context = [
-                'custom' => $customContext !== [] ? $customContext : null,
-                'exception' => $exceptionContext !== [] ? $exceptionContext : null,
-                'default' => $defaultContext,
-            ];
-
-            return json_encode(
-                $context,
-                JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-            );
-        } catch (JsonException $e) {
-            return sprintf(
-                'context: error while json encoding (JsonException: %s)',
-                $e->getMessage()
-            );
+            $customContext = $formatted;
         }
+
+        return [
+            'custom' => $customContext !== [] ? $customContext : null,
+            'exception' => $exceptionContext !== [] ? $exceptionContext : null,
+            'request_infos' => [
+                'uri' => isset($_SERVER['REQUEST_URI']) ? urldecode((string) $_SERVER['REQUEST_URI']) : null,
+                'http_method' => $_SERVER['REQUEST_METHOD'] ?? null,
+                'server' => $_SERVER['SERVER_NAME'] ?? null,
+            ],
+        ];
     }
 }
