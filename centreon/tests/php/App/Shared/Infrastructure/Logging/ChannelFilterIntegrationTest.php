@@ -24,11 +24,15 @@ declare(strict_types=1);
 namespace Tests\App\Shared\Infrastructure\Logging;
 
 use Monolog\Formatter\LineFormatter;
+use Monolog\Handler\FingersCrossedHandler;
 use Monolog\Handler\FormattableHandlerInterface;
 use Monolog\Handler\HandlerInterface;
+use Monolog\Handler\TestHandler;
 use Monolog\Logger;
+use Monolog\Processor\UidProcessor;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use Symfony\Bridge\Monolog\Handler\FingersCrossed\HttpCodeActivationStrategy;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 #[Group('integration')]
@@ -141,5 +145,118 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
         $formatter = $handler->getFormatter();
         self::assertInstanceOf(LineFormatter::class, $formatter);
         self::assertSame(\DateTimeInterface::RFC3339, $formatter->getDateFormat());
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function everyChannel(): iterable
+    {
+        // Cross-channel set: the bus/request/app trio gets the HTTP
+        // processors via channel-scoped tags, but UidProcessor is
+        // declared globally — so it must land on every channel logger
+        // including the dedicated MON-151077 ones.
+        yield 'bus channel' => ['monolog.logger.bus'];
+
+        yield 'request channel' => ['monolog.logger.request'];
+
+        yield 'app channel (default)' => ['monolog.logger'];
+
+        yield 'deprecation channel' => ['monolog.logger.deprecation'];
+
+        yield 'authentication channel' => ['monolog.logger.authentication'];
+
+        yield 'token channel' => ['monolog.logger.token'];
+    }
+
+    #[DataProvider('everyChannel')]
+    public function testUidProcessorIsStampedOnEveryChannel(string $loggerServiceId): void
+    {
+        // Pin "UidProcessor is registered on every channel logger". The
+        // service is declared in config.new/services/monolog.php with
+        // no channel tag, which means MonologBundle attaches it to every
+        // logger. This test guards against an accidental channel-scoped
+        // tag landing on the service in the future.
+        self::bootKernel();
+        $container = self::getContainer();
+
+        if (! $container->has($loggerServiceId)) {
+            self::markTestSkipped(sprintf('Logger service %s is not declared in this kernel.', $loggerServiceId));
+        }
+
+        $logger = $container->get($loggerServiceId);
+        \assert($logger instanceof Logger);
+
+        $processorClasses = [];
+        foreach ($logger->getProcessors() as $processor) {
+            if (\is_object($processor)) {
+                $processorClasses[] = $processor::class;
+            }
+        }
+
+        self::assertContains(
+            UidProcessor::class,
+            $processorClasses,
+            sprintf('Logger %s must expose UidProcessor for cross-channel request correlation', $loggerServiceId),
+        );
+    }
+
+    public function testUidProcessorStampsTheSameValueAcrossChannels(): void
+    {
+        // Behavioural pin on top of the wiring assertion: two records
+        // emitted on two different channels during the same process must
+        // carry the same `extra.uid`. That is the whole point — being
+        // able to `grep <uid>` and reconstruct an entire request across
+        // prod.web.log + prod.access.log + prod.token.log etc.
+        self::bootKernel();
+        $container = self::getContainer();
+
+        $busLogger = $container->get('monolog.logger.bus');
+        \assert($busLogger instanceof Logger);
+        $busTestHandler = new TestHandler();
+        $busLogger->pushHandler($busTestHandler);
+
+        $appLogger = $container->get('monolog.logger');
+        \assert($appLogger instanceof Logger);
+        $appTestHandler = new TestHandler();
+        $appLogger->pushHandler($appTestHandler);
+
+        $busLogger->info('from bus');
+        $appLogger->info('from app');
+
+        $busRecord = $busTestHandler->getRecords()[0];
+        $appRecord = $appTestHandler->getRecords()[0];
+
+        self::assertArrayHasKey('uid', $busRecord->extra);
+        self::assertArrayHasKey('uid', $appRecord->extra);
+        self::assertSame(
+            $busRecord->extra['uid'],
+            $appRecord->extra['uid'],
+            'Records emitted in the same process on different channels must share the same UidProcessor uid',
+        );
+    }
+
+    public function testWebFingerCrossedExcludesHttp404And405(): void
+    {
+        // Pin "404/405 do not trigger the fingers_crossed buffer flush"
+        // — that is the Symfony recipe pattern (excluded_http_codes) we
+        // adopted to prevent bot scans on /wp-admin, /.env etc. from
+        // flooding prod.web.log. Verified by inspecting the activation
+        // strategy on the configured handler.
+        self::bootKernel();
+        $container = self::getContainer();
+
+        $handler = $container->get('monolog.handler.web_finger_crossed');
+        \assert($handler instanceof FingersCrossedHandler);
+
+        $strategy = (new \ReflectionProperty(FingersCrossedHandler::class, 'activationStrategy'))
+            ->getValue($handler);
+        self::assertInstanceOf(HttpCodeActivationStrategy::class, $strategy);
+
+        $excludedHttpCodes = (new \ReflectionProperty(HttpCodeActivationStrategy::class, 'exclusions'))
+            ->getValue($strategy);
+        $codes = array_column($excludedHttpCodes, 'code');
+        self::assertContains(404, $codes);
+        self::assertContains(405, $codes);
     }
 }
