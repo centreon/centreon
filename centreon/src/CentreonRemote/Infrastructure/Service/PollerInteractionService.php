@@ -21,7 +21,9 @@
 
 namespace CentreonRemote\Infrastructure\Service;
 
+use App\Kernel;
 use Centreon;
+use Centreon\Infrastructure\Service\VmwareConfigurationService;
 use Centreon\ServiceProvider;
 use CentreonBroker;
 use CentreonContactgroup;
@@ -122,6 +124,10 @@ class PollerInteractionService
             ? _CENTREON_VARLIB_ . '/centcore.cmd'
             : '/var/lib/centreon/centcore.cmd';
 
+        $vmwareConfigurationService = Kernel::createForWeb()
+            ->getContainer()
+            ->get(VmwareConfigurationService::class);
+
         $tabServer = [];
         $tabs = $this->centreon->user->access->getPollerAclConf([
             'fields' => ['name', 'id', 'localhost'],
@@ -151,6 +157,11 @@ class PollerInteractionService
                 if ($written === false) {
                     throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
                 }
+
+                $vmwareConfigurationService->restartIfConfigurationChanged(
+                    (int) $host['id'],
+                    isset($host['localhost']) && $host['localhost'] == 1
+                );
             }
         }
     }

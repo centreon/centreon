@@ -41,6 +41,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Common\Infrastructure\FeatureFlags;
+use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 
 final class AddAcc
 {
@@ -58,6 +59,7 @@ final class AddAcc
      * @param ContactInterface $user
      * @param FeatureFlags $flags
      * @param \Traversable<WriteVaultAccRepositoryInterface> $writeVaultAccRepositories
+     * @param WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository
      */
     public function __construct(
         private readonly ReadAccRepositoryInterface $readAccRepository,
@@ -68,6 +70,7 @@ final class AddAcc
         private readonly ContactInterface $user,
         private readonly FeatureFlags $flags,
         \Traversable $writeVaultAccRepositories,
+        private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
     ) {
         $this->writeVaultAccRepositories = iterator_to_array($writeVaultAccRepositories);
     }
@@ -155,6 +158,8 @@ final class AddAcc
 
             $newAccId = $this->writeAccRepository->add($acc);
             $this->writeAccRepository->linkToPollers($newAccId, $pollers);
+
+            $this->writeMonitoringServerRepository->notifyVmwareConfigurationChange(...$pollers);
 
             $this->dataStorageEngine->commitTransaction();
         } catch (\Throwable $ex) {

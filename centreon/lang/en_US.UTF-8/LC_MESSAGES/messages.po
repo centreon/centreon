@@ -3578,6 +3578,10 @@ msgstr "Copy the link to this resource"
 msgid "Copy/paste x.509 certificate"
 msgstr "Copy/paste x.509 certificate"
 
+#: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
+msgid "Could not copy VMWare configuration file"
+msgstr ""
+
 #: centreon/www/api/class/centreon_proxy.class.php
 msgid "Could not establish connection to Centreon IMP servers ("
 msgstr "Could not establish connection to Centreon IMP servers ("
@@ -3591,6 +3595,7 @@ msgstr ""
 "Could not find configuration directory '%s' for monitoring engine '%s'.\n"
 "                                 Please check its path or create it"
 
+#: centreon/src/Centreon/Infrastructure/Service/VmwareConfigurationService.php
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
 #: centreon/www/include/configuration/configGenerate/xml/restartPollers.php
