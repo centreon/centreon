@@ -1,5 +1,5 @@
-# HTTPS-mode overlay. Loaded only when CENTREON_PROTOCOL=HTTPS resolves
-# COMPOSE_FILE to base + this file. See README.md "HTTP / HTTPS mode".
+# HTTPS-mode overlay. Load alongside docker-compose.yml via -f flags or by
+# setting COMPOSE_FILE. See README.md "HTTP / HTTPS mode".
 #
 # Adds: certgen one-shot, the `certs` named volume, TLS for web/db/remote-server/db-remote.
 # Replaces (not merges): web.ports, remote-server.ports, web/remote-server healthcheck targets,

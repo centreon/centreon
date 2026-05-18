@@ -15,39 +15,75 @@ Centreon web should be accessible at `http://localhost:4000/centreon`
 
 ## :lock: HTTP / HTTPS mode
 
-The stack runs in HTTP mode by default. An opt-in HTTPS mode is available via the `docker-compose.tls.yml` overlay. In HTTPS mode:
-
-* a one-shot `certgen` service issues a Root CA + multi-SAN leaf into the `certs` named volume;
-* `web` and `remote-server` install the CA, drop an Apache TLS vhost (terminates :443, reverse-proxies to :80), and write Symfony `.env` keys consumed by [`DatabaseTLSResolver`](../../src/Core/Infrastructure/Common/DatabaseTLSResolver.php);
-* `db` and `db-remote` run with `--require-secure-transport=ON` using the issued cert;
-* the web UI is exposed on `https://localhost:4443/centreon` (`remote-server` on `:4444`). Port `4000` is not exposed.
-
-HTTP and HTTPS modes are mutually exclusive — side-by-side stacks are not supported yet (port `4443` is reserved for a future feature).
-
-To enable HTTPS mode, set `COMPOSE_FILE` to base + overlay:
+The stack runs in **HTTP** mode by default. HTTPS mode is opt-in via the `docker-compose.tls.yml` overlay — production-faithful, using the official Centreon HTTPS Apache vhost ([`packaging/src/centreon-apache-https.conf`](../../packaging/src/centreon-apache-https.conf)) that customer deployments run.
 
 ```bash
-export CENTREON_PROTOCOL=HTTPS
-export COMPOSE_FILE=.github/docker/docker-compose.yml:.github/docker/docker-compose.tls.yml
-docker compose up -d --wait
-```
+# HTTP (default)
+docker compose -f .github/docker/docker-compose.yml up -d --wait
+# → http://localhost:4000/centreon
 
-Or in a single command:
-
-```bash
+# HTTPS
 docker compose \
   -f .github/docker/docker-compose.yml \
   -f .github/docker/docker-compose.tls.yml \
   up -d --wait
+# → https://localhost:4443/centreon (cert is self-signed)
 ```
 
-The certificate is self-signed; trust it with `curl -k …` or import `rootCA.pem` (in the `certs` volume) into your browser/OS trust store.
+### Ports
+
+In HTTPS mode, **both** `:80` and `:443` are mapped. `:80` runs the production `:80 → :443` redirect block; `:443` serves the API/UI. This mirrors the production deployment shape where a user typing `http://centreon.example.com/` is redirected to `https://`.
+
+| Service         | HTTP mode  | HTTPS mode             |
+|-----------------|------------|------------------------|
+| `web`           | `4000:80`  | `4000:80` + `4443:443` |
+| `remote-server` | `4001:80`  | `4001:80` + `4444:443` |
+
+Following the redirect from the host fails because the production template's redirect target preserves the request port (`%{HTTP_HOST}` → `localhost:4000`, which is HTTP-only on the host side) — this is the upstream template's behavior. To validate:
+
+* **Redirect emission**: `curl -I http://localhost:4000/centreon/` returns `302 Found` with the expected `Location: https://localhost:4000/centreon/`.
+* **Full chain at production-default ports** (inside the container): `docker compose exec -T web curl -kL http://localhost/centreon/api/latest/platform/versions` follows `:80 → :443 → 200`.
+
+### What HTTPS mode layers on top
+
+The overlay adds:
+
+* **`certgen`** one-shot — issues a Root CA + multi-SAN leaf cert into the `certs` named volume on first `up` (covering `web`, `remote-server`, `db`, `db-remote`, `localhost`, `127.0.0.1`). CA persists across `up` cycles; `docker compose down -v` wipes it.
+* **`web` / `remote-server`** — install the CA into the OS trust store, drop the official Apache HTTPS vhost (same cipher list, HSTS, `X-Frame-Options`, cookie hardening, FCGI to `php-fpm:9042`, `:80 → :443` redirect as production — only cert paths differ), write `/usr/share/centreon/.env` with `DATABASE_SSL_*` keys for the PHP-side [`DatabaseTLSResolver`](../../src/Core/Infrastructure/Common/DatabaseTLSResolver.php), and patch the gorgone DB DSN with `mysql_ssl=1;mysql_ssl_ca=…`.
+* **`db` / `db-remote`** — run with `--require-secure-transport=ON` plus `--ssl-ca/--ssl-cert/--ssl-key`, rejecting plaintext TCP.
+* **Centreon Broker** — the install-time `db_ssl_*` JSON keys (existing Centreon support) are emitted automatically when `DATABASE_SSL_ENABLED=1` is in `.env`.
+
+### Trusting the dev CA
+
+```bash
+# Copy the CA out of the running stack
+docker compose -f .github/docker/docker-compose.yml -f .github/docker/docker-compose.tls.yml \
+  cp web:/etc/pki/centreon-tls/rootCA.pem /tmp/centreon-dev-ca.pem
+
+# Verified curl (no -k)
+curl --cacert /tmp/centreon-dev-ca.pem https://localhost:4443/centreon/api/latest/platform/versions
+
+# OS trust store (Linux example)
+sudo cp /tmp/centreon-dev-ca.pem /usr/local/share/ca-certificates/centreon-dev-ca.crt
+sudo update-ca-certificates
+```
+
+### Requirements
 
 > [!IMPORTANT]
-> HTTPS mode requires a `WEB_IMAGE` built from a branch that includes [centreon/centreon#9237](https://github.com/centreon/centreon/pull/9237) (`DatabaseTLSResolver`). Without it, the centreon-web container exits early at the `04-tls.sh` hook with a copy-pasteable error. CI tracks this via the `docker-compose-tls-smoke` workflow, which is expected-failing until the PR merges and flips green automatically afterwards.
+> HTTPS mode requires a `WEB_IMAGE` containing centreon/centreon **[PR #9237](https://github.com/centreon/centreon/pull/9237)** (`feat(database): Use TLS Connection`, branch `MON-192365`) — the application-side TLS resolver. The entrypoint hook `04-tls.sh` fails fast with a copy-pasteable error if the resolver class is absent from the image. CI's `docker-compose-tls-smoke` workflow is marked `continue-on-error: true` until #9237 merges, then flips green automatically with no further changes here.
+
+### Known limitations
 
 > [!NOTE]
-> The certgen image is built locally from `.github/docker/certgen/` (alpine + openssl). The first `up` builds the image; subsequent runs reuse the built image and the CA persisted in the `certs` volume. To force a fresh CA, run `docker compose down -v`.
+> **Side-by-side HTTP + HTTPS stacks from the same checkout** is a planned future feature. Today, two `up` invocations from the same directory collide on container/volume names regardless of port mapping. Pick one mode per checkout. (Port `4443` was chosen with the future side-by-side mode in mind.)
+
+> [!NOTE]
+> **Gorgone DB-TLS on Debian images (`centreon-web-trixie`)** is currently impacted by a DBD::mysql 4.053 + libmariadb 3.x API mismatch — the old `MYSQL_OPT_SSL_ENFORCE` option was removed without a DBD::mysql-compatible replacement. Web (PHP via PR #9237), Broker, and DB-side TLS are unaffected on this image; only the gorgone Perl→DB path is impacted. Workaround in discussion with the gorgone team (DBD::MariaDB has been validated as a working alternative).
+
+### Cert generation image
+
+The certgen image is built locally from [`.github/docker/certgen/`](certgen/Dockerfile) (alpine + openssl, same shape as [`centreon-images/.../gen_cert.sh`](https://github.com/centreon/centreon-images/blob/main/aws/centreon-ova-builder/ova_files/centreon-central/gen_cert.sh) minus the Apache / platform concerns). Override with `CERTGEN_IMAGE=…` to pin a published image.
 
 ## :toolbox: Custom database image
 
@@ -87,35 +123,6 @@ Usage:
 ```bash
 CENTREON_DATASET=0 CENTREON_LANG=fr_FR docker compose -f .github/docker/docker-compose.yml up -d --wait
 ```
-
-## :lock: HTTP / HTTPS mode
-
-The stack runs in **HTTP** mode by default (web on `http://localhost:4000`). HTTPS mode is opt-in via the `CENTREON_PROTOCOL` environment variable, which loads an overlay file (`docker-compose.tls.yml`) that:
-
-* Generates a Root CA and a multi-SAN leaf cert at `up` time via the `certgen` one-shot service (built locally from [`.github/docker/certgen/`](certgen/Dockerfile)).
-* Switches web/remote-server to TLS-only on `:4443` / `:4444` (HTTP `:4000` is **not** exposed in HTTPS mode — exclusive, not parallel).
-* Switches db/db-remote to TLS-required (drops `--skip-ssl`, adds `--ssl-ca/--ssl-cert/--ssl-key/--require-secure-transport=ON`).
-* Installs the Root CA into the `centreon-web` trust store and writes `/usr/share/centreon/.env` with `DATABASE_SSL_*` keys consumed by Symfony's [`DatabaseTLSResolver`](../../src/Core/Infrastructure/Common/DatabaseTLSResolver.php).
-
-```bash
-# HTTP (default — unchanged)
-docker compose -f .github/docker/docker-compose.yml up -d --wait
-
-# HTTPS
-docker compose \
-  -f .github/docker/docker-compose.yml \
-  -f .github/docker/docker-compose.tls.yml \
-  up -d --wait
-```
-
-> [!IMPORTANT]
-> HTTPS mode requires a `WEB_IMAGE` containing centreon/centreon **PR #9237** (`feat(database): Use TLS Connection`, branch `MON-192365`) — the application-side TLS resolver. The entrypoint hook `04-tls.sh` fails fast with a copy-pasteable error message if the resolver class is absent from the image. Until #9237 merges to `develop`, set `WEB_IMAGE` to an image built from that branch.
-
-> [!NOTE]
-> Running both HTTP and HTTPS stacks side-by-side from the same checkout is a planned future feature. Today, two `up` invocations from the same directory will collide on container/volume names regardless of port — pick one mode per checkout.
-
-> [!NOTE]
-> The certgen image (`centreon-certgen:local`) is built locally on first `up`. Override with `CERTGEN_IMAGE` if you want to pin a published image.
 
 ## :gear: Additional services using profiles
 

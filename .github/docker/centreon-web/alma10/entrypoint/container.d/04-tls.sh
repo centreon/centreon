@@ -39,7 +39,7 @@ if [ ! -f "$RESOLVER_PHP" ]; then
   cat >&2 <<'ERR'
 [tls] FATAL: HTTPS mode requires centreon/centreon PR #9237.
 [tls] Expected file not found: /usr/share/centreon/src/Core/Infrastructure/Common/DatabaseTLSResolver.php
-[tls] Use a WEB_IMAGE built from a branch that includes PR #9237, or unset CENTREON_PROTOCOL.
+[tls] Use a WEB_IMAGE built from a branch that includes PR #9237, or omit docker-compose.tls.yml from your compose invocation.
 ERR
   exit 1
 fi
