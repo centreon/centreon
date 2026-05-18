@@ -37,121 +37,97 @@ $errorMessage = '';
 /** ------------------------------------- Centreon Storage ------------------------------------- */
 $migrateInstanceIdToBigint = function () use ($pearDBO, &$errorMessage, $version): void {
     $errorMessage = 'Unable to migrate instance_id columns to BIGINT on centreon_storage';
+    $dbName = $pearDBO->getDatabaseName();
+
+    $isColumnBigint = static function (string $table, string $column) use ($pearDBO, $dbName): bool {
+        $type = $pearDBO->fetchOne(
+            <<<'SQL'
+                SELECT COLUMN_TYPE
+                FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_SCHEMA = :db_name
+                  AND TABLE_NAME = :table_name
+                  AND COLUMN_NAME = :column_name
+                SQL,
+            QueryParameters::create([
+                QueryParameter::string('db_name', $dbName),
+                QueryParameter::string('table_name', $table),
+                QueryParameter::string('column_name', $column),
+            ])
+        );
+
+        return is_string($type) && str_starts_with($type, 'bigint');
+    };
+
+    $foreignKeyExists = static function (string $table, string $constraint) use ($pearDBO, $dbName): bool {
+        return (bool) $pearDBO->fetchOne(
+            <<<'SQL'
+                SELECT 1
+                FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+                WHERE TABLE_SCHEMA = :db_name
+                  AND TABLE_NAME = :table_name
+                  AND CONSTRAINT_NAME = :constraint_name
+                  AND CONSTRAINT_TYPE = 'FOREIGN KEY'
+                LIMIT 1
+                SQL,
+            QueryParameters::create([
+                QueryParameter::string('db_name', $dbName),
+                QueryParameter::string('table_name', $table),
+                QueryParameter::string('constraint_name', $constraint),
+            ])
+        );
+    };
+
+    $columnsToMigrate = [
+        ['instances', 'instance_id', 'BIGINT NOT NULL'],
+        ['acknowledgements', 'instance_id', 'BIGINT DEFAULT NULL'],
+        ['comments', 'instance_id', 'BIGINT DEFAULT NULL'],
+        ['downtimes', 'instance_id', 'BIGINT DEFAULT NULL'],
+        ['hosts', 'instance_id', 'BIGINT NOT NULL'],
+        ['modules', 'instance_id', 'BIGINT NOT NULL'],
+        ['nagios_stats', 'instance_id', 'BIGINT NOT NULL'],
+    ];
+
+    $foreignKeys = [
+        ['acknowledgements', 'acknowledgements_ibfk_2', 'FOREIGN KEY (`instance_id`) REFERENCES `instances` (`instance_id`) ON DELETE SET NULL'],
+        ['comments', 'comments_ibfk_2', 'FOREIGN KEY (`instance_id`) REFERENCES `instances` (`instance_id`) ON DELETE SET NULL'],
+        ['downtimes', 'downtimes_ibfk_2', 'FOREIGN KEY (`instance_id`) REFERENCES `instances` (`instance_id`) ON DELETE SET NULL'],
+        ['hosts', 'hosts_ibfk_1', 'FOREIGN KEY (`instance_id`) REFERENCES `instances` (`instance_id`) ON DELETE CASCADE'],
+        ['modules', 'modules_ibfk_1', 'FOREIGN KEY (`instance_id`) REFERENCES `instances` (`instance_id`) ON DELETE CASCADE'],
+    ];
+
+    $pendingColumns = array_filter($columnsToMigrate, fn($col) => ! $isColumnBigint($col[0], $col[1]));
+    if ($pendingColumns === []) {
+        $missingFks = array_filter($foreignKeys, fn($fk) => ! $foreignKeyExists($fk[0], $fk[1]));
+        if ($missingFks === []) {
+            CentreonLog::create()->info(
+                logTypeId: CentreonLog::TYPE_UPGRADE,
+                message: "UPGRADE - {$version}: instance_id is already BIGINT on all centreon_storage tables, skipping",
+            );
+
+            return;
+        }
+    }
+
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: Migrating instance_id columns to BIGINT on centreon_storage",
     );
 
-    $columnType = $pearDBO->fetchOne(
-        <<<'SQL'
-            SELECT COLUMN_TYPE
-            FROM INFORMATION_SCHEMA.COLUMNS
-            WHERE TABLE_SCHEMA = :db_name
-              AND TABLE_NAME = 'instances'
-              AND COLUMN_NAME = 'instance_id'
-            SQL,
-        QueryParameters::create([
-            QueryParameter::string('db_name', $pearDBO->getDatabaseName()),
-        ])
-    );
-
-    if (is_string($columnType) && str_starts_with($columnType, 'bigint')) {
-        CentreonLog::create()->info(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: instance_id is already BIGINT on centreon_storage, skipping",
-        );
-
-        return;
+    foreach ($foreignKeys as [$table, $constraint]) {
+        if ($foreignKeyExists($table, $constraint)) {
+            $pearDBO->executeStatement("ALTER TABLE `{$table}` DROP FOREIGN KEY `{$constraint}`");
+        }
     }
 
-    $pearDBO->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `acknowledgements` DROP FOREIGN KEY `acknowledgements_ibfk_2`
-            SQL
-    );
-    $pearDBO->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `comments` DROP FOREIGN KEY `comments_ibfk_2`
-            SQL
-    );
-    $pearDBO->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `downtimes` DROP FOREIGN KEY `downtimes_ibfk_2`
-            SQL
-    );
-    $pearDBO->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `hosts` DROP FOREIGN KEY `hosts_ibfk_1`
-            SQL
-    );
-    $pearDBO->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `modules` DROP FOREIGN KEY `modules_ibfk_1`
-            SQL
-    );
+    foreach ($pendingColumns as [$table, $column, $definition]) {
+        $pearDBO->executeStatement("ALTER TABLE `{$table}` MODIFY COLUMN `{$column}` {$definition}");
+    }
 
-    $pearDBO->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `instances` MODIFY COLUMN `instance_id` BIGINT NOT NULL
-            SQL
-    );
-
-    $pearDBO->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `acknowledgements` MODIFY COLUMN `instance_id` BIGINT DEFAULT NULL
-            SQL
-    );
-    $pearDBO->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `comments` MODIFY COLUMN `instance_id` BIGINT DEFAULT NULL
-            SQL
-    );
-    $pearDBO->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `downtimes` MODIFY COLUMN `instance_id` BIGINT DEFAULT NULL
-            SQL
-    );
-    $pearDBO->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `hosts` MODIFY COLUMN `instance_id` BIGINT NOT NULL
-            SQL
-    );
-    $pearDBO->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `modules` MODIFY COLUMN `instance_id` BIGINT NOT NULL
-            SQL
-    );
-    $pearDBO->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `nagios_stats` MODIFY COLUMN `instance_id` BIGINT NOT NULL
-            SQL
-    );
-
-    $pearDBO->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `acknowledgements` ADD CONSTRAINT `acknowledgements_ibfk_2` FOREIGN KEY (`instance_id`) REFERENCES `instances` (`instance_id`) ON DELETE SET NULL
-            SQL
-    );
-    $pearDBO->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `comments` ADD CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`instance_id`) REFERENCES `instances` (`instance_id`) ON DELETE SET NULL
-            SQL
-    );
-    $pearDBO->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `downtimes` ADD CONSTRAINT `downtimes_ibfk_2` FOREIGN KEY (`instance_id`) REFERENCES `instances` (`instance_id`) ON DELETE SET NULL
-            SQL
-    );
-    $pearDBO->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `hosts` ADD CONSTRAINT `hosts_ibfk_1` FOREIGN KEY (`instance_id`) REFERENCES `instances` (`instance_id`) ON DELETE CASCADE
-            SQL
-    );
-    $pearDBO->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `modules` ADD CONSTRAINT `modules_ibfk_1` FOREIGN KEY (`instance_id`) REFERENCES `instances` (`instance_id`) ON DELETE CASCADE
-            SQL
-    );
+    foreach ($foreignKeys as [$table, $constraint, $definition]) {
+        if (! $foreignKeyExists($table, $constraint)) {
+            $pearDBO->executeStatement("ALTER TABLE `{$table}` ADD CONSTRAINT `{$constraint}` {$definition}");
+        }
+    }
 
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
