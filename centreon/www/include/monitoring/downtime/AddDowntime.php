@@ -44,13 +44,22 @@ function checkYearMax(array $fields)
 {
     $errors = [];
     $tooHighDateMessage = sprintf(_('Please choose a date before %d'), DOWNTIME_YEAR_MAX);
+    $invalidDateMessage = sprintf(_('Invalid date format'));
 
-    if (((int) (new DateTime($fields['alternativeDateStart']))->format('Y')) >= DOWNTIME_YEAR_MAX) {
-        $errors['start'] = $tooHighDateMessage;
+    try {
+        if (((int) (new DateTime($fields['alternativeDateStart']))->format('Y')) >= DOWNTIME_YEAR_MAX) {
+            $errors['start'] = $tooHighDateMessage;
+        }
+    } catch (Exception $e) {
+        $errors['start'] = $invalidDateMessage;
     }
 
-    if (((int) (new DateTime($fields['alternativeDateEnd']))->format('Y')) >= DOWNTIME_YEAR_MAX) {
-        $errors['end'] = $tooHighDateMessage;
+    try {
+        if (((int) (new DateTime($fields['alternativeDateEnd']))->format('Y')) >= DOWNTIME_YEAR_MAX) {
+            $errors['end'] = $tooHighDateMessage;
+        }
+    } catch (Exception $e) {
+        $errors['end'] = $invalidDateMessage;
     }
 
     return $errors !== [] ? $errors : true;

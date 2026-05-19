@@ -4,7 +4,9 @@ import type { PredefinedRowSelection } from '../../models';
 
 interface Props {
   close: () => void;
-  onSelectRowsWithCondition: (condition) => void;
+  onSelectRowsWithCondition: (
+    condition: (row: Record<string, unknown>) => boolean
+  ) => void;
   predefinedRowsSelection: Array<PredefinedRowSelection>;
 }
 

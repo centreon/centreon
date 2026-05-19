@@ -1,10 +1,11 @@
+import type { ScaleLinear } from 'd3-scale';
 import { useMemo } from 'react';
 
 import type { AdditionalLineProps } from '../models';
 
 interface Props extends AdditionalLineProps {
   graphWidth: number;
-  yScale;
+  yScale: ScaleLinear<number, number>;
 }
 
 const AdditionalLine = ({

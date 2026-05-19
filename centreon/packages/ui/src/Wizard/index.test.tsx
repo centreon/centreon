@@ -1,7 +1,3 @@
-import { useEffect } from "react";
-
-import * as Yup from "yup";
-
 import {
 	fireEvent,
 	type RenderResult,
@@ -10,7 +6,6 @@ import {
 	waitFor,
 } from "../../test/testRenderer";
 import Wizard from ".";
-import type { StepComponentProps } from "./models";
 
 const renderWizardThreeSteps = (): RenderResult =>
 	render(
@@ -50,67 +45,6 @@ const renderWizardOneStep = (): RenderResult =>
 		/>,
 	);
 
-const secondStepValidationSchema = Yup.object().shape({
-	secondInput: Yup.string().required("Required"),
-});
-
-const renderWizardTwoStepsWithFormValidation = (): RenderResult =>
-	render(
-		<Wizard
-			open
-			initialValues={{ secondInput: "" }}
-			steps={[
-				{
-					Component: (): JSX.Element => <div>Step 1</div>,
-					skipFormChangeCheck: true,
-					stepName: "step label 1",
-				},
-				{
-					Component: (): JSX.Element => <div>Step 2</div>,
-					skipFormChangeCheck: true,
-					stepName: "step label 2",
-					validationSchema: secondStepValidationSchema,
-				},
-			]}
-		/>,
-	);
-
-const SecondStep = ({
-	disableNextOnSendingRequests,
-}: StepComponentProps): JSX.Element => {
-	const finishRequests = (): void => {
-		disableNextOnSendingRequests([false, false, false]);
-	};
-
-	useEffect(() => {
-		disableNextOnSendingRequests([true, false, true]);
-	}, [disableNextOnSendingRequests]);
-
-	return (
-		<button type="button" onClick={finishRequests}>
-			Finish requests
-		</button>
-	);
-};
-
-const renderWizardTwoStepsWithSendingRequests = (): RenderResult =>
-	render(
-		<Wizard
-			open
-			steps={[
-				{
-					Component: (): JSX.Element => <div>Step 1</div>,
-					skipFormChangeCheck: true,
-					stepName: "step label 1",
-				},
-				{
-					Component: SecondStep,
-					skipFormChangeCheck: true,
-					stepName: "step label 2",
-				},
-			]}
-		/>,
-	);
 
 describe(Wizard, () => {
 	it("displays the step labels", () => {

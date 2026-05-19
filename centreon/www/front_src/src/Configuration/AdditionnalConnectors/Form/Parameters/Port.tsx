@@ -16,7 +16,7 @@ const Port = (): ReactElement => {
   const { values, setFieldValue, errors, touched, handleBlur } =
     useFormikContext<AdditionalConnectorConfiguration>();
 
-  const changePortValue = (newPort): void => {
+  const changePortValue = (newPort: number | string): void => {
     setFieldValue('parameters.port', newPort);
   };
 

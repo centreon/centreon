@@ -14,6 +14,11 @@ import { labelFailedToCreatePoller } from '../../../translatedLabels';
 import { generatedCommandAtom, isModalOpenAtom, pollerIdAtom } from '../atoms';
 import type { CloudInstallCommandFormValues } from '../models';
 
+interface PollerResponse {
+  id: number;
+  command: string;
+}
+
 interface UseInstallCommandState {
   submit: (values: CloudInstallCommandFormValues) => Promise<void>;
   close: () => void;
@@ -49,7 +54,8 @@ export const useInstallCommand = (): UseInstallCommandState => {
         }
       });
 
-      const pollerId = pollerResponse?.id;
+      const response = pollerResponse as PollerResponse;
+      const pollerId = response?.id;
 
       if (!pollerId) {
         showErrorMessage(t(labelFailedToCreatePoller));
@@ -60,10 +66,9 @@ export const useInstallCommand = (): UseInstallCommandState => {
       setPollerId(pollerId);
 
       const centralUrl = `${window.location.origin}${centreonBaseURL}`;
-      const command = (pollerResponse?.command || '').replaceAll(
-        '<CENTRAL_URL>',
-        centralUrl
-      );
+      const command = (response?.command || '')
+        .split('<CENTRAL_URL>')
+        .join(centralUrl);
 
       setGeneratedCommand(command);
     } catch {

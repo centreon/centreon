@@ -1,4 +1,4 @@
-import type { ScaleLinear } from 'd3-scale';
+import type { ScaleLinear, ScaleTime } from 'd3-scale';
 import { isNil } from 'ramda';
 import type { MutableRefObject } from 'react';
 
@@ -36,7 +36,7 @@ interface Props extends GlobalAreaLines {
   scaleLogarithmicBase?: number;
   timeSeries: Array<TimeValue>;
   width: number;
-  xScale: ScaleLinear<number, number>;
+  xScale: ScaleTime<number, number>;
   yScalesPerUnit: Record<string, ScaleLinear<number, number>>;
   lineStyle: LineStyle | Array<LineStyle>;
   hasSecondUnit?: boolean;
@@ -177,7 +177,6 @@ const Lines = ({
       )}
 
       {displayThresholdArea && (
-        // @ts-expect-error - suppressing pre-existing type mismatch
         <WrapperThresholdLines
           areaThresholdLines={areaThresholdLines}
           graphHeight={height}
@@ -236,14 +235,11 @@ const Lines = ({
                 <g key={metric_id}>
                   {displayGuidingLines && (
                     <RegularAnchorPoint
-                      // @ts-expect-error - suppressing pre-existing type mismatch
-                      areaColor={areaColor || lineColor}
                       hasSecondUnit={hasSecondUnit}
                       lineColor={lineColor}
                       maxLeftAxisCharacters={maxLeftAxisCharacters}
                       metric_id={metric_id}
                       timeSeries={relatedTimeSeries}
-                      transparency={transparency}
                       xScale={xScale}
                       yScale={yScale}
                     />
@@ -253,10 +249,7 @@ const Lines = ({
                       <Point
                         key={timeTick.toString()}
                         lineColor={lineColor}
-                        // @ts-expect-error - suppressing pre-existing type mismatch
-                        metric_id={metric_id}
                         radius={getPointRadius(style?.lineWidth)}
-                        timeSeries={relatedTimeSeries}
                         timeTick={timeTick}
                         xScale={xScale}
                         yPoint={getYAnchorPoint({
@@ -265,7 +258,6 @@ const Lines = ({
                           timeTick,
                           yScale
                         })}
-                        yScale={yScale}
                       />
                     ))}
                   <RegularLine

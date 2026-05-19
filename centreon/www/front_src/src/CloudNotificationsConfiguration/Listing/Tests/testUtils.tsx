@@ -1,5 +1,6 @@
 import { Column, ColumnType } from '@centreon/ui';
 
+import { ResourcesType } from '../../models';
 import {
   labelActions,
   labelChannels,
@@ -76,7 +77,7 @@ export const getListingResponse = ({
 export const getListingColumns = (): Array<Column> => [
   {
     disablePadding: false,
-    getFormattedString: ({ name }): string => name,
+    getFormattedString: ({ name }): string => name as string,
     id: 'name',
     label: labelName,
     sortable: true,
@@ -95,7 +96,7 @@ export const getListingColumns = (): Array<Column> => [
   {
     disablePadding: false,
     getFormattedString: ({ resources }): string =>
-      formatResourcesForListing(resources),
+      formatResourcesForListing(resources as Array<ResourcesType>),
     id: 'resources',
     label: labelResources,
     sortable: true,
@@ -104,7 +105,8 @@ export const getListingColumns = (): Array<Column> => [
   },
   {
     disablePadding: false,
-    getFormattedString: ({ timeperiod }): string => timeperiod?.name,
+    getFormattedString: ({ timeperiod }): string =>
+      (timeperiod as { name: string } | undefined)?.name ?? '',
     id: 'timeperiod',
     label: labelPeriod,
     type: ColumnType.string

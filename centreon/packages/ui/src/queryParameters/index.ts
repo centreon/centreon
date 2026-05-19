@@ -7,8 +7,14 @@ interface ToRawQueryParametersProps {
   apiFormat: 'Standard' | 'JSON-LD';
 }
 
-const toRawQueryParameter = ({ name, value }): string => {
-  return `${name}=${encodeURIComponent(value)}`;
+const toRawQueryParameter = ({
+  name,
+  value
+}: {
+  name: string;
+  value: unknown;
+}): string => {
+  return `${name}=${encodeURIComponent(value as string)}`;
 };
 
 const toRawQueryParameters = ({

@@ -1,4 +1,5 @@
 import { Chip, type ChipProps, Tooltip } from '@mui/material';
+import type { AutocompleteRenderGetTagProps } from '@mui/material/Autocomplete';
 import type { UseAutocompleteProps } from '@mui/material/useAutocomplete';
 
 import { compose, includes, map, prop, reject, sortBy, toLower } from 'ramda';
@@ -23,8 +24,8 @@ export interface Props
   chipProps?: ChipProps;
   disableSortedOptions?: boolean;
   disableSelectAll?: boolean;
-  getOptionTooltipLabel?: (option) => string;
-  getTagLabel?: (option) => string;
+  getOptionTooltipLabel?: (option: SelectEntry) => string;
+  getTagLabel?: (option: SelectEntry) => string;
   optionProperty?: string;
   customRenderTags?: (tags: React.ReactNode) => React.ReactNode;
   total?: number;
@@ -36,9 +37,10 @@ const MultiAutocompleteField = ({
   disableSortedOptions = false,
   disableSelectAll = true,
   optionProperty = 'name',
-  getOptionLabel = (option): string =>
+  getOptionLabel = (option: SelectEntry | string): string =>
     typeof option === 'string' ? option : option?.name,
-  getTagLabel = (option): string => option[optionProperty],
+  getTagLabel = (option: SelectEntry): string =>
+    (option as unknown as Record<string, string>)[optionProperty],
   getOptionTooltipLabel,
   chipProps,
   customRenderTags,
@@ -48,8 +50,11 @@ const MultiAutocompleteField = ({
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
-  const renderTags = (renderedValue, getTagProps): Array<JSX.Element> =>
-    renderedValue.map((option, index) => {
+  const renderTags = (
+    renderedValue: Array<SelectEntry>,
+    getTagProps: AutocompleteRenderGetTagProps
+  ): Array<JSX.Element> =>
+    renderedValue.map((option: SelectEntry, index: number) => {
       return (
         <Tooltip
           key={option.id}
@@ -78,11 +83,13 @@ const MultiAutocompleteField = ({
       );
     });
 
-  const getLimitTagsText = (more): JSX.Element => <Option>{`+${more}`}</Option>;
+  const getLimitTagsText = (more: number): JSX.Element => (
+    <Option>{`+${more}`}</Option>
+  );
 
   const values = (value as Array<SelectEntry>) || [];
 
-  const isOptionSelected = ({ id }): boolean => {
+  const isOptionSelected = ({ id }: { id: SelectEntry['id'] }): boolean => {
     const valueIds = map(prop('id'), values);
 
     return includes(id, valueIds);
