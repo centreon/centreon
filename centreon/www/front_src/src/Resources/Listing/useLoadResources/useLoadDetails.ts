@@ -35,7 +35,9 @@ const useLoadDetails = (): LoadDetails => {
       always(t(labelNoResourceFound)),
       pathOr(t(labelSomethingWentWrong), ['response', 'data', 'message'])
     ),
-    request: getData
+    request: getData as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<ResourceDetails>
   });
 
   const selectedResourceDetailsEndpoint = useAtomValue(

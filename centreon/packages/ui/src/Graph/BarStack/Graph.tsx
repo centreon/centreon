@@ -4,13 +4,14 @@ import {
   BarStack as BarStackVertical
 } from '@visx/shape';
 import { Text } from '@visx/text';
+import type { ScaleOrdinal } from 'd3-scale';
 import { equals, props } from 'ramda';
 import { memo, useMemo } from 'react';
 
 import { Tooltip } from '../../components';
 import { getValueByUnit } from '../common/utils';
 import { useGraphStyles } from './BarStack.styles';
-import type { BarStackProps } from './models';
+import type { BarStackProps, BarType } from './models';
 import { useGraphAndLegend } from './useGraphAndLegend';
 
 interface Props
@@ -26,11 +27,21 @@ interface Props
   width: number;
   height: number;
   isVerticalBar: boolean;
-  colorScale;
+  colorScale: ScaleOrdinal<string, string>;
   total: number;
 }
 
-const getFitsInBar = ({ isVerticalBar, bar, unit }): boolean => {
+interface GetFitsInBarProps {
+  isVerticalBar: boolean;
+  bar: { width: number; height: number };
+  unit?: 'percentage' | 'number';
+}
+
+const getFitsInBar = ({
+  isVerticalBar,
+  bar,
+  unit
+}: GetFitsInBarProps): boolean => {
   if (isVerticalBar) {
     return bar.height >= 18;
   }
@@ -41,16 +52,21 @@ const getFitsInBar = ({ isVerticalBar, bar, unit }): boolean => {
   );
 };
 
+interface GetClickProps {
+  onSingleBarClick?: (barData: BarType) => void;
+  bar: BarType | unknown;
+}
+
 const getClick = ({
   onSingleBarClick,
   bar
-}): ((e: MouseEvent) => void) | undefined => {
+}: GetClickProps): ((e: MouseEvent) => void) | undefined => {
   if (onSingleBarClick) {
     return (e: MouseEvent): void => {
       if (!equals(e.button, 0)) {
         return;
       }
-      onSingleBarClick(bar);
+      onSingleBarClick(bar as BarType);
     };
   }
 

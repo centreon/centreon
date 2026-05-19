@@ -30,7 +30,7 @@ const useStyles = makeStyles()((theme) => ({
 
 export interface SnackbarProps {
   id: string | number;
-  message: string;
+  message: string | JSX.Element;
   severity: Severity;
 }
 
@@ -57,7 +57,9 @@ const Snackbar = forwardRef(
       }
       closeSnackbar(id);
     };
-    const sanitizedMessage = sanitizedHTML({ initialContent: message });
+    const sanitizedMessage = sanitizedHTML({
+      initialContent: message as string
+    });
 
     const formatedMessage =
       typeof message === 'string' ? <div>{sanitizedMessage}</div> : message;
