@@ -162,34 +162,6 @@ trait LoggerTrait
             $context = array_merge($context, $callable());
         }
 
-        $this->logger->log($level, $message, $this->normalizeContext($context));
-    }
-
-    /**
-     * @param array<string,mixed> $customContext
-     *
-     * @return array<string,mixed>
-     */
-    private function normalizeContext(array $customContext): array
-    {
-        $defaultContext = [
-            'request_infos' => [
-                'uri' => isset($_SERVER['REQUEST_URI']) ? urldecode($_SERVER['REQUEST_URI']) : null,
-                'http_method' => $_SERVER['REQUEST_METHOD'] ?? null,
-                'server' => $_SERVER['SERVER_NAME'] ?? null,
-            ],
-        ];
-
-        $exceptionContext = [];
-        if (isset($customContext['exception'])) {
-            $exceptionContext = $customContext['exception'];
-            unset($customContext['exception']);
-        }
-
-        return [
-            'custom' => $customContext !== [] ? $customContext : null,
-            'exception' => $exceptionContext !== [] ? $exceptionContext : null,
-            'default' => $defaultContext,
-        ];
+        $this->logger->log($level, $message, $context);
     }
 }

@@ -21,7 +21,6 @@
 
 use Adaptation\Log\Enum\LogChannelEnum;
 use Adaptation\Log\Logger;
-use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogFormatter;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
@@ -189,11 +188,16 @@ class CentreonLog
             return;
         }
 
-        $logger = $this->getLoggerForType($logTypeId);
-        $logger->log(
+        if ($exception !== null) {
+            // Pass the Throwable as-is; ExceptionFormatterProcessor wired in
+            // MonologAdapter unwraps the chain and rewrites context.exception.
+            $customContext['exception'] = $exception;
+        }
+
+        $this->getLoggerForType($logTypeId)->log(
             $level !== '' ? mb_strtolower($level) : self::LEVEL_ERROR,
             $message,
-            $this->buildContext($customContext, $exception),
+            $customContext,
         );
     }
 
@@ -312,34 +316,5 @@ class CentreonLog
         };
 
         return Logger::create($channel);
-    }
-
-    /**
-     * @param array<string,mixed> $customContext
-     *
-     * @return array<string,mixed>
-     */
-    private function buildContext(array $customContext, ?Throwable $exception): array
-    {
-        $exceptionContext = [];
-
-        if ($exception !== null) {
-            $formatted = ExceptionLogFormatter::format($customContext, $exception);
-            if (array_key_exists('exception', $formatted)) {
-                $exceptionContext = $formatted['exception'];
-                unset($formatted['exception']);
-            }
-            $customContext = $formatted;
-        }
-
-        return [
-            'custom' => $customContext !== [] ? $customContext : null,
-            'exception' => $exceptionContext !== [] ? $exceptionContext : null,
-            'request_infos' => [
-                'uri' => isset($_SERVER['REQUEST_URI']) ? urldecode((string) $_SERVER['REQUEST_URI']) : null,
-                'http_method' => $_SERVER['REQUEST_METHOD'] ?? null,
-                'server' => $_SERVER['SERVER_NAME'] ?? null,
-            ],
-        ];
     }
 }
