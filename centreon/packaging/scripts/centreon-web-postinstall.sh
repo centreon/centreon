@@ -113,6 +113,7 @@ manageLocales() {
 manageApacheAndPhpFpm() {
   echo "Managing apache and php fpm configuration and services ..."
   if [ "$1" = "rpm" ]; then
+    systemctl daemon-reload ||:
     systemctl restart php-fpm || :
     systemctl restart httpd || :
   else
@@ -121,6 +122,7 @@ manageApacheAndPhpFpm() {
     a2enconf php8.2-fpm > /dev/null 2>&1 || :
     a2dissite 000-default > /dev/null 2>&1 || :
     a2ensite centreon > /dev/null 2>&1 || :
+    systemctl daemon-reload ||:
     systemctl restart php8.2-fpm || :
     systemctl restart apache2 || :
   fi
