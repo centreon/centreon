@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+set -eu
+
+# Scan staged content for secrets before running anything else.
+# Skipped (with a warning) if gitleaks is not installed locally.
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect -v --staged
+else
+  echo "warn: gitleaks not installed; skipping secret scan. Install: https://github.com/gitleaks/gitleaks#install" >&2
+fi
+
+# Type-check staged TS/TSX files. lint-staged finds matches via globs in
+# centreon/package.json and runs the right scripts per workspace.
+cd "$(git rev-parse --show-toplevel)/centreon"
+pnpm exec lint-staged
