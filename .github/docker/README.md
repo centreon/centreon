@@ -82,18 +82,21 @@ sudo update-ca-certificates
 > **Gorgone DB-TLS on Debian images (`centreon-web-trixie`)** is currently impacted by a DBD::mysql 4.053 + libmariadb 3.x API mismatch — the old `MYSQL_OPT_SSL_ENFORCE` option was removed without a DBD::mysql-compatible replacement. Web (PHP via PR #9237), Broker, and DB-side TLS are unaffected on this image; only the gorgone Perl→DB path is impacted. Workaround in discussion with the gorgone team (DBD::MariaDB has been validated as a working alternative).
 
 > [!NOTE]
-> **DB image compatibility** — HTTPS mode has been validated against the following combinations:
+> **DB image compatibility** — HTTPS mode has been validated against the following combinations, all passing end-to-end (web container `(healthy)`, API returns 200, all hardening headers present):
 >
 > | `WEB_IMAGE` (OS variant) | `MYSQL_IMAGE`                    | Status |
 > |---|---|---|
-> | `centreon-web-alma9`     | `bitnamilegacy/mariadb:10.11`   | ✅ tested |
-> | `centreon-web-alma9`     | `bitnamilegacy/mysql:8.0`       | ❌ Centreon install scripts incompatible with MySQL — fails identically in HTTP and HTTPS modes with `Unknown database 'centreon'`, TLS is not involved |
-> | `centreon-web-alma10`    | `bitnamilegacy/mariadb:11.8`    | ✅ tested |
-> | `centreon-web-alma10`    | `bitnamilegacy/mysql:8.4`       | ❌ same Centreon install incompatibility (verified independent of TLS) |
-> | `centreon-web-trixie`    | `bitnamilegacy/mariadb:11.8`    | ✅ web/broker tested; gorgone limitation per previous note |
-> | `centreon-web-trixie`    | `bitnamilegacy/mysql:8.4`       | ❌ Centreon install incompatibility (independent of TLS); plus gorgone limitation |
+> | `centreon-web-alma9`     | `bitnamilegacy/mariadb:10.11`   | ✅ |
+> | `centreon-web-alma9`     | `bitnamilegacy/mysql:8.0`       | ✅ |
+> | `centreon-web-alma10`    | `bitnamilegacy/mariadb:11.8`    | ✅ |
+> | `centreon-web-alma10`    | `bitnamilegacy/mysql:8.4`       | ✅ |
+> | `centreon-web-trixie`    | `bitnamilegacy/mariadb:11.8`    | ✅ web/broker — gorgone limitation per previous note |
+> | `centreon-web-trixie`    | `bitnamilegacy/mysql:8.4`       | ✅ web/broker — gorgone limitation per previous note |
 >
-> The pattern is clean: **all MariaDB combinations work; all MySQL combinations fail at Centreon's install step, independent of TLS.** Confirmed by reproducing the exact `Unknown database 'centreon'` failure in plain HTTP mode (no overlay, zero TLS handshakes on the DB). The docker-compose stack's TLS configuration is correct for both image families — when Centreon's install gains native MySQL support, no compose changes are needed here.
+> Two operational notes that matter for the MySQL family in particular:
+>
+> 1. **`ulimits: nofile: 32000`** is set on the `db` service in the base compose. Without it, Centreon's install on bitnami MySQL images runs out of file descriptors mid-install (the PHP install scripts + dump loading open many concurrent connections + tables) and leaves the install half-complete with `Unknown database 'centreon'` errors. MariaDB images don't hit this limit.
+> 2. **MySQL 8.4 servers log a `[Warning] [MY-015011] Failed to validate certificate`** at startup because the docker-compose stack does not pass `--ssl-ca` to mysqld (deliberately omitted — it was previously included but caused MySQL to embed the Root CA in its presented chain, which strict OpenSSL clients on alma9 rejected with `self-signed certificate in certificate chain`). The warning is informational; TLS continues to work normally.
 
 ### Cert generation image
 
