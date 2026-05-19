@@ -23,7 +23,7 @@ if (! isset($centreon)) {
     exit();
 }
 
-if (!defined('DOWNTIME_ON_HOST')) {
+if (! defined('DOWNTIME_ON_HOST')) {
     define('DOWNTIME_ON_HOST', 75);
 }
 
