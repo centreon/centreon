@@ -44,9 +44,15 @@ final class ExceptionFormatterProcessorTest extends TestCase
         $processed = ($this->processor)($record);
 
         self::assertIsArray($processed->context['exception']);
-        self::assertSame(\RuntimeException::class, $processed->context['exception']['type']);
-        self::assertSame('boom', $processed->context['exception']['message']);
-        self::assertSame(42, $processed->context['exception']['code']);
+        $exceptions = $processed->context['exception']['exceptions'];
+        \assert(\is_array($exceptions));
+        self::assertCount(1, $exceptions);
+
+        $entry = $exceptions[0];
+        \assert(\is_array($entry));
+        self::assertSame(\RuntimeException::class, $entry['type']);
+        self::assertSame('boom', $entry['message']);
+        self::assertSame(42, $entry['code']);
     }
 
     public function testLeavesContextUntouchedWhenNoExceptionKey(): void
@@ -63,7 +69,7 @@ final class ExceptionFormatterProcessorTest extends TestCase
         // Pin the no-op behaviour when an upstream layer (e.g. LoggingMiddleware
         // or an ad-hoc caller) has already serialised the exception —
         // re-running the formatter on an array would corrupt the context.
-        $alreadyFormatted = ['type' => 'X', 'message' => 'pre-formatted', 'previous' => []];
+        $alreadyFormatted = ['exceptions' => [['type' => 'X', 'message' => 'pre-formatted']]];
         $record = $this->makeRecord(['exception' => $alreadyFormatted]);
 
         $processed = ($this->processor)($record);

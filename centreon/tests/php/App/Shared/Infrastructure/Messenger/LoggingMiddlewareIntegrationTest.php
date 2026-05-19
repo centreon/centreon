@@ -96,11 +96,12 @@ final class LoggingMiddlewareIntegrationTest extends KernelTestCase
 
         $exception = $errorRecords[0]->context['exception'];
         \assert(\is_array($exception));
-        self::assertSame(\RuntimeException::class, $exception['type']);
-        \assert(\is_array($exception['previous']));
-        self::assertCount(1, $exception['previous']);
-        \assert(\is_array($exception['previous'][0]));
-        self::assertSame(\LogicException::class, $exception['previous'][0]['type']);
+        \assert(\is_array($exception['exceptions']));
+        self::assertCount(2, $exception['exceptions'], 'root + 1 nested cause');
+        \assert(\is_array($exception['exceptions'][0]));
+        \assert(\is_array($exception['exceptions'][1]));
+        self::assertSame(\RuntimeException::class, $exception['exceptions'][0]['type']);
+        self::assertSame(\LogicException::class, $exception['exceptions'][1]['type']);
     }
 
     public function testSensitiveFieldsMaskedByRealNormalizer(): void

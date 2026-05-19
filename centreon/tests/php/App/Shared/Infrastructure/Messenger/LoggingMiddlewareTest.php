@@ -86,9 +86,11 @@ final class LoggingMiddlewareTest extends TestCase
         $errorContext = $this->logger->errorMessages[0]['context'];
         $exception = $errorContext['exception'];
         \assert(\is_array($exception));
-        self::assertSame(\RuntimeException::class, $exception['type']);
-        self::assertSame('Something broke', $exception['message']);
-        self::assertSame([], $exception['previous']);
+        \assert(\is_array($exception['exceptions']));
+        self::assertCount(1, $exception['exceptions']);
+        \assert(\is_array($exception['exceptions'][0]));
+        self::assertSame(\RuntimeException::class, $exception['exceptions'][0]['type']);
+        self::assertSame('Something broke', $exception['exceptions'][0]['message']);
     }
 
     public function testSensitiveFieldsAreMasked(): void
@@ -168,13 +170,14 @@ final class LoggingMiddlewareTest extends TestCase
         self::assertCount(1, $this->logger->errorMessages);
         $exception = $this->logger->errorMessages[0]['context']['exception'];
         \assert(\is_array($exception));
-        self::assertSame(\DomainException::class, $exception['type']);
-        \assert(\is_array($exception['previous']));
-        self::assertCount(2, $exception['previous']);
-        \assert(\is_array($exception['previous'][0]));
-        \assert(\is_array($exception['previous'][1]));
-        self::assertSame(\RuntimeException::class, $exception['previous'][0]['type']);
-        self::assertSame(\LogicException::class, $exception['previous'][1]['type']);
+        \assert(\is_array($exception['exceptions']));
+        self::assertCount(3, $exception['exceptions'], 'root + 2 nested causes');
+        \assert(\is_array($exception['exceptions'][0]));
+        \assert(\is_array($exception['exceptions'][1]));
+        \assert(\is_array($exception['exceptions'][2]));
+        self::assertSame(\DomainException::class, $exception['exceptions'][0]['type']);
+        self::assertSame(\RuntimeException::class, $exception['exceptions'][1]['type']);
+        self::assertSame(\LogicException::class, $exception['exceptions'][2]['type']);
     }
 
     public function testQueryBusTypeIsResolved(): void
@@ -261,8 +264,10 @@ final class LoggingMiddlewareTest extends TestCase
         self::assertStringContainsString('Normalizer failed', $this->logger->warningMessages[0]['message']);
         $exception = $this->logger->warningMessages[0]['context']['exception'];
         \assert(\is_array($exception));
-        self::assertSame(\RuntimeException::class, $exception['type']);
-        self::assertSame('normalizer down', $exception['message']);
+        \assert(\is_array($exception['exceptions']));
+        \assert(\is_array($exception['exceptions'][0]));
+        self::assertSame(\RuntimeException::class, $exception['exceptions'][0]['type']);
+        self::assertSame('normalizer down', $exception['exceptions'][0]['message']);
     }
 
     public function testNormalizerReturningNonArrayFallsBackAndEmitsWarning(): void

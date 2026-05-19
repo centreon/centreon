@@ -28,21 +28,23 @@ use PHPUnit\Framework\TestCase;
 
 final class ExceptionFormatterTest extends TestCase
 {
-    public function testFormatCapturesCoreFields(): void
+    public function testFormatReturnsAnExceptionsListWithCoreFields(): void
     {
         $exception = new \RuntimeException('boom', 42);
 
         $formatted = ExceptionFormatter::format($exception);
 
-        self::assertSame(\RuntimeException::class, $formatted['type']);
-        self::assertSame('boom', $formatted['message']);
-        self::assertSame(42, $formatted['code']);
-        self::assertSame($exception->getFile(), $formatted['file']);
-        self::assertSame($exception->getLine(), $formatted['line']);
-        self::assertSame([], $formatted['previous']);
+        self::assertCount(1, $formatted['exceptions']);
+
+        $entry = $formatted['exceptions'][0];
+        self::assertSame(\RuntimeException::class, $entry['type']);
+        self::assertSame('boom', $entry['message']);
+        self::assertSame(42, $entry['code']);
+        self::assertSame($exception->getFile(), $entry['file']);
+        self::assertSame($exception->getLine(), $entry['line']);
     }
 
-    public function testFormatFlattensPreviousChainInOrder(): void
+    public function testFormatFlattensTheCauseChainInOrder(): void
     {
         $root = new \LogicException('root cause');
         $mid = new \RuntimeException('mid', 0, $root);
@@ -50,32 +52,16 @@ final class ExceptionFormatterTest extends TestCase
 
         $formatted = ExceptionFormatter::format($top);
 
-        self::assertSame(\DomainException::class, $formatted['type']);
-        self::assertCount(2, $formatted['previous']);
-        self::assertSame(\RuntimeException::class, $formatted['previous'][0]['type']);
-        self::assertSame('mid', $formatted['previous'][0]['message']);
-        self::assertSame(\LogicException::class, $formatted['previous'][1]['type']);
-        self::assertSame('root cause', $formatted['previous'][1]['message']);
+        self::assertCount(3, $formatted['exceptions']);
+        self::assertSame(\DomainException::class, $formatted['exceptions'][0]['type']);
+        self::assertSame('top', $formatted['exceptions'][0]['message']);
+        self::assertSame(\RuntimeException::class, $formatted['exceptions'][1]['type']);
+        self::assertSame('mid', $formatted['exceptions'][1]['message']);
+        self::assertSame(\LogicException::class, $formatted['exceptions'][2]['type']);
+        self::assertSame('root cause', $formatted['exceptions'][2]['message']);
     }
 
-    public function testLeavesCarryAnEmptyPreviousFieldToMatchTheRootShape(): void
-    {
-        // The shape itself (key set, key types) is locked by PHPDoc
-        // and verified by PHPStan, so this test only pins the one
-        // runtime invariant types cannot enforce: `previous` is always
-        // empty on every leaf, including the truncation marker. This
-        // is what lets a consumer iterate the tree with a single shape
-        // and stop on each leaf without a special case.
-        $exception = $this->chainOfDepth(25); // forces a truncation marker at the tail
-
-        $formatted = ExceptionFormatter::format($exception);
-
-        foreach ($formatted['previous'] as $entry) {
-            self::assertSame([], $entry['previous']);
-        }
-    }
-
-    public function testTraceIsCappedAtFifteenFramesAndSignalsTheRest(): void
+public function testTraceIsCappedAtFifteenFramesAndSignalsTheRest(): void
     {
         // Build a trace deeper than the cap so both the truncation and the
         // omission marker are exercised. A top-level throw usually produces
@@ -84,10 +70,11 @@ final class ExceptionFormatterTest extends TestCase
 
         $formatted = ExceptionFormatter::format($exception);
 
-        self::assertCount(16, $formatted['trace'], '15 captured frames + 1 trailing omission marker');
+        $trace = $formatted['exceptions'][0]['trace'];
+        self::assertCount(16, $trace, '15 captured frames + 1 trailing omission marker');
         self::assertMatchesRegularExpression(
             '/^… \d+ frames omitted$/u',
-            $formatted['trace'][15],
+            $trace[15],
             'last entry must signal how many frames were dropped',
         );
     }
@@ -100,12 +87,12 @@ final class ExceptionFormatterTest extends TestCase
 
         $formatted = ExceptionFormatter::format($exception);
 
-        foreach ($formatted['trace'] as $frame) {
+        foreach ($formatted['exceptions'][0]['trace'] as $frame) {
             self::assertStringNotContainsString('frames omitted', $frame);
         }
     }
 
-    public function testPreviousChainIsCappedAtTwentyAndSignalsTruncation(): void
+    public function testCauseChainIsCappedAtTwentyAndSignalsTruncation(): void
     {
         // A chain of 25 nested causes — well past the cap — exercises both
         // the truncation logic and the trailing marker. Without a cap, a
@@ -115,22 +102,22 @@ final class ExceptionFormatterTest extends TestCase
 
         $formatted = ExceptionFormatter::format($exception);
 
-        self::assertCount(21, $formatted['previous'], '20 captured entries + 1 truncation marker');
+        self::assertCount(21, $formatted['exceptions'], '20 captured entries + 1 truncation marker');
 
-        // First 20 entries are real exceptions
+        // First 20 entries are real exceptions.
         for ($index = 0; $index < 20; $index++) {
-            self::assertSame(\RuntimeException::class, $formatted['previous'][$index]['type']);
+            self::assertSame(\RuntimeException::class, $formatted['exceptions'][$index]['type']);
         }
 
-        // Trailing entry is the marker — distinguishable by its sentinel type
-        $marker = $formatted['previous'][20];
+        // Trailing entry is the marker — distinguishable by its sentinel type.
+        $marker = $formatted['exceptions'][20];
         self::assertSame('@truncated', $marker['type']);
         self::assertStringContainsString('truncated', $marker['message']);
         self::assertSame(0, $marker['code']);
         self::assertSame([], $marker['trace']);
     }
 
-    public function testPreviousChainShorterThanCapHasNoTruncationMarker(): void
+    public function testCauseChainShorterThanCapHasNoTruncationMarker(): void
     {
         // 3 nested causes — well below the cap — must not have a marker
         // appended (which would mislead readers into thinking the chain
@@ -139,8 +126,8 @@ final class ExceptionFormatterTest extends TestCase
 
         $formatted = ExceptionFormatter::format($exception);
 
-        self::assertCount(3, $formatted['previous']);
-        foreach ($formatted['previous'] as $entry) {
+        self::assertCount(4, $formatted['exceptions'], 'root + 3 wrappers, no marker');
+        foreach ($formatted['exceptions'] as $entry) {
             self::assertNotSame('@truncated', $entry['type']);
         }
     }
@@ -155,7 +142,7 @@ final class ExceptionFormatterTest extends TestCase
 
         $formatted = ExceptionFormatter::format($exception);
 
-        self::assertSame(str_repeat('a', 1024) . '…[truncated]', $formatted['message']);
+        self::assertSame(str_repeat('a', 1024) . '…[truncated]', $formatted['exceptions'][0]['message']);
     }
 
     public function testMessageShorterThan1024CharsIsLeftUntouched(): void
@@ -164,7 +151,7 @@ final class ExceptionFormatterTest extends TestCase
 
         $formatted = ExceptionFormatter::format($exception);
 
-        self::assertSame('short message', $formatted['message']);
+        self::assertSame('short message', $formatted['exceptions'][0]['message']);
     }
 
     public function testTraceFrameFormatIncludesClassMethodFileLine(): void
@@ -173,16 +160,17 @@ final class ExceptionFormatterTest extends TestCase
 
         $formatted = ExceptionFormatter::format($exception);
 
-        self::assertNotEmpty($formatted['trace']);
+        $trace = $formatted['exceptions'][0]['trace'];
+        self::assertNotEmpty($trace);
         // Format pinned: "Class::method() at file:line" — log readers and
         // grep patterns rely on this exact shape.
-        self::assertMatchesRegularExpression('/.+\(\) at .+:\d+$/', $formatted['trace'][0]);
+        self::assertMatchesRegularExpression('/.+\(\) at .+:\d+$/', $trace[0]);
     }
 
     /**
      * Builds a Throwable whose `previous` chain has $depth nested entries.
-     * The deepest cause is a leaf RuntimeException, each parent wraps it
-     * via the 3rd argument of the RuntimeException constructor.
+     * The deepest cause is a leaf RuntimeException; each parent wraps it
+     * through the 3rd argument of the RuntimeException constructor.
      */
     private function chainOfDepth(int $depth): \Throwable
     {

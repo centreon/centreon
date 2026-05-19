@@ -25,6 +25,8 @@ namespace App\Shared\Infrastructure\Legacy;
 
 use ApiPlatform\Validator\Exception\ValidationException;
 use Centreon\Domain\Exception\EntityNotFoundException;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -51,6 +53,8 @@ final readonly class LegacyHttpExceptionListener
     public function __construct(
         #[Autowire(param: 'api_platform.exception_to_status')]
         private array $exceptionToStatus,
+        #[Autowire(service: 'monolog.logger.request')]
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -92,6 +96,14 @@ final readonly class LegacyHttpExceptionListener
             $statusCode = (is_int($errorCode) && $errorCode >= 100 && $errorCode < 600) ? $errorCode : 500;
         }
 
+        // Symfony's ErrorListener::logKernelException would otherwise log the
+        // exception on the `request` channel, but `RequestEvent::setResponse()`
+        // stops propagation as soon as we set the response below — the
+        // platform pipeline would then silently swallow the exception.
+        // Log it ourselves first so it lands in `prod.web.log` through the
+        // ExceptionFormatterProcessor / WebProcessor stack.
+        $this->logException($exception, $statusCode);
+
         $event->setResponse(new JsonResponse(
             status: $statusCode,
             data: [
@@ -99,5 +111,20 @@ final readonly class LegacyHttpExceptionListener
                 'message' => $exception->getMessage(),
             ],
         ));
+    }
+
+    private function logException(\Throwable $exception, int $statusCode): void
+    {
+        $level = $statusCode >= 500 ? LogLevel::CRITICAL : LogLevel::WARNING;
+
+        $message = sprintf(
+            'Uncaught exception %s: "%s" at %s line %d',
+            $exception::class,
+            $exception->getMessage(),
+            basename($exception->getFile()),
+            $exception->getLine(),
+        );
+
+        $this->logger->log($level, $message, ['exception' => $exception]);
     }
 }
