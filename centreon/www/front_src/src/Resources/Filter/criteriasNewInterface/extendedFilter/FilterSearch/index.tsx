@@ -1,7 +1,7 @@
 import { TextField, useDebounce, useMemoComponent } from '@centreon/ui';
 
 import { useAtom } from 'jotai';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import { SearchableFields } from '../../../Criterias/searchQueryLanguage/models';
 import { searchAtom } from '../../../filterAtoms';
@@ -54,7 +54,7 @@ const FilterSearch = ({ field, placeholder }: Props): JSX.Element => {
     wait: 300
   });
 
-  const onChange = (e): void => {
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setValue(e.target.value.replace(/\s/g, ''));
     setIsDirty(true);
 

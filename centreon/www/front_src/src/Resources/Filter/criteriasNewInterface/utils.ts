@@ -40,7 +40,9 @@ export const handleDataByCategoryFilter = ({
       return item;
     }
 
-    const filteredData = item[fieldToUpdate]?.filter(({ id }) =>
+    const filteredData = (
+      item as unknown as Record<string, Array<{ id: string }>>
+    )[fieldToUpdate]?.filter(({ id }: { id: string }) =>
       dataToCheck.some(equals(id))
     );
 
@@ -67,7 +69,10 @@ export const findData = ({
   data,
   findBy = 'name'
 }: FindData): Array<Criteria & CriteriaDisplayProps> => {
-  const element = data?.find((item) => item[findBy] === filterName);
+  const element = data?.find(
+    (item) =>
+      (item as unknown as Record<string, unknown>)[findBy] === filterName
+  );
 
   return element ? [element] : [];
 };
@@ -89,12 +94,16 @@ export const replaceValueFromSearchInput = ({
   search,
   targetField,
   newContent
+}: {
+  newContent: string;
+  search: string;
+  targetField: string;
 }): string => {
   const array = search.split(' ');
 
   const targetByIndex = array.indexOf(targetField);
 
-  const result = array.map((item, index) => {
+  const result = array.map((item: string, index: number) => {
     return index === targetByIndex ? newContent : item;
   });
 

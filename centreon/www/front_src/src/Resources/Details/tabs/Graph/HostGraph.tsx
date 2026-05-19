@@ -24,7 +24,9 @@ const HostGraph = ({ details }: TabProps): JSX.Element => {
   );
 
   const { sendRequest, sending } = useRequest({
-    request: listResources
+    request: listResources as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<ListingModel<Resource>>
   });
 
   const limit = 6;

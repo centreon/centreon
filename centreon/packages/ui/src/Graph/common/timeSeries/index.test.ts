@@ -581,7 +581,7 @@ describe('Format value with unit', () => {
     ''
   ];
 
-  const getExpectedResult = (unit): string => {
+  const getExpectedResult = (unit: string): string => {
     if (unit === '') {
       return '324.23m';
     }

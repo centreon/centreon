@@ -1,5 +1,6 @@
 import { SearchField } from '@centreon/ui';
 
+import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { labelSearch } from '../../translatedLabels';
@@ -7,7 +8,7 @@ import { useActionsStyles } from './Actions.styles';
 import PopoverFilter from './PopoverFilter';
 import { useSearch } from './useSearch';
 
-const Search = (): JSX.Element => {
+const Search = (): ReactElement => {
   const { t } = useTranslation();
   const { classes } = useActionsStyles();
 

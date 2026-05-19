@@ -1,3 +1,4 @@
+import { FormikHelpers } from 'formik';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
@@ -21,14 +22,11 @@ interface UseDuplicateState {
   isDialogOpen: boolean;
   openDialog: () => void;
   submit: (
-    values,
-    {
-      resetForm,
-      setSubmitting
-    }: {
-      resetForm;
-      setSubmitting;
-    }
+    values: Record<string, unknown>,
+    helpers: Pick<
+      FormikHelpers<Record<string, unknown>>,
+      'resetForm' | 'setSubmitting'
+    >
   ) => Promise<object>;
 }
 
@@ -42,7 +40,13 @@ const useDuplicate = (): UseDuplicateState => {
   const openDialog = (): void => setIsDuplicateDialogOpen(true);
   const closeDialog = (): void => setIsDuplicateDialogOpen(false);
 
-  const duplicateItem = ({ id, resourceAccessRule: data }): void => {
+  const duplicateItem = ({
+    id,
+    resourceAccessRule: data
+  }: {
+    id: number | null;
+    resourceAccessRule: ResourceAccessRule;
+  }): void => {
     setDuplicatedRule({ id, rule: data });
     setIsDuplicateDialogOpen(true);
   };

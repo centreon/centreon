@@ -9,8 +9,8 @@ interface ApiErrorResponse {
 }
 
 export interface ResponseError {
-  additionalInformation?;
-  data?;
+  additionalInformation?: unknown;
+  data?: unknown;
   isError: boolean;
   message: string;
   statusCode: number;
@@ -30,7 +30,7 @@ interface CustomFetchProps<T> {
   headers?: Headers;
   isMutation?: boolean;
   method?: string;
-  payload?;
+  payload?: unknown;
   signal?: AbortSignal;
 }
 

@@ -60,9 +60,8 @@ const StackLines = ({
 }: Props): ReactElement => {
   const curveType = getCurveFactory(
     (equals(type(lineStyle), 'Array')
-      ? lineStyle?.[0].curve
-      : // @ts-expect-error - suppressing pre-existing type mismatch
-        lineStyle?.curve) || 'linear'
+      ? (lineStyle as Array<LineStyle>)?.[0].curve
+      : (lineStyle as LineStyle)?.curve) || 'linear'
   );
   return (
     <Shape.AreaStack
@@ -72,7 +71,7 @@ const StackLines = ({
         return pipe(
           // @ts-expect-error - suppressing pre-existing type mismatch
           map(prop('metric_id')) as unknown as (
-            displayedLines
+            displayedLines: Array<Line>
           ) => Array<string>,
           all((metric_id) => pipe(path(['data', metric_id]), isNil, not)(d))
         )(lines);
@@ -177,7 +176,7 @@ const StackLines = ({
                 }
                 // @ts-expect-error - suppressing pre-existing type mismatch
                 x={(d) => xScale(getTime(d.data)) ?? 0}
-                y={(d) => yScale(d[1]) ?? 0}
+                y={(d) => yScale(d[1] ?? 0) ?? 0}
               />
             </g>
           );

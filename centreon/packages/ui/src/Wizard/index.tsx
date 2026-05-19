@@ -1,6 +1,6 @@
 import { Dialog, DialogContent } from '@mui/material';
 
-import { Formik } from 'formik';
+import { Formik, type FormikHelpers, type FormikValues } from 'formik';
 import { dec, equals, filter, inc, isEmpty, length, not, pipe } from 'ramda';
 import { useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
@@ -63,13 +63,18 @@ const Wizard = ({
     setCurrentStep(dec(currentStep));
   };
 
-  const disableNextOnSendingRequests = (sendingRequests): void => {
+  const disableNextOnSendingRequests = (
+    sendingRequests: Array<boolean>
+  ): void => {
     setSendingRequest(
       pipe(isEmpty, not)(filter(equals(true), sendingRequests))
     );
   };
 
-  const submit = (values, bag): void => {
+  const submit = (
+    values: FormikValues,
+    bag: FormikHelpers<FormikValues>
+  ): void => {
     if (isLastStep && onSubmit) {
       onSubmit(values, bag);
 
@@ -88,7 +93,7 @@ const Wizard = ({
     onClose?.();
   };
 
-  const handleClose = (_, reason): void => {
+  const handleClose = (_: object, reason: string): void => {
     if (equals(reason, 'backdropClick')) {
       controlDisplayConfirmationDialog();
 
@@ -97,7 +102,7 @@ const Wizard = ({
     onClose?.();
   };
 
-  const handleCloseConfirm = (confirm): void => {
+  const handleCloseConfirm = (confirm: boolean): void => {
     setOpenConfirm(false);
     if (!confirm) {
       return;

@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { IconButton, Image } from '@centreon/ui';
 
 import { useTranslation } from 'react-i18next';

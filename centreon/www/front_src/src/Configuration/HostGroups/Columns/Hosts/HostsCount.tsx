@@ -19,7 +19,9 @@ const HostsComponent = ({
 }: Props & ComponentColumnProps): ReactElement => {
   const { classes } = useHostsStyles({ isHovered });
 
-  const hostCount = enabled ? row.enabledHostsCount : row.disabledHostsCount;
+  const hostCount = (
+    enabled ? row.enabledHostsCount : row.disabledHostsCount
+  ) as string;
 
   const formattedHostCount = renderEllipsisTypography?.({
     className: classes.hostCount,
@@ -32,7 +34,9 @@ const HostsComponent = ({
       classes={{
         tooltip: classes.tooltipContainer
       }}
-      title={<TooltipContent enabled={enabled} hostGroupName={row.name} />}
+      title={
+        <TooltipContent enabled={enabled} hostGroupName={row.name as string} />
+      }
     >
       <div className={classes.content}>{formattedHostCount}</div>
     </Tooltip>
