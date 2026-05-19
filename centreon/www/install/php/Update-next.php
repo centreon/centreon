@@ -246,6 +246,7 @@ $addVmwareUpdatedField = function () use ($pearDB, &$errorMessage, $version): vo
     );
 };
 
+/** -------------------------------------- Poller UUID to UID -------------------------------------- */
 $renamePollerUuidToUid = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to rename uuid column to uid on nagios_server';
     CentreonLog::create()->info(
@@ -383,6 +384,64 @@ function generateMissingPollerUids(ConnectionInterface $pearDB, string $version)
     );
 }
 
+/** -------------------------------------- Broker event_script logger -------------------------------------- */
+$addEventScriptLogger = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add event_script logger to broker configuration';
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Adding 'event_script' logger to broker configuration",
+    );
+
+    if ($pearDB->fetchOne(
+        <<<'SQL'
+            SELECT 1 FROM `cb_log` WHERE `name` = 'event_script'
+            SQL
+    )) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Logger 'event_script' already exists in cb_log, skipping",
+        );
+
+        return;
+    }
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            INSERT INTO `cb_log` (`name`) VALUES ('event_script')
+            SQL
+    );
+
+    $logId = (int) $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT `id` FROM `cb_log` WHERE `name` = 'event_script'
+            SQL
+    );
+
+    $errorLevelId = (int) $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT `id` FROM `cb_log_level` WHERE `name` = 'error'
+            SQL
+    );
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`)
+            SELECT `config_id`, :id_log, :id_level
+            FROM `cfg_centreonbroker`
+            SQL,
+        QueryParameters::create([
+            QueryParameter::int('id_log', $logId),
+            QueryParameter::int('id_level', $errorLevelId),
+        ])
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully added 'event_script' logger to broker configuration",
+    );
+};
+
 try {
     // DDL statements for real time database
     $migrateInstanceIdToBigint();
@@ -391,6 +450,7 @@ try {
     $addVmwareUpdatedField();
     $migrateModuleTableInstanceIds();
     $renamePollerUuidToUid();
+    $addEventScriptLogger();
 
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {
