@@ -1,0 +1,15 @@
+# Temporary debug overlay (MON-XXXXX: investigate MySQL install divergence).
+# Bind-mounts a heavily-instrumented 15-installation.sh into the running web
+# container so we can see PHP install errors and watch SHOW DATABASES between
+# steps. Revert via `git checkout` once the investigation is done.
+#
+# Usage:
+#   docker compose \
+#     -f .github/docker/docker-compose.yml \
+#     -f .github/docker/docker-compose.debug.yml \
+#     up -d --wait --wait-timeout 300
+
+services:
+  web:
+    volumes:
+      - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/15-installation.sh:/usr/share/centreon/container.d/15-installation.sh:ro
