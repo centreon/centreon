@@ -773,6 +773,7 @@ jobs:
         frontend-web-build,
         frontend-web-lint,
         frontend-unit-test,
+        frontend-type-check,
         frontend-component-test,
         gherkin-lint,
         e2e-lint,
