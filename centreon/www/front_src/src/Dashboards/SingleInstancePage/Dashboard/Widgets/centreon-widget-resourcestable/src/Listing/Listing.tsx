@@ -40,6 +40,7 @@ interface ListingProps
   statusTypes: Array<'hard' | 'soft'>;
   statuses: Array<string>;
   widgetPrefixQuery: string;
+  isInViewport: boolean;
 }
 
 const Listing = ({
@@ -62,7 +63,8 @@ const Listing = ({
   widgetPrefixQuery,
   statusTypes,
   hostSeverities,
-  serviceSeverities
+  serviceSeverities,
+  isInViewport
 }: ListingProps): ReactElement => {
   const theme = useTheme();
   const isOnPublicPage = useAtomValue(isOnPublicPageLocalAtom);
@@ -98,6 +100,7 @@ const Listing = ({
     hostSeverities,
     id,
     isFromPreview,
+    isInViewport,
     limit,
     playlistHash,
     refreshCount,

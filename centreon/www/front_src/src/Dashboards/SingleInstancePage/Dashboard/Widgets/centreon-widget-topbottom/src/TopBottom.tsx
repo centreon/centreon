@@ -1,6 +1,7 @@
-import { equals } from 'ramda';
-
 import { LoadingSkeleton } from '@centreon/ui';
+
+import { equals } from 'ramda';
+import { ReactElement } from 'react';
 
 import NoResources from '../../NoResources';
 import {
@@ -24,7 +25,7 @@ import useTopBottom from './useTopBottom';
 interface TopBottomProps
   extends Pick<
     CommonWidgetProps<object>,
-    'playlistHash' | 'dashboardId' | 'id' | 'widgetPrefixQuery'
+    'playlistHash' | 'dashboardId' | 'id' | 'widgetPrefixQuery' | 'isInViewport'
   > {
   globalRefreshInterval: GlobalRefreshInterval;
   isFromPreview?: boolean;
@@ -52,8 +53,9 @@ const TopBottom = ({
   id,
   dashboardId,
   playlistHash,
-  widgetPrefixQuery
-}: TopBottomProps): JSX.Element => {
+  widgetPrefixQuery,
+  isInViewport
+}: TopBottomProps): ReactElement => {
   const { classes } = useTopBottomStyles({});
   const containerRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLParagraphElement>(null);
@@ -67,6 +69,7 @@ const TopBottom = ({
     dashboardId,
     globalRefreshInterval,
     id,
+    isInViewport,
     metrics,
     playlistHash,
     refreshCount,

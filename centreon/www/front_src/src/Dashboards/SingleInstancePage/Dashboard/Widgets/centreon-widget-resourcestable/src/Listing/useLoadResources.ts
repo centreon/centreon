@@ -33,6 +33,7 @@ interface LoadResourcesProps
   states: Array<string>;
   statusTypes: Array<'hard' | 'soft'>;
   statuses: Array<string>;
+  isInViewport: boolean;
 }
 
 interface LoadResources {
@@ -57,7 +58,8 @@ const useLoadResources = ({
   widgetPrefixQuery,
   statusTypes,
   hostSeverities,
-  serviceSeverities
+  serviceSeverities,
+  isInViewport
 }: LoadResourcesProps): LoadResources => {
   const sort = { [sortField as string]: sortOrder };
 
@@ -125,6 +127,7 @@ const useLoadResources = ({
       id
     ],
     queryOptions: {
+      enabled: isInViewport ?? true,
       refetchInterval: refreshIntervalToUse,
       suspense: false
     },
