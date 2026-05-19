@@ -23,30 +23,14 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Dbal;
 
-use Symfony\Component\Dotenv\Dotenv;
-use Symfony\Component\Dotenv\Exception\FormatException;
-use Symfony\Component\Dotenv\Exception\PathException;
-
 final readonly class DatabaseTLSResolver
 {
     /**
-     * Returns PDO SSL options based on environment configuration.
-     *
-     * Configuration:
-     * - DATABASE_SSL_ENABLED=0|1 : Enable/disable SSL (default: disabled)
-     * - DATABASE_VERIFY_SERVER_CERT=0|1 : Verify server certificate (default: false when SSL enabled)
-     * - DATABASE_CA_PATH : Path to CA certificate file
-     * - DATABASE_SSL_CERT_PATH : Path to client certificate file
-     * - DATABASE_SSL_KEY_PATH : Path to client key file
-     *
-     * @throws FormatException|PathException
      * @return array<int, mixed>
      */
     public static function getTLSOptions(): array
     {
         $options = [];
-
-        (new Dotenv())->loadEnv(_CENTREON_PATH_ . '/.env');
 
         // Check if SSL is explicitly enabled
         $sslEnabled = $_ENV['DATABASE_SSL_ENABLED'] ?? null;
