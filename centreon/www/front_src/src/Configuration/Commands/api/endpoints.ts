@@ -2,7 +2,7 @@ import { buildListingEndpoint } from '@centreon/ui';
 
 export const commandsEndpoint = '/configuration/commands';
 
-export const getCommandEndpoint = ({ id }): string =>
+export const getCommandEndpoint = ({ id }: { id: number | string }): string =>
   `${commandsEndpoint}/${id}`;
 
 export const globalMacrosEndpoint = '/configuration/global-macros';
@@ -11,12 +11,20 @@ export const pluginsEndpoint = '/configuration/plugins';
 
 export const getListEndpoint =
   (baseEndpoint: string) =>
-  ({ search, page }): string => {
+  ({
+    search,
+    page
+  }: {
+    search?: {
+      conditions?: Array<{ values?: { $lk?: string } }>;
+    };
+    page?: number;
+  }): string => {
     const customQueryParameters = search
       ? [
           {
             name: 'name[lk]',
-            value: search.conditions[0].values.$lk.slice(1, -1)
+            value: search.conditions?.[0]?.values?.$lk?.slice(1, -1) ?? ''
           }
         ]
       : [];
@@ -42,4 +50,5 @@ export const connectorsEndpoint = '/configuration/connectors';
 
 export const duplicateCommandsEndpoint = '/configuration/commands/_duplicate';
 
-export const getPluginEndpoint = ({ name }) => `/configuration/plugins/${name}`;
+export const getPluginEndpoint = ({ name }: { name: string }) =>
+  `/configuration/plugins/${name}`;

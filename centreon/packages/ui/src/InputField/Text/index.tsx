@@ -85,7 +85,7 @@ export type TextProps = {
   autoSizeDefaultWidth?: number;
   className?: string;
   containerClassName?: string;
-  dataTestId: string;
+  dataTestId?: string;
   debounced?: boolean;
   displayErrorInTooltip?: boolean;
   error?: string;

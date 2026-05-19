@@ -2,6 +2,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, includes, isNil } from 'ramda';
+import type React from 'react';
 import {
   type Dispatch,
   type ReactElement,
@@ -11,6 +12,7 @@ import {
 } from 'react';
 
 import { buildListingEndpoint, type SelectEntry } from '../../../..';
+import type { SearchParameter } from '../../../../api/buildListingEndpoint/models';
 import {
   accessRightIdsDerivedAtom,
   addAccessRightDerivedAtom,
@@ -22,14 +24,28 @@ import {
   type Endpoints
 } from '../models';
 
+interface ShareInputOption {
+  id: number | string;
+  most_permissive_role?: 'editor' | 'viewer';
+  name: string;
+}
+
+interface ShareInputEndpointParameters {
+  page: number;
+  search?: SearchParameter;
+}
+
 interface UseShareInputState {
   add: () => void;
-  changeIdValue: (entry: SelectEntry) => void;
-  getEndpoint: (parameters) => string;
-  getOptionDisabled: (option) => boolean;
+  changeIdValue: (entry: SelectEntry) => string;
+  getEndpoint: (parameters: ShareInputEndpointParameters) => string;
+  getOptionDisabled: (option: SelectEntry) => boolean;
   isContactGroup: boolean;
-  getRenderedOptionText: (option: unknown) => ReactElement | string;
-  selectContact: (_, entry) => void;
+  getRenderedOptionText: (option: SelectEntry) => ReactElement | string;
+  selectContact: (
+    _: React.SyntheticEvent,
+    entry: AccessRightInitialValues | null | unknown
+  ) => void;
   selectedContact: AccessRightInitialValues | null;
   selectedRole: string;
   setSelectedRole: Dispatch<SetStateAction<string>>;
@@ -46,9 +62,13 @@ const useShareInput = (endpoints: Endpoints): UseShareInputState => {
 
   const isContactGroup = equals(contactType, ContactType.ContactGroup);
 
-  const selectContact = (_, entry): void => {
-    setSelectedContact(entry);
-    if (equals('editor', entry?.most_permissive_role)) {
+  const selectContact = (
+    _: React.SyntheticEvent,
+    entry: AccessRightInitialValues | null | unknown
+  ): void => {
+    const value = entry as AccessRightInitialValues | null;
+    setSelectedContact(value);
+    if (equals('editor', value?.most_permissive_role)) {
       return;
     }
     setSelectedRole('viewer');
@@ -70,7 +90,7 @@ const useShareInput = (endpoints: Endpoints): UseShareInputState => {
     setSelectedContact(null);
   };
 
-  const getEndpoint = (parameters): string =>
+  const getEndpoint = (parameters: ShareInputEndpointParameters): string =>
     buildListingEndpoint({
       baseEndpoint: isContactGroup ? endpoints.contactGroup : endpoints.contact,
       parameters: {
@@ -79,18 +99,20 @@ const useShareInput = (endpoints: Endpoints): UseShareInputState => {
       }
     });
 
-  const getRenderedOptionText = (option): ReactElement => {
+  const getRenderedOptionText = (option: SelectEntry): ReactElement => {
+    const value = option as ShareInputOption | undefined;
+
     return (
       <>
-        {option?.name}
-        {includes(option?.id, accessRightIds) && (
+        {value?.name}
+        {includes(value?.id, accessRightIds) && (
           <CheckCircleIcon color="success" />
         )}
       </>
     );
   };
 
-  const getOptionDisabled = (option): boolean => {
+  const getOptionDisabled = (option: SelectEntry): boolean => {
     return includes(option.id, accessRightIds);
   };
 

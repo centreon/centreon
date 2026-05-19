@@ -40,7 +40,9 @@ export const useAllOfResourceTypeCheckbox = (
   const { setFieldValue, setFieldTouched } =
     useFormikContext<ResourceAccessRule>();
 
-  const checkboxLabel = allOfResourceTypeLabels[resourceType];
+  const checkboxLabel = (
+    allOfResourceTypeLabels as Record<ResourceTypeEnum, string>
+  )[resourceType];
 
   const onChange = (event: ChangeEvent<HTMLInputElement>): void => {
     setFieldValue(

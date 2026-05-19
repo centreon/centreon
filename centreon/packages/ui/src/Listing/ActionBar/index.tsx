@@ -117,17 +117,29 @@ const MemoListingActionBar = ({
 
   const { themeMode } = useAtomValue(userAtom);
 
-  const changeRowPerPage = (event): void => {
+  const changeRowPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ): void => {
     onLimitChange?.(event.target.value);
     onPaginate?.(0);
   };
 
-  const changePage = (_, value: number): void => {
+  const changePage = (
+    _: React.MouseEvent<HTMLButtonElement> | null,
+    value: number
+  ): void => {
     onPaginate?.(value);
   };
 
-  const labelDisplayedRows = ({ from, to, count }): string =>
-    `${from}-${to} ${t(labelOf)} ${count}`;
+  const labelDisplayedRows = ({
+    from,
+    to,
+    count
+  }: {
+    from: number;
+    to: number;
+    count: number;
+  }): string => `${from}-${to} ${t(labelOf)} ${count}`;
 
   return useMemoComponent({
     Component: (
@@ -188,13 +200,13 @@ const MemoListingActionBar = ({
                 [classes.moving]: moveTablePagination
               })}
               colSpan={3}
-              count={totalRows}
+              count={totalRows ?? 0}
               labelDisplayedRows={labelDisplayedRows}
               labelRowsPerPage={null}
               onPageChange={changePage}
               onRowsPerPageChange={changeRowPerPage}
-              page={currentPage}
-              rowsPerPage={limit}
+              page={currentPage ?? 0}
+              rowsPerPage={limit ?? 10}
               rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
               SelectProps={{
                 id: labelRowsPerPage,

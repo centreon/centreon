@@ -1,4 +1,5 @@
 import { Group } from '@visx/visx';
+import type { ScaleBand, ScaleLinear, ScaleTime } from 'd3-scale';
 import { equals } from 'ramda';
 import type { MutableRefObject, ReactElement } from 'react';
 
@@ -19,13 +20,16 @@ interface Props {
   graphHeight: number;
   graphWidth: number;
   gridLinesType?: string;
-  leftScale;
+  leftScale: ScaleLinear<number, number>;
   orientation?: 'horizontal' | 'vertical';
-  rightScale;
+  rightScale: ScaleLinear<number, number>;
   showGridLines: boolean;
   svgRef: MutableRefObject<SVGSVGElement | null>;
   timeSeries: Array<TimeValue>;
-  xScale;
+  xScale:
+    | ScaleTime<number, number>
+    | ScaleLinear<number, number>
+    | ScaleBand<number>;
   maxAxisCharacters?: number;
   hasSecondUnit?: boolean;
   title?: string;

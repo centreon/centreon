@@ -8,7 +8,7 @@ interface Props {
   disabled: boolean;
   icon: JSX.Element;
   label: string;
-  onClick: (event) => void;
+  onClick: (event: React.MouseEvent) => void;
   permitted?: boolean;
   testId: string;
 }
