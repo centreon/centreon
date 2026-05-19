@@ -77,7 +77,9 @@ export const appliedFilterAtom = atomWithDefault<Filter>((get) =>
   get(getDefaultFilterDerivedAtom)()
 );
 export const editPanelOpenAtom = atom(false);
-export const searchAtom = atom('');
+export const searchAtom = atomWithDefault<string>((get) =>
+  build(get(currentFilterAtom).criterias)
+);
 export const sendingFilterAtom = atom(false);
 
 export const criteriaValueNameByIdAtom = atom<Record<string, string>>({});
