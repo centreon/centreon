@@ -70,9 +70,10 @@ const ambientIncludes = ['./types/**/*.d.ts', './www/front_src/src/**/*.d.ts'];
 createTempTsconfig([...ambientIncludes, ...stagedIncludes]);
 
 const { stdout, stderr, status } = spawnSync(
-  'npx',
-  ['tsc', '-p', tmpTsconfigPath, '--noEmit'],
+  'pnpm',
+  ['exec', 'tsc', '-p', tmpTsconfigPath, '--noEmit'],
   { encoding: 'utf-8', cwd: packageDir }
+);
 );
 
 if (stdout) {
