@@ -9,18 +9,6 @@ DATABASE_PARTITIONING=${DATABASE_PARTITIONING:-1}
 # Avoid to display mysql warning: Using a password on the command line interface can be insecure.
 export MYSQL_PWD="${MYSQL_ROOT_PASSWORD}"
 
-# === TEMPORARY DEBUG (MON-XXXXX: investigating MySQL vs MariaDB install divergence) ===
-# - enable mysqld general_log to capture every statement
-# - stream php install script stdout+stderr instead of redirecting to /dev/null
-# - probe SHOW DATABASES between every step to pinpoint when the `centreon` db
-#   disappears (we know it does — only `centreon_storage` survives on mysql)
-echo "==================== DEBUG: install instrumentation ON ===================="
-mysql -h"${MYSQL_HOST}" -uroot -e "SET GLOBAL general_log_file='/tmp/centreon-install-debug.log'; SET GLOBAL general_log='ON'" || echo "DEBUG: failed to enable general_log"
-debug_show_databases() {
-  echo "DEBUG[$1] SHOW DATABASES → $(mysql -N -s -h"${MYSQL_HOST}" -uroot -e 'SHOW DATABASES' 2>&1 | tr '\n' ' ')"
-}
-debug_show_databases "before-anything"
-
 sed -i "s/localhost/${MYSQL_HOST}/g" /usr/share/centreon/www/install/tmp/database.json
 
 if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/install ]; then
@@ -45,36 +33,29 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
   mysql -h"${MYSQL_HOST}" -uroot -e "SET GLOBAL sync_binlog=0"
 
   echo "Creating Centreon configuration files..."
-  su apache -s /bin/bash -c "php configFileSetup.php" 2>&1 || echo "DEBUG: configFileSetup.php exit=$?"
-  debug_show_databases "after-configFileSetup"
+  su apache -s /bin/bash -c "php configFileSetup.php" > /dev/null
 
   if [ "$(mysql -N -s -h"${MYSQL_HOST}" -u root -e "SELECT count(*) from information_schema.tables WHERE table_schema='centreon' and table_name='nagios_server'")" -eq 1 ]; then
     echo "Centreon is already installed."
 
     echo "Creating Centreon database user..."
-    su apache -s /bin/bash -c "php createDbUser.php" 2>&1 || echo "DEBUG: createDbUser.php exit=$?"
-    debug_show_databases "after-createDbUser-existing-install-branch"
+    su apache -s /bin/bash -c "php createDbUser.php" > /dev/null
   else
     echo "Installing Centreon configuration database..."
-    su apache -s /bin/bash -c "php installConfigurationDb.php" 2>&1 || echo "DEBUG: installConfigurationDb.php exit=$?"
-    debug_show_databases "after-installConfigurationDb"
+    su apache -s /bin/bash -c "php installConfigurationDb.php" > /dev/null
 
     echo "Installing Centreon storage database..."
-    su apache -s /bin/bash -c "php installStorageDb.php" 2>&1 || echo "DEBUG: installStorageDb.php exit=$?"
-    debug_show_databases "after-installStorageDb"
+    su apache -s /bin/bash -c "php installStorageDb.php" > /dev/null
 
     echo "Creating Centreon database user..."
-    su apache -s /bin/bash -c "php createDbUser.php" 2>&1 || echo "DEBUG: createDbUser.php exit=$?"
-    debug_show_databases "after-createDbUser"
+    su apache -s /bin/bash -c "php createDbUser.php" > /dev/null
 
     echo "Inserting base configuration..."
-    su apache -s /bin/bash -c "SERVER_ADDR='127.0.0.1' php insertBaseConf.php" 2>&1 || echo "DEBUG: insertBaseConf.php exit=$?"
-    debug_show_databases "after-insertBaseConf"
+    su apache -s /bin/bash -c "SERVER_ADDR='127.0.0.1' php insertBaseConf.php" > /dev/null
 
     if [ "$DATABASE_PARTITIONING" = "1" ]; then
       echo "Creating database partition tables..."
-      su apache -s /bin/bash -c "php partitionTables.php" 2>&1 || echo "DEBUG: partitionTables.php exit=$?"
-      debug_show_databases "after-partitionTables"
+      su apache -s /bin/bash -c "php partitionTables.php" > /dev/null
     fi
 
     mysql -h"${MYSQL_HOST}" -uroot centreon -e "UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
