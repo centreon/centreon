@@ -376,7 +376,7 @@ jobs:
           pat: ${{ github.event.pull_request.head.repo.fork == true && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
           lint_path: ./www/front_src/
 
-  frontend-web-type-check:
+  frontend-type-check:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
     if: |
