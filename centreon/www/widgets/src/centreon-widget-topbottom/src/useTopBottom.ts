@@ -25,7 +25,7 @@ import { MetricsTop, TopBottomSettings } from './models';
 interface UseTopBottomProps
   extends Pick<
     CommonWidgetProps<object>,
-    'playlistHash' | 'dashboardId' | 'id' | 'widgetPrefixQuery'
+    'playlistHash' | 'dashboardId' | 'id' | 'widgetPrefixQuery' | 'isInViewport'
   > {
   globalRefreshInterval: GlobalRefreshInterval;
   metrics: Array<Metric>;
@@ -53,7 +53,8 @@ const useTopBottom = ({
   dashboardId,
   id,
   playlistHash,
-  widgetPrefixQuery
+  widgetPrefixQuery,
+  isInViewport
 }: UseTopBottomProps): UseTopBottomState => {
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
@@ -108,6 +109,7 @@ const useTopBottom = ({
     ],
     queryOptions: {
       enabled:
+        (isInViewport ?? true) &&
         areResourcesFullfilled(resources) &&
         !!metricName &&
         topBottomSettings.numberOfValues > 0,

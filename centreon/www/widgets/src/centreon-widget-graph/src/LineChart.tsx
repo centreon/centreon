@@ -48,6 +48,7 @@ interface Props
     | 'id'
     | 'playlistHash'
     | 'widgetPrefixQuery'
+    | 'isInViewport'
   > {
   panelData: Data;
   panelOptions: PanelOptions;
@@ -61,7 +62,8 @@ const WidgetLineChart = ({
   dashboardId,
   playlistHash,
   id,
-  widgetPrefixQuery
+  widgetPrefixQuery,
+  isInViewport
 }: Props): JSX.Element => {
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
   const refreshIntervalToUse = useRefreshInterval({
@@ -85,6 +87,7 @@ const WidgetLineChart = ({
         widgetId: id
       }),
       bypassQueryParams: isOnPublicPage,
+      enforceIsEnabled: isInViewport,
       metrics: panelData.metrics,
       prefix: widgetPrefixQuery,
       refreshCount,

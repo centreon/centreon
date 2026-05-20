@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { type ReactElement, useMemo } from 'react';
 
 import { useAtomValue } from 'jotai';
 import { equals, gt, isNil, last, pipe, pluck, reject } from 'ramda';
@@ -50,8 +50,9 @@ const StatusGrid = ({
   id: widgetId,
   dashboardId,
   playlistHash,
-  widgetPrefixQuery
-}: Omit<StatusGridProps, 'store' | 'queryClient'>): JSX.Element => {
+  widgetPrefixQuery,
+  isInViewport
+}: Omit<StatusGridProps, 'store' | 'queryClient'>): ReactElement => {
   const theme = useTheme();
   const { t } = useTranslation();
 
@@ -144,6 +145,7 @@ const StatusGrid = ({
       refreshCount
     ],
     queryOptions: {
+      enabled: isInViewport ?? true,
       refetchInterval: refreshIntervalToUse,
       suspense: false
     },

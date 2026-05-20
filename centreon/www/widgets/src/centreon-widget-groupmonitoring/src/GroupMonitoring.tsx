@@ -1,4 +1,5 @@
 import { includes, isNotNil } from 'ramda';
+import { ReactElement } from 'react';
 
 import { MemoizedListing } from '@centreon/ui';
 
@@ -18,8 +19,9 @@ const GroupMonitoring = ({
   id,
   dashboardId,
   playlistHash,
-  widgetPrefixQuery
-}: Omit<WidgetProps, 'store' | 'queryClient'>): JSX.Element => {
+  widgetPrefixQuery,
+  isInViewport
+}: Omit<WidgetProps, 'store' | 'queryClient'>): ReactElement => {
   const {
     hasResourceTypeDefined,
     changeLimit,
@@ -37,6 +39,7 @@ const GroupMonitoring = ({
     globalRefreshInterval,
     id,
     isFromPreview,
+    isInViewport,
     panelData,
     panelOptions,
     playlistHash,

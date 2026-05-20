@@ -1,4 +1,5 @@
 import { equals } from 'ramda';
+import type { ReactElement } from 'react';
 
 import { useTheme } from '@mui/material';
 
@@ -45,6 +46,7 @@ interface ListingProps
   statusTypes: Array<'hard' | 'soft'>;
   statuses: Array<string>;
   widgetPrefixQuery: string;
+  isInViewport: boolean;
 }
 
 const Listing = ({
@@ -72,8 +74,9 @@ const Listing = ({
   isUnreachableHostHidden,
   displayResources,
   provider,
-  isOpenTicketEnabled
-}: ListingProps): JSX.Element => {
+  isOpenTicketEnabled,
+  isInViewport
+}: ListingProps): ReactElement => {
   const theme = useTheme();
 
   const {
@@ -110,6 +113,7 @@ const Listing = ({
     isFromPreview,
     isOpenTicketEnabled,
     isUnreachableHostHidden,
+    isInViewport,
     limit,
     playlistHash,
     provider,

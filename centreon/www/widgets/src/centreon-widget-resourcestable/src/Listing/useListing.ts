@@ -77,6 +77,7 @@ interface UseListingProps
   states: Array<string>;
   statusTypes: Array<'hard' | 'soft'>;
   statuses: Array<string>;
+  isInViewport: boolean;
 }
 
 const useListing = ({
@@ -103,7 +104,8 @@ const useListing = ({
   isDownHostHidden,
   isUnreachableHostHidden,
   displayResources,
-  provider
+  provider,
+  isInViewport
 }: UseListingProps): UseListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
@@ -148,6 +150,7 @@ const useListing = ({
     id,
     isDownHostHidden,
     isUnreachableHostHidden,
+    isInViewport,
     limit,
     page,
     playlistHash,

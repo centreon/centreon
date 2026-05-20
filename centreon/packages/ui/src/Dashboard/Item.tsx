@@ -13,7 +13,6 @@ import { equals, isNil, prop } from 'ramda';
 
 import { Card, useTheme } from '@mui/material';
 
-import LoadingSkeleton from '../LoadingSkeleton';
 import { useMemoComponent, useViewportIntersection } from '../utils';
 
 import { useDashboardItemStyles } from './Dashboard.styles';
@@ -22,7 +21,10 @@ import { isResizingItemAtom } from './atoms';
 interface DashboardItemProps {
   additionalMemoProps?: Array<unknown>;
   canMove?: boolean;
-  children: ReactElement;
+  children: Array<
+    | ReactElement
+    | (({ isInViewport }: { isInViewport: boolean }) => ReactElement)
+  >;
   className?: string;
   disablePadding?: boolean;
   header?: ReactElement;
@@ -119,15 +121,8 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
                 !disablePadding && classes.widgetPadding
               )}
             >
-              {!isInViewport ? (
-                <LoadingSkeleton
-                  animation={false}
-                  data-widget-skeleton={id}
-                  height="100%"
-                  width="100%"
-                />
-              ) : (
-                children
+              {children.map((child) =>
+                typeof child === 'function' ? child({ isInViewport }) : child
               )}
             </div>
           </Card>

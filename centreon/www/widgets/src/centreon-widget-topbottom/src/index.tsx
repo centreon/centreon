@@ -25,13 +25,15 @@ export const TopBottomWrapper = ({
   panelOptions,
   playlistHash,
   refreshCount,
-  widgetPrefixQuery
+  widgetPrefixQuery,
+  isInViewport
 }: Omit<Props, 'store' | 'queryClient'>): JSX.Element => (
   <TopBottom
     dashboardId={dashboardId}
     globalRefreshInterval={globalRefreshInterval}
     id={id}
     isFromPreview={isFromPreview}
+    isInViewport={isInViewport}
     metrics={panelData.metrics}
     playlistHash={playlistHash}
     refreshCount={refreshCount}

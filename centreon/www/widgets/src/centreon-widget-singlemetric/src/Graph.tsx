@@ -1,5 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { equals, isNil, last } from 'ramda';
+import { type ReactElement } from 'react';
 
 import {
   ContentWithCircularLoading,
@@ -9,7 +10,7 @@ import {
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import NoResources from '../../NoResources';
-import { GlobalRefreshInterval, Metric, Resource } from '../../models';
+import type { GlobalRefreshInterval, Metric, Resource } from '../../models';
 import useThresholds from '../../useThresholds';
 import {
   areResourcesFullfilled,
@@ -19,7 +20,11 @@ import {
 
 import SingleMetricRenderer from './SingleMetricRenderer';
 import { selectEndpoint } from './api/endpoints';
-import { FormThreshold, SingleMetricGraphType, ValueFormat } from './models';
+import type {
+  FormThreshold,
+  SingleMetricGraphType,
+  ValueFormat
+} from './models';
 
 interface Props {
   dashboardId: number | string;
@@ -36,6 +41,7 @@ interface Props {
   threshold: FormThreshold;
   valueFormat: ValueFormat;
   widgetPrefixQuery: string;
+  isInViewport: boolean;
 }
 
 const Graph = ({
@@ -52,8 +58,9 @@ const Graph = ({
   playlistHash,
   dashboardId,
   id,
-  widgetPrefixQuery
-}: Props): JSX.Element => {
+  widgetPrefixQuery,
+  isInViewport
+}: Props): ReactElement => {
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,
@@ -103,12 +110,14 @@ const Graph = ({
     baseEndpoint,
     bypassMetricsExclusion: true,
     bypassQueryParams: true,
+    isEnabled:
+      (isInViewport ?? true) &&
+      Boolean(hostId && (getServiceId() || isMetaServiceSelected)),
     metrics,
     prefix: widgetPrefixQuery,
     refreshCount,
     refreshInterval: refreshIntervalToUse,
-    resources,
-    isEnabled: Boolean(hostId && (getServiceId() || isMetaServiceSelected))
+    resources
   });
 
   const displayAsRaw = equals('raw')(valueFormat);
