@@ -13,7 +13,7 @@ interface TopBottomSettingsValue {
 
 interface UseTopBottomSettingsState {
   changeNumberOfValues: (event: ChangeEvent<HTMLInputElement>) => void;
-  changeOrder: (_, newOrder: string) => void;
+  changeOrder: (_: unknown, newOrder: string) => void;
   value: TopBottomSettingsValue;
 }
 
@@ -36,7 +36,7 @@ const useTopBottomSettings = (
     setFieldTouched(`options.${propertyName}.numberOfValues`, true, false);
   };
 
-  const changeOrder = (_, newOrder: string): void => {
+  const changeOrder = (_: unknown, newOrder: string): void => {
     setFieldValue(`options.${propertyName}.order`, newOrder);
   };
 

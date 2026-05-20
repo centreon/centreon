@@ -145,7 +145,7 @@ Key points:
 > - **`request` channel** — Symfony's `HttpKernel\EventListener\ErrorListener` automatically captures and logs any unhandled exception bubbling up to the HTTP kernel.
 > - **`app` channel** — any application service that calls `$logger->error('…', ['exception' => $e])` directly.
 >
-> Uniform coverage is guaranteed not by this middleware but by the **processors tagged on the three channels** (`bus`, `request`, `app`) — see [§6](#6-http--security-processors-web-route-token). Any error, regardless of its entry point into Monolog, traverses `ExceptionFormatterProcessor` (shape `{type, message, code, file, line, trace, previous}`) and `WebProcessor` / `RouteProcessor` / `TokenProcessor` (HTTP / security enrichment).
+> Uniform coverage is guaranteed not by this middleware but by the **processors tagged on the three channels** (`bus`, `request`, `app`) — see [§6](#6-http--security-processors-web-route-token). Any error, regardless of its entry point into Monolog, traverses `ExceptionFormatterProcessor` (shape `{exceptions: [{type, message, code, file, line, trace}, …]}`) and `WebProcessor` / `RouteProcessor` / `TokenProcessor` (HTTP / security enrichment).
 >
 > Assumed blind spots: dedicated channels in the `!exclude` list of `web_finger_crossed` (`event`, `doctrine`, `console`, `deprecation`, `authentication`, `token`, `password`, `plugin-pack-manager`, `upgrade`), the `console` channel in CLI, and PHP fatals before kernel boot (parse error, OOM).
 
@@ -185,33 +185,36 @@ Returned shape:
 
 ```php
 [
-    'type'     => DomainException::class,
-    'message'  => 'top',
-    'code'     => 0,
-    'file'     => '/.../Foo.php',
-    'line'     => 42,
-    'trace'    => ['Foo::bar() at /.../Foo.php:42', /* ... */, '… 7 frames omitted'], // 15 frames max + omission marker
-    'previous' => [
+    'exceptions' => [
         [
-            'type' => RuntimeException::class,
-            'message' => 'mid',
-            'code' => 0, 'file' => '...', 'line' => 12, 'trace' => [/* ... */],
-            'previous' => [], // always empty on leaves — no recursion in the format
+            'type'    => DomainException::class,
+            'message' => 'top',
+            'code'    => 0,
+            'file'    => '/.../Foo.php',
+            'line'    => 42,
+            'trace'   => ['Foo::bar() at /.../Foo.php:42', /* ... */, '… 7 frames omitted'], // 15 frames max + omission marker
         ],
         [
-            'type' => LogicException::class,
+            'type'    => RuntimeException::class,
+            'message' => 'mid',
+            'code'    => 0, 'file' => '...', 'line' => 12,
+            'trace'   => [/* ... */],
+        ],
+        [
+            'type'    => LogicException::class,
             'message' => 'root cause',
-            'code' => 0, 'file' => '...', 'line' => 5, 'trace' => [/* ... */],
-            'previous' => [],
+            'code'    => 0, 'file' => '...', 'line' => 5,
+            'trace'   => [/* ... */],
         ],
     ],
 ]
 ```
 
+- The root exception is the first entry; every `previous` cause that follows is appended in order. The chain is **flat** — no nesting, no recursion.
 - `message` is truncated at 1024 characters with the `…[truncated]` suffix beyond that — same cap as `MAX_VALUE_LENGTH` on the payload sanitisation side. Prevents a `PDOException` carrying a long SQL fragment with its parameters from blowing up the width of a log line.
 - `trace` is truncated at 15 frames, each frame formatted as `Class::method() at file:line`. If the original stack exceeds this limit, a final `… N frames omitted` entry indicates how many frames were cut (useful in debug to know whether the application call site was lost under Symfony / vendor layers).
-- **Uniform shape**: the root and each `previous` entry carry the **same seven keys** (`type, message, code, file, line, trace, previous`). On a leaf, `previous` is **always `[]`** — we never recurse the format. A consumer (Kibana, custom parser) can therefore iterate the tree with a single shape and detect leaves on `previous === []`, with no schema branching.
-- `previous` is flattened into a list (direct cause first, root cause last), capped at 20 entries with a trailing `@truncated` marker if the chain exceeds.
+- **Uniform shape**: every entry — root, intermediates and the truncation marker — carries the **same six keys** (`type, message, code, file, line, trace`). A consumer (Kibana, custom parser) can iterate `exceptions` with a single shape and no schema branching.
+- The chain is capped at 20 entries; beyond that a trailing entry of type `@truncated` (with `code: 0`, empty `trace`, a message stating the cap) signals the cut without re-walking the chain.
 
 Reusable from any error entry point (event listener, API handler, Symfony exception listener…) without going back through the middleware.
 
@@ -351,24 +354,25 @@ Here `context.exception` is produced by `ExceptionFormatter::format()` directly 
   "duration_ms": 42.187,
   "payload": { /* same as nominal case */ },
   "exception": {
-    "type":    "DomainException",
-    "message": "UpdateBusinessActivityTree aggregate refused mutation",
-    "code":    1001,
-    "file":    "/.../UpdateBusinessActivityTreeCommandHandler.php",
-    "line":    87,
-    "trace": [
-      "App\\Module\\Bam\\…\\UpdateBusinessActivityTreeCommandHandler->__invoke() at /.../UpdateBusinessActivityTreeCommandHandler.php:87",
-      "Symfony\\Component\\Messenger\\Handler\\HandlersLocator->{closure}() at /.../HandleMessageMiddleware.php:152"
-    ],
-    "previous": [
+    "exceptions": [
+      {
+        "type":    "DomainException",
+        "message": "UpdateBusinessActivityTree aggregate refused mutation",
+        "code":    1001,
+        "file":    "/.../UpdateBusinessActivityTreeCommandHandler.php",
+        "line":    87,
+        "trace": [
+          "App\\Module\\Bam\\…\\UpdateBusinessActivityTreeCommandHandler->__invoke() at /.../UpdateBusinessActivityTreeCommandHandler.php:87",
+          "Symfony\\Component\\Messenger\\Handler\\HandlersLocator->{closure}() at /.../HandleMessageMiddleware.php:152"
+        ]
+      },
       {
         "type":    "RuntimeException",
         "message": "failed to load BA #100 children",
         "code":    0,
         "file":    "/.../DbReadBusinessActivityTreeRepository.php",
         "line":    214,
-        "trace":   [ "…" ],
-        "previous": []
+        "trace":   [ "…" ]
       }
     ]
   }
@@ -377,8 +381,8 @@ Here `context.exception` is produced by `ExceptionFormatter::format()` directly 
 
 Key points:
 
-- `previous` is **flat** (direct cause first, root cause last) — no recursion, so iterable with a single shape.
-- On every leaf, `previous === []` (never omitted, never recursive).
+- `exceptions` is a **flat list** (root first, then every `previous` cause in order) — no recursion, iterable with a single shape.
+- Every entry carries the same six keys (`type, message, code, file, line, trace`). When the chain exceeds 20 causes, a trailing `{"type":"@truncated", ...}` entry signals the cut.
 - The error record lands on `bus.ERROR` **after** the `DoctrineTransactionMiddleware` rollback — the persistent state is final at the time the log is emitted.
 
 ---

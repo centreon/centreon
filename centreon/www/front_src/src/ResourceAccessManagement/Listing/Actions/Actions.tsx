@@ -8,7 +8,7 @@ import { DeleteButton } from '../../Actions/Delete';
 import useDelete from '../../Actions/Delete/useDelete';
 import { DuplicateButton } from '../../Actions/Duplicate';
 import useDuplicate from '../../Actions/Duplicate/useDuplicate';
-import { DeleteType } from '../../models';
+import { DeleteType, ResourceAccessRule } from '../../models';
 import {
   labelDeleteResourceAccessRule,
   labelDuplicate
@@ -24,13 +24,16 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const onDeleteClick = (): void => {
     deleteItems({
       deleteType: DeleteType.SingleItem,
-      id: row.id,
-      name: row.name
+      id: row.id as number,
+      name: row.name as string
     });
   };
 
   const onDuplicateClick = (): void => {
-    duplicateItem({ id: row.id, resourceAccessRule: row });
+    duplicateItem({
+      id: row.id as number,
+      resourceAccessRule: row as unknown as ResourceAccessRule
+    });
   };
 
   return (

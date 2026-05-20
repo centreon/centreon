@@ -35,12 +35,12 @@ import Item from './Item';
 import SortableItem from './SortableItem';
 
 interface ContentProps {
-  attributes;
-  index;
+  attributes: Record<string, unknown>;
+  index: number;
   isDragging: boolean;
   itemRef: RefObject<HTMLDivElement>;
   listeners: DraggableSyntheticListeners;
-  style;
+  style: React.CSSProperties;
 }
 
 export interface RootComponentProps {
@@ -162,7 +162,7 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
     onDragOver?.(event);
   };
 
-  const getItemById = (id): T | undefined =>
+  const getItemById = (id: string | null): T | undefined =>
     find(propEq(id, propertyToFilterItemsOn), items);
 
   const activeItem = getItemById(activeId) as Record<string, unknown>;

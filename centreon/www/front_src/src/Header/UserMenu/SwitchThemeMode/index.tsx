@@ -50,7 +50,9 @@ const SwitchThemeMode = (): JSX.Element => {
   const [isDark, setIsDark] = useState(isDarkMode);
 
   const { sendRequest } = useRequest({
-    request: patchData
+    request: patchData as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<unknown>
   });
 
   const switchEndPoint = './api/latest/configuration/users/current/parameters';

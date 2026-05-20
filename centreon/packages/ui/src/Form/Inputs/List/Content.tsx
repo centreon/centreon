@@ -8,7 +8,7 @@ import { IconButton } from '../../../components';
 import { useListStyles } from './List.styles';
 
 export interface ContentProps {
-  attributes;
+  attributes: Record<string, unknown>;
   children: ReactNode;
   deleteItem: (id: string) => () => void;
   id: string;
@@ -17,7 +17,7 @@ export interface ContentProps {
   itemRef: React.RefObject<HTMLDivElement>;
   listeners: DraggableSyntheticListeners;
   name: string;
-  style;
+  style: React.CSSProperties;
 }
 
 const Content = ({

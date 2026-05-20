@@ -29,7 +29,7 @@ const RoleSelectField = ({
         fullWidth
         label={label}
         onChange={(event) => {
-          onChange(event.target.value);
+          onChange(event.target.value as string);
         }}
         options={roles}
         selectedOptionId={value}

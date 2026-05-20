@@ -31,7 +31,7 @@ const options = [
 interface Props {
   displayType: DisplayTypeEnum;
   hasMetaService: boolean;
-  setPanelOptions: (panelOptions) => void;
+  setPanelOptions: (panelOptions: { displayType: DisplayTypeEnum }) => void;
   isOpenTicketEnabled: boolean;
 }
 
@@ -44,11 +44,11 @@ const DisplayType = ({
   const { classes } = useStyles();
   const { t } = useTranslation();
 
-  const changeDisplayType = (option) => (): void => {
+  const changeDisplayType = (option: DisplayTypeEnum) => (): void => {
     setPanelOptions?.({ displayType: option });
   };
 
-  const getDisabled = (option): boolean => {
+  const getDisabled = (option: DisplayTypeEnum): boolean => {
     return (
       (hasMetaService && equals(option, DisplayTypeEnum.Host)) ||
       (isOpenTicketEnabled &&

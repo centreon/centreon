@@ -26,56 +26,48 @@ namespace App\Shared\Infrastructure\Logging;
 abstract readonly class ExceptionFormatter
 {
     private const MAX_TRACE_FRAMES = 15;
-    private const MAX_PREVIOUS_DEPTH = 20;
+    private const MAX_EXCEPTIONS = 20;
     private const MAX_MESSAGE_LENGTH = 1024;
     private const TRUNCATION_MARKER_TYPE = '@truncated';
 
     /**
-     * Every entry of the returned structure (root + each entry under
-     * `previous`) carries the same six fields, plus a `previous` array.
-     * On the root, `previous` may contain other entries (the flattened
-     * chain). On every other entry, `previous` is **always empty** —
-     * we never recurse the format, so a reader can iterate the tree
-     * with a single shape and stop on each leaf without a special case.
+     * Returns a flat list of every exception in the cause chain — the
+     * thrown exception first, then each `previous` in order, capped at
+     * {@see self::MAX_EXCEPTIONS}. Beyond the cap, a sentinel entry of
+     * type `@truncated` is appended so a log reader can detect the cut
+     * without re-walking the chain.
+     *
+     * The cap protects against pathological chains (or a theoretical
+     * reflection-induced cycle) producing an unbounded log payload.
      *
      * @return array{
-     *     type: class-string,
-     *     message: string,
-     *     code: int|string,
-     *     file: string,
-     *     line: int,
-     *     trace: list<string>,
-     *     previous: list<array{
+     *     exceptions: list<array{
      *         type: class-string|self::TRUNCATION_MARKER_TYPE,
      *         message: string,
      *         code: int|string,
      *         file: string,
      *         line: int,
-     *         trace: list<string>,
-     *         previous: list<never>
+     *         trace: list<string>
      *     }>
      * }
      */
     public static function format(\Throwable $throwable): array
     {
-        $previous = [];
+        $exceptions = [self::formatOne($throwable)];
         $current = $throwable->getPrevious();
-        $depth = 0;
+        $depth = 1;
 
-        while ($current instanceof \Throwable && $depth < self::MAX_PREVIOUS_DEPTH) {
-            $previous[] = self::formatLeaf($current);
+        while ($current instanceof \Throwable && $depth < self::MAX_EXCEPTIONS) {
+            $exceptions[] = self::formatOne($current);
             $current = $current->getPrevious();
             $depth++;
         }
 
         if ($current instanceof \Throwable) {
-            // Chain longer than the cap, or pathological cycle (theoretical
-            // via reflection). Stop here without counting the rest — that
-            // would re-enter the same unbounded walk we just broke out of.
-            $previous[] = self::truncationMarker();
+            $exceptions[] = self::truncationMarker();
         }
 
-        return [...self::baseFields($throwable), 'previous' => $previous];
+        return ['exceptions' => $exceptions];
     }
 
     /**
@@ -88,7 +80,7 @@ abstract readonly class ExceptionFormatter
      *     trace: list<string>
      * }
      */
-    private static function baseFields(\Throwable $throwable): array
+    private static function formatOne(\Throwable $throwable): array
     {
         return [
             'type' => $throwable::class,
@@ -118,41 +110,23 @@ abstract readonly class ExceptionFormatter
 
     /**
      * @return array{
-     *     type: class-string,
-     *     message: string,
-     *     code: int|string,
-     *     file: string,
-     *     line: int,
-     *     trace: list<string>,
-     *     previous: list<never>
-     * }
-     */
-    private static function formatLeaf(\Throwable $throwable): array
-    {
-        return [...self::baseFields($throwable), 'previous' => []];
-    }
-
-    /**
-     * @return array{
      *     type: self::TRUNCATION_MARKER_TYPE,
      *     message: string,
      *     code: int,
      *     file: string,
      *     line: int,
-     *     trace: list<string>,
-     *     previous: list<never>
+     *     trace: list<never>
      * }
      */
     private static function truncationMarker(): array
     {
         return [
             'type' => self::TRUNCATION_MARKER_TYPE,
-            'message' => sprintf('previous chain truncated at %d entries', self::MAX_PREVIOUS_DEPTH),
+            'message' => sprintf('previous chain truncated at %d entries', self::MAX_EXCEPTIONS),
             'code' => 0,
             'file' => '',
             'line' => 0,
             'trace' => [],
-            'previous' => [],
         ];
     }
 

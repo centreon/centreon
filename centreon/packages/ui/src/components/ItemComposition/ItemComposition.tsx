@@ -9,7 +9,7 @@ import { Button } from '..';
 import { useItemCompositionStyles } from './ItemComposition.styles';
 
 export type Props = {
-  IconAdd?;
+  IconAdd?: ReactElement;
   addButtonHidden?: boolean;
   addbuttonDisabled?: boolean;
   children: Array<ReactElement>;

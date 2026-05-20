@@ -100,8 +100,13 @@ final class ExceptionFormatterProcessorIntegrationTest extends KernelTestCase
 
         $exception = $records[0]->context['exception'];
         \assert(\is_array($exception));
-        self::assertSame(\RuntimeException::class, $exception['type']);
-        self::assertSame('inner', $exception['message']);
-        self::assertSame(42, $exception['code']);
+        $exceptions = $exception['exceptions'];
+        \assert(\is_array($exceptions));
+        self::assertCount(1, $exceptions);
+        $entry = $exceptions[0];
+        \assert(\is_array($entry));
+        self::assertSame(\RuntimeException::class, $entry['type']);
+        self::assertSame('inner', $entry['message']);
+        self::assertSame(42, $entry['code']);
     }
 }
