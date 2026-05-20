@@ -498,6 +498,33 @@ Default retention: `weekly` × `rotate 52` (1 year), with `compress` + `delaycom
 
 In development (`when@dev` in `monolog.yaml`), the handlers use `rotating_file` directly (daily `Y-m-d` suffix, `max_files: 14` retention) — no need for logrotate.
 
+### `prod.web.log` is a two-format file
+
+`prod.web.log` aggregates records from **two writers** sharing the same file, and they don't share the same line shape — by construction, not by choice:
+
+1. **Monolog** (the application framework, `LoggingMiddleware` + processors + every DI-resolved `LoggerInterface`) writes with the `LineFormatter`:
+
+   ```
+   [2026-05-20T14:30:00+02:00] bus.INFO: Dispatching command App\…\Foo {"dispatch_id":"…"} {"uid":"…"}
+   ```
+
+   - RFC3339 timestamp, `channel.LEVEL` prefix, JSON `context` + JSON `extra`.
+
+2. **PHP-FPM** native `error_log` (`packaging/src/php-fpm.{rpm,deb}.conf`, `php_admin_value[error_log] = /var/log/centreon/prod.web.log`) writes whatever PHP cannot route through Monolog — parse errors, fatal pre-boot errors, OOM, `trigger_error(..., E_USER_ERROR)`:
+
+   ```
+   [20-May-2026 14:26:47 Europe/Paris] PHP Fatal error:  forced PHP test error in /tmp/foo.php on line 2
+   ```
+
+   - Legacy date format (`d-M-Y H:i:s T`), `PHP <Type> error:` prefix, no JSON.
+
+The two formats **cannot be unified at the source**: PHP-FPM does not expose any `error_log_format` directive (the format is hardcoded in the PHP engine, `main/main.c`). What the framework can catch, however, is caught: `framework.php_errors.log: true` routes every runtime PHP `Warning` / `Notice` / `Deprecation` / `ErrorException` through Monolog on the `php` channel, so they land in `prod.web.log` **at the Monolog format**. Only the native pre-Monolog failures (parse error, fatal pre-boot, OOM) keep the PHP-FPM format.
+
+Practical consequence for downstream consumers (log shippers, fail2ban filters, manual `tail`): match the line by **its first character pattern**, not by date:
+
+- `^\[\d{4}-\d{2}-\d{2}T` → Monolog record (RFC3339)
+- `^\[\d{2}-[A-Z][a-z]{2}-\d{4}` → PHP-FPM native error
+
 ---
 
 ## 10. Legacy bridge — `Adaptation\Log\Logger`
