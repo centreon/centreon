@@ -43,7 +43,35 @@ abstract class ApiTestCase extends SymfonyApiTestCase
     {
         /** @var Connection $connection */
         $connection = static::getContainer()->get('doctrine.dbal.test_setup_default_connection');
-        $connection->beginTransaction();
+
+        $params = $connection->getParams();
+        fwrite(STDERR, sprintf(
+            "\n[DEBUG ApiTestCase] Connection params: host=%s, port=%s, dbname=%s, user=%s, driver=%s, driverOptions=%s\n",
+            $params['host'] ?? 'NULL',
+            $params['port'] ?? 'NULL',
+            $params['dbname'] ?? 'NULL',
+            $params['user'] ?? 'NULL',
+            $params['driver'] ?? 'NULL',
+            json_encode($params['driverOptions'] ?? []),
+        ));
+        fwrite(STDERR, sprintf(
+            "[DEBUG ApiTestCase] ENV: hostCentreon=%s, db=%s, APP_ENV=%s\n",
+            $_ENV['hostCentreon'] ?? 'NULL',
+            $_ENV['db'] ?? 'NULL',
+            $_ENV['APP_ENV'] ?? 'NULL',
+        ));
+
+        try {
+            $connection->beginTransaction();
+        } catch (\Throwable $e) {
+            fwrite(STDERR, sprintf(
+                "[DEBUG ApiTestCase] Connection FAILED: %s\n%s\n",
+                $e->getMessage(),
+                $e->getTraceAsString(),
+            ));
+
+            throw $e;
+        }
 
         try {
             foreach (static::apiUsers() as $apiUser) {
