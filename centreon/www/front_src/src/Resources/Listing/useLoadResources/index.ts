@@ -160,10 +160,6 @@ const useLoadResources = (): LoadResources => {
   };
 
   const load = (): Promise<void> => {
-    // Reset approximate count state so the badge reappears when filters change.
-    setExactCount(null);
-    setExactCountLoading(false);
-
     const getCriteriaIds = (
       name: string
     ): Array<string | number> | undefined => {
@@ -314,6 +310,12 @@ const useLoadResources = (): LoadResources => {
   useEffect(() => {
     setSendingDetails(sendingDetails);
   }, [sendingDetails]);
+
+  useEffect(() => {
+    // Reset approximate count state so the badge reappears when filters change.
+    setExactCount(null);
+    setExactCountLoading(false);
+  }, [appliedFilter]);
 
   useEffect(() => {
     setDetails(undefined);
