@@ -24,8 +24,8 @@ doctrine:
       test_setup_default:
         use_savepoints: true
         server_version: "%env(DATABASE_SERVER_VERSION)%"
-        dbname: "%env(db)%"
-        user: "%env(user)%"
-        password: "%env(password)%"
+        dbname: centreon
+        user: centreon
+        password: password
         host: 127.0.0.1
-        port: "%env(int:port)%"
+        port: 3306
