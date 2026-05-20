@@ -60,6 +60,8 @@ collections:
     path: "collections/Parameters"
   - name: "Vault_Configuration"
     path: "collections/Vault_Configuration"
+  - name: "OpenID_Provider_Configuration"
+    path: "collections/OpenID_Provider_Configuration"
   - name: "WebSSO_Provider_Configuration"
     path: "collections/WebSSO_Provider_Configuration"
   - name: "Tokens"
