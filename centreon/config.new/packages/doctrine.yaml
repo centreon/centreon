@@ -11,18 +11,18 @@ doctrine:
         dbname: "%env(db)%"
         user: "%env(user)%"
         password: "%env(password)%"
-        host: "127.0.0.1"
+        host: "%env(hostCentreon)%"
       realtime:
         use_savepoints: true
         server_version: "%env(DATABASE_SERVER_VERSION)%"
         dbname: "%env(dbcstg)%"
         user: "%env(user)%"
         password: "%env(password)%"
-        host: "127.0.0.1"
+        host: "%env(hostCentreon)%"
       test_setup_default:
         use_savepoints: true
         server_version: "%env(DATABASE_SERVER_VERSION)%"
         dbname: "%env(db)%"
         user: "%env(user)%"
         password: "%env(password)%"
-        host: "127.0.0.1"
+        host: "%env(hostCentreon)%"
