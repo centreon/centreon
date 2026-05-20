@@ -9,7 +9,7 @@ import {
   labelRequired
 } from '../../../translatedLabels';
 
-const getValidationSchema = (t: (string) => string): unknown => {
+const getValidationSchema = (t: (key: string) => string): unknown => {
   const dateSchema = date()
     .typeError(t(labelInvalidFormat))
     .required(t(labelRequired))

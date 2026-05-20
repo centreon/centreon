@@ -1,7 +1,15 @@
 import type { Metric } from './timeSeries/models';
 
+export interface LineChartGlobal {
+  base?: number;
+  title?: string;
+  'lower-limit'?: number;
+  'upper-limit'?: number;
+  [key: string]: unknown;
+}
+
 export interface LineChartData {
-  global;
+  global: LineChartGlobal;
   metrics: Array<Metric>;
   times: Array<string>;
 }

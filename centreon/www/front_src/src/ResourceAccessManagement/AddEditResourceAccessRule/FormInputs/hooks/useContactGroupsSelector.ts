@@ -12,10 +12,19 @@ import { findContactGroupsEndpoint } from '../../api/endpoints';
 interface UseContactGroupssSelectorState {
   checked: boolean;
   contactGroups: Array<NamedEntity>;
-  deleteContactGroupsItem: ({ contactGroups, option }) => void;
-  getEndpoint: () => (parameters) => string;
+  deleteContactGroupsItem: ({
+    contactGroups,
+    option
+  }: {
+    contactGroups: Array<NamedEntity>;
+    option: NamedEntity;
+  }) => void;
+  getEndpoint: () => (parameters: Record<string, unknown>) => string;
   onCheckboxChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  onMultiSelectChange: () => (_, contactGroups: Array<NamedEntity>) => void;
+  onMultiSelectChange: () => (
+    _: unknown,
+    contactGroups: Array<NamedEntity>
+  ) => void;
 }
 
 const useContactGroupsSelector = (): UseContactGroupssSelectorState => {
@@ -24,14 +33,20 @@ const useContactGroupsSelector = (): UseContactGroupssSelectorState => {
 
   const setAllContactGroupsSelected = useSetAtom(allContactGroupsSelectedAtom);
 
-  const deleteContactGroupsItem = ({ contactGroups, option }): void => {
+  const deleteContactGroupsItem = ({
+    contactGroups,
+    option
+  }: {
+    contactGroups: Array<NamedEntity>;
+    option: NamedEntity;
+  }): void => {
     const newContactGroups = reject(propEq(option.id, 'id'), contactGroups);
     setFieldValue('contactGroups', newContactGroups);
   };
 
   const getEndpoint =
     () =>
-    (parameters): string => {
+    (parameters: Record<string, unknown>): string => {
       return buildListingEndpoint({
         baseEndpoint: findContactGroupsEndpoint,
         customQueryParameters: undefined,
@@ -47,9 +62,11 @@ const useContactGroupsSelector = (): UseContactGroupssSelectorState => {
     setAllContactGroupsSelected(event.target.checked);
   };
 
-  const onMultiSelectChange = () => (_, contactGroups: Array<NamedEntity>) => {
-    setFieldValue('contactGroups', contactGroups);
-  };
+  const onMultiSelectChange =
+    () =>
+    (_: unknown, contactGroups: Array<NamedEntity>): void => {
+      setFieldValue('contactGroups', contactGroups);
+    };
 
   return {
     checked: values.allContactGroups,

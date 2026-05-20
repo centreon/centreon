@@ -31,7 +31,7 @@ export interface RichTextEditorProps {
   error?: string;
   getEditorState?: (editorState: EditorState, editor: LexicalEditor) => void;
   initialEditorState?: string;
-  initialize?: (editor) => void;
+  initialize?: (editor: LexicalEditor) => void;
   inputClassname?: string;
   minInputHeight?: number;
   namespace?: string;

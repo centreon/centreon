@@ -17,18 +17,27 @@ const useCheckboxes = <TFilters>({
   setFilters,
   name
 }: Props<TFilters>): UseCheckboxes => {
-  const isChecked = (id: string): boolean => includes(id, filters[name] || []);
+  const filtersRecord = filters as Record<string, unknown>;
+
+  const isChecked = (id: string): boolean =>
+    includes(id, (filtersRecord[name] as Array<string>) || []);
 
   const change = (event: ChangeEvent<HTMLInputElement>): void => {
     const valueId = event.target.name;
 
-    if (!includes(valueId, filters[name])) {
-      setFilters({ ...filters, [name]: [...filters[name], valueId] });
+    if (!includes(valueId, filtersRecord[name] as Array<string>)) {
+      setFilters({
+        ...filters,
+        [name]: [...(filtersRecord[name] as Array<string>), valueId]
+      });
 
       return;
     }
 
-    const filteredOptions = reject(equals(valueId), filters[name]);
+    const filteredOptions = reject(
+      equals(valueId),
+      filtersRecord[name] as Array<string>
+    );
 
     setFilters({ ...filters, [name]: filteredOptions });
   };

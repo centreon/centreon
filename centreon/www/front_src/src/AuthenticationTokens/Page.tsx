@@ -21,7 +21,17 @@ import {
   labelWelcomePageTitle
 } from './translatedLabels';
 
-const WelcomePage = ({ labels, dataTestId, onCreate }) => {
+interface WelcomePageProps {
+  labels: {
+    actions: { create: string };
+    description: string;
+    title: string;
+  };
+  dataTestId: string;
+  onCreate: () => void;
+}
+
+const WelcomePage = ({ labels, dataTestId, onCreate }: WelcomePageProps) => {
   const { isLoading, data } = useLoadData();
 
   const setIsWelcomePageDisplayed = useSetAtom(isWelcomePageDisplayedAtom);

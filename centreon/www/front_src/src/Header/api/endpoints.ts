@@ -1,4 +1,4 @@
-import { buildListingEndpoint } from '@centreon/ui';
+import { buildListingEndpoint, type ListingParameters } from '@centreon/ui';
 
 import dayjs from 'dayjs';
 
@@ -43,7 +43,9 @@ export const tokensSearchConditions = [
   }
 ];
 
-export const getTokensEndpoint = (parameters): string => {
+export const getTokensEndpoint = (
+  parameters: Omit<ListingParameters, 'apiFormat'>
+): string => {
   return buildListingEndpoint({
     baseEndpoint: listTokensEndpoint,
     parameters: {
@@ -54,6 +56,6 @@ export const getTokensEndpoint = (parameters): string => {
           ...tokensSearchConditions
         ]
       }
-    }
+    } as Omit<ListingParameters, 'apiFormat' | 'customQueryParameters'>
   });
 };

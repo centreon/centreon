@@ -40,11 +40,11 @@ const Activate = ({ row }: ComponentColumnProps): JSX.Element => {
   }, [row?.isActivated]);
 
   const { mutateAsync } = useMutationQuery({
-    getEndpoint: () => notificationEndpoint({ id: row.id }),
+    getEndpoint: () => notificationEndpoint({ id: row.id as number }),
     method: Method.PATCH
   });
 
-  const onClick = (event): void => {
+  const onClick = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const value = event.target.checked;
     setChecked(value);
 
@@ -61,7 +61,12 @@ const Activate = ({ row }: ComponentColumnProps): JSX.Element => {
   };
 
   return (
-    <Switch checked={checked} color="success" onClick={onClick} size="small" />
+    <Switch
+      checked={Boolean(checked)}
+      color="success"
+      onClick={onClick as unknown as React.MouseEventHandler<HTMLButtonElement>}
+      size="small"
+    />
   );
 };
 

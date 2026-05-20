@@ -19,11 +19,15 @@ export const changeGraphOptionsDerivedAtom = atom(
   (get, set, { graphOptionId, changeTabGraphOptions }) => {
     const graphOptions = get(graphOptionsAtom);
 
+    const graphOptionsRecord = graphOptions as unknown as Record<
+      string,
+      { id: string; label: string; value: boolean }
+    >;
     const newGraphOptions = {
       ...graphOptions,
       [graphOptionId]: {
-        ...graphOptions[graphOptionId],
-        value: !graphOptions[graphOptionId].value
+        ...graphOptionsRecord[graphOptionId],
+        value: !graphOptionsRecord[graphOptionId].value
       }
     };
     set(graphOptionsAtom, newGraphOptions);
