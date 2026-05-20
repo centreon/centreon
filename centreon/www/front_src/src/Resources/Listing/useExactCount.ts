@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
+
 import type { SelectEntry } from '@centreon/ui';
-import { getData, useRequest } from '@centreon/ui';
+import { useFetchQuery } from '@centreon/ui';
 import { isResourceStatusFullSearchEnabledAtom } from '@centreon/ui-context';
 
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -29,12 +31,6 @@ const useExactCount = (): UseExactCount => {
   );
   const { getCriteriaNames } = useGetCriteriaName();
 
-  const { sendRequest } = useRequest<CountResponse>({
-    request: getData as unknown as (
-      token: import('axios').CancelToken
-    ) => (params?: unknown) => Promise<CountResponse>
-  });
-
   const getCriteriaIds = (name: string): Array<string | number> | undefined => {
     const criteriaValue = getCriteriaValue(name) as
       | Array<SelectEntry>
@@ -51,7 +47,7 @@ const useExactCount = (): UseExactCount => {
     return (criteriaValue?.map(prop('name')) ?? []).map(Number);
   };
 
-  const requestExactCount = (): void => {
+  const getEndpoint = (): string => {
     const names = getCriteriaNames('names');
     const parentNames = getCriteriaNames('parent_names');
 
@@ -74,7 +70,7 @@ const useExactCount = (): UseExactCount => {
       }
     );
 
-    const endpoint = buildCountEndpoint({
+    return buildCountEndpoint({
       apiFormat: 'Standard',
       hostCategories: getCriteriaNames('host_categories'),
       hostGroups: getCriteriaNames('host_groups'),
@@ -91,15 +87,29 @@ const useExactCount = (): UseExactCount => {
       statuses: getCriteriaIds('statuses') as Array<string>,
       statusTypes: getCriteriaIds('status_types') as Array<string>
     });
+  };
 
-    setExactCountLoading(true);
-    sendRequest({ endpoint })
-      .then((response) => {
-        setExactCount(response.count);
-      })
-      .finally(() => {
-        setExactCountLoading(false);
-      });
+  const { data, isFetching, refetch } = useFetchQuery<CountResponse>({
+    getEndpoint,
+    getQueryKey: () => ['exactCount', getEndpoint()],
+    queryOptions: {
+      enabled: false,
+      suspense: false
+    }
+  });
+
+  useEffect(() => {
+    setExactCountLoading(isFetching);
+  }, [isFetching]);
+
+  useEffect(() => {
+    if (data?.count !== undefined) {
+      setExactCount(data.count);
+    }
+  }, [data]);
+
+  const requestExactCount = (): void => {
+    refetch();
   };
 
   return { requestExactCount };

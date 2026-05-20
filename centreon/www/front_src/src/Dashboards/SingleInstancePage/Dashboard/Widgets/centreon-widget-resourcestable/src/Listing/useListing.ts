@@ -1,4 +1,4 @@
-import { type Column, getData, useRequest, useSnackbar } from '@centreon/ui';
+import { type Column, useFetchQuery, useSnackbar } from '@centreon/ui';
 
 import { useAtom, useAtomValue } from 'jotai';
 import { equals } from 'ramda';
@@ -138,16 +138,9 @@ const useListing = ({
   );
 
   const [exactCount, setExactCount] = useState<number | null>(null);
-  const [isExactCountLoading, setIsExactCountLoading] = useState(false);
 
-  const { sendRequest: sendCountRequest } = useRequest<CountResponse>({
-    request: getData as unknown as (
-      token: import('axios').CancelToken
-    ) => (params?: unknown) => Promise<CountResponse>
-  });
-
-  const requestExactCount = (): void => {
-    const endpoint = buildCountEndpoint({
+  const getCountEndpoint = (): string =>
+    buildCountEndpoint({
       displayResources: isOpenTicketEnabled ? displayResources : undefined,
       hostSeverities,
       isDownHostHidden: isOpenTicketEnabled ? isDownHostHidden : undefined,
@@ -162,19 +155,28 @@ const useListing = ({
       statusTypes,
       type: displayType
     });
-    setIsExactCountLoading(true);
-    sendCountRequest({ endpoint: `./api/latest${endpoint}` })
-      .then((response) => {
-        setExactCount(response.count);
-      })
-      .finally(() => {
-        setIsExactCountLoading(false);
-      });
-  };
+
+  const {
+    data: countData,
+    isFetching: isExactCountLoading,
+    refetch
+  } = useFetchQuery<CountResponse>({
+    getEndpoint: getCountEndpoint,
+    getQueryKey: () => ['exactCount', getCountEndpoint()],
+    queryOptions: {
+      enabled: false,
+      suspense: false
+    }
+  });
+
+  useEffect(() => {
+    if (countData?.count !== undefined) {
+      setExactCount(countData.count);
+    }
+  }, [countData]);
 
   useEffect(() => {
     setExactCount(null);
-    setIsExactCountLoading(false);
   }, [
     displayType,
     JSON.stringify(resources),
@@ -184,6 +186,10 @@ const useListing = ({
     JSON.stringify(hostSeverities),
     JSON.stringify(serviceSeverities)
   ]);
+
+  const requestExactCount = (): void => {
+    refetch();
+  };
 
   useEffect(() => {
     if (isOpenTicketEnabled && isFromPreview) {
