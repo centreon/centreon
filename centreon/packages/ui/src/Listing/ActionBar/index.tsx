@@ -8,7 +8,12 @@ import { ListingVariant, userAtom } from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
 import { equals, isEmpty, isNil, not, pick } from 'ramda';
-import { type ChangeEvent, type MouseEvent, type ReactNode, useCallback } from 'react';
+import {
+  type ChangeEvent,
+  type MouseEvent,
+  type ReactNode,
+  useCallback
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -132,17 +137,30 @@ const MemoListingActionBar = ({
 
   const { themeMode } = useAtomValue(userAtom);
 
-  const changeRowPerPage = (event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void => {
+  const changeRowPerPage = (
+    event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ): void => {
     onLimitChange?.(event.target.value);
     onPaginate?.(0);
   };
 
-  const changePage = (_: MouseEvent<HTMLButtonElement> | null, value: number): void => {
+  const changePage = (
+    _: MouseEvent<HTMLButtonElement> | null,
+    value: number
+  ): void => {
     onPaginate?.(value);
   };
 
   const labelDisplayedRows = useCallback(
-    ({ from, to, count }: { count: number; from: number; to: number }): ReactNode => {
+    ({
+      from,
+      to,
+      count
+    }: {
+      count: number;
+      from: number;
+      to: number;
+    }): ReactNode => {
       const range = `${from}-${to} ${t(labelOf)} `;
 
       if (!approximateTotalRows) {

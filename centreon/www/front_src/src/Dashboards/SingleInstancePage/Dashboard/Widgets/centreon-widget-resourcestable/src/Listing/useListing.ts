@@ -19,8 +19,8 @@ import type { PanelOptions } from '../models';
 import useColumns from './Columns/useColumns';
 import {
   DisplayType,
-  type NamedEntity,
   type Resource as ListingResource,
+  type NamedEntity,
   type ResourceListing,
   type Ticket
 } from './models';
@@ -37,7 +37,13 @@ interface UseListingState {
   cancelSetDowntime: () => void;
   changeLimit: (value: number) => void;
   changePage: (updatedPage: number) => void;
-  changeSort: ({ sortOrder, sortField }: { sortField: string; sortOrder: SortOrder }) => void;
+  changeSort: ({
+    sortOrder,
+    sortField
+  }: {
+    sortField: string;
+    sortOrder: SortOrder;
+  }) => void;
   columns: Array<Column>;
   confirmAcknowledge: () => void;
   confirmSetDowntime: () => void;
@@ -234,7 +240,10 @@ const useListing = ({
     [resources]
   );
 
-  const changeSort = (sortParameters: { sortField: string; sortOrder: SortOrder }): void => {
+  const changeSort = (sortParameters: {
+    sortField: string;
+    sortOrder: SortOrder;
+  }): void => {
     setPanelOptions?.(sortParameters);
   };
 
