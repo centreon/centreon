@@ -1,31 +1,31 @@
 parameters:
-    env(DATABASE_SERVER_VERSION): 'mariadb-10.11.0'
+  env(DATABASE_SERVER_VERSION): "mariadb-10.11.0"
 
 doctrine:
-   dbal:
-       default_connection: default
-       connections:
-           default:
-               use_savepoints: true
-               server_version: '%env(DATABASE_SERVER_VERSION)%'
-               dbname: '%env(db)%'
-               user: '%env(user)%'
-               password: '%env(password)%'
-               host: '%env(hostCentreon)%'
-               port: '%env(int:port)%'
-           realtime:
-               use_savepoints: true
-               server_version: '%env(DATABASE_SERVER_VERSION)%'
-               dbname: '%env(dbcstg)%'
-               user: '%env(user)%'
-               password: '%env(password)%'
-               host: '%env(hostCentreon)%'
-               port: '%env(int:port)%'
-           test_setup_default:
-               use_savepoints: true
-               server_version: '%env(DATABASE_SERVER_VERSION)%'
-               dbname: '%env(db)%'
-               user: '%env(user)%'
-               password: '%env(password)%'
-               host: '%env(hostCentreon)%'
-               port: '%env(int:port)%'
+  dbal:
+    default_connection: default
+    connections:
+      default:
+        use_savepoints: true
+        server_version: "%env(DATABASE_SERVER_VERSION)%"
+        dbname: "%env(db)%"
+        user: "%env(user)%"
+        password: "%env(password)%"
+        host: "%env(hostCentreon)%"
+        port: "%env(int:port)%"
+      realtime:
+        use_savepoints: true
+        server_version: "%env(DATABASE_SERVER_VERSION)%"
+        dbname: "%env(dbcstg)%"
+        user: "%env(user)%"
+        password: "%env(password)%"
+        host: "%env(hostCentreon)%"
+        port: "%env(int:port)%"
+      test_setup_default:
+        use_savepoints: true
+        server_version: "%env(DATABASE_SERVER_VERSION)%"
+        dbname: "%env(db)%"
+        user: "%env(user)%"
+        password: "%env(password)%"
+        host: 127.0.0.1
+        port: "%env(int:port)%"
