@@ -58,7 +58,7 @@ runs:
         token: ${{ inputs.pat }}
         version: 2.3.11
 
-    - uses: mongolyy/reviewdog-action-biome@abafdf75a79678ef8e2715298ee2dfc12262c82f # v2.7.1
+    - uses: mongolyy/reviewdog-action-biome@58f27dce74f1f648943d3a88de554385727ce11b # v2.11.1
       with:
         workdir: ${{ inputs.frontend_directory }}
         github_token: ${{ inputs.pat }}
