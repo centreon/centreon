@@ -97,9 +97,3 @@ export const labelFqdn = 'FQDN / Address';
 export const labelParentAlias = 'Parent alias';
 export const labelAlias = 'Alias';
 export const labelMonitoringServer = 'Monitoring server';
-
-export const labelApproximateCount = '10,000+';
-export const labelApproximateCountTooltip =
-  'More than 10,000 resources match your search. Click to compute the exact count.';
-export const labelLoadingExactCount = 'Computing exact count…';
-export const labelExactCountLoaded = '{{count}} resources';
