@@ -21,20 +21,11 @@ doctrine:
         password: "%env(password)%"
         host: "%env(hostCentreon)%"
         port: "%env(int:port)%"
-
-when@test:
-  doctrine:
-    dbal:
-      connections:
-        default:
-          host: 127.0.0.1
-          port: 3306
-          password: password
-        realtime:
-          host: 127.0.0.1
-          port: 3306
-          password: password
-        test_setup_default:
-          host: 127.0.0.1
-          port: 3306
-          password: password
+      test_setup_default:
+        use_savepoints: true
+        server_version: "%env(DATABASE_SERVER_VERSION)%"
+        dbname: "%env(db)%"
+        user: "%env(user)%"
+        password: "%env(password)%"
+        host: "%env(hostCentreon)%"
+        port: "%env(int:port)%"
