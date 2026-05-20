@@ -112,7 +112,7 @@ interface ReadContactRepositoryInterface
      *
      * @param ContactInterface $user
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return int[]
      */

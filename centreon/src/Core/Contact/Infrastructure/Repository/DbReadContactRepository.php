@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Contact\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
@@ -388,14 +390,24 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
                 )
             SQL;
 
-        $statement = $this->db->prepare($this->translateDbName($query));
-        $userId = $user->getId();
-        foreach ([':userId1', ':userId2', ':userId3', ':userId4', ':userId5'] as $token) {
-            $statement->bindValue($token, $userId, \PDO::PARAM_INT);
-        }
-        $statement->execute();
+        try {
+            $userId = $user->getId();
+            $queryParameters = new QueryParameters();
+            foreach ([':userId1', ':userId2', ':userId3', ':userId4', ':userId5'] as $token) {
+                $queryParameters->add($token, QueryParameter::int($token, $userId));
+            }
 
-        return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
+            return $this->db->fetchFirstColumn(
+                $this->translateDbName($query),
+                $queryParameters
+            );
+        } catch (\Exception $exception) {
+            throw new RepositoryException(
+                message: 'Error while searching contact IDs by user',
+                context: ['user_id' => $user->getId()],
+                previous: $exception
+            );
+        }
     }
 
     /**
