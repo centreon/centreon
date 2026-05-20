@@ -6,6 +6,7 @@
   "require": {
     "php": "8.4.*",
     "ext-gettext": "*",
+    "ext-mbstring": "*",
     "ext-pdo": "*"
   },
   "require-dev": {
