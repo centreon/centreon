@@ -222,15 +222,6 @@ jobs:
           path: coverage/lcov-report
           retention-days: 1
 
-      - name: Publish code coverage to PR
-        uses: romeovs/lcov-reporter-action@87a815f34ec27a5826abba44ce09bbc688da58fd # v0.4.0
-        if: ${{ github.event_name == 'pull_request' }}
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          title: Code coverage report for ${{ steps.title.outputs.replaced }} ${{ inputs.name }} 🚀
-          delete-old-comments: true
-          filter-changed-files: true
-
       - name: Check Code coverage
         id: checkCodeCoverage
         uses: ./.github/actions/code-coverage-gate-keeper
