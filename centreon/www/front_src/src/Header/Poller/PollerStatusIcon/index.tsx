@@ -27,7 +27,7 @@ interface StyleProps {
 
 const useStatusStyles = makeStyles<StyleProps>()(
   (theme, { databaseSeverity, latencySeverity }) => {
-    const getSeverityColor = (severityCode): CSSObject => ({
+    const getSeverityColor = (severityCode: SeverityCode): CSSObject => ({
       background: getStatusColors({
         severityCode,
         theme

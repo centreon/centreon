@@ -75,7 +75,7 @@ export interface Status {
 export type Parent = Omit<Resource, 'parent'>;
 
 export interface Resource extends NamedEntity {
-  children?;
+  children?: unknown;
   duration?: string;
   has_active_checks_enabled?: boolean;
   has_passive_checks_enabled?: boolean;

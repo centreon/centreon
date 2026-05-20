@@ -13,7 +13,12 @@ interface UseFilters {
   filtersConfiguration: Array<FilterConfiguration>;
 }
 
-const useFilters = ({ filters, setFilters }): UseFilters => {
+interface UseFiltersProps {
+  filters: Filters;
+  setFilters: (filters: Filters) => void;
+}
+
+const useFilters = ({ filters, setFilters }: UseFiltersProps): UseFilters => {
   const queryClient = useQueryClient();
 
   const [isClearClicked, setIsClearClicked] = useState(false);

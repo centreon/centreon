@@ -5,7 +5,7 @@ import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, isNotNil, pick } from 'ramda';
-import { useCallback } from 'react';
+import { ReactElement, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { itemToDeleteAtom, pollerToGenerateCommandAtom } from '../../atoms';
@@ -19,11 +19,11 @@ interface Props {
   };
 }
 
-const Action = ({ row }: Props): JSX.Element => {
+const Action = ({ row }: Props): ReactElement => {
   const { t } = useTranslation();
 
   const { isAdmin } = useAtomValue(userAtom);
-  const { isCloudPlatform } = useAtomValue(platformFeaturesAtom);
+  const isCloudPlatform = useAtomValue(platformFeaturesAtom)?.isCloudPlatform;
   const hasCentral = (
     isNotNil(row.internalListingParentId)
       ? row.internalListingParentRow?.pollers

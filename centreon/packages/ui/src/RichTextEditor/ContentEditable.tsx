@@ -3,6 +3,7 @@
 import { Typography } from '@mui/material';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import type { LexicalEditor } from 'lexical';
 import { isEmpty, isNil } from 'ramda';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -59,7 +60,7 @@ interface Props {
   error?: string;
   hasInitialTextContent?: boolean;
   initialEditorState?: string;
-  initialize?: (editor) => void;
+  initialize?: (editor: LexicalEditor) => void;
   inputClassname?: string;
   minInputHeight: number;
   namespace: string;

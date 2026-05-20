@@ -30,14 +30,12 @@ const TokenSection = (): ReactElement => {
           field="token_name"
           getEndpoint={getTokensEndpoint}
           label={t(labelSelectTokenPlaceholder)}
-          onChange={(
-            _: React.SyntheticEvent,
-            value: { id: string; name: string } | null
-          ) => {
+          onChange={(_, value) => {
+            const token = value as { id: string; name: string } | null;
             setFieldTouched('token', true, false);
             setFieldValue(
               'token',
-              value ? { id: value.id, name: value.name } : null
+              token ? { id: token.id, name: token.name } : null
             );
           }}
         />

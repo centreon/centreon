@@ -274,7 +274,9 @@ export const computeGElementMarginLeft = ({
 }: ComputeGElementMarginLeftProps): number =>
   maxCharacters * 5 + (hasSecondUnit ? margin.top * 0.8 : margin.top * 0.6);
 
-export const computPixelsToShiftMouse = (xScale): number => {
+export const computPixelsToShiftMouse = (
+  xScale: import('d3-scale').ScaleTime<number, number>
+): number => {
   const domain = xScale.domain();
 
   const hoursDiffInGraph = dayjs(domain[1]).diff(domain[0], 'h');

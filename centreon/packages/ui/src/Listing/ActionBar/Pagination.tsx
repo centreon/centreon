@@ -1,9 +1,11 @@
-import TablePagination from '@mui/material/TablePagination';
+import TablePagination, {
+  type TablePaginationProps
+} from '@mui/material/TablePagination';
 
 import { equals } from 'ramda';
 import { memo } from 'react';
 
-const Pagination = (props): JSX.Element => (
+const Pagination = (props: TablePaginationProps): JSX.Element => (
   <TablePagination
     classes={{
       toolbar: 'pl-1 overflow-hidden h-8'

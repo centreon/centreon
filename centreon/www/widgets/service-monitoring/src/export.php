@@ -551,9 +551,9 @@ foreach ($realtimeDatabase->iterateAssociative($query, QueryParameters::create($
     }
 
     if (! $headerWritten) {
-        fputcsv($csvOutput, $header, ';');
+        fputcsv($csvOutput, $header, ';', '"', '\\');
         $headerWritten = true;
     }
-    fputcsv($csvOutput, $line, ';');
+    fputcsv($csvOutput, $line, ';', '"', '\\');
     $header = [];
 }

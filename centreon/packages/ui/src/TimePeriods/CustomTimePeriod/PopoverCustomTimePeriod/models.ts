@@ -10,7 +10,7 @@ interface RangeDate {
 
 export interface AcceptDateProps {
   date: Date;
-  property: CustomTimePeriodProperty;
+  property: CustomTimePeriodProperty | string;
 }
 
 export interface PickersData {

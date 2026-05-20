@@ -21,10 +21,16 @@ const getBaseConfiguration = ({
     parser: {
       'css/auto': {
         namedExports: false
+      },
+      'css/module': {
+        namedExports: false
       }
     },
     generator: {
       'css/auto': {
+        exportsOnly: false
+      },
+      'css/module': {
         exportsOnly: false
       }
     }
