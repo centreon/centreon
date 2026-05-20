@@ -290,7 +290,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # v2.37.0
         with:
-          php-version: 8.2
+          php-version: ${{ needs.get-environment.outputs.php_version }}
         env:
           runner: ubuntu-24.04
 
@@ -376,6 +376,21 @@ jobs:
           pat: ${{ github.event.pull_request.head.repo.fork == true && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
           lint_path: ./www/front_src/
 
+  frontend-type-check:
+    runs-on: ubuntu-24.04
+    needs: [changes, get-environment]
+    if: |
+      needs.changes.outputs.trigger_frontend_testing == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - uses: ./.github/actions/frontend-type-check
+        with:
+          frontend_directory: ${{ env.base_directory }}
+          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
+
   frontend-unit-test:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
@@ -454,7 +469,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # v2.37.0
         with:
-          php-version: 8.2
+          php-version: ${{ needs.get-environment.outputs.php_version }}
           coverage: none
         env:
           runner: ubuntu-24.04
@@ -519,7 +534,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # v2.37.0
         with:
-          php-version: 8.2
+          php-version: ${{ needs.get-environment.outputs.php_version }}
           coverage: none
 
       - name: Create configuration files
@@ -583,7 +598,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # v2.37.0
         with:
-          php-version: 8.2
+          php-version: ${{ needs.get-environment.outputs.php_version }}
           coverage: none
         env:
           runner: ubuntu-24.04
@@ -758,6 +773,7 @@ jobs:
         frontend-web-build,
         frontend-web-lint,
         frontend-unit-test,
+        frontend-type-check,
         frontend-component-test,
         gherkin-lint,
         e2e-lint,
@@ -776,9 +792,12 @@ jobs:
           - package_extension: rpm
             tag_suffix: -alma9
             distrib: el9
+          - package_extension: rpm
+            tag_suffix: -alma10
+            distrib: el10
           - package_extension: deb
-            tag_suffix: -bookworm
-            distrib: bookworm
+            tag_suffix: -trixie
+            distrib: trixie
 
     name: package ${{ matrix.distrib }}
     runs-on: ubuntu-24.04
@@ -880,6 +899,7 @@ jobs:
           rpm_gpg_key: ${{ github.event.pull_request.head.repo.fork != true && secrets.RPM_GPG_SIGNING_KEY || '' }}
           rpm_gpg_signing_key_id: ${{ github.event.pull_request.head.repo.fork != true && secrets.RPM_GPG_SIGNING_KEY_ID || '' }}
           rpm_gpg_signing_passphrase: ${{ github.event.pull_request.head.repo.fork != true && secrets.RPM_GPG_SIGNING_PASSPHRASE || '' }}
+          php_version: ${{ needs.get-environment.outputs.php_version }}
           stability: ${{ needs.get-environment.outputs.stability }}
           is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
           upload_artifacts: ${{ needs.get-environment.outputs.is_nightly == 'true' || contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
@@ -918,8 +938,11 @@ jobs:
           if [ "${{ matrix.operating_system }}" = "alma9" ]; then
             DISTRIB=el9
             PACKAGE_EXTENSION=rpm
-          elif [ "${{ matrix.operating_system }}" = "bookworm" ]; then
-            DISTRIB=bookworm
+          elif [ "${{ matrix.operating_system }}" = "alma10" ]; then
+            DISTRIB=el10
+            PACKAGE_EXTENSION=rpm
+          elif [ "${{ matrix.operating_system }}" = "trixie" ]; then
+            DISTRIB=trixie
             PACKAGE_EXTENSION=deb
           elif [ "${{ matrix.operating_system }}" = "jammy" ]; then
             DISTRIB=jammy
@@ -1016,6 +1039,7 @@ jobs:
             "MAJOR_VERSION=${{ needs.get-environment.outputs.major_version }}"
             "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
+            "PHP_VERSION=${{ needs.get-environment.outputs.php_version }}"
           pull: true
           push: ${{ github.event.pull_request.head.repo.fork != true }}
           load: true
@@ -1044,7 +1068,6 @@ jobs:
         with:
           path: ./docker-image
           key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.meta.outputs.version }}
-
 
   create-xray-test-plan-and-test-execution:
     needs: [get-environment, changes, dockerize]
@@ -1188,7 +1211,7 @@ jobs:
       minor_version: ${{ needs.get-environment.outputs.minor_version }}
       stability: ${{ needs.get-environment.outputs.stability }}
       target_stability: ${{ needs.get-environment.outputs.target_stability }}
-      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.operating_system == 'alma9' && 'rpm-el9' || 'deb-bookworm' ) }}
+      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, case(matrix.operating_system == 'alma10', 'rpm-el10', matrix.operating_system == 'alma9', 'rpm-el9', 'deb-trixie') ) }}
       package_directory: fixtures/packages
       test_tags: ${{ needs.changes.outputs.trigger_upgrade_testing == 'true' && matrix.test_tags || format('{0} and not @update and not @upgrade', matrix.test_tags) }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
@@ -1326,7 +1349,7 @@ jobs:
           cloudfront_role_doc_production: ${{ secrets.CLOUDFRONT_ROLE_DOC_PRODUCTION }}
           cloudfront_id_doc_api: ${{ secrets.CLOUDFRONT_ID_DOC_API }}
 
-  deliver-rpm:
+  deliver:
     runs-on: centreon-common
     needs:
       [
@@ -1347,13 +1370,14 @@ jobs:
       github.event.pull_request.head.repo.fork != true
     strategy:
       matrix:
-        distrib: [el9]
-    name: deliver-rpm ${{ matrix.distrib }}
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
+    name: deliver ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Delivery
+      - name: Deliver RPM package
+        if: matrix.package_extension == 'rpm'
         uses: ./.github/actions/rpm-delivery
         with:
           module_name: web
@@ -1367,34 +1391,8 @@ jobs:
           delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
           centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  deliver-deb:
-    runs-on: centreon-common
-    needs:
-      [
-        changes,
-        get-environment,
-        newman-test,
-        e2e-test,
-        legacy-e2e-test
-      ]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      needs.changes.outputs.trigger_delivery == 'true' &&
-      github.event.pull_request.head.repo.fork != true &&
-      (needs.get-environment.outputs.is_cloud == 'false' || needs.get-environment.outputs.stability == 'unstable')
-    strategy:
-      matrix:
-        distrib: [bookworm]
-    name: deliver-deb ${{ matrix.distrib }}
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Delivery
+      - name: Deliver DEB package
+        if: matrix.package_extension == 'deb'
         uses: ./.github/actions/deb-delivery
         with:
           module_name: web
@@ -1407,7 +1405,7 @@ jobs:
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   promote:
-    needs: [get-environment, deliver-deb, deliver-rpm]
+    needs: [get-environment, deliver]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
@@ -1418,7 +1416,7 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [el9, bookworm]
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
     name: promote ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
@@ -1438,7 +1436,7 @@ jobs:
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   set-skip-label:
-    needs: [get-environment, deliver-deb, deliver-rpm, promote]
+    needs: [get-environment, deliver, promote]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&
@@ -1448,7 +1446,7 @@ jobs:
 
   clear-branch-cache:
     runs-on: ubuntu-24.04
-    needs: [get-environment, deliver-deb, deliver-rpm]
+    needs: [get-environment, deliver]
     env:
       GH_TOKEN: ${{ github.event.pull_request.head.repo.fork == true && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
     if: |
@@ -1474,8 +1472,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [
       get-environment,
-      deliver-rpm,
-      deliver-deb
+      deliver
     ]
     if: |
       needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&

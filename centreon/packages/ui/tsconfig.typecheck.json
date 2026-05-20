@@ -1,9 +1,9 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": [
+    "./tsconfig.json",
+    "../js-config/tsconfig/typecheck.json"
+  ],
   "compilerOptions": {
-    "noEmit": true,
-    "declaration": false,
-    "emitDeclarationOnly": false,
     "types": ["react", "jest"]
   },
   "exclude": [

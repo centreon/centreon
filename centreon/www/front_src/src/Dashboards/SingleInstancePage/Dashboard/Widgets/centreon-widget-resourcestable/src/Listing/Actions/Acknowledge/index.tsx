@@ -51,7 +51,9 @@ const AcknowledgeForm = ({
     sendRequest: sendAcknowledgeResources,
     sending: sendingAcknowledgeResources
   } = useRequest({
-    request: acknowledgeResources
+    request: acknowledgeResources as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<unknown>
   });
 
   const { alias } = useAtomValue(userAtom);

@@ -28,7 +28,13 @@ export const Tree = <TData extends BaseProp>({
   );
 
   const toggleTreeNodesExpanded = useCallback(
-    ({ currentTree, targetNode }): Node<TData> => {
+    ({
+      currentTree,
+      targetNode
+    }: {
+      currentTree: Node<TData>;
+      targetNode: Node<TData>;
+    }): Node<TData> => {
       return updateNodeFromTree({
         callback: (subTree) => {
           if (isNil(subTree.isExpanded) && isNil(node.isDefaultExpanded)) {

@@ -71,10 +71,10 @@ interface CommonData {
   graphHeight: number;
   graphSvgRef: MutableRefObject<SVGSVGElement | null>;
   graphWidth: number;
-  lines;
+  lines: Array<Line>;
   timeSeries: Array<TimeValue>;
   xScale: ScaleTime<number, number>;
-  yScalesPerUnit: Record<string, ScaleLinear<string, string>>;
+  yScalesPerUnit: Record<string, ScaleLinear<number, number>>;
 }
 
 interface TimeShiftZonesData extends InteractedZone {
@@ -129,15 +129,15 @@ const InteractionWithGraph = ({
     !isNil(annotationData?.data) && !isEmpty(annotationData?.data);
   const displayTimeShiftZones = timeShiftZonesData?.enable ?? true;
 
-  const mouseLeave = (event): void => {
-    setEventMouseLeave(event);
+  const mouseLeave = (event: MouseEvent): void => {
+    setEventMouseLeave(event.nativeEvent);
     setEventMouseDown(null);
     updateMousePosition(null);
     setGraphTooltipData(null);
   };
 
-  const mouseUp = (event): void => {
-    setEventMouseUp(event);
+  const mouseUp = (event: MouseEvent): void => {
+    setEventMouseUp(event.nativeEvent);
     setEventMouseDown(null);
   };
 
@@ -164,8 +164,8 @@ const InteractionWithGraph = ({
     }
   };
 
-  const mouseDown = (event): void => {
-    setEventMouseDown(event);
+  const mouseDown = (event: MouseEvent): void => {
+    setEventMouseDown(event.nativeEvent);
   };
 
   const graphMarginLeft = useMemo(

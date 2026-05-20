@@ -6,6 +6,12 @@ concurrency:
 
 on:
   workflow_dispatch:
+    inputs:
+      labels:
+        description: "Labels to add to the run (comma separated)"
+        required: false
+        default: ""
+        type: string
   pull_request:
     paths:
       - ".version*"
@@ -52,6 +58,7 @@ jobs:
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
+      labels: ${{ inputs.labels || '' }}
 
   dockerize:
     needs: [get-environment]
@@ -66,7 +73,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [alma9, bookworm]
+        distrib: [alma9, alma10, trixie]
     steps:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -140,7 +147,7 @@ jobs:
         if: |
           needs.get-environment.outputs.is_cloud == 'false' ||
           ! contains(fromJson('["testing", "stable"]'), needs.get-environment.outputs.stability) ||
-          matrix.distrib != 'bookworm'
+          matrix.distrib != 'trixie'
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
           DOCKER_BUILD_SUMMARY: false
@@ -153,6 +160,7 @@ jobs:
             "MAJOR_VERSION=${{ needs.get-environment.outputs.major_version }}"
             "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
+            "PHP_VERSION=${{ needs.get-environment.outputs.php_version }}"
           pull: true
           outputs: type=image,push=true,annotation-index.org.opencontainers.image.description=Centreon web dependencies image
           tags: ${{ steps.docker_tags.outputs.tags_deps }}
@@ -162,7 +170,7 @@ jobs:
         if: |
           needs.get-environment.outputs.is_cloud == 'false' ||
           ! contains(fromJson('["testing", "stable"]'), needs.get-environment.outputs.stability) ||
-          matrix.distrib != 'bookworm'
+          matrix.distrib != 'trixie'
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
           DOCKER_BUILD_SUMMARY: false
@@ -175,6 +183,7 @@ jobs:
             "MAJOR_VERSION=${{ needs.get-environment.outputs.major_version }}"
             "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
+            "PHP_VERSION=${{ needs.get-environment.outputs.php_version }}"
           pull: false
           outputs: type=image,push=true,annotation-index.org.opencontainers.image.description=Centreon web dependencies collect image
           tags: ${{ steps.docker_tags.outputs.tags_deps_collect }}

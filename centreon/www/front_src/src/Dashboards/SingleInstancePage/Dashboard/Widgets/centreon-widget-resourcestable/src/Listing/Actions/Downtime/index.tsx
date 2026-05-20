@@ -67,7 +67,9 @@ const DowntimeForm = ({
     sendRequest: sendSetDowntimeOnResources,
     sending: sendingSetDowntingOnResources
   } = useRequest({
-    request: setDowntimeOnResources
+    request: setDowntimeOnResources as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<unknown>
   });
 
   const { alias } = useAtomValue(userAtom);
@@ -100,7 +102,9 @@ const DowntimeForm = ({
         minutes: 60,
         seconds: 1
       };
-      const durationDivider = unitMultipliers?.[values.duration.unit] || 1;
+      const durationDivider =
+        (unitMultipliers as Record<string, number>)?.[values.duration.unit] ||
+        1;
       const duration = values.duration.value * durationDivider;
 
       sendSetDowntimeOnResources({

@@ -8,7 +8,11 @@ import type { Thresholds } from '../common/models';
 
 type AnimatedStyles = { endAngle: number; opacity: number; startAngle: number };
 
-const fromLeaveTransition = ({ endAngle }): AnimatedStyles => ({
+const fromLeaveTransition = ({
+  endAngle
+}: {
+  endAngle: number;
+}): AnimatedStyles => ({
   endAngle,
   opacity: 0,
   startAngle: -(Math.PI / 2)
@@ -27,7 +31,8 @@ type AnimatedPieProps<Datum> = ProvidedProps<Datum> & {
   getColor: (d: PieArcDatum<Datum>) => string;
   getKey: (d: PieArcDatum<Datum>) => string;
   hideTooltip?: () => void;
-  showTooltip?: (args) => void;
+  // biome-ignore lint/suspicious/noExplicitAny: visx useTooltip generic parameter
+  showTooltip?: (args: any) => void;
   thresholds: Thresholds;
 };
 

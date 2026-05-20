@@ -13,17 +13,31 @@ import {
   labelFailedToCopyTheCommand
 } from '../../../translatedLabels';
 
-export const CommandLine = ({
-  commandLine
-}: {
+interface Props {
   commandLine: string;
-}): ReactElement => {
+  defaultMessage?: string;
+}
+
+export const CommandLine = ({
+  commandLine,
+  defaultMessage = ''
+}: Props): ReactElement => {
   const { t } = useTranslation();
 
   const { copy } = useCopyToClipboard({
     errorMessage: t(labelFailedToCopyTheCommand),
     successMessage: t(labelCommandCopied)
   });
+
+  if (!commandLine) {
+    return (
+      <Box className="bg-action-disabled-background text-action-primary rounded-sm p-2">
+        <Typography data-testid={labelCommand}>
+          {defaultMessage && t(defaultMessage)}
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box className="bg-text-primary text-primary-contrastText rounded-sm p-2 flex justify-between">

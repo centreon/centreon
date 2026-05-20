@@ -4,10 +4,13 @@ import { PAGES } from 'fixtures/shared/constants/pages';
 
 import contactTemplates from '../../../fixtures/users/contact.json';
 
-const checkFirstContactTemplateFromListing = () => {
+const checkContactTemplateFromListing = (contactTemplateName: string) => {
   cy.visit(PAGES.configuration.contactTemplatesLegacy);
   cy.wait('@getTimeZone');
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
+  cy.getIframeBody()
+    .contains('tr', contactTemplateName)
+    .find('div.md-checkbox.md-checkbox-inline')
+    .click();
   cy.getIframeBody()
     .find('select[name="o1"]')
     .invoke(
@@ -134,7 +137,7 @@ Then('the properties are updated', () => {
 });
 
 When('the user duplicates the configured contact template', () => {
-  checkFirstContactTemplateFromListing();
+  checkContactTemplateFromListing(contactTemplates.defaultTemplate.alias);
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
@@ -195,7 +198,7 @@ Then('a new contact template is created with identical properties', () => {
 });
 
 When('the user deletes the configured contact template', () => {
-  checkFirstContactTemplateFromListing();
+  checkContactTemplateFromListing(contactTemplates.defaultTemplate.alias);
   cy.getIframeBody().find('select[name="o1"').select('Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();

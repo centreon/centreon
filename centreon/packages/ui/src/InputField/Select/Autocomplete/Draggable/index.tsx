@@ -1,4 +1,5 @@
 import { Typography } from '@mui/material';
+import type { AutocompleteRenderInputParams } from '@mui/material/Autocomplete';
 
 import {
   equals,
@@ -15,7 +16,12 @@ import {
   propEq,
   remove
 } from 'ramda';
-import { type ChangeEvent, useEffect, useState } from 'react';
+import {
+  type ChangeEvent,
+  type HTMLAttributes,
+  useEffect,
+  useState
+} from 'react';
 
 import TextField from '../../../Text';
 import type { Props as SingleAutocompletefieldProps } from '..';
@@ -41,9 +47,15 @@ interface Props {
   required?: boolean;
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: HOC accepts varied multi-autocomplete shapes
+type MultiAutocompleteLike = (props: any) => JSX.Element;
+
 const DraggableAutocomplete = (
-  MultiAutocomplete: (props) => JSX.Element
-): ((props) => JSX.Element) => {
+  MultiAutocomplete: MultiAutocompleteLike
+): ((
+  props: Props &
+    (ConnectedAutoCompleteFieldProps<string> | SingleAutocompletefieldProps)
+) => JSX.Element) => {
   const InnerDraggableAutocompleteField = ({
     onSelectedValuesChange,
     initialValues,
@@ -66,12 +78,14 @@ const DraggableAutocomplete = (
     );
     const [inputText, setInputText] = useState<string | null>(null);
 
-    const onChangeSelectedValuesOrder = (newSelectedValues): void => {
+    const onChangeSelectedValuesOrder = (
+      newSelectedValues: Array<DraggableSelectEntry>
+    ): void => {
       setSelectedValues(newSelectedValues);
       onSelectedValuesChange?.(newSelectedValues);
     };
 
-    const deleteValue = (id): void => {
+    const deleteValue = (id: string | number): void => {
       itemHover?.(null);
       setSelectedValues((values: Array<DraggableSelectEntry>) => {
         const index = findIndex(propEq(id, 'id'), values);
@@ -84,7 +98,10 @@ const DraggableAutocomplete = (
       });
     };
 
-    const onChange = (_, newValue): void => {
+    const onChange = (
+      _: React.SyntheticEvent,
+      newValue: Array<DraggableSelectEntry | string>
+    ): void => {
       if (isEmpty(newValue)) {
         setInputText(null);
         onSelectedValuesChange?.([]);
@@ -110,8 +127,8 @@ const DraggableAutocomplete = (
 
         return;
       }
-      const lastItem = last<DraggableSelectEntry>(
-        newValue
+      const lastItem = last(
+        newValue as Array<DraggableSelectEntry>
       ) as DraggableSelectEntry;
 
       const lastDraggableItem: DraggableSelectEntry = {
@@ -166,7 +183,10 @@ const DraggableAutocomplete = (
       setInputText(null);
     };
 
-    const renderOption = (renderProps, option): JSX.Element => (
+    const renderOption = (
+      renderProps: HTMLAttributes<HTMLLIElement>,
+      option: DraggableSelectEntry
+    ): JSX.Element => (
       <div key={option.id} style={{ width: '100%' }}>
         <li {...renderProps}>
           <Typography variant="body2">{option.name}</Typography>
@@ -174,9 +194,14 @@ const DraggableAutocomplete = (
       </div>
     );
 
-    const renderInput = (renderProps): JSX.Element => (
+    const renderInput = (
+      renderProps: AutocompleteRenderInputParams & {
+        inputLabel?: Record<string, unknown>;
+      }
+    ): JSX.Element => (
       <TextField
         {...renderProps}
+        dataTestId={label}
         error={error}
         helperText={error}
         label={label}
