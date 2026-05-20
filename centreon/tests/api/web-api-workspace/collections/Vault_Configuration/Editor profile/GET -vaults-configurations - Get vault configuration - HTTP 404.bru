@@ -1,0 +1,27 @@
+meta {
+  name: GET /administration/vaults/configurations - Get vault configuration - HTTP 404
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrlWeb}}/administration/vaults/configurations
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 404
+}
+
+tests {
+  test("Editor gets 404 when no vault is configured.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("code").that.equals(404);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

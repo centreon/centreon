@@ -1,0 +1,26 @@
+meta {
+  name: DELETE /timeperiods - Delete timeperiod by editor - HTTP 204
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/timeperiods/{{Timeperiod4Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Timeperiod 4 has been successfully deleted by the editor.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,33 @@
+meta {
+  name: PATCH /users/current/parameters - Update current user parameters - HTTP 403
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseUrlWeb}}/configuration/users/current/parameters
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "theme": "dark"
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("Unprivileged user cannot update current user parameters.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("code").that.equals(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

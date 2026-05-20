@@ -1,0 +1,28 @@
+meta {
+  name: GET /timeperiods - List timeperiods - HTTP 403
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/timeperiods
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("Operator cannot list timeperiods.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("code").that.equals(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

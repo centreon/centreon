@@ -1,0 +1,30 @@
+meta {
+  name: GET /agent-configurations - Get AC1 with Poller3 - HTTP 200
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/agent-configurations/{{AC1Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("AC1 now has Poller-1 and Poller-3.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("pollers").that.is.an("array").with.lengthOf(2);
+    const names = body.pollers.map(function (p) { return p.name; });
+    expect(names).to.include("Poller-1");
+    expect(names).to.include("Poller-3");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

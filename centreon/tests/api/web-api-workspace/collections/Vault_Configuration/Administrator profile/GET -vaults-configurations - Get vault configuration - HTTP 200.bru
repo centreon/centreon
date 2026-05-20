@@ -1,0 +1,28 @@
+meta {
+  name: GET /administration/vaults/configurations - Get vault configuration - HTTP 200
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrlWeb}}/administration/vaults/configurations
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The vault configuration is returned with the expected address.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("address").that.equals("vault.test.local");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

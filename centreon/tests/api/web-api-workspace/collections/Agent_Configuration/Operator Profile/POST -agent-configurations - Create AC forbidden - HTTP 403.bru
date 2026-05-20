@@ -1,0 +1,44 @@
+meta {
+  name: POST /agent-configurations - Create AC forbidden - HTTP 403
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/agent-configurations
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "agent-configuration-operator",
+    "type": "telegraf",
+    "connection_mode": "secure",
+    "poller_ids": [1],
+    "configuration": {
+      "otel_public_certificate": "my-otel-certificate-name.crt",
+      "otel_ca_certificate": null,
+      "otel_private_key": "my-otel-private-key-name.key",
+      "conf_server_port": 1443,
+      "conf_certificate": "my-certificate-name.crt",
+      "conf_private_key": "my-private-key-name.key"
+    }
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("Operator cannot create an agent configuration.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("code").that.equals(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

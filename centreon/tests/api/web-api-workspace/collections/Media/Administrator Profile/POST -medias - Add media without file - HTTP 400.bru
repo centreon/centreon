@@ -1,0 +1,24 @@
+meta {
+  name: POST /configuration/medias - Add media without file - HTTP 400
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/medias
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipartForm {
+  directory: test-bruno
+}
+
+assert {
+  res.status: eq 400
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

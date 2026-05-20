@@ -1,0 +1,27 @@
+meta {
+  name: DELETE /agent-configurations - Remove Poller3 from AC1 - HTTP 204
+  type: http
+  seq: 20
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/agent-configurations/{{AC1Id}}/pollers/{{Poller3Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Poller-3 removed from AC1 without deleting the configuration.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

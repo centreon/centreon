@@ -1,0 +1,39 @@
+meta {
+  name: POST /clapi - Create engine conf for poller-4 - HTTP 200
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrlWeb}}/api/index.php?action=action&object=centreon_clapi
+  body: json
+  auth: none
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
+}
+
+body:json {
+  {
+    "action": "add",
+    "object": "ENGINECFG",
+    "values": "Centreon Engine cfg for poller-4;Poller-4;Just a small comment"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Engine configuration for Poller-4 created successfully.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

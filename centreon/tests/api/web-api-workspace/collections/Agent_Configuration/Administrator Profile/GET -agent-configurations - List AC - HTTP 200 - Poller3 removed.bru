@@ -1,0 +1,34 @@
+meta {
+  name: GET /agent-configurations - List AC - HTTP 200 - Poller3 removed
+  type: http
+  seq: 21
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/agent-configurations
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("AC1 no longer contains Poller-3.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("result").that.is.an("array");
+
+    const ac1 = body.result.find(function (ac) { return ac.id === bru.getVar("AC1Id"); });
+    expect(ac1, "AC1 should still exist").to.exist;
+
+    const pollerNames = ac1.pollers.map(function (p) { return p.name; });
+    expect(pollerNames).to.not.include("Poller-3");
+    expect(pollerNames).to.include("Poller-1");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,28 @@
+meta {
+  name: GET /agent-configurations - List AC - HTTP 200 - 2 results
+  type: http
+  seq: 17
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/agent-configurations
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("List returns 2 agent configurations.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("result").that.is.an("array");
+    expect(body.result.length).to.be.at.least(2);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

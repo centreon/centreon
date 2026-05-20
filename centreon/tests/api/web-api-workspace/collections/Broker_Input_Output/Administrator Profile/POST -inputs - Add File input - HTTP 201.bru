@@ -1,0 +1,40 @@
+meta {
+  name: POST /inputs - Add File input - HTTP 201
+  type: http
+  seq: 18
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/broker/1/inputs
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "input-test-3",
+    "type": 11,
+    "parameters": {
+      "path": "/some/random/path/",
+      "protocol": "bbdo",
+      "max_size": 512,
+      "filters_category": ["correlation"]
+    }
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("File input created successfully.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("id").that.is.a("number");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

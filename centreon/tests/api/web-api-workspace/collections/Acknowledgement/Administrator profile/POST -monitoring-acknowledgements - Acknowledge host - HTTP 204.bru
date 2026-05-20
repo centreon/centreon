@@ -1,0 +1,36 @@
+meta {
+  name: POST /monitoring/acknowledgements - Acknowledge host - HTTP 204
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrlWeb}}/monitoring/hosts/{{Host1Id}}/acknowledgements
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "comment": "Acknowledged by administrator",
+    "is_notify_contacts": false,
+    "with_services": true,
+    "is_persistent_comment": false,
+    "is_sticky": false
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("The acknowledgement has been successfully submitted by administrator.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

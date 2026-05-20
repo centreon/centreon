@@ -1,0 +1,27 @@
+meta {
+  name: GET /users/current/parameters - Get current user parameters - HTTP 200
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/users/current/parameters
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Administrator can retrieve current user parameters.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("theme");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,27 @@
+meta {
+  name: GET /administration/vaults/configurations - Get vault configuration after delete - HTTP 404
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrlWeb}}/administration/vaults/configurations
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 404
+}
+
+tests {
+  test("No vault configuration is found after deletion.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("code").that.equals(404);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

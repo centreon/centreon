@@ -1,0 +1,43 @@
+meta {
+  name: POST /agent-configurations - Missing name - HTTP 400
+  type: http
+  seq: 22
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/agent-configurations
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "type": "telegraf",
+    "connection_mode": "secure",
+    "poller_ids": [{{Poller2Id}}],
+    "configuration": {
+      "otel_public_certificate": "my-otel-certificate-name.crt",
+      "otel_ca_certificate": null,
+      "otel_private_key": "my-otel-private-key-name.key",
+      "conf_server_port": 1443,
+      "conf_certificate": "my-certificate-name.crt",
+      "conf_private_key": "my-private-key-name.key"
+    }
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("Missing required field 'name' is rejected.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("code").that.equals(400);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

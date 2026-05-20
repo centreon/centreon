@@ -1,0 +1,49 @@
+meta {
+  name: POST /monitoring/acknowledgements - Acknowledge forbidden - HTTP 403
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/monitoring/resources/acknowledge
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "acknowledgement": {
+      "comment": "Acknowledged by operator",
+      "is_notify_contacts": false,
+      "with_services": false,
+      "force_active_checks": false,
+      "is_persistent_comment": false,
+      "is_sticky": false
+    },
+    "resources": [
+      {
+        "type": "host",
+        "id": {{Host1Id}},
+        "parent": null
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("Operator cannot acknowledge resources.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("code").that.equals(403);
+    expect(body).to.have.property("message");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

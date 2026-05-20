@@ -1,0 +1,31 @@
+meta {
+  name: GET /acc - Get ACC3 by ID - HTTP 200
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/additional-connector-configurations/{{ACC3Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Editor can retrieve ACC3 by ID after update.", function () {
+    const body = res.getBody();
+    expect(body).to.include({
+      "id": parseInt(bru.getEnvVar("ACC3Id")),
+      "name": "acc-003-updated"
+    });
+    expect(body.parameters.port).to.equal(6000);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

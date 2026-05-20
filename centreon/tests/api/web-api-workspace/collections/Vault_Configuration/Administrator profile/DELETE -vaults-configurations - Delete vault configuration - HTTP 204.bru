@@ -1,0 +1,26 @@
+meta {
+  name: DELETE /administration/vaults/configurations - Delete vault configuration - HTTP 204
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrlWeb}}/administration/vaults/configurations
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("The vault configuration has been successfully deleted.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,46 @@
+meta {
+  name: POST /inputs - Add BBDO Server input - HTTP 201
+  type: http
+  seq: 19
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/broker/1/inputs
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "input-test-4",
+    "type": 35,
+    "parameters": {
+      "host": null,
+      "port": "5670",
+      "transport_protocol": "gRPC",
+      "authorization": null,
+      "encryption": "no",
+      "private_key": null,
+      "certificate": null,
+      "compression": "no",
+      "retention": "no",
+      "filters_category": ["dumper", "storage"]
+    }
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("BBDO Server input created successfully.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("id").that.is.a("number");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

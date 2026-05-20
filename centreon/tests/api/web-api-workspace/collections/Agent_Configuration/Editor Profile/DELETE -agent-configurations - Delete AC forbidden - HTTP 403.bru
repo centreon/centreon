@@ -1,0 +1,27 @@
+meta {
+  name: DELETE /agent-configurations - Delete AC forbidden - HTTP 403
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/agent-configurations/{{AC1Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("Editor cannot delete an agent configuration.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("code").that.equals(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

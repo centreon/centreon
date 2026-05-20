@@ -1,0 +1,26 @@
+meta {
+  name: POST - Wait for monitoring engine
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrlWeb}}/monitoring/hosts/{{Host1Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:post-response {
+  const waitMs = parseInt(bru.getEnvVar("monitoringWaitMs")) || 30000;
+  const start = Date.now();
+  while (Date.now() - start < waitMs) {}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

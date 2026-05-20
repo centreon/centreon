@@ -1,0 +1,32 @@
+meta {
+  name: POST /monitoring/hosts - Force check on host - HTTP 204
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrlWeb}}/monitoring/hosts/{{Host1Id}}/check
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "is_forced": true
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("The check has been successfully forced on the host.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,34 @@
+meta {
+  name: GET /acc - Get ACC3 by ID - HTTP 200
+  type: http
+  seq: 19
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/additional-connector-configurations/{{ACC3Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("ACC3 is retrieved by ID with all its properties.", function () {
+    const body = res.getBody();
+    expect(body).to.include({
+      "id": parseInt(bru.getEnvVar("ACC3Id")),
+      "name": bru.getEnvVar("ACC3Name"),
+      "type": "vmware_v6",
+      "description": bru.getEnvVar("ACC3Description")
+    });
+    expect(body).to.have.property("parameters").that.is.an("object");
+    expect(body).to.have.property("pollers").that.is.an("array");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

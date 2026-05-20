@@ -1,0 +1,26 @@
+meta {
+  name: DELETE /acc - Delete ACC2 - HTTP 204
+  type: http
+  seq: 22
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/additional-connector-configurations/{{ACC2Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("ACC2 has been successfully deleted.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

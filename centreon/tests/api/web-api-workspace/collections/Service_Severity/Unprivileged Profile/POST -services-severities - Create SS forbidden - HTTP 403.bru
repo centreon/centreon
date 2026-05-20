@@ -1,0 +1,36 @@
+meta {
+  name: POST /services/severities - Create SS forbidden - HTTP 403
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/severities
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "ss-forbidden",
+    "alias": "I should not be created",
+    "level": 1,
+    "icon_id": 1
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("The user does not have the correct rights to create a service severity.", function () {
+    const body = res.getBody();
+    expect(body.message).to.match(/not allowed/i);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

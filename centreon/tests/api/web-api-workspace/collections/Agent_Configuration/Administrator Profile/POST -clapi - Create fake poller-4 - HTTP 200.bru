@@ -1,0 +1,39 @@
+meta {
+  name: POST /clapi - Create fake poller-4 - HTTP 200
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrlWeb}}/api/index.php?action=action&object=centreon_clapi
+  body: json
+  auth: none
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
+}
+
+body:json {
+  {
+    "action": "add",
+    "object": "INSTANCE",
+    "values": "Poller-4;10.30.2.88;22;ZMQ;5556"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Fake poller Poller-4 created successfully.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

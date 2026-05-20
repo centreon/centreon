@@ -1,0 +1,40 @@
+meta {
+  name: POST /acc - Create ACC forbidden - HTTP 403
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/additional-connector-configurations
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "acc-operator",
+    "description": null,
+    "pollers": [1],
+    "type": "vmware_v6",
+    "parameters": {
+      "port": 5780,
+      "vcenters": [{"name": "my-vcenter", "url": "http://10.10.10.10/sdk", "username": "admin", "password": "my-pwd"}]
+    }
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("Operator cannot create an ACC.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("code").that.equals(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

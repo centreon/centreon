@@ -1,0 +1,26 @@
+meta {
+  name: DELETE /acc - Delete ACC1 - HTTP 204
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/additional-connector-configurations/{{ACC1Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Editor successfully deleted ACC1.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

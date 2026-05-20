@@ -1,0 +1,27 @@
+meta {
+  name: GET /agent-configurations - List AC forbidden - HTTP 403
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/agent-configurations
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("Editor cannot list agent configurations.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("code").that.equals(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
