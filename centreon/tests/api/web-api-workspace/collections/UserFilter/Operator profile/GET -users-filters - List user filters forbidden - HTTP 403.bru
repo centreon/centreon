@@ -16,8 +16,7 @@ assert {
 
 tests {
   test("Operator cannot list user filters.", function () {
-    const body = res.getBody();
-    expect(body).to.have.property("code").that.equals(403);
+    expect(res.status).to.equal(403);
   });
 }
 

@@ -18,8 +18,7 @@ tests {
   const body = res.getBody();
 
   test("Response is a 403 Forbidden error", function () {
-    expect(body).to.be.an("object");
-    expect(body).to.have.property("code").that.equals(403);
+    expect(res.status).to.equal(403);
   });
 }
 

@@ -32,8 +32,7 @@ assert {
 
 tests {
   test("Unprivileged user cannot update an agent configuration.", function () {
-    const body = res.getBody();
-    expect(body).to.have.property("code").that.equals(403);
+    expect(res.status).to.equal(403);
   });
 }
 

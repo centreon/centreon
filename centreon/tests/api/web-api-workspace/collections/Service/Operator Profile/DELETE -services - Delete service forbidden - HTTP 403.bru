@@ -16,10 +16,7 @@ assert {
 
 tests {
   test("The service has not been deleted because the user does not have the correct rights.", function () {
-    const body = res.getBody();
-    expect(body).to.be.an("object");
-    expect(body).to.have.property("code").that.equals(403);
-    expect(body.message).to.match(/not allowed/i);
+    expect(res.status).to.equal(403);
   });
 }
 

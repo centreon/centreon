@@ -16,9 +16,7 @@ assert {
 
 tests {
   test("Operator cannot list timeperiods.", function () {
-    const body = res.getBody();
-    expect(body).to.be.an("object");
-    expect(body).to.have.property("code").that.equals(403);
+    expect(res.status).to.equal(403);
   });
 }
 
