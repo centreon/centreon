@@ -393,14 +393,41 @@ $addEventScriptLogger = function () use ($pearDB, &$errorMessage, $version): voi
         message: "UPGRADE - {$version}: Adding 'event_script' logger to broker configuration",
     );
 
-    if ($pearDB->fetchOne(
+    if (! $pearDB->fetchOne(
         <<<'SQL'
             SELECT 1 FROM `cb_log` WHERE `name` = 'event_script'
             SQL
     )) {
-        CentreonLog::create()->info(
+        $pearDB->executeStatement(
+            <<<'SQL'
+                INSERT INTO `cb_log` (`name`) VALUES ('event_script')
+                SQL
+        );
+    }
+
+    $logId = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT `id` FROM `cb_log` WHERE `name` = 'event_script'
+            SQL
+    );
+    if ($logId === false) {
+        CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: Logger 'event_script' already exists in cb_log, skipping",
+            message: "UPGRADE - {$version}: Failed to retrieve 'event_script' log id from cb_log, skipping cfg_centreonbroker_log population",
+        );
+
+        return;
+    }
+
+    $errorLevelId = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT `id` FROM `cb_log_level` WHERE `name` = 'error'
+            SQL
+    );
+    if ($errorLevelId === false) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Failed to retrieve 'error' level id from cb_log_level, skipping cfg_centreonbroker_log population",
         );
 
         return;
@@ -408,27 +435,14 @@ $addEventScriptLogger = function () use ($pearDB, &$errorMessage, $version): voi
 
     $pearDB->executeStatement(
         <<<'SQL'
-            INSERT INTO `cb_log` (`name`) VALUES ('event_script')
-            SQL
-    );
-
-    $logId = (int) $pearDB->fetchOne(
-        <<<'SQL'
-            SELECT `id` FROM `cb_log` WHERE `name` = 'event_script'
-            SQL
-    );
-
-    $errorLevelId = (int) $pearDB->fetchOne(
-        <<<'SQL'
-            SELECT `id` FROM `cb_log_level` WHERE `name` = 'error'
-            SQL
-    );
-
-    $pearDB->executeStatement(
-        <<<'SQL'
             INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`)
             SELECT `config_id`, :id_log, :id_level
-            FROM `cfg_centreonbroker`
+            FROM `cfg_centreonbroker` cb
+            WHERE NOT EXISTS (
+                SELECT 1 FROM `cfg_centreonbroker_log` cbl
+                WHERE cbl.`id_centreonbroker` = cb.`config_id`
+                  AND cbl.`id_log` = :id_log
+            )
             SQL,
         QueryParameters::create([
             QueryParameter::int('id_log', $logId),
