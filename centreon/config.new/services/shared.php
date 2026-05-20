@@ -35,7 +35,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->load('App\\Shared\\', __DIR__ . '/../../src/App/Shared')
         ->exclude([__DIR__ . '/../../src/App/Shared/Infrastructure/Symfony/Kernel.php']);
 
-    $services->set(App\Shared\Infrastructure\Dbal\TLSConnectionFactoryDecorator::class)
-        ->decorate('doctrine.dbal.connection_factory')
-        ->args([service(App\Shared\Infrastructure\Dbal\TLSConnectionFactoryDecorator::class . '.inner')]);
+    if ($containerConfigurator->env() !== 'test') {
+        $services->set(App\Shared\Infrastructure\Dbal\TLSConnectionFactoryDecorator::class)
+            ->decorate('doctrine.dbal.connection_factory')
+            ->args([service(App\Shared\Infrastructure\Dbal\TLSConnectionFactoryDecorator::class . '.inner')]);
+    }
 };
