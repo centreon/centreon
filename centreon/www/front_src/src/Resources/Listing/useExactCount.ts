@@ -30,7 +30,9 @@ const useExactCount = (): UseExactCount => {
   const { getCriteriaNames } = useGetCriteriaName();
 
   const { sendRequest } = useRequest<CountResponse>({
-    request: getData
+    request: getData as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<CountResponse>
   });
 
   const getCriteriaIds = (name: string): Array<string | number> | undefined => {
@@ -73,6 +75,7 @@ const useExactCount = (): UseExactCount => {
     );
 
     const endpoint = buildCountEndpoint({
+      apiFormat: 'Standard',
       hostCategories: getCriteriaNames('host_categories'),
       hostGroups: getCriteriaNames('host_groups'),
       hostSeverities: getCriteriaNames('host_severities'),

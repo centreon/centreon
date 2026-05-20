@@ -8,7 +8,7 @@ import { ListingVariant, userAtom } from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
 import { equals, isEmpty, isNil, not, pick } from 'ramda';
-import { type ReactNode, useCallback } from 'react';
+import { type ChangeEvent, type MouseEvent, type ReactNode, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -132,17 +132,17 @@ const MemoListingActionBar = ({
 
   const { themeMode } = useAtomValue(userAtom);
 
-  const changeRowPerPage = (event): void => {
+  const changeRowPerPage = (event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void => {
     onLimitChange?.(event.target.value);
     onPaginate?.(0);
   };
 
-  const changePage = (_, value: number): void => {
+  const changePage = (_: MouseEvent<HTMLButtonElement> | null, value: number): void => {
     onPaginate?.(value);
   };
 
   const labelDisplayedRows = useCallback(
-    ({ from, to, count }): ReactNode => {
+    ({ from, to, count }: { count: number; from: number; to: number }): ReactNode => {
       const range = `${from}-${to} ${t(labelOf)} `;
 
       if (!approximateTotalRows) {
@@ -262,13 +262,13 @@ const MemoListingActionBar = ({
                 [classes.moving]: moveTablePagination
               })}
               colSpan={3}
-              count={totalRows}
+              count={totalRows ?? 0}
               labelDisplayedRows={labelDisplayedRows}
               labelRowsPerPage={null}
               onPageChange={changePage}
               onRowsPerPageChange={changeRowPerPage}
-              page={currentPage}
-              rowsPerPage={limit}
+              page={currentPage ?? 0}
+              rowsPerPage={limit ?? 10}
               rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
               SelectProps={{
                 id: labelRowsPerPage,
