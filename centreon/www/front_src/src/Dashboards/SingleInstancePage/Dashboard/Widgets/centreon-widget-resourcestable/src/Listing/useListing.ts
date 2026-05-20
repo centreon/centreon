@@ -20,6 +20,7 @@ import useColumns from './Columns/useColumns';
 import {
   DisplayType,
   type NamedEntity,
+  type Resource as ListingResource,
   type ResourceListing,
   type Ticket
 } from './models';
@@ -34,16 +35,16 @@ interface CountResponse {
 interface UseListingState {
   cancelAcknowledge: () => void;
   cancelSetDowntime: () => void;
-  changeLimit: (value) => void;
-  changePage: (updatedPage) => void;
-  changeSort: ({ sortOrder, sortField }) => void;
+  changeLimit: (value: number) => void;
+  changePage: (updatedPage: number) => void;
+  changeSort: ({ sortOrder, sortField }: { sortField: string; sortOrder: SortOrder }) => void;
   columns: Array<Column>;
   confirmAcknowledge: () => void;
   confirmSetDowntime: () => void;
   data: ResourceListing | undefined;
   defaultSelectedColumnIds: Array<string>;
   exactCount: number | null;
-  goToResourceStatusPage?: (row) => void;
+  goToResourceStatusPage?: (row: ListingResource) => void;
   hasMetaService: boolean;
   isExactCountLoading: boolean;
   isLoading: boolean;
@@ -51,12 +52,12 @@ interface UseListingState {
   page: number | undefined;
   requestExactCount: () => void;
   resetColumns: () => void;
-  resourcesToAcknowledge;
+  resourcesToAcknowledge: Array<ListingResource>;
   resourcesToOpenTicket: Array<Ticket>;
-  resourcesToSetDowntime;
+  resourcesToSetDowntime: Array<ListingResource>;
   selectColumns: (updatedColumnIds: Array<string>) => void;
-  selectedResources;
-  setSelectedResources;
+  selectedResources: Array<ListingResource>;
+  setSelectedResources: (resources: Array<ListingResource>) => void;
 }
 
 interface UseListingProps
@@ -64,7 +65,7 @@ interface UseListingProps
     CommonWidgetProps<PanelOptions>,
     'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
   > {
-  changeViewMode?: (displayType) => void;
+  changeViewMode?: (displayType: DisplayType) => void;
   displayType: DisplayType;
   hostSeverities: Array<NamedEntity>;
   isFromPreview?: boolean;
@@ -134,7 +135,9 @@ const useListing = ({
   const [isExactCountLoading, setIsExactCountLoading] = useState(false);
 
   const { sendRequest: sendCountRequest } = useRequest<CountResponse>({
-    request: getData
+    request: getData as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<CountResponse>
   });
 
   const requestExactCount = (): void => {
@@ -205,7 +208,7 @@ const useListing = ({
     widgetPrefixQuery
   });
 
-  const goToResourceStatusPage = (row): void => {
+  const goToResourceStatusPage = (row: ListingResource): void => {
     if (isFromPreview) {
       return;
     }
@@ -231,15 +234,15 @@ const useListing = ({
     [resources]
   );
 
-  const changeSort = (sortParameters): void => {
+  const changeSort = (sortParameters: { sortField: string; sortOrder: SortOrder }): void => {
     setPanelOptions?.(sortParameters);
   };
 
-  const changeLimit = (value): void => {
+  const changeLimit = (value: number): void => {
     setPanelOptions?.({ limit: value });
   };
 
-  const changePage = (updatedPage): void => {
+  const changePage = (updatedPage: number): void => {
     setPage(updatedPage + 1);
   };
 
