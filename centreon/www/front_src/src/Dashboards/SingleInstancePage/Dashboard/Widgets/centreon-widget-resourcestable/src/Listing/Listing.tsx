@@ -167,7 +167,7 @@ const Listing = ({
           isExactCountLoading,
           exactCount
         ]}
-        onApproximateCountClick={ requestExactCount }
+        onApproximateCountClick={requestExactCount}
         onLimitChange={changeLimit}
         onPaginate={changePage}
         onResetColumns={resetColumns}

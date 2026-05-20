@@ -1,11 +1,10 @@
-import { useEffect } from 'react';
-
 import type { SelectEntry } from '@centreon/ui';
 import { useFetchQuery } from '@centreon/ui';
 import { isResourceStatusFullSearchEnabledAtom } from '@centreon/ui-context';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { mergeRight, prop } from 'ramda';
+import { useEffect } from 'react';
 
 import { getCriteriaValueDerivedAtom } from '../Filter/filterAtoms';
 import { exactCountAtom, exactCountLoadingAtom } from './ApproximateCountBadge';

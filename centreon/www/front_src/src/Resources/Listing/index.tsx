@@ -288,7 +288,7 @@ const ResourceListing = (): ReactElement => {
         exactCount
       ]}
       moveTablePagination={isPanelOpen}
-      onApproximateCountClick={ requestExactCount }
+      onApproximateCountClick={requestExactCount}
       onLimitChange={changeLimit}
       onPaginate={changePage}
       onResetColumns={resetColumns}
