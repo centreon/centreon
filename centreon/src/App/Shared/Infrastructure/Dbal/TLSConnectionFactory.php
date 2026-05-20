@@ -24,13 +24,11 @@ namespace App\Shared\Infrastructure\Dbal;
 use Doctrine\Bundle\DoctrineBundle\ConnectionFactory;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
-class TLSConnectionFactoryDecorator extends ConnectionFactory
+#[AsAlias('doctrine.dbal.connection_factory')]
+class TLSConnectionFactory extends ConnectionFactory
 {
-    public function __construct(private ConnectionFactory $inner)
-    {
-    }
-
     public function createConnection(array $params, Configuration|null $config = null, EventManager|null $eventManager = null, array $mappingTypes = [])
     {
         $tlsOptions = DatabaseTLSResolver::getTLSOptions();
@@ -38,6 +36,6 @@ class TLSConnectionFactoryDecorator extends ConnectionFactory
             $params['driverOptions'][$optionKey] = $optionValue;
         }
 
-        return $this->inner->createConnection($params, $config, $eventManager, $mappingTypes);
+        return parent::createConnection($params, $config, $eventManager, $mappingTypes);
     }
 }

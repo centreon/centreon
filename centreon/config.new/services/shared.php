@@ -23,8 +23,6 @@ declare(strict_types=1);
 
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
-use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
-
 return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
 
@@ -35,12 +33,5 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->load('App\\Shared\\', __DIR__ . '/../../src/App/Shared')
         ->exclude([
             __DIR__ . '/../../src/App/Shared/Infrastructure/Symfony/Kernel.php',
-            __DIR__ . '/../../src/App/Shared/Infrastructure/Dbal/TLSConnectionFactoryDecorator.php',
         ]);
-
-    if ($containerConfigurator->env() !== 'test') {
-        $services->set(App\Shared\Infrastructure\Dbal\TLSConnectionFactoryDecorator::class)
-            ->decorate('doctrine.dbal.connection_factory')
-            ->args([service(App\Shared\Infrastructure\Dbal\TLSConnectionFactoryDecorator::class . '.inner')]);
-    }
 };
