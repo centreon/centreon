@@ -23,7 +23,7 @@ doctrine:
         port: "%env(int:port)%"
       test_setup_default:
         use_savepoints: true
-        server_version: "%env(DATABASE_SERVER_VERSION)%"
+        server_version: "8.4"
         dbname: centreon
         user: centreon
         password: password
