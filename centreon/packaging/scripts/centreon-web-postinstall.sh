@@ -126,6 +126,7 @@ manageApacheAndPhpFpm() {
   echo "Managing apache and php fpm configuration and services ..."
   if [ "$1" = "rpm" ]; then
     fixPhpFpmDefaultPoolAclUsers "$1"
+    systemctl daemon-reload ||:
     systemctl restart php-fpm || :
     systemctl restart httpd || :
   else
@@ -134,6 +135,7 @@ manageApacheAndPhpFpm() {
     a2enconf php@PHP_MIN_VERSION@-fpm > /dev/null 2>&1 || :
     a2dissite 000-default > /dev/null 2>&1 || :
     a2ensite centreon > /dev/null 2>&1 || :
+    systemctl daemon-reload ||:
     systemctl restart php@PHP_MIN_VERSION@-fpm || :
     systemctl restart apache2 || :
   fi
