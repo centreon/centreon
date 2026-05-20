@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\Security\Domain\Aggregate;
 
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 /**
  * @extends AggregateRoot<TokenId>
@@ -33,6 +34,7 @@ final class Token extends AggregateRoot
     public function __construct(
         ?TokenId $id,
         public readonly TokenIdpEnum $idp,
+        #[Sensitive]
         public string $token,
         public \DateTimeImmutable $expiresAt,
         public readonly bool $auto,

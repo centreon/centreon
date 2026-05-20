@@ -21,30 +21,20 @@
 
 declare(strict_types=1);
 
-namespace Centreon\Domain\Authentication\UseCase;
+namespace App\Shared\Domain\Logging\Attribute;
 
-use App\Shared\Domain\Logging\Attribute\Sensitive;
-
-class LogoutRequest
+/**
+ * Marks a property as sensitive — the platform payload sanitiser (the
+ * `bus` channel via `LoggingMiddleware`, every other channel via
+ * `SanitizingProcessor`) replaces the value with `***` whenever the
+ * containing class flows through the logging pipeline.
+ *
+ * `#[Sensitive]` is the **single source of truth** for masking: a
+ * property that does not carry the attribute is logged in clear. Any
+ * class that holds a secret — Command, Query, Domain aggregate, value
+ * object, request DTO — must annotate the relevant property.
+ */
+#[\Attribute(\Attribute::TARGET_PROPERTY)]
+final readonly class Sensitive
 {
-    /**
-     * Authentication Token
-     *
-     * @var string
-     */
-    #[Sensitive]
-    private $token;
-
-    public function __construct(string $token)
-    {
-        $this->token = $token;
-    }
-
-    /**
-     * @return string
-     */
-    public function getToken(): string
-    {
-        return $this->token;
-    }
 }

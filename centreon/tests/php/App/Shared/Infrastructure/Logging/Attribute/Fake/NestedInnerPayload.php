@@ -21,30 +21,21 @@
 
 declare(strict_types=1);
 
-namespace Centreon\Domain\Authentication\UseCase;
+namespace Tests\App\Shared\Infrastructure\Logging\Attribute\Fake;
 
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 
-class LogoutRequest
+/**
+ * Nested value object carried by {@see NestedPayloadCommand} — pins
+ * that recursive sanitisation honours `#[Sensitive]` declared on a
+ * sub-class typed property, not only on the top-level Command itself.
+ */
+final readonly class NestedInnerPayload
 {
-    /**
-     * Authentication Token
-     *
-     * @var string
-     */
-    #[Sensitive]
-    private $token;
-
-    public function __construct(string $token)
-    {
-        $this->token = $token;
-    }
-
-    /**
-     * @return string
-     */
-    public function getToken(): string
-    {
-        return $this->token;
+    public function __construct(
+        #[Sensitive]
+        public string $passcode,
+        public string $label,
+    ) {
     }
 }

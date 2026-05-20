@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Domain\Provider;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Centreon;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
@@ -72,6 +73,7 @@ class OpenIdProvider implements OpenIdProviderInterface
     private NewProviderToken $providerToken;
 
     /** @var NewProviderToken|null */
+    #[Sensitive]
     private ?NewProviderToken $refreshToken = null;
 
     /** @var array<string,mixed> */
