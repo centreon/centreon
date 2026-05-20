@@ -4,20 +4,31 @@ import { JsonDecoder } from 'ts.data.json';
 
 import {
   AgentConfiguration,
+  AgentConfigurationListing,
   AgentType,
   CMAConfiguration,
+  ConnectionMode,
+  HostConfiguration,
   InstallationCommand,
   TelegrafConfiguration
 } from '../models';
 
+interface PollerEntry {
+  id: number;
+  isCentral?: boolean;
+  name: string;
+}
+
 export const agentConfigurationsListingDecoder = buildListingDecoder({
-  entityDecoder: JsonDecoder.object(
+  entityDecoder: JsonDecoder.object<AgentConfigurationListing>(
     {
       id: JsonDecoder.number,
-      isAgentInitiated: JsonDecoder.optional(JsonDecoder.boolean),
+      isAgentInitiated: JsonDecoder.optional(
+        JsonDecoder.boolean
+      ) as JsonDecoder.Decoder<boolean>,
       name: JsonDecoder.string,
       pollers: JsonDecoder.array(
-        JsonDecoder.object(
+        JsonDecoder.object<PollerEntry>(
           {
             id: JsonDecoder.number,
             isCentral: JsonDecoder.optional(JsonDecoder.boolean),
@@ -61,23 +72,34 @@ const telegrafConfigurationDecoder = JsonDecoder.object<TelegrafConfiguration>(
   }
 );
 
+interface TokenShape {
+  id: number;
+  creatorId: number;
+  name: string;
+}
+
 const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
   {
     agentInitiated: JsonDecoder.boolean,
     createHostAuto: JsonDecoder.optional(JsonDecoder.boolean),
     hosts: JsonDecoder.array(
-      JsonDecoder.object(
+      JsonDecoder.object<HostConfiguration>(
         {
           address: JsonDecoder.string,
-          id: JsonDecoder.optional(JsonDecoder.number),
-          name: JsonDecoder.optional(JsonDecoder.string),
+          id: JsonDecoder.optional(
+            JsonDecoder.number
+          ) as JsonDecoder.Decoder<number>,
+          name: JsonDecoder.optional(
+            JsonDecoder.string
+          ) as JsonDecoder.Decoder<string>,
           pollerCaCertificate: JsonDecoder.nullable(JsonDecoder.string),
           pollerCaName: JsonDecoder.nullable(JsonDecoder.string),
           port: JsonDecoder.number,
           token: JsonDecoder.optional(
-            JsonDecoder.object(
+            JsonDecoder.object<{ id: string; name: string; creatorId: number }>(
               {
                 creatorId: JsonDecoder.number,
+                id: JsonDecoder.succeed as JsonDecoder.Decoder<string>,
                 name: JsonDecoder.string
               },
               'token',
@@ -100,9 +122,12 @@ const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
     port: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.number)),
     tokens: JsonDecoder.optional(
       JsonDecoder.array(
-        JsonDecoder.object(
+        JsonDecoder.object<TokenShape>(
           {
             creatorId: JsonDecoder.number,
+            id: JsonDecoder.optional(
+              JsonDecoder.number
+            ) as JsonDecoder.Decoder<number>,
             name: JsonDecoder.string
           },
           'token',
@@ -129,12 +154,19 @@ export const agentConfigurationDecoder = JsonDecoder.object<AgentConfiguration>(
       [telegrafConfigurationDecoder, cmaConfigurationDecoder],
       'Agent configuration configuration'
     ),
-    connectionMode: JsonDecoder.string,
+    connectionMode: JsonDecoder.enumeration<ConnectionMode>(
+      ConnectionMode,
+      'Connection mode'
+    ),
+    isAgentInitiated: JsonDecoder.optional(
+      JsonDecoder.boolean
+    ) as JsonDecoder.Decoder<boolean>,
     name: JsonDecoder.string,
     pollers: JsonDecoder.array(
-      JsonDecoder.object(
+      JsonDecoder.object<{ id: number; name: string; isCentral?: boolean }>(
         {
           id: JsonDecoder.number,
+          isCentral: JsonDecoder.optional(JsonDecoder.boolean),
           name: JsonDecoder.string
         },
         'poller'
@@ -145,7 +177,8 @@ export const agentConfigurationDecoder = JsonDecoder.object<AgentConfiguration>(
   },
   'Agent configuration',
   {
-    connectionMode: 'connection_mode'
+    connectionMode: 'connection_mode',
+    isAgentInitiated: 'is_agent_initiated'
   }
 );
 

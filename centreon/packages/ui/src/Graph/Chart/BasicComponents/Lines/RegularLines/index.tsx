@@ -53,7 +53,7 @@ const RegularLine = ({
   const props = {
     curve: curveType,
     data: timeSeries,
-    defined: (value): boolean => !isNil(value[metric_id]),
+    defined: (value: TimeValue): boolean => !isNil(value[metric_id]),
     opacity: 1,
     stroke: lineColor,
     strokeDasharray: getStrokeDashArray({
@@ -66,8 +66,9 @@ const RegularLine = ({
       ? Math.ceil((formattedLineWidth || 1) * 1.3)
       : formattedLineWidth,
     unit,
-    x: (timeValue): number => xScale(getTime(timeValue)) as number,
-    y: (timeValue): number => yScale(prop(metric_id, timeValue)) ?? null
+    x: (timeValue: TimeValue): number => xScale(getTime(timeValue)) as number,
+    y: (timeValue: TimeValue): number =>
+      yScale(prop(metric_id, timeValue)) ?? null
   };
 
   if (filled) {

@@ -30,7 +30,7 @@ interface DashboardItemProps {
   id: string;
   onMouseDown?: (e: MouseEvent<HTMLDivElement>) => void;
   onMouseUp?: (e: MouseEvent<HTMLDivElement>) => void;
-  onTouchEnd?: (e) => void;
+  onTouchEnd?: (e: React.TouchEvent<HTMLDivElement>) => void;
   style?: CSSProperties;
   ref?: RefObject<HTMLDivElement>;
 }

@@ -1,6 +1,7 @@
 import { ListSubheader, Typography } from '@mui/material';
 
 import type React from 'react';
+import type { HTMLAttributes, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '../../../../components/Button';
@@ -12,13 +13,20 @@ import {
 import type { SelectEntry } from '../..';
 import { useListboxStyles } from './Multi.styles';
 
+interface CustomListboxProps extends HTMLAttributes<HTMLUListElement> {
+  children?: ReactNode;
+  label: string;
+  labelTotal: string;
+  handleSelectAllToggle: () => void;
+}
+
 const CustomListbox = ({
   children,
   label,
   labelTotal,
   handleSelectAllToggle,
   ...props
-}) => {
+}: CustomListboxProps) => {
   const { classes } = useListboxStyles();
 
   return (
@@ -63,7 +71,9 @@ const ListboxComponent = ({
     return;
   }
 
-  return (listboxProps): JSX.Element | undefined => {
+  return (
+    listboxProps: HTMLAttributes<HTMLUListElement>
+  ): JSX.Element | undefined => {
     const allSelected =
       options.length > 0 && options.every((opt) => isOptionSelected(opt));
 

@@ -26,13 +26,15 @@ const Duplicate = ({
   ...rest
 }: Props): JSX.Element => {
   const { classes } = useStyles();
-  const [value, setValue] = useState(1);
+  const [value, setValue] = useState<string | number>(1);
 
-  const handleChange = ({ target }): void => {
+  const handleChange = ({
+    target
+  }: React.ChangeEvent<HTMLInputElement>): void => {
     setValue(target.value);
   };
 
-  const handleConfirm = (event): void => {
+  const handleConfirm = (event: React.MouseEvent<HTMLButtonElement>): void => {
     onConfirm(event, value);
   };
 

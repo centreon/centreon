@@ -34,11 +34,17 @@ const getQueryParameters = ({
   ];
 };
 
+interface BuildEndpointProps {
+  apiFormat: 'Standard' | 'JSON-LD';
+  baseEndpoint?: string;
+  queryParameters: Array<QueryParameter>;
+}
+
 const buildEndpoint = ({
   baseEndpoint,
   queryParameters,
   apiFormat
-}): string => {
+}: BuildEndpointProps): string => {
   return `${baseEndpoint}?${toRawQueryParameters({ apiFormat, queryParameters })}`;
 };
 

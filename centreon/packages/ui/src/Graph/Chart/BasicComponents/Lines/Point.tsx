@@ -1,10 +1,11 @@
+import type { ScaleTime } from 'd3-scale';
 import { isNil } from 'ramda';
 
 interface Props {
   lineColor: string;
   radius: number;
   timeTick: Date;
-  xScale;
+  xScale: ScaleTime<number, number>;
   yPoint: number | null;
 }
 
