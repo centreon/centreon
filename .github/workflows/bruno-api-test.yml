@@ -55,7 +55,7 @@ on:
 
 jobs:
   bruno-test-list-collections-workspace:
-    runs-on: centreon-ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     outputs:
       collections: ${{ steps.set_collections.outputs.collections }}
@@ -80,7 +80,7 @@ jobs:
   bruno-run-collection:
     needs: bruno-test-list-collections-workspace
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
-    runs-on: centreon-ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -310,7 +310,7 @@ jobs:
   regroup-artifacts:
     needs: [bruno-run-collection]
     if: ${{ ! cancelled() && inputs.upload_artifacts == 'true' }}
-    runs-on: centreon-ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Merge deprecation logs
         uses: actions/upload-artifact/merge@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
