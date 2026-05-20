@@ -64,7 +64,7 @@ const ListButton = ({ disabled }: Props): JSX.Element => {
     }
   };
 
-  const formatList = (type): void => {
+  const formatList = (type: string): void => {
     if (equals(type, elementList)) {
       setElementList(null);
     }

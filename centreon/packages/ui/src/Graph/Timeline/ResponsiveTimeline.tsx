@@ -58,7 +58,7 @@ const Timeline = ({
   const { getTimeDifference } = useTimeline();
 
   const getFormattedStart = useCallback(
-    (start) =>
+    (start: string | Date) =>
       format({
         date: dayjs(start).tz(timezone).toDate(),
         formatString: dateTimeFormat
@@ -67,7 +67,7 @@ const Timeline = ({
   );
 
   const getFormattedEnd = useCallback(
-    (end) =>
+    (end: string | Date) =>
       format({
         date: dayjs(end).tz(timezone).toDate(),
         formatString: dateTimeFormat

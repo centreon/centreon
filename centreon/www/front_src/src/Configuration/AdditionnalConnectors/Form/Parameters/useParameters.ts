@@ -6,7 +6,7 @@ import { getDefaultParameters } from '../../utils';
 
 interface UseParameterStates {
   addParameterGroup: (index: number) => () => void;
-  deleteParameterGroup: (index) => void;
+  deleteParameterGroup: (index: number) => void;
   parameters: Array<Parameter>;
 }
 
@@ -21,7 +21,7 @@ const useParameters = (): UseParameterStates => {
     ]);
   };
 
-  const deleteParameterGroup = (index): void => {
+  const deleteParameterGroup = (index: number): void => {
     setFieldValue(
       'parameters.vcenters',
       remove(index, 1, values.parameters.vcenters)

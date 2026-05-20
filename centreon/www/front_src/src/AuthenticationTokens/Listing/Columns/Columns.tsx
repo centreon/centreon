@@ -35,7 +35,7 @@ export interface UseColumnsState {
   selectedColumnIds: Array<string>;
 }
 
-const tokenType = {
+const tokenType: Record<string, string> = {
   api: 'API',
   cma: 'CMA',
   poller: 'Poller'
@@ -62,7 +62,7 @@ export const useColumns = (): UseColumnsState => {
   const columns: Array<ColumnTable> = useMemo(() => {
     return [
       {
-        getFormattedString: (row): string => row.name,
+        getFormattedString: (row): string => (row as { name: string }).name,
         id: ColumnId.TokenName,
         label: t(Column.Name),
         sortable: true,
@@ -70,7 +70,8 @@ export const useColumns = (): UseColumnsState => {
         type: ColumnType.string
       },
       {
-        getFormattedString: (row): string => tokenType[row?.type],
+        getFormattedString: (row): string =>
+          tokenType[(row as { type: string })?.type],
         id: ColumnId.Type,
         label: t(Column.Type),
         sortable: true,
@@ -78,7 +79,8 @@ export const useColumns = (): UseColumnsState => {
         type: ColumnType.string
       },
       {
-        getFormattedString: (row): string => row?.user?.name || '-',
+        getFormattedString: (row): string =>
+          (row as { user?: { name?: string } })?.user?.name || '-',
         id: ColumnId.UserName,
         label: t(Column.User),
         sortable: true,
@@ -86,7 +88,8 @@ export const useColumns = (): UseColumnsState => {
         type: ColumnType.string
       },
       {
-        getFormattedString: (row): string => row.creator.name,
+        getFormattedString: (row): string =>
+          (row as { creator: { name: string } }).creator.name,
         id: ColumnId.CreatorName,
         label: t(Column.Creator),
         sortable: true,
@@ -96,7 +99,7 @@ export const useColumns = (): UseColumnsState => {
       {
         getFormattedString: (row): string =>
           format({
-            date: row.creationDate,
+            date: (row as { creationDate: string | Date }).creationDate,
             formatString: dateFormat
           }),
         id: ColumnId.CreationDate,

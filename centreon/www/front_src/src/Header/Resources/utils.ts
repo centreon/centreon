@@ -13,8 +13,22 @@ type ChangeFilterAndNavigate = (params: {
   link: string;
 }) => (e: React.MouseEvent<HTMLLinkElement>) => void;
 
+interface GetNavigationFunctionProps {
+  applyFilter: (filter: {
+    criterias: Array<Criteria>;
+    id: string;
+    name: string;
+  }) => void;
+  navigate: (path: string) => void;
+  useDeprecatedPages: boolean;
+}
+
 export const getNavigationFunction =
-  ({ applyFilter, navigate, useDeprecatedPages }): ChangeFilterAndNavigate =>
+  ({
+    applyFilter,
+    navigate,
+    useDeprecatedPages
+  }: GetNavigationFunctionProps): ChangeFilterAndNavigate =>
   ({ link, criterias }) =>
   (e) => {
     e.preventDefault();

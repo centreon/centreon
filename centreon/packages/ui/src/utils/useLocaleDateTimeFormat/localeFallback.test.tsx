@@ -9,14 +9,13 @@ import timezonePlugin from "dayjs/plugin/timezone";
 import utcPlugin from "dayjs/plugin/utc";
 import { Provider, useSetAtom } from "jotai";
 
-import { useLocaleDateTimeFormat } from ".";
+import { type LocaleDateTimeFormat, useLocaleDateTimeFormat } from ".";
 
 dayjs.extend(timezonePlugin);
 dayjs.extend(utcPlugin);
 dayjs.extend(localizedFormatPlugin);
 
-// biome-ignore lint/suspicious/noImplicitAnyLet: need it
-let context;
+let context: LocaleDateTimeFormat;
 
 const TestComponent = (): JSX.Element => {
 	const localeDateTimeFormat = useLocaleDateTimeFormat();

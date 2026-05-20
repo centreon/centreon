@@ -13,7 +13,7 @@ import {
 
 interface FormatBV {
   isBamModuleInstalled: boolean;
-  resources;
+  resources: Array<unknown>;
 }
 const formatBV = ({ isBamModuleInstalled, resources }: FormatBV): object => {
   if (!isBamModuleInstalled) {
@@ -78,7 +78,7 @@ export const getInitialValues = ({
   ...formatBV({ isBamModuleInstalled: !!isBamModuleInstalled, resources })
 });
 
-const getBVInitialValue = (isBamModuleInstalled): object => {
+const getBVInitialValue = (isBamModuleInstalled?: boolean): object => {
   if (!isBamModuleInstalled) {
     return {};
   }
