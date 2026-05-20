@@ -80,6 +80,10 @@ collections:
     path: "collections/Monitoring_Servers"
   - name: "Media"
     path: "collections/Media"
+  - name: "Local_Authentication"
+    path: "collections/Local_Authentication"
+  - name: "Dashboards"
+    path: "collections/Dashboards"
 
 specs:
 

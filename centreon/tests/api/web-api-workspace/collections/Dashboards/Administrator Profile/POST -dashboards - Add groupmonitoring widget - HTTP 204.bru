@@ -1,0 +1,38 @@
+meta {
+  name: POST /dashboards - Add groupmonitoring widget - HTTP 204
+  type: http
+  seq: 15
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/dashboards/{{dashboardID}}
+  body: multipart-form
+  auth: inherit
+}
+
+body:multipart-form {
+  panels[0][name]: centreon-widget-groupmonitoring
+  panels[0][widget_type]: /widgets/groupmonitoring
+  panels[0][layout][x]: 0
+  panels[0][layout][y]: 0
+  panels[0][layout][width]: 5
+  panels[0][layout][height]: 3
+  panels[0][layout][min_width]: 2
+  panels[0][layout][min_height]: 2
+  panels[0][widget_settings]: {"data":{"resources":[{"resourceType":"host-group","resources":[{"id":53,"name":"Linux-Servers"}]}]},"options":{"resourceTypes":["host","service"],"statuses":["1","2","4","5","6"],"refreshInterval":"default","description":{"content":"{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}","enabled":true},"name":"","limit":10,"page":0}}
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Groupmonitoring widget added successfully.", function () {
+    expect(res.status).to.equal(204);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

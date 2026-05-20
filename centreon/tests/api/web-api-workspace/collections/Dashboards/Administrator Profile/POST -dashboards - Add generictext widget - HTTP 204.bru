@@ -1,0 +1,38 @@
+meta {
+  name: POST /dashboards - Add generictext widget - HTTP 204
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/dashboards/{{dashboardID}}
+  body: multipart-form
+  auth: inherit
+}
+
+body:multipart-form {
+  panels[0][name]: centreon-widget-generictext
+  panels[0][widget_type]: /widgets/generictext
+  panels[0][layout][x]: 0
+  panels[0][layout][y]: 0
+  panels[0][layout][width]: 5
+  panels[0][layout][height]: 3
+  panels[0][layout][min_width]: 2
+  panels[0][layout][min_height]: 2
+  panels[0][widget_settings]: {"data":{},"options":{"description":{"content":"{\"root\":{\"children\":[{\"children\":[{\"detail\":0,\"format\":0,\"mode\":\"normal\",\"style\":\"\",\"text\":\"New generic text widget\",\"type\":\"text\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textFormat\":0,\"textStyle\":\"\"}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}","enabled":true},"name":"New generic text widget"}}
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Generictext widget added successfully.", function () {
+    expect(res.status).to.equal(204);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
