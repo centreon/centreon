@@ -6,20 +6,22 @@ meta {
 
 post {
   url: {{baseUrlWeb}}/configuration/dashboards/{{dashboardID}}
-  body: multipart-form
+  body: json
   auth: inherit
 }
 
-body:multipart-form {
-  panels[0][name]: centreon-widget-clock
-  panels[0][widget_type]: /widgets/clock
-  panels[0][layout][x]: 0
-  panels[0][layout][y]: 0
-  panels[0][layout][width]: 5
-  panels[0][layout][height]: 3
-  panels[0][layout][min_width]: 2
-  panels[0][layout][min_height]: 2
-  panels[0][widget_settings]: {"data":{},"options":{"displayType":"clock","showTimezone":true,"showDate":true,"timeFormat":"12","description":{"content":"{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}","enabled":true},"name":""}}
+body:json {
+  {
+    "panels": [
+      {
+        "id": null,
+        "name": "centreon-widget-clock",
+        "widget_type": "/widgets/clock",
+        "layout": { "x": 0, "y": 0, "width": 5, "height": 3, "min_width": 2, "min_height": 2 },
+        "widget_settings": "{\"data\":{},\"options\":{\"displayType\":\"clock\",\"showTimezone\":true,\"showDate\":true,\"timeFormat\":\"12\"}}"
+      }
+    ]
+  }
 }
 
 assert {

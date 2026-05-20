@@ -6,20 +6,22 @@ meta {
 
 post {
   url: {{baseUrlWeb}}/configuration/dashboards/{{dashboardID}}
-  body: multipart-form
+  body: json
   auth: inherit
 }
 
-body:multipart-form {
-  panels[0][name]: centreon-widget-statusgrid
-  panels[0][widget_type]: /widgets/statusgrid
-  panels[0][layout][x]: 0
-  panels[0][layout][y]: 0
-  panels[0][layout][width]: 5
-  panels[0][layout][height]: 3
-  panels[0][layout][min_width]: 2
-  panels[0][layout][min_height]: 2
-  panels[0][widget_settings]: {"data":{"resources":[{"resourceType":"host","resources":[{"id":14,"name":"Centreon-Server"}]}]},"options":{"viewMode":"standard","resourceType":"service","statuses":["warning","problem","pending","success","undefined"],"sortBy":"status_severity_code","tiles":100,"refreshInterval":"default","description":{"content":"{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}","enabled":true}}}
+body:json {
+  {
+    "panels": [
+      {
+        "id": null,
+        "name": "centreon-widget-statusgrid",
+        "widget_type": "/widgets/statusgrid",
+        "layout": { "x": 0, "y": 0, "width": 5, "height": 3, "min_width": 2, "min_height": 2 },
+        "widget_settings": "{\"data\":{\"resources\":[{\"resourceType\":\"host\",\"resources\":[{\"id\":14,\"name\":\"Centreon-Server\"}]}]},\"options\":{\"viewMode\":\"standard\",\"resourceType\":\"service\",\"statuses\":[\"warning\",\"problem\",\"pending\",\"success\",\"undefined\"],\"sortBy\":\"status_severity_code\",\"tiles\":100,\"refreshInterval\":\"default\"}}"
+      }
+    ]
+  }
 }
 
 assert {
