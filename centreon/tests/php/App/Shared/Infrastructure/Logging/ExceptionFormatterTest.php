@@ -61,7 +61,7 @@ final class ExceptionFormatterTest extends TestCase
         self::assertSame('root cause', $formatted['exceptions'][2]['message']);
     }
 
-public function testTraceIsCappedAtFifteenFramesAndSignalsTheRest(): void
+    public function testTraceIsCappedAtFifteenFramesAndSignalsTheRest(): void
     {
         // Build a trace deeper than the cap so both the truncation and the
         // omission marker are exercised. A top-level throw usually produces
