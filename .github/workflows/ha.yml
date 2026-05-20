@@ -153,24 +153,27 @@ jobs:
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
-  delivery-rpm:
+  deliver:
     needs: [get-environment, changes, package]
     if: |
       needs.changes.outputs.trigger_delivery == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["unstable"]'), needs.get-environment.outputs.stability) &&
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      needs.get-environment.outputs.is_cloud == 'false' &&
       github.event.pull_request.head.repo.fork != true
     runs-on: centreon-common
 
     strategy:
       matrix:
-        distrib: [el9, el10]
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
+    name: deliver ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
-      - name: Delivery
+      - name: Deliver RPM package
+        if: matrix.package_extension == 'rpm'
         uses: ./.github/actions/rpm-delivery
         with:
           module_name: ha
@@ -184,25 +187,8 @@ jobs:
           delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
           centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  deliver-deb:
-    needs: [get-environment, changes, package]
-    if: |
-      needs.changes.outputs.trigger_delivery == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.is_cloud == 'false' &&
-      contains(fromJson('["unstable"]'), needs.get-environment.outputs.stability) &&
-      github.event.pull_request.head.repo.fork != true
-    runs-on: centreon-common
-
-    strategy:
-      matrix:
-        distrib: [trixie]
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-
-      - name: Delivery
+      - name: Deliver DEB package
+        if: matrix.package_extension == 'deb'
         uses: ./.github/actions/deb-delivery
         with:
           module_name: ha
@@ -225,8 +211,9 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [el9, el10, trixie]
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
+    name: promote ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
