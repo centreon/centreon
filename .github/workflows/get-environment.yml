@@ -833,8 +833,9 @@ jobs:
               ...info,
             }));
 
+            const cloudDistrib = allDistribs.find(d => d.operating_system === 'alma9');
             const isCloudTestingOrStable = isCloud && ['testing', 'stable'].includes(stability);
-            const result = isCloudTestingOrStable ? [allDistribs[0]] : isFullRun ? allDistribs : [allDistribs[0]];
+            const result = isCloudTestingOrStable ? [cloudDistrib] : isFullRun ? allDistribs : [cloudDistrib];
 
             console.log('package_matrix', result);
 
