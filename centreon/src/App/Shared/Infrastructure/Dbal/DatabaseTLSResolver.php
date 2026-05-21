@@ -23,16 +23,22 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Dbal;
 
-final readonly class DatabaseTLSResolver
+final class DatabaseTLSResolver
 {
+    /** @var array<int, mixed>|null */
+    private static ?array $cachedOptions = null;
+
     /**
      * @return array<int, mixed>
      */
     public static function getTLSOptions(): array
     {
+        if (self::$cachedOptions !== null) {
+            return self::$cachedOptions;
+        }
+
         $options = [];
 
-        // Check if SSL is explicitly enabled
         $sslEnabled = $_ENV['DATABASE_SSL_ENABLED'] ?? null;
         if ($sslEnabled === null || ! (bool) $sslEnabled) {
             // SSL not enabled, return empty options (no SSL)
@@ -65,6 +71,8 @@ final readonly class DatabaseTLSResolver
             }
         }
 
-        return $options;
+        self::$cachedOptions = $options;
+
+        return self::$cachedOptions;
     }
 }
