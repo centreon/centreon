@@ -34,6 +34,7 @@ use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Role\DashboardContactGroupRole;
 use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 beforeEach(function (): void {
     $this->requestParameters = $this->createMock(RequestParametersInterface::class);
@@ -123,8 +124,12 @@ it(
             roles: [DashboardGlobalRole::Creator]
         );
 
+        $this->readAccessgroupRepository->expects($this->any())
+            ->method('findByContact')
+            ->willReturn([new AccessGroup(1, 'access_group', 'alias')]);
+
         $this->readDashboardShareRepository->expects($this->once())
-            ->method('findContactGroupsWithAccessRightByUserAndRequestParameters')
+            ->method('findContactGroupsWithAccessRightByACLGroupsAndRequestParameters')
             ->willReturn([$contactGroupRole]);
 
         $response = ($this->useCaseOnPremise)();

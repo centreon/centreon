@@ -1,7 +1,7 @@
 import { Modal } from '@centreon/ui/components';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-import { equals, isNotNil } from 'ramda';
+import { isNotNil } from 'ramda';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -16,7 +16,7 @@ const AddModal = () => {
   const openFormModal = useAtomValue(openFormModalAtom);
 
   const isModalOpen = useMemo(
-    () => isNotNil(openFormModal) && equals('add', openFormModal),
+    () => isNotNil(openFormModal) && openFormModal === 'add',
     [openFormModal]
   );
 

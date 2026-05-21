@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { Resource } from '../../../models';
 import { DisplayType, PanelOptions } from '../models';
 

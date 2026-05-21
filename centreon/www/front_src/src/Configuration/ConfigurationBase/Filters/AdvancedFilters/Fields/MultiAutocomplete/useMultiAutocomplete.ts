@@ -15,16 +15,21 @@ const useMultiAutocomplete = <TFilters>({
   filters,
   setFilters
 }: Props<TFilters>) => {
-  const change = (_, items: Array<SelectEntry>): void => {
+  const filtersRecord = filters as Record<string, unknown>;
+
+  const change = (_: unknown, items: Array<SelectEntry>): void => {
     const selectedItems = map(pick(['id', 'name']), items || []);
 
     setFilters({ ...filters, [name]: selectedItems });
   };
 
   const deleteItem =
-    (name) =>
-    (_, option): void => {
-      const newItems = reject(propEq(option.id, 'id'), filters[name]);
+    (name: string) =>
+    (_: unknown, option: SelectEntry): void => {
+      const newItems = reject(
+        propEq(option.id, 'id'),
+        (filtersRecord[name] as Array<SelectEntry>) || []
+      );
 
       setFilters({
         ...filters,
@@ -33,11 +38,13 @@ const useMultiAutocomplete = <TFilters>({
     };
 
   const value = useMemo(() => {
-    return filters?.[name]?.map((type) => ({
-      ...type,
-      name: type.name.replace('_', ' ')
-    }));
-  }, [filters?.[name]]);
+    return (filtersRecord?.[name] as Array<SelectEntry> | undefined)?.map(
+      (type) => ({
+        ...type,
+        name: String(type.name).replace('_', ' ')
+      })
+    );
+  }, [filtersRecord?.[name]]);
 
   return {
     change,

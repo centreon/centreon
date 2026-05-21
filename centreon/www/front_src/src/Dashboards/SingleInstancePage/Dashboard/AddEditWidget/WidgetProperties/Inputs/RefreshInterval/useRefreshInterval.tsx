@@ -34,7 +34,11 @@ interface UseRefreshIntervalState {
   value?: string;
 }
 
-const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
+const useRefreshInterval = ({
+  propertyName
+}: {
+  propertyName: string;
+}): UseRefreshIntervalState => {
   const { t } = useTranslation();
   const { classes } = useRefreshIntervalStyles();
 

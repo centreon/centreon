@@ -18,17 +18,18 @@ export const useColumns = (): Array<Column> => {
 
   return [
     {
-      getFormattedString: ({ pollers, name }) => (isNil(pollers) ? '' : name),
+      getFormattedString: ({ pollers, name }: Record<string, unknown>) =>
+        (isNil(pollers) ? '' : name) as string | null,
       id: 'name',
       label: t(labelName),
       sortable: true,
       type: ColumnType.string
     },
     {
-      getFormattedString: ({ type, pollers }) =>
+      getFormattedString: ({ type, pollers }: Record<string, unknown>) =>
         isNil(pollers)
           ? ''
-          : agentTypes.find(({ id }) => equals(id, type)).name,
+          : (agentTypes.find(({ id }) => equals(id, type))?.name ?? ''),
       id: 'type',
       label: t(labelAgentType),
       type: ColumnType.string
@@ -42,7 +43,7 @@ export const useColumns = (): Array<Column> => {
       type: ColumnType.component
     },
     {
-      Component: Action,
+      Component: Action as unknown as Column['Component'],
       clickable: true,
       getRenderComponentOnRowUpdateCondition: T,
       id: 'actions',

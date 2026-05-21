@@ -34,13 +34,13 @@ type Props = Pick<
 } & SelectActionListingHeaderCellProps;
 
 interface ContentProps extends Pick<Props, 'sortField' | 'sortOrder'> {
-  attributes;
+  attributes: Record<string, unknown>;
   id: string;
   isDragging: boolean;
   isInDragOverlay?: boolean;
   itemRef: React.RefObject<HTMLDivElement>;
   listeners: DraggableSyntheticListeners;
-  style;
+  style: React.CSSProperties;
 }
 
 const ListingHeader = ({

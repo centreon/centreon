@@ -174,6 +174,7 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
             'name' => $name,
             'localhost' => '0',
             'ns_ip_address' => self::POLLER_ADDRESS,
+            'uid' => random_int(100000000000001, 999999999999999),
         ]);
 
         return (int) $connection->lastInsertId();

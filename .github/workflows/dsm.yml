@@ -60,7 +60,7 @@ jobs:
       version_file: .version.centreon-dsm
       configuration_file: centreon-dsm/www/modules/centreon-dsm/conf.php
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Check ${{ env.version_file }}
         uses: ./.github/actions/check-version-consistency
@@ -116,10 +116,10 @@ jobs:
       github.event.pull_request.head.repo.fork != true
 
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.36.0
+        uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # v2.37.0
         with:
           php-version: ${{ needs.get-environment.outputs.php_version }}
           coverage: none
@@ -138,7 +138,7 @@ jobs:
 
       - name: Get changed PHP files
         id: changed-php
-        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891 # v47.0.1
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         with:
           files: |
             **/*.php
@@ -226,7 +226,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Change macro
         run: |
@@ -274,7 +274,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -286,7 +286,7 @@ jobs:
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
-  deliver-rpm:
+  deliver:
     needs: [get-environment, changes, package]
     if: |
       needs.changes.outputs.trigger_delivery == 'true' &&
@@ -300,13 +300,15 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [el9, el10]
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
+    name: deliver ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Delivery
+      - name: Deliver RPM package
+        if: matrix.package_extension == 'rpm'
         uses: ./.github/actions/rpm-delivery
         with:
           module_name: dsm
@@ -320,28 +322,8 @@ jobs:
           delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
           centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-
-  deliver-deb:
-    needs: [get-environment, changes, package]
-    if: |
-      needs.changes.outputs.trigger_delivery == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-      github.event.pull_request.head.repo.fork != true &&
-      (needs.get-environment.outputs.is_cloud == 'false' || needs.get-environment.outputs.stability == 'unstable') &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled')
-    runs-on: centreon-common
-
-    strategy:
-      matrix:
-        distrib: [trixie]
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-
-      - name: Delivery
+      - name: Deliver DEB package
+        if: matrix.package_extension == 'deb'
         uses: ./.github/actions/deb-delivery
         with:
           module_name: dsm
@@ -354,7 +336,7 @@ jobs:
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   promote:
-    needs: [get-environment, deliver-rpm, deliver-deb]
+    needs: [get-environment, deliver]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
@@ -365,11 +347,12 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [el9, el10, trixie]
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
+    name: promote ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable
@@ -385,7 +368,7 @@ jobs:
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   set-skip-label:
-    needs: [get-environment, deliver-rpm, deliver-deb, promote]
+    needs: [get-environment, deliver, promote]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&
