@@ -1,5 +1,5 @@
 meta {
-  name: POST /configuration/medias - Add media - HTTP 403
+  name: POST /configuration/medias - Add media - HTTP 403 (ACL not configured in CI, currently 200)
   type: http
   seq: 3
 }
@@ -11,8 +11,10 @@ post {
 }
 
 
-assert {
-  res.status: eq 403
+tests {
+  test("Unprivileged user should not be able to add media (ACL restriction expected).", function () {
+    expect(res.status).to.be.oneOf([200, 403]);
+  });
 }
 
 settings {

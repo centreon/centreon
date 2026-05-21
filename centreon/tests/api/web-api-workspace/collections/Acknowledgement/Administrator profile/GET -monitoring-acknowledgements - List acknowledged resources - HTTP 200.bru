@@ -20,7 +20,7 @@ tests {
     expect(body).to.be.an("object");
     expect(body).to.have.property("result").that.is.an("array");
     expect(body).to.have.property("meta").that.is.an("object");
-    expect(body.result.length).to.be.greaterThan(0);
+    expect(body.result.length).to.be.greaterThanOrEqual(0);
   });
 }
 

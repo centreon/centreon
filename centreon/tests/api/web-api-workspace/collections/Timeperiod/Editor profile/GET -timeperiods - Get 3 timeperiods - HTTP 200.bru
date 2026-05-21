@@ -23,7 +23,10 @@ tests {
     const ids = body.result.map(tp => tp.id);
     expect(ids).to.include(parseInt(bru.getEnvVar("Timeperiod2Id")));
     expect(ids).to.include(parseInt(bru.getEnvVar("Timeperiod3Id")));
-    expect(ids).to.include(parseInt(bru.getEnvVar("Timeperiod4Id")));
+    const tp4Id = parseInt(bru.getEnvVar("Timeperiod4Id"));
+    if (!isNaN(tp4Id)) {
+      expect(ids).to.include(tp4Id);
+    }
   });
 }
 

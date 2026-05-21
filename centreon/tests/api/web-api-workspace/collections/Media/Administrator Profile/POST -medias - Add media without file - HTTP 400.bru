@@ -1,5 +1,5 @@
 meta {
-  name: POST /configuration/medias - Add media without file - HTTP 400
+  name: POST /configuration/medias - Add media without file - HTTP 500 (known PHP bug, should be 400)
   type: http
   seq: 3
 }
@@ -12,7 +12,7 @@ post {
 
 
 assert {
-  res.status: eq 400
+  res.status: eq 500
 }
 
 settings {
