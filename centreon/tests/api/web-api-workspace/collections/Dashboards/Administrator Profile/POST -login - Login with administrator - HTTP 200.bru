@@ -25,12 +25,10 @@ assert {
   res.status: eq 200
 }
 
-script:after-response {
-  bru.setGlobalEnvVar("authToken", res.getBody().security.token);
-}
 
 tests {
   test("Login successful.", function () {
+    bru.setGlobalEnvVar("authToken", res.getBody().security.token);
     expect(res.status).to.equal(200);
   });
 }

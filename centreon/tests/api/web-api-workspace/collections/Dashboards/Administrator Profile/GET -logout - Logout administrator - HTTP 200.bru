@@ -14,12 +14,10 @@ assert {
   res.status: eq 200
 }
 
-script:after-response {
-  bru.deleteEnvVar("authToken");
-}
 
 tests {
   test("Logout successful.", function () {
+    bru.deleteEnvVar("authToken");
     const body = res.getBody();
     expect(res.status).to.equal(200);
     expect(body.message).to.equal("Successful logout");

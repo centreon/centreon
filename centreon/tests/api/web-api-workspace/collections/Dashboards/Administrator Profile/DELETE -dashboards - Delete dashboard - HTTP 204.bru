@@ -14,12 +14,10 @@ assert {
   res.status: eq 204
 }
 
-script:after-response {
-  bru.setEnvVar("dashboardID", "");
-}
 
 tests {
   test("Dashboard successfully deleted.", function () {
+    bru.setEnvVar("dashboardID", "");
     expect(res.status).to.equal(204);
     expect(res.getBody()).to.be.empty;
   });

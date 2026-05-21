@@ -26,14 +26,11 @@ assert {
   res.status: eq 201
 }
 
-script:after-response {
-  const body = res.getBody();
-  bru.setEnvVar("dashboardID", body.id);
-}
 
 tests {
   test("Dashboard created successfully.", function () {
     const body = res.getBody();
+    bru.setEnvVar("dashboardID", body.id);
     expect(res.status).to.equal(201);
     expect(body).to.have.property("id");
   });

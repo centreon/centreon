@@ -25,12 +25,10 @@ assert {
   res.status: eq 200
 }
 
-script:after-response {
-  bru.setGlobalEnvVar("authToken", res.getBody().security.token);
-}
 
 tests {
   test("Login successful after one failed attempt. The account is not blocked.", function () {
+    bru.setGlobalEnvVar("authToken", res.getBody().security.token);
     const body = res.getBody();
     expect(res.status).to.equal(200);
     expect(body.contact.alias).to.equal(bru.getEnvVar("api_login"));
