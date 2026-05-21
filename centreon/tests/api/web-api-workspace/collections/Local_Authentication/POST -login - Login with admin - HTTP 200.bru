@@ -31,7 +31,7 @@ tests {
     bru.setGlobalEnvVar("authToken", res.getBody().security.token);
     const body = res.getBody();
     expect(res.status).to.equal(200);
-    expect(body.contact.alias).to.equal(bru.getEnvVar("api_login"));
+    expect(body.contact.alias).to.equal(bru.getGlobalEnvVar("api_login"));
     expect(body.contact.is_admin).to.equal(true);
   });
 

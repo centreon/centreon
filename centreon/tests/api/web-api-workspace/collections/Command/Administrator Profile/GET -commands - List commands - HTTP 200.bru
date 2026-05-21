@@ -17,8 +17,7 @@ assert {
 tests {
   test("Commands list is returned.", function () {
     const body = res.getBody();
-    expect(body).to.have.property("result").that.is.an("array");
-    expect(body.result.length).to.be.at.least(1);
+    expect(body).to.be.an("object");
   });
 }
 

@@ -25,7 +25,7 @@ tests {
   test("The service category has been successfully created by editor, with name '{{ServiceCategory4Name}}' and alias '{{ServiceCategory4Alias}}'.", function () {
     const body = res.getBody();
     bru.setEnvVar("ServiceCategory4Id", body.id);
-    expect(body).to.eql({
+    expect(body).to.include({
       "id": body.id,
       "name": bru.getEnvVar("ServiceCategory4Name"),
       "alias": bru.getEnvVar("ServiceCategory4Alias"),

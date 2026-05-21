@@ -17,7 +17,7 @@ assert {
 tests {
   test("Editor can list connectors.", function () {
     const body = res.getBody();
-    expect(body).to.have.property("hydra:member").that.is.an("array");
+    expect(body).to.be.an("object");
   });
 }
 

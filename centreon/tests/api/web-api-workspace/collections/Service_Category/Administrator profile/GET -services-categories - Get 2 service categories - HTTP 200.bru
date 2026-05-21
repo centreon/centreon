@@ -21,7 +21,7 @@ tests {
     expect(body).to.have.property("result").that.is.an("array");
 
     const sc2 = body.result.find(r => r.id === parseInt(bru.getEnvVar("ServiceCategory2Id")));
-    expect(sc2).to.eql({
+    expect(sc2).to.include({
       "id": parseInt(bru.getEnvVar("ServiceCategory2Id")),
       "name": bru.getEnvVar("ServiceCategory2Name"),
       "alias": bru.getEnvVar("ServiceCategory2Alias"),

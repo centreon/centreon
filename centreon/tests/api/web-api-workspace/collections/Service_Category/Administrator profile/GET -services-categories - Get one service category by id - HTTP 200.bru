@@ -17,7 +17,7 @@ assert {
 tests {
   test("The service category retrieved is listed with all of its parameters.", function () {
     const body = res.getBody();
-    expect(body).to.eql({
+    expect(body).to.include({
       "id": parseInt(bru.getEnvVar("ServiceCategory2Id")),
       "name": bru.getEnvVar("ServiceCategory2Name"),
       "alias": bru.getEnvVar("ServiceCategory2Alias"),

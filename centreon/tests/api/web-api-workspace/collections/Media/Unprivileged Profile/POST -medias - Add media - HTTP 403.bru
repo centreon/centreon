@@ -6,13 +6,10 @@ meta {
 
 post {
   url: {{baseUrlWeb}}/configuration/medias
-  body: multipartForm
+  body: none
   auth: inherit
 }
 
-body:multipartForm {
-  directory: test-bruno
-}
 
 assert {
   res.status: eq 403
