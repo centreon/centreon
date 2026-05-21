@@ -32,4 +32,5 @@ enum AuthProviderEnum: string
     case WEB_SSO = 'web-sso';
     case API_TOKEN = 'api-token';
     case AUTOLOGIN = 'autologin';
+    case CLAPI = 'clapi';
 }

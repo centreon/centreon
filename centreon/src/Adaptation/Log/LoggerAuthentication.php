@@ -44,10 +44,10 @@ final class LoggerAuthentication
         return self::$instance;
     }
 
-    public function loginSuccess(int $userId, AuthProviderEnum $provider): void
+    public function loginSuccess(string $message, int $userId, AuthProviderEnum $provider): void
     {
         $this->logger->info(
-            'Login succeeded',
+            $message,
             $this->baseContext('login.success', 'success', $userId, $provider)
         );
     }
@@ -64,18 +64,18 @@ final class LoggerAuthentication
         );
     }
 
-    public function logout(int $userId, AuthProviderEnum $provider): void
+    public function logout(string $message, int $userId, AuthProviderEnum $provider): void
     {
         $this->logger->info(
-            'Logout',
+            $message,
             $this->baseContext('logout', 'success', $userId, $provider)
         );
     }
 
-    public function tokenRefreshSuccess(int $userId, AuthProviderEnum $provider): void
+    public function tokenRefreshSuccess(string $message, int $userId, AuthProviderEnum $provider): void
     {
         $this->logger->info(
-            'Token refresh succeeded',
+            $message,
             $this->baseContext('token.refresh.success', 'success', $userId, $provider)
         );
     }
@@ -125,10 +125,10 @@ final class LoggerAuthentication
             'user_id' => $userId,
             'ip_address' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
         ];
-        if ($provider !== null) {
+        if ($provider instanceof AuthProviderEnum) {
             $context['provider'] = $provider->value;
         }
-        if ($exception !== null) {
+        if ($exception instanceof \Throwable) {
             $context['exception'] = $exception;
         }
 
