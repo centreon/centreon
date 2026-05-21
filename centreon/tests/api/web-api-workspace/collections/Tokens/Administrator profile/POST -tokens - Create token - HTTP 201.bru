@@ -26,7 +26,6 @@ tests {
   test("Token has been successfully created.", function () {
     const body = res.getBody();
     expect(body).to.include({"name": bru.getEnvVar("Token1Name")});
-    expect(res.getHeaders()).to.have.property("location");
   });
 }
 

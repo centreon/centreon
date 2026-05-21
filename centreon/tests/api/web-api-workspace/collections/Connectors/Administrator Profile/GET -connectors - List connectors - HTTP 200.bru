@@ -17,7 +17,7 @@ assert {
 tests {
   test("Administrator can list connectors.", function () {
     const body = res.getBody();
-    expect(body).to.have.property("hydra:totalItems").that.is.a("number");
+    expect(body).to.have.property("hydra:member").that.is.an("array");
   });
 }
 
