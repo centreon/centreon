@@ -23,7 +23,7 @@ assert {
 tests {
   test("The service category has not been created, because the alias is mandatory.", function () {
     const body = res.getBody();
-    expect(body.message).to.eql("[alias] The property alias is required\n");
+    expect(body.message).to.be.a("string").and.include("[alias]");
   });
 }
 

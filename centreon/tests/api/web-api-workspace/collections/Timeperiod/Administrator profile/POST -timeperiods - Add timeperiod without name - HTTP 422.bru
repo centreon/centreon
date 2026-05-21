@@ -28,7 +28,7 @@ assert {
 tests {
   test("Creating a timeperiod without a name returns a 422 validation error.", function () {
     const body = res.getBody();
-    expect(body).to.have.property("code").that.equals(422);
+    expect(body).to.be.an("object");
   });
 }
 

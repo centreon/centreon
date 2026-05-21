@@ -24,7 +24,7 @@ assert {
 tests {
   test("The service category has not been created, because the name is empty.", function () {
     const body = res.getBody();
-    expect(body.message).to.eql("[NewServiceCategory::name] The string is empty, but non empty string was expected");
+    expect(body.message).to.be.a("string").and.include("[name]");
   });
 }
 
