@@ -24,10 +24,12 @@ require_once __DIR__ . '/../../../../bootstrap.php';
 require_once '../functions.php';
 
 use App\Kernel;
+use App\MonitoringConfiguration\Infrastructure\Service\SnowflakePollerUidGenerator;
 use CentreonModule\ServiceProvider;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPoller;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPollerRequest;
 use Core\Infrastructure\Common\DatabaseTLSResolver;
+use Godruoyi\Snowflake\Snowflake;
 
 $return = ['id' => 'baseconf', 'result' => 1, 'msg' => ''];
 
@@ -72,6 +74,13 @@ try {
     $utils->executeSqlFile(__DIR__ . '/../../insertCommands.sql', $macros);
     $utils->executeSqlFile(__DIR__ . '/../../insertTimeperiods.sql', $macros);
     $utils->executeSqlFile(__DIR__ . '/../../var/baseconf/centreon-engine.sql', $macros);
+
+    $snowflake = new Snowflake(0, 0);
+    $snowflake->setStartTimeStamp(SnowflakePollerUidGenerator::CUSTOM_EPOCH_MS);
+    $stmt = $link->prepare('UPDATE `nagios_server` SET `uid` = :uid WHERE `id` = 1');
+    $stmt->bindValue(':uid', (int) $snowflake->id(), PDO::PARAM_INT);
+    $stmt->execute();
+
     $utils->executeSqlFile(__DIR__ . '/../../var/baseconf/centreon-broker.sql', $macros);
     $utils->executeSqlFile(__DIR__ . '/../../insertTopology.sql', $macros);
     $utils->executeSqlFile(__DIR__ . '/../../insertBaseConf.sql', $macros);

@@ -90,6 +90,28 @@ class TaskRepository extends ServiceEntityRepository
     }
 
     /**
+     * Delete import tasks stuck in 'inprogress' state for longer than $timeoutSeconds.
+     *
+     * @param int $timeoutSeconds
+     *
+     * @return int number of deleted tasks
+     */
+    public function deleteTimedOutImportTasks(int $timeoutSeconds): int
+    {
+        $sql = 'DELETE FROM task
+                WHERE type = :type
+                AND status = :status
+                AND created_at <= DATE_SUB(NOW(), INTERVAL :timeout SECOND)';
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':type', Task::TYPE_IMPORT);
+        $stmt->bindValue(':status', Task::STATE_PROGRESS);
+        $stmt->bindValue(':timeout', $timeoutSeconds, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return (int) $stmt->rowCount();
+    }
+
+    /**
      * update task status
      * @param mixed $status
      * @param mixed $taskId

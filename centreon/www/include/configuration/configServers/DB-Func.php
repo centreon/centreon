@@ -20,10 +20,12 @@
  */
 
 use App\Kernel;
+use App\MonitoringConfiguration\Infrastructure\Service\SnowflakePollerUidGenerator;
 use Centreon\Domain\PlatformTopology\Model\PlatformRegistered;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPoller;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPollerRequest;
 use Core\MonitoringServer\Model\MonitoringServer;
+use Godruoyi\Snowflake\Snowflake;
 
 if (! isset($centreon)) {
     exit();
@@ -395,6 +397,10 @@ function duplicateServer(array $server, array $nbrDup): void
         );
 
         foreach ($availableSuffix as $suffix) {
+            $snowflake = new Snowflake(0, 0);
+            $snowflake->setStartTimeStamp(SnowflakePollerUidGenerator::CUSTOM_EPOCH_MS);
+            $rowServer['uid'] = (int) $snowflake->id();
+
             $serverName = null;
             $columns = [];
             $params = [];
@@ -562,7 +568,7 @@ function insertServer(array $data): int
         . '`init_script_centreontrapd`, `snmp_trapd_path_conf`, '
         . '`nagios_perfdata` , `broker_reload_command`, '
         . '`centreonbroker_cfg_path`, `centreonbroker_module_path`, `centreonconnector_path`, '
-        . '`is_default`, `ns_activate`, `centreonbroker_logs_path`, `remote_id`, `remote_server_use_as_proxy`) ';
+        . '`is_default`, `ns_activate`, `centreonbroker_logs_path`, `remote_id`, `remote_server_use_as_proxy`, `uid`) ';
     $rq .= 'VALUES (';
 
     if (isset($data['name']) && $data['name'] != null) {
@@ -715,12 +721,16 @@ function insertServer(array $data): int
         isset($data['remote_server_use_as_proxy']['remote_server_use_as_proxy'])
         && $data['remote_server_use_as_proxy']['remote_server_use_as_proxy'] != null
     ) {
-        $rq .= ':remote_server_use_as_proxy ';
+        $rq .= ':remote_server_use_as_proxy, ';
         $retValue[':remote_server_use_as_proxy']
             = htmlentities($data['remote_server_use_as_proxy']['remote_server_use_as_proxy'], ENT_QUOTES, 'UTF-8');
     } else {
-        $rq .= 'NULL ';
+        $rq .= 'NULL, ';
     }
+    $snowflake = new Snowflake(0, 0);
+    $snowflake->setStartTimeStamp(SnowflakePollerUidGenerator::CUSTOM_EPOCH_MS);
+    $rq .= ':uid ';
+    $retValue[':uid'] = (int) $snowflake->id();
     $rq .= ')';
     $stmt = $pearDB->prepare($rq);
     foreach ($retValue as $key => $value) {
