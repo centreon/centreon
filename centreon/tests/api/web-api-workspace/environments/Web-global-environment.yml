@@ -38,3 +38,7 @@ variables:
     value: user_unprivileged
   - name: user_unprivileged_password
     value: Centreon!123
+  - name: user_super_administrator_login
+    value: user_super_administrator
+  - name: user_super_administrator_password
+    value: Centreon!123

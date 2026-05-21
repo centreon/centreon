@@ -41,3 +41,4 @@ import ./imports/users/administrator.csv
 import ./imports/users/editor.csv
 import ./imports/users/operator.csv
 import ./imports/users/unprivileged.csv
+import ./imports/users/super_administrator.csv
