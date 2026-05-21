@@ -45,7 +45,7 @@ interface Props {
 const getBreadcrumbs = ({
   breadcrumbsByPath,
   path
-}): Array<BreadcrumbModel> => {
+}: Props): Array<BreadcrumbModel> => {
   if (breadcrumbsByPath[path]) {
     return breadcrumbsByPath[path];
   }

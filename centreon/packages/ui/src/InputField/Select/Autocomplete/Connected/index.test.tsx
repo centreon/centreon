@@ -9,7 +9,10 @@ import {
 	waitFor,
 } from "../../../../../test/testRenderer";
 import buildListingEndpoint from "../../../../api/buildListingEndpoint";
-import type { ConditionsSearchParameter } from "../../../../api/buildListingEndpoint/models";
+import type {
+	BuildListingEndpointParameters,
+	ConditionsSearchParameter,
+} from "../../../../api/buildListingEndpoint/models";
 import TestQueryProvider from "../../../../api/TestQueryProvider";
 
 import SingleConnectedAutocompleteField from "./Single";
@@ -31,7 +34,9 @@ const optionsData = {
 
 const baseEndpoint = "endpoint";
 
-const getEndpoint = (parameters): string => {
+const getEndpoint = (
+	parameters: BuildListingEndpointParameters["parameters"],
+): string => {
 	return buildListingEndpoint({ baseEndpoint, parameters });
 };
 

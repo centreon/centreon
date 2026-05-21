@@ -19,9 +19,11 @@
  *
  */
 
+use App\MonitoringConfiguration\Infrastructure\Service\SnowflakePollerUidGenerator;
 use Centreon\Domain\PlatformTopology\Interfaces\PlatformInterface;
 use Centreon\Domain\PlatformTopology\Model\PlatformRegistered;
 use Centreon\Infrastructure\PlatformTopology\Repository\Model\PlatformTopologyFactoryRDB;
+use Godruoyi\Snowflake\Snowflake;
 
 require_once 'Centreon/Object/Object.php';
 
@@ -61,6 +63,13 @@ class Centreon_Object_Instance extends Centreon_Object
         if (! array_key_exists('ns_ip_address', $params) || ! array_key_exists('name', $params)) {
             throw new InvalidArgumentException('Missing parameters');
         }
+
+        if (empty($params['uid'])) {
+            $snowflake = new Snowflake(0, 0);
+            $snowflake->setStartTimeStamp(SnowflakePollerUidGenerator::CUSTOM_EPOCH_MS);
+            $params['uid'] = (int) $snowflake->id();
+        }
+
         $platformTopology = $this->findPlatformTopologyByAddress($params['ns_ip_address']);
         $serverId = null;
 

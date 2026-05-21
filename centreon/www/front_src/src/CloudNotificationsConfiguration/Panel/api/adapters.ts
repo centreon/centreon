@@ -20,6 +20,30 @@ export const adaptEvents = (events: Array<EventsType>): number => {
   )(events);
 };
 
+interface AdaptNotificationGroup {
+  events: Array<EventsType>;
+  extra?: { eventsServices: Array<EventsType> };
+  ids: Array<{ id: number }>;
+  type: string;
+}
+
+interface AdaptNotificationInput {
+  businessviews?: AdaptNotificationGroup;
+  contactgroups: Array<{ id: number }>;
+  hostGroups: AdaptNotificationGroup;
+  isActivated: boolean;
+  messages: {
+    channel?: { label?: string };
+    formattedMessage: string;
+    message: string;
+    subject: string;
+  };
+  name: string;
+  serviceGroups: AdaptNotificationGroup;
+  timeperiod: { id: number };
+  users: Array<{ id: number }>;
+}
+
 export const adaptNotification = ({
   hostGroups,
   isActivated,
@@ -30,7 +54,7 @@ export const adaptNotification = ({
   contactgroups,
   businessviews,
   timeperiod
-}): object => ({
+}: AdaptNotificationInput): object => ({
   contactgroups: map(prop('id'), contactgroups),
   is_activated: isActivated,
   messages: [
@@ -46,7 +70,9 @@ export const adaptNotification = ({
     {
       events: adaptEvents(hostGroups.events),
       extra: {
-        event_services: adaptEvents(hostGroups?.extra?.eventsServices)
+        event_services: adaptEvents(
+          (hostGroups?.extra?.eventsServices ?? []) as Array<EventsType>
+        )
       },
       ids: map(prop('id'), hostGroups.ids),
       type: hostGroups.type

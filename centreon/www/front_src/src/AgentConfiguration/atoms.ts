@@ -67,10 +67,12 @@ interface DeleteFilterProps {
 export const deleteFilterEntryAtom = atom(
   null,
   (get, set, { field, entryToDelete }: DeleteFilterProps) => {
-    const fieldEntries = get(filtersAtom)[field];
+    const fieldEntries = (
+      get(filtersAtom) as unknown as Record<string, unknown>
+    )[field] as Array<SelectEntry>;
 
     const entryToDeleteIndex = findIndex(
-      ({ id }) => equals(entryToDelete.id, id),
+      ({ id }: SelectEntry) => equals(entryToDelete.id, id),
       fieldEntries
     );
 

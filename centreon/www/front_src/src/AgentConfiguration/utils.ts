@@ -1,4 +1,12 @@
-export const filtersInitialValues = {
+import { SelectEntry } from '@centreon/ui';
+
+export interface FiltersState {
+  name: string;
+  'poller.id': Array<SelectEntry>;
+  type: Array<SelectEntry>;
+}
+
+export const filtersInitialValues: FiltersState = {
   name: '',
   'poller.id': [],
   type: []
