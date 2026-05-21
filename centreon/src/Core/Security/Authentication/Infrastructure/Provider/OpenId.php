@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\Security\Authentication\Infrastructure\Provider;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\Service\Exception\NotFoundException;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
@@ -42,14 +41,13 @@ use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigura
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Exception;
 use Pimple\Container;
+use Psr\Log\LoggerInterface;
 use Security\Domain\Authentication\Interfaces\OpenIdProviderInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Throwable;
 
 class OpenId implements ProviderAuthenticationInterface
 {
-    use LoggerTrait;
-
     /** @var string */
     private string $username;
 
@@ -62,6 +60,7 @@ class OpenId implements ProviderAuthenticationInterface
         private Container $dependencyInjector,
         private RequestStack $requestStack,
         private OpenIdProviderInterface $provider,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -89,17 +88,17 @@ class OpenId implements ProviderAuthenticationInterface
     {
         $user = $this->getAuthenticatedUser();
         if ($user === null) {
-            $this->info('User not found');
+            $this->logger->info('User not found');
             if (! $this->isAutoImportEnabled()) {
                 throw new NotFoundException('User could not be created');
             }
-            $this->info('Start auto import');
+            $this->logger->info('Start auto import');
             $this->provider->createUser();
             $user = $this->getAuthenticatedUser();
             if ($user === null) {
                 throw new NotFoundException('User not found');
             }
-            $this->info('User imported: ' . $user->getName());
+            $this->logger->info('User imported: ' . $user->getName());
         }
 
         return $user;
@@ -129,10 +128,10 @@ class OpenId implements ProviderAuthenticationInterface
     {
         $user = $this->provider->getUser();
         if ($this->isAutoImportEnabled() && $user === null) {
-            $this->info('Start auto import');
+            $this->logger->info('Start auto import');
             $this->provider->createUser();
             $user = $this->findUserOrFail();
-            $this->info('User imported: ' . $user->getName());
+            $this->logger->info('User imported: ' . $user->getName());
         }
     }
 
@@ -144,10 +143,10 @@ class OpenId implements ProviderAuthenticationInterface
     {
         $user = $this->provider->getUser();
         if ($this->isAutoImportEnabled() === true && $user === null) {
-            $this->info('Start auto import');
+            $this->logger->info('Start auto import');
             $this->provider->createUser();
             if ($user = $this->provider->getUser()) {
-                $this->info('User imported: ' . $user->getName());
+                $this->logger->info('User imported: ' . $user->getName());
             }
         }
     }
@@ -246,7 +245,7 @@ class OpenId implements ProviderAuthenticationInterface
         foreach ($customConfiguration->getACLConditions()->getRelations() as $authorizationRule) {
             $claimValue = $authorizationRule->getClaimValue();
             if (! in_array($claimValue, $this->provider->getAclConditionsMatches(), true)) {
-                $this->info(
+                $this->logger->info(
                     'Configured claim value not found in user claims',
                     ['claim_value' => $claimValue]
                 );

@@ -23,11 +23,12 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Infrastructure\Provider;
 
+use Adaptation\Log\Enum\AuthProviderEnum;
+use Adaptation\Log\LoggerAuthentication;
 use Assert\AssertionFailedException;
 use Centreon;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
-use Centreon\Domain\Log\LoggerTrait;
 use CentreonSession;
 use Core\Application\Configuration\User\Repository\WriteUserRepositoryInterface;
 use Core\Domain\Configuration\User\Model\NewUser;
@@ -60,12 +61,11 @@ use OneLogin\Saml2\Error;
 use OneLogin\Saml2\Utils;
 use OneLogin\Saml2\ValidationError;
 use Pimple\Container;
+use Psr\Log\LoggerInterface;
 use Throwable;
 
 class SAML implements ProviderAuthenticationInterface
 {
-    use LoggerTrait;
-
     /** @var Configuration */
     private Configuration $configuration;
 
@@ -100,6 +100,7 @@ class SAML implements ProviderAuthenticationInterface
         private readonly RolesMapping $rolesMapping,
         private readonly GroupsMappingSecurityAccess $groupsMapping,
         private readonly SettingsFormatterInterface $formatter,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -123,6 +124,12 @@ class SAML implements ProviderAuthenticationInterface
         $errors = $auth->getErrors();
         if (! empty($errors)) {
             $ex = ProcessAuthenticationResponseException::create();
+            LoggerAuthentication::create()->loginFailure(
+                'Failed to process SAML authentication response',
+                null,
+                AuthProviderEnum::SAML,
+                $ex
+            );
             $this->loginLogger->error(Provider::SAML, $ex->getMessage(), ['context' => (string) json_encode($errors), 'error' => $this->auth->getLastErrorReason()]);
 
             throw $ex;
@@ -130,6 +137,12 @@ class SAML implements ProviderAuthenticationInterface
 
         if (! $auth->isAuthenticated()) {
             $ex = UserNotAuthenticatedException::create();
+            LoggerAuthentication::create()->loginFailure(
+                'User not authenticated by SAML provider',
+                null,
+                AuthProviderEnum::SAML,
+                $ex
+            );
             $this->loginLogger->error(Provider::SAML, $ex->getMessage());
 
             throw $ex;
@@ -140,7 +153,13 @@ class SAML implements ProviderAuthenticationInterface
         $errors = $settings->validateMetadata($metadata);
         if (! empty($errors)) {
             $ex = InvalidMetadataException::create();
-            $this->info($ex->getMessage(), ['errors' => $errors]);
+            LoggerAuthentication::create()->loginFailure(
+                'Invalid SAML metadata',
+                null,
+                AuthProviderEnum::SAML,
+                $ex
+            );
+            $this->logger->info($ex->getMessage(), ['errors' => $errors]);
 
             throw $ex;
         }
@@ -149,7 +168,7 @@ class SAML implements ProviderAuthenticationInterface
             Provider::SAML,
             'User information: ' . json_encode($auth->getAttributes())
         );
-        $this->info('User information: ', $auth->getAttributes());
+        $this->logger->info('User information: ', $auth->getAttributes());
 
         $attrs = $auth->getAttribute($customConfiguration->getUserIdAttribute());
         if (! is_array($attrs) || ! is_string($attrs[0] ?? null)) {
@@ -187,7 +206,7 @@ class SAML implements ProviderAuthenticationInterface
      */
     public function getUser(): ?ContactInterface
     {
-        $this->info('Searching user : ' . $this->username);
+        $this->logger->info('Searching user : ' . $this->username);
 
         return $this->contactRepository->findByName($this->username)
             ?? $this->contactRepository->findByEmail($this->username);
@@ -220,11 +239,11 @@ class SAML implements ProviderAuthenticationInterface
     {
         $user = $this->getUser();
         if ($this->isAutoImportEnabled() && $user === null) {
-            $this->info('Start auto import');
+            $this->logger->info('Start auto import');
             $this->loginLogger->info($this->configuration->getType(), 'start auto import');
             $this->createUser();
             $user = $this->findUserOrFail();
-            $this->info('User imported: ' . $user->getName());
+            $this->logger->info('User imported: ' . $user->getName());
             $this->loginLogger->info(
                 $this->configuration->getType(),
                 'user imported',
@@ -241,10 +260,10 @@ class SAML implements ProviderAuthenticationInterface
     {
         $user = $this->getAuthenticatedUser();
         if ($this->isAutoImportEnabled() === true && $user === null) {
-            $this->info('Start auto import');
+            $this->logger->info('Start auto import');
             $this->createUser();
             if ($user = $this->getAuthenticatedUser()) {
-                $this->info('User imported: ' . $user->getName());
+                $this->logger->info('User imported: ' . $user->getName());
             }
         }
     }
@@ -345,7 +364,7 @@ class SAML implements ProviderAuthenticationInterface
         foreach ($customConfiguration->getACLConditions()->getRelations() as $authorizationRule) {
             $claimValue = $authorizationRule->getClaimValue();
             if (! in_array($claimValue, $claims, true)) {
-                $this->info(
+                $this->logger->info(
                     'Configured claim value not found in user claims',
                     ['claim_value' => $claimValue]
                 );
@@ -435,14 +454,14 @@ class SAML implements ProviderAuthenticationInterface
             $sessionIndex = $_SESSION['saml']['samlSessionIndex'];
         }
 
-        $this->info('logout from SAML and redirect');
+        $this->logger->info('logout from SAML and redirect');
         $auth = new Auth($this->formatter->format($this->configuration->getCustomConfiguration()));
         $auth->logout($returnTo, $parameters, $nameId, $sessionIndex);
     }
 
     public function handleCallbackLogoutResponse(): void
     {
-        $this->info('SAML SLS invoked');
+        $this->logger->info('SAML SLS invoked');
 
         $auth = new Auth($this->formatter->format($this->configuration->getCustomConfiguration()));
         $requestID = isset($_SESSION, $_SESSION['LogoutRequestID']) ? $_SESSION['LogoutRequestID'] : null;
@@ -471,7 +490,7 @@ class SAML implements ProviderAuthenticationInterface
     {
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
-        $this->info('Auto import starting...', ['user' => $this->username]);
+        $this->logger->info('Auto import starting...', ['user' => $this->username]);
         $this->loginLogger->info(
             $this->configuration->getType(),
             'auto import starting...',
@@ -495,7 +514,7 @@ class SAML implements ProviderAuthenticationInterface
         }
         $user->setContactTemplate($customConfiguration->getContactTemplate());
         $this->userRepository->create($user);
-        $this->info('Auto import complete', [
+        $this->logger->info('Auto import complete', [
             'user_alias' => $alias,
             'user_fullname' => $fullname,
             'user_email' => $email,
