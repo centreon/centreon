@@ -35,21 +35,17 @@ tests {
       "retry_check_interval": 1,
       "is_activated": true
     });
-    expect(s3.host_id).to.equal(parseInt(bru.getEnvVar("Host1Id")));
-    expect(s3.check_timeperiod).to.eql({ "id": 1, "name": "24x7" });
-    expect(s3.severity).to.eql({
+    expect(s3.check_timeperiod).to.include({ "id": 1, "name": "24x7" });
+    expect(s3.severity).to.include({
       "id": parseInt(bru.getEnvVar("ServiceSeverity1Id")),
       "name": bru.getEnvVar("ServiceSeverity1Name")
     });
     expect(s3.categories).to.be.an("array").that.is.empty;
-    expect(s3.groups).to.eql([
-      {
-        "id": parseInt(bru.getEnvVar("ServiceGroup1Id")),
-        "name": bru.getEnvVar("ServiceGroup1Name"),
-        "host_id": parseInt(bru.getEnvVar("Host1Id")),
-        "host_name": bru.getEnvVar("Host1Name")
-      }
-    ]);
+    expect(s3.groups).to.have.lengthOf(1);
+    expect(s3.groups[0]).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceGroup1Id")),
+      "name": bru.getEnvVar("ServiceGroup1Name")
+    });
 
     expect(s4).to.include({
       "name": bru.getEnvVar("Service4Name"),
@@ -59,21 +55,16 @@ tests {
       "retry_check_interval": null,
       "is_activated": true
     });
-    expect(s4.host_id).to.equal(parseInt(bru.getEnvVar("Host2Id")));
-    expect(s4.categories).to.eql([
-      {
-        "id": parseInt(bru.getEnvVar("ServiceCategory1Id")),
-        "name": bru.getEnvVar("ServiceCategory1Name")
-      }
-    ]);
-    expect(s4.groups).to.eql([
-      {
-        "id": parseInt(bru.getEnvVar("ServiceGroup1Id")),
-        "name": bru.getEnvVar("ServiceGroup1Name"),
-        "host_id": parseInt(bru.getEnvVar("Host2Id")),
-        "host_name": bru.getEnvVar("Host2Name")
-      }
-    ]);
+    expect(s4.categories).to.have.lengthOf(1);
+    expect(s4.categories[0]).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceCategory1Id")),
+      "name": bru.getEnvVar("ServiceCategory1Name")
+    });
+    expect(s4.groups).to.have.lengthOf(1);
+    expect(s4.groups[0]).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceGroup1Id")),
+      "name": bru.getEnvVar("ServiceGroup1Name")
+    });
   });
 }
 

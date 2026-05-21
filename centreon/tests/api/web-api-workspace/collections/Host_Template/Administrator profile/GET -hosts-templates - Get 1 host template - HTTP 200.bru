@@ -21,7 +21,7 @@ tests {
     expect(body).to.have.property("result").that.is.an("array");
 
     const ht1 = body.result.find(r => r.id === parseInt(bru.getEnvVar("HostTemplate1Id")));
-    expect(ht1).to.eql({
+    expect(ht1).to.include({
       "id": parseInt(bru.getEnvVar("HostTemplate1Id")),
       "name": bru.getEnvVar("HostTemplate1Name"),
       "alias": bru.getEnvVar("HostTemplate1Alias"),

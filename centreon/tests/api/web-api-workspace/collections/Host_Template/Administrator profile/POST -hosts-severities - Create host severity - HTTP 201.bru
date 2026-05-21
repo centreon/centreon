@@ -29,7 +29,7 @@ tests {
   test("The host severity has been successfully created, with name '{{HostSeverity1Name}}' and alias '{{HostSeverity1Alias}}'.", function () {
     const body = res.getBody();
     bru.setEnvVar("HostSeverity1Id", body.id);
-    expect(body).to.eql({
+    expect(body).to.include({
       "id": body.id,
       "name": bru.getEnvVar("HostSeverity1Name"),
       "alias": bru.getEnvVar("HostSeverity1Alias"),

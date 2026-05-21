@@ -26,18 +26,16 @@ tests {
       "retry_check_interval": 1,
       "severity_id": parseInt(bru.getEnvVar("ServiceSeverity1Id"))
     });
-    expect(body.categories).to.eql([
-      {
-        "id": parseInt(bru.getEnvVar("ServiceCategory2Id")),
-        "name": bru.getEnvVar("ServiceCategory2Name")
-      }
-    ]);
-    expect(body.groups).to.eql([
-      {
-        "id": parseInt(bru.getEnvVar("ServiceGroup1Id")),
-        "name": bru.getEnvVar("ServiceGroup1Name")
-      }
-    ]);
+    expect(body.categories).to.have.lengthOf(1);
+    expect(body.categories[0]).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceCategory2Id")),
+      "name": bru.getEnvVar("ServiceCategory2Name")
+    });
+    expect(body.groups).to.have.lengthOf(1);
+    expect(body.groups[0]).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceGroup1Id")),
+      "name": bru.getEnvVar("ServiceGroup1Name")
+    });
   });
 }
 

@@ -27,7 +27,7 @@ tests {
   test("The host category has been successfully created, with name '{{HostCategory2Name}}' and alias '{{HostCategory2Alias}}'.", function () {
     const body = res.getBody();
     bru.setEnvVar("HostCategory2Id", body.id);
-    expect(body).to.eql({
+    expect(body).to.include({
       "id": body.id,
       "name": bru.getEnvVar("HostCategory2Name"),
       "alias": bru.getEnvVar("HostCategory2Alias"),

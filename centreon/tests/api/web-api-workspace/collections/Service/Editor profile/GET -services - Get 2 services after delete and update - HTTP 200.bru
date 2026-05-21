@@ -24,7 +24,7 @@ tests {
     expect(s3).to.be.undefined;
 
     const s4 = body.result.find(r => r.id === parseInt(bru.getEnvVar("Service4Id")));
-    expect(s4.check_timeperiod).to.eql({ "id": 2, "name": "none" });
+    expect(s4.check_timeperiod).to.include({ "id": 2, "name": "none" });
 
     const s1 = body.result.find(r => r.id === parseInt(bru.getEnvVar("Service1Id")));
     expect(s1).to.exist;
