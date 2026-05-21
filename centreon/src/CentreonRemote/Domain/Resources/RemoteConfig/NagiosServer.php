@@ -21,6 +21,9 @@
 
 namespace CentreonRemote\Domain\Resources\RemoteConfig;
 
+use App\MonitoringConfiguration\Infrastructure\Service\SnowflakePollerUidGenerator;
+use Godruoyi\Snowflake\Snowflake;
+
 /**
  * Get broker configuration template.
  */
@@ -68,6 +71,15 @@ class NagiosServer
             'init_script_centreontrapd' => 'centreontrapd',
             'snmp_trapd_path_conf' => '/etc/snmp/centreon_traps/',
             'centreonbroker_logs_path' => '/var/log/centreon-broker/',
+            'uid' => self::generateSnowflakeUid(),
         ];
+    }
+
+    private static function generateSnowflakeUid(): int
+    {
+        $snowflake = new Snowflake(0, 0);
+        $snowflake->setStartTimeStamp(SnowflakePollerUidGenerator::CUSTOM_EPOCH_MS);
+
+        return (int) $snowflake->id();
     }
 }
