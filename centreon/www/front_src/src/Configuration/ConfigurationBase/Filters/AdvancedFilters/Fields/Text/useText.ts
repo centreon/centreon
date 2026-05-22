@@ -1,22 +1,29 @@
-import { useAtom } from 'jotai';
-import { ChangeEvent } from 'react';
-import { filtersAtom } from '../../../../atoms';
+import { SetStateAction } from 'jotai';
+import { ChangeEvent, Dispatch } from 'react';
 
-interface Props {
-  change: (event) => void;
+interface State {
+  change: (event: ChangeEvent<HTMLInputElement>) => void;
   value: string;
 }
 
-const useText = ({ name }): Props => {
-  const [filters, setFilters] = useAtom(filtersAtom);
+interface Props<TFilters> {
+  name: string;
+  filters: TFilters;
+  setFilters: Dispatch<SetStateAction<TFilters>>;
+}
 
+const useText = <TFilters>({
+  name,
+  filters,
+  setFilters
+}: Props<TFilters>): State => {
   const change = (event: ChangeEvent<HTMLInputElement>): void => {
     setFilters({ ...filters, [name]: event.target.value });
   };
 
   return {
     change,
-    value: filters[name]
+    value: (filters as Record<string, unknown>)[name] as string
   };
 };
 

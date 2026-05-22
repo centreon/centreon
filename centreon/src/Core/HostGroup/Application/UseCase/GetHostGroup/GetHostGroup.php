@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
@@ -50,6 +51,7 @@ final class GetHostGroup
         private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
         private readonly bool $isCloudPlatform,
         private readonly ContactInterface $user,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -57,7 +59,7 @@ final class GetHostGroup
     {
         try {
 
-            if ($this->user->isAdmin()) {
+            if ($this->adminResolver->isAdmin($this->user)) {
                 $hostGroup = $this->readHostGroupRepository->findOne($hostGroupId);
 
                 if ($hostGroup === null) {

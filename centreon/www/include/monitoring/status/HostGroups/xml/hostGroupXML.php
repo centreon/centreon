@@ -74,7 +74,7 @@ $order = isset($_GET['order']) && $_GET['order'] === 'DESC' ? 'DESC' : 'ASC';
 // saving bound values
 $queryValues = [];
 
-$groupStr = $obj->access->getAccessGroupsString();
+$groupStr = implode(',', $obj->access->getAccessGroups()->getIds());
 
 // Backup poller selection
 $obj->setInstanceHistory($instance);
@@ -86,6 +86,70 @@ if ($search != '') {
     $queryValues['search'] = [
         PDO::PARAM_STR => '%' . $search . '%',
     ];
+}
+
+$hgFilter = '';
+
+if (! $obj->is_admin) {
+    $allHostGroupsAllowed = false;
+
+    $query = <<<SQL
+            SELECT
+                1
+            FROM acl_resources ar
+            INNER JOIN acl_res_group_relations argr
+                ON argr.acl_res_id = ar.acl_res_id
+            WHERE
+                argr.acl_group_id IN ({$groupStr})
+                AND ar.all_hostgroups = '1'
+                AND ar.acl_res_activate = '1'
+        SQL;
+
+    try {
+        $allHostGroupsAllowed = $obj->DB->fetchAssociative($query) !== false;
+    } catch (Adaptation\Database\Connection\Exception\ConnectionException $e) {
+        throw new Core\Common\Domain\Exception\RepositoryException(
+            message: 'Error while checking if all host groups are allowed: ' . $e->getMessage(),
+            context: [
+                'query' => $query,
+                'groupStr' => $groupStr,
+            ],
+            previous: $e
+        );
+    }
+
+    if (! $allHostGroupsAllowed) {
+        $allowedHgIds = [];
+        $query = <<<SQL
+                SELECT DISTINCT
+                    arhr.hg_hg_id
+                FROM acl_resources_hg_relations arhr
+                INNER JOIN acl_res_group_relations argr
+                    ON argr.acl_res_id = arhr.acl_res_id
+                INNER JOIN acl_resources ar
+                    ON ar.acl_res_id = argr.acl_res_id
+                WHERE argr.acl_group_id IN ({$groupStr})
+                    AND ar.acl_res_activate = '1'
+            SQL;
+
+        try {
+            foreach ($obj->DB->iterateAssociative($query) as $row) {
+                $allowedHgIds[] = (int) $row['hg_hg_id'];
+            }
+        } catch (Adaptation\Database\Connection\Exception\ConnectionException $e) {
+            throw new Core\Common\Domain\Exception\RepositoryException(
+                message: 'Error while fetching allowed host group IDs: ' . $e->getMessage(),
+                context: [
+                    'query' => $query,
+                    'groupStr' => $groupStr,
+                ],
+                previous: $e
+            );
+        }
+        $hgFilter = $allowedHgIds === []
+            ? 'AND 1=0 '
+            : 'AND hg.hostgroup_id IN (' . implode(',', $allowedHgIds) . ') ';
+    }
 }
 
 // Host state
@@ -101,7 +165,7 @@ if ($obj->is_admin) {
             PDO::PARAM_INT => $instance,
         ];
     }
-    $rq1 .= $searchStr . 'GROUP BY hg.name ' . $order . ', h.state';
+    $rq1 .= $searchStr . 'GROUP BY hg.name, h.state ORDER BY hg.name ' . $order;
 } else {
     $rq1 = 'SELECT 1 AS REALTIME, hg.name as alias, h.state, COUNT(DISTINCT h.host_id) AS nb
         FROM centreon_acl acl, hosts_hostgroups hhg, hosts h, hostgroups hg
@@ -114,10 +178,9 @@ if ($obj->is_admin) {
             PDO::PARAM_INT => $instance,
         ];
     }
-    $rq1 .= $searchStr . $obj->access->queryBuilder('AND', 'hg.name', $obj->access->getHostGroupsString('NAME'))
-        . 'AND h.host_id = acl.host_id
+    $rq1 .= $searchStr . $hgFilter . 'AND h.host_id = acl.host_id
         AND acl.group_id in (' . $groupStr . ')
-        GROUP BY hg.name ' . $order . ', h.state';
+        GROUP BY hg.name, h.state ORDER BY hg.name ' . $order;
 }
 $dbResult = $obj->DBC->prepare($rq1);
 foreach ($queryValues as $bindId => $bindData) {
@@ -161,8 +224,7 @@ if ($obj->is_admin) {
     if (isset($instance) && $instance > 0) {
         $rq2 .= 'AND h.instance_id = :instance';
     }
-    $rq2 .= $searchStr . $obj->access->queryBuilder('AND', 'hg.name', $obj->access->getHostGroupsString('NAME'))
-        . 'AND h.host_id = acl.host_id
+    $rq2 .= $searchStr . $hgFilter . 'AND h.host_id = acl.host_id
         AND s.service_id = acl.service_id
         AND acl.group_id IN (' . $groupStr . ')
         GROUP BY hg.name, s.state ORDER BY tri ASC';
@@ -208,11 +270,27 @@ $buildHostgroupUri = function (array $hostgroups, array $types, array $statuses)
     return $resourceController->buildListingUri([
         'filter' => json_encode([
             'criterias' => [
-                'hostGroups' => $hostgroups,
-                'resourceTypes' => $types,
-                'statuses' => $statuses,
+                [
+                    'name' => 'host_groups',
+                    'object_type' => 'host_groups',
+                    'type' => 'multi_select',
+                    'value' => $hostgroups,
+                ],
+                [
+                    'name' => 'resource_types',
+                    'object_type' => null,
+                    'type' => 'multi_select',
+                    'value' => $types,
+                ],
+                [
+                    'name' => 'statuses',
+                    'object_type' => null,
+                    'type' => 'multi_select',
+                    'value' => $statuses,
+                ],
             ],
         ]),
+        'fromTopCounter' => 'true',
     ]);
 };
 

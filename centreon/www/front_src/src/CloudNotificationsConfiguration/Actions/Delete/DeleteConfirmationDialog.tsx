@@ -1,9 +1,9 @@
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import { alpha } from '@mui/material';
 
 import { ConfirmDialog } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   labelCancel,
@@ -11,7 +11,6 @@ import {
   labelDeleteNotification,
   labelDeleteNotificationWarning
 } from '../../translatedLabels';
-
 import { useDelete } from '.';
 
 const useStyles = makeStyles()((theme) => ({
@@ -46,10 +45,10 @@ const DeleteConfirmationDialog = (): JSX.Element => {
       }
       labelSecondMessage={t(labelDeleteNotificationWarning)}
       labelTitle={t(labelDeleteNotification)}
-      open={isDialogOpen}
-      submitting={isLoading}
       onCancel={closeDialog}
       onConfirm={submit}
+      open={isDialogOpen}
+      submitting={isLoading}
     />
   );
 };

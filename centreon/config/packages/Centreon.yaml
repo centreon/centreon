@@ -143,6 +143,10 @@ services:
         class: Core\Common\Infrastructure\Repository\ReadVaultRepository
         public: true
 
+    Core\Command\Application\Repository\ReadCommandRepositoryInterface:
+        class: Core\Command\Infrastructure\Repository\DbReadCommandRepository
+        public: true
+
     Symfony\Component\HttpClient\AmpHttpClient:
         class: Symfony\Component\HttpClient\AmpHttpClient
         public: true
@@ -167,6 +171,7 @@ services:
 
     Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface:
         class: Centreon\Infrastructure\Contact\ContactRepositoryRDB
+        public: true
 
     contact.provider:
         class: Centreon\Domain\Contact\ContactProvider
@@ -183,6 +188,7 @@ services:
     # Authentication
     Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface:
         class: Core\Security\AccessGroup\Infrastructure\Repository\DbReadAccessGroupRepository
+        public: true
 
     Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface:
         class: Centreon\Domain\RequestParameters\RequestParameters
@@ -319,23 +325,6 @@ services:
         class: Core\Infrastructure\Platform\Repository\FileReadPlatformRepository
         arguments: ['%centreon_etc_path%', '%centreon_install_path%']
 
-    Core\Platform\Application\Validator\RequirementValidatorsInterface:
-        class: Core\Platform\Infrastructure\Validator\RequirementValidators
-        arguments:
-            $requirementValidators: !tagged_iterator 'platform.requirement.validators'
-
-    Core\Platform\Infrastructure\Validator\RequirementValidators\DatabaseRequirementValidator:
-        arguments:
-            $dbRequirementValidators: !tagged_iterator 'platform.requirement.database.validators'
-
-    Core\Platform\Infrastructure\Validator\RequirementValidators\PhpRequirementValidator:
-        arguments:
-            $requiredPhpVersion: '%required_php_version%'
-
-    Core\Platform\Infrastructure\Validator\RequirementValidators\DatabaseRequirementValidators\MariaDbRequirementValidator:
-        arguments:
-            $requiredMariaDbMinVersion: '%required_mariadb_min_version%'
-
     Core\Platform\Application\Repository\ReadVersionRepositoryInterface:
         class: Core\Platform\Infrastructure\Repository\DbReadVersionRepository
         public: true
@@ -369,10 +358,6 @@ services:
             tags: ['authentication.provider.repositories']
         Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderConfigurationDtoFactoryInterface:
             tags: ['authentication.provider.response.factories']
-        Core\Platform\Application\Validator\RequirementValidatorInterface:
-            tags: ['platform.requirement.validators']
-        Core\Platform\Infrastructure\Validator\RequirementValidators\DatabaseRequirementValidatorInterface:
-            tags: ['platform.requirement.database.validators']
         Core\Notification\Application\Repository\NotificationResourceRepositoryInterface:
             tags: ['configuration.notification.resource.repositories']
         Core\Notification\Application\Repository\NotifiableResourceRequestProviderInterface:
@@ -574,6 +559,9 @@ services:
         class: Core\MonitoringServer\Infrastructure\Repository\DbWriteMonitoringServerRepository
         public: true
 
+    Centreon\Infrastructure\Service\VmwareConfigurationService:
+        public: true
+
     Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface:
         class: Core\Macro\Infrastructure\Repository\DbReadHostMacroRepository
         public: true
@@ -588,6 +576,9 @@ services:
 
     Core\Host\Application\Repository\ReadHostRepositoryInterface:
         class: Core\Host\Infrastructure\Repository\DbReadHostRepository
+        public: true
+
+    Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPoller:
         public: true
 
     # Configuration Notifications

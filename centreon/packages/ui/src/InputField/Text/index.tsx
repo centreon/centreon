@@ -1,8 +1,3 @@
-import { forwardRef, useCallback } from 'react';
-
-import { equals, isNil } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import {
   Box,
   InputAdornment,
@@ -15,8 +10,11 @@ import {
   Typography
 } from '@mui/material';
 
-import { getNormalizedId } from '../../utils';
+import { equals, isNil } from 'ramda';
+import { forwardRef, useCallback } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
+import { getNormalizedId } from '../../utils';
 import useAutoSize from './useAutoSize';
 
 const useStyles = makeStyles()((theme: Theme) => ({
@@ -79,7 +77,7 @@ const OptionalLabelInputAdornment = ({
 type SizeVariant = 'large' | 'medium' | 'small' | 'compact';
 
 export type TextProps = {
-  EndAdornment?: React.FC | JSX.Element;
+  EndAdornment?: React.FC | React.ReactNode;
   StartAdornment?: React.FC;
   ariaLabel?: string;
   autoSize?: boolean;
@@ -87,7 +85,7 @@ export type TextProps = {
   autoSizeDefaultWidth?: number;
   className?: string;
   containerClassName?: string;
-  dataTestId: string;
+  dataTestId?: string;
   debounced?: boolean;
   displayErrorInTooltip?: boolean;
   error?: string;
@@ -125,6 +123,7 @@ const TextField = forwardRef(
       type,
       textFieldSlotsAndSlotProps,
       forceUncontrolled,
+      helperText,
       ...rest
     }: TextProps,
     ref: React.ForwardedRef<HTMLDivElement>
@@ -162,21 +161,24 @@ const TextField = forwardRef(
           <MuiTextField
             data-testid={dataTestId}
             error={!isNil(error)}
-            helperText={displayErrorInTooltip ? undefined : error}
+            helperText={
+              (displayErrorInTooltip ? undefined : error) || helperText
+            }
             id={getNormalizedId(dataTestId || '')}
             label={label}
+            onChange={changeInputValue}
             ref={ref}
             size={size || 'small'}
-            onChange={changeInputValue}
             {...getValueProps()}
+            autoComplete="off"
             className={classes.textField}
             required={required}
-            sx={{
-              width: autoSize ? width : undefined,
-              ...rest?.sx
-            }}
-            type={type}
             slotProps={{
+              htmlInput: {
+                'aria-label': ariaLabel,
+                'data-testid': dataTestId,
+                ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput
+              },
               input: {
                 className: cx(
                   classes.inputBase,
@@ -190,9 +192,17 @@ const TextField = forwardRef(
                 endAdornment: (
                   <OptionalLabelInputAdornment label={label} position="end">
                     {EndAdornment ? (
-                      <EndAdornment />
+                      typeof EndAdornment === 'function' ? (
+                        <EndAdornment />
+                      ) : (
+                        EndAdornment
+                      )
                     ) : (
-                      textFieldSlotsAndSlotProps?.slotProps?.input?.endAdornment
+                      (
+                        textFieldSlotsAndSlotProps?.slotProps?.input as
+                          | Record<string, React.ReactNode>
+                          | undefined
+                      )?.endAdornment
                     )}
                   </OptionalLabelInputAdornment>
                 ),
@@ -210,13 +220,13 @@ const TextField = forwardRef(
                     equals(size, 'compact') && classes.compactLabelShrink
                   )
                 }
-              },
-              htmlInput: {
-                'aria-label': ariaLabel,
-                'data-testid': dataTestId,
-                ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput
               }
             }}
+            sx={{
+              width: autoSize ? width : undefined,
+              ...rest?.sx
+            }}
+            type={type}
             {...rest}
           />
         </Tooltip>

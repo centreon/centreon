@@ -1,7 +1,3 @@
-import { useTranslation } from 'react-i18next';
-
-import { labelDisabled, labelEnabled, labelStatus } from '../translatedLabels';
-
 import {
   Checkbox,
   FormControlLabel,
@@ -10,32 +6,31 @@ import {
 } from '@mui/material';
 
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
+
 import { filtersAtom } from '../atoms';
-import { useStyles } from './Filters.styles';
+import { labelDisabled, labelEnabled, labelStatus } from '../translatedLabels';
 
 const Status = (): JSX.Element => {
   const { t } = useTranslation();
-  const { classes } = useStyles();
 
   const [filters, setFilters] = useAtom(filtersAtom);
 
   const change =
-    (key) =>
-    (event): void => {
+    (key: string) =>
+    (event: React.ChangeEvent<HTMLInputElement>): void => {
       setFilters({ ...filters, [key]: event.target.checked });
     };
 
   return (
-    <div className={classes.statusFilter}>
-      <Typography className={classes.statusFilterName}>
-        {t(labelStatus)}
-      </Typography>
+    <div className="flex flex-col justify-between items-start pl-2">
+      <Typography className="font-medium">{t(labelStatus)}</Typography>
       <FormGroup row>
         <FormControlLabel
           control={
             <Checkbox
-              data-testid={labelEnabled}
               checked={filters.enabled}
+              data-testid={labelEnabled}
               name={t(labelEnabled)}
               onChange={change('enabled')}
             />
@@ -45,8 +40,8 @@ const Status = (): JSX.Element => {
         <FormControlLabel
           control={
             <Checkbox
-              data-testid={labelDisabled}
               checked={filters.disabled}
+              data-testid={labelDisabled}
               name={t(labelDisabled)}
               onChange={change('disabled')}
             />

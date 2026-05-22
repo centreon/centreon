@@ -540,7 +540,7 @@ class CentreonService
         $arr = [];
         $i = 0;
         if ($serviceId) {
-            $res = $this->db->query('SELECT svc_macro_name, svc_macro_value, is_password, description
+            $res = $this->db->query('SELECT svc_macro_id, svc_macro_name, svc_macro_value, is_password, description
                                 FROM on_demand_macro_service
                                 WHERE svc_svc_id = '
                 . $this->db->escape($serviceId) . '
@@ -548,6 +548,7 @@ class CentreonService
             while ($row = $res->fetchRow()) {
                 if (preg_match('/\$_SERVICE(.*)\$$/', $row['svc_macro_name'], $matches)) {
                     $arr[$i]['macroInput_#index#'] = $matches[1];
+                    $arr[$i]['macroId_#index#'] = $row['svc_macro_id'];
                     $arr[$i]['macroValue_#index#'] = $row['svc_macro_value'];
                     $arr[$i]['macroPassword_#index#'] = $row['is_password'] ? 1 : null;
                     $arr[$i]['macroDescription_#index#'] = $row['description'];
@@ -577,7 +578,7 @@ class CentreonService
         $arr = [];
         $i = 0;
         if (! isset($_REQUEST['macroInput']) && $serviceId) {
-            $res = $this->db->query('SELECT svc_macro_name, svc_macro_value, is_password, description
+            $res = $this->db->query('SELECT svc_macro_id, svc_macro_name, svc_macro_value, is_password, description
                                 FROM on_demand_macro_service
                                 WHERE svc_svc_id = '
                 . $this->db->escape($serviceId) . '
@@ -585,6 +586,7 @@ class CentreonService
             while ($row = $res->fetchRow()) {
                 if (preg_match('/\$_SERVICE(.*)\$$/', $row['svc_macro_name'], $matches)) {
                     $arr[$i]['macroInput_#index#'] = $matches[1];
+                    $arr[$i]['macroId_#index#'] = $row['svc_macro_id'];
                     $arr[$i]['macroValue_#index#'] = $row['svc_macro_value'];
 
                     $valPassword = null;
@@ -605,6 +607,7 @@ class CentreonService
                     $index = $key;
                 }
                 $arr[$index]['macroInput_#index#'] = $val;
+                $arr[$index]['macroId_#index#'] = $_REQUEST['macroId'][$key] ?? null;
                 $arr[$index]['macroValue_#index#'] = $_REQUEST['macroValue'][$key];
 
                 $valPassword = null;

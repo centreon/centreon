@@ -1,11 +1,10 @@
-import { MutableRefObject } from 'react';
-
-import { ScaleTime } from 'd3-scale';
+import type { ScaleTime } from 'd3-scale';
+import type { MutableRefObject } from 'react';
 
 import DowntimeAnnotations from './Area/Downtime';
 import AcknowledgementAnnotations from './Line/Acknowledgement';
 import CommentAnnotations from './Line/Comments';
-import { TimelineEvent } from './models';
+import type { TimelineEvent } from './models';
 import useAnnotation from './useAnnotation';
 
 export interface Props {

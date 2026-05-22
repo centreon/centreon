@@ -1,18 +1,17 @@
-import { useAtomValue } from 'jotai';
-import { equals, isEmpty, isNil, not, pick } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import Divider from '@mui/material/Divider';
 
 import { ListingVariant, userAtom } from '@centreon/ui-context';
 
-import { IconButton, ListingProps } from '../..';
+import { useAtomValue } from 'jotai';
+import { equals, isEmpty, isNil, not, pick } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
+
+import { IconButton, type ListingProps } from '../..';
 import { useMemoComponent } from '../../utils';
 import { labelOf, labelRowsPerPage } from '../translatedLabels';
-
 import ColumnMultiSelect from './ColumnMultiSelect';
 import StyledPagination from './Pagination';
 import PaginationActions from './PaginationActions';
@@ -24,9 +23,6 @@ interface StyleProps {
 
 const useStyles = makeStyles<StyleProps>()(
   (theme, { width, marginWidthTableListing }) => ({
-    ModeViewer: {
-      paddingLeft: theme.spacing(1)
-    },
     actions: {
       flex: 1,
       padding: theme.spacing(1, 1, 1, 0)
@@ -44,6 +40,9 @@ const useStyles = makeStyles<StyleProps>()(
       },
       display: 'flex',
       flexDirection: 'column'
+    },
+    ModeViewer: {
+      paddingLeft: theme.spacing(1)
     },
     mode: {
       flexDirection: 'column-reverse'
@@ -118,17 +117,29 @@ const MemoListingActionBar = ({
 
   const { themeMode } = useAtomValue(userAtom);
 
-  const changeRowPerPage = (event): void => {
+  const changeRowPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ): void => {
     onLimitChange?.(event.target.value);
     onPaginate?.(0);
   };
 
-  const changePage = (_, value: number): void => {
+  const changePage = (
+    _: React.MouseEvent<HTMLButtonElement> | null,
+    value: number
+  ): void => {
     onPaginate?.(value);
   };
 
-  const labelDisplayedRows = ({ from, to, count }): string =>
-    `${from}-${to} ${t(labelOf)} ${count}`;
+  const labelDisplayedRows = ({
+    from,
+    to,
+    count
+  }: {
+    from: number;
+    to: number;
+    count: number;
+  }): string => `${from}-${to} ${t(labelOf)} ${count}`;
 
   return useMemoComponent({
     Component: (
@@ -149,9 +160,9 @@ const MemoListingActionBar = ({
                 }
                 data-testid={viewerModeConfiguration?.testId}
                 disabled={viewerModeConfiguration?.disabled}
+                onClick={viewerModeConfiguration?.onClick}
                 size="large"
                 title={viewerModeConfiguration?.title}
-                onClick={viewerModeConfiguration?.onClick}
               >
                 <div
                   className={cx(
@@ -185,24 +196,24 @@ const MemoListingActionBar = ({
           {paginated && (
             <StyledPagination
               ActionsComponent={PaginationActions}
-              SelectProps={{
-                MenuProps: {
-                  className: classes.selectMenu
-                },
-                id: labelRowsPerPage
-              }}
               className={cx(classes.pagination, customPaginationClassName, {
                 [classes.moving]: moveTablePagination
               })}
               colSpan={3}
-              count={totalRows}
+              count={totalRows ?? 0}
               labelDisplayedRows={labelDisplayedRows}
               labelRowsPerPage={null}
-              page={currentPage}
-              rowsPerPage={limit}
-              rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
               onPageChange={changePage}
               onRowsPerPageChange={changeRowPerPage}
+              page={currentPage ?? 0}
+              rowsPerPage={limit ?? 10}
+              rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
+              SelectProps={{
+                id: labelRowsPerPage,
+                MenuProps: {
+                  className: classes.selectMenu
+                }
+              }}
             />
           )}
         </div>
@@ -217,9 +228,8 @@ const MemoListingActionBar = ({
       listingVariant,
       themeMode,
       limit,
-      pick(
-        ['id', 'label', 'disabled', 'width', 'shortLabel', 'sortField'],
-        columns
+      columns.map(
+        pick(['id', 'label', 'disabled', 'width', 'shortLabel', 'sortField'])
       ),
       columnConfiguration,
       customPaginationClassName,
@@ -266,14 +276,14 @@ const ListingActionBar = ({
       limit={limit}
       listingVariant={listingVariant}
       moveTablePagination={moveTablePagination}
-      paginated={paginated}
-      totalRows={totalRows}
-      viewerModeConfiguration={viewerModeConfiguration}
-      widthToMoveTablePagination={widthToMoveTablePagination}
       onLimitChange={onLimitChange}
       onPaginate={onPaginate}
       onResetColumns={onResetColumns}
       onSelectColumns={onSelectColumns}
+      paginated={paginated}
+      totalRows={totalRows}
+      viewerModeConfiguration={viewerModeConfiguration}
+      widthToMoveTablePagination={widthToMoveTablePagination}
     />
   );
 };

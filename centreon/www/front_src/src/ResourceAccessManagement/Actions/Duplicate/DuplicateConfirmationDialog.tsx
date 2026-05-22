@@ -1,8 +1,8 @@
+import { ConfirmDialog, TextField } from '@centreon/ui';
+
 import { FormikValues, useFormikContext } from 'formik';
 import { path } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { ConfirmDialog, TextField } from '@centreon/ui';
 
 import {
   labelCancel,
@@ -11,7 +11,6 @@ import {
   labelName,
   labelResourceAccessRuleName
 } from '../../translatedLabels';
-
 import useDuplicate from './useDuplicate';
 
 const DuplicateConfirmationDialog = (): React.JSX.Element => {
@@ -45,26 +44,26 @@ const DuplicateConfirmationDialog = (): React.JSX.Element => {
   return (
     <ConfirmDialog
       confirmDisabled={disabled}
+      dialogContentTextProps={{ component: 'div' }}
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelDuplicate)}
       labelTitle={t(labelEnterNameForDuplicatedRule)}
-      open={isDialogOpen}
-      submitting={isSubmitting}
       onCancel={onCancel}
       onConfirm={submitForm}
-      dialogContentTextProps={{ component: 'div' }}
+      open={isDialogOpen}
+      submitting={isSubmitting}
     >
       <TextField
-        required
         ariaLabel={labelResourceAccessRuleName}
         dataTestId="New resource access rule name"
         error={error as string | undefined}
         label={t(labelName) as string}
         name="name"
-        sx={{ width: '100%' }}
-        value={ruleName}
         onBlur={handleBlur('name')}
         onChange={handleChange}
+        required
+        sx={{ width: '100%' }}
+        value={ruleName}
       />
     </ConfirmDialog>
   );

@@ -1,14 +1,13 @@
-import { useState } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { useAtomValue } from 'jotai';
-import { path, equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import EditIcon from '@mui/icons-material/Edit';
 import { Box, Typography } from '@mui/material';
 
 import { IconButton, TextField } from '@centreon/ui';
+
+import { FormikValues, useFormikContext } from 'formik';
+import { useAtomValue } from 'jotai';
+import { equals, path } from 'ramda';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   labelChangeName,
@@ -17,7 +16,6 @@ import {
 } from '../../translatedLabels';
 import { panelModeAtom } from '../atom';
 import { PanelMode } from '../models';
-
 import useStyles from './Header.styles';
 
 const NotificationName = (): JSX.Element => {
@@ -46,21 +44,21 @@ const NotificationName = (): JSX.Element => {
     <Box className={classes.title}>
       {nameChange || equals(panelMode, PanelMode.Create) ? (
         <TextField
-          required
           ariaLabel={labelNotificationName}
           dataTestId={labelNotificationName}
           error={error as string | undefined}
           label={t(labelName) as string}
-          value={notificationName}
           onBlur={handleBlur('name')}
           onChange={handleChange}
+          required
+          value={notificationName}
         />
       ) : (
         <>
           <IconButton
             data-testid={t(labelChangeName)}
-            title={t(labelChangeName) as string}
             onClick={(): void => setNameChange(true)}
+            title={t(labelChangeName) as string}
           >
             <EditIcon />
           </IconButton>

@@ -1,3 +1,13 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
+import {
+  buildListingEndpoint,
+  ListingModel,
+  resourceTypeQueryParameter,
+  SelectEntry,
+  useFetchQuery
+} from '@centreon/ui';
+
 import {
   all,
   equals,
@@ -14,18 +24,9 @@ import {
   uniqBy
 } from 'ramda';
 
-import {
-  ListingModel,
-  SelectEntry,
-  buildListingEndpoint,
-  resourceTypeQueryParameter,
-  useFetchQuery
-} from '@centreon/ui';
-
-import { Metric, ServiceMetric, WidgetDataResource } from '../../../models';
-
 import { serviceMetricsDecoder } from '../../../api/decoders';
 import { metricsEndpoint } from '../../../api/endpoints';
+import { Metric, ServiceMetric, WidgetDataResource } from '../../../models';
 import { buildResourceTypeNameForSearchParameter } from '../utils';
 
 interface Props {

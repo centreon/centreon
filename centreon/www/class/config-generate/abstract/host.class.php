@@ -269,6 +269,7 @@ abstract class AbstractHost extends AbstractObject
 
     /**
      * Format Macros for export.
+     * Warning: is to be run BEFORE running getSeverity to not override severity export.
      *
      * @param array<string, mixed> $host
      * @param MacroDomain[] $hostMacros
@@ -325,7 +326,7 @@ abstract class AbstractHost extends AbstractObject
                     INNER JOIN ns_host_relation nsr
                     ON ns.id = nsr.nagios_server_id
                     WHERE nsr.host_host_id = :hostId
-                    AND ns.is_encryption_ready = '1'
+                    AND ns.is_encryption_ready = 1
                     SQL,
                 QueryParameters::create([QueryParameter::int('hostId', $host['host_id'])])
             );

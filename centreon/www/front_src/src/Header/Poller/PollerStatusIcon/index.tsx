@@ -1,11 +1,11 @@
-import { CSSObject } from 'tss-react';
-import { makeStyles } from 'tss-react/mui';
-
 import LatencyIcon from '@mui/icons-material/Speed';
 import StorageIcon from '@mui/icons-material/Storage';
 import { Avatar } from '@mui/material';
 
-import { SeverityCode, getStatusColors } from '@centreon/ui';
+import { getStatusColors, SeverityCode } from '@centreon/ui';
+
+import { CSSObject } from 'tss-react';
+import { makeStyles } from 'tss-react/mui';
 
 export interface PollerStatusIconProps {
   iconSeverities: {
@@ -27,7 +27,7 @@ interface StyleProps {
 
 const useStatusStyles = makeStyles<StyleProps>()(
   (theme, { databaseSeverity, latencySeverity }) => {
-    const getSeverityColor = (severityCode): CSSObject => ({
+    const getSeverityColor = (severityCode: SeverityCode): CSSObject => ({
       background: getStatusColors({
         severityCode,
         theme

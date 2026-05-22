@@ -1,10 +1,8 @@
 import { Scale } from '@visx/visx';
 import { bisector } from 'd3-array';
-import { ScaleLinear, ScaleTime } from 'd3-scale';
+import type { ScaleLinear, ScaleTime } from 'd3-scale';
 import numeral from 'numeral';
 import {
-  path,
-  T,
   add,
   addIndex,
   always,
@@ -20,25 +18,28 @@ import {
   includes,
   isEmpty,
   isNil,
+  isNotNil,
   keys,
   last,
   lt,
   map,
   negate,
+  path,
   pipe,
+  pluck,
   prop,
   propEq,
   reduce,
   reject,
   sortBy,
   split,
+  T,
   uniq
 } from 'ramda';
 
 import { margin } from '../../Chart/common';
-import { LineChartData } from '../models';
-
-import {
+import type { LineChartData } from '../models';
+import type {
   AxeScale,
   FormatMetricValueProps,
   Line,
@@ -53,12 +54,26 @@ interface TimeTickWithMetrics {
   timeTick: string;
 }
 
+const defaultDsData = {
+  ds_color_line: '#000000',
+  ds_filled: false,
+  ds_invert: false,
+  ds_legend: '',
+  ds_order: '0',
+  ds_stack: '0',
+  ds_stack_key: null,
+  ds_transparency: 80
+};
+
 const toTimeTickWithMetrics = ({
   metrics,
   times
+}: {
+  metrics: Array<Metric>;
+  times: Array<string>;
 }): Array<TimeTickWithMetrics> =>
   map(
-    (timeTick) => ({
+    (timeTick: string) => ({
       metrics,
       timeTick
     }),
@@ -70,10 +85,14 @@ const toTimeTickValue = (
   timeIndex: number
 ): TimeValue => {
   const getMetricsForIndex = (): Omit<TimeValue, 'timeTick'> => {
-    const addMetricForTimeIndex = (acc, { metric_id, data }): TimeValue => ({
-      ...acc,
-      [metric_id]: data[timeIndex] === undefined ? null : data[timeIndex]
-    });
+    const addMetricForTimeIndex = (
+      acc: TimeValue,
+      { metric_id, data }: Metric
+    ): TimeValue =>
+      ({
+        ...acc,
+        [metric_id]: data[timeIndex] === undefined ? null : data[timeIndex]
+      }) as TimeValue;
 
     return reduce(addMetricForTimeIndex, {} as TimeValue, metrics);
   };
@@ -82,14 +101,14 @@ const toTimeTickValue = (
 };
 
 const getTimeSeries = (graphData: LineChartData): Array<TimeValue> => {
-  const isGreaterThanLowerLimit = (value): boolean => {
+  const isGreaterThanLowerLimit = (value: number | null): boolean => {
     const lowerLimit = path<number>(['global', 'lower-limit'], graphData);
 
     if (isNil(lowerLimit)) {
       return true;
     }
 
-    return value >= lowerLimit;
+    return value !== null && value >= lowerLimit;
   };
 
   const rejectLowerThanLimit = ({
@@ -119,29 +138,41 @@ const toLine = ({
   maximum_value,
   metric_id,
   displayAs
-}: Metric): Line => ({
-  areaColor: ds_data.ds_color_area,
-  average_value,
-  color: ds_data.ds_color_line,
-  display: true,
-  displayAs,
-  filled: ds_data.ds_filled,
-  highlight: undefined,
-  invert: ds_data.ds_invert,
-  legend: ds_data.ds_legend,
-  lineColor: ds_data.ds_color_line,
-  maximum_value,
-  metric,
-  metric_id,
-  minimum_value,
-  name: legend,
-  stackOrder:
-    equals(ds_data.ds_stack, '1') || equals(ds_data.ds_stack, true)
-      ? Number.parseInt(ds_data.ds_order || '0', 10)
-      : null,
-  transparency: ds_data.ds_transparency,
-  unit
-});
+}: Metric): Line => {
+  const safeDsData = {
+    ...defaultDsData,
+    ...(ds_data || {}),
+    ds_color_area:
+      ds_data?.ds_color_area ??
+      ds_data?.ds_color_line ??
+      defaultDsData.ds_color_line
+  };
+
+  return {
+    areaColor: safeDsData.ds_color_area,
+    average_value,
+    color: safeDsData.ds_color_line,
+    display: true,
+    displayAs,
+    filled: safeDsData.ds_filled,
+    highlight: undefined,
+    invert: safeDsData.ds_invert,
+    legend: safeDsData.ds_legend,
+    lineColor: safeDsData.ds_color_line,
+    maximum_value,
+    metric,
+    metric_id,
+    minimum_value,
+    name: legend,
+    stackKey: safeDsData.ds_stack_key || null,
+    stackOrder:
+      equals(safeDsData.ds_stack, '1') || equals(safeDsData.ds_stack, true)
+        ? Number.parseInt(safeDsData.ds_order || '0', 10)
+        : null,
+    transparency: safeDsData.ds_transparency,
+    unit
+  };
+};
 
 const getLineData = (graphData: LineChartData): Array<Line> =>
   map(toLine, graphData.metrics);
@@ -154,6 +185,7 @@ const getTime = (timeValue: TimeValue): number =>
   new Date(timeValue.timeTick).valueOf();
 
 const getMetrics = (timeValue: TimeValue): Array<string> =>
+  // @ts-expect-error - suppressing pre-existing type mismatch
   pipe(keys, reject(equals('timeTick')))(timeValue);
 
 const getValueForMetric =
@@ -162,6 +194,7 @@ const getValueForMetric =
     prop(metric_id, timeValue) as number;
 
 const getUnits = (lines: Array<Line>): Array<string> =>
+  // @ts-expect-error - suppressing pre-existing type mismatch
   pipe(map(prop('unit')), uniq)(lines);
 
 interface ValuesForUnitProps {
@@ -175,14 +208,14 @@ const getMetricValuesForUnit = ({
   timeSeries,
   unit
 }: ValuesForUnitProps): Array<number> => {
-  const getTimeSeriesValuesForMetric = (metric_id): Array<number> =>
+  const getTimeSeriesValuesForMetric = (metric_id: number): Array<number> =>
     map(
       (timeValue) => getValueForMetric(timeValue)(metric_id),
       timeSeries
     ) as Array<number>;
 
   return pipe(
-    filter(propEq(unit, 'unit')) as (line) => Array<Line>,
+    filter(propEq(unit, 'unit')) as (line: Array<Line>) => Array<Line>,
     map(prop('metric_id')),
     map(getTimeSeriesValuesForMetric),
     flatten,
@@ -239,14 +272,16 @@ const getStackedMetricValues = ({
   lines,
   timeSeries
 }: LinesTimeSeries): Array<number> => {
-  const getTimeSeriesValuesForMetric = (metric_id): Array<number> =>
+  const getTimeSeriesValuesForMetric = (metric_id: number): Array<number> =>
     map(
       (timeValue) => getValueForMetric(timeValue)(metric_id) || 0,
       timeSeries
     );
 
   const metricsValues = pipe(
-    map(prop('metric_id')) as (metric) => Array<number>,
+    // @ts-expect-error - suppressing pre-existing type mismatch
+    map(prop('metric_id')) as (metric: unknown) => Array<number>,
+    // @ts-expect-error - suppressing pre-existing type mismatch
     map(getTimeSeriesValuesForMetric) as () => Array<Array<number>>
   )(lines as Array<Line>);
 
@@ -266,20 +301,26 @@ const getStackedMetricValues = ({
 const getSortedStackedLines = (lines: Array<Line>): Array<Line> =>
   pipe(
     reject(({ stackOrder }: Line): boolean => isNil(stackOrder)) as (
-      lines
+      lines: Array<Line>
     ) => Array<Line>,
     sortBy(prop('stackOrder'))
   )(lines);
 
 const getInvertedStackedLines = (lines: Array<Line>): Array<Line> =>
   pipe(
-    filter(({ invert }: Line): boolean => invert) as (lines) => Array<Line>,
+    // @ts-expect-error - suppressing pre-existing type mismatch
+    filter(({ invert }: Line): boolean => invert) as (
+      lines: Array<Line>
+    ) => Array<Line>,
     getSortedStackedLines
   )(lines);
 
 const getNotInvertedStackedLines = (lines: Array<Line>): Array<Line> =>
   pipe(
-    reject(({ invert }: Line): boolean => invert) as (lines) => Array<Line>,
+    // @ts-expect-error - suppressing pre-existing type mismatch
+    reject(({ invert }: Line): boolean => invert) as (
+      lines: Array<Line>
+    ) => Array<Line>,
     getSortedStackedLines
   )(lines);
 
@@ -289,6 +330,7 @@ interface HasStackedLines {
 }
 
 const hasUnitStackedLines = ({ lines, unit }: HasStackedLines): boolean =>
+  // @ts-expect-error - suppressing pre-existing type mismatch
   pipe(getSortedStackedLines, any(propEq(unit, 'unit')))(lines);
 
 const getTimeSeriesForLines = ({
@@ -312,6 +354,7 @@ const getTimeSeriesForLines = ({
                 : metricsValue[metric_id]
           };
         },
+        // @ts-expect-error - suppressing pre-existing type mismatch
         {},
         metrics
       ),
@@ -368,6 +411,23 @@ const getSanitizedValues = reject(
     equals(value, Number.NEGATIVE_INFINITY)
 );
 
+interface GetScaleProps {
+  graphValues: Array<number>;
+  height: number;
+  stackedValues: Array<number>;
+  thresholds: Array<number>;
+  isCenteredZero?: boolean;
+  scale?: 'linear' | 'logarithmic';
+  scaleLogarithmicBase?: number;
+  isHorizontal: boolean;
+  invert?: boolean | string | null;
+  hasDisplayAsBar: boolean;
+  hasLineFilled: boolean;
+  hasStackedLines: boolean;
+  min?: number;
+  max?: number;
+}
+
 const getScale = ({
   graphValues,
   height,
@@ -380,9 +440,11 @@ const getScale = ({
   invert,
   hasDisplayAsBar,
   hasLineFilled,
+  hasStackedLines,
   min,
   max
-}): ScaleLinear<number, number> => {
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: scale calculation requires multiple branching conditions
+}: GetScaleProps): ScaleLinear<number, number> => {
   const isLogScale = equals(scale, 'logarithmic');
   const sanitizedValuesForMinimum = min
     ? [min]
@@ -392,27 +454,43 @@ const getScale = ({
           : getMin(graphValues),
         !isEmpty(stackedValues) &&
           !equals(stackedValues, [0]) &&
-          getMin(stackedValues),
+          getMin([0, ...stackedValues]),
         Math.min(...thresholds)
       ]);
-  const minValue = Math.min(...sanitizedValuesForMinimum);
-  const minValueWithMargin =
-    (hasDisplayAsBar || hasLineFilled) && minValue > 0 && !min
-      ? 0
-      : minValue - Math.abs(minValue) * 0.05;
+  const minValue = Math.min(
+    ...(sanitizedValuesForMinimum.filter(isNotNil) as Array<number>)
+  );
 
   const sanitizedValuesForMaximum = max
     ? [max]
     : getSanitizedValues([
         getMax(graphValues),
         getMax(stackedValues),
-        hasOnlyZeroesHasValue(graphValues) ? 1 : 0,
+        // @ts-expect-error - suppressing pre-existing type mismatch
+        hasOnlyZeroesHasValue(graphValues) ? 1 : null,
         Math.max(...thresholds)
       ]);
-  const maxValue = Math.max(...sanitizedValuesForMaximum);
-  const maxValueWithMargin = maxValue + Math.abs(maxValue) * 0.05;
+  // @ts-expect-error - suppressing pre-existing type mismatch
+  const maxValue = Math.max(...sanitizedValuesForMaximum.filter(isNotNil));
 
-  const scaleType = getScaleType(scale);
+  const minValueWithMargin =
+    (hasDisplayAsBar && minValue > 0) ||
+    (hasLineFilled &&
+      Math.max(maxValue, minValue) > minValue &&
+      minValue > 0) ||
+    (hasStackedLines && minValue > maxValue)
+      ? 0
+      : minValue - Math.abs(minValue) * 0.05;
+  const maxValueWithMargin =
+    (hasDisplayAsBar && maxValue < 0) ||
+    (hasLineFilled &&
+      Math.min(maxValue, minValue) < maxValue &&
+      maxValue < 0) ||
+    (hasStackedLines && minValue > maxValue)
+      ? 0
+      : maxValue + Math.abs(maxValue) * 0.05;
+
+  const scaleType = getScaleType(scale ?? 'linear');
 
   const upperRangeValue = minValue === maxValue && maxValue === 0 ? height : 0;
   const range = [height, upperRangeValue];
@@ -425,9 +503,9 @@ const getScale = ({
 
     return scaleType<number>({
       base: scaleLogarithmicBase || 2,
+      clamp: Boolean(min || max),
       domain: [-greatestValue, greatestValue],
-      range: isHorizontal ? range : range.reverse(),
-      clamp: min || max
+      range: isHorizontal ? range : range.reverse()
     });
   }
 
@@ -435,9 +513,9 @@ const getScale = ({
 
   return scaleType<number>({
     base: scaleLogarithmicBase || 2,
+    clamp: Boolean(min || max),
     domain,
-    range: isHorizontal ? range : range.reverse(),
-    clamp: min || max
+    range: isHorizontal ? range : range.reverse()
   });
 };
 
@@ -477,7 +555,8 @@ const getYScaleUnit = ({
   min,
   max,
   isBarChart,
-  boundariesUnit
+  boundariesUnit,
+  isFilled
 }: AxeScale & {
   invert?: boolean | string | null;
   unit: string;
@@ -485,6 +564,7 @@ const getYScaleUnit = ({
   min?: number;
   boundariesUnit?: string;
   isBarChart?: boolean;
+  isFilled?: boolean;
 }): ScaleLinear<number, number> => {
   const [firstUnit] = getUnits(dataLines);
   const shouldApplyThresholds =
@@ -508,7 +588,7 @@ const getYScaleUnit = ({
         ),
         timeSeries: dataTimeSeries
       })
-    : [0];
+    : [];
 
   return getScale({
     graphValues,
@@ -518,19 +598,25 @@ const getYScaleUnit = ({
         ({ displayAs, unit: lineUnit }) =>
           equals(unit, lineUnit) && equals(displayAs, 'bar')
       ),
-    hasLineFilled: dataLines.some(
-      ({ unit: lineUnit, filled }) => equals(unit, lineUnit) && filled
+    hasLineFilled: isNil(isFilled)
+      ? dataLines.some(
+          ({ unit: lineUnit, filled }) => equals(unit, lineUnit) && filled
+        )
+      : isFilled,
+    hasStackedLines: dataLines.some(
+      ({ unit: lineUnit, stackKey, stackOrder }) =>
+        equals(unit, lineUnit) && (stackKey || stackOrder)
     ),
     height: valueGraphHeight,
     invert,
     isCenteredZero,
     isHorizontal,
+    max: boundaryToApplyToUnit({ boundariesUnit, boundary: max, unit }),
+    min: boundaryToApplyToUnit({ boundariesUnit, boundary: min, unit }),
     scale,
     scaleLogarithmicBase,
     stackedValues,
-    thresholds: shouldApplyThresholds ? thresholds : [],
-    min: boundaryToApplyToUnit({ unit, boundariesUnit, boundary: min }),
-    max: boundaryToApplyToUnit({ unit, boundariesUnit, boundary: max })
+    thresholds: shouldApplyThresholds ? thresholds : []
   });
 };
 
@@ -538,6 +624,10 @@ const boundaryToApplyToUnit = ({
   boundary,
   boundariesUnit,
   unit
+}: {
+  boundary?: number;
+  boundariesUnit?: string;
+  unit: string;
 }): number | undefined => {
   if (!boundariesUnit) {
     return boundary;
@@ -559,12 +649,14 @@ const getYScalePerUnit = ({
   isBarChart,
   min,
   max,
-  boundariesUnit
+  boundariesUnit,
+  isFilled
 }: AxeScale & {
   min?: number;
   max?: number;
   isBarChart?: boolean;
   boundariesUnit?: string;
+  isFilled?: boolean;
 }): Record<string, ScaleLinear<number, number>> => {
   const units = getUnits(dataLines);
 
@@ -572,23 +664,24 @@ const getYScalePerUnit = ({
     return {
       ...acc,
       [unit]: getYScaleUnit({
+        boundariesUnit,
         dataLines,
         dataTimeSeries,
         invert: dataLines.some(
           ({ unit: lineUnit, invert }) => equals(lineUnit, unit) && invert
         ),
+        isBarChart,
         isCenteredZero,
+        isFilled,
         isHorizontal,
+        max,
+        min,
         scale,
         scaleLogarithmicBase,
-        thresholdUnit,
         thresholds,
+        thresholdUnit,
         unit,
-        valueGraphHeight,
-        min,
-        max,
-        isBarChart,
-        boundariesUnit
+        valueGraphHeight
       })
     };
   }, {});
@@ -596,21 +689,27 @@ const getYScalePerUnit = ({
   return scalePerUnit;
 };
 
-const formatTime = ({ value, unit }): string => {
+const formatTime = ({
+  value,
+  unit
+}: {
+  value: number;
+  unit: string;
+}): string => {
   return `${numeral(value).format('0.[00]a')} ${unit}`;
 };
 
 const registerMsUnitToNumeral = (): null => {
   try {
     numeral.register('format', 'milliseconds', {
-      format: (value) => {
-        return formatTime({ value, unit: 'ms' });
+      format: (value: number) => {
+        return formatTime({ unit: 'ms', value });
       },
       regexps: {
         format: /(ms)/,
         unformat: /(ms)/
       },
-      unformat: () => ''
+      unformat: () => 0
     });
 
     return null;
@@ -624,14 +723,14 @@ registerMsUnitToNumeral();
 const registerSecondsUnitToNumeral = (): null => {
   try {
     numeral.register('format', 'seconds', {
-      format: (value) => {
-        return formatTime({ value, unit: 's' });
+      format: (value: number) => {
+        return formatTime({ unit: 's', value });
       },
       regexps: {
         format: /(s)/,
         unformat: /(s)/
       },
-      unformat: () => ''
+      unformat: () => 0
     });
 
     return null;
@@ -642,7 +741,13 @@ const registerSecondsUnitToNumeral = (): null => {
 
 registerSecondsUnitToNumeral();
 
-const getBase1024 = ({ unit, base }): boolean => {
+const getBase1024 = ({
+  unit,
+  base
+}: {
+  unit: string;
+  base: number | string;
+}): boolean => {
   const base2Units = [
     'B',
     'bytes',
@@ -677,7 +782,7 @@ const formatMetricValue = ({
 
   const formattedMetricValue = numeral(Math.abs(value))
     .format(`0.[00]${formatSuffix}`)
-    .replace(/(iB|B)/g, unit);
+    .replace(/B/, unit);
 
   if (lt(value, 0)) {
     return `-${formattedMetricValue}`;
@@ -756,6 +861,94 @@ export const formatMetricName = ({
     : legendName;
 
   return metricName;
+};
+
+export const getStackedLinesTimeSeriesPerStackAndUnit = ({
+  stackedLines,
+  timeSeries,
+  invert
+}: {
+  stackedLines: Array<Line>;
+  timeSeries: Array<TimeValue>;
+  invert?: boolean;
+}): {
+  stackedLinesTimeSeriesPerStackKeyAndUnit: Record<
+    string,
+    { lines: Array<Line>; timeSeries: Array<TimeValue> }
+  >;
+  stackedKeys: Record<string, null>;
+} => {
+  const stackedKeys = stackedLines.reduce(
+    (acc, { unit, stackKey }) => ({
+      ...acc,
+      [`stacked-${unit || ''}-${stackKey ? stackKey : ''}`]: null
+    }),
+    {}
+  );
+  const stackedKeysWithOnlyStackKey = Object.keys(stackedKeys).filter(
+    (stackKey: string) => stackKey.split('-')[2]
+  );
+  const stackedKeysWithOnlyUnit = Object.keys(stackedKeys).filter(
+    (stackKey: string) => !stackKey.split('-')[2]
+  );
+
+  const stackedLinesTimeSeriesPerStackKey = stackedKeysWithOnlyStackKey.reduce(
+    (acc, stackedKey: string) => {
+      const [, stackUnit, stackKey] = stackedKey.split('-');
+      const relatedLines = stackedLines.filter(({ unit, stackKey: key }) => {
+        return stackUnit === (unit || '') && stackKey === key;
+      });
+
+      return {
+        ...acc,
+        [stackedKey]: {
+          lines: relatedLines,
+          timeSeries: getTimeSeriesForLines({
+            invert,
+            lines: relatedLines,
+            timeSeries
+          })
+        }
+      };
+    },
+    {}
+  );
+  const affectedLinesPerStackKey = flatten(
+    // @ts-expect-error - suppressing pre-existing type mismatch
+    pluck('lines', Object.values(stackedLinesTimeSeriesPerStackKey))
+  );
+  const stackedLinesTimeSeriesPerUnit = stackedKeysWithOnlyUnit.reduce(
+    (acc, stackedKey: string) => {
+      const [, stackUnit] = stackedKey.split('-');
+      const relatedLines = stackedLines.filter(
+        (line) =>
+          !affectedLinesPerStackKey.some(
+            (affectedLine) => line.metric_id === affectedLine.metric_id
+          ) && stackUnit === (line.unit || '')
+      );
+
+      return {
+        ...acc,
+        [stackedKey]: {
+          lines: relatedLines,
+          timeSeries: getTimeSeriesForLines({
+            invert,
+            lines: relatedLines,
+            timeSeries
+          })
+        }
+      };
+    },
+    {}
+  );
+
+  return {
+    stackedKeys,
+    stackedLinesTimeSeriesPerStackKeyAndUnit: {
+      ...stackedLinesTimeSeriesPerStackKey,
+      ...stackedLinesTimeSeriesPerUnit
+    }
+  };
 };
 
 export {

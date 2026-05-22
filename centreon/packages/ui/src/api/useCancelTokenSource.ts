@@ -1,6 +1,5 @@
+import axios, { type CancelTokenSource } from 'axios';
 import { useState } from 'react';
-
-import axios, { CancelTokenSource } from 'axios';
 
 const useCancelTokenSource = (): CancelTokenSource => {
   const [cancelTokenSource] = useState(axios.CancelToken.source());

@@ -4,6 +4,7 @@ import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { equals, isNotNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
+
 import {
   changeSortAtom,
   limitAtom,
@@ -13,23 +14,35 @@ import {
   sortFieldAtom,
   sortOrderAtom
 } from '../atoms';
-
-import { defaultSelectedColumnIds } from '../utils';
-
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';
+import { defaultSelectedColumnIds } from '../utils';
 
 interface UseListing {
   setPage: (updatedPage: number) => void;
-  changeSort: ({ sortOrder, sortField }) => void;
+  changeSort: ({
+    sortOrder,
+    sortField
+  }: {
+    sortOrder: string;
+    sortField: string;
+  }) => void;
   page?: number;
   resetColumns: () => void;
   selectColumns: (updatedColumnIds: Array<string>) => void;
   selectedColumnIds: Array<string>;
-  setLimit;
+  setLimit: (limit: number) => void;
   sortField: string;
   sortOrder: string;
   limit: number;
-  updateAgentConfiguration: ({ id, internalListingParentId, pollers }) => void;
+  updateAgentConfiguration: ({
+    id,
+    internalListingParentId,
+    pollers
+  }: {
+    id: number;
+    internalListingParentId?: number;
+    pollers: Array<{ isCentral?: boolean }>;
+  }) => void;
 }
 
 export const useListing = (): UseListing => {
@@ -48,12 +61,17 @@ export const useListing = (): UseListing => {
   );
 
   const { isAdmin } = useAtomValue(userAtom);
-  const { isCloudPlatform } = useAtomValue(platformFeaturesAtom);
+  const platformFeatures = useAtomValue(platformFeaturesAtom);
+  const isCloudPlatform = platformFeatures?.isCloudPlatform;
 
   const updateAgentConfiguration = ({
     id,
     internalListingParentId,
     pollers
+  }: {
+    id: number;
+    internalListingParentId?: number;
+    pollers: Array<{ isCentral?: boolean }>;
   }) => {
     const hasCentral = pollers.some((poller) =>
       equals(poller?.isCentral, true)
@@ -84,16 +102,16 @@ export const useListing = (): UseListing => {
   };
 
   return {
-    setPage,
     changeSort,
-    page,
     limit,
-    updateAgentConfiguration,
+    page,
     resetColumns,
     selectColumns,
     selectedColumnIds,
     setLimit,
+    setPage,
     sortField,
-    sortOrder
+    sortOrder,
+    updateAgentConfiguration
   };
 };

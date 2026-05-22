@@ -22,7 +22,7 @@ contents:
       mode: 0644
     packager: rpm
   - src: "./src/centreon-database.cnf"
-    dst: "/etc/mysql/mysql.conf.d/80-centreon.cnf"
+    dst: "/etc/mysql/conf.d/80-centreon.cnf"
     type: config|noreplace
     file_info:
       mode: 0644

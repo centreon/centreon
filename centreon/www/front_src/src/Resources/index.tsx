@@ -1,14 +1,13 @@
-import { Suspense, lazy, useEffect } from 'react';
-
-import { useAtomValue, useSetAtom } from 'jotai';
-import { isNil } from 'ramda';
-
 import {
   ListingPage,
   LoadingSkeleton,
-  WithPanel,
-  useMemoComponent
+  useMemoComponent,
+  WithPanel
 } from '@centreon/ui';
+
+import { useAtomValue, useSetAtom } from 'jotai';
+import { isNil } from 'ramda';
+import { lazy, Suspense, useEffect } from 'react';
 
 import Details from './Details';
 import {

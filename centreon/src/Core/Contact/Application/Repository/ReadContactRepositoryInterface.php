@@ -44,6 +44,17 @@ interface ReadContactRepositoryInterface
     public function findNamesByIds(int ...$ids): array;
 
     /**
+     * Find contact alias by IDs.
+     *
+     * @param int ...$ids
+     *
+     * @throws RepositoryException
+     *
+     * @return array<int, array{id: int, alias: string}>
+     */
+    public function findAliasesByIds(int ...$ids): array;
+
+    /**
      * Check user existence by its id.
      *
      * @param int $userId
@@ -93,6 +104,19 @@ interface ReadContactRepositoryInterface
      * @return int[]
      */
     public function findContactIdsByAccessGroups(array $accessGroupIds): array;
+
+    /**
+     * Find all contact IDs in the user's sharing scope: contacts that share at least one
+     * ACL access group with the user (whether linked directly or via a contact group)
+     * or that belong to one of the user's contact groups.
+     *
+     * @param ContactInterface $user
+     *
+     * @throws RepositoryException
+     *
+     * @return int[]
+     */
+    public function findContactIdsByUser(ContactInterface $user): array;
 
     /**
      * @param RequestParametersInterface $requestParameters

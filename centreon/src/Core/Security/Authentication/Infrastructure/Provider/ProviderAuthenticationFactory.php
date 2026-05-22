@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Infrastructure\Provider;
 
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\Authentication\Domain\Exception\ProviderException;
@@ -31,13 +32,6 @@ use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 
 readonly class ProviderAuthenticationFactory implements ProviderAuthenticationFactoryInterface
 {
-    /**
-     * @param Local $local
-     * @param OpenId $openId
-     * @param WebSSO $webSSO
-     * @param SAML $saml
-     * @param ReadConfigurationRepositoryInterface $readConfigurationRepository
-     */
     public function __construct(
         private Local $local,
         private OpenId $openId,
@@ -48,11 +42,7 @@ readonly class ProviderAuthenticationFactory implements ProviderAuthenticationFa
     }
 
     /**
-     * @param string $providerType
-     *
-     * @throws ProviderException
-     *
-     * @return ProviderAuthenticationInterface
+     * @inheritDoc
      */
     public function create(string $providerType): ProviderAuthenticationInterface
     {
@@ -64,7 +54,11 @@ readonly class ProviderAuthenticationFactory implements ProviderAuthenticationFa
             default => throw ProviderException::unexpectedProvider($providerType),
         };
 
-        $provider->setConfiguration($this->readConfigurationRepository->getConfigurationByType($providerType));
+        try {
+            $provider->setConfiguration($this->readConfigurationRepository->getConfigurationByType($providerType));
+        } catch (RepositoryException $e) {
+            throw ProviderException::findProviderConfiguration($providerType, $e);
+        }
 
         return $provider;
     }

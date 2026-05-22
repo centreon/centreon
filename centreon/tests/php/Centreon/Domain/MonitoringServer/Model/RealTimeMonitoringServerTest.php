@@ -110,25 +110,6 @@ class RealTimeMonitoringServerTest extends TestCase
     }
 
     /**
-     * Too long address test
-     */
-    public function testDescriptionTooLongException(): void
-    {
-        $description = str_repeat('.', RealTimeMonitoringServer::MAX_DESCRIPTION_LENGTH + 1);
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            AssertionException::maxLength(
-                $description,
-                strlen($description),
-                RealTimeMonitoringServer::MAX_DESCRIPTION_LENGTH,
-                'RealTimeMonitoringServer::description'
-            )->getMessage()
-        );
-        (new RealTimeMonitoringServer(1, 'Central'))
-            ->setDescription($description);
-    }
-
-    /**
      * isRunning property test
      */
     public function testIsRunningProperty(): void
@@ -146,7 +127,6 @@ class RealTimeMonitoringServerTest extends TestCase
     public static function createEntity(): RealTimeMonitoringServer
     {
         return (new RealTimeMonitoringServer(1, 'Central'))
-            ->setDescription('Monitoring Server description')
             ->setLastAlive((new DateTime())->getTimestamp())
             ->setVersion('99.99.99')
             ->setAddress('0.0.0.0')

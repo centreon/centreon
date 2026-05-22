@@ -35,11 +35,11 @@ use Pimple\Container;
 class CentreonWorker implements CentreonClapiServiceInterface
 {
     /** @var Container */
-    private $di;
+    private $container;
 
-    public function __construct(Container $di)
+    public function __construct(Container $container)
     {
-        $this->di = $di;
+        $this->container = $container;
     }
 
     /**
@@ -56,9 +56,23 @@ class CentreonWorker implements CentreonClapiServiceInterface
 
     /**
      * Process task queue for import/export.
+     *
+     * When --commandTimeout <seconds> is provided, import tasks stuck in 'inprogress'
+     * state for longer than the given duration are deleted before processing begins.
      */
     public function processQueue(): void
     {
+        $commandTimeout = $this->container['worker.commandTimeout'] ?? null;
+
+        if ($commandTimeout !== null) {
+            $deleted = $this->getDi()[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]
+                ->getRepository(TaskRepository::class)
+                ->deleteTimedOutImportTasks($commandTimeout);
+
+            echo date('Y-m-d H:i:s') . " - INFO - Deleted {$deleted} timed-out import task(s)"
+                . " (older than {$commandTimeout}s).\n";
+        }
+
         // check export tasks in database and execute these
         $this->processExportTasks();
 
@@ -117,7 +131,7 @@ class CentreonWorker implements CentreonClapiServiceInterface
 
     public function getDi(): Container
     {
-        return $this->di;
+        return $this->container;
     }
 
     /**

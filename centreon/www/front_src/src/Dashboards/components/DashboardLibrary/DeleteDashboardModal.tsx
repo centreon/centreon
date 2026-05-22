@@ -1,14 +1,13 @@
-import { useMemo, useRef } from 'react';
-
-import { useAtom, useAtomValue } from 'jotai';
-import { has, isEmpty, isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { Typography } from '@mui/material';
 
 import { LoadingSkeleton, useFetchQuery } from '@centreon/ui';
-import { platformVersionsAtom } from '@centreon/ui-context';
 import { Modal } from '@centreon/ui/components';
+import { platformVersionsAtom } from '@centreon/ui-context';
+
+import { useAtom, useAtomValue } from 'jotai';
+import { has, isEmpty, isNil } from 'ramda';
+import { useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { playlistsByDashboardDecoder } from '../../api/decoders';
 import { playlistsByDashboardEndpoint } from '../../api/endpoints';
@@ -76,7 +75,7 @@ const DeleteDashboardModal = (): JSX.Element => {
   );
 
   return (
-    <Modal open={hasDashbordToDelete} size="large" onClose={close}>
+    <Modal onClose={close} open={hasDashbordToDelete} size="large">
       <Modal.Header>{t(labelDeleteDashboard)}</Modal.Header>
       <Modal.Body>
         {isFetching ? (
@@ -93,8 +92,8 @@ const DeleteDashboardModal = (): JSX.Element => {
         )}
       </Modal.Body>
       <Modal.Actions
-        isDanger
         disabled={isFetching}
+        isDanger
         labels={{
           cancel: t(labelCancel),
           confirm: t(labelDelete)

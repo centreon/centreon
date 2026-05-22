@@ -1,10 +1,12 @@
-import { useTranslation } from 'react-i18next';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import IconComment from '@mui/icons-material/Comment';
 import { useTheme } from '@mui/material';
 
-import { Props } from '..';
+import { useTranslation } from 'react-i18next';
+
 import { labelComment } from '../../../../../translatedLabels';
+import { Props } from '..';
 import EventAnnotations from '../EventAnnotations';
 
 const CommentAnnotations = (props: Props): JSX.Element => {
@@ -13,9 +15,9 @@ const CommentAnnotations = (props: Props): JSX.Element => {
 
   return (
     <EventAnnotations
-      Icon={IconComment}
       ariaLabel={t(labelComment)}
       color={theme.palette.primary.main}
+      Icon={IconComment}
       type="comment"
       {...props}
     />

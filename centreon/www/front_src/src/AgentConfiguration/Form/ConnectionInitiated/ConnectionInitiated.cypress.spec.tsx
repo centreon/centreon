@@ -27,21 +27,21 @@ interface TestValues {
       inputValue?: string;
       testId?: string;
     }>;
-    hosts: Host[];
+    hosts: Array<Host>;
   };
 }
 
 const initialValues: TestValues = {
-  connectionMode: { id: ConnectionMode.secure },
   configuration: {
     agentInitiated: false,
-    pollerInitiated: false,
-    otelPublicCertificate: '',
+    hosts: [],
     otelCaCertificate: '',
     otelPrivateKey: '',
-    tokens: [],
-    hosts: []
-  }
+    otelPublicCertificate: '',
+    pollerInitiated: false,
+    tokens: []
+  },
+  connectionMode: { id: ConnectionMode.secure }
 };
 
 const initialValuesWithAgentEnabled: TestValues = {
@@ -53,24 +53,24 @@ const initialValuesWithAgentEnabled: TestValues = {
 };
 
 const initialValuesWithPollerEnabled: TestValues = {
-  connectionMode: { id: ConnectionMode.secure },
   configuration: {
     agentInitiated: false,
-    pollerInitiated: true,
-    otelPublicCertificate: '',
-    otelCaCertificate: '',
-    otelPrivateKey: '',
-    tokens: [],
     hosts: [
       {
         address: '',
-        port: '',
         pollerCaCertificate: '',
         pollerCaName: '',
+        port: '',
         token: null
       }
-    ]
-  }
+    ],
+    otelCaCertificate: '',
+    otelPrivateKey: '',
+    otelPublicCertificate: '',
+    pollerInitiated: true,
+    tokens: []
+  },
+  connectionMode: { id: ConnectionMode.secure }
 };
 
 const initialize = (values: TestValues = initialValues): void => {
@@ -140,10 +140,10 @@ describe('ConnectionInitiated', () => {
     cy.get('.MuiSwitch-root').click();
     cy.get('input[type="checkbox"]').should('be.checked');
 
-    cy.get('[data-testid="Public certificate (.crt,.cer)"]').should(
+    cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"]').should(
       'be.visible'
     );
-    cy.get('[data-testid="CA (.crt,.cer)"]').should('be.visible');
+    cy.get('[data-testid="CA (.crt, .cert, .cer)"]').should('be.visible');
     cy.get('[data-testid="Private key (.key)"]').should('be.visible');
     cy.get('[data-testid="Select existing CMA token(s)"]').should('be.visible');
 
@@ -156,7 +156,7 @@ describe('ConnectionInitiated', () => {
     cy.get('.MuiSwitch-root').click();
     cy.get('input[type="checkbox"]').should('not.be.checked');
 
-    cy.get('[data-testid="Public certificate (.crt,.cer)"]').should(
+    cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"]').should(
       'not.exist'
     );
   });
@@ -198,42 +198,42 @@ describe('ConnectionInitiated', () => {
 
   it('should not render AgentInitiated when connection mode is not secure or insecure', () => {
     const valuesWithDifferentMode: TestValues = {
-      connectionMode: { id: ConnectionMode.none }, // Assuming 'none' exists in ConnectionMode enum
       configuration: {
         agentInitiated: true,
-        pollerInitiated: false,
-        otelPublicCertificate: '',
+        hosts: [],
         otelCaCertificate: '',
         otelPrivateKey: '',
-        tokens: [],
-        hosts: []
-      }
+        otelPublicCertificate: '',
+        pollerInitiated: false,
+        tokens: []
+      },
+      connectionMode: { id: ConnectionMode.none } // Assuming 'none' exists in ConnectionMode enum
     };
 
     initialize(valuesWithDifferentMode);
 
-    cy.get('[data-testid="Public certificate (.crt,.cer)"]').should(
+    cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"]').should(
       'not.exist'
     );
   });
 
   it('should render AgentInitiated when connection mode is secure', () => {
     const valuesWithSecureMode: TestValues = {
-      connectionMode: { id: ConnectionMode.secure },
       configuration: {
         agentInitiated: true,
-        pollerInitiated: false,
-        otelPublicCertificate: '',
+        hosts: [],
         otelCaCertificate: '',
         otelPrivateKey: '',
-        tokens: [],
-        hosts: []
-      }
+        otelPublicCertificate: '',
+        pollerInitiated: false,
+        tokens: []
+      },
+      connectionMode: { id: ConnectionMode.secure }
     };
 
     initialize(valuesWithSecureMode);
 
-    cy.get('[data-testid="Public certificate (.crt,.cer)"]').should(
+    cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"]').should(
       'be.visible'
     );
   });
@@ -250,7 +250,7 @@ describe('ConnectionInitiated', () => {
     cy.get('[role="tabpanel"][id*="agent"]').should('be.visible');
 
     cy.get('input[type="checkbox"]').should('be.checked');
-    cy.get('[data-testid="Public certificate (.crt,.cer)"]').should(
+    cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"]').should(
       'be.visible'
     );
   });

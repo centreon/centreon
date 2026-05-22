@@ -1,18 +1,17 @@
-import { PrimitiveAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-
 import IconForcedCheck from '@mui/icons-material/FlipCameraAndroidOutlined';
 import IconCheck from '@mui/icons-material/Sync';
 
 import { Method, useMutationQuery } from '@centreon/ui';
 
+import { PrimitiveAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
+
 import { Resource } from '../../../models';
 import { labelCheck, labelForcedCheck } from '../../../translatedLabels';
 import { checkEndpoint } from '../../api/endpoint';
 import { Data } from '../../model';
-import ResourceActionButton from '../ResourceActionButton';
 import useAclQuery from '../aclQuery';
-
+import ResourceActionButton from '../ResourceActionButton';
 import Check from './Check';
 import CheckOptionsList from './CheckOptionsList';
 import { CheckActionAtom, checkActionAtom } from './checkAtoms';
@@ -94,14 +93,15 @@ const CheckActionButton = ({
       <Check
         disabledButton={disableForcedCheck}
         displayCondensed={displayCondensed}
+        onClickActionButton={handleForcedCheckResource}
         renderCheckOptionList={({ anchorEl, isOpen }) => (
           <CheckOptionsList
             anchorEl={anchorEl}
             disabled={{ disableCheck, disableForcedCheck }}
             isDefaultChecked={false}
-            open={isOpen}
             onClickCheck={onClickCheck}
             onClickForcedCheck={onClickForcedCheck}
+            open={isOpen}
             {...rest.listOptions}
           />
         )}
@@ -111,12 +111,11 @@ const CheckActionButton = ({
             displayCondensed={displayCondensed}
             icon={<IconForcedCheck />}
             label={t(labelForcedCheck)}
+            onClick={onClick}
             permitted={isCheckPermitted}
             testId={testId}
-            onClick={onClick}
           />
         )}
-        onClickActionButton={handleForcedCheckResource}
       />
     );
   }
@@ -126,14 +125,15 @@ const CheckActionButton = ({
       <Check
         disabledButton={disableCheck}
         displayCondensed={displayCondensed}
+        onClickActionButton={handleCheckResource}
         renderCheckOptionList={({ anchorEl, isOpen }) => (
           <CheckOptionsList
-            isDefaultChecked
             anchorEl={anchorEl}
             disabled={{ disableCheck, disableForcedCheck }}
-            open={isOpen}
+            isDefaultChecked
             onClickCheck={onClickCheck}
             onClickForcedCheck={onClickForcedCheck}
+            open={isOpen}
             {...rest.listOptions}
           />
         )}
@@ -143,12 +143,11 @@ const CheckActionButton = ({
             displayCondensed={displayCondensed}
             icon={<IconCheck />}
             label={t(labelCheck)}
+            onClick={onClick}
             permitted={isCheckPermitted}
             testId={testId}
-            onClick={onClick}
           />
         )}
-        onClickActionButton={handleCheckResource}
       />
     );
   }
@@ -157,18 +156,18 @@ const CheckActionButton = ({
     <Check
       disabledButton
       displayCondensed={displayCondensed}
+      onClickActionButton={(): void => undefined}
       renderResourceActionButton={({ onClick }) => (
         <ResourceActionButton
           disabled
           displayCondensed={displayCondensed}
           icon={<IconForcedCheck />}
           label={t(labelForcedCheck)}
+          onClick={onClick}
           permitted={isForcedCheckPermitted}
           testId={testId}
-          onClick={onClick}
         />
       )}
-      onClickActionButton={(): void => undefined}
     />
   );
 };

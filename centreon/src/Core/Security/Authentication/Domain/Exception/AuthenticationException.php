@@ -35,9 +35,6 @@ class AuthenticationException extends \Exception
         return new self(_('Authentication failed'), previous: $previous);
     }
 
-    /**
-     * @return self
-     */
     public static function userBlocked(): self
     {
         return new self(_('Authentication failed'));

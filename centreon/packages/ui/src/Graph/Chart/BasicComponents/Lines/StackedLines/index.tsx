@@ -1,31 +1,32 @@
 import { Shape } from '@visx/visx';
-import { ScaleLinear, ScaleTime } from 'd3-scale';
+import type { ScaleLinear, ScaleTime } from 'd3-scale';
 import {
-  path,
   all,
   equals,
   isNil,
   map,
   not,
   nth,
+  path,
   pipe,
   prop,
   type
 } from 'ramda';
+import type { ReactElement } from 'react';
 
 import { getDates, getTime } from '../../../../common/timeSeries';
-import { Line, TimeValue } from '../../../../common/timeSeries/models';
+import type { Line, TimeValue } from '../../../../common/timeSeries/models';
 import {
   getPointRadius,
   getStrokeDashArray,
   getStyle
 } from '../../../../common/utils';
+import { getCurveFactory, getFillColor } from '../../../common';
+import type { StackValue } from '../../../InteractiveComponents/AnchorPoint/models';
 import StackedAnchorPoint, {
   getYAnchorPoint
 } from '../../../InteractiveComponents/AnchorPoint/StackedAnchorPoint';
-import { StackValue } from '../../../InteractiveComponents/AnchorPoint/models';
-import { getCurveFactory, getFillColor } from '../../../common';
-import { LineStyle } from '../../../models';
+import type { LineStyle } from '../../../models';
 import Point from '../Point';
 
 interface Props {
@@ -56,11 +57,11 @@ const StackLines = ({
   lineStyle,
   hasSecondUnit,
   maxLeftAxisCharacters
-}: Props): JSX.Element => {
+}: Props): ReactElement => {
   const curveType = getCurveFactory(
     (equals(type(lineStyle), 'Array')
-      ? lineStyle?.[0].curve
-      : lineStyle?.curve) || 'linear'
+      ? (lineStyle as Array<LineStyle>)?.[0].curve
+      : (lineStyle as LineStyle)?.curve) || 'linear'
   );
   return (
     <Shape.AreaStack
@@ -68,8 +69,9 @@ const StackLines = ({
       data={timeSeries}
       defined={(d): boolean => {
         return pipe(
+          // @ts-expect-error - suppressing pre-existing type mismatch
           map(prop('metric_id')) as unknown as (
-            displayedLines
+            displayedLines: Array<Line>
           ) => Array<string>,
           all((metric_id) => pipe(path(['data', metric_id]), isNil, not)(d))
         )(lines);
@@ -85,8 +87,9 @@ const StackLines = ({
             nth(index, lines) as Line;
 
           const style = getStyle({
-            style: lineStyle,
-            metricId: metric_id
+            metricId: metric_id,
+            // @ts-expect-error - suppressing pre-existing type mismatch
+            style: lineStyle
           }) as LineStyle;
           const formattedLineWidth = style?.lineWidth ?? 2;
 
@@ -94,19 +97,28 @@ const StackLines = ({
             ? transparency || 80
             : style.areaTransparency;
 
+          const linePartStack = stack.map((stackValue, index) => {
+            if (isNil(timeSeries[index][metric_id])) {
+              return [stackValue[0], null];
+            }
+
+            return stackValue;
+          });
+
           return (
             <g key={`stack-${prop('key', stack)}`}>
               {displayAnchor && (
                 <StackedAnchorPoint
+                  // @ts-expect-error - suppressing pre-existing type mismatch
                   areaColor={style?.areaColor}
+                  hasSecondUnit={hasSecondUnit}
                   lineColor={lineColor}
+                  maxLeftAxisCharacters={maxLeftAxisCharacters}
                   stackValues={stack as unknown as Array<StackValue>}
                   timeSeries={timeSeries}
                   transparency={transparency}
                   xScale={xScale}
                   yScale={yScale}
-                  hasSecondUnit={hasSecondUnit}
-                  maxLeftAxisCharacters={maxLeftAxisCharacters}
                 />
               )}
               {style?.showPoints &&
@@ -114,6 +126,7 @@ const StackLines = ({
                   <Point
                     key={timeTick.toString()}
                     lineColor={lineColor}
+                    // @ts-expect-error - suppressing pre-existing type mismatch
                     metric_id={metric_id}
                     radius={getPointRadius(style?.lineWidth)}
                     timeSeries={timeSeries}
@@ -139,6 +152,16 @@ const StackLines = ({
                       })
                 }
                 opacity={highlight === false ? 0.3 : 1}
+                stroke="none"
+              />
+              <Shape.LinePath
+                curve={curveType}
+                data={linePartStack}
+                defined={(d) => {
+                  return !isNil(d[1]);
+                }}
+                fill="none"
+                opacity={highlight === false ? 0.3 : 1}
                 stroke={lineColor}
                 strokeDasharray={getStrokeDashArray({
                   dashLength: style?.dashLength,
@@ -151,6 +174,9 @@ const StackLines = ({
                     ? Math.ceil(formattedLineWidth * 1.3)
                     : formattedLineWidth
                 }
+                // @ts-expect-error - suppressing pre-existing type mismatch
+                x={(d) => xScale(getTime(d.data)) ?? 0}
+                y={(d) => yScale(d[1] ?? 0) ?? 0}
               />
             </g>
           );

@@ -89,7 +89,7 @@ $request = <<<'SQL_WRAP'
 
 if ($hostgroups) {
     $request .= <<<'SQL'
-        
+
         INNER JOIN hosts_hostgroups hhg
             ON hhg.host_id = hosts.host_id
             AND hhg.hostgroup_id = :hostgroup
@@ -101,18 +101,20 @@ if ($hostgroups) {
 }
 
 if (! $centreonXMLBGRequest->is_admin) {
+    $ids = $centreonXMLBGRequest->access->getAccessGroups()->getIds();
+    $accessGroupIds = empty($ids) ? '0' : implode(',', $ids);
     $request .= <<<SQL
-            
+
             INNER JOIN centreon_acl
                 ON centreon_acl.host_id = hosts.host_id
-                AND centreon_acl.group_id IN ({$centreonXMLBGRequest->grouplistStr})
+                AND centreon_acl.group_id IN ({$accessGroupIds})
         SQL;
 }
 
 $request .= " WHERE hosts.name NOT LIKE '\_Module\_%' ";
 if ($o == 'svcgrid_pb' || $o == 'svcOV_pb' || $o == 'svcgrid_ack_0' || $o == 'svcOV_ack_0') {
     $request .= <<<'SQL'
-        
+
         AND hosts.host_id IN (
           SELECT s.host_id
           FROM services s
@@ -124,7 +126,7 @@ if ($o == 'svcgrid_pb' || $o == 'svcOV_pb' || $o == 'svcgrid_ack_0' || $o == 'sv
 }
 if ($o == 'svcgrid_ack_1' || $o == 'svcOV_ack_1') {
     $request .= <<<'SQL'
-        
+
         AND hosts.host_id IN (
             SELECT s.host_id
             FROM services s
@@ -243,9 +245,15 @@ if (isset($tab_svc)) {
                 : $resourceController->buildListingUri([
                     'filter' => json_encode([
                         'criterias' => [
-                            'search' => 'h.name:^' . $host_name . '$',
+                            [
+                                'name' => 'search',
+                                'object_type' => null,
+                                'type' => 'text',
+                                'value' => 'h.name:^' . $host_name . '$',
+                            ],
                         ],
                     ]),
+                    'fromTopCounter' => 'true',
                 ])
         );
         $centreonXMLBGRequest->XML->writeElement(

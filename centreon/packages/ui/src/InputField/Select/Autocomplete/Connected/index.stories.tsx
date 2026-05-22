@@ -1,7 +1,6 @@
-import { SelectEntry } from '../..';
 import { buildListingEndpoint } from '../../../..';
-import { Listing } from '../../../../api/models';
-
+import type { Listing } from '../../../../api/models';
+import type { SelectEntry } from '../..';
 import MultiConnectedAutocompleteField from './Multi';
 import SingleConnectedAutocompleteField from './Single';
 

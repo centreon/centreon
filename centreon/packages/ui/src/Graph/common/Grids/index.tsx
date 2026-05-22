@@ -1,16 +1,21 @@
+import { Grid } from '@visx/visx';
+import type { ScaleBand, ScaleLinear, ScaleTime } from 'd3-scale';
+import { includes } from 'ramda';
 import { useMemo } from 'react';
 
-import { Grid } from '@visx/visx';
-import { ScaleLinear } from 'd3-scale';
-import { includes } from 'ramda';
-
-import { ChartAxis } from '../../Chart/models';
+import type { ChartAxis } from '../../Chart/models';
 
 interface Props extends Pick<ChartAxis, 'gridLinesType'> {
   height: number;
-  leftScale: ScaleLinear<number, number>;
+  leftScale?:
+    | ScaleLinear<number, number>
+    | ScaleTime<number, number>
+    | ScaleBand<number>;
   width: number;
-  xScale: ScaleLinear<number, number>;
+  xScale?:
+    | ScaleLinear<number, number>
+    | ScaleTime<number, number>
+    | ScaleBand<number>;
 }
 
 const Grids = ({
@@ -31,10 +36,10 @@ const Grids = ({
 
   return (
     <g>
-      {displayRows && (
+      {displayRows && leftScale && (
         <Grid.GridRows height={height} scale={leftScale} width={width} />
       )}
-      {displayColumns && (
+      {displayColumns && xScale && (
         <Grid.GridColumns height={height} scale={xScale} width={width} />
       )}
     </g>

@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
+import { getData, useRequest } from '@centreon/ui';
 
 import { useAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { gte, isNil, not } from 'ramda';
-
-import { getData, useRequest } from '@centreon/ui';
+import { useEffect, useState } from 'react';
 
 import initPendo from './initPendo';
 import type { CeipData } from './models';
@@ -19,7 +18,9 @@ const centreonPlatformDataAtom = atomWithStorage<CeipData | null>(
 const usePendo = (): void => {
   const [isCeipEnabled, setIsCeipEnabled] = useState(false);
   const { sendRequest } = useRequest<CeipData>({
-    request: getData
+    request: getData as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<CeipData>
   });
 
   const [centreonPlatformData, setCentreonPlatformData] = useAtom(

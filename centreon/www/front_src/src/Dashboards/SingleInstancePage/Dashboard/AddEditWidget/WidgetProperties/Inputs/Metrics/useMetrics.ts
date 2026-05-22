@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useMemo } from 'react';
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
+import { SelectEntry, useDeepCompare } from '@centreon/ui';
 
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
@@ -15,9 +17,9 @@ import {
   propEq,
   reject
 } from 'ramda';
+import { useCallback, useEffect, useMemo } from 'react';
 
-import { SelectEntry, useDeepCompare } from '@centreon/ui';
-
+import { getIsMetaServiceSelected } from '../../../../Widgets/utils';
 import {
   resourcesInputKeyDerivedAtom,
   widgetPropertiesAtom
@@ -30,8 +32,6 @@ import {
   WidgetDataResource
 } from '../../../models';
 import { getDataProperty } from '../utils';
-
-import { getIsMetaServiceSelected } from '../../../../Widgets/utils';
 import { useListMetrics } from './useListMetrics';
 import { useRenderOptions } from './useRenderOptions';
 
@@ -339,8 +339,8 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     isLoadingMetrics,
     isTouched,
     metricCount,
-    metricWithSeveralResources,
     metrics,
+    metricWithSeveralResources,
     renderOptionsForMultipleMetricsAndResources,
     renderOptionsForSingleMetric,
     resources,

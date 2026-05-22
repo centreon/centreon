@@ -1,10 +1,10 @@
-import { makeStyles } from 'tss-react/mui';
-
 import {
-  IconButtonProps,
+  type IconButtonProps,
   IconButton as MuiIconButton,
   Tooltip
 } from '@mui/material';
+
+import { makeStyles } from 'tss-react/mui';
 
 import { getNormalizedId } from '../../utils';
 
@@ -21,7 +21,7 @@ type Props = {
   ariaLabel?: string;
   dataTestid?: string;
   className?: string;
-  onClick: (event) => void;
+  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   title?: string | JSX.Element;
   tooltipClassName?: string;
   tooltipPlacement?:

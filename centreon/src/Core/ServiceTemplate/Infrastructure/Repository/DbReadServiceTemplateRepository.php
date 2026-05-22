@@ -185,6 +185,97 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
     /**
      * @inheritDoc
      */
+    public function findByIds(int ...$serviceTemplateIds): array
+    {
+        if ($serviceTemplateIds === []) {
+            return [];
+        }
+
+        [$bindValues, $bindPlaceholders] = $this->createMultipleBindQuery($serviceTemplateIds, ':id_');
+
+        $request = <<<SQL
+                SELECT service_id,
+                       service.cg_additive_inheritance,
+                       service.contact_additive_inheritance,
+                       service.command_command_id,
+                       service.command_command_id2,
+                       service.command_command_id_arg,
+                       service.command_command_id_arg2,
+                       service.timeperiod_tp_id,
+                       service.timeperiod_tp_id2,
+                       service_acknowledgement_timeout,
+                       service_active_checks_enabled,
+                       service_event_handler_enabled,
+                       service_flap_detection_enabled,
+                       service_check_freshness,
+                       service_locked,
+                       service_notifications_enabled,
+                       service_passive_checks_enabled,
+                       service_is_volatile,
+                       service_low_flap_threshold,
+                       service_high_flap_threshold,
+                       service_max_check_attempts,
+                       service_description,
+                       service_comment,
+                       service_alias,
+                       service_freshness_threshold,
+                       service_normal_check_interval,
+                       service_notification_interval,
+                       service_notification_options,
+                       service_recovery_notification_delay,
+                       service_retry_check_interval,
+                       service_template_model_stm_id,
+                       service_first_notification_delay,
+                       esi.esi_action_url,
+                       esi.esi_icon_image,
+                       esi.esi_icon_image_alt,
+                       esi.esi_notes,
+                       esi.esi_notes_url,
+                       esi.graph_id,
+                       GROUP_CONCAT(DISTINCT severity.sc_id) as severity_id,
+                       GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_template_ids
+                FROM `:db`.service
+                LEFT JOIN `:db`.extended_service_information esi
+                    ON esi.service_service_id = service.service_id
+                LEFT JOIN `:db`.service_categories_relation scr
+                    ON scr.service_service_id = service.service_id
+                LEFT JOIN `:db`.service_categories severity
+                    ON severity.sc_id = scr.sc_id
+                    AND severity.level IS NOT NULL
+                LEFT JOIN `:db`.host_service_relation hsr
+                    ON hsr.service_service_id = service.service_id
+                LEFT JOIN `:db`.host
+                    ON host.host_id = hsr.host_host_id
+                    AND host.host_register = '0'
+                WHERE service.service_id IN ({$bindPlaceholders})
+                    AND service.service_register = '0'
+                GROUP BY
+                    service.service_id,
+                    esi.esi_action_url,
+                    esi.esi_icon_image,
+                    esi.esi_icon_image_alt,
+                    esi.esi_notes,
+                    esi.esi_notes_url,
+                    esi.graph_id
+            SQL;
+        $statement = $this->db->prepare($this->translateDbName($request));
+        foreach ($bindValues as $placeholder => $value) {
+            $statement->bindValue($placeholder, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        $serviceTemplates = [];
+        while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var _ServiceTemplate $result */
+            $serviceTemplates[] = $this->createServiceTemplate($result);
+        }
+
+        return $serviceTemplates;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findByIdAndAccessGroups(int $serviceTemplateId, array $accessGroups): ?ServiceTemplate
     {
         $accessGroupIds = array_map(
@@ -546,6 +637,90 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         }
 
         return $serviceTemplates;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findIdsByCommandNames(array $commandNames): array
+    {
+        if ($commandNames === []) {
+            return [];
+        }
+
+        [$commandBindValues, $commandPlaceholders] = $this->createMultipleBindQuery($commandNames, ':command_');
+
+        $sql = <<<SQL
+                SELECT DISTINCT s.service_id
+                FROM `:db`.service s
+                INNER JOIN `:db`.command c ON s.command_command_id = c.command_id
+                WHERE s.service_register = '0'
+                AND c.command_name IN ({$commandPlaceholders})
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($sql));
+        foreach ($commandBindValues as $placeHolder => $value) {
+            $statement->bindValue($placeHolder, $value, \PDO::PARAM_STR);
+        }
+        $statement->execute();
+
+        return array_map(
+            fn ($row) => (int) $row['service_id'],
+            $statement->fetchAll(\PDO::FETCH_ASSOC)
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findIdsByHostTemplateId(int $hostTemplateId): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT hsr.service_service_id
+                FROM `:db`.`host_service_relation` hsr
+                INNER JOIN `:db`.`service` svc ON svc.service_id = hsr.service_service_id
+                WHERE svc.service_register = '0'
+                AND hsr.host_host_id = :hostTemplateId
+                SQL
+        ));
+        $statement->bindValue(':hostTemplateId', $hostTemplateId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return array_map('intval', $statement->fetchAll(\PDO::FETCH_COLUMN));
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isLinkedToAnyHostTemplate(int $serviceTemplateId, array $hostTemplateIds): bool
+    {
+        if ($hostTemplateIds === []) {
+            return false;
+        }
+
+        $bindIds = [];
+        foreach ($hostTemplateIds as $index => $id) {
+            $bindIds[':tmpl_' . $index] = $id;
+        }
+        $inClause = implode(', ', array_keys($bindIds));
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT 1
+                FROM `:db`.`host_service_relation` hsr
+                WHERE hsr.service_service_id = :serviceTemplateId
+                AND hsr.host_host_id IN ({$inClause})
+                LIMIT 1
+                SQL
+        ));
+        $statement->bindValue(':serviceTemplateId', $serviceTemplateId, \PDO::PARAM_INT);
+        foreach ($bindIds as $key => $id) {
+            $statement->bindValue($key, $id, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return $statement->fetchColumn() !== false;
     }
 
     /**

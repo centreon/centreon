@@ -1,6 +1,8 @@
 import Typography from '@mui/material/Typography';
+
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import { labelWarningExportToCsv } from '../../translatedLabels';
 
 const Warning = () => {

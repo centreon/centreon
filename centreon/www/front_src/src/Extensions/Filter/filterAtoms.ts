@@ -28,7 +28,7 @@ export const filterWithParsedSearchDerivedAtom = atom((get) => {
 
 export const getUpToDateFilterCriteriaDerivedAtom = atom(
   (get) =>
-    ({ name, value }): Array<Criteria> => {
+    ({ name, value }: { name: string; value: unknown }): Array<Criteria> => {
       const index = findIndex(propEq(name, 'name'))(
         get(filterWithParsedSearchDerivedAtom)
       );

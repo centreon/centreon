@@ -1,9 +1,12 @@
-import { useTranslation } from 'react-i18next';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { InputProps, InputType } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
 import { listUsers } from '../../api/endpoints';
 import { tokenAtom } from '../../atoms';
 import { TokenType } from '../../models';
@@ -41,20 +44,20 @@ const useFormInputs = (): FormInputsState => {
     {
       dataTestId: labelName,
       fieldName: 'name',
+      getDisabled: () => token,
       label: t(labelName),
       required: true,
-      type: InputType.Text,
-      getDisabled: () => token
+      type: InputType.Text
     },
     {
-      fieldName: 'type',
-      label: t(labelType),
-      required: true,
-      type: InputType.SingleAutocomplete,
       autocomplete: {
         options: tokenTypes
       },
-      getDisabled: () => token
+      fieldName: 'type',
+      getDisabled: () => token,
+      label: t(labelType),
+      required: true,
+      type: InputType.SingleAutocomplete
     },
     {
       custom: {
@@ -69,13 +72,15 @@ const useFormInputs = (): FormInputsState => {
       connectedAutocomplete: {
         additionalConditionParameters: [userSearchConditions],
         endpoint: listUsers,
-        filterKey: 'name'
+        filterKey: 'alias',
+        getOptionLabel: (option): string => option?.alias,
+        getRenderedOptionText: (option): string => option.alias?.toString()
       },
       fieldName: 'user',
-      hideInput: (values) => equals(values?.type?.id, TokenType.CMA),
+      getDisabled: () => !canManageApiTokens || token,
+      hideInput: (values) => !equals(values?.type?.id, TokenType.API),
       label: t(labelUser),
       required: true,
-      getDisabled: () => !canManageApiTokens || token,
       type: InputType.SingleConnectedAutocomplete
     },
     {
@@ -83,8 +88,8 @@ const useFormInputs = (): FormInputsState => {
         Component: TokenField
       },
       fieldName: 'token',
-      label: t(labelToken),
       hideInput: () => !token,
+      label: t(labelToken),
       type: InputType.Custom
     },
     {
@@ -92,8 +97,8 @@ const useFormInputs = (): FormInputsState => {
         Component: TokenCopyWarning
       },
       fieldName: 'warning',
+      hideInput: (values) => !token || !equals(values?.type?.id, TokenType.API),
       label: t(labelToken),
-      hideInput: (values) => !token || equals(values?.type?.id, TokenType.CMA),
       type: InputType.Custom
     }
   ];

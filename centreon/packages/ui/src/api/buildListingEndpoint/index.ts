@@ -1,6 +1,7 @@
+import { equals, keys, values } from 'ramda';
+
 import toRawQueryParameters from '../../queryParameters';
 import { QueryParameter } from '../../queryParameters/models';
-
 import { getSearchQueryParameterValue } from './getSearchQueryParameterValue';
 import { BuildListingEndpointParameters, Parameters } from './models';
 
@@ -9,8 +10,18 @@ const getQueryParameters = ({
   page,
   limit,
   search,
-  customQueryParameters = []
+  customQueryParameters = [],
+  apiFormat
 }: Parameters): Array<QueryParameter> => {
+  if (equals(apiFormat, 'JSON-LD')) {
+    return [
+      { name: 'page', value: page },
+      { name: 'itemsPerPage', value: limit },
+      { name: `sort[${keys(sort || {})[0]}]`, value: values(sort || {})[0] },
+      ...customQueryParameters
+    ];
+  }
+
   return [
     { name: 'page', value: page },
     { name: 'limit', value: limit },
@@ -23,19 +34,31 @@ const getQueryParameters = ({
   ];
 };
 
-const buildEndpoint = ({ baseEndpoint, queryParameters }): string => {
-  return `${baseEndpoint}?${toRawQueryParameters(queryParameters)}`;
+interface BuildEndpointProps {
+  apiFormat: 'Standard' | 'JSON-LD';
+  baseEndpoint?: string;
+  queryParameters: Array<QueryParameter>;
+}
+
+const buildEndpoint = ({
+  baseEndpoint,
+  queryParameters,
+  apiFormat
+}: BuildEndpointProps): string => {
+  return `${baseEndpoint}?${toRawQueryParameters({ apiFormat, queryParameters })}`;
 };
 
 const buildListingEndpoint = ({
   baseEndpoint,
   parameters,
-  customQueryParameters
+  customQueryParameters,
+  apiFormat = 'Standard'
 }: BuildListingEndpointParameters): string => {
   return buildEndpoint({
+    apiFormat,
     baseEndpoint,
     queryParameters: [
-      ...getQueryParameters({ ...parameters, customQueryParameters })
+      ...getQueryParameters({ ...parameters, apiFormat, customQueryParameters })
     ]
   });
 };

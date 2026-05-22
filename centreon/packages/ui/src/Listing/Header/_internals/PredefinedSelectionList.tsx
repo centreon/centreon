@@ -1,10 +1,12 @@
-import { List, ListItem, ListItemText } from '@mui/material';
+import { List, ListItemButton, ListItemText } from '@mui/material';
 
-import { PredefinedRowSelection } from '../../models';
+import type { PredefinedRowSelection } from '../../models';
 
 interface Props {
   close: () => void;
-  onSelectRowsWithCondition: (condition) => void;
+  onSelectRowsWithCondition: (
+    condition: (row: Record<string, unknown>) => boolean
+  ) => void;
   predefinedRowsSelection: Array<PredefinedRowSelection>;
 }
 
@@ -21,9 +23,9 @@ const PredefinedSelectionList = ({
       };
 
       return (
-        <ListItem button key={label} onClick={onSelectionClick}>
+        <ListItemButton key={label} onClick={onSelectionClick}>
           <ListItemText>{label}</ListItemText>
-        </ListItem>
+        </ListItemButton>
       );
     })}
   </List>

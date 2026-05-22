@@ -1,33 +1,40 @@
-import { useAtomValue } from 'jotai';
-import { equals, isNil } from 'ramda';
-
 import type { ComponentColumnProps } from '@centreon/ui';
 
-import { selectedVisualizationAtom } from '../../Actions/actionsAtoms';
-import ShortTypeChip from '../../ShortTypeChip';
-import { Visualization } from '../../models';
+import { useAtomValue } from 'jotai';
+import { equals, isNil } from 'ramda';
+import { ReactElement } from 'react';
 
+import { selectedVisualizationAtom } from '../../Actions/actionsAtoms';
+import { Visualization } from '../../models';
+import ShortTypeChip from '../../ShortTypeChip';
+import useColumnStyles from './colomuns.style';
 import StatusChip from './ServiceSubItemColumn/StatusChip';
 import { getStatus } from './ServiceSubItemColumn/SubItem';
-import useColumnStyles from './colomuns.style';
 
 const ResourceColumn = ({
   row,
-  isHovered,
   renderEllipsisTypography
-}: ComponentColumnProps): JSX.Element => {
-  const { classes } = useColumnStyles({ isHovered });
+}: ComponentColumnProps): ReactElement => {
+  const { classes } = useColumnStyles();
 
   const visualization = useAtomValue(selectedVisualizationAtom);
 
   const isViewByHostMode = equals(visualization, Visualization.Host);
   const isViewByServiceMode = equals(visualization, Visualization.Service);
-  const status = row?.status.name;
-  const isNestedRow = isNil(row?.children) && isViewByHostMode;
+  const typedRow = row as unknown as {
+    children?: unknown;
+    icon?: { name: string; url: string };
+    name?: string;
+    resource_name?: string;
+    short_type?: string;
+    status: { name: string };
+  };
+  const status = typedRow?.status.name;
+  const isNestedRow = isNil(typedRow?.children) && isViewByHostMode;
 
   const resourceName = renderEllipsisTypography?.({
     className: classes.resourceNameText,
-    formattedString: row.name || row.resource_name
+    formattedString: (typedRow.name || typedRow.resource_name) as string
   });
 
   if (isNestedRow) {
@@ -43,8 +50,13 @@ const ResourceColumn = ({
             severityCode={getStatus(status?.toLowerCase())?.severity}
           />
         </div>
-        {row?.icon && (
-          <img alt={row.icon.name} height={16} src={row.icon.url} width={16} />
+        {typedRow?.icon && (
+          <img
+            alt={typedRow.icon.name}
+            height={16}
+            src={typedRow.icon.url}
+            width={16}
+          />
         )}
 
         {resourceName}
@@ -55,11 +67,16 @@ const ResourceColumn = ({
   return (
     <>
       <div className={classes.resourceDetailsCell}>
-        {!isViewByServiceMode && !row.icon && (
-          <ShortTypeChip label={row.short_type} />
+        {!isViewByServiceMode && !typedRow.icon && (
+          <ShortTypeChip label={typedRow.short_type as string} />
         )}
-        {row.icon && (
-          <img alt={row.icon.name} height={16} src={row.icon.url} width={16} />
+        {typedRow.icon && (
+          <img
+            alt={typedRow.icon.name}
+            height={16}
+            src={typedRow.icon.url}
+            width={16}
+          />
         )}
       </div>
       {resourceName}

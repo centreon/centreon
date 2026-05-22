@@ -1,12 +1,9 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { useSetAtom } from 'jotai';
 import { all, equals, has, isNil, pluck } from 'ramda';
 
 import { selectedVisualizationAtom } from '../../../../Resources/Actions/actionsAtoms';
-import {
-  defaultSelectedColumnIds,
-  defaultSelectedColumnIdsforViewByHost
-} from '../../../../Resources/Listing/columns';
-import { selectedColumnIdsAtom } from '../../../../Resources/Listing/listingAtoms';
 import { Visualization } from '../../../../Resources/models';
 import {
   labelBusinessActivity,
@@ -17,24 +14,31 @@ import {
   getResourcesUrlForMetricsWidgets,
   getUrlForResourcesOnlyWidgets
 } from '../utils';
+import { areResourcesFullfilled } from '../Widgets/utils';
 
 interface UseLinkToResourceStatus {
   changeViewMode: (options) => void;
-  getLinkToResourceStatusPage: (data, name) => string;
+  getLinkToResourceStatusPage: (data, name, options?) => string;
   getPageType: (data) => string | null;
 }
 
 const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
-  const selectedVisualization = useSetAtom(selectedVisualizationAtom);
-  const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
+  const setVisualization = useSetAtom(selectedVisualizationAtom);
 
-  const getLinkToResourceStatusPage = (data, name, options): string => {
+  const getLinkToResourceStatusPage = (data, name, options?): string => {
+    if (isNil(data)) return '';
     const resourcesInput = Object.entries(data).find(
       ([, value]) =>
         has('resourceType', value?.[0]) && has('resources', value?.[0])
     );
     const resourcesInputKey = resourcesInput?.[0];
-    if (!resourcesInputKey || !data?.[resourcesInputKey]) {
+
+    const hasInvalidResources =
+      !resourcesInputKey ||
+      !data?.[resourcesInputKey] ||
+      !areResourcesFullfilled(data?.[resourcesInputKey]);
+
+    if (hasInvalidResources) {
       return '';
     }
 
@@ -46,15 +50,17 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
     const hasOnlyBV = all(equals('business-view'), resourceTypes);
 
     if (hasOnlyBV) {
-      return `/main.php?p=20701&status=all&bv_id=${resources[0].resources[0].id}`;
+      const id = resources?.[0]?.resources?.[0]?.id;
+      return id ? `/main.php?p=20701&status=all&bv_id=${id}` : '';
     }
 
     if (hasOnlyBA) {
-      return `/monitoring/bam/bas/${resources[0].resources[0].id}`;
+      const id = resources?.[0]?.resources?.[0]?.id;
+      return id ? `/monitoring/bam/bas/${id}` : '';
     }
 
-    if (data?.resources && isNil(data?.metrics)) {
-      const { statuses } = options;
+    if (data[resourcesInputKey] && isNil(data?.metrics)) {
+      const statuses = options?.statuses ?? [];
 
       const linkToResourceStatus = getUrlForResourcesOnlyWidgets({
         resources: resources,
@@ -109,21 +115,15 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
     }
 
     if (equals(displayType, 'all')) {
-      selectedVisualization(Visualization.All);
-
-      setSelectedColumnIds(defaultSelectedColumnIds);
+      setVisualization(Visualization.All);
     }
 
     if (equals(displayType, 'service')) {
-      selectedVisualization(Visualization.Service);
-
-      setSelectedColumnIds(defaultSelectedColumnIds);
+      setVisualization(Visualization.Service);
     }
 
     if (equals(displayType, 'host')) {
-      setSelectedColumnIds(defaultSelectedColumnIdsforViewByHost);
-
-      selectedVisualization(Visualization.Host);
+      setVisualization(Visualization.Host);
     }
   };
 

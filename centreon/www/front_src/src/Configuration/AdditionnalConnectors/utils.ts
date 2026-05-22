@@ -1,5 +1,8 @@
 import { find, propEq } from 'ramda';
-import { NamedEntity, ParameterKeys } from './models';
+
+import { Filters, NamedEntity, ParameterKeys } from './models';
+
+export const maskedPassword = '********';
 
 export const defaultSelectedColumnIds = [
   'name',
@@ -16,16 +19,21 @@ export const getDefaultParameters = (index: number) => ({
   [ParameterKeys.name]: index > 0 ? `my_vcenter_${index}` : 'my_vcenter',
   [ParameterKeys.url]: 'https://<ip_hostname>/sdk',
   [ParameterKeys.username]: '',
-  [ParameterKeys.password]: ''
+  [ParameterKeys.password]: null
 });
 
 export const availableConnectorTypes = [{ id: 1, name: 'vmware_v6' }];
 
-export const findConnectorTypeById = (id): NamedEntity | undefined => {
-  return find(propEq(Number.parseInt(id, 10), 'id'), availableConnectorTypes);
+export const findConnectorTypeById = (
+  id: string | number
+): NamedEntity | undefined => {
+  return find(
+    propEq(Number.parseInt(String(id), 10), 'id'),
+    availableConnectorTypes
+  );
 };
 
-export const splitURL = (url) => {
+export const splitURL = (url: string) => {
   const includesHTTPPrefix = url.match(/https?:\/\//);
 
   if (!includesHTTPPrefix) {
@@ -41,8 +49,11 @@ export const splitURL = (url) => {
   };
 };
 
-export const filtersInitialValues = {
+export const filtersInitialValues: Filters = {
   name: '',
   'poller.id': [],
   type: []
 };
+
+export const filtersAtomKey = 'filters_acc';
+export const columnsAtomKey = 'columns_acc';

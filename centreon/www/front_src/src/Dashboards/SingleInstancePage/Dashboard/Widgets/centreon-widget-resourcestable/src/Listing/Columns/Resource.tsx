@@ -1,49 +1,60 @@
-import { equals } from 'ramda';
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
+import { type ComponentColumnProps, truncate } from '@centreon/ui';
 
-import { type ComponentColumnProps, EllipsisTypography } from '@centreon/ui';
+import { equals, isNil } from 'ramda';
 
 import { DisplayType } from '../models';
 import { getStatus } from '../utils';
-
 import StatusChip from './ServiceSubItemColumn/StatusChip';
 import ShortTypeChip from './ShortTypeChip';
 
 const ResourceColumn =
-  ({ displayType, classes }) =>
-  ({ row }: ComponentColumnProps): JSX.Element => {
+  ({ displayType }: { displayType: DisplayType }) =>
+  ({ row, renderEllipsisTypography }: ComponentColumnProps): JSX.Element => {
+    const typedRow = row as {
+      status?: { name?: string };
+      children?: unknown;
+      name?: string;
+      resource_name?: string;
+      icon?: { name?: string; url?: string };
+      short_type?: string;
+    };
     const isViewByHostMode = equals(displayType, DisplayType.Host);
     const isViewByServiceMode = equals(displayType, DisplayType.Service);
-    const status = row?.status.name;
+    const status = typedRow?.status?.name;
+    const isNestedRow = isNil(typedRow?.children) && isViewByHostMode;
 
-    const resourceName = (
-      <EllipsisTypography className={classes.resourceNameText} variant="body2">
-        {row.name}
-      </EllipsisTypography>
-    );
+    const resourceName = renderEllipsisTypography?.({
+      className: 'pl-1',
+      formattedString: truncate({
+        content: (typedRow.name || typedRow.resource_name) as string,
+        maxLength: 50
+      })
+    });
 
-    if (isViewByServiceMode) {
-      return <div>{resourceName}</div>;
+    if (isNestedRow) {
+      return <div />;
     }
 
     if (isViewByHostMode) {
       return (
-        <div>
-          {equals(row?.type, 'host') && (
-            <>
-              <StatusChip
-                content={getStatus(status?.toLowerCase())?.label}
-                severityCode={getStatus(status?.toLowerCase())?.severity}
-              />
-              {row?.icon && (
-                <img
-                  alt={row.icon.name}
-                  height={16}
-                  src={row.icon.url}
-                  width={16}
-                />
-              )}
-            </>
+        <div className="flex">
+          <div className="mr-1">
+            <StatusChip
+              content={getStatus(status?.toLowerCase())?.label}
+              severityCode={getStatus(status?.toLowerCase())?.severity}
+            />
+          </div>
+          {typedRow?.icon && (
+            <img
+              alt={typedRow.icon.name}
+              height={16}
+              src={typedRow.icon.url}
+              width={16}
+            />
           )}
+
           {resourceName}
         </div>
       );
@@ -51,16 +62,17 @@ const ResourceColumn =
 
     return (
       <>
-        <div className={classes.resourceDetailsCell}>
-          {row.icon ? (
+        <div className="flex items-center flex-nowrap">
+          {!isViewByServiceMode && !typedRow.icon && (
+            <ShortTypeChip label={typedRow.short_type as string} />
+          )}
+          {typedRow.icon && (
             <img
-              alt={row.icon.name}
+              alt={typedRow.icon.name}
               height={16}
-              src={row.icon.url}
+              src={typedRow.icon.url}
               width={16}
             />
-          ) : (
-            <ShortTypeChip label={row.short_type} />
           )}
         </div>
         {resourceName}

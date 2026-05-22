@@ -1,3 +1,5 @@
+import { PAGES } from 'fixtures/shared/constants/pages';
+
 interface Contact {
   alias: string;
   name: string;
@@ -28,12 +30,22 @@ interface ContactTemplate {
 Cypress.Commands.add('addOrUpdateContact', (body: Contact) => {
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'input[id="contact_alias"]');
-  cy.getIframeBody().find('input[id="contact_alias"]').clear().type(body.alias);
-  cy.getIframeBody().find('input[id="contact_name"]').clear().type(body.name);
-  cy.getIframeBody().find('input[id="contact_email"]').clear().type(body.email);
-  cy.getIframeBody().find('input[id="contact_pager"]').clear().type(body.pager);
-  cy.getIframeBody().find('#contact_template_id').select(body.template);
-  cy.getIframeBody().contains('label', body.isNotificationsEnabled).click();
+  cy.getIframeBody().within(() => {
+    cy.get('input[id="contact_alias"]').type(
+      `{selectAll}{backspace}${body.alias}`
+    );
+    cy.get('input[id="contact_name"]').type(
+      `{selectAll}{backspace}${body.name}`
+    );
+    cy.get('input[id="contact_email"]').type(
+      `{selectAll}{backspace}${body.email}`
+    );
+    cy.get('input[id="contact_pager"]').type(
+      `{selectAll}{backspace}${body.pager}`
+    );
+    cy.get('#contact_template_id').select(body.template);
+    cy.contains('label', body.isNotificationsEnabled).click();
+  });
 });
 
 Cypress.Commands.add('addOrUpdateContactGroup', (body: ContactGroup) => {
@@ -116,8 +128,8 @@ Cypress.Commands.add(
       .getByLabel({ label: 'Connect', tag: 'button' })
       .click();
 
-    return cy.get('.MuiAlert-message').then(($snackbar) => {
-      if ($snackbar.text().includes('Login succeeded')) {
+    return cy.get('.MuiAlert-message').then((snackbar) => {
+      if (snackbar.text().includes('Login succeeded')) {
         cy.wait('@getNavigationList');
         cy.get('.MuiAlert-message').should('not.be.visible');
       }
@@ -125,17 +137,13 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add('visitContactsPage', (index: number) => {
-  cy.navigateTo({
-    page: 'Contacts / Users',
-    rootItemNumber: index,
-    subMenu: 'Users'
-  });
+Cypress.Commands.add('visitContactsPage', () => {
+  cy.visit(PAGES.configuration.contactsUsersLegacy);
   cy.wait('@getTimeZone');
 });
 
 declare global {
-  // biome-ignore lint/style/noNamespace: <explanation>
+  // biome-ignore lint/style/noNamespace: false positive
   namespace Cypress {
     interface Chainable {
       addOrUpdateContact: (body: Contact) => Cypress.Chainable;
@@ -145,9 +153,7 @@ declare global {
         jsonName: string,
         login: string
       ) => Cypress.Chainable;
-      visitContactsPage: (index: number) => Cypress.Chainable;
+      visitContactsPage: () => Cypress.Chainable;
     }
   }
 }
-
-export {};

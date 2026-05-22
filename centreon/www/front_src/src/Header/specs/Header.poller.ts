@@ -1,7 +1,7 @@
+import { userAtom } from '@centreon/ui-context';
+
 import { act, renderHook } from '@testing-library/react';
 import { useAtomValue } from 'jotai';
-
-import { userAtom } from '@centreon/ui-context';
 
 import useNavigation from '../../Navigation/useNavigation';
 import { pollerConfigurationPageNumber } from '../Poller/getPollerPropsAdapter';
@@ -22,7 +22,6 @@ import {
   labelPollerNotRunning,
   labelPollers
 } from '../Poller/translatedLabels';
-
 import {
   initialize,
   openSubMenu,
@@ -359,7 +358,11 @@ export default (): void =>
         });
 
         it('hides the configuratiuon button if the user is not allowed to access the configuration page', () => {
-          initialize();
+          initialize({
+            navigationList: {
+              result: []
+            }
+          });
           openSubMenu('Pollers');
 
           cy.findByTestId('poller-menu')

@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { Typography } from '@mui/material';
+
+import { useTranslation } from 'react-i18next';
 
 import { useLegendContentStyles } from './Legend.styles';
 
@@ -15,7 +15,7 @@ const LegendContent = ({ data, label }: Props): JSX.Element => {
   const { t } = useTranslation();
 
   return (
-    <div className={classes.text} data-testid={label}>
+    <div className="leading-[1.2]" data-testid={label}>
       <Typography className={classes.text} component="span" variant="caption">
         {t(label)}:{' '}
         <Typography

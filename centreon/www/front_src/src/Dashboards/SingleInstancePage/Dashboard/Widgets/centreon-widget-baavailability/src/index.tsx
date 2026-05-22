@@ -1,7 +1,8 @@
+import { ReactElement } from 'react';
+
 import FederatedComponent from '../../../../../../components/FederatedComponents';
 import NoResources from '../../NoResources';
 import { areResourcesFullfilled } from '../../utils';
-
 import { WidgetProps } from './models';
 
 const Widget = ({
@@ -14,24 +15,26 @@ const Widget = ({
   refreshCount,
   playlistHash,
   isFromPreview,
-  queryClient
-}: WidgetProps): JSX.Element => {
+  queryClient,
+  isInViewport
+}: WidgetProps): ReactElement => {
   if (!areResourcesFullfilled(panelData.resources)) {
     return <NoResources />;
   }
 
   return (
     <FederatedComponent
-      path="/bi/widget/baavailability"
+      dashboardId={dashboardId}
+      globalRefreshInterval={globalRefreshInterval}
+      id={id}
+      isFromPreview={isFromPreview}
+      isInViewport={isInViewport}
       panelData={panelData}
       panelOptions={panelOptions}
-      globalRefreshInterval={globalRefreshInterval}
-      refreshCount={refreshCount}
-      isFromPreview={isFromPreview}
-      id={id}
+      path="/bi/widget/baavailability"
       playlistHash={playlistHash}
-      dashboardId={dashboardId}
       queryClient={queryClient}
+      refreshCount={refreshCount}
       widgetPrefixQuery={widgetPrefixQuery}
     />
   );

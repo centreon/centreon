@@ -1,13 +1,10 @@
-import { memo } from 'react';
-
-import { ScaleType, scaleBand } from '@visx/scale';
-import { BarRounded } from '@visx/shape';
+import { scaleBand } from '@visx/scale';
 import { dec, equals, gt, pick } from 'ramda';
+import { memo, type ReactElement } from 'react';
 
-import { BarGroupBar, SeriesPoint, StackKey } from '@visx/shape/lib/types';
-import { getStyle } from '../common/utils';
-import { BarStyle } from './models';
-import { UseBarStackProps, useBarStack } from './useBarStack';
+import Bar from './Bar';
+import type { BarStyle } from './models';
+import { type UseBarStackProps, useBarStack } from './useBarStack';
 
 const xScale = scaleBand<number>({
   domain: [0, 0],
@@ -22,55 +19,25 @@ interface Props extends Omit<UseBarStackProps, 'xScale'> {
   barWidth: number;
   isTooltipHidden: boolean;
   neutralValue: number;
+  isStacked?: boolean;
 }
 
-const getPadding = ({ padding, size, isNegativeValue }): number => {
+interface GetPaddingProps {
+  padding: number;
+  size: number;
+  isNegativeValue: boolean;
+}
+
+const getPadding = ({
+  padding,
+  size,
+  isNegativeValue
+}: GetPaddingProps): number => {
   if (!isNegativeValue) {
     return padding;
   }
 
   return padding + size;
-};
-
-interface GetFirstBarHeightProps {
-  bar: Omit<BarGroupBar<StackKey>, 'key' | 'value'> & {
-    bar: SeriesPoint<unknown>;
-    key: StackKey;
-  };
-  isHorizontal: boolean;
-  barWidth: number;
-  y: number;
-  isFirstBar: boolean;
-  yScale: ScaleType;
-  neutralValue: number;
-}
-
-const getFirstBarHeight = ({
-  bar,
-  isHorizontal,
-  barWidth,
-  y,
-  isFirstBar,
-  yScale,
-  neutralValue
-}: GetFirstBarHeightProps): number => {
-  if (!isFirstBar || !isHorizontal) {
-    return isHorizontal ? Math.abs(bar.height) : barWidth;
-  }
-
-  if (equals(bar.height, 0)) {
-    return 0;
-  }
-
-  if (isHorizontal && bar.height < 0) {
-    return bar.height;
-  }
-
-  if (isHorizontal) {
-    return Math.abs(bar.width) - (y - yScale(neutralValue));
-  }
-
-  return barWidth;
 };
 
 const BarStack = ({
@@ -83,8 +50,9 @@ const BarStack = ({
   barIndex,
   isTooltipHidden,
   barStyle = { opacity: 1, radius: 0.2 },
-  neutralValue
-}: Props): JSX.Element => {
+  neutralValue,
+  isStacked
+}: Props): ReactElement => {
   const {
     BarStackComponent,
     commonBarStackProps,
@@ -101,66 +69,49 @@ const BarStack = ({
       keys={lineKeys}
       {...commonBarStackProps}
     >
-      {(barStacks) => {
-        return barStacks.map((barStack, index) =>
-          barStack.bars.map((bar) => {
+      {/* biome-ignore lint/suspicious/noExplicitAny: visx BarStack union */}
+      {(barStacks: Array<any>) => {
+        // biome-ignore lint/suspicious/noExplicitAny: visx BarStack union
+        return barStacks.map((barStack: any, index: number) =>
+          // biome-ignore lint/suspicious/noExplicitAny: visx BarStack union
+          barStack.bars.map((bar: any) => {
             const shouldApplyRadiusOnBottom = equals(index, 0);
             const shouldApplyRadiusOnTop = equals(index, dec(barStacks.length));
             const isNegativeValue = gt(0, bar.bar[1]);
+            const shouldRetrievePadding =
+              isNegativeValue && isStacked && !shouldApplyRadiusOnBottom;
 
             const barRoundedProps = {
               [isHorizontal ? 'bottom' : 'left']: shouldApplyRadiusOnBottom,
               [isHorizontal ? 'top' : 'right']: shouldApplyRadiusOnTop
             };
 
-            const style = getStyle({
-              style: barStyle,
-              metricId: Number(bar.key)
-            }) as BarStyle;
+            const barY = shouldRetrievePadding
+              ? getPadding({
+                  isNegativeValue,
+                  padding: bar.y,
+                  size: bar.height
+                })
+              : bar.y;
 
             return (
-              <BarRounded
-                {...barRoundedProps}
-                data-testid={`stacked-bar-${bar.key}-${bar.index}-${bar.bar[1]}`}
-                fill={bar.color}
-                height={getFirstBarHeight({
-                  bar,
-                  barWidth,
-                  y: isHorizontal
-                    ? getPadding({
-                        isNegativeValue,
-                        padding: bar.y,
-                        size: bar.height
-                      })
-                    : barPadding,
-                  isFirstBar: shouldApplyRadiusOnBottom,
-                  isHorizontal,
-                  yScale,
-                  neutralValue
-                })}
+              <Bar
+                bar={bar}
+                barIndex={barIndex}
+                barPadding={barPadding}
+                barRoundedProps={barRoundedProps}
+                barStyle={barStyle}
+                barWidth={barWidth}
+                barY={barY}
+                exitBar={exitBar}
+                hoverBar={hoverBar}
+                isHorizontal={isHorizontal}
+                isNegativeValue={isNegativeValue}
+                isTooltipHidden={isTooltipHidden}
                 key={`bar-stack-${barStack.index}-${bar.index}`}
-                opacity={style?.opacity || 1}
-                radius={style?.radius ? barWidth * style.radius : 0}
-                width={isHorizontal ? barWidth : Math.abs(bar.width)}
-                x={
-                  isHorizontal
-                    ? barPadding
-                    : getPadding({
-                        isNegativeValue,
-                        padding: bar.x,
-                        size: bar.width
-                      })
-                }
-                y={isHorizontal ? bar.y : barPadding}
-                onMouseEnter={
-                  isTooltipHidden
-                    ? undefined
-                    : hoverBar({
-                        barIndex,
-                        highlightedMetric: Number(bar.key)
-                      })
-                }
-                onMouseLeave={isTooltipHidden ? undefined : exitBar}
+                neutralValue={neutralValue}
+                shouldApplyRadiusOnBottom={shouldApplyRadiusOnBottom}
+                yScale={yScale}
               />
             );
           })
@@ -193,6 +144,7 @@ export default memo(BarStack, (prevProps, nextProps) => {
       [...prevYScaleDomain, ...prevYScaleRange],
       [...nextYScaleDomain, ...nextYScaleRange]
     ) &&
+    // @ts-expect-error - suppressing pre-existing type mismatch
     equals(pick(propsToMemoize, prevProps), pick(propsToMemoize, nextProps))
   );
 });

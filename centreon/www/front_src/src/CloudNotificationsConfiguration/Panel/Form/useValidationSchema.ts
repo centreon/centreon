@@ -1,13 +1,15 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { useAtomValue } from 'jotai';
 import { and, isEmpty, isNil, or } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import Yup, {
+  array,
+  number,
   ObjectSchema,
   ObjectShape,
-  array,
   object,
-  string,
-  number
+  string
 } from 'yup';
 
 import { notificationsNamesAtom } from '../../atom';

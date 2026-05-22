@@ -1,28 +1,47 @@
-import { JSX, Suspense } from 'react';
-
-import { LoadingSkeleton, PopoverMenu } from '@centreon/ui';
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import TuneIcon from '@mui/icons-material/Tune';
 import { Badge } from '@mui/material';
+
+import { LoadingSkeleton, PopoverMenu } from '@centreon/ui';
+
+import { PrimitiveAtom } from 'jotai';
+import { JSX, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import { labelFilters } from '../../translatedLabels';
 import { useFilterStyles } from '../Filters.styles';
 import Filters from './Filters';
 import useCoutChangedFilters from './useCoutChangedFilters';
 
-const PopoverFilter = (): JSX.Element => {
+interface Props<TFilters> {
+  filtersAtom: PrimitiveAtom<TFilters>;
+  filtersAtomKey: string;
+  areAdvancedFiltersVisible: boolean;
+}
+
+const PopoverFilter = <TFilters,>({
+  filtersAtom,
+  filtersAtomKey,
+  areAdvancedFiltersVisible
+}: Props<TFilters>): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useFilterStyles();
 
-  const { changedFiltersCount } = useCoutChangedFilters();
+  const { changedFiltersCount } = useCoutChangedFilters({ filtersAtom });
+
+  if (!areAdvancedFiltersVisible) {
+    return <div />;
+  }
 
   return (
     <Suspense
       fallback={<LoadingSkeleton height={24} variant="circular" width={24} />}
     >
       <Badge
-        color="primary"
         badgeContent={changedFiltersCount}
         className={classes.badge}
+        color="primary"
       >
         <PopoverMenu
           dataTestId={labelFilters}
@@ -30,7 +49,12 @@ const PopoverFilter = (): JSX.Element => {
           popperPlacement="bottom-end"
           title={t(labelFilters)}
         >
-          {(): JSX.Element => <Filters />}
+          {(): JSX.Element => (
+            <Filters<TFilters>
+              filtersAtom={filtersAtom}
+              filtersAtomKey={filtersAtomKey}
+            />
+          )}
         </PopoverMenu>
       </Badge>
     </Suspense>

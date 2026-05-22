@@ -1,4 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import {
   checkHostsAreMonitored,
@@ -15,7 +17,7 @@ import {
   waitUntilLogFileChange
 } from '../common';
 
-const contactAfterEdit = 'Guest';
+const contactAfterEdit = 'guest';
 
 const editNotificationBody = { ...notificationBody };
 
@@ -32,20 +34,20 @@ beforeEach(() => {
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.loginByTypeOfUser({ jsonName: 'admin' });
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/notifications?page=1&limit=10*'
+    url: `${INTERCEPTORS.api.notifications_configuration}?page=1&limit=10*`
   }).as('getNotifications');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/users?page=1*'
+    url: `${INTERCEPTORS.api.users_configuration}?page=1*`
   }).as('getUsers');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/notifications/*'
+    url: `${INTERCEPTORS.api.notifications_configuration}/*`
   }).as('getNotification');
 
   cy.addHostGroup({
@@ -89,11 +91,7 @@ afterEach(() => {
 });
 
 Given('a user with access to the Notification Rules page', () => {
-  cy.navigateTo({
-    page: 'Notifications',
-    rootItemNumber: 3,
-    subMenu: 'Notifications'
-  });
+  cy.visit(PAGES.configuration.cloudNotifications);
 });
 
 Given('a Notification Rule is already created', () => {

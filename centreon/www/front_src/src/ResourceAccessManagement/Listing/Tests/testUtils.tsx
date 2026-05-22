@@ -55,16 +55,16 @@ export const getListingColumns = (): Array<Column> => {
   return [
     {
       disablePadding: false,
-      getFormattedString: ({ name }): string => name,
+      getFormattedString: ({ name }): string => name as string,
       id: 'name',
       label: labelName,
-      sortField: 'name',
       sortable: true,
+      sortField: 'name',
       type: ColumnType.string
     },
     {
       disablePadding: false,
-      getFormattedString: ({ description }): string => description,
+      getFormattedString: ({ description }): string => description as string,
       id: 'description',
       label: labelDescription,
       sortable: true,

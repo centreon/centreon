@@ -1,12 +1,11 @@
-import { Meta, StoryObj } from '@storybook/react';
-import dayjs from 'dayjs';
-
 import Switch from '@mui/material/Switch';
 
-import SimpleCustomTimePeriod from './CustomTimePeriod/SimpleCustomTimePeriod';
-import { dateFormat } from './models';
+import type { Meta, StoryObj } from '@storybook/react';
+import dayjs from 'dayjs';
 
 import TimePeriod from '.';
+import SimpleCustomTimePeriod from './CustomTimePeriod/SimpleCustomTimePeriod';
+import { dateFormat } from './models';
 
 const meta: Meta<typeof TimePeriod> = {
   component: TimePeriod,
@@ -98,8 +97,8 @@ export const BasicTimePeriod: Story = {
 
 export const WithExtraTimePeriods: Story = {
   ...Template,
-  argTypes,
-  args
+  args,
+  argTypes
 };
 
 export const WithExternalComponent: Story = {

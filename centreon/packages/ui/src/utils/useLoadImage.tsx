@@ -1,6 +1,5 @@
+import { type PrimitiveAtom, useSetAtom } from 'jotai';
 import { useLayoutEffect } from 'react';
-
-import { useSetAtom } from 'jotai';
 
 const loadImage = (imagePath: string): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -11,7 +10,12 @@ const loadImage = (imagePath: string): Promise<string> =>
     image.onerror = reject;
   });
 
-export const useLoadImage = ({ imagePath, atom }): void => {
+interface UseLoadImageProps {
+  atom: PrimitiveAtom<string | null>;
+  imagePath: string;
+}
+
+export const useLoadImage = ({ imagePath, atom }: UseLoadImageProps): void => {
   const setImage = useSetAtom(atom);
 
   useLayoutEffect(() => {
@@ -22,5 +26,5 @@ export const useLoadImage = ({ imagePath, atom }): void => {
       .catch(() => {
         setImage(null);
       });
-  }, [imagePath]);
+  }, [imagePath, setImage]);
 };

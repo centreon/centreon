@@ -1,11 +1,10 @@
-import { useState } from 'react';
-
-import { isEmpty, or } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import TextField from '@mui/material/TextField';
 
-import Dialog, { Props as DialogProps } from '..';
+import { isEmpty, or } from 'ramda';
+import { useState } from 'react';
+import { makeStyles } from 'tss-react/mui';
+
+import Dialog, { type Props as DialogProps } from '..';
 
 type Props = DialogProps & {
   labelInput?: string;
@@ -27,19 +26,21 @@ const Duplicate = ({
   ...rest
 }: Props): JSX.Element => {
   const { classes } = useStyles();
-  const [value, setValue] = useState(1);
+  const [value, setValue] = useState<string | number>(1);
 
-  const handleChange = ({ target }): void => {
+  const handleChange = ({
+    target
+  }: React.ChangeEvent<HTMLInputElement>): void => {
     setValue(target.value);
   };
 
-  const handleConfirm = (event): void => {
+  const handleConfirm = (event: React.MouseEvent<HTMLButtonElement>): void => {
     onConfirm(event, value);
   };
 
   const isConfirmDisabled = or(
     isEmpty(value),
-    Number.parseInt(value, 10) > limit
+    Number.parseInt(value as unknown as string, 10) > limit
   );
 
   return (
@@ -53,9 +54,12 @@ const Duplicate = ({
     >
       <TextField
         autoFocus
-        fullWidth
         className={classes.container}
         color="primary"
+        fullWidth
+        label={labelInput}
+        margin="dense"
+        onChange={handleChange}
         slotProps={{
           htmlInput: {
             'aria-label': 'Duplications',
@@ -63,11 +67,8 @@ const Duplicate = ({
             min: 1
           }
         }}
-        label={labelInput}
-        margin="dense"
         type="number"
         value={value}
-        onChange={handleChange}
       />
     </Dialog>
   );

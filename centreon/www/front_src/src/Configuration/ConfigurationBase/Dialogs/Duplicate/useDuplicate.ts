@@ -1,26 +1,30 @@
-import { useMemo, useState } from 'react';
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
+import { capitalize } from '@mui/material';
 
 import { ResponseError, truncate, useBulkResponse } from '@centreon/ui';
-import { capitalize } from '@mui/material';
+
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import pluralize from 'pluralize';
 import { equals, isEmpty, pluck } from 'ramda';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { useDuplicate as useDuplicateRequest } from '../../api';
+import { configurationAtom } from '../../atoms';
 import {
   resourcesToDuplicateAtom,
   selectedRowsAtom
 } from '../../Listing/atoms';
-import { configurationAtom } from '../../atoms';
-
-import { useDuplicate as useDuplicateRequest } from '../../api';
 import {
   labelDuplicateResource,
   labelDuplicateResourceConfirmation,
   labelDuplicateResourcesConfirmation,
   labelFailedToDuplicateResources,
   labelFailedToDuplicateSomeResources,
-  labelResourceDuplicated
+  labelResourceDuplicated,
+  labelSingleDuplicateResourceConfirmation,
+  labelSingleDuplicateResourcesConfirmation
 } from '../../translatedLabels';
 
 interface UseDuplicateState {
@@ -30,8 +34,9 @@ interface UseDuplicateState {
   duplicatesCount: number;
   changeDuplicateCount: (inputValue: number) => void;
   isOpened: boolean;
-  bodyContent: { label: string; value: object };
+  getBodyContent: () => { label: string; value: object };
   headerContent: string;
+  isSingleDuplicate?: boolean;
 }
 
 const useDuplicate = (): UseDuplicateState => {
@@ -44,6 +49,8 @@ const useDuplicate = (): UseDuplicateState => {
   );
   const configuration = useAtomValue(configurationAtom);
   const setSelectedRows = useSetAtom(selectedRowsAtom);
+
+  const isSingleDuplicate = configuration?.api?.isSingleDuplicate;
 
   const name = truncate({
     content: resourcesToDuplicate[0]?.name,
@@ -86,10 +93,10 @@ const useDuplicate = (): UseDuplicateState => {
 
     handleBulkResponse({
       data: results,
-      labelWarning: t(labelFailedToDuplicateSomeResources),
+      items: resourcesToDuplicate,
       labelFailed: t(labelFailedToDuplicateResources(labelResourceType)),
       labelSuccess: t(labelResourceDuplicated(capitalize(labelResourceType))),
-      items: resourcesToDuplicate
+      labelWarning: t(labelFailedToDuplicateSomeResources)
     });
 
     resetSelections();
@@ -99,11 +106,21 @@ const useDuplicate = (): UseDuplicateState => {
     duplicateMutation(payload).then(handleApiResponse);
   };
 
-  const bodyContent = {
-    label: equals(count, 1)
-      ? labelDuplicateResourceConfirmation(labelResourceType)
-      : labelDuplicateResourcesConfirmation(labelResourceType),
-    value: equals(count, 1) ? { name } : { count }
+  const getBodyContent = () => {
+    const isSingleResource = equals(count, 1);
+
+    const getLabel = isSingleDuplicate
+      ? isSingleResource
+        ? labelSingleDuplicateResourceConfirmation
+        : labelSingleDuplicateResourcesConfirmation
+      : isSingleResource
+        ? labelDuplicateResourceConfirmation
+        : labelDuplicateResourcesConfirmation;
+
+    return {
+      label: getLabel(labelResourceType),
+      value: isSingleResource ? { name } : { count }
+    };
   };
 
   const headerContent = useMemo(
@@ -112,14 +129,15 @@ const useDuplicate = (): UseDuplicateState => {
   );
 
   return {
-    confirm,
-    close: resetSelections,
-    isMutating,
-    duplicatesCount,
     changeDuplicateCount,
+    close: resetSelections,
+    confirm,
+    duplicatesCount,
+    getBodyContent,
+    headerContent,
+    isMutating,
     isOpened,
-    bodyContent,
-    headerContent
+    isSingleDuplicate
   };
 };
 

@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { useSnackbar } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import { Dashboard } from '../api/models';
 import { useDeleteDashboard } from '../api/useDeleteDashboard';

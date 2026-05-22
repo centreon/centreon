@@ -1,14 +1,20 @@
-import { equals } from 'ramda';
-
 import { useTheme } from '@mui/material';
 
+import { equals } from 'ramda';
+
 import { margin } from '../../Chart/common';
+
+interface ShowTooltipArgs {
+  tooltipData: string;
+  tooltipLeft: number;
+  tooltipTop: number;
+}
 
 interface Props {
   hideTooltip: () => void;
   isHorizontal: boolean;
   label: string;
-  showTooltip: (args) => void;
+  showTooltip: (args: ShowTooltipArgs) => void;
   thresholdType: string;
   value: number;
   width: number;
@@ -63,14 +69,17 @@ export const ThresholdLine = ({
         strokeWidth={2}
         {...coordinates}
       />
-      <line
-        data-testid={`${thresholdType}-line-${value}-tooltip`}
-        stroke="transparent"
-        strokeWidth={5}
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={hideTooltip}
-        {...coordinates}
-      />
+      {
+        // biome-ignore lint/a11y/noStaticElementInteractions: need it
+        <line
+          data-testid={`${thresholdType}-line-${value}-tooltip`}
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={hideTooltip}
+          stroke="transparent"
+          strokeWidth={5}
+          {...coordinates}
+        />
+      }
     </>
   );
 };

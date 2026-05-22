@@ -1,12 +1,11 @@
-import { useTranslation } from 'react-i18next';
-
 import { SearchField } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import { labelSearch } from '../translatedLabels';
 import { useStyles } from './Filters.styles';
-import useSearch from './useSearch';
-
 import AdvancedFilters from './PopoverFilter';
+import useSearch from './useSearch';
 
 const Filters = (): JSX.Element => {
   const { classes } = useStyles();
@@ -17,13 +16,13 @@ const Filters = (): JSX.Element => {
   return (
     <div className={classes.filters}>
       <SearchField
-        debounced
-        fullWidth
-        EndAdornment={AdvancedFilters}
         dataTestId={'search-bar'}
+        debounced
+        EndAdornment={AdvancedFilters}
+        fullWidth
+        onChange={onChange}
         placeholder={t(labelSearch)}
         value={filters.name}
-        onChange={onChange}
       />
     </div>
   );

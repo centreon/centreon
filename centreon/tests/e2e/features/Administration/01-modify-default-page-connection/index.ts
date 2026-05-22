@@ -1,4 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 beforeEach(() => {
   cy.startContainers();
@@ -7,11 +9,11 @@ beforeEach(() => {
   );
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
 });
 
@@ -29,11 +31,7 @@ Given('an admin user is logged in a Centreon server', () => {
 Given(
   'the user replaced the default page connection with Home > Dashboards',
   () => {
-    cy.navigateTo({
-      page: 'My Account',
-      rootItemNumber: 4,
-      subMenu: 'Parameters'
-    });
+    cy.visit(PAGES.configuration.accountParametersLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe('#main-content', 'input[name="contact_name"]');
     cy.getIframeBody()
@@ -67,11 +65,7 @@ Given('an non-admin user is logged in a Centreon server', () => {
 });
 
 Given('the user has access to all menus', () => {
-  cy.navigateTo({
-    page: 'Menus Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclMenusAccessLegacy);
   cy.getIframeBody().contains('a', 'name-non-admin-ACLMENU').click();
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'input[name="acl_topo_name"]');
@@ -84,11 +78,7 @@ Given('the user has access to all menus', () => {
 Given(
   'the user replaced the default page connection with Configuration > Hosts',
   () => {
-    cy.navigateTo({
-      page: 'My Account',
-      rootItemNumber: 4,
-      subMenu: 'Parameters'
-    });
+    cy.visit(PAGES.configuration.accountParametersLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe('#main-content', 'input[name="contact_name"]');
     cy.getIframeBody()

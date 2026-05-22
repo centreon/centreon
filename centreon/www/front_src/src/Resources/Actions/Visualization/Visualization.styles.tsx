@@ -23,6 +23,9 @@ export const useStyles = makeStyles()((theme) => ({
   medium: {
     justifyContent: 'space-between'
   },
+  small: {
+    display: 'flex'
+  },
   text: {
     marginRight: theme.spacing(0.5)
   },
@@ -33,8 +36,5 @@ export const useStyles = makeStyles()((theme) => ({
   visualizationContainer: {
     alignItems: 'center',
     flexWrap: 'nowrap'
-  },
-  small: {
-    display: 'flex'
   }
 }));

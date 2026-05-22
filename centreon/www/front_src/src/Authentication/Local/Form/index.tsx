@@ -1,10 +1,11 @@
+import type { Group } from '@centreon/ui';
+import { Form, useRequest, useSnackbar } from '@centreon/ui';
+
+import type { FormikHelpers } from 'formik';
 import { useTranslation } from 'react-i18next';
 
-import { Form, useRequest, useSnackbar } from '@centreon/ui';
-import type { Group } from '@centreon/ui';
-
-import FormButtons from '../../FormButtons';
 import { putPasswordPasswordSecurityPolicy } from '../../api';
+import FormButtons from '../../FormButtons';
 import { PasswordSecurityPolicy } from '../models';
 import {
   labelFailedToSavePasswordPasswordSecurityPolicy,
@@ -14,7 +15,6 @@ import {
   labelPasswordPasswordSecurityPolicySaved
 } from '../translatedLabels';
 import useValidationSchema from '../useValidationSchema';
-
 import inputs from './inputs';
 
 interface Props {
@@ -49,12 +49,14 @@ const PasswordSecurityPolicyForm = ({
 
   const { sendRequest } = useRequest({
     defaultFailureMessage: t(labelFailedToSavePasswordPasswordSecurityPolicy),
-    request: putPasswordPasswordSecurityPolicy
+    request: putPasswordPasswordSecurityPolicy as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<unknown>
   });
 
   const submit = (
     values: PasswordSecurityPolicy,
-    { setSubmitting }
+    { setSubmitting }: FormikHelpers<PasswordSecurityPolicy>
   ): Promise<void> =>
     sendRequest(values)
       .then(() => {

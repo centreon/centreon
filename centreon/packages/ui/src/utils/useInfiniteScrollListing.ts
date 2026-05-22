@@ -1,21 +1,20 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-
-import { PrimitiveAtom, useAtom } from 'jotai';
-import { equals, gte, isNil, reduce } from 'ramda';
-import { JsonDecoder } from 'ts.data.json';
-
 import {
-  QueryParameter,
   buildListingEndpoint,
+  type QueryParameter,
   useFetchQuery,
   useIntersectionObserver
 } from '@centreon/ui';
 
-import { Parameters } from '../api/buildListingEndpoint/models';
+import { type PrimitiveAtom, useAtom } from 'jotai';
+import { equals, gte, isNil, reduce } from 'ramda';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { JsonDecoder } from 'ts.data.json';
+
+import type { Parameters } from '../api/buildListingEndpoint/models';
 import type { Listing } from '../api/models';
 
 interface UseInfiniteScrollListing<T> {
-  elementRef: (node) => void;
+  elementRef: (node: Element | null) => void;
   elements: Array<T>;
   isLoading: boolean;
   total?: number;
@@ -111,14 +110,14 @@ export const useInfiniteScrollListing = <T>({
     }
 
     prefetchNextPage({
-      getPrefetchQueryKey: (newPage) => ['dashboards', newPage],
+      getPrefetchQueryKey: (newPage: number) => ['dashboards', newPage],
       page
     });
-  }, [data]);
+  }, [data, limit, page, prefetchNextPage]);
 
   useEffect(() => {
     return () => setPage(1);
-  }, []);
+  }, [setPage]);
 
   return {
     elementRef,

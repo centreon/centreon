@@ -1,10 +1,10 @@
+import type { Point } from '@visx/point';
+import type { ProvidedZoom, Translate } from '@visx/zoom/lib/types';
+import { equals, gt, pick } from 'ramda';
+import type React from 'react';
 import { useCallback, useState } from 'react';
 
-import { Point } from '@visx/point';
-import { ProvidedZoom, Translate } from '@visx/zoom/lib/types';
-import { equals, gt, pick } from 'ramda';
-
-import { ZoomState } from './models';
+import type { ZoomState } from './models';
 
 export interface UseMinimapProps {
   height: number;
@@ -16,11 +16,11 @@ export interface UseMinimapProps {
 }
 
 interface UseMinimapState {
-  dragEnd: (e) => void;
-  dragStart: (e) => void;
-  move: (e) => void;
-  transformTo: (e) => void;
-  zoomInOut: (e) => void;
+  dragEnd: () => void;
+  dragStart: (e: React.MouseEvent<SVGRectElement>) => void;
+  move: (e: React.MouseEvent<SVGRectElement>) => void;
+  transformTo: (e: React.MouseEvent<SVGRectElement>) => void;
+  zoomInOut: (e: React.WheelEvent<SVGRectElement>) => void;
 }
 
 export const useMinimap = ({
@@ -37,7 +37,12 @@ export const useMinimap = ({
   const [startTranslate, setStartTranslate] = useState<Translate | null>(null);
 
   const getMatrixPoint = useCallback(
-    (event, newScale?: number): { x: number; y: number } => {
+    (
+      event:
+        | React.MouseEvent<SVGRectElement>
+        | React.WheelEvent<SVGRectElement>,
+      newScale?: number
+    ): { x: number; y: number } => {
       const hasScale = scale > 1;
       const point = {
         x: event.nativeEvent.offsetX * (1 / minimapScale),
@@ -62,7 +67,7 @@ export const useMinimap = ({
   );
 
   const transformTo = useCallback(
-    (e: MouseEvent): void => {
+    (e: React.MouseEvent<SVGRectElement>): void => {
       if (!equals(e.buttons, 1)) {
         return;
       }
@@ -73,10 +78,10 @@ export const useMinimap = ({
         translateY: y
       });
     },
-    [zoom.transformMatrix, scale]
+    [zoom.transformMatrix, getMatrixPoint, zoom.setTransformMatrix]
   );
 
-  const dragStart = (e: MouseEvent): void => {
+  const dragStart = (e: React.MouseEvent<SVGRectElement>): void => {
     if (!equals(e.buttons, 1) || isDraggingFromContainer) {
       return;
     }
@@ -90,7 +95,7 @@ export const useMinimap = ({
   };
 
   const move = useCallback(
-    (e): void => {
+    (e: React.MouseEvent<SVGRectElement>): void => {
       if (!startPoint || !startTranslate) {
         return;
       }
@@ -106,11 +111,17 @@ export const useMinimap = ({
       });
     },
 
-    [zoom.transformMatrix, isDraggingFromContainer, scale, startPoint]
+    [
+      zoom.transformMatrix,
+      startPoint,
+      getMatrixPoint,
+      startTranslate,
+      zoom.setTransformMatrix
+    ]
   );
 
   const zoomInOut = useCallback(
-    (e): void => {
+    (e: React.WheelEvent<SVGRectElement>): void => {
       const isZoomIn = gt(0, e.deltaY);
 
       const newScaleX = isZoomIn
@@ -133,14 +144,7 @@ export const useMinimap = ({
         translateY: zoom.transformMatrix.translateY + diffY / 4
       });
     },
-    [
-      zoom.transformMatrix,
-      width,
-      height,
-      isDraggingFromContainer,
-      scale,
-      startPoint
-    ]
+    [zoom.transformMatrix, getMatrixPoint, zoom.setTransformMatrix]
   );
 
   return {

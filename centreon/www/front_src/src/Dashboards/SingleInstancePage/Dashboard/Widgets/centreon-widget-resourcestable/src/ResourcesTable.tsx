@@ -1,7 +1,11 @@
 import { useRefreshInterval } from '@centreon/ui';
 
+import type { ReactElement } from 'react';
+
 import { Listing } from './Listing';
-import { ResourcesTableProps } from './models';
+import type { ResourcesTableProps } from './models';
+
+type ResourceTableProps = Omit<ResourcesTableProps, 'store' | 'queryClient'>;
 
 const ResourceTable = ({
   globalRefreshInterval,
@@ -14,8 +18,9 @@ const ResourceTable = ({
   id,
   dashboardId,
   playlistHash,
-  widgetPrefixQuery
-}: Omit<ResourcesTableProps, 'store' | 'queryClient'>): JSX.Element => {
+  widgetPrefixQuery,
+  isInViewport
+}: ResourceTableProps): ReactElement => {
   const { resources } = panelData;
 
   const {
@@ -30,12 +35,7 @@ const ResourceTable = ({
     selectedColumnIds,
     statusTypes,
     hostSeverities,
-    serviceSeverities,
-    isDownHostHidden,
-    isUnreachableHostHidden,
-    displayResources,
-    provider,
-    isOpenTicketEnabled
+    serviceSeverities
   } = panelOptions;
 
   const refreshIntervalToUse = useRefreshInterval({
@@ -49,17 +49,13 @@ const ResourceTable = ({
       <Listing
         changeViewMode={changeViewMode}
         dashboardId={dashboardId}
-        displayResources={displayResources}
         displayType={displayType}
         hostSeverities={hostSeverities}
         id={id}
-        isDownHostHidden={isDownHostHidden}
         isFromPreview={isFromPreview}
-        isOpenTicketEnabled={isOpenTicketEnabled}
-        isUnreachableHostHidden={isUnreachableHostHidden}
+        isInViewport={isInViewport}
         limit={limit}
         playlistHash={playlistHash}
-        provider={provider}
         refreshCount={refreshCount}
         refreshIntervalToUse={refreshIntervalToUse}
         resources={resources}
@@ -69,8 +65,8 @@ const ResourceTable = ({
         sortField={sortField}
         sortOrder={sortOrder}
         states={states}
-        statusTypes={statusTypes}
         statuses={statuses}
+        statusTypes={statusTypes}
         widgetPrefixQuery={widgetPrefixQuery}
       />
     </div>

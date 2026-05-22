@@ -1,8 +1,8 @@
 import { Skeleton } from '@mui/material';
-import { ParentSize } from '../..';
 
+import { ParentSize } from '../..';
+import type { SingleBarProps } from './models';
 import ResponsiveSingleBar from './ResponsiveSingleBar';
-import { SingleBarProps } from './models';
 
 const SingleBar = ({ data, ...props }: SingleBarProps): JSX.Element | null => {
   if (!data) {

@@ -1,14 +1,32 @@
-import { isEmpty, isNil } from 'ramda';
+import { equals, isEmpty, isNil } from 'ramda';
 
-import { QueryParameter } from './models';
+import type { QueryParameter } from './models';
 
-const toRawQueryParameter = ({ name, value }): string => {
-  return `${name}=${encodeURIComponent(JSON.stringify(value))}`;
+interface ToRawQueryParametersProps {
+  queryParameters: Array<QueryParameter>;
+  apiFormat: 'Standard' | 'JSON-LD';
+}
+
+const toRawQueryParameter = ({
+  name,
+  value
+}: {
+  name: string;
+  value: unknown;
+}): string => {
+  return `${name}=${encodeURIComponent(value as string)}`;
 };
 
-const toRawQueryParameters = (queryParameters: Array<QueryParameter>): string =>
+const toRawQueryParameters = ({
+  queryParameters,
+  apiFormat
+}: ToRawQueryParametersProps): string =>
   queryParameters
     .filter(({ value }) => !isNil(value) && !isEmpty(value))
+    .map(({ name, value }) => ({
+      name,
+      value: equals(apiFormat, 'JSON-LD') ? value : JSON.stringify(value)
+    }))
     .map(toRawQueryParameter)
     .join('&');
 

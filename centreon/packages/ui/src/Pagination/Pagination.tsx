@@ -1,19 +1,20 @@
-import { CircularProgress, Link, Typography } from '@mui/material';
-import { equals, isEmpty, isNil } from 'ramda';
-import { useMemo, useState } from 'react';
-
 import ArrowBackIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForwardIos';
+import { CircularProgress, Link, Typography } from '@mui/material';
+
+import { equals, isEmpty, isNil } from 'ramda';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+
+import buildListingEndpoint from '../api/buildListingEndpoint';
+import type { Listing } from '../api/models';
+import useFetchQuery from '../api/useFetchQuery';
 import IconButton from '../Button/Icon';
 import {
   labelNextPage,
   labelNoResultFound,
   labelPreviousPage
 } from '../Listing/translatedLabels';
-import buildListingEndpoint from '../api/buildListingEndpoint';
-import { Listing } from '../api/models';
-import useFetchQuery from '../api/useFetchQuery';
 import { truncate } from '../utils';
 import { useStyles } from './Pagination.styles';
 
@@ -21,7 +22,9 @@ interface Props {
   api: {
     baseEndpoint: string;
     queryKey: Array<string>;
-    searchConditions?;
+    searchConditions?: Array<
+      import('../api/buildListingEndpoint/models').ConditionsSearchParameter
+    >;
   };
   labelHasNoElements?: string;
   onItemClick?: ({ id }: { id: number }) => void;
@@ -46,8 +49,8 @@ const Pagination = ({
         baseEndpoint: baseEndpoint,
         parameters: {
           ...parameters,
-          page,
           limit,
+          page,
           ...(searchConditions
             ? {
                 search: {
@@ -64,7 +67,7 @@ const Pagination = ({
     }
   });
 
-  const pagesCount = Math.ceil(data?.meta.total / limit);
+  const pagesCount = Math.ceil((data?.meta?.total ?? 0) / limit);
   const arePaginationComponentsDisplayed = !equals(pagesCount, 1);
 
   const hasNoElements = useMemo(
@@ -86,10 +89,10 @@ const Pagination = ({
         {arePaginationComponentsDisplayed && (
           <div className={classes.arrowContainer}>
             <IconButton
-              onClick={() => setPage(page - 1)}
-              disabled={equals(page, 1)}
-              dataTestid={labelPreviousPage}
               className={classes.icon}
+              dataTestid={labelPreviousPage}
+              disabled={equals(page, 1)}
+              onClick={() => setPage(page - 1)}
             >
               <ArrowBackIcon className={classes.arrow} />
             </IconButton>
@@ -102,13 +105,13 @@ const Pagination = ({
           ) : (
             data?.result.map(({ id, name }) => (
               <Link
-                key={id}
-                variant="body2"
                 className={cx({
                   [classes.item]: true,
                   [classes.link]: !!onItemClick
                 })}
+                key={id}
                 onClick={() => onItemClick?.({ id })}
+                variant="body2"
               >
                 {truncate({
                   content: name,
@@ -122,10 +125,10 @@ const Pagination = ({
         {arePaginationComponentsDisplayed && (
           <div className={classes.arrowContainer}>
             <IconButton
-              onClick={() => setPage(page + 1)}
-              disabled={equals(pagesCount, page)}
               className={classes.icon}
               dataTestid={labelNextPage}
+              disabled={equals(pagesCount, page)}
+              onClick={() => setPage(page + 1)}
             >
               <ArrowForwardIcon className={classes.arrow} />
             </IconButton>

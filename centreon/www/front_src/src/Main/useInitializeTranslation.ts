@@ -1,10 +1,9 @@
-import { useLayoutEffect } from 'react';
+import { getData, useLocale, useRequest } from '@centreon/ui';
 
 import i18next, { i18n, Resource, ResourceLanguage } from 'i18next';
 import { mergeAll, pipe, reduce, toPairs } from 'ramda';
+import { useLayoutEffect } from 'react';
 import { initReactI18next } from 'react-i18next';
-
-import { getData, useLocale, useRequest } from '@centreon/ui';
 
 import {
   externalTranslationEndpoint,
@@ -23,7 +22,9 @@ interface UseInitializeTranslationState {
 const useInitializeTranslation = (): UseInitializeTranslationState => {
   const { sendRequest: getTranslations } = useRequest<ResourceLanguage>({
     httpCodesBypassErrorSnackbar: [500],
-    request: getData
+    request: getData as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<ResourceLanguage>
   });
 
   const locale = useLocale();
@@ -35,7 +36,7 @@ const useInitializeTranslation = (): UseInitializeTranslationState => {
       lng: locale?.substring(0, 2) || getBrowserLocale(),
       nsSeparator: false,
       resources: pipe(
-        toPairs as (t) => Array<[string, ResourceLanguage]>,
+        toPairs as (t: unknown) => Array<[string, ResourceLanguage]>,
         reduce(
           (acc, [language, values]) =>
             mergeAll([acc, { [language]: { translation: values } }]),

@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { Link } from '@mui/material';
+
+import { useTranslation } from 'react-i18next';
 
 import {
   labelApiNotFoundContactAdmin,

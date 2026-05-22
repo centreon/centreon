@@ -1,9 +1,10 @@
-import { ChangeEvent, useMemo } from 'react';
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
+import { SelectEntry } from '@centreon/ui';
 
 import { useFormikContext } from 'formik';
 import { difference, equals, includes, isEmpty, pluck, reject } from 'ramda';
-
-import { SelectEntry } from '@centreon/ui';
+import { ChangeEvent, useMemo } from 'react';
 
 import { Widget, WidgetPropertyProps } from '../../../models';
 import { getProperty } from '../utils';

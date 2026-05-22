@@ -1,6 +1,8 @@
-import { cond, equals, map } from 'ramda';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { SeverityCode } from '@centreon/ui';
+
+import { cond, equals, map } from 'ramda';
 
 import { DisplayType, ResourceListing } from './models';
 

@@ -18,8 +18,8 @@ export const useIframeStyles = makeStyles()({
     width: '100%'
   },
   iframe: {
-    width: '100%',
+    border: 'none',
     height: '100%',
-    border: 'none'
+    width: '100%'
   }
 });

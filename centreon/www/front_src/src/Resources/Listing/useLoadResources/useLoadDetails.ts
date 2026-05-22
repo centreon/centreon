@@ -1,8 +1,8 @@
+import { getData, useRequest } from '@centreon/ui';
+
 import { useAtomValue, useSetAtom } from 'jotai';
 import { always, ifElse, isNil, pathEq, pathOr } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { getData, useRequest } from '@centreon/ui';
 
 import {
   clearSelectedResourceDerivedAtom,
@@ -35,7 +35,9 @@ const useLoadDetails = (): LoadDetails => {
       always(t(labelNoResourceFound)),
       pathOr(t(labelSomethingWentWrong), ['response', 'data', 'message'])
     ),
-    request: getData
+    request: getData as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<ResourceDetails>
   });
 
   const selectedResourceDetailsEndpoint = useAtomValue(

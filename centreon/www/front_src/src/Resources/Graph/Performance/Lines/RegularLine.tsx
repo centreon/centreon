@@ -1,12 +1,10 @@
-import { ReactNode, memo } from 'react';
-
 import { Curve, Shape } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 import { equals, isNil, prop } from 'ramda';
+import { memo, ReactNode } from 'react';
 
 import { Line, TimeValue } from '../models';
 import { getTime } from '../timeSeries';
-
 import { getFillColor } from '.';
 
 interface Props {
@@ -53,13 +51,15 @@ const RegularLine = ({
   const props = {
     curve: Curve.curveLinear,
     data: timeSeries,
-    defined: (value): boolean => !isNil(value[metric]),
+    defined: (value: TimeValue): boolean =>
+      !isNil((value as unknown as Record<string, unknown>)[metric]),
     opacity: highlight === false ? 0.3 : 1,
     stroke: lineColor,
     strokeWidth: isHighlighted,
     unit,
-    x: (timeValue): number => xScale(getTime(timeValue)) as number,
-    y: (timeValue): number => yScale(prop(metric, timeValue)) ?? null
+    x: (timeValue: TimeValue): number => xScale(getTime(timeValue)) as number,
+    y: (timeValue: TimeValue): number =>
+      yScale(prop(metric, timeValue) as number) ?? null
   };
 
   if (filled) {

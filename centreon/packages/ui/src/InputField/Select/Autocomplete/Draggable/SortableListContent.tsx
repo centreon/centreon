@@ -1,21 +1,23 @@
-import { DraggableSyntheticListeners } from '@dnd-kit/core';
-import clsx from 'clsx';
-import { findIndex, not, propEq } from 'ramda';
-
 import { Chip, Typography, useTheme } from '@mui/material';
 
-import { RefObject, useRef } from 'react';
-import { DraggableSelectEntry, SortableListProps } from './SortableList';
+import type { DraggableSyntheticListeners } from '@dnd-kit/core';
+import clsx from 'clsx';
+import { findIndex, not, propEq } from 'ramda';
+import type React from 'react';
+import { type CSSProperties, type RefObject, useRef } from 'react';
+
+import type { DraggableSelectEntry, SortableListProps } from './SortableList';
 
 interface ContentProps
   extends Pick<DraggableSelectEntry, 'name' | 'createOption' | 'id'> {
-  attributes;
+  // biome-ignore lint/suspicious/noExplicitAny: dnd-kit forwards arbitrary HTML attributes
+  attributes: Record<string, any>;
   id: string;
   index: number;
   isDragging: boolean;
   itemRef: RefObject<HTMLDivElement>;
   listeners: DraggableSyntheticListeners;
-  style;
+  style: CSSProperties;
 }
 
 interface Props extends Omit<SortableListProps, 'changeItemsOrder'> {
@@ -43,7 +45,7 @@ const SortableListContent = ({
     const theme = useTheme();
     const labelItemRef = useRef<HTMLElement | null>(null);
 
-    const mouseUp = (event: MouseEvent): void => {
+    const mouseUp = (event: React.MouseEvent<HTMLElement>): void => {
       if (not(event.shiftKey)) {
         return;
       }
@@ -68,29 +70,29 @@ const SortableListContent = ({
     return (
       <div ref={itemRef} style={style}>
         <Chip
-          clickable
-          className={clsx(classes.tag, createOption && classes.createdTag)}
           classes={{
             deleteIcon: classes.deleteIcon
           }}
+          className={clsx(classes.tag, createOption && classes.createdTag)}
+          clickable
           label={
             <Typography
+              onMouseUp={mouseUp}
               ref={labelItemRef}
               variant="body2"
-              onMouseUp={mouseUp}
               {...attributes}
               {...listeners}
             >
               {name}
             </Typography>
           }
+          onDelete={deleteItem}
+          onMouseEnter={mouseEnter}
+          onMouseLeave={mouseLeave}
           size="medium"
           style={{
             backgroundColor: isDragging ? theme.palette.grey[300] : undefined
           }}
-          onDelete={deleteItem}
-          onMouseEnter={mouseEnter}
-          onMouseLeave={mouseLeave}
         />
       </div>
     );

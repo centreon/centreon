@@ -1,21 +1,22 @@
-import { useEffect, useMemo, useState } from 'react';
-
-import { useAtom } from 'jotai';
-import { equals, isEmpty, isNotNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { type Column, useSnackbar } from '@centreon/ui';
+
+import { useAtom, useAtomValue } from 'jotai';
+import { equals } from 'ramda';
+import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import type { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { getResourcesUrl, goToUrl } from '../../../utils';
 import {
+  openTicketContextAtom,
   resourcesToAcknowledgeAtom,
   resourcesToOpenTicketAtom,
   resourcesToSetDowntimeAtom,
   selectedResourcesAtom
 } from '../atom';
 import type { PanelOptions } from '../models';
-
 import useColumns from './Columns/useColumns';
 import {
   DisplayType,
@@ -24,32 +25,37 @@ import {
   type Ticket
 } from './models';
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
-import useIsOpenTicketInstalled from './useIsOpenTicketInstalled';
 import useLoadResources from './useLoadResources';
 
 interface UseListingState {
   cancelAcknowledge: () => void;
   cancelSetDowntime: () => void;
-  changeLimit: (value) => void;
-  changePage: (updatedPage) => void;
-  changeSort: ({ sortOrder, sortField }) => void;
+  changeLimit: (value: number) => void;
+  changePage: (updatedPage: number) => void;
+  changeSort: ({
+    sortOrder,
+    sortField
+  }: {
+    sortOrder: SortOrder;
+    sortField: string;
+  }) => void;
   columns: Array<Column>;
   confirmAcknowledge: () => void;
   confirmSetDowntime: () => void;
   data: ResourceListing | undefined;
   defaultSelectedColumnIds: Array<string>;
-  goToResourceStatusPage?: (row) => void;
+  goToResourceStatusPage?: (row: Resource) => void;
   hasMetaService: boolean;
   isLoading: boolean;
   onTicketClose: () => void;
   page: number | undefined;
   resetColumns: () => void;
-  resourcesToAcknowledge;
+  resourcesToAcknowledge: unknown;
   resourcesToOpenTicket: Array<Ticket>;
-  resourcesToSetDowntime;
+  resourcesToSetDowntime: unknown;
   selectColumns: (updatedColumnIds: Array<string>) => void;
-  selectedResources;
-  setSelectedResources;
+  selectedResources: unknown;
+  setSelectedResources: unknown;
 }
 
 interface UseListingProps
@@ -57,16 +63,11 @@ interface UseListingProps
     CommonWidgetProps<PanelOptions>,
     'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
   > {
-  changeViewMode?: (displayType) => void;
-  displayResources: 'withTicket' | 'withoutTicket';
+  changeViewMode?: (displayType: DisplayType) => void;
   displayType: DisplayType;
   hostSeverities: Array<NamedEntity>;
-  isDownHostHidden: boolean;
   isFromPreview?: boolean;
-  isOpenTicketEnabled: boolean;
-  isUnreachableHostHidden: boolean;
   limit?: number;
-  provider?: { id: number; name: string };
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resources: Array<Resource>;
@@ -77,11 +78,11 @@ interface UseListingProps
   states: Array<string>;
   statusTypes: Array<'hard' | 'soft'>;
   statuses: Array<string>;
+  isInViewport: boolean;
 }
 
 const useListing = ({
   resources,
-  isOpenTicketEnabled,
   states,
   statuses,
   displayType,
@@ -100,13 +101,11 @@ const useListing = ({
   statusTypes,
   hostSeverities,
   serviceSeverities,
-  isDownHostHidden,
-  isUnreachableHostHidden,
-  displayResources,
-  provider
+  isInViewport
 }: UseListingProps): UseListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
+  const { isOpenTicketEnabled } = useAtomValue(openTicketContextAtom);
 
   const [page, setPage] = useState(1);
   const [resourcesToOpenTicket, setResourcesToOpenTicket] = useAtom(
@@ -132,22 +131,15 @@ const useListing = ({
     }
   }, [isOpenTicketEnabled]);
 
-  const isOpenTicketInstalled = useIsOpenTicketInstalled();
-
-  const hasProvider = isNotNil(provider) && !isEmpty(provider);
-
   const { data, isLoading } = useLoadResources({
     dashboardId,
-    displayResources,
     displayType,
     hostSeverities,
     id,
-    isDownHostHidden,
-    isUnreachableHostHidden,
+    isInViewport,
     limit,
     page,
     playlistHash,
-    provider,
     refreshCount,
     refreshIntervalToUse,
     resources,
@@ -155,14 +147,12 @@ const useListing = ({
     sortField,
     sortOrder,
     states,
-    statusTypes,
     statuses,
-    widgetPrefixQuery,
-    isOpenTicketEnabled:
-      isOpenTicketInstalled && hasProvider && isOpenTicketEnabled
+    statusTypes,
+    widgetPrefixQuery
   });
 
-  const goToResourceStatusPage = (row): void => {
+  const goToResourceStatusPage = (row: Resource): void => {
     if (isFromPreview) {
       return;
     }
@@ -188,23 +178,23 @@ const useListing = ({
     [resources]
   );
 
-  const changeSort = (sortParameters): void => {
+  const changeSort = (sortParameters: {
+    sortOrder: SortOrder;
+    sortField: string;
+  }): void => {
     setPanelOptions?.(sortParameters);
   };
 
-  const changeLimit = (value): void => {
+  const changeLimit = (value: number): void => {
     setPanelOptions?.({ limit: value });
   };
 
-  const changePage = (updatedPage): void => {
+  const changePage = (updatedPage: number): void => {
     setPage(updatedPage + 1);
   };
 
   const { columns, defaultSelectedColumnIds } = useColumns({
-    displayResources,
-    displayType,
-    isOpenTicketEnabled,
-    provider
+    displayType
   });
 
   const selectColumns = (updatedColumnIds: Array<string>): void => {

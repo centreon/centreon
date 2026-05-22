@@ -1,6 +1,5 @@
-import type { ReactNode } from 'react';
-
 import dayjs from 'dayjs';
+import type { ReactNode } from 'react';
 
 import {
   label1Day,
@@ -74,7 +73,10 @@ export interface CustomTimePeriod {
 }
 
 export interface DateTimePickerInputModel {
-  changeDate: (props) => void;
+  changeDate: (props: {
+    property: CustomTimePeriodProperty | string;
+    date: Date;
+  }) => void;
   date: Date | null;
   disabled?: boolean;
   maxDate?: Date;

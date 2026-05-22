@@ -1,17 +1,22 @@
-import { ScaleLinear } from 'd3-scale';
+import type { ScaleLinear } from 'd3-scale';
 import { equals } from 'ramda';
 
-import { Thresholds as ThresholdsModel } from '../models';
+import type { Thresholds as ThresholdsModel } from '../models';
 import { getUnits, getYScale } from '../timeSeries';
-import { Line } from '../timeSeries/models';
-
+import type { Line } from '../timeSeries/models';
 import { ThresholdLine } from './ThresholdLine';
+
+interface ShowTooltipArgs {
+  tooltipData: string;
+  tooltipLeft: number;
+  tooltipTop: number;
+}
 
 interface Props {
   displayedLines: Array<Line>;
   hideTooltip: () => void;
   isHorizontal?: boolean;
-  showTooltip: (props) => void;
+  showTooltip: (props: ShowTooltipArgs) => void;
   thresholdUnit?: string;
   thresholds: ThresholdsModel;
   width: number;

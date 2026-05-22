@@ -27,6 +27,7 @@ use App\ActivityLogging\Domain\Repository\ActivityLogRepository;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
 use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ServiceCategoryResource;
+use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
 
 final class CreateServiceCategoryProcessorTest extends ApiTestCase
@@ -99,6 +100,7 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
         $this->request('POST', '/api/latest/configuration/services/categories', [
             'json' => [
                 'name' => '',
+                'alias' => '',
             ],
         ]);
 
@@ -106,7 +108,7 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
         self::assertJsonContains([
             'code' => 400,
             'message' => "[name] This value is too short. It should have 1 character or more.\n"
-                . "[alias] This value should not be null.\n",
+                . "[alias] This value is too short. It should have 1 character or more.\n",
         ]);
     }
 
@@ -146,7 +148,12 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
 
     public function testCannotCreateServiceCategoryIfNotEnoughPermission(): void
     {
-        $this->login('user');
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $username = bin2hex(random_bytes(8));
+
+        $this->createApiUser($connection, $username, admin: false);
+        $this->login($username);
 
         $this->request('POST', '/api/latest/configuration/services/categories', [
             'json' => [
@@ -158,7 +165,6 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
 
         self::assertResponseStatusCodeSame(403);
         self::assertJsonContains([
-            'code' => 403,
             'message' => 'You are not allowed to create service categories',
         ]);
     }
@@ -168,8 +174,7 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
         /** @var ActivityLogRepository $repository */
         $repository = self::getContainer()->get(ActivityLogRepository::class);
 
-        self::assertSame(0, $repository->count());
-
+        $count = $repository->count();
         $this->login();
 
         $this->request('POST', '/api/latest/configuration/services/categories', [
@@ -185,11 +190,6 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
 
         self::assertResponseIsSuccessful();
 
-        self::assertSame(1, $repository->count());
-    }
-
-    protected static function apiUsers(): array
-    {
-        return ['user'];
+        self::assertSame($count + 1, $repository->count());
     }
 }

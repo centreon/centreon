@@ -33,6 +33,7 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
@@ -62,6 +63,7 @@ final class UpdateNotification
         private readonly NotificationFactory $notificationFactory,
         private readonly NotificationResourceFactory $notificationResourceFactory,
         private readonly ContactInterface $user,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -161,7 +163,7 @@ final class UpdateNotification
     private function updateResources(int $notificationId, array $resources): void
     {
         foreach ($this->resourceRepositoryProvider->getRepositories() as $repository) {
-            if (! $this->user->isAdmin()) {
+            if (! $this->adminResolver->isAdmin($this->user)) {
                 $this->deleteResourcesForUserWithACL($repository, $notificationId);
             } else {
                 $repository->deleteAllByNotification($notificationId);
@@ -184,7 +186,7 @@ final class UpdateNotification
      */
     private function updateContactGroups(int $notificationId, array $contactGroups): void
     {
-        if (! $this->user->isAdmin()) {
+        if (! $this->adminResolver->isAdmin($this->user)) {
             $this->deleteContactGroupsForUserWithACL($notificationId);
         } else {
             $this->writeNotificationRepository->deleteContactGroupsFromNotification($notificationId);

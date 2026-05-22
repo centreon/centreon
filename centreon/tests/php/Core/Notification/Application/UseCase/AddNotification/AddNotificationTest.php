@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
@@ -87,6 +88,7 @@ beforeEach(function (): void {
         $this->notificationResourceFactory = $this->createMock(NotificationResourceFactory::class),
         $this->notificationValidator = $this->createMock(NotificationValidator::class),
         $this->user = $this->createMock(ContactInterface::class),
+        $this->adminResolver = $this->createMock(AdminResolver::class),
     );
 
     $this->resourceRepository = $this->createMock(NotificationResourceRepositoryInterface::class);
@@ -118,7 +120,12 @@ beforeEach(function (): void {
         ),
     ];
     $this->users = array_map(
-        (fn ($userId) => new Contact($userId, "user_name_{$userId}", "email_{$userId}@centreon.com")),
+        (fn ($userId) => new Contact(
+            $userId,
+            "user_name_{$userId}",
+            "email_{$userId}@centreon.com",
+            "alias_{$userId}"
+        )),
         $this->request->users
     );
 
@@ -389,9 +396,10 @@ it('should return created object on success', function (): void {
         ->expects($this->once())
         ->method('findContactGroupsByNotificationId')
         ->willReturn($this->contactGroups);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
+        ->with($this->user)
         ->willReturn(true);
     $this->resourceRepositoryProvider
         ->expects($this->once())

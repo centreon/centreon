@@ -1,8 +1,9 @@
 import { isEmpty } from 'ramda';
 import { useMemo } from 'react';
-import { ChartAxis } from '../../Chart/models';
-import { Data } from '../Axes/models';
-import { Thresholds } from '../models';
+
+import type { ChartAxis } from '../../Chart/models';
+import type { Data } from '../Axes/models';
+import type { Thresholds } from '../models';
 import { getFormattedAxisValues } from '../utils';
 
 interface UseComputeYAxisMaxCharactersProps {
@@ -30,12 +31,12 @@ export const useComputeYAxisMaxCharacters = ({
   const maxLeftValue = useMemo(
     () =>
       getFormattedAxisValues({
-        threshold: thresholds?.critical ?? [],
         axisUnit: axis?.axisYLeft?.unit ?? firstUnit,
-        timeSeries: graphData?.timeSeries ?? [],
-        thresholdUnit,
+        base: graphData?.baseAxis,
         lines: graphData?.lines ?? [],
-        base: graphData?.baseAxis
+        threshold: thresholds?.critical ?? [],
+        thresholdUnit,
+        timeSeries: graphData?.timeSeries ?? []
       }),
     [
       thresholds?.critical,
@@ -51,12 +52,12 @@ export const useComputeYAxisMaxCharacters = ({
   const maxRightValue = useMemo(
     () =>
       getFormattedAxisValues({
-        threshold: thresholds?.critical ?? [],
         axisUnit: axis?.axisYRight?.unit ?? secondUnit,
-        timeSeries: graphData.timeSeries ?? [],
-        thresholdUnit,
+        base: graphData.baseAxis,
         lines: graphData.lines ?? [],
-        base: graphData.baseAxis
+        threshold: thresholds?.critical ?? [],
+        thresholdUnit,
+        timeSeries: graphData.timeSeries ?? []
       }),
     [
       thresholds?.critical,
@@ -69,11 +70,12 @@ export const useComputeYAxisMaxCharacters = ({
     ]
   );
 
+  // Always add a character space in case the algorithm does not compute the displayed value in axis.
   const maxLeftAxisCharacters = useMemo(
     () =>
       isEmpty(maxLeftValue)
         ? 2
-        : Math.max(...maxLeftValue.map((value) => value.length), 2),
+        : Math.max(...maxLeftValue.map((value) => value.length), 2) + 1,
     [maxLeftValue]
   );
 
@@ -81,7 +83,7 @@ export const useComputeYAxisMaxCharacters = ({
     () =>
       isEmpty(maxRightValue)
         ? 5
-        : Math.max(...maxRightValue.map((value) => value.length), 5),
+        : Math.max(...maxRightValue.map((value) => value.length), 5) + 1,
     [maxRightValue]
   );
 

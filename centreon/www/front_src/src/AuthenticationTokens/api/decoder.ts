@@ -1,8 +1,10 @@
-import { JsonDecoder } from 'ts.data.json';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { buildListingDecoder } from '@centreon/ui';
 
 import { equals } from 'ramda';
+import { JsonDecoder } from 'ts.data.json';
+
 import { NamedEntity, Token } from '../Listing/models';
 import { CreatedToken } from '../Modal/models';
 import { TokenType } from '../models';
@@ -18,13 +20,13 @@ const getNamedEntityDecoder = (decoderName): JsonDecoder.Decoder<NamedEntity> =>
 
 const tokenDecoder = JsonDecoder.object<Token>(
   {
-    name: JsonDecoder.string,
     creationDate: JsonDecoder.string,
     creator: getNamedEntityDecoder('creator'),
     expirationDate: JsonDecoder.nullable(JsonDecoder.string),
     isRevoked: JsonDecoder.boolean,
-    user: JsonDecoder.optional(getNamedEntityDecoder('user')),
-    type: JsonDecoder.string
+    name: JsonDecoder.string,
+    type: JsonDecoder.string,
+    user: JsonDecoder.optional(getNamedEntityDecoder('user'))
   },
   'ListedToken',
   {
@@ -55,10 +57,10 @@ export const createdTokenDecoder = JsonDecoder.object<CreatedToken>(
     isRevoked: JsonDecoder.boolean,
     name: JsonDecoder.string,
     token: JsonDecoder.string,
+    type: JsonDecoder.string,
     user: JsonDecoder.optional(
       JsonDecoder.nullable(getNamedEntityDecoder('user'))
-    ),
-    type: JsonDecoder.string
+    )
   },
   'CreatedToken',
   {

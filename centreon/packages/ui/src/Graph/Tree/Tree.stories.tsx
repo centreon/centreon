@@ -1,20 +1,17 @@
+import type { Meta, StoryObj } from '@storybook/react';
+import { equals, has } from 'ramda';
 import { useState } from 'react';
 
-import { Meta, StoryObj } from '@storybook/react';
-import { equals, has } from 'ramda';
-
 import { Zoom } from '../../components';
-
+import { StandaloneTree, Tree, type TreeProps } from '.';
 import { ComplexContent, SimpleContent } from './stories/contents';
 import {
-  ComplexData,
-  SimpleData,
+  type ComplexData,
   complexData,
   moreComplexData,
+  type SimpleData,
   simpleData
 } from './stories/datas';
-
-import { StandaloneTree, Tree, TreeProps } from '.';
 
 const meta: Meta<typeof StandaloneTree> = {
   component: StandaloneTree
@@ -38,10 +35,10 @@ const TreeWithZoom = <TData,>({
   return (
     <div style={{ height: '90vh', width: '100%' }}>
       <Zoom
-        showMinimap
         labels={{
           clear: 'Clear'
         }}
+        showMinimap
       >
         {({ width, height }) => (
           <Tree<ComplexData>
@@ -156,8 +153,8 @@ export const treeWithZoom: Story = {
       getStrokeWidth: ({ target }) => (target.status === 'ok' ? 1 : 2)
     }
   },
-  render: TreeWithZoom,
   parameters: {
     chromatic: { disableSnapshot: true }
-  }
+  },
+  render: TreeWithZoom
 };

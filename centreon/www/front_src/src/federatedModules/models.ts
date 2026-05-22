@@ -1,5 +1,7 @@
 import type { SelectEntry } from '@centreon/ui';
+
 import { ComponentType, LazyExoticComponent } from 'react';
+
 import {
   SelectType,
   WidgetType
@@ -111,10 +113,12 @@ export interface FederatedWidgetOption {
         when: string;
       };
   required?: boolean;
+  requireResourceType?: boolean;
   secondaryLabel: string;
   subInputs?: Array<SubInput>;
   subInputsDelimiter?: string;
   type: FederatedWidgetOptionType;
+  allowEmptyResources?: boolean;
 }
 
 export interface FederatedWidgetProperties {

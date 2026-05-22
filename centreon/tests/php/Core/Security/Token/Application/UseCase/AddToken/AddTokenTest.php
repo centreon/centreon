@@ -41,6 +41,7 @@ use Core\Security\Token\Application\UseCase\AddToken\AddTokenResponse;
 use Core\Security\Token\Application\UseCase\AddToken\AddTokenValidation;
 use Core\Security\Token\Domain\Model\ApiToken;
 use Core\Security\Token\Domain\Model\JwtToken;
+use Core\Security\Token\Domain\Model\PollerToken;
 use Core\Security\Token\Domain\Model\TokenTypeEnum;
 
 beforeEach(function (): void {
@@ -75,6 +76,13 @@ beforeEach(function (): void {
         expirationDate: $this->expirationDate
     );
 
+    $this->requestPoller = new AddTokenRequest(
+        name: '  token name POLLER  ',
+        type: TokenTypeEnum::POLLER,
+        userId: $this->linkedUser['id'],
+        expirationDate: $this->expirationDate
+    );
+
     $this->tokenJwt = new JwtToken(
         name: new TrimmedString($this->requestJwt->name),
         creatorId: $this->creator['id'],
@@ -88,6 +96,15 @@ beforeEach(function (): void {
         name: new TrimmedString($this->requestApi->name),
         userId: $this->linkedUser['id'],
         userName: new TrimmedString($this->linkedUser['name']),
+        creatorId: $this->creator['id'],
+        creatorName: new TrimmedString($this->creator['name']),
+        creationDate: $this->creationDate,
+        expirationDate: $this->expirationDate,
+        isRevoked: false
+    );
+
+    $this->tokenPoller = new PollerToken(
+        name: new TrimmedString($this->requestPoller->name),
         creatorId: $this->creator['id'],
         creatorName: new TrimmedString($this->creator['name']),
         creationDate: $this->creationDate,
@@ -162,7 +179,7 @@ it('should present a ConflictResponse when a creator cannot manage user\'s token
 
 it('should present an InvalidArgumentResponse when a field assert failed', function (): void {
     $this->user
-        ->expects($this->once())
+        ->expects($this->exactly(3))
         ->method('getId')
         ->willReturn($this->creator['id']);
     $this->user
@@ -192,7 +209,7 @@ it('should present an ErrorResponse if the newly created token cannot be retriev
     //     ->method('getId')
     //     ->willReturn(1);
     $this->user
-        ->expects($this->once())
+        ->expects($this->exactly(4))
         ->method('getId')
         ->willReturn($this->creator['id']);
     $this->user
@@ -234,7 +251,7 @@ it('should return created object on success (API)', function (): void {
         ->method('getId')
         ->willReturn(1);
     $this->user
-        ->expects($this->once())
+        ->expects($this->exactly(2))
         ->method('getId')
         ->willReturn($this->creator['id']);
     $this->user
@@ -279,7 +296,7 @@ it('should return created object on success (CMA)', function (): void {
     $this->validation->expects($this->once())->method('assertIsValidUser');
 
     $this->user
-        ->expects($this->once())
+        ->expects($this->exactly(2))
         ->method('getId')
         ->willReturn($this->creator['id']);
     $this->user
@@ -313,4 +330,45 @@ it('should return created object on success (CMA)', function (): void {
         ->toBe($this->tokenJwt->isRevoked())
         ->and($response->token->getType())
         ->toBe($this->tokenJwt->getType());
+});
+
+it('should return created object on success (POLLER)', function (): void {
+    $this->validation->expects($this->once())->method('assertIsValidName');
+    $this->validation->expects($this->once())->method('assertIsValidUser');
+
+    $this->user
+        ->expects($this->exactly(2))
+        ->method('getId')
+        ->willReturn($this->creator['id']);
+    $this->user
+        ->expects($this->once())
+        ->method('getName')
+        ->willReturn($this->creator['name']);
+
+    $this->writeTokenRepository
+        ->expects($this->once())
+        ->method('add');
+
+    $this->readTokenRepository
+        ->expects($this->once())
+        ->method('find')
+        ->willReturn($this->tokenPoller);
+
+    $response = ($this->useCase)($this->requestPoller);
+
+    expect($response)->toBeInstanceOf(AddTokenResponse::class)
+        ->and($response->token->getName())
+        ->toBe($this->tokenPoller->getName())
+        ->and($response->token->getCreatorName())
+        ->toBe($this->creator['name'])
+        ->and($response->token->getCreatorId())
+        ->toBe($this->creator['id'])
+        ->and($response->token->getCreationDate())
+        ->toBe($this->creationDate)
+        ->and($response->token->getExpirationDate())
+        ->toBe($this->expirationDate)
+        ->and($response->token->isRevoked())
+        ->toBe($this->tokenPoller->isRevoked())
+        ->and($response->token->getType())
+        ->toBe($this->tokenPoller->getType());
 });

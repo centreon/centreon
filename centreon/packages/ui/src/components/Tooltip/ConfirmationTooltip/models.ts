@@ -1,6 +1,7 @@
-import { ReactElement } from 'react';
+import type React from 'react';
+import type { ReactElement } from 'react';
 
-import { ActionVariants } from '../../../ActionsList/models';
+import type { ActionVariants } from '../../../ActionsList/models';
 
 interface Labels {
   cancel: string;
@@ -11,7 +12,10 @@ interface Labels {
 }
 
 export interface Props {
-  children: ({ toggleTooltip, isOpen }) => ReactElement;
+  children: (params: {
+    isOpen: boolean;
+    toggleTooltip: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  }) => ReactElement;
   confirmVariant?: ActionVariants;
   labels: Labels;
   onConfirm: () => void;

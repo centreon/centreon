@@ -1,7 +1,6 @@
 import { LazyExoticComponent } from 'react';
 
 import { ResourceEndpoints } from '../../models';
-
 import { TabProps } from '.';
 
 export type TabEndpoints = Omit<ResourceEndpoints, 'details'>;
@@ -18,7 +17,7 @@ export enum TabId {
 export interface Tab {
   Component: LazyExoticComponent<(props: TabProps) => JSX.Element>;
   ariaLabel?: string;
-  getIsActive: (details) => boolean;
+  getIsActive: (details: Record<string, unknown> | null | undefined) => boolean;
   id: TabId;
   title: string;
 }

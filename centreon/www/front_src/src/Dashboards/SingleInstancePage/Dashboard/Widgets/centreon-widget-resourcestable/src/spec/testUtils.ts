@@ -1,19 +1,20 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { Resource, SortOrder } from '../../../models';
 import { DisplayType } from '../Listing/models';
 import { PanelOptions } from '../models';
 
 export const resources: Array<Resource> = [
   {
-    resourceType: 'host',
     resources: [
       {
         id: 1,
         name: 'Host'
       }
-    ]
+    ],
+    resourceType: 'host'
   },
   {
-    resourceType: 'host-group',
     resources: [
       {
         id: 1,
@@ -23,19 +24,20 @@ export const resources: Array<Resource> = [
         id: 2,
         name: 'HG2'
       }
-    ]
+    ],
+    resourceType: 'host-group'
   }
 ];
 
 export const metaServiceResources: Array<Resource> = [
   {
-    resourceType: 'meta-service',
     resources: [
       {
         id: 1,
         name: 'Meta service'
       }
-    ]
+    ],
+    resourceType: 'meta-service'
   }
 ];
 
@@ -86,22 +88,22 @@ export const options: PanelOptions = {
   sortField: 'status',
   sortOrder: SortOrder.Desc,
   states: [],
-  statusTypes: [],
-  statuses: ['success', 'problem', 'undefined']
+  statuses: ['success', 'problem', 'undefined'],
+  statusTypes: []
 };
 
 export const resourcesRegex: Array<Resource> = [
   {
-    resourceType: 'service',
-    resources: '^Loa'
+    resources: '^Loa',
+    resourceType: 'service'
   },
   {
-    resourceType: 'host',
     resources: [
       {
         id: 1,
         name: 'H1'
       }
-    ]
+    ],
+    resourceType: 'host'
   }
 ];

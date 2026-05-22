@@ -1,27 +1,29 @@
 import { labelPortExpectedAtMost } from '../../VaultConfiguration/translatedLabels';
-import initialize from './initialize';
-
 import {
   labelAction,
   labelAdd,
-  labelAddAHost,
   labelAddAgentConfiguration,
+  labelAddAHost,
   labelAgentConfigurationCreated,
   labelAgentConfigurationUpdated,
-  labelAgentType,
   labelAgentsConfigurations,
+  labelAgentType,
   labelByPoller,
   labelCACommonName,
   labelCaCertificate,
   labelCancel,
   labelClear,
+  labelCommand,
+  labelCommandWarning,
   labelConfigurationServer,
   labelConnectionInitiated,
-  labelDNSIP,
   labelDelete,
   labelDeleteAgent,
   labelDeletePoller,
+  labelDNSIP,
   labelEncryptionLevel,
+  labelExecuteTheScript,
+  labelGenerateInstallationCommand,
   labelInsecure,
   labelInvalidExtension,
   labelInvalidPath,
@@ -41,11 +43,14 @@ import {
   labelSelectExistingCMAToken,
   labelSelectExistingCMATokens,
   labelSelectHost,
+  labelSelectOperatingSystem,
+  labelSelectPollerThatWillMonitor,
   labelTLS,
   labelWarningEncryptionLevelCMA,
   labelWarningEncryptionLevelTelegraf,
   labelWelcomeToTheAgentsConfigurationPage
 } from '../translatedLabels';
+import initialize, { linuxCommandLine, windowsCommandLine } from './initialize';
 
 describe('Agent configurations', () => {
   it('displays a welcome label when the listing is empty', () => {
@@ -194,15 +199,13 @@ describe('Agent configurations', () => {
     cy.findByTestId('CancelIcon').click();
     cy.findByLabelText('Filters').click();
 
-    cy.contains('Centreon Monitoring Agent').should('not.exist');
-
     cy.makeSnapshot();
   });
 
   it('clears filters when filters are populated and the corresponding button is clicked', () => {
     initialize({});
 
-    // cy.waitForRequest('@getAgentConfigurations');
+    cy.waitForRequest('@getAgentConfigurations');
     cy.findByLabelText('Filters').click();
     cy.findByLabelText(labelAgentType).click({ force: true });
     cy.get('[data-option-index="1"]').click();
@@ -223,7 +226,6 @@ describe('Agent configurations', () => {
 
     cy.findAllByTestId(labelName).eq(1).should('have.value', '');
     cy.contains('poller6').should('not.exist');
-    cy.contains('Centreon Monitoring Agent').should('not.exist');
 
     cy.makeSnapshot();
   });
@@ -399,18 +401,18 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).to.deep.equal({
-        name: 'agent',
-        connection_mode: 'secure',
-        type: 'telegraf',
         configuration: {
-          otel_private_key: '/sub/test.key',
-          otel_ca_certificate: null,
-          otel_public_certificate: 'test.crt',
           conf_certificate: 'test.cer',
           conf_private_key: '/sub/test.key',
-          conf_server_port: 1234
+          conf_server_port: 1234,
+          otel_ca_certificate: null,
+          otel_private_key: '/sub/test.key',
+          otel_public_certificate: 'test.crt'
         },
-        poller_ids: [1]
+        connection_mode: 'secure',
+        name: 'agent',
+        poller_ids: [1],
+        type: 'telegraf'
       });
     });
 
@@ -432,17 +434,16 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
       expect(request.body).to.deep.equal({
-        name: 'agent updated',
-        type: 'telegraf',
-        connection_mode: 'secure',
         configuration: {
-          otel_private_key: 'test.key',
-          otel_ca_certificate: 'test.crt',
-          otel_public_certificate: 'test.cer',
           conf_certificate: '/sub/test.crt',
           conf_private_key: 'test.key',
-          conf_server_port: 9090
+          conf_server_port: 9090,
+          otel_ca_certificate: 'test.crt',
+          otel_private_key: 'test.key',
+          otel_public_certificate: 'test.cer'
         },
+        connection_mode: 'secure',
+        name: 'agent updated',
         poller_ids: [1, 2]
       });
     });
@@ -463,22 +464,33 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
       expect(request.body).to.deep.equal({
-        name: 'agent updated',
-        type: 'telegraf',
-        connection_mode: 'secure',
         configuration: {
-          otel_private_key: 'test.key',
-          otel_ca_certificate: 'test.crt',
-          otel_public_certificate: 'test.cer',
           conf_certificate: '/sub/test.crt',
           conf_private_key: 'test.key',
-          conf_server_port: 9090
+          conf_server_port: 9090,
+          otel_ca_certificate: 'test.crt',
+          otel_private_key: 'test.key',
+          otel_public_certificate: 'test.cer'
         },
+        connection_mode: 'secure',
+        name: 'agent updated',
         poller_ids: [1, 2]
       });
     });
 
     cy.contains(labelAgentConfigurationUpdated).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('disables the agent type field when editing an existing configuration', () => {
+    initialize({});
+
+    cy.contains('AC 1').click();
+
+    cy.waitForRequest('@getAgentConfiguration');
+
+    cy.findByLabelText(labelAgentType).should('be.disabled');
 
     cy.makeSnapshot();
   });
@@ -492,6 +504,9 @@ describe('Agent configurations modal', () => {
 
     cy.findByTestId('By agent selected').should('be.visible');
     cy.findByTestId('By poller selected').should('not.exist');
+
+    cy.findByTestId('modal-body').scrollTo('bottom');
+
     cy.contains(labelConnectionInitiated);
     cy.contains(labelOTLPReceiver).should('be.visible');
     cy.findByLabelText(labelPublicCertificate).should('have.value', '');
@@ -583,19 +598,26 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).deep.equal({
-        name: 'My agent',
-        connection_mode: 'secure',
-        type: 'centreon-agent',
-        poller_ids: [1],
         configuration: {
           agent_initiated: true,
-          poller_initiated: false,
-          tokens: [{ name: 'token 1', creator_id: 1 }],
+          create_host_auto: false,
+          hosts: [],
           otel_ca_certificate: 'test.crt',
-          otel_public_certificate: '/certificate/test.crt',
           otel_private_key: 'privateKey.key',
-          hosts: []
-        }
+          otel_public_certificate: '/certificate/test.crt',
+          poller_initiated: false,
+          port: 4317,
+          tokens: [
+            {
+              creator_id: 1,
+              name: 'token 1'
+            }
+          ]
+        },
+        connection_mode: 'secure',
+        name: 'My agent',
+        poller_ids: [1],
+        type: 'centreon-agent'
       });
     });
 
@@ -714,28 +736,30 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).deep.equal({
-        name: 'My agent',
-        type: 'centreon-agent',
-        connection_mode: 'secure',
-        poller_ids: [1],
         configuration: {
-          tokens: [{ name: 'token 1', creator_id: 1 }],
           agent_initiated: true,
-          poller_initiated: true,
-          otel_ca_certificate: 'test.crt',
-          otel_public_certificate: '/test.cer',
-          otel_private_key: 'private.key',
+          create_host_auto: false,
           hosts: [
             {
-              id: 1,
               address: '127.0.0.2',
-              port: 4317,
-              poller_ca_name: '',
+              id: 1,
               poller_ca_certificate: 'test.crt',
-              token: { name: 'token 1', creator_id: 1 }
+              poller_ca_name: '',
+              port: 4317,
+              token: { creator_id: 1, name: 'token 1' }
             }
-          ]
-        }
+          ],
+          otel_ca_certificate: 'test.crt',
+          otel_private_key: 'private.key',
+          otel_public_certificate: '/test.cer',
+          poller_initiated: true,
+          port: 4317,
+          tokens: [{ creator_id: 1, name: 'token 1' }]
+        },
+        connection_mode: 'secure',
+        name: 'My agent',
+        poller_ids: [1],
+        type: 'centreon-agent'
       });
     });
 
@@ -802,18 +826,18 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).to.deep.equal({
-        name: 'My agent',
-        connection_mode: 'no-tls',
-        type: 'telegraf',
         configuration: {
-          otel_private_key: null,
-          otel_ca_certificate: null,
-          otel_public_certificate: null,
           conf_certificate: null,
           conf_private_key: null,
-          conf_server_port: 1234
+          conf_server_port: 1234,
+          otel_ca_certificate: null,
+          otel_private_key: null,
+          otel_public_certificate: null
         },
-        poller_ids: [1]
+        connection_mode: 'no-tls',
+        name: 'My agent',
+        poller_ids: [1],
+        type: 'telegraf'
       });
     });
 
@@ -838,6 +862,9 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelPublicCertificate).should('not.exist');
     cy.findAllByLabelText(labelCaCertificate).should('not.exist');
     cy.findAllByLabelText(labelPrivateKey).should('not.exist');
+    cy.findByLabelText(labelSelectExistingCMATokens).click();
+    cy.waitForRequest('@getTokens');
+    cy.contains('token 1').click();
 
     cy.contains(labelByPoller).click();
     cy.contains('Enable').click();
@@ -845,7 +872,9 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelSelectHost).click();
     cy.contains('central').click();
     cy.findByLabelText(labelCACommonName).should('not.exist');
-    cy.findByLabelText(labelSelectExistingCMATokens).should('not.exist');
+    cy.findByLabelText(labelSelectExistingCMAToken).click();
+    cy.waitForRequest('@getTokens');
+    cy.contains('token 1').click();
 
     cy.makeSnapshot();
 
@@ -853,28 +882,30 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).deep.equal({
-        name: 'My agent',
-        type: 'centreon-agent',
-        connection_mode: 'no-tls',
-        poller_ids: [1],
         configuration: {
           agent_initiated: true,
-          poller_initiated: true,
-          tokens: [],
-          otel_ca_certificate: null,
-          otel_public_certificate: null,
-          otel_private_key: null,
+          create_host_auto: false,
           hosts: [
             {
-              id: 1,
               address: '127.0.0.2',
-              port: 4317,
-              poller_ca_name: null,
+              id: 1,
               poller_ca_certificate: null,
-              token: null
+              poller_ca_name: null,
+              port: 4317,
+              token: { creator_id: 1, name: 'token 1' }
             }
-          ]
-        }
+          ],
+          otel_ca_certificate: null,
+          otel_private_key: null,
+          otel_public_certificate: null,
+          poller_initiated: true,
+          port: 4317,
+          tokens: [{ creator_id: 1, name: 'token 1' }]
+        },
+        connection_mode: 'no-tls',
+        name: 'My agent',
+        poller_ids: [1],
+        type: 'centreon-agent'
       });
     });
 
@@ -914,18 +945,18 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).to.deep.equal({
-        name: 'Insecure Agent',
-        connection_mode: 'insecure',
-        type: 'telegraf',
         configuration: {
-          otel_private_key: 'test.key',
-          otel_ca_certificate: 'ca.crt',
-          otel_public_certificate: 'test.crt',
           conf_certificate: 'test.cer',
           conf_private_key: 'test.key',
-          conf_server_port: 1234
+          conf_server_port: 1234,
+          otel_ca_certificate: 'ca.crt',
+          otel_private_key: 'test.key',
+          otel_public_certificate: 'test.crt'
         },
-        poller_ids: [1]
+        connection_mode: 'insecure',
+        name: 'Insecure Agent',
+        poller_ids: [1],
+        type: 'telegraf'
       });
     });
 
@@ -949,17 +980,16 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
       expect(request.body).to.deep.equal({
-        name: 'Insecure Agent',
-        type: 'telegraf',
-        connection_mode: 'insecure',
         configuration: {
-          otel_private_key: 'test.key',
-          otel_ca_certificate: 'test.crt',
-          otel_public_certificate: 'test.cer',
           conf_certificate: '/sub/test.crt',
           conf_private_key: 'test.key',
-          conf_server_port: 9090
+          conf_server_port: 9090,
+          otel_ca_certificate: 'test.crt',
+          otel_private_key: 'test.key',
+          otel_public_certificate: 'test.cer'
         },
+        connection_mode: 'insecure',
+        name: 'Insecure Agent',
         poller_ids: [1, 2]
       });
     });
@@ -1003,33 +1033,115 @@ describe('Agent configurations modal', () => {
 
     cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
       expect(request.body).deep.equal({
-        name: 'My agent',
-        type: 'centreon-agent',
-        connection_mode: 'insecure',
-        poller_ids: [1],
         configuration: {
-          tokens: [{ name: 'token 1', creator_id: 1 }],
           agent_initiated: true,
-          poller_initiated: true,
-          otel_ca_certificate: 'test.crt',
-          otel_public_certificate: '/test.cer',
-          otel_private_key: 'private.key',
+          create_host_auto: false,
           hosts: [
             {
-              id: 1,
               address: '127.0.0.2',
-              port: 4317,
-              poller_ca_name: 'test.crt',
+              id: 1,
               poller_ca_certificate: 'test.crt',
-              token: { name: 'token 1', creator_id: 1 }
+              poller_ca_name: 'test.crt',
+              port: 4317,
+              token: { creator_id: 1, name: 'token 1' }
             }
-          ]
-        }
+          ],
+          otel_ca_certificate: 'test.crt',
+          otel_private_key: 'private.key',
+          otel_public_certificate: '/test.cer',
+          poller_initiated: true,
+          port: 4317,
+          tokens: [{ creator_id: 1, name: 'token 1' }]
+        },
+        connection_mode: 'insecure',
+        name: 'My agent',
+        poller_ids: [1],
+        type: 'centreon-agent'
       });
     });
 
     cy.contains(labelAgentConfigurationCreated).should('be.visible');
 
     cy.makeSnapshot();
+  });
+
+  it('opens modal from global command button and shows values for central poller', () => {
+    initialize({});
+
+    cy.waitForRequest('@getAgentConfigurations');
+
+    cy.contains(labelAgentsConfigurations).should('be.visible');
+
+    cy.get('button').contains(labelCommand).click();
+
+    cy.waitForRequest('@getCommandDetails');
+
+    cy.contains(labelGenerateInstallationCommand);
+    cy.contains(labelCommandWarning);
+    cy.contains(labelSelectPollerThatWillMonitor);
+
+    cy.findByTestId('Select poller').should('have.value', 'Central');
+
+    cy.contains(labelSelectOperatingSystem);
+
+    cy.findByTestId('Windows').should('have.attr', 'data-selected', 'true');
+    cy.findByTestId('Linux').should('be.visible');
+
+    cy.contains(labelExecuteTheScript);
+
+    cy.findByTestId(labelCommand).should('have.text', windowsCommandLine);
+
+    cy.makeSnapshot();
+
+    cy.findByTestId('CloseIcon');
+  });
+
+  it('opens modal from row command icon and display the values for the selected poller', () => {
+    initialize({});
+
+    cy.waitForRequest('@getAgentConfigurations');
+
+    cy.contains(labelAgentsConfigurations).should('be.visible');
+
+    cy.findAllByTestId('ExpandMoreIcon').eq(2).click();
+
+    cy.findAllByTestId(labelCommand).should('have.length', 2);
+    cy.findAllByTestId(labelCommand).eq(0).click();
+
+    cy.waitForRequest('@getCommandDetails');
+
+    cy.contains(labelGenerateInstallationCommand);
+
+    cy.findByTestId('Select poller').should('have.value', 'Central');
+
+    cy.findByTestId('CloseIcon');
+  });
+
+  it('updates displayed command when changing operating system', () => {
+    initialize({});
+
+    cy.waitForRequest('@getAgentConfigurations');
+
+    cy.contains(labelAgentsConfigurations).should('be.visible');
+
+    cy.get('button').contains(labelCommand).click();
+
+    cy.waitForRequest('@getCommandDetails');
+
+    cy.contains(labelGenerateInstallationCommand);
+
+    cy.contains(labelSelectOperatingSystem);
+
+    cy.findByTestId('Windows').should('have.attr', 'data-selected', 'true');
+    cy.findByTestId('Linux').should('have.attr', 'data-selected', 'false');
+    cy.findByTestId(labelCommand).should('have.text', windowsCommandLine);
+
+    cy.findByTestId('Linux').click();
+    cy.findByTestId('Linux').should('have.attr', 'data-selected', 'true');
+    cy.findByTestId(labelCommand).should('have.text', linuxCommandLine);
+
+    cy.makeSnapshot();
+
+    cy.findByTestId('CloseIcon');
   });
 });

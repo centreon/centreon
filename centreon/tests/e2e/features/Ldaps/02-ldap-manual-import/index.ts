@@ -1,7 +1,9 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 const uiDtoSearchFor = '(&(uid=centréon-ldap4)(objectClass=posixAccount))';
-const dNtoSearchFor = 'cn=centréon-ldap4,ou=users,dc=centreon,dc=com';
+const dNtoSearchFor = 'cn=centréon-ldap4,ou=people,ou=users,dc=centreon,dc=com';
 const ldapLogin = 'centréon-ldap4';
 
 before(() => {
@@ -11,15 +13,15 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/include/configuration/configObject/contact/ldapsearch.php'
+    url: INTERCEPTORS.pages.ldap_search
   }).as('getLdaps');
 });
 
@@ -37,11 +39,7 @@ Given('a user is logged in a Centreon server', () => {
 Given(
   'a LDAP configuration with Users auto import disabled has been created',
   () => {
-    cy.navigateTo({
-      page: 'LDAP',
-      rootItemNumber: 4,
-      subMenu: 'Parameters'
-    });
+    cy.visit(PAGES.configuration.ldapsLegacy);
     cy.wait('@getTimeZone');
     // Click on the default ldap configuration
     cy.getIframeBody().contains('openldap').click();
@@ -50,14 +48,14 @@ Given(
     // Enable LDAP authentification
     cy.getIframeBody()
       .find('input[name="ldap_auth_enable[ldap_auth_enable]"]')
-      .then(($input) => {
-        cy.wrap($input).parent().find('label').contains('Yes').click();
+      .then((input) => {
+        cy.wrap(input).parent().find('label').contains('Yes').click();
       });
     // Disable Auto import users
     cy.getIframeBody()
       .find('input[name="ldap_auto_import[ldap_auto_import]"]')
-      .then(($input) => {
-        cy.wrap($input).parent().find('label').contains('No').click();
+      .then((input) => {
+        cy.wrap(input).parent().find('label').contains('No').click();
       });
     // Click on the first "Save" button
     cy.getIframeBody()
@@ -72,11 +70,7 @@ Given(
 When(
   'the user searchs a specific user whose alias contains a special character such as an accent',
   () => {
-    cy.navigateTo({
-      page: 'Contacts / Users',
-      rootItemNumber: 3,
-      subMenu: 'Users'
-    });
+    cy.visit(PAGES.configuration.contactsUsersLegacy);
     cy.wait('@getTimeZone');
     // Wait for the button "LDAP Import" to be visible in the DOM
     cy.waitForElementInIframe('#main-content', 'a:contains("LDAP Import")');
@@ -131,11 +125,7 @@ Then('the user is added to the contacts listing page', () => {
 });
 
 Given('one ldap user has been manually imported', () => {
-  cy.navigateTo({
-    page: 'Contacts / Users',
-    rootItemNumber: 3,
-    subMenu: 'Users'
-  });
+  cy.visit(PAGES.configuration.contactsUsersLegacy);
   cy.wait('@getTimeZone');
   // Check that the contact listing contains an imported ldap user
   cy.getIframeBody().contains('a', ldapLogin).should('be.visible');
@@ -150,11 +140,7 @@ Then('this user can log in to Centreon Web', () => {
 });
 
 Given('the ldap user has rights to access the contacts listing page', () => {
-  cy.navigateTo({
-    page: 'Access Groups',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
   cy.wait('@getTimeZone');
   // Click on the 'All' access group
   cy.getIframeBody().contains('a', 'ALL').click();
@@ -169,11 +155,7 @@ Given('the ldap user has rights to access the contacts listing page', () => {
   cy.exportConfig();
   // Go to the default page
   cy.visit('/');
-  cy.navigateTo({
-    page: 'Menus Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclMenusAccessLegacy);
   cy.wait('@getTimeZone');
   // Click on the 'Add' button to add a new menu access
   cy.getIframeBody().contains('a', 'Add').eq(0).click();
@@ -201,11 +183,7 @@ Given('the ldap user has rights to access the contacts listing page', () => {
 });
 
 When('the ldap user goes to the contacts listing page', () => {
-  cy.navigateTo({
-    page: 'Contacts / Users',
-    rootItemNumber: 0,
-    subMenu: 'Users'
-  });
+  cy.visit(PAGES.configuration.contactsUsersLegacy);
   cy.wait('@getTimeZone');
 });
 

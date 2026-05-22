@@ -1,11 +1,9 @@
-import { ReactElement } from 'react';
-
-import { Provider, createStore } from 'jotai';
-
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { platformVersionsAtom } from '@centreon/ui-context';
 
-import { AddEditResourceAccessRuleModal } from '..';
+import { createStore, Provider } from 'jotai';
+import { ReactElement } from 'react';
+
 import {
   editedResourceAccessRuleIdAtom,
   modalStateAtom,
@@ -38,17 +36,17 @@ import {
   labelSelectResourceType,
   labelYourFormHasUnsavedChanges
 } from '../../translatedLabels';
-import { query } from '../FormInitialValues/useFormInitialValues';
+import { AddEditResourceAccessRuleModal } from '..';
 import {
   findBusinessViewsEndpoint,
   resourceAccessRuleEndpoint
 } from '../api/endpoints';
-
+import { query } from '../FormInitialValues/useFormInitialValues';
 import {
   editedRuleFormData,
-  editedRuleFormDataWithAllContactsAndContactGroups,
   editedRuleFormDataiWithAllBusinessViews,
   editedRuleFormDataiWithBusinessViews,
+  editedRuleFormDataWithAllContactsAndContactGroups,
   findBusinessViewsResponse,
   findResourceAccessRuleResponse,
   findResourceAccessRuleResponseDecoded,

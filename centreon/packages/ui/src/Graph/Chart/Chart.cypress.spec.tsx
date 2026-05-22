@@ -1,10 +1,9 @@
-import { useState } from 'react';
-
-import { Provider, createStore } from 'jotai';
-
 import { userAtom } from '@centreon/ui-context';
 
-import { LineChartData } from '../common/models';
+import { createStore, Provider } from 'jotai';
+import { useState } from 'react';
+
+import type { LineChartData } from '../common/models';
 import dataCurvesWithSameColor from '../mockedData/curvesWithSameColor.json';
 import dataLastDay from '../mockedData/lastDay.json';
 import dataLastDayWithIncompleteValues from '../mockedData/lastDayWithIncompleteValues.json';
@@ -13,11 +12,10 @@ import dataPingServiceLines from '../mockedData/pingService.json';
 import dataPingServiceLinesBars from '../mockedData/pingServiceLinesBars.json';
 import dataPingServiceLinesBarsMixed from '../mockedData/pingServiceLinesBarsMixed.json';
 import dataPingServiceLinesBarsStacked from '../mockedData/pingServiceLinesBarsStacked.json';
-
-import { args as argumentsData } from './helpers/doc';
-import { LineChartProps } from './models';
-
 import WrapperChart from '.';
+import { args as argumentsData } from './helpers/doc';
+import type { LineChartProps } from './models';
+import { labelAvg, labelMin } from './translatedLabels';
 
 interface Props
   extends Pick<
@@ -97,16 +95,16 @@ const initialize = ({
       <Provider store={store}>
         <WrapperChart
           {...argumentsData}
+          additionalLines={additionalLines}
           axis={axis}
+          barStyle={barStyle}
+          boundariesUnit={boundariesUnit}
           data={data as unknown as LineChartData}
           legend={legend}
           lineStyle={lineStyle}
-          barStyle={barStyle}
-          tooltip={tooltip}
-          additionalLines={additionalLines}
-          min={min}
           max={max}
-          boundariesUnit={boundariesUnit}
+          min={min}
+          tooltip={tooltip}
         />
       </Provider>
     )
@@ -153,10 +151,10 @@ const initializeCustomUnits = ({
 const checkGraphWidth = (): void => {
   cy.findByTestId('graph-interaction-zone')
     .should('have.attr', 'height')
-    .and('equal', '376');
+    .and('equal', '392');
 
   cy.findByTestId('graph-interaction-zone').then((graph) => {
-    expect(Number(graph[0].attributes.width.value)).to.be.greaterThan(1170);
+    expect(Number(graph[0].attributes.width.value)).to.be.greaterThan(1167);
   });
 };
 
@@ -175,12 +173,12 @@ describe('Line chart', () => {
       cy.contains('connTime').should('be.visible');
       cy.contains('Min: 70.31').should('be.visible');
 
-      cy.findByTestId('graph-interaction-zone').realMouseMove(250, 70);
+      cy.findByTestId('graph-interaction-zone').realMouseMove(240, 70);
 
       cy.contains('06/18/2023').should('be.visible');
 
-      cy.contains('0.4 s').should('be.visible');
-      cy.contains('75.64%').should('be.visible');
+      cy.contains('0.44 s').should('be.visible');
+      cy.contains('75.19%').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -234,7 +232,7 @@ describe('Line chart', () => {
 
       cy.contains('Min: 70.31').should('be.visible');
 
-      cy.findByTestId('graph-interaction-zone').realMouseMove(1170, 100);
+      cy.findByTestId('graph-interaction-zone').realMouseMove(1100, 100);
 
       cy.get('[data-metric="querytime"]').should('be.visible');
       cy.get('[data-metric="hitratio"]').should('be.visible');
@@ -295,23 +293,23 @@ describe('Line chart', () => {
       .should('have.attr', 'width')
       .and('equal', '1200');
 
-    cy.findByLabelText('Centreon-Server: Round-Trip Average Time')
-      .find('[data-icon="true"]')
+    cy.get('[data-icon="true"]')
+      .eq(0)
       .should('have.css', 'background-color', 'rgb(41, 175, 238)');
-    cy.findByLabelText('Centreon-Server_5: Round-Trip Average Time')
-      .find('[data-icon="true"]')
+    cy.get('[data-icon="true"]')
+      .eq(1)
       .should('have.css', 'background-color', 'rgb(83, 191, 241)');
-    cy.findByLabelText('Centreon-Server_4: Round-Trip Average Time')
-      .find('[data-icon="true"]')
+    cy.get('[data-icon="true"]')
+      .eq(2)
       .should('have.css', 'background-color', 'rgb(8, 34, 47)');
-    cy.findByLabelText('Centreon-Server_3: Round-Trip Average Time')
-      .find('[data-icon="true"]')
+    cy.get('[data-icon="true"]')
+      .eq(3)
       .should('have.css', 'background-color', 'rgb(16, 70, 95)');
-    cy.findByLabelText('Centreon-Server_2: Round-Trip Average Time')
-      .find('[data-icon="true"]')
+    cy.get('[data-icon="true"]')
+      .eq(4)
       .should('have.css', 'background-color', 'rgb(24, 105, 142)');
-    cy.findByLabelText('Centreon-Server_1: Round-Trip Average Time')
-      .find('[data-icon="true"]')
+    cy.get('[data-icon="true"]')
+      .eq(5)
       .should('have.css', 'background-color', 'rgb(32, 140, 190)');
 
     cy.get('[data-metric="1"]').should(
@@ -451,7 +449,7 @@ describe('Line chart', () => {
 
       cy.contains(':00 AM').should('be.visible');
 
-      cy.get('text[transform="rotate(-35, -2, 274.47726401277305)"]').should(
+      cy.get('text[transform="rotate(-35, -2, 187.52600691899028)"]').should(
         'be.visible'
       );
 
@@ -487,7 +485,7 @@ describe('Line chart', () => {
     });
 
     it('displays the curve in a step style when the prop is set', () => {
-      initialize({ lineStyle: { curve: 'step' }, data: dataPingServiceLines });
+      initialize({ data: dataPingServiceLines, lineStyle: { curve: 'step' } });
 
       checkGraphWidth();
 
@@ -532,8 +530,8 @@ describe('Line chart', () => {
 
       checkGraphWidth();
       cy.contains(':00 AM').should('be.visible');
-      cy.get('circle[cx="248.33333333333334"]').should('be.visible');
-      cy.get('circle[cy="251.79089393069725"]').should('be.visible');
+      cy.get('circle[cx="245.83333333333334"]').should('be.visible');
+      cy.get('circle[cy="256.7205013298516"]').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -578,9 +576,9 @@ describe('Line chart', () => {
             dashLength: 5,
             dashOffset: 4,
             lineWidth: 1,
-            showPoints: true,
+            metricId: 13534,
             showArea: true,
-            metricId: 13534
+            showPoints: true
           }
         ]
       });
@@ -591,7 +589,7 @@ describe('Line chart', () => {
       cy.get('path.visx-area-closed')
         .should('have.attr', 'stroke-dasharray')
         .and('equals', '5 4');
-      cy.get('circle[cx="33.11111111111111"]').should('be.visible');
+      cy.get('circle[cx="32.77777777777778"]').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -713,7 +711,7 @@ describe('Lines and bars', () => {
     cy.findByLabelText('B').click();
 
     cy.findAllByTestId('unit-selector').eq(0).should('have.value', 'B');
-    cy.contains('8.79 KB').should('be.visible');
+    cy.contains('8.79 KiB').should('be.visible');
 
     cy.findAllByTestId('unit-selector').eq(1).parent().click();
     cy.findByLabelText('%').click();
@@ -726,20 +724,20 @@ describe('Lines and bars', () => {
 
   it('displays stacked lines and bars when a line and a bar are customized', () => {
     initialize({
-      data: dataPingServiceLinesBarsStacked,
-      lineStyle: [
-        {
-          metricId: 1,
-          showArea: false,
-          dotOffset: 4,
-          lineWidth: 3
-        }
-      ],
       barStyle: [
         {
           metricId: 10,
           opacity: 0.5,
           radius: 0.3
+        }
+      ],
+      data: dataPingServiceLinesBarsStacked,
+      lineStyle: [
+        {
+          dotOffset: 4,
+          lineWidth: 3,
+          metricId: 1,
+          showArea: false
         }
       ]
     });
@@ -747,10 +745,10 @@ describe('Lines and bars', () => {
     checkGraphWidth();
 
     cy.get(
-      'path[d="M7.501377410468319,350.5553648585503 h56.51239669421488 h1v1 v23.44463514144968 a1,1 0 0 1 -1,1 h-56.51239669421488 a1,1 0 0 1 -1,-1 v-23.44463514144968 v-1h1z"]'
+      'path[d="M7.435261707988982,289.92398616599974 h55.91735537190083 h1v1 v100.07601383400026 a1,1 0 0 1 -1,1 h-55.91735537190083 a1,1 0 0 1 -1,-1 v-100.07601383400026 v-1h1z"]'
     ).should('be.visible');
     cy.get(
-      'path[d="M24.05509641873278,201.58170928199803 h23.404958677685954 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,17.553719008264462 v113.86621756002336 v17.553719008264462h-17.553719008264462 h-23.404958677685954 h-17.553719008264462v-17.553719008264462 v-113.86621756002336 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,-17.553719008264462z"]'
+      'path[d="M23.81046831955923,235.36727985204413 h23.166942148760334 a17.37520661157025,17.37520661157025 0 0 1 17.37520661157025,17.37520661157025 v19.806293090815103 v17.37520661157025h-17.37520661157025 h-23.166942148760334 h-17.37520661157025v-17.37520661157025 v-19.806293090815103 a17.37520661157025,17.37520661157025 0 0 1 17.37520661157025,-17.37520661157025z"]'
     ).should('be.visible');
 
     cy.makeSnapshot();
@@ -758,11 +756,11 @@ describe('Lines and bars', () => {
 
   it('displays additional lines when props are set', () => {
     initialize({
-      data: dataPingServiceLines,
       additionalLines: [
         { color: 'pink', unit: '%', yValue: 3 },
-        { color: 'red', unit: 'ms', yValue: 0.15, text: 'some text' }
-      ]
+        { color: 'red', text: 'some text', unit: 'ms', yValue: 0.15 }
+      ],
+      data: dataPingServiceLines
     });
 
     checkGraphWidth();
@@ -781,8 +779,8 @@ describe('Lines and bars', () => {
   it('displays graph according to min and max boundaries', () => {
     initialize({
       data: dataPingServiceLines,
-      min: 0.01,
-      max: 0.1
+      max: 0.1,
+      min: 0.01
     });
 
     checkGraphWidth();
@@ -799,10 +797,10 @@ describe('Lines and bars', () => {
 
   it('displays graph according to min and max boundaries for a unit', () => {
     initialize({
+      boundariesUnit: 'ms',
       data: dataPingServiceLines,
-      min: 0.01,
       max: 0.1,
-      boundariesUnit: 'ms'
+      min: 0.01
     });
 
     checkGraphWidth();
@@ -832,5 +830,24 @@ describe('Lines and bars', () => {
 
     cy.contains('Packet Loss').rightclick();
     cy.get('@secondaryClick').should('have.been.called');
+  });
+
+  it('does not displays corresponding calculations when props are set', () => {
+    initialize({
+      data: dataPingServiceLines,
+      legend: {
+        mode: 'grid',
+        placement: 'bottom',
+        showCalculations: {
+          avg: false,
+          max: false,
+          min: true
+        }
+      }
+    });
+
+    cy.contains(labelMin).should('be.visible');
+    cy.contains(/^Max$/).should('not.exist');
+    cy.contains(labelAvg).should('not.exist');
   });
 });

@@ -1,16 +1,16 @@
 /* eslint-disable hooks/sort */
-import { ChangeEvent, ReactNode, useEffect, useMemo, useState } from 'react';
-
-import { useFormikContext } from 'formik';
-import { useAtomValue } from 'jotai';
-import pluralize from 'pluralize';
-import { always, cond, equals, isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
 
 import { Box, Typography } from '@mui/material';
 
 import { NumberField } from '@centreon/ui';
 import { refreshIntervalAtom } from '@centreon/ui-context';
+
+import { useFormikContext } from 'formik';
+import { useAtomValue } from 'jotai';
+import pluralize from 'pluralize';
+import { always, cond, equals, isNil } from 'ramda';
+import { ChangeEvent, ReactNode, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { dashboardRefreshIntervalAtom } from '../../../../atoms';
 import {
@@ -34,7 +34,11 @@ interface UseRefreshIntervalState {
   value?: string;
 }
 
-const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
+const useRefreshInterval = ({
+  propertyName
+}: {
+  propertyName: string;
+}): UseRefreshIntervalState => {
   const { t } = useTranslation();
   const { classes } = useRefreshIntervalStyles();
 
@@ -97,6 +101,8 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
               defaultValue={customInterval}
               disabled={!equals(RadioOptions.custom, value)}
               fallbackValue={defaultInterval}
+              onChange={changeCustomRefreshInterval}
+              size="compact"
               textFieldSlotsAndSlotProps={{
                 slotProps: {
                   htmlInput: {
@@ -105,9 +111,7 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
                   }
                 }
               }}
-              size="compact"
               type="number"
-              onChange={changeCustomRefreshInterval}
             />
           </div>
           <Typography>{pluralize(t(labelSecond), customInterval)}</Typography>

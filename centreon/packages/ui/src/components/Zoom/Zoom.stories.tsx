@@ -1,6 +1,6 @@
-import { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 
-import Zoom, { ZoomProps } from './Zoom';
+import Zoom, { type ZoomProps } from './Zoom';
 
 const meta: Meta<typeof Zoom> = {
   argTypes: {
@@ -99,6 +99,10 @@ export const WithMinimapPosition: Story = {
 };
 
 export const Playground: Story = {
+  args: {
+    children: Content,
+    showMinimap: true
+  },
   argTypes: {
     redCircleXPosition: {
       control: { max: 2600, min: 400, step: 10, type: 'range' }
@@ -106,10 +110,6 @@ export const Playground: Story = {
     redCircleYPosition: {
       control: { max: 2600, min: 400, step: 10, type: 'range' }
     }
-  },
-  args: {
-    children: Content,
-    showMinimap: true
   },
   render: TemplateResponsive
 };

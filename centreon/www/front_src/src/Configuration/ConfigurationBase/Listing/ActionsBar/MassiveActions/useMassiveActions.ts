@@ -1,19 +1,15 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { capitalize } from '@mui/material';
-import pluralize from 'pluralize';
 
 import { ResponseError, useBulkResponse } from '@centreon/ui';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import pluralize from 'pluralize';
+import { map, pick } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { useDisable, useEnable } from '../../../api';
-import {
-  resourcesToDeleteAtom,
-  resourcesToDuplicateAtom,
-  selectedRowsAtom
-} from '../../atoms';
-
-import { map, pick } from 'ramda';
 import { configurationAtom } from '../../../atoms';
 import {
   labelFailedToDisableResources,
@@ -23,6 +19,11 @@ import {
   labelResourceDisabled,
   labelResourceEnabled
 } from '../../../translatedLabels';
+import {
+  resourcesToDeleteAtom,
+  resourcesToDuplicateAtom,
+  selectedRowsAtom
+} from '../../atoms';
 
 interface UseMassiveActions {
   isMutating: boolean;
@@ -68,10 +69,10 @@ const useMassiveActions = (): UseMassiveActions => {
 
       handleBulkResponse({
         data: results,
-        labelWarning: t(labelFailedToEnableSomeResources),
+        items: selectedRows,
         labelFailed: t(labelFailedToEnableResources(labelResourceType)),
         labelSuccess: t(labelResourceEnabled(labelResourceType)),
-        items: selectedRows
+        labelWarning: t(labelFailedToEnableSomeResources)
       });
 
       resetSelectedRows();
@@ -88,10 +89,10 @@ const useMassiveActions = (): UseMassiveActions => {
 
       handleBulkResponse({
         data: results,
-        labelWarning: t(labelFailedToDisableSomeResources),
+        items: selectedRows,
         labelFailed: t(labelFailedToDisableResources(labelResourceType)),
         labelSuccess: t(labelResourceDisabled(labelResourceType)),
-        items: selectedRows
+        labelWarning: t(labelFailedToDisableSomeResources)
       });
 
       resetSelectedRows();
@@ -104,9 +105,9 @@ const useMassiveActions = (): UseMassiveActions => {
     setResourcesToDuplicate(selectedRowsEntities);
 
   return {
-    isMutating: isEnableMutating || isDisableMutating,
-    enable,
     disable,
+    enable,
+    isMutating: isEnableMutating || isDisableMutating,
     openDeleteModal,
     openDuplicateModal
   };

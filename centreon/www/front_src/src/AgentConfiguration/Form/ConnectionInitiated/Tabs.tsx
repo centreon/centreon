@@ -1,7 +1,7 @@
-import { JSX, useCallback, useState } from 'react';
-
 import { TabContext } from '@mui/lab';
 import { Tabs as MuiTabs, Tab, TabsProps } from '@mui/material';
+
+import { JSX, useCallback, useState } from 'react';
 
 import { useStyles } from './ConnectionInitiated.styles';
 
@@ -12,6 +12,7 @@ type Props = {
   tabs: Array<{
     label: string | JSX.Element;
     value: string;
+    ariaLabel: string;
   }>;
 };
 
@@ -25,9 +26,12 @@ export const Tabs = ({
 
   const [selectedTab, setSelectedTab] = useState(defaultTab);
 
-  const changeTab = useCallback((_, newValue: string): void => {
-    setSelectedTab(newValue);
-  }, []);
+  const changeTab = useCallback(
+    (_: React.SyntheticEvent, newValue: string): void => {
+      setSelectedTab(newValue);
+    },
+    []
+  );
 
   return (
     <TabContext value={selectedTab}>
@@ -41,9 +45,9 @@ export const Tabs = ({
         variant="fullWidth"
         {...tabList}
       >
-        {tabs.map(({ value, label }) => (
+        {tabs.map(({ value, label, ariaLabel }) => (
           <Tab
-            aria-label={label}
+            aria-label={ariaLabel}
             className={classes.tab}
             key={value}
             label={label}

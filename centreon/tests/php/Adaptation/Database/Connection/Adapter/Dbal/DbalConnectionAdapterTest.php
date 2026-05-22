@@ -1551,17 +1551,17 @@ if ($dbConfigCentreon instanceof ConnectionConfig && hasConnectionDb($dbConfigCe
             $pdo = $db->getNativeConnection();
             $db->startUnbufferedQuery();
             expect($db->isUnbufferedQueryActive())->toBeTrue()
-                ->and($pdo->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(0);
+                ->and($pdo->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBeFalsy();
             $pdoStmt = $pdo->prepare('SELECT * FROM contact WHERE contact_id = 1');
             $pdoStmt->execute();
 
             $contact = $pdoStmt->fetch(\PDO::FETCH_ASSOC);
             expect($contact)->toBeArray()->toHaveKey('contact_id', 1)
                 ->and($db->isUnbufferedQueryActive())->toBeTrue()
-                ->and($pdo->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(0);
+                ->and($pdo->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBeFalsy();
             $db->stopUnbufferedQuery();
             expect($db->isUnbufferedQueryActive())->toBeFalse()
-                ->and($pdo->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(1);
+                ->and($pdo->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBeTruthy();
         }
     );
 
@@ -1572,6 +1572,47 @@ if ($dbConfigCentreon instanceof ConnectionConfig && hasConnectionDb($dbConfigCe
             $db->stopUnbufferedQuery();
         }
     )->throws(ConnectionException::class);
+
+    // --------------------------------------- DDL TOOLS -----------------------------------------------
+
+    it('check if a column exists with success', function () use ($dbConfigCentreon): void {
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $exists = $db->columnExists(
+            dbName: $dbConfigCentreon->getDatabaseNameConfiguration(),
+            tableName: 'contact',
+            columnName: 'contact_id'
+        );
+        expect($exists)->toBeTrue();
+    });
+
+    it('check if a non-existent column with success', function () use ($dbConfigCentreon): void {
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $exists = $db->columnExists(
+            dbName: $dbConfigCentreon->getDatabaseNameConfiguration(),
+            tableName: 'contact',
+            columnName: 'dummy_column'
+        );
+        expect($exists)->toBeFalse();
+    });
+
+    it('check if a column exists with errors must to throw an exception', function () use ($dbConfigCentreon): void {
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        expect(fn (): bool => $db->columnExists(
+            dbName: '',
+            tableName: 'contact',
+            columnName: 'contact_id'
+        ))->toThrow(ConnectionException::class)
+            ->and(fn (): bool => $db->columnExists(
+                dbName: $dbConfigCentreon->getDatabaseNameConfiguration(),
+                tableName: 'contact',
+                columnName: ''
+            ))->toThrow(ConnectionException::class)
+            ->and(fn (): bool => $db->columnExists(
+                dbName: $dbConfigCentreon->getDatabaseNameConfiguration(),
+                tableName: '',
+                columnName: 'contact_id'
+            ))->toThrow(ConnectionException::class);
+    });
 
     // ----------------------------------- QUERY ON SEVERAL DATABASES -------------------------------------
 

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 
 use Centreon\Domain\Log\LoggerTrait;
+use CentreonLog;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
 use Core\AdditionalConnectorConfiguration\Application\Repository\WriteAccRepositoryInterface;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Acc;
@@ -171,8 +172,8 @@ final class MigrateAllCredentials
                 $accs,
             );
             $presenter->presentResponse($this->response);
-        } catch (\Throwable $ex) {
-            $this->error((string) $ex);
+        } catch (\Throwable $e) {
+            CentreonLog::create()->error(logTypeId: CentreonLog::TYPE_BUSINESS_LOG, message: $e->getMessage(), exception: $e);
             $presenter->presentResponse(new ErrorResponse(VaultException::unableToMigrateCredentials()));
         }
     }

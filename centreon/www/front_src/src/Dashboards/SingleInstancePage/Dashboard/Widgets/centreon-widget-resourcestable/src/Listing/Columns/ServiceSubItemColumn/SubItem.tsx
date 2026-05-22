@@ -1,43 +1,57 @@
-import { keys } from 'ramda';
-
 import { Box } from '@mui/material';
 
 import { ComponentColumnProps } from '@centreon/ui';
 
-import { getStatus } from '../../utils';
+import { isNil, keys } from 'ramda';
+import { ReactElement } from 'react';
 
+import { getStatus } from '../../utils';
 import StatusChip from './StatusChip';
 import useStyles from './SubItem.styles';
 
-const SubItem = ({ row }: ComponentColumnProps): JSX.Element => {
-  const { resourceCount } = row;
+const SubItem = ({ row }: ComponentColumnProps): ReactElement => {
   const { classes } = useStyles({});
+
+  const typedRow = row as {
+    children?: { status_count?: Record<string, number> };
+    status?: { name?: string };
+    resource_name?: string;
+  };
+
+  const statusCount = typedRow?.children?.status_count ?? {};
+  const isNestedRow = isNil(typedRow?.children);
 
   return (
     <Box className={classes.statusCount}>
-      {row?.resource_name && (
-        <Box className={classes.status}>
+      {typedRow?.resource_name && isNestedRow && (
+        <Box className={classes.nestedStatus}>
           <StatusChip
-            content={getStatus(row?.status.name.toLowerCase())?.label}
-            severityCode={getStatus(row?.status.name.toLowerCase())?.severity}
+            content={
+              getStatus(typedRow?.status?.name?.toLowerCase() as string)?.label
+            }
+            severityCode={
+              getStatus(typedRow?.status?.name?.toLowerCase() as string)
+                ?.severity
+            }
           />
-          <p>{row?.resource_name}</p>
+          <p>{typedRow?.resource_name}</p>
         </Box>
       )}
-      {keys(resourceCount)?.map((item) => {
-        if (resourceCount?.[item]) {
+
+      {keys(statusCount).map((item) => {
+        if (statusCount[item as string]) {
           return (
             <Box className={classes.status} key={item as string}>
               <StatusChip
                 content={getStatus(item as string).label}
                 severityCode={getStatus(item as string).severity}
               />
-              <p>({resourceCount?.[item]})</p>
+              <p>({statusCount[item as string]})</p>
             </Box>
           );
         }
 
-        return <Box key={item as string} />;
+        return null;
       })}
     </Box>
   );

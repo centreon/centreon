@@ -38,8 +38,8 @@ services:
               - ApiPlatform\Metadata\ApiResource
           classes:
               - ApiPlatform\State\ProcessorInterface
-              - App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceCategoryPermissionVoter
               - App\Shared\Infrastructure\TransformerInterface
+              - Symfony\Component\Security\Core\Authorization\Voter\Voter
       tags: [phpstan.rules.rule]
 
     - class: Tools\PhpStan\CustomRules\MiscRules\MarkedClassesHaveTestRule

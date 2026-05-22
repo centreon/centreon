@@ -2,8 +2,8 @@ import {
   labelAdd,
   labelCreateAuthenticationToken,
   labelDeleteToken,
-  labelDisableToken,
   labelDisabled,
+  labelDisableToken,
   labelDone,
   labelEnableToken,
   labelFilters,
@@ -169,7 +169,7 @@ describe('Authentication tokens', () => {
     cy.findAllByTestId(labelName).eq(1).type('token 1');
     cy.findByTestId(labelUser).click();
 
-    cy.contains('admin admin').click();
+    cy.contains('admin').click();
 
     cy.makeSnapshot('API token form (before)');
 
@@ -214,6 +214,37 @@ describe('Authentication tokens', () => {
     cy.findByText(labelSecurityToken).should('not.exist');
 
     cy.makeSnapshot('CMA token form (after)');
+
+    cy.contains(labelDone).click();
+
+    cy.findByText(labelCreateAuthenticationToken).should('not.exist');
+  });
+
+  it('adds a new Poller token and verifies the form submission', () => {
+    cy.waitForRequest('@listToken');
+
+    cy.findByTestId(labelAdd).click();
+
+    cy.contains(labelCreateAuthenticationToken);
+
+    cy.findByTestId('submit').should('be.disabled');
+
+    cy.findAllByTestId(labelName).eq(1).type('token 1');
+
+    cy.findByTestId(labelType).click();
+    cy.findByRole('option', { name: 'Poller' }).click();
+
+    cy.findByTestId(labelUser).should('not.exist');
+
+    cy.makeSnapshot('Poller token form (before)');
+
+    cy.findByTestId('submit').click();
+
+    cy.waitForRequest('@addToken');
+
+    cy.findByTestId('tokenInput').should('be.visible');
+
+    cy.makeSnapshot('Poller token form (after)');
 
     cy.contains(labelDone).click();
 

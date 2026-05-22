@@ -387,7 +387,7 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
                 SELECT 1
                 FROM `:dbstg`.`instances`
                 WHERE instance_id = :monitoringServerId
-                    AND is_encryption_ready = '1'
+                    AND is_encryption_ready = 1
                 SQL
         ));
         $statement->bindValue(':monitoringServerId', $monitoringServerId, \PDO::PARAM_INT);
@@ -401,7 +401,7 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
                 SELECT 1
                 FROM `:db`.`nagios_server`
                 WHERE id = :monitoringServerId
-                    AND is_encryption_ready = '1'
+                    AND is_encryption_ready = 1
                 SQL
         ));
         $statement->bindValue(':monitoringServerId', $monitoringServerId, \PDO::PARAM_INT);

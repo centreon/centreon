@@ -1,7 +1,8 @@
-import { useQueryClient } from '@tanstack/react-query';
-
 import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
+
+import { useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
+
 import { configurationAtom } from '../atoms';
 
 interface UseCreateProps {
@@ -25,7 +26,9 @@ const useCreate = (): UseCreateProps => {
       queryClient.resetQueries({ queryKey: ['getDetails'] });
     }
   });
-  const createMutation = (payload) => {
+  const createMutation = (
+    payload: Record<string, string | Array<number> | object | null>
+  ) => {
     return mutateAsync({
       payload
     });

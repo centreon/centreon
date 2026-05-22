@@ -26,6 +26,7 @@ namespace Tests\Core\Notification\Application\UseCase\FindNotifications;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
@@ -51,6 +52,7 @@ beforeEach(function (): void {
     $this->hgResourceRepository = $this->createMock(NotificationResourceRepositoryInterface::class);
     $this->sgResourceRepository = $this->createMock(NotificationResourceRepositoryInterface::class);
     $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+    $this->adminResolver = $this->createMock(AdminResolver::class);
 });
 
 it('should present an error response when the user is not admin and doesn\'t have sufficient ACLs', function (): void {
@@ -61,7 +63,8 @@ it('should present an error response when the user is not admin and doesn\'t hav
         $this->notificationRepository,
         $this->repositoryProvider,
         $this->readAccessGroupRepository,
-        $this->requestParameters
+        $this->requestParameters,
+        $this->adminResolver
     ))($this->presenter);
 
     expect($this->presenter->responseStatus)
@@ -85,7 +88,8 @@ it('should present an empty response when no notifications are configured', func
         $this->notificationRepository,
         $this->repositoryProvider,
         $this->readAccessGroupRepository,
-        $this->requestParameters
+        $this->requestParameters,
+        $this->adminResolver
     ))($this->presenter);
 
     expect($this->presenter->response)
@@ -149,7 +153,8 @@ it('should get the resources count with ACL calculation when the user is not adm
         $this->notificationRepository,
         $this->repositoryProvider,
         $this->readAccessGroupRepository,
-        $this->requestParameters
+        $this->requestParameters,
+        $this->adminResolver
     ))($this->presenter);
 });
 
@@ -161,6 +166,12 @@ it('should get the resources count without ACL calculation when the user is admi
     $notificationOne = new Notification(1, 'notification-one', new TimePeriod(1, '24x7'), true);
     $notificationTwo = new Notification(2, 'notification-two', new TimePeriod(1, '24x7'), true);
     $notificationThree = new Notification(3, 'notification-three', new TimePeriod(1, '24x7'), true);
+
+    $this->adminResolver
+        ->expects($this->any())
+        ->method('isAdmin')
+        ->with($contact)
+        ->willReturn(true);
 
     $this->notificationRepository
         ->expects($this->once())
@@ -196,166 +207,174 @@ it('should get the resources count without ACL calculation when the user is admi
         $this->notificationRepository,
         $this->repositoryProvider,
         $this->readAccessGroupRepository,
-        $this->requestParameters
+        $this->requestParameters,
+        $this->adminResolver
     ))($this->presenter);
 });
 
-// it('should present a FindNotificationsResponse when the use case is executed correctly', function (): void {
-//     $contact = (new Contact())->setAdmin(true)->setId(1)->setTopologyRules(
-//         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
-//     );
+it('should present a FindNotificationsResponse when the use case is executed correctly', function (): void {
+    $contact = (new Contact())->setAdmin(true)->setId(1)->setTopologyRules(
+        [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
+    );
 
-//     $notificationOne = new Notification(1,'notification-one', new TimePeriod(1, '24x7'), true);
-//     $notificationTwo = new Notification(2,'notification-two', new TimePeriod(1, '24x7'), true);
-//     $notificationThree = new Notification(3,'notification-three', new TimePeriod(1, '24x7'), true);
+    $notificationOne = new Notification(1, 'notification-one', new TimePeriod(1, '24x7'), true);
+    $notificationTwo = new Notification(2, 'notification-two', new TimePeriod(1, '24x7'), true);
+    $notificationThree = new Notification(3, 'notification-three', new TimePeriod(1, '24x7'), true);
 
-//     $this->notificationRepository
-//         ->expects($this->once())
-//         ->method('findAll')
-//         ->willReturn([
-//             $notificationOne,
-//             $notificationTwo,
-//             $notificationThree,
-//         ]);
+    $this->notificationRepository
+        ->expects($this->once())
+        ->method('findAll')
+        ->willReturn([
+            $notificationOne,
+            $notificationTwo,
+            $notificationThree,
+        ]);
 
-//     $notificationChannelsByNotifications = [
-//         1 => [Channel::from('Slack')],
-//         2 => [Channel::from('Slack'), Channel::from('Sms')],
-//         3 => [
-//             Channel::from('Slack'),
-//             Channel::from('Sms'),
-//             Channel::from('Email'),
-//         ],
-//     ];
+    $notificationChannelsByNotifications = [
+        1 => [Channel::from('Slack')],
+        2 => [Channel::from('Slack'), Channel::from('Sms')],
+        3 => [
+            Channel::from('Slack'),
+            Channel::from('Sms'),
+            Channel::from('Email'),
+        ],
+    ];
 
-//     $this->notificationRepository
-//         ->expects($this->once())
-//         ->method('findNotificationChannelsByNotificationIds')
-//         ->willReturn($notificationChannelsByNotifications);
+    $this->notificationRepository
+        ->expects($this->once())
+        ->method('findNotificationChannelsByNotificationIds')
+        ->willReturn($notificationChannelsByNotifications);
 
-//     $usersCount = [
-//         1 => 4,
-//         2 => 4,
-//         3 => 2,
-//     ];
+    $this->adminResolver
+        ->expects($this->any())
+        ->method('isAdmin')
+        ->with($contact)
+        ->willReturn(true);
 
-//     $this->notificationRepository
-//         ->expects($this->once())
-//         ->method('countContactsByNotificationIds')
-//         ->willReturn($usersCount);
+    $usersCount = [
+        1 => 4,
+        2 => 4,
+        3 => 2,
+    ];
 
-//     $this->hgResourceRepository
-//         ->expects($this->any())
-//         ->method('resourceType')
-//         ->willReturn('hostgroup');
+    $this->notificationRepository
+        ->expects($this->once())
+        ->method('countContactsByNotificationIds')
+        ->willReturn($usersCount);
 
-//     $this->sgResourceRepository
-//         ->expects($this->any())
-//         ->method('resourceType')
-//         ->willReturn('servicegroup');
+    $this->hgResourceRepository
+        ->expects($this->any())
+        ->method('resourceType')
+        ->willReturn('hostgroup');
 
-//     $repositories = [$this->hgResourceRepository, $this->sgResourceRepository];
-//     $this->repositoryProvider
-//         ->expects($this->any())
-//         ->method('getRepositories')
-//         ->willReturn($repositories);
+    $this->sgResourceRepository
+        ->expects($this->any())
+        ->method('resourceType')
+        ->willReturn('servicegroup');
 
-//     $hostgroupResourcesCount = [1 => 10, 2 => 5, 3 => 6];
-//     $servicegroupResourcesCount = [1 => 8, 2 => 12, 3 => 3];
-//     $resourcesCount = [$hostgroupResourcesCount, $servicegroupResourcesCount];
+    $repositories = [$this->hgResourceRepository, $this->sgResourceRepository];
+    $this->repositoryProvider
+        ->expects($this->any())
+        ->method('getRepositories')
+        ->willReturn($repositories);
 
-//     $index = 0;
-//     foreach ($repositories as $repository) {
-//         $repository
-//             ->expects($this->any())
-//             ->method('countResourcesByNotificationIds')
-//             ->willReturn($resourcesCount[$index]);
-//         $index++;
-//     }
+    $hostgroupResourcesCount = [1 => 10, 2 => 5, 3 => 6];
+    $servicegroupResourcesCount = [1 => 8, 2 => 12, 3 => 3];
+    $resourcesCount = [$hostgroupResourcesCount, $servicegroupResourcesCount];
 
-//     (new FindNotifications(
-//         $contact,
-//         $this->notificationRepository,
-//         $this->repositoryProvider,
-//         $this->readAccessGroupRepository,
-//         $this->requestParameters
-//     ))($this->presenter);
+    $index = 0;
+    foreach ($repositories as $repository) {
+        $repository
+            ->expects($this->any())
+            ->method('countResourcesByNotificationIds')
+            ->willReturn($resourcesCount[$index]);
+        $index++;
+    }
 
-//     expect($this->presenter->response)
-//         ->toBeInstanceOf(FindNotificationsResponse::class)
-//         ->and($this->presenter->response->notifications)
-//         ->toBeArray();
+    (new FindNotifications(
+        $contact,
+        $this->notificationRepository,
+        $this->repositoryProvider,
+        $this->readAccessGroupRepository,
+        $this->requestParameters,
+        $this->adminResolver
+    ))($this->presenter);
 
-//     $firstNotification = $this->presenter->response->notifications[0];
-//     $secondNotification = $this->presenter->response->notifications[1];
-//     $thirdNotification = $this->presenter->response->notifications[2];
+    expect($this->presenter->response)
+        ->toBeInstanceOf(FindNotificationsResponse::class)
+        ->and($this->presenter->response->notifications)
+        ->toBeArray();
 
-//     expect($firstNotification)
-//         ->toBeInstanceOf(NotificationDto::class)
-//         ->and($firstNotification->id)->toBe($notificationOne->getId())
-//         ->and($firstNotification->name)->toBe($notificationOne->getName())
-//         ->and($firstNotification->usersCount)->toBe($usersCount[$notificationOne->getId()])
-//         ->and($firstNotification->isActivated)->toBeTrue()
-//         ->and($firstNotification->notificationChannels)
-//         ->toBe($notificationChannelsByNotifications[$notificationOne->getId()])
-//         ->and($firstNotification->resources)->toBe(
-//             [
-//                 [
-//                     'type' => NotificationResource::TYPE_HOST_GROUP,
-//                     'count' => $hostgroupResourcesCount[$notificationOne->getId()],
-//                 ],
-//                 [
-//                     'type' => NotificationResource::TYPE_SERVICE_GROUP,
-//                     'count' => $servicegroupResourcesCount[$notificationOne->getId()],
-//                 ],
-//             ]
-//         )
-//         ->and($firstNotification->timeperiodId)->toBe(1)
-//         ->and($firstNotification->timeperiodName)->toBe('24x7');
+    $firstNotification = $this->presenter->response->notifications[0];
+    $secondNotification = $this->presenter->response->notifications[1];
+    $thirdNotification = $this->presenter->response->notifications[2];
 
-//     expect($secondNotification)
-//         ->toBeInstanceOf(NotificationDto::class)
-//         ->and($secondNotification->id)->toBe($notificationTwo->getId())
-//         ->and($secondNotification->name)->toBe($notificationTwo->getName())
-//         ->and($secondNotification->usersCount)->toBe($usersCount[$notificationTwo->getId()])
-//         ->and($secondNotification->isActivated)->toBeTrue()
-//         ->and($secondNotification->notificationChannels)
-//         ->toBe($notificationChannelsByNotifications[$notificationTwo->getId()])
-//         ->and($secondNotification->resources)->toBe(
-//             [
-//                 [
-//                     'type' => NotificationResource::TYPE_HOST_GROUP,
-//                     'count' => $hostgroupResourcesCount[$notificationTwo->getId()],
-//                 ],
-//                 [
-//                     'type' => NotificationResource::TYPE_SERVICE_GROUP,
-//                     'count' => $servicegroupResourcesCount[$notificationTwo->getId()],
-//                 ],
-//             ]
-//         )
-//         ->and($secondNotification->timeperiodId)->toBe(1)
-//         ->and($secondNotification->timeperiodName)->toBe('24x7');
+    expect($firstNotification)
+        ->toBeInstanceOf(NotificationDto::class)
+        ->and($firstNotification->id)->toBe($notificationOne->getId())
+        ->and($firstNotification->name)->toBe($notificationOne->getName())
+        ->and($firstNotification->usersCount)->toBe($usersCount[$notificationOne->getId()])
+        ->and($firstNotification->isActivated)->toBeTrue()
+        ->and($firstNotification->notificationChannels)
+        ->toBe($notificationChannelsByNotifications[$notificationOne->getId()])
+        ->and($firstNotification->resources)->toBe(
+            [
+                [
+                    'type' => NotificationResource::TYPE_HOST_GROUP,
+                    'count' => $hostgroupResourcesCount[$notificationOne->getId()],
+                ],
+                [
+                    'type' => NotificationResource::TYPE_SERVICE_GROUP,
+                    'count' => $servicegroupResourcesCount[$notificationOne->getId()],
+                ],
+            ]
+        )
+        ->and($firstNotification->timeperiodId)->toBe(1)
+        ->and($firstNotification->timeperiodName)->toBe('24x7');
 
-//     expect($thirdNotification)
-//         ->toBeInstanceOf(NotificationDto::class)
-//         ->and($thirdNotification->id)->toBe($notificationThree->getId())
-//         ->and($thirdNotification->name)->toBe($notificationThree->getName())
-//         ->and($thirdNotification->usersCount)->toBe($usersCount[$notificationThree->getId()])
-//         ->and($thirdNotification->isActivated)->toBeTrue()
-//         ->and($thirdNotification->notificationChannels)
-//         ->toBe($notificationChannelsByNotifications[$notificationThree->getId()])
-//         ->and($thirdNotification->resources)->toBe(
-//             [
-//                 [
-//                     'type' => NotificationResource::TYPE_HOST_GROUP,
-//                     'count' => $hostgroupResourcesCount[$notificationThree->getId()],
-//                 ],
-//                 [
-//                     'type' => NotificationResource::TYPE_SERVICE_GROUP,
-//                     'count' => $servicegroupResourcesCount[$notificationThree->getId()],
-//                 ],
-//             ]
-//         )
-//         ->and($thirdNotification->timeperiodId)->toBe(1)
-//         ->and($thirdNotification->timeperiodName)->toBe('24x7');
-// });
+    expect($secondNotification)
+        ->toBeInstanceOf(NotificationDto::class)
+        ->and($secondNotification->id)->toBe($notificationTwo->getId())
+        ->and($secondNotification->name)->toBe($notificationTwo->getName())
+        ->and($secondNotification->usersCount)->toBe($usersCount[$notificationTwo->getId()])
+        ->and($secondNotification->isActivated)->toBeTrue()
+        ->and($secondNotification->notificationChannels)
+        ->toBe($notificationChannelsByNotifications[$notificationTwo->getId()])
+        ->and($secondNotification->resources)->toBe(
+            [
+                [
+                    'type' => NotificationResource::TYPE_HOST_GROUP,
+                    'count' => $hostgroupResourcesCount[$notificationTwo->getId()],
+                ],
+                [
+                    'type' => NotificationResource::TYPE_SERVICE_GROUP,
+                    'count' => $servicegroupResourcesCount[$notificationTwo->getId()],
+                ],
+            ]
+        )
+        ->and($secondNotification->timeperiodId)->toBe(1)
+        ->and($secondNotification->timeperiodName)->toBe('24x7');
+
+    expect($thirdNotification)
+        ->toBeInstanceOf(NotificationDto::class)
+        ->and($thirdNotification->id)->toBe($notificationThree->getId())
+        ->and($thirdNotification->name)->toBe($notificationThree->getName())
+        ->and($thirdNotification->usersCount)->toBe($usersCount[$notificationThree->getId()])
+        ->and($thirdNotification->isActivated)->toBeTrue()
+        ->and($thirdNotification->notificationChannels)
+        ->toBe($notificationChannelsByNotifications[$notificationThree->getId()])
+        ->and($thirdNotification->resources)->toBe(
+            [
+                [
+                    'type' => NotificationResource::TYPE_HOST_GROUP,
+                    'count' => $hostgroupResourcesCount[$notificationThree->getId()],
+                ],
+                [
+                    'type' => NotificationResource::TYPE_SERVICE_GROUP,
+                    'count' => $servicegroupResourcesCount[$notificationThree->getId()],
+                ],
+            ]
+        )
+        ->and($thirdNotification->timeperiodId)->toBe(1)
+        ->and($thirdNotification->timeperiodName)->toBe('24x7');
+});

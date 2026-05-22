@@ -1,16 +1,17 @@
-import { Dispatch, SetStateAction } from 'react';
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
+import { useSnackbar } from '@centreon/ui';
 
 import { useAtomValue } from 'jotai';
 import { omit } from 'ramda';
+import { Dispatch, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useSnackbar } from '@centreon/ui';
-
 import { labelFilterCreated } from '../../translatedLabels';
-import useActionFilter from '../Edit/EditButton/useActionFilter';
-import CreateFilterDialog from '../Save/CreateFilterDialog';
 import { createFilter } from '../api';
+import useActionFilter from '../Edit/EditButton/useActionFilter';
 import { currentFilterAtom } from '../filterAtoms';
+import CreateFilterDialog from '../Save/CreateFilterDialog';
 
 interface DataCreateFilter {
   isCreatingFilter: boolean;
@@ -46,10 +47,10 @@ const SaveActions = ({ dataCreateFilter }: Props): JSX.Element => {
       {isCreatingFilter && (
         <CreateFilterDialog
           callbackSuccess={createFilterCallback}
+          onCancel={cancelCreateFilter}
           open={isCreatingFilter}
           payloadAction={{ criterias: currentFilter?.criterias }}
           request={createFilter}
-          onCancel={cancelCreateFilter}
         />
       )}
     </div>

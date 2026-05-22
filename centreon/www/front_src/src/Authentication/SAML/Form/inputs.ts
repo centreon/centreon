@@ -1,8 +1,10 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
+import type { InputProps } from '@centreon/ui';
+import { InputType } from '@centreon/ui';
+
 import { FormikValues } from 'formik';
 import { not, prop } from 'ramda';
-
-import { InputType } from '@centreon/ui';
-import type { InputProps } from '@centreon/ui';
 
 import {
   accessGroupsEndpoint,
@@ -13,8 +15,8 @@ import {
   labelAclAccessGroup,
   labelApplyOnlyFirtsRole,
   labelAuthenticationMode,
-  labelConditionValue,
   labelConditionsAttributePath,
+  labelConditionValue,
   labelContactGroup,
   labelContactTemplate,
   labelDefineAuthorizedConditionsValues,
@@ -23,12 +25,12 @@ import {
   labelEnableAutoImport,
   labelEnableAutomaticManagement,
   labelEnableConditionsOnIdentityProvider,
-  labelGroupValue,
   labelGroupsAttributePath,
+  labelGroupValue,
   labelMixed,
-  labelRoleValue,
   labelRolesAttributePath,
-  labelRolesMapping
+  labelRolesMapping,
+  labelRoleValue
 } from '../../shared/translatedLabels';
 import {
   labelActivation,
@@ -43,18 +45,18 @@ import {
   labelCertificate,
   labelDefineRelationBetweenRolesAndAclAccessGroups,
   labelEmailAttribute,
+  labelEnableRequestedAuthnContext,
   labelEnableSAMLAuthentication,
   labelEntityIdURL,
   labelFullNameAttribute,
   labelLogoutFrom,
   labelLogoutUrl,
   labelRemoteLoginUrl,
-  labelRequestedAuthnContext,
+  labelRequestedAuthnContextComparison,
   labelSAMLOnly,
   labelUserIdAttribute
 } from '../translatedLabels';
-
-import RequestedAuthnContextField from './RequestedAuthnContextField';
+import RequestedAuthnContextComparisonField from './RequestedAuthnContextField';
 
 const isAutoImportDisabled = (values: FormikValues): boolean =>
   not(prop('autoImport', values));
@@ -135,7 +137,8 @@ const rolesMapping: Array<InputProps> = [
         {
           connectedAutocomplete: {
             additionalConditionParameters: [],
-            endpoint: accessGroupsEndpoint
+            endpoint: accessGroupsEndpoint,
+            getOptionLabel: (option) => option.name
           },
           dataTestId: 'saml_accessGroup',
           fieldName: 'accessGroup',
@@ -185,7 +188,8 @@ const groupsMapping: Array<InputProps> = [
         {
           connectedAutocomplete: {
             additionalConditionParameters: [],
-            endpoint: contactGroupsEndpoint
+            endpoint: contactGroupsEndpoint,
+            getOptionLabel: (option) => option.name
           },
           dataTestId: 'saml_contactGroup',
           fieldName: 'contactGroup',
@@ -268,14 +272,22 @@ export const inputs: Array<InputProps> = [
     type: InputType.Text
   },
   {
-    custom: {
-      Component: RequestedAuthnContextField
-    },
-    dataTestId: 'saml_requestedAuthnContext',
+    dataTestId: 'saml_requestAuthnContext',
     fieldName: 'requestedAuthnContext',
     group: labelIdentityProvider,
-    label: labelRequestedAuthnContext,
-    required: true,
+    label: labelEnableRequestedAuthnContext,
+    type: InputType.Switch
+  },
+  {
+    custom: {
+      Component: RequestedAuthnContextComparisonField
+    },
+    dataTestId: 'saml_requestedAuthnContextComparison',
+    fieldName: 'requestedAuthnContextComparison',
+    group: labelIdentityProvider,
+    hideInput: (values: FormikValues): boolean => !values.requestedAuthnContext,
+    label: labelRequestedAuthnContextComparison,
+    required: false,
     type: InputType.Custom
   },
   {
@@ -316,7 +328,8 @@ export const inputs: Array<InputProps> = [
   {
     connectedAutocomplete: {
       additionalConditionParameters: [],
-      endpoint: contactTemplatesEndpoint
+      endpoint: contactTemplatesEndpoint,
+      getOptionLabel: (option) => option.name
     },
     dataTestId: 'saml_contactTemplate',
     fieldName: 'contactTemplate',

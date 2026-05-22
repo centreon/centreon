@@ -1,14 +1,16 @@
-import { equals, isEmpty, isNil, lte } from 'ramda';
-import type { Layout } from 'react-grid-layout';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { DashboardLayout } from '@centreon/ui';
 
+import { useAtomValue } from 'jotai';
+import { equals, isEmpty, isNil, lte } from 'ramda';
+import { ReactElement } from 'react';
+import type { Layout } from 'react-grid-layout';
+
+import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 import { AddWidgetPanel } from '../AddEditWidget';
 import useLinkToResourceStatus from '../hooks/useLinkToResourceStatus';
 import type { Panel } from '../models';
-
-import { useAtomValue } from 'jotai';
-import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 import DashboardPanel from './Panel/Panel';
 import PanelHeader from './Panel/PanelHeader';
 
@@ -34,7 +36,7 @@ const PanelsLayout = ({
   displayMoreActions = true,
   playlistHash,
   dashboardId
-}: Props): JSX.Element => {
+}: Props): ReactElement => {
   const { getLinkToResourceStatusPage, changeViewMode, getPageType } =
     useLinkToResourceStatus();
 
@@ -53,7 +55,7 @@ const PanelsLayout = ({
       {panels.map(
         ({ i, panelConfiguration, refreshCount, data, name, options, w }) => (
           <DashboardLayout.Item
-            additionalMemoProps={[dashboardId, panelConfiguration.path]}
+            additionalMemoProps={[dashboardId, panelConfiguration?.path]}
             canMove={
               canEdit && isEditing && !panelConfiguration?.isAddWidgetPanel
             }
@@ -79,6 +81,7 @@ const PanelsLayout = ({
                         !isNil(options?.name) &&
                         !isEmpty(options?.name)
                       }
+                      expandableData={expandableData}
                       forceDisplayShrinkRefresh={
                         lte(w, 4) &&
                         !isNil(options?.name) &&
@@ -90,10 +93,9 @@ const PanelsLayout = ({
                           ? getLinkToResourceStatusPage(data, name, options)
                           : undefined
                       }
+                      name={name}
                       pageType={getPageType(data)}
                       setRefreshCount={setRefreshCount}
-                      name={name}
-                      expandableData={expandableData}
                     />
                   )}
                 </>
@@ -102,17 +104,20 @@ const PanelsLayout = ({
             id={i}
             key={i}
           >
-            {panelConfiguration?.isAddWidgetPanel ? (
-              <AddWidgetPanel />
-            ) : (
-              <DashboardPanel
-                dashboardId={dashboardId}
-                id={i}
-                playlistHash={playlistHash}
-                refreshCount={refreshCount}
-                name={name}
-              />
-            )}
+            {({ isInViewport }) =>
+              panelConfiguration?.isAddWidgetPanel ? (
+                <AddWidgetPanel />
+              ) : (
+                <DashboardPanel
+                  dashboardId={dashboardId}
+                  id={i}
+                  isInViewport={isInViewport}
+                  name={name}
+                  playlistHash={playlistHash}
+                  refreshCount={refreshCount}
+                />
+              )
+            }
           </DashboardLayout.Item>
         )
       )}

@@ -1,19 +1,24 @@
+import type { Point, ProvidedZoom, Translate } from '@visx/zoom/lib/types';
+import { equals } from 'ramda';
+import type React from 'react';
 import { useCallback, useState } from 'react';
 
-import { Point, ProvidedZoom, Translate } from '@visx/zoom/lib/types';
-import { equals } from 'ramda';
-
 import { localPoint } from './localPoint';
-import { ZoomState } from './models';
+import type { ZoomState } from './models';
 
-const isLeftMouseButtonClicked = (e: MouseEvent): boolean =>
-  equals(e.buttons, 1);
+const isLeftMouseButtonClicked = (
+  e: React.MouseEvent<SVGSVGElement>
+): boolean => equals(e.buttons, 1);
 
 interface UseZoomState {
   dragEnd: () => void;
-  dragStart: (zoom: ProvidedZoom<SVGSVGElement> & ZoomState) => (e) => void;
+  dragStart: (
+    zoom: ProvidedZoom<SVGSVGElement> & ZoomState
+  ) => (e: React.MouseEvent<SVGSVGElement>) => void;
   isDragging: boolean;
-  move: (zoom: ProvidedZoom<SVGSVGElement> & ZoomState) => (e) => void;
+  move: (
+    zoom: ProvidedZoom<SVGSVGElement> & ZoomState
+  ) => (e: React.MouseEvent<SVGSVGElement>) => void;
 }
 
 export const useZoom = (): UseZoomState => {
@@ -22,7 +27,7 @@ export const useZoom = (): UseZoomState => {
 
   const dragStart = useCallback(
     (zoom: ProvidedZoom<SVGSVGElement> & ZoomState) =>
-      (e): void => {
+      (e: React.MouseEvent<SVGSVGElement>): void => {
         if (!isLeftMouseButtonClicked(e)) {
           return;
         }
@@ -35,7 +40,7 @@ export const useZoom = (): UseZoomState => {
 
   const move = useCallback(
     (zoom: ProvidedZoom<SVGSVGElement> & ZoomState) =>
-      (e): void => {
+      (e: React.MouseEvent<SVGSVGElement>): void => {
         if (!startPoint || !startTranslate) {
           return;
         }

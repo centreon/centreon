@@ -1,6 +1,8 @@
+import { darken, getLuminance, lighten, type Theme } from '@mui/material';
+
+import dayjs from 'dayjs';
 import numeral from 'numeral';
 import {
-  T,
   always,
   cond,
   equals,
@@ -15,18 +17,16 @@ import {
   lt,
   lte,
   pluck,
+  T,
   type
 } from 'ramda';
 
-import { Theme, darken, getLuminance, lighten } from '@mui/material';
-
-import dayjs from 'dayjs';
-import { BarStyle } from '../BarChart/models';
+import type { BarStyle } from '../BarChart/models';
 import { margin } from '../Chart/common';
-import { LineStyle } from '../Chart/models';
-import { Threshold, Thresholds } from './models';
+import type { LineStyle } from '../Chart/models';
+import type { Threshold, Thresholds } from './models';
 import { formatMetricValueWithUnit } from './timeSeries';
-import { Line, TimeValue } from './timeSeries/models';
+import type { Line, TimeValue } from './timeSeries/models';
 
 interface GetColorFromDataAndThresholdsProps {
   baseColor?: string;
@@ -127,6 +127,7 @@ export const emphasizeCurveColor = ({
 
   if (gte(getLuminance(color), 0.5)) {
     if (gte(index, totalLevels * 2)) {
+      // @ts-expect-error - suppressing pre-existing type mismatch
       return darken(color, normalizeLevel({ factor, level: last(levels) }));
     }
     if (gte(index, totalLevels)) {
@@ -140,6 +141,7 @@ export const emphasizeCurveColor = ({
   }
 
   if (gte(index, totalLevels * 2)) {
+    // @ts-expect-error - suppressing pre-existing type mismatch
     return lighten(color, normalizeLevel({ factor, level: last(levels) }));
   }
   if (gte(index, totalLevels)) {
@@ -203,8 +205,10 @@ export const getStyle = ({
   metricId
 }: GetStyleProps): BarStyle | LineStyle => {
   return equals(type(style), 'Array')
-    ? style.find((metricStyle) => equals(metricId, metricStyle.metricId))
-    : style;
+    ? // @ts-expect-error - suppressing pre-existing type mismatch
+      style.find((metricStyle) => equals(metricId, metricStyle.metricId))
+    : // @ts-expect-error - suppressing pre-existing type mismatch
+      style;
 };
 
 interface GetFormattedAxisValuesProps {
@@ -235,9 +239,9 @@ export const getFormattedAxisValues = ({
   const formattedData = metricIds.map((metricId) =>
     timeSeries.map((data) =>
       formatMetricValueWithUnit({
-        value: data[metricId],
+        base,
         unit: axisUnit,
-        base
+        value: data[metricId]
       })
     )
   );
@@ -247,9 +251,9 @@ export const getFormattedAxisValues = ({
   const formattedThresholdValues = equals(thresholdUnit, axisUnit)
     ? threshold.map(({ value }) =>
         formatMetricValueWithUnit({
-          value,
+          base,
           unit: axisUnit,
-          base
+          value
         })
       ) || []
     : [];
@@ -270,7 +274,9 @@ export const computeGElementMarginLeft = ({
 }: ComputeGElementMarginLeftProps): number =>
   maxCharacters * 5 + (hasSecondUnit ? margin.top * 0.8 : margin.top * 0.6);
 
-export const computPixelsToShiftMouse = (xScale): number => {
+export const computPixelsToShiftMouse = (
+  xScale: import('d3-scale').ScaleTime<number, number>
+): number => {
   const domain = xScale.domain();
 
   const hoursDiffInGraph = dayjs(domain[1]).diff(domain[0], 'h');

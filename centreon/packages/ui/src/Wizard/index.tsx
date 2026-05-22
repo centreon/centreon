@@ -1,16 +1,14 @@
-import { useState } from 'react';
-
-import { Formik } from 'formik';
-import { dec, equals, filter, inc, isEmpty, length, not, pipe } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import { Dialog, DialogContent } from '@mui/material';
 
-import Confirm from '../Dialog/Confirm';
+import { Formik, type FormikHelpers, type FormikValues } from 'formik';
+import { dec, equals, filter, inc, isEmpty, length, not, pipe } from 'ramda';
+import { useState } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
+import Confirm from '../Dialog/Confirm';
+import type { WizardProps } from './models';
 import Stepper from './Stepper';
 import WizardContent from './WizardContent';
-import { WizardProps } from './models';
 
 const useStyles = makeStyles()(() => ({
   dialogContent: {
@@ -65,13 +63,18 @@ const Wizard = ({
     setCurrentStep(dec(currentStep));
   };
 
-  const disableNextOnSendingRequests = (sendingRequests): void => {
+  const disableNextOnSendingRequests = (
+    sendingRequests: Array<boolean>
+  ): void => {
     setSendingRequest(
       pipe(isEmpty, not)(filter(equals(true), sendingRequests))
     );
   };
 
-  const submit = (values, bag): void => {
+  const submit = (
+    values: FormikValues,
+    bag: FormikHelpers<FormikValues>
+  ): void => {
     if (isLastStep && onSubmit) {
       onSubmit(values, bag);
 
@@ -90,7 +93,7 @@ const Wizard = ({
     onClose?.();
   };
 
-  const handleClose = (_, reason): void => {
+  const handleClose = (_: object, reason: string): void => {
     if (equals(reason, 'backdropClick')) {
       controlDisplayConfirmationDialog();
 
@@ -99,7 +102,7 @@ const Wizard = ({
     onClose?.();
   };
 
-  const handleCloseConfirm = (confirm): void => {
+  const handleCloseConfirm = (confirm: boolean): void => {
     setOpenConfirm(false);
     if (!confirm) {
       return;
@@ -113,24 +116,24 @@ const Wizard = ({
   return (
     <>
       <Dialog
-        fullWidth
         classes={{
           paper: fullHeight ? classes.fullHeight : undefined
         }}
         data-testid="Dialog"
+        fullWidth
         maxWidth={width}
-        open={open}
         onClose={handleClose}
+        open={open}
         {...rest}
       >
         <Stepper currentStep={currentStep} steps={steps} />
         <Formik
-          validateOnChange
           initialValues={initialValues}
+          onSubmit={submit}
           validate={validate}
           validateOnBlur={false}
+          validateOnChange
           validationSchema={validationSchema}
-          onSubmit={submit}
         >
           <DialogContent
             className={cx(classes.dialogContent, classNameDialogContent)}
@@ -150,9 +153,9 @@ const Wizard = ({
         </Formik>
       </Dialog>
       <Confirm
-        open={openConfirm}
         onCancel={(): void => handleCloseConfirm(false)}
         onConfirm={(): void => handleCloseConfirm(true)}
+        open={openConfirm}
         {...confirmDialogLabels}
       />
     </>

@@ -1,0 +1,18 @@
+{
+  "extends": [
+    "./tsconfig.json",
+    "../js-config/tsconfig/typecheck.json"
+  ],
+  "compilerOptions": {
+    "types": ["react", "jest"]
+  },
+  "exclude": [
+    "./node_modules",
+    "./dist",
+    "../../node_modules",
+    "./src/**/*.stories.tsx",
+    "./src/**/*.stories.ts",
+    "./src/**/*.cypress.spec.tsx",
+    "./src/**/*.cy.tsx"
+  ]
+}

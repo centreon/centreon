@@ -1,3 +1,4 @@
+import type { LineChartData } from '../models';
 import {
   formatMetricValue,
   formatMetricValueWithUnit,
@@ -5,9 +6,9 @@ import {
   getInvertedStackedLines,
   getLineData,
   getLineForMetric,
+  getMetrics,
   getMetricValuesForLines,
   getMetricValuesForUnit,
-  getMetrics,
   getNotInvertedStackedLines,
   getSortedStackedLines,
   getStackedMetricValues,
@@ -16,15 +17,26 @@ import {
   getUnits,
   hasUnitStackedLines
 } from '.';
-import { LineChartData } from '../models';
+import type { TimeValue } from './models';
 
 type TestCase = [number | null, string, 1000 | 1024, string | null];
 
 describe('timeSeries', () => {
+  const defaultMetricFields = {
+    crit: null,
+    critical_high_threshold: null,
+    critical_low_threshold: null,
+    host_name: null,
+    service_name: null,
+    warning_high_threshold: null,
+    warning_low_threshold: null
+  };
+
   const graphData: LineChartData = {
     global: {},
     metrics: [
       {
+        ...defaultMetricFields,
         average_value: 1,
         data: [0, 1],
         ds_data: {
@@ -45,6 +57,7 @@ describe('timeSeries', () => {
         unit: 'ms'
       },
       {
+        ...defaultMetricFields,
         average_value: 1,
         data: [0.5, 3],
         ds_data: {
@@ -65,6 +78,7 @@ describe('timeSeries', () => {
         unit: 'ms'
       },
       {
+        ...defaultMetricFields,
         average_value: 1,
         data: [6, 4],
         ds_data: {
@@ -85,6 +99,7 @@ describe('timeSeries', () => {
         unit: 'ms'
       },
       {
+        ...defaultMetricFields,
         average_value: 1,
         data: [12, 25],
         ds_data: {
@@ -105,6 +120,7 @@ describe('timeSeries', () => {
         unit: 'ms'
       },
       {
+        ...defaultMetricFields,
         average_value: 1,
         data: [0, 1],
         ds_data: {
@@ -185,6 +201,7 @@ describe('timeSeries', () => {
           average_value: 1,
           color: 'black',
           display: true,
+          displayAs: undefined,
           filled: false,
           highlight: undefined,
           invert: null,
@@ -195,6 +212,7 @@ describe('timeSeries', () => {
           metric_id: 1,
           minimum_value: 0.5,
           name: 'Round-Trip-Time Average (ms)',
+          stackKey: null,
           stackOrder: null,
           transparency: 80,
           unit: 'ms'
@@ -204,6 +222,7 @@ describe('timeSeries', () => {
           average_value: 1,
           color: 'blue',
           display: true,
+          displayAs: undefined,
           filled: true,
           highlight: undefined,
           invert: null,
@@ -214,6 +233,7 @@ describe('timeSeries', () => {
           metric_id: 2,
           minimum_value: 0.5,
           name: 'Time (ms)',
+          stackKey: null,
           stackOrder: null,
           transparency: 80,
           unit: 'ms'
@@ -223,6 +243,7 @@ describe('timeSeries', () => {
           average_value: 1,
           color: 'red',
           display: true,
+          displayAs: undefined,
           filled: true,
           highlight: undefined,
           invert: null,
@@ -233,6 +254,7 @@ describe('timeSeries', () => {
           metric_id: 3,
           minimum_value: 0.5,
           name: 'Average duration (ms)',
+          stackKey: null,
           stackOrder: 2,
           transparency: 80,
           unit: 'ms'
@@ -242,6 +264,7 @@ describe('timeSeries', () => {
           average_value: 1,
           color: 'yellow',
           display: true,
+          displayAs: undefined,
           filled: true,
           highlight: undefined,
           invert: '1',
@@ -252,6 +275,7 @@ describe('timeSeries', () => {
           metric_id: 4,
           minimum_value: 0.5,
           name: 'Duration (ms)',
+          stackKey: null,
           stackOrder: 1,
           transparency: 80,
           unit: 'ms'
@@ -261,6 +285,7 @@ describe('timeSeries', () => {
           average_value: 1,
           color: 'yellow',
           display: true,
+          displayAs: undefined,
           filled: true,
           highlight: undefined,
           invert: null,
@@ -271,6 +296,7 @@ describe('timeSeries', () => {
           metric_id: 5,
           minimum_value: 0.5,
           name: 'Packet Loss (%)',
+          stackKey: null,
           stackOrder: null,
           transparency: 80,
           unit: '%'
@@ -286,7 +312,7 @@ describe('timeSeries', () => {
           rta: 1,
           time: 0,
           timeTick: '2020-11-05T10:40:00Z'
-        })
+        } as unknown as TimeValue)
       ).toEqual(['rta', 'time']);
     });
   });
@@ -331,6 +357,7 @@ describe('timeSeries', () => {
         average_value: 1,
         color: 'black',
         display: true,
+        displayAs: undefined,
         filled: false,
         highlight: undefined,
         invert: null,
@@ -341,6 +368,7 @@ describe('timeSeries', () => {
         metric_id: 1,
         minimum_value: 0.5,
         name: 'Round-Trip-Time Average (ms)',
+        stackKey: null,
         stackOrder: null,
         transparency: 80,
         unit: 'ms'
@@ -362,21 +390,18 @@ describe('timeSeries', () => {
   describe(formatMetricValue, () => {
     const cases: Array<TestCase> = [
       [218857269, '', 1000, '218.86m'],
-      [218857269, '', 1024, '208.72 M'],
+      [218857269, '', 1024, '208.72 Mi'],
       [0.12232323445, '', 1000, '0.12'],
-      [1024, 'B', 1000, '1 KB'],
-      [1024, 'B', 1024, '1 KB'],
+      [1024, 'B', 1000, '1 KiB'],
+      [1024, 'B', 1024, '1 KiB'],
       [null, 'B', 1024, null]
     ];
 
-    it.each(cases)(
-      'formats the given value to a human readable form according to the given unit and base',
-      (value, unit, base, formattedResult) => {
-        expect(formatMetricValue({ base, unit, value })).toEqual(
-          formattedResult
-        );
-      }
-    );
+    it.each(
+      cases
+    )('formats the given value to a human readable form according to the given unit and base', (value, unit, base, formattedResult) => {
+      expect(formatMetricValue({ base, unit, value })).toEqual(formattedResult);
+    });
   });
 
   describe('getSortedStackedLines', () => {
@@ -389,6 +414,7 @@ describe('timeSeries', () => {
           average_value: 1,
           color: 'yellow',
           display: true,
+          displayAs: undefined,
           filled: true,
           highlight: undefined,
           invert: '1',
@@ -399,6 +425,7 @@ describe('timeSeries', () => {
           metric_id: 4,
           minimum_value: 0.5,
           name: 'Duration (ms)',
+          stackKey: null,
           stackOrder: 1,
           transparency: 80,
           unit: 'ms'
@@ -408,6 +435,7 @@ describe('timeSeries', () => {
           average_value: 1,
           color: 'red',
           display: true,
+          displayAs: undefined,
           filled: true,
           highlight: undefined,
           invert: null,
@@ -418,6 +446,7 @@ describe('timeSeries', () => {
           metric_id: 3,
           minimum_value: 0.5,
           name: 'Average duration (ms)',
+          stackKey: null,
           stackOrder: 2,
           transparency: 80,
           unit: 'ms'
@@ -475,6 +504,7 @@ describe('timeSeries', () => {
           average_value: 1,
           color: 'yellow',
           display: true,
+          displayAs: undefined,
           filled: true,
           highlight: undefined,
           invert: '1',
@@ -485,6 +515,7 @@ describe('timeSeries', () => {
           metric_id: 4,
           minimum_value: 0.5,
           name: 'Duration (ms)',
+          stackKey: null,
           stackOrder: 1,
           transparency: 80,
           unit: 'ms'
@@ -503,6 +534,7 @@ describe('timeSeries', () => {
           average_value: 1,
           color: 'red',
           display: true,
+          displayAs: undefined,
           filled: true,
           highlight: undefined,
           invert: null,
@@ -513,6 +545,7 @@ describe('timeSeries', () => {
           metric_id: 3,
           minimum_value: 0.5,
           name: 'Average duration (ms)',
+          stackKey: null,
           stackOrder: 2,
           transparency: 80,
           unit: 'ms'
@@ -548,12 +581,12 @@ describe('Format value with unit', () => {
     ''
   ];
 
-  const getExpectedResult = (unit): string => {
+  const getExpectedResult = (unit: string): string => {
     if (unit === '') {
       return '324.23m';
     }
 
-    return `309.21 M${unit}`;
+    return `309.21 Mi${unit}`;
   };
 
   const humanReadableTestCases = units.map((unit) => {
@@ -606,31 +639,33 @@ describe('Format value with unit', () => {
   });
 
   describe('Format the value as human readable', () => {
-    it.each(humanReadableTestCases)(
-      'formats the value with $unit',
-      ({ value, unit, expectedResult }) => {
-        expect(
-          formatMetricValueWithUnit({
-            unit,
-            value
-          })
-        ).toEqual(expectedResult);
-      }
-    );
+    it.each(humanReadableTestCases)('formats the value with $unit', ({
+      value,
+      unit,
+      expectedResult
+    }) => {
+      expect(
+        formatMetricValueWithUnit({
+          unit,
+          value
+        })
+      ).toEqual(expectedResult);
+    });
   });
 
   describe('Format the value as raw', () => {
-    it.each(rawTestCases)(
-      'formats the value with $unit',
-      ({ value, unit, expectedResult }) => {
-        expect(
-          formatMetricValueWithUnit({
-            isRaw: true,
-            unit,
-            value
-          })
-        ).toEqual(expectedResult);
-      }
-    );
+    it.each(rawTestCases)('formats the value with $unit', ({
+      value,
+      unit,
+      expectedResult
+    }) => {
+      expect(
+        formatMetricValueWithUnit({
+          isRaw: true,
+          unit,
+          value
+        })
+      ).toEqual(expectedResult);
+    });
   });
 });

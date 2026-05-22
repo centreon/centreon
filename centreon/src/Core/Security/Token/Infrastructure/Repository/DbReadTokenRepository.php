@@ -26,7 +26,6 @@ namespace Core\Security\Token\Infrastructure\Repository;
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
-use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\RequestParameters\Interfaces\NormalizerInterface;
@@ -59,10 +58,9 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
 
     public function __construct(
         ConnectionInterface $connection,
-        QueryBuilderInterface $queryBuilder,
         SqlRequestParametersTranslator $sqlRequestTranslator,
     ) {
-        parent::__construct($connection, $queryBuilder);
+        parent::__construct($connection);
         $this->sqlRequestTranslator = $sqlRequestTranslator;
         $this->sqlRequestTranslator
             ->getRequestParameters()
@@ -149,8 +147,8 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
                         is_revoked,
                         token_string,
                         encoding_key,
-                        'JWT' as token_type
-                    FROM jwt_tokens
+                        `type` as token_type
+                    FROM authentication_tokens
                     WHERE token_string = :tokenString
                     SQL,
                 QueryParameters::create([
@@ -159,10 +157,10 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
                 ])
             );
 
-            if ($result !== []) {
+            if ($result !== false && $result !== []) {
                 /** @var _Token $result */
                 return TokenFactory::create(
-                    $result['token_type'] === 'JWT' ? TokenTypeEnum::CMA : TokenTypeEnum::API,
+                    \constant(TokenTypeEnum::class . '::' . mb_strtoupper($result['token_type'])),
                     $result
                 );
             }
@@ -232,8 +230,8 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
                         is_revoked,
                         token_string,
                         encoding_key,
-                        'JWT' as token_type
-                    FROM jwt_tokens
+                        `type` as token_type
+                    FROM authentication_tokens
                     WHERE token_name IN ({$tokensQuery})
                     SQL,
                 $queryParams
@@ -243,7 +241,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
             foreach ($data as $row) {
                 /** @var _Token $row */
                 $results[$row['name']] = TokenFactory::create(
-                    TokenTypeEnum::CMA,
+                    \constant(TokenTypeEnum::class . '::' . mb_strtoupper($row['token_type'])),
                     $row
                 );
             }
@@ -326,8 +324,8 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
                         is_revoked,
                         token_string,
                         encoding_key,
-                        'JWT' as token_type
-                    FROM jwt_tokens
+                        `type` as token_type
+                    FROM authentication_tokens
                     WHERE token_name = :tokenName
                     SQL,
                 QueryParameters::create([
@@ -343,7 +341,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
 
             /** @var _Token $result */
             return TokenFactory::create(
-                $result['token_type'] === 'JWT' ? TokenTypeEnum::CMA : TokenTypeEnum::API,
+                \constant(TokenTypeEnum::class . '::' . mb_strtoupper($result['token_type'])),
                 $result
             );
 
@@ -402,7 +400,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
                         AND sat.token_type = :tokenApiType
                     UNION
                     SELECT 1
-                    FROM jwt_tokens
+                    FROM authentication_tokens
                     WHERE token_name = :tokenName
                     SQL,
                 QueryParameters::create([
@@ -539,7 +537,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
                 WHERE sat.token_type = :tokenApiType
                 {$userIdFilter}
                 SQL;
-            $jwtTokens = <<<SQL
+            $authenticationTokens = <<<SQL
                 SELECT
                     token_name as name,
                     null as user_id,
@@ -549,10 +547,10 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
                     creation_date,
                     expiration_date,
                     is_revoked,
-                    'CMA' as token_type,
+                    type as token_type,
                     token_string,
                     encoding_key
-                FROM jwt_tokens
+                FROM authentication_tokens
                 {$creatorIdFilter}
                 SQL;
 
@@ -573,7 +571,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
                     FROM (
                         {$apiTokens}
                         UNION
-                        {$jwtTokens}
+                        {$authenticationTokens}
                     ) AS tokenUnion
                     {$search}
                     {$sort}
@@ -586,7 +584,7 @@ class DbReadTokenRepository extends DatabaseRepository implements ReadTokenRepos
             foreach ($results as $result) {
                 /** @var _Token $result */
                 $tokens[] = TokenFactory::create(
-                    $result['token_type'] === 'CMA' ? TokenTypeEnum::CMA : TokenTypeEnum::API,
+                    \constant(TokenTypeEnum::class . '::' . mb_strtoupper($result['token_type'])),
                     $result
                 );
             }

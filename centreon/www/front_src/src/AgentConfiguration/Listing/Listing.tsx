@@ -1,13 +1,13 @@
 import { Listing } from '@centreon/ui';
 
-import { AgentConfigurationListing } from '../models';
-
-import Actions from './Actions/Actions';
-import DeleteModal from './DeleteModal';
-
 import { useTranslation } from 'react-i18next';
+
+import { AgentConfigurationListing } from '../models';
 import { labelCollapse, labelExpand } from '../translatedLabels';
+import Actions from './Actions/Actions';
 import { useColumns } from './Columns/useColumns';
+import DeleteModal from './DeleteModal';
+import InstallationCommandModal from './InstallationCommandModal';
 import { useListing } from './useListing';
 
 interface Props {
@@ -38,34 +38,35 @@ const ACListing = ({ rows, total, isLoading }: Props): JSX.Element => {
   return (
     <>
       <Listing
-        actions={<Actions />}
-        columns={columns}
+        actions={<Actions rows={rows} />}
         columnConfiguration={{
           selectedColumnIds,
           sortable: true
         }}
+        columns={columns}
+        currentPage={page}
+        limit={limit}
+        loading={isLoading}
+        onLimitChange={setLimit as (limit: string | number) => void}
+        onPaginate={setPage}
+        onResetColumns={resetColumns}
+        onRowClick={updateAgentConfiguration as (row: unknown) => void}
+        onSelectColumns={selectColumns}
+        onSort={changeSort}
+        rows={rows as unknown as Parameters<typeof Listing>[0]['rows']}
+        sortField={sortField}
+        sortOrder={sortOrder as 'asc' | 'desc'}
         subItems={{
           canCheckSubItems: false,
           enable: true,
           getRowProperty: () => 'pollers',
-          labelExpand: t(labelExpand),
-          labelCollapse: t(labelCollapse)
+          labelCollapse: t(labelCollapse),
+          labelExpand: t(labelExpand)
         }}
-        loading={isLoading}
-        onRowClick={updateAgentConfiguration}
-        rows={rows}
-        currentPage={page}
-        onPaginate={setPage}
-        limit={limit}
-        onLimitChange={setLimit}
         totalRows={total}
-        sortField={sortField}
-        sortOrder={sortOrder}
-        onSort={changeSort}
-        onResetColumns={resetColumns}
-        onSelectColumns={selectColumns}
       />
       <DeleteModal />
+      <InstallationCommandModal />
     </>
   );
 };

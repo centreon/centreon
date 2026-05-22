@@ -1,5 +1,10 @@
-import { Column, Group, InputProps } from '@centreon/ui';
+import { Column, Group, InputProps, Method } from '@centreon/ui';
+
+import type { PrimitiveAtom } from 'jotai';
+import type { JsonDecoder } from 'ts.data.json';
 import { ObjectSchema } from 'yup';
+
+export type ResourceRow = Record<string, unknown> & { id?: number | string };
 
 export type NamedEntity = {
   id: number;
@@ -11,7 +16,8 @@ export enum ResourceType {
   Service = 'service',
   HostGroup = 'host group',
   ServiceGroup = 'service group',
-  AdditionalConfigurations = 'additional configuration'
+  AdditionalConfiguration = 'additional configuration',
+  Command = 'command'
 }
 
 export interface Form {
@@ -28,9 +34,9 @@ export type Filters = {
 } & Record<string, string | boolean>;
 
 export interface Actions {
-  delete?: boolean;
-  duplicate?: boolean;
-  enableDisable?: boolean;
+  delete?: (row?: ResourceRow) => boolean;
+  duplicate?: (row?: ResourceRow) => boolean;
+  enableDisable?: (row?: ResourceRow) => boolean;
   massive?:
     | boolean
     | {
@@ -43,13 +49,13 @@ export interface Actions {
   viewDetails?: boolean;
 }
 
-export interface ConfigurationBase {
+export interface ConfigurationBase<TFilters> {
   resourceType: ResourceType;
   columns: Array<Column>;
   form: Form;
   api: APIType;
   filtersConfiguration: Array<FilterConfiguration>;
-  filtersInitialValues: Filters;
+  filtersInitialValues: TFilters;
   defaultSelectedColumnIds: Array<string>;
   actions?: Actions;
   labels: {
@@ -62,34 +68,52 @@ export interface ConfigurationBase {
       };
     };
   };
+  columnsAtomKey: string;
+  filtersAtomKey: string;
+  selectedColumnIdsAtom: PrimitiveAtom<Array<string>>;
+  filtersAtom: PrimitiveAtom<TFilters>;
+  isWelcomePageDisplayedAtom: PrimitiveAtom<boolean>;
+  navbar?: Array<{
+    label: string;
+    link: string;
+  }>;
 }
 
 export enum FieldType {
   Text = 'text',
   Status = 'status',
   MultiAutocomplete = 'multiAutocomplete',
-  MultiConnectedAutocomplete = 'multiConnectedAutocomplete'
+  MultiConnectedAutocomplete = 'multiConnectedAutocomplete',
+  Checkbox = 'Checkbox',
+  Checkboxes = 'Checkboxes'
 }
 
 export interface Endpoints {
   getAll: string;
-  getOne?: ({ id }) => string;
-  deleteOne?: ({ id }) => string;
+  getOne?: ({ id }: { id: number | string }) => string;
+  deleteOne?: ({ id }: { id: number | string }) => string;
   delete?: string;
   duplicate?: string;
-  enable?: string;
-  disable?: string;
+  enable?: (params?: { id: number | string }) => string;
+  disable?: (params?: { id: number | string }) => string;
   create?: string;
-  update?: ({ id }) => string;
+  update?: ({ id }: { id: number | string }) => string;
 }
 
 export interface APIType {
   endpoints: Endpoints | null;
   decoders?: {
-    getOne?;
-    getAll?;
+    getOne?: JsonDecoder.Decoder<unknown>;
+    getAll?: JsonDecoder.Decoder<unknown>;
   };
-  adapter?;
+  adapter?: (data: unknown) => unknown;
+  apiFormat?: 'Standard' | 'JSON-LD';
+  methods?: {
+    update?: Method;
+    enable?: Method;
+    disable?: Method;
+  };
+  isSingleDuplicate?: boolean;
 }
 
 export interface FilterConfiguration {
@@ -97,7 +121,7 @@ export interface FilterConfiguration {
   fieldName?: string;
   fieldType: FieldType;
   options?: Array<{ id: number | string; name: string }>;
-  getEndpoint?: (parametes) => string;
+  getEndpoint?: (parameters: Record<string, unknown>) => string;
 }
 
 export interface Configuration {

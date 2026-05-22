@@ -1,11 +1,9 @@
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 
-import { useAtomValue, useSetAtom } from 'jotai';
-
-import { WrapperTimePeriodProps } from './models';
+import type { WrapperTimePeriodProps } from './models';
 import {
   adjustTimePeriodDerivedAtom,
-  customTimePeriodAtom,
   errorTimePeriodAtom,
   getDatesDerivedAtom,
   selectedTimePeriodAtom
@@ -17,7 +15,6 @@ const useTimePeriod = ({
   adjustTimePeriodData
 }: Omit<WrapperTimePeriodProps, 'extraTimePeriods' | 'disabled'>): void => {
   const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
-  const customTimePeriod = useAtomValue(customTimePeriodAtom);
   const getCurrentEndStartInterval = useAtomValue(getDatesDerivedAtom);
   const errorTimePeriod = useAtomValue(errorTimePeriodAtom);
   const adjustTimeTimePeriod = useSetAtom(adjustTimePeriodDerivedAtom);
@@ -28,21 +25,26 @@ const useTimePeriod = ({
     }
 
     adjustTimeTimePeriod(adjustTimePeriodData);
-  }, [adjustTimePeriodData?.start, adjustTimePeriodData?.end]);
+  }, [
+    adjustTimePeriodData?.start,
+    adjustTimePeriodData?.end,
+    adjustTimePeriodData,
+    adjustTimeTimePeriod
+  ]);
 
   useEffect(() => {
     const [start, end, timelineEventsLimit] =
       getCurrentEndStartInterval(selectedTimePeriod);
 
     getParameters?.({ end, start, timelineEventsLimit });
-  }, [customTimePeriod.start, customTimePeriod.end, selectedTimePeriod]);
+  }, [selectedTimePeriod, getCurrentEndStartInterval, getParameters]);
 
   useEffect(() => {
     if (!errorTimePeriod) {
       return;
     }
     getIsError?.(errorTimePeriod);
-  }, [errorTimePeriod]);
+  }, [errorTimePeriod, getIsError]);
 };
 
 export default useTimePeriod;

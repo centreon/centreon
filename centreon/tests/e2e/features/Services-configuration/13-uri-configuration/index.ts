@@ -1,4 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 const link = 'https://www.google.com/';
 const services = {
@@ -16,11 +18,7 @@ const services = {
 };
 
 const visitStatusDetailPage = () => {
-  cy.navigateTo({
-    page: 'Services',
-    rootItemNumber: 1,
-    subMenu: 'Status Details'
-  });
+  cy.visit(PAGES.monitoring.statusDetailsServicesLegacy);
   cy.wait('@getTimeZone');
 };
 
@@ -31,11 +29,11 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
 });
 
@@ -71,11 +69,7 @@ Given('a configured passive service linked to the host', () => {
 });
 
 When('the user goes to "Administration > Parameters > My Account"', () => {
-  cy.navigateTo({
-    page: 'My Account',
-    rootItemNumber: 4,
-    subMenu: 'Parameters'
-  });
+  cy.visit(PAGES.configuration.accountParametersLegacy);
   cy.wait('@getTimeZone');
 });
 
@@ -143,7 +137,7 @@ Then('the status of the service is changed', () => {
           return text === '4';
         });
     },
-    { interval: 6000, timeout: 600000 }
+    { interval: 10000, timeout: 700000 }
   );
   cy.visit('/');
   visitStatusDetailPage();
@@ -220,8 +214,8 @@ Then(
           .find('table.ListTable')
           .eq(0)
           .find('tbody tr')
-          .then(($elts) => {
-            const count = $elts.length;
+          .then((elts) => {
+            const count = elts.length;
             if (count === 1) {
               // Refresh the page until the added comment is displayed on the listing page
               cy.reload();

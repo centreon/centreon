@@ -1,6 +1,8 @@
 monolog:
     channels:
         - deprecation
+        - token
+        - authentication
 
 when@dev:
     monolog:
@@ -18,6 +20,20 @@ when@dev:
                 channels: ["!event", "!doctrine", "!console"]
                 formatter: monolog.formatter.line
                 date_format: !php/const DateTimeInterface::RFC3339
+            authentication:
+                type: stream
+                path: "%kernel.logs_dir%/login.log"
+                level: debug
+                channels: ["authentication"]
+                formatter: monolog.formatter.line
+                date_format: !php/const DateTimeInterface::RFC3339
+            token:
+                type: stream
+                path: "%kernel.logs_dir%/dev.token.log"
+                level: debug
+                channels: ["token"]
+                formatter: monolog.formatter.line
+                date_format: !php/const DateTimeInterface::RFC3339
 
 when@test:
     monolog:
@@ -32,8 +48,8 @@ when@test:
                 date_format: !php/const DateTimeInterface::RFC3339
             nested:
                 type: stream
-                path: "%kernel.logs_dir%/%kernel.environment%.log"
-                level: debug
+                path: php://stderr
+                level: critical
                 formatter: monolog.formatter.line
                 date_format: !php/const DateTimeInterface::RFC3339
 
@@ -57,12 +73,27 @@ when@prod:
             console:
                 type: console
                 process_psr_3_messages: false
-                channels: ["!event", "!doctrine"]
+                channels: ["!event", "!doctrine", "!deprecation"]
                 formatter: monolog.formatter.line
                 date_format: !php/const DateTimeInterface::RFC3339
             deprecation:
-                type: stream
+                type: rotating_file
                 channels: [deprecation]
-                path: php://stderr
+                path: "%kernel.logs_dir%/%kernel.environment%.deprecations.log"
+                formatter: monolog.formatter.line
+                max_files: 1
+                file_permission: 0660
+            authentication:
+                type: stream
+                path: "%kernel.logs_dir%/login.log"
+                level: info
+                channels: ["authentication"]
+                formatter: monolog.formatter.line
+                date_format: !php/const DateTimeInterface::RFC3339
+            token:
+                type: stream
+                path: "%kernel.logs_dir%/prod.token.log"
+                level: info
+                channels: ["token"]
                 formatter: monolog.formatter.line
                 date_format: !php/const DateTimeInterface::RFC3339

@@ -168,8 +168,8 @@ class HostTemplate extends AbstractHost
 
         $this->getContactGroups($this->hosts[$host_id]);
         $this->getContacts($this->hosts[$host_id]);
-        $this->getSeverity($host_id);
         $this->formatMacros($this->hosts[$host_id], $hostTemplateMacros);
+        $this->getSeverity($host_id);
         $this->generateObjectInFile($this->hosts[$host_id], $host_id);
 
         return $this->hosts[$host_id]['name'];
@@ -202,6 +202,8 @@ class HostTemplate extends AbstractHost
     }
 
     /**
+     * Warning: is to be run AFTER running formatMacros to not override severity export.
+     *
      * @param $host_id
      *
      * @throws PDOException

@@ -1,6 +1,7 @@
-import { equals, isNotNil } from 'ramda';
+import { isNotNil } from 'ramda';
+
 import { useFetchQuery } from '../../..';
-import { GetItem } from '../models';
+import type { GetItem } from '../models';
 
 interface UseGetItem<TItemForm> {
   initialValues?: TItemForm;
@@ -20,11 +21,11 @@ export const useGetItem = <
   id: number | 'add' | null;
 }): UseGetItem<TItemForm> => {
   const { data, isLoading } = useFetchQuery<TItem>({
-    getEndpoint: () => baseEndpoint(id),
-    getQueryKey: () => [itemQueryKey, id],
     decoder,
+    getEndpoint: () => baseEndpoint(id as number),
+    getQueryKey: () => [itemQueryKey, id],
     queryOptions: {
-      enabled: isNotNil(id) && !equals('add', id),
+      enabled: isNotNil(id) && id !== 'add',
       suspense: false
     }
   });

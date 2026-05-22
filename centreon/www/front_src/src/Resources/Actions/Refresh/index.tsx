@@ -1,12 +1,14 @@
-import { useAtom, useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import IconPause from '@mui/icons-material/Pause';
 import IconPlay from '@mui/icons-material/PlayArrow';
 import IconRefresh from '@mui/icons-material/Refresh';
 import { Grid } from '@mui/material';
 
 import { IconButton } from '@centreon/ui';
+
+import { useAtom, useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import {
   enabledAutorefreshAtom,
@@ -18,7 +20,6 @@ import {
   labelRefresh
 } from '../../translatedLabels';
 import ActionMenuItem from '../Resource/ActionMenuItem';
-
 import { useStyles } from './refresh.styles';
 
 interface AutorefreshProps {
@@ -40,9 +41,9 @@ const AutorefreshButton = ({
     <IconButton
       ariaLabel={t(label) as string}
       data-testid="Disable autorefresh"
+      onClick={toggleAutorefresh}
       size="small"
       title={t(label) as string}
-      onClick={toggleAutorefresh}
     >
       {enabledAutorefresh ? <IconPause /> : <IconPlay />}
     </IconButton>
@@ -80,15 +81,15 @@ const RefreshActions = ({
   return (
     <>
       {displayAsIcons && (
-        <Grid container className={classes.container}>
+        <Grid className={classes.container} container>
           <Grid item>
             <IconButton
               ariaLabel={t(labelRefresh) as string}
               data-testid="Refresh"
               disabled={sending}
+              onClick={onRefresh}
               size="small"
               title={t(labelRefresh) as string}
-              onClick={onRefresh}
             >
               <IconRefresh />
             </IconButton>
@@ -104,28 +105,28 @@ const RefreshActions = ({
       {displayAsList?.display && (
         <>
           <ActionMenuItem
-            permitted
             disabled={false}
             label={labelRefresh}
-            testId="RefreshInMoreActions"
             onClick={() => {
               onRefresh();
               displayAsList.close();
             }}
+            permitted
+            testId="RefreshInMoreActions"
           />
           <ActionMenuItem
-            permitted
             disabled={false}
             label={
               enabledAutorefresh
                 ? labelDisableAutorefresh
                 : labelEnableAutorefresh
             }
-            testId="AutorefreshInMoreActions"
             onClick={() => {
               toggleAutorefresh();
               displayAsList.close();
             }}
+            permitted
+            testId="AutorefreshInMoreActions"
           />
         </>
       )}

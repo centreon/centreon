@@ -1,28 +1,38 @@
-import { propEq, reject } from 'ramda';
-import { ChangeEvent } from 'react';
-
-import { MultiConnectedAutocompleteField, TextField } from '@centreon/ui';
-import { Box } from '@mui/material';
-import { useTranslation } from 'react-i18next';
-
-import { useFormikContext } from 'formik';
-import { listTokensDecoder } from '../../api/decoders';
-import { getTokensEndpoint } from '../../api/endpoints';
-import { AgentConfigurationForm } from '../../models';
-
-import { useAgentInitiatedStyles } from './ConnectionInitiated.styles';
-import RedirectToTokensPage from './RedirectToTokensPage';
-
-import Title from './Title';
+import { Box, Checkbox, FormControlLabel } from '@mui/material';
 
 import {
-  labelCMAauthenticationToken,
+  MultiConnectedAutocompleteField,
+  NumberField,
+  SelectEntry,
+  TextField
+} from '@centreon/ui';
+
+import { FormikErrors, FormikTouched, useFormikContext } from 'formik';
+import { equals, propEq, reject } from 'ramda';
+import { ChangeEvent, SyntheticEvent, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import { listTokensDecoder } from '../../api/decoders';
+import { getTokensEndpoint } from '../../api/endpoints';
+import {
+  AgentConfigurationForm,
+  CMAConfiguration,
+  ConnectionMode,
+  Token
+} from '../../models';
+import {
   labelCaCertificate,
+  labelCMAauthenticationToken,
+  labelCreateHostAutomatically,
   labelOTLPReceiver,
+  labelPort,
   labelPrivateKey,
   labelPublicCertificate,
   labelSelectExistingCMATokens
 } from '../../translatedLabels';
+import { useAgentInitiatedStyles } from './ConnectionInitiated.styles';
+import RedirectToTokensPage from './RedirectToTokensPage';
+import Title from './Title';
 
 const publicCertificateProperty = 'configuration.otelPublicCertificate';
 const caCertificateProperty = 'configuration.otelCaCertificate';
@@ -36,114 +46,202 @@ const AgentInitiated = (): React.ReactElement => {
   const { setFieldValue, setFieldTouched, errors, touched, values } =
     useFormikContext<AgentConfigurationForm>();
 
-  const change = (property) => (event: ChangeEvent<HTMLInputElement>) => {
-    setFieldTouched(property, true, false);
-    setFieldValue(property, event.target.value);
-  };
+  const configuration = values.configuration as CMAConfiguration;
 
-  const changeCMATokens = (_, tokens) => {
+  const change =
+    (property: string) => (event: ChangeEvent<HTMLInputElement>) => {
+      setFieldTouched(property, true, false);
+      setFieldValue(property, event.target.value);
+    };
+
+  const changePort = useCallback((newValue: number) => {
+    setFieldTouched('configuration.port', true, false);
+    setFieldValue('configuration.port', newValue);
+  }, []);
+
+  const changeCMATokens = (
+    _: React.SyntheticEvent,
+    tokens: Array<SelectEntry>
+  ): void => {
     setFieldTouched(tokensProperty, true, false);
     setFieldValue(tokensProperty, tokens);
   };
 
-  const deleteToken = (_, option): void => {
-    const newTokens = reject(
-      propEq(option.id, 'id'),
-      values.configuration.tokens
-    );
+  const deleteToken = (_: SyntheticEvent, option: Token): void => {
+    const tokens = configuration?.tokens || ([] as Array<Token>);
+
+    const newTokens = reject(propEq(option.id, 'id'), tokens);
 
     setFieldValue(tokensProperty, newTokens);
   };
 
+  const changeCreateHost = (
+    _: React.SyntheticEvent,
+    checked: boolean
+  ): void => {
+    setFieldTouched('configuration.createHostAuto', true, false);
+    setFieldValue('configuration.createHostAuto', checked);
+  };
+
+  const isTLSModes = useMemo(
+    () =>
+      equals(values.connectionMode?.id, ConnectionMode.secure) ||
+      equals(values.connectionMode?.id, ConnectionMode.insecure),
+    [values.connectionMode?.id]
+  );
+
+  const configurationTouched = touched?.configuration as
+    | FormikTouched<CMAConfiguration>
+    | undefined;
+  const configurationErrors = errors?.configuration as
+    | FormikErrors<CMAConfiguration>
+    | undefined;
+
   return (
-    <Box className={classes.container}>
-      <Box>
+    <Box className="flex flex-col">
+      <Box className="mb-2">
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={configuration.createHostAuto}
+              data-testid={labelCreateHostAutomatically}
+              onChange={
+                changeCreateHost as unknown as React.ChangeEventHandler<HTMLInputElement>
+              }
+            />
+          }
+          label={t(labelCreateHostAutomatically)}
+        />
+      </Box>
+      <Box className="mb-4">
         <Title label={labelOTLPReceiver} />
-        <Box className={classes.inputs}>
-          <TextField
-            className={classes.input}
-            value={values.configuration.otelPublicCertificate || ''}
-            onChange={change(publicCertificateProperty)}
-            label={t(labelPublicCertificate)}
-            dataTestId={labelPublicCertificate}
-            fullWidth
-            textFieldSlotsAndSlotProps={{
-              slotProps: {
-                htmlInput: {
-                  'aria-label': labelPublicCertificate
-                }
-              }
-            }}
-            error={
-              (touched?.configuration?.otelPublicCertificate &&
-                errors?.configuration?.otelPublicCertificate) ||
-              undefined
-            }
-          />
 
-          <TextField
-            value={values.configuration.otelCaCertificate || ''}
-            onChange={change(caCertificateProperty)}
-            label={t(labelCaCertificate)}
-            dataTestId={labelCaCertificate}
+        <Box className="grid grid-cols-2 gap-4">
+          <NumberField
+            className={classes.input}
+            dataTestId={labelPort}
+            error={
+              (configurationTouched?.port && configurationErrors?.port) ||
+              undefined
+            }
+            fullWidth
+            label={t(labelPort)}
+            onChange={changePort}
+            required
             textFieldSlotsAndSlotProps={{
               slotProps: {
                 htmlInput: {
-                  'aria-label': labelCaCertificate
+                  'data-testid': 'portInput',
+                  max: 65535,
+                  min: 1
                 }
               }
             }}
-            fullWidth
-            error={
-              (touched?.configuration?.otelCaCertificate &&
-                errors?.configuration?.otelCaCertificate) ||
-              undefined
+            value={
+              configuration.port !== null && configuration.port !== undefined
+                ? String(configuration.port)
+                : undefined
             }
-            className={classes.input}
           />
+          {isTLSModes && (
+            <>
+              <TextField
+                className={classes.input}
+                dataTestId={labelPublicCertificate}
+                error={
+                  (touched?.configuration?.otelPublicCertificate &&
+                    errors?.configuration?.otelPublicCertificate) ||
+                  undefined
+                }
+                fullWidth
+                label={t(labelPublicCertificate)}
+                onChange={change(publicCertificateProperty)}
+                textFieldSlotsAndSlotProps={{
+                  slotProps: {
+                    htmlInput: {
+                      'aria-label': labelPublicCertificate
+                    }
+                  }
+                }}
+                value={values.configuration.otelPublicCertificate || ''}
+              />
 
-          <TextField
-            value={values.configuration.otelPrivateKey || ''}
-            onChange={change(privateKeyProperty)}
-            label={t(labelPrivateKey)}
-            textFieldSlotsAndSlotProps={{
-              slotProps: {
-                htmlInput: {
-                  'aria-label': labelPrivateKey
+              <TextField
+                className={classes.input}
+                dataTestId={labelCaCertificate}
+                error={
+                  (touched?.configuration?.otelCaCertificate &&
+                    errors?.configuration?.otelCaCertificate) ||
+                  undefined
                 }
-              }
-            }}
-            dataTestId={labelPrivateKey}
-            fullWidth
-            error={
-              (touched?.configuration?.otelPrivateKey &&
-                errors?.configuration?.otelPrivateKey) ||
-              undefined
-            }
-            className={classes.input}
-          />
+                fullWidth
+                label={t(labelCaCertificate)}
+                onChange={change(caCertificateProperty)}
+                textFieldSlotsAndSlotProps={{
+                  slotProps: {
+                    htmlInput: {
+                      'aria-label': labelCaCertificate
+                    }
+                  }
+                }}
+                value={values.configuration.otelCaCertificate || ''}
+              />
+
+              <TextField
+                className={classes.input}
+                dataTestId={labelPrivateKey}
+                error={
+                  (touched?.configuration?.otelPrivateKey &&
+                    errors?.configuration?.otelPrivateKey) ||
+                  undefined
+                }
+                fullWidth
+                label={t(labelPrivateKey)}
+                onChange={change(privateKeyProperty)}
+                textFieldSlotsAndSlotProps={{
+                  slotProps: {
+                    htmlInput: {
+                      'aria-label': labelPrivateKey
+                    }
+                  }
+                }}
+                value={values.configuration.otelPrivateKey || ''}
+              />
+            </>
+          )}
         </Box>
       </Box>
       <Box>
         <Title label={labelCMAauthenticationToken} />
         <MultiConnectedAutocompleteField
-          required
-          disableClearable={false}
-          dataTestId={labelSelectExistingCMATokens}
-          field="token_name"
-          getEndpoint={getTokensEndpoint}
-          label={t(labelSelectExistingCMATokens)}
-          value={values.configuration.tokens || null}
-          onChange={changeCMATokens}
-          decoder={listTokensDecoder}
-          limitTags={15}
-          chipProps={{
+          ChipProps={{
             color: 'primary',
-            onDelete: deleteToken
+            onDelete: deleteToken as React.EventHandler<React.SyntheticEvent>
           }}
+          dataTestId={labelSelectExistingCMATokens}
+          decoder={listTokensDecoder}
+          disableClearable={false}
           error={
-            (touched?.configuration?.tokens && errors?.configuration?.tokens) ||
-            undefined
+            configurationTouched?.tokens &&
+            typeof configurationErrors?.tokens === 'string'
+              ? configurationErrors.tokens
+              : undefined
+          }
+          field="token_name"
+          getEndpoint={
+            getTokensEndpoint as unknown as (params: unknown) => string
+          }
+          label={t(labelSelectExistingCMATokens)}
+          limitTags={15}
+          onChange={
+            changeCMATokens as unknown as Parameters<
+              typeof MultiConnectedAutocompleteField
+            >[0]['onChange']
+          }
+          required
+          value={
+            (configuration.tokens as unknown as Array<SelectEntry> | null) ||
+            null
           }
         />
         <RedirectToTokensPage />

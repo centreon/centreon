@@ -1,9 +1,9 @@
-import { NamedExoticComponent, memo } from 'react';
-
 import { equals, pick } from 'ramda';
+import { memo, NamedExoticComponent } from 'react';
 
 interface MemoizeComponentParameters {
-  Component: (props) => JSX.Element | null;
+  // biome-ignore lint/suspicious/noExplicitAny: typing fallback
+  Component: (props: any) => JSX.Element | null;
   memoProps: Array<string>;
 }
 

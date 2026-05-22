@@ -2,10 +2,10 @@ import dayjs from 'dayjs';
 import { find, propEq } from 'ramda';
 
 import {
-  CustomTimePeriod,
-  TimePeriod,
-  TimePeriodById,
-  lastDayPeriod
+  type CustomTimePeriod,
+  lastDayPeriod,
+  type TimePeriod,
+  type TimePeriodById
 } from '../models';
 
 export const defaultTimePeriod = lastDayPeriod;
@@ -26,5 +26,10 @@ export const getTimePeriodById = ({
 }: TimePeriodById): TimePeriod =>
   find<TimePeriod>(propEq(id, 'id'))(timePeriods) as TimePeriod;
 
-export const isInvalidDate = ({ startDate, endDate }): boolean =>
-  dayjs(startDate).isSameOrAfter(dayjs(endDate), 'minute');
+export const isInvalidDate = ({
+  startDate,
+  endDate
+}: {
+  startDate: Date | null;
+  endDate: Date | null;
+}): boolean => dayjs(startDate).isSameOrAfter(dayjs(endDate), 'minute');

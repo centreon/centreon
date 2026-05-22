@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useLocaleDateTimeFormat, useRequest, useSnackbar } from '@centreon/ui';
+import { downtimeAtom, userAtom } from '@centreon/ui-context';
 
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
@@ -6,10 +7,8 @@ import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 import { useFormik } from 'formik';
 import { useAtomValue } from 'jotai';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { useLocaleDateTimeFormat, useRequest, useSnackbar } from '@centreon/ui';
-import { downtimeAtom, userAtom } from '@centreon/ui-context';
 
 import { Resource } from '../../models';
 import {
@@ -17,7 +16,6 @@ import {
   labelDowntimeCommandSent
 } from '../../translatedLabels';
 import { setDowntimeOnResources } from '../api';
-
 import DialogDowntime from './Dialog';
 import { getValidationSchema } from './validation';
 
@@ -69,7 +67,9 @@ const DowntimeForm = ({
     sendRequest: sendSetDowntimeOnResources,
     sending: sendingSetDowntingOnResources
   } = useRequest({
-    request: setDowntimeOnResources
+    request: setDowntimeOnResources as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<unknown>
   });
 
   const { alias } = useAtomValue(userAtom);
@@ -102,7 +102,9 @@ const DowntimeForm = ({
         minutes: 60,
         seconds: 1
       };
-      const durationDivider = unitMultipliers?.[values.duration.unit] || 1;
+      const durationDivider =
+        (unitMultipliers as Record<string, number>)?.[values.duration.unit] ||
+        1;
       const duration = values.duration.value * durationDivider;
 
       sendSetDowntimeOnResources({
@@ -130,12 +132,12 @@ const DowntimeForm = ({
       canConfirm={form.isValid}
       errors={form.errors}
       handleChange={form.handleChange}
+      onCancel={onClose}
+      onConfirm={form.submitForm}
       resources={resources}
       setFieldValue={form.setFieldValue}
       submitting={sendingSetDowntingOnResources}
       values={form.values}
-      onCancel={onClose}
-      onConfirm={form.submitForm}
     />
   );
 };

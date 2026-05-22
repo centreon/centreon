@@ -57,7 +57,8 @@ $centreon_provider = new $classname(
     $centreon_open_tickets_path,
     $get_information['rule_id'],
     null,
-    $get_information['provider_id']
+    $get_information['provider_id'],
+    $provider_name
 );
 
 try {

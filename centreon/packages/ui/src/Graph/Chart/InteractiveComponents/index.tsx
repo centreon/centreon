@@ -1,17 +1,17 @@
-import type { MutableRefObject } from 'react';
-
 import { Event } from '@visx/visx';
 import type { ScaleLinear, ScaleTime } from 'd3-scale';
-import { useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import {
   all,
   equals,
   find,
   isEmpty,
   isNil,
+  isNotNil,
   keys,
   map,
   negate,
+  omit,
   pick,
   pipe,
   pluck,
@@ -19,6 +19,12 @@ import {
   toPairs,
   values
 } from 'ramda';
+import {
+  type MouseEvent,
+  type MutableRefObject,
+  type ReactElement,
+  useMemo
+} from 'react';
 import { makeStyles } from 'tss-react/mui';
 
 import {
@@ -29,6 +35,10 @@ import {
   getYScale
 } from '../../common/timeSeries';
 import type { Line, TimeValue } from '../../common/timeSeries/models';
+import {
+  computeGElementMarginLeft,
+  computPixelsToShiftMouse
+} from '../../common/utils';
 import { margin } from '../common';
 import type {
   AnnotationEvent,
@@ -36,24 +46,20 @@ import type {
   InteractedZone,
   InteractedZone as ZoomPreviewModel
 } from '../models';
-
-import {
-  computPixelsToShiftMouse,
-  computeGElementMarginLeft
-} from '../../common/utils';
 import Annotations from './Annotations';
 import type { TimelineEvent } from './Annotations/models';
 import Bar from './Bar';
-import TimeShiftZones from './TimeShiftZones';
-import ZoomPreview from './ZoomPreview';
 import {
-  type MousePosition,
   changeMousePositionDerivedAtom,
   eventMouseDownAtom,
   eventMouseLeaveAtom,
   eventMouseUpAtom,
-  graphTooltipDataAtom
+  graphTooltipDataAtom,
+  type MousePosition
 } from './interactionWithGraphAtoms';
+import TimeShiftZones from './TimeShiftZones';
+import ZoomPreview from './ZoomPreview';
+import { applyingZoomAtomAtom } from './ZoomPreview/zoomPreviewAtoms';
 
 const useStyles = makeStyles()(() => ({
   overlay: {
@@ -65,10 +71,10 @@ interface CommonData {
   graphHeight: number;
   graphSvgRef: MutableRefObject<SVGSVGElement | null>;
   graphWidth: number;
-  lines;
+  lines: Array<Line>;
   timeSeries: Array<TimeValue>;
   xScale: ScaleTime<number, number>;
-  yScalesPerUnit: Record<string, ScaleLinear<string, string>>;
+  yScalesPerUnit: Record<string, ScaleLinear<number, number>>;
 }
 
 interface TimeShiftZonesData extends InteractedZone {
@@ -86,6 +92,7 @@ interface Props {
   };
   hasSecondUnit?: boolean;
   maxLeftAxisCharacters: number;
+  additionalZoomMargin?: number;
 }
 
 const InteractionWithGraph = ({
@@ -95,10 +102,12 @@ const InteractionWithGraph = ({
   timeShiftZonesData,
   transformMatrix,
   hasSecondUnit,
-  maxLeftAxisCharacters
-}: Props): JSX.Element => {
+  maxLeftAxisCharacters,
+  additionalZoomMargin = 0
+}: Props): ReactElement => {
   const { classes } = useStyles();
 
+  const [isApplyingZoom, setIsApplyingZoom] = useAtom(applyingZoomAtomAtom);
   const setEventMouseDown = useSetAtom(eventMouseDownAtom);
   const setEventMouseUp = useSetAtom(eventMouseUpAtom);
   const setEventMouseLeave = useSetAtom(eventMouseLeaveAtom);
@@ -120,19 +129,19 @@ const InteractionWithGraph = ({
     !isNil(annotationData?.data) && !isEmpty(annotationData?.data);
   const displayTimeShiftZones = timeShiftZonesData?.enable ?? true;
 
-  const mouseLeave = (event): void => {
-    setEventMouseLeave(event);
+  const mouseLeave = (event: MouseEvent): void => {
+    setEventMouseLeave(event.nativeEvent);
     setEventMouseDown(null);
     updateMousePosition(null);
     setGraphTooltipData(null);
   };
 
-  const mouseUp = (event): void => {
-    setEventMouseUp(event);
+  const mouseUp = (event: MouseEvent): void => {
+    setEventMouseUp(event.nativeEvent);
     setEventMouseDown(null);
   };
 
-  const mouseMove = (event): void => {
+  const mouseMove = (event: MouseEvent): void => {
     const mousePoint = Event.localPoint(
       graphSvgRef?.current as SVGSVGElement,
       event
@@ -146,9 +155,27 @@ const InteractionWithGraph = ({
     ]);
   };
 
-  const mouseDown = (event): void => {
-    setEventMouseDown(event);
+  const mouseEnter = (event: MouseEvent): void => {
+    if (event.buttons === 1 && isApplyingZoom) {
+      mouseDown(event);
+    }
+    if (event.buttons === 0 && isApplyingZoom) {
+      setIsApplyingZoom(false);
+    }
   };
+
+  const mouseDown = (event: MouseEvent): void => {
+    setEventMouseDown(event.nativeEvent);
+  };
+
+  const graphMarginLeft = useMemo(
+    () =>
+      computeGElementMarginLeft({
+        hasSecondUnit,
+        maxCharacters: maxLeftAxisCharacters
+      }) + additionalZoomMargin,
+    [additionalZoomMargin, maxLeftAxisCharacters, hasSecondUnit]
+  );
 
   const updateMousePosition = (pointPosition: MousePosition): void => {
     if (isNil(pointPosition)) {
@@ -161,13 +188,10 @@ const InteractionWithGraph = ({
     }
     const pixelToShift = computPixelsToShiftMouse(xScale);
     const timeValue = getTimeValue({
+      marginLeft: graphMarginLeft,
       timeSeries,
       x: pointPosition[0] - pixelToShift,
-      xScale,
-      marginLeft: computeGElementMarginLeft({
-        maxCharacters: maxLeftAxisCharacters,
-        hasSecondUnit
-      })
+      xScale
     });
 
     if (isNil(timeValue)) {
@@ -211,6 +235,39 @@ const InteractionWithGraph = ({
           unit: (lineData as Line).unit,
           yScalesPerUnit
         });
+
+        if (isNotNil(lineData?.stackOrder)) {
+          const test = Object.entries(omit(['timeTick'], timeValue)).reduce(
+            (acc, [key, value]) => {
+              const line = getLineForMetric({
+                lines,
+                metric_id: Number(key)
+              });
+
+              const isBelowStackOrder =
+                isNotNil(line?.stackOrder) &&
+                (line?.stackOrder as number) >= (lineData.stackOrder as number);
+
+              if (isBelowStackOrder) {
+                return acc + value;
+              }
+
+              return acc;
+            },
+            0
+          );
+
+          const y0 = yScale(test);
+
+          const diffBetweenY0AndPointPosition = Math.abs(
+            y0 - margin.top - (graphHeight - pointPosition[1])
+          );
+
+          return {
+            ...acc,
+            [metricId]: diffBetweenY0AndPointPosition
+          };
+        }
 
         const y0 = yScale(value);
 
@@ -259,6 +316,8 @@ const InteractionWithGraph = ({
         <ZoomPreview
           {...zoomData}
           graphHeight={graphHeight}
+          graphMarginLeft={graphMarginLeft}
+          graphSvgRef={graphSvgRef}
           graphWidth={graphWidth}
           xScale={xScale}
         />
@@ -284,13 +343,14 @@ const InteractionWithGraph = ({
         data-testid="graph-interaction-zone"
         fill="transparent"
         height={graphHeight - margin.bottom}
-        width={graphWidth}
-        x={0}
-        y={0}
         onMouseDown={mouseDown}
+        onMouseEnter={mouseEnter}
         onMouseLeave={mouseLeave}
         onMouseMove={mouseMove}
         onMouseUp={mouseUp}
+        width={graphWidth}
+        x={0}
+        y={0}
       />
     </g>
   );

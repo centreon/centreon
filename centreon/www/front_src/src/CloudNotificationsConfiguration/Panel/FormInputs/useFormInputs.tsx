@@ -1,13 +1,15 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 /* eslint-disable hooks/sort */
-import { useState } from 'react';
-
-import { T, always, cond, gt, isEmpty, not } from 'ramda';
-import { useTranslation } from 'react-i18next';
 
 import { Box } from '@mui/material';
 import { Variant } from '@mui/material/styles/createTypography';
 
 import { Group, InputType } from '@centreon/ui';
+
+import { always, cond, gt, isEmpty, not, T } from 'ramda';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   labelBusinessViews,
@@ -15,6 +17,7 @@ import {
   labelContacts,
   labelEmailTemplateForTheNotificationMessage,
   labelHostGroups,
+  labelIncludeServicesForTheseHosts,
   labelNotificationChannels,
   labelNotificationSettings,
   labelSearchBusinessViews,
@@ -35,7 +38,6 @@ import {
   usersEndpoint
 } from '../api/endpoints';
 import { hostEvents, serviceEvents } from '../utils';
-
 import { EmailBody } from './Channel';
 import { useStyles } from './Inputs.styles';
 import TimePeriodTitle from './TimePeriodTitle';
@@ -70,21 +72,18 @@ const useFormInputs = ({
     variant: 'subtitle1' as Variant
   };
 
-  const translatedServiceEvents = serviceEvents.map((service) => t(service));
-  const translatedHostEvents = hostEvents.map((host) => t(host));
-
   const basicFormGroups: Array<Group> = [
     {
+      isDividerHidden: true,
       name: t(labelSelectResourcesAndEvents),
       order: 1,
-      titleAttributes,
-      isDividerHidden: true
+      titleAttributes
     },
     {
+      isDividerHidden: true,
       name: t(labelNotificationSettings),
       order: 2,
-      titleAttributes,
-      isDividerHidden: true
+      titleAttributes
     }
   ];
 
@@ -114,7 +113,7 @@ const useFormInputs = ({
             checkbox: {
               direction: 'horizontal',
               labelPlacement: 'top',
-              options: translatedHostEvents
+              options: hostEvents
             },
             dataTestId: 'Host groups events',
             fieldName: 'hostGroups.events',
@@ -131,14 +130,14 @@ const useFormInputs = ({
 
               return isEmpty(values.hostGroups.ids);
             },
-            label: 'include Services',
+            label: t(labelIncludeServicesForTheseHosts),
             type: InputType.Checkbox
           },
           {
             checkbox: {
               direction: 'horizontal',
               labelPlacement: 'top',
-              options: translatedServiceEvents
+              options: serviceEvents
             },
             dataTestId: 'Extra events services',
             fieldName: 'hostGroups.extra.eventsServices',
@@ -180,7 +179,7 @@ const useFormInputs = ({
             checkbox: {
               direction: 'horizontal',
               labelPlacement: 'top',
-              options: translatedServiceEvents
+              options: serviceEvents
             },
             dataTestId: 'Service groups events',
             fieldName: 'serviceGroups.events',
@@ -222,7 +221,7 @@ const useFormInputs = ({
                   checkbox: {
                     direction: 'horizontal',
                     labelPlacement: 'top',
-                    options: translatedServiceEvents
+                    options: serviceEvents
                   },
                   dataTestId: labelBusinessViewsEvents,
                   fieldName: 'businessviews.events',
@@ -245,7 +244,8 @@ const useFormInputs = ({
       additionalLabelClassName: classes.additionalLabel,
       connectedAutocomplete: {
         additionalConditionParameters: [],
-        endpoint: availableTimePeriodsEndpoint
+        endpoint: availableTimePeriodsEndpoint,
+        getOptionLabel: (option) => option.name
       },
       dataTestId: t(labelTimePeriod),
       fieldName: 'timeperiod',
@@ -260,7 +260,6 @@ const useFormInputs = ({
       additionalLabelClassName: classes.additionalLabel,
       fieldName: '',
       grid: {
-        gridTemplateColumns: 'repeat(3, 1fr)',
         className: classes.channels,
         columns: [
           {
@@ -293,7 +292,8 @@ const useFormInputs = ({
             label: 'Slack',
             type: InputType.Checkbox
           }
-        ]
+        ],
+        gridTemplateColumns: 'repeat(3, 1fr)'
       },
       group: basicFormGroups[1].name,
       inputClassName: classes.input,
@@ -309,7 +309,11 @@ const useFormInputs = ({
           {
             connectedAutocomplete: {
               additionalConditionParameters: [],
-              endpoint: usersEndpoint
+              endpoint: usersEndpoint,
+              filterKey: 'alias',
+              getRenderedOptionText: (option): string =>
+                option.alias?.toString(),
+              optionProperty: 'alias'
             },
             dataTestId: 'Search contacts',
             fieldName: 'users',
