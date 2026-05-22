@@ -447,7 +447,7 @@ A user holding `CanReadAndWrite` is also allowed to read. In the Voter or the Re
 
 ```php
 // In the API Platform resource
-security: 'is_granted("can_read_connector") or is_granted("can_read_write_connector")',
+security: 'is_granted("can_read_connector") or is_granted("can_read_and_write_connector")',
 
 // Or inside a dedicated Voter
 $this->security->isGranted($readPermission->value)

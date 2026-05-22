@@ -39,7 +39,7 @@ final readonly class ResourceCreatePollerTransformer implements TransformerInter
             name: $from->name->value,
             pollerType: $from->pollerType->value,
             address: $from->address->value,
-            uuid: $from->uuid?->value,
+            uid: (string) $from->uid->value,
         );
     }
 }

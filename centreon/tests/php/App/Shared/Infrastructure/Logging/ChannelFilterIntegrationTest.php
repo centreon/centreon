@@ -224,6 +224,8 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
         $busLogger->info('from bus');
         $appLogger->info('from app');
 
+        self::assertCount(1, $busTestHandler->getRecords());
+        self::assertCount(1, $appTestHandler->getRecords());
         $busRecord = $busTestHandler->getRecords()[0];
         $appRecord = $appTestHandler->getRecords()[0];
 
