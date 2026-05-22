@@ -21,17 +21,22 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
+namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
-use Webmozart\Assert\Assert;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
+use App\MonitoringConfiguration\Domain\Service\PollerUidGenerator;
 
-final readonly class PollerUuid
+final class FakePollerUidGenerator implements PollerUidGenerator
 {
-    public const UUID_V7_PATTERN = '/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i';
+    private int $counter = 0;
 
     public function __construct(
-        public string $value,
+        private readonly int $startValue = 100000000000001,
     ) {
-        Assert::regex($value, self::UUID_V7_PATTERN);
+    }
+
+    public function generate(): PollerUid
+    {
+        return new PollerUid($this->startValue + $this->counter++);
     }
 }
