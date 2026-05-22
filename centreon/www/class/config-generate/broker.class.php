@@ -662,8 +662,8 @@ class Broker extends AbstractObjectJSON
      */
     private function getCentreonPlatformUuid(): ?string
     {
-        global $pearDB;
-        $result = $pearDB->query("SELECT `value` FROM informations WHERE `key` = 'uuid'");
+        $db = $this->backend_instance->db;
+        $result = $db->query("SELECT `value` FROM informations WHERE `key` = 'uuid'");
 
         if (! $record = $result->fetch(PDO::FETCH_ASSOC)) {
             return null;
@@ -681,7 +681,7 @@ class Broker extends AbstractObjectJSON
      */
     private function generateAnomalyDetectionLuaParameters(): array
     {
-        global $pearDB;
+        $pearDB = $this->backend_instance->db;
 
         $sql = <<<'SQL'
             SELECT
