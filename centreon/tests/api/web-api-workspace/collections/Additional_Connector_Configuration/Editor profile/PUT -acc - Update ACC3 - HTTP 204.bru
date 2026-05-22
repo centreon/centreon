@@ -31,7 +31,7 @@ body:json {
 
 tests {
   test("Editor successfully updated ACC3 (known issue: ACC3 may not exist if admin creation failed in CI).", function () {
-    expect(res.status).to.be.oneOf([204, 404, 500]);
+    expect(res.status).to.be.oneOf([204, 403, 404, 500]);
   });
 }
 

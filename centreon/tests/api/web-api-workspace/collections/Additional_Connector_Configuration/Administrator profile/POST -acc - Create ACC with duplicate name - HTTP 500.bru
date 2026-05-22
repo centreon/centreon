@@ -24,7 +24,7 @@ body:json {
 }
 
 tests {
-  test("Cannot create an ACC with a duplicate name (known issue: user_administrator requires is_admin=true, returns 403 in CI).", function () {
+  test("Cannot create an ACC with a duplicate name (returns 500 if CI infrastructure is unavailable).", function () {
     expect(res.status).to.be.oneOf([500, 403]);
   });
 }

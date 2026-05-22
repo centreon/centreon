@@ -13,8 +13,8 @@ post {
 body:json {
   {
     "name": "{{CommandName}}",
-    "type": "check",
-    "command_line": "$CENTREON_PLUGINS$/centreon_dummy.pl --mode=status",
+    "type": "Check",
+    "command_line": "{{CommandLine}}",
     "is_shell_enabled": false
   }
 }

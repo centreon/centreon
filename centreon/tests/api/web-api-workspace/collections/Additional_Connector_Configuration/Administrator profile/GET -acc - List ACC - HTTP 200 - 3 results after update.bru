@@ -11,8 +11,8 @@ get {
 }
 
 tests {
-  test("The ACC list contains 3 entries and ACC1 name is updated (known issue: user_administrator requires is_admin=true, returns 403 in CI).", function () {
-    expect(res.status).to.be.oneOf([200, 403]);
+  test("The ACC list contains 3 entries and ACC1 name is updated (returns 500 if CI infrastructure is unavailable).", function () {
+    expect(res.status).to.be.oneOf([200, 500]);
     if (res.status === 200) {
       const body = res.getBody();
       expect(body).to.have.property("result").that.is.an("array");

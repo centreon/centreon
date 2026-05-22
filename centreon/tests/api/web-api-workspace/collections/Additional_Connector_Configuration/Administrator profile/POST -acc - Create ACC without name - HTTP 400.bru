@@ -23,8 +23,8 @@ body:json {
 }
 
 tests {
-  test("Cannot create an ACC without a name (known issue: user_administrator requires is_admin=true, returns 403 in CI).", function () {
-    expect(res.status).to.be.oneOf([400, 403, 500]);
+  test("Cannot create an ACC without a name (returns 500 if CI infrastructure is unavailable).", function () {
+    expect(res.status).to.be.oneOf([400, 500]);
   });
 }
 

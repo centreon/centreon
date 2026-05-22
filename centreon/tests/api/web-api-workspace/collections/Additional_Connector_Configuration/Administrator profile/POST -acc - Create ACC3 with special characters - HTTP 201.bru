@@ -29,8 +29,8 @@ body:json {
 }
 
 tests {
-  test("ACC3 with special characters has been successfully created (known issue: user_administrator requires is_admin=true, returns 403 in CI).", function () {
-    expect(res.status).to.be.oneOf([201, 403, 500]);
+  test("ACC3 with special characters has been successfully created (returns 500 if CI infrastructure is unavailable).", function () {
+    expect(res.status).to.be.oneOf([201, 500]);
     if (res.status === 201) {
       const body = res.getBody();
       bru.setEnvVar("ACC3Id", body.id);
