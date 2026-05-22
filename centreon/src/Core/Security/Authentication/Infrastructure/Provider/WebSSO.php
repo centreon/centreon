@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace Core\Security\Authentication\Infrastructure\Provider;
 
 use Adaptation\Log\Enum\AuthProviderEnum;
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
 use Adaptation\Log\LoggerAuthentication;
 use Centreon;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
@@ -39,7 +41,6 @@ use Core\Security\ProviderConfiguration\Domain\WebSSO\Model\CustomConfiguration;
 use DateInterval;
 use DateTimeImmutable;
 use Pimple\Container;
-use Psr\Log\LoggerInterface;
 use Security\Domain\Authentication\Interfaces\WebSSOProviderInterface as LegacyWebSSOProviderInterface;
 
 class WebSSO implements ProviderAuthenticationInterface
@@ -55,7 +56,6 @@ class WebSSO implements ProviderAuthenticationInterface
         private Container $dependencyInjector,
         private LegacyWebSSOProviderInterface $provider,
         private Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface $contactRepository,
-        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -169,7 +169,7 @@ class WebSSO implements ProviderAuthenticationInterface
      */
     public function authenticateOrFail(LoginRequest $request): void
     {
-        $this->logger->info('Authenticate the user');
+        Logger::create(LogChannelEnum::WEB)->info('Authenticate the user');
         $this->ipIsAllowToConnect($request->clientIp ?? '');
         $this->validateLoginAttributeOrFail();
     }
@@ -183,7 +183,7 @@ class WebSSO implements ProviderAuthenticationInterface
     public function findUserOrFail(): ContactInterface
     {
         $alias = $this->extractUsernameFromLoginClaimOrFail();
-        $this->logger->info('searching for user', ['user' => $alias]);
+        Logger::create(LogChannelEnum::WEB)->info('searching for user', ['user' => $alias]);
         $user = $this->contactRepository->findByName($alias);
         if ($user === null) {
             throw SSOAuthenticationException::aliasNotFound($alias);
@@ -204,7 +204,7 @@ class WebSSO implements ProviderAuthenticationInterface
      */
     public function ipIsAllowToConnect(string $ipAddress): void
     {
-        $this->logger->info('Check Client IP from blacklist/whitelist addresses');
+        Logger::create(LogChannelEnum::WEB)->info('Check Client IP from blacklist/whitelist addresses');
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->getConfiguration()->getCustomConfiguration();
         if (in_array($ipAddress, $customConfiguration->getBlackListClientAddresses(), true)) {
@@ -243,7 +243,7 @@ class WebSSO implements ProviderAuthenticationInterface
             return;
         }
 
-        $this->logger->info('Validating login header attribute');
+        Logger::create(LogChannelEnum::WEB)->info('Validating login header attribute');
         if (! array_key_exists($customConfiguration->getLoginHeaderAttribute() ?? '', $_SERVER)) {
             LoggerAuthentication::create()->loginFailure(
                 'Login header attribute missing in server environment',
@@ -264,7 +264,7 @@ class WebSSO implements ProviderAuthenticationInterface
      */
     public function extractUsernameFromLoginClaimOrFail(): string
     {
-        $this->logger->info('Retrieving username from login claim');
+        Logger::create(LogChannelEnum::WEB)->info('Retrieving username from login claim');
 
         $this->validateLoginAttributeOrFail();
 

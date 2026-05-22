@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace Core\Security\Authentication\Domain\Provider;
 
 use Adaptation\Log\Enum\AuthProviderEnum;
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
 use Adaptation\Log\LoggerAuthentication;
 use Centreon;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
@@ -49,7 +51,6 @@ use Core\Security\ProviderConfiguration\Domain\SecurityAccess\RolesMapping;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use DateInterval;
 use Exception;
-use Psr\Log\LoggerInterface;
 use Security\Domain\Authentication\Interfaces\OpenIdProviderInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -123,7 +124,6 @@ class OpenIdProvider implements OpenIdProviderInterface
         private readonly AttributePathFetcher $attributePathFetcher,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
         private readonly bool $isCloudPlatform,
-        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -179,7 +179,7 @@ class OpenIdProvider implements OpenIdProviderInterface
     {
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
-        $this->logger->info('Auto import starting...', [
+        Logger::create(LogChannelEnum::WEB)->info('Auto import starting...', [
             'user' => $this->username,
         ]);
         $this->validateAutoImportAttributesOrFail();
@@ -199,7 +199,7 @@ class OpenIdProvider implements OpenIdProviderInterface
 
         $user->setContactTemplate($customConfiguration->getContactTemplate());
         $this->userRepository->create($user);
-        $this->logger->info('Auto import complete', [
+        Logger::create(LogChannelEnum::WEB)->info('Auto import complete', [
             'user_alias' => $this->username,
             'user_fullname' => $this->userInformations[$customConfiguration->getUserNameBindAttribute()],
             'user_email' => $this->userInformations[$customConfiguration->getEmailBindAttribute()],
@@ -255,7 +255,7 @@ class OpenIdProvider implements OpenIdProviderInterface
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
 
-        $this->logger->info('Start authenticating user...', [
+        Logger::create(LogChannelEnum::WEB)->info('Start authenticating user...', [
             'provider' => $this->configuration->getName(),
         ]);
         if (empty($authorizationCode)) {
@@ -264,7 +264,7 @@ class OpenIdProvider implements OpenIdProviderInterface
                 null,
                 AuthProviderEnum::OPENID
             );
-            $this->logger->error(
+            Logger::create(LogChannelEnum::WEB)->error(
                 'No authorization code returned from external provider',
                 [
                     'provider' => $this->configuration->getName(),
@@ -305,7 +305,7 @@ class OpenIdProvider implements OpenIdProviderInterface
      */
     public function getUser(): ?ContactInterface
     {
-        $this->logger->info('Searching user : ' . $this->username);
+        Logger::create(LogChannelEnum::WEB)->info('Searching user : ' . $this->username);
 
         return $this->contactService->findByName($this->username)
             ?? $this->contactService->findByEmail($this->username);
@@ -322,7 +322,7 @@ class OpenIdProvider implements OpenIdProviderInterface
         if ($authenticationTokens->getProviderRefreshToken() === null) {
             throw SSOAuthenticationException::noRefreshToken();
         }
-        $this->logger->info(
+        Logger::create(LogChannelEnum::WEB)->info(
             'Refreshing token using refresh token',
             [
                 'refresh_token' => mb_substr($authenticationTokens->getProviderRefreshToken()->getToken(), -10),
@@ -461,7 +461,7 @@ class OpenIdProvider implements OpenIdProviderInterface
 
             return json_decode($this->urlSafeTokenDecode($tokenParts[1]), true);
         } catch (Throwable $ex) {
-            $this->logger->error(
+            Logger::create(LogChannelEnum::WEB)->error(
                 SSOAuthenticationException::unableToDecodeIdToken()->getMessage(),
                 ['trace' => $ex->getTraceAsString()]
             );
@@ -480,7 +480,7 @@ class OpenIdProvider implements OpenIdProviderInterface
      */
     private function sendRequestForConnectionTokenOrFail(string $authorizationCode, ?string $redirectUrl): void
     {
-        $this->logger->info('Send request to external provider for connection token...');
+        Logger::create(LogChannelEnum::WEB)->info('Send request to external provider for connection token...');
 
         // Define parameters for the request
         $redirectUri = $redirectUrl !== null
@@ -572,7 +572,7 @@ class OpenIdProvider implements OpenIdProviderInterface
      */
     private function sendRequestForIntrospectionEndpoint(): array
     {
-        $this->logger->info('Sending request for introspection token information');
+        Logger::create(LogChannelEnum::WEB)->info('Sending request for introspection token information');
 
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
@@ -625,7 +625,7 @@ class OpenIdProvider implements OpenIdProviderInterface
             );
         } catch (Exception $exception) {
             $this->logExceptionInLoginLogFile('Unable to get Introspection Information: %s, message: %s', $exception);
-            $this->logger->error(
+            Logger::create(LogChannelEnum::WEB)->error(
                 sprintf(
                     '[Error] Unable to get Introspection Token Information:, message: %s',
                     $exception->getMessage()
@@ -681,7 +681,7 @@ class OpenIdProvider implements OpenIdProviderInterface
      */
     private function sendRequestForUserInformationEndpoint(): array
     {
-        $this->logger->info('Sending Request for User Information...');
+        Logger::create(LogChannelEnum::WEB)->info('Sending Request for User Information...');
 
         $headers = [
             'Authorization' => 'Bearer ' . trim($this->providerToken->getToken()),
@@ -734,7 +734,7 @@ class OpenIdProvider implements OpenIdProviderInterface
      */
     private function verifyThatClientIsAllowedToConnectOrFail(string $clientIp): void
     {
-        $this->logger->info('Check Client IP against blacklist/whitelist addresses');
+        Logger::create(LogChannelEnum::WEB)->info('Check Client IP against blacklist/whitelist addresses');
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
         $authenticationConditions = $customConfiguration->getAuthenticationConditions();
@@ -849,7 +849,7 @@ class OpenIdProvider implements OpenIdProviderInterface
                 null,
                 AuthProviderEnum::OPENID
             );
-            $this->logger->error(
+            Logger::create(LogChannelEnum::WEB)->error(
                 '[Openid] Unable to get login from claim: ' . $loginClaim,
                 ['login_claim' => $loginClaim]
             );
@@ -934,7 +934,7 @@ class OpenIdProvider implements OpenIdProviderInterface
                     AuthProviderEnum::OPENID,
                     $exception
                 );
-                $this->logger->error(
+                Logger::create(LogChannelEnum::WEB)->error(
                     sprintf('[Error] Unable to get Token Refresh Information:, message: %s', $exception->getMessage())
                 );
 
@@ -946,7 +946,7 @@ class OpenIdProvider implements OpenIdProviderInterface
                 AuthProviderEnum::OPENID,
                 $exception
             );
-            $this->logger->error(
+            Logger::create(LogChannelEnum::WEB)->error(
                 sprintf('[Error] Unable to get Token Access Information:, message: %s', $exception->getMessage())
             );
 
@@ -989,7 +989,7 @@ class OpenIdProvider implements OpenIdProviderInterface
      */
     private function logErrorFromExternalProvider(array $content): void
     {
-        $this->logger->error(
+        Logger::create(LogChannelEnum::WEB)->error(
             'error from external provider :' . (array_key_exists('error_description', $content)
                 ? $content['error_description']
                 : 'No content in response')
@@ -1004,7 +1004,7 @@ class OpenIdProvider implements OpenIdProviderInterface
      */
     private function logErrorForInvalidStatusCode(int $codeReceived, int $codeExpected): void
     {
-        $this->logger->error(
+        Logger::create(LogChannelEnum::WEB)->error(
             sprintf(
                 'invalid status code return by external provider, [%d] returned, [%d] expected',
                 $codeReceived,
@@ -1022,7 +1022,7 @@ class OpenIdProvider implements OpenIdProviderInterface
     private function logErrorInLoginLogFile(string $message, array $content): void
     {
         if (array_key_exists('error_description', $content)) {
-            $this->logger->error("[Openid] {$message} " . $content['error_description']);
+            Logger::create(LogChannelEnum::WEB)->error("[Openid] {$message} " . $content['error_description']);
         }
     }
 
@@ -1049,7 +1049,7 @@ class OpenIdProvider implements OpenIdProviderInterface
         if (isset($content['provider_token'])) {
             $content['provider_token'] = mb_substr($content['provider_token'], -10);
         }
-        $this->logger->debug("[Openid] {$message}", $content);
+        Logger::create(LogChannelEnum::WEB)->debug("[Openid] {$message}", $content);
     }
 
     /**
@@ -1060,7 +1060,7 @@ class OpenIdProvider implements OpenIdProviderInterface
      */
     private function logAuthenticationInfo(string $message, ?array $content = null): void
     {
-        $this->logger->info("[Openid] {$message}", $content ?? []);
+        Logger::create(LogChannelEnum::WEB)->info("[Openid] {$message}", $content ?? []);
     }
 
     /**
@@ -1071,7 +1071,7 @@ class OpenIdProvider implements OpenIdProviderInterface
      */
     private function logExceptionInLoginLogFile(string $message, Exception $exception): void
     {
-        $this->logger->error(
+        Logger::create(LogChannelEnum::WEB)->error(
             sprintf(
                 "[Openid] {$message}",
                 $exception::class,
