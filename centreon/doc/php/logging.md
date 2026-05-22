@@ -19,6 +19,7 @@ This document describes the platform pipeline that captures logs emitted by the 
 8. [Processor scope](#8-processor-scope)
 9. [Routing and output file](#9-routing-and-output-file)
 10. [Legacy bridge — `Adaptation\Log\Logger`](#10-legacy-bridge--adaptationloglogger)
+11. [Writing authentication events](#11-writing-authentication-events)
 
 ---
 
@@ -604,18 +605,24 @@ Concrete consequences:
 - The HTTP context (`url`, `ip`, `http_method`, `server`, `referrer`) lives under `extra`, not `context.request_infos` — that is where the rest of the platform reads it.
 - `Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger::log()` still pre-formats through `ExceptionLogFormatter` (legacy) for the `BusinessLogicException` `from_exception` / `traces` fields its callers rely on. Its records therefore keep the legacy `context.exception` shape — that is a property of `ExceptionLogger` callers, not of the underlying logger.
 
-### Audit loggers — `LoggerPassword` and `LoggerToken`
+### Domain-specific facades
 
-Two siblings of `Adaptation\Log\Logger` ship with a **constrained API** (`success(...)`, `warning(...)`) instead of the PSR-3 surface:
+Three siblings of `Adaptation\Log\Logger` expose a **constrained, semantic API** instead of the raw PSR-3 surface:
 
-- `Adaptation\Log\LoggerPassword` — password-change audit events, written to `prod.password.log`.
-- `Adaptation\Log\LoggerToken` — API token lifecycle audit events, written to `prod.token.log`.
+| Facade | Channel | File | Methods |
+|---|---|---|---|
+| `Adaptation\Log\LoggerPassword` | `password` | `prod.password.log` | `success`, `warning` |
+| `Adaptation\Log\LoggerToken` | `token` | `prod.token.log` | `success`, `warning` |
+| `Adaptation\Log\LoggerAuthentication` | `authentication` | `prod.access.log` | `loginSuccess`, `loginFailure`, `logout`, `tokenRefreshSuccess`, `tokenRefreshFailure`, `unauthorized`, `forbidden` |
 
-They exist because those two files feed downstream tooling (fail2ban filters, SIEM correlation) that expects a stable context schema (`event`, `status`, `user_id`, `ip_address`, `token_type`, …). Hard-coding the schema in the helper guarantees every caller emits the same shape.
+They exist for two reasons:
 
-There is intentionally no `LoggerWeb`, `LoggerUpgrade`, `LoggerAuthentication`, `LoggerPluginPackManager`: those channels carry **free-form messages with arbitrary context**, so wrapping them adds no value over the PSR-3 facade. Call sites use `Adaptation\Log\Logger::create(LogChannelEnum::*)` directly.
+1. **Downstream consumers expect a stable JSON schema** — fail2ban filters (auth), SIEM correlation (password, auth, token). Hard-coding the schema in the helper guarantees every caller emits the same shape (`event`, `status`, `user_id`, `provider`, `ip_address`, …).
+2. **OWASP-aligned semantics** — distinguishing a security event (`WARNING` for an attempted-but-refused login) from a technical crash (`ERROR` for an unhandled exception) is a domain concern; the helper enforces the right Monolog level for each method.
 
-Decision rule for adding a new `Logger<Channel>` class: only when the channel feeds an automated consumer that requires a stable JSON schema. Otherwise, route through `Adaptation\Log\Logger::create()`.
+For channels that carry **free-form messages with arbitrary context** (`web`, `upgrade`, `plugin-pack-manager`), call sites use `Adaptation\Log\Logger::create(LogChannelEnum::*)` directly — wrapping them in a helper adds no value over the PSR-3 facade.
+
+Decision rule for adding a new `Logger<Channel>` class: when the channel either feeds an automated consumer that requires a stable schema, **or** carries a well-defined lifecycle (`loginSuccess` / `loginFailure` / `logout` / …) that benefits from semantic method names. Otherwise, route through `Adaptation\Log\Logger::create(LogChannelEnum::*)` directly.
 
 ### `CentreonLog` and `CentreonUserLog` façades
 
@@ -641,3 +648,177 @@ Both classes are tagged `@deprecated`. The DI/Application code that still autowi
 `config/packages/monolog.yaml` (legacy kernel) is a single-line `imports:` pointing at `config.new/packages/monolog.yaml`. There is one source of truth for channels, handlers and processors — adding or renaming a channel for the platform pipeline automatically reaches the legacy kernel too.
 
 Both kernels resolve `kernel.logs_dir` to `/var/log/centreon` (`App\Kernel::getLogDir()` and `App\Shared\Infrastructure\Symfony\Kernel::getLogDir()`), so the path templates in `monolog.yaml` produce identical filenames regardless of which kernel boots a request.
+
+---
+
+## 11. Writing authentication events
+
+Authentication is the only flow where the platform splits two destinations on purpose, following the [OWASP Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html) and [ASVS V7](https://owasp.org/www-project-application-security-verification-standard/) recommendations:
+
+- **Application Security Events** → `prod.access.log` (channel `authentication`) — login success/failure, logout, token refresh, unauthorized, forbidden. Consumed by SOC / SIEM / fail2ban.
+- **Application Error Logs** → `prod.web.log` (channel `web`) — exceptions, protocol diagnostics, dependency errors.
+
+Every auth provider routes through this split. The new kernel uses Symfony DI (`#[Autowire(service: 'monolog.logger.authentication')]`), the legacy side uses the `LoggerAuthentication` facade.
+
+### Facade API
+
+```php
+use Adaptation\Log\Enum\AuthProviderEnum;
+use Adaptation\Log\LoggerAuthentication;
+
+LoggerAuthentication::create()->loginSuccess($message, $userId, $provider);
+LoggerAuthentication::create()->loginFailure($message, $userId, $provider, $exception);
+LoggerAuthentication::create()->logout($message, $userId, $provider);
+LoggerAuthentication::create()->tokenRefreshSuccess($message, $userId, $provider);
+LoggerAuthentication::create()->tokenRefreshFailure($message, $userId, $provider, $exception);
+LoggerAuthentication::create()->unauthorized($message, $userId);
+LoggerAuthentication::create()->forbidden($message, $userId, $resource);
+```
+
+| Method | Monolog level | When to use |
+|---|---|---|
+| `loginSuccess($message, $userId, $provider)` | `INFO` | Credentials accepted, session opened. |
+| `loginFailure($message, $userId, $provider, $e)` | `WARNING` | Refused login: bad credentials, IP blacklisted, claim missing, IdP error. **WARNING, not ERROR** — this is an expected security event, not a crash. |
+| `logout($message, $userId, $provider)` | `INFO` | Session ended. |
+| `tokenRefreshSuccess($message, $userId, $provider)` | `INFO` | OIDC refresh token exchanged. |
+| `tokenRefreshFailure($message, $userId, $provider, $e)` | `WARNING` | Refresh refused or token endpoint error during refresh. |
+| `unauthorized($message, $userId)` | `WARNING` | Authenticated user not allowed to reach a resource (HTTP 401 outside of login). |
+| `forbidden($message, $userId, $resource)` | `WARNING` | Authenticated user denied on a specific resource (HTTP 403). |
+
+`$userId` is the Centreon `contact_id` (int). Pass `null` when the user is not yet resolved (early OpenID failure before the `userinfo` exchange, IP blacklist hit before authentication, …). `$provider` is an `AuthProviderEnum` case: `LOCAL`, `LDAP`, `OPENID`, `SAML`, `WEB_SSO`, `API_TOKEN`, `AUTOLOGIN`, `CLAPI`.
+
+### Context structure
+
+Every method emits the same JSON context shape:
+
+```json
+{
+  "event": "login.success" | "login.failure" | "logout" | "token.refresh.success" | "token.refresh.failure" | "unauthorized" | "forbidden",
+  "status": "success" | "failure",
+  "user_id": 42,
+  "provider": "openid",
+  "ip_address": "10.0.0.42",
+  "exception": { ... }
+}
+```
+
+This shape is the contract — downstream filters and dashboards pin on `event`, `status`, `provider` and `ip_address`. Do not bypass the facade to add ad-hoc top-level keys.
+
+### Recommended pattern in a provider
+
+Inside the legacy auth providers (`src/Core/Security/Authentication/...`), the rule is:
+
+- **Security events** → `LoggerAuthentication::create()->loginFailure(...)` / `loginSuccess(...)` at the exact point the decision is taken (just before throwing the SSO exception).
+- **Technical diagnostics** → `Adaptation\Log\Logger::create(LogChannelEnum::WEB)->info/error(...)` for the surrounding traces (request sent to IdP, JSON decode error, HTTP 5xx). These are not security events; they belong in `prod.web.log`.
+
+```php
+foreach ($conditions->getBlacklistClientAddresses() as $blackListedAddress) {
+    if (preg_match('/' . $blackListedAddress . '/', $clientIp)) {
+        // Security event — SOC needs to see this on prod.access.log.
+        LoggerAuthentication::create()->loginFailure(
+            'Client IP is blacklisted',
+            null,
+            AuthProviderEnum::OPENID
+        );
+
+        throw SSOAuthenticationException::blackListedClient();
+    }
+}
+
+try {
+    $response = $this->client->request('POST', $tokenEndpoint, ['body' => $data]);
+} catch (Exception $exception) {
+    // Security event — login refused, SOC needs to see it.
+    LoggerAuthentication::create()->loginFailure(
+        'Failed to retrieve access token from provider',
+        null,
+        AuthProviderEnum::OPENID,
+        $exception
+    );
+
+    // Technical trace — kept on prod.web.log for ops investigation.
+    Logger::create(LogChannelEnum::WEB)->error(
+        sprintf('[Error] Unable to get Token Access Information:, message: %s', $exception->getMessage())
+    );
+
+    throw SSOAuthenticationException::requestForConnectionTokenFail();
+}
+```
+
+### Other lifecycle events
+
+```php
+// Logout — emit when the session is closed (legacy logout button, OIDC end-session callback, SAML SLS).
+LoggerAuthentication::create()->logout(
+    sprintf("[%s] [%s] Logout for '%s'", $authType, $clientIp, $username),
+    (int) $contactId,
+    AuthProviderEnum::OPENID
+);
+
+// Token refresh — OIDC refresh_token exchanged successfully against the IdP.
+LoggerAuthentication::create()->tokenRefreshSuccess(
+    'OIDC refresh token exchanged successfully',
+    (int) $contactId,
+    AuthProviderEnum::OPENID
+);
+```
+
+### Authorization events
+
+```php
+// API endpoint reached without a token, or with an expired one.
+LoggerAuthentication::create()->unauthorized(
+    'Missing or invalid bearer token',
+    null
+);
+
+// Authenticated user denied on a specific resource by a voter or an ACL check.
+LoggerAuthentication::create()->forbidden(
+    'User cannot access host resource',
+    (int) $user->getId(),
+    'host:42'
+);
+```
+
+### Application layer (DDD)
+
+The DDD scope (`src/App/...`) calls `LoggerAuthentication` directly the same way as the legacy code — Application is allowed to depend on `Adaptation\Log\*` because that namespace is the platform-side wrapper, not a third-party I/O. If a particular use case wants strict DIP (Application depending on an abstraction, Infrastructure providing the adapter), follow the `UpgradeLoggerInterface` / `LoggerUpgradeAdapter` pattern described in [§11 of the upgrade flow doc] — define an `AuthenticationLoggerInterface` in `App\<Bounded>\Application\Logger\` and a `LoggerAuthenticationAdapter` in `App\<Bounded>\Infrastructure\Logger\` that delegates to the facade.
+
+### Sample output
+
+`prod.access.log`:
+
+```
+authentication.INFO: [local] [172.18.0.1] Authentication succeeded for 'admin'
+  {"event":"login.success","status":"success","user_id":1,"provider":"local","ip_address":"172.18.0.1"}
+
+authentication.WARNING: [local] [172.18.0.1] Authentication failed for 'admin' : invalid credentials
+  {"event":"login.failure","status":"failure","user_id":null,"provider":"local","ip_address":"172.18.0.1"}
+
+authentication.WARNING: No authorization code returned from external provider
+  {"event":"login.failure","status":"failure","user_id":null,"provider":"openid","ip_address":"10.0.0.42"}
+
+authentication.WARNING: Client IP is blacklisted
+  {"event":"login.failure","status":"failure","user_id":null,"provider":"web-sso","ip_address":"10.0.0.42"}
+```
+
+`prod.web.log` (same request, technical trace):
+
+```
+app.INFO: Start authenticating user... {"provider":"openid"}
+app.ERROR: No authorization code returned from external provider {"provider":"openid"}
+app.ERROR: An error occurred during authentication {"trace":"…SSOAuthenticationException…"}
+```
+
+### fail2ban compatibility
+
+The legacy local/LDAP messages keep their historical pattern (`[local] [<ip>] Authentication succeeded for '<alias>'` / `Authentication failed for '<alias>' : <reason>`) so existing fail2ban filters keep working. The facade does not rewrite the message — the caller passes it verbatim as the first argument and the facade only enriches the context.
+
+### Best practices
+
+- **One decision point = one `loginSuccess` / `loginFailure` call.** No "summarising" loop log; emit the event where the throw / accept actually happens.
+- **`WARNING`, not `ERROR`, for refused logins.** A bad password is a security event, not a crash. ERROR is reserved for true technical failures.
+- **No PII, no secrets** in the message or the context. Mask tokens, redact passwords. The file is shipped to SOC pipelines.
+- **`$userId` is `null` early, populated once resolved.** Don't fabricate a fake id (e.g. `0`) — `null` is the signal that the user was not authenticated at this stage.
+- **Provider always set.** Use the `AuthProviderEnum` cases; do not pass a free-form string. The enum is the single source of truth of which providers exist.
+- **Don't duplicate on both channels.** A security event goes to `prod.access.log` via the facade. The technical trace (stack trace, ldap_error, HTTP body) belongs to `prod.web.log` via `Logger::create(LogChannelEnum::WEB)`.
