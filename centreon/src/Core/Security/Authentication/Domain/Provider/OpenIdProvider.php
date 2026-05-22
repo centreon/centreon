@@ -313,6 +313,10 @@ class OpenIdProvider implements OpenIdProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws SSOAuthenticationException when the refresh token is missing or the IdP refuses the refresh request
+     * @throws \JsonException when the IdP response cannot be JSON-decoded
+     * @throws \DateMalformedIntervalStringException when the expires_in value is not a valid DateInterval payload
      */
     public function refreshToken(AuthenticationTokens $authenticationTokens): AuthenticationTokens
     {

@@ -459,6 +459,10 @@ class SAML implements ProviderAuthenticationInterface
         $auth->logout($returnTo, $parameters, $nameId, $sessionIndex);
     }
 
+    /**
+     * @throws Error when the SAML auth instance cannot be built from the configuration
+     * @throws Exception when processSLO fails to validate the IdP response
+     */
     public function handleCallbackLogoutResponse(): void
     {
         Logger::create(LogChannelEnum::WEB)->info('SAML SLS invoked');

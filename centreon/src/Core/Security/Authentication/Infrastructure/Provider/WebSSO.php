@@ -303,6 +303,8 @@ class WebSSO implements ProviderAuthenticationInterface
 
     /**
      * Update user in data storage.
+     *
+     * @throws \Exception always — the feature is not supported by the WebSSO provider
      */
     public function updateUser(): void
     {

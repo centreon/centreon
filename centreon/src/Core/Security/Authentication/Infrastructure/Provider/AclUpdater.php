@@ -57,6 +57,8 @@ class AclUpdater implements AclUpdaterInterface
     /**
      * @param ProviderAuthenticationInterface $provider
      * @param ContactInterface $user
+     *
+     * @throws ProviderException when the provider does not support ACL updates from claims (must be OpenId or SAML)
      */
     public function updateForProviderAndUser(ProviderAuthenticationInterface $provider, ContactInterface $user): void
     {
