@@ -25,9 +25,12 @@ namespace App\Upgrade\Infrastructure\Dbal;
 
 use Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
+use App\Upgrade\Domain\Event\UpgradeStepCompleted;
+use App\Upgrade\Domain\Event\UpgradeStepFailed;
+use App\Upgrade\Domain\Event\UpgradeStepStarted;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use Doctrine\DBAL\Connection;
-use Psr\Log\LoggerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -44,10 +47,13 @@ final readonly class DbalUpdateRepository implements UpdateRepository
         #[Autowire(param: 'upgrade.install_dir')]
         private string $installDir,
         private Filesystem $filesystem,
-        private LoggerInterface $logger,
+        private EventDispatcherInterface $events,
     ) {
     }
 
+    /**
+     * @throws \Doctrine\DBAL\Exception when the configuration database query fails
+     */
     public function findCurrentVersion(): ?string
     {
         $result = $this->configConnection->fetchOne(
@@ -57,16 +63,22 @@ final readonly class DbalUpdateRepository implements UpdateRepository
         return is_scalar($result) ? (string) $result : null;
     }
 
+    /**
+     * @throws \Throwable any failure raised by a sub-step (SQL execution, included PHP script, version update) re-thrown after the matching UpgradeStepFailed event is dispatched
+     */
     public function runUpdate(string $version): void
     {
-        $this->logger->info('Running update', ['version' => $version]);
-        $this->runMonitoringSql($version);
-        $this->runScript($version);
-        $this->runConfigurationSql($version);
-        $this->runPostScript($version);
-        $this->updateVersionInformation($version);
+        $this->runStep($version, 'monitoring_sql', fn () => $this->runMonitoringSql($version));
+        $this->runStep($version, 'php_script', fn () => $this->runScript($version));
+        $this->runStep($version, 'configuration_sql', fn () => $this->runConfigurationSql($version));
+        $this->runStep($version, 'php_post_script', fn () => $this->runPostScript($version));
+        $this->runStep($version, 'update_version_information', fn () => $this->updateVersionInformation($version));
     }
 
+    /**
+     * @throws \RuntimeException when the installs backup directory is missing or not writable
+     * @throws \Throwable any failure raised by the filesystem mirror / remove sub-steps re-thrown after the matching UpgradeStepFailed event is dispatched
+     */
     public function runPostUpdate(string $currentVersion): void
     {
         if (! $this->filesystem->exists($this->installDir)) {
@@ -83,18 +95,35 @@ final readonly class DbalUpdateRepository implements UpdateRepository
 
         $backupDirectory = $installsDir . '/install-' . $currentVersion . '-' . date('Ymd_His');
 
-        $this->logger->info('Backing up installation directory', [
-            'source' => $this->installDir,
-            'destination' => $backupDirectory,
-        ]);
+        $this->runStep(
+            $currentVersion,
+            'backup_install_directory',
+            fn () => $this->filesystem->mirror($this->installDir, $backupDirectory),
+        );
 
-        $this->filesystem->mirror($this->installDir, $backupDirectory);
+        $this->runStep(
+            $currentVersion,
+            'remove_install_directory',
+            fn () => $this->filesystem->remove($this->installDir),
+        );
+    }
 
-        $this->logger->info('Removing installation directory', [
-            'installation_directory' => $this->installDir,
-        ]);
+    /**
+     * @throws \Throwable
+     */
+    private function runStep(string $version, string $step, callable $action): void
+    {
+        $this->events->dispatch(new UpgradeStepStarted($version, $step));
+        $startedAt = microtime(true);
+        try {
+            $action();
+        } catch (\Throwable $exception) {
+            $this->events->dispatch(new UpgradeStepFailed($exception->getMessage(), $version, $step, $exception));
 
-        $this->filesystem->remove($this->installDir);
+            throw $exception;
+        }
+        $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
+        $this->events->dispatch(new UpgradeStepCompleted($version, $step, $durationMs));
     }
 
     private function runMonitoringSql(string $version): void
@@ -141,6 +170,9 @@ final readonly class DbalUpdateRepository implements UpdateRepository
         }
     }
 
+    /**
+     * @throws \Doctrine\DBAL\Exception when the version update statement fails
+     */
     private function updateVersionInformation(string $version): void
     {
         $this->configConnection->executeStatement(
@@ -149,6 +181,10 @@ final readonly class DbalUpdateRepository implements UpdateRepository
         );
     }
 
+    /**
+     * @throws \Doctrine\DBAL\Exception when one of the SQL statements fails
+     * @throws \RuntimeException when the temporary progress file cannot be written
+     */
     private function runSqlFile(Connection $connection, string $filePath): void
     {
         set_time_limit(0);
@@ -178,13 +214,7 @@ final readonly class DbalUpdateRepository implements UpdateRepository
                 if (! empty(trim($query)) && preg_match('/;\s*$/', $query)) {
                     $executedCount++;
                     if ($executedCount > $alreadyExecutedCount) {
-                        try {
-                            $connection->executeStatement($query);
-                        } catch (\Throwable $ex) {
-                            $this->logger->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-
-                            throw $ex;
-                        }
+                        $connection->executeStatement($query);
                         $this->writeExecutedQueriesCount($tmpFile, $executedCount);
                     }
                     $query = '';
@@ -207,12 +237,14 @@ final readonly class DbalUpdateRepository implements UpdateRepository
         return 0;
     }
 
+    /**
+     * @throws \RuntimeException when the temporary file exists but is not writable
+     */
     private function writeExecutedQueriesCount(string $tmpFile, int $count): void
     {
-        if (! file_exists($tmpFile) || is_writable($tmpFile)) {
-            file_put_contents($tmpFile, $count);
-        } else {
-            $this->logger->warning('Cannot write in temporary file', ['path' => $tmpFile]);
+        if (file_exists($tmpFile) && ! is_writable($tmpFile)) {
+            throw new \RuntimeException(sprintf('Cannot write in temporary file: %s', $tmpFile));
         }
+        file_put_contents($tmpFile, $count);
     }
 }

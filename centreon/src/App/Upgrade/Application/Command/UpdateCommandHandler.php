@@ -28,10 +28,17 @@ use App\Upgrade\Application\CacheClearer;
 use App\Upgrade\Application\DbmsVersionValidator;
 use App\Upgrade\Application\EngineContextWriter;
 use App\Upgrade\Application\UpdateLocker;
+use App\Upgrade\Domain\Event\UpgradeCompleted;
+use App\Upgrade\Domain\Event\UpgradeFailed;
+use App\Upgrade\Domain\Event\UpgradeStarted;
+use App\Upgrade\Domain\Event\UpgradeStepCompleted;
+use App\Upgrade\Domain\Event\UpgradeStepFailed;
+use App\Upgrade\Domain\Event\UpgradeStepStarted;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use App\Upgrade\Domain\Repository\UpdateScriptFinder;
 use App\Upgrade\Domain\Repository\WidgetRepository;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
 #[AsCommandHandler]
 final readonly class UpdateCommandHandler
@@ -45,38 +52,75 @@ final readonly class UpdateCommandHandler
         private WidgetRepository $widgetRepository,
         private EngineContextWriter $engineContextWriter,
         private CacheClearer $cacheClearer,
+        private EventDispatcherInterface $events,
     ) {
     }
 
+    /**
+     * @throws \RuntimeException when another update is already in progress or the current version cannot be read
+     * @throws \Throwable any failure thrown by validation, the repositories or the cache clearer (re-thrown after the lock is released and the failure event is dispatched)
+     */
     public function __invoke(UpdateCommand $command): void
     {
-        $this->dbmsVersionValidator->validateOrFail();
-        if (! $this->updateLocker->lock()) {
-            throw new \RuntimeException('An update is already in progress');
-        }
+        $startedAt = microtime(true);
+        $currentVersion = null;
+        $targetVersion = null;
+
         try {
-            $currentVersion = $this->updateRepository->findCurrentVersion();
+            $this->dbmsVersionValidator->validateOrFail();
 
-            if ($currentVersion === null) {
-                throw new \RuntimeException('Cannot retrieve the current platform version');
+            if (! $this->updateLocker->lock()) {
+                throw new \RuntimeException('An update is already in progress');
             }
 
-            $availableUpdates = $this->updateScriptFinder->findOrderedAvailableUpdates($currentVersion);
+            try {
+                $currentVersion = $this->updateRepository->findCurrentVersion();
+                if ($currentVersion === null) {
+                    throw new \RuntimeException('Cannot retrieve the current platform version');
+                }
 
-            foreach ($availableUpdates as $version) {
-                $this->updateRepository->runUpdate($version);
+                $availableUpdates = $this->updateScriptFinder->findOrderedAvailableUpdates($currentVersion);
+                $targetVersion = $availableUpdates === [] ? $currentVersion : end($availableUpdates);
+
+                $this->events->dispatch(new UpgradeStarted($currentVersion, $targetVersion));
+
+                foreach ($availableUpdates as $version) {
+                    $this->runStep($version, 'run_update', fn () => $this->updateRepository->runUpdate($version));
+                }
+
+                $this->runStep($currentVersion, 'post_update', fn () => $this->updateRepository->runPostUpdate($currentVersion));
+                $this->runStep($currentVersion, 'modules_update', fn () => $this->moduleRepository->updateAll());
+                $this->runStep($currentVersion, 'widgets_update', fn () => $this->widgetRepository->updateAll());
+                $this->runStep($currentVersion, 'engine_context', fn () => $this->engineContextWriter->writeIfMissing());
+                $this->runStep($currentVersion, 'cache_clear', fn () => $this->cacheClearer->clear());
+
+                $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
+                $this->events->dispatch(new UpgradeCompleted($currentVersion, $targetVersion, $durationMs));
+            } finally {
+                $this->updateLocker->unlock();
             }
+        } catch (\Throwable $exception) {
+            $this->events->dispatch(new UpgradeFailed($exception->getMessage(), $currentVersion, $targetVersion, $exception));
 
-            // Must always run whether there are updates or not.
-            $this->updateRepository->runPostUpdate($currentVersion);
-
-            $this->moduleRepository->updateAll();
-            $this->widgetRepository->updateAll();
-
-            $this->engineContextWriter->writeIfMissing();
-            $this->cacheClearer->clear();
-        } finally {
-            $this->updateLocker->unlock();
+            throw $exception;
         }
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    private function runStep(string $version, string $step, callable $action): void
+    {
+        $this->events->dispatch(new UpgradeStepStarted($version, $step));
+        $startedAt = microtime(true);
+        try {
+            $action();
+        } catch (\Throwable $exception) {
+            $this->events->dispatch(new UpgradeStepFailed($exception->getMessage(), $version, $step, $exception));
+
+            throw $exception;
+        }
+        $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
+        $this->events->dispatch(new UpgradeStepCompleted($version, $step, $durationMs));
     }
 }

@@ -32,6 +32,7 @@ use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Repository\WidgetRepository;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Tests\App\Upgrade\Infrastructure\Double\FakeEventDispatcher;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateLocker;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateRepository;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateScriptFinder;
@@ -54,6 +55,8 @@ final class UpdateCommandHandlerTest extends TestCase
 
     private CacheClearer&MockObject $cacheClearer;
 
+    private FakeEventDispatcher $events;
+
     private UpdateCommandHandler $handler;
 
     protected function setUp(): void
@@ -66,6 +69,7 @@ final class UpdateCommandHandlerTest extends TestCase
         $this->widgetRepository = $this->createMock(WidgetRepository::class);
         $this->engineContextWriter = $this->createMock(EngineContextWriter::class);
         $this->cacheClearer = $this->createMock(CacheClearer::class);
+        $this->events = new FakeEventDispatcher();
 
         $this->handler = new UpdateCommandHandler(
             $this->updateRepository,
@@ -76,6 +80,7 @@ final class UpdateCommandHandlerTest extends TestCase
             $this->widgetRepository,
             $this->engineContextWriter,
             $this->cacheClearer,
+            $this->events,
         );
     }
 
@@ -160,6 +165,7 @@ final class UpdateCommandHandlerTest extends TestCase
             $this->widgetRepository,
             $this->engineContextWriter,
             $this->cacheClearer,
+            $this->events,
         );
 
         $this->expectException(\RuntimeException::class);
