@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Platform\Infrastructure\Repository;
 
-use Centreon\Domain\Log\LoggerTrait;
+use Adaptation\Log\LoggerUpgrade;
 use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
@@ -33,8 +33,6 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpdateRepositoryInterface
 {
-    use LoggerTrait;
-
     /**
      * @param string $libDir
      * @param string $installDir
@@ -54,18 +52,22 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
 
     /**
      * @inheritDoc
+     *
+     * @throws \Throwable any failure raised by a sub-step (SQL execution, included PHP script, version update) re-thrown after the matching upgrade.step_failure event is logged
      */
     public function runUpdate(string $version): void
     {
-        $this->runMonitoringSql($version);
-        $this->runScript($version);
-        $this->runConfigurationSql($version);
-        $this->runPostScript($version);
-        $this->updateVersionInformation($version);
+        $this->executeStep($version, 'monitoring_sql', fn () => $this->runMonitoringSql($version));
+        $this->executeStep($version, 'php_script', fn () => $this->runScript($version));
+        $this->executeStep($version, 'configuration_sql', fn () => $this->runConfigurationSql($version));
+        $this->executeStep($version, 'php_post_script', fn () => $this->runPostScript($version));
+        $this->executeStep($version, 'update_version_information', fn () => $this->updateVersionInformation($version));
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws \Symfony\Component\Filesystem\Exception\IOException when the install directory cannot be mirrored or removed
      */
     public function runPostUpdate(string $currentVersion): void
     {
@@ -78,20 +80,47 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
     }
 
     /**
+     * @throws \Throwable
+     */
+    private function executeStep(string $version, string $stepName, callable $callable): void
+    {
+        LoggerUpgrade::create()->step($version, $stepName, "Starting step '{$stepName}'");
+        $startedAt = microtime(true);
+        try {
+            $callable();
+        } catch (\Throwable $exception) {
+            LoggerUpgrade::create()->stepFailure(
+                "Step '{$stepName}' failed: {$exception->getMessage()}",
+                $version,
+                $stepName,
+                $exception
+            );
+
+            throw $exception;
+        }
+        $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
+        LoggerUpgrade::create()->step(
+            $version,
+            $stepName,
+            "Step '{$stepName}' completed in {$durationMs}ms"
+        );
+    }
+
+    /**
      * Backup installation directory.
      *
      * @param string $currentVersion
+     *
+     * @throws \Symfony\Component\Filesystem\Exception\IOException when the install directory cannot be mirrored to the backup location
      */
     private function backupInstallDirectory(string $currentVersion): void
     {
         $backupDirectory = $this->libDir . '/installs/install-' . $currentVersion . '-' . date('Ymd_His');
 
-        $this->info(
-            'Backing up installation directory',
-            [
-                'source' => $this->installDir,
-                'destination' => $backupDirectory,
-            ],
+        LoggerUpgrade::create()->step(
+            $currentVersion,
+            'backup_install_directory',
+            "Backing up installation directory from {$this->installDir} to {$backupDirectory}"
         );
 
         $this->filesystem->mirror(
@@ -102,14 +131,15 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
 
     /**
      * Remove installation directory.
+     *
+     * @throws \Symfony\Component\Filesystem\Exception\IOException when the install directory cannot be removed
      */
     private function removeInstallDirectory(): void
     {
-        $this->info(
-            'Removing installation directory',
-            [
-                'installation_directory' => $this->installDir,
-            ],
+        LoggerUpgrade::create()->step(
+            'post_update',
+            'remove_install_directory',
+            "Removing installation directory at {$this->installDir}"
         );
 
         $this->filesystem->remove($this->installDir);
@@ -119,6 +149,8 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
      * Run sql queries on monitoring database.
      *
      * @param string $version
+     *
+     * @throws RepositoryException when a SQL statement fails or the progress file cannot be written
      */
     private function runMonitoringSql(string $version): void
     {
@@ -133,6 +165,8 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
      * Run php upgrade script.
      *
      * @param string $version
+     *
+     * @throws \Throwable any failure raised by the included Update-<version>.php script
      */
     private function runScript(string $version): void
     {
@@ -149,6 +183,8 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
      * Run sql queries on configuration database.
      *
      * @param string $version
+     *
+     * @throws RepositoryException when a SQL statement fails or the progress file cannot be written
      */
     private function runConfigurationSql(string $version): void
     {
@@ -163,6 +199,8 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
      * Run php post upgrade script.
      *
      * @param string $version
+     *
+     * @throws \Throwable any failure raised by the included Update-<version>.post.php script
      */
     private function runPostScript(string $version): void
     {
@@ -179,6 +217,8 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
      * Update version information.
      *
      * @param string $version
+     *
+     * @throws \PDOException when the version update statement fails
      */
     private function updateVersionInformation(string $version): void
     {
@@ -195,6 +235,8 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
      * Run sql file and use temporary file to store last executed line.
      *
      * @param string $filePath
+     *
+     * @throws RepositoryException when a SQL statement fails or the temporary progress file cannot be written
      */
     private function runSqlFile(string $filePath): void
     {
@@ -222,23 +264,12 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
                         if ($this->isSqlCompleteQuery($query)) {
                             $executedQueriesCount++;
                             if ($executedQueriesCount > $alreadyExecutedQueriesCount) {
-                                try {
-                                    $this->executeQuery($query);
-                                } catch (RepositoryException $ex) {
-                                    $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-
-                                    throw $ex;
-                                }
-
+                                $this->executeQuery($query);
                                 $this->writeExecutedQueriesCountInTemporaryFile($tmpFile, $executedQueriesCount);
                             }
                             $query = '';
                         }
                     }
-                } catch (\Throwable $ex) {
-                    $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-
-                    throw $ex;
                 } finally {
                     fclose($fileStream);
                 }
@@ -271,15 +302,15 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
      *
      * @param string $tmpFile
      * @param int $count
+     *
+     * @throws RepositoryException when the temporary file exists but is not writable
      */
     private function writeExecutedQueriesCountInTemporaryFile(string $tmpFile, int $count): void
     {
-        if (! file_exists($tmpFile) || is_writable($tmpFile)) {
-            $this->info('Writing in temporary file : ' . $tmpFile);
-            file_put_contents($tmpFile, $count);
-        } else {
-            $this->warning('Cannot write in temporary file : ' . $tmpFile);
+        if (file_exists($tmpFile) && ! is_writable($tmpFile)) {
+            throw new RepositoryException(sprintf('Cannot write in temporary file: %s', $tmpFile));
         }
+        file_put_contents($tmpFile, $count);
     }
 
     /**
@@ -311,15 +342,13 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
      *
      * @param string $query
      *
-     * @throws \Exception
+     * @throws RepositoryException when the underlying query fails
      */
     private function executeQuery(string $query): void
     {
         try {
             $this->db->query($query);
         } catch (\Exception $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-
             throw new RepositoryException('Cannot execute query: ' . $query, 0, $ex);
         }
     }
