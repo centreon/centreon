@@ -409,7 +409,7 @@ jobs:
 
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
           cache-dependency-path: ${{ env.base_directory }}/pnpm-lock.yaml
 
@@ -1282,7 +1282,7 @@ jobs:
   #         retention-days: 1
 
   deliver-sources:
-    runs-on: centreon-common
+    runs-on: ubuntu-24.04
     needs: [get-environment, e2e-test, legacy-e2e-test]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -1413,7 +1413,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       github.event.pull_request.head.repo.fork != true
-    runs-on: centreon-common
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}

@@ -231,7 +231,7 @@ UNLOCK TABLES;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `nagios_stats` (
-  `instance_id` int(11) NOT NULL,
+  `instance_id` BIGINT UNSIGNED NOT NULL,
   `stat_key` varchar(255) NOT NULL,
   `stat_value` varchar(255) NOT NULL,
   `stat_label` varchar(255) NOT NULL
