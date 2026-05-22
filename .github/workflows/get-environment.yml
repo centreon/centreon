@@ -809,8 +809,10 @@ jobs:
               ...info,
             }));
 
+            const cloudDistrib = allDistribs.find(d => d.operating_system === 'alma9');
+            const onPremMainDistrib = allDistribs.find(d => d.operating_system === 'alma9');
             const isCloudTestingOrStable = isCloud && ['testing', 'stable'].includes(stability);
-            const result = isCloudTestingOrStable ? [allDistribs[0]] : isFullRun ? allDistribs : [allDistribs[0]];
+            const result = isCloudTestingOrStable ? [cloudDistrib] : isFullRun ? allDistribs : isCloud ? [cloudDistrib] : [onPremMainDistrib];
 
             console.log('package_matrix', result);
 
