@@ -71,13 +71,9 @@ final readonly class PayloadSanitizer
 
             $result = [];
             foreach ($data as $key => $value) {
-                // `context.exception` is the slot owned by
-                // ExceptionFormatterProcessor — leave the whole sub-tree
-                // alone, regardless of processor order: a raw \Throwable
-                // (before EFP runs) must reach the formatter intact,
-                // and the structured `{exceptions: [{trace: […]}]}`
-                // (after EFP ran) is deeper than MAX_DEPTH and would
-                // otherwise collapse into `{…}`.
+                // `context.exception` belongs to ExceptionFormatterProcessor — leave
+                // it intact (raw Throwable must reach EFP; structured shape is deeper
+                // than MAX_DEPTH).
                 if ($key === 'exception') {
                     $result[$key] = $value;
 

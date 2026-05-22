@@ -24,15 +24,8 @@ declare(strict_types=1);
 namespace App\Shared\Domain\Logging\Attribute;
 
 /**
- * Marks a property as sensitive — the platform payload sanitiser (the
- * `bus` channel via `LoggingMiddleware`, every other channel via
- * `SanitizingProcessor`) replaces the value with `***` whenever the
- * containing class flows through the logging pipeline.
- *
- * `#[Sensitive]` is the **single source of truth** for masking: a
- * property that does not carry the attribute is logged in clear. Any
- * class that holds a secret — Command, Query, Domain aggregate, value
- * object, request DTO — must annotate the relevant property.
+ * Marks a property whose value must be masked (`***`) when the
+ * containing object flows through the logging pipeline.
  */
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 final readonly class Sensitive

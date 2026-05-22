@@ -26,14 +26,9 @@ namespace App\Shared\Infrastructure\Logging\Attribute;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 /**
- * Reflection-based scanner that resolves which properties of a class
- * carry the `#[Sensitive]` attribute and, for each property, the
- * nested class type the sanitiser must descend into so an annotation
- * placed on a sub-aggregate is honoured the same way as one on the
- * top-level class.
- *
- * Result is cached per class — every dispatch / record produced by a
- * given class reuses the same {@see \ReflectionClass} walk.
+ * Scans `#[Sensitive]` properties and nested class types of a class.
+ * Result cached per class to share the {@see \ReflectionClass} walk
+ * across every record produced by the same payload.
  */
 final class SensitivityScanner
 {

@@ -27,17 +27,10 @@ use Monolog\Attribute\AsMonologProcessor;
 use Monolog\LogRecord;
 
 /**
- * Monolog processor that walks every record's `context` and masks
- * sensitive entries through {@see PayloadSanitizer} — same precedence
- * as the bus pipeline, applied to every ad-hoc
- * `$logger->error('msg', $context)` regardless of channel.
- *
- * Without this processor the masking only covered the Messenger bus
- * payload (built by `LoggingMiddleware`); a controller / service that
- * logs `['password' => $raw]` directly would otherwise leak. Tracking
- * gap closed by MON-199097.
- *
- * `\Throwable` values are returned as-is by the sanitiser so that
+ * Monolog processor that masks `#[Sensitive]` entries in every
+ * record's `context` through {@see PayloadSanitizer}. Covers the
+ * ad-hoc `$logger->error('msg', $context)` paths that bypass the
+ * bus middleware. `\Throwable` values are returned as-is so that
  * {@see ExceptionFormatterProcessor} can structure them downstream.
  */
 #[AsMonologProcessor]
