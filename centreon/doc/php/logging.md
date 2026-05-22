@@ -19,6 +19,7 @@ This document describes the platform pipeline that captures logs emitted by the 
 8. [Processor scope](#8-processor-scope)
 9. [Routing and output file](#9-routing-and-output-file)
 10. [Legacy bridge — `Adaptation\Log\Logger`](#10-legacy-bridge--adaptationloglogger)
+11. [Writing upgrade scripts (`Update-*.php`)](#11-writing-upgrade-scripts-update-php)
 
 ---
 
@@ -604,18 +605,23 @@ Concrete consequences:
 - The HTTP context (`url`, `ip`, `http_method`, `server`, `referrer`) lives under `extra`, not `context.request_infos` — that is where the rest of the platform reads it.
 - `Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger::log()` still pre-formats through `ExceptionLogFormatter` (legacy) for the `BusinessLogicException` `from_exception` / `traces` fields its callers rely on. Its records therefore keep the legacy `context.exception` shape — that is a property of `ExceptionLogger` callers, not of the underlying logger.
 
-### Audit loggers — `LoggerPassword` and `LoggerToken`
+### Domain-specific facades
 
-Two siblings of `Adaptation\Log\Logger` ship with a **constrained API** (`success(...)`, `warning(...)`) instead of the PSR-3 surface:
+Four siblings of `Adaptation\Log\Logger` expose a **constrained, semantic API** instead of the raw PSR-3 surface:
 
-- `Adaptation\Log\LoggerPassword` — password-change audit events, written to `prod.password.log`.
-- `Adaptation\Log\LoggerToken` — API token lifecycle audit events, written to `prod.token.log`.
+| Facade | Channel | File | Methods |
+|---|---|---|---|
+| `Adaptation\Log\LoggerPassword` | `password` | `prod.password.log` | `success`, `warning` |
+| `Adaptation\Log\LoggerToken` | `token` | `prod.token.log` | `success`, `warning` |
+| `Adaptation\Log\LoggerAuthentication` | `authentication` | `prod.access.log` | `loginSuccess`, `loginFailure`, `logout`, `tokenRefreshSuccess`, `tokenRefreshFailure`, `unauthorized`, `forbidden` |
+| `Adaptation\Log\LoggerUpgrade` | `upgrade` | `prod.upgrade.log` | `start`, `success`, `failure`, `step`, `stepFailure`, `info`, `error` |
 
-They exist because those two files feed downstream tooling (fail2ban filters, SIEM correlation) that expects a stable context schema (`event`, `status`, `user_id`, `ip_address`, `token_type`, …). Hard-coding the schema in the helper guarantees every caller emits the same shape.
+They exist for two reasons:
 
-There is intentionally no `LoggerWeb`, `LoggerUpgrade`, `LoggerAuthentication`, `LoggerPluginPackManager`: those channels carry **free-form messages with arbitrary context**, so wrapping them adds no value over the PSR-3 facade. Call sites use `Adaptation\Log\Logger::create(LogChannelEnum::*)` directly.
+1. **Downstream consumers expect a stable JSON schema** — fail2ban filters (auth), SIEM correlation (password, auth, token), upgrade observability dashboards. Hard-coding the schema in the helper guarantees every caller emits the same shape (`event`, `status`, `user_id`, `from_version`, …).
+2. **OWASP-aligned semantics** — distinguishing a security event (`WARNING` for an attempted-but-refused login) from a technical crash (`ERROR` for an unhandled exception) is a domain concern; the helper enforces the right Monolog level for each method.
 
-Decision rule for adding a new `Logger<Channel>` class: only when the channel feeds an automated consumer that requires a stable JSON schema. Otherwise, route through `Adaptation\Log\Logger::create()`.
+Decision rule for adding a new `Logger<Channel>` class: when the channel either feeds an automated consumer that requires a stable schema, **or** carries a well-defined lifecycle (start/step/success/failure) that benefits from semantic method names. Otherwise, route through `Adaptation\Log\Logger::create(LogChannelEnum::*)` directly.
 
 ### `CentreonLog` and `CentreonUserLog` façades
 
@@ -641,3 +647,186 @@ Both classes are tagged `@deprecated`. The DI/Application code that still autowi
 `config/packages/monolog.yaml` (legacy kernel) is a single-line `imports:` pointing at `config.new/packages/monolog.yaml`. There is one source of truth for channels, handlers and processors — adding or renaming a channel for the platform pipeline automatically reaches the legacy kernel too.
 
 Both kernels resolve `kernel.logs_dir` to `/var/log/centreon` (`App\Kernel::getLogDir()` and `App\Shared\Infrastructure\Symfony\Kernel::getLogDir()`), so the path templates in `monolog.yaml` produce identical filenames regardless of which kernel boots a request.
+
+---
+
+## 11. Writing upgrade scripts (`Update-*.php`)
+
+Each upgrade ships under `www/install/php/Update-<version>.php` (DB DDL/DML + business migration) and runs inside `DbWriteUpdateRepository` (legacy kernel) or `DbalUpdateRepository` (DDD kernel). Both wrap the script with an `executeStep('php_script', …)` helper that emits a `step` / `stepFailure` event around the inclusion. **Inside the script itself, trace each meaningful action through `LoggerUpgrade` so operators get a play-by-play view in `prod.upgrade.log`.**
+
+### Facade API
+
+```php
+use Adaptation\Log\LoggerUpgrade;
+
+LoggerUpgrade::create()->info($version, "Adding column X to table Y");
+LoggerUpgrade::create()->error($version, "Schema check failed", $exception);
+
+LoggerUpgrade::create()->stepFailure($message, $version, $stepName, $exception);
+LoggerUpgrade::create()->step($version, $stepName, $message);
+```
+
+| Method | Monolog level | When to use |
+|---|---|---|
+| `start($from, $to)` | `INFO` | Begin of the global upgrade flow (emitted by `UpdateCommandHandler` / `process_step4.php`, **not** by individual scripts). |
+| `success($from, $to, $durationMs)` | `INFO` | End of the global upgrade flow, with measured duration. |
+| `failure($message, $from, $to, $e)` | `ERROR` | Global upgrade aborted (catch-all in the handler). |
+| `step($version, $stepName, $message)` | `INFO` | Sub-step boundary (start/end of `monitoring_sql`, `php_script`, etc.). Emitted by the repositories around each sub-step; rarely needed inside an upgrade script. |
+| `stepFailure($message, $version, $stepName, $e)` | `ERROR` | Inside an upgrade script, when an action throws. Use the `php_script` step name (or `php_script_rollback` when the rollback itself fails). |
+| **`info($version, $message)`** | `INFO` | **Trace a meaningful action** (entering a function, finished an `ALTER TABLE`, skipped because already migrated, …). This is the workhorse inside upgrade scripts. |
+| **`error($version, $message, $e)`** | `ERROR` | Free-form error inside a script that you choose not to re-throw (rare — usually you re-throw and let the surrounding `try/catch` call `stepFailure`). |
+
+### Recommended pattern
+
+Mirror `www/install/php/Update-next.php.tpl` and trace each action:
+
+```php
+use Adaptation\Database\Connection\ConnectionInterface;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Log\LoggerUpgrade;
+
+require_once __DIR__ . '/../../../bootstrap.php';
+
+$version = '25.11.0';
+$errorMessage = '';
+
+/**
+ * @var ConnectionInterface $pearDB
+ * @var ConnectionInterface $pearDBO
+ */
+
+// One callable per business action — easy to log around.
+$addVmwareUpdatedField = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add vmware_updated field into nagios_server table';
+    LoggerUpgrade::create()->info($version, 'Adding vmware_updated field into nagios_server table');
+
+    if ($pearDB->columnExists(
+        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
+        'nagios_server',
+        'vmware_updated'
+    )) {
+        LoggerUpgrade::create()->info(
+            $version,
+            'Field vmware_updated already exists in nagios_server table, skipping modification'
+        );
+
+        return;
+    }
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server`
+            ADD COLUMN `vmware_updated` BOOLEAN NOT NULL DEFAULT 0 AFTER `updated`
+            SQL
+    );
+
+    LoggerUpgrade::create()->info($version, 'Successfully added vmware_updated field into nagios_server table');
+};
+
+try {
+    LoggerUpgrade::create()->info($version, "Starting upgrade script for version {$version}");
+
+    // Call each action — every helper traces its own start / skip / success.
+    $addVmwareUpdatedField();
+
+    if (! $pearDB->isTransactionActive()) {
+        $pearDB->startTransaction();
+    }
+
+    // … DML inside the transaction …
+
+    $pearDB->commitTransaction();
+
+    LoggerUpgrade::create()->info($version, "Upgrade script for version {$version} completed");
+} catch (Throwable $throwable) {
+    LoggerUpgrade::create()->stepFailure(
+        "UPGRADE - {$version}: {$errorMessage}",
+        $version,
+        'php_script',
+        $throwable
+    );
+
+    try {
+        if ($pearDB->isTransactionActive()) {
+            LoggerUpgrade::create()->info($version, "Rolling back transaction after error: {$errorMessage}");
+            $pearDB->rollBackTransaction();
+        }
+    } catch (ConnectionException $rollbackException) {
+        LoggerUpgrade::create()->stepFailure(
+            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            $version,
+            'php_script_rollback',
+            $rollbackException
+        );
+
+        throw new RuntimeException(
+            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            previous: $rollbackException
+        );
+    }
+
+    throw new RuntimeException(
+        message: "UPGRADE - {$version}: " . $errorMessage,
+        previous: $throwable
+    );
+}
+```
+
+Key points:
+
+- **`$errorMessage` is updated before each action**, so the catch-all `stepFailure` reports which action failed.
+- **The "Rolling back…" `info` lives inside the `if ($pearDB->isTransactionActive())`** — only log a rollback that actually happens.
+- **Re-throwing after `stepFailure` is the rule**: the upgrade flow above (`runUpdate` / `UpdateCommandHandler`) catches and emits its own `failure` event with the from→to versions and the wrapped duration. A silent return would break that chain.
+
+### Sample output (`prod.upgrade.log`)
+
+```
+upgrade.INFO: Upgrade started from 25.10.0 to 25.11.0
+  {"event":"upgrade.start","status":"started","from_version":"25.10.0","to_version":"25.11.0"}
+
+upgrade.INFO: Starting step 'php_script'
+  {"event":"upgrade.step","status":"running","step":"php_script","to_version":"25.11.0"}
+
+upgrade.INFO: Starting upgrade script for version 25.11.0
+  {"event":"upgrade.info","status":"info","to_version":"25.11.0"}
+
+upgrade.INFO: Adding vmware_updated field into nagios_server table
+  {"event":"upgrade.info","status":"info","to_version":"25.11.0"}
+
+upgrade.INFO: Successfully added vmware_updated field into nagios_server table
+  {"event":"upgrade.info","status":"info","to_version":"25.11.0"}
+
+upgrade.INFO: Upgrade script for version 25.11.0 completed
+  {"event":"upgrade.info","status":"info","to_version":"25.11.0"}
+
+upgrade.INFO: Step 'php_script' completed in 124ms
+  {"event":"upgrade.step","status":"running","step":"php_script","to_version":"25.11.0"}
+
+upgrade.INFO: Upgrade from 25.10.0 to 25.11.0 completed successfully
+  {"event":"upgrade.success","status":"success","from_version":"25.10.0","to_version":"25.11.0","duration_ms":4242}
+```
+
+Failure scenario:
+
+```
+upgrade.INFO: Adding vmware_updated field into nagios_server table
+  {"event":"upgrade.info",...}
+
+upgrade.ERROR: UPGRADE - 25.11.0: Unable to add vmware_updated field into nagios_server table
+  {"event":"upgrade.step_failure","status":"failure","step":"php_script","exception":{"exceptions":[{"type":"PDOException","message":"…","file":"…","line":42}]}}
+
+upgrade.INFO: Rolling back transaction after error: Unable to add vmware_updated field into nagios_server table
+  {"event":"upgrade.info",...}
+
+upgrade.ERROR: UPGRADE - 25.11.0: Unable to add vmware_updated field into nagios_server table
+  {"event":"upgrade.failure","status":"failure","from_version":"25.10.0","to_version":"25.11.0","exception":{...}}
+```
+
+### Best practices
+
+- **One business action = one `info` line** before it runs (intent) and one after (outcome). Skip branches deserve their own line so operators can read the log top-to-bottom without re-deriving control flow.
+- **Carry `$version` on every call** — the field is what lets SIEM/Grafana partition the file per release.
+- **No PII, no secrets** in the message or the context. The file is shipped to operators / SOC pipelines; the same redaction rules as `prod.access.log` apply.
+- **Don't duplicate the surrounding `step` event** — the repository already brackets the script with `step` / `stepFailure`. Inside the script, use `info` / `error` (free-form) and let `stepFailure` be raised by the outer `try/catch`.
+- **Idempotent actions still log** — even "skipped because already migrated" is signal: it confirms the migration was applied on a previous run and the script is safely re-entrant.
+- **Re-throw on failure**. Returning silently after logging masks the failure from the surrounding `UpdateCommandHandler` / `process_step4` which then misses the `upgrade.failure` event.
