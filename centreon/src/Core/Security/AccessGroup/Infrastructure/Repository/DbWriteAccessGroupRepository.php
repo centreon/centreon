@@ -26,11 +26,14 @@ namespace Core\Security\AccessGroup\Infrastructure\Repository;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 class DbWriteAccessGroupRepository extends AbstractRepositoryDRB implements WriteAccessGroupRepositoryInterface
 {
+    use SqlMultipleBindTrait;
+
     /**
      * @param DatabaseConnection $db
      */
@@ -149,6 +152,54 @@ class DbWriteAccessGroupRepository extends AbstractRepositoryDRB implements Writ
             $statement->bindValue(":acl_res_id_{$index}", $aclResourceId, \PDO::PARAM_INT);
         }
         $statement->execute();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function updateAclGroupsFlag(array $accessGroupIds): void
+    {
+        $accessGroupsIds = array_map(
+            static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
+            $accessGroupIds
+        );
+
+        if ($accessGroupsIds === []) {
+            return;
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupsIds, ':group_id_');
+
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<SQL
+                    UPDATE `:db`.`acl_groups`
+                    SET acl_group_changed = '1'
+                    WHERE acl_group_id IN ({$bindQuery})
+                    SQL
+            )
+        );
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function updateAclResourcesFlag(): void
+    {
+        $this->db->query(
+            $this->translateDbName(
+                <<<'SQL'
+                    UPDATE `:db`.`acl_resources`
+                    SET changed = '1'
+                    SQL
+            )
+        );
     }
 
     /**
