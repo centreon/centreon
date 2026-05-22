@@ -51,6 +51,8 @@ final readonly class PayloadSanitizer
      *                                        depth, or `null` when the
      *                                        type at this level is
      *                                        scalar / array / unknown
+     *
+     * @throws \ReflectionException when SensitivityScanner cannot reflect the context class
      */
     public function sanitize(mixed $data, int $depth = 0, ?string $contextClass = null): mixed
     {

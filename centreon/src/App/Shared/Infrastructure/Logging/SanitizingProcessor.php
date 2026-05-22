@@ -47,6 +47,9 @@ final readonly class SanitizingProcessor
     {
     }
 
+    /**
+     * @throws \ReflectionException propagated from PayloadSanitizer when a context class cannot be reflected
+     */
     public function __invoke(LogRecord $record): LogRecord
     {
         /** @var array<string, mixed> $sanitized */

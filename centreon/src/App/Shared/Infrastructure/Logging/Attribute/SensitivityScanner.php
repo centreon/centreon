@@ -48,6 +48,8 @@ final class SensitivityScanner
     /**
      * @param class-string $class
      *
+     * @throws \ReflectionException when the class does not exist or cannot be reflected
+     *
      * @return array{
      *     sensitive: list<string>,
      *     subClasses: array<string, class-string>
