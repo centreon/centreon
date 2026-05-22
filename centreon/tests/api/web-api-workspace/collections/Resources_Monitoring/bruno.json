@@ -1,0 +1,1 @@
+{ "version": "1", "name": "Resources_Monitoring", "type": "collection", "ignore": ["node_modules", ".git"] }
