@@ -5,6 +5,6 @@ packages:
   - 'www/widgets'
   - 'tests/rest_api'
   - 'doc/API'
-
 overrides:
   react-resizable: 3.0.5
+  protobufjs@<=7.5.5: 7.5.5
