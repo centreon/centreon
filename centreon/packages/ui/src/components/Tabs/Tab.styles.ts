@@ -10,7 +10,7 @@ export const useTabsStyles = makeStyles()((theme) => ({
     minWidth: 0,
     padding: theme.spacing(0.5, 0)
   },
-tabs: {
+  tabs: {
     minHeight: theme.spacing(4.5)
   }
 }));
