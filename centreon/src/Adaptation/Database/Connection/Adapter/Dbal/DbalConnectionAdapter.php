@@ -86,8 +86,9 @@ final class DbalConnectionAdapter implements ConnectionInterface
             'driver' => $connectionConfig->getDriver()->value,
         ];
 
-        if (DatabaseTLSResolver::getTLSOptions() !== []) {
-            $dbalConnectionConfig['driverOptions'] = DatabaseTLSResolver::getTLSOptions();
+        $tlsOptions = DatabaseTLSResolver::getTLSOptions();
+        if ($tlsOptions !== []) {
+            $dbalConnectionConfig['driverOptions'] = $tlsOptions;
         }
         try {
             $dbalConnection = DoctrineDbalDriverManager::getConnection($dbalConnectionConfig);
