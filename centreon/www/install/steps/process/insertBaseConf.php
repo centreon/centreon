@@ -25,10 +25,10 @@ require_once '../functions.php';
 
 use App\Kernel;
 use App\MonitoringConfiguration\Infrastructure\Service\SnowflakePollerUidGenerator;
+use App\Shared\Infrastructure\Database\DatabaseTLSResolver;
 use CentreonModule\ServiceProvider;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPoller;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPollerRequest;
-use App\Shared\Infrastructure\Database\DatabaseTLSResolver;
 use Godruoyi\Snowflake\Snowflake;
 
 $return = ['id' => 'baseconf', 'result' => 1, 'msg' => ''];

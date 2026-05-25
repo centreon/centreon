@@ -26,8 +26,8 @@ use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\Trait\ConnectionTrait;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
-use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use App\Shared\Infrastructure\Database\DatabaseTLSResolver;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Psr\Log\LogLevel;
 
 // file centreon.config.php may not exist in test environment
