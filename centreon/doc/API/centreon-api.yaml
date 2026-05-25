@@ -9921,7 +9921,7 @@ components:
         id:
           type: integer
           nullable: true
-        uuid:
+        uid:
           type: string
           nullable: true
     Poller-poller.write:
@@ -9963,7 +9963,7 @@ components:
             id:
               type: integer
               nullable: true
-            uuid:
+            uid:
               type: string
               nullable: true
     StandardMacro:

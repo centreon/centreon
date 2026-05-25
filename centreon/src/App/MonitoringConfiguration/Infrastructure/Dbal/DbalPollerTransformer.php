@@ -35,7 +35,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUuid;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -57,7 +57,7 @@ final readonly class DbalPollerTransformer implements TransformerInterface
             isDefault: (bool) $from['is_default'],
             isActivated: $from['is_activated'] === '1',
             pollerType: PollerTypeEnum::from($from['poller_type']),
-            uuid: $from['poller_uuid'] !== null ? new PollerUuid($from['poller_uuid']) : null,
+            uid: new PollerUid((int) $from['poller_uid']),
             globalMacros: new Collection([], GlobalMacro::class),
             pollerCommands: new Collection([], PollerCommand::class),
             brokerConfiguration: new BrokerConfiguration(
