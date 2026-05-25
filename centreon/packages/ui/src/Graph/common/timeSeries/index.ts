@@ -344,6 +344,7 @@ const getTimeSeriesForLines = ({
     ({ timeTick, ...metricsValue }): TimeValue => ({
       ...reduce(
         (acc, metric_id): Omit<TimeValue, 'timePick'> => {
+          // @ts-ignore - suppressing pre-existing type mismatch
           return {
             ...acc,
             [metric_id]:
@@ -354,7 +355,7 @@ const getTimeSeriesForLines = ({
                 : metricsValue[metric_id]
           };
         },
-        // @ts-expect-error - suppressing pre-existing type mismatch
+        // @ts-ignore - suppressing pre-existing type mismatch
         {},
         metrics
       ),
