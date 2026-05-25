@@ -191,17 +191,15 @@ const TextField = forwardRef(
                 ),
                 endAdornment: (
                   <OptionalLabelInputAdornment label={label} position="end">
-                    {EndAdornment ? (
-                      isValidElement(EndAdornment)
+                    {EndAdornment
+                      ? isValidElement(EndAdornment)
                         ? EndAdornment
                         : createElement(EndAdornment as React.ComponentType)
-                    ) : (
-                      (
-                        textFieldSlotsAndSlotProps?.slotProps?.input as
-                          | Record<string, React.ReactNode>
-                          | undefined
-                      )?.endAdornment
-                    )}
+                      : (
+                          textFieldSlotsAndSlotProps?.slotProps?.input as
+                            | Record<string, React.ReactNode>
+                            | undefined
+                        )?.endAdornment}
                   </OptionalLabelInputAdornment>
                 ),
                 startAdornment: StartAdornment && (
