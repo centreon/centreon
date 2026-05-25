@@ -82,7 +82,11 @@ const useFetchQuery = <T extends object>({
 
   const { showErrorMessage } = useSnackbar();
 
-  const isCypressTest = equals((window as Window & { Cypress?: { testingType: string } }).Cypress?.testingType, 'component');
+  const isCypressTest = equals(
+    (window as Window & { Cypress?: { testingType: string } }).Cypress
+      ?.testingType,
+    'component'
+  );
 
   const cacheOptions =
     !isCypressTest && useLongCache ? { gcTime: 60 * 1000 } : {};

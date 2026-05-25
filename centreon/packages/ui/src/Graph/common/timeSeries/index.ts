@@ -343,20 +343,14 @@ const getTimeSeriesForLines = ({
   return map(
     ({ timeTick, ...metricsValue }): TimeValue => ({
       ...reduce(
-        (acc, metric_id): Omit<TimeValue, 'timePick'> => {
-          // @ts-ignore - suppressing pre-existing type mismatch
-          return {
-            ...acc,
-            [metric_id]:
-              invert &&
-              metricsValue[metric_id] &&
-              gt(metricsValue[metric_id], 0)
-                ? negate(metricsValue[metric_id])
-                : metricsValue[metric_id]
-          };
-        },
-        // @ts-ignore - suppressing pre-existing type mismatch
-        {},
+        (acc, metric_id): Omit<TimeValue, 'timePick'> => ({
+          ...acc,
+          [metric_id]:
+            invert && metricsValue[metric_id] && gt(metricsValue[metric_id], 0)
+              ? negate(metricsValue[metric_id])
+              : metricsValue[metric_id]
+        }),
+        {} as Omit<TimeValue, 'timePick'>,
         metrics
       ),
       timeTick
