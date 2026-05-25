@@ -24,12 +24,13 @@ namespace App\Shared\Infrastructure\Dbal;
 use Doctrine\Bundle\DoctrineBundle\ConnectionFactory;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
 #[AsAlias('doctrine.dbal.connection_factory')]
 class TLSConnectionFactory extends ConnectionFactory
 {
-    public function createConnection(array $params, Configuration|null $config = null, EventManager|null $eventManager = null, array $mappingTypes = [])
+    public function createConnection(array $params, Configuration|null $config = null, EventManager|null $eventManager = null, array $mappingTypes = []): Connection
     {
         $tlsOptions = DatabaseTLSResolver::getTLSOptions();
         foreach ($tlsOptions as $optionKey => $optionValue) {
