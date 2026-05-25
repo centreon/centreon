@@ -43,7 +43,7 @@
     "shell-exec": "^1.1.2",
     "swc-loader": "^0.2.3",
     "tar-fs": "^3.0.6",
-    "testcontainers": "^10.15.0",
+    "testcontainers": "^11.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2",
     "webpack": "^5.96.1"
