@@ -68,7 +68,7 @@ jobs:
       collections: ${{ steps.set_collections.outputs.collections }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: List Postman Collections and Environments
         id: set_collections
@@ -96,7 +96,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Test Execution and test plan Keys
         id: get-test-ids
@@ -152,16 +152,16 @@ jobs:
       DATABASE_IMAGE: ${{ inputs.database_image }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
-      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+      - uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
         with:
           version: 10
           run_install: false
 
-      - uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
           cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
@@ -187,7 +187,7 @@ jobs:
 
       - name: Restore standard slim image from cache
         id: cache-docker-slim
-        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         timeout-minutes: 6
         with:
@@ -278,14 +278,14 @@ jobs:
 
       - name: Upload HTML Reports
         if: failure()
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: newman-${{ inputs.os }}${{ inputs.db_id && format('-{0}', inputs.db_id) || '' }}-html-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: centreon/tests/rest_api/newman/
 
       - name: Upload test reports
         if: always()
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: newman-${{ inputs.os }}${{ inputs.db_id && format('-{0}', inputs.db_id) || '' }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: centreon/tests/rest_api/postman_summaries/*.json
@@ -296,7 +296,7 @@ jobs:
     if: always()
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Download Artifacts
         uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
