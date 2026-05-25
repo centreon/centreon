@@ -105,7 +105,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Package
         uses: ./.github/actions/package-nfpm
@@ -128,7 +128,7 @@ jobs:
           upload_artifacts: ${{ needs.get-environment.outputs.is_nightly == 'true' || contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
 
   deliver-sources:
-    runs-on: centreon-common
+    runs-on: ubuntu-24.04
     needs: [get-environment, package]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -141,7 +141,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -153,24 +153,27 @@ jobs:
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
-  delivery-rpm:
+  deliver:
     needs: [get-environment, changes, package]
     if: |
       needs.changes.outputs.trigger_delivery == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["unstable"]'), needs.get-environment.outputs.stability) &&
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      needs.get-environment.outputs.is_cloud == 'false' &&
       github.event.pull_request.head.repo.fork != true
-    runs-on: centreon-common
+    runs-on: ubuntu-24.04
 
     strategy:
       matrix:
-        distrib: [el9, el10]
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
+    name: deliver ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Delivery
+      - name: Deliver RPM package
+        if: matrix.package_extension == 'rpm'
         uses: ./.github/actions/rpm-delivery
         with:
           module_name: ha
@@ -184,25 +187,8 @@ jobs:
           delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
           centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  deliver-deb:
-    needs: [get-environment, changes, package]
-    if: |
-      needs.changes.outputs.trigger_delivery == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.is_cloud == 'false' &&
-      contains(fromJson('["unstable"]'), needs.get-environment.outputs.stability) &&
-      github.event.pull_request.head.repo.fork != true
-    runs-on: centreon-common
-
-    strategy:
-      matrix:
-        distrib: [trixie]
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-
-      - name: Delivery
+      - name: Deliver DEB package
+        if: matrix.package_extension == 'deb'
         uses: ./.github/actions/deb-delivery
         with:
           module_name: ha
@@ -222,14 +208,15 @@ jobs:
       github.event_name != 'workflow_dispatch' &&
       needs.get-environment.outputs.is_cloud == 'false' &&
       github.event.pull_request.head.repo.fork != true
-    runs-on: centreon-common
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
-        distrib: [el9, el10, trixie]
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
+    name: promote ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable

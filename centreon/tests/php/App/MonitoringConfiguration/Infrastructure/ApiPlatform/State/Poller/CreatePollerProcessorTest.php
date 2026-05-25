@@ -62,8 +62,8 @@ final class CreatePollerProcessorTest extends ApiTestCase
 
         $responseData = $response->toArray();
         self::assertArrayHasKey('id', $responseData);
-        self::assertArrayHasKey('uuid', $responseData);
-        self::assertNotNull($responseData['uuid']);
+        self::assertArrayHasKey('uid', $responseData);
+        self::assertNotNull($responseData['uid']);
 
         $poller = $repository->findOneByName(new PollerName($name));
         self::assertNotNull($poller);

@@ -39,7 +39,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUuid;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
@@ -59,7 +59,7 @@ final class PollerActivityLogFactoryTest extends TestCase
             isDefault: false,
             isActivated: true,
             pollerType: PollerTypeEnum::VM,
-            uuid: new PollerUuid('01234567-0123-7890-abcd-0123456789ab'),
+            uid: new PollerUid(123456789012345),
             globalMacros: new Collection([], GlobalMacro::class),
             gorgoneConfiguration: new GorgoneConfiguration(),
             engineConfiguration: new EngineConfiguration(),
