@@ -38,14 +38,14 @@ export interface UseFetchQueryProps<T> {
   useLongCache?: boolean;
 }
 
-export interface PrefetchPageParams {
-  getPrefetchQueryKey: (page: number) => QueryKey;
-  page: number;
-}
-
 export interface PrefetchQueryParams {
   endpointParams?: PrefetchEndpointParams;
   queryKey: QueryKey;
+}
+
+export interface PrefetchPageParams {
+  getPrefetchQueryKey: (page: number) => QueryKey;
+  page: number;
 }
 
 export type UseFetchQueryState<T> = {
