@@ -36,8 +36,8 @@ use Tools\PhpStan\CustomRules\CentreonRuleErrorBuilder;
  */
 class StringBackquotesCustomRule implements Rule
 {
-    public const CENTREON_CONFIG_DATABASE = ':db';
-    public const CENTREON_REALTIME_DATABASE = ':dbstg';
+    public const string CENTREON_CONFIG_DATABASE = ':db';
+    public const string CENTREON_REALTIME_DATABASE = ':dbstg';
     private const string REGEX = '/(' . self::CENTREON_REALTIME_DATABASE . '|' . self::CENTREON_CONFIG_DATABASE . ')\./';
 
     public function getNodeType(): string
