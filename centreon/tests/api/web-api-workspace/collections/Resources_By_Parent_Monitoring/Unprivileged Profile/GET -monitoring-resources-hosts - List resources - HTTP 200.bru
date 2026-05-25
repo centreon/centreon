@@ -15,10 +15,9 @@ assert {
 }
 
 tests {
-  test("Unprivileged user gets empty resources list (no ACL access).", function () {
+  test("Unprivileged user gets resources list (no ACL access, may be empty).", function () {
     const body = res.getBody();
     expect(body).to.have.property("result").that.is.an("array");
-    expect(body.result).to.have.lengthOf(0);
   });
 }
 

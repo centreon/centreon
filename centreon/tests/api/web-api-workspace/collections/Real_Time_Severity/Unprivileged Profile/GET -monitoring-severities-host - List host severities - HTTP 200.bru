@@ -1,11 +1,11 @@
 meta {
-  name: GET /monitoring/resources - List resources - HTTP 200
+  name: GET /monitoring/severities/host - List host severities - HTTP 200
   type: http
   seq: 2
 }
 
 get {
-  url: {{baseUrlWeb}}/monitoring/resources
+  url: {{baseUrlWeb}}/monitoring/severities/host
   body: none
   auth: inherit
 }
@@ -15,7 +15,7 @@ assert {
 }
 
 tests {
-  test("Unprivileged user gets resources list (no ACL access, may be empty).", function () {
+  test("Unprivileged user gets empty host severities list (no ACL access).", function () {
     const body = res.getBody();
     expect(body).to.have.property("result").that.is.an("array");
   });

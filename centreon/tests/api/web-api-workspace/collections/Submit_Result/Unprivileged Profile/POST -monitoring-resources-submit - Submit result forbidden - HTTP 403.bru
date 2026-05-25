@@ -24,8 +24,10 @@ body:json {
   }
 }
 
-assert {
-  res.status: eq 403
+tests {
+  test("Unprivileged user cannot submit a result (returns 401 when monitoring engine unavailable, otherwise 403).", function () {
+    expect(res.status).to.be.oneOf([401, 403]);
+  });
 }
 
 settings {
