@@ -23,7 +23,7 @@ require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonAuth.class.php';
 
 use Centreon\Domain\VersionHelper;
-use Core\Infrastructure\Common\DatabaseTLSResolver;
+use App\Shared\Infrastructure\Database\DatabaseTLSResolver;
 use Symfony\Component\Yaml\Yaml;
 
 /**

@@ -30,9 +30,9 @@ use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\Trait\ConnectionTrait;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use App\Shared\Infrastructure\Database\DatabaseTLSResolver;
 use Centreon\Domain\Log\Logger;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
-use Core\Infrastructure\Common\DatabaseTLSResolver;
 use Psr\Log\LogLevel;
 
 /**

@@ -19,7 +19,7 @@
  *
  */
 
-use Core\Infrastructure\Common\DatabaseTLSResolver;
+use App\Shared\Infrastructure\Database\DatabaseTLSResolver;
 
 session_start();
 require_once __DIR__ . '/../../../../bootstrap.php';

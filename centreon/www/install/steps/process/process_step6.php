@@ -25,7 +25,7 @@ require_once __DIR__ . '/../functions.php';
 require __DIR__ . '/../../../include/common/common-Func.php';
 
 use CentreonLegacy\Core\Install\Step\Step6;
-use Core\Infrastructure\Common\DatabaseTLSResolver;
+use App\Shared\Infrastructure\Database\DatabaseTLSResolver;
 
 define('SQL_ERROR_CODE_ACCESS_DENIED', 1698);
 

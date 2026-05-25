@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Infrastructure\Dbal;
+namespace App\Shared\Infrastructure\Database;
 
 final class DatabaseTLSResolver
 {

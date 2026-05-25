@@ -24,7 +24,7 @@
  * the centreon_storage.logs table
  */
 
-use Core\Infrastructure\Common\DatabaseTLSResolver;
+use App\Shared\Infrastructure\Database\DatabaseTLSResolver;
 
 ini_set('max_execution_time', 0);
 

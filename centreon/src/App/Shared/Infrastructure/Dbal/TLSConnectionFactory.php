@@ -19,8 +19,10 @@
  *
  */
 declare(strict_types=1);
+
 namespace App\Shared\Infrastructure\Dbal;
 
+use App\Shared\Infrastructure\Database\DatabaseTLSResolver;
 use Doctrine\Bundle\DoctrineBundle\ConnectionFactory;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;

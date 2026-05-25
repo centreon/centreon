@@ -28,7 +28,7 @@ use App\MonitoringConfiguration\Infrastructure\Service\SnowflakePollerUidGenerat
 use CentreonModule\ServiceProvider;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPoller;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPollerRequest;
-use Core\Infrastructure\Common\DatabaseTLSResolver;
+use App\Shared\Infrastructure\Database\DatabaseTLSResolver;
 use Godruoyi\Snowflake\Snowflake;
 
 $return = ['id' => 'baseconf', 'result' => 1, 'msg' => ''];
