@@ -82,7 +82,7 @@ services:
     profiles: ["saml"]
 
   openldap:
-    image: "${LDAP_IMAGE:-ghcr.io/centreon/centreon/ldap:26.05}"
+    image: "${LDAP_IMAGE:-ghcr.io/centreon/centreon/ldap:25.10}"
     ports: ["389"]
     profiles: ["openldap", "ldap"]
 
@@ -97,7 +97,7 @@ services:
     profiles: ["squid-basic-auth"]
 
   mediawiki:
-    image: "${MEDIAWIKI_IMAGE:-ghcr.io/centreon/centreon/mediawiki:26.05}"
+    image: "${MEDIAWIKI_IMAGE:-ghcr.io/centreon/centreon/mediawiki:25.10}"
     ports: ["80"]
     profiles: ["mediawiki"]
 
