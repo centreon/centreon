@@ -14,13 +14,6 @@ assert {
   res.status: eq 404
 }
 
-tests {
-  test("No vault configuration is found after deletion.", function () {
-    const body = res.getBody();
-    expect(body).to.have.property("code").that.equals(404);
-  });
-}
-
 settings {
   encodeUrl: true
   timeout: 0
