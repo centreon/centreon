@@ -1,0 +1,32 @@
+meta {
+  name: POST /notifications/_delete - Bulk delete notification2 - HTTP 204
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/notifications/_delete
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "ids": [{{Notification2Id}}]
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Notification2 deleted via bulk endpoint.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
