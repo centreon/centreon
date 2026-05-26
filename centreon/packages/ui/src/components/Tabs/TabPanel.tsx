@@ -6,11 +6,7 @@ type Props = {
 };
 
 export const TabPanel = ({ children, value }: Props): JSX.Element => (
-  <MuiTabPanel
-    className="p-0 pt-2"
-    data-tabPanel={value}
-    value={value}
-  >
+  <MuiTabPanel className="p-0 pt-2" data-tabPanel={value} value={value}>
     {children}
   </MuiTabPanel>
 );
