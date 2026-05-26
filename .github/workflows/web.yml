@@ -991,6 +991,7 @@ jobs:
           from_image: centreon-web-dependencies-collect
           current_tag: ${{ steps.image_tag.outputs.tag }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
           registry_url: ghcr.io/${{ github.repository }}
           tag_suffix: -${{ matrix.operating_system }}
 
@@ -1039,6 +1040,7 @@ jobs:
             "MAJOR_VERSION=${{ needs.get-environment.outputs.major_version }}"
             "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
+            "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
             "PHP_VERSION=${{ needs.get-environment.outputs.php_version }}"
           pull: true
           push: ${{ github.event.pull_request.head.repo.fork != true }}
