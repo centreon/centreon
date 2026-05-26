@@ -56,7 +56,7 @@ jobs:
           images: ghcr.io/${{ github.repository }}/keycloak
           labels: |
             org.opencontainers.image.description=Keycloak image for Centreon E2E tests
-            com.centreon.stability=unstable
+            com.centreon.stability=${{ needs.get-environment.outputs.stability }}
             com.centreon.version=${{ needs.get-environment.outputs.major_version }}
 
       - name: Compute image tag
@@ -68,7 +68,6 @@ jobs:
             raw_ref="${{ github.head_ref || github.ref_name }}"
             echo "value=${raw_ref//\//-}" >> "$GITHUB_OUTPUT"
           fi
-          echo "value=${{ needs.get-environment.outputs.major_version }}" >> "$GITHUB_OUTPUT"
 
       - uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
