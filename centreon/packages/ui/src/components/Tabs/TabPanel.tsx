@@ -7,8 +7,8 @@ type Props = {
 
 export const TabPanel = ({ children, value }: Props): JSX.Element => (
   <MuiTabPanel
+    className="p-0 pt-2"
     data-tabPanel={value}
-    sx={(theme) => ({ padding: theme.spacing(1, 0, 0) })}
     value={value}
   >
     {children}
