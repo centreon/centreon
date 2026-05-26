@@ -6,6 +6,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@usebruno/cli": "^3.0.2"
+    "@usebruno/cli": "3.3.0"
   }
 }

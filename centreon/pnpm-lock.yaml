@@ -868,7 +868,7 @@ importers:
   tests/api:
     devDependencies:
       '@usebruno/cli':
-        specifier: ^3.0.2
+        specifier: 3.3.0
         version: 3.3.0(@babel/preset-env@7.28.5(@babel/core@7.28.5))
 
   tests/e2e:
@@ -4773,10 +4773,6 @@ packages:
     resolution: {integrity: sha512-abXk3LhODsvRHsk0ZS9ztrg/fZatTa9Z/z4pgx65YSLR+rY6kvUG/1IgcDKEUciR8MfdnkT5oPeHJTy/HhzDIQ==}
     engines: {node: '>=18.0.0'}
 
-  '@smithy/core@3.23.17':
-    resolution: {integrity: sha512-x7BlLbUFL8NWCGjMF9C+1N5cVCxcPa7g6Tv9B4A2luWx3be3oU8hQ96wIwxe/s7OhIzvoJH73HAUSg5JXVlEtQ==}
-    engines: {node: '>=18.0.0'}
-
   '@smithy/core@3.24.1':
     resolution: {integrity: sha512-3mT7o4qQyUWttYnVK3A0Z/u3Xha3E81tXn32Tz6vjZiUXhBrkEivpw1hBYfh84iFF9CSzkBU9Y1DJ3Q6RQ231g==}
     engines: {node: '>=18.0.0'}
@@ -4908,10 +4904,6 @@ packages:
 
   '@smithy/util-utf8@4.3.1':
     resolution: {integrity: sha512-FtRrSnriXtOs4+J8/y9SbQ1xmN71hrOsN/YJr5PQQj5nR1l7YNkGS/TEk4gr0WN7gyrUqw8/RFaYVjI18732ZA==}
-    engines: {node: '>=18.0.0'}
-
-  '@smithy/uuid@1.2.1':
-    resolution: {integrity: sha512-6EsuhVa2mPC+XNqvFoeKVkNGdp1YJ0RUJtN4ILG21O80+LdR2TqQvFZOmKt//da48rE/b8Qy3ya/iqwdQ+Ykwg==}
     engines: {node: '>=18.0.0'}
 
   '@storybook/addon-a11y@8.6.14':
@@ -11386,9 +11378,6 @@ packages:
   lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
 
-  lodash@4.17.23:
-    resolution: {integrity: sha512-LgVTMpQtIopCi79SJeDiP0TfWi5CNEc/L/aRdTh3yIvmZXTnheWpKjSZhnvMl8iXbC1tFg9gdHHDMLoV7CnG+w==}
-
   lodash@4.18.1:
     resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
 
@@ -14271,8 +14260,8 @@ packages:
   third-party-web@0.26.6:
     resolution: {integrity: sha512-GsjP92xycMK8qLTcQCacgzvffYzEqe29wyz3zdKVXlfRD5Kz1NatCTOZEeDaSd6uCZXvGd2CNVtQ89RNIhJWvA==}
 
-  third-party-web@0.29.0:
-    resolution: {integrity: sha512-nBDSJw5B7Sl1YfsATG2XkW5qgUPODbJhXw++BKygi9w6O/NKS98/uY/nR/DxDq2axEjL6halHW1v+jhm/j1DBQ==}
+  third-party-web@0.29.2:
+    resolution: {integrity: sha512-fegtha91tq2DHphyoiBXVHjVi2YG9zFaRnboT9C28tO1en9Y3wJsfspuy40F+u5wl3hHVbw7cnd1b67kEGHb8g==}
 
   three@0.174.0:
     resolution: {integrity: sha512-p+WG3W6Ov74alh3geCMkGK9NWuT62ee21cV3jEnun201zodVF4tCE5aZa2U122/mkLRmhJJUQmLLW1BH00uQJQ==}
@@ -15442,7 +15431,7 @@ snapshots:
       '@aws-sdk/util-user-agent-browser': 3.972.10
       '@aws-sdk/util-user-agent-node': 3.973.24
       '@smithy/config-resolver': 4.5.1
-      '@smithy/core': 3.23.17
+      '@smithy/core': 3.24.1
       '@smithy/fetch-http-handler': 5.4.1
       '@smithy/hash-node': 4.3.1
       '@smithy/invalid-dependency': 4.3.1
@@ -15487,7 +15476,7 @@ snapshots:
       '@aws-sdk/util-user-agent-browser': 3.972.10
       '@aws-sdk/util-user-agent-node': 3.973.24
       '@smithy/config-resolver': 4.5.1
-      '@smithy/core': 3.23.17
+      '@smithy/core': 3.24.1
       '@smithy/fetch-http-handler': 5.4.1
       '@smithy/hash-node': 4.3.1
       '@smithy/invalid-dependency': 4.3.1
@@ -15519,7 +15508,7 @@ snapshots:
     dependencies:
       '@aws-sdk/types': 3.973.8
       '@aws-sdk/xml-builder': 3.972.22
-      '@smithy/core': 3.23.17
+      '@smithy/core': 3.24.1
       '@smithy/node-config-provider': 4.4.1
       '@smithy/property-provider': 4.3.1
       '@smithy/protocol-http': 5.4.1
@@ -15662,7 +15651,7 @@ snapshots:
       '@aws-sdk/nested-clients': 3.997.6
       '@aws-sdk/types': 3.973.8
       '@smithy/config-resolver': 4.5.1
-      '@smithy/core': 3.23.17
+      '@smithy/core': 3.24.1
       '@smithy/credential-provider-imds': 4.3.1
       '@smithy/node-config-provider': 4.4.1
       '@smithy/property-provider': 4.3.1
@@ -15697,7 +15686,7 @@ snapshots:
       '@aws-sdk/core': 3.974.8
       '@aws-sdk/types': 3.973.8
       '@aws-sdk/util-arn-parser': 3.972.3
-      '@smithy/core': 3.23.17
+      '@smithy/core': 3.24.1
       '@smithy/node-config-provider': 4.4.1
       '@smithy/protocol-http': 5.4.1
       '@smithy/signature-v4': 5.4.1
@@ -15714,7 +15703,7 @@ snapshots:
       '@aws-sdk/core': 3.974.8
       '@aws-sdk/types': 3.973.8
       '@aws-sdk/util-endpoints': 3.996.8
-      '@smithy/core': 3.23.17
+      '@smithy/core': 3.24.1
       '@smithy/protocol-http': 5.4.1
       '@smithy/types': 4.14.1
       '@smithy/util-retry': 4.4.1
@@ -15736,7 +15725,7 @@ snapshots:
       '@aws-sdk/util-user-agent-browser': 3.972.10
       '@aws-sdk/util-user-agent-node': 3.973.24
       '@smithy/config-resolver': 4.5.1
-      '@smithy/core': 3.23.17
+      '@smithy/core': 3.24.1
       '@smithy/fetch-http-handler': 5.4.1
       '@smithy/hash-node': 4.3.1
       '@smithy/invalid-dependency': 4.3.1
@@ -15877,7 +15866,7 @@ snapshots:
 
   '@babel/generator@7.28.5':
     dependencies:
-      '@babel/parser': 7.28.5
+      '@babel/parser': 7.28.6
       '@babel/types': 7.28.5
       '@jridgewell/gen-mapping': 0.3.13
       '@jridgewell/trace-mapping': 0.3.31
@@ -15960,7 +15949,7 @@ snapshots:
   '@babel/helper-member-expression-to-functions@7.28.5':
     dependencies:
       '@babel/traverse': 7.28.5
-      '@babel/types': 7.28.5
+      '@babel/types': 7.28.6
     transitivePeerDependencies:
       - supports-color
 
@@ -15998,7 +15987,7 @@ snapshots:
 
   '@babel/helper-optimise-call-expression@7.27.1':
     dependencies:
-      '@babel/types': 7.28.5
+      '@babel/types': 7.28.6
 
   '@babel/helper-plugin-utils@7.27.1': {}
 
@@ -16088,7 +16077,7 @@ snapshots:
       '@babel/core': 7.28.5
       '@babel/helper-plugin-utils': 7.27.1
       '@babel/helper-skip-transparent-expression-wrappers': 7.27.1
-      '@babel/plugin-transform-optional-chaining': 7.28.5(@babel/core@7.28.5)
+      '@babel/plugin-transform-optional-chaining': 7.28.6(@babel/core@7.28.5)
     transitivePeerDependencies:
       - supports-color
 
@@ -16935,7 +16924,7 @@ snapshots:
   '@babel/template@7.27.2':
     dependencies:
       '@babel/code-frame': 7.27.1
-      '@babel/parser': 7.28.5
+      '@babel/parser': 7.28.6
       '@babel/types': 7.28.5
 
   '@babel/template@7.28.6':
@@ -16949,7 +16938,7 @@ snapshots:
       '@babel/code-frame': 7.27.1
       '@babel/generator': 7.28.5
       '@babel/helper-globals': 7.28.0
-      '@babel/parser': 7.28.5
+      '@babel/parser': 7.28.6
       '@babel/template': 7.27.2
       '@babel/types': 7.28.5
       debug: 4.4.3(supports-color@8.1.1)
@@ -16980,7 +16969,7 @@ snapshots:
 
   '@badeball/cypress-configuration@6.1.1':
     dependencies:
-      '@babel/parser': 7.28.5
+      '@babel/parser': 7.28.6
       debug: 4.4.3(supports-color@8.1.1)
       esbuild: 0.19.12
       glob: 7.2.3
@@ -17621,7 +17610,7 @@ snapshots:
       combined-stream: 1.0.8
       extend: 3.0.2
       forever-agent: 0.6.1
-      form-data: 4.0.4
+      form-data: 4.0.5
       http-signature: 1.4.0
       is-typedarray: 1.0.0
       isstream: 0.1.2
@@ -18160,7 +18149,7 @@ snapshots:
       globals: 13.24.0
       ignore: 5.3.2
       import-fresh: 3.3.1
-      js-yaml: 4.1.0
+      js-yaml: 4.1.1
       minimatch: 3.1.2
       strip-json-comments: 3.1.1
     transitivePeerDependencies:
@@ -18542,7 +18531,7 @@ snapshots:
       '@jest/schemas': 30.0.5
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 25.0.10
+      '@types/node': 20.19.24
       '@types/yargs': 17.0.33
       chalk: 4.1.2
 
@@ -19352,7 +19341,7 @@ snapshots:
   '@paulirish/trace_engine@0.0.52':
     dependencies:
       legacy-javascript: 0.0.1
-      third-party-web: 0.29.0
+      third-party-web: 0.29.2
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
@@ -19694,7 +19683,7 @@ snapshots:
       colorette: 1.4.0
       https-proxy-agent: 7.0.6
       js-levenshtein: 1.1.6
-      js-yaml: 4.1.0
+      js-yaml: 4.1.1
       minimatch: 5.1.6
       pluralize: 8.0.0
       yaml-ast-parser: 0.0.43
@@ -19711,7 +19700,7 @@ snapshots:
       concat-stream: 2.0.0
       cookie: 0.7.2
       dotenv: 16.4.7
-      form-data: 4.0.4
+      form-data: 4.0.5
       jest-diff: 29.7.0
       jest-matcher-utils: 29.7.0
       js-yaml: 4.1.0
@@ -20068,19 +20057,6 @@ snapshots:
       '@smithy/core': 3.24.1
       tslib: 2.8.1
 
-  '@smithy/core@3.23.17':
-    dependencies:
-      '@smithy/protocol-http': 5.4.1
-      '@smithy/types': 4.14.1
-      '@smithy/url-parser': 4.3.1
-      '@smithy/util-base64': 4.4.1
-      '@smithy/util-body-length-browser': 4.3.1
-      '@smithy/util-middleware': 4.3.1
-      '@smithy/util-stream': 4.6.1
-      '@smithy/util-utf8': 4.3.1
-      '@smithy/uuid': 1.2.1
-      tslib: 2.8.1
-
   '@smithy/core@3.24.1':
     dependencies:
       '@aws-crypto/crc32': 5.2.0
@@ -20246,11 +20222,6 @@ snapshots:
       tslib: 2.8.1
 
   '@smithy/util-utf8@4.3.1':
-    dependencies:
-      '@smithy/core': 3.24.1
-      tslib: 2.8.1
-
-  '@smithy/uuid@1.2.1':
     dependencies:
       '@smithy/core': 3.24.1
       tslib: 2.8.1
@@ -21037,7 +21008,7 @@ snapshots:
       chalk: 3.0.0
       css.escape: 1.5.1
       dom-accessibility-api: 0.6.3
-      lodash: 4.17.21
+      lodash: 4.18.1
       redent: 3.0.0
 
   '@testing-library/jest-dom@6.9.1':
@@ -21113,7 +21084,7 @@ snapshots:
 
   '@types/babel__core@7.20.5':
     dependencies:
-      '@babel/parser': 7.28.5
+      '@babel/parser': 7.28.6
       '@babel/types': 7.28.5
       '@types/babel__generator': 7.6.8
       '@types/babel__template': 7.4.4
@@ -21125,7 +21096,7 @@ snapshots:
 
   '@types/babel__template@7.4.4':
     dependencies:
-      '@babel/parser': 7.28.5
+      '@babel/parser': 7.28.6
       '@babel/types': 7.28.5
 
   '@types/babel__traverse@7.20.6':
@@ -21226,7 +21197,7 @@ snapshots:
   '@types/dockerode@3.3.45':
     dependencies:
       '@types/docker-modem': 3.0.6
-      '@types/node': 25.0.10
+      '@types/node': 20.19.24
       '@types/ssh2': 1.15.5
 
   '@types/doctrine@0.0.9': {}
@@ -21365,7 +21336,7 @@ snapshots:
 
   '@types/pixelmatch@5.2.6':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 20.19.24
 
   '@types/pluralize@0.0.33': {}
 
@@ -21434,7 +21405,7 @@ snapshots:
 
   '@types/set-cookie-parser@2.4.10':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 20.19.24
 
   '@types/sinonjs__fake-timers@8.1.1': {}
 
@@ -21533,7 +21504,7 @@ snapshots:
 
   '@types/yauzl@2.10.3':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 20.19.24
     optional: true
 
   '@typescript-eslint/experimental-utils@5.62.0(eslint@8.57.1)(typescript@5.9.3)':
@@ -21735,7 +21706,7 @@ snapshots:
       https-proxy-agent: 7.0.6
       iconv-lite: 0.6.3
       js-yaml: 4.1.1
-      lodash: 4.17.23
+      lodash: 4.18.1
       qs: 6.15.1
       socks-proxy-agent: 8.0.5
       xmlbuilder: 15.1.1
@@ -21755,7 +21726,7 @@ snapshots:
       '@usebruno/schema': 0.25.0
       js-yaml: 4.1.1
       jscodeshift: 17.3.0(@babel/preset-env@7.28.5(@babel/core@7.28.5))
-      lodash: 4.17.23
+      lodash: 4.18.1
       nanoid: 3.3.8
       xml2js: 0.6.2
     transitivePeerDependencies:
@@ -21767,7 +21738,7 @@ snapshots:
       '@types/nanoid': 2.1.0
       '@usebruno/lang': 0.36.0
       ajv: 8.17.1
-      lodash: 4.17.23
+      lodash: 4.18.1
       yaml: 2.8.1
 
   '@usebruno/js@0.47.0(debug@4.4.3)':
@@ -21786,7 +21757,7 @@ snapshots:
       handlebars: 4.7.9
       json-query: 2.2.2
       jsonwebtoken: 9.0.3
-      lodash: 4.17.23
+      lodash: 4.18.1
       moment: 2.30.1
       nanoid: 3.3.8
       node-fetch: 2.7.0
@@ -21805,7 +21776,7 @@ snapshots:
     dependencies:
       arcsecond: 5.0.0
       dotenv: 16.6.1
-      lodash: 4.17.23
+      lodash: 4.18.1
       ohm-js: 16.6.0
 
   '@usebruno/query@0.2.2': {}
@@ -22196,7 +22167,7 @@ snapshots:
       classnames: 2.5.1
       d3-interpolate-path: 2.2.1
       d3-shape: 2.1.0
-      lodash: 4.17.23
+      lodash: 4.18.1
       mitt: 2.1.0
       prop-types: 15.8.1
       react: 19.1.0
@@ -22263,7 +22234,7 @@ snapshots:
 
   '@vue/compiler-core@3.5.22':
     dependencies:
-      '@babel/parser': 7.28.5
+      '@babel/parser': 7.28.6
       '@vue/shared': 3.5.22
       entities: 4.5.0
       estree-walker: 2.0.2
@@ -22276,7 +22247,7 @@ snapshots:
 
   '@vue/compiler-sfc@3.5.22':
     dependencies:
-      '@babel/parser': 7.28.5
+      '@babel/parser': 7.28.6
       '@vue/compiler-core': 3.5.22
       '@vue/compiler-dom': 3.5.22
       '@vue/compiler-ssr': 3.5.22
@@ -22625,7 +22596,7 @@ snapshots:
       graceful-fs: 4.2.11
       is-stream: 2.0.1
       lazystream: 1.0.1
-      lodash: 4.17.23
+      lodash: 4.18.1
       normalize-path: 3.0.0
       readable-stream: 4.7.0
 
@@ -22923,7 +22894,7 @@ snapshots:
   babel-plugin-jest-hoist@29.6.3:
     dependencies:
       '@babel/template': 7.27.2
-      '@babel/types': 7.28.5
+      '@babel/types': 7.28.6
       '@types/babel__core': 7.20.5
       '@types/babel__traverse': 7.20.6
 
@@ -23577,7 +23548,7 @@ snapshots:
 
   chrome-launcher@1.1.2:
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 20.19.24
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 2.0.1
@@ -23918,7 +23889,7 @@ snapshots:
   cosmiconfig@8.3.6(typescript@5.9.3):
     dependencies:
       import-fresh: 3.3.1
-      js-yaml: 4.1.0
+      js-yaml: 4.1.1
       parse-json: 5.2.0
       path-type: 4.0.0
     optionalDependencies:
@@ -23928,7 +23899,7 @@ snapshots:
     dependencies:
       env-paths: 2.2.1
       import-fresh: 3.3.1
-      js-yaml: 4.1.0
+      js-yaml: 4.1.1
       parse-json: 5.2.0
     optionalDependencies:
       typescript: 5.9.3
@@ -24152,7 +24123,7 @@ snapshots:
       is-generator: 1.0.3
       is-stream: 1.1.0
       knuth-shuffle-seeded: 1.0.6
-      lodash: 4.17.23
+      lodash: 4.18.1
       mz: 2.7.0
       progress: 2.0.3
       resolve: 1.22.11
@@ -25968,7 +25939,7 @@ snapshots:
 
   find-test-names@1.29.19(@babel/core@7.28.5):
     dependencies:
-      '@babel/parser': 7.28.5
+      '@babel/parser': 7.28.6
       '@babel/plugin-syntax-jsx': 7.27.1(@babel/core@7.28.5)
       acorn-walk: 8.3.4
       debug: 4.4.3(supports-color@8.1.1)
@@ -26587,7 +26558,7 @@ snapshots:
       '@types/webpack': 4.41.40
       html-minifier-terser: 5.1.1
       loader-utils: 1.4.2
-      lodash: 4.17.23
+      lodash: 4.18.1
       pretty-error: 2.1.2
       tapable: 1.1.3
       util.promisify: 1.0.0
@@ -26597,7 +26568,7 @@ snapshots:
     dependencies:
       '@types/html-minifier-terser': 6.1.0
       html-minifier-terser: 6.1.0
-      lodash: 4.17.23
+      lodash: 4.18.1
       pretty-error: 4.0.0
       tapable: 2.3.0
     optionalDependencies:
@@ -26704,7 +26675,7 @@ snapshots:
   http-proxy@1.18.1:
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.15.9
+      follow-redirects: 1.16.0(debug@4.4.3)
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
@@ -26836,7 +26807,7 @@ snapshots:
       cli-width: 3.0.0
       external-editor: 3.1.0
       figures: 3.2.0
-      lodash: 4.17.23
+      lodash: 4.18.1
       mute-stream: 0.0.8
       ora: 5.4.1
       run-async: 2.4.1
@@ -27147,7 +27118,7 @@ snapshots:
   istanbul-lib-instrument@5.2.1:
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/parser': 7.28.5
+      '@babel/parser': 7.28.6
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.2
       semver: 6.3.1
@@ -27854,7 +27825,7 @@ snapshots:
       decimal.js: 10.5.0
       domexception: 4.0.0
       escodegen: 2.1.0
-      form-data: 4.0.4
+      form-data: 4.0.5
       html-encoding-sniffer: 3.0.0
       http-proxy-agent: 5.0.0
       https-proxy-agent: 5.0.1
@@ -28360,8 +28331,6 @@ snapshots:
   lodash.throttle@4.1.1: {}
 
   lodash@4.17.21: {}
-
-  lodash@4.17.23: {}
 
   lodash@4.18.1: {}
 
@@ -29087,7 +29056,7 @@ snapshots:
       find-up: 5.0.0
       glob: 8.1.0
       he: 1.2.0
-      js-yaml: 4.1.0
+      js-yaml: 4.1.1
       log-symbols: 4.1.0
       minimatch: 5.1.6
       ms: 2.1.3
@@ -29110,7 +29079,7 @@ snapshots:
       glob: 10.4.5
       he: 1.2.0
       is-path-inside: 3.0.3
-      js-yaml: 4.1.0
+      js-yaml: 4.1.1
       log-symbols: 4.1.0
       minimatch: 9.0.5
       ms: 2.1.3
@@ -29358,7 +29327,7 @@ snapshots:
 
   node-source-walk@7.0.1:
     dependencies:
-      '@babel/parser': 7.28.5
+      '@babel/parser': 7.28.6
 
   nopt@3.0.6:
     dependencies:
@@ -30056,12 +30025,12 @@ snapshots:
 
   pretty-error@2.1.2:
     dependencies:
-      lodash: 4.17.23
+      lodash: 4.18.1
       renderkid: 2.0.7
 
   pretty-error@4.0.0:
     dependencies:
-      lodash: 4.17.23
+      lodash: 4.18.1
       renderkid: 3.0.0
 
   pretty-format@26.6.2:
@@ -30838,7 +30807,7 @@ snapshots:
       css-select: 4.3.0
       dom-converter: 0.2.0
       htmlparser2: 6.1.0
-      lodash: 4.17.23
+      lodash: 4.18.1
       strip-ansi: 3.0.1
 
   renderkid@3.0.0:
@@ -30846,7 +30815,7 @@ snapshots:
       css-select: 4.3.0
       dom-converter: 0.2.0
       htmlparser2: 6.1.0
-      lodash: 4.17.23
+      lodash: 4.18.1
       strip-ansi: 6.0.1
 
   repeat-string@1.6.1: {}
@@ -31498,7 +31467,7 @@ snapshots:
 
   speedline-core@1.4.3:
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 20.19.24
       image-ssim: 0.2.0
       jpeg-js: 0.4.4
 
@@ -32180,7 +32149,7 @@ snapshots:
 
   third-party-web@0.26.6: {}
 
-  third-party-web@0.29.0: {}
+  third-party-web@0.29.2: {}
 
   three@0.174.0: {}
 
@@ -32699,7 +32668,7 @@ snapshots:
   url@0.11.4:
     dependencies:
       punycode: 1.4.1
-      qs: 6.14.0
+      qs: 6.15.1
 
   use-deep-compare-effect@1.8.1(react@19.1.0):
     dependencies:
@@ -32861,7 +32830,7 @@ snapshots:
     dependencies:
       axios: 1.12.0
       joi: 17.13.3
-      lodash: 4.17.23
+      lodash: 4.18.1
       minimist: 1.2.8
       rxjs: 7.8.2
     transitivePeerDependencies:
@@ -33424,7 +33393,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.28.6
       '@types/lodash': 4.17.16
-      lodash: 4.17.23
+      lodash: 4.18.1
       lodash-es: 4.17.21
       nanoclone: 0.2.1
       property-expr: 2.0.6
