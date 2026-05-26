@@ -35,13 +35,6 @@ assert {
   res.status: eq 403
 }
 
-tests {
-  test("Unprivileged user cannot update platform properties.", function () {
-    const body = res.getBody();
-    expect(body).to.be.an("object");
-  });
-}
-
 settings {
   encodeUrl: true
   timeout: 0

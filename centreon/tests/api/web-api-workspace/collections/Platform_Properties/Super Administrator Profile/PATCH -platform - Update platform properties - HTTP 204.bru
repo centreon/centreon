@@ -1,5 +1,5 @@
 meta {
-  name: PATCH /platform - Update platform properties forbidden - HTTP 403
+  name: PATCH /platform - Update platform properties - HTTP 204
   type: http
   seq: 2
 }
@@ -32,7 +32,13 @@ body:json {
 }
 
 assert {
-  res.status: eq 403
+  res.status: eq 204
+}
+
+tests {
+  test("Super administrator can update platform properties.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
 }
 
 settings {
