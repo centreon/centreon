@@ -1,3 +1,0 @@
-ACLGROUP;ADDMENU;customer_admin_acl;customer_admin_menu_access
-ACLGROUP;ADDMENU;customer_editor_acl;customer_editor_menu_access
-ACLGROUP;ADDMENU;customer_user_acl;customer_user_menu_access
