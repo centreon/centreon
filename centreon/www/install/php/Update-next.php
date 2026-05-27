@@ -453,7 +453,7 @@ $addEventScriptLogger = function () use ($pearDB, &$errorMessage, $version): voi
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: Successfully added 'event_script' logger to broker configuration",
-       );
+    );
 };
 
 /** -------------------------------------- BBDO default version -------------------------------------- */
