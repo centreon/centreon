@@ -41,9 +41,6 @@ class LogoutFromIdpTest extends TestCase
         $this->providerFactory = $this->createMock(ProviderAuthenticationFactoryInterface::class);
     }
 
-    /**
-     * @runInSeparateProcess
-     */
     public function testProcessesCallbackWithoutInitiatingNewLogout(): void
     {
         $provider = $this->createProvider(isActive: true);
@@ -55,9 +52,6 @@ class LogoutFromIdpTest extends TestCase
         (new LogoutFromIdp($this->providerFactory))();
     }
 
-    /**
-     * @runInSeparateProcess
-     */
     public function testDoesNothingWhenProviderIsInactive(): void
     {
         $provider = $this->createProvider(isActive: false);

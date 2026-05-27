@@ -42,8 +42,6 @@ readonly class LogoutFromIdp
      */
     public function __invoke(): void
     {
-        session_start();
-
         // /saml/sls is the IdP callback endpoint: the IdP calls it with a SAMLRequest (IdP-initiated SLO)
         // or a SAMLResponse (response to a Centreon-initiated SLO). We only process that callback here;
         // initiating the LogoutRequest is the responsibility of the LogoutSession use case.

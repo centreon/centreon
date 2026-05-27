@@ -45,6 +45,12 @@ final class SLSController extends AbstractController
     public function __invoke(LogoutFromIdp $usecase): void
     {
         $this->info('SAML SLS invoked');
+
+        // The IdP callback relies on the native PHP session ($_SESSION['LogoutRequestID']).
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+
         try {
             $usecase();
         } catch (ProviderException|SamlException $e) {
