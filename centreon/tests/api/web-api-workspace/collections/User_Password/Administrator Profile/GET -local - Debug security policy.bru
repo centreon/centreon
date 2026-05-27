@@ -1,0 +1,29 @@
+meta {
+  name: GET /administration/authentication/providers/local - Debug security policy
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrlWeb}}/administration/authentication/providers/local
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("DEBUG: dump effective security policy in CI", function () {
+    // TEMP: surface the actual password policy so we can understand why
+    // a structurally-valid password still triggers "Your password doesn't
+    // match the security policy".
+    console.log("DEBUG policy body:", JSON.stringify(res.getBody()));
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

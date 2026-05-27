@@ -14,7 +14,7 @@ body:json {
   {
     "name": "{{Notification1Name}}",
     "timeperiod_id": 1,
-    "users": [],
+    "users": [{{currentUserID}}],
     "contactgroups": [],
     "messages": [
       {
@@ -41,10 +41,6 @@ assert {
 
 tests {
   test("Notification1 created. ID stored.", function () {
-    // TEMP debug: surface response status + body so we can see why the
-    // backend rejects the body (400 instead of 201) in CI.
-    console.log("DEBUG status:", res.status);
-    console.log("DEBUG body:", JSON.stringify(res.getBody()));
     const body = res.getBody();
     expect(body).to.have.property("id").that.is.a("number");
     bru.setEnvVar("Notification1Id", body.id);
