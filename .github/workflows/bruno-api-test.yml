@@ -220,7 +220,9 @@ jobs:
       # Wait for server to be ready
       - name: Wait for server to Start
         if: ${{ inputs.server_healthcheck_endpoint != '' }}
-        run: pnpx wait-on ${{ inputs.server_healthcheck_endpoint }} --timeout 100000
+        env:
+          SERVER_HEALTHCHECK_ENDPOINT: ${{ inputs.server_healthcheck_endpoint }}
+        run: pnpx wait-on "$SERVER_HEALTHCHECK_ENDPOINT" --timeout 100000
 
       - name: Debug execution context
         run: |

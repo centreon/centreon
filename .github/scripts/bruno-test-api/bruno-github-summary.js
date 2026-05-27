@@ -12,6 +12,12 @@ if (!collection) {
   console.error("Usage: node bruno-github-summary.js <collection>");
   process.exit(1);
 }
+if (!/^[A-Za-z0-9_-]+$/.test(collection)) {
+  console.error(
+    `Invalid collection name: "${collection}" (expected ^[A-Za-z0-9_-]+$)`,
+  );
+  process.exit(1);
+}
 
 // ------------------------
 // Paths
