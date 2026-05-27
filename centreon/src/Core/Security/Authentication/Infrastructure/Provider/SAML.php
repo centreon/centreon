@@ -92,6 +92,7 @@ class SAML implements ProviderAuthenticationInterface
         private readonly GroupsMappingSecurityAccess $groupsMapping,
         private readonly SettingsFormatterInterface $formatter,
         private readonly WriteSessionRepositoryInterface $writeSessionRepository,
+        private readonly SamlAuthFactoryInterface $authFactory,
     ) {
     }
 
@@ -109,7 +110,7 @@ class SAML implements ProviderAuthenticationInterface
         $this->loginLogger->info(Provider::SAML, 'authenticate the user through SAML');
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
-        $this->auth = new Auth($this->formatter->format($customConfiguration));
+        $this->auth = $this->authFactory->create($this->formatter->format($customConfiguration));
         $auth = $this->auth;
         $auth->processResponse($_SESSION['AuthNRequestID'] ?? null);
         $errors = $auth->getErrors();
@@ -411,7 +412,7 @@ class SAML implements ProviderAuthenticationInterface
     public function login(string $returnTo = ''): void
     {
         try {
-            $auth = new Auth($this->formatter->format($this->configuration->getCustomConfiguration()));
+            $auth = $this->authFactory->create($this->formatter->format($this->configuration->getCustomConfiguration()));
         } catch (Throwable $e) {
             throw new SamlException(
                 message: 'SAML Auth initialization failed: ' . $e->getMessage(),
@@ -456,7 +457,7 @@ class SAML implements ProviderAuthenticationInterface
         $this->loginLogger->info(Provider::SAML, 'logout from SAML and redirect');
 
         try {
-            $auth = new Auth($this->formatter->format($this->configuration->getCustomConfiguration()));
+            $auth = $this->authFactory->create($this->formatter->format($this->configuration->getCustomConfiguration()));
         } catch (Throwable $e) {
             throw new SamlException(
                 message: 'SAML Auth initialization failed: ' . $e->getMessage(),
@@ -505,7 +506,7 @@ class SAML implements ProviderAuthenticationInterface
         $this->info('SAML SLS invoked');
 
         try {
-            $auth = new Auth($this->formatter->format($this->configuration->getCustomConfiguration()));
+            $auth = $this->authFactory->create($this->formatter->format($this->configuration->getCustomConfiguration()));
         } catch (Throwable $e) {
             throw new SamlException(
                 message: 'SAML Auth initialization failed: ' . $e->getMessage(),
