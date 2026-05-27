@@ -138,7 +138,6 @@ jobs:
         "centreon/**/__mocks__/**"
         "centreon/lighthouse/**"
       api_test_paths: |
-        "centreon/tests/rest_api/**"
         "centreon/tests/api/**"
       e2e_test_paths: |
         "centreon/behat.yml"
