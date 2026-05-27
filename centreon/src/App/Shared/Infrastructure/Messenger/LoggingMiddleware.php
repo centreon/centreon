@@ -60,7 +60,6 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
     /**
      * @throws \Throwable
      * @throws ExceptionInterface
-     * @throws \Random\RandomException
      */
     public function handle(Envelope $envelope, StackInterface $stack): Envelope
     {
@@ -68,9 +67,10 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
         $class = $message::class;
         $busType = $this->resolveBusType($envelope);
         $payload = $this->normalizePayload($message);
-        // 16-char hex (64 bits of entropy) — enough to pair-match the three
-        // logs emitted by a single dispatch, cheap to grep, cheap to read.
-        $dispatchId = bin2hex(random_bytes(8));
+        // Correlation id only — shared across the three logs of one dispatch,
+        // never a secret. uniqid() with extra entropy is time-based, fast and
+        // never throws (unlike random_bytes), which is all a log correlator needs.
+        $dispatchId = uniqid('', true);
         // hrtime(true) is monotonic and unaffected by NTP adjustments, the
         // only suitable clock for a duration measured around an I/O-bound
         // dispatch. Microtime would drift if the system time stepped
