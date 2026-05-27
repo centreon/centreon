@@ -9,6 +9,7 @@
 **/config/                              @centreon/owners-php
 **/composer.*                           @centreon/owners-php
 **/tests/api/                           @centreon/owners-php
+**/tests/api/web-api-workspace/         @centreon/owners-api-testing
 **/tests/php/                           @centreon/owners-php
 **/tests/clapi_export/                  @centreon/owners-php
 **/www/                                 @centreon/owners-php
