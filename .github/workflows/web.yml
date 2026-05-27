@@ -1098,52 +1098,6 @@ jobs:
       xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
-  newman-test:
-    needs:
-      [
-        get-environment,
-        changes,
-        create-xray-test-plan-and-test-execution,
-        dockerize
-      ]
-    if: |
-      needs.changes.outputs.trigger_api_testing == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      needs.get-environment.outputs.stability != 'stable'
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).databases }}
-    name: newman-test ${{ matrix.operating_system }}-${{ matrix.database }}
-    uses: ./.github/workflows/newman.yml
-    with:
-      collection_path: centreon/tests/rest_api/collections
-      image_name: centreon-web
-      os: ${{ matrix.operating_system }}
-      db_id: ${{ matrix.db_id }}
-      container_name: my_centreon_container
-      centreon_url: http://localhost
-      centreon_image: docker.centreon.com/centreon/centreon-web-slim-${{ matrix.operating_system }}:${{ needs.dockerize.outputs.image_tag }}
-      database_image: bitnamilegacy/${{ matrix.database }}
-      dependencies_lock_file: centreon/pnpm-lock.yaml
-      major_version: ${{ needs.get-environment.outputs.major_version }}
-      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
-      stability: ${{ needs.get-environment.outputs.stability }}
-      xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
-      upload_artifacts: ${{ contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
-
-    secrets:
-      registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
-      registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
-      client_id: ${{ secrets.XRAY_CLIENT_ID }}
-      client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
-      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-
   bruno-api-test:
     needs: [get-environment, changes, create-xray-test-plan-and-test-execution, dockerize]
     if: |
@@ -1391,7 +1345,6 @@ jobs:
       [
         changes,
         get-environment,
-        newman-test,
         e2e-test,
         legacy-e2e-test
       ]
