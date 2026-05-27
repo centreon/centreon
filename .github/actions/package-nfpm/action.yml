@@ -99,18 +99,11 @@ runs:
         export VERSION="$INPUT_MAJOR_VERSION.$INPUT_MINOR_VERSION"
         export RELEASE="$INPUT_RELEASE"
         export ARCH="$INPUT_ARCH"
-        if [[ -n "$INPUT_PHP_VERSION" ]]; then
-          PHP_MINOR=$(echo "$INPUT_PHP_VERSION" | cut -d'.' -f2)
-          PHP_NEXT_MINOR=$((PHP_MINOR + 1))
-          export PHP_MIN_VERSION="$INPUT_PHP_VERSION"
-          export PHP_MAX_VERSION="8.${PHP_NEXT_MINOR}"
-        elif [[ "$INPUT_PACKAGE_DISTRIB_NAME" == "el9" ]]; then
-          export PHP_MIN_VERSION="8.2"
-          export PHP_MAX_VERSION="8.3"
-        elif [[ "$INPUT_PACKAGE_DISTRIB_NAME" == "el10" || "$INPUT_PACKAGE_DISTRIB_NAME" == "deb13u1" ]]; then
-          export PHP_MIN_VERSION="8.4"
-          export PHP_MAX_VERSION="8.5"
-        fi
+
+        PHP_MINOR=$(echo "$INPUT_PHP_VERSION" | cut -d'.' -f2)
+        PHP_NEXT_MINOR=$((PHP_MINOR + 1))
+        export PHP_MIN_VERSION="$INPUT_PHP_VERSION"
+        export PHP_MAX_VERSION="8.${PHP_NEXT_MINOR}"
 
         if  [ "$INPUT_PACKAGE_EXTENSION" = "rpm" ]; then
           export DIST="$INPUT_PACKAGE_DISTRIB_SEPARATOR$INPUT_PACKAGE_DISTRIB_NAME"
