@@ -28,7 +28,6 @@ use Core\Security\Authentication\Domain\Exception\ProviderException;
 use Core\Security\Authentication\Domain\Exception\SamlException;
 use Core\Security\Authentication\Infrastructure\Provider\SAML;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
-use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
 
 readonly class LogoutFromIdp
 {
@@ -45,16 +44,12 @@ readonly class LogoutFromIdp
     {
         session_start();
 
+        // /saml/sls is the IdP callback endpoint: the IdP calls it with a SAMLRequest (IdP-initiated SLO)
+        // or a SAMLResponse (response to a Centreon-initiated SLO). We only process that callback here;
+        // initiating the LogoutRequest is the responsibility of the LogoutSession use case.
         /** @var SAML $provider */
         $provider = $this->providerFactory->create(Provider::SAML);
-        $configuration = $provider->getConfiguration();
-        /** @var CustomConfiguration $customConfiguration */
-        $customConfiguration = $configuration->getCustomConfiguration();
-        if (
-            $configuration->isActive()
-            && $customConfiguration->getLogoutFrom() === CustomConfiguration::LOGOUT_FROM_CENTREON_AND_IDP
-        ) {
-            $provider->logout();
+        if ($provider->getConfiguration()->isActive()) {
             $provider->handleCallbackLogoutResponse();
         }
     }

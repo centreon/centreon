@@ -522,7 +522,7 @@ class SAML implements ProviderAuthenticationInterface
 
         try {
             $auth->processSLO(
-                keepLocalSession: true,
+                keepLocalSession: false,
                 requestId: $requestID,
                 cbDeleteSession: function (): void {
                     try {
