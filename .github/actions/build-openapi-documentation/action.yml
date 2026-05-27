@@ -55,7 +55,7 @@ runs:
       run: |
         source .version
         major_version=${MAJOR}
-        OPENAPI_FILE_PATH="$MODULE_PATH/doc/API/v24.04"
+        OPENAPI_FILE_PATH="$MODULE_PATH/doc/API"
 
         if [[ -n $OPENAPI_FILE_REF ]]; then
           mv -f ./$OPENAPI_FILE_REF/$OPENAPI_FILE_PATH/$MODULE_PATH*-api.yaml \
