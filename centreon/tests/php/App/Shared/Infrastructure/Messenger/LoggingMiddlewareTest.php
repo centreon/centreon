@@ -65,6 +65,10 @@ final class LoggingMiddlewareTest extends TestCase
         self::assertSame('command', $this->logger->infoMessages[0]['context']['bus_type']);
         self::assertStringContainsString('Handled', $this->logger->infoMessages[1]['message']);
         self::assertSame('command', $this->logger->infoMessages[1]['context']['bus_type']);
+        // payload is logged once, on Dispatching; Handled omits it (same
+        // dispatch_id pairs the two), avoiding duplicate payload noise.
+        self::assertArrayHasKey('payload', $this->logger->infoMessages[0]['context']);
+        self::assertArrayNotHasKey('payload', $this->logger->infoMessages[1]['context']);
     }
 
     public function testUnexpectedFailureLogsCriticalWithExceptionTypeAndRethrows(): void

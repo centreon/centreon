@@ -88,7 +88,6 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
                 'handler_message' => $class,
                 'handlers' => $this->collectHandlers($result),
                 'duration_ms' => $this->elapsedMs($startedAt),
-                'payload' => $payload,
             ]);
 
             return $result;
