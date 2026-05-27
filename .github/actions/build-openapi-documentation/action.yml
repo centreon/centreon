@@ -61,8 +61,9 @@ runs:
           # Overlay the EOL API tree (main yaml + sibling refs like NotificationPolicy.yaml
           # and the v24.04/ schema subtree) onto the pipeline branch's doc/API.
           cp -a ./$OPENAPI_FILE_REF/$OPENAPI_FILE_PATH/. ./$OPENAPI_FILE_PATH/
-          # Preserve the pipeline branch's redocly tooling files in case the overlay shipped older copies.
-          git checkout HEAD -- ./$OPENAPI_FILE_PATH/package.json ./$OPENAPI_FILE_PATH/pnpm-lock.yaml 2>/dev/null || true
+          # Restore the pipeline branch's package.json (which defines the `redoc-latest` script
+          # used below) — the overlay above ships the EOL branch's package.json instead.
+          git checkout HEAD -- ./$OPENAPI_FILE_PATH/package.json
         fi
 
         cd ./$OPENAPI_FILE_PATH
