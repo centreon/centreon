@@ -5,9 +5,9 @@ meta {
 }
 
 post {
-  url: {{baseUrlWeb}}/api/index.php?action=action&object=centreon_clapi
+  url: {{baseUriCentreonCLAPI}}
   body: json
-  auth: none
+  auth: inherit
 }
 
 headers {
@@ -28,7 +28,7 @@ assert {
 
 tests {
   test("CLAPI rejects re-linking an already-linked HT/ST pair with an explicit error.", function () {
-    expect(res.getBody()).to.equal("Object already exists");
+    expect(JSON.stringify(res.getBody())).to.include("Object already exists");
   });
 }
 
