@@ -50,10 +50,6 @@ $dbb = $dependencyInjector['realtime_db'];
 $criticality = new CentreonCriticality($db);
 $media = new CentreonMedia($db);
 
-if (! isset($centreon->user->theme)) {
-    throw new Exception('User theme is not set in session');
-}
-
 $variablesThemeCSS = match ($centreon->user->theme) {
     'light' => 'Generic-theme',
     'dark' => 'Centreon-Dark',
