@@ -38,14 +38,14 @@ export interface UseFetchQueryProps<T> {
   useLongCache?: boolean;
 }
 
-export interface PrefetchPageParams {
-  getPrefetchQueryKey: (page: number) => QueryKey;
-  page: number;
-}
-
 export interface PrefetchQueryParams {
   endpointParams?: PrefetchEndpointParams;
   queryKey: QueryKey;
+}
+
+export interface PrefetchPageParams {
+  getPrefetchQueryKey: (page: number) => QueryKey;
+  page: number;
 }
 
 export type UseFetchQueryState<T> = {
@@ -82,7 +82,11 @@ const useFetchQuery = <T extends object>({
 
   const { showErrorMessage } = useSnackbar();
 
-  const isCypressTest = equals(window.Cypress?.testingType, 'component');
+  const isCypressTest = equals(
+    (window as Window & { Cypress?: { testingType: string } }).Cypress
+      ?.testingType,
+    'component'
+  );
 
   const cacheOptions =
     !isCypressTest && useLongCache ? { gcTime: 60 * 1000 } : {};

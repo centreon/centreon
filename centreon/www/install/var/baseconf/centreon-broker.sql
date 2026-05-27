@@ -84,6 +84,8 @@ INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`)
 INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (1,15,3);
 INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (1,16,3);
 INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (1,17,3);
+INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (1,18,3);
+
 --
 --  Creation and config of central rrd
 --
@@ -136,6 +138,7 @@ INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`)
 INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (2,15,3);
 INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (2,16,3);
 INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (2,17,3);
+INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (2,18,3);
 --
 --  Creation and config of central module
 --
@@ -175,6 +178,7 @@ INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`)
 INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (3,15,3);
 INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (3,16,3);
 INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (3,17,3);
+INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (3,18,3);
 
 UPDATE `nagios_server` SET `centreonbroker_cfg_path` = '@broker_etc@' WHERE `id` = 1;
 UPDATE `nagios_server` SET `centreonbroker_module_path` = '@centreonbroker_lib@' WHERE `id` = 1;
