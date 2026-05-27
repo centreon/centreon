@@ -1,0 +1,38 @@
+meta {
+  name: POST /clapi - Add duplicate HT to ST1 forbidden - HTTP 409
+  type: http
+  seq: 21
+}
+
+post {
+  url: {{baseUrlWeb}}/api/index.php?action=action&object=centreon_clapi
+  body: json
+  auth: none
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
+}
+
+body:json {
+  {
+    "action": "addhosttemplate",
+    "object": "STPL",
+    "values": "{{ServiceTemplate1Name}};{{HostTemplate1Name}}"
+  }
+}
+
+assert {
+  res.status: eq 409
+}
+
+tests {
+  test("CLAPI rejects re-linking an already-linked HT/ST pair with an explicit error.", function () {
+    expect(res.getBody()).to.equal("Object already exists");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
