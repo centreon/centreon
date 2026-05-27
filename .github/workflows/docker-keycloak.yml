@@ -9,11 +9,13 @@ on:
   pull_request:
     paths:
       - ".github/docker/keycloak/**"
+      - ".github/workflows/docker-keycloak.yml"
   push:
     branches:
       - develop
     paths:
       - ".github/docker/keycloak/**"
+      - ".github/workflows/docker-keycloak.yml"
 
 jobs:
   dependency-scan:
@@ -30,6 +32,9 @@ jobs:
     needs: [get-environment]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout sources
@@ -38,19 +43,40 @@ jobs:
       - name: Login to registry
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
-          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-          username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
-          password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # v3.6.1
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
+        with:
+          images: ghcr.io/${{ github.repository }}/keycloak
+          labels: |
+            org.opencontainers.image.description=Keycloak image for Centreon E2E tests
+            com.centreon.stability=${{ needs.get-environment.outputs.stability }}
+            com.centreon.version=${{ needs.get-environment.outputs.major_version }}
+
+      - name: Compute image tag
+        id: image_tag
+        run: |
+          if [ "${{ needs.get-environment.outputs.stability }}" = "unstable" ]; then
+            echo "value=${{ needs.get-environment.outputs.major_version }}" >> "$GITHUB_OUTPUT"
+          else
+            raw_ref="${{ github.head_ref || github.ref_name }}"
+            echo "value=${raw_ref//\//-}" >> "$GITHUB_OUTPUT"
+          fi
 
       - uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           file: .github/docker/keycloak/Dockerfile
           context: .
           pull: true
-          push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/keycloak:${{ needs.get-environment.outputs.major_version }}
+          outputs: type=image,push=true,annotation-index.org.opencontainers.image.description=Keycloak image for Centreon E2E tests
+          tags: ghcr.io/${{ github.repository }}/keycloak:${{ steps.image_tag.outputs.value }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   set-skip-label:
     needs: [get-environment, dockerize]

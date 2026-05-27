@@ -464,11 +464,11 @@ Cypress.Commands.add(
     composeFile,
     databaseImage = Cypress.env('DATABASE_IMAGE'),
     moduleName = 'centreon-web',
-    openidImage = `docker.centreon.com/centreon/keycloak:${Cypress.env(
+    openidImage = `ghcr.io/centreon/centreon/keycloak:${Cypress.env(
       'OPENID_IMAGE_VERSION'
     )}`,
     profiles = [],
-    samlImage = `docker.centreon.com/centreon/keycloak:${Cypress.env(
+    samlImage = `ghcr.io/centreon/centreon/keycloak:${Cypress.env(
       'SAML_IMAGE_VERSION'
     )}`,
     useSlim = true,

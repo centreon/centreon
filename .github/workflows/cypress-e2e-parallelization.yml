@@ -133,6 +133,9 @@ jobs:
     if: ${{ needs.cypress-e2e-test-list.outputs.features != '' && toJson(fromJson(needs.cypress-e2e-test-list.outputs.features)) != '[]' }}
     needs: [cypress-e2e-test-list]
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: read
     strategy:
       fail-fast: false
       matrix:
@@ -150,6 +153,18 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Compute image tag
+        id: image_tag
+        env:
+          REF: ${{ github.head_ref || github.ref_name }}
+          MAJOR_VERSION: ${{ inputs.major_version }}
+        run: |
+          if [[ "$REF" == "develop" ]]; then
+            echo "tag=develop-${MAJOR_VERSION}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=$REF" >> $GITHUB_OUTPUT
+          fi
 
       - name: Restore packages
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
@@ -222,24 +237,6 @@ jobs:
         run: |
           docker load --input ../../../docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
           docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-        shell: bash
-
-      - name: Restore keycloak image from cache
-        if: ${{ contains(matrix.feature, 'Authentication') }}
-        id: cache-docker-keycloak
-        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        continue-on-error: true
-        timeout-minutes: 6
-        with:
-          path: ./docker-image-keycloak
-          key: docker-image-keycloak-${{ inputs.major_version}}
-        env:
-          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
-
-      - name: Load keycloak image
-        if: ${{ contains(matrix.feature, 'Authentication') && steps.cache-docker-keycloak.outputs.cache-hit == 'true' }}
-        run: |
-          docker load --input ../../../docker-image-keycloak/keycloak.tar
         shell: bash
 
       - name: Get test execution Key
