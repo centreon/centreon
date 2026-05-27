@@ -67,7 +67,7 @@ final class LoggingMiddlewareTest extends TestCase
         self::assertSame('command', $this->logger->infoMessages[1]['context']['bus_type']);
     }
 
-    public function testCommandFailureLogsErrorWithExceptionTypeAndRethrows(): void
+    public function testUnexpectedFailureLogsCriticalWithExceptionTypeAndRethrows(): void
     {
         $exception = new \RuntimeException('Something broke');
         $envelope = new Envelope(new \stdClass(), [new BusNameStamp('command.bus')]);
@@ -81,16 +81,45 @@ final class LoggingMiddlewareTest extends TestCase
         }
 
         self::assertCount(1, $this->logger->infoMessages);
-        self::assertCount(1, $this->logger->errorMessages);
+        self::assertCount(0, $this->logger->warningMessages);
+        self::assertCount(1, $this->logger->criticalMessages);
 
-        $errorContext = $this->logger->errorMessages[0]['context'];
-        $exception = $errorContext['exception'];
+        $criticalContext = $this->logger->criticalMessages[0]['context'];
+        $exception = $criticalContext['exception'];
         \assert(\is_array($exception));
         \assert(\is_array($exception['exceptions']));
         self::assertCount(1, $exception['exceptions']);
         \assert(\is_array($exception['exceptions'][0]));
         self::assertSame(\RuntimeException::class, $exception['exceptions'][0]['type']);
         self::assertSame('Something broke', $exception['exceptions'][0]['message']);
+    }
+
+    public function testDomainValidationFailureLogsWarningNotCritical(): void
+    {
+        // A value-object constructor rejection (\InvalidArgumentException, the
+        // parent of Centreon's AssertionException) is expected client input
+        // mapped to a 4xx — it must stay at warning, never escalate to the
+        // critical level reserved for unexpected server-side failures.
+        $exception = new \InvalidArgumentException('Service category name cannot be empty');
+        $envelope = new Envelope(new \stdClass(), [new BusNameStamp('command.bus')]);
+        $stack = $this->createFailingStack($exception);
+
+        try {
+            $this->middleware->handle($envelope, $stack);
+            self::fail('Expected exception was not thrown.');
+        } catch (\InvalidArgumentException $caught) {
+            self::assertSame($exception, $caught);
+        }
+
+        self::assertCount(0, $this->logger->criticalMessages);
+        self::assertCount(1, $this->logger->warningMessages);
+
+        $warningContext = $this->logger->warningMessages[0]['context'];
+        $formatted = $warningContext['exception'];
+        \assert(\is_array($formatted));
+        \assert(\is_array($formatted['exceptions']));
+        \assert(\is_array($formatted['exceptions'][0]));
+        self::assertSame(\InvalidArgumentException::class, $formatted['exceptions'][0]['type']);
     }
 
     public function testSensitiveFieldsAreMasked(): void
@@ -167,8 +196,8 @@ final class LoggingMiddlewareTest extends TestCase
         } catch (\DomainException) {
         }
 
-        self::assertCount(1, $this->logger->errorMessages);
-        $exception = $this->logger->errorMessages[0]['context']['exception'];
+        self::assertCount(1, $this->logger->criticalMessages);
+        $exception = $this->logger->criticalMessages[0]['context']['exception'];
         \assert(\is_array($exception));
         \assert(\is_array($exception['exceptions']));
         self::assertCount(3, $exception['exceptions'], 'root + 2 nested causes');
@@ -320,7 +349,7 @@ final class LoggingMiddlewareTest extends TestCase
     public function testDurationMsIsPresentOnHandledAndFailureLogs(): void
     {
         // Pin the contract: `duration_ms` is emitted on Handled (success)
-        // and Failed (error), but NOT on Dispatching (which is the t0
+        // and Failed (critical), but NOT on Dispatching (which is the t0
         // reference). The value is non-negative and finite — exact figures
         // can't be asserted in a unit test (it measures real elapsed time
         // through a stub stack), so we pin shape and contract, not value.
@@ -339,9 +368,9 @@ final class LoggingMiddlewareTest extends TestCase
         } catch (\RuntimeException) {
         }
 
-        self::assertArrayHasKey('duration_ms', $this->logger->errorMessages[0]['context']);
-        self::assertIsFloat($this->logger->errorMessages[0]['context']['duration_ms']);
-        self::assertGreaterThanOrEqual(0.0, $this->logger->errorMessages[0]['context']['duration_ms']);
+        self::assertArrayHasKey('duration_ms', $this->logger->criticalMessages[0]['context']);
+        self::assertIsFloat($this->logger->criticalMessages[0]['context']['duration_ms']);
+        self::assertGreaterThanOrEqual(0.0, $this->logger->criticalMessages[0]['context']['duration_ms']);
     }
 
     public function testHandledLogListsHandlerNamesFromHandledStamps(): void
@@ -400,7 +429,7 @@ final class LoggingMiddlewareTest extends TestCase
 
     public function testDispatchIdIsAlsoPresentOnTheFailureLog(): void
     {
-        // Same contract on the error path: the failed log carries the same
+        // Same contract on the failure path: the failed log carries the same
         // dispatch_id as its companion Dispatching log, so a 500 stacktrace
         // can be matched back to its payload without ambiguity.
         $envelope = new Envelope(new \stdClass(), [new BusNameStamp('command.bus')]);
@@ -413,7 +442,7 @@ final class LoggingMiddlewareTest extends TestCase
 
         $dispatchId = $this->logger->infoMessages[0]['context']['dispatch_id'];
         self::assertIsString($dispatchId);
-        self::assertSame($dispatchId, $this->logger->errorMessages[0]['context']['dispatch_id']);
+        self::assertSame($dispatchId, $this->logger->criticalMessages[0]['context']['dispatch_id']);
     }
 
     private function createPassThroughStack(Envelope $envelope): StackInterface

@@ -25,6 +25,7 @@ namespace App\Shared\Infrastructure\Messenger;
 
 use App\Shared\Infrastructure\Logging\ExceptionFormatter;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Exception\ExceptionInterface;
@@ -97,7 +98,7 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
 
             return $result;
         } catch (\Throwable $exception) {
-            $this->logger->error(sprintf('Failed to handle %s %s', $busType, $class), [
+            $this->logger->log($this->resolveFailureLevel($exception), sprintf('Failed to handle %s %s', $busType, $class), [
                 'dispatch_id' => $dispatchId,
                 'bus_type' => $busType,
                 'handler_message' => $class,
@@ -108,6 +109,20 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
 
             throw $exception;
         }
+    }
+
+    /**
+     * A value-object / domain rejection surfaces as \InvalidArgumentException
+     * (Centreon's AssertionException extends it) and maps to a 4xx response —
+     * expected client input, logged as a warning. Anything else is an
+     * unexpected server-side failure (DB down, OOM, bug) and is critical,
+     * mirroring LegacyHttpExceptionListener's CRITICAL-vs-WARNING split.
+     */
+    private function resolveFailureLevel(\Throwable $exception): string
+    {
+        return $exception instanceof \InvalidArgumentException
+            ? LogLevel::WARNING
+            : LogLevel::CRITICAL;
     }
 
     /**

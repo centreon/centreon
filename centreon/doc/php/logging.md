@@ -29,7 +29,7 @@ Every dispatch on the platform Messenger buses produces three records on the Mon
 |---|---|---|
 | Before the handler runs | `info` (`Dispatching …`) | `LoggingMiddleware` |
 | Handler clean return | `info` (`Handled …`) | `LoggingMiddleware` |
-| Handler throw | `error` (`Failed to handle …`) | `LoggingMiddleware` |
+| Handler throw | `warning` (domain rejection → 4xx) / `critical` (unexpected → 5xx) (`Failed to handle …`) | `LoggingMiddleware` |
 
 Exceptions thrown **outside** the bus (controllers, ApiPlatform state providers, event listeners, legacy code) take a different path (`request` or `app` channel) but converge on the same shape thanks to the **platform processors**:
 
@@ -77,7 +77,7 @@ command.bus:
         - App\Shared\Infrastructure\Messenger\DoctrineTransactionMiddleware
 ```
 
-Important consequence: a handler-side failure is logged at `error` level **after** the rollback has already happened — the error log reflects the final persistent state.
+Important consequence: a handler-side failure is logged **after** the rollback has already happened — the failure log reflects the final persistent state.
 
 ```mermaid
 flowchart LR
@@ -154,7 +154,7 @@ The middleware emits a record on the Monolog `bus` channel for every dispatch:
 |-------|-------|---------|---------|
 | Before `next()` | `info`  | `Dispatching {bus_type} {handler_message}` | `dispatch_id`, `bus_type`, `handler_message`, `payload` |
 | Clean return  | `info`  | `Handled {bus_type} {handler_message}`     | `dispatch_id`, `bus_type`, `handler_message`, `handlers`, `duration_ms`, `payload` |
-| Throw          | `error` | `Failed to handle {bus_type} {handler_message}` | `dispatch_id`, `bus_type`, `handler_message`, `duration_ms`, `payload`, `exception` |
+| Throw          | `warning` / `critical` | `Failed to handle {bus_type} {handler_message}` | `dispatch_id`, `bus_type`, `handler_message`, `duration_ms`, `payload`, `exception` |
 
 - **`dispatch_id`**: 16-character hex id generated per dispatch (`bin2hex(random_bytes(8))`, 64 bits of entropy). Identical on the three emits of a single `handle()`, different from one dispatch to the next. Lets you pair-match Dispatching ↔ Handled / Failed in log search when the `bus` channel is saturated with traffic from other interleaved dispatches.
 - **`bus_type`**: `command`, `query`, or the raw bus name if not recognised (resolved through the `BusNameStamp`).
@@ -162,6 +162,7 @@ The middleware emits a record on the Monolog `bus` channel for every dispatch:
 - **`handlers`** (Handled only): list of `HandledStamp::getHandlerName()` produced by the handlers that ran. On a single-handler command/query bus, the list has one element; on an event bus with several subscribers, it has several. Empty list if no handler ran (short-circuit). Distinct from the `handler_message` field, which names the **message** class dispatched.
 - **`duration_ms`** (Handled and Failed): dispatch duration in milliseconds, measured with `hrtime(true)` (monotonic clock, immune to NTP / DST jumps). Rounded to 3 decimals. Not present on the Dispatching log, which serves as the t0 reference.
 - **`payload`**: the message normalised via `NormalizerInterface`, sanitised in place — keys containing `password`, `token`, `secret`, `api_key`, `authorization`, `credential` masked as `***`, max depth 3 levels, string values truncated at 1024 characters. If normalisation fails or does not produce an array, the payload falls back to `['__class' => $message::class]`. Defense-in-depth for values that remain an object after normalisation (no dedicated normaliser for that type): `\BackedEnum` rendered via `->value`, `\UnitEnum` via `->name`, `\DateTimeInterface` via `format(ATOM)`, `\Stringable` via string cast + truncation, and any other plain object rendered as a placeholder `{ClassName}` — no `(array)` cast on objects, to avoid exposing their private properties.
+- **Failure level**: a `\InvalidArgumentException` (Centreon's `AssertionException` extends it — a value-object / domain rejection that maps to a 4xx) is logged at `warning`; any other throwable is an unexpected server-side failure (DB down, OOM, bug → 5xx) and is logged at `critical`. This mirrors the `CRITICAL`-vs-`WARNING` split of `LegacyHttpExceptionListener`, so alerting can ignore expected client errors without muting real incidents.
 
   **Intentionally permissive masking.** Sensitive keywords are matched with `str_contains` after `mb_strtolower`, not exact match. Consequence: any field name that *contains* a keyword is masked, including when the field itself is not sensitive. False-positive examples:
   - `password_changed_at` (timestamp) → masked (contains `password`)
@@ -382,7 +383,7 @@ Key points:
 
 - `exceptions` is a **flat list** (root first, then every `previous` cause in order) — no recursion, iterable with a single shape.
 - Every entry carries the same six keys (`type, message, code, file, line, trace`). When the chain exceeds 20 causes, a trailing `{"type":"@truncated", ...}` entry signals the cut.
-- The error record lands on `bus.ERROR` **after** the `DoctrineTransactionMiddleware` rollback — the persistent state is final at the time the log is emitted.
+- The failure record lands on `bus.WARNING` or `bus.CRITICAL` **after** the `DoctrineTransactionMiddleware` rollback — the persistent state is final at the time the log is emitted.
 
 ---
 

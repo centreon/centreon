@@ -36,19 +36,24 @@ final class SpyLogger extends AbstractLogger
     /** @var list<array{message: string, context: array<int|string, mixed>}> */
     public array $errorMessages = [];
 
+    /** @var list<array{message: string, context: array<int|string, mixed>}> */
+    public array $criticalMessages = [];
+
     public function log(mixed $level, string|\Stringable $message, array $context = []): void
     {
         $entry = ['message' => (string) $message, 'context' => $context];
 
         // Captured levels reflect the current LoggingMiddleware contract:
-        // `info` (dispatching/handled), `warning` (normalisation fallback),
-        // `error` (handler throw). Any other level surfaces here as a
-        // LogicException so the test fails loudly when a new level is
-        // introduced without an explicit capture branch.
+        // `info` (dispatching/handled), `warning` (normalisation fallback +
+        // domain-validation failure), `critical` (unexpected handler throw).
+        // Any other level surfaces here as a LogicException so the test fails
+        // loudly when a new level is introduced without an explicit capture
+        // branch.
         match ($level) {
             'info' => $this->infoMessages[] = $entry,
             'warning' => $this->warningMessages[] = $entry,
             'error' => $this->errorMessages[] = $entry,
+            'critical' => $this->criticalMessages[] = $entry,
             default => throw new \LogicException(\sprintf(
                 'Unexpected log level "%s" emitted to SpyLogger; capture it explicitly if it is now part of the contract.',
                 \is_scalar($level) ? (string) $level : get_debug_type($level),
