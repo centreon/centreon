@@ -1,5 +1,5 @@
-ARG REGISTRY_URL=docker.centreon.com/centreon
-ARG FROM_IMAGE_VERSION=develop
+ARG REGISTRY_URL=ghcr.io/centreon/centreon
+ARG FROM_IMAGE_VERSION=develop-alma8
 
 FROM ${REGISTRY_URL}/centreon-web-dependencies-collect:${FROM_IMAGE_VERSION}
 
