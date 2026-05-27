@@ -246,6 +246,7 @@ $addVmwareUpdatedField = function () use ($pearDB, &$errorMessage, $version): vo
     );
 };
 
+/** -------------------------------------- Poller UUID to UID -------------------------------------- */
 $renamePollerUuidToUid = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to rename uuid column to uid on nagios_server';
     CentreonLog::create()->info(
@@ -383,6 +384,79 @@ function generateMissingPollerUids(ConnectionInterface $pearDB, string $version)
     );
 }
 
+/** -------------------------------------- Broker event_script logger -------------------------------------- */
+$addEventScriptLogger = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add event_script logger to broker configuration';
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Adding 'event_script' logger to broker configuration",
+    );
+
+    if (! $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT 1 FROM `cb_log` WHERE `name` = 'event_script'
+            SQL
+    )) {
+        $pearDB->executeStatement(
+            <<<'SQL'
+                INSERT INTO `cb_log` (`name`) VALUES ('event_script')
+                SQL
+        );
+    }
+
+    $logId = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT `id` FROM `cb_log` WHERE `name` = 'event_script'
+            SQL
+    );
+    if ($logId === false) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Failed to retrieve 'event_script' log id from cb_log, skipping cfg_centreonbroker_log population",
+        );
+
+        return;
+    }
+
+    $errorLevelId = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT `id` FROM `cb_log_level` WHERE `name` = 'error'
+            SQL
+    );
+    if ($errorLevelId === false) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Failed to retrieve 'error' level id from cb_log_level, skipping cfg_centreonbroker_log population",
+        );
+
+        return;
+    }
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`)
+            SELECT `config_id`, :id_log, :id_level
+            FROM `cfg_centreonbroker` cb
+            WHERE NOT EXISTS (
+                SELECT 1 FROM `cfg_centreonbroker_log` cbl
+                WHERE cbl.`id_centreonbroker` = cb.`config_id`
+                  AND cbl.`id_log` = :id_log
+            )
+            SQL,
+        QueryParameters::create([
+            QueryParameter::int('id_log', $logId),
+            QueryParameter::int('id_level', $errorLevelId),
+        ])
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully added 'event_script' logger to broker configuration",
+       );
+};
+
+/** -------------------------------------- BBDO default version -------------------------------------- */
 $updateBbdoVersionDefault = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = "Unable to modify 'bbdo_version' column default in 'cfg_centreonbroker' table";
 
@@ -423,6 +497,7 @@ try {
     $addVmwareUpdatedField();
     $migrateModuleTableInstanceIds();
     $renamePollerUuidToUid();
+    $addEventScriptLogger();
     $updateBbdoVersionDefault();
     $updateBbdoVersionValues();
 
