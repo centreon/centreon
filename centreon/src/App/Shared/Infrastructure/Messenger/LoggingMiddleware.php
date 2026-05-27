@@ -28,7 +28,6 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\Exception\ExceptionInterface;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
 use Symfony\Component\Messenger\Stamp\BusNameStamp;
@@ -59,7 +58,6 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
 
     /**
      * @throws \Throwable
-     * @throws ExceptionInterface
      */
     public function handle(Envelope $envelope, StackInterface $stack): Envelope
     {
@@ -67,9 +65,6 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
         $class = $message::class;
         $busType = $this->resolveBusType($envelope);
         $payload = $this->normalizePayload($message);
-        // Correlation id only — shared across the three logs of one dispatch,
-        // never a secret. uniqid() with extra entropy is time-based, fast and
-        // never throws (unlike random_bytes), which is all a log correlator needs.
         $dispatchId = uniqid('', true);
         // hrtime(true) is monotonic and unaffected by NTP adjustments, the
         // only suitable clock for a duration measured around an I/O-bound
