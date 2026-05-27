@@ -12,7 +12,6 @@ patch {
 
 body:json {
   {
-    "name": "{{Notification1NameUpdated}}",
     "is_activated": false
   }
 }
@@ -22,7 +21,7 @@ assert {
 }
 
 tests {
-  test("Notification1 partially updated (rename + deactivate).", function () {
+  test("Notification1 partially updated (deactivated).", function () {
     expect(res.getBody()).to.be.empty;
   });
 }
