@@ -36,4 +36,20 @@ class ProviderException extends \Exception
     {
         return new self(sprintf(_('Must not Happen, got unexpected Provider type %s'), $class));
     }
+
+    /**
+     * Exception thrown when the configuration of a provider could not be retrieved.
+     *
+     * @param string $providerConfigurationName
+     * @param \Throwable $e
+     *
+     * @return self
+     */
+    public static function findProviderConfiguration(string $providerConfigurationName, \Throwable $e): self
+    {
+        return new self(
+            sprintf(_("Error while searching provider configuration: '%s'"), $providerConfigurationName),
+            previous: $e
+        );
+    }
 }
