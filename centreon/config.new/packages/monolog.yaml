@@ -89,6 +89,7 @@ when@dev:
                     - "!password"
                     - "!plugin-pack-manager"
                     - "!upgrade"
+                bubble: false
                 priority: 255
             web_file:
                 type: rotating_file
@@ -184,6 +185,7 @@ when@test:
                 type: test
                 channels: [bus]
                 level: debug
+                bubble: false
                 priority: 256
 
 when@prod:
