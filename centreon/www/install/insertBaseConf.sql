@@ -490,7 +490,8 @@ INSERT INTO `cb_log` (`id`, `name`) VALUES
 (14, 'influxdb'),
 (15, 'graphite'),
 (16, 'victoria_metrics'),
-(17, 'stats');
+(17, 'stats'),
+(18, 'event_script');
 
 --
 -- Contenu de la table `cb_log_level`
