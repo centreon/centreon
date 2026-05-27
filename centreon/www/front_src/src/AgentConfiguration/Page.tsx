@@ -19,7 +19,17 @@ import {
   labelWelcomeToTheAgentsConfigurationPage
 } from './translatedLabels';
 
-const WelcomePage = ({ labels, dataTestId, onCreate }) => {
+interface WelcomePageProps {
+  labels: {
+    actions: { create: string };
+    description: string;
+    title: string;
+  };
+  dataTestId: string;
+  onCreate: () => void;
+}
+
+const WelcomePage = ({ labels, dataTestId, onCreate }: WelcomePageProps) => {
   const { isLoading, data } = useGetAgentConfigurations();
 
   const setIsWelcomePageDisplayed = useSetAtom(isWelcomePageDisplayedAtom);
@@ -92,8 +102,8 @@ const AgentConfigurationPage = (): JSX.Element => {
           ) : (
             <ACListing
               isLoading={isLoading}
-              rows={data?.result}
-              total={data?.meta.total}
+              rows={data?.result ?? []}
+              total={data?.meta.total ?? 0}
             />
           )}
         </DataTable>

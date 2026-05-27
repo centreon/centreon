@@ -1,4 +1,4 @@
-import type { ScaleLinear } from 'd3-scale';
+import type { ScaleLinear, ScaleTime } from 'd3-scale';
 import { equals, reject } from 'ramda';
 
 import type { Line, TimeValue } from '../../../../common/timeSeries/models';
@@ -60,7 +60,7 @@ export interface LinesThreshold {
 export interface WrapperThresholdLinesModel {
   areaThresholdLines?: GlobalAreaLines['areaThresholdLines'];
   lines: Array<Line>;
-  xScale: ScaleLinear<number, number>;
+  xScale: ScaleLinear<number, number> | ScaleTime<number, number>;
   yScalesPerUnit: Record<string, ScaleLinear<number, number>>;
 }
 

@@ -5,8 +5,16 @@ import AreaAnnotation from './Annotation/Area';
 import LineAnnotation from './Annotation/Line';
 import type { TimelineEvent } from './models';
 
+interface IconProps {
+  'aria-label'?: string;
+  className?: string;
+  height?: number | string;
+  width?: number | string;
+  style?: React.CSSProperties;
+}
+
 interface Props {
-  Icon: (props) => JSX.Element | null;
+  Icon: (props: IconProps) => JSX.Element | null;
   annotationHoveredId: number;
   ariaLabel: string;
   color: string;

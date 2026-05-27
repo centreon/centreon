@@ -47,15 +47,15 @@ const ACListing = ({ rows, total, isLoading }: Props): JSX.Element => {
         currentPage={page}
         limit={limit}
         loading={isLoading}
-        onLimitChange={setLimit}
+        onLimitChange={setLimit as (limit: string | number) => void}
         onPaginate={setPage}
         onResetColumns={resetColumns}
-        onRowClick={updateAgentConfiguration}
+        onRowClick={updateAgentConfiguration as (row: unknown) => void}
         onSelectColumns={selectColumns}
         onSort={changeSort}
-        rows={rows}
+        rows={rows as unknown as Parameters<typeof Listing>[0]['rows']}
         sortField={sortField}
-        sortOrder={sortOrder}
+        sortOrder={sortOrder as 'asc' | 'desc'}
         subItems={{
           canCheckSubItems: false,
           enable: true,

@@ -333,9 +333,10 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                     $message = 'The data sent does not comply with the defined validation constraints';
                 }
             } else {
-                $errorCode = $event->getThrowable()->getCode();
-                $statusCode = $event->getThrowable()->getCode()
-                    ?: Response::HTTP_INTERNAL_SERVER_ERROR;
+                $statusCode = ($event->getThrowable()->getCode() >= 100 && $event->getThrowable()->getCode() < 600)
+                    ? (int) $event->getThrowable()->getCode()
+                    : Response::HTTP_INTERNAL_SERVER_ERROR;
+                $errorCode = $statusCode;
             }
             // Manage exception outside controllers
             $event->setResponse(

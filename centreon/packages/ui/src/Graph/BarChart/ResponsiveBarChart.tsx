@@ -278,7 +278,6 @@ const ResponsiveBarChart = ({
         placement="top"
       >
         <div className={classes.tooltipChildren}>
-          {/* @ts-expect-error - suppressing pre-existing type mismatch */}
           <ChartSvgWrapper
             allUnits={allUnits}
             axis={axis}
