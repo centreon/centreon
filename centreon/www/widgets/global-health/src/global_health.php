@@ -56,10 +56,6 @@ $variablesThemeCSS = match ($centreon->user->theme) {
     default => 'Generic-theme',
 };
 
-$theme = $variablesThemeCSS === 'Generic-theme'
-    ? $variablesThemeCSS . '/Variables-css'
-    : $variablesThemeCSS;
-
 // Smarty template initialization
 $path = $centreon_path . 'www/widgets/global-health/src/';
 $template = SmartyBC::createSmartyTemplate($path, './');
@@ -67,7 +63,7 @@ $template = SmartyBC::createSmartyTemplate($path, './');
 $template->assign('session', session_id());
 $template->assign('host_label', _('Hosts'));
 $template->assign('svc_label', _('Services'));
-$template->assign('theme', $theme);
+$template->assign('theme', $variablesThemeCSS);
 
 $widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
 if ($widgetId === false) {
