@@ -1,5 +1,5 @@
 meta {
-  name: POST /notifications/_delete - Bulk delete notification2 - HTTP 204
+  name: POST /notifications/_delete - Bulk delete notification2 - HTTP 200
   type: http
   seq: 10
 }
@@ -17,12 +17,14 @@ body:json {
 }
 
 assert {
-  res.status: eq 204
+  res.status: eq 200
 }
 
 tests {
   test("Notification2 deleted via bulk endpoint.", function () {
-    expect(res.getBody()).to.be.empty;
+    const body = res.getBody();
+    expect(body).to.have.property("results").that.is.an("array").with.lengthOf(1);
+    expect(body.results[0]).to.have.property("id").that.equals(parseInt(bru.getEnvVar("Notification2Id")));
   });
 }
 

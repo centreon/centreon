@@ -44,7 +44,7 @@ tests {
     const body = res.getBody();
     expect(body).to.have.property("id").that.is.a("number");
     bru.setEnvVar("Notification1Id", body.id);
-    expect(body.name).to.equal(bru.getEnvVar("Notification1Name"));
+    expect(body).to.have.property("name").that.equals(bru.getEnvVar("Notification1Name"));
   });
 }
 
