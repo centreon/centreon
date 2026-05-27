@@ -25,7 +25,7 @@ runs:
         ref: ${{ inputs.openapi_file_reference }}
         path: ./${{ inputs.openapi_file_reference }}/
         sparse-checkout: |
-          ${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API/
+          ${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API/v24.04
 
     - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
       with:
@@ -39,7 +39,7 @@ runs:
     - name: Run pnpm install
       shell: bash
       run: |
-        cd ${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API
+        cd ${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API/v24.04
         pnpm install \
           --frozen-lockfile \
           --config.trustPolicy=no-downgrade \
@@ -55,7 +55,7 @@ runs:
       run: |
         source .version
         major_version=${MAJOR}
-        OPENAPI_FILE_PATH="$MODULE_PATH/doc/API"
+        OPENAPI_FILE_PATH="$MODULE_PATH/doc/API/v24.04"
 
         if [[ -n $OPENAPI_FILE_REF ]]; then
           mv -f ./$OPENAPI_FILE_REF/$OPENAPI_FILE_PATH/$MODULE_PATH*-api.yaml \
