@@ -39,11 +39,11 @@ runs:
         MODULE_NAME: ${{ inputs.module_name }}
         DOC_VERSION: ${{ inputs.doc_version }}
       run: |
-        if [[ $MODULE_NAME == "centreon-web" ]] && [[ $DOC_VERSION == "cloud" ]]; then
-          BUCKET_PATH="s3://centreon-documentation-api/api/$MODULE_NAME-$DOC_VERSION"
-        else
-          BUCKET_PATH="s3://centreon-documentation-api/api/$MODULE_NAME/$DOC_VERSION"
-        fi
+        #if [[ $MODULE_NAME == "centreon-web" ]] && [[ $DOC_VERSION == "cloud" ]]; then
+        #  BUCKET_PATH="s3://centreon-documentation-api/api/$MODULE_NAME-$DOC_VERSION"
+        #else
+          BUCKET_PATH="s3://centreon-documentation-api/api/$MODULE_NAME/24.04"
+        #fi
         ls -lah
         aws s3 cp "index.html" "${BUCKET_PATH}/index.html"
         aws s3 cp "centreon-logo.png" "${BUCKET_PATH}/centreon-logo.png"
