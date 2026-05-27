@@ -782,6 +782,12 @@ jobs:
   dockerize:
     runs-on: ubuntu-24.04
     needs: [get-environment, changes, package]
+    permissions:
+      contents: read
+      packages: read
+      actions: write
+    outputs:
+      image_tag: ${{ steps.image_tag.outputs.tag }}
     if: |
       needs.changes.outputs.trigger_packaging == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -829,6 +835,26 @@ jobs:
           echo "package_extension=$PACKAGE_EXTENSION" >> $GITHUB_OUTPUT
         shell: bash
 
+      - name: Compute image tag
+        id: image_tag
+        env:
+          REF: ${{ github.head_ref || github.ref_name }}
+          MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
+        run: |
+          if [[ "$REF" == "develop" ]]; then
+            echo "tag=develop-${MAJOR_VERSION}" >> $GITHUB_OUTPUT
+            echo "additional_tag=develop" >> $GITHUB_OUTPUT
+          else
+            SANITIZED_REF="$(printf '%s' "$REF" | sed -E 's#[^[:alnum:]_.-]+#-#g; s#^[.-]+##; s#-+#-#g' | cut -c1-128)"
+            if [[ -z "$SANITIZED_REF" ]]; then
+              echo "::error::Unable to derive a valid Docker tag from ref '$REF'"
+              exit 1
+            fi
+            echo "tag=$SANITIZED_REF" >> $GITHUB_OUTPUT
+            echo "additional_tag=" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
       - name: Login to registry
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
@@ -836,25 +862,23 @@ jobs:
           username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
           password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
       - name: Get FROM image tag
         id: from_image_version
-        run: |
-          FROM_IMAGE_VERSION="${{ needs.get-environment.outputs.major_version }}"
-          FROM_IMAGE="centreon-web-dependencies-collect-${{ matrix.operating_system }}"
-          IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.head_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
-          if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
-            FROM_IMAGE_VERSION="${{ github.head_ref || github.ref_name }}"
-            echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
-          else
-            IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.base_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
-            if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
-              FROM_IMAGE_VERSION="${{ github.base_ref || github.ref_name }}"
-              echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
-            fi
-          fi
-
-          echo "from_image_version=$FROM_IMAGE_VERSION" >> $GITHUB_OUTPUT
-        shell: bash
+        uses: ./.github/actions/get-docker-from-image-version
+        with:
+          from_image: centreon-web-dependencies-collect
+          current_tag: ${{ steps.image_tag.outputs.tag }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          registry_url: ghcr.io/${{ github.repository }}
+          tag_suffix: -${{ matrix.operating_system }}
 
       - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
@@ -876,6 +900,22 @@ jobs:
 
       - uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # v3.6.1
 
+      - name: Compute docker tags
+        id: docker_tags
+        env:
+          REGISTRY: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          IMAGE: ${{ env.project }}-${{ matrix.operating_system }}
+          SLIM_IMAGE: ${{ env.project }}-slim-${{ matrix.operating_system }}
+          TAG: ${{ steps.image_tag.outputs.tag }}
+          ADDITIONAL: ${{ steps.image_tag.outputs.additional_tag }}
+        run: |
+          TAGS="${REGISTRY}/${IMAGE}:${TAG},${REGISTRY}/${SLIM_IMAGE}:${TAG}"
+          if [[ -n "$ADDITIONAL" ]]; then
+            TAGS="${TAGS},${REGISTRY}/${IMAGE}:${ADDITIONAL},${REGISTRY}/${SLIM_IMAGE}:${ADDITIONAL}"
+          fi
+          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: Build and push web image
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         env:
@@ -886,22 +926,20 @@ jobs:
           file: .github/docker/${{ env.project }}/${{ matrix.operating_system }}/Dockerfile
           context: .
           build-args: |
-            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+            "REGISTRY_URL=ghcr.io/${{ github.repository }}"
             "MAJOR_VERSION=${{ needs.get-environment.outputs.major_version }}"
             "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
           pull: true
           push: true
           load: true
-          tags: |
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
+          tags: ${{ steps.docker_tags.outputs.tags }}
 
       - name: Store slim image in local archive
         run: |
-          docker tag ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }} ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
+          docker tag ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.image_tag.outputs.tag }} ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.image_tag.outputs.tag }}
           mkdir -p docker-image
-          docker save --output ./docker-image/${{ env.project }}-slim-${{ matrix.operating_system }}.tar ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
+          docker save --output ./docker-image/${{ env.project }}-slim-${{ matrix.operating_system }}.tar ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.image_tag.outputs.tag }}
         shell: bash
 
       - name: Clear previous docker image from cache
@@ -910,14 +948,14 @@ jobs:
             -X DELETE \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ github.head_ref || github.ref_name }}
+            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.image_tag.outputs.additional_tag || steps.image_tag.outputs.tag }}
         shell: bash
 
       - name: Store slim image in cache
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ./docker-image
-          key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ github.head_ref || github.ref_name }}
+          key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.image_tag.outputs.additional_tag || steps.image_tag.outputs.tag }}
 
   create-xray-test-plan-and-test-execution:
     needs: [get-environment, changes, dockerize]
@@ -975,7 +1013,7 @@ jobs:
       db_id: ${{ matrix.db_id }}
       container_name: my_centreon_container
       centreon_url: http://localhost
-      centreon_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
+      centreon_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-${{ matrix.operating_system }}:${{ needs.dockerize.outputs.image_tag }}
       database_image: bitnamilegacy/${{ matrix.database }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
       major_version: ${{ needs.get-environment.outputs.major_version }}
@@ -1072,8 +1110,6 @@ jobs:
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
       xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
       xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
-      artifactory_internal_repo_username: ${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}
-      artifactory_internal_repo_password: ${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}
       jira_base_url: ${{ secrets.JIRA_BASE_URL }}
       jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
