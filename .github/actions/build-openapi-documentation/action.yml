@@ -68,7 +68,7 @@ runs:
           doc_version="cloud"
           export OPENAPI_FILE="$MODULE_PATH-cloud-api.yaml"
           sed -i "s#version: 'latest'#version: 'Cloud'#" $OPENAPI_FILE
-        elif [[ -f "$MODULE_PATH-api.yaml" ]]; then
+        elif [[ $major_version =~ ^2[0-9]\.04$ ]] && [[ -f "$MODULE_PATH-api.yaml" ]]; then
           doc_version=$major_version
           export OPENAPI_FILE="centreon-api-v24.04.yaml"
           sed -i "s#version: 'latest'#version: '$doc_version'#" $OPENAPI_FILE
