@@ -27,7 +27,7 @@
     "centreon/centreon": "@dev",
     "centreon/centreon-test-lib": "25.10.x-dev",
     "pestphp/pest": "2.36.*",
-    "symfony/console": "7.3.*"
+    "symfony/console": "7.4.*"
   },
   "autoload": {
     "psr-4": {
@@ -121,7 +121,7 @@
   "extra": {
     "symfony": {
       "allow-contrib": true,
-      "require": "7.3.*"
+      "require": "7.4.*"
     }
   }
 }
