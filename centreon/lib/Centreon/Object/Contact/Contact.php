@@ -158,6 +158,9 @@ class Centreon_Object_Contact extends Centreon_Object
         $statement->execute();
         $contacts = $statement->fetchAll();
         foreach ($contacts as &$contact) {
+            if (! isset($contact['contact_id'])) {
+                continue;
+            }
             $statement = $this->db->prepare(
                 'SELECT password FROM contact_password WHERE contact_id = :contactId '
                 . 'ORDER BY creation_date DESC LIMIT 1'
