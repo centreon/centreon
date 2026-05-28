@@ -167,6 +167,29 @@ final class ExceptionFormatterTest extends TestCase
         self::assertMatchesRegularExpression('/.+\(\) at .+:\d+$/', $trace[0]);
     }
 
+    public function testFrameWithoutClassRendersWithoutLeadingDoubleColon(): void
+    {
+        // Closures and native callables (array_map, …) produce backtrace
+        // frames without a `class` key. The renderer must emit just the
+        // function name in that case — never `::App\{closure}()`.
+        try {
+            array_map(static function (int $x): int {
+                throw new \RuntimeException('from closure inside array_map');
+            }, [1]);
+            self::fail('Expected exception was not thrown.');
+        } catch (\RuntimeException $thrown) {
+            $formatted = ExceptionFormatter::format($thrown);
+        }
+
+        foreach ($formatted['exceptions'][0]['trace'] as $frame) {
+            self::assertDoesNotMatchRegularExpression(
+                '/^::/',
+                $frame,
+                sprintf('frame "%s" must not start with `::`', $frame),
+            );
+        }
+    }
+
     /**
      * Builds a Throwable whose `previous` chain has $depth nested entries.
      * The deepest cause is a leaf RuntimeException; each parent wraps it
