@@ -29,7 +29,6 @@ monolog:
                 - "!plugin-pack-manager"
                 - "!upgrade"
             bubble: false
-            priority: 255
         web_file:
             type: stream
             path: "%kernel.logs_dir%/%kernel.environment%.web.log"
@@ -63,7 +62,6 @@ when@dev:
                     - "!plugin-pack-manager"
                     - "!upgrade"
                 bubble: false
-                priority: 255
             web_file:
                 type: rotating_file
                 path: "%kernel.logs_dir%/%kernel.environment%.web.log"
