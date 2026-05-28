@@ -32,10 +32,11 @@ use Symfony\Component\Messenger\Middleware\StackInterface;
 use Symfony\Component\Messenger\Stamp\BusNameStamp;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
 
 final class LoggingMiddlewareTest extends TestCase
 {
-    private SpyLogger $logger;
+    private LoggerSpy $logger;
 
     private NormalizerInterface $normalizer;
 
@@ -43,7 +44,7 @@ final class LoggingMiddlewareTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->logger = new SpyLogger();
+        $this->logger = new LoggerSpy();
         $this->normalizer = $this->createStub(NormalizerInterface::class);
         $this->normalizer->method('normalize')->willReturn(['field' => 'value']);
         $this->middleware = new LoggingMiddleware(

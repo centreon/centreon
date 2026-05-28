@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2026 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\Shared\Infrastructure\Messenger;
+namespace Tests\App\Shared\Infrastructure\Messenger\Double;
 
 use Psr\Log\AbstractLogger;
 
-final class SpyLogger extends AbstractLogger
+final class LoggerSpy extends AbstractLogger
 {
     /** @var list<array{message: string, context: array<int|string, mixed>}> */
     public array $infoMessages = [];
@@ -55,8 +55,9 @@ final class SpyLogger extends AbstractLogger
             'error' => $this->errorMessages[] = $entry,
             'critical' => $this->criticalMessages[] = $entry,
             default => throw new \LogicException(\sprintf(
-                'Unexpected log level "%s" emitted to SpyLogger; capture it explicitly if it is now part of the contract.',
+                'Unexpected log level "%s" emitted to "%s"; capture it explicitly if it is now part of the contract.',
                 \is_scalar($level) ? (string) $level : get_debug_type($level),
+                self::class,
             )),
         };
     }
