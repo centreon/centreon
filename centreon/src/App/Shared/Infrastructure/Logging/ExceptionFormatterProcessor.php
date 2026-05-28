@@ -35,7 +35,7 @@ final readonly class ExceptionFormatterProcessor
     {
         $context = $record->context;
 
-        if (! isset($context['exception']) || ! $context['exception'] instanceof \Throwable) {
+        if (! (($context['exception'] ?? null) instanceof \Throwable)) {
             return $record;
         }
 
