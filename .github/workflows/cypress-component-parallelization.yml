@@ -156,7 +156,8 @@ jobs:
     needs: [cypress-component-test-run]
     if: |
       ! cancelled() &&
-      ! contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'cancelled') &&
+      github.event.pull_request.head.repo.fork != true
     runs-on: ubuntu-24.04
 
     steps:

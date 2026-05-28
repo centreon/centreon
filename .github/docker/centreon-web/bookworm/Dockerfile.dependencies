@@ -72,7 +72,8 @@ apt-get install -y \
   sed \
   snmpd \
   cron \
-  software-properties-common \
+  systemd \
+  systemd-sysv \
   sudo
 
 #############################
