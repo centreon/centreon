@@ -2,7 +2,8 @@ packages:
   - 'packages/*'
   - 'lighthouse'
   - 'tests/e2e'
-  - 'tests/rest_api'
+  - 'tests/api'
+  - 'tests/performance'
   - 'doc/API'
 
 # 7 days
