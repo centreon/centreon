@@ -94,7 +94,7 @@ abstract class Centreon_Object
         $placeholders = [];
         $bindParams = [];
         foreach ($params as $key => $value) {
-            $key = trim(trim($key), '`');
+            $key = $this->sanitizeIdentifier($key);
             if ($key == $this->primaryKey) {
                 continue;
             }
@@ -159,7 +159,7 @@ abstract class Centreon_Object
         $setClauses = [];
         $bindParams = [];
         foreach ($params as $key => $value) {
-            $key = trim(trim($key), '`');
+            $key = $this->sanitizeIdentifier($key);
             if ($key == $this->primaryKey) {
                 continue;
             }
@@ -226,7 +226,11 @@ abstract class Centreon_Object
      */
     public function getParameters($objectId, $parameterNames)
     {
-        $params = is_array($parameterNames) ? implode(',', $parameterNames) : $parameterNames;
+        if (is_array($parameterNames)) {
+            $params = implode(',', array_map([$this, 'sanitizeIdentifier'], $parameterNames));
+        } else {
+            $params = $parameterNames !== '*' ? $this->sanitizeIdentifier($parameterNames) : $parameterNames;
+        }
         $sql = "SELECT {$params} FROM {$this->table} WHERE {$this->primaryKey} = :objectId";
         $statement = $this->db->prepare($sql);
         $statement->bindValue(':objectId', $objectId, PDO::PARAM_INT);
@@ -262,12 +266,17 @@ abstract class Centreon_Object
         if ($filterType != 'OR' && $filterType != 'AND') {
             throw new Exception('Unknown filter type');
         }
-        $params = is_array($parameterNames) ? implode(',', $parameterNames) : $parameterNames;
+        if (is_array($parameterNames)) {
+            $params = implode(',', array_map([$this, 'sanitizeIdentifier'], $parameterNames));
+        } else {
+            $params = $parameterNames !== '*' ? $this->sanitizeIdentifier($parameterNames) : $parameterNames;
+        }
         $sql = "SELECT {$params} FROM {$this->table} ";
         $bindParams = [];
         $filterIndex = 0;
         $whereClauses = [];
         foreach ($filters as $key => $rawvalue) {
+            $key = $this->sanitizeIdentifier($key);
             if (is_array($rawvalue)) {
                 if ($rawvalue === []) {
                     $whereClauses[] = '1 = 0';
@@ -294,6 +303,7 @@ abstract class Centreon_Object
             $sql .= ' WHERE ' . implode(" {$filterType} ", $whereClauses);
         }
         if (isset($order, $sort) && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
+            $order = $this->sanitizeIdentifier($order);
             $sql .= " ORDER BY {$order} {$sort} ";
         }
         if (isset($count) && $count != -1) {
@@ -321,6 +331,7 @@ abstract class Centreon_Object
      */
     public function getIdByParameter($paramName, $paramValues = [])
     {
+        $paramName = $this->sanitizeIdentifier($paramName);
         if (! is_array($paramValues)) {
             $paramValues = [$paramValues];
         }
@@ -379,6 +390,19 @@ abstract class Centreon_Object
     public function getTableName()
     {
         return $this->table;
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    protected function sanitizeIdentifier(string $name): string
+    {
+        $name = trim(trim($name), '`');
+        if ($name === '' || preg_match('/[;\'"\\\\#]|--|\/\*/', $name) === 1) {
+            throw new InvalidArgumentException("Invalid identifier: {$name}");
+        }
+
+        return $name;
     }
 
     /**

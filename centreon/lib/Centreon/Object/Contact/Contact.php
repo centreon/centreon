@@ -55,7 +55,7 @@ class Centreon_Object_Contact extends Centreon_Object
         $placeholders = [];
         $bindParams = [];
         foreach ($params as $key => $value) {
-            $key = trim(trim($key), '`');
+            $key = $this->sanitizeIdentifier($key);
             if ($key == $this->primaryKey) {
                 continue;
             }
@@ -102,6 +102,7 @@ class Centreon_Object_Contact extends Centreon_Object
         }
 
         if (is_array($parameterNames)) {
+            $parameterNames = array_map([$this, 'sanitizeIdentifier'], $parameterNames);
             if (($key = array_search('contact_id', $parameterNames)) !== false) {
                 $parameterNames[$key] = $this->table . '.contact_id';
             }
@@ -109,13 +110,14 @@ class Centreon_Object_Contact extends Centreon_Object
         } elseif ($parameterNames === 'contact_id') {
             $params = $this->table . '.contact_id';
         } else {
-            $params = $parameterNames;
+            $params = $parameterNames !== '*' ? $this->sanitizeIdentifier($parameterNames) : $parameterNames;
         }
         $sql = "SELECT {$params} FROM {$this->table}";
         $bindParams = [];
         $filterIndex = 0;
         $whereClauses = [];
         foreach ($filters as $key => $rawvalue) {
+            $key = $this->sanitizeIdentifier($key);
             if (is_array($rawvalue)) {
                 if ($rawvalue === []) {
                     $whereClauses[] = '1 = 0';
@@ -142,6 +144,7 @@ class Centreon_Object_Contact extends Centreon_Object
             $sql .= ' WHERE ' . implode(" {$filterType} ", $whereClauses);
         }
         if (isset($order, $sort) && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
+            $order = $this->sanitizeIdentifier($order);
             $sql .= " ORDER BY {$order} {$sort} ";
         }
         if (isset($count) && $count != -1) {
@@ -206,7 +209,7 @@ class Centreon_Object_Contact extends Centreon_Object
         $setClauses = [];
         $bindParams = [];
         foreach ($params as $key => $value) {
-            $key = trim(trim($key), '`');
+            $key = $this->sanitizeIdentifier($key);
             if ($key == $this->primaryKey) {
                 continue;
             }
