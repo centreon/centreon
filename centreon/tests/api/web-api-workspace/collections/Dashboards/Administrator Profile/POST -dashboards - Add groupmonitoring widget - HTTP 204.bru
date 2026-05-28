@@ -1,0 +1,40 @@
+meta {
+  name: POST /dashboards - Add groupmonitoring widget - HTTP 204
+  type: http
+  seq: 15
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/dashboards/{{dashboardID}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "panels": [
+      {
+        "id": null,
+        "name": "centreon-widget-groupmonitoring",
+        "widget_type": "/widgets/groupmonitoring",
+        "layout": { "x": 0, "y": 0, "width": 5, "height": 3, "min_width": 2, "min_height": 2 },
+        "widget_settings": "{\"data\":{\"resources\":[{\"resourceType\":\"host-group\",\"resources\":[{\"id\":53,\"name\":\"Linux-Servers\"}]}]},\"options\":{\"resourceTypes\":[\"host\",\"service\"],\"statuses\":[\"1\",\"2\",\"4\",\"5\",\"6\"],\"refreshInterval\":\"default\",\"limit\":10,\"page\":0}}"
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Groupmonitoring widget added successfully.", function () {
+    expect(res.status).to.equal(204);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

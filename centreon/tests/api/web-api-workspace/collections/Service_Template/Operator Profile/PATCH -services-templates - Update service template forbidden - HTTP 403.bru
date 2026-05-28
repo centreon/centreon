@@ -1,0 +1,32 @@
+meta {
+  name: PATCH /services/templates - Update service template forbidden - HTTP 403
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrlWeb}}/configuration/services/templates/{{ServiceTemplate2Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "max_check_attempts": 3
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("The service template has not been updated, because the user does not have the correct rights.", function () {
+    expect(res.getBody().message).to.match(/not allowed/i);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

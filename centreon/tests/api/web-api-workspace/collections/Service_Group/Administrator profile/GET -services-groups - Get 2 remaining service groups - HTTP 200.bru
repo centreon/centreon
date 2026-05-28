@@ -1,0 +1,36 @@
+meta {
+  name: GET /services/groups - Get 2 remaining service groups - HTTP 200
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services/groups
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Two service groups remain after deletion.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+
+    const deletedId = parseInt(bru.getEnvVar("ServiceGroup1Id"));
+    expect(body.result.some(r => r.id === deletedId)).to.be.false;
+
+    const sg2 = body.result.find(r => r.id === parseInt(bru.getEnvVar("ServiceGroup2Id")));
+    const sg3 = body.result.find(r => r.id === parseInt(bru.getEnvVar("ServiceGroup3Id")));
+    expect(sg2).to.not.be.undefined;
+    expect(sg3).to.not.be.undefined;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
