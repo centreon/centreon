@@ -3,7 +3,7 @@ import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 const uiDtoSearchFor = '(&(uid=centréon-ldap4)(objectClass=posixAccount))';
-const dNtoSearchFor = 'cn=centréon-ldap4,ou=users,dc=centreon,dc=com';
+const dNtoSearchFor = 'cn=centréon-ldap4,ou=people,ou=users,dc=centreon,dc=com';
 const ldapLogin = 'centréon-ldap4';
 
 before(() => {

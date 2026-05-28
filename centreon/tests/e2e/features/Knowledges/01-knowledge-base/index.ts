@@ -4,8 +4,8 @@ import { PAGES } from 'fixtures/shared/constants/pages';
 import { configureKb, getMediaWikiContainerPort } from '../common';
 
 const kbUrl = 'http://mediawiki';
-const kbAccount = 'WikiSysop';
-const kbPassword = 'centreon';
+const kbAccount = 'admin';
+const kbPassword = 'Centreon!2021';
 const serviceNoteUrl =
   './include/configuration/configKnowledge/proxy/proxy.php?host_name=$HOSTNAME$&service_description=$SERVICEDESC$';
 const hostNoteUrl =
