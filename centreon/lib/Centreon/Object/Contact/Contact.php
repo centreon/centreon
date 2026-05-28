@@ -55,10 +55,10 @@ class Centreon_Object_Contact extends Centreon_Object
         $placeholders = [];
         $bindParams = [];
         foreach ($params as $key => $value) {
+            $key = trim(trim($key), '`');
             if ($key == $this->primaryKey) {
                 continue;
             }
-            $this->assertValidIdentifier($key);
             $fields[] = $key;
             $placeholders[] = ':' . $key;
             $bindParams[':' . $key] = trim($value);
@@ -102,9 +102,6 @@ class Centreon_Object_Contact extends Centreon_Object
         }
 
         if (is_array($parameterNames)) {
-            foreach ($parameterNames as $parameterName) {
-                $this->assertValidIdentifier($parameterName);
-            }
             if (($key = array_search('contact_id', $parameterNames)) !== false) {
                 $parameterNames[$key] = $this->table . '.contact_id';
             }
@@ -112,9 +109,6 @@ class Centreon_Object_Contact extends Centreon_Object
         } elseif ($parameterNames === 'contact_id') {
             $params = $this->table . '.contact_id';
         } else {
-            if ($parameterNames !== '*') {
-                $this->assertValidIdentifier($parameterNames);
-            }
             $params = $parameterNames;
         }
         $sql = "SELECT {$params} FROM {$this->table}";
@@ -122,7 +116,6 @@ class Centreon_Object_Contact extends Centreon_Object
         $filterIndex = 0;
         $whereClauses = [];
         foreach ($filters as $key => $rawvalue) {
-            $this->assertValidIdentifier($key);
             if (is_array($rawvalue)) {
                 if ($rawvalue === []) {
                     $whereClauses[] = '1 = 0';
@@ -149,7 +142,6 @@ class Centreon_Object_Contact extends Centreon_Object
             $sql .= ' WHERE ' . implode(" {$filterType} ", $whereClauses);
         }
         if (isset($order, $sort) && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
-            $this->assertValidIdentifier($order);
             $sql .= " ORDER BY {$order} {$sort} ";
         }
         if (isset($count) && $count != -1) {
@@ -214,10 +206,10 @@ class Centreon_Object_Contact extends Centreon_Object
         $setClauses = [];
         $bindParams = [];
         foreach ($params as $key => $value) {
+            $key = trim(trim($key), '`');
             if ($key == $this->primaryKey) {
                 continue;
             }
-            $this->assertValidIdentifier($key);
             $setClauses[] = $key . ' = :' . $key;
             if ($value === '' && ! isset($notNullAttributes[$key])) {
                 $value = null;
