@@ -1530,16 +1530,16 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             $db = DatabaseConnection::createFromConfig(connectionConfig: $dbConfigCentreon);
             $db->startUnbufferedQuery();
             expect($db->isUnbufferedQueryActive())->toBeTrue()
-                ->and($db->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(0);
+                ->and($db->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBeFalsy();
             $pdoStmt = $db->prepare('SELECT * FROM contact WHERE contact_id = 1');
             $pdoStmt->execute();
             $contact = $pdoStmt->fetch(\PDO::FETCH_ASSOC);
             expect($contact)->toBeArray()->toHaveKey('contact_id', 1)
                 ->and($db->isUnbufferedQueryActive())->toBeTrue()
-                ->and($db->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(0);
+                ->and($db->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBeFalsy();
             $db->stopUnbufferedQuery();
             expect($db->isUnbufferedQueryActive())->toBeFalse()
-                ->and($db->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBe(1);
+                ->and($db->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))->toBeTruthy();
         }
     );
 

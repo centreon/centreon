@@ -1,7 +1,7 @@
 {
   "name": "centreon/centreon",
   "description": "Centreon - IT and Application monitoring software",
-  "version": "26.05",
+  "version": "26.07",
   "type": "project",
   "license": "GPL-2.0-only",
   "require": {
@@ -36,6 +36,7 @@
     "enshrined/svg-sanitize": "0.22.*",
     "firebase/php-jwt": "6.11.*",
     "friendsofsymfony/rest-bundle": "3.9.*",
+    "godruoyi/php-snowflake": "3.2.*",
     "jms/serializer-bundle": "5.5.*",
     "justinrainbow/json-schema": "5.3.*",
     "monolog/monolog": "3.7.*",
@@ -69,10 +70,10 @@
     "symfony/mime": "7.4.*",
     "symfony/monolog-bundle": "3.10.*",
     "symfony/process": "7.4.*",
+    "symfony/property-access": "7.4.*",
     "symfony/property-info": "7.4.*",
     "symfony/routing": "7.4.*",
     "symfony/runtime": "7.4.*",
-    "symfony/property-access": "7.4.*",
     "symfony/security-bundle": "7.4.*",
     "symfony/serializer": "7.4.*",
     "symfony/translation-contracts": "3.6.*",

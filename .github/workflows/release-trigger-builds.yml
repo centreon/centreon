@@ -26,7 +26,7 @@ jobs:
     if: github.repository == 'centreon/centreon'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
 
@@ -310,7 +310,7 @@ jobs:
           head_sha: ${{ steps.create_requested_release_hotfix_branch.outputs.new_branch_sha }}
 
       - name: Download component lists
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: component-commit-lists
           path: component-commit-lists-dir
@@ -404,7 +404,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate release summary
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           BASE_SHA: ${{ steps.get_and_set_references_information.outputs.previous_stable_bundle_tag_sha }}
           HEAD_SHA: ${{ steps.create_requested_release_hotfix_branch.outputs.new_branch_sha }}

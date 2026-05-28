@@ -33,7 +33,7 @@ export interface PanelOptions {
 }
 
 export interface ResourcesTableProps extends CommonWidgetProps<PanelOptions> {
-  changeViewMode?: (displayType) => void;
+  changeViewMode?: (displayType: DisplayType) => void;
   panelData: Data;
   panelOptions: PanelOptions;
 }

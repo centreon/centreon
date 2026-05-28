@@ -4,7 +4,7 @@ import { Configuration } from '../models';
 import { ModalState } from './models';
 
 export const configurationAtom = atom<Configuration | null>({
-  api: { adapter: null, endpoints: null },
+  api: { endpoints: null },
   defaultSelectedColumnIds: [],
   filtersInitialValues: { name: '' },
   resourceType: null

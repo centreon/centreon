@@ -17,7 +17,7 @@ import useStyles from './CompactCustomTimePeriod.styles';
 interface Props {
   disabled?: boolean;
   isCondensed?: boolean;
-  onClick: (event) => void;
+  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 const CompactCustomTimePeriod = ({

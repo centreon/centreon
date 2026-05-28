@@ -483,7 +483,7 @@ export const CustomButton = (): JSX.Element => {
   );
 };
 
-const buildEntities = (from): Array<SelectEntry> => {
+const buildEntities = (from: number): Array<SelectEntry> => {
   return Array(10)
     .fill(0)
     .map((_, index) => ({
@@ -492,7 +492,7 @@ const buildEntities = (from): Array<SelectEntry> => {
     }));
 };
 
-export const buildResult = (page): Listing<SelectEntry> => ({
+export const buildResult = (page: number): Listing<SelectEntry> => ({
   meta: {
     limit: 10,
     page,

@@ -1,7 +1,7 @@
 import { Form, Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { FormikValues } from 'formik';
+import type { FormikHelpers, FormikValues } from 'formik';
 import { all, isEmpty, isNil, not, or, pick, pipe, values } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
@@ -25,7 +25,8 @@ interface Props {
   loadOpenidConfiguration: () => void;
 }
 
-const isNilOrEmpty = (value): boolean => or(isNil(value), isEmpty(value));
+const isNilOrEmpty = (value: unknown): boolean =>
+  or(isNil(value), isEmpty(value));
 
 const OpenidForm = ({
   initialValues,
@@ -49,7 +50,7 @@ const OpenidForm = ({
 
   const submit = (
     formikValues: OpenidConfiguration,
-    { setSubmitting }
+    { setSubmitting }: FormikHelpers<OpenidConfiguration>
   ): Promise<void> =>
     mutateAsync({
       payload: adaptOpenidConfigurationToAPI(formikValues)

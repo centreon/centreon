@@ -1,5 +1,5 @@
 import { Event, Tooltip } from '@visx/visx';
-import type { ScaleLinear } from 'd3-scale';
+import type { ScaleLinear, ScaleTime } from 'd3-scale';
 import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
 
@@ -13,7 +13,7 @@ interface Props {
   graphWidth: number;
   timeSeries: Array<TimeValue>;
   tooltipWidth?: number;
-  xScale: ScaleLinear<number, number>;
+  xScale: ScaleLinear<number, number> | ScaleTime<number, number>;
 }
 
 const useGraphTooltip = ({

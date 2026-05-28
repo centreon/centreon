@@ -27,7 +27,10 @@ export const useInstallationCommand = () => {
     setPoller(null);
   }, []);
 
-  const changePoller = (_, value): void => {
+  const changePoller = (
+    _: unknown,
+    value: { id?: number; name?: string } | null
+  ): void => {
     const selectedPoller = value ? pick(['id', 'name'], value) : null;
 
     setPoller(selectedPoller);
@@ -35,7 +38,7 @@ export const useInstallationCommand = () => {
 
   const { data, isLoading } = useFetchQuery<InstallationCommand>({
     decoder: installationCommandDecoder,
-    getEndpoint: () => getInstallationCommandEndpoint(poller?.id),
+    getEndpoint: () => getInstallationCommandEndpoint(poller?.id as number),
     getQueryKey: () => ['installation-command', poller?.id],
     queryOptions: {
       enabled: isNotNil(poller?.id),

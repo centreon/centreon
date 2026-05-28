@@ -11,16 +11,18 @@ const Name = ({
 }: ComponentColumnProps): JSX.Element => {
   const { classes } = useNameStyles({
     isHovered,
-    isRowDisabled: row.isActivated
+    isRowDisabled: Boolean(row.isActivated)
   });
 
   const renderedName =
     renderEllipsisTypography?.({
       className: classes.resourceNameText,
-      formattedString: truncate({ content: row.name, maxLength: 50 })
-    }) || row.name;
+      formattedString: truncate({ content: row.name as string, maxLength: 50 })
+    }) || (row.name as string);
 
-  return <div className={classes.container}>{renderedName}</div>;
+  return (
+    <div className={classes.container}>{renderedName as React.ReactNode}</div>
+  );
 };
 
 export default Name;
