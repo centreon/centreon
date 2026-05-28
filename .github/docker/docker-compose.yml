@@ -34,7 +34,7 @@ services:
     environment:
       MARIADB_EXTRA_FLAGS: "--skip-ssl"
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 && sleep 3 && mysqladmin ping -h 127.0.0.1"]
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/3306 && sleep 3 && </dev/tcp/127.0.0.1/3306'"]
       interval: 10s
       timeout: 15s
       retries: 20
