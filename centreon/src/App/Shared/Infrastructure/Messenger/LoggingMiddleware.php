@@ -151,21 +151,7 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
     {
         $stamp = $envelope->last(BusNameStamp::class);
 
-        if (! $stamp instanceof BusNameStamp) {
-            return 'unknown';
-        }
-
-        $busName = $stamp->getBusName();
-
-        // str_starts_with rather than str_contains to keep the classification
-        // tight: a future bus named `command_audit.bus` or `query_proxy.bus`
-        // should be classified by its prefix, not silently folded into the
-        // base type. Unknown patterns fall through to the raw bus name.
-        return match (true) {
-            str_starts_with($busName, 'command') => 'command',
-            str_starts_with($busName, 'query') => 'query',
-            default => $busName,
-        };
+        return $stamp instanceof BusNameStamp ? $stamp->getBusName() : 'unknown';
     }
 
     /**

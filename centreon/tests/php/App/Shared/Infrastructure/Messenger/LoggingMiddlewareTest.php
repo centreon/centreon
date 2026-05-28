@@ -62,9 +62,9 @@ final class LoggingMiddlewareTest extends TestCase
         self::assertCount(2, $this->logger->infoMessages);
         self::assertCount(0, $this->logger->errorMessages);
         self::assertStringContainsString('Dispatching', $this->logger->infoMessages[0]['message']);
-        self::assertSame('command', $this->logger->infoMessages[0]['context']['bus_type']);
+        self::assertSame('command.bus', $this->logger->infoMessages[0]['context']['bus_type']);
         self::assertStringContainsString('Handled', $this->logger->infoMessages[1]['message']);
-        self::assertSame('command', $this->logger->infoMessages[1]['context']['bus_type']);
+        self::assertSame('command.bus', $this->logger->infoMessages[1]['context']['bus_type']);
         // payload is logged once, on Dispatching; Handled omits it (same
         // dispatch_id pairs the two), avoiding duplicate payload noise.
         self::assertArrayHasKey('payload', $this->logger->infoMessages[0]['context']);
@@ -213,12 +213,16 @@ final class LoggingMiddlewareTest extends TestCase
         self::assertSame(\LogicException::class, $exception['exceptions'][2]['type']);
     }
 
-    public function testQueryBusTypeIsResolved(): void
+    public function testBusNameStampValueIsPropagatedAsIs(): void
     {
+        // The middleware no longer classifies bus names — the raw value
+        // from the envelope's BusNameStamp lands in bus_type as-is. Pin
+        // it on a non-default bus (query.bus) so a regression to silent
+        // re-labelling would fail loudly.
         $envelope = new Envelope(new \stdClass(), [new BusNameStamp('query.bus')]);
         $this->middleware->handle($envelope, $this->createPassThroughStack($envelope));
 
-        self::assertSame('query', $this->logger->infoMessages[0]['context']['bus_type']);
+        self::assertSame('query.bus', $this->logger->infoMessages[0]['context']['bus_type']);
     }
 
     public function testEnvelopeWithoutBusNameStampLogsAsUnknown(): void
@@ -232,17 +236,6 @@ final class LoggingMiddlewareTest extends TestCase
         $this->middleware->handle($envelope, $this->createPassThroughStack($envelope));
 
         self::assertSame('unknown', $this->logger->infoMessages[0]['context']['bus_type']);
-    }
-
-    public function testUnrecognizedBusNameStampLogsRawName(): void
-    {
-        // A bus name that matches neither 'command' nor 'query' (e.g. a
-        // future event bus) must surface in logs under its raw name —
-        // documented contract: "the raw bus name if not recognized".
-        $envelope = new Envelope(new \stdClass(), [new BusNameStamp('event.bus')]);
-        $this->middleware->handle($envelope, $this->createPassThroughStack($envelope));
-
-        self::assertSame('event.bus', $this->logger->infoMessages[0]['context']['bus_type']);
     }
 
     public function testPayloadDeeperThanMaxDepthIsTruncated(): void
