@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Shared\Infrastructure\Messenger;
 
+use App\Shared\Infrastructure\Logging\LogPayloadNormalizer;
 use App\Shared\Infrastructure\Messenger\LoggingMiddleware;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Envelope;
@@ -31,9 +32,6 @@ use Symfony\Component\Messenger\Middleware\StackInterface;
 use Symfony\Component\Messenger\Stamp\BusNameStamp;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Tests\App\Shared\Infrastructure\Messenger\Fake\BackedColour;
-use Tests\App\Shared\Infrastructure\Messenger\Fake\HiddenSecret;
-use Tests\App\Shared\Infrastructure\Messenger\Fake\PureColour;
 
 final class LoggingMiddlewareTest extends TestCase
 {
@@ -48,7 +46,10 @@ final class LoggingMiddlewareTest extends TestCase
         $this->logger = new SpyLogger();
         $this->normalizer = $this->createStub(NormalizerInterface::class);
         $this->normalizer->method('normalize')->willReturn(['field' => 'value']);
-        $this->middleware = new LoggingMiddleware($this->logger, $this->normalizer);
+        $this->middleware = new LoggingMiddleware(
+            $this->logger,
+            new LogPayloadNormalizer($this->normalizer),
+        );
     }
 
     public function testCommandSuccessLogsInfoTwiceAndNoError(): void
@@ -126,66 +127,6 @@ final class LoggingMiddlewareTest extends TestCase
         self::assertSame(\InvalidArgumentException::class, $formatted['exceptions'][0]['type']);
     }
 
-    public function testSensitiveFieldsAreMasked(): void
-    {
-        $this->normalizer = $this->createStub(NormalizerInterface::class);
-        $this->normalizer->method('normalize')->willReturn([
-            'username' => 'admin',
-            'password' => 'secret123',
-            'api_key' => 'abc',
-            'credentials_token' => 'xyz',
-            'private_key' => '-----BEGIN RSA PRIVATE KEY-----',
-            'ssh_private_key_pem' => 'pem-content',
-        ]);
-        $this->middleware = new LoggingMiddleware($this->logger, $this->normalizer);
-
-        $envelope = new Envelope(new \stdClass(), [new BusNameStamp('command.bus')]);
-        $this->middleware->handle($envelope, $this->createPassThroughStack($envelope));
-
-        $payload = $this->logger->infoMessages[0]['context']['payload'];
-        \assert(\is_array($payload));
-        self::assertSame('admin', $payload['username']);
-        self::assertSame('***', $payload['password']);
-        self::assertSame('***', $payload['api_key']);
-        self::assertSame('***', $payload['credentials_token']);
-        self::assertSame('***', $payload['private_key']);
-        self::assertSame('***', $payload['ssh_private_key_pem']);
-    }
-
-    public function testNormalizedObjectsAreSanitisedDefensively(): void
-    {
-        // Pin defense-in-depth on the NormalizerInterface output: if a value
-        // remains an object (no dedicated normalizer for that type, or a VO
-        // that bypassed serialisation), sanitize() must not let it leak into
-        // the log unprocessed. Each supported flavour is rendered without
-        // exposing private state.
-        $this->normalizer = $this->createStub(NormalizerInterface::class);
-        $this->normalizer->method('normalize')->willReturn([
-            'enum_backed' => BackedColour::Red,
-            'enum_unit' => PureColour::Blue,
-            'datetime' => new \DateTimeImmutable('2026-04-30T14:00:00+00:00'),
-            'stringable' => new class () implements \Stringable {
-                public function __toString(): string
-                {
-                    return 'rendered string';
-                }
-            },
-            'plain_object' => new HiddenSecret('should-not-appear'),
-        ]);
-        $this->middleware = new LoggingMiddleware($this->logger, $this->normalizer);
-
-        $envelope = new Envelope(new \stdClass(), [new BusNameStamp('command.bus')]);
-        $this->middleware->handle($envelope, $this->createPassThroughStack($envelope));
-
-        $payload = $this->logger->infoMessages[0]['context']['payload'];
-        \assert(\is_array($payload));
-        self::assertSame('red', $payload['enum_backed']);
-        self::assertSame('Blue', $payload['enum_unit']);
-        self::assertSame('2026-04-30T14:00:00+00:00', $payload['datetime']);
-        self::assertSame('rendered string', $payload['stringable']);
-        self::assertSame('{' . HiddenSecret::class . '}', $payload['plain_object']);
-    }
-
     public function testExceptionChainCapturesAllLevels(): void
     {
         $root = new \LogicException('root cause');
@@ -238,34 +179,6 @@ final class LoggingMiddlewareTest extends TestCase
         self::assertSame('unknown', $this->logger->infoMessages[0]['context']['bus_type']);
     }
 
-    public function testPayloadDeeperThanMaxDepthIsTruncated(): void
-    {
-        // sanitize() walks the payload up to MAX_DEPTH (3) levels — anything
-        // beyond is replaced by the literal '{…}' to bound the log line size
-        // on a recursive structure. Pin the threshold: level 3 (still inside
-        // the limit) keeps content; level 4 collapses to '{…}'.
-        $this->normalizer = $this->createStub(NormalizerInterface::class);
-        $this->normalizer->method('normalize')->willReturn([
-            'l1' => [
-                'l2' => [
-                    'l3' => [
-                        'l4' => 'too deep',
-                    ],
-                ],
-            ],
-        ]);
-        $this->middleware = new LoggingMiddleware($this->logger, $this->normalizer);
-
-        $envelope = new Envelope(new \stdClass(), [new BusNameStamp('command.bus')]);
-        $this->middleware->handle($envelope, $this->createPassThroughStack($envelope));
-
-        $payload = $this->logger->infoMessages[0]['context']['payload'];
-        \assert(\is_array($payload));
-        \assert(\is_array($payload['l1']));
-        \assert(\is_array($payload['l1']['l2']));
-        self::assertSame('{…}', $payload['l1']['l2']['l3']);
-    }
-
     public function testNormalizerThrowingFallsBackAndEmitsWarning(): void
     {
         // Defensive fallback in normalizePayload(): if the NormalizerInterface
@@ -277,7 +190,10 @@ final class LoggingMiddlewareTest extends TestCase
         //      the failure isn't silent in prod logs
         $this->normalizer = $this->createStub(NormalizerInterface::class);
         $this->normalizer->method('normalize')->willThrowException(new \RuntimeException('normalizer down'));
-        $this->middleware = new LoggingMiddleware($this->logger, $this->normalizer);
+        $this->middleware = new LoggingMiddleware(
+            $this->logger,
+            new LogPayloadNormalizer($this->normalizer),
+        );
 
         $envelope = new Envelope(new \stdClass(), [new BusNameStamp('command.bus')]);
         $this->middleware->handle($envelope, $this->createPassThroughStack($envelope));
@@ -304,7 +220,10 @@ final class LoggingMiddlewareTest extends TestCase
         // signals the unexpected return type.
         $this->normalizer = $this->createStub(NormalizerInterface::class);
         $this->normalizer->method('normalize')->willReturn('unexpected scalar payload');
-        $this->middleware = new LoggingMiddleware($this->logger, $this->normalizer);
+        $this->middleware = new LoggingMiddleware(
+            $this->logger,
+            new LogPayloadNormalizer($this->normalizer),
+        );
 
         $envelope = new Envelope(new \stdClass(), [new BusNameStamp('command.bus')]);
         $this->middleware->handle($envelope, $this->createPassThroughStack($envelope));
@@ -316,31 +235,6 @@ final class LoggingMiddlewareTest extends TestCase
         self::assertCount(1, $this->logger->warningMessages);
         self::assertStringContainsString('non-array value', $this->logger->warningMessages[0]['message']);
         self::assertSame('string', $this->logger->warningMessages[0]['context']['returned_type']);
-    }
-
-    public function testStringLongerThanMaxValueLengthIsTruncated(): void
-    {
-        // sanitize() caps every string value at MAX_VALUE_LENGTH (1024) and
-        // appends '…[truncated]' so a payload carrying e.g. a long SQL
-        // fragment cannot blow the log line width. Pin the boundary: 1024
-        // chars passes through, 1025 chars is truncated to 1024 + suffix.
-        $within = str_repeat('a', 1024);
-        $oversize = str_repeat('a', 1025);
-
-        $this->normalizer = $this->createStub(NormalizerInterface::class);
-        $this->normalizer->method('normalize')->willReturn([
-            'within' => $within,
-            'oversize' => $oversize,
-        ]);
-        $this->middleware = new LoggingMiddleware($this->logger, $this->normalizer);
-
-        $envelope = new Envelope(new \stdClass(), [new BusNameStamp('command.bus')]);
-        $this->middleware->handle($envelope, $this->createPassThroughStack($envelope));
-
-        $payload = $this->logger->infoMessages[0]['context']['payload'];
-        \assert(\is_array($payload));
-        self::assertSame($within, $payload['within']);
-        self::assertSame(str_repeat('a', 1024) . '…[truncated]', $payload['oversize']);
     }
 
     public function testDurationMsIsPresentOnHandledAndFailureLogs(): void

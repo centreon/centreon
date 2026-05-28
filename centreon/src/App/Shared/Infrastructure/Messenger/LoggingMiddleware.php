@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace App\Shared\Infrastructure\Messenger;
 
 use App\Shared\Infrastructure\Logging\ExceptionFormatter;
+use App\Shared\Infrastructure\Logging\LogPayloadNormalizer;
+use App\Shared\Infrastructure\Logging\NonArrayNormalizationException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -32,27 +34,13 @@ use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
 use Symfony\Component\Messenger\Stamp\BusNameStamp;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 final readonly class LoggingMiddleware implements MiddlewareInterface
 {
-    /**
-     * Matched via str_contains on the lowercased payload key — intentionally
-     * permissive: any field name that *contains* one of these tokens is
-     * masked (e.g. `oauth_authorization_url`, `password_changed_at`,
-     * `customer_token_id`). Over-masking is preferred to under-masking so a
-     * variant we did not anticipate can't leak a real secret. A future
-     * `#[Sensitive]` / `#[NotSensitive]` attribute layer will let callers
-     * override per-property (tracked in MON-199097).
-     */
-    private const SENSITIVE_KEYWORDS = ['password', 'token', 'secret', 'api_key', 'authorization', 'credential', 'private_key'];
-    private const MAX_DEPTH = 3;
-    private const MAX_VALUE_LENGTH = 1024;
-
     public function __construct(
         #[Autowire(service: 'monolog.logger.bus')]
         private LoggerInterface $logger,
-        private NormalizerInterface $normalizer,
+        private LogPayloadNormalizer $payloadNormalizer,
     ) {
     }
 
@@ -66,10 +54,7 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
         $busType = $this->resolveBusType($envelope);
         $payload = $this->normalizePayload($message);
         $dispatchId = uniqid('', true);
-        // hrtime(true) is monotonic and unaffected by NTP adjustments, the
-        // only suitable clock for a duration measured around an I/O-bound
-        // dispatch. Microtime would drift if the system time stepped
-        // during the handle().
+        // hrtime(true): monotonic, NTP-immune — required for duration sampling.
         $startedAt = hrtime(true);
 
         $this->logger->info(sprintf('Dispatching %s %s', $busType, $class), [
@@ -129,13 +114,7 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
         return round((hrtime(true) - $startedAt) / 1_000_000, 3);
     }
 
-    /**
-     * @return list<string> handler names produced by Messenger HandledStamps —
-     *                      one entry per handler that actually ran. Single-handler
-     *                      buses (command/query) yield a list of size 1; an event
-     *                      bus may yield several. Empty when no handler ran (e.g.
-     *                      a transport-only middleware short-circuited).
-     */
+    /** @return list<string> handler names from HandledStamps in the envelope */
     private function collectHandlers(Envelope $envelope): array
     {
         $names = [];
@@ -155,111 +134,25 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, mixed> the normalised payload, or a class
+     *                              placeholder + warning if normalisation failed
      */
     private function normalizePayload(object $message): array
     {
         try {
-            $data = $this->normalizer->normalize($message);
+            return $this->payloadNormalizer->normalize($message);
+        } catch (NonArrayNormalizationException $e) {
+            $this->logger->warning('Normalizer returned a non-array value for ' . $message::class, [
+                'handler_message' => $message::class,
+                'returned_type' => $e->returnedType,
+            ]);
         } catch (\Throwable $e) {
-            // Surface the normalisation failure so an operator reading
-            // bus.WARN sees that the payload was reduced to a placeholder
-            // (and why), rather than an inexplicably empty payload on a
-            // dispatch info line.
             $this->logger->warning('Normalizer failed for ' . $message::class, [
                 'handler_message' => $message::class,
                 'exception' => ExceptionFormatter::format($e),
             ]);
-
-            return ['__class' => $message::class];
         }
 
-        if (! \is_array($data)) {
-            $this->logger->warning('Normalizer returned a non-array value for ' . $message::class, [
-                'handler_message' => $message::class,
-                'returned_type' => get_debug_type($data),
-            ]);
-
-            return ['__class' => $message::class];
-        }
-
-        /** @var array<string, mixed> */
-        return $this->sanitize($data, 0);
-    }
-
-    private function sanitize(mixed $data, int $depth): mixed
-    {
-        if ($depth >= self::MAX_DEPTH) {
-            return '{…}';
-        }
-
-        if (\is_array($data)) {
-            $result = [];
-            foreach ($data as $key => $value) {
-                if (\is_string($key) && $this->isSensitiveKey($key)) {
-                    $result[$key] = '***';
-
-                    continue;
-                }
-                $result[$key] = $this->sanitize($value, $depth + 1);
-            }
-
-            return $result;
-        }
-
-        if (\is_object($data)) {
-            return $this->sanitizeObject($data);
-        }
-
-        if (\is_string($data) && \mb_strlen($data) > self::MAX_VALUE_LENGTH) {
-            return mb_substr($data, 0, self::MAX_VALUE_LENGTH) . '…[truncated]';
-        }
-
-        return $data;
-    }
-
-    /**
-     * Defense-in-depth for objects NormalizerInterface would otherwise
-     * pass through as-is (DateTime without a dedicated normalizer, Enum,
-     * VO without a custom normalizer). Without this branch, a nested
-     * object could carry an unmasked sensitive property all the way down
-     * to the Monolog LineFormatter.
-     */
-    private function sanitizeObject(object $data): mixed
-    {
-        if ($data instanceof \BackedEnum) {
-            return $data->value;
-        }
-
-        if ($data instanceof \UnitEnum) {
-            return $data->name;
-        }
-
-        if ($data instanceof \DateTimeInterface) {
-            return $data->format(\DateTimeInterface::ATOM);
-        }
-
-        if ($data instanceof \Stringable) {
-            $string = (string) $data;
-
-            return \mb_strlen($string) > self::MAX_VALUE_LENGTH
-                ? mb_substr($string, 0, self::MAX_VALUE_LENGTH) . '…[truncated]'
-                : $string;
-        }
-
-        return '{' . $data::class . '}';
-    }
-
-    private function isSensitiveKey(string $key): bool
-    {
-        $lower = mb_strtolower($key);
-
-        foreach (self::SENSITIVE_KEYWORDS as $keyword) {
-            if (str_contains($lower, $keyword)) {
-                return true;
-            }
-        }
-
-        return false;
+        return ['__class' => $message::class];
     }
 }
