@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Shared\Infrastructure\Logging;
 
+use App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\FingersCrossedHandler;
 use Monolog\Handler\FormattableHandlerInterface;
@@ -33,6 +34,9 @@ use Monolog\Processor\UidProcessor;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bridge\Monolog\Handler\FingersCrossed\HttpCodeActivationStrategy;
+use Symfony\Bridge\Monolog\Processor\RouteProcessor;
+use Symfony\Bridge\Monolog\Processor\TokenProcessor;
+use Symfony\Bridge\Monolog\Processor\WebProcessor;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 #[Group('integration')]
@@ -166,13 +170,14 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
     }
 
     #[DataProvider('everyChannel')]
-    public function testUidProcessorIsStampedOnEveryChannel(string $loggerServiceId): void
+    public function testPlatformProcessorsAreStampedOnEveryChannel(string $loggerServiceId): void
     {
-        // Pin "UidProcessor is registered on every channel logger". The
-        // service is declared in config.new/services/shared.php with
-        // no channel tag, which means MonologBundle attaches it to every
-        // logger. This test guards against an accidental channel-scoped
-        // tag landing on the service in the future.
+        // Pin "the four platform processors are registered on every channel
+        // logger". They are declared in config.new/services/shared.php with
+        // no channel tag (and ExceptionFormatterProcessor via #[AsMonologProcessor]
+        // without channel:), which means MonologBundle attaches each of them
+        // to every logger. This test guards against an accidental channel-
+        // scoped tag landing on any of these services in the future.
         self::bootKernel();
         $container = self::getContainer();
 
@@ -190,11 +195,13 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
             }
         }
 
-        self::assertContains(
-            UidProcessor::class,
-            $processorClasses,
-            sprintf('Logger %s must expose UidProcessor for cross-channel request correlation', $loggerServiceId),
-        );
+        foreach ([UidProcessor::class, ExceptionFormatterProcessor::class, WebProcessor::class, RouteProcessor::class, TokenProcessor::class] as $expected) {
+            self::assertContains(
+                $expected,
+                $processorClasses,
+                sprintf('Logger %s must expose %s (registered globally)', $loggerServiceId, $expected),
+            );
+        }
     }
 
     public function testUidProcessorStampsTheSameValueAcrossChannels(): void
