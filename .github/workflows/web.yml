@@ -1314,7 +1314,7 @@ jobs:
       [
         changes,
         get-environment,
-        newman-test,
+        bruno-api-test,
         e2e-test,
         legacy-e2e-test
       ]
