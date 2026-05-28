@@ -12,6 +12,13 @@ $COMPOSE exec web bash -ex -c "/tmp/fixtures/clapi-import-dataset.sh"
 echo "Import images"
 $COMPOSE exec web bash -ex -c "/tmp/fixtures/sql-import-images.sh"
 
-# Start cron daemon
-echo "Starting crond"
-$COMPOSE exec web systemctl start crond
+# Start cron daemon (service name differs by distribution: crond on RHEL/Alma, cron on Debian/Trixie)
+echo "Starting cron daemon"
+$COMPOSE exec web bash -c '
+if systemctl start crond 2>/dev/null; then
+  echo "Started crond.service"
+else
+  echo "crond.service not available, falling back to cron.service"
+  systemctl start cron
+fi
+'
