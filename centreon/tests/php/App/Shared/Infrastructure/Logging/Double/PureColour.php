@@ -21,10 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\Shared\Infrastructure\Messenger\Fake;
+namespace Tests\App\Shared\Infrastructure\Logging\Double;
 
-enum BackedColour: string
+enum PureColour
 {
-    case Red = 'red';
-    case Blue = 'blue';
+    case Red;
+    case Blue;
 }

@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\Shared\Infrastructure\Messenger\Fake;
+namespace Tests\App\Shared\Infrastructure\Logging\Double;
 
 /**
  * Plain object with no Stringable/Enum/DateTime semantics. Used to pin that

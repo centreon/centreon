@@ -33,9 +33,9 @@ use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Stamp\BusNameStamp;
-use Tests\App\Shared\Infrastructure\Messenger\Fake\FailingStack;
-use Tests\App\Shared\Infrastructure\Messenger\Fake\PassThroughStack;
-use Tests\App\Shared\Infrastructure\Messenger\Fake\SampleCommand;
+use Tests\App\Shared\Infrastructure\Messenger\Double\FailingStack;
+use Tests\App\Shared\Infrastructure\Messenger\Double\PassThroughStack;
+use Tests\App\Shared\Infrastructure\Messenger\Double\SampleCommand;
 
 #[Group('integration')]
 final class LoggingMiddlewareIntegrationTest extends KernelTestCase

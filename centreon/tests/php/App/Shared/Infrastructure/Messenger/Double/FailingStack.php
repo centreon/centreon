@@ -21,28 +21,28 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\Shared\Infrastructure\Messenger\Fake;
+namespace Tests\App\Shared\Infrastructure\Messenger\Double;
 
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
 
-final readonly class PassThroughStack implements StackInterface
+final readonly class FailingStack implements StackInterface
 {
-    public function __construct(private Envelope $envelope)
+    public function __construct(private \Throwable $exception)
     {
     }
 
     public function next(): MiddlewareInterface
     {
-        return new class ($this->envelope) implements MiddlewareInterface {
-            public function __construct(private readonly Envelope $envelope)
+        return new class ($this->exception) implements MiddlewareInterface {
+            public function __construct(private readonly \Throwable $exception)
             {
             }
 
             public function handle(Envelope $envelope, StackInterface $stack): Envelope
             {
-                return $this->envelope;
+                throw $this->exception;
             }
         };
     }

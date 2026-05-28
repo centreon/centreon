@@ -27,9 +27,9 @@ use App\Shared\Infrastructure\Logging\LogPayloadNormalizer;
 use App\Shared\Infrastructure\Logging\NonArrayNormalizationException;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Tests\App\Shared\Infrastructure\Messenger\Fake\BackedColour;
-use Tests\App\Shared\Infrastructure\Messenger\Fake\HiddenSecret;
-use Tests\App\Shared\Infrastructure\Messenger\Fake\PureColour;
+use Tests\App\Shared\Infrastructure\Logging\Double\BackedColour;
+use Tests\App\Shared\Infrastructure\Logging\Double\HiddenSecret;
+use Tests\App\Shared\Infrastructure\Logging\Double\PureColour;
 
 final class LogPayloadNormalizerTest extends TestCase
 {

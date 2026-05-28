@@ -21,10 +21,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\Shared\Infrastructure\Messenger\Fake;
+namespace Tests\App\Shared\Infrastructure\Messenger\Double;
 
-enum PureColour
+final readonly class SampleCommand
 {
-    case Red;
-    case Blue;
+    public function __construct(
+        public string $username,
+        public string $password,
+        public string $description = 'some description',
+    ) {
+    }
 }
