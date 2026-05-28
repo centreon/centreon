@@ -69,7 +69,8 @@ apt-get install -y \
   jq \
   python3 \
   cron \
-  software-properties-common \
+  systemd \
+  systemd-sysv \
   sudo
 
 #############################

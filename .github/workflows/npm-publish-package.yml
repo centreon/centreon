@@ -16,7 +16,7 @@ jobs:
   publish-package:
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      github.repository == 'centreon/centreon'
+      github.event.pull_request.head.repo.fork != true
     needs: [get-environment]
 
     runs-on: ubuntu-24.04

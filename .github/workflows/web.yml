@@ -327,17 +327,15 @@ jobs:
     # needed to deliver sources
     runs-on: ubuntu-24.04
     container:
-      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ needs.get-environment.outputs.major_version }}
-      credentials:
-        username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
-        password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+      image: ghcr.io/centreon/delivery-tooling/translation:${{ needs.get-environment.outputs.major_version }}
 
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
           ref: ${{ github.head_ref || github.ref_name }}
           fetch-depth: 10
-          token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          token: ${{ github.event.pull_request.head.repo.fork == true && secrets.GITHUB_TOKEN || secrets.CENTREON_TECHNIQUE_PAT }}
 
       - name: Build translations
         id: build-translations
@@ -377,7 +375,7 @@ jobs:
           frontend_directory: ${{ env.base_directory }}
           module_name: centreon
           dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-          pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          pat: ${{ github.event.pull_request.head.repo.fork == true && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
           lint_path: ./www/front_src/
 
   frontend-widgets-lint:
@@ -628,7 +626,7 @@ jobs:
           frontend_directory: ${{ env.e2e_directory }}
           module_name: ${{ env.base_directory }}
           dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-          pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          pat: ${{ github.event.pull_request.head.repo.fork == true && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
 
   package:
     needs:
@@ -659,15 +657,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
+        include:
+          - package_extension: rpm
+            tag_suffix: -alma8
+            distrib: el8
+          - package_extension: rpm
+            tag_suffix: -alma9
+            distrib: el9
+          - package_extension: deb
+            tag_suffix: -bookworm
+            distrib: bookworm
 
     name: package ${{ matrix.distrib }}
     runs-on: ubuntu-24.04
     container:
-      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/packaging-nfpm-${{ matrix.operating_system }}:${{ needs.get-environment.outputs.major_version }}
-      credentials:
-        username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
-        password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}${{ matrix.tag_suffix }}
 
     steps:
       - name: Checkout sources
@@ -772,9 +776,9 @@ jobs:
           arch: all
           commit_hash: ${{ github.sha }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
-          rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
-          rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
-          rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
+          rpm_gpg_key: ${{ github.event.pull_request.head.repo.fork != true && secrets.RPM_GPG_SIGNING_KEY || '' }}
+          rpm_gpg_signing_key_id: ${{ github.event.pull_request.head.repo.fork != true && secrets.RPM_GPG_SIGNING_KEY_ID || '' }}
+          rpm_gpg_signing_passphrase: ${{ github.event.pull_request.head.repo.fork != true && secrets.RPM_GPG_SIGNING_PASSPHRASE || '' }}
           stability: ${{ needs.get-environment.outputs.stability }}
           is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
           upload_artifacts: ${{ needs.get-environment.outputs.is_nightly == 'true' || contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
@@ -794,8 +798,7 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      needs.get-environment.outputs.stability != 'stable' &&
-      github.repository == 'centreon/centreon'
+      needs.get-environment.outputs.stability != 'stable'
 
     env:
       project: centreon-web
@@ -856,18 +859,12 @@ jobs:
         shell: bash
 
       - name: Login to registry
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
           password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ github.token }}
 
       - name: Get FROM image tag
         id: from_image_version
@@ -898,7 +895,7 @@ jobs:
           mv *.${{ steps.matrix_include.outputs.package_extension }} packages-centreon/
         shell: bash
 
-      - uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # v3.6.1
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
       - name: Compute docker tags
         id: docker_tags
@@ -931,7 +928,7 @@ jobs:
             "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
           pull: true
-          push: true
+          push: ${{ github.event.pull_request.head.repo.fork != true }}
           load: true
           tags: ${{ steps.docker_tags.outputs.tags }}
 
@@ -943,12 +940,13 @@ jobs:
         shell: bash
 
       - name: Clear previous docker image from cache
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
         run: |
           curl \
             -X DELETE \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.image_tag.outputs.additional_tag || steps.image_tag.outputs.tag }}
+            https://api.github.com/repos/${{ github.repository }}/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.image_tag.outputs.additional_tag || steps.image_tag.outputs.tag }}
         shell: bash
 
       - name: Store slim image in cache
@@ -966,7 +964,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       (needs.get-environment.outputs.stability == 'testing' || needs.get-environment.outputs.is_nightly == 'true') &&
-      github.repository == 'centreon/centreon'
+      github.event.pull_request.head.repo.fork != true
     strategy:
       fail-fast: false
       matrix:
@@ -998,8 +996,7 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      needs.get-environment.outputs.stability != 'stable' &&
-      github.repository == 'centreon/centreon'
+      needs.get-environment.outputs.stability != 'stable'
     strategy:
       fail-fast: false
       matrix:
@@ -1038,8 +1035,7 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      needs.get-environment.outputs.stability != 'stable' &&
-      github.repository == 'centreon/centreon'
+      needs.get-environment.outputs.stability != 'stable'
     strategy:
       fail-fast: false
       matrix:
@@ -1054,6 +1050,7 @@ jobs:
       os: ${{ matrix.operating_system }}
       features_path: features
       test_tags: ${{ matrix.test_tags }}
+      major_version: ${{ needs.get-environment.outputs.major_version }}
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
     secrets:
       registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
@@ -1079,8 +1076,7 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      needs.get-environment.outputs.stability != 'stable' &&
-      github.repository == 'centreon/centreon'
+      needs.get-environment.outputs.stability != 'stable'
     strategy:
       fail-fast: false
       matrix:
@@ -1123,8 +1119,7 @@ jobs:
   #     ! cancelled() &&
   #     ! contains(needs.*.result, 'failure') &&
   #     ! contains(needs.*.result, 'cancelled') &&
-  #     needs.get-environment.outputs.stability != 'stable' &&
-  #     github.repository == 'centreon/centreon'
+  #     needs.get-environment.outputs.stability != 'stable'
   #   strategy:
   #     fail-fast: false
   #     matrix:
@@ -1177,7 +1172,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       github.event_name != 'workflow_dispatch' &&
-      github.repository == 'centreon/centreon' &&
+      github.event.pull_request.head.repo.fork != true &&
       needs.get-environment.outputs.is_cloud == 'false'
 
     steps:
@@ -1209,7 +1204,7 @@ jobs:
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability == 'stable' &&
       github.event_name != 'workflow_dispatch' &&
-      github.repository == 'centreon/centreon'
+      github.event.pull_request.head.repo.fork != true
     steps:
       - name: Checkout sources
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -1295,7 +1290,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       needs.changes.outputs.trigger_delivery == 'true' &&
-      github.repository == 'centreon/centreon'
+      github.event.pull_request.head.repo.fork != true
     strategy:
       matrix:
         distrib: [el8, el9]
@@ -1326,8 +1321,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       needs.changes.outputs.trigger_delivery == 'true' &&
-      github.repository == 'centreon/centreon'
-
+      github.event.pull_request.head.repo.fork != true
     strategy:
       matrix:
         distrib: [bookworm]
@@ -1356,7 +1350,7 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      github.repository == 'centreon/centreon'
+      github.event.pull_request.head.repo.fork != true
     runs-on: ubuntu-24.04
     strategy:
       matrix:
@@ -1392,7 +1386,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [get-environment, deliver-deb, deliver-rpm]
     env:
-      GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      GH_TOKEN: ${{ github.event.pull_request.head.repo.fork == true && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
     if: |
       needs.get-environment.outputs.is_nightly == 'true' &&
       ! cancelled() &&
@@ -1418,7 +1412,7 @@ jobs:
     if: |
       needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
       (failure() || cancelled() || contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) &&
-      github.repository == 'centreon/centreon'
+      github.event.pull_request.head.repo.fork != true
     steps:
       - name: Checkout sources
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
