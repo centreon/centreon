@@ -672,6 +672,9 @@ jobs:
       matrix:
         include:
           - package_extension: rpm
+            tag_suffix: -alma8
+            distrib: el8
+          - package_extension: rpm
             tag_suffix: -alma9
             distrib: el9
           - package_extension: deb
