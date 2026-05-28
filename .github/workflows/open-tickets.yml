@@ -316,9 +316,6 @@ jobs:
           - package_extension: deb
             tag_suffix: -bookworm
             distrib: bookworm
-          # - package_extension: deb
-          #   tag_suffix: -jammy
-          #   distrib: jammy
 
     runs-on: ubuntu-24.04
 
