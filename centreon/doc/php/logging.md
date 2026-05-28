@@ -52,7 +52,7 @@ flowchart LR
     class File out
 ```
 
-Every component lives under `App\Shared\Infrastructure\…` and is wired declaratively in `config.new/packages/messenger.yaml` (middleware) and `config.new/services/monolog.php` (processors + formatter).
+Every component lives under `App\Shared\Infrastructure\…` and is wired declaratively in `config.new/packages/messenger.yaml` (middleware) and `config.new/services/shared.php` (processors + formatter).
 
 ---
 
@@ -232,7 +232,7 @@ Being global, it guarantees a **uniform exception shape** on every channel (catc
 
 ## 6. HTTP / security processors (Web, Route, Token)
 
-`Symfony\Bridge\Monolog\Processor\WebProcessor`, `RouteProcessor` and `TokenProcessor` are registered in `config.new/services/monolog.php` and tagged `monolog.processor` **globally** — same scope as `ExceptionFormatterProcessor` and `UidProcessor`, so every channel carries the same enriched shape.
+`Symfony\Bridge\Monolog\Processor\WebProcessor`, `RouteProcessor` and `TokenProcessor` are registered in `config.new/services/shared.php` and tagged `monolog.processor` **globally** — same scope as `ExceptionFormatterProcessor` and `UidProcessor`, so every channel carries the same enriched shape.
 
 | Processor | Adds to `extra` |
 |-----------|-----------------|
@@ -242,7 +242,7 @@ Being global, it guarantees a **uniform exception shape** on every channel (catc
 
 ### `UidProcessor` — cross-channel correlation
 
-`Monolog\Processor\UidProcessor` is registered in `config.new/services/monolog.php` **with no channel tag** — it therefore applies to **every logger** (request, app, deprecation, authentication, token, password, upgrade, plugin-pack-manager). It generates **a single 7-character hex id per process** and stamps it under `extra.uid` on every record:
+`Monolog\Processor\UidProcessor` is registered in `config.new/services/shared.php` **with no channel tag** — it therefore applies to **every logger** (request, app, deprecation, authentication, token, password, upgrade, plugin-pack-manager). It generates **a single 7-character hex id per process** and stamps it under `extra.uid` on every record:
 
 ```php
 $services->set('monolog.processor.uid', UidProcessor::class)
@@ -444,7 +444,7 @@ when@dev:
                 # ... (same path, formatter, date_format)
 ```
 
-**RFC3339 driven at the service level.** `config.new/services/monolog.php` overrides the `monolog.formatter.line` service with `dateFormat: RFC3339`:
+**RFC3339 driven at the service level.** `config.new/services/shared.php` overrides the `monolog.formatter.line` service with `dateFormat: RFC3339`:
 
 ```php
 $services->set('monolog.formatter.line', LineFormatter::class)
@@ -474,7 +474,7 @@ Consequence: every handler using `monolog.formatter.line` (centreon-web + any mo
 | `bubble: false` | **The record stops after our handler.** Consequence: HTTP exceptions caught by Symfony's `ErrorListener` (`request` channel) **no longer** bubble up to the host's `main` handler (`var/log/{env}.log`). They live only in `var/log/{env}.web.log`. |
 | `priority: 255` | Our handler is executed first in the channel's Monolog stack — combined with `bubble: false`, this guarantees effective isolation. |
 | `path: ...{env}.web.log` | In prod, a fixed `prod.web.log` file (rotation is delegated to `logrotate` on production hosts, cf. `logrotate/centreon`). In dev, the handler is `rotating_file` with a daily suffix. |
-| `formatter: monolog.formatter.line` | Standard Symfony Monolog Bundle service, redefined in `monolog.php` with `dateFormat: RFC3339`. Timestamp format mandated by MON-151077 (e.g. `2025-09-08T15:38:41+02:00`). |
+| `formatter: monolog.formatter.line` | Standard Symfony Monolog Bundle service, redefined in `shared.php` with `dateFormat: RFC3339`. Timestamp format mandated by MON-151077 (e.g. `2025-09-08T15:38:41+02:00`). |
 
 ### File rotation
 

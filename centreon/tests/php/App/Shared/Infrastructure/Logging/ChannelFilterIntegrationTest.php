@@ -169,7 +169,7 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
     public function testUidProcessorIsStampedOnEveryChannel(string $loggerServiceId): void
     {
         // Pin "UidProcessor is registered on every channel logger". The
-        // service is declared in config.new/services/monolog.php with
+        // service is declared in config.new/services/shared.php with
         // no channel tag, which means MonologBundle attaches it to every
         // logger. This test guards against an accidental channel-scoped
         // tag landing on the service in the future.
