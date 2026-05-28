@@ -257,7 +257,7 @@ class Broker extends AbstractObjectJSON
             $object['broker_name'] = $row['config_name'];
             $object['poller_id'] = (int) $this->engine['id'];
             if ($this->engine['uid'] !== null) {
-                $object['poller_uid'] = (int) $this->engine['uid'];
+                $object['uid'] = (int) $this->engine['uid'];
             }
             $object['poller_name'] = $this->engine['name'];
             $object['module_directory'] = (string) $this->engine['broker_modules_path'];
