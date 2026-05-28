@@ -33,21 +33,12 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
 
-    // Per-request correlation id. UidProcessor generates a 7-char hex id
-    // once per process and stamps it under `extra.uid` on every record
-    // emitted on every channel (bus, request, app, security, deprecation,
-    // …). Lets an operator pivot from any single log line to the full
-    // set of records produced by the same HTTP call or CLI invocation
-    // via a single `grep <uid>` across prod.web.log + dedicated files.
-    // No channel tag means the processor applies to every logger.
+    // UidProcessor stamps every record on every channel with one id per
+    // process — single `grep <uid>` across all log files.
     $services->set('monolog.processor.uid', UidProcessor::class)
         ->tag('monolog.processor');
 
-    // HTTP / security context processors attached to the channels that
-    // benefit from extra request scoping (cf. MON-151077). The same set
-    // is applied to `bus`, `request` and `app` so command/query dispatch
-    // logs (LoggingMiddleware), HTTP request logs and generic application
-    // logs all share a consistent shape.
+    // Request/security context on bus + request + app — same shape across the three.
     $services->set('monolog.processor.web', WebProcessor::class)
         ->tag('monolog.processor', ['channel' => 'bus'])
         ->tag('monolog.processor', ['channel' => 'request'])
@@ -64,12 +55,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('monolog.processor', ['channel' => 'request'])
         ->tag('monolog.processor', ['channel' => 'app']);
 
-    // Override the default MonologBundle line formatter to emit the line
-    // timestamp as RFC3339 (cf. MON-151077). Done at service level so
-    // every handler picking `monolog.formatter.line` shares the same
-    // timestamp shape, and so we sidestep the rotating_file pitfall
-    // where handler-level `date_format:` configures the FILENAME suffix
-    // and rejects RFC3339.
+    // RFC3339 timestamp at service level. NOT at handler level on
+    // rotating_file, where `date_format:` configures the FILENAME suffix.
     $services->set('monolog.formatter.line', LineFormatter::class)
         ->arg('$dateFormat', DateTimeInterface::RFC3339);
 };
