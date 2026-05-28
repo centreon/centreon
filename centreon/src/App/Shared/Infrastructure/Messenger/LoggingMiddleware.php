@@ -28,7 +28,6 @@ use App\Shared\Infrastructure\Logging\LogPayloadNormalizer;
 use App\Shared\Infrastructure\Logging\NonArrayNormalizationException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
@@ -38,7 +37,6 @@ use Symfony\Component\Messenger\Stamp\HandledStamp;
 final readonly class LoggingMiddleware implements MiddlewareInterface
 {
     public function __construct(
-        #[Autowire(service: 'monolog.logger.bus')]
         private LoggerInterface $logger,
         private LogPayloadNormalizer $payloadNormalizer,
     ) {

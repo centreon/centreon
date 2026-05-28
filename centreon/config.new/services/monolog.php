@@ -38,22 +38,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set('monolog.processor.uid', UidProcessor::class)
         ->tag('monolog.processor');
 
-    // Request/security context on bus + request + app — same shape across the three.
+    // Request/security context globally — every log file (catch-all and
+    // dedicated) gets the HTTP shape when a request is in scope; CLI
+    // workers see empty values, never problematic noise.
     $services->set('monolog.processor.web', WebProcessor::class)
-        ->tag('monolog.processor', ['channel' => 'bus'])
-        ->tag('monolog.processor', ['channel' => 'request'])
-        ->tag('monolog.processor', ['channel' => 'app']);
+        ->tag('monolog.processor');
 
     $services->set('monolog.processor.route', RouteProcessor::class)
-        ->tag('monolog.processor', ['channel' => 'bus'])
-        ->tag('monolog.processor', ['channel' => 'request'])
-        ->tag('monolog.processor', ['channel' => 'app']);
+        ->tag('monolog.processor');
 
     $services->set('monolog.processor.token', TokenProcessor::class)
         ->arg('$tokenStorage', service('security.token_storage'))
-        ->tag('monolog.processor', ['channel' => 'bus'])
-        ->tag('monolog.processor', ['channel' => 'request'])
-        ->tag('monolog.processor', ['channel' => 'app']);
+        ->tag('monolog.processor');
 
     // RFC3339 timestamp at service level. NOT at handler level on
     // rotating_file, where `date_format:` configures the FILENAME suffix.

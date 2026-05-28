@@ -7,8 +7,6 @@ monolog:
         - password
         - upgrade
         - plugin-pack-manager
-        # Dedicated logger so modules can attach their own bus handlers.
-        - bus
 
     # Declared at top level so integration tests resolve the service in any env.
     handlers:
@@ -145,13 +143,6 @@ when@test:
                 level: critical
                 formatter: monolog.formatter.line
                 date_format: !php/const DateTimeInterface::RFC3339
-            # In-memory bus capture for tests (no disk write — see bubble: false).
-            bus_test:
-                type: test
-                channels: [bus]
-                level: debug
-                bubble: false
-                priority: 256
 
 when@prod:
     monolog:

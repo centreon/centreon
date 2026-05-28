@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2026 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,16 +23,16 @@ declare(strict_types=1);
 
 namespace Tests\App\Shared\Infrastructure\Messenger;
 
+use App\Shared\Infrastructure\Logging\LogPayloadNormalizer;
 use App\Shared\Infrastructure\Messenger\LoggingMiddleware;
 use Monolog\Handler\TestHandler;
 use Monolog\Level;
+use Monolog\Logger;
 use Monolog\LogRecord;
 use PHPUnit\Framework\Attributes\Group;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Stamp\BusNameStamp;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Tests\App\Shared\Infrastructure\Messenger\Fake\FailingStack;
 use Tests\App\Shared\Infrastructure\Messenger\Fake\PassThroughStack;
 use Tests\App\Shared\Infrastructure\Messenger\Fake\SampleCommand;
@@ -49,18 +49,17 @@ final class LoggingMiddlewareIntegrationTest extends KernelTestCase
         self::bootKernel();
         $container = self::getContainer();
 
-        $logger = $container->get('monolog.logger.bus');
-        \assert($logger instanceof LoggerInterface);
+        $logger = $container->get('monolog.logger.app');
+        \assert($logger instanceof Logger);
 
-        $normalizer = $container->get(NormalizerInterface::class);
-        \assert($normalizer instanceof NormalizerInterface);
+        // Push a TestHandler on the app logger to capture records in-memory.
+        $this->testHandler = new TestHandler();
+        $logger->pushHandler($this->testHandler);
 
-        $this->middleware = new LoggingMiddleware($logger, $normalizer);
+        $payloadNormalizer = $container->get(LogPayloadNormalizer::class);
+        \assert($payloadNormalizer instanceof LogPayloadNormalizer);
 
-        $testHandler = $container->get('monolog.handler.bus_test');
-        \assert($testHandler instanceof TestHandler);
-        $this->testHandler = $testHandler;
-        $this->testHandler->clear();
+        $this->middleware = new LoggingMiddleware($logger, $payloadNormalizer);
     }
 
     public function testSuccessfulCommandProducesDispatchAndHandledInfoLogs(): void
@@ -74,11 +73,11 @@ final class LoggingMiddlewareIntegrationTest extends KernelTestCase
         self::assertCount(2, $infoRecords);
         self::assertStringContainsString('Dispatching', $infoRecords[0]->message);
         self::assertStringContainsString('Handled', $infoRecords[1]->message);
-        self::assertSame('command', $infoRecords[0]->context['bus_type']);
+        self::assertSame('command.bus', $infoRecords[0]->context['bus_type']);
         self::assertSame(SampleCommand::class, $infoRecords[0]->context['handler_message']);
     }
 
-    public function testFailedCommandProducesErrorLogWithExceptionChain(): void
+    public function testFailedCommandProducesCriticalLogWithExceptionChain(): void
     {
         $root = new \LogicException('root cause');
         $top = new \RuntimeException('handler failed', 0, $root);
@@ -90,11 +89,11 @@ final class LoggingMiddlewareIntegrationTest extends KernelTestCase
         } catch (\RuntimeException) {
         }
 
-        $errorRecords = $this->errorRecords();
-        self::assertCount(1, $errorRecords);
-        self::assertStringContainsString('Failed', $errorRecords[0]->message);
+        $criticalRecords = $this->criticalRecords();
+        self::assertCount(1, $criticalRecords);
+        self::assertStringContainsString('Failed', $criticalRecords[0]->message);
 
-        $exception = $errorRecords[0]->context['exception'];
+        $exception = $criticalRecords[0]->context['exception'];
         \assert(\is_array($exception));
         \assert(\is_array($exception['exceptions']));
         self::assertCount(2, $exception['exceptions'], 'root + 1 nested cause');
@@ -118,12 +117,12 @@ final class LoggingMiddlewareIntegrationTest extends KernelTestCase
         self::assertSame('some description', $payload['description']);
     }
 
-    public function testQueryBusTypeIsResolved(): void
+    public function testQueryBusNameIsPropagatedAsIs(): void
     {
         $envelope = new Envelope(new SampleCommand('admin', 'x'), [new BusNameStamp('query.bus')]);
         $this->middleware->handle($envelope, new PassThroughStack($envelope));
 
-        self::assertSame('query', $this->infoRecords()[0]->context['bus_type']);
+        self::assertSame('query.bus', $this->infoRecords()[0]->context['bus_type']);
     }
 
     /**
@@ -142,12 +141,12 @@ final class LoggingMiddlewareIntegrationTest extends KernelTestCase
     /**
      * @return list<LogRecord>
      */
-    private function errorRecords(): array
+    private function criticalRecords(): array
     {
         return array_values(
             array_filter(
                 $this->testHandler->getRecords(),
-                static fn (LogRecord $record): bool => $record->level === Level::Error,
+                static fn (LogRecord $record): bool => $record->level === Level::Critical,
             )
         );
     }

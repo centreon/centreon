@@ -26,9 +26,7 @@ namespace App\Shared\Infrastructure\Logging;
 use Monolog\Attribute\AsMonologProcessor;
 use Monolog\LogRecord;
 
-#[AsMonologProcessor(channel: 'bus')]
-#[AsMonologProcessor(channel: 'request')]
-#[AsMonologProcessor(channel: 'app')]
+#[AsMonologProcessor]
 final readonly class ExceptionFormatterProcessor
 {
     public function __invoke(LogRecord $record): LogRecord

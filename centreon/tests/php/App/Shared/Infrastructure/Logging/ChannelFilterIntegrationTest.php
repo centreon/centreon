@@ -49,8 +49,6 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
      */
     public static function capturedChannels(): iterable
     {
-        yield 'bus channel' => ['monolog.logger.bus'];
-
         yield 'request channel' => ['monolog.logger.request'];
 
         yield 'app channel (default)' => ['monolog.logger'];
@@ -152,12 +150,10 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
      */
     public static function everyChannel(): iterable
     {
-        // Cross-channel set: the bus/request/app trio gets the HTTP
-        // processors via channel-scoped tags, but UidProcessor is
-        // declared globally — so it must land on every channel logger
-        // including the dedicated MON-151077 ones.
-        yield 'bus channel' => ['monolog.logger.bus'];
-
+        // Cross-channel set: the request/app pair gets the HTTP processors
+        // via channel-scoped tags, but UidProcessor is declared globally —
+        // so it must land on every channel logger including the dedicated
+        // MON-151077 ones.
         yield 'request channel' => ['monolog.logger.request'];
 
         yield 'app channel (default)' => ['monolog.logger'];
@@ -211,28 +207,28 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
         self::bootKernel();
         $container = self::getContainer();
 
-        $busLogger = $container->get('monolog.logger.bus');
-        \assert($busLogger instanceof Logger);
-        $busTestHandler = new TestHandler();
-        $busLogger->pushHandler($busTestHandler);
+        $requestLogger = $container->get('monolog.logger.request');
+        \assert($requestLogger instanceof Logger);
+        $requestTestHandler = new TestHandler();
+        $requestLogger->pushHandler($requestTestHandler);
 
         $appLogger = $container->get('monolog.logger');
         \assert($appLogger instanceof Logger);
         $appTestHandler = new TestHandler();
         $appLogger->pushHandler($appTestHandler);
 
-        $busLogger->info('from bus');
+        $requestLogger->info('from request');
         $appLogger->info('from app');
 
-        self::assertCount(1, $busTestHandler->getRecords());
+        self::assertCount(1, $requestTestHandler->getRecords());
         self::assertCount(1, $appTestHandler->getRecords());
-        $busRecord = $busTestHandler->getRecords()[0];
+        $requestRecord = $requestTestHandler->getRecords()[0];
         $appRecord = $appTestHandler->getRecords()[0];
 
-        self::assertArrayHasKey('uid', $busRecord->extra);
+        self::assertArrayHasKey('uid', $requestRecord->extra);
         self::assertArrayHasKey('uid', $appRecord->extra);
         self::assertSame(
-            $busRecord->extra['uid'],
+            $requestRecord->extra['uid'],
             $appRecord->extra['uid'],
             'Records emitted in the same process on different channels must share the same UidProcessor uid',
         );
