@@ -87,9 +87,11 @@ export const PollerSubMenu = ({
         </ListItem>
       )}
 
-      <ListItem className="p-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-divider">
-        <FederatedComponent path="/cloud-extensions" />
-      </ListItem>
+      {platformFeatures?.isCloudPlatform && (
+        <ListItem className="p-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-divider">
+          <FederatedComponent path="/cloud-extensions" />
+        </ListItem>
+      )}
 
       {isCreatePollerDisplayed && (
         <ListItem className="p-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-divider">
