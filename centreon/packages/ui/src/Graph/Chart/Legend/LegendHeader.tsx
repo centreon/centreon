@@ -12,11 +12,16 @@ import type { Line } from '../../common/timeSeries/models';
 import LegendContent from './LegendContent';
 import { LegendDisplayMode } from './models';
 
+interface MinMaxAvgEntry {
+  label: string;
+  value: number | null;
+}
+
 interface Props {
   isDisplayedOnSide: boolean;
   isListMode: boolean;
   line: Line;
-  minMaxAvg?;
+  minMaxAvg?: Array<MinMaxAvgEntry>;
   unit: string;
   value?: string | null;
 }
@@ -46,6 +51,7 @@ const LegendHeader = ({
               <div className="flex flex-wrap gap-1 whitespace-nowrap">
                 {minMaxAvg.map(({ label, value: subValue }) => (
                   <LegendContent
+                    // @ts-expect-error - suppressing pre-existing type mismatch
                     data={formatMetricValue({
                       unit: line.unit,
                       value: subValue

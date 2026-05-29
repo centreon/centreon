@@ -1,0 +1,180 @@
+name: docker-trapd
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/docker/centreon-snmptrapd/**'
+      - '.github/docker/centreon-centreontrapd/**'
+      - 'centreon/packaging/centreon-trap.yaml'
+      - 'centreon/bin/centreontrapd'
+      - 'centreon/bin/centreontrapdforward'
+
+jobs:
+  get-environment:
+    if: github.repository == 'centreon/centreon'
+    uses: ./.github/workflows/get-environment.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
+  package-centreon-trap:
+    needs: [get-environment]
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
+    runs-on: ubuntu-24.04
+    container:
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/packaging-nfpm-bookworm:${{ needs.get-environment.outputs.major_version }}
+      credentials:
+        username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+        password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+    name: package centreon-trap bookworm
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Package centreon-trap
+        uses: ./.github/actions/package-nfpm
+        with:
+          nfpm_file_pattern: "centreon/packaging/centreon-trap.yaml"
+          module_name: "centreon"
+          distrib: bookworm
+          package_extension: deb
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          minor_version: ${{ needs.get-environment.outputs.minor_version }}
+          release: ${{ needs.get-environment.outputs.release }}
+          arch: all
+          commit_hash: ${{ github.sha }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-bookworm-trap
+          rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
+          rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
+          rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
+          php_version: ${{ needs.get-environment.outputs.php_version }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+
+  package-perl-libs:
+    needs: [get-environment]
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
+    runs-on: ubuntu-24.04
+    container:
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/packaging-nfpm-bookworm:${{ needs.get-environment.outputs.major_version }}
+      credentials:
+        username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+        password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+    name: package centreon-perl-libs bookworm
+
+    steps:
+      - name: Checkout sources (centreon/centreon for actions)
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Checkout centreon-collect (for perl-libs packaging)
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          repository: centreon/centreon-collect
+          ref: ${{ needs.get-environment.outputs.linked_dev_branch || github.ref_name }}
+          path: centreon-collect
+
+      - name: Set PERL_VENDORLIB for deb
+        run: echo "PERL_VENDORLIB=/usr/share/perl5" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Package centreon-perl-libs
+        uses: ./.github/actions/package-nfpm
+        with:
+          nfpm_file_pattern: "centreon-collect/perl-libs/packaging/centreon-perl-libs.yaml centreon-collect/perl-libs/packaging/centreon-perl-libs-common.yaml"
+          module_name: "centreon-collect"
+          distrib: bookworm
+          package_extension: deb
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          minor_version: ${{ needs.get-environment.outputs.minor_version }}
+          release: ${{ needs.get-environment.outputs.release }}
+          arch: all
+          commit_hash: ${{ github.sha }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-bookworm-perl
+          rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
+          rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
+          rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
+          php_version: ${{ needs.get-environment.outputs.php_version }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+
+  dockerize:
+    needs: [get-environment, package-centreon-trap, package-perl-libs]
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [centreon-snmptrapd, centreon-centreontrapd]
+        operating_system: [bookworm]
+    name: dockerize ${{ matrix.component }}-${{ matrix.operating_system }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Login to registry
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
+
+      - name: Parse distrib name
+        id: parse-distrib
+        uses: ./.github/actions/parse-distrib
+        with:
+          distrib: ${{ matrix.operating_system }}
+
+      - name: Restore centreon-trap package
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ./*.${{ steps.parse-distrib.outputs.package_extension }}
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.parse-distrib.outputs.package_extension }}-${{ matrix.operating_system }}-trap
+          fail-on-cache-miss: true
+
+      - name: Restore centreon-perl-libs packages
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ./*.${{ steps.parse-distrib.outputs.package_extension }}
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.parse-distrib.outputs.package_extension }}-${{ matrix.operating_system }}-perl
+          fail-on-cache-miss: true
+
+      - name: Prepare packages-centreon directory
+        run: |
+          mkdir -p packages-centreon
+          mv *.${{ steps.parse-distrib.outputs.package_extension }} packages-centreon/
+        shell: bash
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+
+      - name: Sanitize Docker tag
+        id: sanitize-tag
+        run: |
+          raw_tag="${{ github.head_ref || github.ref_name }}"
+          docker_tag=$(echo "$raw_tag" | sed 's/[^A-Za-z0-9._-]/-/g' | sed 's/^[^A-Za-z0-9]*//' | cut -c1-128)
+          if [ -z "$docker_tag" ]; then
+            docker_tag="sha-${GITHUB_SHA::12}"
+          fi
+          echo "docker_tag=$docker_tag" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Docker build and push
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        env:
+          DOCKER_BUILD_CHECKS_ANNOTATIONS: false
+          DOCKER_BUILD_SUMMARY: false
+          DOCKER_BUILD_RECORD_UPLOAD: false
+        with:
+          context: .
+          file: .github/docker/${{ matrix.component }}/${{ matrix.operating_system }}/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          pull: true
+          push: true
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}:${{ steps.sanitize-tag.outputs.docker_tag }}

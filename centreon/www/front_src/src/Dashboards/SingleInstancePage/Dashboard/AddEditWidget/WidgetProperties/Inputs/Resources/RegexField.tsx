@@ -9,12 +9,19 @@ import {
 } from '../../../../translatedLabels';
 import { useResourceStyles } from '../Inputs.styles';
 
+interface RegexFieldProps {
+  changeRegexFieldOnResourceType: () => void;
+  changeRegexField: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  resourceType: string;
+  value: string;
+}
+
 const RegexField = ({
   changeRegexFieldOnResourceType,
   changeRegexField,
   resourceType,
   value
-}): JSX.Element => {
+}: RegexFieldProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useResourceStyles();
 

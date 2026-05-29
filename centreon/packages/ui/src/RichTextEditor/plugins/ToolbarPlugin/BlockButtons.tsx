@@ -38,7 +38,7 @@ const blockTypes = ['h3', 'h5', 'paragraph', 'h6'];
 
 const blockTypeOptions = blockTypes.map((blockType) => ({
   id: blockType,
-  name: blockTypeToBlockName[blockType]
+  name: blockTypeToBlockName[blockType as keyof typeof blockTypeToBlockName]
 }));
 
 const BlockButtons = ({ disabled }: Props): JSX.Element => {
@@ -68,8 +68,8 @@ const BlockButtons = ({ disabled }: Props): JSX.Element => {
     }
   };
 
-  const changeBlockType = (newBlockType): void => {
-    const formatFunction = cond<Array<string>, (value?) => void>([
+  const changeBlockType = (newBlockType: string): void => {
+    const formatFunction = cond<Array<string>, (value?: unknown) => void>([
       [equals('h3'), always(() => formatHeading('h3'))],
       [equals('h5'), always(() => formatHeading('h5'))],
       [equals('h6'), always(() => formatHeading('h6'))],
@@ -81,6 +81,7 @@ const BlockButtons = ({ disabled }: Props): JSX.Element => {
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
+    // @ts-expect-error - suppressing pre-existing type mismatch
     const anchorNode = selection?.anchor.getNode();
     const element = equals(anchorNode?.getKey(), 'root')
       ? anchorNode

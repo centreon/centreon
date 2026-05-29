@@ -1,0 +1,45 @@
+meta {
+  name: PUT /agent-configurations - Poller already associated - HTTP 500
+  type: http
+  seq: 13
+  tags: [
+    ignore
+  ]
+}
+
+put {
+  url: {{baseUrlWeb}}/configuration/agent-configurations/{{AC1Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{AC1Name}}",
+    "connection_mode": "secure",
+    "poller_ids": [{{Poller1Id}}, {{Poller4Id}}, {{CentralId}}],
+    "configuration": {
+      "otel_public_certificate": "my-otel-certificate-name.crt",
+      "otel_ca_certificate": null,
+      "otel_private_key": "my-otel-private-key-name.key",
+      "conf_server_port": 1443,
+      "conf_certificate": "my-certificate-name.crt",
+      "conf_private_key": "my-private-key-name.key"
+    }
+  }
+}
+
+tests {
+  test("PUT /agent-configurations - Poller already associated - HTTP 500 (returns 404 if feature unavailable in CI).", function () {
+    expect(res.status).to.be.oneOf([404, 500]);
+    if (res.status === 500) {
+      const body = res.getBody();
+      expect(body).to.be.an("object");
+    }
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -6,7 +6,8 @@ services:
     image: "${WEB_IMAGE:-docker.centreon.com/centreon/centreon-web-alma9:develop}"
     ports: ["4000:80"]
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       MYSQL_HOST: db
       GLPI_HOST: glpi
@@ -30,11 +31,18 @@ services:
       - .env
     image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:10.11}"
     ports: ["3306"]
+    environment:
+      MARIADB_EXTRA_FLAGS: "--skip-ssl"
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/3306 && sleep 3 && </dev/tcp/127.0.0.1/3306'"]
+      interval: 10s
+      timeout: 15s
+      retries: 20
     deploy:
       resources:
         limits:
           cpus: '2'
-          memory: 400M
+          memory: 1G
         reservations:
           cpus: '0.25'
           memory: 100M
@@ -83,7 +91,7 @@ services:
     profiles: ["saml"]
 
   openldap:
-    image: docker.centreon.com/centreon/mon-openldap:latest
+    image: "${LDAP_IMAGE:-ghcr.io/centreon/centreon/ldap:26.05}"
     ports: ["389"]
     profiles: ["openldap", "ldap"]
 
@@ -98,7 +106,7 @@ services:
     profiles: ["squid-basic-auth"]
 
   mediawiki:
-    image: docker.centreon.com/centreon/mon-mediawiki-22.10:latest
+    image: "${MEDIAWIKI_IMAGE:-ghcr.io/centreon/centreon/mediawiki:26.05}"
     ports: ["80"]
     profiles: ["mediawiki"]
 
@@ -118,7 +126,6 @@ services:
       MYSQL_HOST: db-remote
       CENTREON_DATASET: 0
       CENTREON_LANG: ${CENTREON_LANG:-en_US}
-      DATABASE_PARTITIONING: 0
       DEBUG: ${DEBUG:-0}
       CENTRAL_HOST: web
       CENTRAL_API_USERNAME: ${CENTRAL_API_USERNAME:-admin}
@@ -139,6 +146,8 @@ services:
     image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:10.11}"
     ports: ["3306"]
     profiles: ["remote-server"]
+    environment:
+      MARIADB_EXTRA_FLAGS: "--skip-ssl"
     deploy:
       resources:
         limits:

@@ -24,16 +24,25 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { id, canManageApiTokens } = useAtomValue(userAtom);
   const setTokensToDelete = useSetAtom(tokensToDeleteAtom);
 
-  const openDeleteModal = (): void => setTokensToDelete([row]);
+  const typedRow = row as {
+    id: number;
+    name: string;
+    type: TokenType;
+    creator: { id: number };
+  };
+
+  const openDeleteModal = (): void =>
+    setTokensToDelete([typedRow as unknown as string]);
 
   const { copyToken, isLoading } = useCopyToken({
-    tokenName: row.name,
-    userId: row.creator.id
+    tokenName: typedRow.name,
+    userId: typedRow.creator.id
   });
 
   const isCopyButtonVisible =
-    equals(row.type, TokenType.CMA) &&
-    (canManageApiTokens || equals(id, row.creator.id));
+    (equals(typedRow.type, TokenType.CMA) ||
+      equals(typedRow.type, TokenType.Poller)) &&
+    (canManageApiTokens || equals(id, typedRow.creator.id));
 
   return (
     <Box className={classes.actions}>

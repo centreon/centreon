@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Security\AgentConfigurationPermissionEnum
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ConnectorPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\GlobalMacroPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\PollerPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ServiceCategoryPermissionEnum;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
@@ -58,6 +59,8 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
      * @var array<string, string>
      */
     private const LEGACY_ROLE_MAP = [
+        // pollers
+        'create_edit_poller_cfg' => PollerPermissionEnum::CanCreateEdit->value,
         // commands
         'see_check_commands' => CommandPermissionEnum::CanReadChecks->value,
         'manage_check_commands' => CommandPermissionEnum::CanReadAndWriteChecks->value,
@@ -87,6 +90,7 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
         }
 
         if ($isAdmin) {
+            $credential->assignRole(new Role('ROLE_ADMIN'));
             foreach (array_keys(self::LEGACY_ROLE_MAP) as $roleString) {
                 $credential->grantPermission(new Permission(self::LEGACY_ROLE_MAP[$roleString]));
             }

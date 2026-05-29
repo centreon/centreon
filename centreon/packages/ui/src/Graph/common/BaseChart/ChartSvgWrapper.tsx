@@ -1,6 +1,7 @@
 import { Group } from '@visx/visx';
+import type { ScaleBand, ScaleLinear, ScaleTime } from 'd3-scale';
 import { equals } from 'ramda';
-import type { MutableRefObject, ReactElement } from 'react';
+import type { MutableRefObject, ReactElement, ReactNode } from 'react';
 
 import { margin } from '../../Chart/common';
 import type { ChartAxis } from '../../Chart/models';
@@ -14,18 +15,21 @@ interface Props {
   allUnits: Array<string>;
   axis?: ChartAxis;
   base?: number;
-  children: JSX.Element;
+  children: ReactNode;
   displayedLines: Array<Line>;
   graphHeight: number;
   graphWidth: number;
   gridLinesType?: string;
-  leftScale;
+  leftScale: ScaleLinear<number, number>;
   orientation?: 'horizontal' | 'vertical';
-  rightScale;
+  rightScale: ScaleLinear<number, number>;
   showGridLines: boolean;
   svgRef: MutableRefObject<SVGSVGElement | null>;
   timeSeries: Array<TimeValue>;
-  xScale;
+  xScale:
+    | ScaleTime<number, number>
+    | ScaleLinear<number, number>
+    | ScaleBand<number>;
   maxAxisCharacters?: number;
   hasSecondUnit?: boolean;
   title?: string;
@@ -77,6 +81,7 @@ const ChartSvgWrapper = ({
       >
         {showGridLines && (canRenderGridRows || canRenderGridColumns) && (
           <Grids
+            // @ts-expect-error - suppressing pre-existing type mismatch
             gridLinesType={gridLinesType}
             height={graphHeight - margin.bottom}
             leftScale={isHorizontal ? leftScale : xScale}

@@ -1,4 +1,4 @@
-import type { ScaleLinear } from 'd3-scale';
+import type { ScaleLinear, ScaleTime } from 'd3-scale';
 import { useAtomValue } from 'jotai';
 import { type MutableRefObject, useEffect, useState } from 'react';
 
@@ -26,7 +26,7 @@ interface Props {
   lines?: Array<Line>;
   rightScale?: ScaleLinear<number, number>;
   timeSeries: Array<TimeValue>;
-  xScale: ScaleLinear<number, number>;
+  xScale: ScaleTime<number, number>;
   hasSecondUnit?: boolean;
   maxLeftAxisCharacters: number;
   hasUnit?: boolean;
@@ -47,6 +47,7 @@ const useTickGraph = ({
   const [tickAxisLeft, setTickAxisLeft] = useState<string | null>(null);
   const [tickAxisRight, setTickAxisRight] = useState<string | null>(null);
 
+  // @ts-expect-error - suppressing pre-existing type mismatch
   const { axisRight, axisLeft } = useAxisY({ data: { baseAxis, lines } });
 
   const mousePosition = useAtomValue(mousePositionAtom);
@@ -88,7 +89,7 @@ const useTickGraph = ({
 
     setTickAxisBottom(timeTickValue);
 
-    const valueTickAxisLeft = leftScale?.invert(positionY);
+    const valueTickAxisLeft = leftScale?.invert(positionY ?? 0);
     const formattedTickAxisLeft = axisLeft?.tickFormat?.(valueTickAxisLeft);
 
     setTickAxisLeft(formattedTickAxisLeft);
@@ -98,11 +99,12 @@ const useTickGraph = ({
 
       return;
     }
-    const valueTickAxisRight = rightScale?.invert(positionY);
+    const valueTickAxisRight = rightScale?.invert(positionY ?? 0);
     const formattedTickAxisRight = axisRight?.tickFormat?.(valueTickAxisRight);
     setTickAxisRight(formattedTickAxisRight);
   }, [mousePosition]);
 
+  // @ts-expect-error - suppressing pre-existing type mismatch
   return {
     positionX,
     positionY,

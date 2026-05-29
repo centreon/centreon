@@ -1,0 +1,85 @@
+meta {
+  name: POST /hosts/templates - Create host template - HTTP 201
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/templates
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostTemplate1Name}}",
+    "alias": "{{HostTemplate1Alias}}",
+    "snmp_version": "2c",
+    "timezone_id": 1,
+    "check_timeperiod_id": null,
+    "note_url": "noteUrl-value",
+    "note": "note-value",
+    "action_url": "actionUrl-value",
+    "max_check_attempts": 3,
+    "normal_check_interval": 5,
+    "retry_check_interval": 2,
+    "icon_id": 1,
+    "macros": [
+      {
+        "name": "nameA",
+        "value": "valueA",
+        "is_password": false,
+        "description": "some text"
+      },
+      {
+        "name": "nameB",
+        "value": "valueB",
+        "is_password": true,
+        "description": null
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The host template has been successfully created.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("HostTemplate1Id", body.id);
+    expect(body).to.include({
+      "id": body.id,
+      "name": bru.getEnvVar("HostTemplate1Name"),
+      "alias": bru.getEnvVar("HostTemplate1Alias"),
+      "timezone_id": 1,
+      "note_url": "noteUrl-value",
+      "note": "note-value",
+      "action_url": "actionUrl-value",
+      "max_check_attempts": 3,
+      "normal_check_interval": 5,
+      "retry_check_interval": 2,
+      "icon_id": 1
+    });
+    const macroNameA = body.macros.find(m => m.name === "NAMEA");
+    expect(macroNameA).to.include({
+      "name": "NAMEA",
+      "value": "valueA",
+      "is_password": false,
+      "description": "some text"
+    });
+    const macroNameB = body.macros.find(m => m.name === "NAMEB");
+    expect(macroNameB).to.include({
+      "name": "NAMEB",
+      "value": null,
+      "is_password": true,
+      "description": null
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

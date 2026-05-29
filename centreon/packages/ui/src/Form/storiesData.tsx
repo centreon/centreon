@@ -327,9 +327,10 @@ export const basicFormInputs: Array<InputProps> = [
         {
           connectedAutocomplete: {
             additionalConditionParameters: [],
+            customQueryParameters: [],
             endpoint: 'endpoint',
             helperText: 'Hello I am testing'
-          },
+          } as InputProps['connectedAutocomplete'],
           fieldName: 'group',
           label: 'Group (Single connected autocomplete)',
           type: InputType.SingleConnectedAutocomplete
@@ -337,8 +338,9 @@ export const basicFormInputs: Array<InputProps> = [
         {
           connectedAutocomplete: {
             additionalConditionParameters: [],
+            customQueryParameters: [],
             endpoint: 'endpoint'
-          },
+          } as InputProps['connectedAutocomplete'],
           fieldName: 'animals',
           label: 'Animals (Multi connected autocomplete)',
           type: InputType.MultiConnectedAutocomplete
@@ -461,6 +463,7 @@ export const basicFormInputs: Array<InputProps> = [
     fieldName: 'file',
     file: {
       accept: 'image/*',
+      CustomDropZoneContent: ({ files }) => <div>{files?.length} files</div>,
       multiple: true
     },
     group: 'First group',
@@ -480,7 +483,7 @@ export const CustomButton = (): JSX.Element => {
   );
 };
 
-const buildEntities = (from): Array<SelectEntry> => {
+const buildEntities = (from: number): Array<SelectEntry> => {
   return Array(10)
     .fill(0)
     .map((_, index) => ({
@@ -489,7 +492,7 @@ const buildEntities = (from): Array<SelectEntry> => {
     }));
 };
 
-export const buildResult = (page): Listing<SelectEntry> => ({
+export const buildResult = (page: number): Listing<SelectEntry> => ({
   meta: {
     limit: 10,
     page,

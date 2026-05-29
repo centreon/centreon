@@ -146,8 +146,13 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
     {
         return [
             'port' => $port,
-            'agent_initiated' => false,
+            'agent_initiated' => true,
             'poller_initiated' => false,
+            'otel_public_certificate' => null,
+            'otel_private_key' => null,
+            'otel_ca_certificate' => null,
+            'tokens' => [],
+            'hosts' => [],
         ];
     }
 
@@ -169,6 +174,7 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
             'name' => $name,
             'localhost' => '0',
             'ns_ip_address' => self::POLLER_ADDRESS,
+            'uid' => random_int(100000000000001, 999999999999999),
         ]);
 
         return (int) $connection->lastInsertId();

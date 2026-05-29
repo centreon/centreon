@@ -20,7 +20,7 @@ interface UseListState {
   sortedList: Array<unknown>;
 }
 
-export const useList = ({ fieldName }): UseListState => {
+export const useList = ({ fieldName }: { fieldName: string }): UseListState => {
   const { values, setFieldValue } = useFormikContext<FormikValues>();
   const maxOrder = useRef(0);
 
@@ -28,10 +28,12 @@ export const useList = ({ fieldName }): UseListState => {
 
   const sortedList = useMemo(
     () =>
-      sortBy(prop('order'), list).map(({ id, ...props }) => ({
-        id: `${id}`,
-        ...props
-      })),
+      sortBy(prop('order') as (a: Record<string, unknown>) => number, list).map(
+        ({ id, ...props }: Record<string, unknown>) => ({
+          id: `${id}`,
+          ...props
+        })
+      ),
     [list]
   );
 
@@ -50,14 +52,18 @@ export const useList = ({ fieldName }): UseListState => {
   };
 
   const deleteItem = (id: string) => (): void => {
-    const newItems = reject((item) => equals(Number(id), item.id))(list);
+    const newItems = reject((item: Record<string, unknown>) =>
+      equals(Number(id), item.id)
+    )(list);
 
     setFieldValue(fieldName, newItems);
   };
 
   const sortList = (items: Array<string>): void => {
     const newOrderedList = items.map((itemId, idx) => {
-      const item = sortedList.find(({ id }) => equals(id, itemId));
+      const item = sortedList.find(({ id }: Record<string, unknown>) =>
+        equals(id, itemId)
+      );
 
       return {
         ...item,

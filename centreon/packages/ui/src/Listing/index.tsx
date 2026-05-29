@@ -21,7 +21,6 @@ import {
   pick,
   prop,
   propEq,
-  reduce,
   reject,
   slice,
   subtract,
@@ -98,8 +97,8 @@ export interface Props<TRow> {
   currentPage?: number;
   customListingComponent?: JSX.Element;
   customPaginationClassName?: string;
-  disableRowCheckCondition?: (row) => boolean;
-  disableRowCondition?: (row) => boolean;
+  disableRowCheckCondition?: (row: TRow) => boolean;
+  disableRowCondition?: (row: TRow) => boolean;
   displayCustomListing?: boolean;
   getHighlightRowCondition?: (row: TRow) => boolean;
   getId?: (row: TRow) => RowId;
@@ -110,8 +109,8 @@ export interface Props<TRow> {
   listingVariant?: ListingVariant;
   loading?: boolean;
   moveTablePagination?: boolean;
-  onLimitChange?: (limit) => void;
-  onPaginate?: (page) => void;
+  onLimitChange?: (limit: string | number) => void;
+  onPaginate?: (page: number) => void;
   onResetColumns?: () => void;
   onRowClick?: (row: TRow) => void;
   onSelectColumns?: (selectedColumnIds: Array<string>) => void;
@@ -127,14 +126,14 @@ export interface Props<TRow> {
   subItems?: {
     canCheckSubItems: boolean;
     enable: boolean;
-    getRowProperty: (row?) => string;
+    getRowProperty: (row?: TRow) => string;
     labelCollapse: string;
     labelExpand: string;
   };
   totalRows?: number;
   viewerModeConfiguration?: ViewerModeConfiguration;
   widthToMoveTablePagination?: number;
-  isActionBarVisible: boolean;
+  isActionBarVisible?: boolean;
   labelNoResultFound?: string | JSX.Element;
 }
 
@@ -146,7 +145,7 @@ const Listing = <
   TRow extends {
     id: RowId;
     internalListingParentId?: RowId;
-    internalListingParentRow: TRow;
+    internalListingParentRow?: TRow;
   }
 >({
   customListingComponent,
@@ -217,22 +216,26 @@ const Listing = <
   const [lastSelectionIndex, setLastSelectionIndex] = useState<number | null>(
     null
   );
-  const containerRef = useRef<HTMLDivElement>();
-  const actionBarRef = useRef<HTMLDivElement>();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const actionBarRef = useRef<HTMLDivElement>(null);
 
   const subItemsPivots = useAtomValue(subItemsPivotsAtom);
 
   const allSubItemIds = useMemo(
     () =>
-      reduce<TRow | number, Array<string | number>>(
+      rows.reduce<Array<string | number>>(
         (acc, row) => [
           ...acc,
-          ...(row[subItems?.getRowProperty() || ''] || []).map(
-            ({ id }) => `${subItemPrefixKey}_${getId(row)}_${id}`
+          ...(
+            ((row as Record<string, unknown>)[
+              subItems?.getRowProperty() || ''
+            ] as Array<{ id: string | number }> | undefined) || []
+          ).map(
+            ({ id }: { id: string | number }) =>
+              `${subItemPrefixKey}_${getId(row)}_${id}`
           )
         ],
-        [],
-        rows
+        []
       ),
     [rows, subItems, getId]
   );
@@ -240,28 +243,27 @@ const Listing = <
   const rowsToDisplay = useMemo(
     () =>
       subItems?.enable
-        ? reduce<TRow, Array<TRow>>(
-            (acc, row): Array<TRow> => {
-              if (
-                row[subItems.getRowProperty()] &&
-                subItemsPivots.includes(row.id)
-              ) {
-                return [
-                  ...acc,
-                  row,
-                  ...row[subItems.getRowProperty()].map((subRow) => ({
+        ? rows.reduce<Array<TRow>>((acc, row): Array<TRow> => {
+            const rowAsRecord = row as Record<string, unknown>;
+            if (
+              rowAsRecord[subItems.getRowProperty()] &&
+              subItemsPivots.includes(row.id)
+            ) {
+              return [
+                ...acc,
+                row,
+                ...(rowAsRecord[subItems.getRowProperty()] as Array<TRow>).map(
+                  (subRow: TRow) => ({
                     ...subRow,
                     internalListingParentId: row.id,
                     internalListingParentRow: row
-                  }))
-                ];
-              }
+                  })
+                )
+              ];
+            }
 
-              return [...acc, row];
-            },
-            [],
-            rows
-          )
+            return [...acc, row];
+          }, [])
         : rows,
     [rows, subItemsPivots, subItems]
   );
@@ -288,13 +290,13 @@ const Listing = <
   const haveSameId = (row: TRow, rowToCompare: TRow): boolean =>
     equals(getId(row), getId(rowToCompare));
 
-  const selectedRowsInclude = (row): boolean => {
+  const selectedRowsInclude = (row: TRow): boolean => {
     return !!selectedRows.find((includedRow) =>
       equals(getId(includedRow), getId(row))
     );
   };
 
-  const selectAllRows = (event): void => {
+  const selectAllRows = (event: React.ChangeEvent<HTMLInputElement>): void => {
     if (
       event.target.checked &&
       event.target.getAttribute('data-indeterminate') === 'false'
@@ -309,13 +311,15 @@ const Listing = <
     setLastSelectionIndex(null);
   };
 
-  const onSelectRowsWithCondition = (condition: (row) => boolean): void => {
+  const onSelectRowsWithCondition = (
+    condition: (row: TRow) => boolean
+  ): void => {
     onSelectRows(reject(disableRowCheckCondition, filter(condition, rows)));
     setLastSelectionIndex(null);
   };
 
   interface GetSelectedRowsWithShiftKeyProps {
-    compareFunction;
+    compareFunction: (a: number, b: number) => boolean;
     comparisonSliceEndIndex: number;
     comparisonSliceStartIndex: number;
     newSelection: Array<TRow>;
@@ -335,7 +339,10 @@ const Listing = <
       return differenceWith(haveSameId, selectedRows, newSelection);
     }
     if (
-      compareFunction(lastSelectionIndex, last(selectedRowsIndex) as number)
+      compareFunction(
+        lastSelectionIndex as number,
+        last(selectedRowsIndex) as number
+      )
     ) {
       const normalizedNewSelection = slice(
         comparisonSliceStartIndex,
@@ -434,7 +441,7 @@ const Listing = <
     );
   };
 
-  const selectRow = (event: MouseEvent, row): void => {
+  const selectRow = (event: React.MouseEvent, row: TRow): void => {
     event.preventDefault();
     event.stopPropagation();
     // This prevents unwanted text selection
@@ -468,7 +475,7 @@ const Listing = <
     onSelectRows([...selectedRows, row]);
   };
 
-  const hoverRow = (row): void => {
+  const hoverRow = (row: TRow): void => {
     if (equals(hoveredRowId, getRowId(row))) {
       return;
     }
@@ -479,11 +486,11 @@ const Listing = <
     setHoveredRowId(null);
   };
 
-  const isSelected = (row): boolean => {
+  const isSelected = (row: TRow): boolean => {
     return selectedRowsInclude(row);
   };
 
-  const changeLimit = (updatedLimit: string): void => {
+  const changeLimit = (updatedLimit: string | number): void => {
     onLimitChange?.(Number(updatedLimit));
   };
 
@@ -502,6 +509,13 @@ const Listing = <
   }, [isShiftKeyDown, lastSelectionIndex]);
 
   const areColumnsEditable = not(isNil(onSelectColumns));
+
+  const disableRowConditionForCell = disableRowCondition as (
+    row: Record<string, unknown>
+  ) => boolean;
+  const getHighlightRowConditionForCell = getHighlightRowCondition as
+    | ((row: Record<string, unknown>) => boolean)
+    | undefined;
 
   return (
     <div className="h-full w-full overflow-hidden">
@@ -610,7 +624,7 @@ const Listing = <
                           }
                           columnConfiguration={columnConfiguration}
                           columnIds={columns.map(prop('id'))}
-                          disableRowCondition={disableRowCondition}
+                          disableRowCondition={disableRowConditionForCell}
                           isHovered={isRowHovered}
                           isSelected={isRowSelected}
                           isShiftKeyDown={isShiftKeyDown}
@@ -639,7 +653,7 @@ const Listing = <
                               <Cell
                                 align="left"
                                 className="justify-start"
-                                disableRowCondition={disableRowCondition}
+                                disableRowCondition={disableRowConditionForCell}
                                 isRowHovered={isRowHovered}
                                 onClick={(event): void => selectRow(event, row)}
                                 row={row}
@@ -662,7 +676,7 @@ const Listing = <
                             ) : (
                               <Cell
                                 align="left"
-                                disableRowCondition={disableRowCondition}
+                                disableRowCondition={disableRowConditionForCell}
                                 isRowHovered={isRowHovered}
                                 row={row}
                                 rowColorConditions={rowColorConditions}
@@ -672,9 +686,9 @@ const Listing = <
                           {visibleColumns.map((column) => (
                             <DataCell
                               column={column}
-                              disableRowCondition={disableRowCondition}
+                              disableRowCondition={disableRowConditionForCell}
                               getHighlightRowCondition={
-                                getHighlightRowCondition
+                                getHighlightRowConditionForCell
                               }
                               isRowHovered={isRowHovered}
                               isRowSelected={isRowSelected}
@@ -700,7 +714,9 @@ const Listing = <
                         <EmptyResult
                           label={
                             labelNoResultFound
-                              ? t(labelNoResultFound)
+                              ? typeof labelNoResultFound === 'string'
+                                ? t(labelNoResultFound)
+                                : labelNoResultFound
                               : t(defaultLabelNoResultFound)
                           }
                         />
@@ -768,9 +784,8 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
     ),
     memoProps: [
       ...memoProps,
-      pick(
-        ['id', 'label', 'disabled', 'width', 'shortLabel', 'sortField'],
-        columns
+      columns.map(
+        pick(['id', 'label', 'disabled', 'width', 'shortLabel', 'sortField'])
       ),
       columnConfiguration,
       limit,

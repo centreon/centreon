@@ -1,0 +1,36 @@
+meta {
+  name: POST /services/severities - Create SS with wrong type value - HTTP 400
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/severities
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": true,
+    "alias": null,
+    "level": "10",
+    "is_activated": "true"
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("The service severity has not been created, because there are values of the wrong type.", function () {
+    const body = res.getBody();
+    expect(body.message).to.be.a("string").and.not.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

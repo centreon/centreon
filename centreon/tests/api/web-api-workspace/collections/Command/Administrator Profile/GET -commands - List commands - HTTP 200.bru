@@ -1,0 +1,27 @@
+meta {
+  name: GET /commands - List commands - HTTP 200
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/commands
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Commands list is returned.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

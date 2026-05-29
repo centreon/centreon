@@ -382,9 +382,15 @@ if (isset($tab_finalH)) {
                         : $resourceController->buildListingUri([
                             'filter' => json_encode([
                                 'criterias' => [
-                                    'search' => 'h.name:^' . $host_name . '$',
+                                    [
+                                        'name' => 'search',
+                                        'object_type' => null,
+                                        'type' => 'text',
+                                        'value' => 'h.name:^' . $host_name . '$',
+                                    ],
                                 ],
                             ]),
+                            'fromTopCounter' => 'true',
                         ])
                 );
                 $obj->XML->writeElement(

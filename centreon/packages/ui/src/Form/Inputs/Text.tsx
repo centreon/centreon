@@ -145,7 +145,7 @@ const Text = ({
           }
         }}
         type={getInputType()}
-        value={value || ''}
+        value={(value || '') as string}
       />
     ),
     memoProps: [

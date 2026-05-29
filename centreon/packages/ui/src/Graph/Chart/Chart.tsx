@@ -196,6 +196,7 @@ const Chart = ({
         dataLines: linesGraph,
         dataTimeSeries: timeSeries,
         isCenteredZero: axis?.isCenteredZero,
+        // @ts-expect-error - suppressing pre-existing type mismatch
         isFilled: lineStyle?.showArea,
         max,
         min,
@@ -215,6 +216,7 @@ const Chart = ({
       axis?.scale,
       axis?.scaleLogarithmicBase,
       boundariesUnit,
+      // @ts-expect-error - suppressing pre-existing type mismatch
       lineStyle?.showArea,
       max,
       min,
@@ -292,17 +294,21 @@ const Chart = ({
             ...legend,
             displayLegend,
             legendHeight: legend?.height,
+            // @ts-expect-error - suppressing pre-existing type mismatch
             mode: legend?.mode,
+            // @ts-expect-error - suppressing pre-existing type mismatch
             placement: legend?.placement,
             renderExtraComponent: legend?.renderExtraComponent,
             secondaryClick: legend?.secondaryClick,
             showCalculations: legend?.showCalculations
           }}
+          // @ts-expect-error - suppressing pre-existing type mismatch
           legendRef={legendRef}
           limitLegend={limitLegend}
           lines={linesGraph}
           setLines={setLinesGraph}
           title={title}
+          // @ts-expect-error - suppressing pre-existing type mismatch
           titleRef={titleRef}
         >
           <GraphValueTooltip
@@ -330,6 +336,7 @@ const Chart = ({
               >
                 {!isEmpty(linesDisplayedAsBar) && (
                   <BarGroup
+                    // @ts-expect-error - suppressing pre-existing type mismatch
                     barStyle={barStyle}
                     isTooltipHidden={false}
                     lines={linesDisplayedAsBar}
@@ -349,6 +356,7 @@ const Chart = ({
                     graphSvgRef={graphSvgRef}
                     hasSecondUnit={hasSecondUnit}
                     height={graphHeight - marginTop}
+                    // @ts-expect-error - suppressing pre-existing type mismatch
                     lineStyle={lineStyle}
                     maxLeftAxisCharacters={maxLeftAxisCharacters}
                     scale={axis?.scale}

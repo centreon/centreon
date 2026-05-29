@@ -32,32 +32,11 @@ jobs:
       is_cloud: ${{ steps.check_promoted_packages.outputs.is_cloud }}
     runs-on: ubuntu-24.04
     steps:
-      - name: Checkout .version (current branch)
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          path: centreon-current
-          sparse-checkout: .version
+      - name: Checkout sources
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Checkout .version (develop branch)
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        with:
-          ref: develop
-          path: centreon-develop
-          sparse-checkout: .version
-
-      - name: Check if this workflow is run on a branch in the develop context
-        shell: bash
-        run: |
-          source centreon-current/.version
-          current_version=${MAJOR}
-          source centreon-develop/.version
-          develop_version=${MAJOR}
-          if [[ "${current_version}" != "${develop_version}" ]]; then
-            echo "::error:: Please run this workflow on either develop or a branch that targets develop."
-            exit 1
-          else
-            echo ".version file on the current branch matches the develop version: ${current_version}"
-          fi
+      - name: Verify that the workflow is run in a develop context
+        uses: ./.github/actions/verify-run-in-develop-context
 
       - name: Check if ${{ inputs.release_bundle_tag }} exists on standard repositories
         env:
@@ -77,7 +56,7 @@ jobs:
           done
 
       - name: Checkout major version on bundle tag
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ inputs.release_bundle_tag }}
           path: centreon-${{ inputs.release_bundle_tag }}
@@ -100,10 +79,13 @@ jobs:
                 exit 1
                 ;;
               24.10)
-                DISTRIBS=("alma8" "alma9" "bookworm" "noble")
+                DISTRIBS=("alma8" "alma9" "bookworm")
                 ;;
               25.10)
                 DISTRIBS=("alma8" "alma9" "bookworm")
+                ;;
+              26.10)
+                DISTRIBS=("alma9" "alma10" "trixie")
                 ;;
               *)
                 echo "::error::Major version has not been properly detected."
@@ -132,7 +114,7 @@ jobs:
 
     steps:
       - name: Checkout docker files on tag ${{ inputs.dev_branch || inputs.release_bundle_tag }}
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ inputs.dev_branch || inputs.release_bundle_tag }}
           sparse-checkout: |
@@ -142,7 +124,7 @@ jobs:
             .github/docker/centreon-web/sql/
 
       - name: Checkout version files on tag ${{ inputs.release_bundle_tag }}
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ inputs.release_bundle_tag }}
           path: ./${{ inputs.release_bundle_tag }}/
@@ -153,7 +135,7 @@ jobs:
             .version.centreon-web
 
       - name: Checkout collect .version files on bundle tag ${{ inputs.release_bundle_tag }}
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: centreon/centreon-collect
           ref: ${{ inputs.release_bundle_tag }}
@@ -180,23 +162,23 @@ jobs:
           mkdir packages-centreon
 
       - name: Login to registry
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
           password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+      - uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
       - name: Build dependencies web image
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
           DOCKER_BUILD_SUMMARY: false
@@ -217,7 +199,7 @@ jobs:
             ghcr.io/${{ github.repository }}/centreon-web-dependencies:${{ inputs.release_bundle_tag }}-${{ matrix.distrib }}
 
       - name: Build dependencies collect image
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
           DOCKER_BUILD_SUMMARY: false
@@ -241,7 +223,7 @@ jobs:
             ghcr.io/${{ github.repository }}/centreon-web-dependencies-collect:${{ inputs.release_bundle_tag }}-${{ matrix.distrib }}
 
       - name: Build and push web image
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           file: .github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile
           context: .
@@ -259,7 +241,7 @@ jobs:
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
 
       - name: Build and push OSS image
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           file: .github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile.oss
           context: .

@@ -45,8 +45,7 @@ foreach ($mockedVarConstants as $mockedVarConstant) {
     }
 }
 
-// Disable warnings for PEAR.
-error_reporting(E_ALL & ~E_STRICT);
+error_reporting(E_ALL);
 
 require_once realpath(__DIR__ . '/polyfill.php');
 $loader = require realpath(__DIR__ . '/../../vendor/autoload.php');

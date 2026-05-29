@@ -17,14 +17,26 @@ import {
   getUnits,
   hasUnitStackedLines
 } from '.';
+import type { TimeValue } from './models';
 
 type TestCase = [number | null, string, 1000 | 1024, string | null];
 
 describe('timeSeries', () => {
+  const defaultMetricFields = {
+    crit: null,
+    critical_high_threshold: null,
+    critical_low_threshold: null,
+    host_name: null,
+    service_name: null,
+    warning_high_threshold: null,
+    warning_low_threshold: null
+  };
+
   const graphData: LineChartData = {
     global: {},
     metrics: [
       {
+        ...defaultMetricFields,
         average_value: 1,
         data: [0, 1],
         ds_data: {
@@ -45,6 +57,7 @@ describe('timeSeries', () => {
         unit: 'ms'
       },
       {
+        ...defaultMetricFields,
         average_value: 1,
         data: [0.5, 3],
         ds_data: {
@@ -65,6 +78,7 @@ describe('timeSeries', () => {
         unit: 'ms'
       },
       {
+        ...defaultMetricFields,
         average_value: 1,
         data: [6, 4],
         ds_data: {
@@ -85,6 +99,7 @@ describe('timeSeries', () => {
         unit: 'ms'
       },
       {
+        ...defaultMetricFields,
         average_value: 1,
         data: [12, 25],
         ds_data: {
@@ -105,6 +120,7 @@ describe('timeSeries', () => {
         unit: 'ms'
       },
       {
+        ...defaultMetricFields,
         average_value: 1,
         data: [0, 1],
         ds_data: {
@@ -296,7 +312,7 @@ describe('timeSeries', () => {
           rta: 1,
           time: 0,
           timeTick: '2020-11-05T10:40:00Z'
-        })
+        } as unknown as TimeValue)
       ).toEqual(['rta', 'time']);
     });
   });
@@ -565,7 +581,7 @@ describe('Format value with unit', () => {
     ''
   ];
 
-  const getExpectedResult = (unit): string => {
+  const getExpectedResult = (unit: string): string => {
     if (unit === '') {
       return '324.23m';
     }

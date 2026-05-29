@@ -402,7 +402,7 @@ Then('a pop-up is displayed', () => {
 });
 
 Then('the title of this pop-up is {string}', (popupTitle: string) => {
-  cy.get('div[class*="-modalHeader"]')
+  cy.get('[data-testid="modal-header"]')
     .eq(1)
     .within(() => {
       cy.get('h2').should('contain.text', popupTitle);
@@ -410,7 +410,9 @@ Then('the title of this pop-up is {string}', (popupTitle: string) => {
 });
 
 Then('the message body of this pop-up is {string}', (popupMessage: string) => {
-  cy.get('div[class*="-modalBody"]').eq(1).should('contain.text', popupMessage);
+  cy.get('[data-testid="modal-body"]')
+    .eq(1)
+    .should('contain.text', popupMessage);
 });
 
 When(

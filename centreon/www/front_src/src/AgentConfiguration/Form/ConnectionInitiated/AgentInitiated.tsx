@@ -3,17 +3,23 @@ import { Box, Checkbox, FormControlLabel } from '@mui/material';
 import {
   MultiConnectedAutocompleteField,
   NumberField,
+  SelectEntry,
   TextField
 } from '@centreon/ui';
 
-import { useFormikContext } from 'formik';
+import { FormikErrors, FormikTouched, useFormikContext } from 'formik';
 import { equals, propEq, reject } from 'ramda';
-import { ChangeEvent, useCallback, useMemo } from 'react';
+import { ChangeEvent, SyntheticEvent, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { listTokensDecoder } from '../../api/decoders';
 import { getTokensEndpoint } from '../../api/endpoints';
-import { AgentConfigurationForm, ConnectionMode } from '../../models';
+import {
+  AgentConfigurationForm,
+  CMAConfiguration,
+  ConnectionMode,
+  Token
+} from '../../models';
 import {
   labelCaCertificate,
   labelCMAauthenticationToken,
@@ -40,31 +46,39 @@ const AgentInitiated = (): React.ReactElement => {
   const { setFieldValue, setFieldTouched, errors, touched, values } =
     useFormikContext<AgentConfigurationForm>();
 
-  const change = (property) => (event: ChangeEvent<HTMLInputElement>) => {
-    setFieldTouched(property, true, false);
-    setFieldValue(property, event.target.value);
-  };
+  const configuration = values.configuration as CMAConfiguration;
+
+  const change =
+    (property: string) => (event: ChangeEvent<HTMLInputElement>) => {
+      setFieldTouched(property, true, false);
+      setFieldValue(property, event.target.value);
+    };
 
   const changePort = useCallback((newValue: number) => {
     setFieldTouched('configuration.port', true, false);
     setFieldValue('configuration.port', newValue);
   }, []);
 
-  const changeCMATokens = (_, tokens) => {
+  const changeCMATokens = (
+    _: React.SyntheticEvent,
+    tokens: Array<SelectEntry>
+  ): void => {
     setFieldTouched(tokensProperty, true, false);
     setFieldValue(tokensProperty, tokens);
   };
 
-  const deleteToken = (_, option): void => {
-    const newTokens = reject(
-      propEq(option.id, 'id'),
-      values.configuration.tokens
-    );
+  const deleteToken = (_: SyntheticEvent, option: Token): void => {
+    const tokens = configuration?.tokens || ([] as Array<Token>);
+
+    const newTokens = reject(propEq(option.id, 'id'), tokens);
 
     setFieldValue(tokensProperty, newTokens);
   };
 
-  const changeCreateHost = (_, checked): void => {
+  const changeCreateHost = (
+    _: React.SyntheticEvent,
+    checked: boolean
+  ): void => {
     setFieldTouched('configuration.createHostAuto', true, false);
     setFieldValue('configuration.createHostAuto', checked);
   };
@@ -76,15 +90,24 @@ const AgentInitiated = (): React.ReactElement => {
     [values.connectionMode?.id]
   );
 
+  const configurationTouched = touched?.configuration as
+    | FormikTouched<CMAConfiguration>
+    | undefined;
+  const configurationErrors = errors?.configuration as
+    | FormikErrors<CMAConfiguration>
+    | undefined;
+
   return (
     <Box className="flex flex-col">
       <Box className="mb-2">
         <FormControlLabel
           control={
             <Checkbox
-              checked={values.configuration.createHostAuto}
+              checked={configuration.createHostAuto}
               data-testid={labelCreateHostAutomatically}
-              onChange={changeCreateHost}
+              onChange={
+                changeCreateHost as unknown as React.ChangeEventHandler<HTMLInputElement>
+              }
             />
           }
           label={t(labelCreateHostAutomatically)}
@@ -98,7 +121,7 @@ const AgentInitiated = (): React.ReactElement => {
             className={classes.input}
             dataTestId={labelPort}
             error={
-              (touched?.configuration?.port && errors?.configuration?.port) ||
+              (configurationTouched?.port && configurationErrors?.port) ||
               undefined
             }
             fullWidth
@@ -114,7 +137,11 @@ const AgentInitiated = (): React.ReactElement => {
                 }
               }
             }}
-            value={values.configuration.port}
+            value={
+              configuration.port !== null && configuration.port !== undefined
+                ? String(configuration.port)
+                : undefined
+            }
           />
           {isTLSModes && (
             <>
@@ -187,24 +214,35 @@ const AgentInitiated = (): React.ReactElement => {
       <Box>
         <Title label={labelCMAauthenticationToken} />
         <MultiConnectedAutocompleteField
-          chipProps={{
+          ChipProps={{
             color: 'primary',
-            onDelete: deleteToken
+            onDelete: deleteToken as React.EventHandler<React.SyntheticEvent>
           }}
           dataTestId={labelSelectExistingCMATokens}
           decoder={listTokensDecoder}
           disableClearable={false}
           error={
-            (touched?.configuration?.tokens && errors?.configuration?.tokens) ||
-            undefined
+            configurationTouched?.tokens &&
+            typeof configurationErrors?.tokens === 'string'
+              ? configurationErrors.tokens
+              : undefined
           }
           field="token_name"
-          getEndpoint={getTokensEndpoint}
+          getEndpoint={
+            getTokensEndpoint as unknown as (params: unknown) => string
+          }
           label={t(labelSelectExistingCMATokens)}
           limitTags={15}
-          onChange={changeCMATokens}
+          onChange={
+            changeCMATokens as unknown as Parameters<
+              typeof MultiConnectedAutocompleteField
+            >[0]['onChange']
+          }
           required
-          value={values.configuration.tokens || null}
+          value={
+            (configuration.tokens as unknown as Array<SelectEntry> | null) ||
+            null
+          }
         />
         <RedirectToTokensPage />
       </Box>

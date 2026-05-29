@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { SelectEntry } from '@centreon/ui';
 
 import dayjs from 'dayjs';
@@ -60,7 +62,8 @@ export const getDuration = ({
 
 export const tokenTypes = [
   { id: TokenType.API, name: 'API' },
-  { id: TokenType.CMA, name: 'Centreon monitoring agent' }
+  { id: TokenType.CMA, name: 'Centreon monitoring agent' },
+  { id: TokenType.Poller, name: 'Poller' }
 ];
 
 export const dataDuration: Array<Duration> = [

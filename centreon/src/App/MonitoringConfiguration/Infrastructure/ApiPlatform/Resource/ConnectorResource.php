@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\FindConnectorPr
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ListConnectorsProvider;
 
 #[ApiResource(
+    shortName: 'Connector',
     operations: [
         new GetCollection(
             uriTemplate: '/configuration/connectors',
@@ -46,7 +47,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ListConnectorsP
                         required: false,
                         schema: [
                             'type' => 'array',
-                            'items' => ['type' => 'int'],
+                            'items' => ['type' => 'integer'],
                         ],
                     ),
                     new Model\Parameter(
@@ -56,7 +57,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ListConnectorsP
                         required: false,
                         schema: [
                             'type' => 'array',
-                            'items' => ['type' => 'int'],
+                            'items' => ['type' => 'integer'],
                         ],
                     ),
                     new Model\Parameter(

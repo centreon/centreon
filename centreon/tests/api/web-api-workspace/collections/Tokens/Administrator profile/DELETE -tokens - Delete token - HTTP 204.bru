@@ -1,0 +1,26 @@
+meta {
+  name: DELETE /administration/tokens - Delete token - HTTP 204
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrlWeb}}/administration/tokens/{{Token1Name}}/users/{{currentUserID}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Token has been successfully deleted.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

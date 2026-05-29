@@ -18,10 +18,11 @@ const useColumns = (): {
 } => {
   const { t } = useTranslation();
 
-  const columns = [
+  const columns: Array<Column> = [
     {
       disablePadding: false,
-      getFormattedString: prop('name'),
+      getFormattedString: (row: Record<string, unknown>) =>
+        prop('name', row) as string,
       id: 'name',
       label: t(labelName),
       sortable: true,
@@ -29,8 +30,8 @@ const useColumns = (): {
       type: ColumnType.string
     },
     {
-      getFormattedString: ({ commandLine }) =>
-        truncate({ content: commandLine, maxLength: 50 }),
+      getFormattedString: ({ commandLine }: Record<string, unknown>) =>
+        truncate({ content: commandLine as string, maxLength: 50 }),
       id: 'command_line',
       label: t(labelCommandLine),
       type: ColumnType.string
@@ -48,8 +49,8 @@ const useColumns = (): {
       type: ColumnType.component
     },
     {
-      getFormattedString: ({ type }) =>
-        t(equals(type, 'Check') ? `${type} ` : type),
+      getFormattedString: ({ type }: Record<string, unknown>) =>
+        t(equals(type, 'Check') ? `${type} ` : (type as string)),
       id: 'type',
       label: t(labelType),
       sortable: true,

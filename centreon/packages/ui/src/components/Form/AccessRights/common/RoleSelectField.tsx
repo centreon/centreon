@@ -1,5 +1,3 @@
-import type { SelectChangeEvent } from '@mui/material';
-
 import SelectField, { type SelectEntry } from '../../../../InputField/Select';
 import { useRoleSelectField } from './RoleSelectField.styles';
 
@@ -21,18 +19,18 @@ const RoleSelectField = ({
   disabled
 }: Props): JSX.Element => {
   const { classes } = useRoleSelectField();
-  const change = (event: SelectChangeEvent): void => {
-    onChange(event.target.value as string);
-  };
 
   return (
     <div className={classes.roleContainer}>
       <SelectField
         dataTestId={testId}
         disabled={disabled}
+        formControlProps={{}}
         fullWidth
         label={label}
-        onChange={change}
+        onChange={(event) => {
+          onChange(event.target.value as string);
+        }}
         options={roles}
         selectedOptionId={value}
         size="small"

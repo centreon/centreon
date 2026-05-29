@@ -352,6 +352,12 @@ const initializeAndMount = ({
     state: isBlocked ? 'blocked' : 'unblocked'
   });
 
+  cy.stub(window, 'IntersectionObserver').callsFake((callback) => ({
+    disconnect: () => null,
+    observe: (el) => callback([{ isIntersecting: true, target: el }]),
+    unobserve: () => null
+  }));
+
   cy.mount({
     Component: (
       <div style={{ height: '90vh' }}>

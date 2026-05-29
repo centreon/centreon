@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\MonitoringServer\Application\Repository;
 
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\MonitoringServer\Model\MonitoringServer;
 
 interface WriteMonitoringServerRepositoryInterface
@@ -55,4 +56,25 @@ interface WriteMonitoringServerRepositoryInterface
      * This ensure that the configuration is always up to date with the realtime.
      */
     public function updateAllEncryptionReadyFromRealtime(): void;
+
+    /**
+     * Define the monitoring servers as changed since their last configuration export for VMware configuration.
+     *
+     * @param int ...$monitoringServerIds
+     *
+     * @throws RepositoryException
+     */
+    public function notifyVmwareConfigurationChange(int ...$monitoringServerIds): void;
+
+    /**
+     * Atomically reset the VMware configuration change flag.
+     * Returns true if the flag was set, false otherwise.
+     *
+     * @param int $monitoringServerId
+     *
+     * @throws RepositoryException
+     *
+     * @return bool
+     */
+    public function resetVmwareConfigurationChange(int $monitoringServerId): bool;
 }
