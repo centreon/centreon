@@ -219,7 +219,7 @@ jobs:
           pull: false
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/centreon-web-dependencies-collect:${{ needs.check-inputs.outputs.major_version }}-latest
+            ghcr.io/${{ github.repository }}/centreon-web-dependencies-collect:${{ needs.check-inputs.outputs.major_version }}-latest-${{ matrix.distrib }}
             ghcr.io/${{ github.repository }}/centreon-web-dependencies-collect:${{ inputs.release_bundle_tag }}
 
       - name: Build and push web image
