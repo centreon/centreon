@@ -134,6 +134,9 @@ export interface Props<TRow> {
     labelExpand: string;
   };
   totalRows?: number;
+  approximateTotalRows?: boolean;
+  onApproximateCountClick?: () => void;
+  isApproximateCountLoading?: boolean;
   viewerModeConfiguration?: ViewerModeConfiguration;
   widthToMoveTablePagination?: number;
   isActionBarVisible: boolean;
@@ -198,7 +201,10 @@ const Listing = <
     labelExpand: 'Expand'
   },
   isActionBarVisible = true,
-  labelNoResultFound = defaultLabelNoResultFound
+  labelNoResultFound = defaultLabelNoResultFound,
+  approximateTotalRows = false,
+  onApproximateCountClick,
+  isApproximateCountLoading = false
 }: Props<TRow>): JSX.Element => {
   const currentVisibleColumns = getVisibleColumns({
     columnConfiguration,
@@ -527,13 +533,16 @@ const Listing = <
             <ListingActionBar
               actions={actions}
               actionsBarMemoProps={actionsBarMemoProps}
+              approximateTotalRows={approximateTotalRows}
               columnConfiguration={columnConfiguration}
               columns={columns}
               currentPage={currentPage}
               customPaginationClassName={customPaginationClassName}
+              isApproximateCountLoading={isApproximateCountLoading}
               limit={limit}
               listingVariant={listingVariant}
               moveTablePagination={moveTablePagination}
+              onApproximateCountClick={onApproximateCountClick}
               paginated={paginated}
               totalRows={totalRows}
               viewerModeConfiguration={viewerModeConfiguration}
@@ -748,20 +757,26 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
   widthToMoveTablePagination,
   listingVariant,
   labelNoResultFound,
+  approximateTotalRows,
+  onApproximateCountClick,
+  isApproximateCountLoading,
   ...props
 }: MemoizedListingProps<TRow>): JSX.Element =>
   useMemoComponent({
     Component: (
       <Listing
+        approximateTotalRows={approximateTotalRows}
         checkable={checkable}
         columnConfiguration={columnConfiguration}
         columns={columns}
         currentPage={currentPage}
         innerScrollDisabled={innerScrollDisabled}
+        isApproximateCountLoading={isApproximateCountLoading}
         limit={limit}
         listingVariant={listingVariant}
         loading={loading}
         moveTablePagination={moveTablePagination}
+        onApproximateCountClick={onApproximateCountClick}
         paginated={paginated}
         rowColorConditions={rowColorConditions}
         rows={rows}
@@ -794,7 +809,9 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
       sortField,
       innerScrollDisabled,
       listingVariant,
-      labelNoResultFound
+      labelNoResultFound,
+      approximateTotalRows,
+      isApproximateCountLoading
     ]
   });
 
