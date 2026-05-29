@@ -156,13 +156,14 @@ runs:
             grep -rl "@PHP_MIN_VERSION@" . 2>/dev/null | xargs -r sed -i "s/@PHP_MIN_VERSION@/$PHP_MIN_VERSION/g" || true
           fi
           if [[ "$INPUT_PACKAGE_EXTENSION" == "deb" ]]; then
+            PKG_LICENSE=$(grep '^license:' "$BASENAME" | head -1 | sed 's/^license: *//;s/"//g' | xargs)
             COPYRIGHT_SRC=""
-            for candidate in "${REPO_ROOT}/LICENSE.md" "${REPO_ROOT}/LICENSE"; do
-              [[ -f "$candidate" ]] && COPYRIGHT_SRC="$candidate" && break
-            done
-            if [[ -z "$COPYRIGHT_SRC" ]]; then
-              PKG_LICENSE=$(grep '^license:' "$BASENAME" | head -1 | sed 's/^license: *//;s/"//g' | xargs)
-              [[ -f "${REPO_ROOT}/copyright.${PKG_LICENSE}" ]] && COPYRIGHT_SRC="${REPO_ROOT}/copyright.${PKG_LICENSE}"
+            if [[ -f "${REPO_ROOT}/copyright.${PKG_LICENSE}" ]]; then
+              COPYRIGHT_SRC="${REPO_ROOT}/copyright.${PKG_LICENSE}"
+            else
+              for candidate in "${REPO_ROOT}/LICENSE.md" "${REPO_ROOT}/LICENSE"; do
+                [[ -f "$candidate" ]] && COPYRIGHT_SRC="$candidate" && break
+              done
             fi
             if [[ -n "$COPYRIGHT_SRC" ]]; then
               cp "$COPYRIGHT_SRC" ./copyright
