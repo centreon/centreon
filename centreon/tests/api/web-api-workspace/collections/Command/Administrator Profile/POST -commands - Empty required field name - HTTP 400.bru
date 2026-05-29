@@ -11,7 +11,7 @@ post {
 }
 
 body:json {
-  {"name": "", "type": "{{CommandType}}", "command_line": "{{CommandLine}}", "is_shell": true}
+  {"name": "", "type": {{CommandType}}, "command_line": "{{CommandLine}}", "is_shell": true}
 }
 
 assert {

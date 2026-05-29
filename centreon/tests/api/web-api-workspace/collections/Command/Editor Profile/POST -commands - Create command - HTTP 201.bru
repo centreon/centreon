@@ -13,7 +13,7 @@ post {
 body:json {
   {
     "name": "{{CommandNameEditor}}",
-    "type": "{{CommandType}}",
+    "type": {{CommandType}},
     "command_line": "{{CommandLine}}",
     "is_shell": true
   }
@@ -29,7 +29,7 @@ tests {
     expect(body).to.include({
       "id": body.id,
       "name": bru.getEnvVar("CommandNameEditor"),
-      "type": bru.getEnvVar("CommandType"),
+      "type": Number(bru.getEnvVar("CommandType")),
       "is_activated": true
     });
   });
