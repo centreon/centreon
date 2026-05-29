@@ -1,0 +1,26 @@
+meta {
+  name: DELETE /notifications - Delete editor notification - HTTP 204
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/notifications/{{EditorNotificationId}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Editor can delete its own notification.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

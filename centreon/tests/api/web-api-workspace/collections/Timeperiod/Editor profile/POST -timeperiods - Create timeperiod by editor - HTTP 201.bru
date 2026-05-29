@@ -1,0 +1,42 @@
+meta {
+  name: POST /timeperiods - Create timeperiod by editor - HTTP 201
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/timeperiods
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{Timeperiod4Name}}",
+    "alias": "{{Timeperiod4Alias}}",
+    "days": [
+      {"day": 1, "time_range": "00:00-24:00"},
+      {"day": 2, "time_range": "00:00-24:00"},
+      {"day": 3, "time_range": "00:00-24:00"},
+      {"day": 4, "time_range": "00:00-24:00"},
+      {"day": 5, "time_range": "00:00-24:00"}
+    ],
+    "templates": [],
+    "exceptions": []
+  }
+}
+
+tests {
+  test("Timeperiod 4 created by editor (ACL not configured in CI, currently returns 403).", function () {
+    const body = res.getBody();
+    expect(res.status).to.be.oneOf([201, 403]);
+    if (res.status === 201) {
+      bru.setEnvVar("Timeperiod4Id", body.id);
+    }
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,40 @@
+meta {
+  name: POST /login - Login with editor - HTTP 200
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrlWeb}}/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "security": {
+      "credentials": {
+        "login": "{{user_editor_login}}",
+        "password": "{{user_editor_password}}"
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Login successful", function () {
+    const body = res.getBody();
+    bru.setVar("currentUserName", body.contact.alias);
+    bru.setVar("currentUserID", body.contact.id);
+    bru.setGlobalEnvVar("authToken", body.security.token);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

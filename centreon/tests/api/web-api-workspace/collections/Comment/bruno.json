@@ -1,0 +1,1 @@
+{ "version": "1", "name": "Comment", "type": "collection", "ignore": ["node_modules", ".git"] }
