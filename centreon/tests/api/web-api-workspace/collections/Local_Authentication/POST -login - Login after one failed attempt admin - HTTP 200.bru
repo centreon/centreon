@@ -1,0 +1,42 @@
+meta {
+  name: POST /login - Login after one failed attempt admin - HTTP 200
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "security": {
+      "credentials": {
+        "login": "{{api_login}}",
+        "password": "{{api_password}}"
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+
+tests {
+  test("Login successful after one failed attempt. The account is not blocked.", function () {
+    bru.setGlobalEnvVar("authToken", res.getBody().security.token);
+    const body = res.getBody();
+    expect(res.status).to.equal(200);
+    expect(body.contact.alias).to.equal(bru.getGlobalEnvVar("api_login"));
+    expect(body.contact.is_admin).to.equal(true);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

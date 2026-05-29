@@ -1,0 +1,35 @@
+meta {
+  name: POST /services - Create service with empty name - HTTP 400
+  type: http
+  seq: 19
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "",
+    "host_id": {{Host1Id}},
+    "service_template_id": {{ServiceTemplate1Id}}
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("The service has not been created because the name is empty.", function () {
+    const body = res.getBody();
+    expect(body.message).to.equal("[NewService::name] The string is empty, but non empty string was expected");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

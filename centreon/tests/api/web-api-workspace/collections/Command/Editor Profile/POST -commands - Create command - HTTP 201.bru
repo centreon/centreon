@@ -1,0 +1,41 @@
+meta {
+  name: POST /commands - Create command - HTTP 201
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/commands
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{CommandNameEditor}}",
+    "type": "{{CommandType}}",
+    "command_line": "{{CommandLine}}",
+    "is_shell_enabled": true
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("Editor can create a command.", function () {
+    const body = res.getBody();
+    expect(body).to.include({
+      "id": body.id,
+      "name": bru.getEnvVar("CommandNameEditor"),
+      "type": bru.getEnvVar("CommandType"),
+      "is_activated": true
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

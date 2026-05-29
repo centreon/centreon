@@ -457,6 +457,7 @@ jobs:
           from_image: centreon-web-${{ matrix.operating_system }}
           current_tag: ${{ steps.image_tag.outputs.tag }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
           registry_url: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
 
       - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files

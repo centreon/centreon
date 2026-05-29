@@ -1,0 +1,74 @@
+meta {
+  name: GET /services - Get 3 services - HTTP 200
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services?sort_by={"id":"DESC"}&limit=100
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The services list is returned with the expected services and properties.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+
+    const s1 = body.result.find(r => r.id === parseInt(bru.getEnvVar("Service1Id")));
+    const s3 = body.result.find(r => r.id === parseInt(bru.getEnvVar("Service3Id")));
+    const s4 = body.result.find(r => r.id === parseInt(bru.getEnvVar("Service4Id")));
+
+    expect(s1).to.exist;
+    expect(s1).to.include({
+      "name": bru.getEnvVar("Service1Name")
+    });
+
+    expect(s3).to.include({
+      "name": bru.getEnvVar("Service3Name"),
+      "normal_check_interval": 2,
+      "retry_check_interval": 1,
+      "is_activated": true
+    });
+    expect(s3.check_timeperiod).to.include({ "id": 1, "name": "24x7" });
+    expect(s3.severity).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceSeverity1Id")),
+      "name": bru.getEnvVar("ServiceSeverity1Name")
+    });
+    expect(s3.categories).to.be.an("array").that.is.empty;
+    expect(s3.groups).to.have.lengthOf(1);
+    expect(s3.groups[0]).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceGroup1Id")),
+      "name": bru.getEnvVar("ServiceGroup1Name")
+    });
+
+    expect(s4).to.include({
+      "name": bru.getEnvVar("Service4Name"),
+      "check_timeperiod": null,
+      "severity": null,
+      "normal_check_interval": null,
+      "retry_check_interval": null,
+      "is_activated": true
+    });
+    expect(s4.categories).to.have.lengthOf(1);
+    expect(s4.categories[0]).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceCategory1Id")),
+      "name": bru.getEnvVar("ServiceCategory1Name")
+    });
+    expect(s4.groups).to.have.lengthOf(1);
+    expect(s4.groups[0]).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceGroup1Id")),
+      "name": bru.getEnvVar("ServiceGroup1Name")
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

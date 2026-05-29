@@ -1,0 +1,33 @@
+meta {
+  name: POST /services/categories - Create SC without name - HTTP 400
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/categories
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "alias": "Oh I'm your ghost category!"
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("The service category has not been created, because the name is mandatory.", function () {
+    const body = res.getBody();
+    expect(body.message).to.be.a("string").and.include("[name]");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
