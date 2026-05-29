@@ -1,7 +1,7 @@
 meta {
   name: POST - Wait 60s for ACL reload
   type: http
-  seq: 16
+  seq: 2
 }
 
 post {
@@ -11,7 +11,7 @@ post {
 }
 
 headers {
-  centreon-auth-token: {{authToken}}
+  centreon-auth-token: {{superAdminToken}}
 }
 
 body:json {

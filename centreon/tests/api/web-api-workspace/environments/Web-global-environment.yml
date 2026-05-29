@@ -2,6 +2,8 @@ name: Web-global-environment
 variables:
   - name: authToken
     value:
+  - name: superAdminToken
+    value:
   - name: portWeb
     value: "4000"
   - name: versionWeb
