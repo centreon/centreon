@@ -333,7 +333,7 @@ function get_os_information() {
 			;;
 		*)
 			log "ERROR" "Unsupported distribution ${OS_NAME} detected"
-			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distributions (v8 and v9), Ubuntu 22.04 and Debian 11/12. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
+			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 12. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 			;;
 	esac
 
@@ -537,7 +537,7 @@ function set_required_prerequisite() {
 			;;
 
 		*)
-			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 11/12. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
+			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 12. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 			;;
 		esac
 
