@@ -306,9 +306,12 @@ function get_os_information() {
 			;;
 		Debian*)
 			case "${OS_VERSIONID}" in
-				11*|12*)
+				12*)
 					detected_os_release="debian-release-${OS_VERSIONID}"
 					mysql_service_name="mysql"
+					;;
+				11*)
+					error_and_exit "Debian ${OS_VERSIONID} is no longer supported by this script (Centreon 24.04 reached end of life). Please upgrade to Debian 12. See https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 					;;
 				*)
 					error_and_exit "Unsupported Debian distribution ${OS_VERSIONID} detected"
@@ -557,9 +560,6 @@ function set_required_prerequisite() {
 		HTTP_SERVICE_UNIT="apache2"
 		PKG_MGR="apt -qq"
 		case "$detected_os_version" in
-		11)
-			error_and_exit "Debian $detected_os_version is no longer supported by this script (Centreon 24.04 reached end of life). Please upgrade to Debian 12. See https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
-			;;
 		12)
 			if ! [[ "$version" == "24.10" || "$version" == "25.10" ]]; then
 				error_and_exit "For Debian $detected_os_version, only Centreon versions >= 24.10 are compatible. You chose $version"
