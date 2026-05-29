@@ -1,3 +1,13 @@
+parameters:
+    env(DATABASE_SERVER_VERSION): 'mariadb-10.11.0'
+    env(hostCentreon): ''
+    env(hostCentstorage): ''
+    env(user): ''
+    env(password): ''
+    env(db): ''
+    env(dbcstg): ''
+    env(port): '3306'
+
 doctrine:
    dbal:
        default_connection: default
