@@ -328,8 +328,7 @@ function get_os_information() {
 			mysql_service_name="mysqld"
 			;;
 		Ubuntu*)
-			detected_os_release="ubuntu-release-${OS_VERSIONID}"
-			mysql_service_name="mysql"
+			error_and_exit "Ubuntu is no longer supported by this script (only Centreon 24.04 was compatible, and it has reached end of life). Please use Debian 12 or a Red-Hat compatible distribution (v8/v9). See https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 			;;
 		*)
 			log "ERROR" "Unsupported distribution ${OS_NAME} detected"
@@ -362,7 +361,7 @@ function set_centreon_repos() {
 			log "ERROR" "Unsupported repository: $_repo" &&
 			usage
 
-		if [[ "${detected_os_release}" =~ (debian|ubuntu)-release-.* ]]; then
+		if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 			CENTREON_REPO+="$version-$_repo"
 		else
 			CENTREON_REPO+="centreon-$version-$_repo*"
@@ -386,9 +385,6 @@ function set_mariadb_repos() {
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=debian --os-version="$detected_os_version" --mariadb-server-version="$detected_mariadb_version" --skip-maxscale
-	elif [[ "${detected_os_release}" =~ ubuntu-release-.* ]]; then
-		distrib_codename=$(awk -F'=' '/DISTRIB_CODENAME/ {print $2}' /etc/lsb-release)
-		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=ubuntu --os-version="$distrib_codename" --mariadb-server-version="$detected_mariadb_version" --skip-maxscale
 	else
 	    dnf module enable mariadb:$detected_mariadb_version -y -q
 	fi
@@ -397,7 +393,7 @@ function set_mariadb_repos() {
 	else
 		log "INFO" "Successfully installed the $dbms repository"
 	fi
-	if [[ "${detected_os_release}" =~ (debian|ubuntu)-release-.* ]]; then
+	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		rm -f /etc/apt/sources.list.d/mariadb.list.old_*  > /dev/null 2>&1
 	else
 		rm -f /etc/yum.repos.d/mariadb.repo.old_* > /dev/null 2>&1
@@ -409,7 +405,7 @@ function set_mariadb_repos() {
 #
 function setup_mysql() {
 	log "INFO" "Install MySQL repository"
-	if [[ "${detected_os_release}" =~ (debian|ubuntu)-release-.* ]]; then
+	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		curl -JLO https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb
 		export DEBIAN_FRONTEND="noninteractive" && $PKG_MGR install -y ./mysql-apt-config_0.8.29-1_all.deb
 		$PKG_MGR -y update
@@ -447,7 +443,6 @@ function set_required_prerequisite() {
 		8*)
 			log "INFO" "Setting specific part for v8 ($detected_os_version)"
 			RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el8/centreon-$version.repo"
-			REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-8.rpm"
 			PHP_SERVICE_UNIT="php-fpm"
 			HTTP_SERVICE_UNIT="httpd"
 			PKG_MGR="dnf"
@@ -522,7 +517,6 @@ function set_required_prerequisite() {
 			if [ "$topology" == "central" ]; then
 				case "$version" in
 					"24.10" | "25.10")
-						#install_remi_repo
 						log "INFO" "Installing PHP 8.2 and enable it"
 						$PKG_MGR module reset php -y -q
 						$PKG_MGR module install php:8.2 -y -q
@@ -558,40 +552,33 @@ function set_required_prerequisite() {
 			$PKG_MGR-q install -y glibc-langpack-fr glibc-langpack-es glibc-langpack-pt glibc-langpack-de > /dev/null 2>&1
 		fi
 		;;
-	debian-release* | ubuntu-release*)
+	debian-release*)
 		log "INFO" "Setting specific part for $detected_os_release"
 		HTTP_SERVICE_UNIT="apache2"
 		PKG_MGR="apt -qq"
-		case "$detected_os_release" in
-		debian-release*)
-			case "$detected_os_version" in
-			11)
-				error_and_exit "Debian $detected_os_version is no longer supported by this script (Centreon 24.04 reached end of life). Please upgrade to Debian 12. See https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
-				;;
-			12)
-				if ! [[ "$version" == "24.10" || "$version" == "25.10" ]]; then
-					error_and_exit "For Debian $detected_os_version, only Centreon versions >= 24.10 are compatible. You chose $version"
-				fi
-				PHP_SERVICE_UNIT="php8.2-fpm"
-				;;
-			*)
-				error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 12. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
-				;;
-			esac
-			${PKG_MGR} update && ${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl
-			repo_prefix="apt"
-
-			# Get CPU architecture type
-			VENDORID=$(lscpu | grep -e '^Vendor ID:' | cut -d ':' -f2 | tr -d '[:space:]')
-			ARCH=""
-			if [[ "$VENDORID" == "ARM" ]]; then
-				ARCH="[ arch=all,arm64 ]"
-			fi
+		case "$detected_os_version" in
+		11)
+			error_and_exit "Debian $detected_os_version is no longer supported by this script (Centreon 24.04 reached end of life). Please upgrade to Debian 12. See https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 			;;
-		ubuntu-release*)
-			error_and_exit "Ubuntu is no longer supported by this script (only Centreon 24.04 was compatible, and it has reached end of life). Please use Debian 12 or a Red-Hat compatible distribution (v8/v9). See https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
+		12)
+			if ! [[ "$version" == "24.10" || "$version" == "25.10" ]]; then
+				error_and_exit "For Debian $detected_os_version, only Centreon versions >= 24.10 are compatible. You chose $version"
+			fi
+			PHP_SERVICE_UNIT="php8.2-fpm"
+			;;
+		*)
+			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 12. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 			;;
 		esac
+		${PKG_MGR} update && ${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl
+		repo_prefix="apt"
+
+		# Get CPU architecture type
+		VENDORID=$(lscpu | grep -e '^Vendor ID:' | cut -d ':' -f2 | tr -d '[:space:]')
+		ARCH=""
+		if [[ "$VENDORID" == "ARM" ]]; then
+			ARCH="[ arch=all,arm64 ]"
+		fi
 
 		# Add Centreon repositories
 		set_centreon_repos
@@ -609,12 +596,8 @@ function set_required_prerequisite() {
 		wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
 
 		if [ "$topology" == "central" ]; then
-			# Add PHP repo
-			case "$version" in
-				"24.10" | "25.10")
-					echo "Installing php from official os repositories."
-					;;
-			esac
+			# On Debian 12, PHP 8.2 is provided by the official OS repositories (no third-party PHP repo needed).
+			log "INFO" "Installing php from official os repositories."
 			if [[ "$dbms" == "MariaDB" ]]; then
 				set_mariadb_repos
 			else
@@ -669,10 +652,6 @@ function set_selinux_config() {
 # set runtime SELinux mode: $1 (permissive | enforcing)
 #
 function set_runtime_selinux_mode() {
-	if [[ "${detected_os_release}" =~ ubuntu-release-.* ]]; then
-		log "INFO" "Ubuntu distribution found, installing selinux-utils."
-		$PKG_MGR install -y selinux-utils
-	fi
 	log "INFO" "Set runtime SELinux mode to [$1]"
 
 	_current_mode=$(getenforce | tr '[:upper:]' '[:lower:]')
@@ -775,26 +754,6 @@ function install_centreon_repo() {
 	fi
 }
 #========= end of function install_centreon_repo()
-
-#========= begin of function install_remi_repo()
-# install Remi repositories
-#
-function install_remi_repo() {
-
-	log "INFO" "Remi repositories installation..."
-	$PKG_MGR -q clean all
-
-	rpm -q remi-release >/dev/null 2>&1
-	if [ $? -ne 0 ]; then
-		$PKG_MGR -q install -y $REMI_RELEASE_RPM_URL
-		if [ $? -ne 0 ]; then
-			error_and_exit "Could not install Remi repository"
-		fi
-	else
-		log "INFO" "Remi repository seems to be already installed"
-	fi
-}
-#========= end of function install_remi_repo()
 
 #========= begin of function update_firewall_config()
 # add firewall configuration for newly added services
@@ -1247,7 +1206,7 @@ function install_central() {
 		CENTREON_DBMS_PKG="centreon-database"
 	fi
 
-	if [[ "${detected_os_release}" =~ (debian|ubuntu)-release-.* ]]; then
+	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		if [[ "$version" =~ ^24\.1[0-2]$ ]]; then
 			$PKG_MGR install -y $CENTREON_DBMS_PKG centreon
 		else
@@ -1280,7 +1239,7 @@ function install_central() {
 		}
 		echo $timezoneName;
 	' 2>/dev/null)
-	if [[ "${detected_os_release}" =~ (debian|ubuntu)-release-.* ]]; then
+	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		# Determine the PHP version Centreon expects for this release...
 		case "$version" in
 			"24.10" | "25.10") expected_php_version="8.2" ;;
@@ -1316,7 +1275,7 @@ function install_central() {
 function install_poller() {
 	log "INFO" "Poller installation from ${CENTREON_REPO}"
 
-	if [[ "${detected_os_release}" =~ (debian|ubuntu)-release-.* ]]; then
+	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		if [[ "$version" =~ ^24\.1[0-2]$ ]]; then
 			$PKG_MGR install -y $CENTREON_DBMS_PKG centreon-poller
 		else
@@ -1340,7 +1299,7 @@ function install_poller() {
 #
 function update_centreon_packages() {
 	log "INFO" "Update Centreon packages using ${CENTREON_REPO}"
-	if [[ "${detected_os_release}" =~ (debian|ubuntu)-release-.* ]]; then
+	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		$PKG_MGR upgrade centreon
 	else
 		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q update -y centreon\* --enablerepo=$CENTREON_REPO
@@ -1372,7 +1331,7 @@ function update_after_installation() {
 
 	enable_new_services
 
-	if ! [[ "${detected_os_release}" =~ (debian|ubuntu)-release-.* ]]; then
+	if ! [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		# install Centreon SELinux packages first (as getenforce is still at 0)
 		$PKG_MGR -q install -y ${CENTREON_SELINUX_PACKAGES[@]} --enablerepo="$CENTREON_REPO"
 		if [ $? -ne 0 ]; then
@@ -1485,7 +1444,7 @@ is_systemd_present
 ## Start to execute
 case $operation in
 install)
-	if ! [[ "${detected_os_release}" =~ (debian|ubuntu)-release-.* ]]; then
+	if ! [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		setup_before_installation
 	fi
 
