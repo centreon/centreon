@@ -1,0 +1,42 @@
+meta {
+  name: POST /login - Login with super_administrator - HTTP 200
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrlWeb}}/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "security": {
+      "credentials": {
+        "login": "{{user_super_administrator_login}}",
+        "password": "{{user_super_administrator_password}}"
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Super administrator login returns a token used to reload ACLs.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("security");
+    const security = body.security;
+    expect(security.token).to.be.a("string");
+    bru.setGlobalEnvVar("superAdminToken", security.token);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
