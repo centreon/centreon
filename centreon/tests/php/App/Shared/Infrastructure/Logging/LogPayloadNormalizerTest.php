@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2026 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ namespace Tests\App\Shared\Infrastructure\Logging;
 
 use App\Shared\Infrastructure\Logging\LogPayloadNormalizer;
 use App\Shared\Infrastructure\Logging\NonArrayNormalizationException;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Tests\App\Shared\Infrastructure\Logging\Double\BackedColour;
@@ -33,7 +34,7 @@ use Tests\App\Shared\Infrastructure\Logging\Double\PureColour;
 
 final class LogPayloadNormalizerTest extends TestCase
 {
-    private NormalizerInterface $inner;
+    private NormalizerInterface&Stub $inner;
 
     protected function setUp(): void
     {

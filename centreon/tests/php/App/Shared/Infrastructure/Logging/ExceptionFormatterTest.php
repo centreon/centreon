@@ -173,7 +173,7 @@ final class ExceptionFormatterTest extends TestCase
         // frames without a `class` key. The renderer must emit just the
         // function name in that case — never `::App\{closure}()`.
         try {
-            array_map(static function (int $x): int {
+            array_map(static function (int $value): int {
                 throw new \RuntimeException('from closure inside array_map');
             }, [1]);
             self::fail('Expected exception was not thrown.');

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2026 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,10 +60,9 @@ final class LogPayloadNormalizer
     }
 
     /**
-     * @return array<string, mixed>
-     *
      * @throws NonArrayNormalizationException if the inner normalizer returns a non-array value
-     * @throws ExceptionInterface             from the inner normalizer
+     * @throws ExceptionInterface from the inner normalizer
+     * @return array<string, mixed>
      */
     public function normalize(object $message): array
     {

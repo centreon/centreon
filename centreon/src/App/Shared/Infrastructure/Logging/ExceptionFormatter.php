@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2026 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace App\Shared\Infrastructure\Logging;
 
 /**
- * @phpstan-type FormattedException array{
+ * @phpstan-type FormattedExceptionTypeAlias array{
  *     type: class-string|self::TRUNCATION_MARKER_TYPE,
  *     message: string,
  *     code: int|string,
@@ -49,7 +49,7 @@ final readonly class ExceptionFormatter
      * first, each `previous` in order — capped at MAX_EXCEPTIONS with a
      * trailing `@truncated` sentinel marking the cut.
      *
-     * @return array{exceptions: list<FormattedException>}
+     * @return array{exceptions: list<FormattedExceptionTypeAlias>}
      */
     public static function format(\Throwable $throwable): array
     {
@@ -87,7 +87,7 @@ final readonly class ExceptionFormatter
     }
 
     /**
-     * @return FormattedException
+     * @return FormattedExceptionTypeAlias
      */
     private static function truncationMarker(): array
     {
@@ -109,8 +109,8 @@ final readonly class ExceptionFormatter
         $trace = $throwable->getTrace();
         $frames = [];
 
-        foreach ($trace as $i => $frame) {
-            if ($i >= self::MAX_TRACE_FRAMES) {
+        foreach ($trace as $index => $frame) {
+            if ($index >= self::MAX_TRACE_FRAMES) {
                 break;
             }
             $class = $frame['class'] ?? '';

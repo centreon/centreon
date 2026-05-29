@@ -112,7 +112,9 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
         return round((hrtime(true) - $startedAt) / 1_000_000, 3);
     }
 
-    /** @return list<string> handler names from HandledStamps in the envelope */
+    /**
+     * @return list<string> handler names from HandledStamps in the envelope
+     */
     private function collectHandlers(Envelope $envelope): array
     {
         $names = [];

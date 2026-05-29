@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2026 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ final class LoggingMiddlewareIntegrationTest extends KernelTestCase
         self::bootKernel();
         $container = self::getContainer();
 
-        $logger = $container->get('monolog.logger.app');
+        $logger = $container->get('monolog.logger');
         \assert($logger instanceof Logger);
 
         // Push a TestHandler on the app logger to capture records in-memory.
