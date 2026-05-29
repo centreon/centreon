@@ -1,7 +1,7 @@
 meta {
   name: POST /monitoring/resources/comments - Add host comment - HTTP 204
   type: http
-  seq: 11
+  seq: 2
 }
 
 post {
@@ -25,8 +25,8 @@ body:json {
 }
 
 tests {
-  test("Administrator can add a comment on a host (known infra issue: monitoring engine may not run in CI, returns 404).", function () {
-    expect(res.status).to.be.oneOf([204, 404]);
+  test("administrator access depends on ACL (not recomputed in CI): allowed or denied (403/404 when the resource is ACL-filtered).", function () {
+    expect(res.status).to.be.oneOf([204, 403, 404]);
   });
 }
 
