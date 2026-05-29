@@ -13,9 +13,9 @@ post {
 body:json {
   {
     "name": "{{CommandName}}",
-    "type": "Check",
+    "type": 2,
     "command_line": "{{CommandLine}}",
-    "is_shell_enabled": false
+    "is_shell": false
   }
 }
 
@@ -30,9 +30,9 @@ tests {
     expect(body).to.include({
       "id": body.id,
       "name": bru.getEnvVar("CommandName"),
-      "type": "Check",
+      "type": 2,
       "command_line": bru.getEnvVar("CommandLine"),
-      "is_shell_enabled": false,
+      "is_shell": false,
       "is_activated": true
     });
   });
