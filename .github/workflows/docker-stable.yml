@@ -219,8 +219,8 @@ jobs:
           pull: false
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/centreon-web-dependencies-collect:${{ needs.check-inputs.outputs.major_version }}-latest-${{ matrix.distrib }}
-            ghcr.io/${{ github.repository }}/centreon-web-dependencies-collect:${{ inputs.release_bundle_tag }}-${{ matrix.distrib }}
+            ghcr.io/${{ github.repository }}/centreon-web-dependencies-collect:${{ needs.check-inputs.outputs.major_version }}-latest
+            ghcr.io/${{ github.repository }}/centreon-web-dependencies-collect:${{ inputs.release_bundle_tag }}
 
       - name: Build and push web image
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
