@@ -1281,11 +1281,25 @@ function install_central() {
 		echo $timezoneName;
 	' 2>/dev/null)
 	if [[ "${detected_os_release}" =~ (debian|ubuntu)-release-.* ]]; then
-		if [[ ! "$version" =~ ^24\.1[0-2]$ ]]; then
-			echo "date.timezone = $timezone" >> /etc/php/8.1/mods-available/centreon.ini
+		# Determine the PHP version Centreon expects for this release...
+		case "$version" in
+			"24.10" | "25.10") expected_php_version="8.2" ;;
+			*) expected_php_version="" ;;
+		esac
+		# ...then cross-check against the PHP actually installed (authoritative for the on-disk path).
+		installed_php_version=$($PHP_BIN -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;' 2>/dev/null)
+		if [[ -z "$expected_php_version" ]]; then
+			php_version="$installed_php_version"
+		elif [[ -n "$installed_php_version" && "$installed_php_version" != "$expected_php_version" ]]; then
+			log "WARN" "Centreon $version expects PHP $expected_php_version but PHP $installed_php_version is installed; using the installed version"
+			php_version="$installed_php_version"
 		else
-			echo "date.timezone = $timezone" >> /etc/php/8.2/mods-available/centreon.ini
+			php_version="$expected_php_version"
 		fi
+		if [[ -z "$php_version" ]]; then
+			error_and_exit "Unable to determine the PHP version to configure for Centreon $version"
+		fi
+		echo "date.timezone = $timezone" >> /etc/php/$php_version/mods-available/centreon.ini
 	else
 		echo "date.timezone = $timezone" >> $PHP_ETC/50-centreon.ini
 	fi
