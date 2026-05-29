@@ -167,7 +167,7 @@ runs:
             if [[ -n "$COPYRIGHT_SRC" ]]; then
               cp "$COPYRIGHT_SRC" ./copyright
               PACKAGE_NAME=$(grep '^name:' "$BASENAME" | head -1 | sed 's/^name: *//;s/"//g' | xargs)
-              python3 -c "import yaml; f=open('${BASENAME}'); c=yaml.safe_load(f); f.close(); c.setdefault('contents',[]).append({'src':'./copyright','dst':'/usr/share/doc/${PACKAGE_NAME}/copyright','packager':'deb'}); f=open('${BASENAME}','w'); yaml.dump(c,f,default_flow_style=False,allow_unicode=True,sort_keys=False); f.close()"
+              awk -v pkg="$PACKAGE_NAME" 'BEGIN{injected=0} (/^scripts:/ || /^overrides:/ || /^rpm:/ || /^deb:/) && !injected { print "  - src: ./copyright"; print "    dst: /usr/share/doc/" pkg "/copyright"; print "    packager: deb"; injected=1 } { print }' "$BASENAME" > "${BASENAME}.tmp" && mv "${BASENAME}.tmp" "$BASENAME"
             fi
           fi
           nfpm package --config $BASENAME --packager "$INPUT_PACKAGE_EXTENSION"
