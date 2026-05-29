@@ -33,6 +33,7 @@ tests {
     const security = body.security;
     expect(security.token).to.be.a("string");
     bru.setGlobalEnvVar("superAdminToken", security.token);
+    bru.setGlobalEnvVar("authToken", security.token);
   });
 }
 
