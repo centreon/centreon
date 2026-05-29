@@ -167,7 +167,7 @@ runs:
             if [[ -n "$COPYRIGHT_SRC" ]]; then
               cp "$COPYRIGHT_SRC" ./copyright
               PACKAGE_NAME=$(grep '^name:' "$BASENAME" | head -1 | sed 's/^name: *//;s/"//g' | xargs)
-              awk -v pkg="$PACKAGE_NAME" 'BEGIN{injected=0} (/^scripts:/ || /^overrides:/ || /^rpm:/ || /^deb:/) && !injected { print "  - src: ./copyright"; print "    dst: /usr/share/doc/" pkg "/copyright"; print "    packager: deb"; injected=1 } { print }' "$BASENAME" > "${BASENAME}.tmp" && mv "${BASENAME}.tmp" "$BASENAME"
+              awk -v pkg="$PACKAGE_NAME" 'BEGIN{in_contents=0;injected=0} /^contents:/{in_contents=1} in_contents && /^[a-z]/ && !/^contents:/ && !injected{print "  - src: ./copyright"; print "    dst: /usr/share/doc/" pkg "/copyright"; print "    packager: deb"; injected=1; in_contents=0} {print} END{if(!injected){if(!in_contents){print "contents:"} print "  - src: ./copyright"; print "    dst: /usr/share/doc/" pkg "/copyright"; print "    packager: deb"}}' "$BASENAME" > "${BASENAME}.tmp" && mv "${BASENAME}.tmp" "$BASENAME"
             fi
           fi
           nfpm package --config $BASENAME --packager "$INPUT_PACKAGE_EXTENSION"
