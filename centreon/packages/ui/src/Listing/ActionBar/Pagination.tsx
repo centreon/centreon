@@ -23,7 +23,8 @@ const MemoizedPagination = memo(
     equals(prevProps.page, nextProps.page) &&
     equals(prevProps.count, nextProps.count) &&
     equals(prevProps.labelRowsPerPage, nextProps.labelRowsPerPage) &&
-    equals(prevProps.className, nextProps.className)
+    equals(prevProps.className, nextProps.className) &&
+    prevProps.labelDisplayedRows === nextProps.labelDisplayedRows
 );
 
 export default MemoizedPagination;

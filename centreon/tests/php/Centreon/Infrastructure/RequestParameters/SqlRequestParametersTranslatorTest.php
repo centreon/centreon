@@ -243,7 +243,7 @@ class SqlRequestParametersTranslatorTest extends TestCase
         );
 
         $this->assertEquals(
-            ' ORDER BY h.name IS NULL, h.name ASC, h.description IS NULL, h.description DESC',
+            ' ORDER BY h.name IS NULL, h.name ASC, h.description DESC',
             $sqlRequestParametersTranslator->translateSortParameterToSql()
         );
     }
