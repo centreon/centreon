@@ -34,7 +34,6 @@ $errorMessage = '';
 
 /** ------------------------------------- DO NOT MERGE, FOR TEST ONLY ------------------------------------- */
 
-
 /**
  * @var ConnectionInterface $pearDB
  * @var ConnectionInterface $pearDBO
