@@ -21,16 +21,14 @@
 
 declare(strict_types=1);
 
-namespace Core\Resources\Infrastructure\Repository\ResourceACLProviders;
+namespace Tests\App\Shared\Infrastructure\Messenger\Double;
 
-interface ResourceACLProviderInterface
+final readonly class SampleCommand
 {
-    /**
-     * Build ACL sub request regarding access groups IDs for the given resource type.
-     *
-     * @param int[] $accessGroupIds
-     *
-     * @return string
-     */
-    public function buildACLSubRequest(array $accessGroupIds): string;
+    public function __construct(
+        public string $username,
+        public string $password,
+        public string $description = 'some description',
+    ) {
+    }
 }

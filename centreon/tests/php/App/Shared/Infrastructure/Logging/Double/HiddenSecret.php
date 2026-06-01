@@ -21,24 +21,21 @@
 
 declare(strict_types=1);
 
-namespace Core\Resources\Infrastructure\Repository\ResourceACLProviders;
+namespace Tests\App\Shared\Infrastructure\Logging\Double;
 
-use Core\Domain\RealTime\Model\ResourceTypes\MetaServiceResourceType;
-
-class MetaServiceACLProvider implements ResourceACLProviderInterface
+/**
+ * Plain object with no Stringable/Enum/DateTime semantics. Used to pin that
+ * sanitize() falls back to a class-name placeholder rather than leaking
+ * private state when an unexpected object reaches the log payload.
+ */
+final readonly class HiddenSecret
 {
-    public function buildACLSubRequest(array $accessGroupIds): string
+    public function __construct(private string $secret)
     {
-        $requestPattern = 'EXISTS (
-            SELECT 1
-            FROM `:dbstg`.centreon_acl acl
-            WHERE
-                resources.type = %d
-                AND resources.parent_id = acl.host_id
-                AND resources.id = acl.service_id
-                AND acl.group_id IN (%s)
-        )';
+    }
 
-        return sprintf($requestPattern, MetaServiceResourceType::TYPE_ID, implode(', ', $accessGroupIds));
+    public function reveal(): string
+    {
+        return $this->secret;
     }
 }
