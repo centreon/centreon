@@ -11,7 +11,7 @@
   },
   "require-dev": {
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "dev-MON-198133-php-8.4"
+    "centreon/centreon-test-lib": "dev-master"
   },
   "repositories": [
     {

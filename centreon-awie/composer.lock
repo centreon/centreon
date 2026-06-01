@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b98717ce7d84d63d38e7da697d65751e",
+    "content-hash": "c10004f957f206aa3e79651d36be9667",
     "packages": [],
     "packages-dev": [
         {
@@ -1556,7 +1556,7 @@
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "fb6445d1ba0a812e0c6a173a3432382170c9d99c"
+                "reference": "384f88ab54afd8bb31cb5669343e8b4e09a67e6b"
             },
             "require": {
                 "amphp/http-client": "4.6.*",
@@ -1650,7 +1650,7 @@
             },
             "require-dev": {
                 "behat/mink-selenium2-driver": "1.6.*",
-                "centreon/centreon-test-lib": "dev-MON-198133-php-8.4",
+                "centreon/centreon-test-lib": "dev-master",
                 "dama/doctrine-test-bundle": "8.3.*",
                 "friends-of-behat/mink": "1.11.*",
                 "friends-of-behat/mink-extension": "2.7.*",
@@ -1919,16 +1919,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-MON-198133-php-8.4",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "c122de3675322bb7e23ab62ad8cfba707f0eeff1"
+                "reference": "e93f82b33fd91de2e8a36da11a30b77d00989502"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/c122de3675322bb7e23ab62ad8cfba707f0eeff1",
-                "reference": "c122de3675322bb7e23ab62ad8cfba707f0eeff1",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/e93f82b33fd91de2e8a36da11a30b77d00989502",
+                "reference": "e93f82b33fd91de2e8a36da11a30b77d00989502",
                 "shasum": ""
             },
             "require": {
@@ -1949,6 +1949,7 @@
                 "behat/mink": "Browser controller/emulator abstraction for PHP",
                 "behat/mink-selenium2-driver": "Mink driver using Selenium"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -1966,9 +1967,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/MON-198133-php-8.4"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/master"
             },
-            "time": "2026-05-14T14:32:38+00:00"
+            "time": "2026-06-01T08:45:07+00:00"
         },
         {
             "name": "composer/pcre",
@@ -3810,16 +3811,16 @@
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "2.10.3",
+            "version": "2.10.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "7c1472269227dc6f18930bd903d7a88fe6c52130"
+                "reference": "d2a1a094e396da8957e797489fddaf860c340cfc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/7c1472269227dc6f18930bd903d7a88fe6c52130",
-                "reference": "7c1472269227dc6f18930bd903d7a88fe6c52130",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/d2a1a094e396da8957e797489fddaf860c340cfc",
+                "reference": "d2a1a094e396da8957e797489fddaf860c340cfc",
                 "shasum": ""
             },
             "require": {
@@ -3907,7 +3908,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/psr7/issues",
-                "source": "https://github.com/guzzle/psr7/tree/2.10.3"
+                "source": "https://github.com/guzzle/psr7/tree/2.10.4"
             },
             "funding": [
                 {
@@ -3923,7 +3924,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-27T11:48:20+00:00"
+            "time": "2026-05-29T12:59:07+00:00"
         },
         {
             "name": "instaclick/php-webdriver",
@@ -11694,16 +11695,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v3.27.0",
+            "version": "v3.27.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "04ae1bfe9463c816cf72ca0abe7eae2c77a9a9ed"
+                "reference": "ae2071bffb38f04847fc0864d730c94b9cb8ab74"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/04ae1bfe9463c816cf72ca0abe7eae2c77a9a9ed",
-                "reference": "04ae1bfe9463c816cf72ca0abe7eae2c77a9a9ed",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/ae2071bffb38f04847fc0864d730c94b9cb8ab74",
+                "reference": "ae2071bffb38f04847fc0864d730c94b9cb8ab74",
                 "shasum": ""
             },
             "require": {
@@ -11758,7 +11759,7 @@
             ],
             "support": {
                 "issues": "https://github.com/twigphp/Twig/issues",
-                "source": "https://github.com/twigphp/Twig/tree/v3.27.0"
+                "source": "https://github.com/twigphp/Twig/tree/v3.27.1"
             },
             "funding": [
                 {
@@ -11770,7 +11771,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-27T13:05:51+00:00"
+            "time": "2026-05-30T17:09:26+00:00"
         },
         {
             "name": "webmozart/assert",
@@ -11945,9 +11946,9 @@
         "ext-pdo": "*",
         "ext-zip": "*"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "php": "8.4"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
