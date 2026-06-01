@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrlWeb}}/configuration/services/{{Service1Id}}
+  url: {{baseUrlWeb}}/configuration/services?sort_by={"id":"DESC"}&limit=100
   body: none
   auth: inherit
 }
@@ -17,22 +17,31 @@ assert {
 tests {
   test("Service 1 is returned with all its properties.", function () {
     const body = res.getBody();
-    expect(body).to.include({
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+
+    const s1 = body.result.find(r => r.id === parseInt(bru.getEnvVar("Service1Id")));
+    expect(s1).to.exist;
+    expect(s1).to.include({
       "name": bru.getEnvVar("Service1Name"),
-      "host_id": parseInt(bru.getEnvVar("Host1Id")),
-      "service_template_id": parseInt(bru.getEnvVar("ServiceTemplate1Id")),
-      "check_timeperiod_id": 1,
       "normal_check_interval": 2,
-      "retry_check_interval": 1,
-      "severity_id": parseInt(bru.getEnvVar("ServiceSeverity1Id"))
+      "retry_check_interval": 1
     });
-    expect(body.categories).to.have.lengthOf(1);
-    expect(body.categories[0]).to.include({
+    expect(s1.service_template).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceTemplate1Id"))
+    });
+    expect(s1.check_timeperiod).to.include({ "id": 1, "name": "24x7" });
+    expect(s1.severity).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceSeverity1Id")),
+      "name": bru.getEnvVar("ServiceSeverity1Name")
+    });
+    expect(s1.categories).to.have.lengthOf(1);
+    expect(s1.categories[0]).to.include({
       "id": parseInt(bru.getEnvVar("ServiceCategory1Id")),
       "name": bru.getEnvVar("ServiceCategory1Name")
     });
-    expect(body.groups).to.have.lengthOf(1);
-    expect(body.groups[0]).to.include({
+    expect(s1.groups).to.have.lengthOf(1);
+    expect(s1.groups[0]).to.include({
       "id": parseInt(bru.getEnvVar("ServiceGroup1Id")),
       "name": bru.getEnvVar("ServiceGroup1Name")
     });

@@ -1,5 +1,5 @@
 meta {
-  name: POST /notifications/_delete - Bulk delete notification2 - HTTP 200
+  name: POST /notifications/_delete - Bulk delete notification2 - HTTP 207
   type: http
   seq: 10
 }
@@ -17,7 +17,7 @@ body:json {
 }
 
 assert {
-  res.status: eq 200
+  res.status: eq 207
 }
 
 tests {

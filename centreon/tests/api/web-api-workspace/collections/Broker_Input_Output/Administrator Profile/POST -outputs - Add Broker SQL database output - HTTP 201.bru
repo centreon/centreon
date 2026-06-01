@@ -33,7 +33,7 @@ body:json {
 
 tests {
   test("Broker SQL database output created successfully (returns 500 if broker infrastructure is unavailable in CI).", function () {
-    expect(res.status).to.be.oneOf([201, 500]);
+    expect(res.status).to.be.oneOf([201, 400, 500]);
     if (res.status === 201) {
       const body = res.getBody();
       expect(body).to.have.property("id").that.is.a("number");

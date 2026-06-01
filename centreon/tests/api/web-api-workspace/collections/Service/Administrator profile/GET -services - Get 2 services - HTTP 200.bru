@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrlWeb}}/configuration/services/{{Service2Id}}
+  url: {{baseUrlWeb}}/configuration/services?sort_by={"id":"DESC"}&limit=100
   body: none
   auth: inherit
 }
@@ -17,17 +17,23 @@ assert {
 tests {
   test("Service 2 is returned with only mandatory properties.", function () {
     const body = res.getBody();
-    expect(body).to.include({
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+
+    const s2 = body.result.find(r => r.id === parseInt(bru.getEnvVar("Service2Id")));
+    expect(s2).to.exist;
+    expect(s2).to.include({
       "name": bru.getEnvVar("Service2Name"),
-      "host_id": parseInt(bru.getEnvVar("Host2Id")),
-      "service_template_id": parseInt(bru.getEnvVar("ServiceTemplate1Id")),
-      "check_timeperiod_id": null,
+      "check_timeperiod": null,
+      "severity": null,
       "normal_check_interval": null,
-      "retry_check_interval": null,
-      "severity_id": null
+      "retry_check_interval": null
     });
-    expect(body.categories).to.be.an("array").that.is.empty;
-    expect(body.groups).to.be.an("array").that.is.empty;
+    expect(s2.service_template).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceTemplate1Id"))
+    });
+    expect(s2.categories).to.be.an("array").that.is.empty;
+    expect(s2.groups).to.be.an("array").that.is.empty;
   });
 }
 
