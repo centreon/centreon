@@ -1,0 +1,59 @@
+meta {
+  name: PATCH /services - Update service 2 - HTTP 204
+  type: http
+  seq: 23
+}
+
+patch {
+  url: {{baseUrlWeb}}/configuration/services/{{Service2Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "service_template_id": {{ServiceTemplate1Id}},
+    "check_timeperiod_id": 1,
+    "max_check_attempts": 7,
+    "normal_check_interval": 2,
+    "retry_check_interval": 1,
+    "note": "Bloubloublou",
+    "note_url": "Hakuna Matata",
+    "action_url": "Chachacha",
+    "icon_id": 1,
+    "severity_id": {{ServiceSeverity1Id}},
+    "geo_coords": "12.34,23.5",
+    "is_activated": true,
+    "service_categories": [ {{ServiceCategory2Id}} ],
+    "macros": [
+      {
+        "name": "MACROA",
+        "value": "A",
+        "is_password": false,
+        "description": null
+      },
+      {
+        "name": "MACROB",
+        "value": "B",
+        "is_password": false,
+        "description": null
+      }
+    ],
+    "service_groups": [ {{ServiceGroup1Id}} ]
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Service 2 has been successfully updated.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

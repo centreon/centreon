@@ -1,0 +1,40 @@
+meta {
+  name: POST /services/groups - Create SG with special characters - HTTP 201
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/groups
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{ServiceGroup3Name}}",
+    "alias": "{{ServiceGroup3Alias}}"
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The service group has been successfully created, with name '{{ServiceGroup3Name}}' and alias '{{ServiceGroup3Alias}}'.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("ServiceGroup3Id", body.id);
+    expect(body).to.include({
+      "id": body.id,
+      "name": bru.getEnvVar("ServiceGroup3Name"),
+      "alias": bru.getEnvVar("ServiceGroup3Alias"),
+      "is_activated": true
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,38 @@
+meta {
+  name: GET /hosts/categories - Get categories filtered by HG1 - HTTP 200
+  type: http
+  seq: 18
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/hosts/categories?search={"hostgroup.id":{{HostGroup1Id}}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The host categories filtered by HG1 are retrieved with all their parameters.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+    expect(body.result.length).to.eql(1);
+
+    const hc1 = body.result.find(r => r.id === parseInt(bru.getEnvVar("HostCategory1Id")));
+    expect(hc1).to.eql({
+      "id": parseInt(bru.getEnvVar("HostCategory1Id")),
+      "name": bru.getEnvVar("HostCategory1Name"),
+      "alias": bru.getEnvVar("HostCategory1Alias"),
+      "is_activated": false,
+      "comment": "Created by Admin"
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

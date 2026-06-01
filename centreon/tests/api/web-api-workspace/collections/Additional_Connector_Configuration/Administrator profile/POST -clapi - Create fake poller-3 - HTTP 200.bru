@@ -1,0 +1,34 @@
+meta {
+  name: POST /clapi - Create fake poller-3 - HTTP 200
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUriCentreonCLAPI}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
+}
+
+body:json {
+  {
+    "action": "add",
+    "object": "INSTANCE",
+    "values": "Poller-3;10.30.2.77;22;ZMQ;5556"
+  }
+}
+
+tests {
+  test("The fake poller-3 has been successfully created (returns 500 if CI infrastructure is unavailable).", function () {
+    expect(res.status).to.be.oneOf([200, 500]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

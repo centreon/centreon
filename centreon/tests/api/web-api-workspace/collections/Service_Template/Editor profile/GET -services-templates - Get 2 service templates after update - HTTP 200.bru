@@ -1,0 +1,73 @@
+meta {
+  name: GET /services/templates - Get 2 service templates after update - HTTP 200
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services/templates?sort_by={"id":"DESC"}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The service templates are listed correctly after ST3 deletion and ST4 update.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+
+    const st4 = body.result.find(r => r.id === parseInt(bru.getEnvVar("ServiceTemplate4Id")));
+    const st3 = body.result.find(r => r.id === parseInt(bru.getEnvVar("ServiceTemplate3Id")));
+    const st2 = body.result.find(r => r.id === parseInt(bru.getEnvVar("ServiceTemplate2Id")));
+
+    expect(st3).to.be.undefined;
+
+    expect(st4).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceTemplate4Id")),
+      "name": bru.getEnvVar("ServiceTemplate4Name"),
+      "alias": bru.getEnvVar("ServiceTemplate4Alias"),
+      "service_template_id": null,
+      "check_timeperiod_id": 1,
+      "max_check_attempts": 5,
+      "normal_check_interval": 3,
+      "retry_check_interval": 2,
+      "note": null,
+      "note_url": null,
+      "action_url": null,
+      "icon_id": null,
+      "severity_id": parseInt(bru.getEnvVar("ServiceSeverity1Id")),
+      "is_locked": false
+    });
+    expect(st4.host_templates).to.include.members([
+      parseInt(bru.getEnvVar("HostTemplate1Id")),
+      parseInt(bru.getEnvVar("HostTemplate2Id"))
+    ]);
+
+    expect(st2).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceTemplate2Id")),
+      "name": bru.getEnvVar("ServiceTemplate2Name"),
+      "alias": bru.getEnvVar("ServiceTemplate2Alias"),
+      "service_template_id": null,
+      "check_timeperiod_id": null,
+      "max_check_attempts": null,
+      "normal_check_interval": null,
+      "retry_check_interval": null,
+      "note": null,
+      "note_url": null,
+      "action_url": null,
+      "icon_id": null,
+      "severity_id": null,
+      "is_locked": false
+    });
+    expect(st2.host_templates).to.be.an("array").that.is.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
