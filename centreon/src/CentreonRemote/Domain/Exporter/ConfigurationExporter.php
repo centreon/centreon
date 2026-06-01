@@ -90,7 +90,7 @@ class ConfigurationExporter extends ExporterServiceAbstract
         // run before beginTransaction() to avoid breaking the import transaction.
         // FK checks must be disabled to prevent CASCADE deletes on tables not in the
         // export manifest (e.g. cfg_nagios_logger, acl_resources_*_relations).
-        $db->->executeStatement('SET FOREIGN_KEY_CHECKS=0');
+        $db->executeStatement('SET FOREIGN_KEY_CHECKS=0');
         $truncated = [];
         foreach ($import['data'] as $data) {
             if (! isset($truncated[$data['table']]) && isset($tables[$data['table']])) {
