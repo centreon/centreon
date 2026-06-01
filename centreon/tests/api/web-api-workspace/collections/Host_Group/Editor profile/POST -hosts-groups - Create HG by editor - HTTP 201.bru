@@ -13,8 +13,7 @@ post {
 body:json {
   {
     "name": "{{HostGroup5Name}}",
-    "alias": "{{HostGroup5Alias}}",
-    "hosts": []
+    "alias": "{{HostGroup5Alias}}"
   }
 }
 
@@ -32,8 +31,7 @@ tests {
       "alias": bru.getEnvVar("HostGroup5Alias"),
       "icon_id": null,
       "geo_coords": null,
-      "comment": null,
-      "hosts": []
+      "comment": null
     });
   });
 }
