@@ -1,0 +1,33 @@
+meta {
+  name: PATCH /openid - Partial update OpenID configuration forbidden - HTTP 403
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrlWeb}}/administration/authentication/providers/openid
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "is_active": false
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("Editor cannot partially update the OpenID provider configuration.", function () {
+
+    expect(res.status).to.equal(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

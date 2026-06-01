@@ -1,0 +1,27 @@
+meta {
+  name: DELETE /services - Delete service 3 - HTTP 204
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/services/{{Service3Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Service 3 has been successfully deleted.", function () {
+    expect(res.status).to.equal(204);
+    bru.deleteVar("Service3Id");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

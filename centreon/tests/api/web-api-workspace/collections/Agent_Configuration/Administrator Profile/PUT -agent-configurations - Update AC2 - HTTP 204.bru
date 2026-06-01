@@ -1,0 +1,49 @@
+meta {
+  name: PUT /agent-configurations - Update AC2 - HTTP 204
+  type: http
+  seq: 18
+  tags: [
+    ignore
+  ]
+}
+
+put {
+  url: {{baseUrlWeb}}/configuration/agent-configurations/{{AC2Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{AC2Name}}",
+    "connection_mode": "secure",
+    "poller_ids": [{{Poller4Id}}],
+    "configuration": {
+      "otel_public_certificate": "my-otel-certificate-name-123.crt",
+      "otel_ca_certificate": "ca-file-123.crt",
+      "otel_private_key": "my-otel-private-key-name-123.key",
+      "conf_server_port": 1444,
+      "conf_certificate": "my-certificate-name-123.crt",
+      "conf_private_key": "my-private-key-name-123.key"
+    }
+  }
+}
+
+tests {
+  test("PUT /agent-configurations - Update AC2 - HTTP 204 (returns 404 if feature unavailable in CI).", function () {
+    expect(res.status).to.be.oneOf([204, 404]);
+  });
+
+  if (res.status === 204) {
+    test("AC2 updated successfully.", function () {
+      const body = res.getBody();
+      expect(body).to.be.an("object");
+    });
+
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,98 @@
+meta {
+  name: POST /hosts - Create first host - HTTP 201
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{Host1Name}}",
+    "alias": "{{Host1Alias}}",
+    "address": "127.0.0.1",
+    "monitoring_server_id": 1,
+    "snmp_version": "2c",
+    "templates": [ {{HostTemplate1Id}} ],
+    "groups": [ {{HostGroup1Id}} ],
+    "categories": [ {{HostCategory1Id}} ],
+    "macros": [
+      {
+        "name": "try",
+        "value": "essaye",
+        "is_password": true,
+        "description": "some text"
+      },
+      {
+        "name": "again",
+        "value": "encore",
+        "is_password": false,
+        "description": null
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The first host has been successfully created.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("Host1Id", body.id);
+    expect(body).to.include({
+      "name": bru.getEnvVar("Host1Name"),
+      "alias": bru.getEnvVar("Host1Alias"),
+      "address": "127.0.0.1",
+      "monitoring_server_id": 1,
+      "snmp_version": "2c",
+      "geo_coords": null,
+      "note_url": null,
+      "note": null,
+      "action_url": null,
+      "timezone_id": null,
+      "severity_id": null,
+      "check_timeperiod_id": null,
+      "icon_id": null,
+      "max_check_attempts": null,
+      "normal_check_interval": null,
+      "retry_check_interval": null
+    });
+    expect(body.categories[0]).to.include({
+      "id": parseInt(bru.getEnvVar("HostCategory1Id")),
+      "name": bru.getEnvVar("HostCategory1Name")
+    });
+    expect(body.groups[0]).to.include({
+      "id": parseInt(bru.getEnvVar("HostGroup1Id")),
+      "name": bru.getEnvVar("HostGroup1Name")
+    });
+    expect(body.templates[0]).to.include({
+      "id": parseInt(bru.getEnvVar("HostTemplate1Id")),
+      "name": bru.getEnvVar("HostTemplate1Name")
+    });
+    const macroTry = body.macros.find(m => m.name === "TRY");
+    expect(macroTry).to.include({
+      "name": "TRY",
+      "value": null,
+      "is_password": true,
+      "description": "some text"
+    });
+    const macroAgain = body.macros.find(m => m.name === "AGAIN");
+    expect(macroAgain).to.include({
+      "name": "AGAIN",
+      "value": "encore",
+      "is_password": false,
+      "description": null
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
