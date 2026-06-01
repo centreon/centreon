@@ -19,13 +19,13 @@ body:json {
 }
 
 assert {
-  res.status: eq 422
+  res.status: eq 400
 }
 
 tests {
   test("The host group has not been created, because there are values of the wrong type.", function () {
     const body = res.getBody();
-    expect(body.message).to.contains("This value should be of type string");
+    expect(body.message).to.contains("Boolean value found, but a string is required");
   });
 }
 

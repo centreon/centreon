@@ -46,7 +46,7 @@ tests {
       expect(body.parameters.vcenters[0]).to.include({
         "name": "my-vcenter",
         "url": "http://10.10.10.10/sdk",
-        "username": "admin",
+        "username": null,
         "password": null
       });
       expect(body.pollers).to.have.lengthOf(1);

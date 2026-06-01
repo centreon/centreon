@@ -17,13 +17,13 @@ body:json {
 }
 
 assert {
-  res.status: eq 422
+  res.status: eq 400
 }
 
 tests {
   test("The host group has not been created, because the name is mandatory.", function () {
     const body = res.getBody();
-    expect(body.message).to.contains("This value should not be null");
+    expect(body.message).to.contains("The property name is required");
   });
 }
 

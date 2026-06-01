@@ -5,13 +5,24 @@ meta {
 }
 
 get {
-  url: {{baseUrlWeb}}/configuration/services/{{Service2Id}}
+  url: {{baseUrlWeb}}/configuration/services?sort_by={"id":"DESC"}&limit=100
   body: none
   auth: inherit
 }
 
 assert {
-  res.status: eq 404
+  res.status: eq 200
+}
+
+tests {
+  test("Service 2 is no longer returned after deletion.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+
+    const s2 = body.result.find(r => r.id === parseInt(bru.getEnvVar("Service2Id")));
+    expect(s2).to.be.undefined;
+  });
 }
 
 settings {
