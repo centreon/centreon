@@ -894,7 +894,7 @@ jobs:
           mv *.${{ steps.matrix_include.outputs.package_extension }} packages-centreon/
         shell: bash
 
-      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+      - uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
 
       - name: Compute docker tags
         id: docker_tags
@@ -926,6 +926,7 @@ jobs:
             "MAJOR_VERSION=${{ needs.get-environment.outputs.major_version }}"
             "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
+            "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
           pull: true
           push: ${{ github.event.pull_request.head.repo.fork != true }}
           load: true
@@ -1268,12 +1269,13 @@ jobs:
             centreon/doc/API/centreon-logo.png
           retention-days: 1
 
-  deliver-rpm:
+  deliver:
     runs-on: centreon-common
     needs:
       [
         changes,
         get-environment,
+        bruno-api-test,
         e2e-test,
         legacy-e2e-test
       ]
@@ -1288,13 +1290,14 @@ jobs:
       github.event.pull_request.head.repo.fork != true
     strategy:
       matrix:
-        distrib: [el8, el9]
-    name: deliver-rpm ${{ matrix.distrib }}
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
+    name: deliver ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
-      - name: Delivery
+      - name: Deliver RPM package
+        if: matrix.package_extension == 'rpm'
         uses: ./.github/actions/rpm-delivery
         with:
           module_name: web
@@ -1308,34 +1311,8 @@ jobs:
           delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
           centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  deliver-deb:
-    runs-on: centreon-common
-    needs:
-      [
-        changes,
-        get-environment,
-        bruno-api-test,
-        e2e-test,
-        legacy-e2e-test
-      ]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      needs.changes.outputs.trigger_delivery == 'true' &&
-      github.event.pull_request.head.repo.fork != true &&
-      (needs.get-environment.outputs.is_cloud == 'false' || needs.get-environment.outputs.stability == 'unstable')
-    strategy:
-      matrix:
-        distrib: [bookworm]
-    name: deliver-deb ${{ matrix.distrib }}
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-
-      - name: Delivery
+      - name: Deliver DEB package
+        if: matrix.package_extension == 'deb'
         uses: ./.github/actions/deb-delivery
         with:
           module_name: web
@@ -1348,7 +1325,7 @@ jobs:
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   promote:
-    needs: [get-environment, deliver-deb, deliver-rpm]
+    needs: [get-environment, deliver]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
@@ -1359,7 +1336,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        distrib: [el8, el9, bookworm]
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
     name: promote ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
@@ -1379,7 +1356,7 @@ jobs:
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   set-skip-label:
-    needs: [get-environment, deliver-deb, deliver-rpm, promote]
+    needs: [get-environment, deliver, promote]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&
@@ -1389,7 +1366,7 @@ jobs:
 
   clear-branch-cache:
     runs-on: ubuntu-24.04
-    needs: [get-environment, deliver-deb, deliver-rpm]
+    needs: [get-environment, deliver]
     env:
       GH_TOKEN: ${{ github.event.pull_request.head.repo.fork == true && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
     if: |
@@ -1415,8 +1392,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [
       get-environment,
-      deliver-rpm,
-      deliver-deb
+      deliver
     ]
     if: |
       needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
