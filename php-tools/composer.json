@@ -3,10 +3,10 @@
   "version": "25.09",
   "description": "Centreon - Tools for development",
   "require": {
-    "php": "8.2.*",
+    "php": "8.4.*",
     "ext-mbstring": "*",
     "deptrac/deptrac": "3.0.*",
-    "friendsofphp/php-cs-fixer": "3.76.*",
+    "friendsofphp/php-cs-fixer": "3.80.*",
     "maglnet/composer-require-checker": "4.16.*",
     "phpstan/phpstan": "2.1.*",
     "phpstan/phpstan-beberlei-assert": "2.0.*",
@@ -27,7 +27,7 @@
   "config": {
     "sort-packages": true,
     "platform": {
-      "php": "8.2"
+      "php": "8.4"
     },
     "preferred-install": {
       "*": "dist"

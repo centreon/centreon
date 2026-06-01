@@ -698,9 +698,42 @@ $addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $ve
     );
 };
 
+/** -------------------------------------- BBDO default version -------------------------------------- */
+$updateBbdoVersionDefault = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = "Unable to modify 'bbdo_version' column default in 'cfg_centreonbroker' table";
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: modifying 'bbdo_version' column default to '3.1.0'",
+    );
+
+    $pearDB->executeStatement('ALTER TABLE `cfg_centreonbroker` MODIFY `bbdo_version` VARCHAR(50) DEFAULT "3.1.0"');
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: 'bbdo_version' column default modified successfully",
+    );
+};
+
+$updateBbdoVersionValues = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = "Unable to update 'bbdo_version' values in 'cfg_centreonbroker' table";
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: updating 'bbdo_version' to '3.1.0' in 'cfg_centreonbroker' table",
+    );
+
+    $pearDB->executeStatement('UPDATE `cfg_centreonbroker` SET `bbdo_version` = "3.1.0"');
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: 'bbdo_version' values updated successfully",
+    );
+};
+
 try {
-    $addResourcesPerformanceIndexes();
     // DDL statements for real time database
+    $addResourcesPerformanceIndexes();
     $migrateInstanceIdToBigint();
 
     // DDL statements for configuration database
@@ -708,6 +741,8 @@ try {
     $migrateModuleTableInstanceIds();
     $renamePollerUuidToUid();
     $addEventScriptLogger();
+    $updateBbdoVersionDefault();
+    $updateBbdoVersionValues();
 
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {
