@@ -1,0 +1,20 @@
+meta {
+  name: DELETE /notifications - Delete forbidden - HTTP 403
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/notifications/1
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

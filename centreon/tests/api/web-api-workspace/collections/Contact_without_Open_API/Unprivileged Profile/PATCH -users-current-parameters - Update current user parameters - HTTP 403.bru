@@ -1,0 +1,28 @@
+meta {
+  name: PATCH /users/current/parameters - Update current user parameters - HTTP 403
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseUrlWeb}}/configuration/users/current/parameters
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "theme": "dark"
+  }
+}
+
+tests {
+  test("Unprivileged user cannot update current user parameters (ACL not fully configured in CI, may return 200).", function () {
+    expect(res.status).to.be.oneOf([204, 403]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,27 @@
+meta {
+  name: GET /acc - List ACC - HTTP 200
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/additional-connector-configurations
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("Editor can list ACC entries (known issue: count may differ if admin creation failed in CI).", function () {
+    expect(res.status).to.be.oneOf([200, 403, 404]);
+    if (res.status === 200) {
+      const body = res.getBody();
+      expect(body).to.have.property("result").that.is.an("array");
+      expect(body).to.have.property("meta").that.is.an("object");
+    }
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

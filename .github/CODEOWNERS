@@ -8,7 +8,7 @@
 
 **/config/                              @centreon/owners-php
 **/composer.*                           @centreon/owners-php
-**/tests/api/                           @centreon/owners-php
+**/tests/api/                           @centreon/owners-api-testing
 **/tests/php/                           @centreon/owners-php
 **/tests/clapi_export/                  @centreon/owners-php
 **/www/                                 @centreon/owners-php
@@ -56,8 +56,8 @@ dependencies/**                         @centreon/owners-pipelines
 
 **/config/features.json                 @centreon/release-management
 
-**/tests/rest_api/**                    @centreon/owners-api-testing
-
-.gitleaks.toml                          @centreon/owners-security
-.gitleaksignore                         @centreon/owners-security
-**/secu-*.yml                           @centreon/owners-security
+# Security Codeowners rules
+.gitleaks.toml                @centreon/owners-security
+.gitleaksignore               @centreon/owners-security
+.githooks/pre-commit          @centreon/owners-security
+**/secu-*.yml                 @centreon/owners-security
