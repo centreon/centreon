@@ -24,12 +24,8 @@ declare(strict_types=1);
 use PhpCsFixer\Config;
 use Tools\PhpCsFixer\PhpCsFixerRuleSet;
 
-$config = new Config();
-// @see https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/pull/7777
-$config->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect());
-// TODO MON-198134: remove this once PHP 8.4 is the minimum supported version
-$config->setUnsupportedPhpVersionAllowed(true);
-$config->setRiskyAllowed(false);
-$config->setRules(PhpCsFixerRuleSet::getRulesSafe());
-
-return $config;
+return new Config()
+    // @see https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/pull/7777
+    ->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
+    ->setRiskyAllowed(false)
+    ->setRules(PhpCsFixerRuleSet::getRulesSafe());
