@@ -783,6 +783,7 @@ jobs:
         id: get_package_matrix
         env:
           STABILITY: ${{ steps.get_stability.outputs.stability }}
+          IS_CLOUD: ${{ steps.detect_cloud_version.outputs.isCloud }}
           HAS_UPLOAD_ARTIFACTS: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'upload-artifacts') }}
           HAS_SYSTEM: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'system') }}
           HAS_DATABASE: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'database') }}
@@ -790,6 +791,7 @@ jobs:
         with:
           script: |
             const stability = process.env.STABILITY;
+            const isCloud = process.env.IS_CLOUD === 'true';
             const isFullRun = ['unstable', 'testing', 'stable'].includes(stability)
               || process.env.IS_NIGHTLY === 'true'
               || process.env.HAS_UPLOAD_ARTIFACTS === 'true'
@@ -807,7 +809,10 @@ jobs:
               ...info,
             }));
 
-            const result = isFullRun ? allDistribs : [allDistribs[0]];
+            const cloudDistrib = allDistribs.find(d => d.operating_system === 'alma9');
+            const onPremMainDistrib = allDistribs.find(d => d.operating_system === 'alma9');
+            const isCloudTestingOrStable = isCloud && ['testing', 'stable'].includes(stability);
+            const result = isCloudTestingOrStable ? [cloudDistrib] : isFullRun ? allDistribs : isCloud ? [cloudDistrib] : [onPremMainDistrib];
 
             console.log('package_matrix', result);
 
