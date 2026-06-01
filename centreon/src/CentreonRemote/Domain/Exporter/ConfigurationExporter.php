@@ -99,7 +99,7 @@ class ConfigurationExporter extends ExporterServiceAbstract
                 $truncated[$data['table']] = 1;
             }
         }
-        $db->->executeStatement('SET FOREIGN_KEY_CHECKS=1');
+        $db->executeStatement('SET FOREIGN_KEY_CHECKS=1');
 
         // Phase 2: import data inside a transaction.
         $db->beginTransaction();
