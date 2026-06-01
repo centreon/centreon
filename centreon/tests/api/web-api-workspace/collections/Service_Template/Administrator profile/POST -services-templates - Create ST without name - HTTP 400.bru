@@ -1,0 +1,32 @@
+meta {
+  name: POST /services/templates - Create ST without name - HTTP 400
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/templates
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "alias": "{{ServiceTemplate1Alias}}"
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("The service template has not been created, because the name is missing.", function () {
+    expect(res.getBody().message).to.eql("[name] The property name is required\n");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

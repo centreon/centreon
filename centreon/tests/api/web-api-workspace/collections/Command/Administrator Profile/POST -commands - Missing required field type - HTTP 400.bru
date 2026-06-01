@@ -1,0 +1,31 @@
+meta {
+  name: POST /commands - Missing required field type - HTTP 400
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/commands
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {"name": "{{CommandName}}", "command_line": "{{CommandLine}}", "is_shell_enabled": true}
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("Command creation refused: missing type.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("code").that.equals(400);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

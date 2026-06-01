@@ -1,0 +1,47 @@
+meta {
+  name: POST /hosts/severities - Create host severity - HTTP 201
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/severities
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostSeverity1Name}}",
+    "alias": "{{HostSeverity1Alias}}",
+    "level": 2,
+    "icon_id": 1,
+    "is_activated": false,
+    "comment": "I look like a category but with something more"
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The host severity has been successfully created, with name '{{HostSeverity1Name}}' and alias '{{HostSeverity1Alias}}'.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("HostSeverity1Id", body.id);
+    expect(body).to.include({
+      "id": body.id,
+      "name": bru.getEnvVar("HostSeverity1Name"),
+      "alias": bru.getEnvVar("HostSeverity1Alias"),
+      "level": 2,
+      "icon_id": 1,
+      "is_activated": false,
+      "comment": "I look like a category but with something more"
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

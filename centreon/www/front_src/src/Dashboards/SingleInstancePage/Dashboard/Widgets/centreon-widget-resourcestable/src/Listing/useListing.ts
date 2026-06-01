@@ -1,6 +1,4 @@
-// @ts-nocheck
-// TODO: re-enable type-check after fixing this file
-import { type Column, useSnackbar } from '@centreon/ui';
+import { type Column, useFetchQuery, useSnackbar } from '@centreon/ui';
 
 import { useAtom, useAtomValue } from 'jotai';
 import { equals } from 'ramda';
@@ -9,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { getResourcesUrl, goToUrl } from '../../../utils';
+import { buildCountEndpoint } from '../api/endpoints';
 import {
   openTicketContextAtom,
   resourcesToAcknowledgeAtom,
@@ -20,12 +19,18 @@ import type { PanelOptions } from '../models';
 import useColumns from './Columns/useColumns';
 import {
   DisplayType,
+  type Resource as ListingResource,
   type NamedEntity,
   type ResourceListing,
   type Ticket
 } from './models';
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
 import useLoadResources from './useLoadResources';
+
+interface CountResponse {
+  count: number;
+  is_approximate: boolean;
+}
 
 interface UseListingState {
   cancelAcknowledge: () => void;
@@ -36,26 +41,29 @@ interface UseListingState {
     sortOrder,
     sortField
   }: {
-    sortOrder: SortOrder;
     sortField: string;
+    sortOrder: SortOrder;
   }) => void;
   columns: Array<Column>;
   confirmAcknowledge: () => void;
   confirmSetDowntime: () => void;
   data: ResourceListing | undefined;
   defaultSelectedColumnIds: Array<string>;
-  goToResourceStatusPage?: (row: Resource) => void;
+  exactCount: number | null;
+  goToResourceStatusPage?: (row: ListingResource) => void;
   hasMetaService: boolean;
+  isExactCountLoading: boolean;
   isLoading: boolean;
   onTicketClose: () => void;
   page: number | undefined;
+  requestExactCount: () => void;
   resetColumns: () => void;
-  resourcesToAcknowledge: unknown;
+  resourcesToAcknowledge: Array<ListingResource>;
   resourcesToOpenTicket: Array<Ticket>;
-  resourcesToSetDowntime: unknown;
+  resourcesToSetDowntime: Array<ListingResource>;
   selectColumns: (updatedColumnIds: Array<string>) => void;
-  selectedResources: unknown;
-  setSelectedResources: unknown;
+  selectedResources: Array<ListingResource>;
+  setSelectedResources: (resources: Array<ListingResource>) => void;
 }
 
 interface UseListingProps
@@ -105,7 +113,13 @@ const useListing = ({
 }: UseListingProps): UseListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
-  const { isOpenTicketEnabled } = useAtomValue(openTicketContextAtom);
+  const {
+    displayResources,
+    isDownHostHidden,
+    isOpenTicketEnabled,
+    isUnreachableHostHidden,
+    provider
+  } = useAtomValue(openTicketContextAtom);
 
   const [page, setPage] = useState(1);
   const [resourcesToOpenTicket, setResourcesToOpenTicket] = useAtom(
@@ -122,6 +136,60 @@ const useListing = ({
   const [resourcesToSetDowntime, setResourcesToSetDowntime] = useAtom(
     resourcesToSetDowntimeAtom
   );
+
+  const [exactCount, setExactCount] = useState<number | null>(null);
+
+  const getCountEndpoint = (): string =>
+    buildCountEndpoint({
+      displayResources: isOpenTicketEnabled ? displayResources : undefined,
+      hostSeverities,
+      isDownHostHidden: isOpenTicketEnabled ? isDownHostHidden : undefined,
+      isUnreachableHostHidden: isOpenTicketEnabled
+        ? isUnreachableHostHidden
+        : undefined,
+      provider: isOpenTicketEnabled ? provider : undefined,
+      resources,
+      serviceSeverities,
+      states,
+      statuses,
+      statusTypes,
+      type: displayType
+    });
+
+  const {
+    data: countData,
+    isFetching: isExactCountLoading,
+    refetch
+  } = useFetchQuery<CountResponse>({
+    getEndpoint: getCountEndpoint,
+    getQueryKey: () => ['exactCount', getCountEndpoint()],
+    queryOptions: {
+      enabled: false,
+      suspense: false
+    }
+  });
+
+  useEffect(() => {
+    if (countData?.count !== undefined) {
+      setExactCount(countData.count);
+    }
+  }, [countData]);
+
+  useEffect(() => {
+    setExactCount(null);
+  }, [
+    displayType,
+    JSON.stringify(resources),
+    JSON.stringify(states),
+    JSON.stringify(statuses),
+    JSON.stringify(statusTypes),
+    JSON.stringify(hostSeverities),
+    JSON.stringify(serviceSeverities)
+  ]);
+
+  const requestExactCount = (): void => {
+    refetch();
+  };
 
   useEffect(() => {
     if (isOpenTicketEnabled && isFromPreview) {
@@ -152,7 +220,7 @@ const useListing = ({
     widgetPrefixQuery
   });
 
-  const goToResourceStatusPage = (row: Resource): void => {
+  const goToResourceStatusPage = (row: ListingResource): void => {
     if (isFromPreview) {
       return;
     }
@@ -179,8 +247,8 @@ const useListing = ({
   );
 
   const changeSort = (sortParameters: {
-    sortOrder: SortOrder;
     sortField: string;
+    sortOrder: SortOrder;
   }): void => {
     setPanelOptions?.(sortParameters);
   };
@@ -254,11 +322,14 @@ const useListing = ({
     confirmSetDowntime,
     data,
     defaultSelectedColumnIds,
+    exactCount,
     goToResourceStatusPage,
     hasMetaService,
+    isExactCountLoading,
     isLoading,
     onTicketClose,
     page,
+    requestExactCount,
     resetColumns,
     resourcesToAcknowledge,
     resourcesToOpenTicket,
