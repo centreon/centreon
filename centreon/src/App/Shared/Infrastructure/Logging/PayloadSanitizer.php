@@ -41,8 +41,8 @@ use App\Shared\Infrastructure\Logging\Attribute\SensitivityScanner;
  */
 final readonly class PayloadSanitizer
 {
-    public const MAX_DEPTH = 3;
-    public const MAX_VALUE_LENGTH = 1024;
+    public const int MAX_DEPTH = 3;
+    public const int MAX_VALUE_LENGTH = 1024;
 
     /**
      * @param class-string|null $contextClass class whose `#[Sensitive]`

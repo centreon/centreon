@@ -119,7 +119,7 @@ final class PayloadSanitizerTest extends TestCase
 
     public function testRendersBackedEnumByValue(): void
     {
-        $sanitised = $this->sanitizer->sanitize(['status' => \Tests\App\Shared\Infrastructure\Logging\Double\BackedColour::Red]);
+        $sanitised = $this->sanitizer->sanitize(['status' => Double\BackedColour::Red]);
 
         \assert(\is_array($sanitised));
         self::assertSame('red', $sanitised['status']);

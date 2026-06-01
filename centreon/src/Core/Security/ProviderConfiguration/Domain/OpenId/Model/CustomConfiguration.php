@@ -725,14 +725,14 @@ class CustomConfiguration implements CustomConfigurationInterface, OpenIdCustomC
      */
     private function sanitizeEndpointValue(?string $value): ?string
     {
-        if ($value === null || mb_strlen(trim($value, ' /')) === 0) {
+        if ($value === null || mb_strlen(mb_trim($value, ' /')) === 0) {
             return null;
         }
 
         if (str_contains($value, 'http://') || str_contains($value, 'https://')) {
-            return ltrim(rtrim($value, ' /'));
+            return mb_ltrim(mb_rtrim($value, ' /'));
         }
 
-        return '/' . trim($value, ' /');
+        return '/' . mb_trim($value, ' /');
     }
 }

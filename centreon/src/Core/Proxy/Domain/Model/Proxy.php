@@ -46,18 +46,18 @@ class Proxy implements \Stringable
         #[Sensitive]
         private ?string $password = null,
     ) {
-        $this->url = trim($this->url);
+        $this->url = mb_trim($this->url);
         Assertion::notEmptyString($this->url, 'Proxy:url');
         $this->defineProtocolFromUrl();
         if ($this->port !== null) {
             Assertion::min($this->port, 0, 'Proxy:port');
         }
         if ($this->login !== null) {
-            $this->login = trim($this->login);
+            $this->login = mb_trim($this->login);
             Assertion::notEmptyString($this->login, 'Proxy:login');
         }
         if ($this->password !== null) {
-            $this->password = trim($this->password);
+            $this->password = mb_trim($this->password);
             Assertion::notEmptyString($this->password, 'Proxy:password');
         }
     }

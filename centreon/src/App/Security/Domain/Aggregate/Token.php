@@ -49,6 +49,7 @@ final class Token extends AggregateRoot
 
     public function willExpireIn(int $seconds): void
     {
-        $this->expiresAt = (new \DateTimeImmutable())->add(new \DateInterval("PT{$seconds}S"));
+        $now = new \DateTimeImmutable();
+        $this->expiresAt = $now->add(new \DateInterval("PT{$seconds}S"));
     }
 }

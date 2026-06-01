@@ -606,13 +606,13 @@ class OpenIdProvider implements OpenIdProviderInterface
             'client_secret' => $customConfiguration->getClientSecret(),
         ];
         $headers = [
-            'Authorization' => 'Bearer ' . trim($this->providerToken->getToken()),
+            'Authorization' => 'Bearer ' . mb_trim($this->providerToken->getToken()),
         ];
         try {
             $response = $this->client->request(
                 'POST',
                 $customConfiguration->getBaseUrl() . '/'
-                . ltrim($customConfiguration->getIntrospectionTokenEndpoint() ?? '', '/'),
+                . mb_ltrim($customConfiguration->getIntrospectionTokenEndpoint() ?? '', '/'),
                 [
                     'headers' => $headers,
                     'body' => $data,
@@ -680,7 +680,7 @@ class OpenIdProvider implements OpenIdProviderInterface
         $this->info('Sending Request for User Information...');
 
         $headers = [
-            'Authorization' => 'Bearer ' . trim($this->providerToken->getToken()),
+            'Authorization' => 'Bearer ' . mb_trim($this->providerToken->getToken()),
         ];
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
