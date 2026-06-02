@@ -88,6 +88,9 @@ class ConfigurationExporter extends ExporterServiceAbstract
         // Phase 1: clear tables and reset auto_increment outside transaction.
         // ALTER TABLE (DDL) causes an implicit commit in MySQL/MariaDB, so it must
         // run before beginTransaction() to avoid breaking the import transaction.
+        // FK checks must be disabled to prevent CASCADE deletes on tables not in the
+        // export manifest (e.g. cfg_nagios_logger, acl_resources_*_relations).
+        $db->query('SET FOREIGN_KEY_CHECKS=0');
         $truncated = [];
         foreach ($import['data'] as $data) {
             if (! isset($truncated[$data['table']]) && isset($tables[$data['table']])) {
@@ -96,6 +99,7 @@ class ConfigurationExporter extends ExporterServiceAbstract
                 $truncated[$data['table']] = 1;
             }
         }
+        $db->query('SET FOREIGN_KEY_CHECKS=1');
 
         // Phase 2: import data inside a transaction.
         $db->beginTransaction();
