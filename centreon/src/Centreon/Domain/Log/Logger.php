@@ -26,13 +26,7 @@ namespace Centreon\Domain\Log;
 use Psr\Log\LoggerInterface;
 
 /**
- * This class is designed to be used in legacy codebase to use a logger.
- *
- * @package Centreon\Domain\Log
- *
- * @deprecated since MON-151077 — write to {@see \Adaptation\Log\Logger}
- *             directly, with the appropriate
- *             {@see \Adaptation\Log\Enum\LogChannelEnum}
+ * @deprecated write to {@see \Adaptation\Log\Logger} directly
  */
 class Logger implements LoggerInterface
 {

@@ -25,15 +25,6 @@ namespace Tests\Centreon\Domain\Log;
 
 use LogicException;
 
-/*
- * Since MON-151077, LoggerTrait no longer wraps the caller-supplied context
- * into `{custom, exception, default}` — the array is forwarded as-is to the
- * underlying PSR-3 logger. Exceptions land in `context.exception` and the
- * platform `ExceptionFormatterProcessor` (wired on MonologAdapter) is
- * responsible for unwrapping them. The tests below pin that contract and
- * exercise every PSR-3 level helper to make sure the trait keeps proxying.
- */
-
 beforeEach(function (): void {
     $this->logFilePath = __DIR__ . '/log';
     $this->logPathFileName = $this->logFilePath . '/test.log';

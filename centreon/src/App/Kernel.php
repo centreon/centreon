@@ -105,8 +105,6 @@ class Kernel extends BaseKernel
     #[\Override]
     public function getLogDir(): string
     {
-        // Unified log directory under /var/log/centreon — cf. MON-151077,
-        // and keep parity with src/App/Shared/Infrastructure/Symfony/Kernel.php.
         return '/var/log/centreon';
     }
 

@@ -32,13 +32,6 @@ enum LogChannelEnum: string
     case UPGRADE = 'upgrade';
     case WEB = 'web';
 
-    /**
-     * Returns the file-name slug used to build `<APP_ENV>.<slug>.log`.
-     *
-     * The Monolog channel `authentication` writes into the legacy `access.log`
-     * file (cf. MON-151077: login.log + ldap.log + openid + saml are merged
-     * into a single `access` file).
-     */
     public function getLogFileSlug(): string
     {
         return match ($this) {

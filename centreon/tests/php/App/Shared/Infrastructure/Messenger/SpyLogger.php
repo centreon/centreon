@@ -40,11 +40,6 @@ final class SpyLogger extends AbstractLogger
     {
         $entry = ['message' => (string) $message, 'context' => $context];
 
-        // Captured levels reflect the current LoggingMiddleware contract:
-        // `info` (dispatching/handled), `warning` (normalisation fallback),
-        // `error` (handler throw). Any other level surfaces here as a
-        // LogicException so the test fails loudly when a new level is
-        // introduced without an explicit capture branch.
         match ($level) {
             'info' => $this->infoMessages[] = $entry,
             'warning' => $this->warningMessages[] = $entry,
