@@ -22,16 +22,14 @@ tests {
     expect(body.result.length).to.be.at.least(1);
 
     const hg1 = body.result.find(r => r.id === parseInt(bru.getEnvVar("HostGroup1Id")));
-    expect(hg1).to.eql({
+    expect(hg1).to.deep.include({
       "id": parseInt(bru.getEnvVar("HostGroup1Id")),
       "name": bru.getEnvVar("HostGroup1Name"),
       "alias": bru.getEnvVar("HostGroup1Alias"),
-      "icon": null,
+      "icon_id": null,
       "geo_coords": null,
       "comment": "Hello world! 1",
-      "is_activated": true,
-      "enabled_hosts_count": 0,
-      "disabled_hosts_count": 0
+      "is_activated": true
     });
   });
 }

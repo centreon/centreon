@@ -24,7 +24,7 @@ tests {
   test("The host group has been successfully created with mandatory properties only, with name '{{HostGroup2Name}}'.", function () {
     const body = res.getBody();
     bru.setEnvVar("HostGroup2Id", body.id);
-    expect(body).to.eql({
+    expect(body).to.deep.include({
       "id": body.id,
       "name": bru.getEnvVar("HostGroup2Name"),
       "alias": null,

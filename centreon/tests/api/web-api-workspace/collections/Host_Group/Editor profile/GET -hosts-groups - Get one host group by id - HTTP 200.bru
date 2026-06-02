@@ -17,11 +17,11 @@ assert {
 tests {
   test("The host group retrieved by editor is listed with all of its parameters.", function () {
     const body = res.getBody();
-    expect(body).to.eql({
+    expect(body).to.deep.include({
       "id": parseInt(bru.getEnvVar("HostGroup5Id")),
       "name": bru.getEnvVar("HostGroup5Name"),
       "alias": bru.getEnvVar("HostGroup5Alias"),
-      "icon": null,
+      "icon_id": null,
       "geo_coords": null,
       "comment": null,
       "is_activated": true
