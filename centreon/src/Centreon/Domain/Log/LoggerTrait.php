@@ -131,6 +131,10 @@ trait LoggerTrait
      */
     private function log(mixed $level, string $message, array $context = [], ?callable $callable = null): void
     {
+        if (! is_int($level) && ! is_string($level)) {
+            throw new InvalidArgumentException('Log level must be an int or a string.');
+        }
+
         $this->executeLog($level, $message, $context, $callable);
     }
 
