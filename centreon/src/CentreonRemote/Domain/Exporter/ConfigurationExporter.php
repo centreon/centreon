@@ -90,15 +90,18 @@ class ConfigurationExporter extends ExporterServiceAbstract
         // run before beginTransaction() to avoid breaking the import transaction.
         // Disable FK checks to prevent CASCADE deletes on tables outside the export manifest.
         $db->query('SET FOREIGN_KEY_CHECKS=0');
-        $truncated = [];
-        foreach ($import['data'] as $data) {
-            if (! isset($truncated[$data['table']]) && isset($tables[$data['table']])) {
-                $db->query('DELETE FROM `' . $data['table'] . '`');
-                $db->query('ALTER TABLE `' . $data['table'] . '` AUTO_INCREMENT = 1');
-                $truncated[$data['table']] = 1;
+        try {
+            $truncated = [];
+            foreach ($import['data'] as $data) {
+                if (! isset($truncated[$data['table']]) && isset($tables[$data['table']])) {
+                    $db->query('DELETE FROM `' . $data['table'] . '`');
+                    $db->query('ALTER TABLE `' . $data['table'] . '` AUTO_INCREMENT = 1');
+                    $truncated[$data['table']] = 1;
+                }
             }
+        } finally {
+            $db->query('SET FOREIGN_KEY_CHECKS=1');
         }
-        $db->query('SET FOREIGN_KEY_CHECKS=1');
 
         // Phase 2: import data inside a transaction.
         $db->beginTransaction();
@@ -129,9 +132,6 @@ class ConfigurationExporter extends ExporterServiceAbstract
                 }
             }
 
-            // restore foreign key checks
-            $db->query('SET FOREIGN_KEY_CHECKS=1;');
-
             if ($db->getCentreonDBInstance()->inTransaction()) {
                 // commit transaction
                 $db->commit();
@@ -142,6 +142,9 @@ class ConfigurationExporter extends ExporterServiceAbstract
                 $db->rollBack();
             }
             echo date('Y-m-d H:i:s') . " - ERROR - Loading failed.\n";
+        } finally {
+            // restore foreign key checks
+            $db->query('SET FOREIGN_KEY_CHECKS=1;');
         }
 
         // media copy
