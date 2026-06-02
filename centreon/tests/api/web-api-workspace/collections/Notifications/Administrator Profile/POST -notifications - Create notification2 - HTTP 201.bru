@@ -1,0 +1,53 @@
+meta {
+  name: POST /notifications - Create notification2 - HTTP 201
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/notifications
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{Notification2Name}}",
+    "timeperiod_id": 1,
+    "users": [{{currentUserID}}],
+    "contactgroups": [],
+    "messages": [
+      {
+        "channel": "Email",
+        "subject": "Bruno notification test #2",
+        "message": "Second one",
+        "formatted_message": "<p>Second one</p>"
+      }
+    ],
+    "resources": [
+      {
+        "type": "hostgroup",
+        "ids": [{{NotificationHostGroupId}}],
+        "events": 5
+      }
+    ],
+    "is_activated": true
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("Notification2 created. ID stored.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("id").that.is.a("number");
+    bru.setEnvVar("Notification2Id", body.id);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

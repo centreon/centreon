@@ -348,8 +348,6 @@ services:
             tags: ['realtime.hypermedia']
         Core\Domain\RealTime\ResourceTypeInterface:
             tags: ['monitoring.resource.type']
-        Core\Resources\Infrastructure\Repository\ResourceACLProviders\ResourceACLProviderInterface:
-            tags: ['monitoring.resource.acl']
         Core\Security\ProviderConfiguration\Application\Repository\ReadProviderConfigurationsRepositoryInterface:
             tags: ['authentication.provider.repositories']
         Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderConfigurationDtoFactoryInterface:

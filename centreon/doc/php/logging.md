@@ -18,26 +18,25 @@ This document describes the platform pipeline that captures logs emitted by the 
 7. [Log line example](#7-log-line-example)
 8. [Processor scope](#8-processor-scope)
 9. [Routing and output file](#9-routing-and-output-file)
-10. [Legacy bridge — `Adaptation\Log\Logger`](#10-legacy-bridge--adaptationloglogger)
 
 ---
 
 ## 1. Overview
 
-Every dispatch on the platform Messenger buses produces three records on the Monolog `bus` channel:
+Every dispatch on the platform Messenger buses produces three records on the Monolog `app` channel (Symfony default):
 
 | Stage | Level | Emitter |
 |---|---|---|
 | Before the handler runs | `info` (`Dispatching …`) | `LoggingMiddleware` |
 | Handler clean return | `info` (`Handled …`) | `LoggingMiddleware` |
-| Handler throw | `error` (`Failed to handle …`) | `LoggingMiddleware` |
+| Handler throw | `warning` (domain rejection → 4xx) / `critical` (unexpected → 5xx) (`Failed to handle …`) | `LoggingMiddleware` |
 
-Exceptions thrown **outside** the bus (controllers, ApiPlatform state providers, event listeners, legacy code) take a different path (`request` or `app` channel) but converge on the same shape thanks to the **platform processors**:
+Exceptions thrown **outside** the bus (controllers, ApiPlatform state providers, event listeners, legacy code) take a different path (typically the `request` or `app` channel) but converge on the same shape thanks to the **platform processors** (registered globally, see [§7](#7-cross-channel-correlation-uidprocessor)):
 
 ```mermaid
 flowchart LR
     Bus["command.bus / query.bus"] --> LM["LoggingMiddleware"]
-    LM --> EFP["ExceptionFormatterProcessor (bus channel)"]
+    LM --> EFP["ExceptionFormatterProcessor (app channel)"]
     EFP --> H["HTTP / security processors (Web, Route, Token)"]
     H --> Fmt["LineFormatter (RFC3339)"]
     Fmt --> File["prod.web.log"]
@@ -53,7 +52,7 @@ flowchart LR
     class File out
 ```
 
-Every component lives under `App\Shared\Infrastructure\…` and is wired declaratively in `config.new/packages/messenger.yaml` (middleware) and `config.new/services/monolog.php` (processors + formatter).
+Every component lives under `App\Shared\Infrastructure\…` and is wired declaratively in `config.new/packages/messenger.yaml` (middleware) and `config.new/services/shared.php` (processors + formatter).
 
 ---
 
@@ -78,7 +77,7 @@ command.bus:
         - App\Shared\Infrastructure\Messenger\DoctrineTransactionMiddleware
 ```
 
-Important consequence: a handler-side failure is logged at `error` level **after** the rollback has already happened — the error log reflects the final persistent state.
+Important consequence: a handler-side failure is logged **after** the rollback has already happened — the failure log reflects the final persistent state.
 
 ```mermaid
 flowchart LR
@@ -145,24 +144,25 @@ Key points:
 > - **`request` channel** — Symfony's `HttpKernel\EventListener\ErrorListener` automatically captures and logs any unhandled exception bubbling up to the HTTP kernel.
 > - **`app` channel** — any application service that calls `$logger->error('…', ['exception' => $e])` directly.
 >
-> Uniform coverage is guaranteed not by this middleware but by the **processors tagged on the three channels** (`bus`, `request`, `app`) — see [§6](#6-http--security-processors-web-route-token). Any error, regardless of its entry point into Monolog, traverses `ExceptionFormatterProcessor` (shape `{exceptions: [{type, message, code, file, line, trace}, …]}`) and `WebProcessor` / `RouteProcessor` / `TokenProcessor` (HTTP / security enrichment).
+> Uniform coverage is guaranteed not by this middleware but by the **processors registered globally on every channel** — see [§6](#6-http--security-processors-web-route-token). Any error, regardless of its entry point into Monolog, traverses `ExceptionFormatterProcessor` (shape `{exceptions: [{type, message, code, file, line, trace}, …]}`) and `WebProcessor` / `RouteProcessor` / `TokenProcessor` (HTTP / security enrichment).
 >
 > Assumed blind spots: dedicated channels in the `!exclude` list of `web_finger_crossed` (`event`, `doctrine`, `console`, `deprecation`, `authentication`, `token`, `password`, `plugin-pack-manager`, `upgrade`), the `console` channel in CLI, and PHP fatals before kernel boot (parse error, OOM).
 
-The middleware emits a record on the Monolog `bus` channel for every dispatch:
+The middleware emits a record on the Monolog `app` channel (Symfony default) for every dispatch:
 
 | Event | Level | Message | Context |
 |-------|-------|---------|---------|
 | Before `next()` | `info`  | `Dispatching {bus_type} {handler_message}` | `dispatch_id`, `bus_type`, `handler_message`, `payload` |
-| Clean return  | `info`  | `Handled {bus_type} {handler_message}`     | `dispatch_id`, `bus_type`, `handler_message`, `handlers`, `duration_ms`, `payload` |
-| Throw          | `error` | `Failed to handle {bus_type} {handler_message}` | `dispatch_id`, `bus_type`, `handler_message`, `duration_ms`, `payload`, `exception` |
+| Clean return  | `info`  | `Handled {bus_type} {handler_message}`     | `dispatch_id`, `bus_type`, `handler_message`, `handlers`, `duration_ms` |
+| Throw          | `warning` / `critical` | `Failed to handle {bus_type} {handler_message}` | `dispatch_id`, `bus_type`, `handler_message`, `duration_ms`, `payload`, `exception` |
 
-- **`dispatch_id`**: 16-character hex id generated per dispatch (`bin2hex(random_bytes(8))`, 64 bits of entropy). Identical on the three emits of a single `handle()`, different from one dispatch to the next. Lets you pair-match Dispatching ↔ Handled / Failed in log search when the `bus` channel is saturated with traffic from other interleaved dispatches.
-- **`bus_type`**: `command`, `query`, or the raw bus name if not recognised (resolved through the `BusNameStamp`).
+- **`dispatch_id`**: a non-cryptographic, time-based correlation id generated per dispatch (`uniqid('', true)`) — a log correlator, not a secret, so no CSPRNG is needed. Identical on the three emits of a single `handle()`, different from one dispatch to the next. Lets you pair-match Dispatching ↔ Handled / Failed in log search when the `app` channel is saturated with traffic from other interleaved dispatches.
+- **`bus_type`**: raw bus name read from the envelope's `BusNameStamp` (`command.bus`, `query.bus`, `event.bus`, …), or `unknown` if no stamp is attached.
 - **`handler_message`**: FQCN of the **message** dispatched (the Command / Query / Event class). The name avoids collision with Monolog's `%message%` (the human-readable log message) and with `context.exception.message` on error — a single ambiguous `message` in the record carried a risk of reader and parser confusion.
 - **`handlers`** (Handled only): list of `HandledStamp::getHandlerName()` produced by the handlers that ran. On a single-handler command/query bus, the list has one element; on an event bus with several subscribers, it has several. Empty list if no handler ran (short-circuit). Distinct from the `handler_message` field, which names the **message** class dispatched.
 - **`duration_ms`** (Handled and Failed): dispatch duration in milliseconds, measured with `hrtime(true)` (monotonic clock, immune to NTP / DST jumps). Rounded to 3 decimals. Not present on the Dispatching log, which serves as the t0 reference.
-- **`payload`**: the message normalised via `NormalizerInterface`, sanitised in place — keys containing `password`, `token`, `secret`, `api_key`, `authorization`, `credential` masked as `***`, max depth 3 levels, string values truncated at 1024 characters. If normalisation fails or does not produce an array, the payload falls back to `['__class' => $message::class]`. Defense-in-depth for values that remain an object after normalisation (no dedicated normaliser for that type): `\BackedEnum` rendered via `->value`, `\UnitEnum` via `->name`, `\DateTimeInterface` via `format(ATOM)`, `\Stringable` via string cast + truncation, and any other plain object rendered as a placeholder `{ClassName}` — no `(array)` cast on objects, to avoid exposing their private properties.
+- **`payload`**: the message turned into a log-safe array by `App\Shared\Infrastructure\Logging\LogPayloadNormalizer` — a dedicated service that wraps the platform `NormalizerInterface` and applies the constraints needed for a log line: keys containing `password`, `token`, `secret`, `api_key`, `authorization`, `credential` masked as `***`, string values truncated at 1024 characters. No runtime depth cap is enforced: the input is always a strongly-typed Messenger message whose class graph already bounds the depth statically. If normalisation fails or does not produce an array, the payload falls back to `['__class' => $message::class]` and a `warning` is emitted on the `app` channel. Defense-in-depth for values that remain an object after normalisation (no dedicated normaliser for that type): `\BackedEnum` rendered via `->value`, `\UnitEnum` via `->name`, `\DateTimeInterface` via `format(ATOM)`, `\Stringable` via string cast + truncation, and any other plain object rendered as a placeholder `{ClassName}` — no `(array)` cast on objects, to avoid exposing their private properties.
+- **Failure level**: a `\InvalidArgumentException` (Centreon's `AssertionException` extends it — a value-object / domain rejection that maps to a 4xx) is logged at `warning`; any other throwable is an unexpected server-side failure (DB down, OOM, bug → 5xx) and is logged at `critical`. This mirrors the `CRITICAL`-vs-`WARNING` split of `LegacyHttpExceptionListener`, so alerting can ignore expected client errors without muting real incidents.
 
   **Intentionally permissive masking.** Sensitive keywords are matched with `str_contains` after `mb_strtolower`, not exact match. Consequence: any field name that *contains* a keyword is masked, including when the field itself is not sensitive. False-positive examples:
   - `password_changed_at` (timestamp) → masked (contains `password`)
@@ -220,19 +220,19 @@ Reusable from any error entry point (event listener, API handler, Symfony except
 
 ### `ExceptionFormatterProcessor`
 
-`App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor` is a Monolog processor (`#[AsMonologProcessor(channel: 'bus')]`, also wired on `request` and `app` via `config.new/services/monolog.php`) that **defensively** detects a `Throwable` in the `context.exception` slot and applies `ExceptionFormatter::format()` to it. Idempotent on records where the `exception` key is already an array (the `LoggingMiddleware` pre-format case) or absent.
+`App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor` is a Monolog processor registered **globally** (`#[AsMonologProcessor]` without `channel:`) that **defensively** detects a `Throwable` in the `context.exception` slot and applies `ExceptionFormatter::format()` to it. Idempotent on records where the `exception` key is already an array (the `LoggingMiddleware` pre-format case) or absent.
 
-This processor guarantees a **uniform exception shape** across the three channels (`bus`, `request`, `app`), regardless of the log emitter:
+Being global, it guarantees a **uniform exception shape** on every channel (catch-all and dedicated alike), regardless of the log emitter:
 
-- `bus` channel — exceptions already pre-formatted by `LoggingMiddleware`, processor no-op.
+- `app` channel — bus dispatch failures already pre-formatted by `LoggingMiddleware`, processor no-op.
 - `request` channel — records emitted by Symfony's `ErrorListener` with a raw `Throwable` in `exception`. The processor formats them.
-- `app` channel — records emitted by ad-hoc `$logger->error('...', ['exception' => $e])` calls. Same deal.
+- Any other channel — ad-hoc `$logger->error('…', ['exception' => $e])` calls anywhere in the codebase. Same deal.
 
 ---
 
 ## 6. HTTP / security processors (Web, Route, Token)
 
-`Symfony\Bridge\Monolog\Processor\WebProcessor`, `RouteProcessor` and `TokenProcessor` are registered in `config.new/services/monolog.php` and tagged `monolog.processor` on the **same three channels** as `ExceptionFormatterProcessor` (`bus`, `request`, `app`) — intentional symmetry so the four processors share a single scope.
+`Symfony\Bridge\Monolog\Processor\WebProcessor`, `RouteProcessor` and `TokenProcessor` are registered in `config.new/services/shared.php` and tagged `monolog.processor` **globally** — same scope as `ExceptionFormatterProcessor` and `UidProcessor`, so every channel carries the same enriched shape.
 
 | Processor | Adds to `extra` |
 |-----------|-----------------|
@@ -240,11 +240,9 @@ This processor guarantees a **uniform exception shape** across the three channel
 | `RouteProcessor` | `controller`, `route`, `route_params` |
 | `TokenProcessor` | `token` (`authenticated`, `roles`, `user_identifier`) |
 
-In a CLI context (cron, console command, batch), these processors are attached but produce an empty or null `extra` on the irrelevant keys — that's the expected behaviour, not a bug.
-
 ### `UidProcessor` — cross-channel correlation
 
-`Monolog\Processor\UidProcessor` is registered in `config.new/services/monolog.php` **with no channel tag** — it therefore applies to **every logger** (bus, request, app, deprecation, authentication, token, password, upgrade, plugin-pack-manager). It generates **a single 7-character hex id per process** and stamps it under `extra.uid` on every record:
+`Monolog\Processor\UidProcessor` is registered in `config.new/services/shared.php` **with no channel tag** — it therefore applies to **every logger** (request, app, deprecation, authentication, token, password, upgrade, plugin-pack-manager). It generates **a single 7-character hex id per process** and stamps it under `extra.uid` on every record:
 
 ```php
 $services->set('monolog.processor.uid', UidProcessor::class)
@@ -256,16 +254,16 @@ $services->set('monolog.processor.uid', UidProcessor::class)
 | Field | Scope | Emitter | Use case |
 |---|---|---|---|
 | `extra.uid` | whole HTTP / CLI request | `UidProcessor` (Monolog) | Reconstruct every record produced by a request, **across all channels** (catch-all + dedicated files) |
-| `context.dispatch_id` | a single bus dispatch | `LoggingMiddleware` | Pair-match Dispatching ↔ Handled / Failed for a single `handle()`, **on the `bus` channel only** |
+| `context.dispatch_id` | a single bus dispatch | `LoggingMiddleware` | Pair-match Dispatching ↔ Handled / Failed for a single `handle()`, on the records emitted by the middleware |
 
 Concretely, on a single HTTP request that dispatches two commands and also lands in `prod.token.log`:
 
 ```
 prod.web.log
-[…] bus.INFO  Dispatching cmd-A {"dispatch_id":"3f8a2c1b9e5d4670",…} {"uid":"89796c2",…}
-[…] bus.INFO  Handled cmd-A    {"dispatch_id":"3f8a2c1b9e5d4670",…} {"uid":"89796c2",…}
-[…] bus.INFO  Dispatching cmd-B {"dispatch_id":"a2bf91c45ad7e003",…} {"uid":"89796c2",…}
-[…] bus.INFO  Handled cmd-B    {"dispatch_id":"a2bf91c45ad7e003",…} {"uid":"89796c2",…}
+[…] app.INFO  Dispatching cmd-A {"dispatch_id":"3f8a2c1b9e5d4670",…} {"uid":"89796c2",…}
+[…] app.INFO  Handled cmd-A    {"dispatch_id":"3f8a2c1b9e5d4670",…} {"uid":"89796c2",…}
+[…] app.INFO  Dispatching cmd-B {"dispatch_id":"a2bf91c45ad7e003",…} {"uid":"89796c2",…}
+[…] app.INFO  Handled cmd-B    {"dispatch_id":"a2bf91c45ad7e003",…} {"uid":"89796c2",…}
 […] request.INFO Matched route …                                    {"uid":"89796c2",…}
 prod.token.log
 […] token.INFO Token refreshed for user 42                          {"uid":"89796c2",…}
@@ -277,7 +275,7 @@ An operator runs `grep "uid\":\"89796c2\"" /var/log/centreon/*.log` and gets the
 
 ## 7. Log line example
 
-Real output produced by the full chain on the `bus` channel (`LoggingMiddleware` + `ExceptionFormatterProcessor` + `WebProcessor` + `RouteProcessor` + `TokenProcessor`, serialised by the `LineFormatter` with an RFC3339 timestamp), for the dispatch of an `UpdateBusinessActivityTreeCommand` (the BAM module serves here as a concrete example of the flow).
+Real output produced by the full chain on the `app` channel (`LoggingMiddleware` + `ExceptionFormatterProcessor` + `WebProcessor` + `RouteProcessor` + `TokenProcessor`, serialised by the `LineFormatter` with an RFC3339 timestamp), for the dispatch of an `UpdateBusinessActivityTreeCommand` (the BAM module serves here as a concrete example of the flow).
 
 `LineFormatter` output format: `[%datetime%] %channel%.%level_name%: %message% %context% %extra%` (one record = one line in `prod.web.log`). Context and extra are serialised inline as JSON; below they're split across multiple lines for readability.
 
@@ -286,7 +284,7 @@ Real output produced by the full chain on the `bus` channel (`LoggingMiddleware`
 Raw line:
 
 ```
-[2026-05-06T09:44:19+00:00] bus.INFO: Dispatching command App\Module\Bam\MonitoringConfiguration\Application\Command\BusinessActivityTree\UpdateBusinessActivityTreeCommand {"dispatch_id":"3f8a2c1b9e5d4670","bus_type":"command","handler_message":"App\\Module\\Bam\\…\\UpdateBusinessActivityTreeCommand","payload":{"rootBaId":42,"businessActivities":[{"id":100,"name":"Web Frontend","parentId":42,"warningThreshold":75.0}],"indicatorsToAdd":[{"hostId":12,"serviceId":34,"baId":100}],"token":"***","authorization_header":"***"}} {"token":{"authenticated":true,"roles":["ROLE_ADMIN","ROLE_USER"],"user_identifier":"admin"},"requests":[{"controller":"App\\Module\\Bam\\…\\UpdateBusinessActivityTreeProcessor::__invoke","route":"bam_business_activity_tree_patch","route_params":{"rootId":"42"}}],"url":"/api/latest/configuration/business-activities/42/tree","ip":"10.10.0.42","http_method":"PATCH","server":"centreon.example.com","referrer":null}
+[2026-05-06T09:44:19+00:00] app.INFO: Dispatching command.bus App\Module\Bam\MonitoringConfiguration\Application\Command\BusinessActivityTree\UpdateBusinessActivityTreeCommand {"dispatch_id":"3f8a2c1b9e5d4670","bus_type":"command","handler_message":"App\\Module\\Bam\\…\\UpdateBusinessActivityTreeCommand","payload":{"rootBaId":42,"businessActivities":[{"id":100,"name":"Web Frontend","parentId":42,"warningThreshold":75.0}],"indicatorsToAdd":[{"hostId":12,"serviceId":34,"baId":100}],"token":"***","authorization_header":"***"}} {"token":{"authenticated":true,"roles":["ROLE_ADMIN","ROLE_USER"],"user_identifier":"admin"},"requests":[{"controller":"App\\Module\\Bam\\…\\UpdateBusinessActivityTreeProcessor::__invoke","route":"bam_business_activity_tree_patch","route_params":{"rootId":"42"}}],"url":"/api/latest/configuration/business-activities/42/tree","ip":"10.10.0.42","http_method":"PATCH","server":"centreon.example.com","referrer":null}
 ```
 
 `context` (produced by `LoggingMiddleware`):
@@ -312,7 +310,7 @@ Raw line:
 
 On the corresponding `Handled` log (success), the context additionally carries `handlers: ["App\\Module\\Bam\\…\\UpdateBusinessActivityTreeCommandHandler::__invoke"]` (single-handler on the command bus), `duration_ms: 42.187` (3 decimals), and reuses exactly the same `dispatch_id`.
 
-Note that `token` and `authorization_header` are already masked by the middleware's sanitisation — not by the processors.
+Note that `token` and `authorization_header` are already masked by `LogPayloadNormalizer` — not by the processors.
 
 `extra` (produced by the 3 HTTP / security processors):
 
@@ -383,19 +381,15 @@ Key points:
 
 - `exceptions` is a **flat list** (root first, then every `previous` cause in order) — no recursion, iterable with a single shape.
 - Every entry carries the same six keys (`type, message, code, file, line, trace`). When the chain exceeds 20 causes, a trailing `{"type":"@truncated", ...}` entry signals the cut.
-- The error record lands on `bus.ERROR` **after** the `DoctrineTransactionMiddleware` rollback — the persistent state is final at the time the log is emitted.
+- The failure record lands on `app.WARNING` or `app.CRITICAL` **after** the `DoctrineTransactionMiddleware` rollback — the persistent state is final at the time the log is emitted.
 
 ---
 
 ## 8. Processor scope
 
-The four processors (`ExceptionFormatterProcessor`, `WebProcessor`, `RouteProcessor`, `TokenProcessor`) are wired in **channel scope** (`bus`, `request`, `app`) and **not in handler scope** (`web_file`).
+The four processors (`ExceptionFormatterProcessor`, `WebProcessor`, `RouteProcessor`, `TokenProcessor`) are wired **globally** (no channel tag), like `UidProcessor`. Every channel — catch-all (`app`, `request`, `main`, `security`, …) **and** dedicated (`authentication`, `token`, `password`, `upgrade`, `plugin-pack-manager`, `deprecation`) — therefore carries the same enriched record shape.
 
-### Logs outside `bus|request|app`
-
-- Logs emitted on channels **captured by the exclusive filter but outside `bus|request|app`** (typically `main` and `security`, the Symfony default and SecurityBundle channels) still land in `prod.web.log`.
-- But they **do not carry** the HTTP / security context (`url`, `route`, `token`, …) nor the `ExceptionFormatter` reformatting — the processors only apply to the three explicit channels.
-- In practice, the sensitive call sites that log an exception already go through `Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger` (which pre-formats before pushing to the logger) — real-world impact is limited.
+In a CLI context (cron, console command, batch), the HTTP-bound processors are still attached but produce empty values on the request-scoped keys — expected behaviour, never problematic noise.
 
 ---
 
@@ -450,7 +444,7 @@ when@dev:
                 # ... (same path, formatter, date_format)
 ```
 
-**RFC3339 driven at the service level.** `config.new/services/monolog.php` overrides the `monolog.formatter.line` service with `dateFormat: RFC3339`:
+**RFC3339 driven at the service level.** `config.new/services/shared.php` overrides the `monolog.formatter.line` service with `dateFormat: RFC3339`:
 
 ```php
 $services->set('monolog.formatter.line', LineFormatter::class)
@@ -461,7 +455,7 @@ Consequence: every handler using `monolog.formatter.line` (centreon-web + any mo
 
 **Why not `date_format:` at the handler level on `rotating_file`?** On a `rotating_file` handler, the Symfony Monolog Bundle's `date_format:` key is passed to the **`RotatingFileHandler` constructor** where it configures the **filename** date suffix (`Y-m-d` by default). Setting RFC3339 there throws `InvalidArgumentException` at boot. For other types (`stream`, `console`…) the key applies to the formatter — but we choose the single-service approach to stay DRY.
 
-**Exclusive filter (MON-151077 alignment).** Rather than a whitelist `[bus, request, app]`, we use a blacklist of channels that have their own file or that are noise. Everything else — `bus`, `request`, `app`, but also `main` (Symfony default channel), `security`, `http_client`, etc. — lands in `prod.web.log`.
+**Exclusive filter (MON-151077 alignment).** Rather than a whitelist `[request, app]`, we use a blacklist of channels that have their own file or that are noise. Everything else — `request`, `app` (Symfony default), `main`, `security`, `http_client`, etc. — lands in `prod.web.log`.
 
 | Excluded channel | Reason |
 |------------------|--------|
@@ -469,7 +463,7 @@ Consequence: every handler using `monolog.formatter.line` (centreon-web + any mo
 | `deprecation` | MON-151077 → dedicated file `prod.deprecations.log`. |
 | `authentication` | MON-151077 → merged into `prod.access.log` on the centreon-web side. |
 | `token` | MON-151077 → dedicated file `prod.token.log`. |
-| `password`, `plugin-pack-manager`, `upgrade` | MON-151077 → dedicated files. Each is a regular Monolog channel declared in `config.new/packages/monolog.yaml`; legacy code reaches them through `Adaptation\Log\Logger::create(LogChannelEnum::*)` (or via the `CentreonLog`/`CentreonUserLog` façades, which delegate to the same entry point). See [§10](#10-legacy-bridge--adaptationloglogger). |
+| `password`, `plugin-pack-manager`, `upgrade` | MON-151077 → dedicated files. Not Monolog channels strictly speaking today (written directly by legacy `CentreonLog` code), but listed in anticipation of a future migration to Monolog. |
 
 | Property | Effect |
 |----------|--------|
@@ -480,7 +474,7 @@ Consequence: every handler using `monolog.formatter.line` (centreon-web + any mo
 | `bubble: false` | **The record stops after our handler.** Consequence: HTTP exceptions caught by Symfony's `ErrorListener` (`request` channel) **no longer** bubble up to the host's `main` handler (`var/log/{env}.log`). They live only in `var/log/{env}.web.log`. |
 | `priority: 255` | Our handler is executed first in the channel's Monolog stack — combined with `bubble: false`, this guarantees effective isolation. |
 | `path: ...{env}.web.log` | In prod, a fixed `prod.web.log` file (rotation is delegated to `logrotate` on production hosts, cf. `logrotate/centreon`). In dev, the handler is `rotating_file` with a daily suffix. |
-| `formatter: monolog.formatter.line` | Standard Symfony Monolog Bundle service, redefined in `monolog.php` with `dateFormat: RFC3339`. Timestamp format mandated by MON-151077 (e.g. `2025-09-08T15:38:41+02:00`). |
+| `formatter: monolog.formatter.line` | Standard Symfony Monolog Bundle service, redefined in `shared.php` with `dateFormat: RFC3339`. Timestamp format mandated by MON-151077 (e.g. `2025-09-08T15:38:41+02:00`). |
 
 ### File rotation
 
@@ -497,147 +491,3 @@ In production, the `prod.*.log` files are rotated by **logrotate** (config `cent
 Default retention: `weekly` × `rotate 52` (1 year), with `compress` + `delaycompress` + `copytruncate`.
 
 In development (`when@dev` in `monolog.yaml`), the handlers use `rotating_file` directly (daily `Y-m-d` suffix, `max_files: 14` retention) — no need for logrotate.
-
-### `prod.web.log` is a two-format file
-
-`prod.web.log` aggregates records from **two writers** sharing the same file, and they don't share the same line shape — by construction, not by choice:
-
-1. **Monolog** (the application framework, `LoggingMiddleware` + processors + every DI-resolved `LoggerInterface`) writes with the `LineFormatter`:
-
-   ```
-   [2026-05-20T14:30:00+02:00] bus.INFO: Dispatching command App\…\Foo {"dispatch_id":"…"} {"uid":"…"}
-   ```
-
-   - RFC3339 timestamp, `channel.LEVEL` prefix, JSON `context` + JSON `extra`.
-
-2. **PHP-FPM** native `error_log` (`packaging/src/php-fpm.{rpm,deb}.conf`, `php_admin_value[error_log] = /var/log/centreon/prod.web.log`) writes whatever PHP cannot route through Monolog — parse errors, fatal pre-boot errors, OOM, `trigger_error(..., E_USER_ERROR)`:
-
-   ```
-   [20-May-2026 14:26:47 Europe/Paris] PHP Fatal error:  forced PHP test error in /tmp/foo.php on line 2
-   ```
-
-   - Legacy date format (`d-M-Y H:i:s T`), `PHP <Type> error:` prefix, no JSON.
-
-The two formats **cannot be unified at the source**: PHP-FPM does not expose any `error_log_format` directive (the format is hardcoded in the PHP engine, `main/main.c`). What the framework can catch, however, is caught: `framework.php_errors.log: true` routes every runtime PHP `Warning` / `Notice` / `Deprecation` / `ErrorException` through Monolog on the `php` channel, so they land in `prod.web.log` **at the Monolog format**. Only the native pre-Monolog failures (parse error, fatal pre-boot, OOM) keep the PHP-FPM format.
-
-Practical consequence for downstream consumers (log shippers, fail2ban filters, manual `tail`): match the line by **its first character pattern**, not by date:
-
-- `^\[\d{4}-\d{2}-\d{2}T` → Monolog record (RFC3339)
-- `^\[\d{2}-[A-Z][a-z]{2}-\d{4}` → PHP-FPM native error
-
----
-
-## 10. Legacy bridge — `Adaptation\Log\Logger`
-
-The platform pipeline described above runs under `App\Shared\Infrastructure\Symfony\Kernel`. Legacy entry points (procedural `www/` code, classes wired through `App\Kernel`) cannot autowire Monolog services directly; they go through a thin façade so every record still lands on the MON-151077 layout.
-
-```mermaid
-flowchart LR
-    Legacy["Legacy code (www/, CentreonLog, CentreonUserLog)"] --> Facade["Adaptation\\Log\\Logger::create(LogChannelEnum)"]
-    Facade --> Adapter["Adaptation\\Log\\Adapter\\MonologAdapter"]
-    Adapter --> Stream["StreamHandler → /var/log/centreon/&lt;env&gt;.&lt;slug&gt;.log"]
-    Stream --> Fmt["LineFormatter (RFC3339)"]
-
-    classDef src fill:#f5f5f5,stroke:#9e9e9e,color:#212121
-    classDef proc fill:#e0e0e0,stroke:#616161,color:#212121
-    classDef out fill:#bdbdbd,stroke:#424242,stroke-width:2px,color:#000
-    class Legacy src
-    class Facade,Adapter proc
-    class Stream,Fmt out
-```
-
-### `LogChannelEnum`
-
-`Adaptation\Log\Enum\LogChannelEnum` enumerates the Monolog channels the legacy code is allowed to write to. The case value is the **channel name** (matches `config.new/packages/monolog.yaml`); `getLogFileSlug()` returns the **file-name slug** appended to `<env>.<slug>.log`.
-
-| Case | Channel | File slug | Production file |
-|---|---|---|---|
-| `AUTHENTICATION` | `authentication` | `access` | `prod.access.log` |
-| `PASSWORD` | `password` | `password` | `prod.password.log` |
-| `PLUGIN_PACK_MANAGER` | `plugin-pack-manager` | `plugin-pack-manager` | `prod.plugin-pack-manager.log` |
-| `TOKEN` | `token` | `token` | `prod.token.log` |
-| `UPGRADE` | `upgrade` | `upgrade` | `prod.upgrade.log` |
-| `WEB` | `web` | `web` | `prod.web.log` |
-
-Only `AUTHENTICATION` carries a different slug — login/ldap/openid/saml records all converge in the shared `access.log` file (cf. MON-151077).
-
-### `Adaptation\Log\Logger`
-
-```php
-use Adaptation\Log\Enum\LogChannelEnum;
-use Adaptation\Log\Logger;
-
-Logger::create(LogChannelEnum::WEB)->error(
-    'Could not generate the host configuration',
-    ['host_id' => 42, 'exception' => $e],
-);
-```
-
-`Logger::create()` returns a PSR-3 `LoggerInterface`. Internally it instantiates a `MonologAdapter` carrying a single `StreamHandler` configured with `LineFormatter` + `RFC3339`. Rotation is **not** wired at this layer — production hosts delegate to `logrotate` (cf. `logrotate/centreon`).
-
-If `MonologAdapter::create()` cannot build the handler (e.g. permission error on the log directory), `Logger::create()` falls back to a `NullLogger` and writes the failure reason to `error_log()` — log emission must never break a request.
-
-#### Processors attached by `MonologAdapter`
-
-To mirror the platform pipeline as closely as possible without booting the Symfony container, `MonologAdapter::pushPlatformProcessors()` attaches three processors to every channel logger it creates:
-
-| Processor | Source | Adds |
-|---|---|---|
-| `Monolog\Processor\UidProcessor` | Monolog vendor | `extra.uid` — 7-char hex id, **shared across every channel logger built in the current process** via a `private static` cache. Enables cross-file correlation (`grep "uid\":\"…\"" /var/log/centreon/*.log`) just like the new-kernel pipeline. |
-| `Monolog\Processor\WebProcessor` | Monolog vendor | `extra.url`, `extra.ip`, `extra.http_method`, `extra.server`, `extra.referrer` — sourced from `$_SERVER` directly (the Symfony bridge variant is bypassed because its data is populated by a kernel-request listener that does not run from legacy code paths). |
-| `App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor` | platform | Unwraps `context.exception` through `ExceptionFormatter::format()`, producing the same nested-exception layout used on `prod.web.log` (cf. §5). |
-
-`RouteProcessor` and `TokenProcessor` are **not** wired here: they depend on the Symfony `RequestStack` / `TokenStorage` services and would be empty in the legacy stack. Records emitted via `Adaptation\Log\Logger` therefore do **not** carry `extra.controller`, `extra.route` or `extra.token`. Call sites that need those fields should write through the new-kernel pipeline (`bus|request|app` channels) where the full processor stack is wired by `config.new/services/monolog.php`.
-
-#### Format alignment — no more `{custom, exception, default}` wrap
-
-Before MON-151077, both `CentreonLog::log()` and `Centreon\Domain\Log\LoggerTrait::executeLog()` reshaped the `context` array before handing it to Monolog:
-
-- `CentreonLog::buildContext()` pre-formatted the `Throwable` with `ExceptionLogFormatter` (legacy) and added `context.request_infos`.
-- `LoggerTrait::normalizeContext()` rewrapped everything as `{custom, exception, default: {request_infos}}` — and **moved** the `Throwable` out of `context.exception` so `ExceptionFormatterProcessor` never saw it.
-
-Both helpers are gone. The legacy façades now hand the caller-supplied `$context` directly to the underlying logger, only normalizing one thing: a `?Throwable $exception` argument is moved into `$context['exception']` so the platform processor can unwrap the chain on the way out.
-
-Concrete consequences:
-
-- Exceptions logged via `CentreonLog::create()->error(TYPE_*, 'msg', $ctx, $throwable)` end up with the **same** structured shape as `bus|request|app` records (handled by `App\Shared\Infrastructure\Logging\ExceptionFormatter`).
-- The HTTP context (`url`, `ip`, `http_method`, `server`, `referrer`) lives under `extra`, not `context.request_infos` — that is where the rest of the platform reads it.
-- `Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger::log()` still pre-formats through `ExceptionLogFormatter` (legacy) for the `BusinessLogicException` `from_exception` / `traces` fields its callers rely on. Its records therefore keep the legacy `context.exception` shape — that is a property of `ExceptionLogger` callers, not of the underlying logger.
-
-### Audit loggers — `LoggerPassword` and `LoggerToken`
-
-Two siblings of `Adaptation\Log\Logger` ship with a **constrained API** (`success(...)`, `warning(...)`) instead of the PSR-3 surface:
-
-- `Adaptation\Log\LoggerPassword` — password-change audit events, written to `prod.password.log`.
-- `Adaptation\Log\LoggerToken` — API token lifecycle audit events, written to `prod.token.log`.
-
-They exist because those two files feed downstream tooling (fail2ban filters, SIEM correlation) that expects a stable context schema (`event`, `status`, `user_id`, `ip_address`, `token_type`, …). Hard-coding the schema in the helper guarantees every caller emits the same shape.
-
-There is intentionally no `LoggerWeb`, `LoggerUpgrade`, `LoggerAuthentication`, `LoggerPluginPackManager`: those channels carry **free-form messages with arbitrary context**, so wrapping them adds no value over the PSR-3 facade. Call sites use `Adaptation\Log\Logger::create(LogChannelEnum::*)` directly.
-
-Decision rule for adding a new `Logger<Channel>` class: only when the channel feeds an automated consumer that requires a stable JSON schema. Otherwise, route through `Adaptation\Log\Logger::create()`.
-
-### `CentreonLog` and `CentreonUserLog` façades
-
-Both classes (`www/class/centreonLog.class.php`) keep their public surface but reroute every write through `Adaptation\Log\Logger`. The legacy `TYPE_*` identifiers map onto channels as follows:
-
-| Legacy constant | Channel | Output file |
-|---|---|---|
-| `TYPE_LOGIN`, `TYPE_LDAP` | `AUTHENTICATION` | `prod.access.log` |
-| `TYPE_SQL`, `TYPE_BUSINESS_LOG` | `WEB` | `prod.web.log` |
-| `TYPE_UPGRADE` | `UPGRADE` | `prod.upgrade.log` |
-| `TYPE_PLUGIN_PACK_MANAGER` | `PLUGIN_PACK_MANAGER` | `prod.plugin-pack-manager.log` |
-
-`CentreonLog::pushLogFileHandler()` and `setPathLogFile()` are kept as deprecated no-ops for backward compatibility with extension modules — file routing is now driven exclusively by `LogChannelEnum`.
-
-Both classes are tagged `@deprecated`. The DI/Application code that still autowires them keeps working, but **new code should call `Adaptation\Log\Logger` directly** with an explicit `LogChannelEnum`.
-
-### `Centreon\Domain\Log\LoggerTrait`
-
-`LoggerTrait` (~389 callers) keeps providing the PSR-3 helper shape used by Domain services that autowire a `LoggerInterface` via `#[Required]`. The pre-MON-151077 `ContactForDebug` gate is gone — `canBeLogged()` now only checks that a logger has been injected. The trait carries a descriptive note but no formal `@deprecated` tag, because `Symfony\Component\ErrorHandler\DebugClassLoader` would otherwise cascade the deprecation onto every class still using the trait during the transition.
-
-### Symfony-side configuration
-
-`config/packages/monolog.yaml` (legacy kernel) is a single-line `imports:` pointing at `config.new/packages/monolog.yaml`. There is one source of truth for channels, handlers and processors — adding or renaming a channel for the platform pipeline automatically reaches the legacy kernel too.
-
-Both kernels resolve `kernel.logs_dir` to `/var/log/centreon` (`App\Kernel::getLogDir()` and `App\Shared\Infrastructure\Symfony\Kernel::getLogDir()`), so the path templates in `monolog.yaml` produce identical filenames regardless of which kernel boots a request.

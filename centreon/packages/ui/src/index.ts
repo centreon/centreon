@@ -31,7 +31,8 @@ export type { CatchErrorProps, ResponseError } from './api/customFetch';
 export { customFetch } from './api/customFetch';
 export type {
   Listing as ListingModel,
-  ListingMap as ListingMapModel
+  ListingMap as ListingMapModel,
+  ListingMeta
 } from './api/models';
 export { client, default as QueryProvider } from './api/QueryProvider';
 export { default as TestQueryProvider } from './api/TestQueryProvider';

@@ -48,6 +48,7 @@ var/
 bin/.phpunit/
 doc/en/_build/
 symfony/
+/config.new/reference.php
 
 src/Centreon*
 !src/Centreon/

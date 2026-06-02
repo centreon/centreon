@@ -133,7 +133,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # v2.37.0
         with:
-          php-version: ${{ contains(github.event.pull_request.labels.*.name, 'php84') && '8.4' || '8.2' }}
+          php-version: '8.4'
           coverage: none
         env:
           COMPOSER_TOKEN: ${{ secrets.composer_token }}
@@ -143,16 +143,6 @@ jobs:
         run: |
           sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
-
-      - name: Setup pnpm
-        if: ${{ contains(matrix.feature, 'RestApi') }}
-        uses: pnpm/action-setup@26f6d4f2c533a43e6b5da0b4a5dd983f98f7b49a # v6.0.4
-        with:
-          version: 10
-          run_install: |
-            cwd: "centreon/tests/rest_api"
-            args: [--ignore-scripts, --frozen-lockfile]
-          standalone: true
 
       - name: Create configuration file
         run: cp config/centreon.config.php.template config/centreon.config.php

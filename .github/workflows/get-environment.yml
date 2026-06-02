@@ -67,7 +67,7 @@ on:
         description: "list of labels on the PR"
         value: ${{ jobs.get-environment.outputs.labels }}
       php_version:
-        description: "PHP version to use (8.2 or 8.4 based on php84 label)"
+        description: "PHP version to use (based on phpXX label)"
         value: ${{ jobs.get-environment.outputs.php_version }}
 
 jobs:
@@ -621,11 +621,11 @@ jobs:
 
       - name: Detect PHP version from labels
         id: get_php_version
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const labels = ${{ steps.has_skip_label.outputs.labels }};
-            const phpVersion = labels.includes('php84') ? '8.4' : '8.2';
+            const phpVersion = labels.includes('php85') ? '8.5' : '8.4';
             core.setOutput('php_version', phpVersion);
 
       - name: Detect linked dev and stable branches
@@ -776,15 +776,6 @@ jobs:
               };
             }
 
-            if (${{ contains(steps.has_skip_label.outputs.labels, 'php84') && 'true' || 'false' }}) {
-              matrix = {
-                ...matrix,
-                "main": [trixie_mysql_8_4],
-                "operating_systems": [trixie_mysql_8_4],
-                "databases": [trixie_mysql_8_4],
-              };
-            }
-
             if (
               ${{ contains(steps.has_skip_label.outputs.labels, 'database') && 'true' || 'false' }}
               || ${{ contains(steps.has_skip_label.outputs.labels, 'system') && 'true' || 'false' }}
@@ -809,7 +800,6 @@ jobs:
           HAS_UPLOAD_ARTIFACTS: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'upload-artifacts') }}
           HAS_SYSTEM: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'system') }}
           HAS_DATABASE: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'database') }}
-          HAS_PHP84: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'php84') }}
           IS_NIGHTLY: ${{ steps.get_nightly_status.outputs.is_nightly }}
         with:
           script: |
@@ -819,8 +809,7 @@ jobs:
               || process.env.IS_NIGHTLY === 'true'
               || process.env.HAS_UPLOAD_ARTIFACTS === 'true'
               || process.env.HAS_SYSTEM === 'true'
-              || process.env.HAS_DATABASE === 'true'
-              || process.env.HAS_PHP84 === 'true';
+              || process.env.HAS_DATABASE === 'true';
 
             const distribMap = {
               alma9:    { distrib: 'el9',      package_extension: 'rpm' },
@@ -833,8 +822,10 @@ jobs:
               ...info,
             }));
 
+            const cloudDistrib = allDistribs.find(d => d.operating_system === 'alma9');
+            const onPremMainDistrib = allDistribs.filter(d => d.operating_system === 'alma10');
             const isCloudTestingOrStable = isCloud && ['testing', 'stable'].includes(stability);
-            const result = isCloudTestingOrStable ? [allDistribs[0]] : isFullRun ? allDistribs : [allDistribs[0]];
+            const result = isCloudTestingOrStable ? [cloudDistrib] : isFullRun ? allDistribs : isCloud ? [cloudDistrib] : [onPremMainDistrib];
 
             console.log('package_matrix', result);
 

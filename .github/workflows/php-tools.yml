@@ -31,7 +31,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # v2.37.0
         with:
-          php-version: ${{ contains(github.event.pull_request.labels.*.name, 'php84') && '8.4' || '8.2' }}
+          php-version: '8.4'
           coverage: none
         env:
           runner: ubuntu-24.04

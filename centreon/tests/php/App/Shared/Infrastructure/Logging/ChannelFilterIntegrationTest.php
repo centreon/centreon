@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Shared\Infrastructure\Logging;
 
+use App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\FingersCrossedHandler;
 use Monolog\Handler\FormattableHandlerInterface;
@@ -33,6 +34,9 @@ use Monolog\Processor\UidProcessor;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bridge\Monolog\Handler\FingersCrossed\HttpCodeActivationStrategy;
+use Symfony\Bridge\Monolog\Processor\RouteProcessor;
+use Symfony\Bridge\Monolog\Processor\TokenProcessor;
+use Symfony\Bridge\Monolog\Processor\WebProcessor;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 #[Group('integration')]
@@ -49,8 +53,6 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
      */
     public static function capturedChannels(): iterable
     {
-        yield 'bus channel' => ['monolog.logger.bus'];
-
         yield 'request channel' => ['monolog.logger.request'];
 
         yield 'app channel (default)' => ['monolog.logger'];
@@ -152,12 +154,10 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
      */
     public static function everyChannel(): iterable
     {
-        // Cross-channel set: the bus/request/app trio gets the HTTP
-        // processors via channel-scoped tags, but UidProcessor is
-        // declared globally — so it must land on every channel logger
-        // including the dedicated MON-151077 ones.
-        yield 'bus channel' => ['monolog.logger.bus'];
-
+        // Cross-channel set: the request/app pair gets the HTTP processors
+        // via channel-scoped tags, but UidProcessor is declared globally —
+        // so it must land on every channel logger including the dedicated
+        // MON-151077 ones.
         yield 'request channel' => ['monolog.logger.request'];
 
         yield 'app channel (default)' => ['monolog.logger'];
@@ -170,13 +170,14 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
     }
 
     #[DataProvider('everyChannel')]
-    public function testUidProcessorIsStampedOnEveryChannel(string $loggerServiceId): void
+    public function testPlatformProcessorsAreStampedOnEveryChannel(string $loggerServiceId): void
     {
-        // Pin "UidProcessor is registered on every channel logger". The
-        // service is declared in config.new/services/monolog.php with
-        // no channel tag, which means MonologBundle attaches it to every
-        // logger. This test guards against an accidental channel-scoped
-        // tag landing on the service in the future.
+        // Pin "the four platform processors are registered on every channel
+        // logger". They are declared in config.new/services/shared.php with
+        // no channel tag (and ExceptionFormatterProcessor via #[AsMonologProcessor]
+        // without channel:), which means MonologBundle attaches each of them
+        // to every logger. This test guards against an accidental channel-
+        // scoped tag landing on any of these services in the future.
         self::bootKernel();
         $container = self::getContainer();
 
@@ -194,11 +195,13 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
             }
         }
 
-        self::assertContains(
-            UidProcessor::class,
-            $processorClasses,
-            sprintf('Logger %s must expose UidProcessor for cross-channel request correlation', $loggerServiceId),
-        );
+        foreach ([UidProcessor::class, ExceptionFormatterProcessor::class, WebProcessor::class, RouteProcessor::class, TokenProcessor::class] as $expected) {
+            self::assertContains(
+                $expected,
+                $processorClasses,
+                sprintf('Logger %s must expose %s (registered globally)', $loggerServiceId, $expected),
+            );
+        }
     }
 
     public function testUidProcessorStampsTheSameValueAcrossChannels(): void
@@ -211,28 +214,28 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
         self::bootKernel();
         $container = self::getContainer();
 
-        $busLogger = $container->get('monolog.logger.bus');
-        \assert($busLogger instanceof Logger);
-        $busTestHandler = new TestHandler();
-        $busLogger->pushHandler($busTestHandler);
+        $requestLogger = $container->get('monolog.logger.request');
+        \assert($requestLogger instanceof Logger);
+        $requestTestHandler = new TestHandler();
+        $requestLogger->pushHandler($requestTestHandler);
 
         $appLogger = $container->get('monolog.logger');
         \assert($appLogger instanceof Logger);
         $appTestHandler = new TestHandler();
         $appLogger->pushHandler($appTestHandler);
 
-        $busLogger->info('from bus');
+        $requestLogger->info('from request');
         $appLogger->info('from app');
 
-        self::assertCount(1, $busTestHandler->getRecords());
+        self::assertCount(1, $requestTestHandler->getRecords());
         self::assertCount(1, $appTestHandler->getRecords());
-        $busRecord = $busTestHandler->getRecords()[0];
+        $requestRecord = $requestTestHandler->getRecords()[0];
         $appRecord = $appTestHandler->getRecords()[0];
 
-        self::assertArrayHasKey('uid', $busRecord->extra);
+        self::assertArrayHasKey('uid', $requestRecord->extra);
         self::assertArrayHasKey('uid', $appRecord->extra);
         self::assertSame(
-            $busRecord->extra['uid'],
+            $requestRecord->extra['uid'],
             $appRecord->extra['uid'],
             'Records emitted in the same process on different channels must share the same UidProcessor uid',
         );

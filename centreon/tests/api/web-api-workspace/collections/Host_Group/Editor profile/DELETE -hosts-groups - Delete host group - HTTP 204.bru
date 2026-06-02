@@ -1,0 +1,26 @@
+meta {
+  name: DELETE /hosts/groups - Delete host group - HTTP 204
+  type: http
+  seq: 9
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/hosts/groups/{{HostGroup5Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("The host group '{{HostGroup5Name}}' has been successfully deleted by editor.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

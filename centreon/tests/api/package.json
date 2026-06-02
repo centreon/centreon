@@ -1,0 +1,11 @@
+{
+  "name": "api-tests-centreon-web",
+  "version": "1.0.0",
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@usebruno/cli": "3.3.0"
+  }
+}

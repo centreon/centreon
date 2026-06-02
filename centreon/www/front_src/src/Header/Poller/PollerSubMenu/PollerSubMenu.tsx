@@ -6,6 +6,7 @@ import { useAtomValue } from 'jotai';
 import { isEmpty } from 'ramda';
 import { ReactElement } from 'react';
 
+import FederatedComponent from '../../../components/FederatedComponents';
 import CloudInstallCommand from './CloudInstallCommand/CloudInstallCommand';
 import ExportConfiguration from './ExportConfiguration';
 
@@ -83,6 +84,12 @@ export const PollerSubMenu = ({
       {exportConfig.isExportButtonEnabled && (
         <ListItem className="p-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-divider">
           <ExportConfiguration closeSubMenu={closeSubMenu} />
+        </ListItem>
+      )}
+
+      {platformFeatures?.isCloudPlatform && (
+        <ListItem className="p-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-divider">
+          <FederatedComponent path="/cloud-extensions" />
         </ListItem>
       )}
 

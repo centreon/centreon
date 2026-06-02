@@ -71,7 +71,7 @@ jobs:
 
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
           cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
@@ -221,15 +221,6 @@ jobs:
           name: ${{ steps.title.outputs.replaced }}-${{ inputs.name }}-code-coverage
           path: coverage/lcov-report
           retention-days: 1
-
-      - name: Publish code coverage to PR
-        uses: romeovs/lcov-reporter-action@87a815f34ec27a5826abba44ce09bbc688da58fd # v0.4.0
-        if: ${{ github.event_name == 'pull_request' }}
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          title: Code coverage report for ${{ steps.title.outputs.replaced }} ${{ inputs.name }} 🚀
-          delete-old-comments: true
-          filter-changed-files: true
 
       - name: Check Code coverage
         id: checkCodeCoverage

@@ -23,45 +23,52 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Logging;
 
-abstract readonly class ExceptionFormatter
+/**
+ * @phpstan-type FormattedExceptionTypeAlias array{
+ *     type: class-string|self::TRUNCATION_MARKER_TYPE,
+ *     message: string,
+ *     code: int|string,
+ *     file: string,
+ *     line: int,
+ *     trace: list<string>
+ * }
+ */
+final readonly class ExceptionFormatter
 {
     private const MAX_TRACE_FRAMES = 15;
     private const MAX_EXCEPTIONS = 20;
     private const MAX_MESSAGE_LENGTH = 1024;
     private const TRUNCATION_MARKER_TYPE = '@truncated';
 
+    private function __construct()
+    {
+    }
+
     /**
-     * Returns a flat list of every exception in the cause chain — the
-     * thrown exception first, then each `previous` in order, capped at
-     * {@see self::MAX_EXCEPTIONS}. Beyond the cap, a sentinel entry of
-     * type `@truncated` is appended so a log reader can detect the cut
-     * without re-walking the chain.
+     * Returns a flat list of every exception in the cause chain — root
+     * first, each `previous` in order — capped at MAX_EXCEPTIONS with a
+     * trailing `@truncated` sentinel marking the cut.
      *
-     * The cap protects against pathological chains (or a theoretical
-     * reflection-induced cycle) producing an unbounded log payload.
-     *
-     * @return array{
-     *     exceptions: list<array{
-     *         type: class-string|self::TRUNCATION_MARKER_TYPE,
-     *         message: string,
-     *         code: int|string,
-     *         file: string,
-     *         line: int,
-     *         trace: list<string>
-     *     }>
-     * }
+     * @return array{exceptions: list<FormattedExceptionTypeAlias>}
      */
     public static function format(\Throwable $throwable): array
     {
-        $exceptions = [self::formatOne($throwable)];
-        $current = $throwable->getPrevious();
-        $depth = 1;
+        $exceptions = [];
+        $current = $throwable;
+        $depth = 0;
 
-        while ($current instanceof \Throwable && $depth < self::MAX_EXCEPTIONS) {
-            $exceptions[] = self::formatOne($current);
+        do {
+            $exceptions[] = [
+                'type' => $current::class,
+                'message' => self::truncateMessage($current->getMessage()),
+                'code' => $current->getCode(),
+                'file' => $current->getFile(),
+                'line' => $current->getLine(),
+                'trace' => self::formatTrace($current),
+            ];
             $current = $current->getPrevious();
             $depth++;
-        }
+        } while ($current instanceof \Throwable && $depth < self::MAX_EXCEPTIONS);
 
         if ($current instanceof \Throwable) {
             $exceptions[] = self::truncationMarker();
@@ -70,35 +77,6 @@ abstract readonly class ExceptionFormatter
         return ['exceptions' => $exceptions];
     }
 
-    /**
-     * @return array{
-     *     type: class-string,
-     *     message: string,
-     *     code: int|string,
-     *     file: string,
-     *     line: int,
-     *     trace: list<string>
-     * }
-     */
-    private static function formatOne(\Throwable $throwable): array
-    {
-        return [
-            'type' => $throwable::class,
-            'message' => self::truncateMessage($throwable->getMessage()),
-            'code' => $throwable->getCode(),
-            'file' => $throwable->getFile(),
-            'line' => $throwable->getLine(),
-            'trace' => self::formatTrace($throwable),
-        ];
-    }
-
-    /**
-     * Cap the exception message at the same width as the sanitized payload
-     * value (cf. LoggingMiddleware::MAX_VALUE_LENGTH). Without this, a
-     * PDOException carrying a multi-KB SQL fragment plus its parameters
-     * would land verbatim in the log line, blowing the row width on
-     * every aggregator downstream.
-     */
     private static function truncateMessage(string $message): string
     {
         if (\mb_strlen($message) <= self::MAX_MESSAGE_LENGTH) {
@@ -109,14 +87,7 @@ abstract readonly class ExceptionFormatter
     }
 
     /**
-     * @return array{
-     *     type: self::TRUNCATION_MARKER_TYPE,
-     *     message: string,
-     *     code: int,
-     *     file: string,
-     *     line: int,
-     *     trace: list<never>
-     * }
+     * @return FormattedExceptionTypeAlias
      */
     private static function truncationMarker(): array
     {
@@ -138,12 +109,19 @@ abstract readonly class ExceptionFormatter
         $trace = $throwable->getTrace();
         $frames = [];
 
-        foreach (\array_slice($trace, 0, self::MAX_TRACE_FRAMES) as $frame) {
+        foreach ($trace as $index => $frame) {
+            if ($index >= self::MAX_TRACE_FRAMES) {
+                break;
+            }
+            $class = $frame['class'] ?? '';
+            $function = $frame['function'] ?? '?';
+            $callable = $class === ''
+                ? $function
+                : $class . ($frame['type'] ?? '::') . $function;
+
             $frames[] = sprintf(
-                '%s%s%s() at %s:%d',
-                $frame['class'] ?? '',
-                $frame['type'] ?? '',
-                $frame['function'] ?? '?',
+                '%s() at %s:%d',
+                $callable,
                 $frame['file'] ?? '?',
                 $frame['line'] ?? 0,
             );
