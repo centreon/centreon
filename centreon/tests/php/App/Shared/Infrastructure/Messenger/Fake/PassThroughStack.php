@@ -35,8 +35,8 @@ final readonly class PassThroughStack implements StackInterface
 
     public function next(): MiddlewareInterface
     {
-        return new class ($this->envelope) implements MiddlewareInterface {
-            public function __construct(private readonly Envelope $envelope)
+        return new readonly class ($this->envelope) implements MiddlewareInterface {
+            public function __construct(private Envelope $envelope)
             {
             }
 

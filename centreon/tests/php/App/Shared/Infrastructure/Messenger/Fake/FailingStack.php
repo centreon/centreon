@@ -35,8 +35,8 @@ final readonly class FailingStack implements StackInterface
 
     public function next(): MiddlewareInterface
     {
-        return new class ($this->exception) implements MiddlewareInterface {
-            public function __construct(private readonly \Throwable $exception)
+        return new readonly class ($this->exception) implements MiddlewareInterface {
+            public function __construct(private \Throwable $exception)
             {
             }
 
