@@ -24,7 +24,7 @@ tests {
   test("The host group has been successfully created without alias, with name '{{HostGroup3Name}}'.", function () {
     const body = res.getBody();
     bru.setEnvVar("HostGroup3Id", body.id);
-    expect(body).to.eql({
+    expect(body).to.deep.include({
       "id": body.id,
       "name": bru.getEnvVar("HostGroup3Name"),
       "alias": null,

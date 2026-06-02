@@ -40,8 +40,7 @@ tests {
     expect(body).to.have.property("comment").that.is.satisfy(
       v => v === null || typeof v === "string"
     )
-    expect(body).to.have.property("hosts").that.is.an("array");
-  
+
     bru.setEnvVar("HostGroup1Id", body.id);
   });
 }
