@@ -4963,6 +4963,15 @@ msgid "Discard"
 msgstr ""
 
 #: centreon/www/include/options/session/connected_user.php
+msgid "Active Sessions"
+msgstr "Sessões ativas"
+
+msgid "Users currently connected to the platform."
+msgstr "Usuários atualmente conectados à plataforma."
+
+msgid "You cannot disconnect your own session."
+msgstr "Você não pode desconectar sua própria sessão."
+
 msgid "Disconnect user"
 msgstr ""
 
