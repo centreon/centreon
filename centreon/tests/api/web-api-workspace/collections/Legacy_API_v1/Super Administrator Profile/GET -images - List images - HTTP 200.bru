@@ -7,7 +7,11 @@ meta {
 get {
   url: {{baseUriCentreonApiWeb}}/index.php?object=centreon_images&action=list
   body: none
-  auth: inherit
+  auth: none
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
 }
 
 assert {

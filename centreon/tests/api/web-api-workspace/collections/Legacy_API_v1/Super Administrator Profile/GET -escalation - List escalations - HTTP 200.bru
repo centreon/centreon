@@ -1,13 +1,17 @@
 meta {
-  name: GET centreon_contact_groups list - HTTP 200
+  name: GET centreon_escalation list - HTTP 200
   type: http
-  seq: 4
+  seq: 5
 }
 
 get {
-  url: {{baseUriCentreonApiWeb}}/index.php?object=centreon_contact_groups&action=list
+  url: {{baseUriCentreonApiWeb}}/index.php?object=centreon_escalation&action=list
   body: none
-  auth: inherit
+  auth: none
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
 }
 
 assert {

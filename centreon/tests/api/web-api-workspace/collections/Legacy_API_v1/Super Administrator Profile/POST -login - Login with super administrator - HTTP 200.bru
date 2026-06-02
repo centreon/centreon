@@ -1,5 +1,5 @@
 meta {
-  name: POST /login - Login with administrator - HTTP 200
+  name: POST /login - Login with super administrator - HTTP 200
   type: http
   seq: 1
 }
@@ -14,8 +14,8 @@ body:json {
   {
     "security": {
       "credentials": {
-        "login": "{{user_administrator_login}}",
-        "password": "{{user_administrator_password}}"
+        "login": "{{user_super_administrator_login}}",
+        "password": "{{user_super_administrator_password}}"
       }
     }
   }

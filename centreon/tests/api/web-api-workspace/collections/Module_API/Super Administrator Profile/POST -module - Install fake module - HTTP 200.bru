@@ -7,7 +7,11 @@ meta {
 post {
   url: {{baseUriCentreonApiWeb}}/index.php?object=centreon_module&action=install&id=fake-module-to-test-api&type=module
   body: none
-  auth: inherit
+  auth: none
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
 }
 
 assert {
