@@ -1,0 +1,26 @@
+meta {
+  name: GET /monitoring-servers/1/reload - Reload Central configuration - HTTP 204
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/monitoring-servers/1/reload
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Editor can reload Central configuration.", function () {
+    expect(res.status).to.equal(204);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

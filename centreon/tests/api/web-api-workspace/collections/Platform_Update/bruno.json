@@ -1,0 +1,1 @@
+{ "version": "1", "name": "Platform_Update", "type": "collection", "ignore": ["node_modules", ".git"] }

@@ -1,0 +1,43 @@
+meta {
+  name: GET /services - Get 2 services - HTTP 200
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services?sort_by={"id":"DESC"}&limit=100
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Service 2 is returned with only mandatory properties.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+
+    const s2 = body.result.find(r => r.id === parseInt(bru.getEnvVar("Service2Id")));
+    expect(s2).to.exist;
+    expect(s2).to.include({
+      "name": bru.getEnvVar("Service2Name"),
+      "check_timeperiod": null,
+      "severity": null,
+      "normal_check_interval": null,
+      "retry_check_interval": null
+    });
+    expect(s2.service_template).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceTemplate1Id"))
+    });
+    expect(s2.categories).to.be.an("array").that.is.empty;
+    expect(s2.groups).to.be.an("array").that.is.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

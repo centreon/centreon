@@ -1,0 +1,31 @@
+meta {
+  name: GET /services - Get service 2 after delete - HTTP 404
+  type: http
+  seq: 26
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services?sort_by={"id":"DESC"}&limit=100
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Service 2 is no longer returned after deletion.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+
+    const s2 = body.result.find(r => r.id === parseInt(bru.getEnvVar("Service2Id")));
+    expect(s2).to.be.undefined;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

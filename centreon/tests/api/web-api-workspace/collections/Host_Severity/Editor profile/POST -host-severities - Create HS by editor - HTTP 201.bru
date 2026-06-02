@@ -1,0 +1,47 @@
+meta {
+  name: POST /host-severities - Create HS by editor - HTTP 201
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/severities
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostSeverity4Name}}",
+    "alias": "{{HostSeverity4Alias}}",
+    "level": 7,
+    "icon_id": 1
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The host severity has been successfully created by editor, with name '{{HostSeverity4Name}}' and alias '{{HostSeverity4Alias}}'.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("HostSeverity4Id", body.id);
+    expect(body).to.include({
+      "id": body.id,
+      "name": bru.getEnvVar("HostSeverity4Name"),
+      "alias": bru.getEnvVar("HostSeverity4Alias"),
+      "level": 7,
+      "icon_id": 1
+    });
+  });
+
+  test("The Location parameter is in the header.", function () {
+    expect(res.getHeaders()).to.have.property("location");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

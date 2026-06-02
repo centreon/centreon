@@ -1,0 +1,35 @@
+meta {
+  name: POST /hosts/groups - Create HG with wrong type - HTTP 422
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/groups
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": true,
+    "alias": true,
+    "icon_id": "8"
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("The host group has not been created, because there are values of the wrong type.", function () {
+    const body = res.getBody();
+    expect(body.message).to.contains("Boolean value found, but a string is required");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
