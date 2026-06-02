@@ -635,16 +635,20 @@ jobs:
       - name: 🛠️ Rector checks
         if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon
+        env:
+          PHP_DIFF_FILES: ${{ steps.changed-php.outputs.all_changed_files }}
         run: |
           echo "Run of these Rector tests: rector:legacy, rector:core, rector:new on diff" && set -e
-          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer rector:diff
+          composer rector:diff
 
       - name: 🧹 PHP-CS-Fixer checks
         if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon
+        env:
+          PHP_DIFF_FILES: ${{ steps.changed-php.outputs.all_changed_files }}
         run: |
           echo "Run of these PHP-CS-Fixer tests: cs:legacy, cs:core, cs:new on diff" && set -e
-          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer cs:diff
+          composer cs:diff
 
       - name: 🔍 PHPStan checks
         working-directory: centreon
@@ -865,9 +869,12 @@ jobs:
 
       - name: Generate selinux binaries
         if: ${{ matrix.package_extension == 'rpm' }}
+        env:
+          MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
+          MINOR_VERSION: ${{ needs.get-environment.outputs.minor_version }}
         run: |
           cd centreon/selinux
-          sed -i "s/@VERSION@/${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}/g" *.te
+          sed -i "s/@VERSION@/$MAJOR_VERSION.$MINOR_VERSION/g" *.te
           make -f /usr/share/selinux/devel/Makefile
         shell: bash
 
@@ -995,15 +1002,18 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
           fail-on-cache-miss: true
 
-      - run: |
-          if [ "${{ steps.matrix_include.outputs.package_extension }}" = "rpm" ]; then
-            rm -f centreon{,-central,-mariadb,-mysql,-web-selinux}-${{ needs.get-environment.outputs.major_version }}*.rpm
+      - env:
+          PACKAGE_EXTENSION: ${{ steps.matrix_include.outputs.package_extension }}
+          MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
+        run: |
+          if [ "$PACKAGE_EXTENSION" = "rpm" ]; then
+            rm -f centreon{,-central,-mariadb,-mysql,-web-selinux}-"$MAJOR_VERSION"*.rpm
           else
-            rm -f centreon{,-central,-mariadb,-mysql}_${{ needs.get-environment.outputs.major_version }}*.deb
+            rm -f centreon{,-central,-mariadb,-mysql}_"$MAJOR_VERSION"*.deb
           fi
 
           mkdir packages-centreon
-          mv *.${{ steps.matrix_include.outputs.package_extension }} packages-centreon/
+          mv *."$PACKAGE_EXTENSION" packages-centreon/
         shell: bash
 
       - uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
@@ -1042,20 +1052,27 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Store slim image in local archive
+        env:
+          OPERATING_SYSTEM: ${{ matrix.operating_system }}
+          IMAGE_VERSION: ${{ steps.meta.outputs.version }}
         run: |
-          docker tag docker.centreon.com/centreon/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.meta.outputs.version }} ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.meta.outputs.version }}
+          docker tag "docker.centreon.com/centreon/$project-slim-$OPERATING_SYSTEM:$IMAGE_VERSION" "$project-slim-$OPERATING_SYSTEM:$IMAGE_VERSION"
           mkdir -p docker-image
-          docker save --output ./docker-image/${{ env.project }}-slim-${{ matrix.operating_system }}.tar ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.meta.outputs.version }}
+          docker save --output "./docker-image/$project-slim-$OPERATING_SYSTEM.tar" "$project-slim-$OPERATING_SYSTEM:$IMAGE_VERSION"
         shell: bash
 
       - name: Clear previous docker image from cache
         if: ${{ github.event.pull_request.head.repo.fork != true }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPERATING_SYSTEM: ${{ matrix.operating_system }}
+          IMAGE_VERSION: ${{ steps.meta.outputs.version }}
         run: |
           curl \
             -X DELETE \
             -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/${{ github.repository }}/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.meta.outputs.version }}
+            -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/caches?key=docker-image-$project-slim-$OPERATING_SYSTEM-$IMAGE_VERSION"
         shell: bash
 
       - name: Store slim image in cache
