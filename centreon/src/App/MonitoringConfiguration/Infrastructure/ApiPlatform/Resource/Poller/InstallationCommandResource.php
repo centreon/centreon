@@ -36,6 +36,15 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\GetInsta
         provider: GetInstallationCommandProvider::class,
         openapi: new Model\Operation(
             tags: ['Poller'],
+            parameters: [
+                new Model\Parameter(
+                    name: 'token-name',
+                    in: 'query',
+                    description: 'Name of the poller token to embed in the installation command. When omitted, the first valid poller token is used.',
+                    required: false,
+                    schema: ['type' => 'string'],
+                ),
+            ],
             responses: [
                 404 => new Model\Response('Poller not found'),
                 403 => new Model\Response('You are not allowed to access this resource'),

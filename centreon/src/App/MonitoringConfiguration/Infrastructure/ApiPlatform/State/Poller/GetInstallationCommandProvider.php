@@ -25,16 +25,13 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use App\MonitoringConfiguration\Domain\Aggregate\PlatformMetadata\PlatformMetadataName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
-use App\MonitoringConfiguration\Domain\Repository\PlatformMetadataRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\InstallationCommandResource;
 use App\MonitoringConfiguration\Infrastructure\PollerInstallationCommandFactory;
 use App\Shared\Domain\Repository\EngineSecretsRepository;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Webmozart\Assert\Assert;
 
 /**
  * @template-implements ProviderInterface<InstallationCommandResource>
@@ -45,7 +42,6 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
         private PollerRepository $pollerRepository,
         private PollerTokenRepository $pollerTokenRepository,
         private EngineSecretsRepository $engineSecretsRepository,
-        private PlatformMetadataRepository $informationRepository,
         #[Autowire(env: 'default::SITE')]
         private ?string $centralUrl,
     ) {
@@ -56,8 +52,12 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
         $rawPollerId = $uriVariables['id'] ?? null;
         $pollerId = new PollerId(is_scalar($rawPollerId) ? (int) $rawPollerId : 0);
         $poller = $this->pollerRepository->get($pollerId);
-        $platformVersion = $this->informationRepository->getByName(new PlatformMetadataName('version'));
-        $token = $this->pollerTokenRepository->getFirstValidPollerToken();
+
+        $filters = is_array($context['filters'] ?? null) ? $context['filters'] : [];
+        $tokenName = $filters['token-name'] ?? null;
+        $token = is_string($tokenName) && $tokenName !== ''
+            ? $this->pollerTokenRepository->getValidPollerTokenByName($tokenName)
+            : $this->pollerTokenRepository->getFirstValidPollerToken();
 
         $factory = new PollerInstallationCommandFactory(
             $poller,
@@ -65,7 +65,6 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
             $this->engineSecretsRepository->getAppSecret(),
             $this->engineSecretsRepository->getSalt(),
             $this->centralUrl ?? '<CENTRAL_URL>',
-            $platformVersion->value->value,
         );
 
         return new InstallationCommandResource(
