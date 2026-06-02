@@ -51,7 +51,7 @@ jobs:
 
       - name: Fight against empty inputs
         run: |
-          if [[ -z "$RELEASE_BRANCH" || -z "$RELEASE_NUMBER" ]]; then
+          if [[ -z "$RELEASE_BRANCH" || -z "$RELEASE_NUMBER" || "$RELEASE_NUMBER" == "00000000" ]]; then
             echo "Invalid inputs were given for release-branch ($RELEASE_BRANCH) or release-number ($RELEASE_NUMBER). Exiting."
             exit 1
           else
@@ -135,7 +135,7 @@ jobs:
           # This must never run on any other ref than develop or dev-xxx
           if [[ "$GITHUB_REF_NAME" == 'develop' ]]; then
             echo "[DEBUG] ref hosting release workflow is valid: $GITHUB_REF_NAME"
-          elif  [[ "$GITHUB_REF_NAME" =~ ^dev-[2-9][0-9].[0-9][0-9].x ]]; then
+          elif [[ "$GITHUB_REF_NAME" =~ ^dev-[2-9][0-9]\.[0-9][0-9]\.x$ ]]; then
             echo "[DEBUG] ref hosting release workflow is valid: $GITHUB_REF_NAME"
           else
             echo "::error::ref hosting release workflow is not valid ($GITHUB_REF), please use develop or dev-xxx branch, exiting."

@@ -239,7 +239,7 @@ jobs:
           XRAY_KEYS_AND_IDS: ${{ inputs.xray_keys_and_ids }}
           OS: ${{ inputs.os }}
         run: |
-          test_execution_key=$(echo "$XRAY_KEYS_AND_IDS" | jq -r ".test_execution_key_$OS")
+          test_execution_key=$(echo "$XRAY_KEYS_AND_IDS" | jq -r --arg os "$OS" '.["test_execution_key_" + $os]')
           echo "The Test Execution KEY: $test_execution_key"
           echo "test_execution_key=$test_execution_key" >> $GITHUB_ENV
         shell: bash
@@ -297,8 +297,8 @@ jobs:
         run: |
             retriesFile="$MODULE_NAME/tests/e2e/results/retries.json"
             if [ -f "$retriesFile" ]; then
-              jq 'to_entries | .[].key' "$retriesFile" | while read -r testName; do
-                echo "::warning::Following test was retried during execution: $testName (retries: $(jq ".$testName" "$retriesFile"))"
+              jq -r 'to_entries | .[].key' "$retriesFile" | while read -r testName; do
+                echo "::warning::Following test was retried during execution: $testName (retries: $(jq --arg name "$testName" '.[$name]' "$retriesFile"))"
               done
               mv "$retriesFile" "$MODULE_NAME/tests/e2e/results/reports/$FEATURE_NAME_WITH_DASH-retries.json"
             fi
@@ -346,8 +346,8 @@ jobs:
       - name: Generate Xray Token
         id: generate-xray-token
         env:
-          XRAY_CLIENT_ID: ${{ secrets.XRAY_CLIENT_ID }}
-          XRAY_CLIENT_SECRET: ${{ secrets.XRAY_CLIENT_SECRET }}
+          XRAY_CLIENT_ID: ${{ secrets.xray_client_id }}
+          XRAY_CLIENT_SECRET: ${{ secrets.xray_client_secret }}
         run: |
           payload=$(jq -nc --arg id "$XRAY_CLIENT_ID" --arg secret "$XRAY_CLIENT_SECRET" '{client_id: $id, client_secret: $secret}')
           token_response=$(curl -H "Content-Type: application/json" -X POST --data "$payload" "https://xray.cloud.getxray.app/api/v1/authenticate")
@@ -360,8 +360,8 @@ jobs:
           XRAY_KEYS_AND_IDS: ${{ inputs.xray_keys_and_ids }}
           OS: ${{ inputs.os }}
         run: |
-          test_execution_key=$(echo "$XRAY_KEYS_AND_IDS" | jq -r ".test_execution_key_$OS")
-          test_plan_key=$(echo "$XRAY_KEYS_AND_IDS" | jq -r ".test_plan_key_$OS")
+          test_execution_key=$(echo "$XRAY_KEYS_AND_IDS" | jq -r --arg os "$OS" '.["test_execution_key_" + $os]')
+          test_plan_key=$(echo "$XRAY_KEYS_AND_IDS" | jq -r --arg os "$OS" '.["test_plan_key_" + $os]')
           echo "The Test Execution KEY: $test_execution_key"
           echo "The Test Plan KEY: $test_plan_key"
 
