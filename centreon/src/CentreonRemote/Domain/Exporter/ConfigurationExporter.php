@@ -89,8 +89,9 @@ class ConfigurationExporter extends ExporterServiceAbstract
             $truncated = [];
             foreach ($import['data'] as $data) {
                 if (! isset($truncated[$data['table']]) && isset($tables[$data['table']])) {
-                    $connection->executeStatement('DELETE FROM `' . $data['table'] . '`');
-                    $connection->executeStatement('ALTER TABLE `' . $data['table'] . '` AUTO_INCREMENT = 1');
+                    $table = $this->assertSafeTableName($data['table']);
+                    $connection->executeStatement('DELETE FROM `' . $table . '`');
+                    $connection->executeStatement('ALTER TABLE `' . $table . '` AUTO_INCREMENT = 1');
                     $truncated[$data['table']] = 1;
                 }
             }
@@ -119,7 +120,7 @@ class ConfigurationExporter extends ExporterServiceAbstract
                 if ($size > 0) {
                     $db->loadDataInfile(
                         $exportPathFile,
-                        $data['table'],
+                        $this->assertSafeTableName($data['table']),
                         $import['infile_clauses']['fields_clause'],
                         $import['infile_clauses']['lines_clause'],
                         $data['columns']
@@ -159,6 +160,24 @@ class ConfigurationExporter extends ExporterServiceAbstract
     public static function getName(): string
     {
         return static::NAME;
+    }
+
+    /**
+     * Defence-in-depth on top of the SHOW TABLES allowlist: ensures a table
+     * name is a safe SQL identifier before it is concatenated into a query.
+     *
+     * @throws \InvalidArgumentException
+     */
+    private function assertSafeTableName(mixed $table): string
+    {
+        if (! is_string($table) || preg_match('/^[a-zA-Z0-9_]+$/', $table) !== 1) {
+            throw new \InvalidArgumentException(sprintf(
+                'Unsafe table name in import manifest: %s',
+                is_scalar($table) ? (string) $table : get_debug_type($table),
+            ));
+        }
+
+        return $table;
     }
 
     /**
