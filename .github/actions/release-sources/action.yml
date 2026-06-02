@@ -80,17 +80,23 @@ runs:
         key: ${{ inputs.translation_cache_key }}
         fail-on-cache-miss: true
 
-    - run: |
-        MAJOR_VERSION="${{ inputs.major_version }}"
-        VERSION="${{ inputs.major_version }}.${{ inputs.minor_version }}"
-        SRC_FILE="${{ inputs.module_name }}-$VERSION.tar.gz"
+    - env:
+        MAJOR_VERSION: ${{ inputs.major_version }}
+        MINOR_VERSION: ${{ inputs.minor_version }}
+        MODULE_NAME: ${{ inputs.module_name }}
+        MODULE_DIRECTORY: ${{ inputs.module_directory }}
+        BUCKET_DIRECTORY: ${{ inputs.bucket_directory }}
+        TOKEN_DOWNLOAD_CENTREON_COM: ${{ inputs.token_download_centreon_com }}
+      run: |
+        VERSION="$MAJOR_VERSION.$MINOR_VERSION"
+        SRC_FILE="$MODULE_NAME-$VERSION.tar.gz"
 
-        mv "${{ inputs.module_directory }}" "${{ inputs.module_name }}-$VERSION"
-        tar czf $SRC_FILE "${{ inputs.module_name }}-$VERSION"
+        mv "$MODULE_DIRECTORY" "$MODULE_NAME-$VERSION"
+        tar czf "$SRC_FILE" "$MODULE_NAME-$VERSION"
 
-        SRC_HASH=$(md5sum $SRC_FILE | cut -d ' ' -f 1)
-        SRC_SIZE=$(stat -c '%s' $SRC_FILE)
+        SRC_HASH=$(md5sum "$SRC_FILE" | cut -d ' ' -f 1)
+        SRC_SIZE=$(stat -c '%s' "$SRC_FILE")
 
-        aws s3 cp --acl public-read "$SRC_FILE" "s3://centreon-download/public/${{ inputs.bucket_directory }}/$SRC_FILE"
-        curl --fail "https://download.centreon.com/api/?token=${{ inputs.token_download_centreon_com }}&product=${{ inputs.module_name }}&release=$MAJOR_VERSION&version=$VERSION&extension=tar.gz&md5=$SRC_HASH&size=$SRC_SIZE&ddos=0&dryrun=0"
+        aws s3 cp --acl public-read "$SRC_FILE" "s3://centreon-download/public/$BUCKET_DIRECTORY/$SRC_FILE"
+        curl --fail "https://download.centreon.com/api/?token=$TOKEN_DOWNLOAD_CENTREON_COM&product=$MODULE_NAME&release=$MAJOR_VERSION&version=$VERSION&extension=tar.gz&md5=$SRC_HASH&size=$SRC_SIZE&ddos=0&dryrun=0"
       shell: bash
