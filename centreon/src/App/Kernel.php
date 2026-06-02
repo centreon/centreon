@@ -105,7 +105,7 @@ class Kernel extends BaseKernel
     #[\Override]
     public function getLogDir(): string
     {
-        return '/var/log/centreon';
+        return defined('_CENTREON_LOG_') ? (string) _CENTREON_LOG_ : '/var/log/centreon';
     }
 
     protected function build(ContainerBuilder $container): void

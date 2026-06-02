@@ -143,7 +143,7 @@ trait LoggerTrait
      * @param array<string,mixed> $context
      */
     private function executeLog(
-        string $level,
+        int|string $level,
         string $message,
         array $context = [],
         ?callable $callable = null,
