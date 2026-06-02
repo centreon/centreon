@@ -154,15 +154,13 @@ runs:
           const JIRA_BASE_URL = process.env.JIRA_BASE_URL;
           const MODULE_NAME = process.env.MODULE_NAME;
           const TICKET_REASON = process.env.TICKET_REASON;
-          const NIGHTLY_EPIC_ID = process.env.NIGHTLY_EPIC_ID;
-          const NIGHTLY_EPIC_KEY = process.env.NIGHTLY_EPIC_KEY;
           const GITHUB_BRANCH = process.env.GITHUB_BRANCH;
           const GITHUB_SERVER_URL = process.env.GITHUB_SERVER_URL;
           const GITHUB_REPOSITORY = process.env.GITHUB_REPOSITORY;
           const GITHUB_RUN_ID = process.env.GITHUB_RUN_ID;
           const GITHUB_RUN_ATTEMPT = process.env.GITHUB_RUN_ATTEMPT;
-          const nightly_epic_id = parseInt(NIGHTLY_EPIC_ID, 10);
-          const nightly_epic_key = NIGHTLY_EPIC_KEY;
+          const nightly_epic_id = parseInt(process.env.NIGHTLY_EPIC_ID, 10);
+          const nightly_epic_key = process.env.NIGHTLY_EPIC_KEY;
           const JSON_TEMPLATE_FILE = "./.github/actions/create-jira-ticket/nightly-ticket-template.json";
           const path = './ticket-payload.json';
           let contents, data, ticket_summary, ticket_squad_id, ticket_board_id, squad_name, ticket_labels, current_sprint, ticket_data, ticket_key, parent_epic_id, parent_epic_key;
