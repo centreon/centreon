@@ -24,28 +24,26 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerToken;
 
 final readonly class PollerInstallationCommandFactory
 {
-    //TODO to update with final path when available
-    private const INSTALL_SCRIPT_PATH = 'https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/%s-latest/poller/installer/install.sh';
-
     public function __construct(
         private Poller $poller,
-        private string $pollerToken,
+        private PollerToken $pollerToken,
         private string $appSecret,
         private string $salt,
         private string $centralUrl,
-        private string $platformVersion,
     ) {
     }
 
     public function generate(): string
     {
+        // TODO to update with final path when available
         return sprintf(
-            'curl -fsSL ' . self::INSTALL_SCRIPT_PATH . ' | bash -s -- --poller_token %s --uid %s --name %s --type %s --central_url %s --appsecret %s --salt %s',
-            $this->platformVersion,
-            $this->pollerToken,
+            'curl -fsSL https://%s/poller/install.sh | bash -s -- --poller_token %s --uid %s --name %s --type %s --central_url %s --appsecret %s --salt %s',
+            $this->centralUrl,
+            $this->pollerToken->value,
             $this->poller->uid->value,
             $this->poller->name->value,
             $this->poller->pollerType->value,

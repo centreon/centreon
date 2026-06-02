@@ -21,24 +21,20 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerToken;
-use App\MonitoringConfiguration\Domain\Exception\PollerTokenNotFoundException;
+use Webmozart\Assert\Assert;
 
-interface PollerTokenRepository
+final readonly class PollerToken
 {
-    /**
-     * Returns the first valid, non-revoked poller token.
-     *
-     * @throws PollerTokenNotFoundException
-     */
-    public function getFirstValidPollerToken(): PollerToken;
-
-    /**
-     * Returns the valid, non-revoked poller token identified by $name.
-     *
-     * @throws PollerTokenNotFoundException
-     */
-    public function getValidPollerTokenByName(string $name): PollerToken;
+    public function __construct(
+        public string $name,
+        public string $value,
+        public \DateTimeImmutable $creationDate,
+        public ?\DateTimeImmutable $expirationDate,
+        public bool $isRevoked,
+    ) {
+        Assert::notEmpty($name);
+        Assert::notEmpty($value);
+    }
 }

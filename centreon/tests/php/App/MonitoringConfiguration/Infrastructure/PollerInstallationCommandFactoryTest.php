@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerToken;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
@@ -53,7 +54,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
     {
         $factory = new PollerInstallationCommandFactory(
             poller: $this->createPoller(PollerTypeEnum::VM),
-            pollerToken: self::POLLER_TOKEN,
+            pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
             salt: self::SALT,
             centralUrl: self::CENTRAL_URL,
@@ -70,7 +71,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
     {
         $factory = new PollerInstallationCommandFactory(
             poller: $this->createPoller(PollerTypeEnum::VM),
-            pollerToken: self::POLLER_TOKEN,
+            pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
             salt: self::SALT,
             centralUrl: self::CENTRAL_URL,
@@ -83,7 +84,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
     {
         $factory = new PollerInstallationCommandFactory(
             poller: $this->createPoller(PollerTypeEnum::VM),
-            pollerToken: self::POLLER_TOKEN,
+            pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
             salt: self::SALT,
             centralUrl: self::CENTRAL_URL,
@@ -96,7 +97,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
     {
         $factory = new PollerInstallationCommandFactory(
             poller: $this->createPoller(PollerTypeEnum::VM),
-            pollerToken: self::POLLER_TOKEN,
+            pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
             salt: self::SALT,
             centralUrl: self::CENTRAL_URL,
@@ -109,7 +110,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
     {
         $factory = new PollerInstallationCommandFactory(
             poller: $this->createPoller(PollerTypeEnum::VM),
-            pollerToken: self::POLLER_TOKEN,
+            pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
             salt: self::SALT,
             centralUrl: self::CENTRAL_URL,
@@ -122,7 +123,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
     {
         $factory = new PollerInstallationCommandFactory(
             poller: $this->createPoller(PollerTypeEnum::Docker),
-            pollerToken: self::POLLER_TOKEN,
+            pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
             salt: self::SALT,
             centralUrl: self::CENTRAL_URL,
@@ -135,7 +136,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
     {
         $factory = new PollerInstallationCommandFactory(
             poller: $this->createPoller(PollerTypeEnum::VM),
-            pollerToken: self::POLLER_TOKEN,
+            pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
             salt: self::SALT,
             centralUrl: self::CENTRAL_URL,
@@ -148,7 +149,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
     {
         $factory = new PollerInstallationCommandFactory(
             poller: $this->createPoller(PollerTypeEnum::VM),
-            pollerToken: self::POLLER_TOKEN,
+            pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
             salt: self::SALT,
             centralUrl: self::CENTRAL_URL,
@@ -161,7 +162,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
     {
         $factory = new PollerInstallationCommandFactory(
             poller: $this->createPoller(PollerTypeEnum::VM),
-            pollerToken: self::POLLER_TOKEN,
+            pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
             salt: self::SALT,
             centralUrl: self::CENTRAL_URL,
@@ -174,7 +175,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
     {
         $factory = new PollerInstallationCommandFactory(
             poller: $this->createPoller(PollerTypeEnum::VM),
-            pollerToken: self::POLLER_TOKEN,
+            pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
             salt: self::SALT,
             centralUrl: self::CENTRAL_URL,
