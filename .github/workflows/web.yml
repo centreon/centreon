@@ -207,21 +207,25 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           MODIFIED_UPDATE_SCRIPTS: ${{ steps.get_changed_files.outputs.all_changed_files }}
+          BASE_REF: ${{ github.base_ref }}
+          TARGET_STABILITY: ${{ needs.get-environment.outputs.target_stability }}
         with:
           script: |
             const fs = require('fs');
 
             const MODIFIED_UPDATE_SCRIPTS = process.env.MODIFIED_UPDATE_SCRIPTS.split(" ");
+            const TARGET_STABILITY = process.env.TARGET_STABILITY;
+            const BASE_REF = process.env.BASE_REF;
             let failed = 0;
             if (MODIFIED_UPDATE_SCRIPTS.length == 0 || MODIFIED_UPDATE_SCRIPTS[0] == '') { return; }
             else if (MODIFIED_UPDATE_SCRIPTS.length > 1) {
               core.setFailed(`❌ No more than one update script should be modified.`);
               failed = 1;
             } else {
-              if ( ('${{ needs.get-environment.outputs.target_stability }}' == 'unstable' || '${{ needs.get-environment.outputs.target_stability }}' == 'canary') && !MODIFIED_UPDATE_SCRIPTS[0].match(/Update-next\.php$/) ) {
-                core.setFailed(`❌ This pull request targeting ${{ github.base_ref }} should only be modifying the Update-next.php script.`);
+              if ( (TARGET_STABILITY == 'unstable' || TARGET_STABILITY == 'canary') && !MODIFIED_UPDATE_SCRIPTS[0].match(/Update-next\.php$/) ) {
+                core.setFailed(`❌ This pull request targeting ${BASE_REF} should only be modifying the Update-next.php script.`);
                 failed = 1;
-              } else if ( '${{ needs.get-environment.outputs.target_stability }}' == 'testing' ) {
+              } else if ( TARGET_STABILITY == 'testing' ) {
                 const majorVersionContent = fs.readFileSync('.version', { encoding: 'utf8' });
                 const minorVersionContent = fs.readFileSync('.version.centreon-web', { encoding: 'utf8' });
                 const version = majorVersionContent.match(/MAJOR="?(\d+\.\d+)"?/)[1] + "." + minorVersionContent.match(/MINOR="?(\d+)"?/)[1]
@@ -1437,8 +1441,10 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: List and delete cache
+        env:
+          REF_NAME: ${{ github.ref_name }}
         run: |
-          mapfile -t cache_keys < <(gh cache list --ref refs/heads/${{ github.ref_name }} --json key -q '.[] | .key')
+          mapfile -t cache_keys < <(gh cache list --ref "refs/heads/$REF_NAME" --json key -q '.[] | .key')
           echo $cache_keys
           while read row; do
             gh cache delete $row
