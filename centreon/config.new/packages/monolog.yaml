@@ -1,3 +1,4 @@
+# MON-198992: PHP 8.3 / 8.4 deprecations cleanup — tracking branch.
 monolog:
     channels:
         - deprecation
