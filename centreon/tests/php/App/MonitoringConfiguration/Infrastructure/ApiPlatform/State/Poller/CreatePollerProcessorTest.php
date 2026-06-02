@@ -25,7 +25,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Pol
 
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\CreatePollerResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerResource;
 use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
 
@@ -53,7 +53,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
         ]);
 
         self::assertResponseIsSuccessful();
-        self::assertMatchesResourceItemJsonSchema(CreatePollerResource::class);
+        self::assertMatchesResourceItemJsonSchema(PollerResource::class);
         self::assertJsonContains([
             'name' => $name,
             'poller_type' => 'vm',

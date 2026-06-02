@@ -30,7 +30,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\CreatePollerResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreatePollerInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerResource;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -39,22 +40,22 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Webmozart\Assert\Assert;
 
 /**
- * @implements ProcessorInterface<CreatePollerResource, CreatePollerResource>
+ * @implements ProcessorInterface<CreatePollerInput, PollerResource>
  */
 final readonly class CreatePollerProcessor implements ProcessorInterface
 {
     /**
-     * @param TransformerInterface<Poller, CreatePollerResource> $transformer
+     * @param TransformerInterface<Poller, PollerResource> $transformer
      */
     public function __construct(
         private CommandBus $commandBus,
-        #[Autowire(service: ResourceCreatePollerTransformer::class)]
+        #[Autowire(service: ResourcePollerTransformer::class)]
         private TransformerInterface $transformer,
         private Security $security,
     ) {
     }
 
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = []): CreatePollerResource
+    public function process($data, Operation $operation, array $uriVariables = [], array $context = []): PollerResource
     {
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
