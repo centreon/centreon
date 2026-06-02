@@ -91,7 +91,7 @@ class CentreonUserLog
     public static function singleton($uid = 0): CentreonUserLog
     {
         if (! self::$instance instanceof self) {
-            self::$instance = new CentreonUserLog($uid, CentreonDB::factory('centreon'));
+            self::$instance = new CentreonUserLog($uid, null);
         }
 
         return self::$instance;
