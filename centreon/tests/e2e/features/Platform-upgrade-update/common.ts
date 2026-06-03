@@ -379,6 +379,14 @@ const updatePlatformPackages = (): Cypress.Chainable => {
             `dnf install -y ${containerPackageDirectory}/*.rpm`
           ];
           break;
+        case 'alma10':
+          // el10 ships php 8.4 in the official repositories (no dnf module)
+          installCommands = [
+            ...installCommands,
+            `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
+            `dnf install -y ${containerPackageDirectory}/*.rpm`
+          ];
+          break;
         default:
           installCommands = [
             ...installCommands,

@@ -86,8 +86,7 @@ dnf install -y libfaketime
 # install php dependencies #
 ############################
 
-dnf install -y https://rpms.remirepo.net/enterprise/remi-release-10.rpm
-dnf module -y switch-to php:remi-${PHP_VERSION}/common
+# php ${PHP_VERSION} is provided by the official el10 repositories (no remi needed)
 dnf install -y \
   php-common \
   php-cli \
