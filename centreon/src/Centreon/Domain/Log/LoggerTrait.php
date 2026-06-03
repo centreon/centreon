@@ -29,14 +29,8 @@ use Psr\Log\LogLevel;
 use Symfony\Contracts\Service\Attribute\Required;
 
 /**
- * Provides PSR-3 log helpers to the legacy services that still autowire
- * a `LoggerInterface` through Symfony's `#[Required]` setter.
- *
- * New code should not adopt this trait — write to
- * {@see \Adaptation\Log\Logger} or {@see \App\Logging} directly (cf. MON-151077).
- * The annotation tag is intentionally omitted so the platform-wide
- * DebugClassLoader does not cascade a deprecation warning onto every
- * class still using this trait during the transition.
+ * Deprecated (no @deprecated tag, to avoid DebugClassLoader cascade warnings):
+ * write to {@see \Adaptation\Log\Logger} directly.
  */
 trait LoggerTrait
 {
@@ -137,6 +131,10 @@ trait LoggerTrait
      */
     private function log(mixed $level, string $message, array $context = [], ?callable $callable = null): void
     {
+        if (! is_int($level) && ! is_string($level)) {
+            throw new InvalidArgumentException('Log level must be an int or a string.');
+        }
+
         $this->executeLog($level, $message, $context, $callable);
     }
 
@@ -149,7 +147,7 @@ trait LoggerTrait
      * @param array<string,mixed> $context
      */
     private function executeLog(
-        string $level,
+        int|string $level,
         string $message,
         array $context = [],
         ?callable $callable = null,

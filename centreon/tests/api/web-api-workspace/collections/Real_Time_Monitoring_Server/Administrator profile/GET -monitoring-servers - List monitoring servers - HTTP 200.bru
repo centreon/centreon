@@ -1,0 +1,28 @@
+meta {
+  name: GET /monitoring/servers - List monitoring servers - HTTP 200
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrlWeb}}/monitoring/servers
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Monitoring servers listed successfully.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("result").that.is.an("array");
+    expect(body).to.have.property("meta").that.is.an("object");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

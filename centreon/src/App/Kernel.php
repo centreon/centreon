@@ -90,21 +90,22 @@ class Kernel extends BaseKernel
         }
     }
 
+    #[\Override]
     public function getProjectDir(): string
     {
         return \dirname(__DIR__, 2);
     }
 
+    #[\Override]
     public function getCacheDir(): string
     {
         return $this->cacheDir;
     }
 
+    #[\Override]
     public function getLogDir(): string
     {
-        // Unified log directory under /var/log/centreon — cf. MON-151077,
-        // and keep parity with src/App/Shared/Infrastructure/Symfony/Kernel.php.
-        return '/var/log/centreon';
+        return defined('_CENTREON_LOG_') ? (string) _CENTREON_LOG_ : '/var/log/centreon';
     }
 
     protected function build(ContainerBuilder $container): void

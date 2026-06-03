@@ -1,0 +1,44 @@
+meta {
+  name: POST /hosts/groups - Create HG by editor - HTTP 201
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/groups
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostGroup5Name}}",
+    "alias": "{{HostGroup5Alias}}",
+    "hosts": []
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The host group has been successfully created by editor, with name '{{HostGroup5Name}}' and alias '{{HostGroup5Alias}}'.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("HostGroup5Id", body.id);
+    expect(body).to.eql({
+      "id": body.id,
+      "name": bru.getEnvVar("HostGroup5Name"),
+      "alias": bru.getEnvVar("HostGroup5Alias"),
+      "icon_id": null,
+      "geo_coords": null,
+      "comment": null,
+      "hosts": []
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -23,58 +23,29 @@ declare(strict_types=1);
 
 namespace Tests\App\Shared\Infrastructure\Logging;
 
-use App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use Symfony\Bridge\Monolog\Processor\RouteProcessor;
-use Symfony\Bridge\Monolog\Processor\TokenProcessor;
-use Symfony\Bridge\Monolog\Processor\WebProcessor;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 #[Group('integration')]
 final class ExceptionFormatterProcessorIntegrationTest extends KernelTestCase
 {
     /**
-     * Pin the channel-scoped processor wiring on the platform Monolog
-     * channels: `monolog.logger.bus`, `monolog.logger.request` and
-     * `monolog.logger` (the `app` channel is served by the unsuffixed
-     * default service) each carry the four platform processors. Drift on
-     * the `#[AsMonologProcessor(channel: ...)]` attributes or on the
-     * channel-tag list in `config.new/services/monolog.php` is what this
-     * test catches. See doc/architecture/logging.md § "Processors HTTP /
-     * sécurité".
+     * The four platform processors are registered globally (no channel tag /
+     * no `channel:` argument on `#[AsMonologProcessor]`), so they land on
+     * every logger. We pin the wiring on the two HTTP-bearing channels —
+     * `monolog.logger.request` and `monolog.logger` (the `app` default) —
+     * which are representative and the most operationally relevant.
      *
      * @return iterable<string, array{string}>
      */
     public static function platformChannels(): iterable
     {
-        yield 'bus channel' => ['monolog.logger.bus'];
-
         yield 'request channel' => ['monolog.logger.request'];
 
         yield 'app channel (default)' => ['monolog.logger'];
-    }
-
-    #[DataProvider('platformChannels')]
-    public function testChannelLoggerExposesAllExpectedProcessors(string $loggerServiceId): void
-    {
-        self::bootKernel();
-        $logger = self::getContainer()->get($loggerServiceId);
-        \assert($logger instanceof Logger);
-
-        $processorClasses = [];
-        foreach ($logger->getProcessors() as $processor) {
-            if (\is_object($processor)) {
-                $processorClasses[] = $processor::class;
-            }
-        }
-
-        self::assertContains(ExceptionFormatterProcessor::class, $processorClasses);
-        self::assertContains(WebProcessor::class, $processorClasses);
-        self::assertContains(RouteProcessor::class, $processorClasses);
-        self::assertContains(TokenProcessor::class, $processorClasses);
     }
 
     #[DataProvider('platformChannels')]

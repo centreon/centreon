@@ -1,0 +1,30 @@
+meta {
+  name: GET /monitoring/acknowledgements - Verify no acknowledgement - HTTP 200
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrlWeb}}/monitoring/acknowledgements
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The acknowledgements list is empty after disacknowledgement.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+    const hostAck = body.result.find(r => r.host_id === parseInt(bru.getEnvVar("Host1Id")));
+    expect(hostAck).to.be.undefined;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

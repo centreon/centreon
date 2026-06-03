@@ -1,0 +1,35 @@
+meta {
+  name: GET /hosts - host name editor - HTTP 200
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/hosts/{{Host2Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "hostname-editor-name-patched"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  const body = res.getBody();
+  
+  test("Hostname is correctly updated", function () {
+      expect(body).to.be.an("object");
+      expect(body.name).equals("hostname-editor-name-patched");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

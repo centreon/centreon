@@ -1,5 +1,3 @@
-# Legacy monolog configuration — reuses the platform-wide MON-151077 layout
-# declared under config.new/. Keeping a single source of truth avoids the
-# legacy / new kernels drifting on channels, paths or formatters.
+# Legacy monolog config — reuses the shared layout declared under config.new/.
 imports:
     - { resource: '../../config.new/packages/monolog.yaml' }

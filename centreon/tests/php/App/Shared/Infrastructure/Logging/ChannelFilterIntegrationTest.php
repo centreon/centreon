@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Shared\Infrastructure\Logging;
 
+use App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\FingersCrossedHandler;
 use Monolog\Handler\FormattableHandlerInterface;
@@ -33,6 +34,9 @@ use Monolog\Processor\UidProcessor;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bridge\Monolog\Handler\FingersCrossed\HttpCodeActivationStrategy;
+use Symfony\Bridge\Monolog\Processor\RouteProcessor;
+use Symfony\Bridge\Monolog\Processor\TokenProcessor;
+use Symfony\Bridge\Monolog\Processor\WebProcessor;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 #[Group('integration')]
@@ -40,7 +44,7 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
 {
     /**
      * Channels we want to land in prod.web.log — everything Symfony emits
-     * by default that does not have a dedicated file in MON-151077. `app`
+     * by default that does not have a dedicated file. `app`
      * is the default Symfony channel served by the unsuffixed
      * `monolog.logger` service; covering it covers the common "no explicit
      * channel" case (Symfony's main channel).
@@ -49,15 +53,13 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
      */
     public static function capturedChannels(): iterable
     {
-        yield 'bus channel' => ['monolog.logger.bus'];
-
         yield 'request channel' => ['monolog.logger.request'];
 
         yield 'app channel (default)' => ['monolog.logger'];
     }
 
     /**
-     * Channels we explicitly excluded because MON-151077 routes them to
+     * Channels we explicitly excluded because they are routed to
      * dedicated files (or because they are noisy/internal). A regression
      * on the exclusion list would silently flood prod.web.log.
      *
@@ -85,7 +87,7 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
         // web_finger_crossed handler". Without this guard a typo in the
         // exclusion filter (e.g. "!main" by mistake) would silently keep
         // the legacy stderr behaviour and the operator would never see
-        // these records in prod.web.log — exactly what MON-151077 fixes.
+        // these records in prod.web.log.
         self::bootKernel();
         $container = self::getContainer();
 
@@ -126,14 +128,14 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
         self::assertNotContains(
             $webHandler,
             $logger->getHandlers(),
-            sprintf('Logger %s must NOT route records through web_finger_crossed (MON-151077 dedicated file)', $loggerServiceId),
+            sprintf('Logger %s must NOT route records through web_finger_crossed (dedicated file)', $loggerServiceId),
         );
     }
 
     public function testWebFileFormatterUsesRfc3339DateFormat(): void
     {
-        // Pin the line format used in prod.web.log. MON-151077 mandates
-        // RFC3339 (e.g. 2025-09-08T15:38:41+02:00). Asserting the
+        // Pin the line format used in prod.web.log: RFC3339
+        // (e.g. 2025-09-08T15:38:41+02:00). Asserting the
         // configured date format directly is more deterministic than
         // serialising a record and parsing the wall-clock prefix.
         self::bootKernel();
@@ -152,12 +154,9 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
      */
     public static function everyChannel(): iterable
     {
-        // Cross-channel set: the bus/request/app trio gets the HTTP
-        // processors via channel-scoped tags, but UidProcessor is
-        // declared globally — so it must land on every channel logger
-        // including the dedicated MON-151077 ones.
-        yield 'bus channel' => ['monolog.logger.bus'];
-
+        // Cross-channel set: the request/app pair gets the HTTP processors
+        // via channel-scoped tags, but UidProcessor is declared globally —
+        // so it must land on every channel logger including the dedicated ones.
         yield 'request channel' => ['monolog.logger.request'];
 
         yield 'app channel (default)' => ['monolog.logger'];
@@ -170,13 +169,14 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
     }
 
     #[DataProvider('everyChannel')]
-    public function testUidProcessorIsStampedOnEveryChannel(string $loggerServiceId): void
+    public function testPlatformProcessorsAreStampedOnEveryChannel(string $loggerServiceId): void
     {
-        // Pin "UidProcessor is registered on every channel logger". The
-        // service is declared in config.new/services/monolog.php with
-        // no channel tag, which means MonologBundle attaches it to every
-        // logger. This test guards against an accidental channel-scoped
-        // tag landing on the service in the future.
+        // Pin "the four platform processors are registered on every channel
+        // logger". They are declared in config.new/services/shared.php with
+        // no channel tag (and ExceptionFormatterProcessor via #[AsMonologProcessor]
+        // without channel:), which means MonologBundle attaches each of them
+        // to every logger. This test guards against an accidental channel-
+        // scoped tag landing on any of these services in the future.
         self::bootKernel();
         $container = self::getContainer();
 
@@ -194,11 +194,13 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
             }
         }
 
-        self::assertContains(
-            UidProcessor::class,
-            $processorClasses,
-            sprintf('Logger %s must expose UidProcessor for cross-channel request correlation', $loggerServiceId),
-        );
+        foreach ([UidProcessor::class, ExceptionFormatterProcessor::class, WebProcessor::class, RouteProcessor::class, TokenProcessor::class] as $expected) {
+            self::assertContains(
+                $expected,
+                $processorClasses,
+                sprintf('Logger %s must expose %s (registered globally)', $loggerServiceId, $expected),
+            );
+        }
     }
 
     public function testUidProcessorStampsTheSameValueAcrossChannels(): void
@@ -211,28 +213,28 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
         self::bootKernel();
         $container = self::getContainer();
 
-        $busLogger = $container->get('monolog.logger.bus');
-        \assert($busLogger instanceof Logger);
-        $busTestHandler = new TestHandler();
-        $busLogger->pushHandler($busTestHandler);
+        $requestLogger = $container->get('monolog.logger.request');
+        \assert($requestLogger instanceof Logger);
+        $requestTestHandler = new TestHandler();
+        $requestLogger->pushHandler($requestTestHandler);
 
         $appLogger = $container->get('monolog.logger');
         \assert($appLogger instanceof Logger);
         $appTestHandler = new TestHandler();
         $appLogger->pushHandler($appTestHandler);
 
-        $busLogger->info('from bus');
+        $requestLogger->info('from request');
         $appLogger->info('from app');
 
-        self::assertCount(1, $busTestHandler->getRecords());
+        self::assertCount(1, $requestTestHandler->getRecords());
         self::assertCount(1, $appTestHandler->getRecords());
-        $busRecord = $busTestHandler->getRecords()[0];
+        $requestRecord = $requestTestHandler->getRecords()[0];
         $appRecord = $appTestHandler->getRecords()[0];
 
-        self::assertArrayHasKey('uid', $busRecord->extra);
+        self::assertArrayHasKey('uid', $requestRecord->extra);
         self::assertArrayHasKey('uid', $appRecord->extra);
         self::assertSame(
-            $busRecord->extra['uid'],
+            $requestRecord->extra['uid'],
             $appRecord->extra['uid'],
             'Records emitted in the same process on different channels must share the same UidProcessor uid',
         );
@@ -251,11 +253,11 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
         $handler = $container->get('monolog.handler.web_finger_crossed');
         \assert($handler instanceof FingersCrossedHandler);
 
-        $strategy = (new \ReflectionProperty(FingersCrossedHandler::class, 'activationStrategy'))
+        $strategy = new \ReflectionProperty(FingersCrossedHandler::class, 'activationStrategy')
             ->getValue($handler);
         self::assertInstanceOf(HttpCodeActivationStrategy::class, $strategy);
 
-        $excludedHttpCodes = (new \ReflectionProperty(HttpCodeActivationStrategy::class, 'exclusions'))
+        $excludedHttpCodes = new \ReflectionProperty(HttpCodeActivationStrategy::class, 'exclusions')
             ->getValue($strategy);
         \assert(\is_array($excludedHttpCodes));
         $codes = array_column($excludedHttpCodes, 'code');

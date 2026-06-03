@@ -1,0 +1,36 @@
+meta {
+  name: POST /services/severities - Create SS with empty name - HTTP 400
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/severities
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "",
+    "alias": "Hello, I'm your ghost severity!",
+    "level": 1,
+    "icon_id": 1
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("The service severity has not been created, because the name is empty.", function () {
+    const body = res.getBody();
+    expect(body.message).to.be.a("string").and.include("[NewServiceSeverity::name]");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

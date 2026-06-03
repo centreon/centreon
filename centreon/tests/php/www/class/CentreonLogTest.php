@@ -19,15 +19,6 @@
  *
  */
 
-/*
- * Since MON-151077, CentreonLog reroutes writes to
- * Adaptation\Log\Logger which is exercised by the Monolog integration tests
- * (cf. tests/php/App/Shared/Infrastructure/Logging). The legacy facade is
- * kept for backward compatibility; the tests below pin its public API
- * (factory, level helpers, the deprecated insertLog entry point) and the
- * mapping between TYPE_* identifiers and the underlying log files.
- */
-
 beforeEach(function (): void {
     $_SERVER['APP_ENV'] = 'test';
 });
