@@ -36,6 +36,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\GetInsta
         provider: GetInstallationCommandProvider::class,
         openapi: new Model\Operation(
             tags: ['Poller'],
+            summary: 'Retrieves a poller installation command',
             parameters: [
                 new Model\Parameter(
                     name: 'token-name',
@@ -43,6 +44,13 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\GetInsta
                     description: 'Name of the poller token to embed in the installation command. When omitted, the first valid poller token is used.',
                     required: false,
                     schema: ['type' => 'string'],
+                ),
+                new Model\Parameter(
+                    name: 'id',
+                    in: 'path',
+                    description: 'Id of the poller for which to generate the installation command.',
+                    required: true,
+                    schema: ['type' => 'id'],
                 ),
             ],
             responses: [
