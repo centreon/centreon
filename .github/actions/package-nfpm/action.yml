@@ -114,7 +114,7 @@ runs:
         export NFPM_RPM_PASSPHRASE="$RPM_GPG_SIGNING_PASSPHRASE"
 
         REPO_ROOT=$(pwd)
-        for FILE in $INPUT_NFPM_FILE_PATTERN; do
+        for FILE in ${{ inputs.nfpm_file_pattern }}; do
           DIRNAME=$(dirname $FILE)
           BASENAME=$(basename $FILE)
           cd $DIRNAME
@@ -125,11 +125,8 @@ runs:
           fi
           sed -i "s/@APACHE_USER@/$APACHE_USER/g" $BASENAME
           sed -i "s/@APACHE_GROUP@/$APACHE_GROUP/g" $BASENAME
-          sed -i "s/@COMMIT_HASH@/$INPUT_COMMIT_HASH/g" $BASENAME
-          if [[ -n "$PHP_MIN_VERSION" ]]; then
-            grep -rl "@PHP_MIN_VERSION@" . 2>/dev/null | xargs -r sed -i "s/@PHP_MIN_VERSION@/$PHP_MIN_VERSION/g" || true
-          fi
-          if [[ "$INPUT_PACKAGE_EXTENSION" == "deb" ]]; then
+          sed -i "s/@COMMIT_HASH@/${{ inputs.commit_hash }}/g" $BASENAME
+          if [[ "${{ inputs.package_extension }}" == "deb" ]]; then
             PKG_LICENSE=$(grep '^license:' "$BASENAME" | head -1 | sed 's/^license: *//;s/"//g' | xargs)
             COPYRIGHT_SRC=""
             if [[ -f "${REPO_ROOT}/copyright.${PKG_LICENSE}" ]]; then
@@ -145,7 +142,7 @@ runs:
               awk -v pkg="$PACKAGE_NAME" 'BEGIN{in_contents=0;injected=0} /^contents:/{in_contents=1} in_contents && /^[a-z]/ && !/^contents:/ && !injected{print "  - src: ./copyright"; print "    dst: /usr/share/doc/" pkg "/copyright"; print "    packager: deb"; injected=1; in_contents=0} {print} END{if(!injected){if(!in_contents){print "contents:"} print "  - src: ./copyright"; print "    dst: /usr/share/doc/" pkg "/copyright"; print "    packager: deb"}}' "$BASENAME" > "${BASENAME}.tmp" && mv "${BASENAME}.tmp" "$BASENAME"
             fi
           fi
-          nfpm package --config $BASENAME --packager "$INPUT_PACKAGE_EXTENSION"
+          nfpm package --config $BASENAME --packager ${{ inputs.package_extension }}
           cd -
           mv $DIRNAME/*.${{ inputs.package_extension }} ./
         done
