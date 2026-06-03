@@ -166,7 +166,7 @@ final class FindDashboardContacts
     /**
      * Find contacts with their Dashboards roles.
      * Cloud - Return users that are part of the same contact groups as the current user.
-     * OnPrem - Return users that are part of the same access groups as the current user.
+     * OnPrem - Return users that are part of the same access groups or contact groups as the current user.
      *
      * @throws \Throwable
      *
@@ -183,12 +183,9 @@ final class FindDashboardContacts
             );
         }
 
-        $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
-        $accessGroupIds = array_map(static fn (AccessGroup $accessGroup): int => $accessGroup->getId(), $accessGroups);
-
         return $this->readDashboardShareRepository->findContactsWithAccessRightByACLGroupsAndRequestParameters(
             $this->requestParameters,
-            $accessGroupIds
+            $this->contact->getId()
         );
     }
 
