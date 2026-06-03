@@ -45,7 +45,7 @@ class ProviderException extends \Exception
      *
      * @return self
      */
-    public static function findProviderConfiguration(string $providerConfigurationName, \Throwable $e): self
+    public static function errorWhileSearchingConfiguration(string $providerConfigurationName, \Throwable $e): self
     {
         return new self(
             sprintf(_("Error while searching provider configuration: '%s'"), $providerConfigurationName),

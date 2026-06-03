@@ -57,7 +57,7 @@ readonly class ProviderAuthenticationFactory implements ProviderAuthenticationFa
         try {
             $provider->setConfiguration($this->readConfigurationRepository->getConfigurationByType($providerType));
         } catch (RepositoryException $e) {
-            throw ProviderException::findProviderConfiguration($providerType, $e);
+            throw ProviderException::errorWhileSearchingConfiguration($providerType, $e);
         }
 
         return $provider;
