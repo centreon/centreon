@@ -1,0 +1,54 @@
+meta {
+  name: POST /login - Login with non-admin user - HTTP 200
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrlWeb}}/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "security": {
+      "credentials": {
+        "login": "{{user_unprivileged_login}}",
+        "password": "{{user_unprivileged_password}}"
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+
+tests {
+  test("Login successful. The account displayed in response matches with credentials and doesn't have admin rights.", function () {
+    bru.setGlobalEnvVar("authToken", res.getBody().security.token);
+    const body = res.getBody();
+    expect(res.status).to.equal(200);
+    expect(body.contact.alias).to.equal(bru.getGlobalEnvVar("user_unprivileged_login"));
+    expect(body.contact.is_admin).to.equal(false);
+  });
+
+  test("Schema validation for the login response.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("contact").that.is.an("object");
+    expect(body.contact).to.have.property("id").that.is.a("number");
+    expect(body.contact).to.have.property("name").that.is.a("string");
+    expect(body.contact).to.have.property("alias").that.is.a("string");
+    expect(body.contact).to.have.property("email").that.is.a("string");
+    expect(body.contact).to.have.property("is_admin").that.is.a("boolean");
+    expect(body).to.have.property("security").that.is.an("object");
+    expect(body.security).to.have.property("token").that.is.a("string");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

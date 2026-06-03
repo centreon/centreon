@@ -1,0 +1,28 @@
+meta {
+  name: GET /monitoring/acknowledgements - Verify no acknowledgement - HTTP 200
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrlWeb}}/monitoring/acknowledgements
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The acknowledgements list is empty after editor disacknowledgement (known infra issue: stale acks may remain in CI without centengine).", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

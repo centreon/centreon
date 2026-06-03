@@ -1,0 +1,26 @@
+meta {
+  name: GET /services/templates - Get service templates forbidden - HTTP 403
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services/templates
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("The service templates have not been listed, because the user does not have the correct rights.", function () {
+    expect(res.getBody().message).to.match(/not allowed/i);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

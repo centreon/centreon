@@ -1,0 +1,96 @@
+meta {
+  name: POST /services/templates - Create service template - HTTP 201
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/templates
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{ServiceTemplate1Name}}",
+    "alias": "{{ServiceTemplate1Alias}}",
+    "host_templates": [ {{HostTemplate1Id}} ],
+    "max_check_attempts": 5,
+    "normal_check_interval": 3,
+    "retry_check_interval": 2,
+    "note": "note",
+    "note_url": "note_url",
+    "action_url": "action url",
+    "icon_id": 1,
+    "macros": [
+      {
+        "name": "Pourquoi",
+        "value": "ABCDEFG3",
+        "is_password": false,
+        "description": "2f86451"
+      },
+      {
+        "name": "TOTO",
+        "value": "cacahuètes",
+        "is_password": true,
+        "description": null
+      }
+    ],
+    "service_categories": [ {{ServiceCategory1Id}} ],
+    "service_groups": [
+      {
+        "service_group_id": {{ServiceGroup1Id}},
+        "host_template_id": {{HostTemplate1Id}}
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The service template has been successfully created.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("ServiceTemplate1Id", body.id);
+    expect(body).to.include({
+      "id": body.id,
+      "name": bru.getEnvVar("ServiceTemplate1Name"),
+      "alias": bru.getEnvVar("ServiceTemplate1Alias"),
+      "max_check_attempts": 5,
+      "normal_check_interval": 3,
+      "retry_check_interval": 2,
+      "note": "note",
+      "note_url": "note_url",
+      "action_url": "action url",
+      "icon_id": 1
+    });
+    const macroPourquoi = body.macros.find(m => m.name === "POURQUOI");
+    expect(macroPourquoi).to.include({
+      "name": "POURQUOI",
+      "value": "ABCDEFG3",
+      "is_password": false,
+      "description": "2f86451"
+    });
+    const macroToto = body.macros.find(m => m.name === "TOTO");
+    expect(macroToto).to.include({
+      "name": "TOTO",
+      "value": null,
+      "is_password": true,
+      "description": ""
+    });
+    expect(body.categories[0]).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceCategory1Id")),
+      "name": bru.getEnvVar("ServiceCategory1Name")
+    });
+    expect(body.groups[0]).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceGroup1Id"))
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
