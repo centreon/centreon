@@ -31,7 +31,6 @@ use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\InstallationCommandResource;
 use App\MonitoringConfiguration\Infrastructure\PollerInstallationCommandFactory;
 use App\Shared\Domain\Repository\EngineSecretsRepository;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * @template-implements ProviderInterface<InstallationCommandResource>
@@ -42,8 +41,6 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
         private PollerRepository $pollerRepository,
         private PollerTokenRepository $pollerTokenRepository,
         private EngineSecretsRepository $engineSecretsRepository,
-        #[Autowire(env: 'default::SITE')]
-        private ?string $centralUrl,
     ) {
     }
 
@@ -64,7 +61,7 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
             $token,
             $this->engineSecretsRepository->getAppSecret(),
             $this->engineSecretsRepository->getSalt(),
-            $this->centralUrl ?? '<CENTRAL_URL>',
+            '<CENTRAL_URL>',
         );
 
         return new InstallationCommandResource(

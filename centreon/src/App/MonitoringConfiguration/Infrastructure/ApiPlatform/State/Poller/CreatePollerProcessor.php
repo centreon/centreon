@@ -57,8 +57,6 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         private Security $security,
         private PollerTokenRepository $pollerTokenRepository,
         private EngineSecretsRepository $engineSecretsRepository,
-        #[Autowire(env: 'default::SITE')]
-        private ?string $centralUrl,
     ) {
     }
 
@@ -83,7 +81,7 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
             $token,
             $this->engineSecretsRepository->getAppSecret(),
             $this->engineSecretsRepository->getSalt(),
-            $this->centralUrl ?? '<CENTRAL_URL>',
+            '<CENTRAL_URL>',
         );
 
         $resource = $this->transformer->transform($model);
