@@ -26,6 +26,8 @@ namespace Tests\App\Shared\Infrastructure\Logging;
 use App\Shared\Infrastructure\Logging\Attribute\SensitivityScanner;
 use App\Shared\Infrastructure\Logging\PayloadSanitizer;
 use PHPUnit\Framework\TestCase;
+use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\CardHolderCommand;
+use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\MethodSecretCommand;
 use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\NestedPayloadCommand;
 use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\SecretsCommand;
 
@@ -76,6 +78,33 @@ final class PayloadSanitizerTest extends TestCase
         );
 
         self::assertSame(['inner' => ['passcode' => '***', 'label' => 'two-factor']], $sanitised);
+    }
+
+    public function testMasksTheAccessorKeyExposedByASensitiveMethod(): void
+    {
+        $sanitised = $this->sanitizer->sanitize(
+            ['apiToken' => 'tok-123', 'login' => 'admin'],
+            0,
+            MethodSecretCommand::class,
+        );
+
+        self::assertSame(['apiToken' => '***', 'login' => 'admin'], $sanitised);
+    }
+
+    public function testMasksWholeValueTypedAsASensitiveClass(): void
+    {
+        $sanitised = $this->sanitizer->sanitize(
+            [
+                'card' => ['number' => '4111111111111111', 'holder' => 'admin'],
+                'label' => 'default card',
+            ],
+            0,
+            CardHolderCommand::class,
+        );
+
+        // The `card` property is typed as a `#[Sensitive]` class: the
+        // whole sub-payload is masked, never descended into.
+        self::assertSame(['card' => '***', 'label' => 'default card'], $sanitised);
     }
 
     public function testReturnsThrowableUntouchedSoExceptionFormatterCanStructureIt(): void

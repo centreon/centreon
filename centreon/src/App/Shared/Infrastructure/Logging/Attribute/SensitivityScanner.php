@@ -26,7 +26,16 @@ namespace App\Shared\Infrastructure\Logging\Attribute;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 /**
- * Scans `#[Sensitive]` properties and nested class types of a class.
+ * Scans the `#[Sensitive]` markers and nested class types of a class.
+ * `#[Sensitive]` is honoured on three targets:
+ *
+ *  - **property** — the property value is masked;
+ *  - **method** — the accessor key it exposes (`getX`/`isX`/`hasX` →
+ *    `x`, otherwise the raw method name) is masked, matching how the
+ *    Symfony normalizer derives keys from getters;
+ *  - **class** — every value typed as that class is masked wholesale
+ *    (`classSensitive`), so the sanitiser never descends into it.
+ *
  * Result cached per class to share the {@see \ReflectionClass} walk
  * across every record produced by the same payload.
  */
@@ -35,7 +44,8 @@ final class SensitivityScanner
     /**
      * @var array<class-string, array{
      *     sensitive: list<string>,
-     *     subClasses: array<string, class-string>
+     *     subClasses: array<string, class-string>,
+     *     classSensitive: bool
      * }>
      */
     private static array $cache = [];
@@ -47,7 +57,8 @@ final class SensitivityScanner
      *
      * @return array{
      *     sensitive: list<string>,
-     *     subClasses: array<string, class-string>
+     *     subClasses: array<string, class-string>,
+     *     classSensitive: bool
      * }
      */
     public static function scan(string $class): array
@@ -60,6 +71,8 @@ final class SensitivityScanner
         $subClasses = [];
 
         $reflection = new \ReflectionClass($class);
+        $classSensitive = $reflection->getAttributes(Sensitive::class) !== [];
+
         foreach ($reflection->getProperties() as $property) {
             $name = $property->getName();
 
@@ -75,9 +88,21 @@ final class SensitivityScanner
             }
         }
 
+        foreach ($reflection->getMethods() as $method) {
+            if ($method->getAttributes(Sensitive::class) === []) {
+                continue;
+            }
+
+            $key = self::accessorKey($method->getName());
+            if (! \in_array($key, $sensitive, true)) {
+                $sensitive[] = $key;
+            }
+        }
+
         return self::$cache[$class] = [
             'sensitive' => $sensitive,
             'subClasses' => $subClasses,
+            'classSensitive' => $classSensitive,
         ];
     }
 
@@ -91,5 +116,21 @@ final class SensitivityScanner
     public static function reset(): void
     {
         self::$cache = [];
+    }
+
+    /**
+     * Derives the payload key a method exposes, mirroring the Symfony
+     * normalizer: `getPasscode` → `passcode`, `isActive` → `active`,
+     * `hasToken` → `token`; any other method keeps its own name.
+     */
+    private static function accessorKey(string $method): string
+    {
+        foreach (['get', 'is', 'has'] as $prefix) {
+            if (\str_starts_with($method, $prefix) && \mb_strlen($method) > \mb_strlen($prefix)) {
+                return \lcfirst(\mb_substr($method, \mb_strlen($prefix)));
+            }
+        }
+
+        return $method;
     }
 }

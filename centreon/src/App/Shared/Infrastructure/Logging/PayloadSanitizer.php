@@ -87,6 +87,18 @@ final readonly class PayloadSanitizer
                 }
 
                 $childContext = (\is_string($key) ? ($subClasses[$key] ?? null) : null);
+
+                // A `#[Sensitive]` class masks every value typed as it,
+                // so the whole sub-payload is redacted without descending.
+                if ($childContext !== null
+                    && class_exists($childContext)
+                    && SensitivityScanner::scan($childContext)['classSensitive']
+                ) {
+                    $result[$key] = '***';
+
+                    continue;
+                }
+
                 $result[$key] = $this->sanitize($value, $depth + 1, $childContext);
             }
 

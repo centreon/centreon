@@ -25,10 +25,12 @@ namespace Tests\App\Shared\Infrastructure\Logging\Attribute;
 
 use App\Shared\Infrastructure\Logging\Attribute\SensitivityScanner;
 use PHPUnit\Framework\TestCase;
+use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\MethodSecretCommand;
 use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\NestedInnerPayload;
 use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\NestedPayloadCommand;
 use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\PlainCommand;
 use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\SecretsCommand;
+use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\SensitiveValueObject;
 
 final class SensitivityScannerTest extends TestCase
 {
@@ -49,6 +51,29 @@ final class SensitivityScannerTest extends TestCase
         $scan = SensitivityScanner::scan(SecretsCommand::class);
 
         self::assertSame(['passcode', 'ssoTicket'], $scan['sensitive']);
+    }
+
+    public function testCollectsAccessorKeyFromSensitiveMethod(): void
+    {
+        $scan = SensitivityScanner::scan(MethodSecretCommand::class);
+
+        // `#[Sensitive] getApiToken()` masks the `apiToken` key the
+        // normalizer derives from the getter.
+        self::assertSame(['apiToken'], $scan['sensitive']);
+    }
+
+    public function testFlagsClassAnnotatedAsSensitive(): void
+    {
+        $scan = SensitivityScanner::scan(SensitiveValueObject::class);
+
+        self::assertTrue($scan['classSensitive']);
+    }
+
+    public function testDoesNotFlagPlainClassAsSensitive(): void
+    {
+        $scan = SensitivityScanner::scan(PlainCommand::class);
+
+        self::assertFalse($scan['classSensitive']);
     }
 
     public function testResolvesNonBuiltinPropertyTypesForRecursiveSanitisation(): void

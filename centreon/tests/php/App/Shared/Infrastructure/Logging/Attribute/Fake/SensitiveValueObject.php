@@ -21,19 +21,21 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Domain\Logging\Attribute;
+namespace Tests\App\Shared\Infrastructure\Logging\Attribute\Fake;
+
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 /**
- * Marks a value that must be masked (`***`) when the containing object
- * flows through the logging pipeline. Allowed on:
- *
- *  - a **property** — its value is masked;
- *  - a **method** (typically a getter) — the accessor key it exposes is
- *    masked (`getX`/`isX`/`hasX` → `x`, otherwise the raw method name);
- *  - a **class** — every value typed as that class is masked wholesale,
- *    so the sanitiser never descends into it.
+ * Pins the TARGET_CLASS path: the whole value object is sensitive, so
+ * any property typed as it must be masked wholesale by the sanitiser
+ * without descending into its own properties.
  */
-#[\Attribute(\Attribute::TARGET_PROPERTY | \Attribute::TARGET_METHOD | \Attribute::TARGET_CLASS)]
-final readonly class Sensitive
+#[Sensitive]
+final readonly class SensitiveValueObject
 {
+    public function __construct(
+        public string $number,
+        public string $holder,
+    ) {
+    }
 }

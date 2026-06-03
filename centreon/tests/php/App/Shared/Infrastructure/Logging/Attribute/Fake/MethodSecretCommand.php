@@ -21,19 +21,26 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Domain\Logging\Attribute;
+namespace Tests\App\Shared\Infrastructure\Logging\Attribute\Fake;
+
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 /**
- * Marks a value that must be masked (`***`) when the containing object
- * flows through the logging pipeline. Allowed on:
- *
- *  - a **property** — its value is masked;
- *  - a **method** (typically a getter) — the accessor key it exposes is
- *    masked (`getX`/`isX`/`hasX` → `x`, otherwise the raw method name);
- *  - a **class** — every value typed as that class is masked wholesale,
- *    so the sanitiser never descends into it.
+ * Pins the TARGET_METHOD path: a `#[Sensitive]` getter masks the
+ * accessor key it exposes (`getApiToken` → `apiToken`), exactly like an
+ * annotated property would.
  */
-#[\Attribute(\Attribute::TARGET_PROPERTY | \Attribute::TARGET_METHOD | \Attribute::TARGET_CLASS)]
-final readonly class Sensitive
+final readonly class MethodSecretCommand
 {
+    public function __construct(
+        private string $apiToken,
+        public string $login,
+    ) {
+    }
+
+    #[Sensitive]
+    public function getApiToken(): string
+    {
+        return $this->apiToken;
+    }
 }
