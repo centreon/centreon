@@ -87,7 +87,7 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         );
 
         $resource = $this->transformer->transform($model);
-        $resource->deploymentCommand = $factory->generate();
+        $resource->installationCommand = $factory->generate();
 
         return $resource;
     }

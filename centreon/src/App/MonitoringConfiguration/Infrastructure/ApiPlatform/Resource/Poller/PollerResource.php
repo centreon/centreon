@@ -63,8 +63,11 @@ final class PollerResource
         #[ApiProperty(writable: false)]
         public ?string $uid = null,
 
-        #[ApiProperty(writable: false)]
-        public ?string $deploymentCommand = null,
+        #[ApiProperty(
+            writable: false,
+            openapiContext: ['example' => 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>']
+        )]
+        public ?string $installationCommand = null,
     ) {
     }
 }
