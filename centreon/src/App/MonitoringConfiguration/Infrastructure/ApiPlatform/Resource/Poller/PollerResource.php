@@ -62,6 +62,9 @@ final class PollerResource
 
         #[ApiProperty(writable: false)]
         public ?string $uid = null,
+
+        #[ApiProperty(writable: false)]
+        public ?string $deploymentCommand = null,
     ) {
     }
 }

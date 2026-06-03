@@ -30,10 +30,13 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
+use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreatePollerInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerResource;
+use App\MonitoringConfiguration\Infrastructure\PollerInstallationCommandFactory;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
+use App\Shared\Domain\Repository\EngineSecretsRepository;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -52,6 +55,10 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         #[Autowire(service: ResourcePollerTransformer::class)]
         private TransformerInterface $transformer,
         private Security $security,
+        private PollerTokenRepository $pollerTokenRepository,
+        private EngineSecretsRepository $engineSecretsRepository,
+        #[Autowire(env: 'default::SITE')]
+        private ?string $centralUrl,
     ) {
     }
 
@@ -70,6 +77,18 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         $model = $this->commandBus->execute($command);
         Assert::isInstanceOf($model, Poller::class);
 
-        return $this->transformer->transform($model);
+        $token = $this->pollerTokenRepository->getValidPollerTokenByName($data->pollerTokenName);
+        $factory = new PollerInstallationCommandFactory(
+            $model,
+            $token,
+            $this->engineSecretsRepository->getAppSecret(),
+            $this->engineSecretsRepository->getSalt(),
+            $this->centralUrl ?? '<CENTRAL_URL>',
+        );
+
+        $resource = $this->transformer->transform($model);
+        $resource->deploymentCommand = $factory->generate();
+
+        return $resource;
     }
 }
