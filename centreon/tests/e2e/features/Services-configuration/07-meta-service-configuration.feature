@@ -21,3 +21,7 @@ Feature: Edit a meta service
   Scenario: Delete one existing meta service
     When the user deletes a meta service
     Then the deleted meta service is not displayed in the list
+
+  Scenario: Filter the configuration services list by service type
+    When the configuration services list is requested for each selection filter
+    Then services and meta services are returned according to the selected filter
