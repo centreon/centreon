@@ -50,7 +50,7 @@ final class LogoutSessionController extends AbstractController
         Request $request,
         LogoutSessionPresenterInterface $presenter,
     ): object {
-        $basePath = ltrim($request->getBasePath(), '/');
+        $basePath = mb_ltrim($request->getBasePath(), '/');
         $sessionName = session_name() ?: 'PHPSESSID';
 
         $sessionId = null;
