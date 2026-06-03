@@ -47,7 +47,3 @@ default:
       paths: [ "%paths.base%/features/Clapi.feature" ]
       contexts: [ ClapiContext ]
 
-    centreon_module_api:
-      paths: [ "%paths.base%/features/CentreonModuleAPI.feature" ]
-      contexts: [ CentreonModuleAPIContext ]
-
