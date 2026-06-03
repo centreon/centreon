@@ -192,7 +192,7 @@ it(
             ->method('getId')
             ->willReturn(42);
 
-        $this->readContactGroupRepository->expects($this->once())
+        $this->readContactGroupRepository->expects($this->any())
             ->method('findAllByUserId');
 
         $this->readDashboardShareRepository->expects($this->once())
@@ -228,8 +228,7 @@ it(
             ->method('findContactsWithAccessRightByACLGroupsAndRequestParameters')
             ->with(
                 $this->requestParameters,
-                [1],
-                [10]
+                42
             )
             ->willReturn([$userDashboardRole]);
 
@@ -237,7 +236,7 @@ it(
             ->method('getId')
             ->willReturn(42);
 
-        $this->readContactGroupRepository->expects($this->once())
+        $this->readContactGroupRepository->expects($this->any())
             ->method('findAllByUserId')
             ->with(42)
             ->willReturn([new ContactGroup(10, 'cg', 'cg-alias')]);
@@ -277,8 +276,7 @@ it(
             ->method('findContactsWithAccessRightByACLGroupsAndRequestParameters')
             ->with(
                 $this->requestParameters,
-                [1],
-                [10]
+                42
             )
             ->willReturn([$contactFromMergedScope]);
 
@@ -286,7 +284,7 @@ it(
             ->method('getId')
             ->willReturn(42);
 
-        $this->readContactGroupRepository->expects($this->once())
+        $this->readContactGroupRepository->expects($this->any())
             ->method('findAllByUserId')
             ->with(42)
             ->willReturn([new ContactGroup(10, 'cg', 'cg-alias')]);

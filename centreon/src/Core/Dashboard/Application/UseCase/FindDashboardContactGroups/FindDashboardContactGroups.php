@@ -149,12 +149,9 @@ final class FindDashboardContactGroups
             );
         }
 
-        $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
-        $accessGroupIds = array_map(static fn (AccessGroup $accessGroup): int => $accessGroup->getId(), $accessGroups);
-
         return $this->readDashboardShareRepository->findContactGroupsWithAccessRightByACLGroupsAndRequestParameters(
             $this->requestParameters,
-            $accessGroupIds
+            $this->contact->getId()
         );
     }
 
