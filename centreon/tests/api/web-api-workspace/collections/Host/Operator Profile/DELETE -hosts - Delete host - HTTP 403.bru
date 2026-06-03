@@ -1,0 +1,28 @@
+meta {
+  name: DELETE /hosts - Delete host - HTTP 403
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/hosts/{{Host2Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  const body = res.getBody();
+
+  test("Response is a 403 Forbidden error", function () {
+    expect(res.status).to.equal(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
