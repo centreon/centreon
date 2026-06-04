@@ -276,7 +276,54 @@ $obj->setColor('ARROW', '#FF0000');
 /**
  * Display Images Binary Data
  */
-$obj->displayImageFlow();
+$maxHeight = filter_var($_GET['max_height'] ?? 0, FILTER_VALIDATE_INT);
+if ($maxHeight > 0 && ! $obj->checkcurve) {
+    // Cap to prevent memory exhaustion from aspect-ratio scaling in imagecreatetruecolor().
+    $maxHeight = min($maxHeight, 4096);
+
+    $imageData = $obj->getImageData();
+    if ($imageData === null) {
+        CentreonGraph::displayError();
+    }
+
+    // Prevent PHP warnings from corrupting the binary image response (they still reach the error log).
+    ob_start();
+    $imageSize = getimagesizefromstring($imageData);
+    ob_end_clean();
+    if ($imageSize === false) {
+        CentreonGraph::displayError();
+    }
+
+    [$width, $height] = $imageSize;
+    if ($height > $maxHeight) {
+        // See comment above about ob_start().
+        ob_start();
+        $image = imagecreatefromstring($imageData);
+        ob_end_clean();
+        if ($image === false) {
+            CentreonGraph::displayError();
+        }
+        unset($imageData);
+
+        $newWidth = max(1, (int) round($width * $maxHeight / $height));
+        $scaled = imagecreatetruecolor($newWidth, $maxHeight);
+        if ($scaled === false) {
+            imagedestroy($image);
+            CentreonGraph::displayError();
+        }
+        imagecopyresampled($scaled, $image, 0, 0, 0, 0, $newWidth, $maxHeight, $width, $height);
+        imagedestroy($image);
+
+        $obj->setHeaders(false);
+        imagepng($scaled);
+        imagedestroy($scaled);
+    } else {
+        $obj->setHeaders(false, mb_strlen($imageData, '8bit'));
+        echo $imageData;
+    }
+} else {
+    $obj->displayImageFlow();
+}
 
 /**
  * Closing session
