@@ -1,0 +1,27 @@
+meta {
+  name: GET /web-sso - Verify updated WebSSO configuration - HTTP 200
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrlWeb}}/administration/authentication/providers/web-sso
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("WebSSO configuration matches updated values.", function () {
+    const body = res.getBody();
+    expect(body.is_active).to.be.false;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

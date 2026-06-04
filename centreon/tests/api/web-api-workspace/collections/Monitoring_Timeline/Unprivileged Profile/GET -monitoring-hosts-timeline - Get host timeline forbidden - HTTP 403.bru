@@ -1,0 +1,20 @@
+meta {
+  name: GET /monitoring/hosts/{id}/timeline - Get host timeline forbidden - HTTP 403
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrlWeb}}/monitoring/hosts/{{Host1Id}}/timeline
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

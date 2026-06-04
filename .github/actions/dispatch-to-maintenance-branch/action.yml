@@ -17,7 +17,7 @@ runs:
             throw new Error(`❌ Nightly should not be run on weekend days.`);
           }
 
-          const maintenanceBranches = ['dev-24.04.x', 'dev-24.10.x', 'dev-25.10.x'];
+          const maintenanceBranches = ['dev-24.10.x', 'dev-25.10.x'];
           const referenceDate = new Date('2025-01-01');
 
           // Calculate the number of working days since the reference date

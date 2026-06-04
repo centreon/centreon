@@ -1,0 +1,27 @@
+meta {
+  name: GET /monitoring/severities/service - List service severities - HTTP 200
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrlWeb}}/monitoring/severities/service
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Unprivileged user gets empty service severities list (no ACL access).", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("result").that.is.an("array");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

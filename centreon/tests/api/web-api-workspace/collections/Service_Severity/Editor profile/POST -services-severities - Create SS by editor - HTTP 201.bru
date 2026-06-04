@@ -1,0 +1,44 @@
+meta {
+  name: POST /services/severities - Create SS by editor - HTTP 201
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/severities
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{ServiceSeverity4Name}}",
+    "alias": "{{ServiceSeverity4Alias}}",
+    "level": 7,
+    "icon_id": 1
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The service severity has been successfully created by editor, with name '{{ServiceSeverity4Name}}' and alias '{{ServiceSeverity4Alias}}'.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("ServiceSeverity4Id", body.id);
+    expect(body).to.include({
+      "id": body.id,
+      "name": bru.getEnvVar("ServiceSeverity4Name"),
+      "alias": bru.getEnvVar("ServiceSeverity4Alias"),
+      "level": 7,
+      "icon_id": 1,
+      "is_activated": true
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

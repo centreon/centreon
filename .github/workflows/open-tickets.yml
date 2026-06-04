@@ -457,6 +457,7 @@ jobs:
           from_image: centreon-web-${{ matrix.operating_system }}
           current_tag: ${{ steps.image_tag.outputs.tag }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
           registry_url: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
 
       - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
@@ -505,7 +506,7 @@ jobs:
           tags: ${{ steps.docker_tags.outputs.tags }}
 
   deliver-sources:
-    runs-on: centreon-common
+    runs-on: ubuntu-24.04
     needs: [get-environment, package]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -614,7 +615,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       github.event.pull_request.head.repo.fork != true
-    runs-on: centreon-common
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
@@ -661,7 +662,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       github.event.pull_request.head.repo.fork != true
-    runs-on: centreon-common
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}

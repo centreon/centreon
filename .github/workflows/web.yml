@@ -138,7 +138,7 @@ jobs:
         "centreon/**/__mocks__/**"
         "centreon/lighthouse/**"
       api_test_paths: |
-        "centreon/tests/rest_api/**"
+        "centreon/tests/api/**"
       e2e_test_paths: |
         "centreon/behat.yml"
         "centreon/features/**"
@@ -409,7 +409,7 @@ jobs:
 
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
           cache-dependency-path: ${{ env.base_directory }}/pnpm-lock.yaml
 
@@ -478,14 +478,11 @@ jobs:
         run: cp config/centreon.config.php.template config/centreon.config.php
         working-directory: centreon
 
-      - name: Ensure Symfony cache directories exist and are writable (legacy and new)
+      - name: Ensure Symfony cache and log directories exist and are writable (legacy and new)
+        # /var/log/centreon is created by the package on prod hosts; mkdir it here for MON-151077 handlers.
         run: |
-          echo "Ensure Symfony cache directories exist"
-          sudo mkdir -p /var/cache/centreon/symfony{,.new}
-          sudo mkdir -p /var/log/centreon/symfony.new
-          echo "Set permissions on Symfony cache directories with user: '$USER'"
-          sudo chown -R $USER:$USER /var/cache/centreon/symfony{,.new}
-          sudo chown -R $USER:$USER /var/log/centreon/symfony.new
+          sudo mkdir -p /var/cache/centreon/symfony /var/cache/centreon/symfony.new /var/log/centreon
+          sudo chown -R "$USER:$USER" /var/cache/centreon/symfony /var/cache/centreon/symfony.new /var/log/centreon
 
       - name: Install dependencies
         uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # v4.0.0
@@ -561,14 +558,11 @@ jobs:
           cat config/centreon.conf.php
         working-directory: centreon
 
-      - name: Ensure Symfony cache directories exist and are writable (legacy and new)
+      - name: Ensure Symfony cache and log directories exist and are writable (legacy and new)
+        # /var/log/centreon is created by the package on prod hosts; mkdir it here for MON-151077 handlers.
         run: |
-          echo "Ensure Symfony cache directories exist"
-          sudo mkdir -p /var/cache/centreon/symfony{,.new}
-          sudo mkdir -p /var/log/centreon/symfony.new
-          echo "Set permissions on Symfony cache directories with user: '$USER'"
-          sudo chown -R $USER:$USER /var/cache/centreon/symfony{,.new}
-          sudo chown -R $USER:$USER /var/log/centreon/symfony.new
+          sudo mkdir -p /var/cache/centreon/symfony /var/cache/centreon/symfony.new /var/log/centreon
+          sudo chown -R "$USER:$USER" /var/cache/centreon/symfony /var/cache/centreon/symfony.new /var/log/centreon
 
       - name: Install dependencies
         uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # v4.0.0
@@ -612,16 +606,11 @@ jobs:
         run: cp config/centreon.config.php.template config/centreon.config.php
         working-directory: centreon
 
-      - name: Ensure Symfony cache directories exist and are writable (legacy and new)
+      - name: Ensure Symfony cache and log directories exist and are writable (legacy and new)
+        # /var/log/centreon is created by the package on prod hosts; mkdir it here for MON-151077 handlers.
         run: |
-          echo "Ensure Symfony cache directories exist" && set -e
-          sudo mkdir -p /var/cache/centreon/symfony.new
-          sudo mkdir -p /var/cache/centreon/symfony
-          sudo mkdir -p /var/log/centreon/symfony.new
-          echo "Set permissions on Symfony cache directories with user: '$USER'" && set -e
-          sudo chown -R $USER:$USER /var/cache/centreon/symfony.new
-          sudo chown -R $USER:$USER /var/cache/centreon/symfony
-          sudo chown -R $USER:$USER /var/log/centreon/symfony.new
+          sudo mkdir -p /var/cache/centreon/symfony /var/cache/centreon/symfony.new /var/log/centreon
+          sudo chown -R "$USER:$USER" /var/cache/centreon/symfony /var/cache/centreon/symfony.new /var/log/centreon
 
       - name: Install dependencies for centreon-web
         run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
@@ -991,6 +980,7 @@ jobs:
           from_image: centreon-web-dependencies-collect
           current_tag: ${{ steps.image_tag.outputs.tag }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
           registry_url: ghcr.io/${{ github.repository }}
           tag_suffix: -${{ matrix.operating_system }}
 
@@ -1039,6 +1029,7 @@ jobs:
             "MAJOR_VERSION=${{ needs.get-environment.outputs.major_version }}"
             "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
+            "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
             "PHP_VERSION=${{ needs.get-environment.outputs.php_version }}"
           pull: true
           push: ${{ github.event.pull_request.head.repo.fork != true }}
@@ -1096,51 +1087,39 @@ jobs:
       xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
-  newman-test:
-    needs:
-      [
-        get-environment,
-        changes,
-        create-xray-test-plan-and-test-execution,
-        dockerize
-      ]
+  bruno-api-test:
+    needs: [get-environment, changes, create-xray-test-plan-and-test-execution, dockerize]
     if: |
       needs.changes.outputs.trigger_api_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable' &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      needs.get-environment.outputs.stability != 'stable'
+      ! contains(needs.*.result, 'cancelled')
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).databases }}
-    name: newman-test ${{ matrix.operating_system }}-${{ matrix.database }}
-    uses: ./.github/workflows/newman.yml
+        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
+    name: bruno-test ${{ matrix.operating_system }} ${{ matrix.database }}
+    uses: ./.github/workflows/bruno-api-test.yml
     with:
-      collection_path: centreon/tests/rest_api/collections
-      image_name: centreon-web
-      os: ${{ matrix.operating_system }}
-      db_id: ${{ matrix.db_id }}
-      container_name: my_centreon_container
-      centreon_url: http://localhost
-      centreon_image: docker.centreon.com/centreon/centreon-web-slim-${{ matrix.operating_system }}:${{ needs.dockerize.outputs.image_tag }}
+      collection_path: centreon/tests/api/web-api-workspace/collections
+      image_name: centreon-web-slim
+      operating_system: ${{ matrix.operating_system }}
       database_image: bitnamilegacy/${{ matrix.database }}
-      dependencies_lock_file: centreon/pnpm-lock.yaml
       major_version: ${{ needs.get-environment.outputs.major_version }}
-      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
       stability: ${{ needs.get-environment.outputs.stability }}
+      working_directory: centreon/tests/api/web-api-workspace
+      component-name: centreon
       xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
       upload_artifacts: ${{ contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
-
     secrets:
       registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
       client_id: ${{ secrets.XRAY_CLIENT_ID }}
       client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
-      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+      jira_user: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   legacy-e2e-test:
     needs: [get-environment, changes, dockerize]
@@ -1282,7 +1261,7 @@ jobs:
   #         retention-days: 1
 
   deliver-sources:
-    runs-on: centreon-common
+    runs-on: ubuntu-24.04
     needs: [get-environment, e2e-test, legacy-e2e-test]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -1355,7 +1334,6 @@ jobs:
       [
         changes,
         get-environment,
-        newman-test,
         e2e-test,
         legacy-e2e-test
       ]
@@ -1413,7 +1391,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       github.event.pull_request.head.repo.fork != true
-    runs-on: centreon-common
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}

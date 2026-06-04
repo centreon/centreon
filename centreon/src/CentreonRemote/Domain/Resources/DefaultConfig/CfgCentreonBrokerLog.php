@@ -59,6 +59,7 @@ class CfgCentreonBrokerLog
             $loggerIds['graphite'] => $loggerLevelIds['error'],
             $loggerIds['victoria_metrics'] => $loggerLevelIds['error'],
             $loggerIds['stats'] => $loggerLevelIds['error'],
+            $loggerIds['event_script'] => $loggerLevelIds['error'],
         ];
 
         foreach ($loggerConfigurations as $loggerId => $loggerLevel) {

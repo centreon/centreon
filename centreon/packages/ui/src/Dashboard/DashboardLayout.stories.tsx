@@ -72,17 +72,19 @@ const DashboardTemplate = ({
   header,
   layout = dashboardLayout
 }: DashboardTemplateProps): ReactElement => (
-  <DashboardLayout.Layout<CustomLayout> layout={layout}>
-    {layout.map(({ i, content, shouldUseFluidTypography }) => (
-      <DashboardLayout.Item header={header} id={i} key={i}>
-        {shouldUseFluidTypography ? (
-          <FluidTypography text={content} />
-        ) : (
-          <Typography>{content}</Typography>
-        )}
-      </DashboardLayout.Item>
-    ))}
-  </DashboardLayout.Layout>
+  <div className="h-150 overflow-y-auto">
+    <DashboardLayout.Layout<CustomLayout> layout={layout}>
+      {layout.map(({ i, content, shouldUseFluidTypography }) => (
+        <DashboardLayout.Item header={header} id={i} key={i}>
+          {shouldUseFluidTypography ? (
+            <FluidTypography text={content} />
+          ) : (
+            <Typography>{content}</Typography>
+          )}
+        </DashboardLayout.Item>
+      ))}
+    </DashboardLayout.Layout>
+  </div>
 );
 
 const meta: Meta<typeof DashboardTemplate> = {

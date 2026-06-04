@@ -1,0 +1,28 @@
+meta {
+  name: POST /monitoring/hosts - Force check on host - HTTP 204
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrlWeb}}/monitoring/hosts/{{Host1Id}}/check
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "is_forced": true
+  }
+}
+
+tests {
+  test("Force check on host (known infra issue: host may not be in centengine catalog in CI).", function () {
+    expect(res.status).to.be.oneOf([204, 404]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

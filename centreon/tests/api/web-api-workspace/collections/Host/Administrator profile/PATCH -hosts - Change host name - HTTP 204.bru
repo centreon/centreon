@@ -1,0 +1,26 @@
+meta {
+  name: PATCH /hosts - Change host name - HTTP 204
+  type: http
+  seq: 21
+}
+
+patch {
+  url: {{baseUrlWeb}}/configuration/hosts/{{Host1Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "hostname-name-patched"
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
