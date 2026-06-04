@@ -97,13 +97,16 @@ jobs:
 
       - name: Detect relevant E2E specs
         id: list-features
+        env:
+          TEST_TAGS_INPUT: ${{ inputs.test_tags }}
+          MODULE_NAME: ${{ inputs.module_name }}
+          FEATURES_PATH: ${{ inputs.features_path }}
         run: |
           set -o pipefail
 
           sudo apt-get update
           sudo apt-get install -y cucumber
 
-          TEST_TAGS_INPUT="${{ inputs.test_tags }}"
           CUCUMBER_TAGS=()
           if [ -n "$TEST_TAGS_INPUT" ]; then
             while IFS= read -r RAW_TAG; do
@@ -120,8 +123,8 @@ jobs:
           fi
           echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
 
-          cd ${{ inputs.module_name }}
-          FEATURES=$(cucumber ${{ inputs.features_path }} "${CUCUMBER_TAGS[@]}" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')
+          cd "$MODULE_NAME"
+          FEATURES=$(cucumber "$FEATURES_PATH" "${CUCUMBER_TAGS[@]}" -f json | jq -r '.[].uri' | sed -e "s#$FEATURES_PATH/*##g" | sort | jq -R -s -c 'split("\n")[:-1]')
           echo $FEATURES
           echo "features=$FEATURES" >> $GITHUB_OUTPUT
 
@@ -477,9 +480,11 @@ jobs:
         id: check_artifacts_for_merge
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NAME: ${{ inputs.name }}
+          OS: ${{ inputs.os }}
         run: |
-          pattern="${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}"
-          run_id=${{ github.run_id }}
+          pattern="$NAME-$OS-${{ matrix.type_of_report }}"
+          run_id="$GITHUB_RUN_ID"
           found=false
           timeout=80       # maximum wait time in seconds
           interval=5       # interval between each check
@@ -487,7 +492,7 @@ jobs:
 
           while [ $elapsed -lt $timeout ]; do
             # Retrieve artifact names of the current run without quotes
-            artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts \
+            artifacts=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts" \
             --jq ".artifacts[] | select(.workflow_run.id == $run_id) | .name" | tr -d '"')
 
             merge_list=""
@@ -529,10 +534,13 @@ jobs:
         id: check_artifact
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NAME: ${{ inputs.name }}
+          OS: ${{ inputs.os }}
         run: |
-          echo "Checking artifact: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*"
-          artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].name')
-          if echo "$artifacts" | grep -q "${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}"; then
+          pattern="$NAME-$OS-${{ matrix.type_of_report }}"
+          echo "Checking artifact: $pattern-*"
+          artifacts=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts" --jq '.artifacts[].name')
+          if echo "$artifacts" | grep -q "$pattern"; then
             echo "found=true" >> $GITHUB_OUTPUT
           else
             echo "found=false" >> $GITHUB_OUTPUT
@@ -543,15 +551,17 @@ jobs:
         id: wait_artifacts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NAME: ${{ inputs.name }}
+          OS: ${{ inputs.os }}
         run: |
-            pattern="${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}"
+            pattern="$NAME-$OS-${{ matrix.type_of_report }}"
             found=false
             timeout=60       # maximum wait time in seconds
             interval=5       # interval between each check
             elapsed=0
 
             while [ $elapsed -lt $timeout ]; do
-              artifacts=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].name')
+              artifacts=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts" --jq '.artifacts[].name')
               if echo "$artifacts" | grep -q "$pattern"; then
                 found=true
                 break

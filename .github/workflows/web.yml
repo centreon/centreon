@@ -1232,20 +1232,23 @@ jobs:
             args: [--ignore-scripts, --frozen-lockfile]
 
       - name: Build openapi documentation
+        env:
+          IS_CLOUD: ${{ needs.get-environment.outputs.is_cloud }}
+          MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
         run: |
-          if [[ "${{ needs.get-environment.outputs.is_cloud }}" == "true" && -f "centreon-cloud-api.yaml" ]]; then
+          if [[ "$IS_CLOUD" == "true" && -f "centreon-cloud-api.yaml" ]]; then
             OPENAPI_FILE="centreon-cloud-api.yaml"
           elif [[ -f "centreon-api.yaml" ]]; then
             OPENAPI_FILE="centreon-api.yaml"
-          elif [[ -f "centreon-api-v${{ needs.get-environment.outputs.major_version }}.yaml" ]]; then
-            OPENAPI_FILE="centreon-api-v${{ needs.get-environment.outputs.major_version }}.yaml"
+          elif [[ -f "centreon-api-v$MAJOR_VERSION.yaml" ]]; then
+            OPENAPI_FILE="centreon-api-v$MAJOR_VERSION.yaml"
           else
             echo "::error::openapi file not found"
             exit 1
           fi
 
           echo "Building API doc from $OPENAPI_FILE"
-          pnpm run build $OPENAPI_FILE
+          pnpm run build "$OPENAPI_FILE"
         working-directory: centreon/doc/API
         shell: bash
 
@@ -1267,11 +1270,14 @@ jobs:
           role-duration-seconds: 900
 
       - name: Copy to AWS S3 centreon-documentation-api
+        env:
+          IS_CLOUD: ${{ needs.get-environment.outputs.is_cloud }}
+          MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
         run: |
-          if [[ "${{ needs.get-environment.outputs.is_cloud }}" == "true" ]]; then
+          if [[ "$IS_CLOUD" == "true" ]]; then
             BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/cloud"
           else
-            BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/${{ needs.get-environment.outputs.major_version }}"
+            BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/$MAJOR_VERSION"
           fi
 
           aws s3 cp "centreon/doc/API/index.html" "${BUCKET_PATH}/index.html"

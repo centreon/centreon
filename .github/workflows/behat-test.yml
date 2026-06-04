@@ -72,13 +72,16 @@ jobs:
 
       - name: Detect relevant E2E specs
         id: list-features
+        env:
+          TEST_TAGS_INPUT: ${{ inputs.test_tags }}
+          MODULE_NAME: ${{ inputs.module_name }}
+          FEATURES_PATH: ${{ inputs.features_path }}
         run: |
           set -o pipefail
 
           sudo apt-get update
           sudo apt-get install -y cucumber
 
-          TEST_TAGS_INPUT="${{ inputs.test_tags }}"
           CUCUMBER_TAGS=()
           if [ -n "$TEST_TAGS_INPUT" ]; then
             while IFS= read -r RAW_TAG; do
@@ -95,8 +98,8 @@ jobs:
           fi
           echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
 
-          cd ${{ inputs.module_name }}
-          FEATURES=$(cucumber ${{ inputs.features_path }} "${CUCUMBER_TAGS[@]}" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')
+          cd "$MODULE_NAME"
+          FEATURES=$(cucumber "$FEATURES_PATH" "${CUCUMBER_TAGS[@]}" -f json | jq -r '.[].uri' | sed -e "s#$FEATURES_PATH/*##g" | sort | jq -R -s -c 'split("\n")[:-1]')
           echo $FEATURES
           echo "features=$FEATURES" >> $GITHUB_OUTPUT
 
