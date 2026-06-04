@@ -4,6 +4,12 @@ info:
   type: workspace
 
 collections:
+  - name: "Legacy_API_v1"
+    path: "collections/Legacy_API_v1"
+  - name: "Meta_Service"
+    path: "collections/Meta_Service"
+  - name: "Module_API"
+    path: "collections/Module_API"
   - name: "Host"
     path: "collections/Host"
   - name: "Host_Group"

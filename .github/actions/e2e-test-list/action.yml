@@ -67,8 +67,10 @@ runs:
       id: changes
       if: github.event_name == 'pull_request'
       shell: bash
+      env:
+        ALL_CHANGED_FILES: ${{ steps.changed.outputs.all_changed_files }}
       run: |
-        RAW="${{ steps.changed.outputs.all_changed_files }}"
+        RAW="$ALL_CHANGED_FILES"
 
         if [ -z "$RAW" ]; then
           echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -89,6 +91,10 @@ runs:
     - name: List features
       id: features
       shell: bash
+      env:
+        TAGS_INPUT: ${{ inputs.tags }}
+        MODULE_NAME: ${{ inputs.module_name }}
+        FEATURE_DIRECTORY: ${{ inputs.feature_directory }}
       run: |
         set -o pipefail
 
@@ -97,7 +103,6 @@ runs:
         sudo apt-get install -qqy cucumber jq
         echo "::endgroup::"
 
-        TAGS_INPUT="${{ inputs.tags }}"
         CUCUMBER_TAGS=()
         if [ -n "$TAGS_INPUT" ]; then
           while IFS= read -r RAW_TAG; do
@@ -111,13 +116,13 @@ runs:
           done <<< "$(echo "$TAGS_INPUT" | sed 's/ and /\n/g')"
         fi
 
-        TAGS=$(echo "${{ inputs.tags }}" | sed 's/not /~/g; s/ and /&&/g')
+        TAGS=$(echo "$TAGS_INPUT" | sed 's/not /~/g; s/ and /&&/g')
 
-        cd "${{ inputs.module_name }}"
+        cd "$MODULE_NAME"
 
-        cucumber "${{ inputs.feature_directory }}" "${CUCUMBER_TAGS[@]}" -f json \
+        cucumber "$FEATURE_DIRECTORY" "${CUCUMBER_TAGS[@]}" -f json \
           | jq -r '.[].uri' \
-          | sed -e "s#^${{ inputs.feature_directory }}/##" -e 's#\.feature$##' \
+          | sed -e "s#^$FEATURE_DIRECTORY/##" -e 's#\.feature$##' \
           | sort -u \
           | jq -R -s -c 'split("\n") | map(select(length>0))' \
           > features.json
@@ -151,8 +156,10 @@ runs:
         inputs.use_ai == 'true' &&
         steps.changes.outputs.changed == 'true' &&
         steps.ai_primary.outcome == 'failure'
+      env:
+        MODEL_FALLBACK: ${{ inputs.model_fallback }}
       run: |
-        echo "::warning::AI primary model inference failed. Falling back to secondary model: ${{ inputs.model_fallback }}."
+        echo "::warning::AI primary model inference failed. Falling back to secondary model: $MODEL_FALLBACK."
       shell: bash
 
     # --------------------------------------------------
@@ -183,8 +190,13 @@ runs:
       id: validate
       if: github.event_name == 'pull_request'
       shell: bash
+      env:
+        MODULE_NAME: ${{ inputs.module_name }}
+        FEATURE_DIRECTORY: ${{ inputs.feature_directory }}
+        PRIMARY: ${{ steps.ai_primary.outputs.response }}
+        FALLBACK: ${{ steps.ai_fallback.outputs.response }}
       run: |
-        BASE_DIR="${{ inputs.module_name }}/$(echo "${{ inputs.feature_directory }}" | sed 's#^/*##')"
+        BASE_DIR="$MODULE_NAME/$(echo "$FEATURE_DIRECTORY" | sed 's#^/*##')"
 
         validate() {
           jq -e 'type=="array" and length>0 and all(.[]; type=="string")' <<<"$1" >/dev/null || return 1
@@ -195,15 +207,6 @@ runs:
             [ -e "$BASE_DIR/$f" ] || return 1
           done < <(jq -r '.[]' <<<"$1")
         }
-
-        PRIMARY=$(cat <<'EOF'
-        ${{ steps.ai_primary.outputs.response }}
-        EOF
-        )
-        FALLBACK=$(cat <<'EOF'
-        ${{ steps.ai_fallback.outputs.response }}
-        EOF
-        )
 
         if validate "$PRIMARY"; then
           echo "mode=ai" >> "$GITHUB_OUTPUT"
@@ -225,16 +228,17 @@ runs:
     - name: Resolve final decision
       id: final
       shell: bash
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        VALIDATE_MODE: ${{ steps.validate.outputs.mode }}
+        VALIDATE_SPECS: ${{ steps.validate.outputs.specs }}
+        FEATURES_JSON: ${{ steps.features.outputs.features_json }}
       run: |
-        if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ steps.validate.outputs.mode }}" = "ai" ]; then
+        if [ "$EVENT_NAME" = "pull_request" ] && [ "$VALIDATE_MODE" = "ai" ]; then
           echo "::notice::E2E test selection decision: AI inference used."
           echo "decision=AI" >> "$GITHUB_OUTPUT"
-          cat >> "$GITHUB_OUTPUT" <<'EOF'
-        specs=${{ steps.validate.outputs.specs }}
-        EOF
+          printf 'specs=%s\n' "$VALIDATE_SPECS" >> "$GITHUB_OUTPUT"
         else
           echo "decision=FULL" >> "$GITHUB_OUTPUT"
-          cat >> "$GITHUB_OUTPUT" <<'EOF'
-        specs=${{ steps.features.outputs.features_json }}
-        EOF
+          printf 'specs=%s\n' "$FEATURES_JSON" >> "$GITHUB_OUTPUT"
         fi
