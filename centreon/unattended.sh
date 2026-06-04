@@ -439,18 +439,11 @@ function set_mariadb_repos() {
 		detected_mariadb_version="10.11"
 	fi
 
-	# >>> TEMPORARY REVERT (MON-196672): keep el9 on MariaDB 10.11 (dnf module) until 11.8 is validated on el9.
-	#     To restore MariaDB 11.8 on el9 for 26.07, delete this block.
-	if [[ "$version" == "26.07" && "$detected_os_major" == "9" ]] && ! [[ "${detected_os_release}" =~ debian-release-.* ]]; then
-		detected_mariadb_version="10.11"
-	fi
-	# <<< end TEMPORARY REVERT
-
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=debian --os-version="$detected_os_version" --mariadb-server-version="$detected_mariadb_version" --skip-maxscale
-	elif [[ "$version" == "26.07" && "$detected_os_major" != "9" ]]; then
-		# el10 dropped dnf modularity, so MariaDB 11.8 is installed from the MariaDB official repository.
-		# (el9 is handled by the dnf module path below — see TEMPORARY REVERT above.)
+	elif [[ "$version" == "26.07" ]]; then
+		# el9 has no 11.8 dnf module stream and el10 dropped dnf modularity, so MariaDB 11.8
+		# is installed from the MariaDB official repository for both.
 		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --os-version="$detected_os_major" --mariadb-server-version="mariadb-$detected_mariadb_version" --skip-maxscale
 	else
 	    dnf module enable mariadb:$detected_mariadb_version -y -q
