@@ -48,8 +48,10 @@ require_once $path . 'DB-Func.php';
 require_once './include/common/common-Func.php';
 
 switch ($o) {
-    case IMAGE_MODIFY:
     case IMAGE_ADD:
+        require_once $path . 'formUpload.php';
+        break;
+    case IMAGE_MODIFY:
         require_once $path . 'formImg.php';
         break;
     case IMAGE_WATCH:
