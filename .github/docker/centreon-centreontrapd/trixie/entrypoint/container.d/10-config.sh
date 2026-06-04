@@ -15,7 +15,6 @@ cat > /etc/centreon/conf.pm <<EOF
 1;
 EOF
 chmod 660 /etc/centreon/conf.pm
-chown centreon:centreon /etc/centreon/conf.pm
 
 # Main centreontrapd configuration — mode 1 = poller (SQLite, no MySQL)
 cat > /etc/centreon/centreontrapd.pm <<EOF
@@ -29,7 +28,6 @@ our %centreontrapd_config = (
 1;
 EOF
 chmod 660 /etc/centreon/centreontrapd.pm
-chown centreon:centreon /etc/centreon/centreontrapd.pm
 
 echo "✓ conf.pm generated"
 echo "✓ centreontrapd.pm generated"
