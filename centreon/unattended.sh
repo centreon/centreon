@@ -1,12 +1,13 @@
 #!/bin/bash
 
 ### Define all supported constants
-OPTIONS="hst:v:r:l:p:d:V:"
+OPTIONS="hst:v:r:l:p:d:V:-:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
-declare -A SUPPORTED_VERSION=([24.10]=1 [25.10]=1)
+declare -A SUPPORTED_VERSION=([24.10]=1 [25.10]=1 [26.07]=1)
 declare -A SUPPORTED_REPOSITORY=([testing-hotfix]=1 [testing-release]=1 [unstable]=1 [stable]=1)
 declare -A SUPPORTED_DBMS=([MariaDB]=1 [MySQL]=1)
+declare -A SUPPORTED_TLS=([enabled]=1 [disabled]=1)
 default_timeout_in_sec=5
 script_short_name="$(basename $0)"
 default_ip=$(hostname -I | awk '{print $1}')
@@ -26,6 +27,7 @@ runtime_log_level=${ENV_LOG_LEVEL:-"INFO"}      #Default log level to be used
 selinux_mode=${ENV_SELINUX_MODE:-"permissive"}  #Default SELinux mode to be used
 wizard_autoplay=${ENV_WIZARD_AUTOPLAY:-"false"} #Default the install wizard is not run auto
 central_ip=${ENV_CENTRAL_IP:-$default_ip}       #Default central ip is the first of hostname -I
+tls=${ENV_DB_TLS:-"disabled"}                   #Default DB TLS mode (the TLS-to-DB feature is still under development)
 
 function genpasswd() {
 	local _pwd
@@ -59,6 +61,7 @@ PHP_ETC="/etc/php.d/"
 # Variables dynamically set
 detected_os_release=
 detected_os_version=
+detected_os_major=
 detected_mariadb_version=
 mysql_service_name=
 centreon_admin_password=
@@ -85,7 +88,7 @@ function usage() {
 	echo
 	echo "Usage:"
 	echo
-	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <25.10> (default: 25.10)] [-r <stable|testing-hotfix|testing-release|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
+	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.10|25.10|26.07> (default: 25.10)] [-r <stable|testing-hotfix|testing-release|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [--tls <enabled|disabled> (default: disabled)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
 	echo
 	echo Example:
 	echo
@@ -217,6 +220,32 @@ function parse_subcommand_options() {
 			use_vault=1
 			IFS=$oldIFS
 			;;
+		-)
+			# GNU-style long options (getopts is short-only): support both
+			# "--name=value" and "--name value" forms.
+			long_opt="${OPTARG%%=*}"
+			if [[ "$OPTARG" == *=* ]]; then
+				long_optarg="${OPTARG#*=}"
+			else
+				long_optarg="${!OPTIND}"
+				OPTIND=$((OPTIND + 1))
+			fi
+			case "$long_opt" in
+			tls)
+				if [[ ! ${SUPPORTED_TLS[$long_optarg]} ]]; then
+					log "ERROR" "Unsupported TLS mode: $long_optarg"
+					usage
+				fi
+				tls=$long_optarg
+				log "INFO" "Requested DB TLS mode: '$tls'"
+				;;
+			*)
+				log "ERROR" "Invalid option: --$long_opt"
+				usage
+				exit 1
+				;;
+			esac
+			;;
 		\?)
 			log "ERROR" "Invalid option: -"$OPTARG""
 			usage
@@ -306,6 +335,10 @@ function get_os_information() {
 			;;
 		Debian*)
 			case "${OS_VERSIONID}" in
+				13*)
+					detected_os_release="debian-release-${OS_VERSIONID}"
+					mysql_service_name="mysql"
+					;;
 				12*)
 					detected_os_release="debian-release-${OS_VERSIONID}"
 					mysql_service_name="mysql"
@@ -340,6 +373,9 @@ function get_os_information() {
 	esac
 
 	detected_os_version=${OS_VERSIONID}
+	# Major version only (e.g. "10" from AlmaLinux "10.0", "13" from Debian "13"),
+	# reused to build repo URLs and pick PHP/DB mechanisms.
+	detected_os_major=${OS_VERSIONID%%.*}
 
 	log "INFO" "Your running OS is $detected_os_release (version: ${detected_os_version})"
 
@@ -380,14 +416,35 @@ function set_centreon_repos() {
 }
 #========= end of function set_centreon_repos()
 
+#========= begin of function set_release_repo_file()
+# build the RPM .repo URL for the detected RHEL major version ($detected_os_major)
+# 26.07 is pre-GA and only published to the internal repository
+#
+function set_release_repo_file() {
+	if [[ "$version" == "26.07" ]]; then
+		RELEASE_REPO_FILE="https://packages.centreon.com/rpm-standard-internal/$version/el${detected_os_major}/centreon-$version-internal.repo"
+	else
+		RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el${detected_os_major}/centreon-$version.repo"
+	fi
+}
+#========= end of function set_release_repo_file()
+
 #========= begin of function set_mariadb_repos()
 #
 function set_mariadb_repos() {
 	log "INFO" "Install MariaDB repository"
-	detected_mariadb_version="10.11"
+	if [[ "$version" == "26.07" ]]; then
+		detected_mariadb_version="11.8"
+	else
+		detected_mariadb_version="10.11"
+	fi
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=debian --os-version="$detected_os_version" --mariadb-server-version="$detected_mariadb_version" --skip-maxscale
+	elif [[ "$version" == "26.07" ]]; then
+		# el9 has no 11.8 dnf module stream and el10 dropped dnf modularity, so MariaDB 11.8
+		# is installed from the MariaDB official repository for both.
+		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --os-version="$detected_os_major" --mariadb-server-version="mariadb-$detected_mariadb_version" --skip-maxscale
 	else
 	    dnf module enable mariadb:$detected_mariadb_version -y -q
 	fi
@@ -408,13 +465,36 @@ function set_mariadb_repos() {
 #
 function setup_mysql() {
 	log "INFO" "Install MySQL repository"
+	# Centreon 26.07 ships with MySQL 8.4 (LTS); earlier versions use MySQL 8.0.
+	if [[ "$version" == "26.07" ]]; then
+		detected_mysql_version="8.4"
+	else
+		detected_mysql_version="8.0"
+	fi
+
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
-		curl -JLO https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb
-		export DEBIAN_FRONTEND="noninteractive" && $PKG_MGR install -y ./mysql-apt-config_0.8.29-1_all.deb
+		if [[ "$detected_mysql_version" == "8.4" ]]; then
+			# Newer mysql-apt-config knows the trixie codename and the 8.4 LTS channel;
+			# preselect that channel so the install stays non-interactive.
+			mysql_apt_config="mysql-apt-config_0.8.34-1_all.deb"
+			curl -JLO "https://dev.mysql.com/get/$mysql_apt_config"
+			echo "mysql-apt-config mysql-apt-config/select-server select mysql-8.4-lts" | debconf-set-selections
+			export DEBIAN_FRONTEND="noninteractive" && $PKG_MGR install -y "./$mysql_apt_config"
+		else
+			curl -JLO https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb
+			export DEBIAN_FRONTEND="noninteractive" && $PKG_MGR install -y ./mysql-apt-config_0.8.29-1_all.deb
+		fi
 		$PKG_MGR -y update
 		$PKG_MGR install -y mysql-server mysql-common
 	else
-		$PKG_MGR install -y mysql-server mysql
+		if [[ "$detected_mysql_version" == "8.4" ]]; then
+			# el9 / el10 AppStream only provides MySQL 8.0, so the MySQL 8.4 LTS community
+			# repository is added (its release rpm enables the 8.4 LTS repo by default).
+			$PKG_MGR install -y "https://dev.mysql.com/get/mysql84-community-release-el${detected_os_major}-1.noarch.rpm"
+			$PKG_MGR install -y mysql-server
+		else
+			$PKG_MGR install -y mysql-server mysql
+		fi
 	fi
 	if [ $? -ne 0 ]; then
 		error_and_exit "Could not install the $dbms repository"
@@ -445,7 +525,10 @@ function set_required_prerequisite() {
 		case "$detected_os_version" in
 		8*)
 			log "INFO" "Setting specific part for v8 ($detected_os_version)"
-			RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el8/centreon-$version.repo"
+			if [[ "$version" == "26.07" ]]; then
+				error_and_exit "Centreon $version is not supported on Red-Hat compatible v8 (el8). Please use el9, el10 or Debian 13. See https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
+			fi
+			set_release_repo_file
 			PHP_SERVICE_UNIT="php-fpm"
 			HTTP_SERVICE_UNIT="httpd"
 			PKG_MGR="dnf"
@@ -492,7 +575,7 @@ function set_required_prerequisite() {
 
 		9*)
 			log "INFO" "Setting specific part for v9 ($detected_os_version)"
-			RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el9/centreon-$version.repo"
+			set_release_repo_file
 			PHP_SERVICE_UNIT="php-fpm"
 			HTTP_SERVICE_UNIT="httpd"
 			PKG_MGR="dnf"
@@ -525,16 +608,57 @@ function set_required_prerequisite() {
 						$PKG_MGR module install php:8.2 -y -q
 						$PKG_MGR module enable php:8.2 -y -q
 						;;
+					"26.07")
+						# PHP 8.4 is not available in the el9 OS repositories, so it is
+						# provided by the remi repository.
+						log "INFO" "Installing PHP 8.4 from the remi repository and enable it"
+						$PKG_MGR install -y https://rpms.remirepo.net/enterprise/remi-release-9.rpm
+						$PKG_MGR module -y switch-to php:remi-8.4/common
+						;;
 					*)
-						log "INFO" "Installing PHP 8.2 from OS official repositories"
+						log "INFO" "Installing PHP from OS official repositories"
 						;;
 				esac
 
 			fi
 			;;
 
+		10*)
+			log "INFO" "Setting specific part for v10 ($detected_os_version)"
+			set_release_repo_file
+			PHP_SERVICE_UNIT="php-fpm"
+			HTTP_SERVICE_UNIT="httpd"
+			PKG_MGR="dnf"
+
+			case "$detected_os_release" in
+			redhat-release*)
+				BASE_PACKAGES=(dnf-plugins-core)
+				subscription-manager repos --enable codeready-builder-for-rhel-10-x86_64-rpms
+				$PKG_MGR config-manager --set-enabled codeready-builder-for-rhel-10-rhui-rpms
+				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
+				;;
+
+			centos-release* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
+				BASE_PACKAGES=(dnf-plugins-core epel-release)
+				$PKG_MGR config-manager --set-enabled crb
+				;;
+
+			oraclelinux-release* | enterprise-release*)
+				BASE_PACKAGES=(dnf-plugins-core)
+				$PKG_MGR config-manager --set-enabled ol10_codeready_builder
+				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
+			;;
+			esac
+
+			# On el10 there is no dnf modularity: PHP 8.4 is provided directly by the
+			# OS AppStream and pulled in as a Centreon dependency. Nothing to enable here.
+			if [ "$topology" == "central" ]; then
+				log "INFO" "Installing PHP 8.4 from OS official repositories"
+			fi
+			;;
+
 		*)
-			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 12. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
+			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8, v9 and v10) and Debian 12/13. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 			;;
 		esac
 
@@ -560,18 +684,31 @@ function set_required_prerequisite() {
 		HTTP_SERVICE_UNIT="apache2"
 		PKG_MGR="apt -qq"
 		case "$detected_os_version" in
+		13)
+			if [[ "$version" != "26.07" ]]; then
+				error_and_exit "For Debian $detected_os_version, only Centreon version 26.07 is compatible. You chose $version"
+			fi
+			# On Debian 13 (trixie), PHP 8.4 is provided by the official OS repositories.
+			PHP_SERVICE_UNIT="php8.4-fpm"
+			;;
 		12)
 			if ! [[ "$version" == "24.10" || "$version" == "25.10" ]]; then
-				error_and_exit "For Debian $detected_os_version, only Centreon versions >= 24.10 are compatible. You chose $version"
+				error_and_exit "For Debian $detected_os_version, only Centreon versions 24.10 and 25.10 are compatible. You chose $version"
 			fi
 			PHP_SERVICE_UNIT="php8.2-fpm"
 			;;
 		*)
-			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 12. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
+			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8, v9 and v10) and Debian 12/13. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 			;;
 		esac
 		${PKG_MGR} update && ${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl
 		repo_prefix="apt"
+		# 26.07 is pre-GA and only published to the internal APT repository.
+		if [[ "$version" == "26.07" ]]; then
+			apt_standard_repo="$repo_prefix-standard-internal"
+		else
+			apt_standard_repo="$repo_prefix-standard"
+		fi
 
 		# Get CPU architecture type
 		VENDORID=$(lscpu | grep -e '^Vendor ID:' | cut -d ':' -f2 | tr -d '[:space:]')
@@ -587,7 +724,7 @@ function set_required_prerequisite() {
 		    if [[ "$version" < "25.10" ]]; then
 			    echo "deb https://packages.centreon.com/$repo_prefix-standard-$_repo/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
 			else
-				echo "deb https://packages.centreon.com/$repo_prefix-standard/ $(lsb_release -sc)-$_repo main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
+				echo "deb https://packages.centreon.com/$apt_standard_repo/ $(lsb_release -sc)-$_repo main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
 			fi
 
 			SIMPLEREPO=$(echo $_repo | cut -d '-' -f2)
@@ -596,7 +733,7 @@ function set_required_prerequisite() {
 		wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
 
 		if [ "$topology" == "central" ]; then
-			# On Debian 12, PHP 8.2 is provided by the official OS repositories (no third-party PHP repo needed).
+			# On Debian, PHP (8.2 on bookworm / 8.4 on trixie) is provided by the official OS repositories (no third-party PHP repo needed).
 			log "INFO" "Installing php from official os repositories."
 			if [[ "$dbms" == "MariaDB" ]]; then
 				set_mariadb_repos
@@ -689,6 +826,37 @@ function set_runtime_selinux_mode() {
 }
 
 #========= end of function set_runtime_selinux_mode()
+
+#========= begin of function configure_db_tls()
+# configure the TLS mode for the database connection according to the --tls flag.
+# The TLS-to-DB feature is still under development, so for now both modes ensure the
+# server accepts non-TLS connections (require_secure_transport=OFF).
+#
+function configure_db_tls() {
+	if [[ "$tls" == "enabled" ]]; then
+		log "WARN" "TLS communication with the database is not supported yet; the installation will proceed without TLS to the DB."
+	fi
+
+	# Drop-in location depends on the OS / DBMS.
+	local tls_dropin
+	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		if [[ "$dbms" == "MariaDB" ]]; then
+			tls_dropin="/etc/mysql/mariadb.conf.d/99-centreon-tls.cnf"
+		else
+			tls_dropin="/etc/mysql/mysql.conf.d/99-centreon-tls.cnf"
+		fi
+	else
+		tls_dropin="/etc/my.cnf.d/centreon-tls.cnf"
+	fi
+
+	log "INFO" "Configuring DB TLS mode [$tls]: writing $tls_dropin (require_secure_transport=OFF)"
+	mkdir -p "$(dirname "$tls_dropin")"
+	cat > "$tls_dropin" <<-EOF
+		[mysqld]
+		require_secure_transport=OFF
+	EOF
+}
+#========= end of function configure_db_tls()
 
 #========= begin of function secure_dbms_setup()
 # apply some secure requests
@@ -1243,6 +1411,7 @@ function install_central() {
 		# Determine the PHP version Centreon expects for this release...
 		case "$version" in
 			"24.10" | "25.10") expected_php_version="8.2" ;;
+			"26.07") expected_php_version="8.4" ;;
 			*) expected_php_version="" ;;
 		esac
 		# ...then cross-check against the PHP actually installed (authoritative for the on-disk path).
@@ -1264,6 +1433,8 @@ function install_central() {
 	fi
 
 	log "INFO" "PHP date.timezone set to [$timezone]"
+
+	configure_db_tls
 
 	secure_dbms_setup
 }
