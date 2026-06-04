@@ -2,7 +2,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { type Column, useSnackbar } from '@centreon/ui';
+import { type Column, useFetchQuery, useSnackbar } from '@centreon/ui';
 
 import type { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { getResourcesUrl, goToUrl } from '../../../utils';
@@ -16,6 +16,7 @@ import {
 } from '../atom';
 import type { PanelOptions } from '../models';
 
+import { useEffect, useMemo, useState } from 'react';
 import useColumns from './Columns/useColumns';
 import {
   DisplayType,
@@ -25,7 +26,6 @@ import {
 } from './models';
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
 import useLoadResources from './useLoadResources';
-import { useState } from 'react';
 
 interface CountResponse {
   count: number;
