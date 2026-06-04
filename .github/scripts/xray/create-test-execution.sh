@@ -8,7 +8,7 @@ set -euo pipefail
 #   IS_NIGHTLY        - "true" or "false"
 #   MAJOR_VERSION     - e.g. "24.10"
 #   MINOR_VERSION     - e.g. "3"
-#   OS                - e.g. "alma9", "bullseye", "bookworm"
+#   OS                - e.g. "alma8", "alma9", "bullseye", "bookworm"
 #   GITHUB_REF_NAME   - current git ref name (set by GitHub Actions)
 #   GITHUB_REPOSITORY - owner/repo (set by GitHub Actions)
 #   GITHUB_RUN_ID     - workflow run ID (set by GitHub Actions)
@@ -40,6 +40,10 @@ echo "The summary of the TE is: $input_summary"
 linux_distribution=''
 mariadb_version=''
 case "$OS" in
+  alma8)
+    linux_distribution="ALMA8"
+    mariadb_version="MARIADB_10_5"
+    ;;
   alma9)
     linux_distribution="ALMA9"
     mariadb_version="MARIADB_10_5"
@@ -53,7 +57,7 @@ case "$OS" in
     mariadb_version="MARIADB_10_11"
     ;;
   *)
-    echo "ERROR: Unknown OS value: '$OS'. Expected one of: alma9, bullseye, bookworm." >&2
+    echo "ERROR: Unknown OS value: '$OS'. Expected one of: alma8, alma9, bullseye, bookworm." >&2
     exit 1
     ;;
 esac
