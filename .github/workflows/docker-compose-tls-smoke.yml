@@ -6,15 +6,19 @@
 #      base + overlay merge cleanly (catches !override misuse, broken depends_on
 #      maps, missing volumes, etc.). Pure YAML validation, no image pull.
 #
-#   2. https-up: DISABLED (`if: false`). Brings the HTTPS stack up and curls the
-#      API. Disabled because gorgone TLS support is still being worked on by the
-#      gorgone team outside this PR — `DBD::mysql 4.053 + libmariadb 3.x` on the
-#      trixie image rejects `mysql_ssl=1` with "Enforcing SSL encryption is not
-#      supported", so the stack can't fully come up. PR #9237
-#      (DatabaseTLSResolver, PHP path) is in; gorgone is the remaining blocker.
+#   2. https-up: DISABLED by default. Gated on the `force-tls-smoke` label so
+#      the job stays skipped until someone opts in per-PR. Brings the HTTPS
+#      stack up and curls the API. Disabled because gorgone TLS support is
+#      still being worked on by the gorgone team outside this PR — `DBD::mysql
+#      4.053 + libmariadb 3.x` on the trixie image rejects `mysql_ssl=1` with
+#      "Enforcing SSL encryption is not supported", so the stack can't fully
+#      come up. PR #9237 (DatabaseTLSResolver, PHP path) is in; gorgone is the
+#      remaining blocker.
 #
-# Flip `if: false` → `if: ${{ github.event.pull_request.head.repo.fork != true }}`
-# once the gorgone TLS work merges, to re-enable the job.
+# Two ways to re-enable once gorgone TLS work merges:
+#   - Add the `force-tls-smoke` label on a PR (ad-hoc), or
+#   - Replace the expression below with the original:
+#     ${{ github.event.pull_request.head.repo.fork != true }}
 
 name: docker-compose-tls-smoke
 
@@ -51,8 +55,8 @@ jobs:
     runs-on: ubuntu-24.04
     # Disabled until the gorgone team merges native TLS support. On trixie
     # DBD::mysql 4.053 + libmariadb 3.x can't enable SSL, so the stack can't
-    # come up cleanly. Flip back to the fork check once gorgone TLS is in.
-    if: false
+    # come up cleanly. See header comment for re-enable instructions.
+    if: contains(github.event.pull_request.labels.*.name, 'force-tls-smoke')
     needs: [config-validate]
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
