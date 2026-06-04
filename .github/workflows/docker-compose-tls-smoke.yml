@@ -6,14 +6,15 @@
 #      base + overlay merge cleanly (catches !override misuse, broken depends_on
 #      maps, missing volumes, etc.). Pure YAML validation, no image pull.
 #
-#   2. https-up: runs on internal PRs / develop pushes (forks lack registry
-#      secrets). Brings the HTTPS stack up and curls the API. Marked
-#      `continue-on-error: true` because the entrypoint hook `04-tls.sh` fails
-#      fast until centreon/centreon PR #9237 (DatabaseTLSResolver) is merged
-#      into the WEB_IMAGE — the whole point is that this job auto-flips green
-#      once the dependency lands, with no announcement to update.
+#   2. https-up: DISABLED (`if: false`). Brings the HTTPS stack up and curls the
+#      API. Disabled because gorgone TLS support is still being worked on by the
+#      gorgone team outside this PR — `DBD::mysql 4.053 + libmariadb 3.x` on the
+#      trixie image rejects `mysql_ssl=1` with "Enforcing SSL encryption is not
+#      supported", so the stack can't fully come up. PR #9237
+#      (DatabaseTLSResolver, PHP path) is in; gorgone is the remaining blocker.
 #
-# Remove the `continue-on-error` once PR #9237 is merged to develop.
+# Flip `if: false` → `if: ${{ github.event.pull_request.head.repo.fork != true }}`
+# once the gorgone TLS work merges, to re-enable the job.
 
 name: docker-compose-tls-smoke
 
@@ -46,11 +47,13 @@ jobs:
             config >/dev/null
 
   https-up:
-    name: HTTPS smoke (expected-failing until centreon/centreon PR #9237 merges)
+    name: HTTPS smoke (disabled — gorgone TLS support landing separately)
     runs-on: ubuntu-24.04
-    if: ${{ github.event.pull_request.head.repo.fork != true }}
+    # Disabled until the gorgone team merges native TLS support. On trixie
+    # DBD::mysql 4.053 + libmariadb 3.x can't enable SSL, so the stack can't
+    # come up cleanly. Flip back to the fork check once gorgone TLS is in.
+    if: false
     needs: [config-validate]
-    continue-on-error: true
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
