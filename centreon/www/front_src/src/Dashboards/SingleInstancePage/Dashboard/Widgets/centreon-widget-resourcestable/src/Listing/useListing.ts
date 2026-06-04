@@ -1,7 +1,3 @@
-// @ts-nocheck
-// TODO: re-enable type-check after fixing this file
-import { type Column, useSnackbar } from '@centreon/ui';
-
 import { useAtom, useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
@@ -23,7 +19,6 @@ import type { PanelOptions } from '../models';
 import useColumns from './Columns/useColumns';
 import {
   DisplayType,
-  type Resource as ListingResource,
   type NamedEntity,
   type ResourceListing,
   type Ticket
