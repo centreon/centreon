@@ -1,86 +1,394 @@
-<script type="text/javascript" src="./include/common/javascript/tool.js"></script>
-<form {$form.attributes}>
-    <table class="ajaxOption table">
-    <tbody>
-      <tr>
-        <th><h5>{t}Filters{/t}</h5></th>
-      </tr>
-      <tr>
-        <td><h4>{t}Media{/t}</h4></td>
-      </tr>
-      <tr>
-        <td><input type="text" name="searchM" value="{$searchM}" class="mr-1"><input type="submit" value="{t}Search{/t}" class="btc bt_success"></td>
-      </tr>
-    </tbody>
-    </table>
-	<table class="ToolbarTable table">
-		<tr class="ToolbarTR">
-			<td>
-				{$form.o1.html}
-				<a href="{$msg.addL}" class="btc bt_success ml-2">{$msg.addT}</a>
-                {if isset($form.syncDir)}
-                    {$form.syncDir.html}
-                {/if}
-				<label >
-					{$availiableSpace} {$Available}
-				</label>
+<style>
+    {literal}
+    /* Aligned with the reporting charter (.rpt-title) */
+    .images-title-bar {
+        margin: 0 0 8px 0;
+        max-width: 1400px;
+    }
 
-			</td>
-            {pagination}
-		</tr>
-	</table>
-    <table class="ListTable">
-        <tr class="ListHeader">
-            <td class="ListColHeaderPicker">
-                <div class="md-checkbox md-checkbox-inline">
-                    <input type="checkbox" id="checkall" name="checkall" onclick="checkUncheckAll(this);"/>
-                    <label class="empty-label" for="checkall"></label>
-                </div>
-            </td>
-            <td class="ListColHeaderLeft">{$headerMenu_name}</td>
-            <td class="ListColHeaderLeft">{$headerMenu_img}</td>
-            <td class="ListColHeaderLeft">{$headerMenu_comment}</td>
-        </tr>
+    .images-title {
+        margin: 0;
+        padding: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--body-color, #2d3436);
+    }
 
-		{foreach from=$elemArr item=dir}
-			<tr class="list_lvl_1">
-			    <td class="ListColCenter">{$dir.head.RowMenu_select}</td>
-			    <td class="ListColLeft" colspan="3"><a href="{$dir.head.RowMenu_DirLink}"><b>{$dir.head.RowMenu_dir}</b></a>{if $dir.head.RowMenu_dir_cmnt}&nbsp;({$dir.head.RowMenu_dir_cmnt}){/if}</td>
-			</tr>
-			{cycle values='list_one,list_two' reset=true print=false advance=false}
-			{if $dir.head.counter > 0 }
-				{foreach item=img from=$dir.elem}
-					    <tr class="{cycle values='list_one,list_two'}">
-						<td class="ListColCenter">{$img.RowMenu_select}</td>
-						<td class="ListColLeft"><img src="./img/media/{$img.RowMenu_img}" alt="{$img.RowMenu_name}" width="16" height="16">&nbsp;<a href="{$img.RowMenu_ImgLink}">{$img.RowMenu_name}</a></td>
-						<td class="ListColLeft"><a href="{$img.RowMenu_ImgLink}">{$img.RowMenu_img}</a></td>
-						<td class="ListColLeft">{$img.RowMenu_comment}</td>
-					    </tr>
-				{/foreach}
-			{else}
-				<tr class="list_one">
-					<td class="ListColLeft" colspan=4>&nbsp;&nbsp;&nbsp;&nbsp;<i>{$dir.head.RowMenu_empty}</i></td>
-				</tr>
-			{/if}
-		{/foreach}
-	</table>
-	<table class="ToolbarTable table">
-		<tr class="ToolbarTR">
-			<td>
-				{$form.o2.html}
-				<a href="{$msg.addL}" class="btc bt_success ml-2">{$msg.addT}</a>
-                {if isset($form.syncDir)}
-                    {$form.syncDir.html}
+    .images-subtitle {
+        margin: 4px 0 0;
+        font-size: 12px;
+        line-height: 1.45;
+        color: var(--body-color, #6f7384);
+        opacity: 0.75;
+        max-width: 760px;
+    }
+
+    .cl-listing-table tbody tr.cl-dir-row td {
+        background: var(--list-lvl-1-background-color, #f5f5f0);
+        font-weight: 600;
+    }
+
+    .cl-dir-cmnt {
+        font-weight: 400;
+        opacity: 0.7;
+    }
+
+    .cl-dir-empty {
+        padding-left: 28px !important;
+        color: #a7a9ac;
+    }
+
+    .cl-thumb {
+        width: 20px;
+        height: 20px;
+        vertical-align: middle;
+        margin-right: 6px;
+        object-fit: contain;
+    }
+
+    /* Uniform action-bar buttons (same height/padding for Add, Delete, Sync) */
+    .cl-actions-left .cl-btn-add,
+    .cl-actions-left button.btc {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        height: 34px;
+        padding: 0 16px;
+        font-size: 13px;
+        line-height: 1;
+        box-sizing: border-box;
+        border-radius: 4px;
+        vertical-align: middle;
+    }
+
+    /* Slide-in side panel (same pattern as the pollers configuration page) */
+    .cf-side-overlay {
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 9998; opacity: 0; visibility: hidden;
+        transition: opacity 0.25s, visibility 0.25s;
+    }
+    .cf-side-overlay.open { opacity: 1; visibility: visible; }
+
+    .cf-side-panel {
+        position: fixed; top: 0; right: 0;
+        width: 55vw; min-width: 400px; max-width: 95vw; height: 100vh;
+        background: var(--body-background, #fff);
+        box-shadow: -4px 0 24px rgba(0, 0, 0, 0.3);
+        z-index: 9999; transform: translateX(100%);
+        transition: transform 0.3s ease;
+        display: flex; flex-direction: column;
+    }
+    .cf-side-panel.open { transform: translateX(0); }
+
+    .cf-side-panel-resize {
+        position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+        cursor: col-resize; z-index: 10; background: transparent;
+        transition: background 0.15s;
+    }
+    .cf-side-panel-resize:hover, .cf-side-panel-resize.active { background: var(--color-primary, #009fdf); }
+
+    .cf-side-panel-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 20px; border-bottom: 1px solid var(--color-divider, #e3e3e3);
+        background: var(--body-background, #fff); flex-shrink: 0;
+    }
+    .cf-side-panel-title { font-size: 16px; font-weight: 600; color: var(--list-color, #333); }
+    .cf-side-panel-close {
+        background: none; border: none; font-size: 22px; color: var(--body-color, #999);
+        cursor: pointer; padding: 4px 8px; border-radius: 4px; line-height: 1;
+        transition: background 0.15s, color 0.15s;
+    }
+    .cf-side-panel-close:hover { background: var(--color-divider, #e8e8e8); color: var(--list-color, #333); }
+    .cf-side-panel-body { flex: 1; overflow: hidden; }
+    .cf-side-panel-body iframe { width: 100%; height: 100%; border: none; }
+    {/literal}
+</style>
+
+<div class="images-title-bar">
+    <h2 class="images-title">{$pageTitle}</h2>
+    <p class="images-subtitle">{$pageSubtitle}</p>
+</div>
+
+<form name="form" id="Form">
+    <div class="cl-filter-box">
+        <div class="cl-filter-bar">
+            <input type="text" id="clSearchInput" name="search" value="" class="cl-search-input" placeholder="{t}Name or directory{/t}" style="width:220px;">
+            <button type="button" id="clSearchBtn" class="btc bt_success">{$wi_search}</button>
+        </div>
+    </div>
+
+    <div class="cl-listing-container">
+        <div class="cl-actions-bar">
+            <div class="cl-actions-left">
+                <a href="#" class="cl-btn-add" onclick="cfOpenPanel('./main.get.php?p={$pageId}&o=a', imagesAddTitle); return false;">{$wi_add}</a>
+                {if $writeAccess == 1}
+                    <button type="button" class="btc bt_danger" onclick="imagesDelete();">{$wi_delete}</button>
                 {/if}
-				<a >
-					{$availiableSpace}  {$Available}
-				</a>
-			</td>
-			
-            {pagination}
-		</tr>
-	</table>
-<input type='hidden' name='o' id='o' value='42'>
-<input type='hidden' id='limit' name='limit' value='{$limit}'>	
-{$form.hidden}
+                {if $isAdmin == 1}
+                    <button type="button" class="btc bt_info" onclick="imagesSyncPopup();">{$wi_sync}</button>
+                {/if}
+                {if $availableSpace != ''}<span class="cl-filter-label">{$availableSpace}&nbsp;{$wi_available}</span>{/if}
+            </div>
+            <div class="cl-pagination" id="clPaginationTop"></div>
+        </div>
+
+        <table class="cl-listing-table">
+            <thead>
+                <tr>
+                    {if $writeAccess == 1}
+                        <th class="cl-col-picker">
+                            <div class="md-checkbox md-checkbox-inline">
+                                <input type="checkbox" id="checkall" onclick="imagesCheckAll(this);" />
+                                <label class="empty-label" for="checkall"></label>
+                            </div>
+                        </th>
+                    {/if}
+                    <th>{$headerMenu_name}</th>
+                    <th>{$headerMenu_img}</th>
+                    <th>{$headerMenu_comment}</th>
+                    <th class="cl-col-center">{$headerMenu_size}</th>
+                    <th class="cl-col-center">{$headerMenu_date}</th>
+                </tr>
+            </thead>
+            <tbody id="clTableBody">
+                <tr><td colspan="{if $writeAccess == 1}6{else}5{/if}" class="cl-loading">{t}Loading...{/t}</td></tr>
+            </tbody>
+        </table>
+
+        <div class="cl-bottom-bar">
+            <div>&nbsp;</div>
+            <div class="cl-pagination" id="clPaginationBottom"></div>
+        </div>
+    </div>
+
+    <input type="hidden" id="limit" name="limit" value="">
 </form>
+
+<!-- Side panel (hosts the add/upload form, loaded as a chrome-less fragment) -->
+<div class="cf-side-overlay" id="cfSideOverlay" onclick="cfClosePanel();"></div>
+<div class="cf-side-panel" id="cfSidePanel">
+    <div class="cf-side-panel-resize" id="cfSidePanelResize"></div>
+    <div class="cf-side-panel-header">
+        <span class="cf-side-panel-title" id="cfSidePanelTitle"></span>
+        <button type="button" class="cf-side-panel-close" onclick="cfClosePanel();">&times;</button>
+    </div>
+    <div class="cf-side-panel-body">
+        <iframe id="cfSidePanelFrame" src="about:blank"></iframe>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var imagesPageId       = '{$pageId}';
+    var imagesIsAdmin      = {if $isAdmin == 1}true{else}false{/if};
+    var imagesWriteAccess  = {if $writeAccess == 1}true{else}false{/if};
+    var imagesDefaultLimit = {$defaultLimit};
+    var imagesEmptyMessage = {$emptyMessageJs};
+    var imagesEmptyDir     = {$emptyDirJs};
+    var imagesDelConfirm   = {$delConfirmJs};
+    var imagesAddTitle     = {$addTitleJs};
+</script>
+
+{literal}
+<script type="text/javascript">
+    // If this listing is rendered inside the side panel (e.g. after an edit form
+    // save redirects to the list), close the panel and let the parent refresh.
+    if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
+        try { window.parent.cfClosePanel(); } catch (e) {}
+    }
+
+    (function () {
+        window.imagesListing = new CentreonListing({
+            instanceName:  'imagesListing',
+            ajaxListUrl:   './include/options/media/images/ajaxImagesListing.php',
+            pageId:        imagesPageId,
+            writeAccess:   imagesWriteAccess,
+            storageKey:    'images_listing_limit',
+            defaultLimit:  imagesDefaultLimit,
+            autoRefresh:   0,
+            showCheckboxes: false,
+            emptyMessage:  imagesEmptyMessage,
+            columns:       [{ id: 'name' }, { id: 'image' }, { id: 'comment' }]
+        });
+
+        // Custom grouped rendering: a directory header row followed by its images.
+        // Assigned on the instance (the listing calls self.renderRows internally).
+        imagesListing.renderRows = function (rows) {
+            var self    = this;
+            var picker  = imagesWriteAccess;
+            var nbCols  = picker ? 6 : 5;
+            var tbody   = jQuery('#clTableBody');
+            tbody.empty();
+
+            if (!rows || rows.length === 0) {
+                tbody.html('<tr><td colspan="' + nbCols + '" style="text-align:center;padding:24px;color:#a7a9ac;">'
+                    + self.escape(imagesEmptyMessage) + '</td></tr>');
+                return;
+            }
+
+            function dirCheckbox(dirId) {
+                return '<td class="cl-col-picker"><div class="md-checkbox md-checkbox-inline">'
+                    + '<input type="checkbox" id="seldir_' + dirId + '" class="img-check" data-selector="' + dirId + '"'
+                        + ' data-dir-parent="' + dirId + '" onclick="imagesToggleDir(this);" />'
+                    + '<label class="empty-label" for="seldir_' + dirId + '"></label></div></td>';
+            }
+
+            function imgCheckbox(dirId, imgId) {
+                return '<td class="cl-col-picker"><div class="md-checkbox md-checkbox-inline">'
+                    + '<input type="checkbox" id="selimg_' + imgId + '" class="img-check img-child" data-selector="' + dirId + '-' + imgId + '"'
+                        + ' data-dir="' + dirId + '" />'
+                    + '<label class="empty-label" for="selimg_' + imgId + '"></label></div></td>';
+            }
+
+            var lastDir = null;
+            var html = '';
+            for (var i = 0; i < rows.length; i++) {
+                var row = rows[i];
+
+                if (row.dir_id !== lastDir) {
+                    lastDir = row.dir_id;
+                    html += '<tr class="cl-dir-row">'
+                        + (picker ? dirCheckbox(row.dir_id) : '')
+                        + '<td colspan="5">'
+                            + '<a href="./main.php?p=' + imagesPageId + '&o=cd&dir_id=' + row.dir_id + '"><b>'
+                                + self.escape(row.dir_name) + '</b></a>'
+                            + (row.dir_comment ? ' <span class="cl-dir-cmnt">(' + self.escape(row.dir_comment) + ')</span>' : '')
+                        + '</td></tr>';
+                }
+
+                if (row.img_id) {
+                    var editUrl = './main.php?p=' + imagesPageId + '&o=ci&img_id=' + row.img_id;
+                    html += '<tr>'
+                        + (picker ? imgCheckbox(row.dir_id, row.img_id) : '')
+                        + '<td><img src="./img/media/' + encodeURI(row.img_path) + '" alt="" class="cl-thumb" onerror="this.style.visibility=\'hidden\';" /> '
+                            + '<a href="' + editUrl + '">' + self.escape(row.img_name) + '</a></td>'
+                        + '<td><a href="' + editUrl + '">' + self.escape(row.img_path) + '</a></td>'
+                        + '<td>' + self.escape(row.img_comment) + '</td>'
+                        + '<td class="cl-col-center">' + imagesHumanSize(row.size) + '</td>'
+                        + '<td class="cl-col-center">' + imagesFormatDate(row.mtime) + '</td>'
+                        + '</tr>';
+                } else {
+                    html += '<tr>'
+                        + (picker ? '<td class="cl-col-picker"></td>' : '')
+                        + '<td colspan="5" class="cl-dir-empty"><i>' + self.escape(imagesEmptyDir) + '</i></td>'
+                        + '</tr>';
+                }
+            }
+            tbody.append(html);
+        };
+
+        imagesListing.init();
+    })();
+
+    // Human-readable file size
+    function imagesHumanSize(b) {
+        if (b === null || b === undefined) { return '-'; }
+        if (b < 1024) { return b + ' B'; }
+        if (b < 1048576) { return (b / 1024).toFixed(1) + ' KB'; }
+        return (b / 1048576).toFixed(2) + ' MB';
+    }
+
+    // File modification date (from a unix timestamp)
+    function imagesFormatDate(ts) {
+        if (!ts) { return '-'; }
+        var d = new Date(ts * 1000);
+        return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Select / deselect every checkbox
+    function imagesCheckAll(master) {
+        jQuery('#clTableBody input.img-check').prop('checked', master.checked);
+    }
+
+    // A directory checkbox toggles all of its images
+    function imagesToggleDir(cb) {
+        var dirId = cb.getAttribute('data-dir-parent');
+        jQuery('#clTableBody input.img-child[data-dir="' + dirId + '"]').prop('checked', cb.checked);
+    }
+
+    // Delete the selected images and/or directories (AJAX), then refresh the list
+    function imagesDelete() {
+        var selection = {};
+        jQuery('#clTableBody input.img-check:checked').each(function () {
+            selection[jQuery(this).attr('data-selector')] = 1;
+        });
+        if (jQuery.isEmptyObject(selection)) {
+            return;
+        }
+        if (!confirm(imagesDelConfirm)) {
+            return;
+        }
+        jQuery.ajax({
+            url: './include/options/media/images/ajaxImagesDelete.php',
+            type: 'POST',
+            dataType: 'json',
+            data: { select: selection, centreon_token: imagesListing.getCsrfToken() },
+            success: function (resp) {
+                if (resp && resp.centreon_token) {
+                    imagesListing.setCsrfToken(resp.centreon_token);
+                }
+                var checkall = document.getElementById('checkall');
+                if (checkall) {
+                    checkall.checked = false;
+                }
+                var s = imagesListing.getState();
+                imagesListing.fetch(s.num, s.limit, s.search, true);
+            }
+        });
+    }
+
+    // Synchronize media directories from disk (legacy popup, kept for now)
+    function imagesSyncPopup() {
+        window.open(
+            './main.get.php?p=' + imagesPageId + '&o=sd&min=1',
+            '',
+            'toolbar=no,location=no,status=no,scrollbars=yes,resizable=yes,width=350,height=250'
+        );
+    }
+
+    // ----- Side panel (loads the add form as a chrome-less fragment) -----
+    function cfOpenPanel(url, title) {
+        document.getElementById('cfSidePanelTitle').textContent = title || '';
+        document.getElementById('cfSidePanelFrame').src = url;
+        document.getElementById('cfSideOverlay').classList.add('open');
+        document.getElementById('cfSidePanel').classList.add('open');
+    }
+    function cfClosePanel() {
+        document.getElementById('cfSideOverlay').classList.remove('open');
+        document.getElementById('cfSidePanel').classList.remove('open');
+        setTimeout(function () { document.getElementById('cfSidePanelFrame').src = 'about:blank'; }, 300);
+        imagesRefresh();
+    }
+    // Refresh the listing in place (used after uploads, with or without closing the panel)
+    function imagesRefresh() {
+        var s = imagesListing.getState();
+        imagesListing.fetch(s.num, s.limit, s.search, true);
+    }
+    (function () {
+        var handle = document.getElementById('cfSidePanelResize');
+        var panel = document.getElementById('cfSidePanel');
+        var dragging = false;
+        handle.addEventListener('mousedown', function (e) {
+            e.preventDefault(); dragging = true; handle.classList.add('active');
+            document.body.style.cursor = 'col-resize';
+            var iframe = document.getElementById('cfSidePanelFrame');
+            if (iframe) iframe.style.pointerEvents = 'none';
+        });
+        document.addEventListener('mousemove', function (e) {
+            if (!dragging) return;
+            var w = window.innerWidth - e.clientX;
+            if (w < 400) w = 400;
+            if (w > window.innerWidth * 0.95) w = window.innerWidth * 0.95;
+            panel.style.width = w + 'px';
+        });
+        document.addEventListener('mouseup', function () {
+            if (!dragging) return; dragging = false; handle.classList.remove('active');
+            document.body.style.cursor = '';
+            var iframe = document.getElementById('cfSidePanelFrame');
+            if (iframe) iframe.style.pointerEvents = '';
+        });
+    })();
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') cfClosePanel(); });
+</script>
+{/literal}
