@@ -4,7 +4,9 @@ description: |
   Resolution order:
     1. current_tag (e.g. develop-26.10 or branch name) if it exists in the registry
     2. major_version if the current branch is dev-XX.YY.x
-    3. (cloud only) develop-<major_version> if it exists in the registry (feature branches)
+    3. feature branches: probe the base-branch tag if it exists in the registry
+         - cloud:   develop-<major_version>
+         - on-prem: dev-<major_version>.x
     4. fallback: develop (cloud) or major_version (on-prem)
   Each resolved tag has tag_suffix appended (e.g. -alma9) when provided.
 
@@ -62,11 +64,19 @@ runs:
           FROM_IMAGE_VERSION="${CURRENT_TAG}${TAG_SUFFIX}"
         elif [[ "$BRANCH_NAME" =~ ^dev-[0-9]+\.[0-9]+\.x$ ]]; then
           FROM_IMAGE_VERSION="${MAJOR_VERSION}${TAG_SUFFIX}"
-        elif [[ "$IS_CLOUD" == "true" && "$BRANCH_NAME" != "develop" ]]; then
-          DEVELOP_VERSION_TAG="develop-${MAJOR_VERSION}${TAG_SUFFIX}"
-          IMAGE_TAG_EXISTS=$(docker manifest inspect ${REGISTRY}/${FROM_IMAGE}:${DEVELOP_VERSION_TAG} >/dev/null 2>&1 && echo yes || echo no)
+        elif [[ "$BRANCH_NAME" != "develop" ]]; then
+          # Feature branch: probe the base-branch tag of the FROM image and use
+          # it if it exists. The web image is tagged dev-<major>.x on a dev branch
+          # while the dependencies image is tagged <major_version>, so probing
+          # keeps the right fallback for each image instead of assuming one.
+          if [[ "$IS_CLOUD" == "true" ]]; then
+            CANDIDATE_TAG="develop-${MAJOR_VERSION}${TAG_SUFFIX}"
+          else
+            CANDIDATE_TAG="dev-${MAJOR_VERSION}.x${TAG_SUFFIX}"
+          fi
+          IMAGE_TAG_EXISTS=$(docker manifest inspect ${REGISTRY}/${FROM_IMAGE}:${CANDIDATE_TAG} >/dev/null 2>&1 && echo yes || echo no)
           if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
-            FROM_IMAGE_VERSION="${DEVELOP_VERSION_TAG}"
+            FROM_IMAGE_VERSION="${CANDIDATE_TAG}"
           fi
         fi
 
