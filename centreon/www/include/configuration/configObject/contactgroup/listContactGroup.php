@@ -102,11 +102,13 @@ foreach ($cgs as $cg) {
 
     // Contacts
     $ctNbr = [];
-    $rq = "SELECT COUNT(DISTINCT contact_contact_id) AS `nbr`
+    $rq = 'SELECT COUNT(DISTINCT contact_contact_id) AS `nbr`
            FROM `contactgroup_contact_relation` `cgr`
-           WHERE `cgr`.`contactgroup_cg_id` = '" . $cg['cg_id'] . "' "
+           WHERE `cgr`.`contactgroup_cg_id` = :cgId '
         . $acl->queryBuilder('AND', 'contact_contact_id', $contactstring);
-    $dbResult2 = $pearDB->query($rq);
+    $dbResult2 = $pearDB->prepare($rq);
+    $dbResult2->bindValue(':cgId', (int) $cg['cg_id'], PDO::PARAM_INT);
+    $dbResult2->execute();
     $ctNbr = $dbResult2->fetch();
     $elemArr[] = ['MenuClass' => 'list_' . $style, 'RowMenu_select' => $selectedElements->toHtml(), 'RowMenu_name' => $cg['cg_name'], 'RowMenu_link' => 'main.php?p=' . $p . '&o=c&cg_id=' . $cg['cg_id'], 'RowMenu_desc' => $cg['cg_alias'], 'RowMenu_contacts' => $ctNbr['nbr'], 'RowMenu_status' => $cg['cg_activate'] ? _('Enabled') : _('Disabled'), 'RowMenu_badge' => $cg['cg_activate'] ? 'service_ok' : 'service_critical', 'RowMenu_options' => $moptions];
     $style = $style != 'two' ? 'two' : 'one';

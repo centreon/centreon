@@ -86,6 +86,7 @@ class Broker extends AbstractObjectJSON
     /** @var string */
     protected $attributes_engine_parameters = '
         id,
+        uid,
         name,
         centreonbroker_module_path,
         centreonbroker_cfg_path,
@@ -255,6 +256,9 @@ class Broker extends AbstractObjectJSON
             $object['broker_id'] = (int) $row['config_id'];
             $object['broker_name'] = $row['config_name'];
             $object['poller_id'] = (int) $this->engine['id'];
+            if ($this->engine['uid'] !== null) {
+                $object['uid'] = (int) $this->engine['uid'];
+            }
             $object['poller_name'] = $this->engine['name'];
             $object['module_directory'] = (string) $this->engine['broker_modules_path'];
             $object['log_timestamp'] = filter_var($row['config_write_timestamp'], FILTER_VALIDATE_BOOLEAN);
@@ -582,6 +586,7 @@ class Broker extends AbstractObjectJSON
         try {
             $row = $this->stmt_engine_parameters->fetch(PDO::FETCH_ASSOC);
             $this->engine['id'] = $row['id'];
+            $this->engine['uid'] = $row['uid'];
             $this->engine['name'] = $row['name'];
             $this->engine['broker_modules_path'] = $row['centreonbroker_module_path'];
             $this->engine['broker_cfg_path'] = $row['centreonbroker_cfg_path'];
