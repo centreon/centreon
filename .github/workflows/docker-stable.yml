@@ -242,6 +242,7 @@ jobs:
           push: true
           tags: |
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-${{ matrix.distrib }}:${{ needs.check-inputs.outputs.major_version }}-latest
+            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-${{ matrix.distrib }}:${{ needs.check-inputs.outputs.major_version }}.${{ steps.export-minor-versions.outputs.web_minor_version }}
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
 
       - name: Build and push OSS image
