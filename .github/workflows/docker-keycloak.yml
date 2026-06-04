@@ -65,12 +65,15 @@ jobs:
 
       - name: Compute image tag
         id: image_tag
+        env:
+          STABILITY: ${{ needs.get-environment.outputs.stability }}
+          MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
+          RAW_REF: ${{ github.head_ref || github.ref_name }}
         run: |
-          if [ "${{ needs.get-environment.outputs.stability }}" = "unstable" ]; then
-            echo "value=${{ needs.get-environment.outputs.major_version }}" >> "$GITHUB_OUTPUT"
+          if [ "$STABILITY" = "unstable" ]; then
+            echo "value=$MAJOR_VERSION" >> "$GITHUB_OUTPUT"
           else
-            raw_ref="${{ github.head_ref || github.ref_name }}"
-            echo "value=${raw_ref//\//-}" >> "$GITHUB_OUTPUT"
+            echo "value=${RAW_REF//\//-}" >> "$GITHUB_OUTPUT"
           fi
 
       - uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
