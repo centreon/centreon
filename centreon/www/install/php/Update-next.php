@@ -19,10 +19,8 @@
  *
  */
 
-use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
-use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
@@ -34,122 +32,22 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDB
  * @var ConnectionInterface $pearDBO
  */
-/** ------------------------------------- Additional configuration ------------------------------------- */
-$addVmwareUpdatedField = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = 'Unable to add vmware_updated field into nagios_server table';
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: Adding vmware_updated field into nagios_server table",
-    );
-    if ($pearDB->columnExists(
-        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
-        'nagios_server',
-        'vmware_updated'
-    )) {
-        CentreonLog::create()->info(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: Field vmware_updated already exists in nagios_server table, skipping modification",
-        );
 
-        return;
-    }
-
-    $pearDB->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `nagios_server`
-            ADD COLUMN `vmware_updated` BOOLEAN NOT NULL DEFAULT 0 AFTER `updated`
-            SQL
-    );
-
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: Successfully added vmware_updated field into nagios_server table",
-    );
-};
-
-/** -------------------------------------- Broker event_script logger -------------------------------------- */
-$addEventScriptLogger = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = 'Unable to add event_script logger to broker configuration';
-
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: Adding 'event_script' logger to broker configuration",
-    );
-
-    if (! $pearDB->fetchOne(
-        <<<'SQL'
-            SELECT 1 FROM `cb_log` WHERE `name` = 'event_script'
-            SQL
-    )) {
-        $pearDB->executeStatement(
-            <<<'SQL'
-                INSERT INTO `cb_log` (`name`) VALUES ('event_script')
-                SQL
-        );
-    }
-
-    $logId = $pearDB->fetchOne(
-        <<<'SQL'
-            SELECT `id` FROM `cb_log` WHERE `name` = 'event_script'
-            SQL
-    );
-    if ($logId === false) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: Failed to retrieve 'event_script' log id from cb_log, skipping cfg_centreonbroker_log population",
-        );
-
-        return;
-    }
-
-    $errorLevelId = $pearDB->fetchOne(
-        <<<'SQL'
-            SELECT `id` FROM `cb_log_level` WHERE `name` = 'error'
-            SQL
-    );
-    if ($errorLevelId === false) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: Failed to retrieve 'error' level id from cb_log_level, skipping cfg_centreonbroker_log population",
-        );
-
-        return;
-    }
-
-    $pearDB->executeStatement(
-        <<<'SQL'
-            INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`)
-            SELECT `config_id`, :id_log, :id_level
-            FROM `cfg_centreonbroker` cb
-            WHERE NOT EXISTS (
-                SELECT 1 FROM `cfg_centreonbroker_log` cbl
-                WHERE cbl.`id_centreonbroker` = cb.`config_id`
-                  AND cbl.`id_log` = :id_log
-            )
-            SQL,
-        QueryParameters::create([
-            QueryParameter::int('id_log', $logId),
-            QueryParameter::int('id_level', $errorLevelId),
-        ])
-    );
-
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: Successfully added 'event_script' logger to broker configuration",
-    );
-};
+// TODO add your functions here
 
 try {
     // DDL statements for real time database
+    // TODO add your function calls to update the real time database structure here
 
     // DDL statements for configuration database
-    $addVmwareUpdatedField();
-    $addEventScriptLogger();
+    // TODO add your function calls to update the configuration database structure here
 
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {
         $pearDB->startTransaction();
     }
+
+    // TODO add your function calls to update the configuration database data here
 
     $pearDB->commitTransaction();
 
