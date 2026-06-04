@@ -87,8 +87,12 @@ jobs:
 
       - name: Generate Xray Token
         id: generate_xray_token
+        env:
+          XRAY_CLIENT_ID: ${{ secrets.xray_client_id }}
+          XRAY_CLIENT_SECRET: ${{ secrets.xray_client_secret }}
         run: |
-          token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.xray_client_id }}\", \"client_secret\": \"${{ secrets.xray_client_secret }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
+          payload=$(jq -nc --arg id "$XRAY_CLIENT_ID" --arg secret "$XRAY_CLIENT_SECRET" '{client_id: $id, client_secret: $secret}')
+          token_response=$(curl -H "Content-Type: application/json" -X POST --data "$payload" "https://xray.cloud.getxray.app/api/v1/authenticate")
           xray_token=$(echo "$token_response" | sed -n 's/.*"\(.*\)".*/\1/p')
           echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
         shell: bash
@@ -105,14 +109,19 @@ jobs:
 
       - name: Get TestPlanID
         id: get_test_plan_id
+        env:
+          TEST_PLAN_KEY_OUTPUTS: ${{ toJSON(steps.get_test_plan_key.outputs) }}
+          OS: ${{ inputs.os }}
+          XRAY_JIRA_USER_EMAIL: ${{ secrets.xray_jira_user_email }}
+          XRAY_JIRA_TOKEN: ${{ secrets.xray_jira_token }}
         run: |
-          test_plan_key=$(echo '${{ toJSON(steps.get_test_plan_key.outputs) }}' | jq -r '.test_plan_key_'${{ inputs.os }})
+          test_plan_key=$(echo "$TEST_PLAN_KEY_OUTPUTS" | jq -r --arg os "$OS" '.["test_plan_key_" + $os]')
           echo "getting the testPlanId for the testPlanKey: $test_plan_key"
           jira_url="https://centreon.atlassian.net/rest/api/2/issue/$test_plan_key"
 
-          test_plan_id=$(curl -u "${{ secrets.xray_jira_user_email }}:${{ secrets.xray_jira_token }}" -X GET -s "$jira_url" | jq -r '.id')
+          test_plan_id=$(curl -u "$XRAY_JIRA_USER_EMAIL:$XRAY_JIRA_TOKEN" -X GET -s "$jira_url" | jq -r '.id')
           echo "this is the testPlan ID : $test_plan_id"
-          echo "test_plan_id_${{ inputs.os }}=$test_plan_id" >> $GITHUB_OUTPUT
+          echo "test_plan_id_$OS=$test_plan_id" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Create TestExecution and Get the TestExecutionID
@@ -128,29 +137,39 @@ jobs:
 
       - name: Get TestExecutionKey
         id: get_test_execution_key
+        env:
+          TEST_EXECUTION_ID_OUTPUTS: ${{ toJSON(steps.get_test_execution_id.outputs) }}
+          OS: ${{ inputs.os }}
+          XRAY_JIRA_USER_EMAIL: ${{ secrets.xray_jira_user_email }}
+          XRAY_JIRA_TOKEN: ${{ secrets.xray_jira_token }}
         run: |
-          test_execution_id=$(echo '${{ toJSON(steps.get_test_execution_id.outputs) }}' | jq -r '.test_execution_id_'${{ inputs.os }})
+          test_execution_id=$(echo "$TEST_EXECUTION_ID_OUTPUTS" | jq -r --arg os "$OS" '.["test_execution_id_" + $os]')
           jira_url="https://centreon.atlassian.net/rest/api/2/issue/$test_execution_id"
 
-          test_execution_key=$(curl -u "${{ secrets.xray_jira_user_email }}:${{ secrets.xray_jira_token }}" -X GET -s "$jira_url" | jq -r '.key')
+          test_execution_key=$(curl -u "$XRAY_JIRA_USER_EMAIL:$XRAY_JIRA_TOKEN" -X GET -s "$jira_url" | jq -r '.key')
           echo "this is the TestExecutionKey: $test_execution_key"
-          echo "test_execution_key_${{ inputs.os }}=$test_execution_key" >> $GITHUB_OUTPUT
+          echo "test_execution_key_$OS=$test_execution_key" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Update the status of the TestExecution Issue
+        env:
+          TEST_EXECUTION_KEY_OUTPUTS: ${{ toJSON(steps.get_test_execution_key.outputs) }}
+          OS: ${{ inputs.os }}
+          XRAY_JIRA_USER_EMAIL: ${{ secrets.xray_jira_user_email }}
+          XRAY_JIRA_TOKEN: ${{ secrets.xray_jira_token }}
         run: |
-          test_execution_key=$(echo '${{ toJSON(steps.get_test_execution_key.outputs) }}' | jq -r '.test_execution_key_'${{ inputs.os }})
-          curl -D- -u "${{ secrets.xray_jira_user_email }}:${{ secrets.xray_jira_token }}" -X POST --data '{"transition":{"id":"5"}}' -H "Content-Type: application/json" https://centreon.atlassian.net/rest/api/2/issue/$test_execution_key/transitions?expand=transitions.fields
+          test_execution_key=$(echo "$TEST_EXECUTION_KEY_OUTPUTS" | jq -r --arg os "$OS" '.["test_execution_key_" + $os]')
+          curl -D- -u "$XRAY_JIRA_USER_EMAIL:$XRAY_JIRA_TOKEN" -X POST --data '{"transition":{"id":"5"}}' -H "Content-Type: application/json" "https://centreon.atlassian.net/rest/api/2/issue/$test_execution_key/transitions?expand=transitions.fields"
 
       - name: Add the TestExecution Issue to the TestPlan
+        env:
+          TEST_PLAN_ID_OUTPUTS: ${{ toJSON(steps.get_test_plan_id.outputs) }}
+          TEST_EXECUTION_ID_OUTPUTS: ${{ toJSON(steps.get_test_execution_id.outputs) }}
+          OS: ${{ inputs.os }}
+          XRAY_TOKEN: ${{ steps.generate_xray_token.outputs.xray_token }}
         run: |
-          test_plan_id=$(echo '${{ toJSON(steps.get_test_plan_id.outputs) }}' | jq -r '.test_plan_id_'${{ inputs.os }})
-          test_execution_id=$(echo '${{ toJSON(steps.get_test_execution_id.outputs) }}' | jq -r '.test_execution_id_'${{ inputs.os }})
-          xray_graphql_mutation="{
-            \"query\": \"mutation AddTestExecution(\$issueId: String!, \$testExecIssueIds: [String]!) { addTestExecutionsToTestPlan(issueId: \$issueId, testExecIssueIds: \$testExecIssueIds) { addedTestExecutions warning } }\",
-            \"variables\": {
-              \"issueId\": \"$test_plan_id\",
-              \"testExecIssueIds\": [\"$test_execution_id\"]
-            }
-          }"
-          curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate_xray_token.outputs.xray_token }}" --data "${xray_graphql_mutation}" "https://xray.cloud.getxray.app/api/v2/graphql"
+          test_plan_id=$(echo "$TEST_PLAN_ID_OUTPUTS" | jq -r --arg os "$OS" '.["test_plan_id_" + $os]')
+          test_execution_id=$(echo "$TEST_EXECUTION_ID_OUTPUTS" | jq -r --arg os "$OS" '.["test_execution_id_" + $os]')
+          xray_graphql_mutation=$(jq -nc --arg issueId "$test_plan_id" --arg execId "$test_execution_id" \
+            '{query: "mutation AddTestExecution($issueId: String!, $testExecIssueIds: [String]!) { addTestExecutionsToTestPlan(issueId: $issueId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }", variables: {issueId: $issueId, testExecIssueIds: [$execId]}}')
+          curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $XRAY_TOKEN" --data "$xray_graphql_mutation" "https://xray.cloud.getxray.app/api/v2/graphql"

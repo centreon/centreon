@@ -53,7 +53,9 @@ runs:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
     - name: Build frontend
-      run: ${{ inputs.build_command }}
+      env:
+        BUILD_COMMAND: ${{ inputs.build_command }}
+      run: $BUILD_COMMAND
       working-directory: ${{ inputs.base_directory }}
       shell: bash
 

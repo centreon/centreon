@@ -16,7 +16,9 @@ runs:
         version: 10
 
     - name: Publish Cypress report
+      env:
+        REPORT_PATH: ${{ inputs.path }}
       run: |
-        node ./.github/actions/publish-cypress-report/formatCypressReportToMarkdown.mjs ${{ inputs.path }} > cypress-report.md
+        node ./.github/actions/publish-cypress-report/formatCypressReportToMarkdown.mjs "$REPORT_PATH" > cypress-report.md
         cat cypress-report.md >> $GITHUB_STEP_SUMMARY
       shell: bash

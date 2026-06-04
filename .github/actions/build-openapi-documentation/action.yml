@@ -38,8 +38,10 @@ runs:
 
     - name: Run pnpm install
       shell: bash
+      env:
+        MODULE_PATH: ${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}
       run: |
-        cd ${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API
+        cd "$MODULE_PATH/doc/API"
         pnpm install \
           --frozen-lockfile \
           --config.trustPolicy=no-downgrade \

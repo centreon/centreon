@@ -143,9 +143,11 @@ jobs:
           fail-on-cache-miss: true
 
       - name: Prepare packages-centreon directory
+        env:
+          PACKAGE_EXTENSION: ${{ steps.parse-distrib.outputs.package_extension }}
         run: |
           mkdir -p packages-centreon
-          mv *.${{ steps.parse-distrib.outputs.package_extension }} packages-centreon/
+          mv *."$PACKAGE_EXTENSION" packages-centreon/
         shell: bash
 
       - name: Set up QEMU
@@ -156,9 +158,10 @@ jobs:
 
       - name: Sanitize Docker tag
         id: sanitize-tag
+        env:
+          RAW_TAG: ${{ github.head_ref || github.ref_name }}
         run: |
-          raw_tag="${{ github.head_ref || github.ref_name }}"
-          docker_tag=$(echo "$raw_tag" | sed 's/[^A-Za-z0-9._-]/-/g' | sed 's/^[^A-Za-z0-9]*//' | cut -c1-128)
+          docker_tag=$(echo "$RAW_TAG" | sed 's/[^A-Za-z0-9._-]/-/g' | sed 's/^[^A-Za-z0-9]*//' | cut -c1-128)
           if [ -z "$docker_tag" ]; then
             docker_tag="sha-${GITHUB_SHA::12}"
           fi
