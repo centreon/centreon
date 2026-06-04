@@ -1,0 +1,356 @@
+<style>
+    {literal}
+    .images-title-bar { margin: 0 0 8px 0; max-width: 1400px; }
+    .images-title { margin: 0; padding: 0; font-size: 18px; font-weight: 600; color: var(--body-color, #2d3436); }
+    .images-subtitle { margin: 4px 0 12px; font-size: 12px; line-height: 1.45; color: var(--body-color, #6f7384); opacity: 0.75; }
+
+    .up-wrap { max-width: 760px; }
+    .up-field { margin-bottom: 14px; }
+    .up-field > label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--body-color, #2d3436); }
+
+    .up-dropzone {
+        border: 2px dashed var(--color-divider, #c8ccd6);
+        border-radius: 8px;
+        padding: 32px;
+        text-align: center;
+        color: var(--body-color, #6f7384);
+        cursor: pointer;
+        transition: border-color .15s, background .15s;
+        background: var(--select-background, #fff);
+    }
+    .up-dropzone.up-over { border-color: var(--color-primary, #009fdf); background: var(--color-listing-hover, #eef5fb); }
+    .up-dropzone .up-hint-sub { font-size: 11px; margin-top: 6px; opacity: .7; }
+
+    .up-list { margin-top: 14px; }
+    .up-item { display: flex; align-items: center; gap: 10px; padding: 8px 4px; border-bottom: 1px solid var(--color-divider, #e3e3e3); }
+    .up-item img { width: 36px; height: 36px; object-fit: contain; border-radius: 4px; background: #f3f3f3; }
+    .up-item .up-name { flex: 1; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .up-item .up-size { font-size: 11px; color: #999; width: 70px; text-align: right; }
+    .up-bar { width: 110px; height: 6px; border-radius: 3px; background: #e3e3e3; overflow: hidden; }
+    .up-bar > span { display: block; height: 100%; width: 0; background: var(--color-primary, #009fdf); transition: width .2s; }
+    .up-status { width: 18px; text-align: center; font-weight: 700; }
+    .up-status.ok { color: #88b917; }
+    .up-status.err { color: #e0202e; cursor: help; }
+    .up-remove { cursor: pointer; color: #999; font-weight: 700; padding: 0 4px; }
+    .up-actions { margin-top: 16px; display: flex; gap: 10px; align-items: center; }
+
+    /* Overwrite confirmation modal */
+    .ov-overlay {
+        display: none;
+        position: fixed; inset: 0;
+        background: rgba(0, 0, 0, 0.35);
+        z-index: 50;
+        align-items: center;
+        justify-content: center;
+    }
+    .ov-dialog {
+        background: var(--body-background, #fff);
+        border-radius: 8px;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+        padding: 18px 20px;
+        max-width: 440px;
+        width: 90%;
+    }
+    .ov-msg { margin: 0 0 16px; font-size: 14px; line-height: 1.4; color: var(--body-color, #2d3436); }
+    .ov-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    {/literal}
+</style>
+
+<div class="images-title-bar">
+    <h2 class="images-title">{$pageTitle}</h2>
+    <p class="images-subtitle">{$pageSubtitle}</p>
+</div>
+
+<div class="up-wrap">
+    <div class="up-field">
+        <label>{$wi_directory}</label>
+        <select id="uploadDir">
+            {foreach from=$directories item=d}
+                <option value="{$d}">{$d}</option>
+            {/foreach}
+        </select>
+        {if $canCreateDir == 1}
+            <input type="text" id="uploadNewDir" placeholder="{$wi_newDirectory}" style="margin-left:8px;width:200px;">
+        {/if}
+    </div>
+
+    <div class="up-field">
+        <label>{$wi_comment}</label>
+        <textarea id="uploadComment" rows="2" style="width:100%;box-sizing:border-box;"></textarea>
+    </div>
+
+    <div class="up-field">
+        <div id="dropzone" class="up-dropzone">
+            <div><b>{t}Drop images here{/t}</b> {t}or click to browse{/t}</div>
+            <div class="up-hint-sub">{$wi_maxSize}</div>
+        </div>
+        <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.gif,.svg" style="display:none;">
+        <div id="uploadList" class="up-list"></div>
+    </div>
+
+    <div class="up-actions">
+        <button type="button" id="uploadBtn" class="btc bt_success">{$wi_upload}</button>
+        <a href="#" onclick="uploadCancel(); return false;" class="btc bt_default">{$wi_cancel}</a>
+    </div>
+</div>
+
+<div class="ov-overlay" id="ovOverlay">
+    <div class="ov-dialog">
+        <p class="ov-msg" id="ovMsg"></p>
+        <div class="ov-actions">
+            <button type="button" class="btc bt_success" data-ov="once">{$wi_overwrite}</button>
+            <button type="button" class="btc bt_success" data-ov="all">{$wi_overwriteAll}</button>
+            <button type="button" class="btc bt_default" data-ov="skip">{$wi_skip}</button>
+            <button type="button" class="btc bt_default" data-ov="skipall">{$wi_skipAll}</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var uploadPageId       = '{$pageId}';
+    var uploadCanCreateDir = {if $canCreateDir == 1}true{else}false{/if};
+    var uploadToken        = {$csrfTokenJs};
+    var uploadSelectDirMsg = {$selectDirJs};
+    var uploadOverwriteMsg = {$overwriteMsgJs};
+</script>
+
+{literal}
+<script type="text/javascript">
+    function uploadInPanel() {
+        return !!(window.frameElement && window.frameElement.id === 'cfSidePanelFrame');
+    }
+    function uploadDone() {
+        if (uploadInPanel()) { try { window.parent.cfClosePanel(); return; } catch (e) {} }
+        window.location.href = './main.php?p=' + uploadPageId;
+    }
+    function uploadCancel() {
+        if (uploadInPanel()) { try { window.parent.cfClosePanel(); return; } catch (e) {} }
+        window.location.href = './main.php?p=' + uploadPageId;
+    }
+    // Overwrite confirmation modal — resolves to 'once' | 'all' | 'skip' | 'skipall'
+    function askOverwrite(filename, cb) {
+        var overlay = document.getElementById('ovOverlay');
+        document.getElementById('ovMsg').textContent = uploadOverwriteMsg.replace('%s', filename);
+        overlay.style.display = 'flex';
+        function handler(e) {
+            var decision = e.target.getAttribute('data-ov');
+            if (!decision) { return; }
+            overlay.style.display = 'none';
+            overlay.removeEventListener('click', handler);
+            cb(decision);
+        }
+        overlay.addEventListener('click', handler);
+    }
+    // Inside the side panel, hide the page chrome (breadcrumb + the form's own title)
+    if (uploadInPanel()) {
+        var _pw = document.querySelector('.pathway');
+        if (_pw) { _pw.style.display = 'none'; }
+        var _tb = document.querySelector('.images-title-bar');
+        if (_tb) { _tb.style.display = 'none'; }
+    }
+
+    (function () {
+        var dz    = document.getElementById('dropzone');
+        var input = document.getElementById('fileInput');
+        var list  = document.getElementById('uploadList');
+        var btn   = document.getElementById('uploadBtn');
+        var queue = [];
+        var allowed = ['jpg', 'jpeg', 'png', 'gif', 'svg'];
+
+        function humanSize(b) {
+            if (b < 1024) return b + ' B';
+            if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+            return (b / 1048576).toFixed(1) + ' MB';
+        }
+
+        function ext(name) {
+            var p = name.split('.');
+            return p.length > 1 ? p.pop().toLowerCase() : '';
+        }
+
+        function addFiles(files) {
+            for (var i = 0; i < files.length; i++) {
+                (function (file) {
+                    if (allowed.indexOf(ext(file.name)) < 0) {
+                        return;
+                    }
+                    var item = { file: file, done: false };
+
+                    var row = document.createElement('div');
+                    row.className = 'up-item';
+
+                    var img = document.createElement('img');
+                    var reader = new FileReader();
+                    reader.onload = function (e) { img.src = e.target.result; };
+                    reader.readAsDataURL(file);
+
+                    var name = document.createElement('div');
+                    name.className = 'up-name';
+                    name.textContent = file.name;
+
+                    var size = document.createElement('div');
+                    size.className = 'up-size';
+                    size.textContent = humanSize(file.size);
+
+                    var bar = document.createElement('div');
+                    bar.className = 'up-bar';
+                    var barIn = document.createElement('span');
+                    bar.appendChild(barIn);
+
+                    var status = document.createElement('div');
+                    status.className = 'up-status';
+
+                    var rm = document.createElement('span');
+                    rm.className = 'up-remove';
+                    rm.innerHTML = '&times;';
+                    rm.onclick = function () {
+                        if (item.done) return;
+                        var idx = queue.indexOf(item);
+                        if (idx >= 0) queue.splice(idx, 1);
+                        list.removeChild(row);
+                    };
+
+                    row.appendChild(img);
+                    row.appendChild(name);
+                    row.appendChild(size);
+                    row.appendChild(bar);
+                    row.appendChild(status);
+                    row.appendChild(rm);
+                    list.appendChild(row);
+
+                    item.barIn = barIn;
+                    item.status = status;
+                    item.nameEl = name;
+                    queue.push(item);
+                })(files[i]);
+            }
+        }
+
+        dz.addEventListener('click', function () { input.click(); });
+        input.addEventListener('change', function () { addFiles(input.files); input.value = ''; });
+
+        ['dragenter', 'dragover'].forEach(function (ev) {
+            dz.addEventListener(ev, function (e) { e.preventDefault(); e.stopPropagation(); dz.classList.add('up-over'); });
+        });
+        ['dragleave', 'drop'].forEach(function (ev) {
+            dz.addEventListener(ev, function (e) { e.preventDefault(); e.stopPropagation(); dz.classList.remove('up-over'); });
+        });
+        dz.addEventListener('drop', function (e) {
+            if (e.dataTransfer && e.dataTransfer.files) addFiles(e.dataTransfer.files);
+        });
+
+        function targetDirectory() {
+            if (uploadCanCreateDir) {
+                var nd = document.getElementById('uploadNewDir');
+                if (nd && nd.value.trim() !== '') return nd.value.trim();
+            }
+            var sel = document.getElementById('uploadDir');
+            return sel ? sel.value : '';
+        }
+
+        function showError(it, msg) {
+            it.status.className = 'up-status err';
+            it.status.innerHTML = '&#10007;';
+            it.status.title = msg;
+            if (it.nameEl) {
+                var em = document.createElement('span');
+                em.style.color = '#e0202e';
+                em.style.fontSize = '11px';
+                em.style.marginLeft = '6px';
+                em.textContent = '— ' + msg;
+                it.nameEl.appendChild(em);
+            }
+        }
+
+        function markSkipped(it) {
+            it.status.className = 'up-status';
+            it.status.style.color = '#a7a9ac';
+            it.status.innerHTML = '&#8210;';
+        }
+
+        btn.addEventListener('click', function () {
+            var dir = targetDirectory();
+            if (!dir) { alert(uploadSelectDirMsg); return; }
+
+            var pending = queue.filter(function (it) { return !it.done; });
+            if (pending.length === 0) return;
+
+            btn.disabled = true;
+            var comment = document.getElementById('uploadComment').value;
+            var hadError = false;
+            var batchOverwrite = null; // null = ask, true = overwrite all, false = skip all
+
+            // Upload one file; on a name clash the server replies {exists:true}
+            // and we ask the user whether to overwrite, then retry with overwrite=1
+            function sendFile(it, overwrite, onComplete) {
+                var fd = new FormData();
+                fd.append('filename', it.file);
+                fd.append('directory', dir);
+                fd.append('comment', comment);
+                fd.append('centreon_token', uploadToken);
+                if (overwrite) { fd.append('overwrite', '1'); }
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', './include/options/media/images/ajaxImagesUpload.php');
+                xhr.upload.onprogress = function (e) {
+                    if (e.lengthComputable) it.barIn.style.width = Math.round(e.loaded / e.total * 100) + '%';
+                };
+                xhr.onload = function () {
+                    var resp = {};
+                    try { resp = JSON.parse(xhr.responseText); } catch (err) {}
+                    if (resp.centreon_token) uploadToken = resp.centreon_token;
+
+                    if (resp.success) {
+                        it.done = true;
+                        it.barIn.style.width = '100%';
+                        it.status.className = 'up-status ok';
+                        it.status.innerHTML = '&#10003;';
+                        onComplete();
+                    } else if (resp.exists && !overwrite) {
+                        if (batchOverwrite === true) {
+                            sendFile(it, true, onComplete);
+                        } else if (batchOverwrite === false) {
+                            it.done = true; markSkipped(it); onComplete();
+                        } else {
+                            askOverwrite(it.file.name, function (decision) {
+                                if (decision === 'all') { batchOverwrite = true; sendFile(it, true, onComplete); }
+                                else if (decision === 'once') { sendFile(it, true, onComplete); }
+                                else if (decision === 'skipall') { batchOverwrite = false; it.done = true; markSkipped(it); onComplete(); }
+                                else { it.done = true; markSkipped(it); onComplete(); }
+                            });
+                        }
+                    } else {
+                        it.done = true;
+                        hadError = true;
+                        showError(it, resp.error || 'Upload error');
+                        onComplete();
+                    }
+                };
+                xhr.onerror = function () {
+                    it.done = true;
+                    hadError = true;
+                    showError(it, 'Network error');
+                    onComplete();
+                };
+                xhr.send(fd);
+            }
+
+            function next(i) {
+                if (i >= pending.length) {
+                    if (!hadError) {
+                        uploadDone();
+                    } else {
+                        // Some files failed: keep the panel open to show which, but
+                        // still refresh the list so the successful ones appear.
+                        btn.disabled = false;
+                        if (uploadInPanel()) { try { window.parent.imagesRefresh(); } catch (e) {} }
+                    }
+                    return;
+                }
+                sendFile(pending[i], false, function () { next(i + 1); });
+            }
+            next(0);
+        });
+    })();
+</script>
+{/literal}

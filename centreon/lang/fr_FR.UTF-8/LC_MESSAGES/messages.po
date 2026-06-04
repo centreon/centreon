@@ -648,6 +648,45 @@ msgid "Add Group"
 msgstr "Ajouter un groupe"
 
 #: centreon/www/include/options/media/images/formImg.php
+msgid "Drag and drop your images, or click to browse."
+msgstr "Glissez-déposez vos images, ou cliquez pour parcourir."
+
+msgid "\"%s\" already exists in this directory. Overwrite it?"
+msgstr "« %s » existe déjà dans ce répertoire. L'écraser ?"
+
+msgid "Size"
+msgstr "Taille"
+
+msgid "Overwrite"
+msgstr "Écraser"
+
+msgid "Overwrite all"
+msgstr "Tout écraser"
+
+msgid "Skip"
+msgstr "Ignorer"
+
+msgid "Skip all"
+msgstr "Tout ignorer"
+
+msgid "New directory"
+msgstr "Nouveau répertoire"
+
+msgid "Upload"
+msgstr "Téléverser"
+
+msgid "Allowed: JPG, PNG, GIF, SVG — max %s"
+msgstr "Autorisé : JPG, PNG, GIF, SVG — max %s"
+
+msgid "Drop images here"
+msgstr "Déposez les images ici"
+
+msgid "or click to browse"
+msgstr "ou cliquez pour parcourir"
+
+msgid "Please choose or enter a directory."
+msgstr "Veuillez choisir ou saisir un répertoire."
+
 msgid "Add Image(s)"
 msgstr "Ajout d'image(s)"
 
@@ -16306,6 +16345,15 @@ msgid "Synchronize LDAP"
 msgstr "Synchroniser avec le LDAP"
 
 #: centreon/www/include/options/media/images/listImg.php
+msgid "Browse and manage the images available in Centreon."
+msgstr "Parcourez et gérez les images disponibles dans Centreon."
+
+msgid "No image found"
+msgstr "Aucune image trouvée"
+
+msgid "Name or directory"
+msgstr "Nom ou répertoire"
+
 msgid "Synchronize Media Directory"
 msgstr "Synchroniser le répertoire des images"
 
