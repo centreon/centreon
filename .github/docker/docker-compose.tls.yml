@@ -41,9 +41,10 @@ services:
       - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/04-tls.sh:/usr/share/centreon/container.d/04-tls.sh:ro
       - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/16-tls-gorgone.sh:/usr/share/centreon/container.d/16-tls-gorgone.sh:ro
       - certs:/etc/pki/centreon-tls:ro
+    # Only declare what the overlay adds; `db` inherits from the base file (compose
+    # merges depends_on maps by key, and same-key overlay values would clobber the
+    # base's stricter `service_healthy` wait condition).
     depends_on:
-      db:
-        condition: service_started
       certgen:
         condition: service_completed_successfully
     healthcheck:
@@ -71,11 +72,9 @@ services:
       - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/04-tls.sh:/usr/share/centreon/container.d/04-tls.sh:ro
       - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/16-tls-gorgone.sh:/usr/share/centreon/container.d/16-tls-gorgone.sh:ro
       - certs:/etc/pki/centreon-tls:ro
+    # Only declare what the overlay adds; `db-remote` and `web` inherit from the
+    # base file.
     depends_on:
-      db-remote:
-        condition: service_started
-      web:
-        condition: service_healthy
       certgen:
         condition: service_completed_successfully
     healthcheck:
