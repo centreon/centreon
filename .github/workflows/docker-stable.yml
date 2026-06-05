@@ -30,6 +30,7 @@ jobs:
       operating_systems: ${{ steps.check_promoted_packages.outputs.operating_systems }}
       major_version: ${{ steps.check_promoted_packages.outputs.major_version }}
       is_cloud: ${{ steps.check_promoted_packages.outputs.is_cloud }}
+      edition: ${{ steps.check_promoted_packages.outputs.edition }}
     runs-on: ubuntu-24.04
     env:
       RELEASE_BUNDLE_TAG: ${{ inputs.release_bundle_tag }}
@@ -72,9 +73,11 @@ jobs:
           major_version=${MAJOR}
           if ! [[ ${major_version} =~ ^2[0-9]\.(04|10)$ ]]; then
             echo "is_cloud=true" >> $GITHUB_OUTPUT
+            echo "edition=cloud" >> $GITHUB_OUTPUT
             DISTRIBS=("alma9")
           else
             echo "is_cloud=false" >> $GITHUB_OUTPUT
+            echo "edition=onprem" >> $GITHUB_OUTPUT
             case "${major_version}" in
               24.04)
                 echo "::error::The workflow does not work on 24.04 version."
@@ -200,6 +203,7 @@ jobs:
           load: true
           tags: |
             ghcr.io/${{ github.repository }}/centreon-web-dependencies:${{ needs.check-inputs.outputs.major_version }}-latest-${{ matrix.distrib }}
+            ghcr.io/${{ github.repository }}/centreon-web-dependencies:${{ needs.check-inputs.outputs.major_version }}-${{ needs.check-inputs.outputs.edition }}-latest-${{ matrix.distrib }}
             ghcr.io/${{ github.repository }}/centreon-web-dependencies:${{ inputs.release_bundle_tag }}-${{ matrix.distrib }}
 
       - name: Build dependencies collect image
@@ -224,6 +228,7 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository }}/centreon-web-dependencies-collect:${{ needs.check-inputs.outputs.major_version }}-latest-${{ matrix.distrib }}
+            ghcr.io/${{ github.repository }}/centreon-web-dependencies-collect:${{ needs.check-inputs.outputs.major_version }}-${{ needs.check-inputs.outputs.edition }}-latest-${{ matrix.distrib }}
             ghcr.io/${{ github.repository }}/centreon-web-dependencies-collect:${{ inputs.release_bundle_tag }}-${{ matrix.distrib }}
 
       - name: Build and push web image
@@ -243,6 +248,7 @@ jobs:
           tags: |
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-${{ matrix.distrib }}:${{ needs.check-inputs.outputs.major_version }}-latest
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-${{ matrix.distrib }}:${{ needs.check-inputs.outputs.major_version }}.${{ steps.export-minor-versions.outputs.web_minor_version }}
+            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-${{ matrix.distrib }}:${{ needs.check-inputs.outputs.major_version }}.${{ steps.export-minor-versions.outputs.web_minor_version }}-${{ needs.check-inputs.outputs.edition }}
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
 
       - name: Build and push OSS image
@@ -263,4 +269,5 @@ jobs:
           push: true
           tags: |
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-oss-${{ matrix.distrib }}:${{ needs.check-inputs.outputs.major_version }}-latest
+            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-oss-${{ matrix.distrib }}:${{ needs.check-inputs.outputs.major_version }}-${{ needs.check-inputs.outputs.edition }}-latest
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-oss-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
