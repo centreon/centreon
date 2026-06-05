@@ -27,7 +27,7 @@ our %centreontrapd_config = (
 );
 1;
 EOF
-chmod 660 /etc/centreon/centreontrapd.pm
+chmod 640 /etc/centreon/centreontrapd.pm
 
 echo "✓ conf.pm generated"
 echo "✓ centreontrapd.pm generated"

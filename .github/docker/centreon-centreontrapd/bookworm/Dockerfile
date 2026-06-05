@@ -48,6 +48,9 @@ RUN groupadd -g 33 www-data 2>/dev/null || true && \
     useradd -u 900 -g centreon -m -r -d /var/spool/centreon -s /bin/bash centreon && \
     groupadd -g 901 centreon-engine && \
     useradd -u 901 -g centreon-engine -m -r -d /var/lib/centreon-engine -s /bin/bash centreon-engine && \
+    groupadd -g 903 centreon-gorgone && \
+    useradd -u 903 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -s /bin/bash centreon-gorgone && \
+    usermod -aG centreon-gorgone centreon && \
     usermod -aG centreon-engine centreon
 
 # Install runtime dependencies
