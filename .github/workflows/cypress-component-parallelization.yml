@@ -53,7 +53,9 @@ jobs:
           SPEC_EXTENSION: ${{ inputs.spec_extension }}
         run: |
           cd "$MODULE_NAME"
-          echo "specs=$(find "$SPECS_PATH" -type f -name "*$SPEC_EXTENSION" -exec basename {} \; | sed -e "s/$SPEC_EXTENSION//" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          # SPECS_PATH is a glob pattern (e.g. "src/**", "www/**") that must be expanded by the
+          # shell before being passed to find, so it is intentionally left unquoted here.
+          echo "specs=$(find $SPECS_PATH -type f -name "*$SPEC_EXTENSION" -exec basename {} \; | sed -e "s/$SPEC_EXTENSION//" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-component-test-run:
     needs: [cypress-component-test-list]
