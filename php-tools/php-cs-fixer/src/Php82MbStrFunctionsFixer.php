@@ -124,6 +124,9 @@ $a = strtolower($a);
 
             if ($functionsAnalyzer->isGlobalFunctionCall($tokens, $index)) {
                 $openParenthesis = $tokens->getNextMeaningfulToken($index);
+                if ($openParenthesis === null) {
+                    continue;
+                }
                 $closeParenthesis = $tokens->findBlockEnd(Tokens::BLOCK_TYPE_PARENTHESIS_BRACE, $openParenthesis);
                 $numberOfArguments = $argumentsAnalyzer->countArguments($tokens, $openParenthesis, $closeParenthesis);
                 if (! \in_array($numberOfArguments, self::FUNCTIONS_MAP[$lowercasedContent]['argumentCount'], true)) {
@@ -136,13 +139,22 @@ $a = strtolower($a);
 
             // global function import (use function strlen;)
             $functionIndex = $tokens->getPrevMeaningfulToken($index);
+            if ($functionIndex === null) {
+                continue;
+            }
             if ($tokens[$functionIndex]->isGivenKind(T_NS_SEPARATOR)) {
                 $functionIndex = $tokens->getPrevMeaningfulToken($functionIndex);
+                if ($functionIndex === null) {
+                    continue;
+                }
             }
             if (! $tokens[$functionIndex]->isGivenKind(CT::T_FUNCTION_IMPORT)) {
                 continue;
             }
             $useIndex = $tokens->getPrevMeaningfulToken($functionIndex);
+            if ($useIndex === null) {
+                continue;
+            }
             if (! $tokens[$useIndex]->isGivenKind(T_USE)) {
                 continue;
             }
