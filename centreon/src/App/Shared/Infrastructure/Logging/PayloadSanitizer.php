@@ -71,12 +71,13 @@ final readonly class PayloadSanitizer
 
             $result = [];
             foreach ($data as $key => $value) {
-                // `context.exception` belongs to ExceptionFormatterProcessor — leave
-                // a raw Throwable intact (it must reach EFP; its structured shape is
-                // deeper than MAX_DEPTH). Restrict the bypass to actual Throwables so
-                // a non-Throwable `exception` key cannot smuggle sensitive data past
-                // the masking walk.
-                if ($key === 'exception' && $value instanceof \Throwable) {
+                // `context.exception` carries one of two legitimate shapes: a raw
+                // Throwable (handed to ExceptionFormatterProcessor downstream) or an
+                // already-structured exception array (ExceptionFormatter::format),
+                // whose nested chain is deeper than MAX_DEPTH and must not be
+                // truncated. Leave both intact; any other type under this key falls
+                // through to the normal masking walk.
+                if ($key === 'exception' && ($value instanceof \Throwable || \is_array($value))) {
                     $result[$key] = $value;
 
                     continue;
