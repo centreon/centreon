@@ -132,12 +132,15 @@ class ConfigurationExporter extends ExporterServiceAbstract
                 // commit transaction
                 $connection->commitTransaction();
             }
-        } catch (\ErrorException $e) {
-            // rollback changes
+        } catch (\Throwable $e) {
+            // rollback changes — broad catch so a failed assertSafeTableName()/
+            // loadDataInfile()/PDO error also triggers an explicit rollback
             if ($connection->isTransactionActive()) {
                 $connection->rollBackTransaction();
             }
             echo date('Y-m-d H:i:s') . " - ERROR - Loading failed.\n";
+
+            throw $e;
         } finally {
             // restore foreign key checks
             $connection->executeStatement('SET FOREIGN_KEY_CHECKS=1');

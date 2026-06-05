@@ -60,6 +60,20 @@ final class MonologAdapter implements LoggerInterface
         return new self($logger, $channel);
     }
 
+    /**
+     * Regenerates the shared UidProcessor uid.
+     *
+     * {@see self::$uidProcessor} is a process-lived static, which is correct under
+     * php-fpm and CLI (one process == one request/command). It would become wrong
+     * with a long-running consumer (e.g. an async Messenger transport), where the
+     * uid must be reset between messages. Wire this through a `kernel.reset` tagged
+     * service so the framework resets it on each work unit.
+     */
+    public static function reset(): void
+    {
+        self::$uidProcessor?->reset();
+    }
+
     public function emergency(\Stringable|string $message, array $context = []): void
     {
         $this->logger->emergency($message, $context);

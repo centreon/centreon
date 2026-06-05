@@ -21,6 +21,7 @@
 
 declare(strict_types=1);
 
+use Adaptation\Log\Adapter\MonologAdapterResetter;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Processor\UidProcessor;
 use Symfony\Bridge\Monolog\Processor\RouteProcessor;
@@ -57,4 +58,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // date_format would instead configure the rotating_file filename suffix.
     $services->set('monolog.formatter.line', LineFormatter::class)
         ->arg('$dateFormat', DateTimeInterface::RFC3339);
+
+    // Reset MonologAdapter's process-lived static UidProcessor between work units
+    // (relevant once a long-running consumer keeps the process alive across messages).
+    $services->set(MonologAdapterResetter::class)
+        ->tag('kernel.reset', ['method' => 'reset']);
 };

@@ -78,6 +78,18 @@ it('routes every TYPE_* constant to the expected channel file', function (int $t
     'business log goes to web.log' => [CentreonLog::TYPE_BUSINESS_LOG, 'web'],
 ]);
 
+it('falls back to the error level when an unknown level string is given', function (): void {
+    $expectedFile = centreonLogPath('web');
+
+    // "toto" is not a PSR-3 level: it must be normalized to error rather than
+    // bubbling up a Monolog InvalidArgumentException.
+    expect(fn () => CentreonLog::create()->log(CentreonLog::TYPE_BUSINESS_LOG, 'toto', 'unknown_level_marker'))
+        ->not->toThrow(Throwable::class);
+
+    expect(file_exists($expectedFile))->toBeTrue()
+        ->and(file_get_contents($expectedFile))->toContain('unknown_level_marker');
+});
+
 it('accepts an exception payload alongside the custom context', function (): void {
     $exception = new RuntimeException('boom', 42);
 
