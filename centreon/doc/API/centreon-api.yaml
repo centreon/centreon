@@ -1651,9 +1651,6 @@ paths:
     get:
       tags:
         - Resource
-<<<<<<< HEAD
-      summary: "List all resources including hosts and services"
-=======
       summary: 'List all resources including hosts and services'
       x-remarks: |
         The `meta.total` field may be approximate when the number of matching resources exceeds 1,000.
@@ -1661,7 +1658,6 @@ paths:
         because no covering index is available for those columns. In that case `meta.is_approximate` is
         `true` and `meta.total` is capped at 1,000. To retrieve the exact count, call
         `GET /monitoring/resources/count` with `all_pages=true` and the same query parameters.
->>>>>>> cbac930eee (perf(resources): revamp resource status performances (#9998))
       description: |
         List all the resources in real-time monitoring : hosts and services.
 
@@ -1723,14 +1719,6 @@ paths:
               schema:
                 type: object
                 properties:
-<<<<<<< HEAD
-                  result:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Monitoring.ResourceMain'
-                  meta:
-                    $ref: '#/components/schemas/Meta'
-=======
                   result: { type: array, items: { $ref: '#/components/schemas/Monitoring.ResourceMain' } }
                   meta:
                     allOf:
@@ -1740,7 +1728,6 @@ paths:
                           is_approximate:
                             type: boolean
                             description: 'True when the result set exceeds 1,000 matching resources and the full count was not computed to avoid a costly full-table scan. meta.total is capped at 1,000. Call GET /monitoring/resources/count with all_pages=true and the same filters to retrieve the exact count.'
->>>>>>> cbac930eee (perf(resources): revamp resource status performances (#9998))
         '403':
           $ref: '#/components/responses/Forbidden'
         '500':
