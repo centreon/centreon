@@ -67,7 +67,8 @@ RUN mkdir -p /var/spool/centreontrapd \
     chown centreon:centreon /var/spool/centreontrapd \
                             /etc/centreon \
                             /var/log/centreon && \
-    chown -R centreon:centreon /etc/snmp
+    chown -R centreon:centreon /etc/snmp && \
+    chmod 0755 /var/spool/centreon
 
 # Copy Perl modules from selected source
 COPY --from=centreon-perl-selected /centreon-modules/ /usr/share/perl5/centreon/

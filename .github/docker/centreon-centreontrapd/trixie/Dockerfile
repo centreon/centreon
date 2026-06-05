@@ -84,6 +84,8 @@ RUN mkdir -p /var/spool/centreontrapd \
     chown centreon:centreon /var/log/centreon && \
     chown centreon:centreon /etc/centreon && \
     chmod 0775 /etc/centreon && \
+    chown centreon-engine:centreon-engine /var/lib/centreon-engine && \
+    chmod 0755 /var/lib/centreon-engine && \
     chown centreon-engine:centreon-engine /var/lib/centreon-engine/rw && \
     chmod 0775 /var/lib/centreon-engine/rw
 
