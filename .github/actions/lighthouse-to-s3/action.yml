@@ -22,6 +22,9 @@ runs:
         python-version: "3.10"
 
     - name: "Setup AWS context"
+      env:
+        ACCESS_KEY_ID: ${{ inputs.access_key_id }}
+        SECRET_ACCESS_KEY: ${{ inputs.secret_access_key }}
       run: |
         if ! command -v aws >/dev/null 2>&1; then
           sudo apt update -y 1>&-
@@ -32,17 +35,20 @@ runs:
           rm -rf awscliv2.zip aws 1>&-
         fi
         if [[ "$GITHUB_REF_NAME" != "develop" && "$GITHUB_REF_NAME" != "master" ]]; then
-          VERSION=$(echo $GITHUB_REF_NAME | grep -oE '([0-9]{2}\.[0-9]{2})').x
+          VERSION=$(echo "$GITHUB_REF_NAME" | grep -oE '([0-9]{2}\.[0-9]{2})').x
         else
           VERSION=$GITHUB_REF_NAME
         fi
         echo "VERSION=$VERSION" >> $GITHUB_ENV
-        echo "AWS_ACCESS_KEY_ID=${{ inputs.access_key_id }}" >> $GITHUB_ENV
-        echo "AWS_SECRET_ACCESS_KEY=${{ inputs.secret_access_key }}" >> $GITHUB_ENV
+        echo "AWS_ACCESS_KEY_ID=$ACCESS_KEY_ID" >> $GITHUB_ENV
+        echo "AWS_SECRET_ACCESS_KEY=$SECRET_ACCESS_KEY" >> $GITHUB_ENV
       shell: bash
 
     - name: "Push report"
-      run: aws s3 cp "${{ inputs.report_path }}" "${{ inputs.report_target }}${{ env.VERSION }}/index.html" --acl public-read --region eu-west-1
+      env:
+        REPORT_PATH: ${{ inputs.report_path }}
+        REPORT_TARGET: ${{ inputs.report_target }}
+      run: aws s3 cp "$REPORT_PATH" "${REPORT_TARGET}${VERSION}/index.html" --acl public-read --region eu-west-1
       shell: bash
 
     - name: "Clean up AWS credentials"

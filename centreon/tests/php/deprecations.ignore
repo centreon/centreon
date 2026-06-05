@@ -1,1 +1,1 @@
-%that is deprecated.*Adaptation\\Log\\Logger%
+%"(CentreonLog|CentreonUserLog|Centreon\\Domain\\Log\\Logger)" that is deprecated.*Adaptation\\Log\\Logger%

@@ -78,6 +78,10 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
         yield 'authentication channel' => ['monolog.logger.authentication'];
 
         yield 'token channel' => ['monolog.logger.token'];
+
+        yield 'upgrade channel' => ['monolog.logger.upgrade'];
+
+        yield 'plugin-pack-manager channel' => ['monolog.logger.plugin-pack-manager'];
     }
 
     #[DataProvider('capturedChannels')]
@@ -166,6 +170,10 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
         yield 'authentication channel' => ['monolog.logger.authentication'];
 
         yield 'token channel' => ['monolog.logger.token'];
+
+        yield 'upgrade channel' => ['monolog.logger.upgrade'];
+
+        yield 'plugin-pack-manager channel' => ['monolog.logger.plugin-pack-manager'];
     }
 
     #[DataProvider('everyChannel')]

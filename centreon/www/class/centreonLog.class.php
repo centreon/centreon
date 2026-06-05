@@ -127,6 +127,21 @@ class CentreonLog
     public const TYPE_PLUGIN_PACK_MANAGER = 5;
     public const TYPE_BUSINESS_LOG = 6;
 
+    /** @var list<string> the PSR-3 levels accepted by {@see self::log()} */
+    private const VALID_LEVELS = [
+        self::LEVEL_DEBUG,
+        self::LEVEL_NOTICE,
+        self::LEVEL_INFO,
+        self::LEVEL_WARNING,
+        self::LEVEL_ERROR,
+        self::LEVEL_CRITICAL,
+        self::LEVEL_ALERT,
+        self::LEVEL_EMERGENCY,
+    ];
+
+    /** @var array<string,LoggerInterface> memoized loggers, keyed by channel value */
+    private array $loggers = [];
+
     /**
      * @param array<int,string> $customLogFiles unused, kept for BC
      * @param string $pathLogFile unused, kept for BC
@@ -166,7 +181,7 @@ class CentreonLog
         }
 
         $this->getLoggerForType($logTypeId)->log(
-            $level !== '' ? mb_strtolower($level) : self::LEVEL_ERROR,
+            self::normalizeLevel($level),
             $message,
             $customContext,
         );
@@ -275,6 +290,18 @@ class CentreonLog
         $this->log(logTypeId: $id, level: self::LEVEL_ERROR, message: $message);
     }
 
+    /**
+     * Maps the given level to a known PSR-3 level. Falls back to {@see self::LEVEL_ERROR}
+     * for empty or unknown values so a bad caller never silently drops the record
+     * (Monolog would otherwise reject an unknown level).
+     */
+    private static function normalizeLevel(string $level): string
+    {
+        $normalized = mb_strtolower($level);
+
+        return in_array($normalized, self::VALID_LEVELS, true) ? $normalized : self::LEVEL_ERROR;
+    }
+
     private function getLoggerForType(int $logTypeId): LoggerInterface
     {
         $channel = match ($logTypeId) {
@@ -284,6 +311,8 @@ class CentreonLog
             default => LogChannelEnum::WEB,
         };
 
-        return Logger::create($channel);
+        // Memoize per channel: Logger::create() rebuilds a MonologAdapter with fresh
+        // handlers/processors on every call, which is wasteful on hot logging paths.
+        return $this->loggers[$channel->value] ??= Logger::create($channel);
     }
 }
