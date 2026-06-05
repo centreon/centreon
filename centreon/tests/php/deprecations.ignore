@@ -1,1 +1,1 @@
-%deprecated since MON-151077%
+%"(CentreonLog|CentreonUserLog|Centreon\\Domain\\Log\\Logger)" that is deprecated.*Adaptation\\Log\\Logger%

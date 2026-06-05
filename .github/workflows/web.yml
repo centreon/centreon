@@ -138,7 +138,7 @@ jobs:
         "centreon/**/__mocks__/**"
         "centreon/lighthouse/**"
       api_test_paths: |
-        "centreon/tests/rest_api/**"
+        "centreon/tests/api/**"
       e2e_test_paths: |
         "centreon/behat.yml"
         "centreon/features/**"
@@ -207,21 +207,25 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           MODIFIED_UPDATE_SCRIPTS: ${{ steps.get_changed_files.outputs.all_changed_files }}
+          BASE_REF: ${{ github.base_ref }}
+          TARGET_STABILITY: ${{ needs.get-environment.outputs.target_stability }}
         with:
           script: |
             const fs = require('fs');
 
             const MODIFIED_UPDATE_SCRIPTS = process.env.MODIFIED_UPDATE_SCRIPTS.split(" ");
+            const TARGET_STABILITY = process.env.TARGET_STABILITY;
+            const BASE_REF = process.env.BASE_REF;
             let failed = 0;
             if (MODIFIED_UPDATE_SCRIPTS.length == 0 || MODIFIED_UPDATE_SCRIPTS[0] == '') { return; }
             else if (MODIFIED_UPDATE_SCRIPTS.length > 1) {
               core.setFailed(`❌ No more than one update script should be modified.`);
               failed = 1;
             } else {
-              if ( ('${{ needs.get-environment.outputs.target_stability }}' == 'unstable' || '${{ needs.get-environment.outputs.target_stability }}' == 'canary') && !MODIFIED_UPDATE_SCRIPTS[0].match(/Update-next\.php$/) ) {
-                core.setFailed(`❌ This pull request targeting ${{ github.base_ref }} should only be modifying the Update-next.php script.`);
+              if ( (TARGET_STABILITY == 'unstable' || TARGET_STABILITY == 'canary') && !MODIFIED_UPDATE_SCRIPTS[0].match(/Update-next\.php$/) ) {
+                core.setFailed(`❌ This pull request targeting ${BASE_REF} should only be modifying the Update-next.php script.`);
                 failed = 1;
-              } else if ( '${{ needs.get-environment.outputs.target_stability }}' == 'testing' ) {
+              } else if ( TARGET_STABILITY == 'testing' ) {
                 const majorVersionContent = fs.readFileSync('.version', { encoding: 'utf8' });
                 const minorVersionContent = fs.readFileSync('.version.centreon-web', { encoding: 'utf8' });
                 const version = majorVersionContent.match(/MAJOR="?(\d+\.\d+)"?/)[1] + "." + minorVersionContent.match(/MINOR="?(\d+)"?/)[1]
@@ -409,7 +413,7 @@ jobs:
 
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
           cache-dependency-path: ${{ env.base_directory }}/pnpm-lock.yaml
 
@@ -631,16 +635,20 @@ jobs:
       - name: 🛠️ Rector checks
         if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon
+        env:
+          PHP_DIFF_FILES: ${{ steps.changed-php.outputs.all_changed_files }}
         run: |
           echo "Run of these Rector tests: rector:legacy, rector:core, rector:new on diff" && set -e
-          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer rector:diff
+          composer rector:diff
 
       - name: 🧹 PHP-CS-Fixer checks
         if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon
+        env:
+          PHP_DIFF_FILES: ${{ steps.changed-php.outputs.all_changed_files }}
         run: |
           echo "Run of these PHP-CS-Fixer tests: cs:legacy, cs:core, cs:new on diff" && set -e
-          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer cs:diff
+          composer cs:diff
 
       - name: 🔍 PHPStan checks
         working-directory: centreon
@@ -861,9 +869,12 @@ jobs:
 
       - name: Generate selinux binaries
         if: ${{ matrix.package_extension == 'rpm' }}
+        env:
+          MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
+          MINOR_VERSION: ${{ needs.get-environment.outputs.minor_version }}
         run: |
           cd centreon/selinux
-          sed -i "s/@VERSION@/${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}/g" *.te
+          sed -i "s/@VERSION@/$MAJOR_VERSION.$MINOR_VERSION/g" *.te
           make -f /usr/share/selinux/devel/Makefile
         shell: bash
 
@@ -980,6 +991,7 @@ jobs:
           from_image: centreon-web-dependencies-collect
           current_tag: ${{ steps.image_tag.outputs.tag }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
           registry_url: ghcr.io/${{ github.repository }}
           tag_suffix: -${{ matrix.operating_system }}
 
@@ -990,15 +1002,18 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
           fail-on-cache-miss: true
 
-      - run: |
-          if [ "${{ steps.matrix_include.outputs.package_extension }}" = "rpm" ]; then
-            rm -f centreon{,-central,-mariadb,-mysql,-web-selinux}-${{ needs.get-environment.outputs.major_version }}*.rpm
+      - env:
+          PACKAGE_EXTENSION: ${{ steps.matrix_include.outputs.package_extension }}
+          MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
+        run: |
+          if [ "$PACKAGE_EXTENSION" = "rpm" ]; then
+            rm -f centreon{,-central,-mariadb,-mysql,-web-selinux}-"$MAJOR_VERSION"*.rpm
           else
-            rm -f centreon{,-central,-mariadb,-mysql}_${{ needs.get-environment.outputs.major_version }}*.deb
+            rm -f centreon{,-central,-mariadb,-mysql}_"$MAJOR_VERSION"*.deb
           fi
 
           mkdir packages-centreon
-          mv *.${{ steps.matrix_include.outputs.package_extension }} packages-centreon/
+          mv *."$PACKAGE_EXTENSION" packages-centreon/
         shell: bash
 
       - uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
@@ -1028,6 +1043,7 @@ jobs:
             "MAJOR_VERSION=${{ needs.get-environment.outputs.major_version }}"
             "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
+            "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
             "PHP_VERSION=${{ needs.get-environment.outputs.php_version }}"
           pull: true
           push: ${{ github.event.pull_request.head.repo.fork != true }}
@@ -1036,20 +1052,27 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Store slim image in local archive
+        env:
+          OPERATING_SYSTEM: ${{ matrix.operating_system }}
+          IMAGE_VERSION: ${{ steps.meta.outputs.version }}
         run: |
-          docker tag docker.centreon.com/centreon/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.meta.outputs.version }} ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.meta.outputs.version }}
+          docker tag "docker.centreon.com/centreon/$project-slim-$OPERATING_SYSTEM:$IMAGE_VERSION" "$project-slim-$OPERATING_SYSTEM:$IMAGE_VERSION"
           mkdir -p docker-image
-          docker save --output ./docker-image/${{ env.project }}-slim-${{ matrix.operating_system }}.tar ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.meta.outputs.version }}
+          docker save --output "./docker-image/$project-slim-$OPERATING_SYSTEM.tar" "$project-slim-$OPERATING_SYSTEM:$IMAGE_VERSION"
         shell: bash
 
       - name: Clear previous docker image from cache
         if: ${{ github.event.pull_request.head.repo.fork != true }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPERATING_SYSTEM: ${{ matrix.operating_system }}
+          IMAGE_VERSION: ${{ steps.meta.outputs.version }}
         run: |
           curl \
             -X DELETE \
             -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/${{ github.repository }}/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.meta.outputs.version }}
+            -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/caches?key=docker-image-$project-slim-$OPERATING_SYSTEM-$IMAGE_VERSION"
         shell: bash
 
       - name: Store slim image in cache
@@ -1085,51 +1108,39 @@ jobs:
       xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
-  newman-test:
-    needs:
-      [
-        get-environment,
-        changes,
-        create-xray-test-plan-and-test-execution,
-        dockerize
-      ]
+  bruno-api-test:
+    needs: [get-environment, changes, create-xray-test-plan-and-test-execution, dockerize]
     if: |
       needs.changes.outputs.trigger_api_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable' &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      needs.get-environment.outputs.stability != 'stable'
+      ! contains(needs.*.result, 'cancelled')
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).databases }}
-    name: newman-test ${{ matrix.operating_system }}-${{ matrix.database }}
-    uses: ./.github/workflows/newman.yml
+        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
+    name: bruno-test ${{ matrix.operating_system }} ${{ matrix.database }}
+    uses: ./.github/workflows/bruno-api-test.yml
     with:
-      collection_path: centreon/tests/rest_api/collections
-      image_name: centreon-web
-      os: ${{ matrix.operating_system }}
-      db_id: ${{ matrix.db_id }}
-      container_name: my_centreon_container
-      centreon_url: http://localhost
-      centreon_image: docker.centreon.com/centreon/centreon-web-slim-${{ matrix.operating_system }}:${{ needs.dockerize.outputs.image_tag }}
+      collection_path: centreon/tests/api/web-api-workspace/collections
+      image_name: centreon-web-slim
+      operating_system: ${{ matrix.operating_system }}
       database_image: bitnamilegacy/${{ matrix.database }}
-      dependencies_lock_file: centreon/pnpm-lock.yaml
       major_version: ${{ needs.get-environment.outputs.major_version }}
-      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
       stability: ${{ needs.get-environment.outputs.stability }}
+      working_directory: centreon/tests/api/web-api-workspace
+      component-name: centreon
       xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
       upload_artifacts: ${{ contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
-
     secrets:
       registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
       client_id: ${{ secrets.XRAY_CLIENT_ID }}
       client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
-      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+      jira_user: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   legacy-e2e-test:
     needs: [get-environment, changes, dockerize]
@@ -1271,7 +1282,7 @@ jobs:
   #         retention-days: 1
 
   deliver-sources:
-    runs-on: centreon-common
+    runs-on: ubuntu-24.04
     needs: [get-environment, e2e-test, legacy-e2e-test]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -1344,7 +1355,6 @@ jobs:
       [
         changes,
         get-environment,
-        newman-test,
         e2e-test,
         legacy-e2e-test
       ]
@@ -1402,7 +1412,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       github.event.pull_request.head.repo.fork != true
-    runs-on: centreon-common
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
@@ -1448,8 +1458,10 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: List and delete cache
+        env:
+          REF_NAME: ${{ github.ref_name }}
         run: |
-          mapfile -t cache_keys < <(gh cache list --ref refs/heads/${{ github.ref_name }} --json key -q '.[] | .key')
+          mapfile -t cache_keys < <(gh cache list --ref "refs/heads/$REF_NAME" --json key -q '.[] | .key')
           echo $cache_keys
           while read row; do
             gh cache delete $row

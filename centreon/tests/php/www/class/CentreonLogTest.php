@@ -19,15 +19,6 @@
  *
  */
 
-/*
- * Since MON-151077, CentreonLog reroutes writes to
- * Adaptation\Log\Logger which is exercised by the Monolog integration tests
- * (cf. tests/php/App/Shared/Infrastructure/Logging). The legacy facade is
- * kept for backward compatibility; the tests below pin its public API
- * (factory, level helpers, the deprecated insertLog entry point) and the
- * mapping between TYPE_* identifiers and the underlying log files.
- */
-
 beforeEach(function (): void {
     $_SERVER['APP_ENV'] = 'test';
 });
@@ -86,6 +77,18 @@ it('routes every TYPE_* constant to the expected channel file', function (int $t
     'plugin-pack goes to plugin-pack-manager.log' => [CentreonLog::TYPE_PLUGIN_PACK_MANAGER, 'plugin-pack-manager'],
     'business log goes to web.log' => [CentreonLog::TYPE_BUSINESS_LOG, 'web'],
 ]);
+
+it('falls back to the error level when an unknown level string is given', function (): void {
+    $expectedFile = centreonLogPath('web');
+
+    // "toto" is not a PSR-3 level: it must be normalized to error rather than
+    // bubbling up a Monolog InvalidArgumentException.
+    expect(fn () => CentreonLog::create()->log(CentreonLog::TYPE_BUSINESS_LOG, 'toto', 'unknown_level_marker'))
+        ->not->toThrow(Throwable::class);
+
+    expect(file_exists($expectedFile))->toBeTrue()
+        ->and(file_get_contents($expectedFile))->toContain('unknown_level_marker');
+});
 
 it('accepts an exception payload alongside the custom context', function (): void {
     $exception = new RuntimeException('boom', 42);

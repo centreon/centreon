@@ -20,6 +20,8 @@ import type { SingleBarProps } from './models';
 import { barHeights, lineMargins } from './ThresholdLine';
 import Thresholds, { groupMargin } from './Thresholds';
 
+const AnimatedRect = animated('rect');
+
 interface Props extends SingleBarProps {
   height: number;
   width: number;
@@ -176,7 +178,7 @@ const ResponsiveSingleBar = ({
             <title>single bar</title>
             <Group.Group>
               {text}
-              <animated.rect
+              <AnimatedRect
                 data-testid={`${latestMetricData}-bar-${barColor}`}
                 fill={barColor}
                 height={realBarHeight}

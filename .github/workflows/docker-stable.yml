@@ -31,6 +31,8 @@ jobs:
       major_version: ${{ steps.check_promoted_packages.outputs.major_version }}
       is_cloud: ${{ steps.check_promoted_packages.outputs.is_cloud }}
     runs-on: ubuntu-24.04
+    env:
+      RELEASE_BUNDLE_TAG: ${{ inputs.release_bundle_tag }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -38,20 +40,20 @@ jobs:
       - name: Verify that the workflow is run in a develop context
         uses: ./.github/actions/verify-run-in-develop-context
 
-      - name: Check if ${{ inputs.release_bundle_tag }} exists on standard repositories
+      - name: Check if ${{ env.RELEASE_BUNDLE_TAG }} exists on standard repositories
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           for repo in "centreon" "centreon-collect"; do
-            if [[ -z $(gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name | startswith("${{ inputs.release_bundle_tag }}"))] | .[].name') ]]; then
-              echo "::error::Release bundle tag ${{ inputs.release_bundle_tag }} could not be found on repository $repo."
-              echo "Command: gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name | startswith(\"${{ inputs.release_bundle_tag }}\"))] | .[].name')"
-              echo "Command output: $(gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name | startswith("${{ inputs.release_bundle_tag }}"))] | .[].name')"
+            if [[ -z $(gh api "repos/centreon/$repo/tags" --paginate -q "[.[] | select(.name | startswith(\"$RELEASE_BUNDLE_TAG\"))] | .[].name") ]]; then
+              echo "::error::Release bundle tag $RELEASE_BUNDLE_TAG could not be found on repository $repo."
+              echo "Command: gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name | startswith(\"$RELEASE_BUNDLE_TAG\"))] | .[].name'"
+              echo "Command output: $(gh api "repos/centreon/$repo/tags" --paginate -q "[.[] | select(.name | startswith(\"$RELEASE_BUNDLE_TAG\"))] | .[].name")"
               exit 1
             else
-              echo "Release bundle ${{ inputs.release_bundle_tag }} was found on repository $repo."
-              echo "Information fetched on the tag: $(gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name | startswith("${{ inputs.release_bundle_tag }}"))] | .[]' )"
+              echo "Release bundle $RELEASE_BUNDLE_TAG was found on repository $repo."
+              echo "Information fetched on the tag: $(gh api "repos/centreon/$repo/tags" --paginate -q "[.[] | select(.name | startswith(\"$RELEASE_BUNDLE_TAG\"))] | .[]")"
             fi
           done
 
@@ -66,7 +68,7 @@ jobs:
         shell: bash
         id: check_promoted_packages
         run: |
-          source centreon-${{ inputs.release_bundle_tag }}/.version
+          source "centreon-$RELEASE_BUNDLE_TAG/.version"
           major_version=${MAJOR}
           if ! [[ ${major_version} =~ ^2[0-9]\.(04|10)$ ]]; then
             echo "is_cloud=true" >> $GITHUB_OUTPUT
@@ -149,11 +151,13 @@ jobs:
       - name: Export minor versions
         id: export-minor-versions
         shell: bash
+        env:
+          RELEASE_BUNDLE_TAG: ${{ inputs.release_bundle_tag }}
         run: |
-          mv ./centreon-collect-${{ inputs.release_bundle_tag }}/.version.* ./${{ inputs.release_bundle_tag }}/
+          mv "./centreon-collect-$RELEASE_BUNDLE_TAG/.version."* "./$RELEASE_BUNDLE_TAG/"
 
           for package in "collect" "gorgone" "common" "awie" "dsm" "open-tickets" "web"; do
-            source ${{ inputs.release_bundle_tag }}/.version.centreon-${package}
+            source "$RELEASE_BUNDLE_TAG/.version.centreon-${package}"
             package="${package//-/_}"
             echo "${package}_minor_version: $MINOR"
             echo "${package}_minor_version=$MINOR" >> $GITHUB_OUTPUT

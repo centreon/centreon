@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Shared\Infrastructure\Messenger;
 
+use App\Shared\Infrastructure\Logging\LogPayloadNormalizer;
 use App\Shared\Infrastructure\Messenger\LoggingMiddleware;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Envelope;
@@ -31,13 +32,11 @@ use Symfony\Component\Messenger\Middleware\StackInterface;
 use Symfony\Component\Messenger\Stamp\BusNameStamp;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Tests\App\Shared\Infrastructure\Messenger\Fake\BackedColour;
-use Tests\App\Shared\Infrastructure\Messenger\Fake\HiddenSecret;
-use Tests\App\Shared\Infrastructure\Messenger\Fake\PureColour;
+use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
 
 final class LoggingMiddlewareTest extends TestCase
 {
-    private SpyLogger $logger;
+    private LoggerSpy $logger;
 
     private NormalizerInterface $normalizer;
 
@@ -45,10 +44,13 @@ final class LoggingMiddlewareTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->logger = new SpyLogger();
+        $this->logger = new LoggerSpy();
         $this->normalizer = $this->createStub(NormalizerInterface::class);
         $this->normalizer->method('normalize')->willReturn(['field' => 'value']);
-        $this->middleware = new LoggingMiddleware($this->logger, $this->normalizer);
+        $this->middleware = new LoggingMiddleware(
+            $this->logger,
+            new LogPayloadNormalizer($this->normalizer),
+        );
     }
 
     public function testCommandSuccessLogsInfoTwiceAndNoError(): void
@@ -62,12 +64,16 @@ final class LoggingMiddlewareTest extends TestCase
         self::assertCount(2, $this->logger->infoMessages);
         self::assertCount(0, $this->logger->errorMessages);
         self::assertStringContainsString('Dispatching', $this->logger->infoMessages[0]['message']);
-        self::assertSame('command', $this->logger->infoMessages[0]['context']['bus_type']);
+        self::assertSame('command.bus', $this->logger->infoMessages[0]['context']['bus_type']);
         self::assertStringContainsString('Handled', $this->logger->infoMessages[1]['message']);
-        self::assertSame('command', $this->logger->infoMessages[1]['context']['bus_type']);
+        self::assertSame('command.bus', $this->logger->infoMessages[1]['context']['bus_type']);
+        // payload is logged once, on Dispatching; Handled omits it (same
+        // dispatch_id pairs the two), avoiding duplicate payload noise.
+        self::assertArrayHasKey('payload', $this->logger->infoMessages[0]['context']);
+        self::assertArrayNotHasKey('payload', $this->logger->infoMessages[1]['context']);
     }
 
-    public function testCommandFailureLogsErrorWithExceptionTypeAndRethrows(): void
+    public function testUnexpectedFailureLogsCriticalWithExceptionTypeAndRethrows(): void
     {
         $exception = new \RuntimeException('Something broke');
         $envelope = new Envelope(new \stdClass(), [new BusNameStamp('command.bus')]);
@@ -81,10 +87,11 @@ final class LoggingMiddlewareTest extends TestCase
         }
 
         self::assertCount(1, $this->logger->infoMessages);
-        self::assertCount(1, $this->logger->errorMessages);
+        self::assertCount(0, $this->logger->warningMessages);
+        self::assertCount(1, $this->logger->criticalMessages);
 
-        $errorContext = $this->logger->errorMessages[0]['context'];
-        $exception = $errorContext['exception'];
+        $criticalContext = $this->logger->criticalMessages[0]['context'];
+        $exception = $criticalContext['exception'];
         \assert(\is_array($exception));
         \assert(\is_array($exception['exceptions']));
         self::assertCount(1, $exception['exceptions']);
@@ -93,64 +100,32 @@ final class LoggingMiddlewareTest extends TestCase
         self::assertSame('Something broke', $exception['exceptions'][0]['message']);
     }
 
-    public function testSensitiveFieldsAreMasked(): void
+    public function testDomainValidationFailureLogsWarningNotCritical(): void
     {
-        $this->normalizer = $this->createStub(NormalizerInterface::class);
-        $this->normalizer->method('normalize')->willReturn([
-            'username' => 'admin',
-            'password' => 'secret123',
-            'api_key' => 'abc',
-            'credentials_token' => 'xyz',
-            'private_key' => '-----BEGIN RSA PRIVATE KEY-----',
-            'ssh_private_key_pem' => 'pem-content',
-        ]);
-        $this->middleware = new LoggingMiddleware($this->logger, $this->normalizer);
-
+        // A value-object constructor rejection (\InvalidArgumentException, the
+        // parent of Centreon's AssertionException) is expected client input
+        // mapped to a 4xx — it must stay at warning, never escalate to the
+        // critical level reserved for unexpected server-side failures.
+        $exception = new \InvalidArgumentException('Service category name cannot be empty');
         $envelope = new Envelope(new \stdClass(), [new BusNameStamp('command.bus')]);
-        $this->middleware->handle($envelope, $this->createPassThroughStack($envelope));
+        $stack = $this->createFailingStack($exception);
 
-        $payload = $this->logger->infoMessages[0]['context']['payload'];
-        \assert(\is_array($payload));
-        self::assertSame('admin', $payload['username']);
-        self::assertSame('***', $payload['password']);
-        self::assertSame('***', $payload['api_key']);
-        self::assertSame('***', $payload['credentials_token']);
-        self::assertSame('***', $payload['private_key']);
-        self::assertSame('***', $payload['ssh_private_key_pem']);
-    }
+        try {
+            $this->middleware->handle($envelope, $stack);
+            self::fail('Expected exception was not thrown.');
+        } catch (\InvalidArgumentException $caught) {
+            self::assertSame($exception, $caught);
+        }
 
-    public function testNormalizedObjectsAreSanitisedDefensively(): void
-    {
-        // Pin defense-in-depth on the NormalizerInterface output: if a value
-        // remains an object (no dedicated normalizer for that type, or a VO
-        // that bypassed serialisation), sanitize() must not let it leak into
-        // the log unprocessed. Each supported flavour is rendered without
-        // exposing private state.
-        $this->normalizer = $this->createStub(NormalizerInterface::class);
-        $this->normalizer->method('normalize')->willReturn([
-            'enum_backed' => BackedColour::Red,
-            'enum_unit' => PureColour::Blue,
-            'datetime' => new \DateTimeImmutable('2026-04-30T14:00:00+00:00'),
-            'stringable' => new class () implements \Stringable {
-                public function __toString(): string
-                {
-                    return 'rendered string';
-                }
-            },
-            'plain_object' => new HiddenSecret('should-not-appear'),
-        ]);
-        $this->middleware = new LoggingMiddleware($this->logger, $this->normalizer);
+        self::assertCount(0, $this->logger->criticalMessages);
+        self::assertCount(1, $this->logger->warningMessages);
 
-        $envelope = new Envelope(new \stdClass(), [new BusNameStamp('command.bus')]);
-        $this->middleware->handle($envelope, $this->createPassThroughStack($envelope));
-
-        $payload = $this->logger->infoMessages[0]['context']['payload'];
-        \assert(\is_array($payload));
-        self::assertSame('red', $payload['enum_backed']);
-        self::assertSame('Blue', $payload['enum_unit']);
-        self::assertSame('2026-04-30T14:00:00+00:00', $payload['datetime']);
-        self::assertSame('rendered string', $payload['stringable']);
-        self::assertSame('{' . HiddenSecret::class . '}', $payload['plain_object']);
+        $warningContext = $this->logger->warningMessages[0]['context'];
+        $formatted = $warningContext['exception'];
+        \assert(\is_array($formatted));
+        \assert(\is_array($formatted['exceptions']));
+        \assert(\is_array($formatted['exceptions'][0]));
+        self::assertSame(\InvalidArgumentException::class, $formatted['exceptions'][0]['type']);
     }
 
     public function testExceptionChainCapturesAllLevels(): void
@@ -167,8 +142,8 @@ final class LoggingMiddlewareTest extends TestCase
         } catch (\DomainException) {
         }
 
-        self::assertCount(1, $this->logger->errorMessages);
-        $exception = $this->logger->errorMessages[0]['context']['exception'];
+        self::assertCount(1, $this->logger->criticalMessages);
+        $exception = $this->logger->criticalMessages[0]['context']['exception'];
         \assert(\is_array($exception));
         \assert(\is_array($exception['exceptions']));
         self::assertCount(3, $exception['exceptions'], 'root + 2 nested causes');
@@ -180,12 +155,16 @@ final class LoggingMiddlewareTest extends TestCase
         self::assertSame(\LogicException::class, $exception['exceptions'][2]['type']);
     }
 
-    public function testQueryBusTypeIsResolved(): void
+    public function testBusNameStampValueIsPropagatedAsIs(): void
     {
+        // The middleware no longer classifies bus names — the raw value
+        // from the envelope's BusNameStamp lands in bus_type as-is. Pin
+        // it on a non-default bus (query.bus) so a regression to silent
+        // re-labelling would fail loudly.
         $envelope = new Envelope(new \stdClass(), [new BusNameStamp('query.bus')]);
         $this->middleware->handle($envelope, $this->createPassThroughStack($envelope));
 
-        self::assertSame('query', $this->logger->infoMessages[0]['context']['bus_type']);
+        self::assertSame('query.bus', $this->logger->infoMessages[0]['context']['bus_type']);
     }
 
     public function testEnvelopeWithoutBusNameStampLogsAsUnknown(): void
@@ -201,45 +180,6 @@ final class LoggingMiddlewareTest extends TestCase
         self::assertSame('unknown', $this->logger->infoMessages[0]['context']['bus_type']);
     }
 
-    public function testUnrecognizedBusNameStampLogsRawName(): void
-    {
-        // A bus name that matches neither 'command' nor 'query' (e.g. a
-        // future event bus) must surface in logs under its raw name —
-        // documented contract: "the raw bus name if not recognized".
-        $envelope = new Envelope(new \stdClass(), [new BusNameStamp('event.bus')]);
-        $this->middleware->handle($envelope, $this->createPassThroughStack($envelope));
-
-        self::assertSame('event.bus', $this->logger->infoMessages[0]['context']['bus_type']);
-    }
-
-    public function testPayloadDeeperThanMaxDepthIsTruncated(): void
-    {
-        // sanitize() walks the payload up to MAX_DEPTH (3) levels — anything
-        // beyond is replaced by the literal '{…}' to bound the log line size
-        // on a recursive structure. Pin the threshold: level 3 (still inside
-        // the limit) keeps content; level 4 collapses to '{…}'.
-        $this->normalizer = $this->createStub(NormalizerInterface::class);
-        $this->normalizer->method('normalize')->willReturn([
-            'l1' => [
-                'l2' => [
-                    'l3' => [
-                        'l4' => 'too deep',
-                    ],
-                ],
-            ],
-        ]);
-        $this->middleware = new LoggingMiddleware($this->logger, $this->normalizer);
-
-        $envelope = new Envelope(new \stdClass(), [new BusNameStamp('command.bus')]);
-        $this->middleware->handle($envelope, $this->createPassThroughStack($envelope));
-
-        $payload = $this->logger->infoMessages[0]['context']['payload'];
-        \assert(\is_array($payload));
-        \assert(\is_array($payload['l1']));
-        \assert(\is_array($payload['l1']['l2']));
-        self::assertSame('{…}', $payload['l1']['l2']['l3']);
-    }
-
     public function testNormalizerThrowingFallsBackAndEmitsWarning(): void
     {
         // Defensive fallback in normalizePayload(): if the NormalizerInterface
@@ -251,7 +191,10 @@ final class LoggingMiddlewareTest extends TestCase
         //      the failure isn't silent in prod logs
         $this->normalizer = $this->createStub(NormalizerInterface::class);
         $this->normalizer->method('normalize')->willThrowException(new \RuntimeException('normalizer down'));
-        $this->middleware = new LoggingMiddleware($this->logger, $this->normalizer);
+        $this->middleware = new LoggingMiddleware(
+            $this->logger,
+            new LogPayloadNormalizer($this->normalizer),
+        );
 
         $envelope = new Envelope(new \stdClass(), [new BusNameStamp('command.bus')]);
         $this->middleware->handle($envelope, $this->createPassThroughStack($envelope));
@@ -278,7 +221,10 @@ final class LoggingMiddlewareTest extends TestCase
         // signals the unexpected return type.
         $this->normalizer = $this->createStub(NormalizerInterface::class);
         $this->normalizer->method('normalize')->willReturn('unexpected scalar payload');
-        $this->middleware = new LoggingMiddleware($this->logger, $this->normalizer);
+        $this->middleware = new LoggingMiddleware(
+            $this->logger,
+            new LogPayloadNormalizer($this->normalizer),
+        );
 
         $envelope = new Envelope(new \stdClass(), [new BusNameStamp('command.bus')]);
         $this->middleware->handle($envelope, $this->createPassThroughStack($envelope));
@@ -292,35 +238,10 @@ final class LoggingMiddlewareTest extends TestCase
         self::assertSame('string', $this->logger->warningMessages[0]['context']['returned_type']);
     }
 
-    public function testStringLongerThanMaxValueLengthIsTruncated(): void
-    {
-        // sanitize() caps every string value at MAX_VALUE_LENGTH (1024) and
-        // appends '…[truncated]' so a payload carrying e.g. a long SQL
-        // fragment cannot blow the log line width. Pin the boundary: 1024
-        // chars passes through, 1025 chars is truncated to 1024 + suffix.
-        $within = str_repeat('a', 1024);
-        $oversize = str_repeat('a', 1025);
-
-        $this->normalizer = $this->createStub(NormalizerInterface::class);
-        $this->normalizer->method('normalize')->willReturn([
-            'within' => $within,
-            'oversize' => $oversize,
-        ]);
-        $this->middleware = new LoggingMiddleware($this->logger, $this->normalizer);
-
-        $envelope = new Envelope(new \stdClass(), [new BusNameStamp('command.bus')]);
-        $this->middleware->handle($envelope, $this->createPassThroughStack($envelope));
-
-        $payload = $this->logger->infoMessages[0]['context']['payload'];
-        \assert(\is_array($payload));
-        self::assertSame($within, $payload['within']);
-        self::assertSame(str_repeat('a', 1024) . '…[truncated]', $payload['oversize']);
-    }
-
     public function testDurationMsIsPresentOnHandledAndFailureLogs(): void
     {
         // Pin the contract: `duration_ms` is emitted on Handled (success)
-        // and Failed (error), but NOT on Dispatching (which is the t0
+        // and Failed (critical), but NOT on Dispatching (which is the t0
         // reference). The value is non-negative and finite — exact figures
         // can't be asserted in a unit test (it measures real elapsed time
         // through a stub stack), so we pin shape and contract, not value.
@@ -339,9 +260,9 @@ final class LoggingMiddlewareTest extends TestCase
         } catch (\RuntimeException) {
         }
 
-        self::assertArrayHasKey('duration_ms', $this->logger->errorMessages[0]['context']);
-        self::assertIsFloat($this->logger->errorMessages[0]['context']['duration_ms']);
-        self::assertGreaterThanOrEqual(0.0, $this->logger->errorMessages[0]['context']['duration_ms']);
+        self::assertArrayHasKey('duration_ms', $this->logger->criticalMessages[0]['context']);
+        self::assertIsFloat($this->logger->criticalMessages[0]['context']['duration_ms']);
+        self::assertGreaterThanOrEqual(0.0, $this->logger->criticalMessages[0]['context']['duration_ms']);
     }
 
     public function testHandledLogListsHandlerNamesFromHandledStamps(): void
@@ -400,7 +321,7 @@ final class LoggingMiddlewareTest extends TestCase
 
     public function testDispatchIdIsAlsoPresentOnTheFailureLog(): void
     {
-        // Same contract on the error path: the failed log carries the same
+        // Same contract on the failure path: the failed log carries the same
         // dispatch_id as its companion Dispatching log, so a 500 stacktrace
         // can be matched back to its payload without ambiguity.
         $envelope = new Envelope(new \stdClass(), [new BusNameStamp('command.bus')]);
@@ -413,7 +334,7 @@ final class LoggingMiddlewareTest extends TestCase
 
         $dispatchId = $this->logger->infoMessages[0]['context']['dispatch_id'];
         self::assertIsString($dispatchId);
-        self::assertSame($dispatchId, $this->logger->errorMessages[0]['context']['dispatch_id']);
+        self::assertSame($dispatchId, $this->logger->criticalMessages[0]['context']['dispatch_id']);
     }
 
     private function createPassThroughStack(Envelope $envelope): StackInterface

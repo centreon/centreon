@@ -1,0 +1,33 @@
+meta {
+  name: POST centreon_module install fake-module-to-test-api - HTTP 200
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUriCentreonApiWeb}}/index.php?object=centreon_module&action=install&id=fake-module-to-test-api&type=module
+  body: none
+  auth: none
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Module install: response has result and status properties", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result");
+    expect(body).to.have.property("status");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

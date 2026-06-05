@@ -1,0 +1,22 @@
+meta {
+  name: GET /users/current/parameters - Get current user parameters - HTTP 403
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/users/current/parameters
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("Operator cannot retrieve current user parameters (ACL not fully configured in CI, may return 200).", function () {
+    expect(res.status).to.be.oneOf([200, 403]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

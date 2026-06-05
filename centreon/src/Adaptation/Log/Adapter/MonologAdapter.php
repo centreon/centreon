@@ -38,13 +38,6 @@ use Psr\Log\LogLevel;
 
 final class MonologAdapter implements LoggerInterface
 {
-    /**
-     * Shared across every channel-specific logger created in the
-     * current process so that records produced on different channels
-     * carry the same `extra.uid` and can be correlated across files —
-     * mirrors the platform-wide UidProcessor wired in
-     * `config.new/services/monolog.php` for the new kernel.
-     */
     private static ?UidProcessor $uidProcessor = null;
 
     /**
@@ -65,6 +58,20 @@ final class MonologAdapter implements LoggerInterface
         $logger = new MonologLogger($channel->value);
 
         return new self($logger, $channel);
+    }
+
+    /**
+     * Regenerates the shared UidProcessor uid.
+     *
+     * {@see self::$uidProcessor} is a process-lived static, which is correct under
+     * php-fpm and CLI (one process == one request/command). It would become wrong
+     * with a long-running consumer (e.g. an async Messenger transport), where the
+     * uid must be reset between messages. Wire this through a `kernel.reset` tagged
+     * service so the framework resets it on each work unit.
+     */
+    public static function reset(): void
+    {
+        self::$uidProcessor?->reset();
     }
 
     public function emergency(\Stringable|string $message, array $context = []): void
@@ -145,17 +152,6 @@ final class MonologAdapter implements LoggerInterface
         }
     }
 
-    /**
-     * Attach the autonomous halves of the platform processor stack so
-     * legacy records carry the same `extra.uid`, the same HTTP context
-     * and the same exception layout as records produced by the new
-     * kernel (cf. MON-151077, `config.new/services/monolog.php`).
-     *
-     * RouteProcessor and TokenProcessor depend on the Symfony
-     * RequestStack / TokenStorage services and are therefore out of
-     * reach from the legacy stack — records emitted here will not
-     * carry `extra.controller`, `extra.route` or `extra.token`.
-     */
     private function pushPlatformProcessors(): void
     {
         $this->logger->pushProcessor(new ExceptionFormatterProcessor());
@@ -163,13 +159,6 @@ final class MonologAdapter implements LoggerInterface
         $this->logger->pushProcessor(self::$uidProcessor ??= new UidProcessor());
     }
 
-    /**
-     * Pattern: _CENTREON_LOG_/<APP_ENV>.<slug>.log
-     *  - _CENTREON_LOG_ is defined in the main Centreon configuration file (centreon.conf.php)
-     *  - <APP_ENV> is defined by the current Symfony mode (prod, dev, test)
-     *  - <slug> is the file-name slug carried by LogChannelEnum (cf. authentication → access)
-     * Example: /var/log/centreon/prod.password.log
-     */
     private function getLogFileFromChannel(LogChannelEnum $channelEnum): string
     {
         $appEnv = (isset($_SERVER['APP_ENV']) && is_scalar($_SERVER['APP_ENV']))

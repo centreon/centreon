@@ -1,0 +1,27 @@
+meta {
+  name: GET /monitoring-servers - List monitoring servers - HTTP 200
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/monitoring-servers
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Administrator can list monitoring servers.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("result").that.is.an("array");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

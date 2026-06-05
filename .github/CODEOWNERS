@@ -4,11 +4,6 @@
 *.md                                    @centreon/owners-doc
 *.mdx                                   @centreon/owners-doc
 
-# PHP technical docs (under <module>/doc/php/) override the global *.md
-# rule above — they document compile-time / runtime concerns owned by
-# the PHP team, not user-facing centreon docs.
-**/doc/php/                             @centreon/owners-php
-
 **/www/widgets/                         @centreon/owners-react
 
 **/config/                              @centreon/owners-php

@@ -1,0 +1,36 @@
+meta {
+  name: POST /configuration/services/templates - Create service template - HTTP 201
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/templates
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{ServiceTemplate1Name}}",
+    "alias": "{{ServiceTemplate1Alias}}",
+    "check_command_id": {{CommandId}}
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("Service template created successfully.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("id").that.is.a("number");
+    bru.setEnvVar("ServiceTemplate1Id", body.id);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

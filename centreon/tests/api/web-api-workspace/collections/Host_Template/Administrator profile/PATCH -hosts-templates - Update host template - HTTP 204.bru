@@ -1,0 +1,39 @@
+meta {
+  name: PATCH /hosts/templates - Update host template - HTTP 204
+  type: http
+  seq: 17
+}
+
+patch {
+  url: {{baseUrlWeb}}/configuration/hosts/templates/{{HostTemplate3Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "macros": [
+      {
+        "name": "key_updated",
+        "value": "value_Updated",
+        "is_password": false,
+        "description": "I was updated"
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("The host template '{{HostTemplate3Name}}' has been successfully updated.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

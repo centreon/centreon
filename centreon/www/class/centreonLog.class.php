@@ -25,13 +25,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
 /**
- * Class
- *
- * @class CentreonUserLog
- *
- * @deprecated since MON-151077 — log directly through
- *             {@see \Adaptation\Log\Logger::create()} with the appropriate
- *             {@see LogChannelEnum}
+ * @deprecated use {@see \Adaptation\Log\Logger::create()}
  */
 class CentreonUserLog
 {
@@ -47,12 +41,8 @@ class CentreonUserLog
     private $uid;
 
     /**
-     * CentreonUserLog constructor
-     *
      * @param int $uid
-     * @param CentreonDB $pearDB kept for backward compatibility; the connection
-     *                           is no longer consulted because the log path is
-     *                           driven by APP_ENV / LogChannelEnum now
+     * @param CentreonDB $pearDB unused, kept for BC
      */
     public function __construct($uid, $pearDB)
     {
@@ -72,8 +62,6 @@ class CentreonUserLog
             echo htmlspecialchars($str);
         }
 
-        // Replace special chars that used to leak through the pipe-separated
-        // legacy format. Kept for parity with the original behaviour.
         $message = str_replace(['`', '*'], ['', '\*'], (string) $str);
 
         $context = [
@@ -103,7 +91,7 @@ class CentreonUserLog
     public static function singleton($uid = 0): CentreonUserLog
     {
         if (! self::$instance instanceof self) {
-            self::$instance = new CentreonUserLog($uid, CentreonDB::factory('centreon'));
+            self::$instance = new CentreonUserLog($uid, null);
         }
 
         return self::$instance;
@@ -120,19 +108,10 @@ class CentreonUserLog
 }
 
 /**
- * Class
- *
- * @class CentreonLog
- *
- * @deprecated since MON-151077 — log directly through
- *             {@see \Adaptation\Log\Logger::create()} with the appropriate
- *             {@see LogChannelEnum}
+ * @deprecated use {@see \Adaptation\Log\Logger::create()}
  */
 class CentreonLog
 {
-    /**
-     * Level Types from \Psr\Log\LogLevel
-     */
     public const LEVEL_DEBUG = LogLevel::DEBUG;
     public const LEVEL_NOTICE = LogLevel::NOTICE;
     public const LEVEL_INFO = LogLevel::INFO;
@@ -141,11 +120,6 @@ class CentreonLog
     public const LEVEL_CRITICAL = LogLevel::CRITICAL;
     public const LEVEL_ALERT = LogLevel::ALERT;
     public const LEVEL_EMERGENCY = LogLevel::EMERGENCY;
-
-    /**
-     * Log type ids — kept for backward compatibility with callers that still
-     * pass `CentreonLog::TYPE_*`. Routing is now driven by LogChannelEnum.
-     */
     public const TYPE_LOGIN = 1;
     public const TYPE_SQL = 2;
     public const TYPE_LDAP = 3;
@@ -153,10 +127,24 @@ class CentreonLog
     public const TYPE_PLUGIN_PACK_MANAGER = 5;
     public const TYPE_BUSINESS_LOG = 6;
 
+    /** @var list<string> the PSR-3 levels accepted by {@see self::log()} */
+    private const VALID_LEVELS = [
+        self::LEVEL_DEBUG,
+        self::LEVEL_NOTICE,
+        self::LEVEL_INFO,
+        self::LEVEL_WARNING,
+        self::LEVEL_ERROR,
+        self::LEVEL_CRITICAL,
+        self::LEVEL_ALERT,
+        self::LEVEL_EMERGENCY,
+    ];
+
+    /** @var array<string,LoggerInterface> memoized loggers, keyed by channel value */
+    private array $loggers = [];
+
     /**
-     * @param array<int,string> $customLogFiles ignored — kept for BC; channels
-     *                                          are now resolved via LogChannelEnum
-     * @param string $pathLogFile ignored — paths are derived from APP_ENV
+     * @param array<int,string> $customLogFiles unused, kept for BC
+     * @param string $pathLogFile unused, kept for BC
      */
     public function __construct(array $customLogFiles = [], string $pathLogFile = '')
     {
@@ -189,13 +177,11 @@ class CentreonLog
         }
 
         if ($exception !== null) {
-            // Pass the Throwable as-is; ExceptionFormatterProcessor wired in
-            // MonologAdapter unwraps the chain and rewrites context.exception.
             $customContext['exception'] = $exception;
         }
 
         $this->getLoggerForType($logTypeId)->log(
-            $level !== '' ? mb_strtolower($level) : self::LEVEL_ERROR,
+            self::normalizeLevel($level),
             $message,
             $customContext,
         );
@@ -269,9 +255,7 @@ class CentreonLog
      * @param int $logTypeId
      * @param string $logFileName
      *
-     * @deprecated since MON-151077 — file routing is now driven by LogChannelEnum
-     *             and the monolog config; this method is a no-op kept for
-     *             backward compatibility with legacy callers and modules
+     * @deprecated no-op kept for BC
      */
     public function pushLogFileHandler(int $logTypeId, string $logFileName): CentreonLog
     {
@@ -279,7 +263,7 @@ class CentreonLog
     }
 
     /**
-     * @deprecated since MON-151077 — paths are derived from APP_ENV
+     * @deprecated paths are derived from APP_ENV
      */
     public function setPathLogFile(string $pathLogFile): CentreonLog
     {
@@ -293,7 +277,7 @@ class CentreonLog
      * @param int $page
      * @param int $option
      *
-     * @deprecated since MON-151077 — use {@see CentreonLog::log()} instead
+     * @deprecated use {@see CentreonLog::log()} instead
      */
     public function insertLog($id, $str, $print = 0, $page = 0, $option = 0): void
     {
@@ -306,6 +290,18 @@ class CentreonLog
         $this->log(logTypeId: $id, level: self::LEVEL_ERROR, message: $message);
     }
 
+    /**
+     * Maps the given level to a known PSR-3 level. Falls back to {@see self::LEVEL_ERROR}
+     * for empty or unknown values so a bad caller never silently drops the record
+     * (Monolog would otherwise reject an unknown level).
+     */
+    private static function normalizeLevel(string $level): string
+    {
+        $normalized = mb_strtolower($level);
+
+        return in_array($normalized, self::VALID_LEVELS, true) ? $normalized : self::LEVEL_ERROR;
+    }
+
     private function getLoggerForType(int $logTypeId): LoggerInterface
     {
         $channel = match ($logTypeId) {
@@ -315,6 +311,8 @@ class CentreonLog
             default => LogChannelEnum::WEB,
         };
 
-        return Logger::create($channel);
+        // Memoize per channel: Logger::create() rebuilds a MonologAdapter with fresh
+        // handlers/processors on every call, which is wasteful on hot logging paths.
+        return $this->loggers[$channel->value] ??= Logger::create($channel);
     }
 }

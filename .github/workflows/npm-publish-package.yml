@@ -84,11 +84,13 @@ jobs:
           node-version: 24
 
       - name: Write NPM package version
-        run: npm version ${{ steps.get-next-package-version.outputs.package_version }} --no-commit-hooks --no-git-tag-version --no-workspaces-update
+        env:
+          PACKAGE_VERSION: ${{ steps.get-next-package-version.outputs.package_version }}
+        run: npm version "$PACKAGE_VERSION" --no-commit-hooks --no-git-tag-version --no-workspaces-update
         working-directory: ${{ inputs.package_directory }}
 
       - name: Publish npm package ${{ steps.get-package-info.outputs.package_name }}@${{ steps.get-next-package-version.outputs.package_version }} (${{ env.tag }})
-        run: npm publish --access=public --tag=${{ env.tag }}
+        run: npm publish --access=public --tag="$tag"
         working-directory: ${{ inputs.package_directory }}
 
   set-skip-label:

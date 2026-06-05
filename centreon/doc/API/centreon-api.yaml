@@ -1979,6 +1979,12 @@ paths:
       tags:
         - Resource
       summary: 'List all resources including hosts and services'
+      x-remarks: |
+        The `meta.total` field may be approximate when the number of matching resources exceeds 1,000.
+        This is most common when a free-text search spans multiple columns (alias, address, information)
+        because no covering index is available for those columns. In that case `meta.is_approximate` is
+        `true` and `meta.total` is capped at 1,000. To retrieve the exact count, call
+        `GET /monitoring/resources/count` with `all_pages=true` and the same query parameters.
       description: |
         List all the resources in real-time monitoring : hosts and services.
 
@@ -2058,7 +2064,14 @@ paths:
                 type: object
                 properties:
                   result: { type: array, items: { $ref: '#/components/schemas/Monitoring.ResourceMain' } }
-                  meta: { $ref: '#/components/schemas/Meta' }
+                  meta:
+                    allOf:
+                      - $ref: '#/components/schemas/Meta'
+                      - type: object
+                        properties:
+                          is_approximate:
+                            type: boolean
+                            description: 'True when the result set exceeds 1,000 matching resources and the full count was not computed to avoid a costly full-table scan. meta.total is capped at 1,000. Call GET /monitoring/resources/count with all_pages=true and the same filters to retrieve the exact count.'
         '403':
           $ref: '#/components/responses/Forbidden'
         '500':
@@ -4915,44 +4928,51 @@ paths:
       tags:
         - Command
       responses:
-        '403':
-          description: 'You are not allowed to duplicate commands'
         '200':
-          description: 'Command resource created'
+          description: 'A collection holding the duplication outcome for each requested command'
           content:
             application/ld+json:
               schema:
-                $ref: '#/components/schemas/DuplicateCommandResource.jsonld'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DuplicateCommandResource'
+                type: object
+                properties:
+                  '@context': { type: string }
+                  '@id': { type: string }
+                  '@type': { type: string, example: Collection }
+                  totalItems: { type: integer }
+                  member: { type: array, items: { type: object, properties: { '@id': { type: string }, '@type': { type: string, example: DuplicateCommandResource }, command: { type: string, description: 'IRI of the duplicated command (absent when the duplication failed)' }, status: { type: integer }, message: { type: string } }, required: ['@id', '@type', status, message] } }
+              example:
+                '@context': /centreon/api/latest/contexts/Command
+                '@id': /centreon/api/latest/.well-known/genid/b69ebebaa3bb3de34dd8
+                '@type': Collection
+                totalItems: 2
+                member:
+                  - { '@id': /centreon/api/latest/.well-known/genid/c2afa2366f6f99491863, '@type': DuplicateCommandResource, command: /centreon/api/latest/configuration/commands/98, status: 204, message: 'Command duplicated successfully' }
+                  - { '@id': /centreon/api/latest/.well-known/genid/3fa305a034165257c384, '@type': DuplicateCommandResource, status: 404, message: 'Command with ID 99999 not found' }
           links: {  }
         '400':
-          description: 'Invalid input'
+          description: 'Invalid input — the request body failed validation'
           content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/Error.jsonld'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Error'
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-          links: {  }
-        '422':
-          description: 'An error occurred'
+                type: object
+                properties:
+                  code: { type: integer, example: 400 }
+                  message: { type: string, description: 'One line per violation, formatted as "[propertyPath] message"', example: "[ids] IDs array cannot be empty\n" }
+                required:
+                  - code
+                  - message
+        '403':
+          description: 'You are not allowed to duplicate commands'
           content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/ConstraintViolation.jsonld'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/ConstraintViolation'
             application/json:
               schema:
-                $ref: '#/components/schemas/ConstraintViolation'
-          links: {  }
+                type: object
+                properties:
+                  code: { type: integer, example: 0 }
+                  message: { type: string, example: 'You are not allowed to duplicate commands' }
+                required:
+                  - code
+                  - message
       summary: 'Duplicate a Command resource'
       description: 'Duplicate a Command resource'
       parameters: []

@@ -215,7 +215,10 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
 
         $this->present([
             'result' => $result,
-            'meta' => $this->requestParameters->toArray(),
+            'meta' => array_merge(
+                $this->requestParameters->toArray(),
+                ['is_approximate' => $response->isCountApproximate],
+            ),
         ]);
     }
 

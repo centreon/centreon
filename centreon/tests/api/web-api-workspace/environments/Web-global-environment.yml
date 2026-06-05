@@ -1,0 +1,44 @@
+name: Web-global-environment
+variables:
+  - name: authToken
+    value:
+  - name: portWeb
+    value: "4000"
+  - name: versionWeb
+    value: latest
+  - name: api_login
+    value: admin
+  - name: protocol
+    value: http
+  - name: server
+    value: localhost
+  - name: api_password
+    value: Centreon!2021
+  - name: baseUrlWeb
+    value: "{{baseUriCentreonApiWeb}}/{{versionWeb}}"
+  - name: baseUriCentreonApiWeb
+    value: "{{protocol}}://{{server}}:{{portWeb}}/centreon/api"
+  - name: UrlWeb
+    value: "{{baseUriCentreonApiWeb}}/{{versionWeb}}"
+  - name: baseUriCentreonCLAPI
+    value: "{{baseUriCentreonApiWeb}}/index.php?action=action&object=centreon_clapi"
+  - name: user_administrator_login
+    value: user_administrator
+  - name: user_administrator_password
+    value: Centreon!123
+  - name: user_editor_login
+    value: user_editor
+  - name: user_editor_password
+    value: Centreon!123
+  - name: user_operator_login
+    value: user_operator
+  - name: user_operator_password
+    value: Centreon!123
+  - name: user_unprivileged_login
+    value: user_unprivileged
+  - name: user_unprivileged_password
+    value: Centreon!123
+  - name: user_super_administrator_login
+    value: user_super_administrator
+  - name: user_super_administrator_password
+    value: Centreon!123
