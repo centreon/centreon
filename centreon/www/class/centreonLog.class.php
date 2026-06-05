@@ -188,18 +188,6 @@ class CentreonLog
     }
 
     /**
-     * Maps the given level to a known PSR-3 level. Falls back to {@see self::LEVEL_ERROR}
-     * for empty or unknown values so a bad caller never silently drops the record
-     * (Monolog would otherwise reject an unknown level).
-     */
-    private static function normalizeLevel(string $level): string
-    {
-        $normalized = mb_strtolower($level);
-
-        return in_array($normalized, self::VALID_LEVELS, true) ? $normalized : self::LEVEL_ERROR;
-    }
-
-    /**
      * @param array<string,mixed> $customContext
      */
     public function debug(int $logTypeId, string $message, array $customContext = [], ?Throwable $exception = null): void
@@ -300,6 +288,18 @@ class CentreonLog
         }
 
         $this->log(logTypeId: $id, level: self::LEVEL_ERROR, message: $message);
+    }
+
+    /**
+     * Maps the given level to a known PSR-3 level. Falls back to {@see self::LEVEL_ERROR}
+     * for empty or unknown values so a bad caller never silently drops the record
+     * (Monolog would otherwise reject an unknown level).
+     */
+    private static function normalizeLevel(string $level): string
+    {
+        $normalized = mb_strtolower($level);
+
+        return in_array($normalized, self::VALID_LEVELS, true) ? $normalized : self::LEVEL_ERROR;
     }
 
     private function getLoggerForType(int $logTypeId): LoggerInterface
