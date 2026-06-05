@@ -901,12 +901,6 @@ parameters:
 			path: src/Core/ServiceTemplate/Application/UseCase/PartialUpdateServiceTemplate/PartialUpdateServiceTemplate.php
 
 		-
-			message: '#^Parameter \#2 \$hostTemplateIds of method Core\\ServiceTemplate\\Application\\Repository\\WriteServiceTemplateRepositoryInterface\:\:linkToHosts\(\) expects list\<int\>, array\<int\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Core/ServiceTemplate/Application/UseCase/PartialUpdateServiceTemplate/PartialUpdateServiceTemplate.php
-
-		-
 			message: '#^Parameter \#2 \$serviceCategoriesIds of method Core\\ServiceCategory\\Application\\Repository\\WriteServiceCategoryRepositoryInterface\:\:linkToService\(\) expects list\<int\>, array\<int\> given\.$#'
 			identifier: argument.type
 			count: 1

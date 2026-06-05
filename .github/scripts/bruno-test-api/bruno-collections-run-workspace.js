@@ -4,6 +4,19 @@ import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
+// Resolve `segments` under `root` and refuse any path that escapes it.
+// Defense-in-depth against path traversal: validates the resolved location,
+// so a malicious segment (e.g. "../../etc") is rejected instead of read.
+function resolveWithin(root, ...segments) {
+  const resolvedRoot = path.resolve(root);
+  const resolved = path.resolve(resolvedRoot, ...segments);
+  if (resolved !== resolvedRoot && !resolved.startsWith(resolvedRoot + path.sep)) {
+    console.error(`Refusing path outside of "${resolvedRoot}": ${resolved}`);
+    process.exit(1);
+  }
+  return resolved;
+}
+
 // ----------------------
 // Arguments
 // ----------------------
@@ -23,7 +36,10 @@ console.log("Collection name:", collection);
 // ----------------------
 // Paths
 // ----------------------
-const collectionPath = path.join(process.cwd(), "collections", collection);
+const collectionPath = resolveWithin(
+  path.join(process.cwd(), "collections"),
+  collection,
+);
 if (!fs.existsSync(collectionPath)) {
   console.error(`❌ Collection directory not found: ${collectionPath}`);
   process.exit(1);
@@ -40,7 +56,7 @@ const environmentFileWithoutExtension = getEnvironmentFile(collectionPath);
 
 // Helper function
 function getEnvironmentFile(collectionPath, extension) {
-  const envDir = path.join(collectionPath, "environments");
+  const envDir = resolveWithin(collectionPath, "environments");
   if (!fs.existsSync(envDir)) return false;
   const ext = extension ?? ".bru";
   const envFiles = fs.readdirSync(envDir).filter((f) => f.endsWith(ext));

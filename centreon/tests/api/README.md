@@ -7,8 +7,8 @@ This documentation covers the Bruno CLI v3 implementation for the `web-api-works
 ## Prerequisites
 
 - Bruno CLI v3 installed
-- Node.js environment
-- Access to the Centreon Web API instance
+- Node.js 24 or later
+- A running Centreon instance exposing the Web API (typically a Centreon Web Docker container) reachable at the configured base URL
 
 ## Installation
 

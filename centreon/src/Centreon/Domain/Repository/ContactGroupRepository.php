@@ -86,8 +86,13 @@ class ContactGroupRepository extends AbstractRepositoryRDB implements Pagination
             }
         }
 
-        if ($ordering['field'] ?? false) {
-            $sql .= ' ORDER BY `' . $ordering['field'] . '` ' . $ordering['order'];
+        $allowedOrderColumns = ['cg_id', 'cg_name', 'cg_alias', 'cg_activate', 'cg_type'];
+        if (
+            ($ordering['field'] ?? false)
+            && in_array($ordering['field'], $allowedOrderColumns, true)
+        ) {
+            $order = isset($ordering['order']) && strtoupper($ordering['order']) === 'DESC' ? 'DESC' : 'ASC';
+            $sql .= ' ORDER BY `' . $ordering['field'] . '` ' . $order;
         }
 
         if ($limit !== null) {
