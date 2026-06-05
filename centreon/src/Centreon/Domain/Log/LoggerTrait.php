@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Log;
 
-use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Symfony\Contracts\Service\Attribute\Required;
@@ -125,16 +124,10 @@ trait LoggerTrait
     /**
      * @param array<string,mixed> $context
      *
-     * @throws InvalidArgumentException
-     *
      * @see LoggerInterface::log
      */
-    private function log(mixed $level, string $message, array $context = [], ?callable $callable = null): void
+    private function log(int|string $level, string $message, array $context = [], ?callable $callable = null): void
     {
-        if (! is_int($level) && ! is_string($level)) {
-            throw new InvalidArgumentException('Log level must be an int or a string.');
-        }
-
         $this->executeLog($level, $message, $context, $callable);
     }
 
