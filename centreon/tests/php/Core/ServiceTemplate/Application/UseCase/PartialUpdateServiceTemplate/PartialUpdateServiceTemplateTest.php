@@ -711,3 +711,45 @@ it('should load command macros from an inherited template command when the servi
 
     expect($this->presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
 });
+
+it('should call linkToHosts once with deduplicated IDs when host_templates contains duplicates', function (): void {
+    $request = new PartialUpdateServiceTemplateRequest(1);
+    $request->hostTemplates = [1, 1];
+    $accessGroups = [9, 11];
+
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturnMap([[Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ_WRITE, true]]);
+
+    $this->readAccessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->with($this->user)
+        ->willReturn($accessGroups);
+
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('findByIdAndAccessGroups')
+        ->with($request->id)
+        ->willReturn(new ServiceTemplate(1, 'fake_name', 'fake_alias'));
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertHostTemplateIds')
+        ->with($request->hostTemplates);
+
+    $this->writeServiceTemplateRepository
+        ->expects($this->once())
+        ->method('unlinkHosts')
+        ->with($request->id);
+
+    $this->writeServiceTemplateRepository
+        ->expects($this->once())
+        ->method('linkToHosts')
+        ->with($request->id, [1]);
+
+    ($this->useCase)($request, $this->presenter);
+
+    expect($this->presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
+});

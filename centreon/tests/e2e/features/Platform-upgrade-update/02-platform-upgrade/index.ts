@@ -219,10 +219,7 @@ Given(
                   return installCentreon(installedVersion)
                     .then(() => {
                       if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-                        const distrib =
-                          Cypress.env('WEB_IMAGE_OS') === 'alma9'
-                            ? 'el9'
-                            : 'el8';
+                        const distrib = `el${Cypress.env('WEB_IMAGE_OS').replace('alma', '')}`;
 
                         if (Cypress.env('IS_CLOUD')) {
                           cy.log('Configuring cloud internal repository...');

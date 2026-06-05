@@ -1,0 +1,33 @@
+meta {
+  name: GET centreon_module details fake-module-to-test-api - HTTP 200
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUriCentreonApiWeb}}/index.php?object=centreon_module&action=details&id=fake-module-to-test-api&type=module
+  body: none
+  auth: none
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Module details: response has result and status properties", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result");
+    expect(body).to.have.property("status");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

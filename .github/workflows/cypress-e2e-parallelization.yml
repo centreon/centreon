@@ -197,9 +197,12 @@ jobs:
 
       - name: Move packages
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
+        env:
+          PACKAGE_DIRECTORY: ${{ inputs.package_directory }}
+          PACKAGE_EXT: ${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }}
         run: |
-          mkdir -p ${{ inputs.package_directory }}
-          mv ../../../*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }} ${{ inputs.package_directory }}
+          mkdir -p "$PACKAGE_DIRECTORY"
+          mv ../../../*."$PACKAGE_EXT" "$PACKAGE_DIRECTORY"
         shell: bash
 
       - name: Login to Registry
@@ -223,15 +226,20 @@ jobs:
 
       - name: Load standard slim image
         if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
+        env:
+          IMAGE_TAG: ${{ steps.image_tag.outputs.tag }}
         run: |
-          docker load --input ../../../docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
-          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }} docker.centreon.com/centreon/${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }}
+          docker load --input "../../../docker-image/$SLIM_IMAGE_NAME.tar"
+          docker tag "$SLIM_IMAGE_NAME:$IMAGE_TAG" "docker.centreon.com/centreon/$SLIM_IMAGE_NAME:$IMAGE_TAG"
         shell: bash
 
       - name: Get test execution Key
         id: get-test-execution-key
+        env:
+          XRAY_KEYS_AND_IDS: ${{ inputs.xray_keys_and_ids }}
+          OS: ${{ inputs.os }}
         run: |
-          test_execution_key=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_execution_key_'${{ inputs.os }})
+          test_execution_key=$(echo "$XRAY_KEYS_AND_IDS" | jq -r --arg os "$OS" '.["test_execution_key_" + $os]')
           echo "The Test Execution KEY: $test_execution_key"
           echo "test_execution_key=$test_execution_key" >> $GITHUB_ENV
         shell: bash
@@ -258,15 +266,18 @@ jobs:
           CYPRESS_IS_CLOUD: ${{ inputs.is_cloud }}
 
       - name: Ensure logs directory exists
-        run: mkdir -p ${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/
+        env:
+          MODULE_NAME: ${{ inputs.module_name }}
+        run: mkdir -p "$MODULE_NAME/tests/e2e/results/cucumber-logs/"
         shell: bash
 
       - name: Replace / with - in the feature path
         id: feature-path
         if: ${{ ! cancelled() }}
+        env:
+          FEATURE_NAME: ${{ matrix.feature }}
         run: |
-          feature_name="${{ matrix.feature }}"
-          feature_name_with_dash="${feature_name//\//-}"
+          feature_name_with_dash="${FEATURE_NAME//\//-}"
           echo "Modified Feature Name: $feature_name_with_dash"
           echo "feature_name_with_dash=$feature_name_with_dash" >> $GITHUB_OUTPUT
 
@@ -280,13 +291,16 @@ jobs:
 
       - name: Move retries.json to reports directory and display warnings
         if: ${{ ! cancelled() }}
+        env:
+          MODULE_NAME: ${{ inputs.module_name }}
+          FEATURE_NAME_WITH_DASH: ${{ steps.feature-path.outputs.feature_name_with_dash }}
         run: |
-            retriesFile="${{ inputs.module_name }}/tests/e2e/results/retries.json"
+            retriesFile="$MODULE_NAME/tests/e2e/results/retries.json"
             if [ -f "$retriesFile" ]; then
-              jq 'to_entries | .[].key' $retriesFile | while read -r testName; do
-                echo "::warning::Following test was retried during execution: $testName (retries: $(jq ".$testName" $retriesFile))"
+              jq -r 'to_entries | .[].key' "$retriesFile" | while read -r testName; do
+                echo "::warning::Following test was retried during execution: $testName (retries: $(jq --arg name "$testName" '.[$name]' "$retriesFile"))"
               done
-              mv $retriesFile "${{ inputs.module_name }}/tests/e2e/results/reports/${{ steps.feature-path.outputs.feature_name_with_dash }}-retries.json"
+              mv "$retriesFile" "$MODULE_NAME/tests/e2e/results/reports/$FEATURE_NAME_WITH_DASH-retries.json"
             fi
         shell: bash
 
@@ -331,24 +345,34 @@ jobs:
 
       - name: Generate Xray Token
         id: generate-xray-token
+        env:
+          XRAY_CLIENT_ID: ${{ secrets.xray_client_id }}
+          XRAY_CLIENT_SECRET: ${{ secrets.xray_client_secret }}
         run: |
-          token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.XRAY_CLIENT_ID }}\", \"client_secret\": \"${{ secrets.XRAY_CLIENT_SECRET }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
+          payload=$(jq -nc --arg id "$XRAY_CLIENT_ID" --arg secret "$XRAY_CLIENT_SECRET" '{client_id: $id, client_secret: $secret}')
+          token_response=$(curl -H "Content-Type: application/json" -X POST --data "$payload" "https://xray.cloud.getxray.app/api/v1/authenticate")
           xray_token=$(echo "$token_response" | sed -n 's/.*"\(.*\)".*/\1/p')
           echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Keys
+        env:
+          XRAY_KEYS_AND_IDS: ${{ inputs.xray_keys_and_ids }}
+          OS: ${{ inputs.os }}
         run: |
-          test_execution_key=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_execution_key_'${{ inputs.os }})
-          test_plan_key=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_plan_key_'${{ inputs.os }})
+          test_execution_key=$(echo "$XRAY_KEYS_AND_IDS" | jq -r --arg os "$OS" '.["test_execution_key_" + $os]')
+          test_plan_key=$(echo "$XRAY_KEYS_AND_IDS" | jq -r --arg os "$OS" '.["test_plan_key_" + $os]')
           echo "The Test Execution KEY: $test_execution_key"
           echo "The Test Plan KEY: $test_plan_key"
 
       - name: Import results to xray
+        env:
+          NAME: ${{ inputs.name }}
+          XRAY_TOKEN: ${{ steps.generate-xray-token.outputs.xray_token }}
         run: |
-          for file in "${{ inputs.name }}-json-xray-reports/"*.json
+          for file in "$NAME-json-xray-reports/"*.json
           do
-            curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data @"$file" https://xray.cloud.getxray.app/api/v2/import/execution/cucumber
+            curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer $XRAY_TOKEN" --data @"$file" https://xray.cloud.getxray.app/api/v2/import/execution/cucumber
           done
 
   cypress-e2e-test-report:
@@ -374,11 +398,13 @@ jobs:
           merge-multiple: true
 
       - name: Merge reports
+        env:
+          NAME: ${{ inputs.name }}
         run: |
-          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*-report.json" > mochawesome.json
+          pnpx mochawesome-merge "$NAME-json-reports/**/*-report.json" > mochawesome.json
 
-          if ls ${{ inputs.name }}-json-reports/*retries.json 1> /dev/null 2>&1; then
-            cat ${{ inputs.name }}-json-reports/*retries.json | jq -s add > retries.json
+          if ls "$NAME-json-reports/"*retries.json 1> /dev/null 2>&1; then
+            cat "$NAME-json-reports/"*retries.json | jq -s add > retries.json
           else
             echo "{}" > retries.json
           fi

@@ -19,10 +19,6 @@ default:
       paths: [ "%paths.base%/features/AcknowledgementTimeout.feature" ]
       contexts: [ AcknowledgementTimeoutContext ]
 
-    meta_services_api:
-      paths: [ "%paths.base%/features/MetaServicesApi.feature" ]
-      contexts: [ MetaServicesApiContext ]
-
     meta_services_downtime:
       paths: [ "%paths.base%/features/DowntimeService.feature" ]
       contexts: [ DowntimeServiceContext ]
@@ -42,12 +38,4 @@ default:
     downtime_recurrent:
       paths: [ "%paths.base%/features/DowntimeRecurrent.feature" ]
       contexts: [ DowntimeRecurrentContext ]
-
-    test_clapi:
-      paths: [ "%paths.base%/features/Clapi.feature" ]
-      contexts: [ ClapiContext ]
-
-    centreon_module_api:
-      paths: [ "%paths.base%/features/CentreonModuleAPI.feature" ]
-      contexts: [ CentreonModuleAPIContext ]
 
