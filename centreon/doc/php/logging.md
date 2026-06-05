@@ -501,12 +501,16 @@ The keyword heuristic of [§4](#4-loggingmiddleware) is permissive but **name-ba
 
 ### Attribute
 
-`App\Shared\Domain\Logging\Attribute\Sensitive` is a property-level attribute:
+`App\Shared\Domain\Logging\Attribute\Sensitive` can target properties, accessor methods, and classes:
 
 ```php
-#[\Attribute(\Attribute::TARGET_PROPERTY)]
+#[\Attribute(\Attribute::TARGET_PROPERTY | \Attribute::TARGET_METHOD | \Attribute::TARGET_CLASS)]
 final readonly class Sensitive {}
 ```
+
+- on a **property** — its value is masked;
+- on a **method** (typically a getter) — the accessor key it exposes is masked (`getX`/`isX`/`hasX` → `x`, otherwise the raw method name);
+- on a **class** — every value typed as that class is masked wholesale, so the sanitizer never descends into it.
 
 Annotate any property whose value must never reach a log — plain properties or promoted constructor parameters:
 
@@ -527,8 +531,8 @@ When such an object flows through the logging pipeline, the annotated values are
 
 | Component | Role |
 | --- | --- |
-| `…\Domain\Logging\Attribute\Sensitive` | the marker placed on properties |
-| `…\Infrastructure\Logging\Attribute\SensitivityScanner` | reflects a class, collects its `#[Sensitive]` properties and **recurses into nested class-typed properties**, so a secret nested in a sub-object is found too |
+| `…\Domain\Logging\Attribute\Sensitive` | the marker placed on properties, accessor methods, and classes |
+| `…\Infrastructure\Logging\Attribute\SensitivityScanner` | reflects a class, collects its `#[Sensitive]` properties and accessor keys, honours class-level sensitive types, and **recurses into nested class-typed properties**, so a secret nested in a sub-object is found too |
 | `…\Infrastructure\Logging\PayloadSanitizer` | stateless walker that masks the `#[Sensitive]` values of a payload given its owning class (`contextClass`); also truncates string values at `MAX_VALUE_LENGTH` (1024) |
 | `…\Infrastructure\Logging\SanitizingProcessor` | Monolog processor that applies the sanitizer to every record |
 

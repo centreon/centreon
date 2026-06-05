@@ -95,7 +95,7 @@ final class PayloadSanitizerTest extends TestCase
     {
         $sanitised = $this->sanitizer->sanitize(
             [
-                'card' => ['number' => '4111111111111111', 'holder' => 'admin'],
+                'card' => ['number' => 'card-number-test', 'holder' => 'admin'],
                 'label' => 'default card',
             ],
             0,

@@ -72,9 +72,11 @@ final readonly class PayloadSanitizer
             $result = [];
             foreach ($data as $key => $value) {
                 // `context.exception` belongs to ExceptionFormatterProcessor — leave
-                // it intact (raw Throwable must reach EFP; structured shape is deeper
-                // than MAX_DEPTH).
-                if ($key === 'exception') {
+                // a raw Throwable intact (it must reach EFP; its structured shape is
+                // deeper than MAX_DEPTH). Restrict the bypass to actual Throwables so
+                // a non-Throwable `exception` key cannot smuggle sensitive data past
+                // the masking walk.
+                if ($key === 'exception' && $value instanceof \Throwable) {
                     $result[$key] = $value;
 
                     continue;
