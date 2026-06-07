@@ -1,0 +1,66 @@
+# Compose override that enables TLS on MariaDB and configures the Web client
+# to connect over TLS. Stacks on top of .github/docker/docker-compose.yml.
+#
+# Mode is controlled by two shell variables consumed by DatabaseTLSResolver
+# (centreon/src/App/Shared/Infrastructure/Database/DatabaseTLSResolver.php):
+#
+#   DATABASE_VERIFY_SERVER_CERT  (default: 0)
+#       0 -> Mode 1: TLS without certificate verification.
+#            Resolver sets MYSQL_ATTR_SSL_CA = '' (PDO trick to force TLS
+#            without checking the chain), suitable for self-signed setups.
+#       1 -> Mode 2: TLS with CA verification.
+#            Resolver reads DATABASE_CA_PATH and pins PDO::MYSQL_ATTR_SSL_CA.
+#
+#   DATABASE_CA_PATH             (default: empty)
+#       Path to the CA bundle inside the web container. Only meaningful when
+#       DATABASE_VERIFY_SERVER_CERT=1. The certs/ directory of this folder is
+#       mounted at /certs on the web container.
+#
+# Prerequisite: run gen-certs.sh once to populate certs/ in this directory.
+#
+# Usage examples:
+#
+#   Mode 1 (default):
+#     docker compose -f .github/docker/docker-compose.yml \
+#                    -f .github/docker/tls/docker-compose.tls.yml up -d --wait
+#
+#   Mode 2 (verify CA):
+#     DATABASE_VERIFY_SERVER_CERT=1 DATABASE_CA_PATH=/certs/ca.pem \
+#     docker compose -f .github/docker/docker-compose.yml \
+#                    -f .github/docker/tls/docker-compose.tls.yml up -d --wait
+#
+#   Failure-injection (verify with a wrong CA - expected: connection refused):
+#     DATABASE_VERIFY_SERVER_CERT=1 DATABASE_CA_PATH=/certs/nope.pem \
+#     docker compose -f .github/docker/docker-compose.yml \
+#                    -f .github/docker/tls/docker-compose.tls.yml up -d --wait
+
+services:
+  db:
+    environment:
+      # Note: MARIADB_EXTRA_FLAGS is fully replaced (not merged) by Compose.
+      # The flags from .github/docker/.env are reproduced here, with --skip-ssl
+      # removed and --ssl-* added so MariaDB accepts TLS connections.
+      MARIADB_EXTRA_FLAGS: >-
+        --skip-name-resolve
+        --innodb-flush-method=nosync
+        --innodb-log-file-size=32M
+        --secure-file-priv=
+        --ssl-ca=/certs/ca.pem
+        --ssl-cert=/certs/server-cert.pem
+        --ssl-key=/certs/server-key.pem
+    volumes:
+      - ./tls/certs:/certs:ro
+
+  web:
+    environment:
+      # These env vars are read by env.local.php (bind-mounted below), NOT by
+      # Symfony directly. Symfony Dotenv only populates $_ENV from .env files,
+      # so DATABASE_* must come through .env.local.php to reach
+      # DatabaseTLSResolver. This mirrors how an OnPrem admin would configure
+      # the .env.local file by hand.
+      DATABASE_SSL_ENABLED: "1"
+      DATABASE_VERIFY_SERVER_CERT: "${DATABASE_VERIFY_SERVER_CERT:-0}"
+      DATABASE_CA_PATH: "${DATABASE_CA_PATH:-}"
+    volumes:
+      - ./tls/certs:/certs:ro
+      - ./tls/env.local.php:/usr/share/centreon/.env.local.php:ro
