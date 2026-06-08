@@ -65,12 +65,6 @@
     },
     "states": {
       "defaultValue": ["unhandled_problems"],
-      "hiddenCondition": {
-        "matches": "condensed",
-        "method": "equals",
-        "target": "options",
-        "when": "options.viewMode"
-      },
       "label": "Display resources with this state",
       "options": [
         {
