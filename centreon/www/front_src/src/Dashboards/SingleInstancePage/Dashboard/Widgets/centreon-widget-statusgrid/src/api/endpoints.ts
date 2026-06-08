@@ -196,7 +196,8 @@ export const buildCondensedViewEndpoint = ({
   type,
   resources,
   baseEndpoint,
-  statuses
+  statuses,
+  states
 }: BuildResourcesEndpointProps): string => {
   const resourcesToApply = resources.map((resource) => {
     if (!equals(type, resource.resourceType)) {
@@ -230,12 +231,17 @@ export const buildCondensedViewEndpoint = ({
     }
   );
 
+  const state =
+    states && !isEmpty(states) ? [{ name: 'states', value: states }] : [];
+
+  const status =
+    statuses && !isEmpty(statuses)
+      ? [{ name: 'statuses', value: statuses.map(toUpper) }]
+      : [];
+
   return buildListingEndpoint({
     baseEndpoint,
-    customQueryParameters:
-      statuses && !isEmpty(statuses)
-        ? [{ name: 'statuses', value: statuses.map(toUpper) }]
-        : [],
+    customQueryParameters: [...state, ...status],
     parameters: {
       search: {
         conditions: flatten(searchConditions)
