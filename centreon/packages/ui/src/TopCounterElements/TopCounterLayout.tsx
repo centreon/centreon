@@ -1,7 +1,7 @@
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import type { SvgIcon } from '@mui/material';
-import { Badge, ClickAwayListener } from '@mui/material';
+import { Badge, ClickAwayListener, Tooltip } from '@mui/material';
 
 import { useEffect, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
@@ -11,61 +11,28 @@ import useCloseOnLegacyPage from './useCloseOnLegacyPage';
 const useStyles = makeStyles()((theme) => ({
   button: {
     '& > svg': {
-      height: '0.9em',
-      margin: `-${theme.spacing(0.5)}`,
-      [theme.breakpoints.down(1025)]: {
-        margin: `-${theme.spacing(0.5)}`
-      }
+      height: '1.15em'
     },
+    alignItems: 'center',
     appearance: 'none',
     background: 'none',
     border: 0,
     color: theme.palette.common.white,
     cursor: 'pointer',
-    display: 'flex',
-
-    [theme.breakpoints.up(1025)]: {
-      alignItems: 'center',
-      flexFlow: 'row no-wrap',
-      marginTop: theme.spacing(0.5)
-    },
-
-    [theme.breakpoints.down(1025)]: {
-      alignItems: 'center',
-      flexFlow: 'column wrap',
-      order: 1
-    },
-
-    padding: '0'
+    display: 'inline-flex',
+    flexFlow: 'row nowrap',
+    gap: theme.spacing(1),
+    padding: 0
   },
   container: {
     position: 'relative'
   },
-  header: {
-    [theme.breakpoints.down(1025)]: {
-      display: 'flex',
-      flexFlow: 'row no-wrap'
-    }
-  },
-  iconWrapper: {
-    [theme.breakpoints.up(1025)]: {
-      position: 'absolute',
-      top: '0'
-    }
-  },
   indicators: {
+    alignItems: 'center',
+    display: 'inline-flex',
     lineHeight: 1,
     [theme.breakpoints.down(600)]: {
       display: 'none'
-    },
-    [theme.breakpoints.down(1025)]: {
-      flex: 'initial',
-      marginLeft: theme.spacing(0.5),
-      order: 2
-    },
-    [theme.breakpoints.up(1025)]: {
-      height: theme.spacing(2.5),
-      marginLeft: theme.spacing(3.75)
     }
   },
   subMenu: {
@@ -82,18 +49,6 @@ const useStyles = makeStyles()((theme) => ({
   },
   subMenuOpen: {
     visibility: 'visible'
-  },
-  textWrapper: {
-    alignItems: 'center',
-    display: 'inline-flex',
-    flex: '100%',
-    fontSize: theme.typography.body1.fontSize,
-    fontWeight: theme.typography.fontWeightBold,
-    lineHeight: '1',
-    whiteSpace: 'nowrap',
-    [theme.breakpoints.down(1025)]: {
-      display: 'none'
-    }
   }
 }));
 
@@ -103,6 +58,7 @@ interface TopCounterLayoutProps {
   renderSubMenu: (params: { closeSubMenu: () => void }) => JSX.Element;
   showPendingBadge?: boolean;
   title: string;
+  tooltipDescription?: string;
 }
 
 const TopCounterLayout = ({
@@ -110,7 +66,8 @@ const TopCounterLayout = ({
   title,
   renderIndicators,
   renderSubMenu,
-  showPendingBadge
+  showPendingBadge,
+  tooltipDescription
 }: TopCounterLayoutProps): JSX.Element => {
   const { classes, cx } = useStyles();
   const [toggled, setToggled] = useState(false);
@@ -147,33 +104,36 @@ const TopCounterLayout = ({
       }}
     >
       <div className={classes.container}>
-        <div className={classes.header}>
-          <div className={classes.indicators}>{renderIndicators()}</div>
-          <button
-            aria-controls={`${subMenuId}-menu`}
-            aria-expanded={toggled}
-            aria-haspopup="true"
-            aria-label={title}
-            className={classes.button}
-            id={`${subMenuId}-button`}
-            onClick={(): void => setToggled(!toggled)}
-            type="button"
+        <button
+          aria-controls={`${subMenuId}-menu`}
+          aria-expanded={toggled}
+          aria-haspopup="true"
+          aria-label={title}
+          className={classes.button}
+          id={`${subMenuId}-button`}
+          onClick={(): void => setToggled(!toggled)}
+          type="button"
+        >
+          <Tooltip
+            disableInteractive
+            enterDelay={500}
+            enterNextDelay={500}
+            placement="bottom"
+            title={tooltipDescription ?? title}
           >
-            <span className={classes.iconWrapper}>
-              <Badge
-                anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
-                color="pending"
-                invisible={!showPendingBadge}
-                overlap="circular"
-                variant="dot"
-              >
-                <Icon />
-              </Badge>
-            </span>
-            <span className={classes.textWrapper}>{title}</span>
-            {toggled ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-          </button>
-        </div>
+            <Badge
+              anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
+              color="pending"
+              invisible={!showPendingBadge}
+              overlap="circular"
+              variant="dot"
+            >
+              <Icon />
+            </Badge>
+          </Tooltip>
+          <span className={classes.indicators}>{renderIndicators()}</span>
+          {toggled ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+        </button>
         <div
           aria-labelledby={`${subMenuId}-button`}
           className={cx(classes.subMenu, { [classes.subMenuOpen]: toggled })}

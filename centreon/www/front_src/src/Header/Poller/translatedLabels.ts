@@ -28,3 +28,5 @@ export const labelPollerRunning = 'Everything is OK';
 export const labelConfigurePollers = 'Configure pollers';
 export const labelAllPollers = 'All pollers:';
 export const labelPollers = 'Pollers';
+export const labelPollersOverview =
+  'Current status of the pollers and monitoring engines';

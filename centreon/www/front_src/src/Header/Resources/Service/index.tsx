@@ -7,14 +7,18 @@ import {
   TopCounterResourceSubMenu
 } from '@centreon/ui';
 
+import { useTranslation } from 'react-i18next';
+
 import type { ServiceStatusResponse } from '../../api/decoders';
 import { serviceStatusDecoder } from '../../api/decoders';
 import { serviceStatusEndpoint } from '../../api/endpoints';
 import useResourceCounters from '../useResourceCounters';
 import type { ServicesPropsAdapterOutput } from './getServicePropsAdapter';
 import getServicePropsAdapter from './getServicePropsAdapter';
+import { labelServicesOverview } from './translatedLabels';
 
 const ServiceStatusCounter = (): JSX.Element | null => {
+  const { t } = useTranslation();
   const { isLoading, data, isAllowed } = useResourceCounters<
     ServiceStatusResponse,
     ServicesPropsAdapterOutput
@@ -44,6 +48,7 @@ const ServiceStatusCounter = (): JSX.Element | null => {
       )}
       showPendingBadge={data.hasPending}
       title={data.buttonLabel}
+      tooltipDescription={t(labelServicesOverview)}
     />
   );
 };
