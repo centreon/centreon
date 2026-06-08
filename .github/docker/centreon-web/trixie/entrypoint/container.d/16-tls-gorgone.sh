@@ -31,17 +31,16 @@ if [ ! -f "$CONFIG" ]; then
   return 0 2>/dev/null || exit 0
 fi
 
-# Idempotent — bail if mysql_ssl already in the file (native support landed,
-# or the script ran a second time on a persistent volume)
-if grep -q 'mysql_ssl' "$CONFIG"; then
-  echo "[tls-gorgone] DSN already has mysql_ssl attrs, no patch needed"
-  return 0 2>/dev/null || exit 0
-fi
-
-# Append ;mysql_ssl=1;mysql_ssl_ca=<CA> immediately before the closing quote
-# of any `dsn: "mysql:..."` line. Covers both db_configuration and db_realtime.
+# Append ;mysql_ssl=1;mysql_ssl_ca=<CA> immediately before the closing quote of
+# any `dsn: "mysql:..."` line. Covers both db_configuration and db_realtime.
+# Idempotency is per-DSN-line, not per-file: each mysql DSN that does NOT already
+# carry mysql_ssl gets patched, so a file where one DSN is patched and another
+# isn't (native support landing piecemeal, manual edits) is still fully covered.
+# Re-runs and already-patched lines are left untouched.
 sed -i \
-  "s|\(dsn: \"mysql:[^\"]*\)\"|\1;mysql_ssl=1;mysql_ssl_ca=$CA_PEM\"|g" \
+  "/dsn: \"mysql:/{
+     /mysql_ssl=/! s|\(dsn: \"mysql:[^\"]*\)\"|\1;mysql_ssl=1;mysql_ssl_ca=$CA_PEM\"|
+   }" \
   "$CONFIG" || exit 1
 
 echo "[tls-gorgone] Patched gorgone DSN with mysql_ssl=1 in $CONFIG"
