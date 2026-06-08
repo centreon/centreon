@@ -1,4 +1,4 @@
-import { Badge, Tooltip } from '@mui/material';
+import { Badge, Tooltip, alpha } from '@mui/material';
 
 import { getStatusColors, type SeverityCode } from '@centreon/ui';
 
@@ -9,25 +9,30 @@ export interface StyleProps {
   severityCode?: SeverityCode | null;
 }
 
-const useStyles = makeStyles<StyleProps>()((theme, { severityCode }) => ({
-  badge: {
-    background: severityCode
-      ? getStatusColors({ severityCode, theme })?.backgroundColor
-      : 'transparent',
-    borderRadius: theme.spacing(1.25),
-    color: theme.palette.common.black,
-    cursor: 'pointer',
-    fontSize: theme.typography.body2.fontSize,
-    fontWeight: theme.typography.fontWeightBold,
-    height: theme.spacing(2.125),
-    lineHeight: theme.spacing(2.125),
-    minWidth: theme.spacing(2.125),
-    position: 'relative',
-    right: 0,
-    top: 0,
-    transform: 'none'
-  }
-}));
+const useStyles = makeStyles<StyleProps>()((theme, { severityCode }) => {
+  const statusColor = severityCode
+    ? getStatusColors({ severityCode, theme })?.backgroundColor
+    : null;
+
+  return {
+    badge: {
+      background: statusColor ? alpha(statusColor, 0.8) : 'transparent',
+      borderRadius: theme.spacing(1.5),
+      color: theme.palette.common.white,
+      cursor: 'pointer',
+      fontSize: theme.typography.body1.fontSize,
+      fontWeight: theme.typography.fontWeightBold,
+      height: theme.spacing(2.5),
+      lineHeight: theme.spacing(2.5),
+      minWidth: theme.spacing(2.5),
+      padding: theme.spacing(0, 0.75),
+      position: 'relative',
+      right: 0,
+      top: 0,
+      transform: 'none'
+    }
+  };
+});
 
 export interface Props {
   className?: string;
