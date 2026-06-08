@@ -54,6 +54,12 @@ emit_sans() {
 
 # Idempotency: reuse the leaf when it is still valid AND its SAN set matches
 # what was requested. Regenerate otherwise.
+#
+# Reuse skips leaf reissuance only — the derived artifacts (steps 3-5: the
+# /out/rootCA.pem copy, the /out/db/* MariaDB copies, and /out/certs.env) are
+# re-provisioned unconditionally below so a partially-pruned cert volume
+# self-heals instead of silently breaking DB TLS startup.
+REGEN_LEAF=1
 if [ -f "$OUT/server.pem" ] && [ -f "$OUT/server-key.pem" ] && [ -f "$OUT/rootCA.pem" ]; then
   if openssl x509 -checkend $((RENEW_THRESHOLD_DAYS * 86400)) -noout -in "$OUT/server.pem" >/dev/null 2>&1; then
     cur_sans=$(openssl x509 -noout -ext subjectAltName -in "$OUT/server.pem" 2>/dev/null \
@@ -62,10 +68,11 @@ if [ -f "$OUT/server.pem" ] && [ -f "$OUT/server-key.pem" ] && [ -f "$OUT/rootCA
       | tr -d ' ' | sort -u || true)
     want_sans=$(emit_sans "$@" | sort -u)
     if [ "$cur_sans" = "$want_sans" ]; then
-      echo "[certgen] existing leaf valid >${RENEW_THRESHOLD_DAYS}d and SANs unchanged, skipping reissuance"
-      exit 0
+      echo "[certgen] existing leaf valid >${RENEW_THRESHOLD_DAYS}d and SANs unchanged, reusing leaf (re-provisioning derived artifacts)"
+      REGEN_LEAF=0
+    else
+      echo "[certgen] SAN set changed, regenerating leaf"
     fi
-    echo "[certgen] SAN set changed, regenerating leaf"
   else
     echo "[certgen] leaf expires within ${RENEW_THRESHOLD_DAYS}d, regenerating"
   fi
@@ -83,40 +90,43 @@ if [ ! -f "$CAROOT/rootCA.key" ] || [ ! -f "$CAROOT/rootCA.pem" ]; then
 fi
 
 # 2. Leaf — fresh on every regeneration. CSR and ext file live in tmpfs and
-#    are removed on exit so they never leak into the cert volume.
-EXT=$(mktemp)
-CSR=$(mktemp)
-trap 'rm -f "$EXT" "$CSR"' EXIT
+#    are removed on exit so they never leak into the cert volume. Skipped on
+#    reuse (REGEN_LEAF=0); the copy/manifest steps below still run.
+if [ "$REGEN_LEAF" = 1 ]; then
+  EXT=$(mktemp)
+  CSR=$(mktemp)
+  trap 'rm -f "$EXT" "$CSR"' EXIT
 
-{
-  echo "[v3_req]"
-  echo "basicConstraints = CA:FALSE"
-  echo "keyUsage         = digitalSignature, keyEncipherment"
-  echo "extendedKeyUsage = serverAuth"
-  echo "subjectAltName   = @alt_names"
-  echo
-  echo "[alt_names]"
-  d=0
-  i=0
-  for san in "$@"; do
-    case "$san" in
-      dns:*|DNS:*) d=$((d + 1)); echo "DNS.$d = ${san#*:}" ;;
-      ip:*|IP:*)   i=$((i + 1)); echo "IP.$i  = ${san#*:}" ;;
-      *[!0-9.]*)   d=$((d + 1)); echo "DNS.$d = $san" ;;
-      *)           i=$((i + 1)); echo "IP.$i  = $san" ;;
-    esac
-  done
-} > "$EXT"
+  {
+    echo "[v3_req]"
+    echo "basicConstraints = CA:FALSE"
+    echo "keyUsage         = digitalSignature, keyEncipherment"
+    echo "extendedKeyUsage = serverAuth"
+    echo "subjectAltName   = @alt_names"
+    echo
+    echo "[alt_names]"
+    d=0
+    i=0
+    for san in "$@"; do
+      case "$san" in
+        dns:*|DNS:*) d=$((d + 1)); echo "DNS.$d = ${san#*:}" ;;
+        ip:*|IP:*)   i=$((i + 1)); echo "IP.$i  = ${san#*:}" ;;
+        *[!0-9.]*)   d=$((d + 1)); echo "DNS.$d = $san" ;;
+        *)           i=$((i + 1)); echo "IP.$i  = $san" ;;
+      esac
+    done
+  } > "$EXT"
 
-echo "[certgen] generating leaf for SANs: $*"
-openssl genrsa -out "$OUT/server-key.pem" 2048
-openssl req -new -key "$OUT/server-key.pem" -out "$CSR" \
-  -subj "/CN=${1#*:}/O=$LEAF_SUBJ_O"
-openssl x509 -req -in "$CSR" \
-  -CA "$CAROOT/rootCA.pem" -CAkey "$CAROOT/rootCA.key" \
-  -CAserial "$CAROOT/rootCA.srl" -CAcreateserial \
-  -out "$OUT/server.pem" -days "$LEAF_DAYS" -sha256 \
-  -extfile "$EXT" -extensions v3_req
+  echo "[certgen] generating leaf for SANs: $*"
+  openssl genrsa -out "$OUT/server-key.pem" 2048
+  openssl req -new -key "$OUT/server-key.pem" -out "$CSR" \
+    -subj "/CN=${1#*:}/O=$LEAF_SUBJ_O"
+  openssl x509 -req -in "$CSR" \
+    -CA "$CAROOT/rootCA.pem" -CAkey "$CAROOT/rootCA.key" \
+    -CAserial "$CAROOT/rootCA.srl" -CAcreateserial \
+    -out "$OUT/server.pem" -days "$LEAF_DAYS" -sha256 \
+    -extfile "$EXT" -extensions v3_req
+fi
 
 # 3. Expose the CA cert next to the leaf for easy mounting.
 # Cert + CA are public artifacts — world-readable is fine.

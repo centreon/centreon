@@ -2,8 +2,11 @@
 
 mkdir -p /etc/mysql/conf.d
 # In HTTPS mode, 04-tls.sh installs a [client] config with ssl-ca pointing at our
-# Root CA; emitting skip-ssl here would override it. Gate on cert presence.
-if [ ! -f /etc/pki/centreon-tls/rootCA.pem ]; then
+# Root CA; emitting skip-ssl here would override it. Gate on cert presence, and
+# drop any stale file from a prior HTTP run on container restart.
+if [ -f /etc/pki/centreon-tls/rootCA.pem ]; then
+  rm -f /etc/mysql/conf.d/client-no-ssl.cnf
+else
   printf '[client]\nskip-ssl\n' > /etc/mysql/conf.d/client-no-ssl.cnf
 fi
 
