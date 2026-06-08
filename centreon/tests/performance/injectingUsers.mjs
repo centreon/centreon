@@ -39,6 +39,16 @@ const globalActions = [
         object: "ACLMENU",
         values: "name-administrator-ACLMENU;1;Monitoring;Event Logs"
     },
+     {
+        action: "GRANTRW",
+        object: "ACLMENU",
+        values: "name-administrator-ACLMENU;1;Monitoring;Map"
+    },
+    {
+        action: "GRANTRW",
+        object: "ACLMENU",
+        values: "name-administrator-ACLMENU;1;Monitoring;Resources status"
+    },
     {
         action: "GRANTRW",
         object: "ACLMENU",
@@ -87,6 +97,16 @@ const globalActions = [
     {
         action: "GRANTRW",
         object: "ACLMENU",
+        values: "name-administrator-ACLMENU;3;Configuration;Business Activity"
+    },
+  {
+        action: "GRANTRW",
+        object: "ACLMENU",
+        values: "name-administrator-ACLMENU;1;Monitoring;Business Activity"
+    },
+    {
+        action: "GRANTRW",
+        object: "ACLMENU",
         values: "name-administrator-ACLMENU;3;Configuration;Services"
     },
     {
@@ -128,6 +148,11 @@ const globalActions = [
         action: "SETCONTACTGROUP",
         object: "ACLGROUP",
         values: "name-administrator-ACLGROUP;contactGroupTestPerf"
+    },
+    {
+        object: "ACLGROUP",
+        action: "ADDRESOURCE",
+        values: "name-administrator-ACLGROUP;All Resources"
     }
 ];
 

@@ -8,7 +8,7 @@ on:
         required: true
         type: choice
         options:
-          - resourceStatus.jmx
+          - Centreon_API_Test_Plan.jmx
       jmeter_domain:
         description: 'Domain for JMeter tests (e.g., localhost)'
         required: true
@@ -57,8 +57,11 @@ jobs:
         with:
           node-version: 24
 
-      - name: Install Dependencies
-        run: npm ci
+      - name: Install PNPM
+        run: npm install -g pnpm
+
+      - name: Install Dependencies with PNPM
+        run: pnpm install --frozen-lockfile
 
       - name: Setup Java (OpenJDK 17)
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654  # v5.2.0
@@ -66,10 +69,96 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install Required Tools
+      - name: Install System Dependencies for Chrome & WebDriver
         run: |
+          echo "Installing shared libraries (libnss3, libgbm, etc.)..."
           sudo apt-get update
-          sudo apt-get install -y unzip wget curl
+          sudo apt-get install -y \
+            libnss3 \
+            libgbm1 \
+            libasound2 \
+            libxss1 \
+            libappindicator3-1 \
+            libatk-bridge2.0-0 \
+            libgtk-3-0 \
+            fonts-liberation \
+            libu2f-udev \
+            xdg-utils \
+            libvulkan1
+
+      - name: Install Google Chrome
+        run: |
+          echo "Installing Google Chrome Browser..."
+          wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt-get install -y ./google-chrome-stable_current_amd64.deb
+          google-chrome --version
+
+      - name: Install jq
+        run: |
+          echo "Installing jq..."
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Install ChromeDriver
+        run: |
+          mkdir -p chrome_driver && cd chrome_driver
+          # Download the version compatible with Chrome 145
+          wget -q https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json -O versions.json
+          CHROMEDRIVER_URL=$(jq -r '.versions[] | select(.version == "145.0.7632.45") | .downloads.chromedriver[] | select(.platform == "linux64").url' versions.json)
+          wget -q "$CHROMEDRIVER_URL" -O chromedriver-linux64.zip
+          unzip -q chromedriver-linux64.zip
+          mv chromedriver-linux64/chromedriver .
+          chmod +x chromedriver
+          echo "✅ ChromeDriver check:"
+          ./chromedriver --version
+          rm -rf chromedriver-linux64.zip versions.json
+
+      - name: Install JMeter
+        run: |
+          echo "🚀 STEP: Downloading Apache JMeter 5.6.3..."
+          wget -q https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.zip -O jmeter.zip
+
+          echo "📦 STEP: Unzipping JMeter archive..."
+          unzip -q jmeter.zip
+          rm jmeter.zip
+          echo "✅ SUCCESS: JMeter ready in apache-jmeter-5.6.3 folder"
+
+      - name: Setup JMeter WebDriver & Selenium (Manual Mode)
+        run: |
+          echo "🚀 STEP: Setting up WebDriver Plugin and Selenium dependencies..."
+          # Define local variable for this step
+          DIR="apache-jmeter-5.6.3"
+          mkdir -p "$DIR/lib/ext"
+
+          echo "📥 Downloading WebDriver Plugin..."
+          WEB_DRIVER_VERSION="4.13.0.2"
+          wget -q "https://jmeter-plugins.org/files/packages/jpgc-webdriver-$WEB_DRIVER_VERSION.zip"
+          unzip -qo "jpgc-webdriver-$WEB_DRIVER_VERSION.zip" -d webdriver_tmp
+          cp webdriver_tmp/lib/ext/*.jar "$DIR/lib/ext/"
+          cp webdriver_tmp/lib/*.jar "$DIR/lib/" || true
+
+          echo "📥 Downloading Core Selenium JARs..."
+          declare -A JARS=(
+            ["selenium-api-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-api/4.13.0/selenium-api-4.13.0.jar"
+            ["selenium-chrome-driver-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-chrome-driver/4.13.0/selenium-chrome-driver-4.13.0.jar"
+            ["selenium-chromium-driver-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-chromium-driver/4.13.0/selenium-chromium-driver-4.13.0.jar"
+            ["selenium-remote-driver-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-remote-driver/4.13.0/selenium-remote-driver-4.13.0.jar"
+            ["selenium-manager-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-manager/4.13.0/selenium-manager-4.13.0.jar"
+            ["selenium-http-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-http/4.13.0/selenium-http-4.13.0.jar"
+            ["selenium-json-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-json/4.13.0/selenium-json-4.13.0.jar"
+            ["guava-31.1-jre.jar"]="https://repo1.maven.org/maven2/com/google/guava/guava/31.1-jre/guava-31.1-jre.jar"
+            ["byte-buddy-1.14.5.jar"]="https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy/1.14.5/byte-buddy-1.14.5.jar"
+            ["commons-exec-1.3.jar"]="https://repo1.maven.org/maven2/org/apache/commons/commons-exec/1.3/commons-exec-1.3.jar"
+            ["opentelemetry-api-1.28.0.jar"]="https://repo1.maven.org/maven2/io/opentelemetry/opentelemetry-api/1.28.0/opentelemetry-api-1.28.0.jar"
+            ["opentelemetry-context-1.28.0.jar"]="https://repo1.maven.org/maven2/io/opentelemetry/opentelemetry-context/1.28.0/opentelemetry-context-1.28.0.jar"
+          )
+
+          for jar in "${!JARS[@]}"; do
+            wget -q "${JARS[$jar]}" -O "$DIR/lib/$jar"
+          done
+
+          rm -rf webdriver_tmp "jpgc-webdriver-$WEB_DRIVER_VERSION.zip"
+          echo "✅ SUCCESS: All dependencies installed."
 
       - name: Display inputs
         run: |
@@ -91,29 +180,15 @@ jobs:
           cat "$ENV_FILE"
 
       - name: Update JMeter .jmx with inputs
-        run: |
-          echo "Updating JMeter configuration with inputs..."
-
-          JMX_FILES=$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/*.jmx
-
-          for JMX_FILE in $JMX_FILES; do
-            echo "Updating $JMX_FILE with inputs..."
-
-            if [[ -n "${{ github.event.inputs.jmeter_port }}" ]]; then
-                sed -i "s|<stringProp name=\"HTTPSampler.port\">.*</stringProp>|<stringProp name=\"HTTPSampler.port\">${{ github.event.inputs.jmeter_port }}</stringProp>|g" $JMX_FILE
-            else
-              sed -i "s|<stringProp name=\"HTTPSampler.port\">.*</stringProp>|<stringProp name=\"HTTPSampler.port\"></stringProp>|g" $JMX_FILE
-            fi
-
-            sed -i "s|<stringProp name=\"HTTPSampler.domain\">.*</stringProp>|<stringProp name=\"HTTPSampler.domain\">${{ github.event.inputs.jmeter_domain }}</stringProp>|g" $JMX_FILE
-            sed -i "s|<stringProp name=\"HTTPSampler.protocol\">.*</stringProp>|<stringProp name=\"HTTPSampler.protocol\">${{ github.event.inputs.jmeter_protocol }}</stringProp>|g" $JMX_FILE
-            sed -i 's|\(<stringProp name="HTTPSampler.path">/\)[^/]*/api/latest|\1${{ github.event.inputs.api_prefix }}/api/latest|g' "$JMX_FILE"
-            sed -i "s|<intProp name=\"ThreadGroup.num_threads\">.*</intProp>|<intProp name=\"ThreadGroup.num_threads\">${{ github.event.inputs.number_of_users }}</intProp>|g" "$JMX_FILE"
-            sed -i "s|<intProp name=\"ThreadGroup.ramp_time\">.*</intProp>|<intProp name=\"ThreadGroup.ramp_time\">${{ github.event.inputs.ramp_time }}</intProp>|g" "$JMX_FILE"
-
-            echo "Updated $JMX_FILE:"
-            cat $JMX_FILE
-          done
+        env:
+          JMETER_DOMAIN: ${{ github.event.inputs.jmeter_domain }}
+          JMETER_PORT: ${{ github.event.inputs.jmeter_port }}
+          JMETER_PROTOCOL: ${{ github.event.inputs.jmeter_protocol }}
+          API_PREFIX: ${{ github.event.inputs.api_prefix }}
+          NUMBER_OF_USERS: ${{ github.event.inputs.number_of_users }}
+          RAMP_TIME: ${{ github.event.inputs.ramp_time }}
+          JMX_FOLDER: ${{ github.workspace }}/centreon/tests/performance/jmeterFolder
+        run: node updateJmxConfig.mjs
 
       - name: Inject Data into database
         run: node injectData.mjs
@@ -123,57 +198,37 @@ jobs:
             echo "Displaying contents of users.csv..."
             cat $GITHUB_WORKSPACE/centreon/tests/performance/users.csv
 
-      - name: Install JMeter
-        run: |
-          java -version
-          echo "Finding latest JMeter version..."
-          JMETER_VERSION=$(curl -s https://downloads.apache.org/jmeter/binaries/ | grep -oP 'apache-jmeter-\d+\.\d+\.\d+\.zip' | sort -V | tail -n 1 | sed 's/apache-jmeter-\(.*\).zip/\1/')
-
-          echo "Latest JMeter version: $JMETER_VERSION"
-
-          echo "Downloading JMeter..."
-          wget -q "https://downloads.apache.org/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.zip" -O jmeter.zip || { echo "Download failed!"; exit 1; }
-
-          echo "Unzipping JMeter..."
-          unzip -q jmeter.zip || { echo "Unzip failed!"; exit 1; }
-
-          rm jmeter.zip
-          echo "JMeter installed successfully!"
-
-
-      - name: Install JMeter Plugins
-        run: |
-          JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performance/apache-jmeter-*/)
-          cd $JMETER_DIR || { echo "JMeter directory not found!"; exit 1; }
-
-          wget -q --no-check-certificate https://jmeter-plugins.org/files/packages/jpgc-dummy-0.4.zip
-          unzip -o jpgc-dummy-0.4.zip
-          rm jpgc-dummy-0.4.zip  # Nettoyage après installation
-          echo "Plugins installed successfully!"
-
       - name: Run JMX Scripts
         run: |
-          JMETER_BIN=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performance/apache-jmeter-*/bin)
-          cd $JMETER_BIN
+            JMETER_BIN=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performance/apache-jmeter-*/bin)
+            cd $JMETER_BIN
 
-          mkdir -p $GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results
-          mkdir -p $GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_html_report
+            # Création des dossiers
+            mkdir -p $GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results
+            mkdir -p $GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_logs
+            mkdir -p $GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_html_report
 
-          JMX_FILE=$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/${{ github.event.inputs.jmeter_test_file }}
+            JMX_FILE=$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/${{ github.event.inputs.jmeter_test_file }}
 
-          if [ ! -f "$JMX_FILE" ]; then
-            echo "❌ Selected JMX file does not exist: $JMX_FILE"
-            exit 1
-          fi
+            if [ ! -f "$JMX_FILE" ]; then
+              echo "❌ Selected JMX file does not exist: $JMX_FILE"
+              exit 1
+            fi
 
-          ./jmeter -n -t "$JMX_FILE" \
-            -Jusers_csv_path="$GITHUB_WORKSPACE/centreon/tests/performance/users.csv" \
-            -l "$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results/results_$(basename "$JMX_FILE" .jmx).jtl" \
-            -j "$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results/jmeter_$(basename "$JMX_FILE" .jmx).log" \
-            -LDEBUG
+            RESULTS_FILE="$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results/results_$(basename "$JMX_FILE" .jmx).jtl"
+            LOG_FILE="$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_logs/jmeter_$(basename "$JMX_FILE" .jmx).log"
+            HTML_REPORT_DIR="$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_html_report/$(basename "$JMX_FILE" .jmx)"
 
-          ./jmeter -g "$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results/results_$(basename "$JMX_FILE" .jmx).jtl" \
-            -o "$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_html_report/$(basename "$JMX_FILE" .jmx)"
+            # Exécution du test JMeter
+            ./jmeter -n -t "$JMX_FILE" \
+              -Jusers_csv_path="$GITHUB_WORKSPACE/centreon/tests/performance/users.csv" \
+              -Jchromedriver_path="$GITHUB_WORKSPACE/centreon/tests/performance/chrome_driver/chromedriver" \
+              -l "$RESULTS_FILE" \
+              -j "$LOG_FILE" \
+              -LDEBUG
+
+            # Génération du rapport HTML
+            ./jmeter -g "$RESULTS_FILE" -o "$HTML_REPORT_DIR"
 
       - name: Upload JMeter results
         if: success()
@@ -188,6 +243,13 @@ jobs:
         with:
           name: jmeter-html-reports
           path: centreon/tests/performance/jmeterFolder/jmeter_html_report
+
+      - name: Upload JMeter logs
+        if: success()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: jmeter-logs
+          path: centreon/tests/performance/jmeterFolder/jmeter_logs/*
 
       - name: Display HTML Report in GitHub Summary
         if: success()
