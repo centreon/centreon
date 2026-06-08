@@ -30,6 +30,14 @@ if [ ! -f "$CA_PEM" ]; then
   return 0 2>/dev/null || exit 0
 fi
 
+# HTTPS mode requires the leaf too. The CA alone enters HTTPS mode but the
+# Apache vhost generated below points at $SRV_PEM/$SRV_KEY — without them Apache
+# fails later with a misleading "file not found". Fail fast with a direct error.
+if [ ! -f "$SRV_PEM" ] || [ ! -f "$SRV_KEY" ]; then
+  echo "[tls] FATAL: HTTPS mode requires both $SRV_PEM and $SRV_KEY (certgen did not provision the leaf)" >&2
+  exit 1
+fi
+
 echo "[tls] HTTPS mode detected, certificates present at $CERT_DIR"
 
 # Failsafe: HTTPS mode requires PR #9237 (centreon/centreon).
