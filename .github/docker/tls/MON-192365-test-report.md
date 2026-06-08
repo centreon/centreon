@@ -50,10 +50,12 @@ Matrice OS / DB
 
 ## Méthode de vérification
 
-Pour chaque mode, deux angles d'observation ont été utilisés :
+Pour chaque mode, deux vérifications :
 
 1. **Côté client (Web)** : connexion en clair ou TLS actif (et version TLS négociée le cas échéant).
-2. **Côté serveur (MariaDB)** : compteur `Ssl_accepts` (handshakes TLS comptabilisés) confronté au total `Connections`. Si TLS est inopérant côté client, `Ssl_accepts` reste à 0 ; sinon il s'incrémente à chaque connexion TLS établie.
+2. **Côté serveur (MariaDB)** : le serveur compte les connexions chiffrées (`Ssl_accepts`) et le total reçu (`Connections`). Règle de validation :
+   - TLS activé → `0 < Ssl_accepts ≤ Connections`
+   - TLS désactivé → `Ssl_accepts = 0`
 
 Une session API admin a aussi été ouverte pour confirmer le bon fonctionnement applicatif global. Pour TC-6, l'export de configuration Broker a été inspecté côté fichiers JSON.
 
@@ -63,11 +65,11 @@ Détails techniques et commandes reproductibles : `.github/docker/tls/README.md`
 
 ### TC-1 — Mode 0 baseline (sans TLS)
 
-**Setup** : stack standard, aucun override TLS, aucun `.env.local.php` modifié.
+**Setup** : stack de base seule, sans le fichier d'activation TLS (`docker-compose.tls.yml`), sans `.env.local.php` modifié.
 
 **Vérifications** :
 - Connexion DB Web → en clair (TLS désactivé, comportement attendu)
-- Preuve serveur MariaDB : `Ssl_accepts=0` pour `Connections=7309` — aucune connexion TLS établie
+- Preuve serveur MariaDB : `Ssl_accepts=0` (pour `Connections=7309`) → conforme à la règle (TLS désactivé)
 - Login API admin → HTTP 200 + token
 - Logs PHP-FPM / Apache → aucune erreur SSL/TLS/PDO
 - Logs Engine / Gorgone / Broker → rien à signaler
@@ -76,32 +78,32 @@ Détails techniques et commandes reproductibles : `.github/docker/tls/README.md`
 
 ### TC-2 — Mode 1 (TLS sans vérification)
 
-**Setup** : override TLS + bind-mount `.env.local.php` + `DATABASE_SSL_ENABLED=1`, `DATABASE_VERIFY_SERVER_CERT=0`.
+**Setup** : activation TLS (fichier `docker-compose.tls.yml`) + `.env.local.php` monté dans le conteneur + `DATABASE_SSL_ENABLED=1`, `DATABASE_VERIFY_SERVER_CERT=0`.
 
 **Vérifications** :
 - Variables TLS bien lues par l'application en mode "TLS sans vérification du certificat serveur"
 - Connexion DB Web → TLS 1.3 actif
-- Preuve serveur MariaDB : `Ssl_accepts=25` sur `Connections=63` — les connexions du Web sont bien en TLS (les ~38 restantes sont des connexions internes au container : healthcheck bash TCP probe, client mariadb local en socket Unix, etc.)
+- Preuve serveur MariaDB : `Ssl_accepts=25` (pour `Connections=63`) → `0 < 25 ≤ 63`, conforme à la règle (TLS actif)
 - Login API admin → HTTP 200 + token
 - Logs : aucune erreur
 
-**Verdict** : PASS. Le mode TLS sans vérification du certificat serveur est correctement activé — cas typique des déploiements en certificats self-signed.
+**Verdict** : PASS. Le mode TLS sans vérification du certificat serveur est correctement activé.
 
 ### TC-3 — Mode 2 (TLS avec vérification du CA)
 
-**Setup** : override TLS + `DATABASE_VERIFY_SERVER_CERT=1` + `DATABASE_CA_PATH=/certs/ca.pem`.
+**Setup** : activation TLS + `DATABASE_VERIFY_SERVER_CERT=1` + `DATABASE_CA_PATH=/certs/ca.pem`.
 
 **Vérifications** :
 - Variables TLS bien lues par l'application en mode "TLS avec vérification du certificat serveur via le CA fourni"
 - Connexion DB Web → TLS 1.3 actif
-- Preuve serveur MariaDB : `Ssl_accepts=25` sur `Connections=62` — comportement identique au Mode 1, le client refuserait ici la connexion si le CA était invalide (cf. TC-4)
+- Preuve serveur MariaDB : `Ssl_accepts=25` (pour `Connections=62`) → `0 < 25 ≤ 62`, conforme à la règle (TLS actif). La vérification du certificat contre le CA, propre au Mode 2, est démontrée en TC-4.
 - Login API admin → HTTP 200 + token
 
 **Verdict** : PASS.
 
 ### TC-4 — Sécurité : CA invalide doit échouer
 
-**Setup** : override TLS + `VERIFY=1` + `CA_PATH=/certs/nope.pem` (fichier inexistant).
+**Setup** : activation TLS + `VERIFY=1` + `CA_PATH=/certs/nope.pem` (fichier inexistant).
 
 **Vérifications** :
 - Le container `web` ne devient jamais healthy, il échoue pendant l'install
@@ -113,17 +115,19 @@ Détails techniques et commandes reproductibles : `.github/docker/tls/README.md`
   ```
 - Aucune connexion en clair effectuée — pas de fallback silencieux
 
-**Verdict** : PASS — la sécurité est tenue. Petite note d'UX : le container essaie plusieurs étapes d'install qui échouent en cascade avant de s'arrêter ; une vérif de connexion DB plus tôt améliorerait le feedback admin, mais pas un blocker.
+**Verdict** : PASS. Avec un CA invalide, la connexion échoue franchement et aucune connexion en clair n'est tentée en second essai : le comportement de sécurité attendu est bien respecté.
 
 ### TC-5 — Outils CLI sous TLS
 
 **Setup** : Mode 2 valide.
 
-**Tests** :
-- `tools/update_centreon_storage_logs.php` : **non testé** — non packagé dans l'image dev (`/usr/share/centreon/tools/` n'existe pas). C'est un script d'upgrade depuis tarball, à valider sur un environnement install/upgrade réel.
-- `bin/generateSqlLite -p 1` : OK, sortie attendue `Poller (id:0): Sqlite database successfully created`
+**Objectif** : s'assurer que les outils en ligne de commande qui se connectent à la base passent eux aussi par le TLS (et pas seulement l'interface Web).
 
-**Verdict** : PASS (avec remarque). À compléter par le dev/QA sur un setup d'upgrade pour valider `update_centreon_storage_logs.php` en conditions réelles.
+**Tests** :
+- `update_centreon_storage_logs.php` : **pas pu être testé**. Cet outil n'est utilisé que lors d'une mise à jour de Centreon à partir d'une archive, et il n'est pas présent dans l'image de test. Il devra donc être validé sur un vrai environnement de mise à jour.
+- `generateSqlLite` : testé, fonctionne normalement.
+
+**Verdict** : PASS, avec une réserve : il reste à vérifier `update_centreon_storage_logs.php` lors d'une vraie mise à jour. À confirmer par le dev/QA.
 
 ### TC-6 — Export de configuration Broker
 
@@ -142,34 +146,27 @@ Champs présents et valeurs cohérentes. Absents des `central-module.json` / `ce
 
 ### TC-7 — Bascule TLS → clair (retour à l'état initial)
 
-**Setup** : stack remontée sans aucun override TLS, sans `.env.local.php` patché.
+**Setup** : stack redémarrée sans le fichier d'activation TLS, sans `.env.local.php` modifié.
 
 **Vérifications** :
 - Variables TLS absentes (état initial restauré)
 - Connexion DB Web → en clair (TLS désactivé)
-- Preuve serveur MariaDB : `Ssl_accepts=0` après reprise en clair — aucune connexion TLS résiduelle
+- Preuve serveur MariaDB : `Ssl_accepts=0` après reprise en clair → conforme à la règle (TLS désactivé), aucune connexion TLS résiduelle
 - Login API admin → HTTP 200 + token
 - Broker JSON : aucun champ `db_ssl_*` (les champs disparaissent quand TLS désactivé)
 
 **Verdict** : PASS. La désactivation est propre, aucun reste de configuration TLS résiduelle.
 
-### TC-8 — Scripts supprimés non référencés
+### TC-8 — Vérifier que les scripts supprimés ne sont plus appelés
+
+**Objectif** : la PR supprime deux anciens scripts (`export-mysql-indexes` et `import-mysql-indexes`). Ce test s'assure que leur suppression est propre — qu'aucun code, fichier de configuration ou tâche planifiée (cron) ne tente encore de les exécuter, ce qui provoquerait une erreur.
 
 **Vérifications** :
-- `/usr/share/centreon/bin` ne contient plus `export-mysql-indexes` ni `import-mysql-indexes`
-- Aucune référence à ces scripts dans `/usr/share/centreon` et `/etc/centreon`
-- Aucun cron qui les appelle
+- Les deux scripts ne sont effectivement plus présents.
+- Aucune référence à ces scripts ne subsiste dans les fichiers de Centreon.
+- Aucune tâche planifiée (cron) ne les appelle.
 
-**Verdict** : PASS. Cleanup safe.
-
-## Notes pour le rapport global TLS (Confluence pageId 3573547624)
-
-À rajouter dans la page Confluence "QA - Audit for TLS campaign" lors d'une prochaine itération :
-
-1. **Confirmation que la variable canonique est `DATABASE_CA_PATH`** (et non `DATABASE_CA_CERT_PATH`). Confirmé par lecture du code `DatabaseTLSResolver` ligne 63.
-2. **Le code TLS est désactivé en environnement `test`** : commit `disable TLS connection decorator in test environment` — les tests phpunit ne valident pas TLS, c'est forcément manuel.
-3. **Le finding sur la propagation des variables d'environnement** (ci-dessus, section "important — à clarifier avec DEV et SRE"). Critique pour le déploiement Cloud.
-4. **Modules legacy (DSM, open-tickets, AWIE)** : héritent automatiquement du TLS via `CentreonDB`, validé indirectement par TC-2/3 (mêmes classes wrappers).
+**Verdict** : PASS. Suppression propre, aucune référence orpheline.
 
 ## Out of scope (à tester ailleurs)
 
@@ -178,31 +175,3 @@ Champs présents et valeurs cohérentes. Absents des `central-module.json` / `ce
 - gorgone : non couvert par la PR, MON-195933 séparé
 - `update_centreon_storage_logs.php` : à tester sur env d'upgrade tarball
 - Vrai test UI (Cypress) : la QA actuelle est API-driven
-
----
-
-## Jira comment draft (English, for copy-paste on MON-192365)
-
-```
-QA report — manual test session, branch MON-192365, image centreon-web-alma9:MON-192365 + mariadb:10.11
-
-8 test cases executed (Mode 0/1/2, security failure injection, CLI, broker export, reverse switch, removed scripts cleanup).
-
-Result: PASS. Code is functionally correct. Mergeable subject to one clarification below.
-
-⚠️ Finding to clarify before merge:
-DatabaseTLSResolver reads $_ENV['DATABASE_SSL_ENABLED'], but PHP variables_order=GPCS in the Centreon image, so $_ENV is not populated from system env. Symfony Dotenv only populates $_ENV from .env/.env.local/.env.local.php. Consequence: Docker `environment:` or K8s env vars alone do NOT activate TLS. Tests had to bind-mount a custom .env.local.php matching the OnPrem admin spec.
-
-Questions:
-1. How are TLS vars propagated in Cloud? (compliance, deployment path)
-2. Should the constraint "vars MUST live in .env*, not in shell env" be explicit in the doc subtask MON-193496?
-3. Could DatabaseTLSResolver fall back to getenv() when $_ENV is empty, to cover both deployment models?
-
-Other notes:
-- TC-4 wrong-CA properly fails with explicit PDO error in centreonDB.class.php:166 — no silent fallback, security upheld
-- Broker config-gen properly injects db_ssl_enabled / db_ssl_verify_cert / db_ssl_ca in central-broker.json (MON-195898 chain)
-- tools/update_centreon_storage_logs.php not packaged in the dev image; to validate on an upgrade tarball
-- Matrix OS/DB out of scope, will run after MON-197422 (PR #10385) provides the official CI infra
-
-Full report: .github/docker/tls/MON-192365-test-report.md (local, not committed)
-```
