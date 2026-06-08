@@ -48,3 +48,5 @@ export const labelCopyTheFollowingCommand =
   'Copy the following command and run it on your poller to register it.';
 export const labelFailedToCreatePoller = 'Failed to create poller';
 export const labelPleaseWait = 'Please wait...';
+export const labelPollersOverview =
+  'Current status of the pollers and monitoring engines';

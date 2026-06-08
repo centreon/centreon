@@ -7,14 +7,18 @@ import {
   TopCounterResourceSubMenu
 } from '@centreon/ui';
 
+import { useTranslation } from 'react-i18next';
+
 import type { HostStatusResponse } from '../../api/decoders';
 import { hostStatusDecoder } from '../../api/decoders';
 import { hostStatusEndpoint } from '../../api/endpoints';
 import useResourceCounters from '../useResourceCounters';
 import type { HostPropsAdapterOutput } from './getHostPropsAdapter';
 import getHostPropsAdapter from './getHostPropsAdapter';
+import { labelHostsOverview } from './translatedLabels';
 
 const HostStatusCounter = (): JSX.Element | null => {
+  const { t } = useTranslation();
   const { isLoading, data, isAllowed } = useResourceCounters<
     HostStatusResponse,
     HostPropsAdapterOutput
@@ -44,6 +48,7 @@ const HostStatusCounter = (): JSX.Element | null => {
       )}
       showPendingBadge={data.hasPending}
       title={data.buttonLabel}
+      tooltipDescription={t(labelHostsOverview)}
     />
   );
 };

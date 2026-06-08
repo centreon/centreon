@@ -1,4 +1,5 @@
 export const labelHosts = 'Hosts';
+export const labelHostsOverview = 'Current status of the hosts being monitored';
 export const labelDownStatusHosts = 'Down status hosts';
 export const labelUnreachableStatusHosts = 'Unreachable status hosts';
 export const labelUpStatusHosts = 'Up status hosts';

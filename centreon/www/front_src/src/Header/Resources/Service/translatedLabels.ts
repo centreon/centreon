@@ -1,4 +1,6 @@
 export const labelServices = 'Services';
+export const labelServicesOverview =
+  'Current status of the services being monitored';
 
 export const labelCriticalStatusServices = 'Critical status services';
 export const labelWarningStatusServices = 'Warning status services';
