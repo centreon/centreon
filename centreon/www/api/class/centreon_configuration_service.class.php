@@ -65,7 +65,7 @@ class CentreonConfigurationService extends CentreonConfigurationObjects
         // Get ACL if user is not admin
         if (! $isAdmin) {
             $acl = new CentreonACL($userId, false);
-            $allowedServiceIds = array_map('intval', array_filter(explode(',', $acl->getServicesString('ID', $this->pearDBMonitoring)), 'is_numeric'));
+            $allowedServiceIds = array_map('intval', array_filter(explode(',', $acl->getServicesString('ID', $this->pearDBMonitoring, false)), 'is_numeric'));
             if ($allowedServiceIds !== []) {
                 $placeholders = array_map(fn ($k) => ':aclSvc' . $k, array_keys($allowedServiceIds));
                 $aclServiceBindParams = array_combine($placeholders, $allowedServiceIds);
