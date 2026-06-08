@@ -1,12 +1,9 @@
 // @ts-nocheck
 // TODO: re-enable type-check after fixing this file
-import { Variant } from '@mui/material/styles/createTypography';
-
-import { CheckboxGroup, SelectEntry } from '@centreon/ui';
+import { SelectEntry } from '@centreon/ui';
 
 import { useAtom } from 'jotai';
 import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
 
 import { Criteria, CriteriaDisplayProps } from '../../../Criterias/models';
 import {
@@ -20,7 +17,7 @@ import {
 import useInputData from '../../useInputsData';
 import { selectedStatusByResourceTypeAtom } from '../atoms';
 import useSectionsData from '../sections/useSections';
-import { useStyles } from './checkBox.style';
+import StatusChipGroup from './StatusChipGroup';
 import useSynchronizeSearchBarWithCheckBoxInterface from './useSynchronizeSearchBarWithCheckBoxInterface';
 
 interface Props {
@@ -37,16 +34,6 @@ const CheckBoxSection = ({
   resourceType,
   isDeactivated
 }: Props & DeactivateProps): JSX.Element | null => {
-  const { classes } = useStyles();
-  const { t } = useTranslation();
-
-  const labelProps = {
-    classes: { root: classes.label },
-    variant: 'body2' as Variant
-  };
-
-  const formGroupProps = { classes: { root: classes.container } };
-
   const [selectedStatusByResourceType, setSelectedStatusByResourceType] =
     useAtom(selectedStatusByResourceTypeAtom);
 
@@ -69,27 +56,6 @@ const CheckBoxSection = ({
   }
 
   const options = dataByFilterName.options as Array<SelectEntry>;
-
-  const transformData = (
-    input: Array<SelectEntry>
-  ): Array<string> | undefined => {
-    return input?.map((item) => item?.name);
-  };
-
-  const getTranslated = (keys: Array<SelectEntry>): Array<SelectEntry> => {
-    return keys.map((entry) => ({
-      id: entry.id,
-      name: t(entry.name)
-    }));
-  };
-
-  const translatedOptions = getTranslated(options);
-
-  const translatedValues = getTranslated(
-    selectedStatusByResourceType?.filter(
-      (e) => e.checked && e.resourceType === resourceType
-    ) ?? []
-  );
 
   const changeFilter = (selectedStatus: Array<SelectedResourceType>): void => {
     const checkedData = selectedStatus?.filter((item) => item?.checked);
@@ -137,35 +103,20 @@ const CheckBoxSection = ({
     changeFilter(result);
   };
 
-  const handleChangeStatus = (event): void => {
-    const originalValue = translatedOptions.find(({ name }) =>
-      equals(name, event.target.id)
-    ) as SelectEntry;
+  const selectedIds = (selectedStatusByResourceType ?? [])
+    .filter((entry) => entry.checked && entry.resourceType === resourceType)
+    .map((entry) => entry.id);
 
-    const item = options.find(({ id }) => equals(id, originalValue.id));
-
-    if (event.target.checked) {
-      const currentValue = { ...item, checked: true, resourceType };
-      handleSelectedStatus(currentValue);
-
-      return;
-    }
-
-    const currentValue = { ...item, checked: false, resourceType };
-
-    handleSelectedStatus(currentValue);
+  const toggleStatus = (option: SelectEntry, checked: boolean): void => {
+    handleSelectedStatus({ ...option, checked, resourceType });
   };
 
   return (
-    <CheckboxGroup
-      className={classes.checkbox}
+    <StatusChipGroup
       dataTestId={`${filterName}-${resourceType}`}
-      direction="horizontal"
-      formGroupProps={formGroupProps}
-      labelProps={labelProps}
-      onChange={handleChangeStatus}
-      options={transformData(translatedOptions) || []}
-      values={transformData(translatedValues) || []}
+      onToggle={toggleStatus}
+      options={options}
+      selectedIds={selectedIds}
     />
   );
 };

@@ -73,6 +73,11 @@ export const labelForcedCheckDescription =
 export const labelCheckDescription =
   'Check selected resources only within configured check period';
 export const labelCheck = 'Check';
+export const labelActions = 'Actions';
+export const labelAcknowledgeDescription =
+  'Acknowledge the problem and stop the related notifications';
+export const labelSetDowntimeDescription =
+  'Schedule a downtime to prevent notifications during maintenance';
 export const labelTicket = 'Tickets';
 export const labelOpenTicketForHost = 'Open ticket for host';
 export const labelOpenTicketForService = 'Open ticket for service';

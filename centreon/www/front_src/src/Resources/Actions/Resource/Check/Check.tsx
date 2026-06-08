@@ -2,8 +2,7 @@
 // TODO: re-enable type-check after fixing this file
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import IconArrowDown from '@mui/icons-material/KeyboardArrowDownOutlined';
-import { ClickAwayListener } from '@mui/material';
-import ButtonGroup from '@mui/material/ButtonGroup';
+import { Box, ClickAwayListener } from '@mui/material';
 
 import { IconButton } from '@centreon/ui';
 
@@ -89,10 +88,10 @@ const Check = ({
 
   return (
     <ClickAwayListener onClickAway={handleClickAway}>
-      <ButtonGroup
+      <Box
         className={cx(classes.buttonGroup, {
           [classes.container]: !displayCondensed,
-          [classes.disabled]: disabledButton && !displayCondensed
+          [classes.condensed]: displayCondensed
         })}
         onClick={handleClick}
       >
@@ -110,7 +109,7 @@ const Check = ({
           anchorEl,
           isOpen
         })}
-      </ButtonGroup>
+      </Box>
     </ClickAwayListener>
   );
 };

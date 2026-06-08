@@ -40,11 +40,11 @@ export const getStatusColors = ({
     },
     [SeverityCode.Pending]: {
       backgroundColor: theme.palette.statusBackground.pending,
-      color: palette.text.primary
+      color: palette.pending.contrastText
     },
     [SeverityCode.OK]: {
       backgroundColor: theme.palette.statusBackground.success,
-      color: palette.text.primary
+      color: palette.success.contrastText
     },
     [SeverityCode.None]: {
       backgroundColor: theme.palette.statusBackground.none,

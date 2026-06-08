@@ -30,12 +30,12 @@ const SelectActionListingHeaderCell = ({
 
   return (
     <TableCell
-      className="bg-background-listing-header h-full pt-0 pr-1 pb-0 pl-3 flex flex-row items-center leading=[inherit] justify-start border-b-0"
+      className="bg-background-listing-header h-full pt-0 pr-1 pb-0 pl-3 flex flex-row items-center leading=[inherit] justify-start border-b-0 rounded-tl-lg"
       component={'div' as unknown as React.ElementType<TableCellBaseProps>}
     >
       <Checkbox
         checked={hasRows && selectedRowCount === rowCount}
-        className="text-white"
+        className="text-black dark:text-white"
         indeterminate={
           hasRows && selectedRowCount > 0 && selectedRowCount < rowCount
         }
@@ -44,7 +44,7 @@ const SelectActionListingHeaderCell = ({
       />
       {not(isEmpty(predefinedRowsSelection)) ? (
         <PopoverMenu
-          className="text-white"
+          className="text-black dark:text-white"
           icon={<ArrowDropDownIcon />}
           title={labelPredefinedRowsSelectionMenu}
         >
@@ -57,7 +57,7 @@ const SelectActionListingHeaderCell = ({
           )}
         </PopoverMenu>
       ) : (
-        <div className="text-white" />
+        <div className="text-black dark:text-white" />
       )}
     </TableCell>
   );

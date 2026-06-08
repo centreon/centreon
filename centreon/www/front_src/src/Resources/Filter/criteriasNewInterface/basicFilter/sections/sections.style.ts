@@ -15,5 +15,22 @@ export const useStyles = makeStyles()((theme) => ({
   },
   input: {
     maxWidth: theme.spacing(40)
+  },
+  sectionColumn: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(1)
+  },
+  sectionsGrid: {
+    display: 'grid',
+    gap: theme.spacing(2),
+    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))'
+  },
+  sectionTitle: {
+    color: theme.palette.text.secondary,
+    fontSize: theme.typography.caption.fontSize,
+    fontWeight: theme.typography.fontWeightBold,
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase'
   }
 }));

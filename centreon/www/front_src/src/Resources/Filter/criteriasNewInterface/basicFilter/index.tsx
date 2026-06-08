@@ -1,5 +1,3 @@
-import { Divider } from '@mui/material';
-
 import { useStyles } from '../criterias.style';
 
 interface BasicFilter {
@@ -18,13 +16,13 @@ const BasicFilter = ({
   const { classes } = useStyles();
 
   return (
-    <div className={classes.containerFilter}>
-      {sections}
-      {poller}
-      <Divider className={classes.divider} />
-      {types}
-      <div className={classes.div} />
-      {state}
+    <div className={classes.basicLayout}>
+      <div className={classes.basicMain}>{sections}</div>
+      <div className={classes.basicSide}>
+        {poller}
+        {types}
+        {state}
+      </div>
     </div>
   );
 };

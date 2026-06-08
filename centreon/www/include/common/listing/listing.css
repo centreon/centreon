@@ -230,12 +230,16 @@
     padding: 6px 16px;
     font-weight: 600;
     font-size: 13px;
-    color: #fff;
+    color: #000;
     text-align: left;
     border-bottom: none;
-    background: #8C8C8C;
+    background: var(--color-background-listing-header, #d9d9d9);
     white-space: nowrap;
     user-select: none;
+}
+
+.dark .cl-listing-table thead th {
+    color: #fff;
 }
 
 .cl-listing-table thead th.cl-col-center {
@@ -460,8 +464,12 @@
     line-height: 1;
 }
 
-/* White checkbox border on dark header */
+/* Checkbox border on listing header (matches header text color per theme) */
 .cl-listing-table thead th .md-checkbox label::before {
+    border-color: #000;
+}
+
+.dark .cl-listing-table thead th .md-checkbox label::before {
     border-color: #fff;
 }
 
@@ -1038,7 +1046,7 @@
     position: sticky;
     top: 0;
     z-index: 10;
-    background: var(--table-header-background, #6b7888);
+    background: var(--color-background-listing-header, #d9d9d9);
 }
 
 /* ==========================================================================

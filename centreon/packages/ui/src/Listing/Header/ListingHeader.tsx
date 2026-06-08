@@ -65,6 +65,9 @@ const ListingHeader = ({
     columns
   });
 
+  const firstColumnId = visibleColumns[0]?.id;
+  const lastColumnId = visibleColumns[visibleColumns.length - 1]?.id;
+
   const getColumnById = useCallback(
     (id: string): Column => {
       return find(propEq(id, 'id'), columns) as Column;
@@ -92,6 +95,8 @@ const ListingHeader = ({
           itemRef={itemRef}
           listingVariant={listingVariant}
           onSort={onSort}
+          roundTopLeft={!checkable && equals(id, firstColumnId)}
+          roundTopRight={equals(id, lastColumnId)}
           sortField={sortField}
           sortOrder={sortOrder}
           style={style}
@@ -107,7 +112,10 @@ const ListingHeader = ({
       areColumnsEditable,
       getColumnById,
       listingVariant,
-      onSort
+      onSort,
+      checkable,
+      firstColumnId,
+      lastColumnId
     ]
   );
 

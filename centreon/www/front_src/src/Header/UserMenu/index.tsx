@@ -128,10 +128,12 @@ const useStyles = makeStyles()((theme) => ({
   menu: {
     backgroundColor: theme.palette.background.default,
     border: 'none',
-    borderRadius: 0,
+    // Attached to the header on top, rounded on the bottom (dropdown look).
+    borderRadius: theme.spacing(0, 0, 1, 1),
     boxShadow: theme.shadows[3],
     fontSize: theme.typography.body2.fontSize,
-    minWidth: 190
+    minWidth: 190,
+    overflow: 'hidden'
   },
   passwordExpiration: {
     color: theme.palette.warning.main
@@ -150,16 +152,21 @@ const useStyles = makeStyles()((theme) => ({
   },
   userIcon: {
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.20)',
+    backgroundColor: equals(theme.palette.mode, ThemeMode.dark)
+      ? theme.palette.primary.main
+      : theme.palette.background.paper,
     borderRadius: '50%',
-    color: theme.palette.common.white,
+    color: equals(theme.palette.mode, ThemeMode.dark)
+      ? theme.palette.background.paper
+      : theme.palette.primary.main,
     cursor: 'pointer',
     display: 'flex',
-    fontSize: theme.typography.body1.fontSize,
-    fontWeight: 600,
+    fontSize: theme.typography.pxToRem(16),
+    fontWeight: theme.typography.fontWeightBold,
     height: theme.spacing(4),
     justifyContent: 'center',
     lineHeight: 1,
+    textTransform: 'uppercase',
     userSelect: 'none',
     width: theme.spacing(4)
   },
@@ -333,9 +340,19 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
     toggleFullscreen(document.querySelector('body'));
   };
 
-  const userInitial =
-    (data.fullname || data.username || '?').trim().charAt(0).toUpperCase() ||
-    '?';
+  const nameWords = (data.fullname || data.username || '')
+    .trim()
+    .split(/[\s_]+/)
+    .filter(Boolean);
+
+  const userInitials =
+    (nameWords.length === 1
+      ? nameWords[0].slice(0, 2)
+      : nameWords
+          .slice(0, 2)
+          .map((word) => word.charAt(0))
+          .join('')
+    ).toUpperCase() || 'U';
 
   return (
     <div className={classes.wrapper} ref={profile as RefObject<HTMLDivElement>}>
@@ -367,7 +384,7 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
               role="button"
               tabIndex={0}
             >
-              {userInitial}
+              {userInitials}
             </div>
           </Badge>
         </Tooltip>

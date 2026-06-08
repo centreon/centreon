@@ -2,7 +2,9 @@ import { makeStyles } from 'tss-react/mui';
 
 export const useStyles = makeStyles()((theme) => ({
   buttonGroup: {
-    alignItems: 'center'
+    alignItems: 'center',
+    borderRadius: '999px',
+    overflow: 'hidden'
   },
   condensed: {
     marginRight: theme.spacing(2)
@@ -24,14 +26,16 @@ export const useStyles = makeStyles()((theme) => ({
 
 export const useOptionsStyles = makeStyles()((theme) => ({
   button: {
-    alignItems: 'flex-start'
+    alignItems: 'flex-start',
+    paddingInline: theme.spacing(1)
   },
   container: {
     backgroundColor: theme.palette.background.default,
+    borderRadius: theme.spacing(1),
     display: 'flex',
     flexDirection: 'column',
     minWidth: theme.spacing(13.5),
-    padding: theme.spacing(0, 1)
+    overflow: 'hidden'
   },
   icon: {
     minWidth: theme.spacing(3)
@@ -65,7 +69,7 @@ export const useTextStyles = makeStyles()((theme) => ({
     maxWidth: theme.spacing(31)
   },
   title: {
-    color: theme.palette.info.main,
+    color: theme.palette.primary.main,
     fontWeight: 'bold'
   }
 }));

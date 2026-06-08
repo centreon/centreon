@@ -1,3 +1,5 @@
+import { useTheme } from '@mui/material';
+
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 
@@ -6,16 +8,30 @@ import { selectedVisualizationAtom } from '../actionsAtoms';
 
 interface Props {
   IconOnActive: string;
+  IconOnActiveDark: string;
   IconOnInactive: string;
+  IconOnInactiveDark: string;
   type: Visualization;
 }
 
-const useIconPath = ({ type, IconOnActive, IconOnInactive }: Props): string => {
+const useIconPath = ({
+  type,
+  IconOnActive,
+  IconOnActiveDark,
+  IconOnInactive,
+  IconOnInactiveDark
+}: Props): string => {
+  const theme = useTheme();
   const visualization = useAtomValue(selectedVisualizationAtom);
 
-  const imagePath = equals(visualization, type) ? IconOnActive : IconOnInactive;
+  const isDarkMode = equals(theme.palette.mode, 'dark');
+  const isActive = equals(visualization, type);
 
-  return imagePath;
+  if (isActive) {
+    return isDarkMode ? IconOnActiveDark : IconOnActive;
+  }
+
+  return isDarkMode ? IconOnInactiveDark : IconOnInactive;
 };
 
 export default useIconPath;

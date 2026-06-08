@@ -1,16 +1,10 @@
-import TuneIcon from '@mui/icons-material/Tune';
-import { Grid } from '@mui/material';
+import { useMemoComponent } from '@centreon/ui';
 
-import { PopoverMenu, useMemoComponent } from '@centreon/ui';
-
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { isNil, pipe, reject, sortBy } from 'ramda';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { hoveredNavigationItemsAtom } from '../../../Navigation/Sidebar/sideBarAtoms';
-import { labelSearchOptions } from '../../translatedLabels';
 import CriteriasNewInterface from '../criteriasNewInterface';
 import Actions from '../criteriasNewInterface/actions';
 import Save from '../criteriasNewInterface/actions/Save';
@@ -31,42 +25,30 @@ import useFilterByModule from '../useFilterByModule';
 import {
   CriteriaDisplayProps,
   Criteria as CriteriaModel,
-  PopoverData,
   SearchDataPropsCriterias
 } from './models';
 import SaveActions from './SaveActions';
 import { criteriaNameSortOrder } from './searchQueryLanguage/models';
 
-interface Styles {
-  display: boolean;
-}
-
-const useStyles = makeStyles<Styles>()((theme, { display }) => ({
-  container: {
-    alignItems: 'center',
-    display: !display ? 'none' : 'flex',
+const useStyles = makeStyles()((theme) => ({
+  panel: {
+    backgroundColor: theme.palette.background.paper,
+    border: `1px solid ${theme.palette.divider}`,
+    borderRadius: theme.spacing(1.5),
+    boxShadow: theme.shadows[2],
     marginTop: theme.spacing(1),
-    padding: theme.spacing(2, 2, 2, 3)
-  },
-  searchButton: {
-    marginTop: theme.spacing(1)
+    padding: theme.spacing(2, 2.5),
+    width: '100%'
   }
 }));
 
 interface Props {
-  display?: boolean;
   searchData: SearchDataPropsCriterias;
 }
 
-const CriteriasContent = ({
-  display = false,
-  searchData
-}: Props): JSX.Element => {
-  const { classes } = useStyles({ display });
-  const { t } = useTranslation();
+const CriteriasContent = ({ searchData }: Props): JSX.Element => {
+  const { classes } = useStyles();
   const [isCreatingFilter, setIsCreatingFilter] = useState(false);
-
-  const hoveredNavigationItem = useAtomValue(hoveredNavigationItemsAtom);
 
   const { newCriteriaValueName, newSelectableCriterias } = useFilterByModule();
 
@@ -79,10 +61,10 @@ const CriteriasContent = ({
     selectedStatusByResourceTypeAtom
   );
   const clearFilter = useSetAtom(clearFilterDerivedAtom);
-
   const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
-  const setIsCriteriasPanelOpen = useSetAtom(isCriteriasPanelOpenAtom);
-  const canOpenPopover = isNil(hoveredNavigationItem);
+  const [isCriteriasPanelOpen, setIsCriteriasPanelOpen] = useAtom(
+    isCriteriasPanelOpenAtom
+  );
 
   const getSelectableCriterias = (): Array<CriteriaModel> => {
     const criteriasValue = filterByInstalledModulesWithParsedSearch({
@@ -117,72 +99,41 @@ const CriteriasContent = ({
     setIsCreatingFilter(boolean);
   };
 
-  const getPopoverData = (data: PopoverData): void => {
-    const { anchorEl } = data;
-    if (anchorEl) {
-      return;
-    }
+  const closePanel = (): void => {
     setDisplayActions(false);
-  };
-
-  const open = (): void => {
-    setIsCriteriasPanelOpen(true);
-  };
-
-  const onClose = (): void => {
-    applyCurrentFilter();
     setIsCriteriasPanelOpen(false);
+  };
+
+  const search = (): void => {
+    applyCurrentFilter();
+    closePanel();
   };
 
   return (
     <>
-      <PopoverMenu
-        canOpen={canOpenPopover}
-        dataTestId={labelSearchOptions}
-        getPopoverData={getPopoverData}
-        icon={<TuneIcon fontSize="small" />}
-        onClose={onClose}
-        onOpen={open}
-        popperPlacement="bottom-end"
-        title={t(labelSearchOptions) as string}
-      >
-        {({ close }: { close?: () => void } = {}): JSX.Element => {
-          const closePopover = (): void => {
-            setDisplayActions(false);
-            close?.();
-          };
-
-          return (
-            <Grid
-              alignItems="stretch"
-              className={classes.container}
-              container
-              direction="column"
-              spacing={1}
-            >
-              <CriteriasNewInterface
-                actions={
-                  <Actions
-                    onClear={clearFilters}
-                    onSearch={applyCurrentFilter}
-                    save={
-                      <Save
-                        closePopover={closePopover}
-                        getIsCreateFilter={getIsCreateFilter}
-                      />
-                    }
+      {isCriteriasPanelOpen && (
+        <div className={classes.panel} data-testid="advancedFiltersPanel">
+          <CriteriasNewInterface
+            actions={
+              <Actions
+                onClear={clearFilters}
+                onSearch={search}
+                save={
+                  <Save
+                    closePopover={closePanel}
+                    getIsCreateFilter={getIsCreateFilter}
                   />
                 }
-                data={{
-                  newSelectableCriterias,
-                  searchData,
-                  selectableCriterias: getSelectableCriterias()
-                }}
               />
-            </Grid>
-          );
-        }}
-      </PopoverMenu>
+            }
+            data={{
+              newSelectableCriterias,
+              searchData,
+              selectableCriterias: getSelectableCriterias()
+            }}
+          />
+        </div>
+      )}
 
       <SaveActions
         dataCreateFilter={{ isCreatingFilter, setIsCreatingFilter }}
@@ -191,23 +142,19 @@ const CriteriasContent = ({
   );
 };
 
-interface Props {
-  searchData: SearchDataPropsCriterias;
-}
-
 const Criterias = ({ searchData }: Props): JSX.Element => {
   const filterWithParsedSearch = useAtomValue(
     filterWithParsedSearchDerivedAtom
   );
-  const display = useAtomValue(displayActionsAtom);
+  const isCriteriasPanelOpen = useAtomValue(isCriteriasPanelOpenAtom);
   const customFilters = useAtomValue(customFiltersAtom);
   const currentFilter = useAtomValue(currentFilterAtom);
 
   return useMemoComponent({
-    Component: <CriteriasContent display={display} searchData={searchData} />,
+    Component: <CriteriasContent searchData={searchData} />,
     memoProps: [
       filterWithParsedSearch,
-      display,
+      isCriteriasPanelOpen,
       customFilters,
       currentFilter,
       searchData.search

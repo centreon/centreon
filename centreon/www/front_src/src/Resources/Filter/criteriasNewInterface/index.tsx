@@ -7,20 +7,28 @@ import { Divider, Typography } from '@mui/material';
 import { Button } from '@centreon/ui/components';
 
 import { useAtomValue, useSetAtom } from 'jotai';
+import { equals } from 'ramda';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { labelState, labelType } from '../../translatedLabels';
-import type { Criteria, CriteriaDisplayProps } from '../Criterias/models';
-import { setCriteriaAndNewFilterDerivedAtom } from '../filterAtoms';
-import BasicFilter from './basicFilter';
+import { selectedVisualizationAtom } from '../../Actions/actionsAtoms';
+import { Visualization } from '../../models';
 import {
-  displayActionsAtom,
-  displayInformationFilterAtom
-} from './basicFilter/atoms';
-import SectionWrapper from './basicFilter/sections';
+  labelGeneral,
+  labelHost,
+  labelService,
+  labelState,
+  labelStatusType,
+  labelType
+} from '../../translatedLabels';
+import type { Criteria, CriteriaDisplayProps } from '../Criterias/models';
+import { SearchableFields } from '../Criterias/searchQueryLanguage/models';
+import { setCriteriaAndNewFilterDerivedAtom } from '../filterAtoms';
+import MemoizedInputGroup from './basicFilter/sections/MemoizedInputGroup';
+import MemoizedSelectInput from './basicFilter/sections/MemoizedSelectInput';
+import MemoizedStatus from './basicFilter/sections/MemoizedStatus';
 import { useStyles } from './criterias.style';
-import ExtendedFilter from './extendedFilter';
+import FilterSearch from './extendedFilter/FilterSearch';
 import MemoizedCheckBox from './MemoizedCheckBox';
 import MemoizedPoller from './MemoizedPoller';
 import {
@@ -30,9 +38,11 @@ import {
   type ChangedCriteriaParams,
   type Data,
   type DataByCategoryFilter,
-  ExtendedCriteria
+  ExtendedCriteria,
+  SectionType
 } from './model';
 import {
+  informationLabel,
   labelShowFewerFilters,
   labelShowMoreFilters
 } from './translatedLabels';
@@ -46,17 +56,19 @@ interface Criterias {
 }
 
 const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
-  const { classes, cx } = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-
-  const displayActions = useAtomValue(displayActionsAtom);
 
   const setCriteriaAndNewFilter = useSetAtom(
     setCriteriaAndNewFilterDerivedAtom
   );
 
-  const setDisplayInformationFilter = useSetAtom(displayInformationFilterAtom);
+  const selectedVisualization = useAtomValue(selectedVisualizationAtom);
+  const isHostStatusDeactivated = equals(
+    selectedVisualization,
+    Visualization.Host
+  );
 
   const {
     newSelectableCriterias: buildCriterias,
@@ -68,23 +80,11 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
     updatedValue,
     filterName
   }: ChangedCriteriaParams): void => {
-    const parameters = {
-      name: filterName,
-      value: updatedValue
-    };
-
-    setCriteriaAndNewFilter(parameters);
+    setCriteriaAndNewFilter({ name: filterName, value: updatedValue });
   };
 
   const controlFilterInterface = (): void => {
-    setOpen((currentOpen) => {
-      const newState = !currentOpen;
-      if (newState) {
-        setDisplayInformationFilter(false);
-      }
-
-      return newState;
-    });
+    setOpen((currentOpen) => !currentOpen);
   };
 
   const buildDataByCategoryFilter = ({
@@ -159,57 +159,122 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
           </Typography>
         </Button>
       </div>
-      <div className={cx(classes.small, { [classes.extended]: open })}>
-        <BasicFilter
-          poller={
-            <MemoizedPoller changeCriteria={changeCriteria} data={basicData} />
-          }
-          sections={
-            <SectionWrapper
-              changeCriteria={changeCriteria}
-              data={basicData}
-              searchData={searchData}
-            />
-          }
-          state={
-            <MemoizedCheckBox
-              changeCriteria={changeCriteria}
-              data={basicData}
-              filterName={BasicCriteria.states}
-              title={labelState}
-            />
-          }
-          types={
-            <MemoizedCheckBox
-              changeCriteria={changeCriteria}
-              data={basicData}
-              filterName={BasicCriteria.resourceTypes}
-              title={labelType}
-            />
-          }
-        />
 
-        {open && (
-          <>
-            <div className={classes.containerDivider}>
-              <Divider
-                className={classes.bridge}
-                flexItem
-                orientation="vertical"
-                variant="middle"
+      <div className={classes.columns}>
+        <div className={classes.column}>
+          <Typography className={classes.columnTitle}>
+            {t(labelHost)}
+          </Typography>
+          <MemoizedSelectInput
+            changeCriteria={changeCriteria}
+            data={basicData}
+            filterName={BasicCriteria.parentNames}
+            searchData={searchData}
+            sectionType={SectionType.host}
+          />
+          <MemoizedStatus
+            changeCriteria={changeCriteria}
+            data={basicData}
+            filterName={BasicCriteria.statues}
+            isDeactivated={isHostStatusDeactivated}
+            sectionType={SectionType.host}
+          />
+          <MemoizedInputGroup
+            changeCriteria={changeCriteria}
+            data={basicData}
+            filterName={BasicCriteria.hostGroups}
+            sectionType={SectionType.host}
+          />
+          {open && (
+            <>
+              <MemoizedInputGroup
+                changeCriteria={changeCriteria}
+                data={extendedData}
+                filterName={ExtendedCriteria.hostCategories}
               />
-            </div>
-            <ExtendedFilter
+              <MemoizedInputGroup
+                changeCriteria={changeCriteria}
+                data={extendedData}
+                filterName={ExtendedCriteria.hostSeverities}
+              />
+            </>
+          )}
+        </div>
+
+        <div className={classes.column}>
+          <Typography className={classes.columnTitle}>
+            {t(labelService)}
+          </Typography>
+          <MemoizedSelectInput
+            changeCriteria={changeCriteria}
+            data={basicData}
+            filterName={BasicCriteria.names}
+            searchData={searchData}
+            sectionType={SectionType.service}
+          />
+          <MemoizedStatus
+            changeCriteria={changeCriteria}
+            data={basicData}
+            filterName={BasicCriteria.statues}
+            sectionType={SectionType.service}
+          />
+          <MemoizedInputGroup
+            changeCriteria={changeCriteria}
+            data={basicData}
+            filterName={BasicCriteria.serviceGroups}
+            sectionType={SectionType.service}
+          />
+          {open && (
+            <>
+              <MemoizedInputGroup
+                changeCriteria={changeCriteria}
+                data={extendedData}
+                filterName={ExtendedCriteria.serviceCategories}
+              />
+              <MemoizedInputGroup
+                changeCriteria={changeCriteria}
+                data={extendedData}
+                filterName={ExtendedCriteria.serviceSeverities}
+              />
+              <FilterSearch
+                field={SearchableFields.information}
+                placeholder={t(informationLabel) as string}
+              />
+            </>
+          )}
+        </div>
+
+        <div className={classes.column}>
+          <Typography className={classes.columnTitle}>
+            {t(labelGeneral)}
+          </Typography>
+          <MemoizedPoller changeCriteria={changeCriteria} data={basicData} />
+          <MemoizedCheckBox
+            changeCriteria={changeCriteria}
+            data={basicData}
+            filterName={BasicCriteria.resourceTypes}
+            title={labelType}
+          />
+          <MemoizedCheckBox
+            changeCriteria={changeCriteria}
+            data={basicData}
+            filterName={BasicCriteria.states}
+            title={labelState}
+          />
+          {open && (
+            <MemoizedCheckBox
               changeCriteria={changeCriteria}
               data={extendedData}
+              filterName={ExtendedCriteria.statusTypes}
+              title={labelStatusType}
             />
-          </>
-        )}
+          )}
+        </div>
       </div>
 
       <Divider className={classes.footer} />
 
-      {displayActions && actions}
+      {actions}
     </>
   );
 };

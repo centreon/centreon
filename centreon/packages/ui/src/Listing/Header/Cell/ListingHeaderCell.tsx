@@ -22,6 +22,8 @@ type Props = Pick<
   className?: string;
   column: Column;
   itemRef: React.RefObject<HTMLDivElement>;
+  roundTopLeft?: boolean;
+  roundTopRight?: boolean;
   style: React.CSSProperties;
 } & StylesProps;
 
@@ -37,6 +39,8 @@ const ListingHeaderCell = ({
   isInDragOverlay,
   areColumnsEditable,
   listingVariant,
+  roundTopLeft,
+  roundTopRight,
   ...props
 }: Props): JSX.Element => {
   const { dataStyle } = useStyleTable({ listingVariant });
@@ -68,7 +72,7 @@ const ListingHeaderCell = ({
 
   return (
     <TableCell
-      className={`bg-background-listing-header border-b-0 h-[inherit] py-0 px-2 ${isInDragOverlay && 'block opacity-70'}`}
+      className={`bg-background-listing-header border-b-0 h-[inherit] py-0 px-2 ${roundTopLeft ? 'rounded-tl-lg' : ''} ${roundTopRight ? 'rounded-tr-lg' : ''} ${isInDragOverlay && 'block opacity-70'}`}
       component={'div' as unknown as React.ElementType<TableCellBaseProps>}
       ref={itemRef}
       style={{
@@ -76,15 +80,15 @@ const ListingHeaderCell = ({
         height: dataStyle.header.height
       }}
     >
-      <div className="flex items-center h-full justify-between text-white p-0">
+      <div className="flex items-center h-full justify-between text-black dark:text-white p-0">
         {column.sortable ? (
           <TableSortLabel
             active={sortField === columnSortField}
             aria-label={`Column ${column.label}`}
             classes={{
-              icon: 'text-white'
+              icon: 'text-black dark:text-white'
             }}
-            className="text-white"
+            className="text-black dark:text-white"
             direction={sortOrder || 'desc'}
             onClick={sort}
           >
@@ -99,7 +103,7 @@ const ListingHeaderCell = ({
         {columnConfiguration?.sortable && areColumnsEditable && (
           <DraggableIconButton
             {...props}
-            className={`p-0 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} text-white  opacity-0 hover:opacity-100 focus:opacity-100`}
+            className={`p-0 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} text-black dark:text-white  opacity-0 hover:opacity-100 focus:opacity-100`}
             columnLabel={columnLabel}
           />
         )}

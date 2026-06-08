@@ -1,6 +1,6 @@
 import LatencyIcon from '@mui/icons-material/Speed';
 import StorageIcon from '@mui/icons-material/Storage';
-import { Avatar, alpha } from '@mui/material';
+import { Avatar } from '@mui/material';
 
 import { getStatusColors, SeverityCode } from '@centreon/ui';
 
@@ -27,13 +27,17 @@ interface StyleProps {
 
 const useStatusStyles = makeStyles<StyleProps>()(
   (theme, { databaseSeverity, latencySeverity }) => {
-    const getSeverityColor = (severityCode: SeverityCode): CSSObject => ({
-      background: alpha(
-        getStatusColors({ severityCode, theme }).backgroundColor,
-        0.8
-      ),
-      color: theme.palette.common.white
-    });
+    const getSeverityColor = (severityCode: SeverityCode): CSSObject => {
+      const { backgroundColor, color } = getStatusColors({
+        severityCode,
+        theme
+      });
+
+      return {
+        background: backgroundColor,
+        color
+      };
+    };
 
     return {
       avatar: {
@@ -42,12 +46,9 @@ const useStatusStyles = makeStyles<StyleProps>()(
         width: theme.spacing(2.5)
       },
       container: {
+        alignItems: 'center',
         display: 'flex',
         gap: theme.spacing(0.5),
-        [theme.breakpoints.up(768)]: {
-          minHeight: theme.spacing(0.3)
-        },
-
         [theme.breakpoints.down(768)]: {
           bottom: 0,
           flexFlow: 'column wrap',

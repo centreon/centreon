@@ -82,10 +82,16 @@ export const useWidgetSelectionStyles = makeStyles()((theme) => ({
   groupContainer: {
     '&:hover': {
       backgroundColor: theme.palette.background.listingHeader,
-      color: theme.palette.common.white
+      color:
+        theme.palette.mode === 'dark'
+          ? theme.palette.common.white
+          : theme.palette.common.black
     },
     backgroundColor: theme.palette.background.listingHeader,
-    color: theme.palette.common.white,
+    color:
+      theme.palette.mode === 'dark'
+        ? theme.palette.common.white
+        : theme.palette.common.black,
     paddingLeft: theme.spacing(4),
     width: '100%'
   },

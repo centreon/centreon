@@ -1,4 +1,4 @@
-import { Badge, Tooltip, alpha } from '@mui/material';
+import { Badge, Tooltip } from '@mui/material';
 
 import { getStatusColors, type SeverityCode } from '@centreon/ui';
 
@@ -10,26 +10,31 @@ export interface StyleProps {
 }
 
 const useStyles = makeStyles<StyleProps>()((theme, { severityCode }) => {
-  const statusColor = severityCode
-    ? getStatusColors({ severityCode, theme })?.backgroundColor
+  const statusColors = severityCode
+    ? getStatusColors({ severityCode, theme })
     : null;
 
   return {
     badge: {
-      background: statusColor ? alpha(statusColor, 0.8) : 'transparent',
+      // Keep the badge in normal flow and vertically centered: override MUI's
+      // anchorOrigin transform (translate(50%, -50%)) which otherwise pushes the
+      // chip up and right. The triple `&` outweighs MUI's compound selector.
+      '&&&': {
+        position: 'relative',
+        right: 0,
+        top: 0,
+        transform: 'none'
+      },
+      background: statusColors?.backgroundColor ?? 'transparent',
       borderRadius: theme.spacing(1.5),
-      color: theme.palette.common.white,
+      color: statusColors?.color ?? theme.palette.text.primary,
       cursor: 'pointer',
       fontSize: theme.typography.body1.fontSize,
       fontWeight: theme.typography.fontWeightBold,
       height: theme.spacing(2.5),
       lineHeight: theme.spacing(2.5),
       minWidth: theme.spacing(2.5),
-      padding: theme.spacing(0, 0.75),
-      position: 'relative',
-      right: 0,
-      top: 0,
-      transform: 'none'
+      padding: theme.spacing(0, 0.75)
     }
   };
 });

@@ -1,6 +1,5 @@
 // @ts-nocheck
 // TODO: re-enable type-check after fixing this file
-import IconDisacknowledge from '@mui/icons-material/ConfirmationNumber';
 import IconMore from '@mui/icons-material/MoreHoriz';
 import IconAcknowledge from '@mui/icons-material/Person';
 
@@ -58,7 +57,6 @@ const ResourceActionsButtons = ({
   resources,
   success,
   mainActions,
-  secondaryActions,
   displayCondensed = false,
   renderMoreSecondaryActions
 }: ResourceActions & MoreSecondaryActions): JSX.Element => {
@@ -117,8 +115,6 @@ const ResourceActionsButtons = ({
       arrayActions: mainActions.actions,
       key: Action.Downtime
     });
-
-  const moreActions = secondaryActions?.length > 0;
 
   const [resourceToSubmitStatus, setResourceToSubmitStatus] =
     useState<Resource | null>();
@@ -272,19 +268,6 @@ const ResourceActionsButtons = ({
             />
           </div>
         )}
-        {displayDisacknowledge && (
-          <div className={classes.action}>
-            <ResourceActionButton
-              disabled={disableDisacknowledge}
-              displayCondensed={displayCondensed}
-              icon={<IconDisacknowledge />}
-              label={t(labelDisacknowledge)}
-              onClick={prepareToDisacknowledge}
-              permitted={isDisacknowledgePermitted}
-              testId="mainDisacknowledge"
-            />
-          </div>
-        )}
 
         {displayDowntime && (
           <div className={classes.action}>
@@ -347,50 +330,50 @@ const ResourceActionsButtons = ({
         )}
       </div>
 
-      {moreActions && (
-        <PopoverMenu
-          icon={<IconMore color="primary" fontSize="small" />}
-          title={t(labelMoreActions) as string}
-        >
-          {({ close }): JSX.Element => (
-            <>
+      <PopoverMenu
+        icon={<IconMore color="primary" fontSize="small" />}
+        title={t(labelMoreActions) as string}
+      >
+        {({ close }): JSX.Element => (
+          <>
+            {displayDisacknowledge && (
               <ActionMenuItem
-                disabled={defaultDisableDisacknowledge}
+                disabled={disableDisacknowledge}
                 label={labelDisacknowledge}
                 onClick={(): void => {
                   close();
                   prepareToDisacknowledge();
                 }}
-                permitted={defaultIsDisacknowledgePermitted}
+                permitted={isDisacknowledgePermitted}
                 testId="Multiple Disacknowledge"
               />
+            )}
 
-              <ActionMenuItem
-                disabled={disableSubmitStatus}
-                label={labelSubmitStatus}
-                onClick={(): void => {
-                  close();
-                  prepareToSubmitStatus();
-                }}
-                permitted={isSubmitStatusPermitted}
-                testId="Submit a status"
-              />
+            <ActionMenuItem
+              disabled={disableSubmitStatus}
+              label={labelSubmitStatus}
+              onClick={(): void => {
+                close();
+                prepareToSubmitStatus();
+              }}
+              permitted={isSubmitStatusPermitted}
+              testId="Submit a status"
+            />
 
-              <ActionMenuItem
-                disabled={disableAddComment}
-                label={labelAddComment}
-                onClick={(): void => {
-                  close();
-                  prepareToAddComment();
-                }}
-                permitted={isAddCommentPermitted}
-                testId="Add a comment"
-              />
-              {renderMoreSecondaryActions?.({ close })}
-            </>
-          )}
-        </PopoverMenu>
-      )}
+            <ActionMenuItem
+              disabled={disableAddComment}
+              label={labelAddComment}
+              onClick={(): void => {
+                close();
+                prepareToAddComment();
+              }}
+              permitted={isAddCommentPermitted}
+              testId="Add a comment"
+            />
+            {renderMoreSecondaryActions?.({ close })}
+          </>
+        )}
+      </PopoverMenu>
     </div>
   );
 };

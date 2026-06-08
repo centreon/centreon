@@ -11,21 +11,31 @@ import { useStyles } from './Visualization.styles';
 
 interface Props {
   IconOnActive: string;
+  IconOnActiveDark: string;
   IconOnInactive: string;
+  IconOnInactiveDark: string;
   title: string;
   type: Visualization;
 }
 
 const Action = ({
   IconOnActive,
+  IconOnActiveDark,
   IconOnInactive,
+  IconOnInactiveDark,
   title,
   type
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
-  const imagePath = useIconPath({ IconOnActive, IconOnInactive, type });
+  const imagePath = useIconPath({
+    IconOnActive,
+    IconOnActiveDark,
+    IconOnInactive,
+    IconOnInactiveDark,
+    type
+  });
   const { selectVisualization } = useVisualization({ type });
 
   return (

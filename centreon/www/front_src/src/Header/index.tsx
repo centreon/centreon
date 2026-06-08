@@ -18,7 +18,7 @@ import UserMenu from './UserMenu';
 export const isDarkMode = (theme: Theme): boolean =>
   equals(theme.palette.mode, ThemeMode.dark);
 
-export const headerHeight = 7;
+export const headerHeight = 6;
 
 const useStyles = makeStyles()((theme) => ({
   fullscreenActivated: {
@@ -26,6 +26,9 @@ const useStyles = makeStyles()((theme) => ({
   },
   header: {
     alignItems: 'center',
+    backgroundColor: isDarkMode(theme)
+      ? theme.palette.common.black
+      : theme.palette.primary.main,
     display: 'flex',
     maxHeight: theme.spacing(headerHeight),
     minHeight: theme.spacing(headerHeight),
@@ -74,8 +77,7 @@ const Header = (): JSX.Element => {
     <header
       className={cx(
         classes.header,
-        isFullscreenActivated && classes.fullscreenActivated,
-        'bg-primary-main dark:bg-black'
+        isFullscreenActivated && classes.fullscreenActivated
       )}
       ref={headerRef}
     >

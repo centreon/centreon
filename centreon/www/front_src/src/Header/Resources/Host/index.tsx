@@ -1,4 +1,4 @@
-import HostIcon from '@mui/icons-material/Dns';
+import HostIcon from './HostIcon';
 
 import {
   MenuSkeleton,

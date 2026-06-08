@@ -9,28 +9,29 @@ import { createStore, Provider, useAtomValue } from 'jotai';
 
 import { PlatformVersions } from '../api/models';
 import About from './About';
-import { contributors } from './Sections/Contibutors';
-import { developers } from './Sections/Developers';
-import { projectLeaders } from './Sections/ProjectLeaders';
+import { projectLeaders } from './data';
+import { links } from './links';
 import {
-  labelCentreonsGithub,
-  labelCentreonWebsite,
-  labelCommunity
+  labelBrowseTheDocs,
+  labelCompareEditions,
+  labelContributeOnGitHub,
+  labelDocumentationAndGuides,
+  labelEditionsAndCloud,
+  labelGetMoreFromCentreon,
+  labelInfraMonitoring,
+  labelJoinTheWatch,
+  labelOpenSourceEdition,
+  labelReportAVulnerability,
+  labelScalingBeyondOpenSource,
+  labelSeeTheFullListOnGitHub,
+  labelStartFreeTrial,
+  labelTagline,
+  labelTheWatchCommunity
 } from './translatedLabels';
 
 const externalLinks = [
-  {
-    label: labelCentreonWebsite,
-    url: 'https://www.centreon.com'
-  },
-  {
-    label: labelCommunity,
-    url: 'https://thewatch.centreon.com/'
-  },
-  {
-    label: labelCentreonsGithub,
-    url: 'https://github.com/centreon/centreon/graphs/contributors'
-  }
+  { label: labelSeeTheFullListOnGitHub, url: links.githubContributors },
+  { label: labelReportAVulnerability, url: links.reportVulnerability }
 ];
 
 const platformVersion: PlatformVersions = {
@@ -49,7 +50,7 @@ const store = createStore();
 store.set(platformVersionsAtom, platformVersion);
 
 const mountComponent = (): void => {
-  cy.viewport('ipad-mini', 'portrait');
+  cy.viewport(1024, 768);
   cy.mount({
     Component: (
       <Provider store={store}>
@@ -66,24 +67,40 @@ describe('About page', () => {
 
   it('displays the about page', () => {
     mountComponent();
-    cy.findByAltText('Centreon Logo').should('be.visible');
 
-    projectLeaders.forEach((project) => {
-      cy.findByText(project).should('be.visible');
+    cy.contains(labelInfraMonitoring).should('be.visible');
+    cy.contains('23.04.0').should('be.visible');
+    cy.contains(labelOpenSourceEdition).should('be.visible');
+    cy.contains(labelTagline).should('be.visible');
+
+    projectLeaders.forEach((leader) => {
+      cy.findByText(leader).should('be.visible');
     });
-    developers.forEach((developer) => {
-      cy.findByText(developer).should('be.visible');
+
+    cy.contains(labelGetMoreFromCentreon).should('be.visible');
+    [
+      labelDocumentationAndGuides,
+      labelTheWatchCommunity,
+      labelContributeOnGitHub,
+      labelEditionsAndCloud
+    ].forEach((title) => {
+      cy.contains(title).should('be.visible');
     });
-    contributors.forEach((contributor) => {
-      cy.findByText(contributor).should('be.visible');
-    });
+    [labelBrowseTheDocs, labelJoinTheWatch, labelCompareEditions].forEach(
+      (cta) => {
+        cy.contains(cta).should('be.visible');
+      }
+    );
+
+    cy.contains(labelScalingBeyondOpenSource).should('be.visible');
+    cy.contains(labelStartFreeTrial).should('be.visible');
 
     externalLinks.forEach(({ label, url }) => {
       cy.findByLabelText(label).should('have.attr', 'href', url);
       cy.findByLabelText(label).should('have.attr', 'target', '_blank');
     });
 
-    cy.contains('Copyright © 2005 - 2021').should('be.visible');
+    cy.contains('Copyright © 2005 – 2021 Centreon').should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -94,11 +111,8 @@ describe('About page', () => {
 
     mountComponent();
 
-    contributors.forEach((contributor) => {
-      cy.findByText(contributor).should('be.visible');
-    });
-
-    cy.contains('Copyright © 2005 - 2021').should('exist');
+    cy.contains(labelGetMoreFromCentreon).should('be.visible');
+    cy.contains('Copyright © 2005 – 2021 Centreon').should('exist');
 
     cy.makeSnapshot();
   });

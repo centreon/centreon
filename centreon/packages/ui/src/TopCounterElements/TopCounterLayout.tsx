@@ -25,6 +25,8 @@ const useStyles = makeStyles()((theme) => ({
     padding: 0
   },
   container: {
+    alignItems: 'center',
+    display: 'flex',
     position: 'relative'
   },
   indicators: {
@@ -37,10 +39,12 @@ const useStyles = makeStyles()((theme) => ({
   },
   subMenu: {
     backgroundColor: theme.palette.background.default,
+    borderRadius: theme.spacing(1),
     boxShadow: theme.shadows[3],
     boxSizing: 'border-box',
     left: 0,
     minWidth: theme.spacing(20),
+    overflow: 'hidden',
     position: 'absolute',
     textAlign: 'left',
     top: `calc(100% + ${theme.spacing(1.25)})`,

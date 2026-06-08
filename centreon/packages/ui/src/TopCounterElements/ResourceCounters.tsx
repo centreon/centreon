@@ -8,7 +8,8 @@ import StatusCounter from './StatusCounter';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
-    display: 'inline-block',
+    alignItems: 'center',
+    display: 'flex',
     listStyle: 'none',
     margin: 0,
     padding: 0,
@@ -17,18 +18,22 @@ const useStyles = makeStyles()((theme) => ({
     }
   },
   item: {
-    display: 'inline-block',
+    alignItems: 'center',
+    display: 'flex',
     margin: 0,
     padding: 0,
     paddingRight: theme.spacing(0.25)
   },
   link: {
+    alignItems: 'center',
+    display: 'flex',
     textDecoration: 'none'
   },
   splitter: {
     display: 'none',
     [theme.breakpoints.down(1025)]: {
       display: 'block',
+      flexBasis: '100%',
       marginBottom: theme.spacing(0.25)
     }
   }

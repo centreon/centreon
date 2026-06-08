@@ -1,6 +1,8 @@
 // @ts-nocheck
 // TODO: re-enable type-check after fixing this file
 import CloseIcon from '@mui/icons-material/Close';
+import IconSearch from '@mui/icons-material/Search';
+import TuneIcon from '@mui/icons-material/Tune';
 import {
   Box,
   CircularProgress,
@@ -13,12 +15,11 @@ import {
 import {
   getData,
   IconButton,
-  LoadingSkeleton,
   Filter as MemoizedFilter,
   SearchField,
-  type SelectEntry,
   useRequest
 } from '@centreon/ui';
+import { Button } from '@centreon/ui/components';
 import { userAtom } from '@centreon/ui-context';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
@@ -37,10 +38,8 @@ import {
   map,
   not,
   or,
-  pick,
   pipe,
   pluck,
-  propEq,
   remove,
   uniq
 } from 'ramda';
@@ -58,11 +57,9 @@ import { makeStyles } from 'tss-react/mui';
 
 import {
   labelClearFilter,
-  labelMyFilters,
-  labelNewFilter,
+  labelMoreFilters,
   labelSearch,
-  labelSearchBar,
-  labelStateFilter
+  labelSearchBar
 } from '../translatedLabels';
 import {
   type DynamicCriteriaParametersAndValues,
@@ -71,25 +68,16 @@ import {
   replaceMiddleSpace
 } from './Criterias/searchQueryLanguage';
 import { selectedStatusByResourceTypeAtom } from './criteriasNewInterface/basicFilter/atoms';
-import SelectFilter from './Fields/SelectFilter';
-import FilterLoadingSkeleton from './FilterLoadingSkeleton';
+import FilterChips, { useActiveFilterChips } from './FilterChips';
+import FilterViews from './FilterViews';
 import {
   applyCurrentFilterDerivedAtom,
-  applyFilterDerivedAtom,
   clearFilterDerivedAtom,
   currentFilterAtom,
-  customFiltersAtom,
   isCriteriasPanelOpenAtom,
   searchAtom,
-  sendingFilterAtom,
   setNewFilterDerivedAtom
 } from './filterAtoms';
-import {
-  allFilter,
-  resourceProblemsFilter,
-  standardFilterById,
-  unhandledProblemsFilter
-} from './models';
 import SearchHelp from './SearchHelp';
 import useBackToVisualizationByAll from './useBackToVisualizationByAll';
 import useFilterByModule from './useFilterByModule';
@@ -121,27 +109,73 @@ const useStyles = makeStyles()((theme) => ({
   autocompletePopper: {
     zIndex: theme.zIndex.tooltip
   },
+  chipsOverlay: {
+    alignItems: 'center',
+    backgroundColor: theme.palette.background.paper,
+    cursor: 'text',
+    display: 'flex',
+    gap: theme.spacing(0.75),
+    inset: 0,
+    overflow: 'hidden',
+    paddingLeft: theme.spacing(1.75),
+    position: 'absolute'
+  },
+  chipsOverlayExpanded: {
+    alignItems: 'flex-start',
+    inset: 'auto',
+    overflow: 'visible',
+    paddingBlock: theme.spacing(0.75),
+    position: 'relative'
+  },
+  chipsOverlayIcon: {
+    color: theme.palette.text.secondary,
+    display: 'flex'
+  },
   container: {
     alignItems: 'center',
     display: 'grid',
     gridAutoFlow: 'column',
     gridGap: theme.spacing(1),
-    gridTemplateColumns: '1fr auto 175px',
+    gridTemplateColumns: '1fr',
     width: '100%'
   },
   End: {
+    alignItems: 'center',
     display: 'flex',
     flexDirection: 'row'
   },
+  hidden: {
+    display: 'none'
+  },
   loader: { display: 'flex', justifyContent: 'center' },
   searchbarContainer: {
+    // The whole bar is the pill; the inner field has no border of its own.
+    '& .MuiOutlinedInput-notchedOutline': {
+      border: 'none'
+    },
     alignItems: 'center',
+    backgroundColor: theme.palette.background.paper,
+    border: `1.5px solid ${theme.palette.divider}`,
+    borderRadius: '20px',
     display: 'flex',
-    gap: theme.spacing(0.5)
+    gap: theme.spacing(0.5),
+    overflow: 'hidden',
+    paddingRight: theme.spacing(1.5),
+    position: 'relative',
+    width: '100%'
+  },
+  searchFieldWrap: {
+    flex: 1,
+    minWidth: 0,
+    position: 'relative'
+  },
+  wrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%'
   }
 }));
 
-const SaveFilter = lazy(() => import('./Edit/EditButton'));
 const Criterias = lazy(() => import('./Criterias'));
 
 const debounceTimeInMs = 500;
@@ -149,10 +183,12 @@ const debounceTimeInMs = 500;
 const isDefined = pipe(isNil, not);
 
 const Filter = (): JSX.Element => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
   const { t } = useTranslation();
 
   const { newSelectableCriterias } = useFilterByModule();
+
+  const [chipsExpanded, setChipsExpanded] = useState(false);
 
   const [isSearchFieldFocus, setIsSearchFieldFocused] = useState(false);
   const [autocompleteAnchor, setAutocompleteAnchor] =
@@ -173,13 +209,12 @@ const Filter = (): JSX.Element => {
   });
 
   const [search, setSearch] = useAtom(searchAtom);
-  const customFilters = useAtomValue(customFiltersAtom);
   const currentFilter = useAtomValue(currentFilterAtom);
-  const sendingFilter = useAtomValue(sendingFilterAtom);
   const user = useAtomValue(userAtom);
-  const isCriteriasPanelOpen = useAtomValue(isCriteriasPanelOpenAtom);
+  const [isCriteriasPanelOpen, setIsCriteriasPanelOpen] = useAtom(
+    isCriteriasPanelOpenAtom
+  );
   const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
-  const applyFilter = useSetAtom(applyFilterDerivedAtom);
   const setNewFilter = useSetAtom(setNewFilterDerivedAtom);
   const clearFilter = useSetAtom(clearFilterDerivedAtom);
   const setSelectedStatusByResourceType = useSetAtom(
@@ -189,6 +224,26 @@ const Filter = (): JSX.Element => {
   useBackToVisualizationByAll();
 
   const open = Boolean(autocompleteAnchor);
+
+  const activeChips = useActiveFilterChips();
+  const showChipsOverlay = !isSearchFieldFocus && activeChips.length > 0;
+
+  const focusSearchField = (event): void => {
+    if (event.target.closest('button')) {
+      return;
+    }
+    event.preventDefault();
+    setChipsExpanded(false);
+    searchRef?.current?.focus();
+  };
+
+  const toggleChipsExpand = (): void => {
+    setChipsExpanded((previous) => !previous);
+  };
+
+  const toggleCriteriasPanel = (): void => {
+    setIsCriteriasPanelOpen((previous) => !previous);
+  };
 
   const clearFilters = (): void => {
     clearFilter();
@@ -497,44 +552,6 @@ const Filter = (): JSX.Element => {
     setNewFilter(t);
   };
 
-  const changeFilter = (event): void => {
-    const filterId = event.target.value;
-
-    const updatedFilter =
-      standardFilterById[filterId] ||
-      customFilters?.find(propEq(filterId, 'id'));
-
-    applyFilter(updatedFilter);
-  };
-
-  const translatedOptions: Array<SelectEntry> = [
-    unhandledProblemsFilter,
-    resourceProblemsFilter,
-    allFilter
-  ].map(({ id, name }) => ({ id, name: t(name), testId: `Filter ${name}` }));
-
-  const customFilterOptions: Array<SelectEntry> = isEmpty(customFilters)
-    ? []
-    : [
-        {
-          id: 'my_filters',
-          name: t(labelMyFilters),
-          type: 'header'
-        },
-        ...customFilters
-      ];
-
-  const options: Array<SelectEntry> = [
-    { id: '', name: t(labelNewFilter) },
-    ...translatedOptions,
-    ...customFilterOptions
-  ];
-
-  const canDisplaySelectedFilter = find(
-    propEq(currentFilter.id, 'id'),
-    options
-  );
-
   const closeSuggestionPopover = (): void => {
     setAutocompleteAnchor(null);
   };
@@ -554,8 +571,6 @@ const Filter = (): JSX.Element => {
 
   const memoProps = [
     currentFilter,
-    customFilters,
-    sendingFilter,
     search,
     cursorPosition,
     autoCompleteSuggestions,
@@ -571,89 +586,106 @@ const Filter = (): JSX.Element => {
   return (
     <MemoizedFilter
       content={
-        <div className={classes.container}>
-          <ClickAwayListener onClickAway={closeSuggestionPopover}>
-            <div data-testid={labelSearchBar}>
-              <Box className={classes.searchbarContainer}>
-                <SearchField
-                  disabled={isCriteriasPanelOpen}
-                  EndAdornment={renderEndAdornmentFilter(clearFilters)}
-                  fullWidth
-                  inputRef={searchRef as RefObject<HTMLInputElement>}
-                  onBlur={blurInput}
-                  onChange={prepareSearch}
-                  onClick={(): void => {
-                    setCursorPosition(searchRef?.current?.selectionStart || 0);
-                  }}
-                  onFocus={(): void => setIsSearchFieldFocused(true)}
-                  onKeyDown={inputKey}
-                  placeholder={t(labelSearch) as string}
-                  value={search}
-                />
-                <Suspense
-                  fallback={
-                    <LoadingSkeleton
-                      height={24}
-                      variant="circular"
-                      width={24}
-                    />
-                  }
-                >
-                  <Criterias searchData={{ search, setSearch }} />
-                </Suspense>
-                <SearchHelp />
-              </Box>
-              <Popper
-                anchorEl={autocompleteAnchor}
-                className={classes.autocompletePopper}
-                open={open}
-                style={{
-                  width: searchRef?.current?.clientWidth
-                }}
-              >
-                <Paper square>
-                  {isDynamicCriteria && sendingDynamicCriteriaValueRequests && (
-                    <MenuItem className={classes.loader}>
-                      <CircularProgress size={20} />
-                    </MenuItem>
-                  )}
-                  {autoCompleteSuggestions.map((suggestion, index) => {
-                    return (
-                      <MenuItem
-                        key={suggestion}
+        <div className={classes.wrapper}>
+          <FilterViews />
+          <div className={classes.container}>
+            <ClickAwayListener onClickAway={closeSuggestionPopover}>
+              <div data-testid={labelSearchBar}>
+                <Box className={classes.searchbarContainer}>
+                  <div className={classes.searchFieldWrap}>
+                    <div
+                      className={cx({
+                        [classes.hidden]: showChipsOverlay && chipsExpanded
+                      })}
+                    >
+                      <SearchField
+                        disabled={isCriteriasPanelOpen}
+                        EndAdornment={renderEndAdornmentFilter(clearFilters)}
+                        fullWidth
+                        inputRef={searchRef as RefObject<HTMLInputElement>}
+                        onBlur={blurInput}
+                        onChange={prepareSearch}
                         onClick={(): void => {
-                          acceptAutocompleteSuggestionAtIndex(index);
-                          searchRef?.current?.focus();
+                          setCursorPosition(
+                            searchRef?.current?.selectionStart || 0
+                          );
                         }}
-                        selected={index === selectedSuggestionIndex}
+                        onFocus={(): void => setIsSearchFieldFocused(true)}
+                        onKeyDown={inputKey}
+                        placeholder={t(labelSearch) as string}
+                        value={search}
+                      />
+                    </div>
+                    {showChipsOverlay && (
+                      // biome-ignore lint/a11y/noStaticElementInteractions: overlay only redirects focus to the search input behind it
+                      <div
+                        className={cx(classes.chipsOverlay, {
+                          [classes.chipsOverlayExpanded]: chipsExpanded
+                        })}
+                        onMouseDown={
+                          chipsExpanded ? undefined : focusSearchField
+                        }
                       >
-                        {suggestion}
-                      </MenuItem>
-                    );
-                  })}
-                </Paper>
-              </Popper>
-            </div>
-          </ClickAwayListener>
-          <Suspense
-            fallback={
-              <LoadingSkeleton height={24} variant="circular" width={24} />
-            }
-          >
-            <SaveFilter />
+                        <span className={classes.chipsOverlayIcon}>
+                          <IconSearch fontSize="small" />
+                        </span>
+                        <FilterChips
+                          expanded={chipsExpanded}
+                          inline
+                          onToggleExpand={toggleChipsExpand}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <SearchHelp />
+                  <Button
+                    data-testid={labelMoreFilters}
+                    icon={<TuneIcon fontSize="small" />}
+                    iconVariant="start"
+                    onClick={toggleCriteriasPanel}
+                    size="small"
+                    variant="ghost"
+                  >
+                    {t(labelMoreFilters)}
+                  </Button>
+                </Box>
+                <Popper
+                  anchorEl={autocompleteAnchor}
+                  className={classes.autocompletePopper}
+                  open={open}
+                  style={{
+                    width: searchRef?.current?.clientWidth
+                  }}
+                >
+                  <Paper square>
+                    {isDynamicCriteria &&
+                      sendingDynamicCriteriaValueRequests && (
+                        <MenuItem className={classes.loader}>
+                          <CircularProgress size={20} />
+                        </MenuItem>
+                      )}
+                    {autoCompleteSuggestions.map((suggestion, index) => {
+                      return (
+                        <MenuItem
+                          key={suggestion}
+                          onClick={(): void => {
+                            acceptAutocompleteSuggestionAtIndex(index);
+                            searchRef?.current?.focus();
+                          }}
+                          selected={index === selectedSuggestionIndex}
+                        >
+                          {suggestion}
+                        </MenuItem>
+                      );
+                    })}
+                  </Paper>
+                </Popper>
+              </div>
+            </ClickAwayListener>
+          </div>
+          <Suspense fallback={null}>
+            <Criterias searchData={{ search, setSearch }} />
           </Suspense>
-          {sendingFilter ? (
-            <FilterLoadingSkeleton />
-          ) : (
-            <SelectFilter
-              ariaLabel={t(labelStateFilter)}
-              onChange={changeFilter}
-              options={options.map(pick(['id', 'name', 'type', 'testId']))}
-              selectedOptionId={
-                canDisplaySelectedFilter ? currentFilter.id : ''
-              }
-            />
-          )}
         </div>
       }
       memoProps={memoProps}

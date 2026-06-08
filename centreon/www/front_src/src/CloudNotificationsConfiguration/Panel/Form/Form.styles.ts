@@ -9,7 +9,11 @@ const useStyles = makeStyles()((theme) => ({
       background: theme.palette.background.listingHeader
     },
     background: theme.palette.background.listingHeader,
-    color: theme.palette.common.white,
+    borderRadius: theme.spacing(1),
+    color:
+      theme.palette.mode === 'dark'
+        ? theme.palette.common.white
+        : theme.palette.common.black,
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
     paddingInline: theme.spacing(1.25)

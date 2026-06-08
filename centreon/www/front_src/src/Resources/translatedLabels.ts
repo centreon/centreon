@@ -173,6 +173,11 @@ export const labelCopyLink = 'Copy the link to this resource';
 export const labelLinkCopied = 'Resource link copied to the clipboard';
 export const labelDisacknowledge = 'Disacknowledge';
 export const labelMoreActions = 'More actions';
+export const labelActions = 'Actions';
+export const labelMoreFilters = 'Show more filters';
+export const labelGeneral = 'General';
+export const labelFilters = 'filters';
+export const labelShowLess = 'Show less';
 export const labelDisacknowledgeServices =
   'Disacknowledge services attached to hosts';
 export const labelDisacknowledgementCommandSent =
@@ -287,6 +292,16 @@ export const labelCheckDescription =
   'Check selected resources only within configured check period';
 export const labelForcedCheckDescription =
   'Check selected resources even outside configured check period';
+export const labelAcknowledgeDescription =
+  'Acknowledge the problem and stop the related notifications';
+export const labelSetDowntimeDescription =
+  'Schedule a downtime to prevent notifications during maintenance';
+export const labelDisacknowledgeDescription =
+  'Remove the acknowledgement and re-enable notifications';
+export const labelSubmitStatusDescription =
+  'Manually submit a status and output for the selected resource';
+export const labelAddCommentDescription =
+  'Add a comment to the selected resource';
 export const labelForcedCheckCommandSent =
   'Forced check command sent ! Please refresh the listing to update the data.';
 export const labelUnit = 'Unit';
