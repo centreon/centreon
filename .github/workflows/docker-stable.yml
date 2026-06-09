@@ -243,6 +243,10 @@ jobs:
             "STABILITY=stable"
           pull: true
           load: true
+          labels: |
+            org.opencontainers.image.description=Centreon web dependencies image for ${{ matrix.distrib }}
+            com.centreon.version=${{ needs.check-inputs.outputs.major_version }}
+            com.centreon.stability=stable
           tags: |
             ghcr.io/${{ github.repository }}/centreon-web-dependencies:${{ needs.check-inputs.outputs.major_version }}-latest-${{ matrix.distrib }}
             ghcr.io/${{ github.repository }}/centreon-web-dependencies:${{ needs.check-inputs.outputs.major_version }}-${{ needs.check-inputs.outputs.edition }}-latest-${{ matrix.distrib }}
@@ -268,6 +272,10 @@ jobs:
             "STABILITY=stable"
           pull: false
           push: true
+          labels: |
+            org.opencontainers.image.description=Centreon web dependencies collect image for ${{ matrix.distrib }}
+            com.centreon.version=${{ needs.check-inputs.outputs.major_version }}
+            com.centreon.stability=stable
           tags: |
             ghcr.io/${{ github.repository }}/centreon-web-dependencies-collect:${{ needs.check-inputs.outputs.major_version }}-latest-${{ matrix.distrib }}
             ghcr.io/${{ github.repository }}/centreon-web-dependencies-collect:${{ needs.check-inputs.outputs.major_version }}-${{ needs.check-inputs.outputs.edition }}-latest-${{ matrix.distrib }}
@@ -287,6 +295,10 @@ jobs:
             "STABILITY=stable"
           pull: false
           push: true
+          labels: |
+            org.opencontainers.image.description=Centreon web image for ${{ matrix.distrib }}
+            com.centreon.version=${{ needs.check-inputs.outputs.major_version }}
+            com.centreon.stability=stable
           tags: |
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-${{ matrix.distrib }}:${{ needs.check-inputs.outputs.major_version }}-latest
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-${{ matrix.distrib }}:${{ needs.check-inputs.outputs.major_version }}.${{ steps.export-minor-versions.outputs.web_minor_version }}
@@ -309,6 +321,10 @@ jobs:
             "STABILITY=stable"
           pull: false
           push: true
+          labels: |
+            org.opencontainers.image.description=Centreon OSS image for ${{ matrix.distrib }}
+            com.centreon.version=${{ needs.check-inputs.outputs.major_version }}
+            com.centreon.stability=stable
           tags: |
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-oss-${{ matrix.distrib }}:${{ needs.check-inputs.outputs.major_version }}-latest
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-oss-${{ matrix.distrib }}:${{ needs.check-inputs.outputs.major_version }}-${{ needs.check-inputs.outputs.edition }}-latest
