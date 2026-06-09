@@ -706,7 +706,7 @@ function set_required_prerequisite() {
 		# and a '&&' would skip installing wget/gnupg2/curl — leaving gpg absent so the key import
 		# below cannot run. Run update best-effort, then install unconditionally.
 		${PKG_MGR} update
-		${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl
+		${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https wget gnupg2 curl
 		repo_prefix="apt"
 		# 26.07 is pre-GA and only published to the internal APT repository.
 		if [[ "$version" == "26.07" ]]; then
