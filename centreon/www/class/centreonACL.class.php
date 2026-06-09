@@ -1800,9 +1800,13 @@ class CentreonACL
 
                 return [];
             }
-            [$bindValues, $bindQuery] = createMultipleBindQuery(
-                list: array_keys($this->accessGroups),
-                prefix: ':acl_group_'
+            [
+                'parameters' => $bindParams,
+                'placeholderList' => $placeholders,
+            ] = createMultipleBindParameters(
+                values: array_keys($this->accessGroups),
+                prefix: 'acl_group_',
+                paramType: QueryParameterTypeEnum::INTEGER
             );
             $query = 'SELECT ' . $request['fields'] . ' '
                 . "FROM host_service_relation hsr, host h, service s, `{$db_name_acl}`.centreon_acl "
@@ -1815,7 +1819,7 @@ class CentreonACL
                 . "AND `{$db_name_acl}`.centreon_acl.host_id = h.host_id "
                 . "AND `{$db_name_acl}`.centreon_acl.service_id IS NOT NULL "
                 . "AND `{$db_name_acl}`.centreon_acl.service_id = s.service_id "
-                . "AND `{$db_name_acl}`.centreon_acl.group_id IN ({$bindQuery}) "
+                . "AND `{$db_name_acl}`.centreon_acl.group_id IN ({$placeholders}) "
                 . 'UNION '
                 . 'SELECT ' . $request['fields'] . ' '
                 . 'FROM host h, hostgroup_relation hgr, '
@@ -1829,14 +1833,28 @@ class CentreonACL
                 . "AND `{$db_name_acl}`.centreon_acl.host_id = h.host_id "
                 . "AND `{$db_name_acl}`.centreon_acl.service_id IS NOT NULL "
                 . "AND `{$db_name_acl}`.centreon_acl.service_id = s.service_id "
-                . "AND `{$db_name_acl}`.centreon_acl.group_id IN ({$bindQuery}) ";
+                . "AND `{$db_name_acl}`.centreon_acl.group_id IN ({$placeholders}) ";
             $query .= $request['order'] . $request['pages'];
-            $stmt = CentreonDBInstance::getDbCentreonInstance()->prepare($query);
-            $stmt->bindValue(':host_id', (int) $host_id, PDO::PARAM_INT);
-            foreach ($bindValues as $key => $value) {
-                $stmt->bindValue($key, $value, PDO::PARAM_INT);
+            $rows = CentreonDBInstance::getDbCentreonInstance()->fetchAllAssociative(
+                $query,
+                QueryParameters::create([
+                    QueryParameter::int('host_id', (int) $host_id),
+                    ...$bindParams,
+                ])
+            );
+            $result = [];
+            foreach ($rows as $elem) {
+                $key = $this->constructKey($elem, $options);
+                if ($key !== '' && ! isset($result[$key])) {
+                    $result[$key] = isset($options['get_row']) ? $elem[$options['get_row']] : $elem;
+                }
             }
-            $stmt->execute();
+
+            if (isset($options['total']) && $options['total'] == true) {
+                return ['items' => $result, 'total' => count($result)];
+            }
+
+            return $result;
         }
 
         $result = [];
