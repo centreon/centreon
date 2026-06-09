@@ -889,7 +889,9 @@ function secure_dbms_setup() {
 	if [[ $dbms == "MariaDB" ]]; then
 		systemctl restart mariadb
 		log "INFO" "Executing SQL requests for $dbms"
-		mysql -u root --verbose <<-EOF
+		# MariaDB 11.x (Debian 13) no longer ships the legacy 'mysql' client symlink; prefer 'mariadb'.
+		if command -v mariadb >/dev/null 2>&1; then mariadb_client="mariadb"; else mariadb_client="mysql"; fi
+		$mariadb_client -u root --verbose <<-EOF
 			ALTER USER 'root'@'localhost' IDENTIFIED BY '${db_root_password//\'/\'\'}';
 			DELETE FROM mysql.global_priv WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
 			DELETE FROM mysql.global_priv WHERE User='';
