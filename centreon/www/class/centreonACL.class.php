@@ -1856,7 +1856,7 @@ class CentreonACL
                 prefix: 'acl_group_',
                 paramType: QueryParameterTypeEnum::INTEGER
             );
-            $query = 'SELECT ' . $request['fields'] . ' '
+            $query = $request['select'] . $request['fields'] . ' '
                 . "FROM host_service_relation hsr, host h, service s, `{$db_name_acl}`.centreon_acl "
                 . 'WHERE h.host_id = :host_id '
                 . "AND h.host_activate = '1' "
@@ -1899,7 +1899,7 @@ class CentreonACL
             }
 
             if (isset($options['total']) && $options['total'] == true) {
-                return ['items' => $result, 'total' => count($result)];
+                return ['items' => $result, 'total' => CentreonDBInstance::getDbCentreonInstance()->numberRows()];
             }
 
             return $result;
@@ -1914,7 +1914,7 @@ class CentreonACL
         }
 
         if (isset($options['total']) && $options['total'] == true) {
-            return ['items' => $result, 'total' => count($result)];
+            return ['items' => $result, 'total' => CentreonDBInstance::getDbCentreonInstance()->numberRows()];
         }
 
         return $result;
