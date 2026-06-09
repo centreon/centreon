@@ -4,7 +4,7 @@ import { PAGES } from 'fixtures/shared/constants/pages';
 import { CopyToContainerContentType } from '../../../../packages/js-config/cypress/e2e/commands';
 import { checkIfConfigurationIsExported, insertFixture } from '../../commons';
 
-// MON-200166: trigger platform-upgrade-update e2e on extended OS matrix
+// trigger platform-upgrade-update e2e on extended OS matrix
 const dateBeforeLogin = new Date();
 
 const localPackageDirectory = 'fixtures/packages';
