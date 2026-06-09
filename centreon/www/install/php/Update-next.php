@@ -60,7 +60,12 @@ $addNewGorgoneCommunicationTypes = function () use ($pearDB, &$errorMessage, $ve
 };
 
 $updateGorgoneCommunicationTypeForCloudPlatform = function () use ($pearDB, &$errorMessage, $version): void {
-    if (! array_key_exists('IS_CLOUD_PLATFORM', $_ENV) || ! $_ENV['IS_CLOUD_PLATFORM']) {
+    $isCloudPlatform = filter_var(
+        $_ENV['IS_CLOUD_PLATFORM'] ?? null,
+        FILTER_VALIDATE_BOOL,
+        FILTER_NULL_ON_FAILURE
+    );
+    if ($isCloudPlatform !== true) {
         return;
     }
 
