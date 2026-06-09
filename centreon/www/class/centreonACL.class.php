@@ -1227,6 +1227,9 @@ class CentreonACL
             }
             $stmt->closeCursor();
         } else {
+            if ($this->accessGroups === []) {
+                return $tab;
+            }
             [
                 'parameters' => $bindParams,
                 'placeholderList' => $placeholders,
@@ -1376,6 +1379,7 @@ class CentreonACL
                     $host_name = getMyHostName($data['id']);
 
                     if ($data['action'] == 'ADD') {
+                        $svc = getMyHostServices($data['id']);
                         // Put new entries in the table with group_id
                         foreach ($groupIds as $group_id) {
                             CentreonDBInstance::getDbCentreonStorageInstance()->executeStatement(
@@ -1385,20 +1389,18 @@ class CentreonACL
                                     QueryParameter::int('group_id', (int) $group_id),
                                 ])
                             );
-                        }
-
-                        // Insert services
-                        $svc = getMyHostServices($data['id']);
-                        foreach ($svc as $svc_id => $svc_name) {
-                            CentreonDBInstance::getDbCentreonStorageInstance()->executeStatement(
-                                'INSERT INTO centreon_acl (host_id, service_id, group_id) VALUES (:host_id, :service_id, :group_id) '
-                                . 'ON DUPLICATE KEY UPDATE group_id = VALUES(group_id)',
-                                QueryParameters::create([
-                                    QueryParameter::int('host_id', (int) $data['id']),
-                                    QueryParameter::int('service_id', (int) $svc_id),
-                                    QueryParameter::int('group_id', (int) $group_id),
-                                ])
-                            );
+                            // Insert services for this group
+                            foreach ($svc as $svc_id => $svc_name) {
+                                CentreonDBInstance::getDbCentreonStorageInstance()->executeStatement(
+                                    'INSERT INTO centreon_acl (host_id, service_id, group_id) VALUES (:host_id, :service_id, :group_id) '
+                                    . 'ON DUPLICATE KEY UPDATE group_id = VALUES(group_id)',
+                                    QueryParameters::create([
+                                        QueryParameter::int('host_id', (int) $data['id']),
+                                        QueryParameter::int('service_id', (int) $svc_id),
+                                        QueryParameter::int('group_id', (int) $group_id),
+                                    ])
+                                );
+                            }
                         }
                     } elseif ($data['action'] == 'DUP' && isset($data['duplicate_host'])) {
                         // Get current ACL configuration from centreon_storage.centreon_acl table
@@ -1791,6 +1793,13 @@ class CentreonACL
             $stmt->bindValue(':host_id', (int) $host_id, PDO::PARAM_INT);
             $stmt->execute();
         } else {
+            if ($this->accessGroups === []) {
+                if (isset($options['total']) && $options['total'] == true) {
+                    return ['items' => [], 'total' => 0];
+                }
+
+                return [];
+            }
             [$bindValues, $bindQuery] = createMultipleBindQuery(
                 list: array_keys($this->accessGroups),
                 prefix: ':acl_group_'
@@ -1836,6 +1845,10 @@ class CentreonACL
             if ($key !== '' && ! isset($result[$key])) {
                 $result[$key] = isset($options['get_row']) ? $elem[$options['get_row']] : $elem;
             }
+        }
+
+        if (isset($options['total']) && $options['total'] == true) {
+            return ['items' => $result, 'total' => count($result)];
         }
 
         return $result;
