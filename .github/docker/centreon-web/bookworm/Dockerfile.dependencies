@@ -135,9 +135,14 @@ if [[ "$STABILITY" == "stable" ]]; then
   apt-get install -y \
     centreon-common=${MAJOR_VERSION}.${COMMON_MINOR_VERSION}-*+deb12u1 \
     centreon-gorgone=${MAJOR_VERSION}.${GORGONE_MINOR_VERSION}-*+deb12u1 \
+    centreon-clib=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1 \
     centreon-engine=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1 \
+    centreon-engine-daemon=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1 \
+    centreon-broker-core=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1 \
     centreon-broker-cbd=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1 \
     centreon-broker-cbmod=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1 \
+    centreon-connector-perl=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1 \
+    centreon-connector-ssh=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1 \
     centreon-connector=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1
 else
   apt-get install -y \
