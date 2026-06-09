@@ -31,6 +31,7 @@ jobs:
       major_version: ${{ steps.check_promoted_packages.outputs.major_version }}
       is_cloud: ${{ steps.check_promoted_packages.outputs.is_cloud }}
       edition: ${{ steps.check_promoted_packages.outputs.edition }}
+      linked_dev_branch: ${{ steps.check_promoted_packages.outputs.linked_dev_branch }}
     runs-on: ubuntu-24.04
     env:
       RELEASE_BUNDLE_TAG: ${{ inputs.release_bundle_tag }}
@@ -72,10 +73,12 @@ jobs:
           source "centreon-$RELEASE_BUNDLE_TAG/.version"
           major_version=${MAJOR}
           if ! [[ ${major_version} =~ ^2[0-9]\.(04|10)$ ]]; then
+            is_cloud=true
             echo "is_cloud=true" >> $GITHUB_OUTPUT
             echo "edition=cloud" >> $GITHUB_OUTPUT
             DISTRIBS=("alma9")
           else
+            is_cloud=false
             echo "is_cloud=false" >> $GITHUB_OUTPUT
             echo "edition=onprem" >> $GITHUB_OUTPUT
             case "${major_version}" in
@@ -104,6 +107,15 @@ jobs:
           echo "operating_systems=$operating_systems" >> $GITHUB_OUTPUT
           echo "major_version=$major_version" >> $GITHUB_OUTPUT
 
+          # Dev branch linked to the release tag, used to build the dependency images
+          if [[ "$is_cloud" == "true" ]]; then
+            linked_dev_branch="develop"
+          else
+            linked_dev_branch="dev-${major_version}.x"
+          fi
+          echo "linked_dev_branch=$linked_dev_branch"
+          echo "linked_dev_branch=$linked_dev_branch" >> $GITHUB_OUTPUT
+
   dockerize-stable-web:
     needs: [check-inputs]
     runs-on: ubuntu-24.04
@@ -118,15 +130,35 @@ jobs:
     name: dockerize-web ${{ matrix.distrib }}
 
     steps:
-      - name: Checkout docker files on tag ${{ inputs.dev_branch || inputs.release_bundle_tag }}
+      - name: Checkout docker files on linked dev branch ${{ inputs.dev_branch || needs.check-inputs.outputs.linked_dev_branch }}
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: ${{ inputs.dev_branch || inputs.release_bundle_tag }}
+          ref: ${{ inputs.dev_branch || needs.check-inputs.outputs.linked_dev_branch }}
           sparse-checkout: |
             .github/docker/centreon-web/${{ matrix.distrib }}/
             .github/docker/centreon-web/init/
             .github/docker/centreon-web/scripts/
             .github/docker/centreon-web/sql/
+
+      - name: Checkout entrypoint files on tag ${{ inputs.release_bundle_tag }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ inputs.release_bundle_tag }}
+          path: ./entrypoint-tag/
+          sparse-checkout: |
+            .github/docker/centreon-web/${{ matrix.distrib }}/entrypoint/
+          sparse-checkout-cone-mode: false
+
+      - name: Override entrypoint with the one from tag ${{ inputs.release_bundle_tag }}
+        shell: bash
+        env:
+          DISTRIB: ${{ matrix.distrib }}
+        run: |
+          # Entrypoints run SQL queries and API calls that must stay compatible with the
+          # stable component code, so they come from the release tag, not the dev branch.
+          entrypoint_path=".github/docker/centreon-web/${DISTRIB}/entrypoint"
+          rm -rf "$entrypoint_path"
+          cp -r "./entrypoint-tag/${entrypoint_path}" "$entrypoint_path"
 
       - name: Checkout version files on tag ${{ inputs.release_bundle_tag }}
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
