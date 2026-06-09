@@ -15,7 +15,7 @@ on:
         default: ''
         type: string
       dev_branch:
-        description: 'To use only in a dev context on the dockerfiles'
+        description: 'Override the dev branch used for the dockerfiles (defaults to the dev branch linked to the release tag)'
         required: false
         default: ''
         type: string
@@ -26,6 +26,9 @@ jobs:
 
   check-inputs:
     needs: [dependency-scan]
+    permissions:
+      contents: read
+    timeout-minutes: 15
     outputs:
       operating_systems: ${{ steps.check_promoted_packages.outputs.operating_systems }}
       major_version: ${{ steps.check_promoted_packages.outputs.major_version }}
@@ -48,14 +51,14 @@ jobs:
         shell: bash
         run: |
           for repo in "centreon" "centreon-collect"; do
-            if [[ -z $(gh api "repos/centreon/$repo/tags" --paginate -q "[.[] | select(.name | startswith(\"$RELEASE_BUNDLE_TAG\"))] | .[].name") ]]; then
+            if [[ -z $(gh api "repos/centreon/$repo/tags" --paginate -q "[.[] | select(.name == \"$RELEASE_BUNDLE_TAG\")] | .[].name") ]]; then
               echo "::error::Release bundle tag $RELEASE_BUNDLE_TAG could not be found on repository $repo."
-              echo "Command: gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name | startswith(\"$RELEASE_BUNDLE_TAG\"))] | .[].name'"
-              echo "Command output: $(gh api "repos/centreon/$repo/tags" --paginate -q "[.[] | select(.name | startswith(\"$RELEASE_BUNDLE_TAG\"))] | .[].name")"
+              echo "Command: gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name == \"$RELEASE_BUNDLE_TAG\")] | .[].name'"
+              echo "Command output: $(gh api "repos/centreon/$repo/tags" --paginate -q "[.[] | select(.name == \"$RELEASE_BUNDLE_TAG\")] | .[].name")"
               exit 1
             else
               echo "Release bundle $RELEASE_BUNDLE_TAG was found on repository $repo."
-              echo "Information fetched on the tag: $(gh api "repos/centreon/$repo/tags" --paginate -q "[.[] | select(.name | startswith(\"$RELEASE_BUNDLE_TAG\"))] | .[]")"
+              echo "Information fetched on the tag: $(gh api "repos/centreon/$repo/tags" --paginate -q "[.[] | select(.name == \"$RELEASE_BUNDLE_TAG\")] | .[]")"
             fi
           done
 
@@ -119,6 +122,7 @@ jobs:
   dockerize-stable-web:
     needs: [check-inputs]
     runs-on: ubuntu-24.04
+    timeout-minutes: 60
     permissions:
       contents: read
       packages: write
@@ -140,25 +144,31 @@ jobs:
             .github/docker/centreon-web/scripts/
             .github/docker/centreon-web/sql/
 
-      - name: Checkout entrypoint files on tag ${{ inputs.release_bundle_tag }}
+      - name: Checkout entrypoint, configuration and SQL files on tag ${{ inputs.release_bundle_tag }}
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ inputs.release_bundle_tag }}
-          path: ./entrypoint-tag/
+          path: ./from-tag/
           sparse-checkout: |
             .github/docker/centreon-web/${{ matrix.distrib }}/entrypoint/
+            .github/docker/centreon-web/${{ matrix.distrib }}/configuration/
+            .github/docker/centreon-web/sql/
           sparse-checkout-cone-mode: false
 
-      - name: Override entrypoint with the one from tag ${{ inputs.release_bundle_tag }}
+      - name: Override entrypoint, configuration and SQL with the ones from tag ${{ inputs.release_bundle_tag }}
         shell: bash
         env:
           DISTRIB: ${{ matrix.distrib }}
         run: |
-          # Entrypoints run SQL queries and API calls that must stay compatible with the
+          # These files embed SQL queries and API calls that must stay compatible with the
           # stable component code, so they come from the release tag, not the dev branch.
-          entrypoint_path=".github/docker/centreon-web/${DISTRIB}/entrypoint"
-          rm -rf "$entrypoint_path"
-          cp -r "./entrypoint-tag/${entrypoint_path}" "$entrypoint_path"
+          for rel in \
+            ".github/docker/centreon-web/${DISTRIB}/entrypoint" \
+            ".github/docker/centreon-web/${DISTRIB}/configuration" \
+            ".github/docker/centreon-web/sql"; do
+            rm -rf "$rel"
+            cp -r "./from-tag/${rel}" "$rel"
+          done
 
       - name: Checkout version files on tag ${{ inputs.release_bundle_tag }}
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
