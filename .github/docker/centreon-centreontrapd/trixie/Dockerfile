@@ -3,7 +3,7 @@ ARG USE_SOURCE_TRAPD=false
 #############################################
 # Stage 1: Extract files from .deb packages
 #############################################
-FROM debian:12-slim AS extractor
+FROM debian:13-slim AS extractor
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     dpkg \
@@ -37,9 +37,9 @@ ARG USE_SOURCE_TRAPD=false
 FROM centreon-perl-${USE_SOURCE_TRAPD} AS centreon-perl-selected
 
 #############################################
-# Stage 2: Runtime - Debian 12 slim image
+# Stage 2: Runtime - Debian 13 slim image
 #############################################
-FROM debian:12-slim AS centreontrapd
+FROM debian:13-slim AS centreontrapd
 
 # Create users and groups (same UIDs as other Centreon containers for volume consistency)
 # centreon-engine group needed: centreontrapd writes to centengine.cmd pipe (owned by centreon-engine)
@@ -48,6 +48,9 @@ RUN groupadd -g 33 www-data 2>/dev/null || true && \
     useradd -u 900 -g centreon -m -r -d /var/spool/centreon -s /bin/bash centreon && \
     groupadd -g 901 centreon-engine && \
     useradd -u 901 -g centreon-engine -m -r -d /var/lib/centreon-engine -s /bin/bash centreon-engine && \
+    groupadd -g 903 centreon-gorgone && \
+    useradd -u 903 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -s /bin/bash centreon-gorgone && \
+    usermod -aG centreon-gorgone centreon && \
     usermod -aG centreon-engine centreon
 
 # Install runtime dependencies
@@ -80,7 +83,11 @@ RUN mkdir -p /var/spool/centreontrapd \
     chmod 0775 /etc/snmp/centreon_traps && \
     chown centreon:centreon /var/log/centreon && \
     chown centreon:centreon /etc/centreon && \
-    chmod 0775 /etc/centreon
+    chmod 0775 /etc/centreon && \
+    chown centreon-engine:centreon-engine /var/lib/centreon-engine && \
+    chmod 0755 /var/lib/centreon-engine && \
+    chown centreon-engine:centreon-engine /var/lib/centreon-engine/rw && \
+    chmod 0775 /var/lib/centreon-engine/rw
 
 # Copy Perl modules from selected source
 COPY --from=centreon-perl-selected /centreon-modules/ /usr/share/perl5/centreon/
@@ -89,7 +96,7 @@ COPY --from=centreon-perl-selected /centreon-modules/ /usr/share/perl5/centreon/
 COPY --from=extractor --chmod=755 /extracted/usr/share/centreon/bin/centreontrapd /usr/share/centreon/bin/centreontrapd
 
 # Copy entrypoint scripts
-COPY --chmod=755 .github/docker/centreon-centreontrapd/bookworm/entrypoint /usr/local/lib/centreon-centreontrapd/
+COPY --chmod=755 .github/docker/centreon-centreontrapd/trixie/entrypoint /usr/local/lib/centreon-centreontrapd/
 
 # Verify Perl modules are loadable
 RUN echo "=== Verification ===" && \
