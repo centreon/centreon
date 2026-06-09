@@ -23,6 +23,8 @@ session_start();
 require_once __DIR__ . '/../../../../bootstrap.php';
 require_once __DIR__ . '/../../../include/common/vault-functions.php';
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use App\Kernel;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Infrastructure\FeatureFlags;
@@ -67,6 +69,24 @@ try {
             if ($gorgoneVaultPaths !== []) {
                 updateGorgoneApiFile($gorgoneVaultPaths);
             }
+        }
+    }
+
+    /**
+     * Gorgone core id must match the central's snowflake UID for correct message routing.
+     * Old configs have id hardcoded to 1 or a template placeholder.
+     * Already-resolved UIDs are left untouched so the operation is idempotent.
+     */
+    $gorgoneConfigFile = _CENTREON_ETC_ . '/../centreon-gorgone/config.d/40-gorgoned.yaml';
+    if (file_exists($gorgoneConfigFile) && is_writable($gorgoneConfigFile)) {
+        $centralUid = $db->fetchOne(
+            'SELECT `uid` FROM `nagios_server` WHERE `localhost` = :localhost',
+            QueryParameters::create([QueryParameter::string(':localhost', '1')])
+        );
+        if ($centralUid !== false) {
+            $contents = file_get_contents($gorgoneConfigFile);
+            $contents = preg_replace('/^( {4}id:\s+)(1|--GORGONE_ID--)\s*$/m', '${1}' . $centralUid, $contents);
+            file_put_contents($gorgoneConfigFile, $contents);
         }
     }
 

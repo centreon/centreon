@@ -65,7 +65,7 @@ $dbResult->closeCursor();
 
 // get poller informations
 $statement = $pearDB->prepare(
-    "SELECT ns.`id`, ns.`name`, ns.`gorgone_port`, ns.`ns_ip_address`, ns.`localhost`, ns.remote_id,
+    "SELECT ns.`id`, ns.`uid`, ns.`name`, ns.`gorgone_port`, ns.`ns_ip_address`, ns.`localhost`, ns.remote_id,
       remote_server_use_as_proxy, cn.`command_file`, GROUP_CONCAT( pr.`remote_server_id` ) AS list_remote_server_id
     FROM nagios_server AS ns
     LEFT JOIN remote_servers AS rs ON rs.server_id = ns.id
@@ -123,7 +123,7 @@ if ($server['localhost'] === '1') {
         ],
         [
             $server['name'],
-            $server['id'],
+            $server['uid'],
             $server['command_file'],
             _CENTREON_VARLIB_,
             _CENTREON_CACHEDIR_,
@@ -193,7 +193,7 @@ if ($server['localhost'] === '1') {
             ],
             [
                 $server['name'],
-                $server['id'],
+                $server['uid'],
                 $server['gorgone_port'],
                 $thumbprints,
                 $server['command_file'],
@@ -215,7 +215,7 @@ if ($server['localhost'] === '1') {
             ],
             [
                 $server['name'],
-                $server['id'],
+                $server['uid'],
                 $server['gorgone_port'],
                 $thumbprints,
                 $server['command_file'],

@@ -75,9 +75,17 @@ try {
 
     $snowflake = new Snowflake(0, 0);
     $snowflake->setStartTimeStamp(SnowflakePollerUidGenerator::CUSTOM_EPOCH_MS);
+    $uid = (int) $snowflake->id();
     $stmt = $link->prepare('UPDATE `nagios_server` SET `uid` = :uid WHERE `id` = 1');
-    $stmt->bindValue(':uid', (int) $snowflake->id(), PDO::PARAM_INT);
+    $stmt->bindValue(':uid', $uid, PDO::PARAM_INT);
     $stmt->execute();
+
+    $gorgoneConfigFile = _CENTREON_ETC_ . '/../centreon-gorgone/config.d/40-gorgoned.yaml';
+    if (file_exists($gorgoneConfigFile) && is_writable($gorgoneConfigFile)) {
+        $contents = file_get_contents($gorgoneConfigFile);
+        $contents = str_replace('--GORGONE_ID--', (string) $uid, $contents);
+        file_put_contents($gorgoneConfigFile, $contents);
+    }
 
     $utils->executeSqlFile(__DIR__ . '/../../var/baseconf/centreon-broker.sql', $macros);
     $utils->executeSqlFile(__DIR__ . '/../../insertTopology.sql', $macros);
