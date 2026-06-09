@@ -706,7 +706,13 @@ function set_required_prerequisite() {
 		# and a '&&' would skip installing wget/gnupg2/curl — leaving gpg absent so the key import
 		# below cannot run. Run update best-effort, then install unconditionally.
 		${PKG_MGR} update
-		${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https wget gnupg2 curl
+		base_apt_packages="lsb-release ca-certificates apt-transport-https wget gnupg2 curl"
+		# software-properties-common (add-apt-repository) is kept on Debian 12 but dropped on Debian 13,
+		# where the package no longer exists; this script adds repos via .list files, so it is not needed.
+		if [[ "$detected_os_version" == "12" ]]; then
+			base_apt_packages="$base_apt_packages software-properties-common"
+		fi
+		${PKG_MGR} install -y $base_apt_packages
 		repo_prefix="apt"
 		# 26.07 is pre-GA and only published to the internal APT repository.
 		if [[ "$version" == "26.07" ]]; then
