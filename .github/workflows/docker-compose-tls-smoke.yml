@@ -33,14 +33,20 @@ on:
       - '.github/docker/**'
       - '.github/workflows/docker-compose-tls-smoke.yml'
 
+# Least-privilege default for GITHUB_TOKEN: this workflow only checks out and
+# runs docker; neither job writes to the repo. Registry auth in https-up uses
+# explicit Harbor secrets, not GITHUB_TOKEN.
+permissions:
+  contents: read
+
 jobs:
   config-validate:
     name: Validate base + overlay merge
     runs-on: ubuntu-24.04
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: docker compose config (HTTP — baseline)
         run: docker compose -f .github/docker/docker-compose.yml config >/dev/null
@@ -60,10 +66,16 @@ jobs:
     # come up cleanly. See header comment for re-enable instructions.
     if: contains(github.event.pull_request.labels.*.name, 'force-tls-smoke')
     needs: [config-validate]
-    permissions:
-      contents: read
+    # Job-level so every docker compose invocation below (bring-up, log dump,
+    # teardown) resolves the same base+overlay stack. Setting it only on the
+    # bring-up step left the on-failure log dump and teardown with no compose
+    # file ("no configuration file provided: not found").
+    env:
+      COMPOSE_FILE: .github/docker/docker-compose.yml:.github/docker/docker-compose.tls.yml
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Login to internal registry
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
@@ -76,8 +88,6 @@ jobs:
         run: docker build -t centreon-certgen:local .github/docker/certgen
 
       - name: Bring up HTTPS stack
-        env:
-          COMPOSE_FILE: .github/docker/docker-compose.yml:.github/docker/docker-compose.tls.yml
         run: docker compose up -d --wait --wait-timeout 300
 
       - name: Probe HTTPS endpoint
