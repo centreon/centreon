@@ -701,7 +701,12 @@ function set_required_prerequisite() {
 			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8, v9 and v10) and Debian 12/13. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 			;;
 		esac
-		${PKG_MGR} update && ${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl
+		# Do NOT gate the prerequisite install on the exit code of 'apt update': if a previous run
+		# already added the (still unsigned, key not yet imported) Centreon repos, 'apt update' fails
+		# and a '&&' would skip installing wget/gnupg2/curl — leaving gpg absent so the key import
+		# below cannot run. Run update best-effort, then install unconditionally.
+		${PKG_MGR} update
+		${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl
 		repo_prefix="apt"
 		# 26.07 is pre-GA and only published to the internal APT repository.
 		if [[ "$version" == "26.07" ]]; then
@@ -730,7 +735,12 @@ function set_required_prerequisite() {
 			SIMPLEREPO=$(echo $_repo | cut -d '-' -f2)
 			echo "deb $ARCH https://packages.centreon.com/$repo_prefix-plugins-$SIMPLEREPO/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-plugins-$SIMPLEREPO.list
 		done
-		wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
+		# Import the Centreon APT signing key (pipefail so a failed download/dearmor is caught, not hidden).
+		log "INFO" "Importing the Centreon APT signing key"
+		( set -o pipefail; wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null )
+		if [ $? -ne 0 ]; then
+			error_and_exit "Failed to import the Centreon APT signing key from https://apt-key.centreon.com"
+		fi
 
 		if [ "$topology" == "central" ]; then
 			# On Debian, PHP (8.2 on bookworm / 8.4 on trixie) is provided by the official OS repositories (no third-party PHP repo needed).
