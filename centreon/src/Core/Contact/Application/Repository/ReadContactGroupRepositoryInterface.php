@@ -25,6 +25,7 @@ namespace Core\Contact\Application\Repository;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -51,6 +52,21 @@ interface ReadContactGroupRepositoryInterface
      * @return array<ContactGroup>
      */
     public function findAllByUserId(int $userId): array;
+
+    /**
+     * Get contact group ids reachable from $user, considering both the user's
+     * ACL groups (cloud and on-prem) and the user's own contact group
+     * membership. Mirrors {@see ReadContactRepositoryInterface::findContactIdsByUser()}
+     * for contact groups so the same one-method "scope of this user" lookup
+     * works for either dimension.
+     *
+     * @param ContactInterface $user
+     *
+     * @throws RepositoryException
+     *
+     * @return int[]
+     */
+    public function findContactGroupIdsByUser(ContactInterface $user): array;
 
     /**
      * Get a Contact Group.
