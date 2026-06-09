@@ -54,13 +54,15 @@ jobs:
       - name: Run Script on Changed Feature Files
         if: env.CHANGED_FILES != ''
         run: |
-          echo "The target version for this script is : ${{ needs.get-environment.outputs.major_version }}"
+          echo "The target version for this script is : $MAJOR_VERSION"
           for file in $CHANGED_FILES; do
-            echo "Running script for $file on branch ${{ github.ref_name }}"
-            node .github/scripts/xray/synchronize_jira_xray.js "$file" ${{ github.ref_name }} ${{ needs.get-environment.outputs.major_version }}
+            echo "Running script for $file on branch $REF_NAME"
+            node .github/scripts/xray/synchronize_jira_xray.js "$file" "$REF_NAME" "$MAJOR_VERSION"
           done
         env:
           XRAY_JIRA_USER_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
           XRAY_JIRA_TOKEN: ${{ secrets.XRAY_JIRA_TOKEN }}
           XRAY_CLIENT_ID: ${{ secrets.XRAY_CLIENT_ID }}
           XRAY_CLIENT_SECRET: ${{ secrets.XRAY_CLIENT_SECRET }}
+          REF_NAME: ${{ github.ref_name }}
+          MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}

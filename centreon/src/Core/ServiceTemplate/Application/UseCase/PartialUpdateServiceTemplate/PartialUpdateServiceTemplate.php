@@ -172,7 +172,7 @@ final class PartialUpdateServiceTemplate
             'service_template_id' => $request->id,
             'host_templates' => $request->hostTemplates,
         ]);
-        $this->writeRepository->linkToHosts($request->id, $request->hostTemplates);
+        $this->writeRepository->linkToHosts($request->id, array_values(array_unique($request->hostTemplates)));
     }
 
     /**
