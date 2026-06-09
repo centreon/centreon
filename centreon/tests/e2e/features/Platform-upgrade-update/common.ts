@@ -4,12 +4,20 @@ import { PAGES } from 'fixtures/shared/constants/pages';
 import { CopyToContainerContentType } from '../../../../packages/js-config/cypress/e2e/commands';
 import { checkIfConfigurationIsExported, insertFixture } from '../../commons';
 
+// MON-200166: trigger platform-upgrade-update e2e on extended OS matrix
 const dateBeforeLogin = new Date();
 
 const localPackageDirectory = 'fixtures/packages';
 const containerPackageDirectory = '/tmp/packages-update-centreon';
 
 const getCentreonPreviousMajorVersion = (majorVersionFrom: string): string => {
+  // Override table for releases that do not follow the April/October cadence
+  // (e.g. 26.07 is a mid-year release whose real predecessor is 25.10, not 26.04).
+  const knownPredecessor: Record<string, string> = { '26.07': '25.10' };
+  if (knownPredecessor[majorVersionFrom]) {
+    return knownPredecessor[majorVersionFrom];
+  }
+
   const match = majorVersionFrom.match(/^(\d+)\.(\d+)$/);
 
   if (match === null) {
