@@ -21,8 +21,8 @@
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
-use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
 
@@ -1885,6 +1885,7 @@ class CentreonACL
                 $result[$key] = isset($options['get_row']) ? $elem[$options['get_row']] : $elem;
             }
         }
+
         return $result;
     }
 
