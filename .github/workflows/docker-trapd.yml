@@ -28,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [bookworm, trixie]
+        distrib: [trixie]
     container:
       image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}-${{ matrix.distrib }}
     name: package centreon-trap ${{ matrix.distrib }}
@@ -63,7 +63,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [bookworm, trixie]
+        distrib: [trixie]
     container:
       image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}-${{ matrix.distrib }}
     name: package centreon-perl-libs ${{ matrix.distrib }}
@@ -110,7 +110,7 @@ jobs:
       fail-fast: false
       matrix:
         component: [centreon-snmptrapd, centreon-centreontrapd]
-        operating_system: [bookworm, trixie]
+        operating_system: [trixie]
     name: dockerize ${{ matrix.component }}-${{ matrix.operating_system }}
 
     steps:
