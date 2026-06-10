@@ -35,6 +35,7 @@ jobs:
       is_cloud: ${{ steps.check_promoted_packages.outputs.is_cloud }}
       edition: ${{ steps.check_promoted_packages.outputs.edition }}
       linked_dev_branch: ${{ steps.check_promoted_packages.outputs.linked_dev_branch }}
+      php_version: ${{ steps.check_promoted_packages.outputs.php_version }}
     runs-on: ubuntu-24.04
     env:
       RELEASE_BUNDLE_TAG: ${{ inputs.release_bundle_tag }}
@@ -118,6 +119,17 @@ jobs:
           fi
           echo "linked_dev_branch=$linked_dev_branch"
           echo "linked_dev_branch=$linked_dev_branch" >> $GITHUB_OUTPUT
+
+          # Releases before 26.07 are built against PHP 8.2; 26.07 onward use the
+          # dockerfile default (PHP 8.4). This must be injected because the cloud
+          # dependency images are built from develop, which has moved to PHP 8.4.
+          if [[ "$(printf '%s\n%s\n' "$major_version" "26.07" | sort -V | head -n1)" == "$major_version" && "$major_version" != "26.07" ]]; then
+            php_version="8.2"
+          else
+            php_version="8.4"
+          fi
+          echo "php_version=$php_version"
+          echo "php_version=$php_version" >> $GITHUB_OUTPUT
 
   dockerize-stable-web:
     needs: [check-inputs]
@@ -241,6 +253,7 @@ jobs:
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "IS_CLOUD=${{ needs.check-inputs.outputs.is_cloud }}"
             "STABILITY=stable"
+            "PHP_VERSION=${{ needs.check-inputs.outputs.php_version }}"
           pull: true
           load: true
           labels: |
@@ -270,6 +283,7 @@ jobs:
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "IS_CLOUD=${{ needs.check-inputs.outputs.is_cloud }}"
             "STABILITY=stable"
+            "PHP_VERSION=${{ needs.check-inputs.outputs.php_version }}"
           pull: false
           push: true
           labels: |
