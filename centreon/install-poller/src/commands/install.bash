@@ -69,6 +69,21 @@ function _installParseArguments() {
       shift
       SALT=$1
       ;;
+    --tz)
+      shift
+      TZ=$1
+      ;;
+    --debug)
+      shift
+      DEBUG=$1
+      ;;
+    --gorgone_ssl)
+      shift
+      GORGONE_SSL=$1
+      ;;
+    --no-start)
+      START_STACK=0
+      ;;
     --with-vmware)
       WITH_VMWARE=1
       ;;

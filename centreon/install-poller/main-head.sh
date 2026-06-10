@@ -37,3 +37,4 @@ SALT=""
 # Optional services (Docker mode)
 WITH_VMWARE=0
 WITH_SNMPTRAP=0
+START_STACK=1
