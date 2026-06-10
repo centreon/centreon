@@ -869,6 +869,20 @@ function write_db_no_tls_dropin() {
 }
 #========= end of function write_db_no_tls_dropin()
 
+#========= begin of function tls_cert_dir()
+# directory holding the Centreon TLS CA + server cert, shared by all TLS consumers.
+# On Debian the DB certs must live where MariaDB's AppArmor profile allows reads (/etc/mysql/**);
+# /etc/pki is the RHEL convention.
+#
+function tls_cert_dir() {
+	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		echo "/etc/mysql/centreon-tls"
+	else
+		echo "/etc/pki/centreon-tls"
+	fi
+}
+#========= end of function tls_cert_dir()
+
 #========= begin of function generate_db_tls_certificates()
 # generate a persistent Root CA and a server leaf certificate for the database.
 # modeled on centreon-images .../centreon-central/gen_cert.sh (standalone host, no container).
@@ -877,7 +891,8 @@ function write_db_no_tls_dropin() {
 # exports the resulting paths via the TLS_* globals for the caller.
 #
 function generate_db_tls_certificates() {
-	local cert_dir="/etc/pki/centreon-tls"
+	local cert_dir
+	cert_dir=$(tls_cert_dir)
 	local ca_key="$cert_dir/rootCA.key"
 	local ca_cert="$cert_dir/rootCA.pem"
 	local srv_key="$cert_dir/server-key.pem"
@@ -885,7 +900,7 @@ function generate_db_tls_certificates() {
 	local fqdn
 	fqdn=$(hostname -f 2>/dev/null || hostname)
 
-	# The 'openssl' CLI is not guaranteed on a minimal RHEL install (only openssl-libs is); install on demand.
+	# The 'openssl' CLI is not guaranteed on a minimal install (RHEL ships only openssl-libs); install on demand.
 	command -v openssl >/dev/null 2>&1 || $PKG_MGR install -y openssl
 
 	mkdir -p "$cert_dir"
@@ -948,7 +963,7 @@ function generate_db_tls_certificates() {
 #========= begin of function configure_db_tls()
 # configure DB TLS according to the --tls flag.
 #  - disabled: ensure the server accepts plaintext connections (require_secure_transport=OFF).
-#  - enabled (RHEL only, this phase): generate certs, install the CA into the trust store, enable
+#  - enabled (RHEL & Debian): generate certs, install the CA into the trust store, enable
 #    server-side TLS and a verified [client] config, and stage the PHP DATABASE_SSL_* env.
 # Provision-only: require_secure_transport stays OFF so the (plaintext) PHP web install wizard keeps
 # working until centreon/centreon PR #9237 (PHP->DB TLS) ships in the installed package.
@@ -959,22 +974,30 @@ function configure_db_tls() {
 		write_db_no_tls_dropin
 		return
 	fi
-	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
-		log "WARN" "DB TLS (--tls enabled) is not yet implemented for Debian; proceeding without DB TLS"
-		write_db_no_tls_dropin
-		return
-	fi
-
 	log "INFO" "Configuring DB TLS [enabled] for $dbms"
 	generate_db_tls_certificates
 
-	# Install the Root CA into the system trust store (RHEL).
-	cp "$TLS_CA_CERT" /etc/pki/ca-trust/source/anchors/centreon-db-ca.crt
-	update-ca-trust extract
+	# OS-specific destinations for the trust store, server drop-in and client cnf.
+	local server_dropin client_dropin
+	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		cp "$TLS_CA_CERT" /usr/local/share/ca-certificates/centreon-db-ca.crt
+		update-ca-certificates >/dev/null
+		if [[ "$dbms" == "MariaDB" ]]; then
+			server_dropin="/etc/mysql/mariadb.conf.d/99-centreon-tls.cnf"
+		else
+			server_dropin="/etc/mysql/mysql.conf.d/99-centreon-tls.cnf"
+		fi
+		client_dropin="/etc/mysql/conf.d/centreon-tls-client.cnf"
+	else
+		cp "$TLS_CA_CERT" /etc/pki/ca-trust/source/anchors/centreon-db-ca.crt
+		update-ca-trust extract
+		server_dropin="/etc/my.cnf.d/centreon-tls.cnf"
+		client_dropin="/etc/my.cnf.d/centreon-tls-client.cnf"
+	fi
 	log "INFO" "Root CA installed into the system trust store"
 
 	# Server-side TLS: offer TLS but do NOT enforce it yet (see function header).
-	local server_dropin="/etc/my.cnf.d/centreon-tls.cnf"
+	mkdir -p "$(dirname "$server_dropin")"
 	log "INFO" "Writing DB server TLS config: $server_dropin (require_secure_transport=OFF)"
 	cat > "$server_dropin" <<-EOF
 		[mysqld]
@@ -985,7 +1008,7 @@ function configure_db_tls() {
 	EOF
 
 	# Client default: negotiate TLS and verify the server certificate against our CA.
-	local client_dropin="/etc/my.cnf.d/centreon-tls-client.cnf"
+	mkdir -p "$(dirname "$client_dropin")"
 	log "INFO" "Writing DB client TLS config: $client_dropin"
 	cat > "$client_dropin" <<-EOF
 		[client]
@@ -1011,13 +1034,12 @@ function configure_db_tls() {
 
 #========= begin of function configure_db_tls_consumers()
 # wire DB-TLS consumers whose config files only exist after the central is installed/configured.
-# called late in the install flow (after the web install wizard). RHEL only, this phase.
+# called late in the install flow (after the web install wizard).
 #
 function configure_db_tls_consumers() {
 	[[ "$tls" == "enabled" ]] || return 0
-	[[ "${detected_os_release}" =~ debian-release-.* ]] && return 0
 
-	local ca_cert="/etc/pki/centreon-tls/rootCA.pem"
+	local ca_cert="$(tls_cert_dir)/rootCA.pem"
 
 	# gorgone (Perl DBI): append ;mysql_ssl=1;mysql_ssl_ca=<CA> to each mysql DSN. Idempotent per DSN.
 	local gorgone_cfg="/etc/centreon/config.d/10-database.yaml"
@@ -1041,16 +1063,18 @@ function configure_db_tls_consumers() {
 function configure_web_tls() {
 	[[ "$tls" == "enabled" ]] || return 0
 	[[ "$topology" == "central" ]] || return 0
-	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
-		log "WARN" "Web TLS (--tls enabled) is not yet implemented for Debian; skipping HTTPS vhost"
-		return 0
-	fi
 
-	local cert_dir="/etc/pki/centreon-tls"
-	local srv_cert="$cert_dir/server.pem"
-	local srv_key="$cert_dir/server-key.pem"
-	local template="/usr/share/centreon/examples/centreon-apache-https.conf"
-	local vhost="/etc/httpd/conf.d/00-centreon-tls.conf"
+	local cert_dir srv_cert srv_key template vhost is_debian=0
+	cert_dir=$(tls_cert_dir)
+	srv_cert="$cert_dir/server.pem"
+	srv_key="$cert_dir/server-key.pem"
+	template="/usr/share/centreon/examples/centreon-apache-https.conf"
+	[[ "${detected_os_release}" =~ debian-release-.* ]] && is_debian=1
+	if [[ $is_debian -eq 1 ]]; then
+		vhost="/etc/apache2/sites-available/00-centreon-tls.conf"
+	else
+		vhost="/etc/httpd/conf.d/00-centreon-tls.conf"
+	fi
 
 	if [[ ! -f "$srv_cert" || ! -f "$srv_key" ]]; then
 		log "WARN" "Server certificate not found ($srv_cert); skipping web TLS"
@@ -1061,16 +1085,20 @@ function configure_web_tls() {
 		return 0
 	fi
 
-	# mod_ssl is not always present; install on demand so SSLEngine is a known directive.
-	if ! rpm -q mod_ssl >/dev/null 2>&1; then
-		log "INFO" "Installing mod_ssl"
-		$PKG_MGR install -y mod_ssl >/dev/null || error_and_exit "Could not install mod_ssl"
-	fi
-
-	# mod_ssl ships a default ssl.conf with a snake-oil :443 vhost pointing at a missing cert; reduce it
-	# to just the Listen directive so :443 is bound and our vhost defines the actual <VirtualHost *:443>.
-	if [[ -f /etc/httpd/conf.d/ssl.conf ]]; then
-		echo "Listen 443 https" > /etc/httpd/conf.d/ssl.conf
+	if [[ $is_debian -eq 1 ]]; then
+		# apache2 ships mod_ssl; enable the modules the official template needs (Listen 443 comes from ports.conf).
+		a2enmod ssl proxy proxy_fcgi headers deflate rewrite >/dev/null || error_and_exit "Could not enable required Apache modules"
+	else
+		# mod_ssl is not always present on RHEL; install on demand so SSLEngine is a known directive.
+		if ! rpm -q mod_ssl >/dev/null 2>&1; then
+			log "INFO" "Installing mod_ssl"
+			$PKG_MGR install -y mod_ssl >/dev/null || error_and_exit "Could not install mod_ssl"
+		fi
+		# mod_ssl ships a default ssl.conf with a snake-oil :443 vhost pointing at a missing cert; reduce it
+		# to just the Listen directive so :443 is bound and our vhost defines the actual <VirtualHost *:443>.
+		if [[ -f /etc/httpd/conf.d/ssl.conf ]]; then
+			echo "Listen 443 https" > /etc/httpd/conf.d/ssl.conf
+		fi
 	fi
 
 	# Guard against template drift before substituting the cert paths.
@@ -1078,14 +1106,20 @@ function configure_web_tls() {
 		log "WARN" "Apache HTTPS template cert paths changed; skipping web TLS to avoid a broken vhost"
 		return 0
 	fi
-	# The 00- prefix sorts before the install-step's 10-centreon.conf so our :80 redirect vhost becomes
+	# The 00- prefix sorts before the install-step's Centreon HTTP vhost so our :80 redirect vhost becomes
 	# Apache's default :80 vhost.
+	mkdir -p "$(dirname "$vhost")"
 	sed -e "s|/etc/pki/tls/certs/ca.crt|$srv_cert|g" \
 	    -e "s|/etc/pki/tls/private/ca.key|$srv_key|g" \
 	    "$template" > "$vhost"
 	log "INFO" "Apache HTTPS vhost written to $vhost (HTTP :80 -> HTTPS :443 redirect enabled)"
 
-	# Open 443 if firewalld is active (update_firewall_config only opens http/snmp).
+	# On Debian the vhost must be symlinked into sites-enabled; RHEL auto-loads conf.d/*.conf.
+	if [[ $is_debian -eq 1 ]]; then
+		a2ensite 00-centreon-tls >/dev/null || error_and_exit "Could not enable the Centreon HTTPS site"
+	fi
+
+	# Open 443 if firewalld is active (update_firewall_config only opens http/snmp). No-op on Debian (no firewalld).
 	if command -v firewall-cmd >/dev/null 2>&1 && firewall-cmd --state >/dev/null 2>&1; then
 		firewall-cmd --zone=public --add-service=https --permanent >/dev/null 2>&1
 		firewall-cmd --reload >/dev/null 2>&1
@@ -1892,7 +1926,7 @@ install)
 	fi
 
 	if [ "$topology" == "central" ] && [ "$wizard_autoplay" == "true" ]; then
-		if [[ "$tls" == "enabled" ]] && ! [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		if [[ "$tls" == "enabled" ]]; then
 			log "INFO" "Log in to Centreon web interface via the URL: https://$central_ip/centreon"
 		else
 			log "INFO" "Log in to Centreon web interface via the URL: http://$central_ip/centreon"
