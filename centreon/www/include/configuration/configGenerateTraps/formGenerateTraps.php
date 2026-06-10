@@ -99,12 +99,12 @@ if ($form->validate()) {
     if ($ret['host'] == 0 || $ret['host'] != -1) {
         // Create Server List to snmptt generation file
         $tab_server = [];
-        $query = 'SELECT `name`, `id`, `snmp_trapd_path_conf`, `localhost` FROM `nagios_server` '
+        $query = 'SELECT `name`, `id`, `uid`, `snmp_trapd_path_conf`, `localhost` FROM `nagios_server` '
             . "WHERE `ns_activate` = '1' ORDER BY `localhost` DESC";
         $DBRESULT_Servers = $pearDB->query($query);
         while ($tab = $DBRESULT_Servers->fetchRow()) {
             if (isset($ret['host']) && ($ret['host'] == 0 || $ret['host'] == $tab['id'])) {
-                $tab_server[$tab['id']] = ['id' => $tab['id'], 'name' => $tab['name'], 'localhost' => $tab['localhost']];
+                $tab_server[$tab['id']] = ['id' => $tab['id'], 'uid' => $tab['uid'], 'name' => $tab['name'], 'localhost' => $tab['localhost']];
             }
             if ($tab['localhost'] && $tab['snmp_trapd_path_conf']) {
                 $trapdPath = $tab['snmp_trapd_path_conf'];
@@ -143,7 +143,7 @@ if ($form->validate()) {
             foreach ($tab_server as $host) {
                 $return = file_put_contents(
                     $centcore_pipe,
-                    'SYNCTRAP:' . (int) $host['id'] . "\n",
+                    'SYNCTRAP:' . $host['uid'] . "\n",
                     FILE_APPEND | LOCK_EX
                 );
                 if ($return === false) {

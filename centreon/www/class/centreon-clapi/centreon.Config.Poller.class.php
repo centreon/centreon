@@ -153,13 +153,13 @@ class CentreonConfigPoller
 
         $this->commandGenerator = $this->container->get(EngineCommandGenerator::class);
         $reloadCommand = $this->commandGenerator->getEngineCommand('RELOAD');
-        $return_code = $this->writeToCentcorePipe($reloadCommand, $host['id']);
+        $return_code = $this->writeToCentcorePipe($reloadCommand, $host['uid']);
         if ($return_code === 1) {
             echo "Error while writing the command {$reloadCommand} in centcore pipe file for host id {$host['id']}" . PHP_EOL;
 
             return $return_code;
         }
-        $return_code = $this->writeToCentcorePipe('RELOADBROKER', $host['id']);
+        $return_code = $this->writeToCentcorePipe('RELOADBROKER', $host['uid']);
         if ($return_code === 1) {
             echo "Error while writing the command RELOADBROKER in centcore pipe file for host id {$host['id']}" . PHP_EOL;
 
@@ -244,13 +244,13 @@ class CentreonConfigPoller
 
         $this->commandGenerator = $this->container->get(EngineCommandGenerator::class);
         $restartCommand = $this->commandGenerator->getEngineCommand('RESTART');
-        $return_code = $this->writeToCentcorePipe($restartCommand, $host['id']);
+        $return_code = $this->writeToCentcorePipe($restartCommand, $host['uid']);
         if ($return_code === 1) {
             echo "Error while writing the command {$restartCommand} in centcore pipe file for host id {$host['id']}" . PHP_EOL;
 
             return $return_code;
         }
-        $return_code = $this->writeToCentcorePipe('RELOADBROKER', $host['id']);
+        $return_code = $this->writeToCentcorePipe('RELOADBROKER', $host['uid']);
         if ($return_code === 1) {
             echo "Error while writing the command RELOADBROKER in centcore pipe file for host id {$host['id']}" . PHP_EOL;
 
@@ -640,10 +640,10 @@ class CentreonConfigPoller
                     ['params' => $exportParams]
                 );
             }
-            $return = $this->writeToCentcorePipe('SENDCFGFILE', $host['id']);
+            $return = $this->writeToCentcorePipe('SENDCFGFILE', $host['uid']);
 
             $this->container->get(VmwareConfigurationService::class)
-                ->restartIfConfigurationChanged((int) $host['id'], false);
+                ->restartIfConfigurationChanged((int) $host['id'], false, $host['uid']);
 
             $msg_copy .= _(
                 "OK: All configuration will be send to '"
@@ -700,7 +700,7 @@ class CentreonConfigPoller
 
         $centreonDir = $this->centreon_path;
         $pearDB = $this->dependencyInjector['configuration_db'];
-        $statement = $pearDB->prepare('SELECT snmp_trapd_path_conf FROM nagios_server WHERE id = :pollerId');
+        $statement = $pearDB->prepare('SELECT snmp_trapd_path_conf, uid FROM nagios_server WHERE id = :pollerId');
         $statement->bindValue(':pollerId', $pollerId, PDO::PARAM_INT);
         $statement->execute();
         $row = $statement->fetchRow();
@@ -721,7 +721,7 @@ class CentreonConfigPoller
         );
         passthru($cmd);
 
-        return $this->writeToCentcorePipe('SYNCTRAP', $pollerId);
+        return $this->writeToCentcorePipe('SYNCTRAP', $row['uid']);
     }
 
     /**
@@ -745,17 +745,17 @@ class CentreonConfigPoller
      * when possible
      *
      * @param string $cmd
-     * @param int $id
+     * @param string|int $uid
      * @return int
      */
-    private function writeToCentcorePipe($cmd, $id): int
+    private function writeToCentcorePipe($cmd, $uid): int
     {
         if (is_dir(_CENTREON_VARLIB_ . '/centcore')) {
             $pipe = _CENTREON_VARLIB_ . '/centcore/' . hrtime(true) . '-externalcommand.cmd';
         } else {
             $pipe = _CENTREON_VARLIB_ . '/centcore.cmd';
         }
-        $fullCommand = sprintf('%s:%d' . PHP_EOL, $cmd, $id);
+        $fullCommand = sprintf('%s:%s' . PHP_EOL, $cmd, $uid);
         $result = file_put_contents($pipe, $fullCommand, FILE_APPEND);
 
         return ($result !== false) ? 0 : 1;

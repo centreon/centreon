@@ -130,7 +130,7 @@ class PollerInteractionService
 
         $tabServer = [];
         $tabs = $this->centreon->user->access->getPollerAclConf([
-            'fields' => ['name', 'id', 'localhost'],
+            'fields' => ['name', 'id', 'uid', 'localhost'],
             'order' => ['name'],
             'conditions' => ['ns_activate' => '1'],
             'keys' => ['id'],
@@ -140,6 +140,7 @@ class PollerInteractionService
             if (in_array($tab['id'], $pollerIDs)) {
                 $tabServer[$tab['id']] = [
                     'id' => $tab['id'],
+                    'uid' => $tab['uid'],
                     'name' => $tab['name'],
                     'localhost' => $tab['localhost'],
                 ];
@@ -150,7 +151,7 @@ class PollerInteractionService
             if (in_array($host['id'], $pollerIDs)) {
                 $written = file_put_contents(
                     $centCorePipe,
-                    'SENDCFGFILE:' . (int) $host['id'] . "\n",
+                    'SENDCFGFILE:' . $host['uid'] . "\n",
                     FILE_APPEND | LOCK_EX
                 );
 
@@ -160,7 +161,8 @@ class PollerInteractionService
 
                 $vmwareConfigurationService->restartIfConfigurationChanged(
                     (int) $host['id'],
-                    isset($host['localhost']) && $host['localhost'] == 1
+                    isset($host['localhost']) && $host['localhost'] == 1,
+                    $host['uid']
                 );
             }
         }
@@ -180,7 +182,7 @@ class PollerInteractionService
             : '/var/lib/centreon/centcore.cmd';
 
         $tabs = $this->centreon->user->access->getPollerAclConf([
-            'fields' => ['name', 'id', 'localhost', 'engine_restart_command'],
+            'fields' => ['name', 'id', 'uid', 'localhost', 'engine_restart_command'],
             'order' => ['name'],
             'conditions' => ['ns_activate' => '1'],
             'keys' => ['id'],
@@ -193,6 +195,7 @@ class PollerInteractionService
             if (in_array($tab['id'], $pollerIDs)) {
                 $tabServers[$tab['id']] = [
                     'id' => $tab['id'],
+                    'uid' => $tab['uid'],
                     'name' => $tab['name'],
                     'localhost' => $tab['localhost'],
                     'engine_restart_command' => $tab['engine_restart_command'],
@@ -206,7 +209,7 @@ class PollerInteractionService
             } else {
                 $written = file_put_contents(
                     $centCorePipe,
-                    'RESTART:' . (int) $poller['id'] . "\n",
+                    'RESTART:' . $poller['uid'] . "\n",
                     FILE_APPEND | LOCK_EX
                 );
 

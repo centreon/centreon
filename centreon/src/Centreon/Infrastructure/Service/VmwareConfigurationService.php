@@ -44,10 +44,11 @@ final class VmwareConfigurationService
      *
      * @param int $pollerId
      * @param bool $isLocalhost true → systemctl restart locally, false → write VMWARERESTART to centcore pipe
+     * @param string|int|null $pollerUid Gorgone routing UID (falls back to $pollerId if null)
      *
      * @throws Exception when writing to the centcore pipe fails
      */
-    public function restartIfConfigurationChanged(int $pollerId, bool $isLocalhost): void
+    public function restartIfConfigurationChanged(int $pollerId, bool $isLocalhost, string|int|null $pollerUid = null): void
     {
         if (! $this->writeMonitoringServerRepository->resetVmwareConfigurationChange($pollerId)) {
             return;
@@ -55,7 +56,7 @@ final class VmwareConfigurationService
 
         $succeeded = $isLocalhost
             ? $this->restartLocally()
-            : $this->writeRestartCommandToCentcorePipe($pollerId);
+            : $this->writeRestartCommandToCentcorePipe($pollerUid ?? $pollerId);
 
         if ($succeeded) {
             return;
@@ -76,7 +77,7 @@ final class VmwareConfigurationService
         return $process->isSuccessful();
     }
 
-    private function writeRestartCommandToCentcorePipe(int $pollerId): bool
+    private function writeRestartCommandToCentcorePipe(string|int $pollerId): bool
     {
         $pipePath = $this->getCentcorePipePath();
         $written = file_put_contents(

@@ -229,11 +229,11 @@ try {
         ->get(VmwareConfigurationService::class);
 
     $tab_server = [];
-    $tabs = $centreon->user->access->getPollerAclConf(['fields' => ['name', 'id', 'localhost'], 'order' => ['name'], 'conditions' => ['ns_activate' => '1'], 'keys' => ['id']]);
+    $tabs = $centreon->user->access->getPollerAclConf(['fields' => ['name', 'id', 'uid', 'localhost'], 'order' => ['name'], 'conditions' => ['ns_activate' => '1'], 'keys' => ['id']]);
 
     foreach ($tabs as $tab) {
         if (isset($ret['host']) && ($ret['host'] == 0 || in_array($tab['id'], $ret['host']))) {
-            $tab_server[$tab['id']] = ['id' => $tab['id'], 'name' => $tab['name'], 'localhost' => $tab['localhost']];
+            $tab_server[$tab['id']] = ['id' => $tab['id'], 'uid' => $tab['uid'], 'name' => $tab['name'], 'localhost' => $tab['localhost']];
         }
     }
 
@@ -351,13 +351,13 @@ try {
             } else {
                 $written = file_put_contents(
                     $centcore_pipe,
-                    'SENDCFGFILE:' . (int) $host['id'] . "\n",
+                    'SENDCFGFILE:' . $host['uid'] . "\n",
                     FILE_APPEND | LOCK_EX
                 );
                 if ($written === false) {
                     throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
                 }
-                $vmwareConfigurationService->restartIfConfigurationChanged((int) $host['id'], false);
+                $vmwareConfigurationService->restartIfConfigurationChanged((int) $host['id'], false, $host['uid']);
                 if (! isset($msg_restart[$host['id']])) {
                     $msg_restart[$host['id']] = '';
                 }

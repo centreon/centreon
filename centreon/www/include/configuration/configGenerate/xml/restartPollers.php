@@ -172,6 +172,7 @@ try {
         'fields' => [
             'name',
             'id',
+            'uid',
             'engine_restart_command',
             'engine_reload_command',
             'broker_reload_command',
@@ -182,7 +183,7 @@ try {
     ]);
     foreach ($tabs as $tab) {
         if (isset($ret['host']) && ($ret['host'] == 0 || in_array($tab['id'], $ret['host']))) {
-            $poller[$tab['id']] = ['id' => $tab['id'], 'name' => $tab['name'], 'engine_restart_command' => $tab['engine_restart_command'], 'engine_reload_command' => $tab['engine_reload_command'], 'broker_reload_command' => $tab['broker_reload_command']];
+            $poller[$tab['id']] = ['id' => $tab['id'], 'uid' => $tab['uid'], 'name' => $tab['name'], 'engine_restart_command' => $tab['engine_restart_command'], 'engine_reload_command' => $tab['engine_reload_command'], 'broker_reload_command' => $tab['broker_reload_command']];
         }
     }
 
@@ -199,7 +200,7 @@ try {
                 $reloadCommand = ($commandGenerator !== null)
                     ? $commandGenerator->getEngineCommand('RELOAD')
                     : 'RELOAD';
-                fwrite($fh, $reloadCommand . ':' . $host['id'] . "\n");
+                fwrite($fh, $reloadCommand . ':' . $host['uid'] . "\n");
                 fclose($fh);
             } else {
                 throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
@@ -218,7 +219,7 @@ try {
                 $restartCommand = ($commandGenerator !== null)
                     ? $commandGenerator->getEngineCommand('RESTART')
                     : 'RESTART';
-                fwrite($fh, $restartCommand . ':' . $host['id'] . "\n");
+                fwrite($fh, $restartCommand . ':' . $host['uid'] . "\n");
                 fclose($fh);
             } else {
                 throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
