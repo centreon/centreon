@@ -12,38 +12,17 @@ on:
 jobs:
   delete-feature-repositories:
     if: |
-      startsWith(github.ref_name, 'MON-')
-    runs-on: ubuntu-24.04
+      startsWith(github.head_ref, 'MON-')
+    runs-on: centreon-common
     env:
       GH_TOKEN: ${{ github.token }}
       HEAD_REF: ${{ github.head_ref }}
     steps:
-      - uses: jfrog/setup-jfrog-cli@1641575d87647fb969c0545f0b6a76873e328b7c # v5.0.0
-        env:
-          JF_URL: https://packages.centreon.com
-          JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-
-      - name: Check if feature branch had associated feature repository
-        id: check_feature_repository
-        shell: bash
-        run: |
-          set -x
-          feature_ticket=$(echo "$HEAD_REF" | grep -oE 'MON-[0-9]+')
-          if [[ -z "$feature_ticket" ]]; then
-            echo "::notice::Ticket ID not found due to the branch name not corresponding to standards."
-            echo "repositories_found=false" >> "$GITHUB_OUTPUT"
-          elif jf rt curl -s -X GET /api/repositories | jq -r '.[].key' | grep "$feature_ticket"; then
-            echo "::notice::Repositories associated with $feature_ticket found – deletion will be requested."
-            echo "repositories_found=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "::notice::No repositories linked to $feature_ticket – workflow ends here."
-            echo "repositories_found=false" >> "$GITHUB_OUTPUT"
-          fi
+      - name: Checkout sources
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Check if other feature branches/pull requests of the same ticket exist on other repositories
         id: check_other_feature_prs
-        if: |
-          steps.check_feature_repository.outputs.repositories_found == 'true'
         shell: bash
         run: |
           set -x
@@ -56,30 +35,35 @@ jobs:
             echo "feature_prs_found=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Send repository dispatch to delete feature repositories
-        shell: bash
-        if: |
-          steps.check_feature_repository.outputs.repositories_found == 'true' &&
-          steps.check_other_feature_prs.outputs.feature_prs_found == 'false'
-        run: |
-          set -x
-          echo "Sending repository dispatch to delete feature repository workflow..."
-          feature_ticket=$(echo "$HEAD_REF" | grep -oE 'MON-[0-9]+')
-          curl --fail-with-body -X POST \
-            -H "Authorization: Bearer ${{ secrets.CENTREON_TECHNIQUE_PAT }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/centreon/delivery-tooling/dispatches \
-            -d "$(jq -n \
-              --arg feature_ticket "$feature_ticket" \
-              '{
-                event_type: "delete-feature-repositories",
-                client_payload: {
-                  feature_ticket: $feature_ticket
-                }
-              }'
-            )"
+      - name: Setup pulp-cli
+        if: steps.check_other_feature_prs.outputs.feature_prs_found == 'false'
+        uses: ./.github/actions/setup-pulp-cli
+        with:
+          pulp_username: ${{ secrets.PULP_USERNAME }}
+          pulp_password: ${{ secrets.PULP_PASSWORD }}
 
-          if [ $? -ne 0 ]; then
-            echo "::error::Failure to send repository dispatch to delete feature repository. You may want to perform that operation manually."
-            exit 1
+      - name: Delete feature repositories
+        if: steps.check_other_feature_prs.outputs.feature_prs_found == 'false'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          FEATURE_TICKET=$(echo "$HEAD_REF" | grep -oE 'MON-[0-9]+' | head -1 || true)
+          if [[ -z "$FEATURE_TICKET" ]]; then
+            echo "::notice::Ticket ID not found due to the branch name not corresponding to standards."
+            exit 0
           fi
+
+          for PLUGIN in rpm deb; do
+            mapfile -t DISTRIBUTIONS < <(pulp "$PLUGIN" distribution list --base-path-contains "feature/$FEATURE_TICKET/" --limit 1000 | jq -r '.[].name')
+            for NAME in "${DISTRIBUTIONS[@]}"; do
+              echo "[INFO] Deleting $PLUGIN distribution $NAME"
+              pulp "$PLUGIN" distribution destroy --name "$NAME"
+            done
+
+            mapfile -t REPOSITORIES < <(pulp "$PLUGIN" repository list --limit 1000 | jq -r --arg pattern "feature-$FEATURE_TICKET-" '.[] | select(.name | contains($pattern)) | .name')
+            for NAME in "${REPOSITORIES[@]}"; do
+              echo "[INFO] Deleting $PLUGIN repository $NAME"
+              pulp "$PLUGIN" repository destroy --name "$NAME"
+            done
+          done

@@ -1,0 +1,45 @@
+name: "setup-pulp-cli"
+description: "Install and configure pulp-cli"
+inputs:
+  pulp_url:
+    description: "The pulp server api url"
+    required: false
+    default: "https://pulp.dev.centreon.io"
+  pulp_username:
+    description: "The pulp server username"
+    required: true
+  pulp_password:
+    description: "The pulp server password"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install pulp-cli
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        if ! command -v pulp >/dev/null 2>&1; then
+          echo "[INFO] Installing pulp-cli"
+          python3 -m pip install --user "pulp-cli==0.37.1" "pulp-cli-deb==0.4.3" 2>/dev/null || \
+            python3 -m pip install --user --break-system-packages "pulp-cli==0.37.1" "pulp-cli-deb==0.4.3"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+        fi
+
+    - name: Configure pulp-cli
+      shell: bash
+      env:
+        PULP_URL: ${{ inputs.pulp_url }}
+        PULP_USERNAME: ${{ inputs.pulp_username }}
+        PULP_PASSWORD: ${{ inputs.pulp_password }}
+      run: |
+        set -euo pipefail
+
+        export PATH="$HOME/.local/bin:$PATH"
+
+        pulp config create --overwrite \
+          --base-url "$PULP_URL" \
+          --username "$PULP_USERNAME" \
+          --password "$PULP_PASSWORD" \
+          --timeout 0
