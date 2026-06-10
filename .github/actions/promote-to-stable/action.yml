@@ -49,11 +49,16 @@ runs:
           exit 1
         fi
 
-    - name: Parse distrib name
-      id: parse-distrib
-      uses: ./.github/actions/parse-distrib
+    - name: Compute pulp repository properties
+      id: pulp-properties
+      uses: ./.github/actions/pulp-repository-properties
       with:
+        module_name: ${{ inputs.module_name }}
         distrib: ${{ inputs.distrib }}
+        version: ${{ inputs.major_version }}
+        stability: ${{ inputs.stability }}
+        release_type: ${{ inputs.release_type }}
+        is_cloud: ${{ inputs.is_cloud }}
 
     - name: Setup pulp-cli
       uses: ./.github/actions/setup-pulp-cli
@@ -62,20 +67,8 @@ runs:
         pulp_username: ${{ inputs.pulp_username }}
         pulp_password: ${{ inputs.pulp_password }}
 
-    - name: Compute pulp repository properties
-      id: pulp-properties
-      shell: bash
-      env:
-        MODULE_NAME: ${{ inputs.module_name }}
-        DISTRIB: ${{ inputs.distrib }}
-        DISTRIB_FAMILY: ${{ steps.parse-distrib.outputs.distrib_family }}
-        MAJOR_VERSION: ${{ inputs.major_version }}
-        RELEASE_TYPE: ${{ inputs.release_type }}
-        IS_CLOUD: ${{ inputs.is_cloud }}
-      run: ${{ github.action_path }}/compute-properties.sh
-
     - name: Promote RPM packages to stable
-      if: steps.parse-distrib.outputs.package_extension == 'rpm'
+      if: steps.pulp-properties.outputs.package_extension == 'rpm'
       shell: bash
       env:
         TRACKING_REPOSITORY_NAME: ${{ steps.pulp-properties.outputs.tracking_repository_name }}
@@ -86,7 +79,7 @@ runs:
       run: ${{ github.action_path }}/promote-rpm.sh
 
     - name: Promote DEB packages to stable
-      if: steps.parse-distrib.outputs.package_extension == 'deb'
+      if: steps.pulp-properties.outputs.package_extension == 'deb'
       shell: bash
       env:
         TRACKING_REPOSITORY_NAME: ${{ steps.pulp-properties.outputs.tracking_repository_name }}
