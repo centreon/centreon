@@ -44,13 +44,13 @@ function help() {
     echo "Docker optional flags:"
     echo -e "  --tz string\t\t\tTimezone (default: UTC)"
     echo -e "  --debug bool\t\t\tEnable debug logging (default: false)"
-    echo -e "  --gorgone_ssl bool\t\tEnable SSL for Gorgone (default: true)"
+    echo -e "  --gorgone-ssl bool\t\tEnable SSL for Gorgone (default depends on --cloud)"
     echo -e "  --with-vmware\t\t\tInclude centreon-vmware service"
     echo -e "  --with-snmptrap\t\tInclude snmptrapd and centreontrapd services"
     echo ""
     echo "Notes:"
-    echo -e "  --cloud true\t\t\tGorgone address auto-derived: gorgone-centreon-<central_url>, port 443, ssl"
-    echo -e "  --cloud false\t\t\tGorgone address from --central_url (host:port), no ssl"
+    echo -e "  --cloud true\t\t\tGorgone address auto-derived: gorgone-centreon-<central_url>, port 443, ssl=true"
+    echo -e "  --cloud false\t\t\tGorgone address from --central_url (host:port), ssl=false (override with --gorgone-ssl)"
     ;;
   *)
     echo "Available commands:"

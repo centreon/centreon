@@ -77,7 +77,7 @@ function _installParseArguments() {
       shift
       DEBUG=$1
       ;;
-    --gorgone_ssl)
+    --gorgone-ssl)
       shift
       GORGONE_SSL=$1
       ;;
