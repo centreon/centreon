@@ -843,17 +843,12 @@ function set_runtime_selinux_mode() {
 
 #========= end of function set_runtime_selinux_mode()
 
-#========= begin of function configure_db_tls()
-# configure the TLS mode for the database connection according to the --tls flag.
-# The TLS-to-DB feature is still under development, so for now both modes ensure the
-# server accepts non-TLS connections (require_secure_transport=OFF).
+#========= begin of function write_db_no_tls_dropin()
+# ensure the DB server accepts non-TLS connections (require_secure_transport=OFF).
+# used by --tls disabled, and as a safe fallback when --tls enabled is requested on
+# an OS for which DB TLS provisioning is not yet implemented.
 #
-function configure_db_tls() {
-	if [[ "$tls" == "enabled" ]]; then
-		log "WARN" "TLS communication with the database is not supported yet; the installation will proceed without TLS to the DB."
-	fi
-
-	# Drop-in location depends on the OS / DBMS.
+function write_db_no_tls_dropin() {
 	local tls_dropin
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		if [[ "$dbms" == "MariaDB" ]]; then
@@ -872,7 +867,170 @@ function configure_db_tls() {
 		require_secure_transport=OFF
 	EOF
 }
+#========= end of function write_db_no_tls_dropin()
+
+#========= begin of function generate_db_tls_certificates()
+# generate a persistent Root CA and a server leaf certificate for the database.
+# modeled on centreon-images .../centreon-central/gen_cert.sh (standalone host, no container).
+# SANs cover the FQDN, localhost, 127.0.0.1 and every non-0.0.0.0 IPv4 address found on
+# the local interfaces (DB is co-located with the central, clients hit localhost or an IP).
+# exports the resulting paths via the TLS_* globals for the caller.
+#
+function generate_db_tls_certificates() {
+	local cert_dir="/etc/pki/centreon-tls"
+	local ca_key="$cert_dir/rootCA.key"
+	local ca_cert="$cert_dir/rootCA.pem"
+	local srv_key="$cert_dir/server-key.pem"
+	local srv_cert="$cert_dir/server.pem"
+	local fqdn
+	fqdn=$(hostname -f 2>/dev/null || hostname)
+
+	mkdir -p "$cert_dir"
+	chmod 755 "$cert_dir"
+
+	# Root CA — persistent: reuse across runs if already present.
+	if [[ ! -f "$ca_cert" || ! -f "$ca_key" ]]; then
+		log "INFO" "Generating Root CA for DB TLS"
+		openssl genrsa -out "$ca_key" 4096
+		chmod 400 "$ca_key"
+		openssl req -x509 -new -nodes -key "$ca_key" -sha256 -days 3650 \
+			-subj "/C=FR/L=Paris/O=Centreon/OU=RD/CN=Centreon DB Root CA" \
+			-out "$ca_cert"
+		chmod 644 "$ca_cert"
+	else
+		log "INFO" "Reusing existing Root CA at $ca_cert"
+	fi
+
+	# Build the SAN list: FQDN + localhost + 127.0.0.1 + every non-0.0.0.0 IPv4 interface address.
+	local ext_file csr_file ip ip_idx
+	ext_file=$(mktemp)
+	csr_file=$(mktemp)
+	{
+		echo "[ v3_req ]"
+		echo "basicConstraints = CA:FALSE"
+		echo "keyUsage = digitalSignature, keyEncipherment"
+		echo "extendedKeyUsage = serverAuth"
+		echo "subjectAltName = @alt_names"
+		echo
+		echo "[ alt_names ]"
+		echo "DNS.1 = $fqdn"
+		echo "DNS.2 = localhost"
+		ip_idx=1
+		echo "IP.$ip_idx = 127.0.0.1"
+		for ip in $(ip -o -4 addr show 2>/dev/null | awk '{print $4}' | cut -d/ -f1 | grep -vx "0.0.0.0" | grep -vx "127.0.0.1" | sort -u); do
+			ip_idx=$((ip_idx + 1))
+			echo "IP.$ip_idx = $ip"
+		done
+	} > "$ext_file"
+
+	log "INFO" "Generating DB server certificate (CN=$fqdn) with SANs for all interface IPs"
+	openssl genrsa -out "$srv_key" 2048
+	openssl req -new -key "$srv_key" -out "$csr_file" -subj "/C=FR/L=Paris/O=Centreon/CN=$fqdn"
+	openssl x509 -req -in "$csr_file" -CA "$ca_cert" -CAkey "$ca_key" -CAcreateserial \
+		-out "$srv_cert" -days 825 -sha256 -extfile "$ext_file" -extensions v3_req
+	rm -f "$ext_file" "$csr_file"
+
+	# Cert is public (0644). The key must be readable by the DB user only: MariaDB/MySQL run as
+	# 'mysql' and refuse a world-readable key.
+	chmod 644 "$srv_cert"
+	chown mysql:mysql "$srv_key" "$srv_cert"
+	chmod 600 "$srv_key"
+
+	TLS_CA_CERT="$ca_cert"
+	TLS_SERVER_CERT="$srv_cert"
+	TLS_SERVER_KEY="$srv_key"
+}
+#========= end of function generate_db_tls_certificates()
+
+#========= begin of function configure_db_tls()
+# configure DB TLS according to the --tls flag.
+#  - disabled: ensure the server accepts plaintext connections (require_secure_transport=OFF).
+#  - enabled (RHEL only, this phase): generate certs, install the CA into the trust store, enable
+#    server-side TLS and a verified [client] config, and stage the PHP DATABASE_SSL_* env.
+# Provision-only: require_secure_transport stays OFF so the (plaintext) PHP web install wizard keeps
+# working until centreon/centreon PR #9237 (PHP->DB TLS) ships in the installed package.
+#
+function configure_db_tls() {
+	# --tls disabled, or enabled on an OS not yet covered: just allow plaintext and return.
+	if [[ "$tls" != "enabled" ]]; then
+		write_db_no_tls_dropin
+		return
+	fi
+	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		log "WARN" "DB TLS (--tls enabled) is not yet implemented for Debian; proceeding without DB TLS"
+		write_db_no_tls_dropin
+		return
+	fi
+
+	log "INFO" "Configuring DB TLS [enabled] for $dbms"
+	generate_db_tls_certificates
+
+	# Install the Root CA into the system trust store (RHEL).
+	cp "$TLS_CA_CERT" /etc/pki/ca-trust/source/anchors/centreon-db-ca.crt
+	update-ca-trust extract
+	log "INFO" "Root CA installed into the system trust store"
+
+	# Server-side TLS: offer TLS but do NOT enforce it yet (see function header).
+	local server_dropin="/etc/my.cnf.d/centreon-tls.cnf"
+	log "INFO" "Writing DB server TLS config: $server_dropin (require_secure_transport=OFF)"
+	cat > "$server_dropin" <<-EOF
+		[mysqld]
+		ssl_ca=$TLS_CA_CERT
+		ssl_cert=$TLS_SERVER_CERT
+		ssl_key=$TLS_SERVER_KEY
+		require_secure_transport=OFF
+	EOF
+
+	# Client default: negotiate TLS and verify the server certificate against our CA.
+	local client_dropin="/etc/my.cnf.d/centreon-tls-client.cnf"
+	log "INFO" "Writing DB client TLS config: $client_dropin"
+	cat > "$client_dropin" <<-EOF
+		[client]
+		ssl-ca=$TLS_CA_CERT
+		ssl-verify-server-cert
+	EOF
+
+	# PHP -> DB TLS env, consumed by DatabaseTLSResolver once PR #9237 is installed (no-op before then).
+	local dotenv="/usr/share/centreon/.env"
+	if [[ -d /usr/share/centreon ]]; then
+		if [[ -f "$dotenv" ]]; then
+			sed -i '/^DATABASE_SSL_ENABLED=/d;/^DATABASE_VERIFY_SERVER_CERT=/d;/^DATABASE_CA_PATH=/d' "$dotenv"
+		fi
+		log "INFO" "Staging PHP DB TLS env in $dotenv"
+		cat >> "$dotenv" <<-EOF
+			DATABASE_SSL_ENABLED=1
+			DATABASE_VERIFY_SERVER_CERT=1
+			DATABASE_CA_PATH=$TLS_CA_CERT
+		EOF
+	fi
+}
 #========= end of function configure_db_tls()
+
+#========= begin of function configure_db_tls_consumers()
+# wire DB-TLS consumers whose config files only exist after the central is installed/configured.
+# called late in the install flow (after the web install wizard). RHEL only, this phase.
+#
+function configure_db_tls_consumers() {
+	[[ "$tls" == "enabled" ]] || return 0
+	[[ "${detected_os_release}" =~ debian-release-.* ]] && return 0
+
+	local ca_cert="/etc/pki/centreon-tls/rootCA.pem"
+
+	# gorgone (Perl DBI): append ;mysql_ssl=1;mysql_ssl_ca=<CA> to each mysql DSN. Idempotent per DSN.
+	local gorgone_cfg="/etc/centreon/config.d/10-database.yaml"
+	if [[ -f "$gorgone_cfg" ]]; then
+		log "INFO" "Patching gorgone DB DSN with mysql_ssl in $gorgone_cfg"
+		sed -i "/dsn: \"mysql:/{/mysql_ssl=/! s|\(dsn: \"mysql:[^\"]*\)\"|\1;mysql_ssl=1;mysql_ssl_ca=$ca_cert\"|}" "$gorgone_cfg"
+		systemctl restart gorgoned >/dev/null 2>&1 || true
+	else
+		log "WARN" "gorgone DB config $gorgone_cfg not found; skipping gorgone DB TLS (run the web install wizard first)"
+	fi
+
+	# centreon-broker DB TLS is driven by Centreon's configuration (stored in DB, regenerated on export),
+	# so it cannot be set reliably from this script. Surface it as a manual follow-up.
+	log "WARN" "centreon-broker DB TLS must be enabled via Centreon configuration (broker config export); not set by this script"
+}
+#========= end of function configure_db_tls_consumers()
 
 #========= begin of function secure_dbms_setup()
 # apply some secure requests
@@ -1660,6 +1818,11 @@ install)
 		log "INFO" "Log in to Centreon web interface via the URL: http://$central_ip/centreon"
 	else
 		log "INFO" "Follow the steps described in Centreon documentation: $CENTREON_DOC_URL"
+	fi
+
+	# DB-TLS consumer configs (gorgone DSN, broker note) that only exist once the central is configured.
+	if [ "$topology" == "central" ]; then
+		configure_db_tls_consumers
 	fi
 
 	log "INFO" "Centreon [$topology] successfully installed !"
