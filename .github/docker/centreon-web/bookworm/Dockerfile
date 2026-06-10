@@ -29,6 +29,7 @@ apt-get update
 
 if [[ "$STABILITY" == "stable" ]]; then
   apt-get install -y \
+    centreon-perl-libs=${MAJOR_VERSION}.${WEB_MINOR_VERSION}-*+deb12u1 \
     centreon-poller=${MAJOR_VERSION}.${WEB_MINOR_VERSION}-*+deb12u1 \
     centreon-trap=${MAJOR_VERSION}.${WEB_MINOR_VERSION}-*+deb12u1 \
     centreon-web=${MAJOR_VERSION}.${WEB_MINOR_VERSION}-*+deb12u1
