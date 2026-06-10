@@ -885,6 +885,9 @@ function generate_db_tls_certificates() {
 	local fqdn
 	fqdn=$(hostname -f 2>/dev/null || hostname)
 
+	# The 'openssl' CLI is not guaranteed on a minimal RHEL install (only openssl-libs is); install on demand.
+	command -v openssl >/dev/null 2>&1 || $PKG_MGR install -y openssl
+
 	mkdir -p "$cert_dir"
 	chmod 755 "$cert_dir"
 
