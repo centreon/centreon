@@ -291,6 +291,9 @@ jobs:
             org.opencontainers.image.description=Centreon web dependencies collect image for ${{ matrix.distrib }}
             com.centreon.version=${{ needs.check-inputs.outputs.major_version }}
             com.centreon.stability=stable
+            com.centreon.common.version=${{ needs.check-inputs.outputs.major_version }}.${{ steps.export-minor-versions.outputs.common_minor_version }}
+            com.centreon.gorgone.version=${{ needs.check-inputs.outputs.major_version }}.${{ steps.export-minor-versions.outputs.gorgone_minor_version }}
+            com.centreon.collect.version=${{ needs.check-inputs.outputs.major_version }}.${{ steps.export-minor-versions.outputs.collect_minor_version }}
           tags: |
             ghcr.io/${{ github.repository }}/centreon-web-dependencies-collect:${{ needs.check-inputs.outputs.major_version }}-latest-${{ matrix.distrib }}
             ghcr.io/${{ github.repository }}/centreon-web-dependencies-collect:${{ needs.check-inputs.outputs.major_version }}-${{ needs.check-inputs.outputs.edition }}-latest-${{ matrix.distrib }}
@@ -314,6 +317,10 @@ jobs:
             org.opencontainers.image.description=Centreon web image for ${{ matrix.distrib }}
             com.centreon.version=${{ needs.check-inputs.outputs.major_version }}
             com.centreon.stability=stable
+            com.centreon.web.version=${{ needs.check-inputs.outputs.major_version }}.${{ steps.export-minor-versions.outputs.web_minor_version }}
+            com.centreon.common.version=${{ needs.check-inputs.outputs.major_version }}.${{ steps.export-minor-versions.outputs.common_minor_version }}
+            com.centreon.gorgone.version=${{ needs.check-inputs.outputs.major_version }}.${{ steps.export-minor-versions.outputs.gorgone_minor_version }}
+            com.centreon.collect.version=${{ needs.check-inputs.outputs.major_version }}.${{ steps.export-minor-versions.outputs.collect_minor_version }}
           tags: |
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-${{ matrix.distrib }}:${{ needs.check-inputs.outputs.major_version }}-latest
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-${{ matrix.distrib }}:${{ needs.check-inputs.outputs.major_version }}.${{ steps.export-minor-versions.outputs.web_minor_version }}
@@ -340,6 +347,13 @@ jobs:
             org.opencontainers.image.description=Centreon OSS image for ${{ matrix.distrib }}
             com.centreon.version=${{ needs.check-inputs.outputs.major_version }}
             com.centreon.stability=stable
+            com.centreon.web.version=${{ needs.check-inputs.outputs.major_version }}.${{ steps.export-minor-versions.outputs.web_minor_version }}
+            com.centreon.common.version=${{ needs.check-inputs.outputs.major_version }}.${{ steps.export-minor-versions.outputs.common_minor_version }}
+            com.centreon.gorgone.version=${{ needs.check-inputs.outputs.major_version }}.${{ steps.export-minor-versions.outputs.gorgone_minor_version }}
+            com.centreon.collect.version=${{ needs.check-inputs.outputs.major_version }}.${{ steps.export-minor-versions.outputs.collect_minor_version }}
+            com.centreon.awie.version=${{ needs.check-inputs.outputs.major_version }}.${{ steps.export-minor-versions.outputs.awie_minor_version }}
+            com.centreon.dsm.version=${{ needs.check-inputs.outputs.major_version }}.${{ steps.export-minor-versions.outputs.dsm_minor_version }}
+            com.centreon.open-tickets.version=${{ needs.check-inputs.outputs.major_version }}.${{ steps.export-minor-versions.outputs.open_tickets_minor_version }}
           tags: |
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-oss-${{ matrix.distrib }}:${{ needs.check-inputs.outputs.major_version }}-latest
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-oss-${{ matrix.distrib }}:${{ needs.check-inputs.outputs.major_version }}-${{ needs.check-inputs.outputs.edition }}-latest
