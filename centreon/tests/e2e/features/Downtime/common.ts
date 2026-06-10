@@ -11,13 +11,13 @@
  *  - fall back:      clocks go 03:00 -> 02:00 (02:00-03:00 happens twice, 25h day)
  */
 
-const TIMEZONE = 'Europe/Paris';
+const timezone = 'Europe/Paris';
 
 /** Central host carrying the passive service the downtimes are applied to. */
 const centralHost = 'Centreon-Server';
 
 interface WallInstant {
-  /** Absolute instant (ms) of the wall-clock time, resolved in TIMEZONE. */
+  /** Absolute instant (ms) of the wall-clock time, resolved in timezone. */
   ms: number;
   /** false when the wall-clock time does not exist (spring-forward gap). */
   exists: boolean;
@@ -42,7 +42,7 @@ interface DstCase {
 
 type DateParts = [number, number, number];
 
-/** UTC offset (minutes) of TIMEZONE at a given instant, machine-tz independent. */
+/** UTC offset (minutes) of timezone at a given instant, machine-tz independent. */
 const offsetMinutes = (date: Date): number => {
   const parts = new Intl.DateTimeFormat('en-US', {
     day: '2-digit',
@@ -51,7 +51,7 @@ const offsetMinutes = (date: Date): number => {
     minute: '2-digit',
     month: '2-digit',
     second: '2-digit',
-    timeZone: TIMEZONE,
+    timeZone: timezone,
     year: 'numeric'
   })
     .formatToParts(date)
@@ -102,12 +102,12 @@ const nextTransition = (from: Date, kind: 'spring' | 'fall'): Date => {
   );
 };
 
-/** YYYY-MM-DD of an instant, expressed in TIMEZONE. */
+/** YYYY-MM-DD of an instant, expressed in timezone. */
 const isoDateInTz = (date: Date): string =>
-  new Intl.DateTimeFormat('en-CA', { timeZone: TIMEZONE }).format(date);
+  new Intl.DateTimeFormat('en-CA', { timeZone: timezone }).format(date);
 
 /**
- * Resolve a wall-clock time (Y-M-D h:m, in TIMEZONE) to an absolute instant.
+ * Resolve a wall-clock time (Y-M-D h:m, in timezone) to an absolute instant.
  * `exists` is false when the time falls into the spring-forward gap.
  */
 const wallClockToInstant = (
@@ -126,7 +126,7 @@ const wallClockToInstant = (
     hour: '2-digit',
     hour12: false,
     minute: '2-digit',
-    timeZone: TIMEZONE
+    timeZone: timezone
   })
     .formatToParts(new Date(guess))
     .reduce(
@@ -185,14 +185,13 @@ const cases: Record<string, DstCase> = {
 // --- Form / assertion helpers ----------------------------------------------
 
 const transitionDay = (kind: 'spring' | 'fall'): DateParts =>
-  isoDateInTz(nextTransition(new Date(), kind)).split('-').map(Number) as DateParts;
+  isoDateInTz(nextTransition(new Date(), kind))
+    .split('-')
+    .map(Number) as DateParts;
 
 // MM/DD/YYYY expected by the legacy datepicker (CENTREON_LANG=en_US), for a day
 // offset relative to the transition day.
-const formDate = (
-  [year, month, day]: DateParts,
-  dayOffset: number
-): string => {
+const formDate = ([year, month, day]: DateParts, dayOffset: number): string => {
   const d = new Date(Date.UTC(year, month - 1, day + dayOffset));
   const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
   const dd = String(d.getUTCDate()).padStart(2, '0');
@@ -208,7 +207,8 @@ const expectedSeconds = (
   const [hour, minute] = point.time.split(':').map(Number);
 
   return Math.floor(
-    wallClockToInstant(year, month, day + point.dayOffset, hour, minute).ms / 1000
+    wallClockToInstant(year, month, day + point.dayOffset, hour, minute).ms /
+      1000
   );
 };
 
