@@ -72,13 +72,16 @@ jobs:
 
       - name: Detect relevant E2E specs
         id: list-features
+        env:
+          TEST_TAGS_INPUT: ${{ inputs.test_tags }}
+          MODULE_NAME: ${{ inputs.module_name }}
+          FEATURES_PATH: ${{ inputs.features_path }}
         run: |
           set -o pipefail
 
           sudo apt-get update
           sudo apt-get install -y cucumber
 
-          TEST_TAGS_INPUT="${{ inputs.test_tags }}"
           CUCUMBER_TAGS=()
           if [ -n "$TEST_TAGS_INPUT" ]; then
             while IFS= read -r RAW_TAG; do
@@ -95,8 +98,8 @@ jobs:
           fi
           echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
 
-          cd ${{ inputs.module_name }}
-          FEATURES=$(cucumber ${{ inputs.features_path }} "${CUCUMBER_TAGS[@]}" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')
+          cd "$MODULE_NAME"
+          FEATURES=$(cucumber "$FEATURES_PATH" "${CUCUMBER_TAGS[@]}" -f json | jq -r '.[].uri' | sed -e "s#$FEATURES_PATH/*##g" | sort | jq -R -s -c 'split("\n")[:-1]')
           echo $FEATURES
           echo "features=$FEATURES" >> $GITHUB_OUTPUT
 
@@ -174,9 +177,12 @@ jobs:
 
       - name: Load standard slim image
         if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
+        env:
+          IMAGE_TAG: ${{ steps.image_tag.outputs.tag }}
+          REGISTRY_URL: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
         run: |
-          docker load --input ./docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
-          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }}
+          docker load --input "./docker-image/$SLIM_IMAGE_NAME.tar"
+          docker tag "$SLIM_IMAGE_NAME:$IMAGE_TAG" "$REGISTRY_URL/$SLIM_IMAGE_NAME:$IMAGE_TAG"
         shell: bash
 
       - name: Behat acceptance testing
@@ -184,12 +190,17 @@ jobs:
           PANTHER_CHROME_BINARY: /usr/bin/google-chrome
           WEB_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }}
           MYSQL_IMAGE: ${{ inputs.database_image }}
+          MODULE_NAME: ${{ inputs.module_name }}
+          CONFIG_FILE: ${{ inputs.config_file }}
+          TEST_TAGS: ${{ needs.behat-test-list.outputs.test_tags }}
+          FEATURES_PATH: ${{ inputs.features_path }}
+          FEATURE: ${{ matrix.feature }}
         run: |
           rm -rf acceptance-logs && mkdir acceptance-logs
           rm -rf xunit-reports && mkdir xunit-reports
           BASE_DIRECTORY=$(pwd)
-          cd ${{ inputs.module_name }}
-          ./vendor/bin/behat --config="${{ inputs.config_file }}" --tags '${{ needs.behat-test-list.outputs.test_tags }}' --colors --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
+          cd "$MODULE_NAME"
+          ./vendor/bin/behat --config="$CONFIG_FILE" --tags "$TEST_TAGS" --colors --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "$FEATURES_PATH/$FEATURE"
 
       - name: Clean empty reports
         if: ${{ !cancelled() }}
@@ -198,9 +209,10 @@ jobs:
       - name: Replace / with - in the feature path
         id: feature-path
         if: always()
+        env:
+          FEATURE_NAME: ${{ matrix.feature }}
         run: |
-          feature_name="${{ matrix.feature }}"
-          feature_name_with_dash="${feature_name//\//-}"
+          feature_name_with_dash="${FEATURE_NAME//\//-}"
           echo "Modified Feature Name: $feature_name_with_dash"
           echo "feature_name_with_dash=$feature_name_with_dash" >> $GITHUB_OUTPUT
 

@@ -84,8 +84,8 @@ jobs:
           ADDITIONAL: ${{ steps.image_tag.outputs.additional_tag }}
           MAJOR_VERSION_TAG: ${{ steps.image_tag.outputs.major_version_tag }}
         run: |
-          WEB_DEPS="ghcr.io/${{ github.repository }}/centreon-web-dependencies"
-          WEB_DEPS_COLLECT="ghcr.io/${{ github.repository }}/centreon-web-dependencies-collect"
+          WEB_DEPS="ghcr.io/$GITHUB_REPOSITORY/centreon-web-dependencies"
+          WEB_DEPS_COLLECT="ghcr.io/$GITHUB_REPOSITORY/centreon-web-dependencies-collect"
 
           TAGS_DEPS="${WEB_DEPS}:${TAG}-${DISTRIB}"
           TAGS_DEPS_COLLECT="${WEB_DEPS_COLLECT}:${TAG}-${DISTRIB}"

@@ -23,6 +23,9 @@ jobs:
     needs: [dependency-scan]
     if: github.repository == 'centreon/centreon'
     runs-on: ubuntu-24.04
+    env:
+      DISPATCH_TARGET_RELEASE_BRANCH: ${{ inputs.dispatch_target_release_branch }}
+      DISPATCH_CONTENT: ${{ inputs.dispatch_content }}
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
@@ -57,23 +60,23 @@ jobs:
           RUNS_URL=""
 
           # Accept release prefixed or develop branches, nothing else
-          if [[ ${{ inputs.dispatch_target_release_branch }} =~ ^release-2[0-9]\.[0-9]+-next$ ]] || [[ ${{ inputs.dispatch_target_release_branch }} == "develop" ]];then
-            echo "Using ${{ inputs.dispatch_target_release_branch }} as branch to build testing packages."
-            RUNS_URL="https://github.com/centreon/centreon/actions?query=branch%3A${{ inputs.dispatch_target_release_branch }}"
+          if [[ "$DISPATCH_TARGET_RELEASE_BRANCH" =~ ^release-2[0-9]\.[0-9]+-next$ ]] || [[ "$DISPATCH_TARGET_RELEASE_BRANCH" == "develop" ]]; then
+            echo "Using $DISPATCH_TARGET_RELEASE_BRANCH as branch to build testing packages."
+            RUNS_URL="https://github.com/centreon/centreon/actions?query=branch%3A$DISPATCH_TARGET_RELEASE_BRANCH"
           else
             echo "::error::Invalid release branch name, please check the release branch name."
             exit 1
           fi
 
-          if [[ "${{ inputs.dispatch_content }}" == "FULL" ]]; then
-            echo "Requested ${{ inputs.dispatch_content }} content, triggering all component workflows."
+          if [[ "$DISPATCH_CONTENT" == "FULL" ]]; then
+            echo "Requested $DISPATCH_CONTENT content, triggering all component workflows."
             for COMPONENT in "${COMPONENTS_OSS_FULL[@]}"; do
-              gh workflow run $COMPONENT -r ${{ inputs.dispatch_target_release_branch }}
+              gh workflow run "$COMPONENT" -r "$DISPATCH_TARGET_RELEASE_BRANCH"
             done
           else
-            echo "Requested ${{ inputs.dispatch_content }} content, triggering centreon named components only."
+            echo "Requested $DISPATCH_CONTENT content, triggering centreon named components only."
             for COMPONENT in "${COMPONENTS_OSS[@]}"; do
-              gh workflow run $COMPONENT -r ${{ inputs.dispatch_target_release_branch }}
+              gh workflow run "$COMPONENT" -r "$DISPATCH_TARGET_RELEASE_BRANCH"
             done
           fi
 

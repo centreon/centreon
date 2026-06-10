@@ -20,5 +20,7 @@ runs:
           args: [--ignore-scripts, --frozen-lockfile]
 
     - name: Run Gherkin Lint
-      run: ./.github/actions/gherkin-lint/node_modules/.bin/gherkin-lint -c ./.github/actions/gherkin-lint/.gherkin-lintrc ${{ inputs.features_path }}
+      env:
+        FEATURES_PATH: ${{ inputs.features_path }}
+      run: ./.github/actions/gherkin-lint/node_modules/.bin/gherkin-lint -c ./.github/actions/gherkin-lint/.gherkin-lintrc "$FEATURES_PATH"
       shell: bash
