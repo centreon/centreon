@@ -126,8 +126,9 @@ jobs:
           # Releases before 26.07 are built against PHP 8.2; 26.07 onward use the
           # dockerfile default (PHP 8.4). This must be injected because the cloud
           # dependency images are built from develop, which has moved to PHP 8.4.
-          # String comparison is safe: versions always use the zero-padded NN.NN format.
-          if [[ "$major_version" < "26.07" ]]; then
+          # Versions use the zero-padded NN.NN format, so comparing them as integers
+          # with the dot removed (e.g. 2603 < 2607) is reliable.
+          if [[ "${major_version//./}" -lt 2607 ]]; then
             php_version="8.2"
           else
             php_version="8.4"
