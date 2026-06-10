@@ -237,7 +237,7 @@ name: ${POLLER_NAME}
 description: Poller configuration
 gorgone:
   gorgonecore:
-    id: ${POLLER_UID}
+    id: ${GORGONE_UID}
     privkey: /var/lib/centreon-gorgone/.keys/rsakey.priv.pem
     pubkey: /var/lib/centreon-gorgone/.keys/rsakey.pub.pem
 
@@ -252,7 +252,7 @@ gorgone:
       enable: true
       ssl: ${ssl_mode}
       port: ${central_port}
-      token: ${POLLER_TOKEN}
+      token: ${GORGONE_TOKEN}
       address: ${central_host}
 EOF
   local ret=$?
