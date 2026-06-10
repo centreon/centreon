@@ -55,7 +55,7 @@ jobs:
           fi
 
           for PLUGIN in rpm deb; do
-            mapfile -t DISTRIBUTIONS < <(pulp "$PLUGIN" distribution list --base-path-contains "feature-$FEATURE_TICKET/" --limit 1000 | jq -r '.[].name')
+            mapfile -t DISTRIBUTIONS < <(pulp "$PLUGIN" distribution list --base-path-contains "feature/$FEATURE_TICKET/" --limit 1000 | jq -r '.[].name')
             for NAME in "${DISTRIBUTIONS[@]}"; do
               echo "[INFO] Deleting $PLUGIN distribution $NAME"
               pulp "$PLUGIN" distribution destroy --name "$NAME"
