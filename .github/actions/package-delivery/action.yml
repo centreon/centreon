@@ -92,32 +92,42 @@ runs:
           STABILITY_SEGMENT="$STABILITY-$RELEASE_TYPE"
         fi
 
+        REPOSITORY_PREFIX=""
+        BASE_PATH_PREFIX=""
+        REPOSITORY_NAME=""
+        BASE_PATH=""
+        SUITE=""
         TRACKING_REPOSITORY_NAME=""
 
         if [[ "$DELIVERY_TYPE" == "feature" ]]; then
+          if [[ "$DISTRIB_FAMILY" != "el" ]]; then
+            echo "::notice::Feature delivery is not supported for $DISTRIB_FAMILY packages, skipping delivery."
+            echo "skip_delivery=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           FEATURE_TICKET=$(echo "$GH_HEAD_REF" | grep -oE 'MON-[0-9]+' | head -1 || true)
           if [[ -z "$FEATURE_TICKET" ]]; then
             echo "::error::Cannot extract the feature ticket from branch name $GH_HEAD_REF"
             exit 1
           fi
-          if [[ "$DISTRIB_FAMILY" == "el" ]]; then
-            REPOSITORY_NAME="$ROOT_REPO-feature-$FEATURE_TICKET-$VERSION-$DISTRIB"
-            BASE_PATH="$ROOT_REPO-feature/$FEATURE_TICKET/$VERSION/$DISTRIB"
-          else
-            REPOSITORY_NAME="$ROOT_REPO-feature-$FEATURE_TICKET-$VERSION"
-            BASE_PATH="$ROOT_REPO-feature/$FEATURE_TICKET/$VERSION"
-          fi
+
+          REPOSITORY_PREFIX="$ROOT_REPO-feature-$FEATURE_TICKET-$VERSION-$DISTRIB-$STABILITY"
+          BASE_PATH_PREFIX="$ROOT_REPO-feature-$FEATURE_TICKET/$VERSION/$DISTRIB/$STABILITY"
         else
           if [[ "$IS_CLOUD" == "true" ]]; then
             ROOT_REPO="$ROOT_REPO-internal"
           fi
+
           if [[ "$DISTRIB_FAMILY" == "el" ]]; then
-            REPOSITORY_NAME="$ROOT_REPO-$VERSION-$DISTRIB-$STABILITY_SEGMENT"
-            BASE_PATH="$ROOT_REPO/$VERSION/$DISTRIB/$STABILITY_SEGMENT"
+            REPOSITORY_PREFIX="$ROOT_REPO-$VERSION-$DISTRIB-$STABILITY_SEGMENT"
+            BASE_PATH_PREFIX="$ROOT_REPO/$VERSION/$DISTRIB/$STABILITY_SEGMENT"
           else
-            REPOSITORY_NAME="$ROOT_REPO-$VERSION-$STABILITY_SEGMENT"
-            BASE_PATH="$ROOT_REPO/$VERSION/$STABILITY_SEGMENT"
+            REPOSITORY_NAME="$ROOT_REPO"
+            BASE_PATH="$ROOT_REPO"
+            SUITE="$DISTRIB-$VERSION-$STABILITY_SEGMENT"
           fi
+
           # testing deliveries are also tracked in a module scoped repository
           # so that promote-to-stable can identify which packages belong to this module
           if [[ "$STABILITY" == "testing" ]]; then
@@ -125,15 +135,23 @@ runs:
           fi
         fi
 
+        echo "[DEBUG] - repository_prefix: $REPOSITORY_PREFIX"
+        echo "[DEBUG] - base_path_prefix: $BASE_PATH_PREFIX"
         echo "[DEBUG] - repository_name: $REPOSITORY_NAME"
         echo "[DEBUG] - base_path: $BASE_PATH"
+        echo "[DEBUG] - suite: $SUITE"
         echo "[DEBUG] - tracking_repository_name: $TRACKING_REPOSITORY_NAME"
 
+        echo "skip_delivery=false" >> "$GITHUB_OUTPUT"
+        echo "repository_prefix=$REPOSITORY_PREFIX" >> "$GITHUB_OUTPUT"
+        echo "base_path_prefix=$BASE_PATH_PREFIX" >> "$GITHUB_OUTPUT"
         echo "repository_name=$REPOSITORY_NAME" >> "$GITHUB_OUTPUT"
         echo "base_path=$BASE_PATH" >> "$GITHUB_OUTPUT"
+        echo "suite=$SUITE" >> "$GITHUB_OUTPUT"
         echo "tracking_repository_name=$TRACKING_REPOSITORY_NAME" >> "$GITHUB_OUTPUT"
 
     - name: Restore packages from cache
+      if: steps.pulp-properties.outputs.skip_delivery == 'false'
       uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         path: ./*.${{ steps.parse-distrib.outputs.package_extension }}
@@ -141,6 +159,7 @@ runs:
         fail-on-cache-miss: true
 
     - name: Setup pulp-cli
+      if: steps.pulp-properties.outputs.skip_delivery == 'false'
       uses: ./.github/actions/setup-pulp-cli
       with:
         pulp_url: ${{ inputs.pulp_url }}
@@ -148,11 +167,11 @@ runs:
         pulp_password: ${{ inputs.pulp_password }}
 
     - name: Deliver RPM packages
-      if: steps.parse-distrib.outputs.package_extension == 'rpm'
+      if: steps.parse-distrib.outputs.package_extension == 'rpm' && steps.pulp-properties.outputs.skip_delivery == 'false'
       shell: bash
       env:
-        REPOSITORY_NAME: ${{ steps.pulp-properties.outputs.repository_name }}
-        BASE_PATH: ${{ steps.pulp-properties.outputs.base_path }}
+        REPOSITORY_PREFIX: ${{ steps.pulp-properties.outputs.repository_prefix }}
+        BASE_PATH_PREFIX: ${{ steps.pulp-properties.outputs.base_path_prefix }}
         TRACKING_REPOSITORY_NAME: ${{ steps.pulp-properties.outputs.tracking_repository_name }}
         PULP_CONTENT_URL: ${{ inputs.pulp_content_url }}
       run: |
@@ -165,25 +184,53 @@ runs:
           exit 1
         fi
 
-        if ! pulp rpm repository show --name "$REPOSITORY_NAME" >/dev/null 2>&1; then
-          echo "[INFO] Creating rpm repository $REPOSITORY_NAME"
-          pulp rpm repository create --name "$REPOSITORY_NAME" --retain-package-versions 1 >/dev/null
-        fi
-
-        if ! pulp rpm distribution show --name "$REPOSITORY_NAME" >/dev/null 2>&1; then
-          echo "[INFO] Creating rpm distribution $REPOSITORY_NAME served at $BASE_PATH"
-          pulp rpm distribution create --name "$REPOSITORY_NAME" --base-path "$BASE_PATH" --repository "$REPOSITORY_NAME" >/dev/null
-        fi
-
-        CONTENT="[]"
+        mkdir -p noarch x86_64
         for FILE in "${FILES[@]}"; do
-          echo "[INFO] Uploading $FILE"
-          PACKAGE_HREF=$(pulp rpm content upload --file "$FILE" | jq -r '.pulp_href')
-          CONTENT=$(echo "$CONTENT" | jq --arg href "$PACKAGE_HREF" '. + [{"pulp_href": $href}]')
+          ARCH=$(echo "$FILE" | grep -oP '(x86_64|noarch)' || true)
+          if [[ -z "$ARCH" ]]; then
+            echo "::error::Cannot find the architecture of package $FILE"
+            exit 1
+          fi
+          mv "$FILE" "$ARCH"
         done
 
-        echo "[INFO] Adding ${#FILES[@]} packages to repository $REPOSITORY_NAME"
-        pulp rpm repository content modify --repository "$REPOSITORY_NAME" --add-content "$CONTENT" >/dev/null
+        TRACKING_CONTENT="[]"
+
+        for ARCH in noarch x86_64; do
+          ARCH_FILES=("$ARCH"/*.rpm)
+          if [[ ${#ARCH_FILES[@]} -eq 0 ]]; then
+            continue
+          fi
+
+          REPOSITORY_NAME="$REPOSITORY_PREFIX-$ARCH"
+          BASE_PATH="$BASE_PATH_PREFIX/$ARCH"
+
+          if ! pulp rpm repository show --name "$REPOSITORY_NAME" >/dev/null 2>&1; then
+            echo "[INFO] Creating rpm repository $REPOSITORY_NAME"
+            pulp rpm repository create --name "$REPOSITORY_NAME" --retain-package-versions 1 >/dev/null
+          fi
+
+          if ! pulp rpm distribution show --name "$REPOSITORY_NAME" >/dev/null 2>&1; then
+            echo "[INFO] Creating rpm distribution $REPOSITORY_NAME served at $BASE_PATH"
+            pulp rpm distribution create --name "$REPOSITORY_NAME" --base-path "$BASE_PATH" --repository "$REPOSITORY_NAME" >/dev/null
+          fi
+
+          CONTENT="[]"
+          for FILE in "${ARCH_FILES[@]}"; do
+            echo "[INFO] Uploading $FILE"
+            PACKAGE_HREF=$(pulp rpm content upload --file "$FILE" | jq -r '.pulp_href')
+            CONTENT=$(echo "$CONTENT" | jq --arg href "$PACKAGE_HREF" '. + [{"pulp_href": $href}]')
+            TRACKING_CONTENT=$(echo "$TRACKING_CONTENT" | jq --arg href "$PACKAGE_HREF" '. + [{"pulp_href": $href}]')
+          done
+
+          echo "[INFO] Adding ${#ARCH_FILES[@]} packages to repository $REPOSITORY_NAME"
+          pulp rpm repository content modify --repository "$REPOSITORY_NAME" --add-content "$CONTENT" >/dev/null
+
+          echo "[INFO] Publishing repository $REPOSITORY_NAME"
+          pulp rpm publication create --repository "$REPOSITORY_NAME" >/dev/null
+
+          echo "::notice::Packages are available at $PULP_CONTENT_URL/$BASE_PATH/"
+        done
 
         if [[ -n "$TRACKING_REPOSITORY_NAME" ]]; then
           if ! pulp rpm repository show --name "$TRACKING_REPOSITORY_NAME" >/dev/null 2>&1; then
@@ -191,22 +238,17 @@ runs:
             pulp rpm repository create --name "$TRACKING_REPOSITORY_NAME" --retain-package-versions 1 >/dev/null
           fi
           echo "[INFO] Adding packages to tracking repository $TRACKING_REPOSITORY_NAME"
-          pulp rpm repository content modify --repository "$TRACKING_REPOSITORY_NAME" --add-content "$CONTENT" >/dev/null
+          pulp rpm repository content modify --repository "$TRACKING_REPOSITORY_NAME" --add-content "$TRACKING_CONTENT" >/dev/null
         fi
 
-        echo "[INFO] Publishing repository $REPOSITORY_NAME"
-        pulp rpm publication create --repository "$REPOSITORY_NAME" >/dev/null
-
-        echo "::notice::Packages are available at $PULP_CONTENT_URL/$BASE_PATH/"
-
     - name: Deliver DEB packages
-      if: steps.parse-distrib.outputs.package_extension == 'deb'
+      if: steps.parse-distrib.outputs.package_extension == 'deb' && steps.pulp-properties.outputs.skip_delivery == 'false'
       shell: bash
       env:
         REPOSITORY_NAME: ${{ steps.pulp-properties.outputs.repository_name }}
         BASE_PATH: ${{ steps.pulp-properties.outputs.base_path }}
+        SUITE: ${{ steps.pulp-properties.outputs.suite }}
         TRACKING_REPOSITORY_NAME: ${{ steps.pulp-properties.outputs.tracking_repository_name }}
-        DISTRIB: ${{ inputs.distrib }}
         PULP_CONTENT_URL: ${{ inputs.pulp_content_url }}
       run: |
         set -euo pipefail
@@ -234,15 +276,15 @@ runs:
         fi
 
         for FILE in "${FILES[@]}"; do
-          echo "[INFO] Uploading $FILE to $REPOSITORY_NAME ($DISTRIB/main)"
-          pulp deb content upload --file "$FILE" --repository "$REPOSITORY_NAME" --distribution "$DISTRIB" --component main >/dev/null
+          echo "[INFO] Uploading $FILE to $REPOSITORY_NAME ($SUITE/main)"
+          pulp deb content upload --file "$FILE" --repository "$REPOSITORY_NAME" --distribution "$SUITE" --component main >/dev/null
 
           if [[ -n "$TRACKING_REPOSITORY_NAME" ]]; then
-            pulp deb content upload --file "$FILE" --repository "$TRACKING_REPOSITORY_NAME" --distribution "$DISTRIB" --component main >/dev/null
+            pulp deb content upload --file "$FILE" --repository "$TRACKING_REPOSITORY_NAME" >/dev/null
           fi
         done
 
         echo "[INFO] Publishing repository $REPOSITORY_NAME"
         pulp deb publication create --repository "$REPOSITORY_NAME" --structured >/dev/null
 
-        echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/$BASE_PATH/ $DISTRIB main"
+        echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/$BASE_PATH/ $SUITE main"

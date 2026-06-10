@@ -92,33 +92,42 @@ runs:
         TESTING_SEGMENT="testing-$RELEASE_TYPE"
         TRACKING_REPOSITORY_NAME="$ROOT_REPO-$MAJOR_VERSION-$DISTRIB-$TESTING_SEGMENT-$MODULE_NAME"
 
+        STABLE_REPOSITORY_PREFIX=""
+        STABLE_BASE_PATH_PREFIX=""
+        REPOSITORY_NAME=""
+        BASE_PATH=""
+        STABLE_SUITE=""
+
         if [[ "$DISTRIB_FAMILY" == "el" ]]; then
-          STABLE_REPOSITORY_NAME="$ROOT_REPO-$MAJOR_VERSION-$DISTRIB-stable"
-          STABLE_BASE_PATH="$ROOT_REPO/$MAJOR_VERSION/$DISTRIB/stable"
-          TESTING_BASE_PATH="$ROOT_REPO/$MAJOR_VERSION/$DISTRIB/$TESTING_SEGMENT"
+          STABLE_REPOSITORY_PREFIX="$ROOT_REPO-$MAJOR_VERSION-$DISTRIB-stable"
+          STABLE_BASE_PATH_PREFIX="$ROOT_REPO/$MAJOR_VERSION/$DISTRIB/stable"
         else
-          STABLE_REPOSITORY_NAME="$ROOT_REPO-$MAJOR_VERSION-stable"
-          STABLE_BASE_PATH="$ROOT_REPO/$MAJOR_VERSION/stable"
-          TESTING_BASE_PATH="$ROOT_REPO/$MAJOR_VERSION/$TESTING_SEGMENT"
+          REPOSITORY_NAME="$ROOT_REPO"
+          BASE_PATH="$ROOT_REPO"
+          STABLE_SUITE="$DISTRIB-$MAJOR_VERSION-stable"
         fi
 
         echo "[DEBUG] - tracking_repository_name: $TRACKING_REPOSITORY_NAME"
-        echo "[DEBUG] - stable_repository_name: $STABLE_REPOSITORY_NAME"
-        echo "[DEBUG] - stable_base_path: $STABLE_BASE_PATH"
-        echo "[DEBUG] - testing_base_path: $TESTING_BASE_PATH"
+        echo "[DEBUG] - stable_repository_prefix: $STABLE_REPOSITORY_PREFIX"
+        echo "[DEBUG] - stable_base_path_prefix: $STABLE_BASE_PATH_PREFIX"
+        echo "[DEBUG] - repository_name: $REPOSITORY_NAME"
+        echo "[DEBUG] - base_path: $BASE_PATH"
+        echo "[DEBUG] - stable_suite: $STABLE_SUITE"
 
         echo "tracking_repository_name=$TRACKING_REPOSITORY_NAME" >> "$GITHUB_OUTPUT"
-        echo "stable_repository_name=$STABLE_REPOSITORY_NAME" >> "$GITHUB_OUTPUT"
-        echo "stable_base_path=$STABLE_BASE_PATH" >> "$GITHUB_OUTPUT"
-        echo "testing_base_path=$TESTING_BASE_PATH" >> "$GITHUB_OUTPUT"
+        echo "stable_repository_prefix=$STABLE_REPOSITORY_PREFIX" >> "$GITHUB_OUTPUT"
+        echo "stable_base_path_prefix=$STABLE_BASE_PATH_PREFIX" >> "$GITHUB_OUTPUT"
+        echo "repository_name=$REPOSITORY_NAME" >> "$GITHUB_OUTPUT"
+        echo "base_path=$BASE_PATH" >> "$GITHUB_OUTPUT"
+        echo "stable_suite=$STABLE_SUITE" >> "$GITHUB_OUTPUT"
 
     - name: Promote RPM packages to stable
       if: steps.parse-distrib.outputs.package_extension == 'rpm'
       shell: bash
       env:
         TRACKING_REPOSITORY_NAME: ${{ steps.pulp-properties.outputs.tracking_repository_name }}
-        STABLE_REPOSITORY_NAME: ${{ steps.pulp-properties.outputs.stable_repository_name }}
-        STABLE_BASE_PATH: ${{ steps.pulp-properties.outputs.stable_base_path }}
+        STABLE_REPOSITORY_PREFIX: ${{ steps.pulp-properties.outputs.stable_repository_prefix }}
+        STABLE_BASE_PATH_PREFIX: ${{ steps.pulp-properties.outputs.stable_base_path_prefix }}
         STABILITY: ${{ inputs.stability }}
         PULP_CONTENT_URL: ${{ inputs.pulp_content_url }}
       run: |
@@ -129,8 +138,8 @@ runs:
           exit 1
         fi
 
-        CONTENT=$(pulp rpm repository content list --repository "$TRACKING_REPOSITORY_NAME" --limit 1000 | jq 'map({pulp_href})')
-        PACKAGES_COUNT=$(echo "$CONTENT" | jq 'length')
+        PACKAGES=$(pulp rpm repository content list --repository "$TRACKING_REPOSITORY_NAME" --limit 1000)
+        PACKAGES_COUNT=$(echo "$PACKAGES" | jq 'length')
 
         if [[ "$PACKAGES_COUNT" -eq 0 ]]; then
           echo "::error::Nothing to promote, testing repository $TRACKING_REPOSITORY_NAME is empty"
@@ -140,37 +149,49 @@ runs:
         echo "[INFO] $PACKAGES_COUNT packages found in $TRACKING_REPOSITORY_NAME"
 
         if [[ "$STABILITY" != "stable" ]]; then
-          echo "[INFO] Dry run, $PACKAGES_COUNT packages would be promoted to $STABLE_REPOSITORY_NAME"
+          echo "[INFO] Dry run, $PACKAGES_COUNT packages would be promoted to $STABLE_REPOSITORY_PREFIX repositories"
           exit 0
         fi
 
-        if ! pulp rpm repository show --name "$STABLE_REPOSITORY_NAME" >/dev/null 2>&1; then
-          echo "[INFO] Creating rpm repository $STABLE_REPOSITORY_NAME"
-          pulp rpm repository create --name "$STABLE_REPOSITORY_NAME" >/dev/null
-        fi
+        for ARCH in noarch x86_64; do
+          CONTENT=$(echo "$PACKAGES" | jq --arg arch "$ARCH" 'map(select(.arch == $arch) | {pulp_href})')
+          ARCH_PACKAGES_COUNT=$(echo "$CONTENT" | jq 'length')
 
-        if ! pulp rpm distribution show --name "$STABLE_REPOSITORY_NAME" >/dev/null 2>&1; then
-          echo "[INFO] Creating rpm distribution $STABLE_REPOSITORY_NAME served at $STABLE_BASE_PATH"
-          pulp rpm distribution create --name "$STABLE_REPOSITORY_NAME" --base-path "$STABLE_BASE_PATH" --repository "$STABLE_REPOSITORY_NAME" >/dev/null
-        fi
+          if [[ "$ARCH_PACKAGES_COUNT" -eq 0 ]]; then
+            echo "[INFO] No $ARCH package to promote"
+            continue
+          fi
 
-        echo "[INFO] Promoting $PACKAGES_COUNT packages to $STABLE_REPOSITORY_NAME"
-        pulp rpm repository content modify --repository "$STABLE_REPOSITORY_NAME" --add-content "$CONTENT" >/dev/null
+          STABLE_REPOSITORY_NAME="$STABLE_REPOSITORY_PREFIX-$ARCH"
+          STABLE_BASE_PATH="$STABLE_BASE_PATH_PREFIX/$ARCH"
 
-        echo "[INFO] Publishing repository $STABLE_REPOSITORY_NAME"
-        pulp rpm publication create --repository "$STABLE_REPOSITORY_NAME" >/dev/null
+          if ! pulp rpm repository show --name "$STABLE_REPOSITORY_NAME" >/dev/null 2>&1; then
+            echo "[INFO] Creating rpm repository $STABLE_REPOSITORY_NAME"
+            pulp rpm repository create --name "$STABLE_REPOSITORY_NAME" >/dev/null
+          fi
 
-        echo "::notice::Packages are available at $PULP_CONTENT_URL/$STABLE_BASE_PATH/"
+          if ! pulp rpm distribution show --name "$STABLE_REPOSITORY_NAME" >/dev/null 2>&1; then
+            echo "[INFO] Creating rpm distribution $STABLE_REPOSITORY_NAME served at $STABLE_BASE_PATH"
+            pulp rpm distribution create --name "$STABLE_REPOSITORY_NAME" --base-path "$STABLE_BASE_PATH" --repository "$STABLE_REPOSITORY_NAME" >/dev/null
+          fi
+
+          echo "[INFO] Promoting $ARCH_PACKAGES_COUNT packages to $STABLE_REPOSITORY_NAME"
+          pulp rpm repository content modify --repository "$STABLE_REPOSITORY_NAME" --add-content "$CONTENT" >/dev/null
+
+          echo "[INFO] Publishing repository $STABLE_REPOSITORY_NAME"
+          pulp rpm publication create --repository "$STABLE_REPOSITORY_NAME" >/dev/null
+
+          echo "::notice::Packages are available at $PULP_CONTENT_URL/$STABLE_BASE_PATH/"
+        done
 
     - name: Promote DEB packages to stable
       if: steps.parse-distrib.outputs.package_extension == 'deb'
       shell: bash
       env:
         TRACKING_REPOSITORY_NAME: ${{ steps.pulp-properties.outputs.tracking_repository_name }}
-        STABLE_REPOSITORY_NAME: ${{ steps.pulp-properties.outputs.stable_repository_name }}
-        STABLE_BASE_PATH: ${{ steps.pulp-properties.outputs.stable_base_path }}
-        TESTING_BASE_PATH: ${{ steps.pulp-properties.outputs.testing_base_path }}
-        DISTRIB: ${{ inputs.distrib }}
+        REPOSITORY_NAME: ${{ steps.pulp-properties.outputs.repository_name }}
+        BASE_PATH: ${{ steps.pulp-properties.outputs.base_path }}
+        STABLE_SUITE: ${{ steps.pulp-properties.outputs.stable_suite }}
         STABILITY: ${{ inputs.stability }}
         PULP_CONTENT_URL: ${{ inputs.pulp_content_url }}
       run: |
@@ -192,32 +213,32 @@ runs:
         echo "[INFO] $PACKAGES_COUNT packages found in $TRACKING_REPOSITORY_NAME"
 
         if [[ "$STABILITY" != "stable" ]]; then
-          echo "[INFO] Dry run, $PACKAGES_COUNT packages would be promoted to $STABLE_REPOSITORY_NAME"
+          echo "[INFO] Dry run, $PACKAGES_COUNT packages would be promoted to $REPOSITORY_NAME ($STABLE_SUITE/main)"
           exit 0
         fi
 
-        if ! pulp deb repository show --name "$STABLE_REPOSITORY_NAME" >/dev/null 2>&1; then
-          echo "[INFO] Creating deb repository $STABLE_REPOSITORY_NAME"
-          pulp deb repository create --name "$STABLE_REPOSITORY_NAME" >/dev/null
+        if ! pulp deb repository show --name "$REPOSITORY_NAME" >/dev/null 2>&1; then
+          echo "[INFO] Creating deb repository $REPOSITORY_NAME"
+          pulp deb repository create --name "$REPOSITORY_NAME" >/dev/null
         fi
 
-        if ! pulp deb distribution show --name "$STABLE_REPOSITORY_NAME" >/dev/null 2>&1; then
-          echo "[INFO] Creating deb distribution $STABLE_REPOSITORY_NAME served at $STABLE_BASE_PATH"
-          pulp deb distribution create --name "$STABLE_REPOSITORY_NAME" --base-path "$STABLE_BASE_PATH" --repository "$STABLE_REPOSITORY_NAME" >/dev/null
+        if ! pulp deb distribution show --name "$REPOSITORY_NAME" >/dev/null 2>&1; then
+          echo "[INFO] Creating deb distribution $REPOSITORY_NAME served at $BASE_PATH"
+          pulp deb distribution create --name "$REPOSITORY_NAME" --base-path "$BASE_PATH" --repository "$REPOSITORY_NAME" >/dev/null
         fi
 
         mkdir -p promoted-packages
 
         for RELATIVE_PATH in $RELATIVE_PATHS; do
           FILE="promoted-packages/$(basename "$RELATIVE_PATH")"
-          echo "[INFO] Downloading $PULP_CONTENT_URL/$TESTING_BASE_PATH/$RELATIVE_PATH"
-          curl -fsSL -o "$FILE" "$PULP_CONTENT_URL/$TESTING_BASE_PATH/$RELATIVE_PATH"
+          echo "[INFO] Downloading $PULP_CONTENT_URL/$BASE_PATH/$RELATIVE_PATH"
+          curl -fsSL -o "$FILE" "$PULP_CONTENT_URL/$BASE_PATH/$RELATIVE_PATH"
 
-          echo "[INFO] Promoting $FILE to $STABLE_REPOSITORY_NAME ($DISTRIB/main)"
-          pulp deb content upload --file "$FILE" --repository "$STABLE_REPOSITORY_NAME" --distribution "$DISTRIB" --component main >/dev/null
+          echo "[INFO] Promoting $FILE to $REPOSITORY_NAME ($STABLE_SUITE/main)"
+          pulp deb content upload --file "$FILE" --repository "$REPOSITORY_NAME" --distribution "$STABLE_SUITE" --component main >/dev/null
         done
 
-        echo "[INFO] Publishing repository $STABLE_REPOSITORY_NAME"
-        pulp deb publication create --repository "$STABLE_REPOSITORY_NAME" --structured >/dev/null
+        echo "[INFO] Publishing repository $REPOSITORY_NAME"
+        pulp deb publication create --repository "$REPOSITORY_NAME" --structured >/dev/null
 
-        echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/$STABLE_BASE_PATH/ $DISTRIB main"
+        echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/$BASE_PATH/ $STABLE_SUITE main"
