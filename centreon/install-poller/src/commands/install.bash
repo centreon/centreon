@@ -43,11 +43,11 @@ function _installParseArguments() {
       ;;
     --poller_token)
       shift
-      POLLER_TOKEN=$1
+      GORGONE_TOKEN=$1
       ;;
     --uid)
       shift
-      POLLER_UID=$1
+      GORGONE_UID=$1
       ;;
     --name)
       shift
@@ -56,6 +56,10 @@ function _installParseArguments() {
     --central_url)
       shift
       CENTRAL_URL=$1
+      _url_no_scheme=$(echo "${CENTRAL_URL}" | sed 's|^https\?://||')
+      CENTRAL_HOST=$(echo "${_url_no_scheme}" | cut -d: -f1 | cut -d/ -f1)
+      _port=$(echo "${_url_no_scheme}" | cut -s -d: -f2 | cut -d/ -f1)
+      CENTRAL_PORT=${_port:-443}
       ;;
     --appsecret)
       shift
@@ -81,11 +85,11 @@ function _installValidateArgs() {
 
   case "${POLLER_TYPE}" in
   docker|vm)
-    if [ -z "${POLLER_TOKEN}" ]; then
+    if [ -z "${GORGONE_TOKEN}" ]; then
       consoleError "--poller_token is required."
       ret=1
     fi
-    if [ -z "${POLLER_UID}" ]; then
+    if [ -z "${GORGONE_UID}" ]; then
       consoleError "--uid is required."
       ret=1
     fi

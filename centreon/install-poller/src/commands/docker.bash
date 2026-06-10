@@ -75,13 +75,15 @@ function _generateDotEnv() {
 
 TAG=${major}
 
-TZ=UTC
-DEBUG=false
+TZ=${TZ:-UTC}
+DEBUG=${DEBUG:-false}
 
 NAME=${POLLER_NAME}
-UID=${POLLER_UID}
-CENTRAL_URL=${CENTRAL_URL}
-POLLER_TOKEN=${POLLER_TOKEN}
+GORGONE_UID=${GORGONE_UID}
+CENTRAL_HOST=${CENTRAL_HOST}
+CENTRAL_PORT=${CENTRAL_PORT:-443}
+GORGONE_TOKEN=${GORGONE_TOKEN}
+GORGONE_SSL=${GORGONE_SSL:-true}
 
 APP_SECRET=${APP_SECRET}
 SALT=${SALT}
@@ -111,10 +113,9 @@ services:
     hostname: centengine
     restart: unless-stopped
     environment:
-      TZ: "${TZ:-UTC}"
-      DEBUG: "${DEBUG:-false}"
-      UID: "${UID}"
-      NAME: "${POLLER_TOKEN}"
+      NAME: "${NAME}"
+      TZ: "${TZ}"
+      DEBUG: "${DEBUG}"
       APP_SECRET: "${APP_SECRET}"
       SALT: "${SALT}"
     volumes:
@@ -126,7 +127,15 @@ services:
       - ./certs/poller.key:/etc/pki/poller.key
     ports:
       - 4317:4317
-
+    healthcheck:
+      test: ["CMD-SHELL", "grep -q ':1625 01' /proc/net/tcp 2>/dev/null"]
+      interval: 30s
+      timeout: 5s
+      start_period: 5m
+      retries: 3
+    depends_on:
+      gorgone:
+        condition: service_healthy
 EOF
 
   # gorgone base (always)
@@ -137,13 +146,14 @@ EOF
     hostname: gorgone
     restart: unless-stopped
     environment:
-      TZ: "${TZ:-UTC}"
-      DEBUG: "${DEBUG:-false}"
-      TYPE: poller
-      UID: "${UID}"
+      TZ: "${TZ}"
+      DEBUG: "${DEBUG}"
+      GORGONE_UID: "${GORGONE_UID}"
       NAME: "${NAME}"
-      POLLER_TOKEN: "${POLLER_TOKEN}"
-      CENTRAL_URL: "${CENTRAL_URL}"
+      GORGONE_TOKEN: "${GORGONE_TOKEN}"
+      CENTRAL_HOST: "${CENTRAL_HOST}"
+      CENTRAL_PORT: "${CENTRAL_PORT}"
+      GORGONE__GORGONE__MODULES__PULLWSS__SSL: "${GORGONE_SSL}"
       APP_SECRET: "${APP_SECRET}"
       SALT: "${SALT}"
     volumes:
@@ -151,8 +161,13 @@ EOF
       - poller-engine:/etc/centreon-engine
       - poller-broker:/etc/centreon-broker
       - poller-centcmd:/var/lib/centreon-engine/rw
-      - poller-centcache:/var/cache/centreon/
       - poller-gorgone-data:/var/lib/centreon-gorgone/
+    healthcheck:
+      test: ["CMD-SHELL", "grep -q \":$$(printf '%04X' $${CENTRAL_PORT:-443}) 01\" /proc/net/tcp /proc/net/tcp6 2>/dev/null"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30m
+      retries: 3
 EOF
 
   # gorgone extra volume for snmptrap
@@ -168,7 +183,7 @@ EOF
   if [ "${WITH_VMWARE}" = "1" ]; then
     cat >> "${out}" <<'EOF'
   centreon-vmware:
-    image: "docker.centreon.com/centreon/centreon-vmware-bookworm:${TAG}"
+    image: "docker.centreon.com/centreon/centreon-vmware-bookworm:local"
     container_name: "${NAME}-vmware"
     hostname: centreon-vmware
     restart: unless-stopped
@@ -177,7 +192,9 @@ EOF
       DEBUG: "${DEBUG:-false}"
     volumes:
       - poller-etc:/etc/centreon/
-      - poller-engine:/etc/centreon-engine:ro
+    depends_on:
+      gorgone:
+        condition: service_healthy
 
 EOF
   fi
@@ -186,35 +203,43 @@ EOF
   if [ "${WITH_SNMPTRAP}" = "1" ]; then
     cat >> "${out}" <<'EOF'
   snmptrapd:
-    image: "docker.centreon.com/centreon/centreon-snmptrapd-bookworm:${TAG}"
+    image: "docker.centreon.com/centreon/centreon-snmptrapd-trixie:${TAG}"
     container_name: "${NAME}-snmptrap"
     hostname: snmptrapd
     restart: unless-stopped
     environment:
-      TZ: "${TZ:-UTC}"
-      DEBUG: "${DEBUG:-false}"
+      TZ: "${TZ}"
+      DEBUG: "${DEBUG}"
     volumes:
       - poller-snmp-spool:/var/spool/centreontrapd
     ports:
       - "162:162/udp"
     cap_add:
       - NET_BIND_SERVICE
+    healthcheck:
+      test: ["CMD-SHELL", "grep -q ':00A2' /proc/net/udp /proc/net/udp6 2>/dev/null"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
 
   centreontrapd:
-    image: "docker.centreon.com/centreon/centreon-centreontrapd-bookworm:${TAG}"
+    image: "docker.centreon.com/centreon/centreon-centreontrapd-trixie:${TAG}"
     container_name: "${NAME}-centreontrap"
     hostname: centreontrapd
     restart: unless-stopped
     environment:
-      TZ: "${TZ:-UTC}"
-      DEBUG: "${DEBUG:-false}"
-      TRAP_SDB_PATH: /etc/snmp/centreon_traps/centreontrapd.sdb
+      TZ: "${TZ}"
+      DEBUG: "${DEBUG}"
     volumes:
       - poller-snmp-spool:/var/spool/centreontrapd
       - poller-snmp-traps:/etc/snmp/centreon_traps
       - poller-centcmd:/var/lib/centreon-engine/rw
     depends_on:
-      - snmptrapd
+      snmptrapd:
+        condition: service_healthy
+      gorgone:
+        condition: service_healthy
 
 EOF
   fi
@@ -227,7 +252,6 @@ volumes:
   poller-broker:
   poller-centcmd:
   poller-centlog:
-  poller-centcache:
   poller-gorgone-data:
 EOF
 
