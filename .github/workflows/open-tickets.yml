@@ -166,16 +166,20 @@ jobs:
       - name: 🛠️ Rector checks
         if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon-open-tickets
+        env:
+          PHP_DIFF_FILES: ${{ steps.changed-php.outputs.all_changed_files }}
         run: |
           echo "Run of these Rector tests: rector:legacy on diff" && set -e
-          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer rector:diff
+          composer rector:diff
 
       - name: 🧹 PHP-CS-Fixer checks
         if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon-open-tickets
+        env:
+          PHP_DIFF_FILES: ${{ steps.changed-php.outputs.all_changed_files }}
         run: |
           echo "Run of these PHP-CS-Fixer tests: cs:legacy on diff" && set -e
-          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer cs:diff
+          composer cs:diff
 
       - name: 🔍 PHPStan checks
         working-directory: centreon-open-tickets
@@ -449,9 +453,11 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
           fail-on-cache-miss: true
 
-      - run: |
+      - env:
+          PACKAGE_EXTENSION: ${{ steps.matrix_include.outputs.package_extension }}
+        run: |
           mkdir packages-centreon
-          mv *.${{ steps.matrix_include.outputs.package_extension }} packages-centreon/
+          mv *."$PACKAGE_EXTENSION" packages-centreon/
         shell: bash
 
       - uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
@@ -693,8 +699,10 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: List and delete cache
+        env:
+          REF_NAME: ${{ github.ref_name }}
         run: |
-          mapfile -t cache_keys < <(gh cache list --ref refs/heads/${{ github.ref_name }} --json key -q '.[] | .key')
+          mapfile -t cache_keys < <(gh cache list --ref "refs/heads/$REF_NAME" --json key -q '.[] | .key')
           echo $cache_keys
           while read row; do
             gh cache delete $row
