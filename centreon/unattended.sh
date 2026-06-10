@@ -1032,6 +1032,67 @@ function configure_db_tls_consumers() {
 }
 #========= end of function configure_db_tls_consumers()
 
+#========= begin of function configure_web_tls()
+# enable HTTPS on the Centreon web frontend (Apache) using the server certificate generated for the DB.
+
+function configure_web_tls() {
+	[[ "$tls" == "enabled" ]] || return 0
+	[[ "$topology" == "central" ]] || return 0
+	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		log "WARN" "Web TLS (--tls enabled) is not yet implemented for Debian; skipping HTTPS vhost"
+		return 0
+	fi
+
+	local cert_dir="/etc/pki/centreon-tls"
+	local srv_cert="$cert_dir/server.pem"
+	local srv_key="$cert_dir/server-key.pem"
+	local template="/usr/share/centreon/examples/centreon-apache-https.conf"
+	local vhost="/etc/httpd/conf.d/00-centreon-tls.conf"
+
+	if [[ ! -f "$srv_cert" || ! -f "$srv_key" ]]; then
+		log "WARN" "Server certificate not found ($srv_cert); skipping web TLS"
+		return 0
+	fi
+	if [[ ! -f "$template" ]]; then
+		log "WARN" "Apache HTTPS template not found ($template); skipping web TLS"
+		return 0
+	fi
+
+	# mod_ssl is not always present; install on demand so SSLEngine is a known directive.
+	if ! rpm -q mod_ssl >/dev/null 2>&1; then
+		log "INFO" "Installing mod_ssl"
+		$PKG_MGR install -y mod_ssl >/dev/null || error_and_exit "Could not install mod_ssl"
+	fi
+
+	# mod_ssl ships a default ssl.conf with a snake-oil :443 vhost pointing at a missing cert; reduce it
+	# to just the Listen directive so :443 is bound and our vhost defines the actual <VirtualHost *:443>.
+	if [[ -f /etc/httpd/conf.d/ssl.conf ]]; then
+		echo "Listen 443 https" > /etc/httpd/conf.d/ssl.conf
+	fi
+
+	# Guard against template drift before substituting the cert paths.
+	if ! grep -q '/etc/pki/tls/certs/ca.crt' "$template" || ! grep -q '/etc/pki/tls/private/ca.key' "$template"; then
+		log "WARN" "Apache HTTPS template cert paths changed; skipping web TLS to avoid a broken vhost"
+		return 0
+	fi
+	# The 00- prefix sorts before the install-step's 10-centreon.conf so our :80 redirect vhost becomes
+	# Apache's default :80 vhost.
+	sed -e "s|/etc/pki/tls/certs/ca.crt|$srv_cert|g" \
+	    -e "s|/etc/pki/tls/private/ca.key|$srv_key|g" \
+	    "$template" > "$vhost"
+	log "INFO" "Apache HTTPS vhost written to $vhost (HTTP :80 -> HTTPS :443 redirect enabled)"
+
+	# Open 443 if firewalld is active (update_firewall_config only opens http/snmp).
+	if command -v firewall-cmd >/dev/null 2>&1 && firewall-cmd --state >/dev/null 2>&1; then
+		firewall-cmd --zone=public --add-service=https --permanent >/dev/null 2>&1
+		firewall-cmd --reload >/dev/null 2>&1
+	fi
+
+	systemctl restart "$HTTP_SERVICE_UNIT" || error_and_exit "Could not restart $HTTP_SERVICE_UNIT after enabling HTTPS"
+	log "INFO" "HTTPS enabled on the Centreon web frontend"
+}
+#========= end of function configure_web_tls()
+
 #========= begin of function secure_dbms_setup()
 # apply some secure requests
 #
@@ -1814,15 +1875,24 @@ install)
 	update_after_installation
 
 	if [ "$topology" == "central" ] && [ "$wizard_autoplay" == "true" ]; then
+		# The wizard talks plain HTTP (no -L/-k); run it BEFORE enabling the HTTPS :80->:443 redirect.
 		play_install_wizard
-		log "INFO" "Log in to Centreon web interface via the URL: http://$central_ip/centreon"
 	else
 		log "INFO" "Follow the steps described in Centreon documentation: $CENTREON_DOC_URL"
 	fi
 
-	# DB-TLS consumer configs (gorgone DSN, broker note) that only exist once the central is configured.
+	# TLS post-install steps (central only): consumer DB configs + Apache HTTPS. Run AFTER the wizard.
 	if [ "$topology" == "central" ]; then
 		configure_db_tls_consumers
+		configure_web_tls
+	fi
+
+	if [ "$topology" == "central" ] && [ "$wizard_autoplay" == "true" ]; then
+		if [[ "$tls" == "enabled" ]] && ! [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+			log "INFO" "Log in to Centreon web interface via the URL: https://$central_ip/centreon"
+		else
+			log "INFO" "Log in to Centreon web interface via the URL: http://$central_ip/centreon"
+		fi
 	fi
 
 	log "INFO" "Centreon [$topology] successfully installed !"
