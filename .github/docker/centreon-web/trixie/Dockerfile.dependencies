@@ -158,6 +158,8 @@ if [[ "$STABILITY" == "stable" ]]; then
     centreon-clib=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb13u1 \
     centreon-engine=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb13u1 \
     centreon-engine-daemon=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb13u1 \
+    centreon-engine-opentelemetry=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb13u1 \
+    centreon-broker=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb13u1 \
     centreon-broker-core=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb13u1 \
     centreon-broker-cbd=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb13u1 \
     centreon-connector-perl=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb13u1 \
