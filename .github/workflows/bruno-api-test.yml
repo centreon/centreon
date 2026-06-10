@@ -172,10 +172,10 @@ jobs:
 
             # Necessary for collecting deprecation logs
             docker compose -f ../../../../.github/docker/docker-compose.yml exec web \
-              bash -c "mkdir -p /var/log/centreon/symfony.new && chown ${WEB_USER}:${WEB_USER} /var/log/centreon/symfony.new"
+              bash -c "mkdir -p /var/log/centreon && chown ${WEB_USER}:${WEB_USER} /var/log/centreon"
 
             docker compose -f ../../../../.github/docker/docker-compose.yml exec -e OS_INPUT="$OS_INPUT" web \
-              bash -c bash -c '
+              bash -c '
                 if [[ "$OS_INPUT" == "alma9" ]]; then
                   PHP_INI="/etc/php.ini"
                 else
@@ -288,7 +288,7 @@ jobs:
           feature="${{ matrix.feature }}"
           deprecation_file_for_archive="$feature-deprecation.log"
           found=false
-          deprecation_file_container=$(docker compose -f ../../../../.github/docker/docker-compose.yml exec -T web bash -c "find /var/log/centreon/symfony.new/ -maxdepth 1 -regex \".*deprecations.*\" 2>/dev/null | grep -m1 ." | tr -d '\r')
+          deprecation_file_container=$(docker compose -f ../../../../.github/docker/docker-compose.yml exec -T web bash -c "find /var/log/centreon/ -maxdepth 1 -regex \".*deprecations.*\" 2>/dev/null | head -1" | tr -d '\r')
           if [[ -n "$deprecation_file_container" ]]; then
             docker compose -f ../../../../.github/docker/docker-compose.yml exec -T web cat "$deprecation_file_container" >> ./$deprecation_file_for_archive
             echo "Appended deprecation log from $deprecation_file_container"
