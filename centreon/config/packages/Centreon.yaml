@@ -301,6 +301,12 @@ services:
     Centreon\Domain\Gorgone\GorgoneTransport:
         public: true
 
+    # Broker statistics fetched over Gorgone (cat the -stats.json on the poller) when the web tier is
+    # split from the collection stack. Public so the legacy broker-performance page can fetch it.
+    Centreon\Domain\MonitoringServer\Interfaces\BrokerStatsRepositoryInterface:
+        class: Centreon\Infrastructure\MonitoringServer\Repository\BrokerStatsRepositoryGorgone
+        public: true
+
     Core\Domain\Engine\Model\EngineCommandGenerator:
         public: true
         arguments:

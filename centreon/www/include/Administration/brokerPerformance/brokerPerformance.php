@@ -116,7 +116,19 @@ function parseStatsFile($statfile)
     if (str_contains($statfile, '..')) {
         throw new Exception('Path traversal found');
     }
-    $jsonc_content = file_get_contents($statfile);
+    return parseStatsContent(file_get_contents($statfile));
+}
+
+/**
+ * Parse a broker statistics JSON payload (same content as a "-stats.json" file), whether it was read
+ * from the local cache or retrieved from a poller through Gorgone.
+ *
+ * @param string $jsonc_content
+ *
+ * @return array
+ */
+function parseStatsContent($jsonc_content)
+{
     $json_stats = json_decode($jsonc_content, true);
 
     $lastmodif = $json_stats['now'];
@@ -254,7 +266,38 @@ try {
     }
     $perf_info = [];
     $perf_err = [];
+
+    // When the "gorgone_command_transport" option is enabled, the web tier is split from the
+    // collection stack and cannot read the local broker-stats cache. In that case the poller's own
+    // "-stats.json" is fetched over Gorgone; by default the historical local file read is kept.
+    $kernel = \App\Kernel::createForWeb();
+    $useGorgone = $kernel->getContainer()
+        ->get(\Centreon\Domain\Gorgone\GorgoneTransport::class)
+        ->useGorgone();
+    $brokerStatsRepository = $useGorgone
+        ? $kernel->getContainer()->get(
+            \Centreon\Domain\MonitoringServer\Interfaces\BrokerStatsRepositoryInterface::class
+        )
+        : null;
+
     while ($row = $stmt->fetch()) {
+        if ($useGorgone) {
+            // Read the poller's native stats path directly on that node through Gorgone.
+            $statsfile = $row['cache_directory'] . '/' . basename($row['config_name']) . '-stats.json';
+            try {
+                $content = $brokerStatsRepository->getStatsContent((int) $selectedPoller, $statsfile);
+                if ($content === null || $content === '') {
+                    $perf_err[$row['config_name']] = _('Cannot retrieve statistics through Gorgone');
+                } else {
+                    $perf_info[$row['config_name']] = parseStatsContent($content);
+                }
+            } catch (\Throwable $e) {
+                $perf_err[$row['config_name']] = _('Cannot retrieve statistics through Gorgone: ') . $e->getMessage();
+            }
+
+            continue;
+        }
+
         $statsfile = $row['cache_directory'] . '/' . basename($row['config_name']) . '-stats.json';
         if ($defaultPoller != $selectedPoller) {
             $statsfile = _CENTREON_CACHEDIR_ . '/broker-stats/' . $selectedPoller . '/' . $row['config_name'] . '.json';
