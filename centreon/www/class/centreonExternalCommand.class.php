@@ -113,39 +113,67 @@ class CentreonExternalCommand
         $this->userAlias = $newUserAlias;
     }
 
+    /** @var \Centreon\Domain\Engine\Interfaces\EngineRepositoryInterface|null */
+    private static $engineRepository = null;
+
     /**
-     * Write command in Nagios or Centcore Pipe.
+     * Send pre-formatted external command lines ("EXTERNALCMD:<pollerId>:[<ts>] <COMMAND>") to the
+     * monitoring engine through the configured engine repository, instead of writing the centcore
+     * pipe directly. Depending on the service binding the repository writes the centcore command
+     * file or sends the command to the poller through the Gorgone REST API, which lets the web tier
+     * run on a host separate from the collection stack.
      *
-     * @return int
+     * @param string[] $externalCommands
+     *
+     * @throws \Centreon\Domain\Engine\EngineException
+     */
+    public static function sendExternalCommands(array $externalCommands): void
+    {
+        $externalCommands = array_values(
+            array_filter($externalCommands, static fn($command): bool => $command !== null && $command !== '')
+        );
+        if ($externalCommands === []) {
+            return;
+        }
+
+        if (self::$engineRepository === null) {
+            self::$engineRepository = App\Kernel::createForWeb()->getContainer()->get(
+                Centreon\Domain\Engine\Interfaces\EngineRepositoryInterface::class
+            );
+        }
+
+        self::$engineRepository->sendExternalCommands($externalCommands);
+    }
+
+    /**
+     * Send the queued commands to the monitoring engine.
+     *
+     * @return int 0 on success, 1 on failure
      */
     public function write()
     {
-        global $centreon;
-
-        $varlib = ! defined('_CENTREON_VARLIB_') ? '/var/lib/centreon' : _CENTREON_VARLIB_;
-
-        $str_remote = '';
-        $return_remote = 0;
-
+        $externalCommands = [];
         foreach ($this->cmdTab as $key => $cmd) {
-            $cmd = str_replace('"', '', $cmd);
-            $cmd = str_replace("\n", '<br>', $cmd);
-            $cmd = '[' . time() . '] ' . $cmd . "\n";
-            $str_remote .= 'EXTERNALCMD:' . $this->pollerTab[$key] . ':' . $cmd;
+            $cmd = str_replace(['"', "\n"], ['', '<br>'], $cmd);
+            $externalCommands[] = 'EXTERNALCMD:' . $this->pollerTab[$key] . ':[' . time() . '] ' . $cmd;
         }
 
-        if ($str_remote != '') {
+        $returnRemote = 0;
+        if ($externalCommands !== []) {
             if ($this->debug) {
-                echo "COMMAND BEFORE SEND: {$str_remote}";
+                echo 'COMMAND BEFORE SEND: ' . implode("\n", $externalCommands);
             }
-            $result = file_put_contents($varlib . '/centcore/' . microtime(true) . '-externalcommand.cmd', $str_remote, FILE_APPEND);
-            $return_remote = ($result !== false) ? 0 : 1;
+            try {
+                self::sendExternalCommands($externalCommands);
+            } catch (\Throwable $e) {
+                $returnRemote = 1;
+            }
         }
 
         $this->cmdTab = [];
         $this->pollerTab = [];
 
-        return $return_remote;
+        return $returnRemote;
     }
 
     /**

@@ -33,9 +33,6 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
     /** @var CentreonDB */
     protected $pearDBMonitoring;
 
-    /** @var string */
-    protected $centcore_file;
-
     /**
      * CentreonMonitoringExternalcmd constructor
      */
@@ -43,11 +40,6 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
     {
         parent::__construct();
         $this->pearDBMonitoring = new CentreonDB('centstorage');
-        if (is_dir(_CENTREON_VARLIB_ . '/centcore')) {
-            $this->centcore_file = _CENTREON_VARLIB_ . '/centcore/' . microtime(true) . '-externalcommand.cmd';
-        } else {
-            $this->centcore_file = _CENTREON_VARLIB_ . '/centcore.cmd';
-        }
     }
 
     /**
@@ -100,77 +92,76 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
                 $userAcl = new CentreonACL($centreon->user->user_id, $isAdmin);
             }
 
-            if ($fh = @fopen($this->centcore_file, 'a+')) {
-                foreach ($this->arguments['commands'] as $command) {
-                    $commandSplitted = explode(';', $command['command']);
-                    $action = $commandSplitted[0];
-                    if (! $isAdmin) {
-                        if (preg_match('/HOST(_SVC)?/', $action, $matches)) {
-                            if (! isset($commandSplitted[1])) {
-                                throw new RestBadRequestException(_('Host not found'));
-                            }
-                            $query = 'SELECT acl.host_id
-                                FROM centreon_acl acl, hosts h
-                                WHERE acl.host_id = h.host_id
-                                AND acl.service_id IS NULL
-                                AND h.name = ?
-                                AND acl.group_id IN (' . $userAcl->getAccessGroupsString() . ')';
-                            $result = $this->pearDBMonitoring->prepare($query);
-                            $result->execute([$commandSplitted[1]]);
-                            if ($result->fetch() === false) {
-                                throw new RestBadRequestException(_('Host not found'));
-                            }
-                        } elseif (preg_match('/(?!HOST_)SVC/', $action, $matches)) {
-                            if (! isset($commandSplitted[1]) || ! isset($commandSplitted[2])) {
-                                throw new RestBadRequestException(_('Service not found'));
-                            }
-                            $query = 'SELECT acl.service_id
-                                FROM centreon_acl acl, hosts h, services s
-                                WHERE h.host_id = s.host_id
-                                AND acl.host_id = s.host_id
-                                AND acl.service_id = s.service_id
-                                AND h.name = :hostName
-                                AND s.description = :serviceDescription
-                                AND acl.group_id IN (' . $userAcl->getAccessGroupsString() . ')';
+            $externalCommandsToSend = [];
+            foreach ($this->arguments['commands'] as $command) {
+                $commandSplitted = explode(';', $command['command']);
+                $action = $commandSplitted[0];
+                if (! $isAdmin) {
+                    if (preg_match('/HOST(_SVC)?/', $action, $matches)) {
+                        if (! isset($commandSplitted[1])) {
+                            throw new RestBadRequestException(_('Host not found'));
+                        }
+                        $query = 'SELECT acl.host_id
+                            FROM centreon_acl acl, hosts h
+                            WHERE acl.host_id = h.host_id
+                            AND acl.service_id IS NULL
+                            AND h.name = ?
+                            AND acl.group_id IN (' . $userAcl->getAccessGroupsString() . ')';
+                        $result = $this->pearDBMonitoring->prepare($query);
+                        $result->execute([$commandSplitted[1]]);
+                        if ($result->fetch() === false) {
+                            throw new RestBadRequestException(_('Host not found'));
+                        }
+                    } elseif (preg_match('/(?!HOST_)SVC/', $action, $matches)) {
+                        if (! isset($commandSplitted[1]) || ! isset($commandSplitted[2])) {
+                            throw new RestBadRequestException(_('Service not found'));
+                        }
+                        $query = 'SELECT acl.service_id
+                            FROM centreon_acl acl, hosts h, services s
+                            WHERE h.host_id = s.host_id
+                            AND acl.host_id = s.host_id
+                            AND acl.service_id = s.service_id
+                            AND h.name = :hostName
+                            AND s.description = :serviceDescription
+                            AND acl.group_id IN (' . $userAcl->getAccessGroupsString() . ')';
 
-                            $statement = $this->pearDBMonitoring->prepare($query);
-                            $statement->bindValue(':hostName', $commandSplitted[1], PDO::PARAM_STR);
-                            $statement->bindValue(':serviceDescription', $commandSplitted[2], PDO::PARAM_STR);
-                            $statement->execute();
-                            if ($statement->fetch() === false) {
-                                throw new RestBadRequestException(_('Service not found'));
-                            }
+                        $statement = $this->pearDBMonitoring->prepare($query);
+                        $statement->bindValue(':hostName', $commandSplitted[1], PDO::PARAM_STR);
+                        $statement->bindValue(':serviceDescription', $commandSplitted[2], PDO::PARAM_STR);
+                        $statement->execute();
+                        if ($statement->fetch() === false) {
+                            throw new RestBadRequestException(_('Service not found'));
                         }
                     }
+                }
 
-                    // checking that action provided exists
-                    if (! array_key_exists($action, $availableCommands)) {
-                        throw new RestBadRequestException('Action ' . $action . ' not supported');
-                    }
+                // checking that action provided exists
+                if (! array_key_exists($action, $availableCommands)) {
+                    throw new RestBadRequestException('Action ' . $action . ' not supported');
+                }
 
-                    if (! $isAdmin) {
-                        // Checking that the user has rights to do the action provided
-                        if ($userAcl->checkAction($availableCommands[$action]) === 0) {
-                            throw new RestUnauthorizedException(
-                                'User is not allowed to execute ' . $action . ' action'
-                            );
-                        }
-                    }
-
-                    if (isset($pollers[$command['poller_id']])) {
-                        fwrite(
-                            $fh,
-                            'EXTERNALCMD:' . $command['poller_id'] . ':['
-                            . $command['timestamp'] . '] ' . $command['command'] . "\n"
+                if (! $isAdmin) {
+                    // Checking that the user has rights to do the action provided
+                    if ($userAcl->checkAction($availableCommands[$action]) === 0) {
+                        throw new RestUnauthorizedException(
+                            'User is not allowed to execute ' . $action . ' action'
                         );
                     }
                 }
-                fclose($fh);
 
-                return ['success' => true];
+                if (isset($pollers[$command['poller_id']])) {
+                    $externalCommandsToSend[] = 'EXTERNALCMD:' . $command['poller_id'] . ':['
+                        . $command['timestamp'] . '] ' . $command['command'];
+                }
             }
 
-            throw new RestException('Cannot open Centcore file');
+            try {
+                CentreonExternalCommand::sendExternalCommands($externalCommandsToSend);
+            } catch (\Throwable $e) {
+                throw new RestException('Cannot send external commands: ' . $e->getMessage());
+            }
+
+            return ['success' => true];
         } else {
             throw new RestBadRequestException('Bad arguments - Cannot find command list');
         }

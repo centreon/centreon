@@ -23,29 +23,30 @@ if (! isset($centreon)) {
     exit();
 }
 
+require_once __DIR__ . '/../../../class/centreonExternalCommand.class.php';
+
 $tab = ['1' => 'ENABLE', '0' => 'DISABLE'];
 
 function write_command($cmd, $poller)
 {
-    global $centreon, $key, $pearDB;
-
-    $str = null;
-
-    // Destination is centcore pipe path
-    $destination = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ . '/centcore.cmd' : '/var/lib/centreon/centcore.cmd';
-
     $cmd = str_replace('`', '&#96;', $cmd);
     $cmd = str_replace("\n", '<br>', $cmd);
-    $informations = preg_split("/\;/", $key);
 
     if (! mb_detect_encoding($cmd, 'UTF-8', true)) {
         $cmd = mb_convert_encoding($cmd, 'UTF-8', 'ISO-8859-1');
     }
-    setlocale(LC_CTYPE, 'en_US.UTF-8');
 
-    $str = 'echo ' . escapeshellarg("EXTERNALCMD:{$poller}:[" . time() . ']' . $cmd) . ' >> ' . $destination;
+    // The command is sent to the monitoring engine through the configured engine repository
+    // (centcore command file or Gorgone REST API), not by writing the centcore pipe directly.
+    $command = 'EXTERNALCMD:' . $poller . ':[' . time() . ']' . $cmd;
 
-    return passthru($str);
+    try {
+        CentreonExternalCommand::sendExternalCommands([$command]);
+
+        return true;
+    } catch (\Throwable $e) {
+        return false;
+    }
 }
 
 function send_cmd($cmd, $poller = null)

@@ -20,6 +20,7 @@
  */
 
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once _CENTREON_PATH_ . '/www/class/centreonExternalCommand.class.php';
 require_once __DIR__ . '/centreon_configuration_objects.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonHost.class.php';
 
@@ -33,17 +34,14 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
     /** @var CentreonDB */
     protected $pearDBMonitoring;
 
-    /** @var string */
-    protected $centcore_file;
-
     /** @var */
     protected $pollers;
 
     /** @var int */
     protected $pipeOpened;
 
-    /** @var resource */
-    protected $fh;
+    /** @var string[] The external command lines buffered before being sent to the engine */
+    protected $commandBuffer = [];
 
     /** @var CentreonDB */
     protected $pearDBC;
@@ -60,11 +58,6 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
     public function __construct()
     {
         parent::__construct();
-        if (is_dir(_CENTREON_VARLIB_ . '/centcore')) {
-            $this->centcore_file = _CENTREON_VARLIB_ . '/centcore/' . microtime(true) . '-externalcommand.cmd';
-        } else {
-            $this->centcore_file = _CENTREON_VARLIB_ . '/centcore.cmd';
-        }
         $this->pearDBC = new CentreonDB('centstorage');
         $this->getPollers();
         $this->pipeOpened = 0;
@@ -201,28 +194,37 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
     }
 
     /**
-     * @throws RestBadRequestException
+     * Start buffering external commands.
+     *
      * @return void
      */
     private function openPipe(): void
     {
-        if ($this->fh = @fopen($this->centcore_file, 'a+')) {
-            $this->pipeOpened = 1;
-        } else {
-            throw new RestBadRequestException("Can't open centcore pipe");
-        }
+        $this->commandBuffer = [];
+        $this->pipeOpened = 1;
     }
 
     /**
+     * Send the buffered external commands to the monitoring engine.
+     *
+     * @throws RestBadRequestException
      * @return void
      */
     private function closePipe(): void
     {
-        fclose($this->fh);
-        $this->pipeOpened = 0;
+        try {
+            CentreonExternalCommand::sendExternalCommands($this->commandBuffer);
+        } catch (\Throwable $e) {
+            throw new RestBadRequestException('Cannot send external commands: ' . $e->getMessage());
+        } finally {
+            $this->commandBuffer = [];
+            $this->pipeOpened = 0;
+        }
     }
 
     /**
+     * Buffer an external command line.
+     *
      * @param $string
      *
      * @throws RestBadRequestException
@@ -235,7 +237,7 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
         }
 
         if ($string != '') {
-            fwrite($this->fh, $string . "\n");
+            $this->commandBuffer[] = $string;
         }
     }
 

@@ -20,6 +20,7 @@
  */
 
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once _CENTREON_PATH_ . '/www/class/centreonExternalCommand.class.php';
 require_once __DIR__ . '/webService.class.php';
 
 /**
@@ -30,14 +31,11 @@ require_once __DIR__ . '/webService.class.php';
  */
 class CentreonSubmitResults extends CentreonWebService
 {
-    /** @var string The path to the centcore pipe file */
-    protected $centcoreFile;
-
-    /** @var bool If the file pipe is open */
+    /** @var bool If the command buffer is open */
     protected $pipeOpened = false;
 
-    /** @var mixed The file descriptor of the centcore pipe */
-    protected $fh;
+    /** @var string[] The external command lines buffered before being sent to the engine */
+    protected $commandBuffer = [];
 
     /** @var CentreonDB The database connection to centreon_storage (realtime database) */
     protected $pearDBC;
@@ -63,11 +61,6 @@ class CentreonSubmitResults extends CentreonWebService
     public function __construct()
     {
         parent::__construct();
-        if (is_dir(_CENTREON_VARLIB_ . '/centcore')) {
-            $this->centcoreFile = _CENTREON_VARLIB_ . '/centcore/' . microtime(true) . '-externalcommand.cmd';
-        } else {
-            $this->centcoreFile = _CENTREON_VARLIB_ . '/centcore.cmd';
-        }
         $this->pearDBC = new CentreonDB('centstorage');
         $this->getPollers();
     }
@@ -237,33 +230,36 @@ class CentreonSubmitResults extends CentreonWebService
     }
 
     /**
-     * Open the centcore pipe file
+     * Start buffering external commands.
      *
-     * @throws RestBadRequestException
      * @return void
      */
     private function openPipe(): void
     {
-        if ($this->fh = @fopen($this->centcoreFile, 'a+')) {
-            $this->pipeOpened = true;
-        } else {
-            throw new RestBadRequestException("Can't open centcore pipe");
-        }
+        $this->commandBuffer = [];
+        $this->pipeOpened = true;
     }
 
     /**
-     * Close the centcore pipe file
+     * Send the buffered external commands to the monitoring engine.
      *
+     * @throws RestBadRequestException
      * @return void
      */
     private function closePipe(): void
     {
-        fclose($this->fh);
-        $this->pipeOpened = false;
+        try {
+            CentreonExternalCommand::sendExternalCommands($this->commandBuffer);
+        } catch (\Throwable $e) {
+            throw new RestBadRequestException('Cannot send external commands: ' . $e->getMessage());
+        } finally {
+            $this->commandBuffer = [];
+            $this->pipeOpened = false;
+        }
     }
 
     /**
-     * Write into the centcore pipe filr
+     * Buffer an external command line.
      *
      * @param $string
      *
@@ -276,7 +272,7 @@ class CentreonSubmitResults extends CentreonWebService
         }
 
         if ($string != '') {
-            fwrite($this->fh, $string . "\n");
+            $this->commandBuffer[] = $string;
         }
 
         return true;

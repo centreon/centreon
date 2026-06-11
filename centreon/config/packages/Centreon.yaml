@@ -268,9 +268,18 @@ services:
         class: Centreon\Domain\Downtime\DowntimeService
 
     # Engine
-    Centreon\Domain\Engine\Interfaces\EngineRepositoryInterface:
-        class: Centreon\Infrastructure\Engine\EngineRepositoryFile
+    # Legacy transport: writes external commands to the local centcore command file.
+    Centreon\Infrastructure\Engine\EngineRepositoryFile:
         arguments: ['%centreon_var_lib%/centcore']
+
+    # External commands (ack/downtime/check/submit/comment): the selector routes them to the local
+    # centcore pipe (default, monolith-safe) or to the Gorgone REST API when the
+    # "gorgone_command_transport" option is set to "gorgone" — letting the web tier run on a host
+    # separate from the collection stack. Public so the legacy www/ code can fetch it via the kernel
+    # container and route through the same repository as the modern stack.
+    Centreon\Domain\Engine\Interfaces\EngineRepositoryInterface:
+        class: Centreon\Infrastructure\Engine\EngineRepositorySelector
+        public: true
 
     Centreon\Domain\Engine\Interfaces\EngineServiceInterface:
         class: Centreon\Domain\Engine\EngineService
