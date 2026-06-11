@@ -43,3 +43,10 @@ runs:
           --username "$PULP_USERNAME" \
           --password "$PULP_PASSWORD" \
           --timeout 0
+
+        # fail fast on connectivity issues, scripts cannot distinguish
+        # a missing resource from an unreachable server otherwise
+        if ! pulp status >/dev/null; then
+          echo "::error::Pulp server $PULP_URL is not reachable"
+          exit 1
+        fi
