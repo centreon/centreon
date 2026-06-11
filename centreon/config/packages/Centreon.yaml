@@ -284,6 +284,23 @@ services:
     Centreon\Domain\Engine\Interfaces\EngineServiceInterface:
         class: Centreon\Domain\Engine\EngineService
 
+    # Legacy transport: writes poller config-deploy / reload / restart orders to the centcore pipe.
+    Centreon\Infrastructure\MonitoringServer\Repository\PollerCommandRepositoryFile:
+        arguments: ['%centreon_var_lib%/centcore']
+
+    # Poller config deploy + engine reload/restart: the selector routes to the local centcore pipe
+    # (default, monolith-safe) or to Gorgone legacycmd (REST) when the "gorgone_command_transport"
+    # option is set to "gorgone". Public so the legacy config-generation scripts can fetch it via the
+    # kernel container.
+    Centreon\Domain\MonitoringServer\Interfaces\PollerCommandRepositoryInterface:
+        class: Centreon\Infrastructure\MonitoringServer\Repository\PollerCommandRepositorySelector
+        public: true
+
+    # Public so the legacy code (e.g. CentreonBroker) can read the "gorgone_command_transport" toggle
+    # through the kernel container to decide between the historical local reload and Gorgone REST.
+    Centreon\Domain\Gorgone\GorgoneTransport:
+        public: true
+
     Core\Domain\Engine\Model\EngineCommandGenerator:
         public: true
         arguments:

@@ -156,13 +156,6 @@ try {
     // Set new error handler
     set_error_handler($log_error);
 
-    $centcoreDirectory = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ : '/var/lib/centreon';
-    if (is_dir($centcoreDirectory . '/centcore')) {
-        $centcorePipe = $centcoreDirectory . '/centcore/' . microtime(true) . '-externalcommand.cmd';
-    } else {
-        $centcorePipe = $centcoreDirectory . '/centcore.cmd';
-    }
-
     $stdout = '';
     if (! isset($msg_restart)) {
         $msg_restart = [];
@@ -186,24 +179,24 @@ try {
         }
     }
 
-    // Restart broker
-    $brk = new CentreonBroker($pearDB);
-    $brk->reload();
     /**
      * @var EngineCommandGenerator $commandGenerator
      */
     $commandGenerator = $container->get(EngineCommandGenerator::class);
+    // Engine reload/restart go through the poller command repository: the local centcore pipe by
+    // default, or the Gorgone legacycmd REST API when the "gorgone_command_transport" option is on.
+    $pollerCommandRepository = $container->get(
+        \Centreon\Domain\MonitoringServer\Interfaces\PollerCommandRepositoryInterface::class
+    );
+
+    // Reload Centreon Broker. CentreonBroker::reload() keeps the historical local reload by default
+    // and only routes through Gorgone (RELOADBROKER) when the toggle is enabled.
+    $brk = new CentreonBroker($pearDB);
+    $brk->reload();
+
     foreach ($poller as $host) {
         if ($ret['restart_mode'] == 1) {
-            if ($fh = @fopen($centcorePipe, 'a+')) {
-                $reloadCommand = ($commandGenerator !== null)
-                    ? $commandGenerator->getEngineCommand('RELOAD')
-                    : 'RELOAD';
-                fwrite($fh, $reloadCommand . ':' . $host['id'] . "\n");
-                fclose($fh);
-            } else {
-                throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
-            }
+            $pollerCommandRepository->reloadEngine((int) $host['id']);
 
             // Manage Error Message
             if (! isset($msg_restart[$host['id']])) {
@@ -214,15 +207,7 @@ try {
                 . htmlspecialchars(string: $host['name'], encoding: 'UTF-8') . "\n"
             );
         } elseif ($ret['restart_mode'] == 2) {
-            if ($fh = @fopen($centcorePipe, 'a+')) {
-                $restartCommand = ($commandGenerator !== null)
-                    ? $commandGenerator->getEngineCommand('RESTART')
-                    : 'RESTART';
-                fwrite($fh, $restartCommand . ':' . $host['id'] . "\n");
-                fclose($fh);
-            } else {
-                throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
-            }
+            $pollerCommandRepository->restartEngine((int) $host['id']);
 
             // Manage error Message
             if (! isset($msg_restart[$host['id']])) {

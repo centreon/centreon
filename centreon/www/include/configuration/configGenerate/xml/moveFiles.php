@@ -343,19 +343,16 @@ try {
                     ));
                 }
             } else {
-                $written = file_put_contents(
-                    $centcore_pipe,
-                    'SENDCFGFILE:' . (int) $host['id'] . "\n",
-                    FILE_APPEND | LOCK_EX
-                );
-                if ($written === false) {
-                    throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
-                }
+                // Push the generated configuration to the remote poller through Gorgone (legacycmd
+                // SENDCFGFILE) instead of writing the local centcore pipe.
+                $container->get(
+                    \Centreon\Domain\MonitoringServer\Interfaces\PollerCommandRepositoryInterface::class
+                )->sendConfigFiles((int) $host['id']);
                 if (! isset($msg_restart[$host['id']])) {
                     $msg_restart[$host['id']] = '';
                 }
                 $msg_restart[$host['id']] .= _('<br><b>Centreon : </b>All configuration will be send to '
-                    . $host['name'] . ' by centcore in several minutes.');
+                    . $host['name'] . ' by gorgone in several minutes.');
             }
         }
     }

@@ -40,13 +40,40 @@ class CentreonBroker
     }
 
     /**
-     * Reload centreon broker process
+     * Reload centreon broker process.
+     *
+     * By default this runs the historical local command ("sudo -n -- systemctl reload cbd"). When the
+     * "gorgone_command_transport" option is set to "gorgone", the reload is routed to the central's
+     * Centreon Broker through Gorgone's legacycmd module (RELOADBROKER) instead, so the web tier needs
+     * no local cbd. Any failure to resolve that transport falls back to the historical local reload.
      *
      * @throws PDOException
      * @return void
      */
     public function reload(): void
     {
+        // Only the transport *resolution* falls back to the historical local reload; once we know the
+        // Gorgone transport is enabled, a failure to send must surface (no silent fallback that would
+        // shell_exec a cbd the web tier may not even have).
+        try {
+            $useGorgone = \App\Kernel::createForWeb()->getContainer()
+                ->get(\Centreon\Domain\Gorgone\GorgoneTransport::class)
+                ->useGorgone();
+        } catch (\Throwable $e) {
+            $useGorgone = false;
+        }
+
+        if ($useGorgone) {
+            $centralId = $this->getCentralPollerId();
+            if ($centralId !== null) {
+                \App\Kernel::createForWeb()->getContainer()
+                    ->get(\Centreon\Domain\MonitoringServer\Interfaces\PollerCommandRepositoryInterface::class)
+                    ->reloadBroker($centralId);
+            }
+
+            return;
+        }
+
         $command = $this->getReloadCommand();
         if (! empty($command)) {
             if (preg_match(Core\MonitoringServer\Model\MonitoringServer::VALID_COMMAND_RELOAD_REGEX, $command) !== 1) {
@@ -54,6 +81,25 @@ class CentreonBroker
             }
             shell_exec(escapeshellcmd("sudo -n -- {$command}"));
         }
+    }
+
+    /**
+     * Get the id of the central monitoring server (localhost), used as the Gorgone target.
+     *
+     * @throws PDOException
+     * @return int|null
+     */
+    private function getCentralPollerId(): ?int
+    {
+        $result = $this->db->query(
+            "SELECT id FROM nagios_server WHERE localhost = '1' ORDER BY id LIMIT 1"
+        );
+
+        if ($row = $result->fetch()) {
+            return (int) $row['id'];
+        }
+
+        return null;
     }
 
     /**

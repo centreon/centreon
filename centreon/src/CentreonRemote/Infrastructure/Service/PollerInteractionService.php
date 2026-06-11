@@ -22,11 +22,11 @@
 namespace CentreonRemote\Infrastructure\Service;
 
 use Centreon;
+use Centreon\Domain\MonitoringServer\Interfaces\PollerCommandRepositoryInterface;
 use Centreon\ServiceProvider;
 use CentreonBroker;
 use CentreonContactgroup;
 use CentreonDB;
-use Core\MonitoringServer\Model\MonitoringServer;
 use Exception;
 use Generate;
 use Pimple\Container;
@@ -63,6 +63,20 @@ class PollerInteractionService
             ->getCentreonDBInstance();
 
         $this->centreon = $centreon;
+    }
+
+    /**
+     * Fetches the poller command repository from the Symfony container so this Pimple-built legacy
+     * service can route deploy/reload/restart through the same transport (centcore pipe by default,
+     * Gorgone REST when the "gorgone_command_transport" option is enabled) as the modern stack.
+     *
+     * @return PollerCommandRepositoryInterface
+     */
+    private function pollerCommandRepository(): PollerCommandRepositoryInterface
+    {
+        return Kernel::createForWeb()
+            ->getContainer()
+            ->get(PollerCommandRepositoryInterface::class);
     }
 
     /**
@@ -140,18 +154,12 @@ class PollerInteractionService
             }
         }
 
+        // Push the generated configuration files to each poller through the poller command repository
+        // (local centcore pipe by default, Gorgone legacycmd REST when the "gorgone_command_transport"
+        // option is enabled) instead of writing the local centcore pipe directly.
+        $pollerCommandRepository = $this->pollerCommandRepository();
         foreach ($tabServer as $host) {
-            if (in_array($host['id'], $pollerIDs)) {
-                $written = file_put_contents(
-                    $centCorePipe,
-                    'SENDCFGFILE:' . (int) $host['id'] . "\n",
-                    FILE_APPEND | LOCK_EX
-                );
-
-                if ($written === false) {
-                    throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
-                }
-            }
+            $pollerCommandRepository->sendConfigFiles((int) $host['id']);
         }
     }
 
@@ -164,19 +172,18 @@ class PollerInteractionService
     {
         $tabServers = [];
 
-        $centCorePipe = defined('_CENTREON_VARLIB_')
-            ? _CENTREON_VARLIB_ . '/centcore.cmd'
-            : '/var/lib/centreon/centcore.cmd';
-
         $tabs = $this->centreon->user->access->getPollerAclConf([
-            'fields' => ['name', 'id', 'localhost', 'engine_restart_command'],
+            'fields' => ['name', 'id', 'localhost'],
             'order' => ['name'],
             'conditions' => ['ns_activate' => '1'],
             'keys' => ['id'],
         ]);
 
-        $broker = new CentreonBroker($this->db);
-        $broker->reload();
+        $pollerCommandRepository = $this->pollerCommandRepository();
+
+        // Reload Centreon Broker. CentreonBroker::reload() keeps the historical local reload by
+        // default and only routes through Gorgone (RELOADBROKER) when the toggle is enabled.
+        (new CentreonBroker($this->db))->reload();
 
         foreach ($tabs as $tab) {
             if (in_array($tab['id'], $pollerIDs)) {
@@ -184,25 +191,15 @@ class PollerInteractionService
                     'id' => $tab['id'],
                     'name' => $tab['name'],
                     'localhost' => $tab['localhost'],
-                    'engine_restart_command' => $tab['engine_restart_command'],
                 ];
             }
         }
 
         foreach ($tabServers as $poller) {
-            if (isset($poller['localhost']) && (int) $poller['localhost'] === 1) {
-                $this->restartEngine($poller['engine_restart_command']);
-            } else {
-                $written = file_put_contents(
-                    $centCorePipe,
-                    'RESTART:' . (int) $poller['id'] . "\n",
-                    FILE_APPEND | LOCK_EX
-                );
-
-                if ($written === false) {
-                    throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
-                }
-            }
+            // Restart the poller's engine through the repository (centcore pipe by default, Gorgone
+            // REST when enabled) instead of a local "sudo systemctl"/centcore write, so the web tier
+            // needs neither a local engine nor the centcore pipe.
+            $pollerCommandRepository->restartEngine((int) $poller['id']);
 
             $restartTimeQuery = "UPDATE `nagios_server`
                 SET `last_restart` = '" . time() . "'
@@ -219,25 +216,6 @@ class PollerInteractionService
                     include $fileName;
                 }
             }
-        }
-    }
-
-    /**
-     * @param string|null $engineRestartCommand
-     *
-     * @throws Exception
-     * @return void
-     */
-    private function restartEngine(?string $engineRestartCommand): void
-    {
-        if (! empty($engineRestartCommand)) {
-            if (preg_match(MonitoringServer::VALID_COMMAND_RESTART_REGEX, $engineRestartCommand) !== 1) {
-                throw new Exception(_(
-                    'Engine restart command does not match the expected format.'
-                    . ' Please check the monitoring server configuration.'
-                ));
-            }
-            shell_exec(escapeshellcmd('sudo -n -- ' . $engineRestartCommand));
         }
     }
 }
