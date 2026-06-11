@@ -52,6 +52,11 @@ Given('a passive service is monitored', () => {
     database: 'centreon',
     query: monitoredServiceQuery()
   }).then(([rows]) => {
+    expect(
+      rows.length,
+      'expected at least one active service on the central host'
+    ).to.be.greaterThan(0);
+
     service = {
       hostId: Number(rows[0].host_id),
       serviceId: Number(rows[0].service_id)
