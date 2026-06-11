@@ -484,6 +484,13 @@ function setup_mysql() {
 			curl -JLO https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb
 			export DEBIAN_FRONTEND="noninteractive" && $PKG_MGR install -y ./mysql-apt-config_0.8.29-1_all.deb
 		fi
+		# mysql-apt-config bundles MySQL's signing key, but the 2023 key expired 2025-10-22 and Debian 13's
+		# strict verifier (sqv) then rejects repo.mysql.com. Refresh it with the renewed key (same fingerprint
+		# B7B3B788A8D3785C, valid to 2027). Write to the keyring the mysql.list references (signed-by), else the
+		# global trusted.gpg.d.
+		mysql_keyring=$(grep -ohm1 'signed-by=[^] ]*' /etc/apt/sources.list.d/mysql.list 2>/dev/null | cut -d= -f2)
+		[ -z "$mysql_keyring" ] && mysql_keyring=/etc/apt/trusted.gpg.d/mysql.gpg
+		curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2025 | gpg --dearmor --yes -o "$mysql_keyring"
 		$PKG_MGR -y update
 		$PKG_MGR install -y mysql-server mysql-common
 	else
@@ -491,6 +498,14 @@ function setup_mysql() {
 			# el9 / el10 AppStream only provides MySQL 8.0, so the MySQL 8.4 LTS community
 			# repository is added (its release rpm enables the 8.4 LTS repo by default).
 			$PKG_MGR install -y "https://dev.mysql.com/get/mysql84-community-release-el${detected_os_major}-1.noarch.rpm"
+			# The release rpm ships MySQL's 2023 signing key, which expired 2025-10-22; dnf's GPG check then
+			# rejects the (re-signed) packages. Replace it with the renewed key (same fingerprint
+			# B7B3B788A8D3785C, valid to 2027): refresh the on-disk key file, drop the expired key from the
+			# rpm keyring (re-importing the same fingerprint is otherwise a no-op), and import the renewed one.
+			curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2025 -o /etc/pki/rpm-gpg/RPM-GPG-KEY-mysql-2023
+			old_mysql_key=$(rpm -q gpg-pubkey 2>/dev/null | grep -i a8d3785c || true)
+			if [ -n "$old_mysql_key" ]; then rpm -e $old_mysql_key 2>/dev/null || true; fi
+			rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-mysql-2023
 			$PKG_MGR install -y mysql-server
 		else
 			$PKG_MGR install -y mysql-server mysql
