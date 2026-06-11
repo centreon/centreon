@@ -31,6 +31,9 @@ outputs:
   distrib_family:
     description: "Distrib family (el, debian, ubuntu)"
     value: ${{ steps.parse-distrib.outputs.distrib_family }}
+  package_distrib_name:
+    description: "Distribution suffix in package name"
+    value: ${{ steps.parse-distrib.outputs.package_distrib_name }}
   skip_delivery:
     description: "Whether the delivery must be skipped"
     value: ${{ steps.properties.outputs.skip_delivery }}

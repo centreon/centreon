@@ -1,6 +1,27 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# wait for a pulp api task to complete
+wait_task() {
+  local task_href=$1
+  local state
+  while :; do
+    state=$(curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" "$PULP_URL$task_href" | jq -r '.state')
+    case "$state" in
+      completed)
+        return 0
+        ;;
+      failed|canceled)
+        echo "::error::Task $task_href $state: $(curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" "$PULP_URL$task_href" | jq -c '.error')"
+        return 1
+        ;;
+      *)
+        sleep 3
+        ;;
+    esac
+  done
+}
+
 declare -A ARCH_CONTENT
 TOTAL_PACKAGES_COUNT=0
 
@@ -12,9 +33,15 @@ for ARCH in noarch x86_64; do
     continue
   fi
 
+  VERSION_HREF=$(pulp rpm repository show --name "$TESTING_REPOSITORY_NAME" | jq -r '.latest_version_href')
+
+  # packages of the module are identified by the label set at delivery time
   CONTENT=$(
-    pulp rpm repository content list --repository "$TESTING_REPOSITORY_NAME" --limit 1000 | \
-      jq --arg module_path "$MODULE_NAME/" 'map(select(.location_href | startswith($module_path)) | {pulp_href})'
+    curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" -G \
+      --data-urlencode "repository_version=$VERSION_HREF" \
+      --data-urlencode "pulp_label_select=module=$MODULE_NAME" \
+      --data-urlencode "limit=1000" \
+      "$PULP_URL/pulp/api/v3/content/rpm/packages/" | jq '[.results[].pulp_href]'
   )
   ARCH_PACKAGES_COUNT=$(echo "$CONTENT" | jq 'length')
 
@@ -55,8 +82,17 @@ for ARCH in noarch x86_64; do
     pulp rpm distribution create --name "$STABLE_REPOSITORY_NAME" --base-path "$STABLE_BASE_PATH" --repository "$STABLE_REPOSITORY_NAME" >/dev/null
   fi
 
+  STABLE_REPOSITORY_HREF=$(pulp rpm repository show --name "$STABLE_REPOSITORY_NAME" | jq -r '.pulp_href')
+
   echo "[INFO] Promoting $ARCH_PACKAGES_COUNT packages to $STABLE_REPOSITORY_NAME"
-  pulp rpm repository content modify --repository "$STABLE_REPOSITORY_NAME" --add-content "$CONTENT" >/dev/null
+  # pulp-cli repository content modify does not resolve content by pulp_href, use the api directly
+  TASK_HREF=$(
+    curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" \
+      -X POST -H "Content-Type: application/json" \
+      -d "{\"add_content_units\": $CONTENT}" \
+      "$PULP_URL${STABLE_REPOSITORY_HREF}modify/" | jq -r '.task'
+  )
+  wait_task "$TASK_HREF"
 
   echo "[INFO] Publishing repository $STABLE_REPOSITORY_NAME"
   pulp rpm publication create --repository "$STABLE_REPOSITORY_NAME" >/dev/null

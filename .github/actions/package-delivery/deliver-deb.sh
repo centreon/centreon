@@ -42,9 +42,10 @@ fi
 REPOSITORY_HREF=$(pulp deb repository show --name "$REPOSITORY_NAME" | jq -r '.pulp_href')
 
 for FILE in "${FILES[@]}"; do
-  echo "[INFO] Uploading $FILE to $POOL_PATH/ ($SUITE/main)"
-  # pulp-cli does not allow to set the relative path of deb packages, use the api directly
-  # to deliver packages in a pool sub directory per module
+  echo "[INFO] Uploading $FILE to $POOL_PATH/ ($SUITE/main, module $MODULE_NAME)"
+  # packages are labeled with their module so that promote-to-stable can identify
+  # which packages belong to this module, pulp-cli does not allow to set labels nor
+  # the relative path of deb packages so the api is used directly
   TASK_HREF=$(
     curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" \
       -F "file=@$FILE" \
@@ -52,6 +53,7 @@ for FILE in "${FILES[@]}"; do
       -F "distribution=$SUITE" \
       -F "component=main" \
       -F "repository=$REPOSITORY_HREF" \
+      -F "pulp_labels={\"module\": \"$MODULE_NAME\"}" \
       "$PULP_URL/pulp/api/v3/content/deb/packages/" | jq -r '.task'
   )
   wait_task "$TASK_HREF"

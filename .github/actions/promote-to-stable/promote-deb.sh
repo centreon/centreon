@@ -27,18 +27,28 @@ if ! pulp deb repository show --name "$REPOSITORY_NAME" >/dev/null 2>&1; then
   exit 1
 fi
 
-RELATIVE_PATHS=$(
-  pulp deb repository content list --repository "$REPOSITORY_NAME" --limit 10000 | \
-    jq -r --arg testing_path "$TESTING_POOL_PATH/" '.[] | select(.relative_path | startswith($testing_path)) | .relative_path'
+VERSION_HREF=$(pulp deb repository show --name "$REPOSITORY_NAME" | jq -r '.latest_version_href')
+
+# packages of the module are identified by the label set at delivery time,
+# the testing pool path scopes the stability and the package distrib name
+# scopes the distribution as the apt repository holds all the suites
+PACKAGES=$(
+  curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" -G \
+    --data-urlencode "repository_version=$VERSION_HREF" \
+    --data-urlencode "pulp_label_select=module=$MODULE_NAME" \
+    --data-urlencode "limit=1000" \
+    "$PULP_URL/pulp/api/v3/content/deb/packages/" | \
+    jq --arg testing_path "$TESTING_POOL_PATH/" --arg distrib_name "$PACKAGE_DISTRIB_NAME" \
+      '[.results[] | select((.relative_path | startswith($testing_path)) and (.relative_path | contains($distrib_name)))]'
 )
-PACKAGES_COUNT=$(echo "$RELATIVE_PATHS" | grep -c . || true)
+PACKAGES_COUNT=$(echo "$PACKAGES" | jq 'length')
 
 if [[ "$PACKAGES_COUNT" -eq 0 ]]; then
-  echo "::error::Nothing to promote, no package found in $REPOSITORY_NAME ($TESTING_POOL_PATH/)"
+  echo "::error::Nothing to promote, no package of module $MODULE_NAME found in $REPOSITORY_NAME ($TESTING_POOL_PATH/)"
   exit 1
 fi
 
-echo "[INFO] $PACKAGES_COUNT packages found in $REPOSITORY_NAME ($TESTING_POOL_PATH/)"
+echo "[INFO] $PACKAGES_COUNT packages of module $MODULE_NAME found in $REPOSITORY_NAME ($TESTING_POOL_PATH/)"
 
 if [[ "$STABILITY" != "stable" ]]; then
   echo "[INFO] Dry run, $PACKAGES_COUNT packages would be promoted to $STABLE_POOL_PATH/ ($STABLE_SUITE/main)"
@@ -49,15 +59,13 @@ REPOSITORY_HREF=$(pulp deb repository show --name "$REPOSITORY_NAME" | jq -r '.p
 
 mkdir -p promoted-packages
 
-for RELATIVE_PATH in $RELATIVE_PATHS; do
+for RELATIVE_PATH in $(echo "$PACKAGES" | jq -r '.[].relative_path'); do
   FILE_NAME=$(basename "$RELATIVE_PATH")
   FILE="promoted-packages/$FILE_NAME"
   echo "[INFO] Downloading $PULP_CONTENT_URL/$BASE_PATH/$RELATIVE_PATH"
   curl -fsSL -o "$FILE" "$PULP_CONTENT_URL/$BASE_PATH/$RELATIVE_PATH"
 
   echo "[INFO] Promoting $FILE_NAME to $STABLE_POOL_PATH/ ($STABLE_SUITE/main)"
-  # pulp-cli does not allow to set the relative path of deb packages, use the api directly
-  # to deliver packages in a pool sub directory per module
   TASK_HREF=$(
     curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" \
       -F "file=@$FILE" \
@@ -65,6 +73,7 @@ for RELATIVE_PATH in $RELATIVE_PATHS; do
       -F "distribution=$STABLE_SUITE" \
       -F "component=main" \
       -F "repository=$REPOSITORY_HREF" \
+      -F "pulp_labels={\"module\": \"$MODULE_NAME\"}" \
       "$PULP_URL/pulp/api/v3/content/deb/packages/" | jq -r '.task'
   )
   wait_task "$TASK_HREF"

@@ -2,6 +2,27 @@
 set -euo pipefail
 shopt -s nullglob
 
+# wait for a pulp api task to complete
+wait_task() {
+  local task_href=$1
+  local state
+  while :; do
+    state=$(curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" "$PULP_URL$task_href" | jq -r '.state')
+    case "$state" in
+      completed)
+        return 0
+        ;;
+      failed|canceled)
+        echo "::error::Task $task_href $state: $(curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" "$PULP_URL$task_href" | jq -c '.error')"
+        return 1
+        ;;
+      *)
+        sleep 3
+        ;;
+    esac
+  done
+}
+
 FILES=(*.rpm)
 if [[ ${#FILES[@]} -eq 0 ]]; then
   echo "::error::No rpm package found to deliver"
@@ -37,16 +58,22 @@ for ARCH in noarch x86_64; do
     pulp rpm distribution create --name "$REPOSITORY_NAME" --base-path "$BASE_PATH" --repository "$REPOSITORY_NAME" >/dev/null
   fi
 
-  CONTENT="[]"
-  for FILE in "${ARCH_FILES[@]}"; do
-    FILE_NAME=$(basename "$FILE")
-    echo "[INFO] Uploading $FILE_NAME to $MODULE_NAME/"
-    PACKAGE_HREF=$(pulp rpm content upload --file "$FILE" --relative-path "$MODULE_NAME/$FILE_NAME" | jq -r '.pulp_href')
-    CONTENT=$(echo "$CONTENT" | jq --arg href "$PACKAGE_HREF" '. + [{"pulp_href": $href}]')
-  done
+  REPOSITORY_HREF=$(pulp rpm repository show --name "$REPOSITORY_NAME" | jq -r '.pulp_href')
 
-  echo "[INFO] Adding ${#ARCH_FILES[@]} packages to repository $REPOSITORY_NAME"
-  pulp rpm repository content modify --repository "$REPOSITORY_NAME" --add-content "$CONTENT" >/dev/null
+  for FILE in "${ARCH_FILES[@]}"; do
+    echo "[INFO] Uploading $(basename "$FILE") to $REPOSITORY_NAME (module $MODULE_NAME)"
+    # packages are labeled with their module so that promote-to-stable can identify
+    # which packages belong to this module, pulp-cli does not allow to set labels
+    # on upload so the api is used directly
+    TASK_HREF=$(
+      curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" \
+        -F "file=@$FILE" \
+        -F "repository=$REPOSITORY_HREF" \
+        -F "pulp_labels={\"module\": \"$MODULE_NAME\"}" \
+        "$PULP_URL/pulp/api/v3/content/rpm/packages/" | jq -r '.task'
+    )
+    wait_task "$TASK_HREF"
+  done
 
   echo "[INFO] Publishing repository $REPOSITORY_NAME"
   pulp rpm publication create --repository "$REPOSITORY_NAME" >/dev/null
