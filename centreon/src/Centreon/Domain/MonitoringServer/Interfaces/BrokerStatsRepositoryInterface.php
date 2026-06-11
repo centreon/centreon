@@ -33,14 +33,15 @@ use Centreon\Domain\Gorgone\GorgoneException;
 interface BrokerStatsRepositoryInterface
 {
     /**
-     * Fetch the raw content of a broker statistics file from the given poller through Gorgone.
+     * Fetch the raw content of a broker statistics file from the given poller.
      *
      * @param int $pollerId monitoring server id the statistics file lives on
      * @param string $statsFilePath absolute path of the "-stats.json" file on that poller
      *
-     * @throws GorgoneException when the command cannot be sent or the file cannot be read remotely
+     * @throws GorgoneException when the command cannot be sent, the file cannot be read remotely,
+     *                          or no result is returned within the polling window
      *
-     * @return string|null the file content, or null if no result was returned in time
+     * @return string the file content
      */
-    public function getStatsContent(int $pollerId, string $statsFilePath): ?string;
+    public function getStatsContent(int $pollerId, string $statsFilePath): string;
 }

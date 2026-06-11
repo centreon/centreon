@@ -286,8 +286,8 @@ try {
             $statsfile = $row['cache_directory'] . '/' . basename($row['config_name']) . '-stats.json';
             try {
                 $content = $brokerStatsRepository->getStatsContent((int) $selectedPoller, $statsfile);
-                if ($content === null || $content === '') {
-                    $perf_err[$row['config_name']] = _('Cannot retrieve statistics through Gorgone');
+                if ($content === '') {
+                    $perf_err[$row['config_name']] = _('Cannot retrieve statistics through Gorgone (empty response)');
                 } else {
                     $perf_info[$row['config_name']] = parseStatsContent($content);
                 }

@@ -23,7 +23,6 @@ ini_set('display_errors', 'Off');
 
 use App\Kernel;
 use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
-use Core\Domain\Engine\Model\EngineCommandGenerator;
 
 require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
 require_once realpath(__DIR__ . '/../../../../../config/bootstrap.php');
@@ -179,10 +178,6 @@ try {
         }
     }
 
-    /**
-     * @var EngineCommandGenerator $commandGenerator
-     */
-    $commandGenerator = $container->get(EngineCommandGenerator::class);
     // Engine reload/restart go through the poller command repository: the local centcore pipe by
     // default, or the Gorgone legacycmd REST API when the "gorgone_command_transport" option is on.
     $pollerCommandRepository = $container->get(

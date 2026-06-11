@@ -65,11 +65,12 @@ class CentreonBroker
 
         if ($useGorgone) {
             $centralId = $this->getCentralPollerId();
-            if ($centralId !== null) {
-                \App\Kernel::createForWeb()->getContainer()
-                    ->get(\Centreon\Domain\MonitoringServer\Interfaces\PollerCommandRepositoryInterface::class)
-                    ->reloadBroker($centralId);
+            if ($centralId === null) {
+                throw new RuntimeException(_('Cannot reload Centreon Broker through Gorgone: no central monitoring server (localhost = 1) was found.'));
             }
+            \App\Kernel::createForWeb()->getContainer()
+                ->get(\Centreon\Domain\MonitoringServer\Interfaces\PollerCommandRepositoryInterface::class)
+                ->reloadBroker($centralId);
 
             return;
         }

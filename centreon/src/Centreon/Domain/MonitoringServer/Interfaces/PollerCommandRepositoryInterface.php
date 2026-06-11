@@ -27,9 +27,9 @@ use Centreon\Domain\Engine\EngineException;
 
 /**
  * Sends poller lifecycle commands (deploy configuration files, reload/restart the engine, reload the
- * broker, sync/reload/restart centreontrapd) to a monitoring server through Gorgone's legacycmd
- * module, instead of writing the local centcore pipe. This lets the web tier run on a host separate
- * from the collection stack.
+ * broker, sync/reload/restart centreontrapd) to a monitoring server. Implementations choose the
+ * transport: the local centcore pipe (default) or the Gorgone REST API, the latter letting the web
+ * tier run on a host separate from the collection stack.
  */
 interface PollerCommandRepositoryInterface
 {

@@ -34,30 +34,32 @@ use Centreon\Domain\MonitoringServer\Interfaces\BrokerStatsRepositoryInterface;
  * (stdout) back from the asynchronous token log. The web tier therefore needs neither the local
  * broker-stats cache nor a shared filesystem.
  *
- * Note: the "cat" command must be allowed by the node's Gorgone whitelist. The default whitelist only
- * covers "/var/lib/centreon-engine/*-stats.json"; broker stats stored elsewhere (e.g.
- * "/var/lib/centreon-broker") require an explicit whitelist entry on the collection node.
+ * Note: the "cat" command must be allowed by the target node's Gorgone whitelist. Broker stats are
+ * typically stored under "/var/lib/centreon-broker", which Gorgone's default whitelist may not allow;
+ * add a whitelist entry for that path on the collection node if statistics cannot be retrieved
+ * (refer to the Centreon Gorgone whitelist documentation for the exact syntax).
  */
 final class BrokerStatsRepositoryGorgone implements BrokerStatsRepositoryInterface
 {
     /** Gorgone log code carrying a finished command's result (stdout/exit_code). */
     private const COMMAND_RESULT_CODE = 100;
 
-    /** Number of times the token log is polled before giving up. */
-    private const MAX_POLLS = 15;
-
-    /** Delay between two polls, in microseconds. */
-    private const POLL_INTERVAL_US = 300000;
-
+    /**
+     * @param GorgoneServiceInterface $gorgoneService
+     * @param int $maxPolls number of times the token log is polled before giving up
+     * @param int $pollIntervalUs delay between two polls, in microseconds
+     */
     public function __construct(
         private readonly GorgoneServiceInterface $gorgoneService,
+        private readonly int $maxPolls = 15,
+        private readonly int $pollIntervalUs = 300000,
     ) {
     }
 
     /**
      * @inheritDoc
      */
-    public function getStatsContent(int $pollerId, string $statsFilePath): ?string
+    public function getStatsContent(int $pollerId, string $statsFilePath): string
     {
         $body = json_encode([['command' => 'cat ' . $statsFilePath]]);
         if ($body === false) {
@@ -73,8 +75,8 @@ final class BrokerStatsRepositoryGorgone implements BrokerStatsRepositoryInterfa
                 throw new GorgoneException(_('Gorgone did not return a token for the broker statistics command'));
             }
 
-            for ($poll = 0; $poll < self::MAX_POLLS; $poll++) {
-                usleep(self::POLL_INTERVAL_US);
+            for ($poll = 0; $poll < $this->maxPolls; $poll++) {
+                usleep($this->pollIntervalUs);
 
                 $logResponse = $this->gorgoneService->getResponseFromToken($pollerId, $token);
                 foreach ($logResponse->getActionLogs() as $log) {
@@ -114,7 +116,13 @@ final class BrokerStatsRepositoryGorgone implements BrokerStatsRepositoryInterfa
             );
         }
 
-        // No result log arrived within the polling window.
-        return null;
+        // No result log arrived within the polling window — surface it instead of returning silently.
+        throw new GorgoneException(
+            sprintf(
+                _('Timed out waiting for broker statistics "%s" on poller %d through Gorgone'),
+                $statsFilePath,
+                $pollerId
+            )
+        );
     }
 }

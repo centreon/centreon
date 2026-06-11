@@ -15,6 +15,16 @@
     <tr class="ListHeader">
         <td class="FormHeader" colspan="2">&nbsp;{$poller_name}</td>
     </tr>
+    {if isset($perf_err)}
+    {foreach from=$perf_err key=err_name item=err_msg}
+    <tr>
+        <td class='list_lvl_1' colspan='2'><p>{$err_name}</p></td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top; font-weight: bold; color: #cc0000;" colspan="2">{$err_msg}</td>
+    </tr>
+    {/foreach}
+    {/if}
     {foreach from=$perf_info_array item=perf_info key=conf_name}
     <tr>
         <td class='list_lvl_1' colspan='2'>
@@ -28,8 +38,8 @@
         </td>
     </tr>
     <tr>
-        {if isset($perf_err.conf_name)}
-        <td style="vertical-align: top; font-weight: bold;" colspan="2">{$perf_err.conf_name}</td>
+        {if isset($perf_err[$conf_name])}
+        <td style="vertical-align: top; font-weight: bold;" colspan="2">{$perf_err[$conf_name]}</td>
         {else}
         <td style="vertical-align: top;" id="modules" class="broker_stats">
             <p class="title">{$lang.modules}</p>
