@@ -499,6 +499,13 @@ const runFavoriteManagementFromDetails = ({ action, customDetailsPath }) => {
     buttonAlias: '@favoriteIcon',
     requestsToWait: [aliasRequestAction, '@getDashboardDetails']
   });
+
+  // Nudge the viewport to trigger the grid resize observer so the column
+  // sizes adapt to the real container width before the snapshot.
+  cy.viewport(1290, 590);
+  cy.adjustViewport();
+  cy.get('@favoriteIcon').trigger('mouseover');
+  cy.get('.react-grid-item').first().invoke('outerWidth').should('be.gt', 300);
 };
 
 describe('Dashboard', () => {
