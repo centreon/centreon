@@ -33,7 +33,6 @@ use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 #[AsAlias('doctrine.dbal.connection_factory')]
 class TLSConnectionFactory extends ConnectionFactory
 {
-    #[\Override]
     public function createConnection(array $params, Configuration|null $config = null, EventManager|null $eventManager = null, array $mappingTypes = []): Connection
     {
         $tlsOptions = DatabaseTLSResolver::getTLSOptions();
