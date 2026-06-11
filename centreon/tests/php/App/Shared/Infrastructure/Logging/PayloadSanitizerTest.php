@@ -25,6 +25,7 @@ namespace Tests\App\Shared\Infrastructure\Logging;
 
 use App\Shared\Infrastructure\Logging\Attribute\SensitivityScanner;
 use App\Shared\Infrastructure\Logging\PayloadSanitizer;
+use App\Shared\Infrastructure\Logging\SensitiveKeywordDenylist;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\CardHolderCommand;
 use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\MethodSecretCommand;
@@ -38,14 +39,16 @@ final class PayloadSanitizerTest extends TestCase
     protected function setUp(): void
     {
         SensitivityScanner::reset();
+        SensitiveKeywordDenylist::reset();
         $this->sanitizer = new PayloadSanitizer();
     }
 
-    public function testKeepsValuesInClearWhenContextClassIsUnknown(): void
+    public function testMasksKeywordKeysOfRawArraysWithoutAContextClass(): void
     {
-        // No contextClass: there is no class to scan for #[Sensitive],
-        // so the walker leaves every key alone. Pinning the
-        // attribute-driven contract — no keyword fallback.
+        // No contextClass: there is no class to scan for #[Sensitive].
+        // As the cross-channel net, the sanitiser still masks raw array
+        // keys that match the shared keyword denylist, so an ad-hoc
+        // `$logger->error('m', ['password' => ...])` cannot leak.
         $sanitised = $this->sanitizer->sanitize([
             'login' => 'admin',
             'password' => 'secret123',
@@ -53,7 +56,7 @@ final class PayloadSanitizerTest extends TestCase
         ]);
 
         self::assertSame(
-            ['login' => 'admin', 'password' => 'secret123', 'api_key' => 'abc'],
+            ['login' => 'admin', 'password' => '***', 'api_key' => '***'],
             $sanitised,
         );
     }

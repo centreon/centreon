@@ -27,8 +27,8 @@ use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 /**
  * Covers the MON-199097 under-mask cases: `passcode`, `ssoTicket` are
- * real secrets but don't match any of the `LoggingMiddleware`
- * `SENSITIVE_KEYWORDS` heuristic — `#[Sensitive]` lifts the gap.
+ * real secrets but don't match any keyword of the shared
+ * `SensitiveKeywordDenylist` — `#[Sensitive]` lifts the gap.
  */
 final readonly class SecretsCommand
 {

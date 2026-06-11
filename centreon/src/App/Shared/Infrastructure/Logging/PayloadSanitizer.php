@@ -30,10 +30,12 @@ use App\Shared\Infrastructure\Logging\Attribute\SensitivityScanner;
  * properties inside an arbitrary payload (a Command/Query, an ad-hoc
  * logger context, anything Monolog forwards to a handler).
  *
- * Masking is **purely attribute-driven**: a property without
- * `#[Sensitive]` is logged in clear. The class that owns the property
- * must declare its sensitivity explicitly — there is no keyword
- * fallback to compensate for a missing annotation.
+ * Typed payloads are masked **attribute-driven**: a property without
+ * `#[Sensitive]` is logged in clear, the owning class declares its
+ * sensitivity explicitly. As the cross-channel net, raw array keys are
+ * additionally matched against {@see SensitiveKeywordDenylist} so that
+ * an ad-hoc `$logger->error('m', ['token' => $x])` — which carries no
+ * class to reflect — is still caught.
  *
  * Object values are rendered defensively to avoid leaking private
  * properties; `\Throwable` instances are returned as-is so that
@@ -41,8 +43,8 @@ use App\Shared\Infrastructure\Logging\Attribute\SensitivityScanner;
  */
 final readonly class PayloadSanitizer
 {
-    public const int MAX_DEPTH = 3;
-    public const int MAX_VALUE_LENGTH = 1024;
+    public const MAX_DEPTH = 3;
+    public const MAX_VALUE_LENGTH = 1024;
 
     /**
      * @param class-string|null $contextClass class whose `#[Sensitive]`
@@ -83,7 +85,9 @@ final readonly class PayloadSanitizer
                     continue;
                 }
 
-                if (\is_string($key) && \in_array($key, $sensitive, true)) {
+                if (\is_string($key)
+                    && (\in_array($key, $sensitive, true) || SensitiveKeywordDenylist::matches($key))
+                ) {
                     $result[$key] = '***';
 
                     continue;

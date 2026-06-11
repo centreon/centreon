@@ -27,6 +27,7 @@ use App\Shared\Domain\Logging\Attribute\Sensitive;
 use DateTime;
 use DateTimeImmutable;
 
+#[Sensitive]
 class NewProviderToken
 {
     /**
@@ -37,7 +38,6 @@ class NewProviderToken
      * @param DateTimeImmutable|null $expirationDate
      */
     public function __construct(
-        #[Sensitive]
         private string $token,
         private DateTimeImmutable $creationDate,
         private ?DateTimeImmutable $expirationDate = null,

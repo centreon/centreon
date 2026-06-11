@@ -533,10 +533,11 @@ When such an object flows through the logging pipeline, the annotated values are
 | --- | --- |
 | `…\Domain\Logging\Attribute\Sensitive` | the marker placed on properties, accessor methods, and classes |
 | `…\Infrastructure\Logging\Attribute\SensitivityScanner` | reflects a class, collects its `#[Sensitive]` properties and accessor keys, honours class-level sensitive types, and **recurses into nested class-typed properties**, so a secret nested in a sub-object is found too |
-| `…\Infrastructure\Logging\PayloadSanitizer` | stateless walker that masks the `#[Sensitive]` values of a payload given its owning class (`contextClass`); also truncates string values at `MAX_VALUE_LENGTH` (1024) |
+| `…\Infrastructure\Logging\PayloadSanitizer` | stateless walker that masks the `#[Sensitive]` values of a payload given its owning class (`contextClass`), falls back to the keyword denylist for raw array keys, and truncates string values at `MAX_VALUE_LENGTH` (1024) |
+| `…\Infrastructure\Logging\SensitiveKeywordDenylist` | single source of truth for the keyword net (`password`, `token`, …) shared by `LogPayloadNormalizer` and `PayloadSanitizer`, so both nets mask the same field names |
 | `…\Infrastructure\Logging\SanitizingProcessor` | Monolog processor that applies the sanitizer to every record |
 
-The owning class is the **context** the sanitizer needs in order to know which keys are sensitive. On the command/query bus, `LoggingMiddleware` provides the dispatched message class, so `#[Sensitive]` on a Command / Query / DTO is honoured automatically. A **raw array** (`['secret' => $x]`) carries no class context: the attribute layer leaves it untouched and only the keyword heuristic of [§4](#4-loggingmiddleware) applies. To get attribute masking outside the bus, pass a typed object rather than a raw array.
+The owning class is the **context** the sanitizer needs in order to know which keys are sensitive. On the command/query bus, `LoggingMiddleware` provides the dispatched message class, so `#[Sensitive]` on a Command / Query / DTO is honoured automatically. A **raw array** (`['secret' => $x]`) carries no class context, so the attribute layer cannot reflect it — but as the cross-channel net, `PayloadSanitizer` still applies the shared keyword denylist to its keys, so a `['password' => $x]` is masked everywhere it is logged. To get the explicit, type-safe attribute masking outside the bus, pass a typed object rather than a raw array.
 
 ### Why not the native `#[\SensitiveParameter]`?
 

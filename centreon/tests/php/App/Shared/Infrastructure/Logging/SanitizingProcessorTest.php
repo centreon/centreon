@@ -38,18 +38,18 @@ final class SanitizingProcessorTest extends TestCase
         $this->processor = new SanitizingProcessor(new PayloadSanitizer());
     }
 
-    public function testLeavesAdHocContextValuesUntouchedWhenNoClassContextIsAvailable(): void
+    public function testMasksKeywordKeysOfAdHocContextWhenNoClassContextIsAvailable(): void
     {
-        // The cross-channel safety net is purely attribute-driven: an
-        // ad-hoc `$logger->error('msg', ['password' => $raw])` carries
-        // no class context, so the sanitiser has nothing to mask. The
-        // call site that wanted the masking has to push a Command /
-        // Query / DTO carrying `#[Sensitive]`, not a raw array.
+        // The cross-channel safety net catches ad-hoc raw arrays too: an
+        // `$logger->error('msg', ['password' => $raw])` carries no class
+        // context, so there is no `#[Sensitive]` to reflect — the shared
+        // keyword denylist masks the matching keys instead. Keys that
+        // match nothing (`login`) stay in clear.
         $record = $this->makeRecord(['login' => 'admin', 'password' => 'secret123']);
 
         $processed = ($this->processor)($record);
 
-        self::assertSame(['login' => 'admin', 'password' => 'secret123'], $processed->context);
+        self::assertSame(['login' => 'admin', 'password' => '***'], $processed->context);
     }
 
     public function testKeepsThrowableInstancesUntouchedForDownstreamFormatter(): void

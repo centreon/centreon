@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Domain\Provider;
 
-use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Centreon;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
@@ -73,7 +72,6 @@ class OpenIdProvider implements OpenIdProviderInterface
     private NewProviderToken $providerToken;
 
     /** @var NewProviderToken|null */
-    #[Sensitive]
     private ?NewProviderToken $refreshToken = null;
 
     /** @var array<string,mixed> */
@@ -606,13 +604,13 @@ class OpenIdProvider implements OpenIdProviderInterface
             'client_secret' => $customConfiguration->getClientSecret(),
         ];
         $headers = [
-            'Authorization' => 'Bearer ' . mb_trim($this->providerToken->getToken()),
+            'Authorization' => 'Bearer ' . trim($this->providerToken->getToken()),
         ];
         try {
             $response = $this->client->request(
                 'POST',
                 $customConfiguration->getBaseUrl() . '/'
-                . mb_ltrim($customConfiguration->getIntrospectionTokenEndpoint() ?? '', '/'),
+                . ltrim($customConfiguration->getIntrospectionTokenEndpoint() ?? '', '/'),
                 [
                     'headers' => $headers,
                     'body' => $data,
@@ -680,7 +678,7 @@ class OpenIdProvider implements OpenIdProviderInterface
         $this->info('Sending Request for User Information...');
 
         $headers = [
-            'Authorization' => 'Bearer ' . mb_trim($this->providerToken->getToken()),
+            'Authorization' => 'Bearer ' . trim($this->providerToken->getToken()),
         ];
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
