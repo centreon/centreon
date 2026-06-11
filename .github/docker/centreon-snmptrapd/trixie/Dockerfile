@@ -3,7 +3,7 @@ ARG USE_SOURCE_TRAPD=false
 #############################################
 # Stage 1: Extract files from .deb packages
 #############################################
-FROM debian:12-slim AS extractor
+FROM debian:13-slim AS extractor
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     dpkg \
@@ -37,9 +37,9 @@ ARG USE_SOURCE_TRAPD=false
 FROM centreon-perl-${USE_SOURCE_TRAPD} AS centreon-perl-selected
 
 #############################################
-# Stage 2: Runtime - Debian 12 slim image
+# Stage 2: Runtime - Debian 13 slim image
 #############################################
-FROM debian:12-slim AS snmptrapd
+FROM debian:13-slim AS snmptrapd
 
 # Install runtime dependencies
 # centreontrapdforward only writes spool files — no SQLite or SNMP libs needed here
@@ -67,7 +67,8 @@ RUN mkdir -p /var/spool/centreontrapd \
     chown centreon:centreon /var/spool/centreontrapd \
                             /etc/centreon \
                             /var/log/centreon && \
-    chown -R centreon:centreon /etc/snmp
+    chown -R centreon:centreon /etc/snmp && \
+    chmod 0755 /var/spool/centreon
 
 # Copy Perl modules from selected source
 COPY --from=centreon-perl-selected /centreon-modules/ /usr/share/perl5/centreon/
@@ -76,7 +77,7 @@ COPY --from=centreon-perl-selected /centreon-modules/ /usr/share/perl5/centreon/
 COPY --from=extractor --chmod=755 /extracted/usr/share/centreon/bin/centreontrapdforward /usr/share/centreon/bin/centreontrapdforward
 
 # Copy entrypoint scripts
-COPY --chmod=755 .github/docker/centreon-snmptrapd/bookworm/entrypoint /usr/local/lib/centreon-snmptrapd/
+COPY --chmod=755 .github/docker/centreon-snmptrapd/trixie/entrypoint /usr/local/lib/centreon-snmptrapd/
 
 # Verify Perl modules are loadable
 RUN echo "=== Verification ===" && \
