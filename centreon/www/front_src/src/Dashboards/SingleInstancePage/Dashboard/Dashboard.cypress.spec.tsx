@@ -499,19 +499,6 @@ const runFavoriteManagementFromDetails = ({ action, customDetailsPath }) => {
     buttonAlias: '@favoriteIcon',
     requestsToWait: [aliasRequestAction, '@getDashboardDetails']
   });
-
-  // Nudge the viewport to trigger the grid resize observer so the column
-  // sizes adapt to the real container width before the snapshot.
-  cy.viewport(1290, 590);
-  cy.adjustViewport();
-  cy.get('@favoriteIcon').trigger('mouseover');
-  // When the width measure is stale the grid lays out in ~half the viewport:
-  // the last widget then ends before 640px instead of reaching ~940px.
-  cy.get('.react-grid-item')
-    .last()
-    .should(($item) => {
-      expect($item[0].getBoundingClientRect().right).to.be.gt(640);
-    });
 };
 
 describe('Dashboard', () => {

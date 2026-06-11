@@ -42,7 +42,7 @@ const DashboardLayout = <T extends LayoutItem>({
   isStatic = false,
   additionalMemoProps = []
 }: DashboardLayoutProps<T>): ReactElement => {
-  const { width, containerRef, measureWidth } = useContainerWidth();
+  const { width, containerRef } = useContainerWidth();
 
   const { classes } = useDashboardLayoutStyles(isStatic);
 
@@ -52,10 +52,7 @@ const DashboardLayout = <T extends LayoutItem>({
 
   const resize = useCallback((): void => {
     setColumns(getColumnsFromScreenSize());
-    // The container resize observer can keep a stale width when its
-    // notifications are dropped; re-measure explicitly on window resize.
-    measureWidth();
-  }, [JSON.stringify(getColumnsFromScreenSize()), measureWidth]);
+  }, [JSON.stringify(getColumnsFromScreenSize())]);
 
   const startResize = useCallback(
     (_: Layout, _e: LayoutItem | null, newItem: LayoutItem | null) => {
