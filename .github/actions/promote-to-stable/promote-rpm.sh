@@ -1,28 +1,40 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if ! pulp rpm repository show --name "$TRACKING_REPOSITORY_NAME" >/dev/null 2>&1; then
-  echo "::error::Nothing to promote, testing repository $TRACKING_REPOSITORY_NAME does not exist"
+declare -A ARCH_CONTENT
+TOTAL_PACKAGES_COUNT=0
+
+for ARCH in noarch x86_64; do
+  TESTING_REPOSITORY_NAME="$TESTING_REPOSITORY_PREFIX-$ARCH"
+
+  if ! pulp rpm repository show --name "$TESTING_REPOSITORY_NAME" >/dev/null 2>&1; then
+    echo "[INFO] Testing repository $TESTING_REPOSITORY_NAME does not exist"
+    continue
+  fi
+
+  CONTENT=$(
+    pulp rpm repository content list --repository "$TESTING_REPOSITORY_NAME" --limit 1000 | \
+      jq --arg module_path "$MODULE_NAME/" 'map(select(.location_href | startswith($module_path)) | {pulp_href})'
+  )
+  ARCH_PACKAGES_COUNT=$(echo "$CONTENT" | jq 'length')
+
+  echo "[INFO] $ARCH_PACKAGES_COUNT $ARCH packages of module $MODULE_NAME found in $TESTING_REPOSITORY_NAME"
+  ARCH_CONTENT[$ARCH]="$CONTENT"
+  TOTAL_PACKAGES_COUNT=$((TOTAL_PACKAGES_COUNT + ARCH_PACKAGES_COUNT))
+done
+
+if [[ "$TOTAL_PACKAGES_COUNT" -eq 0 ]]; then
+  echo "::error::Nothing to promote, no package of module $MODULE_NAME found in $TESTING_REPOSITORY_PREFIX repositories"
   exit 1
 fi
-
-PACKAGES=$(pulp rpm repository content list --repository "$TRACKING_REPOSITORY_NAME" --limit 1000)
-PACKAGES_COUNT=$(echo "$PACKAGES" | jq 'length')
-
-if [[ "$PACKAGES_COUNT" -eq 0 ]]; then
-  echo "::error::Nothing to promote, testing repository $TRACKING_REPOSITORY_NAME is empty"
-  exit 1
-fi
-
-echo "[INFO] $PACKAGES_COUNT packages found in $TRACKING_REPOSITORY_NAME"
 
 if [[ "$STABILITY" != "stable" ]]; then
-  echo "[INFO] Dry run, $PACKAGES_COUNT packages would be promoted to $STABLE_REPOSITORY_PREFIX repositories"
+  echo "[INFO] Dry run, $TOTAL_PACKAGES_COUNT packages would be promoted to $STABLE_REPOSITORY_PREFIX repositories"
   exit 0
 fi
 
 for ARCH in noarch x86_64; do
-  CONTENT=$(echo "$PACKAGES" | jq --arg arch "$ARCH" 'map(select(.arch == $arch) | {pulp_href})')
+  CONTENT="${ARCH_CONTENT[$ARCH]:-[]}"
   ARCH_PACKAGES_COUNT=$(echo "$CONTENT" | jq 'length')
 
   if [[ "$ARCH_PACKAGES_COUNT" -eq 0 ]]; then

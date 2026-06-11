@@ -18,8 +18,6 @@ for FILE in "${FILES[@]}"; do
   mv "$FILE" "$ARCH"
 done
 
-TRACKING_CONTENT="[]"
-
 for ARCH in noarch x86_64; do
   ARCH_FILES=("$ARCH"/*.rpm)
   if [[ ${#ARCH_FILES[@]} -eq 0 ]]; then
@@ -41,10 +39,10 @@ for ARCH in noarch x86_64; do
 
   CONTENT="[]"
   for FILE in "${ARCH_FILES[@]}"; do
-    echo "[INFO] Uploading $FILE"
-    PACKAGE_HREF=$(pulp rpm content upload --file "$FILE" | jq -r '.pulp_href')
+    FILE_NAME=$(basename "$FILE")
+    echo "[INFO] Uploading $FILE_NAME to $MODULE_NAME/"
+    PACKAGE_HREF=$(pulp rpm content upload --file "$FILE" --relative-path "$MODULE_NAME/$FILE_NAME" | jq -r '.pulp_href')
     CONTENT=$(echo "$CONTENT" | jq --arg href "$PACKAGE_HREF" '. + [{"pulp_href": $href}]')
-    TRACKING_CONTENT=$(echo "$TRACKING_CONTENT" | jq --arg href "$PACKAGE_HREF" '. + [{"pulp_href": $href}]')
   done
 
   echo "[INFO] Adding ${#ARCH_FILES[@]} packages to repository $REPOSITORY_NAME"
@@ -55,12 +53,3 @@ for ARCH in noarch x86_64; do
 
   echo "::notice::Packages are available at $PULP_CONTENT_URL/$BASE_PATH/"
 done
-
-if [[ -n "$TRACKING_REPOSITORY_NAME" ]]; then
-  if ! pulp rpm repository show --name "$TRACKING_REPOSITORY_NAME" >/dev/null 2>&1; then
-    echo "[INFO] Creating rpm tracking repository $TRACKING_REPOSITORY_NAME"
-    pulp rpm repository create --name "$TRACKING_REPOSITORY_NAME" --retain-package-versions 1 >/dev/null
-  fi
-  echo "[INFO] Adding packages to tracking repository $TRACKING_REPOSITORY_NAME"
-  pulp rpm repository content modify --repository "$TRACKING_REPOSITORY_NAME" --add-content "$TRACKING_CONTENT" >/dev/null
-fi

@@ -2,6 +2,27 @@
 set -euo pipefail
 shopt -s nullglob
 
+# wait for a pulp api task to complete
+wait_task() {
+  local task_href=$1
+  local state
+  while :; do
+    state=$(curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" "$PULP_URL$task_href" | jq -r '.state')
+    case "$state" in
+      completed)
+        return 0
+        ;;
+      failed|canceled)
+        echo "::error::Task $task_href $state: $(curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" "$PULP_URL$task_href" | jq -c '.error')"
+        return 1
+        ;;
+      *)
+        sleep 3
+        ;;
+    esac
+  done
+}
+
 FILES=(*.deb)
 if [[ ${#FILES[@]} -eq 0 ]]; then
   echo "::error::No deb package found to deliver"
@@ -18,18 +39,22 @@ if ! pulp deb distribution show --name "$REPOSITORY_NAME" >/dev/null 2>&1; then
   pulp deb distribution create --name "$REPOSITORY_NAME" --base-path "$BASE_PATH" --repository "$REPOSITORY_NAME" >/dev/null
 fi
 
-if [[ -n "$TRACKING_REPOSITORY_NAME" ]] && ! pulp deb repository show --name "$TRACKING_REPOSITORY_NAME" >/dev/null 2>&1; then
-  echo "[INFO] Creating deb tracking repository $TRACKING_REPOSITORY_NAME"
-  pulp deb repository create --name "$TRACKING_REPOSITORY_NAME" >/dev/null
-fi
+REPOSITORY_HREF=$(pulp deb repository show --name "$REPOSITORY_NAME" | jq -r '.pulp_href')
 
 for FILE in "${FILES[@]}"; do
-  echo "[INFO] Uploading $FILE to $REPOSITORY_NAME ($SUITE/main)"
-  pulp deb content upload --file "$FILE" --repository "$REPOSITORY_NAME" --distribution "$SUITE" --component main >/dev/null
-
-  if [[ -n "$TRACKING_REPOSITORY_NAME" ]]; then
-    pulp deb content upload --file "$FILE" --repository "$TRACKING_REPOSITORY_NAME" >/dev/null
-  fi
+  echo "[INFO] Uploading $FILE to $POOL_PATH/ ($SUITE/main)"
+  # pulp-cli does not allow to set the relative path of deb packages, use the api directly
+  # to deliver packages in a pool sub directory per module
+  TASK_HREF=$(
+    curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" \
+      -F "file=@$FILE" \
+      -F "relative_path=$POOL_PATH/$FILE" \
+      -F "distribution=$SUITE" \
+      -F "component=main" \
+      -F "repository=$REPOSITORY_HREF" \
+      "$PULP_URL/pulp/api/v3/content/deb/packages/" | jq -r '.task'
+  )
+  wait_task "$TASK_HREF"
 done
 
 echo "[INFO] Publishing repository $REPOSITORY_NAME"

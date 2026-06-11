@@ -17,24 +17,32 @@ case "$DISTRIB_FAMILY" in
 esac
 
 TESTING_SEGMENT="testing"
+TESTING_POOL_SEGMENT="testing"
 if [[ "$RELEASE_TYPE" == "release" || "$RELEASE_TYPE" == "hotfix" ]]; then
   TESTING_SEGMENT="testing-$RELEASE_TYPE"
+  TESTING_POOL_SEGMENT="testing/$RELEASE_TYPE"
 fi
 
 STABILITY_SEGMENT="$STABILITY"
+POOL_SEGMENT="$STABILITY"
 if [[ "$STABILITY" == "testing" ]]; then
   STABILITY_SEGMENT="$TESTING_SEGMENT"
+  POOL_SEGMENT="$TESTING_POOL_SEGMENT"
 fi
 
 REPOSITORY_PREFIX=""
 BASE_PATH_PREFIX=""
+TESTING_REPOSITORY_PREFIX=""
+STABLE_REPOSITORY_PREFIX=""
+STABLE_BASE_PATH_PREFIX=""
 REPOSITORY_NAME=""
 BASE_PATH=""
 SUITE=""
-TRACKING_REPOSITORY_NAME=""
-STABLE_REPOSITORY_PREFIX=""
-STABLE_BASE_PATH_PREFIX=""
+TESTING_SUITE=""
 STABLE_SUITE=""
+POOL_PATH=""
+TESTING_POOL_PATH=""
+STABLE_POOL_PATH=""
 
 if [[ "$DELIVERY_TYPE" == "feature" ]]; then
   if [[ "$DISTRIB_FAMILY" != "el" ]]; then
@@ -59,41 +67,48 @@ else
   if [[ "$DISTRIB_FAMILY" == "el" ]]; then
     REPOSITORY_PREFIX="$ROOT_REPO-$VERSION-$DISTRIB-$STABILITY_SEGMENT"
     BASE_PATH_PREFIX="$ROOT_REPO/$VERSION/$DISTRIB/$STABILITY_SEGMENT"
+    TESTING_REPOSITORY_PREFIX="$ROOT_REPO-$VERSION-$DISTRIB-$TESTING_SEGMENT"
     STABLE_REPOSITORY_PREFIX="$ROOT_REPO-$VERSION-$DISTRIB-stable"
     STABLE_BASE_PATH_PREFIX="$ROOT_REPO/$VERSION/$DISTRIB/stable"
   else
     REPOSITORY_NAME="$ROOT_REPO"
     BASE_PATH="$ROOT_REPO"
     SUITE="$DISTRIB-$VERSION-$STABILITY_SEGMENT"
+    TESTING_SUITE="$DISTRIB-$VERSION-$TESTING_SEGMENT"
     STABLE_SUITE="$DISTRIB-$VERSION-stable"
-  fi
-
-  # testing deliveries are also tracked in a module scoped repository
-  # so that promote-to-stable can identify which packages belong to this module
-  if [[ "$STABILITY" == "testing" || "$STABILITY" == "stable" ]]; then
-    TRACKING_REPOSITORY_NAME="$ROOT_REPO-$VERSION-$DISTRIB-$TESTING_SEGMENT-$MODULE_NAME"
+    POOL_PATH="pool/$VERSION/$POOL_SEGMENT/$MODULE_NAME"
+    TESTING_POOL_PATH="pool/$VERSION/$TESTING_POOL_SEGMENT/$MODULE_NAME"
+    STABLE_POOL_PATH="pool/$VERSION/stable/$MODULE_NAME"
   fi
 fi
 
 echo "[DEBUG] - repository_prefix: $REPOSITORY_PREFIX"
 echo "[DEBUG] - base_path_prefix: $BASE_PATH_PREFIX"
+echo "[DEBUG] - testing_repository_prefix: $TESTING_REPOSITORY_PREFIX"
+echo "[DEBUG] - stable_repository_prefix: $STABLE_REPOSITORY_PREFIX"
+echo "[DEBUG] - stable_base_path_prefix: $STABLE_BASE_PATH_PREFIX"
 echo "[DEBUG] - repository_name: $REPOSITORY_NAME"
 echo "[DEBUG] - base_path: $BASE_PATH"
 echo "[DEBUG] - suite: $SUITE"
-echo "[DEBUG] - tracking_repository_name: $TRACKING_REPOSITORY_NAME"
-echo "[DEBUG] - stable_repository_prefix: $STABLE_REPOSITORY_PREFIX"
-echo "[DEBUG] - stable_base_path_prefix: $STABLE_BASE_PATH_PREFIX"
+echo "[DEBUG] - testing_suite: $TESTING_SUITE"
 echo "[DEBUG] - stable_suite: $STABLE_SUITE"
+echo "[DEBUG] - pool_path: $POOL_PATH"
+echo "[DEBUG] - testing_pool_path: $TESTING_POOL_PATH"
+echo "[DEBUG] - stable_pool_path: $STABLE_POOL_PATH"
 
 {
   echo "skip_delivery=false"
   echo "repository_prefix=$REPOSITORY_PREFIX"
   echo "base_path_prefix=$BASE_PATH_PREFIX"
+  echo "testing_repository_prefix=$TESTING_REPOSITORY_PREFIX"
+  echo "stable_repository_prefix=$STABLE_REPOSITORY_PREFIX"
+  echo "stable_base_path_prefix=$STABLE_BASE_PATH_PREFIX"
   echo "repository_name=$REPOSITORY_NAME"
   echo "base_path=$BASE_PATH"
   echo "suite=$SUITE"
-  echo "tracking_repository_name=$TRACKING_REPOSITORY_NAME"
-  echo "stable_repository_prefix=$STABLE_REPOSITORY_PREFIX"
-  echo "stable_base_path_prefix=$STABLE_BASE_PATH_PREFIX"
+  echo "testing_suite=$TESTING_SUITE"
   echo "stable_suite=$STABLE_SUITE"
+  echo "pool_path=$POOL_PATH"
+  echo "testing_pool_path=$TESTING_POOL_PATH"
+  echo "stable_pool_path=$STABLE_POOL_PATH"
 } >> "$GITHUB_OUTPUT"

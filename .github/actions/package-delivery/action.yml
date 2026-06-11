@@ -90,9 +90,9 @@ runs:
       if: steps.pulp-properties.outputs.package_extension == 'rpm' && steps.pulp-properties.outputs.skip_delivery == 'false'
       shell: bash
       env:
+        MODULE_NAME: ${{ inputs.module_name }}
         REPOSITORY_PREFIX: ${{ steps.pulp-properties.outputs.repository_prefix }}
         BASE_PATH_PREFIX: ${{ steps.pulp-properties.outputs.base_path_prefix }}
-        TRACKING_REPOSITORY_NAME: ${{ steps.pulp-properties.outputs.tracking_repository_name }}
         PULP_CONTENT_URL: ${{ inputs.pulp_content_url }}
       run: ${{ github.action_path }}/deliver-rpm.sh
 
@@ -103,6 +103,9 @@ runs:
         REPOSITORY_NAME: ${{ steps.pulp-properties.outputs.repository_name }}
         BASE_PATH: ${{ steps.pulp-properties.outputs.base_path }}
         SUITE: ${{ steps.pulp-properties.outputs.suite }}
-        TRACKING_REPOSITORY_NAME: ${{ steps.pulp-properties.outputs.tracking_repository_name }}
+        POOL_PATH: ${{ steps.pulp-properties.outputs.pool_path }}
+        PULP_URL: ${{ inputs.pulp_url }}
+        PULP_USERNAME: ${{ inputs.pulp_username }}
+        PULP_PASSWORD: ${{ inputs.pulp_password }}
         PULP_CONTENT_URL: ${{ inputs.pulp_content_url }}
       run: ${{ github.action_path }}/deliver-deb.sh
