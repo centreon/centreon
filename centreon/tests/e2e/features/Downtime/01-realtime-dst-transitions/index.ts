@@ -20,6 +20,36 @@ interface ResolvedService {
 let service: ResolvedService;
 let appliedKey: string;
 
+const applyRealtimeDowntime = (key: string): void => {
+  appliedKey = key;
+  const { transition, start, end } = cases[key];
+  const day = transitionDay(transition);
+
+  cy.visit(
+    `${PAGES.monitoring.downtimesLegacy}&o=a&host_id=${service.hostId}&service_id=${service.serviceId}`
+  );
+  cy.waitForElementInIframe('#main-content', 'input[name="start_time"]');
+
+  cy.getIframeBody()
+    .find('input[name="start"]')
+    .clear()
+    .type(formDate(day, start.dayOffset));
+  cy.getIframeBody().find('input[name="start_time"]').clear().type(start.time);
+  cy.getIframeBody()
+    .find('input[name="end"]')
+    .clear()
+    .type(formDate(day, end.dayOffset));
+  cy.getIframeBody().find('input[name="end_time"]').clear().type(end.time);
+
+  // Guard: the datepicker JS can silently recompute end_time from the duration.
+  // Fail loudly if our value was overwritten rather than submit wrong data.
+  cy.getIframeBody()
+    .find('input[name="end_time"]')
+    .should('have.value', end.time);
+
+  cy.getIframeBody().find('input[name="submitA"]').click();
+};
+
 beforeEach(() => {
   cy.startContainers();
 
@@ -63,36 +93,6 @@ Given('a passive service is monitored', () => {
     };
   });
 });
-
-const applyRealtimeDowntime = (key: string): void => {
-  appliedKey = key;
-  const { transition, start, end } = cases[key];
-  const day = transitionDay(transition);
-
-  cy.visit(
-    `${PAGES.monitoring.downtimesLegacy}&o=a&host_id=${service.hostId}&service_id=${service.serviceId}`
-  );
-  cy.waitForElementInIframe('#main-content', 'input[name="start_time"]');
-
-  cy.getIframeBody()
-    .find('input[name="start"]')
-    .clear()
-    .type(formDate(day, start.dayOffset));
-  cy.getIframeBody().find('input[name="start_time"]').clear().type(start.time);
-  cy.getIframeBody()
-    .find('input[name="end"]')
-    .clear()
-    .type(formDate(day, end.dayOffset));
-  cy.getIframeBody().find('input[name="end_time"]').clear().type(end.time);
-
-  // Guard: the datepicker JS can silently recompute end_time from the duration.
-  // Fail loudly if our value was overwritten rather than submit wrong data.
-  cy.getIframeBody()
-    .find('input[name="end_time"]')
-    .should('have.value', end.time);
-
-  cy.getIframeBody().find('input[name="submitA"]').click();
-};
 
 When(
   'a realtime downtime covering the whole spring-forward day is applied',
