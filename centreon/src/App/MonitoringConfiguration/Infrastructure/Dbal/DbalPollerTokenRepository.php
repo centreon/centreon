@@ -47,7 +47,7 @@ final readonly class DbalPollerTokenRepository implements PollerTokenRepository
                 ORDER BY creation_date ASC
                 LIMIT 1
                 SQL,
-            [':nowEpoch' => time()],
+            ['nowEpoch' => time()],
         );
 
         if (! is_array($row)) {
@@ -68,7 +68,7 @@ final readonly class DbalPollerTokenRepository implements PollerTokenRepository
                   AND (expiration_date IS NULL OR expiration_date > :nowEpoch)
                   AND token_name = :name
                 SQL,
-            [':nowEpoch' => time(), 'name' => $name],
+            ['nowEpoch' => time(), 'name' => $name],
         );
 
         if (! is_array($row)) {
