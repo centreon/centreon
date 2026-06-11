@@ -14,6 +14,8 @@ RUN bash -e <<EOF
 if [[ "$STABILITY" == "stable" ]]; then
   apt-get install -y \
     centreon-awie=${MAJOR_VERSION}.${AWIE_MINOR_VERSION}-*+deb13u1 \
+    centreon-dsm-client=${MAJOR_VERSION}.${DSM_MINOR_VERSION}-*+deb13u1 \
+    centreon-dsm-server=${MAJOR_VERSION}.${DSM_MINOR_VERSION}-*+deb13u1 \
     centreon-dsm=${MAJOR_VERSION}.${DSM_MINOR_VERSION}-*+deb13u1 \
     centreon-open-tickets=${MAJOR_VERSION}.${OPEN_TICKETS_MINOR_VERSION}-*+deb13u1
 else
