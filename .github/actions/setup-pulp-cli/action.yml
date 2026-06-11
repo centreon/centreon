@@ -15,6 +15,11 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Setup python
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      with:
+        python-version: "3.12"
+
     - name: Install pulp-cli
       shell: bash
       run: |
@@ -22,9 +27,7 @@ runs:
 
         if ! command -v pulp >/dev/null 2>&1; then
           echo "[INFO] Installing pulp-cli"
-          python3 -m pip install --user "pulp-cli==0.37.1" "pulp-cli-deb==0.4.3" 2>/dev/null || \
-            python3 -m pip install --user --break-system-packages "pulp-cli==0.37.1" "pulp-cli-deb==0.4.3"
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          pip install --quiet "pulp-cli==0.37.1" "pulp-cli-deb==0.4.3"
         fi
 
     - name: Configure pulp-cli
@@ -35,8 +38,6 @@ runs:
         PULP_PASSWORD: ${{ inputs.pulp_password }}
       run: |
         set -euo pipefail
-
-        export PATH="$HOME/.local/bin:$PATH"
 
         pulp config create --overwrite \
           --base-url "$PULP_URL" \
