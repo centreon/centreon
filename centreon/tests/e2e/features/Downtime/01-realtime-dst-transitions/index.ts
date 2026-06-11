@@ -7,11 +7,9 @@ import {
   centralHost,
   expectedSeconds,
   formDate,
-  grepCountInEngineLog,
   latestDowntimeQuery,
   monitoredServiceQuery,
-  transitionDay,
-  truncateEngineLog
+  transitionDay
 } from '../common';
 
 interface ResolvedService {
@@ -33,13 +31,6 @@ beforeEach(() => {
   // The legacy downtime form alert()s when its moment.js (browser TZ) treats the
   // DST wall-clock time as inconsistent. Accept it deterministically.
   cy.on('window:alert', () => true);
-
-  // Start each scenario with an empty engine log, so the downtime command can
-  // be detected deterministically (see the "not scheduled" assertion).
-  cy.execInContainer({
-    command: truncateEngineLog(),
-    name: 'web'
-  });
 });
 
 // NB: the slash in "Europe/Paris" must be escaped — in a Cucumber Expression an
@@ -157,23 +148,9 @@ Then(
 );
 
 Then('the downtime is not scheduled', () => {
-  // Wait until the engine has processed the downtime command (proof it had its
-  // chance), then assert no downtime row was created. The external command is
-  // logged on receipt even when the engine ends up scheduling nothing.
-  cy.waitUntil(
-    () =>
-      cy
-        .execInContainer({
-          command: grepCountInEngineLog('SCHEDULE_SVC_DOWNTIME'),
-          name: 'web'
-        })
-        .then(({ output }) => Number(output.trim()) >= 1),
-    {
-      errorMsg: 'engine never processed the downtime command',
-      timeout: 60000
-    }
-  );
-
+  // A window fully inside the spring-forward gap is rejected at the form's
+  // timestamp conversion: no SCHEDULE command is ever emitted, so the rejection
+  // is verified by the absence in DB and in the UI list (not via the engine log).
   cy.requestOnDatabase({
     database: 'centreon_storage',
     query: latestDowntimeQuery(service.hostId, service.serviceId)

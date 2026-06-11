@@ -222,26 +222,12 @@ const monitoredServiceQuery = (hostName: string = centralHost): string =>
 const latestDowntimeQuery = (hostId: number, serviceId: number): string =>
   `SELECT start_time, end_time FROM downtimes WHERE service_id = ${serviceId} AND host_id = ${hostId} AND cancelled = 0 ORDER BY downtime_id DESC LIMIT 1`;
 
-// --- Engine log ------------------------------------------------------------
-
-const engineLogPath = '/var/log/centreon-engine/centengine.log';
-
-// Shell command (run via cy.execInContainer) emptying the engine log.
-const truncateEngineLog = (): string => `truncate -s 0 ${engineLogPath}`;
-
-// Shell command counting engine-log lines matching a pattern (0, no error,
-// when none match).
-const grepCountInEngineLog = (pattern: string): string =>
-  `grep -c ${pattern} ${engineLogPath} || true`;
-
 export {
   cases,
   centralHost,
   expectedSeconds,
   formDate,
-  grepCountInEngineLog,
   latestDowntimeQuery,
   monitoredServiceQuery,
-  transitionDay,
-  truncateEngineLog
+  transitionDay
 };
