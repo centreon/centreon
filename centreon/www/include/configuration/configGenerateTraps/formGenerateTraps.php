@@ -29,9 +29,6 @@ if (! $centreon->user->admin && $centreon->user->access->checkAction('generate_t
     return null;
 }
 
-// Init Centcore Pipe
-$centcore_pipe = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ . '/centcore.cmd' : '/var/lib/centreon/centcore.cmd';
-
 // Get Poller List
 $acl = $centreon->user->access;
 $tab_nagios_server = $acl->getPollerAclConf(['get_row'    => 'name', 'order'      => ['name'], 'keys'       => ['id'], 'conditions' => ['ns_activate' => 1]]);
@@ -138,32 +135,34 @@ if ($form->validate()) {
             }
             $msg_generate .= str_replace("\n", '<br/>', $stdout) . '<br/>';
         }
+        // Trap sync and centreontrapd reload/restart go through the poller command repository: the
+        // local centcore pipe by default, or the Gorgone legacycmd REST API when the
+        // "gorgone_command_transport" option is enabled, so the web tier writes no centcore pipe.
+        $pollerCommandRepository = \App\Kernel::createForWeb()->getContainer()->get(
+            \Centreon\Domain\MonitoringServer\Interfaces\PollerCommandRepositoryInterface::class
+        );
         if (isset($ret['apply']) && $ret['apply'] && $returnVal == 0) {
-            $msg_generate .= sprintf('<strong>%s</strong><br/>', _('Centcore commands'));
+            $msg_generate .= sprintf('<strong>%s</strong><br/>', _('Synchronize trap configuration'));
             foreach ($tab_server as $host) {
-                $return = file_put_contents(
-                    $centcore_pipe,
-                    'SYNCTRAP:' . (int) $host['id'] . "\n",
-                    FILE_APPEND | LOCK_EX
-                );
-                if ($return === false) {
-                    $msg_generate .= "Error while writing into {$centcore_pipe}<br/>";
-                } else {
-                    $msg_generate .= "Poller (id:{$host['id']}): SYNCTRAP sent to centcore.cmd<br/>";
+                try {
+                    $pollerCommandRepository->syncTrapConfiguration((int) $host['id']);
+                    $msg_generate .= "Poller (id:{$host['id']}): SYNCTRAP sent<br/>";
+                } catch (\Throwable $e) {
+                    $msg_generate .= "Error while sending SYNCTRAP for poller {$host['id']}: {$e->getMessage()}<br/>";
                 }
             }
         }
         if (isset($ret['signal']) && in_array($ret['signal'], ['RELOADCENTREONTRAPD', 'RESTARTCENTREONTRAPD'])) {
             foreach ($tab_server as $host) {
-                $return = file_put_contents(
-                    $centcore_pipe,
-                    $ret['signal'] . ':' . (int) $host['id'] . "\n",
-                    FILE_APPEND | LOCK_EX
-                );
-                if ($return === false) {
-                    $msg_generate .= "Error while writing into {$centcore_pipe}<br/>";
-                } else {
-                    $msg_generate .= "Poller (id:{$host['id']}): {$ret['signal']} sent to centcore.cmd<br/>";
+                try {
+                    if ($ret['signal'] === 'RELOADCENTREONTRAPD') {
+                        $pollerCommandRepository->reloadTrapd((int) $host['id']);
+                    } else {
+                        $pollerCommandRepository->restartTrapd((int) $host['id']);
+                    }
+                    $msg_generate .= "Poller (id:{$host['id']}): {$ret['signal']} sent<br/>";
+                } catch (\Throwable $e) {
+                    $msg_generate .= "Error while sending {$ret['signal']} for poller {$host['id']}: {$e->getMessage()}<br/>";
                 }
             }
         }

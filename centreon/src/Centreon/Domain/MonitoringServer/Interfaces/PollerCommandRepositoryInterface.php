@@ -27,8 +27,9 @@ use Centreon\Domain\Engine\EngineException;
 
 /**
  * Sends poller lifecycle commands (deploy configuration files, reload/restart the engine, reload the
- * broker) to a monitoring server through Gorgone's legacycmd module, instead of writing the local
- * centcore pipe. This lets the web tier run on a host separate from the collection stack.
+ * broker, sync/reload/restart centreontrapd) to a monitoring server through Gorgone's legacycmd
+ * module, instead of writing the local centcore pipe. This lets the web tier run on a host separate
+ * from the collection stack.
  */
 interface PollerCommandRepositoryInterface
 {
@@ -67,4 +68,31 @@ interface PollerCommandRepositoryInterface
      * @throws EngineException
      */
     public function reloadBroker(int $pollerId): void;
+
+    /**
+     * Ask Gorgone to synchronize the poller's SNMP trap database (legacy SYNCTRAP).
+     *
+     * @param int $pollerId
+     *
+     * @throws EngineException
+     */
+    public function syncTrapConfiguration(int $pollerId): void;
+
+    /**
+     * Ask Gorgone to reload the poller's centreontrapd (legacy RELOADCENTREONTRAPD).
+     *
+     * @param int $pollerId
+     *
+     * @throws EngineException
+     */
+    public function reloadTrapd(int $pollerId): void;
+
+    /**
+     * Ask Gorgone to restart the poller's centreontrapd (legacy RESTARTCENTREONTRAPD).
+     *
+     * @param int $pollerId
+     *
+     * @throws EngineException
+     */
+    public function restartTrapd(int $pollerId): void;
 }

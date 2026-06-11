@@ -63,6 +63,9 @@ class PollerCommandRepositoryGorgoneTest extends TestCase
             'reload engine' => ['reloadEngine', 'RELOAD'],
             'restart engine' => ['restartEngine', 'RESTART'],
             'reload broker' => ['reloadBroker', 'RELOADBROKER'],
+            'sync trap configuration' => ['syncTrapConfiguration', 'SYNCTRAP'],
+            'reload trapd' => ['reloadTrapd', 'RELOADCENTREONTRAPD'],
+            'restart trapd' => ['restartTrapd', 'RESTARTCENTREONTRAPD'],
         ];
     }
 

@@ -29,11 +29,12 @@ use Centreon\Domain\Gorgone\Interfaces\CommandRepositoryInterface;
 use Centreon\Domain\MonitoringServer\Interfaces\PollerCommandRepositoryInterface;
 
 /**
- * Sends legacy poller commands (SENDCFGFILE/RELOAD/RESTART/RELOADBROKER) through the central Gorgone
- * "legacycmd" module (POST centreon/legacycmd/command), instead of writing the local centcore pipe.
- * legacycmd dispatches each command to its target poller (config push over ZMQ, per-poller engine
- * reload, broker reload), so the web tier no longer copies config files, runs "systemctl" locally,
- * nor writes centcore.
+ * Sends legacy poller commands (SENDCFGFILE/RELOAD/RESTART/RELOADBROKER/SYNCTRAP/RELOADCENTREONTRAPD/
+ * RESTARTCENTREONTRAPD) through the central Gorgone "legacycmd" module (POST
+ * centreon/legacycmd/command), instead of writing the local centcore pipe. legacycmd dispatches each
+ * command to its target poller (config push over ZMQ, per-poller engine reload, broker reload, trap
+ * DB sync and centreontrapd reload/restart), so the web tier no longer copies config files, runs
+ * "systemctl" locally, nor writes centcore.
  *
  * The action body is a JSON array of {"command": "<TYPE>", "target": <pollerId>} (Gorgone exposes
  * the whole POST body as the action "content", which legacycmd requires to be an array).
@@ -75,6 +76,30 @@ final class PollerCommandRepositoryGorgone implements PollerCommandRepositoryInt
     public function reloadBroker(int $pollerId): void
     {
         $this->send('RELOADBROKER', $pollerId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function syncTrapConfiguration(int $pollerId): void
+    {
+        $this->send('SYNCTRAP', $pollerId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function reloadTrapd(int $pollerId): void
+    {
+        $this->send('RELOADCENTREONTRAPD', $pollerId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function restartTrapd(int $pollerId): void
+    {
+        $this->send('RESTARTCENTREONTRAPD', $pollerId);
     }
 
     /**

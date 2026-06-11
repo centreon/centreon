@@ -27,9 +27,10 @@ use Centreon\Domain\Engine\EngineException;
 use Centreon\Domain\MonitoringServer\Interfaces\PollerCommandRepositoryInterface;
 
 /**
- * Legacy implementation: writes poller commands (SENDCFGFILE/RELOAD/RESTART/RELOADBROKER) to the
- * local centcore pipe, read by the Gorgone legacycmd module running on the same host. This is the
- * default transport, preserving the behavior of collocated/monolithic setups.
+ * Legacy implementation: writes poller commands (SENDCFGFILE/RELOAD/RESTART/RELOADBROKER/SYNCTRAP/
+ * RELOADCENTREONTRAPD/RESTARTCENTREONTRAPD) to the local centcore pipe, read by the Gorgone legacycmd
+ * module running on the same host. This is the default transport, preserving the behavior of
+ * collocated/monolithic setups.
  */
 final class PollerCommandRepositoryFile implements PollerCommandRepositoryInterface
 {
@@ -68,6 +69,30 @@ final class PollerCommandRepositoryFile implements PollerCommandRepositoryInterf
     public function reloadBroker(int $pollerId): void
     {
         $this->write('RELOADBROKER', $pollerId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function syncTrapConfiguration(int $pollerId): void
+    {
+        $this->write('SYNCTRAP', $pollerId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function reloadTrapd(int $pollerId): void
+    {
+        $this->write('RELOADCENTREONTRAPD', $pollerId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function restartTrapd(int $pollerId): void
+    {
+        $this->write('RESTARTCENTREONTRAPD', $pollerId);
     }
 
     /**

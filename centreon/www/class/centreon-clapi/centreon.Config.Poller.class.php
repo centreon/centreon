@@ -23,9 +23,9 @@ namespace CentreonClapi;
 
 use App\Kernel;
 use Centreon\Domain\Entity\Task;
+use Centreon\Domain\MonitoringServer\Interfaces\PollerCommandRepositoryInterface;
 use CentreonDB;
 use CentreonRemote\ServiceProvider;
-use Core\Domain\Engine\Model\EngineCommandGenerator;
 use Exception;
 use Generate;
 use LogicException;
@@ -75,9 +75,6 @@ class CentreonConfigPoller
 
     /** @var string */
     private $centreon_path;
-
-    /** @var EngineCommandGenerator|null */
-    private ?EngineCommandGenerator $commandGenerator = null;
 
     /** @var ContainerInterface */
     private ContainerInterface $container;
@@ -150,20 +147,18 @@ class CentreonConfigPoller
         $host = $statement->fetch(PDO::FETCH_ASSOC);
         $statement->closeCursor();
 
-        $this->commandGenerator = $this->container->get(EngineCommandGenerator::class);
-        $reloadCommand = $this->commandGenerator->getEngineCommand('RELOAD');
-        $return_code = $this->writeToCentcorePipe($reloadCommand, $host['id']);
-        if ($return_code === 1) {
-            echo "Error while writing the command {$reloadCommand} in centcore pipe file for host id {$host['id']}" . PHP_EOL;
+        // Reload engine + broker through the poller command repository: the local centcore pipe by
+        // default, or the Gorgone legacycmd REST API when "gorgone_command_transport" is enabled.
+        try {
+            $pollerCommandRepository = $this->pollerCommandRepository();
+            $pollerCommandRepository->reloadEngine((int) $host['id']);
+            $pollerCommandRepository->reloadBroker((int) $host['id']);
+        } catch (\Throwable $e) {
+            echo "Error while sending the reload command for host id {$host['id']}: {$e->getMessage()}" . PHP_EOL;
 
-            return $return_code;
+            return 1;
         }
-        $return_code = $this->writeToCentcorePipe('RELOADBROKER', $host['id']);
-        if ($return_code === 1) {
-            echo "Error while writing the command RELOADBROKER in centcore pipe file for host id {$host['id']}" . PHP_EOL;
-
-            return $return_code;
-        }
+        $return_code = 0;
         $msg_restart = _("OK: A reload signal has been sent to '" . $host['name'] . "'");
         echo $msg_restart . "\n";
         $statement = $this->DB->prepare(
@@ -241,20 +236,18 @@ class CentreonConfigPoller
         $host = $statement->fetch(PDO::FETCH_ASSOC);
         $statement->closeCursor();
 
-        $this->commandGenerator = $this->container->get(EngineCommandGenerator::class);
-        $restartCommand = $this->commandGenerator->getEngineCommand('RESTART');
-        $return_code = $this->writeToCentcorePipe($restartCommand, $host['id']);
-        if ($return_code === 1) {
-            echo "Error while writing the command {$restartCommand} in centcore pipe file for host id {$host['id']}" . PHP_EOL;
+        // Restart engine + reload broker through the poller command repository: the local centcore
+        // pipe by default, or the Gorgone legacycmd REST API when "gorgone_command_transport" is on.
+        try {
+            $pollerCommandRepository = $this->pollerCommandRepository();
+            $pollerCommandRepository->restartEngine((int) $host['id']);
+            $pollerCommandRepository->reloadBroker((int) $host['id']);
+        } catch (\Throwable $e) {
+            echo "Error while sending the restart command for host id {$host['id']}: {$e->getMessage()}" . PHP_EOL;
 
-            return $return_code;
+            return 1;
         }
-        $return_code = $this->writeToCentcorePipe('RELOADBROKER', $host['id']);
-        if ($return_code === 1) {
-            echo "Error while writing the command RELOADBROKER in centcore pipe file for host id {$host['id']}" . PHP_EOL;
-
-            return $return_code;
-        }
+        $return_code = 0;
         $msg_restart = _("OK: A restart signal has been sent to '" . $host['name'] . "'");
         echo $msg_restart . "\n";
         $statement = $this->DB->prepare(
@@ -627,11 +620,20 @@ class CentreonConfigPoller
                     ['params' => $exportParams]
                 );
             }
-            $return = $this->writeToCentcorePipe('SENDCFGFILE', $host['id']);
+            // Push the generated configuration files through the poller command repository: the local
+            // centcore pipe by default, or the Gorgone legacycmd REST API when enabled.
+            try {
+                $this->pollerCommandRepository()->sendConfigFiles((int) $host['id']);
+                $return = 0;
+            } catch (\Throwable $e) {
+                echo "Error while sending the configuration for host id {$host['id']}: {$e->getMessage()}" . PHP_EOL;
+
+                return 1;
+            }
 
             $msg_copy .= _(
                 "OK: All configuration will be send to '"
-                . $host['name'] . "' by centcore in several minutes."
+                . $host['name'] . "' by gorgone in several minutes."
             );
         }
         echo $msg_copy . "\n";
@@ -705,7 +707,18 @@ class CentreonConfigPoller
         );
         passthru($cmd);
 
-        return $this->writeToCentcorePipe('SYNCTRAP', $pollerId);
+        // Notify the poller through the poller command repository (centcore pipe by default, Gorgone
+        // legacycmd REST when enabled). The trap DB above is still generated locally; in a split
+        // web/collect setup that path must be a mount the collect node can read for SYNCTRAP to ship.
+        try {
+            $this->pollerCommandRepository()->syncTrapConfiguration((int) $pollerId);
+        } catch (\Throwable $e) {
+            echo "Error while sending SYNCTRAP for poller {$pollerId}: {$e->getMessage()}" . PHP_EOL;
+
+            return 1;
+        }
+
+        return 0;
     }
 
     /**
@@ -725,24 +738,15 @@ class CentreonConfigPoller
     }
 
     /**
-     * Write command to centcore pipe, using the dynamic centcore pipe file
-     * when possible
+     * Fetches the poller command repository, which routes deploy/reload/restart either to the local
+     * centcore pipe (default) or to the Gorgone legacycmd REST API depending on the
+     * "gorgone_command_transport" option.
      *
-     * @param string $cmd
-     * @param int $id
-     * @return int
+     * @return PollerCommandRepositoryInterface
      */
-    private function writeToCentcorePipe($cmd, $id): int
+    private function pollerCommandRepository(): PollerCommandRepositoryInterface
     {
-        if (is_dir(_CENTREON_VARLIB_ . '/centcore')) {
-            $pipe = _CENTREON_VARLIB_ . '/centcore/' . hrtime(true) . '-externalcommand.cmd';
-        } else {
-            $pipe = _CENTREON_VARLIB_ . '/centcore.cmd';
-        }
-        $fullCommand = sprintf('%s:%d' . PHP_EOL, $cmd, $id);
-        $result = file_put_contents($pipe, $fullCommand, FILE_APPEND);
-
-        return ($result !== false) ? 0 : 1;
+        return $this->container->get(PollerCommandRepositoryInterface::class);
     }
 
     /**

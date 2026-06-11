@@ -73,6 +73,30 @@ final class PollerCommandRepositorySelector implements PollerCommandRepositoryIn
         $this->repository()->reloadBroker($pollerId);
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function syncTrapConfiguration(int $pollerId): void
+    {
+        $this->repository()->syncTrapConfiguration($pollerId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function reloadTrapd(int $pollerId): void
+    {
+        $this->repository()->reloadTrapd($pollerId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function restartTrapd(int $pollerId): void
+    {
+        $this->repository()->restartTrapd($pollerId);
+    }
+
     private function repository(): PollerCommandRepositoryInterface
     {
         return $this->transport->useGorgone() ? $this->gorgoneRepository : $this->fileRepository;
