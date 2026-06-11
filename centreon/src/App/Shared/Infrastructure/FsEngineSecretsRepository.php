@@ -47,7 +47,12 @@ final readonly class FsEngineSecretsRepository implements EngineSecretsRepositor
     private function readKey(string $key): string
     {
         $content = file_get_contents($this->engineContextPath);
-        $data = json_decode(is_string($content) ? $content : '', true, flags: JSON_THROW_ON_ERROR);
+        if ($content === false) {
+            throw new \RuntimeException(
+                sprintf('Cannot read engine context file: %s', $this->engineContextPath)
+            );
+        }
+        $data = json_decode($content, true, flags: JSON_THROW_ON_ERROR);
 
         if (! is_array($data)) {
             throw new \JsonException('Engine context file does not contain a valid JSON object.');

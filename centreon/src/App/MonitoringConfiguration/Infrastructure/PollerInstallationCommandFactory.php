@@ -33,7 +33,7 @@ final readonly class PollerInstallationCommandFactory
         private PollerToken $pollerToken,
         private string $appSecret,
         private string $salt,
-        private string $centralUrl,
+        private ?string $centralUrl = '<CENTRAL_URL>',
     ) {
     }
 

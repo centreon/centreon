@@ -5226,7 +5226,7 @@ paths:
           required: true
           deprecated: false
           schema:
-            type: id
+            type: integer
           style: simple
           explode: false
 components:

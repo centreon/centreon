@@ -50,7 +50,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\GetInsta
                     in: 'path',
                     description: 'Id of the poller for which to generate the installation command.',
                     required: true,
-                    schema: ['type' => 'id'],
+                    schema: ['type' => 'integer'],
                 ),
             ],
             responses: [

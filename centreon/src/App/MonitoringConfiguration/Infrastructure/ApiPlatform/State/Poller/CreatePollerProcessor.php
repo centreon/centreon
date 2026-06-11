@@ -72,16 +72,18 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
             creatorId: $credentialUser->credential->userId->value,
         );
 
+        $token = $this->pollerTokenRepository->getValidPollerTokenByName($data->pollerTokenName);
+        $appSecret = $this->engineSecretsRepository->getAppSecret();
+        $salt = $this->engineSecretsRepository->getSalt();
+
         $model = $this->commandBus->execute($command);
         Assert::isInstanceOf($model, Poller::class);
 
-        $token = $this->pollerTokenRepository->getValidPollerTokenByName($data->pollerTokenName);
         $factory = new PollerInstallationCommandFactory(
             $model,
             $token,
-            $this->engineSecretsRepository->getAppSecret(),
-            $this->engineSecretsRepository->getSalt(),
-            '<CENTRAL_URL>',
+            $appSecret,
+            $salt,
         );
 
         $resource = $this->transformer->transform($model);

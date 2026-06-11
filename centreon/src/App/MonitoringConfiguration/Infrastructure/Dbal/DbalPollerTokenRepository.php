@@ -43,10 +43,11 @@ final readonly class DbalPollerTokenRepository implements PollerTokenRepository
                 FROM authentication_tokens
                 WHERE type = 'poller'
                   AND is_revoked = 0
-                  AND (expiration_date IS NULL OR expiration_date > UNIX_TIMESTAMP())
+                  AND (expiration_date IS NULL OR expiration_date > :nowEpoch)
                 ORDER BY creation_date ASC
                 LIMIT 1
-                SQL
+                SQL,
+            [':nowEpoch' => time()],
         );
 
         if (! is_array($row)) {
@@ -64,10 +65,10 @@ final readonly class DbalPollerTokenRepository implements PollerTokenRepository
                 FROM authentication_tokens
                 WHERE type = 'poller'
                   AND is_revoked = 0
-                  AND (expiration_date IS NULL OR expiration_date > UNIX_TIMESTAMP())
+                  AND (expiration_date IS NULL OR expiration_date > :nowEpoch)
                   AND token_name = :name
                 SQL,
-            ['name' => $name],
+            [':nowEpoch' => time(), 'name' => $name],
         );
 
         if (! is_array($row)) {
