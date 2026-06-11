@@ -240,6 +240,9 @@ Being global, it guarantees a **uniform exception shape** on every channel (catc
 | `RouteProcessor` | `controller`, `route`, `route_params` |
 | `TokenProcessor` | `token` (`authenticated`, `roles`, `user_identifier`) |
 
+> [!NOTE]
+> **Context is now passed flat.** The legacy logging helpers (`Centreon\Domain\Log\LoggerTrait`, `CentreonLog`) used to wrap every record's context into `{custom, exception, default: {request_infos: {uri, http_method, server}}}` via a per-call `normalizeContext()`. That wrapper is gone: callers' context is forwarded as-is to the logger. The request metadata it used to inject by hand is now provided globally by `WebProcessor` under `extra.url` / `extra.http_method` / `extra.server` (plus `ip`, `referrer`), so it is no longer duplicated per call. Any external consumer that parsed the old nested `context.default.request_infos.*` shape must read `extra.*` instead.
+
 ### `UidProcessor` — cross-channel correlation
 
 `Monolog\Processor\UidProcessor` is registered in `config.new/services/shared.php` **with no channel tag** — it therefore applies to **every logger** (request, app, deprecation, authentication, token, password, upgrade, plugin-pack-manager). It generates **a single 7-character hex id per process** and stamps it under `extra.uid` on every record:
