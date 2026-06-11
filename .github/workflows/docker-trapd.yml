@@ -25,12 +25,13 @@ jobs:
     needs: [get-environment]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        distrib: [trixie]
     container:
-      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/packaging-nfpm-bookworm:${{ needs.get-environment.outputs.major_version }}
-      credentials:
-        username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
-        password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
-    name: package centreon-trap bookworm
+      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}-${{ matrix.distrib }}
+    name: package centreon-trap ${{ matrix.distrib }}
 
     steps:
       - name: Checkout sources
@@ -41,14 +42,14 @@ jobs:
         with:
           nfpm_file_pattern: "centreon/packaging/centreon-trap.yaml"
           module_name: "centreon"
-          distrib: bookworm
+          distrib: ${{ matrix.distrib }}
           package_extension: deb
           major_version: ${{ needs.get-environment.outputs.major_version }}
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
           release: ${{ needs.get-environment.outputs.release }}
           arch: all
           commit_hash: ${{ github.sha }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-bookworm-trap
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}-trap
           rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
           rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
@@ -59,12 +60,13 @@ jobs:
     needs: [get-environment]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        distrib: [trixie]
     container:
-      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/packaging-nfpm-bookworm:${{ needs.get-environment.outputs.major_version }}
-      credentials:
-        username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
-        password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
-    name: package centreon-perl-libs bookworm
+      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}-${{ matrix.distrib }}
+    name: package centreon-perl-libs ${{ matrix.distrib }}
 
     steps:
       - name: Checkout sources (centreon/centreon for actions)
@@ -86,14 +88,14 @@ jobs:
         with:
           nfpm_file_pattern: "centreon-collect/perl-libs/packaging/centreon-perl-libs.yaml centreon-collect/perl-libs/packaging/centreon-perl-libs-common.yaml"
           module_name: "centreon-collect"
-          distrib: bookworm
+          distrib: ${{ matrix.distrib }}
           package_extension: deb
           major_version: ${{ needs.get-environment.outputs.major_version }}
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
           release: ${{ needs.get-environment.outputs.release }}
           arch: all
           commit_hash: ${{ github.sha }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-bookworm-perl
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}-perl
           rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
           rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
@@ -108,7 +110,7 @@ jobs:
       fail-fast: false
       matrix:
         component: [centreon-snmptrapd, centreon-centreontrapd]
-        operating_system: [bookworm]
+        operating_system: [trixie]
     name: dockerize ${{ matrix.component }}-${{ matrix.operating_system }}
 
     steps:
@@ -143,9 +145,11 @@ jobs:
           fail-on-cache-miss: true
 
       - name: Prepare packages-centreon directory
+        env:
+          PACKAGE_EXTENSION: ${{ steps.parse-distrib.outputs.package_extension }}
         run: |
           mkdir -p packages-centreon
-          mv *.${{ steps.parse-distrib.outputs.package_extension }} packages-centreon/
+          mv *."$PACKAGE_EXTENSION" packages-centreon/
         shell: bash
 
       - name: Set up QEMU
@@ -156,9 +160,10 @@ jobs:
 
       - name: Sanitize Docker tag
         id: sanitize-tag
+        env:
+          RAW_TAG: ${{ github.head_ref || github.ref_name }}
         run: |
-          raw_tag="${{ github.head_ref || github.ref_name }}"
-          docker_tag=$(echo "$raw_tag" | sed 's/[^A-Za-z0-9._-]/-/g' | sed 's/^[^A-Za-z0-9]*//' | cut -c1-128)
+          docker_tag=$(echo "$RAW_TAG" | sed 's/[^A-Za-z0-9._-]/-/g' | sed 's/^[^A-Za-z0-9]*//' | cut -c1-128)
           if [ -z "$docker_tag" ]; then
             docker_tag="sha-${GITHUB_SHA::12}"
           fi

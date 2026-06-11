@@ -104,7 +104,13 @@ export const autoSizeWithEndAdornment = (): JSX.Element => (
     autoSize
     autoSizeCustomPadding={10}
     autoSizeDefaultWidth={60}
-    EndAdornment={AbcIcon}
     placeholder="Auto size"
+    textFieldSlotsAndSlotProps={{
+      slotProps: {
+        input: {
+          endAdornment: <AbcIcon />
+        }
+      }
+    }}
   />
 );

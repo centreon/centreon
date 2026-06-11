@@ -47,9 +47,15 @@ jobs:
 
       - name: List of specs
         id: list-specs
+        env:
+          MODULE_NAME: ${{ inputs.module_name }}
+          SPECS_PATH: ${{ inputs.specs_path }}
+          SPEC_EXTENSION: ${{ inputs.spec_extension }}
         run: |
-          cd ${{ inputs.module_name }}
-          echo "specs=$(find ${{ inputs.specs_path }} -type f -name "*${{ inputs.spec_extension }}" -exec basename {} \; | sed -e "s/${{ inputs.spec_extension }}//" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          cd "$MODULE_NAME"
+          # SPECS_PATH is a glob pattern (e.g. "src/**", "www/**") that must be expanded by the
+          # shell before being passed to find, so it is intentionally left unquoted here.
+          echo "specs=$(find $SPECS_PATH -type f -name "*$SPEC_EXTENSION" -exec basename {} \; | sed -e "s/$SPEC_EXTENSION//" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-component-test-run:
     needs: [cypress-component-test-list]
@@ -112,13 +118,16 @@ jobs:
 
       - name: Move retries.json to reports directory and display warnings
         if: ${{ ! cancelled() }}
+        env:
+          MODULE_NAME: ${{ inputs.module_name }}
+          SPEC: ${{ matrix.spec }}
         run: |
-          retriesFile="${{ inputs.module_name }}/cypress/results/retries.json"
+          retriesFile="$MODULE_NAME/cypress/results/retries.json"
           if [ -f "$retriesFile" ]; then
-            jq 'to_entries | .[].key' $retriesFile | while read -r testName; do
-              echo "::warning::Following test was retried during execution: $testName (retries: $(jq ".$testName" $retriesFile))"
+            jq 'to_entries | .[].key' "$retriesFile" | while read -r testName; do
+              echo "::warning::Following test was retried during execution: $testName (retries: $(jq ".$testName" "$retriesFile"))"
             done
-            mv $retriesFile "${{ inputs.module_name }}/cypress/results/${{ matrix.spec }}-retries.json"
+            mv "$retriesFile" "$MODULE_NAME/cypress/results/$SPEC-retries.json"
           fi
         shell: bash
 
@@ -142,7 +151,10 @@ jobs:
           retention-days: 1
 
       - name: Change coverage report name
-        run: mv ${{ inputs.module_name }}/coverage/coverage-final.json ${{ inputs.module_name }}/coverage/${{ matrix.spec }}-out.json
+        env:
+          MODULE_NAME: ${{ inputs.module_name }}
+          SPEC: ${{ matrix.spec }}
+        run: mv "$MODULE_NAME/coverage/coverage-final.json" "$MODULE_NAME/coverage/$SPEC-out.json"
         shell: bash
 
       - name: Archive test coverage
@@ -200,8 +212,10 @@ jobs:
 
       - name: Format title
         id: title
+        env:
+          MODULE_NAME_INPUT: ${{ inputs.module_name }}
         run: |
-          MODULE_NAME=`echo "${{ inputs.module_name }}" | sed -e "s#/#-#g"`
+          MODULE_NAME=$(echo "$MODULE_NAME_INPUT" | sed -e "s#/#-#g")
           echo "replaced=$MODULE_NAME" >> $GITHUB_OUTPUT
         shell: bash
 
@@ -261,11 +275,13 @@ jobs:
           merge-multiple: true
 
       - name: Merge reports
+        env:
+          NAME: ${{ inputs.name }}
         run: |
-          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*-report.json" > mochawesome.json
+          pnpx mochawesome-merge "$NAME-json-reports/**/*-report.json" > mochawesome.json
 
-          if ls ${{ inputs.name }}-json-reports/**/*retries.json 1> /dev/null 2>&1; then
-            cat ${{ inputs.name }}-json-reports/**/*retries.json | jq -s add > retries.json
+          if ls "$NAME-json-reports/"**/*retries.json 1> /dev/null 2>&1; then
+            cat "$NAME-json-reports/"**/*retries.json | jq -s add > retries.json
           else
             echo "{}" > retries.json
           fi

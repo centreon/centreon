@@ -1,0 +1,37 @@
+meta {
+  name: DELETE /monitoring/acknowledgements - Disacknowledge forbidden - HTTP 403
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrlWeb}}/monitoring/resources/acknowledgements
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "disacknowledgement": {
+      "with_services": true
+    },
+    "resources": [
+      {
+        "type": "host",
+        "id": {{Host1Id}},
+        "parent": null
+      }
+    ]
+  }
+}
+
+tests {
+  test("Operator cannot remove acknowledgements (ACL restriction expected, not configured in CI).", function () {
+    expect(res.status).to.be.oneOf([204, 403]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
