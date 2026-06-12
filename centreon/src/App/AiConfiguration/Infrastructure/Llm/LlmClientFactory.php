@@ -29,6 +29,7 @@ use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
 use App\AiConfiguration\Domain\Llm\LlmClientInterface;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
+use App\Shared\Infrastructure\Proxy\HttpProxyProvider;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class LlmClientFactory implements LlmClientFactoryInterface
@@ -36,6 +37,7 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
     public function __construct(
         private AiProviderRepository $repository,
         private HttpClientInterface $httpClient,
+        private HttpProxyProvider $proxyProvider,
     ) {
     }
 
@@ -54,9 +56,11 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
             throw LlmConfigurationException::unresolvableToken();
         }
 
+        $httpClient = $this->httpClient();
+
         return match ($aiProvider->type) {
             AiProviderTypeEnum::Anthropic => new AnthropicLlmClient(
-                $this->httpClient,
+                $httpClient,
                 $aiProvider->endpointUrl,
                 $aiProvider->apiToken,
                 $aiProvider->defaultModel,
@@ -65,12 +69,24 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
             AiProviderTypeEnum::OpenAi,
             AiProviderTypeEnum::Mistral,
             AiProviderTypeEnum::OpenAiCompatible => new OpenAiCompatibleLlmClient(
-                $this->httpClient,
+                $httpClient,
                 $aiProvider->endpointUrl,
                 $aiProvider->apiToken,
                 $aiProvider->defaultModel,
                 $aiProvider->fastModel,
             ),
         };
+    }
+
+    /**
+     * The proxy configured on the platform applies to all outbound LLM requests.
+     */
+    private function httpClient(): HttpClientInterface
+    {
+        $proxyUrl = $this->proxyProvider->getProxyUrl();
+
+        return $proxyUrl === null
+            ? $this->httpClient
+            : $this->httpClient->withOptions(['proxy' => $proxyUrl]);
     }
 }

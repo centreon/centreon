@@ -36,6 +36,7 @@ use App\AiConfiguration\Infrastructure\Llm\OpenAiCompatibleLlmClient;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderRepository;
+use Tests\App\Shared\Double\FakeHttpProxyProvider;
 
 final class LlmClientFactoryTest extends TestCase
 {
@@ -46,7 +47,11 @@ final class LlmClientFactoryTest extends TestCase
     protected function setUp(): void
     {
         $this->repository = new FakeAiProviderRepository();
-        $this->factory = new LlmClientFactory($this->repository, new MockHttpClient());
+        $this->factory = new LlmClientFactory(
+            $this->repository,
+            new MockHttpClient(),
+            new FakeHttpProxyProvider()
+        );
     }
 
     public function testAnthropicProviderGetsTheAnthropicClient(): void
