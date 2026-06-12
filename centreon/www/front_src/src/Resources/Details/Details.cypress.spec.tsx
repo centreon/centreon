@@ -194,6 +194,14 @@ const interceptDetailsRequest = ({ store, dataPath, alias }): void => {
 const initialize = (store) => {
   cy.viewport('macbook-13');
 
+  // the AI assistance features only render when AI features are available
+  cy.interceptAPIRequest({
+    alias: 'getAiAvailability',
+    method: Method.GET,
+    path: '**/ai/availability',
+    response: { is_available: true }
+  });
+
   const navigate = cy.stub();
   cy.stub(router, 'useNavigate').returns(navigate);
 

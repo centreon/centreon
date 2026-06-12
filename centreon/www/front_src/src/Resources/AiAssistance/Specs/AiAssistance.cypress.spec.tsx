@@ -9,6 +9,7 @@ import { searchAtom } from '../../Filter/filterAtoms';
 import AskAiFilter from '../AskAiFilter/AskAiFilter';
 import ExplainResource from '../ExplainResource/ExplainResource';
 import {
+  aiAvailabilityEndpoint,
   aiIncidentSummaryEndpoint,
   aiResourceExplanationEndpoint,
   aiResourceFilterEndpoint
@@ -25,11 +26,19 @@ import {
 } from '../translatedLabels';
 
 const initializeComponent = (
-  component: JSX.Element
+  component: JSX.Element,
+  isAiAvailable = true
 ): ReturnType<typeof createStore> => {
   i18next.use(initReactI18next).init({
     lng: 'en',
     resources: {}
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getAiAvailability',
+    method: Method.GET,
+    path: `**${aiAvailabilityEndpoint}`,
+    response: { is_available: isAiAvailable }
   });
 
   const store = createStore();
@@ -138,6 +147,14 @@ describe('ExplainResource', () => {
     cy.contains('claude-sonnet-4-6');
 
     cy.makeSnapshot();
+  });
+
+  it('is hidden when AI features are not available', () => {
+    initializeComponent(<ExplainResource details={details} />, false);
+
+    cy.waitForRequest('@getAiAvailability');
+
+    cy.findByTestId(labelExplain).should('not.exist');
   });
 });
 

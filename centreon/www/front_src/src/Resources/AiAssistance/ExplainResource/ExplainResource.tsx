@@ -22,6 +22,7 @@ import {
   labelExplain,
   labelGeneratedBy
 } from '../translatedLabels';
+import useAiAvailability from '../useAiAvailability';
 import useExplainResource from './useExplainResource';
 
 const useStyles = makeStyles()((theme) => ({
@@ -49,7 +50,7 @@ interface Props {
   details: ResourceDetails;
 }
 
-const ExplainResource = ({ details }: Props): JSX.Element => {
+const ExplainResource = ({ details }: Props): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
@@ -57,6 +58,11 @@ const ExplainResource = ({ details }: Props): JSX.Element => {
   const [result, setResult] = useState<ExplainResourceResult | null>(null);
 
   const { explain, isMutating } = useExplainResource();
+  const isAiAvailable = useAiAvailability();
+
+  if (!isAiAvailable) {
+    return null;
+  }
 
   const openExplanation = (): void => {
     setResult(null);

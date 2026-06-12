@@ -318,6 +318,14 @@ const setupIntercept = ({
 };
 
 const initializeRequests = (): void => {
+  // the AI assistance features only render when AI features are available
+  cy.interceptAPIRequest({
+    alias: 'getAiAvailability',
+    method: Method.GET,
+    path: '**/ai/availability',
+    response: { is_available: true }
+  });
+
   setupIntercept({
     alias: 'GetResourcesByHostType',
     fixtureFile: 'resources/filter/resourcesByHostType.json',

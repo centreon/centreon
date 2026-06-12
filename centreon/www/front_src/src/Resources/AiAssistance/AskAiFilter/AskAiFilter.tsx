@@ -21,6 +21,7 @@ import {
   labelAskAiDisclaimer,
   labelAskAiPlaceholder
 } from '../translatedLabels';
+import useAiAvailability from '../useAiAvailability';
 import useAskAiFilter from './useAskAiFilter';
 
 const useStyles = makeStyles()((theme) => ({
@@ -45,7 +46,7 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const AskAiFilter = (): JSX.Element => {
+const AskAiFilter = (): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
@@ -54,6 +55,11 @@ const AskAiFilter = (): JSX.Element => {
   const anchorRef = useRef<HTMLDivElement | null>(null);
 
   const { isMutating, translate } = useAskAiFilter();
+  const isAiAvailable = useAiAvailability();
+
+  if (!isAiAvailable) {
+    return null;
+  }
 
   const apply = (): void => {
     if (!prompt.trim() || isMutating) {

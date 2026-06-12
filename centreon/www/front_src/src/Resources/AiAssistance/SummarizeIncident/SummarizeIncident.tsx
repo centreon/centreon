@@ -27,6 +27,7 @@ import {
   labelSummaryCopied,
   labelSummaryCopyFailed
 } from '../translatedLabels';
+import useAiAvailability from '../useAiAvailability';
 import useSummarizeIncident from './useSummarizeIncident';
 
 const useStyles = makeStyles()((theme) => ({
@@ -49,7 +50,7 @@ interface Props {
   details: ResourceDetails;
 }
 
-const SummarizeIncident = ({ details }: Props): JSX.Element => {
+const SummarizeIncident = ({ details }: Props): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
@@ -61,6 +62,11 @@ const SummarizeIncident = ({ details }: Props): JSX.Element => {
     errorMessage: t(labelSummaryCopyFailed),
     successMessage: t(labelSummaryCopied)
   });
+  const isAiAvailable = useAiAvailability();
+
+  if (!isAiAvailable) {
+    return null;
+  }
 
   const openSummary = (): void => {
     setResult(null);
