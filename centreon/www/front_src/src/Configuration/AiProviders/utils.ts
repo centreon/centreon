@@ -25,7 +25,7 @@ export const columnsAtomKey = 'centreon-ai-providers-columns-1';
 
 export const aiProviderTypeLabels: Record<AiProviderType, string> = {
   [AiProviderType.Anthropic]: labelAnthropic,
-  [AiProviderType.OpenAi]: labelOpenAi,
   [AiProviderType.Mistral]: labelMistral,
+  [AiProviderType.OpenAi]: labelOpenAi,
   [AiProviderType.OpenAiCompatible]: labelOpenAiCompatible
 };

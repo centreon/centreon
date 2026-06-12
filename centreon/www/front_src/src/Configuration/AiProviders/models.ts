@@ -1,7 +1,9 @@
 export enum AiProviderType {
+  // the declaration order drives the display order: alphabetical,
+  // with the catch-all OpenAI-compatible type last
   Anthropic = 'anthropic',
-  OpenAi = 'openai',
   Mistral = 'mistral',
+  OpenAi = 'openai',
   OpenAiCompatible = 'openai_compatible'
 }
 
