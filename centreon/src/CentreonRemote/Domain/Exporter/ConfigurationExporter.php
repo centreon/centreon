@@ -73,40 +73,38 @@ class ConfigurationExporter extends ExporterServiceAbstract
         }
 
         $db = $this->db->getAdapter('configuration_db');
+        $connection = $db->getCentreonDBInstance();
 
         // get tables
-        $stmt = $db->getCentreonDBInstance()->query('SHOW TABLES');
-        $tables = [];
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            foreach ($row as $name) {
-                $tables[$name] = 1;
-            }
-        }
+        $tables = array_fill_keys($connection->fetchFirstColumn('SHOW TABLES'), 1);
 
         $import = $manifest->get('import');
 
         // Phase 1: clear tables and reset auto_increment outside transaction.
         // ALTER TABLE (DDL) causes an implicit commit in MySQL/MariaDB, so it must
-        // run before beginTransaction() to avoid breaking the import transaction.
-        // FK checks must be disabled to prevent CASCADE deletes on tables not in the
-        // export manifest (e.g. cfg_nagios_logger, acl_resources_*_relations).
-        $db->query('SET FOREIGN_KEY_CHECKS=0');
-        $truncated = [];
-        foreach ($import['data'] as $data) {
-            if (! isset($truncated[$data['table']]) && isset($tables[$data['table']])) {
-                $db->query('DELETE FROM `' . $data['table'] . '`');
-                $db->query('ALTER TABLE `' . $data['table'] . '` AUTO_INCREMENT = 1');
-                $truncated[$data['table']] = 1;
+        // run before startTransaction() to avoid breaking the import transaction.
+        // Disable FK checks to prevent CASCADE deletes on tables outside the export manifest.
+        $connection->executeStatement('SET FOREIGN_KEY_CHECKS=0');
+        try {
+            $truncated = [];
+            foreach ($import['data'] as $data) {
+                if (! isset($truncated[$data['table']]) && isset($tables[$data['table']])) {
+                    $table = $this->assertSafeTableName($data['table']);
+                    $connection->executeStatement('DELETE FROM `' . $table . '`');
+                    $connection->executeStatement('ALTER TABLE `' . $table . '` AUTO_INCREMENT = 1');
+                    $truncated[$data['table']] = 1;
+                }
             }
+        } finally {
+            $connection->executeStatement('SET FOREIGN_KEY_CHECKS=1');
         }
-        $db->query('SET FOREIGN_KEY_CHECKS=1');
 
         // Phase 2: import data inside a transaction.
-        $db->beginTransaction();
+        $connection->startTransaction();
 
         try {
             // allow insert records without foreign key checks
-            $db->query('SET FOREIGN_KEY_CHECKS=0;');
+            $connection->executeStatement('SET FOREIGN_KEY_CHECKS=0');
 
             foreach ($import['data'] as $data) {
                 $exportPathFile = $this->getFile($data['filename']);
@@ -122,7 +120,7 @@ class ConfigurationExporter extends ExporterServiceAbstract
                 if ($size > 0) {
                     $db->loadDataInfile(
                         $exportPathFile,
-                        $data['table'],
+                        $this->assertSafeTableName($data['table']),
                         $import['infile_clauses']['fields_clause'],
                         $import['infile_clauses']['lines_clause'],
                         $data['columns']
@@ -130,19 +128,22 @@ class ConfigurationExporter extends ExporterServiceAbstract
                 }
             }
 
-            // restore foreign key checks
-            $db->query('SET FOREIGN_KEY_CHECKS=1;');
-
-            if ($db->getCentreonDBInstance()->inTransaction()) {
+            if ($connection->isTransactionActive()) {
                 // commit transaction
-                $db->commit();
+                $connection->commitTransaction();
             }
-        } catch (\ErrorException $e) {
-            // rollback changes
-            if ($db->getCentreonDBInstance()->inTransaction()) {
-                $db->rollBack();
+        } catch (\Throwable $e) {
+            // rollback changes — broad catch so a failed assertSafeTableName()/
+            // loadDataInfile()/PDO error also triggers an explicit rollback
+            if ($connection->isTransactionActive()) {
+                $connection->rollBackTransaction();
             }
             echo date('Y-m-d H:i:s') . " - ERROR - Loading failed.\n";
+
+            throw $e;
+        } finally {
+            // restore foreign key checks
+            $connection->executeStatement('SET FOREIGN_KEY_CHECKS=1');
         }
 
         // media copy
@@ -162,6 +163,24 @@ class ConfigurationExporter extends ExporterServiceAbstract
     public static function getName(): string
     {
         return static::NAME;
+    }
+
+    /**
+     * Defence-in-depth on top of the SHOW TABLES allowlist: ensures a table
+     * name is a safe SQL identifier before it is concatenated into a query.
+     *
+     * @throws \InvalidArgumentException
+     */
+    private function assertSafeTableName(mixed $table): string
+    {
+        if (! is_string($table) || preg_match('/^[a-zA-Z0-9_]+$/', $table) !== 1) {
+            throw new \InvalidArgumentException(sprintf(
+                'Unsafe table name in import manifest: %s',
+                is_scalar($table) ? (string) $table : get_debug_type($table),
+            ));
+        }
+
+        return $table;
     }
 
     /**

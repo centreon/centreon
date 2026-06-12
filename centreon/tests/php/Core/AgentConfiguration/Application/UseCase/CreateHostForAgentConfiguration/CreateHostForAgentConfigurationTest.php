@@ -99,7 +99,12 @@ beforeEach(function (): void {
 });
 
 afterEach(function (): void {
-    @unlink('centreon-web.log');
+    foreach (['prod', 'test', 'dev'] as $env) {
+        $file = _CENTREON_LOG_ . $env . '.web.log';
+        if (file_exists($file)) {
+            @unlink($file);
+        }
+    }
 });
 
 it(
