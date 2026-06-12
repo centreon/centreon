@@ -16,6 +16,7 @@ import {
   labelCancel,
   labelCloseATicket,
   labelConfirm,
+  labelFailedToCloseTicket,
   labelTicketClosed,
   labelTicketWillBeClosedInTheProvider
 } from '../../translatedLabels';
@@ -35,12 +36,17 @@ const CloseTicketModal = ({ providerID }: Props): JSX.Element => {
     baseEndpoint: '',
     getEndpoint: () => closeTicketEndpoint,
     method: Method.POST,
+    onError: () => {
+      showErrorMessage(t(labelFailedToCloseTicket));
+    },
     onMutate: () => {
       setResourcesToCloseTicket([]);
     },
-    onSuccess: (data) => {
+    onSuccess: (rawData) => {
+      const data = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
+
       if (!equals(data?.code, 0)) {
-        showErrorMessage(data?.msg);
+        showErrorMessage(data?.msg || t(labelFailedToCloseTicket));
         return;
       }
       showSuccessMessage(t(labelTicketClosed));
