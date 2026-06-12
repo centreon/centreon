@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Domain\OpenId\Model;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Security\ProviderConfiguration\Domain\CustomConfigurationInterface;
@@ -66,6 +67,7 @@ class CustomConfiguration implements CustomConfigurationInterface, OpenIdCustomC
     private ?string $clientId = null;
 
     /** @var string|null */
+    #[Sensitive]
     private ?string $clientSecret = null;
 
     /** @var string|null */

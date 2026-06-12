@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Security\Vault\Domain\Model;
 
 use App\Shared\Domain\Assert\Assert as CentreonAssert;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Security\Interfaces\EncryptionInterface;
 
@@ -78,6 +79,7 @@ class VaultConfiguration
         private string $rootPath,
         private string $encryptedRoleId,
         private string $encryptedSecretId,
+        #[Sensitive]
         private string $salt,
     ) {
         $this->setName($name);
