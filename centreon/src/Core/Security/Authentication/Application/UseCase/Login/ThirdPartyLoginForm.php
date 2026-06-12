@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Application\UseCase\Login;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\InvalidParameterException;
@@ -44,6 +45,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 final class ThirdPartyLoginForm
 {
+    #[Sensitive]
     private string $token = '';
 
     private ?bool $isActive = null;
