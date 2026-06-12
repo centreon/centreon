@@ -183,9 +183,10 @@ jobs:
             echo "tag=${MAJOR_VERSION}" >> "$GITHUB_OUTPUT"
             echo "additional_tag=" >> "$GITHUB_OUTPUT"
           else
-            docker_tag=$(echo "$RAW_REF" | sed 's/[^A-Za-z0-9._-]/-/g' | sed 's/^[^A-Za-z0-9]*//' | cut -c1-128)
-            if [ -z "$docker_tag" ]; then
-              docker_tag="sha-${GITHUB_SHA::12}"
+            docker_tag=$(printf '%s' "$RAW_REF" | sed -E 's#[^[:alnum:]_.-]+#-#g; s#^[.-]+##; s#-+#-#g' | cut -c1-128)
+            if [[ -z "$docker_tag" ]]; then
+              echo "::error::Unable to derive a valid Docker tag from ref '$RAW_REF'"
+              exit 1
             fi
             echo "tag=${docker_tag}" >> "$GITHUB_OUTPUT"
             echo "additional_tag=" >> "$GITHUB_OUTPUT"
