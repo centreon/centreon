@@ -60,8 +60,13 @@ export const useStatusGridCondensed = ({
   isBVResourceType;
   lastSelectedResourceType;
 }): UseStatusGridCondensedState => {
-  const { refreshInterval, resourceType, statuses, refreshIntervalCustom } =
-    panelOptions;
+  const {
+    refreshInterval,
+    resourceType,
+    statuses,
+    refreshIntervalCustom,
+    states
+  } = panelOptions;
   const { resources } = panelData;
 
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
@@ -92,6 +97,7 @@ export const useStatusGridCondensed = ({
         defaultEndpoint: buildCondensedViewEndpoint({
           baseEndpoint,
           resources,
+          states,
           statuses: statusesToUse,
           type: resourceType
         }),
@@ -105,6 +111,7 @@ export const useStatusGridCondensed = ({
       'condensed',
       resourceType,
       JSON.stringify(statuses),
+      JSON.stringify(states),
       JSON.stringify(resources),
       refreshCount
     ],

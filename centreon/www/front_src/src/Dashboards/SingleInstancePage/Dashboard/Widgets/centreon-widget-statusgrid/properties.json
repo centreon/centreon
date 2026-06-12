@@ -88,13 +88,7 @@
           "name": "Flapping"
         }
       ],
-      "defaultValue": ["unhandled_problems"],
-      "hiddenCondition": {
-        "target": "options",
-        "when": "options.viewMode",
-        "method": "equals",
-        "matches": "condensed"
-      }
+      "defaultValue": ["unhandled_problems"]
     },
     "sortBy": {
       "type": "radio",
