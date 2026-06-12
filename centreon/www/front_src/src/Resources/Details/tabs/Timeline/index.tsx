@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
+import SummarizeIncident from '../../../AiAssistance/SummarizeIncident/SummarizeIncident';
 import TimePeriodButtonGroup from '../../../Graph/Performance/TimePeriods';
 import {
   customTimePeriodAtom,
@@ -163,6 +164,7 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
                 timelineDownloadEndpoint={timelineDownloadEndpoint as string}
               />
             )}
+            {details && <SummarizeIncident details={details} />}
           </div>
           {enableCommentArea && (
             <AddCommentArea

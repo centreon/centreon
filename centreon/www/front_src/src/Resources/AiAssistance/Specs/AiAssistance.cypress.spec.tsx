@@ -9,15 +9,19 @@ import { searchAtom } from '../../Filter/filterAtoms';
 import AskAiFilter from '../AskAiFilter/AskAiFilter';
 import ExplainResource from '../ExplainResource/ExplainResource';
 import {
+  aiIncidentSummaryEndpoint,
   aiResourceExplanationEndpoint,
   aiResourceFilterEndpoint
 } from '../endpoints';
+import SummarizeIncident from '../SummarizeIncident/SummarizeIncident';
 import {
   labelAiCouldNotTranslate,
   labelAskAi,
   labelAskAiApply,
   labelAskAiPlaceholder,
-  labelExplain
+  labelCopy,
+  labelExplain,
+  labelSummarize
 } from '../translatedLabels';
 
 const initializeComponent = (
@@ -134,5 +138,121 @@ describe('ExplainResource', () => {
     cy.contains('claude-sonnet-4-6');
 
     cy.makeSnapshot();
+  });
+});
+
+describe('SummarizeIncident', () => {
+  const timelineEndpoint = '/monitoring/hosts/1/services/1/timeline';
+
+  const details = {
+    duration: '2h 31m',
+    information: 'CRITICAL - Packet loss = 100%',
+    links: { endpoints: { timeline: timelineEndpoint } },
+    name: 'Ping',
+    parent: { id: 1, name: 'db-server-01' },
+    status: { name: 'CRITICAL', severity_code: 1 },
+    type: 'service'
+  } as unknown as ResourceDetails;
+
+  const timelineListing = (total: number): object => ({
+    meta: { limit: 100, page: 1, search: {}, sort_by: {}, total },
+    result: [
+      {
+        contact: { name: 'admin' },
+        content: 'Looking into it',
+        date: '2026-06-12T08:10:00+02:00',
+        id: 2,
+        type: 'acknowledgement'
+      },
+      {
+        content: 'Packet loss = 100%',
+        date: '2026-06-12T08:00:00+02:00',
+        id: 1,
+        status: { name: 'CRITICAL', severity_code: 1 },
+        tries: 3,
+        type: 'event'
+      }
+    ]
+  });
+
+  const interceptSummary = (total = 2): void => {
+    cy.interceptAPIRequest({
+      alias: 'listTimeline',
+      method: Method.GET,
+      path: `**${timelineEndpoint}**`,
+      response: timelineListing(total)
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'summarizeIncident',
+      method: Method.POST,
+      path: `**${aiIncidentSummaryEndpoint}`,
+      response: {
+        model: 'claude-sonnet-4-6',
+        summary: 'Summary:\n- Ping lost all packets and was acknowledged.'
+      }
+    });
+  };
+
+  it('displays the summary built from the recent timeline events', () => {
+    interceptSummary();
+
+    initializeComponent(<SummarizeIncident details={details} />);
+
+    cy.findByTestId(labelSummarize).click();
+
+    cy.waitForRequest('@listTimeline').then(({ request }) => {
+      expect(request.url.search).to.contain('limit=100');
+    });
+
+    cy.waitForRequest('@summarizeIncident').then(({ request }) => {
+      expect(request.body.name).to.equal('Ping');
+      expect(request.body.status).to.equal('CRITICAL');
+      expect(request.body.is_truncated).to.equal(false);
+      // events are sent oldest first
+      expect(request.body.events[0].type).to.equal('event');
+      expect(request.body.events[0].status).to.equal('CRITICAL');
+      expect(request.body.events[1].type).to.equal('acknowledgement');
+      expect(request.body.events[1].author).to.equal('admin');
+    });
+
+    cy.contains('Ping lost all packets and was acknowledged');
+    cy.contains('claude-sonnet-4-6');
+
+    cy.makeSnapshot();
+  });
+
+  it('copies the summary to the clipboard', () => {
+    interceptSummary();
+
+    initializeComponent(<SummarizeIncident details={details} />);
+
+    cy.window().then((win) => {
+      cy.stub(win.navigator.clipboard, 'writeText')
+        .as('writeText')
+        .resolves(undefined);
+    });
+
+    cy.findByTestId(labelSummarize).click();
+    cy.waitForRequest('@summarizeIncident');
+
+    cy.findByTestId(labelCopy).click();
+
+    cy.get('@writeText').should(
+      'have.been.calledWith',
+      'Summary:\n- Ping lost all packets and was acknowledged.'
+    );
+  });
+
+  it('flags the summary as truncated when more events exist in the window', () => {
+    interceptSummary(150);
+
+    initializeComponent(<SummarizeIncident details={details} />);
+
+    cy.findByTestId(labelSummarize).click();
+
+    cy.waitForRequest('@summarizeIncident').then(({ request }) => {
+      expect(request.body.is_truncated).to.equal(true);
+    });
   });
 });
