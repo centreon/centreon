@@ -19,6 +19,13 @@ interface ListingResponse {
   member?: Array<{ id: number; name: string }>;
 }
 
+interface PendingLookup {
+  resolve: (available: boolean) => void;
+  timer: ReturnType<typeof setTimeout>;
+}
+
+const lookupDebounceMs = 500;
+
 export const useValidationSchema = (): ObjectSchema<object> => {
   const { t } = useTranslation();
 
@@ -28,27 +35,50 @@ export const useValidationSchema = (): ObjectSchema<object> => {
   // id of the existing provider using a given name (null when unused),
   // cached so that re-validations do not query the API again
   const knownNamesRef = useRef<Record<string, number | null>>({});
+  const pendingLookupRef = useRef<PendingLookup | null>(null);
 
-  const isNameAvailable = async (name: string): Promise<boolean> => {
-    if (!(name in knownNamesRef.current)) {
-      try {
-        const { data } = await axios.get<ListingResponse>(
-          `${baseEndpoint}${aiProvidersEndpoint}?name[lk]=${encodeURIComponent(name)}`
-        );
-        const existing = (data.member || []).find((provider) =>
-          equals(provider.name, name)
-        );
-        knownNamesRef.current[name] = existing?.id ?? null;
-      } catch (_error) {
-        // do not block the form on a failed lookup: the API rejects
-        // duplicate names anyway
-        return true;
-      }
-    }
-
+  const isKnownNameAvailable = (name: string): boolean => {
     const existingId = knownNamesRef.current[name];
 
     return isNil(existingId) || (isEditing && equals(existingId, id));
+  };
+
+  const isNameAvailable = (name: string): Promise<boolean> => {
+    if (name in knownNamesRef.current) {
+      return Promise.resolve(isKnownNameAvailable(name));
+    }
+
+    return new Promise((resolve) => {
+      // debounce while the user is typing: the validation run of a
+      // superseded value passes optimistically, the run of the last
+      // value sets the final verdict
+      if (pendingLookupRef.current) {
+        clearTimeout(pendingLookupRef.current.timer);
+        pendingLookupRef.current.resolve(true);
+      }
+
+      const timer = setTimeout(async () => {
+        pendingLookupRef.current = null;
+
+        try {
+          const { data } = await axios.get<ListingResponse>(
+            `${baseEndpoint}${aiProvidersEndpoint}?name[lk]=${encodeURIComponent(name)}`
+          );
+          const existing = (data.member || []).find((provider) =>
+            equals(provider.name, name)
+          );
+          knownNamesRef.current[name] = existing?.id ?? null;
+
+          resolve(isKnownNameAvailable(name));
+        } catch (_error) {
+          // do not block the form on a failed lookup: the API rejects
+          // duplicate names anyway
+          resolve(true);
+        }
+      }, lookupDebounceMs);
+
+      pendingLookupRef.current = { resolve, timer };
+    });
   };
 
   return object({
