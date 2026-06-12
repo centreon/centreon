@@ -24887,3 +24887,11 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
+
+#: packages/ui/src/Listing/translatedLabels.ts
+msgid "More than 1,000 resources match your search. Click to continue."
+msgstr "Plus de 1 000 ressources correspondent à votre recherche. Cliquez pour continuer."
+
+#: packages/ui/src/Listing/translatedLabels.ts
+msgid "Loading..."
+msgstr "Chargement en cours..."

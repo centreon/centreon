@@ -80,6 +80,9 @@ const Listing = ({
     page,
     isLoading,
     data,
+    exactCount,
+    isExactCountLoading,
+    requestExactCount,
     goToResourceStatusPage,
     hasMetaService,
     selectedResources,
@@ -116,6 +119,10 @@ const Listing = ({
     widgetPrefixQuery
   });
 
+  const isApproximate = data?.meta?.is_approximate === true;
+  const showApproximate = isApproximate && exactCount === null;
+  const effectiveTotalRows = exactCount ?? data?.meta?.total;
+
   return (
     <>
       <MemoizedListing
@@ -130,6 +137,7 @@ const Listing = ({
           />
         }
         actionsBarMemoProps={[displayType, hasMetaService, isOpenTicketEnabled]}
+        approximateTotalRows={showApproximate}
         columnConfiguration={{
           selectedColumnIds: selectedColumnIds || defaultSelectedColumnIds,
           sortable: true
@@ -139,6 +147,7 @@ const Listing = ({
         getHighlightRowCondition={({ status }): boolean =>
           equals(status?.severity_code, SeverityCode.High)
         }
+        isApproximateCountLoading={isExactCountLoading}
         limit={limit}
         loading={isLoading}
         memoProps={[
@@ -149,8 +158,12 @@ const Listing = ({
           isLoading,
           columns,
           displayType,
-          selectedResources
+          selectedResources,
+          showApproximate,
+          isExactCountLoading,
+          exactCount
         ]}
+        onApproximateCountClick={requestExactCount}
         rowColorConditions={rowColorConditions(theme)}
         rows={data?.result}
         selectedRows={selectedResources}
@@ -163,7 +176,7 @@ const Listing = ({
           labelCollapse: 'Collapse',
           labelExpand: 'Expand'
         }}
-        totalRows={data?.meta?.total}
+        totalRows={effectiveTotalRows}
         onLimitChange={changeLimit}
         onPaginate={changePage}
         onResetColumns={resetColumns}
