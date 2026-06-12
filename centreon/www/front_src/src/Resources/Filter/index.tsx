@@ -56,6 +56,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
+import AskAiFilter from '../AiAssistance/AskAiFilter/AskAiFilter';
 import {
   labelClearFilter,
   labelMyFilters,
@@ -100,6 +101,7 @@ export const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
 
   return (
     <div className={classes.End}>
+      <AskAiFilter />
       <IconButton
         ariaLabel={t(labelClearFilter) as string}
         data-testid={labelClearFilter}

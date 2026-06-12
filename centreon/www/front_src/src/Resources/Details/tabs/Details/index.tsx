@@ -3,6 +3,7 @@ import { useTheme } from '@mui/material';
 import { useAtomValue } from 'jotai';
 import { equals, isNil } from 'ramda';
 
+import ExplainResource from '../../../AiAssistance/ExplainResource/ExplainResource';
 import { detailsAtom, panelWidthStorageAtom } from '../../detailsAtoms';
 import DetailsActions from './DetailsActions';
 import SortableCards from './SortableCards';
@@ -19,6 +20,7 @@ const DetailsTab = (): JSX.Element => {
       {!loading && (
         <>
           <DetailsActions details={details} />
+          <ExplainResource details={details} />
           <SortableCards
             details={details}
             panelWidth={panelWidth - panelPadding}

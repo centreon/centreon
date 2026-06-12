@@ -33,15 +33,33 @@ final class FakeLlmClient implements LlmClientInterface
 {
     public ?LlmRequest $lastRequest = null;
 
+    /** @var list<LlmRequest> */
+    public array $requests = [];
+
+    /**
+     * @param list<LlmResponse|LlmException> $queue consumed in order by successive calls,
+     *                                              before falling back to $response/$exception
+     */
     public function __construct(
         private readonly ?LlmResponse $response = null,
         private readonly ?LlmException $exception = null,
+        private array $queue = [],
     ) {
     }
 
     public function complete(LlmRequest $request): LlmResponse
     {
         $this->lastRequest = $request;
+        $this->requests[] = $request;
+
+        if ($this->queue !== []) {
+            $queued = array_shift($this->queue);
+            if ($queued instanceof LlmException) {
+                throw $queued;
+            }
+
+            return $queued;
+        }
 
         if ($this->exception instanceof LlmException) {
             throw $this->exception;
