@@ -30,11 +30,11 @@ inputs:
   pulp_url:
     description: "The pulp server api url"
     required: false
-    default: "https://pulp.dev.centreon.io"
+    default: "https://pulp-api.apps.centreon.com"
   pulp_content_url:
     description: "The pulp server content url"
     required: false
-    default: "https://pulp.dev.centreon.io/pulp/content"
+    default: "https://pulp-content.apps.centreon.com/pulp/content"
   pulp_username:
     description: "The pulp server username"
     required: true
