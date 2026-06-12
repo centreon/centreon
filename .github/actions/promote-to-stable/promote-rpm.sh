@@ -41,7 +41,7 @@ for ARCH in noarch x86_64; do
       --data-urlencode "repository_version=$VERSION_HREF" \
       --data-urlencode "pulp_label_select=module=$MODULE_NAME" \
       --data-urlencode "limit=1000" \
-      "$PULP_URL/pulp/api/v3/content/rpm/packages/" | jq '[.results[].pulp_href]'
+      "$PULP_URL/api/v3/content/rpm/packages/" | jq '[.results[].pulp_href]'
   )
   ARCH_PACKAGES_COUNT=$(echo "$CONTENT" | jq 'length')
 

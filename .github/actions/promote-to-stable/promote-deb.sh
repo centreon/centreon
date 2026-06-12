@@ -37,7 +37,7 @@ PACKAGES=$(
     --data-urlencode "repository_version=$VERSION_HREF" \
     --data-urlencode "pulp_label_select=module=$MODULE_NAME" \
     --data-urlencode "limit=1000" \
-    "$PULP_URL/pulp/api/v3/content/deb/packages/" | \
+    "$PULP_URL/api/v3/content/deb/packages/" | \
     jq --arg testing_path "$TESTING_POOL_PATH/" --arg distrib_name "$PACKAGE_DISTRIB_NAME" \
       '[.results[] | select((.relative_path | startswith($testing_path)) and (.relative_path | contains($distrib_name)))]'
 )
@@ -74,7 +74,7 @@ for RELATIVE_PATH in $(echo "$PACKAGES" | jq -r '.[].relative_path'); do
       -F "component=main" \
       -F "repository=$REPOSITORY_HREF" \
       -F "pulp_labels={\"module\": \"$MODULE_NAME\"}" \
-      "$PULP_URL/pulp/api/v3/content/deb/packages/" | jq -r '.task'
+      "$PULP_URL/api/v3/content/deb/packages/" | jq -r '.task'
   )
   wait_task "$TASK_HREF"
 done

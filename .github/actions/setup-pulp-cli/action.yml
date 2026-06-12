@@ -41,6 +41,7 @@ runs:
 
         pulp config create --overwrite \
           --base-url "$PULP_URL" \
+          --api-root "/" \
           --username "$PULP_USERNAME" \
           --password "$PULP_PASSWORD" \
           --timeout 0

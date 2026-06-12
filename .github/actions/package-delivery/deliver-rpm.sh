@@ -70,7 +70,7 @@ for ARCH in noarch x86_64; do
         -F "file=@$FILE" \
         -F "repository=$REPOSITORY_HREF" \
         -F "pulp_labels={\"module\": \"$MODULE_NAME\"}" \
-        "$PULP_URL/pulp/api/v3/content/rpm/packages/" | jq -r '.task'
+        "$PULP_URL/api/v3/content/rpm/packages/" | jq -r '.task'
     )
     wait_task "$TASK_HREF"
   done

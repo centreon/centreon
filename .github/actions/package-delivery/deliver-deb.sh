@@ -54,7 +54,7 @@ for FILE in "${FILES[@]}"; do
       -F "component=main" \
       -F "repository=$REPOSITORY_HREF" \
       -F "pulp_labels={\"module\": \"$MODULE_NAME\"}" \
-      "$PULP_URL/pulp/api/v3/content/deb/packages/" | jq -r '.task'
+      "$PULP_URL/api/v3/content/deb/packages/" | jq -r '.task'
   )
   wait_task "$TASK_HREF"
 done
