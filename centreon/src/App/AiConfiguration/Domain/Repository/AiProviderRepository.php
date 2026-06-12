@@ -38,7 +38,7 @@ interface AiProviderRepository
 
     public function findOneByName(AiProviderName $name): ?AiProvider;
 
-    public function findDefault(): ?AiProvider;
+    public function findActivated(): ?AiProvider;
 
     /**
      * @return \IteratorAggregate<int, AiProvider>&\Countable

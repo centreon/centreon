@@ -101,7 +101,7 @@ final class TranslateResourceFilterCommandHandlerTest extends TestCase
     public function testMissingProviderConfigurationPropagates(): void
     {
         $handler = new TranslateResourceFilterCommandHandler(
-            new FakeLlmClientFactory(exception: LlmConfigurationException::noDefaultProvider())
+            new FakeLlmClientFactory(exception: LlmConfigurationException::noActivatedProvider())
         );
 
         $this->expectException(LlmConfigurationException::class);

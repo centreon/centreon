@@ -32,7 +32,6 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Event\AiProviderDeleted;
-use App\AiConfiguration\Domain\Exception\AiProviderCanNotBeDeletedException;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
 use PHPUnit\Framework\TestCase;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderRepository;
@@ -76,23 +75,15 @@ final class DeleteAiProviderCommandHandlerTest extends TestCase
         ($this->handler)(new DeleteAiProviderCommand($aiProvider->id(), deletedBy: 1));
     }
 
-    public function testCannotDeleteDefaultProviderWhileOthersExist(): void
+    public function testDeletingTheActivatedProviderLeavesNoneActivated(): void
     {
-        $default = $this->givenAiProvider('Anthropic production', isDefault: true);
+        $activated = $this->givenAiProvider('Anthropic production', isActivated: true);
         $this->givenAiProvider('Mistral fallback');
 
-        $this->expectException(AiProviderCanNotBeDeletedException::class);
+        ($this->handler)(new DeleteAiProviderCommand($activated->id(), deletedBy: 1));
 
-        ($this->handler)(new DeleteAiProviderCommand($default->id(), deletedBy: 1));
-    }
-
-    public function testCanDeleteDefaultProviderWhenItIsTheLastOne(): void
-    {
-        $default = $this->givenAiProvider('Anthropic production', isDefault: true);
-
-        ($this->handler)(new DeleteAiProviderCommand($default->id(), deletedBy: 1));
-
-        self::assertSame(0, $this->repository->countAll());
+        self::assertSame(1, $this->repository->countAll());
+        self::assertNull($this->repository->findActivated());
     }
 
     public function testTokenIsRemovedFromStorage(): void
@@ -113,7 +104,7 @@ final class DeleteAiProviderCommandHandlerTest extends TestCase
         self::assertTrue($this->eventBus->shouldHaveDispatched(AiProviderDeleted::class));
     }
 
-    private function givenAiProvider(string $name, bool $isDefault = false): AiProvider
+    private function givenAiProvider(string $name, bool $isActivated = false): AiProvider
     {
         $aiProvider = new AiProvider(
             id: null,
@@ -124,7 +115,7 @@ final class DeleteAiProviderCommandHandlerTest extends TestCase
             defaultModel: new ModelName('claude-sonnet-4-6'),
             fastModel: null,
             description: null,
-            isDefault: $isDefault,
+            isActivated: $isActivated,
         );
         $this->repository->add($aiProvider);
 

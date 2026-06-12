@@ -46,33 +46,35 @@ final class DeleteAiProviderProcessorTest extends AiProviderApiTestCase
         self::assertResponseStatusCodeSame(404);
     }
 
-    public function testDeleteDefaultProviderWithOthersReturns409(): void
+    public function testDeleteActivatedProviderWithOthersLeavesNoneActivated(): void
     {
         $this->login();
 
-        $defaultId = $this->createProvider('Anthropic production');
-        $this->createProvider('Mistral fallback', type: 'mistral');
+        $activatedId = $this->createProvider('Anthropic production');
+        $secondId = $this->createProvider('Mistral fallback', type: 'mistral');
 
-        $this->request('DELETE', self::ENDPOINT . '/' . $defaultId);
+        // deleting the activated provider is allowed: it turns AI features off
+        $this->request('DELETE', self::ENDPOINT . '/' . $activatedId);
+        self::assertResponseStatusCodeSame(204);
 
-        self::assertResponseStatusCodeSame(409);
+        $response = $this->request('GET', self::ENDPOINT . '/' . $secondId);
+        self::assertFalse($response->toArray()['is_activated']);
     }
 
     public function testDeleteProviders(): void
     {
         $this->login();
 
-        $defaultId = $this->createProvider('Anthropic production');
+        $activatedId = $this->createProvider('Anthropic production');
         $secondId = $this->createProvider('Mistral fallback', type: 'mistral');
 
         $this->request('DELETE', self::ENDPOINT . '/' . $secondId);
         self::assertResponseStatusCodeSame(204);
 
-        // the default configuration can be deleted once it is the last one
-        $this->request('DELETE', self::ENDPOINT . '/' . $defaultId);
+        $this->request('DELETE', self::ENDPOINT . '/' . $activatedId);
         self::assertResponseStatusCodeSame(204);
 
-        $this->request('GET', self::ENDPOINT . '/' . $defaultId);
+        $this->request('GET', self::ENDPOINT . '/' . $activatedId);
         self::assertResponseStatusCodeSame(404);
     }
 }

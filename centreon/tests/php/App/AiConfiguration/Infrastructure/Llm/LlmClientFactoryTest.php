@@ -67,17 +67,17 @@ final class LlmClientFactoryTest extends TestCase
 
     public function testDefaultProviderIsUsed(): void
     {
-        $aiProvider = $this->createAiProvider(AiProviderTypeEnum::Anthropic, isDefault: true);
+        $aiProvider = $this->createAiProvider(AiProviderTypeEnum::Anthropic, isActivated: true);
         $this->repository->add($aiProvider);
 
-        self::assertInstanceOf(AnthropicLlmClient::class, $this->factory->forDefaultProvider());
+        self::assertInstanceOf(AnthropicLlmClient::class, $this->factory->forActivatedProvider());
     }
 
     public function testMissingDefaultProviderThrows(): void
     {
         $this->expectException(LlmConfigurationException::class);
 
-        $this->factory->forDefaultProvider();
+        $this->factory->forActivatedProvider();
     }
 
     public function testVaultStoredTokenIsNotResolvableYet(): void
@@ -94,7 +94,7 @@ final class LlmClientFactoryTest extends TestCase
 
     private function createAiProvider(
         AiProviderTypeEnum $type,
-        bool $isDefault = false,
+        bool $isActivated = false,
         string $token = 'a-token',
     ): AiProvider {
         return new AiProvider(
@@ -106,7 +106,7 @@ final class LlmClientFactoryTest extends TestCase
             defaultModel: new ModelName('a-model'),
             fastModel: null,
             description: null,
-            isDefault: $isDefault,
+            isActivated: $isActivated,
         );
     }
 }

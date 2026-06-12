@@ -122,7 +122,7 @@ final readonly class TranslateResourceFilterCommandHandler
      */
     private function complete(array $messages): string
     {
-        $client = $this->clientFactory->forDefaultProvider();
+        $client = $this->clientFactory->forActivatedProvider();
 
         $response = $client->complete(new LlmRequest(
             messages: $messages,

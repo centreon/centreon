@@ -26,7 +26,7 @@ export const adaptFormToApiPayload = (data: unknown): Payload => {
     default_model: formData.defaultModel,
     description: formData.description || null,
     fast_model: formData.fastModel || null,
-    is_default: formData.isDefault,
+    is_activated: formData.isActivated,
     name: formData.name,
     type: formData.type,
     // the token is write-only: an empty field means "keep the current token"
@@ -51,11 +51,15 @@ const useAiProviders = (): UseAiProvidersState => {
       endpoints: {
         create: aiProvidersEndpoint,
         deleteOne: getAiProviderEndpoint,
+        disable: getAiProviderEndpoint,
+        enable: getAiProviderEndpoint,
         getAll: aiProvidersEndpoint,
         getOne: getAiProviderEndpoint,
         update: getAiProviderEndpoint
       },
       methods: {
+        disable: Method.PATCH,
+        enable: Method.PATCH,
         update: Method.PATCH
       }
     }),

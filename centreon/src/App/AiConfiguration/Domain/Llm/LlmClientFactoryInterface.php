@@ -29,11 +29,11 @@ use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
 interface LlmClientFactoryInterface
 {
     /**
-     * Build a client for the default AI provider configuration.
+     * Build a client for the enabled AI provider configuration.
      *
-     * @throws LlmConfigurationException when no default provider is configured
+     * @throws LlmConfigurationException when no provider is enabled
      */
-    public function forDefaultProvider(): LlmClientInterface;
+    public function forActivatedProvider(): LlmClientInterface;
 
     /**
      * @throws LlmConfigurationException when the provider configuration is not usable

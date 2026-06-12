@@ -39,10 +39,10 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
     ) {
     }
 
-    public function forDefaultProvider(): LlmClientInterface
+    public function forActivatedProvider(): LlmClientInterface
     {
-        $aiProvider = $this->repository->findDefault()
-            ?? throw LlmConfigurationException::noDefaultProvider();
+        $aiProvider = $this->repository->findActivated()
+            ?? throw LlmConfigurationException::noActivatedProvider();
 
         return $this->forProvider($aiProvider);
     }

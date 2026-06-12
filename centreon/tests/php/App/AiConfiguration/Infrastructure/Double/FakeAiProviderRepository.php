@@ -57,10 +57,10 @@ final class FakeAiProviderRepository implements AiProviderRepository
         return null;
     }
 
-    public function findDefault(): ?AiProvider
+    public function findActivated(): ?AiProvider
     {
         foreach ($this->aiProviders as $aiProvider) {
-            if ($aiProvider->isDefault) {
+            if ($aiProvider->isActivated) {
                 return $aiProvider;
             }
         }

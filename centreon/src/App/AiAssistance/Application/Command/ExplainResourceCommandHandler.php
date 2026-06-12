@@ -63,7 +63,7 @@ final readonly class ExplainResourceCommandHandler
 
     public function __invoke(ExplainResourceCommand $command): ExplainResourceResult
     {
-        $client = $this->clientFactory->forDefaultProvider();
+        $client = $this->clientFactory->forActivatedProvider();
 
         $response = $client->complete(new LlmRequest(
             messages: [new LlmMessage(LlmRoleEnum::User, $this->buildFacts($command))],

@@ -15,7 +15,7 @@ export interface AiProviderListItem {
   defaultModel: string;
   fastModel?: string | null;
   description?: string | null;
-  isDefault: boolean;
+  isActivated: boolean;
 }
 
 export interface AiProvider {
@@ -26,7 +26,7 @@ export interface AiProvider {
   defaultModel: string;
   fastModel?: string | null;
   description?: string | null;
-  isDefault: boolean;
+  isActivated: boolean;
 }
 
 export interface Payload {
@@ -35,7 +35,7 @@ export interface Payload {
   default_model: string;
   fast_model: string | null;
   description: string | null;
-  is_default: boolean;
+  is_activated: boolean;
   type?: string;
   api_token?: string;
 }

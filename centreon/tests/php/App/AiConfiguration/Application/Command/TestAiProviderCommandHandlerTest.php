@@ -60,7 +60,7 @@ final class TestAiProviderCommandHandlerTest extends TestCase
             defaultModel: new ModelName('claude-sonnet-4-6'),
             fastModel: null,
             description: null,
-            isDefault: true,
+            isActivated: true,
         );
         $this->repository->add($this->aiProvider);
     }

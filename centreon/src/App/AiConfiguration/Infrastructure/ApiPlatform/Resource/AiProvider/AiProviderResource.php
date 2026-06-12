@@ -59,12 +59,13 @@ use Symfony\Component\Validator\Constraints as Assert;
             openapi: new Model\Operation(
                 summary: 'Update an AI provider configuration',
                 description: 'Update an AI provider configuration. The provider type can not be changed. '
-                    . 'Omitting the api_token field keeps the current token.',
+                    . 'Omitting the api_token field keeps the current token. At most one provider is '
+                    . 'enabled: enabling a provider disables the currently enabled one, and disabling '
+                    . 'the enabled provider turns AI features off.',
                 responses: [
                     404 => new Model\Response('AI provider configuration not found'),
                     403 => new Model\Response('You are not allowed to update AI provider configurations'),
                     409 => new Model\Response('An AI provider configuration with this name already exists'),
-                    422 => new Model\Response('The default AI provider configuration can not be unset'),
                 ],
             ),
             securityPostValidation: "is_granted('" . AiProviderActionEnum::Update->value . "', object)",
@@ -76,10 +77,11 @@ use Symfony\Component\Validator\Constraints as Assert;
             processor: DeleteAiProviderProcessor::class,
             openapi: new Model\Operation(
                 summary: 'Delete an AI provider configuration',
+                description: 'Delete an AI provider configuration. Deleting the enabled provider '
+                    . 'turns AI features off.',
                 responses: [
                     404 => new Model\Response('AI provider configuration not found'),
                     403 => new Model\Response('You are not allowed to delete AI provider configurations'),
-                    409 => new Model\Response('The default AI provider configuration can not be deleted while other configurations exist'),
                 ],
             ),
             securityPostValidation: "is_granted('" . AiProviderActionEnum::Delete->value . "', object)",
@@ -147,10 +149,11 @@ final class AiProviderResource
         public ?string $description,
 
         #[ApiProperty(
-            description: 'Whether this configuration is the default one used by AI features. '
-                . 'The default flag can only be moved by setting it on another configuration.',
+            description: 'Whether this provider is enabled. At most one provider is enabled at a '
+                . 'time, and it is the one used by AI features: enabling a provider disables the '
+                . 'currently enabled one. When no provider is enabled, AI features are unavailable.',
         )]
-        public bool $isDefault,
+        public bool $isActivated,
 
         #[ApiProperty(
             description: 'API token used to authenticate against the AI provider. '

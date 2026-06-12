@@ -65,9 +65,9 @@ use App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider\ListAiProvid
                 ],
             ),
             new Model\Parameter(
-                name: 'is_default',
+                name: 'is_activated',
                 in: 'query',
-                description: 'Filter by default flag',
+                description: 'Filter by enabled state',
                 required: false,
                 schema: ['type' => 'boolean'],
             ),
@@ -131,9 +131,9 @@ final class ListAiProviderResource
         public ?string $description,
 
         #[ApiProperty(
-            description: 'Whether this configuration is the default one used by AI features',
+            description: 'Whether this provider is enabled (the enabled provider is the one used by AI features)',
         )]
-        public bool $isDefault,
+        public bool $isActivated,
     ) {
     }
 }

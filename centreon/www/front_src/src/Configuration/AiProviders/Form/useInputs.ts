@@ -13,11 +13,11 @@ import {
   labelDefaultModel,
   labelDefaultModelPlaceholder,
   labelDescription,
+  labelEnabled,
   labelEndpointUrl,
   labelFastModel,
   labelFastModelPlaceholder,
   labelGeneralInformation,
-  labelIsDefault,
   labelName,
   labelType
 } from '../translatedLabels';
@@ -119,9 +119,10 @@ export const useInputs = (): {
         type: InputType.Radio
       },
       {
-        fieldName: 'isDefault',
+        fieldName: 'isActivated',
         group: t(labelGeneralInformation),
-        label: t(labelIsDefault),
+        // at most one provider is enabled: enabling this one disables the other
+        label: t(labelEnabled),
         type: InputType.Switch
       },
       {

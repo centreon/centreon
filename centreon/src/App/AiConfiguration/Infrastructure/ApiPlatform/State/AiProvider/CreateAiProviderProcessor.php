@@ -86,7 +86,7 @@ final readonly class CreateAiProviderProcessor implements ProcessorInterface
             defaultModel: new ModelName($data->defaultModel),
             fastModel: $data->fastModel !== null ? new ModelName($data->fastModel) : null,
             description: $data->description !== null ? new AiProviderDescription($data->description) : null,
-            isDefault: $data->isDefault,
+            isActivated: $data->isActivated,
             creatorId: $credentialUser->credential->userId->value,
         );
 

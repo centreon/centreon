@@ -103,7 +103,7 @@ final class UpdateAiProviderProcessorTest extends AiProviderApiTestCase
         self::assertResponseStatusCodeSame(409);
     }
 
-    public function testPatchCannotUnsetDefaultFlag(): void
+    public function testPatchDisablesTheActivatedProvider(): void
     {
         $this->login();
 
@@ -111,13 +111,14 @@ final class UpdateAiProviderProcessorTest extends AiProviderApiTestCase
 
         $this->request('PATCH', self::ENDPOINT . '/' . $id, [
             'headers' => ['Content-Type' => 'application/merge-patch+json'],
-            'json' => ['is_default' => false],
+            'json' => ['is_activated' => false],
         ]);
 
-        self::assertResponseStatusCodeSame(422);
+        self::assertResponseIsSuccessful();
+        self::assertJsonContains(['is_activated' => false]);
     }
 
-    public function testPatchMovesDefaultFlag(): void
+    public function testPatchMovesActivationToAnotherProvider(): void
     {
         $this->login();
 
@@ -126,13 +127,13 @@ final class UpdateAiProviderProcessorTest extends AiProviderApiTestCase
 
         $this->request('PATCH', self::ENDPOINT . '/' . $secondId, [
             'headers' => ['Content-Type' => 'application/merge-patch+json'],
-            'json' => ['is_default' => true],
+            'json' => ['is_activated' => true],
         ]);
 
         self::assertResponseIsSuccessful();
-        self::assertJsonContains(['is_default' => true]);
+        self::assertJsonContains(['is_activated' => true]);
 
         $response = $this->request('GET', self::ENDPOINT . '/' . $firstId);
-        self::assertFalse($response->toArray()['is_default']);
+        self::assertFalse($response->toArray()['is_activated']);
     }
 }

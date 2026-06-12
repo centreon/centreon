@@ -37,6 +37,11 @@ const Listing = <TFilters,>({
 
   const { staticColumns } = useColumns();
 
+  // pages without an enable/disable action must not offer the dead column
+  const availableStaticColumns = actions?.enableDisable
+    ? staticColumns
+    : staticColumns.filter(({ id }) => id !== 'is_activated');
+
   const {
     changePage,
     page,
@@ -67,12 +72,21 @@ const Listing = <TFilters,>({
         selectedColumnIds,
         sortable: true
       }}
-      columns={hasWriteAccess ? [...columns, ...staticColumns] : columns}
+      columns={
+        hasWriteAccess ? [...columns, ...availableStaticColumns] : columns
+      }
       currentPage={(page || 1) - 1}
       disableRowCondition={disableRowCondition}
       limit={limit}
       loading={isLoading}
-      memoProps={[columns, staticColumns, page, sorto, sortf, selectedRows]}
+      memoProps={[
+        columns,
+        availableStaticColumns,
+        page,
+        sorto,
+        sortf,
+        selectedRows
+      ]}
       onLimitChange={setLimit}
       onPaginate={changePage}
       onResetColumns={resetColumns}

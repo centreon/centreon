@@ -9,9 +9,8 @@ import {
 export const defaultSelectedColumnIds = [
   'name',
   'type',
-  'endpoint_url',
   'default_model',
-  'is_default',
+  'is_activated',
   'actions'
 ];
 
@@ -21,7 +20,7 @@ export const filtersInitialValues: Filters = {
 };
 
 export const filtersAtomKey = 'centreon-ai-providers-filters-1';
-export const columnsAtomKey = 'centreon-ai-providers-columns-1';
+export const columnsAtomKey = 'centreon-ai-providers-columns-2';
 
 export const aiProviderTypeLabels: Record<AiProviderType, string> = {
   [AiProviderType.Anthropic]: labelAnthropic,

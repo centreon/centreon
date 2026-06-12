@@ -17,8 +17,7 @@ export const labelFastModel = 'Fast model';
 export const labelFastModelPlaceholder =
   'e.g. claude-haiku-4-5, mistral-small-latest, gpt-5.4-mini — defaults to the default model';
 export const labelDescription = 'Description';
-export const labelIsDefault = 'Default provider';
-export const labelDefault = 'Default';
+export const labelEnabled = 'Enabled';
 
 export const labelAnthropic = 'Anthropic';
 export const labelMistral = 'Mistral';

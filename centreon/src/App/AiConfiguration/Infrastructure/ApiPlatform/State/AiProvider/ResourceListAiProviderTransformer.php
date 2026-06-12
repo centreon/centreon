@@ -42,7 +42,7 @@ final readonly class ResourceListAiProviderTransformer implements TransformerInt
             defaultModel: $from->defaultModel->value,
             fastModel: $from->fastModel?->value,
             description: $from->description?->value,
-            isDefault: $from->isDefault,
+            isActivated: $from->isActivated,
         );
     }
 }

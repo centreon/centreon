@@ -64,27 +64,27 @@ final class CreateAiProviderCommandHandlerTest extends TestCase
 
     public function testFirstCreatedProviderBecomesDefault(): void
     {
-        $aiProvider = ($this->handler)($this->createCommand('Anthropic production', isDefault: false));
+        $aiProvider = ($this->handler)($this->createCommand('Anthropic production', isActivated: false));
 
-        self::assertTrue($aiProvider->isDefault);
+        self::assertTrue($aiProvider->isActivated);
     }
 
     public function testSecondProviderDoesNotBecomeDefault(): void
     {
         ($this->handler)($this->createCommand('Anthropic production'));
-        $second = ($this->handler)($this->createCommand('Mistral fallback', isDefault: false));
+        $second = ($this->handler)($this->createCommand('Mistral fallback', isActivated: false));
 
-        self::assertFalse($second->isDefault);
+        self::assertFalse($second->isActivated);
     }
 
     public function testCreatingDefaultProviderMovesTheDefaultFlag(): void
     {
         $first = ($this->handler)($this->createCommand('Anthropic production'));
-        $second = ($this->handler)($this->createCommand('Mistral fallback', isDefault: true));
+        $second = ($this->handler)($this->createCommand('Mistral fallback', isActivated: true));
 
-        self::assertTrue($second->isDefault);
-        self::assertFalse($this->repository->getById($first->id())->isDefault);
-        self::assertSame($second->id()->value, $this->repository->findDefault()?->id()->value);
+        self::assertTrue($second->isActivated);
+        self::assertFalse($this->repository->getById($first->id())->isActivated);
+        self::assertSame($second->id()->value, $this->repository->findActivated()?->id()->value);
     }
 
     public function testCannotCreateProviderWithSameName(): void
@@ -111,7 +111,7 @@ final class CreateAiProviderCommandHandlerTest extends TestCase
         self::assertTrue($this->eventBus->shouldHaveDispatched(AiProviderCreated::class));
     }
 
-    private function createCommand(string $name, bool $isDefault = false): CreateAiProviderCommand
+    private function createCommand(string $name, bool $isActivated = false): CreateAiProviderCommand
     {
         return new CreateAiProviderCommand(
             name: new AiProviderName($name),
@@ -121,7 +121,7 @@ final class CreateAiProviderCommandHandlerTest extends TestCase
             defaultModel: new ModelName('claude-sonnet-4-6'),
             fastModel: null,
             description: null,
-            isDefault: $isDefault,
+            isActivated: $isActivated,
             creatorId: 1,
         );
     }

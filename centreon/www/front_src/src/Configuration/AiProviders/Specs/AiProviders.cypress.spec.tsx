@@ -2,7 +2,6 @@ import {
   labelAiProviders,
   labelAnthropic,
   labelApiToken,
-  labelDefault,
   labelDefaultModel,
   labelEndpointUrl,
   labelFastModel,
@@ -29,9 +28,24 @@ describe('AiProviders', () => {
       cy.contains('Mistral fallback');
       cy.contains(labelAnthropic);
       cy.contains(labelMistral);
-      cy.contains(labelDefault);
+
+      // the enabled/disabled switches reflect the providers state
+      cy.findByTestId('Enable/Disable_1').find('input').should('be.checked');
+      cy.findByTestId('Enable/Disable_2')
+        .find('input')
+        .should('not.be.checked');
 
       cy.makeSnapshot();
+    });
+
+    it('sends an activation request when the switch of a disabled provider is clicked', () => {
+      cy.waitForRequest('@getAiProviders');
+
+      cy.findByTestId('Enable/Disable_2').click();
+
+      cy.waitForRequest('@enableAiProvider').then(({ request }) => {
+        expect(request.body).to.deep.equal({ is_activated: true });
+      });
     });
 
     it('sends a listing request with a search parameter when a name is searched', () => {
@@ -82,6 +96,8 @@ describe('AiProviders', () => {
         expect(request.body).to.not.have.property('endpoint_url');
         expect(request.body.default_model).to.equal('claude-sonnet-4-6');
         expect(request.body.fast_model).to.equal('claude-haiku-4-5');
+        // the first provider is enabled by the API regardless of the form switch
+        expect(request.body.is_activated).to.equal(false);
       });
     });
 

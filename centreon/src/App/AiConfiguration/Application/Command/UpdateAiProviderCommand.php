@@ -41,7 +41,7 @@ final readonly class UpdateAiProviderCommand
         public ModelName $defaultModel,
         public ?ModelName $fastModel,
         public ?AiProviderDescription $description,
-        public bool $isDefault,
+        public bool $isActivated,
         public int $updatedBy,
     ) {
     }

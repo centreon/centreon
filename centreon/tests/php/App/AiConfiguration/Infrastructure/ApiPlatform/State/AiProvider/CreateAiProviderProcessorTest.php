@@ -77,7 +77,7 @@ final class CreateAiProviderProcessorTest extends AiProviderApiTestCase
             'endpoint_url' => 'https://api.anthropic.com',
             'default_model' => 'claude-sonnet-4-6',
             'fast_model' => 'claude-haiku-4-5',
-            'is_default' => true, // the first configuration always becomes the default one
+            'is_activated' => true, // the first configuration always becomes the default one
         ]);
         self::assertArrayNotHasKey('api_token', $response->toArray());
     }
@@ -185,6 +185,6 @@ final class CreateAiProviderProcessorTest extends AiProviderApiTestCase
         ]);
 
         self::assertResponseStatusCodeSame(201);
-        self::assertJsonContains(['is_default' => false]);
+        self::assertJsonContains(['is_activated' => false]);
     }
 }

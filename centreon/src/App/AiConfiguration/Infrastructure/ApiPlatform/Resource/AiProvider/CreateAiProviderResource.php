@@ -37,9 +37,10 @@ use Symfony\Component\Validator\Constraints as Assert;
     processor: CreateAiProviderProcessor::class,
     openapi: new Model\Operation(
         summary: 'Create an AI provider configuration',
-        description: 'Create an AI provider configuration. The first configuration automatically becomes '
-            . 'the default one. The endpoint URL is optional for known providers and required for '
-            . 'OpenAI-compatible providers.',
+        description: 'Create an AI provider configuration. The first configuration is automatically '
+            . 'enabled, and at most one provider is enabled at a time: creating an enabled provider '
+            . 'disables the currently enabled one. The endpoint URL is only used for OpenAI-compatible '
+            . 'providers, where it is required.',
         responses: [
             409 => new Model\Response('An AI provider configuration with this name already exists'),
             403 => new Model\Response('You are not allowed to create AI provider configurations'),
@@ -121,10 +122,11 @@ final class CreateAiProviderResource
         public ?string $description = null,
 
         #[ApiProperty(
-            description: 'Whether this configuration becomes the default one used by AI features. '
-                . 'The first created configuration is always the default one.',
+            description: 'Whether this provider is enabled on creation. At most one provider is '
+                . 'enabled at a time: enabling this one disables the currently enabled one. The '
+                . 'first created configuration is always enabled.',
         )]
-        public bool $isDefault = false,
+        public bool $isActivated = false,
     ) {
     }
 }

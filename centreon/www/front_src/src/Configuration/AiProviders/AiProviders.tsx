@@ -38,7 +38,9 @@ const AiProviders = (): ReactElement => {
     <ConfigurationBase<Filters>
       actions={{
         delete: () => true,
-        edit: true
+        edit: true,
+        // at most one provider is enabled: enabling one disables the other
+        enableDisable: () => true
       }}
       api={api}
       columns={columns}

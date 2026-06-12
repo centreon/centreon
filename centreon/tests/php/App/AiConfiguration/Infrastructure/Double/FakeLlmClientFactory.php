@@ -36,7 +36,7 @@ final class FakeLlmClientFactory implements LlmClientFactoryInterface
     ) {
     }
 
-    public function forDefaultProvider(): LlmClientInterface
+    public function forActivatedProvider(): LlmClientInterface
     {
         return $this->getClientOrThrow();
     }

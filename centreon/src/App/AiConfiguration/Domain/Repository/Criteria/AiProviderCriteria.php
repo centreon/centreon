@@ -45,7 +45,7 @@ final class AiProviderCriteria implements SortableCriteria
     /** @var list<AiProviderTypeEnum> */
     private array $types = [];
 
-    private ?bool $isDefault = null;
+    private ?bool $isActivated = null;
 
     public function withPagination(int $page, int $itemsPerPage): self
     {
@@ -91,10 +91,10 @@ final class AiProviderCriteria implements SortableCriteria
         return $new;
     }
 
-    public function withIsDefault(bool $isDefault): self
+    public function withIsActivated(bool $isActivated): self
     {
         $new = clone $this;
-        $new->isDefault = $isDefault;
+        $new->isActivated = $isActivated;
 
         return $new;
     }
@@ -125,9 +125,9 @@ final class AiProviderCriteria implements SortableCriteria
         return $this->types;
     }
 
-    public function getIsDefault(): ?bool
+    public function getIsActivated(): ?bool
     {
-        return $this->isDefault;
+        return $this->isActivated;
     }
 
     public function getFieldMapping(): array
@@ -135,7 +135,7 @@ final class AiProviderCriteria implements SortableCriteria
         return [
             'name' => 'name',
             'type' => 'type',
-            'is_default' => 'is_default',
+            'is_activated' => 'is_activated',
         ];
     }
 }

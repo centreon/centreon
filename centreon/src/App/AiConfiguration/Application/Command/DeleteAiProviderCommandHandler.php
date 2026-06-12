@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace App\AiConfiguration\Application\Command;
 
 use App\AiConfiguration\Domain\Event\AiProviderDeleted;
-use App\AiConfiguration\Domain\Exception\AiProviderCanNotBeDeletedException;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
 use App\AiConfiguration\Domain\Repository\AiProviderTokenStorage;
 use App\Shared\Application\Command\AsCommandHandler;
@@ -44,13 +43,7 @@ final readonly class DeleteAiProviderCommandHandler
     {
         $aiProvider = $this->repository->getById($command->id);
 
-        if ($aiProvider->isDefault && $this->repository->countAll() > 1) {
-            throw new AiProviderCanNotBeDeletedException(
-                ['id' => $aiProvider->id()->value],
-                'The default AI provider configuration can not be deleted while other configurations exist. Set another configuration as default first.'
-            );
-        }
-
+        // deleting the activated provider is allowed: it turns AI features off
         $this->repository->delete($aiProvider);
         $this->tokenStorage->remove($aiProvider->apiToken);
 

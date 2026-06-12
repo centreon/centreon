@@ -51,8 +51,8 @@ final readonly class CreateAiProviderCommandHandler
             );
         }
 
-        // The first configuration always becomes the default one.
-        $isDefault = $command->isDefault || $this->repository->countAll() === 0;
+        // The first configuration is always activated.
+        $isActivated = $command->isActivated || $this->repository->countAll() === 0;
 
         $aiProvider = new AiProvider(
             id: null,
@@ -63,13 +63,14 @@ final readonly class CreateAiProviderCommandHandler
             defaultModel: $command->defaultModel,
             fastModel: $command->fastModel,
             description: $command->description,
-            isDefault: $isDefault,
+            isActivated: $isActivated,
         );
 
-        $currentDefault = $isDefault ? $this->repository->findDefault() : null;
-        if ($currentDefault instanceof AiProvider) {
-            $currentDefault->unmarkAsDefault();
-            $this->repository->update($currentDefault);
+        // at most one provider is activated: enabling this one disables the current one
+        $currentlyActivated = $isActivated ? $this->repository->findActivated() : null;
+        if ($currentlyActivated instanceof AiProvider) {
+            $currentlyActivated->disable();
+            $this->repository->update($currentlyActivated);
         }
 
         $this->repository->add($aiProvider);

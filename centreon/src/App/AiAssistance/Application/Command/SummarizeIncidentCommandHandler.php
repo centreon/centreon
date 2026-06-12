@@ -69,7 +69,7 @@ final readonly class SummarizeIncidentCommandHandler
 
     public function __invoke(SummarizeIncidentCommand $command): SummarizeIncidentResult
     {
-        $client = $this->clientFactory->forDefaultProvider();
+        $client = $this->clientFactory->forActivatedProvider();
 
         $response = $client->complete(new LlmRequest(
             messages: [new LlmMessage(LlmRoleEnum::User, $this->buildFacts($command))],

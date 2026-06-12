@@ -50,7 +50,7 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
 
     public function testAddAndGetById(): void
     {
-        $aiProvider = $this->newAiProvider('Anthropic production', isDefault: true);
+        $aiProvider = $this->newAiProvider('Anthropic production', isActivated: true);
 
         $this->repository->add($aiProvider);
 
@@ -63,7 +63,7 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
         self::assertSame('claude-sonnet-4-6', $fetched->defaultModel->value);
         self::assertSame('claude-haiku-4-5', $fetched->fastModel?->value);
         self::assertSame('a description', $fetched->description?->value);
-        self::assertTrue($fetched->isDefault);
+        self::assertTrue($fetched->isActivated);
     }
 
     public function testGetByIdNotFound(): void
@@ -83,11 +83,11 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
 
     public function testFindDefault(): void
     {
-        self::assertNull($this->repository->findDefault());
+        self::assertNull($this->repository->findActivated());
 
-        $this->repository->add($this->newAiProvider('Anthropic production', isDefault: true));
+        $this->repository->add($this->newAiProvider('Anthropic production', isActivated: true));
 
-        self::assertSame('Anthropic production', $this->repository->findDefault()?->name->value);
+        self::assertSame('Anthropic production', $this->repository->findActivated()?->name->value);
     }
 
     public function testCountAll(): void
@@ -107,13 +107,13 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
 
         $aiProvider->rename(new AiProviderName('Anthropic renamed'));
         $aiProvider->updateApiToken(new ApiToken('new-token'));
-        $aiProvider->markAsDefault();
+        $aiProvider->enable();
         $this->repository->update($aiProvider);
 
         $fetched = $this->repository->getById($aiProvider->id());
         self::assertSame('Anthropic renamed', $fetched->name->value);
         self::assertSame('new-token', $fetched->apiToken->value);
-        self::assertTrue($fetched->isDefault);
+        self::assertTrue($fetched->isActivated);
     }
 
     public function testDelete(): void
@@ -128,7 +128,7 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
 
     public function testFindAllWithCriteria(): void
     {
-        $this->repository->add($this->newAiProvider('Anthropic production', isDefault: true));
+        $this->repository->add($this->newAiProvider('Anthropic production', isActivated: true));
         $this->repository->add($this->newAiProvider('Mistral fallback', type: AiProviderTypeEnum::Mistral));
 
         $all = $this->repository->findAll(null);
@@ -142,7 +142,7 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
         $filtered = $this->repository->findAll($criteria);
         self::assertCount(1, $filtered);
 
-        $criteria = (new AiProviderCriteria())->withIsDefault(true);
+        $criteria = (new AiProviderCriteria())->withIsActivated(true);
         $filtered = $this->repository->findAll($criteria);
         self::assertCount(1, $filtered);
 
@@ -154,7 +154,7 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
     private function newAiProvider(
         string $name,
         AiProviderTypeEnum $type = AiProviderTypeEnum::Anthropic,
-        bool $isDefault = false,
+        bool $isActivated = false,
     ): AiProvider {
         return new AiProvider(
             id: null,
@@ -165,7 +165,7 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
             defaultModel: new ModelName('claude-sonnet-4-6'),
             fastModel: new ModelName('claude-haiku-4-5'),
             description: new AiProviderDescription('a description'),
-            isDefault: $isDefault,
+            isActivated: $isActivated,
         );
     }
 }

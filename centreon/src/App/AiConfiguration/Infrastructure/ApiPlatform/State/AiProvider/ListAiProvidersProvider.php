@@ -72,7 +72,7 @@ final readonly class ListAiProvidersProvider implements ProviderInterface
             throw new AccessDeniedException('You are not allowed to access AI provider configurations');
         }
 
-        /** @var array{name?: array<string>|null, type?: string|array<string>, is_default?: string, sort?: array<string, string>} $filters */
+        /** @var array{name?: array<string>|null, type?: string|array<string>, is_activated?: string, sort?: array<string, string>} $filters */
         $filters = $context['filters'] ?? [];
 
         $criteria = new AiProviderCriteria();
@@ -85,7 +85,7 @@ final readonly class ListAiProvidersProvider implements ProviderInterface
 
         $criteria = $this->handleNameFilter($filters['name'] ?? null, $criteria);
         $criteria = $this->handleTypeFilter($filters['type'] ?? null, $criteria);
-        $criteria = $this->handleIsDefaultFilter($filters['is_default'] ?? null, $criteria);
+        $criteria = $this->handleIsActivatedFilter($filters['is_activated'] ?? null, $criteria);
         /** @var AiProviderCriteria $criteria */
         $criteria = $this->handleSort($filters, $criteria);
 
@@ -154,12 +154,12 @@ final readonly class ListAiProvidersProvider implements ProviderInterface
         return $criteria;
     }
 
-    private function handleIsDefaultFilter(?string $isDefaultFilter, AiProviderCriteria $criteria): AiProviderCriteria
+    private function handleIsActivatedFilter(?string $isActivatedFilter, AiProviderCriteria $criteria): AiProviderCriteria
     {
-        if ($isDefaultFilter === null) {
+        if ($isActivatedFilter === null) {
             return $criteria;
         }
 
-        return $criteria->withIsDefault(filter_var($isDefaultFilter, \FILTER_VALIDATE_BOOLEAN));
+        return $criteria->withIsActivated(filter_var($isActivatedFilter, \FILTER_VALIDATE_BOOLEAN));
     }
 }

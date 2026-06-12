@@ -46,6 +46,13 @@ const initialize = (): void => {
       path: `**${getAiProviderEndpoint({ id: 1 })}`,
       response: aiProvider
     });
+
+    cy.interceptAPIRequest({
+      alias: 'enableAiProvider',
+      method: Method.PATCH,
+      path: `**${getAiProviderEndpoint({ id: 2 })}`,
+      response: aiProvider
+    });
   });
 
   cy.mount({

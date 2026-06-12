@@ -25128,9 +25128,6 @@ msgstr "Modèle rapide"
 msgid "e.g. claude-haiku-4-5, mistral-small-latest, gpt-5.4-mini — defaults to the default model"
 msgstr "ex. claude-haiku-4-5, mistral-small-latest, gpt-5.4-mini — le modèle par défaut est utilisé si vide"
 
-#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
-msgid "Default provider"
-msgstr "Fournisseur par défaut"
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
 msgid "Connection"

@@ -11,7 +11,7 @@ const aiProviderListItemDecoder = JsonDecoder.object<AiProviderListItem>(
     endpointUrl: JsonDecoder.string,
     fastModel: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
     id: JsonDecoder.number,
-    isDefault: JsonDecoder.boolean,
+    isActivated: JsonDecoder.boolean,
     name: JsonDecoder.string,
     type: JsonDecoder.string
   },
@@ -20,7 +20,7 @@ const aiProviderListItemDecoder = JsonDecoder.object<AiProviderListItem>(
     defaultModel: 'default_model',
     endpointUrl: 'endpoint_url',
     fastModel: 'fast_model',
-    isDefault: 'is_default'
+    isActivated: 'is_activated'
   }
 );
 
@@ -38,7 +38,7 @@ export const aiProviderDecoder = JsonDecoder.object<AiProvider>(
     description: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
     endpointUrl: JsonDecoder.string,
     fastModel: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
-    isDefault: JsonDecoder.boolean,
+    isActivated: JsonDecoder.boolean,
     name: JsonDecoder.string,
     type: JsonDecoder.string
   },
@@ -48,6 +48,6 @@ export const aiProviderDecoder = JsonDecoder.object<AiProvider>(
     defaultModel: 'default_model',
     endpointUrl: 'endpoint_url',
     fastModel: 'fast_model',
-    isDefault: 'is_default'
+    isActivated: 'is_activated'
   }
 );

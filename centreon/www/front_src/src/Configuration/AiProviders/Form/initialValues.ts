@@ -4,7 +4,7 @@ export const initialValues = {
   description: null,
   endpointUrl: '',
   fastModel: null,
-  isDefault: false,
+  isActivated: false,
   name: '',
   type: null
 };

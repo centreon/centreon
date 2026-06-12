@@ -65,7 +65,7 @@ final readonly class DbalAiProviderTransformer implements TransformerInterface
             description: $from['ap_description'] !== null && $from['ap_description'] !== ''
                 ? new AiProviderDescription($from['ap_description'])
                 : null,
-            isDefault: (bool) $from['ap_is_default'],
+            isActivated: (bool) $from['ap_is_activated'],
         );
     }
 }

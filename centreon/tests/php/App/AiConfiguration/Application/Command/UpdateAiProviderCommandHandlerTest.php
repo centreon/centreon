@@ -33,7 +33,6 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Event\AiProviderUpdated;
 use App\AiConfiguration\Domain\Exception\AiProviderAlreadyExistsException;
-use App\AiConfiguration\Domain\Exception\AiProviderCanNotBeUpdatedException;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
 use PHPUnit\Framework\TestCase;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderRepository;
@@ -60,7 +59,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
 
     public function testRenameAiProvider(): void
     {
-        $aiProvider = $this->givenAiProvider('Anthropic production', isDefault: true);
+        $aiProvider = $this->givenAiProvider('Anthropic production', isActivated: true);
 
         ($this->handler)($this->updateCommand($aiProvider, name: 'Anthropic renamed'));
 
@@ -69,7 +68,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
 
     public function testUpdateUnknownProviderThrows(): void
     {
-        $aiProvider = $this->givenAiProvider('Anthropic production', isDefault: true);
+        $aiProvider = $this->givenAiProvider('Anthropic production', isActivated: true);
         $command = $this->updateCommand($aiProvider);
         $this->repository->delete($aiProvider);
 
@@ -80,7 +79,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
 
     public function testCannotRenameToAnExistingName(): void
     {
-        $this->givenAiProvider('Anthropic production', isDefault: true);
+        $this->givenAiProvider('Anthropic production', isActivated: true);
         $aiProvider = $this->givenAiProvider('Mistral fallback');
 
         $this->expectException(AiProviderAlreadyExistsException::class);
@@ -90,36 +89,37 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
 
     public function testKeepingOwnNameIsAllowed(): void
     {
-        $aiProvider = $this->givenAiProvider('Anthropic production', isDefault: true);
+        $aiProvider = $this->givenAiProvider('Anthropic production', isActivated: true);
 
         $updated = ($this->handler)($this->updateCommand($aiProvider));
 
         self::assertSame('Anthropic production', $updated->name->value);
     }
 
-    public function testCannotUnsetDefaultFlag(): void
+    public function testDisablingTheActivatedProviderLeavesNoneActivated(): void
     {
-        $aiProvider = $this->givenAiProvider('Anthropic production', isDefault: true);
+        $aiProvider = $this->givenAiProvider('Anthropic production', isActivated: true);
 
-        $this->expectException(AiProviderCanNotBeUpdatedException::class);
+        ($this->handler)($this->updateCommand($aiProvider, isActivated: false));
 
-        ($this->handler)($this->updateCommand($aiProvider, isDefault: false));
+        self::assertFalse($this->repository->getById($aiProvider->id())->isActivated);
+        self::assertNull($this->repository->findActivated());
     }
 
-    public function testSettingDefaultMovesTheFlag(): void
+    public function testEnablingAProviderDisablesTheCurrentlyActivatedOne(): void
     {
-        $first = $this->givenAiProvider('Anthropic production', isDefault: true);
+        $first = $this->givenAiProvider('Anthropic production', isActivated: true);
         $second = $this->givenAiProvider('Mistral fallback');
 
-        ($this->handler)($this->updateCommand($second, isDefault: true));
+        ($this->handler)($this->updateCommand($second, isActivated: true));
 
-        self::assertTrue($this->repository->getById($second->id())->isDefault);
-        self::assertFalse($this->repository->getById($first->id())->isDefault);
+        self::assertTrue($this->repository->getById($second->id())->isActivated);
+        self::assertFalse($this->repository->getById($first->id())->isActivated);
     }
 
     public function testNullTokenKeepsCurrentToken(): void
     {
-        $aiProvider = $this->givenAiProvider('Anthropic production', isDefault: true);
+        $aiProvider = $this->givenAiProvider('Anthropic production', isActivated: true);
 
         $updated = ($this->handler)($this->updateCommand($aiProvider, apiToken: null));
 
@@ -129,7 +129,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
 
     public function testProvidedTokenGoesThroughTokenStorage(): void
     {
-        $aiProvider = $this->givenAiProvider('Anthropic production', isDefault: true);
+        $aiProvider = $this->givenAiProvider('Anthropic production', isActivated: true);
 
         $updated = ($this->handler)($this->updateCommand($aiProvider, apiToken: 'new-token'));
 
@@ -139,14 +139,14 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
 
     public function testDispatchUpdatedEvent(): void
     {
-        $aiProvider = $this->givenAiProvider('Anthropic production', isDefault: true);
+        $aiProvider = $this->givenAiProvider('Anthropic production', isActivated: true);
 
         ($this->handler)($this->updateCommand($aiProvider));
 
         self::assertTrue($this->eventBus->shouldHaveDispatched(AiProviderUpdated::class));
     }
 
-    private function givenAiProvider(string $name, bool $isDefault = false): AiProvider
+    private function givenAiProvider(string $name, bool $isActivated = false): AiProvider
     {
         $aiProvider = new AiProvider(
             id: null,
@@ -157,7 +157,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
             defaultModel: new ModelName('claude-sonnet-4-6'),
             fastModel: null,
             description: null,
-            isDefault: $isDefault,
+            isActivated: $isActivated,
         );
         $this->repository->add($aiProvider);
 
@@ -168,7 +168,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
         AiProvider $aiProvider,
         ?string $name = null,
         ?string $apiToken = null,
-        ?bool $isDefault = null,
+        ?bool $isActivated = null,
     ): UpdateAiProviderCommand {
         return new UpdateAiProviderCommand(
             id: $aiProvider->id(),
@@ -178,7 +178,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
             defaultModel: $aiProvider->defaultModel,
             fastModel: $aiProvider->fastModel,
             description: $aiProvider->description,
-            isDefault: $isDefault ?? $aiProvider->isDefault,
+            isActivated: $isActivated ?? $aiProvider->isActivated,
             updatedBy: 1,
         );
     }

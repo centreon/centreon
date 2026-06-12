@@ -46,7 +46,7 @@ use Webmozart\Assert\Assert;
  *   ap_type: string,
  *   ap_name: string,
  *   ap_description: string|null,
- *   ap_is_default: int|string,
+ *   ap_is_activated: int|string,
  *   ap_configuration: string,
  * }
  */
@@ -104,13 +104,13 @@ final readonly class DbalAiProviderRepository extends DbalRepository implements 
         return $row ? $this->transformer->transform($row) : null;
     }
 
-    public function findDefault(): ?AiProvider
+    public function findActivated(): ?AiProvider
     {
         $qb = $this->connection->createQueryBuilder();
 
         $qb->select(...self::getSelectColumns())
             ->from(self::TABLE_NAME, 'ap')
-            ->where('ap.is_default = 1')
+            ->where('ap.is_activated = 1')
             ->setMaxResults(1);
 
         /** @var RowTypeAlias|false $row */
@@ -184,7 +184,7 @@ final readonly class DbalAiProviderRepository extends DbalRepository implements 
                 'type' => ':type',
                 'name' => ':name',
                 'description' => ':description',
-                'is_default' => ':is_default',
+                'is_activated' => ':is_activated',
                 'configuration' => ':configuration',
                 'created_at' => ':created_at',
                 'updated_at' => ':updated_at',
@@ -192,7 +192,7 @@ final readonly class DbalAiProviderRepository extends DbalRepository implements 
             ->setParameter('type', $aiProvider->type->value)
             ->setParameter('name', $aiProvider->name->value)
             ->setParameter('description', $aiProvider->description?->value)
-            ->setParameter('is_default', $aiProvider->isDefault ? 1 : 0)
+            ->setParameter('is_activated', $aiProvider->isActivated ? 1 : 0)
             ->setParameter('configuration', $this->encodeConfiguration($aiProvider))
             ->setParameter('created_at', time())
             ->setParameter('updated_at', time());
@@ -218,14 +218,14 @@ final readonly class DbalAiProviderRepository extends DbalRepository implements 
                 $qb->update(self::TABLE_NAME)
                     ->set('name', ':name')
                     ->set('description', ':description')
-                    ->set('is_default', ':is_default')
+                    ->set('is_activated', ':is_activated')
                     ->set('configuration', ':configuration')
                     ->set('updated_at', ':updated_at')
                     ->where('id = :id')
                     ->setParameter('id', $aiProviderId->value)
                     ->setParameter('name', $aiProvider->name->value)
                     ->setParameter('description', $aiProvider->description?->value)
-                    ->setParameter('is_default', $aiProvider->isDefault ? 1 : 0)
+                    ->setParameter('is_activated', $aiProvider->isActivated ? 1 : 0)
                     ->setParameter('configuration', $this->encodeConfiguration($aiProvider))
                     ->setParameter('updated_at', time());
 
@@ -258,7 +258,7 @@ final readonly class DbalAiProviderRepository extends DbalRepository implements 
             "{$alias}.type AS ap_type",
             "{$alias}.name AS ap_name",
             "{$alias}.description AS ap_description",
-            "{$alias}.is_default AS ap_is_default",
+            "{$alias}.is_activated AS ap_is_activated",
             "{$alias}.configuration AS ap_configuration",
         ];
     }
@@ -291,9 +291,9 @@ final readonly class DbalAiProviderRepository extends DbalRepository implements 
                 );
         }
 
-        if ($criteria->getIsDefault() !== null) {
-            $qb->andWhere('ap.is_default = :is_default')
-                ->setParameter('is_default', $criteria->getIsDefault() ? 1 : 0);
+        if ($criteria->getIsActivated() !== null) {
+            $qb->andWhere('ap.is_activated = :is_activated')
+                ->setParameter('is_activated', $criteria->getIsActivated() ? 1 : 0);
         }
 
         $this->sort($qb, 'ap', $criteria);

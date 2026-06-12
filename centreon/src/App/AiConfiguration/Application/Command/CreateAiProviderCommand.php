@@ -40,7 +40,7 @@ final readonly class CreateAiProviderCommand
         public ModelName $defaultModel,
         public ?ModelName $fastModel,
         public ?AiProviderDescription $description,
-        public bool $isDefault,
+        public bool $isActivated,
         public int $creatorId,
     ) {
     }

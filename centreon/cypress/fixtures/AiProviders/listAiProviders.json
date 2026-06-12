@@ -14,7 +14,7 @@
       "default_model": "claude-sonnet-4-6",
       "fast_model": "claude-haiku-4-5",
       "description": "Main provider",
-      "is_default": true
+      "is_activated": true
     },
     {
       "@id": "/centreon/api/latest/list_ai_provider_resources/2",
@@ -26,7 +26,7 @@
       "default_model": "mistral-small-latest",
       "fast_model": null,
       "description": null,
-      "is_default": false
+      "is_activated": false
     }
   ]
 }

@@ -39,7 +39,7 @@ final class AiProvider extends AggregateRoot
         public ModelName $defaultModel,
         public ?ModelName $fastModel,
         public ?AiProviderDescription $description,
-        public bool $isDefault,
+        public bool $isActivated,
     ) {
         parent::__construct($id);
     }
@@ -74,13 +74,13 @@ final class AiProvider extends AggregateRoot
         $this->description = $description;
     }
 
-    public function markAsDefault(): void
+    public function enable(): void
     {
-        $this->isDefault = true;
+        $this->isActivated = true;
     }
 
-    public function unmarkAsDefault(): void
+    public function disable(): void
     {
-        $this->isDefault = false;
+        $this->isActivated = false;
     }
 }

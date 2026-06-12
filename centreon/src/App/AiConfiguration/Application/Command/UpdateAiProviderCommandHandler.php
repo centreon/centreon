@@ -27,7 +27,6 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Event\AiProviderUpdated;
 use App\AiConfiguration\Domain\Exception\AiProviderAlreadyExistsException;
-use App\AiConfiguration\Domain\Exception\AiProviderCanNotBeUpdatedException;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
 use App\AiConfiguration\Domain\Repository\AiProviderTokenStorage;
 use App\Shared\Application\Command\AsCommandHandler;
@@ -56,13 +55,6 @@ final readonly class UpdateAiProviderCommandHandler
             );
         }
 
-        if ($aiProvider->isDefault && ! $command->isDefault) {
-            throw new AiProviderCanNotBeUpdatedException(
-                ['id' => $aiProvider->id()->value],
-                'The default AI provider configuration can not be unset. Set another configuration as default instead.'
-            );
-        }
-
         $aiProvider->rename($command->name);
         $aiProvider->updateEndpointUrl($command->endpointUrl);
         $aiProvider->updateDefaultModel($command->defaultModel);
@@ -76,13 +68,17 @@ final readonly class UpdateAiProviderCommandHandler
         }
 
         $toUpdate = [$aiProvider];
-        if ($command->isDefault && ! $aiProvider->isDefault) {
-            $currentDefault = $this->repository->findDefault();
-            if ($currentDefault instanceof AiProvider) {
-                $currentDefault->unmarkAsDefault();
-                $toUpdate[] = $currentDefault;
+        if ($command->isActivated && ! $aiProvider->isActivated) {
+            // at most one provider is activated: enabling this one disables the current one
+            $currentlyActivated = $this->repository->findActivated();
+            if ($currentlyActivated instanceof AiProvider) {
+                $currentlyActivated->disable();
+                $toUpdate[] = $currentlyActivated;
             }
-            $aiProvider->markAsDefault();
+            $aiProvider->enable();
+        } elseif (! $command->isActivated && $aiProvider->isActivated) {
+            // disabling the activated provider is allowed: it turns AI features off
+            $aiProvider->disable();
         }
 
         $this->repository->update(...$toUpdate);
