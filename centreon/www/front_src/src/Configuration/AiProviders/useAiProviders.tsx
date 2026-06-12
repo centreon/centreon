@@ -25,13 +25,15 @@ export const adaptFormToApiPayload = (data: unknown): Payload => {
   return {
     default_model: formData.defaultModel,
     description: formData.description || null,
-    endpoint_url: formData.endpointUrl,
     fast_model: formData.fastModel || null,
     is_default: formData.isDefault,
     name: formData.name,
     type: formData.type,
     // the token is write-only: an empty field means "keep the current token"
-    ...(formData.apiToken ? { api_token: formData.apiToken } : {})
+    ...(formData.apiToken ? { api_token: formData.apiToken } : {}),
+    // only meaningful for OpenAI-compatible providers: the API enforces
+    // the official endpoint of the other types
+    ...(formData.endpointUrl ? { endpoint_url: formData.endpointUrl } : {})
   };
 };
 

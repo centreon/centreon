@@ -59,6 +59,23 @@ final class UpdateAiProviderProcessorTest extends AiProviderApiTestCase
         self::assertArrayNotHasKey('api_token', $response->toArray());
     }
 
+    public function testPatchCuratedProviderIgnoresCustomEndpoint(): void
+    {
+        $this->login();
+
+        $id = $this->createProvider('Anthropic production');
+
+        $this->request('PATCH', self::ENDPOINT . '/' . $id, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['endpoint_url' => 'https://llm-gateway.example.com'],
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertJsonContains([
+            'endpoint_url' => 'https://api.anthropic.com',
+        ]);
+    }
+
     public function testPatchUnknownProviderReturns404(): void
     {
         $this->login();

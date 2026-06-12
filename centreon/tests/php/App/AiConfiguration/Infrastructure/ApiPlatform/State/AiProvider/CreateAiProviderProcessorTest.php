@@ -82,6 +82,26 @@ final class CreateAiProviderProcessorTest extends AiProviderApiTestCase
         self::assertArrayNotHasKey('api_token', $response->toArray());
     }
 
+    public function testCreateCuratedProviderIgnoresCustomEndpoint(): void
+    {
+        $this->login();
+
+        $this->request('POST', self::ENDPOINT, [
+            'json' => [
+                'name' => 'Anthropic custom',
+                'type' => 'anthropic',
+                'api_token' => 'a-very-secret-token',
+                'endpoint_url' => 'https://llm-gateway.example.com',
+                'default_model' => 'claude-sonnet-4-6',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains([
+            'endpoint_url' => 'https://api.anthropic.com',
+        ]);
+    }
+
     public function testCreateWithDuplicateNameReturns409(): void
     {
         $this->login();

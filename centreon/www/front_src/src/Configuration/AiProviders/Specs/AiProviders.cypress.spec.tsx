@@ -6,7 +6,8 @@ import {
   labelDefaultModel,
   labelEndpointUrl,
   labelMistral,
-  labelName
+  labelName,
+  labelOpenAiCompatible
 } from '../translatedLabels';
 import initialize from './initialize';
 
@@ -45,7 +46,7 @@ describe('AiProviders', () => {
   });
 
   describe('Modal', () => {
-    it('prefills the endpoint URL and sends the token when a provider is created', () => {
+    it('hides the endpoint URL for curated providers and sends the token when a provider is created', () => {
       cy.waitForRequest('@getAiProviders');
 
       cy.get('[data-testid="add-resource"]').click();
@@ -54,9 +55,10 @@ describe('AiProviders', () => {
 
       cy.findByLabelText(labelAnthropic).click();
 
-      cy.findAllByTestId(labelEndpointUrl)
-        .eq(1)
-        .should('have.value', 'https://api.anthropic.com');
+      // the endpoint of curated providers is enforced by the API
+      cy.get('[data-testid="Modal"]').within(() => {
+        cy.findAllByTestId(labelEndpointUrl).should('have.length', 0);
+      });
 
       cy.findAllByTestId(labelApiToken).eq(1).type('a-very-secret-token');
 
@@ -68,9 +70,37 @@ describe('AiProviders', () => {
         expect(request.body.name).to.equal('Anthropic test');
         expect(request.body.type).to.equal('anthropic');
         expect(request.body.api_token).to.equal('a-very-secret-token');
-        expect(request.body.endpoint_url).to.equal('https://api.anthropic.com');
+        expect(request.body).to.not.have.property('endpoint_url');
         expect(request.body.default_model).to.equal('claude-sonnet-4-6');
         expect(request.body.fast_model).to.equal(null);
+      });
+    });
+
+    it('displays the endpoint URL above the token for OpenAI-compatible providers', () => {
+      cy.waitForRequest('@getAiProviders');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findByLabelText(labelOpenAiCompatible).click();
+
+      const isFollowing = (first: Element, second: Element): boolean =>
+        (first.compareDocumentPosition(second) &
+          Node.DOCUMENT_POSITION_FOLLOWING) !==
+        0;
+
+      cy.get('[data-testid="Modal"]').within(() => {
+        cy.findAllByTestId(labelEndpointUrl)
+          .last()
+          .type('https://llm-gateway.example.com');
+
+        cy.findAllByTestId(labelEndpointUrl).then(($endpoint) => {
+          cy.findAllByTestId(labelApiToken).then(($token) => {
+            cy.findAllByTestId(labelDefaultModel).then(($model) => {
+              expect(isFollowing($endpoint[0], $token[0])).to.equal(true);
+              expect(isFollowing($token[0], $model[0])).to.equal(true);
+            });
+          });
+        });
       });
     });
 

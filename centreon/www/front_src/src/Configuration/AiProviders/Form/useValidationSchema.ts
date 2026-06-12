@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ObjectSchema, object, string } from 'yup';
 
 import { modalStateAtom } from '../../ConfigurationBase/atoms';
+import { AiProviderType } from '../models';
 import { labelInvalidUrl, labelRequired } from '../translatedLabels';
 
 export const useValidationSchema = (): ObjectSchema<object> => {
@@ -17,9 +18,15 @@ export const useValidationSchema = (): ObjectSchema<object> => {
       ? string().nullable()
       : string().required(t(labelRequired)),
     defaultModel: string().required(t(labelRequired)),
-    endpointUrl: string()
-      .matches(/^https?:\/\/.+/, t(labelInvalidUrl))
-      .required(t(labelRequired)),
+    // the endpoint is only exposed for OpenAI-compatible providers:
+    // the API enforces the official endpoint of the other types
+    endpointUrl: string().when('type', ([type], schema) =>
+      equals(type, AiProviderType.OpenAiCompatible)
+        ? schema
+            .matches(/^https?:\/\/.+/, t(labelInvalidUrl))
+            .required(t(labelRequired))
+        : schema.nullable()
+    ),
     name: string().required(t(labelRequired)),
     type: string().required(t(labelRequired))
   });

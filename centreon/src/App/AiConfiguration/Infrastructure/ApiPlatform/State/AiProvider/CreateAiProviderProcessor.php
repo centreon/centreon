@@ -70,12 +70,13 @@ final readonly class CreateAiProviderProcessor implements ProcessorInterface
 
         $type = AiProviderTypeEnum::from($data->type);
 
-        $endpointUrl = $data->endpointUrl !== null
-            ? new EndpointUrl($data->endpointUrl)
-            : $type->defaultEndpointUrl()
-                ?? throw new UnprocessableEntityHttpException(
+        // The endpoint URL of curated providers is fixed: any provided value is ignored.
+        $endpointUrl = $type->defaultEndpointUrl()
+            ?? ($data->endpointUrl !== null
+                ? new EndpointUrl($data->endpointUrl)
+                : throw new UnprocessableEntityHttpException(
                     sprintf("An endpoint URL is required for providers of type '%s'.", $type->value)
-                );
+                ));
 
         $command = new CreateAiProviderCommand(
             name: new AiProviderName(trim($data->name)),

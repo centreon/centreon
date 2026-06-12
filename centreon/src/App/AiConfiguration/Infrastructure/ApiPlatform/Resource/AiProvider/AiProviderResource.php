@@ -116,7 +116,9 @@ final class AiProviderResource
         public string $type,
 
         #[ApiProperty(
-            description: 'Base URL of the AI provider API',
+            description: 'Base URL of the AI provider API. Only customizable for OpenAI-compatible '
+                . 'providers; for the other provider types the official endpoint is enforced and '
+                . 'any provided value is ignored.',
             openapiContext: ['example' => 'https://api.anthropic.com'],
         )]
         #[Assert\Length(min: 1, max: 2048)]

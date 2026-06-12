@@ -21,7 +21,7 @@ import {
   labelName,
   labelType
 } from '../translatedLabels';
-import { aiProviderTypeLabels, defaultEndpointUrls } from '../utils';
+import { aiProviderTypeLabels } from '../utils';
 
 export const useInputs = (): {
   groups: Array<Group>;
@@ -63,16 +63,6 @@ export const useInputs = (): {
         type: InputType.Text
       },
       {
-        change: ({ setFieldValue, value }): void => {
-          // the change callback replaces the default behavior: set the field first
-          setFieldValue('type', value);
-
-          const defaultEndpointUrl =
-            defaultEndpointUrls[value as AiProviderType];
-          if (defaultEndpointUrl) {
-            setFieldValue('endpointUrl', defaultEndpointUrl);
-          }
-        },
         fieldName: 'type',
         getDisabled: () => isEditing,
         group: t(labelGeneralInformation),
@@ -96,6 +86,9 @@ export const useInputs = (): {
       {
         fieldName: 'endpointUrl',
         group: t(labelConnection),
+        // the endpoint of curated providers is enforced by the API
+        hideInput: (values) =>
+          !equals(values.type, AiProviderType.OpenAiCompatible),
         label: t(labelEndpointUrl),
         required: true,
         type: InputType.Text
@@ -104,7 +97,10 @@ export const useInputs = (): {
         fieldName: 'apiToken',
         group: t(labelConnection),
         label: t(labelApiToken),
-        required: !isEditing,
+        // also required while editing: leaving it empty keeps the current
+        // token (see the placeholder), and the Form component would move
+        // a non-required field below the required ones
+        required: true,
         text: {
           placeholder: isEditing ? t(labelApiTokenHint) : undefined
         },

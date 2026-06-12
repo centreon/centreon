@@ -97,8 +97,9 @@ final class CreateAiProviderResource
         public string $defaultModel,
 
         #[ApiProperty(
-            description: 'Base URL of the AI provider API. Defaults to the official endpoint of the '
-                . 'provider; required for OpenAI-compatible providers.',
+            description: 'Base URL of the AI provider API. Only used for OpenAI-compatible providers, '
+                . 'where it is required; for the other provider types the official endpoint is '
+                . 'enforced and any provided value is ignored.',
             openapiContext: ['example' => 'https://api.anthropic.com'],
         )]
         #[Assert\Length(min: 1, max: 2048)]

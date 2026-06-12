@@ -30,6 +30,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderDescription;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
@@ -65,10 +66,14 @@ final readonly class UpdateAiProviderProcessor implements ProcessorInterface
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
+        // The endpoint URL of curated providers is fixed: any provided value is ignored.
+        $endpointUrl = AiProviderTypeEnum::from($data->type)->defaultEndpointUrl()
+            ?? new EndpointUrl($data->endpointUrl);
+
         $command = new UpdateAiProviderCommand(
             id: new AiProviderId($uriVariables['id']),
             name: new AiProviderName(trim($data->name)),
-            endpointUrl: new EndpointUrl($data->endpointUrl),
+            endpointUrl: $endpointUrl,
             apiToken: $data->apiToken !== null ? new ApiToken($data->apiToken) : null,
             defaultModel: new ModelName($data->defaultModel),
             fastModel: $data->fastModel !== null ? new ModelName($data->fastModel) : null,
