@@ -98,6 +98,19 @@ const Filter = (): JSX.Element => {
   const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
   const clearFilter = useSetAtom(clearFilterDerivedAtom);
 
+  const applyCurrentFilterRef = useRef(applyCurrentFilter);
+  applyCurrentFilterRef.current = applyCurrentFilter;
+
+  const debouncedApply = useRef(
+    debounce((): void => {
+      applyCurrentFilterRef.current();
+    }, 500)
+  );
+
+  useEffect(() => {
+    debouncedApply.current();
+  }, [search]);
+
   const open = Boolean(autocompleteAnchor);
 
   useEffect(() => {
