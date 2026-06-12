@@ -5,6 +5,7 @@ import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ObjectSchema, object, string } from 'yup';
 
+import { baseEndpoint } from '../../../api/endpoint';
 import { modalStateAtom } from '../../ConfigurationBase/atoms';
 import { aiProvidersEndpoint } from '../api';
 import { AiProviderType } from '../models';
@@ -32,7 +33,7 @@ export const useValidationSchema = (): ObjectSchema<object> => {
     if (!(name in knownNamesRef.current)) {
       try {
         const { data } = await axios.get<ListingResponse>(
-          `${aiProvidersEndpoint}?name[lk]=${encodeURIComponent(name)}`
+          `${baseEndpoint}${aiProvidersEndpoint}?name[lk]=${encodeURIComponent(name)}`
         );
         const existing = (data.member || []).find((provider) =>
           equals(provider.name, name)

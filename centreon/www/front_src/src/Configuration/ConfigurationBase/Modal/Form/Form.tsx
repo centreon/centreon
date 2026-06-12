@@ -100,6 +100,10 @@ const HostGroupForm = ({
       isCollapsible
       isLoading={isLoading}
       submit={(values, bag) => onSubmit?.(values, bag)}
+      // compute the initial errors: the submit button must not flash as
+      // enabled between the first change and the end of the (possibly
+      // asynchronous) first validation run
+      validateOnMount
       validationSchema={validationSchema}
     />
   );
