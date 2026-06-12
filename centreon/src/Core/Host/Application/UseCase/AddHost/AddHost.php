@@ -63,6 +63,7 @@ use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepository
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Webmozart\Assert\InvalidArgumentException;
 
 final class AddHost
 {
@@ -151,7 +152,7 @@ final class AddHost
             $presenter->presentResponse(
                 $this->createResponse($hostId, $request->templates)
             );
-        } catch (AssertionFailedException|\ValueError $ex) {
+        } catch (AssertionFailedException|InvalidArgumentException|\ValueError $ex) {
             $presenter->presentResponse(new InvalidArgumentResponse($ex));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (HostException $ex) {
