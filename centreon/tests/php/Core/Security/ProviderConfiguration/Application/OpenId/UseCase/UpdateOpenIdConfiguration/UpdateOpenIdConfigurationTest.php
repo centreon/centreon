@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\ProviderConfiguration\Application\OpenId\UseCase\UpdateOpenIdConfiguration;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
@@ -177,7 +176,7 @@ it('should present an ErrorResponse when an error occured during the use case ex
         ->expects($this->once())
         ->method('setResponseStatus')
         ->with(new ErrorResponse(
-            AssertionException::ipOrDomain('abcd_.@', 'AuthenticationConditions::trustedClientAddresses')->getMessage()
+            '[AuthenticationConditions::trustedClientAddresses] The value "abcd_.@" was expected to be a valid IP address or hostname'
         ));
 
     $useCase = new UpdateOpenIdConfiguration(

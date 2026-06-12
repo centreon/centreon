@@ -54,6 +54,7 @@ use Core\Security\ProviderConfiguration\Domain\SAML\Exception\MissingLogoutUrlEx
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration as SAMLCustomConfiguration;
 use Core\Security\ProviderConfiguration\Domain\WebSSO\Model\CustomConfiguration as WebSSOCustomConfiguration;
 use JsonSchema\Exception\InvalidArgumentException;
+use Webmozart\Assert\InvalidArgumentException as WebmozartAssertException;
 
 /**
  * @phpstan-import-type _EndpointArray from Endpoint
@@ -639,7 +640,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
                 $authenticationConditions->setTrustedClientAddresses(
                     $authenticationConditionsRecord['trusted_client_addresses']
                 );
-            } catch (AssertionFailedException $e) {
+            } catch (AssertionFailedException|WebmozartAssertException $e) {
                 throw new RepositoryException(
                     message: 'Could not set trusted client addresses for authentication conditions: ' . $e->getMessage(),
                     context: ['trusted_client_addresses' => $authenticationConditionsRecord['trusted_client_addresses']],
@@ -653,7 +654,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
                 $authenticationConditions->setBlacklistClientAddresses(
                     $authenticationConditionsRecord['blacklist_client_addresses']
                 );
-            } catch (AssertionFailedException $e) {
+            } catch (AssertionFailedException|WebmozartAssertException $e) {
                 throw new RepositoryException(
                     message: 'Could not set blacklist client addresses for authentication conditions: ' . $e->getMessage(),
                     context: ['blacklist_client_addresses' => $authenticationConditionsRecord['blacklist_client_addresses']],
