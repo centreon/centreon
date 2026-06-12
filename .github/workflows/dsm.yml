@@ -146,16 +146,20 @@ jobs:
       - name: 🛠️ Rector checks
         if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon-dsm
+        env:
+          PHP_DIFF_FILES: ${{ steps.changed-php.outputs.all_changed_files }}
         run: |
           echo "Run of these Rector tests: rector:legacy on diff" && set -e
-          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer rector:diff
+          composer rector:diff
 
       - name: 🧹 PHP-CS-Fixer checks
         if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon-dsm
+        env:
+          PHP_DIFF_FILES: ${{ steps.changed-php.outputs.all_changed_files }}
         run: |
           echo "Run of these PHP-CS-Fixer tests: cs:legacy on diff" && set -e
-          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer cs:diff
+          composer cs:diff
 
       - name: 🔍 PHPStan checks
         working-directory: centreon-dsm
