@@ -1,5 +1,4 @@
-major := "25.10"
-version := "1.0.0"
+major := `grep "^MAJOR=" ../../.version | cut -d= -f2`
 
-build centreon-major=major script-version=version:
-    bash build.sh {{centreon-major}} {{script-version}}
+build:
+    bash build.sh {{major}}

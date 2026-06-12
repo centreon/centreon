@@ -15,14 +15,15 @@
 
 major=$1
 if [ "${major}" = "" ]; then
-  echo "[ERROR] you must specify a major version for centreon as first argument"
-  exit 1
-fi
-
-version=$2
-if [ "${version}" = "" ]; then
-  echo "[ERROR] you must specify a script version as second argument"
-  exit 1
+  version_file="$(dirname "$0")/../../.version"
+  if [ -f "${version_file}" ]; then
+    major=$(grep "^MAJOR=" "${version_file}" | cut -d= -f2)
+  fi
+  if [ "${major}" = "" ]; then
+    echo "[ERROR] you must specify a major version as first argument or have a .version file at repo root"
+    exit 1
+  fi
+  echo "[INFO] using major version from .version: ${major}"
 fi
 
 if [ "${target}" = "" ]; then
@@ -33,10 +34,10 @@ cp -f main-head.sh "${target}"
 
 if [[ "$(uname)" == "Darwin" ]]; then
   gsed -i "s/major=\"\"/major=\"$major\"/g" "${target}"
-  gsed -i "s/script version <VERSION>/script version ${version} /g" "${target}"
+  gsed -i "s/<MAJOR>/${major}/g" "${target}"
 else
   sed -i "s/major=\"\"/major=\"$major\"/g" "${target}"
-  sed -i "s/script version <VERSION>/script version ${version} /g" "${target}"
+  sed -i "s/<MAJOR>/${major}/g" "${target}"
 fi
 
 ## N.B the 'tail -n +14' is used to skip the first 13 lines of each file which are the license header
