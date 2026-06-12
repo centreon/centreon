@@ -30,6 +30,11 @@ afterEach(function (): void {
             @unlink($file);
         }
     }
+
+    $legacyLoginLog = _CENTREON_LOG_ . 'login.log';
+    if (file_exists($legacyLoginLog)) {
+        @unlink($legacyLoginLog);
+    }
 });
 
 function centreonLogPath(string $slug): string
@@ -108,7 +113,9 @@ function centreonLegacyLoginLogPath(): string
 
 it('mirrors authentication events to the legacy login.log in the historical pipe format', function (): void {
     $legacyFile = centreonLegacyLoginLogPath();
-    @unlink($legacyFile);
+    if (file_exists($legacyFile)) {
+        unlink($legacyFile);
+    }
 
     (new CentreonUserLog(42, null))->insertLog(
         CentreonUserLog::TYPE_LOGIN,
@@ -121,17 +128,15 @@ it('mirrors authentication events to the legacy login.log in the historical pipe
         ->and(file_get_contents($legacyFile))->toMatch(
             '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\|42\|0\|0\|\[local\] \[10\.0\.0\.1\] Authentication failed for admin\n$/'
         );
-
-    @unlink($legacyFile);
 });
 
 it('does not mirror non-authentication events to login.log', function (): void {
     $legacyFile = centreonLegacyLoginLogPath();
-    @unlink($legacyFile);
+    if (file_exists($legacyFile)) {
+        unlink($legacyFile);
+    }
 
     (new CentreonUserLog(1, null))->insertLog(CentreonUserLog::TYPE_UPGRADE, 'upgrade marker');
 
     expect(file_exists($legacyFile))->toBeFalse();
-
-    @unlink($legacyFile);
 });
