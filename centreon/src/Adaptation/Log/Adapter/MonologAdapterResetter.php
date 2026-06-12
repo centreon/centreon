@@ -21,22 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Adaptation\Log\Enum;
+namespace Adaptation\Log\Adapter;
 
-enum LogChannelEnum: string
+use Symfony\Contracts\Service\ResetInterface;
+
+/**
+ * Bridges {@see MonologAdapter}'s process-lived static UidProcessor onto the
+ * Symfony `kernel.reset` mechanism, so the uid is regenerated between work units
+ * of a long-running process (e.g. an async Messenger consumer).
+ */
+final class MonologAdapterResetter implements ResetInterface
 {
-    case AUTHENTICATION = 'authentication';
-    case PASSWORD = 'password';
-    case PLUGIN_PACK_MANAGER = 'plugin-pack-manager';
-    case TOKEN = 'token';
-    case UPGRADE = 'upgrade';
-    case WEB = 'web';
-
-    public function getLogFileSlug(): string
+    public function reset(): void
     {
-        return match ($this) {
-            self::AUTHENTICATION => 'access',
-            default => $this->value,
-        };
+        MonologAdapter::reset();
     }
 }

@@ -77,3 +77,20 @@ checkstyle.core.xml
 .swc
 junit.xml
 
+# castor
+.castor.stub.php
+
+# deptrac
+.deptrac_bc.cache
+.deptrac_hexa.cache
+
+# phpunit
+.phpunit.new.cache
+.phpunit.new.integration.cache
+
+# Stray monolog files produced by tests that bootstrap CentreonLog
+/prod.*.log
+/dev.*.log
+/test.*.log
+# Legacy login.log mirror written by CentreonUserLog when tests bootstrap it
+/login.log
