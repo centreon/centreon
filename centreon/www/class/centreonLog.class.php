@@ -71,6 +71,10 @@ class CentreonUserLog
         ];
 
         Logger::create(self::resolveChannel((int) $id))->info($message, $context);
+
+        if ((int) $id === self::TYPE_LOGIN) {
+            $this->mirrorAuthenticationEventToLegacyFile((string) $str, $page, $option);
+        }
     }
 
     /**
@@ -95,6 +99,29 @@ class CentreonUserLog
         }
 
         return self::$instance;
+    }
+
+    /**
+     * Mirror an authentication event to the historical login.log file.
+     *
+     * Authentication events are now routed to the Monolog "authentication" channel
+     * (prod.access.log). This duplicate write keeps the legacy pipe-delimited format and
+     * file path so external consumers that watch /var/log/centreon/login.log (fail2ban
+     * jails matching the "Authentication failed" line with the client IP, SIEM parsers)
+     * keep working unchanged. It is transitional and will be removed in a future release
+     * once those consumers read the Monolog access log instead.
+     *
+     * @param string $str the raw message as passed by the caller
+     * @param int $page
+     * @param int $option
+     */
+    private function mirrorAuthenticationEventToLegacyFile(string $str, $page, $option): void
+    {
+        $logDir = defined('_CENTREON_LOG_') ? _CENTREON_LOG_ : '/var/log/centreon';
+        $line = date('Y-m-d H:i:s') . '|' . $this->uid . "|{$page}|{$option}|{$str}";
+        $line = str_replace(['`', '*'], ['', '\*'], $line);
+
+        file_put_contents($logDir . '/login.log', $line . "\n", FILE_APPEND);
     }
 
     private static function resolveChannel(int $type): LogChannelEnum

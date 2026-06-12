@@ -464,9 +464,11 @@ Consequence: every handler using `monolog.formatter.line` (centreon-web + any mo
 |------------------|--------|
 | `event`, `doctrine`, `console` | Internal Symfony / DBAL noise — not desired in `prod.web.log`. |
 | `deprecation` | MON-151077 → dedicated file `prod.deprecations.log`. |
-| `authentication` | MON-151077 → merged into `prod.access.log` on the centreon-web side. |
+| `authentication` | MON-151077 → merged into `prod.access.log` on the centreon-web side (see the backward-compatibility note below for `login.log`). |
 | `token` | MON-151077 → dedicated file `prod.token.log`. |
 | `password`, `plugin-pack-manager`, `upgrade` | MON-151077 → dedicated files. Not Monolog channels strictly speaking today (written directly by legacy `CentreonLog` code), but listed in anticipation of a future migration to Monolog. |
+
+> **Backward compatibility — `login.log` is intentionally kept.** Authentication events now flow to the `authentication` channel (`prod.access.log`). To avoid breaking external consumers that parse the historical `/var/log/centreon/login.log` — most notably **fail2ban** jails matching the `Authentication failed for …` line with the client IP — `CentreonUserLog::insertLog()` still mirrors every `TYPE_LOGIN` event to `login.log` in the original pipe-delimited format (`date|uid|page|option|message`). This duplicate write is **transitional**: it is kept on purpose for client compatibility and will be removed in a future release once consumers have migrated to the Monolog access log (cleanup tracked in a dedicated ticket). `login.log` remains covered by `logrotate/centreon`.
 
 | Property | Effect |
 |----------|--------|

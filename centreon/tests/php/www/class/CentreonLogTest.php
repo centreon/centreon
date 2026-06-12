@@ -100,3 +100,38 @@ it('accepts an exception payload alongside the custom context', function (): voi
 it('keeps the legacy insertLog signature working', function (): void {
     expect(fn () => CentreonLog::create()->insertLog(CentreonLog::TYPE_BUSINESS_LOG, 'legacy entry'))->not->toThrow(Throwable::class);
 });
+
+function centreonLegacyLoginLogPath(): string
+{
+    return _CENTREON_LOG_ . 'login.log';
+}
+
+it('mirrors authentication events to the legacy login.log in the historical pipe format', function (): void {
+    $legacyFile = centreonLegacyLoginLogPath();
+    @unlink($legacyFile);
+
+    (new CentreonUserLog(42, null))->insertLog(
+        CentreonUserLog::TYPE_LOGIN,
+        '[local] [10.0.0.1] Authentication failed for `admin`'
+    );
+
+    // Pipe-delimited "date|uid|page|option|message" with backticks stripped, exactly as
+    // before the Monolog migration, so fail2ban jails watching login.log keep matching.
+    expect(file_exists($legacyFile))->toBeTrue()
+        ->and(file_get_contents($legacyFile))->toMatch(
+            '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\|42\|0\|0\|\[local\] \[10\.0\.0\.1\] Authentication failed for admin\n$/'
+        );
+
+    @unlink($legacyFile);
+});
+
+it('does not mirror non-authentication events to login.log', function (): void {
+    $legacyFile = centreonLegacyLoginLogPath();
+    @unlink($legacyFile);
+
+    (new CentreonUserLog(1, null))->insertLog(CentreonUserLog::TYPE_UPGRADE, 'upgrade marker');
+
+    expect(file_exists($legacyFile))->toBeFalse();
+
+    @unlink($legacyFile);
+});
