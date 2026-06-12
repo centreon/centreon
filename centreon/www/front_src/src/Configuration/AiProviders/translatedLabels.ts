@@ -30,3 +30,5 @@ export const labelConnection = 'Connection';
 
 export const labelRequired = 'Required';
 export const labelInvalidUrl = 'The endpoint must be a valid URL';
+export const labelNameAlreadyExists =
+  'An AI provider with this name already exists';

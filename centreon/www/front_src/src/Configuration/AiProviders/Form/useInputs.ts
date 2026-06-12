@@ -63,6 +63,28 @@ export const useInputs = (): {
         type: InputType.Text
       },
       {
+        change: ({ setValues, value }): void => {
+          // the change callback replaces the default behavior, and the
+          // updater form is needed: the values passed to the callback can
+          // be stale since the radio does not re-render on name changes
+          setValues((currentValues) => {
+            // default the name to the provider type while the user has not
+            // chosen one (empty, or the label of a previously selected type)
+            const typeLabels = Object.values(aiProviderTypeLabels).map(
+              (label) => t(label)
+            );
+            const keepName =
+              currentValues.name && !typeLabels.includes(currentValues.name);
+
+            return {
+              ...currentValues,
+              name: keepName
+                ? currentValues.name
+                : t(aiProviderTypeLabels[value as AiProviderType]),
+              type: value
+            };
+          });
+        },
         fieldName: 'type',
         getDisabled: () => isEditing,
         group: t(labelGeneralInformation),

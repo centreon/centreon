@@ -7,6 +7,7 @@ import {
   labelEndpointUrl,
   labelMistral,
   labelName,
+  labelNameAlreadyExists,
   labelOpenAiCompatible
 } from '../translatedLabels';
 import initialize from './initialize';
@@ -74,6 +75,48 @@ describe('AiProviders', () => {
         expect(request.body.default_model).to.equal('claude-sonnet-4-6');
         expect(request.body.fast_model).to.equal(null);
       });
+    });
+
+    it('defaults the name to the provider type until the user chooses one', () => {
+      cy.waitForRequest('@getAiProviders');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findByLabelText(labelMistral).click();
+
+      cy.findAllByTestId(labelName).eq(1).should('have.value', 'Mistral');
+
+      // the name follows the type while it is still an auto-filled one
+      cy.findByLabelText(labelAnthropic).click();
+
+      cy.findAllByTestId(labelName).eq(1).should('have.value', 'Anthropic');
+
+      // a name chosen by the user is left untouched
+      cy.findAllByTestId(labelName).eq(1).clear().type('My provider');
+
+      cy.findByLabelText(labelMistral).click();
+
+      cy.findAllByTestId(labelName).eq(1).should('have.value', 'My provider');
+    });
+
+    it('warns and disables saving when the name is already used', () => {
+      cy.waitForRequest('@getAiProviders');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findByLabelText(labelAnthropic).click();
+
+      cy.findAllByTestId(labelName).eq(1).clear().type('Anthropic production');
+
+      cy.findAllByTestId(labelApiToken).eq(1).type('a-very-secret-token');
+
+      cy.findAllByTestId(labelDefaultModel).eq(1).type('claude-sonnet-4-6');
+
+      cy.contains(labelNameAlreadyExists);
+
+      cy.contains(/^Save$/).should('be.disabled');
+
+      cy.makeSnapshot();
     });
 
     it('displays the endpoint URL above the token for OpenAI-compatible providers', () => {
