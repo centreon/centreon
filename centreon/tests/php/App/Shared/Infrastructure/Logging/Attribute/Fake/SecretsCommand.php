@@ -21,30 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Centreon\Domain\Authentication\UseCase;
+namespace Tests\App\Shared\Infrastructure\Logging\Attribute\Fake;
 
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 
-class LogoutRequest
+/**
+ * Covers the MON-199097 under-mask cases: `passcode`, `ssoTicket` are
+ * real secrets but don't match any keyword of the shared
+ * `SensitiveKeywordDenylist` — `#[Sensitive]` lifts the gap.
+ */
+final readonly class SecretsCommand
 {
-    /**
-     * Authentication Token
-     *
-     * @var string
-     */
-    #[Sensitive]
-    private $token;
-
-    public function __construct(string $token)
-    {
-        $this->token = $token;
-    }
-
-    /**
-     * @return string
-     */
-    public function getToken(): string
-    {
-        return $this->token;
+    public function __construct(
+        #[Sensitive]
+        public string $passcode,
+        #[Sensitive]
+        public string $ssoTicket,
+        public int $userId,
+    ) {
     }
 }

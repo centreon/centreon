@@ -21,30 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Centreon\Domain\Authentication\UseCase;
+namespace Tests\App\Shared\Infrastructure\Logging\Attribute\Fake;
 
-use App\Shared\Domain\Logging\Attribute\Sensitive;
-
-class LogoutRequest
+/**
+ * Carries a {@see SensitiveValueObject} typed property to pin that a
+ * `#[Sensitive]` class is masked wholesale through recursion.
+ */
+final readonly class CardHolderCommand
 {
-    /**
-     * Authentication Token
-     *
-     * @var string
-     */
-    #[Sensitive]
-    private $token;
-
-    public function __construct(string $token)
-    {
-        $this->token = $token;
-    }
-
-    /**
-     * @return string
-     */
-    public function getToken(): string
-    {
-        return $this->token;
+    public function __construct(
+        public SensitiveValueObject $card,
+        public string $label,
+    ) {
     }
 }

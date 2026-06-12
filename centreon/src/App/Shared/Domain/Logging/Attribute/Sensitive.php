@@ -21,30 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Centreon\Domain\Authentication\UseCase;
+namespace App\Shared\Domain\Logging\Attribute;
 
-use App\Shared\Domain\Logging\Attribute\Sensitive;
-
-class LogoutRequest
+/**
+ * Marks a value that must be masked (`***`) when the containing object
+ * flows through the logging pipeline. Allowed on:
+ *
+ *  - a **property** — its value is masked;
+ *  - a **method** (typically a getter) — the accessor key it exposes is
+ *    masked (`getX`/`isX`/`hasX` → `x`, otherwise the raw method name);
+ *  - a **class** — every value typed as that class is masked wholesale,
+ *    so the sanitiser never descends into it.
+ */
+#[\Attribute(\Attribute::TARGET_PROPERTY | \Attribute::TARGET_METHOD | \Attribute::TARGET_CLASS)]
+final readonly class Sensitive
 {
-    /**
-     * Authentication Token
-     *
-     * @var string
-     */
-    #[Sensitive]
-    private $token;
-
-    public function __construct(string $token)
-    {
-        $this->token = $token;
-    }
-
-    /**
-     * @return string
-     */
-    public function getToken(): string
-    {
-        return $this->token;
-    }
 }

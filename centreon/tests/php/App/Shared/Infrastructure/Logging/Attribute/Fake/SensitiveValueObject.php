@@ -21,30 +21,21 @@
 
 declare(strict_types=1);
 
-namespace Centreon\Domain\Authentication\UseCase;
+namespace Tests\App\Shared\Infrastructure\Logging\Attribute\Fake;
 
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 
-class LogoutRequest
+/**
+ * Pins the TARGET_CLASS path: the whole value object is sensitive, so
+ * any property typed as it must be masked wholesale by the sanitiser
+ * without descending into its own properties.
+ */
+#[Sensitive]
+final readonly class SensitiveValueObject
 {
-    /**
-     * Authentication Token
-     *
-     * @var string
-     */
-    #[Sensitive]
-    private $token;
-
-    public function __construct(string $token)
-    {
-        $this->token = $token;
-    }
-
-    /**
-     * @return string
-     */
-    public function getToken(): string
-    {
-        return $this->token;
+    public function __construct(
+        public string $number,
+        public string $holder,
+    ) {
     }
 }

@@ -26,6 +26,7 @@ namespace App\Shared\Infrastructure\Messenger;
 use App\Shared\Infrastructure\Logging\ExceptionFormatter;
 use App\Shared\Infrastructure\Logging\LogPayloadNormalizer;
 use App\Shared\Infrastructure\Logging\NonArrayNormalizationException;
+use App\Shared\Infrastructure\Logging\PayloadSanitizer;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Symfony\Component\Messenger\Envelope;
@@ -39,6 +40,7 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
     public function __construct(
         private LoggerInterface $logger,
         private LogPayloadNormalizer $payloadNormalizer,
+        private PayloadSanitizer $sanitizer,
     ) {
     }
 
@@ -140,19 +142,24 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
     private function normalizePayload(object $message): array
     {
         try {
-            return $this->payloadNormalizer->normalize($message);
+            $payload = $this->payloadNormalizer->normalize($message);
         } catch (NonArrayNormalizationException $e) {
             $this->logger->warning('Normalizer returned a non-array value for ' . $message::class, [
                 'handler_message' => $message::class,
                 'returned_type' => $e->returnedType,
             ]);
+
+            return ['__class' => $message::class];
         } catch (\Throwable $e) {
             $this->logger->warning('Normalizer failed for ' . $message::class, [
                 'handler_message' => $message::class,
                 'exception' => ExceptionFormatter::format($e),
             ]);
+
+            return ['__class' => $message::class];
         }
 
-        return ['__class' => $message::class];
+        /** @var array<string, mixed> */
+        return $this->sanitizer->sanitize($payload, 0, $message::class);
     }
 }
