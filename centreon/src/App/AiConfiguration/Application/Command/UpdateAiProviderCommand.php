@@ -38,7 +38,8 @@ final readonly class UpdateAiProviderCommand
         public EndpointUrl $endpointUrl,
         /** A null token means "keep the current token". */
         public ?ApiToken $apiToken,
-        public ?ModelName $defaultModel,
+        public ModelName $defaultModel,
+        public ?ModelName $fastModel,
         public ?AiProviderDescription $description,
         public bool $isDefault,
         public int $updatedBy,

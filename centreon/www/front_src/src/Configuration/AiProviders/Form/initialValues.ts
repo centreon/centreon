@@ -1,8 +1,9 @@
 export const initialValues = {
   apiToken: '',
-  defaultModel: null,
+  defaultModel: '',
   description: null,
   endpointUrl: '',
+  fastModel: null,
   isDefault: false,
   name: '',
   type: null

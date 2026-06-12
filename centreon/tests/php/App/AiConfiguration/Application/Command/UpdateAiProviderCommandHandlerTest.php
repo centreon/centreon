@@ -30,6 +30,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Event\AiProviderUpdated;
 use App\AiConfiguration\Domain\Exception\AiProviderAlreadyExistsException;
 use App\AiConfiguration\Domain\Exception\AiProviderCanNotBeUpdatedException;
@@ -153,7 +154,8 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
             type: AiProviderTypeEnum::Anthropic,
             endpointUrl: new EndpointUrl('https://api.anthropic.com'),
             apiToken: new ApiToken('initial-token'),
-            defaultModel: null,
+            defaultModel: new ModelName('claude-sonnet-4-6'),
+            fastModel: null,
             description: null,
             isDefault: $isDefault,
         );
@@ -174,6 +176,7 @@ final class UpdateAiProviderCommandHandlerTest extends TestCase
             endpointUrl: $aiProvider->endpointUrl,
             apiToken: $apiToken !== null ? new ApiToken($apiToken) : null,
             defaultModel: $aiProvider->defaultModel,
+            fastModel: $aiProvider->fastModel,
             description: $aiProvider->description,
             isDefault: $isDefault ?? $aiProvider->isDefault,
             updatedBy: 1,

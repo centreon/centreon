@@ -3,6 +3,7 @@ import {
   labelAnthropic,
   labelApiToken,
   labelDefault,
+  labelDefaultModel,
   labelEndpointUrl,
   labelMistral,
   labelName
@@ -59,6 +60,8 @@ describe('AiProviders', () => {
 
       cy.findAllByTestId(labelApiToken).eq(1).type('a-very-secret-token');
 
+      cy.findAllByTestId(labelDefaultModel).eq(1).type('claude-sonnet-4-6');
+
       cy.contains(/^Save$/).click();
 
       cy.waitForRequest('@createAiProvider').then(({ request }) => {
@@ -66,6 +69,8 @@ describe('AiProviders', () => {
         expect(request.body.type).to.equal('anthropic');
         expect(request.body.api_token).to.equal('a-very-secret-token');
         expect(request.body.endpoint_url).to.equal('https://api.anthropic.com');
+        expect(request.body.default_model).to.equal('claude-sonnet-4-6');
+        expect(request.body.fast_model).to.equal(null);
       });
     });
 

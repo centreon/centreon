@@ -66,6 +66,7 @@ final readonly class UpdateAiProviderCommandHandler
         $aiProvider->rename($command->name);
         $aiProvider->updateEndpointUrl($command->endpointUrl);
         $aiProvider->updateDefaultModel($command->defaultModel);
+        $aiProvider->updateFastModel($command->fastModel);
         $aiProvider->updateDescription($command->description);
 
         if ($command->apiToken instanceof ApiToken) {

@@ -79,20 +79,4 @@ final class TestAiProviderProcessorTest extends AiProviderApiTestCase
         self::assertFalse($result['success']);
         self::assertNotEmpty($result['message']);
     }
-
-    public function testProviderWithoutAnyModelIsReportedAsFailedTest(): void
-    {
-        $this->login();
-
-        // created without a default model: the test can not pick a model
-        $id = $this->createProvider('Anthropic production');
-
-        $testResponse = $this->request('POST', self::ENDPOINT . '/' . $id . '/test', ['json' => []]);
-
-        self::assertResponseStatusCodeSame(200);
-        /** @var array{success: bool, message: string|null} $result */
-        $result = $testResponse->toArray();
-        self::assertFalse($result['success']);
-        self::assertStringContainsString('model', (string) $result['message']);
-    }
 }

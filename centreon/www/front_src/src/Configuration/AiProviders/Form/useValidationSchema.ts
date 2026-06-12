@@ -16,6 +16,7 @@ export const useValidationSchema = (): ObjectSchema<object> => {
     apiToken: isEditing
       ? string().nullable()
       : string().required(t(labelRequired)),
+    defaultModel: string().required(t(labelRequired)),
     endpointUrl: string()
       .matches(/^https?:\/\/.+/, t(labelInvalidUrl))
       .required(t(labelRequired)),

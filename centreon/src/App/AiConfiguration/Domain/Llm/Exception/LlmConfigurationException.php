@@ -25,18 +25,13 @@ namespace App\AiConfiguration\Domain\Llm\Exception;
 
 /**
  * The LLM request can not be built from the AI provider configuration
- * (e.g. no default provider, no model available, unresolvable token).
+ * (e.g. no default provider, unresolvable token).
  */
 final class LlmConfigurationException extends LlmException
 {
     public static function noDefaultProvider(): self
     {
         return new self('No default AI provider is configured.');
-    }
-
-    public static function noModel(): self
-    {
-        return new self('No model is configured for this AI provider: set a default model or provide one explicitly.');
     }
 
     public static function unresolvableToken(): self

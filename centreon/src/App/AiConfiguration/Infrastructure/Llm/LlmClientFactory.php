@@ -60,6 +60,7 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
                 $aiProvider->endpointUrl,
                 $aiProvider->apiToken,
                 $aiProvider->defaultModel,
+                $aiProvider->fastModel,
             ),
             AiProviderTypeEnum::OpenAi,
             AiProviderTypeEnum::Mistral,
@@ -68,6 +69,7 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
                 $aiProvider->endpointUrl,
                 $aiProvider->apiToken,
                 $aiProvider->defaultModel,
+                $aiProvider->fastModel,
             ),
         };
     }

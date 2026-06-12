@@ -26,9 +26,9 @@ namespace Tests\App\AiConfiguration\Infrastructure\Llm;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
-use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
 use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\LlmMessage;
+use App\AiConfiguration\Domain\Llm\LlmModelTierEnum;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
 use App\AiConfiguration\Domain\Llm\LlmRoleEnum;
 use App\AiConfiguration\Infrastructure\Llm\AnthropicLlmClient;
@@ -73,18 +73,54 @@ final class AnthropicLlmClientTest extends TestCase
         self::assertContains('x-api-key: a-token', $capturedOptions['normalized_headers']['x-api-key']);
     }
 
-    public function testCompleteWithoutAnyModelThrows(): void
+    public function testFastTierUsesTheFastModel(): void
     {
-        $client = new AnthropicLlmClient(
-            new MockHttpClient(),
-            new EndpointUrl('https://api.anthropic.com'),
-            new ApiToken('a-token'),
-            defaultModel: null,
+        $httpClient = new MockHttpClient(
+            function (string $method, string $url, array $options): MockResponse {
+                /** @var array{body: string} $options */
+                /** @var array{model: string} $body */
+                $body = json_decode($options['body'], true);
+                self::assertSame('claude-haiku-4-5', $body['model']);
+
+                return new MockResponse('{"content":[],"model":"claude-haiku-4-5","usage":{}}');
+            }
         );
 
-        $this->expectException(LlmConfigurationException::class);
+        $request = new LlmRequest(
+            messages: [new LlmMessage(LlmRoleEnum::User, 'ping')],
+            tier: LlmModelTierEnum::Fast,
+        );
 
-        $client->complete(new LlmRequest(messages: [new LlmMessage(LlmRoleEnum::User, 'ping')]));
+        self::assertSame('claude-haiku-4-5', $this->createClient($httpClient)->complete($request)->model);
+    }
+
+    public function testFastTierFallsBackToTheDefaultModel(): void
+    {
+        $httpClient = new MockHttpClient(
+            function (string $method, string $url, array $options): MockResponse {
+                /** @var array{body: string} $options */
+                /** @var array{model: string} $body */
+                $body = json_decode($options['body'], true);
+                self::assertSame('claude-sonnet-4-6', $body['model']);
+
+                return new MockResponse('{"content":[],"model":"claude-sonnet-4-6","usage":{}}');
+            }
+        );
+
+        $client = new AnthropicLlmClient(
+            $httpClient,
+            new EndpointUrl('https://api.anthropic.com'),
+            new ApiToken('a-token'),
+            new ModelName('claude-sonnet-4-6'),
+            fastModel: null,
+        );
+
+        $request = new LlmRequest(
+            messages: [new LlmMessage(LlmRoleEnum::User, 'ping')],
+            tier: LlmModelTierEnum::Fast,
+        );
+
+        $client->complete($request);
     }
 
     public function testProviderErrorIsReported(): void
@@ -139,6 +175,7 @@ final class AnthropicLlmClientTest extends TestCase
             new EndpointUrl('https://api.anthropic.com'),
             new ApiToken('a-token'),
             new ModelName('claude-sonnet-4-6'),
+            new ModelName('claude-haiku-4-5'),
         );
     }
 

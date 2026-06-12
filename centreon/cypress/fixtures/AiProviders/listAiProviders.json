@@ -12,6 +12,7 @@
       "type": "anthropic",
       "endpoint_url": "https://api.anthropic.com",
       "default_model": "claude-sonnet-4-6",
+      "fast_model": "claude-haiku-4-5",
       "description": "Main provider",
       "is_default": true
     },
@@ -22,7 +23,8 @@
       "name": "Mistral fallback",
       "type": "mistral",
       "endpoint_url": "https://api.mistral.ai",
-      "default_model": null,
+      "default_model": "mistral-small-latest",
+      "fast_model": null,
       "description": null,
       "is_default": false
     }

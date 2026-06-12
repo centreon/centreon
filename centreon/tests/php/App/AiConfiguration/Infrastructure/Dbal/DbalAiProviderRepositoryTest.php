@@ -60,7 +60,8 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
         self::assertSame(AiProviderTypeEnum::Anthropic, $fetched->type);
         self::assertSame('https://api.anthropic.com', $fetched->endpointUrl->value);
         self::assertSame('a-token', $fetched->apiToken->value);
-        self::assertSame('claude-sonnet-4-6', $fetched->defaultModel?->value);
+        self::assertSame('claude-sonnet-4-6', $fetched->defaultModel->value);
+        self::assertSame('claude-haiku-4-5', $fetched->fastModel?->value);
         self::assertSame('a description', $fetched->description?->value);
         self::assertTrue($fetched->isDefault);
     }
@@ -162,6 +163,7 @@ final class DbalAiProviderRepositoryTest extends KernelTestCase
             endpointUrl: new EndpointUrl('https://api.anthropic.com'),
             apiToken: new ApiToken('a-token'),
             defaultModel: new ModelName('claude-sonnet-4-6'),
+            fastModel: new ModelName('claude-haiku-4-5'),
             description: new AiProviderDescription('a description'),
             isDefault: $isDefault,
         );

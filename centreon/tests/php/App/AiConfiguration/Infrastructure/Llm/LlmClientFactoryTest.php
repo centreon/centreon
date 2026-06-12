@@ -28,6 +28,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
 use App\AiConfiguration\Infrastructure\Llm\AnthropicLlmClient;
 use App\AiConfiguration\Infrastructure\Llm\LlmClientFactory;
@@ -102,7 +103,8 @@ final class LlmClientFactoryTest extends TestCase
             type: $type,
             endpointUrl: new EndpointUrl('https://api.example.org'),
             apiToken: new ApiToken($token),
-            defaultModel: null,
+            defaultModel: new ModelName('a-model'),
+            fastModel: null,
             description: null,
             isDefault: $isDefault,
         );

@@ -6,11 +6,10 @@ import { AiProvider, AiProviderListItem } from '../models';
 
 const aiProviderListItemDecoder = JsonDecoder.object<AiProviderListItem>(
   {
-    defaultModel: JsonDecoder.optional(
-      JsonDecoder.nullable(JsonDecoder.string)
-    ),
+    defaultModel: JsonDecoder.string,
     description: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
     endpointUrl: JsonDecoder.string,
+    fastModel: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
     id: JsonDecoder.number,
     isDefault: JsonDecoder.boolean,
     name: JsonDecoder.string,
@@ -20,6 +19,7 @@ const aiProviderListItemDecoder = JsonDecoder.object<AiProviderListItem>(
   {
     defaultModel: 'default_model',
     endpointUrl: 'endpoint_url',
+    fastModel: 'fast_model',
     isDefault: 'is_default'
   }
 );
@@ -34,11 +34,10 @@ export const aiProvidersListDecoder = buildListingDecoder({
 export const aiProviderDecoder = JsonDecoder.object<AiProvider>(
   {
     apiToken: JsonDecoder.optional(JsonDecoder.string),
-    defaultModel: JsonDecoder.optional(
-      JsonDecoder.nullable(JsonDecoder.string)
-    ),
+    defaultModel: JsonDecoder.string,
     description: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
     endpointUrl: JsonDecoder.string,
+    fastModel: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
     isDefault: JsonDecoder.boolean,
     name: JsonDecoder.string,
     type: JsonDecoder.string
@@ -48,6 +47,7 @@ export const aiProviderDecoder = JsonDecoder.object<AiProvider>(
     apiToken: 'api_token',
     defaultModel: 'default_model',
     endpointUrl: 'endpoint_url',
+    fastModel: 'fast_model',
     isDefault: 'is_default'
   }
 );

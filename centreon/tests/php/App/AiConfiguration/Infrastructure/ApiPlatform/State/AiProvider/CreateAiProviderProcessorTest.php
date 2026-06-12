@@ -65,6 +65,7 @@ final class CreateAiProviderProcessorTest extends AiProviderApiTestCase
                 'type' => 'anthropic',
                 'api_token' => 'a-very-secret-token',
                 'default_model' => 'claude-sonnet-4-6',
+                'fast_model' => 'claude-haiku-4-5',
             ],
         ]);
 
@@ -75,6 +76,7 @@ final class CreateAiProviderProcessorTest extends AiProviderApiTestCase
             'type' => 'anthropic',
             'endpoint_url' => 'https://api.anthropic.com',
             'default_model' => 'claude-sonnet-4-6',
+            'fast_model' => 'claude-haiku-4-5',
             'is_default' => true, // the first configuration always becomes the default one
         ]);
         self::assertArrayNotHasKey('api_token', $response->toArray());
@@ -91,6 +93,7 @@ final class CreateAiProviderProcessorTest extends AiProviderApiTestCase
                 'name' => 'Anthropic production',
                 'type' => 'mistral',
                 'api_token' => 'another-token',
+                'default_model' => 'mistral-small-latest',
             ],
         ]);
 
@@ -106,6 +109,7 @@ final class CreateAiProviderProcessorTest extends AiProviderApiTestCase
                 'name' => 'Local Ollama',
                 'type' => 'openai_compatible',
                 'api_token' => 'a-token',
+                'default_model' => 'llama3',
             ],
         ]);
 
@@ -122,11 +126,27 @@ final class CreateAiProviderProcessorTest extends AiProviderApiTestCase
                 'type' => 'openai_compatible',
                 'api_token' => 'a-token',
                 'endpoint_url' => 'http://ollama.internal:11434',
+                'default_model' => 'llama3',
             ],
         ]);
 
         self::assertResponseStatusCodeSame(201);
         self::assertJsonContains(['endpoint_url' => 'http://ollama.internal:11434']);
+    }
+
+    public function testCreateWithoutDefaultModelReturns400(): void
+    {
+        $this->login();
+
+        $this->request('POST', self::ENDPOINT, [
+            'json' => [
+                'name' => 'Anthropic production',
+                'type' => 'anthropic',
+                'api_token' => 'a-token',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(400);
     }
 
     public function testSecondProviderIsNotDefault(): void
@@ -140,6 +160,7 @@ final class CreateAiProviderProcessorTest extends AiProviderApiTestCase
                 'name' => 'Mistral fallback',
                 'type' => 'mistral',
                 'api_token' => 'a-token',
+                'default_model' => 'mistral-small-latest',
             ],
         ]);
 

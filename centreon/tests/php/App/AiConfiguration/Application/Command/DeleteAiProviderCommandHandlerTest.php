@@ -30,6 +30,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Event\AiProviderDeleted;
 use App\AiConfiguration\Domain\Exception\AiProviderCanNotBeDeletedException;
 use App\AiConfiguration\Domain\Exception\AiProviderNotFoundException;
@@ -120,7 +121,8 @@ final class DeleteAiProviderCommandHandlerTest extends TestCase
             type: AiProviderTypeEnum::Anthropic,
             endpointUrl: new EndpointUrl('https://api.anthropic.com'),
             apiToken: new ApiToken('initial-token'),
-            defaultModel: null,
+            defaultModel: new ModelName('claude-sonnet-4-6'),
+            fastModel: null,
             description: null,
             isDefault: $isDefault,
         );

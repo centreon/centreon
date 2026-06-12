@@ -23,9 +23,10 @@ export const adaptFormToApiPayload = (data: unknown): Payload => {
   const formData = data as AiProvider;
 
   return {
-    default_model: formData.defaultModel || null,
+    default_model: formData.defaultModel,
     description: formData.description || null,
     endpoint_url: formData.endpointUrl,
+    fast_model: formData.fastModel || null,
     is_default: formData.isDefault,
     name: formData.name,
     type: formData.type,

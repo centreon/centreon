@@ -36,7 +36,8 @@ final class AiProvider extends AggregateRoot
         public AiProviderTypeEnum $type,
         public EndpointUrl $endpointUrl,
         public ApiToken $apiToken,
-        public ?ModelName $defaultModel,
+        public ModelName $defaultModel,
+        public ?ModelName $fastModel,
         public ?AiProviderDescription $description,
         public bool $isDefault,
     ) {
@@ -58,9 +59,14 @@ final class AiProvider extends AggregateRoot
         $this->apiToken = $apiToken;
     }
 
-    public function updateDefaultModel(?ModelName $defaultModel): void
+    public function updateDefaultModel(ModelName $defaultModel): void
     {
         $this->defaultModel = $defaultModel;
+    }
+
+    public function updateFastModel(?ModelName $fastModel): void
+    {
+        $this->fastModel = $fastModel;
     }
 
     public function updateDescription(?AiProviderDescription $description): void

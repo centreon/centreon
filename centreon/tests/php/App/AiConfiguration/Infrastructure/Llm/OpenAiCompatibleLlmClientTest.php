@@ -122,6 +122,7 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
             new EndpointUrl('https://api.mistral.ai'),
             new ApiToken('a-token'),
             new ModelName('mistral-small-latest'),
+            fastModel: null,
         );
     }
 

@@ -58,6 +58,7 @@ final class TestAiProviderCommandHandlerTest extends TestCase
             endpointUrl: new EndpointUrl('https://api.anthropic.com'),
             apiToken: new ApiToken('a-token'),
             defaultModel: new ModelName('claude-sonnet-4-6'),
+            fastModel: null,
             description: null,
             isDefault: true,
         );
@@ -105,13 +106,13 @@ final class TestAiProviderCommandHandlerTest extends TestCase
     {
         $handler = new TestAiProviderCommandHandler(
             $this->repository,
-            new FakeLlmClientFactory(exception: LlmConfigurationException::noModel())
+            new FakeLlmClientFactory(exception: LlmConfigurationException::unresolvableToken())
         );
 
         $result = $handler(new TestAiProviderCommand($this->aiProvider->id()));
 
         self::assertFalse($result->success);
-        self::assertStringContainsString('model', (string) $result->message);
+        self::assertStringContainsString('resolved', (string) $result->message);
     }
 
     public function testUnknownProviderThrows(): void

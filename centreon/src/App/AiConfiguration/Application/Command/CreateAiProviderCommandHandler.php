@@ -61,6 +61,7 @@ final readonly class CreateAiProviderCommandHandler
             endpointUrl: $command->endpointUrl,
             apiToken: $this->tokenStorage->persist($command->apiToken, null),
             defaultModel: $command->defaultModel,
+            fastModel: $command->fastModel,
             description: $command->description,
             isDefault: $isDefault,
         );

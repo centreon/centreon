@@ -7,6 +7,7 @@
   "type": "anthropic",
   "endpoint_url": "https://api.anthropic.com",
   "default_model": "claude-sonnet-4-6",
+  "fast_model": null,
   "description": "Main provider",
   "is_default": true
 }

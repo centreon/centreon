@@ -29,6 +29,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Event\AiProviderCreated;
 use App\AiConfiguration\Domain\Exception\AiProviderAlreadyExistsException;
 use PHPUnit\Framework\TestCase;
@@ -117,7 +118,8 @@ final class CreateAiProviderCommandHandlerTest extends TestCase
             type: AiProviderTypeEnum::Anthropic,
             apiToken: new ApiToken('a-token'),
             endpointUrl: new EndpointUrl('https://api.anthropic.com'),
-            defaultModel: null,
+            defaultModel: new ModelName('claude-sonnet-4-6'),
+            fastModel: null,
             description: null,
             isDefault: $isDefault,
             creatorId: 1,

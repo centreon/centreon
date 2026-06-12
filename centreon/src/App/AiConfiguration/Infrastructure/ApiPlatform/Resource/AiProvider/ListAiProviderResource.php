@@ -114,10 +114,16 @@ final class ListAiProviderResource
         public string $endpointUrl,
 
         #[ApiProperty(
-            description: 'Default model used by AI features for this provider',
+            description: 'Model used by AI features for this provider',
             openapiContext: ['example' => 'claude-sonnet-4-6'],
         )]
-        public ?string $defaultModel,
+        public string $defaultModel,
+
+        #[ApiProperty(
+            description: 'Model used by AI features requesting the fast tier',
+            openapiContext: ['example' => 'claude-haiku-4-5'],
+        )]
+        public ?string $fastModel,
 
         #[ApiProperty(
             description: 'Description of the AI provider configuration',

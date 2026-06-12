@@ -13,6 +13,8 @@ import {
   labelDefaultModel,
   labelDescription,
   labelEndpointUrl,
+  labelFastModel,
+  labelFastModelHint,
   labelGeneralInformation,
   labelIsDefault,
   labelName,
@@ -111,6 +113,16 @@ export const useInputs = (): {
         fieldName: 'defaultModel',
         group: t(labelConnection),
         label: t(labelDefaultModel),
+        required: true,
+        type: InputType.Text
+      },
+      {
+        fieldName: 'fastModel',
+        group: t(labelConnection),
+        label: t(labelFastModel),
+        text: {
+          placeholder: t(labelFastModelHint)
+        },
         type: InputType.Text
       }
     ]

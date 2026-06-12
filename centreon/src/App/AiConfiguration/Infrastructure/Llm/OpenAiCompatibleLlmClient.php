@@ -26,10 +26,10 @@ namespace App\AiConfiguration\Infrastructure\Llm;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
-use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
 use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\LlmClientInterface;
 use App\AiConfiguration\Domain\Llm\LlmMessage;
+use App\AiConfiguration\Domain\Llm\LlmModelTierEnum;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
 use App\AiConfiguration\Domain\Llm\LlmResponse;
 use App\AiConfiguration\Domain\Llm\LlmUsage;
@@ -50,7 +50,8 @@ final class OpenAiCompatibleLlmClient implements LlmClientInterface
         private readonly HttpClientInterface $httpClient,
         private readonly EndpointUrl $endpointUrl,
         private readonly ApiToken $apiToken,
-        private readonly ?ModelName $defaultModel,
+        private readonly ModelName $defaultModel,
+        private readonly ?ModelName $fastModel,
     ) {
     }
 
@@ -128,7 +129,7 @@ final class OpenAiCompatibleLlmClient implements LlmClientInterface
 
     private function sendRequest(LlmRequest $request, bool $stream): ResponseInterface
     {
-        $model = $request->model ?? $this->defaultModel ?? throw LlmConfigurationException::noModel();
+        $model = $request->model ?? $this->resolveTierModel($request->tier);
 
         $messages = array_map(
             static fn (LlmMessage $message): array => [
@@ -159,6 +160,14 @@ final class OpenAiCompatibleLlmClient implements LlmClientInterface
         } catch (TransportExceptionInterface $exception) {
             throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
         }
+    }
+
+    private function resolveTierModel(LlmModelTierEnum $tier): ModelName
+    {
+        return match ($tier) {
+            LlmModelTierEnum::Default => $this->defaultModel,
+            LlmModelTierEnum::Fast => $this->fastModel ?? $this->defaultModel,
+        };
     }
 
     private function assertSuccessful(ResponseInterface $response): void

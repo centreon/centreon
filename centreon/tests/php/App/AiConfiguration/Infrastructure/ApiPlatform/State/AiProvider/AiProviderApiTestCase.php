@@ -42,6 +42,7 @@ abstract class AiProviderApiTestCase extends ApiTestCase
                 'name' => $name,
                 'type' => $type,
                 'api_token' => 'a-very-secret-token',
+                'default_model' => 'a-default-model',
             ],
         ]);
 

@@ -10,7 +10,8 @@ export interface AiProviderListItem {
   name: string;
   type: string;
   endpointUrl: string;
-  defaultModel?: string | null;
+  defaultModel: string;
+  fastModel?: string | null;
   description?: string | null;
   isDefault: boolean;
 }
@@ -20,7 +21,8 @@ export interface AiProvider {
   type: string;
   endpointUrl: string;
   apiToken?: string;
-  defaultModel?: string | null;
+  defaultModel: string;
+  fastModel?: string | null;
   description?: string | null;
   isDefault: boolean;
 }
@@ -28,7 +30,8 @@ export interface AiProvider {
 export interface Payload {
   name: string;
   endpoint_url: string;
-  default_model: string | null;
+  default_model: string;
+  fast_model: string | null;
   description: string | null;
   is_default: boolean;
   type?: string;

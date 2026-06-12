@@ -90,6 +90,13 @@ final class CreateAiProviderResource
         public string $apiToken,
 
         #[ApiProperty(
+            description: 'Model used by AI features for this provider',
+            openapiContext: ['example' => 'claude-sonnet-4-6'],
+        )]
+        #[Assert\Length(min: 1, max: 255)]
+        public string $defaultModel,
+
+        #[ApiProperty(
             description: 'Base URL of the AI provider API. Defaults to the official endpoint of the '
                 . 'provider; required for OpenAI-compatible providers.',
             openapiContext: ['example' => 'https://api.anthropic.com'],
@@ -99,11 +106,12 @@ final class CreateAiProviderResource
         public ?string $endpointUrl = null,
 
         #[ApiProperty(
-            description: 'Default model used by AI features for this provider',
-            openapiContext: ['example' => 'claude-sonnet-4-6'],
+            description: 'Model used by AI features requesting the fast tier. '
+                . 'Defaults to the default model when not set.',
+            openapiContext: ['example' => 'claude-haiku-4-5'],
         )]
         #[Assert\Length(min: 1, max: 255)]
-        public ?string $defaultModel = null,
+        public ?string $fastModel = null,
 
         #[ApiProperty(
             description: 'Description of the AI provider configuration',

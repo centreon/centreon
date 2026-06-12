@@ -320,7 +320,8 @@ final readonly class DbalAiProviderRepository extends DbalRepository implements 
         return json_encode([
             'endpoint_url' => $aiProvider->endpointUrl->value,
             'api_token' => $aiProvider->apiToken->value,
-            'default_model' => $aiProvider->defaultModel?->value,
+            'default_model' => $aiProvider->defaultModel->value,
+            'fast_model' => $aiProvider->fastModel?->value,
         ], \JSON_THROW_ON_ERROR);
     }
 }
