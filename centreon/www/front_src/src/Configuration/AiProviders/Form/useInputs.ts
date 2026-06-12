@@ -11,10 +11,11 @@ import {
   labelApiTokenHint,
   labelConnection,
   labelDefaultModel,
+  labelDefaultModelPlaceholder,
   labelDescription,
   labelEndpointUrl,
   labelFastModel,
-  labelFastModelHint,
+  labelFastModelPlaceholder,
   labelGeneralInformation,
   labelIsDefault,
   labelName,
@@ -114,6 +115,9 @@ export const useInputs = (): {
         group: t(labelConnection),
         label: t(labelDefaultModel),
         required: true,
+        text: {
+          placeholder: t(labelDefaultModelPlaceholder)
+        },
         type: InputType.Text
       },
       {
@@ -121,7 +125,7 @@ export const useInputs = (): {
         group: t(labelConnection),
         label: t(labelFastModel),
         text: {
-          placeholder: t(labelFastModelHint)
+          placeholder: t(labelFastModelPlaceholder)
         },
         type: InputType.Text
       }

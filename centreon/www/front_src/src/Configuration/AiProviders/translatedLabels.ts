@@ -11,9 +11,11 @@ export const labelApiToken = 'API token';
 export const labelApiTokenHint =
   'The token is write-only: leave the field empty to keep the current token.';
 export const labelDefaultModel = 'Default model';
+export const labelDefaultModelPlaceholder =
+  'e.g. claude-sonnet-4-6, gpt-4o, mistral-small-latest';
 export const labelFastModel = 'Fast model';
-export const labelFastModelHint =
-  'Model used by AI features favoring speed over depth. Defaults to the default model.';
+export const labelFastModelPlaceholder =
+  'e.g. claude-haiku-4-5, gpt-4o-mini — defaults to the default model';
 export const labelDescription = 'Description';
 export const labelIsDefault = 'Default provider';
 export const labelDefault = 'Default';
