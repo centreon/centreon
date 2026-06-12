@@ -21,7 +21,7 @@ import {
   labelName,
   labelType
 } from '../translatedLabels';
-import { aiProviderTypeLabels } from '../utils';
+import { aiProviderTypeLabels, defaultModels } from '../utils';
 
 export const useInputs = (): {
   groups: Array<Group>;
@@ -66,18 +66,37 @@ export const useInputs = (): {
         change: ({ setValues, value }): void => {
           // the change callback replaces the default behavior, and the
           // updater form is needed: the values passed to the callback can
-          // be stale since the radio does not re-render on name changes
+          // be stale since the radio does not re-render on other fields
           setValues((currentValues) => {
-            // default the name to the provider type while the user has not
-            // chosen one (empty, or the label of a previously selected type)
+            // default the name and models for the provider type while the
+            // user has not chosen them (empty, or still an auto-filled
+            // value of a previously selected type)
             const typeLabels = Object.values(aiProviderTypeLabels).map(
               (label) => t(label)
             );
+            const autoFilledModels = Object.values(defaultModels)
+              .flatMap((models) => [models.defaultModel, models.fastModel])
+              .filter(Boolean);
+
             const keepName =
               currentValues.name && !typeLabels.includes(currentValues.name);
+            const keepDefaultModel =
+              currentValues.defaultModel &&
+              !autoFilledModels.includes(currentValues.defaultModel);
+            const keepFastModel =
+              currentValues.fastModel &&
+              !autoFilledModels.includes(currentValues.fastModel);
+
+            const models = defaultModels[value as AiProviderType];
 
             return {
               ...currentValues,
+              defaultModel: keepDefaultModel
+                ? currentValues.defaultModel
+                : (models.defaultModel ?? ''),
+              fastModel: keepFastModel
+                ? currentValues.fastModel
+                : models.fastModel,
               name: keepName
                 ? currentValues.name
                 : t(aiProviderTypeLabels[value as AiProviderType]),

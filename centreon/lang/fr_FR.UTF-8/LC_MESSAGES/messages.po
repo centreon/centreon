@@ -25117,16 +25117,16 @@ msgid "Default model"
 msgstr "Modèle par défaut"
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
-msgid "e.g. claude-sonnet-4-6, mistral-small-latest, gpt-4o"
-msgstr "ex. claude-sonnet-4-6, mistral-small-latest, gpt-4o"
+msgid "e.g. claude-sonnet-4-6, mistral-medium-3-5, gpt-5.4"
+msgstr "ex. claude-sonnet-4-6, mistral-medium-3-5, gpt-5.4"
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
 msgid "Fast model"
 msgstr "Modèle rapide"
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
-msgid "e.g. claude-haiku-4-5, ministral-8b-latest, gpt-4o-mini — defaults to the default model"
-msgstr "ex. claude-haiku-4-5, ministral-8b-latest, gpt-4o-mini — le modèle par défaut est utilisé si vide"
+msgid "e.g. claude-haiku-4-5, mistral-small-latest, gpt-5.4-mini — defaults to the default model"
+msgstr "ex. claude-haiku-4-5, mistral-small-latest, gpt-5.4-mini — le modèle par défaut est utilisé si vide"
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
 msgid "Default provider"

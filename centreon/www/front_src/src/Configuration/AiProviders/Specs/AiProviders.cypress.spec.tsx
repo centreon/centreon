@@ -5,6 +5,7 @@ import {
   labelDefault,
   labelDefaultModel,
   labelEndpointUrl,
+  labelFastModel,
   labelMistral,
   labelName,
   labelNameAlreadyExists,
@@ -61,9 +62,16 @@ describe('AiProviders', () => {
         cy.findAllByTestId(labelEndpointUrl).should('have.length', 0);
       });
 
-      cy.findAllByTestId(labelApiToken).eq(1).type('a-very-secret-token');
+      // the models are prefilled for curated providers
+      cy.findAllByTestId(labelDefaultModel)
+        .eq(1)
+        .should('have.value', 'claude-sonnet-4-6');
 
-      cy.findAllByTestId(labelDefaultModel).eq(1).type('claude-sonnet-4-6');
+      cy.findAllByTestId(labelFastModel)
+        .eq(1)
+        .should('have.value', 'claude-haiku-4-5');
+
+      cy.findAllByTestId(labelApiToken).eq(1).type('a-very-secret-token');
 
       cy.contains(/^Save$/).click();
 
@@ -73,7 +81,7 @@ describe('AiProviders', () => {
         expect(request.body.api_token).to.equal('a-very-secret-token');
         expect(request.body).to.not.have.property('endpoint_url');
         expect(request.body.default_model).to.equal('claude-sonnet-4-6');
-        expect(request.body.fast_model).to.equal(null);
+        expect(request.body.fast_model).to.equal('claude-haiku-4-5');
       });
     });
 
@@ -86,10 +94,18 @@ describe('AiProviders', () => {
 
       cy.findAllByTestId(labelName).eq(1).should('have.value', 'Mistral');
 
-      // the name follows the type while it is still an auto-filled one
+      cy.findAllByTestId(labelDefaultModel)
+        .eq(1)
+        .should('have.value', 'mistral-medium-3-5');
+
+      // the name and models follow the type while still auto-filled
       cy.findByLabelText(labelAnthropic).click();
 
       cy.findAllByTestId(labelName).eq(1).should('have.value', 'Anthropic');
+
+      cy.findAllByTestId(labelDefaultModel)
+        .eq(1)
+        .should('have.value', 'claude-sonnet-4-6');
 
       // a name chosen by the user is left untouched
       cy.findAllByTestId(labelName).eq(1).clear().type('My provider');
@@ -109,8 +125,6 @@ describe('AiProviders', () => {
       cy.findAllByTestId(labelName).eq(1).clear().type('Anthropic production');
 
       cy.findAllByTestId(labelApiToken).eq(1).type('a-very-secret-token');
-
-      cy.findAllByTestId(labelDefaultModel).eq(1).type('claude-sonnet-4-6');
 
       cy.contains(labelNameAlreadyExists);
 
