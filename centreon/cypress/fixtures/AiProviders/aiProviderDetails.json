@@ -1,0 +1,12 @@
+{
+  "@context": "/centreon/api/latest/contexts/AiProviderResource",
+  "@id": "/centreon/api/latest/administration/ai-providers/1",
+  "@type": "AiProviderResource",
+  "id": 1,
+  "name": "Anthropic production",
+  "type": "anthropic",
+  "endpoint_url": "https://api.anthropic.com",
+  "default_model": "claude-sonnet-4-6",
+  "description": "Main provider",
+  "is_default": true
+}

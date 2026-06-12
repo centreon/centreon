@@ -3,6 +3,7 @@ const routeMap = {
   additionalConnectorConfiguration:
     '/configuration/additional-connector-configurations',
   agentConfigurations: '/configuration/pollers/agent-configurations',
+  aiProviders: '/administration/parameters/ai-providers',
   authentication: '/administration/authentication',
   authenticationDenied: '/authentication-denied',
   authTokens: '/administration/authentication-token',

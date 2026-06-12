@@ -1,0 +1,30 @@
+{
+  "@context": "/centreon/api/latest/contexts/ListAiProviderResource",
+  "@id": "/centreon/api/latest/administration/ai-providers",
+  "@type": "Collection",
+  "totalItems": 2,
+  "member": [
+    {
+      "@id": "/centreon/api/latest/list_ai_provider_resources/1",
+      "@type": "ListAiProviderResource",
+      "id": 1,
+      "name": "Anthropic production",
+      "type": "anthropic",
+      "endpoint_url": "https://api.anthropic.com",
+      "default_model": "claude-sonnet-4-6",
+      "description": "Main provider",
+      "is_default": true
+    },
+    {
+      "@id": "/centreon/api/latest/list_ai_provider_resources/2",
+      "@type": "ListAiProviderResource",
+      "id": 2,
+      "name": "Mistral fallback",
+      "type": "mistral",
+      "endpoint_url": "https://api.mistral.ai",
+      "default_model": null,
+      "description": null,
+      "is_default": false
+    }
+  ]
+}
