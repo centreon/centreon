@@ -12,10 +12,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# Centreon poller installer - 26.05
+# Centreon poller installer - 26.07
 
 # Centreon major version
-major="26.05"
+major="26.07"
 
 ## Configuration variable
 LOG_FILE="./log/install-poller.log"
