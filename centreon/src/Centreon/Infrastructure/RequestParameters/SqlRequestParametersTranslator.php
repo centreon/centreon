@@ -122,18 +122,50 @@ class SqlRequestParametersTranslator
                 if (! empty($orderQuery)) {
                     $orderQuery .= ', ';
                 }
-                $orderQuery .= sprintf(
-                    '%s IS NULL, %s %s',
-                    $this->concordanceArray[$name],
-                    $this->concordanceArray[$name],
-                    $order
-                );
+                $col = $this->concordanceArray[$name];
+                if (strtoupper($order) === RequestParameters::ORDER_ASC) {
+                    // NULLs are treated as lowest value in MySQL/MariaDB, so for ASC they appear first.
+                    // The IS NULL trick ensures NULLs sort last for ASC ordering.
+                    $orderQuery .= sprintf('%s IS NULL, %s %s', $col, $col, $order);
+                } else {
+                    // For DESC, NULLs are already last (lowest value → last in descending order).
+                    // Adding IS NULL would create a computed expression that prevents index usage.
+                    $orderQuery .= sprintf('%s %s', $col, $order);
+                }
             }
         }
 
         return ! empty($orderQuery) ? ' ORDER BY ' . $orderQuery : null;
     }
 
+<<<<<<< HEAD
+=======
+    public function appendQueryBuilderWithSortParameter(QueryBuilderInterface $queryBuilder): void
+    {
+        foreach ($this->requestParameters->getSort() as $name => $order) {
+            if (array_key_exists($name, $this->concordanceArray)) {
+                $col = $this->concordanceArray[$name];
+                if (strtoupper($order) === RequestParameters::ORDER_ASC) {
+                    $queryBuilder->addOrderBy(sprintf('%s IS NULL, %s', $col, $col), $order);
+                } else {
+                    $queryBuilder->addOrderBy($col, $order);
+                }
+            }
+        }
+    }
+
+    public function appendQueryBuilderWithPagination(QueryBuilderInterface $queryBuilder): void
+    {
+        $page = $this->requestParameters->getPage();
+        $limit = $this->requestParameters->getLimit();
+        $offset = ($page - 1) * $limit;
+
+        $queryBuilder
+            ->limit($limit)
+            ->offset($offset);
+    }
+
+>>>>>>> 27db726234 (perf(resources): revamp resource status performances (#9998) (#10574))
     /**
      * Facade to populate a SqlStringBuilder from a SqlRequestParametersTranslator.
      *
