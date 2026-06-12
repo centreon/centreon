@@ -92,6 +92,10 @@ msgid "1 minute"
 msgstr "1 minute"
 
 #: centreon/www/install/front_translate.php
+msgid "1,000+"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "12 hours"
 msgstr "12 heures"
 
@@ -3285,6 +3289,10 @@ msgstr "Nom de l'image obligatoire"
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
 msgid "Compulsory name"
 msgstr "Nom obligatoire"
+
+#: centreon/www/install/front_translate.php
+msgid "Computing exact count…"
+msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Condensed"
@@ -10260,6 +10268,10 @@ msgstr "A partir d'une vue existante"
 msgid "Loaded"
 msgstr "Chargé"
 
+#: centreon/www/install/front_translate.php
+msgid "Loading..."
+msgstr "Chargement en cours..."
+
 #: centreon/src/Core/Security/ProviderConfiguration/Domain/Local/ConfigurationException.php
 msgid "Local provider configuration not found"
 msgstr "Configuration du fournisseur d'accès local non trouvée"
@@ -11457,6 +11469,18 @@ msgstr "Informations détaillées"
 #: centreon/www/install/front_translate.php
 msgid "More filters"
 msgstr "Plus de filtres"
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"More than 1,000 resources match your search. Click to compute the exact "
+"count."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "More than 1,000 resources match your search. Click to continue."
+msgstr ""
+"Plus de 1 000 ressources correspondent à votre recherche. Cliquez pour "
+"continuer."
 
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 msgid "Move Export Files"
@@ -19537,10 +19561,6 @@ msgstr "Vous devez saisir tous les arguments ou laisser vide"
 msgid "You must provide at least one %s"
 msgstr "Vous devez ajouter au moins un %s"
 
-#: centreon/src/Core/Resources/Infrastructure/Repository/DbReadResourceRepository.php
-msgid "You must provide at least one ACL provider"
-msgstr "Vous devez fournir au moins un fournisseur ACL"
-
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 msgid "You need to select a least one polling instance."
 msgstr "Vous devez sélectionner au moins une instance de collecte."
@@ -20320,6 +20340,10 @@ msgstr "affichera les ressources avec une description de service finissant par"
 #: centreon/www/install/front_translate.php
 msgid "year"
 msgstr "année"
+
+#: centreon/www/install/front_translate.php
+msgid "{{count}} resources"
+msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "{{label}} can be at most {{max}} characters"
@@ -24697,6 +24721,10 @@ msgid "You must fill in more resources."
 msgstr "Vous devez indiquer plus de ressources."
 
 #: unknown
+msgid "You must provide at least one ACL provider"
+msgstr "Vous devez fournir au moins un fournisseur ACL"
+
+#: unknown
 msgid "You must set a poller for generate configuration."
 msgstr "Sélectionner un collecteur pour générer la configuration."
 
@@ -24887,11 +24915,3 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
-
-#: packages/ui/src/Listing/translatedLabels.ts
-msgid "More than 1,000 resources match your search. Click to continue."
-msgstr "Plus de 1 000 ressources correspondent à votre recherche. Cliquez pour continuer."
-
-#: packages/ui/src/Listing/translatedLabels.ts
-msgid "Loading..."
-msgstr "Chargement en cours..."

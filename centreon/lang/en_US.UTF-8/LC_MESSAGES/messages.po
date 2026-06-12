@@ -86,6 +86,10 @@ msgid "1 minute"
 msgstr "1 minute"
 
 #: centreon/www/install/front_translate.php
+msgid "1,000+"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "12 hours"
 msgstr "12 hours"
 
@@ -3230,6 +3234,10 @@ msgstr "Compulsory image name"
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
 msgid "Compulsory name"
 msgstr "Compulsory name"
+
+#: centreon/www/install/front_translate.php
+msgid "Computing exact count…"
+msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Condensed"
@@ -10127,6 +10135,10 @@ msgstr "Load from existing view"
 msgid "Loaded"
 msgstr "Loaded"
 
+#: centreon/www/install/front_translate.php
+msgid "Loading..."
+msgstr ""
+
 #: centreon/src/Core/Security/ProviderConfiguration/Domain/Local/ConfigurationException.php
 msgid "Local provider configuration not found"
 msgstr "Local provider configuration not found"
@@ -11320,6 +11332,16 @@ msgstr "More detailed information"
 #: centreon/www/install/front_translate.php
 msgid "More filters"
 msgstr "More filters"
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"More than 1,000 resources match your search. Click to compute the exact "
+"count."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "More than 1,000 resources match your search. Click to continue."
+msgstr ""
 
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 msgid "Move Export Files"
@@ -19284,10 +19306,6 @@ msgstr "You must either fill all the arguments or leave them all empty"
 msgid "You must provide at least one %s"
 msgstr "You must provide at least one %s"
 
-#: centreon/src/Core/Resources/Infrastructure/Repository/DbReadResourceRepository.php
-msgid "You must provide at least one ACL provider"
-msgstr "You must provide at least one ACL provider"
-
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 msgid "You need to select a least one polling instance."
 msgstr "You need to select a least one polling instance."
@@ -20060,6 +20078,10 @@ msgid "year"
 msgstr "year"
 
 #: centreon/www/install/front_translate.php
+msgid "{{count}} resources"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "{{label}} can be at most {{max}} characters"
 msgstr "{{label}} can be at most {{max}} characters"
 
@@ -20071,13 +20093,6 @@ msgstr "{{label}} should be at least {{min}} characters long"
 msgid "{{total}} element(s) found"
 msgstr "{{total}} element(s) found"
 
-#: packages/ui/src/Listing/translatedLabels.ts
-msgid "More than 1,000 resources match your search. Click to continue."
-msgstr ""
-
-#: packages/ui/src/Listing/translatedLabels.ts
-msgid "Loading..."
-msgstr ""
 #: unknown
 msgid "/*+&"
 msgstr "/*+&"
@@ -20190,3 +20205,7 @@ msgstr "Update already in progress"
 #: unknown
 msgid "View global macro"
 msgstr "View global macro"
+
+#: unknown
+msgid "You must provide at least one ACL provider"
+msgstr "You must provide at least one ACL provider"

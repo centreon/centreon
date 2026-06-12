@@ -82,6 +82,10 @@ msgid "1 minute"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "1,000+"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "12 hours"
 msgstr ""
 
@@ -3226,6 +3230,10 @@ msgstr "Erforderlicher Bildname"
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
 msgid "Compulsory name"
 msgstr "Erforderlicher Name"
+
+#: centreon/www/install/front_translate.php
+msgid "Computing exact count…"
+msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Condensed"
@@ -10095,6 +10103,10 @@ msgstr "Von bestehender Ansicht laden"
 msgid "Loaded"
 msgstr "Geladen"
 
+#: centreon/www/install/front_translate.php
+msgid "Loading..."
+msgstr ""
+
 #: centreon/src/Core/Security/ProviderConfiguration/Domain/Local/ConfigurationException.php
 msgid "Local provider configuration not found"
 msgstr "Lokale Providerkonfiguration nicht gefunden"
@@ -11291,6 +11303,16 @@ msgstr "Detailliertere Informationen"
 
 #: centreon/www/install/front_translate.php
 msgid "More filters"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"More than 1,000 resources match your search. Click to compute the exact "
+"count."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "More than 1,000 resources match your search. Click to continue."
 msgstr ""
 
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
@@ -19237,10 +19259,6 @@ msgstr "Es müssen entweder alle oder keine Argumente ausgefüllt werden"
 msgid "You must provide at least one %s"
 msgstr ""
 
-#: centreon/src/Core/Resources/Infrastructure/Repository/DbReadResourceRepository.php
-msgid "You must provide at least one ACL provider"
-msgstr ""
-
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 msgid "You need to select a least one polling instance."
 msgstr "Sie müssen mindestens eine Polling-Instanz auswählen."
@@ -20011,6 +20029,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "year"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "{{count}} resources"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -21393,11 +21415,3 @@ msgstr "Standard"
 #: unknown
 msgid "it's required"
 msgstr "es ist erforderlich"
-
-#: packages/ui/src/Listing/translatedLabels.ts
-msgid "More than 1,000 resources match your search. Click to continue."
-msgstr ""
-
-#: packages/ui/src/Listing/translatedLabels.ts
-msgid "Loading..."
-msgstr ""
