@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\Security\Infrastructure\Dbal;
 
+use App\AiConfiguration\Domain\Security\AiProviderPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\AgentConfigurationPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ConnectorPermissionEnum;
@@ -53,6 +54,8 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
         'ROLE_CONFIGURATION_COMMANDS_CONNECTORS_R' => ConnectorPermissionEnum::CanRead->value,
         'ROLE_CONFIGURATION_COMMANDS_CONNECTORS_RW' => ConnectorPermissionEnum::CanReadAndWrite->value,
         'ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW' => AgentConfigurationPermissionEnum::CanReadAndWrite->value,
+        'ROLE_ADMINISTRATION_PARAMETERS_AI_PROVIDERS_R' => AiProviderPermissionEnum::CanRead->value,
+        'ROLE_ADMINISTRATION_PARAMETERS_AI_PROVIDERS_RW' => AiProviderPermissionEnum::CanReadAndWrite->value,
     ];
 
     /**

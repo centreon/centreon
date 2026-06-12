@@ -25,6 +25,7 @@ namespace App\ActivityLogging\Domain\Aggregate;
 
 enum TargetTypeEnum: string
 {
+    case AiProvider = 'AiProvider';
     case Command = 'Command';
     case Host = 'Host';
     case Poller = 'Poller';

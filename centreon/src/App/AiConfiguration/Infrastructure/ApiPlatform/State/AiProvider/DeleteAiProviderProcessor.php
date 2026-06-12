@@ -1,0 +1,62 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider;
+
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\ProcessorInterface;
+use App\AiConfiguration\Application\Command\DeleteAiProviderCommand;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
+use App\AiConfiguration\Infrastructure\ApiPlatform\Resource\AiProvider\AiProviderResource;
+use App\Security\Infrastructure\Security\CredentialUser;
+use App\Shared\Application\Command\CommandBus;
+use Symfony\Bundle\SecurityBundle\Security;
+use Webmozart\Assert\Assert;
+
+/**
+ * @implements ProcessorInterface<AiProviderResource, void>
+ */
+final readonly class DeleteAiProviderProcessor implements ProcessorInterface
+{
+    public function __construct(
+        private CommandBus $commandBus,
+        private Security $security,
+    ) {
+    }
+
+    public function process($data, Operation $operation, array $uriVariables = [], array $context = []): void
+    {
+        Assert::keyExists($uriVariables, 'id');
+        Assert::integer($uriVariables['id']);
+
+        $credentialUser = $this->security->getUser();
+        Assert::isInstanceOf($credentialUser, CredentialUser::class);
+
+        $command = new DeleteAiProviderCommand(
+            id: new AiProviderId($uriVariables['id']),
+            deletedBy: $credentialUser->credential->userId->value,
+        );
+
+        $this->commandBus->execute($command);
+    }
+}

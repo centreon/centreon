@@ -731,6 +731,74 @@ $updateBbdoVersionValues = function () use ($pearDB, &$errorMessage, $version): 
     );
 };
 
+/** ------------------------------------ AI provider configurations ------------------------------------ */
+$createAiProviderConfigurationTable = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to create ai_provider_configuration table';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Creating ai_provider_configuration table",
+    );
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            CREATE TABLE IF NOT EXISTS `ai_provider_configuration` (
+              `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the AI provider configuration',
+              `type` enum('anthropic','openai','mistral','openai_compatible') NOT NULL COMMENT 'Type of the AI provider',
+              `name` varchar(255) NOT NULL COMMENT 'Name of the AI provider configuration',
+              `description` text COMMENT 'Description of the AI provider configuration',
+              `is_default` BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Whether this configuration is the default one used by AI features',
+              `configuration` JSON NOT NULL COMMENT 'Provider parameters: endpoint url, api token (plaintext or vault path), default model',
+              `created_at` int(11) NOT NULL COMMENT 'Creation timestamp',
+              `updated_at` int(11) NOT NULL COMMENT 'Last update timestamp',
+              PRIMARY KEY (`id`),
+              UNIQUE KEY `ai_provider_configuration_name_unique` (`name`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI provider configurations for LLM-based features'
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: ai_provider_configuration table created successfully",
+    );
+};
+
+$addAiProvidersTopology = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add AI Providers topology entry';
+
+    $alreadyExists = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT 1 FROM `topology` WHERE `topology_page` = :topology_page
+            SQL,
+        QueryParameters::create([
+            QueryParameter::int('topology_page', 50116),
+        ])
+    );
+    if ($alreadyExists !== false) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: AI Providers topology entry already exists, skipping insertion",
+        );
+
+        return;
+    }
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            INSERT INTO `topology`
+                (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`,
+                 `topology_page`, `topology_order`, `topology_group`, `topology_feature_flag`)
+            VALUES
+                ('AI Providers', '/administration/parameters/ai-providers', '1', '1', 501,
+                 50116, 110, 1, 'ai_providers')
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: AI Providers topology entry added successfully",
+    );
+};
+
 try {
     // DDL statements for real time database
     $addResourcesPerformanceIndexes();
@@ -743,11 +811,14 @@ try {
     $addEventScriptLogger();
     $updateBbdoVersionDefault();
     $updateBbdoVersionValues();
+    $createAiProviderConfigurationTable();
 
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {
         $pearDB->startTransaction();
     }
+
+    $addAiProvidersTopology();
 
     $pearDB->commitTransaction();
 

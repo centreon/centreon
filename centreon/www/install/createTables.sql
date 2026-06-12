@@ -2697,6 +2697,19 @@ CREATE TABLE IF NOT EXISTS `acc_item` (
     ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='VMware vCenter connection details for ACC';
 
+CREATE TABLE IF NOT EXISTS `ai_provider_configuration` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the AI provider configuration',
+  `type` enum('anthropic','openai','mistral','openai_compatible') NOT NULL COMMENT 'Type of the AI provider',
+  `name` varchar(255) NOT NULL COMMENT 'Name of the AI provider configuration',
+  `description` text COMMENT 'Description of the AI provider configuration',
+  `is_default` BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Whether this configuration is the default one used by AI features',
+  `configuration` JSON NOT NULL COMMENT 'Provider parameters: endpoint url, api token (plaintext or vault path), default model',
+  `created_at` int(11) NOT NULL COMMENT 'Creation timestamp',
+  `updated_at` int(11) NOT NULL COMMENT 'Last update timestamp',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ai_provider_configuration_name_unique` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI provider configurations for LLM-based features';
+
 CREATE TABLE IF NOT EXISTS `dashboard_thumbnail_relation` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID of the relation',
   `dashboard_id` INT UNSIGNED NOT NULL COMMENT 'ID of the dashboard to which the thumbnail is related',
