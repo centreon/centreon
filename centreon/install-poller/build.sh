@@ -26,8 +26,7 @@ if [ "${version}" = "" ]; then
 fi
 
 if [ "${target}" = "" ]; then
-  target="install-poller-${version}.sh"
-  echo $target
+  target="install.sh"
 fi
 
 cp -f main-head.sh "${target}"
