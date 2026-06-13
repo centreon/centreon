@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\AiConfiguration\Infrastructure\Llm;
 
+use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\TierPricing;
 use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\ModelPriceCatalog;
@@ -39,6 +40,13 @@ final class LiteLlmModelPriceCatalog implements ModelPriceCatalog
     private const CATALOG_URL = 'https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json';
     private const TIMEOUT_SECONDS = 20;
 
+    /** LiteLLM key prefix per provider type (curated providers use bare or prefixed keys). */
+    private const PROVIDER_SLUG = [
+        AiProviderTypeEnum::Anthropic->value => 'anthropic',
+        AiProviderTypeEnum::OpenAi->value => 'openai',
+        AiProviderTypeEnum::Mistral->value => 'mistral',
+    ];
+
     /** @var array<string, array{input_cost_per_token?: float, output_cost_per_token?: float}>|null */
     private ?array $catalog = null;
 
@@ -48,12 +56,20 @@ final class LiteLlmModelPriceCatalog implements ModelPriceCatalog
     ) {
     }
 
-    public function priceFor(string $model): ?TierPricing
+    public function priceFor(string $model, AiProviderTypeEnum $type): ?TierPricing
     {
-        $entry = $this->catalog()[$model] ?? null;
+        $catalog = $this->catalog();
 
-        // exact match only: a missing key, or one without token prices, yields
-        // no result rather than a possibly-wrong guess
+        // LiteLLM keys are sometimes bare (gpt-4o, claude-sonnet-4-6) and
+        // sometimes provider-prefixed (mistral/mistral-small-latest); try the
+        // name as given, then prefixed with the provider slug. Exact match
+        // only — no fuzzy matching that could return a wrong price.
+        $entry = $catalog[$model] ?? null;
+        $prefix = self::PROVIDER_SLUG[$type->value] ?? null;
+        if ($entry === null && $prefix !== null) {
+            $entry = $catalog["{$prefix}/{$model}"] ?? null;
+        }
+
         if ($entry === null
             || ! isset($entry['input_cost_per_token'], $entry['output_cost_per_token'])
         ) {

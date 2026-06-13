@@ -28,6 +28,7 @@ interface FormValues {
   currency?: string | null;
   defaultModel?: string | null;
   fastModel?: string | null;
+  type?: string | null;
 }
 
 interface PricesResponse {
@@ -59,6 +60,7 @@ const FetchPricesButton = (): JSX.Element => {
     axios
       .post<PricesResponse>(`${baseEndpoint}${modelPricesEndpoint}`, {
         default_model: values.defaultModel,
+        type: values.type,
         ...(values.fastModel ? { fast_model: values.fastModel } : {})
       })
       .then(({ data }) => {

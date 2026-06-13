@@ -32,6 +32,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class ModelPricesInput
 {
     public function __construct(
+        #[ApiProperty(description: 'Provider type, to resolve the catalog provider-prefixed keys', openapiContext: ['example' => 'mistral'])]
+        #[Assert\Length(min: 1, max: 50)]
+        public string $type,
+
         #[ApiProperty(description: 'Default model name to look up', openapiContext: ['example' => 'gpt-4o'])]
         #[Assert\Length(min: 1, max: 255)]
         public string $defaultModel,

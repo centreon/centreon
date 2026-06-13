@@ -25,6 +25,7 @@ namespace App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Llm\ModelPriceCatalog;
 use App\AiConfiguration\Infrastructure\AiFeatureAvailability;
 use App\AiConfiguration\Infrastructure\ApiPlatform\Dto\ModelPricesInput;
@@ -45,8 +46,9 @@ final readonly class FetchModelPricesProcessor implements ProcessorInterface
     {
         $this->availability->assertAvailable();
 
-        $default = $this->catalog->priceFor($data->defaultModel);
-        $fast = $data->fastModel !== null ? $this->catalog->priceFor($data->fastModel) : null;
+        $type = AiProviderTypeEnum::from($data->type);
+        $default = $this->catalog->priceFor($data->defaultModel, $type);
+        $fast = $data->fastModel !== null ? $this->catalog->priceFor($data->fastModel, $type) : null;
 
         return new ModelPricesResource(
             defaultModelInput: $default?->inputPricePerMillion,

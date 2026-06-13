@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\AiConfiguration\Infrastructure\Llm;
 
+use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Infrastructure\Llm\LiteLlmModelPriceCatalog;
 use PHPUnit\Framework\TestCase;
@@ -39,6 +40,11 @@ final class LiteLlmModelPriceCatalogTest extends TestCase
                 "output_cost_per_token": 1e-05,
                 "litellm_provider": "openai"
             },
+            "mistral/mistral-small-latest": {
+                "input_cost_per_token": 1e-07,
+                "output_cost_per_token": 3e-07,
+                "litellm_provider": "mistral"
+            },
             "embedding-only": {
                 "litellm_provider": "openai"
             }
@@ -49,21 +55,37 @@ final class LiteLlmModelPriceCatalogTest extends TestCase
     {
         $catalog = $this->catalog(self::CATALOG);
 
-        $price = $catalog->priceFor('gpt-4o');
+        $price = $catalog->priceFor('gpt-4o', AiProviderTypeEnum::OpenAi);
 
         self::assertNotNull($price);
         self::assertEqualsWithDelta(2.5, $price->inputPricePerMillion, 0.0001);
         self::assertEqualsWithDelta(10.0, $price->outputPricePerMillion, 0.0001);
     }
 
+    public function testMatchesProviderPrefixedKeys(): void
+    {
+        // LiteLLM stores Mistral models as mistral/<name>; a bare name resolves
+        $price = $this->catalog(self::CATALOG)->priceFor(
+            'mistral-small-latest',
+            AiProviderTypeEnum::Mistral
+        );
+
+        self::assertNotNull($price);
+        self::assertEqualsWithDelta(0.1, $price->inputPricePerMillion, 0.0001);
+    }
+
     public function testUnknownModelReturnsNull(): void
     {
-        self::assertNull($this->catalog(self::CATALOG)->priceFor('claude-sonnet-4-6'));
+        self::assertNull(
+            $this->catalog(self::CATALOG)->priceFor('claude-sonnet-4-6', AiProviderTypeEnum::Anthropic)
+        );
     }
 
     public function testModelWithoutPriceReturnsNull(): void
     {
-        self::assertNull($this->catalog(self::CATALOG)->priceFor('embedding-only'));
+        self::assertNull(
+            $this->catalog(self::CATALOG)->priceFor('embedding-only', AiProviderTypeEnum::OpenAi)
+        );
     }
 
     public function testFetchedOnlyOncePerInstance(): void
@@ -74,8 +96,8 @@ final class LiteLlmModelPriceCatalogTest extends TestCase
         ]);
         $catalog = new LiteLlmModelPriceCatalog($httpClient, new FakeHttpProxyProvider());
 
-        $catalog->priceFor('gpt-4o');
-        $second = $catalog->priceFor('gpt-4o');
+        $catalog->priceFor('gpt-4o', AiProviderTypeEnum::OpenAi);
+        $second = $catalog->priceFor('gpt-4o', AiProviderTypeEnum::OpenAi);
 
         // a second lookup must not trigger a second request (still found)
         self::assertNotNull($second);
@@ -91,7 +113,7 @@ final class LiteLlmModelPriceCatalogTest extends TestCase
 
         $this->expectException(LlmRequestFailedException::class);
 
-        $catalog->priceFor('gpt-4o');
+        $catalog->priceFor('gpt-4o', AiProviderTypeEnum::OpenAi);
     }
 
     private function catalog(string $json): LiteLlmModelPriceCatalog
