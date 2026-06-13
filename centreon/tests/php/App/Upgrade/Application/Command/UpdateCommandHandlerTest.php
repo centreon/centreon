@@ -213,28 +213,38 @@ final class UpdateCommandHandlerTest extends TestCase
             $this->events,
         );
 
-        $this->expectException(\RuntimeException::class);
-
         try {
             $handler(new UpdateCommand());
-        } finally {
-            self::assertTrue($this->locker->unlockCalled, 'Lock must be released even after a failure');
-
-            // The failing step must be reported, and the global failure must follow it.
-            $stepFailed = $this->firstEventOfType(UpgradeStepFailed::class);
-            self::assertSame('run_update', $stepFailed->step);
-            self::assertSame('24.10.1', $stepFailed->version);
-            self::assertSame('SQL error during update', $stepFailed->message);
-
-            $failed = $this->firstEventOfType(UpgradeFailed::class);
-            self::assertSame('24.10.0', $failed->fromVersion);
-            self::assertSame('24.10.1', $failed->toVersion);
-            self::assertSame('SQL error during update', $failed->message);
-            self::assertInstanceOf(\RuntimeException::class, $failed->exception);
-
-            // A failed upgrade must never emit a completion event.
-            self::assertSame([], $this->eventsOfType(UpgradeCompleted::class));
+            self::fail('Expected the update failure to propagate as a RuntimeException');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('SQL error during update', $exception->getMessage());
         }
+
+        // The lock must be released even though the update failed.
+        self::assertTrue($this->locker->unlockCalled, 'Lock must be released even after a failure');
+
+        // The failing step is reported with its name, version and message.
+        $stepFailed = $this->firstEventOfType(UpgradeStepFailed::class);
+        self::assertSame('run_update', $stepFailed->step);
+        self::assertSame('24.10.1', $stepFailed->version);
+        self::assertSame('SQL error during update', $stepFailed->message);
+
+        $failed = $this->firstEventOfType(UpgradeFailed::class);
+        self::assertSame('24.10.0', $failed->fromVersion);
+        self::assertSame('24.10.1', $failed->toVersion);
+        self::assertSame('SQL error during update', $failed->message);
+        self::assertInstanceOf(\RuntimeException::class, $failed->exception);
+
+        // The step failure must be dispatched before the global failure.
+        $dispatchedClasses = array_map('get_class', $this->events->dispatched);
+        self::assertLessThan(
+            array_search(UpgradeFailed::class, $dispatchedClasses, true),
+            array_search(UpgradeStepFailed::class, $dispatchedClasses, true),
+            'UpgradeStepFailed must be dispatched before UpgradeFailed',
+        );
+
+        // A failed upgrade must never emit a completion event.
+        self::assertSame([], $this->eventsOfType(UpgradeCompleted::class));
     }
 
     public function testEngineContextAndCacheAreCalledOnSuccess(): void
