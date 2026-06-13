@@ -45,7 +45,14 @@ const useAiAvailability = (): AiAvailabilityState => {
     decoder: aiAvailabilityDecoder,
     getEndpoint: () => aiAvailabilityEndpoint,
     getQueryKey: () => ['aiAvailability'],
-    httpCodesBypassErrorSnackbar: [401, 403, 404]
+    httpCodesBypassErrorSnackbar: [401, 403, 404],
+    queryOptions: {
+      // re-check when the user comes back to the tab, so a provider being
+      // enabled/disabled or its budget running out is reflected without a
+      // full reload; the short stale time avoids refetching on quick switches
+      refetchOnWindowFocus: true,
+      staleTime: 60_000
+    }
   });
 
   const isBudgetExhausted = data?.reason === 'budget_exhausted';
