@@ -47,7 +47,7 @@ it('mirrors a login failure to the legacy login.log in the historical pipe forma
     }
 
     LoggerAuthentication::create()->loginFailure(
-        "[local] [10.0.0.1] Authentication failed for `admin` : bad password",
+        '[local] [10.0.0.1] Authentication failed for `admin` : bad password',
         null,
         AuthProviderEnum::LOCAL
     );
