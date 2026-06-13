@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Security\Domain\Authentication\Model;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
+
 class Session
 {
     /**
@@ -31,6 +33,7 @@ class Session
      * @param string|null $clientIp
      */
     public function __construct(
+        #[Sensitive]
         private string $token,
         private int $contactId,
         private ?string $clientIp,
