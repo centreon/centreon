@@ -46,6 +46,11 @@ final class LiteLlmModelPriceCatalogTest extends TestCase
                 "output_cost_per_token": 3e-07,
                 "litellm_provider": "mistral"
             },
+            "mistral/mistral-medium-latest": {
+                "input_cost_per_token": 4e-07,
+                "output_cost_per_token": 2e-06,
+                "litellm_provider": "mistral"
+            },
             "embedding-only": {
                 "litellm_provider": "openai"
             }
@@ -73,6 +78,20 @@ final class LiteLlmModelPriceCatalogTest extends TestCase
 
         self::assertNotNull($price);
         self::assertEqualsWithDelta(0.1, $price->inputPricePerMillion, 0.0001);
+    }
+
+    public function testPerMillionPriceIsRoundedToAvoidFloatArtifacts(): void
+    {
+        // 4e-07 * 1_000_000 lands on 0.39999999999999997 in binary float;
+        // the catalog must round it back to a clean 0.4 for the form prefill.
+        $price = $this->catalog(self::CATALOG)->priceFor(
+            'mistral-medium-latest',
+            AiProviderTypeEnum::Mistral
+        );
+
+        self::assertNotNull($price);
+        self::assertSame(0.4, $price->inputPricePerMillion);
+        self::assertSame(2.0, $price->outputPricePerMillion);
     }
 
     public function testUnknownModelReturnsNull(): void

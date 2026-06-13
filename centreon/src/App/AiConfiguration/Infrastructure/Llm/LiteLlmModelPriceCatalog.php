@@ -81,9 +81,13 @@ final class LiteLlmModelPriceCatalog implements ModelPriceCatalog
             return null;
         }
 
+        // LiteLLM publishes per-token prices (e.g. 4e-07); multiplying by 1M to
+        // get the per-million price reintroduces binary float error (0.4 lands
+        // on 0.39999999999999997). Round to 6 decimals: enough for sub-cent
+        // per-million prices, and it removes the artifact from the prefill.
         return new TierPricing(
-            inputPricePerMillion: (float) $entry['input_cost_per_token'] * 1_000_000,
-            outputPricePerMillion: (float) $entry['output_cost_per_token'] * 1_000_000,
+            inputPricePerMillion: round((float) $entry['input_cost_per_token'] * 1_000_000, 6),
+            outputPricePerMillion: round((float) $entry['output_cost_per_token'] * 1_000_000, 6),
         );
     }
 
