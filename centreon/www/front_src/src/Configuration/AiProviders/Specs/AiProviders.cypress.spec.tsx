@@ -120,15 +120,17 @@ describe('AiProviders', () => {
       cy.findAllByTestId(labelApiToken).eq(1).type('a-very-secret-token');
 
       cy.findAllByTestId(labelCurrency).eq(1).type('USD');
-      cy.findAllByTestId(labelDefaultModelInputPrice).eq(1).type('3');
-      cy.findAllByTestId(labelDefaultModelOutputPrice).eq(1).type('15');
-      cy.findAllByTestId(labelDailyLimit).eq(1).type('10');
+      // the money fields are custom decimal-capable inputs (one element each)
+      cy.findByTestId(labelDefaultModelInputPrice).type('0.01');
+      cy.findByTestId(labelDefaultModelOutputPrice).type('15');
+      cy.findByTestId(labelDailyLimit).type('10');
 
       cy.contains(/^Save$/).click();
 
       cy.waitForRequest('@createAiProvider').then(({ request }) => {
         expect(request.body.currency).to.equal('USD');
-        expect(request.body.price_default_input).to.equal(3);
+        // the decimal value can be entered (the bug this guards against)
+        expect(request.body.price_default_input).to.equal(0.01);
         expect(request.body.price_default_output).to.equal(15);
         expect(request.body.limit_daily).to.equal(10);
         expect(request.body.limit_monthly).to.equal(null);

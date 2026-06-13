@@ -32,17 +32,18 @@ import {
 } from '../translatedLabels';
 import { aiProviderTypeLabels, defaultModels } from '../utils';
 import CurrencyChangeWarning from './CurrencyChangeWarning';
+import MoneyField from './MoneyField';
 
 const moneyInput = (
   fieldName: string,
   label: string,
   group: string
 ): InputProps => ({
+  custom: { Component: MoneyField },
   fieldName,
   group,
   label,
-  text: { min: 0, type: 'number' },
-  type: InputType.Text
+  type: InputType.Custom
 });
 
 export const useInputs = (): {
