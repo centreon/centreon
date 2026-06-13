@@ -28,6 +28,11 @@ use App\Upgrade\Application\Command\UpdateCommand;
 use App\Upgrade\Application\Command\UpdateCommandHandler;
 use App\Upgrade\Application\DbmsVersionValidator;
 use App\Upgrade\Application\EngineContextWriter;
+use App\Upgrade\Domain\Event\UpgradeCompleted;
+use App\Upgrade\Domain\Event\UpgradeFailed;
+use App\Upgrade\Domain\Event\UpgradeStarted;
+use App\Upgrade\Domain\Event\UpgradeStepFailed;
+use App\Upgrade\Domain\Event\UpgradeStepStarted;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Repository\WidgetRepository;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -93,6 +98,23 @@ final class UpdateCommandHandlerTest extends TestCase
         self::assertSame([], $this->updateRepository->updatesRun);
         self::assertTrue($this->updateRepository->postUpdateCalled);
         self::assertTrue($this->locker->unlockCalled);
+
+        // No update script to run, so the lifecycle is start -> 5 internal steps -> completed.
+        $started = $this->firstEventOfType(UpgradeStarted::class);
+        self::assertSame('24.10.0', $started->fromVersion);
+        self::assertSame('24.10.0', $started->toVersion);
+
+        self::assertSame(
+            ['post_update', 'modules_update', 'widgets_update', 'engine_context', 'cache_clear'],
+            $this->stepStartedNames(),
+        );
+
+        $completed = $this->firstEventOfType(UpgradeCompleted::class);
+        self::assertSame('24.10.0', $completed->fromVersion);
+        self::assertSame('24.10.0', $completed->toVersion);
+
+        self::assertSame([], $this->eventsOfType(UpgradeStepFailed::class));
+        self::assertSame([], $this->eventsOfType(UpgradeFailed::class));
     }
 
     public function testHappyPathUpdatesApplied(): void
@@ -104,6 +126,29 @@ final class UpdateCommandHandlerTest extends TestCase
         self::assertSame(['24.10.1', '24.10.2'], $this->updateRepository->updatesRun);
         self::assertTrue($this->updateRepository->postUpdateCalled);
         self::assertTrue($this->locker->unlockCalled);
+
+        // toVersion is the last available update.
+        $started = $this->firstEventOfType(UpgradeStarted::class);
+        self::assertSame('24.10.0', $started->fromVersion);
+        self::assertSame('24.10.2', $started->toVersion);
+
+        // One run_update step per available update, then the internal post-update steps.
+        self::assertSame(
+            ['run_update', 'run_update', 'post_update', 'modules_update', 'widgets_update', 'engine_context', 'cache_clear'],
+            $this->stepStartedNames(),
+        );
+        $runUpdateSteps = array_values(array_filter(
+            $this->eventsOfType(UpgradeStepStarted::class),
+            static fn (UpgradeStepStarted $event): bool => $event->step === 'run_update',
+        ));
+        self::assertSame('24.10.1', $runUpdateSteps[0]->version);
+        self::assertSame('24.10.2', $runUpdateSteps[1]->version);
+
+        $completed = $this->firstEventOfType(UpgradeCompleted::class);
+        self::assertSame('24.10.0', $completed->fromVersion);
+        self::assertSame('24.10.2', $completed->toVersion);
+
+        self::assertSame([], $this->eventsOfType(UpgradeFailed::class));
     }
 
     public function testThrowsWhenLockAlreadyAcquired(): void
@@ -174,6 +219,21 @@ final class UpdateCommandHandlerTest extends TestCase
             $handler(new UpdateCommand());
         } finally {
             self::assertTrue($this->locker->unlockCalled, 'Lock must be released even after a failure');
+
+            // The failing step must be reported, and the global failure must follow it.
+            $stepFailed = $this->firstEventOfType(UpgradeStepFailed::class);
+            self::assertSame('run_update', $stepFailed->step);
+            self::assertSame('24.10.1', $stepFailed->version);
+            self::assertSame('SQL error during update', $stepFailed->message);
+
+            $failed = $this->firstEventOfType(UpgradeFailed::class);
+            self::assertSame('24.10.0', $failed->fromVersion);
+            self::assertSame('24.10.1', $failed->toVersion);
+            self::assertSame('SQL error during update', $failed->message);
+            self::assertInstanceOf(\RuntimeException::class, $failed->exception);
+
+            // A failed upgrade must never emit a completion event.
+            self::assertSame([], $this->eventsOfType(UpgradeCompleted::class));
         }
     }
 
@@ -183,5 +243,46 @@ final class UpdateCommandHandlerTest extends TestCase
         $this->cacheClearer->expects(self::once())->method('clear');
 
         ($this->handler)(new UpdateCommand());
+    }
+
+    /**
+     * @template T of object
+     *
+     * @param class-string<T> $type
+     *
+     * @return list<T>
+     */
+    private function eventsOfType(string $type): array
+    {
+        return array_values(array_filter(
+            $this->events->dispatched,
+            static fn (object $event): bool => $event instanceof $type,
+        ));
+    }
+
+    /**
+     * @template T of object
+     *
+     * @param class-string<T> $type
+     *
+     * @return T
+     */
+    private function firstEventOfType(string $type): object
+    {
+        $events = $this->eventsOfType($type);
+        self::assertNotEmpty($events, sprintf('Expected at least one %s event to be dispatched', $type));
+
+        return $events[0];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function stepStartedNames(): array
+    {
+        return array_map(
+            static fn (UpgradeStepStarted $event): string => $event->step,
+            $this->eventsOfType(UpgradeStepStarted::class),
+        );
     }
 }
