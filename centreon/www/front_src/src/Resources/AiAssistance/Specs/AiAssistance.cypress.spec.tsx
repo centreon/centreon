@@ -147,6 +147,8 @@ describe('ExplainResource', () => {
 
     cy.contains('The ping check lost all packets');
     cy.contains('claude-sonnet-4-6');
+    // the title carries the host so a service is unambiguous
+    cy.contains('on db-server-01');
 
     cy.makeSnapshot();
   });
@@ -251,6 +253,8 @@ describe('SummarizeIncident', () => {
 
     cy.contains('Ping lost all packets and was acknowledged');
     cy.contains('claude-sonnet-4-6');
+    // the title carries the host so a service is unambiguous
+    cy.contains('on db-server-01');
 
     cy.makeSnapshot();
   });

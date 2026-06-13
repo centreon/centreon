@@ -22,7 +22,8 @@ import {
   labelAiExplanationDisclaimer,
   labelClose,
   labelExplain,
-  labelGeneratedBy
+  labelGeneratedBy,
+  labelOnHost
 } from '../translatedLabels';
 import useAiAvailability from '../useAiAvailability';
 import useExplainResource from './useExplainResource';
@@ -107,6 +108,16 @@ const ExplainResource = ({ details }: Props): JSX.Element | null => {
       >
         <DialogTitle>
           {t(labelAiExplanation)} — {details.name}
+          {details.parent?.name && (
+            <Typography
+              color="textSecondary"
+              component="span"
+              sx={{ ml: 1 }}
+              variant="subtitle1"
+            >
+              {t(labelOnHost, { host: details.parent.name })}
+            </Typography>
+          )}
         </DialogTitle>
         <DialogContent>
           {isMutating || result === null ? (

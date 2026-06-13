@@ -25,6 +25,7 @@ import {
   labelClose,
   labelCopy,
   labelGeneratedBy,
+  labelOnHost,
   labelSummarize,
   labelSummaryCopied,
   labelSummaryCopyFailed
@@ -111,6 +112,16 @@ const SummarizeIncident = ({ details }: Props): JSX.Element | null => {
       >
         <DialogTitle>
           {t(labelAiIncidentSummary)} — {details.name}
+          {details.parent?.name && (
+            <Typography
+              color="textSecondary"
+              component="span"
+              sx={{ ml: 1 }}
+              variant="subtitle1"
+            >
+              {t(labelOnHost, { host: details.parent.name })}
+            </Typography>
+          )}
         </DialogTitle>
         <DialogContent>
           {isLoading || result === null ? (
