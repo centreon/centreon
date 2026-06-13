@@ -25268,3 +25268,19 @@ msgstr "Définissez les prix du modèle par défaut pour utiliser une limite de 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
 msgid "Only usage recorded in the selected currency counts toward the limit, so the current daily and monthly totals will change. Past usage is kept for reporting."
 msgstr "Seule la consommation enregistrée dans la devise sélectionnée compte dans la limite : les totaux quotidien et mensuel en cours vont donc changer. La consommation passée est conservée pour le reporting."
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Usage"
+msgstr "Consommation"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "today"
+msgstr "aujourd'hui"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "this month"
+msgstr "ce mois-ci"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Not metered"
+msgstr "Non mesuré"

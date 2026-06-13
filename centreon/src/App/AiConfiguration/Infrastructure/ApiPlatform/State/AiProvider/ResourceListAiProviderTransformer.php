@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\AiConfiguration\Infrastructure\ApiPlatform\State\AiProvider;
 
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
+use App\AiConfiguration\Domain\Usage\UsageSummary;
 use App\AiConfiguration\Infrastructure\ApiPlatform\Resource\AiProvider\ListAiProviderResource;
 use App\Shared\Infrastructure\TransformerInterface;
 
@@ -34,6 +35,11 @@ final readonly class ResourceListAiProviderTransformer implements TransformerInt
 {
     public function transform(mixed $from): ListAiProviderResource
     {
+        return $this->transformWithUsage($from, new UsageSummary());
+    }
+
+    public function transformWithUsage(AiProvider $from, UsageSummary $usage): ListAiProviderResource
+    {
         return new ListAiProviderResource(
             id: $from->id()->value,
             name: $from->name->value,
@@ -43,6 +49,11 @@ final readonly class ResourceListAiProviderTransformer implements TransformerInt
             fastModel: $from->fastModel?->value,
             description: $from->description?->value,
             isActivated: $from->isActivated,
+            currency: $from->currency?->value,
+            limitDaily: $from->limit?->daily,
+            limitMonthly: $from->limit?->monthly,
+            usedDaily: $usage->usedDaily,
+            usedMonthly: $usage->usedMonthly,
         );
     }
 }

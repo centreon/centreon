@@ -134,6 +134,21 @@ final class ListAiProviderResource
             description: 'Whether this provider is enabled (the enabled provider is the one used by AI features)',
         )]
         public bool $isActivated,
+
+        #[ApiProperty(description: 'ISO 4217 currency of the prices and spend limits')]
+        public ?string $currency = null,
+
+        #[ApiProperty(description: 'Daily spend limit in the configured currency')]
+        public ?float $limitDaily = null,
+
+        #[ApiProperty(description: 'Monthly spend limit in the configured currency')]
+        public ?float $limitMonthly = null,
+
+        #[ApiProperty(description: 'Spend in the current day window, in the configured currency')]
+        public ?float $usedDaily = null,
+
+        #[ApiProperty(description: 'Spend in the current month window, in the configured currency')]
+        public ?float $usedMonthly = null,
     ) {
     }
 }

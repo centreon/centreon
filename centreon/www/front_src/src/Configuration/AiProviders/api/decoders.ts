@@ -4,23 +4,36 @@ import { JsonDecoder } from 'ts.data.json';
 
 import { AiProvider, AiProviderListItem } from '../models';
 
+const listOptionalNumber = JsonDecoder.optional(
+  JsonDecoder.nullable(JsonDecoder.number)
+);
+
 const aiProviderListItemDecoder = JsonDecoder.object<AiProviderListItem>(
   {
+    currency: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
     defaultModel: JsonDecoder.string,
     description: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
     endpointUrl: JsonDecoder.string,
     fastModel: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
     id: JsonDecoder.number,
     isActivated: JsonDecoder.boolean,
+    limitDaily: listOptionalNumber,
+    limitMonthly: listOptionalNumber,
     name: JsonDecoder.string,
-    type: JsonDecoder.string
+    type: JsonDecoder.string,
+    usedDaily: listOptionalNumber,
+    usedMonthly: listOptionalNumber
   },
   'AiProvider',
   {
     defaultModel: 'default_model',
     endpointUrl: 'endpoint_url',
     fastModel: 'fast_model',
-    isActivated: 'is_activated'
+    isActivated: 'is_activated',
+    limitDaily: 'limit_daily',
+    limitMonthly: 'limit_monthly',
+    usedDaily: 'used_daily',
+    usedMonthly: 'used_monthly'
   }
 );
 

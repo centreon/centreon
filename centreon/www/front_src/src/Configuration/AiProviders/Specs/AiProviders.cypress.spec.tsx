@@ -39,6 +39,11 @@ describe('AiProviders', () => {
         .find('input')
         .should('not.be.checked');
 
+      // the usage gauge shows the window closest to its cap; a provider
+      // without pricing is not metered
+      cy.contains('$41.00 / $50.00 (82%)');
+      cy.contains('Not metered');
+
       cy.makeSnapshot();
     });
 

@@ -50,17 +50,17 @@ final readonly class BudgetStatusChecker
 
         $id = $aiProvider->id();
 
-        $now = $this->clock->now()->setTimezone(new \DateTimeZone('UTC'));
+        $now = $this->clock->now();
 
         if ($limit->daily !== null) {
-            $dayStart = $now->setTime(0, 0)->getTimestamp();
+            $dayStart = UsageWindow::dayStart($now);
             if ($this->usageRepository->sumCostSince($id->value, $currency->value, $dayStart) >= $limit->daily) {
                 return true;
             }
         }
 
         if ($limit->monthly !== null) {
-            $monthStart = $now->modify('first day of this month')->setTime(0, 0)->getTimestamp();
+            $monthStart = UsageWindow::monthStart($now);
             if ($this->usageRepository->sumCostSince($id->value, $currency->value, $monthStart) >= $limit->monthly) {
                 return true;
             }

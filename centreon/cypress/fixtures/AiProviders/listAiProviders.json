@@ -14,7 +14,12 @@
       "default_model": "claude-sonnet-4-6",
       "fast_model": "claude-haiku-4-5",
       "description": "Main provider",
-      "is_activated": true
+      "is_activated": true,
+      "currency": "USD",
+      "limit_daily": null,
+      "limit_monthly": 50,
+      "used_daily": 1.2,
+      "used_monthly": 41
     },
     {
       "@id": "/centreon/api/latest/list_ai_provider_resources/2",

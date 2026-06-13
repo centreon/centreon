@@ -28,18 +28,16 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
-use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
 use App\AiConfiguration\Domain\Repository\Criteria\AiProviderCriteria;
 use App\AiConfiguration\Domain\Security\AiProviderActionEnum;
+use App\AiConfiguration\Domain\Usage\UsageSummaryProvider;
 use App\AiConfiguration\Infrastructure\AiFeatureAvailability;
 use App\AiConfiguration\Infrastructure\ApiPlatform\Resource\AiProvider\ListAiProviderResource;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\ApiPlatform\State\SortAwareProviderTrait;
-use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * @implements ProviderInterface<ListAiProviderResource>
@@ -48,16 +46,13 @@ final readonly class ListAiProvidersProvider implements ProviderInterface
 {
     use SortAwareProviderTrait;
 
-    /**
-     * @param TransformerInterface<AiProvider, ListAiProviderResource> $transformer
-     */
     public function __construct(
-        #[Autowire(service: ResourceListAiProviderTransformer::class)]
-        private TransformerInterface $transformer,
+        private ResourceListAiProviderTransformer $transformer,
         private AiProviderRepository $repository,
         private Pagination $pagination,
         private Security $security,
         private AiFeatureAvailability $availability,
+        private UsageSummaryProvider $usageSummaryProvider,
     ) {
     }
 
@@ -93,7 +88,10 @@ final readonly class ListAiProvidersProvider implements ProviderInterface
 
         $resources = [];
         foreach ($aiProviders as $aiProvider) {
-            $resources[] = $this->transformer->transform($aiProvider);
+            $resources[] = $this->transformer->transformWithUsage(
+                $aiProvider,
+                $this->usageSummaryProvider->forProvider($aiProvider)
+            );
         }
 
         if (! $aiProviders instanceof Paginator) {

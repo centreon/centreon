@@ -3,8 +3,14 @@ import { Column, ColumnType } from '@centreon/ui';
 import { useTranslation } from 'react-i18next';
 
 import { AiProviderType } from '../models';
-import { labelDefaultModel, labelName, labelType } from '../translatedLabels';
+import {
+  labelDefaultModel,
+  labelName,
+  labelType,
+  labelUsage
+} from '../translatedLabels';
 import { aiProviderTypeLabels } from '../utils';
+import Usage from './Usage';
 
 const useColumns = (): {
   columns: Array<Column>;
@@ -36,6 +42,12 @@ const useColumns = (): {
       id: 'default_model',
       label: t(labelDefaultModel),
       type: ColumnType.string
+    },
+    {
+      Component: Usage,
+      id: 'usage',
+      label: t(labelUsage),
+      type: ColumnType.component
     }
     // the enabled/disabled switch column is provided by ConfigurationBase
   ];

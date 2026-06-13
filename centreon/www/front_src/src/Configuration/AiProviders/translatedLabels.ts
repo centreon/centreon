@@ -32,6 +32,11 @@ export const labelInvalidUrl = 'The endpoint must be a valid URL';
 export const labelNameAlreadyExists =
   'An AI provider with this name already exists';
 
+export const labelUsage = 'Usage';
+export const labelToday = 'today';
+export const labelThisMonth = 'this month';
+export const labelNotMetered = 'Not metered';
+
 export const labelLimitsAndPricing = 'Limits & pricing';
 export const labelCurrency = 'Currency';
 export const labelCurrencyPlaceholder = 'e.g. USD, EUR';

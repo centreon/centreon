@@ -16,6 +16,11 @@ export interface AiProviderListItem {
   fastModel?: string | null;
   description?: string | null;
   isActivated: boolean;
+  currency?: string | null;
+  limitDaily?: number | null;
+  limitMonthly?: number | null;
+  usedDaily?: number | null;
+  usedMonthly?: number | null;
 }
 
 export interface Billing {
