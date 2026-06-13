@@ -33,6 +33,7 @@ import {
 import { aiProviderTypeLabels, defaultModels } from '../utils';
 import CurrencyChangeWarning from './CurrencyChangeWarning';
 import MoneyField from './MoneyField';
+import TestConnectionButton from './TestConnectionButton';
 
 const moneyInput = (
   fieldName: string,
@@ -194,6 +195,13 @@ export const useInputs = (): {
           placeholder: t(labelFastModelPlaceholder)
         },
         type: InputType.Text
+      },
+      {
+        custom: { Component: TestConnectionButton },
+        fieldName: 'testConnection',
+        group: t(labelConnection),
+        label: '',
+        type: InputType.Custom
       },
       {
         fieldName: 'currency',

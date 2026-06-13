@@ -59,6 +59,26 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
 
     public function forProvider(AiProvider $aiProvider): LlmClientInterface
     {
+        // every call is metered, and capped when the provider has a spend limit
+        return new MeteredLlmClient(
+            $this->buildClient($aiProvider),
+            $aiProvider,
+            $this->usageRepository,
+            $this->budgetChecker,
+            $this->security,
+            $this->clock,
+        );
+    }
+
+    public function forConnectionTest(AiProvider $aiProvider): LlmClientInterface
+    {
+        // a connection test is a configuration-time check: it is not metered or
+        // capped, and the provider may not be saved yet (no id to attribute to)
+        return $this->buildClient($aiProvider);
+    }
+
+    private function buildClient(AiProvider $aiProvider): LlmClientInterface
+    {
         if ($aiProvider->apiToken->isStoredInVault()) {
             // vault-backed token resolution is not wired into this container yet
             throw LlmConfigurationException::unresolvableToken();
@@ -66,7 +86,7 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
 
         $httpClient = $this->httpClient();
 
-        $client = match ($aiProvider->type) {
+        return match ($aiProvider->type) {
             AiProviderTypeEnum::Anthropic => new AnthropicLlmClient(
                 $httpClient,
                 $aiProvider->endpointUrl,
@@ -84,16 +104,6 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
                 $aiProvider->fastModel,
             ),
         };
-
-        // every call is metered, and capped when the provider has a spend limit
-        return new MeteredLlmClient(
-            $client,
-            $aiProvider,
-            $this->usageRepository,
-            $this->budgetChecker,
-            $this->security,
-            $this->clock,
-        );
     }
 
     /**

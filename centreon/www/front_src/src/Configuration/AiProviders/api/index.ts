@@ -1,2 +1,6 @@
 export { aiProviderDecoder, aiProvidersListDecoder } from './decoders';
-export { aiProvidersEndpoint, getAiProviderEndpoint } from './endpoints';
+export {
+  aiProvidersEndpoint,
+  getAiProviderEndpoint,
+  testConnectionEndpoint
+} from './endpoints';

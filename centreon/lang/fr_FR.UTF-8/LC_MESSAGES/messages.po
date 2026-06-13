@@ -25284,3 +25284,23 @@ msgstr "ce mois-ci"
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
 msgid "Not metered"
 msgstr "Non mesuré"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Test connection"
+msgstr "Tester la connexion"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Testing connection…"
+msgstr "Test de la connexion…"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Connection successful"
+msgstr "Connexion réussie"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Connection failed"
+msgstr "Échec de la connexion"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Sends a minimal request to the provider (billed by the provider, not counted toward the spend limit)"
+msgstr "Envoie une requête minimale au fournisseur (facturée par le fournisseur, non comptée dans la limite de dépense)"

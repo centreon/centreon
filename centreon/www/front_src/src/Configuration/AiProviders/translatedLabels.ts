@@ -37,6 +37,13 @@ export const labelToday = 'today';
 export const labelThisMonth = 'this month';
 export const labelNotMetered = 'Not metered';
 
+export const labelTestConnection = 'Test connection';
+export const labelTestingConnection = 'Testing connection…';
+export const labelConnectionSucceeded = 'Connection successful';
+export const labelConnectionFailed = 'Connection failed';
+export const labelTestConnectionHint =
+  'Sends a minimal request to the provider (billed by the provider, not counted toward the spend limit)';
+
 export const labelLimitsAndPricing = 'Limits & pricing';
 export const labelCurrency = 'Currency';
 export const labelCurrencyPlaceholder = 'e.g. USD, EUR';

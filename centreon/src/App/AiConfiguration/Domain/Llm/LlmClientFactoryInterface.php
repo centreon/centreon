@@ -39,4 +39,12 @@ interface LlmClientFactoryInterface
      * @throws LlmConfigurationException when the provider configuration is not usable
      */
     public function forProvider(AiProvider $aiProvider): LlmClientInterface;
+
+    /**
+     * Build a client for a configuration-time connection test: unmetered and
+     * uncapped, and usable with a not-yet-saved provider.
+     *
+     * @throws LlmConfigurationException when the provider configuration is not usable
+     */
+    public function forConnectionTest(AiProvider $aiProvider): LlmClientInterface;
 }

@@ -46,6 +46,11 @@ final class FakeLlmClientFactory implements LlmClientFactoryInterface
         return $this->getClientOrThrow();
     }
 
+    public function forConnectionTest(AiProvider $aiProvider): LlmClientInterface
+    {
+        return $this->getClientOrThrow();
+    }
+
     private function getClientOrThrow(): LlmClientInterface
     {
         if ($this->exception instanceof LlmConfigurationException) {

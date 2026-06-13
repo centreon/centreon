@@ -12,7 +12,8 @@ import {
   labelMistral,
   labelName,
   labelNameAlreadyExists,
-  labelOpenAiCompatible
+  labelOpenAiCompatible,
+  labelTestConnection
 } from '../translatedLabels';
 import initialize from './initialize';
 
@@ -135,6 +136,20 @@ describe('AiProviders', () => {
         expect(request.body.limit_daily).to.equal(10);
         expect(request.body.limit_monthly).to.equal(null);
       });
+    });
+
+    it('enables the test-connection button only once a token can be tested', () => {
+      cy.waitForRequest('@getAiProviders');
+
+      cy.get('[data-testid="add-resource"]').click();
+      cy.findByLabelText(labelAnthropic).click();
+
+      // on creation with no token typed yet, there is nothing to test
+      cy.findByTestId(labelTestConnection).should('be.disabled');
+
+      // a typed token makes the configuration testable
+      cy.findAllByTestId(labelApiToken).eq(1).type('a-very-secret-token');
+      cy.findByTestId(labelTestConnection).should('be.enabled');
     });
 
     it('defaults the name to the provider type until the user chooses one', () => {
