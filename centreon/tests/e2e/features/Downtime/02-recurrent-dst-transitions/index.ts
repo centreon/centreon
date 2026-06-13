@@ -101,15 +101,25 @@ const scheduledWindowFor = (
   serviceDescription: string
 ): { start: number; end: number } | null => {
   const marker = `SCHEDULE_SVC_DOWNTIME;${hostName};${serviceDescription};`;
-  const line = commands.split('\n').find((l) => l.includes(marker));
+  // Keep the latest matching command: the cron may emit several over time and
+  // the most recent one carries the window we just scheduled.
+  const line = commands
+    .split('\n')
+    .filter((l) => l.includes(marker))
+    .at(-1);
   if (!line) {
     return null;
   }
   const [start, end] = line
     .substring(line.indexOf(marker) + marker.length)
     .split(';');
+  const parsedStart = Number(start);
+  const parsedEnd = Number(end);
+  if (!Number.isFinite(parsedStart) || !Number.isFinite(parsedEnd)) {
+    return null;
+  }
 
-  return { end: Number(end), start: Number(start) };
+  return { end: parsedEnd, start: parsedStart };
 };
 
 beforeEach(() => {

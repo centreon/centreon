@@ -131,6 +131,9 @@ const clockTimeToInstant = (
   minute: number,
   prefer: 'earlier' | 'later' = 'earlier'
 ): ResolvedInstant => {
+  // "24:00" is end-of-day midnight: Date.UTC rolls it to the next day's 00:00,
+  // so the resolved wall hour reads back as 0 — normalise the target the same way.
+  const targetHour = hour % 24;
   const naive = Date.UTC(year, month - 1, day, hour, minute);
 
   // Candidate offsets: sampling a day before and after spans any nearby
@@ -157,7 +160,7 @@ const clockTimeToInstant = (
     // normalise it to 0 to match a 00:00 target.
     const backHour = parts.hour === '24' ? 0 : Number(parts.hour);
 
-    return backHour === hour && Number(parts.minute) === minute;
+    return backHour === targetHour && Number(parts.minute) === minute;
   };
 
   // An instant is valid when applying its offset reproduces the target wall time.
