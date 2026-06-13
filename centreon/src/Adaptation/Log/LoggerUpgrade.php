@@ -25,6 +25,7 @@ namespace Adaptation\Log;
 
 use Adaptation\Log\Enum\LogChannelEnum;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 
 final class LoggerUpgrade
 {
@@ -45,7 +46,8 @@ final class LoggerUpgrade
 
     public function start(string $fromVersion, string $toVersion): void
     {
-        $this->logger->info(
+        $this->logger->log(
+            LogLevel::INFO,
             "Upgrade started from {$fromVersion} to {$toVersion}",
             $this->baseContext('upgrade.start', 'started', $fromVersion, $toVersion)
         );
@@ -55,7 +57,7 @@ final class LoggerUpgrade
     {
         $context = $this->baseContext('upgrade.success', 'success', $fromVersion, $toVersion);
         $context['duration_ms'] = $durationMs;
-        $this->logger->info("Upgrade from {$fromVersion} to {$toVersion} completed successfully", $context);
+        $this->logger->log(LogLevel::INFO, "Upgrade from {$fromVersion} to {$toVersion} completed successfully", $context);
     }
 
     public function failure(
@@ -64,7 +66,8 @@ final class LoggerUpgrade
         ?string $toVersion,
         ?\Throwable $exception = null,
     ): void {
-        $this->logger->error(
+        $this->logger->log(
+            LogLevel::ERROR,
             $message,
             $this->baseContext('upgrade.failure', 'failure', $fromVersion, $toVersion, $exception)
         );
@@ -72,7 +75,8 @@ final class LoggerUpgrade
 
     public function info(string $version, string $message): void
     {
-        $this->logger->info(
+        $this->logger->log(
+            LogLevel::INFO,
             $message,
             $this->baseContext('upgrade.info', 'info', null, $version)
         );
@@ -80,7 +84,8 @@ final class LoggerUpgrade
 
     public function error(string $version, string $message, ?\Throwable $exception = null): void
     {
-        $this->logger->error(
+        $this->logger->log(
+            LogLevel::ERROR,
             $message,
             $this->baseContext('upgrade.error', 'error', null, $version, $exception)
         );
@@ -90,7 +95,7 @@ final class LoggerUpgrade
     {
         $context = $this->baseContext('upgrade.step', 'running', null, $version);
         $context['step'] = $stepName;
-        $this->logger->info($message, $context);
+        $this->logger->log(LogLevel::INFO, $message, $context);
     }
 
     public function stepFailure(
@@ -101,7 +106,7 @@ final class LoggerUpgrade
     ): void {
         $context = $this->baseContext('upgrade.step_failure', 'failure', null, $version, $exception);
         $context['step'] = $stepName;
-        $this->logger->error($message, $context);
+        $this->logger->log(LogLevel::ERROR, $message, $context);
     }
 
     /**
