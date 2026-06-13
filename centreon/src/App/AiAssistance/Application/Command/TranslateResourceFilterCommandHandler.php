@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\AiAssistance\Application\Command;
 
 use App\AiAssistance\Domain\ResourceFilterQueryLanguage;
+use App\AiConfiguration\Domain\Llm\AiFeatureEnum;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
 use App\AiConfiguration\Domain\Llm\LlmMessage;
 use App\AiConfiguration\Domain\Llm\LlmModelTierEnum;
@@ -126,6 +127,7 @@ final readonly class TranslateResourceFilterCommandHandler
 
         $response = $client->complete(new LlmRequest(
             messages: $messages,
+            feature: AiFeatureEnum::ResourceFilter,
             systemPrompt: self::SYSTEM_PROMPT,
             tier: LlmModelTierEnum::Fast,
             maxTokens: 256,

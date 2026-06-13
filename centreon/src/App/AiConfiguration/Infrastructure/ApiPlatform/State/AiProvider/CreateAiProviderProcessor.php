@@ -34,6 +34,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Infrastructure\AiFeatureAvailability;
+use App\AiConfiguration\Infrastructure\ApiPlatform\AiProvider\BillingInput;
 use App\AiConfiguration\Infrastructure\ApiPlatform\Resource\AiProvider\AiProviderResource;
 use App\AiConfiguration\Infrastructure\ApiPlatform\Resource\AiProvider\CreateAiProviderResource;
 use App\Security\Infrastructure\Security\CredentialUser;
@@ -78,6 +79,16 @@ final readonly class CreateAiProviderProcessor implements ProcessorInterface
                     sprintf("An endpoint URL is required for providers of type '%s'.", $type->value)
                 ));
 
+        $billing = BillingInput::fromFields(
+            currency: $data->currency,
+            priceDefaultInput: $data->priceDefaultInput,
+            priceDefaultOutput: $data->priceDefaultOutput,
+            priceFastInput: $data->priceFastInput,
+            priceFastOutput: $data->priceFastOutput,
+            limitDaily: $data->limitDaily,
+            limitMonthly: $data->limitMonthly,
+        );
+
         $command = new CreateAiProviderCommand(
             name: new AiProviderName(trim($data->name)),
             type: $type,
@@ -87,6 +98,9 @@ final readonly class CreateAiProviderProcessor implements ProcessorInterface
             fastModel: $data->fastModel !== null ? new ModelName($data->fastModel) : null,
             description: $data->description !== null ? new AiProviderDescription($data->description) : null,
             isActivated: $data->isActivated,
+            currency: $billing->currency,
+            pricing: $billing->pricing,
+            limit: $billing->limit,
             creatorId: $credentialUser->credential->userId->value,
         );
 

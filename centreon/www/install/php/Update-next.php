@@ -762,6 +762,48 @@ $createAiProviderConfigurationTable = function () use ($pearDB, &$errorMessage, 
     );
 };
 
+$createAiProviderUsageLogTable = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to create ai_provider_usage_log table';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Creating ai_provider_usage_log table",
+    );
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            CREATE TABLE IF NOT EXISTS `ai_provider_usage_log` (
+              `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the usage log entry',
+              `ai_provider_id` INT UNSIGNED DEFAULT NULL COMMENT 'AI provider configuration that served the request',
+              `provider_name` varchar(255) NOT NULL COMMENT 'Name of the provider at the time of the request (snapshot)',
+              `feature` enum('resource_filter','resource_explanation','incident_summary','connection_test') NOT NULL COMMENT 'AI feature that triggered the request',
+              `contact_id` int(11) DEFAULT NULL COMMENT 'Contact that triggered the request',
+              `model` varchar(255) NOT NULL COMMENT 'Model that served the request',
+              `tier` enum('default','fast') NOT NULL COMMENT 'Model tier used for the request',
+              `input_tokens` INT UNSIGNED NOT NULL COMMENT 'Input (prompt) token count',
+              `output_tokens` INT UNSIGNED NOT NULL COMMENT 'Output (completion) token count',
+              `cost` DECIMAL(14,6) DEFAULT NULL COMMENT 'Cost of the request computed at write time; null when no pricing is configured',
+              `currency` char(3) DEFAULT NULL COMMENT 'ISO 4217 currency of the cost (snapshot); null when cost is null',
+              `requested_at` int(11) NOT NULL COMMENT 'Request timestamp (UTC)',
+              PRIMARY KEY (`id`),
+              KEY `ai_provider_usage_log_window` (`ai_provider_id`, `requested_at`),
+              CONSTRAINT `fk_ai_provider_usage_log_provider`
+                FOREIGN KEY (`ai_provider_id`)
+                REFERENCES `ai_provider_configuration` (`id`)
+                ON DELETE SET NULL,
+              CONSTRAINT `fk_ai_provider_usage_log_contact`
+                FOREIGN KEY (`contact_id`)
+                REFERENCES `contact` (`contact_id`)
+                ON DELETE SET NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Per-request token usage and cost of LLM-based features'
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: ai_provider_usage_log table created successfully",
+    );
+};
+
 $addAiProvidersTopology = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to add AI Providers topology entry';
 
@@ -812,6 +854,7 @@ try {
     $updateBbdoVersionDefault();
     $updateBbdoVersionValues();
     $createAiProviderConfigurationTable();
+    $createAiProviderUsageLogTable();
 
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {

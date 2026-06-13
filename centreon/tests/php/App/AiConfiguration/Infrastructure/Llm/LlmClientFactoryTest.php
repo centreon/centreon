@@ -30,12 +30,17 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
+use App\AiConfiguration\Domain\Usage\BudgetStatusChecker;
 use App\AiConfiguration\Infrastructure\Llm\AnthropicLlmClient;
 use App\AiConfiguration\Infrastructure\Llm\LlmClientFactory;
+use App\AiConfiguration\Infrastructure\Llm\MeteredLlmClient;
 use App\AiConfiguration\Infrastructure\Llm\OpenAiCompatibleLlmClient;
 use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderRepository;
+use Tests\App\AiConfiguration\Infrastructure\Double\FakeAiProviderUsageRepository;
 use Tests\App\Shared\Double\FakeHttpProxyProvider;
 
 final class LlmClientFactoryTest extends TestCase
@@ -47,10 +52,15 @@ final class LlmClientFactoryTest extends TestCase
     protected function setUp(): void
     {
         $this->repository = new FakeAiProviderRepository();
+        $usageRepository = new FakeAiProviderUsageRepository();
         $this->factory = new LlmClientFactory(
             $this->repository,
             new MockHttpClient(),
-            new FakeHttpProxyProvider()
+            new FakeHttpProxyProvider(),
+            $usageRepository,
+            new BudgetStatusChecker($usageRepository, new MockClock()),
+            $this->createMock(Security::class),
+            new MockClock(),
         );
     }
 
@@ -58,7 +68,8 @@ final class LlmClientFactoryTest extends TestCase
     {
         $client = $this->factory->forProvider($this->createAiProvider(AiProviderTypeEnum::Anthropic));
 
-        self::assertInstanceOf(AnthropicLlmClient::class, $client);
+        self::assertInstanceOf(MeteredLlmClient::class, $client);
+        self::assertInstanceOf(AnthropicLlmClient::class, $client->inner);
     }
 
     public function testOtherProvidersGetTheOpenAiCompatibleClient(): void
@@ -66,7 +77,8 @@ final class LlmClientFactoryTest extends TestCase
         foreach ([AiProviderTypeEnum::OpenAi, AiProviderTypeEnum::Mistral, AiProviderTypeEnum::OpenAiCompatible] as $type) {
             $client = $this->factory->forProvider($this->createAiProvider($type));
 
-            self::assertInstanceOf(OpenAiCompatibleLlmClient::class, $client);
+            self::assertInstanceOf(MeteredLlmClient::class, $client);
+            self::assertInstanceOf(OpenAiCompatibleLlmClient::class, $client->inner);
         }
     }
 
@@ -75,7 +87,10 @@ final class LlmClientFactoryTest extends TestCase
         $aiProvider = $this->createAiProvider(AiProviderTypeEnum::Anthropic, isActivated: true);
         $this->repository->add($aiProvider);
 
-        self::assertInstanceOf(AnthropicLlmClient::class, $this->factory->forActivatedProvider());
+        $client = $this->factory->forActivatedProvider();
+
+        self::assertInstanceOf(MeteredLlmClient::class, $client);
+        self::assertInstanceOf(AnthropicLlmClient::class, $client->inner);
     }
 
     public function testMissingDefaultProviderThrows(): void

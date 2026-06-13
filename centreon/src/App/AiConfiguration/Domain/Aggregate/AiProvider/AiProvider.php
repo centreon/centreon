@@ -40,6 +40,9 @@ final class AiProvider extends AggregateRoot
         public ?ModelName $fastModel,
         public ?AiProviderDescription $description,
         public bool $isActivated,
+        public ?Currency $currency = null,
+        public ?Pricing $pricing = null,
+        public ?SpendLimit $limit = null,
     ) {
         parent::__construct($id);
     }
@@ -72,6 +75,13 @@ final class AiProvider extends AggregateRoot
     public function updateDescription(?AiProviderDescription $description): void
     {
         $this->description = $description;
+    }
+
+    public function updateBilling(?Currency $currency, ?Pricing $pricing, ?SpendLimit $limit): void
+    {
+        $this->currency = $currency;
+        $this->pricing = $pricing;
+        $this->limit = $limit;
     }
 
     public function enable(): void

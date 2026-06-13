@@ -187,4 +187,66 @@ final class CreateAiProviderProcessorTest extends AiProviderApiTestCase
         self::assertResponseStatusCodeSame(201);
         self::assertJsonContains(['is_activated' => false]);
     }
+
+    public function testCreateWithPricingAndLimits(): void
+    {
+        $this->login();
+
+        $this->request('POST', self::ENDPOINT, [
+            'json' => [
+                'name' => 'Anthropic production',
+                'type' => 'anthropic',
+                'api_token' => 'a-token',
+                'default_model' => 'claude-sonnet-4-6',
+                'currency' => 'USD',
+                'price_default_input' => 3.0,
+                'price_default_output' => 15.0,
+                'limit_monthly' => 50.0,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains([
+            'currency' => 'USD',
+            'price_default_input' => 3.0,
+            'price_default_output' => 15.0,
+            'limit_monthly' => 50.0,
+        ]);
+    }
+
+    public function testCreateWithLimitButNoPriceReturns422(): void
+    {
+        $this->login();
+
+        $this->request('POST', self::ENDPOINT, [
+            'json' => [
+                'name' => 'Anthropic production',
+                'type' => 'anthropic',
+                'api_token' => 'a-token',
+                'default_model' => 'claude-sonnet-4-6',
+                'currency' => 'USD',
+                'limit_monthly' => 50.0,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testCreateWithPriceButNoCurrencyReturns422(): void
+    {
+        $this->login();
+
+        $this->request('POST', self::ENDPOINT, [
+            'json' => [
+                'name' => 'Anthropic production',
+                'type' => 'anthropic',
+                'api_token' => 'a-token',
+                'default_model' => 'claude-sonnet-4-6',
+                'price_default_input' => 3.0,
+                'price_default_output' => 15.0,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
 }

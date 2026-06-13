@@ -34,6 +34,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Infrastructure\ApiPlatform\AiProvider\BillingInput;
 use App\AiConfiguration\Infrastructure\ApiPlatform\Resource\AiProvider\AiProviderResource;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
@@ -70,6 +71,16 @@ final readonly class UpdateAiProviderProcessor implements ProcessorInterface
         $endpointUrl = AiProviderTypeEnum::from($data->type)->defaultEndpointUrl()
             ?? new EndpointUrl($data->endpointUrl);
 
+        $billing = BillingInput::fromFields(
+            currency: $data->currency,
+            priceDefaultInput: $data->priceDefaultInput,
+            priceDefaultOutput: $data->priceDefaultOutput,
+            priceFastInput: $data->priceFastInput,
+            priceFastOutput: $data->priceFastOutput,
+            limitDaily: $data->limitDaily,
+            limitMonthly: $data->limitMonthly,
+        );
+
         $command = new UpdateAiProviderCommand(
             id: new AiProviderId($uriVariables['id']),
             name: new AiProviderName(trim($data->name)),
@@ -79,6 +90,9 @@ final readonly class UpdateAiProviderProcessor implements ProcessorInterface
             fastModel: $data->fastModel !== null ? new ModelName($data->fastModel) : null,
             description: $data->description !== null ? new AiProviderDescription($data->description) : null,
             isActivated: $data->isActivated,
+            currency: $billing->currency,
+            pricing: $billing->pricing,
+            limit: $billing->limit,
             updatedBy: $credentialUser->credential->userId->value,
         );
 

@@ -38,4 +38,9 @@ final class LlmConfigurationException extends LlmException
     {
         return new self('The API token of this AI provider can not be resolved.');
     }
+
+    public static function budgetExceeded(): self
+    {
+        return new self('The AI provider spend limit has been reached for the current period.');
+    }
 }

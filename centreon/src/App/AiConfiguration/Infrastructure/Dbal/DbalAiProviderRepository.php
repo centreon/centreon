@@ -317,11 +317,29 @@ final readonly class DbalAiProviderRepository extends DbalRepository implements 
 
     private function encodeConfiguration(AiProvider $aiProvider): string
     {
+        $pricing = $aiProvider->pricing;
+        $limit = $aiProvider->limit;
+
         return json_encode([
             'endpoint_url' => $aiProvider->endpointUrl->value,
             'api_token' => $aiProvider->apiToken->value,
             'default_model' => $aiProvider->defaultModel->value,
             'fast_model' => $aiProvider->fastModel?->value,
+            'currency' => $aiProvider->currency?->value,
+            'pricing' => $pricing === null ? null : [
+                'default' => [
+                    'input' => $pricing->default->inputPricePerMillion,
+                    'output' => $pricing->default->outputPricePerMillion,
+                ],
+                'fast' => $pricing->fast === null ? null : [
+                    'input' => $pricing->fast->inputPricePerMillion,
+                    'output' => $pricing->fast->outputPricePerMillion,
+                ],
+            ],
+            'limits' => $limit === null ? null : [
+                'daily' => $limit->daily,
+                'monthly' => $limit->monthly,
+            ],
         ], \JSON_THROW_ON_ERROR);
     }
 }

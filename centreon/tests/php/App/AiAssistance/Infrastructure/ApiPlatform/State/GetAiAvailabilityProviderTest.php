@@ -41,7 +41,7 @@ final class GetAiAvailabilityProviderTest extends AiAssistanceApiTestCase
         $this->request('GET', self::ENDPOINT);
 
         self::assertResponseIsSuccessful();
-        self::assertJsonContains(['is_available' => false]);
+        self::assertJsonContains(['is_available' => false, 'reason' => 'no_provider']);
     }
 
     public function testAvailableWithAnEnabledProvider(): void

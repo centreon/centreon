@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\AiAssistance\Application\Command;
 
+use App\AiConfiguration\Domain\Llm\AiFeatureEnum;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
 use App\AiConfiguration\Domain\Llm\LlmMessage;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
@@ -73,6 +74,7 @@ final readonly class SummarizeIncidentCommandHandler
 
         $response = $client->complete(new LlmRequest(
             messages: [new LlmMessage(LlmRoleEnum::User, $this->buildFacts($command))],
+            feature: AiFeatureEnum::IncidentSummary,
             systemPrompt: self::SYSTEM_PROMPT,
             maxTokens: 1024,
         ));

@@ -164,6 +164,38 @@ final class AiProviderResource
         )]
         #[Assert\Length(min: 1, max: 4096)]
         public ?string $apiToken = null,
+
+        #[ApiProperty(
+            description: 'ISO 4217 currency of the prices and spend limits. Required when any price '
+                . 'or limit is set.',
+            openapiContext: ['example' => 'USD'],
+        )]
+        #[Assert\Length(min: 3, max: 3)]
+        public ?string $currency = null,
+
+        #[ApiProperty(description: 'Price per 1M input tokens for the default model tier')]
+        #[Assert\PositiveOrZero]
+        public ?float $priceDefaultInput = null,
+
+        #[ApiProperty(description: 'Price per 1M output tokens for the default model tier')]
+        #[Assert\PositiveOrZero]
+        public ?float $priceDefaultOutput = null,
+
+        #[ApiProperty(description: 'Price per 1M input tokens for the fast model tier')]
+        #[Assert\PositiveOrZero]
+        public ?float $priceFastInput = null,
+
+        #[ApiProperty(description: 'Price per 1M output tokens for the fast model tier')]
+        #[Assert\PositiveOrZero]
+        public ?float $priceFastOutput = null,
+
+        #[ApiProperty(description: 'Daily spend limit in the configured currency. Requires prices to be set.')]
+        #[Assert\Positive]
+        public ?float $limitDaily = null,
+
+        #[ApiProperty(description: 'Monthly spend limit in the configured currency. Requires prices to be set.')]
+        #[Assert\Positive]
+        public ?float $limitMonthly = null,
     ) {
     }
 }

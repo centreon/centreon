@@ -26,6 +26,7 @@ namespace Tests\App\AiConfiguration\Infrastructure\Llm;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Llm\AiFeatureEnum;
 use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\LlmMessage;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
@@ -130,6 +131,7 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
     {
         return new LlmRequest(
             messages: [new LlmMessage(LlmRoleEnum::User, 'ping')],
+            feature: AiFeatureEnum::ConnectionTest,
             systemPrompt: 'a system prompt',
             maxTokens: 16,
         );

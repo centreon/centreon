@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\AiConfiguration\Application\Command;
 
+use App\AiConfiguration\Domain\Llm\AiFeatureEnum;
 use App\AiConfiguration\Domain\Llm\Exception\LlmException;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
 use App\AiConfiguration\Domain\Llm\LlmMessage;
@@ -49,6 +50,7 @@ final readonly class TestAiProviderCommandHandler
 
             $response = $client->complete(new LlmRequest(
                 messages: [new LlmMessage(LlmRoleEnum::User, 'Reply with the single word: pong')],
+                feature: AiFeatureEnum::ConnectionTest,
                 model: $command->model,
                 maxTokens: 16,
             ));

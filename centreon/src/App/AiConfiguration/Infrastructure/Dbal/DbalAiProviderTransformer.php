@@ -29,8 +29,12 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\Currency;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\Pricing;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\SpendLimit;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\TierPricing;
 use App\Shared\Infrastructure\TransformerInterface;
 use Webmozart\Assert\Assert;
 
@@ -46,7 +50,17 @@ final readonly class DbalAiProviderTransformer implements TransformerInterface
      */
     public function transform(mixed $from): AiProvider
     {
-        /** @var array{endpoint_url: string, api_token: string, default_model: string, fast_model?: string|null} $configuration */
+        /**
+         * @var array{
+         *   endpoint_url: string,
+         *   api_token: string,
+         *   default_model: string,
+         *   fast_model?: string|null,
+         *   currency?: string|null,
+         *   pricing?: array{default: array{input: float, output: float}, fast?: array{input: float, output: float}|null}|null,
+         *   limits?: array{daily?: float|null, monthly?: float|null}|null
+         * } $configuration
+         */
         $configuration = json_decode($from['ap_configuration'], true, 512, \JSON_THROW_ON_ERROR);
         Assert::keyExists($configuration, 'endpoint_url');
         Assert::keyExists($configuration, 'api_token');
@@ -66,6 +80,43 @@ final readonly class DbalAiProviderTransformer implements TransformerInterface
                 ? new AiProviderDescription($from['ap_description'])
                 : null,
             isActivated: (bool) $from['ap_is_activated'],
+            currency: isset($configuration['currency'])
+                ? new Currency($configuration['currency'])
+                : null,
+            pricing: $this->transformPricing($configuration['pricing'] ?? null),
+            limit: $this->transformLimit($configuration['limits'] ?? null),
+        );
+    }
+
+    /**
+     * @param array{default: array{input: float, output: float}, fast?: array{input: float, output: float}|null}|null $pricing
+     */
+    private function transformPricing(?array $pricing): ?Pricing
+    {
+        if ($pricing === null) {
+            return null;
+        }
+
+        return new Pricing(
+            default: new TierPricing((float) $pricing['default']['input'], (float) $pricing['default']['output']),
+            fast: isset($pricing['fast'])
+                ? new TierPricing((float) $pricing['fast']['input'], (float) $pricing['fast']['output'])
+                : null,
+        );
+    }
+
+    /**
+     * @param array{daily?: float|null, monthly?: float|null}|null $limits
+     */
+    private function transformLimit(?array $limits): ?SpendLimit
+    {
+        if ($limits === null) {
+            return null;
+        }
+
+        return new SpendLimit(
+            daily: isset($limits['daily']) ? (float) $limits['daily'] : null,
+            monthly: isset($limits['monthly']) ? (float) $limits['monthly'] : null,
         );
     }
 }

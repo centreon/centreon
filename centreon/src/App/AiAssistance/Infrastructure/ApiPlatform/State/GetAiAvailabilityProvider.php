@@ -28,6 +28,7 @@ use ApiPlatform\State\ProviderInterface;
 use App\AiAssistance\Infrastructure\ApiPlatform\Resource\AiAvailabilityResource;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
+use App\AiConfiguration\Domain\Usage\BudgetStatusChecker;
 
 /**
  * @implements ProviderInterface<AiAvailabilityResource>
@@ -36,13 +37,22 @@ final readonly class GetAiAvailabilityProvider implements ProviderInterface
 {
     public function __construct(
         private AiProviderRepository $repository,
+        private BudgetStatusChecker $budgetChecker,
     ) {
     }
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): AiAvailabilityResource
     {
-        return new AiAvailabilityResource(
-            isAvailable: $this->repository->findActivated() instanceof AiProvider,
-        );
+        $aiProvider = $this->repository->findActivated();
+
+        if (! $aiProvider instanceof AiProvider) {
+            return new AiAvailabilityResource(isAvailable: false, reason: 'no_provider');
+        }
+
+        if ($this->budgetChecker->isExhausted($aiProvider)) {
+            return new AiAvailabilityResource(isAvailable: false, reason: 'budget_exhausted');
+        }
+
+        return new AiAvailabilityResource(isAvailable: true);
     }
 }

@@ -34,8 +34,9 @@ use App\AiAssistance\Infrastructure\ApiPlatform\State\GetAiAvailabilityProvider;
     provider: GetAiAvailabilityProvider::class,
     openapi: new Model\Operation(
         summary: 'Get the AI features availability',
-        description: 'AI features are available when an AI provider is enabled. '
-            . 'The frontend hides the AI features when they are not available.',
+        description: 'AI features are available when an AI provider is enabled and its spend limit '
+            . 'is not reached. The frontend hides the AI features when no provider is enabled, and '
+            . 'disables them when the budget is exhausted.',
     ),
 )]
 final readonly class AiAvailabilityResource
@@ -46,6 +47,14 @@ final readonly class AiAvailabilityResource
             writable: false,
         )]
         public bool $isAvailable,
+
+        #[ApiProperty(
+            description: "Why AI features are unavailable: 'no_provider' (no enabled provider) or "
+                . "'budget_exhausted' (the enabled provider reached its spend limit). Null when available.",
+            writable: false,
+            openapiContext: ['enum' => ['no_provider', 'budget_exhausted', null]],
+        )]
+        public ?string $reason = null,
     ) {
     }
 }

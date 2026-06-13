@@ -44,6 +44,13 @@ final readonly class ResourceAiProviderTransformer implements TransformerInterfa
             description: $from->description?->value,
             isActivated: $from->isActivated,
             apiToken: null, // the token is write-only and never exposed
+            currency: $from->currency?->value,
+            priceDefaultInput: $from->pricing?->default->inputPricePerMillion,
+            priceDefaultOutput: $from->pricing?->default->outputPricePerMillion,
+            priceFastInput: $from->pricing?->fast?->inputPricePerMillion,
+            priceFastOutput: $from->pricing?->fast?->outputPricePerMillion,
+            limitDaily: $from->limit?->daily,
+            limitMonthly: $from->limit?->monthly,
         );
     }
 }

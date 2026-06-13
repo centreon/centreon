@@ -60,6 +60,7 @@ final readonly class UpdateAiProviderCommandHandler
         $aiProvider->updateDefaultModel($command->defaultModel);
         $aiProvider->updateFastModel($command->fastModel);
         $aiProvider->updateDescription($command->description);
+        $aiProvider->updateBilling($command->currency, $command->pricing, $command->limit);
 
         if ($command->apiToken instanceof ApiToken) {
             $aiProvider->updateApiToken(

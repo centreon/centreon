@@ -30,11 +30,13 @@ final readonly class LlmRequest
 {
     /**
      * @param list<LlmMessage> $messages
+     * @param AiFeatureEnum $feature the feature issuing the request, recorded on the usage log
      * @param ModelName|null $model when null, the model serving the requested
      *                              tier in the provider configuration is used
      */
     public function __construct(
         public array $messages,
+        public AiFeatureEnum $feature,
         public ?string $systemPrompt = null,
         public ?ModelName $model = null,
         public LlmModelTierEnum $tier = LlmModelTierEnum::Default,

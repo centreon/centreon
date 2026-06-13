@@ -64,6 +64,9 @@ final readonly class CreateAiProviderCommandHandler
             fastModel: $command->fastModel,
             description: $command->description,
             isActivated: $isActivated,
+            currency: $command->currency,
+            pricing: $command->pricing,
+            limit: $command->limit,
         );
 
         // at most one provider is activated: enabling this one disables the current one

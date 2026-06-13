@@ -27,8 +27,11 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderDescription;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderId;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\Currency;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\Pricing;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\SpendLimit;
 
 final readonly class UpdateAiProviderCommand
 {
@@ -43,6 +46,9 @@ final readonly class UpdateAiProviderCommand
         public ?AiProviderDescription $description,
         public bool $isActivated,
         public int $updatedBy,
+        public ?Currency $currency = null,
+        public ?Pricing $pricing = null,
+        public ?SpendLimit $limit = null,
     ) {
     }
 }

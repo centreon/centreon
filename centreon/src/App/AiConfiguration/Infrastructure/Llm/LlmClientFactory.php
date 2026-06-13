@@ -29,7 +29,11 @@ use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
 use App\AiConfiguration\Domain\Llm\LlmClientInterface;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
+use App\AiConfiguration\Domain\Usage\AiProviderUsageRepository;
+use App\AiConfiguration\Domain\Usage\BudgetStatusChecker;
 use App\Shared\Infrastructure\Proxy\HttpProxyProvider;
+use Psr\Clock\ClockInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class LlmClientFactory implements LlmClientFactoryInterface
@@ -38,6 +42,10 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
         private AiProviderRepository $repository,
         private HttpClientInterface $httpClient,
         private HttpProxyProvider $proxyProvider,
+        private AiProviderUsageRepository $usageRepository,
+        private BudgetStatusChecker $budgetChecker,
+        private Security $security,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -58,7 +66,7 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
 
         $httpClient = $this->httpClient();
 
-        return match ($aiProvider->type) {
+        $client = match ($aiProvider->type) {
             AiProviderTypeEnum::Anthropic => new AnthropicLlmClient(
                 $httpClient,
                 $aiProvider->endpointUrl,
@@ -76,6 +84,16 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
                 $aiProvider->fastModel,
             ),
         };
+
+        // every call is metered, and capped when the provider has a spend limit
+        return new MeteredLlmClient(
+            $client,
+            $aiProvider,
+            $this->usageRepository,
+            $this->budgetChecker,
+            $this->security,
+            $this->clock,
+        );
     }
 
     /**
