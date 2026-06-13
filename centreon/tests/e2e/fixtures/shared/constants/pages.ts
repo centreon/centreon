@@ -57,6 +57,7 @@ export const PAGES = {
     dashboards: '/centreon/home/dashboards',
     dashboardsLibrary: '/centreon/home/dashboards/library',
     downtimesLegacy: '/centreon/main.php?p=21001',
+    recurrentDowntimesLegacy: '/centreon/main.php?p=21003',
     performancesGraphsLegacy: '/centreon/main.php?p=20401',
     virtualMetricsLegacy: '/centreon/main.php?p=20408',
     statusDetailsServicesLegacy: '/centreon/main.php?p=20201'
