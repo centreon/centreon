@@ -95,3 +95,5 @@ junit.xml
 /prod.*.log
 /dev.*.log
 /test.*.log
+# Legacy login.log mirror written by CentreonUserLog when tests bootstrap it
+/login.log

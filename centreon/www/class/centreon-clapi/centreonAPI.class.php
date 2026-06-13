@@ -21,10 +21,11 @@
 
 namespace CentreonClapi;
 
+use Adaptation\Log\Enum\AuthProviderEnum;
+use Adaptation\Log\LoggerAuthentication;
 use CentreonAuth;
 use CentreonAuthLDAP;
 use CentreonDB;
-use CentreonLog;
 use CentreonUserLog;
 use CentreonXML;
 use DateTime;
@@ -527,11 +528,11 @@ class CentreonAPI
                     );
                     $interval = (date_diff($now, $expirationDate))->format('%Dd %Hh %Im %Ss');
                     echo "Authentication failed.\n";
-                    $CentreonLog = new CentreonLog();
-                    $CentreonLog->insertLog(
-                        1,
+                    LoggerAuthentication::create()->loginFailure(
                         "Authentication failed for '" . $row['contact_alias'] . "',"
-                        . " max login attempts has been reached. {$interval} left\n"
+                        . " max login attempts has been reached. {$interval} left",
+                        isset($row['contact_id']) ? (int) $row['contact_id'] : null,
+                        AuthProviderEnum::CLAPI
                     );
 
                     exit(1);
@@ -1365,22 +1366,26 @@ class CentreonAPI
         int $securityPolicyAttempts,
         int $blockingDuration,
     ): void {
-        $CentreonLog = new CentreonLog();
         $loginAttempts = $this->incrementLoginAttempts($contactLoginAttempts);
         if ($loginAttempts === $securityPolicyAttempts) {
             $this->blockLoginForUser();
             echo "Authentication failed.\n";
-            $CentreonLog->insertLog(
-                1,
+            LoggerAuthentication::create()->loginFailure(
                 "Authentication failed. Max attempts has been reached, User can't login for "
-                . "{$blockingDuration} seconds."
+                . "{$blockingDuration} seconds.",
+                null,
+                AuthProviderEnum::CLAPI
             );
 
             exit(1);
         }
         $attemptRemaining = $securityPolicyAttempts - $loginAttempts;
         echo "Authentication failed.\n";
-        $CentreonLog->insertLog(1, "Authentication failed. {$attemptRemaining} attempt(s) remaining");
+        LoggerAuthentication::create()->loginFailure(
+            "Authentication failed. {$attemptRemaining} attempt(s) remaining",
+            null,
+            AuthProviderEnum::CLAPI
+        );
 
         exit(1);
     }

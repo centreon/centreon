@@ -69,7 +69,7 @@ final readonly class PartialUpdateDashboardInput
                 'type' => [
                     new Assert\NotNull(),
                     new Assert\Type('string'),
-                    new Assert\Choice(['global', 'manual']),
+                    new Assert\Choice(choices: ['global', 'manual']),
                 ],
                 'interval' => new Assert\Optional([
                     new Assert\Type('numeric'),
