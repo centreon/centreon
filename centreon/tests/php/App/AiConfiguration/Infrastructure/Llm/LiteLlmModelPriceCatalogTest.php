@@ -27,6 +27,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderTypeEnum;
 use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Infrastructure\Llm\LiteLlmModelPriceCatalog;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Tests\App\Shared\Double\FakeHttpProxyProvider;
@@ -94,7 +95,7 @@ final class LiteLlmModelPriceCatalogTest extends TestCase
             new MockResponse(self::CATALOG),
             new MockResponse('{}'),
         ]);
-        $catalog = new LiteLlmModelPriceCatalog($httpClient, new FakeHttpProxyProvider());
+        $catalog = new LiteLlmModelPriceCatalog($httpClient, new FakeHttpProxyProvider(), new ArrayAdapter());
 
         $catalog->priceFor('gpt-4o', AiProviderTypeEnum::OpenAi);
         $second = $catalog->priceFor('gpt-4o', AiProviderTypeEnum::OpenAi);
@@ -109,7 +110,7 @@ final class LiteLlmModelPriceCatalogTest extends TestCase
         $httpClient = new MockHttpClient(static function (): MockResponse {
             throw new \RuntimeException('network down');
         });
-        $catalog = new LiteLlmModelPriceCatalog($httpClient, new FakeHttpProxyProvider());
+        $catalog = new LiteLlmModelPriceCatalog($httpClient, new FakeHttpProxyProvider(), new ArrayAdapter());
 
         $this->expectException(LlmRequestFailedException::class);
 
@@ -120,7 +121,8 @@ final class LiteLlmModelPriceCatalogTest extends TestCase
     {
         return new LiteLlmModelPriceCatalog(
             new MockHttpClient([new MockResponse($json)]),
-            new FakeHttpProxyProvider()
+            new FakeHttpProxyProvider(),
+            new ArrayAdapter()
         );
     }
 }

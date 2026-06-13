@@ -28,6 +28,8 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\TierPricing;
 use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\ModelPriceCatalog;
 use App\Shared\Infrastructure\Proxy\HttpProxyProvider;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
@@ -39,6 +41,8 @@ final class LiteLlmModelPriceCatalog implements ModelPriceCatalog
 {
     private const CATALOG_URL = 'https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json';
     private const TIMEOUT_SECONDS = 20;
+    private const CACHE_KEY = 'ai_provider_litellm_model_prices';
+    private const CACHE_TTL_SECONDS = 86400;
 
     /** LiteLLM key prefix per provider type (curated providers use bare or prefixed keys). */
     private const PROVIDER_SLUG = [
@@ -53,6 +57,7 @@ final class LiteLlmModelPriceCatalog implements ModelPriceCatalog
     public function __construct(
         private readonly HttpClientInterface $httpClient,
         private readonly HttpProxyProvider $proxyProvider,
+        private readonly CacheInterface $cache,
     ) {
     }
 
@@ -91,6 +96,26 @@ final class LiteLlmModelPriceCatalog implements ModelPriceCatalog
             return $this->catalog;
         }
 
+        // cached for a day: the catalog is ~1.5 MB and prices change slowly, so
+        // the form prefill must not re-download it on every click. A failed
+        // fetch is not cached (the callback exception propagates).
+        /** @var array<string, array{input_cost_per_token?: float, output_cost_per_token?: float}> $catalog */
+        $catalog = $this->cache->get(self::CACHE_KEY, function (ItemInterface $item): array {
+            $item->expiresAfter(self::CACHE_TTL_SECONDS);
+
+            return $this->fetch();
+        });
+
+        $this->catalog = $catalog;
+
+        return $catalog;
+    }
+
+    /**
+     * @return array<string, array{input_cost_per_token?: float, output_cost_per_token?: float}>
+     */
+    private function fetch(): array
+    {
         $options = ['timeout' => self::TIMEOUT_SECONDS];
         $proxyUrl = $this->proxyProvider->getProxyUrl();
         if ($proxyUrl !== null) {
@@ -103,8 +128,6 @@ final class LiteLlmModelPriceCatalog implements ModelPriceCatalog
         } catch (\Throwable $exception) {
             throw LlmRequestFailedException::fromProviderError(0, $exception->getMessage());
         }
-
-        $this->catalog = $catalog;
 
         return $catalog;
     }
