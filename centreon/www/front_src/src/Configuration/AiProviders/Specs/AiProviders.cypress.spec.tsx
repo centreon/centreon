@@ -2,7 +2,11 @@ import {
   labelAiProviders,
   labelAnthropic,
   labelApiToken,
+  labelCurrency,
+  labelDailyLimit,
   labelDefaultModel,
+  labelDefaultModelInputPrice,
+  labelDefaultModelOutputPrice,
   labelEndpointUrl,
   labelFastModel,
   labelMistral,
@@ -98,6 +102,31 @@ describe('AiProviders', () => {
         expect(request.body.fast_model).to.equal('claude-haiku-4-5');
         // the first provider is enabled by the API regardless of the form switch
         expect(request.body.is_activated).to.equal(false);
+      });
+    });
+
+    it('sends the currency, prices and limit when they are filled', () => {
+      cy.waitForRequest('@getAiProviders');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findByLabelText(labelAnthropic).click();
+      cy.findAllByTestId(labelName).eq(1).clear().type('Anthropic priced');
+      cy.findAllByTestId(labelApiToken).eq(1).type('a-very-secret-token');
+
+      cy.findAllByTestId(labelCurrency).eq(1).type('USD');
+      cy.findAllByTestId(labelDefaultModelInputPrice).eq(1).type('3');
+      cy.findAllByTestId(labelDefaultModelOutputPrice).eq(1).type('15');
+      cy.findAllByTestId(labelDailyLimit).eq(1).type('10');
+
+      cy.contains(/^Save$/).click();
+
+      cy.waitForRequest('@createAiProvider').then(({ request }) => {
+        expect(request.body.currency).to.equal('USD');
+        expect(request.body.price_default_input).to.equal(3);
+        expect(request.body.price_default_output).to.equal(15);
+        expect(request.body.limit_daily).to.equal(10);
+        expect(request.body.limit_monthly).to.equal(null);
       });
     });
 

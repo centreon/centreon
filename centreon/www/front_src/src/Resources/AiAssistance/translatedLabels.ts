@@ -23,3 +23,6 @@ export const labelSummaryCopied = 'Summary copied to the clipboard';
 export const labelSummaryCopyFailed = 'The summary could not be copied';
 export const labelNoRecentEvents =
   'No timeline events in the last 24 hours to summarize';
+
+export const labelAiBudgetExhausted =
+  'AI budget reached for the current period';

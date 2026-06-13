@@ -16,6 +16,7 @@ import { makeStyles } from 'tss-react/mui';
 import { ResourceDetails } from '../../Details/models';
 import { ExplainResourceResult } from '../models';
 import {
+  labelAiBudgetExhausted,
   labelAiExplanation,
   labelAiExplanationDisclaimer,
   labelClose,
@@ -58,9 +59,9 @@ const ExplainResource = ({ details }: Props): JSX.Element | null => {
   const [result, setResult] = useState<ExplainResourceResult | null>(null);
 
   const { explain, isMutating } = useExplainResource();
-  const isAiAvailable = useAiAvailability();
+  const { isConfigured, isBudgetExhausted } = useAiAvailability();
 
-  if (!isAiAvailable) {
+  if (!isConfigured) {
     return null;
   }
 
@@ -83,9 +84,11 @@ const ExplainResource = ({ details }: Props): JSX.Element | null => {
     <div className={classes.container}>
       <Button
         data-testid={labelExplain}
+        disabled={isBudgetExhausted}
         onClick={openExplanation}
         size="small"
         startIcon={<AutoAwesomeIcon />}
+        title={isBudgetExhausted ? t(labelAiBudgetExhausted) : undefined}
       >
         {t(labelExplain)}
       </Button>

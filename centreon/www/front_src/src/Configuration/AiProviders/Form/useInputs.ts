@@ -10,18 +10,40 @@ import {
   labelApiToken,
   labelApiTokenHint,
   labelConnection,
+  labelCurrency,
+  labelCurrencyPlaceholder,
+  labelDailyLimit,
   labelDefaultModel,
+  labelDefaultModelInputPrice,
+  labelDefaultModelOutputPrice,
   labelDefaultModelPlaceholder,
   labelDescription,
   labelEnabled,
   labelEndpointUrl,
   labelFastModel,
+  labelFastModelInputPrice,
+  labelFastModelOutputPrice,
   labelFastModelPlaceholder,
   labelGeneralInformation,
+  labelLimitsAndPricing,
+  labelMonthlyLimit,
   labelName,
   labelType
 } from '../translatedLabels';
 import { aiProviderTypeLabels, defaultModels } from '../utils';
+import CurrencyChangeWarning from './CurrencyChangeWarning';
+
+const moneyInput = (
+  fieldName: string,
+  label: string,
+  group: string
+): InputProps => ({
+  fieldName,
+  group,
+  label,
+  text: { min: 0, type: 'number' },
+  type: InputType.Text
+});
 
 export const useInputs = (): {
   groups: Array<Group>;
@@ -43,6 +65,11 @@ export const useInputs = (): {
         isDividerHidden: true,
         name: t(labelConnection),
         order: 2
+      },
+      {
+        isDividerHidden: true,
+        name: t(labelLimitsAndPricing),
+        order: 3
       }
     ],
     inputs: [
@@ -166,7 +193,45 @@ export const useInputs = (): {
           placeholder: t(labelFastModelPlaceholder)
         },
         type: InputType.Text
-      }
+      },
+      {
+        fieldName: 'currency',
+        group: t(labelLimitsAndPricing),
+        label: t(labelCurrency),
+        text: {
+          placeholder: t(labelCurrencyPlaceholder)
+        },
+        type: InputType.Text
+      },
+      {
+        custom: { Component: CurrencyChangeWarning },
+        fieldName: 'currencyChangeWarning',
+        group: t(labelLimitsAndPricing),
+        label: '',
+        type: InputType.Custom
+      },
+      moneyInput(
+        'priceDefaultInput',
+        t(labelDefaultModelInputPrice),
+        t(labelLimitsAndPricing)
+      ),
+      moneyInput(
+        'priceDefaultOutput',
+        t(labelDefaultModelOutputPrice),
+        t(labelLimitsAndPricing)
+      ),
+      moneyInput(
+        'priceFastInput',
+        t(labelFastModelInputPrice),
+        t(labelLimitsAndPricing)
+      ),
+      moneyInput(
+        'priceFastOutput',
+        t(labelFastModelOutputPrice),
+        t(labelLimitsAndPricing)
+      ),
+      moneyInput('limitDaily', t(labelDailyLimit), t(labelLimitsAndPricing)),
+      moneyInput('limitMonthly', t(labelMonthlyLimit), t(labelLimitsAndPricing))
     ]
   };
 };

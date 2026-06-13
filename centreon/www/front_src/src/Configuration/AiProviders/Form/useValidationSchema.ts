@@ -3,17 +3,36 @@ import { useAtomValue } from 'jotai';
 import { equals, isNil } from 'ramda';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ObjectSchema, object, string } from 'yup';
+import { number, ObjectSchema, object, string } from 'yup';
 
 import { baseEndpoint } from '../../../api/endpoint';
 import { modalStateAtom } from '../../ConfigurationBase/atoms';
 import { aiProvidersEndpoint } from '../api';
 import { AiProviderType } from '../models';
 import {
+  labelCurrencyRequired,
+  labelInvalidCurrency,
   labelInvalidUrl,
   labelNameAlreadyExists,
+  labelPricingRequiredForLimit,
   labelRequired
 } from '../translatedLabels';
+
+const billingFields = [
+  'priceDefaultInput',
+  'priceDefaultOutput',
+  'priceFastInput',
+  'priceFastOutput',
+  'limitDaily',
+  'limitMonthly'
+];
+
+// a cleared number field comes through as an empty string: treat it as null
+const optionalNumber = () =>
+  number()
+    .nullable()
+    .transform((value, original) => (original === '' ? null : value))
+    .min(0);
 
 interface ListingResponse {
   member?: Array<{ id: number; name: string }>;
@@ -85,6 +104,20 @@ export const useValidationSchema = (): ObjectSchema<object> => {
     apiToken: isEditing
       ? string().nullable()
       : string().required(t(labelRequired)),
+    // a price or a limit requires a currency
+    currency: string()
+      .nullable()
+      .matches(/^[A-Za-z]{3}$/, {
+        excludeEmptyString: true,
+        message: t(labelInvalidCurrency)
+      })
+      .when(billingFields, (values, schema) =>
+        (values as Array<number | null | undefined>).some(
+          (value) => !isNil(value) && (value as unknown) !== ''
+        )
+          ? schema.required(t(labelCurrencyRequired))
+          : schema
+      ),
     defaultModel: string().required(t(labelRequired)),
     // the endpoint is only exposed for OpenAI-compatible providers:
     // the API enforces the official endpoint of the other types
@@ -95,6 +128,29 @@ export const useValidationSchema = (): ObjectSchema<object> => {
             .required(t(labelRequired))
         : schema.nullable()
     ),
+    // a limit needs the default model prices so a cost can be computed
+    limitDaily: optionalNumber().when(
+      ['priceDefaultInput', 'priceDefaultOutput'],
+      ([input, output], schema) =>
+        isNil(input) || isNil(output)
+          ? schema.test(
+              'requires-pricing',
+              t(labelPricingRequiredForLimit),
+              (value) => isNil(value)
+            )
+          : schema
+    ),
+    limitMonthly: optionalNumber().when(
+      ['priceDefaultInput', 'priceDefaultOutput'],
+      ([input, output], schema) =>
+        isNil(input) || isNil(output)
+          ? schema.test(
+              'requires-pricing',
+              t(labelPricingRequiredForLimit),
+              (value) => isNil(value)
+            )
+          : schema
+    ),
     name: string()
       .required(t(labelRequired))
       .test(
@@ -102,6 +158,10 @@ export const useValidationSchema = (): ObjectSchema<object> => {
         t(labelNameAlreadyExists),
         (value) => !value || isNameAvailable(value)
       ),
+    priceDefaultInput: optionalNumber(),
+    priceDefaultOutput: optionalNumber(),
+    priceFastInput: optionalNumber(),
+    priceFastOutput: optionalNumber(),
     type: string().required(t(labelRequired))
   });
 };

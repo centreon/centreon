@@ -19,15 +19,33 @@ interface UseAiProvidersState {
   filtersConfiguration: Array<FilterConfiguration>;
 }
 
+// the price/limit fields are optional numbers: an empty or cleared field is null
+const toNumber = (value: number | string | null | undefined): number | null => {
+  if (value === null || value === undefined || value === '') {
+    return null;
+  }
+
+  const parsed = Number(value);
+
+  return Number.isNaN(parsed) ? null : parsed;
+};
+
 export const adaptFormToApiPayload = (data: unknown): Payload => {
   const formData = data as AiProvider;
 
   return {
+    currency: formData.currency || null,
     default_model: formData.defaultModel,
     description: formData.description || null,
     fast_model: formData.fastModel || null,
     is_activated: formData.isActivated,
+    limit_daily: toNumber(formData.limitDaily),
+    limit_monthly: toNumber(formData.limitMonthly),
     name: formData.name,
+    price_default_input: toNumber(formData.priceDefaultInput),
+    price_default_output: toNumber(formData.priceDefaultOutput),
+    price_fast_input: toNumber(formData.priceFastInput),
+    price_fast_output: toNumber(formData.priceFastOutput),
     type: formData.type,
     // the token is write-only: an empty field means "keep the current token"
     ...(formData.apiToken ? { api_token: formData.apiToken } : {}),
@@ -51,8 +69,8 @@ const useAiProviders = (): UseAiProvidersState => {
       endpoints: {
         create: aiProvidersEndpoint,
         deleteOne: getAiProviderEndpoint,
-        disable: getAiProviderEndpoint,
-        enable: getAiProviderEndpoint,
+        disable: (params) => getAiProviderEndpoint({ id: params?.id ?? '' }),
+        enable: (params) => getAiProviderEndpoint({ id: params?.id ?? '' }),
         getAll: aiProvidersEndpoint,
         getOne: getAiProviderEndpoint,
         update: getAiProviderEndpoint

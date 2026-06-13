@@ -31,3 +31,23 @@ export const labelRequired = 'Required';
 export const labelInvalidUrl = 'The endpoint must be a valid URL';
 export const labelNameAlreadyExists =
   'An AI provider with this name already exists';
+
+export const labelLimitsAndPricing = 'Limits & pricing';
+export const labelCurrency = 'Currency';
+export const labelCurrencyPlaceholder = 'e.g. USD, EUR';
+export const labelInvalidCurrency = 'Use a 3-letter ISO code, e.g. USD';
+export const labelDefaultModelInputPrice =
+  'Default model price per 1M input tokens';
+export const labelDefaultModelOutputPrice =
+  'Default model price per 1M output tokens';
+export const labelFastModelInputPrice = 'Fast model price per 1M input tokens';
+export const labelFastModelOutputPrice =
+  'Fast model price per 1M output tokens';
+export const labelDailyLimit = 'Daily spend limit';
+export const labelMonthlyLimit = 'Monthly spend limit';
+export const labelCurrencyRequired =
+  'A currency is required to set prices or spend limits';
+export const labelPricingRequiredForLimit =
+  'Set the default model prices to use a spend limit';
+export const labelCurrencyChangeResetsUsage =
+  'Only usage recorded in the selected currency counts toward the limit, so the current daily and monthly totals will change. Past usage is kept for reporting.';

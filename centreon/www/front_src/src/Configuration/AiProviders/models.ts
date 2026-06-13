@@ -18,7 +18,17 @@ export interface AiProviderListItem {
   isActivated: boolean;
 }
 
-export interface AiProvider {
+export interface Billing {
+  currency?: string | null;
+  limitDaily?: number | null;
+  limitMonthly?: number | null;
+  priceDefaultInput?: number | null;
+  priceDefaultOutput?: number | null;
+  priceFastInput?: number | null;
+  priceFastOutput?: number | null;
+}
+
+export interface AiProvider extends Billing {
   name: string;
   type: string;
   endpointUrl: string;
@@ -30,14 +40,21 @@ export interface AiProvider {
 }
 
 export interface Payload {
-  name: string;
-  endpoint_url: string;
+  currency: string | null;
   default_model: string;
-  fast_model: string | null;
   description: string | null;
+  fast_model: string | null;
   is_activated: boolean;
-  type?: string;
+  limit_daily: number | null;
+  limit_monthly: number | null;
+  name: string;
+  price_default_input: number | null;
+  price_default_output: number | null;
+  price_fast_input: number | null;
+  price_fast_output: number | null;
   api_token?: string;
+  endpoint_url?: string;
+  type?: string;
 }
 
 export interface Filters {

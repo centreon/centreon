@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import {
+  labelAiBudgetExhausted,
   labelAskAi,
   labelAskAiApply,
   labelAskAiDisclaimer,
@@ -55,9 +56,9 @@ const AskAiFilter = (): JSX.Element | null => {
   const anchorRef = useRef<HTMLDivElement | null>(null);
 
   const { isMutating, translate } = useAskAiFilter();
-  const isAiAvailable = useAiAvailability();
+  const { isConfigured, isBudgetExhausted } = useAiAvailability();
 
-  if (!isAiAvailable) {
+  if (!isConfigured) {
     return null;
   }
 
@@ -86,9 +87,10 @@ const AskAiFilter = (): JSX.Element | null => {
       <IconButton
         ariaLabel={t(labelAskAi)}
         data-testid={labelAskAi}
+        disabled={isBudgetExhausted}
         onClick={() => setIsOpen((open) => !open)}
         size="small"
-        title={t(labelAskAi)}
+        title={isBudgetExhausted ? t(labelAiBudgetExhausted) : t(labelAskAi)}
       >
         <AutoAwesomeIcon color="primary" fontSize="small" />
       </IconButton>

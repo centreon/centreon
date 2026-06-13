@@ -25212,3 +25212,59 @@ msgstr "Le résumé n'a pas pu être copié"
 #: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
 msgid "No timeline events in the last 24 hours to summarize"
 msgstr "Aucun événement des dernières 24 heures à résumer"
+
+#: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
+msgid "AI budget reached for the current period"
+msgstr "Budget IA atteint pour la période en cours"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Limits & pricing"
+msgstr "Limites et tarification"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Currency"
+msgstr "Devise"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "e.g. USD, EUR"
+msgstr "ex. USD, EUR"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Use a 3-letter ISO code, e.g. USD"
+msgstr "Utilisez un code ISO à 3 lettres, ex. USD"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Default model price per 1M input tokens"
+msgstr "Prix du modèle par défaut pour 1M de jetons en entrée"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Default model price per 1M output tokens"
+msgstr "Prix du modèle par défaut pour 1M de jetons en sortie"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Fast model price per 1M input tokens"
+msgstr "Prix du modèle rapide pour 1M de jetons en entrée"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Fast model price per 1M output tokens"
+msgstr "Prix du modèle rapide pour 1M de jetons en sortie"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Daily spend limit"
+msgstr "Limite de dépense quotidienne"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Monthly spend limit"
+msgstr "Limite de dépense mensuelle"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "A currency is required to set prices or spend limits"
+msgstr "Une devise est requise pour définir des prix ou des limites de dépense"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Set the default model prices to use a spend limit"
+msgstr "Définissez les prix du modèle par défaut pour utiliser une limite de dépense"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Only usage recorded in the selected currency counts toward the limit, so the current daily and monthly totals will change. Past usage is kept for reporting."
+msgstr "Seule la consommation enregistrée dans la devise sélectionnée compte dans la limite : les totaux quotidien et mensuel en cours vont donc changer. La consommation passée est conservée pour le reporting."

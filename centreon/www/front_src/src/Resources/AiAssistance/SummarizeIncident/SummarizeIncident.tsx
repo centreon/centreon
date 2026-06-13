@@ -18,6 +18,7 @@ import { makeStyles } from 'tss-react/mui';
 import { ResourceDetails } from '../../Details/models';
 import { SummarizeIncidentResult } from '../models';
 import {
+  labelAiBudgetExhausted,
   labelAiIncidentSummary,
   labelAiIncidentSummaryDisclaimer,
   labelClose,
@@ -62,9 +63,9 @@ const SummarizeIncident = ({ details }: Props): JSX.Element | null => {
     errorMessage: t(labelSummaryCopyFailed),
     successMessage: t(labelSummaryCopied)
   });
-  const isAiAvailable = useAiAvailability();
+  const { isConfigured, isBudgetExhausted } = useAiAvailability();
 
-  if (!isAiAvailable) {
+  if (!isConfigured) {
     return null;
   }
 
@@ -87,9 +88,11 @@ const SummarizeIncident = ({ details }: Props): JSX.Element | null => {
     <>
       <Button
         data-testid={labelSummarize}
+        disabled={isBudgetExhausted}
         onClick={openSummary}
         size="small"
         startIcon={<AutoAwesomeIcon />}
+        title={isBudgetExhausted ? t(labelAiBudgetExhausted) : undefined}
       >
         {t(labelSummarize)}
       </Button>

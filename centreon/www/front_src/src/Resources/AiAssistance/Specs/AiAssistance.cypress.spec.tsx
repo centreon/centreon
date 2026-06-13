@@ -27,7 +27,9 @@ import {
 
 const initializeComponent = (
   component: JSX.Element,
-  isAiAvailable = true
+  availability: { is_available: boolean; reason?: string | null } = {
+    is_available: true
+  }
 ): ReturnType<typeof createStore> => {
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -38,7 +40,7 @@ const initializeComponent = (
     alias: 'getAiAvailability',
     method: Method.GET,
     path: `**${aiAvailabilityEndpoint}`,
-    response: { is_available: isAiAvailable }
+    response: availability
   });
 
   const store = createStore();
@@ -149,12 +151,26 @@ describe('ExplainResource', () => {
     cy.makeSnapshot();
   });
 
-  it('is hidden when AI features are not available', () => {
-    initializeComponent(<ExplainResource details={details} />, false);
+  it('is hidden when no AI provider is enabled', () => {
+    initializeComponent(<ExplainResource details={details} />, {
+      is_available: false,
+      reason: 'no_provider'
+    });
 
     cy.waitForRequest('@getAiAvailability');
 
     cy.findByTestId(labelExplain).should('not.exist');
+  });
+
+  it('is visible but disabled when the AI budget is exhausted', () => {
+    initializeComponent(<ExplainResource details={details} />, {
+      is_available: false,
+      reason: 'budget_exhausted'
+    });
+
+    cy.waitForRequest('@getAiAvailability');
+
+    cy.findByTestId(labelExplain).should('be.visible').and('be.disabled');
   });
 });
 
