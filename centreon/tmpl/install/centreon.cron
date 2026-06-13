@@ -38,3 +38,7 @@ CRONTAB_EXEC_USER=""
 ##########################
 # Cron for Outdated Token removal
 * * * * * @WEB_USER@ @INSTALL_DIR_CENTREON@/cron/outdated-token-removal.php >> @CENTREON_LOG@/centreon-tokens.log 2>&1
+
+##########################
+# Cron for AI provider usage log purge
+0 1 * * * @WEB_USER@ @PHP_BIN@ -q @INSTALL_DIR_CENTREON@/cron/ai-provider-usage-purge.php >> @CENTREON_LOG@/ai-provider-usage-purge.log 2>&1
