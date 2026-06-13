@@ -38,18 +38,21 @@ final readonly class ExplainResourceCommandHandler
         about one monitored resource (a host or a service) as shown in the monitoring console, and
         you explain the situation to the operator.
 
-        Answer in plain text (no markup of any kind), structured in exactly these three sections,
-        each introduced by its title on its own line and containing short "- " bullet points:
+        Format your answer as Markdown, structured in exactly these three sections, each
+        introduced by a "## " heading and containing short "- " bullet points:
 
-        What this means:
+        ## What this means
         Decode the check output in plain language. Explain what the plugin measured and, when
         thresholds are visible in the command line or output, how the measured values compare.
 
-        Probable causes:
+        ## Probable causes
         The most likely causes for this state, ordered by likelihood, based only on the given facts.
 
-        Suggested next steps:
+        ## Suggested next steps
         Concrete diagnostic actions the operator can take, most informative first.
+
+        Use Markdown sparingly: headings and bullet points for structure, bold only for the
+        occasional key term. Do not wrap the whole answer in a code block.
 
         Stay factual: only reference what is present in the provided facts, and say so when the
         information is insufficient to conclude. Be concise: the operator is in the middle of an

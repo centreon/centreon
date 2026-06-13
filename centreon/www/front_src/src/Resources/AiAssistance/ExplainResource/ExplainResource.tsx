@@ -10,7 +10,7 @@ import {
   Typography
 } from '@mui/material';
 
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -27,6 +27,12 @@ import {
 import useAiAvailability from '../useAiAvailability';
 import useExplainResource from './useExplainResource';
 
+const MarkdownContent = lazy(() =>
+  import('../MarkdownContent').then((module) => ({
+    default: module.MarkdownContent
+  }))
+);
+
 const useStyles = makeStyles()((theme) => ({
   container: {
     display: 'flex',
@@ -37,9 +43,6 @@ const useStyles = makeStyles()((theme) => ({
     color: theme.palette.text.secondary,
     flexGrow: 1,
     paddingLeft: theme.spacing(1)
-  },
-  explanation: {
-    whiteSpace: 'pre-wrap'
   },
   loading: {
     display: 'flex',
@@ -112,9 +115,15 @@ const ExplainResource = ({ details }: Props): JSX.Element | null => {
             </div>
           ) : (
             <>
-              <Typography className={classes.explanation} variant="body2">
-                {result.explanation}
-              </Typography>
+              <Suspense
+                fallback={
+                  <div className={classes.loading}>
+                    <CircularProgress data-testid="explanation-loading" />
+                  </div>
+                }
+              >
+                <MarkdownContent content={result.explanation} />
+              </Suspense>
               <Typography variant="caption">
                 {t(labelGeneratedBy)} {result.model}
               </Typography>

@@ -12,7 +12,7 @@ import {
 
 import { useCopyToClipboard } from '@centreon/ui';
 
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -32,6 +32,12 @@ import {
 import useAiAvailability from '../useAiAvailability';
 import useSummarizeIncident from './useSummarizeIncident';
 
+const MarkdownContent = lazy(() =>
+  import('../MarkdownContent').then((module) => ({
+    default: module.MarkdownContent
+  }))
+);
+
 const useStyles = makeStyles()((theme) => ({
   disclaimer: {
     color: theme.palette.text.secondary,
@@ -42,9 +48,6 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     justifyContent: 'center',
     padding: theme.spacing(3)
-  },
-  summary: {
-    whiteSpace: 'pre-wrap'
   }
 }));
 
@@ -116,9 +119,15 @@ const SummarizeIncident = ({ details }: Props): JSX.Element | null => {
             </div>
           ) : (
             <>
-              <Typography className={classes.summary} variant="body2">
-                {result.summary}
-              </Typography>
+              <Suspense
+                fallback={
+                  <div className={classes.loading}>
+                    <CircularProgress data-testid="summary-loading" />
+                  </div>
+                }
+              >
+                <MarkdownContent content={result.summary} />
+              </Suspense>
               <Typography variant="caption">
                 {t(labelGeneratedBy)} {result.model}
               </Typography>

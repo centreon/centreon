@@ -126,7 +126,7 @@ describe('ExplainResource', () => {
       method: Method.POST,
       path: `**${aiResourceExplanationEndpoint}`,
       response: {
-        explanation: 'What this means:\n- The ping check lost all packets.',
+        explanation: '## What this means\n\n- The ping check lost all packets.',
         model: 'claude-sonnet-4-6'
       }
     });
@@ -222,7 +222,7 @@ describe('SummarizeIncident', () => {
       path: `**${aiIncidentSummaryEndpoint}`,
       response: {
         model: 'claude-sonnet-4-6',
-        summary: 'Summary:\n- Ping lost all packets and was acknowledged.'
+        summary: '## Summary\n\n- Ping lost all packets and was acknowledged.'
       }
     });
   };
@@ -273,7 +273,7 @@ describe('SummarizeIncident', () => {
 
     cy.get('@writeText').should(
       'have.been.calledWith',
-      'Summary:\n- Ping lost all packets and was acknowledged.'
+      '## Summary\n\n- Ping lost all packets and was acknowledged.'
     );
   });
 

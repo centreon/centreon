@@ -39,22 +39,25 @@ final readonly class SummarizeIncidentCommandHandler
         first. Write an incident summary an operator can hand over to a colleague or paste into a
         ticket.
 
-        Answer in plain text (no markup of any kind), structured in exactly these three sections,
-        each introduced by its title on its own line:
+        Format your answer as Markdown, structured in exactly these three sections, each
+        introduced by a "## " heading:
 
-        Summary:
+        ## Summary
         One or two sentences: what the incident is about and where things stand now.
 
-        Timeline:
+        ## Timeline
         Short "- " bullet points of the significant moments: status changes, acknowledgements,
         downtimes and notable comments, each starting with its time. When the status changed
         repeatedly between the same values (flapping), aggregate the repetitions into a single
         bullet with a count instead of listing every change.
 
-        Current state:
+        ## Current state
         Short "- " bullet points: the current status, whether the problem is being handled
         (acknowledged, in downtime, taken over in comments) and by whom, and what appears to
         remain to be done.
+
+        Use Markdown sparingly: headings and bullet points for structure, bold only for the
+        occasional key term. Do not wrap the whole answer in a code block.
 
         Stay factual: only reference what is present in the provided data, and say so when it is
         insufficient. The summary only covers the provided event window: when the events are
