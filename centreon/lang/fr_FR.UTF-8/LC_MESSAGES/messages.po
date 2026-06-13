@@ -25117,8 +25117,8 @@ msgid "Default model"
 msgstr "Modèle par défaut"
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
-msgid "e.g. claude-sonnet-4-6, mistral-medium-3-5, gpt-5.4"
-msgstr "ex. claude-sonnet-4-6, mistral-medium-3-5, gpt-5.4"
+msgid "e.g. claude-sonnet-4-6, mistral-medium-latest, gpt-5.4"
+msgstr "ex. claude-sonnet-4-6, mistral-medium-latest, gpt-5.4"
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
 msgid "Fast model"

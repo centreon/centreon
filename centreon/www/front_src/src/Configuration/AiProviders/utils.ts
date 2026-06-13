@@ -43,7 +43,7 @@ export const defaultModels: Record<AiProviderType, DefaultModels> = {
     fastModel: 'claude-haiku-4-5'
   },
   [AiProviderType.Mistral]: {
-    defaultModel: 'mistral-medium-3-5',
+    defaultModel: 'mistral-medium-latest',
     fastModel: 'mistral-small-latest'
   },
   [AiProviderType.OpenAi]: {

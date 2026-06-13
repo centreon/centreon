@@ -12,7 +12,7 @@ export const labelApiTokenHint =
   'The token is write-only: leave the field empty to keep the current token.';
 export const labelDefaultModel = 'Default model';
 export const labelDefaultModelPlaceholder =
-  'e.g. claude-sonnet-4-6, mistral-medium-3-5, gpt-5.4';
+  'e.g. claude-sonnet-4-6, mistral-medium-latest, gpt-5.4';
 export const labelFastModel = 'Fast model';
 export const labelFastModelPlaceholder =
   'e.g. claude-haiku-4-5, mistral-small-latest, gpt-5.4-mini — defaults to the default model';

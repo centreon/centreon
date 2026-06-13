@@ -181,7 +181,7 @@ describe('AiProviders', () => {
 
       cy.findAllByTestId(labelDefaultModel)
         .eq(1)
-        .should('have.value', 'mistral-medium-3-5');
+        .should('have.value', 'mistral-medium-latest');
 
       // the name and models follow the type while still auto-filled
       cy.findByLabelText(labelAnthropic).click();
