@@ -92,7 +92,10 @@ const AskAiFilter = (): JSX.Element | null => {
         size="small"
         title={isBudgetExhausted ? t(labelAiBudgetExhausted) : t(labelAskAi)}
       >
-        <AutoAwesomeIcon color="primary" fontSize="small" />
+        <AutoAwesomeIcon
+          color={isBudgetExhausted ? 'disabled' : 'primary'}
+          fontSize="small"
+        />
       </IconButton>
       <Popper
         anchorEl={anchorRef.current}

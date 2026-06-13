@@ -6,6 +6,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Tooltip,
   Typography
 } from '@mui/material';
 
@@ -82,16 +83,19 @@ const ExplainResource = ({ details }: Props): JSX.Element | null => {
 
   return (
     <div className={classes.container}>
-      <Button
-        data-testid={labelExplain}
-        disabled={isBudgetExhausted}
-        onClick={openExplanation}
-        size="small"
-        startIcon={<AutoAwesomeIcon />}
-        title={isBudgetExhausted ? t(labelAiBudgetExhausted) : undefined}
-      >
-        {t(labelExplain)}
-      </Button>
+      <Tooltip title={isBudgetExhausted ? t(labelAiBudgetExhausted) : ''}>
+        <span>
+          <Button
+            data-testid={labelExplain}
+            disabled={isBudgetExhausted}
+            onClick={openExplanation}
+            size="small"
+            startIcon={<AutoAwesomeIcon />}
+          >
+            {t(labelExplain)}
+          </Button>
+        </span>
+      </Tooltip>
       <Dialog
         fullWidth
         maxWidth="sm"

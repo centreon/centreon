@@ -6,6 +6,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Tooltip,
   Typography
 } from '@mui/material';
 
@@ -86,16 +87,19 @@ const SummarizeIncident = ({ details }: Props): JSX.Element | null => {
 
   return (
     <>
-      <Button
-        data-testid={labelSummarize}
-        disabled={isBudgetExhausted}
-        onClick={openSummary}
-        size="small"
-        startIcon={<AutoAwesomeIcon />}
-        title={isBudgetExhausted ? t(labelAiBudgetExhausted) : undefined}
-      >
-        {t(labelSummarize)}
-      </Button>
+      <Tooltip title={isBudgetExhausted ? t(labelAiBudgetExhausted) : ''}>
+        <span>
+          <Button
+            data-testid={labelSummarize}
+            disabled={isBudgetExhausted}
+            onClick={openSummary}
+            size="small"
+            startIcon={<AutoAwesomeIcon />}
+          >
+            {t(labelSummarize)}
+          </Button>
+        </span>
+      </Tooltip>
       <Dialog
         fullWidth
         maxWidth="sm"
