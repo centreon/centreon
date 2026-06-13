@@ -76,7 +76,7 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
         }
 
         $this->backupInstallDirectory($currentVersion);
-        $this->removeInstallDirectory();
+        $this->removeInstallDirectory($currentVersion);
     }
 
     /**
@@ -132,12 +132,14 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
     /**
      * Remove installation directory.
      *
+     * @param string $currentVersion
+     *
      * @throws \Symfony\Component\Filesystem\Exception\IOException when the install directory cannot be removed
      */
-    private function removeInstallDirectory(): void
+    private function removeInstallDirectory(string $currentVersion): void
     {
         LoggerUpgrade::create()->step(
-            'post_update',
+            $currentVersion,
             'remove_install_directory',
             "Removing installation directory at {$this->installDir}"
         );
