@@ -50,6 +50,8 @@ final class LoggerAuthentication
             $message,
             $this->baseContext('login.success', 'success', $userId, $provider)
         );
+
+        $this->mirrorToLegacyLoginLog($message, $userId);
     }
 
     public function loginFailure(
@@ -62,6 +64,8 @@ final class LoggerAuthentication
             $message,
             $this->baseContext('login.failure', 'failure', $userId, $provider, $exception)
         );
+
+        $this->mirrorToLegacyLoginLog($message, $userId);
     }
 
     public function logout(string $message, int $userId, AuthProviderEnum $provider): void
@@ -107,6 +111,26 @@ final class LoggerAuthentication
             $context['resource'] = $resource;
         }
         $this->logger->warning($message, $context);
+    }
+
+    /**
+     * Mirror a login event to the historical login.log file.
+     *
+     * Login success/failure events are routed to the Monolog "authentication" channel
+     * (prod.access.log). This duplicate write keeps the legacy pipe-delimited format and
+     * file path so external consumers that watch /var/log/centreon/login.log (fail2ban
+     * jails matching the "Authentication failed" line with the client IP, SIEM parsers)
+     * keep working unchanged. It reproduces exactly the lines the legacy centreonAuth used
+     * to emit through CentreonUserLog::insertLog(TYPE_LOGIN). It is transitional and will be
+     * removed in a future release once those consumers read the Monolog access log instead.
+     */
+    private function mirrorToLegacyLoginLog(string $message, ?int $userId): void
+    {
+        $logDir = defined('_CENTREON_LOG_') ? _CENTREON_LOG_ : '/var/log/centreon';
+        $line = date('Y-m-d H:i:s') . '|' . ($userId ?? 0) . '|0|0|' . $message;
+        $line = str_replace(['`', '*'], ['', '\*'], $line);
+
+        file_put_contents($logDir . '/login.log', $line . "\n", FILE_APPEND);
     }
 
     /**
