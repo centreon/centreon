@@ -27,7 +27,3 @@ default:
       paths: [ "%paths.base%/features/DowntimeStartAndStop.feature" ]
       contexts: [ DowntimeStartAndStopContext ]
 
-    downtime_recurrent:
-      paths: [ "%paths.base%/features/DowntimeRecurrent.feature" ]
-      contexts: [ DowntimeRecurrentContext ]
-
