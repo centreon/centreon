@@ -11,7 +11,6 @@ import {
   labelApiTokenHint,
   labelConnection,
   labelCurrency,
-  labelCurrencyPlaceholder,
   labelDailyLimit,
   labelDefaultModel,
   labelDefaultModelInputPrice,
@@ -25,25 +24,27 @@ import {
   labelFastModelOutputPrice,
   labelFastModelPlaceholder,
   labelGeneralInformation,
-  labelLimitsAndPricing,
+  labelModels,
   labelMonthlyLimit,
   labelName,
+  labelPricing,
+  labelSpendLimits,
   labelType
 } from '../translatedLabels';
 import { aiProviderTypeLabels, defaultModels } from '../utils';
 import CurrencyChangeWarning from './CurrencyChangeWarning';
+import CurrencyField from './CurrencyField';
 import FetchPricesButton from './FetchPricesButton';
 import MoneyField from './MoneyField';
 import TestConnectionButton from './TestConnectionButton';
 
-const moneyInput = (
+// a money field laid out as a grid column (the group is carried by the grid)
+const moneyColumn = (
   fieldName: string,
-  label: string,
-  group: string
-): InputProps => ({
+  label: string
+): Omit<InputProps, 'group'> => ({
   custom: { Component: MoneyField },
   fieldName,
-  group,
   label,
   type: InputType.Custom
 });
@@ -71,26 +72,47 @@ export const useInputs = (): {
       },
       {
         isDividerHidden: true,
-        name: t(labelLimitsAndPricing),
+        name: t(labelModels),
         order: 3
+      },
+      {
+        isDividerHidden: true,
+        name: t(labelPricing),
+        order: 4
+      },
+      {
+        isDividerHidden: true,
+        name: t(labelSpendLimits),
+        order: 5
       }
     ],
     inputs: [
       {
-        fieldName: 'name',
-        group: t(labelGeneralInformation),
-        label: t(labelName),
-        required: true,
-        type: InputType.Text
-      },
-      {
-        fieldName: 'description',
-        group: t(labelGeneralInformation),
-        label: t(labelDescription),
-        text: {
-          multilineRows: 2
+        fieldName: 'generalRow',
+        grid: {
+          columns: [
+            {
+              fieldName: 'name',
+              label: t(labelName),
+              required: true,
+              type: InputType.Text
+            },
+            {
+              fieldName: 'isActivated',
+              // at most one provider is enabled: enabling this one disables
+              // the other
+              label: t(labelEnabled),
+              type: InputType.Switch
+            }
+          ],
+          gridTemplateColumns: '2fr 1fr'
         },
-        type: InputType.Text
+        group: t(labelGeneralInformation),
+        label: '',
+        // layout-only flag: keeps this row above the required Type radio,
+        // since the Form sorts required inputs first within a group
+        required: true,
+        type: InputType.Grid
       },
       {
         change: ({ setValues, value }): void => {
@@ -149,11 +171,13 @@ export const useInputs = (): {
         type: InputType.Radio
       },
       {
-        fieldName: 'isActivated',
+        fieldName: 'description',
         group: t(labelGeneralInformation),
-        // at most one provider is enabled: enabling this one disables the other
-        label: t(labelEnabled),
-        type: InputType.Switch
+        label: t(labelDescription),
+        text: {
+          multilineRows: 2
+        },
+        type: InputType.Text
       },
       {
         fieldName: 'endpointUrl',
@@ -179,8 +203,15 @@ export const useInputs = (): {
         type: InputType.Password
       },
       {
-        fieldName: 'defaultModel',
+        custom: { Component: TestConnectionButton },
+        fieldName: 'testConnection',
         group: t(labelConnection),
+        label: '',
+        type: InputType.Custom
+      },
+      {
+        fieldName: 'defaultModel',
+        group: t(labelModels),
         label: t(labelDefaultModel),
         required: true,
         text: {
@@ -190,7 +221,7 @@ export const useInputs = (): {
       },
       {
         fieldName: 'fastModel',
-        group: t(labelConnection),
+        group: t(labelModels),
         label: t(labelFastModel),
         text: {
           placeholder: t(labelFastModelPlaceholder)
@@ -198,57 +229,62 @@ export const useInputs = (): {
         type: InputType.Text
       },
       {
-        custom: { Component: TestConnectionButton },
-        fieldName: 'testConnection',
-        group: t(labelConnection),
+        custom: { Component: FetchPricesButton },
+        fieldName: 'fetchPrices',
+        group: t(labelPricing),
         label: '',
         type: InputType.Custom
       },
       {
+        custom: { Component: CurrencyField },
         fieldName: 'currency',
-        group: t(labelLimitsAndPricing),
+        group: t(labelPricing),
         label: t(labelCurrency),
-        text: {
-          placeholder: t(labelCurrencyPlaceholder)
-        },
-        type: InputType.Text
+        type: InputType.Custom
       },
       {
         custom: { Component: CurrencyChangeWarning },
         fieldName: 'currencyChangeWarning',
-        group: t(labelLimitsAndPricing),
+        group: t(labelPricing),
         label: '',
         type: InputType.Custom
       },
       {
-        custom: { Component: FetchPricesButton },
-        fieldName: 'fetchPrices',
-        group: t(labelLimitsAndPricing),
+        fieldName: 'defaultModelPricesRow',
+        grid: {
+          columns: [
+            moneyColumn('priceDefaultInput', t(labelDefaultModelInputPrice)),
+            moneyColumn('priceDefaultOutput', t(labelDefaultModelOutputPrice))
+          ]
+        },
+        group: t(labelPricing),
         label: '',
-        type: InputType.Custom
+        type: InputType.Grid
       },
-      moneyInput(
-        'priceDefaultInput',
-        t(labelDefaultModelInputPrice),
-        t(labelLimitsAndPricing)
-      ),
-      moneyInput(
-        'priceDefaultOutput',
-        t(labelDefaultModelOutputPrice),
-        t(labelLimitsAndPricing)
-      ),
-      moneyInput(
-        'priceFastInput',
-        t(labelFastModelInputPrice),
-        t(labelLimitsAndPricing)
-      ),
-      moneyInput(
-        'priceFastOutput',
-        t(labelFastModelOutputPrice),
-        t(labelLimitsAndPricing)
-      ),
-      moneyInput('limitDaily', t(labelDailyLimit), t(labelLimitsAndPricing)),
-      moneyInput('limitMonthly', t(labelMonthlyLimit), t(labelLimitsAndPricing))
+      {
+        fieldName: 'fastModelPricesRow',
+        grid: {
+          columns: [
+            moneyColumn('priceFastInput', t(labelFastModelInputPrice)),
+            moneyColumn('priceFastOutput', t(labelFastModelOutputPrice))
+          ]
+        },
+        group: t(labelPricing),
+        label: '',
+        type: InputType.Grid
+      },
+      {
+        fieldName: 'limitsRow',
+        grid: {
+          columns: [
+            moneyColumn('limitDaily', t(labelDailyLimit)),
+            moneyColumn('limitMonthly', t(labelMonthlyLimit))
+          ]
+        },
+        group: t(labelSpendLimits),
+        label: '',
+        type: InputType.Grid
+      }
     ]
   };
 };

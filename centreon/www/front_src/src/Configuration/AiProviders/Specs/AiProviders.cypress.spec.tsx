@@ -118,14 +118,20 @@ describe('AiProviders', () => {
       cy.get('[data-testid="add-resource"]').click();
 
       cy.findByLabelText(labelAnthropic).click();
-      cy.findAllByTestId(labelName).eq(1).clear().type('Anthropic priced');
+      // {selectall} rather than .clear(): the name row sits at the top, under
+      // the sticky section nav, where .clear()'s scroll leaves it covered
+      cy.findAllByTestId(labelName).eq(1).type('{selectall}Anthropic priced');
       cy.findAllByTestId(labelApiToken).eq(1).type('a-very-secret-token');
 
-      cy.findAllByTestId(labelCurrency).eq(1).type('USD');
-      // the money fields are custom decimal-capable inputs (one element each)
+      // fill the money fields (custom decimal-capable inputs) before the
+      // currency: its dropdown opens downward and would cover these fields
       cy.findByTestId(labelDefaultModelInputPrice).type('0.01');
       cy.findByTestId(labelDefaultModelOutputPrice).type('15');
       cy.findByTestId(labelDailyLimit).type('10');
+
+      // {esc} closes the currency dropdown so it does not cover the Save button
+      cy.findByTestId(labelCurrency).type('USD{esc}');
+      cy.findByTestId(labelCurrency).should('have.value', 'USD');
 
       cy.contains(/^Save$/).click();
 
@@ -163,10 +169,10 @@ describe('AiProviders', () => {
       cy.findByTestId(labelFetchPrices).should('be.enabled');
 
       // a non-USD currency would mix units: prefill is disabled
-      cy.findAllByTestId(labelCurrency).eq(1).type('EUR');
+      cy.findByTestId(labelCurrency).type('EUR');
       cy.findByTestId(labelFetchPrices).should('be.disabled');
 
-      cy.findAllByTestId(labelCurrency).eq(1).clear().type('USD');
+      cy.findByTestId(labelCurrency).type('{selectall}USD');
       cy.findByTestId(labelFetchPrices).should('be.enabled');
     });
 
@@ -193,7 +199,7 @@ describe('AiProviders', () => {
         .should('have.value', 'claude-sonnet-4-6');
 
       // a name chosen by the user is left untouched
-      cy.findAllByTestId(labelName).eq(1).clear().type('My provider');
+      cy.findAllByTestId(labelName).eq(1).type('{selectall}My provider');
 
       cy.findByLabelText(labelMistral).click();
 
@@ -207,7 +213,9 @@ describe('AiProviders', () => {
 
       cy.findByLabelText(labelAnthropic).click();
 
-      cy.findAllByTestId(labelName).eq(1).clear().type('Anthropic production');
+      cy.findAllByTestId(labelName)
+        .eq(1)
+        .type('{selectall}Anthropic production');
 
       cy.findAllByTestId(labelApiToken).eq(1).type('a-very-secret-token');
 
@@ -259,7 +267,7 @@ describe('AiProviders', () => {
 
       cy.findAllByTestId(labelApiToken).eq(1).should('have.value', '');
 
-      cy.findAllByTestId(labelName).eq(1).clear().type('Anthropic renamed');
+      cy.findAllByTestId(labelName).eq(1).type('{selectall}Anthropic renamed');
 
       cy.contains(/^Save$/).click();
 

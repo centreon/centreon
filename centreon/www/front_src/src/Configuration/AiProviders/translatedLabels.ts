@@ -26,6 +26,7 @@ export const labelOpenAiCompatible = 'OpenAI-compatible';
 
 export const labelGeneralInformation = 'General information';
 export const labelConnection = 'Connection';
+export const labelModels = 'Models';
 
 export const labelRequired = 'Required';
 export const labelInvalidUrl = 'The endpoint must be a valid URL';
@@ -52,7 +53,8 @@ export const labelPricesFilled = 'Prices filled from LiteLLM (USD)';
 export const labelPricesNotFound = 'No published prices found for these models';
 export const labelFetchPricesFailed = 'Could not fetch the prices';
 
-export const labelLimitsAndPricing = 'Limits & pricing';
+export const labelPricing = 'Pricing';
+export const labelSpendLimits = 'Spend limits';
 export const labelCurrency = 'Currency';
 export const labelCurrencyPlaceholder = 'e.g. USD, EUR';
 export const labelInvalidCurrency = 'Use a 3-letter ISO code, e.g. USD';

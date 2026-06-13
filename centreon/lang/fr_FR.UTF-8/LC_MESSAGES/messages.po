@@ -11044,6 +11044,9 @@ msgstr "Type de modification"
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
+msgid "Models"
+msgstr "Modèles"
+
 msgid "Modify"
 msgstr "Modifier"
 
@@ -25221,9 +25224,6 @@ msgid "AI budget reached for the current period"
 msgstr "Budget IA atteint pour la période en cours"
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
-msgid "Limits & pricing"
-msgstr "Limites et tarification"
-
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
 msgid "Currency"
 msgstr "Devise"
@@ -25259,6 +25259,14 @@ msgstr "Limite de dépense quotidienne"
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
 msgid "Monthly spend limit"
 msgstr "Limite de dépense mensuelle"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Pricing"
+msgstr "Tarification"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Spend limits"
+msgstr "Limites de dépenses"
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
 msgid "A currency is required to set prices or spend limits"
