@@ -25304,3 +25304,27 @@ msgstr "Échec de la connexion"
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
 msgid "Sends a minimal request to the provider (billed by the provider, not counted toward the spend limit)"
 msgstr "Envoie une requête minimale au fournisseur (facturée par le fournisseur, non comptée dans la limite de dépense)"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Fill prices from LiteLLM"
+msgstr "Remplir les prix depuis LiteLLM"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Fetching prices…"
+msgstr "Récupération des prix…"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Downloads current USD prices from LiteLLM (github.com, a third party). Available only when the currency is USD."
+msgstr "Télécharge les prix actuels en USD depuis LiteLLM (github.com, un tiers). Disponible uniquement lorsque la devise est USD."
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Prices filled from LiteLLM (USD)"
+msgstr "Prix remplis depuis LiteLLM (USD)"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "No published prices found for these models"
+msgstr "Aucun prix publié trouvé pour ces modèles"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Could not fetch the prices"
+msgstr "Impossible de récupérer les prix"

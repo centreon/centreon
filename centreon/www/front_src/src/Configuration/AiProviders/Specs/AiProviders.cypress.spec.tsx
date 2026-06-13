@@ -9,6 +9,7 @@ import {
   labelDefaultModelOutputPrice,
   labelEndpointUrl,
   labelFastModel,
+  labelFetchPrices,
   labelMistral,
   labelName,
   labelNameAlreadyExists,
@@ -150,6 +151,23 @@ describe('AiProviders', () => {
       // a typed token makes the configuration testable
       cy.findAllByTestId(labelApiToken).eq(1).type('a-very-secret-token');
       cy.findByTestId(labelTestConnection).should('be.enabled');
+    });
+
+    it('offers the LiteLLM price prefill only for a USD or empty currency', () => {
+      cy.waitForRequest('@getAiProviders');
+
+      cy.get('[data-testid="add-resource"]').click();
+      cy.findByLabelText(labelAnthropic).click();
+
+      // a model is prefilled and the currency is empty: prefill is available
+      cy.findByTestId(labelFetchPrices).should('be.enabled');
+
+      // a non-USD currency would mix units: prefill is disabled
+      cy.findAllByTestId(labelCurrency).eq(1).type('EUR');
+      cy.findByTestId(labelFetchPrices).should('be.disabled');
+
+      cy.findAllByTestId(labelCurrency).eq(1).clear().type('USD');
+      cy.findByTestId(labelFetchPrices).should('be.enabled');
     });
 
     it('defaults the name to the provider type until the user chooses one', () => {

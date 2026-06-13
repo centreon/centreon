@@ -32,6 +32,7 @@ import {
 } from '../translatedLabels';
 import { aiProviderTypeLabels, defaultModels } from '../utils';
 import CurrencyChangeWarning from './CurrencyChangeWarning';
+import FetchPricesButton from './FetchPricesButton';
 import MoneyField from './MoneyField';
 import TestConnectionButton from './TestConnectionButton';
 
@@ -215,6 +216,13 @@ export const useInputs = (): {
       {
         custom: { Component: CurrencyChangeWarning },
         fieldName: 'currencyChangeWarning',
+        group: t(labelLimitsAndPricing),
+        label: '',
+        type: InputType.Custom
+      },
+      {
+        custom: { Component: FetchPricesButton },
+        fieldName: 'fetchPrices',
         group: t(labelLimitsAndPricing),
         label: '',
         type: InputType.Custom
