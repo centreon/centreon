@@ -22,7 +22,11 @@ export const labelEnabled = 'Enabled';
 export const labelAnthropic = 'Anthropic';
 export const labelMistral = 'Mistral';
 export const labelOpenAi = 'OpenAI';
+export const labelBedrock = 'Amazon Bedrock';
 export const labelOpenAiCompatible = 'OpenAI-compatible';
+
+export const labelAwsRegion = 'AWS region';
+export const labelAwsRegionPlaceholder = 'e.g. eu-west-1, eu-west-3, us-east-1';
 
 export const labelGeneralInformation = 'General information';
 export const labelConnection = 'Connection';

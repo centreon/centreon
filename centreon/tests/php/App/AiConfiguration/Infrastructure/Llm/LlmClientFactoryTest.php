@@ -74,7 +74,7 @@ final class LlmClientFactoryTest extends TestCase
 
     public function testOtherProvidersGetTheOpenAiCompatibleClient(): void
     {
-        foreach ([AiProviderTypeEnum::OpenAi, AiProviderTypeEnum::Mistral, AiProviderTypeEnum::OpenAiCompatible] as $type) {
+        foreach ([AiProviderTypeEnum::OpenAi, AiProviderTypeEnum::Mistral, AiProviderTypeEnum::Bedrock, AiProviderTypeEnum::OpenAiCompatible] as $type) {
             $client = $this->factory->forProvider($this->createAiProvider($type));
 
             self::assertInstanceOf(MeteredLlmClient::class, $client);

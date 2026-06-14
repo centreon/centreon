@@ -119,10 +119,11 @@ export const useValidationSchema = (): ObjectSchema<object> => {
           : schema
       ),
     defaultModel: string().required(t(labelRequired)),
-    // the endpoint is only exposed for OpenAI-compatible providers:
-    // the API enforces the official endpoint of the other types
+    // the endpoint is provided for OpenAI-compatible and Bedrock providers
+    // (Bedrock derives it from the region); curated types enforce it API-side
     endpointUrl: string().when('type', ([type], schema) =>
-      equals(type, AiProviderType.OpenAiCompatible)
+      equals(type, AiProviderType.OpenAiCompatible) ||
+      equals(type, AiProviderType.Bedrock)
         ? schema
             .matches(/^https?:\/\/.+/, t(labelInvalidUrl))
             .required(t(labelRequired))

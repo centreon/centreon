@@ -1,9 +1,10 @@
 export enum AiProviderType {
-  // the declaration order drives the display order: alphabetical,
-  // with the catch-all OpenAI-compatible type last
+  // the declaration order drives the display order: the curated providers
+  // first, then Bedrock, with the catch-all OpenAI-compatible type last
   Anthropic = 'anthropic',
   Mistral = 'mistral',
   OpenAi = 'openai',
+  Bedrock = 'bedrock',
   OpenAiCompatible = 'openai_compatible'
 }
 

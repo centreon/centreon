@@ -96,6 +96,7 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
             ),
             AiProviderTypeEnum::OpenAi,
             AiProviderTypeEnum::Mistral,
+            AiProviderTypeEnum::Bedrock,
             AiProviderTypeEnum::OpenAiCompatible => new OpenAiCompatibleLlmClient(
                 $httpClient,
                 $aiProvider->endpointUrl,

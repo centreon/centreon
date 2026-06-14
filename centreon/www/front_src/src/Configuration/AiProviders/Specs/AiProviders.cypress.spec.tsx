@@ -2,6 +2,8 @@ import {
   labelAiProviders,
   labelAnthropic,
   labelApiToken,
+  labelAwsRegion,
+  labelBedrock,
   labelCurrency,
   labelDailyLimit,
   labelDefaultModel,
@@ -251,6 +253,46 @@ describe('AiProviders', () => {
             });
           });
         });
+      });
+    });
+
+    it('derives the Bedrock endpoint from the selected AWS region', () => {
+      cy.waitForRequest('@getAiProviders');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findByLabelText(labelBedrock).click();
+
+      // the raw endpoint URL field is replaced by an AWS region selector
+      cy.get('[data-testid="Modal"]').within(() => {
+        cy.findAllByTestId(labelEndpointUrl).should('have.length', 0);
+      });
+
+      // models are prefilled with the EU inference profile by default
+      cy.findAllByTestId(labelDefaultModel)
+        .eq(1)
+        .should('have.value', 'eu.anthropic.claude-sonnet-4-6');
+
+      cy.findAllByTestId(labelApiToken).eq(1).type('a-bedrock-key');
+      // {esc} closes the dropdown so it does not cover the Save button
+      cy.findByTestId(labelAwsRegion).type('us-east-1{esc}');
+
+      // choosing a US region realigns the model profile to that geography
+      cy.findAllByTestId(labelDefaultModel)
+        .eq(1)
+        .should('have.value', 'us.anthropic.claude-sonnet-4-6');
+
+      cy.contains(/^Save$/).click();
+
+      cy.waitForRequest('@createAiProvider').then(({ request }) => {
+        expect(request.body.type).to.equal('bedrock');
+        // the endpoint is derived from the region, on the bedrock-mantle host
+        expect(request.body.endpoint_url).to.equal(
+          'https://bedrock-mantle.us-east-1.api.aws'
+        );
+        expect(request.body.default_model).to.equal(
+          'us.anthropic.claude-sonnet-4-6'
+        );
       });
     });
 

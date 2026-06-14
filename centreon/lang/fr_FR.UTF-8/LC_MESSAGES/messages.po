@@ -25160,6 +25160,18 @@ msgstr "OpenAI"
 msgid "OpenAI-compatible"
 msgstr "Compatible OpenAI"
 
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Amazon Bedrock"
+msgstr "Amazon Bedrock"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "AWS region"
+msgstr "Région AWS"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "e.g. eu-west-1, eu-west-3, us-east-1"
+msgstr "ex. eu-west-1, eu-west-3, us-east-1"
+
 #: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
 msgid "Ask AI"
 msgstr "Demander à l'IA"

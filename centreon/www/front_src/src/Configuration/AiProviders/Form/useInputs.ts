@@ -9,6 +9,7 @@ import { AiProviderType } from '../models';
 import {
   labelApiToken,
   labelApiTokenHint,
+  labelAwsRegion,
   labelConnection,
   labelCurrency,
   labelDailyLimit,
@@ -36,6 +37,7 @@ import CurrencyChangeWarning from './CurrencyChangeWarning';
 import CurrencyField from './CurrencyField';
 import FetchPricesButton from './FetchPricesButton';
 import MoneyField from './MoneyField';
+import RegionField from './RegionField';
 import TestConnectionButton from './TestConnectionButton';
 
 // a money field laid out as a grid column (the group is carried by the grid)
@@ -188,6 +190,17 @@ export const useInputs = (): {
         label: t(labelEndpointUrl),
         required: true,
         type: InputType.Text
+      },
+      {
+        // Bedrock exposes only its AWS region; RegionField derives the
+        // OpenAI-compatible endpoint URL stored in the same endpointUrl field
+        custom: { Component: RegionField },
+        fieldName: 'endpointUrl',
+        group: t(labelConnection),
+        hideInput: (values) => !equals(values.type, AiProviderType.Bedrock),
+        label: t(labelAwsRegion),
+        required: true,
+        type: InputType.Custom
       },
       {
         fieldName: 'apiToken',

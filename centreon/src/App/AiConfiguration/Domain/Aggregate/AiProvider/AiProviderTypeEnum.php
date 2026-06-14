@@ -28,11 +28,13 @@ enum AiProviderTypeEnum: string
     case Anthropic = 'anthropic';
     case OpenAi = 'openai';
     case Mistral = 'mistral';
+    case Bedrock = 'bedrock';
     case OpenAiCompatible = 'openai_compatible';
 
     /**
-     * Endpoint used when the configuration does not provide one.
-     * OpenAI-compatible providers have no known endpoint: it must be provided explicitly.
+     * Endpoint used when the configuration does not provide one. OpenAI-compatible
+     * and Bedrock providers have no fixed endpoint: it must be provided explicitly
+     * (Bedrock derives it from the AWS region, on the OpenAI-compatible transport).
      */
     public function defaultEndpointUrl(): ?EndpointUrl
     {
@@ -40,7 +42,7 @@ enum AiProviderTypeEnum: string
             self::Anthropic => new EndpointUrl('https://api.anthropic.com'),
             self::OpenAi => new EndpointUrl('https://api.openai.com'),
             self::Mistral => new EndpointUrl('https://api.mistral.ai'),
-            self::OpenAiCompatible => null,
+            self::Bedrock, self::OpenAiCompatible => null,
         };
     }
 }

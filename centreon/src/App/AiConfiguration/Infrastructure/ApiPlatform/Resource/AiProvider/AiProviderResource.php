@@ -111,6 +111,7 @@ final class AiProviderResource
                     AiProviderTypeEnum::Anthropic->value,
                     AiProviderTypeEnum::OpenAi->value,
                     AiProviderTypeEnum::Mistral->value,
+                    AiProviderTypeEnum::Bedrock->value,
                     AiProviderTypeEnum::OpenAiCompatible->value,
                 ],
             ],
