@@ -25161,6 +25161,10 @@ msgid "OpenAI-compatible"
 msgstr "Compatible OpenAI"
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Google Gemini"
+msgstr "Google Gemini"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
 msgid "Amazon Bedrock"
 msgstr "Amazon Bedrock"
 

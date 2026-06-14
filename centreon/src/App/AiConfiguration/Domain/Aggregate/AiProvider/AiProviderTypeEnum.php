@@ -28,6 +28,7 @@ enum AiProviderTypeEnum: string
     case Anthropic = 'anthropic';
     case OpenAi = 'openai';
     case Mistral = 'mistral';
+    case Google = 'google';
     case Bedrock = 'bedrock';
     case OpenAiCompatible = 'openai_compatible';
 
@@ -42,7 +43,20 @@ enum AiProviderTypeEnum: string
             self::Anthropic => new EndpointUrl('https://api.anthropic.com'),
             self::OpenAi => new EndpointUrl('https://api.openai.com'),
             self::Mistral => new EndpointUrl('https://api.mistral.ai'),
+            self::Google => new EndpointUrl('https://generativelanguage.googleapis.com'),
             self::Bedrock, self::OpenAiCompatible => null,
+        };
+    }
+
+    /**
+     * Path of the OpenAI-compatible chat completions endpoint. Gemini exposes
+     * it under its OpenAI compatibility layer rather than the usual /v1.
+     */
+    public function chatCompletionsPath(): string
+    {
+        return match ($this) {
+            self::Google => '/v1beta/openai/chat/completions',
+            default => '/v1/chat/completions',
         };
     }
 }

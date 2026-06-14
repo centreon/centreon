@@ -52,6 +52,9 @@ final class OpenAiCompatibleLlmClient implements LlmClientInterface
         private readonly ApiToken $apiToken,
         private readonly ModelName $defaultModel,
         private readonly ?ModelName $fastModel,
+        // most providers expose chat completions at /v1/chat/completions;
+        // some compatible APIs (e.g. Gemini) use a different path
+        private readonly string $chatCompletionsPath = '/v1/chat/completions',
     ) {
     }
 
@@ -152,7 +155,7 @@ final class OpenAiCompatibleLlmClient implements LlmClientInterface
         }
 
         try {
-            return $this->httpClient->request('POST', rtrim($this->endpointUrl->value, '/') . '/v1/chat/completions', [
+            return $this->httpClient->request('POST', rtrim($this->endpointUrl->value, '/') . $this->chatCompletionsPath, [
                 'auth_bearer' => $this->apiToken->value,
                 'json' => $payload,
                 'timeout' => self::TIMEOUT_SECONDS,

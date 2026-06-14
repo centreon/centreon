@@ -12,6 +12,7 @@ import {
   labelEndpointUrl,
   labelFastModel,
   labelFetchPrices,
+  labelGoogle,
   labelMistral,
   labelName,
   labelNameAlreadyExists,
@@ -253,6 +254,34 @@ describe('AiProviders', () => {
             });
           });
         });
+      });
+    });
+
+    it('treats Google Gemini as a curated provider with a prefilled model', () => {
+      cy.waitForRequest('@getAiProviders');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findByLabelText(labelGoogle).click();
+
+      // Gemini is curated: its endpoint is enforced API-side, not exposed
+      cy.get('[data-testid="Modal"]').within(() => {
+        cy.findAllByTestId(labelEndpointUrl).should('have.length', 0);
+        cy.findAllByTestId(labelAwsRegion).should('have.length', 0);
+      });
+
+      cy.findAllByTestId(labelDefaultModel)
+        .eq(1)
+        .should('have.value', 'gemini-3.5-flash');
+
+      cy.findAllByTestId(labelApiToken).eq(1).type('a-gemini-key');
+
+      cy.contains(/^Save$/).click();
+
+      cy.waitForRequest('@createAiProvider').then(({ request }) => {
+        expect(request.body.type).to.equal('google');
+        expect(request.body).to.not.have.property('endpoint_url');
+        expect(request.body.default_model).to.equal('gemini-3.5-flash');
       });
     });
 

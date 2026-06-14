@@ -2,6 +2,7 @@ import { AiProviderType, Filters } from './models';
 import {
   labelAnthropic,
   labelBedrock,
+  labelGoogle,
   labelMistral,
   labelOpenAi,
   labelOpenAiCompatible
@@ -28,6 +29,7 @@ export const aiProviderTypeLabels: Record<AiProviderType, string> = {
   [AiProviderType.Anthropic]: labelAnthropic,
   [AiProviderType.Mistral]: labelMistral,
   [AiProviderType.OpenAi]: labelOpenAi,
+  [AiProviderType.Google]: labelGoogle,
   [AiProviderType.Bedrock]: labelBedrock,
   [AiProviderType.OpenAiCompatible]: labelOpenAiCompatible
 };
@@ -51,6 +53,10 @@ export const defaultModels: Record<AiProviderType, DefaultModels> = {
   [AiProviderType.OpenAi]: {
     defaultModel: 'gpt-5.4',
     fastModel: 'gpt-5.4-mini'
+  },
+  [AiProviderType.Google]: {
+    defaultModel: 'gemini-3.5-flash',
+    fastModel: 'gemini-3.1-flash-lite'
   },
   // Bedrock model ids are region-scoped (eu./us./apac. inference profiles);
   // these eu. defaults match the suggested EU regions and are adjusted by the

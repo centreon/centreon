@@ -82,6 +82,35 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
         );
     }
 
+    public function testUsesTheConfiguredChatCompletionsPath(): void
+    {
+        $httpClient = new MockHttpClient(
+            function (string $method, string $url): MockResponse {
+                // Gemini exposes chat completions under its OpenAI compat layer
+                self::assertSame(
+                    'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+                    $url
+                );
+
+                return new MockResponse(json_encode([
+                    'choices' => [['message' => ['content' => 'pong']]],
+                    'model' => 'gemini-2.5-flash',
+                ], \JSON_THROW_ON_ERROR));
+            }
+        );
+
+        $client = new OpenAiCompatibleLlmClient(
+            $httpClient,
+            new EndpointUrl('https://generativelanguage.googleapis.com'),
+            new ApiToken('a-token'),
+            new ModelName('gemini-2.5-flash'),
+            fastModel: null,
+            chatCompletionsPath: '/v1beta/openai/chat/completions',
+        );
+
+        self::assertSame('pong', $client->complete($this->createRequest())->content);
+    }
+
     public function testProviderErrorIsReported(): void
     {
         $httpClient = new MockHttpClient(new MockResponse(

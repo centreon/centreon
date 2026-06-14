@@ -49,6 +49,7 @@ final class LiteLlmModelPriceCatalog implements ModelPriceCatalog
         AiProviderTypeEnum::Anthropic->value => 'anthropic',
         AiProviderTypeEnum::OpenAi->value => 'openai',
         AiProviderTypeEnum::Mistral->value => 'mistral',
+        AiProviderTypeEnum::Google->value => 'gemini',
     ];
 
     /** @var array<string, array{input_cost_per_token?: float, output_cost_per_token?: float}>|null */

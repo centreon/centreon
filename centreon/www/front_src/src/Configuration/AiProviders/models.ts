@@ -4,6 +4,7 @@ export enum AiProviderType {
   Anthropic = 'anthropic',
   Mistral = 'mistral',
   OpenAi = 'openai',
+  Google = 'google',
   Bedrock = 'bedrock',
   OpenAiCompatible = 'openai_compatible'
 }

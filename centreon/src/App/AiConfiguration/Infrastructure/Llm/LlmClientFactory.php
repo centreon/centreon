@@ -96,6 +96,7 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
             ),
             AiProviderTypeEnum::OpenAi,
             AiProviderTypeEnum::Mistral,
+            AiProviderTypeEnum::Google,
             AiProviderTypeEnum::Bedrock,
             AiProviderTypeEnum::OpenAiCompatible => new OpenAiCompatibleLlmClient(
                 $httpClient,
@@ -103,6 +104,7 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
                 $aiProvider->apiToken,
                 $aiProvider->defaultModel,
                 $aiProvider->fastModel,
+                $aiProvider->type->chatCompletionsPath(),
             ),
         };
     }

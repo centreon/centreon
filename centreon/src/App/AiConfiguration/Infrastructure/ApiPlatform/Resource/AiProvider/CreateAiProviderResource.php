@@ -68,6 +68,7 @@ final class CreateAiProviderResource
                     AiProviderTypeEnum::Anthropic->value,
                     AiProviderTypeEnum::OpenAi->value,
                     AiProviderTypeEnum::Mistral->value,
+                    AiProviderTypeEnum::Google->value,
                     AiProviderTypeEnum::Bedrock->value,
                     AiProviderTypeEnum::OpenAiCompatible->value,
                 ],
@@ -78,6 +79,7 @@ final class CreateAiProviderResource
                 AiProviderTypeEnum::Anthropic->value,
                 AiProviderTypeEnum::OpenAi->value,
                 AiProviderTypeEnum::Mistral->value,
+                AiProviderTypeEnum::Google->value,
                 AiProviderTypeEnum::Bedrock->value,
                 AiProviderTypeEnum::OpenAiCompatible->value,
             ]

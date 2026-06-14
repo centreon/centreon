@@ -22,6 +22,7 @@ export const labelEnabled = 'Enabled';
 export const labelAnthropic = 'Anthropic';
 export const labelMistral = 'Mistral';
 export const labelOpenAi = 'OpenAI';
+export const labelGoogle = 'Google Gemini';
 export const labelBedrock = 'Amazon Bedrock';
 export const labelOpenAiCompatible = 'OpenAI-compatible';
 
