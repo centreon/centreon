@@ -82,6 +82,38 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
         );
     }
 
+    public function testUsesTheConfiguredMaxTokensField(): void
+    {
+        $capturedBody = null;
+        $httpClient = new MockHttpClient(
+            function (string $method, string $url, array $options) use (&$capturedBody): MockResponse {
+                $capturedBody = $options['body'];
+
+                return new MockResponse(json_encode([
+                    'choices' => [['message' => ['content' => 'ok']]],
+                    'model' => 'gpt-5.4',
+                ], \JSON_THROW_ON_ERROR));
+            }
+        );
+
+        // OpenAI's recent models require max_completion_tokens
+        $client = new OpenAiCompatibleLlmClient(
+            $httpClient,
+            new EndpointUrl('https://api.openai.com'),
+            new ApiToken('a-token'),
+            new ModelName('gpt-5.4'),
+            fastModel: null,
+            maxTokensField: 'max_completion_tokens',
+        );
+
+        $client->complete($this->createRequest());
+
+        /** @var array{max_completion_tokens?: int, max_tokens?: int} $body */
+        $body = json_decode((string) $capturedBody, true);
+        self::assertArrayHasKey('max_completion_tokens', $body);
+        self::assertArrayNotHasKey('max_tokens', $body);
+    }
+
     public function testUsesTheConfiguredChatCompletionsPath(): void
     {
         $httpClient = new MockHttpClient(

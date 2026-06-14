@@ -59,4 +59,18 @@ enum AiProviderTypeEnum: string
             default => '/v1/chat/completions',
         };
     }
+
+    /**
+     * Request field bounding the output length. OpenAI's recent models (GPT-5,
+     * o-series) reject the legacy `max_tokens` and require
+     * `max_completion_tokens`; the other compatible providers (Mistral, Ollama,
+     * vLLM, …) still expect `max_tokens`.
+     */
+    public function chatMaxTokensField(): string
+    {
+        return match ($this) {
+            self::OpenAi => 'max_completion_tokens',
+            default => 'max_tokens',
+        };
+    }
 }

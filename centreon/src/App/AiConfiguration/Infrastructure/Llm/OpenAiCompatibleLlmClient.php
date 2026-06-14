@@ -55,6 +55,8 @@ final class OpenAiCompatibleLlmClient implements LlmClientInterface
         // most providers expose chat completions at /v1/chat/completions;
         // some compatible APIs (e.g. Gemini) use a different path
         private readonly string $chatCompletionsPath = '/v1/chat/completions',
+        // OpenAI's recent models require 'max_completion_tokens' over 'max_tokens'
+        private readonly string $maxTokensField = 'max_tokens',
     ) {
     }
 
@@ -213,7 +215,7 @@ final class OpenAiCompatibleLlmClient implements LlmClientInterface
         }
 
         $payload = [
-            'max_tokens' => $request->maxTokens,
+            $this->maxTokensField => $request->maxTokens,
             'messages' => $messages,
             'model' => $model->value,
         ];

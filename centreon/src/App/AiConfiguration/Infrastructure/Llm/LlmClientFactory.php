@@ -93,6 +93,7 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
             $aiProvider->defaultModel,
             $aiProvider->fastModel,
             $aiProvider->type->chatCompletionsPath(),
+            $aiProvider->type->chatMaxTokensField(),
         );
 
         // Gemini and Bedrock chat through the OpenAI-compatible transport, but
