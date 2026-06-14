@@ -123,13 +123,32 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
                         ['id' => 'mistral-small-latest'],
                         ['id' => 'mistral-medium-latest'],
                         ['id' => ''],
+                        // dropped by the capability bit when provided
+                        ['id' => 'mistral-embed', 'capabilities' => ['completion_chat' => false]],
+                        // dropped by the id heuristic when no capability is given
+                        ['id' => 'text-embedding-3-large'],
+                        ['id' => 'whisper-1'],
+                        ['id' => 'sora-2'],
+                        ['id' => 'gpt-realtime'],
+                        ['id' => 'davinci-002'],
+                        ['id' => 'babbage-002'],
+                        ['id' => 'computer-use-preview'],
+                        // genuine chat models that must NOT be over-filtered
+                        ['id' => 'gpt-5-chat-latest'],
+                        ['id' => 'chatgpt-4o-latest'],
                     ],
                 ], \JSON_THROW_ON_ERROR));
             }
         );
 
+        // non-chat models are filtered out, the rest sorted and de-duplicated
         self::assertSame(
-            ['mistral-medium-latest', 'mistral-small-latest'],
+            [
+                'chatgpt-4o-latest',
+                'gpt-5-chat-latest',
+                'mistral-medium-latest',
+                'mistral-small-latest',
+            ],
             $this->createClient($httpClient)->listModels()
         );
     }

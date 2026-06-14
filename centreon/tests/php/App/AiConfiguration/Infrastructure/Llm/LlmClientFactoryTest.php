@@ -32,6 +32,8 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Llm\Exception\LlmConfigurationException;
 use App\AiConfiguration\Domain\Usage\BudgetStatusChecker;
 use App\AiConfiguration\Infrastructure\Llm\AnthropicLlmClient;
+use App\AiConfiguration\Infrastructure\Llm\BedrockLlmClient;
+use App\AiConfiguration\Infrastructure\Llm\GeminiLlmClient;
 use App\AiConfiguration\Infrastructure\Llm\LlmClientFactory;
 use App\AiConfiguration\Infrastructure\Llm\MeteredLlmClient;
 use App\AiConfiguration\Infrastructure\Llm\OpenAiCompatibleLlmClient;
@@ -74,12 +76,28 @@ final class LlmClientFactoryTest extends TestCase
 
     public function testOtherProvidersGetTheOpenAiCompatibleClient(): void
     {
-        foreach ([AiProviderTypeEnum::OpenAi, AiProviderTypeEnum::Mistral, AiProviderTypeEnum::Google, AiProviderTypeEnum::Bedrock, AiProviderTypeEnum::OpenAiCompatible] as $type) {
+        foreach ([AiProviderTypeEnum::OpenAi, AiProviderTypeEnum::Mistral, AiProviderTypeEnum::OpenAiCompatible] as $type) {
             $client = $this->factory->forProvider($this->createAiProvider($type));
 
             self::assertInstanceOf(MeteredLlmClient::class, $client);
             self::assertInstanceOf(OpenAiCompatibleLlmClient::class, $client->inner);
         }
+    }
+
+    public function testGoogleProviderGetsTheGeminiClient(): void
+    {
+        $client = $this->factory->forProvider($this->createAiProvider(AiProviderTypeEnum::Google));
+
+        self::assertInstanceOf(MeteredLlmClient::class, $client);
+        self::assertInstanceOf(GeminiLlmClient::class, $client->inner);
+    }
+
+    public function testBedrockProviderGetsTheBedrockClient(): void
+    {
+        $client = $this->factory->forProvider($this->createAiProvider(AiProviderTypeEnum::Bedrock));
+
+        self::assertInstanceOf(MeteredLlmClient::class, $client);
+        self::assertInstanceOf(BedrockLlmClient::class, $client->inner);
     }
 
     public function testDefaultProviderIsUsed(): void

@@ -132,8 +132,7 @@ final class OpenAiCompatibleLlmClient implements LlmClientInterface
 
     public function listModels(): array
     {
-        // the models endpoint sits next to chat completions (/v1/models, or
-        // /v1beta/openai/models for Gemini)
+        // the models endpoint sits next to chat completions (/v1/models)
         $url = rtrim($this->endpointUrl->value, '/')
             . str_replace('/chat/completions', '/models', $this->chatCompletionsPath);
 
@@ -146,19 +145,56 @@ final class OpenAiCompatibleLlmClient implements LlmClientInterface
             throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
         }
 
-        /** @var array{data?: array<array{id?: string}>} $data */
+        /** @var array{data?: array<array{id?: string, capabilities?: array{completion_chat?: bool}}>} $data */
         $data = $this->decodeOrFail($response);
 
         $ids = [];
         foreach ($data['data'] ?? [] as $model) {
             $id = $model['id'] ?? null;
-            if (is_string($id) && $id !== '') {
-                $ids[] = $id;
+            if (! is_string($id) || $id === '') {
+                continue;
             }
+
+            // a provider that advertises chat capability (e.g. Mistral) is
+            // authoritative; otherwise (OpenAI and most compatible servers
+            // expose no capability) drop ids that are clearly not chat models
+            $chatCapability = $model['capabilities']['completion_chat'] ?? null;
+            if ($chatCapability === false) {
+                continue;
+            }
+            if ($chatCapability === null && self::looksNonChat($id)) {
+                continue;
+            }
+
+            $ids[] = $id;
         }
         sort($ids);
 
         return array_values(array_unique($ids));
+    }
+
+    /**
+     * Heuristic for the providers that expose no capability metadata: drop ids
+     * that clearly name a non-chat model (embeddings, audio, image, …).
+     */
+    private static function looksNonChat(string $id): bool
+    {
+        // audio is intentionally absent: gpt-4o-audio/gpt-audio do chat
+        // completions. "instruct" is absent too: it is legacy-completions-only
+        // at OpenAI but names plenty of chat models on compatible servers.
+        $markers = [
+            'embed', 'tts', 'whisper', 'dall-e', 'dalle', 'imagen', 'image',
+            'sora', 'video', 'realtime', 'computer-use', 'moderation', 'rerank',
+            'ocr', 'guardrail', 'stable-diffusion', 'canvas', 'davinci', 'babbage',
+        ];
+        $id = mb_strtolower($id);
+        foreach ($markers as $marker) {
+            if (str_contains($id, $marker)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function sendRequest(LlmRequest $request, bool $stream): ResponseInterface

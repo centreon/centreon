@@ -86,6 +86,17 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
 
         $httpClient = $this->httpClient();
 
+        $openAiCompatible = fn (): OpenAiCompatibleLlmClient => new OpenAiCompatibleLlmClient(
+            $httpClient,
+            $aiProvider->endpointUrl,
+            $aiProvider->apiToken,
+            $aiProvider->defaultModel,
+            $aiProvider->fastModel,
+            $aiProvider->type->chatCompletionsPath(),
+        );
+
+        // Gemini and Bedrock chat through the OpenAI-compatible transport, but
+        // discover models on their native endpoints (see the dedicated clients)
         return match ($aiProvider->type) {
             AiProviderTypeEnum::Anthropic => new AnthropicLlmClient(
                 $httpClient,
@@ -94,18 +105,21 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
                 $aiProvider->defaultModel,
                 $aiProvider->fastModel,
             ),
-            AiProviderTypeEnum::OpenAi,
-            AiProviderTypeEnum::Mistral,
-            AiProviderTypeEnum::Google,
-            AiProviderTypeEnum::Bedrock,
-            AiProviderTypeEnum::OpenAiCompatible => new OpenAiCompatibleLlmClient(
+            AiProviderTypeEnum::Google => new GeminiLlmClient(
+                $openAiCompatible(),
                 $httpClient,
                 $aiProvider->endpointUrl,
                 $aiProvider->apiToken,
-                $aiProvider->defaultModel,
-                $aiProvider->fastModel,
-                $aiProvider->type->chatCompletionsPath(),
             ),
+            AiProviderTypeEnum::Bedrock => new BedrockLlmClient(
+                $openAiCompatible(),
+                $httpClient,
+                $aiProvider->endpointUrl,
+                $aiProvider->apiToken,
+            ),
+            AiProviderTypeEnum::OpenAi,
+            AiProviderTypeEnum::Mistral,
+            AiProviderTypeEnum::OpenAiCompatible => $openAiCompatible(),
         };
     }
 
