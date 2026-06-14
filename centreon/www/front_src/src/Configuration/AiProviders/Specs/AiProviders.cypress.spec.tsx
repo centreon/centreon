@@ -11,6 +11,7 @@ import {
   labelDefaultModelOutputPrice,
   labelEndpointUrl,
   labelFastModel,
+  labelFetchModels,
   labelFetchPrices,
   labelGoogle,
   labelMistral,
@@ -91,13 +92,12 @@ describe('AiProviders', () => {
       });
 
       // the models are prefilled for curated providers
-      cy.findAllByTestId(labelDefaultModel)
-        .eq(1)
-        .should('have.value', 'claude-sonnet-4-6');
+      cy.findByTestId(labelDefaultModel).should(
+        'have.value',
+        'claude-sonnet-4-6'
+      );
 
-      cy.findAllByTestId(labelFastModel)
-        .eq(1)
-        .should('have.value', 'claude-haiku-4-5');
+      cy.findByTestId(labelFastModel).should('have.value', 'claude-haiku-4-5');
 
       cy.findAllByTestId(labelApiToken).eq(1).type('a-very-secret-token');
 
@@ -188,18 +188,20 @@ describe('AiProviders', () => {
 
       cy.findAllByTestId(labelName).eq(1).should('have.value', 'Mistral');
 
-      cy.findAllByTestId(labelDefaultModel)
-        .eq(1)
-        .should('have.value', 'mistral-medium-latest');
+      cy.findByTestId(labelDefaultModel).should(
+        'have.value',
+        'mistral-medium-latest'
+      );
 
       // the name and models follow the type while still auto-filled
       cy.findByLabelText(labelAnthropic).click();
 
       cy.findAllByTestId(labelName).eq(1).should('have.value', 'Anthropic');
 
-      cy.findAllByTestId(labelDefaultModel)
-        .eq(1)
-        .should('have.value', 'claude-sonnet-4-6');
+      cy.findByTestId(labelDefaultModel).should(
+        'have.value',
+        'claude-sonnet-4-6'
+      );
 
       // a name chosen by the user is left untouched
       cy.findAllByTestId(labelName).eq(1).type('{selectall}My provider');
@@ -257,6 +259,29 @@ describe('AiProviders', () => {
       });
     });
 
+    it('sends a model discovery request gated on an available token', () => {
+      cy.waitForRequest('@getAiProviders');
+
+      cy.get('[data-testid="add-resource"]').click();
+      cy.findByLabelText(labelAnthropic).click();
+
+      // no token yet: nothing to authenticate the discovery with
+      cy.findByTestId(labelFetchModels).should('be.disabled');
+
+      cy.findAllByTestId(labelApiToken).eq(1).type('a-secret-token');
+      // force: the button sits under the sticky section nav once scrolled
+      cy.findByTestId(labelFetchModels)
+        .should('be.enabled')
+        .click({ force: true });
+
+      // the typed token and type are sent to the discovery endpoint
+      cy.waitForRequest('@discoverModels').then(({ request }) => {
+        expect(request.body.type).to.equal('anthropic');
+        expect(request.body.api_token).to.equal('a-secret-token');
+        expect(request.body).to.not.have.property('endpoint_url');
+      });
+    });
+
     it('treats Google Gemini as a curated provider with a prefilled model', () => {
       cy.waitForRequest('@getAiProviders');
 
@@ -270,9 +295,10 @@ describe('AiProviders', () => {
         cy.findAllByTestId(labelAwsRegion).should('have.length', 0);
       });
 
-      cy.findAllByTestId(labelDefaultModel)
-        .eq(1)
-        .should('have.value', 'gemini-3.5-flash');
+      cy.findByTestId(labelDefaultModel).should(
+        'have.value',
+        'gemini-3.5-flash'
+      );
 
       cy.findAllByTestId(labelApiToken).eq(1).type('a-gemini-key');
 
@@ -298,18 +324,20 @@ describe('AiProviders', () => {
       });
 
       // models are prefilled with the EU inference profile by default
-      cy.findAllByTestId(labelDefaultModel)
-        .eq(1)
-        .should('have.value', 'eu.anthropic.claude-sonnet-4-6');
+      cy.findByTestId(labelDefaultModel).should(
+        'have.value',
+        'eu.anthropic.claude-sonnet-4-6'
+      );
 
       cy.findAllByTestId(labelApiToken).eq(1).type('a-bedrock-key');
       // {esc} closes the dropdown so it does not cover the Save button
       cy.findByTestId(labelAwsRegion).type('us-east-1{esc}');
 
       // choosing a US region realigns the model profile to that geography
-      cy.findAllByTestId(labelDefaultModel)
-        .eq(1)
-        .should('have.value', 'us.anthropic.claude-sonnet-4-6');
+      cy.findByTestId(labelDefaultModel).should(
+        'have.value',
+        'us.anthropic.claude-sonnet-4-6'
+      );
 
       cy.contains(/^Save$/).click();
 

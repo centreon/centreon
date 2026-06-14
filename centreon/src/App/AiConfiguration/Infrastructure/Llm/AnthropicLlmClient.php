@@ -136,6 +136,39 @@ final class AnthropicLlmClient implements LlmClientInterface
         return new LlmResponse($content, $model, new LlmUsage($inputTokens, $outputTokens));
     }
 
+    public function listModels(): array
+    {
+        try {
+            $response = $this->httpClient->request(
+                'GET',
+                rtrim($this->endpointUrl->value, '/') . '/v1/models',
+                [
+                    'headers' => [
+                        'anthropic-version' => self::ANTHROPIC_VERSION,
+                        'x-api-key' => $this->apiToken->value,
+                    ],
+                    'timeout' => self::TIMEOUT_SECONDS,
+                ]
+            );
+        } catch (TransportExceptionInterface $exception) {
+            throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
+        }
+
+        /** @var array{data?: array<array{id?: string}>} $data */
+        $data = $this->decodeOrFail($response);
+
+        $ids = [];
+        foreach ($data['data'] ?? [] as $model) {
+            $id = $model['id'] ?? null;
+            if (is_string($id) && $id !== '') {
+                $ids[] = $id;
+            }
+        }
+        sort($ids);
+
+        return array_values(array_unique($ids));
+    }
+
     private function sendRequest(LlmRequest $request, bool $stream): ResponseInterface
     {
         $model = $request->model ?? $this->resolveTierModel($request->tier);

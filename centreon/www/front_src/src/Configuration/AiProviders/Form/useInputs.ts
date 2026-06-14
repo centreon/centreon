@@ -16,14 +16,12 @@ import {
   labelDefaultModel,
   labelDefaultModelInputPrice,
   labelDefaultModelOutputPrice,
-  labelDefaultModelPlaceholder,
   labelDescription,
   labelEnabled,
   labelEndpointUrl,
   labelFastModel,
   labelFastModelInputPrice,
   labelFastModelOutputPrice,
-  labelFastModelPlaceholder,
   labelGeneralInformation,
   labelModels,
   labelMonthlyLimit,
@@ -35,7 +33,9 @@ import {
 import { aiProviderTypeLabels, defaultModels } from '../utils';
 import CurrencyChangeWarning from './CurrencyChangeWarning';
 import CurrencyField from './CurrencyField';
+import FetchModelsButton from './FetchModelsButton';
 import FetchPricesButton from './FetchPricesButton';
+import ModelField from './ModelField';
 import MoneyField from './MoneyField';
 import RegionField from './RegionField';
 import TestConnectionButton from './TestConnectionButton';
@@ -223,23 +223,28 @@ export const useInputs = (): {
         type: InputType.Custom
       },
       {
+        custom: { Component: ModelField },
         fieldName: 'defaultModel',
         group: t(labelModels),
         label: t(labelDefaultModel),
         required: true,
-        text: {
-          placeholder: t(labelDefaultModelPlaceholder)
-        },
-        type: InputType.Text
+        type: InputType.Custom
       },
       {
+        custom: { Component: ModelField },
         fieldName: 'fastModel',
         group: t(labelModels),
         label: t(labelFastModel),
-        text: {
-          placeholder: t(labelFastModelPlaceholder)
-        },
-        type: InputType.Text
+        type: InputType.Custom
+      },
+      {
+        // lists the provider's models into the fields above; uses the token
+        // from the Connection section
+        custom: { Component: FetchModelsButton },
+        fieldName: 'fetchModels',
+        group: t(labelModels),
+        label: '',
+        type: InputType.Custom
       },
       {
         custom: { Component: FetchPricesButton },

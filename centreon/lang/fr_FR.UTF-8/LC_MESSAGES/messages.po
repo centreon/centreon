@@ -25317,6 +25317,34 @@ msgid "Test connection"
 msgstr "Tester la connexion"
 
 #: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Fetch models"
+msgstr "Récupérer les modèles"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Fetching models…"
+msgstr "Récupération des modèles…"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Models fetched from the provider"
+msgstr "Modèles récupérés depuis le fournisseur"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "The provider returned no models"
+msgstr "Le fournisseur n'a renvoyé aucun modèle"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid "Could not fetch the models"
+msgstr "Impossible de récupérer les modèles"
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
+msgid ""
+"Lists the models the provider exposes, using the token entered above. "
+"Doubles as a connection test."
+msgstr ""
+"Liste les modèles exposés par le fournisseur, à l'aide du jeton saisi "
+"ci-dessus. Fait aussi office de test de connexion."
+
+#: www/front_src/src/Configuration/AiProviders/translatedLabels.ts
 msgid "Testing connection…"
 msgstr "Test de la connexion…"
 

@@ -50,6 +50,14 @@ export const labelConnectionFailed = 'Connection failed';
 export const labelTestConnectionHint =
   'Sends a minimal request to the provider (billed by the provider, not counted toward the spend limit)';
 
+export const labelFetchModels = 'Fetch models';
+export const labelFetchingModels = 'Fetching models…';
+export const labelModelsFetched = 'Models fetched from the provider';
+export const labelNoModelsFound = 'The provider returned no models';
+export const labelFetchModelsFailed = 'Could not fetch the models';
+export const labelFetchModelsHint =
+  'Lists the models the provider exposes, using the token entered above. Doubles as a connection test.';
+
 export const labelFetchPrices = 'Fill prices from LiteLLM';
 export const labelFetchingPrices = 'Fetching prices…';
 export const labelFetchPricesHint =

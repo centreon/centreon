@@ -126,6 +126,28 @@ final class AnthropicLlmClientTest extends TestCase
         $client->complete($request);
     }
 
+    public function testListModelsParsesAndSortsTheIds(): void
+    {
+        $httpClient = new MockHttpClient(
+            function (string $method, string $url): MockResponse {
+                self::assertSame('GET', $method);
+                self::assertSame('https://api.anthropic.com/v1/models', $url);
+
+                return new MockResponse(json_encode([
+                    'data' => [
+                        ['id' => 'claude-sonnet-4-6'],
+                        ['id' => 'claude-haiku-4-5'],
+                    ],
+                ], \JSON_THROW_ON_ERROR));
+            }
+        );
+
+        self::assertSame(
+            ['claude-haiku-4-5', 'claude-sonnet-4-6'],
+            $this->createClient($httpClient)->listModels()
+        );
+    }
+
     public function testProviderErrorIsReported(): void
     {
         $httpClient = new MockHttpClient(new MockResponse(

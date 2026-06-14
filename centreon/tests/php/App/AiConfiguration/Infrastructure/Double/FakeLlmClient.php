@@ -36,6 +36,9 @@ final class FakeLlmClient implements LlmClientInterface
     /** @var list<LlmRequest> */
     public array $requests = [];
 
+    /** @var list<string> */
+    public array $models = ['fake-model-a', 'fake-model-b'];
+
     /**
      * @param list<LlmResponse|LlmException> $queue consumed in order by successive calls,
      *                                              before falling back to $response/$exception
@@ -76,5 +79,14 @@ final class FakeLlmClient implements LlmClientInterface
         yield $response->content;
 
         return $response;
+    }
+
+    public function listModels(): array
+    {
+        if ($this->exception instanceof LlmException) {
+            throw $this->exception;
+        }
+
+        return $this->models;
     }
 }

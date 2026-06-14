@@ -52,4 +52,14 @@ interface LlmClientInterface
      * @return \Generator<int, string, void, LlmResponse>
      */
     public function stream(LlmRequest $request): \Generator;
+
+    /**
+     * List the model identifiers the provider exposes.
+     *
+     * @throws LlmConfigurationException when the request can not be built from the provider configuration
+     * @throws LlmRequestFailedException when the provider can not be reached or rejects the request
+     *
+     * @return list<string>
+     */
+    public function listModels(): array;
 }

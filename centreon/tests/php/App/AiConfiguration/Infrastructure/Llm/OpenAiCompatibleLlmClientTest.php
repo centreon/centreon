@@ -111,6 +111,29 @@ final class OpenAiCompatibleLlmClientTest extends TestCase
         self::assertSame('pong', $client->complete($this->createRequest())->content);
     }
 
+    public function testListModelsParsesAndSortsTheIds(): void
+    {
+        $httpClient = new MockHttpClient(
+            function (string $method, string $url): MockResponse {
+                self::assertSame('GET', $method);
+                self::assertSame('https://api.mistral.ai/v1/models', $url);
+
+                return new MockResponse(json_encode([
+                    'data' => [
+                        ['id' => 'mistral-small-latest'],
+                        ['id' => 'mistral-medium-latest'],
+                        ['id' => ''],
+                    ],
+                ], \JSON_THROW_ON_ERROR));
+            }
+        );
+
+        self::assertSame(
+            ['mistral-medium-latest', 'mistral-small-latest'],
+            $this->createClient($httpClient)->listModels()
+        );
+    }
+
     public function testProviderErrorIsReported(): void
     {
         $httpClient = new MockHttpClient(new MockResponse(

@@ -6,7 +6,11 @@ import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 
 import AiProviders from '..';
-import { aiProvidersEndpoint, getAiProviderEndpoint } from '../api';
+import {
+  aiProvidersEndpoint,
+  discoverModelsEndpoint,
+  getAiProviderEndpoint
+} from '../api';
 
 const initialize = (): void => {
   i18next.use(initReactI18next).init({
@@ -23,6 +27,17 @@ const initialize = (): void => {
       path: `**${aiProvidersEndpoint}?**`,
       response: aiProviders
     });
+  });
+
+  // registered before createAiProvider so MSW (first match wins) routes the
+  // discover-models POST here rather than to the broad create intercept
+  cy.interceptAPIRequest({
+    alias: 'discoverModels',
+    method: Method.POST,
+    path: `**${discoverModelsEndpoint}**`,
+    response: {
+      models: ['claude-haiku-4-5', 'claude-opus-4-8', 'claude-sonnet-4-6']
+    }
   });
 
   cy.fixture('AiProviders/aiProviderDetails.json').then((aiProvider) => {

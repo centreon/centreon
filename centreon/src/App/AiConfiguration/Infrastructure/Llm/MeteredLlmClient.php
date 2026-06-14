@@ -70,6 +70,12 @@ final readonly class MeteredLlmClient implements LlmClientInterface
         return $response;
     }
 
+    public function listModels(): array
+    {
+        // listing models is a configuration-time lookup: not billed or metered
+        return $this->inner->listModels();
+    }
+
     private function assertWithinBudget(): void
     {
         if ($this->budgetChecker->isExhausted($this->provider)) {

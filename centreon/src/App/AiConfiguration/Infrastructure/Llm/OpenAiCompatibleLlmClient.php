@@ -130,6 +130,37 @@ final class OpenAiCompatibleLlmClient implements LlmClientInterface
         return new LlmResponse($content, $model, new LlmUsage($inputTokens, $outputTokens));
     }
 
+    public function listModels(): array
+    {
+        // the models endpoint sits next to chat completions (/v1/models, or
+        // /v1beta/openai/models for Gemini)
+        $url = rtrim($this->endpointUrl->value, '/')
+            . str_replace('/chat/completions', '/models', $this->chatCompletionsPath);
+
+        try {
+            $response = $this->httpClient->request('GET', $url, [
+                'auth_bearer' => $this->apiToken->value,
+                'timeout' => self::TIMEOUT_SECONDS,
+            ]);
+        } catch (TransportExceptionInterface $exception) {
+            throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
+        }
+
+        /** @var array{data?: array<array{id?: string}>} $data */
+        $data = $this->decodeOrFail($response);
+
+        $ids = [];
+        foreach ($data['data'] ?? [] as $model) {
+            $id = $model['id'] ?? null;
+            if (is_string($id) && $id !== '') {
+                $ids[] = $id;
+            }
+        }
+        sort($ids);
+
+        return array_values(array_unique($ids));
+    }
+
     private function sendRequest(LlmRequest $request, bool $stream): ResponseInterface
     {
         $model = $request->model ?? $this->resolveTierModel($request->tier);

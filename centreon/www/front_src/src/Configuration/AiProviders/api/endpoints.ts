@@ -4,6 +4,8 @@ export const testConnectionEndpoint = `${aiProvidersEndpoint}/test-connection`;
 
 export const modelPricesEndpoint = `${aiProvidersEndpoint}/model-prices`;
 
+export const discoverModelsEndpoint = `${aiProvidersEndpoint}/discover-models`;
+
 export const getAiProviderEndpoint = ({
   id
 }: {
