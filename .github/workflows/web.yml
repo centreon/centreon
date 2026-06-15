@@ -585,11 +585,11 @@ jobs:
       - name: Display application logs
         if: failure()
         run: |
-          echo "::group::centreon-error.log"
-          cat /var/log/php-fpm/centreon-error.log 2>/dev/null || echo "File not found"
+          echo "::group::test.web.log"
+          cat /tmp/centreon-test-logs/test.web.log 2>/dev/null || echo "File not found"
           echo "::endgroup::"
-          echo "::group::centreon-web.log"
-          cat /var/log/centreon/centreon-web.log 2>/dev/null || echo "File not found"
+          echo "::group::Symfony logs (var/log/)"
+          find centreon/var/log -type f -name "*.log" -exec echo "--- {} ---" \; -exec cat {} \; 2>/dev/null || echo "No logs found"
           echo "::endgroup::"
 
   backend-lint:
