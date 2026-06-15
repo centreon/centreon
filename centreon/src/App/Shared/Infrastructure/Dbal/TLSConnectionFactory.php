@@ -25,6 +25,7 @@ namespace App\Shared\Infrastructure\Dbal;
 
 use App\Shared\Infrastructure\Database\DatabaseTLSResolver;
 use Doctrine\Bundle\DoctrineBundle\ConnectionFactory;
+use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\AsDecorator;
@@ -41,7 +42,7 @@ class TLSConnectionFactory
      * @phpstan-param array<string, mixed> $params
      * @param array<string, string> $mappingTypes
      */
-    public function createConnection(array $params, Configuration|null $config = null, array $mappingTypes = []): Connection
+    public function createConnection(array $params, Configuration|null $config = null, EventManager|null $eventManager = null, array $mappingTypes = []): Connection
     {
         $tlsOptions = DatabaseTLSResolver::getTLSOptions();
         /** @var array<int, mixed> $driverOptions */
@@ -51,6 +52,6 @@ class TLSConnectionFactory
         }
         $params['driverOptions'] = $driverOptions;
 
-        return $this->inner->createConnection($params, $config, $mappingTypes);
+        return $this->inner->createConnection($params, $config, $eventManager, $mappingTypes);
     }
 }
