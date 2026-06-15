@@ -394,6 +394,12 @@ class OpenIdProvider implements OpenIdProviderInterface
             }
         }
 
+        LoggerAuthentication::create()->tokenRefreshSuccess(
+            'OIDC refresh token exchanged successfully',
+            $authenticationTokens->getUserId(),
+            AuthProviderEnum::OPENID
+        );
+
         return new AuthenticationTokens(
             $authenticationTokens->getUserId(),
             $authenticationTokens->getConfigurationProviderId(),
