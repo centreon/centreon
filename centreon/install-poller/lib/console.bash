@@ -14,27 +14,25 @@
 
 function consoleError() {
   errorColor "ERROR "
-  echo $*
+  echo "$*"
 }
 
 function consoleWarn() {
   warnColor "WARN  "
-  echo $*
+  echo "$*"
 }
 
 function consoleInfo() {
   infoColor "INFO  "
-  echo $*
+  echo "$*"
 }
 
 function consoleMainTitle() {
-  local msgSize=$(echo "$*" | wc -c)
   boldColor "#### $* ####"
   echo ""
 }
 
 function consoleTitle() {
-  local msgSize=$(echo "$*" | wc -c)
-  boldColor $*
+  boldColor "$*"
   echo ""
 }

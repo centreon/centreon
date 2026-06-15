@@ -14,6 +14,9 @@
 # limitations under the License.
 # Centreon poller installer - <MAJOR>
 
+# Fail on use of unset variables to catch typos and missing args early.
+set -u
+
 # Centreon major version
 major=""
 
@@ -23,16 +26,26 @@ LOG_FILE="./log/install-poller.log"
 # Deployment type: docker | vm
 POLLER_TYPE="docker"
 
-# Cloud mode: true (Centreon Cloud) | false (on-prem, future)
+# Cloud mode: true (Centreon Cloud) | false (on-prem)
 CLOUD_MODE="true"
 
-# Docker mode args
-POLLER_TOKEN=""
-POLLER_UID=""
+# Common install args
+GORGONE_TOKEN=""
+GORGONE_UID=""
 POLLER_NAME=""
 CENTRAL_URL=""
+CENTRAL_HOST=""
+CENTRAL_PORT=""
 APP_SECRET=""
 SALT=""
+
+# Gorgone connection (derived from the args above)
+GORGONE_ADDRESS=""
+GORGONE_SSL=""
+
+# Optional / runtime
+TZ=""
+DEBUG=""
 
 # Optional services (Docker mode)
 WITH_VMWARE=0

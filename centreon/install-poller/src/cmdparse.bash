@@ -13,21 +13,23 @@
 # limitations under the License.
 
 function cmdParse() {
-  cmd=$*
-  subcommand=$(echo "${cmd}" | sed -r "s/^(install)?.*$/\1/g")
-  arguments=${cmd#"$subcommand"}
+  local subcommand=""
+  if [ "${1:-}" = "install" ]; then
+    subcommand="install"
+    shift
+  fi
 
-  if helpFlag ${arguments}; then
-    echo "help ${subcommand}"
+  if helpFlag "$@"; then
+    help "${subcommand}"
     return
   fi
 
   case "${subcommand}" in
   install)
-    echo "installCommand ${arguments}"
+    installCommand "$@"
     ;;
   *)
-    echo "help"
+    help
     ;;
   esac
 }

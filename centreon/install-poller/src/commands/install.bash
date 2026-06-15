@@ -13,8 +13,9 @@
 # limitations under the License.
 
 function installCommand() {
-  _installParseArguments $*
+  _installParseArguments "$@"
   _installValidateArgs || exit 1
+  _installDeriveCentral
 
   case "${POLLER_TYPE}" in
   docker)
@@ -23,15 +24,11 @@ function installCommand() {
   vm)
     runVmInstall
     ;;
-  *)
-    consoleError "Unknown --type value: '${POLLER_TYPE}'. Valid values: docker, vm."
-    exit 1
-    ;;
   esac
 }
 
 function _installParseArguments() {
-  while [ "$*" != "" ]; do
+  while [ $# -gt 0 ]; do
     case $1 in
     --type)
       shift
@@ -90,6 +87,10 @@ function _installParseArguments() {
     --with-snmptrap)
       WITH_SNMPTRAP=1
       ;;
+    *)
+      consoleError "Unknown argument: '$1'. Run with --help to list valid flags."
+      exit 1
+      ;;
     esac
     shift
   done
@@ -99,33 +100,57 @@ function _installValidateArgs() {
   local ret=0
 
   case "${POLLER_TYPE}" in
-  docker|vm)
-    if [ -z "${GORGONE_TOKEN}" ]; then
-      consoleError "--poller_token is required."
-      ret=1
-    fi
-    if [ -z "${GORGONE_UID}" ]; then
-      consoleError "--uid is required."
-      ret=1
-    fi
-    if [ -z "${POLLER_NAME}" ]; then
-      consoleError "--name is required."
-      ret=1
-    fi
-    if [ -z "${CENTRAL_URL}" ]; then
-      consoleError "--central_url is required."
-      ret=1
-    fi
-    if [ -z "${APP_SECRET}" ]; then
-      consoleError "--appsecret is required."
-      ret=1
-    fi
-    if [ -z "${SALT}" ]; then
-      consoleError "--salt is required."
-      ret=1
-    fi
+  docker|vm) ;;
+  *)
+    consoleError "Invalid --type '${POLLER_TYPE}'. Valid values: docker, vm."
+    ret=1
     ;;
   esac
 
+  case "${CLOUD_MODE}" in
+  true|false) ;;
+  *)
+    consoleError "Invalid --cloud '${CLOUD_MODE}'. Valid values: true, false."
+    ret=1
+    ;;
+  esac
+
+  if [ -z "${GORGONE_TOKEN}" ]; then
+    consoleError "--poller_token is required."
+    ret=1
+  fi
+  if [ -z "${GORGONE_UID}" ]; then
+    consoleError "--uid is required."
+    ret=1
+  fi
+  if [ -z "${POLLER_NAME}" ]; then
+    consoleError "--name is required."
+    ret=1
+  fi
+  if [ -z "${CENTRAL_URL}" ]; then
+    consoleError "--central_url is required."
+    ret=1
+  fi
+  if [ -z "${APP_SECRET}" ]; then
+    consoleError "--appsecret is required."
+    ret=1
+  fi
+  if [ -z "${SALT}" ]; then
+    consoleError "--salt is required."
+    ret=1
+  fi
+
   return ${ret}
+}
+
+# Single source of truth for the gorgone connection parameters,
+# shared by both the docker and vm code paths.
+function _installDeriveCentral() {
+  if [ "${CLOUD_MODE}" = "true" ]; then
+    GORGONE_ADDRESS="gorgone-centreon-${CENTRAL_HOST}"
+    GORGONE_SSL="${GORGONE_SSL:-true}"
+  else
+    GORGONE_ADDRESS="${CENTRAL_HOST}"
+    GORGONE_SSL="${GORGONE_SSL:-false}"
+  fi
 }

@@ -16,22 +16,10 @@ function _vmConfigureGorgone() {
   consoleInfo "Writing gorgone configuration"
   logInfo "Configuring /etc/centreon-gorgone/config.d/40-gorgoned.yaml"
 
-  local central_host central_port ssl_mode
-
-  if [ "${CLOUD_MODE}" = "true" ]; then
-    central_host="gorgone-centreon-${CENTRAL_URL}"
-    central_port=443
-    ssl_mode="true"
-  else
-    if echo "${CENTRAL_URL}" | grep -q ":"; then
-      central_host=$(echo "${CENTRAL_URL}" | cut -d: -f1)
-      central_port=$(echo "${CENTRAL_URL}" | cut -d: -f2)
-    else
-      central_host="${CENTRAL_URL}"
-      central_port=8086
-    fi
-    ssl_mode="false"
-  fi
+  # Connection parameters are derived once in _installDeriveCentral.
+  local central_host="${GORGONE_ADDRESS}"
+  local central_port="${CENTRAL_PORT}"
+  local ssl_mode="${GORGONE_SSL}"
 
   mkdir -p /etc/centreon-gorgone/config.d
   local old_umask

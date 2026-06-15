@@ -40,23 +40,29 @@ else
   sed -i "s/<MAJOR>/${major}/g" "${target}"
 fi
 
-## N.B the 'tail -n +14' is used to skip the first 13 lines of each file which are the license header
+# Strip the leading license header (lines 1 through the first blank line) from a
+# source file and append the remainder to the target. Robust to header length
+# changes, unlike a fixed 'tail -n +N'.
+append_without_header() {
+  sed '1,/^$/d' "$1" >> "${target}"
+}
+
 ## Copying lib files
-cat ./lib/term.bash | tail -n +14 >> ${target}
-cat ./lib/color.bash | tail -n +14 >> ${target}
-cat ./lib/console.bash | tail -n +14 >> ${target}
-cat ./lib/log.bash | tail -n +14 >> ${target}
-cat ./lib/command.bash | tail -n +14 >> ${target}
+append_without_header ./lib/term.bash
+append_without_header ./lib/color.bash
+append_without_header ./lib/console.bash
+append_without_header ./lib/log.bash
+append_without_header ./lib/command.bash
 
 ## Copying src files
-cat ./src/cmdparse.bash | tail -n +14 >> ${target}
-cat ./src/help.bash | tail -n +14 >> ${target}
-cat ./src/commands/docker.bash | tail -n +14 >> ${target}
+append_without_header ./src/cmdparse.bash
+append_without_header ./src/help.bash
+append_without_header ./src/commands/docker.bash
 ## VM submodules (loaded before the orchestrator)
-cat ./src/vm/prerequisites.bash | tail -n +14 >> ${target}
-cat ./src/vm/packages.bash | tail -n +14 >> ${target}
-cat ./src/vm/configure.bash | tail -n +14 >> ${target}
-cat ./src/vm/services.bash | tail -n +14 >> ${target}
-cat ./src/commands/vm.bash | tail -n +14 >> ${target}
-cat ./src/commands/install.bash | tail -n +14 >> ${target}
+append_without_header ./src/vm/prerequisites.bash
+append_without_header ./src/vm/packages.bash
+append_without_header ./src/vm/configure.bash
+append_without_header ./src/vm/services.bash
+append_without_header ./src/commands/vm.bash
+append_without_header ./src/commands/install.bash
 cat main-tail.sh >> ${target}

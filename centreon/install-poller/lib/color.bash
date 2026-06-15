@@ -13,21 +13,21 @@
 # limitations under the License.
 
 function errorColor() {
-  printf "\e[91m\e[1m$*\e[0m"
+  printf '\e[91m\e[1m%s\e[0m' "$*"
 }
 
 function warnColor() {
-  printf "\e[93m\e[1m$*\e[0m"
+  printf '\e[93m\e[1m%s\e[0m' "$*"
 }
 
 function infoColor() {
-  printf "\e[94m\e[1m$*\e[0m"
+  printf '\e[94m\e[1m%s\e[0m' "$*"
 }
 
 function debugColor() {
-  printf "\e[1m$*\e[0m"
+  printf '\e[1m%s\e[0m' "$*"
 }
 
 function boldColor() {
-  printf "\e[1m$*\e[0m"
+  printf '\e[1m%s\e[0m' "$*"
 }

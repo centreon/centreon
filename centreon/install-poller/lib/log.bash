@@ -57,33 +57,33 @@ function rotateLog() {
 
 function stderrLog() {
   while IFS= read -r msg; do
-    logTrace ${msg}
+    logTrace "${msg}"
   done
 }
 
 function logError() {
-  logMessage "ERROR" $*
+  logMessage "ERROR" "$*"
 }
 
 function logWarn() {
-  logMessage "WARN" $*
+  logMessage "WARN" "$*"
 }
 
 function logInfo() {
-  logMessage "INFO" $*
+  logMessage "INFO" "$*"
 }
 
 function logDebug() {
-  logMessage "DEBUG" $*
+  logMessage "DEBUG" "$*"
 }
 
 function logTrace() {
-  logMessage "TRACE" $*
+  logMessage "TRACE" "$*"
 }
 
 function logMessage() {
   local level=$1
   shift
   printf "%s - %-5s - " "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" "${level}" >&7
-  echo $* >&7
+  echo "$*" >&7
 }
