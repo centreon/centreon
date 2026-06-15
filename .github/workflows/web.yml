@@ -675,8 +675,12 @@ jobs:
           run_task() {
             task=$1                  # e.g. core:src
             cache_dir=${task//:/-}   # e.g. core-src
-            mkdir -p ".phpstan-cache/${cache_dir}"
-            if composer "stan:${task}" -- --no-progress --tmp-dir=".phpstan-cache/${cache_dir}"; then
+            # PHPStan has no --tmp-dir flag; its tmp dir defaults to sys_get_temp_dir()/phpstan
+            # and sys_get_temp_dir() honours $TMPDIR. Point each task at its own dir so their
+            # result caches (resultCache.php) don't clobber each other across runs.
+            task_tmp="${PWD}/.phpstan-cache/${cache_dir}"
+            mkdir -p "${task_tmp}"
+            if TMPDIR="${task_tmp}" composer "stan:${task}" -- --no-progress; then
               echo "✅ PHPStan ${task}: Success"
             else
               echo "❌ PHPStan ${task}: Failed"
