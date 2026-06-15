@@ -1396,8 +1396,7 @@ jobs:
           # release_type: ${{ needs.get-environment.outputs.release_type }}
           stability: unstable
           release_type: ""
-          # is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-          is_cloud: "false"
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
           delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
           pulp_username: ${{ secrets.PULP_USERNAME }}
           pulp_password: ${{ secrets.PULP_PASSWORD }}
@@ -1405,13 +1404,17 @@ jobs:
   promote:
     needs: [get-environment, deliver]
     if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      github.event.pull_request.head.repo.fork != true
-    runs-on: ubuntu-24.04
+      ! contains(needs.*.result, 'cancelled')
+    # if: |
+    #   needs.get-environment.outputs.skip_workflow == 'false' &&
+    #   (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
+    #   ! cancelled() &&
+    #   ! contains(needs.*.result, 'failure') &&
+    #   ! contains(needs.*.result, 'cancelled') &&
+    #   github.event.pull_request.head.repo.fork != true
+    runs-on: centreon-ubuntu-22.04
     strategy:
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
@@ -1426,8 +1429,10 @@ jobs:
           module_name: web
           distrib: ${{ matrix.distrib }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-          release_type: ${{ needs.get-environment.outputs.release_type }}
+          # stability: ${{ needs.get-environment.outputs.stability }}
+          # release_type: ${{ needs.get-environment.outputs.release_type }}
+          stability: stable
+          release_type: release
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
           pulp_username: ${{ secrets.PULP_USERNAME }}
           pulp_password: ${{ secrets.PULP_PASSWORD }}
