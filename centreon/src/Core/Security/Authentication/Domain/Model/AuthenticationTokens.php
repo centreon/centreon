@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Domain\Model;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
+
 class AuthenticationTokens
 {
     /**
@@ -35,6 +37,7 @@ class AuthenticationTokens
     public function __construct(
         private int $userId,
         private int $configurationProviderId,
+        #[Sensitive]
         private string $sessionToken,
         private NewProviderToken|ProviderToken $providerToken,
         private NewProviderToken|ProviderToken|null $providerRefreshToken,

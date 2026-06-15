@@ -1,0 +1,45 @@
+meta {
+  name: POST /services/groups - Create first service group - HTTP 201
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/groups
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{ServiceGroup1Name}}",
+    "alias": "{{ServiceGroup1Alias}}",
+    "geo_coords": "",
+    "comment": "Hello world ! 1",
+    "is_activated": false
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The service group has been successfully created, with name '{{ServiceGroup1Name}}' and alias '{{ServiceGroup1Alias}}'.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("ServiceGroup1Id", body.id);
+    expect(body).to.eql({
+      "id": body.id,
+      "name": bru.getEnvVar("ServiceGroup1Name"),
+      "alias": bru.getEnvVar("ServiceGroup1Alias"),
+      "geo_coords": null,
+      "comment": "Hello world ! 1",
+      "is_activated": false
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

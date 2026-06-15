@@ -1,0 +1,36 @@
+meta {
+  name: GET /hosts/groups - Get one host group by id - HTTP 200
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/hosts/groups/{{HostGroup5Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The host group retrieved by editor is listed with all of its parameters.", function () {
+    const body = res.getBody();
+    expect(body).to.eql({
+      "id": parseInt(bru.getEnvVar("HostGroup5Id")),
+      "name": bru.getEnvVar("HostGroup5Name"),
+      "alias": bru.getEnvVar("HostGroup5Alias"),
+      "icon": null,
+      "geo_coords": null,
+      "comment": null,
+      "is_activated": true,
+      "hosts": []
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

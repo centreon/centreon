@@ -1,0 +1,42 @@
+meta {
+  name: POST /dashboards - Create dashboard - HTTP 201
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/dashboards
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Dashboard-Test-API-1002",
+    "description": "Dashboard Description for API Test 1002",
+    "panels": [],
+    "refresh": {
+      "type": "global",
+      "interval": null
+    }
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+
+tests {
+  test("Dashboard created successfully.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("dashboardID", body.id);
+    expect(res.status).to.equal(201);
+    expect(body).to.have.property("id");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

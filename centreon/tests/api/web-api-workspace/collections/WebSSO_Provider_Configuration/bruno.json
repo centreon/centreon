@@ -1,0 +1,1 @@
+{ "version": "1", "name": "WebSSO_Provider_Configuration", "type": "collection", "ignore": ["node_modules", ".git"] }

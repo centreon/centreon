@@ -1,0 +1,48 @@
+meta {
+  name: POST /hosts/severities - Add First 1st severity - HTTP 201
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/severities
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostSeverity1Name}}",
+    "alias": "{{HostSeverity1Alias}}",
+    "level": 2,
+    "icon_id": 1,
+    "is_activated": false,
+    "comment": "I look like a category but with something more"
+  }
+  
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("Response schema is valid", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("id").that.is.a("number");
+    expect(body).to.have.property("name").that.is.a("string");
+    expect(body).to.have.property("alias").that.is.an("string");
+    expect(body).to.have.property("level").that.is.an("number");
+    expect(body).to.have.property("icon_id").that.is.an("number");
+    expect(body).to.have.property("is_activated").that.is.an("boolean");
+    expect(body).to.have.property("comment").that.is.an("string");
+    
+    bru.setEnvVar("HostSeverity1Id", body.id);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

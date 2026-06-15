@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Gorgone;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Centreon\Domain\Gorgone\Interfaces\CommandInterface;
 use Centreon\Domain\Gorgone\Interfaces\ResponseInterface;
 use Centreon\Domain\Gorgone\Interfaces\ResponseRepositoryInterface;
@@ -48,6 +49,7 @@ class Response implements ResponseInterface
      * @var string|null token assigned by the Gorgone server to this response which must be equal to the
      *                  associated command
      */
+    #[Sensitive]
     private $token;
 
     /** @var ActionLog[] action logs based on the command sent to the Gorgone server */

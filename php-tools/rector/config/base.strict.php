@@ -33,7 +33,7 @@ return RectorConfig::configure()
     ->withBootstrapFiles([
         __DIR__ . '/centreon.bootstrap.php',
     ])
-    ->withPhpSets()
+    ->withPhpSets(php82: true) // limit rules set to <=php8.2 for backport compatibility
     ->withComposerBased(doctrine: true, phpunit: true, symfony: true)
     ->withPreparedSets(
         deadCode: true,

@@ -1,0 +1,42 @@
+meta {
+  name: POST /users/filters/events-view - Create user filter - HTTP 200
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrlWeb}}/users/filters/events-view
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{UserFilter1Name}}",
+    "criterias": [
+      {
+        "name": "resource_types",
+        "value": [{"id": "host", "name": "Host"}],
+        "type": "multi_select",
+        "object_type": null
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("User filter has been successfully created.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("UserFilter1Id", body.id);
+    expect(body).to.include({"name": bru.getEnvVar("UserFilter1Name")});
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

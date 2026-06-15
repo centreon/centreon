@@ -5,7 +5,7 @@
   "type": "project",
   "license": "GPL-2.0-only",
   "require": {
-    "php": "8.2.*",
+    "php": "8.4.*",
     "ext-ctype": "*",
     "ext-curl": "*",
     "ext-filter": "*",
@@ -31,10 +31,10 @@
     "curl/curl": "2.5.*",
     "doctrine/annotations": "1.14.*",
     "doctrine/dbal": "4.2.*",
-    "doctrine/doctrine-bundle": "2.15.*",
+    "doctrine/doctrine-bundle": "3.2.*",
     "dragonmantank/cron-expression": "3.1.*",
     "enshrined/svg-sanitize": "0.22.*",
-    "firebase/php-jwt": "6.11.*",
+    "firebase/php-jwt": "7.0.*",
     "friendsofsymfony/rest-bundle": "3.9.*",
     "godruoyi/php-snowflake": "3.2.*",
     "jms/serializer-bundle": "5.5.*",
@@ -86,7 +86,7 @@
   "require-dev": {
     "behat/mink-selenium2-driver": "1.6.*",
     "centreon/centreon-test-lib": "dev-master",
-    "dama/doctrine-test-bundle": "8.3.*",
+    "dama/doctrine-test-bundle": "8.4.*",
     "friends-of-behat/mink": "1.11.*",
     "friends-of-behat/mink-extension": "2.7.*",
     "mockery/mockery": "1.6.*",
@@ -147,7 +147,7 @@
     "secure-http": false,
     "sort-packages": true,
     "platform": {
-      "php": "8.2"
+      "php": "8.4"
     },
     "preferred-install": {
       "*": "dist"

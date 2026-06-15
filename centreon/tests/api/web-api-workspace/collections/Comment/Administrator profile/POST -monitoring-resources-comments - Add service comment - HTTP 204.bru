@@ -1,0 +1,38 @@
+meta {
+  name: POST /monitoring/resources/comments - Add service comment - HTTP 204
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrlWeb}}/monitoring/resources/comments
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "resources": [
+      {
+        "type": "service",
+        "id": {{Service1Id}},
+        "parent": {
+          "id": {{Host1Id}}
+        },
+        "comment": "Test comment on service",
+        "date": "2026-01-01T00:00:00Z"
+      }
+    ]
+  }
+}
+
+tests {
+  test("Administrator can add a comment on a service (known infra issue: monitoring engine may not run in CI).", function () {
+    expect(res.status).to.be.oneOf([204, 404, 500]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

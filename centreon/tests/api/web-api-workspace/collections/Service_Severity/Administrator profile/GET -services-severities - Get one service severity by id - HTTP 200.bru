@@ -1,0 +1,34 @@
+meta {
+  name: GET /services/severities - Get one service severity by id - HTTP 200
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services/severities/{{ServiceSeverity2Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The service severity retrieved is listed with all of its parameters.", function () {
+    const body = res.getBody();
+    expect(body).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceSeverity2Id")),
+      "name": bru.getEnvVar("ServiceSeverity2Name"),
+      "alias": bru.getEnvVar("ServiceSeverity2Alias"),
+      "level": 5,
+      "icon_id": 2,
+      "is_activated": true
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

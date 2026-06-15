@@ -19,10 +19,6 @@ default:
       paths: [ "%paths.base%/features/AcknowledgementTimeout.feature" ]
       contexts: [ AcknowledgementTimeoutContext ]
 
-    meta_services_api:
-      paths: [ "%paths.base%/features/MetaServicesApi.feature" ]
-      contexts: [ MetaServicesApiContext ]
-
     meta_services_downtime:
       paths: [ "%paths.base%/features/DowntimeService.feature" ]
       contexts: [ DowntimeServiceContext ]
@@ -30,10 +26,6 @@ default:
     downtime_start_and_stop:
       paths: [ "%paths.base%/features/DowntimeStartAndStop.feature" ]
       contexts: [ DowntimeStartAndStopContext ]
-
-    downtime_dst_realtime:
-      paths: [ "%paths.base%/features/DowntimeDST/Realtime.feature" ]
-      contexts: [ DowntimeDSTContext ]
 
     downtime_dst_recurrent:
       paths: [ "%paths.base%/features/DowntimeDST/Recurrent.feature" ]
@@ -43,25 +35,3 @@ default:
       paths: [ "%paths.base%/features/DowntimeRecurrent.feature" ]
       contexts: [ DowntimeRecurrentContext ]
 
-    rest_api:
-      paths: [ "%paths.base%/features/RestApi.feature" ]
-      contexts: [ RestApiContext ]
-
-    test_clapi:
-      paths: [ "%paths.base%/features/Clapi.feature" ]
-      contexts: [ ClapiContext ]
-
-    centreon_module_api:
-      paths: [ "%paths.base%/features/CentreonModuleAPI.feature" ]
-      contexts: [ CentreonModuleAPIContext ]
-
-    api_v1:
-      paths:
-        - "%paths.base%/features/APIv1/AclGroupsApi.feature"
-        - "%paths.base%/features/APIv1/CommandsApi.feature"
-        - "%paths.base%/features/APIv1/ContactGroupsApi.feature"
-        - "%paths.base%/features/APIv1/EscalationsApi.feature"
-        - "%paths.base%/features/APIv1/ImagesApi.feature"
-        - "%paths.base%/features/APIv1/TimeperiodsApi.feature"
-      contexts:
-        - \Centreon\Test\Behat\CentreonAPIContext
