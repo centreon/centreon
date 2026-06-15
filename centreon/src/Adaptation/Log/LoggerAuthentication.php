@@ -123,6 +123,10 @@ final class LoggerAuthentication
      * keep working unchanged. It reproduces exactly the lines the legacy centreonAuth used
      * to emit through CentreonUserLog::insertLog(TYPE_LOGIN). It is transitional and will be
      * removed in a future release once those consumers read the Monolog access log instead.
+     *
+     * Mirroring the security feed must never break the authentication flow: a write failure
+     * (unwritable directory, full disk) is reported to error_log() and swallowed rather than
+     * propagated, so logging a login can never turn a successful login into an error.
      */
     private function mirrorToLegacyLoginLog(string $message, ?int $userId): void
     {
@@ -130,7 +134,14 @@ final class LoggerAuthentication
         $line = date('Y-m-d H:i:s') . '|' . ($userId ?? 0) . '|0|0|' . $message;
         $line = str_replace(['`', '*'], ['', '\*'], $line);
 
-        file_put_contents($logDir . '/login.log', $line . "\n", FILE_APPEND);
+        try {
+            $written = file_put_contents($logDir . '/login.log', $line . "\n", FILE_APPEND);
+            if ($written === false) {
+                error_log(sprintf('LoggerAuthentication: unable to mirror login event to %s/login.log', $logDir));
+            }
+        } catch (\Throwable $e) {
+            error_log(sprintf('LoggerAuthentication: unable to mirror login event to login.log: %s', $e->getMessage()));
+        }
     }
 
     /**
