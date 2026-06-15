@@ -41,6 +41,10 @@ const MarkdownContent = lazy(() =>
 );
 
 const useStyles = makeStyles()((theme) => ({
+  // push the trigger to the right of the timeline action row for visibility
+  button: {
+    marginLeft: 'auto'
+  },
   disclaimer: {
     color: theme.palette.text.secondary,
     flexGrow: 1,
@@ -115,13 +119,15 @@ const SummarizeIncident = ({
   return (
     <>
       <Tooltip title={t(getTooltip())}>
-        <span>
+        <span className={classes.button}>
           <Button
+            color="primary"
             data-testid={labelSummarize}
             disabled={disabled}
             onClick={openSummary}
             size="small"
             startIcon={<AutoAwesomeIcon />}
+            variant="contained"
           >
             {t(labelSummarize)}
           </Button>
