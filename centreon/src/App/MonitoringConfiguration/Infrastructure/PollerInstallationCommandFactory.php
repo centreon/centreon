@@ -45,7 +45,7 @@ final readonly class PollerInstallationCommandFactory
             $this->centralUrl,
             $this->pollerToken->value,
             $this->poller->uid->value,
-            $this->poller->name->value,
+            escapeshellarg($this->poller->name->value),
             $this->poller->pollerType->value,
             $this->centralUrl,
             $this->appSecret,
