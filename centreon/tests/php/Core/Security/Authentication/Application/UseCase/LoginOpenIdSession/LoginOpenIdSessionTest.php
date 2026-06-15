@@ -316,7 +316,7 @@ it('should update access groups for the authenticated user', function (): void {
         ->method('getConfiguration')
         ->willReturn($this->validOpenIdConfiguration);
 
-    $contact = (new Contact())->setId(1);
+    $contact = (new Contact())->setId(1)->setAlias('openid-user');
     $this->provider
         ->expects($this->once())
         ->method('findUserOrFail')

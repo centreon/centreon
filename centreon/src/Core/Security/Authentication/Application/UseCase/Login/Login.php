@@ -111,8 +111,11 @@ final class Login
 
             // Record the SSO authentication success on the security access log. Local/LDAP
             // logins are already logged by the legacy centreonAuth path, so they are excluded
-            // here to avoid a duplicate access-log entry.
-            if ($loginRequest->providerName !== Provider::LOCAL) {
+            // here to avoid a duplicate access-log entry. Provider names that are not part of
+            // AuthProviderEnum (e.g. a module-provided provider) are skipped rather than
+            // breaking the login flow on a strict enum lookup.
+            $authProvider = AuthProviderEnum::tryFrom($loginRequest->providerName);
+            if ($loginRequest->providerName !== Provider::LOCAL && $authProvider !== null) {
                 LoggerAuthentication::create()->loginSuccess(
                     sprintf(
                         "[%s] [%s] Authentication succeeded for '%s'",
@@ -121,7 +124,7 @@ final class Login
                         $user->getAlias()
                     ),
                     $user->getId(),
-                    AuthProviderEnum::from($loginRequest->providerName)
+                    $authProvider
                 );
             }
 
