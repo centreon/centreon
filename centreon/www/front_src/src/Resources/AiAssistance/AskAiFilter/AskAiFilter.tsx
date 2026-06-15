@@ -171,11 +171,18 @@ const AskAiFilter = (): JSX.Element | null => {
   };
 
   const apply = (): void => {
-    if (!prompt.trim() || isMutating) {
+    const trimmedPrompt = prompt.trim();
+
+    if (!trimmedPrompt || isMutating) {
       return;
     }
 
-    translate(prompt.trim(), search).then((translation) => {
+    // close the popup right away; progress is shown on the ask-AI icon while
+    // the request is in flight (and, for explanations, in the dialog), so the
+    // popup never lingers with an in-place spinner
+    close();
+
+    translate(trimmedPrompt, search).then((translation) => {
       if (translation === null) {
         showWarningMessage(t(labelAiCouldNotTranslate));
 
@@ -183,8 +190,6 @@ const AskAiFilter = (): JSX.Element | null => {
       }
 
       if (translation.intent === 'explain') {
-        close();
-
         // The model's `scope` is unreliable (it sometimes returns a query while
         // still labelling the scope as "current"). Route on the concrete
         // signal instead: when it derived a query that differs from the current
@@ -213,7 +218,6 @@ const AskAiFilter = (): JSX.Element | null => {
 
       setSearch(translation.query);
       applyCurrentFilter();
-      close();
     });
   };
 
@@ -229,15 +233,19 @@ const AskAiFilter = (): JSX.Element | null => {
       <IconButton
         ariaLabel={t(labelAskAi)}
         data-testid={labelAskAi}
-        disabled={isBudgetExhausted}
+        disabled={isBudgetExhausted || isMutating}
         onClick={() => setIsOpen((open) => !open)}
         size="small"
         title={isBudgetExhausted ? t(labelAiBudgetExhausted) : t(labelAskAi)}
       >
-        <AutoAwesomeIcon
-          color={isBudgetExhausted ? 'disabled' : 'primary'}
-          fontSize="small"
-        />
+        {isMutating ? (
+          <CircularProgress size={16} />
+        ) : (
+          <AutoAwesomeIcon
+            color={isBudgetExhausted ? 'disabled' : 'primary'}
+            fontSize="small"
+          />
+        )}
       </IconButton>
       <Popper
         anchorEl={anchorRef.current}
@@ -263,7 +271,6 @@ const AskAiFilter = (): JSX.Element | null => {
               {t(labelAskAiDisclaimer)}
             </Typography>
             <div className={classes.actions}>
-              {isMutating && <CircularProgress size={20} />}
               <Button
                 data-testid={labelAskAiApply}
                 disabled={!prompt.trim() || isMutating}
