@@ -23,8 +23,8 @@ major=""
 ## Configuration variable
 LOG_FILE="./log/install-poller.log"
 
-# Deployment type: docker | vm
-POLLER_TYPE="docker"
+# Deployment type: docker | vm (required, no default)
+POLLER_TYPE=""
 
 # Cloud mode: true (Centreon Cloud) | false (on-prem)
 CLOUD_MODE="true"

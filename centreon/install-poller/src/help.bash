@@ -27,10 +27,10 @@ function help() {
   case ${subcommand} in
   install)
     echo "Flags:"
-    echo -e "  --type string\t\t\tDeployment type: docker (default) | vm"
     echo -e "  --cloud bool\t\t\tCloud mode: true (default) | false (on-prem)"
     echo ""
     echo "Required flags (all types):"
+    echo -e "  --type string\t\t\tDeployment type: docker | vm"
     echo -e "  --poller_token string\t\tGorgone poller token"
     echo -e "  --uid string\t\t\tPoller unique ID"
     echo -e "  --name string\t\t\tPoller name"

@@ -55,8 +55,8 @@ function _installParseArguments() {
       CENTRAL_URL=$1
       _url_no_scheme=$(echo "${CENTRAL_URL}" | sed 's|^https\?://||')
       CENTRAL_HOST=$(echo "${_url_no_scheme}" | cut -d: -f1 | cut -d/ -f1)
-      _port=$(echo "${_url_no_scheme}" | cut -s -d: -f2 | cut -d/ -f1)
-      CENTRAL_PORT=${_port:-443}
+      # Explicit port only; the per-mode default is applied in _installDeriveCentral.
+      CENTRAL_PORT=$(echo "${_url_no_scheme}" | cut -s -d: -f2 | cut -d/ -f1)
       ;;
     --appsecret)
       shift
@@ -99,13 +99,18 @@ function _installParseArguments() {
 function _installValidateArgs() {
   local ret=0
 
-  case "${POLLER_TYPE}" in
-  docker|vm) ;;
-  *)
-    consoleError "Invalid --type '${POLLER_TYPE}'. Valid values: docker, vm."
+  if [ -z "${POLLER_TYPE}" ]; then
+    consoleError "--type is required. Valid values: docker, vm."
     ret=1
-    ;;
-  esac
+  else
+    case "${POLLER_TYPE}" in
+    docker|vm) ;;
+    *)
+      consoleError "Invalid --type '${POLLER_TYPE}'. Valid values: docker, vm."
+      ret=1
+      ;;
+    esac
+  fi
 
   case "${CLOUD_MODE}" in
   true|false) ;;
@@ -149,8 +154,10 @@ function _installDeriveCentral() {
   if [ "${CLOUD_MODE}" = "true" ]; then
     GORGONE_ADDRESS="gorgone-centreon-${CENTRAL_HOST}"
     GORGONE_SSL="${GORGONE_SSL:-true}"
+    CENTRAL_PORT="${CENTRAL_PORT:-443}"
   else
     GORGONE_ADDRESS="${CENTRAL_HOST}"
     GORGONE_SSL="${GORGONE_SSL:-false}"
+    CENTRAL_PORT="${CENTRAL_PORT:-8086}"
   fi
 }
