@@ -406,8 +406,8 @@ $tpl = SmartyBC::createSmartyTemplate($path);
 $form->setDefaults($defaultFeatures);
 
 // remove illegal chars in data sent by the user
-$cct['contact_name'] = CentreonUtils::escapeSecure($cct['contact_name'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
-$cct['contact_alias'] = CentreonUtils::escapeSecure($cct['contact_alias'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
+$cct['contact_name'] = CentreonUtils::escapeSecure($cct['contact_name'] ?? null, CentreonUtils::ESCAPE_ILLEGAL_CHARS);
+$cct['contact_alias'] = CentreonUtils::escapeSecure($cct['contact_alias'] ?? null, CentreonUtils::ESCAPE_ILLEGAL_CHARS);
 
 // Modify a contact information
 if ($o == 'c') {
