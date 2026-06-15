@@ -150,7 +150,7 @@ class ItopProvider extends AbstractProvider
         $key = "SELECT Person WHERE status='active'";
 
         if (preg_match('/(.*?)___(.*)/', $data['organization_value'], $matches)) {
-            $key .= " AND org_id='" . (int) $matches[1] . "'";
+            $key .= ' AND org_id=' . (int) $matches[1];
         } else {
             throw new Exception('No organization found', 1);
         }
@@ -191,7 +191,7 @@ class ItopProvider extends AbstractProvider
         $key = 'SELECT Service';
 
         if (preg_match('/(.*?)___(.*)/', $data['organization_value'], $matches)) {
-            $key .= " WHERE org_id='" . (int) $matches[1] . "'";
+            $key .= ' WHERE org_id=' . (int) $matches[1];
         } else {
             throw new Exception('No organization found', 1);
         }
@@ -232,7 +232,7 @@ class ItopProvider extends AbstractProvider
         $key = 'SELECT ServiceSubcategory';
 
         if (preg_match('/(.*?)___(.*)/', $data['service_value'], $matches)) {
-            $key .= " WHERE service_id='" . (int) $matches[1] . "'";
+            $key .= ' WHERE service_id=' . (int) $matches[1];
         } else {
             throw new Exception('No service found', 1);
         }

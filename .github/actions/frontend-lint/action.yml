@@ -26,10 +26,6 @@ runs:
   using: "composite"
 
   steps:
-    - name: Install libatomic
-      run: sudo apt-get update && sudo apt-get install -y libatomic1
-      shell: bash
-
     - uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
       with:
         version: 10
