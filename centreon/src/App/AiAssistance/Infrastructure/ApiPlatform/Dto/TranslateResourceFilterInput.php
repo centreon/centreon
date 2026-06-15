@@ -30,11 +30,20 @@ final class TranslateResourceFilterInput
 {
     public function __construct(
         #[ApiProperty(
-            description: 'Natural-language description of the resources to filter',
+            description: 'Natural-language request: a description of resources to filter, '
+                . 'or a question to analyse',
             openapiContext: ['example' => 'critical services not yet handled'],
         )]
         #[Assert\Length(min: 1, max: 2000)]
         public string $prompt,
+
+        #[ApiProperty(
+            description: 'The search expression currently applied to the listing, used to decide '
+                . 'whether a question is about the displayed resources',
+            openapiContext: ['example' => 'type:service status:critical'],
+        )]
+        #[Assert\Length(max: 2000)]
+        public ?string $currentFilter = null,
     ) {
     }
 }

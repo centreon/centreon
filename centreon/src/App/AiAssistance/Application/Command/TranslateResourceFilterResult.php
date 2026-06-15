@@ -26,8 +26,16 @@ namespace App\AiAssistance\Application\Command;
 final readonly class TranslateResourceFilterResult
 {
     public function __construct(
-        /** Search expression in the Resources Status query language; empty when no filter could be derived. */
-        public string $search,
+        /** What the user wants: 'filter' (list a set) or 'explain' (analyse). */
+        public string $intent,
+        /**
+         * For 'filter': the search expression (empty when none could be derived).
+         * For 'explain' with scope 'query': the search expression selecting the
+         * set to explain. Empty otherwise.
+         */
+        public string $query,
+        /** For 'explain': 'current' (the displayed set) or 'query'. Null for 'filter'. */
+        public ?string $scope = null,
     ) {
     }
 }

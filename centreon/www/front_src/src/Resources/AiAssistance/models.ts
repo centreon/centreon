@@ -1,5 +1,7 @@
 export interface TranslateResourceFilterResult {
-  search: string;
+  intent: 'filter' | 'explain';
+  query: string;
+  scope: 'current' | 'query' | null;
 }
 
 export interface ExplainResourceResult {

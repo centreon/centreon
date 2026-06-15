@@ -35,20 +35,52 @@ use Tests\App\AiConfiguration\Infrastructure\Double\FakeLlmClientFactory;
 
 final class TranslateResourceFilterCommandHandlerTest extends TestCase
 {
-    public function testValidAnswerIsReturned(): void
+    public function testFilterIntentReturnsTheExpression(): void
     {
-        $client = $this->clientAnswering('{"search": "type:service status:critical"}');
+        $client = $this->clientAnswering(
+            '{"intent": "filter", "query": "type:service status:critical", "scope": "query"}'
+        );
         $handler = new TranslateResourceFilterCommandHandler(new FakeLlmClientFactory($client));
 
         $result = $handler(new TranslateResourceFilterCommand('critical services'));
 
-        self::assertSame('type:service status:critical', $result->search);
+        self::assertSame('filter', $result->intent);
+        self::assertSame('type:service status:critical', $result->query);
+        self::assertNull($result->scope);
         self::assertCount(1, $client->requests);
+    }
+
+    public function testExplainIntentOnTheCurrentSet(): void
+    {
+        $client = $this->clientAnswering(
+            '{"intent": "explain", "query": "", "scope": "current"}'
+        );
+        $handler = new TranslateResourceFilterCommandHandler(new FakeLlmClientFactory($client));
+
+        $result = $handler(new TranslateResourceFilterCommand('why is everything failing?'));
+
+        self::assertSame('explain', $result->intent);
+        self::assertSame('current', $result->scope);
+        self::assertSame('', $result->query);
+    }
+
+    public function testExplainIntentWithADerivedQuery(): void
+    {
+        $client = $this->clientAnswering(
+            '{"intent": "explain", "query": "type:host name:db", "scope": "query"}'
+        );
+        $handler = new TranslateResourceFilterCommandHandler(new FakeLlmClientFactory($client));
+
+        $result = $handler(new TranslateResourceFilterCommand('what is wrong with the db hosts?'));
+
+        self::assertSame('explain', $result->intent);
+        self::assertSame('query', $result->scope);
+        self::assertSame('type:host name:db', $result->query);
     }
 
     public function testUsesTheFastTier(): void
     {
-        $client = $this->clientAnswering('{"search": ""}');
+        $client = $this->clientAnswering('{"intent": "filter", "query": "", "scope": "query"}');
         $handler = new TranslateResourceFilterCommandHandler(new FakeLlmClientFactory($client));
 
         $handler(new TranslateResourceFilterCommand('hello'));
@@ -56,27 +88,42 @@ final class TranslateResourceFilterCommandHandlerTest extends TestCase
         self::assertSame(LlmModelTierEnum::Fast, $client->requests[0]->tier);
     }
 
+    public function testTheCurrentFilterIsForwarded(): void
+    {
+        $client = $this->clientAnswering('{"intent": "explain", "query": "", "scope": "current"}');
+        $handler = new TranslateResourceFilterCommandHandler(new FakeLlmClientFactory($client));
+
+        $handler(new TranslateResourceFilterCommand('why these alerts?', 'type:service status:critical'));
+
+        self::assertStringContainsString(
+            'Current filter: type:service status:critical',
+            $client->requests[0]->messages[0]->content
+        );
+    }
+
     public function testCodeFencesAreTolerated(): void
     {
-        $client = $this->clientAnswering("```json\n{\"search\": \"status:critical\"}\n```");
+        $client = $this->clientAnswering(
+            "```json\n{\"intent\": \"filter\", \"query\": \"status:critical\", \"scope\": \"query\"}\n```"
+        );
         $handler = new TranslateResourceFilterCommandHandler(new FakeLlmClientFactory($client));
 
         $result = $handler(new TranslateResourceFilterCommand('critical resources'));
 
-        self::assertSame('status:critical', $result->search);
+        self::assertSame('status:critical', $result->query);
     }
 
     public function testInvalidAnswerTriggersOneCorrection(): void
     {
         $client = new FakeLlmClient(queue: [
-            $this->response('{"search": "hostgroup:Linux"}'), // unknown key
-            $this->response('{"search": "host_group:Linux"}'),
+            $this->response('{"intent": "filter", "query": "hostgroup:Linux", "scope": "query"}'), // unknown key
+            $this->response('{"intent": "filter", "query": "host_group:Linux", "scope": "query"}'),
         ]);
         $handler = new TranslateResourceFilterCommandHandler(new FakeLlmClientFactory($client));
 
         $result = $handler(new TranslateResourceFilterCommand('resources of the Linux group'));
 
-        self::assertSame('host_group:Linux', $result->search);
+        self::assertSame('host_group:Linux', $result->query);
         self::assertCount(2, $client->requests);
         // the correction request carries the previous conversation and the error
         $correctionMessages = $client->requests[1]->messages;
@@ -84,7 +131,7 @@ final class TranslateResourceFilterCommandHandlerTest extends TestCase
         self::assertStringContainsString("unknown key 'hostgroup'", end($correctionMessages)->content);
     }
 
-    public function testStillInvalidAfterCorrectionReturnsEmptySearch(): void
+    public function testStillInvalidAfterCorrectionReturnsAnEmptyFilter(): void
     {
         $client = new FakeLlmClient(queue: [
             $this->response('not json at all'),
@@ -94,7 +141,8 @@ final class TranslateResourceFilterCommandHandlerTest extends TestCase
 
         $result = $handler(new TranslateResourceFilterCommand('something'));
 
-        self::assertSame('', $result->search);
+        self::assertSame('filter', $result->intent);
+        self::assertSame('', $result->query);
         self::assertCount(2, $client->requests);
     }
 

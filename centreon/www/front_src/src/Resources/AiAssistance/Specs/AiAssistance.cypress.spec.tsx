@@ -6,7 +6,8 @@ import { initReactI18next } from 'react-i18next';
 
 import { ResourceDetails } from '../../Details/models';
 import { searchAtom } from '../../Filter/filterAtoms';
-import { Resource } from '../../models';
+import { listingAtom } from '../../Listing/listingAtoms';
+import { Resource, ResourceListing } from '../../models';
 import AnalyzeResources from '../AnalyzeResources/AnalyzeResources';
 import AskAiFilter from '../AskAiFilter/AskAiFilter';
 import ExplainGraph from '../ExplainGraph/ExplainGraph';
@@ -65,12 +66,16 @@ const initializeComponent = (
 };
 
 describe('AskAiFilter', () => {
-  it('applies the translated search expression', () => {
+  it('applies the translated search expression for a filter intent', () => {
     cy.interceptAPIRequest({
       alias: 'translateFilter',
       method: Method.POST,
       path: `**${aiResourceFilterEndpoint}`,
-      response: { search: 'type:service status:critical' }
+      response: {
+        intent: 'filter',
+        query: 'type:service status:critical',
+        scope: null
+      }
     });
 
     const store = initializeComponent(<AskAiFilter />);
@@ -98,7 +103,7 @@ describe('AskAiFilter', () => {
       alias: 'translateFilter',
       method: Method.POST,
       path: `**${aiResourceFilterEndpoint}`,
-      response: { search: '' }
+      response: { intent: 'filter', query: '', scope: null }
     });
 
     initializeComponent(<AskAiFilter />);
@@ -110,6 +115,53 @@ describe('AskAiFilter', () => {
     cy.waitForRequest('@translateFilter');
 
     cy.contains(labelAiCouldNotTranslate);
+  });
+
+  it('explains the current view for an explain intent', () => {
+    cy.interceptAPIRequest({
+      alias: 'translateFilter',
+      method: Method.POST,
+      path: `**${aiResourceFilterEndpoint}`,
+      response: { intent: 'explain', query: '', scope: 'current' }
+    });
+    cy.interceptAPIRequest({
+      alias: 'correlateAlerts',
+      method: Method.POST,
+      path: `**${aiAlertCorrelationEndpoint}`,
+      response: {
+        analysis: '## Likely root cause\n\n- The host db-server-01 is down.',
+        model: 'claude-sonnet-4-6'
+      }
+    });
+
+    const store = initializeComponent(<AskAiFilter />);
+    store.set(listingAtom, {
+      meta: { limit: 30, page: 1, total: 2 },
+      result: [
+        {
+          name: 'Ping',
+          parent: { name: 'db-server-01' },
+          status: { name: 'CRITICAL', severity_code: 1 },
+          type: 'service'
+        },
+        {
+          name: 'db-server-01',
+          status: { name: 'DOWN', severity_code: 1 },
+          type: 'host'
+        }
+      ]
+    } as unknown as ResourceListing);
+
+    cy.findByTestId(labelAskAi).click();
+    cy.findByTestId(labelAskAiPlaceholder).type('why is everything failing?');
+    cy.findByTestId(labelAskAiApply).click();
+
+    cy.waitForRequest('@correlateAlerts').then(({ request }) => {
+      expect(request.body.resources).to.have.length(2);
+    });
+
+    cy.contains('The host db-server-01 is down');
+    cy.contains('claude-sonnet-4-6');
   });
 });
 

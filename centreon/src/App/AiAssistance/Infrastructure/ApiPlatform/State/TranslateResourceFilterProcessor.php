@@ -45,10 +45,17 @@ final readonly class TranslateResourceFilterProcessor implements ProcessorInterf
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): TranslateResourceFilterResource
     {
         $result = $this->commandBus->execute(
-            new TranslateResourceFilterCommand(prompt: trim($data->prompt))
+            new TranslateResourceFilterCommand(
+                prompt: trim($data->prompt),
+                currentFilter: $data->currentFilter,
+            )
         );
         Assert::isInstanceOf($result, TranslateResourceFilterResult::class);
 
-        return new TranslateResourceFilterResource(search: $result->search);
+        return new TranslateResourceFilterResource(
+            intent: $result->intent,
+            query: $result->query,
+            scope: $result->scope,
+        );
     }
 }

@@ -1,11 +1,12 @@
 export const labelAskAi = 'Ask AI';
 export const labelAskAiPlaceholder =
-  'Describe the resources to display, e.g. critical services not yet handled';
+  'Describe a filter or ask a question, e.g. why is everything failing?';
 export const labelAskAiApply = 'Apply';
 export const labelAskAiDisclaimer =
-  'AI-generated: the resulting filter may be incorrect.';
+  'AI-generated and may be incorrect. A question may also change the filter.';
 export const labelAiCouldNotTranslate =
   'AI could not translate this description into a filter';
+export const labelNoResourcesToExplain = 'No resources to explain';
 
 export const labelExplain = 'Explain';
 export const labelAiExplanation = 'AI explanation';

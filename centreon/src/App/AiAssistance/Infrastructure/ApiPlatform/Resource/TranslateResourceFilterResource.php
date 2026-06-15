@@ -36,10 +36,11 @@ use App\AiAssistance\Infrastructure\ApiPlatform\State\TranslateResourceFilterPro
     input: TranslateResourceFilterInput::class,
     status: 200,
     openapi: new Model\Operation(
-        summary: 'Translate a natural-language description into a resource filter',
-        description: 'Translate a natural-language description into a search expression for the '
-            . 'Resources Status page. The expression may be empty when no filter could be derived '
-            . 'from the description. The translation is produced by the default AI provider.',
+        summary: 'Route a natural-language request on the Resources Status page',
+        description: 'Classify a natural-language request as a "filter" (a description to turn into '
+            . 'a search expression) or an "explain" (a question to analyse), and resolve the '
+            . 'resource set an explain is about (the displayed set, or a derived filter). Produced '
+            . 'by the default AI provider.',
         responses: [
             409 => new Model\Response('No default AI provider is configured'),
             502 => new Model\Response('The AI provider could not be reached or rejected the request'),
@@ -50,11 +51,28 @@ final readonly class TranslateResourceFilterResource
 {
     public function __construct(
         #[ApiProperty(
-            description: 'Search expression in the Resources Status query language; empty when no filter could be derived',
+            description: 'What the user wants: "filter" (list a set) or "explain" (analyse)',
+            writable: false,
+            openapiContext: ['example' => 'filter'],
+        )]
+        public string $intent,
+
+        #[ApiProperty(
+            description: 'Search expression in the Resources Status query language. For a filter '
+                . 'intent, the filter to apply (empty when none could be derived); for an explain '
+                . 'intent with scope "query", the set to explain',
             writable: false,
             openapiContext: ['example' => 'type:service status:critical state:unhandled'],
         )]
-        public string $search,
+        public string $query,
+
+        #[ApiProperty(
+            description: 'For an explain intent: "current" (the displayed set) or "query". Null for '
+                . 'a filter intent',
+            writable: false,
+            openapiContext: ['example' => 'current'],
+        )]
+        public ?string $scope = null,
     ) {
     }
 }

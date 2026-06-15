@@ -29,7 +29,12 @@ final readonly class TranslateResourceFilterCommand
 {
     public function __construct(
         public string $prompt,
+        /** The search expression currently applied to the listing, for scope context. */
+        public ?string $currentFilter = null,
     ) {
         Assert::lengthBetween($prompt, 1, 2000);
+        if ($currentFilter !== null) {
+            Assert::maxLength($currentFilter, 2000);
+        }
     }
 }

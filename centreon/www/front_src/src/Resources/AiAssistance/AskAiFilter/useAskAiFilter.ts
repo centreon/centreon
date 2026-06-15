@@ -1,54 +1,42 @@
-import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
+import { Method, useMutationQuery } from '@centreon/ui';
 
-import { useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-
-import {
-  applyCurrentFilterDerivedAtom,
-  searchAtom
-} from '../../Filter/filterAtoms';
 import { aiResourceFilterEndpoint } from '../endpoints';
 import { TranslateResourceFilterResult } from '../models';
-import { labelAiCouldNotTranslate } from '../translatedLabels';
+
+interface AskAiFilterPayload {
+  current_filter: string | null;
+  prompt: string;
+}
 
 interface UseAskAiFilterState {
   isMutating: boolean;
-  translate: (prompt: string) => Promise<boolean>;
+  translate: (
+    prompt: string,
+    currentFilter: string
+  ) => Promise<TranslateResourceFilterResult | null>;
 }
 
 const useAskAiFilter = (): UseAskAiFilterState => {
-  const { t } = useTranslation();
-  const { showWarningMessage } = useSnackbar();
-
-  const setSearch = useSetAtom(searchAtom);
-  const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
-
   const { mutateAsync, isMutating } = useMutationQuery<
-    { prompt: string },
+    AskAiFilterPayload,
     undefined
   >({
     getEndpoint: () => aiResourceFilterEndpoint,
     method: Method.POST
   });
 
-  const translate = (prompt: string): Promise<boolean> =>
-    mutateAsync({ payload: { prompt } }).then((result) => {
+  const translate = (
+    prompt: string,
+    currentFilter: string
+  ): Promise<TranslateResourceFilterResult | null> =>
+    mutateAsync({
+      payload: { current_filter: currentFilter || null, prompt }
+    }).then((result) => {
       if ('isError' in result) {
-        return false;
+        return null;
       }
 
-      const { search } = result as unknown as TranslateResourceFilterResult;
-
-      if (!search) {
-        showWarningMessage(t(labelAiCouldNotTranslate));
-
-        return false;
-      }
-
-      setSearch(search);
-      applyCurrentFilter();
-
-      return true;
+      return result as unknown as TranslateResourceFilterResult;
     });
 
   return { isMutating, translate };

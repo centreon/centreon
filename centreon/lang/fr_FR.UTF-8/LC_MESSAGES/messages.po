@@ -25181,16 +25181,22 @@ msgid "Ask AI"
 msgstr "Demander à l'IA"
 
 #: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
-msgid "Describe the resources to display, e.g. critical services not yet handled"
-msgstr "Décrivez les ressources à afficher, ex. services critiques non pris en charge"
+msgid "Describe a filter or ask a question, e.g. why is everything failing?"
+msgstr "Décrivez un filtre ou posez une question, ex. pourquoi tout est en panne ?"
 
 #: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
-msgid "AI-generated: the resulting filter may be incorrect."
-msgstr "Généré par IA : le filtre obtenu peut être incorrect."
+msgid "AI-generated and may be incorrect. A question may also change the filter."
+msgstr ""
+"Généré par IA et possiblement incorrect. Une question peut aussi modifier le "
+"filtre."
 
 #: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
 msgid "AI could not translate this description into a filter"
 msgstr "L'IA n'a pas pu traduire cette description en filtre"
+
+#: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
+msgid "No resources to explain"
+msgstr "Aucune ressource à expliquer"
 
 #: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
 msgid "Explain"
