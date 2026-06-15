@@ -138,8 +138,15 @@ final class LoggerAuthentication
     private function mirrorToLegacyLoginLog(string $message, ?int $userId): void
     {
         $logDir = defined('_CENTREON_LOG_') ? _CENTREON_LOG_ : '/var/log/centreon';
-        $line = date('Y-m-d H:i:s') . '|' . ($userId ?? 0) . '|0|0|' . $message;
-        $line = str_replace(['`', '*'], ['', '\*'], $line);
+        // Neutralize line breaks and the field delimiter so a crafted message (e.g. a
+        // login containing CRLF) cannot forge or split records in the pipe-delimited file,
+        // while keeping the historical backtick-strip / asterisk-escape behavior.
+        $sanitizedMessage = str_replace(
+            ["\r", "\n", '|', '`', '*'],
+            [' ', ' ', ' ', '', '\*'],
+            $message
+        );
+        $line = date('Y-m-d H:i:s') . '|' . ($userId ?? 0) . '|0|0|' . $sanitizedMessage;
 
         try {
             $written = file_put_contents($logDir . '/login.log', $line . "\n", FILE_APPEND);

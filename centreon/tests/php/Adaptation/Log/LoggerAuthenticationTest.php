@@ -211,3 +211,22 @@ it('escapes asterisks and strips backticks in the legacy login.log mirror', func
     // Backticks are removed and asterisks are escaped, matching legacy centreonAuth output.
     expect(file_get_contents($legacyFile))->toContain('Authentication failed for a\*b');
 });
+
+it('neutralizes line breaks and field delimiters in the legacy login.log mirror', function (): void {
+    $legacyFile = loggerAuthLoginLogPath();
+    if (file_exists($legacyFile)) {
+        unlink($legacyFile);
+    }
+
+    LoggerAuthentication::create()->loginFailure(
+        "Authentication failed for 'ad\nmin|0|0|forged'",
+        null,
+        AuthProviderEnum::LOCAL
+    );
+
+    // A crafted message cannot split the record (one trailing newline) nor inject extra
+    // pipe-delimited fields: CR/LF/pipe are replaced by spaces.
+    $contents = file_get_contents($legacyFile);
+    expect(mb_substr_count($contents, "\n"))->toBe(1)
+        ->and($contents)->toContain("Authentication failed for 'ad min 0 0 forged'");
+});
