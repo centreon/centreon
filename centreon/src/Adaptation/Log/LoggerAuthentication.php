@@ -26,6 +26,7 @@ namespace Adaptation\Log;
 use Adaptation\Log\Enum\AuthProviderEnum;
 use Adaptation\Log\Enum\LogChannelEnum;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 
 final class LoggerAuthentication
 {
@@ -46,7 +47,8 @@ final class LoggerAuthentication
 
     public function loginSuccess(string $message, int $userId, AuthProviderEnum $provider): void
     {
-        $this->logger->info(
+        $this->logger->log(
+            LogLevel::INFO,
             $message,
             $this->baseContext('login.success', 'success', $userId, $provider)
         );
@@ -60,7 +62,8 @@ final class LoggerAuthentication
         AuthProviderEnum $provider,
         ?\Throwable $exception = null,
     ): void {
-        $this->logger->warning(
+        $this->logger->log(
+            LogLevel::WARNING,
             $message,
             $this->baseContext('login.failure', 'failure', $userId, $provider, $exception)
         );
@@ -70,7 +73,8 @@ final class LoggerAuthentication
 
     public function logout(string $message, int $userId, AuthProviderEnum $provider): void
     {
-        $this->logger->info(
+        $this->logger->log(
+            LogLevel::INFO,
             $message,
             $this->baseContext('logout', 'success', $userId, $provider)
         );
@@ -78,7 +82,8 @@ final class LoggerAuthentication
 
     public function tokenRefreshSuccess(string $message, int $userId, AuthProviderEnum $provider): void
     {
-        $this->logger->info(
+        $this->logger->log(
+            LogLevel::INFO,
             $message,
             $this->baseContext('token.refresh.success', 'success', $userId, $provider)
         );
@@ -90,7 +95,8 @@ final class LoggerAuthentication
         AuthProviderEnum $provider,
         ?\Throwable $exception = null,
     ): void {
-        $this->logger->warning(
+        $this->logger->log(
+            LogLevel::WARNING,
             $message,
             $this->baseContext('token.refresh.failure', 'failure', $userId, $provider, $exception)
         );
@@ -98,7 +104,8 @@ final class LoggerAuthentication
 
     public function unauthorized(string $message, ?int $userId = null): void
     {
-        $this->logger->warning(
+        $this->logger->log(
+            LogLevel::WARNING,
             $message,
             $this->baseContext('unauthorized', 'failure', $userId, null)
         );
@@ -110,7 +117,7 @@ final class LoggerAuthentication
         if ($resource !== null) {
             $context['resource'] = $resource;
         }
-        $this->logger->warning($message, $context);
+        $this->logger->log(LogLevel::WARNING, $message, $context);
     }
 
     /**
