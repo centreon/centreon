@@ -258,7 +258,6 @@ jobs:
 
             try {
               const labels = JSON.parse(process.env.LABELS);
-              console.log(labels);
               if (labels.includes('skip-backend-tests')) {
                 core.info('Label skip-backend-tests found: forcing backend testing trigger to false');
                 triggerBackendTesting = false;
