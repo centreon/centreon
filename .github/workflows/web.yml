@@ -666,31 +666,31 @@ jobs:
 
           exit_code=0
 
+          # Run every task even if one fails, then exit non-zero if any failed.
+          # Each task uses its own tmp dir so its result cache (resultCache.php) does
+          # not collide with the others. The whole .phpstan-cache directory is persisted
+          # across CI runs, so only changed files (and their dependents) get re-analysed.
           run_task() {
-            name=$1
-            cache_dir=$2
-            shift 2
-            # Each task uses its own tmp dir so its result cache (resultCache.php) does
-            # not collide with the others. The whole .phpstan-cache directory is persisted
-            # across CI runs, so only changed files (and their dependents) get re-analysed.
+            task=$1                  # e.g. core:src
+            cache_dir=${task//:/-}   # e.g. core-src
             mkdir -p ".phpstan-cache/${cache_dir}"
-            if "$@" -- --no-progress --tmp-dir=".phpstan-cache/${cache_dir}"; then
-              echo "✅ PHPStan $name: Success"
+            if composer "stan:${task}" -- --no-progress --tmp-dir=".phpstan-cache/${cache_dir}"; then
+              echo "✅ PHPStan ${task}: Success"
             else
-              echo "❌ PHPStan $name: Failed"
+              echo "❌ PHPStan ${task}: Failed"
               exit_code=1
             fi
           }
 
           # Run sequentially: each PHPStan run already parallelises internally, so chaining
           # them avoids the CPU oversubscription the previous background fan-out caused.
-          run_task legacy:www legacy-www composer stan:legacy:www
-          run_task legacy:src legacy-src composer stan:legacy:src
-          run_task legacy:test legacy-test composer stan:legacy:test
-          run_task core:src core-src composer stan:core:src
-          run_task core:test core-test composer stan:core:test
-          run_task new:src new-src composer stan:new:src
-          run_task new:test new-test composer stan:new:test
+          run_task legacy:www
+          run_task legacy:src
+          run_task legacy:test
+          run_task core:src
+          run_task core:test
+          run_task new:src
+          run_task new:test
 
           exit $exit_code
 
