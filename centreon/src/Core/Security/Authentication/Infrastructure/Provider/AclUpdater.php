@@ -126,9 +126,10 @@ class AclUpdater implements AclUpdaterInterface
         try {
             Logger::create(LogChannelEnum::WEB)->info('Updating user contact group', [
                 'user_id' => $user->getId(),
-                'contact_group_id' => [
-                    array_map(fn ($contactGroup) => $contactGroup->getId(), $contactGroups),
-                ],
+                'contact_group_id' => array_map(
+                    static fn (ContactGroup $group): int => $group->getId(),
+                    $contactGroups
+                ),
             ]);
             $this->dataStorageEngine->startTransaction();
             $this->contactGroupRepository->deleteContactGroupsForUser($user);
