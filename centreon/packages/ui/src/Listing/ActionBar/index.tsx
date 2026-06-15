@@ -38,7 +38,13 @@ interface StyleProps {
 const useStyles = makeStyles<StyleProps>()(
   (theme, { width, marginWidthTableListing }) => ({
     actions: {
-      flex: 1,
+      // grow to fill the row but never shrink below the actions' content:
+      // the header wraps the pagination to a second line instead of squeezing
+      // (and overlapping) the action icons
+      flexBasis: 'auto',
+      flexGrow: 1,
+      flexShrink: 0,
+      minWidth: 'fit-content',
       padding: theme.spacing(1, 1, 1, 0)
     },
     container: {
