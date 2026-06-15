@@ -85,5 +85,5 @@ export interface MoreSecondaryActions {
   renderMoreSecondaryActions?: (arg: Arg) => ReactNode;
 }
 
-export const smallWidth = 760;
+export const smallWidth = 885;
 export const mediumWidth = 1350;
