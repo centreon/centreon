@@ -13,6 +13,7 @@
 # limitations under the License.
 
 _PKG_COMMAND=""
+_EL_MAJOR=""
 
 function runVmInstall() {
   echo ""
@@ -135,24 +136,50 @@ function _vmDetectDistribution() {
       consoleInfo "Distribution: Debian 12 (Bookworm): OK"
       logInfo "Distribution: debian12, package manager: apt"
       ;;
+    "debian13"*)
+      _PKG_COMMAND="apt"
+      consoleInfo "Distribution: Debian 13 (Trixie): OK"
+      logInfo "Distribution: debian13, package manager: apt"
+      ;;
     "almalinux9"*)
       _PKG_COMMAND="dnf"
+      _EL_MAJOR="9"
       consoleInfo "Distribution: AlmaLinux 9: OK"
       logInfo "Distribution: almalinux9, package manager: dnf"
       ;;
+    "almalinux10"*)
+      _PKG_COMMAND="dnf"
+      _EL_MAJOR="10"
+      consoleInfo "Distribution: AlmaLinux 10: OK"
+      logInfo "Distribution: almalinux10, package manager: dnf"
+      ;;
     "ol9"*)
       _PKG_COMMAND="dnf"
+      _EL_MAJOR="9"
       consoleInfo "Distribution: Oracle Linux 9: OK"
       logInfo "Distribution: ol9, package manager: dnf"
       ;;
+    "ol10"*)
+      _PKG_COMMAND="dnf"
+      _EL_MAJOR="10"
+      consoleInfo "Distribution: Oracle Linux 10: OK"
+      logInfo "Distribution: ol10, package manager: dnf"
+      ;;
     "rhel9"*)
       _PKG_COMMAND="dnf"
+      _EL_MAJOR="9"
       consoleInfo "Distribution: RHEL 9: OK"
       logInfo "Distribution: rhel9, package manager: dnf"
       ;;
+    "rhel10"*)
+      _PKG_COMMAND="dnf"
+      _EL_MAJOR="10"
+      consoleInfo "Distribution: RHEL 10: OK"
+      logInfo "Distribution: rhel10, package manager: dnf"
+      ;;
     *)
       consoleError "Unsupported distribution: ${PRETTY_NAME:-${distrib}}."
-      consoleError "Supported: Debian 12, AlmaLinux 9, Oracle Linux 9, RHEL 9."
+      consoleError "Supported: Debian 12, Debian 13, AlmaLinux 9/10, Oracle Linux 9/10, RHEL 9/10."
       logError "Unsupported distribution: ${distrib}"
       exit 1
       ;;
@@ -225,6 +252,33 @@ function _vmInstallPowertools() {
       commandExitOnError "Cannot enable RHEL 9 CRB" \
         subscription-manager repos --enable codeready-builder-for-rhel-9-x86_64-rpms
       ;;
+    "almalinux10"*)
+      # TODO: double check prerequisite for 26.10 release
+      commandExitOnError "Cannot install dnf-plugins-core and epel-release" \
+        dnf -y install dnf-plugins-core epel-release
+      commandExitOnError "Cannot enable CRB" \
+        dnf config-manager --set-enabled crb
+      ;;
+    "ol10"*)
+      # TODO: double check prerequisite for 26.10 release
+      commandExitOnError "Cannot install dnf-plugins-core" \
+        dnf -y install dnf-plugins-core
+      commandExitOnError "Cannot install EPEL for Oracle Linux 10" \
+        dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
+      commandExitOnError "Cannot enable OL10 CodeReady Builder" \
+        dnf config-manager --set-enabled ol10_codeready_builder
+      commandExitOnError "Cannot install epel-release" \
+        dnf -y install epel-release
+      ;;
+    "rhel10"*)
+      # TODO: double check prerequisite for 26.10 release
+      commandExitOnError "Cannot install dnf-plugins-core" \
+        dnf -y install dnf-plugins-core
+      commandExitOnError "Cannot install EPEL for RHEL 10" \
+        dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
+      commandExitOnError "Cannot enable RHEL 10 CRB" \
+        subscription-manager repos --enable codeready-builder-for-rhel-10-x86_64-rpms
+      ;;
   esac
 }
 
@@ -255,7 +309,7 @@ function _vmInstallRepo() {
   elif [ "${_PKG_COMMAND}" = "dnf" ]; then
     consoleInfo "Adding Centreon repository (RPM/EL9)"
     commandExitOnError "Cannot add Centreon repository" \
-      dnf config-manager --add-repo "https://packages.centreon.com/rpm-standard/${major}/el9/centreon-${major}.repo"
+      dnf config-manager --add-repo "https://packages.centreon.com/rpm-standard/${major}/el${_EL_MAJOR:-9}/centreon-${major}.repo"
   fi
 }
 
