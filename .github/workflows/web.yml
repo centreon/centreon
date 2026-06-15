@@ -1358,15 +1358,19 @@ jobs:
         e2e-test,
         legacy-e2e-test
       ]
+    # if: |
+    #   needs.get-environment.outputs.skip_workflow == 'false' &&
+    #   ((needs.get-environment.outputs.delivery_type == 'feature' && contains(github.event.pull_request.labels.*.name, 'delivery-feature')) ||
+    #   contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability)) &&
+    #   ! cancelled() &&
+    #   ! contains(needs.*.result, 'failure') &&
+    #   ! contains(needs.*.result, 'cancelled') &&
+    #   needs.changes.outputs.trigger_delivery == 'true' &&
+    #   github.event.pull_request.head.repo.fork != true
     if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      ((needs.get-environment.outputs.delivery_type == 'feature' && contains(github.event.pull_request.labels.*.name, 'delivery-feature')) ||
-      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability)) &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      needs.changes.outputs.trigger_delivery == 'true' &&
-      github.event.pull_request.head.repo.fork != true
+      ! contains(needs.*.result, 'cancelled')
     strategy:
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
@@ -1382,8 +1386,10 @@ jobs:
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-environment.outputs.major_version }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-          release_type: ${{ needs.get-environment.outputs.release_type }}
+          # stability: ${{ needs.get-environment.outputs.stability }}
+          # release_type: ${{ needs.get-environment.outputs.release_type }}
+          stability: testing
+          release_type: release
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
           delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
           pulp_username: ${{ secrets.PULP_USERNAME }}
