@@ -582,6 +582,16 @@ jobs:
         run: composer run test:core
         working-directory: centreon
 
+      - name: Display application logs
+        if: failure()
+        run: |
+          echo "::group::centreon-error.log"
+          cat /var/log/php-fpm/centreon-error.log 2>/dev/null || echo "File not found"
+          echo "::endgroup::"
+          echo "::group::centreon-web.log"
+          cat /var/log/centreon/centreon-web.log 2>/dev/null || echo "File not found"
+          echo "::endgroup::"
+
   backend-lint:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
