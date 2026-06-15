@@ -157,7 +157,7 @@ class ItopProvider extends AbstractProvider
 
         $filter = $data['groups']['itop_caller']['filter'];
         if (isset($filter) && $filter != '') {
-            $escapedFilter = str_replace("'", "\\'", $filter);
+            $escapedFilter = addcslashes($filter, "\\'");
             $key .= " AND friendlyname LIKE '%" . $escapedFilter . "%'";
         }
 
@@ -198,7 +198,7 @@ class ItopProvider extends AbstractProvider
 
         $filter = $data['groups']['itop_service']['filter'];
         if (isset($filter) && $filter != '') {
-            $escapedFilter = str_replace("'", "\\'", $filter);
+            $escapedFilter = addcslashes($filter, "\\'");
             $key .= " AND friendlyname LIKE '%" . $escapedFilter . "%'";
         }
 
@@ -239,7 +239,7 @@ class ItopProvider extends AbstractProvider
 
         $filter = $data['groups']['itop_service_subcategory']['filter'];
         if (isset($filter) && $filter != '') {
-            $escapedFilter = str_replace("'", "\\'", $filter);
+            $escapedFilter = addcslashes($filter, "\\'");
             $key .= " AND friendlyname LIKE '%" . $escapedFilter . "%'";
         }
 
