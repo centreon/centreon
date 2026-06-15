@@ -52,6 +52,11 @@ cat ./lib/command.bash | tail -n +14 >> ${target}
 cat ./src/cmdparse.bash | tail -n +14 >> ${target}
 cat ./src/help.bash | tail -n +14 >> ${target}
 cat ./src/commands/docker.bash | tail -n +14 >> ${target}
+## VM submodules (loaded before the orchestrator)
+cat ./src/vm/prerequisites.bash | tail -n +14 >> ${target}
+cat ./src/vm/packages.bash | tail -n +14 >> ${target}
+cat ./src/vm/configure.bash | tail -n +14 >> ${target}
+cat ./src/vm/services.bash | tail -n +14 >> ${target}
 cat ./src/commands/vm.bash | tail -n +14 >> ${target}
 cat ./src/commands/install.bash | tail -n +14 >> ${target}
 cat main-tail.sh >> ${target}
