@@ -86,4 +86,4 @@ export interface MoreSecondaryActions {
 }
 
 export const smallWidth = 760;
-export const mediumWidth = 1100;
+export const mediumWidth = 1350;
