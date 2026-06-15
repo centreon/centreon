@@ -1,7 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-
-import { useAtom, useAtomValue } from 'jotai';
-import { equals } from 'ramda';
+import { useAtom } from 'jotai';
+import { equals, isEmpty, isNotNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { type Column, useFetchQuery, useSnackbar } from '@centreon/ui';
@@ -124,7 +122,6 @@ const useListing = ({
 }: UseListingProps): UseListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
-  const { isOpenTicketEnabled } = useAtomValue(openTicketContextAtom);
 
   const [page, setPage] = useState(1);
   const [resourcesToOpenTicket, setResourcesToOpenTicket] = useAtom(
