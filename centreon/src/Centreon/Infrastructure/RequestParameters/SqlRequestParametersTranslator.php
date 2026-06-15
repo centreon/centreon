@@ -138,8 +138,6 @@ class SqlRequestParametersTranslator
         return ! empty($orderQuery) ? ' ORDER BY ' . $orderQuery : null;
     }
 
-<<<<<<< HEAD
-=======
     public function appendQueryBuilderWithSortParameter(QueryBuilderInterface $queryBuilder): void
     {
         foreach ($this->requestParameters->getSort() as $name => $order) {
@@ -154,18 +152,6 @@ class SqlRequestParametersTranslator
         }
     }
 
-    public function appendQueryBuilderWithPagination(QueryBuilderInterface $queryBuilder): void
-    {
-        $page = $this->requestParameters->getPage();
-        $limit = $this->requestParameters->getLimit();
-        $offset = ($page - 1) * $limit;
-
-        $queryBuilder
-            ->limit($limit)
-            ->offset($offset);
-    }
-
->>>>>>> 27db726234 (perf(resources): revamp resource status performances (#9998) (#10574))
     /**
      * Facade to populate a SqlStringBuilder from a SqlRequestParametersTranslator.
      *
@@ -311,22 +297,6 @@ class SqlRequestParametersTranslator
         $queryBuilder
             ->limit($limit)
             ->offset($offset);
-    }
-
-    public function appendQueryBuilderWithSortParameter(QueryBuilderInterface $queryBuilder): void
-    {
-        foreach ($this->requestParameters->getSort() as $name => $order) {
-            if (array_key_exists($name, $this->concordanceArray)) {
-                $queryBuilder->addOrderBy(
-                    sprintf(
-                        '%s IS NULL, %s',
-                        $this->concordanceArray[$name],
-                        $this->concordanceArray[$name],
-                    ),
-                    $order
-                );
-            }
-        }
     }
 
     public function appendQueryBuilderWithSearchParameter(QueryBuilderInterface $queryBuilder): void
