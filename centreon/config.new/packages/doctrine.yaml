@@ -13,18 +13,21 @@ doctrine:
        default_connection: default
        connections:
            default:
+               server_version: '%env(DATABASE_SERVER_VERSION)%'
                use_savepoints: true
                dbname: '%env(db)%'
                user: '%env(user)%'
                password: '%env(password)%'
                host: '%env(hostCentreon)%'
            realtime:
+               server_version: '%env(DATABASE_SERVER_VERSION)%'
                use_savepoints: true
                dbname: '%env(dbcstg)%'
                user: '%env(user)%'
                password: '%env(password)%'
                host: '%env(hostCentreon)%'
            test_setup_default:
+               server_version: '%env(DATABASE_SERVER_VERSION)%'
                use_savepoints: true
                dbname: '%env(db)%'
                user: '%env(user)%'
