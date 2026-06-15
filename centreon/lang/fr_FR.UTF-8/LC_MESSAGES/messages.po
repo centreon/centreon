@@ -25241,8 +25241,8 @@ msgid "Summarize"
 msgstr "Résumer"
 
 #: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
-msgid "AI incident summary"
-msgstr "Résumé d'incident par IA"
+msgid "AI timeline summary"
+msgstr "Résumé de chronologie par IA"
 
 #: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
 msgid "AI-generated from the last 24 hours of timeline events: verify before sharing."

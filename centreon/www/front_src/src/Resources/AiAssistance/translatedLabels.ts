@@ -16,8 +16,8 @@ export const labelOnHost = 'on {{host}}';
 export const labelClose = 'Close';
 
 export const labelSummarize = 'Summarize';
-export const labelAiIncidentSummary = 'AI incident summary';
-export const labelAiIncidentSummaryDisclaimer =
+export const labelAiTimelineSummary = 'AI timeline summary';
+export const labelAiTimelineSummaryDisclaimer =
   'AI-generated from the last 24 hours of timeline events: verify before sharing.';
 export const labelCopy = 'Copy';
 export const labelSummaryCopied = 'Summary copied to the clipboard';

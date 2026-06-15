@@ -20,8 +20,8 @@ import { ResourceDetails } from '../../Details/models';
 import { SummarizeIncidentResult } from '../models';
 import {
   labelAiBudgetExhausted,
-  labelAiIncidentSummary,
-  labelAiIncidentSummaryDisclaimer,
+  labelAiTimelineSummary,
+  labelAiTimelineSummaryDisclaimer,
   labelClose,
   labelCopy,
   labelGeneratedBy,
@@ -111,7 +111,7 @@ const SummarizeIncident = ({ details }: Props): JSX.Element | null => {
         open={isDialogOpen}
       >
         <DialogTitle>
-          {t(labelAiIncidentSummary)} — {details.name}
+          {t(labelAiTimelineSummary)} — {details.name}
           {details.parent?.name && (
             <Typography
               color="textSecondary"
@@ -147,7 +147,7 @@ const SummarizeIncident = ({ details }: Props): JSX.Element | null => {
         </DialogContent>
         <DialogActions>
           <Typography className={classes.disclaimer} variant="caption">
-            {t(labelAiIncidentSummaryDisclaimer)}
+            {t(labelAiTimelineSummaryDisclaimer)}
           </Typography>
           <Button
             data-testid={labelCopy}
