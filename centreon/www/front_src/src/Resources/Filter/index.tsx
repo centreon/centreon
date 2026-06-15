@@ -95,9 +95,24 @@ import SearchHelp from './SearchHelp';
 import useBackToVisualizationByAll from './useBackToVisualizationByAll';
 import useFilterByModule from './useFilterByModule';
 
-export const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
+// A stable module-level component (rather than a factory that returns a new
+// component on every render): SearchField renders EndAdornment as
+// `<EndAdornment />`, so a fresh function identity each render would remount
+// the whole subtree — and AskAiFilter relies on staying mounted to keep its
+// explanation dialog and pending-explain state alive across re-renders.
+const EndAdornmentFilter = (): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useStyles();
+
+  const clearFilter = useSetAtom(clearFilterDerivedAtom);
+  const setSelectedStatusByResourceType = useSetAtom(
+    selectedStatusByResourceTypeAtom
+  );
+
+  const clearFilters = (): void => {
+    clearFilter();
+    setSelectedStatusByResourceType(null);
+  };
 
   return (
     <div className={classes.End}>
@@ -105,7 +120,7 @@ export const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
       <IconButton
         ariaLabel={t(labelClearFilter) as string}
         data-testid={labelClearFilter}
-        onClick={onClear}
+        onClick={clearFilters}
         size="small"
         title={t(labelClearFilter) as string}
       >
@@ -183,19 +198,10 @@ const Filter = (): JSX.Element => {
   const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
   const applyFilter = useSetAtom(applyFilterDerivedAtom);
   const setNewFilter = useSetAtom(setNewFilterDerivedAtom);
-  const clearFilter = useSetAtom(clearFilterDerivedAtom);
-  const setSelectedStatusByResourceType = useSetAtom(
-    selectedStatusByResourceTypeAtom
-  );
 
   useBackToVisualizationByAll();
 
   const open = Boolean(autocompleteAnchor);
-
-  const clearFilters = (): void => {
-    clearFilter();
-    setSelectedStatusByResourceType(null);
-  };
 
   const clearDebounceDynamicSuggestions = (): void => {
     if (dynamicSuggestionsDebounceRef.current) {
@@ -579,7 +585,7 @@ const Filter = (): JSX.Element => {
               <Box className={classes.searchbarContainer}>
                 <SearchField
                   disabled={isCriteriasPanelOpen}
-                  EndAdornment={renderEndAdornmentFilter(clearFilters)}
+                  EndAdornment={EndAdornmentFilter}
                   fullWidth
                   inputRef={searchRef as RefObject<HTMLInputElement>}
                   onBlur={blurInput}
