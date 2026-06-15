@@ -1394,8 +1394,8 @@ jobs:
           cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
           # stability: ${{ needs.get-environment.outputs.stability }}
           # release_type: ${{ needs.get-environment.outputs.release_type }}
-          stability: testing
-          release_type: release
+          stability: unstable
+          release_type: ""
           # is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
           is_cloud: "false"
           delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
