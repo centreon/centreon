@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\Shared\Infrastructure\Messenger;
 
 use App\Shared\Infrastructure\Logging\LogPayloadNormalizer;
+use App\Shared\Infrastructure\Logging\PayloadSanitizer;
 use App\Shared\Infrastructure\Messenger\LoggingMiddleware;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Envelope;
@@ -50,6 +51,7 @@ final class LoggingMiddlewareTest extends TestCase
         $this->middleware = new LoggingMiddleware(
             $this->logger,
             new LogPayloadNormalizer($this->normalizer),
+            new PayloadSanitizer(),
         );
     }
 
@@ -194,6 +196,7 @@ final class LoggingMiddlewareTest extends TestCase
         $this->middleware = new LoggingMiddleware(
             $this->logger,
             new LogPayloadNormalizer($this->normalizer),
+            new PayloadSanitizer(),
         );
 
         $envelope = new Envelope(new \stdClass(), [new BusNameStamp('command.bus')]);
@@ -224,6 +227,7 @@ final class LoggingMiddlewareTest extends TestCase
         $this->middleware = new LoggingMiddleware(
             $this->logger,
             new LogPayloadNormalizer($this->normalizer),
+            new PayloadSanitizer(),
         );
 
         $envelope = new Envelope(new \stdClass(), [new BusNameStamp('command.bus')]);

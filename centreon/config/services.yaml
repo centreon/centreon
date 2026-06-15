@@ -94,9 +94,6 @@ services:
     Security\Domain\Authentication\Model\LocalProvider:
         arguments: [ "%session_expiration_delay%" ]
 
-    Security\Domain\Authentication\Model\ProviderFactory:
-        arguments: [!tagged_iterator 'authentication.providers']
-
     Core\Resources\Infrastructure\Repository\DbReadResourceRepository:
         arguments:
             $resourceTypes: !tagged_iterator 'monitoring.resource.type'
