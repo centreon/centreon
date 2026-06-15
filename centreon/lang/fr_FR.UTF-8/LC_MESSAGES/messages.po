@@ -25228,6 +25228,19 @@ msgid "Select at least one resource to analyze"
 msgstr "Sélectionnez au moins une ressource à analyser"
 
 #: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
+msgid "Explain graph"
+msgstr "Expliquer le graphique"
+
+#: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
+msgid "AI graph explanation"
+msgstr "Explication du graphique par IA"
+
+#: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
+msgid "AI-generated from the displayed metrics: verify before acting."
+msgstr ""
+"Généré par l'IA à partir des métriques affichées : à vérifier avant d'agir."
+
+#: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
 msgid "AI explanation"
 msgstr "Explication par IA"
 

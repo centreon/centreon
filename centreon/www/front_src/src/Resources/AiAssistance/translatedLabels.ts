@@ -36,3 +36,8 @@ export const labelAnalyzeHint =
   'Analyze the selected resources together to surface a likely common cause';
 export const labelAnalyzeMinSelection =
   'Select at least one resource to analyze';
+
+export const labelExplainGraph = 'Explain graph';
+export const labelAiGraphExplanation = 'AI graph explanation';
+export const labelAiGraphExplanationDisclaimer =
+  'AI-generated from the displayed metrics: verify before acting.';

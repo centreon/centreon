@@ -16,3 +16,8 @@ export interface CorrelateAlertsResult {
   analysis: string;
   model: string;
 }
+
+export interface ExplainGraphResult {
+  explanation: string;
+  model: string;
+}

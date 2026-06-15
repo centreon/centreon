@@ -9,9 +9,11 @@ import { searchAtom } from '../../Filter/filterAtoms';
 import { Resource } from '../../models';
 import AnalyzeResources from '../AnalyzeResources/AnalyzeResources';
 import AskAiFilter from '../AskAiFilter/AskAiFilter';
+import ExplainGraph from '../ExplainGraph/ExplainGraph';
 import {
   aiAlertCorrelationEndpoint,
   aiAvailabilityEndpoint,
+  aiGraphExplanationEndpoint,
   aiIncidentSummaryEndpoint,
   aiResourceExplanationEndpoint,
   aiResourceFilterEndpoint
@@ -25,6 +27,7 @@ import {
   labelAskAiPlaceholder,
   labelCopy,
   labelExplain,
+  labelExplainGraph,
   labelSummarize
 } from '../translatedLabels';
 
@@ -344,5 +347,82 @@ describe('AnalyzeResources', () => {
     cy.waitForRequest('@getAiAvailability');
 
     cy.findByTestId(labelAnalyze).should('not.exist');
+  });
+});
+
+describe('ExplainGraph', () => {
+  const details = {
+    name: 'Ping',
+    parent: { id: 1, name: 'db-server-01' },
+    performance_data: 'rta=5ms;200;500;0; pl=0%;20;60;0;100',
+    type: 'service'
+  } as unknown as ResourceDetails;
+
+  const metrics = [
+    {
+      average: 6.5,
+      current: 5,
+      maximum: 12,
+      minimum: 2,
+      name: 'Round-Trip-Time Average (ms)',
+      unit: 'ms'
+    }
+  ];
+
+  it('explains the displayed graph in a dialog', () => {
+    cy.interceptAPIRequest({
+      alias: 'explainGraph',
+      method: Method.POST,
+      path: `**${aiGraphExplanationEndpoint}`,
+      response: {
+        explanation: '## Reading\n\n- Round-trip time is stable around 5ms.',
+        model: 'claude-sonnet-4-6'
+      }
+    });
+
+    initializeComponent(
+      <ExplainGraph
+        details={details}
+        metrics={metrics}
+        timeRange="the last 24 hours"
+      />
+    );
+
+    cy.findByTestId(labelExplainGraph).click();
+
+    cy.waitForRequest('@explainGraph').then(({ request }) => {
+      expect(request.body.name).to.equal('Ping');
+      expect(request.body.resource_type).to.equal('service');
+      expect(request.body.parent_name).to.equal('db-server-01');
+      expect(request.body.time_range).to.equal('the last 24 hours');
+      expect(request.body.metrics).to.have.length(1);
+      expect(request.body.metrics[0].name).to.equal(
+        'Round-Trip-Time Average (ms)'
+      );
+      expect(request.body.metrics[0].current).to.equal(5);
+    });
+
+    cy.contains('Round-trip time is stable around 5ms');
+    cy.contains('claude-sonnet-4-6');
+    cy.contains('on db-server-01');
+  });
+
+  it('disables the action when there are no metrics', () => {
+    initializeComponent(<ExplainGraph details={details} metrics={[]} />);
+
+    cy.waitForRequest('@getAiAvailability');
+
+    cy.findByTestId(labelExplainGraph).should('be.disabled');
+  });
+
+  it('is hidden when no AI provider is enabled', () => {
+    initializeComponent(<ExplainGraph details={details} metrics={metrics} />, {
+      is_available: false,
+      reason: 'no_provider'
+    });
+
+    cy.waitForRequest('@getAiAvailability');
+
+    cy.findByTestId(labelExplainGraph).should('not.exist');
   });
 });

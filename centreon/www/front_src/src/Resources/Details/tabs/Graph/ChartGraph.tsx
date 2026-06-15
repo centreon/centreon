@@ -9,10 +9,12 @@ import {
   useFetchQuery
 } from '@centreon/ui';
 
+import dayjs from 'dayjs';
 import { path } from 'ramda';
 import { type ReactElement, type RefObject, useState } from 'react';
 
 import FederatedComponent from '../../../../components/FederatedComponents';
+import ExplainGraph from '../../../AiAssistance/ExplainGraph/ExplainGraph';
 import { graphsCapNumber } from '../../../constants';
 import MemoizedGraphActions from '../../../Graph/Performance/GraphActions';
 import type { Resource } from '../../../models';
@@ -108,6 +110,35 @@ const ChartGraph = ({
     );
   }
 
+  const lastDefinedValue = (values) => {
+    if (!Array.isArray(values)) {
+      return null;
+    }
+    for (let index = values.length - 1; index >= 0; index -= 1) {
+      if (values[index] != null && Number.isFinite(values[index])) {
+        return values[index];
+      }
+    }
+
+    return null;
+  };
+
+  const graphMetrics = (data?.metrics ?? []).map((metric) => ({
+    average: metric.average_value ?? null,
+    current: lastDefinedValue(metric.data),
+    maximum: metric.maximum_value ?? null,
+    minimum: metric.minimum_value ?? null,
+    name: metric.legend,
+    unit: metric.unit || null
+  }));
+
+  const timeRange =
+    graphTimeParameters &&
+    dayjs(graphTimeParameters.start).isValid() &&
+    dayjs(graphTimeParameters.end).isValid()
+      ? `${dayjs(graphTimeParameters.start).format('L LT')} → ${dayjs(graphTimeParameters.end).format('L LT')}`
+      : null;
+
   return (
     <>
       <FederatedComponent
@@ -144,6 +175,15 @@ const ChartGraph = ({
         zoomPreview={{ enable: true, getInterval }}
         {...rest}
       />
+      {resource && graphMetrics.length > 0 && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <ExplainGraph
+            details={resource}
+            metrics={graphMetrics}
+            timeRange={timeRange}
+          />
+        </div>
+      )}
     </>
   );
 };

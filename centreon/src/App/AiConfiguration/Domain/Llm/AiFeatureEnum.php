@@ -32,5 +32,6 @@ enum AiFeatureEnum: string
     case ResourceExplanation = 'resource_explanation';
     case IncidentSummary = 'incident_summary';
     case AlertCorrelation = 'alert_correlation';
+    case PerformanceGraphExplanation = 'performance_graph_explanation';
     case ConnectionTest = 'connection_test';
 }
