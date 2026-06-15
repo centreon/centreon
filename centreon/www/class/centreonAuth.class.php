@@ -260,9 +260,11 @@ class CentreonAuth
             $this->checkPassword($password, $token);
             if ($this->passwdOk == self::PASSWORD_VALID) {
                 $authType = $this->userInfos['contact_auth_type'] ?: self::AUTH_TYPE_LOCAL;
-                $provider = $authType === self::AUTH_TYPE_LDAP
-                    ? AuthProviderEnum::LDAP
-                    : AuthProviderEnum::LOCAL;
+                $provider = (int) $this->autologin === self::AUTOLOGIN_ENABLE
+                    ? AuthProviderEnum::AUTOLOGIN
+                    : ($authType === self::AUTH_TYPE_LDAP
+                        ? AuthProviderEnum::LDAP
+                        : AuthProviderEnum::LOCAL);
                 $this->CentreonLog->setUID($this->userInfos['contact_id']);
                 LoggerAuthentication::create()->loginSuccess(
                     sprintf(
@@ -547,9 +549,11 @@ class CentreonAuth
     {
         if (is_string($username) && strlen($username) > 0) {
             //  Take care before modifying this message pattern as it may break tools such as fail2ban
-            $provider = $authenticationType === self::AUTH_TYPE_LDAP
-                ? AuthProviderEnum::LDAP
-                : AuthProviderEnum::LOCAL;
+            $provider = (int) $this->autologin === self::AUTOLOGIN_ENABLE
+                ? AuthProviderEnum::AUTOLOGIN
+                : ($authenticationType === self::AUTH_TYPE_LDAP
+                    ? AuthProviderEnum::LDAP
+                    : AuthProviderEnum::LOCAL);
             LoggerAuthentication::create()->loginFailure(
                 sprintf(
                     "[%s] [%s] Authentication failed for '%s' : %s",

@@ -598,7 +598,8 @@ class CentreonAPI
                 $this->exitOnInvalidCredentials(
                     (int) $row['login_attempts'],
                     (int) $securityPolicy['attempts'],
-                    (int) $securityPolicy['blocking_duration']
+                    (int) $securityPolicy['blocking_duration'],
+                    isset($row['contact_id']) ? (int) $row['contact_id'] : null
                 );
             }
         }
@@ -1365,6 +1366,7 @@ class CentreonAPI
         int $contactLoginAttempts,
         int $securityPolicyAttempts,
         int $blockingDuration,
+        ?int $contactId = null,
     ): void {
         $loginAttempts = $this->incrementLoginAttempts($contactLoginAttempts);
         if ($loginAttempts === $securityPolicyAttempts) {
@@ -1373,7 +1375,7 @@ class CentreonAPI
             LoggerAuthentication::create()->loginFailure(
                 "Authentication failed. Max attempts has been reached, User can't login for "
                 . "{$blockingDuration} seconds.",
-                null,
+                $contactId,
                 AuthProviderEnum::CLAPI
             );
 
@@ -1383,7 +1385,7 @@ class CentreonAPI
         echo "Authentication failed.\n";
         LoggerAuthentication::create()->loginFailure(
             "Authentication failed. {$attemptRemaining} attempt(s) remaining",
-            null,
+            $contactId,
             AuthProviderEnum::CLAPI
         );
 
