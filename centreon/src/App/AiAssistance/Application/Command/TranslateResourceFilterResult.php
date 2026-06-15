@@ -26,7 +26,10 @@ namespace App\AiAssistance\Application\Command;
 final readonly class TranslateResourceFilterResult
 {
     public function __construct(
-        /** What the user wants: 'filter' (list a set) or 'explain' (analyse). */
+        /**
+         * What the user wants: 'filter' (list a set), 'explain' (analyse), or
+         * 'unsupported' (the request is unrelated to the monitored resources).
+         */
         public string $intent,
         /**
          * For 'filter': the search expression (empty when none could be derived).

@@ -25195,6 +25195,11 @@ msgid "AI could not translate this description into a filter"
 msgstr "L'IA n'a pas pu traduire cette description en filtre"
 
 #: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
+msgid "Ask AI only helps filter or explain monitored resources"
+msgstr ""
+"Ask AI ne peut qu'aider à filtrer ou expliquer les ressources supervisées"
+
+#: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
 msgid "No resources to explain"
 msgstr "Aucune ressource à expliquer"
 

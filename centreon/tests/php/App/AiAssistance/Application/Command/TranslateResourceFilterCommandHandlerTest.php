@@ -78,6 +78,22 @@ final class TranslateResourceFilterCommandHandlerTest extends TestCase
         self::assertSame('type:host name:db', $result->query);
     }
 
+    public function testUnsupportedIntentIsAcceptedAsIs(): void
+    {
+        $client = $this->clientAnswering(
+            '{"intent": "unsupported", "query": "", "scope": null}'
+        );
+        $handler = new TranslateResourceFilterCommandHandler(new FakeLlmClientFactory($client));
+
+        $result = $handler(new TranslateResourceFilterCommand('what time is it?'));
+
+        self::assertSame('unsupported', $result->intent);
+        self::assertSame('', $result->query);
+        self::assertNull($result->scope);
+        // a valid answer needs no correction round-trip
+        self::assertCount(1, $client->requests);
+    }
+
     public function testUsesTheFastTier(): void
     {
         $client = $this->clientAnswering('{"intent": "filter", "query": "", "scope": "query"}');

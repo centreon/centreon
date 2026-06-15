@@ -51,7 +51,8 @@ final readonly class TranslateResourceFilterResource
 {
     public function __construct(
         #[ApiProperty(
-            description: 'What the user wants: "filter" (list a set) or "explain" (analyse)',
+            description: 'What the user wants: "filter" (list a set), "explain" (analyse), or '
+                . '"unsupported" (request unrelated to the monitored resources)',
             writable: false,
             openapiContext: ['example' => 'filter'],
         )]

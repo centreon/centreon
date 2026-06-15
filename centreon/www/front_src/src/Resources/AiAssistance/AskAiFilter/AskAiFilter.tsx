@@ -33,6 +33,7 @@ import {
   labelAskAiApply,
   labelAskAiDisclaimer,
   labelAskAiPlaceholder,
+  labelAskAiUnsupported,
   labelNoResourcesToExplain
 } from '../translatedLabels';
 import useAiAvailability from '../useAiAvailability';
@@ -185,6 +186,12 @@ const AskAiFilter = (): JSX.Element | null => {
     translate(trimmedPrompt, search).then((translation) => {
       if (translation === null) {
         showWarningMessage(t(labelAiCouldNotTranslate));
+
+        return;
+      }
+
+      if (translation.intent === 'unsupported') {
+        showWarningMessage(t(labelAskAiUnsupported));
 
         return;
       }

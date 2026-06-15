@@ -6,6 +6,8 @@ export const labelAskAiDisclaimer =
   'AI-generated and may be incorrect. A question may also change the filter.';
 export const labelAiCouldNotTranslate =
   'AI could not translate this description into a filter';
+export const labelAskAiUnsupported =
+  'Ask AI only helps filter or explain monitored resources';
 export const labelNoResourcesToExplain = 'No resources to explain';
 
 export const labelExplain = 'Explain';

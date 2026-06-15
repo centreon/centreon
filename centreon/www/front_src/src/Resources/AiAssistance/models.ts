@@ -1,5 +1,5 @@
 export interface TranslateResourceFilterResult {
-  intent: 'filter' | 'explain';
+  intent: 'filter' | 'explain' | 'unsupported';
   query: string;
   scope: 'current' | 'query' | null;
 }
