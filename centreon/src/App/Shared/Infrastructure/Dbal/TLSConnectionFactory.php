@@ -28,8 +28,12 @@ use Doctrine\Bundle\DoctrineBundle\ConnectionFactory;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 use Symfony\Component\DependencyInjection\Attribute\AsDecorator;
 
+/**
+ * @phpstan-import-type Params from DriverManager
+ */
 #[AsDecorator('doctrine.dbal.connection_factory')]
 class TLSConnectionFactory
 {
@@ -39,19 +43,20 @@ class TLSConnectionFactory
     }
 
     /**
-     * @phpstan-param array<string, mixed> $params
+     * @phpstan-param Params $params
      * @param array<string, string> $mappingTypes
      */
     public function createConnection(array $params, Configuration|null $config = null, EventManager|null $eventManager = null, array $mappingTypes = []): Connection
     {
         $tlsOptions = DatabaseTLSResolver::getTLSOptions();
-        /** @var array<int, mixed> $driverOptions */
+        /** @var array<mixed> $driverOptions */
         $driverOptions = $params['driverOptions'] ?? [];
         foreach ($tlsOptions as $optionKey => $optionValue) {
             $driverOptions[$optionKey] = $optionValue;
         }
         $params['driverOptions'] = $driverOptions;
 
+        /** @var Params $params */
         return $this->inner->createConnection($params, $config, $eventManager, $mappingTypes);
     }
 }
