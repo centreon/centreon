@@ -549,27 +549,92 @@ function runVmInstall() {
   consoleTitle "Checking prerequisites:"
   _vmCheckRoot
   _vmDetectDistribution
-  _vmCheckRam
-  _vmCheckNetwork
 
-  echo ""
-  consoleTitle "Installing Centreon packages:"
-  _vmInstallPowertools
-  _vmInstallRepo
-  _vmInstallPackages
+  if _vmIsInstalled; then
+    local installed_major
+    installed_major=$(_vmGetInstalledMajor)
 
-  echo ""
-  consoleTitle "Configuring poller:"
-  _vmConfigureGorgone
-  _vmConfigureEngineContext
+    echo ""
+    consoleTitle "Existing installation detected (major: ${installed_major:-unknown}):"
 
-  echo ""
-  consoleTitle "Starting services:"
-  _vmEnableServices
-  _vmStartServices
+    if [ -n "${installed_major}" ] && [ "${installed_major}" != "${major}" ]; then
+      consoleInfo "Major version change: ${installed_major} → ${major}"
+      _vmUpdateRepo
+    else
+      consoleInfo "Repository already at major ${major}, no repo update needed"
+    fi
 
-  echo ""
-  consoleInfo "Poller successfully installed and started."
+    echo ""
+    consoleTitle "Updating Centreon packages:"
+    _vmInstallPackages
+
+    echo ""
+    consoleTitle "Starting services:"
+    _vmEnableServices
+    _vmStartServices
+
+    echo ""
+    consoleInfo "Poller successfully updated."
+  else
+    _vmCheckRam
+    _vmCheckNetwork
+
+    echo ""
+    consoleTitle "Installing Centreon packages:"
+    _vmInstallPowertools
+    _vmInstallRepo
+    _vmInstallPackages
+
+    echo ""
+    consoleTitle "Configuring poller:"
+    _vmConfigureGorgone
+    _vmConfigureEngineContext
+
+    echo ""
+    consoleTitle "Starting services:"
+    _vmEnableServices
+    _vmStartServices
+
+    echo ""
+    consoleInfo "Poller successfully installed and started."
+  fi
+}
+
+function _vmIsInstalled() {
+  if [ "${_PKG_COMMAND}" = "dnf" ]; then
+    rpm -q centreon-poller &>/dev/null
+  else
+    dpkg -l centreon-poller 2>/dev/null | grep -q '^ii'
+  fi
+}
+
+function _vmGetInstalledMajor() {
+  local pkg_version
+  if [ "${_PKG_COMMAND}" = "dnf" ]; then
+    pkg_version=$(rpm -q --queryformat '%{VERSION}' centreon-poller 2>/dev/null)
+  else
+    pkg_version=$(dpkg-query -W -f='${Version}' centreon-poller 2>/dev/null)
+  fi
+  echo "${pkg_version}" | grep -oE '^[0-9]+\.[0-9]+'
+}
+
+function _vmUpdateRepo() {
+  consoleInfo "Updating Centreon repository to ${major}"
+  logInfo "Updating Centreon repository to ${major}"
+
+  if [ "${_PKG_COMMAND}" = "dnf" ]; then
+    rm -f /etc/yum.repos.d/centreon-*.repo
+    commandExitOnError "Cannot add Centreon ${major} repository" \
+      dnf config-manager --add-repo \
+        "https://packages.centreon.com/rpm-standard/${major}/el9/centreon-${major}.repo"
+    dnf clean all
+  else
+    local codename
+    codename=$(lsb_release -sc)
+    echo "deb https://packages.centreon.com/apt-standard/ ${codename}-${major}-stable main" \
+      | tee /etc/apt/sources.list.d/centreon-stable.list > /dev/null
+    commandExitOnError "Cannot update apt repositories" apt update
+  fi
 }
 
 function _vmCheckRoot() {
