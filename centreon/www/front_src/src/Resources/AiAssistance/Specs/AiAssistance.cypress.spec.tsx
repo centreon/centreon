@@ -9,7 +9,6 @@ import { searchAtom } from '../../Filter/filterAtoms';
 import { Resource } from '../../models';
 import AnalyzeResources from '../AnalyzeResources/AnalyzeResources';
 import AskAiFilter from '../AskAiFilter/AskAiFilter';
-import ExplainResource from '../ExplainResource/ExplainResource';
 import {
   aiAlertCorrelationEndpoint,
   aiAvailabilityEndpoint,
@@ -108,75 +107,6 @@ describe('AskAiFilter', () => {
     cy.waitForRequest('@translateFilter');
 
     cy.contains(labelAiCouldNotTranslate);
-  });
-});
-
-describe('ExplainResource', () => {
-  const details = {
-    command_line: 'check_icmp -H 10.0.0.1 -w 200,20% -c 500,60%',
-    duration: '2h 31m',
-    information: 'CRITICAL - Packet loss = 100%',
-    name: 'Ping',
-    parent: { id: 1, name: 'db-server-01' },
-    performance_data: 'rta=0.000ms;200;500;0;',
-    status: { name: 'CRITICAL', severity_code: 1 },
-    tries: '3/3 (Hard)',
-    type: 'service'
-  } as unknown as ResourceDetails;
-
-  it('displays the explanation in a dialog', () => {
-    cy.interceptAPIRequest({
-      alias: 'explainResource',
-      method: Method.POST,
-      path: `**${aiResourceExplanationEndpoint}`,
-      response: {
-        explanation: '## What this means\n\n- The ping check lost all packets.',
-        model: 'claude-sonnet-4-6'
-      }
-    });
-
-    initializeComponent(<ExplainResource details={details} />);
-
-    cy.findByTestId(labelExplain).click();
-
-    cy.waitForRequest('@explainResource').then(({ request }) => {
-      expect(request.body.name).to.equal('Ping');
-      expect(request.body.resource_type).to.equal('service');
-      expect(request.body.status).to.equal('CRITICAL');
-      expect(request.body.information).to.equal(
-        'CRITICAL - Packet loss = 100%'
-      );
-      expect(request.body.parent_name).to.equal('db-server-01');
-    });
-
-    cy.contains('The ping check lost all packets');
-    cy.contains('claude-sonnet-4-6');
-    // the title carries the host so a service is unambiguous
-    cy.contains('on db-server-01');
-
-    cy.makeSnapshot();
-  });
-
-  it('is hidden when no AI provider is enabled', () => {
-    initializeComponent(<ExplainResource details={details} />, {
-      is_available: false,
-      reason: 'no_provider'
-    });
-
-    cy.waitForRequest('@getAiAvailability');
-
-    cy.findByTestId(labelExplain).should('not.exist');
-  });
-
-  it('is visible but disabled when the AI budget is exhausted', () => {
-    initializeComponent(<ExplainResource details={details} />, {
-      is_available: false,
-      reason: 'budget_exhausted'
-    });
-
-    cy.waitForRequest('@getAiAvailability');
-
-    cy.findByTestId(labelExplain).should('be.visible').and('be.disabled');
   });
 });
 
@@ -354,12 +284,55 @@ describe('AnalyzeResources', () => {
     cy.makeSnapshot();
   });
 
-  it('disables the action with fewer than two resources', () => {
+  it('explains a single selected resource through the explanation feature', () => {
+    cy.interceptAPIRequest({
+      alias: 'explainResource',
+      method: Method.POST,
+      path: `**${aiResourceExplanationEndpoint}`,
+      response: {
+        explanation: '## What this means\n\n- The ping check lost all packets.',
+        model: 'claude-sonnet-4-6'
+      }
+    });
+
     initializeComponent(<AnalyzeResources resources={[resources[0]]} />);
+
+    // a single resource turns the action into the explain feature
+    cy.findByTestId(labelExplain).click();
+
+    cy.waitForRequest('@explainResource').then(({ request }) => {
+      expect(request.body.name).to.equal('Ping');
+      expect(request.body.resource_type).to.equal('service');
+      expect(request.body.status).to.equal('CRITICAL');
+      expect(request.body.information).to.equal(
+        'CRITICAL - Packet loss = 100%'
+      );
+      expect(request.body.parent_name).to.equal('db-server-01');
+    });
+
+    cy.contains('The ping check lost all packets');
+    cy.contains('claude-sonnet-4-6');
+    // a single resource reuses the explanation dialog, host in the title
+    cy.contains('on db-server-01');
+  });
+
+  it('disables the action when no resource is selected', () => {
+    initializeComponent(<AnalyzeResources resources={[]} />);
 
     cy.waitForRequest('@getAiAvailability');
 
     cy.findByTestId(labelAnalyze).should('be.disabled');
+  });
+
+  it('is visible but disabled when the AI budget is exhausted', () => {
+    initializeComponent(<AnalyzeResources resources={resources} />, {
+      is_available: false,
+      reason: 'budget_exhausted'
+    });
+
+    cy.waitForRequest('@getAiAvailability');
+
+    cy.findByTestId(labelAnalyze).should('be.visible').and('be.disabled');
   });
 
   it('is hidden when no AI provider is enabled', () => {
