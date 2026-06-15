@@ -35,6 +35,15 @@ beforeEach(() => {
 });
 
 Given('a user logged in with the Europe\\/Paris timezone', () => {
+  // Match the step wording: the logged-in user is in Europe/Paris. Kept aligned
+  // with the DST recurrent test so identical step text behaves identically.
+  cy.executeActionViaClapi({
+    bodyContent: {
+      action: 'SETPARAM',
+      object: 'CONTACT',
+      values: 'admin;timezone;Europe/Paris'
+    }
+  });
   // The recurrent-downtime cron resolves the period in the host timezone; set it
   // to Europe/Paris so "now" (the faked clock) and the period agree.
   cy.executeActionViaClapi({
