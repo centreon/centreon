@@ -2714,7 +2714,7 @@ CREATE TABLE IF NOT EXISTS `ai_provider_usage_log` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the usage log entry',
   `ai_provider_id` INT UNSIGNED DEFAULT NULL COMMENT 'AI provider configuration that served the request',
   `provider_name` varchar(255) NOT NULL COMMENT 'Name of the provider at the time of the request (snapshot)',
-  `feature` enum('resource_filter','resource_explanation','incident_summary','connection_test') NOT NULL COMMENT 'AI feature that triggered the request',
+  `feature` VARCHAR(50) NOT NULL COMMENT 'AI feature that triggered the request (an AiFeatureEnum value)',
   `contact_id` int(11) DEFAULT NULL COMMENT 'Contact that triggered the request',
   `model` varchar(255) NOT NULL COMMENT 'Model that served the request',
   `tier` enum('default','fast') NOT NULL COMMENT 'Model tier used for the request',
