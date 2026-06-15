@@ -310,8 +310,11 @@ const ResourceActionsButtons = ({
             />
           </div>
         )}
-        <div className={classes.action}>
-          <AnalyzeResources resources={resources} />
+        <div className={cx({ [classes.action]: !displayCondensed })}>
+          <AnalyzeResources
+            displayCondensed={displayCondensed}
+            resources={resources}
+          />
         </div>
         {resourcesToAcknowledge.length > 0 && (
           <AcknowledgeForm

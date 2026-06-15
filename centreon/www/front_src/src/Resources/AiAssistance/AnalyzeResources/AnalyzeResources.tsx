@@ -10,6 +10,8 @@ import {
   Typography
 } from '@mui/material';
 
+import { IconButton } from '@centreon/ui';
+
 import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
@@ -49,13 +51,17 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 interface Props {
+  displayCondensed?: boolean;
   resources: Array<Resource>;
 }
 
 // correlation needs at least two resources to look for a common cause
 const minResources = 2;
 
-const AnalyzeResources = ({ resources }: Props): JSX.Element | null => {
+const AnalyzeResources = ({
+  resources,
+  displayCondensed = false
+}: Props): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
@@ -100,19 +106,34 @@ const AnalyzeResources = ({ resources }: Props): JSX.Element | null => {
 
   return (
     <>
-      <Tooltip title={t(getTooltip())}>
-        <span>
-          <Button
-            data-testid={labelAnalyze}
-            disabled={disabled}
-            onClick={openAnalysis}
-            size="small"
-            startIcon={<AutoAwesomeIcon />}
-          >
-            {t(labelAnalyze)}
-          </Button>
-        </span>
-      </Tooltip>
+      {displayCondensed ? (
+        <IconButton
+          ariaLabel={t(labelAnalyze)}
+          data-testid={labelAnalyze}
+          disabled={disabled}
+          onClick={openAnalysis}
+          size="large"
+          title={t(getTooltip())}
+        >
+          <AutoAwesomeIcon />
+        </IconButton>
+      ) : (
+        <Tooltip title={t(getTooltip())}>
+          <span>
+            <Button
+              color="primary"
+              data-testid={labelAnalyze}
+              disabled={disabled}
+              onClick={openAnalysis}
+              size="small"
+              startIcon={<AutoAwesomeIcon />}
+              variant="contained"
+            >
+              {t(labelAnalyze)}
+            </Button>
+          </span>
+        </Tooltip>
+      )}
       <Dialog
         fullWidth
         maxWidth="sm"
