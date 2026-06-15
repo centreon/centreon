@@ -77,38 +77,24 @@ for ARCH in noarch x86_64; do
     pulp rpm distribution create --name "$REPOSITORY_NAME" --base-path "$BASE_PATH" --repository "$REPOSITORY_NAME" >/dev/null
   fi
 
-  # Upload the packages without associating them to the repository, then add them
-  # all in a single repository modification: this creates one repository version
-  # for the whole batch instead of one per package. Packages are labeled with
-  # their module so that promote-to-stable can identify them; pulp-cli does not
-  # allow to set labels on upload so the api is used directly.
-  CONTENT="[]"
+  REPOSITORY_HREF=$(pulp rpm repository show --name "$REPOSITORY_NAME" | jq -r '.pulp_href')
+
+  # Packages are uploaded straight into the repository: pulpcore requires
+  # non-admin accounts to provide the destination repository on content upload,
+  # so the upload cannot be decoupled from the repository association. Packages
+  # are labeled with their module so that promote-to-stable can identify them;
+  # pulp-cli does not allow to set labels on upload so the api is used directly.
   for FILE in "${ARCH_FILES[@]}"; do
-    echo "[INFO] Uploading $(basename "$FILE") (module $MODULE_NAME)"
+    echo "[INFO] Uploading $(basename "$FILE") to $REPOSITORY_NAME (module $MODULE_NAME)"
     TASK_HREF=$(
       pulp_upload \
         -F "file=@$FILE" \
+        -F "repository=$REPOSITORY_HREF" \
         -F "pulp_labels={\"module\": \"$MODULE_NAME\"}" \
         "$PULP_URL/api/v3/content/rpm/packages/"
     )
     wait_task "$TASK_HREF"
-    PACKAGE_HREF=$(
-      curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" "$PULP_URL$TASK_HREF" | \
-        jq -r '.created_resources[] | select(contains("/content/rpm/packages/"))'
-    )
-    CONTENT=$(echo "$CONTENT" | jq --arg href "$PACKAGE_HREF" '. + [$href]')
   done
-
-  REPOSITORY_HREF=$(pulp rpm repository show --name "$REPOSITORY_NAME" | jq -r '.pulp_href')
-
-  echo "[INFO] Adding ${#ARCH_FILES[@]} packages to repository $REPOSITORY_NAME"
-  MODIFY_TASK_HREF=$(
-    curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" \
-      -X POST -H "Content-Type: application/json" \
-      -d "{\"add_content_units\": $CONTENT}" \
-      "$PULP_URL${REPOSITORY_HREF}modify/" | jq -r '.task'
-  )
-  wait_task "$MODIFY_TASK_HREF"
 
   echo "[INFO] Publishing repository $REPOSITORY_NAME"
   pulp rpm publication create --repository "$REPOSITORY_NAME" >/dev/null
