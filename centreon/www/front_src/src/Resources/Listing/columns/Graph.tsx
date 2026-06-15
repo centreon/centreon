@@ -1,3 +1,4 @@
+import IconSegment from '@mui/icons-material/Segment';
 import IconGraph from '@mui/icons-material/BarChart';
 import { Paper } from '@mui/material';
 
@@ -107,7 +108,7 @@ const Graph = ({ row, endpoint }: GraphProps): ReactElement => {
 };
 
 const renderChip =
-  ({ onClick, label, className }) =>
+  ({ onClick, label, className, Icon }) =>
   (): ReactElement => (
     <IconButton
       ariaLabel={label}
@@ -115,8 +116,10 @@ const renderChip =
       onClick={onClick}
       size="small"
       title={label}
+      tooltipEnterDelay={300}
+      tooltipPlacement="left"
     >
-      <IconGraph fontSize="small" />
+      <Icon fontSize="small" />
     </IconButton>
   );
 
@@ -147,12 +150,14 @@ const GraphColumn = ({
     }
 
     const label = isHost ? labelServiceGraphs : labelGraph;
+    const Icon = isHost ? IconSegment : IconGraph;
 
     return (
       <IconColumn>
         <HoverChip
           Chip={renderChip({
             className: classes.button,
+            Icon,
             label,
             onClick: () => onClick(row)
           })}

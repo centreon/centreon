@@ -24,6 +24,7 @@ type Props = {
   onClick: (event) => void;
   title?: string | JSX.Element;
   tooltipClassName?: string;
+  tooltipEnterDelay?: number;
   tooltipPlacement?:
     | 'bottom'
     | 'left'
@@ -44,6 +45,7 @@ export const IconButton = ({
   ariaLabel,
   className,
   dataTestid,
+  tooltipEnterDelay,
   tooltipPlacement,
   tooltipClassName,
   ...props
@@ -53,6 +55,8 @@ export const IconButton = ({
   return (
     <Tooltip
       classes={{ tooltip: cx(classes.tooltip, tooltipClassName) }}
+      enterDelay={tooltipEnterDelay}
+      enterNextDelay={tooltipEnterDelay}
       placement={tooltipPlacement}
       title={title}
     >
