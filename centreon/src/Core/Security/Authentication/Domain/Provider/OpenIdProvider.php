@@ -763,11 +763,19 @@ class OpenIdProvider implements OpenIdProviderInterface
             }
         }
 
-        foreach ($authenticationConditions->getTrustedClientAddresses() as $trustedClientAddress) {
-            if (
-                $trustedClientAddress !== ''
-                && preg_match('/' . $trustedClientAddress . '/', $clientIp)
-            ) {
+        $trustedClientAddresses = array_filter(
+            $authenticationConditions->getTrustedClientAddresses(),
+            static fn (string $trustedClientAddress): bool => $trustedClientAddress !== ''
+        );
+        if ($trustedClientAddresses !== []) {
+            $isTrusted = false;
+            foreach ($trustedClientAddresses as $trustedClientAddress) {
+                if (preg_match('/' . $trustedClientAddress . '/', $clientIp)) {
+                    $isTrusted = true;
+                    break;
+                }
+            }
+            if (! $isTrusted) {
                 LoggerAuthentication::create()->loginFailure(
                     'Client IP is not whitelisted',
                     null,
