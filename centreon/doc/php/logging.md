@@ -845,7 +845,7 @@ LoggerAuthentication::create()->forbidden(
 
 ### Application layer (DDD)
 
-The DDD scope (`src/App/...`) calls `LoggerAuthentication` directly the same way as the legacy code — Application is allowed to depend on `Adaptation\Log\*` because that namespace is the platform-side wrapper, not a third-party I/O. If a particular use case wants strict DIP (Application depending on an abstraction, Infrastructure providing the adapter), follow the `UpgradeLoggerInterface` / `LoggerUpgradeAdapter` pattern described in [§11 of the upgrade flow doc] — define an `AuthenticationLoggerInterface` in `App\<Bounded>\Application\Logger\` and a `LoggerAuthenticationAdapter` in `App\<Bounded>\Infrastructure\Logger\` that delegates to the facade.
+The DDD scope (`src/App/...`) calls `LoggerAuthentication` directly the same way as the legacy code — Application is allowed to depend on `Adaptation\Log\*` because that namespace is the platform-side wrapper, not a third-party I/O. If a particular use case wants strict DIP (Application staying free of any logger dependency, Infrastructure doing the logging), follow the upgrade flow's design (see [§13](#13-writing-upgrade-scripts-update-php)): the use case / repository dispatches `Upgrade*` / `UpgradeStep*` domain events and an Infrastructure event listener (`LogUpgradeListener`) translates them into `LoggerUpgrade` calls, so the Application layer never references the logger facade at all.
 
 ### Sample output
 
@@ -894,7 +894,7 @@ But fail2ban jails are bound to a **file path** (`logpath = /var/log/centreon/lo
 
 ## 13. Writing upgrade scripts (`Update-*.php`)
 
-Each upgrade ships under `www/install/php/Update-<version>.php` (DB DDL/DML + business migration) and runs inside `DbWriteUpdateRepository` (legacy kernel) or `DbalUpdateRepository` (DDD kernel). Both wrap the script with an `executeStep('php_script', …)` helper that emits a `step` / `stepFailure` event around the inclusion. **Inside the script itself, trace each meaningful action through `LoggerUpgrade` so operators get a play-by-play view in `prod.upgrade.log`.**
+Each upgrade ships under `www/install/php/Update-<version>.php` (DB DDL/DML + business migration) and runs inside `DbWriteUpdateRepository` (legacy kernel) or `DbalUpdateRepository` (DDD kernel). Both bracket the `php_script` step around the inclusion, by different means: the legacy repository through its `executeStep()` helper, which calls `LoggerUpgrade` inline; the DDD repository through `runStep()`, which dispatches `UpgradeStep*` domain events that `LogUpgradeListener` then turns into `LoggerUpgrade` calls. **Inside the script itself, trace each meaningful action through `LoggerUpgrade` so operators get a play-by-play view in `prod.upgrade.log`.**
 
 ### Facade API
 
@@ -1027,22 +1027,22 @@ upgrade.INFO: Upgrade started from 25.10.0 to 25.11.0
   {"event":"upgrade.start","status":"started","from_version":"25.10.0","to_version":"25.11.0"}
 
 upgrade.INFO: Starting step 'php_script'
-  {"event":"upgrade.step","status":"running","step":"php_script","to_version":"25.11.0"}
+  {"event":"upgrade.step","status":"running","from_version":null,"to_version":"25.11.0","step":"php_script"}
 
 upgrade.INFO: Starting upgrade script for version 25.11.0
-  {"event":"upgrade.info","status":"info","to_version":"25.11.0"}
+  {"event":"upgrade.info","status":"info","from_version":null,"to_version":"25.11.0"}
 
 upgrade.INFO: Adding vmware_updated field into nagios_server table
-  {"event":"upgrade.info","status":"info","to_version":"25.11.0"}
+  {"event":"upgrade.info","status":"info","from_version":null,"to_version":"25.11.0"}
 
 upgrade.INFO: Successfully added vmware_updated field into nagios_server table
-  {"event":"upgrade.info","status":"info","to_version":"25.11.0"}
+  {"event":"upgrade.info","status":"info","from_version":null,"to_version":"25.11.0"}
 
 upgrade.INFO: Upgrade script for version 25.11.0 completed
-  {"event":"upgrade.info","status":"info","to_version":"25.11.0"}
+  {"event":"upgrade.info","status":"info","from_version":null,"to_version":"25.11.0"}
 
 upgrade.INFO: Step 'php_script' completed in 124ms
-  {"event":"upgrade.step","status":"running","step":"php_script","to_version":"25.11.0"}
+  {"event":"upgrade.step","status":"running","from_version":null,"to_version":"25.11.0","step":"php_script"}
 
 upgrade.INFO: Upgrade from 25.10.0 to 25.11.0 completed successfully
   {"event":"upgrade.success","status":"success","from_version":"25.10.0","to_version":"25.11.0","duration_ms":4242}
@@ -1055,7 +1055,7 @@ upgrade.INFO: Adding vmware_updated field into nagios_server table
   {"event":"upgrade.info",...}
 
 upgrade.ERROR: UPGRADE - 25.11.0: Unable to add vmware_updated field into nagios_server table
-  {"event":"upgrade.step_failure","status":"failure","step":"php_script","exception":{"exceptions":[{"type":"PDOException","message":"…","file":"…","line":42}]}}
+  {"event":"upgrade.step_failure","status":"failure","from_version":null,"to_version":"25.11.0","exception":{"exceptions":[{"type":"PDOException","message":"…","file":"…","line":42}]},"step":"php_script"}
 
 upgrade.INFO: Rolling back transaction after error: Unable to add vmware_updated field into nagios_server table
   {"event":"upgrade.info",...}
