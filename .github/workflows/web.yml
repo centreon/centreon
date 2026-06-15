@@ -658,10 +658,10 @@ jobs:
           path: centreon/.phpstan-cache
           # Unique per run (sha) so the evolving result cache is re-saved every run;
           # head_ref is the real branch name on pull_request (ref_name would be "N/merge").
-          key: phpstan-cache-${{ github.head_ref || github.ref_name }}-${{ github.sha }}
+          key: phpstan-cache-web-${{ github.head_ref || github.ref_name }}-${{ github.sha }}
           restore-keys: |
-            phpstan-cache-${{ github.head_ref || github.ref_name }}-
-            phpstan-cache-
+            phpstan-cache-web-${{ github.head_ref || github.ref_name }}-
+            phpstan-cache-web-
 
       - name: 🔍 PHPStan checks
         working-directory: centreon
