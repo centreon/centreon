@@ -296,6 +296,16 @@ describe('SummarizeIncident', () => {
       expect(request.body.is_truncated).to.equal(true);
     });
   });
+
+  it('disables the action when the timeline has no recent events', () => {
+    initializeComponent(
+      <SummarizeIncident details={details} hasRecentEvents={false} />
+    );
+
+    cy.waitForRequest('@getAiAvailability');
+
+    cy.findByTestId(labelSummarize).should('be.disabled');
+  });
 });
 
 describe('AnalyzeResources', () => {

@@ -62,6 +62,11 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
 
   const [displayCommentArea, setDisplayCommentArea] = useState(false);
 
+  // null until the first listing resolves; drives the AI summary button state
+  const [hasTimelineEvents, setHasTimelineEvents] = useState<boolean | null>(
+    null
+  );
+
   const { sendRequest, sending } = useRequest<TimelineListing>({
     decoder: listTimelineEventsDecoder,
     request: listTimelineEvents
@@ -109,6 +114,10 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
         page: atPage,
         search: getSearch()
       }
+    }).then((listing) => {
+      setHasTimelineEvents(listing.meta.total > 0);
+
+      return listing;
     });
   };
 
@@ -164,7 +173,12 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
                 timelineDownloadEndpoint={timelineDownloadEndpoint as string}
               />
             )}
-            {details && <SummarizeIncident details={details} />}
+            {details && (
+              <SummarizeIncident
+                details={details}
+                hasRecentEvents={hasTimelineEvents}
+              />
+            )}
           </div>
           {enableCommentArea && (
             <AddCommentArea

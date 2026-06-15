@@ -25,6 +25,7 @@ import {
   labelClose,
   labelCopy,
   labelGeneratedBy,
+  labelNoRecentEvents,
   labelOnHost,
   labelSummarize,
   labelSummaryCopied,
@@ -54,9 +55,15 @@ const useStyles = makeStyles()((theme) => ({
 
 interface Props {
   details: ResourceDetails;
+  // null while the timeline listing is still loading: keep the action enabled
+  // until we know there is nothing in the window to summarize
+  hasRecentEvents?: boolean | null;
 }
 
-const SummarizeIncident = ({ details }: Props): JSX.Element | null => {
+const SummarizeIncident = ({
+  details,
+  hasRecentEvents = null
+}: Props): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
@@ -73,6 +80,22 @@ const SummarizeIncident = ({ details }: Props): JSX.Element | null => {
   if (!isConfigured) {
     return null;
   }
+
+  // hasRecentEvents is null until the timeline loads; only disable once we
+  // know the window is empty, so the action is not blocked while loading
+  const hasNoRecentEvents = hasRecentEvents === false;
+  const disabled = isBudgetExhausted || hasNoRecentEvents;
+
+  const getTooltip = (): string => {
+    if (isBudgetExhausted) {
+      return labelAiBudgetExhausted;
+    }
+    if (hasNoRecentEvents) {
+      return labelNoRecentEvents;
+    }
+
+    return '';
+  };
 
   const openSummary = (): void => {
     setResult(null);
@@ -91,11 +114,11 @@ const SummarizeIncident = ({ details }: Props): JSX.Element | null => {
 
   return (
     <>
-      <Tooltip title={isBudgetExhausted ? t(labelAiBudgetExhausted) : ''}>
+      <Tooltip title={t(getTooltip())}>
         <span>
           <Button
             data-testid={labelSummarize}
-            disabled={isBudgetExhausted}
+            disabled={disabled}
             onClick={openSummary}
             size="small"
             startIcon={<AutoAwesomeIcon />}
