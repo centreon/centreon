@@ -23,7 +23,11 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Application\UseCase\Login;
 
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Exception\InvalidParameterException;
+use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -65,6 +69,9 @@ final class ThirdPartyLoginForm
      * The value is forwarded to the IDP to get it back after auth.
      *
      * @param Request $request
+     *
+     * @throws BadRequestException
+     * @return string
      */
     public function getReturnUrlBeforeAuth(Request $request): string
     {
@@ -79,6 +86,11 @@ final class ThirdPartyLoginForm
     /**
      * Retrieve the redirectUrl after auth from the IDP information.
      * For SAML, this is the request parameter RelayState.
+     *
+     * @throws InvalidParameterException
+     * @throws MissingMandatoryParametersException
+     * @throws RouteNotFoundException
+     * @return string
      */
     public function getReturnUrlAfterAuth(): string
     {
@@ -91,6 +103,11 @@ final class ThirdPartyLoginForm
 
     /**
      * Tells whether the authentication was initiated by a third party login form in our context.
+     *
+     * @throws InvalidParameterException
+     * @throws MissingMandatoryParametersException
+     * @throws RouteNotFoundException
+     * @return bool
      */
     public function isActive(): bool
     {
@@ -104,7 +121,11 @@ final class ThirdPartyLoginForm
 
         // We want to avoid possible loop redirects because the use of the RelayState in the SAML case is a bit hacky.
         $ourACS = $this->urlGenerator
-            ->generate('centreon_application_authentication_login_saml', [], UrlGeneratorInterface::ABSOLUTE_URL);
+            ->generate(
+                'centreon_application_authentication_login_saml',
+                [],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            );
 
         return $this->isActive = $returnTo !== $ourACS;
     }
