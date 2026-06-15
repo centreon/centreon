@@ -23,6 +23,25 @@ wait_task() {
   done
 }
 
+# upload a package through the pulp api, with retry on transient failures
+# (concurrent deliveries can race on artifact creation), echoes the task href
+pulp_upload() {
+  local attempt response http_code body
+  for attempt in 1 2 3; do
+    response=$(curl -sS -u "$PULP_USERNAME:$PULP_PASSWORD" -w $'\n%{http_code}' "$@" 2>/dev/null) || response=""
+    http_code=${response##*$'\n'}
+    body=${response%$'\n'*}
+    if [[ "$http_code" == "202" ]]; then
+      echo "$body" | jq -r '.task'
+      return 0
+    fi
+    echo "[WARN] upload attempt $attempt/3 failed (HTTP ${http_code:-network-error}), retrying..." >&2
+    sleep $((attempt * 3))
+  done
+  echo "::error::Upload failed after 3 attempts (HTTP ${http_code:-network-error})" >&2
+  return 1
+}
+
 FILES=(*.deb)
 if [[ ${#FILES[@]} -eq 0 ]]; then
   echo "::error::No deb package found to deliver"
@@ -47,14 +66,14 @@ for FILE in "${FILES[@]}"; do
   # which packages belong to this module, pulp-cli does not allow to set labels nor
   # the relative path of deb packages so the api is used directly
   TASK_HREF=$(
-    curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" \
+    pulp_upload \
       -F "file=@$FILE" \
       -F "relative_path=$POOL_PATH/$FILE" \
       -F "distribution=$SUITE" \
       -F "component=main" \
       -F "repository=$REPOSITORY_HREF" \
       -F "pulp_labels={\"module\": \"$MODULE_NAME\"}" \
-      "$PULP_URL/api/v3/content/deb/packages/" | jq -r '.task'
+      "$PULP_URL/api/v3/content/deb/packages/"
   )
   wait_task "$TASK_HREF"
 done
