@@ -752,19 +752,24 @@ Every method emits the same JSON context shape:
   "event": "login.success" | "login.failure" | "logout" | "token.refresh.success" | "token.refresh.failure" | "unauthorized" | "forbidden",
   "status": "success" | "failure",
   "user_id": 42,
-  "provider": "openid",
   "ip_address": "10.0.0.42",
-  "exception": { ... }
+  "provider": "openid",
+  "exception": { ... },
+  "resource": "host:42"
 }
 ```
 
-This shape is the contract — downstream filters and dashboards pin on `event`, `status`, `provider` and `ip_address`. Do not bypass the facade to add ad-hoc top-level keys.
+- **Always present:** `event`, `status`, `user_id` (may be `null` before the user is resolved), and `ip_address` — which is the literal string `"unknown"` when `$_SERVER['REMOTE_ADDR']` is unset, notably for CLI / CLAPI events.
+- **Conditional:** `provider` is omitted for `unauthorized` / `forbidden` (these carry no provider); `exception` appears only on the failure methods when a `Throwable` is passed; `resource` appears only on `forbidden` when a resource is supplied.
+
+This shape is the contract — downstream filters and dashboards pin on `event`, `status`, `ip_address` and (where present) `provider`. Do not bypass the facade to add ad-hoc top-level keys.
 
 ### Recommended pattern in a provider
 
-Inside the legacy auth providers (`src/Core/Security/Authentication/...`), the rule is:
+Inside the auth providers (`src/Core/Security/Authentication/...`), the rule is:
 
-- **Security events** → `LoggerAuthentication::create()->loginFailure(...)` / `loginSuccess(...)` at the exact point the decision is taken (just before throwing the SSO exception).
+- **Login failures** → `LoggerAuthentication::create()->loginFailure(...)` at the exact point the decision is taken (just before throwing the SSO exception), where the user is usually not yet resolved (so `user_id` is `null`).
+- **Login success** → emitted once by the `Login` use case after `findUserOrFail()` resolves the contact, so the event carries the real `user_id`. It is emitted only for the external providers (OpenID / SAML / WebSSO); local and LDAP success is already logged through the legacy `centreonAuth` path, which is excluded there to avoid a duplicate access-log entry.
 - **Technical diagnostics** → `Adaptation\Log\Logger::create(LogChannelEnum::WEB)->info/error(...)` for the surrounding traces (request sent to IdP, JSON decode error, HTTP 5xx). These are not security events; they belong in `prod.web.log`.
 
 ```php
