@@ -21,6 +21,8 @@
 
 use Adaptation\Log\Enum\AuthProviderEnum;
 use Adaptation\Log\LoggerAuthentication;
+use Psr\Log\AbstractLogger;
+use Psr\Log\LogLevel;
 
 beforeEach(function (): void {
     $_SERVER['APP_ENV'] = 'test';
@@ -39,6 +41,113 @@ function loggerAuthLoginLogPath(): string
 {
     return _CENTREON_LOG_ . 'login.log';
 }
+
+/**
+ * Build a facade backed by a recording logger so the Monolog emission (level, message and
+ * context shape) can be asserted without touching the real authentication channel file.
+ * The constructor is private and the facade is a singleton, so the spy is wired through
+ * reflection — this keeps the production API free of any test-only seam.
+ *
+ * @return array{0: LoggerAuthentication, 1: object{records: list<array{level: string, message: string, context: array<string, mixed>}>}}
+ */
+function loggerAuthWithSpy(): array
+{
+    $spy = new class () extends AbstractLogger {
+        /** @var list<array{level: string, message: string, context: array<string, mixed>}> */
+        public array $records = [];
+
+        public function log($level, string|Stringable $message, array $context = []): void
+        {
+            $this->records[] = ['level' => (string) $level, 'message' => (string) $message, 'context' => $context];
+        }
+    };
+
+    $reflection = new ReflectionClass(LoggerAuthentication::class);
+    /** @var LoggerAuthentication $facade */
+    $facade = $reflection->newInstanceWithoutConstructor();
+    $reflection->getProperty('logger')->setValue($facade, $spy);
+
+    return [$facade, $spy];
+}
+
+it('emits a login failure as a WARNING carrying the event, status, provider and null user id', function (): void {
+    [$facade, $spy] = loggerAuthWithSpy();
+
+    $facade->loginFailure('bad credentials', null, AuthProviderEnum::LOCAL);
+
+    expect($spy->records)->toHaveCount(1);
+    $record = $spy->records[0];
+    expect($record['level'])->toBe(LogLevel::WARNING)
+        ->and($record['message'])->toBe('bad credentials')
+        ->and($record['context']['event'])->toBe('login.failure')
+        ->and($record['context']['status'])->toBe('failure')
+        ->and($record['context']['provider'])->toBe('local')
+        ->and($record['context']['user_id'])->toBeNull()
+        ->and($record['context'])->toHaveKey('ip_address')
+        ->and($record['context'])->not->toHaveKey('exception');
+});
+
+it('attaches the throwable to the context when a login failure carries an exception', function (): void {
+    [$facade, $spy] = loggerAuthWithSpy();
+    $exception = new RuntimeException('IdP unreachable');
+
+    $facade->loginFailure('token exchange failed', 7, AuthProviderEnum::OPENID, $exception);
+
+    $record = $spy->records[0];
+    expect($record['context']['user_id'])->toBe(7)
+        ->and($record['context']['provider'])->toBe('openid')
+        ->and($record['context']['exception'])->toBe($exception);
+});
+
+it('emits a login success as an INFO with the resolved user id', function (): void {
+    [$facade, $spy] = loggerAuthWithSpy();
+
+    $facade->loginSuccess('welcome', 42, AuthProviderEnum::SAML);
+
+    $record = $spy->records[0];
+    expect($record['level'])->toBe(LogLevel::INFO)
+        ->and($record['context']['event'])->toBe('login.success')
+        ->and($record['context']['status'])->toBe('success')
+        ->and($record['context']['user_id'])->toBe(42)
+        ->and($record['context']['provider'])->toBe('saml');
+});
+
+it('emits token refresh success and failure on the expected levels and events', function (): void {
+    [$facade, $spy] = loggerAuthWithSpy();
+    $exception = new RuntimeException('refresh refused');
+
+    $facade->tokenRefreshSuccess('refreshed', 9, AuthProviderEnum::OPENID);
+    $facade->tokenRefreshFailure('refresh failed', 9, AuthProviderEnum::OPENID, $exception);
+
+    expect($spy->records[0]['level'])->toBe(LogLevel::INFO)
+        ->and($spy->records[0]['context']['event'])->toBe('token.refresh.success')
+        ->and($spy->records[1]['level'])->toBe(LogLevel::WARNING)
+        ->and($spy->records[1]['context']['event'])->toBe('token.refresh.failure')
+        ->and($spy->records[1]['context']['exception'])->toBe($exception);
+});
+
+it('omits the provider key for authorization events that have no provider', function (): void {
+    [$facade, $spy] = loggerAuthWithSpy();
+
+    $facade->unauthorized('missing bearer token', 13);
+
+    $record = $spy->records[0];
+    expect($record['level'])->toBe(LogLevel::WARNING)
+        ->and($record['context']['event'])->toBe('unauthorized')
+        ->and($record['context']['user_id'])->toBe(13)
+        ->and($record['context'])->not->toHaveKey('provider');
+});
+
+it('adds the resource to the forbidden context only when one is supplied', function (): void {
+    [$facade, $spy] = loggerAuthWithSpy();
+
+    $facade->forbidden('denied on host', 13, 'host:42');
+    $facade->forbidden('denied', 13);
+
+    expect($spy->records[0]['context']['event'])->toBe('forbidden')
+        ->and($spy->records[0]['context']['resource'])->toBe('host:42')
+        ->and($spy->records[1]['context'])->not->toHaveKey('resource');
+});
 
 it('mirrors a login failure to the legacy login.log in the historical pipe format', function (): void {
     $legacyFile = loggerAuthLoginLogPath();
@@ -85,4 +194,20 @@ it('does not mirror non-login lifecycle events to login.log', function (): void 
     LoggerAuthentication::create()->logout('[local] logout', 42, AuthProviderEnum::LOCAL);
 
     expect(file_exists($legacyFile))->toBeFalse();
+});
+
+it('escapes asterisks and strips backticks in the legacy login.log mirror', function (): void {
+    $legacyFile = loggerAuthLoginLogPath();
+    if (file_exists($legacyFile)) {
+        unlink($legacyFile);
+    }
+
+    LoggerAuthentication::create()->loginFailure(
+        'Authentication failed for `a*b`',
+        null,
+        AuthProviderEnum::LOCAL
+    );
+
+    // Backticks are removed and asterisks are escaped, matching legacy centreonAuth output.
+    expect(file_get_contents($legacyFile))->toContain('Authentication failed for a\*b');
 });
