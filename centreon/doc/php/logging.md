@@ -471,7 +471,7 @@ Consequence: every handler using `monolog.formatter.line` (centreon-web + any mo
 | `token` | MON-151077 → dedicated file `prod.token.log`. |
 | `password`, `plugin-pack-manager`, `upgrade` | MON-151077 → dedicated files. Not Monolog channels strictly speaking today (written directly by legacy `CentreonLog` code), but listed in anticipation of a future migration to Monolog. |
 
-> **Backward compatibility — `login.log` is intentionally kept.** Authentication events now flow to the `authentication` channel (`prod.access.log`). To avoid breaking external consumers that parse the historical `/var/log/centreon/login.log` — most notably **fail2ban** jails matching the `Authentication failed for …` line with the client IP — `CentreonUserLog::insertLog()` still mirrors every `TYPE_LOGIN` event to `login.log` in the original pipe-delimited format (`date|uid|page|option|message`). This duplicate write is **transitional**: it is kept on purpose for client compatibility and will be removed in a future release once consumers have migrated to the Monolog access log (cleanup tracked in a dedicated ticket). `login.log` remains covered by `logrotate/centreon`.
+> **Backward compatibility — `login.log` is intentionally kept.** Authentication events now flow to the `authentication` channel (`prod.access.log`). To avoid breaking external consumers that parse the historical `/var/log/centreon/login.log` — most notably **fail2ban** jails matching the `Authentication failed for …` line with the client IP — login events are still mirrored to `login.log` in the original pipe-delimited format (`date|uid|page|option|message`) by **two** writers: `LoggerAuthentication::mirrorToLegacyLoginLog()` for events emitted on the new-kernel path (the OpenID/SAML/WebSSO logins routed through the `Login` use case, and the legacy local/LDAP success/failure now routed through the facade), and `CentreonUserLog::insertLog()` for `TYPE_LOGIN` events still flowing through the legacy code path (e.g. `LoginLogger`). The facade writer is try/catch protected so a mirror failure can never break a login; the legacy `CentreonUserLog` writer is not. This duplicate write is **transitional**: it is kept on purpose for client compatibility and will be removed in a future release once consumers have migrated to the Monolog access log (cleanup tracked in a dedicated ticket). `login.log` remains covered by `logrotate/centreon`.
 
 | Property | Effect |
 |----------|--------|
@@ -862,6 +862,8 @@ authentication.WARNING: No authorization code returned from external provider
 authentication.WARNING: Client IP is blacklisted
   {"event":"login.failure","status":"failure","user_id":null,"provider":"web-sso","ip_address":"10.0.0.42"}
 ```
+
+> The `[local]` success/failure lines above originate from the legacy `centreonAuth` path (`CentreonUserLog` on the `authentication` channel), **not** from `LoggerAuthentication::loginSuccess()`: the `Login` use case deliberately skips local/LDAP to avoid a duplicate entry (see [§12 above](#recommended-pattern-in-a-provider)). The `openid` / `web-sso` lines are the ones emitted through the facade.
 
 `prod.web.log` (same request, technical trace):
 
