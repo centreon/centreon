@@ -6,9 +6,12 @@ import { initReactI18next } from 'react-i18next';
 
 import { ResourceDetails } from '../../Details/models';
 import { searchAtom } from '../../Filter/filterAtoms';
+import { Resource } from '../../models';
+import AnalyzeResources from '../AnalyzeResources/AnalyzeResources';
 import AskAiFilter from '../AskAiFilter/AskAiFilter';
 import ExplainResource from '../ExplainResource/ExplainResource';
 import {
+  aiAlertCorrelationEndpoint,
   aiAvailabilityEndpoint,
   aiIncidentSummaryEndpoint,
   aiResourceExplanationEndpoint,
@@ -17,6 +20,7 @@ import {
 import SummarizeIncident from '../SummarizeIncident/SummarizeIncident';
 import {
   labelAiCouldNotTranslate,
+  labelAnalyze,
   labelAskAi,
   labelAskAiApply,
   labelAskAiPlaceholder,
@@ -291,5 +295,71 @@ describe('SummarizeIncident', () => {
     cy.waitForRequest('@summarizeIncident').then(({ request }) => {
       expect(request.body.is_truncated).to.equal(true);
     });
+  });
+});
+
+describe('AnalyzeResources', () => {
+  const resources = [
+    {
+      duration: '2h 31m',
+      information: 'CRITICAL - Packet loss = 100%',
+      name: 'Ping',
+      parent: { name: 'db-server-01' },
+      status: { name: 'CRITICAL', severity_code: 1 },
+      type: 'service'
+    },
+    {
+      information: 'Host unreachable',
+      name: 'db-server-01',
+      status: { name: 'DOWN', severity_code: 1 },
+      type: 'host'
+    }
+  ] as unknown as Array<Resource>;
+
+  it('analyzes the selected resources together', () => {
+    cy.interceptAPIRequest({
+      alias: 'correlateAlerts',
+      method: Method.POST,
+      path: `**${aiAlertCorrelationEndpoint}`,
+      response: {
+        analysis: '## Likely root cause\n\n- The host db-server-01 is down.',
+        model: 'claude-sonnet-4-6'
+      }
+    });
+
+    initializeComponent(<AnalyzeResources resources={resources} />);
+
+    cy.findByTestId(labelAnalyze).click();
+
+    cy.waitForRequest('@correlateAlerts').then(({ request }) => {
+      expect(request.body.resources).to.have.length(2);
+      expect(request.body.resources[0].resource_type).to.equal('service');
+      expect(request.body.resources[0].parent_name).to.equal('db-server-01');
+      expect(request.body.resources[1].status).to.equal('DOWN');
+    });
+
+    cy.contains('The host db-server-01 is down');
+    cy.contains('claude-sonnet-4-6');
+
+    cy.makeSnapshot();
+  });
+
+  it('disables the action with fewer than two resources', () => {
+    initializeComponent(<AnalyzeResources resources={[resources[0]]} />);
+
+    cy.waitForRequest('@getAiAvailability');
+
+    cy.findByTestId(labelAnalyze).should('be.disabled');
+  });
+
+  it('is hidden when no AI provider is enabled', () => {
+    initializeComponent(<AnalyzeResources resources={resources} />, {
+      is_available: false,
+      reason: 'no_provider'
+    });
+
+    cy.waitForRequest('@getAiAvailability');
+
+    cy.findByTestId(labelAnalyze).should('not.exist');
   });
 });

@@ -25197,6 +25197,31 @@ msgid "Explain"
 msgstr "Expliquer"
 
 #: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
+msgid "Analyze"
+msgstr "Analyser"
+
+#: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
+msgid "AI analysis"
+msgstr "Analyse par IA"
+
+#: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
+msgid "AI-generated from the selected resources: verify before acting."
+msgstr ""
+"Généré par l'IA à partir des ressources sélectionnées : à vérifier avant "
+"d'agir."
+
+#: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
+msgid ""
+"Analyze the selected resources together to surface a likely common cause"
+msgstr ""
+"Analyser ensemble les ressources sélectionnées pour faire ressortir une "
+"cause commune probable"
+
+#: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
+msgid "Select at least two resources to analyze"
+msgstr "Sélectionnez au moins deux ressources à analyser"
+
+#: www/front_src/src/Resources/AiAssistance/translatedLabels.ts
 msgid "AI explanation"
 msgstr "Explication par IA"
 

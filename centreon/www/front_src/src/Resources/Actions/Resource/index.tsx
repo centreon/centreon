@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
+import AnalyzeResources from '../../AiAssistance/AnalyzeResources/AnalyzeResources';
 import AddCommentForm from '../../Graph/Performance/Graph/AddCommentForm';
 import Downtime from '../../icons/Downtime';
 import { type Resource, ResourceType } from '../../models';
@@ -309,6 +310,9 @@ const ResourceActionsButtons = ({
             />
           </div>
         )}
+        <div className={classes.action}>
+          <AnalyzeResources resources={resources} />
+        </div>
         {resourcesToAcknowledge.length > 0 && (
           <AcknowledgeForm
             onClose={cancelAcknowledge}

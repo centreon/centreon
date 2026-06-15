@@ -27,3 +27,12 @@ export const labelNoRecentEvents =
 
 export const labelAiBudgetExhausted =
   'AI budget reached for the current period';
+
+export const labelAnalyze = 'Analyze';
+export const labelAiAnalysis = 'AI analysis';
+export const labelAiAnalysisDisclaimer =
+  'AI-generated from the selected resources: verify before acting.';
+export const labelAnalyzeHint =
+  'Analyze the selected resources together to surface a likely common cause';
+export const labelAnalyzeMinSelection =
+  'Select at least two resources to analyze';

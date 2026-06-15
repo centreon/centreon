@@ -11,3 +11,8 @@ export interface SummarizeIncidentResult {
   model: string;
   summary: string;
 }
+
+export interface CorrelateAlertsResult {
+  analysis: string;
+  model: string;
+}

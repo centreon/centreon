@@ -31,5 +31,6 @@ enum AiFeatureEnum: string
     case ResourceFilter = 'resource_filter';
     case ResourceExplanation = 'resource_explanation';
     case IncidentSummary = 'incident_summary';
+    case AlertCorrelation = 'alert_correlation';
     case ConnectionTest = 'connection_test';
 }
