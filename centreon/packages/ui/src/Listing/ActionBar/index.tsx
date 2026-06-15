@@ -11,16 +11,12 @@ import Tooltip from '@mui/material/Tooltip';
 
 import { ListingVariant, userAtom } from '@centreon/ui-context';
 
-import { useAtomValue } from 'jotai';
-import { equals, isEmpty, isNil, not, pick } from 'ramda';
 import {
   type ChangeEvent,
   type MouseEvent,
   type ReactNode,
   useCallback
 } from 'react';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
 
 import { IconButton, type ListingProps } from '../..';
 import { useMemoComponent } from '../../utils';
