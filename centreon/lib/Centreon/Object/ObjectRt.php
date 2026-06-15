@@ -82,7 +82,7 @@ abstract class Centreon_ObjectRt
         }
         $sql = "SELECT {$params} FROM {$this->table} WHERE {$this->primaryKey} = :objectId";
         $stmt = $this->dbMon->prepare($sql);
-        $stmt->bindValue(':objectId', $objectId, \PDO::PARAM_INT);
+        $stmt->bindValue(':objectId', $objectId, PDO::PARAM_INT);
         $stmt->execute();
 
         return $stmt->fetch();

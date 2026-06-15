@@ -27,21 +27,6 @@
  */
 class PartEngine
 {
-    private function sanitizeIdentifier(string $name): string
-    {
-        $name = trim(trim($name), '`');
-        if ($name === '' || preg_match('/[;\'"\\\\#]|--|\/\*/', $name) === 1) {
-            throw new InvalidArgumentException("Invalid identifier: {$name}");
-        }
-
-        return $name;
-    }
-
-    private function buildTableName($table): string
-    {
-        return '`' . $this->sanitizeIdentifier($table->getSchema()) . '`.`' . $this->sanitizeIdentifier($table->getName()) . '`';
-    }
-
     /**
      * Create a new table with partitions
      *
@@ -117,10 +102,10 @@ class PartEngine
             throw new Exception('Error: Table ' . $tableName . " does not exists\n");
         }
 
-        $request = "SELECT PARTITION_NAME FROM INFORMATION_SCHEMA.PARTITIONS
+        $request = 'SELECT PARTITION_NAME FROM INFORMATION_SCHEMA.PARTITIONS
             WHERE TABLE_NAME = :tableName
             AND TABLE_SCHEMA = :tableSchema
-            AND CONVERT(PARTITION_DESCRIPTION, SIGNED INTEGER) IS NOT NULL ";
+            AND CONVERT(PARTITION_DESCRIPTION, SIGNED INTEGER) IS NOT NULL ';
         $request .= $condition;
 
         try {
@@ -440,6 +425,21 @@ class PartEngine
         }
 
         return false;
+    }
+
+    private function sanitizeIdentifier(string $name): string
+    {
+        $name = trim(trim($name), '`');
+        if ($name === '' || preg_match('/[;\'"\\\\#]|--|\/\*/', $name) === 1) {
+            throw new InvalidArgumentException("Invalid identifier: {$name}");
+        }
+
+        return $name;
+    }
+
+    private function buildTableName($table): string
+    {
+        return '`' . $this->sanitizeIdentifier($table->getSchema()) . '`.`' . $this->sanitizeIdentifier($table->getName()) . '`';
     }
 
     /**

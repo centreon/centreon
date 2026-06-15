@@ -158,14 +158,14 @@ trait ConnectionTrait
             if (empty($tableName)) {
                 throw ConnectionException::batchInsertQueryBadUsage('Table name must not be empty');
             }
-            if (preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $tableName) !== 1) {
+            if (preg_match('/^[a-zA-Z_]\w*$/', $tableName) !== 1) {
                 throw ConnectionException::batchInsertQueryBadUsage("Invalid table name: {$tableName}");
             }
             if ($columns === []) {
                 throw ConnectionException::batchInsertQueryBadUsage('Columns must not be empty');
             }
             foreach ($columns as $column) {
-                if (preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $column) !== 1) {
+                if (preg_match('/^[a-zA-Z_]\w*$/', $column) !== 1) {
                     throw ConnectionException::batchInsertQueryBadUsage("Invalid column name: {$column}");
                 }
             }

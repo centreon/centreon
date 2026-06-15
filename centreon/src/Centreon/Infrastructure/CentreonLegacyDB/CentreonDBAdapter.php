@@ -266,16 +266,6 @@ class CentreonDBAdapter
         return $this->errorInfo;
     }
 
-    private function sanitizeIdentifier(string $name): string
-    {
-        $name = trim(trim($name), '`');
-        if ($name === '' || preg_match('/[;\'"\\\\#]|--|\/\*/', $name) === 1) {
-            throw new \InvalidArgumentException("Invalid identifier: {$name}");
-        }
-
-        return $name;
-    }
-
     public function beginTransaction(): void
     {
         $this->db->beginTransaction();
@@ -289,5 +279,15 @@ class CentreonDBAdapter
     public function rollBack(): void
     {
         $this->db->rollBack();
+    }
+
+    private function sanitizeIdentifier(string $name): string
+    {
+        $name = trim(trim($name), '`');
+        if ($name === '' || preg_match('/[;\'"\\\\#]|--|\/\*/', $name) === 1) {
+            throw new \InvalidArgumentException("Invalid identifier: {$name}");
+        }
+
+        return $name;
     }
 }
