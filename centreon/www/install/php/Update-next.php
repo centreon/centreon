@@ -743,7 +743,7 @@ $createAiProviderConfigurationTable = function () use ($pearDB, &$errorMessage, 
         <<<'SQL'
             CREATE TABLE IF NOT EXISTS `ai_provider_configuration` (
               `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the AI provider configuration',
-              `type` enum('anthropic','openai','mistral','openai_compatible') NOT NULL COMMENT 'Type of the AI provider',
+              `type` enum('anthropic','openai','mistral','google','bedrock','openai_compatible') NOT NULL COMMENT 'Type of the AI provider',
               `name` varchar(255) NOT NULL COMMENT 'Name of the AI provider configuration',
               `description` text COMMENT 'Description of the AI provider configuration',
               `is_activated` BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Whether this provider is enabled; at most one provider is enabled and it is the one used by AI features',
