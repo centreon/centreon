@@ -26,7 +26,7 @@ function getMyIndexGraph4Service($host_id = null, $service_id = null, $pearDBO)
     }
 
     $statement = $pearDBO->prepare(
-        "SELECT id FROM index_data i, metrics m WHERE i.host_id = :host_id"
+        'SELECT id FROM index_data i, metrics m WHERE i.host_id = :host_id'
         . " AND m.hidden = '0'"
         . ' AND i.service_id = :service_id'
         . ' AND i.id = m.index_id'
