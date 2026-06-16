@@ -292,6 +292,9 @@ Given(
   (brokerLink: string) => {
     // HA platforms default to the central broker NOT linked to the cbd daemon
     // (daemon = 0). The upgrade must still locate the broker configuration.
+    if (brokerLink !== 'linked' && brokerLink !== 'not linked') {
+      throw new Error(`Unsupported broker_link value: ${brokerLink}`);
+    }
     const daemon = brokerLink === 'linked' ? '1' : '0';
 
     cy.requestOnDatabase({
