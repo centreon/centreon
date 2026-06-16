@@ -39,8 +39,9 @@ runs:
           --config.minimumReleaseAge=2880 \
           --config.blockExoticSubdeps=true
       shell: bash
-      working-directory: ${{ inputs.path }}
+      working-directory: ${{ env.PATH_INPUT }}
       env:
+        PATH_INPUT: ${{ inputs.path }}
         CYPRESS_INSTALL_BINARY: "0"
         PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
 
@@ -83,6 +84,7 @@ runs:
       env:
         WEB_IMAGE: ${{ inputs.image }}:${{ inputs.image_version }}
         MYSQL_IMAGE: ${{ inputs.database_image }}
+        PATH_INPUT: ${{ inputs.path }}
       run: pnpm run:lighthouse
       shell: bash
-      working-directory: ${{ inputs.path }}
+      working-directory: ${{ env.PATH_INPUT }}
