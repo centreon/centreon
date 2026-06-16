@@ -326,7 +326,7 @@ class PartEngine
         }
         $filename .= '_' . date('Ymd-hi') . '.dump';
 
-        if (str_contains($filename, "'") || str_contains($filename, '..')) {
+        if (str_contains($filename, "'") || str_contains($filename, '..') || preg_match('/[\x00-\x1f;\\\\]/', $filename) === 1) {
             throw new InvalidArgumentException("Invalid backup filename: {$filename}");
         }
 
