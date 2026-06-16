@@ -22,7 +22,3 @@ default:
     meta_services_downtime:
       paths: [ "%paths.base%/features/DowntimeService.feature" ]
       contexts: [ DowntimeServiceContext ]
-
-    downtime_start_and_stop:
-      paths: [ "%paths.base%/features/DowntimeStartAndStop.feature" ]
-      contexts: [ DowntimeStartAndStopContext ]
