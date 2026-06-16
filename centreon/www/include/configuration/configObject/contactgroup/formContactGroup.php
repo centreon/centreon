@@ -106,7 +106,7 @@ $form->addElement('hidden', 'cg_id');
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 $init = $form->addElement('hidden', 'initialValues');
-$init->setValue(serialize($initialValues));
+$init->setValue(json_encode($initialValues));
 
 // Set rules
 $form->applyFilter('__ALL__', 'myTrim');

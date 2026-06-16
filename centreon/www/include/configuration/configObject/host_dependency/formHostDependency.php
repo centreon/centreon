@@ -215,7 +215,7 @@ $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
 $init = $form->addElement('hidden', 'initialValues');
-$init->setValue(serialize($initialValues));
+$init->setValue(json_encode($initialValues));
 
 // Validation rules
 $form->applyFilter('__ALL__', 'myTrim');
