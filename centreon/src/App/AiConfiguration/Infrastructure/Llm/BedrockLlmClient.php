@@ -23,120 +23,63 @@ declare(strict_types=1);
 
 namespace App\AiConfiguration\Infrastructure\Llm;
 
-use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
-use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
-use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Llm\LlmClientInterface;
+use App\AiConfiguration\Domain\Llm\LlmModelTierEnum;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
 use App\AiConfiguration\Domain\Llm\LlmResponse;
-use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
- * Amazon Bedrock. Chat completions go through the OpenAI-compatible mantle
- * endpoint (the delegate); model discovery uses the control-plane
- * ListInferenceProfiles, which returns the geography-scoped inference-profile
- * ids (us./eu./apac./global.) that chat actually uses, and which are
- * text-generation profiles. The Bedrock API key authenticates it too (no
- * SigV4), given the bedrock:ListInferenceProfiles permission.
+ * Amazon Bedrock through its Mantle endpoint (bedrock-mantle.<region>.api.aws),
+ * a single host exposing several APIs. Model discovery and the non-Anthropic
+ * model families use the OpenAI-compatible surface (/v1/models, /v1/chat/
+ * completions). Anthropic (Claude) models are not served there — they require
+ * the Anthropic Messages API at /anthropic/v1/messages — so chat is routed by
+ * model family.
  */
 final class BedrockLlmClient implements LlmClientInterface
 {
-    private const TIMEOUT_SECONDS = 20;
-
     public function __construct(
-        private readonly LlmClientInterface $delegate,
-        private readonly HttpClientInterface $httpClient,
-        private readonly EndpointUrl $endpointUrl,
-        private readonly ApiToken $apiToken,
+        private readonly LlmClientInterface $openAiCompatible,
+        private readonly LlmClientInterface $anthropicMessages,
+        private readonly ModelName $defaultModel,
+        private readonly ?ModelName $fastModel,
     ) {
     }
 
     public function complete(LlmRequest $request): LlmResponse
     {
-        return $this->delegate->complete($request);
+        return $this->clientFor($request)->complete($request);
     }
 
     public function stream(LlmRequest $request): \Generator
     {
-        return yield from $this->delegate->stream($request);
+        return yield from $this->clientFor($request)->stream($request);
     }
 
     public function listModels(): array
     {
-        // the chat endpoint is bedrock-mantle.<region>.api.aws; the control
-        // plane that lists inference profiles is bedrock.<region>.amazonaws.com
-        if (! preg_match('/bedrock-(?:mantle|runtime)\.([^.]+)\./', $this->endpointUrl->value, $matches)) {
-            throw LlmRequestFailedException::fromInvalidResponse(
-                'could not derive the AWS region from the Bedrock endpoint'
-            );
-        }
-        $url = sprintf('https://bedrock.%s.amazonaws.com/inference-profiles?maxResults=1000', $matches[1]);
-
-        try {
-            $response = $this->httpClient->request('GET', $url, [
-                'auth_bearer' => $this->apiToken->value,
-                'timeout' => self::TIMEOUT_SECONDS,
-            ]);
-            $statusCode = $response->getStatusCode();
-        } catch (TransportExceptionInterface $exception) {
-            throw LlmRequestFailedException::fromTransportError($exception->getMessage(), $exception);
-        }
-
-        if ($statusCode >= 400) {
-            throw LlmRequestFailedException::fromProviderError($statusCode, $this->extractErrorMessage($response));
-        }
-
-        try {
-            /** @var array{inferenceProfileSummaries?: array<array{inferenceProfileId?: string}>} $data */
-            $data = $response->toArray();
-        } catch (HttpClientExceptionInterface $exception) {
-            throw LlmRequestFailedException::fromInvalidResponse($exception->getMessage());
-        }
-
-        $ids = [];
-        foreach ($data['inferenceProfileSummaries'] ?? [] as $profile) {
-            $id = $profile['inferenceProfileId'] ?? null;
-            if (is_string($id) && $id !== '') {
-                $ids[] = $id;
-            }
-        }
-        sort($ids);
-
-        return array_values(array_unique($ids));
+        // the OpenAI-compatible /v1/models lists the whole Mantle catalog,
+        // every family included
+        return $this->openAiCompatible->listModels();
     }
 
-    /**
-     * Surface the AWS error so the cause is actionable. The control plane
-     * returns {"Message": "..."} with a human-readable reason (e.g.
-     * "Authentication failed: Please make sure your API Key is valid."), which
-     * is used as-is. Only when no such message is present do we fall back to
-     * the machine error type from the x-amzn-errortype header (e.g.
-     * "AccessDeniedException:http://internal...") and then to a raw snippet.
-     */
-    private function extractErrorMessage(ResponseInterface $response): string
+    private function clientFor(LlmRequest $request): LlmClientInterface
     {
-        try {
-            $body = $response->getContent(false);
-            $headers = $response->getHeaders(false);
-        } catch (HttpClientExceptionInterface) {
-            return 'model discovery failed';
-        }
+        $model = $request->model ?? $this->resolveTierModel($request->tier);
 
-        /** @var array{Message?: string, message?: string}|null $data */
-        $data = json_decode($body, true);
-        $message = is_array($data) ? ($data['Message'] ?? $data['message'] ?? null) : null;
-        if (is_string($message) && $message !== '') {
-            return $message;
-        }
+        // Mantle ids are bare vendor.model strings (e.g. anthropic.claude-...,
+        // qwen.qwen3-32b); the anthropic. family speaks the Messages API
+        return str_starts_with($model->value, 'anthropic.')
+            ? $this->anthropicMessages
+            : $this->openAiCompatible;
+    }
 
-        $errorType = explode(':', $headers['x-amzn-errortype'][0] ?? '')[0];
-        if ($errorType !== '') {
-            return $errorType;
-        }
-
-        return $body !== '' ? mb_substr($body, 0, 200) : 'model discovery failed';
+    private function resolveTierModel(LlmModelTierEnum $tier): ModelName
+    {
+        return match ($tier) {
+            LlmModelTierEnum::Default => $this->defaultModel,
+            LlmModelTierEnum::Fast => $this->fastModel ?? $this->defaultModel,
+        };
     }
 }

@@ -52,6 +52,9 @@ final class AnthropicLlmClient implements LlmClientInterface
         private readonly ApiToken $apiToken,
         private readonly ModelName $defaultModel,
         private readonly ?ModelName $fastModel,
+        // native Anthropic exposes the Messages API at /v1/messages; Bedrock
+        // Mantle exposes the same API at /anthropic/v1/messages
+        private readonly string $messagesPath = '/v1/messages',
     ) {
     }
 
@@ -192,7 +195,7 @@ final class AnthropicLlmClient implements LlmClientInterface
         }
 
         try {
-            return $this->httpClient->request('POST', rtrim($this->endpointUrl->value, '/') . '/v1/messages', [
+            return $this->httpClient->request('POST', rtrim($this->endpointUrl->value, '/') . $this->messagesPath, [
                 'headers' => [
                     'anthropic-version' => self::ANTHROPIC_VERSION,
                     'x-api-key' => $this->apiToken->value,

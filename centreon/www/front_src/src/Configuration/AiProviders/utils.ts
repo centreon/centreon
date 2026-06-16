@@ -58,12 +58,14 @@ export const defaultModels: Record<AiProviderType, DefaultModels> = {
     defaultModel: 'gemini-3.5-flash',
     fastModel: 'gemini-3.1-flash-lite'
   },
-  // Bedrock model ids are region-scoped (eu./us./apac. inference profiles);
-  // these eu. defaults match the suggested EU regions and are adjusted by the
-  // user to their own region
+  // Bedrock (mantle) exposes bare vendor.model ids (no region prefix) across
+  // several vendors. Default to text-only Qwen3 models: they route through the
+  // OpenAI-compatible surface (no Anthropic Marketplace subscription needed) and
+  // are inexpensive. Users adjust to whatever their catalog lists, e.g.
+  // anthropic.claude-opus-4-8 for higher capability.
   [AiProviderType.Bedrock]: {
-    defaultModel: 'eu.anthropic.claude-sonnet-4-6',
-    fastModel: 'eu.anthropic.claude-haiku-4-5'
+    defaultModel: 'qwen.qwen3-235b-a22b-2507',
+    fastModel: 'qwen.qwen3-32b'
   },
   [AiProviderType.OpenAiCompatible]: {
     defaultModel: null,

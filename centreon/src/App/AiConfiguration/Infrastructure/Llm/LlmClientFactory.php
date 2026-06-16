@@ -96,8 +96,11 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
             $aiProvider->type->chatMaxTokensField(),
         );
 
-        // Gemini and Bedrock chat through the OpenAI-compatible transport, but
-        // discover models on their native endpoints (see the dedicated clients)
+        // Gemini chats through the OpenAI-compatible transport but lists models
+        // on its native endpoint (see GeminiLlmClient). Bedrock's Mantle endpoint
+        // is multi-protocol: discovery and non-Anthropic families are OpenAI-
+        // compatible, but Claude models need the Anthropic Messages API
+        // (/anthropic/v1/messages) — see BedrockLlmClient.
         return match ($aiProvider->type) {
             AiProviderTypeEnum::Anthropic => new AnthropicLlmClient(
                 $httpClient,
@@ -114,9 +117,16 @@ final readonly class LlmClientFactory implements LlmClientFactoryInterface
             ),
             AiProviderTypeEnum::Bedrock => new BedrockLlmClient(
                 $openAiCompatible(),
-                $httpClient,
-                $aiProvider->endpointUrl,
-                $aiProvider->apiToken,
+                new AnthropicLlmClient(
+                    $httpClient,
+                    $aiProvider->endpointUrl,
+                    $aiProvider->apiToken,
+                    $aiProvider->defaultModel,
+                    $aiProvider->fastModel,
+                    '/anthropic/v1/messages',
+                ),
+                $aiProvider->defaultModel,
+                $aiProvider->fastModel,
             ),
             AiProviderTypeEnum::OpenAi,
             AiProviderTypeEnum::Mistral,

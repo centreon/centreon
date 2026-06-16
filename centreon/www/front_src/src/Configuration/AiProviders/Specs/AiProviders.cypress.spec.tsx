@@ -323,20 +323,20 @@ describe('AiProviders', () => {
         cy.findAllByTestId(labelEndpointUrl).should('have.length', 0);
       });
 
-      // models are prefilled with the EU inference profile by default
+      // models are prefilled with bare Mantle ids (no region prefix)
       cy.findByTestId(labelDefaultModel).should(
         'have.value',
-        'eu.anthropic.claude-sonnet-4-6'
+        'qwen.qwen3-235b-a22b-2507'
       );
 
       cy.findAllByTestId(labelApiToken).eq(1).type('a-bedrock-key');
       // {esc} closes the dropdown so it does not cover the Save button
       cy.findByTestId(labelAwsRegion).type('us-east-1{esc}');
 
-      // choosing a US region realigns the model profile to that geography
+      // the region only drives the endpoint host; the model id is left as is
       cy.findByTestId(labelDefaultModel).should(
         'have.value',
-        'us.anthropic.claude-sonnet-4-6'
+        'qwen.qwen3-235b-a22b-2507'
       );
 
       cy.contains(/^Save$/).click();
@@ -348,7 +348,7 @@ describe('AiProviders', () => {
           'https://bedrock-mantle.us-east-1.api.aws'
         );
         expect(request.body.default_model).to.equal(
-          'us.anthropic.claude-sonnet-4-6'
+          'qwen.qwen3-235b-a22b-2507'
         );
       });
     });

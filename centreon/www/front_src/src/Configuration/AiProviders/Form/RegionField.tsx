@@ -9,44 +9,14 @@ import { useTranslation } from 'react-i18next';
 
 import { labelAwsRegion, labelAwsRegionPlaceholder } from '../translatedLabels';
 
-// Bedrock is reached through its OpenAI-compatible endpoint, whose host carries
-// the AWS region. The form only exposes the region; the endpoint URL is derived
-// from it (and the region parsed back from it when editing).
+// Bedrock is reached through its Mantle endpoint, whose host carries the AWS
+// region. The form only exposes the region; the endpoint URL is derived from it
+// (and the region parsed back from it when editing).
 const bedrockEndpoint = (region: string): string =>
   `https://bedrock-mantle.${region}.api.aws`;
 
 const regionFromEndpoint = (endpointUrl: string): string =>
   endpointUrl.match(/bedrock-mantle\.([^.]+)\.api\.aws/)?.[1] ?? '';
-
-// Bedrock cross-region inference profiles are geography-scoped (us/eu/apac,
-// plus us-gov for GovCloud); regions without a geography (Canada, South
-// America, …) route through the global profile, so the model id prefix must
-// match the region accordingly
-const inferenceProfilePrefix = (region: string): string => {
-  if (region.startsWith('us-gov-')) {
-    return 'us-gov.';
-  }
-  if (region.startsWith('us-')) {
-    return 'us.';
-  }
-  if (region.startsWith('eu-')) {
-    return 'eu.';
-  }
-  if (region.startsWith('ap-')) {
-    return 'apac.';
-  }
-
-  return 'global.';
-};
-
-// re-prefix a model id that already uses an inference profile, leaving plain
-// model ids (e.g. openai.gpt-oss-120b) and empty values untouched
-const profilePrefixPattern = /^(us-gov|eu|us|apac|global)\./;
-
-const realignModelToRegion = (model: string, region: string): string =>
-  profilePrefixPattern.test(model)
-    ? model.replace(profilePrefixPattern, inferenceProfilePrefix(region))
-    : model;
 
 // a short list of common AWS regions; any region can still be typed in
 const awsRegions: Record<string, string> = {
@@ -88,16 +58,6 @@ const RegionField = ({ fieldName }: InputPropsWithoutGroup): JSX.Element => {
       onInputChange={(_event, newInput) => {
         const trimmed = newInput.trim().toLowerCase();
         setFieldValue(fieldName, trimmed ? bedrockEndpoint(trimmed) : '');
-
-        // keep the prefilled model ids on the region's geography
-        if (trimmed) {
-          for (const field of ['defaultModel', 'fastModel']) {
-            const model = path([field], values) as string | null;
-            if (model) {
-              setFieldValue(field, realignModelToRegion(model, trimmed));
-            }
-          }
-        }
       }}
       options={regionCodes}
       renderInput={(params) => (

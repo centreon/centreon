@@ -23,135 +23,112 @@ declare(strict_types=1);
 
 namespace Tests\App\AiConfiguration\Infrastructure\Llm;
 
-use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
-use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
+use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
 use App\AiConfiguration\Domain\Llm\AiFeatureEnum;
-use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\LlmMessage;
+use App\AiConfiguration\Domain\Llm\LlmModelTierEnum;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
-use App\AiConfiguration\Domain\Llm\LlmResponse;
 use App\AiConfiguration\Domain\Llm\LlmRoleEnum;
-use App\AiConfiguration\Domain\Llm\LlmUsage;
 use App\AiConfiguration\Infrastructure\Llm\BedrockLlmClient;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpClient\MockHttpClient;
-use Symfony\Component\HttpClient\Response\MockResponse;
 use Tests\App\AiConfiguration\Infrastructure\Double\FakeLlmClient;
 
 final class BedrockLlmClientTest extends TestCase
 {
-    public function testListModelsReturnsInferenceProfileIdsFromTheRegionControlPlane(): void
+    public function testRoutesAnthropicModelsToTheMessagesClient(): void
     {
-        $httpClient = new MockHttpClient(
-            function (string $method, string $url): MockResponse {
-                self::assertSame('GET', $method);
-                // the region is derived from the mantle endpoint, on the control plane
-                self::assertStringStartsWith(
-                    'https://bedrock.eu-west-1.amazonaws.com/inference-profiles',
-                    $url
-                );
-
-                return new MockResponse(json_encode([
-                    'inferenceProfileSummaries' => [
-                        ['inferenceProfileId' => 'eu.anthropic.claude-sonnet-4-6'],
-                        ['inferenceProfileId' => 'eu.anthropic.claude-haiku-4-5'],
-                    ],
-                ], \JSON_THROW_ON_ERROR));
-            }
-        );
-
+        $openAi = new FakeLlmClient();
+        $anthropic = new FakeLlmClient();
         $client = new BedrockLlmClient(
-            new FakeLlmClient(),
-            $httpClient,
-            new EndpointUrl('https://bedrock-mantle.eu-west-1.api.aws'),
-            new ApiToken('a-key'),
+            $openAi,
+            $anthropic,
+            new ModelName('anthropic.claude-opus-4-8'),
+            new ModelName('anthropic.claude-haiku-4-5'),
         );
 
-        self::assertSame(
-            ['eu.anthropic.claude-haiku-4-5', 'eu.anthropic.claude-sonnet-4-6'],
-            $client->listModels()
-        );
+        $client->complete($this->request());
+
+        self::assertNotNull($anthropic->lastRequest);
+        self::assertNull($openAi->lastRequest);
     }
 
-    public function testListModelsSurfacesTheHumanAwsMessageWithoutTheErrorType(): void
+    public function testRoutesOtherFamiliesToTheOpenAiCompatibleClient(): void
     {
-        $httpClient = new MockHttpClient(
-            static fn (): MockResponse => new MockResponse(
-                '{"Message":"Authentication failed: Please make sure your API Key is valid."}',
-                [
-                    'http_code' => 403,
-                    'response_headers' => [
-                        'x-amzn-errortype: AccessDeniedException:http://internal.amazon.com/coral/',
-                    ],
-                ]
-            )
-        );
-
+        $openAi = new FakeLlmClient();
+        $anthropic = new FakeLlmClient();
         $client = new BedrockLlmClient(
-            new FakeLlmClient(),
-            $httpClient,
-            new EndpointUrl('https://bedrock-mantle.eu-west-1.api.aws'),
-            new ApiToken('a-key'),
+            $openAi,
+            $anthropic,
+            new ModelName('qwen.qwen3-32b'),
+            null,
         );
 
-        // the human message stands on its own; the AccessDeniedException type is
-        // not prefixed when a message is present
-        $this->expectException(LlmRequestFailedException::class);
-        $this->expectExceptionMessage(
-            'The AI provider rejected the request (HTTP 403): Authentication failed: Please make sure your API Key is valid.'
-        );
+        $client->complete($this->request());
 
-        $client->listModels();
+        self::assertNotNull($openAi->lastRequest);
+        self::assertNull($anthropic->lastRequest);
     }
 
-    public function testListModelsFallsBackToTheErrorTypeWhenThereIsNoMessage(): void
+    public function testRoutesByTheFastModelForTheFastTier(): void
     {
-        $httpClient = new MockHttpClient(
-            static fn (): MockResponse => new MockResponse(
-                '',
-                [
-                    'http_code' => 403,
-                    'response_headers' => [
-                        'x-amzn-errortype: AccessDeniedException:http://internal.amazon.com/coral/',
-                    ],
-                ]
-            )
-        );
-
+        $openAi = new FakeLlmClient();
+        $anthropic = new FakeLlmClient();
+        // default model is Anthropic, fast model is not
         $client = new BedrockLlmClient(
-            new FakeLlmClient(),
-            $httpClient,
-            new EndpointUrl('https://bedrock-mantle.eu-west-1.api.aws'),
-            new ApiToken('a-key'),
+            $openAi,
+            $anthropic,
+            new ModelName('anthropic.claude-opus-4-8'),
+            new ModelName('qwen.qwen3-32b'),
         );
 
-        $this->expectException(LlmRequestFailedException::class);
-        $this->expectExceptionMessage(
-            'The AI provider rejected the request (HTTP 403): AccessDeniedException'
-        );
+        $client->complete($this->request(tier: LlmModelTierEnum::Fast));
 
-        $client->listModels();
+        self::assertNotNull($openAi->lastRequest);
+        self::assertNull($anthropic->lastRequest);
     }
 
-    public function testCompleteDelegatesToTheOpenAiCompatibleClient(): void
+    public function testAnExplicitRequestModelDecidesTheRoute(): void
     {
-        $delegate = new FakeLlmClient(
-            response: new LlmResponse('pong', 'eu.anthropic.claude-sonnet-4-6', new LlmUsage(1, 1))
-        );
-
+        $openAi = new FakeLlmClient();
+        $anthropic = new FakeLlmClient();
         $client = new BedrockLlmClient(
-            $delegate,
-            new MockHttpClient(),
-            new EndpointUrl('https://bedrock-mantle.eu-west-1.api.aws'),
-            new ApiToken('a-key'),
+            $openAi,
+            $anthropic,
+            new ModelName('anthropic.claude-opus-4-8'),
+            null,
         );
 
-        $response = $client->complete(new LlmRequest(
+        $client->complete($this->request(model: new ModelName('qwen.qwen3-32b')));
+
+        self::assertNotNull($openAi->lastRequest);
+        self::assertNull($anthropic->lastRequest);
+    }
+
+    public function testListModelsComesFromTheOpenAiCompatibleCatalog(): void
+    {
+        $openAi = new FakeLlmClient();
+        $openAi->models = ['anthropic.claude-opus-4-8', 'qwen.qwen3-32b'];
+        $anthropic = new FakeLlmClient();
+        $anthropic->models = ['unused'];
+        $client = new BedrockLlmClient(
+            $openAi,
+            $anthropic,
+            new ModelName('anthropic.claude-opus-4-8'),
+            null,
+        );
+
+        self::assertSame(['anthropic.claude-opus-4-8', 'qwen.qwen3-32b'], $client->listModels());
+    }
+
+    private function request(
+        ?ModelName $model = null,
+        LlmModelTierEnum $tier = LlmModelTierEnum::Default,
+    ): LlmRequest {
+        return new LlmRequest(
             messages: [new LlmMessage(LlmRoleEnum::User, 'ping')],
             feature: AiFeatureEnum::ConnectionTest,
-        ));
-
-        self::assertSame('pong', $response->content);
-        self::assertNotNull($delegate->lastRequest);
+            model: $model,
+            tier: $tier,
+        );
     }
 }
