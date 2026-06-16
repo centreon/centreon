@@ -54,7 +54,7 @@ it('test log a native exception', function (): void {
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
     expect($contentLog)->toContain(
-        '{"custom":null,"exception":{"exceptions":[{"type":"LogicException","message":"logic_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 6) . ',"code":0,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\ExceptionLoggerTest","method":"' . $closureMethod . '"}],"traces":[{"'
+        '{"exception":{"exceptions":[{"type":"LogicException","message":"logic_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 6) . ',"code":0,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\ExceptionLoggerTest","method":"' . $closureMethod . '"}],"traces":[{"'
     );
 });
 
@@ -65,7 +65,7 @@ it('test log an exception that extends BusinessLogicException without context an
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
     expect($contentLog)->toContain(
-        '{"custom":{"from_exception":[]},"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 6) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\ExceptionLoggerTest","method":"' . $closureMethod . '"}],"traces":[{"'
+        '{"from_exception":[],"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 6) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\ExceptionLoggerTest","method":"' . $closureMethod . '"}],"traces":[{"'
     );
 });
 
@@ -76,7 +76,7 @@ it('test log an exception that extends BusinessLogicException with context witho
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
     expect($contentLog)->toContain(
-        '{"custom":{"from_exception":[{"contact":1}]},"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 6) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\ExceptionLoggerTest","method":"' . $closureMethod . '"}],"traces":[{"'
+        '{"from_exception":[{"contact":1}],"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 6) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\ExceptionLoggerTest","method":"' . $closureMethod . '"}],"traces":[{"'
     );
 });
 
@@ -93,7 +93,7 @@ it(
         expect(file_exists($this->logPathFileName))->toBeTrue();
         $contentLog = file_get_contents($this->logPathFileName);
         expect($contentLog)->toContain(
-            '{"custom":{"from_exception":[{"contact":1}]},"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 10) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\ExceptionLoggerTest","method":"' . $closureMethod . '"},{"type":"LogicException","message":"logic_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 7) . ',"code":0,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\ExceptionLoggerTest","method":"' . $closureMethod . '"}],"traces":[{"'
+            '{"from_exception":[{"contact":1}],"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 10) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\ExceptionLoggerTest","method":"' . $closureMethod . '"},{"type":"LogicException","message":"logic_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 7) . ',"code":0,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\ExceptionLoggerTest","method":"' . $closureMethod . '"}],"traces":[{"'
         );
     }
 );
@@ -111,7 +111,7 @@ it(
         expect(file_exists($this->logPathFileName))->toBeTrue();
         $contentLog = file_get_contents($this->logPathFileName);
         expect($contentLog)->toContain(
-            '{"custom":{"from_exception":[{"contact":1}]},"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 10) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\ExceptionLoggerTest","method":"' . $closureMethod . '"},{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message_2","file":"' . __FILE__ . '","line":' . (__LINE__ - 7) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\ExceptionLoggerTest","method":"' . $closureMethod . '"}],"traces":[{"'
+            '{"from_exception":[{"contact":1}],"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 10) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\ExceptionLoggerTest","method":"' . $closureMethod . '"},{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message_2","file":"' . __FILE__ . '","line":' . (__LINE__ - 7) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\ExceptionLoggerTest","method":"' . $closureMethod . '"}],"traces":[{"'
         );
     }
 );
@@ -129,7 +129,7 @@ it(
         expect(file_exists($this->logPathFileName))->toBeTrue();
         $contentLog = file_get_contents($this->logPathFileName);
         expect($contentLog)->toContain(
-            '{"custom":{"from_exception":[{"contact":1},{"contact":2}]},"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 10) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\ExceptionLoggerTest","method":"' . $closureMethod . '"},{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message_2","file":"' . __FILE__ . '","line":' . (__LINE__ - 7) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\ExceptionLoggerTest","method":"' . $closureMethod . '"}],"traces":[{"'
+            '{"from_exception":[{"contact":1},{"contact":2}],"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 10) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\ExceptionLoggerTest","method":"' . $closureMethod . '"},{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message_2","file":"' . __FILE__ . '","line":' . (__LINE__ - 7) . ',"code":1,"class":"P\\\\Tests\\\\php\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\ExceptionLoggerTest","method":"' . $closureMethod . '"}],"traces":[{"'
         );
     }
 );
@@ -158,6 +158,6 @@ it(
         expect(file_exists($this->logPathFileName))->toBeTrue();
         $contentLog = file_get_contents($this->logPathFileName);
         expect($contentLog)->toContain('test_exception_logger.CRITICAL: repository_exception_message')
-            ->and($contentLog)->toContain('{"custom":{"name":"John Doe","age":42,"from_exception":[{"contact":1},{"contact":2}]},"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 19) . ',"code":1,"class":null,"method":"Tests\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\testExceptionLogger"},{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message_2","file":"' . __FILE__ . '","line":' . (__LINE__ - 16) . ',"code":1,"class":null,"method":"Tests\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\testExceptionLogger"},{"type":"LogicException","message":"logic_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 13) . ',"code":0,"class":null,"method":"Tests\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\testExceptionLogger"}],"traces":[{"file":"' . __FILE__ . '","line":' . (__LINE__ - 8) . ',"function":"Tests\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\testExceptionLogger"}');
+            ->and($contentLog)->toContain('{"name":"John Doe","age":42,"from_exception":[{"contact":1},{"contact":2}],"exception":{"exceptions":[{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 19) . ',"code":1,"class":null,"method":"Tests\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\testExceptionLogger"},{"type":"Core\\\\Common\\\\Domain\\\\Exception\\\\RepositoryException","message":"repository_exception_message_2","file":"' . __FILE__ . '","line":' . (__LINE__ - 16) . ',"code":1,"class":null,"method":"Tests\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\testExceptionLogger"},{"type":"LogicException","message":"logic_exception_message","file":"' . __FILE__ . '","line":' . (__LINE__ - 13) . ',"code":0,"class":null,"method":"Tests\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\testExceptionLogger"}],"traces":[{"file":"' . __FILE__ . '","line":' . (__LINE__ - 8) . ',"function":"Tests\\\\Core\\\\Common\\\\Infrastructure\\\\ExceptionLogger\\\\testExceptionLogger"}');
     }
 );

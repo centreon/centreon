@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\Shared\Infrastructure\Messenger;
 
 use App\Shared\Infrastructure\Logging\LogPayloadNormalizer;
+use App\Shared\Infrastructure\Logging\PayloadSanitizer;
 use App\Shared\Infrastructure\Messenger\LoggingMiddleware;
 use Monolog\Handler\TestHandler;
 use Monolog\Level;
@@ -59,7 +60,7 @@ final class LoggingMiddlewareIntegrationTest extends KernelTestCase
         $payloadNormalizer = $container->get(LogPayloadNormalizer::class);
         \assert($payloadNormalizer instanceof LogPayloadNormalizer);
 
-        $this->middleware = new LoggingMiddleware($logger, $payloadNormalizer);
+        $this->middleware = new LoggingMiddleware($logger, $payloadNormalizer, new PayloadSanitizer());
     }
 
     public function testSuccessfulCommandProducesDispatchAndHandledInfoLogs(): void

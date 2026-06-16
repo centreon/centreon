@@ -18,6 +18,7 @@ This document describes the platform pipeline that captures logs emitted by the 
 7. [Log line example](#7-log-line-example)
 8. [Processor scope](#8-processor-scope)
 9. [Routing and output file](#9-routing-and-output-file)
+10. [Masking sensitive fields with `#[Sensitive]`](#10-masking-sensitive-fields-with-sensitive)
 
 ---
 
@@ -170,7 +171,7 @@ The middleware emits a record on the Monolog `app` channel (Symfony default) for
   - `tokenize_input` (bool flag) → masked (contains `token`)
   - `credential_check_id` (reference id) → masked (contains `credential`)
 
-  This *"over-mask rather than under-mask"* default is intentional: we'd rather lose a bit of debug info than miss a real secret carried by an unlisted variant (e.g. `passwords_v2`, `customer_token_id`). If the noise becomes blocking for a given Command, the clean solution is to introduce `#[Sensitive]` / `#[NotSensitive]` PHP attributes on the Command and inspect them in `isSensitiveKey()` — not to broaden the keyword list nor to switch to exact match, which would open the door to forgotten variants. Tracked under [MON-199097](https://centreon.atlassian.net/browse/MON-199097).
+  This *"over-mask rather than under-mask"* default is intentional: we'd rather lose a bit of debug info than miss a real secret carried by an unlisted variant (e.g. `passwords_v2`, `customer_token_id`). For the opposite cases — a real secret carrying an unlisted name, or keyword noise on a given Command — the explicit, type-safe complement is the `#[Sensitive]` attribute (implemented under [MON-199097](https://centreon.atlassian.net/browse/MON-199097), see [§10](#10-masking-sensitive-fields-with-sensitive)). It is preferred over broadening the keyword list or switching to exact match, which would open the door to forgotten variants.
 - **`exception`**: produced by `ExceptionFormatter::format()` (see [§5](#5-exceptionformatter-and-exceptionformatterprocessor)).
 
 ---
@@ -239,6 +240,9 @@ Being global, it guarantees a **uniform exception shape** on every channel (catc
 | `WebProcessor` | `url`, `ip`, `http_method`, `server`, `referrer` |
 | `RouteProcessor` | `controller`, `route`, `route_params` |
 | `TokenProcessor` | `token` (`authenticated`, `roles`, `user_identifier`) |
+
+> [!NOTE]
+> **Context is now passed flat.** The legacy logging helpers (`Centreon\Domain\Log\LoggerTrait`, `CentreonLog`) used to wrap every record's context into `{custom, exception, default: {request_infos: {uri, http_method, server}}}` via a per-call `normalizeContext()`. That wrapper is gone: callers' context is forwarded as-is to the logger. The request metadata it used to inject by hand is now provided globally by `WebProcessor` under `extra.url` / `extra.http_method` / `extra.server` (plus `ip`, `referrer`), so it is no longer duplicated per call. Any external consumer that parsed the old nested `context.default.request_infos.*` shape must read `extra.*` instead.
 
 ### `UidProcessor` — cross-channel correlation
 
@@ -461,9 +465,11 @@ Consequence: every handler using `monolog.formatter.line` (centreon-web + any mo
 |------------------|--------|
 | `event`, `doctrine`, `console` | Internal Symfony / DBAL noise — not desired in `prod.web.log`. |
 | `deprecation` | MON-151077 → dedicated file `prod.deprecations.log`. |
-| `authentication` | MON-151077 → merged into `prod.access.log` on the centreon-web side. |
+| `authentication` | MON-151077 → merged into `prod.access.log` on the centreon-web side (see the backward-compatibility note below for `login.log`). |
 | `token` | MON-151077 → dedicated file `prod.token.log`. |
 | `password`, `plugin-pack-manager`, `upgrade` | MON-151077 → dedicated files. Not Monolog channels strictly speaking today (written directly by legacy `CentreonLog` code), but listed in anticipation of a future migration to Monolog. |
+
+> **Backward compatibility — `login.log` is intentionally kept.** Authentication events now flow to the `authentication` channel (`prod.access.log`). To avoid breaking external consumers that parse the historical `/var/log/centreon/login.log` — most notably **fail2ban** jails matching the `Authentication failed for …` line with the client IP — `CentreonUserLog::insertLog()` still mirrors every `TYPE_LOGIN` event to `login.log` in the original pipe-delimited format (`date|uid|page|option|message`). This duplicate write is **transitional**: it is kept on purpose for client compatibility and will be removed in a future release once consumers have migrated to the Monolog access log (cleanup tracked in a dedicated ticket). `login.log` remains covered by `logrotate/centreon`.
 
 | Property | Effect |
 |----------|--------|
@@ -491,3 +497,58 @@ In production, the `prod.*.log` files are rotated by **logrotate** (config `cent
 Default retention: `weekly` × `rotate 52` (1 year), with `compress` + `delaycompress` + `copytruncate`.
 
 In development (`when@dev` in `monolog.yaml`), the handlers use `rotating_file` directly (daily `Y-m-d` suffix, `max_files: 14` retention) — no need for logrotate.
+
+---
+
+## 10. Masking sensitive fields with `#[Sensitive]`
+
+The keyword heuristic of [§4](#4-loggingmiddleware) is permissive but **name-based**: it masks any key *containing* `password`, `token`, … and therefore misses a secret carried by an unlisted name. The `#[Sensitive]` attribute is the **explicit, type-safe** complement — it masks a field by *declaration*, regardless of its name.
+
+### Attribute
+
+`App\Shared\Domain\Logging\Attribute\Sensitive` can target properties, accessor methods, and classes:
+
+```php
+#[\Attribute(\Attribute::TARGET_PROPERTY | \Attribute::TARGET_METHOD | \Attribute::TARGET_CLASS)]
+final readonly class Sensitive {}
+```
+
+- on a **property** — its value is masked;
+- on a **method** (typically a getter) — the accessor key it exposes is masked (`getX`/`isX`/`hasX` → `x`, otherwise the raw method name);
+- on a **class** — every value typed as that class is masked wholesale, so the sanitizer never descends into it.
+
+Annotate any property whose value must never reach a log — plain properties or promoted constructor parameters:
+
+```php
+final readonly class SecretsCommand
+{
+    public function __construct(
+        #[Sensitive] public string $passcode,
+        #[Sensitive] public string $ssoTicket,
+        public int $userId,
+    ) {}
+}
+```
+
+When such an object flows through the logging pipeline, the annotated values are rendered as `***`, while `userId` stays in clear.
+
+### Pipeline
+
+| Component | Role |
+| --- | --- |
+| `…\Domain\Logging\Attribute\Sensitive` | the marker placed on properties, accessor methods, and classes |
+| `…\Infrastructure\Logging\Attribute\SensitivityScanner` | reflects a class, collects its `#[Sensitive]` properties and accessor keys, honours class-level sensitive types, and **recurses into nested class-typed properties**, so a secret nested in a sub-object is found too |
+| `…\Infrastructure\Logging\PayloadSanitizer` | stateless walker that masks the `#[Sensitive]` values of a payload given its owning class (`contextClass`), falls back to the keyword denylist for raw array keys, and truncates string values at `MAX_VALUE_LENGTH` (1024) |
+| `…\Infrastructure\Logging\SensitiveKeywordDenylist` | single source of truth for the keyword net (`password`, `token`, …) shared by `LogPayloadNormalizer` and `PayloadSanitizer`, so both nets mask the same field names |
+| `…\Infrastructure\Logging\SanitizingProcessor` | Monolog processor that applies the sanitizer to every record |
+
+The owning class is the **context** the sanitizer needs in order to know which keys are sensitive. On the command/query bus, `LoggingMiddleware` provides the dispatched message class, so `#[Sensitive]` on a Command / Query / DTO is honoured automatically. A **raw array** (`['secret' => $x]`) carries no class context, so the attribute layer cannot reflect it — but as the cross-channel net, `PayloadSanitizer` still applies the shared keyword denylist to its keys, so a `['password' => $x]` is masked everywhere it is logged. To get the explicit, type-safe attribute masking outside the bus, pass a typed object rather than a raw array.
+
+### Why not the native `#[\SensitiveParameter]`?
+
+PHP's built-in [`#[\SensitiveParameter]`](https://www.php.net/manual/en/class.sensitiveparameter.php) is **not** a substitute here:
+
+- **Target** — it is `Attribute::TARGET_PARAMETER` only, so it cannot annotate the many plain (non-promoted) **properties** we mask (`Contact::$token`, `Response::$message`, public DTO props such as `FindOpenIdConfigurationResponse::$clientId`, the legacy `Security/Domain/Authentication/Model/*`, …).
+- **Mechanism** — it only redacts a value in **exception stack traces** (handled by the PHP engine); it does not mask log payloads. The scanner reflects *properties*, so it would not even see a `#[\SensitiveParameter]` placed on a promoted parameter.
+
+A property-level attribute is therefore the right tool for reflection-based **payload** masking. A future enhancement could make `SensitivityScanner` *additionally* honour `#[\SensitiveParameter]` on promoted constructor parameters (gaining stack-trace redaction for free) while keeping `#[Sensitive]` for plain properties.
