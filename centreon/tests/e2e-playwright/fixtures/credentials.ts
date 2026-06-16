@@ -16,3 +16,12 @@ export const invalidUser: Credentials = {
   login: adminUser.login,
   password: 'wrong-password'
 };
+
+/**
+ * Non-admin user with dashboard creation rights, provisioned via CLAPI in the
+ * global setup (see fixtures/dashboards.ts `dashboardCreatorAclActions`).
+ */
+export const dashboardCreatorUser: Credentials = {
+  login: 'user-dashboard-creator',
+  password: 'Centreon@2023'
+};

@@ -24,6 +24,9 @@ export default defineConfig({
   // Tests share a single platform instance and authenticate against it, so they
   // must run serially (`workers: 1`) to avoid cross-test session interference.
   fullyParallel: false,
+  // One-time provisioning shared by the dashboard specs (feature flag + ACL
+  // user). Skipped automatically when SKIP_GLOBAL_SETUP is set.
+  globalSetup: require.resolve('./global-setup'),
   projects: [
     {
       name: 'chromium',

@@ -14,15 +14,46 @@ encapsulated in a Page Object (`pages/`). Tests describe *intentions*
 ```
 tests/e2e-playwright/
 ├── playwright.config.ts     # Playwright config (baseURL, reporters, optional stack boot)
+├── global-setup.ts          # One-time provisioning for the dashboard specs
 ├── fixtures/
-│   └── credentials.ts       # Test users (overridable via env vars)
+│   ├── credentials.ts       # Test users (overridable via env vars)
+│   ├── dashboards.ts        # Dashboard seed data + ACL provisioning actions
+│   └── test.ts              # Custom Playwright fixtures (login + API cleanup)
+├── helpers/
+│   ├── CentreonApi.ts       # HTTP client: v1 auth, CLAPI, v2 session, dashboard CRUD
+│   └── docker.ts            # docker compose exec helpers (feature flag, ACL)
 ├── pages/
 │   ├── BasePage.ts          # Shared base class (navigation helpers)
 │   ├── LoginPage.ts         # Login form Page Object
-│   └── MainHeader.ts        # Authenticated header / profile menu (logout)
+│   ├── MainHeader.ts        # Authenticated header / profile menu (logout)
+│   ├── DashboardsListPage.ts     # Dashboards library (cards, actions menu)
+│   ├── DashboardFormDialog.ts    # Create / update properties dialogs
+│   ├── DashboardDetailPage.ts    # Single dashboard page (edit mode, quick access)
+│   └── DeleteDashboardDialog.ts  # Deletion confirmation dialog
 └── tests/
-    └── authentication.spec.ts
+    ├── authentication.spec.ts
+    └── dashboards/
+        ├── dashboard-creation.spec.ts
+        ├── dashboard-navigation.spec.ts
+        ├── dashboard-properties-edition.spec.ts
+        └── dashboard-deletion.spec.ts
 ```
+
+## Test data setup (dashboards)
+
+The dashboard specs need a feature flag, a dedicated ACL user and seed data.
+This setup — handled by Cypress custom commands — is split here into:
+
+- **`global-setup.ts`** (runs once): enables the dashboard feature flag and
+  provisions the `user-dashboard-creator` contact + ACL group via the legacy
+  CLAPI API, then recomputes ACLs. Bypass with `SKIP_GLOBAL_SETUP=1` when the
+  platform is already provisioned.
+- **`fixtures/test.ts`** (per test): logs in through the UI as the dashboard
+  creator and seeds/cleans dashboards through the REST API (`CentreonApi`),
+  replacing the Cypress `beforeEach`/`afterEach` DB hooks.
+
+Dashboards are addressed **by name** in the Page Objects rather than by list
+position, which is more robust than the index-based selection used by Cypress.
 
 ## Requirements
 
