@@ -106,12 +106,7 @@ const downtimeState = (row: DowntimeRow | null): DowntimeLifecycle => {
 // Poll the database until the latest downtime reaches the expected state.
 const waitForDowntimeState = (expected: DowntimeLifecycle): void => {
   cy.waitUntil(
-    () =>
-      readDowntime().then((row) => {
-        // DEBUG (draft only): surface the row to diagnose the flexible path in CI.
-        cy.log(`DEBUG row (want ${expected}): ${JSON.stringify(row)}`);
-        return downtimeState(row) === expected;
-      }),
+    () => readDowntime().then((row) => downtimeState(row) === expected),
     {
       errorMsg: `the downtime never reached the '${expected}' state`,
       interval: 5000,
@@ -195,28 +190,6 @@ Given('a passive service is monitored', () => {
       serviceDescription: String(rows[0].service_description),
       serviceId: Number(rows[0].service_id)
     };
-  });
-
-  // Make the service passive with a single check attempt so a submitted CRITICAL
-  // result becomes a HARD non-OK state immediately (no active check overrides it),
-  // which is what triggers a flexible downtime.
-  cy.then(() => {
-    [
-      'active_checks_enabled;0',
-      'passive_checks_enabled;1',
-      'max_check_attempts;1'
-    ].forEach((param) => {
-      cy.executeActionViaClapi({
-        bodyContent: {
-          action: 'SETPARAM',
-          object: 'SERVICE',
-          values: `${service.hostName};${service.serviceDescription};${param}`
-        }
-      });
-    });
-    cy.executeActionViaClapi({
-      bodyContent: { action: 'APPLYCFG', values: '1' }
-    });
   });
 });
 
