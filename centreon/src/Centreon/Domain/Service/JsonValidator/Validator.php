@@ -187,12 +187,11 @@ class Validator implements JsonValidatorInterface
             }
             // The definitions are loaded, we put them in the cache
             $this->validatorCache->setCache(
-                serialize($this->definitions),
+                json_encode($this->definitions, JSON_THROW_ON_ERROR),
                 $this->definitionFiles
             );
         } elseif (($cache = $this->validatorCache->getCache()) !== null) {
-            // We retrieve data from cache
-            $this->definitions = unserialize($cache);
+            $this->definitions = json_decode($cache, true, 512, JSON_THROW_ON_ERROR);
         }
     }
 
