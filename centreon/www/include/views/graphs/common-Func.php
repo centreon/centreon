@@ -24,14 +24,17 @@ function getServiceGroupCount($search = null)
     global $pearDB;
 
     if ($search != '') {
-        $DBRESULT = $pearDB->query(
-            "SELECT count(sg_id) FROM `servicegroup` WHERE sg_name LIKE '%{$search}%'"
+        $statement = $pearDB->prepare(
+            'SELECT count(sg_id) FROM `servicegroup` WHERE sg_name LIKE :search'
         );
+        $statement->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
+        $statement->execute();
     } else {
-        $DBRESULT = $pearDB->query('SELECT count(sg_id) FROM `servicegroup`');
+        $statement = $pearDB->prepare('SELECT count(sg_id) FROM `servicegroup`');
+        $statement->execute();
     }
-    $num_row = $DBRESULT->fetchRow();
-    $DBRESULT->closeCursor();
+    $num_row = $statement->fetchRow();
+    $statement->closeCursor();
 
     return $num_row['count(sg_id)'];
 }
@@ -44,16 +47,18 @@ function getMyHostGraphs($host_id = null)
     }
     $tab_svc = [];
 
-    $DBRESULT = $pearDBO->query(
+    $statement = $pearDBO->prepare(
         'SELECT `service_id`, `service_description` '
         . 'FROM `index_data`, `metrics` '
         . 'WHERE metrics.index_id = index_data.id '
-        . "AND `host_id` = '" . CentreonDB::escape($host_id) . "' "
+        . 'AND `host_id` = :host_id '
         . "AND index_data.`hidden` = '0' "
         . "AND index_data.`trashed` = '0' "
         . 'ORDER BY `service_description`'
     );
-    while ($row = $DBRESULT->fetchRow()) {
+    $statement->bindValue(':host_id', (int) $host_id, PDO::PARAM_INT);
+    $statement->execute();
+    while ($row = $statement->fetchRow()) {
         $tab_svc[$row['service_id']] = $row['service_description'];
     }
 
@@ -87,15 +92,18 @@ function checkIfServiceSgIsEn($host_id = null, $service_id = null)
     }
     $tab_svc = [];
 
-    $DBRESULT = $pearDBO->query(
+    $statement = $pearDBO->prepare(
         'SELECT `service_id` FROM `index_data` '
-        . "WHERE `host_id` = '" . CentreonDB::escape($host_id) . "' "
-        . "AND `service_id` = '" . CentreonDB::escape($service_id) . "' "
+        . 'WHERE `host_id` = :host_id '
+        . 'AND `service_id` = :service_id '
         . "AND index_data.`hidden` = '0' "
         . "AND `trashed` = '0'"
     );
-    $num_row = $DBRESULT->rowCount();
-    $DBRESULT->closeCursor();
+    $statement->bindValue(':host_id', (int) $host_id, PDO::PARAM_INT);
+    $statement->bindValue(':service_id', (int) $service_id, PDO::PARAM_INT);
+    $statement->execute();
+    $num_row = $statement->rowCount();
+    $statement->closeCursor();
 
     return $num_row;
 }
