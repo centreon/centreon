@@ -191,7 +191,12 @@ class Validator implements JsonValidatorInterface
                 $this->definitionFiles
             );
         } elseif (($cache = $this->validatorCache->getCache()) !== null) {
-            $this->definitions = json_decode($cache, true, 512, JSON_THROW_ON_ERROR);
+            try {
+                $this->definitions = json_decode($cache, true, 512, JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
+                @unlink($this->validatorCache->getCacheFile());
+                $this->loadDefinitionFile();
+            }
         }
     }
 
