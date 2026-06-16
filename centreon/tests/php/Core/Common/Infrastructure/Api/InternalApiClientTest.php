@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\Core\Common\Infrastructure\Api;
 
 use Core\Common\Infrastructure\Api\InternalApiClient;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,8 +40,6 @@ class InternalApiClientTest extends TestCase
     private const TEST_SESSION_COOKIE = 'PHPSESSID=test-session-id-12345';
 
     /**
-     * @dataProvider provideUrlsToConvert
-     *
      * @param string $inputUrl The original URL
      * @param string $expectedUrl The expected localhost URL
      * @param array{
@@ -50,6 +49,7 @@ class InternalApiClientTest extends TestCase
      *     'serverPort': ?int,
      * } $env
      */
+    #[DataProvider('provideUrlsToConvert')]
     public function testConvertToLocalUrl(string $inputUrl, string $expectedUrl, array $env): void
     {
         $result = InternalApiClient::convertToLocalUrl(
