@@ -103,7 +103,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
             centralUrl: self::CENTRAL_URL,
         );
 
-        self::assertStringContainsString('--name ' . self::POLLER_NAME, $factory->generate());
+        self::assertStringContainsString('--name ' . escapeshellarg(self::POLLER_NAME), $factory->generate());
     }
 
     public function testGenerateCommandContainsVmType(): void
@@ -186,7 +186,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
             self::CENTRAL_URL,
             self::POLLER_TOKEN,
             self::POLLER_UID,
-            self::POLLER_NAME,
+            escapeshellarg(self::POLLER_NAME),
             self::CENTRAL_URL,
             self::APP_SECRET,
             self::SALT,
