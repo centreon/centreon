@@ -95,6 +95,7 @@ class CentreonRestHttp
 
         if ($noCheckCertificate) {
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
         }
 
         if (! $noProxy && ! is_null($this->proxy)) {
