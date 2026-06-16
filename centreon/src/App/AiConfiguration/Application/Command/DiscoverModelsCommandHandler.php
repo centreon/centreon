@@ -27,6 +27,7 @@ use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProvider;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\AiProviderName;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ModelName;
+use App\AiConfiguration\Domain\Llm\Exception\LlmException;
 use App\AiConfiguration\Domain\Llm\LlmClientFactoryInterface;
 use App\AiConfiguration\Domain\Repository\AiProviderRepository;
 use App\Shared\Application\Command\AsCommandHandler;
@@ -65,9 +66,15 @@ final readonly class DiscoverModelsCommandHandler
             isActivated: false,
         );
 
-        // a provider error (bad token, unreachable, ...) propagates and is
-        // mapped to an HTTP status by exception_to_status
-        $models = $this->clientFactory->forConnectionTest($aiProvider)->listModels();
+        try {
+            $models = $this->clientFactory->forConnectionTest($aiProvider)->listModels();
+        } catch (LlmException $exception) {
+            // an expected provider error (bad token, unreachable, ...) is
+            // returned as data, like the connection-test handlers, so it does
+            // not propagate through the command bus as a CRITICAL failure; the
+            // processor turns it into a 422
+            return new DiscoverModelsResult(models: [], error: $exception->getMessage());
+        }
 
         return new DiscoverModelsResult(models: $models);
     }

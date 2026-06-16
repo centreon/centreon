@@ -6,3 +6,4 @@ export {
   modelPricesEndpoint,
   testConnectionEndpoint
 } from './endpoints';
+export { getApiErrorMessage } from './getApiErrorMessage';

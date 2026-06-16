@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next';
 
 import { baseEndpoint } from '../../../api/endpoint';
 import { modalStateAtom } from '../../ConfigurationBase/atoms';
-import { discoverModelsEndpoint } from '../api';
+import { discoverModelsEndpoint, getApiErrorMessage } from '../api';
 import {
   labelFetchingModels,
   labelFetchModels,
@@ -47,6 +47,7 @@ const FetchModelsButton = (): JSX.Element => {
 
   const [isFetching, setIsFetching] = useState(false);
   const [status, setStatus] = useState<Status | null>(null);
+  const [failureMessage, setFailureMessage] = useState<string | null>(null);
 
   const isEditing = equals(mode, 'edit');
   const hasTypedToken = Boolean(values.apiToken);
@@ -56,6 +57,7 @@ const FetchModelsButton = (): JSX.Element => {
   const fetchModels = (): void => {
     setIsFetching(true);
     setStatus(null);
+    setFailureMessage(null);
 
     axios
       .post<ModelsResponse>(`${baseEndpoint}${discoverModelsEndpoint}`, {
@@ -68,12 +70,18 @@ const FetchModelsButton = (): JSX.Element => {
         setDiscoveredModels({ models: data.models, type: values.type ?? null });
         setStatus(data.models.length > 0 ? 'fetched' : 'none');
       })
-      .catch(() => setStatus('failed'))
+      .catch((error) => {
+        setFailureMessage(getApiErrorMessage(error));
+        setStatus('failed');
+      })
       .finally(() => setIsFetching(false));
   };
 
   const message: Record<Status, { color: string; label: string }> = {
-    failed: { color: 'error.main', label: t(labelFetchModelsFailed) },
+    failed: {
+      color: 'error.main',
+      label: failureMessage ?? t(labelFetchModelsFailed)
+    },
     fetched: { color: 'success.main', label: t(labelModelsFetched) },
     none: { color: 'warning.main', label: t(labelNoModelsFound) }
   };

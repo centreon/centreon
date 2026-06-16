@@ -79,15 +79,22 @@ final class DiscoverModelsCommandHandlerTest extends TestCase
         self::assertSame([], $result->models);
     }
 
-    public function testProviderErrorPropagates(): void
+    public function testProviderErrorIsReturnedAsDataNotThrown(): void
     {
+        // an expected provider rejection must not propagate (it would be logged
+        // as a CRITICAL command-bus failure); it is returned as data so the
+        // processor can map it to a 422
         $handler = $this->handler(new FakeLlmClient(
             exception: LlmRequestFailedException::fromProviderError(401, 'invalid token')
         ));
 
-        $this->expectException(LlmRequestFailedException::class);
+        $result = $handler($this->command(apiToken: new ApiToken('bad-token')));
 
-        $handler($this->command(apiToken: new ApiToken('bad-token')));
+        self::assertSame([], $result->models);
+        self::assertSame(
+            'The AI provider rejected the request (HTTP 401): invalid token',
+            $result->error
+        );
     }
 
     private function handler(FakeLlmClient $client): DiscoverModelsCommandHandler

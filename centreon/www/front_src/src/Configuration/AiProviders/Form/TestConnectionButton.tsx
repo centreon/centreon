@@ -17,8 +17,7 @@ import { useTranslation } from 'react-i18next';
 
 import { baseEndpoint } from '../../../api/endpoint';
 import { modalStateAtom } from '../../ConfigurationBase/atoms';
-import { testConnectionEndpoint } from '../api';
-import { AiProviderType } from '../models';
+import { getApiErrorMessage, testConnectionEndpoint } from '../api';
 import {
   labelConnectionFailed,
   labelConnectionSucceeded,
@@ -63,14 +62,13 @@ const TestConnectionButton = (): JSX.Element => {
         default_model: values.defaultModel,
         type: values.type,
         ...(hasTypedToken ? { api_token: values.apiToken } : {}),
-        ...(equals(values.type, AiProviderType.OpenAiCompatible) &&
-        values.endpointUrl
-          ? { endpoint_url: values.endpointUrl }
-          : {}),
+        ...(values.endpointUrl ? { endpoint_url: values.endpointUrl } : {}),
         ...(isEditing && id ? { provider_id: id } : {})
       })
       .then(({ data }) => setResult(data))
-      .catch(() => setResult({ success: false }))
+      .catch((error) =>
+        setResult({ message: getApiErrorMessage(error), success: false })
+      )
       .finally(() => setIsTesting(false));
   };
 

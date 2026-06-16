@@ -27,9 +27,13 @@ final readonly class DiscoverModelsResult
 {
     /**
      * @param list<string> $models
+     * @param ?string $error the provider's reason when discovery failed (an
+     *                        expected error such as an invalid token or an
+     *                        unreachable endpoint), null on success
      */
     public function __construct(
         public array $models,
+        public ?string $error = null,
     ) {
     }
 }
