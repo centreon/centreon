@@ -48,7 +48,6 @@ class AssertionException extends \Assert\InvalidArgumentException
     // Error codes of Centreon assertion start from 1000
 
     public const INVALID_MAX_DATE = 1001;
-    public const INVALID_IP_OR_DOMAIN = 1002;
     public const INVALID_CHARACTERS = 1003;
     public const INVALID_ARRAY_JSON_ENCODABLE = 1004;
     public const INVALID_MIN_DATE = 1005;
@@ -440,28 +439,6 @@ class AssertionException extends \Assert\InvalidArgumentException
                 $maxValue
             ),
             self::INVALID_RANGE,
-            $propertyPath,
-            $value
-        );
-    }
-
-    /**
-     * Exception when the value does not respect ip format.
-     *
-     * @param string $value Tested value
-     * @param string|null $propertyPath Property's path (ex: Host::maxCheckAttempts)
-     *
-     * @return self
-     */
-    public static function ipOrDomain(string $value, ?string $propertyPath = null): self
-    {
-        return new self(
-            sprintf(
-                _('[%s] The value "%s" was expected to be a valid ip address or domain name'),
-                $propertyPath,
-                $value
-            ),
-            self::INVALID_IP_OR_DOMAIN,
             $propertyPath,
             $value
         );
