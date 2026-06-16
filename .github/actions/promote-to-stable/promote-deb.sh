@@ -70,7 +70,7 @@ fi
 echo "[INFO] $PACKAGES_COUNT packages of module $MODULE_NAME found in $REPOSITORY_NAME ($TESTING_POOL_PATH/)"
 
 if [[ "$STABILITY" != "stable" ]]; then
-  echo "[INFO] Dry run, $PACKAGES_COUNT packages would be promoted to $STABLE_POOL_PATH/ ($STABLE_SUITE/main)"
+  echo "[INFO] Dry run, $PACKAGES_COUNT packages would be promoted to $STABLE_SUITE/main"
   exit 0
 fi
 
@@ -78,17 +78,38 @@ REPOSITORY_HREF=$(pulp deb repository show --name "$REPOSITORY_NAME" | jq -r '.p
 
 mkdir -p promoted-packages
 
-for RELATIVE_PATH in $(echo "$PACKAGES" | jq -r '.[].relative_path'); do
+while read -r PACKAGE; do
+  RELATIVE_PATH=$(echo "$PACKAGE" | jq -r '.relative_path')
+  SHA256=$(echo "$PACKAGE" | jq -r '.sha256')
+  ARCH=$(echo "$PACKAGE" | jq -r '.architecture')
   FILE_NAME=$(basename "$RELATIVE_PATH")
   FILE="promoted-packages/$FILE_NAME"
-  echo "[INFO] Downloading $PULP_CONTENT_URL/$BASE_PATH/$RELATIVE_PATH"
-  curl -fsSL -o "$FILE" "$PULP_CONTENT_URL/$BASE_PATH/$RELATIVE_PATH"
 
-  echo "[INFO] Promoting $FILE_NAME to $STABLE_POOL_PATH/ ($STABLE_SUITE/main)"
+  # the structured publication serves packages under the canonical debian pool
+  # layout, not their upload relative_path, so resolve the published location
+  # from the testing suite Packages indexed by checksum to download the file
+  FILENAME=$(
+    curl -fsSL "$PULP_CONTENT_URL/$BASE_PATH/dists/$TESTING_SUITE/main/binary-$ARCH/Packages" |
+      awk -v sha="$SHA256" 'BEGIN { RS = ""; FS = "\n" } index($0, "SHA256: " sha) { for (i = 1; i <= NF; i++) if ($i ~ /^Filename: /) { sub(/^Filename: /, "", $i); print $i } }'
+  )
+  if [[ -z "$FILENAME" ]]; then
+    echo "::error::Cannot locate the published file of $FILE_NAME (sha256 $SHA256) in $TESTING_SUITE"
+    exit 1
+  fi
+
+  echo "[INFO] Downloading $PULP_CONTENT_URL/$BASE_PATH/$FILENAME"
+  curl -fsSL -o "$FILE" "$PULP_CONTENT_URL/$BASE_PATH/$FILENAME"
+
+  # re-upload the same bytes with the SAME relative_path: pulp reuses the
+  # existing content unit (a different relative_path would create a second unit
+  # that evicts the first, as pulp deduplicates by name+version+architecture
+  # repository wide) and only adds the stable suite association. an upload is
+  # required because pulp_deb rejects direct PackageReleaseComponent creation.
+  echo "[INFO] Promoting $FILE_NAME to $STABLE_SUITE/main"
   TASK_HREF=$(
     pulp_upload \
       -F "file=@$FILE" \
-      -F "relative_path=$STABLE_POOL_PATH/$FILE_NAME" \
+      -F "relative_path=$RELATIVE_PATH" \
       -F "distribution=$STABLE_SUITE" \
       -F "component=main" \
       -F "repository=$REPOSITORY_HREF" \
@@ -96,7 +117,7 @@ for RELATIVE_PATH in $(echo "$PACKAGES" | jq -r '.[].relative_path'); do
       "$PULP_URL/api/v3/content/deb/packages/"
   )
   wait_task "$TASK_HREF"
-done
+done < <(echo "$PACKAGES" | jq -c '.[]')
 
 echo "[INFO] Publishing repository $REPOSITORY_NAME"
 pulp deb publication create --repository "$REPOSITORY_NAME" --structured >/dev/null

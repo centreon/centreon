@@ -90,7 +90,7 @@ runs:
         REPOSITORY_NAME: ${{ steps.pulp-properties.outputs.repository_name }}
         BASE_PATH: ${{ steps.pulp-properties.outputs.base_path }}
         TESTING_POOL_PATH: ${{ steps.pulp-properties.outputs.testing_pool_path }}
-        STABLE_POOL_PATH: ${{ steps.pulp-properties.outputs.stable_pool_path }}
+        TESTING_SUITE: ${{ steps.pulp-properties.outputs.testing_suite }}
         STABLE_SUITE: ${{ steps.pulp-properties.outputs.stable_suite }}
         PACKAGE_DISTRIB_NAME: ${{ steps.pulp-properties.outputs.package_distrib_name }}
         STABILITY: ${{ inputs.stability }}
