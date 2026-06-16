@@ -335,7 +335,7 @@ class CentreonGMT
                 $statement->execute();
                 $info = $statement->fetchRow();
                 $statement->closeCursor();
-                $this->myGMT = $info['contact_location'];
+                $this->myGMT = $info['contact_location'] ?? 0;
             } catch (PDOException $e) {
                 $this->myGMT = 0;
             }
