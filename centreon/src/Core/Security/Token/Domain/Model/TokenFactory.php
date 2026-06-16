@@ -27,7 +27,6 @@ use Core\Common\Domain\TrimmedString;
 use DateTimeImmutable;
 use DateTimeInterface;
 
-
 /**
  * @phpstan-type _ApiToken array{
  *      name: string,

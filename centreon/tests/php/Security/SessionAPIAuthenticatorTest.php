@@ -28,7 +28,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
 use Security\SessionAPIAuthenticator;
-use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -58,7 +57,11 @@ class SessionAPIAuthenticatorTest extends TestCase
     {
         $this->authenticationService = $this->createMock(AuthenticationServiceInterface::class);
         $this->contactRepository = $this->createMock(ContactRepositoryInterface::class);
-        $this->request = $this->createMock(Request::class);
+        $this->request = $this->getMockBuilder(Request::class)
+            ->onlyMethods(['getSession'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->request->initialize();
         $this->session = $this->createMock(SessionInterface::class);
 
         $this->session
@@ -68,8 +71,6 @@ class SessionAPIAuthenticatorTest extends TestCase
         $this->request
             ->method('getSession')
             ->willReturn($this->session);
-
-        $this->request->headers = new HeaderBag();
     }
 
     public function testSupports(): void

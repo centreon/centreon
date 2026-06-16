@@ -1639,18 +1639,6 @@ parameters:
 			path: tests/php/Core/Infrastructure/Common/Api/RouterTest.php
 
 		-
-			message: '#^Call to an undefined method Symfony\\Bundle\\FrameworkBundle\\KernelBrowser\:\:getResponse\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/php/Core/Integration/CoreApiTestCase.php
-
-		-
-			message: '#^Call to an undefined method Symfony\\Bundle\\FrameworkBundle\\KernelBrowser\:\:request\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/php/Core/Integration/CoreApiTestCase.php
-
-		-
 			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
 			count: 5
@@ -1731,13 +1719,19 @@ parameters:
 		-
 			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 21
+			count: 35
+			path: tests/php/Core/Metric/Application/UseCase/DownloadPerformanceMetrics/DownloadPerformanceMetricsTest.php
+
+		-
+			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
 			path: tests/php/Core/Metric/Application/UseCase/DownloadPerformanceMetrics/DownloadPerformanceMetricsTest.php
 
 		-
 			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 8
+			count: 14
 			path: tests/php/Core/Metric/Application/UseCase/DownloadPerformanceMetrics/DownloadPerformanceMetricsTest.php
 
 		-

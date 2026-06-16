@@ -21,3 +21,5 @@ parameters:
           message: '#^Path in require_once\(\) "../centreon/www/modules/#'
         - # Functions from centreon common-Func.php loaded at runtime
           message: '#^Function (createCSRFToken|isCSRFTokenValid|purgeCSRFToken|isServiceAccount) not found\.$#'
+        - # mink-extension removed (incompatible with Symfony 8.x) - tracked in MON-200998
+          message: '#^Call to method .+ on an unknown class Behat\\Mink\\Element\\NodeElement\.$#'

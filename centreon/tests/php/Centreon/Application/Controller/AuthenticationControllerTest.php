@@ -31,7 +31,6 @@ use FOS\RestBundle\View\View;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Security\Infrastructure\Authentication\API\Model_2110\ApiAuthenticationFactory;
-use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -72,7 +71,11 @@ class AuthenticationControllerTest extends TestCase
 
         $this->container = $this->createMock(ContainerInterface::class);
 
-        $this->request = $this->createMock(Request::class);
+        $this->request = $this->getMockBuilder(Request::class)
+            ->onlyMethods(['getContent'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->request->initialize();
     }
 
     /**
@@ -158,9 +161,7 @@ class AuthenticationControllerTest extends TestCase
         $authenticationController = new AuthenticationController();
         $authenticationController->setContainer($this->container);
 
-        $this->request->headers = new HeaderBag([
-            'X-AUTH-TOKEN' => 'token',
-        ]);
+        $this->request->headers->set('X-AUTH-TOKEN', 'token');
 
         $view = $authenticationController->logout($this->request, $this->logout);
 
@@ -176,8 +177,6 @@ class AuthenticationControllerTest extends TestCase
     {
         $authenticationController = new AuthenticationController();
         $authenticationController->setContainer($this->container);
-
-        $this->request->headers = new HeaderBag();
 
         $view = $authenticationController->logout($this->request, $this->logout);
 
