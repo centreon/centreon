@@ -1,0 +1,43 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Centreon/Application/Controller/AbstractControllerTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Centreon/Domain/MonitoringServer/MonitoringServerServiceTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Centreon/Domain/MonitoringServer/MonitoringServerServiceTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Centreon/Domain/MonitoringServer/MonitoringServerServiceTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 7
+			path: tests/php/Centreon/Domain/MonitoringServer/MonitoringServerServiceTest.php
+
+		-
+			message: '#^Call to protected method getMockBuilder\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/CentreonRemote/Infrastructure/Export/ExportManifestTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/CentreonRemote/ServiceProviderTest.php
