@@ -11,11 +11,8 @@
     "ext-zip": "*"
   },
   "require-dev": {
-    "behat/mink-selenium2-driver": "1.7.*",
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "dev-master",
-    "friends-of-behat/mink": "1.11.*",
-    "friends-of-behat/mink-extension": "2.7.*",
+    "centreon/centreon-test-lib": "dev-MON-197579",
     "psr/container": "2.0.*"
   },
   "repositories": [

@@ -11,7 +11,7 @@
   },
   "require-dev": {
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "dev-master"
+    "centreon/centreon-test-lib": "dev-MON-197579"
   },
   "repositories": [
     {

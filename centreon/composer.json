@@ -84,17 +84,14 @@
     "webmozart/assert": "1.11.*"
   },
   "require-dev": {
-    "behat/mink-selenium2-driver": "1.6.*",
     "centreon/centreon-test-lib": "dev-MON-197579",
     "dama/doctrine-test-bundle": "8.4.*",
-    "friends-of-behat/mink": "1.11.*",
-    "friends-of-behat/mink-extension": "2.7.*",
     "mockery/mockery": "1.6.*",
     "pestphp/pest": "2.36.*",
     "php-vfs/php-vfs": "1.4.*",
     "phpunit/phpunit": "10.5.*",
-    "robertfausk/mink-panther-driver": "1.1.*",
     "squizlabs/php_codesniffer": "3.10.*",
+    "symfony/browser-kit": "8.1.*",
     "symfony/debug-bundle": "8.1.*",
     "symfony/phpunit-bridge": "8.1.*",
     "symfony/stopwatch": "8.1.*",

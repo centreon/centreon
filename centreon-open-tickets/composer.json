@@ -25,8 +25,8 @@
   "require-dev": {
     "beberlei/assert": "3.3.*",
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "dev-master",
-    "pestphp/pest": "2.36.*",
+    "centreon/centreon-test-lib": "dev-MON-197579",
+    "pestphp/pest": "3.*",
     "symfony/console": "8.1.*"
   },
   "autoload": {
