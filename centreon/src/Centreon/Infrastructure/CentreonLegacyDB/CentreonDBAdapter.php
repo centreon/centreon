@@ -135,10 +135,12 @@ class CentreonDBAdapter
             throw new \Exception("The argument `fields` can't be empty");
         }
 
+        $table = $this->sanitizeIdentifier($table);
         $keys = [];
         $keyVars = [];
 
         foreach ($fields as $key => $value) {
+            $key = $this->sanitizeIdentifier($key);
             $keys[] = "`{$key}`";
             $keyVars[] = ":{$key}";
         }
@@ -151,6 +153,7 @@ class CentreonDBAdapter
         $stmt = $this->db->prepare($sql);
 
         foreach ($fields as $key => $value) {
+            $key = $this->sanitizeIdentifier($key);
             $stmt->bindValue(':' . $key, $value);
         }
 
@@ -177,15 +180,12 @@ class CentreonDBAdapter
      */
     public function loadDataInfile(string $file, string $table, array $fieldsClause, array $linesClause, array $columns): void
     {
-        // SQL statement format:
-        // LOAD DATA
-        // INFILE 'file_name'
-        // INTO TABLE tbl_name
-        // FIELDS TERMINATED BY ',' ENCLOSED BY '\'' ESCAPED BY '\\'
-        // LINES TERMINATED BY '\n' STARTING BY ''
-        // (`col_name`, `col_name`,...)
+        if (str_contains($file, "'") || str_contains($file, '..')) {
+            throw new \InvalidArgumentException("Invalid file path: {$file}");
+        }
+        $table = $this->sanitizeIdentifier($table);
+        $columns = array_map([$this, 'sanitizeIdentifier'], $columns);
 
-        // Construct SQL statement
         $sql = "LOAD DATA LOCAL INFILE '{$file}'";
         $sql .= " INTO TABLE {$table}";
         $sql .= " FIELDS TERMINATED BY '" . $fieldsClause['terminated_by'] . "' ENCLOSED BY '"
@@ -194,10 +194,8 @@ class CentreonDBAdapter
             . $linesClause['starting_by'] . "'";
         $sql .= ' (`' . implode('`, `', $columns) . '`)';
 
-        // Prepare PDO statement.
         $stmt = $this->db->prepare($sql);
 
-        // Execute
         try {
             $stmt->execute();
         } catch (\Exception $e) {
@@ -215,11 +213,12 @@ class CentreonDBAdapter
      */
     public function update($table, array $fields, int $id)
     {
-
+        $table = $this->sanitizeIdentifier($table);
         $keys = [];
         $keyValues = [];
 
         foreach ($fields as $key => $value) {
+            $key = $this->sanitizeIdentifier($key);
             array_push($keys, $key . '= :' . $key);
             array_push($keyValues, [$key, $value]);
         }
@@ -280,5 +279,15 @@ class CentreonDBAdapter
     public function rollBack(): void
     {
         $this->db->rollBack();
+    }
+
+    private function sanitizeIdentifier(string $name): string
+    {
+        $name = trim(trim($name), '`');
+        if ($name === '' || preg_match('/[;\'"\\\\#]|--|\/\*/', $name) === 1) {
+            throw new \InvalidArgumentException("Invalid identifier: {$name}");
+        }
+
+        return $name;
     }
 }
