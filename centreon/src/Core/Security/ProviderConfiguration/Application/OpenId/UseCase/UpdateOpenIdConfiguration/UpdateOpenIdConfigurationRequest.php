@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\OpenId\UseCase\UpdateOpenIdConfiguration;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
+
 /**
  * @phpstan-type _RoleMapping array{
  *  is_enabled: bool,
@@ -122,6 +124,7 @@ final class UpdateOpenIdConfigurationRequest
     public ?string $clientId = null;
 
     /** @var string|null */
+    #[Sensitive]
     public ?string $clientSecret = null;
 
     /** @var string|null */

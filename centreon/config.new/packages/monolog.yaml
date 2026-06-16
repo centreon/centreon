@@ -33,9 +33,7 @@ monolog:
             type: stream
             path: "%kernel.logs_dir%/%kernel.environment%.web.log"
             level: debug
-            # Rotation is handled by logrotate on production hosts
-            # (cf. MON-151077). Do NOT use `rotating_file` here —
-            # the two would fight over filename / suffix.
+            # Rotation handled by logrotate; do NOT use `rotating_file` (fights over the filename suffix).
             formatter: monolog.formatter.line
 
 when@dev:

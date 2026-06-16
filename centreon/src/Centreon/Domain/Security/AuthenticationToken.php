@@ -23,9 +23,12 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Security;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
+
 class AuthenticationToken
 {
     /** @var string Authentication token */
+    #[Sensitive]
     private $token;
 
     /** @var \DateTime Generation date of the authentication token */
