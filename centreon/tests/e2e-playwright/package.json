@@ -1,0 +1,21 @@
+{
+  "name": "centreon-e2e-playwright",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Playwright end-to-end tests for Centreon (proof of concept, Page Object Model)",
+  "scripts": {
+    "stack:up": "docker compose -f ../../../.github/docker/docker-compose.yml up -d web",
+    "stack:down": "docker compose -f ../../../.github/docker/docker-compose.yml down -v",
+    "stack:logs": "docker compose -f ../../../.github/docker/docker-compose.yml logs -f web",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report",
+    "install:browsers": "playwright install --with-deps chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^20.11.27",
+    "typescript": "^5.7.2"
+  }
+}
