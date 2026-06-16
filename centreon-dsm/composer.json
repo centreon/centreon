@@ -23,7 +23,7 @@
     "secure-http": false,
     "sort-packages": true,
     "platform": {
-      "php": "8.4"
+      "php": "8.4.1"
     },
     "preferred-install": {
       "*": "dist"
@@ -73,7 +73,7 @@
   "extra": {
     "symfony": {
       "allow-contrib": true,
-      "require": "7.4.*"
+      "require": "8.1.*"
     }
   }
 }
