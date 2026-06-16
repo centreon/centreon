@@ -42,6 +42,11 @@ services:
       interval: 10s
       timeout: 15s
       retries: 20
+      MYSQL_EXTRA_FLAGS: "--skip-ssl"
+    ulimits:
+      nofile:
+        soft: "32000"
+        hard: "32000"      
     deploy:
       resources:
         limits:
