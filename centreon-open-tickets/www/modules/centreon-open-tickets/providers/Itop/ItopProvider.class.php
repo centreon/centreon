@@ -148,7 +148,7 @@ class ItopProvider extends AbstractProvider
 
         $filter = $data['groups']['itop_caller']['filter'];
         if (isset($filter) && $filter != '') {
-            if (!preg_match('/^[a-zA-Z0-9_]+$/', $filter)) {
+            if (! preg_match('/^[a-zA-Z0-9_]+$/', $filter)) {
                 throw new Exception('Invalid input', 1);
             }
             $escapedFilter = preg_replace('/[^a-zA-Z0-9\s\-_.]/', '', $filter);
