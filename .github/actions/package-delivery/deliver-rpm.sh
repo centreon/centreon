@@ -42,6 +42,43 @@ pulp_upload() {
   return 1
 }
 
+# refuse delivering a package that is already published in the stable repository.
+# rebuilding a testing/unstable version with a different content is fine, but a
+# version that already reached stable must never be re-delivered. rpm uses a
+# dedicated repository per stability, so this is a policy check (deliveries to
+# testing/unstable cannot evict stable, unlike a shared repository).
+assert_not_in_stable() {
+  local file=$1 arch=$2 base name version release stable_repository repository_version count
+  base=$(basename "$file" .rpm)
+  base=${base%.$arch}
+  release=${base##*-}
+  base=${base%-*}
+  version=${base##*-}
+  name=${base%-*}
+
+  stable_repository="$STABLE_REPOSITORY_PREFIX-$arch"
+  # no stable repository yet => nothing can be in stable
+  if ! pulp rpm repository show --name "$stable_repository" >/dev/null 2>&1; then
+    return 0
+  fi
+  repository_version=$(pulp rpm repository show --name "$stable_repository" | jq -r '.latest_version_href')
+
+  count=$(
+    curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" -G \
+      --data-urlencode "repository_version=$repository_version" \
+      --data-urlencode "name=$name" \
+      --data-urlencode "version=$version" \
+      --data-urlencode "release=$release" \
+      --data-urlencode "arch=$arch" \
+      --data-urlencode "limit=1" \
+      "$PULP_URL/api/v3/content/rpm/packages/" | jq -r '.count'
+  )
+  if [[ "$count" -gt 0 ]]; then
+    echo "::error::$name $version-$release ($arch) is already published in the stable repository $stable_repository; refusing to deliver it to $REPOSITORY_NAME. Bump the package version for a new build."
+    return 1
+  fi
+}
+
 FILES=(*.rpm)
 if [[ ${#FILES[@]} -eq 0 ]]; then
   echo "::error::No rpm package found to deliver"
@@ -85,6 +122,7 @@ for ARCH in noarch x86_64; do
   # are labeled with their module so that promote-to-stable can identify them;
   # pulp-cli does not allow to set labels on upload so the api is used directly.
   for FILE in "${ARCH_FILES[@]}"; do
+    assert_not_in_stable "$FILE" "$ARCH"
     echo "[INFO] Uploading $(basename "$FILE") to $REPOSITORY_NAME (module $MODULE_NAME)"
     TASK_HREF=$(
       pulp_upload \

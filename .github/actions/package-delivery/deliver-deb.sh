@@ -42,6 +42,58 @@ pulp_upload() {
   return 1
 }
 
+# refuse delivering a package that is already published in the stable suite.
+# rebuilding a testing/unstable version with a different content is fine, but a
+# version that already reached stable must never be re-delivered: pulp
+# deduplicates packages by (package, version, architecture) repository wide, so
+# the new content would silently evict the stable one. bump the version instead.
+assert_not_in_stable() {
+  local file=$1 name version arch repository_version stable_component package_href count
+  name=$(dpkg-deb -f "$file" Package)
+  version=$(dpkg-deb -f "$file" Version)
+  arch=$(dpkg-deb -f "$file" Architecture)
+  repository_version=$(pulp deb repository show --name "$REPOSITORY_NAME" | jq -r '.latest_version_href')
+
+  # the "main" release component of the stable suite, empty if nothing is stable yet
+  stable_component=$(
+    curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" -G \
+      --data-urlencode "repository_version=$repository_version" \
+      --data-urlencode "distribution=$STABLE_SUITE" \
+      --data-urlencode "component=main" \
+      --data-urlencode "fields=pulp_href" \
+      "$PULP_URL/api/v3/content/deb/release_components/" | jq -r '.results[0].pulp_href // empty'
+  )
+  [[ -z "$stable_component" ]] && return 0
+
+  # the package unit already present for this name/version/architecture, if any
+  # (pulp keeps a single unit per name+version+architecture repository wide)
+  package_href=$(
+    curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" -G \
+      --data-urlencode "repository_version=$repository_version" \
+      --data-urlencode "package=$name" \
+      --data-urlencode "version=$version" \
+      --data-urlencode "architecture=$arch" \
+      --data-urlencode "fields=pulp_href" \
+      "$PULP_URL/api/v3/content/deb/packages/" | jq -r '.results[0].pulp_href // empty'
+  )
+  [[ -z "$package_href" ]] && return 0
+
+  # is that unit associated with the stable suite? (the release_component filter
+  # on the packages endpoint is broken server side, so go through the join)
+  count=$(
+    curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" -G \
+      --data-urlencode "repository_version=$repository_version" \
+      --data-urlencode "release_component=$stable_component" \
+      --data-urlencode "package=$package_href" \
+      --data-urlencode "limit=1" \
+      "$PULP_URL/api/v3/content/deb/package_release_components/" | jq -r '.count'
+  )
+  if [[ "$count" -gt 0 ]]; then
+    echo "::error::$name $version ($arch) is already published in the stable suite $STABLE_SUITE; refusing to deliver it to $SUITE. Bump the package version for a new build."
+    return 1
+  fi
+}
+
 FILES=(*.deb)
 if [[ ${#FILES[@]} -eq 0 ]]; then
   echo "::error::No deb package found to deliver"
@@ -61,6 +113,7 @@ fi
 REPOSITORY_HREF=$(pulp deb repository show --name "$REPOSITORY_NAME" | jq -r '.pulp_href')
 
 for FILE in "${FILES[@]}"; do
+  assert_not_in_stable "$FILE"
   echo "[INFO] Uploading $FILE to $POOL_PATH/ ($SUITE/main, module $MODULE_NAME)"
   # packages are labeled with their module so that promote-to-stable can identify
   # which packages belong to this module, pulp-cli does not allow to set labels nor
