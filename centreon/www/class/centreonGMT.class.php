@@ -328,10 +328,13 @@ class CentreonGMT
     {
         if (! empty($userId)) {
             try {
-                $DBRESULT = CentreonDBInstance::getDbCentreonInstance()->query('SELECT `contact_location` FROM `contact` '
-                    . 'WHERE `contact`.`contact_id` = ' . $userId . ' LIMIT 1');
-                $info = $DBRESULT->fetchRow();
-                $DBRESULT->closeCursor();
+                $statement = CentreonDBInstance::getDbCentreonInstance()->prepare(
+                    'SELECT `contact_location` FROM `contact` WHERE `contact`.`contact_id` = :userId LIMIT 1'
+                );
+                $statement->bindValue(':userId', (int) $userId, PDO::PARAM_INT);
+                $statement->execute();
+                $info = $statement->fetchRow();
+                $statement->closeCursor();
                 $this->myGMT = $info['contact_location'];
             } catch (PDOException $e) {
                 $this->myGMT = 0;
