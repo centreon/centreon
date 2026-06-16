@@ -32,6 +32,7 @@ use App\AiConfiguration\Domain\Llm\LlmResponse;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * Amazon Bedrock. Chat completions go through the OpenAI-compatible mantle
@@ -85,7 +86,7 @@ final class BedrockLlmClient implements LlmClientInterface
         }
 
         if ($statusCode >= 400) {
-            throw LlmRequestFailedException::fromProviderError($statusCode, 'model discovery failed');
+            throw LlmRequestFailedException::fromProviderError($statusCode, $this->extractErrorMessage($response));
         }
 
         try {
@@ -105,5 +106,37 @@ final class BedrockLlmClient implements LlmClientInterface
         sort($ids);
 
         return array_values(array_unique($ids));
+    }
+
+    /**
+     * Surface the AWS error so the cause is actionable. The control plane
+     * returns {"Message": "..."} with a human-readable reason (e.g.
+     * "Authentication failed: Please make sure your API Key is valid."), which
+     * is used as-is. Only when no such message is present do we fall back to
+     * the machine error type from the x-amzn-errortype header (e.g.
+     * "AccessDeniedException:http://internal...") and then to a raw snippet.
+     */
+    private function extractErrorMessage(ResponseInterface $response): string
+    {
+        try {
+            $body = $response->getContent(false);
+            $headers = $response->getHeaders(false);
+        } catch (HttpClientExceptionInterface) {
+            return 'model discovery failed';
+        }
+
+        /** @var array{Message?: string, message?: string}|null $data */
+        $data = json_decode($body, true);
+        $message = is_array($data) ? ($data['Message'] ?? $data['message'] ?? null) : null;
+        if (is_string($message) && $message !== '') {
+            return $message;
+        }
+
+        $errorType = explode(':', $headers['x-amzn-errortype'][0] ?? '')[0];
+        if ($errorType !== '') {
+            return $errorType;
+        }
+
+        return $body !== '' ? mb_substr($body, 0, 200) : 'model discovery failed';
     }
 }

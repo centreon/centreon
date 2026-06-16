@@ -26,6 +26,7 @@ namespace Tests\App\AiConfiguration\Infrastructure\Llm;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\ApiToken;
 use App\AiConfiguration\Domain\Aggregate\AiProvider\EndpointUrl;
 use App\AiConfiguration\Domain\Llm\AiFeatureEnum;
+use App\AiConfiguration\Domain\Llm\Exception\LlmRequestFailedException;
 use App\AiConfiguration\Domain\Llm\LlmMessage;
 use App\AiConfiguration\Domain\Llm\LlmRequest;
 use App\AiConfiguration\Domain\Llm\LlmResponse;
@@ -70,6 +71,66 @@ final class BedrockLlmClientTest extends TestCase
             ['eu.anthropic.claude-haiku-4-5', 'eu.anthropic.claude-sonnet-4-6'],
             $client->listModels()
         );
+    }
+
+    public function testListModelsSurfacesTheHumanAwsMessageWithoutTheErrorType(): void
+    {
+        $httpClient = new MockHttpClient(
+            static fn (): MockResponse => new MockResponse(
+                '{"Message":"Authentication failed: Please make sure your API Key is valid."}',
+                [
+                    'http_code' => 403,
+                    'response_headers' => [
+                        'x-amzn-errortype: AccessDeniedException:http://internal.amazon.com/coral/',
+                    ],
+                ]
+            )
+        );
+
+        $client = new BedrockLlmClient(
+            new FakeLlmClient(),
+            $httpClient,
+            new EndpointUrl('https://bedrock-mantle.eu-west-1.api.aws'),
+            new ApiToken('a-key'),
+        );
+
+        // the human message stands on its own; the AccessDeniedException type is
+        // not prefixed when a message is present
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage(
+            'The AI provider rejected the request (HTTP 403): Authentication failed: Please make sure your API Key is valid.'
+        );
+
+        $client->listModels();
+    }
+
+    public function testListModelsFallsBackToTheErrorTypeWhenThereIsNoMessage(): void
+    {
+        $httpClient = new MockHttpClient(
+            static fn (): MockResponse => new MockResponse(
+                '',
+                [
+                    'http_code' => 403,
+                    'response_headers' => [
+                        'x-amzn-errortype: AccessDeniedException:http://internal.amazon.com/coral/',
+                    ],
+                ]
+            )
+        );
+
+        $client = new BedrockLlmClient(
+            new FakeLlmClient(),
+            $httpClient,
+            new EndpointUrl('https://bedrock-mantle.eu-west-1.api.aws'),
+            new ApiToken('a-key'),
+        );
+
+        $this->expectException(LlmRequestFailedException::class);
+        $this->expectExceptionMessage(
+            'The AI provider rejected the request (HTTP 403): AccessDeniedException'
+        );
+
+        $client->listModels();
     }
 
     public function testCompleteDelegatesToTheOpenAiCompatibleClient(): void
