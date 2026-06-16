@@ -1652,7 +1652,7 @@ CREATE TABLE `nagios_server` (
   `centreonbroker_module_path` varchar(255) DEFAULT NULL,
   `centreonconnector_path` varchar(255) DEFAULT NULL,
   `ssh_port` int(11) DEFAULT NULL,
-  `gorgone_communication_type` enum('1', '2') NOT NULL DEFAULT '1',
+  `gorgone_communication_type` enum('1', '2', '3', '4') NOT NULL DEFAULT '1' COMMENT '1: SSH, 2: ZMQ, 3: Pull, 4: PullWSS',
   `gorgone_port` int(11) DEFAULT NULL,
   `init_script_centreontrapd` varchar(255) DEFAULT NULL,
   `snmp_trapd_path_conf` varchar(255) DEFAULT NULL,
