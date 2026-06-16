@@ -24,7 +24,7 @@ $help = [];
 /**
  * Debug
  */
-$help['tip_logs_directory'] = dgettext('help', 'Directory of log files.');
+$help['tip_logs_directory'] = dgettext('help', 'Directory for the RRDTool and LDAP search debug logs. Web and authentication logs are written to the platform log directory (_CENTREON_LOG_, /var/log/centreon by default) regardless of this setting.');
 $help['tip_authentication_debug'] = dgettext('help', 'Enables authentication debug.');
 $help['tip_nagios_import_debug'] = dgettext('help', 'Enables Monitoring Engine import debug.');
 $help['tip_rrdtool_debug'] = dgettext('help', 'Enables RRDTool debug.');
