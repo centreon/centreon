@@ -83,7 +83,7 @@ function getContactgroups(array $cg): array
 
     $contactGroups = [];
     $cg = array_map('intval', $cg);
-    if (empty($cg)) {
+    if ($cg === []) {
         return $contactGroups;
     }
     $placeholders = implode(', ', array_fill(0, count($cg), '?'));
@@ -113,7 +113,7 @@ function getContacts(array $contacts): array
 
     $contactsResult = [];
     $contacts = array_map('intval', $contacts);
-    if (empty($contacts)) {
+    if ($contacts === []) {
         return $contactsResult;
     }
     $placeholders = implode(', ', array_fill(0, count($contacts), '?'));
