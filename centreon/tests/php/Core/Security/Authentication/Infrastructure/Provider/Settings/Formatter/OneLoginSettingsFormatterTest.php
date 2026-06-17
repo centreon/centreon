@@ -29,6 +29,8 @@ use Core\Security\ProviderConfiguration\Domain\SAML\Model\RequestedAuthnContextC
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -47,28 +49,24 @@ class OneLoginSettingsFormatterTest extends TestCase
     private const IDP_CERT = 'MIID-fake-certificate-body';
     private const ACS_URL = 'https://centreon.example.com/centreon/api/latest/saml/acs';
 
-    /** @var UrlGeneratorInterface&MockObject */
-    private $urlGenerator;
+    private UrlGeneratorInterface&MockObject $urlGenerator;
 
     private OneLoginSettingsFormatter $formatter;
 
     protected function setUp(): void
     {
-        // OneLoginSettingsFormatter reads $_SERVER directly to build the SP entityId.
-        $_SERVER['HTTP_HOST'] = 'centreon.example.com';
-        $_SERVER['REQUEST_SCHEME'] = 'https';
-
         $this->urlGenerator = $this->createMock(UrlGeneratorInterface::class);
         $this->urlGenerator->method('generate')
             ->with('centreon_application_authentication_saml_acs', [], UrlGeneratorInterface::ABSOLUTE_URL)
             ->willReturn(self::ACS_URL);
 
         $this->formatter = new OneLoginSettingsFormatter($this->urlGenerator);
-    }
 
-    protected function tearDown(): void
-    {
-        unset($_SERVER['HTTP_HOST'], $_SERVER['REQUEST_SCHEME']);
+        // OneLoginSettingsFormatter resolves the SP entityId from the current request (HttpUrlTrait).
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('https://centreon.example.com/centreon'));
+
+        $this->formatter->setHttpServerBag($requestStack);
     }
 
     public function testFormatMapsStoredConfigurationToOneLoginSettings(): void
