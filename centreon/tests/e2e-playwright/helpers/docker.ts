@@ -21,9 +21,103 @@ const execCompose = (args: Array<string>): string =>
     encoding: 'utf-8'
   });
 
+const sleep = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
 /** Run a shell command inside the `web` service container. */
 export const execInWebContainer = (command: string): string =>
   execCompose(['exec', '-T', 'web', 'sh', '-c', command]);
+
+/** Names of the compose services currently in the "running" state. */
+const runningServices = (): Array<string> =>
+  execCompose(['ps', '--services', '--status', 'running'])
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+export interface StackRequirement {
+  /** docker compose profiles to enable (e.g. ['openid']). */
+  profiles?: Array<string>;
+  /** services that must be up (e.g. ['web', 'openid', 'sso-proxy']). */
+  services: Array<string>;
+}
+
+/**
+ * Make sure the required services are up before the tests run.
+ *
+ * It inspects the running services and, if any required one is missing, runs
+ * `docker compose up -d` for the requested services/profiles. `up -d` is
+ * idempotent and recreates containers whose configuration drifted (e.g. a
+ * different image), so this also handles "the running stack does not match the
+ * one the tests need". Set SKIP_STACK_MANAGEMENT=1 to manage the stack yourself.
+ */
+export const ensureStack = async ({
+  services,
+  profiles = []
+}: StackRequirement): Promise<void> => {
+  if (process.env.SKIP_STACK_MANAGEMENT) {
+    return;
+  }
+
+  const running = runningServices();
+  const missing = services.filter((service) => !running.includes(service));
+
+  if (missing.length > 0) {
+    const profileArgs = profiles.flatMap((profile) => ['--profile', profile]);
+    // eslint-disable-next-line no-console
+    console.log(
+      `[stack] starting services: ${missing.join(', ')} (running: ${
+        running.join(', ') || 'none'
+      })`
+    );
+    execCompose([...profileArgs, 'up', '-d', ...services]);
+  }
+
+  if (services.includes('web')) {
+    await waitForWebHealthy();
+  }
+};
+
+/** Poll the `web` container health until it reports healthy. */
+export const waitForWebHealthy = async (timeoutMs = 300_000): Promise<void> => {
+  const containerId = execCompose(['ps', '-q', 'web']).trim();
+  if (!containerId) {
+    throw new Error('web container not found');
+  }
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const status = execFileSync(
+      'docker',
+      ['inspect', '--format', '{{.State.Health.Status}}', containerId],
+      { encoding: 'utf-8' }
+    ).trim();
+    if (status === 'healthy') {
+      return;
+    }
+    await sleep(5_000);
+  }
+  throw new Error('web container did not become healthy in time');
+};
+
+/** Poll an HTTP endpoint until it answers with the expected status (default 200). */
+export const waitForHttpOk = async (
+  url: string,
+  { timeoutMs = 180_000, expectedStatus = 200 } = {}
+): Promise<void> => {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    try {
+      const response = await fetch(url);
+      if (response.status === expectedStatus) {
+        return;
+      }
+    } catch {
+      // service not reachable yet
+    }
+    await sleep(5_000);
+  }
+  throw new Error(`endpoint ${url} not ready in time`);
+};
 
 /**
  * Enable the dashboard feature flag (0..3 → 3 = fully enabled) in the running

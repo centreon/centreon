@@ -90,29 +90,26 @@ cd centreon/tests/e2e-playwright
 pnpm install
 pnpm install:browsers
 
-# 2. Start the Centreon web stack (image pulled from the Centreon registry)
-pnpm stack:up
-# Wait until the platform answers:
-#   curl --fail http://localhost:4000/centreon/api/latest/platform/versions
-
-# 3. Run the tests
+# 2. Run the tests — the required services are started automatically
 pnpm test            # headless
 pnpm test:headed     # with a visible browser
 pnpm test:ui         # Playwright UI mode
 pnpm report          # open the last HTML report
 
-# 4. Tear the stack down
+# 3. (optional) tear the stack down when finished
 pnpm stack:down
 ```
 
-### Letting Playwright start the stack
+### Automatic stack management
 
-Set `START_STACK=1` to make Playwright bring the `web` service up automatically
-and wait for the platform API before running the tests:
+The required services are ensured at the start of the run: `global-setup.ts`
+makes sure the `web` stack is up (for the auth/dashboard specs) and the OIDC
+spec's `beforeAll` brings up the `openid` profile (Keycloak + sso-proxy). If a
+needed service is not running it is started (and recreated if its configuration
+drifted), so you do not have to run `pnpm stack:up` yourself.
 
-```bash
-START_STACK=1 pnpm test
-```
+Set `SKIP_STACK_MANAGEMENT=1` to manage the stack manually (e.g. when you
+already started it with `pnpm stack:up` and want faster startup).
 
 ## Configuration
 
@@ -121,7 +118,7 @@ START_STACK=1 pnpm test
 | `CENTREON_BASE_URL`       | `http://localhost:4000/centreon`     | Base URL of the platform        |
 | `CENTREON_ADMIN_LOGIN`    | `admin`                              | Admin login                     |
 | `CENTREON_ADMIN_PASSWORD` | `Centreon!2021`                      | Admin password                  |
-| `START_STACK`             | _(unset)_                            | If set, Playwright boots the stack |
+| `SKIP_STACK_MANAGEMENT`   | _(unset)_                            | If set, the tests do not start/recreate the stack |
 | `RECORD_VIDEO`            | _(unset)_                            | If set, record a video for every test (not only failures) |
 | `RECORD_TRACE`            | _(unset)_                            | If set, capture a trace for every test (not only failures) |
 

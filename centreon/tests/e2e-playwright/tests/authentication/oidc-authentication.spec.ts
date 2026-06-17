@@ -7,6 +7,7 @@ import {
   providerAclActions
 } from '../../fixtures/oidc';
 import { CentreonApi } from '../../helpers/CentreonApi';
+import { ensureStack, waitForHttpOk } from '../../helpers/docker';
 import { KeycloakLoginPage } from '../../pages/KeycloakLoginPage';
 import { LoginPage } from '../../pages/LoginPage';
 import { MainHeader } from '../../pages/MainHeader';
@@ -26,6 +27,17 @@ const baseURL =
 test.describe
   .serial('OpenID Connect authentication', () => {
     test.beforeAll(async () => {
+      // Ensure the docker compose `openid` profile is up (Keycloak + sso-proxy),
+      // starting it if the running stack does not include it, then wait for
+      // Keycloak to answer before provisioning.
+      await ensureStack({
+        profiles: ['openid'],
+        services: ['web', 'openid', 'sso-proxy']
+      });
+      await waitForHttpOk(
+        'http://localhost:8080/realms/Centreon_SSO/.well-known/openid-configuration'
+      );
+
       // Provision the ACL group/menu and the local OIDC contact via CLAPI.
       const api = await CentreonApi.create(baseURL);
       try {

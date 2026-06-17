@@ -16,6 +16,7 @@ export class OidcConfigurationPage extends BasePage {
   readonly introspectionEndpointInput: Locator;
   readonly clientIdInput: Locator;
   readonly clientSecretInput: Locator;
+  readonly scopesInput: Locator;
   readonly loginAttributeInput: Locator;
   readonly useBasicAuthCheckbox: Locator;
   readonly disableVerifyPeerCheckbox: Locator;
@@ -43,6 +44,7 @@ export class OidcConfigurationPage extends BasePage {
     );
     this.clientIdInput = page.locator('input[aria-label="Client ID"]');
     this.clientSecretInput = page.locator('input[aria-label="Client secret"]');
+    this.scopesInput = page.locator('input[aria-label="Scopes"]');
     this.loginAttributeInput = page.locator(
       'input[aria-label="Login attribute path"]'
     );
@@ -91,8 +93,31 @@ export class OidcConfigurationPage extends BasePage {
     await this.clientIdInput.fill(oidcConfig.clientId);
     await this.clientSecretInput.fill(oidcConfig.clientSecret);
     await this.loginAttributeInput.fill(oidcConfig.loginAttributePath);
+    await this.ensureScope(oidcConfig.scopes);
     await this.useBasicAuthCheckbox.uncheck();
-    await this.disableVerifyPeerCheckbox.check();
+  }
+
+  /**
+   * Make sure the given connection scope is present. The `openid` scope is
+   * required for the provider to return an id_token; without it the login
+   * fails with "Request for connection token to external provider has failed".
+   */
+  private scopeChip(scope: string): Locator {
+    return this.page.locator('.MuiChip-root', { hasText: scope });
+  }
+
+  private async ensureScope(scope: string): Promise<void> {
+    if ((await this.scopeChip(scope).count()) > 0) {
+      return;
+    }
+    // It is a creatable autocomplete: type the value (fill() does not trigger
+    // the chip creation) and press Enter to accept it. Use the keyboard after
+    // focusing — typing re-renders the combobox, so the input locator goes
+    // stale and must not be re-queried for the Enter press.
+    await this.scopesInput.click();
+    await this.page.keyboard.type(scope);
+    await this.page.keyboard.press('Enter');
+    await expect(this.scopeChip(scope).first()).toBeVisible();
   }
 
   /** Enable OpenID Connect authentication if it is not already enabled. */

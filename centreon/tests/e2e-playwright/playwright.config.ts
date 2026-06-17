@@ -7,10 +7,11 @@ import { defineConfig, devices } from '@playwright/test';
  * file located at `.github/docker/docker-compose.yml`. The `web` service exposes
  * the application on http://localhost:4000 and Centreon is served under `/centreon`.
  *
- * Bring the stack up before running the tests:
- *   pnpm stack:up
- * or rely on the `webServer` block below, which starts it automatically and
- * waits until the platform API answers.
+ * The required services are ensured automatically at the start of the run
+ * (`global-setup.ts` for the web stack, the OIDC spec's `beforeAll` for the
+ * `openid` profile): if a needed service is not running it is started, so you
+ * normally do not have to run `pnpm stack:up` yourself. Set
+ * SKIP_STACK_MANAGEMENT=1 to manage the stack manually.
  */
 
 const baseURL =
@@ -39,6 +40,8 @@ export default defineConfig({
       // (`sso-proxy`), so it is mapped to the published port on localhost.
       name: 'oidc',
       testMatch: '**/authentication/oidc-authentication.spec.ts',
+      // Allow extra time: the first OIDC test may start the openid profile.
+      timeout: 240_000,
       use: {
         ...devices['Desktop Chrome'],
         launchOptions: {
@@ -63,19 +66,5 @@ export default defineConfig({
     trace: process.env.RECORD_TRACE ? 'on' : 'retain-on-failure',
     video: process.env.RECORD_VIDEO ? 'on' : 'retain-on-failure'
   },
-  /**
-   * Optionally start the docker compose stack automatically.
-   * Disabled by default (set START_STACK=1 to enable) so that developers who
-   * already have the stack running do not pay the boot cost on every run.
-   */
-  webServer: process.env.START_STACK
-    ? {
-        command:
-          'docker compose -f ../../../.github/docker/docker-compose.yml up -d web',
-        reuseExistingServer: true,
-        timeout: 240_000,
-        url: `${baseURL}/api/latest/platform/versions`
-      }
-    : undefined,
   workers: 1
 });
