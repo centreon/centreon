@@ -61,27 +61,25 @@ final class UpgradeEventValidationTest extends TestCase
         new UpgradeStepCompleted('24.10.1', 'php_script', -5);
     }
 
-    public function testUpgradeStepFailedRejectsEmptyVersion(): void
+    public function testUpgradeStepFailedPerformsNoThrowingValidation(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-
-        new UpgradeStepFailed('boom', '', 'php_script');
-    }
-
-    public function testUpgradeStepFailedAcceptsAnyMessageIncludingEmpty(): void
-    {
-        // The message is exception-derived and must never be validated (it is built inside a catch block).
-        $event = new UpgradeStepFailed('', '24.10.1', 'php_script');
+        // Failure events are built inside a catch block: a guard firing here would mask the
+        // original failure. They therefore accept any value, including empty version/step/message.
+        $event = new UpgradeStepFailed('', '', '');
 
         self::assertSame('', $event->message);
+        self::assertSame('', $event->version);
+        self::assertSame('', $event->step);
     }
 
-    public function testUpgradeFailedAllowsNullVersionsButRejectsEmptyString(): void
+    public function testUpgradeFailedPerformsNoThrowingValidation(): void
     {
-        $event = new UpgradeFailed('boom', null, null);
-        self::assertNull($event->fromVersion);
+        // Same rationale: never throw from a failure event constructed inside a catch block.
+        $withNullVersions = new UpgradeFailed('boom', null, null);
+        self::assertNull($withNullVersions->fromVersion);
 
-        $this->expectException(\InvalidArgumentException::class);
-        new UpgradeFailed('boom', '', null);
+        $withEmptyVersions = new UpgradeFailed('', '', '');
+        self::assertSame('', $withEmptyVersions->fromVersion);
+        self::assertSame('', $withEmptyVersions->toVersion);
     }
 }

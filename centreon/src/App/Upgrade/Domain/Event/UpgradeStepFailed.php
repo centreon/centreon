@@ -31,13 +31,8 @@ final readonly class UpgradeStepFailed
         public string $step,
         public ?\Throwable $exception = null,
     ) {
-        // $message is intentionally not validated: it is derived from the caught exception
-        // and is constructed inside a catch block, where a thrown guard would mask the original failure.
-        if (trim($version) === '') {
-            throw new \InvalidArgumentException('The version cannot be empty.');
-        }
-        if (trim($step) === '') {
-            throw new \InvalidArgumentException('The step name cannot be empty.');
-        }
+        // This event is always constructed inside a catch block, so it performs no throwing
+        // validation: a guard firing here would replace the original failure with an
+        // InvalidArgumentException and mask the real cause.
     }
 }

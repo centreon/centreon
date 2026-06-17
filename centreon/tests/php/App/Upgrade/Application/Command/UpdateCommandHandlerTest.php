@@ -171,6 +171,18 @@ final class UpdateCommandHandlerTest extends TestCase
         ($this->handler)(new UpdateCommand());
     }
 
+    public function testThrowsWhenCurrentVersionIsBlank(): void
+    {
+        // A blank version from the DB must be treated like a missing one, so the upgrade
+        // fails with a clear message instead of tripping the events' version guards mid-flow.
+        $this->updateRepository->currentVersion = '   ';
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessageMatches('/current platform version/');
+
+        ($this->handler)(new UpdateCommand());
+    }
+
     public function testDbmsValidationFailurePropagates(): void
     {
         $this->dbmsValidator

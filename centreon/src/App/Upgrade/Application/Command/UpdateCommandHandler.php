@@ -75,7 +75,7 @@ final readonly class UpdateCommandHandler
 
             try {
                 $currentVersion = $this->updateRepository->findCurrentVersion();
-                if ($currentVersion === null) {
+                if ($currentVersion === null || trim($currentVersion) === '') {
                     throw new \RuntimeException('Cannot retrieve the current platform version');
                 }
 
