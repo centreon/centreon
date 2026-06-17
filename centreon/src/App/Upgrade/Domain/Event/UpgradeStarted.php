@@ -29,5 +29,11 @@ final readonly class UpgradeStarted
         public string $fromVersion,
         public string $toVersion,
     ) {
+        if (trim($fromVersion) === '') {
+            throw new \InvalidArgumentException('The source version cannot be empty.');
+        }
+        if (trim($toVersion) === '') {
+            throw new \InvalidArgumentException('The target version cannot be empty.');
+        }
     }
 }

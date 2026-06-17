@@ -31,5 +31,15 @@ final readonly class UpgradeFailed
         public ?string $toVersion,
         public ?\Throwable $exception = null,
     ) {
+        // $message is intentionally not validated: it is derived from the caught exception
+        // and is constructed inside a catch block, where a thrown guard would mask the original failure.
+        // Versions stay nullable on purpose (the upgrade may abort before the current version is read),
+        // but an explicitly provided version must not be an empty string.
+        if ($fromVersion !== null && trim($fromVersion) === '') {
+            throw new \InvalidArgumentException('The source version cannot be empty when provided.');
+        }
+        if ($toVersion !== null && trim($toVersion) === '') {
+            throw new \InvalidArgumentException('The target version cannot be empty when provided.');
+        }
     }
 }

@@ -29,5 +29,11 @@ final readonly class UpgradeStepStarted
         public string $version,
         public string $step,
     ) {
+        if (trim($version) === '') {
+            throw new \InvalidArgumentException('The version cannot be empty.');
+        }
+        if (trim($step) === '') {
+            throw new \InvalidArgumentException('The step name cannot be empty.');
+        }
     }
 }

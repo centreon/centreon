@@ -30,5 +30,14 @@ final readonly class UpgradeStepCompleted
         public string $step,
         public int $durationMs,
     ) {
+        if (trim($version) === '') {
+            throw new \InvalidArgumentException('The version cannot be empty.');
+        }
+        if (trim($step) === '') {
+            throw new \InvalidArgumentException('The step name cannot be empty.');
+        }
+        if ($durationMs < 0) {
+            throw new \InvalidArgumentException('The duration cannot be negative.');
+        }
     }
 }

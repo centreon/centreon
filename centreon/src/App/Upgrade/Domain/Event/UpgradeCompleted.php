@@ -30,5 +30,14 @@ final readonly class UpgradeCompleted
         public string $toVersion,
         public int $durationMs,
     ) {
+        if (trim($fromVersion) === '') {
+            throw new \InvalidArgumentException('The source version cannot be empty.');
+        }
+        if (trim($toVersion) === '') {
+            throw new \InvalidArgumentException('The target version cannot be empty.');
+        }
+        if ($durationMs < 0) {
+            throw new \InvalidArgumentException('The duration cannot be negative.');
+        }
     }
 }
