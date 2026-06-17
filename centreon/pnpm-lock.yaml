@@ -976,7 +976,7 @@ importers:
   tests/e2e-playwright:
     devDependencies:
       '@playwright/test':
-        specifier: ^1.49.0
+        specifier: ^1.60.0
         version: 1.60.0
       '@types/node':
         specifier: ^20.11.27
@@ -27547,7 +27547,7 @@ snapshots:
       jest-process-manager: 0.4.0
       jest-runner: 29.7.0
       nyc: 15.1.0
-      playwright-core: 1.50.1
+      playwright-core: 1.60.0
       rimraf: 3.0.2
       uuid: 8.3.2
     transitivePeerDependencies:
