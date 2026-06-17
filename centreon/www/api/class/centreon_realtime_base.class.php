@@ -21,6 +21,7 @@
 
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 require_once __DIR__ . '/webService.class.php';
+require_once __DIR__ . '/../../include/common/common-Func.php';
 
 /**
  * Class
@@ -56,13 +57,13 @@ class CentreonRealtimeBase extends CentreonWebService
 
         // Get Object targeted
         if (isset($this->arguments['field'])) {
-            $field = $this->arguments['field'];
+            $field = sanitizeSqlIdentifier($this->arguments['field']);
         } else {
             throw new RestBadRequestException('Bad parameters field');
         }
 
         // Get Object targeted
-        if (isset($this->arguments['target'])) {
+        if (isset($this->arguments['target']) && preg_match('/^[a-zA-Z]+$/', $this->arguments['target'])) {
             $target = ucfirst($this->arguments['target']);
         } else {
             throw new RestBadRequestException('Bad parameters target');
@@ -162,9 +163,14 @@ class CentreonRealtimeBase extends CentreonWebService
                 $explodedValues = rtrim($explodedValues, ',');
             }
 
-            $query = "SELECT {$externalObject['id']}, {$externalObject['name']} "
-                . "FROM {$externalObject['table']} "
-                . "WHERE {$externalObject['comparator']} "
+            $safeId = sanitizeSqlIdentifier($externalObject['id']);
+            $safeName = sanitizeSqlIdentifier($externalObject['name']);
+            $safeTable = sanitizeSqlIdentifier($externalObject['table']);
+            $safeComparator = sanitizeSqlIdentifier($externalObject['comparator']);
+
+            $query = "SELECT {$safeId}, {$safeName} "
+                . "FROM {$safeTable} "
+                . "WHERE {$safeComparator} "
                 . "IN ({$explodedValues})";
             $stmt = $this->pearDB->prepare($query);
 
@@ -176,7 +182,7 @@ class CentreonRealtimeBase extends CentreonWebService
             $stmt->execute();
 
             while ($row = $stmt->fetch()) {
-                $tmpValues[] = ['id' => $row[$externalObject['id']], 'text' => $row[$externalObject['name']]];
+                $tmpValues[] = ['id' => $row[$safeId], 'text' => $row[$safeName]];
             }
         }
 
@@ -187,28 +193,34 @@ class CentreonRealtimeBase extends CentreonWebService
      * @param $currentObject
      * @param $id
      * @param $field
+     *
+     * @throws RestBadRequestException
      * @return array
      */
     protected function retrieveSimpleValues($currentObject, $id, $field)
     {
+        if (! is_numeric($id)) {
+            throw new RestBadRequestException('Error, id must be numerical');
+        }
         $tmpValues = [];
 
-        $fields = [];
-        $fields[] = $field;
+        $safeField = sanitizeSqlIdentifier($field);
+        $fields = [$safeField];
         if (isset($currentObject['additionalField'])) {
-            $fields[] = $currentObject['additionalField'];
+            $fields[] = sanitizeSqlIdentifier($currentObject['additionalField']);
         }
 
         // Getting Current Values
         $queryValuesRetrieval = 'SELECT ' . implode(', ', $fields) . ' '
-            . 'FROM ' . $currentObject['table'] . ' '
-            . 'WHERE ' . $currentObject['id'] . ' = :objectId';
+            . 'FROM ' . sanitizeSqlIdentifier($currentObject['table']) . ' '
+            . 'WHERE ' . sanitizeSqlIdentifier($currentObject['id']) . ' = :objectId';
 
         $stmt = $this->pearDB->prepare($queryValuesRetrieval);
         $stmt->bindParam(':objectId', $id, PDO::PARAM_INT);
+        $stmt->execute();
 
         while ($row = $stmt->fetch()) {
-            $tmpValue = $row[$field];
+            $tmpValue = $row[$safeField];
             if (isset($currentObject['additionalField'])) {
                 $tmpValue .= '-' . $row[$currentObject['additionalField']];
             }
@@ -227,21 +239,22 @@ class CentreonRealtimeBase extends CentreonWebService
     {
         $tmpValues = [];
 
-        $fields = [];
-        $fields[] = $relationObject['field'];
+        $safeField = sanitizeSqlIdentifier($relationObject['field']);
+        $fields = [$safeField];
         if (isset($relationObject['additionalField'])) {
-            $fields[] = $relationObject['additionalField'];
+            $fields[] = sanitizeSqlIdentifier($relationObject['additionalField']);
         }
 
         $queryValuesRetrieval = 'SELECT ' . implode(', ', $fields) . ' '
-            . 'FROM ' . $relationObject['table'] . ' '
-            . 'WHERE ' . $relationObject['comparator'] . ' = :comparatorId';
+            . 'FROM ' . sanitizeSqlIdentifier($relationObject['table']) . ' '
+            . 'WHERE ' . sanitizeSqlIdentifier($relationObject['comparator']) . ' = :comparatorId';
         $stmt = $this->pearDB->prepare($queryValuesRetrieval);
         $stmt->bindParam(':comparatorId', $id, PDO::PARAM_INT);
+        $stmt->execute();
 
         while ($row = $stmt->fetch()) {
-            if (! empty($row[$relationObject['field']])) {
-                $tmpValue = $row[$relationObject['field']];
+            if (! empty($row[$safeField])) {
+                $tmpValue = $row[$safeField];
                 if (isset($relationObject['additionalField'])) {
                     $tmpValue .= '-' . $row[$relationObject['additionalField']];
                 }

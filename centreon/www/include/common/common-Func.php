@@ -2144,3 +2144,13 @@ function signalConfigurationChange(
 
     definePollersToUpdated(array_merge($pollerIds, $previousPollers));
 }
+
+function sanitizeSqlIdentifier(string $name): string
+{
+    $name = trim($name);
+    if ($name === '' || preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $name) !== 1) {
+        throw new InvalidArgumentException("Invalid SQL identifier: {$name}");
+    }
+
+    return $name;
+}
