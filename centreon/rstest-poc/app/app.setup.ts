@@ -1,14 +1,38 @@
 import { afterAll, afterEach, beforeAll, expect } from '@rstest/core';
 import * as matchers from '@testing-library/jest-dom/matchers';
 import { cleanup } from '@testing-library/react';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+import isBetween from 'dayjs/plugin/isBetween';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import isToday from 'dayjs/plugin/isToday';
+import isYesterday from 'dayjs/plugin/isYesterday';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+import weekday from 'dayjs/plugin/weekday';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import ResizeObserver from 'resize-observer-polyfill';
+import 'dayjs/locale/en';
 
 import { resetInterceptions, server } from './server';
 
 // jest-dom matchers.
 expect.extend(matchers);
+
+// dayjs plugins the app relies on (mirrors setupTest.js).
+[
+  localizedFormat,
+  utc,
+  timezone,
+  isToday,
+  isYesterday,
+  weekday,
+  isBetween,
+  isSameOrBefore,
+  duration
+].forEach((plugin) => dayjs.extend(plugin));
 
 // jsdom polyfills the app components rely on.
 globalThis.ResizeObserver = ResizeObserver;

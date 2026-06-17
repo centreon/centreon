@@ -42,7 +42,7 @@ sufficient and the Cypress per-spec startup cost disappears.
 ## Phase 0b — broader batch + harness extensions
 
 Ported a batch of real `www/front_src` component tests covering the common
-shapes. **7 spec files / 12 tests pass** (`pnpm rstest:app`, ~3.3 s):
+shapes. **9 spec files / 18 tests pass** (`pnpm rstest:app`, ~3.5 s):
 
 | Spec | Shape |
 | --- | --- |
@@ -53,6 +53,16 @@ shapes. **7 spec files / 12 tests pass** (`pnpm rstest:app`, ~3.3 s):
 | `WidgetWarning` | **Formik** + Jotai state |
 | `TextWidget` | dashboard widget render |
 | `AddButton` | button interaction (text, icon, disabled, aria, callback) |
+| `TimeInput` | **MUI dropdown/select** — open + pick an option (portal) |
+| `BreadcrumbTrail` | **routing** (BrowserRouter + `useLocation` spy + fixtures) |
+
+The harness setup also extends the **dayjs plugins** (duration, utc, timezone…)
+that components expect, mirroring `setupTest.js`.
+
+One Cypress test could **not** move to jsdom and was deliberately skipped: the
+BreadcrumbTrail "hover reveals copy icon (CSS opacity) then writes to clipboard"
+test — CSS `:hover` and the clipboard are real-browser concerns (Browser Mode /
+Chromatic), not jsdom. This is the expected jsdom boundary, not a harness gap.
 
 Harness extensions this required:
 - `server.ts`: query-param discrimination (`query`), full request **history**
@@ -74,11 +84,12 @@ Harness extensions this required:
 - ✅ The shared harness can be rebuilt without the `jest-fetch-mock` coupling
   that hangs (see `README.md` finding #5), and now handles MSW interception,
   request history and the relative-URL gap.
-- ✅ **7 spec files / 12 tests** ported across the main shapes (mutation, list +
-  search, render, Jotai state, Formik, widget, interaction) — all green. The
-  harness handles the hard parts; remaining work is mostly **mechanical**.
-  Shapes still untested here: routing-dependent components and MUI
-  dropdown/select option-picking (portals) — worth a spot-check next.
+- ✅ **9 spec files / 18 tests** ported across **all** the common shapes
+  (mutation, list + search, render, Jotai state, Formik, widget, interaction,
+  MUI dropdown, routing) — all green. The harness handles the hard parts;
+  remaining migration is **mechanical**.
+- ✅ Confirmed jsdom boundary: CSS `:hover`/opacity, clipboard and visual
+  snapshots stay in Browser Mode / Chromatic (one BreadcrumbTrail test skipped).
 - ⚠️ Rstest stays **pre-1.0** (0.10.x). Gate the bulk migration on its 1.0 or a
   fuller Phase 0b.
 
