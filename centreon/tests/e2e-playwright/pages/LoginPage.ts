@@ -50,6 +50,11 @@ export class LoginPage extends BasePage {
     await this.connectButton.click();
   }
 
+  /** Click the "Login with <provider>" external-provider button. */
+  async loginWith(provider: string): Promise<void> {
+    await this.page.getByText(`Login with ${provider}`).click();
+  }
+
   /** Text of the snackbar/error banner shown after a failed attempt. */
   async getErrorMessage(): Promise<string> {
     await expect(this.errorMessage).toBeVisible();

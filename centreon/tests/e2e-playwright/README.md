@@ -18,26 +18,43 @@ tests/e2e-playwright/
 ├── fixtures/
 │   ├── credentials.ts       # Test users (overridable via env vars)
 │   ├── dashboards.ts        # Dashboard seed data + ACL provisioning actions
+│   ├── oidc.ts              # OIDC provider settings + ACL/contact provisioning
 │   └── test.ts              # Custom Playwright fixtures (login + API cleanup)
 ├── helpers/
 │   ├── CentreonApi.ts       # HTTP client: v1 auth, CLAPI, v2 session, dashboard CRUD
 │   └── docker.ts            # docker compose exec helpers (feature flag, ACL)
 ├── pages/
 │   ├── BasePage.ts          # Shared base class (navigation helpers)
-│   ├── LoginPage.ts         # Login form Page Object
+│   ├── LoginPage.ts         # Login form Page Object (+ "Login with" provider)
 │   ├── MainHeader.ts        # Authenticated header / profile menu (logout)
 │   ├── DashboardsListPage.ts     # Dashboards library (cards, actions menu)
 │   ├── DashboardFormDialog.ts    # Create / update properties dialogs
 │   ├── DashboardDetailPage.ts    # Single dashboard page (edit mode, quick access)
-│   └── DeleteDashboardDialog.ts  # Deletion confirmation dialog
+│   ├── DeleteDashboardDialog.ts  # Deletion confirmation dialog
+│   ├── OidcConfigurationPage.ts  # Admin OpenID Connect configuration form
+│   └── KeycloakLoginPage.ts      # Keycloak login form (external IdP)
 └── tests/
     ├── authentication.spec.ts
+    ├── authentication/
+    │   └── oidc-authentication.spec.ts
     └── dashboards/
         ├── dashboard-creation.spec.ts
         ├── dashboard-navigation.spec.ts
         ├── dashboard-properties-edition.spec.ts
         └── dashboard-deletion.spec.ts
 ```
+
+## OpenID Connect tests
+
+The OIDC specs (migration of the Cypress `OpenID-connect` feature 01) need the
+docker compose **`openid` profile** (Keycloak + an `sso-proxy`). They run under
+a dedicated **`oidc` Playwright project** that launches Chromium with
+`--host-resolver-rules=MAP sso-proxy 127.0.0.1`: this lets the browser reach
+Keycloak at the **same** host name the `web` container uses (`sso-proxy`), so a
+single provider Base URL (`http://sso-proxy:8080/...`) works for both the
+authorization redirect (browser) and the token exchange (server). The provider
+is configured through the UI form, and the login flow is driven end-to-end
+(Centreon → Keycloak → back). `pnpm stack:up` starts the `openid` profile.
 
 ## Test data setup (dashboards)
 

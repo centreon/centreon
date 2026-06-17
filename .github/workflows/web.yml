@@ -1335,7 +1335,8 @@ jobs:
         working-directory: ${{ env.base_directory }}/tests/e2e-playwright
 
       - name: Start the Centreon web stack
-        run: docker compose -f "$compose_file" up -d web
+        # The `openid` profile adds Keycloak + sso-proxy, required by the OIDC tests.
+        run: docker compose -f "$compose_file" --profile openid up -d web openid sso-proxy
 
       - name: Wait for the platform to be healthy
         run: |
@@ -1344,13 +1345,31 @@ jobs:
             status="$(docker inspect --format '{{.State.Health.Status}}' "$web_container")"
             if [ "$status" = "healthy" ]; then
               echo "Platform is healthy."
-              exit 0
+              break
+            fi
+            if [ "$i" = "60" ]; then
+              echo "::error::Platform did not become healthy in time"
+              docker compose -f "$compose_file" logs web
+              exit 1
             fi
             sleep 5
           done
-          echo "::error::Platform did not become healthy in time"
-          docker compose -f "$compose_file" logs web
-          exit 1
+
+      - name: Wait for Keycloak to be ready
+        run: |
+          realm_url="http://localhost:8080/realms/Centreon_SSO/.well-known/openid-configuration"
+          for i in $(seq 1 60); do
+            if [ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "$realm_url")" = "200" ]; then
+              echo "Keycloak is ready."
+              exit 0
+            fi
+            if [ "$i" = "60" ]; then
+              echo "::error::Keycloak did not become ready in time"
+              docker compose -f "$compose_file" logs openid sso-proxy
+              exit 1
+            fi
+            sleep 5
+          done
 
       - name: Run Playwright e2e tests
         run: pnpm test
@@ -1368,7 +1387,7 @@ jobs:
 
       - name: Stop the Centreon web stack
         if: ${{ always() }}
-        run: docker compose -f "$compose_file" down -v
+        run: docker compose -f "$compose_file" --profile openid down -v
 
   deliver-sources:
     runs-on: ubuntu-24.04

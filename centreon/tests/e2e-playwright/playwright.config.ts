@@ -30,7 +30,21 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
+      testIgnore: '**/authentication/oidc-authentication.spec.ts',
       use: { ...devices['Desktop Chrome'] }
+    },
+    {
+      // OIDC tests need the docker compose `openid` profile. The browser must
+      // reach Keycloak at the same host name the `web` container uses
+      // (`sso-proxy`), so it is mapped to the published port on localhost.
+      name: 'oidc',
+      testMatch: '**/authentication/oidc-authentication.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        launchOptions: {
+          args: ['--host-resolver-rules=MAP sso-proxy 127.0.0.1']
+        }
+      }
     }
   ],
   reporter: [['list'], ['html', { open: 'never' }]],

@@ -23,7 +23,16 @@ async function globalSetup(config: FullConfig): Promise<void> {
     'http://localhost:4000/centreon';
 
   // 1. Enable the dashboard feature in the running platform.
-  enableDashboardFeature();
+  //    Tolerate a not-yet-running stack (e.g. when only OIDC tests run, which
+  //    bring up their own profile in beforeAll).
+  try {
+    enableDashboardFeature();
+  } catch (error) {
+    console.warn(
+      `[global-setup] could not enable dashboard feature: ${(error as Error).message}`
+    );
+    return;
+  }
 
   // 2. Provision the dashboard-creator contact + ACL group via CLAPI.
   const api = await CentreonApi.create(base);
