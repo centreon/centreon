@@ -35,6 +35,7 @@ on:
 
 env:
   module: awie
+  e2e_directory: centreon-awie/tests/e2e
 
 jobs:
   dependency-scan:
@@ -100,8 +101,7 @@ jobs:
         "centreon-awie/rector.*"
         "centreon-awie/tests/php/**"
       e2e_test_paths: |
-        "centreon-awie/behat.yml"
-        "centreon-awie/features/**"
+        "centreon-awie/tests/e2e/**"
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
       base_sha: ${{ needs.get-environment.outputs.previous_release_bundle_tag }}
       labels: ${{ needs.get-environment.outputs.labels }}
@@ -194,8 +194,50 @@ jobs:
 
           exit $exit_code
 
+  gherkin-lint:
+    needs: [get-environment, changes]
+    if: |
+      needs.changes.outputs.trigger_e2e_testing == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.event.pull_request.head.repo.fork != true
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - uses: ./.github/actions/gherkin-lint
+        with:
+          features_path: ${{ env.e2e_directory }}
+
+  e2e-lint:
+    needs: [get-environment, changes]
+    if: |
+      needs.changes.outputs.trigger_e2e_testing == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.event.pull_request.head.repo.fork != true
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - uses: ./.github/actions/frontend-lint
+        with:
+          frontend_directory: ${{ env.e2e_directory }}
+          module_name: ${{ env.module }}
+          dependencies_lock_file: ${{ env.e2e_directory }}/pnpm-lock.yaml
+          pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          lint_path: './features'
+
   package:
-    needs: [get-environment, changes, check-version-consistency, backend-lint]
+    needs:
+      [
+        get-environment,
+        changes,
+        check-version-consistency,
+        backend-lint,
+        gherkin-lint,
+        e2e-lint,
+      ]
     if: |
       needs.changes.outputs.trigger_packaging == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
