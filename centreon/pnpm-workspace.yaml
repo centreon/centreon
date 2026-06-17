@@ -21,6 +21,12 @@ overrides:
   undici@<=6.24.0: 6.24.0
   glob@<11.1.0: 11.1.0
   uuid@<14.0.0: 14.0.0
+  # Coverage tooling (nyc/istanbul/test-exclude@6) calls glob with the
+  # legacy callable/callback API removed in glob v9 — keep them on a
+  # non-vulnerable glob 7.x while everything else moves to 11.1.0.
+  nyc>glob: 7.2.3
+  istanbul>glob: 7.2.3
+  test-exclude@6>glob: 7.2.3
 
 # 7 days
 minimumReleaseAge: 10080
