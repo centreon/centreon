@@ -38,6 +38,7 @@ use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryI
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -4531,7 +4532,17 @@ function deleteServiceTemplateByApi(array $serviceTemplates = []): void
  */
 function callApi(string $url, string $httpMethod, array $payload): array
 {
-    $client = new InternalApiClient();
+    $kernel = Kernel::createForWeb();
+
+    /** @var ServiceLocator $serviceLocator */
+    $serviceLocator = $kernel->getContainer()->get('legacy.service_locator');
+
+    if (! $serviceLocator->has('internal_api_client')) {
+        throw new RuntimeException('internal_api_client service is not registered in the service locator');
+    }
+
+    /** @var InternalApiClient $client */
+    $client = $serviceLocator->get('internal_api_client');
 
     return $client->request($url, $httpMethod, CentreonSession::resolveSessionCookie(), $payload);
 }

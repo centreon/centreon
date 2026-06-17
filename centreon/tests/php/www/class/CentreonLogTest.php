@@ -20,10 +20,12 @@
  */
 
 beforeEach(function (): void {
+    $this->server = $_SERVER;
     $_SERVER['APP_ENV'] = 'test';
 });
 
 afterEach(function (): void {
+    $_SERVER = $this->server;
     foreach (centreonLogTestSlugs() as $slug) {
         $file = centreonLogPath($slug);
         if (file_exists($file)) {
