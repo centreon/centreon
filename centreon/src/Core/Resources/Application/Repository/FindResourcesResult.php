@@ -21,24 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\Resources\Infrastructure\Repository\ResourceACLProviders;
+namespace Core\Resources\Application\Repository;
 
-use Core\Domain\RealTime\Model\ResourceTypes\ServiceResourceType;
+use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 
-class ServiceACLProvider implements ResourceACLProviderInterface
+final readonly class FindResourcesResult
 {
-    public function buildACLSubRequest(array $accessGroupIds): string
-    {
-        $requestPattern = 'EXISTS (
-            SELECT 1
-            FROM `:dbstg`.centreon_acl acl
-            WHERE
-                resources.type = %d
-                AND resources.parent_id = acl.host_id
-                AND resources.id = acl.service_id
-                AND acl.group_id IN (%s)
-        )';
-
-        return sprintf($requestPattern, ServiceResourceType::TYPE_ID, implode(', ', $accessGroupIds));
+    /**
+     * @param ResourceEntity[] $resources
+     * @param bool $isApproximate
+     */
+    public function __construct(
+        public array $resources,
+        public bool $isApproximate,
+    ) {
     }
 }

@@ -5,13 +5,28 @@ import { makeStyles } from 'tss-react/mui';
 
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import CircularProgress from '@mui/material/CircularProgress';
 import Divider from '@mui/material/Divider';
+import Tooltip from '@mui/material/Tooltip';
 
 import { ListingVariant, userAtom } from '@centreon/ui-context';
 
-import { IconButton, ListingProps } from '../..';
+import {
+  type ChangeEvent,
+  type MouseEvent,
+  type ReactNode,
+  useCallback
+} from 'react';
+
+import { IconButton, type ListingProps } from '../..';
 import { useMemoComponent } from '../../utils';
-import { labelOf, labelRowsPerPage } from '../translatedLabels';
+import {
+  labelApproximateCount,
+  labelApproximateCountTooltip,
+  labelComputingExactCount,
+  labelOf,
+  labelRowsPerPage
+} from '../translatedLabels';
 
 import ColumnMultiSelect from './ColumnMultiSelect';
 import StyledPagination from './Pagination';
@@ -88,6 +103,9 @@ type Props = Pick<
   | 'customPaginationClassName'
   | 'listingVariant'
   | 'viewerModeConfiguration'
+  | 'approximateTotalRows'
+  | 'onApproximateCountClick'
+  | 'isApproximateCountLoading'
 >;
 
 const MemoListingActionBar = ({
@@ -107,7 +125,10 @@ const MemoListingActionBar = ({
   widthToMoveTablePagination = 550,
   actionsBarMemoProps = [],
   viewerModeConfiguration,
-  listingVariant
+  listingVariant,
+  approximateTotalRows = false,
+  onApproximateCountClick,
+  isApproximateCountLoading = false
 }: Props): JSX.Element => {
   const marginWidthTableListing = 30;
   const { classes, cx } = useStyles({
@@ -118,17 +139,89 @@ const MemoListingActionBar = ({
 
   const { themeMode } = useAtomValue(userAtom);
 
-  const changeRowPerPage = (event): void => {
+  const changeRowPerPage = (
+    event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ): void => {
     onLimitChange?.(event.target.value);
     onPaginate?.(0);
   };
 
-  const changePage = (_, value: number): void => {
+  const changePage = (
+    _: MouseEvent<HTMLButtonElement> | null,
+    value: number
+  ): void => {
     onPaginate?.(value);
   };
 
-  const labelDisplayedRows = ({ from, to, count }): string =>
-    `${from}-${to} ${t(labelOf)} ${count}`;
+  const labelDisplayedRows = useCallback(
+    ({
+      from,
+      to,
+      count
+    }: {
+      count: number;
+      from: number;
+      to: number;
+    }): ReactNode => {
+      const range = `${from}-${to} ${t(labelOf)} `;
+
+      if (!approximateTotalRows) {
+        return `${range}${count}`;
+      }
+
+      if (isApproximateCountLoading) {
+        return (
+          <span
+            style={{ alignItems: 'center', display: 'inline-flex', gap: 4 }}
+          >
+            {range}
+            <CircularProgress size={10} />
+            <span>{t(labelComputingExactCount)}</span>
+          </span>
+        );
+      }
+
+      const approximateLabel = (
+        <button
+          onClick={onApproximateCountClick}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'inherit',
+            cursor: onApproximateCountClick ? 'pointer' : 'default',
+            font: 'inherit',
+            fontWeight: 600,
+            padding: 0,
+            textDecoration: onApproximateCountClick
+              ? 'underline dotted'
+              : 'none'
+          }}
+          type="button"
+        >
+          {t(labelApproximateCount)}
+        </button>
+      );
+
+      return (
+        <span>
+          {range}
+          {onApproximateCountClick ? (
+            <Tooltip title={t(labelApproximateCountTooltip)}>
+              {approximateLabel}
+            </Tooltip>
+          ) : (
+            approximateLabel
+          )}
+        </span>
+      );
+    },
+    [
+      approximateTotalRows,
+      isApproximateCountLoading,
+      onApproximateCountClick,
+      t
+    ]
+  );
 
   return useMemoComponent({
     Component: (
@@ -223,6 +316,8 @@ const MemoListingActionBar = ({
       ),
       columnConfiguration,
       customPaginationClassName,
+      approximateTotalRows,
+      isApproximateCountLoading,
       ...actionsBarMemoProps
     ]
   });
@@ -245,7 +340,10 @@ const ListingActionBar = ({
   widthToMoveTablePagination,
   customPaginationClassName,
   listingVariant,
-  viewerModeConfiguration
+  viewerModeConfiguration,
+  approximateTotalRows,
+  onApproximateCountClick,
+  isApproximateCountLoading
 }: Props): JSX.Element | null => {
   if (
     not(paginated) &&
@@ -259,13 +357,16 @@ const ListingActionBar = ({
     <MemoListingActionBar
       actions={actions}
       actionsBarMemoProps={actionsBarMemoProps}
+      approximateTotalRows={approximateTotalRows}
       columnConfiguration={columnConfiguration}
       columns={columns}
       currentPage={currentPage}
       customPaginationClassName={customPaginationClassName}
+      isApproximateCountLoading={isApproximateCountLoading}
       limit={limit}
       listingVariant={listingVariant}
       moveTablePagination={moveTablePagination}
+      onApproximateCountClick={onApproximateCountClick}
       paginated={paginated}
       totalRows={totalRows}
       viewerModeConfiguration={viewerModeConfiguration}

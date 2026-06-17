@@ -18991,6 +18991,13 @@ msgstr "{{label}} should be at least {{min}} characters long"
 msgid "24x7"
 msgstr "24x7"
 
+#: packages/ui/src/Listing/translatedLabels.ts
+msgid "More than 1,000 resources match your search. Click to continue."
+msgstr ""
+
+#: packages/ui/src/Listing/translatedLabels.ts
+msgid "Loading..."
+msgstr ""
 #: unknown
 msgid ""
 "<b><i>Help :</i></b> Select image folders that can be seen by associated "
