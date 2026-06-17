@@ -92,6 +92,10 @@ msgid "1 minute"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "1,000+"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "12 hours"
 msgstr ""
 
@@ -3366,6 +3370,10 @@ msgstr "Nombre de imagen obligatorio"
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
 msgid "Compulsory name"
 msgstr "Nombre obligatorio"
+
+#: centreon/www/install/front_translate.php
+msgid "Computing exact count…"
+msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Condition value"
@@ -10840,6 +10848,10 @@ msgstr "Desde una vista existente"
 msgid "Loaded"
 msgstr "cargado"
 
+#: centreon/www/install/front_translate.php
+msgid "Loading..."
+msgstr ""
+
 #: centreon/src/Core/Security/ProviderConfiguration/Domain/Local/ConfigurationException.php
 msgid "Local provider configuration not found"
 msgstr ""
@@ -12159,6 +12171,16 @@ msgstr "Informacion detallada"
 
 #: centreon/www/install/front_translate.php
 msgid "More filters"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"More than 1,000 resources match your search. Click to compute the exact "
+"count."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "More than 1,000 resources match your search. Click to continue."
 msgstr ""
 
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
@@ -19718,10 +19740,6 @@ msgstr "Debes ingresar todos los argumentos o dejar en blanco."
 msgid "You must provide at least one %s"
 msgstr ""
 
-#: centreon/src/Core/Resources/Infrastructure/Repository/DbReadResourceRepository.php
-msgid "You must provide at least one ACL provider"
-msgstr ""
-
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 msgid "You need to select a least one polling instance."
 msgstr "Debe seleccionar al menos una instancia de colección."
@@ -20389,6 +20407,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "year"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "{{count}} resources"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -24143,11 +24165,3 @@ msgstr "periodo de tiempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nombre de la topología."
-
-#: packages/ui/src/Listing/translatedLabels.ts
-msgid "More than 1,000 resources match your search. Click to continue."
-msgstr ""
-
-#: packages/ui/src/Listing/translatedLabels.ts
-msgid "Loading..."
-msgstr ""
