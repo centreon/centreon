@@ -6,8 +6,9 @@
 # 05-php_background.sh and 06-apache_background.sh start the daemons. When the
 # `certs` named volume is mounted at /etc/pki/centreon-tls (HTTPS mode), this
 # script:
-#   1. Fails fast if centreon/centreon PR #9237's DatabaseTLSResolver is absent
-#      from the image (that PR provides PHP→DB TLS support).
+#   1. Fails fast if DatabaseTLSResolver is absent from the image (e.g. a
+#      WEB_IMAGE built from a pre-26.07 / pre-9237 branch); without it PHP→DB
+#      connections silently bypass TLS.
 #   2. Installs the Root CA into the OS trust store.
 #   3. Drops a [client] my.cnf so the mysql/mariadb CLI uses TLS by default.
 #   4. Drops an Apache TLS vhost that terminates TLS on :443 and reverse-proxies
@@ -23,7 +24,7 @@ CA_PEM="$CERT_DIR/rootCA.pem"
 SRV_PEM="$CERT_DIR/server.pem"
 SRV_KEY="$CERT_DIR/server-key.pem"
 DOTENV=/usr/share/centreon/.env
-RESOLVER_PHP=/usr/share/centreon/src/Core/Infrastructure/Common/DatabaseTLSResolver.php
+RESOLVER_PHP=/usr/share/centreon/src/App/Shared/Infrastructure/Database/DatabaseTLSResolver.php
 
 # HTTP mode: no certs mounted, no-op
 if [ ! -f "$CA_PEM" ]; then
@@ -40,14 +41,15 @@ fi
 
 echo "[tls] HTTPS mode detected, certificates present at $CERT_DIR"
 
-# Failsafe: HTTPS mode requires PR #9237 (centreon/centreon).
-# Without DatabaseTLSResolver, PHP→DB connections silently bypass TLS and break
-# against a require_secure_transport=ON server. Fail loud, fail specific.
+# Failsafe: image must be new enough to contain DatabaseTLSResolver (26.07+).
+# Without it, PHP→DB connections silently bypass TLS and break against a
+# require_secure_transport=ON server. Fail loud, fail specific.
 if [ ! -f "$RESOLVER_PHP" ]; then
   cat >&2 <<'ERR'
-[tls] FATAL: HTTPS mode requires centreon/centreon PR #9237.
-[tls] Expected file not found: /usr/share/centreon/src/Core/Infrastructure/Common/DatabaseTLSResolver.php
-[tls] Use a WEB_IMAGE built from a branch that includes PR #9237, or omit docker-compose.tls.yml from your compose invocation.
+[tls] FATAL: HTTPS mode needs DatabaseTLSResolver in the centreon-web image.
+[tls] Expected file not found: /usr/share/centreon/src/App/Shared/Infrastructure/Database/DatabaseTLSResolver.php
+[tls] Use a WEB_IMAGE for centreon-web 26.07 or newer (resolver lives on develop since #9237 merged).
+[tls] To run HTTP-only against an older image, omit docker-compose.tls.yml from your compose invocation.
 ERR
   exit 1
 fi
@@ -162,7 +164,7 @@ fi
 
 echo "[tls] Apache vhost generated for $PLATFORM from $TEMPLATE (redirect :80→:443 enabled)"
 
-# 4. Symfony .env keys consumed by DatabaseTLSResolver (PR #9237). Idempotent:
+# 4. Symfony .env keys consumed by DatabaseTLSResolver. Idempotent:
 #    strip any pre-existing DATABASE_SSL_* lines before appending fresh values.
 if [ -f "$DOTENV" ]; then
   sed -i '/^DATABASE_SSL_ENABLED=/d;/^DATABASE_VERIFY_SERVER_CERT=/d;/^DATABASE_CA_PATH=/d' "$DOTENV"
