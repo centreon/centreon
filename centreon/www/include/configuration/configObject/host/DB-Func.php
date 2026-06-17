@@ -40,6 +40,7 @@ use Core\Host\Application\Converter\HostEventConverter;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -2974,7 +2975,18 @@ function updateByApi(array $formData, bool $isCloudPlatform, string $basePath, b
  */
 function callHostApi(string $url, string $httpMethod, array $payload): array
 {
-    $client = new InternalApiClient();
+    $kernel = Kernel::createForWeb();
+
+    /** @var ServiceLocator $serviceLocator */
+    $serviceLocator = $kernel->getContainer()->get('legacy.service_locator');
+
+    if (! $serviceLocator->has('internal_api_client')) {
+        throw new RuntimeException('internal_api_client service is not registered in the service locator');
+    }
+
+    /** @var InternalApiClient $client */
+    $client = $serviceLocator->get('internal_api_client');
+
     $response = $client->request($url, $httpMethod, CentreonSession::resolveSessionCookie(), $payload);
 
     $status = $response['status_code'];

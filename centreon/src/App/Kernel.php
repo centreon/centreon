@@ -27,6 +27,8 @@ use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\ErrorHandler\Debug;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 
 /**
@@ -74,6 +76,10 @@ class Kernel extends BaseKernel
                 : 'prod';
             self::$instance = new self($env, (bool) $_SERVER['APP_DEBUG']);
             self::$instance->boot();
+            $request = Request::createFromGlobals();
+            /** @var RequestStack $requestStack */
+            $requestStack = self::$instance->getContainer()->get('request_stack');
+            $requestStack->push($request);
         }
 
         return self::$instance;
