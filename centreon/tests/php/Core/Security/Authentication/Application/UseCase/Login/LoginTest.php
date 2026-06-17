@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\Authentication\Application\UseCase\Login;
 
+use Adaptation\Log\LoggerAuthentication;
 use Centreon\Domain\Authentication\Exception\AuthenticationException as LegacyAuthenticationException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Menu\Interfaces\MenuServiceInterface;
@@ -93,6 +94,27 @@ beforeEach(function (): void {
 
     $formater = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new LoginPresenterStub($formater);
+
+    // Capture the access-log emissions of the Login use case by swapping the
+    // LoggerAuthentication singleton for a recording logger (private ctor + singleton).
+    $this->authLoggerSpy = new class () extends \Psr\Log\AbstractLogger {
+        /** @var list<array{level: string, context: array<string, mixed>}> */
+        public array $records = [];
+
+        public function log($level, string|\Stringable $message, array $context = []): void
+        {
+            $this->records[] = ['level' => (string) $level, 'context' => $context];
+        }
+    };
+    $authLoggerReflection = new \ReflectionClass(LoggerAuthentication::class);
+    $facade = $authLoggerReflection->newInstanceWithoutConstructor();
+    $authLoggerReflection->getProperty('logger')->setValue($facade, $this->authLoggerSpy);
+    $authLoggerReflection->getProperty('instance')->setValue(null, $facade);
+});
+
+afterEach(function (): void {
+    // Drop the injected singleton so the real logger is rebuilt for other tests.
+    (new \ReflectionClass(LoggerAuthentication::class))->getProperty('instance')->setValue(null, null);
 });
 
 it('should present an error response when the provider configuration is not found', function (): void {
@@ -377,6 +399,14 @@ it('should present the default page when user is correctly authenticated', funct
 
     expect($this->presenter->getPresentedData())->toBeInstanceOf(LoginResponse::class);
     expect($this->presenter->getPresentedData()->getRedirectUri())->toBe('/monitoring/resources');
+
+    // Local logins are recorded through the legacy centreonAuth path, so the use case
+    // must NOT emit a duplicate access-log success event for them.
+    $loginSuccessEvents = array_filter(
+        $this->authLoggerSpy->records,
+        static fn (array $record): bool => ($record['context']['event'] ?? null) === 'login.success',
+    );
+    expect($loginSuccessEvents)->toBeEmpty();
 });
 
 it('should present the custom redirection page when user is authenticated', function (): void {
