@@ -39,12 +39,20 @@ on the **outgoing request body**). It passes under Rstest jsdom, with the
 assertion). For functional/interaction tests (no visual assertion), jsdom is
 sufficient and the Cypress per-spec startup cost disappears.
 
-## Phase 0b — second hard pattern + harness extensions
+## Phase 0b — broader batch + harness extensions
 
-Ported `NotificationsFilter.cypress.spec.tsx` — the common **list + debounced
-search** shape (GET on mount, a second GET when typing, assertion on the
-outgoing `search` query param). Both app specs now pass (`pnpm rstest:app`, 2/2,
-~2.3 s).
+Ported a batch of real `www/front_src` component tests covering the common
+shapes. **7 spec files / 12 tests pass** (`pnpm rstest:app`, ~3.3 s):
+
+| Spec | Shape |
+| --- | --- |
+| `AddCommentForm` | React Query **mutation** + MSW + request-body assertion |
+| `NotificationsFilter` | **list + debounced search** + query-param assertion |
+| `AuthenticationDenied` | render-only fallback page |
+| `DashboardsFilter` | **Jotai state** (store) + search input + clear |
+| `WidgetWarning` | **Formik** + Jotai state |
+| `TextWidget` | dashboard widget render |
+| `AddButton` | button interaction (text, icon, disabled, aria, callback) |
 
 Harness extensions this required:
 - `server.ts`: query-param discrimination (`query`), full request **history**
@@ -66,11 +74,11 @@ Harness extensions this required:
 - ✅ The shared harness can be rebuilt without the `jest-fetch-mock` coupling
   that hangs (see `README.md` finding #5), and now handles MSW interception,
   request history and the relative-URL gap.
-- ⚠️ **2** representative specs were ported (the two main shapes), not the full
-  ~10–15. Reaching that is now mostly **mechanical** (the harness handles the
-  hard parts); remaining shapes to cover: routing-dependent components,
-  Jotai-driven state, and components importing `centreon-widgets` (may need the
-  rspack alias in the config).
+- ✅ **7 spec files / 12 tests** ported across the main shapes (mutation, list +
+  search, render, Jotai state, Formik, widget, interaction) — all green. The
+  harness handles the hard parts; remaining work is mostly **mechanical**.
+  Shapes still untested here: routing-dependent components and MUI
+  dropdown/select option-picking (portals) — worth a spot-check next.
 - ⚠️ Rstest stays **pre-1.0** (0.10.x). Gate the bulk migration on its 1.0 or a
   fuller Phase 0b.
 
