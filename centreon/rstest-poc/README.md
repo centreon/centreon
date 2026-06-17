@@ -14,9 +14,11 @@ Vitest Browser Mode or Playwright CT would introduce).
 
 | File | Purpose |
 | --- | --- |
-| `rstest.config.ts` | Minimal config: `pluginReact()` + jsdom environment |
-| `rstest.setup.ts` | jest-dom matchers, RTL cleanup, jsdom polyfills |
+| `rstest.config.ts` | jsdom config: `pluginReact()` + jsdom environment |
+| `rstest.browser.config.ts` | **Browser Mode** config: real Chromium via Playwright |
+| `rstest.setup.ts` / `browser.setup.ts` | jest-dom matchers, RTL cleanup (+ jsdom polyfills) |
 | `testRender.tsx` | MUI ThemeProvider render helper (no jest-fetch-mock) |
+| `Tabs.browser.spec.tsx` | **Browser Mode** port of the `Tabs` Cypress component test |
 | `Section.rstest.spec.tsx` | Real `@centreon/ui` SectionPanel: render + interaction |
 | `DialogDuplicate.rstest.spec.tsx` | Real MUI 7 dialog: controlled input, disabled state, mock callbacks |
 | `Wizard.rstest.spec.tsx` | MUI multi-step wizard: async Next/Previous navigation |
@@ -83,12 +85,43 @@ The specs are ports of the existing Jest tests. The only changes:
 
 At this scale Jest is **~3–5× faster**: Rstest pays a fixed Rspack
 bundling-startup cost (note the cold/warm gap) that dominates for a handful of
-files. The speed benefit
+files. (Jest does **not** bundle — it transforms modules on demand with
+`@swc/jest` and stubs CSS/assets — which is why it wins at small scale but is
+less faithful to production.) The speed benefit
 of Rspack/Vite-based runners only appears on large suites (parallelism,
 incremental rebuilds) — but we could **not** build a large benchmark here
 because the bigger/existing specs hang (finding #5). **Conclusion: do not adopt
 Rstest for raw speed today; its value is Rspack fidelity + toolchain
 consolidation, and it needs to mature (1.0) before a wholesale migration.**
+
+## The real comparison: Cypress CT vs Rstest Browser Mode
+
+Component tests at Centreon are mostly **Cypress** (~130 specs) running in a
+**real browser**, Rspack-bundled, with API interception and visual snapshots.
+The like-for-like alternative is **Rstest Browser Mode** (real Chromium via
+Playwright), not jsdom. Same component (`Tabs`), same 2 tests, both real browser:
+
+| Approach | Environment | 2 tests (1 spec) | Notes |
+| --- | --- | --- | --- |
+| **Cypress CT** | real browser (electron) | **~34.7 s** | + Rspack bundle + visual snapshot (`cy.makeSnapshot`) |
+| **Rstest Browser Mode** | real Chromium (Playwright) | **~1.4 s** | experimental 0.10.x; visual snapshot dropped |
+
+→ For one spec, Rstest Browser Mode is **~20–25× faster** than Cypress CT
+(`pnpm rstest:browser` vs `cypress run --component`). Caveats that keep this from
+being a verdict:
+
+- Cypress' per-spec wall-clock is dominated by **startup** (dev server, browser,
+  snapshot plugin); in CI those costs are **parallelised/amortised** across the
+  130 specs, so the real-suite gap is smaller than 25×.
+- The Rstest port **drops visual regression** (`cy.makeSnapshot`) and the rich
+  `cy.*` ecosystem (API interception, time-travel, retries). A fair replacement
+  must re-implement those (Rstest/Playwright have equivalents, but it's work).
+- Rstest Browser Mode is **experimental** (0.10.x) and the React render path is
+  undocumented — here it works via `@testing-library/react` rendering into the
+  real DOM, queried with Testing Library / `page` locators.
+
+So the **direction** is very promising (Rspack-native, real browser, far less
+per-spec overhead), but it is **not production-ready** today.
 
 ## Recommendation
 

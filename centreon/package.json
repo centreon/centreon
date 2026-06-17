@@ -19,6 +19,7 @@
     "test": "jest",
     "test:watch": "pnpm test --watch",
     "rstest": "rstest run --config rstest-poc/rstest.config.ts",
+    "rstest:browser": "rstest run --config rstest-poc/rstest.browser.config.ts",
     "test:coverage": "jest --coverage",
     "cypress:run:updateSnapshot": "TZ=Etc/UTC cypress run --component --browser=chromium --env updateSnapshots=true",
     "cypress:ui": "TZ=Etc/UTC cypress open --component --browser=chromium",
@@ -96,7 +97,9 @@
     "swc-loader": "^0.2.6",
     "swc-plugin-coverage-instrument": "^0.0.28",
     "typescript": "^5.8.2",
-    "webpack-merge": "^6.0.1"
+    "webpack-merge": "^6.0.1",
+    "@rstest/browser": "0.10.3",
+    "playwright": "1.60.0"
   },
   "dependencies": {
     "@centreon/ui": "workspace:*",
