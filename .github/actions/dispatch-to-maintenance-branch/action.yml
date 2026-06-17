@@ -8,6 +8,7 @@ runs:
       uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
       env:
         GH_TOKEN: ${{ github.token }}
+        WORKFLOW: ${{ github.workflow }}
       with:
         script: |
           const { execSync } = require('child_process');
@@ -35,5 +36,5 @@ runs:
 
           const branchIndex = workingDays % maintenanceBranches.length;
 
-          execSync(`gh workflow run "${{ github.workflow }}" --ref "${maintenanceBranches[branchIndex]}" --raw-field nightly_manual_trigger=true`);
+          execSync(`gh workflow run "${process.env.WORKFLOW}" --ref "${maintenanceBranches[branchIndex]}" --raw-field nightly_manual_trigger=true`);
           console.log(`🌃 Nightly workflow triggered for component ${maintenanceBranches[branchIndex]}`);

@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Application\UseCase\Login;
 
+use Adaptation\Log\Enum\AuthProviderEnum;
+use Adaptation\Log\LoggerAuthentication;
 use Centreon\Domain\Authentication\Exception\AuthenticationException as LegacyAuthenticationException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
@@ -94,6 +96,25 @@ final class Login
             $user = $this->provider->findUserOrFail();
             if ($loginRequest->providerName === Provider::LOCAL && ! $user->isAllowedToReachWeb()) {
                 throw LegacyAuthenticationException::notAllowedToReachWebApplication();
+            }
+
+            // Record the SSO authentication success on the security access log. Local/LDAP
+            // logins are already logged by the legacy centreonAuth path, so they are excluded
+            // here to avoid a duplicate access-log entry. Provider names that are not part of
+            // AuthProviderEnum (e.g. a module-provided provider) are skipped rather than
+            // breaking the login flow on a strict enum lookup.
+            $authProvider = AuthProviderEnum::tryFrom($loginRequest->providerName);
+            if ($loginRequest->providerName !== Provider::LOCAL && $authProvider !== null) {
+                LoggerAuthentication::create()->loginSuccess(
+                    sprintf(
+                        "[%s] [%s] Authentication succeeded for '%s'",
+                        $loginRequest->providerName,
+                        $loginRequest->clientIp,
+                        $user->getAlias()
+                    ),
+                    $user->getId(),
+                    $authProvider
+                );
             }
 
             $this->updateACL($user);

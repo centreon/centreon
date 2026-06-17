@@ -126,10 +126,11 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ${{ inputs.module_name }}/tests/e2e
+        working-directory: ${{ env.WORKING_DIRECTORY }}
     name: ${{ matrix.feature }}
 
     env:
+      WORKING_DIRECTORY: ${{ inputs.module_name }}/tests/e2e
       SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
 
     steps:
@@ -188,12 +189,14 @@ jobs:
 
       - name: Install Cypress binary
         uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        env:
+          MODULE_NAME: ${{ inputs.module_name }}
         with:
           timeout_seconds: 120
           max_attempts: 10
           retry_wait_seconds: 30
           retry_on: error
-          command: cd ${{ inputs.module_name }}/tests/e2e && pnpm cypress install --force
+          command: cd "$MODULE_NAME/tests/e2e" && pnpm cypress install --force
 
       - name: Move packages
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
@@ -249,12 +252,9 @@ jobs:
         shell: bash
 
       - name: Cypress end-to-end testing
-        uses: cypress-io/github-action@c495c3ddffba403ba11be95fffb67e25203b3799 # v7.1.10
-        with:
-          command: pnpm run cypress:run --browser electron --spec features/**/${{ matrix.feature }}.feature --env tags="${{ inputs.test_tags }}"
-          install: false
-          working-directory: ${{ inputs.module_name }}/tests/e2e
         env:
+          FEATURE: ${{ matrix.feature }}
+          TEST_TAGS: ${{ inputs.test_tags }}
           CYPRESS_VERIFY_TIMEOUT: "60000"
           CYPRESS_DATABASE_IMAGE: ${{ inputs.database_image }}
           CYPRESS_WEB_IMAGE_OS: ${{ inputs.os }}
@@ -264,6 +264,8 @@ jobs:
           CYPRESS_STABILITY: ${{ inputs.stability }}
           CYPRESS_TARGET_STABILITY: ${{ inputs.target_stability }}
           CYPRESS_IS_CLOUD: ${{ inputs.is_cloud }}
+        run: |
+          pnpm run cypress:run --browser electron --spec "features/**/$FEATURE.feature" --env tags="$TEST_TAGS"
 
       - name: Ensure logs directory exists
         env:
