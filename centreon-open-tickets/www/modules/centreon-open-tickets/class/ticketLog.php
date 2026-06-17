@@ -129,7 +129,7 @@ class Centreon_OpenTickets_Log
                         SELECT 1 FROM centreon_acl WHERE centreon_acl.group_id IN ({$accessGroupIds})
                         AND motl.host_id = centreon_acl.host_id
                         AND (motl.service_id IS NULL OR motl.service_id = centreon_acl.service_id)
-                    ) AND
+                    ) AND 
                 SQL;
         }
         $query .= 'motl.ticket_id = motd.ticket_id AND motd.ticket_id = mot.ticket_id
