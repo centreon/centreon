@@ -70,7 +70,8 @@ export const ensureStack = async ({
         running.join(', ') || 'none'
       })`
     );
-    execCompose([...profileArgs, 'up', '-d', ...services]);
+    // `--quiet-pull` avoids flooding the logs with per-layer pull progress.
+    execCompose([...profileArgs, 'up', '-d', '--quiet-pull', ...services]);
   }
 
   if (services.includes('web')) {
