@@ -50,7 +50,7 @@ When(
 );
 
 Then('the host is saved without an internal API connection error', () => {
-  cy.getIframeBody()
-    .contains(/Failed to connect to .* port 80/)
-    .should('not.exist');
+  cy.getIframeBody().should(($body) => {
+    expect($body.text()).not.to.match(/Failed to connect to .* port 80/);
+  });
 });
