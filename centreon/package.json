@@ -20,6 +20,7 @@
     "test:watch": "pnpm test --watch",
     "rstest": "rstest run --config rstest-poc/rstest.config.ts",
     "rstest:browser": "rstest run --config rstest-poc/rstest.browser.config.ts",
+    "rstest:app": "rstest run --config rstest-poc/rstest.app.config.ts",
     "test:coverage": "jest --coverage",
     "cypress:run:updateSnapshot": "TZ=Etc/UTC cypress run --component --browser=chromium --env updateSnapshots=true",
     "cypress:ui": "TZ=Etc/UTC cypress open --component --browser=chromium",
