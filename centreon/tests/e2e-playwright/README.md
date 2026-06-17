@@ -90,6 +90,12 @@ The tests target the `web` service of the shared docker compose stack
 (`.github/docker/docker-compose.yml`), which exposes Centreon on
 `http://localhost:4000/centreon`.
 
+> This is a **standalone pnpm project** (its own `pnpm-workspace.yaml` /
+> `pnpm-lock.yaml`), intentionally **not** part of the `centreon` frontend
+> workspace: the suite drives the running app over HTTP and imports no
+> `@centreon` package, so installing it pulls only Playwright — not the whole
+> frontend dependency graph.
+
 ```bash
 cd centreon/tests/e2e-playwright
 

@@ -1284,21 +1284,21 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-          cache-dependency-path: ${{ env.base_directory }}/pnpm-lock.yaml
+          cache-dependency-path: ${{ env.base_directory }}/tests/e2e-playwright/pnpm-lock.yaml
 
+      # The Playwright e2e suite is a standalone pnpm project (not part of the
+      # frontend workspace), so this installs only Playwright — not the whole
+      # frontend dependency graph.
       - name: Install Playwright e2e dependencies
-        run: pnpm install --frozen-lockfile --filter centreon-e2e-playwright
-        working-directory: ${{ env.base_directory }}
-        env:
-          CYPRESS_INSTALL_BINARY: "0"
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+        run: pnpm install --frozen-lockfile
+        working-directory: ${{ env.base_directory }}/tests/e2e-playwright
 
       - name: Cache Playwright browser
         id: playwright-cache
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('centreon/pnpm-lock.yaml') }}
+          key: playwright-${{ runner.os }}-${{ hashFiles('centreon/tests/e2e-playwright/pnpm-lock.yaml') }}
 
       # The tests run headless, so only the lightweight headless shell is needed
       # (avoids the ~175 MB full Chrome). Cached across runs keyed on the lockfile.

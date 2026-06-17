@@ -2,7 +2,6 @@ packages:
   - 'packages/*'
   - 'lighthouse'
   - 'tests/e2e'
-  - 'tests/e2e-playwright'
   - 'tests/api'
   - 'tests/performance'
   - 'doc/API'
