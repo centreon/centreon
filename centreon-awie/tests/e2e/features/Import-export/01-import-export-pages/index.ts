@@ -10,7 +10,9 @@ beforeEach(() => {
     url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
 
-  cy.startContainers();
+  // Use the dedicated AWIE image built by the dockerize job (not the slim
+  // centreon-web base image, which is not published for this branch).
+  cy.startContainers({ moduleName: 'centreon-awie', useSlim: false });
 });
 
 Given('a super administrator is logged in', () => {
