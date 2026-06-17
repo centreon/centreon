@@ -1,4 +1,4 @@
-import { expect, type Locator, type Page } from '@playwright/test';
+import { expect, type Locator, type Page, test } from '@playwright/test';
 
 import type { Credentials } from '../fixtures/credentials';
 import { BasePage } from './BasePage';
@@ -45,14 +45,18 @@ export class LoginPage extends BasePage {
 
   /** Fill in the credentials and submit the form. */
   async login({ login, password }: Credentials): Promise<void> {
-    await this.aliasInput.fill(login);
-    await this.passwordInput.fill(password);
-    await this.connectButton.click();
+    await test.step(`Log in as "${login}"`, async () => {
+      await this.aliasInput.fill(login);
+      await this.passwordInput.fill(password);
+      await this.connectButton.click();
+    });
   }
 
   /** Click the "Login with <provider>" external-provider button. */
   async loginWith(provider: string): Promise<void> {
-    await this.page.getByText(`Login with ${provider}`).click();
+    await test.step(`Log in with ${provider}`, async () => {
+      await this.page.getByText(`Login with ${provider}`).click();
+    });
   }
 
   /** Text of the snackbar/error banner shown after a failed attempt. */

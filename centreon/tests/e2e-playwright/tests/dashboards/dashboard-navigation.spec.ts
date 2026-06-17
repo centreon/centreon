@@ -1,12 +1,11 @@
+import { creatorStorageStatePath } from '../../fixtures/auth';
 import { dashboardToLocate, seededDashboards } from '../../fixtures/dashboards';
 import { expect, test } from '../../fixtures/test';
 import { DashboardDetailPage } from '../../pages/DashboardDetailPage';
 import { DashboardsListPage } from '../../pages/DashboardsListPage';
 
 test.describe('Dashboard navigation', () => {
-  test.beforeEach(async ({ loginAsCreator }) => {
-    await loginAsCreator();
-  });
+  test.use({ storageState: creatorStorageStatePath });
 
   test('shows an empty state with a create button when no dashboard exists', async ({
     page,

@@ -1,4 +1,4 @@
-import { expect, type Locator, type Page } from '@playwright/test';
+import { expect, type Locator, type Page, test } from '@playwright/test';
 
 import type { Credentials } from '../fixtures/credentials';
 import { BasePage } from './BasePage';
@@ -14,9 +14,13 @@ export class KeycloakLoginPage extends BasePage {
 
   constructor(page: Page) {
     super(page);
-    this.usernameInput = page.locator('#username');
-    this.passwordInput = page.locator('#password');
-    this.submitButton = page.locator('#kc-login');
+    this.usernameInput = page
+      .locator('#username')
+      .describe('Keycloak username');
+    this.passwordInput = page
+      .locator('#password')
+      .describe('Keycloak password');
+    this.submitButton = page.locator('#kc-login').describe('Keycloak sign-in');
   }
 
   /** Assert the browser has been redirected to the Keycloak realm. */
@@ -26,8 +30,10 @@ export class KeycloakLoginPage extends BasePage {
   }
 
   async login({ login, password }: Credentials): Promise<void> {
-    await this.usernameInput.fill(login);
-    await this.passwordInput.fill(password);
-    await this.submitButton.click();
+    await test.step(`Sign in on Keycloak as "${login}"`, async () => {
+      await this.usernameInput.fill(login);
+      await this.passwordInput.fill(password);
+      await this.submitButton.click();
+    });
   }
 }

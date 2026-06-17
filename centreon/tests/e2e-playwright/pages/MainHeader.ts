@@ -1,4 +1,4 @@
-import { expect, type Locator, type Page } from '@playwright/test';
+import { expect, type Locator, type Page, test } from '@playwright/test';
 
 import { BasePage } from './BasePage';
 
@@ -17,8 +17,12 @@ export class MainHeader extends BasePage {
     // `data-cy="userIcon"` is language-independent, unlike the translated
     // `aria-label`. The logout entry only exposes its (translated) text, so it
     // relies on the stack running in en_US — see README.
-    this.profileButton = page.locator('[data-cy="userIcon"]');
-    this.logoutMenuItem = page.getByText(/^Logout$/);
+    this.profileButton = page
+      .locator('[data-cy="userIcon"]')
+      .describe('Profile menu button');
+    this.logoutMenuItem = page
+      .getByText(/^Logout$/)
+      .describe('Logout menu item');
   }
 
   /** Assert the authenticated shell is loaded (profile menu is present). */
@@ -28,7 +32,9 @@ export class MainHeader extends BasePage {
 
   /** Open the profile menu and trigger the logout action. */
   async logout(): Promise<void> {
-    await this.profileButton.click();
-    await this.logoutMenuItem.click();
+    await test.step('Log out', async () => {
+      await this.profileButton.click();
+      await this.logoutMenuItem.click();
+    });
   }
 }

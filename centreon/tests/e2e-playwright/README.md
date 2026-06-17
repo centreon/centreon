@@ -16,10 +16,11 @@ tests/e2e-playwright/
 ├── playwright.config.ts     # Playwright config (baseURL, reporters, optional stack boot)
 ├── global-setup.ts          # One-time provisioning for the dashboard specs
 ├── fixtures/
+│   ├── auth.ts              # Path of the saved dashboard-creator session
 │   ├── credentials.ts       # Test users (overridable via env vars)
 │   ├── dashboards.ts        # Dashboard seed data + ACL provisioning actions
 │   ├── oidc.ts              # OIDC provider settings + ACL/contact provisioning
-│   └── test.ts              # Custom Playwright fixtures (login + API cleanup)
+│   └── test.ts              # Custom Playwright fixtures (API seed/cleanup)
 ├── helpers/
 │   ├── CentreonApi.ts       # HTTP client: v1 auth, CLAPI, v2 session, dashboard CRUD
 │   └── docker.ts            # docker compose exec helpers (feature flag, ACL)
@@ -34,6 +35,7 @@ tests/e2e-playwright/
 │   ├── OidcConfigurationPage.ts  # Admin OpenID Connect configuration form
 │   └── KeycloakLoginPage.ts      # Keycloak login form (external IdP)
 └── tests/
+    ├── auth.setup.ts        # `setup` project: saves the dashboard-creator session
     ├── authentication.spec.ts
     ├── authentication/
     │   └── oidc-authentication.spec.ts
@@ -65,12 +67,17 @@ This setup — handled by Cypress custom commands — is split here into:
   provisions the `user-dashboard-creator` contact + ACL group via the legacy
   CLAPI API, then recomputes ACLs. Bypass with `SKIP_GLOBAL_SETUP=1` when the
   platform is already provisioned.
-- **`fixtures/test.ts`** (per test): logs in through the UI as the dashboard
-  creator and seeds/cleans dashboards through the REST API (`CentreonApi`),
-  replacing the Cypress `beforeEach`/`afterEach` DB hooks.
+- **`auth.setup.ts`** (the `setup` project, runs once): logs in as the
+  dashboard creator through the UI and saves the session to `.auth/`. The
+  dashboard specs reuse it via `test.use({ storageState })` (a `dependencies:
+  ['setup']` makes it run first), so no UI login happens in each test.
+- **`fixtures/test.ts`** (per test): seeds/cleans dashboards through the REST
+  API (`CentreonApi`), replacing the Cypress `beforeEach`/`afterEach` DB hooks.
 
 Dashboards are addressed **by name** in the Page Objects rather than by list
 position, which is more robust than the index-based selection used by Cypress.
+Page Object actions are wrapped in `test.step(...)` and key locators carry a
+`.describe(...)` label, so traces and the HTML report read as readable steps.
 
 ## Requirements
 

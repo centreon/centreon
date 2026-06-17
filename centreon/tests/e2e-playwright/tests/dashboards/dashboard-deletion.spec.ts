@@ -1,12 +1,14 @@
+import { creatorStorageStatePath } from '../../fixtures/auth';
 import { dashboardToDelete, seededDashboards } from '../../fixtures/dashboards';
 import { test } from '../../fixtures/test';
 import { DashboardsListPage } from '../../pages/DashboardsListPage';
 import { DeleteDashboardDialog } from '../../pages/DeleteDashboardDialog';
 
 test.describe('Dashboard deletion', () => {
-  test.beforeEach(async ({ loginAsCreator, dashboardApi }) => {
+  test.use({ storageState: creatorStorageStatePath });
+
+  test.beforeEach(async ({ dashboardApi }) => {
     await dashboardApi.createDashboards(seededDashboards);
-    await loginAsCreator();
   });
 
   test('deletes a dashboard after confirmation', async ({ page }) => {

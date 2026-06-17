@@ -1,4 +1,4 @@
-import { expect, type Locator, type Page } from '@playwright/test';
+import { expect, type Locator, type Page, test } from '@playwright/test';
 
 import { oidcConfig } from '../fixtures/oidc';
 import { BasePage } from './BasePage';
@@ -63,12 +63,14 @@ export class OidcConfigurationPage extends BasePage {
 
   /** Open the authentication page and select the OpenID Connect tab. */
   async open(): Promise<void> {
-    const providerLoaded = this.page.waitForResponse((response) =>
-      response.url().includes('/authentication/providers/openid')
-    );
-    await this.goto('/administration/authentication');
-    await this.oidcTab.click();
-    await providerLoaded;
+    await test.step('Open the OpenID Connect configuration', async () => {
+      const providerLoaded = this.page.waitForResponse((response) =>
+        response.url().includes('/authentication/providers/openid')
+      );
+      await this.goto('/administration/authentication');
+      await this.oidcTab.click();
+      await providerLoaded;
+    });
   }
 
   /** Expand the "Identity provider" section if it is collapsed. */
@@ -81,20 +83,22 @@ export class OidcConfigurationPage extends BasePage {
 
   /** Fill the identity-provider settings with valid values. */
   async fillProviderConfiguration(): Promise<void> {
-    await this.expandIdentityProvider();
-    await this.baseUrlInput.fill(oidcConfig.baseUrl);
-    await this.authorizationEndpointInput.fill(
-      oidcConfig.authorizationEndpoint
-    );
-    await this.tokenEndpointInput.fill(oidcConfig.tokenEndpoint);
-    await this.introspectionEndpointInput.fill(
-      oidcConfig.introspectionTokenEndpoint
-    );
-    await this.clientIdInput.fill(oidcConfig.clientId);
-    await this.clientSecretInput.fill(oidcConfig.clientSecret);
-    await this.loginAttributeInput.fill(oidcConfig.loginAttributePath);
-    await this.ensureScope(oidcConfig.scopes);
-    await this.useBasicAuthCheckbox.uncheck();
+    await test.step('Fill the identity provider settings', async () => {
+      await this.expandIdentityProvider();
+      await this.baseUrlInput.fill(oidcConfig.baseUrl);
+      await this.authorizationEndpointInput.fill(
+        oidcConfig.authorizationEndpoint
+      );
+      await this.tokenEndpointInput.fill(oidcConfig.tokenEndpoint);
+      await this.introspectionEndpointInput.fill(
+        oidcConfig.introspectionTokenEndpoint
+      );
+      await this.clientIdInput.fill(oidcConfig.clientId);
+      await this.clientSecretInput.fill(oidcConfig.clientSecret);
+      await this.loginAttributeInput.fill(oidcConfig.loginAttributePath);
+      await this.ensureScope(oidcConfig.scopes);
+      await this.useBasicAuthCheckbox.uncheck();
+    });
   }
 
   /**
@@ -122,24 +126,28 @@ export class OidcConfigurationPage extends BasePage {
 
   /** Enable OpenID Connect authentication if it is not already enabled. */
   async enableOpenIdConnect(): Promise<void> {
-    if (!(await this.enableOidcCheckbox.isChecked())) {
-      await this.enableOidcCheckbox.check();
-    }
+    await test.step('Enable OpenID Connect authentication', async () => {
+      if (!(await this.enableOidcCheckbox.isChecked())) {
+        await this.enableOidcCheckbox.check();
+      }
+    });
   }
 
   /** Save the form and wait for the provider update to succeed (HTTP 204). */
   async save(): Promise<void> {
-    if (await this.saveButton.isDisabled()) {
-      return;
-    }
-    const updated = this.page.waitForResponse(
-      (response) =>
-        response.url().includes('/authentication/providers/openid') &&
-        response.request().method() === 'PUT'
-    );
-    await this.saveButton.click();
-    const response = await updated;
-    expect(response.status()).toBe(204);
+    await test.step('Save the OpenID Connect configuration', async () => {
+      if (await this.saveButton.isDisabled()) {
+        return;
+      }
+      const updated = this.page.waitForResponse(
+        (response) =>
+          response.url().includes('/authentication/providers/openid') &&
+          response.request().method() === 'PUT'
+      );
+      await this.saveButton.click();
+      const response = await updated;
+      expect(response.status()).toBe(204);
+    });
   }
 
   async expectClientSecretHidden(): Promise<void> {

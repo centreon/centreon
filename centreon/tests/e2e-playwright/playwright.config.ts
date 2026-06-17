@@ -30,8 +30,18 @@ export default defineConfig({
   globalSetup: require.resolve('./global-setup'),
   projects: [
     {
+      // Logs in once as the dashboard creator and saves the session; the
+      // dashboard specs reuse it through `test.use({ storageState })`.
+      name: 'setup',
+      testMatch: /.*\.setup\.ts/
+    },
+    {
       name: 'chromium',
-      testIgnore: '**/authentication/oidc-authentication.spec.ts',
+      dependencies: ['setup'],
+      testIgnore: [
+        '**/authentication/oidc-authentication.spec.ts',
+        '**/*.setup.ts'
+      ],
       use: { ...devices['Desktop Chrome'] }
     },
     {

@@ -1,3 +1,4 @@
+import { creatorStorageStatePath } from '../../fixtures/auth';
 import { creationDashboards } from '../../fixtures/dashboards';
 import { expect, test } from '../../fixtures/test';
 import { DashboardDetailPage } from '../../pages/DashboardDetailPage';
@@ -10,12 +11,11 @@ const {
   fromCreator
 } = creationDashboards;
 
-// `dashboardApi` is referenced for its automatic cleanup of dashboards created
-// through the UI in these scenarios.
+// Reuse the dashboard-creator session captured by the `setup` project instead
+// of logging in through the UI in every test. `dashboardApi` is referenced for
+// its automatic cleanup of dashboards created through the UI.
 test.describe('Dashboard creation', () => {
-  test.beforeEach(async ({ loginAsCreator }) => {
-    await loginAsCreator();
-  });
+  test.use({ storageState: creatorStorageStatePath });
 
   test('creates a dashboard with the required fields only', async ({
     page,

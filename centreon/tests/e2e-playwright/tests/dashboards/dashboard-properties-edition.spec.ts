@@ -1,3 +1,4 @@
+import { creatorStorageStatePath } from '../../fixtures/auth';
 import { dashboardToEdit, seededDashboards } from '../../fixtures/dashboards';
 import { expect, test } from '../../fixtures/test';
 import { DashboardPropertiesDialog } from '../../pages/DashboardFormDialog';
@@ -7,9 +8,10 @@ const editedName = 'dashboard-edited';
 const editedDescription = 'dashboard-edited';
 
 test.describe('Dashboard properties edition', () => {
-  test.beforeEach(async ({ loginAsCreator, dashboardApi }) => {
+  test.use({ storageState: creatorStorageStatePath });
+
+  test.beforeEach(async ({ dashboardApi }) => {
     await dashboardApi.createDashboards(seededDashboards);
-    await loginAsCreator();
   });
 
   test('updates a dashboard name and description', async ({ page }) => {

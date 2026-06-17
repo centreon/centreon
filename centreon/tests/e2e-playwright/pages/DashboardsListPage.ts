@@ -1,4 +1,4 @@
-import { expect, type Locator, type Page } from '@playwright/test';
+import { expect, type Locator, type Page, test } from '@playwright/test';
 
 import { BasePage } from './BasePage';
 
@@ -14,7 +14,9 @@ export class DashboardsListPage extends BasePage {
 
   constructor(page: Page) {
     super(page);
-    this.createButton = page.locator('[data-testid="create-dashboard"]');
+    this.createButton = page
+      .locator('[data-testid="create-dashboard"]')
+      .describe('Create dashboard button');
   }
 
   /** Open the library and wait for the listing request to settle. */
@@ -32,11 +34,13 @@ export class DashboardsListPage extends BasePage {
   card(name: string): Locator {
     return this.page
       .locator('[class*="dataTableItem"]')
-      .filter({ hasText: name });
+      .filter({ hasText: name })
+      .describe(`dashboard card "${name}"`);
   }
 
   async clickCreate(): Promise<void> {
-    await this.createButton.click();
+    await test.step('Open the dashboard creation form', () =>
+      this.createButton.click());
   }
 
   /** The card heading (dashboard name), used to disambiguate from descriptions. */
@@ -46,7 +50,8 @@ export class DashboardsListPage extends BasePage {
 
   /** Open a dashboard's detail page by clicking its name. */
   async openDashboard(name: string): Promise<void> {
-    await this.heading(name).click();
+    await test.step(`Open dashboard "${name}"`, () =>
+      this.heading(name).click());
   }
 
   private async openMoreActions(name: string): Promise<void> {
@@ -55,14 +60,20 @@ export class DashboardsListPage extends BasePage {
 
   /** Open the "Edit properties" form for a dashboard via its actions menu. */
   async openProperties(name: string): Promise<void> {
-    await this.openMoreActions(name);
-    await this.page.getByRole('menuitem', { name: 'Edit properties' }).click();
+    await test.step(`Open properties of "${name}"`, async () => {
+      await this.openMoreActions(name);
+      await this.page
+        .getByRole('menuitem', { name: 'Edit properties' })
+        .click();
+    });
   }
 
   /** Open the delete confirmation for a dashboard via its actions menu. */
   async openDelete(name: string): Promise<void> {
-    await this.openMoreActions(name);
-    await this.page.getByRole('menuitem', { name: 'Delete' }).click();
+    await test.step(`Delete "${name}"`, async () => {
+      await this.openMoreActions(name);
+      await this.page.getByRole('menuitem', { name: 'Delete' }).click();
+    });
   }
 
   async expectVisible(name: string): Promise<void> {
