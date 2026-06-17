@@ -55,13 +55,13 @@ final readonly class FsEngineSecretsRepository implements EngineSecretsRepositor
         $data = json_decode($content, true, flags: JSON_THROW_ON_ERROR);
 
         if (! is_array($data)) {
-            throw new \JsonException('Engine context file does not contain a valid JSON object.');
+            throw new \RuntimeException('Engine context file does not contain a valid JSON object.');
         }
 
         $value = $data[$key] ?? null;
 
         if (! is_string($value)) {
-            throw new \JsonException(sprintf('Missing or invalid key "%s" in engine context file.', $key));
+            throw new \RuntimeException(sprintf('Missing or invalid key "%s" in engine context file.', $key));
         }
 
         return $value;

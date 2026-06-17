@@ -23,13 +23,14 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Webmozart\Assert\Assert;
 
 final readonly class PollerToken
 {
     public function __construct(
         public string $name,
-        public string $value,
+        #[Sensitive] public string $value,
         public \DateTimeImmutable $creationDate,
         public ?\DateTimeImmutable $expirationDate,
         public bool $isRevoked,

@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\InstallationCommandResource;
 use App\MonitoringConfiguration\Infrastructure\PollerInstallationCommandFactory;
 use App\Shared\Domain\Repository\EngineSecretsRepository;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * @template-implements ProviderInterface<InstallationCommandResource>
@@ -47,7 +48,10 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): InstallationCommandResource
     {
         $rawPollerId = $uriVariables['id'] ?? null;
-        $pollerId = new PollerId(is_scalar($rawPollerId) ? (int) $rawPollerId : 0);
+        if (! is_numeric($rawPollerId) || (int) $rawPollerId <= 0) {
+            throw new BadRequestHttpException('Invalid poller id.');
+        }
+        $pollerId = new PollerId((int) $rawPollerId);
         $poller = $this->pollerRepository->get($pollerId);
 
         $filters = is_array($context['filters'] ?? null) ? $context['filters'] : [];
@@ -61,7 +65,6 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
             $token,
             $this->engineSecretsRepository->getAppSecret(),
             $this->engineSecretsRepository->getSalt(),
-            '<CENTRAL_URL>',
         );
 
         return new InstallationCommandResource(

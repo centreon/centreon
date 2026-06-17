@@ -29,11 +29,22 @@ use Tests\App\Shared\ApiTestCase;
 final class GetInstallationCommandProviderTest extends ApiTestCase
 {
     private const BASE_ENDPOINT = '/api/latest/configuration/pollers/installation-command';
+    private const POLLER_UID = 123456789012345;
+    private const POLLER_NAME = 'test-poller';
+    private const POLLER_TYPE = 'vm';
 
     public function testItReturns401WhenNotAuthenticated(): void
     {
         $this->request('GET', sprintf('%s/%d', self::BASE_ENDPOINT, 1));
         self::assertResponseStatusCodeSame(401);
+    }
+
+    public function testItReturns400WhenPollerIdIsInvalid(): void
+    {
+        $this->login();
+
+        $this->request('GET', sprintf('%s/%d', self::BASE_ENDPOINT, 0));
+        self::assertResponseStatusCodeSame(400);
     }
 
     public function testItReturns404WhenPollerNotFound(): void
@@ -54,5 +65,88 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
 
         $this->request('GET', sprintf('%s/%d', self::BASE_ENDPOINT, 1));
         self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testItReturns404WhenNoValidTokenExists(): void
+    {
+        $pollerId = $this->insertPoller(self::POLLER_NAME);
+        $this->login();
+
+        $this->request('GET', sprintf('%s/%d', self::BASE_ENDPOINT, $pollerId));
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testItReturns200WithInstallationCommand(): void
+    {
+        $pollerId = $this->insertPoller(self::POLLER_NAME);
+        $tokenValue = $this->insertPollerToken('test-token-default');
+        $this->login();
+
+        $response = $this->request('GET', sprintf('%s/%d', self::BASE_ENDPOINT, $pollerId));
+        self::assertResponseIsSuccessful();
+
+        $data = $response->toArray();
+        $expected = sprintf(
+            'curl -fsSL https://<CENTRAL_URL>/poller/install.sh | bash -s -- --poller_token %s --uid %s --name %s --type %s --central_url <CENTRAL_URL> --appsecret test-app-secret --salt test-salt',
+            $tokenValue,
+            self::POLLER_UID,
+            escapeshellarg(self::POLLER_NAME),
+            self::POLLER_TYPE,
+        );
+        self::assertSame($expected, $data['installation_command']);
+    }
+
+    public function testItReturns200WithInstallationCommandForNamedToken(): void
+    {
+        $pollerId = $this->insertPoller(self::POLLER_NAME);
+        $this->insertPollerToken('other-token');
+        $namedTokenValue = $this->insertPollerToken('named-token');
+        $this->login();
+
+        $response = $this->request('GET', sprintf('%s/%d?token-name=named-token', self::BASE_ENDPOINT, $pollerId));
+        self::assertResponseIsSuccessful();
+
+        $data = $response->toArray();
+        $expected = sprintf(
+            'curl -fsSL https://<CENTRAL_URL>/poller/install.sh | bash -s -- --poller_token %s --uid %s --name %s --type %s --central_url <CENTRAL_URL> --appsecret test-app-secret --salt test-salt',
+            $namedTokenValue,
+            self::POLLER_UID,
+            escapeshellarg(self::POLLER_NAME),
+            self::POLLER_TYPE,
+        );
+        self::assertSame($expected, $data['installation_command']);
+    }
+
+    private function insertPoller(string $name): int
+    {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->insert('nagios_server', [
+            'name' => $name,
+            'localhost' => '0',
+            'ns_ip_address' => '127.0.0.1',
+            'uid' => self::POLLER_UID,
+            'poller_type' => self::POLLER_TYPE,
+            'ns_activate' => '1',
+        ]);
+
+        return (int) $connection->lastInsertId();
+    }
+
+    private function insertPollerToken(string $tokenName): string
+    {
+        $tokenValue = bin2hex(random_bytes(16));
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->insert('authentication_tokens', [
+            'token_name' => $tokenName,
+            'token_string' => $tokenValue,
+            'type' => 'poller',
+            'is_revoked' => 0,
+            'expiration_date' => null,
+            'creation_date' => time(),
+        ]);
+
+        return $tokenValue;
     }
 }

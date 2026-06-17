@@ -27,7 +27,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerToken;
 use App\MonitoringConfiguration\Domain\Exception\PollerTokenNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
 use Doctrine\DBAL\Connection;
-use Webmozart\Assert\Assert;
 
 final readonly class DbalPollerTokenRepository implements PollerTokenRepository
 {
@@ -37,6 +36,7 @@ final readonly class DbalPollerTokenRepository implements PollerTokenRepository
 
     public function getFirstValidPollerToken(): PollerToken
     {
+        /** @var array{token_string: string, token_name: string, creation_date: numeric-string, expiration_date: numeric-string|null, is_revoked: int}|false $row */
         $row = $this->connection->fetchAssociative(
             <<<'SQL'
                 SELECT token_string, token_name, creation_date, expiration_date, is_revoked
@@ -50,7 +50,7 @@ final readonly class DbalPollerTokenRepository implements PollerTokenRepository
             ['nowEpoch' => time()],
         );
 
-        if (! is_array($row)) {
+        if ($row === false) {
             throw new PollerTokenNotFoundException([], 'No valid poller token found.');
         }
 
@@ -59,6 +59,7 @@ final readonly class DbalPollerTokenRepository implements PollerTokenRepository
 
     public function getValidPollerTokenByName(string $name): PollerToken
     {
+        /** @var array{token_string: string, token_name: string, creation_date: numeric-string, expiration_date: numeric-string|null, is_revoked: int}|false $row */
         $row = $this->connection->fetchAssociative(
             <<<'SQL'
                 SELECT token_string, token_name, creation_date, expiration_date, is_revoked
@@ -71,7 +72,7 @@ final readonly class DbalPollerTokenRepository implements PollerTokenRepository
             ['nowEpoch' => time(), 'name' => $name],
         );
 
-        if (! is_array($row)) {
+        if ($row === false) {
             throw new PollerTokenNotFoundException([], sprintf('No valid poller token found with name "%s".', $name));
         }
 
@@ -79,30 +80,17 @@ final readonly class DbalPollerTokenRepository implements PollerTokenRepository
     }
 
     /**
-     * @param array<string, mixed> $row
+     * @param array{token_string: string, token_name: string, creation_date: numeric-string, expiration_date: numeric-string|null, is_revoked: int} $row
      */
     private function hydrateToken(array $row): PollerToken
     {
-        $name = $row['token_name'];
-        $value = $row['token_string'];
-        $creationTimestamp = $row['creation_date'];
-        $expirationTimestamp = $row['expiration_date'];
-
-        Assert::string($name);
-        Assert::string($value);
-        Assert::numeric($creationTimestamp);
-
-        $expirationDate = null;
-        if ($expirationTimestamp !== null) {
-            Assert::numeric($expirationTimestamp);
-            $expirationDate = new \DateTimeImmutable('@' . (int) $expirationTimestamp);
-        }
-
         return new PollerToken(
-            name: $name,
-            value: $value,
-            creationDate: new \DateTimeImmutable('@' . (int) $creationTimestamp),
-            expirationDate: $expirationDate,
+            name: $row['token_name'],
+            value: $row['token_string'],
+            creationDate: new \DateTimeImmutable('@' . (int) $row['creation_date']),
+            expirationDate: $row['expiration_date'] !== null
+                ? new \DateTimeImmutable('@' . (int) $row['expiration_date'])
+                : null,
             isRevoked: (bool) $row['is_revoked'],
         );
     }

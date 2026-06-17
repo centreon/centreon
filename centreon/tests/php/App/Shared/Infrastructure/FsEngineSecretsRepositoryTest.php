@@ -82,7 +82,7 @@ final class FsEngineSecretsRepositoryTest extends TestCase
 
         $repository = new FsEngineSecretsRepository($this->tempFile);
 
-        $this->expectException(\JsonException::class);
+        $this->expectException(\RuntimeException::class);
         $repository->getAppSecret();
     }
 
@@ -92,7 +92,7 @@ final class FsEngineSecretsRepositoryTest extends TestCase
 
         $repository = new FsEngineSecretsRepository($this->tempFile);
 
-        $this->expectException(\JsonException::class);
+        $this->expectException(\RuntimeException::class);
         $repository->getSalt();
     }
 
@@ -102,7 +102,7 @@ final class FsEngineSecretsRepositoryTest extends TestCase
 
         $repository = new FsEngineSecretsRepository($this->tempFile);
 
-        $this->expectException(\JsonException::class);
+        $this->expectException(\RuntimeException::class);
         $repository->getAppSecret();
     }
 
@@ -112,7 +112,7 @@ final class FsEngineSecretsRepositoryTest extends TestCase
 
         $repository = new FsEngineSecretsRepository($this->tempFile);
 
-        $this->expectException(\JsonException::class);
+        $this->expectException(\RuntimeException::class);
         $repository->getAppSecret();
     }
 }

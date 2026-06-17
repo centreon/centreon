@@ -25,15 +25,16 @@ namespace App\MonitoringConfiguration\Infrastructure;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerToken;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 final readonly class PollerInstallationCommandFactory
 {
     public function __construct(
         private Poller $poller,
         private PollerToken $pollerToken,
-        private string $appSecret,
-        private string $salt,
-        private ?string $centralUrl = '<CENTRAL_URL>',
+        #[Sensitive] private string $appSecret,
+        #[Sensitive] private string $salt,
+        private string $centralUrl = '<CENTRAL_URL>',
     ) {
     }
 
