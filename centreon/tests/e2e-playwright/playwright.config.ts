@@ -40,8 +40,9 @@ export default defineConfig({
       // (`sso-proxy`), so it is mapped to the published port on localhost.
       name: 'oidc',
       testMatch: '**/authentication/oidc-authentication.spec.ts',
-      // Allow extra time: the first OIDC test may start the openid profile.
-      timeout: 240_000,
+      // Allow extra time: the first OIDC test may start the openid profile
+      // (pulling and booting Keycloak from a cold CI runner can be slow).
+      timeout: 600_000,
       use: {
         ...devices['Desktop Chrome'],
         launchOptions: {

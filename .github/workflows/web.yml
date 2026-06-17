@@ -1334,43 +1334,10 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
         working-directory: ${{ env.base_directory }}/tests/e2e-playwright
 
-      - name: Start the Centreon web stack
-        # The `openid` profile adds Keycloak + sso-proxy, required by the OIDC tests.
-        run: docker compose -f "$compose_file" --profile openid up -d web openid sso-proxy
-
-      - name: Wait for the platform to be healthy
-        run: |
-          web_container="$(docker compose -f "$compose_file" ps -q web)"
-          for i in $(seq 1 60); do
-            status="$(docker inspect --format '{{.State.Health.Status}}' "$web_container")"
-            if [ "$status" = "healthy" ]; then
-              echo "Platform is healthy."
-              break
-            fi
-            if [ "$i" = "60" ]; then
-              echo "::error::Platform did not become healthy in time"
-              docker compose -f "$compose_file" logs web
-              exit 1
-            fi
-            sleep 5
-          done
-
-      - name: Wait for Keycloak to be ready
-        run: |
-          realm_url="http://localhost:8080/realms/Centreon_SSO/.well-known/openid-configuration"
-          for i in $(seq 1 60); do
-            if [ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "$realm_url")" = "200" ]; then
-              echo "Keycloak is ready."
-              exit 0
-            fi
-            if [ "$i" = "60" ]; then
-              echo "::error::Keycloak did not become ready in time"
-              docker compose -f "$compose_file" logs openid sso-proxy
-              exit 1
-            fi
-            sleep 5
-          done
-
+      # The stack is started by the tests themselves (global-setup ensures the
+      # web stack, the OIDC spec's beforeAll ensures the openid profile), so no
+      # explicit "up" / health-wait steps are needed here. The registry login
+      # above lets the test-triggered `docker compose up` pull the web image.
       - name: Run Playwright e2e tests
         run: pnpm test
         working-directory: ${{ env.base_directory }}/tests/e2e-playwright
