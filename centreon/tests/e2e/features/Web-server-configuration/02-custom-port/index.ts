@@ -41,7 +41,10 @@ When(
     // TODO: confirm the legacy iframe selectors.
     cy.visit('/centreon/main.php?p=60101');
     cy.getIframeBody().contains(host).click();
-    cy.getIframeBody().find('input[name="host_alias"]').clear().type('Edited by e2e');
+    cy.getIframeBody()
+      .find('input[name="host_alias"]')
+      .clear()
+      .type('Edited by e2e');
     cy.getIframeBody().find('input[name="submitC"]').click();
   }
 );
