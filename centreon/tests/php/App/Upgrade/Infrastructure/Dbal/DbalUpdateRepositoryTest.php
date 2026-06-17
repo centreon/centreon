@@ -172,33 +172,60 @@ final class DbalUpdateRepositoryTest extends TestCase
         self::assertSame(self::VERSION, $failed->version);
     }
 
-    public function testWriteExecutedQueriesCountWritesTheCount(): void
+    public function testRunSqlFileResumesFromProgressCountAndSkipsAlreadyExecutedStatements(): void
     {
-        $tmpFile = $this->installDir . '/progress.count';
+        // A configuration SQL file with two statements, the first already applied on a previous run.
+        $this->createConfigurationSqlFile("-- a comment\nSELECT 1;\nSELECT 2;\n");
+        file_put_contents($this->progressFile(), '1');
 
-        $this->invokePrivate('writeExecutedQueriesCount', [$tmpFile, 7]);
+        $executed = [];
+        $this->configConnection
+            ->method('executeStatement')
+            ->willReturnCallback(function (string $sql) use (&$executed): int {
+                $executed[] = $sql;
 
-        self::assertSame('7', file_get_contents($tmpFile));
+                return 1;
+            });
+
+        $this->repository()->runUpdate(self::VERSION);
+
+        // The already-applied first statement is skipped; only the second one runs (plus the version UPDATE).
+        $statementsRun = implode(' | ', $executed);
+        self::assertStringContainsString('SELECT 2', $statementsRun);
+        self::assertStringNotContainsString('SELECT 1', $statementsRun);
+        self::assertStringContainsString('UPDATE `informations`', $statementsRun);
+
+        // The progress file is advanced to the new count.
+        self::assertSame('2', file_get_contents($this->progressFile()));
+        self::assertSame([], $this->eventsOfType(UpgradeStepFailed::class));
     }
 
-    public function testWriteExecutedQueriesCountThrowsWhenTmpFileIsNotWritable(): void
+    public function testRunSqlFileFailsWhenProgressFileIsNotWritable(): void
     {
         if (function_exists('posix_getuid') && posix_getuid() === 0) {
             self::markTestSkipped('Permission bits are bypassed when running as root.');
         }
 
-        $tmpFile = $this->installDir . '/readonly.count';
-        file_put_contents($tmpFile, '0');
-        chmod($tmpFile, 0o444);
+        $this->createConfigurationSqlFile("SELECT 1;\n");
+        // The progress file exists but is read-only: writing the new count must fail loudly.
+        $progressFile = $this->progressFile();
+        file_put_contents($progressFile, '0');
+        chmod($progressFile, 0o444);
+
+        $this->configConnection->method('executeStatement')->willReturn(1);
 
         try {
-            $this->expectException(\RuntimeException::class);
-            $this->expectExceptionMessageMatches('/temporary file/');
-
-            $this->invokePrivate('writeExecutedQueriesCount', [$tmpFile, 1]);
+            $this->repository()->runUpdate(self::VERSION);
+            self::fail('Expected the non-writable progress file to abort the step');
+        } catch (\RuntimeException $exception) {
+            self::assertMatchesRegularExpression('/temporary file/', $exception->getMessage());
         } finally {
-            chmod($tmpFile, 0o644);
+            chmod($progressFile, 0o644);
         }
+
+        // The failure surfaces as a step failure on the configuration_sql step before being re-thrown.
+        $failed = $this->firstEventOfType(UpgradeStepFailed::class);
+        self::assertSame('configuration_sql', $failed->step);
     }
 
     private function repository(?Filesystem $filesystem = null): DbalUpdateRepository
@@ -214,14 +241,16 @@ final class DbalUpdateRepositoryTest extends TestCase
         );
     }
 
-    /**
-     * @param list<mixed> $arguments
-     */
-    private function invokePrivate(string $method, array $arguments): mixed
+    private function createConfigurationSqlFile(string $contents): void
     {
-        $reflection = new \ReflectionMethod(DbalUpdateRepository::class, $method);
+        $sqlDir = $this->installDir . '/sql/centreon';
+        $this->realFilesystem->mkdir([$sqlDir, $this->installDir . '/tmp']);
+        file_put_contents($sqlDir . '/Update-DB-' . self::VERSION . '.sql', $contents);
+    }
 
-        return $reflection->invokeArgs($this->repository(), $arguments);
+    private function progressFile(): string
+    {
+        return $this->installDir . '/tmp/Update-DB-' . self::VERSION . '.sql';
     }
 
     /**
