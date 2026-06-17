@@ -20,7 +20,9 @@ Vitest Browser Mode or Playwright CT would introduce).
 | `Section.rstest.spec.tsx` | Real `@centreon/ui` SectionPanel: render + interaction |
 | `DialogDuplicate.rstest.spec.tsx` | Real MUI 7 dialog: controlled input, disabled state, mock callbacks |
 | `Wizard.rstest.spec.tsx` | MUI multi-step wizard: async Next/Previous navigation |
-| `LocaleDateTimeFormat.rstest.spec.tsx` | A hook with Jotai state + dayjs (the fast, non-styled "logic" layer) |
+| `WizardActionsBar.rstest.spec.tsx` | MUI Wizard actions bar: labels, disabled state, callbacks |
+| `LocaleDateTimeFormat.rstest.spec.tsx` | Hook with Jotai state + dayjs (locale fallback) |
+| `LocaleDateTimeFormatFull.rstest.spec.tsx` | Hook: date/time/ISO/duration formatting |
 
 Run it (from `centreon/`):
 
@@ -28,8 +30,8 @@ Run it (from `centreon/`):
 pnpm rstest
 ```
 
-Result: **9/9 tests pass** across 4 spec files (MUI dialog/panel/wizard + a
-Jotai/dayjs hook), against the real components bundled by Rspack.
+Result: **20/20 tests pass** across 6 spec files (MUI panel/dialog/wizard/actions
++ Jotai/dayjs hooks), against the real components bundled by Rspack.
 
 In CI, a dedicated `rstest-component-test` job runs `pnpm rstest` (no docker
 stack needed — component tests are isolated).
@@ -60,15 +62,33 @@ The specs are ports of the existing Jest tests. The only changes:
    migration.
 4. **Workspace `minimumReleaseAge` (7 days)** blocks the very latest Rstest, so
    `@rstest/core` is pinned to `0.10.3` (and `@rsbuild/plugin-react` to `2.0.1`).
+5. **Existing specs do NOT run unmodified — and several hang (Rstest 0.10.x).**
+   Attempting to point Rstest at the existing Jest specs failed in three ways,
+   which is why the comparison set had to be hand-ported and stayed at 5 files:
+   - `jest` is not a runtime global under Rstest (only `rstest`); the specs and
+     `setupTest.js` use `jest.*`. A `jest = rstest` shim helps but is not enough.
+   - The shared `packages/ui/test/testRenderer` imports `jest-fetch-mock`, whose
+     load **hangs** under Rstest — so every spec using it hangs. Migration
+     therefore requires reworking the shared test harness, not just the specs.
+   - Pure-logic `.ts` specs (e.g. `buildListingEndpoint`, `timeSeries`) also
+     **hang** on import under Rstest 0.10.x, in both jsdom and node environments.
+   These are maturity rough edges of a pre-1.0 tool.
 
-## Speed
+## Speed (benchmark on the same 6 specs)
 
-On this micro-sample, Rstest (~1.7 s, 5 tests) was **not faster** than Jest
-(~1.0 s, the original specs) — Rspack pays a fixed bundling-startup cost that
-dominates at small scale. The speed benefit of Rspack/Vite-based runners shows
-on large suites (parallelism, incremental rebuilds), so a fair speed comparison
-needs a much larger sample. **Do not adopt Rstest for raw speed at this stage —
-adopt it (later) for Rspack fidelity and toolchain consolidation.**
+| Runner | Files | Tests | Wall-clock |
+| --- | --- | --- | --- |
+| Jest (`@swc/jest`, jsdom) | 6 | 20 | **~0.5–1.2 s** |
+| Rstest (Rspack, jsdom) | 6 | 20 | **~2.3 s warm / ~5.4 s cold** |
+
+At this scale Jest is **~3–5× faster**: Rstest pays a fixed Rspack
+bundling-startup cost (note the cold/warm gap) that dominates for a handful of
+files. The speed benefit
+of Rspack/Vite-based runners only appears on large suites (parallelism,
+incremental rebuilds) — but we could **not** build a large benchmark here
+because the bigger/existing specs hang (finding #5). **Conclusion: do not adopt
+Rstest for raw speed today; its value is Rspack fidelity + toolchain
+consolidation, and it needs to mature (1.0) before a wholesale migration.**
 
 ## Recommendation
 
