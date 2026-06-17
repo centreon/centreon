@@ -30,6 +30,7 @@ use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\Routing\Exception\InvalidParameterException;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
@@ -1310,7 +1311,17 @@ class CentreonConfigCentreonBroker
         /** @var Core\Infrastructure\Common\Api\Router $router */
         $router = $kernel->getContainer()->get(Core\Infrastructure\Common\Api\Router::class)
         ?? throw new LogicException('Router not found in container');
-        $client = new InternalApiClient();
+
+        /** @var ServiceLocator $serviceLocator */
+        $serviceLocator = $kernel->getContainer()->get('legacy.service_locator');
+
+        if (! $serviceLocator->has('internal_api_client')) {
+            throw new RuntimeException('internal_api_client service is not registered in the service locator');
+        }
+
+        /** @var InternalApiClient $client */
+        $client = $serviceLocator->get('internal_api_client');
+
         $sessionCookie = CentreonSession::resolveSessionCookie();
         $parameters = ['brokerId' => $configId];
         if ($basePath) {
