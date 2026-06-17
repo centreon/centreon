@@ -33,6 +33,66 @@ $version = 'xx.xx.x';
 
 $errorMessage = '';
 
+$addNewGorgoneCommunicationTypes = function () use ($pearDB, &$errorMessage, $version): void {
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Updating gorgone_communication_type in nagios_server",
+        customContext: [
+            'New values' => [
+                '3' => 'Pull',
+                '4' => 'PullWSS',
+            ],
+        ]
+    );
+    $errorMessage = 'Unable to update gorgone_communication_type in nagios_server';
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server`
+              MODIFY COLUMN `gorgone_communication_type`
+              enum('1','2','3','4') NOT NULL DEFAULT '1'
+              COMMENT '1: SSH, 2: ZMQ, 3: Pull, 4: PullWSS';
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully updated gorgone_communication_type",
+    );
+};
+
+$updateGorgoneCommunicationTypeForCloudPlatform = function () use ($pearDB, &$errorMessage, $version): void {
+    $isCloudPlatform = filter_var(
+        $_ENV['IS_CLOUD_PLATFORM'] ?? null,
+        FILTER_VALIDATE_BOOL,
+        FILTER_NULL_ON_FAILURE
+    );
+    if ($isCloudPlatform !== true) {
+        return;
+    }
+
+    $errorMessage = "Unable to update gorgone_communication_type to '4' for all pollers";
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Updating gorgone_communication_type to '4' for all pollers",
+        customContext: [
+            'New values' => [
+                '3' => 'Pull',
+                '4' => 'PullWSS',
+            ],
+        ]
+    );
+    $pearDB->executeStatement(
+        <<<'SQL'
+                UPDATE nagios_server SET gorgone_communication_type = '4';
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully updated gorgone_communication_type to '4' for all pollers",
+    );
+};
+
 /**
  * @var ConnectionInterface $pearDB
  * @var ConnectionInterface $pearDBO
@@ -741,11 +801,13 @@ try {
     $addEventScriptLogger();
     $updateBbdoVersionDefault();
     $updateBbdoVersionValues();
+    $addNewGorgoneCommunicationTypes();
 
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {
         $pearDB->startTransaction();
     }
+    $updateGorgoneCommunicationTypeForCloudPlatform();
 
     $pearDB->commitTransaction();
 

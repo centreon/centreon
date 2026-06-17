@@ -56,6 +56,10 @@ class DbReadPerformanceDataRepository extends AbstractRepositoryDRB implements R
         DateTimeInterface $startDate,
         DateTimeInterface $endDate,
     ): iterable {
+        if ($metrics === []) {
+            return;
+        }
+
         $this->db->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
         $this->db->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, true);
 

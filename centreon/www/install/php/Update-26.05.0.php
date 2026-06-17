@@ -458,8 +458,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
         <<<'SQL'
             SELECT cb.config_id
             FROM cfg_centreonbroker cb
-            WHERE daemon = 1
-                AND config_activate = '1'
+            WHERE config_activate = '1'
                 AND ns_nagios_server = (
                     SELECT id FROM nagios_server WHERE localhost = '1'
                 )
