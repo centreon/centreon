@@ -221,7 +221,7 @@ class CentreonUtils
                 $init = $initialValues[$key];
             }
             $result = array_merge((array) $form->getSubmitValue($key), $init);
-        } catch (HTML_QuickForm_Error|\JsonException $e) {
+        } catch (HTML_QuickForm_Error|JsonException $e) {
             $result = (array) $form->getSubmitValue($key);
         }
 
