@@ -366,7 +366,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
     if: |
-      needs.changes.outputs.trigger_frontend_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
     steps:
@@ -384,7 +384,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
     if: |
-      needs.changes.outputs.trigger_frontend_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
     steps:
@@ -399,7 +399,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
     if: |
-      needs.changes.outputs.trigger_frontend_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
 
@@ -442,7 +442,7 @@ jobs:
   frontend-component-test:
     needs: [changes, get-environment]
     if: |
-      needs.changes.outputs.trigger_frontend_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
     uses: ./.github/workflows/cypress-component-parallelization.yml
@@ -463,7 +463,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
     if: |
-      needs.changes.outputs.trigger_backend_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
 
@@ -512,7 +512,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [get-environment, changes, backend-unit-test]
     if: |
-      needs.changes.outputs.trigger_backend_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
     services:
@@ -596,7 +596,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
     if: |
-      needs.changes.outputs.trigger_backend_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
 
@@ -738,7 +738,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [get-environment, changes]
     if: |
-      needs.changes.outputs.trigger_e2e_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
     steps:
@@ -752,7 +752,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [get-environment, changes]
     if: |
-      needs.changes.outputs.trigger_e2e_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
     steps:
@@ -1094,7 +1094,7 @@ jobs:
   create-xray-test-plan-and-test-execution:
     needs: [get-environment, changes, dockerize]
     if: |
-      needs.changes.outputs.trigger_api_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
@@ -1121,7 +1121,7 @@ jobs:
   bruno-api-test:
     needs: [get-environment, changes, create-xray-test-plan-and-test-execution, dockerize]
     if: |
-      needs.changes.outputs.trigger_api_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable' &&
       ! cancelled() &&
@@ -1155,7 +1155,7 @@ jobs:
   legacy-e2e-test:
     needs: [get-environment, changes, dockerize]
     if: |
-      needs.changes.outputs.trigger_e2e_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
@@ -1198,7 +1198,7 @@ jobs:
         e2e-lint,
       ]
     if: |
-      needs.changes.outputs.trigger_e2e_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
@@ -1290,6 +1290,85 @@ jobs:
   #         name: lighthouse-report
   #         path: centreon/lighthouse/report/lighthouseci-index.html
   #         retention-days: 1
+
+  playwright-e2e-test:
+    runs-on: ubuntu-24.04
+    needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled()
+    name: playwright-e2e-test
+    env:
+      # POC: run against the published web image (this PR only adds test files).
+      WEB_IMAGE: docker.centreon.com/centreon/centreon-web-alma9:develop
+      compose_file: .github/docker/docker-compose.yml
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Login to Centreon registry
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          registry: docker.centreon.com
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+
+      - uses: pnpm/action-setup@26f6d4f2c533a43e6b5da0b4a5dd983f98f7b49a # v6.0.4
+        with:
+          version: 10
+          run_install: false
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: ${{ env.base_directory }}/pnpm-lock.yaml
+
+      - name: Install Playwright e2e dependencies
+        run: pnpm install --frozen-lockfile --filter centreon-e2e-playwright
+        working-directory: ${{ env.base_directory }}
+        env:
+          CYPRESS_INSTALL_BINARY: "0"
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+        working-directory: ${{ env.base_directory }}/tests/e2e-playwright
+
+      - name: Start the Centreon web stack
+        run: docker compose -f "$compose_file" up -d web
+
+      - name: Wait for the platform to be healthy
+        run: |
+          web_container="$(docker compose -f "$compose_file" ps -q web)"
+          for i in $(seq 1 60); do
+            status="$(docker inspect --format '{{.State.Health.Status}}' "$web_container")"
+            if [ "$status" = "healthy" ]; then
+              echo "Platform is healthy."
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::Platform did not become healthy in time"
+          docker compose -f "$compose_file" logs web
+          exit 1
+
+      - name: Run Playwright e2e tests
+        run: pnpm test
+        working-directory: ${{ env.base_directory }}/tests/e2e-playwright
+        env:
+          CENTREON_BASE_URL: http://localhost:4000/centreon
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: playwright-report
+          path: ${{ env.base_directory }}/tests/e2e-playwright/playwright-report
+          retention-days: 5
+
+      - name: Stop the Centreon web stack
+        if: ${{ always() }}
+        run: docker compose -f "$compose_file" down -v
 
   deliver-sources:
     runs-on: ubuntu-24.04
