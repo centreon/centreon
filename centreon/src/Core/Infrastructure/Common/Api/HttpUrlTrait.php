@@ -23,22 +23,18 @@ declare(strict_types=1);
 
 namespace Core\Infrastructure\Common\Api;
 
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\ServerBag;
 use Symfony\Contracts\Service\Attribute\Required;
 
 trait HttpUrlTrait
 {
-    /** @var ServerBag|null */
-    private ?ServerBag $httpServerBag = null;
+    private ?Request $request = null;
 
-    /**
-     * @param RequestStack $requestStack
-     */
     #[Required]
     public function setHttpServerBag(RequestStack $requestStack): void
     {
-        $this->httpServerBag = $requestStack->getCurrentRequest()?->server;
+        $this->request = $requestStack->getCurrentRequest();
     }
 
     /**
@@ -48,12 +44,15 @@ trait HttpUrlTrait
      */
     public function getHost(bool $withScheme = false): string
     {
-        $httpHost = $_SERVER['HTTP_HOST'];
-        if ($withScheme) {
-            $scheme = $_SERVER['REQUEST_SCHEME'];
+        if ($this->request === null) {
+            throw new \RuntimeException(
+                'Unable to resolve HTTP host: no current request available in the request stack'
+            );
         }
 
-        return $withScheme ? sprintf('%s://%s', $scheme, $httpHost) : $httpHost;
+        return $withScheme
+            ? $this->request->getSchemeAndHttpHost()
+            : $this->request->getHttpHost();
     }
 
     /**
@@ -63,36 +62,9 @@ trait HttpUrlTrait
      */
     protected function getBaseUrl(): string
     {
-        if (! $this->httpServerBag?->has('SERVER_NAME')) {
-            return '';
-        }
-
-        $protocol = $this->httpServerBag->has('HTTPS') && $this->httpServerBag->get('HTTPS') !== 'off'
-            ? 'https'
-            : 'http';
-
-        $port = null;
-        if ($this->httpServerBag->get('SERVER_PORT')) {
-            if (
-                ($protocol === 'http' && $this->httpServerBag->get('SERVER_PORT') !== '80')
-                || ($protocol === 'https' && $this->httpServerBag->get('SERVER_PORT') !== '443')
-            ) {
-                /**
-                 * @var string
-                 */
-                $port = $this->httpServerBag->get('SERVER_PORT');
-                $port = (int) $port;
-            }
-        }
-
-        $serverName = $this->httpServerBag->get('SERVER_NAME');
-
         $baseUri = trim($this->getBaseUri(), '/');
 
-        return rtrim(
-            $protocol . '://' . $serverName . ($port !== null ? ':' . $port : '') . '/' . $baseUri,
-            '/'
-        );
+        return rtrim($this->getHost(true) . '/' . $baseUri, '/');
     }
 
     /**
@@ -109,14 +81,19 @@ trait HttpUrlTrait
             'main(\.get)?\.php',
             '(?<!administration\/)authentication\/.+',
         ];
-        if ($this->httpServerBag?->has('REQUEST_URI')) {
-            /**
-             * @var string
-             */
-            $requestUri = $this->httpServerBag->get('REQUEST_URI');
-            if (preg_match('/^(.+?)\/?(' . implode('|', $routeSuffixPatterns) . ')/', $requestUri, $matches)) {
-                $baseUri = $matches[1];
-            }
+
+        if ($this->request === null) {
+            throw new \RuntimeException(
+                'Unable to resolve HTTP base URI: no current request available in the request stack'
+            );
+        }
+
+        $requestUri = $this->request->getRequestUri();
+        if (
+            $requestUri !== ''
+            && preg_match('/^(.+?)\/?(' . implode('|', $routeSuffixPatterns) . ')/', $requestUri, $matches)
+        ) {
+            $baseUri = $matches[1];
         }
 
         return rtrim($baseUri, '/');
