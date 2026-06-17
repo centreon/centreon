@@ -1330,8 +1330,23 @@ jobs:
           CYPRESS_INSTALL_BINARY: "0"
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
+      - name: Cache Playwright browser
+        id: playwright-cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('centreon/pnpm-lock.yaml') }}
+
+      # The tests run headless, so only the lightweight headless shell is needed
+      # (avoids the ~175 MB full Chrome). Cached across runs keyed on the lockfile.
       - name: Install Playwright browser
-        run: pnpm exec playwright install --with-deps chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps chromium-headless-shell
+        working-directory: ${{ env.base_directory }}/tests/e2e-playwright
+
+      - name: Install Playwright OS dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium
         working-directory: ${{ env.base_directory }}/tests/e2e-playwright
 
       # The stack is started by the tests themselves (global-setup ensures the
