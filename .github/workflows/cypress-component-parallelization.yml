@@ -66,6 +66,9 @@ jobs:
         spec: ${{ fromJson(needs.cypress-component-test-list.outputs.specs) }}
     name: ${{ matrix.spec }}
 
+    env:
+      MODULE_NAME: ${{ inputs.module_name }}
+
     steps:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -88,7 +91,7 @@ jobs:
             --config.trustPolicy=no-downgrade \
             --config.minimumReleaseAge=2880 \
             --config.blockExoticSubdeps=true
-        working-directory: ${{ inputs.module_name }}
+        working-directory: ${{ env.MODULE_NAME }}
         shell: bash
         env:
           CYPRESS_INSTALL_BINARY: "0"
@@ -102,7 +105,7 @@ jobs:
           max_attempts: 10
           retry_wait_seconds: 30
           retry_on: error
-          command: cd ${{ inputs.module_name }} && pnpm cypress install --force
+          command: cd "$MODULE_NAME" && pnpm cypress install --force
 
       - name: Cypress web component testing
         uses: cypress-io/github-action@c495c3ddffba403ba11be95fffb67e25203b3799 # v7.1.10
@@ -111,7 +114,7 @@ jobs:
           component: true
           install: false
           cache-key: cypress-cache-${{ runner.os }}-${{ hashFiles(inputs.dependencies_lock_file) }}
-          working-directory: ${{ inputs.module_name }}
+          working-directory: ${{ env.MODULE_NAME }}
           spec: ./**/${{ matrix.spec }}${{ inputs.spec_extension }}
           publish-summary: false
           env: codeCoverageTasksRegistered=true

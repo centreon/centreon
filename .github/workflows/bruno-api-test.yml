@@ -90,8 +90,9 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ${{ inputs.working_directory }}
+        working-directory: ${{ env.WORKING_DIRECTORY }}
     env:
+      WORKING_DIRECTORY: ${{ inputs.working_directory }}
       IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
       IMAGE_NAME: ${{ inputs.image_name }}-${{ inputs.operating_system }}
       WEB_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-${{ inputs.operating_system }}:${{ github.head_ref || github.ref_name }}
@@ -148,11 +149,10 @@ jobs:
       - name: Start Centreon Web and database containers with specific setup if exists
         env:
           MYSQL_IMAGE: ${{ inputs.database_image }}
-          FEATURE: ${{ matrix.feature }}
           UPLOAD_ARTIFACTS: ${{ inputs.upload_artifacts }}
           OS_INPUT: ${{ inputs.operating_system }}
         run: |
-          COLLECTION_DIRECTORY="collections/${{ env.FEATURE }}"
+          COLLECTION_DIRECTORY="collections/$FEATURE"
           echo "COLLECTION_DIRECTORY=${COLLECTION_DIRECTORY}/"
           ls -la ${COLLECTION_DIRECTORY}
 
@@ -228,7 +228,7 @@ jobs:
         run: |
           echo "PWD = $(pwd)"
           echo "Workspace = $GITHUB_WORKSPACE"
-          echo "Collection = ${{ env.FEATURE }}"
+          echo "Collection = $FEATURE"
 
       # Run Bruno CLI Tests
       - name: Run Bruno collection tests on matrix feature
@@ -238,7 +238,7 @@ jobs:
             bash -ex "scripts/refresh-token.sh"
           fi
 
-          node "$BRUNO_GITHUB_SCRIPTS_PATH/bruno-collections-run-workspace.js" "${{ env.FEATURE }}"
+          node "$BRUNO_GITHUB_SCRIPTS_PATH/bruno-collections-run-workspace.js" "$FEATURE"
 
       - name: Upload Bruno reports (JSON + HTML)
         if: always()
@@ -246,21 +246,25 @@ jobs:
         with:
           name: bruno-report-${{ env.FEATURE }}
           path: |
-            ${{ inputs.working_directory }}/artifacts/${{ env.FEATURE }}/*.json
-            ${{ inputs.working_directory }}/artifacts/${{ env.FEATURE }}/*.html
-            ${{ inputs.working_directory }}/artifacts/${{ env.FEATURE }}/${{ env.FEATURE }}-merged.json
+            ${{ env.WORKING_DIRECTORY }}/artifacts/${{ env.FEATURE }}/*.json
+            ${{ env.WORKING_DIRECTORY }}/artifacts/${{ env.FEATURE }}/*.html
+            ${{ env.WORKING_DIRECTORY }}/artifacts/${{ env.FEATURE }}/${{ env.FEATURE }}-merged.json
 
       - name: Generate GitHub Summary
         if: always()
         run: |
-          node "$BRUNO_GITHUB_SCRIPTS_PATH/bruno-github-summary.js" "${{ env.FEATURE }}" \
+          node "$BRUNO_GITHUB_SCRIPTS_PATH/bruno-github-summary.js" "$FEATURE" \
             >> "$GITHUB_STEP_SUMMARY"
 
       # Generate Xray Token
       - name: Generate Xray Token
         id: generate-xray-token
+        env:
+          XRAY_CLIENT_ID: ${{ secrets.client_id }}
+          XRAY_CLIENT_SECRET: ${{ secrets.client_secret }}
         run: |
-          token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.client_id }}\", \"client_secret\": \"${{ secrets.client_secret }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
+          payload=$(jq -nc --arg id "$XRAY_CLIENT_ID" --arg secret "$XRAY_CLIENT_SECRET" '{client_id: $id, client_secret: $secret}')
+          token_response=$(curl -H "Content-Type: application/json" -X POST --data "$payload" "https://xray.cloud.getxray.app/api/v1/authenticate")
           xray_token=$(echo "$token_response" | sed -n 's/.*"\(.*\)".*/\1/p')
           echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
         shell: bash
@@ -285,8 +289,7 @@ jobs:
         id: deprecation-logs
         if: ${{ ! cancelled() && inputs.upload_artifacts == 'true' }}
         run: |
-          feature="${{ matrix.feature }}"
-          deprecation_file_for_archive="$feature-deprecation.log"
+          deprecation_file_for_archive="$FEATURE-deprecation.log"
           found=false
           deprecation_file_container=$(docker compose -f ../../../../.github/docker/docker-compose.yml exec -T web bash -c "find /var/log/centreon/ -maxdepth 1 -regex \".*deprecations.*\" 2>/dev/null | head -1" | tr -d '\r')
           if [[ -n "$deprecation_file_container" ]]; then
@@ -305,7 +308,7 @@ jobs:
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: bruno-${{ inputs.operating_system }}-${{ matrix.feature }}-deprecation-logs
-          path: "${{ inputs.working_directory }}/*-deprecation.log"
+          path: "${{ env.WORKING_DIRECTORY }}/*-deprecation.log"
           retention-days: 1
           if-no-files-found: ignore
 

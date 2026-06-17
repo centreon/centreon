@@ -98,6 +98,7 @@ jobs:
     name: ${{ matrix.feature }}
 
     env:
+      MODULE_NAME: ${{ inputs.module_name }}
       SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
 
     steps:
@@ -146,11 +147,11 @@ jobs:
 
       - name: Create configuration file
         run: cp config/centreon.config.php.template config/centreon.config.php
-        working-directory: ${{ inputs.module_name }}
+        working-directory: ${{ env.MODULE_NAME }}
 
       - name: Install dependencies
         run: composer install --optimize-autoloader --no-scripts
-        working-directory: ${{ inputs.module_name }}
+        working-directory: ${{ env.MODULE_NAME }}
 
       - name: Restore standard slim image from cache
         id: cache-docker-slim

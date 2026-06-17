@@ -45,9 +45,10 @@ runs:
           --config.trustPolicy=no-downgrade \
           --config.minimumReleaseAge=2880 \
           --config.blockExoticSubdeps=true
-      working-directory: ${{ inputs.base_directory }}
+      working-directory: ${{ env.BASE_DIRECTORY }}
       shell: bash
       env:
+        BASE_DIRECTORY: ${{ inputs.base_directory }}
         CYPRESS_INSTALL_BINARY: "0"
         PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
@@ -55,8 +56,9 @@ runs:
     - name: Build frontend
       env:
         BUILD_COMMAND: ${{ inputs.build_command }}
+        BASE_DIRECTORY: ${{ inputs.base_directory }}
       run: $BUILD_COMMAND
-      working-directory: ${{ inputs.base_directory }}
+      working-directory: ${{ env.BASE_DIRECTORY }}
       shell: bash
 
     - name: Cache index.html file

@@ -32,7 +32,6 @@ return [
             'rector.legacy.php',
         ],
         'directories' => [
-            'features',
             'www',
         ],
         'skip' => [],
