@@ -29,31 +29,29 @@ use Core\Infrastructure\Common\Presenter\JsonFormatter;
 use Core\Security\Authentication\Application\UseCase\LogoutSession\LogoutSession;
 use Core\Security\Authentication\Infrastructure\Api\LogoutSession\LogoutSessionController;
 use Core\Security\Authentication\Infrastructure\Api\LogoutSession\LogoutSessionPresenter;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class LogoutSessionControllerTest extends TestCase
 {
-    /** @var Request&\PHPUnit\Framework\MockObject\MockObject */
-    private $request;
+    private Request $request;
 
-    /** @var LogoutSession&\PHPUnit\Framework\MockObject\MockObject */
-    private $useCase;
+    private RequestStack&MockObject $requestStack;
 
-    /** @var LogoutSessionPresenter */
-    private $logoutSessionPresenter;
+    private LogoutSession&MockObject $useCase;
 
-    /** @var UrlGeneratorInterface&\PHPUnit\Framework\MockObject\MockObject */
-    private UrlGeneratorInterface $urlGenerator;
+    private LogoutSessionPresenter $logoutSessionPresenter;
 
     public function setUp(): void
     {
-        $this->request = $this->createMock(Request::class);
+        $this->request = Request::create('http://localhost/');
+        $this->requestStack = $this->createMock(RequestStack::class);
+        $this->requestStack->method('getCurrentRequest')->willReturn($this->request);
         $this->useCase = $this->createMock(LogoutSession::class);
         $this->logoutSessionPresenter = new LogoutSessionPresenter(new JsonFormatter());
-        $this->urlGenerator = $this->createMock(UrlGeneratorInterface::class);
     }
 
     /**
@@ -62,6 +60,7 @@ class LogoutSessionControllerTest extends TestCase
     public function testLogout(): void
     {
         $logoutSessionController = new LogoutSessionController();
+        $logoutSessionController->setHttpServerBag($this->requestStack);
 
         $this->request->cookies = new InputBag(['PHPSESSID' => 'token']);
 
@@ -73,7 +72,7 @@ class LogoutSessionControllerTest extends TestCase
 
         $response = $logoutSessionController($this->useCase, $this->request, $this->logoutSessionPresenter);
 
-        $this->assertEquals('/login', $response->headers->get('location'));
+        $this->assertEquals('http://localhost/login', $response->headers->get('location'));
     }
 
     /**
@@ -82,6 +81,7 @@ class LogoutSessionControllerTest extends TestCase
     public function testLogoutFailed(): void
     {
         $logoutSessionController = new LogoutSessionController();
+        $logoutSessionController->setHttpServerBag($this->requestStack);
 
         $this->request->cookies = new InputBag([]);
 
@@ -93,6 +93,6 @@ class LogoutSessionControllerTest extends TestCase
 
         $response = $logoutSessionController($this->useCase, $this->request, $this->logoutSessionPresenter);
 
-        $this->assertEquals('/login', $response->headers->get('location'));
+        $this->assertEquals('http://localhost/login', $response->headers->get('location'));
     }
 }
