@@ -252,11 +252,6 @@ jobs:
         shell: bash
 
       - name: Cypress end-to-end testing
-        uses: cypress-io/github-action@c495c3ddffba403ba11be95fffb67e25203b3799 # v7.1.10
-        with:
-          command: pnpm run cypress:run --browser electron --spec "features/**/$FEATURE.feature" --env tags="$TEST_TAGS"
-          install: false
-          working-directory: ${{ env.WORKING_DIRECTORY }}
         env:
           FEATURE: ${{ matrix.feature }}
           TEST_TAGS: ${{ inputs.test_tags }}
@@ -269,6 +264,8 @@ jobs:
           CYPRESS_STABILITY: ${{ inputs.stability }}
           CYPRESS_TARGET_STABILITY: ${{ inputs.target_stability }}
           CYPRESS_IS_CLOUD: ${{ inputs.is_cloud }}
+        run: |
+          pnpm run cypress:run --browser electron --spec "features/**/$FEATURE.feature" --env tags="$TEST_TAGS"
 
       - name: Ensure logs directory exists
         env:
