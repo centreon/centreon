@@ -82,7 +82,7 @@ final class InternalApiClient
             $this->internalApiBaseUrl,
             $request?->server->get('REQUEST_SCHEME'),
             $request?->server->get('SERVER_ADDR'),
-            $request?->server->getInt('SERVER_PORT'),
+            $request?->server->getInt('SERVER_PORT') ?: null,
         );
         $headers = array_merge(
             [
