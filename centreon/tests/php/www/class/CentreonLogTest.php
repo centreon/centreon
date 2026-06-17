@@ -42,7 +42,7 @@ beforeEach(function (): void {
 
 afterEach(function (): void {
     if (file_exists($this->centreonLogTest->pathToLogTest)) {
-        $files = glob($this->centreonLogTest->pathToLogTest);
+        $files = glob($this->centreonLogTest->pathToLogTest . '/**');
         foreach ($files as $file) {
             if (is_file($file)) {
                 expect(unlink($file))->toBeTrue();
@@ -275,7 +275,7 @@ it('test writing logs with a custom context and an exception', function (): void
             sprintf(
                 '] NOTICE : login_message | {"custom":{"custom_value1":"foo"},"exception":{"exceptions":'
                 . '[{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"}],'
-                . '"traces":[{"function":"%s","class":"%s","type":"%s"},',
+                . '"traces":[{"function":"%s","class":"%s","type":"%s"',
                 'RuntimeException',
                 'test_message_exception',
                 $e->getFile(),
@@ -310,7 +310,7 @@ it('test writing logs with a custom context and a native exception with a previo
                 '] NOTICE : login_message | {"custom":{"custom_value1":"foo"},'
                 . '"exception":{"exceptions":[{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"},'
                 . '{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"}],'
-                . '"traces":[{"function":"%s","class":"%s","type":"%s"},',
+                . '"traces":[{"function":"%s","class":"%s","type":"%s"',
                 'RuntimeException',
                 'test_message_exception',
                 $e->getFile(),
@@ -352,7 +352,7 @@ it('test writing logs with a custom context and an exception (BusinessLogicExcep
                 '] NOTICE : login_message | {"custom":{"custom_value1":"foo","from_exception":[{"contact":1}]},'
                 . '"exception":{"exceptions":[{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"},'
                 . '{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"}],'
-                . '"traces":[{"function":"%s","class":"%s","type":"%s"},',
+                . '"traces":[{"function":"%s","class":"%s","type":"%s"',
                 'CentreonDbException',
                 'test_message_exception',
                 $e->getFile(),
@@ -397,7 +397,7 @@ it('test writing logs with a custom context and an exception (BusinessLogicExcep
                 . '"exception":{"exceptions":[{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"},'
                 . '{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"},'
                 . '{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"}],'
-                . '"traces":[{"function":"%s","class":"%s","type":"%s"},',
+                . '"traces":[{"function":"%s","class":"%s","type":"%s"',
                 'StatisticException',
                 'test_message_exception',
                 $e->getFile(),

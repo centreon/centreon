@@ -1,5 +1,18 @@
+parameters:
+    # Default value used when the TRUSTED_PROXIES environment variable is not set.
+    # REMOTE_ADDR is a Symfony keyword replaced at runtime by the actual client IP,
+    # so X-Forwarded-* headers are honoured for a local reverse proxy.
+    env(TRUSTED_PROXIES): '127.0.0.1,REMOTE_ADDR'
+
 framework:
     secret: '%env(APP_SECRET)%'
+
+    trusted_proxies: '%env(TRUSTED_PROXIES)%'
+    trusted_headers:
+        - 'x-forwarded-for'
+        - 'x-forwarded-host'
+        - 'x-forwarded-proto'
+        - 'x-forwarded-port'
 
     php_errors:
         log: true
