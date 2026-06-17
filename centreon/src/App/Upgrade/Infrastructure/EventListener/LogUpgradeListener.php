@@ -37,54 +37,73 @@ final class LogUpgradeListener
     #[AsEventListener]
     public function onStarted(UpgradeStarted $event): void
     {
-        LoggerUpgrade::create()->start($event->fromVersion, $event->toVersion);
+        $this->safelyLog(static fn () => LoggerUpgrade::create()->start($event->fromVersion, $event->toVersion));
     }
 
     #[AsEventListener]
     public function onCompleted(UpgradeCompleted $event): void
     {
-        LoggerUpgrade::create()->success($event->fromVersion, $event->toVersion, $event->durationMs);
+        $this->safelyLog(
+            static fn () => LoggerUpgrade::create()->success($event->fromVersion, $event->toVersion, $event->durationMs)
+        );
     }
 
     #[AsEventListener]
     public function onFailed(UpgradeFailed $event): void
     {
-        LoggerUpgrade::create()->failure(
+        $this->safelyLog(static fn () => LoggerUpgrade::create()->failure(
             $event->message,
             $event->fromVersion,
             $event->toVersion,
             $event->exception,
-        );
+        ));
     }
 
     #[AsEventListener]
     public function onStepStarted(UpgradeStepStarted $event): void
     {
-        LoggerUpgrade::create()->step(
+        $this->safelyLog(static fn () => LoggerUpgrade::create()->step(
             $event->version,
             $event->step,
             "Starting step '{$event->step}'",
-        );
+        ));
     }
 
     #[AsEventListener]
     public function onStepCompleted(UpgradeStepCompleted $event): void
     {
-        LoggerUpgrade::create()->step(
+        $this->safelyLog(static fn () => LoggerUpgrade::create()->step(
             $event->version,
             $event->step,
             "Step '{$event->step}' completed in {$event->durationMs}ms",
-        );
+        ));
     }
 
     #[AsEventListener]
     public function onStepFailed(UpgradeStepFailed $event): void
     {
-        LoggerUpgrade::create()->stepFailure(
+        $this->safelyLog(static fn () => LoggerUpgrade::create()->stepFailure(
             $event->message,
             $event->version,
             $event->step,
             $event->exception,
-        );
+        ));
+    }
+
+    /**
+     * Runs a logging call without ever letting it bubble up.
+     *
+     * The upgrade orchestration dispatches these events through the event dispatcher,
+     * which does not swallow listener exceptions. A logging failure here (including a
+     * failure building the logger itself) must not abort the upgrade, nor make a
+     * successful upgrade be reported as failed by the surrounding catch block.
+     */
+    private function safelyLog(callable $log): void
+    {
+        try {
+            $log();
+        } catch (\Throwable $exception) {
+            error_log(sprintf('LogUpgradeListener: failed to write the upgrade log: %s', $exception->getMessage()));
+        }
     }
 }

@@ -1018,7 +1018,7 @@ Key points:
 
 - **`$errorMessage` is updated before each action**, so the catch-all `stepFailure` reports which action failed.
 - **The "Rolling back…" `info` lives inside the `if ($pearDB->isTransactionActive())`** — only log a rollback that actually happens.
-- **Re-throwing after `stepFailure` is the rule**: the upgrade flow above (`runUpdate` / `UpdateCommandHandler`) catches and emits its own `failure` event with the from→to versions and the wrapped duration. A silent return would break that chain.
+- **Re-throwing after `stepFailure` is the rule**: the global upgrade flow above (`UpdateCommandHandler` / `process_step4.php`) catches and emits its own `failure` event with the from→to versions and the wrapped exception. A silent return would break that chain.
 
 ### Sample output (`prod.upgrade.log`)
 

@@ -46,7 +46,7 @@ final class LoggerUpgrade
 
     public function start(string $fromVersion, string $toVersion): void
     {
-        $this->logger->log(
+        $this->write(
             LogLevel::INFO,
             "Upgrade started from {$fromVersion} to {$toVersion}",
             $this->baseContext('upgrade.start', 'started', $fromVersion, $toVersion)
@@ -57,7 +57,7 @@ final class LoggerUpgrade
     {
         $context = $this->baseContext('upgrade.success', 'success', $fromVersion, $toVersion);
         $context['duration_ms'] = $durationMs;
-        $this->logger->log(LogLevel::INFO, "Upgrade from {$fromVersion} to {$toVersion} completed successfully", $context);
+        $this->write(LogLevel::INFO, "Upgrade from {$fromVersion} to {$toVersion} completed successfully", $context);
     }
 
     public function failure(
@@ -66,7 +66,7 @@ final class LoggerUpgrade
         ?string $toVersion,
         ?\Throwable $exception = null,
     ): void {
-        $this->logger->log(
+        $this->write(
             LogLevel::ERROR,
             $message,
             $this->baseContext('upgrade.failure', 'failure', $fromVersion, $toVersion, $exception)
@@ -75,7 +75,7 @@ final class LoggerUpgrade
 
     public function info(string $version, string $message): void
     {
-        $this->logger->log(
+        $this->write(
             LogLevel::INFO,
             $message,
             $this->baseContext('upgrade.info', 'info', null, $version)
@@ -84,7 +84,7 @@ final class LoggerUpgrade
 
     public function error(string $version, string $message, ?\Throwable $exception = null): void
     {
-        $this->logger->log(
+        $this->write(
             LogLevel::ERROR,
             $message,
             $this->baseContext('upgrade.error', 'error', null, $version, $exception)
@@ -95,7 +95,7 @@ final class LoggerUpgrade
     {
         $context = $this->baseContext('upgrade.step', 'running', null, $version);
         $context['step'] = $stepName;
-        $this->logger->log(LogLevel::INFO, $message, $context);
+        $this->write(LogLevel::INFO, $message, $context);
     }
 
     public function stepFailure(
@@ -106,7 +106,25 @@ final class LoggerUpgrade
     ): void {
         $context = $this->baseContext('upgrade.step_failure', 'failure', null, $version, $exception);
         $context['step'] = $stepName;
-        $this->logger->log(LogLevel::ERROR, $message, $context);
+        $this->write(LogLevel::ERROR, $message, $context);
+    }
+
+    /**
+     * Writes the record through the underlying logger, swallowing any failure.
+     *
+     * Logging must never break the upgrade: a failure while emitting a log line
+     * (success or failure path alike) must not bubble up and abort — or worse,
+     * make a successful upgrade look failed.
+     *
+     * @param array<string,mixed> $context
+     */
+    private function write(string $level, string $message, array $context): void
+    {
+        try {
+            $this->logger->log($level, $message, $context);
+        } catch (\Throwable $exception) {
+            error_log(sprintf('LoggerUpgrade: failed to write the upgrade log: %s', $exception->getMessage()));
+        }
     }
 
     /**
