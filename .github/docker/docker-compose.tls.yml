@@ -6,8 +6,8 @@
 # db/db-remote MARIADB_EXTRA_FLAGS + MYSQL_EXTRA_FLAGS.
 #
 # Requires: docker compose >= 2.20 (for `!override` and `service_completed_successfully`),
-#           a centreon-web image containing centreon/centreon PR #9237 (DatabaseTLSResolver).
-#           The 04-tls.sh entrypoint hook fails fast with a copy-pasteable error otherwise.
+#           a centreon-web 26.07+ image (ships DatabaseTLSResolver). 04-tls.sh fails fast
+#           with a copy-pasteable error if the resolver class is missing from the image.
 
 services:
   certgen:

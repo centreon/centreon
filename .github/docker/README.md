@@ -49,7 +49,7 @@ Following the redirect from the host fails because the production template's red
 The overlay adds:
 
 * **`certgen`** one-shot — issues a Root CA + multi-SAN leaf cert into the `certs` named volume on first `up` (covering `web`, `remote-server`, `db`, `db-remote`, `localhost`, `127.0.0.1`). CA persists across `up` cycles; `docker compose down -v` wipes it.
-* **`web` / `remote-server`** — install the CA into the OS trust store, drop the official Apache HTTPS vhost (same cipher list, HSTS, `X-Frame-Options`, cookie hardening, FCGI to `php-fpm:9042`, `:80 → :443` redirect as production — only cert paths differ), write `/usr/share/centreon/.env` with `DATABASE_SSL_*` keys for the PHP-side [`DatabaseTLSResolver`](../../src/Core/Infrastructure/Common/DatabaseTLSResolver.php), and patch the gorgone DB DSN with `mysql_ssl=1;mysql_ssl_ca=…`.
+* **`web` / `remote-server`** — install the CA into the OS trust store, drop the official Apache HTTPS vhost (same cipher list, HSTS, `X-Frame-Options`, cookie hardening, FCGI to `php-fpm:9042`, `:80 → :443` redirect as production — only cert paths differ), write `/usr/share/centreon/.env` with `DATABASE_SSL_*` keys for the PHP-side [`DatabaseTLSResolver`](../../src/App/Shared/Infrastructure/Database/DatabaseTLSResolver.php), and patch the gorgone DB DSN with `mysql_ssl=1;mysql_ssl_ca=…`.
 * **`db` / `db-remote`** — run with `--require-secure-transport=ON` plus `--ssl-ca/--ssl-cert/--ssl-key`, rejecting plaintext TCP.
 * **Centreon Broker** — the install-time `db_ssl_*` JSON keys (existing Centreon support) are emitted automatically when `DATABASE_SSL_ENABLED=1` is in `.env`.
 
@@ -70,8 +70,8 @@ sudo update-ca-certificates
 
 ### Requirements
 
-> [!IMPORTANT]
-> HTTPS mode requires a `WEB_IMAGE` containing centreon/centreon **[PR #9237](https://github.com/centreon/centreon/pull/9237)** (`feat(database): Use TLS Connection`, branch `MON-192365`) — the application-side TLS resolver. The entrypoint hook `04-tls.sh` fails fast with a copy-pasteable error if the resolver class is absent from the image. CI's `docker-compose-tls-smoke` workflow is marked `continue-on-error: true` until #9237 merges, then flips green automatically with no further changes here.
+> [!NOTE]
+> HTTPS mode needs `DatabaseTLSResolver` in the `WEB_IMAGE`. This class is part of `centreon-web` since the 26.07 develop/unstable line (added by [#9237](https://github.com/centreon/centreon/pull/9237)). If you point `WEB_IMAGE` at an older build, the `04-tls.sh` entrypoint hook fails fast with a copy-pasteable error so the misconfig is loud rather than silent.
 
 ### Known limitations
 
