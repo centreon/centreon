@@ -1,5 +1,12 @@
 {
-	"devDependencies": {
-		"gherkin-lint": "^4.2.4"
-	}
+  "devDependencies": {
+    "gherkin-lint": "^4.2.4"
+  },
+  "pnpm": {
+    "overrides": {
+      "glob@<11.1.0": "11.1.0",
+      "uuid@<14.0.0": "14.0.0",
+      "protobufjs@<8.0.1": "8.0.1"
+    }
+  }
 }

@@ -15,6 +15,8 @@ overrides:
   protobufjs@<=7.5.5: 7.5.5
   find-cypress-specs@<=1.54.9: 1.54.9
   undici@<=6.24.0: 6.24.0
+  glob@<11.1.0: 11.1.0
+  uuid@<14.0.0: 14.0.0
 
 importers:
 
@@ -4189,10 +4191,6 @@ packages:
 
   '@paulirish/trace_engine@0.0.52':
     resolution: {integrity: sha512-RSIDdpvYRJIaXUSiJfTYxVRtjq3FPjU8FPT5BkpYXS4H7ofExEb4tZBXcqlRoriA8ykVTClgbqabmoI32n5zRQ==}
-
-  '@pkgjs/parseargs@0.11.0':
-    resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
-    engines: {node: '>=14'}
 
   '@pkgr/core@0.2.9':
     resolution: {integrity: sha512-QNqXyfVS2wm9hweSYD2O7F0G06uurj9kZ96TRQE5Y9hU7+tgdZwIkbAKc5Ocy1HxEY2kuDQa6cQ1WRs/O5LFKA==}
@@ -9538,9 +9536,6 @@ packages:
     resolution: {integrity: sha512-hcg3ZmepS30/7BSFqRvoo3DOMQu7IjqxO5nCDt+zM9XWjb33Wg7ziNT+Qvqbuc3+gWpzO02JubVyk2G4Zvo1OQ==}
     engines: {node: '>=10'}
 
-  fs.realpath@1.0.0:
-    resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
-
   fsevents@2.3.2:
     resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -9680,33 +9675,11 @@ packages:
   glob-to-regexp@0.4.1:
     resolution: {integrity: sha512-lkX1HJXwyMcprw/5YUZc2s7DrpAiHB21/V+E1rHUrVNokkvB6bqMzT0VfV6/86ZNabt1k14YOIaT7nDvOX3Iiw==}
 
-  glob@10.4.5:
-    resolution: {integrity: sha512-7Bv8RF0k6xjo7d4A/PxYLbUCfb6c+Vpd2/mB2yRDlew7Jb5hEXiCD9ibfO7wpk8i4sevK6DFny9h7EYbM3/sHg==}
-    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
-    hasBin: true
-
-  glob@11.0.3:
-    resolution: {integrity: sha512-2Nim7dha1KVkaiF4q6Dj+ngPPMdfvLJEOpZk/jKiUAkqKebpGAWQXAq9z1xu9HKu5lWfqw/FASuccEjyznjPaA==}
+  glob@11.1.0:
+    resolution: {integrity: sha512-vuNwKSaKiqm7g0THUBu2x7ckSs3XJLXE+2ssL7/MfTGPLLcrJQ/4Uq1CjPTtO5cCIiRxqvN6Twy1qOwhL0Xjcw==}
     engines: {node: 20 || >=22}
     deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
-
-  glob@5.0.15:
-    resolution: {integrity: sha512-c9IPMazfRITpmAAKi22dK1VKxGDX9ehhqfABDriL/lzO92xcUKEJPQHrVA/2YHSNFB4iFlykVmWvwo48nr3OxA==}
-    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
-
-  glob@7.1.6:
-    resolution: {integrity: sha512-LwaxwyZ72Lk7vZINtNNrywX0ZuLyStrdDtabefZKAY5ZGJhVtgdznluResxNmPitE0SAO+O26sWTHeKSI2wMBA==}
-    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
-
-  glob@7.2.3:
-    resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
-
-  glob@8.1.0:
-    resolution: {integrity: sha512-r8hpEjiQEYlF2QU0df3dS+nxxSIreXQS1qRhMJM0Q5NDdR386C7jb7Hwwod8Fgiuex+k0GFjgft18yvxm5XoCQ==}
-    engines: {node: '>=12'}
-    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   global-dirs@3.0.1:
     resolution: {integrity: sha512-NBcGGFbBA9s1VzD41QXDG+3++t9Mn5t1FpLdhESY6oKY4gYTFpX4wO3sqGUa0Srjtbfj3szX0RnemmrVRUdULA==}
@@ -10134,10 +10107,6 @@ packages:
     resolution: {integrity: sha512-Yg7+ztRkqslMAS2iFaU+Oa4KTSidr63OsFGlOrJoW981kIYO3CGCS3wA95P1mUi/IVSJkn0D479KTJpVpvFNuw==}
     engines: {node: '>=18'}
 
-  inflight@1.0.6:
-    resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
-    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
-
   inherits@2.0.3:
     resolution: {integrity: sha512-x00IRNXNy63jwGkJmzPigoySHbaqpNuzKbBOmzK+g2OdZpQ9w+sxCN+VSB3ja7IAge2OP2qpfxTjeNcyjmW1uw==}
 
@@ -10549,9 +10518,6 @@ packages:
     resolution: {integrity: sha512-KLViCmWx94zOvpLwSlsx6yOCeMhZYaxrJV87Po5k/FoZzcPSahvK5qJ7fYhS61sZi5ikmh2S3Hz55A2l3U69ng==}
     peerDependencies:
       react: ^19.0.0
-
-  jackspeak@3.4.3:
-    resolution: {integrity: sha512-OGlZQpz2yfahA/Rd1Y8Cd9SIEsqvXkLVoSw/cgwhnhFMDbsQFeZYoJJ7bIZBS9BcamUW96asq/npPWugM+RQBw==}
 
   jackspeak@4.1.1:
     resolution: {integrity: sha512-zptv57P3GpL+O0I7VdMJNBZCu+BPHVQUk55Ft8/QCJjTVxrnJHuVuX/0Bl2A6/+2oyR/ZMEuFKwmzqqZ/U5nPQ==}
@@ -12372,10 +12338,6 @@ packages:
   path-platform@0.11.15:
     resolution: {integrity: sha512-Y30dB6rab1A/nfEKsZxmr01nUotHX0c/ZiIAsCTatEe1CmS5Pm5He7fZ195bPT7RdquoaL8lLxFCMQi/bS7IJg==}
     engines: {node: '>= 0.8.0'}
-
-  path-scurry@1.11.1:
-    resolution: {integrity: sha512-Xa4Nw17FS9ApQFJ9umLiJS4orGjm7ZzwUrwamcGQuHSzDyth9boKDaycYdDcZDuqYATXw4HFXgaqWTctW/v1HA==}
-    engines: {node: '>=16 || 14 >=14.18'}
 
   path-scurry@2.0.0:
     resolution: {integrity: sha512-ypGJsmGtdXUOeM5u93TyeIEfEhM6s+ljAhrk5vAvSx8uyY/02OvrZnA0YNGUrPXfpJMgI1ODd3nwz8Npx4O4cg==}
@@ -14702,32 +14664,8 @@ packages:
     resolution: {integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==}
     engines: {node: '>= 0.4.0'}
 
-  uuid@10.0.0:
-    resolution: {integrity: sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==}
-    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
-    hasBin: true
-
-  uuid@11.0.5:
-    resolution: {integrity: sha512-508e6IcKLrhxKdBbcA2b4KQZlLVp2+J5UwQ6F7Drckkc5N9ZJwFa4TgWtsww9UG8fGHbm6gbV19TdM5pQ4GaIA==}
-    hasBin: true
-
-  uuid@11.1.0:
-    resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
-    hasBin: true
-
-  uuid@3.4.0:
-    resolution: {integrity: sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==}
-    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
-    hasBin: true
-
-  uuid@8.3.2:
-    resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
-    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
-    hasBin: true
-
-  uuid@9.0.1:
-    resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
-    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+  uuid@14.0.0:
+    resolution: {integrity: sha512-Qo+uWgilfSmAhXCMav1uYFynlQO7fMFiMVZsQqZRMIXp0O7rR7qjkj+cPvBHLgBqi960QCoo/PH2/6ZtVqKvrg==}
     hasBin: true
 
   v8-compile-cache-lib@3.0.1:
@@ -16882,7 +16820,7 @@ snapshots:
       '@babel/parser': 7.28.6
       debug: 4.4.3(supports-color@8.1.1)
       esbuild: 0.19.12
-      glob: 7.2.3
+      glob: 11.1.0
       minimatch: 3.1.2
       node-hook: 1.0.0
     transitivePeerDependencies:
@@ -16909,13 +16847,13 @@ snapshots:
       debug: 4.4.3(supports-color@8.1.1)
       error-stack-parser: 2.1.4
       esbuild: 0.23.1
-      glob: 11.0.3
+      glob: 11.1.0
       is-path-inside: 3.0.3
       mocha: 10.8.2
       seedrandom: 3.0.5
       source-map: 0.7.6
       split: 1.0.1
-      uuid: 10.0.0
+      uuid: 14.0.0
     optionalDependencies:
       '@cypress/browserify-preprocessor': 3.0.2
     transitivePeerDependencies:
@@ -16942,12 +16880,12 @@ snapshots:
       debug: 4.4.3(supports-color@8.1.1)
       error-stack-parser: 2.1.4
       find-cypress-specs: 1.54.9(@babel/core@7.28.5)
-      glob: 11.0.3
+      glob: 11.1.0
       mocha: 11.7.4
       seedrandom: 3.0.5
       source-map: 0.6.1
       split: 1.0.1
-      uuid: 10.0.0
+      uuid: 14.0.0
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -17081,7 +17019,7 @@ snapshots:
     dependencies:
       buffer: 6.0.3
       events: 3.3.0
-      glob: 10.4.5
+      glob: 11.1.0
       patch-package: 8.0.0
       path: 0.12.7
       stream: 0.0.3
@@ -17215,7 +17153,7 @@ snapshots:
       debug: 4.4.3(supports-color@8.1.1)
       error-stack-parser: 2.1.4
       figures: 3.2.0
-      glob: 10.4.5
+      glob: 11.1.0
       has-ansi: 4.0.1
       indent-string: 4.0.0
       is-installed-globally: 0.4.0
@@ -17262,7 +17200,7 @@ snapshots:
       debug: 4.4.3(supports-color@8.1.1)
       error-stack-parser: 2.1.4
       figures: 3.2.0
-      glob: 11.0.3
+      glob: 11.1.0
       has-ansi: 4.0.1
       indent-string: 4.0.0
       is-installed-globally: 0.4.0
@@ -17377,35 +17315,35 @@ snapshots:
       '@types/uuid': 9.0.8
       class-transformer: 0.5.1
       reflect-metadata: 0.2.1
-      uuid: 9.0.1
+      uuid: 14.0.0
 
   '@cucumber/messages@25.0.1':
     dependencies:
       '@types/uuid': 9.0.8
       class-transformer: 0.5.1
       reflect-metadata: 0.2.2
-      uuid: 9.0.1
+      uuid: 14.0.0
 
   '@cucumber/messages@26.0.1':
     dependencies:
       '@types/uuid': 10.0.0
       class-transformer: 0.5.1
       reflect-metadata: 0.2.2
-      uuid: 10.0.0
+      uuid: 14.0.0
 
   '@cucumber/messages@27.2.0':
     dependencies:
       '@types/uuid': 10.0.0
       class-transformer: 0.5.1
       reflect-metadata: 0.2.2
-      uuid: 11.0.5
+      uuid: 14.0.0
 
   '@cucumber/messages@28.1.0':
     dependencies:
       '@types/uuid': 10.0.0
       class-transformer: 0.5.1
       reflect-metadata: 0.2.2
-      uuid: 11.1.0
+      uuid: 14.0.0
 
   '@cucumber/messages@29.0.1':
     dependencies:
@@ -17524,7 +17462,7 @@ snapshots:
       safe-buffer: 5.2.1
       tough-cookie: 5.1.2
       tunnel-agent: 0.6.0
-      uuid: 8.3.2
+      uuid: 14.0.0
 
   '@cypress/webpack-dev-server@4.1.0(@rspack/core@1.6.0(@swc/helpers@0.5.17))(cypress@15.5.0)(webpack@5.102.1(@swc/core@1.11.6(@swc/helpers@0.5.17))(esbuild@0.21.5))':
     dependencies:
@@ -18334,7 +18272,7 @@ snapshots:
       chalk: 4.1.2
       collect-v8-coverage: 1.0.2
       exit: 0.1.2
-      glob: 7.2.3
+      glob: 11.1.0
       graceful-fs: 4.2.11
       istanbul-lib-coverage: 3.2.2
       istanbul-lib-instrument: 6.0.3
@@ -18464,7 +18402,7 @@ snapshots:
 
   '@joshwooding/vite-plugin-react-docgen-typescript@0.5.0(typescript@5.9.3)(vite@6.3.5(@types/node@25.0.10)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.20.6)(yaml@2.8.1))':
     dependencies:
-      glob: 10.4.5
+      glob: 11.1.0
       magic-string: 0.27.0
       react-docgen-typescript: 2.2.2(typescript@5.9.3)
       vite: 6.3.5(@types/node@25.0.10)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.20.6)(yaml@2.8.1)
@@ -19234,9 +19172,6 @@ snapshots:
       legacy-javascript: 0.0.1
       third-party-web: 0.29.2
 
-  '@pkgjs/parseargs@0.11.0':
-    optional: true
-
   '@pkgr/core@0.2.9': {}
 
   '@polka/url@1.0.0-next.29': {}
@@ -19346,7 +19281,7 @@ snapshots:
     dependencies:
       '@babel/parser': 7.28.6
       '@babel/preset-env': 7.28.5(@babel/core@7.28.5)
-      glob: 7.2.3
+      glob: 11.1.0
       hermes-parser: 0.25.1
       invariant: 2.2.4
       jscodeshift: 17.3.0(@babel/preset-env@7.28.5(@babel/core@7.28.5))
@@ -19546,7 +19481,7 @@ snapshots:
       dotenv: 16.4.7
       form-data: 4.0.4
       get-port-please: 3.2.0
-      glob: 7.2.3
+      glob: 11.1.0
       handlebars: 4.7.9
       mobx: 6.15.0
       pluralize: 8.0.0
@@ -20132,7 +20067,7 @@ snapshots:
       dequal: 2.0.3
       polished: 4.3.1
       storybook: 8.6.14(prettier@3.7.4)
-      uuid: 9.0.1
+      uuid: 14.0.0
 
   '@storybook/addon-backgrounds@8.6.14(storybook@8.6.14(prettier@3.7.4))':
     dependencies:
@@ -21590,7 +21525,7 @@ snapshots:
       '@usebruno/js': 0.47.0(debug@4.4.3)
       '@usebruno/lang': 0.36.0
       '@usebruno/requests': 0.17.0
-      aws4-axios: 3.4.0(axios@1.13.6(debug@4.4.3))
+      aws4-axios: 3.4.0(axios@1.13.6)
       axios: 1.13.6(debug@4.4.3)
       axios-ntlm: 1.4.6(debug@4.4.3)
       chai: 4.5.0
@@ -21663,7 +21598,7 @@ snapshots:
       path: 0.12.7
       quickjs-emscripten: 0.29.2
       tv4: 1.3.0
-      uuid: 10.0.0
+      uuid: 14.0.0
       xml-formatter: 3.7.0
       xml2js: 0.6.2
       yaml: 2.8.1
@@ -22491,7 +22426,7 @@ snapshots:
 
   archiver-utils@5.0.2:
     dependencies:
-      glob: 10.4.5
+      glob: 11.1.0
       graceful-fs: 4.2.11
       is-stream: 2.0.1
       lazystream: 1.0.1
@@ -22710,7 +22645,7 @@ snapshots:
 
   aws-ssl-profiles@1.1.2: {}
 
-  aws4-axios@3.4.0(axios@1.13.6(debug@4.4.3)):
+  aws4-axios@3.4.0(axios@1.13.6):
     dependencies:
       '@aws-sdk/client-sts': 3.1045.0
       aws4: 1.13.2
@@ -23094,7 +23029,7 @@ snapshots:
       domain-browser: 1.2.0
       duplexer2: 0.1.4
       events: 2.1.0
-      glob: 7.2.3
+      glob: 11.1.0
       has: 1.0.4
       htmlescape: 1.1.1
       https-browserify: 1.0.0
@@ -23145,7 +23080,7 @@ snapshots:
       domain-browser: 1.2.0
       duplexer2: 0.1.4
       events: 3.3.0
-      glob: 7.2.3
+      glob: 11.1.0
       hasown: 2.0.2
       htmlescape: 1.1.1
       https-browserify: 1.0.0
@@ -23999,7 +23934,7 @@ snapshots:
     dependencies:
       '@types/uuid': 3.4.13
       protobufjs: 7.5.5
-      uuid: 3.4.0
+      uuid: 14.0.0
 
   cucumber-tag-expressions@1.1.1: {}
 
@@ -24017,7 +23952,7 @@ snapshots:
       escape-string-regexp: 1.0.5
       figures: 2.0.0
       gherkin: 5.1.0
-      glob: 7.2.3
+      glob: 11.1.0
       indent-string: 3.2.0
       is-generator: 1.0.3
       is-stream: 1.1.0
@@ -24051,7 +23986,7 @@ snapshots:
       dargs: 7.0.0
       debug: 3.2.7(supports-color@8.1.1)
       gherkin: 5.1.0
-      glob: 7.2.3
+      glob: 11.1.0
       js-string-escape: 1.0.1
       minimist: 1.2.8
       through: 2.3.8
@@ -24668,7 +24603,7 @@ snapshots:
       docker-modem: 5.0.6
       protobufjs: 7.5.5
       tar-fs: 2.1.4
-      uuid: 10.0.0
+      uuid: 14.0.0
     transitivePeerDependencies:
       - supports-color
 
@@ -25994,8 +25929,6 @@ snapshots:
       jsonfile: 6.2.0
       universalify: 2.0.1
 
-  fs.realpath@1.0.0: {}
-
   fsevents@2.3.2:
     optional: true
 
@@ -26108,7 +26041,7 @@ snapshots:
       commander: 11.0.0
       core-js: 3.33.1
       gherkin: 9.0.0
-      glob: 7.1.6
+      glob: 11.1.0
       lodash: 4.18.1
       strip-json-comments: 3.0.1
       xml-js: 1.6.11
@@ -26135,16 +26068,7 @@ snapshots:
 
   glob-to-regexp@0.4.1: {}
 
-  glob@10.4.5:
-    dependencies:
-      foreground-child: 3.3.1
-      jackspeak: 3.4.3
-      minimatch: 9.0.5
-      minipass: 7.1.2
-      package-json-from-dist: 1.0.1
-      path-scurry: 1.11.1
-
-  glob@11.0.3:
+  glob@11.1.0:
     dependencies:
       foreground-child: 3.3.1
       jackspeak: 4.1.1
@@ -26152,40 +26076,6 @@ snapshots:
       minipass: 7.1.2
       package-json-from-dist: 1.0.1
       path-scurry: 2.0.0
-
-  glob@5.0.15:
-    dependencies:
-      inflight: 1.0.6
-      inherits: 2.0.4
-      minimatch: 3.1.2
-      once: 1.4.0
-      path-is-absolute: 1.0.1
-
-  glob@7.1.6:
-    dependencies:
-      fs.realpath: 1.0.0
-      inflight: 1.0.6
-      inherits: 2.0.4
-      minimatch: 3.1.2
-      once: 1.4.0
-      path-is-absolute: 1.0.1
-
-  glob@7.2.3:
-    dependencies:
-      fs.realpath: 1.0.0
-      inflight: 1.0.6
-      inherits: 2.0.4
-      minimatch: 3.1.2
-      once: 1.4.0
-      path-is-absolute: 1.0.1
-
-  glob@8.1.0:
-    dependencies:
-      fs.realpath: 1.0.0
-      inflight: 1.0.6
-      inherits: 2.0.4
-      minimatch: 5.1.6
-      once: 1.4.0
 
   global-dirs@3.0.1:
     dependencies:
@@ -26668,11 +26558,6 @@ snapshots:
 
   index-to-position@1.2.0: {}
 
-  inflight@1.0.6:
-    dependencies:
-      once: 1.4.0
-      wrappy: 1.0.2
-
   inherits@2.0.3: {}
 
   inherits@2.0.4: {}
@@ -27030,7 +26915,7 @@ snapshots:
       istanbul-lib-coverage: 3.2.2
       p-map: 3.0.0
       rimraf: 3.0.2
-      uuid: 8.3.2
+      uuid: 14.0.0
 
   istanbul-lib-report@3.0.1:
     dependencies:
@@ -27057,7 +26942,7 @@ snapshots:
       async: 1.5.2
       escodegen: 1.8.1
       esprima: 2.7.3
-      glob: 5.0.15
+      glob: 11.1.0
       handlebars: 4.7.9
       js-yaml: 3.14.1
       mkdirp: 0.5.6
@@ -27090,12 +26975,6 @@ snapshots:
       react: 19.1.0
     transitivePeerDependencies:
       - '@types/react'
-
-  jackspeak@3.4.3:
-    dependencies:
-      '@isaacs/cliui': 8.0.2
-    optionalDependencies:
-      '@pkgjs/parseargs': 0.11.0
 
   jackspeak@4.1.1:
     dependencies:
@@ -27180,7 +27059,7 @@ snapshots:
       chalk: 4.1.2
       ci-info: 3.9.0
       deepmerge: 4.3.1
-      glob: 7.2.3
+      glob: 11.1.0
       graceful-fs: 4.2.11
       jest-circus: 29.7.0(babel-plugin-macros@3.1.0)
       jest-environment-node: 29.7.0
@@ -27211,7 +27090,7 @@ snapshots:
       chalk: 4.1.2
       ci-info: 3.9.0
       deepmerge: 4.3.1
-      glob: 7.2.3
+      glob: 11.1.0
       graceful-fs: 4.2.11
       jest-circus: 29.7.0(babel-plugin-macros@3.1.0)
       jest-environment-node: 29.7.0
@@ -27242,7 +27121,7 @@ snapshots:
       chalk: 4.1.2
       ci-info: 3.9.0
       deepmerge: 4.3.1
-      glob: 7.2.3
+      glob: 11.1.0
       graceful-fs: 4.2.11
       jest-circus: 29.7.0(babel-plugin-macros@3.1.0)
       jest-environment-node: 29.7.0
@@ -27362,7 +27241,7 @@ snapshots:
     dependencies:
       mkdirp: 1.0.4
       strip-ansi: 6.0.1
-      uuid: 8.3.2
+      uuid: 14.0.0
       xml: 1.0.1
 
   jest-leak-detector@29.7.0:
@@ -27406,7 +27285,7 @@ snapshots:
       nyc: 15.1.0
       playwright-core: 1.50.1
       rimraf: 3.0.2
-      uuid: 8.3.2
+      uuid: 14.0.0
     transitivePeerDependencies:
       - debug
       - supports-color
@@ -27493,7 +27372,7 @@ snapshots:
       chalk: 4.1.2
       cjs-module-lexer: 1.4.3
       collect-v8-coverage: 1.0.2
-      glob: 7.2.3
+      glob: 11.1.0
       graceful-fs: 4.2.11
       jest-haste-map: 29.7.0
       jest-message-util: 29.7.0
@@ -28938,7 +28817,7 @@ snapshots:
       diff: 5.2.0
       escape-string-regexp: 4.0.0
       find-up: 5.0.0
-      glob: 8.1.0
+      glob: 11.1.0
       he: 1.2.0
       js-yaml: 4.1.1
       log-symbols: 4.1.0
@@ -28960,7 +28839,7 @@ snapshots:
       diff: 7.0.0
       escape-string-regexp: 4.0.0
       find-up: 5.0.0
-      glob: 10.4.5
+      glob: 11.1.0
       he: 1.2.0
       is-path-inside: 3.0.3
       js-yaml: 4.1.1
@@ -29003,7 +28882,7 @@ snapshots:
       mocha: 11.7.4
       mochawesome-report-generator: 6.3.0
       strip-ansi: 6.0.1
-      uuid: 8.3.2
+      uuid: 14.0.0
 
   mock-xmlhttprequest@8.4.1: {}
 
@@ -29035,7 +28914,7 @@ snapshots:
   module-lookup-amd@9.0.5:
     dependencies:
       commander: 12.1.0
-      glob: 7.2.3
+      glob: 11.1.0
       requirejs: 2.3.7
       requirejs-config-file: 4.0.0
 
@@ -29270,7 +29149,7 @@ snapshots:
       find-up: 4.1.0
       foreground-child: 2.0.0
       get-package-type: 0.1.0
-      glob: 7.2.3
+      glob: 11.1.0
       istanbul-lib-coverage: 3.2.2
       istanbul-lib-hook: 3.0.0
       istanbul-lib-instrument: 4.0.3
@@ -29302,7 +29181,7 @@ snapshots:
       find-up: 4.1.0
       foreground-child: 3.3.1
       get-package-type: 0.1.0
-      glob: 7.2.3
+      glob: 11.1.0
       istanbul-lib-coverage: 3.2.2
       istanbul-lib-hook: 3.0.0
       istanbul-lib-instrument: 6.0.3
@@ -29702,11 +29581,6 @@ snapshots:
   path-parse@1.0.7: {}
 
   path-platform@0.11.15: {}
-
-  path-scurry@1.11.1:
-    dependencies:
-      lru-cache: 10.4.3
-      minipass: 7.1.2
 
   path-scurry@2.0.0:
     dependencies:
@@ -30300,7 +30174,7 @@ snapshots:
       commander: 12.1.0
       event-target-shim: 5.0.1
       flow-enums-runtime: 0.0.6
-      glob: 7.2.3
+      glob: 11.1.0
       invariant: 2.2.4
       jest-environment-node: 29.7.0
       memoize-one: 5.2.1
@@ -30778,11 +30652,11 @@ snapshots:
 
   rimraf@2.7.1:
     dependencies:
-      glob: 7.2.3
+      glob: 11.1.0
 
   rimraf@3.0.2:
     dependencies:
-      glob: 7.2.3
+      glob: 11.1.0
 
   ripemd160@2.0.3:
     dependencies:
@@ -31204,7 +31078,7 @@ snapshots:
   sockjs@0.3.24:
     dependencies:
       faye-websocket: 0.11.4
-      uuid: 8.3.2
+      uuid: 14.0.0
       websocket-driver: 0.7.4
 
   socks-proxy-agent@8.0.5:
@@ -31956,13 +31830,13 @@ snapshots:
   test-exclude@6.0.0:
     dependencies:
       '@istanbuljs/schema': 0.1.3
-      glob: 7.2.3
+      glob: 11.1.0
       minimatch: 3.1.2
 
   test-exclude@7.0.1:
     dependencies:
       '@istanbuljs/schema': 0.1.3
-      glob: 10.4.5
+      glob: 11.1.0
       minimatch: 9.0.5
 
   testcontainers@10.28.0:
@@ -32574,17 +32448,7 @@ snapshots:
 
   utils-merge@1.0.1: {}
 
-  uuid@10.0.0: {}
-
-  uuid@11.0.5: {}
-
-  uuid@11.1.0: {}
-
-  uuid@3.4.0: {}
-
-  uuid@8.3.2: {}
-
-  uuid@9.0.1: {}
+  uuid@14.0.0: {}
 
   v8-compile-cache-lib@3.0.1: {}
 

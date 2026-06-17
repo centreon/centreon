@@ -58,5 +58,13 @@
     "pretty": {
       "enabled": true
     }
+  },
+  "pnpm": {
+    "overrides": {
+      "glob@<11.1.0": "11.1.0",
+      "uuid@<14.0.0": "14.0.0",
+      "undici@<7.24.1": "7.24.1",
+      "protobufjs@<8.0.1": "8.0.1"
+    }
   }
 }

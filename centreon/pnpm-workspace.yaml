@@ -19,6 +19,8 @@ overrides:
   protobufjs@<=7.5.5: 7.5.5
   find-cypress-specs@<=1.54.9: 1.54.9
   undici@<=6.24.0: 6.24.0
+  glob@<11.1.0: 11.1.0
+  uuid@<14.0.0: 14.0.0
 
 # 7 days
 minimumReleaseAge: 10080
