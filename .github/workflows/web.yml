@@ -497,7 +497,6 @@ jobs:
         with:
           path: "centreon/build/phpunit.xml"
           format: "php-junit"
-
   backend-lint:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
