@@ -22,7 +22,7 @@ Given('a super administrator is logged in', () => {
 // Legacy iframe page: tick the contacts checkbox and submit the export.
 When('the user exports the contacts from the AWIE export page', () => {
   cy.visit(PAGES.awie.export);
-  cy.waitForElementInIframe('#main-content', '#contact');
+  cy.getIframeBody().find('#contact').should('be.visible');
   cy.getIframeBody().find('#contact').check();
   cy.getIframeBody().find('.bt_success').click();
 });
@@ -57,7 +57,7 @@ When('the user opens the AWIE import page', () => {
 });
 
 Then('the import form accepts a zip archive', () => {
-  cy.waitForElementInIframe('#main-content', '#file');
+  cy.getIframeBody().find('#file').should('exist');
 });
 
 afterEach(() => {
