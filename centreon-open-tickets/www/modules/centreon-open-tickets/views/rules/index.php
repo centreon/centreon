@@ -21,7 +21,7 @@
 
 require_once './modules/centreon-open-tickets/centreon-open-tickets.conf.php';
 
-$db = new CentreonDBManager();
+$db = new CentreonDB();
 $request = new CentreonOpenTicketsRequest();
 $rule = new Centreon_OpenTickets_Rule($db);
 

@@ -137,7 +137,7 @@ class MailProvider extends AbstractProvider
             // FIXME $contact['name'] => Offset 'name' does not exist on string => $contact is a string or an array ??
             $insertStatement->bindValue(':user', $contact['name']); // @phpstan-ignore offsetAccess.notFound
             $insertStatement->execute();
-            $result['ticket_id'] = $db_storage->lastinsertId('mod_open_tickets');
+            $result['ticket_id'] = $db_storage->lastInsertId();
         } catch (Exception $e) {
             $result['ticket_error_message'] = $e->getMessage();
 
