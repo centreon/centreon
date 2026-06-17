@@ -39,19 +39,40 @@ on the **outgoing request body**). It passes under Rstest jsdom, with the
 assertion). For functional/interaction tests (no visual assertion), jsdom is
 sufficient and the Cypress per-spec startup cost disappears.
 
+## Phase 0b — second hard pattern + harness extensions
+
+Ported `NotificationsFilter.cypress.spec.tsx` — the common **list + debounced
+search** shape (GET on mount, a second GET when typing, assertion on the
+outgoing `search` query param). Both app specs now pass (`pnpm rstest:app`, 2/2,
+~2.3 s).
+
+Harness extensions this required:
+- `server.ts`: query-param discrimination (`query`), full request **history**
+  (`getRequests`) and `verifyRequestQueries` — the equivalent of
+  `cy.waitForRequestAndVerifyQueries`.
+- **Relative-URL fetch shim** (`app.setup.ts`): the app's `customFetch` issues
+  *relative* URLs (`./api/...`). A real browser resolves them against the page
+  origin; Node's `fetch` throws "Failed to parse URL". The harness wraps fetch
+  (after MSW patches it) to absolutise relative URLs. **This is the single most
+  important finding for a jsdom migration** — without it, any component that
+  fetches a relative endpoint fails.
+
 ## What this validates / what's left
 
-- ✅ The **hardest pattern** (providers + React Query + MSW + request-payload
-  assertion) is feasible under Rstest jsdom, and is dramatically faster.
+- ✅ The **two hardest patterns** are feasible under Rstest jsdom and much
+  faster: (a) providers + React Query **mutation** + MSW + request-payload
+  assertion (AddCommentForm); (b) **list + debounced search** + query-param
+  assertion (NotificationsFilter).
 - ✅ The shared harness can be rebuilt without the `jest-fetch-mock` coupling
-  that hangs (see `README.md` finding #5).
-- ⚠️ Only **one** representative spec was ported here — enough for a go/no-go,
-  not a full validation. Next (Phase 0b): port ~10–15 specs covering the other
-  common shapes (GET + list + **debounced search with query-param assertion**,
-  routing, Jotai-driven state). The list/search shape needs the MSW helper to
-  discriminate by query param (small extension of `server.ts`).
+  that hangs (see `README.md` finding #5), and now handles MSW interception,
+  request history and the relative-URL gap.
+- ⚠️ **2** representative specs were ported (the two main shapes), not the full
+  ~10–15. Reaching that is now mostly **mechanical** (the harness handles the
+  hard parts); remaining shapes to cover: routing-dependent components,
+  Jotai-driven state, and components importing `centreon-widgets` (may need the
+  rspack alias in the config).
 - ⚠️ Rstest stays **pre-1.0** (0.10.x). Gate the bulk migration on its 1.0 or a
-  clean Phase 0b.
+  fuller Phase 0b.
 
 ## Recommendation
 

@@ -34,7 +34,21 @@ i18n.use(initReactI18next).init({
 });
 
 // MSW lifecycle (replaces cypress-msw-interceptor).
-beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+beforeAll(() => {
+  server.listen({ onUnhandledRequest: 'bypass' });
+
+  // The app's customFetch issues RELATIVE URLs (e.g. "./api/..."). A real
+  // browser resolves them against the page origin; Node's fetch cannot. Wrap
+  // fetch (after MSW has patched it) to absolutise relative URLs so both MSW
+  // matching and the request work, mirroring browser behaviour.
+  const patchedFetch = globalThis.fetch;
+  globalThis.fetch = ((input: RequestInfo | URL, init?: RequestInit) => {
+    if (typeof input === 'string' && !/^https?:\/\//.test(input)) {
+      return patchedFetch(new URL(input, 'http://localhost/').toString(), init);
+    }
+    return patchedFetch(input, init);
+  }) as typeof fetch;
+});
 afterEach(() => {
   server.resetHandlers();
   resetInterceptions();
