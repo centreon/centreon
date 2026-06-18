@@ -21,27 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Authentication\Application\Repository;
+namespace Core\Security\Authentication\Domain\Exception;
 
-use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\BusinessLogicException;
 
-interface WriteSessionRepositoryInterface
+class OpenIdException extends BusinessLogicException
 {
-    /**
-     * Invalidate a session.
-     *
-     * @throws RepositoryException
-     */
-    public function invalidate(): void;
-
-    /**
-     * Start a session (included the legacy session).
-     *
-     * @param \Centreon $legacySession
-     *
-     * @throws RepositoryException
-     *
-     * @return bool
-     */
-    public function start(\Centreon $legacySession): bool;
+    public function __construct(
+        string $message,
+        array $context = [],
+        ?\Throwable $previous = null,
+    ) {
+        parent::__construct($message, self::ERROR_CODE_INTERNAL, $context, $previous);
+    }
 }

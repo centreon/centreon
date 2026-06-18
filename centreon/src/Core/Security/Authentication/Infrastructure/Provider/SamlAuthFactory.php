@@ -21,27 +21,14 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Authentication\Application\Repository;
+namespace Core\Security\Authentication\Infrastructure\Provider;
 
-use Core\Common\Domain\Exception\RepositoryException;
+use OneLogin\Saml2\Auth;
 
-interface WriteSessionRepositoryInterface
+final class SamlAuthFactory implements SamlAuthFactoryInterface
 {
-    /**
-     * Invalidate a session.
-     *
-     * @throws RepositoryException
-     */
-    public function invalidate(): void;
-
-    /**
-     * Start a session (included the legacy session).
-     *
-     * @param \Centreon $legacySession
-     *
-     * @throws RepositoryException
-     *
-     * @return bool
-     */
-    public function start(\Centreon $legacySession): bool;
+    public function create(array $settings): Auth
+    {
+        return new Auth($settings);
+    }
 }
