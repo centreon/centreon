@@ -21,6 +21,8 @@
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\Enum\AuthProviderEnum;
+use Adaptation\Log\LoggerAuthentication;
 use Pimple\Container;
 
 require_once __DIR__ . '/centreonContact.class.php';
@@ -263,11 +265,22 @@ class CentreonAuth
             // Check password matching
             $this->checkPassword($password, $token);
             if ($this->passwdOk == self::PASSWORD_VALID) {
+                $authType = $this->userInfos['contact_auth_type'] ?: self::AUTH_TYPE_LOCAL;
+                $provider = (int) $this->autologin === self::AUTOLOGIN_ENABLE
+                    ? AuthProviderEnum::AUTOLOGIN
+                    : ($authType === self::AUTH_TYPE_LDAP
+                        ? AuthProviderEnum::LDAP
+                        : AuthProviderEnum::LOCAL);
                 $this->CentreonLog->setUID($this->userInfos['contact_id']);
-                $this->CentreonLog->insertLog(
-                    CentreonUserLog::TYPE_LOGIN,
-                    '[' . self::AUTH_TYPE_LOCAL . '] [' . $_SERVER['REMOTE_ADDR'] . '] '
-                        . "Authentication succeeded for '" . $username . "'"
+                LoggerAuthentication::create()->loginSuccess(
+                    sprintf(
+                        "[%s] [%s] Authentication succeeded for '%s'",
+                        $authType,
+                        $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+                        $username
+                    ),
+                    (int) $this->userInfos['contact_id'],
+                    $provider
                 );
             } else {
                 $this->setAuthenticationError(
@@ -542,10 +555,21 @@ class CentreonAuth
     {
         if (is_string($username) && strlen($username) > 0) {
             //  Take care before modifying this message pattern as it may break tools such as fail2ban
-            $this->CentreonLog->insertLog(
-                CentreonUserLog::TYPE_LOGIN,
-                '[' . $authenticationType . '] [' . $_SERVER['REMOTE_ADDR'] . '] '
-                    . "Authentication failed for '" . $username . "' : " . $reason
+            $provider = (int) $this->autologin === self::AUTOLOGIN_ENABLE
+                ? AuthProviderEnum::AUTOLOGIN
+                : ($authenticationType === self::AUTH_TYPE_LDAP
+                    ? AuthProviderEnum::LDAP
+                    : AuthProviderEnum::LOCAL);
+            LoggerAuthentication::create()->loginFailure(
+                sprintf(
+                    "[%s] [%s] Authentication failed for '%s' : %s",
+                    $authenticationType,
+                    $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+                    $username,
+                    $reason
+                ),
+                null,
+                $provider
             );
         }
 

@@ -6,5 +6,19 @@ packages:
   - 'tests/performance'
   - 'doc/API'
 
+# Transitive overrides: pin versions across the dep tree for packages
+# we don't depend on directly.
+overrides:
+  follow-redirects: 1.16.0
+  handlebars: 4.7.9
+  qs: 6.14.2
+  set-cookie-parser: 2.7.2
+  validator: 13.15.26
+  lodash: 4.18.1
+  lodash-es: 4.18.1
+  protobufjs@<=7.5.5: 7.5.5
+  find-cypress-specs@<=1.54.9: 1.54.9
+  undici@<=6.24.0: 6.24.0
+
 # 7 days
 minimumReleaseAge: 10080
