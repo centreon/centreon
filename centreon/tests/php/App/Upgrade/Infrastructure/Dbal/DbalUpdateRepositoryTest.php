@@ -223,7 +223,7 @@ final class DbalUpdateRepositoryTest extends TestCase
         // The install directory is removed and a timestamped backup copy holding its
         // contents now exists under installs/.
         self::assertDirectoryDoesNotExist($this->installDir);
-        $backups = glob($this->libDir . '/installs/install-' . self::VERSION . '-*');
+        $backups = glob($this->libDir . '/installs/install-' . self::VERSION . '-*') ?: [];
         self::assertCount(1, $backups);
         self::assertFileExists($backups[0] . '/marker.txt');
     }
