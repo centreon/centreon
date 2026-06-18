@@ -119,6 +119,15 @@ abstract class ServiceEntityRepository
      */
     protected function updateRelationData(array $list, int $id, string $tableName, string $columnA, string $columnB)
     {
+        $identifierPattern = '/^[a-zA-Z_][a-zA-Z0-9_]*$/';
+        if (
+            preg_match($identifierPattern, $tableName) !== 1
+            || preg_match($identifierPattern, $columnA) !== 1
+            || preg_match($identifierPattern, $columnB) !== 1
+        ) {
+            throw new \InvalidArgumentException('Invalid SQL identifier');
+        }
+
         $listExists = [];
         $listAdd = [];
         $listRemove = [];
