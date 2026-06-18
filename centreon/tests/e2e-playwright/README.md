@@ -188,6 +188,7 @@ already started it with `pnpm stack:up` and want faster startup).
 | `CENTREON_ADMIN_LOGIN`    | `admin`                              | Admin login                     |
 | `CENTREON_ADMIN_PASSWORD` | `Centreon!2021`                      | Admin password                  |
 | `SKIP_STACK_MANAGEMENT`   | _(unset)_                            | If set, the tests do not start/recreate the stack |
+| `CENTREON_COMPOSE_OVERRIDES` | _(unset)_                         | Extra compose files (space/comma/colon-separated, relative to `.github/docker`) layered on the stack — e.g. `docker-compose-test-db.yml` for a faster throwaway DB |
 | `RECORD_VIDEO`            | _(unset)_                            | If set, record a video for every test (not only failures) |
 | `RECORD_TRACE`            | _(unset)_                            | If set, capture a trace for every test (not only failures) |
 

@@ -1265,6 +1265,10 @@ jobs:
       # POC: run against the published web image (this PR only adds test files).
       WEB_IMAGE: docker.centreon.com/centreon/centreon-web-alma9:develop
       compose_file: .github/docker/docker-compose.yml
+      # Faster throwaway DB for this ephemeral stack: official MariaDB image on a
+      # tmpfs data dir (~50% faster time-to-healthy). The e2e suite layers this
+      # override automatically when starting the stack.
+      CENTREON_COMPOSE_OVERRIDES: docker-compose-test-db.yml
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 

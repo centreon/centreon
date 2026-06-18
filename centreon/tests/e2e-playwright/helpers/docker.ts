@@ -14,12 +14,32 @@ const composeFile = path.resolve(
   '../../../../.github/docker/docker-compose.yml'
 );
 
+// Optional extra compose files layered on top of the base one, taken from
+// CENTREON_COMPOSE_OVERRIDES (space/comma/colon-separated). Names are resolved
+// relative to the base compose directory, so the project directory — and thus
+// relative paths like `env_file: .env` — stay anchored there. The CI e2e job
+// uses this to swap in a faster test database (see docker-compose-test-db.yml).
+const composeDir = path.dirname(composeFile);
+const overrideArgs: Array<string> = (
+  process.env.CENTREON_COMPOSE_OVERRIDES ?? ''
+)
+  .split(/[\s,:]+/)
+  .filter(Boolean)
+  .flatMap((name) => [
+    '-f',
+    path.isAbsolute(name) ? name : path.resolve(composeDir, name)
+  ]);
+
 const webApacheUser = 'apache'; // alma9 image — Debian images would use www-data
 
 const execCompose = (args: Array<string>): string =>
-  execFileSync('docker', ['compose', '-f', composeFile, ...args], {
-    encoding: 'utf-8'
-  });
+  execFileSync(
+    'docker',
+    ['compose', '-f', composeFile, ...overrideArgs, ...args],
+    {
+      encoding: 'utf-8'
+    }
+  );
 
 const sleep = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms));
