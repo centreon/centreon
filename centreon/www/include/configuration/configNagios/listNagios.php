@@ -38,8 +38,10 @@ if (! is_null($search)) {
 }
 
 $SearchTool = '';
+$searchBind = null;
 if (! is_null($search)) {
-    $SearchTool .= " WHERE nagios_name LIKE '%{$search}%' ";
+    $SearchTool .= ' WHERE nagios_name LIKE :search ';
+    $searchBind = '%' . $search . '%';
 }
 
 $aclCond = '';
@@ -56,10 +58,16 @@ while ($nagios_server = $dbResult->fetch()) {
 }
 $dbResult->closeCursor();
 
-$dbResult = $pearDB->query(
+$dbResult = $pearDB->prepare(
     'SELECT SQL_CALC_FOUND_ROWS nagios_id, nagios_name, nagios_comment, nagios_activate, nagios_server_id '
-    . 'FROM cfg_nagios ' . $SearchTool . $aclCond . ' ORDER BY nagios_name LIMIT ' . $num * $limit . ', ' . $limit
+    . 'FROM cfg_nagios ' . $SearchTool . $aclCond . ' ORDER BY nagios_name LIMIT :offset, :limit'
 );
+if (! is_null($searchBind)) {
+    $dbResult->bindValue(':search', $searchBind, PDO::PARAM_STR);
+}
+$dbResult->bindValue(':offset', (int) ($num * $limit), PDO::PARAM_INT);
+$dbResult->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
+$dbResult->execute();
 
 $rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
 
