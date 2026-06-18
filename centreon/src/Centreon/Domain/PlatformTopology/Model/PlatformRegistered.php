@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\PlatformTopology\Model;
 
-use App\Shared\Domain\Assert\Assert as AppAssert;
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Centreon\Domain\PlatformTopology\Interfaces\PlatformInterface;
 use Webmozart\Assert\InvalidArgumentException;
 
@@ -321,7 +321,7 @@ class PlatformRegistered implements PlatformInterface
         }
 
         try {
-            AppAssert::ipOrHostname($address);
+            CentreonAssert::ipOrHostname($address);
         } catch (InvalidArgumentException $e) {
             throw new \InvalidArgumentException(
                 sprintf(

@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Host\Domain\Model;
 
-use App\Shared\Domain\Assert\Assert as AppAssert;
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Common\Domain\YesNoDefault;
@@ -186,7 +186,7 @@ class NewHost
         Assertion::min($highFlapThreshold ?? 0, 0, "{$shortName}::highFlapThreshold");
 
         // Other assert
-        AppAssert::ipOrHostname($address, "{$shortName}::address");
+        CentreonAssert::ipOrHostname($address, "{$shortName}::address");
     }
 
     /**

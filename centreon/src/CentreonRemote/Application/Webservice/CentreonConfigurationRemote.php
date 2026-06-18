@@ -21,7 +21,7 @@
 
 namespace CentreonRemote\Application\Webservice;
 
-use App\Shared\Domain\Assert\Assert as AppAssert;
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Centreon\Domain\Entity\Task;
 use Centreon\Domain\PlatformTopology\Model\PlatformPending;
 use CentreonRemote\Application\Validator\WizardConfigurationRequestValidator;
@@ -413,7 +413,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         $serverName = substr($this->arguments['server_name'], 0, 40);
 
         try {
-            AppAssert::ipOrHostname($serverIP);
+            CentreonAssert::ipOrHostname($serverIP);
         } catch (InvalidArgumentException) {
             return ['error' => true, 'message' => 'Invalid IP address'];
         }

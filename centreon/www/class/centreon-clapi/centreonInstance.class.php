@@ -21,7 +21,7 @@
 
 namespace CentreonClapi;
 
-use App\Shared\Domain\Assert\Assert as AppAssert;
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Centreon_Object_Instance;
 use Centreon_Object_Relation_Instance_Host;
 use Exception;
@@ -128,7 +128,7 @@ class CentreonInstance extends CentreonObject
         $addParams['gorgone_port'] = $params[self::ORDER_GORGONE_PORT];
 
         try {
-            AppAssert::ipOrHostname($addParams['ns_ip_address']);
+            CentreonAssert::ipOrHostname($addParams['ns_ip_address']);
         } catch (InvalidArgumentException) {
             throw new CentreonClapiException(self::INCORRECTIPADDRESS);
         }
@@ -154,7 +154,7 @@ class CentreonInstance extends CentreonObject
 
         if ($params[1] == 'ns_ip_address') {
             try {
-                AppAssert::ipOrHostname($params[2]);
+                CentreonAssert::ipOrHostname($params[2]);
             } catch (InvalidArgumentException) {
                 throw new CentreonClapiException(self::INCORRECTIPADDRESS);
             }

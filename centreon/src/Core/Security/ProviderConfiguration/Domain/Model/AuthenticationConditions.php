@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Domain\Model;
 
-use App\Shared\Domain\Assert\Assert as AppAssert;
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 
 /**
@@ -192,7 +192,7 @@ class AuthenticationConditions
      */
     private function validateClientAddressOrFail(string $clientAddress, string $fieldName): void
     {
-        AppAssert::ipOrHostname($clientAddress, 'AuthenticationConditions::' . $fieldName);
+        CentreonAssert::ipOrHostname($clientAddress, 'AuthenticationConditions::' . $fieldName);
     }
 
     /**
