@@ -400,7 +400,7 @@ class CentreonService
             $stmt->bindValue(':svcId', (int) $svc_id, PDO::PARAM_INT);
             $stmt->bindValue(':macroName', $matches[1][$i]);
             $stmt->execute();
-            while ($row = $stmt->fetch()) {
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $string = str_replace($matches[1][$i], $row['svc_macro_value'], $string);
             }
             $i++;
@@ -411,7 +411,7 @@ class CentreonService
             );
             $stmt2->bindValue(':svcId', (int) $svc_id, PDO::PARAM_INT);
             $stmt2->execute();
-            while ($row2 = $stmt2->fetch()) {
+            while ($row2 = $stmt2->fetch(PDO::FETCH_ASSOC)) {
                 if (! isset($antiLoop) || ! $antiLoop) {
                     $string = $this->replaceMacroInString(
                         $row2['service_template_model_stm_id'],

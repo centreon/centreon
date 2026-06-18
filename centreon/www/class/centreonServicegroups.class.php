@@ -74,7 +74,7 @@ class CentreonServicegroups
         $stmt->bindValue(':sgId', (int) $sgId, PDO::PARAM_INT);
         $stmt->bindValue(':sgId2', (int) $sgId, PDO::PARAM_INT);
         $stmt->execute();
-        while ($row = $stmt->fetch()) {
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $services[] = [$row['host_host_id'], $row['service_service_id']];
         }
 

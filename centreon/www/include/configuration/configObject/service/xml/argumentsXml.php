@@ -76,7 +76,7 @@ if (isset($_GET['cmdId'], $_GET['svcId'], $_GET['svcTplId'], $_GET['o'])) {
             );
             $stmt4->bindValue(':svcTplId', (int) $svcTplId, PDO::PARAM_INT);
             $stmt4->execute();
-            $row4 = $stmt4->fetch();
+            $row4 = $stmt4->fetch(PDO::FETCH_ASSOC);
             if (isset($row4['command_command_id']) && $row4['command_command_id']) {
                 $cmdId = $row4['command_command_id'];
                 break;
