@@ -118,6 +118,4 @@ runs:
           if [ "$(ls -A $ARCH)" ]; then
             jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --sync-deletes="$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat  --detailed-summary
           fi
-
-          curl --fail-with-body -H "Authorization: Bearer $JF_ACCESS_TOKEN" -X POST "$JF_URL/artifactory/api/yum/$ROOT_REPO_PATH?path=/$VERSION/$DISTRIB/${REINDEX_STABILITY}/$ARCH&async=1"
         done
