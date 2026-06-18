@@ -97,3 +97,9 @@ junit.xml
 /test.*.log
 # Legacy login.log mirror written by CentreonUserLog when tests bootstrap it
 /login.log
+
+# Playwright component testing
+/playwright/.cache/
+/test-results/
+/playwright-report/
+/blob-report/
