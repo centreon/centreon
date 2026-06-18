@@ -263,7 +263,12 @@ export class CentreonApi {
     let status = 'PENDING';
     while (Date.now() < deadline) {
       await this.submitResults([
-        { host, output: 'CRITICAL set by Playwright', service, status: 'critical' }
+        {
+          host,
+          output: 'CRITICAL set by Playwright',
+          service,
+          status: 'critical'
+        }
       ]);
       await sleep(intervalMs);
       status =
@@ -424,6 +429,88 @@ export class CentreonApi {
           `${this.base}/api/latest/configuration/notifications/${id}`
         ),
         `delete notification ${id}`
+      );
+    }
+  }
+
+  // --- Authentication (API) tokens -----------------------------------------
+
+  /** Resolve a configuration user id by its alias. */
+  async findUserId(alias: string): Promise<number> {
+    const search = encodeURIComponent(JSON.stringify({ alias }));
+    const response = CentreonApi.ok(
+      await this.context.get(
+        `${this.base}/api/latest/configuration/users?search=${search}`
+      ),
+      `find user "${alias}"`
+    );
+    const { result } = (await response.json()) as {
+      result: Array<{ id: number; alias: string }>;
+    };
+    const user = result.find((entry) => entry.alias === alias) ?? result[0];
+    if (!user) {
+      throw new Error(`user "${alias}" not found`);
+    }
+    return user.id;
+  }
+
+  /** Create an API token bound to a user, expiring in `durationDays`. */
+  async createToken({
+    name,
+    userId,
+    durationDays = 30,
+    type = 'api'
+  }: {
+    name: string;
+    userId: number;
+    durationDays?: number;
+    type?: string;
+  }): Promise<void> {
+    // The API rejects the milliseconds that `toISOString()` adds (422).
+    const expiration = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .replace(/\.\d{3}Z$/, 'Z');
+    CentreonApi.ok(
+      await this.context.post(`${this.base}/api/latest/administration/tokens`, {
+        data: {
+          expiration_date: expiration,
+          name,
+          type,
+          user_id: userId
+        }
+      }),
+      `create token "${name}"`
+    );
+  }
+
+  /** Remove every API-type token (leaves the platform's poller/cma tokens). */
+  async deleteAllApiTokens(): Promise<void> {
+    const response = CentreonApi.ok(
+      await this.context.get(
+        `${this.base}/api/latest/administration/tokens?limit=100`
+      ),
+      'list tokens'
+    );
+    const { result } = (await response.json()) as {
+      result: Array<{
+        name: string;
+        type: string;
+        user?: { id: number } | null;
+        creator: { id: number };
+      }>;
+    };
+    for (const token of result) {
+      if (token.type !== 'api') {
+        continue;
+      }
+      const userId = token.user?.id ?? token.creator.id;
+      CentreonApi.ok(
+        await this.context.delete(
+          `${this.base}/api/latest/administration/tokens/${encodeURIComponent(
+            token.name
+          )}/users/${userId}`
+        ),
+        `delete token "${token.name}"`
       );
     }
   }

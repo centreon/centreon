@@ -22,6 +22,7 @@ tests/e2e-playwright/
 │   ├── monitoring.ts        # CLAPI builders (host/service/host group) + submit results
 │   ├── resources.ts         # Resources-status seed (host + CRITICAL/OK services)
 │   ├── notifications.ts     # Cloud-notification rule builder + host group
+│   ├── tokens.ts            # API-token users (contacts) provisioning
 │   ├── oidc.ts              # OIDC provider settings + ACL/contact provisioning
 │   └── test.ts              # Custom Playwright fixtures (API seed/cleanup)
 ├── helpers/
@@ -38,8 +39,9 @@ tests/e2e-playwright/
 │   ├── DeleteDashboardDialog.ts  # Deletion confirmation dialog
 │   ├── OidcConfigurationPage.ts  # Admin OpenID Connect configuration form
 │   ├── KeycloakLoginPage.ts      # Keycloak login form (external IdP)
-│   ├── ResourcesStatusPage.ts    # Monitoring resources listing (filter + search)
-│   └── NotificationsListPage.ts  # Cloud notifications listing (pagination)
+│   ├── ResourcesStatusPage.ts    # Monitoring resources listing (filter + search + acknowledge)
+│   ├── NotificationsListPage.ts  # Cloud notifications listing (pagination)
+│   └── ApiTokensPage.ts          # Authentication tokens (create / delete / filter)
 └── tests/
     ├── auth.setup.ts        # `setup` project: saves the dashboard-creator + admin sessions
     ├── authentication.spec.ts
@@ -53,8 +55,10 @@ tests/e2e-playwright/
     ├── resources-status/
     │   ├── resource-listing.spec.ts   # migrates Cypress Resources-status/01-listing
     │   └── acknowledgement.spec.ts     # migrates Cypress Resources-status/02-acknowledgments
-    └── notifications/
-        └── notification-listing.spec.ts  # migrates Cypress Cloud-notifications/05-listing
+    ├── notifications/
+    │   └── notification-listing.spec.ts  # migrates Cypress Cloud-notifications/05-listing
+    └── api-token/
+        └── api-token.spec.ts              # migrates Cypress Api-Token (create/delete/filter)
 ```
 
 ## OpenID Connect tests
@@ -112,6 +116,13 @@ through `CentreonApi`, mirroring the Cypress CLAPI commands:
   auto-clears acknowledgements, so the disacknowledge / sticky / notification
   scenarios — which depend on a frozen acknowledged state — are out of scope
   (the Cypress suite isolates each in its own fresh container).
+- **API tokens** (`api-token/api-token.spec.ts`, migrates `Api-Token`
+  create/delete/filter): pure configuration UI + REST API — no monitoring data.
+  A couple of contacts are provisioned once via CLAPI; fixture tokens are seeded
+  through the API (`createToken`) and removed before/after each test
+  (`deleteAllApiTokens`, which only ever touches API-type tokens, leaving the
+  platform's poller/cma tokens). The create test also reveals and copies the
+  generated token, so the spec grants the clipboard permission.
 - **Cloud notifications** (`notifications/`, migrates `Cloud-notifications/05-notification-listing`):
   the feature flag is enabled in `global-setup.ts`, a host group is created once,
   and each test creates N rules through the configuration API and deletes them
