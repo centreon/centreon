@@ -47,9 +47,6 @@ final readonly class DbalUpdateRepository implements UpdateRepository
     ) {
     }
 
-    /**
-     * @throws \Doctrine\DBAL\Exception when the configuration database query fails
-     */
     public function findCurrentVersion(): ?string
     {
         $result = $this->configConnection->fetchOne(
@@ -59,9 +56,6 @@ final readonly class DbalUpdateRepository implements UpdateRepository
         return is_scalar($result) ? (string) $result : null;
     }
 
-    /**
-     * @throws \Throwable any failure raised by a sub-step (SQL execution, included PHP script, version update) re-thrown after the matching step failure is logged
-     */
     public function runUpdate(string $version): void
     {
         $this->runStep($version, 'monitoring_sql', fn () => $this->runMonitoringSql($version));
@@ -71,10 +65,6 @@ final readonly class DbalUpdateRepository implements UpdateRepository
         $this->runStep($version, 'update_version_information', fn () => $this->updateVersionInformation($version));
     }
 
-    /**
-     * @throws \RuntimeException when the installs backup directory is missing or not writable
-     * @throws \Throwable any failure raised by the filesystem mirror / remove sub-steps re-thrown after the matching step failure is logged
-     */
     public function runPostUpdate(string $currentVersion): void
     {
         if (! $this->filesystem->exists($this->installDir)) {
@@ -104,9 +94,6 @@ final readonly class DbalUpdateRepository implements UpdateRepository
         );
     }
 
-    /**
-     * @throws \Throwable
-     */
     private function runStep(string $version, string $step, callable $action): void
     {
         LoggerUpgrade::create()->step($version, $step, "Starting step '{$step}'");
@@ -166,9 +153,6 @@ final readonly class DbalUpdateRepository implements UpdateRepository
         }
     }
 
-    /**
-     * @throws \Doctrine\DBAL\Exception when the version update statement fails
-     */
     private function updateVersionInformation(string $version): void
     {
         $this->configConnection->executeStatement(
@@ -177,10 +161,6 @@ final readonly class DbalUpdateRepository implements UpdateRepository
         );
     }
 
-    /**
-     * @throws \Doctrine\DBAL\Exception when one of the SQL statements fails
-     * @throws \RuntimeException when the temporary progress file cannot be written
-     */
     private function runSqlFile(Connection $connection, string $filePath): void
     {
         set_time_limit(0);
@@ -233,9 +213,6 @@ final readonly class DbalUpdateRepository implements UpdateRepository
         return 0;
     }
 
-    /**
-     * @throws \RuntimeException when the temporary file exists but is not writable
-     */
     private function writeExecutedQueriesCount(string $tmpFile, int $count): void
     {
         if (file_exists($tmpFile) && ! is_writable($tmpFile)) {

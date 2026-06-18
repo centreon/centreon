@@ -77,11 +77,13 @@ final readonly class UpdateCommandHandler
 
                 LoggerUpgrade::create()->start($currentVersion, $targetVersion);
 
+                // run_update / post_update log their own sub-steps inside the repository,
+                // so the handler only brackets the steps it owns here.
                 foreach ($availableUpdates as $version) {
-                    $this->runStep($version, 'run_update', fn () => $this->updateRepository->runUpdate($version));
+                    $this->updateRepository->runUpdate($version);
                 }
 
-                $this->runStep($currentVersion, 'post_update', fn () => $this->updateRepository->runPostUpdate($currentVersion));
+                $this->updateRepository->runPostUpdate($currentVersion);
                 $this->runStep($currentVersion, 'modules_update', fn () => $this->moduleRepository->updateAll());
                 $this->runStep($currentVersion, 'widgets_update', fn () => $this->widgetRepository->updateAll());
                 $this->runStep($currentVersion, 'engine_context', fn () => $this->engineContextWriter->writeIfMissing());
@@ -99,9 +101,6 @@ final readonly class UpdateCommandHandler
         }
     }
 
-    /**
-     * @throws \Throwable
-     */
     private function runStep(string $version, string $step, callable $action): void
     {
         LoggerUpgrade::create()->step($version, $step, "Starting step '{$step}'");

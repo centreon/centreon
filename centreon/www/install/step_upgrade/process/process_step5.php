@@ -65,9 +65,10 @@ try {
     $updateWriteRepository->runPostUpdate($_SESSION['CURRENT_VERSION']);
 
     $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
-    LoggerUpgrade::create()->step(
+    LoggerUpgrade::create()->stepCompleted(
         $currentVersion,
         'post_update',
+        $durationMs,
         "Post-update phase completed in {$durationMs}ms"
     );
 } catch (Throwable $e) {

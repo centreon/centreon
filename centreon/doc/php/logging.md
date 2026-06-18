@@ -921,155 +921,35 @@ LoggerUpgrade::create()->step($version, $stepName, $message);
 
 ### Recommended pattern
 
-Mirror `www/install/php/Update-next.php.tpl` and trace each action:
+Copy `www/install/php/Update-next.php.tpl` — it is the canonical skeleton and is kept in sync with the flow. Its shape:
 
-```php
-use Adaptation\Database\Connection\ConnectionInterface;
-use Adaptation\Database\Connection\Exception\ConnectionException;
-use Adaptation\Log\LoggerUpgrade;
-
-require_once __DIR__ . '/../../../bootstrap.php';
-
-$version = '25.11.0';
-$errorMessage = '';
-
-/**
- * @var ConnectionInterface $pearDB
- * @var ConnectionInterface $pearDBO
- */
-
-// One callable per business action — easy to log around.
-$addVmwareUpdatedField = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = 'Unable to add vmware_updated field into nagios_server table';
-    LoggerUpgrade::create()->info($version, 'Adding vmware_updated field into nagios_server table');
-
-    if ($pearDB->columnExists(
-        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
-        'nagios_server',
-        'vmware_updated'
-    )) {
-        LoggerUpgrade::create()->info(
-            $version,
-            'Field vmware_updated already exists in nagios_server table, skipping modification'
-        );
-
-        return;
-    }
-
-    $pearDB->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `nagios_server`
-            ADD COLUMN `vmware_updated` BOOLEAN NOT NULL DEFAULT 0 AFTER `updated`
-            SQL
-    );
-
-    LoggerUpgrade::create()->info($version, 'Successfully added vmware_updated field into nagios_server table');
-};
-
-try {
-    LoggerUpgrade::create()->info($version, "Starting upgrade script for version {$version}");
-
-    // Call each action — every helper traces its own start / skip / success.
-    $addVmwareUpdatedField();
-
-    if (! $pearDB->isTransactionActive()) {
-        $pearDB->startTransaction();
-    }
-
-    // … DML inside the transaction …
-
-    $pearDB->commitTransaction();
-
-    LoggerUpgrade::create()->info($version, "Upgrade script for version {$version} completed");
-} catch (Throwable $throwable) {
-    LoggerUpgrade::create()->stepFailure(
-        "UPGRADE - {$version}: {$errorMessage}",
-        $version,
-        'php_script',
-        $throwable
-    );
-
-    try {
-        if ($pearDB->isTransactionActive()) {
-            LoggerUpgrade::create()->info($version, "Rolling back transaction after error: {$errorMessage}");
-            $pearDB->rollBackTransaction();
-        }
-    } catch (ConnectionException $rollbackException) {
-        LoggerUpgrade::create()->stepFailure(
-            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            $version,
-            'php_script_rollback',
-            $rollbackException
-        );
-
-        throw new RuntimeException(
-            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            previous: $rollbackException
-        );
-    }
-
-    throw new RuntimeException(
-        message: "UPGRADE - {$version}: " . $errorMessage,
-        previous: $throwable
-    );
-}
-```
-
-Key points:
-
-- **`$errorMessage` is updated before each action**, so the catch-all `stepFailure` reports which action failed.
-- **The "Rolling back…" `info` lives inside the `if ($pearDB->isTransactionActive())`** — only log a rollback that actually happens.
-- **Re-throwing after `stepFailure` is the rule**: the global upgrade flow above (`UpdateCommandHandler` / `process_step4.php`) catches and emits its own `failure` event with the from→to versions and the wrapped exception. A silent return would break that chain.
+- **Wrap each business action in its own callable** and set `$errorMessage` to a human description **before** running it, so the catch-all `stepFailure` reports which action failed.
+- **Trace intent and outcome** with `info($version, …)`; log skip branches too — they prove the script is safely re-entrant.
+- **Run DML inside a transaction** guarded by `isTransactionActive()`, and log "Rolling back…" only inside the `if` that actually rolls back.
+- **On failure, call `stepFailure(...)`** with the `php_script` step name (`php_script_rollback` if the rollback itself fails), then **re-throw**: the global flow (`UpdateCommandHandler` / `process_step4.php`) catches it and writes the final `failure`. A silent return breaks that chain.
 
 ### Sample output (`prod.upgrade.log`)
 
 ```
 upgrade.INFO: Upgrade started from 25.10.0 to 25.11.0
   {"event":"upgrade.start","status":"started","from_version":"25.10.0","to_version":"25.11.0"}
-
 upgrade.INFO: Starting step 'php_script'
   {"event":"upgrade.step","status":"running","version":"25.11.0","step":"php_script"}
-
-upgrade.INFO: Starting upgrade script for version 25.11.0
-  {"event":"upgrade.info","status":"info","version":"25.11.0"}
-
 upgrade.INFO: Adding vmware_updated field into nagios_server table
   {"event":"upgrade.info","status":"info","version":"25.11.0"}
-
-upgrade.INFO: Successfully added vmware_updated field into nagios_server table
-  {"event":"upgrade.info","status":"info","version":"25.11.0"}
-
-upgrade.INFO: Upgrade script for version 25.11.0 completed
-  {"event":"upgrade.info","status":"info","version":"25.11.0"}
-
 upgrade.INFO: Step 'php_script' completed in 124ms
   {"event":"upgrade.step_completed","status":"completed","version":"25.11.0","step":"php_script","duration_ms":124}
-
 upgrade.INFO: Upgrade from 25.10.0 to 25.11.0 completed successfully
   {"event":"upgrade.success","status":"success","from_version":"25.10.0","to_version":"25.11.0","duration_ms":4242}
 ```
 
-Failure scenario:
-
-```
-upgrade.INFO: Adding vmware_updated field into nagios_server table
-  {"event":"upgrade.info",...}
-
-upgrade.ERROR: UPGRADE - 25.11.0: Unable to add vmware_updated field into nagios_server table
-  {"event":"upgrade.step_failure","status":"failure","version":"25.11.0","exception":{"exceptions":[{"type":"PDOException","message":"…","file":"…","line":42}]},"step":"php_script"}
-
-upgrade.INFO: Rolling back transaction after error: Unable to add vmware_updated field into nagios_server table
-  {"event":"upgrade.info",...}
-
-upgrade.ERROR: UPGRADE - 25.11.0: Unable to add vmware_updated field into nagios_server table
-  {"event":"upgrade.failure","status":"failure","from_version":"25.10.0","to_version":"25.11.0","exception":{...}}
-```
+On failure, the failing action writes `upgrade.step_failure` (ERROR) and the global flow writes a final `upgrade.failure` carrying the from→to versions and the wrapped exception.
 
 ### Best practices
 
 - **One business action = one `info` line** before it runs (intent) and one after (outcome). Skip branches deserve their own line so operators can read the log top-to-bottom without re-deriving control flow.
 - **Carry `$version` on every call** — the field is what lets SIEM/Grafana partition the file per release.
 - **No PII, no secrets** in the message or the context. The file is shipped to operators / SOC pipelines; the same redaction rules as `prod.access.log` apply.
-- **Don't duplicate the surrounding `step` event** — the repository already brackets the script with `step` / `stepFailure`. Inside the script, use `info` / `error` (free-form) and let `stepFailure` be raised by the outer `try/catch`.
+- **Don't duplicate the surrounding `step` log** — the repository already brackets the script with `step` / `stepFailure`. Inside the script, use `info` / `error` (free-form) and let `stepFailure` be raised by the outer `try/catch`.
 - **Idempotent actions still log** — even "skipped because already migrated" is signal: it confirms the migration was applied on a previous run and the script is safely re-entrant.
-- **Re-throw on failure**. Returning silently after logging masks the failure from the surrounding `UpdateCommandHandler` / `process_step4` which then misses the `upgrade.failure` event.
+- **Re-throw on failure**. Returning silently after logging masks the failure from the surrounding `UpdateCommandHandler` / `process_step4` which then misses the final `upgrade.failure` record.
