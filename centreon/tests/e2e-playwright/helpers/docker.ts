@@ -131,6 +131,17 @@ export const enableDashboardFeature = (): void => {
 };
 
 /**
+ * Enable the cloud notification feature flag (0..3 → 3 = fully enabled) in the
+ * running platform, mirroring `enableNotificationFeature()` from the Cypress
+ * Cloud-notifications suite.
+ */
+export const enableNotificationFeature = (): void => {
+  execInWebContainer(
+    `sed -i 's@"notification": [0-3]@"notification": 3@' /usr/share/centreon/config/features.json`
+  );
+};
+
+/**
  * Recompute ACLs so that freshly created ACL groups take effect, mirroring
  * `cy.applyAcl()`.
  */

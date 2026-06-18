@@ -14,16 +14,20 @@ encapsulated in a Page Object (`pages/`). Tests describe *intentions*
 ```
 tests/e2e-playwright/
 ├── playwright.config.ts     # Playwright config (baseURL, reporters, optional stack boot)
-├── global-setup.ts          # One-time provisioning for the dashboard specs
+├── global-setup.ts          # One-time provisioning (feature flags, ACL user)
 ├── fixtures/
-│   ├── auth.ts              # Path of the saved dashboard-creator session
+│   ├── auth.ts              # Paths of the saved dashboard-creator / admin sessions
 │   ├── credentials.ts       # Test users (overridable via env vars)
 │   ├── dashboards.ts        # Dashboard seed data + ACL provisioning actions
+│   ├── monitoring.ts        # CLAPI builders (host/service/host group) + submit results
+│   ├── resources.ts         # Resources-status seed (host + CRITICAL/OK services)
+│   ├── notifications.ts     # Cloud-notification rule builder + host group
 │   ├── oidc.ts              # OIDC provider settings + ACL/contact provisioning
 │   └── test.ts              # Custom Playwright fixtures (API seed/cleanup)
 ├── helpers/
-│   ├── CentreonApi.ts       # HTTP client: v1 auth, CLAPI, v2 session, dashboard CRUD
-│   └── docker.ts            # docker compose exec helpers (feature flag, ACL)
+│   ├── CentreonApi.ts       # HTTP client: v1 auth, CLAPI, v2 session, dashboards,
+│   │                        #   monitoring provisioning, submit results, notifications
+│   └── docker.ts            # docker compose exec helpers (feature flags, ACL)
 ├── pages/
 │   ├── BasePage.ts          # Shared base class (navigation helpers)
 │   ├── LoginPage.ts         # Login form Page Object (+ "Login with" provider)
@@ -33,17 +37,23 @@ tests/e2e-playwright/
 │   ├── DashboardDetailPage.ts    # Single dashboard page (edit mode, quick access)
 │   ├── DeleteDashboardDialog.ts  # Deletion confirmation dialog
 │   ├── OidcConfigurationPage.ts  # Admin OpenID Connect configuration form
-│   └── KeycloakLoginPage.ts      # Keycloak login form (external IdP)
+│   ├── KeycloakLoginPage.ts      # Keycloak login form (external IdP)
+│   ├── ResourcesStatusPage.ts    # Monitoring resources listing (filter + search)
+│   └── NotificationsListPage.ts  # Cloud notifications listing (pagination)
 └── tests/
-    ├── auth.setup.ts        # `setup` project: saves the dashboard-creator session
+    ├── auth.setup.ts        # `setup` project: saves the dashboard-creator + admin sessions
     ├── authentication.spec.ts
     ├── authentication/
     │   └── oidc-authentication.spec.ts
-    └── dashboards/
-        ├── dashboard-creation.spec.ts
-        ├── dashboard-navigation.spec.ts
-        ├── dashboard-properties-edition.spec.ts
-        └── dashboard-deletion.spec.ts
+    ├── dashboards/
+    │   ├── dashboard-creation.spec.ts
+    │   ├── dashboard-navigation.spec.ts
+    │   ├── dashboard-properties-edition.spec.ts
+    │   └── dashboard-deletion.spec.ts
+    ├── resources-status/
+    │   └── resource-listing.spec.ts   # migrates Cypress Resources-status/01-listing
+    └── notifications/
+        └── notification-listing.spec.ts  # migrates Cypress Cloud-notifications/05-listing
 ```
 
 ## OpenID Connect tests
@@ -78,6 +88,30 @@ Dashboards are addressed **by name** in the Page Objects rather than by list
 position, which is more robust than the index-based selection used by Cypress.
 Page Object actions are wrapped in `test.step(...)` and key locators carry a
 `.describe(...)` label, so traces and the HTML report read as readable steps.
+
+## Test data setup (resources status & cloud notifications)
+
+These specs use the admin session (saved by `auth.setup.ts`) and seed their data
+through `CentreonApi`, mirroring the Cypress CLAPI commands:
+
+- **Resources status** (`resources-status/`, migrates `Resources-status/01-listing`):
+  the `beforeAll` creates one passive host with three CRITICAL services and one
+  OK service (CLAPI `ADD HOST`/`ADD SERVICE` + `APPLYCFG`), pushes passive
+  results (`submit_results`), then polls `monitoring/resources` until the engine
+  has loaded them — the equivalent of the Cypress `submitResults` +
+  `checkServicesAreMonitored`. Provisioning is **idempotent**: it is skipped when
+  the services are already monitored, and the host is left in place.
+- **Cloud notifications** (`notifications/`, migrates `Cloud-notifications/05-notification-listing`):
+  the feature flag is enabled in `global-setup.ts`, a host group is created once,
+  and each test creates N rules through the configuration API and deletes them
+  before/after, replacing the Cypress `DELETE FROM notification` cleanup.
+
+> **Fresh engine for resources status:** seeding live monitoring data needs a
+> cleanly-booted engine, so the resources spec is reliable against a fresh `web`
+> container (as in CI, and as the Cypress suite guarantees by recreating a
+> container per spec). Re-running it many times against the *same* long-lived
+> container can leave the engine with stale, disabled service entries after
+> repeated config reloads.
 
 ## Requirements
 

@@ -11,3 +11,15 @@ export const creatorStorageStatePath = path.resolve(
   '.auth',
   'dashboard-creator.json'
 );
+
+/**
+ * Where the admin browser session is persisted by the `setup` project so the
+ * specs that need full privileges (resources status, cloud notifications) can
+ * reuse it through `test.use({ storageState })`.
+ */
+export const adminStorageStatePath = path.resolve(
+  __dirname,
+  '..',
+  '.auth',
+  'admin.json'
+);
