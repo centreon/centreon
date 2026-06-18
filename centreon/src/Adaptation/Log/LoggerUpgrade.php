@@ -123,7 +123,16 @@ final class LoggerUpgrade
         try {
             $this->logger->log($level, $message, $context);
         } catch (\Throwable $exception) {
-            error_log(sprintf('LoggerUpgrade: failed to write the upgrade log: %s', $exception->getMessage()));
+            // The primary sink is unavailable; keep the upgrade event in error_log rather than
+            // losing it — including the original throwable, which is often the line that matters.
+            $original = $context['exception'] ?? null;
+            error_log(sprintf(
+                'LoggerUpgrade: failed to write the upgrade log [%s] "%s"%s: %s',
+                $level,
+                $message,
+                $original instanceof \Throwable ? sprintf(' (%s: %s)', $original::class, $original->getMessage()) : '',
+                $exception->getMessage(),
+            ));
         }
     }
 

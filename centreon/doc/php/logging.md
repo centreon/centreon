@@ -896,6 +896,8 @@ But fail2ban jails are bound to a **file path** (`logpath = /var/log/centreon/lo
 
 Each upgrade ships under `www/install/php/Update-<version>.php` (DB DDL/DML + business migration) and runs inside `DbWriteUpdateRepository` (legacy kernel) or `DbalUpdateRepository` (DDD kernel). Both bracket the `php_script` step around the inclusion through a small `runStep()` / `executeStep()` helper that calls `LoggerUpgrade` inline (start / completed / failure). **Inside the script itself, trace each meaningful action through `LoggerUpgrade` so operators get a play-by-play view in `prod.upgrade.log`.**
 
+The legacy web upgrade splits the flow across two steps: `process_step4.php` runs the version updates (`runUpdate`), `process_step5.php` runs the post-update (`runPostUpdate`) under a `post_update` step — grep both when tracking a step name.
+
 ### Facade API
 
 ```php
@@ -915,7 +917,7 @@ LoggerUpgrade::create()->step($version, $stepName, $message);
 | `failure($message, $from, $to, $e)` | `ERROR` | Global upgrade aborted (catch-all in the handler). |
 | `step($version, $stepName, $message)` | `INFO` | Sub-step **start** / progress (`monitoring_sql`, `php_script`, …). `status: running`. Emitted by the repositories; rarely needed inside an upgrade script. |
 | `stepCompleted($version, $stepName, $durationMs, $message)` | `INFO` | Sub-step **completion**. `status: completed`, carries `duration_ms` in the context (not just the message), so completed steps are queryable without parsing text. |
-| `stepFailure($message, $version, $stepName, $e)` | `ERROR` | Inside an upgrade script, when an action throws. Use the `php_script` step name (or `php_script_rollback` when the rollback itself fails). |
+| `stepFailure($message, $version, $stepName, $e)` | `ERROR` | A bracketed step threw. Primarily emitted by the repositories / handler; also used inside an upgrade script's catch block with the `php_script` step name (or `php_script_rollback` when the rollback itself fails). |
 | **`info($version, $message)`** | `INFO` | **Trace a meaningful action** (entering a function, finished an `ALTER TABLE`, skipped because already migrated, …). This is the workhorse inside upgrade scripts. |
 | **`error($version, $message, $e)`** | `ERROR` | Free-form error inside a script that you choose not to re-throw (rare — usually you re-throw and let the surrounding `try/catch` call `stepFailure`). |
 

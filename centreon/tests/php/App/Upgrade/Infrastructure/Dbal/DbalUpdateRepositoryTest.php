@@ -191,6 +191,43 @@ final class DbalUpdateRepositoryTest extends TestCase
         }
     }
 
+    public function testRunPostUpdateBacksUpBeforeRemovingTheInstallDir(): void
+    {
+        // The backup directory must exist for the is_dir()/is_writable() guard to pass.
+        $this->realFilesystem->mkdir($this->libDir . '/installs');
+
+        $calls = [];
+        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $filesystem->method('mirror')->willReturnCallback(static function () use (&$calls): void {
+            $calls[] = 'mirror';
+        });
+        $filesystem->method('remove')->willReturnCallback(static function () use (&$calls): void {
+            $calls[] = 'remove';
+        });
+
+        $this->repository($filesystem)->runPostUpdate(self::VERSION);
+
+        // Backup must run before removal — the reverse order would wipe the install
+        // directory before it is copied.
+        self::assertSame(['mirror', 'remove'], $calls);
+    }
+
+    public function testRunPostUpdateBacksUpAndRemovesInstallDirOnSuccess(): void
+    {
+        $this->realFilesystem->mkdir($this->libDir . '/installs');
+        file_put_contents($this->installDir . '/marker.txt', 'data');
+
+        $this->repository()->runPostUpdate(self::VERSION);
+
+        // The install directory is removed and a timestamped backup copy holding its
+        // contents now exists under installs/.
+        self::assertDirectoryDoesNotExist($this->installDir);
+        $backups = glob($this->libDir . '/installs/install-' . self::VERSION . '-*');
+        self::assertCount(1, $backups);
+        self::assertFileExists($backups[0] . '/marker.txt');
+    }
+
     private function repository(?Filesystem $filesystem = null): DbalUpdateRepository
     {
         return new DbalUpdateRepository(

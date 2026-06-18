@@ -189,6 +189,22 @@ final class UpdateCommandHandlerTest extends TestCase
         self::assertFalse($failingRepository->postUpdateCalled);
     }
 
+    public function testLockIsReleasedWhenAWrappedStepFails(): void
+    {
+        // A failure inside one of the handler-owned steps (here cache_clear) must still
+        // propagate and release the lock.
+        $this->cacheClearer->method('clear')->willThrowException(new \RuntimeException('cache clear failed'));
+
+        try {
+            ($this->handler)(new UpdateCommand());
+            self::fail('Expected the cache clear failure to propagate');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('cache clear failed', $exception->getMessage());
+        }
+
+        self::assertTrue($this->locker->unlockCalled, 'Lock must be released even when a wrapped step fails');
+    }
+
     public function testEngineContextAndCacheAreCalledOnSuccess(): void
     {
         $this->engineContextWriter->expects(self::once())->method('writeIfMissing');

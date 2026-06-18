@@ -313,7 +313,11 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
         if (file_exists($tmpFile) && ! is_writable($tmpFile)) {
             throw new RepositoryException(sprintf('Cannot write in temporary file: %s', $tmpFile));
         }
-        file_put_contents($tmpFile, $count);
+        // A failed write (missing parent dir on a fresh run, full disk, partial write) must not
+        // be silent: the count is the SQL resume cursor, and a stale one re-runs applied statements.
+        if (file_put_contents($tmpFile, $count) === false) {
+            throw new RepositoryException(sprintf('Cannot write in temporary file: %s', $tmpFile));
+        }
     }
 
     /**
