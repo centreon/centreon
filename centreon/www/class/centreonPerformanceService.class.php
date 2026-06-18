@@ -69,15 +69,15 @@ class CentreonPerformanceService
         if (isset($filters['hostgroup'])) {
             $additionnalTables .= ',hosts_hostgroups hg ';
             $additionnalCondition .= 'AND (hg.host_id = i.host_id AND hg.hostgroup_id IN ('
-                . implode(',', $filters['hostgroup']) . ')) ';
+                . implode(',', array_map(intval(...), $filters['hostgroup'])) . ')) ';
         }
         if (isset($filters['servicegroup'])) {
             $additionnalTables .= ',services_servicegroups sg ';
             $additionnalCondition .= 'AND (sg.host_id = i.host_id AND sg.service_id = i.service_id '
-                . 'AND sg.servicegroup_id IN (' . implode(',', $filters['servicegroup']) . ')) ';
+                . 'AND sg.servicegroup_id IN (' . implode(',', array_map(intval(...), $filters['servicegroup'])) . ')) ';
         }
         if (isset($filters['host'])) {
-            $additionnalCondition .= 'AND i.host_id IN (' . implode(',', $filters['host']) . ') ';
+            $additionnalCondition .= 'AND i.host_id IN (' . implode(',', array_map(intval(...), $filters['host'])) . ') ';
         }
 
         $virtualServicesCondition = $this->getVirtualServicesCondition($additionnalCondition);
@@ -96,14 +96,16 @@ class CentreonPerformanceService
             . ') '
             . $virtualServicesCondition
             . ') as t_union '
-            . 'WHERE fullname LIKE "%' . $serviceDescription . '%" '
+            . 'WHERE fullname LIKE :serviceDesc '
             . 'GROUP BY host_id, service_id '
             . 'ORDER BY fullname '
             . $range;
 
-        $DBRESULT = $this->dbMon->query($query);
+        $stmt = $this->dbMon->prepare($query);
+        $stmt->bindValue(':serviceDesc', '%' . $serviceDescription . '%');
+        $stmt->execute();
         $serviceList = [];
-        while ($data = $DBRESULT->fetchRow()) {
+        while ($data = $stmt->fetch()) {
             $serviceCompleteName = $data['fullname'];
             $serviceCompleteId = $data['host_id'] . '-' . $data['service_id'];
             $serviceList[] = ['id' => $serviceCompleteId, 'text' => $serviceCompleteName];
