@@ -51,7 +51,8 @@ tests/e2e-playwright/
     │   ├── dashboard-properties-edition.spec.ts
     │   └── dashboard-deletion.spec.ts
     ├── resources-status/
-    │   └── resource-listing.spec.ts   # migrates Cypress Resources-status/01-listing
+    │   ├── resource-listing.spec.ts   # migrates Cypress Resources-status/01-listing
+    │   └── acknowledgement.spec.ts     # migrates Cypress Resources-status/02-acknowledgments
     └── notifications/
         └── notification-listing.spec.ts  # migrates Cypress Cloud-notifications/05-listing
 ```
@@ -100,7 +101,17 @@ through `CentreonApi`, mirroring the Cypress CLAPI commands:
   results (`submit_results`), then polls `monitoring/resources` until the engine
   has loaded them — the equivalent of the Cypress `submitResults` +
   `checkServicesAreMonitored`. Provisioning is **idempotent**: it is skipped when
-  the services are already monitored, and the host is left in place.
+  the services are already monitored, and the host is left in place. The shared
+  helper `helpers/provisioning.ts` exposes `ensureResourcesMonitored()` so the
+  acknowledgement spec **reuses** the same data with no extra engine reload.
+- **Resources acknowledgement** (`resources-status/acknowledgement.spec.ts`,
+  migrates `Resources-status/02-acknowledgments`): selects a CRITICAL service,
+  acknowledges it from the listing toolbar and asserts the "Acknowledge command
+  sent" feedback. Only the acknowledge flow is migrated: on this shared stack
+  the passive services get actively re-checked and recover to OK, which
+  auto-clears acknowledgements, so the disacknowledge / sticky / notification
+  scenarios — which depend on a frozen acknowledged state — are out of scope
+  (the Cypress suite isolates each in its own fresh container).
 - **Cloud notifications** (`notifications/`, migrates `Cloud-notifications/05-notification-listing`):
   the feature flag is enabled in `global-setup.ts`, a host group is created once,
   and each test creates N rules through the configuration API and deletes them

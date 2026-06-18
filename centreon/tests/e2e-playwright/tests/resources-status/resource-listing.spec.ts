@@ -1,16 +1,9 @@
 import { expect, test } from '@playwright/test';
 
 import { adminStorageStatePath } from '../../fixtures/auth';
-import { adminUser } from '../../fixtures/credentials';
-import {
-  criticalServiceNames,
-  okServiceName,
-  resourcesProvisioningActions,
-  resourcesSubmitResults,
-  resourcesTearDownActions
-} from '../../fixtures/resources';
-import { CentreonApi } from '../../helpers/CentreonApi';
+import { criticalServiceNames, okServiceName } from '../../fixtures/resources';
 import { ensureStack } from '../../helpers/docker';
+import { ensureResourcesMonitored } from '../../helpers/provisioning';
 import { ResourcesStatusPage } from '../../pages/ResourcesStatusPage';
 
 const baseURL =
@@ -32,30 +25,7 @@ test.describe('Resources status listing', () => {
   test.beforeAll(async () => {
     test.setTimeout(300_000);
     await ensureStack({ services: ['web'] });
-
-    const api = await CentreonApi.create(baseURL);
-    try {
-      await api.authenticate(adminUser);
-      const services = [...criticalServiceNames, okServiceName];
-
-      if (!(await api.areServicesMonitored(services))) {
-        // Recreate from scratch (tolerating leftovers) and wait for the engine
-        // to load the services before pushing results — passive results sent
-        // before the service exists are dropped by the engine.
-        try {
-          await api.provision(resourcesTearDownActions);
-        } catch {
-          // nothing to clean up
-        }
-        await api.provision(resourcesProvisioningActions);
-        await api.waitForServicesMonitored(services, { timeoutMs: 200_000 });
-      }
-
-      // Refresh the statuses (idempotent) now the services are loaded.
-      await api.submitResults(resourcesSubmitResults);
-    } finally {
-      await api.dispose();
-    }
+    await ensureResourcesMonitored(baseURL);
   });
 
   test('selects the "Unhandled alerts" filter by default and hides OK resources', async ({

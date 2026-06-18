@@ -18,6 +18,14 @@ export interface ClapiAction {
   values: string;
 }
 
+export interface MonitoredService {
+  id: number;
+  name: string;
+  status: string;
+  acknowledged: boolean;
+  parentId: number | null;
+}
+
 const sleep = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -206,8 +214,8 @@ export class CentreonApi {
     }
   }
 
-  /** Names of the services currently known to the monitoring engine. */
-  private async monitoredServiceNames(): Promise<Array<string>> {
+  /** Service resources currently known to the monitoring engine. */
+  private async monitoredServices(): Promise<Array<MonitoredService>> {
     const types = encodeURIComponent('["service"]');
     const response = CentreonApi.ok(
       await this.context.get(
@@ -216,15 +224,133 @@ export class CentreonApi {
       'list monitored resources'
     );
     const { result } = (await response.json()) as {
-      result: Array<{ name: string }>;
+      result: Array<{
+        id: number;
+        name: string;
+        is_acknowledged?: boolean;
+        status?: { name?: string } | null;
+        parent?: { id: number } | null;
+      }>;
     };
-    return result.map(({ name }) => name);
+    return result.map(({ id, name, is_acknowledged, status, parent }) => ({
+      acknowledged: is_acknowledged ?? false,
+      id,
+      name,
+      parentId: parent?.id ?? null,
+      status: status?.name ?? 'PENDING'
+    }));
   }
 
   /** Whether every requested service is already known to the engine. */
   async areServicesMonitored(services: Array<string>): Promise<boolean> {
-    const monitored = await this.monitoredServiceNames();
+    const monitored = (await this.monitoredServices()).map(({ name }) => name);
     return services.every((name) => monitored.includes(name));
+  }
+
+  /**
+   * Guarantee a service is in a CRITICAL HARD state before acting on it.
+   *
+   * Passive results can be dropped by the engine, so the result is re-submitted
+   * on each poll until the status sticks. Active checks are disabled on these
+   * services, so once CRITICAL the state is stable.
+   */
+  async ensureServiceCritical(
+    host: string,
+    service: string,
+    { timeoutMs = 60_000, intervalMs = 3_000 } = {}
+  ): Promise<void> {
+    const deadline = Date.now() + timeoutMs;
+    let status = 'PENDING';
+    while (Date.now() < deadline) {
+      await this.submitResults([
+        { host, output: 'CRITICAL set by Playwright', service, status: 'critical' }
+      ]);
+      await sleep(intervalMs);
+      status =
+        (await this.monitoredServices()).find((entry) => entry.name === service)
+          ?.status ?? 'PENDING';
+      if (status === 'CRITICAL') {
+        return;
+      }
+    }
+    throw new Error(
+      `service "${service}" not CRITICAL after ${timeoutMs}ms (last: ${status})`
+    );
+  }
+
+  /** Resolve a monitored service to the ids needed by the acknowledge API. */
+  async getServiceResource(name: string): Promise<MonitoredService> {
+    const service = (await this.monitoredServices()).find(
+      (entry) => entry.name === name
+    );
+    if (!service || service.parentId === null) {
+      throw new Error(`monitored service "${name}" not found`);
+    }
+    return service;
+  }
+
+  /** Acknowledge a service resource (sticky, persistent, no notification). */
+  async acknowledgeService(
+    name: string,
+    comment = 'ack by Playwright'
+  ): Promise<void> {
+    const { id, parentId } = await this.getServiceResource(name);
+    CentreonApi.ok(
+      await this.context.post(
+        `${this.base}/api/latest/monitoring/resources/acknowledge`,
+        {
+          data: {
+            acknowledgement: {
+              comment,
+              is_notify_contacts: false,
+              is_persistent_comment: true,
+              is_sticky: true,
+              with_services: false
+            },
+            resources: [{ id, parent: { id: parentId }, type: 'service' }]
+          }
+        }
+      ),
+      `acknowledge service "${name}"`
+    );
+  }
+
+  /** Remove the acknowledgement from a service resource. */
+  async disacknowledgeService(name: string): Promise<void> {
+    const { id, parentId } = await this.getServiceResource(name);
+    CentreonApi.ok(
+      await this.context.delete(
+        `${this.base}/api/latest/monitoring/resources/acknowledgements`,
+        {
+          data: {
+            disacknowledgement: { with_services: false },
+            resources: [{ id, parent: { id: parentId }, type: 'service' }]
+          }
+        }
+      ),
+      `disacknowledge service "${name}"`
+    );
+  }
+
+  /** Poll until a service's acknowledged flag matches the expected value. */
+  async waitForServiceAcknowledged(
+    name: string,
+    expected = true,
+    { timeoutMs = 30_000, intervalMs = 2_000 } = {}
+  ): Promise<void> {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      const service = (await this.monitoredServices()).find(
+        (entry) => entry.name === name
+      );
+      if (service && service.acknowledged === expected) {
+        return;
+      }
+      await sleep(intervalMs);
+    }
+    throw new Error(
+      `service "${name}" acknowledged !== ${expected} after ${timeoutMs}ms`
+    );
   }
 
   /**
@@ -238,7 +364,7 @@ export class CentreonApi {
     const deadline = Date.now() + timeoutMs;
     let monitored: Array<string> = [];
     while (Date.now() < deadline) {
-      monitored = await this.monitoredServiceNames();
+      monitored = (await this.monitoredServices()).map(({ name }) => name);
       if (services.every((name) => monitored.includes(name))) {
         return;
       }
