@@ -60,24 +60,43 @@ class CentreonPerformanceService
         $serviceDescription = isset($filters['service']) === false ? '' : $filters['service'];
 
         if (isset($filters['page_limit'], $filters['page'])) {
-            $limit = ($filters['page'] - 1) * $filters['page_limit'];
-            $range = 'LIMIT ' . $limit . ',' . $filters['page_limit'];
+            $limit = (int) (($filters['page'] - 1) * $filters['page_limit']);
+            $range = 'LIMIT ' . $limit . ',' . (int) $filters['page_limit'];
         } else {
             $range = '';
         }
 
-        if (isset($filters['hostgroup'])) {
+        $filterBindValues = [];
+        if (isset($filters['hostgroup']) && $filters['hostgroup'] !== []) {
+            $hgTokens = [];
+            foreach ($filters['hostgroup'] as $idx => $hgId) {
+                $key = ':hg_' . $idx;
+                $hgTokens[] = $key;
+                $filterBindValues[$key] = (int) $hgId;
+            }
             $additionnalTables .= ',hosts_hostgroups hg ';
             $additionnalCondition .= 'AND (hg.host_id = i.host_id AND hg.hostgroup_id IN ('
-                . implode(',', array_map(intval(...), $filters['hostgroup'])) . ')) ';
+                . implode(',', $hgTokens) . ')) ';
         }
-        if (isset($filters['servicegroup'])) {
+        if (isset($filters['servicegroup']) && $filters['servicegroup'] !== []) {
+            $sgTokens = [];
+            foreach ($filters['servicegroup'] as $idx => $sgId) {
+                $key = ':sg_' . $idx;
+                $sgTokens[] = $key;
+                $filterBindValues[$key] = (int) $sgId;
+            }
             $additionnalTables .= ',services_servicegroups sg ';
             $additionnalCondition .= 'AND (sg.host_id = i.host_id AND sg.service_id = i.service_id '
-                . 'AND sg.servicegroup_id IN (' . implode(',', array_map(intval(...), $filters['servicegroup'])) . ')) ';
+                . 'AND sg.servicegroup_id IN (' . implode(',', $sgTokens) . ')) ';
         }
-        if (isset($filters['host'])) {
-            $additionnalCondition .= 'AND i.host_id IN (' . implode(',', array_map(intval(...), $filters['host'])) . ') ';
+        if (isset($filters['host']) && $filters['host'] !== []) {
+            $hostTokens = [];
+            foreach ($filters['host'] as $idx => $hostId) {
+                $key = ':host_' . $idx;
+                $hostTokens[] = $key;
+                $filterBindValues[$key] = (int) $hostId;
+            }
+            $additionnalCondition .= 'AND i.host_id IN (' . implode(',', $hostTokens) . ') ';
         }
 
         $virtualServicesCondition = $this->getVirtualServicesCondition($additionnalCondition);
@@ -103,9 +122,12 @@ class CentreonPerformanceService
 
         $stmt = $this->dbMon->prepare($query);
         $stmt->bindValue(':serviceDesc', '%' . $serviceDescription . '%');
+        foreach ($filterBindValues as $key => $value) {
+            $stmt->bindValue($key, $value, PDO::PARAM_INT);
+        }
         $stmt->execute();
         $serviceList = [];
-        while ($data = $stmt->fetch()) {
+        while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $serviceCompleteName = $data['fullname'];
             $serviceCompleteId = $data['host_id'] . '-' . $data['service_id'];
             $serviceList[] = ['id' => $serviceCompleteId, 'text' => $serviceCompleteName];
