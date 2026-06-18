@@ -589,8 +589,7 @@ jobs:
     if: |
       needs.changes.outputs.trigger_backend_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable' &&
-      github.event.pull_request.head.repo.fork != true
+      needs.get-environment.outputs.stability != 'stable'
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
