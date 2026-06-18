@@ -23,33 +23,32 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Application\UseCase\LogoutSession\SAML;
 
-use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
-use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
+use Core\Security\Authentication\Domain\Exception\ProviderException;
+use Core\Security\Authentication\Domain\Exception\SamlException;
 use Core\Security\Authentication\Infrastructure\Provider\SAML;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 
-class LogoutFromIdp
+readonly class LogoutFromIdp
 {
-    use LoggerTrait;
-
-    /**
-     * @param WriteSessionRepositoryInterface $writeSessionRepository
-     * @param ProviderAuthenticationFactoryInterface $providerFactory
-     */
     public function __construct(
-        private readonly WriteSessionRepositoryInterface $writeSessionRepository,
-        private readonly ProviderAuthenticationFactoryInterface $providerFactory,
+        private ProviderAuthenticationFactoryInterface $providerFactory,
     ) {
     }
 
+    /**
+     * @throws SamlException
+     * @throws ProviderException
+     */
     public function __invoke(): void
     {
-        session_start();
-        $this->info('SAML SLS invoked');
+        // /saml/sls is the IdP callback endpoint: the IdP calls it with a SAMLRequest (IdP-initiated SLO)
+        // or a SAMLResponse (response to a Centreon-initiated SLO). We only process that callback here;
+        // initiating the LogoutRequest is the responsibility of the LogoutSession use case.
         /** @var SAML $provider */
         $provider = $this->providerFactory->create(Provider::SAML);
-        $this->writeSessionRepository->invalidate();
-        $provider->handleCallbackLogoutResponse();
+        if ($provider->getConfiguration()->isActive()) {
+            $provider->handleCallbackLogoutResponse();
+        }
     }
 }
