@@ -14,6 +14,12 @@ import { defineConfig, devices } from '@playwright/experimental-ct-react';
  * instead of scattering `-snapshots` folders across `www/front_src`.
  */
 export default defineConfig({
+  // Baselines are committed PNGs; allow a small pixel tolerance so sub-pixel
+  // font-rendering differences between the machine that generated them and the
+  // CI runner do not fail the run.
+  expect: {
+    toHaveScreenshot: { maxDiffPixelRatio: 0.05 }
+  },
   forbidOnly: !!process.env.CI,
   fullyParallel: true,
   projects: [
