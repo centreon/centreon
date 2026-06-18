@@ -99,9 +99,10 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
             throw $exception;
         }
         $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
-        LoggerUpgrade::create()->step(
+        LoggerUpgrade::create()->stepCompleted(
             $version,
             $stepName,
+            $durationMs,
             "Step '{$stepName}' completed in {$durationMs}ms"
         );
     }

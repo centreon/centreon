@@ -49,13 +49,13 @@ final class LoggerUpgrade
         $this->write(
             LogLevel::INFO,
             "Upgrade started from {$fromVersion} to {$toVersion}",
-            $this->baseContext('upgrade.start', 'started', $fromVersion, $toVersion)
+            $this->lifecycleContext('upgrade.start', 'started', $fromVersion, $toVersion)
         );
     }
 
     public function success(string $fromVersion, string $toVersion, int $durationMs): void
     {
-        $context = $this->baseContext('upgrade.success', 'success', $fromVersion, $toVersion);
+        $context = $this->lifecycleContext('upgrade.success', 'success', $fromVersion, $toVersion);
         $context['duration_ms'] = $durationMs;
         $this->write(LogLevel::INFO, "Upgrade from {$fromVersion} to {$toVersion} completed successfully", $context);
     }
@@ -69,32 +69,32 @@ final class LoggerUpgrade
         $this->write(
             LogLevel::ERROR,
             $message,
-            $this->baseContext('upgrade.failure', 'failure', $fromVersion, $toVersion, $exception)
+            $this->lifecycleContext('upgrade.failure', 'failure', $fromVersion, $toVersion, $exception)
         );
     }
 
     public function info(string $version, string $message): void
     {
-        $this->write(
-            LogLevel::INFO,
-            $message,
-            $this->baseContext('upgrade.info', 'info', null, $version)
-        );
+        $this->write(LogLevel::INFO, $message, $this->versionContext('upgrade.info', 'info', $version));
     }
 
     public function error(string $version, string $message, ?\Throwable $exception = null): void
     {
-        $this->write(
-            LogLevel::ERROR,
-            $message,
-            $this->baseContext('upgrade.error', 'error', null, $version, $exception)
-        );
+        $this->write(LogLevel::ERROR, $message, $this->versionContext('upgrade.error', 'error', $version, $exception));
     }
 
     public function step(string $version, string $stepName, string $message): void
     {
-        $context = $this->baseContext('upgrade.step', 'running', null, $version);
+        $context = $this->versionContext('upgrade.step', 'running', $version);
         $context['step'] = $stepName;
+        $this->write(LogLevel::INFO, $message, $context);
+    }
+
+    public function stepCompleted(string $version, string $stepName, int $durationMs, string $message): void
+    {
+        $context = $this->versionContext('upgrade.step_completed', 'completed', $version);
+        $context['step'] = $stepName;
+        $context['duration_ms'] = $durationMs;
         $this->write(LogLevel::INFO, $message, $context);
     }
 
@@ -104,7 +104,7 @@ final class LoggerUpgrade
         string $stepName,
         ?\Throwable $exception = null,
     ): void {
-        $context = $this->baseContext('upgrade.step_failure', 'failure', null, $version, $exception);
+        $context = $this->versionContext('upgrade.step_failure', 'failure', $version, $exception);
         $context['step'] = $stepName;
         $this->write(LogLevel::ERROR, $message, $context);
     }
@@ -128,9 +128,11 @@ final class LoggerUpgrade
     }
 
     /**
+     * Context for the global upgrade lifecycle (start / success / failure), which spans two versions.
+     *
      * @return array<string,mixed>
      */
-    private function baseContext(
+    private function lifecycleContext(
         string $event,
         string $status,
         ?string $fromVersion,
@@ -142,6 +144,30 @@ final class LoggerUpgrade
             'status' => $status,
             'from_version' => $fromVersion,
             'to_version' => $toVersion,
+        ];
+        if ($exception instanceof \Throwable) {
+            $context['exception'] = $exception;
+        }
+
+        return $context;
+    }
+
+    /**
+     * Context for per-version events (step / info / error), which carry a single `version`
+     * rather than a from/to pair.
+     *
+     * @return array<string,mixed>
+     */
+    private function versionContext(
+        string $event,
+        string $status,
+        string $version,
+        ?\Throwable $exception = null,
+    ): array {
+        $context = [
+            'event' => $event,
+            'status' => $status,
+            'version' => $version,
         ];
         if ($exception instanceof \Throwable) {
             $context['exception'] = $exception;

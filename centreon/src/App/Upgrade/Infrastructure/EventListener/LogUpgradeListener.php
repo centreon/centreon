@@ -72,9 +72,10 @@ final class LogUpgradeListener
     #[AsEventListener]
     public function onStepCompleted(UpgradeStepCompleted $event): void
     {
-        $this->safelyLog(static fn () => LoggerUpgrade::create()->step(
+        $this->safelyLog(static fn () => LoggerUpgrade::create()->stepCompleted(
             $event->version,
             $event->step,
+            $event->durationMs,
             "Step '{$event->step}' completed in {$event->durationMs}ms",
         ));
     }

@@ -671,7 +671,7 @@ Four siblings of `Adaptation\Log\Logger` expose a **constrained, semantic API** 
 | `Adaptation\Log\LoggerPassword` | `password` | `prod.password.log` | `success`, `warning` |
 | `Adaptation\Log\LoggerToken` | `token` | `prod.token.log` | `success`, `warning` |
 | `Adaptation\Log\LoggerAuthentication` | `authentication` | `prod.access.log` | `loginSuccess`, `loginFailure`, `logout`, `tokenRefreshSuccess`, `tokenRefreshFailure`, `unauthorized`, `forbidden` |
-| `Adaptation\Log\LoggerUpgrade` | `upgrade` | `prod.upgrade.log` | `start`, `success`, `failure`, `step`, `stepFailure`, `info`, `error` |
+| `Adaptation\Log\LoggerUpgrade` | `upgrade` | `prod.upgrade.log` | `start`, `success`, `failure`, `step`, `stepCompleted`, `stepFailure`, `info`, `error` |
 
 They exist for two reasons:
 
@@ -913,7 +913,8 @@ LoggerUpgrade::create()->step($version, $stepName, $message);
 | `start($from, $to)` | `INFO` | Begin of the global upgrade flow (emitted by `UpdateCommandHandler` / `process_step4.php`, **not** by individual scripts). |
 | `success($from, $to, $durationMs)` | `INFO` | End of the global upgrade flow, with measured duration. |
 | `failure($message, $from, $to, $e)` | `ERROR` | Global upgrade aborted (catch-all in the handler). |
-| `step($version, $stepName, $message)` | `INFO` | Sub-step boundary (start/end of `monitoring_sql`, `php_script`, etc.). Emitted by the repositories around each sub-step; rarely needed inside an upgrade script. |
+| `step($version, $stepName, $message)` | `INFO` | Sub-step **start** / progress (`monitoring_sql`, `php_script`, …). `status: running`. Emitted by the repositories; rarely needed inside an upgrade script. |
+| `stepCompleted($version, $stepName, $durationMs, $message)` | `INFO` | Sub-step **completion**. `status: completed`, carries `duration_ms` in the context (not just the message), so completed steps are queryable without parsing text. |
 | `stepFailure($message, $version, $stepName, $e)` | `ERROR` | Inside an upgrade script, when an action throws. Use the `php_script` step name (or `php_script_rollback` when the rollback itself fails). |
 | **`info($version, $message)`** | `INFO` | **Trace a meaningful action** (entering a function, finished an `ALTER TABLE`, skipped because already migrated, …). This is the workhorse inside upgrade scripts. |
 | **`error($version, $message, $e)`** | `ERROR` | Free-form error inside a script that you choose not to re-throw (rare — usually you re-throw and let the surrounding `try/catch` call `stepFailure`). |
@@ -1027,22 +1028,22 @@ upgrade.INFO: Upgrade started from 25.10.0 to 25.11.0
   {"event":"upgrade.start","status":"started","from_version":"25.10.0","to_version":"25.11.0"}
 
 upgrade.INFO: Starting step 'php_script'
-  {"event":"upgrade.step","status":"running","from_version":null,"to_version":"25.11.0","step":"php_script"}
+  {"event":"upgrade.step","status":"running","version":"25.11.0","step":"php_script"}
 
 upgrade.INFO: Starting upgrade script for version 25.11.0
-  {"event":"upgrade.info","status":"info","from_version":null,"to_version":"25.11.0"}
+  {"event":"upgrade.info","status":"info","version":"25.11.0"}
 
 upgrade.INFO: Adding vmware_updated field into nagios_server table
-  {"event":"upgrade.info","status":"info","from_version":null,"to_version":"25.11.0"}
+  {"event":"upgrade.info","status":"info","version":"25.11.0"}
 
 upgrade.INFO: Successfully added vmware_updated field into nagios_server table
-  {"event":"upgrade.info","status":"info","from_version":null,"to_version":"25.11.0"}
+  {"event":"upgrade.info","status":"info","version":"25.11.0"}
 
 upgrade.INFO: Upgrade script for version 25.11.0 completed
-  {"event":"upgrade.info","status":"info","from_version":null,"to_version":"25.11.0"}
+  {"event":"upgrade.info","status":"info","version":"25.11.0"}
 
 upgrade.INFO: Step 'php_script' completed in 124ms
-  {"event":"upgrade.step","status":"running","from_version":null,"to_version":"25.11.0","step":"php_script"}
+  {"event":"upgrade.step_completed","status":"completed","version":"25.11.0","step":"php_script","duration_ms":124}
 
 upgrade.INFO: Upgrade from 25.10.0 to 25.11.0 completed successfully
   {"event":"upgrade.success","status":"success","from_version":"25.10.0","to_version":"25.11.0","duration_ms":4242}
@@ -1055,7 +1056,7 @@ upgrade.INFO: Adding vmware_updated field into nagios_server table
   {"event":"upgrade.info",...}
 
 upgrade.ERROR: UPGRADE - 25.11.0: Unable to add vmware_updated field into nagios_server table
-  {"event":"upgrade.step_failure","status":"failure","from_version":null,"to_version":"25.11.0","exception":{"exceptions":[{"type":"PDOException","message":"…","file":"…","line":42}]},"step":"php_script"}
+  {"event":"upgrade.step_failure","status":"failure","version":"25.11.0","exception":{"exceptions":[{"type":"PDOException","message":"…","file":"…","line":42}]},"step":"php_script"}
 
 upgrade.INFO: Rolling back transaction after error: Unable to add vmware_updated field into nagios_server table
   {"event":"upgrade.info",...}
