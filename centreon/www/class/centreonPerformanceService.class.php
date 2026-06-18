@@ -99,13 +99,13 @@ class CentreonPerformanceService
             $additionnalCondition .= 'AND i.host_id IN (' . implode(',', $hostTokens) . ') ';
         }
 
-        $virtualServicesCondition = $this->getVirtualServicesCondition($additionnalCondition);
+        $virtualServicesCondition = $this->getVirtualServicesCondition($additionnalCondition, $additionnalTables);
 
         $query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT fullname, host_id, service_id, index_id '
             . 'FROM ( '
             . '( SELECT CONCAT(i.host_name, " - ", i.service_description) as fullname, '
             . 'i.host_id, i.service_id, m.index_id '
-            . 'FROM index_data i, metrics m ' . (! $this->aclObj->admin ? ', centreon_acl acl ' : '')
+            . 'FROM index_data i, metrics m ' . $additionnalTables . (! $this->aclObj->admin ? ', centreon_acl acl ' : '')
             . 'WHERE i.id = m.index_id '
             . 'AND i.host_name NOT LIKE "\_Module\_%" '
             . (! $this->aclObj->admin
@@ -138,10 +138,11 @@ class CentreonPerformanceService
 
     /**
      * @param string $additionnalCondition
+     * @param string $additionnalTables
      *
      * @return string
      */
-    private function getVirtualServicesCondition($additionnalCondition)
+    private function getVirtualServicesCondition($additionnalCondition, $additionnalTables = '')
     {
         // First, get virtual services for metaservices
         $metaServiceCondition = '';
@@ -162,7 +163,7 @@ class CentreonPerformanceService
 
         $virtualServicesCondition = 'UNION ALL ('
             . 'SELECT CONCAT("Meta - ", s.display_name) as fullname, i.host_id, i.service_id, m.index_id '
-            . 'FROM index_data i, metrics m, services s '
+            . 'FROM index_data i, metrics m, services s ' . $additionnalTables
             . 'WHERE i.id = m.index_id '
             . $additionnalCondition
             . $metaServiceCondition
@@ -177,7 +178,7 @@ class CentreonPerformanceService
                     $virtualServicesCondition .= 'UNION ALL ('
                         . 'SELECT CONCAT("' . $hostname . ' - ", s.display_name) as fullname, i.host_id, '
                         . 'i.service_id, m.index_id '
-                        . 'FROM index_data i, metrics m, services s '
+                        . 'FROM index_data i, metrics m, services s ' . $additionnalTables
                         . 'WHERE i.id = m.index_id '
                         . $additionnalCondition
                         . 'AND s.service_id IN (' . implode(',', $virtualServiceIds) . ') '
