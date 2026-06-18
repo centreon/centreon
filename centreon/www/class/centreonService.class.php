@@ -395,7 +395,7 @@ class CentreonService
         while (isset($matches[1][$i])) {
             $stmt = $this->db->prepare(
                 'SELECT svc_macro_value FROM on_demand_macro_service
-                WHERE svc_svc_id = :svcId AND svc_macro_name LIKE :macroName'
+                WHERE svc_svc_id = :svcId AND svc_macro_name = :macroName'
             );
             $stmt->bindValue(':svcId', (int) $svc_id, PDO::PARAM_INT);
             $stmt->bindValue(':macroName', $matches[1][$i]);
