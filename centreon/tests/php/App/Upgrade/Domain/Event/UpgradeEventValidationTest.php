@@ -47,6 +47,27 @@ final class UpgradeEventValidationTest extends TestCase
         new UpgradeCompleted('24.10.0', '24.10.1', -1);
     }
 
+    public function testUpgradeCompletedRejectsEmptyFromVersion(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new UpgradeCompleted('', '24.10.1', 1000);
+    }
+
+    public function testUpgradeCompletedRejectsEmptyToVersion(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new UpgradeCompleted('24.10.0', '   ', 1000);
+    }
+
+    public function testUpgradeStepStartedRejectsEmptyVersion(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new UpgradeStepStarted('', 'php_script');
+    }
+
     public function testUpgradeStepStartedRejectsEmptyStep(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -77,6 +98,7 @@ final class UpgradeEventValidationTest extends TestCase
         // Same rationale: never throw from a failure event constructed inside a catch block.
         $withNullVersions = new UpgradeFailed('boom', null, null);
         self::assertNull($withNullVersions->fromVersion);
+        self::assertNull($withNullVersions->toVersion);
 
         $withEmptyVersions = new UpgradeFailed('', '', '');
         self::assertSame('', $withEmptyVersions->fromVersion);
