@@ -330,9 +330,9 @@ class CentreonTimeperiod
     {
         $registerClause = '';
         $queryParameters = [QueryParameter::string('name', $timeperiodName)];
-        if ($register === '0' || $register === '1') {
+        if ((string) $register === '0' || (string) $register === '1') {
             $registerClause = 'AND h.host_register = :register ';
-            $queryParameters[] = QueryParameter::string('register', $register);
+            $queryParameters[] = QueryParameter::string('register', (string) $register);
         }
 
         $linkedHosts = [];
@@ -368,9 +368,9 @@ class CentreonTimeperiod
     {
         $registerClause = '';
         $queryParameters = [QueryParameter::string('name', $timeperiodName)];
-        if ($register === '0' || $register === '1') {
+        if ((string) $register === '0' || (string) $register === '1') {
             $registerClause = 'AND s.service_register = :register ';
-            $queryParameters[] = QueryParameter::string('register', $register);
+            $queryParameters[] = QueryParameter::string('register', (string) $register);
         }
 
         $linkedServices = [];
