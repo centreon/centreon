@@ -25,12 +25,9 @@ namespace App\Upgrade\Infrastructure\Dbal;
 
 use Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
-use App\Upgrade\Domain\Event\UpgradeStepCompleted;
-use App\Upgrade\Domain\Event\UpgradeStepFailed;
-use App\Upgrade\Domain\Event\UpgradeStepStarted;
+use Adaptation\Log\LoggerUpgrade;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use Doctrine\DBAL\Connection;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -47,7 +44,6 @@ final readonly class DbalUpdateRepository implements UpdateRepository
         #[Autowire(param: 'upgrade.install_dir')]
         private string $installDir,
         private Filesystem $filesystem,
-        private EventDispatcherInterface $events,
     ) {
     }
 
@@ -64,7 +60,7 @@ final readonly class DbalUpdateRepository implements UpdateRepository
     }
 
     /**
-     * @throws \Throwable any failure raised by a sub-step (SQL execution, included PHP script, version update) re-thrown after the matching UpgradeStepFailed event is dispatched
+     * @throws \Throwable any failure raised by a sub-step (SQL execution, included PHP script, version update) re-thrown after the matching step failure is logged
      */
     public function runUpdate(string $version): void
     {
@@ -77,7 +73,7 @@ final readonly class DbalUpdateRepository implements UpdateRepository
 
     /**
      * @throws \RuntimeException when the installs backup directory is missing or not writable
-     * @throws \Throwable any failure raised by the filesystem mirror / remove sub-steps re-thrown after the matching UpgradeStepFailed event is dispatched
+     * @throws \Throwable any failure raised by the filesystem mirror / remove sub-steps re-thrown after the matching step failure is logged
      */
     public function runPostUpdate(string $currentVersion): void
     {
@@ -113,17 +109,17 @@ final readonly class DbalUpdateRepository implements UpdateRepository
      */
     private function runStep(string $version, string $step, callable $action): void
     {
-        $this->events->dispatch(new UpgradeStepStarted($version, $step));
+        LoggerUpgrade::create()->step($version, $step, "Starting step '{$step}'");
         $startedAt = microtime(true);
         try {
             $action();
         } catch (\Throwable $exception) {
-            $this->events->dispatch(new UpgradeStepFailed($exception->getMessage(), $version, $step, $exception));
+            LoggerUpgrade::create()->stepFailure($exception->getMessage(), $version, $step, $exception);
 
             throw $exception;
         }
         $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
-        $this->events->dispatch(new UpgradeStepCompleted($version, $step, $durationMs));
+        LoggerUpgrade::create()->stepCompleted($version, $step, $durationMs, "Step '{$step}' completed in {$durationMs}ms");
     }
 
     private function runMonitoringSql(string $version): void

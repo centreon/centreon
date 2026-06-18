@@ -845,7 +845,7 @@ LoggerAuthentication::create()->forbidden(
 
 ### Application layer (DDD)
 
-The DDD scope (`src/App/...`) calls `LoggerAuthentication` directly the same way as the legacy code — Application is allowed to depend on `Adaptation\Log\*` because that namespace is the platform-side wrapper, not a third-party I/O. If a particular use case wants strict DIP (Application staying free of any logger dependency, Infrastructure doing the logging), follow the upgrade flow's design (see [§13](#13-writing-upgrade-scripts-update-php)): the use case / repository dispatches `Upgrade*` / `UpgradeStep*` domain events and an Infrastructure event listener (`LogUpgradeListener`) translates them into `LoggerUpgrade` calls, so the Application layer never references the logger facade at all.
+The DDD scope (`src/App/...`) calls `LoggerAuthentication` directly the same way as the legacy code — Application is allowed to depend on `Adaptation\Log\*` because that namespace is the platform-side wrapper, not a third-party I/O. The upgrade flow follows the same convention: both `UpdateCommandHandler` and the update repositories call `LoggerUpgrade` directly at each step (see [§13](#13-writing-upgrade-scripts-update-php)).
 
 ### Sample output
 
@@ -894,7 +894,7 @@ But fail2ban jails are bound to a **file path** (`logpath = /var/log/centreon/lo
 
 ## 13. Writing upgrade scripts (`Update-*.php`)
 
-Each upgrade ships under `www/install/php/Update-<version>.php` (DB DDL/DML + business migration) and runs inside `DbWriteUpdateRepository` (legacy kernel) or `DbalUpdateRepository` (DDD kernel). Both bracket the `php_script` step around the inclusion, by different means: the legacy repository through its `executeStep()` helper, which calls `LoggerUpgrade` inline; the DDD repository through `runStep()`, which dispatches `UpgradeStep*` domain events that `LogUpgradeListener` then turns into `LoggerUpgrade` calls. **Inside the script itself, trace each meaningful action through `LoggerUpgrade` so operators get a play-by-play view in `prod.upgrade.log`.**
+Each upgrade ships under `www/install/php/Update-<version>.php` (DB DDL/DML + business migration) and runs inside `DbWriteUpdateRepository` (legacy kernel) or `DbalUpdateRepository` (DDD kernel). Both bracket the `php_script` step around the inclusion through a small `runStep()` / `executeStep()` helper that calls `LoggerUpgrade` inline (start / completed / failure). **Inside the script itself, trace each meaningful action through `LoggerUpgrade` so operators get a play-by-play view in `prod.upgrade.log`.**
 
 ### Facade API
 

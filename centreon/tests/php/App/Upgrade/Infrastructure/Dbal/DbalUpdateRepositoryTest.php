@@ -24,16 +24,12 @@ declare(strict_types=1);
 namespace Tests\App\Upgrade\Infrastructure\Dbal;
 
 use Adaptation\Database\Connection\Model\ConnectionConfig;
-use App\Upgrade\Domain\Event\UpgradeStepCompleted;
-use App\Upgrade\Domain\Event\UpgradeStepFailed;
-use App\Upgrade\Domain\Event\UpgradeStepStarted;
 use App\Upgrade\Infrastructure\Dbal\DbalUpdateRepository;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
-use Tests\App\Upgrade\Infrastructure\Double\FakeEventDispatcher;
 
 final class DbalUpdateRepositoryTest extends TestCase
 {
@@ -44,8 +40,6 @@ final class DbalUpdateRepositoryTest extends TestCase
     private Connection&MockObject $realtimeConnection;
 
     private ConnectionConfig $connectionConfig;
-
-    private FakeEventDispatcher $events;
 
     private Filesystem $realFilesystem;
 
@@ -66,7 +60,6 @@ final class DbalUpdateRepositoryTest extends TestCase
             'centreon',
             'centreon_storage',
         );
-        $this->events = new FakeEventDispatcher();
         $this->realFilesystem = new Filesystem();
 
         $this->baseDir = sys_get_temp_dir() . '/centreon-update-test-' . uniqid();
@@ -80,62 +73,46 @@ final class DbalUpdateRepositoryTest extends TestCase
         $this->realFilesystem->remove($this->baseDir);
     }
 
-    public function testRunUpdateDispatchesTheStepSequenceOnSuccess(): void
+    public function testRunUpdateUpdatesTheVersionOnSuccess(): void
     {
         // No SQL/PHP upgrade files exist in the install dir, so every step is a no-op
         // except update_version_information, which performs the version UPDATE.
-        $this->configConnection->method('executeStatement')->willReturn(1);
+        $executed = [];
+        $this->configConnection
+            ->method('executeStatement')
+            ->willReturnCallback(function (string $sql) use (&$executed): int {
+                $executed[] = $sql;
+
+                return 1;
+            });
 
         $this->repository()->runUpdate(self::VERSION);
 
-        $expectedSteps = [
-            'monitoring_sql',
-            'php_script',
-            'configuration_sql',
-            'php_post_script',
-            'update_version_information',
-        ];
-        self::assertSame($expectedSteps, $this->stepNames(UpgradeStepStarted::class));
-        self::assertSame($expectedSteps, $this->stepNames(UpgradeStepCompleted::class));
-        self::assertSame([], $this->eventsOfType(UpgradeStepFailed::class));
-
-        foreach ($this->eventsOfType(UpgradeStepStarted::class) as $event) {
-            self::assertSame(self::VERSION, $event->version);
-        }
+        self::assertStringContainsString('UPDATE `informations`', implode(' | ', $executed));
     }
 
-    public function testRunUpdateDispatchesStepFailedAndRethrowsWhenAStepFails(): void
+    public function testRunUpdateRethrowsWhenAStepFails(): void
     {
         $this->configConnection
             ->method('executeStatement')
             ->willThrowException(new \RuntimeException('SQL error while updating the version'));
 
-        try {
-            $this->repository()->runUpdate(self::VERSION);
-            self::fail('Expected the failing step to propagate as a RuntimeException');
-        } catch (\RuntimeException $exception) {
-            self::assertSame('SQL error while updating the version', $exception->getMessage());
-        }
-
         // The four file-based steps have no file to run, so they complete; the version
-        // update is the one that fails.
-        $failed = $this->firstEventOfType(UpgradeStepFailed::class);
-        self::assertSame('update_version_information', $failed->step);
-        self::assertSame(self::VERSION, $failed->version);
-        self::assertSame('SQL error while updating the version', $failed->message);
-        self::assertInstanceOf(\RuntimeException::class, $failed->exception);
+        // update is the one that fails and the failure must propagate.
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('SQL error while updating the version');
 
-        // The failing step must never be reported as completed.
-        self::assertNotContains('update_version_information', $this->stepNames(UpgradeStepCompleted::class));
+        $this->repository()->runUpdate(self::VERSION);
     }
 
     public function testRunPostUpdateReturnsEarlyWhenInstallDirIsAbsent(): void
     {
-        $this->realFilesystem->remove($this->installDir);
+        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem->method('exists')->willReturn(false);
+        $filesystem->expects(self::never())->method('mirror');
+        $filesystem->expects(self::never())->method('remove');
 
-        $this->repository()->runPostUpdate(self::VERSION);
-
-        self::assertSame([], $this->events->dispatched);
+        $this->repository($filesystem)->runPostUpdate(self::VERSION);
     }
 
     public function testRunPostUpdateThrowsWhenBackupDirectoryIsMissing(): void
@@ -147,7 +124,7 @@ final class DbalUpdateRepositoryTest extends TestCase
         $this->repository()->runPostUpdate(self::VERSION);
     }
 
-    public function testRunPostUpdateDispatchesStepFailedWhenRemoveFails(): void
+    public function testRunPostUpdateRethrowsWhenRemoveFails(): void
     {
         // The backup directory must really exist for the is_dir()/is_writable() guard to pass.
         $this->realFilesystem->mkdir($this->libDir . '/installs');
@@ -157,19 +134,10 @@ final class DbalUpdateRepositoryTest extends TestCase
         $filesystem->method('mirror'); // backup succeeds
         $filesystem->method('remove')->willThrowException(new IOException('Cannot remove the install directory'));
 
-        try {
-            $this->repository($filesystem)->runPostUpdate(self::VERSION);
-            self::fail('Expected the failing removal to propagate');
-        } catch (IOException $exception) {
-            self::assertSame('Cannot remove the install directory', $exception->getMessage());
-        }
+        $this->expectException(IOException::class);
+        $this->expectExceptionMessage('Cannot remove the install directory');
 
-        // The backup step completed, the removal step failed.
-        self::assertContains('backup_install_directory', $this->stepNames(UpgradeStepCompleted::class));
-
-        $failed = $this->firstEventOfType(UpgradeStepFailed::class);
-        self::assertSame('remove_install_directory', $failed->step);
-        self::assertSame(self::VERSION, $failed->version);
+        $this->repository($filesystem)->runPostUpdate(self::VERSION);
     }
 
     public function testRunSqlFileResumesFromProgressCountAndSkipsAlreadyExecutedStatements(): void
@@ -197,7 +165,6 @@ final class DbalUpdateRepositoryTest extends TestCase
 
         // The progress file is advanced to the new count.
         self::assertSame('2', file_get_contents($this->progressFile()));
-        self::assertSame([], $this->eventsOfType(UpgradeStepFailed::class));
     }
 
     public function testRunSqlFileFailsWhenProgressFileIsNotWritable(): void
@@ -222,10 +189,6 @@ final class DbalUpdateRepositoryTest extends TestCase
         } finally {
             chmod($progressFile, 0o644);
         }
-
-        // The failure surfaces as a step failure on the configuration_sql step before being re-thrown.
-        $failed = $this->firstEventOfType(UpgradeStepFailed::class);
-        self::assertSame('configuration_sql', $failed->step);
     }
 
     private function repository(?Filesystem $filesystem = null): DbalUpdateRepository
@@ -237,7 +200,6 @@ final class DbalUpdateRepositoryTest extends TestCase
             $this->libDir,
             $this->installDir,
             $filesystem ?? $this->realFilesystem,
-            $this->events,
         );
     }
 
@@ -251,48 +213,5 @@ final class DbalUpdateRepositoryTest extends TestCase
     private function progressFile(): string
     {
         return $this->installDir . '/tmp/Update-DB-' . self::VERSION . '.sql';
-    }
-
-    /**
-     * @template T of object
-     *
-     * @param class-string<T> $type
-     *
-     * @return list<T>
-     */
-    private function eventsOfType(string $type): array
-    {
-        return array_values(array_filter(
-            $this->events->dispatched,
-            static fn (object $event): bool => $event instanceof $type,
-        ));
-    }
-
-    /**
-     * @template T of object
-     *
-     * @param class-string<T> $type
-     *
-     * @return T
-     */
-    private function firstEventOfType(string $type): object
-    {
-        $events = $this->eventsOfType($type);
-        self::assertNotEmpty($events, sprintf('Expected at least one %s event to be dispatched', $type));
-
-        return $events[0];
-    }
-
-    /**
-     * @param class-string<UpgradeStepStarted|UpgradeStepCompleted> $type
-     *
-     * @return list<string>
-     */
-    private function stepNames(string $type): array
-    {
-        return array_map(
-            static fn (object $event): string => $event->step,
-            $this->eventsOfType($type),
-        );
     }
 }

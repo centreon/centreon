@@ -23,22 +23,16 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Application\Command;
 
+use Adaptation\Log\LoggerUpgrade;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Upgrade\Application\CacheClearer;
 use App\Upgrade\Application\DbmsVersionValidator;
 use App\Upgrade\Application\EngineContextWriter;
 use App\Upgrade\Application\UpdateLocker;
-use App\Upgrade\Domain\Event\UpgradeCompleted;
-use App\Upgrade\Domain\Event\UpgradeFailed;
-use App\Upgrade\Domain\Event\UpgradeStarted;
-use App\Upgrade\Domain\Event\UpgradeStepCompleted;
-use App\Upgrade\Domain\Event\UpgradeStepFailed;
-use App\Upgrade\Domain\Event\UpgradeStepStarted;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use App\Upgrade\Domain\Repository\UpdateScriptFinder;
 use App\Upgrade\Domain\Repository\WidgetRepository;
-use Psr\EventDispatcher\EventDispatcherInterface;
 
 #[AsCommandHandler]
 final readonly class UpdateCommandHandler
@@ -52,13 +46,12 @@ final readonly class UpdateCommandHandler
         private WidgetRepository $widgetRepository,
         private EngineContextWriter $engineContextWriter,
         private CacheClearer $cacheClearer,
-        private EventDispatcherInterface $events,
     ) {
     }
 
     /**
      * @throws \RuntimeException when another update is already in progress or the current version cannot be read
-     * @throws \Throwable any failure thrown by validation, the repositories or the cache clearer (re-thrown after the lock is released and the failure event is dispatched)
+     * @throws \Throwable any failure thrown by validation, the repositories or the cache clearer (re-thrown after the lock is released and the failure is logged)
      */
     public function __invoke(UpdateCommand $command): void
     {
@@ -82,7 +75,7 @@ final readonly class UpdateCommandHandler
                 $availableUpdates = $this->updateScriptFinder->findOrderedAvailableUpdates($currentVersion);
                 $targetVersion = $availableUpdates === [] ? $currentVersion : end($availableUpdates);
 
-                $this->events->dispatch(new UpgradeStarted($currentVersion, $targetVersion));
+                LoggerUpgrade::create()->start($currentVersion, $targetVersion);
 
                 foreach ($availableUpdates as $version) {
                     $this->runStep($version, 'run_update', fn () => $this->updateRepository->runUpdate($version));
@@ -95,12 +88,12 @@ final readonly class UpdateCommandHandler
                 $this->runStep($currentVersion, 'cache_clear', fn () => $this->cacheClearer->clear());
 
                 $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
-                $this->events->dispatch(new UpgradeCompleted($currentVersion, $targetVersion, $durationMs));
+                LoggerUpgrade::create()->success($currentVersion, $targetVersion, $durationMs);
             } finally {
                 $this->updateLocker->unlock();
             }
         } catch (\Throwable $exception) {
-            $this->events->dispatch(new UpgradeFailed($exception->getMessage(), $currentVersion, $targetVersion, $exception));
+            LoggerUpgrade::create()->failure($exception->getMessage(), $currentVersion, $targetVersion, $exception);
 
             throw $exception;
         }
@@ -111,16 +104,16 @@ final readonly class UpdateCommandHandler
      */
     private function runStep(string $version, string $step, callable $action): void
     {
-        $this->events->dispatch(new UpgradeStepStarted($version, $step));
+        LoggerUpgrade::create()->step($version, $step, "Starting step '{$step}'");
         $startedAt = microtime(true);
         try {
             $action();
         } catch (\Throwable $exception) {
-            $this->events->dispatch(new UpgradeStepFailed($exception->getMessage(), $version, $step, $exception));
+            LoggerUpgrade::create()->stepFailure($exception->getMessage(), $version, $step, $exception);
 
             throw $exception;
         }
         $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
-        $this->events->dispatch(new UpgradeStepCompleted($version, $step, $durationMs));
+        LoggerUpgrade::create()->stepCompleted($version, $step, $durationMs, "Step '{$step}' completed in {$durationMs}ms");
     }
 }
