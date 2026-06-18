@@ -111,6 +111,8 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
      */
     public function getTargetIdFromSourceId($targetKey, $sourceKey, $sourceId)
     {
+        $targetKey = $this->sanitizeIdentifier($targetKey);
+        $sourceKey = $this->sanitizeIdentifier($sourceKey);
         if (! is_array($sourceId)) {
             $sourceId = [$sourceId];
         }
@@ -158,13 +160,13 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
             if ($fString != '') {
                 $fString .= ',';
             }
-            $fString .= 'h.' . $fparams;
+            $fString .= 'h.' . $this->sanitizeIdentifier($fparams);
         }
         foreach ($secondTableParams as $sparams) {
             if ($fString != '' || $sString != '') {
                 $sString .= ',';
             }
-            $sString .= 'h2.' . $sparams;
+            $sString .= 'h2.' . $this->sanitizeIdentifier($sparams);
         }
         $sql = 'SELECT ' . $fString . $sString . '
         		FROM ' . $this->firstObject->getTableName() . ' h,' . $this->relationTable . '
@@ -173,6 +175,7 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
         $filterTab = [];
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
+                $key = $this->sanitizeIdentifier($key);
                 $sql .= " {$filterType} {$key} LIKE ? ";
                 $value = trim($rawvalue);
                 $value = str_replace('_', "\_", $value);
@@ -181,6 +184,7 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
             }
         }
         if (isset($order, $sort)   && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
+            $order = $this->sanitizeIdentifier($order);
             $sql .= " ORDER BY {$order} {$sort} ";
         }
         if (isset($count) && $count != -1) {
