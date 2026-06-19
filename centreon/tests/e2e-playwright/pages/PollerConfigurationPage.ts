@@ -80,7 +80,7 @@ export class PollerConfigurationPage extends BasePage {
   }
 
   /** Snackbar shown after an action (e.g. the export confirmation). */
-  snackbar(message: string): Locator {
+  snackbar(message: string | RegExp): Locator {
     return this.page.getByText(message).describe(`snackbar "${message}"`);
   }
 }
