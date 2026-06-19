@@ -17,8 +17,7 @@ import { type ContactInput, ContactsPage } from '../../pages/ContactsPage';
  * React shell's `#main-content` iframe, driven through a Playwright frame
  * locator.
  */
-// DRAFT (workflow): ported from Cypress, not yet validated live — un-skip and fix selectors to finish.
-test.describe.skip('Contacts', () => {
+test.describe('Contacts', () => {
   test.use({ storageState: adminStorageStatePath });
 
   const contact: ContactInput = {

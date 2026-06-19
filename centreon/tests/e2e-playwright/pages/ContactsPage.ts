@@ -40,6 +40,7 @@ export class ContactsPage extends BasePage {
     this.frame = page.frameLocator('iframe#main-content');
     this.addButton = this.frame
       .getByRole('link', { exact: true, name: 'Add' })
+      .first()
       .describe('Add contact link');
     this.aliasInput = this.frame
       .locator('input#contact_alias')
@@ -108,7 +109,8 @@ export class ContactsPage extends BasePage {
    */
   async deleteContact(alias: string): Promise<void> {
     await test.step(`Delete contact "${alias}"`, async () => {
-      await this.contactRowCheckbox(alias).check();
+      // The checkbox input is hidden behind a styled md-checkbox wrapper.
+      await this.contactRowCheckbox(alias).check({ force: true });
 
       // The legacy listing wires the bulk action through the select's
       // onchange handler; selecting "Delete" submits the form.
