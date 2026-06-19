@@ -324,7 +324,7 @@ class CentreonUtils
             case self::ESCAPE_ILLEGAL_CHARS:
                 $chars = (string) $_SESSION['centreon']->Nagioscfg['illegal_object_name_chars'];
 
-                return str_replace(str_split($chars), '', $stringToEscape);
+                return str_replace(str_split($chars), '', $stringToEscape ?? '');
             default: return false;
         }
     }

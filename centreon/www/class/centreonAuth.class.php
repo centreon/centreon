@@ -19,6 +19,8 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Log\Enum\AuthProviderEnum;
 use Adaptation\Log\LoggerAuthentication;
 use Pimple\Container;
@@ -235,15 +237,19 @@ class CentreonAuth
             );
             $dbResult->bindValue(':contactAlias', $username, PDO::PARAM_STR);
             $dbResult->execute();
+            $userInfos = $dbResult->fetch();
         } else {
-            $dbResult = $this->pearDB->query(
-                'SELECT * FROM `contact` '
-                . "WHERE MD5(contact_alias) = '" . $this->pearDB->escape($username, true) . "'"
-                . "AND `contact_activate` = '1' AND `contact_register` = '1' LIMIT 1"
+            $userInfos = $this->pearDB->fetchAssociative(
+                <<<'SQL'
+                    SELECT * FROM `contact`
+                    WHERE MD5(contact_alias) = :contactAlias
+                    AND `contact_activate` = '1' AND `contact_register` = '1' LIMIT 1
+                    SQL,
+                QueryParameters::create([QueryParameter::string('contactAlias', $username)])
             );
         }
-        if ($dbResult->rowCount()) {
-            $this->userInfos = $dbResult->fetch();
+        if ($userInfos !== false) {
+            $this->userInfos = $userInfos;
             if ($this->userInfos['default_page']) {
                 $statement = $this->pearDB->prepare(
                     'SELECT topology_url_opt FROM topology WHERE topology_page = :topology_page'
