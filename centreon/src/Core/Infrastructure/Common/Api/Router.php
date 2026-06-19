@@ -79,7 +79,10 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     public function generate(string $name, array $parameters = [], int $referenceType = self::ABSOLUTE_PATH): string
     {
         $parameters['base_uri'] ??= $this->getBaseUri();
+        $doubleBaseUri = '';
         if (! empty($parameters['base_uri'])) {
+            $doubleBaseUri = $parameters['base_uri'] . '/' . $parameters['base_uri'];
+            $doubleBaseUri = $this->cleanPrefixUrl($doubleBaseUri);
             $parameters['base_uri'] .= '/';
         }
 
@@ -96,20 +99,14 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
             $context->setScheme($_SERVER['REQUEST_SCHEME']);
         }
 
-        if ($_SERVER['SERVER_NAME'] !== 'localhost') {
-            $context->setHost($_SERVER['SERVER_NAME']);
-        }
-
         $generatedRoute = $this->router->generate($name, $parameters, $referenceType);
+        $generatedRoute = $this->cleanPrefixUrl($generatedRoute);
+
+        // remove double identical prefixes due to progressive migration
+        $generatedRoute = str_replace($doubleBaseUri, $parameters['base_uri'], $generatedRoute);
 
         // remove double slashes
-        $generatedRoute = preg_replace('/(?<!:)(\/{2,})/', '$2/', $generatedRoute);
-
-        if ($generatedRoute === null) {
-            throw new \Exception('Error occured during regular expression search and replace.');
-        }
-
-        return $generatedRoute;
+        return $this->cleanPrefixUrl($generatedRoute);
     }
 
     /**
@@ -159,11 +156,9 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     }
 
     /**
-     * @param string $cacheDir
-     *
      * @return string[]
      */
-    public function warmUp(string $cacheDir)
+    public function warmUp(string $cacheDir, ?string $buildDir = null): array
     {
         return [];
     }
@@ -206,5 +201,22 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
             $context->setScheme($originalScheme);
             $context->setHttpPort($originalHttpPort);
         }
+    }
+
+    /**
+     * @param string $url
+     *
+     * @throws \RuntimeException
+     *
+     * @return string
+     */
+    private function cleanPrefixUrl(string $url): string
+    {
+        $result = preg_replace('/(?<!:)\.?(\/+)/', '/', $url);
+        if ($result === null) {
+            throw new \RuntimeException('Error occurred during regular expression search and replace.');
+        }
+
+        return $result;
     }
 }
