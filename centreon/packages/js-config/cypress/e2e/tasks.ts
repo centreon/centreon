@@ -240,6 +240,12 @@ export default (on: Cypress.PluginEvents): void => {
       } catch (error) {
         console.error(error);
 
+        // Tear down the partially-started stack so the CI runner frees resources now.
+        if (dockerEnvironment !== null) {
+          await dockerEnvironment.down();
+          dockerEnvironment = null;
+        }
+
         throw error;
       }
     },
