@@ -57,11 +57,11 @@ export class ResourcesAccessManagementPage extends BasePage {
       .describe('Rule description field');
     this.resourceTypeSelect = page
       .getByLabel('Select resource type')
-      .last()
+      .first()
       .describe('Resource type select');
     this.resourceValueAutocomplete = page
       .getByTestId('Select resource')
-      .last()
+      .first()
       .describe('Resource value autocomplete');
     this.contactsAutocomplete = page
       .getByTestId('Contacts')
@@ -131,10 +131,12 @@ export class ResourcesAccessManagementPage extends BasePage {
       await this.resourceValueAutocomplete.click();
       await this.pickOption(resource);
 
-      // Contacts: open the autocomplete, pick the contact, close it.
+      // Contacts: open the autocomplete, pick the contact, then close the
+      // dropdown with Escape (clicking the field again toggles the picker and
+      // can leave the form invalid).
       await this.contactsAutocomplete.click();
       await this.pickOption(contact);
-      await this.contactsAutocomplete.click();
+      await this.page.keyboard.press('Escape');
 
       await expect(this.saveButton).toBeEnabled();
       await this.saveButton.click();

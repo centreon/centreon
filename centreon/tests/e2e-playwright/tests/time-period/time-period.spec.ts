@@ -25,8 +25,7 @@ import { TimePeriodPage } from '../../pages/TimePeriodPage';
  * periods are removed best-effort through CLAPI (`TP DEL`) so reruns stay
  * idempotent even if a save froze the form.
  */
-// DRAFT (workflow): ported from Cypress, not yet validated live — un-skip and fix selectors to finish.
-test.describe.skip('Time period configuration', () => {
+test.describe('Time period configuration', () => {
   test.use({ storageState: adminStorageStatePath });
 
   test.beforeAll(async () => {

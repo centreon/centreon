@@ -42,6 +42,7 @@ export class TimePeriodPage extends BasePage {
     this.addButton = this.frame
       .locator('a.bt_success')
       .filter({ hasText: 'Add' })
+      .first()
       .describe('Add time period button');
     this.nameInput = this.frame
       .locator('input[name="tp_name"]')
