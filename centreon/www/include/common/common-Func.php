@@ -260,6 +260,11 @@ function getMyHostField($host_id, $field)
     }
     global $pearDB;
 
+    $allowedColumns = ['host_name'];
+    if (! in_array($field, $allowedColumns, true)) {
+        return null;
+    }
+
     $query = 'SELECT host_tpl_id FROM host_template_relation WHERE host_host_id = :host_id ORDER BY `order` ASC';
     $statement = $pearDB->prepare($query);
     $statement->bindValue(':host_id', (int) $host_id, PDO::PARAM_INT);
@@ -289,6 +294,12 @@ function getMyHostExtendedInfoFieldFromMultiTemplates($host_id, $field)
         return null;
     }
     global $pearDB;
+
+    $allowedColumns = ['ehi_notes', 'ehi_notes_url', 'ehi_action_url', 'ehi_icon_image', 'ehi_icon_image_alt'];
+    if (! in_array($field, $allowedColumns, true)) {
+        return null;
+    }
+
     $rq = 'SELECT host_tpl_id '
         . 'FROM host_template_relation '
         . 'WHERE host_host_id = :host_host_id '
@@ -438,6 +449,11 @@ function getMyHostExtendedInfoField($host_id, $field)
     }
     global $pearDB, $oreon;
 
+    $allowedColumns = ['ehi_notes', 'ehi_notes_url', 'ehi_action_url', 'ehi_icon_image', 'ehi_icon_image_alt'];
+    if (! in_array($field, $allowedColumns, true)) {
+        return null;
+    }
+
     $rq = 'SELECT ehi.`' . $field . '` '
         . 'FROM extended_host_information ehi '
         . 'WHERE ehi.host_host_id = :host_id LIMIT 1';
@@ -458,6 +474,11 @@ function getMyHostExtendedInfoImage($host_id, $field, $flag1stLevel = null, $ant
 
     if (! $host_id) {
         return;
+    }
+
+    $allowedColumns = ['ehi_icon_image'];
+    if (! in_array($field, $allowedColumns, true)) {
+        return null;
     }
 
     if (isset($flag1stLevel) && $flag1stLevel) {
@@ -724,6 +745,18 @@ function getMyServiceField($service_id, $field)
         return;
     }
     global $pearDB;
+
+    $allowedColumns = [
+        'command_command_id',
+        'service_max_check_attempts',
+        'service_normal_check_interval',
+        'service_retry_check_interval',
+        'service_template_model_stm_id',
+    ];
+    if (! in_array($field, $allowedColumns, true)) {
+        return null;
+    }
+
     $tab = [];
 
     while (1) {
@@ -753,6 +786,11 @@ function getMyServiceExtendedInfoField($service_id, $field)
         return;
     }
     global $pearDB;
+
+    $allowedColumns = ['esi_icon_image', 'esi_icon_image_alt', 'esi_notes'];
+    if (! in_array($field, $allowedColumns, true)) {
+        return null;
+    }
 
     $tab = [];
     while (1) {

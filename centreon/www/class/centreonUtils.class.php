@@ -216,18 +216,12 @@ class CentreonUtils
         try {
             $initForm = $form->getElement('initialValues');
             $initForm = HtmlAnalyzer::sanitizeAndRemoveTags($initForm->getValue());
-
-            if ($initForm === false) {// FIXME not a good test
-                throw new InvalidArgumentException('Invalid Parameters');
-            }
-
-            $initialValues = unserialize($initForm, ['allowed_classes' => false]);
-
+            $initialValues = json_decode(html_entity_decode($initForm), true, 512, JSON_THROW_ON_ERROR);
             if (! empty($initialValues) && isset($initialValues[$key])) {
                 $init = $initialValues[$key];
             }
             $result = array_merge((array) $form->getSubmitValue($key), $init);
-        } catch (HTML_QuickForm_Error $e) {
+        } catch (HTML_QuickForm_Error|JsonException $e) {
             $result = (array) $form->getSubmitValue($key);
         }
 

@@ -249,7 +249,7 @@ if ($rows != 0) {
             document.forms['form'].elements['limit'].value = _this;
             _l[0].value = _this;
             _l[1].value = _this;
-            window.history.replaceState('', '', '?p=<?= $p . $type . $option; ?>');
+            window.history.replaceState('', '', '?p=' + <?= json_encode($p . $type . $option, JSON_THROW_ON_ERROR); ?>);
         }
     </script>
 <?php
