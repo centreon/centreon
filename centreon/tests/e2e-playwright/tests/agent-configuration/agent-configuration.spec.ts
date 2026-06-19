@@ -23,7 +23,9 @@ import { AgentConfigurationPage } from '../../pages/AgentConfigurationPage';
  * is fast and reliable. The objects are created and deleted through the UI; a
  * best-effort UI cleanup in `afterEach` keeps reruns idempotent.
  */
-// DRAFT (workflow): ported from Cypress, not yet validated live — un-skip and fix selectors to finish.
+// DRAFT: the form validates client-side and Submit enables, but the create POST
+// returns 500 (the Telegraf form needs a valid TLS cert payload/OTLP config).
+// Skipped pending deeper work on the certificate fields.
 test.describe.skip('Agent configuration', () => {
   test.use({ storageState: adminStorageStatePath });
 
