@@ -25,8 +25,7 @@ import { HostsPage } from '../../pages/HostsPage';
  * templates/categories/dependencies, massive change and ACL matrices. No
  * monitoring engine data is needed here — these are pure configuration objects.
  */
-// DRAFT (workflow): ported from Cypress, not yet validated live — un-skip and fix selectors to finish.
-test.describe.skip('Hosts configuration', () => {
+test.describe('Hosts configuration', () => {
   test.use({ storageState: adminStorageStatePath });
 
   // Unique-ish names so reruns are idempotent even if a previous cleanup failed.

@@ -85,6 +85,7 @@ export class HostsPage extends BasePage {
   hostLink(name: string): Locator {
     return this.frame
       .getByRole('link', { exact: true, name })
+      .first()
       .describe(`host listing link "${name}"`);
   }
 
@@ -167,7 +168,17 @@ export class HostsPage extends BasePage {
    */
   async deleteHost(name: string): Promise<void> {
     await test.step(`Delete host "${name}"`, async () => {
-      await this.rowCheckbox(name).check();
+      // The real checkbox input is hidden behind a styled md-checkbox wrapper,
+      // so force the check past the visibility actionability gate.
+      await this.rowCheckbox(name).check({ force: true });
+      // The legacy "More actions" select does not submit on its own; wire its
+      // onchange to submit the form, exactly like the Cypress flow does.
+      await this.moreActionsSelect.evaluate((select) => {
+        (select as HTMLSelectElement).setAttribute(
+          'onchange',
+          "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+        );
+      });
       await this.moreActionsSelect.selectOption({ label: 'Delete' });
       await expect(this.searchInput).toBeVisible({ timeout: 30_000 });
       await expect(this.hostLink(name)).toHaveCount(0);
