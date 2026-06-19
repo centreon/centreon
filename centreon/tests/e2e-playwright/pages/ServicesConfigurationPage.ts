@@ -45,8 +45,11 @@ export class ServicesConfigurationPage extends BasePage {
     this.descriptionInput = this.frame
       .locator('input[name="service_description"]')
       .describe('Service description input');
+    // The host field is a multi-select (`service_hPars[]`), so target its
+    // select2 widget via the select's adjacent container rather than a
+    // single-select container id.
     this.hostSelectContainer = this.frame
-      .locator('span#select2-host_id-container')
+      .locator('select[name="service_hPars[]"] + span.select2-container')
       .describe('Host select2 picker');
     this.templateSelectContainer = this.frame
       .locator('span#select2-service_template_model_stm_id-container')
@@ -154,14 +157,36 @@ export class ServicesConfigurationPage extends BasePage {
         .filter({ hasText: name })
         .first()
         .describe(`service listing row "${name}"`);
-      await row.locator('input[type="checkbox"]').first().check();
+      // The checkbox input is hidden behind a styled md-checkbox wrapper.
+      await row
+        .locator('input[type="checkbox"]')
+        .first()
+        .check({ force: true });
 
-      // Bottom toolbar "More actions" select; selecting "Delete" submits.
+      // Bottom toolbar "More actions" select. The legacy select does not submit
+      // on its own, so set "Delete" and submit the form atomically in one
+      // evaluate (separate steps race with the iframe re-rendering).
       const bulkSelect = this.frame
         .locator('td.Toolbar_TDSelectAction_Bottom select')
         .first()
         .describe('bulk action select (bottom)');
-      await bulkSelect.selectOption({ label: 'Delete' });
+      await bulkSelect.evaluate((node) => {
+        const select = node as HTMLSelectElement;
+        const option = Array.from(select.options).find(
+          (o) => o.text.trim() === 'Delete'
+        );
+        if (option) {
+          select.value = option.value;
+        }
+        const form = select.form as HTMLFormElement & {
+          elements: Record<string, HTMLInputElement>;
+        };
+        // `setO` is a legacy global that records the chosen bulk operation.
+        (window as unknown as { setO: (v: string) => void }).setO(
+          form.elements.o2.value
+        );
+        form.submit();
+      });
 
       await expect(this.serviceListLink(name)).toHaveCount(0, {
         timeout: 30_000

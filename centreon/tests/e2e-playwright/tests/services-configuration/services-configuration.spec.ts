@@ -23,8 +23,7 @@ const hostName = 'pw-host-1';
 const serviceName = 'pw-service';
 const serviceTemplate = 'Ping-LAN';
 
-// DRAFT (workflow): ported from Cypress, not yet validated live — un-skip and fix selectors to finish.
-test.describe.skip('Services configuration', () => {
+test.describe('Services configuration', () => {
   test.use({ storageState: adminStorageStatePath });
 
   test.beforeAll(async () => {
