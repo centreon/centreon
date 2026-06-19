@@ -76,6 +76,7 @@ use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Utility\Difference\BasicDifference;
+use Webmozart\Assert\InvalidArgumentException;
 
 final class PartialUpdateHost
 {
@@ -169,7 +170,7 @@ final class PartialUpdateHost
                 }
             );
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-        } catch (AssertionFailedException $ex) {
+        } catch (AssertionFailedException|InvalidArgumentException $ex) {
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
