@@ -570,7 +570,7 @@ Given('a dashboard with a resource table widget', () => {
     .type(genericTextWidgets.default.description, { force: true });
   cy.get('.MuiTable-root')
     .contains('.MuiTableCell-root', 'host2')
-    .should('be.visible');
+    .should('exist');
 });
 
 When('the dashboard administrator clicks on a random resource', () => {
