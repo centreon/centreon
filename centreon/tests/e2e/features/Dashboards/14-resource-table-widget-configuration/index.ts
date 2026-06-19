@@ -568,7 +568,9 @@ Given('a dashboard with a resource table widget', () => {
   cy.getByLabel({ label: 'RichTextEditor' })
     .eq(0)
     .type(genericTextWidgets.default.description, { force: true });
-  cy.get('.MuiTable-root').contains('.MuiTableCell-root', 'host2').should('be.visible');
+  cy.get('.MuiTable-root')
+    .contains('.MuiTableCell-root', 'host2')
+    .should('be.visible');
 });
 
 When('the dashboard administrator clicks on a random resource', () => {
