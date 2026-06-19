@@ -31,6 +31,8 @@ parameters:
     required_mariadb_min_version: "%env(_CENTREON_MARIA_DB_MIN_VERSION_)%"
     env(IS_CLOUD_PLATFORM): false
     env(FILE_FEATURE_FLAGS): "%centreon_path%/config/features.json"
+    env(CENTREON_INTERNAL_API_BASE_URL): ''
+
 
 services:
     # Default configuration for services in *this* file
@@ -141,3 +143,10 @@ services:
     Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface:
         class: Core\Security\Token\Infrastructure\Repository\DbReadTokenRepository
         public: true
+
+    legacy.service_locator:
+      class: Symfony\Component\DependencyInjection\ServiceLocator
+      public: true
+      arguments:
+        - internal_api_client: '@Core\Common\Infrastructure\Api\InternalApiClient'
+      tags: [ 'container.service_locator' ]
