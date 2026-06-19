@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 /**
  * Class
  *
@@ -178,17 +181,16 @@ class CentreonSession
      */
     public static function getUser($sessionId, $pearDB)
     {
-        $sessionId = str_replace(['_', '%'], ['', ''], $sessionId);
-        $DBRESULT = $pearDB->query(
-            "SELECT user_id FROM session
-                WHERE `session_id` = '" . htmlentities(trim($sessionId), ENT_QUOTES, 'UTF-8') . "'"
+        $sessionId = mb_trim(str_replace(['_', '%'], ['', ''], $sessionId));
+        $userId = $pearDB->fetchOne(
+            'SELECT user_id FROM session WHERE `session_id` = :session_id',
+            QueryParameters::create([QueryParameter::string('session_id', $sessionId)])
         );
-        $row = $DBRESULT->fetchRow();
-        if (! $row) {
+        if ($userId === false) {
             return 0;
         }
 
-        return $row['user_id'];
+        return $userId;
     }
 
     public static function resolveSessionCookie(): string
