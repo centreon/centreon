@@ -4,19 +4,14 @@ import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import TuneIcon from '@mui/icons-material/Tune';
-import { Button, Grid } from '@mui/material';
+import { Grid } from '@mui/material';
 
 import { PopoverMenu, useMemoComponent } from '@centreon/ui';
 import type { SelectEntry } from '@centreon/ui';
 
-import {
-  labelClear,
-  labelSearch,
-  labelSearchOptions
-} from '../../translatedLabels';
+import { labelSearchOptions } from '../../translatedLabels';
 import {
   applyCurrentFilterDerivedAtom,
-  clearFilterDerivedAtom,
   filterWithParsedSearchDerivedAtom
 } from '../filterAtoms';
 
@@ -30,10 +25,8 @@ import { criteriaNameSortOrder } from './searchQueryLanguage/models';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
-    padding: theme.spacing(2)
-  },
-  searchButton: {
-    marginTop: theme.spacing(1)
+    padding: theme.spacing(2),
+    width: theme.spacing(30)
   }
 }));
 
@@ -62,7 +55,6 @@ const CriteriasContent = (): JSX.Element => {
   };
 
   const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
-  const clearFilter = useSetAtom(clearFilterDerivedAtom);
 
   return (
     <PopoverMenu
@@ -86,23 +78,6 @@ const CriteriasContent = (): JSX.Element => {
               </Grid>
             );
           })}
-          <Grid container item className={classes.searchButton} spacing={1}>
-            <Grid item>
-              <Button color="primary" size="small" onClick={clearFilter}>
-                {t(labelClear)}
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                color="primary"
-                size="small"
-                variant="contained"
-                onClick={applyCurrentFilter}
-              >
-                {t(labelSearch)}
-              </Button>
-            </Grid>
-          </Grid>
         </Grid>
       )}
     </PopoverMenu>
