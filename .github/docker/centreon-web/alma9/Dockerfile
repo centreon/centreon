@@ -57,7 +57,6 @@ systemctl stop snmpd
 systemctl stop crond
 
 dnf clean all
-rm -rf /usr/share/doc /usr/share/man /usr/share/info
 
 EOF
 

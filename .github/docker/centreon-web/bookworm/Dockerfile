@@ -62,7 +62,6 @@ systemctl stop snmpd
 systemctl stop cron
 
 apt-get clean
-rm -rf /usr/share/doc /usr/share/man /usr/share/info
 
 EOF
 
