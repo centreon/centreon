@@ -42,7 +42,8 @@ tests/e2e-playwright/
 │   ├── ResourcesStatusPage.ts    # Monitoring resources listing (filter + search + acknowledge)
 │   ├── NotificationsListPage.ts  # Cloud notifications listing (pagination)
 │   ├── ApiTokensPage.ts          # Authentication tokens (create / delete / filter)
-│   └── ProxyConfigurationPage.ts # Legacy "Centreon UI" proxy form (iframe)
+│   ├── ProxyConfigurationPage.ts # Legacy "Centreon UI" proxy form (iframe)
+│   └── CustomViewsPage.ts        # Legacy "Custom views" home page (iframe)
 └── tests/
     ├── auth.setup.ts        # `setup` project: saves the dashboard-creator + admin sessions
     ├── authentication.spec.ts
@@ -60,8 +61,10 @@ tests/e2e-playwright/
     │   └── notification-listing.spec.ts  # migrates Cypress Cloud-notifications/05-listing
     ├── api-token/
     │   └── api-token.spec.ts              # migrates Cypress Api-Token (create/delete/filter)
-    └── administration/
-        └── proxy-configuration.spec.ts    # migrates Cypress Administration/03-proxy (legacy iframe)
+    ├── administration/
+    │   └── proxy-configuration.spec.ts    # migrates Cypress Administration/03-proxy (legacy iframe)
+    └── custom-views/
+        └── custom-views.spec.ts           # migrates Cypress Custom-views (legacy iframe)
 ```
 
 ## OpenID Connect tests
@@ -135,6 +138,11 @@ through `CentreonApi`, mirroring the Cypress CLAPI commands:
   the proxy at it and asserts the "Connection Successful" popin. The backend
   reaches `api.imp.centreon.com` through the proxy, so the test needs outbound
   internet (the web container and CI runners have it).
+- **Custom views** (`custom-views/custom-views.spec.ts`, migrates `Custom-views`):
+  another legacy iframe page (`main.php?p=103`), driven through a frame locator.
+  Covers the single-user core — create a custom view, assert its tab, delete it.
+  The public/unlocked/locked **sharing** scenarios (several provisioned users +
+  ACL + the sharing UI) are out of scope for this slice.
 - **Cloud notifications** (`notifications/`, migrates `Cloud-notifications/05-notification-listing`):
   the feature flag is enabled in `global-setup.ts`, a host group is created once,
   and each test creates N rules through the configuration API and deletes them
