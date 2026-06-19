@@ -5,7 +5,7 @@ import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
-} from '../../../../commons';
+} from '../../../commons';
 import {
   reloadWebServer,
   replaceCustomUri,
