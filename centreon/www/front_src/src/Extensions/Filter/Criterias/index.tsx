@@ -9,14 +9,9 @@ import { Button, Grid } from '@mui/material';
 import { PopoverMenu, useMemoComponent } from '@centreon/ui';
 import type { SelectEntry } from '@centreon/ui';
 
-import {
-  labelClear,
-  labelSearch,
-  labelSearchOptions
-} from '../../translatedLabels';
+import { labelSearchOptions } from '../../translatedLabels';
 import {
   applyCurrentFilterDerivedAtom,
-  clearFilterDerivedAtom,
   filterWithParsedSearchDerivedAtom
 } from '../filterAtoms';
 
@@ -30,10 +25,8 @@ import { criteriaNameSortOrder } from './searchQueryLanguage/models';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
-    padding: theme.spacing(2)
-  },
-  searchButton: {
-    marginTop: theme.spacing(1)
+    padding: theme.spacing(2),
+    width: theme.spacing(30)
   }
 }));
 
@@ -62,7 +55,6 @@ const CriteriasContent = (): JSX.Element => {
   };
 
   const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
-  const clearFilter = useSetAtom(clearFilterDerivedAtom);
 
   return (
     <PopoverMenu
