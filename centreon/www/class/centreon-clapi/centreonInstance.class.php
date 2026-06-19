@@ -21,12 +21,14 @@
 
 namespace CentreonClapi;
 
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Centreon_Object_Instance;
 use Centreon_Object_Relation_Instance_Host;
 use Exception;
 use LogicException;
 use PDOException;
 use Pimple\Container;
+use Webmozart\Assert\InvalidArgumentException;
 
 require_once 'centreonObject.class.php';
 require_once 'centreon.Config.Poller.class.php';
@@ -125,11 +127,9 @@ class CentreonInstance extends CentreonObject
         $addParams['ssh_port'] = $params[self::ORDER_SSH_PORT];
         $addParams['gorgone_port'] = $params[self::ORDER_GORGONE_PORT];
 
-        // Check IPv6, IPv4 and FQDN format
-        if (
-            ! filter_var($addParams['ns_ip_address'], FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
-            && ! filter_var($addParams['ns_ip_address'], FILTER_VALIDATE_IP)
-        ) {
+        try {
+            CentreonAssert::ipOrHostname($addParams['ns_ip_address']);
+        } catch (InvalidArgumentException) {
             throw new CentreonClapiException(self::INCORRECTIPADDRESS);
         }
 
@@ -152,13 +152,12 @@ class CentreonInstance extends CentreonObject
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
 
-        // Check IPv6, IPv4 and FQDN format
-        if (
-            $params[1] == 'ns_ip_address'
-            && ! filter_var($params[2], FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
-            && ! filter_var($params[2], FILTER_VALIDATE_IP)
-        ) {
-            throw new CentreonClapiException(self::INCORRECTIPADDRESS);
+        if ($params[1] == 'ns_ip_address') {
+            try {
+                CentreonAssert::ipOrHostname($params[2]);
+            } catch (InvalidArgumentException) {
+                throw new CentreonClapiException(self::INCORRECTIPADDRESS);
+            }
         }
 
         $objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME]);

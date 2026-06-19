@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Domain\Model;
 
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Security\Interfaces\EncryptionInterface;
 
@@ -174,7 +175,7 @@ class VaultConfiguration
     public function setAddress(string $address): void
     {
         Assertion::minLength($address, self::MIN_LENGTH, 'VaultConfiguration::address');
-        Assertion::ipOrDomain($address, 'VaultConfiguration::address');
+        CentreonAssert::ipOrHostname($address, 'VaultConfiguration::address');
         $this->address = $address;
     }
 
