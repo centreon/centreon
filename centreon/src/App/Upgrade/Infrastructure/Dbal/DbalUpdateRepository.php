@@ -25,12 +25,15 @@ namespace App\Upgrade\Infrastructure\Dbal;
 
 use Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
-use Adaptation\Log\LoggerUpgrade;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
 
+/**
+ * Runs the individual upgrade operations. Step sequencing and logging are owned by the
+ * caller (UpdateCommandHandler): this repository only performs each operation.
+ */
 final readonly class DbalUpdateRepository implements UpdateRepository
 {
     public function __construct(
@@ -56,60 +59,7 @@ final readonly class DbalUpdateRepository implements UpdateRepository
         return is_scalar($result) ? (string) $result : null;
     }
 
-    public function runUpdate(string $version): void
-    {
-        $this->runStep($version, 'monitoring_sql', fn () => $this->runMonitoringSql($version));
-        $this->runStep($version, 'php_script', fn () => $this->runScript($version));
-        $this->runStep($version, 'configuration_sql', fn () => $this->runConfigurationSql($version));
-        $this->runStep($version, 'php_post_script', fn () => $this->runPostScript($version));
-        $this->runStep($version, 'update_version_information', fn () => $this->updateVersionInformation($version));
-    }
-
-    public function runPostUpdate(string $currentVersion): void
-    {
-        if (! $this->filesystem->exists($this->installDir)) {
-            return;
-        }
-
-        $installsDir = $this->libDir . '/installs';
-        if (! is_dir($installsDir) || ! is_writable($installsDir)) {
-            throw new \RuntimeException(
-                'The installs backup directory does not exist or is not writable. '
-                . 'Please create it with write permissions for the web server user.'
-            );
-        }
-
-        $backupDirectory = $installsDir . '/install-' . $currentVersion . '-' . date('Ymd_His');
-
-        $this->runStep(
-            $currentVersion,
-            'backup_install_directory',
-            fn () => $this->filesystem->mirror($this->installDir, $backupDirectory),
-        );
-
-        $this->runStep(
-            $currentVersion,
-            'remove_install_directory',
-            fn () => $this->filesystem->remove($this->installDir),
-        );
-    }
-
-    private function runStep(string $version, string $step, callable $action): void
-    {
-        LoggerUpgrade::create()->step($version, $step, "Starting step '{$step}'");
-        $startedAt = microtime(true);
-        try {
-            $action();
-        } catch (\Throwable $exception) {
-            LoggerUpgrade::create()->stepFailure($exception->getMessage(), $version, $step, $exception);
-
-            throw $exception;
-        }
-        $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
-        LoggerUpgrade::create()->stepCompleted($version, $step, $durationMs, "Step '{$step}' completed in {$durationMs}ms");
-    }
-
-    private function runMonitoringSql(string $version): void
+    public function runMonitoringSql(string $version): void
     {
         $filePath = $this->installDir . '/sql/centstorage/Update-CSTG-' . $version . '.sql';
 
@@ -118,7 +68,7 @@ final readonly class DbalUpdateRepository implements UpdateRepository
         }
     }
 
-    private function runScript(string $version): void
+    public function runScript(string $version): void
     {
         // $pearDB and $pearDBO are exposed as local variables to the included update script.
         // Scripts expect ConnectionInterface (Adaptation), not raw PDO.
@@ -131,7 +81,7 @@ final readonly class DbalUpdateRepository implements UpdateRepository
         }
     }
 
-    private function runConfigurationSql(string $version): void
+    public function runConfigurationSql(string $version): void
     {
         $filePath = $this->installDir . '/sql/centreon/Update-DB-' . $version . '.sql';
 
@@ -140,7 +90,7 @@ final readonly class DbalUpdateRepository implements UpdateRepository
         }
     }
 
-    private function runPostScript(string $version): void
+    public function runPostScript(string $version): void
     {
         // $pearDB and $pearDBO are exposed as local variables to the included post-update script.
         // Scripts expect ConnectionInterface (Adaptation), not raw PDO.
@@ -153,12 +103,36 @@ final readonly class DbalUpdateRepository implements UpdateRepository
         }
     }
 
-    private function updateVersionInformation(string $version): void
+    public function updateVersionInformation(string $version): void
     {
         $this->configConnection->executeStatement(
             "UPDATE `informations` SET `value` = :version WHERE `key` = 'version'",
             ['version' => $version]
         );
+    }
+
+    public function installDirectoryExists(): bool
+    {
+        return $this->filesystem->exists($this->installDir);
+    }
+
+    public function backupInstallDirectory(string $currentVersion): void
+    {
+        $installsDir = $this->libDir . '/installs';
+        if (! is_dir($installsDir) || ! is_writable($installsDir)) {
+            throw new \RuntimeException(
+                'The installs backup directory does not exist or is not writable. '
+                . 'Please create it with write permissions for the web server user.'
+            );
+        }
+
+        $backupDirectory = $installsDir . '/install-' . $currentVersion . '-' . date('Ymd_His');
+        $this->filesystem->mirror($this->installDir, $backupDirectory);
+    }
+
+    public function removeInstallDirectory(): void
+    {
+        $this->filesystem->remove($this->installDir);
     }
 
     private function runSqlFile(Connection $connection, string $filePath): void

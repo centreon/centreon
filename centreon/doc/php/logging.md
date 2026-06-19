@@ -894,7 +894,7 @@ But fail2ban jails are bound to a **file path** (`logpath = /var/log/centreon/lo
 
 ## 13. Writing upgrade scripts (`Update-*.php`)
 
-Each upgrade ships under `www/install/php/Update-<version>.php` (DB DDL/DML + business migration) and runs inside `DbWriteUpdateRepository` (legacy kernel) or `DbalUpdateRepository` (DDD kernel). Both bracket the `php_script` step around the inclusion through a small `runStep()` / `executeStep()` helper that calls `LoggerUpgrade` inline (start / completed / failure). **Inside the script itself, trace each meaningful action through `LoggerUpgrade` so operators get a play-by-play view in `prod.upgrade.log`.**
+Each upgrade ships under `www/install/php/Update-<version>.php` (DB DDL/DML + business migration). It runs either through the DDD command — `UpdateCommandHandler` brackets each step with its `runStep()` helper and emits the logs, while `DbalUpdateRepository` only performs the operations — or through the legacy web wizard (`process_step4/5` + `DbWriteUpdateRepository`, which logs inline via `executeStep()`). Either way the `php_script` step is bracketed (start / completed / failure). **Inside the script itself, trace each meaningful action through `LoggerUpgrade` so operators get a play-by-play view in `prod.upgrade.log`.**
 
 The legacy web upgrade splits the flow across two steps: `process_step4.php` runs the version updates (`runUpdate`), `process_step5.php` runs the post-update (`runPostUpdate`) under a `post_update` step — grep both when tracking a step name.
 

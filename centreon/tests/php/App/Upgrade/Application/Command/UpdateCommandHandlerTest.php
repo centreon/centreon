@@ -158,7 +158,7 @@ final class UpdateCommandHandlerTest extends TestCase
                 $this->currentVersion = $version;
             }
 
-            public function runUpdate(string $version): void
+            public function runMonitoringSql(string $version): void
             {
                 throw new \RuntimeException('SQL error during update');
             }
@@ -203,6 +203,16 @@ final class UpdateCommandHandlerTest extends TestCase
         }
 
         self::assertTrue($this->locker->unlockCalled, 'Lock must be released even when a wrapped step fails');
+    }
+
+    public function testPostUpdateBacksUpBeforeRemovingTheInstallDir(): void
+    {
+        $this->scriptFinder->availableUpdates = [];
+
+        ($this->handler)(new UpdateCommand());
+
+        // The handler must back up the install directory before removing it.
+        self::assertSame(['backup', 'remove'], $this->updateRepository->calls);
     }
 
     public function testEngineContextAndCacheAreCalledOnSuccess(): void

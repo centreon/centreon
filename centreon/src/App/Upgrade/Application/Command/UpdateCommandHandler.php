@@ -77,13 +77,20 @@ final readonly class UpdateCommandHandler
 
                 LoggerUpgrade::create()->start($currentVersion, $targetVersion);
 
-                // run_update / post_update log their own sub-steps inside the repository,
-                // so the handler only brackets the steps it owns here.
+                // The handler owns step sequencing and logging; the repository only runs each operation.
                 foreach ($availableUpdates as $version) {
-                    $this->updateRepository->runUpdate($version);
+                    $this->runStep($version, 'monitoring_sql', fn () => $this->updateRepository->runMonitoringSql($version));
+                    $this->runStep($version, 'php_script', fn () => $this->updateRepository->runScript($version));
+                    $this->runStep($version, 'configuration_sql', fn () => $this->updateRepository->runConfigurationSql($version));
+                    $this->runStep($version, 'php_post_script', fn () => $this->updateRepository->runPostScript($version));
+                    $this->runStep($version, 'update_version_information', fn () => $this->updateRepository->updateVersionInformation($version));
                 }
 
-                $this->updateRepository->runPostUpdate($currentVersion);
+                if ($this->updateRepository->installDirectoryExists()) {
+                    $this->runStep($currentVersion, 'backup_install_directory', fn () => $this->updateRepository->backupInstallDirectory($currentVersion));
+                    $this->runStep($currentVersion, 'remove_install_directory', fn () => $this->updateRepository->removeInstallDirectory());
+                }
+
                 $this->runStep($currentVersion, 'modules_update', fn () => $this->moduleRepository->updateAll());
                 $this->runStep($currentVersion, 'widgets_update', fn () => $this->widgetRepository->updateAll());
                 $this->runStep($currentVersion, 'engine_context', fn () => $this->engineContextWriter->writeIfMissing());

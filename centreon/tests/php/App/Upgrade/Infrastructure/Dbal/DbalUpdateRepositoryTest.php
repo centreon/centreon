@@ -73,10 +73,8 @@ final class DbalUpdateRepositoryTest extends TestCase
         $this->realFilesystem->remove($this->baseDir);
     }
 
-    public function testRunUpdateUpdatesTheVersionOnSuccess(): void
+    public function testUpdateVersionInformationRunsTheVersionUpdate(): void
     {
-        // No SQL/PHP upgrade files exist in the install dir, so every step is a no-op
-        // except update_version_information, which performs the version UPDATE.
         $executed = [];
         $this->configConnection
             ->method('executeStatement')
@@ -86,61 +84,12 @@ final class DbalUpdateRepositoryTest extends TestCase
                 return 1;
             });
 
-        $this->repository()->runUpdate(self::VERSION);
+        $this->repository()->updateVersionInformation(self::VERSION);
 
         self::assertStringContainsString('UPDATE `informations`', implode(' | ', $executed));
     }
 
-    public function testRunUpdateRethrowsWhenAStepFails(): void
-    {
-        $this->configConnection
-            ->method('executeStatement')
-            ->willThrowException(new \RuntimeException('SQL error while updating the version'));
-
-        // The four file-based steps have no file to run, so they complete; the version
-        // update is the one that fails and the failure must propagate.
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('SQL error while updating the version');
-
-        $this->repository()->runUpdate(self::VERSION);
-    }
-
-    public function testRunPostUpdateReturnsEarlyWhenInstallDirIsAbsent(): void
-    {
-        $filesystem = $this->createMock(Filesystem::class);
-        $filesystem->method('exists')->willReturn(false);
-        $filesystem->expects(self::never())->method('mirror');
-        $filesystem->expects(self::never())->method('remove');
-
-        $this->repository($filesystem)->runPostUpdate(self::VERSION);
-    }
-
-    public function testRunPostUpdateThrowsWhenBackupDirectoryIsMissing(): void
-    {
-        // installDir exists (created in setUp) but libDir/installs does not.
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessageMatches('/backup directory/');
-
-        $this->repository()->runPostUpdate(self::VERSION);
-    }
-
-    public function testRunPostUpdateRethrowsWhenRemoveFails(): void
-    {
-        // The backup directory must really exist for the is_dir()/is_writable() guard to pass.
-        $this->realFilesystem->mkdir($this->libDir . '/installs');
-
-        $filesystem = $this->createMock(Filesystem::class);
-        $filesystem->method('exists')->willReturn(true);
-        $filesystem->method('mirror'); // backup succeeds
-        $filesystem->method('remove')->willThrowException(new IOException('Cannot remove the install directory'));
-
-        $this->expectException(IOException::class);
-        $this->expectExceptionMessage('Cannot remove the install directory');
-
-        $this->repository($filesystem)->runPostUpdate(self::VERSION);
-    }
-
-    public function testRunSqlFileResumesFromProgressCountAndSkipsAlreadyExecutedStatements(): void
+    public function testRunConfigurationSqlResumesFromProgressCountAndSkipsAlreadyExecutedStatements(): void
     {
         // A configuration SQL file with two statements, the first already applied on a previous run.
         $this->createConfigurationSqlFile("-- a comment\nSELECT 1;\nSELECT 2;\n");
@@ -155,19 +104,18 @@ final class DbalUpdateRepositoryTest extends TestCase
                 return 1;
             });
 
-        $this->repository()->runUpdate(self::VERSION);
+        $this->repository()->runConfigurationSql(self::VERSION);
 
-        // The already-applied first statement is skipped; only the second one runs (plus the version UPDATE).
+        // The already-applied first statement is skipped; only the second one runs.
         $statementsRun = implode(' | ', $executed);
         self::assertStringContainsString('SELECT 2', $statementsRun);
         self::assertStringNotContainsString('SELECT 1', $statementsRun);
-        self::assertStringContainsString('UPDATE `informations`', $statementsRun);
 
         // The progress file is advanced to the new count.
         self::assertSame('2', file_get_contents($this->progressFile()));
     }
 
-    public function testRunSqlFileFailsWhenProgressFileIsNotWritable(): void
+    public function testRunConfigurationSqlFailsWhenProgressFileIsNotWritable(): void
     {
         if (function_exists('posix_getuid') && posix_getuid() === 0) {
             self::markTestSkipped('Permission bits are bypassed when running as root.');
@@ -182,7 +130,7 @@ final class DbalUpdateRepositoryTest extends TestCase
         $this->configConnection->method('executeStatement')->willReturn(1);
 
         try {
-            $this->repository()->runUpdate(self::VERSION);
+            $this->repository()->runConfigurationSql(self::VERSION);
             self::fail('Expected the non-writable progress file to abort the step');
         } catch (\RuntimeException $exception) {
             self::assertMatchesRegularExpression('/temporary file/', $exception->getMessage());
@@ -191,41 +139,57 @@ final class DbalUpdateRepositoryTest extends TestCase
         }
     }
 
-    public function testRunPostUpdateBacksUpBeforeRemovingTheInstallDir(): void
+    public function testInstallDirectoryExistsReflectsTheFilesystem(): void
     {
-        // The backup directory must exist for the is_dir()/is_writable() guard to pass.
-        $this->realFilesystem->mkdir($this->libDir . '/installs');
+        self::assertTrue($this->repository()->installDirectoryExists());
 
-        $calls = [];
-        $filesystem = $this->createMock(Filesystem::class);
-        $filesystem->method('exists')->willReturn(true);
-        $filesystem->method('mirror')->willReturnCallback(static function () use (&$calls): void {
-            $calls[] = 'mirror';
-        });
-        $filesystem->method('remove')->willReturnCallback(static function () use (&$calls): void {
-            $calls[] = 'remove';
-        });
+        $this->realFilesystem->remove($this->installDir);
 
-        $this->repository($filesystem)->runPostUpdate(self::VERSION);
-
-        // Backup must run before removal — the reverse order would wipe the install
-        // directory before it is copied.
-        self::assertSame(['mirror', 'remove'], $calls);
+        self::assertFalse($this->repository()->installDirectoryExists());
     }
 
-    public function testRunPostUpdateBacksUpAndRemovesInstallDirOnSuccess(): void
+    public function testBackupInstallDirectoryThrowsWhenBackupDirectoryIsMissing(): void
+    {
+        // installDir exists (created in setUp) but libDir/installs does not.
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessageMatches('/backup directory/');
+
+        $this->repository()->backupInstallDirectory(self::VERSION);
+    }
+
+    public function testBackupInstallDirectoryCopiesTheInstallContents(): void
     {
         $this->realFilesystem->mkdir($this->libDir . '/installs');
         file_put_contents($this->installDir . '/marker.txt', 'data');
 
-        $this->repository()->runPostUpdate(self::VERSION);
+        $this->repository()->backupInstallDirectory(self::VERSION);
 
-        // The install directory is removed and a timestamped backup copy holding its
-        // contents now exists under installs/.
-        self::assertDirectoryDoesNotExist($this->installDir);
+        // A timestamped backup copy holding the install contents now exists under installs/.
         $backups = glob($this->libDir . '/installs/install-' . self::VERSION . '-*') ?: [];
         self::assertCount(1, $backups);
         self::assertFileExists($backups[0] . '/marker.txt');
+        // The install directory itself is left untouched by the backup step.
+        self::assertDirectoryExists($this->installDir);
+    }
+
+    public function testRemoveInstallDirectoryDeletesIt(): void
+    {
+        $this->repository()->removeInstallDirectory();
+
+        self::assertDirectoryDoesNotExist($this->installDir);
+    }
+
+    public function testBackupInstallDirectoryPropagatesFilesystemFailures(): void
+    {
+        $this->realFilesystem->mkdir($this->libDir . '/installs');
+
+        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem->method('mirror')->willThrowException(new IOException('Cannot mirror the install directory'));
+
+        $this->expectException(IOException::class);
+        $this->expectExceptionMessage('Cannot mirror the install directory');
+
+        $this->repository($filesystem)->backupInstallDirectory(self::VERSION);
     }
 
     private function repository(?Filesystem $filesystem = null): DbalUpdateRepository
