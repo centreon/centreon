@@ -11,7 +11,7 @@ inputs:
     description: "Centreon packaged major version"
     required: true
   cache_key:
-    description: "The cached package key"
+    description: "The name of the run artifact holding the built package files"
     required: true
   stability:
     description: "The package stability (stable, testing, unstable)"
@@ -35,12 +35,11 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Use cache RPM files
-      uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+    - name: Download RPM files
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
       with:
-        path: ./*.rpm
-        key: ${{ inputs.cache_key }}
-        fail-on-cache-miss: true
+        name: ${{ inputs.cache_key }}
+        path: .
 
     - uses: jfrog/setup-jfrog-cli@1641575d87647fb969c0545f0b6a76873e328b7c # v5.0.0
       env:

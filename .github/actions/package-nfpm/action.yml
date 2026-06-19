@@ -29,7 +29,7 @@ inputs:
     description: The commit hash
     required: true
   cache_key:
-    description: The package files cache key
+    description: The name of the run artifact holding the built package files (consumed by downstream dockerize/deliver jobs)
     required: true
   rpm_gpg_key:
     description: The rpm gpg key
@@ -170,11 +170,14 @@ runs:
         done
       shell: bash
 
-    - name: Cache packages
-      uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+    # Pass packages to downstream jobs via run artifact (atomic) instead of cache
+    - name: Upload packages for downstream jobs
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
+        name: ${{ inputs.cache_key }}
         path: ./*.${{ inputs.package_extension }}
-        key: ${{ inputs.cache_key }}
+        retention-days: 1
+        if-no-files-found: error
 
     # Add 'upload-artifacts' label to pull request to get packages as artifacts
     - if: inputs.upload_artifacts == 'true'
