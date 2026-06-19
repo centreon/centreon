@@ -41,7 +41,8 @@ tests/e2e-playwright/
 │   ├── KeycloakLoginPage.ts      # Keycloak login form (external IdP)
 │   ├── ResourcesStatusPage.ts    # Monitoring resources listing (filter + search + acknowledge)
 │   ├── NotificationsListPage.ts  # Cloud notifications listing (pagination)
-│   └── ApiTokensPage.ts          # Authentication tokens (create / delete / filter)
+│   ├── ApiTokensPage.ts          # Authentication tokens (create / delete / filter)
+│   └── ProxyConfigurationPage.ts # Legacy "Centreon UI" proxy form (iframe)
 └── tests/
     ├── auth.setup.ts        # `setup` project: saves the dashboard-creator + admin sessions
     ├── authentication.spec.ts
@@ -57,8 +58,10 @@ tests/e2e-playwright/
     │   └── acknowledgement.spec.ts     # migrates Cypress Resources-status/02-acknowledgments
     ├── notifications/
     │   └── notification-listing.spec.ts  # migrates Cypress Cloud-notifications/05-listing
-    └── api-token/
-        └── api-token.spec.ts              # migrates Cypress Api-Token (create/delete/filter)
+    ├── api-token/
+    │   └── api-token.spec.ts              # migrates Cypress Api-Token (create/delete/filter)
+    └── administration/
+        └── proxy-configuration.spec.ts    # migrates Cypress Administration/03-proxy (legacy iframe)
 ```
 
 ## OpenID Connect tests
@@ -123,6 +126,15 @@ through `CentreonApi`, mirroring the Cypress CLAPI commands:
   (`deleteAllApiTokens`, which only ever touches API-type tokens, leaving the
   platform's poller/cma tokens). The create test also reveals and copies the
   generated token, so the spec grants the clipboard permission.
+- **Proxy configuration** (`administration/proxy-configuration.spec.ts`, migrates
+  `Administration/03-proxy-configuration`): shows that **legacy PHP pages** are
+  migratable too. The page is rendered inside the React shell's `#main-content`
+  iframe, so the Page Object drives it through a Playwright frame locator (the
+  equivalent of Cypress `cy.getIframeBody()`). The spec brings up the
+  `squid-simple` forward-proxy container (compose `squid-simple` profile), points
+  the proxy at it and asserts the "Connection Successful" popin. The backend
+  reaches `api.imp.centreon.com` through the proxy, so the test needs outbound
+  internet (the web container and CI runners have it).
 - **Cloud notifications** (`notifications/`, migrates `Cloud-notifications/05-notification-listing`):
   the feature flag is enabled in `global-setup.ts`, a host group is created once,
   and each test creates N rules through the configuration API and deletes them
