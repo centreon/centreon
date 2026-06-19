@@ -141,14 +141,18 @@ class ItopProvider extends AbstractProvider
         $key = "SELECT Person WHERE status='active'";
 
         if (preg_match('/(.*?)___(.*)/', $data['organization_value'], $matches)) {
-            $key .= " AND org_id='" . $matches[1] . "'";
+            $key .= ' AND org_id=' . (int) $matches[1];
         } else {
             throw new Exception('No organization found', 1);
         }
 
         $filter = $data['groups']['itop_caller']['filter'];
         if (isset($filter) && $filter != '') {
-            $key .= " AND friendlyname LIKE '%" . $filter . "%'";
+            if (! preg_match('/^[a-zA-Z0-9_]+$/', $filter)) {
+                throw new Exception('Invalid input', 1);
+            }
+            $escapedFilter = preg_replace('/[^a-zA-Z0-9\s\-_.]/', '', $filter);
+            $key .= " AND friendlyname LIKE '%" . $escapedFilter . "%'";
         }
 
         $data = ['operation' => 'core/get', 'class' => 'Person', 'key' => $key, 'output_fields' => 'friendlyname'];
@@ -181,14 +185,15 @@ class ItopProvider extends AbstractProvider
         $key = 'SELECT Service';
 
         if (preg_match('/(.*?)___(.*)/', $data['organization_value'], $matches)) {
-            $key .= " WHERE org_id='" . $matches[1] . "'";
+            $key .= ' WHERE org_id=' . (int) $matches[1];
         } else {
             throw new Exception('No organization found', 1);
         }
 
         $filter = $data['groups']['itop_service']['filter'];
         if (isset($filter) && $filter != '') {
-            $key .= " AND friendlyname LIKE '%" . $filter . "%'";
+            $escapedFilter = preg_replace('/[^a-zA-Z0-9\s\-_.]/', '', $filter);
+            $key .= " AND friendlyname LIKE '%" . $escapedFilter . "%'";
         }
 
         $data = ['operation' => 'core/get', 'class' => 'Service', 'key' => $key, 'output_fields' => 'friendlyname'];
@@ -221,14 +226,15 @@ class ItopProvider extends AbstractProvider
         $key = 'SELECT ServiceSubcategory';
 
         if (preg_match('/(.*?)___(.*)/', $data['service_value'], $matches)) {
-            $key .= " WHERE service_id='" . $matches[1] . "'";
+            $key .= ' WHERE service_id=' . (int) $matches[1];
         } else {
             throw new Exception('No service found', 1);
         }
 
         $filter = $data['groups']['itop_service_subcategory']['filter'];
         if (isset($filter) && $filter != '') {
-            $key .= " AND friendlyname LIKE '%" . $filter . "%'";
+            $escapedFilter = preg_replace('/[^a-zA-Z0-9\s\-_.]/', '', $filter);
+            $key .= " AND friendlyname LIKE '%" . $escapedFilter . "%'";
         }
 
         $data = ['operation' => 'core/get', 'class' => 'ServiceSubcategory', 'key' => $key, 'output_fields' => 'friendlyname'];

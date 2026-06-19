@@ -1603,7 +1603,7 @@ Output: {$service.output|substr:0:1024}
                     $insertTicket->bindValue(':ticketValue', $extra_args['ticket_value']);
                 }
                 $insertTicket->execute();
-                $result['ticket_id'] = $db_storage->lastinsertId('mod_open_tickets');
+                $result['ticket_id'] = $db_storage->lastInsertId();
             }
 
             if (is_null($extra_args['ticket_value'])) {
