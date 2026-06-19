@@ -820,10 +820,10 @@
     /* Custom macros variables */
     --custom-macros-placeholder-font-color: var(--color-black);
     --custom-macros-font-color: var(--color-black);
-    --custom-macros-command-border-color: var(--color-menthol-2);
-    --custom-macros-template-border-color: var(--color-rayola-2);
-    --custom-macros-command-background-color: var(--color-menthol);
-    --custom-macros-template-background-color: var(--color-rayola);
+    --custom-macros-command-border-color: var(--color-boston-blue);
+    --custom-macros-template-border-color: var(--color-maya-blue);
+    --custom-macros-command-background-color: var(--color-malibu-2);
+    --custom-macros-template-background-color: var(--color-columbia-blue);
     /* license manager error page variables */
     --license-manager-error-message-color: var(--color-primary-light);
     /* widget progress bar value color */

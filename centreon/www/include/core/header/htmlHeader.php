@@ -110,6 +110,37 @@ if ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
     <link href="./include/common/javascript/jquery/plugins/colorbox/colorbox.css" rel="stylesheet" type="text/css"/>
     <link href="./include/common/javascript/jquery/plugins/qtip/jquery-qtip.css" rel="stylesheet" type="text/css"/>
 
+    <!-- Modern form styles -->
+    <link href="./include/common/form/form.css<?php echo $versionParam; ?>" rel="stylesheet" type="text/css" />
+
+    <!-- Translated strings for the shared listing lib's JS-built UI (e.g. the
+         "More actions" confirmation modal) — listing.js is a plain static
+         file and can't use Smarty's {t}...{/t} tags directly. -->
+    <script type="text/javascript">
+        window.clI18n = {
+            cancel: <?php echo json_encode(_('Cancel')); ?>,
+            confirm: {
+                delete: {
+                    title: <?php echo json_encode(_('Delete %s')); ?>,
+                    message: <?php echo json_encode(_('You are about to delete the selected %s. This action cannot be undone. Do you want to continue?')); ?>
+                },
+                disable: {
+                    title: <?php echo json_encode(_('Disable %s')); ?>,
+                    message: <?php echo json_encode(_('You are about to disable the selected %s. Do you want to continue?')); ?>
+                },
+                duplicate: {
+                    title: <?php echo json_encode(_('Duplicate %s')); ?>,
+                    message: <?php echo json_encode(_('You are about to duplicate the selected %s. Do you want to continue?')); ?>
+                }
+            },
+            confirmDiscard: {
+                title: <?php echo json_encode(_('Discard changes?')); ?>,
+                message: <?php echo json_encode(_('You have unsaved changes. Are you sure you want to close this panel without saving?')); ?>,
+                confirm: <?php echo json_encode(_('Discard')); ?>
+            }
+        };
+    </script>
+
     <!-- graph css -->
     <link href="./include/common/javascript/charts/c3.min.css" type="text/css" rel="stylesheet" />
     <link href="./include/views/graphs/javascript/centreon-status-chart.css" type="text/css" rel="stylesheet" />
@@ -134,6 +165,8 @@ if ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
 if (! isset($_REQUEST['iframe']) || (isset($_REQUEST['iframe']) && $_REQUEST['iframe'] != 1)) {
     ?>
     <script type="text/javascript" src="./include/common/javascript/jquery/jquery.min.js"></script>
+    <!-- Modern form JS (must load after jQuery) -->
+    <script type="text/javascript" src="./include/common/form/form.js<?php echo $versionParam; ?>"></script>
     <script type="text/javascript" src="./include/common/javascript/jquery/plugins/toggleClick/jquery.toggleClick.js">
     </script>
     <script type="text/javascript" src="./include/common/javascript/jquery/plugins/select2/js/select2.full.min.js">
