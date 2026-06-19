@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import { reloadWebServer, updateWebServerPort } from '../common';
 
@@ -37,9 +38,7 @@ Given('a running platform served on a non-default web server port', () => {
 When(
   'the admin edits and saves a host through the legacy configuration form',
   () => {
-    // Legacy save path triggers the InternalApiClient call (the bug), not React.
-    // TODO: confirm the legacy iframe selectors.
-    cy.visit('/centreon/main.php?p=60101');
+    cy.visit(PAGES.configuration.hostsLegacy);
     cy.getIframeBody().contains(host).click();
     cy.getIframeBody()
       .find('input[name="host_alias"]')
