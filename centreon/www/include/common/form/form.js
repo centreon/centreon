@@ -451,7 +451,13 @@ var CentreonForm = (function () {
                 });
 
                 // Reuse the field's float label as the inline segment label, keep help icon
-                var floatLabel = g.field.querySelector('label.cf-label-float');
+                // The field's real parameter label = a cf-label-float that is NOT a radio's
+                // own label (those live inside .md-radio).
+                var floatLabel = null;
+                var candidates = g.field.querySelectorAll('label.cf-label-float');
+                Array.prototype.forEach.call(candidates, function (l) {
+                    if (!floatLabel && !l.closest('.md-radio')) floatLabel = l;
+                });
                 var labelText = floatLabel ? floatLabel.textContent.trim() : '';
                 var help = g.field.querySelector('img.helpTooltip');
                 var row = document.createElement('div');
@@ -765,7 +771,10 @@ var CentreonForm = (function () {
         options = options || {};
 
         // Each step is isolated so a failure in one never aborts the others.
-        var steps = [initFloatLabels, initYesNoSegments, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel];
+        // initYesNoSegments runs BEFORE initFloatLabels: otherwise float-labels tag the
+        // radios' own "Yes/No/Default" <label> with cf-label-float and we'd pick that up
+        // instead of the field's real parameter label.
+        var steps = [initYesNoSegments, initFloatLabels, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel];
         if (options.exclusiveChip) steps.push(function () { initChips(options.exclusiveChip); });
         if (options.macros) steps.push(initMacroCleanup);
         if (options.geo) steps.push(initGeoAutocomplete);
