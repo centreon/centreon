@@ -577,6 +577,17 @@
     width: 100% !important;
 }
 
+/* Dual-list / multiselect wrappers (<p class="oreonbutton">) take the full row width */
+.cf-field > .oreonbutton {
+    flex: 1 1 100%;
+    min-width: 0;
+    margin: 0;
+}
+.cf-field > .oreonbutton select,
+.cf-field > .oreonbutton .select2-container {
+    width: 100% !important;
+}
+
 .cf-field .select2-container .select2-selection {
     min-height: 44px;
     border: 1px solid var(--color-divider, #e3e3e3);
