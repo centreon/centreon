@@ -518,7 +518,9 @@ function setup_mysql() {
 			old_mysql_key=$(rpm -q gpg-pubkey 2>/dev/null | grep -i a8d3785c || true)
 			if [ -n "$old_mysql_key" ]; then rpm -e $old_mysql_key 2>/dev/null || true; fi
 			rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-mysql-2023
-			$PKG_MGR install -y mysql-server
+			# install_weak_deps=False: the distro mariadb server/client are only Recommends here; without
+			# this dnf pulls the whole mariadb stack alongside Oracle MySQL and they collide on /usr/bin/mysql.
+			$PKG_MGR install -y --setopt=install_weak_deps=False mysql-server
 		else
 			$PKG_MGR install -y mysql-server mysql
 		fi
@@ -1190,7 +1192,28 @@ EOF
 		else
 			default_authentication_plugin="mysql_native_password"
 		fi
-		mysql -u root --verbose <<-EOF
+
+		# Decide how to authenticate as root for the initial password set:
+		# - MariaDB / AppStream MySQL / socket auth: passwordless root works.
+		# - Oracle MySQL community (8.4): first init writes a random, *expired* temporary root password
+		#   to the server log; connect with it (--connect-expired-password). The ALTER below lifts the
+		#   expired state so the remaining statements run in the same session.
+		local -a mysql_root_auth=(-u root)
+		if ! mysql -u root -e "SELECT 1" >/dev/null 2>&1; then
+			local mysql_error_log mysql_temp_pw
+			if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+				mysql_error_log="/var/log/mysql/error.log"
+			else
+				mysql_error_log="/var/log/mysqld.log"
+			fi
+			mysql_temp_pw=$(grep 'temporary password is generated for root@localhost' "$mysql_error_log" 2>/dev/null | tail -1 | sed -E 's/.*root@localhost: //')
+			if [ -z "$mysql_temp_pw" ]; then
+				error_and_exit "Could not authenticate to MySQL as root (no passwordless access and no temporary password in $mysql_error_log)"
+			fi
+			mysql_root_auth=(--connect-expired-password -u root -p"${mysql_temp_pw}")
+		fi
+
+		mysql "${mysql_root_auth[@]}" --verbose <<-EOF
 			ALTER USER 'root'@'localhost' IDENTIFIED WITH '${default_authentication_plugin}' BY '${db_root_password}';
 			DELETE FROM mysql.user WHERE User='';
 			DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
@@ -1686,12 +1709,13 @@ function install_central() {
 			error_and_exit "Could not install Centreon (package centreon)"
 		fi
 	else
-		# For MySQL, exclude mariadb* so centreon-web's "(mariadb or mysql)" dep resolves to Oracle's
-		# mysql client instead of AppStream mariadb (which would collide on /usr/bin/mysql).
-		local db_exclude=""
-		[[ "$dbms" == "MySQL" ]] && db_exclude="--exclude=mariadb*"
+		# For MySQL, disable weak deps so dnf doesn't pull the distro mariadb server (only a Recommends)
+		# alongside Oracle MySQL; centreon-web's "(mariadb or mysql)" is already satisfied by Oracle's mysql
+		# client, and the hard-required mariadb-connector-c (for perl-DBD-MariaDB) is unaffected.
+		local db_opts=""
+		[[ "$dbms" == "MySQL" ]] && db_opts="--setopt=install_weak_deps=False"
 		# install core Centreon packages from enabled repo
-		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q install -y $db_exclude $CENTREON_DBMS_PKG centreon --enablerepo="$CENTREON_REPO"
+		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q install -y $db_opts $CENTREON_DBMS_PKG centreon --enablerepo="$CENTREON_REPO"
 
 		if [ $? -ne 0 ]; then
 			error_and_exit "Could not install Centreon (package centreon)"
