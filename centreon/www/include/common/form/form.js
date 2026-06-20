@@ -334,7 +334,7 @@ var CentreonForm = (function () {
      * This function tries both patterns.
      */
     function initSegmentedButtons() {
-        document.querySelectorAll('.cf-segmented').forEach(function (group) {
+        document.querySelectorAll('.cf-segmented:not([data-cf-auto])').forEach(function (group) {
             var radioName = group.dataset.radioName;
             var buttons = group.querySelectorAll('button');
 
@@ -400,52 +400,73 @@ var CentreonForm = (function () {
         });
 
         groups.forEach(function (g) {
-            if (g.items.length < 2 || g.items.length > 3) return;
-            // Only yes/no/default style groups (values within {0,1,2})
-            var ok = g.items.every(function (it) {
-                return ['0', '1', '2'].indexOf(String(it.input.value)) !== -1;
-            });
-            if (!ok) return;
+            try {
+                if (g.items.length < 2 || g.items.length > 3) return;
+                // Only yes/no/default style groups (values within {0,1,2})
+                var ok = g.items.every(function (it) {
+                    return ['0', '1', '2'].indexOf(String(it.input.value)) !== -1;
+                });
+                if (!ok) return;
 
-            var base = g.name.replace(/\[.*\]$/, '');
+                var base = g.name.replace(/\[.*\]$/, '');
 
-            // Build segmented buttons, ordered Default(2), Yes(1), No(0) when present
-            var byVal = {};
-            g.items.forEach(function (it) {
-                var lbl = it.mdRadio.querySelector('label');
-                var text = lbl ? lbl.textContent.trim() : '';
-                if (!text) text = ({ '2': 'Default', '1': 'Yes', '0': 'No' })[it.input.value] || it.input.value;
-                byVal[it.input.value] = text;
-            });
-            var order = ['2', '1', '0'].filter(function (v) { return v in byVal; });
+                // Build segmented buttons, ordered Default(2), Yes(1), No(0) when present
+                var byVal = {};
+                g.items.forEach(function (it) {
+                    var lbl = it.mdRadio.querySelector('label');
+                    var text = lbl ? lbl.textContent.trim() : '';
+                    if (!text) text = ({ '2': 'Default', '1': 'Yes', '0': 'No' })[it.input.value] || it.input.value;
+                    byVal[it.input.value] = text;
+                });
+                var order = ['2', '1', '0'].filter(function (v) { return v in byVal; });
 
-            var seg = document.createElement('div');
-            seg.className = 'cf-segmented';
-            seg.setAttribute('data-radio-name', base);
-            order.forEach(function (v) {
-                var b = document.createElement('button');
-                b.type = 'button';
-                b.setAttribute('data-value', v);
-                b.textContent = byVal[v];
-                seg.appendChild(b);
-            });
+                var seg = document.createElement('div');
+                seg.className = 'cf-segmented';
+                seg.setAttribute('data-radio-name', base);
+                seg.setAttribute('data-cf-auto', '1');   // self-wired: skipped by initSegmentedButtons
+                order.forEach(function (v) {
+                    var b = document.createElement('button');
+                    b.type = 'button';
+                    b.setAttribute('data-value', v);
+                    b.textContent = byVal[v];
+                    seg.appendChild(b);
+                });
 
-            // Reuse the field's float label as the inline segment label
-            var floatLabel = g.field.querySelector('label.cf-label-float');
-            var labelText = floatLabel ? floatLabel.textContent.trim() : '';
-            var row = document.createElement('div');
-            row.className = 'cf-segmented-row';
-            if (labelText) {
-                var span = document.createElement('span');
-                span.textContent = labelText;
-                row.appendChild(span);
-            }
-            row.appendChild(seg);
+                // Wire the buttons immediately (do not rely on a second init pass)
+                var btns = seg.querySelectorAll('button');
+                Array.prototype.forEach.call(btns, function (btn) {
+                    var v = btn.getAttribute('data-value');
+                    var radio = _findRadio(base, v);
+                    if (radio && radio.checked) btn.classList.add('active');
+                    btn.addEventListener('click', function () {
+                        Array.prototype.forEach.call(btns, function (b) { b.classList.remove('active'); });
+                        btn.classList.add('active');
+                        var r = _findRadio(base, v);
+                        if (r) {
+                            r.checked = true;
+                            try { r.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {}
+                            try { r.dispatchEvent(new Event('click', { bubbles: true })); } catch (e) {}
+                        }
+                    });
+                });
 
-            // Insert the segmented control and hide the original radios + float label
-            g.field.insertBefore(row, g.field.firstChild);
-            if (floatLabel) floatLabel.style.display = 'none';
-            g.items.forEach(function (it) { it.mdRadio.style.display = 'none'; });
+                // Reuse the field's float label as the inline segment label
+                var floatLabel = g.field.querySelector('label.cf-label-float');
+                var labelText = floatLabel ? floatLabel.textContent.trim() : '';
+                var row = document.createElement('div');
+                row.className = 'cf-segmented-row';
+                if (labelText) {
+                    var span = document.createElement('span');
+                    span.textContent = labelText;
+                    row.appendChild(span);
+                }
+                row.appendChild(seg);
+
+                // Insert the segmented control and hide the original radios + float label
+                g.field.insertBefore(row, g.field.firstChild);
+                if (floatLabel) floatLabel.style.display = 'none';
+                g.items.forEach(function (it) { it.mdRadio.style.display = 'none'; });
+            } catch (e) { /* leave this field as plain radios on any error */ }
         });
     }
 
@@ -735,23 +756,15 @@ var CentreonForm = (function () {
     function initFormPage(options) {
         options = options || {};
 
-        initFloatLabels();
-        initYesNoSegments();
-        initSegmentedButtons();
-        initTooltips();
-        hideBreadcrumbInPanel();
+        // Each step is isolated so a failure in one never aborts the others.
+        var steps = [initFloatLabels, initYesNoSegments, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel];
+        if (options.exclusiveChip) steps.push(function () { initChips(options.exclusiveChip); });
+        if (options.macros) steps.push(initMacroCleanup);
+        if (options.geo) steps.push(initGeoAutocomplete);
 
-        if (options.exclusiveChip) {
-            initChips(options.exclusiveChip);
-        }
-
-        if (options.macros) {
-            initMacroCleanup();
-        }
-
-        if (options.geo) {
-            initGeoAutocomplete();
-        }
+        steps.forEach(function (step) {
+            try { step(); } catch (e) { if (window.console) console.error('CentreonForm init step failed', e); }
+        });
     }
 
     // =========================================================================
