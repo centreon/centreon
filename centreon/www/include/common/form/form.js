@@ -450,9 +450,10 @@ var CentreonForm = (function () {
                     });
                 });
 
-                // Reuse the field's float label as the inline segment label
+                // Reuse the field's float label as the inline segment label, keep help icon
                 var floatLabel = g.field.querySelector('label.cf-label-float');
                 var labelText = floatLabel ? floatLabel.textContent.trim() : '';
+                var help = g.field.querySelector('img.helpTooltip');
                 var row = document.createElement('div');
                 row.className = 'cf-segmented-row';
                 if (labelText) {
@@ -461,11 +462,18 @@ var CentreonForm = (function () {
                     row.appendChild(span);
                 }
                 row.appendChild(seg);
+                if (help) row.appendChild(help);
 
-                // Insert the segmented control and hide the original radios + float label
+                // Move ALL original field content (radios, their labels, separators and any
+                // stray text node) into a hidden holder so nothing leaks before the segmented
+                // control (e.g. a dangling "Yes" label). Radios stay in the DOM and submit.
+                var holder = document.createElement('span');
+                holder.style.display = 'none';
+                while (g.field.firstChild) {
+                    holder.appendChild(g.field.firstChild);
+                }
+                g.field.appendChild(holder);
                 g.field.insertBefore(row, g.field.firstChild);
-                if (floatLabel) floatLabel.style.display = 'none';
-                g.items.forEach(function (it) { it.mdRadio.style.display = 'none'; });
             } catch (e) { /* leave this field as plain radios on any error */ }
         });
     }
