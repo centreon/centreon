@@ -1686,8 +1686,12 @@ function install_central() {
 			error_and_exit "Could not install Centreon (package centreon)"
 		fi
 	else
+		# For MySQL, exclude mariadb* so centreon-web's "(mariadb or mysql)" dep resolves to Oracle's
+		# mysql client instead of AppStream mariadb (which would collide on /usr/bin/mysql).
+		local db_exclude=""
+		[[ "$dbms" == "MySQL" ]] && db_exclude="--exclude=mariadb*"
 		# install core Centreon packages from enabled repo
-		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q install -y $CENTREON_DBMS_PKG centreon --enablerepo="$CENTREON_REPO"
+		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q install -y $db_exclude $CENTREON_DBMS_PKG centreon --enablerepo="$CENTREON_REPO"
 
 		if [ $? -ne 0 ]; then
 			error_and_exit "Could not install Centreon (package centreon)"
