@@ -578,16 +578,27 @@
 }
 
 /* Dual-list / multiselect wrappers (<p class="oreonbutton">) fill the remaining
-   row width while leaving the clear (×) and help (?) icons on the right. */
+   row width. The wrapper becomes a flex row so the select2 field and its clear
+   cross (×) sit side by side — field then ×, with the help (?) icon after. */
 .cf-field > .oreonbutton {
     flex: 1 1 0;
     min-width: 0;
     margin: 0;
     order: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
-.cf-field > .oreonbutton select,
-.cf-field > .oreonbutton .select2-container {
-    width: 100% !important;
+.cf-field > .oreonbutton > select,
+.cf-field > .oreonbutton > .select2-container {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto !important;
+}
+.cf-field > .oreonbutton .clearAllSelect2 {
+    order: 2;
+    flex-shrink: 0;
+    margin: 0;
 }
 
 .cf-field .select2-container .select2-selection {
