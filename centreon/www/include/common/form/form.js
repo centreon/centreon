@@ -357,9 +357,95 @@ var CentreonForm = (function () {
                     this.classList.add('active');
 
                     var r = _findRadio(radioName, val);
-                    if (r) r.checked = true;
+                    if (r) {
+                        r.checked = true;
+                        // Notify dependent handlers bound to the underlying radio
+                        try { r.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {}
+                        try { r.dispatchEvent(new Event('click', { bubbles: true })); } catch (e) {}
+                    }
                 });
             });
+        });
+    }
+
+    // =========================================================================
+    //  AUTO YES/NO/DEFAULT SEGMENTS
+    //  Convert visible QuickForm radio groups (.md-radio with values in {0,1,2})
+    //  into segmented controls, consistently with the host form. Hidden radios
+    //  (host's explicit segments, cl-toggle activate fields) are skipped via the
+    //  visibility check, so this never double-processes them.
+    // =========================================================================
+    function initYesNoSegments() {
+        var wrapper = document.querySelector('.cf-form-wrapper');
+        if (!wrapper) return;
+
+        // Group visible radios by their (field, name)
+        var groups = [];
+        var index = {};
+        wrapper.querySelectorAll('.md-radio input[type="radio"]').forEach(function (input) {
+            var mdRadio = input.closest('.md-radio');
+            if (!mdRadio) return;
+            // Skip hidden radios (host explicit segments, activate toggles, hidden tabs)
+            if (mdRadio.offsetParent === null) return;
+            var field = input.closest('.cf-field') || input.closest('.cf-segmented-row');
+            if (!field || field.classList.contains('cf-segmented-row')) return;
+            if (field.querySelector('.cf-segmented')) return;
+
+            var key = field.dataset.cfRid || (field.dataset.cfRid = String(groups.length) + ':' + input.name);
+            if (!(key in index)) {
+                index[key] = groups.length;
+                groups.push({ field: field, name: input.name, items: [] });
+            }
+            groups[index[key]].items.push({ input: input, mdRadio: mdRadio });
+        });
+
+        groups.forEach(function (g) {
+            if (g.items.length < 2 || g.items.length > 3) return;
+            // Only yes/no/default style groups (values within {0,1,2})
+            var ok = g.items.every(function (it) {
+                return ['0', '1', '2'].indexOf(String(it.input.value)) !== -1;
+            });
+            if (!ok) return;
+
+            var base = g.name.replace(/\[.*\]$/, '');
+
+            // Build segmented buttons, ordered Default(2), Yes(1), No(0) when present
+            var byVal = {};
+            g.items.forEach(function (it) {
+                var lbl = it.mdRadio.querySelector('label');
+                var text = lbl ? lbl.textContent.trim() : '';
+                if (!text) text = ({ '2': 'Default', '1': 'Yes', '0': 'No' })[it.input.value] || it.input.value;
+                byVal[it.input.value] = text;
+            });
+            var order = ['2', '1', '0'].filter(function (v) { return v in byVal; });
+
+            var seg = document.createElement('div');
+            seg.className = 'cf-segmented';
+            seg.setAttribute('data-radio-name', base);
+            order.forEach(function (v) {
+                var b = document.createElement('button');
+                b.type = 'button';
+                b.setAttribute('data-value', v);
+                b.textContent = byVal[v];
+                seg.appendChild(b);
+            });
+
+            // Reuse the field's float label as the inline segment label
+            var floatLabel = g.field.querySelector('label.cf-label-float');
+            var labelText = floatLabel ? floatLabel.textContent.trim() : '';
+            var row = document.createElement('div');
+            row.className = 'cf-segmented-row';
+            if (labelText) {
+                var span = document.createElement('span');
+                span.textContent = labelText;
+                row.appendChild(span);
+            }
+            row.appendChild(seg);
+
+            // Insert the segmented control and hide the original radios + float label
+            g.field.insertBefore(row, g.field.firstChild);
+            if (floatLabel) floatLabel.style.display = 'none';
+            g.items.forEach(function (it) { it.mdRadio.style.display = 'none'; });
         });
     }
 
@@ -650,6 +736,7 @@ var CentreonForm = (function () {
         options = options || {};
 
         initFloatLabels();
+        initYesNoSegments();
         initSegmentedButtons();
         initTooltips();
         hideBreadcrumbInPanel();
@@ -706,6 +793,7 @@ var CentreonForm = (function () {
         initFloatLabels:      initFloatLabels,
         initTooltips:         initTooltips,
         initSegmentedButtons: initSegmentedButtons,
+        initYesNoSegments:    initYesNoSegments,
         initChips:            initChips,
         syncToggle:           syncToggle,
         initMacroCleanup:     initMacroCleanup,
