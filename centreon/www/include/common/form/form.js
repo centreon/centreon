@@ -410,7 +410,7 @@ var CentreonForm = (function () {
 
                 var base = g.name.replace(/\[.*\]$/, '');
 
-                // Build segmented buttons, ordered Default(2), Yes(1), No(0) when present
+                // Build segmented buttons, ordered Yes(1), No(0), Default(2) when present
                 var byVal = {};
                 g.items.forEach(function (it) {
                     var lbl = it.mdRadio.querySelector('label');
@@ -418,7 +418,7 @@ var CentreonForm = (function () {
                     if (!text) text = ({ '2': 'Default', '1': 'Yes', '0': 'No' })[it.input.value] || it.input.value;
                     byVal[it.input.value] = text;
                 });
-                var order = ['2', '1', '0'].filter(function (v) { return v in byVal; });
+                var order = ['1', '0', '2'].filter(function (v) { return v in byVal; });
 
                 var seg = document.createElement('div');
                 seg.className = 'cf-segmented';
