@@ -141,6 +141,18 @@ function log() {
 }
 #======== end of function log()
 
+#========= begin of function version_int()
+# convert a Centreon version "YY.MM" into a comparable integer (24.10 -> 2410, 26.07 -> 2607)
+# so version ranges can be compared with arithmetic (( )) instead of brittle string/regex tests.
+# defaults to the global $version when no argument is given.
+#
+function version_int() {
+	local v="${1:-$version}"
+	# 10# forces base-10 so a leading-zero minor like "07" is not parsed as octal.
+	echo $((10#${v%%.*} * 100 + 10#${v##*.}))
+}
+#========= end of function version_int()
+
 #========= begin of function parse_subcommand_options()
 # parse the provided arguments and check values
 # the script will display usage (and aborted) for any
@@ -517,7 +529,7 @@ function setup_mysql() {
 		log "INFO" "Successfully installed the $dbms repository"
 	fi
 	systemctl enable --now $mysql_service_name
-	if ! [[ "$version" == "24.10" || "$version" == "25.09" || "$version" =~ "25.1"[0-2] || "$version" =~ "26.0"[1-9] ]]; then
+	if (( $(version_int) < $(version_int 24.10) )); then
 		echo "default-authentication-plugin=mysql_native_password" >> $mysql_config_file
 	fi
 	sed -Ei 's/LimitNOFILE\s\=\s[0-9]{1,}/LimitNOFILE = 32000/' /usr/lib/systemd/system/$mysql_service_name.service
@@ -747,7 +759,7 @@ function set_required_prerequisite() {
 		set_centreon_repos
 		IFS=', ' read -r -a array_apt <<<"$CENTREON_REPO"
 		for _repo in "${array_apt[@]}"; do
-		    if [[ "$version" < "25.10" ]]; then
+		    if (( $(version_int) < $(version_int 25.10) )); then
 			    echo "deb https://packages.centreon.com/$repo_prefix-standard-$_repo/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
 			else
 				echo "deb https://packages.centreon.com/$apt_standard_repo/ $(lsb_release -sc)-$_repo main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
@@ -1173,7 +1185,7 @@ EOF
 	else
 		systemctl restart $mysql_service_name
 		log "INFO" "Executing SQL requests for $dbms"
-		if [[ "$version" == "24.10" || "$version" == "25.09" || "$version" =~ "25.1"[0-2] || "$version" =~ "26.0"[1-9] ]]; then
+		if (( $(version_int) >= $(version_int 24.10) )); then
 			default_authentication_plugin="caching_sha2_password"
 		else
 			default_authentication_plugin="mysql_native_password"
@@ -1653,18 +1665,18 @@ function install_central() {
 
 	log "INFO" "Centreon [$topology] installation from [${CENTREON_REPO}]"
 
-	if [[ "$version" =~ ^24\.0[1-9]$ || "$version" =~ ^24\.1[0-2]$ ]]; then
-		if [[ $dbms == "MariaDB" ]]; then
-			CENTREON_DBMS_PKG="centreon-mariadb"
-		else
-			CENTREON_DBMS_PKG="centreon-mysql"
-		fi
+	# Select the DBMS-specific Centreon package. The generic 'centreon-database' is a virtual package
+	# provided only by 'centreon-mariadb' (which depends on mariadb-server), so installing it always
+	# resolves to MariaDB and even removes a previously-installed MySQL server. Pick the concrete
+	# package by $dbms instead: 'centreon-mysql' depends on mysql-server, 'centreon-mariadb' on mariadb-server.
+	if [[ $dbms == "MariaDB" ]]; then
+		CENTREON_DBMS_PKG="centreon-mariadb"
 	else
-		CENTREON_DBMS_PKG="centreon-database"
+		CENTREON_DBMS_PKG="centreon-mysql"
 	fi
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
-		if [[ "$version" =~ ^24\.1[0-2]$ ]]; then
+		if (( $(version_int) >= $(version_int 24.10) && $(version_int) <= $(version_int 24.12) )); then
 			$PKG_MGR install -y $CENTREON_DBMS_PKG centreon
 		else
 			$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon
@@ -1736,7 +1748,7 @@ function install_poller() {
 	log "INFO" "Poller installation from ${CENTREON_REPO}"
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
-		if [[ "$version" =~ ^24\.1[0-2]$ ]]; then
+		if (( $(version_int) >= $(version_int 24.10) && $(version_int) <= $(version_int 24.12) )); then
 			$PKG_MGR install -y $CENTREON_DBMS_PKG centreon-poller
 		else
 			$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon-poller
