@@ -533,6 +533,94 @@ var CentreonForm = (function () {
     }
 
     // =========================================================================
+    //  AUTO CHECKBOX CHIPS
+    //  Convert visible QuickForm checkbox GROUPS (2+ .md-checkbox in one field —
+    //  e.g. notification/escalation/stalking options Up/Down/Unreachable/…) into
+    //  clickable chips, like the host form. Single checkboxes are left untouched.
+    //  Hidden checkboxes (host explicit chips) are skipped via the visibility check.
+    // =========================================================================
+    function initCheckboxChips() {
+        var wrapper = document.querySelector('.cf-form-wrapper');
+        if (!wrapper) return;
+
+        var groups = [];
+        var fields = [];
+        wrapper.querySelectorAll('.md-checkbox input[type="checkbox"]').forEach(function (input) {
+            var mdc = input.closest('.md-checkbox');
+            if (!mdc || mdc.offsetParent === null) return;            // skip hidden
+            if (input.closest('.clonable') || input.closest('.macroclone')) return; // skip clone/macro rows
+            var field = input.closest('.cf-field');
+            if (!field || field.querySelector('.cf-chips')) return;
+            var idx = fields.indexOf(field);
+            if (idx === -1) { fields.push(field); groups.push({ field: field, items: [] }); idx = groups.length - 1; }
+            groups[idx].items.push({ input: input, mdc: mdc });
+        });
+
+        groups.forEach(function (g) {
+            try {
+                if (g.items.length < 2) return;   // only multi-option groups become chips
+
+                var chips = document.createElement('div');
+                chips.className = 'cf-chips';
+                chips.setAttribute('data-cf-auto', '1');
+
+                // Field's real parameter label (not a checkbox's own label)
+                var floatLabel = null;
+                Array.prototype.forEach.call(g.field.querySelectorAll('label.cf-label-float'), function (l) {
+                    if (!floatLabel && !l.closest('.md-checkbox')) floatLabel = l;
+                });
+                var labelText = floatLabel ? floatLabel.textContent.trim() : '';
+                if (labelText) {
+                    var lab = document.createElement('span');
+                    lab.className = 'cf-chips-label';
+                    lab.textContent = labelText;
+                    chips.appendChild(lab);
+                }
+                var help = g.field.querySelector('img.helpTooltip');
+                if (help) chips.appendChild(help);
+
+                // "None" option (value 'n') is exclusive, like the host form
+                var exclusive = null;
+                g.items.forEach(function (it) {
+                    if (String(it.input.value).toLowerCase() === 'n') exclusive = it.input;
+                });
+
+                g.items.forEach(function (it) {
+                    var lbl = it.mdc.querySelector('label');
+                    var chip = document.createElement('span');
+                    chip.className = 'cf-chip';
+                    chip.textContent = lbl ? lbl.textContent.trim() : (it.input.value || '');
+                    if (it.input.checked) chip.classList.add('active');
+                    chip.addEventListener('click', function () {
+                        var isExclusive = (it.input === exclusive);
+                        if (exclusive && isExclusive) {
+                            g.items.forEach(function (o) {
+                                if (o.input !== exclusive) { o.input.checked = false; o.chipEl.classList.remove('active'); }
+                            });
+                        } else if (exclusive) {
+                            exclusive.checked = false;
+                            if (exclusive.chipEl) exclusive.chipEl.classList.remove('active');
+                        }
+                        this.classList.toggle('active');
+                        it.input.checked = this.classList.contains('active');
+                        try { it.input.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {}
+                    });
+                    it.chipEl = chip;
+                    it.input.chipEl = chip;
+                    chips.appendChild(chip);
+                });
+
+                // Hide original checkboxes/labels behind a holder; show the chips
+                var holder = document.createElement('span');
+                holder.style.display = 'none';
+                while (g.field.firstChild) { holder.appendChild(g.field.firstChild); }
+                g.field.appendChild(holder);
+                g.field.insertBefore(chips, g.field.firstChild);
+            } catch (e) { /* leave as plain checkboxes on error */ }
+        });
+    }
+
+    // =========================================================================
     //  TOGGLE SWITCH SYNC
     //  Sync an iPhone-style toggle (cl-toggle) with hidden QuickForm radios.
     // =========================================================================
@@ -774,7 +862,7 @@ var CentreonForm = (function () {
         // initYesNoSegments runs BEFORE initFloatLabels: otherwise float-labels tag the
         // radios' own "Yes/No/Default" <label> with cf-label-float and we'd pick that up
         // instead of the field's real parameter label.
-        var steps = [initYesNoSegments, initFloatLabels, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel];
+        var steps = [initYesNoSegments, initCheckboxChips, initFloatLabels, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel];
         if (options.exclusiveChip) steps.push(function () { initChips(options.exclusiveChip); });
         if (options.macros) steps.push(initMacroCleanup);
         if (options.geo) steps.push(initGeoAutocomplete);
@@ -824,6 +912,7 @@ var CentreonForm = (function () {
         initTooltips:         initTooltips,
         initSegmentedButtons: initSegmentedButtons,
         initYesNoSegments:    initYesNoSegments,
+        initCheckboxChips:    initCheckboxChips,
         initChips:            initChips,
         syncToggle:           syncToggle,
         initMacroCleanup:     initMacroCleanup,
