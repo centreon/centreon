@@ -579,10 +579,11 @@ var CentreonForm = (function () {
                 var help = g.field.querySelector('img.helpTooltip');
                 if (help) chips.appendChild(help);
 
-                // "None" option (value 'n') is exclusive, like the host form
+                // "None" option is exclusive, like the host form. Its element NAME is 'n'
+                // (rendered as name="group[n]", id like "notifN"); the value attribute is "1".
                 var exclusive = null;
                 g.items.forEach(function (it) {
-                    if (String(it.input.value).toLowerCase() === 'n') exclusive = it.input;
+                    if (/\[n\]$/i.test(it.input.name || '') || /N$/.test(it.input.id || '')) exclusive = it.input;
                 });
 
                 g.items.forEach(function (it) {
