@@ -38,6 +38,24 @@ export class ResourcesStatusPage extends BasePage {
     const resources = this.waitForResources();
     await this.goto('/monitoring/resources');
     await resources;
+    await this.disableAutoRefresh();
+  }
+
+  /**
+   * Turn off the listing auto-refresh so a periodic re-render does not reset the
+   * row selection mid-test (a real flake under full-suite load). Best-effort.
+   */
+  async disableAutoRefresh(): Promise<void> {
+    const toggle = this.page.getByRole('button', {
+      exact: true,
+      name: 'Disable autorefresh'
+    });
+    if ((await toggle.count()) > 0) {
+      await toggle
+        .first()
+        .click()
+        .catch(() => undefined);
+    }
   }
 
   /** Type a search expression, submit it and wait for the filtered listing. */
@@ -108,10 +126,17 @@ export class ResourcesStatusPage extends BasePage {
    */
   async selectResource(name: string): Promise<void> {
     await test.step(`Select resource "${name}"`, async () => {
+      const checkbox = this.listingRow(name).getByRole('checkbox').first();
+      // Ensure the row ends up selected. Use the checkbox state as the signal —
+      // it is universal, unlike the Acknowledge button which only enables for
+      // problem resources (so it would never enable for an OK downtime target).
+      // The virtualized listing can drop a click, so retry until checked.
       await expect(async () => {
-        await this.listingRow(name).getByRole('checkbox').first().click();
-        await expect(this.acknowledgeButton).toBeEnabled({ timeout: 2_000 });
-      }).toPass({ timeout: 20_000 });
+        if (!(await checkbox.isChecked())) {
+          await checkbox.click();
+        }
+        await expect(checkbox).toBeChecked({ timeout: 2_000 });
+      }).toPass({ timeout: 30_000 });
     });
   }
 
