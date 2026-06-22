@@ -4,7 +4,7 @@ import { PAGES } from 'fixtures/shared/constants/pages';
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
-} from '../../../../commons';
+} from '../../../commons';
 import {
   reloadWebServer,
   replaceCustomUri,
