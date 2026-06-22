@@ -31,6 +31,12 @@
       <directory>./src/*/Tests/</directory>
       <exclude>./tests/php/App</exclude>
     </testsuite>
+    <!-- Pure unit tests of the logging exception formatter (no DB / no kernel).
+         The App suite as a whole is excluded above; these extend
+         PHPUnit\Framework\TestCase, so they run in this no-DB suite. -->
+    <testsuite name="App Logging Unit Tests">
+      <directory>./tests/php/App/Shared/Infrastructure/Logging</directory>
+    </testsuite>
   </testsuites>
   <groups>
     <exclude>
