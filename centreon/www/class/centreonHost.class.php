@@ -548,9 +548,10 @@ class CentreonHost
         $paramsList = '*';
         if (count($params) > 0) {
             $validParams = array_intersect($params, self::ALLOWED_HOST_COLUMNS);
-            if ($validParams !== []) {
-                $paramsList = '`' . implode('`,`', $validParams) . '`';
+            if ($validParams === []) {
+                throw new InvalidArgumentException('No valid column names in $params');
             }
+            $paramsList = '`' . implode('`,`', $validParams) . '`';
         }
 
         try {

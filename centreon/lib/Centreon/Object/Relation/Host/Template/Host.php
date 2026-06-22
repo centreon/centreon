@@ -184,7 +184,6 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
             }
         }
         if (isset($order, $sort)   && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
-            $order = $this->sanitizeIdentifier($order);
             $sql .= " ORDER BY {$order} {$sort} ";
         }
         if (isset($count) && $count != -1) {
