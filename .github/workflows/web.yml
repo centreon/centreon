@@ -912,10 +912,51 @@ jobs:
           is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
           upload_artifacts: ${{ needs.get-environment.outputs.is_nightly == 'true' || contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
 
+  attest-packages:
+    needs: [get-environment, changes, package]
+    if: |
+      needs.changes.outputs.trigger_packaging == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      github.event.pull_request.head.repo.fork != true &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.outputs.stability != 'stable'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package_extension: rpm
+            distrib: el9
+          - package_extension: rpm
+            distrib: el10
+          - package_extension: deb
+            distrib: trixie
+    name: attest ${{ matrix.distrib }}
+    runs-on: ubuntu-24.04
+    permissions:
+      id-token: write
+      attestations: write
+      contents: read
+    steps:
+      - name: Restore ${{ matrix.package_extension }} packages from cache
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ./*.${{ matrix.package_extension }}
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+          fail-on-cache-miss: true
+
+      - name: Attest ${{ matrix.distrib }} packages
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: "./*.${{ matrix.package_extension }}"
+
   dockerize:
     runs-on: ubuntu-24.04
     needs: [get-environment, changes, package]
     permissions:
+      id-token: write
+      attestations: write
       contents: read
       packages: read
       actions: write
@@ -1038,6 +1079,7 @@ jobs:
             type=raw,value=${{ steps.image_tag.outputs.additional_tag }},enable=${{ steps.image_tag.outputs.additional_tag != '' }}
 
       - name: Build and push web image
+        id: build-web
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         env:
           DOCKER_BUILD_CHECKS_ANNOTATIONS: false
@@ -1058,6 +1100,14 @@ jobs:
           load: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Attest web image
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: docker.centreon.com/centreon/${{ env.project }}-${{ matrix.operating_system }}
+          subject-digest: ${{ steps.build-web.outputs.digest }}
+          push-to-registry: true
 
       - name: Store slim image in local archive
         env:
