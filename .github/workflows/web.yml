@@ -1260,7 +1260,15 @@ jobs:
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled()
-    name: playwright-e2e-test
+    # Sharded across parallel runners: each shard is an isolated VM with its own
+    # Docker, so it brings up its own throwaway stack — no shared-state conflict.
+    # Playwright splits the spec files across shards; one stack boot per shard
+    # instead of one boot per feature (the Cypress matrix uses ~140 jobs).
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    name: playwright-e2e-test (shard ${{ matrix.shard }}/4)
     env:
       # POC: run against the published web image (this PR only adds test files).
       WEB_IMAGE: docker.centreon.com/centreon/centreon-web-alma9:develop
@@ -1320,23 +1328,68 @@ jobs:
       # web stack, the OIDC spec's beforeAll ensures the openid profile), so no
       # explicit "up" / health-wait steps are needed here. The registry login
       # above lets the test-triggered `docker compose up` pull the web image.
-      - name: Run Playwright e2e tests
-        run: pnpm test
+      - name: Run Playwright e2e tests (shard ${{ matrix.shard }}/4)
+        run: pnpm exec playwright test --shard=${{ matrix.shard }}/4 --reporter=blob
         working-directory: ${{ env.base_directory }}/tests/e2e-playwright
         env:
           CENTREON_BASE_URL: http://localhost:4000/centreon
 
-      - name: Upload Playwright report
+      - name: Upload blob report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: playwright-blob-${{ matrix.shard }}
+          path: ${{ env.base_directory }}/tests/e2e-playwright/blob-report
+          retention-days: 5
+
+      - name: Stop the Centreon stack
+        if: ${{ always() }}
+        run: docker compose -f "$compose_file" --profile openid --profile squid-simple down -v
+
+  # Merge the per-shard blob reports into a single HTML report.
+  playwright-e2e-report:
+    runs-on: ubuntu-24.04
+    needs: [playwright-e2e-test]
+    if: ${{ !cancelled() }}
+    name: playwright-e2e-report
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: pnpm/action-setup@26f6d4f2c533a43e6b5da0b4a5dd983f98f7b49a # v6.0.4
+        with:
+          version: 10
+          run_install: false
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: ${{ env.base_directory }}/tests/e2e-playwright/pnpm-lock.yaml
+
+      - name: Install Playwright e2e dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: ${{ env.base_directory }}/tests/e2e-playwright
+
+      - name: Download blob reports
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          path: ${{ env.base_directory }}/tests/e2e-playwright/all-blob-reports
+          pattern: playwright-blob-*
+          merge-multiple: true
+
+      - name: Merge blob reports into an HTML report
+        run: pnpm exec playwright merge-reports --reporter=html ./all-blob-reports
+        working-directory: ${{ env.base_directory }}/tests/e2e-playwright
+        env:
+          PLAYWRIGHT_HTML_REPORT: playwright-report
+
+      - name: Upload merged HTML report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: playwright-report
           path: ${{ env.base_directory }}/tests/e2e-playwright/playwright-report
           retention-days: 5
-
-      - name: Stop the Centreon web stack
-        if: ${{ always() }}
-        run: docker compose -f "$compose_file" --profile openid down -v
 
   rstest-component-test:
     runs-on: ubuntu-24.04
