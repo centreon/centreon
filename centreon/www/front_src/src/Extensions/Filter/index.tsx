@@ -24,6 +24,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import CloseIcon from '@mui/icons-material/Close';
 import { ClickAwayListener, MenuItem, Paper, Popper } from '@mui/material';
+import debounce from '@mui/utils/debounce';
 
 import {
   IconButton,
