@@ -28,6 +28,7 @@
  */
 
 beforeEach(function (): void {
+    $this->server = $_SERVER;
     if (! file_exists(__DIR__ . '/log')) {
         mkdir(__DIR__ . '/log');
     }
@@ -41,6 +42,7 @@ beforeEach(function (): void {
 });
 
 afterEach(function (): void {
+    $_SERVER = $this->server;
     if (file_exists($this->centreonLogTest->pathToLogTest)) {
         $files = glob($this->centreonLogTest->pathToLogTest);
         foreach ($files as $file) {
