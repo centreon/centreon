@@ -23,6 +23,7 @@ session_start();
 require_once __DIR__ . '/../../../../bootstrap.php';
 require_once '../../steps/functions.php';
 
+use Adaptation\Log\LoggerUpgrade;
 use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
 
 $kernel = App\Kernel::createForWeb();
@@ -44,6 +45,10 @@ if ($parameters) {
     $db->query($query);
 }
 
+$currentVersion = $_SESSION['CURRENT_VERSION'] ?? 'unknown';
+$startedAt = microtime(true);
+LoggerUpgrade::create()->step($currentVersion, 'post_update', 'Post-update phase started');
+
 try {
     if (! isset($_SESSION['CURRENT_VERSION']) || ! preg_match('/^\d+\.\d+\.\d+/', $_SESSION['CURRENT_VERSION'])) {
         throw new Exception('Cannot get current version');
@@ -58,7 +63,21 @@ try {
     }
 
     $updateWriteRepository->runPostUpdate($_SESSION['CURRENT_VERSION']);
+
+    $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
+    LoggerUpgrade::create()->stepCompleted(
+        $currentVersion,
+        'post_update',
+        $durationMs,
+        "Post-update phase completed in {$durationMs}ms"
+    );
 } catch (Throwable $e) {
+    LoggerUpgrade::create()->stepFailure(
+        "Post-update phase failed: {$e->getMessage()}",
+        $currentVersion,
+        'post_update',
+        $e
+    );
     exitUpgradeProcess(
         1,
         $current,

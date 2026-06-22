@@ -96,6 +96,7 @@ final class UpdateCommandHandlerTest extends TestCase
 
         ($this->handler)(new UpdateCommand());
 
+        // Each available update is run in order, then the post-update runs.
         self::assertSame(['24.10.1', '24.10.2'], $this->updateRepository->updatesRun);
         self::assertTrue($this->updateRepository->postUpdateCalled);
         self::assertTrue($this->locker->unlockCalled);
@@ -114,6 +115,18 @@ final class UpdateCommandHandlerTest extends TestCase
     public function testThrowsWhenCurrentVersionCannotBeRetrieved(): void
     {
         $this->updateRepository->currentVersion = null;
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessageMatches('/current platform version/');
+
+        ($this->handler)(new UpdateCommand());
+    }
+
+    public function testThrowsWhenCurrentVersionIsBlank(): void
+    {
+        // A blank version from the DB must be treated like a missing one, so the upgrade
+        // fails with a clear message instead of running steps against an unknown version.
+        $this->updateRepository->currentVersion = '   ';
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessageMatches('/current platform version/');
@@ -145,7 +158,7 @@ final class UpdateCommandHandlerTest extends TestCase
                 $this->currentVersion = $version;
             }
 
-            public function runUpdate(string $version): void
+            public function runMonitoringSql(string $version): void
             {
                 throw new \RuntimeException('SQL error during update');
             }
@@ -162,13 +175,44 @@ final class UpdateCommandHandlerTest extends TestCase
             $this->cacheClearer,
         );
 
-        $this->expectException(\RuntimeException::class);
-
         try {
             $handler(new UpdateCommand());
-        } finally {
-            self::assertTrue($this->locker->unlockCalled, 'Lock must be released even after a failure');
+            self::fail('Expected the update failure to propagate as a RuntimeException');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('SQL error during update', $exception->getMessage());
         }
+
+        // The lock must be released even though the update failed.
+        self::assertTrue($this->locker->unlockCalled, 'Lock must be released even after a failure');
+
+        // A failed upgrade must never run the post-update.
+        self::assertFalse($failingRepository->postUpdateCalled);
+    }
+
+    public function testLockIsReleasedWhenAWrappedStepFails(): void
+    {
+        // A failure inside one of the handler-owned steps (here cache_clear) must still
+        // propagate and release the lock.
+        $this->cacheClearer->method('clear')->willThrowException(new \RuntimeException('cache clear failed'));
+
+        try {
+            ($this->handler)(new UpdateCommand());
+            self::fail('Expected the cache clear failure to propagate');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('cache clear failed', $exception->getMessage());
+        }
+
+        self::assertTrue($this->locker->unlockCalled, 'Lock must be released even when a wrapped step fails');
+    }
+
+    public function testPostUpdateBacksUpBeforeRemovingTheInstallDir(): void
+    {
+        $this->scriptFinder->availableUpdates = [];
+
+        ($this->handler)(new UpdateCommand());
+
+        // The handler must back up the install directory before removing it.
+        self::assertSame(['backup', 'remove'], $this->updateRepository->calls);
     }
 
     public function testEngineContextAndCacheAreCalledOnSuccess(): void
