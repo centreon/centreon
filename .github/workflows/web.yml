@@ -947,7 +947,7 @@ jobs:
           fail-on-cache-miss: true
 
       - name: Attest ${{ matrix.distrib }} packages
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
         with:
           subject-path: "./*.${{ matrix.package_extension }}"
 
@@ -1103,7 +1103,7 @@ jobs:
 
       - name: Attest web image
         if: ${{ github.event.pull_request.head.repo.fork != true }}
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
         with:
           subject-name: docker.centreon.com/centreon/${{ env.project }}-${{ matrix.operating_system }}
           subject-digest: ${{ steps.build-web.outputs.digest }}
