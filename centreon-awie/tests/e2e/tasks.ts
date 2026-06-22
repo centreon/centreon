@@ -225,10 +225,14 @@ export default (on: Cypress.PluginEvents): void => {
           console.error(error.message);
         }
 
-        // Tear down the partially-started stack so the CI runner frees resources now.
-        if (dockerEnvironment !== null) {
-          await dockerEnvironment.down();
-          dockerEnvironment = null;
+        // Best-effort teardown: keep the original startup error if cleanup fails.
+        try {
+          if (dockerEnvironment !== null) {
+            await dockerEnvironment.down();
+            dockerEnvironment = null;
+          }
+        } catch (teardownError) {
+          console.error(teardownError);
         }
 
         throw error;
