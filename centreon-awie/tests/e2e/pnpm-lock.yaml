@@ -13,22 +13,22 @@ importers:
         version: 20.1.2(@cypress/browserify-preprocessor@3.0.2)(cypress@13.12.0)(typescript@5.9.3)
       '@bahmutov/cypress-esbuild-preprocessor':
         specifier: ^2.2.1
-        version: 2.2.8(esbuild@0.21.5)
+        version: 2.2.8(esbuild@0.23.1)
       '@biomejs/biome':
         specifier: 1.9.4
         version: 1.9.4
       '@centreon/js-config':
         specifier: 24.12.1
-        version: 24.12.1(@cypress/browserify-preprocessor@3.0.2)(@types/eslint@9.6.1)(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(typescript@5.9.3))(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(mocha@10.8.2)(prettier@3.8.1)(typescript@5.9.3)
+        version: 24.12.1(@cypress/browserify-preprocessor@3.0.2)(@types/eslint@9.6.1)(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(mocha@10.8.2)(prettier@3.8.1)(typescript@5.9.3)
       '@cypress/webpack-preprocessor':
         specifier: ^6.0.2
-        version: 6.0.4(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0))(babel-loader@10.0.0(@babel/core@7.29.0)(webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.21.5)))(webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.21.5))
+        version: 6.0.4(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0))(babel-loader@10.0.0(@babel/core@7.29.0)(webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.23.1)))(webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.23.1))
       '@esbuild-plugins/node-globals-polyfill':
         specifier: ^0.2.3
-        version: 0.2.3(esbuild@0.21.5)
+        version: 0.2.3(esbuild@0.23.1)
       '@esbuild-plugins/node-modules-polyfill':
         specifier: ^0.2.2
-        version: 0.2.2(esbuild@0.21.5)
+        version: 0.2.2(esbuild@0.23.1)
       '@swc/core':
         specifier: ^1.6.5
         version: 1.15.11
@@ -44,12 +44,6 @@ importers:
       '@types/node':
         specifier: ^20.14.9
         version: 20.19.30
-      '@typescript-eslint/eslint-plugin':
-        specifier: ^7.2.0
-        version: 7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(typescript@5.9.3)
-      '@typescript-eslint/parser':
-        specifier: ^7.2.0
-        version: 7.18.0(eslint@8.57.1)(typescript@5.9.3)
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -89,9 +83,6 @@ importers:
       path:
         specifier: ^0.12.7
         version: 0.12.7
-      prettier:
-        specifier: ^3.2.5
-        version: 3.8.1
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -103,7 +94,7 @@ importers:
         version: 1.1.2
       swc-loader:
         specifier: ^0.2.6
-        version: 0.2.7(@swc/core@1.15.11)(webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.21.5))
+        version: 0.2.7(@swc/core@1.15.11)(webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.23.1))
       tar-fs:
         specifier: ^3.0.5
         version: 3.1.1
@@ -115,7 +106,7 @@ importers:
         version: 5.9.3
       webpack:
         specifier: ^5.92.1
-        version: 5.104.1(@swc/core@1.15.11)(esbuild@0.21.5)
+        version: 5.104.1(@swc/core@1.15.11)(esbuild@0.23.1)
 
 packages:
 
@@ -1576,17 +1567,6 @@ packages:
   '@types/yauzl@2.10.3':
     resolution: {integrity: sha512-oJoftv0LSuaDZE3Le4DbKX+KS9G36NzOeSap90UIK0yMA/NhKJhqlSGtNDORNRaIbQfzjXDrQa0ytJ6mNRGz/Q==}
 
-  '@typescript-eslint/eslint-plugin@7.18.0':
-    resolution: {integrity: sha512-94EQTWZ40mzBc42ATNIBimBEDltSJ9RQHCC8vc/PDbxi4k8dVwUAv4o98dk50M1zB+JGFxp43FP7f8+FP8R6Sw==}
-    engines: {node: ^18.18.0 || >=20.0.0}
-    peerDependencies:
-      '@typescript-eslint/parser': ^7.0.0
-      eslint: ^8.56.0
-      typescript: '*'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-
   '@typescript-eslint/experimental-utils@5.62.0':
     resolution: {integrity: sha512-RTXpeB3eMkpoclG3ZHft6vG/Z30azNHuqY6wKPBHlVMZFuEvrtlEDe8gMqDb+SO+9hjC/pLekeSCryf9vMZlCw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
@@ -1626,16 +1606,6 @@ packages:
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       typescript: '>=4.8.4 <6.0.0'
-
-  '@typescript-eslint/type-utils@7.18.0':
-    resolution: {integrity: sha512-XL0FJXuCLaDuX2sYqZUUSOJ2sG5/i1AAze+axqmLnSkNEVMVYLF+cbwlB2w8D1tinFuSikHmFta+P+HOofrLeA==}
-    engines: {node: ^18.18.0 || >=20.0.0}
-    peerDependencies:
-      eslint: ^8.56.0
-      typescript: '*'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
 
   '@typescript-eslint/types@5.62.0':
     resolution: {integrity: sha512-87NVngcbVXUahrRTqIK27gD2t5Cu1yuCXxbLcFtCzZGlfyVWWh8mLHkoxzjsB6DDNnvdL+fW8MiwPEJyGJQDgQ==}
@@ -1679,12 +1649,6 @@ packages:
     peerDependencies:
       eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
 
-  '@typescript-eslint/utils@7.18.0':
-    resolution: {integrity: sha512-kK0/rNa2j74XuHVcoCZxdFBMF+aq/vH83CXAOHieC+2Gis4mF8jJXT5eAfyD3K0sAxtPuwxaIOIOvhwzVDt/kw==}
-    engines: {node: ^18.18.0 || >=20.0.0}
-    peerDependencies:
-      eslint: ^8.56.0
-
   '@typescript-eslint/utils@8.54.0':
     resolution: {integrity: sha512-9Cnda8GS57AQakvRyG0PTejJNlA2xhvyNtEVIMlDWOOeEyBkYWhGPnfrIAnqxLMTSTo6q8g12XVjjev5l1NvMA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
@@ -1706,6 +1670,7 @@ packages:
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
+    deprecated: Potential CWE-502 - Update to 1.3.1 or higher
 
   '@unrs/resolver-binding-android-arm-eabi@1.11.1':
     resolution: {integrity: sha512-ppLRUgHVaGRWUx0R0Ut06Mjo9gBaBkg3v/8AxusGLhsIotbBLuRk51rAzqLC8gq6NyyAojEXglNjzf6R948DNw==}
@@ -6172,6 +6137,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@bahmutov/cypress-esbuild-preprocessor@2.2.8(esbuild@0.23.1)':
+    dependencies:
+      debug: 4.4.3(supports-color@8.1.1)
+      esbuild: 0.23.1
+    transitivePeerDependencies:
+      - supports-color
+
   '@balena/dockerignore@1.0.2': {}
 
   '@biomejs/biome@1.9.4':
@@ -6209,7 +6181,7 @@ snapshots:
   '@biomejs/cli-win32-x64@1.9.4':
     optional: true
 
-  '@centreon/js-config@24.12.1(@cypress/browserify-preprocessor@3.0.2)(@types/eslint@9.6.1)(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(typescript@5.9.3))(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(mocha@10.8.2)(prettier@3.8.1)(typescript@5.9.3)':
+  '@centreon/js-config@24.12.1(@cypress/browserify-preprocessor@3.0.2)(@types/eslint@9.6.1)(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(mocha@10.8.2)(prettier@3.8.1)(typescript@5.9.3)':
     dependencies:
       '@badeball/cypress-cucumber-preprocessor': 20.1.2(@cypress/browserify-preprocessor@3.0.2)(cypress@13.17.0)(typescript@5.9.3)
       '@bahmutov/cypress-esbuild-preprocessor': 2.2.8(esbuild@0.21.5)
@@ -6232,7 +6204,7 @@ snapshots:
       eslint-plugin-babel: 5.3.1(eslint@8.57.1)
       eslint-plugin-hooks: 0.4.3
       eslint-plugin-import: 2.32.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
-      eslint-plugin-jest: 26.9.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(typescript@5.9.3)
+      eslint-plugin-jest: 26.9.0(eslint@8.57.1)(typescript@5.9.3)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.57.1)
       eslint-plugin-node: 11.1.0(eslint@8.57.1)
       eslint-plugin-prefer-arrow-functions: 3.9.1(eslint@8.57.1)(typescript@5.9.3)
@@ -6275,7 +6247,7 @@ snapshots:
       '@cucumber/ci-environment': 10.0.1
       '@cucumber/cucumber-expressions': 17.1.0
       '@cucumber/gherkin': 28.0.0
-      '@cucumber/gherkin-streams': 5.0.1(@cucumber/gherkin@28.0.0)(@cucumber/message-streams@4.0.1(@cucumber/messages@24.1.0))(@cucumber/messages@24.1.0)
+      '@cucumber/gherkin-streams': 5.0.1(@cucumber/gherkin@28.0.0)(@cucumber/message-streams@4.0.1(@cucumber/messages@25.0.1))(@cucumber/messages@24.1.0)
       '@cucumber/gherkin-utils': 9.0.0
       '@cucumber/html-formatter': 21.6.0(@cucumber/messages@24.1.0)
       '@cucumber/message-streams': 4.0.1(@cucumber/messages@24.1.0)
@@ -6315,7 +6287,7 @@ snapshots:
       yaml: 2.8.2
       yup: 1.2.0
 
-  '@cucumber/gherkin-streams@5.0.1(@cucumber/gherkin@28.0.0)(@cucumber/message-streams@4.0.1(@cucumber/messages@24.1.0))(@cucumber/messages@24.1.0)':
+  '@cucumber/gherkin-streams@5.0.1(@cucumber/gherkin@28.0.0)(@cucumber/message-streams@4.0.1(@cucumber/messages@25.0.1))(@cucumber/messages@24.1.0)':
     dependencies:
       '@cucumber/gherkin': 28.0.0
       '@cucumber/message-streams': 4.0.1(@cucumber/messages@24.1.0)
@@ -6422,16 +6394,16 @@ snapshots:
       tunnel-agent: 0.6.0
       uuid: 8.3.2
 
-  '@cypress/webpack-preprocessor@6.0.4(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0))(babel-loader@10.0.0(@babel/core@7.29.0)(webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.21.5)))(webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.21.5))':
+  '@cypress/webpack-preprocessor@6.0.4(@babel/core@7.29.0)(@babel/preset-env@7.29.0(@babel/core@7.29.0))(babel-loader@10.0.0(@babel/core@7.29.0)(webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.23.1)))(webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.23.1))':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/preset-env': 7.29.0(@babel/core@7.29.0)
-      babel-loader: 10.0.0(@babel/core@7.29.0)(webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.21.5))
+      babel-loader: 10.0.0(@babel/core@7.29.0)(webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.23.1))
       bluebird: 3.7.1
       debug: 4.4.3(supports-color@8.1.1)
       lodash: 4.17.23
       semver: 7.7.3
-      webpack: 5.104.1(@swc/core@1.15.11)(esbuild@0.21.5)
+      webpack: 5.104.1(@swc/core@1.15.11)(esbuild@0.23.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -6462,9 +6434,19 @@ snapshots:
     dependencies:
       esbuild: 0.21.5
 
+  '@esbuild-plugins/node-globals-polyfill@0.2.3(esbuild@0.23.1)':
+    dependencies:
+      esbuild: 0.23.1
+
   '@esbuild-plugins/node-modules-polyfill@0.2.2(esbuild@0.21.5)':
     dependencies:
       esbuild: 0.21.5
+      escape-string-regexp: 4.0.0
+      rollup-plugin-node-polyfills: 0.2.1
+
+  '@esbuild-plugins/node-modules-polyfill@0.2.2(esbuild@0.23.1)':
+    dependencies:
+      esbuild: 0.23.1
       escape-string-regexp: 4.0.0
       rollup-plugin-node-polyfills: 0.2.1
 
@@ -6962,24 +6944,6 @@ snapshots:
       '@types/node': 20.19.30
     optional: true
 
-  '@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(typescript@5.9.3)':
-    dependencies:
-      '@eslint-community/regexpp': 4.12.2
-      '@typescript-eslint/parser': 7.18.0(eslint@8.57.1)(typescript@5.9.3)
-      '@typescript-eslint/scope-manager': 7.18.0
-      '@typescript-eslint/type-utils': 7.18.0(eslint@8.57.1)(typescript@5.9.3)
-      '@typescript-eslint/utils': 7.18.0(eslint@8.57.1)(typescript@5.9.3)
-      '@typescript-eslint/visitor-keys': 7.18.0
-      eslint: 8.57.1
-      graphemer: 1.4.0
-      ignore: 5.3.2
-      natural-compare: 1.4.0
-      ts-api-utils: 1.4.3(typescript@5.9.3)
-    optionalDependencies:
-      typescript: 5.9.3
-    transitivePeerDependencies:
-      - supports-color
-
   '@typescript-eslint/experimental-utils@5.62.0(eslint@8.57.1)(typescript@5.9.3)':
     dependencies:
       '@typescript-eslint/utils': 5.62.0(eslint@8.57.1)(typescript@5.9.3)
@@ -7028,18 +6992,6 @@ snapshots:
   '@typescript-eslint/tsconfig-utils@8.54.0(typescript@5.9.3)':
     dependencies:
       typescript: 5.9.3
-
-  '@typescript-eslint/type-utils@7.18.0(eslint@8.57.1)(typescript@5.9.3)':
-    dependencies:
-      '@typescript-eslint/typescript-estree': 7.18.0(typescript@5.9.3)
-      '@typescript-eslint/utils': 7.18.0(eslint@8.57.1)(typescript@5.9.3)
-      debug: 4.4.3(supports-color@8.1.1)
-      eslint: 8.57.1
-      ts-api-utils: 1.4.3(typescript@5.9.3)
-    optionalDependencies:
-      typescript: 5.9.3
-    transitivePeerDependencies:
-      - supports-color
 
   '@typescript-eslint/types@5.62.0': {}
 
@@ -7102,17 +7054,6 @@ snapshots:
       eslint: 8.57.1
       eslint-scope: 5.1.1
       semver: 7.7.3
-    transitivePeerDependencies:
-      - supports-color
-      - typescript
-
-  '@typescript-eslint/utils@7.18.0(eslint@8.57.1)(typescript@5.9.3)':
-    dependencies:
-      '@eslint-community/eslint-utils': 4.9.1(eslint@8.57.1)
-      '@typescript-eslint/scope-manager': 7.18.0
-      '@typescript-eslint/types': 7.18.0
-      '@typescript-eslint/typescript-estree': 7.18.0(typescript@5.9.3)
-      eslint: 8.57.1
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -7535,11 +7476,11 @@ snapshots:
 
   b4a@1.7.3: {}
 
-  babel-loader@10.0.0(@babel/core@7.29.0)(webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.21.5)):
+  babel-loader@10.0.0(@babel/core@7.29.0)(webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.23.1)):
     dependencies:
       '@babel/core': 7.29.0
       find-up: 5.0.0
-      webpack: 5.104.1(@swc/core@1.15.11)(esbuild@0.21.5)
+      webpack: 5.104.1(@swc/core@1.15.11)(esbuild@0.23.1)
 
   babel-plugin-add-module-exports@1.0.4: {}
 
@@ -8883,12 +8824,10 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-plugin-jest@26.9.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(typescript@5.9.3):
+  eslint-plugin-jest@26.9.0(eslint@8.57.1)(typescript@5.9.3):
     dependencies:
       '@typescript-eslint/utils': 5.62.0(eslint@8.57.1)(typescript@5.9.3)
       eslint: 8.57.1
-    optionalDependencies:
-      '@typescript-eslint/eslint-plugin': 7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(typescript@5.9.3)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -10994,11 +10933,11 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  swc-loader@0.2.7(@swc/core@1.15.11)(webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.21.5)):
+  swc-loader@0.2.7(@swc/core@1.15.11)(webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.23.1)):
     dependencies:
       '@swc/core': 1.15.11
       '@swc/counter': 0.1.3
-      webpack: 5.104.1(@swc/core@1.15.11)(esbuild@0.21.5)
+      webpack: 5.104.1(@swc/core@1.15.11)(esbuild@0.23.1)
 
   synckit@0.11.12:
     dependencies:
@@ -11052,17 +10991,17 @@ snapshots:
 
   tcomb@3.2.29: {}
 
-  terser-webpack-plugin@5.3.16(@swc/core@1.15.11)(esbuild@0.21.5)(webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.21.5)):
+  terser-webpack-plugin@5.3.16(@swc/core@1.15.11)(esbuild@0.23.1)(webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.23.1)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       serialize-javascript: 6.0.2
       terser: 5.46.0
-      webpack: 5.104.1(@swc/core@1.15.11)(esbuild@0.21.5)
+      webpack: 5.104.1(@swc/core@1.15.11)(esbuild@0.23.1)
     optionalDependencies:
       '@swc/core': 1.15.11
-      esbuild: 0.21.5
+      esbuild: 0.23.1
 
   terser@5.46.0:
     dependencies:
@@ -11405,7 +11344,7 @@ snapshots:
 
   webpack-sources@3.3.3: {}
 
-  webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.21.5):
+  webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.23.1):
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.8
@@ -11429,7 +11368,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.3
       tapable: 2.3.0
-      terser-webpack-plugin: 5.3.16(@swc/core@1.15.11)(esbuild@0.21.5)(webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.21.5))
+      terser-webpack-plugin: 5.3.16(@swc/core@1.15.11)(esbuild@0.23.1)(webpack@5.104.1(@swc/core@1.15.11)(esbuild@0.23.1))
       watchpack: 2.5.1
       webpack-sources: 3.3.3
     transitivePeerDependencies:
