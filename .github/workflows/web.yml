@@ -1107,7 +1107,6 @@ jobs:
         with:
           subject-name: docker.centreon.com/centreon/${{ env.project }}-${{ matrix.operating_system }}
           subject-digest: ${{ steps.build-web.outputs.digest }}
-          push-to-registry: true
 
       - name: Store slim image in local archive
         env:

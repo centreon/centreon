@@ -315,7 +315,6 @@ jobs:
         with:
           subject-name: ghcr.io/${{ github.repository }}/centreon-web-dependencies-collect
           subject-digest: ${{ steps.build-dependencies-collect.outputs.digest }}
-          push-to-registry: true
 
       - name: Build and push web image
         id: build-web
@@ -351,7 +350,6 @@ jobs:
         with:
           subject-name: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-${{ matrix.distrib }}
           subject-digest: ${{ steps.build-web.outputs.digest }}
-          push-to-registry: true
 
       - name: Build and push OSS image
         id: build-oss
@@ -391,4 +389,3 @@ jobs:
         with:
           subject-name: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-oss-${{ matrix.distrib }}
           subject-digest: ${{ steps.build-oss.outputs.digest }}
-          push-to-registry: true
