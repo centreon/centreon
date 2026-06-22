@@ -226,6 +226,15 @@ export default (on: Cypress.PluginEvents): void => {
           console.error(error.message);
         }
 
+        // Best-effort teardown: keep the original startup error if cleanup fails.
+        try {
+          await dockerEnvironment?.down();
+        } catch (teardownError) {
+          console.error(teardownError);
+        } finally {
+          dockerEnvironment = null;
+        }
+
         throw error;
       }
     },
