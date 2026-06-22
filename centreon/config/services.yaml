@@ -160,3 +160,11 @@ services:
         class: Monolog\Formatter\LineFormatter
         arguments:
             $dateFormat: !php/const DateTimeInterface::RFC3339
+
+    # Global Monolog processor: turns any \Throwable found in a record's
+    # context.exception into a structured, bounded array (flat cause chain).
+    # Registered explicitly because src/App/Shared is not autoloaded as
+    # services on this branch; tagged on every channel (no channel filter).
+    App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor:
+        autoconfigure: false
+        tags: ['monolog.processor']
