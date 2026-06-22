@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerToken;
 use App\MonitoringConfiguration\Domain\Exception\PollerTokenNotFoundException;
+use App\MonitoringConfiguration\Domain\Model\PollerToken;
 use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
 use Doctrine\DBAL\Connection;
 
@@ -36,19 +36,20 @@ final readonly class DbalPollerTokenRepository implements PollerTokenRepository
 
     public function getFirstValidPollerToken(): PollerToken
     {
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->select('token_string', 'token_name', 'creation_date', 'expiration_date', 'is_revoked')
+            ->from('authentication_tokens')
+            ->where("type = 'poller'")
+            ->andWhere('is_revoked = 0')
+            ->andWhere('(expiration_date IS NULL OR expiration_date > :nowEpoch)')
+            ->setParameter('nowEpoch', time())
+            // Oldest valid token first: returning the earliest-created token is intentional.
+            ->orderBy('creation_date', 'ASC')
+            ->setMaxResults(1);
+
         /** @var array{token_string: string, token_name: string, creation_date: numeric-string, expiration_date: numeric-string|null, is_revoked: int}|false $row */
-        $row = $this->connection->fetchAssociative(
-            <<<'SQL'
-                SELECT token_string, token_name, creation_date, expiration_date, is_revoked
-                FROM authentication_tokens
-                WHERE type = 'poller'
-                  AND is_revoked = 0
-                  AND (expiration_date IS NULL OR expiration_date > :nowEpoch)
-                ORDER BY creation_date ASC
-                LIMIT 1
-                SQL,
-            ['nowEpoch' => time()],
-        );
+        $row = $qb->executeQuery()->fetchAssociative();
 
         if ($row === false) {
             throw new PollerTokenNotFoundException([], 'No valid poller token found.');
@@ -59,18 +60,20 @@ final readonly class DbalPollerTokenRepository implements PollerTokenRepository
 
     public function getValidPollerTokenByName(string $name): PollerToken
     {
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->select('token_string', 'token_name', 'creation_date', 'expiration_date', 'is_revoked')
+            ->from('authentication_tokens')
+            ->where("type = 'poller'")
+            ->andWhere('is_revoked = 0')
+            ->andWhere('(expiration_date IS NULL OR expiration_date > :nowEpoch)')
+            ->andWhere('token_name = :name')
+            ->setParameter('nowEpoch', time())
+            ->setParameter('name', $name)
+            ->setMaxResults(1);
+
         /** @var array{token_string: string, token_name: string, creation_date: numeric-string, expiration_date: numeric-string|null, is_revoked: int}|false $row */
-        $row = $this->connection->fetchAssociative(
-            <<<'SQL'
-                SELECT token_string, token_name, creation_date, expiration_date, is_revoked
-                FROM authentication_tokens
-                WHERE type = 'poller'
-                  AND is_revoked = 0
-                  AND (expiration_date IS NULL OR expiration_date > :nowEpoch)
-                  AND token_name = :name
-                SQL,
-            ['nowEpoch' => time(), 'name' => $name],
-        );
+        $row = $qb->executeQuery()->fetchAssociative();
 
         if ($row === false) {
             throw new PollerTokenNotFoundException([], sprintf('No valid poller token found with name "%s".', $name));

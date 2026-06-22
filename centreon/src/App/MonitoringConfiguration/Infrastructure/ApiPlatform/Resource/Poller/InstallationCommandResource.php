@@ -29,6 +29,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\PollerPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\GetInstallationCommandProvider;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 #[ApiResource(
     operations: [new Get(
@@ -54,8 +55,9 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\GetInsta
                 ),
             ],
             responses: [
-                404 => new Model\Response('Poller not found'),
+                404 => new Model\Response('Poller or poller token not found'),
                 403 => new Model\Response('You are not allowed to access this resource'),
+                503 => new Model\Response('Engine secrets are not available'),
             ]
         ),
     )],
@@ -68,6 +70,7 @@ final class InstallationCommandResource
             description: 'Poller Installation Command',
             openapiContext: ['example' => 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>']
         )]
+        #[Sensitive]
         public string $installationCommand,
     ) {
     }

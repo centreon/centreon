@@ -21,24 +21,17 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+use App\Shared\Domain\Repository\EngineSecretsRepository;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Tests\App\Shared\Double\FakeEngineSecretsRepository;
 
-use App\MonitoringConfiguration\Domain\Exception\PollerTokenNotFoundException;
-use App\MonitoringConfiguration\Domain\Model\PollerToken;
+/*
+ * Test-env service bindings for the App\Shared module.
+ * New App\Shared test doubles belong here.
+ */
+return static function (ContainerConfigurator $containerConfigurator): void {
+    $services = $containerConfigurator->services();
 
-interface PollerTokenRepository
-{
-    /**
-     * Returns the first valid, non-revoked poller token.
-     *
-     * @throws PollerTokenNotFoundException
-     */
-    public function getFirstValidPollerToken(): PollerToken;
-
-    /**
-     * Returns the valid, non-revoked poller token identified by $name.
-     *
-     * @throws PollerTokenNotFoundException
-     */
-    public function getValidPollerTokenByName(string $name): PollerToken;
-}
+    $services->set(EngineSecretsRepository::class, FakeEngineSecretsRepository::class)
+        ->public();
+};

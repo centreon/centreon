@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Shared\Infrastructure;
 
+use App\Shared\Domain\Exception\EngineSecretsUnavailableException;
 use App\Shared\Infrastructure\FsEngineSecretsRepository;
 use PHPUnit\Framework\TestCase;
 
@@ -72,7 +73,7 @@ final class FsEngineSecretsRepositoryTest extends TestCase
 
         $repository = new FsEngineSecretsRepository($this->tempFile);
 
-        $this->expectException(\JsonException::class);
+        $this->expectException(EngineSecretsUnavailableException::class);
         $repository->getAppSecret();
     }
 
@@ -82,7 +83,7 @@ final class FsEngineSecretsRepositoryTest extends TestCase
 
         $repository = new FsEngineSecretsRepository($this->tempFile);
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(EngineSecretsUnavailableException::class);
         $repository->getAppSecret();
     }
 
@@ -92,7 +93,7 @@ final class FsEngineSecretsRepositoryTest extends TestCase
 
         $repository = new FsEngineSecretsRepository($this->tempFile);
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(EngineSecretsUnavailableException::class);
         $repository->getSalt();
     }
 
@@ -102,7 +103,7 @@ final class FsEngineSecretsRepositoryTest extends TestCase
 
         $repository = new FsEngineSecretsRepository($this->tempFile);
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(EngineSecretsUnavailableException::class);
         $repository->getAppSecret();
     }
 
@@ -112,7 +113,20 @@ final class FsEngineSecretsRepositoryTest extends TestCase
 
         $repository = new FsEngineSecretsRepository($this->tempFile);
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(EngineSecretsUnavailableException::class);
         $repository->getAppSecret();
+    }
+
+    public function testThrowsWithoutLeakingPathWhenFileDoesNotExist(): void
+    {
+        $missingPath = $this->tempFile . '-does-not-exist';
+        $repository = new FsEngineSecretsRepository($missingPath);
+
+        try {
+            $repository->getAppSecret();
+            self::fail('Expected EngineSecretsUnavailableException to be thrown.');
+        } catch (EngineSecretsUnavailableException $exception) {
+            self::assertStringNotContainsString($missingPath, $exception->getMessage());
+        }
     }
 }

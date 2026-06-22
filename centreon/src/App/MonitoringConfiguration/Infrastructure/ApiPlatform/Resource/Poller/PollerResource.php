@@ -40,7 +40,9 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\CreatePo
             input: CreatePollerInput::class,
             openapi: new Model\Operation(
                 responses: [
+                    400 => new Model\Response('Invalid input (e.g. unknown poller token name)'),
                     409 => new Model\Response('Poller resource already exists'),
+                    503 => new Model\Response('Engine secrets are not available'),
                 ],
             ),
             security: "is_granted('" . PollerPermissionEnum::CanCreateEdit->value . "')",

@@ -247,7 +247,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(404);
+        self::assertResponseStatusCodeSame(400);
     }
 
     public function testCannotCreatePollerIfNotLogged(): void

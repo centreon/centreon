@@ -21,24 +21,13 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace App\Shared\Domain\Exception;
 
-use App\MonitoringConfiguration\Domain\Exception\PollerTokenNotFoundException;
-use App\MonitoringConfiguration\Domain\Model\PollerToken;
-
-interface PollerTokenRepository
+/**
+ * Thrown when the engine context file (holding the engine secrets) is missing
+ * or unreadable. This is an environmental state — the platform is not yet
+ * provisioned — rather than a code bug, so it maps to HTTP 503.
+ */
+final class EngineSecretsUnavailableException extends \RuntimeException
 {
-    /**
-     * Returns the first valid, non-revoked poller token.
-     *
-     * @throws PollerTokenNotFoundException
-     */
-    public function getFirstValidPollerToken(): PollerToken;
-
-    /**
-     * Returns the valid, non-revoked poller token identified by $name.
-     *
-     * @throws PollerTokenNotFoundException
-     */
-    public function getValidPollerTokenByName(string $name): PollerToken;
 }

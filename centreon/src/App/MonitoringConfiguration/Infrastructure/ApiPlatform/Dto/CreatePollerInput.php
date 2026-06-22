@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
+use App\MonitoringConfiguration\Infrastructure\Validator\ExistingPollerToken;
 use App\MonitoringConfiguration\Infrastructure\Validator\UniquePollerName;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -44,6 +45,7 @@ final readonly class CreatePollerInput
 
         #[Assert\NotBlank]
         #[Assert\Length(min: 1, max: 255)]
+        #[ExistingPollerToken]
         public string $pollerTokenName,
     ) {
     }

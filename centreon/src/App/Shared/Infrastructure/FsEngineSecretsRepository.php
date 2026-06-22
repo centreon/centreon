@@ -23,14 +23,18 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure;
 
+use App\Shared\Domain\Exception\EngineSecretsUnavailableException;
 use App\Shared\Domain\Repository\EngineSecretsRepository;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-final readonly class FsEngineSecretsRepository implements EngineSecretsRepository
+final class FsEngineSecretsRepository implements EngineSecretsRepository
 {
+    /** @var array<array-key, mixed>|null */
+    private ?array $decoded = null;
+
     public function __construct(
         #[Autowire(param: 'upgrade.engine_context_path')]
-        private string $engineContextPath,
+        private readonly string $engineContextPath,
     ) {
     }
 
@@ -46,24 +50,42 @@ final readonly class FsEngineSecretsRepository implements EngineSecretsRepositor
 
     private function readKey(string $key): string
     {
-        $content = file_get_contents($this->engineContextPath);
-        if ($content === false) {
-            throw new \RuntimeException(
-                sprintf('Cannot read engine context file: %s', $this->engineContextPath)
-            );
-        }
-        $data = json_decode($content, true, flags: JSON_THROW_ON_ERROR);
-
-        if (! is_array($data)) {
-            throw new \RuntimeException('Engine context file does not contain a valid JSON object.');
-        }
-
-        $value = $data[$key] ?? null;
+        $value = $this->load()[$key] ?? null;
 
         if (! is_string($value)) {
-            throw new \RuntimeException(sprintf('Missing or invalid key "%s" in engine context file.', $key));
+            throw new EngineSecretsUnavailableException(sprintf('Missing or invalid key "%s" in engine context file.', $key));
         }
 
         return $value;
+    }
+
+    /**
+     * Read and decode the engine context file once, then memoize it so the
+     * two secrets are not parsed twice per request.
+     *
+     * @return array<array-key, mixed>
+     */
+    private function load(): array
+    {
+        if ($this->decoded !== null) {
+            return $this->decoded;
+        }
+
+        $content = @file_get_contents($this->engineContextPath);
+        if ($content === false) {
+            throw new EngineSecretsUnavailableException('Engine context file is not available.');
+        }
+
+        try {
+            $data = json_decode($content, true, flags: JSON_THROW_ON_ERROR);
+        } catch (\JsonException $exception) {
+            throw new EngineSecretsUnavailableException('Engine context file is not valid.', previous: $exception);
+        }
+
+        if (! is_array($data)) {
+            throw new EngineSecretsUnavailableException('Engine context file does not contain a valid JSON object.');
+        }
+
+        return $this->decoded = $data;
     }
 }

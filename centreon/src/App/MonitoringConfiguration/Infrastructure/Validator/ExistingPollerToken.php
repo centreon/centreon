@@ -21,21 +21,12 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
+namespace App\MonitoringConfiguration\Infrastructure\Validator;
 
-use App\Shared\Domain\Logging\Attribute\Sensitive;
-use Webmozart\Assert\Assert;
+use Symfony\Component\Validator\Constraint;
 
-final readonly class PollerToken
+#[\Attribute(\Attribute::TARGET_PROPERTY)]
+final class ExistingPollerToken extends Constraint
 {
-    public function __construct(
-        public string $name,
-        #[Sensitive] public string $value,
-        public \DateTimeImmutable $creationDate,
-        public ?\DateTimeImmutable $expirationDate,
-        public bool $isRevoked,
-    ) {
-        Assert::notEmpty($name);
-        Assert::notEmpty($value);
-    }
+    public string $message = 'No valid poller token exists with this name.';
 }

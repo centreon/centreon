@@ -21,13 +21,21 @@
 
 declare(strict_types=1);
 
-use App\Shared\Domain\Repository\EngineSecretsRepository;
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-use Tests\App\Shared\Double\FakeEngineSecretsRepository;
+namespace App\MonitoringConfiguration\Domain\Model;
 
-return static function (ContainerConfigurator $containerConfigurator): void {
-    $services = $containerConfigurator->services();
+use App\Shared\Domain\Logging\Attribute\Sensitive;
+use Webmozart\Assert\Assert;
 
-    $services->set(EngineSecretsRepository::class, FakeEngineSecretsRepository::class)
-        ->public();
-};
+final readonly class PollerToken
+{
+    public function __construct(
+        public string $name,
+        #[Sensitive] public string $value,
+        public \DateTimeImmutable $creationDate,
+        public ?\DateTimeImmutable $expirationDate,
+        public bool $isRevoked,
+    ) {
+        Assert::notEmpty($name);
+        Assert::notEmpty($value);
+    }
+}

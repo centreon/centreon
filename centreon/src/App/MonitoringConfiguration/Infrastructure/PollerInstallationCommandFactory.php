@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerToken;
+use App\MonitoringConfiguration\Domain\Model\PollerToken;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 final readonly class PollerInstallationCommandFactory
