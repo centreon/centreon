@@ -29,6 +29,8 @@ use Core\Security\ProviderConfiguration\Domain\SAML\Model\RequestedAuthnContextC
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -60,15 +62,11 @@ class OneLoginSettingsFormatterTest extends TestCase
 
         $this->formatter = new OneLoginSettingsFormatter($this->urlGenerator);
 
-        // OneLoginSettingsFormatter resolves the SP entityId from the current request host
-        // (HttpUrlTrait::getHost(), which reads the HTTP_HOST/REQUEST_SCHEME server variables).
-        $_SERVER['HTTP_HOST'] = 'centreon.example.com';
-        $_SERVER['REQUEST_SCHEME'] = 'https';
-    }
+        // OneLoginSettingsFormatter resolves the SP entityId from the current request (HttpUrlTrait).
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('https://centreon.example.com/centreon'));
 
-    protected function tearDown(): void
-    {
-        unset($_SERVER['HTTP_HOST'], $_SERVER['REQUEST_SCHEME']);
+        $this->formatter->setHttpServerBag($requestStack);
     }
 
     public function testFormatMapsStoredConfigurationToOneLoginSettings(): void
