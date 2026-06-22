@@ -1,8 +1,6 @@
 *.sh                                    @centreon/owners-bash
 
 *.po                                    @centreon/owners-doc
-*.md                                    @centreon/owners-doc
-*.mdx                                   @centreon/owners-doc
 
 **/www/widgets/                         @centreon/owners-react
 
@@ -18,6 +16,9 @@
 **/phpstan.neon                         @centreon/owners-php
 *.php                                   @centreon/owners-php
 *.xsl                                   @centreon/owners-php
+*.md                                    @centreon/owners-php
+*.mdx                                   @centreon/owners-php
+**/doc/                                 @centreon/owners-php
 
 **/www/front_src/                       @centreon/owners-react
 **/cypress/**                           @centreon/owners-react
@@ -62,6 +63,3 @@ dependencies/**                         @centreon/owners-pipelines
 .gitleaksignore               @centreon/owners-security
 .githooks/pre-commit          @centreon/owners-security
 **/secu-*.yml                 @centreon/owners-security
-
-# PHP documentation: overrides the global *.md rule above (must stay last to win)
-**/doc/php/                             @centreon/owners-php

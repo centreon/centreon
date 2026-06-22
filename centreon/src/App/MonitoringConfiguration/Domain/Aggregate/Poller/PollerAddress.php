@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
 
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Webmozart\Assert\Assert;
 
 final readonly class PollerAddress
@@ -33,10 +34,6 @@ final readonly class PollerAddress
     public function __construct(public string $value)
     {
         Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
-        Assert::true(
-            filter_var($value, FILTER_VALIDATE_IP) !== false
-            || filter_var($value, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) !== false,
-            'The value "%s" is not a valid IPv4, IPv6 address or FQDN.'
-        );
+        CentreonAssert::ipOrHostname($value, 'PollerAddress::value');
     }
 }
