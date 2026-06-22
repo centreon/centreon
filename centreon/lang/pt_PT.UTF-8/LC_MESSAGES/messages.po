@@ -1425,6 +1425,10 @@ msgstr ""
 msgid "An error occurred during authentication"
 msgstr ""
 
+#: centreon/src/Core/Security/Authentication/Application/UseCase/LogoutSession/LogoutSession.php
+msgid "An error occurred during session logout"
+msgstr ""
+
 #: centreon/src/Core/Broker/Application/Exception/BrokerException.php
 #, php-format
 msgid "An error occurred while creating the file '%s'"
@@ -6978,6 +6982,7 @@ msgstr ""
 msgid "Error while searching host categories in real time context"
 msgstr ""
 
+#: centreon/src/Core/Security/Authentication/Domain/Exception/ProviderException.php
 #: centreon/src/Security/Domain/Authentication/Exceptions/ProviderException.php
 #, php-format
 msgid "Error while searching provider configuration: '%s'"

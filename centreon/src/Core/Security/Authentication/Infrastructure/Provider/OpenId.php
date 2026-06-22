@@ -31,6 +31,7 @@ use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInte
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Core\Security\Authentication\Domain\Exception\AclConditionsException;
 use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
+use Core\Security\Authentication\Domain\Exception\OpenIdException;
 use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
 use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
@@ -59,9 +60,9 @@ class OpenId implements ProviderAuthenticationInterface
      * @param OpenIdProvider $provider
      */
     public function __construct(
-        private Container $dependencyInjector,
-        private RequestStack $requestStack,
-        private OpenIdProviderInterface $provider,
+        private readonly Container $dependencyInjector,
+        private readonly RequestStack $requestStack,
+        private readonly OpenIdProviderInterface $provider,
     ) {
     }
 
@@ -318,6 +319,9 @@ class OpenId implements ProviderAuthenticationInterface
         return $this->provider->getAclConditionsMatches();
     }
 
+    /**
+     * @throws SSOAuthenticationException
+     */
     public function getTokenForSession(): ?string
     {
         return $this->provider->getTokenForSession();
@@ -327,16 +331,16 @@ class OpenId implements ProviderAuthenticationInterface
      * Redirect the user to the OIDC end-session endpoint
      *
      * @param string $idToken
+     * @param bool $stay
      *
-     * @throws Exception
-     *
+     * @throws OpenIdException
      * @return string|null
      */
     public function logout(string $idToken, bool $stay = false): string|null
     {
         $request = $this->requestStack->getCurrentRequest();
         if ($request === null) {
-            throw new Exception('Request is not available for OpenID logout');
+            throw new OpenIdException('Request is not available for OpenID logout');
         }
 
         /** @var CustomConfiguration $customConfig */
@@ -345,7 +349,7 @@ class OpenId implements ProviderAuthenticationInterface
         $endSessionEndpoint = $customConfig->getEndSessionEndpoint();
 
         if (empty($baseUrl) || empty($endSessionEndpoint)) {
-            throw new Exception('Missing required OpenID configuration for logout');
+            throw new OpenIdException('Missing required OpenID configuration for logout');
         }
 
         $endSessionUrl = $baseUrl . $endSessionEndpoint;
@@ -370,8 +374,12 @@ class OpenId implements ProviderAuthenticationInterface
             }
 
             exit;
-        } catch (Exception $e) {
-            throw new Exception('Failed to redirect to logout URL: ' . $e->getMessage(), previous: $e);
+        } catch (Throwable $e) {
+            throw new OpenIdException(
+                message: 'Failed to redirect to logout URL: ' . $e->getMessage(),
+                context: ['logout_url' => $logoutUrl],
+                previous: $e
+            );
         }
     }
 }
