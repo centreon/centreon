@@ -1414,6 +1414,10 @@ msgstr "Une erreur est survenue"
 msgid "An error occurred during authentication"
 msgstr "Une erreur est survenue durant l'authentification"
 
+#: centreon/src/Core/Security/Authentication/Application/UseCase/LogoutSession/LogoutSession.php
+msgid "An error occurred during session logout"
+msgstr ""
+
 #: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
 msgid "An error occurred when applying post update actions"
 msgstr ""
@@ -6448,6 +6452,7 @@ msgstr "Erreur lors de la recherche d'utilisateurs"
 msgid "Error while searching host categories in real time context"
 msgstr "Erreur lors de la recherche de catégories d'hôtes"
 
+#: centreon/src/Core/Security/Authentication/Domain/Exception/ProviderException.php
 #: centreon/src/Security/Domain/Authentication/Exceptions/ProviderException.php
 #, php-format
 msgid "Error while searching provider configuration: '%s'"
