@@ -312,6 +312,7 @@ runs:
         JIRA_BASE_URL: ${{ inputs.jira_base_url }}
         JIRA_USER_EMAIL: ${{ inputs.jira_user_email }}
         JIRA_API_TOKEN: ${{ inputs.jira_api_token }}
+        RELEASE_TYPE: ${{ inputs.release_type }}
       run: |
         set -eu
 
@@ -322,9 +323,10 @@ runs:
           NEW_RELEASE_TAGS+=("$i")
         done
 
-        # Create new JIRA versions (old way of doing it)
-        # TODO: add a future capacity to determine whether the release is hotfix or standard (using TYPE)
-        # OR: rely on jira automation to do it (less hassle on github side, and jira knows jira best)
+        # Create new JIRA versions.
+        # The version description is prefixed with the release type (hotfix or release) so the
+        # JIRA automations can tell hotfix component versions apart from regular release ones and
+        # query the matching parent .next fix version (the hotfix vs regular fixVersion variant).
 
         # Build JSON vars for JIRA_RELEASE_DATA
         JIRA_RELEASE_ARCHIVED="false"
@@ -343,7 +345,7 @@ runs:
             # Build JSON with release information for JIRA API
             JIRA_RELEASE_DATA=$(jq -nc \
               --arg archived "$JIRA_RELEASE_ARCHIVED" \
-              --arg description "$JIRA_RELEASE_ID $TAG" \
+              --arg description "$RELEASE_TYPE $JIRA_RELEASE_ID $TAG" \
               --arg releaseDate "$JIRA_RELEASE_DATE" \
               --arg name "$TAG" \
               --arg projectId "$JIRA_PROJECT_ID" \
