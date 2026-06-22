@@ -109,4 +109,64 @@ test.describe('API tokens', () => {
     await expect(tokens.row(matching)).toBeVisible();
     await expect(tokens.row(other)).toHaveCount(0);
   });
+
+  test('filters the listing by bound user', async ({ page, adminApi }) => {
+    const [firstUser, secondUser] = tokenUsers;
+    const firstUserId = await adminApi.findUserId(firstUser.alias);
+    const secondUserId = await adminApi.findUserId(secondUser.alias);
+    const tokenOfFirstUser = 'playwright-token-user-1';
+    const tokenOfSecondUser = 'playwright-token-user-2';
+    await adminApi.createToken({ name: tokenOfFirstUser, userId: firstUserId });
+    await adminApi.createToken({
+      name: tokenOfSecondUser,
+      userId: secondUserId
+    });
+
+    const tokens = new ApiTokensPage(page);
+    await tokens.open();
+    await tokens.filterByUser(firstUser.alias);
+
+    await expect(tokens.row(tokenOfFirstUser)).toBeVisible();
+    await expect(tokens.row(tokenOfSecondUser)).toHaveCount(0);
+  });
+
+  test('filters the listing by creator', async ({ page, adminApi }) => {
+    const userId = await adminApi.findUserId(tokenUser.alias);
+    const name = 'playwright-token-creator';
+    await adminApi.createToken({ name, userId });
+
+    const tokens = new ApiTokensPage(page);
+    await tokens.open();
+    // Tokens seeded through the API are owned by the connected admin.
+    await tokens.filterByCreator('admin admin');
+
+    await expect(tokens.row(name)).toBeVisible();
+  });
+
+  // Mirrors the Cypress `03-api-token-sorting` outline: a first click on a
+  // sortable column header sorts that column descending. The listing is
+  // virtualized and mixes the platform's own poller/cma tokens with the seeded
+  // ones, so we assert the request the UI issued (its `sort_by`) rather than the
+  // rendered row order — the same approach the OpenId listing spec takes.
+  test('sorts the listing by each column header in descending order', async ({
+    page,
+    adminApi
+  }) => {
+    const userId = await adminApi.findUserId(tokenUser.alias);
+    await adminApi.createToken({ name: 'playwright-token-sort-1', userId });
+    await adminApi.createToken({ name: 'playwright-token-sort-2', userId });
+
+    const tokens = new ApiTokensPage(page);
+    await tokens.open();
+
+    for (const [label, field] of Object.entries(
+      ApiTokensPage.columnSortField
+    )) {
+      const sort = await tokens.sortByColumn(label);
+      expect(
+        sort,
+        `sorting by "${label}" requests ${field} descending`
+      ).toEqual({ [field]: 'desc' });
+    }
+  });
 });

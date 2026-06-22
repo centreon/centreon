@@ -130,6 +130,70 @@ export class ApiTokensPage extends BasePage {
     });
   }
 
+  /**
+   * Open the filter panel, pick a value in one of the connected autocomplete
+   * filters (User / Creator) and apply. The field filters its options through a
+   * connected request, so we type the value then pick the matching option.
+   */
+  private async filterByAutocomplete(
+    field: 'User' | 'Creator',
+    value: string
+  ): Promise<void> {
+    await test.step(`Filter tokens by ${field.toLowerCase()} "${value}"`, async () => {
+      await this.page.getByTestId('Filters').click();
+      // The connected autocomplete renders its `data-testid` on the input itself.
+      await this.page.getByTestId(field).fill(value);
+      await this.pickOption(value);
+      const tokens = this.waitForTokens();
+      await this.page.getByTestId('Search').click();
+      await tokens;
+    });
+  }
+
+  /** Filter the listing by the bound user (alias). */
+  filterByUser(alias: string): Promise<void> {
+    return this.filterByAutocomplete('User', alias);
+  }
+
+  /** Filter the listing by the token creator (name). */
+  filterByCreator(name: string): Promise<void> {
+    return this.filterByAutocomplete('Creator', name);
+  }
+
+  /** The sort field each sortable column header maps to in the listing API. */
+  static readonly columnSortField: Record<string, string> = {
+    'Creation date': 'creation_date',
+    Creator: 'creator.name',
+    'Expiration date': 'expiration_date',
+    Name: 'token_name',
+    User: 'user.name'
+  };
+
+  /**
+   * Click a sortable column header and resolve with the `sort_by` object the
+   * listing request carried (e.g. `{ token_name: 'desc' }`).
+   *
+   * The listing is virtualized and mixes the platform's own poller/cma tokens
+   * with the seeded ones, so asserting the rendered row order is flaky; instead
+   * we assert the request the UI issued — the same approach the OpenId listing
+   * spec takes. A first click on an unsorted column sorts it descending.
+   */
+  async sortByColumn(label: string): Promise<Record<string, string>> {
+    return test.step(`Sort by column "${label}"`, async () => {
+      const request = this.page.waitForRequest(
+        (response) =>
+          response.url().includes('/administration/tokens') &&
+          response.method() === 'GET'
+      );
+      await this.page.getByLabel(`Column ${label}`, { exact: true }).click();
+      const match = (await request).url().match(/sort_by=([^&]+)/);
+
+      return match
+        ? (JSON.parse(decodeURIComponent(match[1])) as Record<string, string>)
+        : {};
+    });
+  }
+
   /** Snackbar shown after an action (e.g. the copy confirmation). */
   snackbar(message: string): Locator {
     return this.page.getByText(message);
