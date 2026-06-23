@@ -18538,13 +18538,6 @@ msgstr "[%s] The value \"%s\" was expected to be a valid e-mail address"
 
 #: centreon/src/Centreon/Domain/Common/Assertion/AssertionException.php
 #, php-format
-msgid ""
-"[%s] The value \"%s\" was expected to be a valid ip address or domain name"
-msgstr ""
-"[%s] The value \"%s\" was expected to be a valid ip address or domain name"
-
-#: centreon/src/Centreon/Domain/Common/Assertion/AssertionException.php
-#, php-format
 msgid "[%s] The value '%s' was expected to be a valid ip address"
 msgstr "[%s] The value '%s' was expected to be a valid ip address"
 
@@ -20134,6 +20127,13 @@ msgstr "Your changes will not be saved if you leave regex mode."
 #: unknown
 msgid "Zero-centered"
 msgstr "Zero-centered"
+
+#, php-format
+#: unknown
+msgid ""
+"[%s] The value \"%s\" was expected to be a valid ip address or domain name"
+msgstr ""
+"[%s] The value \"%s\" was expected to be a valid ip address or domain name"
 
 #: unknown
 msgid "areaOpacity"

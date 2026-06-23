@@ -18780,13 +18780,6 @@ msgstr "[%s] La valeur \"%s\" n'est pas une adresse email valide"
 
 #: centreon/src/Centreon/Domain/Common/Assertion/AssertionException.php
 #, php-format
-msgid ""
-"[%s] The value \"%s\" was expected to be a valid ip address or domain name"
-msgstr ""
-"[%s] La valeur \"%s\" n'est pas une adresse IP ou un nom de domaine valide"
-
-#: centreon/src/Centreon/Domain/Common/Assertion/AssertionException.php
-#, php-format
 msgid "[%s] The value '%s' was expected to be a valid ip address"
 msgstr "[%s] La valeur '%s' n'est pas une adresse IP valide"
 
@@ -24042,6 +24035,13 @@ msgstr "Votre session a expiré"
 #: unknown
 msgid "Zero-centered"
 msgstr "Centré sur zéro"
+
+#, php-format
+#: unknown
+msgid ""
+"[%s] The value \"%s\" was expected to be a valid ip address or domain name"
+msgstr ""
+"[%s] La valeur \"%s\" n'est pas une adresse IP ou un nom de domaine valide"
 
 #: unknown
 msgid "areaOpacity"
