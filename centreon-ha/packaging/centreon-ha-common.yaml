@@ -82,6 +82,7 @@ scripts:
 overrides:
   rpm:
     depends:
+      - bc
       - perl-common-sense
       - perl-Linux-Inotify2
       - rsync
@@ -91,6 +92,7 @@ overrides:
 
   deb:
     depends:
+      - bc
       - libcommon-sense-perl
       - liblinux-inotify2-perl
       - rsync
