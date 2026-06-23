@@ -52,11 +52,17 @@ test.describe('Resources status downtime', () => {
       await api.authenticate(adminUser);
       if (!(await api.areServicesMonitored(downtimeServiceNames))) {
         try {
-          await api.provision(downtimeTearDownActions);
-        } catch {
-          // nothing to clean up
+          // Best-effort cleanup: tolerate "already gone" (404/409); log the rest.
+          await api.provision(downtimeTearDownActions, {
+            tolerate: [404, 409]
+          });
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `[provision] downtime teardown failed: ${(error as Error).message}`
+          );
         }
-        await api.provision(downtimeProvisioningActions);
+        await api.provision(downtimeProvisioningActions, { tolerate: [409] });
         await api.waitForServicesMonitored(downtimeServiceNames, {
           timeoutMs: 200_000
         });
@@ -72,9 +78,14 @@ test.describe('Resources status downtime', () => {
   // start from a clean slate.
   test.afterAll(async ({ adminApi }) => {
     try {
-      await adminApi.provision(downtimeTearDownActions);
-    } catch {
-      // already removed
+      await adminApi.provision(downtimeTearDownActions, {
+        tolerate: [404, 409]
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[provision] downtime teardown failed: ${(error as Error).message}`
+      );
     }
   });
 

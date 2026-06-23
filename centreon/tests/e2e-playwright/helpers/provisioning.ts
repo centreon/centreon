@@ -30,11 +30,17 @@ export const ensureResourcesMonitored = async (
       // load the services before pushing results — passive results sent before
       // the service exists are dropped by the engine.
       try {
-        await api.provision(resourcesTearDownActions);
-      } catch {
-        // nothing to clean up
+        // Best-effort cleanup: tolerate "already gone" (404/409); log anything
+        // else rather than abort the whole setup on a stale teardown.
+        await api.provision(resourcesTearDownActions, { tolerate: [404, 409] });
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `[provision] resources teardown failed: ${(error as Error).message}`
+        );
       }
-      await api.provision(resourcesProvisioningActions);
+      // Tolerate a partially-present fixture (409) but surface real ADD failures.
+      await api.provision(resourcesProvisioningActions, { tolerate: [409] });
       await api.waitForServicesMonitored(services, { timeoutMs: 200_000 });
     }
 

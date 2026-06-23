@@ -6,8 +6,49 @@ as an alternative to the existing Cypress + Cucumber suite (`tests/e2e`).
 
 Unlike the Cypress suite — where selectors and interactions are spread across
 Gherkin step definitions and global custom commands — every interaction here is
-encapsulated in a Page Object (`pages/`). Tests describe *intentions*
+encapsulated in a Page Object (`pages/`). Tests describe _intentions_
 ("log in as admin", "log out") and never touch a selector directly.
+
+## Coverage and status
+
+> **This is a proof of concept, not a replacement for the Cypress suite.** It
+> shows that the patterns — Page Object Model, API-based provisioning,
+> legacy-iframe pages, OIDC, CI fan-out — work end-to-end against Centreon. It
+> does **not** yet match the breadth of the Cypress + Cucumber suite
+> (`tests/e2e`): roughly **~15% of the Cypress scenarios** are covered today.
+
+**Migrated (happy paths)** — authentication (login + OIDC), dashboards
+(create / edit / navigate / delete), resources-status (listing +
+acknowledgement), cloud-notifications (listing), api-token
+(create / delete / filter / sort), proxy and custom-views (legacy iframes),
+commands, macros, hosts, host-groups, contacts, services (create), time-period,
+snmp-traps, poller-configuration, additional-connectors.
+
+**Not yet migrated — keep relying on Cypress for these:**
+
+- **Access control & enterprise auth**: ACL (action / menu / resource access),
+  LDAP, SAML, local password policies. Security-sensitive and currently
+  **uncovered** by Playwright.
+- **Audit / change logs**.
+- **Dashboard widgets**: only a few cases vs the 100+ widget-configuration
+  scenarios in Cypress.
+- Deeper flows of partially-migrated features: services configuration beyond
+  create, resources-status advanced filters / export, downtime cancellation, …
+
+Four tests are currently **skipped** (`agent-configuration`,
+`resources-access-management`, `downtime` ×2) — each carries an in-file comment
+explaining why and what is needed to re-enable it.
+
+## Continuous integration
+
+The e2e job fans out across a **bounded number of named shards** computed from
+the test folders by `.github/scripts/playwright-shards.py`: each _heavy_ folder
+(≥ 2 spec files) runs in its own shard, and the _light_ folders are packed into
+a few `group-N` shards. Every shard is an isolated runner that boots its own
+throwaway stack (official MariaDB + tmpfs, see `docker-compose-test-db.yml`),
+runs its specs with a uniquely-named blob report (`PW_BLOB_NAME`), and a final
+`playwright-e2e-report` job merges the blobs into a single HTML report. Adding
+or removing a test folder reshapes the matrix automatically.
 
 ## Layout
 
@@ -44,10 +85,10 @@ tests/e2e-playwright/
 │   ├── ApiTokensPage.ts          # Authentication tokens (create / delete / filter)
 │   ├── ProxyConfigurationPage.ts # Legacy "Centreon UI" proxy form (iframe)
 │   └── CustomViewsPage.ts        # Legacy "Custom views" home page (iframe)
-└── tests/
+└── tests/                   # one folder per feature (non-exhaustive below)
     ├── auth.setup.ts        # `setup` project: saves the dashboard-creator + admin sessions
-    ├── authentication.spec.ts
     ├── authentication/
+    │   ├── login.spec.ts
     │   └── oidc-authentication.spec.ts
     ├── dashboards/
     │   ├── dashboard-creation.spec.ts
@@ -91,7 +132,7 @@ This setup — handled by Cypress custom commands — is split here into:
 - **`auth.setup.ts`** (the `setup` project, runs once): logs in as the
   dashboard creator through the UI and saves the session to `.auth/`. The
   dashboard specs reuse it via `test.use({ storageState })` (a `dependencies:
-  ['setup']` makes it run first), so no UI login happens in each test.
+['setup']` makes it run first), so no UI login happens in each test.
 - **`fixtures/test.ts`** (per test): seeds/cleans dashboards through the REST
   API (`CentreonApi`), replacing the Cypress `beforeEach`/`afterEach` DB hooks.
 
@@ -151,7 +192,7 @@ through `CentreonApi`, mirroring the Cypress CLAPI commands:
 > **Fresh engine for resources status:** seeding live monitoring data needs a
 > cleanly-booted engine, so the resources spec is reliable against a fresh `web`
 > container (as in CI, and as the Cypress suite guarantees by recreating a
-> container per spec). Re-running it many times against the *same* long-lived
+> container per spec). Re-running it many times against the _same_ long-lived
 > container can leave the engine with stale, disabled service entries after
 > repeated config reloads.
 
@@ -202,19 +243,19 @@ already started it with `pnpm stack:up` and want faster startup).
 
 ## Configuration
 
-| Env var                   | Default                              | Purpose                         |
-| ------------------------- | ------------------------------------ | ------------------------------- |
-| `CENTREON_BASE_URL`       | `http://localhost:4000/centreon`     | Base URL of the platform        |
-| `CENTREON_ADMIN_LOGIN`    | `admin`                              | Admin login                     |
-| `CENTREON_ADMIN_PASSWORD` | `Centreon!2021`                      | Admin password                  |
-| `SKIP_STACK_MANAGEMENT`   | _(unset)_                            | If set, the tests do not start/recreate the stack |
-| `CENTREON_COMPOSE_OVERRIDES` | _(unset)_                         | Extra compose files (space/comma/colon-separated, relative to `.github/docker`) layered on the stack — e.g. `docker-compose-test-db.yml` for a faster throwaway DB |
-| `RECORD_VIDEO`            | _(unset)_                            | If set, record a video for every test (not only failures) |
-| `RECORD_TRACE`            | _(unset)_                            | If set, capture a trace for every test (not only failures) |
+| Env var                      | Default                          | Purpose                                                                                                                                                            |
+| ---------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `CENTREON_BASE_URL`          | `http://localhost:4000/centreon` | Base URL of the platform                                                                                                                                           |
+| `CENTREON_ADMIN_LOGIN`       | `admin`                          | Admin login                                                                                                                                                        |
+| `CENTREON_ADMIN_PASSWORD`    | `Centreon!2021`                  | Admin password                                                                                                                                                     |
+| `SKIP_STACK_MANAGEMENT`      | _(unset)_                        | If set, the tests do not start/recreate the stack                                                                                                                  |
+| `CENTREON_COMPOSE_OVERRIDES` | _(unset)_                        | Extra compose files (space/comma/colon-separated, relative to `.github/docker`) layered on the stack — e.g. `docker-compose-test-db.yml` for a faster throwaway DB |
+| `RECORD_VIDEO`               | _(unset)_                        | If set, record a video for every test (not only failures)                                                                                                          |
+| `RECORD_TRACE`               | _(unset)_                        | If set, capture a trace for every test (not only failures)                                                                                                         |
 
 > **Language note:** most locators are language-independent (`data-testid` for the
 > login inputs, `data-cy` for the profile menu, `role="alert"` for errors). A few
-> assertions still rely on visible text (the *Logout* entry, the "Authentication
+> assertions still rely on visible text (the _Logout_ entry, the "Authentication
 > failed" message), so the stack must run in **`en_US`** — which is the docker
 > compose default (`CENTREON_LANG=en_US`).
 

@@ -32,11 +32,9 @@ test.describe('API tokens', () => {
     const api = await CentreonApi.create(baseURL);
     try {
       await api.authenticate(adminUser);
-      try {
-        await api.provision(tokenUsersActions);
-      } catch {
-        // users already provisioned by a previous run
-      }
+      // Idempotent: tolerate users already provisioned by a previous run (409),
+      // but let a real provisioning failure surface here instead of cascading.
+      await api.provision(tokenUsersActions, { tolerate: [409] });
     } finally {
       await api.dispose();
     }

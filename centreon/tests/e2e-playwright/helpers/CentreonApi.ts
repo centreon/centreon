@@ -82,22 +82,40 @@ export class CentreonApi {
     return authToken;
   }
 
-  /** Run a list of CLAPI actions (ACL/contact provisioning) with a v1 token. */
+  /**
+   * Run a list of CLAPI actions (ACL/contact provisioning) with a v1 token.
+   *
+   * `tolerate` lists HTTP status codes that must NOT fail the call — typically
+   * `409` for an ADD that already exists, or `404` for a DEL of something
+   * already gone. Any other non-2xx status still throws, so a real failure
+   * (bad payload, 500, auth) surfaces here instead of cascading into an obscure
+   * downstream error. Tolerated statuses are logged, not silenced.
+   */
   async runClapiActions(
     authToken: string,
-    actions: Array<ClapiAction>
+    actions: Array<ClapiAction>,
+    { tolerate = [] }: { tolerate?: Array<number> } = {}
   ): Promise<void> {
     for (const action of actions) {
-      CentreonApi.ok(
-        await this.context.post(
-          `${this.base}/api/index.php?action=action&object=centreon_clapi`,
-          {
-            data: action,
-            headers: { 'centreon-auth-token': authToken }
-          }
-        ),
-        `CLAPI ${action.action} ${action.object}`
+      const response = await this.context.post(
+        `${this.base}/api/index.php?action=action&object=centreon_clapi`,
+        {
+          data: action,
+          headers: { 'centreon-auth-token': authToken }
+        }
       );
+      if (!response.ok()) {
+        if (tolerate.includes(response.status())) {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `[provision] CLAPI ${action.action} ${action.object} -> ${response.status()} ${response.statusText()} (tolerated)`
+          );
+          continue;
+        }
+        throw new Error(
+          `CLAPI ${action.action} ${action.object} failed: ${response.status()} ${response.statusText()}`
+        );
+      }
     }
   }
 
@@ -172,9 +190,16 @@ export class CentreonApi {
     return this.v1Token;
   }
 
-  /** Replay a list of CLAPI actions with the stored v1 token. */
-  async provision(actions: Array<ClapiAction>): Promise<void> {
-    await this.runClapiActions(this.requireV1Token(), actions);
+  /**
+   * Replay a list of CLAPI actions with the stored v1 token. Pass
+   * `{ tolerate: [409] }` for idempotent ADD provisioning (or `[404, 409]` for a
+   * best-effort teardown) so only "already exists"/"already gone" are ignored.
+   */
+  async provision(
+    actions: Array<ClapiAction>,
+    options: { tolerate?: Array<number> } = {}
+  ): Promise<void> {
+    await this.runClapiActions(this.requireV1Token(), actions, options);
   }
 
   /**

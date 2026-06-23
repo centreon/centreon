@@ -35,17 +35,18 @@ test.describe('Cloud notifications listing', () => {
     const api = await CentreonApi.create(baseURL);
     try {
       await api.authenticate(adminUser);
-      try {
-        await api.provision([
+      // Idempotent: tolerate the host group/host already created by a previous
+      // run (409); a real provisioning failure still surfaces here.
+      await api.provision(
+        [
           ...notificationHostGroupActions,
           ...hostActions({
             hostGroup: notificationHostGroupName,
             name: 'notification_host_1'
           })
-        ]);
-      } catch {
-        // host group already exists from a previous run
-      }
+        ],
+        { tolerate: [409] }
+      );
       hostGroupId = await api.findHostGroupId(notificationHostGroupName);
     } finally {
       await api.dispose();

@@ -38,16 +38,13 @@ async function globalSetup(config: FullConfig): Promise<void> {
   const api = await CentreonApi.create(base);
   try {
     const authToken = await api.authenticateV1(adminUser);
-    try {
-      await api.runClapiActions(authToken, dashboardCreatorAclActions);
-    } catch (error) {
-      // Tolerate reruns against an already-provisioned stack (contact/ACL exist).
-      console.warn(
-        `[global-setup] CLAPI provisioning skipped or partial: ${
-          (error as Error).message
-        }`
-      );
-    }
+    // Tolerate reruns against an already-provisioned stack (the ADD actions
+    // return 409 when the contact/ACL objects already exist); any other failure
+    // (bad payload, 500, auth) still aborts setup loudly instead of letting the
+    // dashboard specs fail later with an obscure error.
+    await api.runClapiActions(authToken, dashboardCreatorAclActions, {
+      tolerate: [409]
+    });
   } finally {
     await api.dispose();
   }

@@ -1254,10 +1254,11 @@ jobs:
   #         path: centreon/lighthouse/report/lighthouseci-index.html
   #         retention-days: 1
 
-  # Discover the e2e test folders so the run can fan out one parallel job per
-  # folder (named after it). Adding or removing a folder under
-  # tests/e2e-playwright/tests automatically adds or removes a job — no workflow
-  # edit needed.
+  # Compute the e2e test shards from the test folders: each heavy folder (>=2
+  # spec files) gets its own named shard, the light folders are packed into a
+  # few "group-N" shards. Adding or removing a folder under
+  # tests/e2e-playwright/tests automatically reshapes the matrix — no workflow
+  # edit needed — while keeping the number of booted stacks bounded.
   playwright-e2e-prepare:
     runs-on: ubuntu-24.04
     needs: [get-environment]
@@ -1265,34 +1266,45 @@ jobs:
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled()
     name: playwright-e2e-prepare
+    permissions:
+      contents: read
     outputs:
-      folders: ${{ steps.list.outputs.folders }}
+      shards: ${{ steps.shards.outputs.shards }}
+      has_shards: ${{ steps.shards.outputs.has_shards }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: List e2e test folders
-        id: list
-        working-directory: ${{ env.base_directory }}/tests/e2e-playwright/tests
+      - name: Compute test shards
+        id: shards
         run: |
-          folders=$(find . -maxdepth 1 -mindepth 1 -type d -printf '%f\n' | sort | jq -R . | jq -cs .)
-          echo "folders=$folders" >> "$GITHUB_OUTPUT"
-          echo "Discovered e2e test folders: $folders"
+          shards=$(python3 .github/scripts/playwright-shards.py "$base_directory/tests/e2e-playwright/tests")
+          echo "shards=$shards" >> "$GITHUB_OUTPUT"
+          if [ "$shards" = "[]" ]; then
+            echo "has_shards=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_shards=true" >> "$GITHUB_OUTPUT"
+          fi
+          echo "Computed e2e shards: $shards"
 
   playwright-e2e-test:
     runs-on: ubuntu-24.04
     needs: [get-environment, playwright-e2e-prepare]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.playwright-e2e-prepare.outputs.has_shards == 'true' &&
       ! cancelled()
-    # One parallel job per test folder: each runner is an isolated VM with its
-    # own Docker, so it brings up its own throwaway stack — no shared-state
-    # conflict. Each job runs only its folder's specs and is named after the
-    # folder (one stack boot per folder; the Cypress matrix uses ~140 jobs).
+    permissions:
+      contents: read
+    # One parallel job per shard: each runner is an isolated VM with its own
+    # Docker, so it brings up its own throwaway stack — no shared-state conflict.
+    # Heavy folders run alone; light folders are grouped (see
+    # playwright-shards.py) to keep the number of booted stacks bounded. Each job
+    # is named after its shard (the Cypress matrix uses ~140 jobs).
     strategy:
       fail-fast: false
       matrix:
-        folder: ${{ fromJson(needs.playwright-e2e-prepare.outputs.folders) }}
-    name: ${{ matrix.folder }}
+        shard: ${{ fromJson(needs.playwright-e2e-prepare.outputs.shards) }}
+    name: ${{ matrix.shard.name }}
     env:
       # POC: run against the published web image (this PR only adds test files).
       WEB_IMAGE: docker.centreon.com/centreon/centreon-web-alma9:develop
@@ -1352,33 +1364,47 @@ jobs:
       # web stack, the OIDC spec's beforeAll ensures the openid profile), so no
       # explicit "up" / health-wait steps are needed here. The registry login
       # above lets the test-triggered `docker compose up` pull the web image.
-      - name: Run Playwright e2e tests (${{ matrix.folder }})
-        run: pnpm exec playwright test "tests/${{ matrix.folder }}"
+      # SHARD_PATHS / SHARD_NAME are passed through the environment (not
+      # interpolated directly into the command) so a folder name can never be
+      # injected into the shell. SHARD_PATHS is intentionally unquoted: it is a
+      # space-separated list of `tests/<folder>` paths handed to one run.
+      - name: Run Playwright e2e tests (${{ matrix.shard.name }})
+        run: pnpm exec playwright test $SHARD_PATHS
         working-directory: ${{ env.base_directory }}/tests/e2e-playwright
         env:
           CENTREON_BASE_URL: http://localhost:4000/centreon
-          # Unique blob file name per folder so the report job can merge them all
+          SHARD_PATHS: ${{ matrix.shard.paths }}
+          # Unique blob file name per shard so the report job can merge them all
           # in a single directory without clobbering (see playwright.config.ts).
-          PW_BLOB_NAME: report-${{ matrix.folder }}.zip
+          PW_BLOB_NAME: report-${{ matrix.shard.name }}.zip
 
       - name: Upload blob report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: playwright-blob-${{ matrix.folder }}
+          name: playwright-blob-${{ matrix.shard.name }}
           path: ${{ env.base_directory }}/tests/e2e-playwright/blob-report
           retention-days: 5
 
+      # Tear the stack down with the SAME compose files used to bring it up
+      # (base + DB override) so the `db` service resolves identically, and remove
+      # any orphaned containers/volumes. Covers every profile a shard may start.
       - name: Stop the Centreon stack
         if: ${{ always() }}
-        run: docker compose -f "$compose_file" --profile openid --profile squid-simple down -v
+        run: |
+          docker compose -f "$compose_file" -f ".github/docker/$CENTREON_COMPOSE_OVERRIDES" \
+            --profile openid --profile squid-simple down -v --remove-orphans
 
-  # Merge the per-folder blob reports into a single HTML report.
+  # Merge the per-shard blob reports into a single HTML report.
   playwright-e2e-report:
     runs-on: ubuntu-24.04
-    needs: [playwright-e2e-test]
-    if: ${{ !cancelled() }}
+    needs: [playwright-e2e-prepare, playwright-e2e-test]
+    if: |
+      needs.playwright-e2e-prepare.outputs.has_shards == 'true' &&
+      ! cancelled()
     name: playwright-e2e-report
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
@@ -1405,10 +1431,15 @@ jobs:
           merge-multiple: true
 
       - name: Merge blob reports into an HTML report
-        run: pnpm exec playwright merge-reports --reporter=html ./all-blob-reports
         working-directory: ${{ env.base_directory }}/tests/e2e-playwright
         env:
           PLAYWRIGHT_HTML_REPORT: playwright-report
+        run: |
+          if [ -z "$(ls -A ./all-blob-reports 2>/dev/null)" ]; then
+            echo "::warning::no blob reports to merge (all e2e shards failed before producing one)"
+            exit 0
+          fi
+          pnpm exec playwright merge-reports --reporter=html ./all-blob-reports
 
       - name: Upload merged HTML report
         if: ${{ !cancelled() }}
