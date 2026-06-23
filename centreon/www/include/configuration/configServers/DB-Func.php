@@ -20,10 +20,12 @@
  */
 
 use App\Kernel;
+use App\Shared\Domain\Assert\Assert;
 use Centreon\Domain\PlatformTopology\Model\PlatformRegistered;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPoller;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPollerRequest;
 use Core\MonitoringServer\Model\MonitoringServer;
+use Webmozart\Assert\InvalidArgumentException;
 
 if (! isset($centreon)) {
     exit();
@@ -155,12 +157,13 @@ function testExistence($name = null): bool
  */
 function isValidIpAddress(string $ipAddress): bool
 {
-    // Check IPv6, IPv4 and FQDN format
-    return ! (
-        ! filter_var($ipAddress, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
-        && ! filter_var($ipAddress, FILTER_VALIDATE_IP)
-    );
+    try {
+        Assert::ipOrHostname($ipAddress);
 
+        return true;
+    } catch (InvalidArgumentException) {
+        return false;
+    }
 }
 
 /**
