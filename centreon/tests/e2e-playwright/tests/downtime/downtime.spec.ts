@@ -89,10 +89,11 @@ test.describe('Resources status downtime', () => {
     }
   });
 
-  // Green standalone and in worst-case ordering, but the row-checkbox selection
-  // intermittently fails to register under sustained full-suite load (the OK
-  // downtime services in the Resources listing). Skipped so the suite stays
-  // order-independent and green; needs a more robust selection to re-enable.
+  // SKIPPED — re-confirmed 2026-06-23 against a fresh stack: the seeded OK
+  // services do not reliably show up in the Resources listing, so selecting the
+  // row times out (`isChecked` never finds the row). Setting a downtime on an OK
+  // resource through this listing needs a more robust way to surface/select it;
+  // tracked for a follow-up before re-enabling.
   test.skip('sets a downtime on a single resource with default settings', async ({
     page
   }) => {

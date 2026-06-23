@@ -23,63 +23,66 @@ import { AgentConfigurationPage } from '../../pages/AgentConfigurationPage';
  * is fast and reliable. The objects are created and deleted through the UI; a
  * best-effort UI cleanup in `afterEach` keeps reruns idempotent.
  */
-// DRAFT: the form validates client-side and Submit enables, but the create POST
-// returns 500 (the Telegraf form needs a valid TLS cert payload/OTLP config).
-// Skipped pending deeper work on the certificate fields.
-test.describe.skip('Agent configuration', () => {
-  test.use({ storageState: adminStorageStatePath });
+// SKIPPED — re-confirmed 2026-06-23 against a fresh stack: all three tests fail
+// because the create POST returns 500 (the Telegraf form needs a valid TLS cert
+// payload / OTLP config the fixture does not provide). Unresolved: it is not yet
+// established whether this is a fixture gap or a product bug — needs a tracking
+// ticket before re-enabling. Do not un-skip until the create POST returns 2xx.
+test.describe
+  .skip('Agent configuration', () => {
+    test.use({ storageState: adminStorageStatePath });
 
-  test.beforeAll(async () => {
-    await ensureStack({ services: ['web'] });
-  });
+    test.beforeAll(async () => {
+      await ensureStack({ services: ['web'] });
+    });
 
-  test.afterEach(async ({ page }) => {
-    // Best-effort cleanup: remove the agent through the UI if it survived.
-    const agents = new AgentConfigurationPage(page);
-    try {
-      await agents.open();
-      if ((await agents.row(telegrafAgent.name).count()) > 0) {
-        await agents.deleteAgent(telegrafAgent.name, { confirm: true });
+    test.afterEach(async ({ page }) => {
+      // Best-effort cleanup: remove the agent through the UI if it survived.
+      const agents = new AgentConfigurationPage(page);
+      try {
+        await agents.open();
+        if ((await agents.row(telegrafAgent.name).count()) > 0) {
+          await agents.deleteAgent(telegrafAgent.name, { confirm: true });
+        }
+      } catch {
+        // Nothing to clean up (page never opened, or already deleted).
       }
-    } catch {
-      // Nothing to clean up (page never opened, or already deleted).
-    }
+    });
+
+    test('creates a Telegraf agent configuration and lists it', async ({
+      page
+    }) => {
+      const agents = new AgentConfigurationPage(page);
+
+      await agents.open();
+      await agents.createTelegrafAgent(telegrafAgent);
+
+      await expect(agents.row(telegrafAgent.name)).toBeVisible();
+      await expect(agents.row(telegrafAgent.name)).toContainText('Telegraf');
+    });
+
+    test('deletes an agent configuration after confirmation', async ({
+      page
+    }) => {
+      const agents = new AgentConfigurationPage(page);
+
+      await agents.open();
+      await agents.createTelegrafAgent(telegrafAgent);
+      await expect(agents.row(telegrafAgent.name)).toBeVisible();
+
+      await agents.deleteAgent(telegrafAgent.name, { confirm: true });
+      await expect(agents.row(telegrafAgent.name)).toHaveCount(0);
+    });
+
+    test('keeps the agent configuration when the deletion is cancelled', async ({
+      page
+    }) => {
+      const agents = new AgentConfigurationPage(page);
+
+      await agents.open();
+      await agents.createTelegrafAgent(telegrafAgent);
+
+      await agents.deleteAgent(telegrafAgent.name, { confirm: false });
+      await expect(agents.row(telegrafAgent.name)).toBeVisible();
+    });
   });
-
-  test('creates a Telegraf agent configuration and lists it', async ({
-    page
-  }) => {
-    const agents = new AgentConfigurationPage(page);
-
-    await agents.open();
-    await agents.createTelegrafAgent(telegrafAgent);
-
-    await expect(agents.row(telegrafAgent.name)).toBeVisible();
-    await expect(agents.row(telegrafAgent.name)).toContainText('Telegraf');
-  });
-
-  test('deletes an agent configuration after confirmation', async ({
-    page
-  }) => {
-    const agents = new AgentConfigurationPage(page);
-
-    await agents.open();
-    await agents.createTelegrafAgent(telegrafAgent);
-    await expect(agents.row(telegrafAgent.name)).toBeVisible();
-
-    await agents.deleteAgent(telegrafAgent.name, { confirm: true });
-    await expect(agents.row(telegrafAgent.name)).toHaveCount(0);
-  });
-
-  test('keeps the agent configuration when the deletion is cancelled', async ({
-    page
-  }) => {
-    const agents = new AgentConfigurationPage(page);
-
-    await agents.open();
-    await agents.createTelegrafAgent(telegrafAgent);
-
-    await agents.deleteAgent(telegrafAgent.name, { confirm: false });
-    await expect(agents.row(telegrafAgent.name)).toBeVisible();
-  });
-});
