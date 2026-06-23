@@ -21,6 +21,7 @@
 
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Log\LoggerUpgrade;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
@@ -36,6 +37,8 @@ $errorMessage = '';
 // TODO add your functions here
 
 try {
+    LoggerUpgrade::create()->info($version, "Starting upgrade script for version {$version}");
+
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
 
@@ -51,22 +54,27 @@ try {
 
     $pearDB->commitTransaction();
 
+    LoggerUpgrade::create()->info($version, "Upgrade script for version {$version} completed");
+
 } catch (Throwable $throwable) {
-    CentreonLog::create()->error(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: " . $errorMessage,
-        exception: $throwable
+    LoggerUpgrade::create()->stepFailure(
+        "UPGRADE - {$version}: {$errorMessage}",
+        $version,
+        'php_script',
+        $throwable
     );
 
     try {
         if ($pearDB->isTransactionActive()) {
+            LoggerUpgrade::create()->info($version, "Rolling back transaction after error: {$errorMessage}");
             $pearDB->rollBackTransaction();
         }
     } catch (ConnectionException $rollbackException) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            exception: $rollbackException
+        LoggerUpgrade::create()->stepFailure(
+            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            $version,
+            'php_script_rollback',
+            $rollbackException
         );
 
         throw new RuntimeException(

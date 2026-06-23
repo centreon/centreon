@@ -164,10 +164,10 @@ class Validator implements JsonValidatorInterface
     /**
      * Load the definition files for the filesystem or cache.
      */
-    private function loadDefinitionFile(): void
+    private function loadDefinitionFile(bool $forceRebuild = false): void
     {
         $this->definitionFiles = [];
-        if (! $this->validatorCache->isCacheValid()) {
+        if ($forceRebuild || ! $this->validatorCache->isCacheValid()) {
             // We will load the definition files and create the cache
             if (is_file($this->validationFilePath)) {
                 $info = pathinfo($this->validationFilePath);
@@ -187,12 +187,16 @@ class Validator implements JsonValidatorInterface
             }
             // The definitions are loaded, we put them in the cache
             $this->validatorCache->setCache(
-                serialize($this->definitions),
+                json_encode($this->definitions, JSON_THROW_ON_ERROR),
                 $this->definitionFiles
             );
         } elseif (($cache = $this->validatorCache->getCache()) !== null) {
-            // We retrieve data from cache
-            $this->definitions = unserialize($cache);
+            try {
+                $this->definitions = json_decode($cache, true, 512, JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
+                @unlink($this->validatorCache->getCacheFile());
+                $this->loadDefinitionFile(true);
+            }
         }
     }
 

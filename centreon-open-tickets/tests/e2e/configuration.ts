@@ -1,6 +1,3 @@
-/* eslint-disable import/extensions */
-/* eslint-disable import/no-unresolved */
-
 import { execSync } from 'child_process';
 
 import { defineConfig } from 'cypress';

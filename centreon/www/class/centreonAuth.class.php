@@ -19,6 +19,8 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Log\Enum\AuthProviderEnum;
 use Adaptation\Log\LoggerAuthentication;
 use Pimple\Container;
@@ -235,15 +237,19 @@ class CentreonAuth
             );
             $dbResult->bindValue(':contactAlias', $username, PDO::PARAM_STR);
             $dbResult->execute();
+            $userInfos = $dbResult->fetch();
         } else {
-            $dbResult = $this->pearDB->query(
-                'SELECT * FROM `contact` '
-                . "WHERE MD5(contact_alias) = '" . $this->pearDB->escape($username, true) . "'"
-                . "AND `contact_activate` = '1' AND `contact_register` = '1' LIMIT 1"
+            $userInfos = $this->pearDB->fetchAssociative(
+                <<<'SQL'
+                    SELECT * FROM `contact`
+                    WHERE MD5(contact_alias) = :contactAlias
+                    AND `contact_activate` = '1' AND `contact_register` = '1' LIMIT 1
+                    SQL,
+                QueryParameters::create([QueryParameter::string('contactAlias', $username)])
             );
         }
-        if ($dbResult->rowCount()) {
-            $this->userInfos = $dbResult->fetch();
+        if ($userInfos !== false) {
+            $this->userInfos = $userInfos;
             if ($this->userInfos['default_page']) {
                 $statement = $this->pearDB->prepare(
                     'SELECT topology_url_opt FROM topology WHERE topology_page = :topology_page'
@@ -260,11 +266,13 @@ class CentreonAuth
             $this->checkPassword($password, $token);
             if ($this->passwdOk == self::PASSWORD_VALID) {
                 $authType = $this->userInfos['contact_auth_type'] ?: self::AUTH_TYPE_LOCAL;
-                $provider = (int) $this->autologin === self::AUTOLOGIN_ENABLE
-                    ? AuthProviderEnum::AUTOLOGIN
-                    : ($authType === self::AUTH_TYPE_LDAP
-                        ? AuthProviderEnum::LDAP
-                        : AuthProviderEnum::LOCAL);
+                if ((int) $this->autologin === self::AUTOLOGIN_ENABLE) {
+                    $provider = AuthProviderEnum::AUTOLOGIN;
+                } elseif ($authType === self::AUTH_TYPE_LDAP) {
+                    $provider = AuthProviderEnum::LDAP;
+                } else {
+                    $provider = AuthProviderEnum::LOCAL;
+                }
                 $this->CentreonLog->setUID($this->userInfos['contact_id']);
                 LoggerAuthentication::create()->loginSuccess(
                     sprintf(
@@ -549,11 +557,13 @@ class CentreonAuth
     {
         if (is_string($username) && strlen($username) > 0) {
             //  Take care before modifying this message pattern as it may break tools such as fail2ban
-            $provider = (int) $this->autologin === self::AUTOLOGIN_ENABLE
-                ? AuthProviderEnum::AUTOLOGIN
-                : ($authenticationType === self::AUTH_TYPE_LDAP
-                    ? AuthProviderEnum::LDAP
-                    : AuthProviderEnum::LOCAL);
+            if ((int) $this->autologin === self::AUTOLOGIN_ENABLE) {
+                $provider = AuthProviderEnum::AUTOLOGIN;
+            } elseif ($authenticationType === self::AUTH_TYPE_LDAP) {
+                $provider = AuthProviderEnum::LDAP;
+            } else {
+                $provider = AuthProviderEnum::LOCAL;
+            }
             LoggerAuthentication::create()->loginFailure(
                 sprintf(
                     "[%s] [%s] Authentication failed for '%s' : %s",

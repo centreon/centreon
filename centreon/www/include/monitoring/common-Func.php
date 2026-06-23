@@ -82,12 +82,19 @@ function getContactgroups(array $cg): array
     global $pearDB;
 
     $contactGroups = [];
-    $dbResult = $pearDB->query(
-        'SELECT cg_id, cg_name 
-        FROM contactgroup
-        WHERE cg_id IN (' . implode(', ', $cg) . ')'
+    $cg = array_map('intval', $cg);
+    if ($cg === []) {
+        return $contactGroups;
+    }
+    $placeholders = implode(', ', array_fill(0, count($cg), '?'));
+    $statement = $pearDB->prepare(
+        "SELECT cg_id, cg_name FROM contactgroup WHERE cg_id IN ({$placeholders})"
     );
-    while (($row = $dbResult->fetchRow())) {
+    foreach ($cg as $index => $cgId) {
+        $statement->bindValue($index + 1, $cgId, PDO::PARAM_INT);
+    }
+    $statement->execute();
+    while (($row = $statement->fetchRow())) {
         $contactGroups[$row['cg_id']] = $row['cg_name'];
     }
 
@@ -105,12 +112,19 @@ function getContacts(array $contacts): array
     global $pearDB;
 
     $contactsResult = [];
-    $dbResult = $pearDB->query(
-        'SELECT contact_id, contact_name 
-        FROM contact
-        WHERE contact_id IN (' . implode(', ', $contacts) . ')'
+    $contacts = array_map('intval', $contacts);
+    if ($contacts === []) {
+        return $contactsResult;
+    }
+    $placeholders = implode(', ', array_fill(0, count($contacts), '?'));
+    $statement = $pearDB->prepare(
+        "SELECT contact_id, contact_name FROM contact WHERE contact_id IN ({$placeholders})"
     );
-    while (($row = $dbResult->fetchRow())) {
+    foreach ($contacts as $index => $contactId) {
+        $statement->bindValue($index + 1, $contactId, PDO::PARAM_INT);
+    }
+    $statement->execute();
+    while (($row = $statement->fetchRow())) {
         $contactsResult[$row['contact_id']] = $row['contact_name'];
     }
 

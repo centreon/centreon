@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\AgentConfiguration;
 
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Webmozart\Assert\Assert;
 
 class CmaConfigurationParameters extends AbstractConfigurationParameters
@@ -151,11 +152,7 @@ class CmaConfigurationParameters extends AbstractConfigurationParameters
 
         /** @var string $hostAddress */
         $hostAddress = $host[self::HOST_ADDRESS];
-        Assert::true(
-            filter_var($hostAddress, FILTER_VALIDATE_IP) !== false
-            || filter_var($hostAddress, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) !== false,
-            sprintf('[configuration.hosts[].address] "%s" is not a valid IP or domain.', $hostAddress)
-        );
+        CentreonAssert::ipOrHostname($hostAddress, 'configuration.hosts[].address');
 
         Assert::range($host[self::HOST_PORT], 1, 65535, '[configuration.hosts[].port] Port must be between 1 and 65535. Got: %s');
 

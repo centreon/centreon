@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 /**
  * Class
  *
@@ -61,7 +64,7 @@ class CentreonTimeperiodRenderer
      * @param int $tpid
      * @param string $inex
      *
-     * @throws PDOException
+     * @throws ConnectionException
      */
     public function __construct($db, $tpid, $inex)
     {
@@ -70,15 +73,17 @@ class CentreonTimeperiodRenderer
         $this->timeline = $dayTab;
         $this->db = $db;
         $this->tpid = $tpid;
-        $query = "SELECT tp_name, tp_alias, tp_monday, tp_tuesday, tp_wednesday, tp_thursday, tp_friday,
+        $query = 'SELECT tp_name, tp_alias, tp_monday, tp_tuesday, tp_wednesday, tp_thursday, tp_friday,
             tp_saturday, tp_sunday
             FROM timeperiod
-            WHERE tp_id = '" . $tpid . "'";
-        $res = $this->db->query($query);
-        if (! $res->rowCount()) {
+            WHERE tp_id = :tpId';
+        $row = $this->db->fetchAssociative(
+            $query,
+            QueryParameters::create([QueryParameter::int('tpId', (int) $tpid)])
+        );
+        if ($row === false) {
             throw new Exception('Timeperiod not found');
         }
-        $row = $res->fetchRow();
         $this->tpname = $row['tp_name'];
         $this->tpalias = $row['tp_alias'];
         foreach ($this->timerange as $key => $val) {
@@ -310,16 +315,19 @@ class CentreonTimeperiodRenderer
     /**
      * Update Inclusions
      *
-     * @throws PDOException
+     * @throws ConnectionException
      * @return void
      */
     protected function updateInclusions()
     {
-        $query = "SELECT timeperiod_include_id
+        $query = 'SELECT timeperiod_include_id
         		  FROM timeperiod_include_relations
-        		  WHERE timeperiod_id= '" . $this->tpid . "'";
-        $res = $this->db->query($query);
-        while ($row = $res->fetchRow()) {
+        		  WHERE timeperiod_id = :tpId';
+        $rows = $this->db->fetchAllAssociative(
+            $query,
+            QueryParameters::create([QueryParameter::int('tpId', (int) $this->tpid)])
+        );
+        foreach ($rows as $row) {
             $inctp = new CentreonTimeperiodRenderer($this->db, $row['timeperiod_include_id'], 1);
             $this->updateTimeRange($inctp->timerange);
             foreach ($inctp->exceptionList as $key => $val) {
@@ -331,20 +339,26 @@ class CentreonTimeperiodRenderer
     /**
      * Update Exclusions
      *
-     * @throws PDOException
+     * @throws ConnectionException
      * @return void
      */
     protected function updateExclusions()
     {
-        $query = "SELECT * FROM timeperiod_exceptions WHERE timeperiod_id='" . $this->tpid . "'";
-        $DBRESULT = $this->db->query($query);
-        while ($row = $DBRESULT->fetchRow()) {
+        $query = 'SELECT * FROM timeperiod_exceptions WHERE timeperiod_id = :tpId';
+        $rows = $this->db->fetchAllAssociative(
+            $query,
+            QueryParameters::create([QueryParameter::int('tpId', (int) $this->tpid)])
+        );
+        foreach ($rows as $row) {
             $excep = $this->getException($row['timeperiod_id'], $this->tpname, $row['days'], $row['timerange']);
             $this->exceptionList[] = $excep;
         }
-        $query = "SELECT timeperiod_exclude_id FROM timeperiod_exclude_relations WHERE timeperiod_id='" . $this->tpid . "'";
-        $DBRESULT = $this->db->query($query);
-        while ($row = $DBRESULT->fetchRow()) {
+        $query = 'SELECT timeperiod_exclude_id FROM timeperiod_exclude_relations WHERE timeperiod_id = :tpId';
+        $rows = $this->db->fetchAllAssociative(
+            $query,
+            QueryParameters::create([QueryParameter::int('tpId', (int) $this->tpid)])
+        );
+        foreach ($rows as $row) {
             $extp = new CentreonTimePeriodRenderer($this->db, $row['timeperiod_exclude_id'], 0);
             $this->updateTimeRange($extp->timerange);
         }
