@@ -789,7 +789,7 @@ jobs:
               return configs[configIndex];
             };
 
-            const configs = [alma10_mysql_8_4, alma9_mysql_8_0, alma10_mariadb_11_8, trixie_mysql_8_4];
+            const configs = [alma10_mysql_8_4, alma9_mysql_8_4, alma10_mariadb_11_8, trixie_mysql_8_4];
 
             const cloud = alma10_mysql_8_4;
 
