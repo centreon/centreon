@@ -70,7 +70,8 @@ function _vmConfigureEngineContext() {
   local old_umask
   old_umask="$(umask)"
   umask 006
-  printf '{"app_secret":"%s","salt":"%s"}' "${APP_SECRET}" "${SALT}" \
+  jq -n --arg app_secret "${APP_SECRET}" --arg salt "${SALT}" \
+    '{app_secret: $app_secret, salt: $salt}' \
     > /etc/centreon-engine/engine-context.json
   local ret=$?
   umask "${old_umask}"

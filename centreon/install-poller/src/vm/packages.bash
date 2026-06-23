@@ -53,8 +53,6 @@ function _vmInstallPowertools() {
         dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
       commandExitOnError "Cannot enable OL9 CodeReady Builder" \
         dnf config-manager --set-enabled ol9_codeready_builder
-      commandExitOnError "Cannot install epel-release" \
-        dnf -y install epel-release
       ;;
     "rhel9"*)
       commandExitOnError "Cannot install dnf-plugins-core" \
@@ -79,8 +77,6 @@ function _vmInstallPowertools() {
         dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
       commandExitOnError "Cannot enable OL10 CodeReady Builder" \
         dnf config-manager --set-enabled ol10_codeready_builder
-      commandExitOnError "Cannot install epel-release" \
-        dnf -y install epel-release
       ;;
     "rhel10"*)
       # TODO: double check prerequisite for 26.10 release

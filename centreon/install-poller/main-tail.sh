@@ -10,6 +10,7 @@ trap exitMain EXIT
 
 if ! mkdir -p "$(dirname "${LOG_FILE}")"; then
   consoleError "Cannot create the directory for log file ($(dirname "${LOG_FILE}"))."
+  exit 1
 fi
 
 if ! type curl >/dev/null 2>&1; then

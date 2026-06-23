@@ -53,6 +53,7 @@ function _installParseArguments() {
     --central_url)
       shift
       CENTRAL_URL=$1
+      local _url_no_scheme
       _url_no_scheme=$(echo "${CENTRAL_URL}" | sed 's|^https\?://||')
       CENTRAL_HOST=$(echo "${_url_no_scheme}" | cut -d: -f1 | cut -d/ -f1)
       # Explicit port only; the per-mode default is applied in _installDeriveCentral.

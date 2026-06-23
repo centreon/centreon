@@ -21,7 +21,8 @@ set -u
 major=""
 
 ## Configuration variable
-LOG_FILE="./log/install-poller.log"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOG_FILE="${SCRIPT_DIR}/log/install-poller.log"
 
 # Deployment type: docker | vm (required, no default)
 POLLER_TYPE=""

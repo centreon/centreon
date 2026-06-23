@@ -59,7 +59,7 @@ function runDockerInstall() {
   if [ "${START_STACK}" = "1" ]; then
     echo ""
     consoleTitle "Starting stack:"
-    docker compose up -d
+    docker compose up -d || { consoleError "Failed to start stack."; logError "docker compose up -d failed (exit $?)"; exit 1; }
     echo ""
   else
     consoleTitle "Next steps:"
