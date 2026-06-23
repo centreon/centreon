@@ -624,9 +624,6 @@ class Broker extends AbstractObjectJSON
                 case 'C':
                     $s_column = (string) $value;
                     break;
-                case 'F':
-                    $s_filter = (string) $value;
-                    break;
                 case 'K':
                     $s_key = (string) $value;
                     break;
