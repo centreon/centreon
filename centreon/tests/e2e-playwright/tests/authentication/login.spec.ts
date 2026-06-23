@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 
-import { adminUser, invalidUser } from '../fixtures/credentials';
-import { LoginPage } from '../pages/LoginPage';
-import { MainHeader } from '../pages/MainHeader';
+import { adminUser, invalidUser } from '../../fixtures/credentials';
+import { LoginPage } from '../../pages/LoginPage';
+import { MainHeader } from '../../pages/MainHeader';
 
 /**
  * Authentication end-to-end tests, driven entirely through Page Objects.

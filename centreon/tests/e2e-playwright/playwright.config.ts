@@ -17,6 +17,12 @@ import { defineConfig, devices } from '@playwright/test';
 const baseURL =
   process.env.CENTREON_BASE_URL ?? 'http://localhost:4000/centreon';
 
+// In CI each test folder runs in its own job (see the `playwright-e2e-test`
+// matrix). Each job produces a blob report whose file name is unique per folder
+// (`PW_BLOB_NAME`) so the reports can be downloaded into a single directory and
+// merged into one HTML report without clobbering each other.
+const blobFileName = process.env.PW_BLOB_NAME;
+
 export default defineConfig({
   expect: {
     timeout: 15_000
@@ -36,8 +42,8 @@ export default defineConfig({
       testMatch: /.*\.setup\.ts/
     },
     {
-      name: 'chromium',
       dependencies: ['setup'],
+      name: 'chromium',
       testIgnore: [
         '**/authentication/oidc-authentication.spec.ts',
         '**/*.setup.ts'
@@ -61,7 +67,9 @@ export default defineConfig({
       }
     }
   ],
-  reporter: [['list'], ['html', { open: 'never' }]],
+  reporter: blobFileName
+    ? [['list'], ['blob', { fileName: blobFileName }]]
+    : [['list'], ['html', { open: 'never' }]],
   retries: process.env.CI ? 1 : 0,
   testDir: './tests',
   // A login flow that boots a fresh platform can be slow on the first run.
