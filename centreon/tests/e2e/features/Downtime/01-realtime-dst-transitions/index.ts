@@ -3,12 +3,12 @@ import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import {
-  cases,
   centralHost,
   expectedSeconds,
   formDate,
   latestDowntimeQuery,
   monitoredServiceQuery,
+  realtimeCases,
   transitionDay
 } from '../common';
 
@@ -22,7 +22,7 @@ let appliedKey: string;
 
 const applyRealtimeDowntime = (key: string): void => {
   appliedKey = key;
-  const { transition, start, end } = cases[key];
+  const { transition, start, end } = realtimeCases[key];
   const day = transitionDay(transition);
 
   cy.visit(
@@ -112,7 +112,7 @@ When('a realtime downtime fully inside the spring-forward gap is applied', () =>
 Then(
   'the scheduled downtime matches the expected start, end and duration',
   () => {
-    const { transition, expected } = cases[appliedKey];
+    const { transition, expected } = realtimeCases[appliedKey];
     if (expected === null) {
       throw new Error(`Case '${appliedKey}' has no expected scheduled window`);
     }

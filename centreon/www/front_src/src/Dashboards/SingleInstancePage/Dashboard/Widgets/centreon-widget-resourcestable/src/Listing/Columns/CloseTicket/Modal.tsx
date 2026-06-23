@@ -1,5 +1,3 @@
-// @ts-nocheck
-// TODO: re-enable type-check after fixing this file
 import { Typography } from '@mui/material';
 
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
@@ -7,7 +5,7 @@ import { Button, Modal } from '@centreon/ui/components';
 
 import { useAtom } from 'jotai';
 import { equals } from 'ramda';
-import { useCallback } from 'react';
+import { ReactElement, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { closeTicketEndpoint } from '../../../api/endpoints';
@@ -25,7 +23,7 @@ interface Props {
   providerID?: number;
 }
 
-const CloseTicketModal = ({ providerID }: Props): JSX.Element => {
+const CloseTicketModal = ({ providerID }: Props): ReactElement => {
   const [resourcesToCloseTicket, setResourcesToCloseTicket] = useAtom(
     resourcesToCloseTicketAtom
   );

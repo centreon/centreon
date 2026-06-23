@@ -44,9 +44,10 @@ runs:
           --config.trustPolicy=no-downgrade \
           --config.minimumReleaseAge=2880 \
           --config.blockExoticSubdeps=true
-      working-directory: ${{ inputs.frontend_directory }}
+      working-directory: ${{ env.FRONTEND_DIRECTORY }}
       shell: bash
       env:
+        FRONTEND_DIRECTORY: ${{ inputs.frontend_directory }}
         CYPRESS_INSTALL_BINARY: "0"
         PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"

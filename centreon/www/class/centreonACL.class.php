@@ -22,6 +22,7 @@
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
 
@@ -1220,38 +1221,57 @@ class CentreonACL
                 . 'FROM host_service_relation hsr, host h, service s '
                 . "WHERE h.host_activate = '1' "
                 . 'AND hsr.host_host_id = h.host_id '
-                . "AND h.host_id = '" . CentreonDB::escape($host_id) . "'"
+                . 'AND h.host_id = :host_id '
                 . 'AND hsr.service_service_id = s.service_id '
                 . "AND s.service_activate = '1' ";
-            $DBRESULT = CentreonDBInstance::getDbCentreonInstance()->query($query);
-            while ($row = $DBRESULT->fetchRow()) {
+            $stmt = CentreonDBInstance::getDbCentreonInstance()->prepare($query);
+            $stmt->bindValue(':host_id', (int) $host_id, PDO::PARAM_INT);
+            $stmt->execute();
+            while ($row = $stmt->fetchRow()) {
                 $tab[$row['service_id']] = $row['service_description'];
             }
-            $DBRESULT->closeCursor();
+            $stmt->closeCursor();
 
             // Get Services attached to hostgroups
             $query = 'SELECT DISTINCT service_id, service_description '
                 . 'FROM hostgroup_relation hgr, service, host_service_relation hsr '
-                . "WHERE hgr.host_host_id = '" . CentreonDB::escape($host_id) . "' "
+                . 'WHERE hgr.host_host_id = :host_id '
                 . 'AND hsr.hostgroup_hg_id = hgr.hostgroup_hg_id '
                 . 'AND service_id = hsr.service_service_id ';
-            $DBRESULT = CentreonDBInstance::getDbCentreonInstance()->query($query);
-            while ($elem = $DBRESULT->fetchRow()) {
+            $stmt = CentreonDBInstance::getDbCentreonInstance()->prepare($query);
+            $stmt->bindValue(':host_id', (int) $host_id, PDO::PARAM_INT);
+            $stmt->execute();
+            while ($elem = $stmt->fetchRow()) {
                 $tab[$elem['service_id']] = html_entity_decode($elem['service_description'], ENT_QUOTES, 'UTF-8');
             }
-            $DBRESULT->closeCursor();
+            $stmt->closeCursor();
         } else {
-            $query = 'SELECT DISTINCT s.service_id, s.description '
+            if ($this->accessGroups === []) {
+                return $tab;
+            }
+            [
+                'parameters' => $bindParams,
+                'placeholderList' => $placeholders,
+            ] = createMultipleBindParameters(
+                values: array_keys($this->accessGroups),
+                prefix: 'group_',
+                paramType: QueryParameterTypeEnum::INTEGER
+            );
+            $rows = $pearDBMonitoring->fetchAllAssociative(
+                'SELECT DISTINCT s.service_id, s.description '
                 . 'FROM services s '
                 . 'JOIN centreon_acl ca '
                 . 'ON s.service_id = ca.service_id '
-                . "AND ca.host_id = '" . CentreonDB::escape($host_id) . "' "
-                . 'AND ca.group_id IN (' . $this->getAccessGroupsString() . ') ';
-            $DBRESULT = $pearDBMonitoring->query($query);
-            while ($row = $DBRESULT->fetchRow()) {
+                . 'AND ca.host_id = :host_id '
+                . "AND ca.group_id IN ({$placeholders}) ",
+                QueryParameters::create([
+                    QueryParameter::int('host_id', (int) $host_id),
+                    ...$bindParams,
+                ])
+            );
+            foreach ($rows as $row) {
                 $tab[$row['service_id']] = $row['description'];
             }
-            $DBRESULT->closeCursor();
         }
 
         return $tab;
@@ -1378,20 +1398,28 @@ class CentreonACL
                     $host_name = getMyHostName($data['id']);
 
                     if ($data['action'] == 'ADD') {
+                        $svc = getMyHostServices($data['id']);
                         // Put new entries in the table with group_id
                         foreach ($groupIds as $group_id) {
-                            $request2 = 'INSERT INTO centreon_acl (host_id, service_id, group_id) '
-                                . "VALUES ('" . $data['id'] . "', NULL, " . $group_id . ')';
-                            CentreonDBInstance::getDbCentreonStorageInstance()->query($request2);
-                        }
-
-                        // Insert services
-                        $svc = getMyHostServices($data['id']);
-                        foreach ($svc as $svc_id => $svc_name) {
-                            $request2 = 'INSERT INTO centreon_acl (host_id, service_id, group_id) '
-                                . "VALUES ('" . $data['id'] . "', '" . $svc_id . "', " . $group_id . ') '
-                                . 'ON DUPLICATE KEY UPDATE group_id = ' . $group_id;
-                            CentreonDBInstance::getDbCentreonStorageInstance()->query($request2);
+                            CentreonDBInstance::getDbCentreonStorageInstance()->executeStatement(
+                                'INSERT INTO centreon_acl (host_id, service_id, group_id) VALUES (:host_id, NULL, :group_id)',
+                                QueryParameters::create([
+                                    QueryParameter::int('host_id', (int) $data['id']),
+                                    QueryParameter::int('group_id', (int) $group_id),
+                                ])
+                            );
+                            // Insert services for this group
+                            foreach ($svc as $svc_id => $svc_name) {
+                                CentreonDBInstance::getDbCentreonStorageInstance()->executeStatement(
+                                    'INSERT INTO centreon_acl (host_id, service_id, group_id) VALUES (:host_id, :service_id, :group_id) '
+                                    . 'ON DUPLICATE KEY UPDATE group_id = VALUES(group_id)',
+                                    QueryParameters::create([
+                                        QueryParameter::int('host_id', (int) $data['id']),
+                                        QueryParameter::int('service_id', (int) $svc_id),
+                                        QueryParameter::int('group_id', (int) $group_id),
+                                    ])
+                                );
+                            }
                         }
                     } elseif ($data['action'] == 'DUP' && isset($data['duplicate_host'])) {
                         // Get current ACL configuration from centreon_storage.centreon_acl table
@@ -1473,21 +1501,29 @@ class CentreonACL
                         if ($data['action'] == 'ADD') {
                             // Put new entries in the table with group_id
                             foreach ($groupIds as $group_id) {
-                                $request2 = 'INSERT INTO centreon_acl (host_id, service_id, group_id) '
-                                    . "VALUES ('" . $host_id . "', '" . $data['id'] . "', " . $group_id . ')';
-                                CentreonDBInstance::getDbCentreonStorageInstance()->query($request2);
+                                CentreonDBInstance::getDbCentreonStorageInstance()->executeStatement(
+                                    'INSERT INTO centreon_acl (host_id, service_id, group_id) VALUES (:host_id, :service_id, :group_id)',
+                                    QueryParameters::create([
+                                        QueryParameter::int('host_id', (int) $host_id),
+                                        QueryParameter::int('service_id', (int) $data['id']),
+                                        QueryParameter::int('group_id', (int) $group_id),
+                                    ])
+                                );
                             }
                         } elseif ($data['action'] == 'DUP' && isset($data['duplicate_service'])) {
                             // Get current configuration into Centreon_acl table
-                            $request = 'SELECT group_id FROM centreon_acl '
-                                . "WHERE host_id = {$host_id} AND service_id = " . $data['duplicate_service'];
-                            $DBRESULT = CentreonDBInstance::getDbCentreonStorageInstance()->query($request);
+                            $selectAcl = CentreonDBInstance::getDbCentreonStorageInstance()->prepare(
+                                'SELECT group_id FROM centreon_acl WHERE host_id = :host_id AND service_id = :service_id'
+                            );
+                            $selectAcl->bindValue(':host_id', (int) $host_id, PDO::PARAM_INT);
+                            $selectAcl->bindValue(':service_id', (int) $data['duplicate_service'], PDO::PARAM_INT);
+                            $selectAcl->execute();
                             $statement = CentreonDBInstance::getDbCentreonStorageInstance()
                                 ->prepare(
                                     'INSERT INTO centreon_acl (host_id, service_id, group_id) '
                                     . 'VALUES (:host_id, :data_id, :group_id)'
                                 );
-                            while ($record = $DBRESULT->fetchRow()) {
+                            while ($record = $selectAcl->fetchRow()) {
                                 $statement->bindValue(':host_id', (int) $host_id, PDO::PARAM_INT);
                                 $statement->bindValue(':data_id', (int) $data['id'], PDO::PARAM_INT);
                                 $statement->bindValue(':group_id', (int) $record['group_id'], PDO::PARAM_INT);
@@ -1784,7 +1820,7 @@ class CentreonACL
                 . 'FROM ( '
                 . 'SELECT ' . $request['fields'] . ' '
                 . 'FROM host_service_relation hsr, host h, service s '
-                . "WHERE h.host_id = '" . CentreonDB::escape($host_id) . "' "
+                . 'WHERE h.host_id = :host_id '
                 . "AND h.host_activate = '1' "
                 . "AND h.host_register = '1' "
                 . 'AND h.host_id = hsr.host_host_id '
@@ -1793,17 +1829,36 @@ class CentreonACL
                 . 'UNION '
                 . 'SELECT ' . $request['fields'] . ' '
                 . 'FROM host h, hostgroup_relation hgr, service s, host_service_relation hsr '
-                . "WHERE h.host_id = '" . CentreonDB::escape($host_id) . "' "
+                . 'WHERE h.host_id = :host_id '
                 . "AND h.host_activate = '1' "
                 . "AND h.host_register = '1' "
                 . 'AND h.host_id = hgr.host_host_id '
                 . 'AND hgr.hostgroup_hg_id = hsr.hostgroup_hg_id '
                 . 'AND hsr.service_service_id = s.service_id '
                 . ') as t ';
+            $query .= $request['order'] . $request['pages'];
+            $stmt = CentreonDBInstance::getDbCentreonInstance()->prepare($query);
+            $stmt->bindValue(':host_id', (int) $host_id, PDO::PARAM_INT);
+            $stmt->execute();
         } else {
-            $query = 'SELECT ' . $request['fields'] . ' '
+            if ($this->accessGroups === []) {
+                if (isset($options['total']) && $options['total'] == true) {
+                    return ['items' => [], 'total' => 0];
+                }
+
+                return [];
+            }
+            [
+                'parameters' => $bindParams,
+                'placeholderList' => $placeholders,
+            ] = createMultipleBindParameters(
+                values: array_keys($this->accessGroups),
+                prefix: 'acl_group_',
+                paramType: QueryParameterTypeEnum::INTEGER
+            );
+            $query = $request['select'] . $request['fields'] . ' '
                 . "FROM host_service_relation hsr, host h, service s, `{$db_name_acl}`.centreon_acl "
-                . "WHERE h.host_id = '" . CentreonDB::escape($host_id) . "' "
+                . 'WHERE h.host_id = :host_id '
                 . "AND h.host_activate = '1' "
                 . "AND h.host_register = '1' "
                 . 'AND h.host_id = hsr.host_host_id '
@@ -1812,12 +1867,12 @@ class CentreonACL
                 . "AND `{$db_name_acl}`.centreon_acl.host_id = h.host_id "
                 . "AND `{$db_name_acl}`.centreon_acl.service_id IS NOT NULL "
                 . "AND `{$db_name_acl}`.centreon_acl.service_id = s.service_id "
-                . "AND `{$db_name_acl}`.centreon_acl.group_id IN (" . $this->getAccessGroupsString() . ') '
+                . "AND `{$db_name_acl}`.centreon_acl.group_id IN ({$placeholders}) "
                 . 'UNION '
                 . 'SELECT ' . $request['fields'] . ' '
                 . 'FROM host h, hostgroup_relation hgr, '
                 . "service s, host_service_relation hsr, `{$db_name_acl}`.centreon_acl "
-                . "WHERE h.host_id = '" . CentreonDB::escape($host_id) . "' "
+                . 'WHERE h.host_id = :host_id '
                 . "AND h.host_activate = '1' "
                 . "AND h.host_register = '1' "
                 . 'AND h.host_id = hgr.host_host_id '
@@ -1826,12 +1881,43 @@ class CentreonACL
                 . "AND `{$db_name_acl}`.centreon_acl.host_id = h.host_id "
                 . "AND `{$db_name_acl}`.centreon_acl.service_id IS NOT NULL "
                 . "AND `{$db_name_acl}`.centreon_acl.service_id = s.service_id "
-                . "AND `{$db_name_acl}`.centreon_acl.group_id IN (" . $this->getAccessGroupsString() . ') ';
+                . "AND `{$db_name_acl}`.centreon_acl.group_id IN ({$placeholders}) ";
+            $query .= $request['order'] . $request['pages'];
+            $rows = CentreonDBInstance::getDbCentreonInstance()->fetchAllAssociative(
+                $query,
+                QueryParameters::create([
+                    QueryParameter::int('host_id', (int) $host_id),
+                    ...$bindParams,
+                ])
+            );
+            $result = [];
+            foreach ($rows as $elem) {
+                $key = $this->constructKey($elem, $options);
+                if ($key !== '' && ! isset($result[$key])) {
+                    $result[$key] = isset($options['get_row']) ? $elem[$options['get_row']] : $elem;
+                }
+            }
+
+            if (isset($options['total']) && $options['total'] == true) {
+                return ['items' => $result, 'total' => CentreonDBInstance::getDbCentreonInstance()->numberRows()];
+            }
+
+            return $result;
         }
 
-        $query .= $request['order'] . $request['pages'];
+        $result = [];
+        while ($elem = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $key = $this->constructKey($elem, $options);
+            if ($key !== '' && ! isset($result[$key])) {
+                $result[$key] = isset($options['get_row']) ? $elem[$options['get_row']] : $elem;
+            }
+        }
 
-        return $this->constructResult($query, $options);
+        if (isset($options['total']) && $options['total'] == true) {
+            return ['items' => $result, 'total' => CentreonDBInstance::getDbCentreonInstance()->numberRows()];
+        }
+
+        return $result;
     }
 
     /**

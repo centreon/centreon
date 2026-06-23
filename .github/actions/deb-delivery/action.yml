@@ -140,6 +140,4 @@ runs:
           echo "Uploading $file"
           jf rt upload "$file" "$ROOT_REPO_PATH/pool/${POOL_SUBPATH}/" --flat --deb "${DEB_PROP}" --detailed-summary
         done
-
-        curl -H "Authorization: Bearer $ARTIFACTORY_TOKEN" -X POST "https://centreon.jfrog.io/artifactory/api/deb/reindex/$ROOT_REPO_PATH?async=1"
       shell: bash

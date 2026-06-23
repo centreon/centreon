@@ -25,6 +25,7 @@ require_once '../functions.php';
 
 use App\Kernel;
 use App\MonitoringConfiguration\Infrastructure\Service\SnowflakePollerUidGenerator;
+use App\Shared\Infrastructure\Database\DatabaseTLSResolver;
 use CentreonModule\ServiceProvider;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPoller;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPollerRequest;
@@ -41,7 +42,8 @@ try {
     $link = new PDO(
         'mysql:host=' . $parameters['address'] . ';port=' . $parameters['port'],
         $parameters['root_user'],
-        $parameters['root_password']
+        $parameters['root_password'],
+        DatabaseTLSResolver::getTLSOptions()
     );
 } catch (PDOException $e) {
     $return['msg'] = $e->getMessage();

@@ -1,8 +1,6 @@
 *.sh                                    @centreon/owners-bash
 
 *.po                                    @centreon/owners-doc
-*.md                                    @centreon/owners-doc
-*.mdx                                   @centreon/owners-doc
 
 **/www/widgets/                         @centreon/owners-react
 
@@ -18,6 +16,9 @@
 **/phpstan.neon                         @centreon/owners-php
 *.php                                   @centreon/owners-php
 *.xsl                                   @centreon/owners-php
+*.md                                    @centreon/owners-php
+*.mdx                                   @centreon/owners-php
+**/doc/                                 @centreon/owners-php
 
 **/www/front_src/                       @centreon/owners-react
 **/cypress/**                           @centreon/owners-react

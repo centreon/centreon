@@ -61,12 +61,13 @@ interface ReadServiceRepositoryInterface
      *
      * @param int $serviceId
      * @param AccessGroup[] $accessGroups
+     * @param int|null $hostId
      *
      * @throws \Throwable
      *
      * @return bool
      */
-    public function existsByAccessGroups(int $serviceId, array $accessGroups): bool;
+    public function existsByAccessGroups(int $serviceId, array $accessGroups, ?int $hostId = null): bool;
 
     /**
      * Retrieve the monitoring server id related to the service.
