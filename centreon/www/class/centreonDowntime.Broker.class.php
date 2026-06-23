@@ -101,7 +101,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
      * @param int $start_time The timestamp for starting downtime
      * @param int $dt_id The downtime id
      * @param string $oname2 The second object name (service_name), is null if search a host
-     * @return int
+     * @return int|null
      */
     public function getDowntimeInternalId($oname1, $start_time, $dt_id, $oname2 = null)
     {
@@ -133,7 +133,7 @@ class CentreonDowntimeBroker extends CentreonDowntime
         try {
             $row = $this->dbb->fetchAssociative($query, QueryParameters::create($parameters));
         } catch (Throwable $e) {
-            return false;
+            return null;
         }
 
         return $row !== false ? $row['internal_downtime_id'] : null;
