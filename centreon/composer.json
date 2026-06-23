@@ -5,7 +5,7 @@
   "type": "project",
   "license": "GPL-2.0-only",
   "require": {
-    "php": "8.4.*",
+    "php": "^8.4.1",
     "ext-ctype": "*",
     "ext-curl": "*",
     "ext-filter": "*",
@@ -26,7 +26,7 @@
     "ext-xmlwriter": "*",
     "ext-zip": "*",
     "amphp/http-client": "5.*",
-    "api-platform/core": "^4.2",
+    "api-platform/core": "^4.3",
     "beberlei/assert": "3.3.*",
     "curl/curl": "2.5.*",
     "doctrine/annotations": "1.14.*",
@@ -84,7 +84,6 @@
     "webmozart/assert": "1.11.*"
   },
   "require-dev": {
-    "centreon/centreon-test-lib": "dev-MON-197579",
     "dama/doctrine-test-bundle": "8.4.*",
     "mockery/mockery": "1.6.*",
     "pestphp/pest": "3.*",

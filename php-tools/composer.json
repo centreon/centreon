@@ -3,7 +3,7 @@
   "version": "25.09",
   "description": "Centreon - Tools for development",
   "require": {
-    "php": "8.4.*",
+    "php": "^8.4.1",
     "ext-mbstring": "*",
     "deptrac/deptrac": "3.0.*",
     "friendsofphp/php-cs-fixer": "3.76.*",
@@ -27,7 +27,7 @@
   "config": {
     "sort-packages": true,
     "platform": {
-      "php": "8.4"
+      "php": "8.4.1"
     },
     "preferred-install": {
       "*": "dist"

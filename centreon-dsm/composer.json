@@ -4,14 +4,13 @@
   "type": "project",
   "license": "GPL-2.0-only",
   "require": {
-    "php": "8.4.*",
+    "php": "^8.4.1",
     "ext-gettext": "*",
     "ext-mbstring": "*",
     "ext-pdo": "*"
   },
   "require-dev": {
-    "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "dev-MON-197579"
+    "centreon/centreon": "@dev"
   },
   "repositories": [
     {

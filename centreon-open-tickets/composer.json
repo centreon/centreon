@@ -9,7 +9,7 @@
   ],
   "license": "GPL-2.0-only",
   "require": {
-    "php": "8.4.*",
+    "php": "^8.4.1",
     "ext-curl": "*",
     "ext-ctype": "*",
     "ext-fileinfo": "*",
@@ -25,7 +25,6 @@
   "require-dev": {
     "beberlei/assert": "3.3.*",
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "dev-MON-197579",
     "pestphp/pest": "3.*",
     "symfony/console": "8.1.*"
   },
