@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 require_once __DIR__ . '/centreonACL.class.php';
 require_once __DIR__ . '/centreonLog.class.php';
 require_once __DIR__ . '/centreonAuth.class.php';
@@ -473,26 +476,22 @@ class CentreonUser
      */
     public function getContactParameters($db, $parameters = [])
     {
-        $values = [];
-
-        $queryParameters = '';
+        $bindParameters = [QueryParameter::int('contactId', (int) $this->user_id)];
+        $inClause = '';
         if (is_array($parameters) && count($parameters)) {
-            $queryParameters = 'AND cp_key IN ("';
-            $queryParameters .= implode('","', $parameters);
-            $queryParameters .= '") ';
+            $placeholders = [];
+            foreach (array_values($parameters) as $index => $key) {
+                $name = 'cpKey' . $index;
+                $placeholders[] = ':' . $name;
+                $bindParameters[] = QueryParameter::string($name, (string) $key);
+            }
+            $inClause = ' AND cp_key IN (' . implode(', ', $placeholders) . ')';
         }
 
-        $query = 'SELECT cp_key, cp_value '
-            . 'FROM contact_param '
-            . 'WHERE cp_contact_id = ' . $this->user_id . ' '
-            . $queryParameters;
-
-        $res = $db->query($query);
-        while ($row = $res->fetch()) {
-            $values[$row['cp_key']] = $row['cp_value'];
-        }
-
-        return $values;
+        return $db->fetchAllKeyValue(
+            'SELECT cp_key, cp_value FROM contact_param WHERE cp_contact_id = :contactId' . $inClause,
+            QueryParameters::create($bindParameters)
+        );
     }
 
     /**
