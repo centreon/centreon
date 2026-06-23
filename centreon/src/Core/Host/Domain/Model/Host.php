@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Host\Domain\Model;
 
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Common\Domain\YesNoDefault;
@@ -552,7 +553,7 @@ class Host extends NewHost
     {
         $this->address = mb_trim($address);
         Assertion::maxLength($this->address, self::MAX_ADDRESS_LENGTH, "{$this->shortName}::address");
-        Assertion::ipOrDomain($this->address, "{$this->shortName}::address");
+        CentreonAssert::ipOrHostname($this->address, "{$this->shortName}::address");
     }
 
     public function setMonitoringServerId(int $monitoringServerId): void

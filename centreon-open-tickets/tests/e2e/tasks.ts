@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { execSync } from 'child_process';
 import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
@@ -224,6 +223,15 @@ export default (on: Cypress.PluginEvents): void => {
       } catch (error) {
         if (error instanceof Error) {
           console.error(error.message);
+        }
+
+        // Best-effort teardown: keep the original startup error if cleanup fails.
+        try {
+          await dockerEnvironment?.down();
+        } catch (teardownError) {
+          console.error(teardownError);
+        } finally {
+          dockerEnvironment = null;
         }
 
         throw error;
