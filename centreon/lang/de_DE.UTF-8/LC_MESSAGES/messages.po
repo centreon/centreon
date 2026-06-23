@@ -19500,13 +19500,6 @@ msgstr "[%s] Als Wert \"%s\" wurde eine gültige E-Mail-Adresse erwartet"
 
 #: centreon/src/Centreon/Domain/Common/Assertion/AssertionException.php
 #, php-format
-msgid ""
-"[%s] The value \"%s\" was expected to be a valid ip address or domain name"
-msgstr ""
-"[%s] Als Wert \"%s\" wurde eine gültige IP-Adresse oder Domain-Name erwartet"
-
-#: centreon/src/Centreon/Domain/Common/Assertion/AssertionException.php
-#, php-format
 msgid "[%s] The value '%s' was expected to be a valid ip address"
 msgstr "[%s] Als Wert \"%s\" wurde eine gültige IP-Adresse erwartet"
 
@@ -21412,6 +21405,14 @@ msgstr ""
 msgid "[%s] Error when calculating string length of \"%s\" in %s"
 msgstr ""
 "[%s] Fehler bei der Kalkulation der Zeichenkettenlänge von \"%s\" in %s"
+
+#, php-format
+#: unknown
+msgid ""
+"[%s] The value \"%s\" was expected to be a valid ip address or domain name"
+msgstr ""
+"[%s] Als Wert \"%s\" wurde eine gültige IP-Adresse oder Domain-Name "
+"erwartet"
 
 #: unknown
 msgid "default"
