@@ -23,17 +23,32 @@ import { AgentConfigurationPage } from '../../pages/AgentConfigurationPage';
  * is fast and reliable. The objects are created and deleted through the UI; a
  * best-effort UI cleanup in `afterEach` keeps reruns idempotent.
  */
-// SKIPPED — re-confirmed 2026-06-23 against a fresh stack: all three tests fail
-// because the create POST returns 500 (the Telegraf form needs a valid TLS cert
-// payload / OTLP config the fixture does not provide). Unresolved: it is not yet
-// established whether this is a fixture gap or a product bug — needs a tracking
-// ticket before re-enabling. Do not un-skip until the create POST returns 2xx.
+// SKIPPED — root cause of the create 500 identified 2026-06-23 from the web
+// logs (NOT a TLS-cert problem as first assumed): the platform ships a default
+// `centreon-agent` configuration bound to the Central poller, and only one agent
+// configuration is allowed per poller, so creating the Telegraf one on Central
+// fails with
+//   AgentConfigurationException: "A poller/agent configuration is already
+//   associated with poller ID(s) '1'"  (Validator::validatePollersOrFail)
+// which the API maps to HTTP 500 (arguably it should be a 409 — worth a product
+// ticket). The `beforeEach` below frees the poller and removes that 500. A
+// second, separate issue still blocks the happy path (the agent-config listing
+// does not reliably render its "Add" button in time), so the spec stays skipped
+// until that is sorted. Tracking ticket needed.
 test.describe
   .skip('Agent configuration', () => {
     test.use({ storageState: adminStorageStatePath });
 
     test.beforeAll(async () => {
       await ensureStack({ services: ['web'] });
+    });
+
+    // The platform ships a default `centreon-agent` configuration bound to the
+    // Central poller, and only one agent configuration is allowed per poller, so
+    // creating the Telegraf one on Central would otherwise fail with a 500
+    // ("poller already associated"). Free the poller before each test.
+    test.beforeEach(async ({ adminApi }) => {
+      await adminApi.deleteAllAgentConfigurations();
     });
 
     test.afterEach(async ({ page }) => {

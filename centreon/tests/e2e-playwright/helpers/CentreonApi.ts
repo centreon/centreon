@@ -458,6 +458,35 @@ export class CentreonApi {
     }
   }
 
+  // --- Agent configurations -------------------------------------------------
+
+  /**
+   * Remove every agent configuration. The platform ships a default
+   * `centreon-agent` configuration bound to the Central poller, and only one
+   * agent configuration is allowed per poller, so a test that creates one on
+   * Central must free it first (otherwise the create returns 500 with
+   * "A poller/agent configuration is already associated with poller ID(s)").
+   */
+  async deleteAllAgentConfigurations(): Promise<void> {
+    const response = CentreonApi.ok(
+      await this.context.get(
+        `${this.base}/api/latest/configuration/agent-configurations?limit=100`
+      ),
+      'list agent configurations'
+    );
+    const { result } = (await response.json()) as {
+      result: Array<{ id: number }>;
+    };
+    for (const { id } of result) {
+      CentreonApi.ok(
+        await this.context.delete(
+          `${this.base}/api/latest/configuration/agent-configurations/${id}`
+        ),
+        `delete agent configuration ${id}`
+      );
+    }
+  }
+
   // --- Authentication (API) tokens -----------------------------------------
 
   /** Resolve a configuration user id by its alias. */
