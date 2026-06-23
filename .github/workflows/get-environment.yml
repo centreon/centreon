@@ -740,10 +740,16 @@ jobs:
               "db_id": "mariadb-11.8",
               "test_tags": "not @ignore"
             };
-            const alma9_mysql_8_0 = {
+            const alma9_mysql_8_4 = {
               "operating_system": "alma9",
-              "database": "mysql:8.0",
-              "db_id": "mysql-8.0",
+              "database": "mysql:8.4",
+              "db_id": "mysql-8.4",
+              "test_tags": "not @ignore"
+            };
+            const alma10_mysql_8_4 = {
+              "operating_system": "alma10",
+              "database": "mysql:8.4",
+              "db_id": "mysql-8.4",
               "test_tags": "not @ignore"
             };
             const trixie_mysql_8_4 = {
@@ -777,15 +783,15 @@ jobs:
                 currentDate.setDate(currentDate.getDate() + 1);
               }
 
-              // Alternating balanced on 3 configurations
+              // Alternating balanced on 4 configurations
               const configIndex = workingDays % configs.length;
 
               return configs[configIndex];
             };
 
-            const configs = [alma9_mysql_8_0, alma10_mariadb_11_8, trixie_mysql_8_4];
+            const configs = [alma10_mysql_8_4, alma9_mysql_8_0, alma10_mariadb_11_8, trixie_mysql_8_4];
 
-            const cloud = alma9_mysql_8_0;
+            const cloud = alma10_mysql_8_4;
 
             let main = alma10_mariadb_11_8;
             if (process.env.IS_CLOUD === 'true') {
@@ -854,7 +860,7 @@ jobs:
               ...info,
             }));
 
-            const cloudDistrib = allDistribs.find(d => d.operating_system === 'alma9');
+            const cloudDistrib = allDistribs.find(d => d.operating_system === 'alma10');
             const onPremMainDistrib = allDistribs.filter(d => d.operating_system === 'alma10');
             const isCloudTestingOrStable = isCloud && ['testing', 'stable'].includes(stability);
             const result = isCloudTestingOrStable ? [cloudDistrib] : isFullRun ? allDistribs : isCloud ? [cloudDistrib] : [onPremMainDistrib];
