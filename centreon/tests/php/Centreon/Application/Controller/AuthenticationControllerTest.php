@@ -51,7 +51,7 @@ class AuthenticationControllerTest extends TestCase
     /** @var ContainerInterface|\PHPUnit\Framework\MockObject\MockObject */
     protected $container;
 
-    /** @var Request|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var Request */
     protected $request;
 
     protected function setUp(): void
@@ -71,11 +71,7 @@ class AuthenticationControllerTest extends TestCase
 
         $this->container = $this->createMock(ContainerInterface::class);
 
-        $this->request = $this->getMockBuilder(Request::class)
-            ->onlyMethods(['getContent'])
-            ->disableOriginalConstructor()
-            ->getMock();
-        $this->request->initialize();
+        $this->request = new Request();
     }
 
     /**
@@ -86,17 +82,14 @@ class AuthenticationControllerTest extends TestCase
         $authenticationController = new AuthenticationController();
         $authenticationController->setContainer($this->container);
 
-        $this->request
-            ->expects($this->once())
-            ->method('getContent')
-            ->willReturn(json_encode([
-                'security' => [
-                    'credentials' => [
-                        'login' => 'admin',
-                        'password' => 'centreon',
-                    ],
+        $this->request = new Request([], [], [], [], [], [], json_encode([
+            'security' => [
+                'credentials' => [
+                    'login' => 'admin',
+                    'password' => 'centreon',
                 ],
-            ]));
+            ],
+        ]));
 
         $response = new AuthenticateApiResponse();
         $response->setApiAuthentication(
@@ -119,17 +112,14 @@ class AuthenticationControllerTest extends TestCase
         $authenticationController = new AuthenticationController();
         $authenticationController->setContainer($this->container);
 
-        $this->request
-            ->expects($this->once())
-            ->method('getContent')
-            ->willReturn(json_encode([
-                'security' => [
-                    'credentials' => [
-                        'login' => 'toto',
-                        'password' => 'centreon',
-                    ],
+        $this->request = new Request([], [], [], [], [], [], json_encode([
+            'security' => [
+                'credentials' => [
+                    'login' => 'toto',
+                    'password' => 'centreon',
                 ],
-            ]));
+            ],
+        ]));
 
         $response = new AuthenticateApiResponse();
         $response->setApiAuthentication(

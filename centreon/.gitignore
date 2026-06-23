@@ -90,8 +90,6 @@ junit.xml
 # phpunit
 .phpunit.new.cache
 .phpunit.new.integration.cache
-/phpunit.xml
-/.phpunit.cache/
 
 # Stray monolog files produced by tests that bootstrap CentreonLog
 /prod.*.log

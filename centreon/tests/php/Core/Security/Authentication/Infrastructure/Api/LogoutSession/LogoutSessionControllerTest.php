@@ -45,6 +45,7 @@ class LogoutSessionControllerTest extends TestCase
     public function setUp(): void
     {
         $this->requestStack = $this->createMock(RequestStack::class);
+        $this->requestStack->method('getCurrentRequest')->willReturn(Request::create('http://localhost/'));
         $this->useCase = $this->createMock(LogoutSession::class);
         $this->logoutSessionPresenter = new LogoutSessionPresenter(new JsonFormatter());
     }
