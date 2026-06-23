@@ -35,6 +35,7 @@ on:
 
 env:
   module: awie
+  e2e_directory: centreon-awie/tests/e2e
 
 jobs:
   dependency-scan:
@@ -100,8 +101,7 @@ jobs:
         "centreon-awie/rector.*"
         "centreon-awie/tests/php/**"
       e2e_test_paths: |
-        "centreon-awie/behat.yml"
-        "centreon-awie/features/**"
+        "centreon-awie/tests/e2e/**"
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
       base_sha: ${{ needs.get-environment.outputs.previous_release_bundle_tag }}
       labels: ${{ needs.get-environment.outputs.labels }}
@@ -199,8 +199,50 @@ jobs:
 
           exit $exit_code
 
+  gherkin-lint:
+    needs: [get-environment, changes]
+    if: |
+      needs.changes.outputs.trigger_e2e_testing == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.event.pull_request.head.repo.fork != true
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: ./.github/actions/gherkin-lint
+        with:
+          features_path: ${{ env.e2e_directory }}
+
+  e2e-lint:
+    needs: [get-environment, changes]
+    if: |
+      needs.changes.outputs.trigger_e2e_testing == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.event.pull_request.head.repo.fork != true
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: ./.github/actions/frontend-lint
+        with:
+          frontend_directory: ${{ env.e2e_directory }}
+          module_name: ${{ env.module }}
+          dependencies_lock_file: ${{ env.e2e_directory }}/pnpm-lock.yaml
+          pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          lint_path: './features'
+
   package:
-    needs: [get-environment, changes, check-version-consistency, backend-lint]
+    needs:
+      [
+        get-environment,
+        changes,
+        check-version-consistency,
+        backend-lint,
+        gherkin-lint,
+        e2e-lint,
+      ]
     if: |
       needs.changes.outputs.trigger_packaging == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -256,6 +298,213 @@ jobs:
           php_version: ${{ needs.get-environment.outputs.php_version }}
           upload_artifacts: ${{ needs.get-environment.outputs.is_nightly == 'true' || contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
 
+  dockerize:
+    runs-on: ubuntu-24.04
+    needs: [get-environment, changes, package]
+    if: |
+      needs.changes.outputs.trigger_packaging == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.event.pull_request.head.repo.fork != true
+
+    env:
+      project: centreon-awie
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
+
+    name: dockerize ${{ matrix.operating_system }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Generate information according to matrix os
+        id: matrix_include
+        run: |
+          if [ "${{ matrix.operating_system }}" = "alma9" ]; then
+            DISTRIB=el9
+            PACKAGE_EXTENSION=rpm
+          elif [ "${{ matrix.operating_system }}" = "alma10" ]; then
+            DISTRIB=el10
+            PACKAGE_EXTENSION=rpm
+          elif [ "${{ matrix.operating_system }}" = "trixie" ]; then
+            DISTRIB=trixie
+            PACKAGE_EXTENSION=deb
+          elif [ "${{ matrix.operating_system }}" = "jammy" ]; then
+            DISTRIB=jammy
+            PACKAGE_EXTENSION=deb
+          else
+            echo "::error::${{ matrix.operating_system }} is not managed"
+            exit 1
+          fi
+
+          echo "distrib=$DISTRIB" >> $GITHUB_OUTPUT
+          echo "package_extension=$PACKAGE_EXTENSION" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Login to registry
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
+
+      - name: Compute image tag
+        id: image_tag
+        env:
+          REF: ${{ github.head_ref || github.ref_name }}
+          MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
+        run: |
+          if [[ "$REF" == "develop" ]]; then
+            echo "tag=develop-${MAJOR_VERSION}" >> $GITHUB_OUTPUT
+            echo "additional_tag=develop" >> $GITHUB_OUTPUT
+          else
+            SANITIZED_REF="$(printf '%s' "$REF" | sed -E 's#[^[:alnum:]_.-]+#-#g; s#^[.-]+##; s#-+#-#g' | cut -c1-128)"
+            if [[ -z "$SANITIZED_REF" ]]; then
+              echo "::error::Unable to derive a valid Docker tag from ref '$REF'"
+              exit 1
+            fi
+            echo "tag=$SANITIZED_REF" >> $GITHUB_OUTPUT
+            echo "additional_tag=" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
+      - name: Get FROM image tag
+        id: from_image_version
+        uses: ./.github/actions/get-docker-from-image-version
+        with:
+          from_image: centreon-web-${{ matrix.operating_system }}
+          current_tag: ${{ steps.image_tag.outputs.tag }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          registry_url: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+
+      - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ./*.${{ steps.matrix_include.outputs.package_extension }}
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
+          fail-on-cache-miss: true
+
+      - env:
+          PACKAGE_EXTENSION: ${{ steps.matrix_include.outputs.package_extension }}
+        run: |
+          mkdir packages-centreon
+          mv *."$PACKAGE_EXTENSION" packages-centreon/
+        shell: bash
+
+      - uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+
+      - name: Compute docker tags
+        id: docker_tags
+        env:
+          REGISTRY: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          IMAGE: ${{ env.project }}-${{ matrix.operating_system }}
+          TAG: ${{ steps.image_tag.outputs.tag }}
+          ADDITIONAL: ${{ steps.image_tag.outputs.additional_tag }}
+        run: |
+          TAGS="${REGISTRY}/${IMAGE}:${TAG}"
+          if [[ -n "$ADDITIONAL" ]]; then
+            TAGS="${TAGS},${REGISTRY}/${IMAGE}:${ADDITIONAL}"
+          fi
+          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Build and push web image
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        env:
+          DOCKER_BUILD_CHECKS_ANNOTATIONS: false
+          DOCKER_BUILD_SUMMARY: false
+          DOCKER_BUILD_RECORD_UPLOAD: false
+        with:
+          file: .github/docker/${{ env.project }}/${{ matrix.operating_system }}/Dockerfile
+          context: .
+          build-args: |
+            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+            "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
+          pull: true
+          push: true
+          tags: ${{ steps.docker_tags.outputs.tags }}
+
+  create-xray-test-plan-and-test-execution:
+    needs: [get-environment, changes, dockerize]
+    if: |
+      needs.changes.outputs.trigger_e2e_testing == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      (needs.get-environment.outputs.stability == 'testing' || needs.get-environment.outputs.is_nightly == 'true') &&
+      github.event.pull_request.head.repo.fork != true
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
+    name: create-xray-test-plan-and-test-execution-${{ matrix.operating_system }}
+
+    uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
+    with:
+      major_version: ${{ needs.get-environment.outputs.major_version }}
+      minor_version: ${{ needs.get-environment.outputs.minor_version }}
+      os: ${{ matrix.operating_system }}
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+    secrets:
+      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+      xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+
+  e2e-test:
+    needs:
+      [get-environment, changes, create-xray-test-plan-and-test-execution, dockerize]
+    if: |
+      needs.changes.outputs.trigger_e2e_testing == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.event.pull_request.head.repo.fork != true
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
+    name: e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
+
+    uses: ./.github/workflows/cypress-e2e-parallelization.yml
+    with:
+      name: e2e
+      module_name: centreon-awie
+      image_name: centreon-awie
+      database_image: bitnamilegacy/${{ matrix.database }}
+      os: ${{ matrix.operating_system }}
+      features_path: tests/e2e/features
+      major_version: ${{ needs.get-environment.outputs.major_version }}
+      minor_version: ${{ needs.get-environment.outputs.minor_version }}
+      stability: ${{ needs.get-environment.outputs.stability }}
+      target_stability: ${{ needs.get-environment.outputs.target_stability }}
+      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, case(matrix.operating_system == 'alma10', 'rpm-el10', matrix.operating_system == 'alma9', 'rpm-el9', 'deb-trixie') ) }}
+      package_directory: centreon-awie/tests/e2e/fixtures/packages
+      test_tags: ${{ matrix.test_tags }}
+      dependencies_lock_file: centreon-awie/tests/e2e/pnpm-lock.yaml
+      xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
+      is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+    secrets:
+      registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+      registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+      github_models_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
   deliver-sources:
     runs-on: ubuntu-24.04
     needs: [get-environment, package]
@@ -283,7 +532,7 @@ jobs:
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
   deliver:
-    needs: [changes, get-environment, package]
+    needs: [changes, get-environment, package, e2e-test]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&

@@ -28,6 +28,7 @@ if (! isset($centreon)) {
 use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Infrastructure\Common\Api\Router;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 function includeExcludeTimeperiods($tpId, $includeTab = [], $excludeTab = [])
@@ -446,7 +447,16 @@ function insertTimeperiodByApi(array $formData, string $basePath): int
         UrlGeneratorInterface::ABSOLUTE_URL,
     );
 
-    $client = new InternalApiClient();
+    /** @var ServiceLocator $serviceLocator */
+    $serviceLocator = $kernel->getContainer()->get('legacy.service_locator');
+
+    if (! $serviceLocator->has('internal_api_client')) {
+        throw new RuntimeException('internal_api_client service is not registered in the service locator');
+    }
+
+    /** @var InternalApiClient $client */
+    $client = $serviceLocator->get('internal_api_client');
+
     $response = $client->request($url, 'POST', CentreonSession::resolveSessionCookie(), $payload);
 
     if ($response['status_code'] !== 201) {
@@ -516,7 +526,16 @@ function updateTimeperiodByApi(array $formData, string $basePath): void
         UrlGeneratorInterface::ABSOLUTE_URL,
     );
 
-    $client = new InternalApiClient();
+    /** @var ServiceLocator $serviceLocator */
+    $serviceLocator = $kernel->getContainer()->get('legacy.service_locator');
+
+    if (! $serviceLocator->has('internal_api_client')) {
+        throw new RuntimeException('internal_api_client service is not registered in the service locator');
+    }
+
+    /** @var InternalApiClient $client */
+    $client = $serviceLocator->get('internal_api_client');
+
     $response = $client->request($url, 'PUT', CentreonSession::resolveSessionCookie(), $payload);
 
     if ($response['status_code'] !== 204) {
@@ -564,7 +583,17 @@ function deleteTimePeriodByAPI(string $basePath, array $timePeriodIds): void
     $kernel = Kernel::createForWeb();
     /** @var Router $router */
     $router = $kernel->getContainer()->get(Router::class);
-    $client = new InternalApiClient();
+
+    /** @var ServiceLocator $serviceLocator */
+    $serviceLocator = $kernel->getContainer()->get('legacy.service_locator');
+
+    if (! $serviceLocator->has('internal_api_client')) {
+        throw new RuntimeException('internal_api_client service is not registered in the service locator');
+    }
+
+    /** @var InternalApiClient $client */
+    $client = $serviceLocator->get('internal_api_client');
+
     $sessionCookie = CentreonSession::resolveSessionCookie();
 
     foreach ($timePeriodIds as $id) {

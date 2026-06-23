@@ -140,8 +140,6 @@ jobs:
       api_test_paths: |
         "centreon/tests/api/**"
       e2e_test_paths: |
-        "centreon/behat.yml"
-        "centreon/features/**"
         "centreon/tests/clapi_export/**"
         "centreon/tests/e2e/**"
         "centreon/tests/performance/**"
@@ -582,6 +580,16 @@ jobs:
       - name: Run Core integration tests
         run: composer run test:core
         working-directory: centreon
+
+      - name: Display application logs
+        if: failure()
+        run: |
+          echo "::group::test.web.log"
+          cat /tmp/centreon-test-logs/test.web.log 2>/dev/null || echo "File not found"
+          echo "::endgroup::"
+          echo "::group::Symfony logs (var/log/)"
+          find centreon/var/log -type f -name "*.log" -exec echo "--- {} ---" \; -exec cat {} \; 2>/dev/null || echo "No logs found"
+          echo "::endgroup::"
 
   backend-lint:
     runs-on: ubuntu-24.04
@@ -1154,41 +1162,6 @@ jobs:
       jira_user: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
 
-  legacy-e2e-test:
-    needs: [get-environment, changes, dockerize]
-    if: |
-      needs.changes.outputs.trigger_e2e_testing == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      needs.get-environment.outputs.stability != 'stable'
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
-    name: legacy-e2e-test ${{ matrix.operating_system }}-${{ matrix.database }}
-    uses: ./.github/workflows/behat-test.yml
-    with:
-      name: legacy-e2e
-      module_name: centreon
-      database_image: bitnamilegacy/${{ matrix.database }}
-      image_name: centreon-web
-      os: ${{ matrix.operating_system }}
-      features_path: features
-      test_tags: ${{ matrix.test_tags }}
-      major_version: ${{ needs.get-environment.outputs.major_version }}
-      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
-      labels: ${{ needs.get-environment.outputs.labels }}
-    secrets:
-      registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
-      registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
-      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
-      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-      github_models_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
-
   e2e-test:
     needs:
       [
@@ -1295,7 +1268,7 @@ jobs:
 
   deliver-sources:
     runs-on: ubuntu-24.04
-    needs: [get-environment, e2e-test, legacy-e2e-test]
+    needs: [get-environment, e2e-test]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
@@ -1367,8 +1340,7 @@ jobs:
       [
         changes,
         get-environment,
-        e2e-test,
-        legacy-e2e-test
+        e2e-test
       ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&

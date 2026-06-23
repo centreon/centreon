@@ -19,6 +19,9 @@ This document describes the platform pipeline that captures logs emitted by the 
 8. [Processor scope](#8-processor-scope)
 9. [Routing and output file](#9-routing-and-output-file)
 10. [Masking sensitive fields with `#[Sensitive]`](#10-masking-sensitive-fields-with-sensitive)
+11. [Legacy bridge — `Adaptation\Log\Logger`](#11-legacy-bridge--adaptationloglogger)
+12. [Writing authentication events](#12-writing-authentication-events)
+13. [Writing upgrade scripts (`Update-*.php`)](#13-writing-upgrade-scripts-update-php)
 
 ---
 
@@ -469,7 +472,7 @@ Consequence: every handler using `monolog.formatter.line` (centreon-web + any mo
 | `token` | MON-151077 → dedicated file `prod.token.log`. |
 | `password`, `plugin-pack-manager`, `upgrade` | MON-151077 → dedicated files. Not Monolog channels strictly speaking today (written directly by legacy `CentreonLog` code), but listed in anticipation of a future migration to Monolog. |
 
-> **Backward compatibility — `login.log` is intentionally kept.** Authentication events now flow to the `authentication` channel (`prod.access.log`). To avoid breaking external consumers that parse the historical `/var/log/centreon/login.log` — most notably **fail2ban** jails matching the `Authentication failed for …` line with the client IP — `CentreonUserLog::insertLog()` still mirrors every `TYPE_LOGIN` event to `login.log` in the original pipe-delimited format (`date|uid|page|option|message`). This duplicate write is **transitional**: it is kept on purpose for client compatibility and will be removed in a future release once consumers have migrated to the Monolog access log (cleanup tracked in a dedicated ticket). `login.log` remains covered by `logrotate/centreon`.
+> **Backward compatibility — `login.log` is intentionally kept.** Authentication events now flow to the `authentication` channel (`prod.access.log`). To avoid breaking external consumers that parse the historical `/var/log/centreon/login.log` — most notably **fail2ban** jails matching the `Authentication failed for …` line with the client IP — login events are still mirrored to `login.log` in the original pipe-delimited format (`date|uid|page|option|message`) by **two** writers: `LoggerAuthentication::mirrorToLegacyLoginLog()` for events emitted on the new-kernel path (the OpenID/SAML/WebSSO logins routed through the `Login` use case, and the legacy local/LDAP success/failure now routed through the facade), and `CentreonUserLog::insertLog()` for `TYPE_LOGIN` events still flowing through the legacy code path (e.g. `LoginLogger`). The facade writer is try/catch protected so a mirror failure can never break a login; the legacy `CentreonUserLog` writer is not. This duplicate write is **transitional**: it is kept on purpose for client compatibility and will be removed in a future release once consumers have migrated to the Monolog access log (cleanup tracked in a dedicated ticket). `login.log` remains covered by `logrotate/centreon`.
 
 | Property | Effect |
 |----------|--------|
@@ -497,6 +500,33 @@ In production, the `prod.*.log` files are rotated by **logrotate** (config `cent
 Default retention: `weekly` × `rotate 52` (1 year), with `compress` + `delaycompress` + `copytruncate`.
 
 In development (`when@dev` in `monolog.yaml`), the handlers use `rotating_file` directly (daily `Y-m-d` suffix, `max_files: 14` retention) — no need for logrotate.
+
+### `prod.web.log` is a two-format file
+
+`prod.web.log` aggregates records from **two writers** sharing the same file, and they don't share the same line shape — by construction, not by choice:
+
+1. **Monolog** (the application framework, `LoggingMiddleware` + processors + every DI-resolved `LoggerInterface`) writes with the `LineFormatter`:
+
+   ```
+   [2026-05-20T14:30:00+02:00] app.INFO: Dispatching command.bus App\…\Foo {"dispatch_id":"…"} {"uid":"…"}
+   ```
+
+   - RFC3339 timestamp, `channel.LEVEL` prefix, JSON `context` + JSON `extra`.
+
+2. **PHP-FPM** native `error_log` (`packaging/src/php-fpm.{rpm,deb}.conf`, `php_admin_value[error_log] = /var/log/centreon/prod.web.log`) writes whatever PHP cannot route through Monolog — parse errors, fatal pre-boot errors, OOM, `trigger_error(..., E_USER_ERROR)`:
+
+   ```
+   [20-May-2026 14:26:47 Europe/Paris] PHP Fatal error:  forced PHP test error in /tmp/foo.php on line 2
+   ```
+
+   - Legacy date format (`d-M-Y H:i:s T`), `PHP <Type> error:` prefix, no JSON.
+
+The two formats **cannot be unified at the source**: PHP-FPM does not expose any `error_log_format` directive (the format is hardcoded in the PHP engine, `main/main.c`). What the framework can catch, however, is caught: `framework.php_errors.log: true` routes every runtime PHP `Warning` / `Notice` / `Deprecation` / `ErrorException` through Monolog on the `php` channel, so they land in `prod.web.log` **at the Monolog format**. Only the native pre-Monolog failures (parse error, fatal pre-boot, OOM) keep the PHP-FPM format.
+
+Practical consequence for downstream consumers (log shippers, fail2ban filters, manual `tail`): match the line by **its first character pattern**, not by date:
+
+- `^\[\d{4}-\d{2}-\d{2}T` → Monolog record (RFC3339)
+- `^\[\d{2}-[A-Z][a-z]{2}-\d{4}` → PHP-FPM native error
 
 ---
 
@@ -552,3 +582,376 @@ PHP's built-in [`#[\SensitiveParameter]`](https://www.php.net/manual/en/class.se
 - **Mechanism** — it only redacts a value in **exception stack traces** (handled by the PHP engine); it does not mask log payloads. The scanner reflects *properties*, so it would not even see a `#[\SensitiveParameter]` placed on a promoted parameter.
 
 A property-level attribute is therefore the right tool for reflection-based **payload** masking. A future enhancement could make `SensitivityScanner` *additionally* honour `#[\SensitiveParameter]` on promoted constructor parameters (gaining stack-trace redaction for free) while keeping `#[Sensitive]` for plain properties.
+
+---
+
+## 11. Legacy bridge — `Adaptation\Log\Logger`
+
+The platform pipeline described above runs under `App\Shared\Infrastructure\Symfony\Kernel`. Legacy entry points (procedural `www/` code, classes wired through `App\Kernel`) cannot autowire Monolog services directly; they go through a thin façade so every record still lands on the MON-151077 layout.
+
+```mermaid
+flowchart LR
+    Legacy["Legacy code (www/, CentreonLog, CentreonUserLog)"] --> Facade["Adaptation\\Log\\Logger::create(LogChannelEnum)"]
+    Facade --> Adapter["Adaptation\\Log\\Adapter\\MonologAdapter"]
+    Adapter --> Stream["StreamHandler → /var/log/centreon/&lt;env&gt;.&lt;slug&gt;.log"]
+    Stream --> Fmt["LineFormatter (RFC3339)"]
+
+    classDef src fill:#f5f5f5,stroke:#9e9e9e,color:#212121
+    classDef proc fill:#e0e0e0,stroke:#616161,color:#212121
+    classDef out fill:#bdbdbd,stroke:#424242,stroke-width:2px,color:#000
+    class Legacy src
+    class Facade,Adapter proc
+    class Stream,Fmt out
+```
+
+### `LogChannelEnum`
+
+`Adaptation\Log\Enum\LogChannelEnum` enumerates the Monolog channels the legacy code is allowed to write to. The case value is the **channel name** (matches `config.new/packages/monolog.yaml`); `getLogFileSlug()` returns the **file-name slug** appended to `<env>.<slug>.log`.
+
+| Case | Channel | File slug | Production file |
+|---|---|---|---|
+| `AUTHENTICATION` | `authentication` | `access` | `prod.access.log` |
+| `PASSWORD` | `password` | `password` | `prod.password.log` |
+| `PLUGIN_PACK_MANAGER` | `plugin-pack-manager` | `plugin-pack-manager` | `prod.plugin-pack-manager.log` |
+| `TOKEN` | `token` | `token` | `prod.token.log` |
+| `UPGRADE` | `upgrade` | `upgrade` | `prod.upgrade.log` |
+| `WEB` | `web` | `web` | `prod.web.log` |
+
+Only `AUTHENTICATION` carries a different slug — login/ldap/openid/saml records all converge in the shared `access.log` file (cf. MON-151077).
+
+### `Adaptation\Log\Logger`
+
+```php
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
+Logger::create(LogChannelEnum::WEB)->error(
+    'Could not generate the host configuration',
+    ['host_id' => 42, 'exception' => $e],
+);
+```
+
+`Logger::create()` returns a PSR-3 `LoggerInterface`. Internally it instantiates a `MonologAdapter` carrying a single `StreamHandler` configured with `LineFormatter` + `RFC3339`. Rotation is **not** wired at this layer — production hosts delegate to `logrotate` (cf. `logrotate/centreon`).
+
+If `MonologAdapter::create()` cannot build the handler (e.g. permission error on the log directory), `Logger::create()` falls back to a `NullLogger` and writes the failure reason to `error_log()` — log emission must never break a request.
+
+#### Processors attached by `MonologAdapter`
+
+To mirror the platform pipeline as closely as possible without booting the Symfony container, `MonologAdapter::pushPlatformProcessors()` attaches three processors to every channel logger it creates:
+
+| Processor | Source | Adds |
+|---|---|---|
+| `Monolog\Processor\UidProcessor` | Monolog vendor | `extra.uid` — 7-char hex id, **shared across every channel logger built in the current process** via a `private static` cache. Enables cross-file correlation (`grep "uid\":\"…\"" /var/log/centreon/*.log`) just like the new-kernel pipeline. |
+| `Monolog\Processor\WebProcessor` | Monolog vendor | `extra.url`, `extra.ip`, `extra.http_method`, `extra.server`, `extra.referrer` — sourced from `$_SERVER` directly (the Symfony bridge variant is bypassed because its data is populated by a kernel-request listener that does not run from legacy code paths). |
+| `App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor` | platform | Unwraps `context.exception` through `ExceptionFormatter::format()`, producing the same nested-exception layout used on `prod.web.log` (cf. §5). |
+
+`RouteProcessor` and `TokenProcessor` are **not** wired here: they depend on the Symfony `RequestStack` / `TokenStorage` services and would be empty in the legacy stack. Records emitted via `Adaptation\Log\Logger` therefore do **not** carry `extra.controller`, `extra.route` or `extra.token`. Call sites that need those fields should write through the new-kernel pipeline (the catch-all `app` / `request` channels and every dedicated channel) where the full processor stack is wired globally by `config.new/services/shared.php`.
+
+#### Format alignment — no more `{custom, exception, default}` wrap
+
+Before MON-151077, both `CentreonLog::log()` and `Centreon\Domain\Log\LoggerTrait::executeLog()` reshaped the `context` array before handing it to Monolog:
+
+- `CentreonLog::buildContext()` pre-formatted the `Throwable` with `ExceptionLogFormatter` (legacy) and added `context.request_infos`.
+- `LoggerTrait::normalizeContext()` rewrapped everything as `{custom, exception, default: {request_infos}}` — and **moved** the `Throwable` out of `context.exception` so `ExceptionFormatterProcessor` never saw it.
+
+Both helpers are gone. The legacy façades now hand the caller-supplied `$context` directly to the underlying logger, only normalizing one thing: a `?Throwable $exception` argument is moved into `$context['exception']` so the platform processor can unwrap the chain on the way out.
+
+Concrete consequences:
+
+- Exceptions logged via `CentreonLog::create()->error(TYPE_*, 'msg', $ctx, $throwable)` end up with the **same** structured shape as the new-kernel records (handled by `App\Shared\Infrastructure\Logging\ExceptionFormatter`).
+- The HTTP context (`url`, `ip`, `http_method`, `server`, `referrer`) lives under `extra`, not `context.request_infos` — that is where the rest of the platform reads it.
+- `Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger::log()` still pre-formats through `ExceptionLogFormatter` (legacy) for the `BusinessLogicException` `from_exception` / `traces` fields its callers rely on. Its records therefore keep the legacy `context.exception` shape — that is a property of `ExceptionLogger` callers, not of the underlying logger.
+
+### Domain-specific facades
+
+Four siblings of `Adaptation\Log\Logger` expose a **constrained, semantic API** instead of the raw PSR-3 surface:
+
+| Facade | Channel | File | Methods |
+|---|---|---|---|
+| `Adaptation\Log\LoggerPassword` | `password` | `prod.password.log` | `success`, `warning` |
+| `Adaptation\Log\LoggerToken` | `token` | `prod.token.log` | `success`, `warning` |
+| `Adaptation\Log\LoggerAuthentication` | `authentication` | `prod.access.log` | `loginSuccess`, `loginFailure`, `logout`, `tokenRefreshSuccess`, `tokenRefreshFailure`, `unauthorized`, `forbidden` |
+| `Adaptation\Log\LoggerUpgrade` | `upgrade` | `prod.upgrade.log` | `start`, `success`, `failure`, `step`, `stepCompleted`, `stepFailure`, `info`, `error` |
+
+They exist for two reasons:
+
+1. **Downstream consumers expect a stable JSON schema** — fail2ban filters (auth), SIEM correlation (password, auth, token), upgrade observability dashboards (upgrade). Hard-coding the schema in the helper guarantees every caller emits the same shape (`event`, `status`, `user_id`, `provider`, `ip_address`, `from_version`, …).
+2. **OWASP-aligned semantics** — distinguishing a security event (`WARNING` for an attempted-but-refused login) from a technical crash (`ERROR` for an unhandled exception) is a domain concern; the helper enforces the right Monolog level for each method.
+
+For channels that carry **free-form messages with arbitrary context** (`web`, `plugin-pack-manager`), call sites use `Adaptation\Log\Logger::create(LogChannelEnum::*)` directly — wrapping them in a helper adds no value over the PSR-3 facade.
+
+Decision rule for adding a new `Logger<Channel>` class: when the channel either feeds an automated consumer that requires a stable schema, **or** carries a well-defined lifecycle (`loginSuccess` / `loginFailure` / `logout`, or `start` / `step` / `success` / `failure`) that benefits from semantic method names. Otherwise, route through `Adaptation\Log\Logger::create(LogChannelEnum::*)` directly.
+
+### `CentreonLog` and `CentreonUserLog` façades
+
+Both classes (`www/class/centreonLog.class.php`) keep their public surface but reroute every write through `Adaptation\Log\Logger`. The legacy `TYPE_*` identifiers map onto channels as follows:
+
+| Legacy constant | Channel | Output file |
+|---|---|---|
+| `TYPE_LOGIN`, `TYPE_LDAP` | `AUTHENTICATION` | `prod.access.log` |
+| `TYPE_SQL`, `TYPE_BUSINESS_LOG` | `WEB` | `prod.web.log` |
+| `TYPE_UPGRADE` | `UPGRADE` | `prod.upgrade.log` |
+| `TYPE_PLUGIN_PACK_MANAGER` | `PLUGIN_PACK_MANAGER` | `prod.plugin-pack-manager.log` |
+
+`CentreonLog::pushLogFileHandler()` and `setPathLogFile()` are kept as deprecated no-ops for backward compatibility with extension modules — file routing is now driven exclusively by `LogChannelEnum`.
+
+Both classes are tagged `@deprecated`. The DI/Application code that still autowires them keeps working, but **new code should call `Adaptation\Log\Logger` directly** with an explicit `LogChannelEnum`.
+
+### `Centreon\Domain\Log\LoggerTrait`
+
+`LoggerTrait` (~389 callers) keeps providing the PSR-3 helper shape used by Domain services that autowire a `LoggerInterface` via `#[Required]`. The pre-MON-151077 `ContactForDebug` gate is gone — `canBeLogged()` now only checks that a logger has been injected. The trait carries a descriptive note but no formal `@deprecated` tag, because `Symfony\Component\ErrorHandler\DebugClassLoader` would otherwise cascade the deprecation onto every class still using the trait during the transition.
+
+### Symfony-side configuration
+
+`config/packages/monolog.yaml` (legacy kernel) is a single-line `imports:` pointing at `config.new/packages/monolog.yaml`. There is one source of truth for channels, handlers and processors — adding or renaming a channel for the platform pipeline automatically reaches the legacy kernel too.
+
+Both kernels resolve `kernel.logs_dir` to `/var/log/centreon` (`App\Kernel::getLogDir()` and `App\Shared\Infrastructure\Symfony\Kernel::getLogDir()`), so the path templates in `monolog.yaml` produce identical filenames regardless of which kernel boots a request.
+
+---
+
+## 12. Writing authentication events
+
+Authentication is the only flow where the platform splits two destinations on purpose, following the [OWASP Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html) and [ASVS V7](https://owasp.org/www-project-application-security-verification-standard/) recommendations:
+
+- **Application Security Events** → `prod.access.log` (channel `authentication`) — login success/failure, logout, token refresh, unauthorized, forbidden. Consumed by SOC / SIEM / fail2ban.
+- **Application Error Logs** → `prod.web.log` (channel `web`) — exceptions, protocol diagnostics, dependency errors.
+
+Every auth provider routes through this split. The new kernel uses Symfony DI (`#[Autowire(service: 'monolog.logger.authentication')]`), the legacy side uses the `LoggerAuthentication` facade.
+
+### Facade API
+
+```php
+use Adaptation\Log\Enum\AuthProviderEnum;
+use Adaptation\Log\LoggerAuthentication;
+
+LoggerAuthentication::create()->loginSuccess($message, $userId, $provider);
+LoggerAuthentication::create()->loginFailure($message, $userId, $provider, $exception);
+LoggerAuthentication::create()->logout($message, $userId, $provider);
+LoggerAuthentication::create()->tokenRefreshSuccess($message, $userId, $provider);
+LoggerAuthentication::create()->tokenRefreshFailure($message, $userId, $provider, $exception);
+LoggerAuthentication::create()->unauthorized($message, $userId);
+LoggerAuthentication::create()->forbidden($message, $userId, $resource);
+```
+
+| Method | Monolog level | When to use |
+|---|---|---|
+| `loginSuccess($message, $userId, $provider)` | `INFO` | Credentials accepted, session opened. |
+| `loginFailure($message, $userId, $provider, $e)` | `WARNING` | Refused login: bad credentials, IP blacklisted, claim missing, IdP error. **WARNING, not ERROR** — this is an expected security event, not a crash. |
+| `logout($message, $userId, $provider)` | `INFO` | Session ended. |
+| `tokenRefreshSuccess($message, $userId, $provider)` | `INFO` | OIDC refresh token exchanged. |
+| `tokenRefreshFailure($message, $userId, $provider, $e)` | `WARNING` | Refresh refused or token endpoint error during refresh. |
+| `unauthorized($message, $userId)` | `WARNING` | Authenticated user not allowed to reach a resource (HTTP 401 outside of login). |
+| `forbidden($message, $userId, $resource)` | `WARNING` | Authenticated user denied on a specific resource (HTTP 403). |
+
+`$userId` is the Centreon `contact_id` (int). Pass `null` when the user is not yet resolved (early OpenID failure before the `userinfo` exchange, IP blacklist hit before authentication, …). `$provider` is an `AuthProviderEnum` case: `LOCAL`, `LDAP`, `OPENID`, `SAML`, `WEB_SSO`, `API_TOKEN`, `AUTOLOGIN`, `CLAPI`.
+
+### Context structure
+
+Every method emits the same JSON context shape:
+
+```json
+{
+  "event": "login.success" | "login.failure" | "logout" | "token.refresh.success" | "token.refresh.failure" | "unauthorized" | "forbidden",
+  "status": "success" | "failure",
+  "user_id": 42,
+  "ip_address": "10.0.0.42",
+  "provider": "openid",
+  "exception": { ... },
+  "resource": "host:42"
+}
+```
+
+- **Always present:** `event`, `status`, `user_id` (may be `null` before the user is resolved), and `ip_address` — which is the literal string `"unknown"` when `$_SERVER['REMOTE_ADDR']` is unset, notably for CLI / CLAPI events.
+- **Conditional:** `provider` is omitted for `unauthorized` / `forbidden` (these carry no provider); `exception` appears only on the failure methods when a `Throwable` is passed; `resource` appears only on `forbidden` when a resource is supplied.
+
+This shape is the contract — downstream filters and dashboards pin on `event`, `status`, `ip_address` and (where present) `provider`. Do not bypass the facade to add ad-hoc top-level keys.
+
+### Recommended pattern in a provider
+
+Inside the auth providers (`src/Core/Security/Authentication/...`), the rule is:
+
+- **Login failures** → `LoggerAuthentication::create()->loginFailure(...)` at the exact point the decision is taken (just before throwing the SSO exception), where the user is usually not yet resolved (so `user_id` is `null`).
+- **Login success** → emitted once by the `Login` use case after `findUserOrFail()` resolves the contact, so the event carries the real `user_id`. It is emitted only for the external providers (OpenID / SAML / WebSSO); local and LDAP success is already logged through the legacy `centreonAuth` path, which is excluded there to avoid a duplicate access-log entry.
+- **Technical diagnostics** → `Adaptation\Log\Logger::create(LogChannelEnum::WEB)->info/error(...)` for the surrounding traces (request sent to IdP, JSON decode error, HTTP 5xx). These are not security events; they belong in `prod.web.log`.
+
+```php
+foreach ($conditions->getBlacklistClientAddresses() as $blackListedAddress) {
+    if (preg_match('/' . $blackListedAddress . '/', $clientIp)) {
+        // Security event — SOC needs to see this on prod.access.log.
+        LoggerAuthentication::create()->loginFailure(
+            'Client IP is blacklisted',
+            null,
+            AuthProviderEnum::OPENID
+        );
+
+        throw SSOAuthenticationException::blackListedClient();
+    }
+}
+
+try {
+    $response = $this->client->request('POST', $tokenEndpoint, ['body' => $data]);
+} catch (Exception $exception) {
+    // Security event — login refused, SOC needs to see it.
+    LoggerAuthentication::create()->loginFailure(
+        'Failed to retrieve access token from provider',
+        null,
+        AuthProviderEnum::OPENID,
+        $exception
+    );
+
+    // Technical trace — kept on prod.web.log for ops investigation.
+    Logger::create(LogChannelEnum::WEB)->error(
+        sprintf('[Error] Unable to get Token Access Information:, message: %s', $exception->getMessage())
+    );
+
+    throw SSOAuthenticationException::requestForConnectionTokenFail();
+}
+```
+
+### Other lifecycle events
+
+```php
+// Logout — emit when the session is closed (legacy logout button, OIDC end-session callback, SAML SLS).
+LoggerAuthentication::create()->logout(
+    sprintf("[%s] [%s] Logout for '%s'", $authType, $clientIp, $username),
+    (int) $contactId,
+    AuthProviderEnum::OPENID
+);
+
+// Token refresh — OIDC refresh_token exchanged successfully against the IdP.
+LoggerAuthentication::create()->tokenRefreshSuccess(
+    'OIDC refresh token exchanged successfully',
+    (int) $contactId,
+    AuthProviderEnum::OPENID
+);
+```
+
+### Authorization events
+
+```php
+// API endpoint reached without a token, or with an expired one.
+LoggerAuthentication::create()->unauthorized(
+    'Missing or invalid bearer token',
+    null
+);
+
+// Authenticated user denied on a specific resource by a voter or an ACL check.
+LoggerAuthentication::create()->forbidden(
+    'User cannot access host resource',
+    (int) $user->getId(),
+    'host:42'
+);
+```
+
+### Application layer (DDD)
+
+The DDD scope (`src/App/...`) calls `LoggerAuthentication` directly the same way as the legacy code — Application is allowed to depend on `Adaptation\Log\*` because that namespace is the platform-side wrapper, not a third-party I/O. The upgrade flow follows the same convention: both `UpdateCommandHandler` and the update repositories call `LoggerUpgrade` directly at each step (see [§13](#13-writing-upgrade-scripts-update-php)).
+
+### Sample output
+
+`prod.access.log`:
+
+```
+authentication.INFO: [local] [172.18.0.1] Authentication succeeded for 'admin'
+  {"event":"login.success","status":"success","user_id":1,"provider":"local","ip_address":"172.18.0.1"}
+
+authentication.WARNING: [local] [172.18.0.1] Authentication failed for 'admin' : invalid credentials
+  {"event":"login.failure","status":"failure","user_id":null,"provider":"local","ip_address":"172.18.0.1"}
+
+authentication.WARNING: No authorization code returned from external provider
+  {"event":"login.failure","status":"failure","user_id":null,"provider":"openid","ip_address":"10.0.0.42"}
+
+authentication.WARNING: Client IP is blacklisted
+  {"event":"login.failure","status":"failure","user_id":null,"provider":"web-sso","ip_address":"10.0.0.42"}
+```
+
+> The `[local]` success/failure lines above originate from the legacy `centreonAuth` path (`CentreonUserLog` on the `authentication` channel), **not** from `LoggerAuthentication::loginSuccess()`: the `Login` use case deliberately skips local/LDAP to avoid a duplicate entry (see [§12 above](#recommended-pattern-in-a-provider)). The `openid` / `web-sso` lines are the ones emitted through the facade.
+
+`prod.web.log` (same request, technical trace):
+
+```
+app.INFO: Start authenticating user... {"provider":"openid"}
+app.ERROR: No authorization code returned from external provider {"provider":"openid"}
+app.ERROR: An error occurred during authentication {"trace":"…SSOAuthenticationException…"}
+```
+
+### fail2ban compatibility
+
+The legacy local/LDAP messages keep their historical pattern (`[local] [<ip>] Authentication succeeded for '<alias>'` / `Authentication failed for '<alias>' : <reason>`); the facade does not rewrite the message — the caller passes it verbatim as the first argument and only enriches the context.
+
+But fail2ban jails are bound to a **file path** (`logpath = /var/log/centreon/login.log`), not to a message pattern: routing the events to `prod.access.log` alone would silently break existing jails. To avoid that, `LoggerAuthentication` also mirrors `loginSuccess` / `loginFailure` to the historical `login.log` in the original pipe-delimited format (`date|uid|page|option|message`), reproducing exactly what the legacy `centreonAuth` emitted through `CentreonUserLog::insertLog(TYPE_LOGIN)`. This duplicate write is transitional and will be removed in a future release once consumers read the Monolog access log instead. The same shim exists on the legacy path (`CentreonUserLog::insertLog`) for events still emitted through it (e.g. `LoginLogger`).
+
+### Best practices
+
+- **One decision point = one `loginSuccess` / `loginFailure` call.** No "summarising" loop log; emit the event where the throw / accept actually happens.
+- **`WARNING`, not `ERROR`, for refused logins.** A bad password is a security event, not a crash. ERROR is reserved for true technical failures.
+- **No PII, no secrets** in the message or the context. Mask tokens, redact passwords. The file is shipped to SOC pipelines.
+- **`$userId` is `null` early, populated once resolved.** Don't fabricate a fake id (e.g. `0`) — `null` is the signal that the user was not authenticated at this stage.
+- **Provider always set.** Use the `AuthProviderEnum` cases; do not pass a free-form string. The enum is the single source of truth of which providers exist.
+- **Don't duplicate on both channels.** A security event goes to `prod.access.log` via the facade. The technical trace (stack trace, ldap_error, HTTP body) belongs to `prod.web.log` via `Logger::create(LogChannelEnum::WEB)`.
+
+---
+
+## 13. Writing upgrade scripts (`Update-*.php`)
+
+Each upgrade ships under `www/install/php/Update-<version>.php` (DB DDL/DML + business migration). It runs either through the DDD command — `UpdateCommandHandler` brackets each step with its `runStep()` helper and emits the logs, while `DbalUpdateRepository` only performs the operations — or through the legacy web wizard (`process_step4/5` + `DbWriteUpdateRepository`, which logs inline via `executeStep()`). Either way the `php_script` step is bracketed (start / completed / failure). **Inside the script itself, trace each meaningful action through `LoggerUpgrade` so operators get a play-by-play view in `prod.upgrade.log`.**
+
+The legacy web upgrade splits the flow across two steps: `process_step4.php` runs the version updates (`runUpdate`), `process_step5.php` runs the post-update (`runPostUpdate`) under a `post_update` step — grep both when tracking a step name.
+
+### Facade API
+
+```php
+use Adaptation\Log\LoggerUpgrade;
+
+LoggerUpgrade::create()->info($version, "Adding column X to table Y");
+LoggerUpgrade::create()->error($version, "Schema check failed", $exception);
+
+LoggerUpgrade::create()->stepFailure($message, $version, $stepName, $exception);
+LoggerUpgrade::create()->step($version, $stepName, $message);
+```
+
+| Method | Monolog level | When to use |
+|---|---|---|
+| `start($from, $to)` | `INFO` | Begin of the global upgrade flow (emitted by `UpdateCommandHandler` / `process_step4.php`, **not** by individual scripts). |
+| `success($from, $to, $durationMs)` | `INFO` | End of the global upgrade flow, with measured duration. |
+| `failure($message, $from, $to, $e)` | `ERROR` | Global upgrade aborted (catch-all in the handler). |
+| `step($version, $stepName, $message)` | `INFO` | Sub-step **start** / progress (`monitoring_sql`, `php_script`, …). `status: running`. Emitted by the repositories; rarely needed inside an upgrade script. |
+| `stepCompleted($version, $stepName, $durationMs, $message)` | `INFO` | Sub-step **completion**. `status: completed`, carries `duration_ms` in the context (not just the message), so completed steps are queryable without parsing text. |
+| `stepFailure($message, $version, $stepName, $e)` | `ERROR` | A bracketed step threw. Primarily emitted by the repositories / handler; also used inside an upgrade script's catch block with the `php_script` step name (or `php_script_rollback` when the rollback itself fails). |
+| **`info($version, $message)`** | `INFO` | **Trace a meaningful action** (entering a function, finished an `ALTER TABLE`, skipped because already migrated, …). This is the workhorse inside upgrade scripts. |
+| **`error($version, $message, $e)`** | `ERROR` | Free-form error inside a script that you choose not to re-throw (rare — usually you re-throw and let the surrounding `try/catch` call `stepFailure`). |
+
+### Recommended pattern
+
+Copy `www/install/php/Update-next.php.tpl` — it is the canonical skeleton and is kept in sync with the flow. Its shape:
+
+- **Wrap each business action in its own callable** and set `$errorMessage` to a human description **before** running it, so the catch-all `stepFailure` reports which action failed.
+- **Trace intent and outcome** with `info($version, …)`; log skip branches too — they prove the script is safely re-entrant.
+- **Run DML inside a transaction** guarded by `isTransactionActive()`, and log "Rolling back…" only inside the `if` that actually rolls back.
+- **On failure, call `stepFailure(...)`** with the `php_script` step name (`php_script_rollback` if the rollback itself fails), then **re-throw**: the global flow (`UpdateCommandHandler` / `process_step4.php`) catches it and writes the final `failure`. A silent return breaks that chain.
+
+### Sample output (`prod.upgrade.log`)
+
+```
+upgrade.INFO: Upgrade started from 25.10.0 to 25.11.0
+  {"event":"upgrade.start","status":"started","from_version":"25.10.0","to_version":"25.11.0"}
+upgrade.INFO: Starting step 'php_script'
+  {"event":"upgrade.step","status":"running","version":"25.11.0","step":"php_script"}
+upgrade.INFO: Adding vmware_updated field into nagios_server table
+  {"event":"upgrade.info","status":"info","version":"25.11.0"}
+upgrade.INFO: Step 'php_script' completed in 124ms
+  {"event":"upgrade.step_completed","status":"completed","version":"25.11.0","step":"php_script","duration_ms":124}
+upgrade.INFO: Upgrade from 25.10.0 to 25.11.0 completed successfully
+  {"event":"upgrade.success","status":"success","from_version":"25.10.0","to_version":"25.11.0","duration_ms":4242}
+```
+
+On failure, the failing action writes `upgrade.step_failure` (ERROR) and the global flow writes a final `upgrade.failure` carrying the from→to versions and the wrapped exception.
+
+### Best practices
+
+- **One business action = one `info` line** before it runs (intent) and one after (outcome). Skip branches deserve their own line so operators can read the log top-to-bottom without re-deriving control flow.
+- **Carry `$version` on every call** — the field is what lets SIEM/Grafana partition the file per release.
+- **No PII, no secrets** in the message or the context. The file is shipped to operators / SOC pipelines; the same redaction rules as `prod.access.log` apply.
+- **Don't duplicate the surrounding `step` log** — the repository already brackets the script with `step` / `stepFailure`. Inside the script, use `info` / `error` (free-form) and let `stepFailure` be raised by the outer `try/catch`.
+- **Idempotent actions still log** — even "skipped because already migrated" is signal: it confirms the migration was applied on a previous run and the script is safely re-entrant.
+- **Re-throw on failure**. Returning silently after logging masks the failure from the surrounding `UpdateCommandHandler` / `process_step4` which then misses the final `upgrade.failure` record.
