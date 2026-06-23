@@ -1386,6 +1386,29 @@ jobs:
           path: ${{ env.base_directory }}/tests/e2e-playwright/blob-report
           retention-days: 5
 
+      # On failure, grab the platform-side logs the browser can't see. The
+      # per-test Centreon logs are already attached to the HTML report by the
+      # `centreonLogsOnFailure` fixture; this also captures the container stdout
+      # (so a stack that crashes on boot, before any test runs, is debuggable)
+      # and a full /var/log tarball from the web container.
+      - name: Collect Centreon stack logs on failure
+        if: ${{ failure() }}
+        run: |
+          mkdir -p stack-logs
+          compose="docker compose -f $compose_file -f .github/docker/$CENTREON_COMPOSE_OVERRIDES"
+          $compose --profile openid --profile squid-simple logs --no-color > stack-logs/docker-compose.log 2>&1 || true
+          $compose exec -T web tar -C /var/log -czf - \
+            centreon centreon-engine centreon-broker centreon-gorgone httpd php-fpm \
+            > stack-logs/web-var-log.tar.gz 2>/dev/null || true
+
+      - name: Upload Centreon stack logs
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: playwright-stack-logs-${{ matrix.shard.name }}
+          path: stack-logs
+          retention-days: 5
+
       # Tear the stack down with the SAME compose files used to bring it up
       # (base + DB override) so the `db` service resolves identically, and remove
       # any orphaned containers/volumes. Covers every profile a shard may start.

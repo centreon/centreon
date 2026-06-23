@@ -1,6 +1,7 @@
-import { expect, type Page, test } from '@playwright/test';
+import { type Page } from '@playwright/test';
 
 import { adminUser } from '../../fixtures/credentials';
+import { expect, test } from '../../fixtures/test';
 import {
   oidcContactActions,
   oidcUser,

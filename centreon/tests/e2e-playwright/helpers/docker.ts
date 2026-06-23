@@ -170,3 +170,38 @@ export const applyAcl = (): void => {
     `su -s /bin/sh ${webApacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`
   );
 };
+
+// The platform-side logs worth capturing when a test fails: PHP-FPM and Apache
+// for 4xx/5xx, the Symfony app/access logs for the modern APIs, and the
+// gorgone/engine/broker logs for monitoring/config-apply flows.
+const webLogFiles = [
+  '/var/log/php-fpm/centreon-error.log',
+  '/var/log/php-fpm/error.log',
+  '/var/log/httpd/error_log',
+  '/var/log/centreon/prod.web.log',
+  '/var/log/centreon/prod.access.log',
+  '/var/log/centreon/login.log',
+  '/var/log/centreon-gorgone/gorgoned.log',
+  '/var/log/centreon-engine/centengine.log',
+  '/var/log/centreon-broker/central-broker-master.log'
+];
+
+/**
+ * Tail the most useful Centreon / Apache / PHP logs from the `web` container,
+ * concatenated with per-file headers, to attach platform-side context to a
+ * failing test (the browser side already has trace/screenshot/video). Returns a
+ * short note instead of throwing if the container is unreachable.
+ */
+export const dumpWebLogs = (lines = 300): string => {
+  const script = webLogFiles
+    .map(
+      (file) =>
+        `echo "===== ${file} (last ${lines} lines) ====="; tail -n ${lines} "${file}" 2>/dev/null || echo "(missing)"; echo`
+    )
+    .join('; ');
+  try {
+    return execInWebContainer(script);
+  } catch (error) {
+    return `failed to collect web logs: ${(error as Error).message}`;
+  }
+};

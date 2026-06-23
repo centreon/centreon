@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../../fixtures/test';
 
 import { adminStorageStatePath } from '../../fixtures/auth';
 import { ensureStack } from '../../helpers/docker';

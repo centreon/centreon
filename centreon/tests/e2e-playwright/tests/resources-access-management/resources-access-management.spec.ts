@@ -1,6 +1,5 @@
-import { expect, test } from '@playwright/test';
-
 import { adminStorageStatePath } from '../../fixtures/auth';
+import { expect, test } from '../../fixtures/test';
 import { ensureStack, execInWebContainer } from '../../helpers/docker';
 import { ResourcesAccessManagementPage } from '../../pages/ResourcesAccessManagementPage';
 
