@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Domain\Model\ConfigurationParameters;
 
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
@@ -103,7 +104,7 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
             } else {
                 $parameters['hosts'][$index]['token'] = null;
             }
-            Assertion::ipOrDomain($host['address'], 'configuration.hosts[].address');
+            CentreonAssert::ipOrHostname($host['address'], 'configuration.hosts[].address');
             Assertion::range($host['port'], 0, 65535, 'configuration.hosts[].port');
             $this->validateOptionalCertificate(
                 $host['poller_ca_certificate'],
