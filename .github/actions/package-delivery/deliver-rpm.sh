@@ -95,6 +95,15 @@ for FILE in "${FILES[@]}"; do
   mv "$FILE" "$ARCH"
 done
 
+PULP_LABELS=$(jq -cn \
+  --arg mod        "$MODULE_NAME" \
+  --arg git_commit "${GITHUB_SHA:-}" \
+  --arg git_ref    "${GITHUB_REF:-}" \
+  --arg run_id     "${GITHUB_RUN_ID:-}" \
+  --arg actor      "${GITHUB_ACTOR:-}" \
+  --arg workflow   "${GITHUB_WORKFLOW:-}" \
+  '{"module": $mod, "git_commit": $git_commit, "git_ref": $git_ref, "github_run_id": $run_id, "github_actor": $actor, "github_workflow": $workflow}')
+
 for ARCH in noarch x86_64; do
   ARCH_FILES=("$ARCH"/*.rpm)
   if [[ ${#ARCH_FILES[@]} -eq 0 ]]; then
@@ -128,7 +137,7 @@ for ARCH in noarch x86_64; do
       pulp_upload \
         -F "file=@$FILE" \
         -F "repository=$REPOSITORY_HREF" \
-        -F "pulp_labels={\"module\": \"$MODULE_NAME\"}" \
+        -F "pulp_labels=$PULP_LABELS" \
         "$PULP_URL/api/v3/content/rpm/packages/"
     )
     wait_task "$TASK_HREF"
