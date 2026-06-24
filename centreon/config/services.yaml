@@ -169,11 +169,8 @@ services:
         autoconfigure: false
         tags: ['monolog.processor']
 
-    # Platform Monolog processors (backport of config.new/services/monolog.php;
-    # config.new does not exist on this branch, so they are declared here).
-    # Registered globally: develop scopes Web/Route/Token to the bus/request/app
-    # channels, but dev-24.10.x declares none of those (no `bus` logger), so a
-    # channel-scoped tag would reference a non-existent monolog.logger.<channel>.
+    # Platform Monolog processors, declared explicitly. Registered globally as
+    # plain processors: there are no named Monolog channels to scope them to.
     monolog.processor.uid:
         class: Monolog\Processor\UidProcessor
         autoconfigure: false
