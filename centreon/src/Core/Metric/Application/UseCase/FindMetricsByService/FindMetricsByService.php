@@ -106,6 +106,8 @@ final class FindMetricsByService
             $metricDto->warningLowThreshold = $metric->getWarningLowThreshold();
             $metricDto->criticalHighThreshold = $metric->getCriticalHighThreshold();
             $metricDto->criticalLowThreshold = $metric->getCriticalLowThreshold();
+            $metricDto->min = $metric->getMin();
+            $metricDto->max = $metric->getMax();
             $metricsDto[] = $metricDto;
         }
         $response->metricsDto = $metricsDto;
