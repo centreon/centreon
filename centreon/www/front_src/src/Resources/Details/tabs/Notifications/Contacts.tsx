@@ -37,7 +37,14 @@ const Contacts = ({
   noContactsMessage
 }: Props): ReactElement => {
   const goToUri = (uri: string): void => {
-    window.location.href = uri as string;
+    try {
+      const resolved = new URL(uri, window.location.origin);
+      if (resolved.origin === window.location.origin) {
+        window.location.href = resolved.href;
+      }
+    } catch {
+      // invalid URI — do nothing
+    }
   };
 
   const getConfigurationColumn = useCallback(
