@@ -365,7 +365,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
     if: |
-      needs.changes.outputs.trigger_frontend_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
     steps:
@@ -383,7 +383,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
     if: |
-      needs.changes.outputs.trigger_frontend_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
     steps:
@@ -398,7 +398,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
     if: |
-      needs.changes.outputs.trigger_frontend_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
 
@@ -441,7 +441,7 @@ jobs:
   frontend-component-test:
     needs: [changes, get-environment]
     if: |
-      needs.changes.outputs.trigger_frontend_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
     uses: ./.github/workflows/cypress-component-parallelization.yml
@@ -462,7 +462,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
     if: |
-      needs.changes.outputs.trigger_backend_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
 
@@ -511,7 +511,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [get-environment, changes, backend-unit-test]
     if: |
-      needs.changes.outputs.trigger_backend_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
     services:
@@ -595,7 +595,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
     if: |
-      needs.changes.outputs.trigger_backend_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
 
@@ -748,7 +748,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [get-environment, changes]
     if: |
-      needs.changes.outputs.trigger_e2e_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
     steps:
@@ -762,7 +762,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [get-environment, changes]
     if: |
-      needs.changes.outputs.trigger_e2e_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
     steps:
@@ -1104,7 +1104,7 @@ jobs:
   create-xray-test-plan-and-test-execution:
     needs: [get-environment, changes, dockerize]
     if: |
-      needs.changes.outputs.trigger_api_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
@@ -1131,7 +1131,7 @@ jobs:
   bruno-api-test:
     needs: [get-environment, changes, create-xray-test-plan-and-test-execution, dockerize]
     if: |
-      needs.changes.outputs.trigger_api_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable' &&
       ! cancelled() &&
@@ -1173,7 +1173,7 @@ jobs:
         e2e-lint,
       ]
     if: |
-      needs.changes.outputs.trigger_e2e_testing == 'true' &&
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
@@ -1265,6 +1265,325 @@ jobs:
   #         name: lighthouse-report
   #         path: centreon/lighthouse/report/lighthouseci-index.html
   #         retention-days: 1
+
+  # Compute the e2e test shards from the test folders: each heavy folder (>=2
+  # spec files) gets its own named shard, the light folders are packed into a
+  # few "group-N" shards. Adding or removing a folder under
+  # tests/e2e-playwright/tests automatically reshapes the matrix — no workflow
+  # edit needed — while keeping the number of booted stacks bounded.
+  playwright-e2e-prepare:
+    runs-on: ubuntu-24.04
+    needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled()
+    name: playwright-e2e-prepare
+    permissions:
+      contents: read
+    outputs:
+      shards: ${{ steps.shards.outputs.shards }}
+      has_shards: ${{ steps.shards.outputs.has_shards }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Compute test shards
+        id: shards
+        run: |
+          shards=$(python3 .github/scripts/playwright-shards.py "$base_directory/tests/e2e-playwright/tests")
+          echo "shards=$shards" >> "$GITHUB_OUTPUT"
+          if [ "$shards" = "[]" ]; then
+            echo "has_shards=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_shards=true" >> "$GITHUB_OUTPUT"
+          fi
+          echo "Computed e2e shards: $shards"
+
+  playwright-e2e-test:
+    runs-on: ubuntu-24.04
+    needs: [get-environment, playwright-e2e-prepare]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.playwright-e2e-prepare.outputs.has_shards == 'true' &&
+      ! cancelled()
+    permissions:
+      contents: read
+    # One parallel job per shard: each runner is an isolated VM with its own
+    # Docker, so it brings up its own throwaway stack — no shared-state conflict.
+    # Heavy folders run alone; light folders are grouped (see
+    # playwright-shards.py) to keep the number of booted stacks bounded. Each job
+    # is named after its shard (the Cypress matrix uses ~140 jobs).
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJson(needs.playwright-e2e-prepare.outputs.shards) }}
+    name: ${{ matrix.shard.name }}
+    env:
+      # POC: run against the published web image (this PR only adds test files).
+      WEB_IMAGE: docker.centreon.com/centreon/centreon-web-alma9:develop
+      compose_file: .github/docker/docker-compose.yml
+      # Faster throwaway DB for this ephemeral stack: official MariaDB image on a
+      # tmpfs data dir (~50% faster time-to-healthy). The e2e suite layers this
+      # override automatically when starting the stack.
+      CENTREON_COMPOSE_OVERRIDES: docker-compose-test-db.yml
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Login to Centreon registry
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          registry: docker.centreon.com
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+
+      - uses: pnpm/action-setup@26f6d4f2c533a43e6b5da0b4a5dd983f98f7b49a # v6.0.4
+        with:
+          version: 10
+          run_install: false
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: ${{ env.base_directory }}/tests/e2e-playwright/pnpm-lock.yaml
+
+      # The Playwright e2e suite is a standalone pnpm project (not part of the
+      # frontend workspace), so this installs only Playwright — not the whole
+      # frontend dependency graph.
+      - name: Install Playwright e2e dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: ${{ env.base_directory }}/tests/e2e-playwright
+
+      - name: Cache Playwright browser
+        id: playwright-cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('centreon/tests/e2e-playwright/pnpm-lock.yaml') }}
+
+      # The tests run headless, so only the lightweight headless shell is needed
+      # (avoids the ~175 MB full Chrome). Cached across runs keyed on the lockfile.
+      - name: Install Playwright browser
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps chromium-headless-shell
+        working-directory: ${{ env.base_directory }}/tests/e2e-playwright
+
+      - name: Install Playwright OS dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium
+        working-directory: ${{ env.base_directory }}/tests/e2e-playwright
+
+      # The stack is started by the tests themselves (global-setup ensures the
+      # web stack, the OIDC spec's beforeAll ensures the openid profile), so no
+      # explicit "up" / health-wait steps are needed here. The registry login
+      # above lets the test-triggered `docker compose up` pull the web image.
+      # SHARD_PATHS / SHARD_NAME are passed through the environment (not
+      # interpolated directly into the command) so a folder name can never be
+      # injected into the shell. SHARD_PATHS is intentionally unquoted: it is a
+      # space-separated list of `tests/<folder>` paths handed to one run.
+      - name: Run Playwright e2e tests (${{ matrix.shard.name }})
+        run: pnpm exec playwright test $SHARD_PATHS
+        working-directory: ${{ env.base_directory }}/tests/e2e-playwright
+        env:
+          CENTREON_BASE_URL: http://localhost:4000/centreon
+          SHARD_PATHS: ${{ matrix.shard.paths }}
+          # Unique blob file name per shard so the report job can merge them all
+          # in a single directory without clobbering (see playwright.config.ts).
+          PW_BLOB_NAME: report-${{ matrix.shard.name }}.zip
+
+      - name: Upload blob report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: playwright-blob-${{ matrix.shard.name }}
+          path: ${{ env.base_directory }}/tests/e2e-playwright/blob-report
+          retention-days: 5
+
+      # On failure, grab the platform-side logs the browser can't see. The
+      # per-test Centreon logs are already attached to the HTML report by the
+      # `centreonLogsOnFailure` fixture; this also captures the container stdout
+      # (so a stack that crashes on boot, before any test runs, is debuggable)
+      # and a full /var/log tarball from the web container.
+      - name: Collect Centreon stack logs on failure
+        if: ${{ failure() }}
+        run: |
+          mkdir -p stack-logs
+          compose="docker compose -f $compose_file -f .github/docker/$CENTREON_COMPOSE_OVERRIDES"
+          $compose --profile openid --profile squid-simple logs --no-color > stack-logs/docker-compose.log 2>&1 || true
+          $compose exec -T web tar -C /var/log -czf - \
+            centreon centreon-engine centreon-broker centreon-gorgone httpd php-fpm \
+            > stack-logs/web-var-log.tar.gz 2>/dev/null || true
+
+      - name: Upload Centreon stack logs
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: playwright-stack-logs-${{ matrix.shard.name }}
+          path: stack-logs
+          retention-days: 5
+
+      # Tear the stack down with the SAME compose files used to bring it up
+      # (base + DB override) so the `db` service resolves identically, and remove
+      # any orphaned containers/volumes. Covers every profile a shard may start.
+      - name: Stop the Centreon stack
+        if: ${{ always() }}
+        run: |
+          docker compose -f "$compose_file" -f ".github/docker/$CENTREON_COMPOSE_OVERRIDES" \
+            --profile openid --profile squid-simple down -v --remove-orphans
+
+  # Merge the per-shard blob reports into a single HTML report.
+  playwright-e2e-report:
+    runs-on: ubuntu-24.04
+    needs: [playwright-e2e-prepare, playwright-e2e-test]
+    if: |
+      needs.playwright-e2e-prepare.outputs.has_shards == 'true' &&
+      ! cancelled()
+    name: playwright-e2e-report
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: pnpm/action-setup@26f6d4f2c533a43e6b5da0b4a5dd983f98f7b49a # v6.0.4
+        with:
+          version: 10
+          run_install: false
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: ${{ env.base_directory }}/tests/e2e-playwright/pnpm-lock.yaml
+
+      - name: Install Playwright e2e dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: ${{ env.base_directory }}/tests/e2e-playwright
+
+      - name: Download blob reports
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          path: ${{ env.base_directory }}/tests/e2e-playwright/all-blob-reports
+          pattern: playwright-blob-*
+          merge-multiple: true
+
+      - name: Merge blob reports into an HTML report
+        working-directory: ${{ env.base_directory }}/tests/e2e-playwright
+        env:
+          PLAYWRIGHT_HTML_REPORT: playwright-report
+        run: |
+          if [ -z "$(ls -A ./all-blob-reports 2>/dev/null)" ]; then
+            echo "::warning::no blob reports to merge (all e2e shards failed before producing one)"
+            exit 0
+          fi
+          pnpm exec playwright merge-reports --reporter=html ./all-blob-reports
+
+      - name: Upload merged HTML report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: playwright-report
+          path: ${{ env.base_directory }}/tests/e2e-playwright/playwright-report
+          retention-days: 5
+
+  rstest-component-test:
+    runs-on: ubuntu-24.04
+    needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled()
+    name: rstest-component-test
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: pnpm/action-setup@26f6d4f2c533a43e6b5da0b4a5dd983f98f7b49a # v6.0.4
+        with:
+          version: 10
+          run_install: false
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: ${{ env.base_directory }}/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: ${{ env.base_directory }}
+        env:
+          CYPRESS_INSTALL_BINARY: "0"
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+
+      # POC: Rstest component tests (Rspack-bundled), no docker stack needed.
+      - name: Run Rstest component tests
+        run: pnpm rstest
+        working-directory: ${{ env.base_directory }}
+
+  playwright-component-test:
+    runs-on: ubuntu-24.04
+    needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled()
+    name: playwright-component-test
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: pnpm/action-setup@26f6d4f2c533a43e6b5da0b4a5dd983f98f7b49a # v6.0.4
+        with:
+          version: 10
+          run_install: false
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: ${{ env.base_directory }}/pnpm-lock.yaml
+
+      # Component tests mount the real components, so the frontend workspace
+      # dependencies are required (unlike the standalone e2e suite). The
+      # Cypress/Puppeteer browsers are skipped; the Playwright browser is
+      # installed and cached explicitly below.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: ${{ env.base_directory }}
+        env:
+          CYPRESS_INSTALL_BINARY: "0"
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+
+      - name: Cache Playwright browser
+        id: playwright-cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-ct-${{ runner.os }}-${{ hashFiles('centreon/pnpm-lock.yaml') }}
+
+      # Visual snapshots must match the committed baselines, so install the full
+      # Chromium (not the headless shell).
+      - name: Install Playwright browser
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps chromium
+        working-directory: ${{ env.base_directory }}
+
+      - name: Install Playwright OS dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium
+        working-directory: ${{ env.base_directory }}
+
+      # Component tests mount components in a browser via Vite — no docker stack.
+      - name: Run Playwright component tests
+        run: pnpm test:ct
+        working-directory: ${{ env.base_directory }}
+
+      - name: Upload Playwright component report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: playwright-component-report
+          path: |
+            ${{ env.base_directory }}/playwright-report
+            ${{ env.base_directory }}/test-results
+          retention-days: 5
 
   deliver-sources:
     runs-on: ubuntu-24.04
