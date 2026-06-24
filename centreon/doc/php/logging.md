@@ -1,9 +1,6 @@
-# Logging pipeline — Messenger bus, Monolog and MON-151077
+# Logging pipeline — Messenger bus and Monolog
 
-This document describes the platform pipeline that captures logs emitted by the Symfony Messenger buses (`command.bus`, `query.bus`), enriches each record with HTTP / security context and routes it to `prod.web.log`. References: [MON-199096] (platform-side middleware migration), [MON-151077] (file layout, channel exclusions, RFC3339 format).
-
-[MON-199096]: https://centreon.atlassian.net/browse/MON-199096
-[MON-151077]: https://centreon.atlassian.net/browse/MON-151077
+This document describes the platform pipeline that captures logs emitted by the Symfony Messenger buses (`command.bus`, `query.bus`), enriches each record with HTTP / security context and routes it to `prod.web.log`.
 
 ---
 
@@ -174,7 +171,7 @@ The middleware emits a record on the Monolog `app` channel (Symfony default) for
   - `tokenize_input` (bool flag) → masked (contains `token`)
   - `credential_check_id` (reference id) → masked (contains `credential`)
 
-  This *"over-mask rather than under-mask"* default is intentional: we'd rather lose a bit of debug info than miss a real secret carried by an unlisted variant (e.g. `passwords_v2`, `customer_token_id`). For the opposite cases — a real secret carrying an unlisted name, or keyword noise on a given Command — the explicit, type-safe complement is the `#[Sensitive]` attribute (implemented under [MON-199097](https://centreon.atlassian.net/browse/MON-199097), see [§10](#10-masking-sensitive-fields-with-sensitive)). It is preferred over broadening the keyword list or switching to exact match, which would open the door to forgotten variants.
+  This *"over-mask rather than under-mask"* default is intentional: we'd rather lose a bit of debug info than miss a real secret carried by an unlisted variant (e.g. `passwords_v2`, `customer_token_id`). For the opposite cases — a real secret carrying an unlisted name, or keyword noise on a given Command — the explicit, type-safe complement is the `#[Sensitive]` attribute (see [§10](#10-masking-sensitive-fields-with-sensitive)). It is preferred over broadening the keyword list or switching to exact match, which would open the door to forgotten variants.
 - **`exception`**: produced by `ExceptionFormatter::format()` (see [§5](#5-exceptionformatter-and-exceptionformatterprocessor)).
 
 ---
@@ -276,7 +273,7 @@ prod.token.log
 […] token.INFO Token refreshed for user 42                          {"uid":"89796c2",…}
 ```
 
-An operator runs `grep "uid\":\"89796c2\"" /var/log/centreon/*.log` and gets the full chronology of the request, **including what landed in the MON-151077 dedicated files**.
+An operator runs `grep "uid\":\"89796c2\"" /var/log/centreon/*.log` and gets the full chronology of the request, **including what landed in the dedicated files**.
 
 ---
 
@@ -462,15 +459,15 @@ Consequence: every handler using `monolog.formatter.line` (centreon-web + any mo
 
 **Why not `date_format:` at the handler level on `rotating_file`?** On a `rotating_file` handler, the Symfony Monolog Bundle's `date_format:` key is passed to the **`RotatingFileHandler` constructor** where it configures the **filename** date suffix (`Y-m-d` by default). Setting RFC3339 there throws `InvalidArgumentException` at boot. For other types (`stream`, `console`…) the key applies to the formatter — but we choose the single-service approach to stay DRY.
 
-**Exclusive filter (MON-151077 alignment).** Rather than a whitelist `[request, app]`, we use a blacklist of channels that have their own file or that are noise. Everything else — `request`, `app` (Symfony default), `main`, `security`, `http_client`, etc. — lands in `prod.web.log`.
+**Exclusive filter.** Rather than a whitelist `[request, app]`, we use a blacklist of channels that have their own file or that are noise. Everything else — `request`, `app` (Symfony default), `main`, `security`, `http_client`, etc. — lands in `prod.web.log`.
 
 | Excluded channel | Reason |
 |------------------|--------|
 | `event`, `doctrine`, `console` | Internal Symfony / DBAL noise — not desired in `prod.web.log`. |
-| `deprecation` | MON-151077 → dedicated file `prod.deprecations.log`. |
-| `authentication` | MON-151077 → merged into `prod.access.log` on the centreon-web side (see the backward-compatibility note below for `login.log`). |
-| `token` | MON-151077 → dedicated file `prod.token.log`. |
-| `password`, `plugin-pack-manager`, `upgrade` | MON-151077 → dedicated files. Not Monolog channels strictly speaking today (written directly by legacy `CentreonLog` code), but listed in anticipation of a future migration to Monolog. |
+| `deprecation` | dedicated file `prod.deprecations.log`. |
+| `authentication` | merged into `prod.access.log` on the centreon-web side (see the backward-compatibility note below for `login.log`). |
+| `token` | dedicated file `prod.token.log`. |
+| `password`, `plugin-pack-manager`, `upgrade` | dedicated files. Not Monolog channels strictly speaking today (written directly by legacy `CentreonLog` code), but listed in anticipation of a future migration to Monolog. |
 
 > **Backward compatibility — `login.log` is intentionally kept.** Authentication events now flow to the `authentication` channel (`prod.access.log`). To avoid breaking external consumers that parse the historical `/var/log/centreon/login.log` — most notably **fail2ban** jails matching the `Authentication failed for …` line with the client IP — login events are still mirrored to `login.log` in the original pipe-delimited format (`date|uid|page|option|message`) by **two** writers: `LoggerAuthentication::mirrorToLegacyLoginLog()` for events emitted on the new-kernel path (the OpenID/SAML/WebSSO logins routed through the `Login` use case, and the legacy local/LDAP success/failure now routed through the facade), and `CentreonUserLog::insertLog()` for `TYPE_LOGIN` events still flowing through the legacy code path (e.g. `LoginLogger`). The facade writer is try/catch protected so a mirror failure can never break a login; the legacy `CentreonUserLog` writer is not. This duplicate write is **transitional**: it is kept on purpose for client compatibility and will be removed in a future release once consumers have migrated to the Monolog access log (cleanup tracked in a dedicated ticket). `login.log` remains covered by `logrotate/centreon`.
 
@@ -479,15 +476,15 @@ Consequence: every handler using `monolog.formatter.line` (centreon-web + any mo
 | `type: fingers_crossed` + `action_level: error` | On success, `INFO`/`DEBUG` records are buffered in RAM and discarded at the end of the request — zero disk I/O. On the first `ERROR`, the entire buffer plus the triggering record are flushed to the nested handler. |
 | `excluded_http_codes: [404, 405]` | The `HttpCodeActivationStrategy` wraps the activation: if the current request returns a 404 or 405, an `ERROR` does not trigger the flush. Prevents bot scans (`/wp-admin`, `/.env`, `/phpinfo`…) from flooding `prod.web.log`. Aligned with the default Symfony recipe. |
 | `stop_buffering: true` | After the triggering flush, the handler stops buffering — the rest of the request writes directly. |
-| `buffer_size: 50` | Memory cap of the buffer. Beyond that, the `FingersCrossedHandler` **drops the oldest records**. 50 is the MON-151077 target value. |
+| `buffer_size: 50` | Memory cap of the buffer. Beyond that, the `FingersCrossedHandler` **drops the oldest records**. 50 is the chosen target value. |
 | `bubble: false` | **The record stops after our handler.** Consequence: HTTP exceptions caught by Symfony's `ErrorListener` (`request` channel) **no longer** bubble up to the host's `main` handler (`var/log/{env}.log`). They live only in `var/log/{env}.web.log`. |
 | `priority: 255` | Our handler is executed first in the channel's Monolog stack — combined with `bubble: false`, this guarantees effective isolation. |
 | `path: ...{env}.web.log` | In prod, a fixed `prod.web.log` file (rotation is delegated to `logrotate` on production hosts, cf. `logrotate/centreon`). In dev, the handler is `rotating_file` with a daily suffix. |
-| `formatter: monolog.formatter.line` | Standard Symfony Monolog Bundle service, redefined in `monolog.php` with `dateFormat: RFC3339`. Timestamp format mandated by MON-151077 (e.g. `2025-09-08T15:38:41+02:00`). |
+| `formatter: monolog.formatter.line` | Standard Symfony Monolog Bundle service, redefined in `monolog.php` with `dateFormat: RFC3339`. Timestamp format standardised across the platform (e.g. `2025-09-08T15:38:41+02:00`). |
 
 ### File rotation
 
-In production, the `prod.*.log` files are rotated by **logrotate** (config `centreon/logrotate/centreon`, deployed to `/etc/logrotate.d/centreon`). The MON-151077 files listed:
+In production, the `prod.*.log` files are rotated by **logrotate** (config `centreon/logrotate/centreon`, deployed to `/etc/logrotate.d/centreon`). The files listed:
 
 - `prod.web.log` (catch-all)
 - `prod.deprecations.log`
@@ -589,7 +586,7 @@ A property-level attribute is therefore the right tool for reflection-based **pa
 
 ## 11. Legacy bridge — `Adaptation\Log\Logger`
 
-The platform pipeline described above runs under `App\Shared\Infrastructure\Symfony\Kernel`. Legacy entry points (procedural `www/` code, classes wired through `App\Kernel`) cannot autowire Monolog services directly; they go through a thin façade so every record still lands on the MON-151077 layout.
+The platform pipeline described above runs under `App\Shared\Infrastructure\Symfony\Kernel`. Legacy entry points (procedural `www/` code, classes wired through `App\Kernel`) cannot autowire Monolog services directly; they go through a thin façade so every record still lands on the same platform layout.
 
 ```mermaid
 flowchart LR
@@ -619,7 +616,7 @@ flowchart LR
 | `UPGRADE` | `upgrade` | `upgrade` | `prod.upgrade.log` |
 | `WEB` | `web` | `web` | `prod.web.log` |
 
-Only `AUTHENTICATION` carries a different slug — login/ldap/openid/saml records all converge in the shared `access.log` file (cf. MON-151077).
+Only `AUTHENTICATION` carries a different slug — login/ldap/openid/saml records all converge in the shared `access.log` file.
 
 ### `Adaptation\Log\Logger`
 
@@ -651,7 +648,7 @@ To mirror the platform pipeline as closely as possible without booting the Symfo
 
 #### Format alignment — no more `{custom, exception, default}` wrap
 
-Before MON-151077, both `CentreonLog::log()` and `Centreon\Domain\Log\LoggerTrait::executeLog()` reshaped the `context` array before handing it to Monolog:
+Before the legacy-logging migration, both `CentreonLog::log()` and `Centreon\Domain\Log\LoggerTrait::executeLog()` reshaped the `context` array before handing it to Monolog:
 
 - `CentreonLog::buildContext()` pre-formatted the `Throwable` with `ExceptionLogFormatter` (legacy) and added `context.request_infos`.
 - `LoggerTrait::normalizeContext()` rewrapped everything as `{custom, exception, default: {request_infos}}` — and **moved** the `Throwable` out of `context.exception` so `ExceptionFormatterProcessor` never saw it.
@@ -701,7 +698,7 @@ Both classes are tagged `@deprecated`. The DI/Application code that still autowi
 
 ### `Centreon\Domain\Log\LoggerTrait`
 
-`LoggerTrait` (~389 callers) keeps providing the PSR-3 helper shape used by Domain services that autowire a `LoggerInterface` via `#[Required]`. The pre-MON-151077 `ContactForDebug` gate is gone — `canBeLogged()` now only checks that a logger has been injected. The trait carries a descriptive note but no formal `@deprecated` tag, because `Symfony\Component\ErrorHandler\DebugClassLoader` would otherwise cascade the deprecation onto every class still using the trait during the transition.
+`LoggerTrait` (~389 callers) keeps providing the PSR-3 helper shape used by Domain services that autowire a `LoggerInterface` via `#[Required]`. The former `ContactForDebug` gate is gone — `canBeLogged()` now only checks that a logger has been injected. The trait carries a descriptive note but no formal `@deprecated` tag, because `Symfony\Component\ErrorHandler\DebugClassLoader` would otherwise cascade the deprecation onto every class still using the trait during the transition.
 
 ### Symfony-side configuration
 
