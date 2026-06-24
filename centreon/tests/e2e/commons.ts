@@ -135,10 +135,10 @@ interface MonitoredService {
 }
 
 const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
-  cy.log('Checking services in database');
+  cy.log('Checking services in resources table database');
 
   let query =
-    'SELECT COUNT(s.service_id) AS count_services from services as s WHERE s.enabled=1 AND (';
+    'SELECT COUNT(r.resource_id) AS count_services from resources as r WHERE r.enabled = 1 AND r.type = 0 AND (';
   const conditions: Array<string> = [];
   services.forEach(
     ({
@@ -149,22 +149,22 @@ const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
       inDowntime = null,
       statusType = ''
     }) => {
-      let condition = `(s.description = '${name}'`;
+      let condition = `(r.name = '${name}'`;
       if (output !== '') {
-        condition += ` AND s.output LIKE '%${output}%'`;
+        condition += ` AND r.output LIKE '%${output}%'`;
       }
       if (status !== '') {
-        condition += ` AND s.state = ${getStatusNumberFromString(status)}`;
+        condition += ` AND r.status = ${getStatusNumberFromString(status)}`;
       }
       if (acknowledged !== null) {
-        condition += ` AND s.acknowledged = ${acknowledged === true ? 1 : 0}`;
+        condition += ` AND r.acknowledged = ${acknowledged === true ? 1 : 0}`;
       }
       if (inDowntime !== null) {
-        condition += ` AND s.scheduled_downtime_depth = ${inDowntime === true ? 1 : 0
+        condition += ` AND r.in_downtime = ${inDowntime === true ? 1 : 0
           }`;
       }
       if (statusType !== '') {
-        condition += ` AND s.state_type = ${getStatusTypeNumberFromString(
+        condition += ` AND r.status_confirmed = ${getStatusTypeNumberFromString(
           statusType
         )}`;
       }
