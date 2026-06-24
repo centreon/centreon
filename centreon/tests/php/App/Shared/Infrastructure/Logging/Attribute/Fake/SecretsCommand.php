@@ -26,7 +26,7 @@ namespace Tests\App\Shared\Infrastructure\Logging\Attribute\Fake;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 /**
- * Covers the MON-199097 under-mask cases: `passcode`, `ssoTicket` are
+ * Covers the under-mask cases: `passcode`, `ssoTicket` are
  * real secrets but don't match any keyword of the shared
  * `SensitiveKeywordDenylist` — `#[Sensitive]` lifts the gap.
  */

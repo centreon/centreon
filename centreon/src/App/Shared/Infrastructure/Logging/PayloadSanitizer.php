@@ -27,12 +27,12 @@ use App\Shared\Infrastructure\Logging\Attribute\SensitivityScanner;
 
 /**
  * Stateless walker that masks the values of `#[Sensitive]`-annotated
- * properties inside an arbitrary payload (a Command/Query, an ad-hoc
- * logger context, anything Monolog forwards to a handler).
+ * properties inside an arbitrary payload (an ad-hoc logger context,
+ * anything Monolog forwards to a handler).
  *
  * Typed payloads are masked **attribute-driven**: a property without
  * `#[Sensitive]` is logged in clear, the owning class declares its
- * sensitivity explicitly. As the cross-channel net, raw array keys are
+ * sensitivity explicitly. As an extra net, raw array keys are
  * additionally matched against {@see SensitiveKeywordDenylist} so that
  * an ad-hoc `$logger->error('m', ['token' => $x])` — which carries no
  * class to reflect — is still caught.
