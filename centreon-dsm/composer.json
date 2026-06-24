@@ -4,7 +4,7 @@
   "type": "project",
   "license": "GPL-2.0-only",
   "require": {
-    "php": "^8.4.1",
+    "php": "8.4.*",
     "ext-gettext": "*",
     "ext-mbstring": "*",
     "ext-pdo": "*"
