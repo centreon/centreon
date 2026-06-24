@@ -171,8 +171,9 @@ services:
 
     # Platform Monolog processors (backport of config.new/services/monolog.php;
     # config.new does not exist on this branch, so they are declared here).
-    # UidProcessor is global; the HTTP/security processors are scoped to the
-    # request-bound channels (the `bus` channel has no producer here, harmless).
+    # Registered globally: develop scopes Web/Route/Token to the bus/request/app
+    # channels, but dev-24.10.x declares none of those (no `bus` logger), so a
+    # channel-scoped tag would reference a non-existent monolog.logger.<channel>.
     monolog.processor.uid:
         class: Monolog\Processor\UidProcessor
         autoconfigure: false
@@ -181,28 +182,19 @@ services:
     monolog.processor.web:
         class: Symfony\Bridge\Monolog\Processor\WebProcessor
         autoconfigure: false
-        tags:
-            - { name: monolog.processor, channel: bus }
-            - { name: monolog.processor, channel: request }
-            - { name: monolog.processor, channel: app }
+        tags: ['monolog.processor']
 
     monolog.processor.route:
         class: Symfony\Bridge\Monolog\Processor\RouteProcessor
         autoconfigure: false
-        tags:
-            - { name: monolog.processor, channel: bus }
-            - { name: monolog.processor, channel: request }
-            - { name: monolog.processor, channel: app }
+        tags: ['monolog.processor']
 
     monolog.processor.token:
         class: Symfony\Bridge\Monolog\Processor\TokenProcessor
         autoconfigure: false
         arguments:
             $tokenStorage: '@security.token_storage'
-        tags:
-            - { name: monolog.processor, channel: bus }
-            - { name: monolog.processor, channel: request }
-            - { name: monolog.processor, channel: app }
+        tags: ['monolog.processor']
 
     # Reset MonologAdapter's process-lived static UidProcessor between work units.
     Adaptation\Log\Adapter\MonologAdapterResetter:
