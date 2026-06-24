@@ -6,6 +6,17 @@ concurrency:
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+    paths:
+      - '.github/docker/centreon-snmptrapd/**'
+      - '.github/docker/centreon-centreontrapd/**'
+      - 'centreon/packaging/centreon-trap.yaml'
+      - 'centreon/bin/centreontrapd'
+      - 'centreon/bin/centreontrapdforward'
+      - '.github/workflows/docker-trapd.yml'
   pull_request:
     paths:
       - '.github/docker/centreon-snmptrapd/**'
@@ -13,6 +24,7 @@ on:
       - 'centreon/packaging/centreon-trap.yaml'
       - 'centreon/bin/centreontrapd'
       - 'centreon/bin/centreontrapdforward'
+      - '.github/workflows/docker-trapd.yml'
 
 jobs:
   get-environment:
@@ -158,16 +170,27 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
 
-      - name: Sanitize Docker tag
-        id: sanitize-tag
+      - name: Compute Docker tag
+        id: compute-tag
         env:
-          RAW_TAG: ${{ github.head_ref || github.ref_name }}
+          RAW_REF: ${{ github.head_ref || github.ref_name }}
+          MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
         run: |
-          docker_tag=$(echo "$RAW_TAG" | sed 's/[^A-Za-z0-9._-]/-/g' | sed 's/^[^A-Za-z0-9]*//' | cut -c1-128)
-          if [ -z "$docker_tag" ]; then
-            docker_tag="sha-${GITHUB_SHA::12}"
+          if [[ "$RAW_REF" == "develop" ]]; then
+            echo "tag=develop-${MAJOR_VERSION}" >> "$GITHUB_OUTPUT"
+            echo "additional_tag=develop" >> "$GITHUB_OUTPUT"
+          elif [[ "$RAW_REF" =~ ^dev-[0-9]+\.[0-9]+\.x$ ]]; then
+            echo "tag=${MAJOR_VERSION}" >> "$GITHUB_OUTPUT"
+            echo "additional_tag=" >> "$GITHUB_OUTPUT"
+          else
+            docker_tag=$(printf '%s' "$RAW_REF" | sed -E 's#[^[:alnum:]_.-]+#-#g; s#^[.-]+##; s#-+#-#g' | cut -c1-128)
+            if [[ -z "$docker_tag" ]]; then
+              echo "::error::Unable to derive a valid Docker tag from ref '$RAW_REF'"
+              exit 1
+            fi
+            echo "tag=${docker_tag}" >> "$GITHUB_OUTPUT"
+            echo "additional_tag=" >> "$GITHUB_OUTPUT"
           fi
-          echo "docker_tag=$docker_tag" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Docker build and push
@@ -182,4 +205,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           pull: true
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}:${{ steps.sanitize-tag.outputs.docker_tag }}
+          tags: |
+            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}:${{ steps.compute-tag.outputs.tag }}
+            ${{ steps.compute-tag.outputs.additional_tag != '' && format('{0}/{1}-{2}:{3}', vars.DOCKER_INTERNAL_REGISTRY_URL, matrix.component, matrix.operating_system, steps.compute-tag.outputs.additional_tag) || '' }}

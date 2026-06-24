@@ -126,9 +126,9 @@ class EasyVistaRestProvider extends AbstractProvider
 
         $listIds = rtrim($listIds, ', ');
 
-        require_once $centreon_path . 'www/modules/centreon-open-tickets/class/centreonDBManager.class.php';
-        $db_storage = new CentreonDBManager('centstorage');
-        $configurationDatabase = new CentreonDBManager();
+        require_once $centreon_path . 'www/class/centreonDB.class.php';
+        $db_storage = new CentreonDB('centstorage');
+        $configurationDatabase = new CentreonDB();
         $configDbName = $configurationDatabase->getConnectionConfig()->getDatabaseNameConfiguration();
         $escapedConfigDbName = str_replace('`', '``', $configDbName);
 

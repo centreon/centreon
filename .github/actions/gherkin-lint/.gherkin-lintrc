@@ -1,23 +1,23 @@
 {
-  "no-files-without-scenarios": "on",
-  "no-unnamed-features": "on",
-  "no-unnamed-scenarios": "on",
+  "no-files-without-scenarios": "error",
+  "no-unnamed-features": "error",
+  "no-unnamed-scenarios": "error",
   "no-dupe-scenario-names": [
-    "on",
+    "error",
     "in-feature"
   ],
-  "no-partially-commented-tag-lines": "on",
-  "no-trailing-spaces": "on",
-  "no-multiple-empty-lines": "on",
-  "no-empty-file": "on",
-  "no-scenario-outlines-without-examples": "on",
-  "no-duplicate-tags": "on",
-  "no-superfluous-tags": "on",
-  "one-space-between-tags": "on",
-  "no-unused-variables": "on",
-  "no-empty-background": "on",
+  "no-partially-commented-tag-lines": "error",
+  "no-trailing-spaces": "error",
+  "no-multiple-empty-lines": "error",
+  "no-empty-file": "error",
+  "no-scenario-outlines-without-examples": "error",
+  "no-duplicate-tags": "error",
+  "no-superfluous-tags": "error",
+  "one-space-between-tags": "error",
+  "no-unused-variables": "error",
+  "no-empty-background": "error",
   "indentation": [
-    "on",
+    "error",
     {
       "Feature": 0,
       "Background": 2,
@@ -35,7 +35,7 @@
     }
   ],
   "allowed-tags": [
-    "on",
+    "error",
     {
       "tags": [
         "@ignore",

@@ -6,7 +6,9 @@ import {
   expectedSeconds,
   isoDay,
   monitoredServiceQuery,
+  readEmittedDowntimeCommands,
   recurrentCases,
+  scheduledWindowFor,
   transitionDay
 } from '../common';
 
@@ -80,46 +82,6 @@ const applyRecurrentDowntime = (key: string): void => {
     command: `TZ='Europe/Paris' faketime '${frozenMoment}' php /usr/share/centreon/cron/downtimeManager.php`,
     name: 'web'
   });
-};
-
-// The cron writes the emitted external commands into the centcore directory.
-// Read them back to assert what the cron scheduled, decoupled from the engine.
-const readEmittedDowntimeCommands = (): Cypress.Chainable<string> =>
-  cy
-    .execInContainer({
-      command: 'cat /var/lib/centreon/centcore/*-downtimes 2>/dev/null || true',
-      name: 'web'
-    })
-    .then((result) =>
-      typeof result === 'string' ? result : (result?.output ?? '')
-    );
-
-// SCHEDULE_SVC_DOWNTIME;<host>;<service>;<start>;<end>;... → { start, end } or null.
-const scheduledWindowFor = (
-  commands: string,
-  hostName: string,
-  serviceDescription: string
-): { start: number; end: number } | null => {
-  const marker = `SCHEDULE_SVC_DOWNTIME;${hostName};${serviceDescription};`;
-  // Keep the latest matching command: the cron may emit several over time and
-  // the most recent one carries the window we just scheduled.
-  const line = commands
-    .split('\n')
-    .filter((l) => l.includes(marker))
-    .at(-1);
-  if (!line) {
-    return null;
-  }
-  const [start, end] = line
-    .substring(line.indexOf(marker) + marker.length)
-    .split(';');
-  const parsedStart = Number(start);
-  const parsedEnd = Number(end);
-  if (!Number.isFinite(parsedStart) || !Number.isFinite(parsedEnd)) {
-    return null;
-  }
-
-  return { end: parsedEnd, start: parsedStart };
 };
 
 beforeEach(() => {
@@ -234,8 +196,7 @@ Then(
     readEmittedDowntimeCommands().then((commands) => {
       const scheduled = scheduledWindowFor(
         commands,
-        service.hostName,
-        service.serviceDescription
+        `SCHEDULE_SVC_DOWNTIME;${service.hostName};${service.serviceDescription};`
       );
       expect(scheduled, 'the cron should emit a SCHEDULE_SVC_DOWNTIME command')
         .to.not.be.null;
@@ -255,8 +216,7 @@ Then('the downtime is not scheduled', () => {
   readEmittedDowntimeCommands().then((commands) => {
     const scheduled = scheduledWindowFor(
       commands,
-      service.hostName,
-      service.serviceDescription
+      `SCHEDULE_SVC_DOWNTIME;${service.hostName};${service.serviceDescription};`
     );
     expect(scheduled, 'no downtime should be scheduled inside the DST gap').to
       .be.null;

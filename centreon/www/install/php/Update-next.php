@@ -23,6 +23,7 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\LoggerUpgrade;
 use App\MonitoringConfiguration\Infrastructure\Service\SnowflakePollerUidGenerator;
 use Godruoyi\Snowflake\Snowflake;
 
@@ -31,6 +32,66 @@ require_once __DIR__ . '/../../../bootstrap.php';
 $version = 'xx.xx.x';
 
 $errorMessage = '';
+
+$addNewGorgoneCommunicationTypes = function () use ($pearDB, &$errorMessage, $version): void {
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Updating gorgone_communication_type in nagios_server",
+        customContext: [
+            'New values' => [
+                '3' => 'Pull',
+                '4' => 'PullWSS',
+            ],
+        ]
+    );
+    $errorMessage = 'Unable to update gorgone_communication_type in nagios_server';
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server`
+              MODIFY COLUMN `gorgone_communication_type`
+              enum('1','2','3','4') NOT NULL DEFAULT '1'
+              COMMENT '1: SSH, 2: ZMQ, 3: Pull, 4: PullWSS';
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully updated gorgone_communication_type",
+    );
+};
+
+$updateGorgoneCommunicationTypeForCloudPlatform = function () use ($pearDB, &$errorMessage, $version): void {
+    $isCloudPlatform = filter_var(
+        $_ENV['IS_CLOUD_PLATFORM'] ?? null,
+        FILTER_VALIDATE_BOOL,
+        FILTER_NULL_ON_FAILURE
+    );
+    if ($isCloudPlatform !== true) {
+        return;
+    }
+
+    $errorMessage = "Unable to update gorgone_communication_type to '4' for all pollers";
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Updating gorgone_communication_type to '4' for all pollers",
+        customContext: [
+            'New values' => [
+                '3' => 'Pull',
+                '4' => 'PullWSS',
+            ],
+        ]
+    );
+    $pearDB->executeStatement(
+        <<<'SQL'
+                UPDATE nagios_server SET gorgone_communication_type = '4';
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully updated gorgone_communication_type to '4' for all pollers",
+    );
+};
 
 /**
  * @var ConnectionInterface $pearDB
@@ -216,18 +277,16 @@ $migrateModuleTableInstanceIds = function () use ($pearDB, &$errorMessage, $vers
 /** ------------------------------------- Additional configuration ------------------------------------- */
 $addVmwareUpdatedField = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to add vmware_updated field into nagios_server table';
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: Adding vmware_updated field into nagios_server table",
-    );
+    LoggerUpgrade::create()->info($version, 'Adding vmware_updated field into nagios_server table');
+
     if ($pearDB->columnExists(
         $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
         'nagios_server',
         'vmware_updated'
     )) {
-        CentreonLog::create()->info(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: Field vmware_updated already exists in nagios_server table, skipping modification",
+        LoggerUpgrade::create()->info(
+            $version,
+            'Field vmware_updated already exists in nagios_server table, skipping modification'
         );
 
         return;
@@ -240,10 +299,7 @@ $addVmwareUpdatedField = function () use ($pearDB, &$errorMessage, $version): vo
             SQL
     );
 
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: Successfully added vmware_updated field into nagios_server table",
-    );
+    LoggerUpgrade::create()->info($version, 'Successfully added vmware_updated field into nagios_server table');
 };
 
 /** -------------------------------------- Poller UUID to UID -------------------------------------- */
@@ -732,6 +788,8 @@ $updateBbdoVersionValues = function () use ($pearDB, &$errorMessage, $version): 
 };
 
 try {
+    LoggerUpgrade::create()->info($version, "Starting upgrade script for version {$version}");
+
     // DDL statements for real time database
     $addResourcesPerformanceIndexes();
     $migrateInstanceIdToBigint();
@@ -743,30 +801,37 @@ try {
     $addEventScriptLogger();
     $updateBbdoVersionDefault();
     $updateBbdoVersionValues();
+    $addNewGorgoneCommunicationTypes();
 
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {
         $pearDB->startTransaction();
     }
+    $updateGorgoneCommunicationTypeForCloudPlatform();
 
     $pearDB->commitTransaction();
 
+    LoggerUpgrade::create()->info($version, "Upgrade script for version {$version} completed");
+
 } catch (Throwable $throwable) {
-    CentreonLog::create()->error(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: " . $errorMessage,
-        exception: $throwable
+    LoggerUpgrade::create()->stepFailure(
+        "UPGRADE - {$version}: {$errorMessage}",
+        $version,
+        'php_script',
+        $throwable
     );
 
     try {
         if ($pearDB->isTransactionActive()) {
+            LoggerUpgrade::create()->info($version, "Rolling back transaction after error: {$errorMessage}");
             $pearDB->rollBackTransaction();
         }
     } catch (ConnectionException $rollbackException) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            exception: $rollbackException
+        LoggerUpgrade::create()->stepFailure(
+            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            $version,
+            'php_script_rollback',
+            $rollbackException
         );
 
         throw new RuntimeException(

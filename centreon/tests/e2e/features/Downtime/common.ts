@@ -386,14 +386,66 @@ const monitoredServiceQuery = (hostName: string = centralHost): string =>
 const latestDowntimeQuery = (hostId: number, serviceId: number): string =>
   `SELECT start_time, end_time FROM downtimes WHERE service_id = ${serviceId} AND host_id = ${hostId} AND cancelled = 0 ORDER BY downtime_id DESC LIMIT 1`;
 
+// Lifecycle of the latest non-cancelled downtime for a host/service
+// (centreon_storage): the engine sets actual_start_time when the downtime
+// becomes active and actual_end_time when it ends.
+const downtimeLifecycleQuery = (hostId: number, serviceId: number): string =>
+  `SELECT actual_start_time, actual_end_time, start_time, end_time FROM downtimes WHERE host_id = ${hostId} AND service_id = ${serviceId} AND cancelled = 0 ORDER BY downtime_id DESC LIMIT 1`;
+
+// --- Recurrent downtime cron output ----------------------------------------
+
+// The recurrent-downtime cron writes its emitted external commands into the
+// centcore directory. Read them back to assert what was scheduled, decoupled
+// from the gorgone -> engine delivery pipeline.
+const readEmittedDowntimeCommands = (): Cypress.Chainable<string> =>
+  cy
+    .execInContainer({
+      command: 'cat /var/lib/centreon/centcore/*-downtimes 2>/dev/null || true',
+      name: 'web'
+    })
+    .then((result) =>
+      typeof result === 'string' ? result : (result?.output ?? '')
+    );
+
+// Parse the start/end timestamps of the first emitted command matching `marker`
+// (e.g. "SCHEDULE_SVC_DOWNTIME;host;svc;" or "SCHEDULE_HOST_DOWNTIME;host;").
+// Returns null when no matching command was emitted.
+const scheduledWindowFor = (
+  commands: string,
+  marker: string
+): { start: number; end: number } | null => {
+  // Keep the latest matching command: the cron may emit several over time and
+  // the most recent one carries the window we just scheduled.
+  const line = commands
+    .split('\n')
+    .filter((l) => l.includes(marker))
+    .at(-1);
+  if (!line) {
+    return null;
+  }
+  const [start, end] = line
+    .substring(line.indexOf(marker) + marker.length)
+    .split(';');
+  const parsedStart = Number(start);
+  const parsedEnd = Number(end);
+  if (!Number.isFinite(parsedStart) || !Number.isFinite(parsedEnd)) {
+    return null;
+  }
+
+  return { end: parsedEnd, start: parsedStart };
+};
+
 export {
   centralHost,
+  downtimeLifecycleQuery,
   expectedSeconds,
   formDate,
   isoDay,
   latestDowntimeQuery,
   monitoredServiceQuery,
+  readEmittedDowntimeCommands,
   realtimeCases,
   recurrentCases,
+  scheduledWindowFor,
   transitionDay
 };
