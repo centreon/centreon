@@ -168,6 +168,9 @@ jobs:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
     name: deliver ${{ matrix.distrib }}
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -183,8 +186,6 @@ jobs:
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
           delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
-          pulp_username: ${{ secrets.PULP_USERNAME }}
-          pulp_password: ${{ secrets.PULP_PASSWORD }}
 
   promote:
     needs: [get-environment]
@@ -200,6 +201,9 @@ jobs:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
     name: promote ${{ matrix.distrib }}
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -213,5 +217,3 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-          pulp_username: ${{ secrets.PULP_USERNAME }}
-          pulp_password: ${{ secrets.PULP_PASSWORD }}

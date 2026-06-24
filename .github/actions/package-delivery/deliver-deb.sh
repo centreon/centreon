@@ -7,13 +7,13 @@ wait_task() {
   local task_href=$1
   local state
   while :; do
-    state=$(curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" "$PULP_URL$task_href" | jq -r '.state')
+    state=$(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$PULP_URL$task_href" | jq -r '.state')
     case "$state" in
       completed)
         return 0
         ;;
       failed|canceled)
-        echo "::error::Task $task_href $state: $(curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" "$PULP_URL$task_href" | jq -c '.error')"
+        echo "::error::Task $task_href $state: $(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$PULP_URL$task_href" | jq -c '.error')"
         return 1
         ;;
       *)
@@ -28,7 +28,7 @@ wait_task() {
 pulp_upload() {
   local attempt response http_code body
   for attempt in 1 2 3; do
-    response=$(curl -sS -u "$PULP_USERNAME:$PULP_PASSWORD" -w $'\n%{http_code}' "$@" 2>/dev/null) || response=""
+    response=$(curl -sS -H "Authorization: Github $PULP_TOKEN" -w $'\n%{http_code}' "$@" 2>/dev/null) || response=""
     http_code=${response##*$'\n'}
     body=${response%$'\n'*}
     if [[ "$http_code" == "202" ]]; then
@@ -56,7 +56,7 @@ assert_not_in_stable() {
 
   # the "main" release component of the stable suite, empty if nothing is stable yet
   stable_component=$(
-    curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" -G \
+    curl -fsSL -H "Authorization: Github $PULP_TOKEN" -G \
       --data-urlencode "repository_version=$repository_version" \
       --data-urlencode "distribution=$STABLE_SUITE" \
       --data-urlencode "component=main" \
@@ -68,7 +68,7 @@ assert_not_in_stable() {
   # the package unit already present for this name/version/architecture, if any
   # (pulp keeps a single unit per name+version+architecture repository wide)
   package_href=$(
-    curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" -G \
+    curl -fsSL -H "Authorization: Github $PULP_TOKEN" -G \
       --data-urlencode "repository_version=$repository_version" \
       --data-urlencode "package=$name" \
       --data-urlencode "version=$version" \
@@ -81,7 +81,7 @@ assert_not_in_stable() {
   # is that unit associated with the stable suite? (the release_component filter
   # on the packages endpoint is broken server side, so go through the join)
   count=$(
-    curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" -G \
+    curl -fsSL -H "Authorization: Github $PULP_TOKEN" -G \
       --data-urlencode "repository_version=$repository_version" \
       --data-urlencode "release_component=$stable_component" \
       --data-urlencode "package=$package_href" \

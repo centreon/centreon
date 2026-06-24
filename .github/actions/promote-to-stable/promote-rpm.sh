@@ -6,13 +6,13 @@ wait_task() {
   local task_href=$1
   local state
   while :; do
-    state=$(curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" "$PULP_URL$task_href" | jq -r '.state')
+    state=$(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$PULP_URL$task_href" | jq -r '.state')
     case "$state" in
       completed)
         return 0
         ;;
       failed|canceled)
-        echo "::error::Task $task_href $state: $(curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" "$PULP_URL$task_href" | jq -c '.error')"
+        echo "::error::Task $task_href $state: $(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$PULP_URL$task_href" | jq -c '.error')"
         return 1
         ;;
       *)
@@ -37,7 +37,7 @@ for ARCH in noarch x86_64; do
 
   # packages of the module are identified by the label set at delivery time
   CONTENT=$(
-    curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" -G \
+    curl -fsSL -H "Authorization: Github $PULP_TOKEN" -G \
       --data-urlencode "repository_version=$VERSION_HREF" \
       --data-urlencode "pulp_label_select=module=$MODULE_NAME" \
       --data-urlencode "limit=1000" \
@@ -87,7 +87,7 @@ for ARCH in noarch x86_64; do
   echo "[INFO] Promoting $ARCH_PACKAGES_COUNT packages to $STABLE_REPOSITORY_NAME"
   # pulp-cli repository content modify does not resolve content by pulp_href, use the api directly
   TASK_HREF=$(
-    curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" \
+    curl -fsSL -H "Authorization: Github $PULP_TOKEN" \
       -X POST -H "Content-Type: application/json" \
       -d "{\"add_content_units\": $CONTENT}" \
       "$PULP_URL${STABLE_REPOSITORY_HREF}modify/" | jq -r '.task'

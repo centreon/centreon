@@ -6,13 +6,13 @@ wait_task() {
   local task_href=$1
   local state
   while :; do
-    state=$(curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" "$PULP_URL$task_href" | jq -r '.state')
+    state=$(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$PULP_URL$task_href" | jq -r '.state')
     case "$state" in
       completed)
         return 0
         ;;
       failed|canceled)
-        echo "::error::Task $task_href $state: $(curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" "$PULP_URL$task_href" | jq -c '.error')"
+        echo "::error::Task $task_href $state: $(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$PULP_URL$task_href" | jq -c '.error')"
         return 1
         ;;
       *)
@@ -27,7 +27,7 @@ wait_task() {
 pulp_upload() {
   local attempt response http_code body
   for attempt in 1 2 3; do
-    response=$(curl -sS -u "$PULP_USERNAME:$PULP_PASSWORD" -w $'\n%{http_code}' "$@" 2>/dev/null) || response=""
+    response=$(curl -sS -H "Authorization: Github $PULP_TOKEN" -w $'\n%{http_code}' "$@" 2>/dev/null) || response=""
     http_code=${response##*$'\n'}
     body=${response%$'\n'*}
     if [[ "$http_code" == "202" ]]; then
@@ -52,7 +52,7 @@ VERSION_HREF=$(pulp deb repository show --name "$REPOSITORY_NAME" | jq -r '.late
 # the testing pool path scopes the stability and the package distrib name
 # scopes the distribution as the apt repository holds all the suites
 PACKAGES=$(
-  curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" -G \
+  curl -fsSL -H "Authorization: Github $PULP_TOKEN" -G \
     --data-urlencode "repository_version=$VERSION_HREF" \
     --data-urlencode "pulp_label_select=module=$MODULE_NAME" \
     --data-urlencode "limit=1000" \
