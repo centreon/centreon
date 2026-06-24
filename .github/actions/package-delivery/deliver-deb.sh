@@ -112,6 +112,15 @@ fi
 
 REPOSITORY_HREF=$(pulp deb repository show --name "$REPOSITORY_NAME" | jq -r '.pulp_href')
 
+PULP_LABELS=$(jq -cn \
+  --arg mod        "$MODULE_NAME" \
+  --arg git_commit "${GITHUB_SHA:-}" \
+  --arg git_ref    "${GITHUB_REF:-}" \
+  --arg run_id     "${GITHUB_RUN_ID:-}" \
+  --arg actor      "${GITHUB_ACTOR:-}" \
+  --arg workflow   "${GITHUB_WORKFLOW:-}" \
+  '{"module": $mod, "git_commit": $git_commit, "git_ref": $git_ref, "github_run_id": $run_id, "github_actor": $actor, "github_workflow": $workflow}')
+
 for FILE in "${FILES[@]}"; do
   assert_not_in_stable "$FILE"
   echo "[INFO] Uploading $FILE to $POOL_PATH/ ($SUITE/main, module $MODULE_NAME)"
@@ -125,7 +134,7 @@ for FILE in "${FILES[@]}"; do
       -F "distribution=$SUITE" \
       -F "component=main" \
       -F "repository=$REPOSITORY_HREF" \
-      -F "pulp_labels={\"module\": \"$MODULE_NAME\"}" \
+      -F "pulp_labels=$PULP_LABELS" \
       "$PULP_URL/api/v3/content/deb/packages/"
   )
   wait_task "$TASK_HREF"
