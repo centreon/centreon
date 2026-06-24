@@ -12798,7 +12798,7 @@ msgstr "Plattform konnte nicht gefunden werden"
 #: centreon/www/install/step_upgrade/step4.php
 #, php-format
 msgid ""
-"Please check the \"upgrade.log\" and the \"sql-error.log\" located in \"%s\" "
+"Please check the \"prod.upgrade.log\" and the \"prod.web.log\" located in \"%s\" "
 "for more details"
 msgstr ""
 "Bitte überprüfen Sie für weitere Details \"upgrade.log\" und \"sql-"
