@@ -3,37 +3,117 @@ monolog:
         - deprecation
         - token
         - authentication
+        - web
+        - password
+        - upgrade
+        - plugin-pack-manager
+
+    # Declared at top level so integration tests resolve the service in any env.
+    handlers:
+        web_finger_crossed:
+            type: fingers_crossed
+            action_level: error
+            # 404/405 are mostly bot scans; excluded so they don't trigger the buffer flush.
+            excluded_http_codes: [404, 405]
+            buffer_size: 50
+            stop_buffering: true
+            handler: web_file
+            channels:
+                - "!event"
+                - "!doctrine"
+                - "!console"
+                - "!deprecation"
+                - "!authentication"
+                - "!token"
+                - "!password"
+                - "!plugin-pack-manager"
+                - "!upgrade"
+            bubble: false
+        web_file:
+            type: stream
+            path: "%kernel.logs_dir%/%kernel.environment%.web.log"
+            level: debug
+            # Rotation is handled by logrotate on production hosts
+            # (cf. MON-151077). Do NOT use `rotating_file` here —
+            # the two would fight over filename / suffix.
+            formatter: monolog.formatter.line
 
 when@dev:
     monolog:
         handlers:
-            main:
-                type: stream
-                path: "%kernel.logs_dir%/%kernel.environment%.log"
+            # Dev override: action_level: debug turns fingers_crossed into a
+            # pass-through (every record flushed live to the file).
+            web_finger_crossed:
+                type: fingers_crossed
+                action_level: debug
+                excluded_http_codes: [404, 405]
+                buffer_size: 50
+                stop_buffering: true
+                handler: web_file
+                channels:
+                    - "!event"
+                    - "!doctrine"
+                    - "!console"
+                    - "!deprecation"
+                    - "!authentication"
+                    - "!token"
+                    - "!password"
+                    - "!plugin-pack-manager"
+                    - "!upgrade"
+                bubble: false
+            web_file:
+                type: rotating_file
+                path: "%kernel.logs_dir%/%kernel.environment%.web.log"
+                max_files: 14
                 level: debug
-                channels: ["!event"]
                 formatter: monolog.formatter.line
-                date_format: !php/const DateTimeInterface::RFC3339
             console:
                 type: console
                 process_psr_3_messages: false
                 channels: ["!event", "!doctrine", "!console"]
                 formatter: monolog.formatter.line
-                date_format: !php/const DateTimeInterface::RFC3339
+            deprecation:
+                type: rotating_file
+                channels: [deprecation]
+                path: "%kernel.logs_dir%/%kernel.environment%.deprecations.log"
+                max_files: 14
+                level: debug
+                formatter: monolog.formatter.line
             authentication:
-                type: stream
-                path: "%kernel.logs_dir%/login.log"
+                type: rotating_file
+                channels: [authentication]
+                path: "%kernel.logs_dir%/%kernel.environment%.access.log"
+                max_files: 14
                 level: debug
-                channels: ["authentication"]
                 formatter: monolog.formatter.line
-                date_format: !php/const DateTimeInterface::RFC3339
             token:
-                type: stream
-                path: "%kernel.logs_dir%/dev.token.log"
+                type: rotating_file
+                channels: [token]
+                path: "%kernel.logs_dir%/%kernel.environment%.token.log"
+                max_files: 14
                 level: debug
-                channels: ["token"]
                 formatter: monolog.formatter.line
-                date_format: !php/const DateTimeInterface::RFC3339
+            password:
+                type: rotating_file
+                channels: [password]
+                path: "%kernel.logs_dir%/%kernel.environment%.password.log"
+                max_files: 14
+                level: debug
+                formatter: monolog.formatter.line
+            upgrade:
+                type: rotating_file
+                channels: [upgrade]
+                path: "%kernel.logs_dir%/%kernel.environment%.upgrade.log"
+                max_files: 14
+                level: debug
+                formatter: monolog.formatter.line
+            plugin-pack-manager:
+                type: rotating_file
+                channels: [plugin-pack-manager]
+                path: "%kernel.logs_dir%/%kernel.environment%.plugin-pack-manager.log"
+                max_files: 14
+                level: debug
+                formatter: monolog.formatter.line
 
 when@test:
     monolog:
@@ -45,54 +125,52 @@ when@test:
                 excluded_http_codes: [404, 405]
                 channels: ["!event"]
                 formatter: monolog.formatter.line
-                date_format: !php/const DateTimeInterface::RFC3339
             nested:
                 type: stream
-                path: "%kernel.logs_dir%/%kernel.environment%.log"
-                level: debug
+                path: php://stderr
+                level: critical
                 formatter: monolog.formatter.line
-                date_format: !php/const DateTimeInterface::RFC3339
 
 when@prod:
     monolog:
         handlers:
-            main:
-                type: fingers_crossed
-                action_level: error
-                handler: nested
-                excluded_http_codes: [404, 405]
-                buffer_size: 50
-                formatter: monolog.formatter.line
-                date_format: !php/const DateTimeInterface::RFC3339
-            nested:
-                type: stream
-                path: php://stderr
-                level: debug
-                formatter: monolog.formatter.line
-                date_format: !php/const DateTimeInterface::RFC3339
             console:
                 type: console
                 process_psr_3_messages: false
-                channels: ["!event", "!doctrine"]
+                channels: ["!event", "!doctrine", "!deprecation"]
                 formatter: monolog.formatter.line
-                date_format: !php/const DateTimeInterface::RFC3339
             deprecation:
                 type: stream
                 channels: [deprecation]
-                path: php://stderr
+                path: "%kernel.logs_dir%/%kernel.environment%.deprecations.log"
                 formatter: monolog.formatter.line
-                date_format: !php/const DateTimeInterface::RFC3339
             authentication:
                 type: stream
-                path: "%kernel.logs_dir%/login.log"
+                channels: [authentication]
+                path: "%kernel.logs_dir%/%kernel.environment%.access.log"
                 level: info
-                channels: ["authentication"]
                 formatter: monolog.formatter.line
-                date_format: !php/const DateTimeInterface::RFC3339
             token:
                 type: stream
-                path: "%kernel.logs_dir%/prod.token.log"
+                channels: [token]
+                path: "%kernel.logs_dir%/%kernel.environment%.token.log"
                 level: info
-                channels: ["token"]
                 formatter: monolog.formatter.line
-                date_format: !php/const DateTimeInterface::RFC3339
+            password:
+                type: stream
+                channels: [password]
+                path: "%kernel.logs_dir%/%kernel.environment%.password.log"
+                level: info
+                formatter: monolog.formatter.line
+            upgrade:
+                type: stream
+                channels: [upgrade]
+                path: "%kernel.logs_dir%/%kernel.environment%.upgrade.log"
+                level: info
+                formatter: monolog.formatter.line
+            plugin-pack-manager:
+                type: stream
+                channels: [plugin-pack-manager]
+                path: "%kernel.logs_dir%/%kernel.environment%.plugin-pack-manager.log"
+                level: info
+                formatter: monolog.formatter.line

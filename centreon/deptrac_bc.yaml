@@ -27,6 +27,7 @@ parameters:
           collectors:
               - { type: classNameRegex, value: '#^ApiPlatform\\#' }
               - { type: classNameRegex, value: '#^Doctrine\\#' }
+              - { type: classNameRegex, value: '#^Monolog\\#' }
               - { type: classNameRegex, value: '#^Psr\\#' }
               - { type: classNameRegex, value: '#^Symfony\\#' }
               - { type: classNameRegex, value: '#^Webmozart\\#' }

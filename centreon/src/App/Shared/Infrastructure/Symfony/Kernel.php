@@ -42,7 +42,7 @@ final class Kernel extends BaseKernel
 
     public function getLogDir(): string
     {
-        return '/var/log/centreon/symfony.new';
+        return '/var/log/centreon';
     }
 
     public function getProjectDir(): string

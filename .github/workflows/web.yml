@@ -450,12 +450,11 @@ jobs:
         run: cp config/centreon.config.php.template config/centreon.config.php
         working-directory: centreon
 
-      - name: Ensure Symfony cache directories exist and are writable (legacy and new)
+      - name: Ensure Symfony cache and log directories exist and are writable (legacy and new)
+        # /var/log/centreon is created by the package on prod hosts; mkdir it here for MON-151077 handlers.
         run: |
-          echo "Ensure Symfony cache directories exist"
-          sudo mkdir -p /var/cache/centreon/symfony{,.new}
-          echo "Set permissions on Symfony cache directories with user: '$USER'"
-          sudo chown -R $USER:$USER /var/cache/centreon/symfony{,.new}
+          sudo mkdir -p /var/cache/centreon/symfony /var/cache/centreon/symfony.new /var/log/centreon
+          sudo chown -R "$USER:$USER" /var/cache/centreon/symfony /var/cache/centreon/symfony.new /var/log/centreon
 
       - name: Install dependencies
         uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # v4.0.0
@@ -472,6 +471,7 @@ jobs:
         with:
           path: "centreon/build/phpunit.xml"
           format: "php-junit"
+
   backend-lint:
     runs-on: ubuntu-24.04
     needs: [changes, get-environment]
@@ -500,14 +500,11 @@ jobs:
         run: cp config/centreon.config.php.template config/centreon.config.php
         working-directory: centreon
 
-      - name: Ensure Symfony cache directories exist and are writable (legacy and new)
+      - name: Ensure Symfony cache and log directories exist and are writable (legacy and new)
+        # /var/log/centreon is created by the package on prod hosts; mkdir it here for MON-151077 handlers.
         run: |
-          echo "Ensure Symfony cache directories exist" && set -e
-          sudo mkdir -p /var/cache/centreon/symfony.new
-          sudo mkdir -p /var/cache/centreon/symfony
-          echo "Set permissions on Symfony cache directories with user: '$USER'" && set -e
-          sudo chown -R $USER:$USER /var/cache/centreon/symfony.new
-          sudo chown -R $USER:$USER /var/cache/centreon/symfony
+          sudo mkdir -p /var/cache/centreon/symfony /var/cache/centreon/symfony.new /var/log/centreon
+          sudo chown -R "$USER:$USER" /var/cache/centreon/symfony /var/cache/centreon/symfony.new /var/log/centreon
 
       - name: Install dependencies for centreon-web
         run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
