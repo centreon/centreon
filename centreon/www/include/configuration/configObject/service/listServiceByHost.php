@@ -93,16 +93,19 @@ if (isset($_POST['search']) || isset($_GET['search'])) {
 }
 
 $searchH_SQL = '';
+$searchBindValues = [];
 if ($searchH) {
-    $searchH_SQL .= "AND (host.host_name LIKE '%" . $pearDB->escape($searchH)
-        . "%' OR host_alias LIKE '%" . $pearDB->escape($searchH) . "%' OR host_address LIKE '%"
-        . $pearDB->escape($searchH) . "%')";
+    $searchH_SQL = 'AND (host.host_name LIKE :searchH1 OR host_alias LIKE :searchH2 OR host_address LIKE :searchH3)';
+    $searchBindValues[':searchH1'] = '%' . $searchH . '%';
+    $searchBindValues[':searchH2'] = '%' . $searchH . '%';
+    $searchBindValues[':searchH3'] = '%' . $searchH . '%';
 }
 
 $searchS_SQL = '';
 if ($searchS) {
-    $searchS_SQL .= "AND (sv.service_alias LIKE '%" . $pearDB->escape($searchS)
-        . "%' OR sv.service_description LIKE '%" . $pearDB->escape($searchS) . "%')";
+    $searchS_SQL = 'AND (sv.service_alias LIKE :searchS1 OR sv.service_description LIKE :searchS2)';
+    $searchBindValues[':searchS1'] = '%' . $searchS . '%';
+    $searchBindValues[':searchS2'] = '%' . $searchS . '%';
 }
 
 // Host Status Filter
@@ -182,17 +185,27 @@ $rq_body = $queryFieldsToSelect
     . $queryWhereClause
     . ' ORDER BY host.host_name, service_description';
 
-$dbResult = $pearDB->query(
+$stmt = $pearDB->prepare(
     'SELECT SQL_CALC_FOUND_ROWS ' . $distinct . $rq_body
-    . ' LIMIT ' . $num * $limit . ', ' . $limit
+    . ' LIMIT ' . (int) ($num * $limit) . ', ' . (int) $limit
 );
+foreach ($searchBindValues as $param => $value) {
+    $stmt->bindValue($param, $value);
+}
+$stmt->execute();
+$dbResult = $stmt;
 
 $rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
 
 if (! ($dbResult->rowCount())) {
-    $dbResult = $pearDB->query(
-        'SELECT ' . $distinct . $rq_body . ' LIMIT ' . (floor($rows / $limit) * $limit) . ', ' . $limit
+    $stmt2 = $pearDB->prepare(
+        'SELECT ' . $distinct . $rq_body . ' LIMIT ' . (int) (floor($rows / $limit) * $limit) . ', ' . (int) $limit
     );
+    foreach ($searchBindValues as $param => $value) {
+        $stmt2->bindValue($param, $value);
+    }
+    $stmt2->execute();
+    $dbResult = $stmt2;
 }
 
 include './include/common/checkPagination.php';

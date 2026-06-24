@@ -60,21 +60,23 @@ class CentreonServicegroups // FIXME CentreonServiceGroups exists too
         $services = [];
         $query = 'SELECT host_host_id, service_service_id '
             . 'FROM servicegroup_relation '
-            . 'WHERE servicegroup_sg_id = ' . $sgId . ' '
+            . 'WHERE servicegroup_sg_id = :sgId '
             . 'AND host_host_id IS NOT NULL '
             . 'UNION '
             . 'SELECT hgr.host_host_id, hsr.service_service_id '
             . 'FROM servicegroup_relation sgr, host_service_relation hsr, hostgroup_relation hgr '
-            . 'WHERE sgr.servicegroup_sg_id = ' . $sgId . ' '
+            . 'WHERE sgr.servicegroup_sg_id = :sgId2 '
             . 'AND sgr.hostgroup_hg_id = hsr.hostgroup_hg_id '
             . 'AND hsr.service_service_id = sgr.service_service_id '
             . 'AND sgr.hostgroup_hg_id = hgr.hostgroup_hg_id ';
 
-        $res = $this->DB->query($query);
-        while ($row = $res->fetchRow()) {
+        $stmt = $this->DB->prepare($query);
+        $stmt->bindValue(':sgId', (int) $sgId, PDO::PARAM_INT);
+        $stmt->bindValue(':sgId2', (int) $sgId, PDO::PARAM_INT);
+        $stmt->execute();
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $services[] = [$row['host_host_id'], $row['service_service_id']];
         }
-        $res->closeCursor();
 
         return $services;
     }
