@@ -316,14 +316,15 @@ $renamePollerUuidToUid = function () use ($pearDB, &$errorMessage, $version): vo
         'uid'
     );
 
-    if ($hasUidColumn) {
-        CentreonLog::create()->info(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: Column uid already exists on nagios_server, skipping",
-        );
-
-        return;
-    }
+     if ($hasUidColumn) {
+         CentreonLog::create()->info(
+             logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Column uid already exists on nagios_server, ensuring values are populated",
+         );
+        generateMissingPollerUids($pearDB, $version);
+ 
+         return;
+     }
 
     $hasUuidColumn = $pearDB->columnExists(
         $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
