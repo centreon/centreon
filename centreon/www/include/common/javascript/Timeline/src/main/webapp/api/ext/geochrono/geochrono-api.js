@@ -30,10 +30,17 @@
     
     try {
         var includeJavascriptFile = function(filename) {
-            document.write("<script src='" + Timeline.urlPrefix + "ext/geochrono/scripts/" + filename + "' type='text/javascript'></script>");
+            var script = document.createElement("script");
+            script.type = "text/javascript";
+            script.src = Timeline.urlPrefix + "ext/geochrono/scripts/" + filename;
+            document.head.appendChild(script);
         };
         var includeCssFile = function(filename) {
-            document.write("<link rel='stylesheet' href='" + Timeline.urlPrefix + "ext/geochrono/styles/" + filename + "' type='text/css'/>");
+            var link = document.createElement("link");
+            link.rel = "stylesheet";
+            link.type = "text/css";
+            link.href = Timeline.urlPrefix + "ext/geochrono/styles/" + filename;
+            document.head.appendChild(link);
         }
         
         /*
