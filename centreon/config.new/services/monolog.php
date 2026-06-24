@@ -46,25 +46,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$sanitizer', service(PayloadSanitizer::class))
         ->tag('monolog.processor');
 
-    // No channel tag: applies to every logger.
+    // Platform processors, registered globally (no channel tag): every logger —
+    // catch-all and dedicated — carries the same enriched record shape.
     $services->set('monolog.processor.uid', UidProcessor::class)
         ->tag('monolog.processor');
 
     $services->set('monolog.processor.web', WebProcessor::class)
-        ->tag('monolog.processor', ['channel' => 'bus'])
-        ->tag('monolog.processor', ['channel' => 'request'])
-        ->tag('monolog.processor', ['channel' => 'app']);
+        ->tag('monolog.processor');
 
     $services->set('monolog.processor.route', RouteProcessor::class)
-        ->tag('monolog.processor', ['channel' => 'bus'])
-        ->tag('monolog.processor', ['channel' => 'request'])
-        ->tag('monolog.processor', ['channel' => 'app']);
+        ->tag('monolog.processor');
 
     $services->set('monolog.processor.token', TokenProcessor::class)
         ->arg('$tokenStorage', service('security.token_storage'))
-        ->tag('monolog.processor', ['channel' => 'bus'])
-        ->tag('monolog.processor', ['channel' => 'request'])
-        ->tag('monolog.processor', ['channel' => 'app']);
+        ->tag('monolog.processor');
 
     // Set the line timestamp to RFC3339 at service level: handler-level
     // date_format would instead configure the rotating_file filename suffix.
