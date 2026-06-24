@@ -486,23 +486,22 @@ function setup_mysql() {
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		if [[ "$detected_mysql_version" == "8.4" ]]; then
-			# Newer mysql-apt-config knows the trixie codename and the 8.4 LTS channel;
-			# preselect that channel so the install stays non-interactive.
-			mysql_apt_config="mysql-apt-config_0.8.34-1_all.deb"
+			# Use a current mysql-apt-config: 0.8.37 bundles MySQL's up-to-date signing key, whereas older
+			# releases shipped the 2023 key that expired 2025-10-22 (rejected by Debian 13's sqv verifier).
+			# It also knows the trixie codename and the 8.4 LTS channel; preselect it for a non-interactive install.
+			mysql_apt_config="mysql-apt-config_0.8.37-1_all.deb"
 			curl -JLO "https://dev.mysql.com/get/$mysql_apt_config"
 			echo "mysql-apt-config mysql-apt-config/select-server select mysql-8.4-lts" | debconf-set-selections
 			export DEBIAN_FRONTEND="noninteractive" && $PKG_MGR install -y "./$mysql_apt_config"
 		else
 			curl -JLO https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb
 			export DEBIAN_FRONTEND="noninteractive" && $PKG_MGR install -y ./mysql-apt-config_0.8.29-1_all.deb
+			# 0.8.29 bundles the 2023 signing key (expired 2025-10-22); refresh it with the renewed key
+			# (fingerprint B7B3B788A8D3785C, valid to 2027), into the keyring mysql.list references.
+			mysql_keyring=$(grep -ohm1 'signed-by=[^] ]*' /etc/apt/sources.list.d/mysql.list 2>/dev/null | cut -d= -f2)
+			[ -z "$mysql_keyring" ] && mysql_keyring=/etc/apt/trusted.gpg.d/mysql.gpg
+			curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2025 | gpg --dearmor --yes -o "$mysql_keyring"
 		fi
-		# mysql-apt-config bundles MySQL's signing key, but the 2023 key expired 2025-10-22 and Debian 13's
-		# strict verifier (sqv) then rejects repo.mysql.com. Refresh it with the renewed key (same fingerprint
-		# B7B3B788A8D3785C, valid to 2027). Write to the keyring the mysql.list references (signed-by), else the
-		# global trusted.gpg.d.
-		mysql_keyring=$(grep -ohm1 'signed-by=[^] ]*' /etc/apt/sources.list.d/mysql.list 2>/dev/null | cut -d= -f2)
-		[ -z "$mysql_keyring" ] && mysql_keyring=/etc/apt/trusted.gpg.d/mysql.gpg
-		curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2025 | gpg --dearmor --yes -o "$mysql_keyring"
 		$PKG_MGR -y update
 		$PKG_MGR install -y mysql-server mysql-common
 	else
