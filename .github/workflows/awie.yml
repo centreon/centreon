@@ -247,7 +247,7 @@ jobs:
           upload_artifacts: ${{ needs.get-environment.outputs.is_nightly == 'true' || contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
 
   deliver-sources:
-    runs-on: ubuntu-24.04
+    runs-on: centreon-common
     needs: [get-environment, package]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
