@@ -195,8 +195,7 @@ function parse_subcommand_options() {
 		r)
 			requested_repo=$OPTARG
 			log "INFO" "Requested repository: '$requested_repo'"
-			get_os_information
-			set_centreon_repos $requested_repo
+			# repos are resolved later in set_required_prerequisite, once $version is finalized
 			;;
 
 		l)
@@ -497,12 +496,12 @@ function setup_mysql() {
 			# Newer mysql-apt-config knows the trixie codename and the 8.4 LTS channel;
 			# preselect that channel so the install stays non-interactive.
 			mysql_apt_config="mysql-apt-config_0.8.34-1_all.deb"
-			curl -JLO "https://dev.mysql.com/get/$mysql_apt_config"
+			curl -fJLO "https://dev.mysql.com/get/$mysql_apt_config" || error_and_exit "Failed to download $mysql_apt_config"
 			echo "mysql-apt-config mysql-apt-config/select-server select mysql-8.4-lts" | debconf-set-selections
-			export DEBIAN_FRONTEND="noninteractive" && $PKG_MGR install -y "./$mysql_apt_config"
+			export DEBIAN_FRONTEND="noninteractive" && $PKG_MGR install -y "./$mysql_apt_config" || error_and_exit "Failed to install $mysql_apt_config"
 		else
-			curl -JLO https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb
-			export DEBIAN_FRONTEND="noninteractive" && $PKG_MGR install -y ./mysql-apt-config_0.8.29-1_all.deb
+			curl -fJLO https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb || error_and_exit "Failed to download mysql-apt-config"
+			export DEBIAN_FRONTEND="noninteractive" && $PKG_MGR install -y ./mysql-apt-config_0.8.29-1_all.deb || error_and_exit "Failed to install mysql-apt-config"
 		fi
 		# The repo.mysql.com apt repo is signed by key B7B3B788A8D3785C, but mysql-apt-config ships either the
 		# expired 2023 instance of it or an unrelated key; refresh /usr/share/keyrings/mysql-apt-config.gpg
@@ -514,13 +513,13 @@ function setup_mysql() {
 		if [ $? -ne 0 ]; then
 			error_and_exit "Failed to refresh the MySQL APT signing key from https://repo.mysql.com/RPM-GPG-KEY-mysql-2025"
 		fi
-		$PKG_MGR -y update
+		$PKG_MGR -y update || error_and_exit "apt update failed after configuring the MySQL repository"
 		$PKG_MGR install -y mysql-server mysql-common
 	else
 		if [[ "$detected_mysql_version" == "8.4" ]]; then
 			# el9 / el10 AppStream only provides MySQL 8.0, so the MySQL 8.4 LTS community
 			# repository is added (its release rpm enables the 8.4 LTS repo by default).
-			$PKG_MGR install -y "https://dev.mysql.com/get/mysql84-community-release-el${detected_os_major}-1.noarch.rpm"
+			$PKG_MGR install -y "https://dev.mysql.com/get/mysql84-community-release-el${detected_os_major}-1.noarch.rpm" || error_and_exit "Failed to install the MySQL 8.4 community release package"
 			# The release rpm ships MySQL's 2023 signing key, which expired 2025-10-22; dnf's GPG check then
 			# rejects the (re-signed) packages. Replace it with the renewed key (same fingerprint
 			# B7B3B788A8D3785C, valid to 2027): refresh the on-disk key file, drop the expired key from the
