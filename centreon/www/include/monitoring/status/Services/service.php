@@ -589,9 +589,9 @@ $tpl->display('service.ihtml');
     function preInit() {
         _keyPrefix = '<?= $keyPrefix; ?>';
         _tm = <?= $tM; ?>;
-        _o = '<?= $o; ?>';
+        _o = '<?= htmlspecialchars($o, ENT_QUOTES, 'UTF-8'); ?>';
         _defaultStatusFilter = '<?=  htmlspecialchars($defaultStatusFilter, ENT_QUOTES, 'UTF-8'); ?>';
-        _defaultStatusService = '<?= $defaultStatusService; ?>';
+        _defaultStatusService = '<?= htmlspecialchars($defaultStatusService, ENT_QUOTES, 'UTF-8'); ?>';
         sSetOrderInMemory = '<?= $sSetOrderInMemory; ?>';
 
         if (_defaultStatusService !== '') {

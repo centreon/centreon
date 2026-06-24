@@ -60,22 +60,31 @@ class DbReadServicegroupRepository extends AbstractRepositoryDRB implements Read
             return $servicegroups;
         }
 
+        $bindValues = [];
+        $tokens = [];
+        foreach ($accessGroupIds as $index => $groupId) {
+            $key = ':acl_group_' . $index;
+            $tokens[] = $key;
+            $bindValues[$key] = (int) $groupId;
+        }
+
         $aclRequest = ' INNER JOIN `:dbstg`.`centreon_acl` AS acl
             ON acl.host_id = ssg.host_id
             AND acl.service_id = ssg.service_id
-            AND acl.group_id IN (' . implode(',', $accessGroupIds) . ') ';
+            AND acl.group_id IN (' . implode(',', $tokens) . ') ';
 
-        return $this->findServicegroups($hostId, $serviceId, $aclRequest);
+        return $this->findServicegroups($hostId, $serviceId, $aclRequest, $bindValues);
     }
 
     /**
      * @param int $hostId
      * @param int $serviceId
      * @param string|null $aclRequest
+     * @param array<string, int> $additionalBindValues
      *
      * @return Servicegroup[]
      */
-    private function findServicegroups(int $hostId, int $serviceId, ?string $aclRequest = null): array
+    private function findServicegroups(int $hostId, int $serviceId, ?string $aclRequest = null, array $additionalBindValues = []): array
     {
         $request = 'SELECT DISTINCT 1 AS REALTIME, sg.servicegroup_id, sg.name AS `servicegroup_name`
             FROM `:dbstg`.`services_servicegroups` AS ssg
@@ -90,6 +99,9 @@ class DbReadServicegroupRepository extends AbstractRepositoryDRB implements Read
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
         $statement->bindValue(':serviceId', $serviceId, \PDO::PARAM_INT);
+        foreach ($additionalBindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
         $statement->execute();
 
         $servicegroups = [];
