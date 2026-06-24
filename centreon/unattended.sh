@@ -1037,13 +1037,23 @@ function configure_db_tls() {
 	EOF
 
 	# Client default: negotiate TLS and verify the server certificate against our CA.
+	# Use the syntax the client actually understands: MySQL's client (8.x) takes ssl-mode=VERIFY_CA and
+	# rejects the MariaDB-style 'ssl-verify-server-cert' (which would break every mysql invocation).
 	mkdir -p "$(dirname "$client_dropin")"
 	log "INFO" "Writing DB client TLS config: $client_dropin"
-	cat > "$client_dropin" <<-EOF
-		[client]
-		ssl-ca=$TLS_CA_CERT
-		ssl-verify-server-cert
-	EOF
+	if [[ "$dbms" == "MySQL" ]]; then
+		cat > "$client_dropin" <<-EOF
+			[client]
+			ssl-ca=$TLS_CA_CERT
+			ssl-mode=VERIFY_CA
+		EOF
+	else
+		cat > "$client_dropin" <<-EOF
+			[client]
+			ssl-ca=$TLS_CA_CERT
+			ssl-verify-server-cert
+		EOF
+	fi
 
 	# PHP -> DB TLS env, consumed by DatabaseTLSResolver once PR #9237 is installed (no-op before then).
 	local dotenv="/usr/share/centreon/.env"
@@ -1193,13 +1203,17 @@ EOF
 			default_authentication_plugin="mysql_native_password"
 		fi
 
-		# Decide how to authenticate as root for the initial password set:
+		# Bootstrap root over the LOCAL SOCKET with TLS explicitly disabled (--ssl-mode=DISABLED):
+		# the socket is inherently local and require_secure_transport is OFF, but our [client] cnf
+		# (ssl-mode=VERIFY_CA) would otherwise force TLS + CA verification on every mysql call and break
+		# this admin step before it can even set up the user. TLS for real (network) clients is unaffected.
+		# Auth source:
 		# - MariaDB / AppStream MySQL / socket auth: passwordless root works.
 		# - Oracle MySQL community (8.4): first init writes a random, *expired* temporary root password
 		#   to the server log; connect with it (--connect-expired-password). The ALTER below lifts the
 		#   expired state so the remaining statements run in the same session.
-		local -a mysql_root_auth=(-u root)
-		if ! mysql -u root -e "SELECT 1" >/dev/null 2>&1; then
+		local -a mysql_root_auth=(--ssl-mode=DISABLED -u root)
+		if ! mysql --ssl-mode=DISABLED -u root -e "SELECT 1" >/dev/null 2>&1; then
 			local mysql_error_log mysql_temp_pw
 			if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 				mysql_error_log="/var/log/mysql/error.log"
@@ -1210,7 +1224,7 @@ EOF
 			if [ -z "$mysql_temp_pw" ]; then
 				error_and_exit "Could not authenticate to MySQL as root (no passwordless access and no temporary password in $mysql_error_log)"
 			fi
-			mysql_root_auth=(--connect-expired-password -u root -p"${mysql_temp_pw}")
+			mysql_root_auth=(--ssl-mode=DISABLED --connect-expired-password -u root -p"${mysql_temp_pw}")
 		fi
 
 		mysql "${mysql_root_auth[@]}" --verbose <<-EOF
