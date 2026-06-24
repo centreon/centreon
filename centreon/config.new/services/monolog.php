@@ -22,6 +22,8 @@
 declare(strict_types=1);
 
 use Adaptation\Log\Adapter\MonologAdapterResetter;
+use App\Shared\Infrastructure\Logging\PayloadSanitizer;
+use App\Shared\Infrastructure\Logging\SanitizingProcessor;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Processor\UidProcessor;
 use Symfony\Bridge\Monolog\Processor\RouteProcessor;
@@ -33,6 +35,16 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
+
+    // Redaction processor. Registered FIRST on purpose: the MonologBundle
+    // pushes processors in definition order and Monolog's pushProcessor is
+    // LIFO, so the first-registered one runs LAST — after WebProcessor & co.
+    // have filled `extra` (the request URL lives in `extra.url`). The bundle
+    // ignores the tag `priority` for processors, so ordering is controlled by
+    // registration position here.
+    $services->set('monolog.processor.sanitizing', SanitizingProcessor::class)
+        ->arg('$sanitizer', service(PayloadSanitizer::class))
+        ->tag('monolog.processor');
 
     // No channel tag: applies to every logger.
     $services->set('monolog.processor.uid', UidProcessor::class)

@@ -37,8 +37,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->autowire()
         ->autoconfigure();
 
+    // SanitizingProcessor is registered explicitly in monolog.php so its
+    // execution order can be controlled; keep it out of the autoload tagging
+    // to avoid a duplicate `monolog.processor` registration.
     $services->load('App\\Shared\\', __DIR__ . '/../../src/App/Shared')
-        ->exclude([__DIR__ . '/../../src/App/Shared/Infrastructure/Symfony/Kernel.php']);
+        ->exclude([
+            __DIR__ . '/../../src/App/Shared/Infrastructure/Symfony/Kernel.php',
+            __DIR__ . '/../../src/App/Shared/Infrastructure/Logging/SanitizingProcessor.php',
+        ]);
 
     // UidProcessor stamps every record on every channel with one id per
     // process — single `grep <uid>` across all log files.

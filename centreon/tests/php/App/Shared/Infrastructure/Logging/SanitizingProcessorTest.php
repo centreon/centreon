@@ -77,10 +77,36 @@ final class SanitizingProcessorTest extends TestCase
         self::assertSame($record->level, $processed->level);
     }
 
+    public function testMasksUrlQuerySecretsInExtraWhileKeepingAuditFields(): void
+    {
+        // WebProcessor records the request URI in `extra.url`; a secret passed
+        // as a query parameter must be redacted. The other `extra` fields set
+        // by platform processors (e.g. `token` => the authenticated user) are
+        // not user input and stay readable for auditing.
+        $record = $this->makeRecord(
+            context: [],
+            extra: [
+                'url' => '/centreon/api/latest/login?useralias=admin&token=leaked',
+                'token' => ['username' => 'admin'],
+                'ip' => '203.0.113.7',
+            ],
+        );
+
+        $processed = ($this->processor)($record);
+
+        self::assertSame(
+            '/centreon/api/latest/login?useralias=admin&token=***',
+            $processed->extra['url'],
+        );
+        self::assertSame(['username' => 'admin'], $processed->extra['token']);
+        self::assertSame('203.0.113.7', $processed->extra['ip']);
+    }
+
     /**
      * @param array<string, mixed> $context
+     * @param array<string, mixed> $extra
      */
-    private function makeRecord(array $context): LogRecord
+    private function makeRecord(array $context, array $extra = []): LogRecord
     {
         return new LogRecord(
             datetime: new \DateTimeImmutable(),
@@ -88,6 +114,7 @@ final class SanitizingProcessorTest extends TestCase
             level: Level::Error,
             message: 'a message',
             context: $context,
+            extra: $extra,
         );
     }
 }

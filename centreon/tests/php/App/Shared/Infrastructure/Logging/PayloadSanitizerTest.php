@@ -156,4 +156,51 @@ final class PayloadSanitizerTest extends TestCase
         \assert(\is_array($sanitised));
         self::assertSame('red', $sanitised['status']);
     }
+
+    public function testMasksSensitiveQueryParametersInUrlStrings(): void
+    {
+        // The request URL (e.g. WebProcessor's `extra.url`) is a plain string,
+        // not a key/value pair, so a secret passed as a query parameter is not
+        // caught by key masking. Parameters whose name matches the denylist are
+        // redacted in place; the path and the other parameters are preserved.
+        $sanitised = $this->sanitizer->sanitize([
+            'url' => '/centreon/api/latest/login?useralias=admin&token=ABC123&autologin=1',
+        ]);
+
+        self::assertSame(
+            ['url' => '/centreon/api/latest/login?useralias=admin&token=***&autologin=1'],
+            $sanitised,
+        );
+    }
+
+    public function testLeavesUrlStringsWithoutSensitiveQueryParametersUntouched(): void
+    {
+        $sanitised = $this->sanitizer->sanitize(['url' => '/monitoring/resources?page=2&limit=30']);
+
+        self::assertSame(['url' => '/monitoring/resources?page=2&limit=30'], $sanitised);
+    }
+
+    public function testStillRedactsUrlSecretsWhenKeywordKeyMaskingIsDisabled(): void
+    {
+        // `extra` is sanitised with keyword-key masking OFF (its keys are set by
+        // platform processors and must stay readable): `token` keeps its audit
+        // payload, but a secret inside a URL query is still redacted.
+        $sanitised = $this->sanitizer->sanitize(
+            [
+                'token' => ['username' => 'admin', 'role' => 'ROLE_ADMIN'],
+                'url' => '/login?token=ABC123',
+            ],
+            0,
+            null,
+            false,
+        );
+
+        self::assertSame(
+            [
+                'token' => ['username' => 'admin', 'role' => 'ROLE_ADMIN'],
+                'url' => '/login?token=***',
+            ],
+            $sanitised,
+        );
+    }
 }
