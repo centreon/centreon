@@ -38,23 +38,30 @@ if (isset($_POST['searchSC']) || isset($_GET['searchSC'])) {
     $search = $centreon->historySearch[$url]['search'] ?? null;
 }
 
-$searchTool = null;
+$searchTool = '';
+$searchBindValues = [];
 if ($search) {
-    $searchTool .= "WHERE (sc_name LIKE '%" . $search . "%' "
-    . "OR sc_description LIKE '%" . $search . "%') ";
+    $searchTool = 'WHERE (sc_name LIKE :searchName OR sc_description LIKE :searchDesc) ';
+    $searchBindValues[':searchName'] = '%' . $search . '%';
+    $searchBindValues[':searchDesc'] = '%' . $search . '%';
 }
 
 $aclCond = '';
 if (! $oreon->user->admin && $scString != "''") {
-    $clause = is_null($searchTool) ? ' WHERE ' : ' AND ';
+    $clause = $searchTool === '' ? ' WHERE ' : ' AND ';
     $aclCond .= $acl->queryBuilder($clause, 'sc_id', $scString);
 }
 
 // Services Categories Lists
-$dbResult = $pearDB->query(
+$stmt = $pearDB->prepare(
     'SELECT SQL_CALC_FOUND_ROWS * FROM service_categories ' . $searchTool . $aclCond
-    . 'ORDER BY sc_name LIMIT ' . $num * $limit . ', ' . $limit
+    . 'ORDER BY sc_name LIMIT ' . (int) ($num * $limit) . ', ' . (int) $limit
 );
+foreach ($searchBindValues as $param => $value) {
+    $stmt->bindValue($param, $value);
+}
+$stmt->execute();
+$dbResult = $stmt;
 $rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
 
 include './include/common/checkPagination.php';

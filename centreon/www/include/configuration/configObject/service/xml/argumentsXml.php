@@ -69,11 +69,14 @@ if (isset($_GET['cmdId'], $_GET['svcId'], $_GET['svcTplId'], $_GET['o'])) {
     $tab = [];
     if (! $cmdId && $svcTplId) {
         while (1) {
-            $query4 = "SELECT service_template_model_stm_id, command_command_id, command_command_id_arg 
-                            FROM `service` 
-                            WHERE service_id = '" . $svcTplId . "'";
-            $res4 = $db->query($query4);
-            $row4 = $res4->fetchRow();
+            $stmt4 = $db->prepare(
+                'SELECT service_template_model_stm_id, command_command_id, command_command_id_arg
+                FROM `service`
+                WHERE service_id = :svcTplId'
+            );
+            $stmt4->bindValue(':svcTplId', (int) $svcTplId, PDO::PARAM_INT);
+            $stmt4->execute();
+            $row4 = $stmt4->fetch(PDO::FETCH_ASSOC);
             if (isset($row4['command_command_id']) && $row4['command_command_id']) {
                 $cmdId = $row4['command_command_id'];
                 break;
