@@ -198,3 +198,16 @@ services:
         autoconfigure: false
         tags:
             - { name: kernel.reset, method: reset }
+
+    # MON-199097 backport: #[Sensitive] payload masking. On develop these are
+    # autoconfigured via the App\Shared service loader (config.new); declared
+    # explicitly here since dev-24.10.x has no such loader. SanitizingProcessor
+    # is global (masks #[Sensitive] entries in every record's context).
+    App\Shared\Infrastructure\Logging\PayloadSanitizer:
+        autoconfigure: false
+
+    App\Shared\Infrastructure\Logging\SanitizingProcessor:
+        autoconfigure: false
+        arguments:
+            $sanitizer: '@App\Shared\Infrastructure\Logging\PayloadSanitizer'
+        tags: ['monolog.processor']
