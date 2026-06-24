@@ -152,3 +152,19 @@ services:
       arguments:
         - internal_api_client: '@Core\Common\Infrastructure\Api\InternalApiClient'
       tags: [ 'container.service_locator' ]
+
+    # Line formatter referenced by every handler in config/packages/monolog.yaml.
+    # RFC3339 timestamps are set here at service level (not at handler level,
+    # where date_format configures the rotating_file filename suffix).
+    monolog.formatter.line:
+        class: Monolog\Formatter\LineFormatter
+        arguments:
+            $dateFormat: !php/const DateTimeInterface::RFC3339
+
+    # Global Monolog processor: turns any \Throwable found in a record's
+    # context.exception into a structured, bounded array (flat cause chain).
+    # Registered explicitly because src/App/Shared is not autoloaded as
+    # services on this branch; tagged on every channel (no channel filter).
+    App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor:
+        autoconfigure: false
+        tags: ['monolog.processor']

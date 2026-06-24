@@ -1,34 +1,174 @@
-# Monolog Bundle configuration
-# https://github.com/symfony/monolog-bundle/blob/master/DependencyInjection/Configuration.php#L25
-when@prod:
-  monolog:
-    channels: [ 'centreon']
+monolog:
+    channels:
+        - deprecation
+        - token
+        - authentication
+        - web
+        - password
+        - upgrade
+        - plugin-pack-manager
+
+    # Declared at top level so integration tests resolve the service in any env.
     handlers:
-      system:
-        type: error_log
-        level: warning
-        formatter: monolog.formater
-        channels: [ '!centreon' ]
-      centreon:
-        type: service
-        id: monolog.handler
-        channels: [ 'centreon' ]
+        web_finger_crossed:
+            type: fingers_crossed
+            action_level: error
+            # 404/405 are mostly bot scans; excluded so they don't trigger the buffer flush.
+            excluded_http_codes: [404, 405]
+            buffer_size: 50
+            stop_buffering: true
+            handler: web_file
+            channels:
+                - "!event"
+                - "!doctrine"
+                - "!console"
+                - "!deprecation"
+                - "!authentication"
+                - "!token"
+                - "!password"
+                - "!plugin-pack-manager"
+                - "!upgrade"
+            bubble: false
+        web_file:
+            type: stream
+            path: "%kernel.logs_dir%/%kernel.environment%.web.log"
+            level: debug
+            # Rotation handled by logrotate; do NOT use `rotating_file` (fights over the filename suffix).
+            formatter: monolog.formatter.line
+
 when@dev:
-  monolog:
-    channels: [ 'centreon', 'deprecation' ]
-    handlers:
-      system:
-        type: error_log
-        level: warning
-        formatter: monolog.formater
-        channels: [ '!centreon' ]
-      centreon:
-        type: service
-        id: monolog.handler
-        channels: [ 'centreon' ]
-      deprecation:
-        type: rotating_file
-        path: "%log_path%/%kernel.environment%.deprecations.log"
-        max_files: 2
-        channels: [ 'deprecation' ]
-        file_permission: 0660
+    monolog:
+        handlers:
+            # Dev override: action_level: debug turns fingers_crossed into a
+            # pass-through (every record flushed live to the file).
+            web_finger_crossed:
+                type: fingers_crossed
+                action_level: debug
+                excluded_http_codes: [404, 405]
+                buffer_size: 50
+                stop_buffering: true
+                handler: web_file
+                channels:
+                    - "!event"
+                    - "!doctrine"
+                    - "!console"
+                    - "!deprecation"
+                    - "!authentication"
+                    - "!token"
+                    - "!password"
+                    - "!plugin-pack-manager"
+                    - "!upgrade"
+                bubble: false
+            web_file:
+                type: rotating_file
+                path: "%kernel.logs_dir%/%kernel.environment%.web.log"
+                max_files: 14
+                level: debug
+                formatter: monolog.formatter.line
+            console:
+                type: console
+                process_psr_3_messages: false
+                channels: ["!event", "!doctrine", "!console"]
+                formatter: monolog.formatter.line
+            deprecation:
+                type: rotating_file
+                channels: [deprecation]
+                path: "%kernel.logs_dir%/%kernel.environment%.deprecations.log"
+                max_files: 14
+                level: debug
+                formatter: monolog.formatter.line
+            authentication:
+                type: rotating_file
+                channels: [authentication]
+                path: "%kernel.logs_dir%/%kernel.environment%.access.log"
+                max_files: 14
+                level: debug
+                formatter: monolog.formatter.line
+            token:
+                type: rotating_file
+                channels: [token]
+                path: "%kernel.logs_dir%/%kernel.environment%.token.log"
+                max_files: 14
+                level: debug
+                formatter: monolog.formatter.line
+            password:
+                type: rotating_file
+                channels: [password]
+                path: "%kernel.logs_dir%/%kernel.environment%.password.log"
+                max_files: 14
+                level: debug
+                formatter: monolog.formatter.line
+            upgrade:
+                type: rotating_file
+                channels: [upgrade]
+                path: "%kernel.logs_dir%/%kernel.environment%.upgrade.log"
+                max_files: 14
+                level: debug
+                formatter: monolog.formatter.line
+            plugin-pack-manager:
+                type: rotating_file
+                channels: [plugin-pack-manager]
+                path: "%kernel.logs_dir%/%kernel.environment%.plugin-pack-manager.log"
+                max_files: 14
+                level: debug
+                formatter: monolog.formatter.line
+
+when@test:
+    monolog:
+        handlers:
+            main:
+                type: fingers_crossed
+                action_level: error
+                handler: nested
+                excluded_http_codes: [404, 405]
+                channels: ["!event"]
+                formatter: monolog.formatter.line
+            nested:
+                type: stream
+                path: php://stderr
+                level: critical
+                formatter: monolog.formatter.line
+
+when@prod:
+    monolog:
+        handlers:
+            console:
+                type: console
+                process_psr_3_messages: false
+                channels: ["!event", "!doctrine", "!deprecation"]
+                formatter: monolog.formatter.line
+            deprecation:
+                type: stream
+                channels: [deprecation]
+                path: "%kernel.logs_dir%/%kernel.environment%.deprecations.log"
+                formatter: monolog.formatter.line
+            authentication:
+                type: stream
+                channels: [authentication]
+                path: "%kernel.logs_dir%/%kernel.environment%.access.log"
+                level: info
+                formatter: monolog.formatter.line
+            token:
+                type: stream
+                channels: [token]
+                path: "%kernel.logs_dir%/%kernel.environment%.token.log"
+                level: info
+                formatter: monolog.formatter.line
+            password:
+                type: stream
+                channels: [password]
+                path: "%kernel.logs_dir%/%kernel.environment%.password.log"
+                level: info
+                formatter: monolog.formatter.line
+            upgrade:
+                type: stream
+                channels: [upgrade]
+                path: "%kernel.logs_dir%/%kernel.environment%.upgrade.log"
+                level: info
+                formatter: monolog.formatter.line
+            plugin-pack-manager:
+                type: stream
+                channels: [plugin-pack-manager]
+                path: "%kernel.logs_dir%/%kernel.environment%.plugin-pack-manager.log"
+                level: info
+                formatter: monolog.formatter.line
