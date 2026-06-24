@@ -24,10 +24,8 @@ declare(strict_types=1);
 namespace App\Shared\Infrastructure\Logging;
 
 /**
- * Single source of truth for the keyword-based masking net shared by
- * {@see LogPayloadNormalizer} (bus messages) and {@see PayloadSanitizer}
- * (ad-hoc logger contexts). Keeping one list guarantees both nets mask
- * the same field names instead of drifting apart.
+ * Single source of truth for the keyword-based masking net used by
+ * {@see PayloadSanitizer} (ad-hoc logger contexts).
  *
  * Matched via str_contains on the lowercased key — intentionally
  * permissive: any field name that *contains* one of these tokens is
