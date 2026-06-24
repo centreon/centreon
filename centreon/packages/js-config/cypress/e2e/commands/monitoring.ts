@@ -3,6 +3,8 @@
 const apiBase = '/centreon/api';
 const apiActionV1 = `${apiBase}/index.php`;
 
+const escapeSql = (value: string): string => value.replace(/'/g, "\\'");
+
 const getStatusNumberFromString = (status: string): number => {
   const statuses = {
     critical: '2',
@@ -32,7 +34,7 @@ Cypress.Commands.add(
     host,
     isForced = true
   }: ServiceCheck): Cypress.Chainable => {
-    let query = `SELECT id FROM resources WHERE name = '${host}' AND type = 1`;
+    let query = `SELECT id FROM resources WHERE name = '${escapeSql(host)}' AND type = 1`;
 
     return cy
       .requestOnDatabase({
@@ -84,7 +86,7 @@ Cypress.Commands.add(
     isForced = true,
     service
   }: ServiceCheck): Cypress.Chainable => {
-    let query = `SELECT parent_id, id FROM resources WHERE parent_name = '${host}' AND name = '${service}'`;
+    let query = `SELECT parent_id, id FROM resources WHERE parent_name = '${escapeSql(host)}' AND name = '${escapeSql(service)}'`;
 
     return cy
       .requestOnDatabase({
@@ -181,9 +183,9 @@ Cypress.Commands.add(
     cy.log('Checking hosts in database');
 
     let query = `SELECT COUNT(d.downtime_id) AS count_downtimes FROM downtimes as d
-      INNER JOIN hosts as h ON h.host_id = d.host_id AND h.name = '${downtime.host}'`;
+      INNER JOIN hosts as h ON h.host_id = d.host_id AND h.name = '${escapeSql(downtime.host)}'`;
     if (downtime.service) {
-      query += ` INNER JOIN services as s ON s.service_id = d.service_id AND s.description = '${downtime.service}'`;
+      query += ` INNER JOIN services as s ON s.service_id = d.service_id AND s.description = '${escapeSql(downtime.service)}'`;
     }
     query += ` WHERE d.started=1`;
     if (!downtime.service) {

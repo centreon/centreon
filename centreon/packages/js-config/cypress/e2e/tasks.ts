@@ -308,21 +308,34 @@ export default (on: Cypress.PluginEvents): void => {
       return path.join(downloadsFolder, files[0].name);
     },
     readCsvFile({ filePath }: { filePath: string }): Promise<string> {
+      const resolvedPath = path.resolve(filePath);
+      if (!resolvedPath.startsWith(path.resolve(process.cwd()))) {
+        return Promise.reject(new Error("Path is outside of the project directory"));
+      }
+
       return new Promise((resolve, reject) => {
-        fs.readFile(filePath, "utf8", (err, data) => {
+        fs.readFile(resolvedPath, "utf8", (err, data) => {
           if (err) return reject(err);
           resolve(data);
         });
       });
     },
     clearDownloadsFolder({ downloadsFolder }: { downloadsFolder: string }): null {
-      if (!fs.existsSync(downloadsFolder)) {
+      const resolvedFolder = path.resolve(downloadsFolder);
+      if (!resolvedFolder.startsWith(path.resolve(process.cwd()))) {
+        throw new Error("Path is outside of the project directory");
+      }
+
+      if (!fs.existsSync(resolvedFolder)) {
         return null;
       }
 
-      const files = fs.readdirSync(downloadsFolder);
+      const files = fs.readdirSync(resolvedFolder);
       for (const file of files) {
-        const filePath = path.join(downloadsFolder, file);
+        const filePath = path.join(resolvedFolder, file);
+        if (!filePath.startsWith(resolvedFolder)) {
+          continue;
+        }
         fs.unlinkSync(filePath);
       }
 
