@@ -153,6 +153,14 @@ function version_int() {
 }
 #========= end of function version_int()
 
+#========= begin of function uses_internal_repo()
+# true when $version ships only in internal repos: public repos carry the ".10" GA minors, internal the rest
+#
+function uses_internal_repo() {
+	[[ "${version##*.}" != "10" ]]
+}
+#========= end of function uses_internal_repo()
+
 #========= begin of function parse_subcommand_options()
 # parse the provided arguments and check values
 # the script will display usage (and aborted) for any
@@ -430,10 +438,10 @@ function set_centreon_repos() {
 
 #========= begin of function set_release_repo_file()
 # build the RPM .repo URL for the detected RHEL major version ($detected_os_major)
-# 26.07 is pre-GA and only published to the internal repository
+# non-".10" versions are only published to the internal repository
 #
 function set_release_repo_file() {
-	if [[ "$version" == "26.07" ]]; then
+	if uses_internal_repo; then
 		RELEASE_REPO_FILE="https://packages.centreon.com/rpm-standard-internal/$version/el${detected_os_major}/centreon-$version-internal.repo"
 	else
 		RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el${detected_os_major}/centreon-$version.repo"
@@ -445,7 +453,7 @@ function set_release_repo_file() {
 #
 function set_mariadb_repos() {
 	log "INFO" "Install MariaDB repository"
-	if [[ "$version" == "26.07" ]]; then
+	if (( $(version_int) >= $(version_int 26.07) )); then
 		detected_mariadb_version="11.8"
 	else
 		detected_mariadb_version="10.11"
@@ -453,7 +461,7 @@ function set_mariadb_repos() {
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=debian --os-version="$detected_os_version" --mariadb-server-version="$detected_mariadb_version" --skip-maxscale
-	elif [[ "$version" == "26.07" ]]; then
+	elif (( $(version_int) >= $(version_int 26.07) )); then
 		# el9 has no 11.8 dnf module stream and el10 dropped dnf modularity, so MariaDB 11.8
 		# is installed from the MariaDB official repository for both.
 		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --os-version="$detected_os_major" --mariadb-server-version="mariadb-$detected_mariadb_version" --skip-maxscale
@@ -477,8 +485,8 @@ function set_mariadb_repos() {
 #
 function setup_mysql() {
 	log "INFO" "Install MySQL repository"
-	# Centreon 26.07 ships with MySQL 8.4 (LTS); earlier versions use MySQL 8.0.
-	if [[ "$version" == "26.07" ]]; then
+	# Centreon 26.07+ ships with MySQL 8.4 (LTS); earlier versions use MySQL 8.0.
+	if (( $(version_int) >= $(version_int 26.07) )); then
 		detected_mysql_version="8.4"
 	else
 		detected_mysql_version="8.0"
@@ -501,7 +509,11 @@ function setup_mysql() {
 		# (referenced by mysql.list via signed-by) with the renewed key (valid to 2027) so apt can verify it.
 		mysql_keyring=$(grep -ohm1 'signed-by=[^] ]*' /etc/apt/sources.list.d/mysql.list 2>/dev/null | cut -d= -f2)
 		[ -z "$mysql_keyring" ] && mysql_keyring=/etc/apt/trusted.gpg.d/mysql.gpg
-		curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2025 | gpg --dearmor --yes -o "$mysql_keyring"
+		# pipefail so a failed download fails here instead of writing an empty keyring
+		( set -o pipefail; curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2025 | gpg --dearmor --yes -o "$mysql_keyring" )
+		if [ $? -ne 0 ]; then
+			error_and_exit "Failed to refresh the MySQL APT signing key from https://repo.mysql.com/RPM-GPG-KEY-mysql-2025"
+		fi
 		$PKG_MGR -y update
 		$PKG_MGR install -y mysql-server mysql-common
 	else
@@ -553,7 +565,7 @@ function set_required_prerequisite() {
 		case "$detected_os_version" in
 		8*)
 			log "INFO" "Setting specific part for v8 ($detected_os_version)"
-			if [[ "$version" == "26.07" ]]; then
+			if (( $(version_int) >= $(version_int 26.07) )); then
 				error_and_exit "Centreon $version is not supported on Red-Hat compatible v8 (el8). Please use el9, el10 or Debian 13. See https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 			fi
 			set_release_repo_file
@@ -629,25 +641,20 @@ function set_required_prerequisite() {
 			esac
 
 			if [ "$topology" == "central" ]; then
-				case "$version" in
-					"24.10" | "25.10")
-						log "INFO" "Installing PHP 8.2 and enable it"
-						$PKG_MGR module reset php -y -q
-						$PKG_MGR module install php:8.2 -y -q
-						$PKG_MGR module enable php:8.2 -y -q
-						;;
-					"26.07")
-						# PHP 8.4 is not available in the el9 OS repositories, so it is
-						# provided by the remi repository.
-						log "INFO" "Installing PHP 8.4 from the remi repository and enable it"
-						$PKG_MGR install -y https://rpms.remirepo.net/enterprise/remi-release-9.rpm
-						$PKG_MGR module -y switch-to php:remi-8.4/common
-						;;
-					*)
-						log "INFO" "Installing PHP from OS official repositories"
-						;;
-				esac
-
+				if (( $(version_int) >= $(version_int 26.07) )); then
+					# PHP 8.4 is not available in the el9 OS repositories, so it is
+					# provided by the remi repository.
+					log "INFO" "Installing PHP 8.4 from the remi repository and enable it"
+					$PKG_MGR install -y https://rpms.remirepo.net/enterprise/remi-release-9.rpm
+					$PKG_MGR module -y switch-to php:remi-8.4/common
+				elif (( $(version_int) >= $(version_int 24.10) )); then
+					log "INFO" "Installing PHP 8.2 and enable it"
+					$PKG_MGR module reset php -y -q
+					$PKG_MGR module install php:8.2 -y -q
+					$PKG_MGR module enable php:8.2 -y -q
+				else
+					log "INFO" "Installing PHP from OS official repositories"
+				fi
 			fi
 			;;
 
@@ -713,8 +720,8 @@ function set_required_prerequisite() {
 		PKG_MGR="apt -qq"
 		case "$detected_os_version" in
 		13)
-			if [[ "$version" != "26.07" ]]; then
-				error_and_exit "For Debian $detected_os_version, only Centreon version 26.07 is compatible. You chose $version"
+			if (( $(version_int) < $(version_int 26.07) )); then
+				error_and_exit "For Debian $detected_os_version, only Centreon >= 26.07 is compatible. You chose $version"
 			fi
 			# On Debian 13 (trixie), PHP 8.4 is provided by the official OS repositories.
 			PHP_SERVICE_UNIT="php8.4-fpm"
@@ -742,8 +749,8 @@ function set_required_prerequisite() {
 		fi
 		${PKG_MGR} install -y $base_apt_packages
 		repo_prefix="apt"
-		# 26.07 is pre-GA and only published to the internal APT repository.
-		if [[ "$version" == "26.07" ]]; then
+		# non-".10" versions are only published to the internal APT repository
+		if uses_internal_repo; then
 			apt_standard_repo="$repo_prefix-standard-internal"
 		else
 			apt_standard_repo="$repo_prefix-standard"
@@ -1751,11 +1758,13 @@ function install_central() {
 	' 2>/dev/null)
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		# Determine the PHP version Centreon expects for this release...
-		case "$version" in
-			"24.10" | "25.10") expected_php_version="8.2" ;;
-			"26.07") expected_php_version="8.4" ;;
-			*) expected_php_version="" ;;
-		esac
+		if (( $(version_int) >= $(version_int 26.07) )); then
+			expected_php_version="8.4"
+		elif (( $(version_int) >= $(version_int 24.10) )); then
+			expected_php_version="8.2"
+		else
+			expected_php_version=""
+		fi
 		# ...then cross-check against the PHP actually installed (authoritative for the on-disk path).
 		installed_php_version=$($PHP_BIN -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;' 2>/dev/null)
 		if [[ -z "$expected_php_version" ]]; then
