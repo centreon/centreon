@@ -160,6 +160,7 @@ jobs:
         id: changed-php
         uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         with:
+          use_rest_api: ${{ github.event_name == 'pull_request' }}
           files: |
             **/*.php
 
@@ -181,39 +182,45 @@ jobs:
           echo "Run of these PHP-CS-Fixer tests: cs:legacy on diff" && set -e
           composer cs:diff
 
+      - name: Restore PHPStan result cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: centreon-open-tickets/.phpstan-cache
+          # Unique per run (sha) so the evolving result cache is re-saved every run;
+          # head_ref is the real branch name on pull_request (ref_name would be "N/merge").
+          key: phpstan-cache-open-tickets-${{ github.head_ref || github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            phpstan-cache-open-tickets-${{ github.head_ref || github.ref_name }}-
+            phpstan-cache-open-tickets-
+
       - name: 🔍 PHPStan checks
         working-directory: centreon-open-tickets
         run: |
-          echo "Run of these PHPStan tests: stan:legacy:www, stan:legacy:src, stan:legacy:test" && set -e
+          echo "Run of these PHPStan tests: stan:legacy:www, stan:legacy:src, stan:legacy:test"
 
-          pids=()
-          statuses=()
+          exit_code=0
 
           run_task() {
-            name=$1
-            shift
-            "$@" -- --no-progress
-            result=$?
-            if [ $result -eq 0 ]; then
-              echo "✅ PHPStan $name: Success"
+            task=$1                  # e.g. legacy:src
+            cache_dir=${task//:/-}   # e.g. legacy-src
+            # PHPStan has no --tmp-dir flag; its tmp dir defaults to sys_get_temp_dir()/phpstan
+            # and sys_get_temp_dir() honours $TMPDIR. Point each task at its own dir so their
+            # result caches (resultCache.php) don't clobber each other across runs.
+            task_tmp="${PWD}/.phpstan-cache/${cache_dir}"
+            mkdir -p "${task_tmp}"
+            if TMPDIR="${task_tmp}" composer "stan:${task}" -- --no-progress; then
+              echo "✅ PHPStan ${task}: Success"
             else
-              echo "❌ PHPStan $name: Failed"
-            fi
-            return $result
-          }
-
-          # Start tasks in background
-          run_task legacy:www composer stan:legacy:www & pids+=($!)
-          run_task legacy:src composer stan:legacy:src & pids+=($!)
-          run_task legacy:test composer stan:legacy:test & pids+=($!)
-
-          # Wait for all, and record if any failed
-          exit_code=0
-          for pid in "${pids[@]}"; do
-            if ! wait "$pid"; then
+              echo "❌ PHPStan ${task}: Failed"
               exit_code=1
             fi
-          done
+          }
+
+          # Run sequentially: each PHPStan run already parallelises internally, so chaining
+          # them avoids the CPU oversubscription the previous background fan-out caused.
+          run_task legacy:www
+          run_task legacy:src
+          run_task legacy:test
 
           exit $exit_code
 
