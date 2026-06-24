@@ -81,13 +81,14 @@ final class SanitizingProcessorTest extends TestCase
     {
         // WebProcessor records the request URI in `extra.url`; a secret passed
         // as a query parameter must be redacted. The other `extra` fields set
-        // by platform processors (e.g. `token` => the authenticated user) are
-        // not user input and stay readable for auditing.
+        // by platform processors (e.g. `token` => TokenProcessor's audit
+        // descriptor of the authenticated user, not a credential) are not user
+        // input and stay readable for auditing.
         $record = $this->makeRecord(
             context: [],
             extra: [
                 'url' => '/centreon/api/latest/login?useralias=admin&token=leaked',
-                'token' => ['username' => 'admin'],
+                'token' => ['authenticated' => true, 'user_identifier' => 'admin'],
                 'ip' => '203.0.113.7',
             ],
         );
@@ -98,7 +99,7 @@ final class SanitizingProcessorTest extends TestCase
             '/centreon/api/latest/login?useralias=admin&token=***',
             $processed->extra['url'],
         );
-        self::assertSame(['username' => 'admin'], $processed->extra['token']);
+        self::assertSame(['authenticated' => true, 'user_identifier' => 'admin'], $processed->extra['token']);
         self::assertSame('203.0.113.7', $processed->extra['ip']);
     }
 

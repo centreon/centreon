@@ -35,10 +35,13 @@ use App\Shared\Infrastructure\Logging\Attribute\SensitivityScanner;
  * sensitivity explicitly. As the cross-channel net, raw array keys are
  * additionally matched against {@see SensitiveKeywordDenylist} so that
  * an ad-hoc `$logger->error('m', ['token' => $x])` — which carries no
- * class to reflect — is still caught. Independently, any string value
- * holding a URL query has the parameters whose name matches that same
- * denylist redacted in place (e.g. `…?login=x&token=***`), so a secret
- * carried in a logged URL — notably `extra.url` — does not leak.
+ * class to reflect — is still caught. Independently, in any string value
+ * holding a URL **query string**, the `&`-separated parameters whose name
+ * matches that same denylist are redacted in place (e.g. `…?page=2&token=***`).
+ * This covers the common case of a secret logged in a request URL
+ * (`extra.url`); it is best-effort and scoped to the query component —
+ * secrets in the path, the fragment, or nested inside another parameter's
+ * value are out of scope.
  *
  * Object values are rendered defensively to avoid leaking private
  * properties; `\Throwable` instances are returned as-is so that
@@ -51,23 +54,35 @@ final readonly class PayloadSanitizer
 
     /**
      * @param class-string|null $contextClass class whose `#[Sensitive]`
-     *                                        attributes annotate the
-     *                                        array keys at the current
-     *                                        depth, or `null` when the
-     *                                        type at this level is
+     *                                        attributes annotate the array
+     *                                        keys, or `null` when the type is
      *                                        scalar / array / unknown
      * @param bool $maskKeywordKeys whether array keys matching the shared
      *                              keyword denylist are masked. `true` for
      *                              ad-hoc / context payloads; `false` for a
-     *                              Monolog `extra` bag, whose keys are set
-     *                              by platform processors (e.g. `token` =>
-     *                              the authenticated user) and must stay
-     *                              readable — there only URL query secrets
-     *                              are redacted.
+     *                              Monolog `extra` bag, whose keys are set by
+     *                              platform processors (e.g. `token` => an
+     *                              audit descriptor of the authenticated user
+     *                              — authenticated flag, roles, identifier —
+     *                              not a credential) and must stay readable;
+     *                              there only URL query secrets are redacted.
      *
      * @throws \ReflectionException when SensitivityScanner cannot reflect the context class
      */
-    public function sanitize(mixed $data, int $depth = 0, ?string $contextClass = null, bool $maskKeywordKeys = true): mixed
+    public function sanitize(mixed $data, ?string $contextClass = null, bool $maskKeywordKeys = true): mixed
+    {
+        return $this->walk($data, 0, $contextClass, $maskKeywordKeys);
+    }
+
+    /**
+     * Recursive masking walk; `$depth` bounds the recursion. Internal —
+     * callers use {@see self::sanitize()}.
+     *
+     * @param class-string|null $contextClass
+     *
+     * @throws \ReflectionException
+     */
+    private function walk(mixed $data, int $depth, ?string $contextClass, bool $maskKeywordKeys): mixed
     {
         if ($depth >= self::MAX_DEPTH) {
             return '{…}';
@@ -117,7 +132,7 @@ final readonly class PayloadSanitizer
                     continue;
                 }
 
-                $result[$key] = $this->sanitize($value, $depth + 1, $childContext, $maskKeywordKeys);
+                $result[$key] = $this->walk($value, $depth + 1, $childContext, $maskKeywordKeys);
             }
 
             return $result;
@@ -135,10 +150,12 @@ final readonly class PayloadSanitizer
     }
 
     /**
-     * Redacts the values of query parameters whose name matches the shared
-     * keyword denylist inside a URL-like string, in place — the path and
-     * non-sensitive parameters are preserved. No-op for strings without a
-     * query part, so it is safe to run on every string value.
+     * Redacts, in place, the values of `&`-separated query parameters whose
+     * name matches the shared keyword denylist inside a URL-like string; the
+     * path and non-sensitive parameters are preserved. Scoped to the query
+     * component only — the path, the fragment, alternate (`;`) separators, and
+     * secrets nested inside a parameter's value are NOT inspected. No-op for
+     * strings without a query part, so it is safe to run on every string value.
      */
     private function maskSensitiveUrlQueryParameters(string $value): string
     {

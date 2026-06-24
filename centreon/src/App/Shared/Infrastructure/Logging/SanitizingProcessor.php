@@ -56,8 +56,9 @@ final readonly class SanitizingProcessor
         // `extra` is filled by platform processors (WebProcessor puts the
         // request URI — query string included — in `extra.url`). Its keys are
         // not user-controlled, so keyword-key masking stays off to keep audit
-        // fields readable (e.g. `extra.token` = the authenticated user added
-        // by TokenProcessor); only secrets inside URL query strings are redacted.
+        // fields readable (e.g. `extra.token` is TokenProcessor's audit
+        // descriptor of the authenticated user, not a credential); only
+        // sensitive URL query-string parameters are redacted.
         /** @var array<string, mixed> $extra */
         $extra = $this->sanitizer->sanitize($record->extra, maskKeywordKeys: false);
 
