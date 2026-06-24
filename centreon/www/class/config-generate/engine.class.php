@@ -443,15 +443,14 @@ class Engine extends AbstractObject
         if (is_null($this->stmt_engine)) {
             $this->stmt_engine = $this->backend_instance->db->prepare(
                 "SELECT {$this->attributes_select} FROM cfg_nagios "
-                . "WHERE nagios_server_id = :poller_id AND nagios_activate = '1'"
+                . "WHERE nagios_server_id = :poller_id AND nagios_activate = '1' "
+                . 'ORDER BY nagios_id ASC LIMIT 1'
             );
         }
         $this->stmt_engine->bindParam(':poller_id', $poller_id, PDO::PARAM_INT);
         $this->stmt_engine->execute();
 
-        $result = $this->stmt_engine->fetchAll(PDO::FETCH_ASSOC);
-
-        $this->engine = array_pop($result);
+        $this->engine = $this->stmt_engine->fetch(PDO::FETCH_ASSOC) ?: null;
         $this->setEngineNotificationState();
 
         if (is_null($this->engine)) {

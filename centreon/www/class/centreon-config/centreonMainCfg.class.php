@@ -223,6 +223,16 @@ class CentreonMainCfg
             return false;
         }
 
+        $hasEngineCfg = $this->DB->prepare(
+            'SELECT COUNT(*) as nb FROM cfg_nagios WHERE nagios_server_id = :server_id'
+        );
+        $hasEngineCfg->bindValue(':server_id', (int) $iId, PDO::PARAM_INT);
+        $hasEngineCfg->execute();
+        $row = $hasEngineCfg->fetch(PDO::FETCH_ASSOC);
+        if ((int) $row['nb'] > 0) {
+            return false;
+        }
+
         $res = $this->DB->query('SELECT * FROM cfg_nagios WHERE  nagios_server_id = ' . $source);
         $baseValues = $res->rowCount() == 0 ? $this->aInstanceDefaultValues : $res->fetch();
 
@@ -247,7 +257,8 @@ class CentreonMainCfg
             `admin_pager`, `nagios_comment`, `nagios_activate`, `event_broker_options`,
             `enable_predictive_host_dependency_checks`, `enable_predictive_service_dependency_checks`,
             `host_down_disable_service_checks`, `passive_host_checks_are_soft`, `enable_environment_macros`,
-            `debug_file`, `debug_level`, `debug_level_opt`, `debug_verbosity`, `max_debug_file_size`, `cfg_file`
+            `debug_file`, `debug_level`, `debug_level_opt`, `debug_verbosity`, `max_debug_file_size`, `cfg_file`,
+            `broker_module_cfg_file`
             )
             VALUES (
             :nagios_name, :nagios_server_id, :log_file, :cfg_dir,
@@ -270,7 +281,8 @@ class CentreonMainCfg
             :admin_pager, :nagios_comment, :nagios_activate, :event_broker_options,
             :enable_predictive_host_dependency_checks, :enable_predictive_service_dependency_checks,
             :host_down_disable_service_checks, :passive_host_checks_are_soft, :enable_environment_macros, :debug_file,
-            :debug_level, :debug_level_opt, :debug_verbosity, :max_debug_file_size, :cfg_file
+            :debug_level, :debug_level_opt, :debug_verbosity, :max_debug_file_size, :cfg_file,
+            :broker_module_cfg_file
             )';
 
         $params = [
@@ -346,6 +358,7 @@ class CentreonMainCfg
             ':debug_verbosity' => $baseValues['debug_verbosity'],
             ':max_debug_file_size' => $baseValues['max_debug_file_size'],
             ':cfg_file' => $baseValues['cfg_file'],
+            ':broker_module_cfg_file' => "/etc/centreon-broker/{$sName}-module.json",
         ];
 
         try {
@@ -363,10 +376,19 @@ class CentreonMainCfg
             return false;
         }
 
-        $res1 = $this->DB->query('SELECT MAX(nagios_id) as last_id FROM `cfg_nagios`');
-        $nagios = $res1->fetch();
+        $lastId = (int) $this->DB->lastInsertId();
 
-        return $nagios['last_id'];
+        if ($baseValues['nagios_activate'] === '1' || $baseValues['nagios_activate'] === 1) {
+            $deactivate = $this->DB->prepare(
+                "UPDATE cfg_nagios SET nagios_activate = '0'
+                 WHERE nagios_id != :nagios_id AND nagios_server_id = :server_id"
+            );
+            $deactivate->bindValue(':nagios_id', (int) $lastId, PDO::PARAM_INT);
+            $deactivate->bindValue(':server_id', (int) $iId, PDO::PARAM_INT);
+            $deactivate->execute();
+        }
+
+        return $lastId;
     }
 
     /**
