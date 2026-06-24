@@ -69,6 +69,7 @@ class ServerWizardIdentity
 
             if ($noCheckCertificate) {
                 $curl->setOpt(CURLOPT_SSL_VERIFYPEER, false);
+                $curl->setOpt(CURLOPT_SSL_VERIFYHOST, 0);
             }
 
             if ($noProxy) {
