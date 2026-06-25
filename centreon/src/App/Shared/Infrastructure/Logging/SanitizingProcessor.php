@@ -27,11 +27,11 @@ use Monolog\Attribute\AsMonologProcessor;
 use Monolog\LogRecord;
 
 /**
- * Monolog processor that masks `#[Sensitive]` entries in every
- * record's `context` through {@see PayloadSanitizer}. Covers the
- * ad-hoc `$logger->error('msg', $context)` paths that bypass the
- * bus middleware. `\Throwable` values are returned as-is so that
- * {@see ExceptionFormatterProcessor} can structure them downstream.
+ * Global Monolog processor that masks `#[Sensitive]` entries in every
+ * record's `context` through {@see PayloadSanitizer}, including the
+ * ad-hoc `$logger->error('msg', $context)` calls. `\Throwable` values
+ * are returned as-is so that {@see ExceptionFormatterProcessor} can
+ * structure them downstream.
  */
 #[AsMonologProcessor]
 final readonly class SanitizingProcessor

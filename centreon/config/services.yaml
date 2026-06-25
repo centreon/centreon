@@ -199,9 +199,10 @@ services:
         tags:
             - { name: kernel.reset, method: reset }
 
-    # #[Sensitive] payload masking, declared explicitly (no attribute-based
-    # service autoconfiguration on this serie). SanitizingProcessor is a global
-    # Monolog processor: it masks #[Sensitive] entries in every record's context.
+    # #[Sensitive] payload masking. The App\Shared namespace is not glob-loaded
+    # here, so these services are declared by hand; autoconfigure: false stops
+    # Symfony from also deriving the monolog.processor tag from #[AsMonologProcessor]
+    # and double-registering the processor.
     App\Shared\Infrastructure\Logging\PayloadSanitizer:
         autoconfigure: false
 
