@@ -23,19 +23,23 @@ declare(strict_types=1);
 
 namespace Tests\App\Shared\Infrastructure\Logging\Double;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
+
 /**
- * Plain object with no Stringable/Enum/DateTime semantics. Used to pin that
- * sanitize() falls back to a class-name placeholder rather than leaking
- * private state when an unexpected object reaches the log payload.
+ * A private, getter-less property (here also `#[Sensitive]`). Pins that
+ * internal state with no public accessor is not logged at all — matching the
+ * standard object-normalizer exposure — so a secret in such a field cannot
+ * leak into the payload.
  */
-final readonly class HiddenSecret
+final class SensitiveValue
 {
-    public function __construct(private string $secret)
-    {
-    }
+    public string $label = 'visible';
+
+    #[Sensitive]
+    private string $vaultSalt = 'top-secret';
 
     public function reveal(): string
     {
-        return $this->secret;
+        return $this->vaultSalt;
     }
 }

@@ -25,7 +25,6 @@ namespace App\Shared\Infrastructure\Messenger;
 
 use App\Shared\Infrastructure\Logging\ExceptionFormatter;
 use App\Shared\Infrastructure\Logging\LogPayloadNormalizer;
-use App\Shared\Infrastructure\Logging\NonArrayNormalizationException;
 use App\Shared\Infrastructure\Logging\PayloadSanitizer;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -143,13 +142,6 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
     {
         try {
             $payload = $this->payloadNormalizer->normalize($message);
-        } catch (NonArrayNormalizationException $e) {
-            $this->logger->warning('Normalizer returned a non-array value for ' . $message::class, [
-                'handler_message' => $message::class,
-                'returned_type' => $e->returnedType,
-            ]);
-
-            return ['__class' => $message::class];
         } catch (\Throwable $e) {
             $this->logger->warning('Normalizer failed for ' . $message::class, [
                 'handler_message' => $message::class,

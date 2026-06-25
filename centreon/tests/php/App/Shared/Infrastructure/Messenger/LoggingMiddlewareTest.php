@@ -32,25 +32,21 @@ use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
 use Symfony\Component\Messenger\Stamp\BusNameStamp;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
 
 final class LoggingMiddlewareTest extends TestCase
 {
     private LoggerSpy $logger;
 
-    private NormalizerInterface $normalizer;
-
     private LoggingMiddleware $middleware;
 
     protected function setUp(): void
     {
         $this->logger = new LoggerSpy();
-        $this->normalizer = $this->createStub(NormalizerInterface::class);
-        $this->normalizer->method('normalize')->willReturn(['field' => 'value']);
         $this->middleware = new LoggingMiddleware(
             $this->logger,
-            new LogPayloadNormalizer($this->normalizer),
+            new LogPayloadNormalizer(new CamelCaseToSnakeCaseNameConverter()),
             new PayloadSanitizer(),
         );
     }
@@ -182,64 +178,28 @@ final class LoggingMiddlewareTest extends TestCase
         self::assertSame('unknown', $this->logger->infoMessages[0]['context']['bus_type']);
     }
 
-    public function testNormalizerThrowingFallsBackAndEmitsWarning(): void
+    public function testCyclicPayloadIsLoggedWithoutHanging(): void
     {
-        // Defensive fallback in normalizePayload(): if the NormalizerInterface
-        // implementation raises (e.g. an unsupported value, an upstream
-        // serializer bug), the middleware must never bubble up that error.
-        // Two contracts to pin:
-        //   1. payload falls back to ['__class' => $message::class]
-        //   2. a `warning` is emitted carrying the formatted exception so
-        //      the failure isn't silent in prod logs
-        $this->normalizer = $this->createStub(NormalizerInterface::class);
-        $this->normalizer->method('normalize')->willThrowException(new \RuntimeException('normalizer down'));
-        $this->middleware = new LoggingMiddleware(
-            $this->logger,
-            new LogPayloadNormalizer($this->normalizer),
-            new PayloadSanitizer(),
-        );
+        // Regression for the unbounded-recursion freeze: a message whose object
+        // graph references itself must be normalised, masked and logged without
+        // hanging the dispatch. The bus call returns and the payload carries a
+        // bounded recursion marker instead of spinning the normalizer.
+        $message = new class () {
+            public ?object $self = null;
 
-        $envelope = new Envelope(new \stdClass(), [new BusNameStamp('command.bus')]);
-        $this->middleware->handle($envelope, $this->createPassThroughStack($envelope));
+            public string $name = 'cyclic';
+        };
+        $message->self = $message;
 
-        self::assertSame(
-            ['__class' => \stdClass::class],
-            $this->logger->infoMessages[0]['context']['payload'],
-        );
-        self::assertCount(1, $this->logger->warningMessages);
-        self::assertStringContainsString('Normalizer failed', $this->logger->warningMessages[0]['message']);
-        $exception = $this->logger->warningMessages[0]['context']['exception'];
-        \assert(\is_array($exception));
-        \assert(\is_array($exception['exceptions']));
-        \assert(\is_array($exception['exceptions'][0]));
-        self::assertSame(\RuntimeException::class, $exception['exceptions'][0]['type']);
-        self::assertSame('normalizer down', $exception['exceptions'][0]['message']);
-    }
+        $envelope = new Envelope($message, [new BusNameStamp('command.bus')]);
+        $result = $this->middleware->handle($envelope, $this->createPassThroughStack($envelope));
 
-    public function testNormalizerReturningNonArrayFallsBackAndEmitsWarning(): void
-    {
-        // Same fallback as above, but for the other branch: if the normalizer
-        // returns a scalar/null/object instead of an array, sanitize() can't
-        // walk it. Pin both the placeholder fallback and the warning that
-        // signals the unexpected return type.
-        $this->normalizer = $this->createStub(NormalizerInterface::class);
-        $this->normalizer->method('normalize')->willReturn('unexpected scalar payload');
-        $this->middleware = new LoggingMiddleware(
-            $this->logger,
-            new LogPayloadNormalizer($this->normalizer),
-            new PayloadSanitizer(),
-        );
-
-        $envelope = new Envelope(new \stdClass(), [new BusNameStamp('command.bus')]);
-        $this->middleware->handle($envelope, $this->createPassThroughStack($envelope));
-
-        self::assertSame(
-            ['__class' => \stdClass::class],
-            $this->logger->infoMessages[0]['context']['payload'],
-        );
-        self::assertCount(1, $this->logger->warningMessages);
-        self::assertStringContainsString('non-array value', $this->logger->warningMessages[0]['message']);
-        self::assertSame('string', $this->logger->warningMessages[0]['context']['returned_type']);
+        self::assertSame($message, $result->getMessage());
+        $payload = $this->logger->infoMessages[0]['context']['payload'];
+        \assert(\is_array($payload));
+        self::assertSame('cyclic', $payload['name']);
+        self::assertIsString($payload['self']);
+        self::assertStringContainsString('(already logged)', $payload['self']);
     }
 
     public function testDurationMsIsPresentOnHandledAndFailureLogs(): void

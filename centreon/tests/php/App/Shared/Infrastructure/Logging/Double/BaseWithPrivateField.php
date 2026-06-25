@@ -21,24 +21,19 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Infrastructure\Logging;
+namespace Tests\App\Shared\Infrastructure\Logging\Double;
 
 /**
- * Signals that the inner normalizer wrapped by LogPayloadNormalizer
- * returned a non-array value (scalar, null, object) when an associative
- * array was contractually required. Carries the offending type so the
- * caller can log it operationally without parsing the message string.
+ * Base class carrying a private field, meant to be extended. Pins that a
+ * parent's private property — which `ReflectionObject::getProperties()` omits
+ * — is still walked.
  */
-final class NonArrayNormalizationException extends \UnexpectedValueException
+class BaseWithPrivateField
 {
-    public function __construct(
-        public readonly string $messageClass,
-        public readonly string $returnedType,
-    ) {
-        parent::__construct(sprintf(
-            'Expected the inner normalizer to return an array for %s, got %s.',
-            $messageClass,
-            $returnedType,
-        ));
+    private string $baseField = 'base';
+
+    public function getBaseField(): string
+    {
+        return $this->baseField;
     }
 }
