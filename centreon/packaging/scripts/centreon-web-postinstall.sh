@@ -175,6 +175,21 @@ fixCentreonCronPermissions() {
   done
 }
 
+archiveLegacyPhpFpmLog() {
+  # php-fpm now writes to /var/log/centreon/prod.web.log. On deb the previous
+  # error log lives at a php-version-dependent path that logrotate does not
+  # cover, so it would linger and keep growing. Archive it as ".old" rather
+  # than deleting it, and let the administrator know.
+  if [ "$1" = "deb" ]; then
+    for old_log in /var/log/php*-fpm-centreon-error.log; do
+      if [ -f "$old_log" ]; then
+        mv "$old_log" "${old_log}.old"
+        echo "NOTICE: php-fpm now writes to /var/log/centreon/prod.web.log. Previous log archived as ${old_log}.old (not covered by logrotate; remove it manually once no longer needed)."
+      fi
+    done
+  fi
+}
+
 package_type="rpm"
 if  [ "$1" = "configure" ]; then
   package_type="deb"
@@ -210,6 +225,7 @@ case "$action" in
     fixSymfonyCacheRights $package_type
     rebuildSymfonyCache $package_type
     fixCentreonCronPermissions $package_type
+    archiveLegacyPhpFpmLog $package_type
     ;;
   *)
     # $1 == version being installed
