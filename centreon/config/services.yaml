@@ -168,3 +168,33 @@ services:
     App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor:
         autoconfigure: false
         tags: ['monolog.processor']
+
+    # Platform Monolog processors, declared explicitly. Registered globally as
+    # plain processors: there are no named Monolog channels to scope them to.
+    monolog.processor.uid:
+        class: Monolog\Processor\UidProcessor
+        autoconfigure: false
+        tags: ['monolog.processor']
+
+    monolog.processor.web:
+        class: Symfony\Bridge\Monolog\Processor\WebProcessor
+        autoconfigure: false
+        tags: ['monolog.processor']
+
+    monolog.processor.route:
+        class: Symfony\Bridge\Monolog\Processor\RouteProcessor
+        autoconfigure: false
+        tags: ['monolog.processor']
+
+    monolog.processor.token:
+        class: Symfony\Bridge\Monolog\Processor\TokenProcessor
+        autoconfigure: false
+        arguments:
+            $tokenStorage: '@security.token_storage'
+        tags: ['monolog.processor']
+
+    # Reset MonologAdapter's process-lived static UidProcessor between work units.
+    Adaptation\Log\Adapter\MonologAdapterResetter:
+        autoconfigure: false
+        tags:
+            - { name: kernel.reset, method: reset }
