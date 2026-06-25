@@ -1283,8 +1283,11 @@ msgid "Destination directory."
 msgstr "Diretório de destino."
 
 #: centreon/www/include/Administration/parameters/debug/help.php
-msgid "Directory of log files."
-msgstr "Diretório de ficheiros de log."
+msgid ""
+"Directory for the RRDTool and LDAP search debug logs. Web and authentication "
+"logs are written to the platform log directory (_CENTREON_LOG_, /var/log/"
+"centreon by default) regardless of this setting."
+msgstr ""
 
 #: centreon/www/include/configuration/configNagios/help.php
 msgid ""
@@ -6419,6 +6422,10 @@ msgstr ""
 "Diretório em que os conectores usados ​​pelo Centreon Engine estão "
 "armazenados. \n"
 "Compatível apenas com o motor Centreon> = 1.3."
+
+#: unknown
+msgid "Directory of log files."
+msgstr "Diretório de ficheiros de log."
 
 #: unknown
 msgid "Directory of trap configuration files."
