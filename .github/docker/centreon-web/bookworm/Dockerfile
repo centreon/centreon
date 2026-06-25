@@ -39,8 +39,8 @@ fi
 sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php/8.2/mods-available/timezone.ini
 phpenmod -v 8.2 timezone
 
-touch /var/log/php8.2-fpm-centreon-error.log
-chown www-data:www-data /var/log/php8.2-fpm-centreon-error.log
+touch /var/log/centreon/prod.web.log
+chown www-data:www-data /var/log/centreon/prod.web.log
 
 # Tune php-fpm for CI: ondemand mode to avoid spawning idle workers at startup
 sed -i 's/^pm = .*/pm = ondemand/' /etc/php/8.2/fpm/pool.d/*.conf

@@ -5,4 +5,4 @@ echo "Centreon is ready"
 
 tail -f \
   /var/log/apache2/error.log \
-  /var/log/php8.2-fpm-centreon-error.log
+  /var/log/centreon/prod.web.log
