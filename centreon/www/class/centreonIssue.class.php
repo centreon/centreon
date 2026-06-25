@@ -65,7 +65,7 @@ class CentreonIssue
 					AND s.service_id = i.service_id
 					AND s.host_id = h.host_id
 					AND i.issue_id = iip.child_id
-					AND iip.parent_id = ' . $this->dbb->escape($issueId) . '
+					AND iip.parent_id = ' . (int) $issueId . '
 
 					UNION
 
@@ -81,7 +81,7 @@ class CentreonIssue
 					WHERE h2.host_id = i2.host_id
 					AND i2.service_id IS NULL
 					AND i2.issue_id = iip2.child_id
-					AND iip2.parent_id = ' . $this->dbb->escape($issueId) . '
+					AND iip2.parent_id = ' . (int) $issueId . '
         		  ) tb ';
         $res = $this->dbb->query($query);
         $childTab = [];
@@ -106,7 +106,7 @@ class CentreonIssue
     {
         $query = 'SELECT parent_id
             FROM issues_issues_parents
-            WHERE parent_id = ' . $this->dbb->escape($issueId) . ' LIMIT 1';
+            WHERE parent_id = ' . (int) $issueId . ' LIMIT 1';
         $res = $this->dbb->query($query);
 
         return (bool) ($res->rowCount());
