@@ -241,7 +241,7 @@ class CentreonNotification
      */
     protected function getServiceEscalations($escalations)
     {
-        $escalationsList = implode('', array_map('intval', array_keys($escalations)));
+        $escalationsList = implode(',', array_map('intval', array_keys($escalations)));
         $sql = 'SELECT h.host_id, h.host_name, s.service_id, s.service_description
         		FROM escalation_service_relation esr, host h, service s
         		WHERE h.host_id = esr.host_host_id
