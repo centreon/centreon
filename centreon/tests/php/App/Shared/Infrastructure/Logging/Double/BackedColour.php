@@ -21,30 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Centreon\Domain\Authentication\UseCase;
+namespace Tests\App\Shared\Infrastructure\Logging\Double;
 
-use App\Shared\Domain\Logging\Attribute\Sensitive;
-
-class LogoutRequest
+enum BackedColour: string
 {
-    /**
-     * Authentication Token
-     *
-     * @var string
-     */
-    #[Sensitive]
-    private $token;
-
-    public function __construct(string $token)
-    {
-        $this->token = $token;
-    }
-
-    /**
-     * @return string
-     */
-    public function getToken(): string
-    {
-        return $this->token;
-    }
+    case Red = 'red';
+    case Blue = 'blue';
 }

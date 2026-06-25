@@ -21,30 +21,26 @@
 
 declare(strict_types=1);
 
-namespace Centreon\Domain\Authentication\UseCase;
+namespace Tests\App\Shared\Infrastructure\Logging\Attribute\Fake;
 
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 
-class LogoutRequest
+/**
+ * Pins the TARGET_METHOD path: a `#[Sensitive]` getter masks the
+ * accessor key it exposes (`getApiToken` → `apiToken`), exactly like an
+ * annotated property would.
+ */
+final readonly class MethodSecretCommand
 {
-    /**
-     * Authentication Token
-     *
-     * @var string
-     */
-    #[Sensitive]
-    private $token;
-
-    public function __construct(string $token)
-    {
-        $this->token = $token;
+    public function __construct(
+        private string $apiToken,
+        public string $login,
+    ) {
     }
 
-    /**
-     * @return string
-     */
-    public function getToken(): string
+    #[Sensitive]
+    public function getApiToken(): string
     {
-        return $this->token;
+        return $this->apiToken;
     }
 }

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Adaptation\Database\Connection\Model;
 
 use Adaptation\Database\Connection\Enum\ConnectionDriverEnum;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 /**
  * Class
@@ -42,6 +43,7 @@ final readonly class ConnectionConfig
     public function __construct(
         private string $host,
         private string $user,
+        #[Sensitive]
         private string $password,
         private string $databaseNameConfiguration,
         private string $databaseNameRealTime,

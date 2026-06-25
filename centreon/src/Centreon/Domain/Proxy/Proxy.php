@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Proxy;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
+
 /**
  * This class is designed to represent a proxy configuration.
  *
@@ -57,6 +59,7 @@ class Proxy
     private $user;
 
     /** @var string|null */
+    #[Sensitive]
     private $password;
 
     /** @var string Proxy connection protocol (default: Proxy::PROTOCOL_HTTP) */
