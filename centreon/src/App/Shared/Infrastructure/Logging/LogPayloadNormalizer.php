@@ -27,24 +27,18 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 
 /**
- * Turns a bus message into a redacted, log-safe array payload without
- * delegating to the unbounded Symfony serializer, whose object normalizer
- * recurses with no depth guard and would freeze (CPU-bound, no exception) on a
- * cyclic, shared-reference or very deep object graph.
+ * Turns a bus message into a redacted, log-safe array payload.
  *
- * The walk is bounded the way Monolog's NormalizerFormatter bounds arbitrary
- * log data — recursion depth, per-collection item count and value length —
- * plus a global node budget (so a wide-and-deep graph, which per-level caps
- * alone do not contain, cannot exhaust CPU/memory) and object-identity
- * tracking (a cycle or a repeated reference renders once).
+ * The Symfony object normalizer recurses with no depth guard and would freeze
+ * (CPU-bound, no exception) on a cyclic, shared-reference or very deep graph,
+ * so this walks the graph itself, bounded like Monolog's NormalizerFormatter:
+ * depth, per-collection item count, value length, a global node budget, and
+ * object-identity tracking (a cycle or repeated reference renders once).
  *
- * It exposes the same surface as the standard object normalizer — public
- * properties and properties backed by a public getter (get/is/has/can) — but
- * reads them by reflection and never invokes a getter, so a getter that
- * returns a fresh instance of its own type cannot drive the walk. Internal
- * state with no public accessor stays out of the log entirely. Keyword-matched
- * keys are masked here; attribute-driven `#[Sensitive]` masking is applied
- * downstream by PayloadSanitizer.
+ * It reads the standard normalizer surface — public or public-getter-backed
+ * properties — by reflection, never invoking a getter, so a getter returning a
+ * fresh instance of its own type cannot drive the walk. Keyword keys are masked
+ * here; `#[Sensitive]` masking is applied downstream by PayloadSanitizer.
  */
 final readonly class LogPayloadNormalizer
 {
@@ -129,7 +123,7 @@ final readonly class LogPayloadNormalizer
             try {
                 $result[$key] = $this->normalizeValue($value, $depth + 1, $seen, $budget);
             } catch (\Throwable $e) {
-                $result[$key] = sprintf('{unreadable %s: %s}', $key, get_debug_type($e));
+                $result[$key] = sprintf('{unreadable %s: %s: %s}', $key, get_debug_type($e), $this->capLength($e->getMessage()));
             }
         }
 
@@ -202,7 +196,7 @@ final readonly class LogPayloadNormalizer
             try {
                 $result[$key] = $this->normalizeValue($property->getValue($object), $depth + 1, $seen, $budget);
             } catch (\Throwable $e) {
-                $result[$key] = sprintf('{unreadable %s: %s}', $key, get_debug_type($e));
+                $result[$key] = sprintf('{unreadable %s: %s: %s}', $key, get_debug_type($e), $this->capLength($e->getMessage()));
             }
         }
 
@@ -210,13 +204,9 @@ final readonly class LogPayloadNormalizer
     }
 
     /**
-     * Instance properties — own and inherited — that the standard object
-     * normalizer would expose: public, or backed by a public getter
-     * (get/is/has/can). The getter is never invoked; the backing property is
-     * read by reflection, which keeps the walk immune to a getter that returns
-     * a fresh instance of its own type. A property with no public accessor is
-     * internal state and stays out of the log. The hierarchy is walked because
-     * `ReflectionObject::getProperties()` omits a parent's private properties.
+     * Public or public-getter-backed instance properties, own and inherited.
+     * The getter is never invoked. The hierarchy is walked because
+     * ReflectionObject::getProperties() omits a parent's private properties.
      *
      * @return list<\ReflectionProperty>
      */

@@ -44,9 +44,7 @@ final class LogPayloadNormalizerTest extends TestCase
 
     public function testSensitiveKeysAreMaskedAfterSnakeCaseConversion(): void
     {
-        // Property names are snake_cased like the framework serializer, so the
-        // keyword denylist sees `api_key` / `private_key` and masks them — a
-        // camelCase key would slip past those underscore-bearing keywords.
+        // Keys are snake_cased, so camelCase `apiKey`/`privateKey` are masked as `api_key`/`private_key`.
         $message = new class () {
             public string $username = 'admin';
 
@@ -70,10 +68,6 @@ final class LogPayloadNormalizerTest extends TestCase
 
     public function testPrivatePropertyWithoutAccessorIsNotLogged(): void
     {
-        // The walk exposes the same surface as the standard object normalizer:
-        // public, or backed by a public getter. A private getter-less field is
-        // internal state — it is not logged at all, so a secret there cannot
-        // leak (and never reaches the masking layer).
         $payload = $this->normalizer->normalize(new SensitiveValue());
 
         self::assertArrayNotHasKey('vault_salt', $payload);
@@ -82,9 +76,7 @@ final class LogPayloadNormalizerTest extends TestCase
 
     public function testGetterBackedPrivatePropertyIsReadByReflectionNotViaTheGetter(): void
     {
-        // A private property with a public getter IS exposed (standard surface),
-        // but read directly by reflection — the getter is never invoked, which
-        // is what keeps the walk safe from a getter returning a fresh instance.
+        // The getter exposes the property but is never invoked: the value is read by reflection.
         $message = new class () {
             private string $host = 'real';
 
@@ -101,8 +93,7 @@ final class LogPayloadNormalizerTest extends TestCase
 
     public function testSensitiveArrayKeyIsMasked(): void
     {
-        // Masking in the array branch keys off the raw string key (no snake
-        // conversion), so an already-underscored sensitive key must be caught.
+        // The array branch keys off the raw string key, with no snake conversion.
         $message = new class () {
             /** @var array<string, string> */
             public array $context = ['access_token' => 'xyz', 'name' => 'visible'];
@@ -214,8 +205,7 @@ final class LogPayloadNormalizerTest extends TestCase
 
     public function testPrivatePropertyOfAParentWithAGetterIsWalked(): void
     {
-        // A parent's private property has a public getter, so it is exposed;
-        // ReflectionObject::getProperties() omits it, hence the hierarchy walk.
+        // ReflectionObject::getProperties() omits a parent's private field, hence the hierarchy walk.
         $message = new class () extends BaseWithPrivateField {
             public string $own = 'own';
         };
@@ -228,8 +218,6 @@ final class LogPayloadNormalizerTest extends TestCase
 
     public function testSelfReferentialGraphIsBoundedWithMarker(): void
     {
-        // A cycle on the same instance would spin an unguarded normalizer
-        // forever; the identity guard cuts it with a marker and terminates.
         $message = new class () {
             public ?object $self = null;
 
@@ -247,8 +235,6 @@ final class LogPayloadNormalizerTest extends TestCase
 
     public function testSharedReferenceIsRenderedOnce(): void
     {
-        // A shared (non-cyclic) reference must not be re-expanded per branch —
-        // the global identity set bounds the walk for DAGs, not just cycles.
         $shared = new class () {
             public string $tag = 'shared';
         };
@@ -264,16 +250,12 @@ final class LogPayloadNormalizerTest extends TestCase
         $second = $payload['second'];
         \assert(\is_string($second));
 
-        // first is reached first and expanded; second is the same instance,
-        // already on the walk, so it collapses to the marker.
         self::assertSame(['tag' => 'shared'], $payload['first']);
         self::assertStringContainsString('(already logged)', $second);
     }
 
     public function testDeeplyNestedGraphIsBoundedByMaxDepth(): void
     {
-        // A chain of distinct instances deeper than MAX_DEPTH (no cycle, so the
-        // identity guard never trips) must still terminate via the depth cap.
         $head = null;
         for ($level = 0; $level < 20; $level++) {
             $node = new class () {
@@ -296,9 +278,7 @@ final class LogPayloadNormalizerTest extends TestCase
 
     public function testGlobalNodeBudgetBoundsAWideGraph(): void
     {
-        // Per-level caps (depth, items) do not contain a wide-and-deep graph
-        // whose node count multiplies (200 x 200 = 40k > the 10k budget); the
-        // global node budget does, and the walk stays bounded.
+        // 200 x 200 = 40k nodes > the 10k budget: per-level caps miss it, the global node budget bounds it.
         $message = new class (array_fill(0, 200, array_fill(0, 200, 'x'))) {
             /**
              * @param array<int, array<int, string>> $matrix
@@ -340,6 +320,8 @@ final class LogPayloadNormalizerTest extends TestCase
 
         self::assertSame('fine', $payload['intact']);
         self::assertStringContainsString('unreadable', $boom);
+        self::assertStringContainsString('RuntimeException', $boom);
+        self::assertStringContainsString('cannot stringify', $boom);
     }
 
     public function testCollectionAtExactlyMaxItemsIsNotCapped(): void

@@ -21,22 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\Shared\Infrastructure\Logging\Double;
-
-use App\Shared\Domain\Logging\Attribute\Sensitive;
+namespace Tests\App\Shared\Infrastructure\Logging\Attribute\Fake;
 
 /**
- * Pins that a private, getter-less field is never logged, so a secret there cannot leak.
+ * Pins multi-word `subClasses` routing: a `#[Sensitive]`-typed property masked under its snake_cased key (`paymentCard` → `payment_card`).
  */
-final class SensitiveValue
+final readonly class MultiWordNestedCommand
 {
-    public string $label = 'visible';
-
-    #[Sensitive]
-    private string $vaultSalt = 'top-secret';
-
-    public function reveal(): string
-    {
-        return $this->vaultSalt;
+    public function __construct(
+        public SensitiveValueObject $paymentCard,
+        public string $label,
+    ) {
     }
 }

@@ -29,6 +29,7 @@ use App\Shared\Infrastructure\Logging\SensitiveKeywordDenylist;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\CardHolderCommand;
 use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\MethodSecretCommand;
+use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\MultiWordNestedCommand;
 use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\NestedPayloadCommand;
 use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\SecretsCommand;
 
@@ -63,12 +64,13 @@ final class PayloadSanitizerTest extends TestCase
 
     public function testMasksOnlyTheAnnotatedPropertiesOfTheContextClass(): void
     {
+        // `sso_ticket` matches no denylist keyword, so masking it exercises the attribute path alone.
         $sanitised = $this->sanitizer->sanitize(
-            ['passcode' => '482031', 'ssoTicket' => 'st-abc', 'userId' => 7],
+            ['passcode' => '482031', 'sso_ticket' => 'st-abc', 'user_id' => 7],
             SecretsCommand::class,
         );
 
-        self::assertSame(['passcode' => '***', 'ssoTicket' => '***', 'userId' => 7], $sanitised);
+        self::assertSame(['passcode' => '***', 'sso_ticket' => '***', 'user_id' => 7], $sanitised);
     }
 
     public function testRecursesIntoTypedSubObjectsToHonourNestedAnnotations(): void
@@ -84,11 +86,22 @@ final class PayloadSanitizerTest extends TestCase
     public function testMasksTheAccessorKeyExposedByASensitiveMethod(): void
     {
         $sanitised = $this->sanitizer->sanitize(
-            ['apiToken' => 'tok-123', 'login' => 'admin'],
+            ['api_token' => 'tok-123', 'login' => 'admin'],
             MethodSecretCommand::class,
         );
 
-        self::assertSame(['apiToken' => '***', 'login' => 'admin'], $sanitised);
+        self::assertSame(['api_token' => '***', 'login' => 'admin'], $sanitised);
+    }
+
+    public function testMasksNonKeywordAccessorKeyExposedByASensitiveMethod(): void
+    {
+        // `sso_ticket` matches no denylist keyword, so this isolates the getter's attribute net from the keyword net.
+        $sanitised = $this->sanitizer->sanitize(
+            ['sso_ticket' => 'st-abc', 'login' => 'admin'],
+            MethodSecretCommand::class,
+        );
+
+        self::assertSame(['sso_ticket' => '***', 'login' => 'admin'], $sanitised);
     }
 
     public function testMasksWholeValueTypedAsASensitiveClass(): void
@@ -104,6 +117,20 @@ final class PayloadSanitizerTest extends TestCase
         // The `card` property is typed as a `#[Sensitive]` class: the
         // whole sub-payload is masked, never descended into.
         self::assertSame(['card' => '***', 'label' => 'default card'], $sanitised);
+    }
+
+    public function testMasksMultiWordValueTypedAsASensitiveClass(): void
+    {
+        // Wholesale mask via the multi-word snake_cased `subClasses` key (`payment_card`).
+        $sanitised = $this->sanitizer->sanitize(
+            [
+                'payment_card' => ['number' => 'card-number-test', 'holder' => 'admin'],
+                'label' => 'default card',
+            ],
+            MultiWordNestedCommand::class,
+        );
+
+        self::assertSame(['payment_card' => '***', 'label' => 'default card'], $sanitised);
     }
 
     public function testReturnsThrowableUntouchedSoExceptionFormatterCanStructureIt(): void

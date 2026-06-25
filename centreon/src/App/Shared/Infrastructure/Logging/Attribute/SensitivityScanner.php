@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\Shared\Infrastructure\Logging\Attribute;
 
 use App\Shared\Domain\Logging\Attribute\Sensitive;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
  * Scans the `#[Sensitive]` markers and nested class types of a class.
@@ -35,6 +36,10 @@ use App\Shared\Domain\Logging\Attribute\Sensitive;
  *    Symfony normalizer derives keys from getters;
  *  - **class** — every value typed as that class is masked wholesale
  *    (`classSensitive`), so the sanitiser never descends into it.
+ *
+ * Recorded keys are snake_cased like the payload keys the framework's global
+ * name converter produces, so the sanitiser's name match fires (`ssoTicket`
+ * surfaces as `sso_ticket`).
  *
  * Result cached per class to share the {@see \ReflectionClass} walk
  * across every record produced by the same payload.
@@ -72,9 +77,10 @@ final class SensitivityScanner
 
         $reflection = new \ReflectionClass($class);
         $classSensitive = $reflection->getAttributes(Sensitive::class) !== [];
+        $keyConverter = new CamelCaseToSnakeCaseNameConverter();
 
         foreach ($reflection->getProperties() as $property) {
-            $name = $property->getName();
+            $name = $keyConverter->normalize($property->getName());
 
             if ($property->getAttributes(Sensitive::class) !== []) {
                 $sensitive[] = $name;
@@ -93,7 +99,7 @@ final class SensitivityScanner
                 continue;
             }
 
-            $key = self::accessorKey($method->getName());
+            $key = $keyConverter->normalize(self::accessorKey($method->getName()));
             if (! \in_array($key, $sensitive, true)) {
                 $sensitive[] = $key;
             }

@@ -23,8 +23,11 @@ declare(strict_types=1);
 
 namespace Tests\App\Shared\Infrastructure\Messenger;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
+use App\Shared\Infrastructure\Logging\Attribute\SensitivityScanner;
 use App\Shared\Infrastructure\Logging\LogPayloadNormalizer;
 use App\Shared\Infrastructure\Logging\PayloadSanitizer;
+use App\Shared\Infrastructure\Logging\SensitiveKeywordDenylist;
 use App\Shared\Infrastructure\Messenger\LoggingMiddleware;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Envelope;
@@ -33,6 +36,7 @@ use Symfony\Component\Messenger\Middleware\StackInterface;
 use Symfony\Component\Messenger\Stamp\BusNameStamp;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
+use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
 
 final class LoggingMiddlewareTest extends TestCase
@@ -43,6 +47,8 @@ final class LoggingMiddlewareTest extends TestCase
 
     protected function setUp(): void
     {
+        SensitivityScanner::reset();
+        SensitiveKeywordDenylist::reset();
         $this->logger = new LoggerSpy();
         $this->middleware = new LoggingMiddleware(
             $this->logger,
@@ -180,10 +186,7 @@ final class LoggingMiddlewareTest extends TestCase
 
     public function testCyclicPayloadIsLoggedWithoutHanging(): void
     {
-        // Regression for the unbounded-recursion freeze: a message whose object
-        // graph references itself must be normalised, masked and logged without
-        // hanging the dispatch. The bus call returns and the payload carries a
-        // bounded recursion marker instead of spinning the normalizer.
+        // Regression for the unbounded-recursion freeze: a self-referencing message must log without hanging.
         $message = new class () {
             public ?object $self = null;
 
@@ -299,6 +302,56 @@ final class LoggingMiddlewareTest extends TestCase
         $dispatchId = $this->logger->infoMessages[0]['context']['dispatch_id'];
         self::assertIsString($dispatchId);
         self::assertSame($dispatchId, $this->logger->criticalMessages[0]['context']['dispatch_id']);
+    }
+
+    public function testSensitiveAnnotatedFieldIsMaskedEndToEnd(): void
+    {
+        // End to end: `ssoTicket` (no denylist keyword) surfaces as `sso_ticket` and must still be masked.
+        $message = new class () {
+            public string $username = 'admin';
+
+            #[Sensitive]
+            public string $ssoTicket = 'st-secret-value';
+        };
+
+        $envelope = new Envelope($message, [new BusNameStamp('command.bus')]);
+        $this->middleware->handle($envelope, $this->createPassThroughStack($envelope));
+
+        $payload = $this->logger->infoMessages[0]['context']['payload'];
+        \assert(\is_array($payload));
+        self::assertSame('admin', $payload['username']);
+        self::assertSame('***', $payload['sso_ticket']);
+    }
+
+    public function testNormalizerFailureFallsBackToClassPlaceholderAndWarns(): void
+    {
+        // A normalizer failure (here a throwing name converter) must not break dispatch: warn and log a `__class` placeholder.
+        $throwingConverter = new class () implements NameConverterInterface {
+            public function normalize(string $propertyName): string
+            {
+                throw new \RuntimeException('name conversion failed');
+            }
+
+            public function denormalize(string $propertyName): string
+            {
+                return $propertyName;
+            }
+        };
+        $middleware = new LoggingMiddleware(
+            $this->logger,
+            new LogPayloadNormalizer($throwingConverter),
+            new PayloadSanitizer(),
+        );
+        $message = new class () {
+            public string $field = 'value';
+        };
+
+        $envelope = new Envelope($message, [new BusNameStamp('command.bus')]);
+        $middleware->handle($envelope, $this->createPassThroughStack($envelope));
+
+        self::assertCount(1, $this->logger->warningMessages);
+        self::assertStringContainsString('Normalizer failed for', $this->logger->warningMessages[0]['message']);
+        self::assertSame(['__class' => $message::class], $this->logger->infoMessages[0]['context']['payload']);
     }
 
     private function createPassThroughStack(Envelope $envelope): StackInterface

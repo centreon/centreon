@@ -27,8 +27,8 @@ use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 /**
  * Pins the TARGET_METHOD path: a `#[Sensitive]` getter masks the
- * accessor key it exposes (`getApiToken` → `apiToken`), exactly like an
- * annotated property would.
+ * snake_cased accessor key it exposes (`getApiToken` → `api_token`,
+ * `getSsoTicket` → `sso_ticket`).
  */
 final readonly class MethodSecretCommand
 {
@@ -42,5 +42,11 @@ final readonly class MethodSecretCommand
     public function getApiToken(): string
     {
         return $this->apiToken;
+    }
+
+    #[Sensitive]
+    public function getSsoTicket(): string
+    {
+        return 'st-secret';
     }
 }

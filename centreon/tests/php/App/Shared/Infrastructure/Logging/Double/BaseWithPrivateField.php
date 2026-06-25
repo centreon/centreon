@@ -24,9 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\Shared\Infrastructure\Logging\Double;
 
 /**
- * Base class carrying a private field, meant to be extended. Pins that a
- * parent's private property — which `ReflectionObject::getProperties()` omits
- * — is still walked.
+ * Pins that a parent's private field (omitted by ReflectionObject::getProperties()) is still walked.
  */
 class BaseWithPrivateField
 {
