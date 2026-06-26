@@ -15,14 +15,17 @@ services:
       - poller-broker:/etc/centreon-broker
       - poller-centcmd:/var/lib/centreon-engine/rw
       - poller-centlog:/var/log/centreon-engine
-      - ./certs/poller.crt:/etc/pki/poller.crt
-      - ./certs/poller.key:/etc/pki/poller.key
+      # Optional: TLS certificates for the Centreon Monitoring Agent (CMA) connecting
+      # via OpenTelemetry gRPC (port 4317). Generate with your PKI or use a self-signed CA.
+      #- ./certs/poller.crt:/etc/pki/poller.crt
+      #- ./certs/poller.key:/etc/pki/poller.key
       # Optional: mount custom plugin scripts (must be executable)
       #- ./custom-plugins:/usr/lib/nagios/plugins/custom:ro
       # Optional: install extra APT packages at startup via {"apt": ["pkg1", "pkg2"]}
       #- ./custom-deps.json:/etc/centreon-engine/custom-deps.json:ro
     ports:
-      - "4317:4317"
+      # Optional: expose only if CMA agents connect to this poller via OpenTelemetry gRPC
+      #- "4317:4317"
     healthcheck:
       test: ["CMD-SHELL", "grep -q ':1625 01' /proc/net/tcp 2>/dev/null"]
       interval: 30s
