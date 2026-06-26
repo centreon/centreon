@@ -172,13 +172,15 @@ export default (on: Cypress.PluginEvents): void => {
         user: "centreon",
       });
 
-      const [rows, fields] = params
-        ? await client.execute(query, params)
-        : await client.query(query);
+      try {
+        const [rows, fields] = params
+          ? await client.execute(query, params)
+          : await client.query(query);
 
-      await client.end();
-
-      return [rows, fields];
+        return [rows, fields];
+      } finally {
+        await client.end();
+      }
     },
     startContainer: async ({
       command,
