@@ -447,6 +447,23 @@ function set_release_repo_file() {
 }
 #========= end of function set_release_repo_file()
 
+#========= begin of function install_mariadb_repo_setup()
+# Download MariaDB's official repo-setup script to a file and run it, rather than piping it straight
+# from the network into a root shell: this avoids executing a half-downloaded script if the
+# connection drops, and lets curl fail cleanly on an HTTP error before anything runs.
+# "$@" is forwarded to the script.
+#
+function install_mariadb_repo_setup() {
+	local script rc
+	script=$(mktemp)
+	curl -fsSL https://r.mariadb.com/downloads/mariadb_repo_setup -o "$script" || error_and_exit "Failed to download mariadb_repo_setup"
+	bash "$script" "$@"
+	rc=$?
+	rm -f "$script"
+	return $rc
+}
+#========= end of function install_mariadb_repo_setup()
+
 #========= begin of function set_mariadb_repos()
 #
 function set_mariadb_repos() {
@@ -458,11 +475,11 @@ function set_mariadb_repos() {
 	fi
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
-		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=debian --os-version="$detected_os_version" --mariadb-server-version="$detected_mariadb_version" --skip-maxscale
+		install_mariadb_repo_setup --os-type=debian --os-version="$detected_os_version" --mariadb-server-version="$detected_mariadb_version" --skip-maxscale
 	elif (( $(version_int) >= $(version_int 26.07) )); then
 		# el9 has no 11.8 dnf module stream and el10 dropped dnf modularity, so MariaDB 11.8
 		# is installed from the MariaDB official repository for both.
-		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --os-version="$detected_os_major" --mariadb-server-version="mariadb-$detected_mariadb_version" --skip-maxscale
+		install_mariadb_repo_setup --os-type=rhel --os-version="$detected_os_major" --mariadb-server-version="mariadb-$detected_mariadb_version" --skip-maxscale
 	else
 	    dnf module enable mariadb:$detected_mariadb_version -y -q
 	fi
@@ -641,8 +658,8 @@ function set_required_prerequisite() {
 					# PHP 8.4 is not available in the el9 OS repositories, so it is
 					# provided by the remi repository.
 					log "INFO" "Installing PHP 8.4 from the remi repository and enable it"
-					$PKG_MGR install -y https://rpms.remirepo.net/enterprise/remi-release-9.rpm
-					$PKG_MGR module -y switch-to php:remi-8.4/common
+					$PKG_MGR install -y https://rpms.remirepo.net/enterprise/remi-release-9.rpm || error_and_exit "Failed to install the remi repository, required for PHP 8.4 on el9"
+					$PKG_MGR module -y switch-to php:remi-8.4/common || error_and_exit "Failed to switch to the PHP 8.4 module from remi"
 				elif (( $(version_int) >= $(version_int 24.10) )); then
 					log "INFO" "Installing PHP 8.2 and enable it"
 					$PKG_MGR module reset php -y -q
@@ -656,6 +673,9 @@ function set_required_prerequisite() {
 
 		10*)
 			log "INFO" "Setting specific part for v10 ($detected_os_version)"
+			if (( $(version_int) < $(version_int 26.07) )); then
+				error_and_exit "Centreon $version is not supported on Red-Hat compatible v10 (el10). Only Centreon >= 26.07 is compatible. You chose $version"
+			fi
 			set_release_repo_file
 			PHP_SERVICE_UNIT="php-fpm"
 			HTTP_SERVICE_UNIT="httpd"
@@ -928,7 +948,7 @@ function generate_db_tls_certificates() {
 	fqdn=$(hostname -f 2>/dev/null || hostname)
 
 	# The 'openssl' CLI is not guaranteed on a minimal install (RHEL ships only openssl-libs); install on demand.
-	command -v openssl >/dev/null 2>&1 || $PKG_MGR install -y openssl
+	command -v openssl >/dev/null 2>&1 || $PKG_MGR install -y openssl || error_and_exit "Failed to install openssl, required to generate DB TLS certificates"
 
 	mkdir -p "$cert_dir"
 	chmod 755 "$cert_dir"
@@ -936,11 +956,11 @@ function generate_db_tls_certificates() {
 	# Root CA — persistent: reuse across runs if already present.
 	if [[ ! -f "$ca_cert" || ! -f "$ca_key" ]]; then
 		log "INFO" "Generating Root CA for DB TLS"
-		openssl genrsa -out "$ca_key" 4096
+		openssl genrsa -out "$ca_key" 4096 || error_and_exit "Failed to generate the Root CA key for DB TLS"
 		chmod 400 "$ca_key"
 		openssl req -x509 -new -nodes -key "$ca_key" -sha256 -days 3650 \
 			-subj "/C=FR/L=Paris/O=Centreon/OU=RD/CN=Centreon DB Root CA" \
-			-out "$ca_cert"
+			-out "$ca_cert" || error_and_exit "Failed to generate the Root CA certificate for DB TLS"
 		chmod 644 "$ca_cert"
 	else
 		log "INFO" "Reusing existing Root CA at $ca_cert"
@@ -969,10 +989,10 @@ function generate_db_tls_certificates() {
 	} > "$ext_file"
 
 	log "INFO" "Generating DB server certificate (CN=$fqdn) with SANs for all interface IPs"
-	openssl genrsa -out "$srv_key" 2048
-	openssl req -new -key "$srv_key" -out "$csr_file" -subj "/C=FR/L=Paris/O=Centreon/CN=$fqdn"
+	openssl genrsa -out "$srv_key" 2048 || error_and_exit "Failed to generate the DB server key"
+	openssl req -new -key "$srv_key" -out "$csr_file" -subj "/C=FR/L=Paris/O=Centreon/CN=$fqdn" || error_and_exit "Failed to generate the DB server certificate request"
 	openssl x509 -req -in "$csr_file" -CA "$ca_cert" -CAkey "$ca_key" -CAcreateserial \
-		-out "$srv_cert" -days 825 -sha256 -extfile "$ext_file" -extensions v3_req
+		-out "$srv_cert" -days 825 -sha256 -extfile "$ext_file" -extensions v3_req || error_and_exit "Failed to sign the DB server certificate"
 	rm -f "$ext_file" "$csr_file"
 
 	# Cert is public (0644). The key must be readable by the DB user only: MariaDB/MySQL run as
@@ -1897,6 +1917,9 @@ install)
 	;;
 
 esac
+
+# Validate the resolved TLS mode (from ENV_DB_TLS or the --tls flag) before using it.
+[[ ${SUPPORTED_TLS[$tls]} ]] || error_and_exit "Unsupported TLS mode: '$tls' (expected enabled or disabled)"
 
 # Set DBMS password from ENV or random password if not defined
 if [ "$operation" == "install" ]; then
