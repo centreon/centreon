@@ -241,10 +241,16 @@ class CentreonRestHttp
 
         // url and response go in the context so the platform sanitizer can redact
         // query-string secrets and cap their length; the message stays secret-free.
-        $this->logger->error(
-            sprintf('[%s] REST call failed', $type),
-            ['url' => $url, 'response' => $output]
-        );
+        // Logging must never replace the REST exception being reported, so a write
+        // failure (or a throwing injected logger) is contained here.
+        try {
+            $this->logger->error(
+                sprintf('[%s] REST call failed', $type),
+                ['url' => $url, 'response' => $output]
+            );
+        } catch (Throwable $e) {
+            error_log(sprintf('CentreonRestHttp: failed to write REST error log: %s', $e->getMessage()));
+        }
     }
 
     /**
