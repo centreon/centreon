@@ -89,15 +89,23 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
         if (! isset($this->firstObject) || ! isset($this->secondObject)) {
             throw new Exception('Unsupported method on this object');
         }
+        $identifierPattern = '/^[a-zA-Z_][a-zA-Z0-9_.]*$/';
+
         $fString = '';
         $sString = '';
         foreach ($firstTableParams as $fparams) {
+            if (preg_match($identifierPattern, $fparams) !== 1) {
+                throw new Exception('Invalid column name');
+            }
             if ($fString != '') {
                 $fString .= ',';
             }
             $fString .= 'h.' . $fparams;
         }
         foreach ($secondTableParams as $sparams) {
+            if (preg_match($identifierPattern, $sparams) !== 1) {
+                throw new Exception('Invalid column name');
+            }
             if ($fString != '' || $sString != '') {
                 $sString .= ',';
             }
@@ -110,14 +118,21 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
         $filterTab = [];
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
-                $sql .= " {$filterType} {$key} LIKE ? ";
+                if (preg_match($identifierPattern, $key) !== 1) {
+                    throw new Exception('Invalid filter key');
+                }
+                $safeFilterType = strtoupper($filterType) === 'AND' ? 'AND' : 'OR';
+                $sql .= " {$safeFilterType} {$key} LIKE ? ";
                 $value = trim($rawvalue);
                 $value = str_replace('_', "\_", $value);
                 $value = str_replace(' ', "\ ", $value);
                 $filterTab[] = $value;
             }
         }
-        if (isset($order, $sort)   && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
+        if (isset($order, $sort) && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
+            if (preg_match($identifierPattern, $order) !== 1) {
+                throw new Exception('Invalid order column');
+            }
             $sql .= " ORDER BY {$order} {$sort} ";
         }
         if (isset($count) && $count != -1) {

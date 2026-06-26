@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\Token\Domain\Model;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Common\Domain\TrimmedString;
@@ -30,6 +31,7 @@ use Security\Encryption;
 
 final class NewApiToken extends NewToken
 {
+    #[Sensitive]
     private string $token;
 
     /**

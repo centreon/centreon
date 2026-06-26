@@ -25,5 +25,18 @@ namespace Adaptation\Log\Enum;
 
 enum LogChannelEnum: string
 {
+    case AUTHENTICATION = 'authentication';
     case PASSWORD = 'password';
+    case PLUGIN_PACK_MANAGER = 'plugin-pack-manager';
+    case TOKEN = 'token';
+    case UPGRADE = 'upgrade';
+    case WEB = 'web';
+
+    public function getLogFileSlug(): string
+    {
+        return match ($this) {
+            self::AUTHENTICATION => 'access',
+            default => $this->value,
+        };
+    }
 }

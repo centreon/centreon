@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\OpenId\UseCase\FindOpenIdConfiguration;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
@@ -108,6 +109,7 @@ final class FindOpenIdConfigurationResponse
     public ?string $clientId = null;
 
     /** @var string|null */
+    #[Sensitive]
     public ?string $clientSecret = null;
 
     /** @var string|null */
