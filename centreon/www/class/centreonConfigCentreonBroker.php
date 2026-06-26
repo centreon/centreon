@@ -1019,11 +1019,14 @@ class CentreonConfigCentreonBroker
         $this->nbSubGroup = 1;
         $query = "SELECT config_value, config_group_id
             FROM cfg_centreonbroker_info
-            WHERE config_id = %d AND config_group = '%s'
+            WHERE config_id = :configId AND config_group = :configGroup
             AND config_key = 'blockId'
             ORDER BY config_group_id";
         try {
-            $res = $this->db->query(sprintf($query, $config_id, $tag));
+            $res = $this->db->prepare($query);
+            $res->bindValue(':configId', (int) $config_id, PDO::PARAM_INT);
+            $res->bindValue(':configGroup', $tag, PDO::PARAM_STR);
+            $res->execute();
         } catch (PDOException $e) {
             return [];
         }
@@ -1145,21 +1148,38 @@ class CentreonConfigCentreonBroker
         if (! isset($s_table) || ! isset($s_column)) {
             return false;
         }
+        // Table and column names cannot be bound as query parameters, so they are
+        // validated against a strict identifier allowlist to prevent SQL injection.
+        $isValidIdentifier = static fn (string $identifier): bool => preg_match('/^[a-zA-Z0-9_]+$/', $identifier) === 1;
+        if (! $isValidIdentifier($s_table) || ! $isValidIdentifier($s_column)) {
+            return false;
+        }
+        $hasKeyFilter = isset($s_column_key, $s_key);
+        if ($hasKeyFilter && ! $isValidIdentifier($s_column_key)) {
+            return false;
+        }
         $query = 'SELECT `' . $s_column . '` FROM `' . $s_table . '`';
-        if (isset($s_column_key, $s_key)) {
-            $query .= ' WHERE `' . $s_column_key . "` = '" . $s_key . "'";
+        if ($hasKeyFilter) {
+            $query .= ' WHERE `' . $s_column_key . '` = :key';
         }
 
         // Execute the query
         try {
             switch ($s_db) {
                 case 'centreon':
-                    $res = $this->db->query($query);
+                    $res = $this->db->prepare($query);
                     break;
                 case 'centreon_storage':
-                    $res = $monitoringDb->query($query);
+                    $res = $monitoringDb->prepare($query);
                     break;
             }
+            if (! isset($res)) {
+                return false;
+            }
+            if ($hasKeyFilter) {
+                $res->bindValue(':key', $s_key, PDO::PARAM_STR);
+            }
+            $res->execute();
         } catch (PDOException $e) {
             return false;
         }
@@ -1606,8 +1626,10 @@ class CentreonConfigCentreonBroker
     private function getExternalDefaultValue($fieldId)
     {
         $externalValue = null;
-        $query = 'SELECT `external` FROM cb_field WHERE cb_field_id = ' . $fieldId;
-        $res = $this->db->query($query);
+        $query = 'SELECT `external` FROM cb_field WHERE cb_field_id = :fieldId';
+        $res = $this->db->prepare($query);
+        $res->bindValue(':fieldId', (int) $fieldId, PDO::PARAM_INT);
+        $res->execute();
 
         if (! $res) {
             $externalValue = null;
@@ -1730,20 +1752,21 @@ class CentreonConfigCentreonBroker
         if ($info['grp_level'] != 0) {
             $error = false;
             try {
-                $res = $this->db->query(sprintf(
-                    "SELECT config_key, config_value, config_group_id, grp_level, parent_grp_id
-               FROM cfg_centreonbroker_info
-               WHERE config_id = %d
-                   AND config_group = '%s'
-           AND subgrp_id = %d
-           AND grp_level = %d
-           AND config_group_id = %d",
-                    $configId,
-                    $configGroup,
-                    $info['parent_grp_id'],
-                    $info['grp_level'] - 1,
-                    $info['config_group_id']
-                ));
+                $res = $this->db->prepare(
+                    'SELECT config_key, config_value, config_group_id, grp_level, parent_grp_id
+                    FROM cfg_centreonbroker_info
+                    WHERE config_id = :configId
+                        AND config_group = :configGroup
+                        AND subgrp_id = :subgrpId
+                        AND grp_level = :grpLevel
+                        AND config_group_id = :configGroupId'
+                );
+                $res->bindValue(':configId', (int) $configId, PDO::PARAM_INT);
+                $res->bindValue(':configGroup', $configGroup, PDO::PARAM_STR);
+                $res->bindValue(':subgrpId', (int) $info['parent_grp_id'], PDO::PARAM_INT);
+                $res->bindValue(':grpLevel', (int) $info['grp_level'] - 1, PDO::PARAM_INT);
+                $res->bindValue(':configGroupId', (int) $info['config_group_id'], PDO::PARAM_INT);
+                $res->execute();
             } catch (PDOException $e) {
                 $error = true;
             }
