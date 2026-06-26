@@ -239,7 +239,12 @@ class CentreonRestHttp
             return;
         }
 
-        $this->logger->error('[' . $type . '] ' . $url . ' : ' . $output);
+        // url and response go in the context so the platform sanitizer can redact
+        // query-string secrets and cap their length; the message stays secret-free.
+        $this->logger->error(
+            sprintf('[%s] REST call failed', $type),
+            ['url' => $url, 'response' => $output]
+        );
     }
 
     /**
