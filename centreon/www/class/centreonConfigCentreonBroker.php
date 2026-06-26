@@ -523,6 +523,7 @@ class CentreonConfigCentreonBroker
         if (isset($this->arrayMultiple)) {
             foreach ($this->arrayMultiple as $key => $multipleGroup) {
                 ksort($multipleGroup);
+                $multipleGroup = array_values($multipleGroup);
                 $cdata->addJsData('clone-values-' . $key, htmlspecialchars(
                     json_encode($multipleGroup),
                     ENT_QUOTES
