@@ -33,6 +33,7 @@
     "@centreon/js-config": "workspace:*",
     "@cypress/code-coverage": "3.14.4",
     "@cypress/react": "^9.0.1",
+    "@module-federation/runtime-tools": "^2.5.1",
     "@mui/utils": "^6.4.6",
     "@rsdoctor/rspack-plugin": "^1.5.15",
     "@rspack/cli": "^2.1.0",
