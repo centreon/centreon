@@ -112,6 +112,7 @@ Timeline.Platform = new Object();
         var includeJavascriptFile = function(filename) {
             var script = document.createElement("script");
             script.type = "text/javascript";
+            script.async = false;
             script.src = Timeline.urlPrefix + "scripts/" + filename;
             document.head.appendChild(script);
         };

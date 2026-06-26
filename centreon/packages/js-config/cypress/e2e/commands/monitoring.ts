@@ -3,8 +3,6 @@
 const apiBase = '/centreon/api';
 const apiActionV1 = `${apiBase}/index.php`;
 
-const escapeSql = (value: string): string => value.replace(/'/g, "\\'");
-
 const getStatusNumberFromString = (status: string): number => {
   const statuses = {
     critical: '2',
@@ -34,12 +32,11 @@ Cypress.Commands.add(
     host,
     isForced = true
   }: ServiceCheck): Cypress.Chainable => {
-    let query = `SELECT id FROM resources WHERE name = '${escapeSql(host)}' AND type = 1`;
-
     return cy
       .requestOnDatabase({
         database: 'centreon_storage',
-        query
+        query: 'SELECT id FROM resources WHERE name = ? AND type = 1',
+        params: [host]
       })
       .then(([rows]) => {
         if (rows.length === 0) {
@@ -86,12 +83,11 @@ Cypress.Commands.add(
     isForced = true,
     service
   }: ServiceCheck): Cypress.Chainable => {
-    let query = `SELECT parent_id, id FROM resources WHERE parent_name = '${escapeSql(host)}' AND name = '${escapeSql(service)}'`;
-
     return cy
       .requestOnDatabase({
         database: 'centreon_storage',
-        query
+        query: 'SELECT parent_id, id FROM resources WHERE parent_name = ? AND name = ?',
+        params: [host, service]
       })
       .then(([rows]) => {
         if (rows.length === 0) {
@@ -183,22 +179,23 @@ Cypress.Commands.add(
     cy.log('Checking hosts in database');
 
     let query = `SELECT COUNT(d.downtime_id) AS count_downtimes FROM downtimes as d
-      INNER JOIN hosts as h ON h.host_id = d.host_id AND h.name = '${escapeSql(downtime.host)}'`;
+      INNER JOIN hosts as h ON h.host_id = d.host_id AND h.name = ?`;
+    const params: Array<string> = [downtime.host];
     if (downtime.service) {
-      query += ` INNER JOIN services as s ON s.service_id = d.service_id AND s.description = '${escapeSql(downtime.service)}'`;
+      query += ` INNER JOIN services as s ON s.service_id = d.service_id AND s.description = ?`;
+      params.push(downtime.service);
     }
     query += ` WHERE d.started=1`;
     if (!downtime.service) {
       query += ` AND d.service_id = 0`;
     }
 
-    cy.log(query);
-
     cy.waitUntil(() => {
       return cy
         .requestOnDatabase({
           database: 'centreon_storage',
-          query
+          query,
+          params
         })
         .then(([rows]) => {
           const foundDowntimesCount = rows.length ? rows[0].count_downtimes : 0;

@@ -37,6 +37,9 @@ const Contacts = ({
   noContactsMessage
 }: Props): ReactElement => {
   const goToUri = (uri: string): void => {
+    if (!uri) {
+      return;
+    }
     try {
       const resolved = new URL(uri, window.location.origin);
       if (resolved.origin === window.location.origin) {

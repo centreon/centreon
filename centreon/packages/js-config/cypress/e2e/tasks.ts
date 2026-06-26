@@ -155,7 +155,7 @@ export default (on: Cypress.PluginEvents): void => {
 
       return container.getMappedPort(containerPort);
     },
-    requestOnDatabase: async ({ database, query }) => {
+    requestOnDatabase: async ({ database, query, params }) => {
       let container: StartedTestContainer | null = null;
 
       if (dockerEnvironment !== null) {
@@ -172,7 +172,9 @@ export default (on: Cypress.PluginEvents): void => {
         user: "centreon",
       });
 
-      const [rows, fields] = await client.query(query);
+      const [rows, fields] = params
+        ? await client.execute(query, params)
+        : await client.query(query);
 
       await client.end();
 
@@ -308,8 +310,9 @@ export default (on: Cypress.PluginEvents): void => {
       return path.join(downloadsFolder, files[0].name);
     },
     readCsvFile({ filePath }: { filePath: string }): Promise<string> {
+      const projectRoot = path.resolve(process.cwd());
       const resolvedPath = path.resolve(filePath);
-      if (!resolvedPath.startsWith(path.resolve(process.cwd()))) {
+      if (resolvedPath !== projectRoot && !resolvedPath.startsWith(projectRoot + path.sep)) {
         return Promise.reject(new Error("Path is outside of the project directory"));
       }
 
@@ -321,8 +324,9 @@ export default (on: Cypress.PluginEvents): void => {
       });
     },
     clearDownloadsFolder({ downloadsFolder }: { downloadsFolder: string }): null {
+      const projectRoot = path.resolve(process.cwd());
       const resolvedFolder = path.resolve(downloadsFolder);
-      if (!resolvedFolder.startsWith(path.resolve(process.cwd()))) {
+      if (resolvedFolder !== projectRoot && !resolvedFolder.startsWith(projectRoot + path.sep)) {
         throw new Error("Path is outside of the project directory");
       }
 
@@ -333,7 +337,7 @@ export default (on: Cypress.PluginEvents): void => {
       const files = fs.readdirSync(resolvedFolder);
       for (const file of files) {
         const filePath = path.join(resolvedFolder, file);
-        if (!filePath.startsWith(resolvedFolder)) {
+        if (!filePath.startsWith(resolvedFolder + path.sep)) {
           continue;
         }
         fs.unlinkSync(filePath);
