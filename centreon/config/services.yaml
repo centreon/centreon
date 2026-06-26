@@ -161,6 +161,25 @@ services:
         arguments:
             $dateFormat: !php/const DateTimeInterface::RFC3339
 
+    # #[Sensitive] payload masking. The App\Shared namespace is not glob-loaded
+    # here, so these services are declared by hand; autoconfigure: false stops
+    # Symfony from also deriving the monolog.processor tag from #[AsMonologProcessor]
+    # and double-registering the processor.
+    #
+    # Declared FIRST on purpose: the MonologBundle pushes tagged processors in
+    # definition order and Monolog's pushProcessor is LIFO, so the first-declared
+    # one runs LAST — after WebProcessor & co. have filled `extra` (the request
+    # URL lives in `extra.url`). The bundle ignores the tag `priority` for
+    # processors, so ordering is controlled by declaration position here.
+    App\Shared\Infrastructure\Logging\PayloadSanitizer:
+        autoconfigure: false
+
+    App\Shared\Infrastructure\Logging\SanitizingProcessor:
+        autoconfigure: false
+        arguments:
+            $sanitizer: '@App\Shared\Infrastructure\Logging\PayloadSanitizer'
+        tags: ['monolog.processor']
+
     # Global Monolog processor: turns any \Throwable found in a record's
     # context.exception into a structured, bounded array (flat cause chain).
     # Registered explicitly because src/App/Shared is not autoloaded as
@@ -198,16 +217,3 @@ services:
         autoconfigure: false
         tags:
             - { name: kernel.reset, method: reset }
-
-    # #[Sensitive] payload masking. The App\Shared namespace is not glob-loaded
-    # here, so these services are declared by hand; autoconfigure: false stops
-    # Symfony from also deriving the monolog.processor tag from #[AsMonologProcessor]
-    # and double-registering the processor.
-    App\Shared\Infrastructure\Logging\PayloadSanitizer:
-        autoconfigure: false
-
-    App\Shared\Infrastructure\Logging\SanitizingProcessor:
-        autoconfigure: false
-        arguments:
-            $sanitizer: '@App\Shared\Infrastructure\Logging\PayloadSanitizer'
-        tags: ['monolog.processor']

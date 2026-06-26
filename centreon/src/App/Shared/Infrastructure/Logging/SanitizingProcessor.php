@@ -23,17 +23,22 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Logging;
 
-use Monolog\Attribute\AsMonologProcessor;
 use Monolog\LogRecord;
 
 /**
- * Global Monolog processor that masks `#[Sensitive]` entries in every
- * record's `context` through {@see PayloadSanitizer}, including the
- * ad-hoc `$logger->error('msg', $context)` calls. `\Throwable` values
- * are returned as-is so that {@see ExceptionFormatterProcessor} can
- * structure them downstream.
+ * Monolog processor that masks sensitive data in every record through
+ * {@see PayloadSanitizer}: `#[Sensitive]` / keyword entries in `context`
+ * (the ad-hoc `$logger->error('msg', $context)` calls) and secrets carried
+ * in URL query strings under `extra` (notably `extra.url`, set by the
+ * WebProcessor).
+ *
+ * It must run after the context-enriching processors that populate
+ * `extra`. Registration order — not the tag `priority`, which the
+ * MonologBundle ignores for processors — guarantees this; see
+ * config/services.yaml. `\Throwable` values under
+ * `context.exception` are left as-is so that
+ * {@see ExceptionFormatterProcessor} can structure them downstream.
  */
-#[AsMonologProcessor]
 final readonly class SanitizingProcessor
 {
     public function __construct(private PayloadSanitizer $sanitizer)
@@ -45,9 +50,18 @@ final readonly class SanitizingProcessor
      */
     public function __invoke(LogRecord $record): LogRecord
     {
-        /** @var array<string, mixed> $sanitized */
-        $sanitized = $this->sanitizer->sanitize($record->context);
+        /** @var array<string, mixed> $context */
+        $context = $this->sanitizer->sanitize($record->context);
 
-        return $record->with(context: $sanitized);
+        // `extra` is filled by platform processors (WebProcessor puts the
+        // request URI — query string included — in `extra.url`). Its keys are
+        // not user-controlled, so keyword-key masking stays off to keep audit
+        // fields readable (e.g. `extra.token` is TokenProcessor's audit
+        // descriptor of the authenticated user, not a credential); only
+        // sensitive URL query-string parameters are redacted.
+        /** @var array<string, mixed> $extra */
+        $extra = $this->sanitizer->sanitize($record->extra, maskKeywordKeys: false);
+
+        return $record->with(context: $context, extra: $extra);
     }
 }
