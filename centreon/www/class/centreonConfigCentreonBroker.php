@@ -854,7 +854,11 @@ class CentreonConfigCentreonBroker
                 $this->db->commitTransaction();
             }
         } catch (Throwable $e) {
-            if ($ownTransaction && $this->db->isTransactionActive()) {
+            if (! $ownTransaction) {
+                throw $e;
+            }
+
+            if ($this->db->isTransactionActive()) {
                 $this->db->rollBackTransaction();
             }
 
@@ -1322,6 +1326,8 @@ class CentreonConfigCentreonBroker
         $featureFlagManager = $kernel->getContainer()->get(FeatureFlags::class);
 
         $vaultConfiguration = $readVaultConfigurationRepository->find();
+        $writeVaultRepository = null;
+        $oldVaultUuids = [];
         if ($featureFlagManager->isEnabled('vault_broker') && $vaultConfiguration !== null) {
             /** @var ReadVaultRepositoryInterface $readVaultRepository */
             $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
@@ -1329,17 +1335,20 @@ class CentreonConfigCentreonBroker
             $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
             $writeVaultRepository->setCustomPath(AbstractVaultRepository::BROKER_VAULT_PATH);
             $this->retrievePasswordsFromVault($values, $readVaultRepository);
-            deleteBrokerConfigsFromVault($writeVaultRepository, [$configId]);
+
+            // Capture UUIDs now; deletion is deferred to after the API loop succeeds.
+            $oldVaultUuids = retrieveMultipleBrokerConfigUuidsFromDatabase([$configId]);
         }
 
         $deleteQuery = 'DELETE FROM cfg_centreonbroker_info WHERE config_id = '
             . $configId
             . ($keepLuaParameters ? ' AND config_key NOT LIKE "lua\_parameter\_%"' : '');
+        $rollbackDeleteQuery = 'DELETE FROM cfg_centreonbroker_info WHERE config_id = ' . $configId;
 
-        // Capture the rows about to be deleted so we can restore them if the re-insert API calls fail.
-        // The DELETE and the INSERTs run on different DB connections (legacy PDO vs Symfony kernel),
-        // so a single transaction cannot make this atomic — we use a compensating restore instead.
-        $backup = $this->backupBrokerInfos($configId, $keepLuaParameters);
+        // The API re-inserts run on a separate DB connection, so we cannot use a transaction.
+        // Backup all rows and restore them on failure; rollback wipes the lua scope too in case
+        // partial lua rows were committed by the API.
+        $backup = $this->backupBrokerInfos($configId);
         $this->db->query($deleteQuery);
 
         [$groups_infos] = $this->getGroupsInfos($values);
@@ -1385,13 +1394,26 @@ class CentreonConfigCentreonBroker
                 }
             }
         } catch (Throwable $th) {
-            // Some API calls may have already committed inserts on the Symfony connection; remove
-            // those partial rows with the same scoped DELETE, then restore the original backup so
-            // the table is left exactly as it was before the save attempt.
-            $this->db->query($deleteQuery);
+            // Capture new vault UUIDs before wiping the partial rows (the lookup reads from DB).
+            $partialVaultUuids = $writeVaultRepository !== null
+                ? retrieveMultipleBrokerConfigUuidsFromDatabase([$configId])
+                : [];
+
+            $this->db->query($rollbackDeleteQuery);
             $this->restoreBrokerInfos($backup);
 
+            // Drop only the new UUIDs — $oldVaultUuids are still referenced by the restored rows.
+            foreach ($partialVaultUuids as $uuid) {
+                if (! in_array($uuid, $oldVaultUuids, true)) {
+                    $writeVaultRepository->delete($uuid);
+                }
+            }
+
             throw $th;
+        }
+
+        foreach ($oldVaultUuids as $uuid) {
+            $writeVaultRepository->delete($uuid);
         }
     }
 
@@ -1665,10 +1687,14 @@ class CentreonConfigCentreonBroker
     private function getExternalDefaultValue($fieldId)
     {
         $externalValue = null;
-        $query = 'SELECT `external` FROM cb_field WHERE cb_field_id = :fieldId';
-        $res = $this->db->prepare($query);
-        $res->bindValue(':fieldId', (int) $fieldId, PDO::PARAM_INT);
-        $res->execute();
+        try {
+            $query = 'SELECT `external` FROM cb_field WHERE cb_field_id = :fieldId';
+            $res = $this->db->prepare($query);
+            $res->bindValue(':fieldId', (int) $fieldId, PDO::PARAM_INT);
+            $res->execute();
+        } catch (PDOException) {
+            return null;
+        }
 
         if (! $res) {
             $externalValue = null;
@@ -1986,28 +2012,20 @@ class CentreonConfigCentreonBroker
      * if the subsequent re-insert API calls fail.
      *
      * @param int $configId
-     * @param bool $keepLuaParameters when true, lua_parameter__ rows are excluded (they are not deleted)
      *
      * @return array<int,array<string,mixed>>
      */
-    private function backupBrokerInfos(int $configId, bool $keepLuaParameters): array
+    private function backupBrokerInfos(int $configId): array
     {
-        $query = 'SELECT config_id, config_key, config_value, config_group, config_group_id,'
+        $stmt = $this->db->prepare(
+            'SELECT config_id, config_key, config_value, config_group, config_group_id,'
             . ' grp_level, subgrp_id, parent_grp_id, fieldIndex'
-            . ' FROM cfg_centreonbroker_info WHERE config_id = :configId';
-        if ($keepLuaParameters) {
-            $query .= ' AND config_key NOT LIKE "lua\_parameter\_%"';
-        }
+            . ' FROM cfg_centreonbroker_info WHERE config_id = :configId'
+        );
+        $stmt->bindValue(':configId', $configId, PDO::PARAM_INT);
+        $stmt->execute();
 
-        try {
-            $stmt = $this->db->prepare($query);
-            $stmt->bindValue(':configId', $configId, PDO::PARAM_INT);
-            $stmt->execute();
-
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException) {
-            return [];
-        }
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
