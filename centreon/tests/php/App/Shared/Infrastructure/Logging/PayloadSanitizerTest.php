@@ -65,7 +65,6 @@ final class PayloadSanitizerTest extends TestCase
     {
         $sanitised = $this->sanitizer->sanitize(
             ['passcode' => '482031', 'ssoTicket' => 'st-abc', 'userId' => 7],
-            0,
             SecretsCommand::class,
         );
 
@@ -76,7 +75,6 @@ final class PayloadSanitizerTest extends TestCase
     {
         $sanitised = $this->sanitizer->sanitize(
             ['inner' => ['passcode' => '482031', 'label' => 'two-factor']],
-            0,
             NestedPayloadCommand::class,
         );
 
@@ -87,7 +85,6 @@ final class PayloadSanitizerTest extends TestCase
     {
         $sanitised = $this->sanitizer->sanitize(
             ['apiToken' => 'tok-123', 'login' => 'admin'],
-            0,
             MethodSecretCommand::class,
         );
 
@@ -101,7 +98,6 @@ final class PayloadSanitizerTest extends TestCase
                 'card' => ['number' => 'card-number-test', 'holder' => 'admin'],
                 'label' => 'default card',
             ],
-            0,
             CardHolderCommand::class,
         );
 
@@ -155,5 +151,134 @@ final class PayloadSanitizerTest extends TestCase
 
         \assert(\is_array($sanitised));
         self::assertSame('red', $sanitised['status']);
+    }
+
+    public function testMasksSensitiveQueryParametersInUrlStrings(): void
+    {
+        // The request URL (e.g. WebProcessor's `extra.url`) is a plain string,
+        // not a key/value pair, so a secret passed as a query parameter is not
+        // caught by key masking. Parameters whose name matches the denylist are
+        // redacted in place; the path and the other parameters are preserved.
+        $sanitised = $this->sanitizer->sanitize([
+            'url' => '/centreon/api/latest/login?useralias=admin&token=ABC123&autologin=1',
+        ]);
+
+        self::assertSame(
+            ['url' => '/centreon/api/latest/login?useralias=admin&token=***&autologin=1'],
+            $sanitised,
+        );
+    }
+
+    public function testLeavesUrlStringsWithoutSensitiveQueryParametersUntouched(): void
+    {
+        $sanitised = $this->sanitizer->sanitize(['url' => '/monitoring/resources?page=2&limit=30']);
+
+        self::assertSame(['url' => '/monitoring/resources?page=2&limit=30'], $sanitised);
+    }
+
+    public function testStillRedactsUrlSecretsWhenKeywordKeyMaskingIsDisabled(): void
+    {
+        // `extra` is sanitised with keyword-key masking OFF (its keys are set by
+        // platform processors and must stay readable): `token` keeps its audit
+        // payload, but a secret inside a URL query is still redacted.
+        $sanitised = $this->sanitizer->sanitize(
+            [
+                'token' => ['username' => 'admin', 'role' => 'ROLE_ADMIN'],
+                'url' => '/login?token=ABC123',
+            ],
+            maskKeywordKeys: false,
+        );
+
+        self::assertSame(
+            [
+                'token' => ['username' => 'admin', 'role' => 'ROLE_ADMIN'],
+                'url' => '/login?token=***',
+            ],
+            $sanitised,
+        );
+    }
+
+    public function testPropagatesKeywordKeyMaskingFlagThroughRecursion(): void
+    {
+        // With keyword-key masking off, a denylisted key stays in clear at any
+        // depth — the flag must survive the recursive descent, not just the top
+        // level. URL-query masking still applies regardless of the flag.
+        $sanitised = $this->sanitizer->sanitize(
+            ['outer' => ['token' => 'raw', 'url' => '/x?secret=s']],
+            maskKeywordKeys: false,
+        );
+
+        self::assertSame(
+            ['outer' => ['token' => 'raw', 'url' => '/x?secret=***']],
+            $sanitised,
+        );
+    }
+
+    public function testMasksSensitiveUrlQueryParametersInStringableValues(): void
+    {
+        $url = new class () implements \Stringable {
+            public function __toString(): string
+            {
+                return '/login?useralias=admin&token=ABC123';
+            }
+        };
+
+        $sanitised = $this->sanitizer->sanitize(['ref' => $url]);
+
+        self::assertSame(['ref' => '/login?useralias=admin&token=***'], $sanitised);
+    }
+
+    public function testLeavesQueryEdgeCasesUntouched(): void
+    {
+        // Empty query and a parameter with no `=` are no-ops.
+        self::assertSame(['u' => '/x?'], $this->sanitizer->sanitize(['u' => '/x?']));
+        self::assertSame(['u' => '/x?token'], $this->sanitizer->sanitize(['u' => '/x?token']));
+    }
+
+    public function testMatchesQueryParameterNamesCaseInsensitivelyAndUrlDecoded(): void
+    {
+        // The parameter name is lowercased and percent-decoded before matching,
+        // so `Token` and `to%6Ben` are both recognised; only the value is replaced.
+        self::assertSame(['u' => '/x?Token=***'], $this->sanitizer->sanitize(['u' => '/x?Token=ABC']));
+        self::assertSame(['u' => '/x?to%6Ben=***'], $this->sanitizer->sanitize(['u' => '/x?to%6Ben=ABC']));
+    }
+
+    public function testDoesNotMaskSecretsOutsideTheQueryComponent(): void
+    {
+        // Documented scope limits (best-effort, query component only): a secret in
+        // the PATH, or nested inside another parameter's VALUE after a second `?`,
+        // is NOT masked. Pinned so widening the parser stays a conscious choice.
+        self::assertSame(
+            ['u' => '/reset/TOKEN-ABC/confirm'],
+            $this->sanitizer->sanitize(['u' => '/reset/TOKEN-ABC/confirm']),
+        );
+        self::assertSame(
+            ['u' => '/cb?next=/r?token=ABC&page=2'],
+            $this->sanitizer->sanitize(['u' => '/cb?next=/r?token=ABC&page=2']),
+        );
+    }
+
+    public function testMasksTheAdditionalKeywordAliases(): void
+    {
+        $sanitised = $this->sanitizer->sanitize([
+            'apikey' => 'a',
+            'pwd' => 'b',
+            'signature' => 'c',
+            'session_id' => 'd',
+            'access_key' => 'e',
+            'login' => 'admin',
+        ]);
+
+        self::assertSame(
+            [
+                'apikey' => '***',
+                'pwd' => '***',
+                'signature' => '***',
+                'session_id' => '***',
+                'access_key' => '***',
+                'login' => 'admin',
+            ],
+            $sanitised,
+        );
     }
 }
