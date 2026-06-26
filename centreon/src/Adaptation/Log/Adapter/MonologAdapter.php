@@ -27,6 +27,8 @@ use Adaptation\Log\Enum\LogChannelEnum;
 use Adaptation\Log\Exception\LoggerException;
 use Adaptation\Log\Logger;
 use App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor;
+use App\Shared\Infrastructure\Logging\PayloadSanitizer;
+use App\Shared\Infrastructure\Logging\SanitizingProcessor;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Level;
@@ -154,6 +156,10 @@ final class MonologAdapter implements LoggerInterface
 
     private function pushPlatformProcessors(): void
     {
+        // pushProcessor is LIFO: the first one pushed runs LAST. The sanitiser
+        // must run after WebProcessor (which fills `extra.url`, query string
+        // included), so it is pushed first to redact as the final step.
+        $this->logger->pushProcessor(new SanitizingProcessor(new PayloadSanitizer()));
         $this->logger->pushProcessor(new ExceptionFormatterProcessor());
         $this->logger->pushProcessor(new WebProcessor());
         $this->logger->pushProcessor(self::$uidProcessor ??= new UidProcessor());
