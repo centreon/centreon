@@ -41,8 +41,11 @@ final readonly class ModuleLogChannel implements LogChannelInterface
      * Slug accepted as a channel name: lowercase alphanumerics, separated by `-` or
      * `_`, no leading/trailing separator. Strict by design — the value becomes a file
      * name component, so anything that could escape the log directory is rejected.
+     * The `D` modifier anchors `$` to the very end of the string, so a trailing
+     * newline cannot slip through (it would otherwise forge a log line and a file
+     * name containing a newline).
      */
-    private const NAME_PATTERN = '/^[a-z0-9]([a-z0-9_-]*[a-z0-9])?$/';
+    private const NAME_PATTERN = '/^[a-z0-9]([a-z0-9_-]*[a-z0-9])?$/D';
 
     /**
      * @throws LoggerException when $name is not a valid channel slug
