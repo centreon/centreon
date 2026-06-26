@@ -160,7 +160,6 @@ fixCentreonCronPermissions() {
 
   # Update log files permissions which have been potentially created by centreon user
   LOG_FILES=(
-    "/var/log/centreon/centreon-web.log"
     "/var/log/centreon/centreon-tokens.log"
   )
   for LOG_FILE in "${LOG_FILES[@]}"; do
