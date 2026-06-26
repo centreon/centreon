@@ -39,4 +39,12 @@ final class LoggerException extends \LogicException
     {
         return new self(sprintf('Logger creation failed for this channel "%s".', $channel), $e);
     }
+
+    public static function invalidModuleChannel(string $name): self
+    {
+        return new self(sprintf(
+            'Invalid module log channel name "%s": expected lowercase letters, digits, "-" or "_".',
+            $name,
+        ));
+    }
 }
