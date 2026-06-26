@@ -28,9 +28,9 @@ use Monolog\LogRecord;
 /**
  * Monolog processor that masks sensitive data in every record through
  * {@see PayloadSanitizer}: `#[Sensitive]` / keyword entries in `context`
- * (the ad-hoc `$logger->error('msg', $context)` paths that bypass the
- * bus middleware) and secrets carried in URL query strings under `extra`
- * (notably `extra.url`, set by the WebProcessor).
+ * (the ad-hoc `$logger->error('msg', $context)` calls) and secrets carried
+ * in URL query strings under `extra` (notably `extra.url`, set by the
+ * WebProcessor).
  *
  * It must run after the context-enriching processors that populate
  * `extra`. Registration order — not the tag `priority`, which the

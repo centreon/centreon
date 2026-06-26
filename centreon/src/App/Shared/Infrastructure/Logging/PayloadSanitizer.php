@@ -27,8 +27,8 @@ use App\Shared\Infrastructure\Logging\Attribute\SensitivityScanner;
 
 /**
  * Stateless walker that masks sensitive values inside an arbitrary
- * payload (a Command/Query, an ad-hoc logger context, a Monolog
- * record's `context` / `extra` — anything forwarded to a handler).
+ * payload (an ad-hoc logger context, a Monolog record's `context` /
+ * `extra` — anything forwarded to a handler).
  *
  * Typed payloads are masked **attribute-driven**: a property without
  * `#[Sensitive]` is logged in clear, the owning class declares its
