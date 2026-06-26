@@ -160,6 +160,6 @@ final readonly class LoggingMiddleware implements MiddlewareInterface
         }
 
         /** @var array<string, mixed> */
-        return $this->sanitizer->sanitize($payload, 0, $message::class);
+        return $this->sanitizer->sanitize($payload, $message::class);
     }
 }
