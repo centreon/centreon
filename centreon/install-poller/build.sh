@@ -13,9 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+script_dir="$(dirname "$0")"
+
+# MAJOR (e.g. 26.07) — used for image tags and repository URLs at runtime.
 major=$1
 if [ "${major}" = "" ]; then
-  version_file="$(dirname "$0")/../../.version"
+  version_file="${script_dir}/../../.version"
   if [ -f "${version_file}" ]; then
     major=$(grep "^MAJOR=" "${version_file}" | cut -d= -f2)
   fi
@@ -26,6 +29,22 @@ if [ "${major}" = "" ]; then
   echo "[INFO] using major version from .version: ${major}"
 fi
 
+# MINOR (e.g. 0) — only used to stamp the full version label in the script.
+minor=$2
+if [ "${minor}" = "" ]; then
+  minor_file="${script_dir}/../../.version.centreon-web"
+  if [ -f "${minor_file}" ]; then
+    minor=$(grep "^MINOR=" "${minor_file}" | cut -d= -f2)
+    echo "[INFO] using minor version from .version.centreon-web: ${minor}"
+  fi
+fi
+
+# Full version label: MAJOR.MINOR (e.g. 26.07.0), falling back to MAJOR alone.
+full_version="${major}"
+if [ "${minor}" != "" ]; then
+  full_version="${major}.${minor}"
+fi
+
 if [ "${target}" = "" ]; then
   target="install.sh"
 fi
@@ -34,10 +53,10 @@ cp -f main-head.sh "${target}"
 
 if [[ "$(uname)" == "Darwin" ]]; then
   gsed -i "s/major=\"\"/major=\"$major\"/g" "${target}"
-  gsed -i "s/<MAJOR>/${major}/g" "${target}"
+  gsed -i "s/<VERSION>/${full_version}/g" "${target}"
 else
   sed -i "s/major=\"\"/major=\"$major\"/g" "${target}"
-  sed -i "s/<MAJOR>/${major}/g" "${target}"
+  sed -i "s/<VERSION>/${full_version}/g" "${target}"
 fi
 
 # Strip the leading license header (lines 1 through the first blank line) from a

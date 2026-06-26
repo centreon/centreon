@@ -55,6 +55,9 @@ function runDockerInstall() {
   if [ "${WITH_SNMPTRAP}" = "1" ]; then
     consoleInfo "  snmptrapd, centreontrapd (--with-snmptrap)"
   fi
+  if [ "${WITH_CMA}" = "1" ]; then
+    consoleInfo "  Centreon Monitoring Agent support (--with-cma): TLS certs + port 4317"
+  fi
   echo ""
   if [ "${START_STACK}" = "1" ]; then
     echo ""
@@ -93,6 +96,7 @@ NAME=${POLLER_NAME}
 GORGONE_UID=${GORGONE_UID}
 CENTRAL_HOST=${GORGONE_ADDRESS}
 CENTRAL_PORT=${CENTRAL_PORT}
+ENGINE_PORT=${ENGINE_PORT}
 GORGONE_TOKEN=${GORGONE_TOKEN}
 GORGONE_SSL=${GORGONE_SSL}
 
@@ -127,6 +131,7 @@ services:
       NAME: "${NAME}"
       TZ: "${TZ}"
       DEBUG: "${DEBUG}"
+      ENGINE_PORT: "${ENGINE_PORT}"
       APP_SECRET: "${APP_SECRET}"
       SALT: "${SALT}"
     volumes:
@@ -134,12 +139,22 @@ services:
       - poller-broker:/etc/centreon-broker
       - poller-centcmd:/var/lib/centreon-engine/rw
       - poller-centlog:/var/log/centreon-engine
+EOF
+
+  # Centreon Monitoring Agent (optional): TLS cert mounts + gRPC port
+  if [ "${WITH_CMA}" = "1" ]; then
+    cat >> "${out}" <<'EOF'
       - ./certs/poller.crt:/etc/pki/poller.crt
       - ./certs/poller.key:/etc/pki/poller.key
     ports:
       - 4317:4317
+EOF
+  fi
+
+  # centengine healthcheck + dependencies (always)
+  cat >> "${out}" <<'EOF'
     healthcheck:
-      test: ["CMD-SHELL", "grep -q ':1625 01' /proc/net/tcp 2>/dev/null"]
+      test: ["CMD-SHELL", "grep -q \":$$(printf '%04X' $${ENGINE_PORT:-443}) 01\" /proc/net/tcp /proc/net/tcp6 2>/dev/null"]
       interval: 30s
       timeout: 5s
       start_period: 5m

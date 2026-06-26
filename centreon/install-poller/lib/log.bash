@@ -34,14 +34,10 @@ function initLog() {
   fi
 
   exec 7>"${filename}"
-
-  exec 6>&2
-  exec 2> >(stderrLog)
 }
 
 function closeLog() {
   exec 7>&-
-  exec 2>&6 6>&-
 }
 
 function rotateLog() {

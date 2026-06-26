@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# Centreon poller installer - <MAJOR>
+# Centreon poller installer - <VERSION>
 
 # Fail on use of unset variables to catch typos and missing args early.
 set -u
@@ -44,6 +44,9 @@ SALT=""
 GORGONE_ADDRESS=""
 GORGONE_SSL=""
 
+# Engine broker connection port for the healthcheck (cloud: 443, on-prem: 5669)
+ENGINE_PORT=""
+
 # Optional / runtime
 TZ=""
 DEBUG=""
@@ -51,4 +54,5 @@ DEBUG=""
 # Optional services (Docker mode)
 WITH_VMWARE=0
 WITH_SNMPTRAP=0
+WITH_CMA=0
 START_STACK=1

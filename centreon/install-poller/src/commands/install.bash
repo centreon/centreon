@@ -88,6 +88,9 @@ function _installParseArguments() {
     --with-snmptrap)
       WITH_SNMPTRAP=1
       ;;
+    --with-cma)
+      WITH_CMA=1
+      ;;
     *)
       consoleError "Unknown argument: '$1'. Run with --help to list valid flags."
       exit 1
@@ -156,9 +159,11 @@ function _installDeriveCentral() {
     GORGONE_ADDRESS="gorgone-centreon-${CENTRAL_HOST}"
     GORGONE_SSL="${GORGONE_SSL:-true}"
     CENTRAL_PORT="${CENTRAL_PORT:-443}"
+    ENGINE_PORT="443"
   else
     GORGONE_ADDRESS="${CENTRAL_HOST}"
     GORGONE_SSL="${GORGONE_SSL:-false}"
     CENTRAL_PORT="${CENTRAL_PORT:-8086}"
+    ENGINE_PORT="5669"
   fi
 }
