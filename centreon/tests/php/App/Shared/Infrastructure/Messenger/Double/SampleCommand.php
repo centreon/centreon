@@ -23,10 +23,13 @@ declare(strict_types=1);
 
 namespace Tests\App\Shared\Infrastructure\Messenger\Double;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
+
 final readonly class SampleCommand
 {
     public function __construct(
         public string $username,
+        #[Sensitive]
         public string $password,
         public string $description = 'some description',
     ) {

@@ -32,30 +32,12 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
  * normalizer would pass through (enums, datetimes, stringables) rendered
  * as readable scalars so private state never leaks to the log.
  */
-final class LogPayloadNormalizer
+final readonly class LogPayloadNormalizer
 {
-    /**
-     * Matched via str_contains on the lowercased payload key — intentionally
-     * permissive: any field name that *contains* one of these tokens is
-     * masked (e.g. `oauth_authorization_url`, `password_changed_at`,
-     * `customer_token_id`). Over-masking is preferred to under-masking so a
-     * variant we did not anticipate can't leak a real secret. A future
-     * `#[Sensitive]` / `#[NotSensitive]` attribute layer will let callers
-     * override per-property (tracked in MON-199097).
-     */
-    private const SENSITIVE_KEYWORDS = ['password', 'token', 'secret', 'api_key', 'authorization', 'credential', 'private_key'];
     private const MAX_VALUE_LENGTH = 1024;
 
-    /**
-     * Memoises the sensitive-or-not verdict per key to skip the keyword
-     * scan on repeated fields.
-     *
-     * @var array<string, bool>
-     */
-    private array $sensitivityCache = [];
-
     public function __construct(
-        private readonly NormalizerInterface $normalizer,
+        private NormalizerInterface $normalizer,
     ) {
     }
 
@@ -81,7 +63,7 @@ final class LogPayloadNormalizer
         if (\is_array($data)) {
             $result = [];
             foreach ($data as $key => $value) {
-                if (\is_string($key) && $this->isSensitiveKey($key)) {
+                if (\is_string($key) && SensitiveKeywordDenylist::matches($key)) {
                     $result[$key] = '***';
 
                     continue;
@@ -133,22 +115,5 @@ final class LogPayloadNormalizer
         }
 
         return '{' . $data::class . '}';
-    }
-
-    private function isSensitiveKey(string $key): bool
-    {
-        if (isset($this->sensitivityCache[$key])) {
-            return $this->sensitivityCache[$key];
-        }
-
-        $lower = mb_strtolower($key);
-
-        foreach (self::SENSITIVE_KEYWORDS as $keyword) {
-            if (str_contains($lower, $keyword)) {
-                return $this->sensitivityCache[$key] = true;
-            }
-        }
-
-        return $this->sensitivityCache[$key] = false;
     }
 }

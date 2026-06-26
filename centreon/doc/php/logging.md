@@ -18,6 +18,7 @@ This document describes the platform pipeline that captures logs emitted by the 
 7. [Log line example](#7-log-line-example)
 8. [Processor scope](#8-processor-scope)
 9. [Routing and output file](#9-routing-and-output-file)
+10. [Masking sensitive fields with `#[Sensitive]`](#10-masking-sensitive-fields-with-sensitive)
 
 ---
 
@@ -170,7 +171,7 @@ The middleware emits a record on the Monolog `app` channel (Symfony default) for
   - `tokenize_input` (bool flag) → masked (contains `token`)
   - `credential_check_id` (reference id) → masked (contains `credential`)
 
-  This *"over-mask rather than under-mask"* default is intentional: we'd rather lose a bit of debug info than miss a real secret carried by an unlisted variant (e.g. `passwords_v2`, `customer_token_id`). If the noise becomes blocking for a given Command, the clean solution is to introduce `#[Sensitive]` / `#[NotSensitive]` PHP attributes on the Command and inspect them in `isSensitiveKey()` — not to broaden the keyword list nor to switch to exact match, which would open the door to forgotten variants. Tracked under [MON-199097](https://centreon.atlassian.net/browse/MON-199097).
+  This *"over-mask rather than under-mask"* default is intentional: we'd rather lose a bit of debug info than miss a real secret carried by an unlisted variant (e.g. `passwords_v2`, `customer_token_id`). For the opposite cases — a real secret carrying an unlisted name, or keyword noise on a given Command — the explicit, type-safe complement is the `#[Sensitive]` attribute (see [§10](#10-masking-sensitive-fields-with-sensitive)). It is preferred over broadening the keyword list or switching to exact match, which would open the door to forgotten variants.
 - **`exception`**: produced by `ExceptionFormatter::format()` (see [§5](#5-exceptionformatter-and-exceptionformatterprocessor)).
 
 ---
@@ -496,3 +497,58 @@ In production, the `prod.*.log` files are rotated by **logrotate** (config `cent
 Default retention: `weekly` × `rotate 52` (1 year), with `compress` + `delaycompress` + `copytruncate`.
 
 In development (`when@dev` in `monolog.yaml`), the handlers use `rotating_file` directly (daily `Y-m-d` suffix, `max_files: 14` retention) — no need for logrotate.
+
+---
+
+## 10. Masking sensitive fields with `#[Sensitive]`
+
+The keyword heuristic of [§4](#4-loggingmiddleware) is permissive but **name-based**: it masks any key *containing* `password`, `token`, … and therefore misses a secret carried by an unlisted name. The `#[Sensitive]` attribute is the **explicit, type-safe** complement — it masks a field by *declaration*, regardless of its name.
+
+### Attribute
+
+`App\Shared\Domain\Logging\Attribute\Sensitive` can target properties, accessor methods, and classes:
+
+```php
+#[\Attribute(\Attribute::TARGET_PROPERTY | \Attribute::TARGET_METHOD | \Attribute::TARGET_CLASS)]
+final readonly class Sensitive {}
+```
+
+- on a **property** — its value is masked;
+- on a **method** (typically a getter) — the accessor key it exposes is masked (`getX`/`isX`/`hasX` → `x`, otherwise the raw method name);
+- on a **class** — every value typed as that class is masked wholesale, so the sanitizer never descends into it.
+
+Annotate any property whose value must never reach a log — plain properties or promoted constructor parameters:
+
+```php
+final readonly class SecretsCommand
+{
+    public function __construct(
+        #[Sensitive] public string $passcode,
+        #[Sensitive] public string $ssoTicket,
+        public int $userId,
+    ) {}
+}
+```
+
+When such an object flows through the logging pipeline, the annotated values are rendered as `***`, while `userId` stays in clear.
+
+### Pipeline
+
+| Component | Role |
+| --- | --- |
+| `…\Domain\Logging\Attribute\Sensitive` | the marker placed on properties, accessor methods, and classes |
+| `…\Infrastructure\Logging\Attribute\SensitivityScanner` | reflects a class, collects its `#[Sensitive]` properties and accessor keys, honours class-level sensitive types, and **recurses into nested class-typed properties**, so a secret nested in a sub-object is found too |
+| `…\Infrastructure\Logging\PayloadSanitizer` | stateless walker that masks the `#[Sensitive]` values of a payload given its owning class (`contextClass`), falls back to the keyword denylist for raw array keys, and truncates string values at `MAX_VALUE_LENGTH` (1024) |
+| `…\Infrastructure\Logging\SensitiveKeywordDenylist` | single source of truth for the keyword net (`password`, `token`, …) shared by `LogPayloadNormalizer` and `PayloadSanitizer`, so both nets mask the same field names |
+| `…\Infrastructure\Logging\SanitizingProcessor` | Monolog processor that applies the sanitizer to every record |
+
+The owning class is the **context** the sanitizer needs in order to know which keys are sensitive. On the command/query bus, `LoggingMiddleware` provides the dispatched message class, so `#[Sensitive]` on a Command / Query / DTO is honoured automatically. A **raw array** (`['secret' => $x]`) carries no class context, so the attribute layer cannot reflect it — but as the cross-channel net, `PayloadSanitizer` still applies the shared keyword denylist to its keys, so a `['password' => $x]` is masked everywhere it is logged. To get the explicit, type-safe attribute masking outside the bus, pass a typed object rather than a raw array.
+
+### Why not the native `#[\SensitiveParameter]`?
+
+PHP's built-in [`#[\SensitiveParameter]`](https://www.php.net/manual/en/class.sensitiveparameter.php) is **not** a substitute here:
+
+- **Target** — it is `Attribute::TARGET_PARAMETER` only, so it cannot annotate the many plain (non-promoted) **properties** we mask.
+- **Mechanism** — it only redacts a value in **exception stack traces** (handled by the PHP engine); it does not mask log payloads. The scanner reflects *properties*, so it would not even see a `#[\SensitiveParameter]` placed on a promoted parameter.
+
+A property-level attribute is therefore the right tool for reflection-based **payload** masking. A future enhancement could make `SensitivityScanner` *additionally* honour `#[\SensitiveParameter]` on promoted constructor parameters (gaining stack-trace redaction for free) while keeping `#[Sensitive]` for plain properties.
