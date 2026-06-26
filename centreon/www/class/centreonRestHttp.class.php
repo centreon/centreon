@@ -39,7 +39,7 @@ class CentreonRestHttp
     /** @var string proxy authentication information */
     private $proxyAuthentication = null;
 
-    /** @var Psr\Log\LoggerInterface|null logger for call errors, routed to a dedicated channel */
+    /** @var Psr\Log\LoggerInterface|null logger for call errors (caller-supplied or built from a log file name) */
     private $logger = null;
 
     /**
@@ -61,9 +61,15 @@ class CentreonRestHttp
             // A historical caller passes a dedicated file name (e.g. 'license-manager.log').
             // Route it to a dedicated module channel on the unified Monolog pipeline so the
             // historical file name is preserved while records get masking and formatting.
-            $this->logger = Adaptation\Log\Logger::create(
-                Adaptation\Log\Channel\ModuleLogChannel::fromLogFileName($logFile)
-            );
+            // A malformed name must never break the HTTP client: degrade to a no-op logger.
+            try {
+                $this->logger = Adaptation\Log\Logger::create(
+                    Adaptation\Log\Channel\ModuleLogChannel::fromLogFileName($logFile)
+                );
+            } catch (Adaptation\Log\Exception\LoggerException $e) {
+                error_log(sprintf('CentreonRestHttp: invalid log file "%s": %s', $logFile, $e->getMessage()));
+                $this->logger = new Psr\Log\NullLogger();
+            }
         }
     }
 

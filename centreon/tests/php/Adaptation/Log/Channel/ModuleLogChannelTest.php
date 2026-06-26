@@ -37,13 +37,29 @@ it('derives a channel from a historical log file name', function (): void {
         ->and($channel->getLogFileName('prod'))->toBe('autodiscovery_job.log');
 });
 
+it('strips only a trailing .log then validates the result', function (string $input, ?string $expected): void {
+    if ($expected === null) {
+        expect(fn (): ModuleLogChannel => ModuleLogChannel::fromLogFileName($input))
+            ->toThrow(LoggerException::class);
+    } else {
+        expect(ModuleLogChannel::fromLogFileName($input)->getChannelName())->toBe($expected);
+    }
+})->with([
+    'plain name kept as-is' => ['license-manager', 'license-manager'],
+    'trailing .log stripped' => ['autodiscovery_job.log', 'autodiscovery_job'],
+    'only one trailing .log stripped' => ['foo.log.log', null],
+    'interior dot rejected' => ['my.app.log', null],
+    'path component rejected' => ['subdir/license-manager.log', null],
+    'uppercase rejected' => ['MyModule.log', null],
+]);
+
 it('accepts valid slugs', function (string $name): void {
     expect((new ModuleLogChannel($name))->getChannelName())->toBe($name);
 })->with(['license-manager', 'autodiscovery_job', 'bam', 'a1', 'a']);
 
 it('rejects invalid slugs that could escape the log directory', function (string $name): void {
     expect(fn (): ModuleLogChannel => new ModuleLogChannel($name))
-        ->toThrow(LoggerException::class);
+        ->toThrow(LoggerException::class, 'Invalid module log channel name');
 })->with([
     'empty' => [''],
     'uppercase' => ['License-Manager'],
