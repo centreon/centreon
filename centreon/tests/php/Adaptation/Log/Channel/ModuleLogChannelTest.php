@@ -51,6 +51,7 @@ it('strips only a trailing .log then validates the result', function (string $in
     'interior dot rejected' => ['my.app.log', null],
     'path component rejected' => ['subdir/license-manager.log', null],
     'uppercase rejected' => ['MyModule.log', null],
+    'trailing newline after strip rejected' => ["evil.log\n", null],
 ]);
 
 it('accepts valid slugs', function (string $name): void {
@@ -69,4 +70,6 @@ it('rejects invalid slugs that could escape the log directory', function (string
     'leading dash' => ['-foo'],
     'trailing dash' => ['foo-'],
     'space' => ['foo bar'],
+    'trailing newline' => ["foo\n"],
+    'trailing crlf' => ["foo\r\n"],
 ]);
