@@ -24,8 +24,10 @@ declare(strict_types=1);
 namespace Tests\Adaptation\Log\Adapter;
 
 use Adaptation\Log\Adapter\MonologAdapter;
+use Adaptation\Log\Channel\ModuleLogChannel;
 use Adaptation\Log\Enum\LogChannelEnum;
 use App\Shared\Infrastructure\Logging\SanitizingProcessor;
+use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Monolog\Processor\WebProcessor;
 use PHPUnit\Framework\TestCase;
@@ -63,5 +65,26 @@ final class MonologAdapterTest extends TestCase
             array_search(WebProcessor::class, $order, true),
             array_search(SanitizingProcessor::class, $order, true),
         );
+    }
+
+    public function testModuleChannelWritesToItsHistoricalFileWithPlatformProcessors(): void
+    {
+        // A module channel must write to its literal historical file name (no
+        // APP_ENV prefix) and still get the full platform processor stack.
+        $adapter = MonologAdapter::create(new ModuleLogChannel('license-manager'));
+
+        $logger = (new \ReflectionProperty($adapter, 'logger'))->getValue($adapter);
+        self::assertInstanceOf(Logger::class, $logger);
+
+        $handler = $logger->getHandlers()[0];
+        self::assertInstanceOf(StreamHandler::class, $handler);
+        self::assertStringEndsWith('/license-manager.log', (string) $handler->getUrl());
+
+        $order = array_map(
+            static fn (object $processor): string => $processor::class,
+            $logger->getProcessors(),
+        );
+        self::assertContains(WebProcessor::class, $order);
+        self::assertSame(SanitizingProcessor::class, $order[array_key_last($order)]);
     }
 }

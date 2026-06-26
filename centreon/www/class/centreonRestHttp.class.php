@@ -39,14 +39,15 @@ class CentreonRestHttp
     /** @var string proxy authentication information */
     private $proxyAuthentication = null;
 
-    /** @var CentreonLog|null logFileThe The log file for call errors */
-    private $logObj = null;
+    /** @var Psr\Log\LoggerInterface|null logger for call errors, routed to a dedicated channel */
+    private $logger = null;
 
     /**
      * CentreonRestHttp constructor
      *
      * @param string $contentType The content type
-     * @param string|null $logFile
+     * @param string|Psr\Log\LoggerInterface|null $logFile a dedicated log file name (e.g.
+     *                                                     'license-manager.log') or a ready logger
      *
      * @throws PDOException
      */
@@ -54,8 +55,15 @@ class CentreonRestHttp
     {
         $this->getProxy();
         $this->contentType = $contentType;
-        if (! is_null($logFile)) {
-            $this->logObj = new CentreonLog([4 => $logFile]);
+        if ($logFile instanceof Psr\Log\LoggerInterface) {
+            $this->logger = $logFile;
+        } elseif (is_string($logFile) && $logFile !== '') {
+            // A historical caller passes a dedicated file name (e.g. 'license-manager.log').
+            // Route it to a dedicated module channel on the unified Monolog pipeline so the
+            // historical file name is preserved while records get masking and formatting.
+            $this->logger = Adaptation\Log\Logger::create(
+                Adaptation\Log\Channel\ModuleLogChannel::fromLogFileName($logFile)
+            );
         }
     }
 
@@ -221,13 +229,11 @@ class CentreonRestHttp
      */
     private function insertLog($output, $url, $type = 'RestInternalServerErrorException'): void
     {
-        if (is_null($this->logObj)) {
+        if (is_null($this->logger)) {
             return;
         }
 
-        $logOutput = '[' . $type . '] ' . $url . ' : ' . $output;
-
-        $this->logObj->insertLog(4, $logOutput);
+        $this->logger->error('[' . $type . '] ' . $url . ' : ' . $output);
     }
 
     /**
