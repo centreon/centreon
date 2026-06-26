@@ -501,7 +501,7 @@ jobs:
           tags: ${{ steps.docker_tags.outputs.tags }}
 
   deliver-sources:
-    runs-on: ubuntu-24.04
+    runs-on: centreon-common
     needs: [get-environment, package]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&

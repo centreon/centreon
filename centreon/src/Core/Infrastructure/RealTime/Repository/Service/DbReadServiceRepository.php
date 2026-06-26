@@ -58,11 +58,19 @@ class DbReadServiceRepository extends AbstractRepositoryDRB implements ReadServi
             return null;
         }
 
+        $bindValues = [];
+        $tokens = [];
+        foreach ($accessGroupIds as $index => $groupId) {
+            $key = ':acl_group_' . $index;
+            $tokens[] = $key;
+            $bindValues[$key] = (int) $groupId;
+        }
+
         $accessGroupRequest = ' INNER JOIN `:dbstg`.`centreon_acl` AS service_acl
             ON service_acl.service_id = s.service_id AND service_acl.host_id = s.host_id
-            AND service_acl.group_id IN (' . implode(',', $accessGroupIds) . ') ';
+            AND service_acl.group_id IN (' . implode(',', $tokens) . ') ';
 
-        return $this->findService($hostId, $serviceId, $accessGroupRequest);
+        return $this->findService($hostId, $serviceId, $accessGroupRequest, $bindValues);
     }
 
     /**
@@ -74,12 +82,20 @@ class DbReadServiceRepository extends AbstractRepositoryDRB implements ReadServi
             return false;
         }
 
+        $bindValues = [];
+        $tokens = [];
+        foreach ($accessGroupIds as $index => $groupId) {
+            $key = ':acl_group_' . $index;
+            $tokens[] = $key;
+            $bindValues[$key] = (int) $groupId;
+        }
+
         $request = '
             SELECT COUNT(s.service_id) AS total, 1 AS REALTIME
             FROM `:dbstg`.`services` AS s
             INNER JOIN `:dbstg`.`centreon_acl` AS service_acl
             ON service_acl.service_id = s.service_id AND service_acl.host_id = s.host_id
-            AND service_acl.group_id IN (' . implode(',', $accessGroupIds) . ')
+            AND service_acl.group_id IN (' . implode(',', $tokens) . ')
             WHERE s.service_id = :service_id AND s.host_id = :host_id AND s.enabled = 1
         ';
 
@@ -87,6 +103,9 @@ class DbReadServiceRepository extends AbstractRepositoryDRB implements ReadServi
 
         $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
         $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
 
         $statement->execute();
 
@@ -97,10 +116,11 @@ class DbReadServiceRepository extends AbstractRepositoryDRB implements ReadServi
      * @param int $hostId
      * @param int $serviceId
      * @param string|null $accessGroupRequest
+     * @param array<string, int> $additionalBindValues
      *
      * @return Service|null
      */
-    private function findService(int $hostId, int $serviceId, ?string $accessGroupRequest = null): ?Service
+    private function findService(int $hostId, int $serviceId, ?string $accessGroupRequest = null, array $additionalBindValues = []): ?Service
     {
         $request = "SELECT
                 1 AS REALTIME,
@@ -151,6 +171,9 @@ class DbReadServiceRepository extends AbstractRepositoryDRB implements ReadServi
 
         $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
         $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+        foreach ($additionalBindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
 
         $statement->execute();
 
