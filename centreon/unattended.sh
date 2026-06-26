@@ -27,7 +27,7 @@ runtime_log_level=${ENV_LOG_LEVEL:-"INFO"}      #Default log level to be used
 selinux_mode=${ENV_SELINUX_MODE:-"permissive"}  #Default SELinux mode to be used
 wizard_autoplay=${ENV_WIZARD_AUTOPLAY:-"false"} #Default the install wizard is not run auto
 central_ip=${ENV_CENTRAL_IP:-$default_ip}       #Default central ip is the first of hostname -I
-tls=${ENV_DB_TLS:-"disabled"}                   #Default DB TLS mode (the TLS-to-DB feature is still under development)
+tls=${ENV_DB_TLS:-"disabled"}                   # default DB TLS mode
 
 function genpasswd() {
 	local _pwd
@@ -142,9 +142,8 @@ function log() {
 #======== end of function log()
 
 #========= begin of function version_int()
-# convert a Centreon version "YY.MM" into a comparable integer (24.10 -> 2410, 26.07 -> 2607)
-# so version ranges can be compared with arithmetic (( )) instead of brittle string/regex tests.
-# defaults to the global $version when no argument is given.
+# convert "YY.MM" to a comparable integer (24.10 -> 2410, 26.07 -> 2607) for arithmetic version checks.
+# defaults to the global $version.
 #
 function version_int() {
 	local v="${1:-$version}"
@@ -503,9 +502,8 @@ function setup_mysql() {
 			curl -fJLO https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb || error_and_exit "Failed to download mysql-apt-config"
 			export DEBIAN_FRONTEND="noninteractive" && $PKG_MGR install -y ./mysql-apt-config_0.8.29-1_all.deb || error_and_exit "Failed to install mysql-apt-config"
 		fi
-		# The repo.mysql.com apt repo is signed by key B7B3B788A8D3785C, but mysql-apt-config ships either the
-		# expired 2023 instance of it or an unrelated key; refresh /usr/share/keyrings/mysql-apt-config.gpg
-		# (referenced by mysql.list via signed-by) with the renewed key (valid to 2027) so apt can verify it.
+		# mysql-apt-config ships an expired/unrelated key; refresh the keyring (signed-by in mysql.list)
+		# with the renewed B7B3B788A8D3785C key (valid to 2027) so apt can verify the repo.
 		mysql_keyring=$(grep -ohm1 'signed-by=[^] ]*' /etc/apt/sources.list.d/mysql.list 2>/dev/null | cut -d= -f2)
 		[ -z "$mysql_keyring" ] && mysql_keyring=/etc/apt/trusted.gpg.d/mysql.gpg
 		# pipefail so a failed download fails here instead of writing an empty keyring
@@ -520,16 +518,15 @@ function setup_mysql() {
 			# el9 / el10 AppStream only provides MySQL 8.0, so the MySQL 8.4 LTS community
 			# repository is added (its release rpm enables the 8.4 LTS repo by default).
 			$PKG_MGR install -y "https://dev.mysql.com/get/mysql84-community-release-el${detected_os_major}-1.noarch.rpm" || error_and_exit "Failed to install the MySQL 8.4 community release package"
-			# The release rpm ships MySQL's 2023 signing key, which expired 2025-10-22; dnf's GPG check then
-			# rejects the (re-signed) packages. Replace it with the renewed key (same fingerprint
-			# B7B3B788A8D3785C, valid to 2027): refresh the on-disk key file, drop the expired key from the
-			# rpm keyring (re-importing the same fingerprint is otherwise a no-op), and import the renewed one.
+			# The release rpm's signing key expired 2025-10-22, so dnf rejects the re-signed packages. Replace it
+			# with the renewed key (same fingerprint B7B3B788A8D3785C, valid to 2027): refresh the on-disk file,
+			# drop the expired key from the rpm keyring (else the re-import is a no-op), then import the renewed one.
 			curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2025 -o /etc/pki/rpm-gpg/RPM-GPG-KEY-mysql-2023
 			old_mysql_key=$(rpm -q gpg-pubkey 2>/dev/null | grep -i a8d3785c || true)
 			if [ -n "$old_mysql_key" ]; then rpm -e $old_mysql_key 2>/dev/null || true; fi
 			rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-mysql-2023
-			# install_weak_deps=False: the distro mariadb server/client are only Recommends here; without
-			# this dnf pulls the whole mariadb stack alongside Oracle MySQL and they collide on /usr/bin/mysql.
+			# install_weak_deps=False: the distro mariadb stack is only a Recommends here; without it dnf
+			# pulls mariadb alongside Oracle MySQL and they collide on /usr/bin/mysql.
 			$PKG_MGR install -y --setopt=install_weak_deps=False mysql-server
 		else
 			$PKG_MGR install -y mysql-server mysql
@@ -735,10 +732,9 @@ function set_required_prerequisite() {
 			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8, v9 and v10) and Debian 12/13. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 			;;
 		esac
-		# Do NOT gate the prerequisite install on the exit code of 'apt update': if a previous run
-		# already added the (still unsigned, key not yet imported) Centreon repos, 'apt update' fails
-		# and a '&&' would skip installing wget/gnupg2/curl — leaving gpg absent so the key import
-		# below cannot run. Run update best-effort, then install unconditionally.
+		# Don't gate prerequisite install on 'apt update': a prior run may have added the not-yet-signed
+		# Centreon repos, making update fail. Run it best-effort, then install wget/gnupg2/curl unconditionally
+		# (a '&&' here would skip them and leave gpg absent for the key import below).
 		${PKG_MGR} update
 		base_apt_packages="lsb-release ca-certificates apt-transport-https wget gnupg2 curl"
 		# software-properties-common (add-apt-repository) is kept on Debian 12 but dropped on Debian 13,
@@ -783,7 +779,7 @@ function set_required_prerequisite() {
 		fi
 
 		if [ "$topology" == "central" ]; then
-			# On Debian, PHP (8.2 on bookworm / 8.4 on trixie) is provided by the official OS repositories (no third-party PHP repo needed).
+			# On Debian, PHP comes from the OS repos (8.2 bookworm / 8.4 trixie) — no third-party repo.
 			log "INFO" "Installing php from official os repositories."
 			if [[ "$dbms" == "MariaDB" ]]; then
 				set_mariadb_repos
@@ -918,11 +914,8 @@ function tls_cert_dir() {
 #========= end of function tls_cert_dir()
 
 #========= begin of function generate_db_tls_certificates()
-# generate a persistent Root CA and a server leaf certificate for the database.
-# modeled on centreon-images .../centreon-central/gen_cert.sh (standalone host, no container).
-# SANs cover the FQDN, localhost, 127.0.0.1 and every non-0.0.0.0 IPv4 address found on
-# the local interfaces (DB is co-located with the central, clients hit localhost or an IP).
-# exports the resulting paths via the TLS_* globals for the caller.
+# generate a persistent Root CA + server leaf cert for the DB (modeled on centreon-images gen_cert.sh).
+# SANs cover the FQDN, localhost, 127.0.0.1 and every non-0.0.0.0 local IPv4. Paths exported via TLS_*.
 #
 function generate_db_tls_certificates() {
 	local cert_dir
@@ -995,12 +988,10 @@ function generate_db_tls_certificates() {
 #========= end of function generate_db_tls_certificates()
 
 #========= begin of function configure_db_tls()
-# configure DB TLS according to the --tls flag.
-#  - disabled: ensure the server accepts plaintext connections (require_secure_transport=OFF).
-#  - enabled (RHEL & Debian): generate certs, install the CA into the trust store, enable
-#    server-side TLS and a verified [client] config, and stage the PHP DATABASE_SSL_* env.
-# Provision-only: require_secure_transport stays OFF so the (plaintext) PHP web install wizard keeps
-# working until centreon/centreon PR #9237 (PHP->DB TLS) ships in the installed package.
+# configure DB TLS per --tls flag.
+#  - disabled: server accepts plaintext (require_secure_transport=OFF).
+#  - enabled: generate certs, trust the CA, enable server-side TLS + verified [client], stage DATABASE_SSL_*.
+# Provision-only: require_secure_transport stays OFF so the plaintext web wizard works until PR #9237 ships.
 #
 function configure_db_tls() {
 	# --tls disabled, or enabled on an OS not yet covered: just allow plaintext and return.
@@ -1041,9 +1032,8 @@ function configure_db_tls() {
 		require_secure_transport=OFF
 	EOF
 
-	# Client default: negotiate TLS and verify the server certificate against our CA.
-	# Use the syntax the client actually understands: MySQL's client (8.x) takes ssl-mode=VERIFY_CA and
-	# rejects the MariaDB-style 'ssl-verify-server-cert' (which would break every mysql invocation).
+	# Client default: negotiate TLS and verify the server cert against our CA. MySQL's client (8.x) needs
+	# ssl-mode=VERIFY_CA and rejects MariaDB's 'ssl-verify-server-cert', so pick the right syntax per DBMS.
 	mkdir -p "$(dirname "$client_dropin")"
 	log "INFO" "Writing DB client TLS config: $client_dropin"
 	if [[ "$dbms" == "MySQL" ]]; then
@@ -1208,15 +1198,11 @@ EOF
 			default_authentication_plugin="mysql_native_password"
 		fi
 
-		# Bootstrap root over the LOCAL SOCKET with TLS explicitly disabled (--ssl-mode=DISABLED):
-		# the socket is inherently local and require_secure_transport is OFF, but our [client] cnf
-		# (ssl-mode=VERIFY_CA) would otherwise force TLS + CA verification on every mysql call and break
-		# this admin step before it can even set up the user. TLS for real (network) clients is unaffected.
-		# Auth source:
-		# - MariaDB / AppStream MySQL / socket auth: passwordless root works.
-		# - Oracle MySQL community (8.4): first init writes a random, *expired* temporary root password
-		#   to the server log; connect with it (--connect-expired-password). The ALTER below lifts the
-		#   expired state so the remaining statements run in the same session.
+		# Bootstrap root over the local socket with --ssl-mode=DISABLED: our [client] cnf (ssl-mode=VERIFY_CA)
+		# would otherwise force TLS verification and break this admin step. Network clients are unaffected. Auth:
+		# - MariaDB / AppStream MySQL: passwordless socket root works.
+		# - Oracle MySQL 8.4: first init writes a random *expired* temp password to the server log; connect with
+		#   --connect-expired-password (the ALTER below clears the expired state for the rest of the session).
 		local -a mysql_root_auth=(--ssl-mode=DISABLED -u root)
 		if ! mysql --ssl-mode=DISABLED -u root -e "SELECT 1" >/dev/null 2>&1; then
 			local mysql_error_log mysql_temp_pw
@@ -1707,10 +1693,9 @@ function install_central() {
 
 	log "INFO" "Centreon [$topology] installation from [${CENTREON_REPO}]"
 
-	# Select the DBMS-specific Centreon package. The generic 'centreon-database' is a virtual package
-	# provided only by 'centreon-mariadb' (which depends on mariadb-server), so installing it always
-	# resolves to MariaDB and even removes a previously-installed MySQL server. Pick the concrete
-	# package by $dbms instead: 'centreon-mysql' depends on mysql-server, 'centreon-mariadb' on mariadb-server.
+	# Pick the DBMS-specific package by $dbms: the virtual 'centreon-database' is provided only by
+	# 'centreon-mariadb', so it always resolves to MariaDB (even uninstalling MySQL). 'centreon-mysql'
+	# depends on mysql-server, 'centreon-mariadb' on mariadb-server.
 	if [[ $dbms == "MariaDB" ]]; then
 		CENTREON_DBMS_PKG="centreon-mariadb"
 	else
