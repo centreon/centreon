@@ -121,7 +121,7 @@ class CentreonUserLog
         $line = date('Y-m-d H:i:s') . '|' . $this->uid . "|{$page}|{$option}|{$str}";
         $line = str_replace(['`', '*'], ['', '\*'], $line);
 
-        file_put_contents($logDir . '/login.log', $line . "\n", FILE_APPEND);
+        file_put_contents($logDir . '/login.log', $line . "\n", FILE_APPEND | LOCK_EX);
     }
 
     private static function resolveChannel(int $type): LogChannelEnum
