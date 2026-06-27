@@ -338,9 +338,9 @@ final class PayloadSanitizerTest extends TestCase
 
     public function testRendersDateTimeAsAtom(): void
     {
-        $dt = new \DateTimeImmutable('2026-06-27T10:00:00+00:00');
+        $dateTime = new \DateTimeImmutable('2026-06-27T10:00:00+00:00');
 
-        $sanitised = $this->sanitizer->sanitize(['created' => $dt]);
+        $sanitised = $this->sanitizer->sanitize(['created' => $dateTime]);
 
         \assert(\is_array($sanitised));
         self::assertSame('2026-06-27T10:00:00+00:00', $sanitised['created']);
