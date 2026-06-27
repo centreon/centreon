@@ -107,18 +107,6 @@ const MultiAutocompleteField = ({
         disableCloseOnSelect: true,
         displayOptionThumbnail: true,
         getLimitTagsText,
-        ListboxComponent: ListboxComponent({
-          disableSelectAll,
-          isOptionSelected,
-          onChange: onChange as (
-            event: React.SyntheticEvent,
-            value: Array<SelectEntry>,
-            reason: string
-          ) => void,
-          options: options as Array<SelectEntry>,
-          total,
-          value: values
-        }),
         multiple: true,
         onChange,
         options: autocompleteOptions,
@@ -139,6 +127,20 @@ const MultiAutocompleteField = ({
           customRenderTags
             ? customRenderTags(renderTags(renderedValue, getItemProps))
             : renderTags(renderedValue, getItemProps),
+        slots: {
+          listbox: ListboxComponent({
+            disableSelectAll,
+            isOptionSelected,
+            onChange: onChange as (
+              event: React.SyntheticEvent,
+              value: Array<SelectEntry>,
+              reason: string
+            ) => void,
+            options: options as Array<SelectEntry>,
+            total,
+            value: values
+          })
+        },
         value: values,
         ...props
       } as React.ComponentProps<typeof Autocomplete>)}
