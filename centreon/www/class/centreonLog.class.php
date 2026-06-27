@@ -118,8 +118,11 @@ class CentreonUserLog
     private function mirrorAuthenticationEventToLegacyFile(string $str, $page, $option): void
     {
         $logDir = defined('_CENTREON_LOG_') ? _CENTREON_LOG_ : '/var/log/centreon';
-        $line = date('Y-m-d H:i:s') . '|' . $this->uid . "|{$page}|{$option}|{$str}";
-        $line = str_replace(['`', '*'], ['', '\*'], $line);
+        // Neutralize line breaks and the field delimiter in the message before assembling
+        // the pipe-delimited line, so a crafted message cannot split or forge records, while
+        // keeping the historical backtick-strip / asterisk-escape. Matches LoggerAuthentication.
+        $sanitizedStr = str_replace(["\r", "\n", '|', '`', '*'], [' ', ' ', ' ', '', '\*'], $str);
+        $line = date('Y-m-d H:i:s') . '|' . $this->uid . "|{$page}|{$option}|" . $sanitizedStr;
 
         try {
             $written = file_put_contents($logDir . '/login.log', $line . "\n", FILE_APPEND | LOCK_EX);
