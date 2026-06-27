@@ -129,7 +129,7 @@ class CentreonUserLog
             if ($written === false) {
                 error_log(sprintf('CentreonUserLog: unable to mirror authentication event to %s/login.log', $logDir));
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log(sprintf('CentreonUserLog: unable to mirror authentication event to login.log: %s', $e->getMessage()));
         }
     }
