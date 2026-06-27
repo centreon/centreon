@@ -59,8 +59,8 @@ final class SensitivityScannerTest extends TestCase
     {
         $scan = SensitivityScanner::scan(MethodSecretCommand::class);
 
-        // Getters mask the snake_cased accessor key: `getApiToken` → `api_token`, `getSsoTicket` → `sso_ticket`.
-        self::assertSame(['api_token', 'sso_ticket'], $scan['sensitive']);
+        // Accessors mask the snake_cased key: `getApiToken` → `api_token`, `getSsoTicket` → `sso_ticket`, `canManageUsers` → `manage_users`.
+        self::assertSame(['api_token', 'sso_ticket', 'manage_users'], $scan['sensitive']);
     }
 
     public function testRecordsMultiWordSubClassKeyInSnakeCase(): void

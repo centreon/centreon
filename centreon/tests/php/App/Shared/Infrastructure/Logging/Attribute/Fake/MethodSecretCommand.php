@@ -26,9 +26,9 @@ namespace Tests\App\Shared\Infrastructure\Logging\Attribute\Fake;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 /**
- * Pins the TARGET_METHOD path: a `#[Sensitive]` getter masks the
- * snake_cased accessor key it exposes (`getApiToken` → `api_token`,
- * `getSsoTicket` → `sso_ticket`).
+ * Pins the TARGET_METHOD path: a `#[Sensitive]` accessor masks the
+ * snake_cased key it exposes (`getApiToken` → `api_token`,
+ * `getSsoTicket` → `sso_ticket`, `canManageUsers` → `manage_users`).
  */
 final readonly class MethodSecretCommand
 {
@@ -48,5 +48,11 @@ final readonly class MethodSecretCommand
     public function getSsoTicket(): string
     {
         return 'st-secret';
+    }
+
+    #[Sensitive]
+    public function canManageUsers(): bool
+    {
+        return true;
     }
 }

@@ -31,8 +31,8 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
  * `#[Sensitive]` is honoured on three targets:
  *
  *  - **property** — the property value is masked;
- *  - **method** — the accessor key it exposes (`getX`/`isX`/`hasX` →
- *    `x`, otherwise the raw method name) is masked, matching how the
+ *  - **method** — the accessor key it exposes (`getX`/`isX`/`hasX`/`canX`
+ *    → `x`, otherwise the raw method name) is masked, matching how the
  *    Symfony normalizer derives keys from getters;
  *  - **class** — every value typed as that class is masked wholesale
  *    (`classSensitive`), so the sanitiser never descends into it.
@@ -127,11 +127,12 @@ final class SensitivityScanner
     /**
      * Derives the payload key a method exposes, mirroring the Symfony
      * normalizer: `getPasscode` → `passcode`, `isActive` → `active`,
-     * `hasToken` → `token`; any other method keeps its own name.
+     * `hasToken` → `token`, `canAdmin` → `admin`; any other method
+     * keeps its own name.
      */
     private static function accessorKey(string $method): string
     {
-        foreach (['get', 'is', 'has'] as $prefix) {
+        foreach (['get', 'is', 'has', 'can'] as $prefix) {
             if (\str_starts_with($method, $prefix) && \mb_strlen($method) > \mb_strlen($prefix)) {
                 return \lcfirst(\mb_substr($method, \mb_strlen($prefix)));
             }
