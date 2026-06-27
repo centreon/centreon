@@ -55,4 +55,10 @@ final readonly class MethodSecretCommand
     {
         return true;
     }
+
+    #[Sensitive]
+    public function cancel(): bool
+    {
+        return false;
+    }
 }

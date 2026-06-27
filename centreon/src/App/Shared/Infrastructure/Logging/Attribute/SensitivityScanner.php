@@ -134,8 +134,9 @@ final class SensitivityScanner
     private static function accessorKey(string $method): string
     {
         foreach (SensitiveKeywordDenylist::ACCESSOR_PREFIXES as $prefix) {
-            if (\str_starts_with($method, $prefix) && \mb_strlen($method) > \mb_strlen($prefix)) {
-                return \lcfirst(\mb_substr($method, \mb_strlen($prefix)));
+            $prefixLen = \mb_strlen($prefix);
+            if (\str_starts_with($method, $prefix) && \mb_strlen($method) > $prefixLen && \ctype_upper($method[$prefixLen])) {
+                return \lcfirst(\mb_substr($method, $prefixLen));
             }
         }
 
