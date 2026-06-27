@@ -43,7 +43,7 @@ final class SensitiveKeywordDenylist
         'session_id', 'sessionid',
     ];
 
-    /** @var list<string> Accessor prefixes shared by {@see LogPayloadNormalizer} and {@see \App\Shared\Infrastructure\Logging\Attribute\SensitivityScanner}. */
+    /** @var list<string> Accessor prefixes shared by {@see LogPayloadNormalizer} and {@see Attribute\SensitivityScanner}. */
     public const ACCESSOR_PREFIXES = ['get', 'is', 'has', 'can'];
 
     /**

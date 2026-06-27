@@ -47,7 +47,6 @@ final class LogPayloadNormalizer
     private const MAX_NODES = 10000;
     private const MAX_VALUE_LENGTH = 1024;
     private const TRUNCATED_KEY = '__truncated__';
-
     private const ACCESSOR_PREFIXES = SensitiveKeywordDenylist::ACCESSOR_PREFIXES;
 
     /** @var array<class-string, list<\ReflectionProperty>> */
