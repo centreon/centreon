@@ -251,7 +251,9 @@ class CentreonRestHttp
                 ['url' => $url, 'response' => $output]
             );
         } catch (Throwable $e) {
-            error_log(sprintf('CentreonRestHttp: failed to write REST error log: %s', $e->getMessage()));
+            // Strip control chars so a throwing logger's message cannot forge lines in error_log.
+            $safeMessage = (string) preg_replace('/[[:cntrl:]]/', '?', $e->getMessage());
+            error_log(sprintf('CentreonRestHttp: failed to write REST error log: %s', $safeMessage));
         }
     }
 
