@@ -45,7 +45,7 @@ const DateTimePickerInput = ({
   locale,
   timezone,
   ...rest
-}: Props & DateTimePickerProps<dayjs.Dayjs>): JSX.Element => {
+}: Props & DateTimePickerProps): JSX.Element => {
   const desktopPickerMediaQuery =
     '@media (min-width: 1024px) or (pointer: fine)';
 
@@ -77,7 +77,7 @@ const DateTimePickerInput = ({
       dateAdapter={AdapterDayjs}
       dateLibInstance={dayjs}
     >
-      <DateTimePicker<dayjs.Dayjs>
+      <DateTimePicker
         dayOfWeekFormatter={(dayOfWeek) =>
           dayOfWeek.format('dd').toLocaleUpperCase()
         }

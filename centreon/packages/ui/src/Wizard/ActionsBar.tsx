@@ -39,11 +39,13 @@ const ActionsBar = ({
 
   return (
     <Grid
-      alignItems="center"
       className={classes.container}
       container
       direction="row"
-      justifyContent="flex-end"
+      sx={{
+        alignItems: 'center',
+        justifyContent: 'flex-end'
+      }}
     >
       <Grid>
         {!isFirstStep && (

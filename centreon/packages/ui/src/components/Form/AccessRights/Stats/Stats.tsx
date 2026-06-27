@@ -27,7 +27,11 @@ const Stats = ({ labels }: Props): JSX.Element | null => {
   ].filter(identity);
 
   return (
-    <Typography textAlign="right">
+    <Typography
+      sx={{
+        textAlign: 'right'
+      }}
+    >
       <strong>{statsLabels.join(' | ')}</strong>
     </Typography>
   );

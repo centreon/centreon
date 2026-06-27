@@ -30,7 +30,13 @@ const GraphValueTooltipContent = ({
 
   return (
     <div className={classes.tooltipContainer}>
-      <Typography fontWeight="bold">{graphValue.dateTime}</Typography>
+      <Typography
+        sx={{
+          fontWeight: 'bold'
+        }}
+      >
+        {graphValue.dateTime}
+      </Typography>
       <div className={classes.metrics}>
         {graphValue.metrics.map(({ unit, color, id, value, name }) => {
           const isMetricHighlighted = equals(
@@ -51,11 +57,17 @@ const GraphValueTooltipContent = ({
               />
               <Typography
                 className={classes.metricName}
-                fontWeight={isMetricHighlighted ? 'bold' : undefined}
+                sx={{
+                  fontWeight: isMetricHighlighted ? 'bold' : undefined
+                }}
               >
                 {name}
               </Typography>
-              <Typography fontWeight={isMetricHighlighted ? 'bold' : undefined}>
+              <Typography
+                sx={{
+                  fontWeight: isMetricHighlighted ? 'bold' : undefined
+                }}
+              >
                 {formatMetricValueWithUnit({
                   base,
                   unit,

@@ -1,7 +1,7 @@
 import {
   Edit as EditIcon,
   Settings as SettingsIcon,
-  StarOutline as StarOutlineIcon
+  StarOutlined as StarOutlineIcon
 } from '@mui/icons-material';
 
 import type { Meta, StoryObj } from '@storybook/react';

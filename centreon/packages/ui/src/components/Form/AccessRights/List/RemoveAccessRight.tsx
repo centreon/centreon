@@ -1,4 +1,4 @@
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined';
 import RotateLeftIcon from '@mui/icons-material/RotateLeft';
 
 import { useSetAtom } from 'jotai';

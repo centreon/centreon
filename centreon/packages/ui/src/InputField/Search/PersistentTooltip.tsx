@@ -1,4 +1,4 @@
-import IconHelp from '@mui/icons-material/HelpOutline';
+import IconHelp from '@mui/icons-material/HelpOutlined';
 import IconClose from '@mui/icons-material/HighlightOff';
 import { IconButton, Tooltip } from '@mui/material';
 

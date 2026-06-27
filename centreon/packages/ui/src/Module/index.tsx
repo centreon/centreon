@@ -1,5 +1,4 @@
 import type { PaletteOptions } from '@mui/material';
-import { createGenerateClassName, StylesProvider } from '@mui/styles';
 
 import type { QueryClient } from '@tanstack/react-query';
 import { type createStore, Provider as JotaiProvider } from 'jotai';
@@ -21,26 +20,19 @@ export interface ModuleProps {
 
 const Module = ({
   children,
-  seedName,
   maxSnackbars = 3,
   store,
   queryClient,
   overrideTheme
 }: ModuleProps): JSX.Element => {
-  const generateClassName = createGenerateClassName({
-    seed: seedName
-  });
-
   return (
     <QueryProvider queryClient={queryClient}>
       <JotaiProvider store={store}>
-        <StylesProvider generateClassName={generateClassName}>
-          <ThemeProvider overrideTheme={overrideTheme}>
-            <SnackbarProvider maxSnackbars={maxSnackbars}>
-              {children}
-            </SnackbarProvider>
-          </ThemeProvider>
-        </StylesProvider>
+        <ThemeProvider overrideTheme={overrideTheme}>
+          <SnackbarProvider maxSnackbars={maxSnackbars}>
+            {children}
+          </SnackbarProvider>
+        </ThemeProvider>
       </JotaiProvider>
     </QueryProvider>
   );

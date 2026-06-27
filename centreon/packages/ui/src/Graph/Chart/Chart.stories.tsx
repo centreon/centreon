@@ -161,8 +161,10 @@ const TimePeriodSwitch = ({
   return (
     <Switch
       checked={checked}
-      inputProps={{ 'aria-label': 'controlled' }}
       onChange={handleChange}
+      slotProps={{
+        input: { 'aria-label': 'controlled' }
+      }}
     />
   );
 };

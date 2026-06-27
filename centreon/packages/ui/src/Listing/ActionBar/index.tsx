@@ -288,10 +288,12 @@ const MemoListingActionBar = ({
               page={currentPage ?? 0}
               rowsPerPage={limit ?? 10}
               rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
-              SelectProps={{
-                id: labelRowsPerPage,
-                MenuProps: {
-                  className: classes.selectMenu
+              slotProps={{
+                select: {
+                  id: labelRowsPerPage,
+                  MenuProps: {
+                    className: classes.selectMenu
+                  }
                 }
               }}
             />

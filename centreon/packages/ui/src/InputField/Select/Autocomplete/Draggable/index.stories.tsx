@@ -154,8 +154,10 @@ const MultiDraggableClickAndHoverItem = (): JSX.Element => {
     <div>
       <Tooltip
         open={not(isNil(hoveredItem?.anchorElement))}
-        PopperProps={{
-          anchorEl: hoveredItem?.anchorElement
+        slotProps={{
+          popper: {
+            anchorEl: hoveredItem?.anchorElement
+          }
         }}
         title={hoveredItem?.item.name || ''}
       >

@@ -76,7 +76,12 @@ const BarChartTooltip = ({
 
   return (
     <div className={classes.tooltipContainer}>
-      <Typography fontWeight="bold" textAlign="center">
+      <Typography
+        sx={{
+          fontWeight: 'bold',
+          textAlign: 'center'
+        }}
+      >
         {formattedDateTime}
       </Typography>
       <div className={classes.metrics}>
@@ -92,22 +97,24 @@ const BarChartTooltip = ({
             />
             <Typography
               className={classes.metricName}
-              fontWeight={
-                displayHighLightedMetric &&
-                equals(tooltipData.highlightedMetric, metric.metric_id)
-                  ? 'bold'
-                  : 'regular'
-              }
+              sx={{
+                fontWeight:
+                  displayHighLightedMetric &&
+                  equals(tooltipData.highlightedMetric, metric.metric_id)
+                    ? 'bold'
+                    : 'regular'
+              }}
             >
               {metric.name}
             </Typography>
             <Typography
-              fontWeight={
-                displayHighLightedMetric &&
-                equals(tooltipData.highlightedMetric, metric.metric_id)
-                  ? 'bold'
-                  : 'regular'
-              }
+              sx={{
+                fontWeight:
+                  displayHighLightedMetric &&
+                  equals(tooltipData.highlightedMetric, metric.metric_id)
+                    ? 'bold'
+                    : 'regular'
+              }}
             >
               {formatMetricValueWithUnit({
                 base,

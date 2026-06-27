@@ -211,14 +211,14 @@ const DraggableAutocomplete = (
         textFieldSlotsAndSlotProps={{
           slotProps: {
             htmlInput: {
-              ...renderProps.inputProps,
+              ...renderProps.slotProps.htmlInput,
               value: inputText || ''
             },
             input: {
-              ...renderProps?.InputProps
+              ...renderProps.slotProps.input
             },
             inputLabel: {
-              ...renderProps?.inputLabel
+              ...renderProps.slotProps.inputLabel
             }
           }
         }}
