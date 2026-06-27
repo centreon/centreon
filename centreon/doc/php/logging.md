@@ -161,6 +161,8 @@ In production the `prod.*.log` files are rotated by **logrotate**
 - `prod.password.log`
 - `prod.upgrade.log`
 - `prod.plugin-pack-manager.log`
+- `license-manager.log` (module dedicated file — historical name, no `prod.` prefix; see [§11](#module-channels--logchannelinterface-and-modulelogchannel))
+- `autodiscovery_job.log` (module dedicated file — historical name)
 
 Default retention: `weekly` × `rotate 52` (1 year), with `compress` +
 `delaycompress` + `copytruncate`.
@@ -168,7 +170,271 @@ Default retention: `weekly` × `rotate 52` (1 year), with `compress` +
 In development (`when@dev`) the handlers use `rotating_file` directly (daily
 `Y-m-d` suffix, `max_files: 14`) — no logrotate needed.
 
-## 5. Writing authentication events
+### `prod.web.log` is a two-format file
+
+`prod.web.log` aggregates records from **two writers** sharing the same file, and they don't share the same line shape — by construction, not by choice:
+
+1. **Monolog** (the application framework, `LoggingMiddleware` + processors + every DI-resolved `LoggerInterface`) writes with the `LineFormatter`:
+
+   ```
+   [2026-05-20T14:30:00+02:00] app.INFO: Dispatching command.bus App\…\Foo {"dispatch_id":"…"} {"uid":"…"}
+   ```
+
+   - RFC3339 timestamp, `channel.LEVEL` prefix, JSON `context` + JSON `extra`.
+
+2. **PHP-FPM** native `error_log` (`packaging/src/php-fpm.{rpm,deb}.conf`, `php_admin_value[error_log] = /var/log/centreon/prod.web.log`) writes whatever PHP cannot route through Monolog — parse errors, fatal pre-boot errors, OOM, `trigger_error(..., E_USER_ERROR)`:
+
+   ```
+   [20-May-2026 14:26:47 Europe/Paris] PHP Fatal error:  forced PHP test error in /tmp/foo.php on line 2
+   ```
+
+   - Legacy date format (`d-M-Y H:i:s T`), `PHP <Type> error:` prefix, no JSON.
+
+The two formats **cannot be unified at the source**: PHP-FPM does not expose any `error_log_format` directive (the format is hardcoded in the PHP engine, `main/main.c`). What the framework can catch, however, is caught: `framework.php_errors.log: true` routes every runtime PHP `Warning` / `Notice` / `Deprecation` / `ErrorException` through Monolog on the `php` channel, so they land in `prod.web.log` **at the Monolog format**. Only the native pre-Monolog failures (parse error, fatal pre-boot, OOM) keep the PHP-FPM format.
+
+Practical consequence for downstream consumers (log shippers, fail2ban filters, manual `tail`): match the line by **its first character pattern**, not by date:
+
+- `^\[\d{4}-\d{2}-\d{2}T` → Monolog record (RFC3339)
+- `^\[\d{2}-[A-Z][a-z]{2}-\d{4}` → PHP-FPM native error
+
+---
+
+## 10. Masking sensitive fields with `#[Sensitive]`
+
+The keyword heuristic of [§4](#4-loggingmiddleware) is permissive but **name-based**: it masks any key *containing* `password`, `token`, … and therefore misses a secret carried by an unlisted name. The `#[Sensitive]` attribute is the **explicit, type-safe** complement — it masks a field by *declaration*, regardless of its name.
+
+### Attribute
+
+`App\Shared\Domain\Logging\Attribute\Sensitive` can target properties, accessor methods, and classes:
+
+```php
+#[\Attribute(\Attribute::TARGET_PROPERTY | \Attribute::TARGET_METHOD | \Attribute::TARGET_CLASS)]
+final readonly class Sensitive {}
+```
+
+- on a **property** — its value is masked;
+- on a **method** (typically a getter) — the accessor key it exposes is masked (`getX`/`isX`/`hasX` → `x`, otherwise the raw method name);
+- on a **class** — every value typed as that class is masked wholesale, so the sanitizer never descends into it.
+
+Annotate any property whose value must never reach a log — plain properties or promoted constructor parameters:
+
+```php
+final readonly class SecretsCommand
+{
+    public function __construct(
+        #[Sensitive] public string $passcode,
+        #[Sensitive] public string $ssoTicket,
+        public int $userId,
+    ) {}
+}
+```
+
+When such an object flows through the logging pipeline, the annotated values are rendered as `***`, while `userId` stays in clear.
+
+### Pipeline
+
+| Component | Role |
+| --- | --- |
+| `…\Domain\Logging\Attribute\Sensitive` | the marker placed on properties, accessor methods, and classes |
+| `…\Infrastructure\Logging\Attribute\SensitivityScanner` | reflects a class, collects its `#[Sensitive]` properties and accessor keys, honours class-level sensitive types, and **recurses into nested class-typed properties**, so a secret nested in a sub-object is found too |
+| `…\Infrastructure\Logging\PayloadSanitizer` | stateless walker that masks the `#[Sensitive]` values of a payload given its owning class (`contextClass`), falls back to the keyword denylist for raw array keys, **redacts secrets carried in a URL query string** (parameters whose name matches the denylist, e.g. in `extra.url`), and truncates string values at `MAX_VALUE_LENGTH` (1024) |
+| `…\Infrastructure\Logging\SensitiveKeywordDenylist` | single source of truth for the keyword net (`password`, `token`, …) shared by `LogPayloadNormalizer` and `PayloadSanitizer`, so both nets mask the same field names |
+| `…\Infrastructure\Logging\SanitizingProcessor` | Monolog processor that applies the sanitizer to every record's `context` (full masking) and `extra` (URL-query masking only — see below). Registered to run **last**, after the processors that fill `extra` |
+
+The owning class is the **context** the sanitizer needs in order to know which keys are sensitive. On the command/query bus, `LoggingMiddleware` provides the dispatched message class, so `#[Sensitive]` on a Command / Query / DTO is honoured automatically. A **raw array** (`['secret' => $x]`) carries no class context, so the attribute layer cannot reflect it — but as the cross-channel net, `PayloadSanitizer` still applies the shared keyword denylist to its keys, so a `['password' => $x]` is masked everywhere it is logged. To get the explicit, type-safe attribute masking outside the bus, pass a typed object rather than a raw array.
+
+`extra` is sanitised too, but with keyword-key masking **off**: its keys are produced by platform processors (`WebProcessor`, `TokenProcessor`, …), not by callers, and must stay readable for auditing (e.g. `extra.token` is `TokenProcessor`'s audit descriptor of the authenticated user — authenticated flag, roles, identifier — not a credential). There, only the sensitive query-string parameters of URL-like values are redacted (best-effort, query component only), covering a token passed in a request URL (`extra.url`). Because Monolog applies processors in reverse registration order and the MonologBundle **ignores the tag `priority`** for processors, the sanitizer is registered first (in `config.new/services/monolog.php`, and pushed first by `MonologAdapter`) so that it executes last — after `WebProcessor` has populated `extra`.
+
+### Why not the native `#[\SensitiveParameter]`?
+
+PHP's built-in [`#[\SensitiveParameter]`](https://www.php.net/manual/en/class.sensitiveparameter.php) is **not** a substitute here:
+
+- **Target** — it is `Attribute::TARGET_PARAMETER` only, so it cannot annotate the many plain (non-promoted) **properties** we mask (`Contact::$token`, `Response::$message`, public DTO props such as `FindOpenIdConfigurationResponse::$clientId`, the legacy `Security/Domain/Authentication/Model/*`, …).
+- **Mechanism** — it only redacts a value in **exception stack traces** (handled by the PHP engine); it does not mask log payloads. The scanner reflects *properties*, so it would not even see a `#[\SensitiveParameter]` placed on a promoted parameter.
+
+A property-level attribute is therefore the right tool for reflection-based **payload** masking. A future enhancement could make `SensitivityScanner` *additionally* honour `#[\SensitiveParameter]` on promoted constructor parameters (gaining stack-trace redaction for free) while keeping `#[Sensitive]` for plain properties.
+
+---
+
+## 11. Legacy bridge — `Adaptation\Log\Logger`
+
+The platform pipeline described above runs under `App\Shared\Infrastructure\Symfony\Kernel`. Legacy entry points (procedural `www/` code, classes wired through `App\Kernel`) cannot autowire Monolog services directly; they go through a thin façade so every record still lands on the same platform layout.
+
+```mermaid
+flowchart LR
+    Legacy["Legacy code (www/, CentreonLog, CentreonUserLog)"] --> Facade["Adaptation\\Log\\Logger::create(LogChannelEnum)"]
+    Facade --> Adapter["Adaptation\\Log\\Adapter\\MonologAdapter"]
+    Adapter --> Stream["StreamHandler → /var/log/centreon/&lt;env&gt;.&lt;slug&gt;.log"]
+    Stream --> Fmt["LineFormatter (RFC3339)"]
+
+    classDef src fill:#f5f5f5,stroke:#9e9e9e,color:#212121
+    classDef proc fill:#e0e0e0,stroke:#616161,color:#212121
+    classDef out fill:#bdbdbd,stroke:#424242,stroke-width:2px,color:#000
+    class Legacy src
+    class Facade,Adapter proc
+    class Stream,Fmt out
+```
+
+### `LogChannelEnum`
+
+`Adaptation\Log\Enum\LogChannelEnum` enumerates the Monolog channels the legacy code is allowed to write to. The case value is the **channel name** (matches `config.new/packages/monolog.yaml`); `getLogFileSlug()` returns the **file-name slug** appended to `<env>.<slug>.log`.
+
+| Case | Channel | File slug | Production file |
+|---|---|---|---|
+| `AUTHENTICATION` | `authentication` | `access` | `prod.access.log` |
+| `PASSWORD` | `password` | `password` | `prod.password.log` |
+| `PLUGIN_PACK_MANAGER` | `plugin-pack-manager` | `plugin-pack-manager` | `prod.plugin-pack-manager.log` |
+| `TOKEN` | `token` | `token` | `prod.token.log` |
+| `UPGRADE` | `upgrade` | `upgrade` | `prod.upgrade.log` |
+| `WEB` | `web` | `web` | `prod.web.log` |
+
+Only `AUTHENTICATION` carries a different slug — login/ldap/openid/saml records all converge in the shared `access.log` file.
+
+### Module channels — `LogChannelInterface` and `ModuleLogChannel`
+
+`LogChannelEnum` is a **closed** enum: it lists only the core platform channels, and a module (living in a separate repository, or under `centreon-dsm/`, `centreon-open-tickets/`, …) cannot add a case to it. To let a module own a **dedicated** log file that still flows through the unified pipeline (secret masking, exception formatting, `extra.uid`, web context), the channel is opened behind an interface:
+
+```php
+interface LogChannelInterface
+{
+    public function getChannelName(): string;               // Monolog channel tag
+    public function getLogFileName(string $appEnv): string;  // file name, no directory
+}
+```
+
+Two implementations:
+
+| Implementation | `getChannelName()` | `getLogFileName($appEnv)` | Example file |
+|---|---|---|---|
+| `LogChannelEnum` (core) | the enum `value` | `{appEnv}.{slug}.log` | `prod.web.log` |
+| `ModuleLogChannel` (modules) | the validated slug | the **literal historical name** (no `appEnv` prefix) | `license-manager.log` |
+
+`MonologAdapter` depends on `LogChannelInterface` and **delegates the file name to the channel** (`getLogFileFromChannel()` no longer hard-codes `sprintf('%s/%s.%s.log', …)`), so a module channel gets the exact same platform processor stack as a core channel.
+
+#### Historical file names are preserved
+
+External consumers — ops runbooks, SIEM parsers, monitoring — watch some module logs **by their exact path**. A `ModuleLogChannel` therefore returns the **literal** historical file name, with **no `prod.` / env prefix**:
+
+- `license-manager.log` (License Manager + PP Manager) — restored as a real dedicated file instead of being misrouted into `prod.upgrade.log`.
+- `autodiscovery_job.log` (Auto Discovery).
+
+> Only the **file name** is preserved. The **line format** necessarily changes to the platform one (`LineFormatter`, RFC3339 timestamp + JSON `context` / `extra`). If byte-for-byte format compatibility is required for a specific consumer of a given file, flag it explicitly.
+
+These files are added to `logrotate/centreon` under their historical names, alongside the `prod.*.log` files (see [§9](#9-routing-and-output-file)).
+
+#### `ModuleLogChannel`
+
+`Adaptation\Log\Channel\ModuleLogChannel` is a `final readonly` value object that validates its slug **once at construction**, so every instance is guaranteed valid and immutable:
+
+```php
+use Adaptation\Log\Channel\ModuleLogChannel;
+use Adaptation\Log\Logger;
+
+Logger::create(new ModuleLogChannel('license-manager'))->error(
+    'IMP API call failed',
+    ['exception' => $e],
+);
+```
+
+The slug is constrained to `^[a-z0-9]([a-z0-9_-]*[a-z0-9])?$/D` (lowercase alphanumerics, `-` / `_` separators, no leading/trailing separator). Since the slug becomes a file-name component, anything that could escape the log directory (`/`, `.`, `..`) or forge a log line (a newline — blocked by the `D` modifier) is rejected. An invalid slug throws `LoggerException`; a call site that builds a channel from a non-constant value must contain it (see `CentreonRestHttp` below).
+
+The `ModuleLogChannel::fromLogFileName('license-manager.log')` factory strips a trailing `.log` then validates the result, so a legacy caller that passes a historical **file name** keeps working.
+
+#### `CentreonRestHttp`
+
+`CentreonRestHttp`'s second constructor argument accepts `string|LoggerInterface` (for backward compatibility): a historical caller passing `'license-manager.log'` is routed to a `ModuleLogChannel` automatically, while new code injects an explicit `Logger::create(new ModuleLogChannel(...))`. A malformed name never breaks the HTTP client — it degrades to a `NullLogger` and reports the rejected name (control characters stripped) through `error_log`.
+
+### `Adaptation\Log\Logger`
+
+```php
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
+Logger::create(LogChannelEnum::WEB)->error(
+    'Could not generate the host configuration',
+    ['host_id' => 42, 'exception' => $e],
+);
+```
+
+`Logger::create()` returns a PSR-3 `LoggerInterface`. Internally it instantiates a `MonologAdapter` carrying a single `StreamHandler` configured with `LineFormatter` + `RFC3339`. Rotation is **not** wired at this layer — production hosts delegate to `logrotate` (cf. `logrotate/centreon`).
+
+If `MonologAdapter::create()` cannot build the handler (e.g. permission error on the log directory), `Logger::create()` falls back to a `NullLogger` and writes the failure reason to `error_log()` — log emission must never break a request.
+
+#### Processors attached by `MonologAdapter`
+
+To mirror the platform pipeline as closely as possible without booting the Symfony container, `MonologAdapter::pushPlatformProcessors()` attaches three processors to every channel logger it creates:
+
+| Processor | Source | Adds |
+|---|---|---|
+| `Monolog\Processor\UidProcessor` | Monolog vendor | `extra.uid` — 7-char hex id, **shared across every channel logger built in the current process** via a `private static` cache. Enables cross-file correlation (`grep "uid\":\"…\"" /var/log/centreon/*.log`) just like the new-kernel pipeline. |
+| `Monolog\Processor\WebProcessor` | Monolog vendor | `extra.url`, `extra.ip`, `extra.http_method`, `extra.server`, `extra.referrer` — sourced from `$_SERVER` directly (the Symfony bridge variant is bypassed because its data is populated by a kernel-request listener that does not run from legacy code paths). |
+| `App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor` | platform | Unwraps `context.exception` through `ExceptionFormatter::format()`, producing the same nested-exception layout used on `prod.web.log` (cf. §5). |
+
+`RouteProcessor` and `TokenProcessor` are **not** wired here: they depend on the Symfony `RequestStack` / `TokenStorage` services and would be empty in the legacy stack. Records emitted via `Adaptation\Log\Logger` therefore do **not** carry `extra.controller`, `extra.route` or `extra.token`. Call sites that need those fields should write through the new-kernel pipeline (the catch-all `app` / `request` channels and every dedicated channel) where the full processor stack is wired globally by `config.new/services/monolog.php`.
+
+#### Format alignment — no more `{custom, exception, default}` wrap
+
+Before the legacy-logging migration, both `CentreonLog::log()` and `Centreon\Domain\Log\LoggerTrait::executeLog()` reshaped the `context` array before handing it to Monolog:
+
+- `CentreonLog::buildContext()` pre-formatted the `Throwable` with `ExceptionLogFormatter` (legacy) and added `context.request_infos`.
+- `LoggerTrait::normalizeContext()` rewrapped everything as `{custom, exception, default: {request_infos}}` — and **moved** the `Throwable` out of `context.exception` so `ExceptionFormatterProcessor` never saw it.
+
+Both helpers are gone. The legacy façades now hand the caller-supplied `$context` directly to the underlying logger, only normalizing one thing: a `?Throwable $exception` argument is moved into `$context['exception']` so the platform processor can unwrap the chain on the way out.
+
+Concrete consequences:
+
+- Exceptions logged via `CentreonLog::create()->error(TYPE_*, 'msg', $ctx, $throwable)` end up with the **same** structured shape as the new-kernel records (handled by `App\Shared\Infrastructure\Logging\ExceptionFormatter`).
+- The HTTP context (`url`, `ip`, `http_method`, `server`, `referrer`) lives under `extra`, not `context.request_infos` — that is where the rest of the platform reads it.
+- `Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger::log()` still pre-formats through `ExceptionLogFormatter` (legacy) for the `BusinessLogicException` `from_exception` / `traces` fields its callers rely on. Its records therefore keep the legacy `context.exception` shape — that is a property of `ExceptionLogger` callers, not of the underlying logger.
+
+### Domain-specific facades
+
+Four siblings of `Adaptation\Log\Logger` expose a **constrained, semantic API** instead of the raw PSR-3 surface:
+
+| Facade | Channel | File | Methods |
+|---|---|---|---|
+| `Adaptation\Log\LoggerPassword` | `password` | `prod.password.log` | `success`, `warning` |
+| `Adaptation\Log\LoggerToken` | `token` | `prod.token.log` | `success`, `warning` |
+| `Adaptation\Log\LoggerAuthentication` | `authentication` | `prod.access.log` | `loginSuccess`, `loginFailure`, `logout`, `tokenRefreshSuccess`, `tokenRefreshFailure`, `unauthorized`, `forbidden` |
+| `Adaptation\Log\LoggerUpgrade` | `upgrade` | `prod.upgrade.log` | `start`, `success`, `failure`, `step`, `stepCompleted`, `stepFailure`, `info`, `error` |
+
+They exist for two reasons:
+
+1. **Downstream consumers expect a stable JSON schema** — fail2ban filters (auth), SIEM correlation (password, auth, token), upgrade observability dashboards (upgrade). Hard-coding the schema in the helper guarantees every caller emits the same shape (`event`, `status`, `user_id`, `provider`, `ip_address`, `from_version`, …).
+2. **OWASP-aligned semantics** — distinguishing a security event (`WARNING` for an attempted-but-refused login) from a technical crash (`ERROR` for an unhandled exception) is a domain concern; the helper enforces the right Monolog level for each method.
+
+For channels that carry **free-form messages with arbitrary context** (`web`, `plugin-pack-manager`), call sites use `Adaptation\Log\Logger::create(LogChannelEnum::*)` directly — wrapping them in a helper adds no value over the PSR-3 facade.
+
+Decision rule for adding a new `Logger<Channel>` class: when the channel either feeds an automated consumer that requires a stable schema, **or** carries a well-defined lifecycle (`loginSuccess` / `loginFailure` / `logout`, or `start` / `step` / `success` / `failure`) that benefits from semantic method names. Otherwise, route through `Adaptation\Log\Logger::create(LogChannelEnum::*)` directly.
+
+### `CentreonLog` and `CentreonUserLog` façades
+
+Both classes (`www/class/centreonLog.class.php`) keep their public surface but reroute every write through `Adaptation\Log\Logger`. The legacy `TYPE_*` identifiers map onto channels as follows:
+
+| Legacy constant | Channel | Output file |
+|---|---|---|
+| `TYPE_LOGIN`, `TYPE_LDAP` | `AUTHENTICATION` | `prod.access.log` |
+| `TYPE_SQL`, `TYPE_BUSINESS_LOG` | `WEB` | `prod.web.log` |
+| `TYPE_UPGRADE` | `UPGRADE` | `prod.upgrade.log` |
+| `TYPE_PLUGIN_PACK_MANAGER` | `PLUGIN_PACK_MANAGER` | `prod.plugin-pack-manager.log` |
+
+`CentreonLog::pushLogFileHandler()` and `setPathLogFile()` are kept as deprecated no-ops for backward compatibility with extension modules — file routing is now driven exclusively by `LogChannelEnum`.
+
+Both classes are tagged `@deprecated`. The DI/Application code that still autowires them keeps working, but **new code should call `Adaptation\Log\Logger` directly** with an explicit `LogChannelEnum`.
+
+### `Centreon\Domain\Log\LoggerTrait`
+
+`LoggerTrait` (~389 callers) keeps providing the PSR-3 helper shape used by Domain services that autowire a `LoggerInterface` via `#[Required]`. The former `ContactForDebug` gate is gone — `canBeLogged()` now only checks that a logger has been injected. The trait carries a descriptive note but no formal `@deprecated` tag, because `Symfony\Component\ErrorHandler\DebugClassLoader` would otherwise cascade the deprecation onto every class still using the trait during the transition.
+
+### Symfony-side configuration
+
+`config/packages/monolog.yaml` (legacy kernel) is a single-line `imports:` pointing at `config.new/packages/monolog.yaml`. There is one source of truth for channels, handlers and processors — adding or renaming a channel for the platform pipeline automatically reaches the legacy kernel too.
+
+Both kernels resolve `kernel.logs_dir` to `/var/log/centreon` (`App\Kernel::getLogDir()` and `App\Shared\Infrastructure\Symfony\Kernel::getLogDir()`), so the path templates in `monolog.yaml` produce identical filenames regardless of which kernel boots a request.
+
+---
+
+## 12. Writing authentication events
 
 Authentication is the only flow where the platform splits two destinations on purpose, following the [OWASP Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html) and [ASVS V7](https://owasp.org/www-project-application-security-verification-standard/) recommendations:
 
