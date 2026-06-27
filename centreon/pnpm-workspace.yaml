@@ -5,6 +5,10 @@ packages:
   - 'tests/api'
   - 'tests/performance'
   - 'doc/API'
-
 # 7 days
 minimumReleaseAge: 10080
+overrides:
+  lodash@<=4.18.1: 4.18.1
+  lodash-es@<=4.18.1: 4.18.1
+  protobufjs@<=7.5.5: 7.5.5
+  undici@<=6.24.0: 6.24.0
