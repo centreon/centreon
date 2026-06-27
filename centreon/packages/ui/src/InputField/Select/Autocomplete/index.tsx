@@ -2,6 +2,7 @@ import {
   Autocomplete,
   type AutocompleteProps,
   type AutocompleteRenderInputParams,
+  type ChipProps,
   CircularProgress,
   InputAdornment,
   type InputProps,
@@ -34,6 +35,7 @@ import { useAutoCompleteStyles } from './autoComplete.styles';
 export type Props = {
   autoFocus?: boolean;
   autoSize?: boolean;
+  chipProps?: ChipProps;
   helperText?: ReactNode;
   autoSizeCustomPadding?: number;
   autoSizeDefaultWidth?: number;

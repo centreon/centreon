@@ -100,7 +100,15 @@ const useStyles = makeStyles<MakeStylesProps>()(
 );
 
 const LoadingSkeleton = (): JSX.Element => (
-  <Grid alignItems="center" container item spacing={2} style={{ flexGrow: 1 }}>
+  <Grid
+    container
+    item
+    spacing={2}
+    style={{ flexGrow: 1 }}
+    sx={{
+      alignItems: 'center'
+    }}
+  >
     <Grid item>
       <Skeleton height={25} variant="circular" width={25} />
     </Grid>

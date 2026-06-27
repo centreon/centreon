@@ -79,7 +79,13 @@ const Boundaries = ({ propertyName, text }: WidgetPropertyProps) => {
 
   return (
     <div>
-      <Stack alignItems="center" direction="row" gap={1.5}>
+      <Stack
+        direction="row"
+        sx={{
+          alignItems: 'center',
+          gap: 1.5
+        }}
+      >
         <WidgetTextField
           ignoreError
           isInGroup={false}

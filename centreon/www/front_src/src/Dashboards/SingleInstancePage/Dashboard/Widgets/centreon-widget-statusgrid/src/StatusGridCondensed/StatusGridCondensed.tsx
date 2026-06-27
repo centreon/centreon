@@ -75,7 +75,11 @@ const StatusGridCondensed = ({
 
   return (
     <div className={classes.container}>
-      <Typography fontWeight="bold">
+      <Typography
+        sx={{
+          fontWeight: 'bold'
+        }}
+      >
         {formatMetricValue({ unit: '', value: total || 0 })}{' '}
         {pluralizedT({
           count: total || 0,

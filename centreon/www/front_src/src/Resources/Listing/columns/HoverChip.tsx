@@ -63,13 +63,15 @@ const HoverChip = ({
         onClose={closeTooltip}
         onOpen={openTooltip}
         open={isChipHovered}
-        PopperProps={{
-          onClick: (e): void => {
-            e.preventDefault();
-            e.stopPropagation();
+        placement="left"
+        slotProps={{
+          popper: {
+            onClick: (e): void => {
+              e.preventDefault();
+              e.stopPropagation();
+            }
           }
         }}
-        placement="left"
         title={<span>{children({ close: closeTooltip, isChipHovered })}</span>}
       >
         <span>

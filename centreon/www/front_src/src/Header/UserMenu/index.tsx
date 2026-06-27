@@ -383,7 +383,9 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
                 <List className={classes.containerList} dense>
                   <ListItem className={classes.listItem}>
                     <ListItemText
-                      primaryTypographyProps={primaryTypographyProps}
+                      slotProps={{
+                        primary: primaryTypographyProps
+                      }}
                     >
                       {data.username}
                     </ListItemText>
@@ -408,7 +410,9 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
                           fontSize="small"
                         />
                         <ListItemText
-                          primaryTypographyProps={primaryTypographyProps}
+                          slotProps={{
+                            primary: primaryTypographyProps
+                          }}
                         >
                           {t(labelEditProfile)}
                         </ListItemText>
@@ -433,7 +437,9 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
                           />
                         )}
                         <ListItemText
-                          primaryTypographyProps={primaryTypographyProps}
+                          slotProps={{
+                            primary: primaryTypographyProps
+                          }}
                         >
                           {t(labelCopyAutologinLink)}
                         </ListItemText>
@@ -460,7 +466,9 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
                         fontSize="small"
                       />
                       <ListItemText
-                        primaryTypographyProps={primaryTypographyProps}
+                        slotProps={{
+                          primary: primaryTypographyProps
+                        }}
                       >
                         {t(labelFullscreen)}
                       </ListItemText>
@@ -473,7 +481,9 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
                     >
                       <LogoutIcon className={classes.icon} fontSize="small" />
                       <ListItemText
-                        primaryTypographyProps={primaryTypographyProps}
+                        slotProps={{
+                          primary: primaryTypographyProps
+                        }}
                       >
                         {t(labelLogout)}
                       </ListItemText>

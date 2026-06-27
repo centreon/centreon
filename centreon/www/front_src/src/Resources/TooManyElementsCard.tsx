@@ -26,7 +26,9 @@ const TooManyElementsCard = ({
   return (
     <Box
       className="overflow-visible bg-white dark:bg-gray-900"
-      height={outerHeight}
+      sx={{
+        height: outerHeight
+      }}
     >
       <Header
         header={{

@@ -47,7 +47,13 @@ const CommandLineCard = ({ details }: Props): JSX.Element => {
         gutterBottom
         variant="body1"
       >
-        <Grid alignItems="center" container spacing={1}>
+        <Grid
+          container
+          spacing={1}
+          sx={{
+            alignItems: 'center'
+          }}
+        >
           <Grid item>{t(labelCommand)}</Grid>
           <Grid item>
             <Tooltip onClick={copyCommandLine} title={labelCopy}>

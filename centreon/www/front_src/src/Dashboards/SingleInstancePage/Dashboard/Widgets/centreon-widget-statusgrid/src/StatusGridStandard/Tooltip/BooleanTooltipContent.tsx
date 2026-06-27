@@ -57,7 +57,6 @@ const BooleanTooltipContent = ({ data }: Props): JSX.Element | null => {
           </Typography>
         </Box>
       </Box>
-
       <Box className={classes.body}>
         {data.businessActivity && (
           <Box className={classes.baParent}>
@@ -95,7 +94,9 @@ const BooleanTooltipContent = ({ data }: Props): JSX.Element | null => {
         <Divider variant="fullWidth" />
         <Typography
           className={classes.dateContainer}
-          color="text.secondary"
+          sx={{
+            color: 'text.secondary'
+          }}
           variant="body2"
         >
           {format({ date: dayjs().toISOString(), formatString: 'LLL' })}

@@ -1,4 +1,4 @@
-import DeleteOutline from '@mui/icons-material/DeleteOutline';
+import DeleteOutline from '@mui/icons-material/DeleteOutlined';
 import { Box, Divider } from '@mui/material';
 
 import { IconButton } from '@centreon/ui/components';

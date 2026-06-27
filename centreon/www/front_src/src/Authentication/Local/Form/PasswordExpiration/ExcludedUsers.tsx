@@ -75,7 +75,9 @@ const ExcludedUsers = (): JSX.Element => {
       <div className={classes.option}>
         <ListItemText
           primary={alias}
-          primaryTypographyProps={optionTypographyProps}
+          slotProps={{
+            primary: optionTypographyProps
+          }}
         />
         {isAdmin && (
           <Tooltip

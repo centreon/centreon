@@ -100,9 +100,11 @@ const DisacknowledgeForm = ({
                   }
                   color="primary"
                   disabled={!canDisacknowledgeServices()}
-                  inputProps={{ 'aria-label': t(labelDisacknowledgeServices) }}
                   onChange={changeDisacknowledgeAttachedRessources}
                   size="small"
+                  slotProps={{
+                    input: { 'aria-label': t(labelDisacknowledgeServices) }
+                  }}
                 />
               }
               label={t(labelDisacknowledgeServices) as string}

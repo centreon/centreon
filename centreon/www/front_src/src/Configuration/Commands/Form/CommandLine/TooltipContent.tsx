@@ -30,7 +30,12 @@ const TooltipContent = ({ name }: Props): ReactElement => {
   return (
     <Box>
       <Box className="flex flex-col items-center w-full bg-black text-white p-1">
-        <Typography className="text-white" fontWeight="bold">
+        <Typography
+          className="text-white"
+          sx={{
+            fontWeight: 'bold'
+          }}
+        >
           {name}
         </Typography>
       </Box>
@@ -39,14 +44,26 @@ const TooltipContent = ({ name }: Props): ReactElement => {
           <LoadingSkeleton />
         ) : (
           <>
-            <Typography fontWeight="bold">{t(labelCommandLine)}</Typography>
+            <Typography
+              sx={{
+                fontWeight: 'bold'
+              }}
+            >
+              {t(labelCommandLine)}
+            </Typography>
             <Typography className="text-text-secondary" variant="body2">
               {truncate({ content: data?.commandLine, maxLength: 200 })}
             </Typography>
 
             <Divider className="mb-2 mt-2" />
 
-            <Typography fontWeight="bold">{t(labelOutput)}</Typography>
+            <Typography
+              sx={{
+                fontWeight: 'bold'
+              }}
+            >
+              {t(labelOutput)}
+            </Typography>
             <Typography className="text-text-secondary" variant="body2">
               {truncate({ content: data?.description || '', maxLength: 300 })}
             </Typography>

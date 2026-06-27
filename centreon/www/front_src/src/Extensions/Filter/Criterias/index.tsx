@@ -66,11 +66,13 @@ const CriteriasContent = (): JSX.Element => {
     >
       {(): JSX.Element => (
         <Grid
-          alignItems="stretch"
           className={classes.container}
           container
           direction="column"
           spacing={1}
+          sx={{
+            alignItems: 'stretch'
+          }}
         >
           {getSelectableCriterias().map(({ name, value }) => {
             return (

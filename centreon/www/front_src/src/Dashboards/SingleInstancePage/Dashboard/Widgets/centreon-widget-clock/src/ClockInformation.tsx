@@ -46,13 +46,10 @@ const ClockInformation = ({
   );
 
   const dateDisplay = isClock ? (
-    <Typography className={classes.date} fontWeight="bold">
-      {date.format('L')}
-    </Typography>
+    <Typography className={classes.date}>{date.format('L')}</Typography>
   ) : (
     <EllipsisTypography
       className={classes.date}
-      fontWeight="bold"
     >{`${t(labelEndsAt)}: ${date.valueOf() > 0 ? date.format('L LT') : ''}`}</EllipsisTypography>
   );
 

@@ -1,4 +1,4 @@
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutlined';
 import { FormControlLabel } from '@mui/material';
 
 import { Switch, Tooltip } from '@centreon/ui/components';

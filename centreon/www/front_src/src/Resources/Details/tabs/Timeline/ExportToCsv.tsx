@@ -31,7 +31,12 @@ const ExportToCsv = ({
   };
 
   return (
-    <Stack direction="row" justifyContent="flex-end">
+    <Stack
+      direction="row"
+      sx={{
+        justifyContent: 'flex-end'
+      }}
+    >
       <Button
         data-testid={labelExportToCSV}
         onClick={exportToCsv}

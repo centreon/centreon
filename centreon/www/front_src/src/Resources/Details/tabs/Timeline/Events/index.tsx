@@ -148,12 +148,20 @@ const Events = ({ timeline, infiniteScrollTriggerRef }: Props): JSX.Element => {
                 <Timeline className={classes.timeline}>
                   <Typography
                     className={classes.header}
-                    display="inline"
+                    sx={{
+                      display: 'inline'
+                    }}
                     variant="h6"
                   >
                     {t(label)}
                     <span className={classes.divisionSubtitle}>
-                      <Typography display="inline">{eventDate}</Typography>
+                      <Typography
+                        sx={{
+                          display: 'inline'
+                        }}
+                      >
+                        {eventDate}
+                      </Typography>
                     </span>
                   </Typography>
                   {eventsByDate.map((event) => {

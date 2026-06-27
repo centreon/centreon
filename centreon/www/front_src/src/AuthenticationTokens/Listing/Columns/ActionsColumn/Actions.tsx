@@ -1,6 +1,6 @@
 import {
   FileCopyOutlined as ContentCopyIcon,
-  DeleteOutline as DeleteIcon
+  DeleteOutlined as DeleteIcon
 } from '@mui/icons-material';
 import { Box } from '@mui/material';
 

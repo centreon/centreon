@@ -81,17 +81,23 @@ const SubInputs = ({
 
   return (
     <Stack
-      alignItems={hasRowDirection ? 'flex-end' : undefined}
       direction={hasRowDirection ? 'row' : 'column'}
-      gap={hasSubInputs ? 1.5 : 0}
-      sx={{ flexWrap: 'wrap', justifyContent: 'space-between', pr: 1 }}
+      sx={{
+        alignItems: hasRowDirection ? 'flex-end' : undefined,
+        flexWrap: 'wrap',
+        gap: hasSubInputs ? 1.5 : 0,
+        justifyContent: 'space-between',
+        pr: 1
+      }}
     >
       <Box sx={{ pr: 2 }}>{children}</Box>
       {hasSubInputs && (
         <Stack
-          alignItems={hasRowDirection ? 'center' : undefined}
           direction={hasRowDirection ? 'row' : 'column'}
-          gap={1.5}
+          sx={{
+            alignItems: hasRowDirection ? 'center' : undefined,
+            gap: 1.5
+          }}
         >
           {subInputsToDisplay?.map(({ input, name }, index) => {
             const isLast = equals(index, subInputsToDisplay.length - 1);

@@ -51,9 +51,9 @@ const TooltipContent = ({ enabled, hostGroupName }: Props): JSX.Element => {
     <Box>
       <Box className={classes.header}>
         <Typography
-          fontWeight="bold"
           sx={{
-            color: theme.palette.common.white
+            color: theme.palette.common.white,
+            fontWeight: 'bold'
           }}
         >
           {enabled ? t(labelEnabledHosts) : t(labelDisabledHosts)}

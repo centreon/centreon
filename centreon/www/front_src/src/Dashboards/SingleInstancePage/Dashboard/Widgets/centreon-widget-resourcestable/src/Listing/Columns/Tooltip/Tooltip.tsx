@@ -56,12 +56,13 @@ const TooltipContent = ({
           {format({ date: created_at, formatString: 'L' })}
         </Typography>
       </Box>
-
       <Box>
         <Divider variant="middle" />
         <Typography
           className={classes.dateContainer}
-          color="text.secondary"
+          sx={{
+            color: 'text.secondary'
+          }}
           variant="body2"
         >
           {format({ date: dayjs().toISOString(), formatString: 'LLL' })}

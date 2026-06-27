@@ -100,10 +100,12 @@ const Notifications = (): JSX.Element => {
     <Stack spacing={1}>
       <Paper>
         <Stack
-          alignItems="center"
           direction="row"
-          justifyContent="space-between"
-          padding={1}
+          sx={{
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: 1
+          }}
         >
           <Typography sx={{ fontWeight: 'bold' }}>
             {t(labelNotificationStatus)}
@@ -116,7 +118,14 @@ const Notifications = (): JSX.Element => {
         </Stack>
       </Paper>
       <Stack>
-        <Stack alignItems="center" direction="row" padding={1} spacing={0.5}>
+        <Stack
+          direction="row"
+          spacing={0.5}
+          sx={{
+            alignItems: 'center',
+            padding: 1
+          }}
+        >
           <PersonIcon color="primary" fontSize="large" />
           <Typography sx={{ fontWeight: 'bold' }}>
             {t(labelContacts)}
@@ -131,7 +140,14 @@ const Notifications = (): JSX.Element => {
         />
       </Stack>
       <Stack>
-        <Stack alignItems="center" direction="row" padding={1} spacing={0.5}>
+        <Stack
+          direction="row"
+          spacing={0.5}
+          sx={{
+            alignItems: 'center',
+            padding: 1
+          }}
+        >
           <GroupIcon color="primary" fontSize="large" />
           <Typography sx={{ fontWeight: 'bold' }}>
             {t(labelContactGroups)}

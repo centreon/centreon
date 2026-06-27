@@ -112,7 +112,11 @@ const ServiceTooltipContent = ({ data }: Props): JSX.Element | null => {
           ))}
           {isLoading && <CircularProgress size={24} />}
           {statusOk && (
-            <Typography color="text.secondary">
+            <Typography
+              sx={{
+                color: 'text.secondary'
+              }}
+            >
               {t(labelAllMetricsAreWorkingFine)}
             </Typography>
           )}
@@ -120,7 +124,9 @@ const ServiceTooltipContent = ({ data }: Props): JSX.Element | null => {
         <Divider variant="fullWidth" />
         <Typography
           className={classes.dateContainer}
-          color="text.secondary"
+          sx={{
+            color: 'text.secondary'
+          }}
           variant="body2"
         >
           {format({ date: dayjs().toISOString(), formatString: 'LLL' })}
