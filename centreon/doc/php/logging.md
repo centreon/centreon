@@ -493,7 +493,6 @@ In production, the `prod.*.log` files are rotated by **logrotate** (config `cent
 - `prod.password.log`
 - `prod.upgrade.log`
 - `prod.plugin-pack-manager.log`
-- `license-manager.log` (module dedicated file — historical name, no `prod.` prefix; see [§11](#module-channels--logchannelinterface-and-modulelogchannel))
 
 Default retention: `weekly` × `rotate 52` (1 year), with `compress` + `delaycompress` + `copytruncate`.
 
@@ -649,7 +648,7 @@ External consumers — ops runbooks, SIEM parsers, monitoring — watch some mod
 
 > Only the **file name** is preserved. The **line format** necessarily changes to the platform one (`LineFormatter`, RFC3339 timestamp + JSON `context` / `extra`). If byte-for-byte format compatibility is required for a specific consumer of a given file, flag it explicitly.
 
-`license-manager.log` is added to `centreon/logrotate/centreon` under its historical name, alongside the `prod.*.log` files (see [§9](#9-routing-and-output-file)). `autodiscovery_job.log` keeps the rotation owned by the Auto Discovery module (which declares its own handler), not this config.
+These module files are **not** added to `centreon/logrotate/centreon` — that config covers the core `prod.*.log` files (see [§9](#9-routing-and-output-file)). Each module keeps whatever log rotation its own module / packaging already provides; the unified pipeline only changes where the records are routed and how they are formatted, not who rotates the file.
 
 #### `ModuleLogChannel`
 
