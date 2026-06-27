@@ -66,8 +66,10 @@ class CentreonRestHttp
                 $this->logger = Adaptation\Log\Logger::create(
                     Adaptation\Log\Channel\ModuleLogChannel::fromLogFileName($logFile)
                 );
-            } catch (Adaptation\Log\Exception\LoggerException $e) {
-                error_log(sprintf('CentreonRestHttp: invalid log file "%s": %s', $logFile, $e->getMessage()));
+            } catch (Adaptation\Log\Exception\LoggerException) {
+                // Strip control chars so a rejected name cannot forge lines in error_log.
+                $safeLogFile = (string) preg_replace('/[[:cntrl:]]/', '?', $logFile);
+                error_log(sprintf('CentreonRestHttp: invalid log file "%s"', $safeLogFile));
                 $this->logger = new Psr\Log\NullLogger();
             }
         }
