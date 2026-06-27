@@ -5,6 +5,9 @@ packages:
   - 'www/widgets'
   - 'tests/api'
   - 'doc/API'
-
 overrides:
   react-resizable: 3.0.5
+  undici@<=6.24.0: 6.24.0
+  lodash@<=4.18.1: 4.18.1
+  lodash-es@<=4.18.1: 4.18.1
+  protobufjs@<=7.5.5: 7.5.5
