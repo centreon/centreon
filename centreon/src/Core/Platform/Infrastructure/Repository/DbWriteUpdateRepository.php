@@ -90,9 +90,9 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
             $callable();
         } catch (\Throwable $exception) {
             LoggerUpgrade::create()->stepFailure(
-                "Step '{$stepName}' failed: {$exception->getMessage()}",
                 $version,
                 $stepName,
+                "Step '{$stepName}' failed: {$exception->getMessage()}",
                 $exception
             );
 
@@ -153,6 +153,7 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
      *
      * @param string $version
      *
+     * @throws \Adaptation\Database\Connection\Exception\ConnectionException when switching to the monitoring database fails
      * @throws RepositoryException when a SQL statement fails or the progress file cannot be written
      */
     private function runMonitoringSql(string $version): void
@@ -187,6 +188,7 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
      *
      * @param string $version
      *
+     * @throws \Adaptation\Database\Connection\Exception\ConnectionException when switching to the configuration database fails
      * @throws RepositoryException when a SQL statement fails or the progress file cannot be written
      */
     private function runConfigurationSql(string $version): void
@@ -306,17 +308,28 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
      * @param string $tmpFile
      * @param int $count
      *
-     * @throws RepositoryException when the temporary file exists but is not writable
+     * @throws RepositoryException when the temporary file is not writable or the resume cursor cannot be fully written
      */
     private function writeExecutedQueriesCountInTemporaryFile(string $tmpFile, int $count): void
     {
         if (file_exists($tmpFile) && ! is_writable($tmpFile)) {
             throw new RepositoryException(sprintf('Cannot write in temporary file: %s', $tmpFile));
         }
-        // A failed write (missing parent dir on a fresh run, full disk, partial write) must not
-        // be silent: the count is the SQL resume cursor, and a stale one re-runs applied statements.
-        if (file_put_contents($tmpFile, $count) === false) {
-            throw new RepositoryException(sprintf('Cannot write in temporary file: %s', $tmpFile));
+        // A failed or partial write (missing parent dir on a fresh run, full disk, interrupted write) must
+        // not be silent: the count is the SQL resume cursor, and a stale one re-runs applied statements.
+        // Compare the bytes written against the payload byte length to catch a truncated write.
+        // file_put_contents() collapses most failures to false; the short-count branch below is
+        // defence-in-depth for a genuine partial write (e.g. a full disk) and is hard to trigger in tests.
+        $payload = (string) $count;
+        $expectedBytes = mb_strlen($payload, '8bit');
+        $bytesWritten = file_put_contents($tmpFile, $payload);
+        if ($bytesWritten === false || $bytesWritten !== $expectedBytes) {
+            throw new RepositoryException(sprintf(
+                'Partial or failed write of the resume cursor (%s of %d bytes) in temporary file: %s',
+                $bytesWritten === false ? 'none' : (string) $bytesWritten,
+                $expectedBytes,
+                $tmpFile
+            ));
         }
     }
 
