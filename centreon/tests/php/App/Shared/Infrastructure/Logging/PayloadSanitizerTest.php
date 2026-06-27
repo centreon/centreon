@@ -308,4 +308,63 @@ final class PayloadSanitizerTest extends TestCase
             $sanitised,
         );
     }
+
+    public function testPassesThroughAlreadyStructuredExceptionArray(): void
+    {
+        $structured = [
+            'exceptions' => [
+                ['type' => 'RuntimeException', 'message' => 'boom', 'code' => 0, 'file' => 'F.php', 'line' => 1, 'trace' => []],
+                ['type' => 'LogicException', 'message' => 'cause', 'code' => 0, 'file' => 'G.php', 'line' => 2, 'trace' => []],
+            ],
+        ];
+
+        $sanitised = $this->sanitizer->sanitize([
+            'exception' => $structured,
+            'note' => 'context',
+        ]);
+
+        \assert(\is_array($sanitised));
+        self::assertSame($structured, $sanitised['exception']);
+        self::assertSame('context', $sanitised['note']);
+    }
+
+    public function testRendersUnitEnumByName(): void
+    {
+        $sanitised = $this->sanitizer->sanitize(['colour' => Double\PureColour::Blue]);
+
+        \assert(\is_array($sanitised));
+        self::assertSame('Blue', $sanitised['colour']);
+    }
+
+    public function testRendersDateTimeAsAtom(): void
+    {
+        $dt = new \DateTimeImmutable('2026-06-27T10:00:00+00:00');
+
+        $sanitised = $this->sanitizer->sanitize(['created' => $dt]);
+
+        \assert(\is_array($sanitised));
+        self::assertSame('2026-06-27T10:00:00+00:00', $sanitised['created']);
+    }
+
+    public function testRendersOpaqueObjectAsClassPlaceholder(): void
+    {
+        $opaque = new \stdClass();
+
+        $sanitised = $this->sanitizer->sanitize(['obj' => $opaque]);
+
+        \assert(\is_array($sanitised));
+        self::assertSame('{stdClass}', $sanitised['obj']);
+    }
+
+    public function testMasksMultipleSensitiveQueryParametersInOneUrl(): void
+    {
+        $sanitised = $this->sanitizer->sanitize([
+            'url' => '/api/login?token=abc&password=xyz&page=1',
+        ]);
+
+        self::assertSame(
+            ['url' => '/api/login?token=***&password=***&page=1'],
+            $sanitised,
+        );
+    }
 }

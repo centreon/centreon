@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\Shared\Infrastructure\Logging\Attribute;
 
 use App\Shared\Domain\Logging\Attribute\Sensitive;
+use App\Shared\Infrastructure\Logging\SensitiveKeywordDenylist;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
@@ -132,7 +133,7 @@ final class SensitivityScanner
      */
     private static function accessorKey(string $method): string
     {
-        foreach (['get', 'is', 'has', 'can'] as $prefix) {
+        foreach (SensitiveKeywordDenylist::ACCESSOR_PREFIXES as $prefix) {
             if (\str_starts_with($method, $prefix) && \mb_strlen($method) > \mb_strlen($prefix)) {
                 return \lcfirst(\mb_substr($method, \mb_strlen($prefix)));
             }

@@ -361,4 +361,80 @@ final class LogPayloadNormalizerTest extends TestCase
         self::assertArrayHasKey('__truncated__', $items);
         self::assertCount(1001, $items); // 1000 kept + the abort marker
     }
+
+    public function testIsAccessorExposesPrivateProperty(): void
+    {
+        $message = new class () {
+            private bool $active = true;
+
+            public function isActive(): bool
+            {
+                return $this->active;
+            }
+        };
+
+        $payload = $this->normalizer->normalize($message);
+
+        self::assertTrue($payload['active']);
+    }
+
+    public function testHasAccessorExposesPrivateProperty(): void
+    {
+        $message = new class () {
+            private bool $permission = true;
+
+            public function hasPermission(): bool
+            {
+                return $this->permission;
+            }
+        };
+
+        $payload = $this->normalizer->normalize($message);
+
+        self::assertTrue($payload['permission']);
+    }
+
+    public function testCanAccessorExposesPrivateProperty(): void
+    {
+        $message = new class () {
+            private bool $edit = false;
+
+            public function canEdit(): bool
+            {
+                return $this->edit;
+            }
+        };
+
+        $payload = $this->normalizer->normalize($message);
+
+        self::assertFalse($payload['edit']);
+    }
+
+    public function testUninitializedTypedPropertyIsSkipped(): void
+    {
+        $message = new class () {
+            public string $initialized = 'present';
+
+            public string $uninitialized;
+        };
+
+        $payload = $this->normalizer->normalize($message);
+
+        self::assertSame('present', $payload['initialized']);
+        self::assertArrayNotHasKey('uninitialized', $payload);
+    }
+
+    public function testStaticPropertyIsExcluded(): void
+    {
+        $message = new class () {
+            public static string $counter = 'should-not-appear';
+
+            public string $name = 'visible';
+        };
+
+        $payload = $this->normalizer->normalize($message);
+
+        self::assertSame('visible', $payload['name']);
+        self::assertArrayNotHasKey('counter', $payload);
+    }
 }

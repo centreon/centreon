@@ -40,7 +40,7 @@ use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
  * fresh instance of its own type cannot drive the walk. Keyword keys are masked
  * here; `#[Sensitive]` masking is applied downstream by PayloadSanitizer.
  */
-final readonly class LogPayloadNormalizer
+final class LogPayloadNormalizer
 {
     private const MAX_DEPTH = 9;
     private const MAX_ITEMS = 1000;
@@ -48,12 +48,14 @@ final readonly class LogPayloadNormalizer
     private const MAX_VALUE_LENGTH = 1024;
     private const TRUNCATED_KEY = '__truncated__';
 
-    /** @var list<string> */
-    private const ACCESSOR_PREFIXES = ['get', 'is', 'has', 'can'];
+    private const ACCESSOR_PREFIXES = SensitiveKeywordDenylist::ACCESSOR_PREFIXES;
+
+    /** @var array<class-string, list<\ReflectionProperty>> */
+    private static array $propertyCache = [];
 
     public function __construct(
         #[Autowire(service: 'serializer.name_converter.camel_case_to_snake_case')]
-        private NameConverterInterface $nameConverter,
+        private readonly NameConverterInterface $nameConverter,
     ) {
     }
 
@@ -212,6 +214,11 @@ final readonly class LogPayloadNormalizer
      */
     private function loggableProperties(object $object): array
     {
+        $className = $object::class;
+        if (isset(self::$propertyCache[$className])) {
+            return self::$propertyCache[$className];
+        }
+
         $properties = [];
         $class = new \ReflectionObject($object);
         while ($class !== false) {
@@ -229,7 +236,7 @@ final readonly class LogPayloadNormalizer
             $class = $class->getParentClass();
         }
 
-        return array_values($properties);
+        return self::$propertyCache[$className] = array_values($properties);
     }
 
     private function hasPublicAccessor(object $object, string $property): bool
