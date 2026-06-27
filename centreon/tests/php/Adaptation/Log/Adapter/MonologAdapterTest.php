@@ -26,9 +26,11 @@ namespace Tests\Adaptation\Log\Adapter;
 use Adaptation\Log\Adapter\MonologAdapter;
 use Adaptation\Log\Channel\ModuleLogChannel;
 use Adaptation\Log\Enum\LogChannelEnum;
+use App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor;
 use App\Shared\Infrastructure\Logging\SanitizingProcessor;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use Monolog\Processor\UidProcessor;
 use Monolog\Processor\WebProcessor;
 use PHPUnit\Framework\TestCase;
 
@@ -85,6 +87,8 @@ final class MonologAdapterTest extends TestCase
             $logger->getProcessors(),
         );
         self::assertContains(WebProcessor::class, $order);
+        self::assertContains(ExceptionFormatterProcessor::class, $order);
+        self::assertContains(UidProcessor::class, $order);
         self::assertSame(SanitizingProcessor::class, $order[array_key_last($order)]);
     }
 }
