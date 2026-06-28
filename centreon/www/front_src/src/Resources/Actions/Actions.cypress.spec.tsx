@@ -461,7 +461,17 @@ describe('Actions', () => {
 
       cy.findByLabelText(labelSetDowntime).click();
 
-      cy.get('input').eq(0).type('03');
+      // Push the start date past the end date by setting a future year on the
+      // start picker (the first Year section of the downtime dialog).
+      // Push the start date past the end date: focus the start picker and set
+      // a future year (the year is the 3rd section in both DD/MM and MM/DD).
+      // Push the start date past the end date: focus the start picker and
+      // increment its year (3rd section in both DD/MM and MM/DD layouts).
+      cy.findByTestId('dialogDowntime')
+        .find('[role="spinbutton"]')
+        .first()
+        .click();
+      cy.focused().type('{rightArrow}{rightArrow}{upArrow}');
 
       cy.contains(labelEndDateGreaterThanStartDate).should('be.visible');
 

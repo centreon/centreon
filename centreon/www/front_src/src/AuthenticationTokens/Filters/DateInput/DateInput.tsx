@@ -77,10 +77,13 @@ const DateInput = ({
       className: classes.popper
     },
     textField: {
-      inputProps: {
-        'data-testid': 'calendarInput'
-      },
-      onKeyDown
+      'data-testid': 'calendarField',
+      onKeyDown,
+      slotProps: {
+        htmlInput: {
+          'data-testid': 'calendarInput'
+        }
+      }
     }
   };
 
