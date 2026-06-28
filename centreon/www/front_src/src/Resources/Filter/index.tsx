@@ -6,6 +6,7 @@ import {
   CircularProgress,
   ClickAwayListener,
   MenuItem,
+  MenuList,
   Paper,
   Popper
 } from '@mui/material';
@@ -612,25 +613,28 @@ const Filter = (): JSX.Element => {
                 }}
               >
                 <Paper square>
-                  {isDynamicCriteria && sendingDynamicCriteriaValueRequests && (
-                    <MenuItem className={classes.loader}>
-                      <CircularProgress size={20} />
-                    </MenuItem>
-                  )}
-                  {autoCompleteSuggestions.map((suggestion, index) => {
-                    return (
-                      <MenuItem
-                        key={suggestion}
-                        onClick={(): void => {
-                          acceptAutocompleteSuggestionAtIndex(index);
-                          searchRef?.current?.focus();
-                        }}
-                        selected={index === selectedSuggestionIndex}
-                      >
-                        {suggestion}
-                      </MenuItem>
-                    );
-                  })}
+                  <MenuList>
+                    {isDynamicCriteria &&
+                      sendingDynamicCriteriaValueRequests && (
+                        <MenuItem className={classes.loader}>
+                          <CircularProgress size={20} />
+                        </MenuItem>
+                      )}
+                    {autoCompleteSuggestions.map((suggestion, index) => {
+                      return (
+                        <MenuItem
+                          key={suggestion}
+                          onClick={(): void => {
+                            acceptAutocompleteSuggestionAtIndex(index);
+                            searchRef?.current?.focus();
+                          }}
+                          selected={index === selectedSuggestionIndex}
+                        >
+                          {suggestion}
+                        </MenuItem>
+                      );
+                    })}
+                  </MenuList>
                 </Paper>
               </Popper>
             </div>

@@ -3,6 +3,7 @@
 import IconDisacknowledge from '@mui/icons-material/ConfirmationNumber';
 import IconMore from '@mui/icons-material/MoreHoriz';
 import IconAcknowledge from '@mui/icons-material/Person';
+import { MenuList } from '@mui/material';
 
 import { PopoverMenu, SeverityCode, useCancelTokenSource } from '@centreon/ui';
 
@@ -353,7 +354,7 @@ const ResourceActionsButtons = ({
           title={t(labelMoreActions) as string}
         >
           {({ close }): JSX.Element => (
-            <>
+            <MenuList>
               <ActionMenuItem
                 disabled={defaultDisableDisacknowledge}
                 label={labelDisacknowledge}
@@ -387,7 +388,7 @@ const ResourceActionsButtons = ({
                 testId="Add a comment"
               />
               {renderMoreSecondaryActions?.({ close })}
-            </>
+            </MenuList>
           )}
         </PopoverMenu>
       )}

@@ -79,6 +79,9 @@ const SelectField = ({
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
 
+  const inputId = getNormalizedId(dataTestId || label || '');
+  const labelId = `${inputId}-label`;
+
   const getOption = (id: unknown): SelectEntry => {
     return options.find(propEq(id, 'id')) as SelectEntry;
   };
@@ -97,11 +100,17 @@ const SelectField = ({
       size="small"
       {...formControlProps}
     >
-      {label && <InputLabel>{label}</InputLabel>}
+      {label && (
+        <InputLabel htmlFor={inputId} id={labelId}>
+          {label}
+        </InputLabel>
+      )}
       <Select
         displayEmpty
         fullWidth={fullWidth}
+        id={inputId}
         label={label}
+        labelId={label ? labelId : undefined}
         onChange={changeOption}
         renderValue={(id): string => {
           return getOption(id)?.name;
@@ -113,7 +122,7 @@ const SelectField = ({
               [classes.noLabelInput]: !label && !compact,
               [classes.compact]: compact
             }),
-            id: getNormalizedId(dataTestId || ''),
+            id: inputId,
             ...inputProps,
             ...({ 'data-testid': dataTestId } as Record<string, string>)
           }
