@@ -82,7 +82,7 @@ describe('Time Period', () => {
     cy.get('input').eq(2).should('have.value', '06/05/2023 08:00 AM');
   });
 
-	// Issue with cypress that makes the selected to not clears the select option's in the dom
+  // Issue with cypress that makes the selected to not clears the select option's in the dom
   it.skip('customizes the time period when the corresponding option is clicked and the start and end fields are updated', () => {
     cy.findByTestId(labelTimePeriod).parent().eq(0).click();
 
