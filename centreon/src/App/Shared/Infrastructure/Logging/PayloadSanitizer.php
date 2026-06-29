@@ -109,7 +109,7 @@ final readonly class PayloadSanitizer
                 // (ExceptionFormatter::format output) passes through to
                 // avoid depth truncation. Any other array falls through to
                 // the normal masking walk.
-                if ($key === 'exception' && ($value instanceof \Throwable || self::isStructuredException($value))) {
+                if ($key === 'exception' && ($value instanceof \Throwable || $this->isStructuredException($value))) {
                     $result[$key] = $value;
 
                     continue;
@@ -209,7 +209,7 @@ final readonly class PayloadSanitizer
      * Recognises the output shape of {@see ExceptionFormatter::format()}:
      * `['exceptions' => [['type' => …, 'message' => …, 'trace' => …], …]]`.
      */
-    private static function isStructuredException(mixed $value): bool
+    private function isStructuredException(mixed $value): bool
     {
         if (! \is_array($value) || ! isset($value['exceptions']) || ! \is_array($value['exceptions'])) {
             return false;
