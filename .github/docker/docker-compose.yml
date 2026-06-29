@@ -37,16 +37,16 @@ services:
       # Set both so swapping MYSQL_IMAGE to a mysql variant doesn't silently
       # drop the --skip-ssl behavior.
       MARIADB_EXTRA_FLAGS: "--skip-ssl"
+      MYSQL_EXTRA_FLAGS: "--skip-ssl"
     healthcheck:
       test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/3306 && sleep 3 && </dev/tcp/127.0.0.1/3306'"]
       interval: 10s
       timeout: 15s
       retries: 20
-      MYSQL_EXTRA_FLAGS: "--skip-ssl"
     ulimits:
       nofile:
         soft: "32000"
-        hard: "32000"      
+        hard: "32000"
     deploy:
       resources:
         limits:
