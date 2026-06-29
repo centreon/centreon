@@ -128,7 +128,7 @@ final readonly class PayloadSanitizer
                 // When the normalizer embedded the concrete runtime class,
                 // prefer it over the declared type so that #[Sensitive] on
                 // the concrete class is honoured even behind an interface.
-                if (\is_array($value) && isset($value[self::RUNTIME_CLASS_KEY]) && \is_string($value[self::RUNTIME_CLASS_KEY])) {
+                if (\is_array($value) && isset($value[self::RUNTIME_CLASS_KEY]) && \is_string($value[self::RUNTIME_CLASS_KEY]) && class_exists($value[self::RUNTIME_CLASS_KEY])) {
                     $childContext = $value[self::RUNTIME_CLASS_KEY];
                 }
 
