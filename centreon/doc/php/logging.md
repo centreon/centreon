@@ -348,3 +348,69 @@ But fail2ban jails are bound to a **file path** (`logpath = /var/log/centreon/lo
 - **`$userId` is `null` early, populated once resolved.** Don't fabricate a fake id (e.g. `0`) — `null` is the signal that the user was not authenticated at this stage.
 - **Provider always set.** Use the `AuthProviderEnum` cases; do not pass a free-form string. The enum is the single source of truth of which providers exist.
 - **Don't duplicate on both channels.** A security event goes to `prod.access.log` via the facade. The technical trace (stack trace, ldap_error, HTTP body) belongs to `prod.web.log` via `Logger::create(LogChannelEnum::WEB)`.
+
+---
+
+## 13. Writing upgrade scripts (`Update-*.php`)
+
+Each upgrade ships under `www/install/php/Update-<version>.php` (DB DDL/DML + business migration). It runs either through the DDD command — `UpdateCommandHandler` brackets each step with its `runStep()` helper and emits the logs, while `DbalUpdateRepository` only performs the operations — or through the legacy web wizard (`process_step4/5` + `DbWriteUpdateRepository`, which logs inline via `executeStep()`). Either way the `php_script` step is bracketed (start / completed / failure). **Inside the script itself, trace each meaningful action through `LoggerUpgrade` so operators get a play-by-play view in `prod.upgrade.log`.**
+
+The legacy web upgrade splits the flow across two steps: `process_step4.php` runs the version updates (`runUpdate`), `process_step5.php` runs the post-update (`runPostUpdate`) under a `post_update` step — grep both when tracking a step name.
+
+### Facade API
+
+```php
+use Adaptation\Log\LoggerUpgrade;
+
+LoggerUpgrade::create()->info($version, "Adding column X to table Y");
+LoggerUpgrade::create()->error($version, "Schema check failed", $exception);
+
+LoggerUpgrade::create()->stepFailure($version, $stepName, $message, $exception);
+LoggerUpgrade::create()->step($version, $stepName, $message);
+```
+
+| Method | Monolog level | When to use |
+|---|---|---|
+| `start($from, $to)` | `INFO` | Begin of the global upgrade flow (emitted by `UpdateCommandHandler` / `process_step4.php`, **not** by individual scripts). |
+| `success($from, $to, $durationMs)` | `INFO` | End of the global upgrade flow, with measured duration. |
+| `failure($from, $to, $message, $e)` | `ERROR` | Global upgrade aborted (catch-all in the handler). Emitted only once `start` has been emitted, so the lifecycle stays balanced; a failure raised **before** `start` (validation / lock / version read) is reported as an `upgrade.error` instead, never a dangling `failure`. |
+| `step($version, $stepName, $message)` | `INFO` | Sub-step **start** / progress (`monitoring_sql`, `php_script`, …). `status: running`. Emitted by the repositories; rarely needed inside an upgrade script. |
+| `stepCompleted($version, $stepName, $durationMs, $message)` | `INFO` | Sub-step **completion**. `status: completed`, carries `duration_ms` in the context (not just the message), so completed steps are queryable without parsing text. |
+| `stepFailure($version, $stepName, $message, $e)` | `ERROR` | A bracketed step threw. Emitted by the step bracket itself (e.g. `UpdateCommandHandler::runStep`, `DbWriteUpdateRepository::executeStep`, or `process_step5.php` for `post_update`). An upgrade script must **not** re-emit it for `php_script` (the bracket already logs the re-thrown exception); a script only emits it for `php_script_rollback`, when the rollback itself fails. |
+| **`info($version, $message)`** | `INFO` | **Trace a meaningful action** (entering a function, finished an `ALTER TABLE`, skipped because already migrated, …). This is the workhorse inside upgrade scripts. |
+| **`error($version, $message, $e)`** | `ERROR` | Free-form error inside a script that you choose not to re-throw (rare — usually you re-throw and let the surrounding `try/catch` call `stepFailure`). |
+
+### Recommended pattern
+
+Start from `www/install/php/Update-next.php.tpl` — the canonical skeleton, kept in sync with the flow (its `try/catch`, transaction guard and rollback handling are ready to use). It is intentionally a bare skeleton; for a complete worked example of the points below, read the latest shipped script, e.g. `www/install/php/Update-26.07.0.php`. The shape:
+
+- **Wrap each business action in its own callable** and set `$errorMessage` to a human description **before** running it — including immediately before `startTransaction()` and `commitTransaction()`, which are themselves distinct actions — so the final failure message reports which action actually failed.
+- **Trace intent and outcome** with `info($version, …)`; log skip branches too — they prove the script is safely re-entrant.
+- **Run DML inside a transaction** guarded by `isTransactionActive()`, and log "Rolling back…" only inside the `if` that actually rolls back.
+- **On failure, just re-throw**, chaining the root cause as `previous`. The surrounding step bracket (`UpdateCommandHandler::runStep` / `DbWriteUpdateRepository::executeStep`) already logs the `php_script` `stepFailure` from the re-thrown exception, and the global flow (`UpdateCommandHandler` / `process_step4.php`) then writes the final `failure`. Do **not** emit a `php_script` `stepFailure` from the script — that double-logs the step. The only `stepFailure` a script emits itself is `php_script_rollback`, when the rollback fails. A silent return breaks the chain.
+
+### Sample output (`prod.upgrade.log`)
+
+```
+upgrade.INFO: Upgrade started from 25.10.0 to 25.11.0
+  {"event":"upgrade.start","status":"started","from_version":"25.10.0","to_version":"25.11.0"}
+upgrade.INFO: Starting step 'php_script'
+  {"event":"upgrade.step","status":"running","version":"25.11.0","step":"php_script"}
+upgrade.INFO: Adding vmware_updated field into nagios_server table
+  {"event":"upgrade.info","status":"info","version":"25.11.0"}
+upgrade.INFO: Step 'php_script' completed in 124ms
+  {"event":"upgrade.step_completed","status":"completed","version":"25.11.0","step":"php_script","duration_ms":124}
+upgrade.INFO: Upgrade from 25.10.0 to 25.11.0 completed successfully
+  {"event":"upgrade.success","status":"success","from_version":"25.10.0","to_version":"25.11.0","duration_ms":4242}
+```
+
+On failure, the step bracket writes `upgrade.step_failure` (ERROR) and the global flow writes a final `upgrade.failure` carrying the from→to versions and the wrapped exception.
+
+### Best practices
+
+- **One business action = one `info` line** before it runs (intent) and one after (outcome). Skip branches deserve their own line so operators can read the log top-to-bottom without re-deriving control flow.
+- **Carry `$version` on every call** — the field is what lets SIEM/Grafana partition the file per release.
+- **No PII, no secrets** in the message or the context. The file is shipped to operators / SOC pipelines; the same redaction rules as `prod.access.log` apply.
+- **Don't duplicate the surrounding `step` log** — the repository already brackets the script with `step` / `stepFailure`. Inside the script, use `info` / `error` (free-form) and let `stepFailure` be raised by the outer `try/catch`.
+- **Idempotent actions still log** — even "skipped because already migrated" is signal: it confirms the migration was applied on a previous run and the script is safely re-entrant.
+- **Re-throw on failure**. Returning silently after logging masks the failure from the surrounding `UpdateCommandHandler` / `process_step4` which then misses the final `upgrade.failure` record.
