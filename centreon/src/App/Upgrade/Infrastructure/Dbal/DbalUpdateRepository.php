@@ -192,10 +192,21 @@ final readonly class DbalUpdateRepository implements UpdateRepository
         if (file_exists($tmpFile) && ! is_writable($tmpFile)) {
             throw new \RuntimeException(sprintf('Cannot write in temporary file: %s', $tmpFile));
         }
-        // A failed write (missing parent dir on a fresh run, full disk, partial write) must not
-        // be silent: the count is the SQL resume cursor, and a stale one re-runs applied statements.
-        if (file_put_contents($tmpFile, $count) === false) {
-            throw new \RuntimeException(sprintf('Cannot write in temporary file: %s', $tmpFile));
+        // A failed or partial write (missing parent dir on a fresh run, full disk, interrupted write) must
+        // not be silent: the count is the SQL resume cursor, and a stale one re-runs applied statements.
+        // Compare the bytes written against the payload byte length to catch a truncated write.
+        // file_put_contents() collapses most failures to false; the short-count branch below is
+        // defence-in-depth for a genuine partial write (e.g. a full disk) and is hard to trigger in tests.
+        $payload = (string) $count;
+        $expectedBytes = mb_strlen($payload, '8bit');
+        $bytesWritten = file_put_contents($tmpFile, $payload);
+        if ($bytesWritten === false || $bytesWritten !== $expectedBytes) {
+            throw new \RuntimeException(sprintf(
+                'Partial or failed write of the resume cursor (%s of %d bytes) in temporary file: %s',
+                $bytesWritten === false ? 'none' : (string) $bytesWritten,
+                $expectedBytes,
+                $tmpFile
+            ));
         }
     }
 }
