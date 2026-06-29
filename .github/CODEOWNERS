@@ -66,3 +66,6 @@ dependencies/**                         @centreon/owners-pipelines
 .gitleaksignore               @centreon/owners-security
 .githooks/pre-commit          @centreon/owners-security
 **/secu-*.yml                 @centreon/owners-security
+
+# PHP documentation: overrides the global *.md rule above (must stay last to win)
+**/doc/php/                             @centreon/owners-php
