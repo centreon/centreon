@@ -105,15 +105,35 @@ jobs:
             | grep -E "Subject:|Issuer:|DNS:|IP Address:" || true
           echo "::endgroup::"
 
-      - name: Dump container logs on failure
-        if: failure()
+      # Visibility steps run on every result (success OR failure) so we can
+      # diagnose the kind of issue — healthcheck timing, gorgone DBD::mysql
+      # rejection, Apache vhost generation — that doesn't surface in the probe's
+      # exit code. --timestamps is critical for timing-sensitive races (e.g.
+      # web→db connect attempts vs. db healthcheck transition).
+      - name: Show container status
+        if: always()
         run: |
           echo "::group::docker compose ps"
           docker compose ps
           echo "::endgroup::"
-          echo "::group::docker compose logs"
-          docker compose logs --no-color --tail=200
-          echo "::endgroup::"
+
+      - name: Dump container logs (per-service, always)
+        if: always()
+        run: |
+          # Iterate the services we expect. The `|| true` ensures a service
+          # that was profiled out (or never started) doesn't fail the step;
+          # any service added to the overlay in future just needs to be
+          # appended here, and the on-failure fallback below covers the gap
+          # in the interim.
+          for svc in certgen db web db-remote remote-server; do
+            echo "::group::logs: $svc"
+            docker compose logs --no-color --timestamps --tail=500 "$svc" 2>&1 || true
+            echo "::endgroup::"
+          done
+
+      - name: Dump all logs on failure (fallback for services not listed above)
+        if: failure()
+        run: docker compose logs --no-color --timestamps --tail=2000
 
       - name: Tear down
         if: always()
