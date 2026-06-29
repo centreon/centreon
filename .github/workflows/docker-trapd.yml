@@ -235,9 +235,9 @@ jobs:
           set -euo pipefail
           TAGS="$TAG"
           if [[ -n "$ADDITIONAL_TAG" ]]; then
-            TAGS="$TAGS,$ADDITIONAL_TAG"
+            TAGS="$TAGS $ADDITIONAL_TAG"
           fi
-          ARCHITECTURES=$(echo "$PLATFORMS" | tr ',' '\n' | sed 's|linux/||' | tr '\n' ',' | sed 's/,$//')
+          ARCHITECTURES=$(echo "$PLATFORMS" | tr ',' '\n' | sed 's|linux/||' | tr '\n' ' ' | sed 's/ $//')
           HREF=$(curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" \
             -G --data-urlencode "base_path=$BASE_PATH" \
             "$PULP_URL/api/v3/distributions/container/container/" \
