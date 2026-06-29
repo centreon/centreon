@@ -19,6 +19,8 @@
  *
  */
 
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
 use LDAP\Connection;
 
 require_once __DIR__ . '/centreonAuth.class.php';
@@ -124,8 +126,7 @@ class CentreonAuthLDAP
         }
 
         if ($this->debug) {
-            $this->CentreonLog->insertLog(
-                3,
+            Logger::create(LogChannelEnum::WEB)->info(
                 'LDAP AUTH : ' . $this->contactInfos['contact_ldap_dn'] . ' :: Authentication in progress'
             );
         }
@@ -134,7 +135,7 @@ class CentreonAuthLDAP
 
         if (empty($this->ds)) {
             if ($this->debug) {
-                $this->CentreonLog->insertLog(3, 'DS empty');
+                Logger::create(LogChannelEnum::WEB)->error('LDAP AUTH - Error : DS empty');
             }
 
             return CentreonAuth::PASSWORD_CANNOT_BE_VERIFIED;
@@ -152,7 +153,7 @@ class CentreonAuthLDAP
         switch (ldap_errno($this->ds)) {
             case 0:
                 if ($this->debug) {
-                    $this->CentreonLog->insertLog(3, 'LDAP AUTH : Success');
+                    Logger::create(LogChannelEnum::WEB)->info('LDAP AUTH : Success');
                 }
                 if ($this->updateUserDn() == false) {
                     return CentreonAuth::PASSWORD_INVALID;
@@ -165,13 +166,13 @@ class CentreonAuthLDAP
             case 52: // unavailable
             case 81: // server down
                 if ($this->debug) {
-                    $this->CentreonLog->insertLog(3, 'LDAP AUTH : ' . ldap_error($this->ds));
+                    Logger::create(LogChannelEnum::WEB)->error('LDAP AUTH : ' . ldap_error($this->ds));
                 }
 
                 return CentreonAuth::PASSWORD_CANNOT_BE_VERIFIED;
             default:
                 if ($this->debug) {
-                    $this->CentreonLog->insertLog(3, 'LDAP AUTH : ' . ldap_error($this->ds));
+                    Logger::create(LogChannelEnum::WEB)->error('LDAP AUTH : ' . ldap_error($this->ds));
                 }
 
                 return CentreonAuth::PASSWORD_INVALID;
@@ -191,7 +192,7 @@ class CentreonAuthLDAP
         if ($this->ldap->rebind()) {
             $userDn = $this->ldap->findUserDn($contactAlias);
             if ($userDn === false) {
-                $this->CentreonLog->insertLog(3, 'LDAP AUTH - Error : No DN for user ' . $contactAlias);
+                Logger::create(LogChannelEnum::WEB)->error('LDAP AUTH - Error : No DN for user ' . $contactAlias);
 
                 return false;
             }
@@ -237,10 +238,7 @@ class CentreonAuthLDAP
                         return true;
                     }
 
-                    $this->CentreonLog->insertLog(
-                        3,
-                        'LDAP AUTH : Updating user DN of ' . $userDisplay
-                    );
+                    Logger::create(LogChannelEnum::WEB)->info('LDAP AUTH : Updating user DN of ' . $userDisplay);
                     $stmt = $this->pearDB->prepare(
                         <<<'SQL'
                             UPDATE contact SET
@@ -262,9 +260,9 @@ class CentreonAuthLDAP
                     $stmt->bindValue(':contactId', $this->contactInfos['contact_id'], PDO::PARAM_INT);
                     $stmt->execute();
                 } catch (PDOException $e) {
-                    $this->CentreonLog->insertLog(
-                        3,
-                        'LDAP AUTH - Error : when trying to update user : ' . $userDisplay
+                    Logger::create(LogChannelEnum::WEB)->error(
+                        'LDAP AUTH - Error : when trying to update user : ' . $userDisplay,
+                        ['exception' => $e]
                     );
 
                     return false;
@@ -277,17 +275,14 @@ class CentreonAuthLDAP
                     $cgs = new CentreonContactgroup($this->pearDB);
                     $cgs->syncWithLdap();
                 } catch (Exception $e) {
-                    $this->CentreonLog->insertLog(
-                        3,
-                        'LDAP AUTH - Error : when updating ' . $userDisplay . '\'s ldap contactgroups'
+                    Logger::create(LogChannelEnum::WEB)->error(
+                        'LDAP AUTH - Error : when updating ' . $userDisplay . '\'s ldap contactgroups',
+                        ['exception' => $e]
                     );
                 }
 
                 $this->ldap->setUserCurrentSyncTime($this->contactInfos);
-                $this->CentreonLog->insertLog(
-                    3,
-                    'LDAP AUTH : User DN updated for ' . $userDisplay
-                );
+                Logger::create(LogChannelEnum::WEB)->info('LDAP AUTH : User DN updated for ' . $userDisplay);
 
                 return true;
             }
@@ -307,15 +302,15 @@ class CentreonAuthLDAP
 
                 $row = $res->fetch();
                 if (empty($row['ari_value'])) {
-                    $this->CentreonLog->insertLog(3, 'LDAP AUTH - Error : No contact template defined.');
+                    Logger::create(LogChannelEnum::WEB)->error('LDAP AUTH - Error : No contact template defined.');
 
                     return false;
                 }
                 $tmplId = $row['ari_value'];
             } catch (PDOException $e) {
-                $this->CentreonLog->insertLog(
-                    3,
-                    'LDAP AUTH - Error : when trying to get LDAP data for : ' . $userDisplay
+                Logger::create(LogChannelEnum::WEB)->error(
+                    'LDAP AUTH - Error : when trying to get LDAP data for : ' . $userDisplay,
+                    ['exception' => $e]
                 );
 
                 return false;
@@ -385,7 +380,7 @@ class CentreonAuthLDAP
                 }
                 $this->ldap->setUserCurrentSyncTime($this->contactInfos);
 
-                $this->CentreonLog->insertLog(3, 'LDAP AUTH - New user DN added : ' . $contactAlias);
+                Logger::create(LogChannelEnum::WEB)->info('LDAP AUTH - New user DN added : ' . $contactAlias);
 
                 // Inserting the relation between the LDAP's default contactgroup and the user
                 // @returns true if everything goes well
@@ -394,9 +389,9 @@ class CentreonAuthLDAP
                     $this->contactInfos['contact_id']
                 );
             } catch (PDOException $e) {
-                $this->CentreonLog->insertLog(
-                    3,
-                    'LDAP AUTH - Error : processing new user ' . $userDisplay . ' from ldap id : ' . $this->arId
+                Logger::create(LogChannelEnum::WEB)->error(
+                    'LDAP AUTH - Error : processing new user ' . $userDisplay . ' from ldap id : ' . $this->arId,
+                    ['exception' => $e]
                 );
             }
 
