@@ -51,6 +51,7 @@ final readonly class PayloadSanitizer
 {
     public const MAX_DEPTH = 3;
     public const MAX_VALUE_LENGTH = 1024;
+    public const RUNTIME_CLASS_KEY = '__runtime_class__';
 
     /**
      * @param class-string|null $contextClass class whose `#[Sensitive]`
@@ -99,13 +100,16 @@ final readonly class PayloadSanitizer
 
             $result = [];
             foreach ($data as $key => $value) {
-                // `context.exception` carries one of two legitimate shapes: a raw
-                // Throwable (handed to ExceptionFormatterProcessor downstream) or an
-                // already-structured exception array (ExceptionFormatter::format),
-                // whose nested chain is deeper than MAX_DEPTH and must not be
-                // truncated. Leave both intact; any other type under this key falls
-                // through to the normal masking walk.
-                if ($key === 'exception' && ($value instanceof \Throwable || \is_array($value))) {
+                if ($key === self::RUNTIME_CLASS_KEY) {
+                    continue;
+                }
+
+                // `context.exception`: a raw Throwable passes through for
+                // ExceptionFormatterProcessor; a structured exception array
+                // (ExceptionFormatter::format output) passes through to
+                // avoid depth truncation. Any other array falls through to
+                // the normal masking walk.
+                if ($key === 'exception' && ($value instanceof \Throwable || self::isStructuredException($value))) {
                     $result[$key] = $value;
 
                     continue;
@@ -121,8 +125,13 @@ final readonly class PayloadSanitizer
 
                 $childContext = (\is_string($key) ? ($subClasses[$key] ?? null) : null);
 
-                // A `#[Sensitive]` class masks every value typed as it,
-                // so the whole sub-payload is redacted without descending.
+                // When the normalizer embedded the concrete runtime class,
+                // prefer it over the declared type so that #[Sensitive] on
+                // the concrete class is honoured even behind an interface.
+                if (\is_array($value) && isset($value[self::RUNTIME_CLASS_KEY]) && \is_string($value[self::RUNTIME_CLASS_KEY])) {
+                    $childContext = $value[self::RUNTIME_CLASS_KEY];
+                }
+
                 if ($childContext !== null
                     && class_exists($childContext)
                     && SensitivityScanner::scan($childContext)['classSensitive']
@@ -194,6 +203,21 @@ final readonly class PayloadSanitizer
         return \mb_strlen($value) > self::MAX_VALUE_LENGTH
             ? mb_substr($value, 0, self::MAX_VALUE_LENGTH) . '…[truncated]'
             : $value;
+    }
+
+    /**
+     * Recognises the output shape of {@see ExceptionFormatter::format()}:
+     * `['exceptions' => [['type' => …, 'message' => …, 'trace' => …], …]]`.
+     */
+    private static function isStructuredException(mixed $value): bool
+    {
+        if (! \is_array($value) || ! isset($value['exceptions']) || ! \is_array($value['exceptions'])) {
+            return false;
+        }
+
+        $first = $value['exceptions'][0] ?? null;
+
+        return \is_array($first) && isset($first['type'], $first['message'], $first['trace']);
     }
 
     /**
