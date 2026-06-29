@@ -112,8 +112,6 @@ case "$PLATFORM" in
       echo "[tls] installing mod_ssl (not present in image)"
       if command -v dnf >/dev/null 2>&1; then
         dnf install -y mod_ssl >/dev/null || exit 1
-      else
-        yum install -y mod_ssl >/dev/null || exit 1
       fi
     fi
     # mod_ssl ships a default /etc/httpd/conf.d/ssl.conf with a "snake-oil" vhost
