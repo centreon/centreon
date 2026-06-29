@@ -175,7 +175,7 @@ jobs:
         uses: docker/setup-qemu-action@06116385d9baf250c9f4dcb4858b16962ea869c3 # v4.1.0
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
 
       - name: Compute Docker tag
         id: compute-tag
@@ -239,8 +239,13 @@ jobs:
           fi
           ARCHITECTURES=$(echo "$PLATFORMS" | tr ',' '\n' | sed 's|linux/||' | tr '\n' ',' | sed 's/,$//')
           HREF=$(curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" \
-            "$PULP_URL/api/v3/distributions/container/container/?base_path=$BASE_PATH" \
+            -G --data-urlencode "base_path=$BASE_PATH" \
+            "$PULP_URL/api/v3/distributions/container/container/" \
             | jq -r '.results[0].pulp_href')
+          if [[ -z "$HREF" || "$HREF" == "null" ]]; then
+            echo "::error::Distribution not found for base_path=$BASE_PATH"
+            exit 1
+          fi
           curl -fsSL -X PATCH -u "$PULP_USERNAME:$PULP_PASSWORD" \
             -H "Content-Type: application/json" \
             -d "{\"pulp_labels\": {\"module\": \"$MODULE\", \"os\": \"$OS\", \"stability\": \"$STABILITY\", \"tags\": \"$TAGS\", \"architectures\": \"$ARCHITECTURES\"}}" \
