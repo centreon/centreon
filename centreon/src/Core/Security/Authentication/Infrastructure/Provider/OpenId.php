@@ -23,8 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Infrastructure\Provider;
 
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\Service\Exception\NotFoundException;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
@@ -49,8 +50,6 @@ use Throwable;
 
 class OpenId implements ProviderAuthenticationInterface
 {
-    use LoggerTrait;
-
     /** @var string */
     private string $username;
 
@@ -90,17 +89,17 @@ class OpenId implements ProviderAuthenticationInterface
     {
         $user = $this->getAuthenticatedUser();
         if ($user === null) {
-            $this->info('User not found');
+            Logger::create(LogChannelEnum::WEB)->info('User not found');
             if (! $this->isAutoImportEnabled()) {
                 throw new NotFoundException('User could not be created');
             }
-            $this->info('Start auto import');
+            Logger::create(LogChannelEnum::WEB)->info('Start auto import');
             $this->provider->createUser();
             $user = $this->getAuthenticatedUser();
             if ($user === null) {
                 throw new NotFoundException('User not found');
             }
-            $this->info('User imported: ' . $user->getName());
+            Logger::create(LogChannelEnum::WEB)->info('User imported: ' . $user->getName());
         }
 
         return $user;
@@ -130,10 +129,10 @@ class OpenId implements ProviderAuthenticationInterface
     {
         $user = $this->provider->getUser();
         if ($this->isAutoImportEnabled() && $user === null) {
-            $this->info('Start auto import');
+            Logger::create(LogChannelEnum::WEB)->info('Start auto import');
             $this->provider->createUser();
             $user = $this->findUserOrFail();
-            $this->info('User imported: ' . $user->getName());
+            Logger::create(LogChannelEnum::WEB)->info('User imported: ' . $user->getName());
         }
     }
 
@@ -145,10 +144,10 @@ class OpenId implements ProviderAuthenticationInterface
     {
         $user = $this->provider->getUser();
         if ($this->isAutoImportEnabled() === true && $user === null) {
-            $this->info('Start auto import');
+            Logger::create(LogChannelEnum::WEB)->info('Start auto import');
             $this->provider->createUser();
             if ($user = $this->provider->getUser()) {
-                $this->info('User imported: ' . $user->getName());
+                Logger::create(LogChannelEnum::WEB)->info('User imported: ' . $user->getName());
             }
         }
     }
@@ -246,7 +245,7 @@ class OpenId implements ProviderAuthenticationInterface
         foreach ($customConfiguration->getACLConditions()->getRelations() as $authorizationRule) {
             $claimValue = $authorizationRule->getClaimValue();
             if (! in_array($claimValue, $this->provider->getAclConditionsMatches(), true)) {
-                $this->info(
+                Logger::create(LogChannelEnum::WEB)->info(
                     'Configured claim value not found in user claims',
                     ['claim_value' => $claimValue]
                 );
