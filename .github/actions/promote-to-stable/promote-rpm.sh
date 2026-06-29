@@ -74,6 +74,9 @@ for ARCH in noarch x86_64; do
 
   if ! pulp rpm repository show --name "$STABLE_REPOSITORY_NAME" >/dev/null 2>&1; then
     echo "[INFO] Creating rpm repository $STABLE_REPOSITORY_NAME"
+    # no --retain-package-versions on stable: it keeps the full version history
+    # (unlike testing/unstable which retain only the latest), matching
+    # create-rpm-repos.sh. normally create-repos pre-creates it, this is a fallback.
     pulp rpm repository create --name "$STABLE_REPOSITORY_NAME" >/dev/null
   fi
 
