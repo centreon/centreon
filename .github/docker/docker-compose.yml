@@ -36,8 +36,13 @@ services:
       # bitnamilegacy/mariadb reads MARIADB_*, bitnamilegacy/mysql reads MYSQL_*.
       # Set both so swapping MYSQL_IMAGE to a mysql variant doesn't silently
       # drop the --skip-ssl behavior.
-      MARIADB_EXTRA_FLAGS: "--skip-ssl"
-      MYSQL_EXTRA_FLAGS: "--skip-ssl"
+      #
+      # ${…:-} interpolates the perf-tuning string from .env (--skip-name-resolve,
+      # --innodb-flush-method=nosync, etc.) and appends --skip-ssl. Without the
+      # interpolation, this inline value would override env_file: and silently
+      # drop the perf flags.
+      MARIADB_EXTRA_FLAGS: "${MARIADB_EXTRA_FLAGS:-} --skip-ssl"
+      MYSQL_EXTRA_FLAGS: "${MYSQL_EXTRA_FLAGS:-} --skip-ssl"
     healthcheck:
       test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/3306 && sleep 3 && </dev/tcp/127.0.0.1/3306'"]
       interval: 10s
@@ -156,9 +161,10 @@ services:
     ports: ["3306"]
     profiles: ["remote-server"]
     environment:
-      # See db service: set both for MariaDB/MySQL image-family compatibility.
-      MARIADB_EXTRA_FLAGS: "--skip-ssl"
-      MYSQL_EXTRA_FLAGS: "--skip-ssl"
+      # See db service: same ${…:-} interpolation pattern so the .env perf flags
+      # are appended-to rather than overridden.
+      MARIADB_EXTRA_FLAGS: "${MARIADB_EXTRA_FLAGS:-} --skip-ssl"
+      MYSQL_EXTRA_FLAGS: "${MYSQL_EXTRA_FLAGS:-} --skip-ssl"
     deploy:
       resources:
         limits:

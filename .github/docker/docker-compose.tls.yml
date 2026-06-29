@@ -57,8 +57,12 @@ services:
       # bitnamilegacy/mariadb reads MARIADB_*, bitnamilegacy/mysql reads MYSQL_*.
       # Set both so HTTPS mode applies the same TLS flags regardless of which
       # MYSQL_IMAGE the user selects (matters for mysql 8.0 / 8.4 too).
-      MARIADB_EXTRA_FLAGS: "--ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
-      MYSQL_EXTRA_FLAGS: "--ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
+      #
+      # ${…:-} interpolates the perf-tuning string from .env and appends TLS
+      # flags. Without it, the inline value overrides env_file: and the perf
+      # flags are silently dropped.
+      MARIADB_EXTRA_FLAGS: "${MARIADB_EXTRA_FLAGS:-} --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
+      MYSQL_EXTRA_FLAGS: "${MYSQL_EXTRA_FLAGS:-} --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
     depends_on:
       certgen:
         condition: service_completed_successfully
@@ -84,9 +88,10 @@ services:
     volumes:
       - certs:/certs:ro
     environment:
-      # See db service: set both for MariaDB/MySQL image-family compatibility.
-      MARIADB_EXTRA_FLAGS: "--ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
-      MYSQL_EXTRA_FLAGS: "--ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
+      # See db service: same ${…:-} interpolation pattern so the .env perf flags
+      # are appended-to rather than overridden.
+      MARIADB_EXTRA_FLAGS: "${MARIADB_EXTRA_FLAGS:-} --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
+      MYSQL_EXTRA_FLAGS: "${MYSQL_EXTRA_FLAGS:-} --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
     depends_on:
       certgen:
         condition: service_completed_successfully
