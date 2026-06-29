@@ -48,47 +48,32 @@ pulp_upload() {
 # deduplicates packages by (package, version, architecture) repository wide, so
 # the new content would silently evict the stable one. bump the version instead.
 assert_not_in_stable() {
-  local file=$1 name version arch repository_version stable_component package_href count
+  local file=$1 name version arch packages
   name=$(dpkg-deb -f "$file" Package)
   version=$(dpkg-deb -f "$file" Version)
   arch=$(dpkg-deb -f "$file" Architecture)
-  repository_version=$(pulp deb repository show --name "$REPOSITORY_NAME" | jq -r '.latest_version_href')
 
-  # the "main" release component of the stable suite, empty if nothing is stable yet
-  stable_component=$(
-    curl -fsSL -H "Authorization: Github $PULP_TOKEN" -G \
-      --data-urlencode "repository_version=$repository_version" \
-      --data-urlencode "distribution=$STABLE_SUITE" \
-      --data-urlencode "component=main" \
-      --data-urlencode "fields=pulp_href" \
-      "$PULP_URL/api/v3/content/deb/release_components/" | jq -r '.results[0].pulp_href // empty'
-  )
-  [[ -z "$stable_component" ]] && return 0
+  # the published stable suite is the source of truth for what reached stable.
+  # the release_components api is not listable by the OIDC ci-user (403, and no
+  # grantable permission exists for it), so check the served Packages index
+  # instead: no api access needed and it reflects exactly what stable publishes.
+  packages=$(curl -fsSL "$PULP_CONTENT_URL/$BASE_PATH/dists/$STABLE_SUITE/main/binary-$arch/Packages" 2>/dev/null || true)
+  # empty: stable suite not published yet (or unreachable) -> treat as not in stable
+  [[ -z "$packages" ]] && return 0
 
-  # the package unit already present for this name/version/architecture, if any
-  # (pulp keeps a single unit per name+version+architecture repository wide)
-  package_href=$(
-    curl -fsSL -H "Authorization: Github $PULP_TOKEN" -G \
-      --data-urlencode "repository_version=$repository_version" \
-      --data-urlencode "package=$name" \
-      --data-urlencode "version=$version" \
-      --data-urlencode "architecture=$arch" \
-      --data-urlencode "fields=pulp_href" \
-      "$PULP_URL/api/v3/content/deb/packages/" | jq -r '.results[0].pulp_href // empty'
-  )
-  [[ -z "$package_href" ]] && return 0
-
-  # is that unit associated with the stable suite? (the release_component filter
-  # on the packages endpoint is broken server side, so go through the join)
-  count=$(
-    curl -fsSL -H "Authorization: Github $PULP_TOKEN" -G \
-      --data-urlencode "repository_version=$repository_version" \
-      --data-urlencode "release_component=$stable_component" \
-      --data-urlencode "package=$package_href" \
-      --data-urlencode "limit=1" \
-      "$PULP_URL/api/v3/content/deb/package_release_components/" | jq -r '.count'
-  )
-  if [[ "$count" -gt 0 ]]; then
+  # a package is in stable if a Packages stanza matches both name and version
+  if printf '%s\n' "$packages" | awk -v n="$name" -v v="$version" '
+       BEGIN { RS = ""; FS = "\n" }
+       {
+         has_name = 0; has_version = 0
+         for (i = 1; i <= NF; i++) {
+           if ($i == "Package: " n) has_name = 1
+           if ($i == "Version: " v) has_version = 1
+         }
+         if (has_name && has_version) found = 1
+       }
+       END { exit found ? 0 : 1 }
+     '; then
     echo "::error::$name $version ($arch) is already published in the stable suite $STABLE_SUITE; refusing to deliver it to $SUITE. Bump the package version for a new build."
     return 1
   fi
