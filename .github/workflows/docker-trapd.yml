@@ -136,6 +136,13 @@ jobs:
           username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
           password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
 
+      - name: Login to Pulp registry
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          registry: pulp-api.apps.centreon.com
+          username: ${{ secrets.PULP_USERNAME }}
+          password: ${{ secrets.PULP_PASSWORD }}
+
       - name: Parse distrib name
         id: parse-distrib
         uses: ./.github/actions/parse-distrib
@@ -208,3 +215,5 @@ jobs:
           tags: |
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}:${{ steps.compute-tag.outputs.tag }}
             ${{ steps.compute-tag.outputs.additional_tag != '' && format('{0}/{1}-{2}:{3}', vars.DOCKER_INTERNAL_REGISTRY_URL, matrix.component, matrix.operating_system, steps.compute-tag.outputs.additional_tag) || '' }}
+            pulp-api.apps.centreon.com/centreon/${{ matrix.component }}-${{ matrix.operating_system }}:${{ steps.compute-tag.outputs.tag }}
+            ${{ steps.compute-tag.outputs.additional_tag != '' && format('pulp-api.apps.centreon.com/centreon/{0}-{1}:{2}', matrix.component, matrix.operating_system, steps.compute-tag.outputs.additional_tag) || '' }}
