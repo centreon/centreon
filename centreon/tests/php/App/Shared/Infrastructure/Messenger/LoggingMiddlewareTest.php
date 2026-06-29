@@ -327,12 +327,12 @@ final class LoggingMiddlewareTest extends TestCase
     {
         // A normalizer failure (here a throwing name converter) must not break dispatch: warn and log a `__class` placeholder.
         $throwingConverter = new class () implements NameConverterInterface {
-            public function normalize(string $propertyName): string
+            public function normalize(string $propertyName, ?string $class = null, ?string $format = null, array $context = []): string
             {
                 throw new \RuntimeException('name conversion failed');
             }
 
-            public function denormalize(string $propertyName): string
+            public function denormalize(string $propertyName, ?string $class = null, ?string $format = null, array $context = []): string
             {
                 return $propertyName;
             }
