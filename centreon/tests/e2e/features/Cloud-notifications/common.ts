@@ -164,8 +164,17 @@ const notificationSentCheck = ({
 };
 
 const notificationSentCount = (count: number): void => {
-  cy.log('checking notification logs count');
+  cy.log(`checking notification logs count (expected: ${count})`);
 
+  // The engine emits notifications at a steady rate, so a fixed timeout is
+  // brittle: a slow runner can still be making progress when it expires.
+  // Instead we keep waiting as long as the count keeps growing, and fail fast
+  // when it stalls (no progress over several consecutive polls). The timeout
+  // below is only a safety net against a pathological slow trickle.
+  const maxStalledPolls = 3;
+
+  let lastCount = -1;
+  let stalledPolls = 0;
   let errorMessage = 'Notification count not found';
 
   cy.waitUntil(
@@ -190,15 +199,30 @@ const notificationSentCount = (count: number): void => {
 
           const currentLineCount = +match[1];
 
-          if (currentLineCount < count) {
-            errorMessage = `Notification count: ${currentLineCount} (expected: ${count})`;
-            cy.log(errorMessage);
+          if (currentLineCount >= count) {
+            return cy.wrap(true);
           }
 
-          return cy.wrap(currentLineCount >= count);
+          // Only count a stall once emission has started, to avoid false
+          // positives during the engine's cold start (count stuck at 0).
+          if (currentLineCount > 0 && currentLineCount <= lastCount) {
+            stalledPolls += 1;
+          } else {
+            stalledPolls = 0;
+          }
+          lastCount = currentLineCount;
+
+          errorMessage = `Notification count: ${currentLineCount} (expected: ${count}), ${stalledPolls} poll(s) without progress`;
+          cy.log(errorMessage);
+
+          if (stalledPolls >= maxStalledPolls) {
+            throw new Error(errorMessage);
+          }
+
+          return cy.wrap(false);
         });
     },
-    { errorMsg: () => errorMessage, interval: 5000, timeout: 400000 }
+    { errorMsg: () => errorMessage, interval: 5000, timeout: 600000 }
   );
 };
 
