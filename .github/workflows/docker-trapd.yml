@@ -117,7 +117,7 @@ jobs:
   dockerize:
     needs: [get-environment, package-centreon-trap, package-perl-libs]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
-    runs-on: ubuntu-24.04
+    runs-on: centreon-ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
