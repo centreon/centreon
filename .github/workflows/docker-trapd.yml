@@ -206,10 +206,11 @@ jobs:
           DOCKER_BUILD_CHECKS_ANNOTATIONS: false
           DOCKER_BUILD_SUMMARY: false
           DOCKER_BUILD_RECORD_UPLOAD: false
+          PLATFORMS: linux/amd64,linux/arm64
         with:
           context: .
           file: .github/docker/${{ matrix.component }}/${{ matrix.operating_system }}/Dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ env.PLATFORMS }}
           pull: true
           push: true
           tags: |
@@ -217,3 +218,31 @@ jobs:
             ${{ steps.compute-tag.outputs.additional_tag != '' && format('{0}/{1}-{2}:{3}', vars.DOCKER_INTERNAL_REGISTRY_URL, matrix.component, matrix.operating_system, steps.compute-tag.outputs.additional_tag) || '' }}
             pulp-api.apps.centreon.com/centreon/${{ matrix.component }}-${{ matrix.operating_system }}:${{ steps.compute-tag.outputs.tag }}
             ${{ steps.compute-tag.outputs.additional_tag != '' && format('pulp-api.apps.centreon.com/centreon/{0}-{1}:{2}', matrix.component, matrix.operating_system, steps.compute-tag.outputs.additional_tag) || '' }}
+
+      - name: Set Pulp labels on container distribution
+        env:
+          PULP_URL: https://pulp-api.apps.centreon.com
+          PULP_USERNAME: ${{ secrets.PULP_USERNAME }}
+          PULP_PASSWORD: ${{ secrets.PULP_PASSWORD }}
+          BASE_PATH: centreon/${{ matrix.component }}-${{ matrix.operating_system }}
+          MODULE: ${{ matrix.component }}
+          OS: ${{ matrix.operating_system }}
+          STABILITY: ${{ needs.get-environment.outputs.stability }}
+          TAG: ${{ steps.compute-tag.outputs.tag }}
+          ADDITIONAL_TAG: ${{ steps.compute-tag.outputs.additional_tag }}
+          PLATFORMS: linux/amd64,linux/arm64
+        run: |
+          set -euo pipefail
+          TAGS="$TAG"
+          if [[ -n "$ADDITIONAL_TAG" ]]; then
+            TAGS="$TAGS,$ADDITIONAL_TAG"
+          fi
+          ARCHITECTURES=$(echo "$PLATFORMS" | tr ',' '\n' | sed 's|linux/||' | tr '\n' ',' | sed 's/,$//')
+          HREF=$(curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" \
+            "$PULP_URL/api/v3/distributions/container/container/?base_path=$BASE_PATH" \
+            | jq -r '.results[0].pulp_href')
+          curl -fsSL -X PATCH -u "$PULP_USERNAME:$PULP_PASSWORD" \
+            -H "Content-Type: application/json" \
+            -d "{\"pulp_labels\": {\"module\": \"$MODULE\", \"os\": \"$OS\", \"stability\": \"$STABILITY\", \"tags\": \"$TAGS\", \"architectures\": \"$ARCHITECTURES\"}}" \
+            "$PULP_URL$HREF"
+        shell: bash
