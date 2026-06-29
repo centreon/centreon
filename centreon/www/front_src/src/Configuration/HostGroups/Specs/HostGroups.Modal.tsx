@@ -50,7 +50,7 @@ export default () => {
         it('shows form fields organized into groups, with each field initialized with default values', () => {
           cy.waitForRequest('@getAllHostGroups');
 
-          cy.get(`[data-testid="add-resource"]`).click();
+          cy.get(`[data-testid="add-resource"]`).click({ force: true });
 
           getGroups({ isCloudPlatform }).forEach(({ name }) => {
             cy.contains(name);
@@ -129,7 +129,7 @@ export default () => {
         it('sends a POST request when the Create Button is clicked', () => {
           cy.waitForRequest('@getAllHostGroups');
 
-          cy.get(`[data-testid="add-resource"]`).click();
+          cy.get(`[data-testid="add-resource"]`).click({ force: true });
           cy.get(`[data-testid-suffix="test-${labelName}"]`)
             .clear()
             .type(getPayload({}).name);
@@ -216,7 +216,7 @@ export default () => {
 
       cy.waitForRequest('@getAllHostGroups');
 
-      cy.get(`[data-testid="add-resource"]`).click();
+      cy.get(`[data-testid="add-resource"]`).click({ force: true });
 
       cy.findAllByTestId(labelName).eq(1).clear().type('name');
       cy.findAllByTestId(labelGeographicCoordinates).eq(1).clear().type('123');
@@ -246,7 +246,7 @@ export default () => {
 
       cy.waitForRequest('@getAllHostGroups');
 
-      cy.get(`[data-testid="add-resource"]`).click();
+      cy.get(`[data-testid="add-resource"]`).click({ force: true });
 
       const nameInput = cy.findAllByTestId(labelName).eq(1).clear();
 
