@@ -42,9 +42,6 @@ const getBaseConfiguration = ({
     library: moduleName,
     uniqueName: moduleName
   },
-  experiments: {
-    css: true
-  },
   plugins: [
     moduleName &&
     new rspack.container.ModuleFederationPlugin({
