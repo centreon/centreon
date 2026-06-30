@@ -50,7 +50,7 @@ The overlay adds:
 
 * **`certgen`** one-shot — issues a Root CA + multi-SAN leaf cert into the `certs` named volume on first `up` (covering `web`, `remote-server`, `db`, `db-remote`, `localhost`, `127.0.0.1`). CA persists across `up` cycles; `docker compose down -v` wipes it.
 * **`web` / `remote-server`** — install the CA into the OS trust store, drop the official Apache HTTPS vhost (same cipher list, HSTS, `X-Frame-Options`, cookie hardening, FCGI to `php-fpm:9042`, `:80 → :443` redirect as production — only cert paths differ), write `/usr/share/centreon/.env` with `DATABASE_SSL_*` keys for the PHP-side [`DatabaseTLSResolver`](../../src/App/Shared/Infrastructure/Database/DatabaseTLSResolver.php), and patch the gorgone DB DSN with `mysql_ssl=1;mysql_ssl_ca=…`.
-* **`db` / `db-remote`** — run with `--require-secure-transport=ON` plus `--ssl-ca/--ssl-cert/--ssl-key`, rejecting plaintext TCP.
+* **`db` / `db-remote`** — *offer* TLS via `--ssl-cert` / `--ssl-key` but **do not** enforce it (no `--require-secure-transport=ON`). Clients that opt in (PHP via `DatabaseTLSResolver`, the `mysql` CLI via the `[client]` drop-in) negotiate TLS; the install wizard's legacy plaintext path keeps working. See [Known limitations](#known-limitations) for the rationale and how the smoke workflow guards against silent regression to all-plaintext.
 * **Centreon Broker** — the install-time `db_ssl_*` JSON keys (existing Centreon support) are emitted automatically when `DATABASE_SSL_ENABLED=1` is in `.env`.
 
 ### Trusting the dev CA
@@ -74,6 +74,9 @@ sudo update-ca-certificates
 > HTTPS mode needs `DatabaseTLSResolver` in the `WEB_IMAGE`. This class is part of `centreon-web` since the 26.07 develop/unstable line (added by [#9237](https://github.com/centreon/centreon/pull/9237)). If you point `WEB_IMAGE` at an older build, the `04-tls.sh` entrypoint hook fails fast with a copy-pasteable error so the misconfig is loud rather than silent.
 
 ### Known limitations
+
+> [!NOTE]
+> **DB TLS is offered, not enforced (no `--require-secure-transport=ON`).** The Centreon install wizard (legacy PHP path) connects to the DB before Symfony Dotenv has populated `$_ENV`, so `DatabaseTLSResolver` reads no `DATABASE_SSL_*` keys and PDO falls back to plaintext. Enforcing secure transport server-side rejects those wizard connections with a misleading "Access denied (using password: YES)" on MariaDB 10.x and the install fails before creating the schema. The pattern mirrors [centreon/centreon#10620](https://github.com/centreon/centreon/pull/10620)'s `configure_db_tls()` in `unattended.sh`. To prove TLS is still being used in practice, the smoke workflow asserts that the DB's `Ssl_accepts` global status counter is `> 0` after install — a silent regression to all-plaintext fails the smoke. Upstream follow-up: have `DatabaseTLSResolver` fall back to `getenv()` (or set `variables_order = "EGPCS"` in php-cli.ini) so the install wizard's CLI bootstrap reaches the resolver.
 
 > [!NOTE]
 > **Side-by-side HTTP + HTTPS stacks from the same checkout** is a planned future feature. Today, two `up` invocations from the same directory collide on container/volume names regardless of port mapping. Pick one mode per checkout. (Port `4443` was chosen with the future side-by-side mode in mind.)

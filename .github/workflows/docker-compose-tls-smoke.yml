@@ -96,6 +96,22 @@ jobs:
             --retry 10 --retry-delay 3 --retry-connrefused \
             https://localhost:4443/centreon/api/latest/platform/versions
 
+      # We don't enforce --require-secure-transport=ON server-side (see
+      # docker-compose.tls.yml header: install wizard plaintext path) — so this
+      # positive assertion is what keeps us honest. If the count is 0, the
+      # entire stack ran without ever negotiating TLS (resolver mis-wired,
+      # cert mounted wrong, etc.) and the smoke must fail even though the
+      # plaintext probe above succeeded.
+      - name: Assert TLS was actually used (Ssl_accepts > 0)
+        run: |
+          n=$(docker compose exec -T db mariadb -uroot -p"${MARIADB_ROOT_PASSWORD:-centreon}" -N \
+                -e 'SHOW GLOBAL STATUS LIKE "Ssl_accepts";' | awk '{print $2}')
+          echo "Ssl_accepts=${n:-<empty>}"
+          if [ -z "$n" ] || [ "$n" -lt 1 ]; then
+            echo "::error::No TLS handshakes recorded on db — stack is running fully plaintext."
+            exit 1
+          fi
+
       - name: Inspect cert chain
         if: always()
         run: |
