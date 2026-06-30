@@ -18,6 +18,13 @@
 #      DatabaseTLSResolver via Symfony Dotenv.
 #
 # In HTTP mode (no `certs` mount), this script returns immediately — zero impact.
+#
+# Error handling: this script is sourced by container.sh; `set -e` here would
+# persist into every subsequent hook (10-mysql.sh, 15-installation.sh, 16-tls-
+# gorgone.sh, 70-gorgone_background.sh, …) and change their behavior. Instead
+# we add explicit `|| exit 1` (or `|| { echo …; exit 1; }`) after every write
+# that can fail silently, so a failed write fails this hook loud without
+# contaminating the parent shell's error-handling mode.
 
 CERT_DIR=/etc/pki/centreon-tls
 CA_PEM="$CERT_DIR/rootCA.pem"
@@ -83,8 +90,8 @@ case "$PLATFORM" in
   rhel)   MYSQL_CLIENT_CFG=/etc/my.cnf.d/centreon-tls-client.cnf ;;
   debian) MYSQL_CLIENT_CFG=/etc/mysql/conf.d/centreon-tls-client.cnf ;;
 esac
-mkdir -p "$(dirname "$MYSQL_CLIENT_CFG")"
-cat > "$MYSQL_CLIENT_CFG" <<EOF
+mkdir -p "$(dirname "$MYSQL_CLIENT_CFG")" || exit 1
+cat > "$MYSQL_CLIENT_CFG" <<EOF || exit 1
 [client]
 ssl-ca=$CA_PEM
 ssl-verify-server-cert
@@ -119,7 +126,7 @@ case "$PLATFORM" in
     # a normal RHEL host by httpd-init, but absent in container images. Reduce
     # the file to just the Listen directive so :443 is bound; our 00-centreon-tls.conf
     # defines the actual <VirtualHost *:443>.
-    cat > /etc/httpd/conf.d/ssl.conf <<'STUB'
+    cat > /etc/httpd/conf.d/ssl.conf <<'STUB' || exit 1
 Listen 443 https
 STUB
     VHOST_DEST=/etc/httpd/conf.d/00-centreon-tls.conf
@@ -165,9 +172,9 @@ echo "[tls] Apache vhost generated for $PLATFORM from $TEMPLATE (redirect :80→
 # 4. Symfony .env keys consumed by DatabaseTLSResolver. Idempotent:
 #    strip any pre-existing DATABASE_SSL_* lines before appending fresh values.
 if [ -f "$DOTENV" ]; then
-  sed -i '/^DATABASE_SSL_ENABLED=/d;/^DATABASE_VERIFY_SERVER_CERT=/d;/^DATABASE_CA_PATH=/d' "$DOTENV"
+  sed -i '/^DATABASE_SSL_ENABLED=/d;/^DATABASE_VERIFY_SERVER_CERT=/d;/^DATABASE_CA_PATH=/d' "$DOTENV" || exit 1
 fi
-cat >> "$DOTENV" <<EOF
+cat >> "$DOTENV" <<EOF || exit 1
 DATABASE_SSL_ENABLED=1
 DATABASE_VERIFY_SERVER_CERT=1
 DATABASE_CA_PATH=$CA_PEM
