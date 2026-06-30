@@ -61,8 +61,19 @@ services:
       # ${…:-} interpolates the perf-tuning string from .env and appends TLS
       # flags. Without it, the inline value overrides env_file: and the perf
       # flags are silently dropped.
-      MARIADB_EXTRA_FLAGS: "${MARIADB_EXTRA_FLAGS:-} --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
-      MYSQL_EXTRA_FLAGS: "${MYSQL_EXTRA_FLAGS:-} --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
+      #
+      # NOTE: --require-secure-transport=ON is deliberately NOT passed. The
+      # Centreon install wizard (legacy PHP path) connects via PDO before
+      # Symfony's Dotenv has populated $_ENV, so DatabaseTLSResolver reads no
+      # DATABASE_SSL_* keys and the connection falls back to plaintext.
+      # Enforcing secure transport server-side rejects those wizard
+      # connections with a misleading "Access denied (using password: YES)"
+      # on MariaDB 10.x, and the install fails before the schema is created.
+      # Mirrors centreon/centreon PR #10620's configure_db_tls() trade-off in
+      # unattended.sh. The smoke workflow asserts Ssl_accepts > 0 so a silent
+      # regression to all-plaintext still fails the smoke.
+      MARIADB_EXTRA_FLAGS: "${MARIADB_EXTRA_FLAGS:-} --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem"
+      MYSQL_EXTRA_FLAGS: "${MYSQL_EXTRA_FLAGS:-} --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem"
     depends_on:
       certgen:
         condition: service_completed_successfully
@@ -88,10 +99,10 @@ services:
     volumes:
       - certs:/certs:ro
     environment:
-      # See db service: same ${…:-} interpolation pattern so the .env perf flags
-      # are appended-to rather than overridden.
-      MARIADB_EXTRA_FLAGS: "${MARIADB_EXTRA_FLAGS:-} --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
-      MYSQL_EXTRA_FLAGS: "${MYSQL_EXTRA_FLAGS:-} --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem --require-secure-transport=ON"
+      # See db service: same ${…:-} interpolation, same deliberate omission of
+      # --require-secure-transport=ON (install wizard plaintext path).
+      MARIADB_EXTRA_FLAGS: "${MARIADB_EXTRA_FLAGS:-} --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem"
+      MYSQL_EXTRA_FLAGS: "${MYSQL_EXTRA_FLAGS:-} --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem"
     depends_on:
       certgen:
         condition: service_completed_successfully
