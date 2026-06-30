@@ -150,12 +150,17 @@ jobs:
           echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
         shell: bash
 
-      - name: Login to Pulp registry
-        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
-        with:
-          registry: pulp-api.apps.centreon.com
-          username: ci-github
-          password: ${{ steps.pulp-oidc.outputs.token }}
+      - name: Login to Pulp registry via OIDC
+        env:
+          OIDC_TOKEN: ${{ steps.pulp-oidc.outputs.token }}
+        run: |
+          mkdir -p ~/.docker
+          # identitytoken triggers Docker's OAuth2 refresh_token grant toward the
+          # Pulp token service, sending the JWT as form param instead of Basic auth.
+          jq -n --arg token "$OIDC_TOKEN" \
+            '{"auths":{"pulp-api.apps.centreon.com":{"identitytoken":$token}}}' \
+            > ~/.docker/config.json
+        shell: bash
 
       - name: Parse distrib name
         id: parse-distrib
