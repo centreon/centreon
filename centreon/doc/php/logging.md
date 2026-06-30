@@ -353,7 +353,9 @@ But fail2ban jails are bound to a **file path** (`logpath = /var/log/centreon/lo
 
 ## 13. Writing upgrade scripts (`Update-*.php`)
 
-Each upgrade ships under `www/install/php/Update-<version>.php` (DB DDL/DML + business migration). It runs either through the DDD command — `UpdateCommandHandler` brackets each step with its `runStep()` helper and emits the logs, while `DbalUpdateRepository` only performs the operations — or through the legacy web wizard (`process_step4/5` + `DbWriteUpdateRepository`, which logs inline via `executeStep()`). Either way the `php_script` step is bracketed (start / completed / failure). **Inside the script itself, trace each meaningful action through `LoggerUpgrade` so operators get a play-by-play view in `prod.upgrade.log`.**
+> **24.10.x scope.** On this branch, upgrades run exclusively through the legacy web wizard (`process_step4/5` + `DbWriteUpdateRepository`). The DDD command path (`UpdateCommandHandler` / `DbalUpdateRepository`) is available from 25.10 onwards. The API table below documents both paths for completeness; only the legacy path applies here.
+
+Each upgrade ships under `www/install/php/Update-<version>.php` (DB DDL/DML + business migration). It runs either through the DDD command — `UpdateCommandHandler` brackets each step with its `runStep()` helper and emits the logs, while `DbalUpdateRepository` only performs the operations (25.10+) — or through the legacy web wizard (`process_step4/5` + `DbWriteUpdateRepository`, which logs inline via `executeStep()`). Either way the `php_script` step is bracketed (start / completed / failure). **Inside the script itself, trace each meaningful action through `LoggerUpgrade` so operators get a play-by-play view in `prod.upgrade.log`.**
 
 The legacy web upgrade splits the flow across two steps: `process_step4.php` runs the version updates (`runUpdate`), `process_step5.php` runs the post-update (`runPostUpdate`) under a `post_update` step — grep both when tracking a step name.
 
@@ -382,7 +384,7 @@ LoggerUpgrade::create()->step($version, $stepName, $message);
 
 ### Recommended pattern
 
-Start from `www/install/php/Update-next.php.tpl` — the canonical skeleton, kept in sync with the flow (its `try/catch`, transaction guard and rollback handling are ready to use). It is intentionally a bare skeleton; for a complete worked example of the points below, read the latest shipped script, e.g. `www/install/php/Update-26.07.0.php`. The shape:
+Start from `www/install/php/Update-next.php.tpl` — the canonical skeleton, kept in sync with the flow (its `try/catch`, transaction guard and rollback handling are ready to use). It is intentionally a bare skeleton; for a complete worked example of the points below, read the latest shipped script, e.g. `www/install/php/Update-24.10.28.php`. The shape:
 
 - **Wrap each business action in its own callable** and set `$errorMessage` to a human description **before** running it — including immediately before `startTransaction()` and `commitTransaction()`, which are themselves distinct actions — so the final failure message reports which action actually failed.
 - **Trace intent and outcome** with `info($version, …)`; log skip branches too — they prove the script is safely re-entrant.
