@@ -150,6 +150,20 @@ jobs:
           echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
         shell: bash
 
+      - name: Debug - Pulp token service scope check
+        env:
+          OIDC_TOKEN: ${{ steps.pulp-oidc.outputs.token }}
+        run: |
+          echo "=== Docker config before our changes ==="
+          cat ~/.docker/config.json 2>/dev/null | jq 'del(.auths[].auth) | del(.auths[].password)' || echo "(no config)"
+          echo "=== Testing Pulp token service with OIDC JWT ==="
+          RESP=$(curl -sS \
+            -H "Authorization: Bearer $OIDC_TOKEN" \
+            "https://pulp-api.apps.centreon.com/token/?service=pulp-api.apps.centreon.com&scope=repository:centreon/centreon-snmptrapd-trixie:push,pull")
+          echo "Scope granted: $(echo "$RESP" | jq -r '.scope // "none"')"
+          echo "Token present: $(echo "$RESP" | jq -r 'if .token then "yes" else "no" end')"
+        shell: bash
+
       - name: Login to Pulp registry via OIDC
         env:
           OIDC_TOKEN: ${{ steps.pulp-oidc.outputs.token }}
@@ -163,6 +177,8 @@ jobs:
           echo "$EXISTING" | jq --arg auth "$AUTH" \
             '.auths["pulp-api.apps.centreon.com"] = {"auth": $auth}' \
             > ~/.docker/config.json
+          echo "=== Docker config after our changes ==="
+          cat ~/.docker/config.json | jq 'del(.auths[].auth) | del(.auths[].password)'
         shell: bash
 
       - name: Parse distrib name
