@@ -124,6 +124,9 @@ jobs:
         component: [centreon-snmptrapd, centreon-centreontrapd]
         operating_system: [trixie]
     name: dockerize ${{ matrix.component }}-${{ matrix.operating_system }}
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Checkout sources
@@ -136,12 +139,23 @@ jobs:
           username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
           password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
 
+      - name: Get GitHub OIDC token for Pulp
+        id: pulp-oidc
+        run: |
+          TOKEN=$(curl -sS \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://pulp.dev.centreon.io" \
+            | jq -r '.value')
+          echo "::add-mask::$TOKEN"
+          echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
+        shell: bash
+
       - name: Login to Pulp registry
         uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           registry: pulp-api.apps.centreon.com
-          username: ${{ secrets.PULP_USERNAME }}
-          password: ${{ secrets.PULP_PASSWORD }}
+          username: ci-github
+          password: ${{ steps.pulp-oidc.outputs.token }}
 
       - name: Parse distrib name
         id: parse-distrib
@@ -222,8 +236,7 @@ jobs:
       - name: Set Pulp labels on container distribution
         env:
           PULP_URL: https://pulp-api.apps.centreon.com
-          PULP_USERNAME: ${{ secrets.PULP_USERNAME }}
-          PULP_PASSWORD: ${{ secrets.PULP_PASSWORD }}
+          PULP_TOKEN: ${{ steps.pulp-oidc.outputs.token }}
           BASE_PATH: centreon/${{ matrix.component }}-${{ matrix.operating_system }}
           MODULE: ${{ matrix.component }}
           OS: ${{ matrix.operating_system }}

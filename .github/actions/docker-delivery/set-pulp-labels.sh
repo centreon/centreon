@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Sets pulp_labels on the container push distribution created by docker push.
-# Expected env vars: PULP_URL, PULP_USERNAME, PULP_PASSWORD,
+# Expected env vars: PULP_URL, PULP_TOKEN,
 #                    BASE_PATH, MODULE, OS, STABILITY, TAG, ADDITIONAL_TAG, PLATFORMS
 set -euo pipefail
 
@@ -11,7 +11,7 @@ fi
 
 ARCHITECTURES=$(echo "$PLATFORMS" | tr ',' '\n' | sed 's|linux/||' | tr '\n' ' ' | sed 's/ $//')
 
-HREF=$(curl -fsSL -u "$PULP_USERNAME:$PULP_PASSWORD" \
+HREF=$(curl -fsSL -H "Authorization: Bearer $PULP_TOKEN" \
   -G --data-urlencode "base_path=$BASE_PATH" \
   "$PULP_URL/api/v3/distributions/container/container/" \
   | jq -r '.results[0].pulp_href')
@@ -21,7 +21,7 @@ if [[ -z "$HREF" || "$HREF" == "null" ]]; then
   exit 1
 fi
 
-RESPONSE=$(curl -sS -w "\nHTTP_STATUS:%{http_code}" -X PATCH -u "$PULP_USERNAME:$PULP_PASSWORD" \
+RESPONSE=$(curl -sS -w "\nHTTP_STATUS:%{http_code}" -X PATCH -H "Authorization: Bearer $PULP_TOKEN" \
   -H "Content-Type: application/json" \
   -d "{\"pulp_labels\": {\"module\": \"$MODULE\", \"os\": \"$OS\", \"stability\": \"$STABILITY\", \"tags\": \"$TAGS\", \"architectures\": \"$ARCHITECTURES\"}}" \
   "$PULP_URL$HREF")
