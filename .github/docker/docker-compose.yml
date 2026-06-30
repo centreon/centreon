@@ -146,7 +146,7 @@ services:
       CENTRAL_API_PASSWORD: ${CENTRAL_API_PASSWORD:-Centreon!2021}
       REMOTE_SERVER_NAME: ${REMOTE_SERVER_NAME:-remote-server}
     volumes:
-      - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/81-register_remote_server_background.sh:/usr/share/centreon/container.d/81-register_remote_server_background.sh
+      - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/81-register_remote_server_background.sh:/usr/share/centreon/container.d/81-register_remote_server_background.sh:ro
     healthcheck:
       test: bash -c "[ -f /tmp/docker.ready ] && [ -f /tmp/remote-server.registered ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
       interval: 5s
