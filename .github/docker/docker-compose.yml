@@ -102,7 +102,7 @@ services:
   # InfluxDB 1.8 speaks the 1.x line protocol the Broker output uses; INFLUXDB_DB
   # pre-creates the target db.
   graphite:
-    image: "${GRAPHITE_IMAGE:-graphiteapp/graphite-statsd:latest}"
+    image: "${GRAPHITE_IMAGE:-graphiteapp/graphite-statsd:1.1.10-5}"
     ports: ["2003", "80"]
     profiles: ["graphite"]
 
