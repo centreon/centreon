@@ -2,8 +2,12 @@
 
 mkdir -p /etc/mysql/conf.d
 # Defensive: when GLPI later joins HTTPS scope and mounts the certs volume,
-# skip-ssl would override the ssl-ca config. Gate on cert presence.
-if [ ! -f /etc/pki/centreon-tls/rootCA.pem ]; then
+# skip-ssl would override the ssl-ca config. Gate on cert presence, and drop
+# any stale file from a prior HTTP run on container restart (mirrors the
+# 10-mysql.sh fix in the centreon-web variants).
+if [ -f /etc/pki/centreon-tls/rootCA.pem ]; then
+  rm -f /etc/mysql/conf.d/client-no-ssl.cnf
+else
   printf '[client]\nskip-ssl\n' > /etc/mysql/conf.d/client-no-ssl.cnf
 fi
 
