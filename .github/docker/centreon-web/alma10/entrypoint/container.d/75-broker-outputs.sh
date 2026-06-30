@@ -4,13 +4,13 @@
 # profile receivers, through the configuration REST API (the UI path): it sets
 # the event subscription (filters) and cache that the CLAPI path leaves unset.
 
-BROKER_ID=1
+BROKER_ID=1   # central-broker-master config id (always 1 in the test dataset)
 API="http://${CENTREON_INTERNAL_API_BASE_URL:-127.0.0.1:80}/centreon/api/latest"
 PASS='Centreon!2021'
 
 api_token() {
-  curl -s -d "{\"security\":{\"credentials\":{\"login\":\"admin\",\"password\":\"${PASS}\"}}}" \
-    -L "${API}/login" | jq -r '.security.token'
+  jq -nc --arg pass "${PASS}" '{security: {credentials: {login: "admin", password: $pass}}}' \
+    | curl -s -d @- -L "${API}/login" | jq -r '.security.token'
 }
 
 add_output() { # $1=token  $2=json payload
