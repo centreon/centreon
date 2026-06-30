@@ -154,14 +154,18 @@ jobs:
         env:
           OIDC_TOKEN: ${{ steps.pulp-oidc.outputs.token }}
         run: |
-          echo "=== Docker config before our changes ==="
-          cat ~/.docker/config.json 2>/dev/null | jq 'del(.auths[].auth) | del(.auths[].password)' || echo "(no config)"
           echo "=== Testing Pulp token service with OIDC JWT ==="
           RESP=$(curl -sS \
             -H "Authorization: Bearer $OIDC_TOKEN" \
             "https://pulp-api.apps.centreon.com/token/?service=pulp-api.apps.centreon.com&scope=repository:centreon/centreon-snmptrapd-trixie:push,pull")
-          echo "Scope granted: $(echo "$RESP" | jq -r '.scope // "none"')"
-          echo "Token present: $(echo "$RESP" | jq -r 'if .token then "yes" else "no" end')"
+          echo "HTTP scope field: $(echo "$RESP" | jq -r '.scope // "none"')"
+          PULP_JWT=$(echo "$RESP" | jq -r '.token // empty')
+          if [ -n "$PULP_JWT" ]; then
+            PAYLOAD=$(echo "$PULP_JWT" | cut -d. -f2 | tr '+/' '-_' | tr -d '=')
+            echo "JWT access claims: $(printf '%s==' "$PAYLOAD" | base64 -d 2>/dev/null | jq -c '.access // []')"
+          else
+            echo "JWT access claims: (no token returned)"
+          fi
         shell: bash
 
       - name: Login to Pulp registry via OIDC
