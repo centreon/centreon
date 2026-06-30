@@ -19,7 +19,7 @@ const output = isDevelopmentMode
   }
   : {};
 
-module.exports = merge(
+const config = merge(
   getBaseConfiguration(true, './src/'),
   getDevConfiguration(),
   {
@@ -48,3 +48,9 @@ module.exports = merge(
     }
   }
 );
+
+config.plugins = config.plugins.filter(
+  (plugin) => plugin.constructor.name !== 'ModuleFederationPlugin'
+);
+
+module.exports = config;

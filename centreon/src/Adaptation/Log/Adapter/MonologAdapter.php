@@ -23,10 +23,12 @@ declare(strict_types=1);
 
 namespace Adaptation\Log\Adapter;
 
-use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Channel\LogChannelInterface;
 use Adaptation\Log\Exception\LoggerException;
 use Adaptation\Log\Logger;
 use App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor;
+use App\Shared\Infrastructure\Logging\PayloadSanitizer;
+use App\Shared\Infrastructure\Logging\SanitizingProcessor;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Level;
@@ -45,7 +47,7 @@ final class MonologAdapter implements LoggerInterface
      */
     private function __construct(
         private readonly MonologLogger $logger,
-        private readonly LogChannelEnum $channel,
+        private readonly LogChannelInterface $channel,
     ) {
         $this->createLoggerFromChannel();
     }
@@ -53,9 +55,9 @@ final class MonologAdapter implements LoggerInterface
     /**
      * @throws LoggerException
      */
-    public static function create(LogChannelEnum $channel): LoggerInterface
+    public static function create(LogChannelInterface $channel): LoggerInterface
     {
-        $logger = new MonologLogger($channel->value);
+        $logger = new MonologLogger($channel->getChannelName());
 
         return new self($logger, $channel);
     }
@@ -148,27 +150,26 @@ final class MonologAdapter implements LoggerInterface
 
             $this->pushPlatformProcessors();
         } catch (\InvalidArgumentException $e) {
-            throw LoggerException::loggerCreationFailed($this->channel->value, $e);
+            throw LoggerException::loggerCreationFailed($this->channel->getChannelName(), $e);
         }
     }
 
     private function pushPlatformProcessors(): void
     {
+        // pushProcessor is LIFO: the first one pushed runs LAST. The sanitiser
+        // must run after WebProcessor (which fills `extra.url`, query string
+        // included), so it is pushed first to redact as the final step.
+        $this->logger->pushProcessor(new SanitizingProcessor(new PayloadSanitizer()));
         $this->logger->pushProcessor(new ExceptionFormatterProcessor());
         $this->logger->pushProcessor(new WebProcessor());
         $this->logger->pushProcessor(self::$uidProcessor ??= new UidProcessor());
     }
 
-    private function getLogFileFromChannel(LogChannelEnum $channelEnum): string
+    private function getLogFileFromChannel(LogChannelInterface $channel): string
     {
         $appEnv = (isset($_SERVER['APP_ENV']) && is_scalar($_SERVER['APP_ENV']))
             ? (string) $_SERVER['APP_ENV'] : 'prod';
 
-        return sprintf(
-            '%s/%s.%s.log',
-            _CENTREON_LOG_,
-            $appEnv,
-            $channelEnum->getLogFileSlug()
-        );
+        return sprintf('%s/%s', _CENTREON_LOG_, $channel->getLogFileName($appEnv));
     }
 }

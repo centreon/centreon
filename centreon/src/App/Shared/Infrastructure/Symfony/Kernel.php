@@ -26,8 +26,10 @@ namespace App\Shared\Infrastructure\Symfony;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Query\AsQueryHandler;
 use App\Shared\Domain\Event\AsEventHandler;
+use App\Shared\Infrastructure\Messenger\AllowNoHandlersOnEventBusPass;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\ChildDefinition;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
@@ -51,14 +53,23 @@ final class Kernel extends BaseKernel
         return \dirname(__DIR__, 5);
     }
 
-    protected function configureContainer(ContainerConfigurator $container): void
+    /**
+     * MicroKernelTrait::registerBundles() relies on a private getBundlesPath() method chain
+     * inherited from BaseKernel via KernelTrait (symfony/dependency-injection). PHP private-method
+     * scoping prevents our getConfigDir() override from affecting that chain in Symfony 8.x,
+     * so we redirect bundle loading explicitly.
+     */
+    public function registerBundles(): iterable
     {
-        $configDir = $this->getConfigDir();
+        $bundlesPath = $this->getProjectDir() . '/config.new/bundles.php';
+        /** @var array<class-string<\Symfony\Component\HttpKernel\Bundle\BundleInterface>, array<string, bool>> $bundles */
+        $bundles = is_file($bundlesPath) ? require $bundlesPath : [];
 
-        $container->import($configDir . '/{packages}/*.yaml');
-        $container->import($configDir . '/{packages}/' . $this->environment . '/*.yaml');
-        $container->import($configDir . '/{services}/*.php');
-        $container->import($configDir . '/{services}/' . $this->environment . '/*.php');
+        foreach ($bundles as $class => $envs) {
+            if ($envs[$this->environment] ?? $envs['all'] ?? false) {
+                yield new $class();
+            }
+        }
     }
 
     protected function build(ContainerBuilder $container): void
@@ -76,6 +87,27 @@ final class Kernel extends BaseKernel
         $container->registerAttributeForAutoconfiguration(AsEventHandler::class, static function (ChildDefinition $definition): void {
             $definition->addTag('messenger.message_handler', ['bus' => 'event.bus']);
         });
+
+        // Workaround for symfony/symfony#64529 (Symfony 8.1.0 drops the event.bus
+        // allow_no_handlers flag). Runs after MessengerPass/ResolveChildDefinitionsPass
+        // so the resolved handle_message middleware definition exists.
+        $container->addCompilerPass(
+            new AllowNoHandlersOnEventBusPass(),
+            PassConfig::TYPE_BEFORE_REMOVING,
+        );
+    }
+
+    /**
+     * @phpstan-ignore method.unused
+     */
+    private function configureContainer(ContainerConfigurator $container): void
+    {
+        $configDir = $this->getConfigDir();
+
+        $container->import($configDir . '/{packages}/*.yaml');
+        $container->import($configDir . '/{packages}/' . $this->environment . '/*.yaml');
+        $container->import($configDir . '/{services}/*.php');
+        $container->import($configDir . '/{services}/' . $this->environment . '/*.php');
     }
 
     private function getConfigDir(): string

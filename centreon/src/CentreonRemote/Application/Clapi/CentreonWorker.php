@@ -84,23 +84,30 @@ class CentreonWorker implements CentreonClapiServiceInterface
      * Worker method to create task for import on remote.
      *
      * @param int $taskId the task id to create on the remote server
+     *
+     * @throws \Exception
      */
     public function createRemoteTask(int $taskId): void
     {
         // find task parameters (type, status, params...)
+        /** @var Task|null $task */
         $task = $this->getDi()[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]
             ->getRepository(TaskRepository::class)
             ->findOneById($taskId);
 
+        if ($task === null) {
+            throw new \InvalidArgumentException(sprintf('Task %d not found', $taskId));
+        }
+
         /**
          * create import task on remote.
          */
-        $serializedParams = htmlspecialchars($task->getParams());
+        $serializedParams = $task->getParams();
         if (empty($serializedParams)) {
             throw new \Exception('Invalid Parameters');
         }
-        $taskParams = unserialize($serializedParams);
-        if (! array_key_exists('params', $taskParams)) {
+        $taskParams = unserialize($serializedParams, ['allowed_classes' => false]);
+        if (! is_array($taskParams) || ! array_key_exists('params', $taskParams)) {
             throw new \Exception('Missing parameters: params');
         }
         $params = $taskParams['params'];
@@ -139,9 +146,10 @@ class CentreonWorker implements CentreonClapiServiceInterface
      */
     private function processExportTasks(): void
     {
+        /** @var Task[] $tasks */
         $tasks = $this->getDi()[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]
             ->getRepository(TaskRepository::class)
-            ->findExportTasks() ?? [];
+            ->findExportTasks();
 
         echo date('Y-m-d H:i:s') . ' - INFO - Checking for pending export tasks: '
             . count($tasks) . " task(s) found.\n";
@@ -151,12 +159,12 @@ class CentreonWorker implements CentreonClapiServiceInterface
 
             // mark task as being worked on
             $this->getDi()['centreon.taskservice']->updateStatus($task->getId(), Task::STATE_PROGRESS);
-            $serializedParams = htmlspecialchars($task->getParams(), ENT_NOQUOTES);
+            $serializedParams = $task->getParams();
             if (empty($serializedParams)) {
                 throw new \Exception('Invalid Parameters');
             }
-            $taskParams = unserialize($serializedParams);
-            if (! array_key_exists('params', $taskParams)) {
+            $taskParams = unserialize($serializedParams, ['allowed_classes' => false]);
+            if (! is_array($taskParams) || ! array_key_exists('params', $taskParams)) {
                 throw new \Exception('Missing parameters: params');
             }
             $params = $taskParams['params'];
