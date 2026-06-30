@@ -14,14 +14,16 @@ api_token() {
 }
 
 add_output() { # $1=token  $2=label  $3=json payload
-  code=$(curl -s -o /tmp/broker-output-resp -w '%{http_code}' \
+  resp=$(mktemp)
+  code=$(curl -s -o "${resp}" -w '%{http_code}' \
     -X POST -H "X-AUTH-TOKEN: $1" -H "Content-Type: application/json" \
     -L "${API}/configuration/broker/${BROKER_ID}/outputs" --data "$3")
   if [ "${code:-0}" -ge 200 ] && [ "${code:-0}" -lt 300 ]; then
     echo "75-broker-outputs: $2 output created (HTTP ${code})"
   else
-    echo "75-broker-outputs: failed to create $2 output (HTTP ${code}): $(cat /tmp/broker-output-resp 2>/dev/null)" >&2
+    echo "75-broker-outputs: failed to create $2 output (HTTP ${code}): $(cat "${resp}" 2>/dev/null)" >&2
   fi
+  rm -f "${resp}"
 }
 
 graphite=false
