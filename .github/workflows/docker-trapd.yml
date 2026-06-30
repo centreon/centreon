@@ -155,12 +155,13 @@ jobs:
           OIDC_TOKEN: ${{ steps.pulp-oidc.outputs.token }}
         run: |
           mkdir -p ~/.docker
-          # Merge Pulp OIDC entry into existing docker config (preserves Harbor credentials).
-          # identitytoken triggers Docker's OAuth2 refresh_token grant toward the
-          # Pulp token service, sending the JWT as form param instead of Basic auth.
+          # Docker/BuildKit: empty username + JWT as secret → token service called with
+          # "Authorization: Bearer $JWT" (GET) instead of Basic auth — matches what the
+          # pulp_github_oidc plugin expects. Pulp token service is GET-only (no OAuth2 POST).
+          AUTH=$(printf ':%s' "$OIDC_TOKEN" | base64 -w 0)
           EXISTING=$(cat ~/.docker/config.json 2>/dev/null || echo '{}')
-          echo "$EXISTING" | jq --arg token "$OIDC_TOKEN" \
-            '.auths["pulp-api.apps.centreon.com"] = {"identitytoken": $token}' \
+          echo "$EXISTING" | jq --arg auth "$AUTH" \
+            '.auths["pulp-api.apps.centreon.com"] = {"auth": $auth}' \
             > ~/.docker/config.json
         shell: bash
 
