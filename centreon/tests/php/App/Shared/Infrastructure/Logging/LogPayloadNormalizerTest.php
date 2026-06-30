@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\Shared\Infrastructure\Logging;
 
 use App\Shared\Infrastructure\Logging\LogPayloadNormalizer;
+use App\Shared\Infrastructure\Logging\PayloadSanitizer;
 use App\Shared\Infrastructure\Logging\SensitiveKeywordDenylist;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
@@ -200,7 +201,11 @@ final class LogPayloadNormalizerTest extends TestCase
 
         $payload = $this->normalizer->normalize($message);
 
-        self::assertSame(['name' => 'inner', 'token' => '***'], $payload['child']);
+        $child = $payload['child'];
+        \assert(\is_array($child));
+        self::assertArrayHasKey(PayloadSanitizer::RUNTIME_CLASS_KEY, $child);
+        unset($child[PayloadSanitizer::RUNTIME_CLASS_KEY]);
+        self::assertSame(['name' => 'inner', 'token' => '***'], $child);
     }
 
     public function testPrivatePropertyOfAParentWithAGetterIsWalked(): void
@@ -250,7 +255,10 @@ final class LogPayloadNormalizerTest extends TestCase
         $second = $payload['second'];
         \assert(\is_string($second));
 
-        self::assertSame(['tag' => 'shared'], $payload['first']);
+        $first = $payload['first'];
+        \assert(\is_array($first));
+        unset($first[PayloadSanitizer::RUNTIME_CLASS_KEY]);
+        self::assertSame(['tag' => 'shared'], $first);
         self::assertStringContainsString('(already logged)', $second);
     }
 

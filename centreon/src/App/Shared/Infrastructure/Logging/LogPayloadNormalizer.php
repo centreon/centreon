@@ -163,7 +163,7 @@ final class LogPayloadNormalizer
         }
         $seen[$objectId] = true;
 
-        return $this->normalizeObjectProperties($data, $depth, $seen, $budget);
+        return $this->normalizeObjectProperties($data, $depth, $seen, $budget, embedClass: true);
     }
 
     /**
@@ -171,9 +171,12 @@ final class LogPayloadNormalizer
      *
      * @return array<string, mixed>
      */
-    private function normalizeObjectProperties(object $object, int $depth, array &$seen, int &$budget): array
+    private function normalizeObjectProperties(object $object, int $depth, array &$seen, int &$budget, bool $embedClass = false): array
     {
         $result = [];
+        if ($embedClass) {
+            $result[PayloadSanitizer::RUNTIME_CLASS_KEY] = $object::class;
+        }
         $count = 0;
         foreach ($this->loggableProperties($object) as $property) {
             if (! $property->isInitialized($object)) {
