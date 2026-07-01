@@ -46,7 +46,6 @@ const getBaseConfiguration = ({
     moduleName &&
     new rspack.container.ModuleFederationPlugin({
       filename: 'remoteEntry.[chunkhash:8].js',
-      injectTreeShakingUsedExports: false,
       library: { name: moduleName, type: 'umd' },
       name: moduleName,
       shared: [
