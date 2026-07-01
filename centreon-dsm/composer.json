@@ -9,8 +9,7 @@
     "ext-pdo": "*"
   },
   "require-dev": {
-    "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "25.10.x-dev"
+    "centreon/centreon": "@dev"
   },
   "repositories": [
     {
