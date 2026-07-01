@@ -33,7 +33,7 @@ use Core\Broker\Application\Repository\ReadBrokerInputOutputRepositoryInterface;
 use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface;
 use Core\Broker\Domain\Model\BrokerInputOutput;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
-use Core\Common\Infrastructure\FeatureFlags;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
 use Core\Host\Domain\Model\Host;
@@ -57,7 +57,6 @@ use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Core\Security\Vault\Application\Exceptions\VaultException;
-use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\Migrator\AccCredentialMigratorInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
@@ -72,7 +71,7 @@ final class MigrateAllCredentials
 
     /**
      * @param WriteVaultRepositoryInterface $writeVaultRepository
-     * @param ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository
+     * @param VaultEligibilityService $vaultEligibilityService
      * @param ReadHostRepositoryInterface $readHostRepository
      * @param ReadHostMacroRepositoryInterface $readHostMacroRepository
      * @param ReadHostTemplateRepositoryInterface $readHostTemplateRepository
@@ -91,12 +90,11 @@ final class MigrateAllCredentials
      * @param WriteBrokerInputOutputRepositoryInterface $writeBrokerInputOutputRepository
      * @param ReadAccRepositoryInterface $readAccRepository
      * @param WriteAccRepositoryInterface $writeAccRepository
-     * @param FeatureFlags $flags
      * @param \Traversable<AccCredentialMigratorInterface> $accCredentialMigrators
      */
     public function __construct(
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
-        private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
+        private readonly VaultEligibilityService $vaultEligibilityService,
         private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly ReadHostMacroRepositoryInterface $readHostMacroRepository,
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
@@ -115,7 +113,6 @@ final class MigrateAllCredentials
         private readonly WriteBrokerInputOutputRepositoryInterface $writeBrokerInputOutputRepository,
         private readonly ReadAccRepositoryInterface $readAccRepository,
         private readonly WriteAccRepositoryInterface $writeAccRepository,
-        private readonly FeatureFlags $flags,
         \Traversable $accCredentialMigrators,
     ) {
         $this->response = new MigrateAllCredentialsResponse();
@@ -125,7 +122,7 @@ final class MigrateAllCredentials
     public function __invoke(MigrateAllCredentialsPresenterInterface $presenter): void
     {
         try {
-            if ($this->readVaultConfigurationRepository->find() === null) {
+            if (! $this->vaultEligibilityService->shouldUseVault()) {
                 $presenter->presentResponse(new ErrorResponse(VaultException::noVaultConfigured()));
 
                 return;
@@ -140,10 +137,10 @@ final class MigrateAllCredentials
             $openIdConfiguration = $this->readProviderConfigurationRepository->getConfigurationByType(
                 Provider::OPENID
             );
-            $brokerInputOutputs = $this->flags->isEnabled('vault_broker')
+            $brokerInputOutputs = $this->vaultEligibilityService->shouldUseVault('vault_broker')
                 ? $this->readBrokerInputOutputRepository->findAll()
                 : [];
-            $accs = $this->flags->isEnabled('vault_gorgone')
+            $accs = $this->vaultEligibilityService->shouldUseVault('vault_gorgone')
                 ? $this->readAccRepository->findAll()
                 : [];
 
