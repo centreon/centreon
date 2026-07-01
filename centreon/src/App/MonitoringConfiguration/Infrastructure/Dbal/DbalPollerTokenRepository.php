@@ -27,11 +27,14 @@ use App\MonitoringConfiguration\Domain\Exception\PollerTokenNotFoundException;
 use App\MonitoringConfiguration\Domain\Model\PollerToken;
 use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
 use Doctrine\DBAL\Connection;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 final readonly class DbalPollerTokenRepository implements PollerTokenRepository
 {
-    public function __construct(private Connection $connection)
-    {
+    public function __construct(
+        #[Autowire(service: 'doctrine.dbal.default_connection')]
+        private Connection $connection,
+    ) {
     }
 
     public function getFirstValidPollerToken(): PollerToken
