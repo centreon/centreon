@@ -32,8 +32,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroName;
 use Centreon\Domain\Log\Logger;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
-use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 /**
@@ -495,12 +495,9 @@ function getFromVault(string $vaultPath): array
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    /** @var ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository */
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
-    if ($vaultConfiguration !== null) {
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
+    if ($vaultEligibilityService->shouldUseVault()) {
         /** @var ReadVaultRepositoryInterface $readVaultRepository */
         $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
         try {
@@ -521,12 +518,9 @@ function saveInVault(string $key, string $value): ?string
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    /** @var ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository */
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
-    if ($vaultConfiguration !== null) {
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
+    if ($vaultEligibilityService->shouldUseVault()) {
         /** @var ReadVaultRepositoryInterface $readVaultRepository */
         $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
         /** @var WriteVaultRepositoryInterface $writeVaultRepository */
@@ -565,13 +559,9 @@ function deleteFromVault(array $data): void
         $kernel = Kernel::createForWeb();
         /** @var Logger $logger */
         $logger = $kernel->getContainer()->get(Logger::class);
-        /** @var ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository */
-        $readVaultConfigurationRepository = $kernel->getContainer()->get(
-            ReadVaultConfigurationRepositoryInterface::class
-        );
-
-        $vaultConfiguration = $readVaultConfigurationRepository->find();
-        if ($vaultConfiguration !== null) {
+        /** @var VaultEligibilityService $vaultEligibilityService */
+        $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
+        if ($vaultEligibilityService->shouldUseVault()) {
             /** @var ReadVaultRepositoryInterface $readVaultRepository */
             $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
             /** @var WriteVaultRepositoryInterface $writeVaultRepository */
