@@ -23,7 +23,7 @@ jobs:
   check-inputs:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Verify that the workflow is run in a develop context
         uses: ./.github/actions/verify-run-in-develop-context
@@ -49,7 +49,7 @@ jobs:
       doc_version: ${{ steps.build-openapi-documentation.outputs.doc_version }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Build OpenAPI documentation
         uses: ./.github/actions/build-openapi-documentation
@@ -63,7 +63,7 @@ jobs:
     runs-on: documentation
     steps:
       - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - uses: ./.github/actions/publish-openapi-documentation
         with:
