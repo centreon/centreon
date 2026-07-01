@@ -195,18 +195,31 @@ jobs:
       - name: Login to Pulp registry via OIDC
         env:
           OIDC_TOKEN: ${{ steps.pulp-oidc.outputs.token }}
+          BASE_PATH: centreon/${{ matrix.component }}-${{ matrix.operating_system }}
         run: |
           mkdir -p ~/.docker
-          # Setting identitytoken makes Docker send "Authorization: Bearer <token>" to the
-          # token service (not Basic auth). GitHubActionsAuthentication in pulp_github_oidc
-          # expects Bearer or Github auth — Basic auth with OIDC token as password is silently
-          # ignored, resulting in anonymous scope (pull-only).
+          # GitHubActionsAuthentication accepts Bearer/Github but ignores Basic auth.
+          # identitytoken triggers an OAuth2 POST that Pulp's GET-only /token/ rejects (405).
+          # Solution: fetch the Pulp JWT ourselves with Bearer auth, then store it as
+          # "registrytoken". Docker uses a registrytoken directly for registry API calls
+          # (Authorization: Bearer <jwt>) without ever calling the token service again.
+          PULP_JWT=$(curl -sS \
+            -H "Authorization: Bearer $OIDC_TOKEN" \
+            "https://pulp-api.apps.centreon.com/token/?service=pulp-api.apps.centreon.com&scope=repository:${BASE_PATH}:push,pull" \
+            | jq -r '.token // empty')
+          if [ -z "$PULP_JWT" ]; then
+            echo "::error::Failed to fetch Pulp JWT (token service returned empty)"
+            exit 1
+          fi
+          PAYLOAD=$(echo "$PULP_JWT" | cut -d. -f2 | tr '+/' '-_' | tr -d '=')
+          echo "Pulp JWT scope: $(printf '%s==' "$PAYLOAD" | base64 -d 2>/dev/null | jq -c '.access // []')"
+          echo "::add-mask::$PULP_JWT"
           EXISTING=$(cat ~/.docker/config.json 2>/dev/null || echo '{}')
-          echo "$EXISTING" | jq --arg token "$OIDC_TOKEN" \
-            '.auths["pulp-api.apps.centreon.com"] = {"identitytoken": $token}' \
+          echo "$EXISTING" | jq --arg jwt "$PULP_JWT" \
+            '.auths["pulp-api.apps.centreon.com"] = {"registrytoken": $jwt}' \
             > ~/.docker/config.json
           echo "=== Docker config (sanitized) ==="
-          cat ~/.docker/config.json | jq 'del(.auths[].identitytoken) | del(.auths[].auth) | del(.auths[].password)'
+          cat ~/.docker/config.json | jq 'del(.auths[].registrytoken) | del(.auths[].identitytoken) | del(.auths[].auth) | del(.auths[].password)'
         shell: bash
 
       - name: Parse distrib name
