@@ -21,24 +21,22 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Infrastructure\Logging;
+namespace Tests\App\Shared\Infrastructure\Logging\Double;
+
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 /**
- * Signals that the inner normalizer wrapped by LogPayloadNormalizer
- * returned a non-array value (scalar, null, object) when an associative
- * array was contractually required. Carries the offending type so the
- * caller can log it operationally without parsing the message string.
+ * Pins that a private, getter-less field is never logged, so a secret there cannot leak.
  */
-final class NonArrayNormalizationException extends \UnexpectedValueException
+final class SensitiveValue
 {
-    public function __construct(
-        public readonly string $messageClass,
-        public readonly string $returnedType,
-    ) {
-        parent::__construct(sprintf(
-            'Expected the inner normalizer to return an array for %s, got %s.',
-            $messageClass,
-            $returnedType,
-        ));
+    public string $label = 'visible';
+
+    #[Sensitive]
+    private string $vaultSalt = 'top-secret';
+
+    public function reveal(): string
+    {
+        return $this->vaultSalt;
     }
 }
