@@ -42,7 +42,7 @@ final class ExistingPollerTokenValidator extends ConstraintValidator
             throw new UnexpectedTypeException($constraint, ExistingPollerToken::class);
         }
 
-        if (! is_string($value) || $value === '') {
+        if (! is_string($value) || trim($value) === '') {
             return;
         }
 

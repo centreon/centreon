@@ -41,6 +41,10 @@ final readonly class PollerInstallationCommandFactory
     public function generate(): string
     {
         // TODO to update with final path when available
+        // Only `name` is escaped with escapeshellarg(): it is the sole free-form,
+        // user-provided value. The other parameters are controlled and cannot carry
+        // shell metacharacters: pollerToken is hex (bin2hex), uid is an int, pollerType
+        // is an enum, appSecret/salt are engine-generated, and centralUrl comes from config.
         return sprintf(
             'curl -fsSL https://%s/poller/install.sh | bash -s -- --poller_token %s --uid %s --name %s --type %s --central_url %s --appsecret %s --salt %s',
             $this->centralUrl,

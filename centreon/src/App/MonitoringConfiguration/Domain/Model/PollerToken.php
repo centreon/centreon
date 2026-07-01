@@ -35,7 +35,7 @@ final readonly class PollerToken
         public ?\DateTimeImmutable $expirationDate,
         public bool $isRevoked,
     ) {
-        Assert::notEmpty($name);
+        Assert::notEmpty(trim($name));
         Assert::notEmpty($value);
     }
 }

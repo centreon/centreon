@@ -40,10 +40,11 @@ final readonly class CreatePollerInput
         #[Assert\Choice(choices: [PollerTypeEnum::VM->value, PollerTypeEnum::Docker->value])]
         public string $pollerType,
 
+        #[Assert\NotBlank(normalizer: 'trim')]
         #[Assert\Length(min: PollerAddress::MIN_LENGTH, max: PollerAddress::MAX_LENGTH)]
         public string $address,
 
-        #[Assert\NotBlank]
+        #[Assert\NotBlank(normalizer: 'trim')]
         #[Assert\Length(min: 1, max: 255)]
         #[ExistingPollerToken]
         public string $pollerTokenName,
