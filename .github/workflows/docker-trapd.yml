@@ -156,7 +156,7 @@ jobs:
         run: |
           echo "=== Testing Pulp token service with OIDC JWT ==="
           RESP=$(curl -sS \
-            -H "Authorization: Bearer $OIDC_TOKEN" \
+            -H "Authorization: Github $OIDC_TOKEN" \
             "https://pulp-api.apps.centreon.com/token/?service=pulp-api.apps.centreon.com&scope=repository:centreon/centreon-snmptrapd-trixie:push,pull")
           echo "HTTP scope field: $(echo "$RESP" | jq -r '.scope // "none"')"
           PULP_JWT=$(echo "$RESP" | jq -r '.token // empty')
@@ -198,13 +198,13 @@ jobs:
           BASE_PATH: centreon/${{ matrix.component }}-${{ matrix.operating_system }}
         run: |
           mkdir -p ~/.docker
-          # GitHubActionsAuthentication accepts Bearer/Github but ignores Basic auth.
+          # GitHubActionsAuthentication (keyword="github") only accepts Authorization: Github.
           # identitytoken triggers an OAuth2 POST that Pulp's GET-only /token/ rejects (405).
-          # Solution: fetch the Pulp JWT ourselves with Bearer auth, then store it as
+          # Solution: fetch the Pulp JWT ourselves with Github auth, then store it as
           # "registrytoken". Docker uses a registrytoken directly for registry API calls
           # (Authorization: Bearer <jwt>) without ever calling the token service again.
           PULP_JWT=$(curl -sS \
-            -H "Authorization: Bearer $OIDC_TOKEN" \
+            -H "Authorization: Github $OIDC_TOKEN" \
             "https://pulp-api.apps.centreon.com/token/?service=pulp-api.apps.centreon.com&scope=repository:${BASE_PATH}:push,pull" \
             | jq -r '.token // empty')
           if [ -z "$PULP_JWT" ]; then
