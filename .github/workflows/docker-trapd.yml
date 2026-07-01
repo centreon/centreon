@@ -168,6 +168,30 @@ jobs:
           fi
         shell: bash
 
+      - name: Ensure Pulp container distribution exists
+        env:
+          OIDC_TOKEN: ${{ steps.pulp-oidc.outputs.token }}
+          BASE_PATH: centreon/${{ matrix.component }}-${{ matrix.operating_system }}
+        run: |
+          EXISTING=$(curl -sS \
+            -H "Authorization: Github $OIDC_TOKEN" \
+            -G --data-urlencode "base_path=$BASE_PATH" \
+            "https://pulp-api.apps.centreon.com/api/v3/distributions/container/container/" \
+            | jq -r '.results[0].pulp_href // empty')
+          if [ -z "$EXISTING" ]; then
+            echo "Distribution $BASE_PATH not found, creating..."
+            curl -sS -f -X POST \
+              -H "Authorization: Github $OIDC_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d "{\"name\":\"$BASE_PATH\",\"base_path\":\"$BASE_PATH\"}" \
+              "https://pulp-api.apps.centreon.com/api/v3/distributions/container/container/" \
+              | jq '{task: .task}'
+            sleep 5
+          else
+            echo "Distribution $BASE_PATH exists: $EXISTING"
+          fi
+        shell: bash
+
       - name: Login to Pulp registry via OIDC
         env:
           OIDC_TOKEN: ${{ steps.pulp-oidc.outputs.token }}
