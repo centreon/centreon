@@ -222,24 +222,19 @@ try {
     // TODO add your function calls to update the configuration database structure here
 
     // Transactional queries for configuration database
+    $errorMessage = 'Unable to start the configuration database transaction';
     if (! $pearDB->isTransactionActive()) {
         $pearDB->startTransaction();
     }
 
     // TODO add your function calls to update the configuration database data here
 
+    $errorMessage = 'Unable to commit the configuration database transaction';
     $pearDB->commitTransaction();
 
     LoggerUpgrade::create()->info($version, "Upgrade script for version {$version} completed");
 
 } catch (Throwable $throwable) {
-    LoggerUpgrade::create()->stepFailure(
-        "UPGRADE - {$version}: {$errorMessage}",
-        $version,
-        'php_script',
-        $throwable
-    );
-
     try {
         if ($pearDB->isTransactionActive()) {
             LoggerUpgrade::create()->info($version, "Rolling back transaction after error: {$errorMessage}");
@@ -247,15 +242,15 @@ try {
         }
     } catch (ConnectionException $rollbackException) {
         LoggerUpgrade::create()->stepFailure(
-            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             $version,
             'php_script_rollback',
+            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             $rollbackException
         );
 
         throw new RuntimeException(
-            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            previous: $rollbackException
+            message: "UPGRADE - {$version}: " . $errorMessage,
+            previous: $throwable
         );
     }
 

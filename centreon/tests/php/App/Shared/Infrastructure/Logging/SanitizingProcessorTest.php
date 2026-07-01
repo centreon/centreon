@@ -103,6 +103,21 @@ final class SanitizingProcessorTest extends TestCase
         self::assertSame('203.0.113.7', $processed->extra['ip']);
     }
 
+    public function testMasksKeywordKeysInContextButNotInExtraSimultaneously(): void
+    {
+        $record = $this->makeRecord(
+            context: ['token' => 'secret-credential', 'user' => 'admin'],
+            extra: ['token' => ['authenticated' => true, 'user_identifier' => 'admin'], 'password' => 'audit-hash'],
+        );
+
+        $processed = ($this->processor)($record);
+
+        self::assertSame('***', $processed->context['token']);
+        self::assertSame('admin', $processed->context['user']);
+        self::assertSame(['authenticated' => true, 'user_identifier' => 'admin'], $processed->extra['token']);
+        self::assertSame('audit-hash', $processed->extra['password']);
+    }
+
     /**
      * @param array<string, mixed> $context
      * @param array<string, mixed> $extra

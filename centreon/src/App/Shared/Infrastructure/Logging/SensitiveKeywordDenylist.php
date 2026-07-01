@@ -43,6 +43,9 @@ final class SensitiveKeywordDenylist
         'session_id', 'sessionid',
     ];
 
+    /** @var list<string> Accessor prefixes shared by {@see LogPayloadNormalizer} and {@see Attribute\SensitivityScanner}. */
+    public const ACCESSOR_PREFIXES = ['get', 'is', 'has', 'can'];
+
     /**
      * Memoises the sensitive-or-not verdict per key to skip the keyword
      * scan on repeated fields.
