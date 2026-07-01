@@ -197,16 +197,16 @@ jobs:
           OIDC_TOKEN: ${{ steps.pulp-oidc.outputs.token }}
         run: |
           mkdir -p ~/.docker
-          # Docker/BuildKit: empty username + JWT as secret → token service called with
-          # "Authorization: Bearer $JWT" (GET) instead of Basic auth — matches what the
-          # pulp_github_oidc plugin expects. Pulp token service is GET-only (no OAuth2 POST).
-          AUTH=$(printf ':%s' "$OIDC_TOKEN" | base64 -w 0)
+          # Setting identitytoken makes Docker send "Authorization: Bearer <token>" to the
+          # token service (not Basic auth). GitHubActionsAuthentication in pulp_github_oidc
+          # expects Bearer or Github auth — Basic auth with OIDC token as password is silently
+          # ignored, resulting in anonymous scope (pull-only).
           EXISTING=$(cat ~/.docker/config.json 2>/dev/null || echo '{}')
-          echo "$EXISTING" | jq --arg auth "$AUTH" \
-            '.auths["pulp-api.apps.centreon.com"] = {"auth": $auth}' \
+          echo "$EXISTING" | jq --arg token "$OIDC_TOKEN" \
+            '.auths["pulp-api.apps.centreon.com"] = {"identitytoken": $token}' \
             > ~/.docker/config.json
-          echo "=== Docker config after our changes ==="
-          cat ~/.docker/config.json | jq 'del(.auths[].auth) | del(.auths[].password)'
+          echo "=== Docker config (sanitized) ==="
+          cat ~/.docker/config.json | jq 'del(.auths[].identitytoken) | del(.auths[].auth) | del(.auths[].password)'
         shell: bash
 
       - name: Parse distrib name
