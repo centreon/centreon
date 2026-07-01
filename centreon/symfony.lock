@@ -19,23 +19,8 @@
     "beberlei/assert": {
         "version": "v3.3.1"
     },
-    "behat/behat": {
-        "version": "v3.8.1"
-    },
-    "behat/gherkin": {
-        "version": "v4.8.0"
-    },
-    "behat/mink-selenium2-driver": {
-        "version": "v1.4.0"
-    },
     "behat/transliterator": {
         "version": "v1.3.0"
-    },
-    "cebe/php-openapi": {
-        "version": "1.5.2"
-    },
-    "centreon/centreon-test-lib": {
-        "version": "dev-master"
     },
     "curl/curl": {
         "version": "2.3.2"
@@ -105,12 +90,6 @@
     "facade/ignition-contracts": {
         "version": "1.0.2"
     },
-    "friends-of-behat/mink": {
-        "version": "v1.9.0"
-    },
-    "friends-of-behat/mink-extension": {
-        "version": "v2.5.0"
-    },
     "friendsofsymfony/rest-bundle": {
         "version": "2.2",
         "recipe": {
@@ -122,18 +101,6 @@
         "files": [
             "config/packages/fos_rest.yaml"
         ]
-    },
-    "guzzlehttp/guzzle": {
-        "version": "7.3.0"
-    },
-    "guzzlehttp/promises": {
-        "version": "1.4.1"
-    },
-    "guzzlehttp/psr7": {
-        "version": "2.0.0"
-    },
-    "instaclick/php-webdriver": {
-        "version": "1.4.9"
     },
     "jms/metadata": {
         "version": "2.5.1"
@@ -158,9 +125,6 @@
     "justinrainbow/json-schema": {
         "version": "5.2.11"
     },
-    "league/openapi-psr7-validator": {
-        "version": "0.16.3"
-    },
     "league/uri": {
         "version": "6.5.0"
     },
@@ -184,18 +148,6 @@
     },
     "nikic/php-parser": {
         "version": "v4.13.0"
-    },
-    "nyholm/psr7": {
-        "version": "1.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "1.0",
-            "ref": "0cd4d2d0e7f646fda75f9944f747a56e6ed13d4c"
-        },
-        "files": [
-            "config/packages/nyholm_psr7.yaml"
-        ]
     },
     "openpsa/quickform": {
         "version": "v3.3.6.3"
@@ -259,35 +211,11 @@
     "psr/event-dispatcher": {
         "version": "1.0.0"
     },
-    "psr/http-client": {
-        "version": "1.0.1"
-    },
-    "psr/http-factory": {
-        "version": "1.0.1"
-    },
     "psr/http-message": {
-        "version": "1.0.1"
-    },
-    "psr/http-server-handler": {
-        "version": "1.0.1"
-    },
-    "psr/http-server-middleware": {
         "version": "1.0.1"
     },
     "psr/log": {
         "version": "1.1.4"
-    },
-    "ralouphie/getallheaders": {
-        "version": "3.0.3"
-    },
-    "respect/stringifier": {
-        "version": "0.2.0"
-    },
-    "respect/validation": {
-        "version": "2.2.3"
-    },
-    "riverline/multipart-parser": {
-        "version": "2.0.8"
     },
     "sebastian/resource-operations": {
         "version": "3.0.3"
@@ -343,9 +271,6 @@
             "bin/console",
             "config/bootstrap.php"
         ]
-    },
-    "symfony/css-selector": {
-        "version": "v5.3.4"
     },
     "symfony/debug-bundle": {
         "version": "7.3",
@@ -485,15 +410,6 @@
     "symfony/options-resolver": {
         "version": "v4.4.30"
     },
-    "symfony/panther": {
-        "version": "2.4",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "1.0",
-            "ref": "4380502301e68b744b21d2a0c917693676a72f33"
-        }
-    },
     "symfony/password-hasher": {
         "version": "v5.4.0"
     },
@@ -585,19 +501,6 @@
     },
     "symfony/string": {
         "version": "v5.4.2"
-    },
-    "symfony/translation": {
-        "version": "3.3",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "3.3",
-            "ref": "2ad9d2545bce8ca1a863e50e92141f0b9d87ffcd"
-        },
-        "files": [
-            "config/packages/translation.yaml",
-            "translations/.gitignore"
-        ]
     },
     "symfony/translation-contracts": {
         "version": "v2.4.0"
