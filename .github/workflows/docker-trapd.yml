@@ -150,24 +150,6 @@ jobs:
           echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
         shell: bash
 
-      - name: Debug - Pulp token service scope check
-        env:
-          OIDC_TOKEN: ${{ steps.pulp-oidc.outputs.token }}
-        run: |
-          echo "=== Testing Pulp token service with OIDC JWT ==="
-          RESP=$(curl -sS \
-            -H "Authorization: Github $OIDC_TOKEN" \
-            "https://pulp-api.apps.centreon.com/token/?service=pulp-api.apps.centreon.com&scope=repository:centreon/centreon-snmptrapd-trixie:push,pull")
-          echo "HTTP scope field: $(echo "$RESP" | jq -r '.scope // "none"')"
-          PULP_JWT=$(echo "$RESP" | jq -r '.token // empty')
-          if [ -n "$PULP_JWT" ]; then
-            PAYLOAD=$(echo "$PULP_JWT" | cut -d. -f2 | tr '+/' '-_' | tr -d '=')
-            echo "JWT access claims: $(printf '%s==' "$PAYLOAD" | base64 -d 2>/dev/null | jq -c '.access // []')"
-          else
-            echo "JWT access claims: (no token returned)"
-          fi
-        shell: bash
-
       - name: Ensure Pulp container distribution exists
         env:
           OIDC_TOKEN: ${{ steps.pulp-oidc.outputs.token }}
