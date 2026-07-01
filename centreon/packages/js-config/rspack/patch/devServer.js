@@ -1,6 +1,6 @@
 const os = require('os');
 
-const { ReactRefreshRspackPlugin } = require('@rspack/plugin-react-refresh');
+const ReactRefreshPlugin = require('@rspack/plugin-react-refresh');
 
 const devServerPort = 9090;
 
@@ -19,9 +19,7 @@ const publicPath = `http://${devServerAddress}:${devServerPort}/static/`;
 
 const isDevelopmentMode = process.env.NODE_ENV !== 'production';
 
-const devServerPlugins = isDevelopmentMode
-  ? [new ReactRefreshRspackPlugin()]
-  : [];
+const devServerPlugins = isDevelopmentMode ? [new ReactRefreshPlugin()] : [];
 
 module.exports = {
   devServer: {
