@@ -66,6 +66,9 @@ services:
         arguments: ['%env(bool:IS_CLOUD_PLATFORM)%', '%env(file:resolve:FILE_FEATURE_FLAGS)%']
         public: true
 
+    Core\Common\Application\VaultEligibilityService:
+        public: true
+
     Adaptation\Database\Connection\Model\ConnectionConfig:
         arguments:
             $host: '%database_host%'
