@@ -897,7 +897,7 @@ parameters:
 		-
 			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 24
+			count: 25
 			path: tests/php/Core/Host/Application/UseCase/AddHost/AddHostTest.php
 
 		-
@@ -951,7 +951,7 @@ parameters:
 		-
 			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 14
+			count: 15
 			path: tests/php/Core/Host/Application/UseCase/DeleteHost/DeleteHostTest.php
 
 		-
@@ -1047,7 +1047,7 @@ parameters:
 		-
 			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 24
+			count: 25
 			path: tests/php/Core/Host/Application/UseCase/PartialUpdateHost/PartialUpdateHostTest.php
 
 		-
@@ -1503,7 +1503,7 @@ parameters:
 		-
 			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 17
+			count: 18
 			path: tests/php/Core/HostTemplate/Application/AddHostTemplate/AddHostTemplateTest.php
 
 		-
@@ -1533,7 +1533,7 @@ parameters:
 		-
 			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 7
+			count: 8
 			path: tests/php/Core/HostTemplate/Application/DeleteHostTemplate/DeleteHostTemplateTest.php
 
 		-
@@ -1581,7 +1581,7 @@ parameters:
 		-
 			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 23
+			count: 24
 			path: tests/php/Core/HostTemplate/Application/PartialUpdateHostTemplate/PartialUpdateHostTemplateTest.php
 
 		-
@@ -2511,7 +2511,7 @@ parameters:
 		-
 			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 24
+			count: 25
 			path: tests/php/Core/Service/Application/UseCase/AddService/AddServiceTest.php
 
 		-
@@ -2541,7 +2541,7 @@ parameters:
 		-
 			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 9
+			count: 10
 			path: tests/php/Core/Service/Application/UseCase/DeleteService/DeleteServiceTest.php
 
 		-
@@ -2679,7 +2679,7 @@ parameters:
 		-
 			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 23
+			count: 24
 			path: tests/php/Core/Service/Application/UseCase/PartialUpdateService/PartialUpdateServiceTest.php
 
 		-
@@ -2979,7 +2979,7 @@ parameters:
 		-
 			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 6
+			count: 7
 			path: tests/php/Core/ServiceTemplate/Application/UseCase/DeleteServiceTemplate/DeleteServiceTemplateTest.php
 
 		-
@@ -3057,7 +3057,7 @@ parameters:
 		-
 			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 18
+			count: 19
 			path: tests/php/Core/ServiceTemplate/Application/UseCase/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateTest.php
 
 		-
