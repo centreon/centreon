@@ -26,7 +26,7 @@ namespace Core\Common\Application;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 
-final class VaultEligibilityService
+class VaultEligibilityService
 {
     public function __construct(
         private readonly FeatureFlags $featureFlags,

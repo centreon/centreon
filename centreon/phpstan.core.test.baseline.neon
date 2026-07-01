@@ -505,12 +505,6 @@ parameters:
 			path: tests/php/Core/Command/Application/UseCase/MigrateAllCommands/MigrateAllCommandsTest.php
 
 		-
-			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
-			identifier: method.protected
-			count: 1
-			path: tests/php/Core/Common/Application/VaultEligibilityServiceTest.php
-
-		-
 			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
 			count: 3

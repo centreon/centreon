@@ -26,56 +26,57 @@ namespace Tests\Core\Common\Application;
 use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-beforeEach(function (): void {
-    $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class);
-});
+final class VaultEligibilityServiceTest extends TestCase
+{
+    /** @var ReadVaultConfigurationRepositoryInterface&MockObject */
+    private ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository;
 
-it(
-    'should return false when feature flag is disabled',
-    function (): void {
+    protected function setUp(): void
+    {
+        $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class);
+    }
+
+    public function testShouldReturnFalseWhenFeatureFlagIsDisabled(): void
+    {
         $featureFlags = new FeatureFlags(false, '{"vault": 0}');
         $this->readVaultConfigurationRepository->method('exists')->willReturn(true);
 
         $service = new VaultEligibilityService($featureFlags, $this->readVaultConfigurationRepository);
 
-        expect($service->shouldUseVault())->toBeFalse();
+        $this->assertFalse($service->shouldUseVault());
     }
-);
 
-it(
-    'should return false when feature flag is enabled but vault config does not exist',
-    function (): void {
+    public function testShouldReturnFalseWhenFeatureFlagIsEnabledButVaultConfigDoesNotExist(): void
+    {
         $featureFlags = new FeatureFlags(false, '{"vault": 1}');
         $this->readVaultConfigurationRepository->method('exists')->willReturn(false);
 
         $service = new VaultEligibilityService($featureFlags, $this->readVaultConfigurationRepository);
 
-        expect($service->shouldUseVault())->toBeFalse();
+        $this->assertFalse($service->shouldUseVault());
     }
-);
 
-it(
-    'should return true when feature flag is enabled and vault config exists',
-    function (): void {
+    public function testShouldReturnTrueWhenFeatureFlagIsEnabledAndVaultConfigExists(): void
+    {
         $featureFlags = new FeatureFlags(false, '{"vault": 1}');
         $this->readVaultConfigurationRepository->method('exists')->willReturn(true);
 
         $service = new VaultEligibilityService($featureFlags, $this->readVaultConfigurationRepository);
 
-        expect($service->shouldUseVault())->toBeTrue();
+        $this->assertTrue($service->shouldUseVault());
     }
-);
 
-it(
-    'should check the correct feature flag when a custom flag name is provided',
-    function (): void {
+    public function testShouldCheckTheCorrectFeatureFlagWhenACustomFlagNameIsProvided(): void
+    {
         $featureFlags = new FeatureFlags(false, '{"vault": 0, "vault_broker": 1}');
         $this->readVaultConfigurationRepository->method('exists')->willReturn(true);
 
         $service = new VaultEligibilityService($featureFlags, $this->readVaultConfigurationRepository);
 
-        expect($service->shouldUseVault())->toBeFalse();
-        expect($service->shouldUseVault('vault_broker'))->toBeTrue();
+        $this->assertFalse($service->shouldUseVault());
+        $this->assertTrue($service->shouldUseVault('vault_broker'));
     }
-);
+}
