@@ -574,32 +574,30 @@ class CentreonConnector
      */
     public function getObjectForSelect2($values = [], $options = [])
     {
-        $items = [];
-        $listValues = '';
+        // Without any selected values, there is nothing to fetch.
+        if (empty($values)) {
+            return [];
+        }
+
+        $bindParams = [];
         $queryValues = [];
-        if (! empty($values)) {
-            foreach ($values as $k => $v) {
-                $listValues .= ':id' . $v . ',';
-                $queryValues['id' . $v] = (int) $v;
-            }
-            $listValues = rtrim($listValues, ',');
-        } else {
-            $listValues .= '""';
+        foreach (array_values($values) as $index => $value) {
+            $param = ':id' . $index;
+            $bindParams[] = $param;
+            $queryValues[$param] = (int) $value;
         }
 
         // get list of selected connectors
         $query = 'SELECT id, name FROM connector '
-            . 'WHERE id IN (' . $listValues . ') ORDER BY name ';
+            . 'WHERE id IN (' . implode(', ', $bindParams) . ') ORDER BY name ';
 
-        $stmt = $this->db->prepare($query); // FIXME to ckeck because not initialised no ?
-
-        if ($queryValues !== []) {
-            foreach ($queryValues as $key => $id) {
-                $stmt->bindValue(':' . $key, $id, PDO::PARAM_INT);
-            }
+        $stmt = $this->dbConnection->prepare($query);
+        foreach ($queryValues as $param => $id) {
+            $stmt->bindValue($param, $id, PDO::PARAM_INT);
         }
         $stmt->execute();
 
+        $items = [];
         while ($row = $stmt->fetch()) {
             $items[] = ['id' => $row['id'], 'text' => $row['name']];
         }

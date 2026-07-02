@@ -41,9 +41,11 @@ if (! is_null($search)) {
 }
 
 $LCASearch = '';
+$searchBind = null;
 if (! is_null($search)) {
     $search = HtmlSanitizer::createFromString($search)->sanitize()->getString();
-    $LCASearch .= " name LIKE '%{$search}%'";
+    $LCASearch .= ' name LIKE :search';
+    $searchBind = '%' . $search . '%';
 }
 
 // Get Authorized Actions
@@ -116,8 +118,14 @@ $ACLString = $centreon->user->access->queryBuilder('WHERE', 'id', $pollerstring)
 $query = 'SELECT SQL_CALC_FOUND_ROWS id, name, ns_activate, ns_ip_address, localhost, is_default, updated '
     . ', gorgone_communication_type FROM `nagios_server` ' . $ACLString . ' '
     . ($LCASearch != '' ? ($ACLString != '' ? 'AND ' : 'WHERE ') . $LCASearch : '')
-    . ' ORDER BY name LIMIT ' . $num * $limit . ', ' . $limit;
-$dbResult = $pearDB->query($query);
+    . ' ORDER BY name LIMIT :offset, :limit';
+$dbResult = $pearDB->prepare($query);
+if (! is_null($searchBind)) {
+    $dbResult->bindValue(':search', $searchBind, PDO::PARAM_STR);
+}
+$dbResult->bindValue(':offset', (int) ($num * $limit), PDO::PARAM_INT);
+$dbResult->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
+$dbResult->execute();
 
 $rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
 
