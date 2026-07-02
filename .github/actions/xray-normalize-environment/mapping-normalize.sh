@@ -1,18 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Mappings Centreon component name
+# Mappings Centreon component name (OSS)
 declare -A COMPONENT_NAME_MAPPING=(
-  ["centreon-anomaly-detection"]="Ano. Detect."
-  ["centreon-autodiscovery"]="AutoDisco"
-  ["centreon-bam"]="BAM"
-  ["centreon-cloud-business-extensions"]="CCBE"
-  ["centreon-cloud-extensions"]="CCE"
-  ["centreon-it-edition-extensions"]="CIEE"
-  ["centreon-license-manager"]="License Manager"
-  ["centreon-map"]="MAP"
-  ["centreon-mbi"]="MBI"
-  ["centreon-pp-manager"]="PPM"
+  ["centreon-web"]="Web"
+  ["centreon-awie"]="AWIE"
+  ["centreon-open-tickets"]="Open Tickets"
+  ["centreon-dsm"]="DSM"
+  ["centreon-ha"]="HA"
 )
 
 # Mappings Operating Systems
