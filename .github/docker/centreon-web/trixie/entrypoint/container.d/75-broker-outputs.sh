@@ -7,6 +7,7 @@
 BROKER_ID=1   # central-broker-master config id (always 1 in the test dataset)
 API="http://${CENTREON_INTERNAL_API_BASE_URL:-127.0.0.1:80}/centreon/api/latest"
 PASS='Centreon!2021'
+WEB_USER=$(id apache >/dev/null 2>&1 && echo apache || echo www-data)  # apache on RHEL, www-data on Debian
 
 api_token() {
   jq -nc --arg pass "${PASS}" '{security: {credentials: {login: "admin", password: $pass}}}' \
@@ -63,8 +64,8 @@ if [ "${graphite}" = true ] || [ "${influxdb}" = true ]; then
     fi
     # Reload cbd so it picks up the new outputs. centengine is left as-is: its
     # config is unchanged, and the container systemctl shim cannot restart it.
-    sudo -u apache centreon -u admin -p "${PASS}" -a POLLERGENERATE -v 1
-    sudo -u apache centreon -u admin -p "${PASS}" -a CFGMOVE -v 1
+    sudo -u "${WEB_USER}" centreon -u admin -p "${PASS}" -a POLLERGENERATE -v 1
+    sudo -u "${WEB_USER}" centreon -u admin -p "${PASS}" -a CFGMOVE -v 1
     systemctl restart cbd || echo "75-broker-outputs: cbd restart returned non-zero (check cbd logs)"
   fi
 fi
