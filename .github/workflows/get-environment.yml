@@ -725,6 +725,46 @@ jobs:
 
             core.setOutput('previous_release_bundle_tag', previousStableBundleTag);
 
+      - name: Get operating systems matrix for package and dockerize jobs
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        id: get_package_matrix
+        env:
+          STABILITY: ${{ steps.get_stability.outputs.stability }}
+          IS_CLOUD: ${{ steps.detect_cloud_version.outputs.isCloud }}
+          HAS_UPLOAD_ARTIFACTS: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'upload-artifacts') }}
+          HAS_SYSTEM: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'system') }}
+          HAS_DATABASE: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'database') }}
+          IS_NIGHTLY: ${{ steps.get_nightly_status.outputs.is_nightly }}
+        with:
+          script: |
+            const stability = process.env.STABILITY;
+            const isCloud = process.env.IS_CLOUD === 'true';
+            const isFullRun = ['unstable', 'testing', 'stable'].includes(stability)
+              || process.env.IS_NIGHTLY === 'true'
+              || process.env.HAS_UPLOAD_ARTIFACTS === 'true'
+              || process.env.HAS_SYSTEM === 'true'
+              || process.env.HAS_DATABASE === 'true';
+
+            const distribMap = {
+              alma9:    { distrib: 'el9',      package_extension: 'rpm' },
+              alma10:   { distrib: 'el10',     package_extension: 'rpm' },
+              trixie:   { distrib: 'trixie',   package_extension: 'deb' },
+            };
+
+            const allDistribs = Object.entries(distribMap).map(([os, info]) => ({
+              operating_system: os,
+              ...info,
+            }));
+
+            const cloudDistribs = allDistribs.filter(d => ['alma9', 'alma10'].includes(d.operating_system));
+            const onPremMainDistribs = allDistribs.filter(d => d.operating_system === 'alma10');
+            const isCloudTestingOrStable = isCloud && ['testing', 'stable'].includes(stability);
+            const result = isCloudTestingOrStable ? cloudDistribs : isFullRun ? allDistribs : isCloud ? cloudDistribs : onPremMainDistribs;
+
+            console.log('package_matrix', result);
+
+            return result;
+
       - name: Detect operating systems and databases to test
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         id: get_os_database_matrix
@@ -732,6 +772,7 @@ jobs:
           IS_CLOUD: ${{ steps.detect_cloud_version.outputs.isCloud }}
           IS_NIGHTLY: ${{ steps.get_nightly_status.outputs.is_nightly }}
           LABELS: ${{ steps.has_skip_label.outputs.labels }}
+          PACKAGE_MATRIX: ${{ steps.get_package_matrix.outputs.result }}
         with:
           script: |
             const alma10_mariadb_11_8 = {
@@ -783,11 +824,14 @@ jobs:
               return configs[configIndex];
             };
 
-            const configs = [alma9_mysql_8_0, alma10_mariadb_11_8, trixie_mysql_8_4];
+            const packagedOperatingSystems = JSON.parse(process.env.PACKAGE_MATRIX).map(d => d.operating_system);
 
-            const cloud = alma9_mysql_8_0;
+            const configs = [alma9_mysql_8_0, alma10_mariadb_11_8, trixie_mysql_8_4]
+              .filter(c => packagedOperatingSystems.includes(c.operating_system));
 
-            let main = alma10_mariadb_11_8;
+            const cloud = configs.find(c => c.operating_system === 'alma9') ?? configs[0];
+
+            let main = configs.find(c => c.operating_system === 'alma10') ?? configs[0];
             if (process.env.IS_CLOUD === 'true') {
               main = cloud;
             }
@@ -822,46 +866,6 @@ jobs:
             console.log(matrix);
 
             return matrix;
-
-      - name: Get operating systems matrix for package and dockerize jobs
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-        id: get_package_matrix
-        env:
-          STABILITY: ${{ steps.get_stability.outputs.stability }}
-          IS_CLOUD: ${{ steps.detect_cloud_version.outputs.isCloud }}
-          HAS_UPLOAD_ARTIFACTS: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'upload-artifacts') }}
-          HAS_SYSTEM: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'system') }}
-          HAS_DATABASE: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'database') }}
-          IS_NIGHTLY: ${{ steps.get_nightly_status.outputs.is_nightly }}
-        with:
-          script: |
-            const stability = process.env.STABILITY;
-            const isCloud = process.env.IS_CLOUD === 'true';
-            const isFullRun = ['unstable', 'testing', 'stable'].includes(stability)
-              || process.env.IS_NIGHTLY === 'true'
-              || process.env.HAS_UPLOAD_ARTIFACTS === 'true'
-              || process.env.HAS_SYSTEM === 'true'
-              || process.env.HAS_DATABASE === 'true';
-
-            const distribMap = {
-              alma9:    { distrib: 'el9',      package_extension: 'rpm' },
-              alma10:   { distrib: 'el10',     package_extension: 'rpm' },
-              trixie:   { distrib: 'trixie',   package_extension: 'deb' },
-            };
-
-            const allDistribs = Object.entries(distribMap).map(([os, info]) => ({
-              operating_system: os,
-              ...info,
-            }));
-
-            const cloudDistrib = allDistribs.find(d => d.operating_system === 'alma9');
-            const onPremMainDistrib = allDistribs.filter(d => d.operating_system === 'alma10');
-            const isCloudTestingOrStable = isCloud && ['testing', 'stable'].includes(stability);
-            const result = isCloudTestingOrStable ? [cloudDistrib] : isFullRun ? allDistribs : isCloud ? [cloudDistrib] : [onPremMainDistrib];
-
-            console.log('package_matrix', result);
-
-            return result;
 
       - name: Display info in job summary
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
