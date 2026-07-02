@@ -1,7 +1,4 @@
 {
-    "adlawson/vfs": {
-        "version": "0.12.1"
-    },
     "beberlei/assert": {
         "version": "v3.3.1"
     },
@@ -52,9 +49,6 @@
     },
     "enshrined/svg-sanitize": {
         "version": "0.14.1"
-    },
-    "facade/ignition-contracts": {
-        "version": "1.0.2"
     },
     "filp/whoops": {
         "version": "2.14.5"
@@ -181,9 +175,6 @@
     "phar-io/version": {
         "version": "3.1.0"
     },
-    "php-http/message-factory": {
-        "version": "v1.0.2"
-    },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"
     },
@@ -193,17 +184,8 @@
     "phpdocumentor/type-resolver": {
         "version": "1.5.0"
     },
-    "phpspec/prophecy": {
-        "version": "1.14.0"
-    },
     "phpstan/phpdoc-parser": {
         "version": "0.5.7"
-    },
-    "phpstan/phpstan": {
-        "version": "0.12.99"
-    },
-    "phpstan/phpstan-beberlei-assert": {
-        "version": "0.12.6"
     },
     "phpunit/php-code-coverage": {
         "version": "9.2.7"
@@ -341,18 +323,6 @@
     },
     "smarty/smarty": {
         "version": "v3.1.39"
-    },
-    "squizlabs/php_codesniffer": {
-        "version": "3.6",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "3.6",
-            "ref": "1019e5c08d4821cb9b77f4891f8e9c31ff20ac6f"
-        },
-        "files": [
-            "phpcs.xml.dist"
-        ]
     },
     "symfony/cache": {
         "version": "v5.3.8"
@@ -508,12 +478,6 @@
     "symfony/polyfill-mbstring": {
         "version": "v1.23.1"
     },
-    "symfony/polyfill-php73": {
-        "version": "v1.23.0"
-    },
-    "symfony/polyfill-php80": {
-        "version": "v1.23.1"
-    },
     "symfony/polyfill-php81": {
         "version": "v1.23.0"
     },
@@ -554,9 +518,6 @@
     },
     "symfony/security-csrf": {
         "version": "v5.2.12"
-    },
-    "symfony/security-guard": {
-        "version": "v4.4.27"
     },
     "symfony/security-http": {
         "version": "v4.4.30"
