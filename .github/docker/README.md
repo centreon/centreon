@@ -78,6 +78,12 @@ Currently, the following profiles are available:
 * `squid-simple`: run a docker image of squid without authentication (centreon configuration must be done manually)
 * `squid-basic-auth`: run a docker image of squid with authentication (centreon configuration must be done manually)
 * `mediawiki`: run a docker image of mediawiki (centreon configuration must be done manually)
+* `graphite`: run a Graphite (`graphite-statsd`) receiver and auto-configure a Centreon Broker Graphite output pointing to it — for testing the Broker output cache
+  * the Broker output is configured automatically on startup, with macro-enriched naming `centreon.metric.$INSTANCE$.$HOST$.$SERVICE$.$SERV_TAG_CAT_NAME$.$METRIC$`
+  * Verify ingestion (from the web container, using the service hostname): `docker compose exec web curl -s "http://graphite/render?target=centreon.metric.**&format=json"` — after a force check, the cache-resolved host/service names must appear in the received metric paths
+* `influxdb`: run an InfluxDB 1.8 receiver and auto-configure a Centreon Broker InfluxDB output pointing to it (same purpose as `graphite`)
+  * Verify ingestion: `docker compose exec web curl -s -G "http://influxdb:8086/query" --data-urlencode "db=centreon" --data-urlencode "q=SHOW MEASUREMENTS"`
+  * the two profiles are independent — enable `graphite`, `influxdb`, or both
 
 > [!NOTE]
 > docker image for `poller` service (`centreon-poller-alma9`) is built on centreon-collect repository<br/>
