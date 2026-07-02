@@ -31,7 +31,7 @@ on:
 jobs:
   xray-prepare-test-plan:
     name: Prepare Xray Test Plan
-    runs-on: centreon-ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       jira_test_plan_key: ${{ steps.set-test-plan-key.outputs.jira_test_plan_key }}
       xray_test_plan_issue_id: ${{ steps.set-test-plan-key.outputs.xray_test_plan_issue_id }}
