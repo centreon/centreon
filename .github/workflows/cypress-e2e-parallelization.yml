@@ -61,6 +61,10 @@ on:
       database_name:
         required: false
         type: string
+      jira_component_name:
+        description: "Jira component override when it differs from module_name (e.g. centreon-web for the 'centreon' module directory)"
+        required: false
+        type: string
       is_cloud:
         description: "Define if the version is targeting cloud"
         required: false
@@ -350,7 +354,7 @@ jobs:
       database_name: ${{ inputs.database_name }}
       major_version: ${{ inputs.major_version }}
       minor_version: ${{ inputs.minor_version }}
-      module_name: ${{ inputs.module_name }}
+      module_name: ${{ inputs.jira_component_name != '' && inputs.jira_component_name || inputs.module_name }}
       type_test_execution: e2e
       result_format: cucumber
       enrich_tests: true
