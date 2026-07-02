@@ -1,0 +1,184 @@
+on:
+  workflow_call:
+    inputs:
+      major_version:
+        required: true
+        type: string
+      minor_version:
+        required: true
+        type: string
+      operating_system:
+        required: false
+        type: string
+      module_name:
+        required: true
+        type: string
+
+    secrets:
+      XRAY_CLIENT_ID:
+        required: true
+      XRAY_CLIENT_SECRET:
+        required: true
+
+    outputs:
+      jira_test_plan_key:
+        description: 'Jira Test Plan Key'
+        value: ${{ jobs.xray-prepare-test-plan.outputs.jira_test_plan_key }}
+      xray_test_plan_issue_id:
+        description: 'Xray Test Plan Issue ID'
+        value: ${{ jobs.xray-prepare-test-plan.outputs.xray_test_plan_issue_id }}
+
+jobs:
+  xray-prepare-test-plan:
+    name: Prepare Xray Test Plan
+    runs-on: centreon-ubuntu-22.04
+    outputs:
+      jira_test_plan_key: ${{ steps.set-test-plan-key.outputs.jira_test_plan_key }}
+      xray_test_plan_issue_id: ${{ steps.set-test-plan-key.outputs.xray_test_plan_issue_id }}
+    steps:
+      # -------------------------------
+      # Checkout the repository sources
+      # -------------------------------
+      - name: Checkout sources
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      # -------------------------------
+      # Authenticate with Xray API
+      # -------------------------------
+      - name: Authenticate with Xray API
+        id: generate-xray-token
+        uses: ./.github/actions/xray-api-auth
+        with:
+          client_id: ${{ secrets.XRAY_CLIENT_ID }}
+          client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+
+      # -------------------------------
+      # Generate Test Plan summary for Jira
+      # -------------------------------
+      - name: Generate Test Plan summary
+        id: jira-generate-summary
+        uses: ./.github/actions/jira-generate-summary
+        with:
+          major_version: ${{ inputs.major_version }}
+          project_type: OSS
+          type_summary: TEST_PLAN
+
+      # -------------------------------
+      # Prepare GraphQL variables
+      # -------------------------------
+      - name: Prepare GraphQL variables
+        id: prepare-xray-graphql-vars
+        uses: ./.github/actions/xray-prepare-graphql-vars
+        with:
+          project_key: "MON"
+          issue_type: "Test Plan"
+          summary: "${{ steps.jira-generate-summary.outputs.summary }}"
+          limit: "1"
+
+      # -------------------------------
+      # Try to retrieve existing Test Plan
+      # -------------------------------
+      - name: Retrieve existing Test Plan
+        id: retrieve-test-plan
+        continue-on-error: true
+        uses: ./.github/actions/xray-api-graphql
+        with:
+          graphql_operation: 'get-test-plan'
+          variables: '${{ steps.prepare-xray-graphql-vars.outputs.graphql_vars }}'
+          xray_token: ${{ steps.generate-xray-token.outputs.xray_token }}
+
+      # -------------------------------
+      # Handle retrieval failure
+      # -------------------------------
+      - name: Handle Test Plan retrieval failure
+        id: handle-retrieval-failure
+        if: steps.retrieve-test-plan.outcome == 'failure'
+        run: |
+          echo "::warning::Failed to retrieve Test Plan from Xray API"
+          echo "Will proceed with Test Plan creation"
+          echo "needs_create=true" >> "$GITHUB_OUTPUT"
+
+      # -------------------------------
+      # Extract Test Plan key from response
+      # -------------------------------
+      - name: Extract Test Plan key
+        id: extract-test-plan-key
+        if: steps.retrieve-test-plan.outcome == 'success'
+        shell: bash
+        run: |
+          response='${{ steps.retrieve-test-plan.outputs.response }}'
+          echo "Response from retrieve-test-plan:"
+          echo "$response"
+
+          total=$(echo "$response" | jq -r '.data.getTestPlans.total')
+
+          # Guard against a non-numeric total (e.g. GraphQL error) before the arithmetic test.
+          if [[ ! "$total" =~ ^[0-9]+$ ]]; then
+              echo "::warning::Unexpected getTestPlans.total value '$total' (response may be an error) — will create a new Test Plan."
+              echo "needs_create=true" >> "$GITHUB_OUTPUT"
+              exit 0
+          fi
+
+          if [[ "$total" -eq 0 ]]; then
+              echo "needs_create=true" >> "$GITHUB_OUTPUT"
+              echo "No existing Test Plan found, will create a new one."
+              exit 0
+          fi
+
+          jira_test_plan_key=$(echo "$response" | jq -r '.data.getTestPlans.results[0].jira.key // empty')
+
+          if [[ -z "$jira_test_plan_key" ]]; then
+              echo "needs_create=true" >> "$GITHUB_OUTPUT"
+              echo "Test Plan found but key is empty, will create a new one."
+          else
+              echo "needs_create=false" >> "$GITHUB_OUTPUT"
+              echo "jira_test_plan_key=$jira_test_plan_key" >> "$GITHUB_OUTPUT"
+              echo "Found existing Test Plan with key: $jira_test_plan_key - will reuse it."
+          fi
+
+      # -------------------------------
+      # Create Test Plan if needed
+      # -------------------------------
+      - name: Create Test Plan
+        id: create-test-plan
+        if: |
+          (steps.extract-test-plan-key.outputs.needs_create == 'true') ||
+          (steps.handle-retrieval-failure.outputs.needs_create == 'true')
+        uses: ./.github/actions/xray-api-graphql
+        with:
+          graphql_operation: 'create-test-plan'
+          variables: '${{ steps.prepare-xray-graphql-vars.outputs.graphql_vars }}'
+          xray_token: ${{ steps.generate-xray-token.outputs.xray_token }}
+
+      # -------------------------------
+      # Set final Test Plan key
+      # -------------------------------
+      - name: Set Test Plan key output
+        id: set-test-plan-key
+        shell: bash
+        run: |
+          # Determine if we need to use CREATE or GET response
+          if [[ "${{ steps.extract-test-plan-key.outputs.needs_create }}" == "true" ]] || \
+             [[ "${{ steps.handle-retrieval-failure.outputs.needs_create }}" == "true" ]]; then
+            RESPONSE='${{ steps.create-test-plan.outputs.response }}'
+            echo "Using Test Plan from CREATE operation"
+            jira_test_plan_key=$(jq -r '.data.createTestPlan.testPlan.jira.key // empty' <<< "$RESPONSE")
+            xray_test_plan_issue_id=$(echo "$RESPONSE" | jq -r '.data.createTestPlan.testPlan.issueId // empty')
+          else
+            RESPONSE='${{ steps.retrieve-test-plan.outputs.response }}'
+            echo "Using Test Plan from GET operation"
+            jira_test_plan_key=$(jq -r '.data.getTestPlans.results[0].jira.key // empty' <<< "$RESPONSE")
+            xray_test_plan_issue_id=$(echo "$RESPONSE" | jq -r '.data.getTestPlans.results[0].issueId // empty')
+          fi
+
+          echo "Extracted Test Plan Key: '$jira_test_plan_key' - Xray Issue ID: $xray_test_plan_issue_id"
+
+          if [[ -z "$jira_test_plan_key" || -z "$xray_test_plan_issue_id" ]]; then
+            echo "::error::Test Plan key or Xray Issue ID is empty"
+            echo "Response was: $RESPONSE"
+            exit 1
+          fi
+
+          echo "jira_test_plan_key=$jira_test_plan_key" >> "$GITHUB_OUTPUT"
+          echo "xray_test_plan_issue_id=$xray_test_plan_issue_id" >> "$GITHUB_OUTPUT"
+          echo "Final Test Plan Key: $jira_test_plan_key - Xray Issue ID: $xray_test_plan_issue_id"

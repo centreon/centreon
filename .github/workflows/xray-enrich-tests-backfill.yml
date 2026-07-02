@@ -1,0 +1,68 @@
+name: xray-enrich-tests-backfill
+
+# Manual backfill: enrich existing Xray Test issues (component, labels, test type,
+# resolve) for a Test Plan, a Test Execution, or a JQL query. Reuses the same
+# xray-enrich-tests action as the inline post-import enrichment.
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_type:
+        description: "Where to find the tests to enrich"
+        type: choice
+        options:
+          - test_plan
+          - test_execution
+          - jql
+        default: test_plan
+      source_value:
+        description: "Test Plan key (e.g. MON-201667), Test Execution key, or a JQL query"
+        required: true
+        type: string
+      component:
+        description: "Jira component to set on each test (empty to skip)"
+        required: false
+        type: string
+        default: ""
+      labels:
+        description: "Comma-separated labels to add (empty to skip)"
+        required: false
+        type: string
+        default: "QA,CI"
+      test_type:
+        description: "Xray Test Type to set, e.g. API (empty to skip)"
+        required: false
+        type: string
+        default: ""
+      resolve:
+        description: "Transition each test to Resolved"
+        type: boolean
+        default: true
+
+jobs:
+  enrich:
+    name: Enrich Xray tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Authenticate with Xray API
+        id: generate-xray-token
+        uses: ./.github/actions/xray-api-auth
+        with:
+          client_id: ${{ secrets.XRAY_CLIENT_ID }}
+          client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+
+      - name: Enrich tests
+        uses: ./.github/actions/xray-enrich-tests
+        with:
+          source_type: ${{ inputs.source_type }}
+          source_value: ${{ inputs.source_value }}
+          component: ${{ inputs.component }}
+          labels: ${{ inputs.labels }}
+          test_type: ${{ inputs.test_type }}
+          resolve: ${{ inputs.resolve }}
+          xray_token: ${{ steps.generate-xray-token.outputs.xray_token }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}

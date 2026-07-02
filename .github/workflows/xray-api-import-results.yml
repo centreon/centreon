@@ -1,0 +1,183 @@
+on:
+  workflow_call:
+    inputs:
+      jira_test_plan_key:
+        required: true
+        type: string
+      report_path:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+      operating_system:
+        required: true
+        type: string
+      database_name:
+        required: true
+        type: string
+      major_version:
+        required: true
+        type: string
+      minor_version:
+        required: true
+        type: string
+      module_name:
+        required: true
+        type: string
+      type_test_execution:
+        required: true
+        type: string
+      result_format:
+        description: "Result format to import: cucumber (e2e) or junit (api/bruno)"
+        required: false
+        type: string
+        default: cucumber
+      enrich_tests:
+        description: "Enrich the imported Test issues (component, labels, test type, resolve). Requires the Jira secrets."
+        required: false
+        type: boolean
+        default: false
+
+    secrets:
+      XRAY_CLIENT_ID:
+        required: true
+      XRAY_CLIENT_SECRET:
+        required: true
+      XRAY_JIRA_USER_EMAIL:
+        description: "Jira user email, required only when enrich_tests is true"
+        required: false
+      XRAY_JIRA_TOKEN:
+        description: "Jira API token, required only when enrich_tests is true"
+        required: false
+
+jobs:
+  xray-api-import-results:
+    name: Import test execution results to Xray
+    runs-on: ubuntu-latest
+    steps:
+      # -------------------------------
+      # Checkout the repository sources
+      # -------------------------------
+      - name: Checkout sources
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      # -------------------------------
+      # Authenticate with Xray API
+      # -------------------------------
+      - name: Authenticate with Xray API
+        id: generate-xray-token
+        uses: ./.github/actions/xray-api-auth
+        with:
+          client_id: ${{ secrets.XRAY_CLIENT_ID }}
+          client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+
+      # -------------------------------
+      # Download artifacts from the previous job
+      # -------------------------------
+      - name: Download artifacts
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+        with:
+          path: ${{ inputs.report_path }}
+
+      # -------------------------------
+      # Normalize environment values for Xray and Jira
+      # -------------------------------
+      - name: Get normalized environment values for Xray and Jira
+        id: normalize-environment-values
+        uses: ./.github/actions/xray-normalize-environment
+        with:
+          component_name: ${{ inputs.module_name }}
+          operating_system: ${{ inputs.operating_system }}
+          database_name: ${{ inputs.database_name }}
+          browser: "chrome"
+          type_environment: "onprem"
+          type_test_execution: ${{ inputs.type_test_execution }}
+
+      # -------------------------------
+      # Import test execution results to Xray
+      # -------------------------------
+      - name: Import results to Xray
+        id: import
+        shell: bash
+        env:
+          RESULT_FORMAT: ${{ inputs.result_format }}
+          REPORT_PATH: ${{ inputs.report_path }}
+          NORMALIZED_TYPE_TEST_EXECUTION: ${{ steps.normalize-environment-values.outputs.xray_normalized_type_test_execution }}
+          NORMALIZED_TYPE_ENVIRONMENT: ${{ steps.normalize-environment-values.outputs.xray_normalized_type_environment }}
+          NORMALIZED_COMPONENT_NAME: ${{ steps.normalize-environment-values.outputs.xray_normalized_component_name }}
+          NORMALIZED_OPERATING_SYSTEM: ${{ steps.normalize-environment-values.outputs.xray_normalized_operating_system }}
+          NORMALIZED_DATABASE_NAME: ${{ steps.normalize-environment-values.outputs.xray_normalized_database_name }}
+          NORMALIZED_BROWSER: ${{ steps.normalize-environment-values.outputs.xray_normalized_browser }}
+          MAJOR_VERSION: ${{ inputs.major_version }}
+          MINOR_VERSION: ${{ inputs.minor_version }}
+          MODULE_NAME: ${{ inputs.module_name }}
+          TEST_PLAN_KEY: ${{ inputs.jira_test_plan_key }}
+          WORKFLOW_RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          shopt -s globstar nullglob
+
+          # Select the result discovery / merge / endpoint strategy per format.
+          if [[ "$RESULT_FORMAT" == "junit" ]]; then
+            mapfile -t files < <(find "$REPORT_PATH" -type f -name "*-junit.xml")
+            results_file="merged-junit.xml"
+            import_endpoint="https://xray.cloud.getxray.app/api/v2/import/execution/junit/multipart"
+          else
+            mapfile -t files < <(find "$REPORT_PATH" -type f -path "*xray-reports*" \( -name "report.json" -o -name "cucumber-report.json" \))
+            results_file="cucumber-report-merged.json"
+            import_endpoint="https://xray.cloud.getxray.app/api/v2/import/execution/cucumber/multipart"
+          fi
+
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "ERROR: No $RESULT_FORMAT result files found in $REPORT_PATH"
+            exit 1
+          fi
+
+          # Merge all result files into a single payload (one Test Execution).
+          if [[ "$RESULT_FORMAT" == "junit" ]]; then
+            node .github/scripts/xray/merge-junit.js "$results_file" "${files[@]}"
+          else
+            jq -s 'add' "${files[@]}" > "$results_file"
+          fi
+
+          node .github/scripts/xray/build-test-execution-fields.js issueJiraFields.json
+
+          echo "Importing $results_file ($RESULT_FORMAT) with Jira fields parameters into Xray..."
+
+          response=$(curl -s -w "\nHTTP_CODE:%{http_code}" \
+            -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" \
+            -F "results=@$results_file" \
+            -F "info=@issueJiraFields.json" \
+            "$import_endpoint")
+
+          http_code=$(echo "$response" | sed -n 's/.*HTTP_CODE://p')
+          body=$(echo "$response" | sed 's/HTTP_CODE:.*//')
+
+          echo "HTTP code: $http_code"
+          echo "Response: $body"
+
+          if [ "$http_code" -ne 200 ]; then
+            echo "ERROR: Import failed for $results_file with Jira fields parameters into Xray"
+            exit 1
+          fi
+
+          test_execution_key=$(jq -r '.key // empty' <<<"$body")
+          echo "Created/updated Test Execution: $test_execution_key"
+          echo "test_execution_key=$test_execution_key" >> "$GITHUB_OUTPUT"
+
+      # -------------------------------
+      # Enrich the imported Test issues (opt-in)
+      # -------------------------------
+      - name: Enrich imported Xray tests
+        if: ${{ inputs.enrich_tests && steps.import.outputs.test_execution_key != '' }}
+        uses: ./.github/actions/xray-enrich-tests
+        with:
+          source_type: test_execution
+          source_value: ${{ steps.import.outputs.test_execution_key }}
+          component: ${{ inputs.module_name }}
+          labels: ${{ inputs.result_format == 'junit' && 'API,QA,CI' || 'E2E,QA,CI' }}
+          test_type: ${{ inputs.result_format == 'junit' && 'API' || '' }}
+          resolve: "true"
+          xray_token: ${{ steps.generate-xray-token.outputs.xray_token }}
+          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
