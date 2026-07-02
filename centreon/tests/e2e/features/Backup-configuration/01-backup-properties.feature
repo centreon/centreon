@@ -3,7 +3,7 @@ Feature: Creating a Notification Rule
   I want to verify that the backup settings are properly configured
   So that I can ensure that all necessary backup options are enabled and correctly set.
 
-  @TEST_MON-147112
+  @MON-147112
   Scenario: Verify Backup Configuration in the UI
     Given an admin user is logged in
     When the admin user accesses the backup page
@@ -13,7 +13,7 @@ Feature: Creating a Notification Rule
     And the database backup options are set
     And the MySQL configuration file path is set
 
-  @TEST_MON-147112
+  @MON-147112
   Scenario: Run the full backup
     Given an admin user is logged in
     When the admin user accesses the backup page
