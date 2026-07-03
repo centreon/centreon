@@ -1,0 +1,15 @@
+# Query to page through the Tests of a Test Execution.
+query GetTestExecutionTests($id: String!, $start: Int!) {
+  getTestExecution(issueId: $id) {
+    tests(limit: 100, start: $start) {
+      total
+      results {
+        issueId
+        testType {
+          name
+        }
+        jira(fields: ["key", "components", "status"])
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+# Mutation used to create a new Test Plan.
+# Documentation: https://us.xray.cloud.getxray.app/doc/graphql/createtestplan.doc.html
+
+mutation CreateTestPlan(
+  $projectKey: String!
+  $summary: String!
+  $description: String!
+  $labels: [String!] = []
+  $priority: String = "Medium"
+) {
+  createTestPlan(
+    jira: {
+      fields: {
+        project: { key: $projectKey }
+        summary: $summary
+        priority: { name: $priority }
+        labels: $labels
+        description: $description
+      }
+    }
+  ) {
+    testPlan {
+      issueId
+      jira(fields: ["key", "summary"])
+    }
+    warnings
+  }
+}
