@@ -2,6 +2,7 @@
 import { execSync } from 'child_process';
 import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
+import fs from "fs";
 
 import tar from 'tar-fs';
 import {
@@ -154,7 +155,7 @@ export default (on: Cypress.PluginEvents): void => {
 
       return container.getMappedPort(containerPort);
     },
-    requestOnDatabase: async ({ database, query }) => {
+    requestOnDatabase: async ({ database, query, params }) => {
       let container: StartedTestContainer | null = null;
 
       if (dockerEnvironment !== null) {
@@ -171,11 +172,15 @@ export default (on: Cypress.PluginEvents): void => {
         user: 'centreon'
       });
 
-      const [rows, fields] = await client.query(query);
+      try {
+        const [rows, fields] = params
+          ? await client.execute(query, params)
+          : await client.query(query);
 
-      await client.end();
-
-      return [rows, fields];
+        return [rows, fields];
+      } finally {
+        await client.end();
+      }
     },
     startContainer: async ({
       command,
@@ -277,6 +282,83 @@ export default (on: Cypress.PluginEvents): void => {
       execSync(`npx wait-on ${url}`);
 
       return null;
-    }
+    },
+    listFilesInDirectory: async ( directoryPath ) => {
+      return new Promise((resolve, reject) => {
+        fs.readdir(directoryPath, (err, files) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(files);
+          }
+        });
+      });
+    },
+    fileExists: async ( filePath ) => {
+      return fs.existsSync(filePath);
+    },
+    getExportedFile({ downloadsFolder }: { downloadsFolder: string }): string {
+      const files = fs
+        .readdirSync(downloadsFolder)
+        .filter((name) => name.startsWith("ResourceStatusExport_all") && name.endsWith(".csv"))
+        .map((name) => ({
+          name,
+          time: fs.statSync(path.join(downloadsFolder, name)).mtime.getTime()
+        }))
+        .sort((a, b) => b.time - a.time);
+
+      if (files.length === 0) {
+        throw new Error("No exported file found");
+      }
+
+      return path.join(downloadsFolder, files[0].name);
+    },
+    readCsvFile({ filePath }: { filePath: string }): Promise<string> {
+      const projectRoot = path.resolve(process.cwd());
+      const resolvedPath = path.resolve(filePath);
+      if (resolvedPath !== projectRoot && !resolvedPath.startsWith(projectRoot + path.sep)) {
+        return Promise.reject(new Error("Path is outside of the project directory"));
+      }
+
+      return new Promise((resolve, reject) => {
+        fs.readFile(resolvedPath, "utf8", (err, data) => {
+          if (err) return reject(err);
+          resolve(data);
+        });
+      });
+    },
+    clearDownloadsFolder({ downloadsFolder }: { downloadsFolder: string }): null {
+      const projectRoot = path.resolve(process.cwd());
+      const resolvedFolder = path.resolve(downloadsFolder);
+      if (resolvedFolder !== projectRoot && !resolvedFolder.startsWith(projectRoot + path.sep)) {
+        throw new Error("Path is outside of the project directory");
+      }
+
+      if (!fs.existsSync(resolvedFolder)) {
+        return null;
+      }
+
+      const files = fs.readdirSync(resolvedFolder);
+      for (const file of files) {
+        const filePath = path.join(resolvedFolder, file);
+        if (!filePath.startsWith(resolvedFolder + path.sep)) {
+          continue;
+        }
+        fs.unlinkSync(filePath);
+      }
+
+      return null;
+    },
+    isDownloadComplete({ downloadsFolder }: { downloadsFolder: string }): boolean {
+      if (!fs.existsSync(downloadsFolder)) return false;
+
+      const files = fs
+        .readdirSync(downloadsFolder)
+        .filter(
+          (name) => !name.endsWith(".crdownload") && !name.endsWith(".tmp")
+        );
+
+      return files.length > 0;
+    },
   });
 };
