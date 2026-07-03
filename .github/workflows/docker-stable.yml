@@ -41,7 +41,7 @@ jobs:
       RELEASE_BUNDLE_TAG: ${{ inputs.release_bundle_tag }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
@@ -66,7 +66,7 @@ jobs:
           done
 
       - name: Checkout major version on bundle tag
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
           ref: ${{ inputs.release_bundle_tag }}
@@ -152,7 +152,7 @@ jobs:
 
     steps:
       - name: Checkout docker files on linked dev branch ${{ inputs.dev_branch || needs.check-inputs.outputs.linked_dev_branch }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
           ref: ${{ inputs.dev_branch || needs.check-inputs.outputs.linked_dev_branch }}
@@ -163,7 +163,7 @@ jobs:
             .github/docker/centreon-web/sql/
 
       - name: Checkout entrypoint, configuration and SQL files on tag ${{ inputs.release_bundle_tag }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
           ref: ${{ inputs.release_bundle_tag }}
@@ -190,7 +190,7 @@ jobs:
           done
 
       - name: Checkout version files on tag ${{ inputs.release_bundle_tag }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
           ref: ${{ inputs.release_bundle_tag }}
@@ -202,7 +202,7 @@ jobs:
             .version.centreon-web
 
       - name: Checkout collect .version files on bundle tag ${{ inputs.release_bundle_tag }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
           repository: centreon/centreon-collect
