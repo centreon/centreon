@@ -463,6 +463,462 @@ parameters:
 			path: tests/php/Core/Broker/Application/UseCase/AddBrokerInputOutput/AddBrokerInputOutputTest.php
 
 		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Broker/Application/UseCase/AddBrokerInputOutput/BrokerInputOutputValidatorTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Broker/Application/UseCase/AddBrokerInputOutput/BrokerInputOutputValidatorTest.php
+
+		-
+			message: '#^Access to private property PHPUnit\\Framework\\TestCase\:\:\$output\.$#'
+			identifier: property.private
+			count: 4
+			path: tests/php/Core/Broker/Application/UseCase/UpdateStreamConnectorFile/UpdateStreamConnectorFileTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/Broker/Application/UseCase/UpdateStreamConnectorFile/UpdateStreamConnectorFileTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 16
+			path: tests/php/Core/Broker/Application/UseCase/UpdateStreamConnectorFile/UpdateStreamConnectorFileTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Command/Application/UseCase/MigrateAllCommands/MigrateAllCommandsTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Command/Application/UseCase/MigrateAllCommands/MigrateAllCommandsTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Contact/Application/UseCase/FindContactGroups/FindContactGroupsTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Contact/Application/UseCase/FindContactGroups/FindContactGroupsTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 10
+			path: tests/php/Core/Contact/Application/UseCase/FindContactGroups/FindContactGroupsTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Contact/Application/UseCase/FindContactTemplates/FindContactTemplatesTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Contact/Application/UseCase/FindContactTemplates/FindContactTemplatesTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Contact/Application/UseCase/FindContactTemplates/FindContactTemplatesTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Contact/Infrastructure/Api/FindContactGroups/FindContactGroupsControllerTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 7
+			path: tests/php/Core/Contact/Infrastructure/Api/FindContactGroups/FindContactGroupsControllerTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Contact/Infrastructure/Api/FindContactGroups/FindContactGroupsControllerTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Contact/Infrastructure/Api/FindContactTemplates/FindContactTemplatesControllerTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 7
+			path: tests/php/Core/Contact/Infrastructure/Api/FindContactTemplates/FindContactTemplatesControllerTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Contact/Infrastructure/Api/FindContactTemplates/FindContactTemplatesControllerTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Dashboard/Application/UseCase/AddDashboard/AddDashboardTest.php
+
+		-
+			message: '#^Call to protected method atLeastOnce\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Dashboard/Application/UseCase/AddDashboard/AddDashboardTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 9
+			path: tests/php/Core/Dashboard/Application/UseCase/AddDashboard/AddDashboardTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 11
+			path: tests/php/Core/Dashboard/Application/UseCase/AddDashboard/AddDashboardTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 9
+			path: tests/php/Core/Dashboard/Application/UseCase/DeleteContactDashboardShare/DeleteContactDashboardShareTest.php
+
+		-
+			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Dashboard/Application/UseCase/DeleteContactDashboardShare/DeleteContactDashboardShareTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 27
+			path: tests/php/Core/Dashboard/Application/UseCase/DeleteContactDashboardShare/DeleteContactDashboardShareTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 8
+			path: tests/php/Core/Dashboard/Application/UseCase/DeleteContactGroupDashboardShare/DeleteContactGroupDashboardShareTest.php
+
+		-
+			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Dashboard/Application/UseCase/DeleteContactGroupDashboardShare/DeleteContactGroupDashboardShareTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 27
+			path: tests/php/Core/Dashboard/Application/UseCase/DeleteContactGroupDashboardShare/DeleteContactGroupDashboardShareTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 7
+			path: tests/php/Core/Dashboard/Application/UseCase/DeleteDashboard/DeleteDashboardTest.php
+
+		-
+			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Dashboard/Application/UseCase/DeleteDashboard/DeleteDashboardTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 18
+			path: tests/php/Core/Dashboard/Application/UseCase/DeleteDashboard/DeleteDashboardTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 8
+			path: tests/php/Core/Dashboard/Application/UseCase/FindDashboard/FindDashboardTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 15
+			path: tests/php/Core/Dashboard/Application/UseCase/FindDashboard/FindDashboardTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Dashboard/Application/UseCase/FindDashboardContactGroups/FindDashboardContactGroupsTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/Dashboard/Application/UseCase/FindDashboardContactGroups/FindDashboardContactGroupsTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 10
+			path: tests/php/Core/Dashboard/Application/UseCase/FindDashboardContactGroups/FindDashboardContactGroupsTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Dashboard/Application/UseCase/FindDashboardContacts/FindDashboardContactsTest.php
+
+		-
+			message: '#^Call to protected method atLeastOnce\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Dashboard/Application/UseCase/FindDashboardContacts/FindDashboardContactsTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 7
+			path: tests/php/Core/Dashboard/Application/UseCase/FindDashboardContacts/FindDashboardContactsTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 26
+			path: tests/php/Core/Dashboard/Application/UseCase/FindDashboardContacts/FindDashboardContactsTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 8
+			path: tests/php/Core/Dashboard/Application/UseCase/FindDashboards/FindDashboardsTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 10
+			path: tests/php/Core/Dashboard/Application/UseCase/FindDashboards/FindDashboardsTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:expect\(\)\.$#'
+			identifier: method.notFound
+			count: 31
+			path: tests/php/Core/Dashboard/Application/UseCase/FindMetricsTop/FindMetricsTopTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Dashboard/Application/UseCase/FindMetricsTop/FindMetricsTopTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 9
+			path: tests/php/Core/Dashboard/Application/UseCase/FindMetricsTop/FindMetricsTopTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Dashboard/Application/UseCase/FindPerformanceMetrics/FindPerformanceMetricsTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 7
+			path: tests/php/Core/Dashboard/Application/UseCase/FindPerformanceMetrics/FindPerformanceMetricsTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:expect\(\)\.$#'
+			identifier: method.notFound
+			count: 6
+			path: tests/php/Core/Dashboard/Application/UseCase/FindPerformanceMetricsData/FindPerformanceMetricsDataTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/Dashboard/Application/UseCase/FindPerformanceMetricsData/FindPerformanceMetricsDataTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 13
+			path: tests/php/Core/Dashboard/Application/UseCase/FindPerformanceMetricsData/FindPerformanceMetricsDataTest.php
+
+		-
+			message: '#^Call to protected method expectException\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Dashboard/Application/UseCase/FindSingleMetaMetric/FindSingleMetaMetricTest.php
+
+		-
+			message: '#^Call to protected method expectException\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Dashboard/Application/UseCase/FindSingleMetric/FindSingleMetricTest.php
+
+		-
+			message: '#^Call to protected method expectExceptionObject\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Dashboard/Application/UseCase/PartialUpdateDashboard/PartialUpdateDashboardPanelsDifferenceTest.php
+
+		-
+			message: '#^Call to protected method atLeastOnce\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/Dashboard/Application/UseCase/PartialUpdateDashboard/PartialUpdateDashboardTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 10
+			path: tests/php/Core/Dashboard/Application/UseCase/PartialUpdateDashboard/PartialUpdateDashboardTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 28
+			path: tests/php/Core/Dashboard/Application/UseCase/PartialUpdateDashboard/PartialUpdateDashboardTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Dashboard/Application/UseCase/ShareDashboard/ShareDashboardTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 8
+			path: tests/php/Core/Dashboard/Application/UseCase/ShareDashboard/ShareDashboardTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 25
+			path: tests/php/Core/Dashboard/Application/UseCase/ShareDashboard/ShareDashboardTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/Dashboard/Application/UseCase/ShareDashboard/ShareDashboardValidatorTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 16
+			path: tests/php/Core/Dashboard/Application/UseCase/ShareDashboard/ShareDashboardValidatorTest.php
+
+		-
+			message: '#^Call to protected method atLeast\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Dashboard/Domain/Model/DashboardRightsTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Dashboard/Domain/Model/DashboardRightsTest.php
+
+		-
+			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Dashboard/Domain/Model/DashboardRightsTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/GraphTemplate/Application/UseCase/FindGraphTemplates/FindGraphTemplatesTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/GraphTemplate/Application/UseCase/FindGraphTemplates/FindGraphTemplatesTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/GraphTemplate/Application/UseCase/FindGraphTemplates/FindGraphTemplatesTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Host/Application/InheritanceManagerTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Host/Application/InheritanceManagerTest.php
+
+		-
+			message: '#^Access to private property PHPUnit\\Framework\\TestCase\:\:\$groups\.$#'
+			identifier: property.private
+			count: 5
+			path: tests/php/Core/Host/Application/UseCase/AddHost/AddHostTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/Host/Application/UseCase/AddHost/AddHostTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 25
+			path: tests/php/Core/Host/Application/UseCase/AddHost/AddHostTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 15
+			path: tests/php/Core/Host/Application/UseCase/AddHost/AddHostTest.php
+
+		-
+			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/Host/Application/UseCase/AddHost/AddHostTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 128
+			path: tests/php/Core/Host/Application/UseCase/AddHost/AddHostTest.php
+
+		-
 			message: '#^Cannot call method getId\(\) on string\.$#'
 			identifier: method.nonObject
 			count: 2
@@ -475,6 +931,102 @@ parameters:
 			path: tests/php/Core/Host/Application/UseCase/AddHost/AddHostTest.php
 
 		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 12
+			path: tests/php/Core/Host/Application/UseCase/AddHost/AddHostValidationTest.php
+
+		-
+			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Host/Application/UseCase/AddHost/AddHostValidationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 21
+			path: tests/php/Core/Host/Application/UseCase/AddHost/AddHostValidationTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 15
+			path: tests/php/Core/Host/Application/UseCase/DeleteHost/DeleteHostTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 20
+			path: tests/php/Core/Host/Application/UseCase/DeleteHost/DeleteHostTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 9
+			path: tests/php/Core/Host/Application/UseCase/FindHosts/FindHostsTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Host/Application/UseCase/FindHosts/FindHostsTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 16
+			path: tests/php/Core/Host/Application/UseCase/FindHosts/FindHostsTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Host/Application/UseCase/FindRealTimeHostStatusesCount/FindRealTimeHostStatusesCountTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/Host/Application/UseCase/FindRealTimeHostStatusesCount/FindRealTimeHostStatusesCountTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Host/Application/UseCase/FindRealTimeHostStatusesCount/FindRealTimeHostStatusesCountTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Host/Application/UseCase/FindRealTimeHostStatusesCount/FindRealTimeHostStatusesCountTest.php
+
+		-
+			message: '#^Access to private property PHPUnit\\Framework\\TestCase\:\:\$groups\.$#'
+			identifier: property.private
+			count: 5
+			path: tests/php/Core/Host/Application/UseCase/GetHost/GetHostTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 9
+			path: tests/php/Core/Host/Application/UseCase/GetHost/GetHostTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Host/Application/UseCase/GetHost/GetHostTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 20
+			path: tests/php/Core/Host/Application/UseCase/GetHost/GetHostTest.php
+
+		-
 			message: '#^Cannot call method getId\(\) on string\.$#'
 			identifier: method.nonObject
 			count: 2
@@ -485,6 +1037,54 @@ parameters:
 			identifier: method.nonObject
 			count: 2
 			path: tests/php/Core/Host/Application/UseCase/GetHost/GetHostTest.php
+
+		-
+			message: '#^Access to private property PHPUnit\\Framework\\TestCase\:\:\$groups\.$#'
+			identifier: property.private
+			count: 1
+			path: tests/php/Core/Host/Application/UseCase/PartialUpdateHost/PartialUpdateHostTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 25
+			path: tests/php/Core/Host/Application/UseCase/PartialUpdateHost/PartialUpdateHostTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 39
+			path: tests/php/Core/Host/Application/UseCase/PartialUpdateHost/PartialUpdateHostTest.php
+
+		-
+			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 7
+			path: tests/php/Core/Host/Application/UseCase/PartialUpdateHost/PartialUpdateHostTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 173
+			path: tests/php/Core/Host/Application/UseCase/PartialUpdateHost/PartialUpdateHostTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 9
+			path: tests/php/Core/Host/Application/UseCase/PartialUpdateHost/PartialUpdateHostValidationTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Host/Application/UseCase/PartialUpdateHost/PartialUpdateHostValidationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 10
+			path: tests/php/Core/Host/Application/UseCase/PartialUpdateHost/PartialUpdateHostValidationTest.php
 
 		-
 			message: '#^Missing parameter \$alias \(Core\\Common\\Domain\\TrimmedString\|null\) in call to Core\\Host\\Domain\\Model\\SmallHost constructor\.$#'
@@ -551,3 +1151,2037 @@ parameters:
 			identifier: argument.missing
 			count: 5
 			path: tests/php/Core/Host/Domain/Model/SmallHostTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/HostCategory/Application/UseCase/AddHostCategory/AddHostCategoryTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 16
+			path: tests/php/Core/HostCategory/Application/UseCase/AddHostCategory/AddHostCategoryTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/HostCategory/Application/UseCase/DeleteHostCategory/DeleteHostCategoryTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 17
+			path: tests/php/Core/HostCategory/Application/UseCase/DeleteHostCategory/DeleteHostCategoryTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 7
+			path: tests/php/Core/HostCategory/Application/UseCase/FindHostCategories/FindHostCategoriesTest.php
+
+		-
+			message: '#^Call to protected method atMost\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/HostCategory/Application/UseCase/FindHostCategories/FindHostCategoriesTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/HostCategory/Application/UseCase/FindHostCategories/FindHostCategoriesTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/HostCategory/Application/UseCase/FindHostCategories/FindHostCategoriesTest.php
+
+		-
+			message: '#^Call to protected method atMost\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/HostCategory/Application/UseCase/FindHostCategory/FindHostCategoryTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/HostCategory/Application/UseCase/FindHostCategory/FindHostCategoryTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 17
+			path: tests/php/Core/HostCategory/Application/UseCase/FindHostCategory/FindHostCategoryTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/HostCategory/Application/UseCase/FindRealTimeHostCategories/FindRealTimeHostCategoriesTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 10
+			path: tests/php/Core/HostCategory/Application/UseCase/FindRealTimeHostCategories/FindRealTimeHostCategoriesTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/HostCategory/Application/UseCase/UpdateHostCategory/UpdateHostCategoryTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 30
+			path: tests/php/Core/HostCategory/Application/UseCase/UpdateHostCategory/UpdateHostCategoryTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 11
+			path: tests/php/Core/HostGroup/Application/UseCase/AddHostGroup/AddHostGroupTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/HostGroup/Application/UseCase/AddHostGroup/AddHostGroupTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 10
+			path: tests/php/Core/HostGroup/Application/UseCase/AddHostGroup/AddHostGroupTest.php
+
+		-
+			message: '#^Call to protected method atMost\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/HostGroup/Application/UseCase/DeleteHostGroup/DeleteHostGroupTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/HostGroup/Application/UseCase/DeleteHostGroup/DeleteHostGroupTest.php
+
+		-
+			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/HostGroup/Application/UseCase/DeleteHostGroup/DeleteHostGroupTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 8
+			path: tests/php/Core/HostGroup/Application/UseCase/DeleteHostGroup/DeleteHostGroupTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/HostGroup/Application/UseCase/DeleteHostGroups/DeleteHostGroupsTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 12
+			path: tests/php/Core/HostGroup/Application/UseCase/DeleteHostGroups/DeleteHostGroupsTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/HostGroup/Application/UseCase/DeleteHostGroups/DeleteHostGroupsTest.php
+
+		-
+			message: '#^Call to protected method onConsecutiveCalls\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/HostGroup/Application/UseCase/DeleteHostGroups/DeleteHostGroupsTest.php
+
+		-
+			message: '#^Call to protected method throwException\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/HostGroup/Application/UseCase/DeleteHostGroups/DeleteHostGroupsTest.php
+
+		-
+			message: '#^Call to protected method atLeastOnce\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/HostGroup/Application/UseCase/DuplicateHostGroups/DuplicateHostGroupsTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 10
+			path: tests/php/Core/HostGroup/Application/UseCase/DuplicateHostGroups/DuplicateHostGroupsTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 31
+			path: tests/php/Core/HostGroup/Application/UseCase/DuplicateHostGroups/DuplicateHostGroupsTest.php
+
+		-
+			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/HostGroup/Application/UseCase/DuplicateHostGroups/DuplicateHostGroupsTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/HostGroup/Application/UseCase/DuplicateHostGroups/DuplicateHostGroupsTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/HostGroup/Application/UseCase/EnableDisableHostGroups/EnableDisableHostGroupsTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 8
+			path: tests/php/Core/HostGroup/Application/UseCase/EnableDisableHostGroups/EnableDisableHostGroupsTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/HostGroup/Application/UseCase/EnableDisableHostGroups/EnableDisableHostGroupsTest.php
+
+		-
+			message: '#^Call to protected method onConsecutiveCalls\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/HostGroup/Application/UseCase/EnableDisableHostGroups/EnableDisableHostGroupsTest.php
+
+		-
+			message: '#^Call to protected method throwException\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/HostGroup/Application/UseCase/EnableDisableHostGroups/EnableDisableHostGroupsTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/HostGroup/Application/UseCase/FindHostGroups/FindHostGroupsTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/HostGroup/Application/UseCase/FindHostGroups/FindHostGroupsTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 9
+			path: tests/php/Core/HostGroup/Application/UseCase/FindHostGroups/FindHostGroupsTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 8
+			path: tests/php/Core/HostGroup/Application/UseCase/GetHostGroup/GetHostGroupTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 18
+			path: tests/php/Core/HostGroup/Application/UseCase/GetHostGroup/GetHostGroupTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/HostGroup/Application/UseCase/UpdateHostGroup/UpdateHostGroupTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 13
+			path: tests/php/Core/HostGroup/Application/UseCase/UpdateHostGroup/UpdateHostGroupTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/HostGroup/Application/UseCase/UpdateHostGroup/UpdateHostGroupTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 22
+			path: tests/php/Core/HostGroup/Application/UseCase/UpdateHostGroup/UpdateHostGroupTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/HostSeverity/Application/UseCase/AddHostSeverity/AddHostSeverityTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 21
+			path: tests/php/Core/HostSeverity/Application/UseCase/AddHostSeverity/AddHostSeverityTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/HostSeverity/Application/UseCase/DeleteHostSeverity/DeleteHostSeverityTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 17
+			path: tests/php/Core/HostSeverity/Application/UseCase/DeleteHostSeverity/DeleteHostSeverityTest.php
+
+		-
+			message: '#^Call to protected method atMost\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/HostSeverity/Application/UseCase/FindHostSeverities/FindHostSeveritiesTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/HostSeverity/Application/UseCase/FindHostSeverities/FindHostSeveritiesTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 9
+			path: tests/php/Core/HostSeverity/Application/UseCase/FindHostSeverities/FindHostSeveritiesTest.php
+
+		-
+			message: '#^Call to protected method atMost\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/HostSeverity/Application/UseCase/FindHostSeverity/FindHostSeverityTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/HostSeverity/Application/UseCase/FindHostSeverity/FindHostSeverityTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 17
+			path: tests/php/Core/HostSeverity/Application/UseCase/FindHostSeverity/FindHostSeverityTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/HostSeverity/Application/UseCase/UpdateHostSeverity/UpdateHostSeverityTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 32
+			path: tests/php/Core/HostSeverity/Application/UseCase/UpdateHostSeverity/UpdateHostSeverityTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 18
+			path: tests/php/Core/HostTemplate/Application/AddHostTemplate/AddHostTemplateTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 9
+			path: tests/php/Core/HostTemplate/Application/AddHostTemplate/AddHostTemplateTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 67
+			path: tests/php/Core/HostTemplate/Application/AddHostTemplate/AddHostTemplateTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 9
+			path: tests/php/Core/HostTemplate/Application/AddHostTemplate/AddHostTemplateValidationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 13
+			path: tests/php/Core/HostTemplate/Application/AddHostTemplate/AddHostTemplateValidationTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 8
+			path: tests/php/Core/HostTemplate/Application/DeleteHostTemplate/DeleteHostTemplateTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 9
+			path: tests/php/Core/HostTemplate/Application/DeleteHostTemplate/DeleteHostTemplateTest.php
+
+		-
+			message: '#^Call to protected method atMost\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/HostTemplate/Application/FindHostTemplates/FindHostTemplatesTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/HostTemplate/Application/FindHostTemplates/FindHostTemplatesTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/HostTemplate/Application/FindHostTemplates/FindHostTemplatesTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 7
+			path: tests/php/Core/HostTemplate/Application/GetHostTemplate/GetHostTemplateTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/HostTemplate/Application/GetHostTemplate/GetHostTemplateTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 15
+			path: tests/php/Core/HostTemplate/Application/GetHostTemplate/GetHostTemplateTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 24
+			path: tests/php/Core/HostTemplate/Application/PartialUpdateHostTemplate/PartialUpdateHostTemplateTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 13
+			path: tests/php/Core/HostTemplate/Application/PartialUpdateHostTemplate/PartialUpdateHostTemplateTest.php
+
+		-
+			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/HostTemplate/Application/PartialUpdateHostTemplate/PartialUpdateHostTemplateTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 118
+			path: tests/php/Core/HostTemplate/Application/PartialUpdateHostTemplate/PartialUpdateHostTemplateTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 9
+			path: tests/php/Core/HostTemplate/Application/PartialUpdateHostTemplate/PartialUpdateHostTemplateValidationTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/HostTemplate/Application/PartialUpdateHostTemplate/PartialUpdateHostTemplateValidationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 13
+			path: tests/php/Core/HostTemplate/Application/PartialUpdateHostTemplate/PartialUpdateHostTemplateValidationTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:getBaseUri\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/php/Core/Infrastructure/Common/Api/HttpUrlTraitTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:getBaseUrl\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/php/Core/Infrastructure/Common/Api/HttpUrlTraitTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:getHost\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/php/Core/Infrastructure/Common/Api/HttpUrlTraitTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 9
+			path: tests/php/Core/Infrastructure/Common/Api/RouterTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/Media/Application/UseCase/AddMedia/AddMediaTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Media/Application/UseCase/AddMedia/AddMediaTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 7
+			path: tests/php/Core/Media/Application/UseCase/DeleteMedia/DeleteMediaTest.php
+
+		-
+			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Media/Application/UseCase/DeleteMedia/DeleteMediaTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 23
+			path: tests/php/Core/Media/Application/UseCase/DeleteMedia/DeleteMediaTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/Media/Application/UseCase/GetMedia/GetMediaTest.php
+
+		-
+			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Media/Application/UseCase/GetMedia/GetMediaTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 19
+			path: tests/php/Core/Media/Application/UseCase/GetMedia/GetMediaTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Media/Application/UseCase/MigrateAllMedias/MigrateAllMediasTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Media/Application/UseCase/MigrateAllMedias/MigrateAllMediasTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Media/Application/UseCase/UpdateMedia/UpdateMediaTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/Media/Application/UseCase/UpdateMedia/UpdateMediaTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Metric/Application/UseCase/DownloadPerformanceMetrics/DownloadPerformanceMetricsTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 35
+			path: tests/php/Core/Metric/Application/UseCase/DownloadPerformanceMetrics/DownloadPerformanceMetricsTest.php
+
+		-
+			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Metric/Application/UseCase/DownloadPerformanceMetrics/DownloadPerformanceMetricsTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 14
+			path: tests/php/Core/Metric/Application/UseCase/DownloadPerformanceMetrics/DownloadPerformanceMetricsTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Metric/Application/UseCase/FindMetricsByService/FindMetricsByServiceTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/Metric/Application/UseCase/FindMetricsByService/FindMetricsByServiceTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 12
+			path: tests/php/Core/Notification/Application/UseCase/AddNotification/AddNotificationTest.php
+
+		-
+			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 14
+			path: tests/php/Core/Notification/Application/UseCase/AddNotification/AddNotificationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 32
+			path: tests/php/Core/Notification/Application/UseCase/AddNotification/AddNotificationTest.php
+
+		-
+			message: '#^Method PHPUnit\\Framework\\TestCase\:\:once\(\) invoked with 1 parameter, 0 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: tests/php/Core/Notification/Application/UseCase/AddNotification/AddNotificationTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Notification/Application/UseCase/AddNotification/Factory/NewNotificationFactoryTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Notification/Application/UseCase/AddNotification/Factory/NewNotificationFactoryTest.php
+
+		-
+			message: '#^Call to protected method atMost\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Notification/Application/UseCase/AddNotification/Factory/NotificationResourceFactoryTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/Notification/Application/UseCase/AddNotification/Factory/NotificationResourceFactoryTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Notification/Application/UseCase/AddNotification/Factory/NotificationResourceFactoryTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/Notification/Application/UseCase/AddNotification/Validator/NotificationValidatorTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Notification/Application/UseCase/AddNotification/Validator/NotificationValidatorTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Notification/Application/UseCase/DeleteNotification/DeleteNotificationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Notification/Application/UseCase/DeleteNotification/DeleteNotificationTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Notification/Application/UseCase/DeleteNotifications/DeleteNotificationsTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Notification/Application/UseCase/DeleteNotifications/DeleteNotificationsTest.php
+
+		-
+			message: '#^Call to protected method onConsecutiveCalls\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Notification/Application/UseCase/DeleteNotifications/DeleteNotificationsTest.php
+
+		-
+			message: '#^Call to protected method throwException\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Notification/Application/UseCase/DeleteNotifications/DeleteNotificationsTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Notification/Application/UseCase/FindNotifiableResources/FindNotifiableResourcesTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 7
+			path: tests/php/Core/Notification/Application/UseCase/FindNotifiableResources/FindNotifiableResourcesTest.php
+
+		-
+			message: '#^Call to protected method atLeastOnce\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 8
+			path: tests/php/Core/Notification/Application/UseCase/FindNotifiableRule/FindNotifiableRuleTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Notification/Application/UseCase/FindNotifiableRule/FindNotifiableRuleTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 10
+			path: tests/php/Core/Notification/Application/UseCase/FindNotifiableRule/FindNotifiableRuleTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Notification/Application/UseCase/FindNotification/FindNotificationTest.php
+
+		-
+			message: '#^Call to protected method atLeastOnce\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Notification/Application/UseCase/FindNotification/FindNotificationTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/Notification/Application/UseCase/FindNotification/FindNotificationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 14
+			path: tests/php/Core/Notification/Application/UseCase/FindNotification/FindNotificationTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 10
+			path: tests/php/Core/Notification/Application/UseCase/FindNotifications/FindNotificationsTest.php
+
+		-
+			message: '#^Call to protected method atLeastOnce\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Notification/Application/UseCase/FindNotifications/FindNotificationsTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 8
+			path: tests/php/Core/Notification/Application/UseCase/FindNotifications/FindNotificationsTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 8
+			path: tests/php/Core/Notification/Application/UseCase/FindNotifications/FindNotificationsTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Notification/Application/UseCase/PartialUpdateNotification/PartialUpdateNotificationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Notification/Application/UseCase/PartialUpdateNotification/PartialUpdateNotificationTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Notification/Application/UseCase/UpdateNotification/Factory/NotificationFactoryTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Notification/Application/UseCase/UpdateNotification/Factory/NotificationFactoryTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 11
+			path: tests/php/Core/Notification/Application/UseCase/UpdateNotification/UpdateNotificationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/Notification/Application/UseCase/UpdateNotification/UpdateNotificationTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Platform/Application/UseCase/FindFeatures/FindFeaturesTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Platform/Application/UseCase/FindFeatures/FindFeaturesTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Platform/Infrastructure/Repository/FsReadUpdateRepositoryTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/Platform/Infrastructure/Repository/FsReadUpdateRepositoryTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/ResourceAccess/Application/UseCase/AddRule/AddRuleTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 7
+			path: tests/php/Core/ResourceAccess/Application/UseCase/AddRule/AddRuleTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 28
+			path: tests/php/Core/ResourceAccess/Application/UseCase/AddRule/AddRuleTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/ResourceAccess/Application/UseCase/DeleteRule/DeleteRuleTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 14
+			path: tests/php/Core/ResourceAccess/Application/UseCase/DeleteRule/DeleteRuleTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/ResourceAccess/Application/UseCase/DeleteRules/DeleteRulesTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/ResourceAccess/Application/UseCase/DeleteRules/DeleteRulesTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/ResourceAccess/Application/UseCase/DeleteRules/DeleteRulesTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/ResourceAccess/Application/UseCase/FindRule/FindRuleTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 12
+			path: tests/php/Core/ResourceAccess/Application/UseCase/FindRule/FindRuleTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 9
+			path: tests/php/Core/ResourceAccess/Application/UseCase/FindRule/FindRuleTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/ResourceAccess/Application/UseCase/FindRules/FindRulesTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 8
+			path: tests/php/Core/ResourceAccess/Application/UseCase/FindRules/FindRulesTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/ResourceAccess/Application/UseCase/PartialRuleUpdate/PartialRuleUpdateTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 13
+			path: tests/php/Core/ResourceAccess/Application/UseCase/PartialRuleUpdate/PartialRuleUpdateTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 8
+			path: tests/php/Core/ResourceAccess/Application/UseCase/UpdateRule/UpdateRuleTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 29
+			path: tests/php/Core/ResourceAccess/Application/UseCase/UpdateRule/UpdateRuleTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/ResourceAccess/Domain/Model/Dataset/DatasetFilterValidatorTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Resources/Infrastructure/API/FindResources/FindResourcesRequestValidatorTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Security/AccessGroup/Application/UseCase/FindLocalUserAccessGroups/FindLocalUserAccessGroupsTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 8
+			path: tests/php/Core/Security/AccessGroup/Application/UseCase/FindLocalUserAccessGroups/FindLocalUserAccessGroupsTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Security/AccessGroup/Infrastructure/Api/FindLocalUserAccessGroups/FindLocalUserAccessGroupsControllerTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 7
+			path: tests/php/Core/Security/AccessGroup/Infrastructure/Api/FindLocalUserAccessGroups/FindLocalUserAccessGroupsControllerTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Security/AccessGroup/Infrastructure/Api/FindLocalUserAccessGroups/FindLocalUserAccessGroupsControllerTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Security/Authentication/Application/UseCase/Login/LoginTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 15
+			path: tests/php/Core/Security/Authentication/Application/UseCase/Login/LoginTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 28
+			path: tests/php/Core/Security/Authentication/Application/UseCase/Login/LoginTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Security/Authentication/Application/UseCase/LoginOpenIdSession/LoginOpenIdSessionTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 23
+			path: tests/php/Core/Security/Authentication/Application/UseCase/LoginOpenIdSession/LoginOpenIdSessionTest.php
+
+		-
+			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Security/Authentication/Application/UseCase/LoginOpenIdSession/LoginOpenIdSessionTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 14
+			path: tests/php/Core/Security/Authentication/Application/UseCase/LoginOpenIdSession/LoginOpenIdSessionTest.php
+
+		-
+			message: '#^Call to protected method throwException\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Security/Authentication/Application/UseCase/LoginOpenIdSession/LoginOpenIdSessionTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/Security/ProviderConfiguration/Application/OpenId/UseCase/FindOpenIdConfiguration/FindOpenIdConfigurationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Security/ProviderConfiguration/Application/OpenId/UseCase/FindOpenIdConfiguration/FindOpenIdConfigurationTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 12
+			path: tests/php/Core/Security/ProviderConfiguration/Application/OpenId/UseCase/PartialUpdateOpenIdConfiguration/PartialUpdateOpenIdConfigurationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 23
+			path: tests/php/Core/Security/ProviderConfiguration/Application/OpenId/UseCase/PartialUpdateOpenIdConfiguration/PartialUpdateOpenIdConfigurationTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 13
+			path: tests/php/Core/Security/ProviderConfiguration/Application/OpenId/UseCase/UpdateOpenIdConfiguration/UpdateOpenIdConfigurationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 13
+			path: tests/php/Core/Security/ProviderConfiguration/Application/OpenId/UseCase/UpdateOpenIdConfiguration/UpdateOpenIdConfigurationTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Security/ProviderConfiguration/Application/SAML/UseCase/FindSAMLConfiguration/FindSAMLConfigurationTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Security/ProviderConfiguration/Application/SAML/UseCase/FindSAMLConfiguration/FindSAMLConfigurationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Security/ProviderConfiguration/Application/SAML/UseCase/FindSAMLConfiguration/FindSAMLConfigurationTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/Security/ProviderConfiguration/Application/SAML/UseCase/UpdateSAMLConfiguration/UpdateSAMLConfigurationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Security/ProviderConfiguration/Application/SAML/UseCase/UpdateSAMLConfiguration/UpdateSAMLConfigurationTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 8
+			path: tests/php/Core/Security/ProviderConfiguration/Application/UseCase/FindProviderConfigurations/FindProviderConfigurationsTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 9
+			path: tests/php/Core/Security/ProviderConfiguration/Application/UseCase/FindProviderConfigurations/FindProviderConfigurationsTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Security/ProviderConfiguration/Application/WebSSO/UpdateWebSSOConfiguration/UseCase/UpdateWebSSOConfigurationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Security/ProviderConfiguration/Application/WebSSO/UpdateWebSSOConfiguration/UseCase/UpdateWebSSOConfigurationTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Security/ProviderConfiguration/Application/WebSSO/UseCase/FindWebSSOConfiguration/FindWebSSOConfigurationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Security/ProviderConfiguration/Application/WebSSO/UseCase/FindWebSSOConfiguration/FindWebSSOConfigurationTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Security/ProviderConfiguration/Infrastructure/OpenId/Api/FindOpenIdConfiguration/FindOpenIdConfigurationControllerTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/Security/ProviderConfiguration/Infrastructure/OpenId/Api/FindOpenIdConfiguration/FindOpenIdConfigurationControllerTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Security/ProviderConfiguration/Infrastructure/OpenId/Api/FindOpenIdConfiguration/FindOpenIdConfigurationControllerTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Security/ProviderConfiguration/Infrastructure/OpenId/Api/UpdateOpenIdConfiguration/UpdateOpenIdConfigurationControllerTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 7
+			path: tests/php/Core/Security/ProviderConfiguration/Infrastructure/OpenId/Api/UpdateOpenIdConfiguration/UpdateOpenIdConfigurationControllerTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Security/ProviderConfiguration/Infrastructure/OpenId/Api/UpdateOpenIdConfiguration/UpdateOpenIdConfigurationControllerTest.php
+
+		-
+			message: '#^Call to protected method expectException\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Security/ProviderConfiguration/Infrastructure/OpenId/Api/UpdateOpenIdConfiguration/UpdateOpenIdConfigurationControllerTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Security/ProviderConfiguration/Infrastructure/OpenId/Api/UpdateOpenIdConfiguration/UpdateOpenIdConfigurationControllerTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Security/ProviderConfiguration/Infrastructure/WebSSO/Api/FindWebSSOConfiguration/FindWebSSOConfigurationControllerTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 7
+			path: tests/php/Core/Security/ProviderConfiguration/Infrastructure/WebSSO/Api/FindWebSSOConfiguration/FindWebSSOConfigurationControllerTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Security/ProviderConfiguration/Infrastructure/WebSSO/Api/FindWebSSOConfiguration/FindWebSSOConfigurationControllerTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/Security/ProviderConfiguration/Infrastructure/WebSSO/Api/UpdateWebSSOConfiguration/UpdateWebSSOConfigurationControllerTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 7
+			path: tests/php/Core/Security/ProviderConfiguration/Infrastructure/WebSSO/Api/UpdateWebSSOConfiguration/UpdateWebSSOConfigurationControllerTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Security/ProviderConfiguration/Infrastructure/WebSSO/Api/UpdateWebSSOConfiguration/UpdateWebSSOConfigurationControllerTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 7
+			path: tests/php/Core/Security/Token/Application/UseCase/AddToken/AddTokenTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/Security/Token/Application/UseCase/AddToken/AddTokenTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 26
+			path: tests/php/Core/Security/Token/Application/UseCase/AddToken/AddTokenTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Security/Token/Application/UseCase/AddToken/AddTokenValidationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/Security/Token/Application/UseCase/AddToken/AddTokenValidationTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Security/Token/Application/UseCase/DeleteToken/DeleteTokenTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 11
+			path: tests/php/Core/Security/Token/Application/UseCase/DeleteToken/DeleteTokenTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Security/Token/Application/UseCase/FindTokens/FindTokensTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Security/Token/Application/UseCase/FindTokens/FindTokensTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Security/Token/Application/UseCase/GetToken/GetTokenTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Security/Token/Application/UseCase/GetToken/GetTokenTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Security/Token/Application/UseCase/PartialUpdateToken/PartialUpdateTokenTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 11
+			path: tests/php/Core/Security/Token/Application/UseCase/PartialUpdateToken/PartialUpdateTokenTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Security/Vault/Application/UseCase/DeleteVaultConfiguration/DeleteVaultConfigurationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 7
+			path: tests/php/Core/Security/Vault/Application/UseCase/DeleteVaultConfiguration/DeleteVaultConfigurationTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Security/Vault/Application/UseCase/FindVaultConfiguration/FindVaultConfigurationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 8
+			path: tests/php/Core/Security/Vault/Application/UseCase/FindVaultConfiguration/FindVaultConfigurationTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 13
+			path: tests/php/Core/Security/Vault/Application/UseCase/MigrateAllCredentials/CredentialMigratorTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 22
+			path: tests/php/Core/Security/Vault/Application/UseCase/MigrateAllCredentials/MigrateAllCredentialsTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Security/Vault/Application/UseCase/MigrateAllCredentials/MigrateAllCredentialsTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Security/Vault/Application/UseCase/UpdateVaultConfiguration/UpdateVaultConfigurationTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/Security/Vault/Application/UseCase/UpdateVaultConfiguration/UpdateVaultConfigurationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 7
+			path: tests/php/Core/Security/Vault/Application/UseCase/UpdateVaultConfiguration/UpdateVaultConfigurationTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 25
+			path: tests/php/Core/Service/Application/UseCase/AddService/AddServiceTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/Service/Application/UseCase/AddService/AddServiceTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 80
+			path: tests/php/Core/Service/Application/UseCase/AddService/AddServiceTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 12
+			path: tests/php/Core/Service/Application/UseCase/AddService/AddServiceValidationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 20
+			path: tests/php/Core/Service/Application/UseCase/AddService/AddServiceValidationTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 10
+			path: tests/php/Core/Service/Application/UseCase/DeleteService/DeleteServiceTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 13
+			path: tests/php/Core/Service/Application/UseCase/DeleteService/DeleteServiceTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Service/Application/UseCase/DeleteServices/DeleteServicesTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/Service/Application/UseCase/DeleteServices/DeleteServicesTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Service/Application/UseCase/DeleteServices/DeleteServicesTest.php
+
+		-
+			message: '#^Call to protected method onConsecutiveCalls\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Service/Application/UseCase/DeleteServices/DeleteServicesTest.php
+
+		-
+			message: '#^Call to protected method throwException\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Service/Application/UseCase/DeleteServices/DeleteServicesTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 23
+			path: tests/php/Core/Service/Application/UseCase/DeploySevices/DeployServicesTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 9
+			path: tests/php/Core/Service/Application/UseCase/DeploySevices/DeployServicesTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 13
+			path: tests/php/Core/Service/Application/UseCase/DeploySevices/DeployServicesTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Service/Application/UseCase/FindRealTimeServiceStatusesCount/FindRealTimeServiceStatusesCountTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/Service/Application/UseCase/FindRealTimeServiceStatusesCount/FindRealTimeServiceStatusesCountTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/Service/Application/UseCase/FindRealTimeServiceStatusesCount/FindRealTimeServiceStatusesCountTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/Service/Application/UseCase/FindRealTimeServiceStatusesCount/FindRealTimeServiceStatusesCountTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/Service/Application/UseCase/FindRealTimeUniqueServiceNames/FindRealTimeUniqueServiceNamesTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Service/Application/UseCase/FindRealTimeUniqueServiceNames/FindRealTimeUniqueServiceNamesTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Service/Application/UseCase/FindRealTimeUniqueServiceNames/FindRealTimeUniqueServiceNamesTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 8
+			path: tests/php/Core/Service/Application/UseCase/FindServices/FindServicesTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Service/Application/UseCase/FindServices/FindServicesTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 15
+			path: tests/php/Core/Service/Application/UseCase/FindServices/FindServicesTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 8
+			path: tests/php/Core/Service/Application/UseCase/GetService/GetServiceTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/Service/Application/UseCase/GetService/GetServiceTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 19
+			path: tests/php/Core/Service/Application/UseCase/GetService/GetServiceTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 24
+			path: tests/php/Core/Service/Application/UseCase/PartialUpdateService/PartialUpdateServiceTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 10
+			path: tests/php/Core/Service/Application/UseCase/PartialUpdateService/PartialUpdateServiceTest.php
+
+		-
+			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Service/Application/UseCase/PartialUpdateService/PartialUpdateServiceTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 99
+			path: tests/php/Core/Service/Application/UseCase/PartialUpdateService/PartialUpdateServiceTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 12
+			path: tests/php/Core/Service/Application/UseCase/PartialUpdateService/PartialUpdateServiceValidationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 21
+			path: tests/php/Core/Service/Application/UseCase/PartialUpdateService/PartialUpdateServiceValidationTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/ServiceCategory/Application/UseCase/DeleteServiceCategory/DeleteServiceCategoryTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 17
+			path: tests/php/Core/ServiceCategory/Application/UseCase/DeleteServiceCategory/DeleteServiceCategoryTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/ServiceCategory/Application/UseCase/FindRealTimeServiceCategories/FindRealTimeServiceCategoriesTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 10
+			path: tests/php/Core/ServiceCategory/Application/UseCase/FindRealTimeServiceCategories/FindRealTimeServiceCategoriesTest.php
+
+		-
+			message: '#^Call to protected method atMost\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/ServiceCategory/Application/UseCase/FindServiceCategories/FindServiceCategoriesTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/ServiceCategory/Application/UseCase/FindServiceCategories/FindServiceCategoriesTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 9
+			path: tests/php/Core/ServiceCategory/Application/UseCase/FindServiceCategories/FindServiceCategoriesTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/ServiceCategory/Application/UseCase/GetServiceCategory/GetServiceCategoryTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/ServiceCategory/Application/UseCase/GetServiceCategory/GetServiceCategoryTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 11
+			path: tests/php/Core/ServiceCategory/Application/UseCase/GetServiceCategory/GetServiceCategoryTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/ServiceCategory/Application/UseCase/UpdateServiceCategory/UpdateServiceCategoryTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 20
+			path: tests/php/Core/ServiceCategory/Application/UseCase/UpdateServiceCategory/UpdateServiceCategoryTest.php
+
+		-
+			message: '#^Call to protected method atMost\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/ServiceGroup/Application/AddServiceGroup/AddServiceGroupTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 7
+			path: tests/php/Core/ServiceGroup/Application/AddServiceGroup/AddServiceGroupTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 26
+			path: tests/php/Core/ServiceGroup/Application/AddServiceGroup/AddServiceGroupTest.php
+
+		-
+			message: '#^Call to protected method atMost\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/ServiceGroup/Application/DeleteServiceGroup/DeleteServiceGroupTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/ServiceGroup/Application/DeleteServiceGroup/DeleteServiceGroupTest.php
+
+		-
+			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/ServiceGroup/Application/DeleteServiceGroup/DeleteServiceGroupTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 8
+			path: tests/php/Core/ServiceGroup/Application/DeleteServiceGroup/DeleteServiceGroupTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/ServiceGroup/Application/FindServiceGroups/FindServiceGroupsTest.php
+
+		-
+			message: '#^Call to protected method atMost\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/ServiceGroup/Application/FindServiceGroups/FindServiceGroupsTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/ServiceGroup/Application/FindServiceGroups/FindServiceGroupsTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 11
+			path: tests/php/Core/ServiceGroup/Application/FindServiceGroups/FindServiceGroupsTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/ServiceGroup/Application/GetServiceGroup/GetServiceGroupTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/ServiceGroup/Application/GetServiceGroup/GetServiceGroupTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 10
+			path: tests/php/Core/ServiceGroup/Application/GetServiceGroup/GetServiceGroupTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/ServiceGroup/Application/UpdateServiceGroup/UpdateServiceGroupTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 18
+			path: tests/php/Core/ServiceGroup/Application/UpdateServiceGroup/UpdateServiceGroupTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/ServiceSeverity/Application/UseCase/AddServiceSeverity/AddServiceSeverityTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 21
+			path: tests/php/Core/ServiceSeverity/Application/UseCase/AddServiceSeverity/AddServiceSeverityTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/ServiceSeverity/Application/UseCase/DeleteServiceSeverity/DeleteServiceSeverityTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 17
+			path: tests/php/Core/ServiceSeverity/Application/UseCase/DeleteServiceSeverity/DeleteServiceSeverityTest.php
+
+		-
+			message: '#^Call to protected method atMost\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/ServiceSeverity/Application/UseCase/FindServiceSeverities/FindServiceSeveritiesTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/ServiceSeverity/Application/UseCase/FindServiceSeverities/FindServiceSeveritiesTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 9
+			path: tests/php/Core/ServiceSeverity/Application/UseCase/FindServiceSeverities/FindServiceSeveritiesTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/ServiceSeverity/Application/UseCase/GetServiceSeverity/GetServiceSeverityTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/ServiceSeverity/Application/UseCase/GetServiceSeverity/GetServiceSeverityTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 18
+			path: tests/php/Core/ServiceSeverity/Application/UseCase/GetServiceSeverity/GetServiceSeverityTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/ServiceSeverity/Application/UseCase/UpdateServiceSeverity/UpdateServiceSeverityTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 23
+			path: tests/php/Core/ServiceSeverity/Application/UseCase/UpdateServiceSeverity/UpdateServiceSeverityTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/ServiceTemplate/Application/UseCase/AddServiceTemplate/AddServiceTemplateTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 22
+			path: tests/php/Core/ServiceTemplate/Application/UseCase/AddServiceTemplate/AddServiceTemplateTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 10
+			path: tests/php/Core/ServiceTemplate/Application/UseCase/AddServiceTemplate/AddServiceTemplateValidationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 17
+			path: tests/php/Core/ServiceTemplate/Application/UseCase/AddServiceTemplate/AddServiceTemplateValidationTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 7
+			path: tests/php/Core/ServiceTemplate/Application/UseCase/DeleteServiceTemplate/DeleteServiceTemplateTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 10
+			path: tests/php/Core/ServiceTemplate/Application/UseCase/DeleteServiceTemplate/DeleteServiceTemplateTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/ServiceTemplate/Application/UseCase/FindServiceTemplates/FindServiceTemplatesTest.php
+
+		-
+			message: '#^Call to protected method atMost\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/ServiceTemplate/Application/UseCase/FindServiceTemplates/FindServiceTemplatesTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/ServiceTemplate/Application/UseCase/FindServiceTemplates/FindServiceTemplatesTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/ServiceTemplate/Application/UseCase/FindServiceTemplates/FindServiceTemplatesTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 9
+			path: tests/php/Core/ServiceTemplate/Application/UseCase/GetServiceTemplate/GetServiceTemplateTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/ServiceTemplate/Application/UseCase/GetServiceTemplate/GetServiceTemplateTest.php
+
+		-
+			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/ServiceTemplate/Application/UseCase/GetServiceTemplate/GetServiceTemplateTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 26
+			path: tests/php/Core/ServiceTemplate/Application/UseCase/GetServiceTemplate/GetServiceTemplateTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 11
+			path: tests/php/Core/ServiceTemplate/Application/UseCase/PartialUpdateServiceTemplate/ParametersValidationTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 23
+			path: tests/php/Core/ServiceTemplate/Application/UseCase/PartialUpdateServiceTemplate/ParametersValidationTest.php
+
+		-
+			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 1
+			path: tests/php/Core/ServiceTemplate/Application/UseCase/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 19
+			path: tests/php/Core/ServiceTemplate/Application/UseCase/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/ServiceTemplate/Application/UseCase/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateTest.php
+
+		-
+			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/ServiceTemplate/Application/UseCase/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 73
+			path: tests/php/Core/ServiceTemplate/Application/UseCase/PartialUpdateServiceTemplate/PartialUpdateServiceTemplateTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/Severity/RealTime/Application/UseCase/FindSeverity/FindSeverityTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 7
+			path: tests/php/Core/Severity/RealTime/Application/UseCase/FindSeverity/FindSeverityTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/TimePeriod/Application/UseCase/AddTimePeriod/AddTimePeriodTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 13
+			path: tests/php/Core/TimePeriod/Application/UseCase/AddTimePeriod/AddTimePeriodTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/TimePeriod/Application/UseCase/DeleteTimePeriod/DeleteTimePeriodTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 8
+			path: tests/php/Core/TimePeriod/Application/UseCase/DeleteTimePeriod/DeleteTimePeriodTest.php
+
+		-
+			message: '#^Call to protected method atMost\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 5
+			path: tests/php/Core/TimePeriod/Application/UseCase/FindTimePeriod/FindTimePeriodTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/TimePeriod/Application/UseCase/FindTimePeriod/FindTimePeriodTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/TimePeriod/Application/UseCase/FindTimePeriod/FindTimePeriodTest.php
+
+		-
+			message: '#^Call to protected method atMost\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/TimePeriod/Application/UseCase/FindTimePeriods/FindTimePeriodsTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/TimePeriod/Application/UseCase/FindTimePeriods/FindTimePeriodsTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/TimePeriod/Application/UseCase/FindTimePeriods/FindTimePeriodsTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 4
+			path: tests/php/Core/TimePeriod/Application/UseCase/UpdateTimePeriod/UpdateTimePeriodTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 11
+			path: tests/php/Core/TimePeriod/Application/UseCase/UpdateTimePeriod/UpdateTimePeriodTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 3
+			path: tests/php/Core/User/Application/UseCase/FindCurrentUserParameters/FindCurrentUserParametersTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 6
+			path: tests/php/Core/User/Application/UseCase/FindUsers/FindUsersTest.php
+
+		-
+			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/Core/User/Application/UseCase/FindUsers/FindUsersTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 11
+			path: tests/php/Core/User/Application/UseCase/FindUsers/FindUsersTest.php
