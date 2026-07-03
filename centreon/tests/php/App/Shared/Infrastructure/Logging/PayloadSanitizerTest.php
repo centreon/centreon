@@ -28,10 +28,13 @@ use App\Shared\Infrastructure\Logging\PayloadSanitizer;
 use App\Shared\Infrastructure\Logging\SensitiveKeywordDenylist;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\CardHolderCommand;
+use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\InterfaceTypedCommand;
 use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\MethodSecretCommand;
 use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\MultiWordNestedCommand;
+use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\NestedInnerPayload;
 use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\NestedPayloadCommand;
 use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\SecretsCommand;
+use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\SensitiveValueObject;
 
 final class PayloadSanitizerTest extends TestCase
 {
@@ -326,6 +329,54 @@ final class PayloadSanitizerTest extends TestCase
         \assert(\is_array($sanitised));
         self::assertSame($structured, $sanitised['exception']);
         self::assertSame('context', $sanitised['note']);
+    }
+
+    public function testMasksArrayUnderExceptionKeyThatIsNotAStructuredException(): void
+    {
+        $sanitised = $this->sanitizer->sanitize([
+            'exception' => ['request' => ['password' => 'leaked']],
+            'note' => 'context',
+        ]);
+
+        \assert(\is_array($sanitised));
+        \assert(\is_array($sanitised['exception']));
+        \assert(\is_array($sanitised['exception']['request']));
+        self::assertSame('***', $sanitised['exception']['request']['password']);
+        self::assertSame('context', $sanitised['note']);
+    }
+
+    public function testMasksSensitivePropertyBehindInterfaceType(): void
+    {
+        $sanitised = $this->sanitizer->sanitize(
+            ['inner' => [
+                PayloadSanitizer::RUNTIME_CLASS_KEY => NestedInnerPayload::class,
+                'passcode' => '482031',
+                'label' => 'two-factor',
+            ], 'label' => 'cmd'],
+            InterfaceTypedCommand::class,
+        );
+
+        self::assertSame(
+            ['inner' => ['passcode' => '***', 'label' => 'two-factor'], 'label' => 'cmd'],
+            $sanitised,
+        );
+    }
+
+    public function testMasksWholeValueOfSensitiveClassBehindInterfaceType(): void
+    {
+        $sanitised = $this->sanitizer->sanitize(
+            [
+                'inner' => [
+                    PayloadSanitizer::RUNTIME_CLASS_KEY => SensitiveValueObject::class,
+                    'number' => 'card-number-test',
+                    'holder' => 'admin',
+                ],
+                'label' => 'default card',
+            ],
+            InterfaceTypedCommand::class,
+        );
+
+        self::assertSame(['inner' => '***', 'label' => 'default card'], $sanitised);
     }
 
     public function testRendersUnitEnumByName(): void
