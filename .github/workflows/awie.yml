@@ -7,6 +7,11 @@ concurrency:
 on:
   workflow_dispatch:
     inputs:
+      nightly_manual_trigger:
+        description: "Set to true to trigger a nightly run"
+        required: false
+        default: false
+        type: boolean
       labels:
         description: "Labels to add to the run (comma separated)"
         required: false
@@ -47,6 +52,7 @@ jobs:
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon-awie/www/modules/centreon-awie/conf.php
+      nightly_manual_trigger: ${{ inputs.nightly_manual_trigger || false }}
       labels: ${{ inputs.labels || '' }}
 
   check-version-consistency:
