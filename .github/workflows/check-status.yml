@@ -49,8 +49,75 @@ jobs:
               'check-qa-validation',
             ];
             const failureConclusions = ['failure', 'cancelled', 'timed_out', 'action_required', 'startup_failure', 'stale'];
+            const maxPolls = 120;
+            const startedAt = Date.now();
 
-            for (let i = 0; i < 120; i++) {
+            const runState = (run) => run.status === 'completed' ? run.conclusion : run.status;
+
+            const runIcon = (run) => {
+              if (run.status !== 'completed') return '⏳';
+              if (run.conclusion === 'success') return '✅';
+              if (['skipped', 'neutral'].includes(run.conclusion)) return '⏭️';
+              return '❌';
+            };
+
+            const runDuration = (run) => {
+              if (run.status !== 'completed') return '—';
+              const seconds = Math.max(0, Math.round((new Date(run.updated_at) - new Date(run.run_started_at)) / 1000));
+              return `${Math.floor(seconds / 60)}m ${String(seconds % 60).padStart(2, '0')}s`;
+            };
+
+            const writeSummary = async (title, latestRuns, failedJobs, polls) => {
+              core.summary.addHeading(title, 3);
+              core.summary.addTable([
+                [
+                  { data: 'Workflow', header: true },
+                  { data: 'Conclusion', header: true },
+                  { data: 'Duration', header: true },
+                  { data: 'Run', header: true }
+                ],
+                ...latestRuns.map((run) => [
+                  run.name,
+                  `${runIcon(run)} ${runState(run)}`,
+                  runDuration(run),
+                  `<a href="${run.html_url}">#${run.run_number}</a>`
+                ])
+              ]);
+              if (failedJobs.length > 0) {
+                core.summary.addHeading(`${failedJobs.length} job(s) failed`, 4);
+                core.summary.addList(failedJobs.map(({ name, conclusion, url }) => `<a href="${url}">${name} (${conclusion})</a>`));
+              }
+              const elapsed = Math.round((Date.now() - startedAt) / 1000);
+              core.summary.addRaw(`Evaluated ${latestRuns.length} workflow run(s) in ${polls} poll(s) over ${Math.floor(elapsed / 60)}m ${String(elapsed % 60).padStart(2, '0')}s.`, true);
+              core.summary.addRaw(`Allowed events: ${allowedEvents.join(', ')} — excluded workflows: ${excludedWorkflows.join(', ')}.`, true);
+              await core.summary.write();
+            };
+
+            const listFailedJobs = async (run) => {
+              const runLevelFailure = { name: run.name, conclusion: run.conclusion, url: run.html_url };
+              try {
+                const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  run_id: run.id,
+                  filter: 'latest',
+                  per_page: 100
+                });
+
+                const failedJobs = jobs
+                  .filter(({ conclusion }) => failureConclusions.includes(conclusion))
+                  .map(({ conclusion, name, html_url }) => ({ name: `${run.name} / ${name}`, conclusion, url: html_url }));
+                // a run can fail without any failed job (startup_failure...)
+                return failedJobs.length > 0 ? failedJobs : [runLevelFailure];
+              } catch (error) {
+                core.warning(`Cannot list jobs of workflow run ${run.id}: ${error.message}`);
+                return [runLevelFailure];
+              }
+            };
+
+            let latestRuns = [];
+
+            for (let i = 0; i < maxPolls; i++) {
               let runs = [];
               try {
                 runs = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {
@@ -85,61 +152,44 @@ jobs:
                   }
                 });
 
-              const failedRuns = [];
-              const pendingRuns = [];
-              latestRunPerWorkflow.forEach((run) => {
-                if (run.status !== 'completed') {
-                  pendingRuns.push(run);
-                } else if (failureConclusions.includes(run.conclusion)) {
-                  failedRuns.push(run);
-                }
-                console.log(`workflow run ${run.name} => ${run.status === 'completed' ? run.conclusion : run.status}`);
+              latestRuns = [...latestRunPerWorkflow.values()].sort((a, b) => a.name.localeCompare(b.name));
+              const pendingRuns = latestRuns.filter((run) => run.status !== 'completed');
+              const failedRuns = latestRuns.filter((run) => run.status === 'completed' && failureConclusions.includes(run.conclusion));
+
+              core.startGroup(`Poll #${i + 1} — ${pendingRuns.length} in progress, ${latestRuns.length - pendingRuns.length} completed, ${failedRuns.length} failed`);
+              latestRuns.forEach((run) => {
+                console.log(`${runIcon(run)} ${run.name} => ${runState(run)}`);
               });
+              core.endGroup();
 
               if (failedRuns.length > 0) {
                 const failedJobs = [];
                 for await (const run of failedRuns) {
-                  try {
-                    const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, {
-                      owner: context.repo.owner,
-                      repo: context.repo.repo,
-                      run_id: run.id,
-                      filter: 'latest',
-                      per_page: 100
-                    });
-
-                    const failedJobsOfRun = jobs
-                      .filter(({ conclusion }) => failureConclusions.includes(conclusion))
-                      .map(({ conclusion, name, html_url }) => `<a href="${html_url}">${run.name} / ${name} (${conclusion})</a>`);
-                    // a run can fail without any failed job (startup_failure...)
-                    if (failedJobsOfRun.length === 0) {
-                      failedJobsOfRun.push(`<a href="${run.html_url}">${run.name} (${run.conclusion})</a>`);
-                    }
-                    failedJobs.push(...failedJobsOfRun);
-                  } catch (error) {
-                    core.warning(`Cannot list jobs of workflow run ${run.id}: ${error.message}`);
-                    failedJobs.push(`<a href="${run.html_url}">${run.name} (${run.conclusion})</a>`);
-                  }
+                  failedJobs.push(...await listFailedJobs(run));
                 }
 
-                core.summary.addRaw(`${failedJobs.length} job(s) failed:`, true)
-                core.summary.addList(failedJobs);
-                core.summary.write();
+                failedJobs.forEach(({ name, conclusion, url }) => {
+                  core.error(`${name} (${conclusion}): ${url}`);
+                });
 
+                await writeSummary(`❌ ${failedRuns.length} workflow run(s) failed`, latestRuns, failedJobs, i + 1);
                 core.setFailed(`${failedRuns.length} workflow run(s) failed`);
                 return;
               }
 
               if (pendingRuns.length === 0) {
+                await writeSummary('✅ All workflow runs completed successfully', latestRuns, [], i + 1);
                 core.info("All workflows are ok");
                 return;
               }
 
-              core.info(`${pendingRuns.length} workflow run(s) in progress`);
-
               await new Promise((resolve) => setTimeout(resolve, 30000));
             }
 
+            latestRuns.filter((run) => run.status !== 'completed').forEach((run) => {
+              core.error(`Still in progress after timeout: ${run.name}: ${run.html_url}`);
+            });
+            await writeSummary('❌ Timeout — some workflow runs are still in progress', latestRuns, [], maxPolls);
             core.setFailed("Timeout: some jobs are still in progress");
 
   get-environment:
