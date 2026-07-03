@@ -50,6 +50,8 @@ jobs:
             ];
             const failureConclusions = ['failure', 'cancelled', 'timed_out', 'action_required', 'startup_failure', 'stale'];
             const maxPolls = 120;
+            // matrices can produce hundreds of failed jobs, keep the summary readable
+            const maxDisplayedFailedJobs = 20;
             const startedAt = Date.now();
 
             const runState = (run) => run.status === 'completed' ? run.conclusion : run.status;
@@ -85,7 +87,13 @@ jobs:
               ]);
               if (failedJobs.length > 0) {
                 core.summary.addHeading(`${failedJobs.length} job(s) failed`, 4);
-                core.summary.addList(failedJobs.map(({ name, conclusion, url }) => `<a href="${url}">${name} (${conclusion})</a>`));
+                const displayedFailedJobs = failedJobs
+                  .slice(0, maxDisplayedFailedJobs)
+                  .map(({ name, conclusion, url }) => `<a href="${url}">${name} (${conclusion})</a>`);
+                if (failedJobs.length > maxDisplayedFailedJobs) {
+                  displayedFailedJobs.push(`… and ${failedJobs.length - maxDisplayedFailedJobs} more, see the workflow runs above`);
+                }
+                core.summary.addList(displayedFailedJobs);
               }
               const elapsed = Math.round((Date.now() - startedAt) / 1000);
               core.summary.addRaw(`Evaluated ${latestRuns.length} workflow run(s) in ${polls} poll(s) over ${Math.floor(elapsed / 60)}m ${String(elapsed % 60).padStart(2, '0')}s.`, true);
@@ -165,12 +173,11 @@ jobs:
               if (failedRuns.length > 0) {
                 const failedJobs = [];
                 for await (const run of failedRuns) {
-                  failedJobs.push(...await listFailedJobs(run));
+                  const failedJobsOfRun = await listFailedJobs(run);
+                  // one annotation per failed workflow run, GitHub only displays 10 annotations per step
+                  core.error(`${run.name} (${run.conclusion}): ${failedJobsOfRun.length} failed job(s): ${run.html_url}`);
+                  failedJobs.push(...failedJobsOfRun);
                 }
-
-                failedJobs.forEach(({ name, conclusion, url }) => {
-                  core.error(`${name} (${conclusion}): ${url}`);
-                });
 
                 await writeSummary(`❌ ${failedRuns.length} workflow run(s) failed`, latestRuns, failedJobs, i + 1);
                 core.setFailed(`${failedRuns.length} workflow run(s) failed`);
