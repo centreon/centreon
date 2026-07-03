@@ -123,7 +123,7 @@ final class MigrateAllCredentials
     {
         try {
             if (! $this->vaultEligibilityService->shouldUseVault()) {
-                $presenter->presentResponse(new ErrorResponse(VaultException::noVaultConfigured()));
+                $presenter->presentResponse(new ErrorResponse(VaultException::vaultNotAvailable()));
 
                 return;
             }
