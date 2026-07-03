@@ -30,6 +30,7 @@ use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\PollerPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreatePollerInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\CreatePollerProcessor;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 #[ApiResource(
     shortName: 'Poller',
@@ -69,6 +70,7 @@ final class PollerResource
             writable: false,
             openapiContext: ['example' => 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>']
         )]
+        #[Sensitive]
         public ?string $installationCommand = null,
     ) {
     }
