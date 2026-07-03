@@ -22,12 +22,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          RATE_LIMIT=$(curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/rate_limit)
           echo "current rest api rate usage:"
-          curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/rate_limit | jq .rate
+          echo "$RATE_LIMIT" | jq .rate
           echo ""
           echo ""
           echo "current graphql rate usage:"
-          curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/rate_limit | jq .resources.graphql
+          echo "$RATE_LIMIT" | jq .resources.graphql
           echo ""
           echo ""
 
