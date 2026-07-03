@@ -8,7 +8,7 @@ Feature: Creating a Notification Rule
     Given a user with access to the Notification Rules page
     And the user is on the Notification Rules page
 
-  @TEST_MON-38164
+  @MON-38164
   Scenario Outline: Creating a <resource_type> Notification Rule for <contact_settings>
     Given a '<resource_type>' with hosts and '<contact_settings>'
     When the user defines a name for the rule
@@ -27,7 +27,7 @@ Feature: Creating a Notification Rule
       | contact_settings | resource_type                           |
       | two contacts     | host group and services for these hosts |
 
-  @TEST_MON-33204
+  @MON-33204
   Scenario Outline: Creating a large volume Notification Rule for <contact_settings>
     Given a minimum of 1000 services linked to a host group and '<contact_settings>'
     When the user defines a name for the rule
