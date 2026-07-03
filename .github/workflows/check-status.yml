@@ -147,7 +147,8 @@ jobs:
               }
 
               // the listing is eventually consistent, do not trust it until it contains the current run
-              if (!runs.some((run) => run.id === context.runId)) {
+              const currentRun = runs.find((run) => run.id === context.runId);
+              if (!currentRun) {
                 core.warning("Current workflow run is not listed yet, retrying");
                 await new Promise((resolve) => setTimeout(resolve, 30000));
                 continue;
@@ -157,7 +158,9 @@ jobs:
               const latestRunPerWorkflow = new Map();
               runs
                 .filter((run) => allowedEvents.includes(run.event))
-                .filter((run) => run.id !== context.runId)
+                // exclude the whole check-status workflow, not only the current run: a sibling run on the
+                // same commit (PR reopened without new commit...) must not gate the merge either
+                .filter((run) => run.workflow_id !== currentRun.workflow_id)
                 .filter((run) => !excludedWorkflows.includes(run.name))
                 .forEach((run) => {
                   const latestRun = latestRunPerWorkflow.get(run.workflow_id);
@@ -178,7 +181,7 @@ jobs:
 
               if (failedRuns.length > 0) {
                 const failedJobs = [];
-                for await (const run of failedRuns) {
+                for (const run of failedRuns) {
                   const failedJobsOfRun = await listFailedJobs(run);
                   // one annotation per failed workflow run, GitHub only displays 10 annotations per step
                   core.error(`${run.name} (${run.conclusion}): ${failedJobsOfRun.length} failed job(s): ${run.html_url}`);
