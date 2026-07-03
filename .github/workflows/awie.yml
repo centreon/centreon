@@ -255,22 +255,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el8, el9, bookworm]
-        include:
-          - package_extension: rpm
-            tag_suffix: -alma8
-            distrib: el8
-          - package_extension: rpm
-            tag_suffix: -alma9
-            distrib: el9
-          - package_extension: deb
-            tag_suffix: -bookworm
-            distrib: bookworm
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
     runs-on: ubuntu-24.04
 
     container:
-      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}${{ matrix.tag_suffix }}
+      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}-${{ matrix.operating_system }}
 
     name: package ${{ matrix.distrib }}
 

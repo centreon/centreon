@@ -1,7 +1,4 @@
 {
-    "adlawson/vfs": {
-        "version": "0.12.1"
-    },
     "api-platform/core": {
         "version": "4.1",
         "recipe": {
@@ -18,9 +15,6 @@
     },
     "beberlei/assert": {
         "version": "v3.3.1"
-    },
-    "behat/transliterator": {
-        "version": "v1.3.0"
     },
     "curl/curl": {
         "version": "2.3.2"
@@ -86,9 +80,6 @@
     },
     "enshrined/svg-sanitize": {
         "version": "0.14.1"
-    },
-    "facade/ignition-contracts": {
-        "version": "1.0.2"
     },
     "friendsofsymfony/rest-bundle": {
         "version": "2.2",
@@ -161,9 +152,6 @@
     "pear/pear_exception": {
         "version": "v1.0.2"
     },
-    "php-http/message-factory": {
-        "version": "v1.0.2"
-    },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"
     },
@@ -173,17 +161,8 @@
     "phpdocumentor/type-resolver": {
         "version": "1.5.0"
     },
-    "phpspec/prophecy": {
-        "version": "1.14.0"
-    },
     "phpstan/phpdoc-parser": {
         "version": "0.5.7"
-    },
-    "phpstan/phpstan": {
-        "version": "0.12.99"
-    },
-    "phpstan/phpstan-beberlei-assert": {
-        "version": "0.12.6"
     },
     "phpunit/phpunit": {
         "version": "10.5",
@@ -216,21 +195,6 @@
     },
     "psr/log": {
         "version": "1.1.4"
-    },
-    "sebastian/resource-operations": {
-        "version": "3.0.3"
-    },
-    "sensio/framework-extra-bundle": {
-        "version": "5.2",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "5.2",
-            "ref": "fb7e19da7f013d0d422fa9bce16f5c510e27609b"
-        },
-        "files": [
-            "config/packages/sensio_framework_extra.yaml"
-        ]
     },
     "smarty-gettext/smarty-gettext": {
         "version": "1.6.2"
@@ -356,15 +320,6 @@
             "config/packages/lock.yaml"
         ]
     },
-    "symfony/maker-bundle": {
-        "version": "1.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "1.0",
-            "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
-        }
-    },
     "symfony/messenger": {
         "version": "7.3",
         "recipe": {
@@ -395,9 +350,6 @@
             "config/packages/test/monolog.yaml"
         ]
     },
-    "symfony/options-resolver": {
-        "version": "v4.4.30"
-    },
     "symfony/password-hasher": {
         "version": "v5.4.0"
     },
@@ -424,15 +376,6 @@
     },
     "symfony/polyfill-mbstring": {
         "version": "v1.23.1"
-    },
-    "symfony/polyfill-php73": {
-        "version": "v1.23.0"
-    },
-    "symfony/polyfill-php80": {
-        "version": "v1.23.1"
-    },
-    "symfony/polyfill-php81": {
-        "version": "v1.23.0"
     },
     "symfony/property-access": {
         "version": "v4.4.30"
@@ -471,9 +414,6 @@
     },
     "symfony/security-csrf": {
         "version": "v5.2.12"
-    },
-    "symfony/security-guard": {
-        "version": "v4.4.27"
     },
     "symfony/security-http": {
         "version": "v4.4.30"
