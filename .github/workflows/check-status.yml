@@ -22,15 +22,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          RATE_LIMIT=$(curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/rate_limit)
-          echo "current rest api rate usage:"
-          echo "$RATE_LIMIT" | jq .rate
-          echo ""
-          echo ""
-          echo "current graphql rate usage:"
-          echo "$RATE_LIMIT" | jq .resources.graphql
-          echo ""
-          echo ""
+          RATE_LIMIT=$(curl -sf -H "Accept: application/vnd.github+json" -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/rate_limit) || {
+            echo "::warning::Cannot fetch API rate limit usage"
+            exit 0
+          }
+
+          echo "$RATE_LIMIT" | jq -r '
+            { rest: .rate, graphql: .resources.graphql } | to_entries[] |
+            "\(.key): \(.value.used)/\(.value.limit) used, \(.value.remaining) remaining, resets at \(.value.reset | todate)"
+          '
+
+          echo "$RATE_LIMIT" | jq -r '
+            { rest: .rate, graphql: .resources.graphql } | to_entries[] |
+            select(.value.remaining < .value.limit / 10) |
+            "::warning title=GitHub API rate limit::\(.key) API rate limit almost reached: \(.value.remaining)/\(.value.limit) requests remaining until \(.value.reset | todate)"
+          '
 
       - name: Check workflow run statuses
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
