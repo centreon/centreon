@@ -347,6 +347,7 @@ jobs:
       type_test_execution: api
       result_format: junit
       enrich_tests: true
+      artifact_pattern: "bruno-report-*"
     secrets:
       XRAY_CLIENT_ID: ${{ secrets.client_id }}
       XRAY_CLIENT_SECRET: ${{ secrets.client_secret }}

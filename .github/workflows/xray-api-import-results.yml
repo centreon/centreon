@@ -38,6 +38,11 @@ on:
         required: false
         type: boolean
         default: false
+      artifact_pattern:
+        description: "download-artifact pattern to fetch only the relevant result artifacts (defaults to all)."
+        required: false
+        type: string
+        default: "*"
 
     secrets:
       XRAY_CLIENT_ID:
@@ -78,6 +83,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
         with:
+          pattern: ${{ inputs.artifact_pattern }}
           path: ${{ inputs.report_path }}
 
       # -------------------------------

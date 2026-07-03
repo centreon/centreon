@@ -358,6 +358,7 @@ jobs:
       type_test_execution: e2e
       result_format: cucumber
       enrich_tests: true
+      artifact_pattern: "*-xray-reports-*"
     secrets:
       XRAY_CLIENT_ID: ${{ secrets.xray_client_id }}
       XRAY_CLIENT_SECRET: ${{ secrets.xray_client_secret }}
