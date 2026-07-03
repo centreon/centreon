@@ -159,6 +159,8 @@ if [[ "$STABILITY" == "stable" ]]; then
     centreon-broker=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1 \
     centreon-broker-core=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1 \
     centreon-broker-cbd=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1 \
+    centreon-broker-graphite=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1 \
+    centreon-broker-influxdb=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1 \
     centreon-connector-perl=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1 \
     centreon-connector-ssh=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1 \
     centreon-connector=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1
@@ -168,6 +170,8 @@ else
     centreon-gorgone \
     centreon-engine \
     centreon-broker-cbd \
+    centreon-broker-graphite \
+    centreon-broker-influxdb \
     centreon-connector
 fi
 
