@@ -18,7 +18,7 @@ jobs:
   check-status:
     runs-on: ubuntu-24.04
     steps:
-      - name: Check workflow statuses and display token usage
+      - name: Display API rate limit usage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -32,7 +32,8 @@ jobs:
           echo ""
           echo ""
 
-      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      - name: Check workflow run statuses
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
