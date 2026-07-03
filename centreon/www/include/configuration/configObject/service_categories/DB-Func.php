@@ -33,16 +33,17 @@ function checkSeverity($fields)
 {
     $arr = [];
     if (isset($fields['sc_type'])) {
-        if ($fields['sc_severity_level'] == '') {
+        $level = $fields['sc_severity_level'] ?? '';
+        if ($level == '') {
             $arr['sc_severity_level'] = 'Severity level is required';
         } else {
-            $intLevel = filter_var($fields['sc_severity_level'], FILTER_VALIDATE_INT);
+            $intLevel = filter_var($level, FILTER_VALIDATE_INT);
             if ($intLevel === false || $intLevel < 1 || $intLevel > 127) {
                 $arr['sc_severity_level'] = 'Severity level must be an integer between 1 and 127';
             }
         }
 
-        if ($fields['sc_severity_icon'] == '') {
+        if (($fields['sc_severity_icon'] ?? '') == '') {
             $arr['sc_severity_icon'] = 'Severity icon is required';
         }
     }
