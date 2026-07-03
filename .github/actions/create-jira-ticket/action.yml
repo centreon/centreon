@@ -220,6 +220,37 @@ runs:
             if (total === 0) {
               ticket_summary = `${date} ${ticket_summary}`;
 
+              data = data.replace(/@MODULE_NAME@/g, MODULE_NAME);
+              data = data.replace(/@DATE@/g, date);
+
+              data = data.replace(/@GITHUB_BRANCH@/g, GITHUB_BRANCH);
+              data = data.replace(/@GITHUB_SERVER_URL@/g, GITHUB_SERVER_URL);
+              data = data.replace(/@FAILED_JOB@/g, failed_job);
+              data = data.replace(/@GITHUB_REPOSITORY@/g, GITHUB_REPOSITORY);
+              data = data.replace(/@GITHUB_RUN_ID@/g, GITHUB_RUN_ID);
+              data = data.replace(/@GITHUB_RUN_ATTEMPT@/g, GITHUB_RUN_ATTEMPT);
+
+              if (["changes", "get-environment", "check-version-consistency", "package", "dockerize", "deliver-rpm", "deliver-deb", "translation-build", "deliver-sources", "xray-prepare-test-plan"].includes(failed_job)) {
+                ticket_squad_id = 10524
+                ticket_board_id = 184
+                squad_name = "DEVSECOPS"
+              } else if (["gherkin-lint", "frontend-web-build", "backend-dependencies", "frontend-web-lint", "frontend-unit-test", "frontend-component-test", "backend-unit-test", "backend-lint", "e2e-test", "api-test", "performances-test"].includes(failed_job)) {
+                if (isoWeekNumber % 4 >= 2) {
+                  ticket_squad_id = 10625
+                  ticket_board_id = 213
+                  squad_name = "METROPOLIS"
+                } else {
+                  ticket_squad_id = 10882
+                  ticket_board_id = 225
+                  squad_name = "GOTHAM"
+                }
+              } else {
+                core.setFailed(`Not finding any squad association with job ${failed_job}.`);
+                continue;
+              }
+
+              console.log(`Ticket will be attributed to the ${squad_name} team. (Squad ID ${ticket_squad_id}, Board ID ${ticket_board_id})`)
+
               // Desactivated temporarily, activating when the pipeline is more stable
               // current_sprint = execSync(
               //   `curl --request GET \

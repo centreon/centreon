@@ -4,7 +4,7 @@ Feature: Create and update a new Agent Configuration without TLS
   I want to visit the Agents Configuration page
   To manage the Agent Configurations without TLS
 
-  @TEST_MON-167666
+  @MON-167666
   Scenario: Create a CMA agent without TLS
     Given a non-admin user is on the Agents Configuration page
     When the user clicks on the "Add agent configuration" button
@@ -19,7 +19,7 @@ Feature: Create and update a new Agent Configuration without TLS
     And the user clicks "Save"
     Then the first created agent appears on the Agents Configuration page
 
-  @TEST_MON-167667
+  @MON-167667
   Scenario: Create a Telegraf agent without TLS
     Given a non-admin user is on the Agents Configuration page
     When the user clicks on the "Add" button
@@ -32,7 +32,7 @@ Feature: Create and update a new Agent Configuration without TLS
     And the user clicks "Save"
     Then the second agent appears on the Agents Configuration page
 
-  @TEST_MON-167668
+  @MON-167668
   Scenario: Update a CMA agent without TLS
     Given a non-admin user is on the Agents Configuration page
     When the user clicks on the first configured CMA agent
@@ -42,7 +42,7 @@ Feature: Create and update a new Agent Configuration without TLS
     And the user clicks "Save"
     Then the first configured CMA agent is updated
 
-  @TEST_MON-167669
+  @MON-167669
   Scenario: Update a Telegraf agent without TLS
     Given a non-admin user is on the Agents Configuration page
     When the user clicks on the second configured Telegraf agent

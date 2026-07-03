@@ -3,7 +3,7 @@ Feature: Generate poller configuration
   As a Centreon user
   I want to do some basics actions on pollers
 
-  @TEST_MON-198192
+  @MON-198192
   Scenario: Duplicate an existing remote poller
     Given an admin user is logged in a Centreon server
     And a remote poller is configured
