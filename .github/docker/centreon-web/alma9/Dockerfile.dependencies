@@ -128,6 +128,8 @@ dnf install -y \
   centreon-gorgone \
   centreon-engine \
   centreon-broker-cbd \
+  centreon-broker-graphite \
+  centreon-broker-influxdb \
   centreon-connector
 
 dnf clean all --enablerepo=*
