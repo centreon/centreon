@@ -2481,13 +2481,13 @@ parameters:
 		-
 			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 22
+			count: 21
 			path: tests/php/Core/Security/Vault/Application/UseCase/MigrateAllCredentials/MigrateAllCredentialsTest.php
 
 		-
 			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 3
+			count: 2
 			path: tests/php/Core/Security/Vault/Application/UseCase/MigrateAllCredentials/MigrateAllCredentialsTest.php
 
 		-
