@@ -34,77 +34,108 @@ jobs:
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.number }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         with:
           script: |
-            await exec.exec("sleep 20s");
+            // let workflow runs triggered by the same event register before the first evaluation
+            await new Promise((resolve) => setTimeout(resolve, 20000));
 
-            const excludedJobs = [
+            // only runs triggered by these events gate the merge (manual workflow_dispatch or push runs on the same commit must not)
+            const allowedEvents = ['pull_request'];
+            // workflows which are required status checks on their own
+            const excludedWorkflows = [
               'check-qa-validation',
             ];
+            const failureConclusions = ['failure', 'cancelled', 'timed_out', 'action_required', 'startup_failure', 'stale'];
 
             for (let i = 0; i < 120; i++) {
-              const failure = [];
-              const cancelled = [];
-              const pending = [];
+              let runs = [];
+              try {
+                runs = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  head_sha: process.env.PR_HEAD_SHA,
+                  per_page: 100
+                });
+              } catch (error) {
+                core.warning(`Cannot list workflow runs, retrying: ${error.message}`);
+                await new Promise((resolve) => setTimeout(resolve, 30000));
+                continue;
+              }
 
-              const result = await github.rest.checks.listSuitesForRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: process.env.PR_HEAD_SHA
-              });
-              result.data.check_suites.forEach(({ app: { slug }, conclusion, id }) => {
-                if (slug === 'github-actions') {
-                  if (conclusion === 'failure' || conclusion === 'cancelled') {
-                    failure.push(id);
-                  } else if (conclusion === null) {
-                    pending.push(id);
+              // the listing is eventually consistent, do not trust it until it contains the current run
+              if (!runs.some((run) => run.id === context.runId)) {
+                core.warning("Current workflow run is not listed yet, retrying");
+                await new Promise((resolve) => setTimeout(resolve, 30000));
+                continue;
+              }
+
+              // keep only the latest run of each workflow to ignore runs superseded by a re-trigger (labeled, unlabeled...)
+              const latestRunPerWorkflow = new Map();
+              runs
+                .filter((run) => allowedEvents.includes(run.event))
+                .filter((run) => run.id !== context.runId)
+                .filter((run) => !excludedWorkflows.includes(run.name))
+                .forEach((run) => {
+                  const latestRun = latestRunPerWorkflow.get(run.workflow_id);
+                  if (!latestRun || run.run_number > latestRun.run_number) {
+                    latestRunPerWorkflow.set(run.workflow_id, run);
                   }
-                  console.log(`check suite ${id} => ${conclusion === null ? 'pending' : conclusion}`);
+                });
+
+              const failedRuns = [];
+              const pendingRuns = [];
+              latestRunPerWorkflow.forEach((run) => {
+                if (run.status !== 'completed') {
+                  pendingRuns.push(run);
+                } else if (failureConclusions.includes(run.conclusion)) {
+                  failedRuns.push(run);
                 }
+                console.log(`workflow run ${run.name} => ${run.status === 'completed' ? run.conclusion : run.status}`);
               });
 
-              if (pending.length === 0) {
-                core.setFailed("Cannot get pull request check status");
+              if (failedRuns.length > 0) {
+                const failedJobs = [];
+                for await (const run of failedRuns) {
+                  try {
+                    const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, {
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      run_id: run.id,
+                      filter: 'latest',
+                      per_page: 100
+                    });
+
+                    const failedJobsOfRun = jobs
+                      .filter(({ conclusion }) => failureConclusions.includes(conclusion))
+                      .map(({ conclusion, name, html_url }) => `<a href="${html_url}">${run.name} / ${name} (${conclusion})</a>`);
+                    // a run can fail without any failed job (startup_failure...)
+                    if (failedJobsOfRun.length === 0) {
+                      failedJobsOfRun.push(`<a href="${run.html_url}">${run.name} (${run.conclusion})</a>`);
+                    }
+                    failedJobs.push(...failedJobsOfRun);
+                  } catch (error) {
+                    core.warning(`Cannot list jobs of workflow run ${run.id}: ${error.message}`);
+                    failedJobs.push(`<a href="${run.html_url}">${run.name} (${run.conclusion})</a>`);
+                  }
+                }
+
+                core.summary.addRaw(`${failedJobs.length} job(s) failed:`, true)
+                core.summary.addList(failedJobs);
+                core.summary.write();
+
+                core.setFailed(`${failedRuns.length} workflow run(s) failed`);
                 return;
               }
 
-              if (failure.length > 0) {
-                let failureMessage = '';
-                const failedCheckRuns = [];
-                for await (const suite_id of failure) {
-                  const resultCheckRuns = await github.rest.checks.listForSuite({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    check_suite_id: suite_id
-                  });
-
-                  resultCheckRuns.data.check_runs.forEach(({ conclusion, name, html_url }) => {
-                    if (['failure', 'cancelled'].includes(conclusion) && ! excludedJobs.includes(name)) {
-                      failedCheckRuns.push(`<a href="${html_url}">${name} (${conclusion})</a>`);
-                    }
-                  });
-                }
-
-                core.summary.addRaw(`${failedCheckRuns.length} job(s) failed:`, true)
-                core.summary.addList(failedCheckRuns);
-                core.summary.write();
-
-                if (failedCheckRuns.length > 0) {
-                  core.setFailed(`${failedCheckRuns.length} job(s) failed`);
-                  return;
-                }
-              }
-
-              if (pending.length === 1) {
+              if (pendingRuns.length === 0) {
                 core.info("All workflows are ok");
                 return;
               }
 
-              core.info(`${pending.length} workflows in progress`);
+              core.info(`${pendingRuns.length} workflow run(s) in progress`);
 
-              await exec.exec("sleep 30s");
+              await new Promise((resolve) => setTimeout(resolve, 30000));
             }
 
             core.setFailed("Timeout: some jobs are still in progress");
@@ -145,7 +176,7 @@ jobs:
 
               const { title, body } = pull.data;
 
-              [title, body].forEach((text) => {
+              [title, body ?? ''].forEach((text) => {
                 const linkedPrMatches = text.matchAll(/(?:#|\/pull\/)(\d+)/g);
                 if (linkedPrMatches) {
                   [...linkedPrMatches].forEach((match) => {
