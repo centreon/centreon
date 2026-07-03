@@ -459,13 +459,14 @@ Output:\n${displayedOutput}`);
 
 interface RequestOnDatabaseProps {
   database: string;
+  params?: Array<string | number>;
   query: string;
 }
 
 Cypress.Commands.add(
   'requestOnDatabase',
-  ({ database, query }: RequestOnDatabaseProps): Cypress.Chainable => {
-    return cy.task('requestOnDatabase', { database, query });
+  ({ database, query, params }: RequestOnDatabaseProps): Cypress.Chainable => {
+    return cy.task('requestOnDatabase', { database, query, params });
   }
 );
 
@@ -1046,7 +1047,8 @@ declare global {
       }: NavigateToProps) => Cypress.Chainable;
       requestOnDatabase: ({
         database,
-        query
+        query,
+        params
       }: RequestOnDatabaseProps) => Cypress.Chainable;
       setUserTokenApiV1: ({
         login,
