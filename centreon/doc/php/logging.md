@@ -19,7 +19,9 @@ exception-formatting processor. Reference: [MON-199096].
 2. [RFC3339 line formatter](#2-rfc3339-line-formatter)
 3. [`ExceptionFormatter` and `ExceptionFormatterProcessor`](#3-exceptionformatter-and-exceptionformatterprocessor)
 4. [Output files and rotation](#4-output-files-and-rotation)
-5. [Writing authentication events](#5-writing-authentication-events)
+5. [Masking sensitive fields with `#[Sensitive]`](#5-masking-sensitive-fields-with-sensitive)
+6. [Legacy bridge — `Adaptation\Log\Logger`](#6-legacy-bridge--adaptationloglogger)
+7. [Writing authentication events](#7-writing-authentication-events)
 
 ## 1. Monolog configuration
 
@@ -197,9 +199,9 @@ Practical consequence for downstream consumers (log shippers, fail2ban filters, 
 
 ---
 
-## 10. Masking sensitive fields with `#[Sensitive]`
+## 5. Masking sensitive fields with `#[Sensitive]`
 
-The keyword heuristic of [§4](#4-loggingmiddleware) is permissive but **name-based**: it masks any key *containing* `password`, `token`, … and therefore misses a secret carried by an unlisted name. The `#[Sensitive]` attribute is the **explicit, type-safe** complement — it masks a field by *declaration*, regardless of its name.
+The keyword heuristic of the logging pipeline is permissive but **name-based**: it masks any key *containing* `password`, `token`, … and therefore misses a secret carried by an unlisted name. The `#[Sensitive]` attribute is the **explicit, type-safe** complement — it masks a field by *declaration*, regardless of its name.
 
 ### Attribute
 
@@ -254,7 +256,7 @@ A property-level attribute is therefore the right tool for reflection-based **pa
 
 ---
 
-## 11. Legacy bridge — `Adaptation\Log\Logger`
+## 6. Legacy bridge — `Adaptation\Log\Logger`
 
 The platform pipeline described above runs under `App\Shared\Infrastructure\Symfony\Kernel`. Legacy entry points (procedural `www/` code, classes wired through `App\Kernel`) cannot autowire Monolog services directly; they go through a thin façade so every record still lands on the same platform layout.
 
@@ -318,7 +320,7 @@ External consumers — ops runbooks, SIEM parsers, monitoring — watch some mod
 
 > Only the **file name** is preserved. The **line format** necessarily changes to the platform one (`LineFormatter`, RFC3339 timestamp + JSON `context` / `extra`). If byte-for-byte format compatibility is required for a specific consumer of a given file, flag it explicitly.
 
-These module files are **not** added to `centreon/logrotate/centreon` — that config covers the core `prod.*.log` files (see [§9](#9-routing-and-output-file)). Each module keeps whatever log rotation its own module / packaging already provides; the unified pipeline only changes where the records are routed and how they are formatted, not who rotates the file.
+These module files are **not** added to `centreon/logrotate/centreon` — that config covers the core `prod.*.log` files (see [§4](#4-output-files-and-rotation)). Each module keeps whatever log rotation its own module / packaging already provides; the unified pipeline only changes where the records are routed and how they are formatted, not who rotates the file.
 
 #### `ModuleLogChannel`
 
@@ -366,7 +368,7 @@ To mirror the platform pipeline as closely as possible without booting the Symfo
 |---|---|---|
 | `Monolog\Processor\UidProcessor` | Monolog vendor | `extra.uid` — 7-char hex id, **shared across every channel logger built in the current process** via a `private static` cache. Enables cross-file correlation (`grep "uid\":\"…\"" /var/log/centreon/*.log`) just like the new-kernel pipeline. |
 | `Monolog\Processor\WebProcessor` | Monolog vendor | `extra.url`, `extra.ip`, `extra.http_method`, `extra.server`, `extra.referrer` — sourced from `$_SERVER` directly (the Symfony bridge variant is bypassed because its data is populated by a kernel-request listener that does not run from legacy code paths). |
-| `App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor` | platform | Unwraps `context.exception` through `ExceptionFormatter::format()`, producing the same nested-exception layout used on `prod.web.log` (cf. §5). |
+| `App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor` | platform | Unwraps `context.exception` through `ExceptionFormatter::format()`, producing the same nested-exception layout used on `prod.web.log` (cf. [§3](#3-exceptionformatter-and-exceptionformatterprocessor)). |
 
 `RouteProcessor` and `TokenProcessor` are **not** wired here: they depend on the Symfony `RequestStack` / `TokenStorage` services and would be empty in the legacy stack. Records emitted via `Adaptation\Log\Logger` therefore do **not** carry `extra.controller`, `extra.route` or `extra.token`. Call sites that need those fields should write through the new-kernel pipeline (the catch-all `app` / `request` channels and every dedicated channel) where the full processor stack is wired globally by `config.new/services/monolog.php`.
 
@@ -432,7 +434,7 @@ Both kernels resolve `kernel.logs_dir` to `/var/log/centreon` (`App\Kernel::getL
 
 ---
 
-## 12. Writing authentication events
+## 7. Writing authentication events
 
 Authentication is the only flow where the platform splits two destinations on purpose, following the [OWASP Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html) and [ASVS V7](https://owasp.org/www-project-application-security-verification-standard/) recommendations:
 
@@ -615,7 +617,7 @@ But fail2ban jails are bound to a **file path** (`logpath = /var/log/centreon/lo
 
 ---
 
-## 13. Writing upgrade scripts (`Update-*.php`)
+## 8. Writing upgrade scripts (`Update-*.php`)
 
 > **24.10.x scope.** On this branch, upgrades run exclusively through the legacy web wizard (`process_step4/5` + `DbWriteUpdateRepository`). The DDD command path (`UpdateCommandHandler` / `DbalUpdateRepository`) is available from 25.10 onwards. The API table below documents both paths for completeness; only the legacy path applies here.
 
