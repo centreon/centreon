@@ -23,7 +23,9 @@ declare(strict_types=1);
 
 namespace Adaptation\Log\Enum;
 
-enum LogChannelEnum: string
+use Adaptation\Log\Channel\LogChannelInterface;
+
+enum LogChannelEnum: string implements LogChannelInterface
 {
     case AUTHENTICATION = 'authentication';
     case PASSWORD = 'password';
@@ -32,11 +34,21 @@ enum LogChannelEnum: string
     case UPGRADE = 'upgrade';
     case WEB = 'web';
 
+    public function getChannelName(): string
+    {
+        return $this->value;
+    }
+
     public function getLogFileSlug(): string
     {
         return match ($this) {
             self::AUTHENTICATION => 'access',
             default => $this->value,
         };
+    }
+
+    public function getLogFileName(string $appEnv): string
+    {
+        return sprintf('%s.%s.log', $appEnv, $this->getLogFileSlug());
     }
 }

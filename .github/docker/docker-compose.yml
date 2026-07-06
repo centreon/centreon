@@ -15,6 +15,8 @@ services:
       OPENID_HOST: sso-proxy
       SAML_HOST: saml
       LDAP_HOST: openldap
+      GRAPHITE_HOST: graphite
+      INFLUXDB_HOST: influxdb
       CENTREON_DATASET: ${CENTREON_DATASET:-1}
       CENTREON_LANG: ${CENTREON_LANG:-en_US}
       DATABASE_PARTITIONING: ${DATABASE_PARTITIONING:-1}
@@ -95,6 +97,21 @@ services:
     image: "${LDAP_IMAGE:-ghcr.io/centreon/centreon/ldap:26.05}"
     ports: ["389"]
     profiles: ["openldap", "ldap"]
+
+  # Receivers for the Broker outputs (independent "graphite"/"influxdb" profiles).
+  # InfluxDB 1.8 speaks the 1.x line protocol the Broker output uses; INFLUXDB_DB
+  # pre-creates the target db.
+  graphite:
+    image: "${GRAPHITE_IMAGE:-graphiteapp/graphite-statsd:1.1.10-5}"
+    ports: ["2003", "80"]
+    profiles: ["graphite"]
+
+  influxdb:
+    image: "${INFLUXDB_IMAGE:-influxdb:1.8}"
+    environment:
+      INFLUXDB_DB: centreon
+    ports: ["8086"]
+    profiles: ["influxdb"]
 
   squid-simple:
     image: docker.centreon.com/centreon/mon-squid-simple:latest

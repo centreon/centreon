@@ -302,20 +302,32 @@ class CentreonCriticality
         $limit = null,
     ) {
         $sql = 'SELECT sc_id, sc_name, level, icon_id, sc_description
-                FROM service_categories 
+                FROM service_categories
                 WHERE level IS NOT NULL ';
+        $bindParams = [];
         if (! is_null($searchString) && $searchString != '') {
-            $sql .= " AND sc_name LIKE '%" . $this->db->escape($searchString) . "%' ";
+            $sql .= ' AND sc_name LIKE :searchString ';
+            $bindParams[':searchString'] = '%' . $searchString . '%';
         }
         if (! is_null($orderBy) && ! is_null($sort)) {
+            // ORDER BY column and direction cannot be bound as parameters, so they
+            // are validated against explicit allowlists.
+            $allowedOrderBy = ['sc_id', 'sc_name', 'level', 'icon_id', 'sc_description'];
+            $allowedSort = ['ASC', 'DESC'];
+            $orderBy = in_array($orderBy, $allowedOrderBy, true) ? $orderBy : 'level';
+            $sort = in_array(strtoupper((string) $sort), $allowedSort, true) ? strtoupper((string) $sort) : 'ASC';
             $sql .= " ORDER BY {$orderBy} {$sort} ";
         }
         if (! is_null($offset) && ! is_null($limit)) {
-            $sql .= " LIMIT {$offset},{$limit}";
+            $sql .= ' LIMIT ' . (int) $offset . ',' . (int) $limit;
         }
-        $res = $this->db->query($sql);
+        $res = $this->db->prepare($sql);
+        foreach ($bindParams as $param => $value) {
+            $res->bindValue($param, $value, PDO::PARAM_STR);
+        }
+        $res->execute();
         $elements = [];
-        while ($row = $res->fetchRow()) {
+        while ($row = $res->fetch()) {
             $elements[$row['sc_id']] = [];
             $elements[$row['sc_id']]['sc_name'] = $row['sc_name'];
             $elements[$row['sc_id']]['level'] = $row['level'];
@@ -345,17 +357,21 @@ class CentreonCriticality
 
         $request = "SELECT service_id, service_template_model_stm_id FROM service
             WHERE service_register = '0' AND service_activate = '1'
-                AND service_id = {$service_id} ORDER BY service_template_model_stm_id ASC";
-        $RES = $pearDB->query($request);
+                AND service_id = :serviceId ORDER BY service_template_model_stm_id ASC";
+        $RES = $pearDB->prepare($request);
+        $RES->bindValue(':serviceId', (int) $service_id, PDO::PARAM_INT);
+        $RES->execute();
         if (isset($RES) && $RES->rowCount()) {
-            while ($data = $RES->fetchRow()) {
-                $request2 = "select sr.* FROM service_categories_relation sr, service_categories sc
+            while ($data = $RES->fetch()) {
+                $request2 = 'select sr.* FROM service_categories_relation sr, service_categories sc
                     WHERE sr.sc_id = sc.sc_id
-                        AND sr.service_service_id = '" . $data['service_id'] . "'
-                        AND sc.level IS NOT NULL";
-                $RES2 = $pearDB->query($request2);
+                        AND sr.service_service_id = :serviceServiceId
+                        AND sc.level IS NOT NULL';
+                $RES2 = $pearDB->prepare($request2);
+                $RES2->bindValue(':serviceServiceId', (int) $data['service_id'], PDO::PARAM_INT);
+                $RES2->execute();
                 if ($RES2->rowCount() != 0) {
-                    $criticity = $RES2->fetchRow();
+                    $criticity = $RES2->fetch();
                     if ($criticity['sc_id'] && isset($criticity['sc_id'])) {
                         return $criticity['sc_id'];
                     }

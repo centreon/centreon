@@ -805,21 +805,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - package_extension: rpm
-            tag_suffix: -alma9
-            distrib: el9
-          - package_extension: rpm
-            tag_suffix: -alma10
-            distrib: el10
-          - package_extension: deb
-            tag_suffix: -trixie
-            distrib: trixie
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
     name: package ${{ matrix.distrib }}
     runs-on: ubuntu-24.04
     container:
-      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}${{ matrix.tag_suffix }}
+      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}-${{ matrix.operating_system }}
 
     steps:
       - name: Checkout sources
@@ -1101,35 +1092,28 @@ jobs:
           path: ./docker-image
           key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.meta.outputs.version }}
 
-  create-xray-test-plan-and-test-execution:
-    needs: [get-environment, changes, dockerize]
+  xray-prepare-test-plan:
+    name: xray-prepare-test-plan
+    needs: [get-environment, changes]
     if: |
-      needs.changes.outputs.trigger_api_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
+      (needs.changes.outputs.trigger_api_testing == 'true' || needs.changes.outputs.trigger_e2e_testing == 'true') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       (needs.get-environment.outputs.stability == 'testing' || needs.get-environment.outputs.is_nightly == 'true') &&
       github.event.pull_request.head.repo.fork != true
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
-    name: create-xray-test-plan-and-test-execution ${{ matrix.operating_system }}
-    uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
+    uses: ./.github/workflows/xray-prepare-test-plan.yml
     with:
       major_version: ${{ needs.get-environment.outputs.major_version }}
       minor_version: ${{ needs.get-environment.outputs.minor_version }}
-      os: ${{ matrix.operating_system }}
-      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+      module_name: centreon-web
     secrets:
-      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
-      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
-      xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+      XRAY_CLIENT_ID: ${{ secrets.XRAY_CLIENT_ID }}
+      XRAY_CLIENT_SECRET: ${{ secrets.XRAY_CLIENT_SECRET }}
 
   bruno-api-test:
-    needs: [get-environment, changes, create-xray-test-plan-and-test-execution, dockerize]
+    needs: [get-environment, changes, xray-prepare-test-plan, dockerize]
     if: |
       needs.changes.outputs.trigger_api_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -1141,7 +1125,7 @@ jobs:
       fail-fast: false
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
-    name: bruno-test ${{ matrix.operating_system }} ${{ matrix.database }}
+    name: api-test ${{ matrix.operating_system }} ${{ matrix.database }}
     uses: ./.github/workflows/bruno-api-test.yml
     with:
       collection_path: centreon/tests/api/web-api-workspace/collections
@@ -1152,7 +1136,10 @@ jobs:
       stability: ${{ needs.get-environment.outputs.stability }}
       working_directory: centreon/tests/api/web-api-workspace
       component-name: centreon
-      xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
+      module_name: centreon-web
+      jira_test_plan_key: ${{ needs.xray-prepare-test-plan.outputs.jira_test_plan_key }}
+      minor_version: ${{ needs.get-environment.outputs.minor_version }}
+      database_name: ${{ matrix.database }}
       upload_artifacts: ${{ contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
     secrets:
       registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
@@ -1168,7 +1155,7 @@ jobs:
         get-environment,
         changes,
         dockerize,
-        create-xray-test-plan-and-test-execution,
+        xray-prepare-test-plan,
         gherkin-lint,
         e2e-lint,
       ]
@@ -1188,6 +1175,7 @@ jobs:
     with:
       name: e2e
       module_name: centreon
+      jira_component_name: centreon-web
       image_name: centreon-web
       database_image: bitnamilegacy/${{ matrix.database }}
       os: ${{ matrix.operating_system }}
@@ -1200,7 +1188,9 @@ jobs:
       package_directory: fixtures/packages
       test_tags: ${{ needs.changes.outputs.trigger_upgrade_testing == 'true' && matrix.test_tags || format('{0} and not @update and not @upgrade', matrix.test_tags) }}
       dependencies_lock_file: centreon/pnpm-lock.yaml
-      xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
+      jira_test_plan_key: ${{ needs.xray-prepare-test-plan.outputs.jira_test_plan_key }}
+      xray_test_plan_issue_id: ${{ needs.xray-prepare-test-plan.outputs.xray_test_plan_issue_id }}
+      database_name: ${{ matrix.database }}
       is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
       labels: ${{ needs.get-environment.outputs.labels }}

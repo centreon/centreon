@@ -142,3 +142,23 @@ it('does not mirror non-authentication events to login.log', function (): void {
 
     expect(file_exists($legacyFile))->toBeFalse();
 });
+
+it('neutralizes line breaks and the field delimiter when mirroring to login.log', function (): void {
+    $legacyFile = centreonLegacyLoginLogPath();
+    if (file_exists($legacyFile)) {
+        unlink($legacyFile);
+    }
+
+    // A crafted message carrying CRLF and a pipe must stay a single pipe-delimited record:
+    // CR/LF and the field delimiter are replaced by spaces, so it cannot split or forge
+    // records in login.log (matches LoggerAuthentication's sanitization).
+    (new CentreonUserLog(7, null))->insertLog(
+        CentreonUserLog::TYPE_LOGIN,
+        "[local] [10.0.0.1]\r\nforged|admin"
+    );
+
+    expect(file_exists($legacyFile))->toBeTrue()
+        ->and(file_get_contents($legacyFile))->toMatch(
+            '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\|7\|0\|0\|\[local\] \[10\.0\.0\.1\]  forged admin\n$/'
+        );
+});

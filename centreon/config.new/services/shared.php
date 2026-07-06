@@ -21,14 +21,7 @@
 
 declare(strict_types=1);
 
-use Monolog\Formatter\LineFormatter;
-use Monolog\Processor\UidProcessor;
-use Symfony\Bridge\Monolog\Processor\RouteProcessor;
-use Symfony\Bridge\Monolog\Processor\TokenProcessor;
-use Symfony\Bridge\Monolog\Processor\WebProcessor;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-
-use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
@@ -37,29 +30,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->autowire()
         ->autoconfigure();
 
+    // SanitizingProcessor is registered explicitly in monolog.php so its
+    // execution order can be controlled; keep it out of the autoload tagging
+    // to avoid a duplicate `monolog.processor` registration.
     $services->load('App\\Shared\\', __DIR__ . '/../../src/App/Shared')
-        ->exclude([__DIR__ . '/../../src/App/Shared/Infrastructure/Symfony/Kernel.php']);
-
-    // UidProcessor stamps every record on every channel with one id per
-    // process — single `grep <uid>` across all log files.
-    $services->set('monolog.processor.uid', UidProcessor::class)
-        ->tag('monolog.processor');
-
-    // Request/security context globally — every log file (catch-all and
-    // dedicated) gets the HTTP shape when a request is in scope; CLI
-    // workers see empty values, never problematic noise.
-    $services->set('monolog.processor.web', WebProcessor::class)
-        ->tag('monolog.processor');
-
-    $services->set('monolog.processor.route', RouteProcessor::class)
-        ->tag('monolog.processor');
-
-    $services->set('monolog.processor.token', TokenProcessor::class)
-        ->arg('$tokenStorage', service('security.token_storage'))
-        ->tag('monolog.processor');
-
-    // RFC3339 timestamp at service level. NOT at handler level on
-    // rotating_file, where `date_format:` configures the FILENAME suffix.
-    $services->set('monolog.formatter.line', LineFormatter::class)
-        ->arg('$dateFormat', DateTimeInterface::RFC3339);
+        ->exclude([
+            __DIR__ . '/../../src/App/Shared/Infrastructure/Symfony/Kernel.php',
+            __DIR__ . '/../../src/App/Shared/Infrastructure/Logging/SanitizingProcessor.php',
+        ]);
 };

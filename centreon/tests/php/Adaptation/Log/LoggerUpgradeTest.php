@@ -37,9 +37,17 @@ function loggerUpgradeWithSpy(): array
         /** @var list<array{level: string, message: string, context: array<string, mixed>}> */
         public array $records = [];
 
+        /**
+         * @param array<string, mixed> $context
+         * @param mixed $level
+         */
         public function log($level, string|Stringable $message, array $context = []): void
         {
-            $this->records[] = ['level' => (string) $level, 'message' => (string) $message, 'context' => $context];
+            $this->records[] = [
+                'level' => is_scalar($level) ? (string) $level : '',
+                'message' => (string) $message,
+                'context' => $context,
+            ];
         }
     };
 
@@ -79,20 +87,32 @@ it('emits the success with the measured duration', function (): void {
         ->and($record['context']['duration_ms'])->toBe(4242);
 });
 
-it('emits a failure as an ERROR and attaches the throwable, with nullable versions', function (): void {
+it('emits a failure as an ERROR routing the versions to from/to and attaching the throwable', function (): void {
     [$facade, $spy] = loggerUpgradeWithSpy();
     $exception = new RuntimeException('boom');
 
-    $facade->failure('upgrade aborted', null, null, $exception);
+    // Distinct, non-null versions pin the version-first argument order by value: a swap back to a
+    // message-first signature would route 'upgrade aborted' into from_version and fail these assertions.
+    $facade->failure('25.10.0', '25.11.0', 'upgrade aborted', $exception);
 
     $record = $spy->records[0];
     expect($record['level'])->toBe(LogLevel::ERROR)
         ->and($record['message'])->toBe('upgrade aborted')
         ->and($record['context']['event'])->toBe('upgrade.failure')
         ->and($record['context']['status'])->toBe('failure')
-        ->and($record['context']['from_version'])->toBeNull()
-        ->and($record['context']['to_version'])->toBeNull()
+        ->and($record['context']['from_version'])->toBe('25.10.0')
+        ->and($record['context']['to_version'])->toBe('25.11.0')
         ->and($record['context']['exception'])->toBe($exception);
+});
+
+it('accepts null versions on failure (pre-start abort with no known from/to)', function (): void {
+    [$facade, $spy] = loggerUpgradeWithSpy();
+
+    $facade->failure(null, null, 'upgrade aborted', new RuntimeException('boom'));
+
+    $record = $spy->records[0];
+    expect($record['context']['from_version'])->toBeNull()
+        ->and($record['context']['to_version'])->toBeNull();
 });
 
 it('emits a step start as a running upgrade.step carrying the step name', function (): void {
@@ -125,12 +145,16 @@ it('emits a step failure as an ERROR with the step name and the throwable', func
     [$facade, $spy] = loggerUpgradeWithSpy();
     $exception = new RuntimeException('SQL failed');
 
-    $facade->stepFailure('step failed', '25.11.0', 'configuration_sql', $exception);
+    $facade->stepFailure('25.11.0', 'configuration_sql', 'step failed', $exception);
 
+    // Assert every slot by value so the version-first order is pinned: version, step and message
+    // are distinct strings, so a swapped argument order would land in the wrong context key.
     $record = $spy->records[0];
     expect($record['level'])->toBe(LogLevel::ERROR)
+        ->and($record['message'])->toBe('step failed')
         ->and($record['context']['event'])->toBe('upgrade.step_failure')
         ->and($record['context']['status'])->toBe('failure')
+        ->and($record['context']['version'])->toBe('25.11.0')
         ->and($record['context']['step'])->toBe('configuration_sql')
         ->and($record['context']['exception'])->toBe($exception);
 });
