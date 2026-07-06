@@ -160,7 +160,9 @@ The `vault` profile runs a HashiCorp Vault (dev mode) and migrates Centreon cred
 * Centreon authenticates via AppRole (policy `central`, secrets stored under `centreon/`) with `VAULT_ROLE_ID` / `VAULT_SECRET_ID` from `.env`. The UI has no AppRole login, so to sign in as this identity, exchange them for a token and paste it in the Token field:
 
 ```bash
+# load VAULT_ROLE_ID / VAULT_SECRET_ID from the committed .env into the shell
 set -a; . .github/docker/.env; set +a
+# exchange them for a Vault token (-k trusts the self-signed cert), print only the token
 curl -sk -X POST --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}" \
   https://127.0.0.1:8200/v1/auth/approle/login | jq -r .auth.client_token
 ```
