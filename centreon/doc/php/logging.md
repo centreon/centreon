@@ -618,6 +618,60 @@ flowchart LR
 
 Only `AUTHENTICATION` carries a different slug — login/ldap/openid/saml records all converge in the shared `access.log` file (cf. MON-151077).
 
+### Module channels — `LogChannelInterface` and `ModuleLogChannel`
+
+`LogChannelEnum` is a **closed** enum: it lists only the core platform channels, and a module (living in a separate repository, or under `centreon-dsm/`, `centreon-open-tickets/`, …) cannot add a case to it. To let a module own a **dedicated** log file that still flows through the unified pipeline (secret masking, exception formatting, `extra.uid`, web context), the channel is opened behind an interface:
+
+```php
+interface LogChannelInterface
+{
+    public function getChannelName(): string;               // Monolog channel tag
+    public function getLogFileName(string $appEnv): string;  // file name, no directory
+}
+```
+
+Two implementations:
+
+| Implementation | `getChannelName()` | `getLogFileName($appEnv)` | Example file |
+|---|---|---|---|
+| `LogChannelEnum` (core) | the enum `value` | `{appEnv}.{slug}.log` | `prod.web.log` |
+| `ModuleLogChannel` (modules) | the validated slug | the **literal historical name** (no `appEnv` prefix) | `license-manager.log` |
+
+`MonologAdapter` depends on `LogChannelInterface` and **delegates the file name to the channel** (`getLogFileFromChannel()` no longer hard-codes `sprintf('%s/%s.%s.log', …)`), so a module channel gets the exact same platform processor stack as a core channel.
+
+#### Historical file names are preserved
+
+External consumers — ops runbooks, SIEM parsers, monitoring — watch some module logs **by their exact path**. A `ModuleLogChannel` therefore returns the **literal** historical file name, with **no `prod.` / env prefix**:
+
+- `license-manager.log` (License Manager + PP Manager) — restored as a real dedicated file instead of being misrouted into `prod.upgrade.log`.
+- `autodiscovery_job.log` (Auto Discovery).
+
+> Only the **file name** is preserved. The **line format** necessarily changes to the platform one (`LineFormatter`, RFC3339 timestamp + JSON `context` / `extra`). If byte-for-byte format compatibility is required for a specific consumer of a given file, flag it explicitly.
+
+These module files are **not** added to `centreon/logrotate/centreon` — that config covers the core `prod.*.log` files (see [§9](#9-routing-and-output-file)). Each module keeps whatever log rotation its own module / packaging already provides; the unified pipeline only changes where the records are routed and how they are formatted, not who rotates the file.
+
+#### `ModuleLogChannel`
+
+`Adaptation\Log\Channel\ModuleLogChannel` is a `final readonly` value object that validates its slug **once at construction**, so every instance is guaranteed valid and immutable:
+
+```php
+use Adaptation\Log\Channel\ModuleLogChannel;
+use Adaptation\Log\Logger;
+
+Logger::create(new ModuleLogChannel('license-manager'))->error(
+    'IMP API call failed',
+    ['exception' => $e],
+);
+```
+
+The slug is constrained to `^[a-z0-9]([a-z0-9_-]*[a-z0-9])?$/D` (lowercase alphanumerics, `-` / `_` separators, no leading/trailing separator). Since the slug becomes a file-name component, anything that could escape the log directory (`/`, `.`, `..`) or forge a log line (a newline — blocked by the `D` modifier) is rejected. An invalid slug throws `LoggerException`; a call site that builds a channel from a non-constant value must contain it (see `CentreonRestHttp` below).
+
+The `ModuleLogChannel::fromLogFileName('license-manager.log')` factory strips a trailing `.log` then validates the result, so a legacy caller that passes a historical **file name** keeps working.
+
+#### `CentreonRestHttp`
+
+`CentreonRestHttp`'s second constructor argument accepts `string|LoggerInterface` (for backward compatibility): a historical caller passing `'license-manager.log'` is routed to a `ModuleLogChannel` automatically, while new code injects an explicit `Logger::create(new ModuleLogChannel(...))`. A malformed name never breaks the HTTP client — it degrades to a `NullLogger` and reports the rejected name (control characters stripped) through `error_log`.
+
 ### `Adaptation\Log\Logger`
 
 ```php
