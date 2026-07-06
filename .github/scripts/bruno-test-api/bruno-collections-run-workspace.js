@@ -78,6 +78,10 @@ const tagsExcluded = "ignore";
 
 const jsonReport = path.join(artifactsDir, `${collection}-merged.json`);
 const htmlReport = path.join(artifactsDir, `${collection}.html`);
+// JUnit report consumed by the Xray import. Stable per-collection name so the
+// import workflow can match every collection's file with a single `*-junit.xml`
+// find pattern (mirrors jsonReport/htmlReport naming above).
+const junitReport = path.join(artifactsDir, `${collection}-junit.xml`);
 
 const argEnv = environmentFileWithoutExtension
   ? `--env "${environmentFileWithoutExtension}"`
@@ -95,6 +99,7 @@ const cmd = [
   `--exclude-tags ${tagsExcluded}`,
   `--reporter-json "${jsonReport}"`,
   `--reporter-html "${htmlReport}"`,
+  `--reporter-junit "${junitReport}"`,
 ].join(" ");
 
 console.log("\n============================================================");

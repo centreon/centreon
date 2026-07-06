@@ -1,0 +1,115 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Cannot call method getId\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 3
+			path: tests/php/Core/Broker/Application/UseCase/AddBrokerInputOutput/AddBrokerInputOutputTest.php
+
+		-
+			message: '#^Cannot call method getName\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/php/Core/Broker/Application/UseCase/AddBrokerInputOutput/AddBrokerInputOutputTest.php
+
+		-
+			message: '#^Cannot call method getParameters\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/php/Core/Broker/Application/UseCase/AddBrokerInputOutput/AddBrokerInputOutputTest.php
+
+		-
+			message: '#^Cannot call method getType\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/php/Core/Broker/Application/UseCase/AddBrokerInputOutput/AddBrokerInputOutputTest.php
+
+		-
+			message: '#^Cannot call method getId\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: tests/php/Core/Host/Application/UseCase/AddHost/AddHostTest.php
+
+		-
+			message: '#^Cannot call method getName\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: tests/php/Core/Host/Application/UseCase/AddHost/AddHostTest.php
+
+		-
+			message: '#^Cannot call method getId\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: tests/php/Core/Host/Application/UseCase/GetHost/GetHostTest.php
+
+		-
+			message: '#^Cannot call method getName\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: tests/php/Core/Host/Application/UseCase/GetHost/GetHostTest.php
+
+		-
+			message: '#^Missing parameter \$alias \(Core\\Common\\Domain\\TrimmedString\|null\) in call to Core\\Host\\Domain\\Model\\SmallHost constructor\.$#'
+			identifier: argument.missing
+			count: 5
+			path: tests/php/Core/Host/Domain/Model/SmallHostTest.php
+
+		-
+			message: '#^Missing parameter \$checkTimePeriod \(Core\\Common\\Domain\\SimpleEntity\|null\) in call to Core\\Host\\Domain\\Model\\SmallHost constructor\.$#'
+			identifier: argument.missing
+			count: 5
+			path: tests/php/Core/Host/Domain/Model/SmallHostTest.php
+
+		-
+			message: '#^Missing parameter \$id \(int\) in call to Core\\Host\\Domain\\Model\\SmallHost constructor\.$#'
+			identifier: argument.missing
+			count: 4
+			path: tests/php/Core/Host/Domain/Model/SmallHostTest.php
+
+		-
+			message: '#^Missing parameter \$ipAddress \(Core\\Common\\Domain\\TrimmedString\) in call to Core\\Host\\Domain\\Model\\SmallHost constructor\.$#'
+			identifier: argument.missing
+			count: 4
+			path: tests/php/Core/Host/Domain/Model/SmallHostTest.php
+
+		-
+			message: '#^Missing parameter \$isActivated \(bool\) in call to Core\\Host\\Domain\\Model\\SmallHost constructor\.$#'
+			identifier: argument.missing
+			count: 5
+			path: tests/php/Core/Host/Domain/Model/SmallHostTest.php
+
+		-
+			message: '#^Missing parameter \$monitoringServer \(Core\\Common\\Domain\\SimpleEntity\) in call to Core\\Host\\Domain\\Model\\SmallHost constructor\.$#'
+			identifier: argument.missing
+			count: 5
+			path: tests/php/Core/Host/Domain/Model/SmallHostTest.php
+
+		-
+			message: '#^Missing parameter \$name \(Core\\Common\\Domain\\TrimmedString\) in call to Core\\Host\\Domain\\Model\\SmallHost constructor\.$#'
+			identifier: argument.missing
+			count: 4
+			path: tests/php/Core/Host/Domain/Model/SmallHostTest.php
+
+		-
+			message: '#^Missing parameter \$normalCheckInterval \(int\|null\) in call to Core\\Host\\Domain\\Model\\SmallHost constructor\.$#'
+			identifier: argument.missing
+			count: 4
+			path: tests/php/Core/Host/Domain/Model/SmallHostTest.php
+
+		-
+			message: '#^Missing parameter \$notificationTimePeriod \(Core\\Common\\Domain\\SimpleEntity\|null\) in call to Core\\Host\\Domain\\Model\\SmallHost constructor\.$#'
+			identifier: argument.missing
+			count: 5
+			path: tests/php/Core/Host/Domain/Model/SmallHostTest.php
+
+		-
+			message: '#^Missing parameter \$retryCheckInterval \(int\|null\) in call to Core\\Host\\Domain\\Model\\SmallHost constructor\.$#'
+			identifier: argument.missing
+			count: 4
+			path: tests/php/Core/Host/Domain/Model/SmallHostTest.php
+
+		-
+			message: '#^Missing parameter \$severity \(Core\\Common\\Domain\\SimpleEntity\|null\) in call to Core\\Host\\Domain\\Model\\SmallHost constructor\.$#'
+			identifier: argument.missing
+			count: 5
+			path: tests/php/Core/Host/Domain/Model/SmallHostTest.php

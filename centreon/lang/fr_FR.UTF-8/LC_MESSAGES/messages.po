@@ -12983,10 +12983,10 @@ msgstr "La plateforme n'a pas été trouvée"
 #: centreon/www/install/step_upgrade/step4.php
 #, php-format
 msgid ""
-"Please check the \"upgrade.log\" and the \"sql-error.log\" located in \"%s\" "
+"Please check the \"prod.upgrade.log\" and the \"prod.web.log\" located in \"%s\" "
 "for more details"
 msgstr ""
-"Veuillez consulter les fichiers \"upgrade.log\" et \"sql-error.log\" situés "
+"Veuillez consulter les fichiers \"prod.upgrade.log\" et \"prod.web.log\" situés "
 "dans \"%s\" pour plus de détails"
 
 #: centreon/www/include/monitoring/downtime/AddDowntime.php

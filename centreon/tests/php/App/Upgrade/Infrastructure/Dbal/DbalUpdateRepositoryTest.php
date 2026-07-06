@@ -192,6 +192,65 @@ final class DbalUpdateRepositoryTest extends TestCase
         $this->repository($filesystem)->backupInstallDirectory(self::VERSION);
     }
 
+    public function testWriteExecutedQueriesCountWritesTheResumeCursor(): void
+    {
+        $this->realFilesystem->mkdir($this->installDir . '/tmp');
+        $tmpFile = $this->installDir . '/tmp/cursor-' . uniqid() . '.tmp';
+
+        (new \ReflectionMethod(DbalUpdateRepository::class, 'writeExecutedQueriesCount'))
+            ->invoke($this->repository(), $tmpFile, 7);
+
+        self::assertSame('7', file_get_contents($tmpFile));
+    }
+
+    public function testWriteExecutedQueriesCountThrowsWhenFileIsNotWritable(): void
+    {
+        if (function_exists('posix_getuid') && posix_getuid() === 0) {
+            self::markTestSkipped('Permission bits are bypassed when running as root.');
+        }
+
+        $this->realFilesystem->mkdir($this->installDir . '/tmp');
+        $tmpFile = $this->installDir . '/tmp/cursor-' . uniqid() . '.tmp';
+        file_put_contents($tmpFile, '0');
+        chmod($tmpFile, 0o444);
+
+        try {
+            (new \ReflectionMethod(DbalUpdateRepository::class, 'writeExecutedQueriesCount'))
+                ->invoke($this->repository(), $tmpFile, 3);
+            self::fail('Expected a non-writable resume file to abort the write');
+        } catch (\RuntimeException $exception) {
+            self::assertStringContainsString('temporary file', $exception->getMessage());
+        } finally {
+            chmod($tmpFile, 0o644);
+        }
+    }
+
+    public function testWriteExecutedQueriesCountThrowsWhenTheWriteFailsEntirely(): void
+    {
+        // A regular file used as a parent makes file_put_contents() fail (ENOTDIR) and return false,
+        // exercising the write-failure branch itself rather than the earlier is_writable guard.
+        $this->realFilesystem->mkdir($this->installDir . '/tmp');
+        $blocker = $this->installDir . '/tmp/blocker-' . uniqid();
+        file_put_contents($blocker, 'x');
+        $tmpFile = $blocker . '/cursor.tmp';
+
+        // The failed write emits an expected E_WARNING; swallow it so only our exception is asserted.
+        set_error_handler(
+            static fn (int $severity, string $message): bool => $severity === E_WARNING
+                && str_contains($message, 'file_put_contents')
+                && str_contains($message, $tmpFile)
+        );
+        try {
+            (new \ReflectionMethod(DbalUpdateRepository::class, 'writeExecutedQueriesCount'))
+                ->invoke($this->repository(), $tmpFile, 5);
+            self::fail('Expected the failed write to abort the write');
+        } catch (\RuntimeException $exception) {
+            self::assertStringContainsString('temporary file', $exception->getMessage());
+        } finally {
+            restore_error_handler();
+        }
+    }
+
     private function repository(?Filesystem $filesystem = null): DbalUpdateRepository
     {
         return new DbalUpdateRepository(

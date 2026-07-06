@@ -1,0 +1,8 @@
+# Query the current Xray Test Type of a Test (to verify updateTestType applied).
+query GetTestType($id: String!) {
+  getTest(issueId: $id) {
+    testType {
+      name
+    }
+  }
+}
