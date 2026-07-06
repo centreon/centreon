@@ -155,7 +155,7 @@ export default (on: Cypress.PluginEvents): void => {
 
       return container.getMappedPort(containerPort);
     },
-    requestOnDatabase: async ({ database, query }) => {
+    requestOnDatabase: async ({ database, query, params }) => {
       let container: StartedTestContainer | null = null;
 
       if (dockerEnvironment !== null) {
@@ -172,11 +172,15 @@ export default (on: Cypress.PluginEvents): void => {
         user: "centreon",
       });
 
-      const [rows, fields] = await client.query(query);
+      try {
+        const [rows, fields] = params
+          ? await client.execute(query, params)
+          : await client.query(query);
 
-      await client.end();
-
-      return [rows, fields];
+        return [rows, fields];
+      } finally {
+        await client.end();
+      }
     },
     startContainer: async ({
       command,
@@ -240,6 +244,15 @@ export default (on: Cypress.PluginEvents): void => {
       } catch (error) {
         console.error(error);
 
+        // Best-effort teardown: keep the original startup error if cleanup fails.
+        try {
+          await dockerEnvironment?.down();
+        } catch (teardownError) {
+          console.error(teardownError);
+        } finally {
+          dockerEnvironment = null;
+        }
+
         throw error;
       }
     },
@@ -299,21 +312,36 @@ export default (on: Cypress.PluginEvents): void => {
       return path.join(downloadsFolder, files[0].name);
     },
     readCsvFile({ filePath }: { filePath: string }): Promise<string> {
+      const projectRoot = path.resolve(process.cwd());
+      const resolvedPath = path.resolve(filePath);
+      if (resolvedPath !== projectRoot && !resolvedPath.startsWith(projectRoot + path.sep)) {
+        return Promise.reject(new Error("Path is outside of the project directory"));
+      }
+
       return new Promise((resolve, reject) => {
-        fs.readFile(filePath, "utf8", (err, data) => {
+        fs.readFile(resolvedPath, "utf8", (err, data) => {
           if (err) return reject(err);
           resolve(data);
         });
       });
     },
     clearDownloadsFolder({ downloadsFolder }: { downloadsFolder: string }): null {
-      if (!fs.existsSync(downloadsFolder)) {
+      const projectRoot = path.resolve(process.cwd());
+      const resolvedFolder = path.resolve(downloadsFolder);
+      if (resolvedFolder !== projectRoot && !resolvedFolder.startsWith(projectRoot + path.sep)) {
+        throw new Error("Path is outside of the project directory");
+      }
+
+      if (!fs.existsSync(resolvedFolder)) {
         return null;
       }
 
-      const files = fs.readdirSync(downloadsFolder);
+      const files = fs.readdirSync(resolvedFolder);
       for (const file of files) {
-        const filePath = path.join(downloadsFolder, file);
+        const filePath = path.join(resolvedFolder, file);
+        if (!filePath.startsWith(resolvedFolder + path.sep)) {
+          continue;
+        }
         fs.unlinkSync(filePath);
       }
 

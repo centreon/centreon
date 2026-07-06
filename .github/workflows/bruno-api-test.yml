@@ -31,8 +31,22 @@ on:
         required: true
         type: string
       xray_keys_and_ids:
-        description: "The test execution and the test plan keys and ids"
-        required: true
+        description: "The test execution and the test plan keys and ids (legacy flow)"
+        required: false
+        type: string
+      jira_test_plan_key:
+        description: "Jira Test Plan key; when set, results are imported and linked to it"
+        required: false
+        type: string
+      minor_version:
+        required: false
+        type: string
+      database_name:
+        required: false
+        type: string
+      module_name:
+        description: "Jira component (e.g. centreon-web, centreon-awie)"
+        required: false
         type: string
       upload_artifacts:
         description: "Whether to upload deprecation logs artifacts"
@@ -249,25 +263,13 @@ jobs:
             ${{ env.WORKING_DIRECTORY }}/artifacts/${{ env.FEATURE }}/*.json
             ${{ env.WORKING_DIRECTORY }}/artifacts/${{ env.FEATURE }}/*.html
             ${{ env.WORKING_DIRECTORY }}/artifacts/${{ env.FEATURE }}/${{ env.FEATURE }}-merged.json
+            ${{ env.WORKING_DIRECTORY }}/artifacts/${{ env.FEATURE }}/*-junit.xml
 
       - name: Generate GitHub Summary
         if: always()
         run: |
           node "$BRUNO_GITHUB_SCRIPTS_PATH/bruno-github-summary.js" "$FEATURE" \
             >> "$GITHUB_STEP_SUMMARY"
-
-      # Generate Xray Token
-      - name: Generate Xray Token
-        id: generate-xray-token
-        env:
-          XRAY_CLIENT_ID: ${{ secrets.client_id }}
-          XRAY_CLIENT_SECRET: ${{ secrets.client_secret }}
-        run: |
-          payload=$(jq -nc --arg id "$XRAY_CLIENT_ID" --arg secret "$XRAY_CLIENT_SECRET" '{client_id: $id, client_secret: $secret}')
-          token_response=$(curl -H "Content-Type: application/json" -X POST --data "$payload" "https://xray.cloud.getxray.app/api/v1/authenticate")
-          xray_token=$(echo "$token_response" | sed -n 's/.*"\(.*\)".*/\1/p')
-          echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
-        shell: bash
 
       - name: Display container logs
         if: failure()
@@ -276,12 +278,12 @@ jobs:
           docker compose -f ../../../../.github/docker/docker-compose.yml logs
           echo "::endgroup::"
 
-          echo "::group::centreon-web.log"
-          docker compose -f ../../../../.github/docker/docker-compose.yml exec web bash -c "cat /var/log/centreon/centreon-web.log 2>/dev/null || echo 'centreon-web.log does not exist'"
+          echo "::group::prod.web.log"
+          docker compose -f ../../../../.github/docker/docker-compose.yml exec web bash -c "cat /var/log/centreon/prod.web.log 2>/dev/null || echo 'prod.web.log does not exist'"
           echo "::endgroup::"
 
-          echo "::group::sql-error.log"
-          docker compose -f ../../../../.github/docker/docker-compose.yml exec web bash -c "cat /var/log/centreon/sql-error.log 2>/dev/null || echo 'sql-error.log does not exist'"
+          echo "::group::prod.access.log"
+          docker compose -f ../../../../.github/docker/docker-compose.yml exec web bash -c "cat /var/log/centreon/prod.access.log 2>/dev/null || echo 'prod.access.log does not exist'"
           echo "::endgroup::"
         shell: bash
 
@@ -326,3 +328,28 @@ jobs:
           pattern: bruno-${{ inputs.operating_system }}-*-deprecation-logs
           retention-days: 1
           delete-merged: true
+
+  # Import the JUnit results into Xray and link them to the Test Plan. Skipped for
+  # callers still on the legacy flow (those that do not pass jira_test_plan_key).
+  xray-api-import-results:
+    needs: [bruno-run-collection]
+    if: ${{ ! cancelled() && inputs.jira_test_plan_key != '' }}
+    uses: ./.github/workflows/xray-api-import-results.yml
+    with:
+      jira_test_plan_key: ${{ inputs.jira_test_plan_key }}
+      report_path: bruno-junit-results
+      environment: ${{ inputs.operating_system }}
+      operating_system: ${{ inputs.operating_system }}
+      database_name: ${{ inputs.database_name }}
+      major_version: ${{ inputs.major_version }}
+      minor_version: ${{ inputs.minor_version }}
+      module_name: ${{ inputs.module_name }}
+      type_test_execution: api
+      result_format: junit
+      enrich_tests: true
+      artifact_pattern: "bruno-report-*"
+    secrets:
+      XRAY_CLIENT_ID: ${{ secrets.client_id }}
+      XRAY_CLIENT_SECRET: ${{ secrets.client_secret }}
+      XRAY_JIRA_USER_EMAIL: ${{ secrets.jira_user }}
+      XRAY_JIRA_TOKEN: ${{ secrets.jira_token_test }}

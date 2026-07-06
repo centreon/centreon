@@ -33,6 +33,7 @@ use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -177,7 +178,10 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
             foreach ($nameCriteria as $operator => $names) {
                 if ($operator === ConnectorCriteria::OPERATOR_LIKE) {
                     $qb->andWhere($qb->expr()->or(...array_map(
-                        static fn (string $name): string => $qb->expr()->like('c.name', '"%' . $name . '%"'),
+                        static fn (string $name): string => $qb->expr()->like(
+                            'c.name',
+                            $qb->createNamedParameter('%' . $name . '%')
+                        ),
                         $names
                     )));
 
@@ -185,7 +189,7 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
                 }
                 $qb->andWhere($qb->expr()->in(
                     'c.name',
-                    array_map(static fn (string $name): string => '"' . $name . '"', $names)
+                    $qb->createNamedParameter($names, ArrayParameterType::STRING)
                 ));
             }
         }
@@ -193,7 +197,10 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
             foreach ($idCriteria as $operator => $ids) {
                 if ($operator === ConnectorCriteria::OPERATOR_LIKE) {
                     $qb->andWhere($qb->expr()->or(...array_map(
-                        static fn (int $id): string => $qb->expr()->like('c.id', '"%' . $id . '%"'),
+                        static fn (int $id): string => $qb->expr()->like(
+                            'c.id',
+                            $qb->createNamedParameter('%' . $id . '%')
+                        ),
                         $ids
                     )));
 
@@ -201,7 +208,7 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
                 }
                 $qb->andWhere($qb->expr()->in(
                     'c.id',
-                    array_map(static fn (int $id): string => '"' . $id . '"', $ids)
+                    $qb->createNamedParameter($ids, ArrayParameterType::INTEGER)
                 ));
             }
         }

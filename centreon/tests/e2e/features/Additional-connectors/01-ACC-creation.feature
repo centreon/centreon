@@ -4,7 +4,7 @@ Feature: Create a new Additional Connector Configuration
   I want to visit the Additional Connector Configuration page
   To manage additional connector configuration
 
-  @TEST_MON-150318
+  @MON-150318
   Scenario: Add an additional connector configuration with all informations
     Given a non-admin user is in the Additional Connector Configuration page
     When the user clicks on Add additional configurations
@@ -13,7 +13,7 @@ Feature: Create a new Additional Connector Configuration
     And the user clicks on Create
     Then the first connector is displayed in the Additional Connector Configuration page
 
-  @TEST_MON-150319
+  @MON-150319
   Scenario: Add an additional connector configuration with mandatory informations
     Given a non-admin user is in the Additional Connector Configuration page
     When the user clicks on Add
@@ -22,7 +22,7 @@ Feature: Create a new Additional Connector Configuration
     And the user clicks on Create
     Then the second configuration is displayed in the Additional Connector Configuration page
 
-  @TEST_MON-150320
+  @MON-150320
   Scenario: Add an additional connector configuration with multiple parameter groups
     Given a non-admin user is in the Additional Connector Configuration page
     When the user clicks on Add
@@ -33,21 +33,21 @@ Feature: Create a new Additional Connector Configuration
     And the user clicks on Create
     Then the third configuration is displayed in the Additional Connector Configuration page
 
-  @TEST_MON-150321
+  @MON-150321
   Scenario: Add an additional connector configuration with missing informations
     Given a non-admin user is in the Additional Connector Configuration page
     When the user clicks on Add
     And the user doesn't fill in all the mandatory informations
     Then the user cannot click on Create
 
-  @TEST_MON-150322
+  @MON-150322
   Scenario: Add an additional connector configuration with incorrect informations
     Given a non-admin user is in the Additional Connector Configuration page
     When the user clicks on Add
     And the user doesn't fill in correct type of informations
     Then the form displayed an error
 
-  @TEST_MON-150323
+  @MON-150323
   Scenario: Cancel a creation form
     Given a non-admin user is in the Additional Connector Configuration page
     When the user clicks on Add
@@ -60,7 +60,7 @@ Feature: Create a new Additional Connector Configuration
     When the user clicks on Add
     Then the form fields are empty
 
-  @TEST_MON-152805
+  @MON-152805
   Scenario: Verification on fields (vCenter name, URL, Username, Password, Port) on ACC Form
     Given a non-admin user is in the Additional Connector Configuration page
     When the user clicks on Add
@@ -68,7 +68,7 @@ Feature: Create a new Additional Connector Configuration
     And fields "vCenter name, URL, Username, Password, Port" are not on readonly
     And fields "vCenter name, URL, Username, Password, Port" have the right labels
 
-  @TEST_MON-152806
+  @MON-152806
   Scenario Outline: Verification of the pop-up displayed when user '<action>' an ACC form creation with all mandatory informations
     Given a non-admin user is in the Additional Connector Configuration page
     When the user clicks on Add
@@ -83,7 +83,7 @@ Feature: Create a new Additional Connector Configuration
       | clicks on cancel | Do you want to save the changes? | If you click on Discard, your changes will not be saved. |
       | clicks outside | Do you want to save the changes? | If you click on Discard, your changes will not be saved. |
 
-  @TEST_MON-152808
+  @MON-152808
   Scenario Outline: Verification of the pop-up displayed when user '<action>' an ACC form creation with missing mandatory informations
     Given a non-admin user is in the Additional Connector Configuration page
     When the user clicks on Add

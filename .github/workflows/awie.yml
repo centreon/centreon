@@ -7,6 +7,11 @@ concurrency:
 on:
   workflow_dispatch:
     inputs:
+      nightly_manual_trigger:
+        description: "Set to true to trigger a nightly run"
+        required: false
+        default: false
+        type: boolean
       labels:
         description: "Labels to add to the run (comma separated)"
         required: false
@@ -47,6 +52,7 @@ jobs:
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon-awie/www/modules/centreon-awie/conf.php
+      nightly_manual_trigger: ${{ inputs.nightly_manual_trigger || false }}
       labels: ${{ inputs.labels || '' }}
 
   check-version-consistency:
@@ -139,6 +145,7 @@ jobs:
         id: changed-php
         uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         with:
+          use_rest_api: ${{ github.event_name == 'pull_request' }}
           files: |
             **/*.php
 
@@ -160,37 +167,41 @@ jobs:
           echo "Run of these PHP-CS-Fixer tests: cs:legacy on diff" && set -e
           composer cs:diff
 
+      - name: Restore PHPStan result cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: centreon-awie/.phpstan-cache
+          # Unique per run (sha) so the evolving result cache is re-saved every run;
+          # head_ref is the real branch name on pull_request (ref_name would be "N/merge").
+          key: phpstan-cache-awie-${{ github.head_ref || github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            phpstan-cache-awie-${{ github.head_ref || github.ref_name }}-
+            phpstan-cache-awie-
+
       - name: 🔍 PHPStan checks
         working-directory: centreon-awie
         run: |
-          echo "Run of these PHPStan tests: stan:legacy" && set -e
+          echo "Run of these PHPStan tests: stan:legacy"
 
-          pids=()
-          statuses=()
+          exit_code=0
 
           run_task() {
-            name=$1
-            shift
-            "$@" -- --no-progress
-            result=$?
-            if [ $result -eq 0 ]; then
-              echo "✅ PHPStan $name: Success"
+            task=$1                  # e.g. legacy
+            cache_dir=${task//:/-}
+            # PHPStan has no --tmp-dir flag; its tmp dir defaults to sys_get_temp_dir()/phpstan
+            # and sys_get_temp_dir() honours $TMPDIR. Point each task at its own dir so its
+            # result cache (resultCache.php) is isolated and persisted across runs.
+            task_tmp="${PWD}/.phpstan-cache/${cache_dir}"
+            mkdir -p "${task_tmp}"
+            if TMPDIR="${task_tmp}" composer "stan:${task}" -- --no-progress; then
+              echo "✅ PHPStan ${task}: Success"
             else
-              echo "❌ PHPStan $name: Failed"
-            fi
-            return $result
-          }
-
-          # Start tasks in background
-          run_task legacy composer stan:legacy & pids+=($!)
-
-          # Wait for all, and record if any failed
-          exit_code=0
-          for pid in "${pids[@]}"; do
-            if ! wait "$pid"; then
+              echo "❌ PHPStan ${task}: Failed"
               exit_code=1
             fi
-          done
+          }
+
+          run_task legacy
 
           exit $exit_code
 
@@ -250,22 +261,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el9, el10, trixie]
-        include:
-          - package_extension: rpm
-            tag_suffix: -alma9
-            distrib: el9
-          - package_extension: rpm
-            tag_suffix: -alma10
-            distrib: el10
-          - package_extension: deb
-            tag_suffix: -trixie
-            distrib: trixie
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
     runs-on: ubuntu-24.04
 
     container:
-      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}${{ matrix.tag_suffix }}
+      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}-${{ matrix.operating_system }}
 
     name: package ${{ matrix.distrib }}
 
@@ -426,37 +427,9 @@ jobs:
           push: true
           tags: ${{ steps.docker_tags.outputs.tags }}
 
-  create-xray-test-plan-and-test-execution:
-    needs: [get-environment, changes, dockerize]
-    if: |
-      needs.changes.outputs.trigger_e2e_testing == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      (needs.get-environment.outputs.stability == 'testing' || needs.get-environment.outputs.is_nightly == 'true') &&
-      github.event.pull_request.head.repo.fork != true
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
-    name: create-xray-test-plan-and-test-execution-${{ matrix.operating_system }}
-
-    uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
-    with:
-      major_version: ${{ needs.get-environment.outputs.major_version }}
-      minor_version: ${{ needs.get-environment.outputs.minor_version }}
-      os: ${{ matrix.operating_system }}
-      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
-    secrets:
-      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
-      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
-      xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-
   e2e-test:
     needs:
-      [get-environment, changes, create-xray-test-plan-and-test-execution, dockerize]
+      [get-environment, changes, dockerize]
     if: |
       needs.changes.outputs.trigger_e2e_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -487,7 +460,6 @@ jobs:
       package_directory: centreon-awie/tests/e2e/fixtures/packages
       test_tags: ${{ matrix.test_tags }}
       dependencies_lock_file: centreon-awie/tests/e2e/pnpm-lock.yaml
-      xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
       is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
     secrets:
@@ -501,7 +473,7 @@ jobs:
       github_models_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   deliver-sources:
-    runs-on: ubuntu-24.04
+    runs-on: centreon-common
     needs: [get-environment, package]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&

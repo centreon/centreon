@@ -7,27 +7,27 @@ Feature: Configuration of a command
     Given an admin user is logged in a Centreon server
     And the admin user is on the commands Configuration page
 
-  @TEST_MON-158775
+  @MON-158775
   Scenario: Create a new command
     When the admin user creates a command
     Then the command is displayed in the list
 
-  @TEST_MON-158776
+  @MON-158776
   Scenario: Change the properties of a command
     When the admin user changes the properties of a command
     Then the properties are updated
 
-  @TEST_MON-158777
+  @MON-158777
   Scenario: Duplicate an existing command
     When the admin user duplicates a command
     Then the new command has the same properties
 
-  @TEST_MON-158778
+  @MON-158778
   Scenario: Delete an existing command
     When the admin user deletes a command
     Then the deleted command is not displayed in the list
 
-  @TEST_MON-158779
+  @MON-158779
   Scenario Outline: Create different types of commands
     When the admin user creates a "<type>" command
     Then the "<type>" command is displayed on the listing page
@@ -37,14 +37,14 @@ Feature: Configuration of a command
       | notification  |
       | discovery     |
 
-  @TEST_MON-158940
+  @MON-158940
   Scenario: Display Host command arguments
     Given a host being configured
     When the admin user selects a check command on the host form
     Then Arguments of this command are displayed for the host
     And the admin user can configure those arguments on the host form
 
-  @TEST_MON-158939
+  @MON-158939
   Scenario: Display Service command arguments
     Given a service being configured
     When the admin user selects a check command on the service form

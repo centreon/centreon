@@ -31,21 +31,53 @@ class FakeUpdateRepository implements UpdateRepository
 
     public bool $postUpdateCalled = false;
 
-    /** @var string[] */
+    public bool $installDirectoryPresent = true;
+
+    /** @var string[] versions whose version row was recorded */
     public array $updatesRun = [];
+
+    /** @var list<string> ordered post-update calls (backup / remove) */
+    public array $calls = [];
 
     public function findCurrentVersion(): ?string
     {
         return $this->currentVersion;
     }
 
-    public function runUpdate(string $version): void
+    public function runMonitoringSql(string $version): void
+    {
+    }
+
+    public function runScript(string $version): void
+    {
+    }
+
+    public function runConfigurationSql(string $version): void
+    {
+    }
+
+    public function runPostScript(string $version): void
+    {
+    }
+
+    public function updateVersionInformation(string $version): void
     {
         $this->updatesRun[] = $version;
     }
 
-    public function runPostUpdate(string $currentVersion): void
+    public function installDirectoryExists(): bool
     {
+        return $this->installDirectoryPresent;
+    }
+
+    public function backupInstallDirectory(string $currentVersion): void
+    {
+        $this->calls[] = 'backup';
+    }
+
+    public function removeInstallDirectory(): void
+    {
+        $this->calls[] = 'remove';
         $this->postUpdateCalled = true;
     }
 }

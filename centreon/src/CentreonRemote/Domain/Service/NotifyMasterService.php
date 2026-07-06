@@ -103,6 +103,7 @@ class NotifyMasterService
 
             if ($noCheckCertificate) {
                 $this->getCurl()->setOpt(CURLOPT_SSL_VERIFYPEER, false);
+                $this->getCurl()->setOpt(CURLOPT_SSL_VERIFYHOST, 0);
             }
             if ($noProxy) {
                 $this->getCurl()->setOpt(CURLOPT_PROXY, false);

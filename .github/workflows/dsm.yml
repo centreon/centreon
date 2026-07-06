@@ -140,6 +140,7 @@ jobs:
         id: changed-php
         uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         with:
+          use_rest_api: ${{ github.event_name == 'pull_request' }}
           files: |
             **/*.php
 
@@ -161,37 +162,41 @@ jobs:
           echo "Run of these PHP-CS-Fixer tests: cs:legacy on diff" && set -e
           composer cs:diff
 
+      - name: Restore PHPStan result cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: centreon-dsm/.phpstan-cache
+          # Unique per run (sha) so the evolving result cache is re-saved every run;
+          # head_ref is the real branch name on pull_request (ref_name would be "N/merge").
+          key: phpstan-cache-dsm-${{ github.head_ref || github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            phpstan-cache-dsm-${{ github.head_ref || github.ref_name }}-
+            phpstan-cache-dsm-
+
       - name: 🔍 PHPStan checks
         working-directory: centreon-dsm
         run: |
-          echo "Run of these PHPStan tests: stan:legacy" && set -e
+          echo "Run of these PHPStan tests: stan:legacy"
 
-          pids=()
-          statuses=()
+          exit_code=0
 
           run_task() {
-             name=$1
-             shift
-             "$@" -- --no-progress
-             result=$?
-             if [ $result -eq 0 ]; then
-               echo "✅ PHPStan $name: Success"
-             else
-               echo "❌ PHPStan $name: Failed"
-             fi
-             return $result
-          }
-
-          # Start tasks in background
-          run_task legacy composer stan:legacy & pids+=($!)
-
-          # Wait for all, and record if any failed
-          exit_code=0
-          for pid in "${pids[@]}"; do
-            if ! wait "$pid"; then
+            task=$1                  # e.g. legacy
+            cache_dir=${task//:/-}
+            # PHPStan has no --tmp-dir flag; its tmp dir defaults to sys_get_temp_dir()/phpstan
+            # and sys_get_temp_dir() honours $TMPDIR. Point each task at its own dir so its
+            # result cache (resultCache.php) is isolated and persisted across runs.
+            task_tmp="${PWD}/.phpstan-cache/${cache_dir}"
+            mkdir -p "${task_tmp}"
+            if TMPDIR="${task_tmp}" composer "stan:${task}" -- --no-progress; then
+              echo "✅ PHPStan ${task}: Success"
+            else
+              echo "❌ PHPStan ${task}: Failed"
               exit_code=1
             fi
-          done
+          }
+
+          run_task legacy
 
           exit $exit_code
 
@@ -209,22 +214,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el9, el10, trixie]
-        include:
-          - package_extension: rpm
-            tag_suffix: -alma9
-            distrib: el9
-          - package_extension: rpm
-            tag_suffix: -alma10
-            distrib: el10
-          - package_extension: deb
-            tag_suffix: -trixie
-            distrib: trixie
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
     runs-on: ubuntu-24.04
 
     container:
-      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}${{ matrix.tag_suffix }}
+      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}-${{ matrix.operating_system }}
 
     name: package ${{ matrix.distrib }}
 
@@ -265,7 +260,7 @@ jobs:
           upload_artifacts: ${{ needs.get-environment.outputs.is_nightly == 'true' || contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
 
   deliver-sources:
-    runs-on: ubuntu-24.04
+    runs-on: centreon-common
     needs: [get-environment, package]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&

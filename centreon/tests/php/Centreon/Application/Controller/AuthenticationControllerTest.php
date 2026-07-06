@@ -31,7 +31,6 @@ use FOS\RestBundle\View\View;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Security\Infrastructure\Authentication\API\Model_2110\ApiAuthenticationFactory;
-use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -52,7 +51,7 @@ class AuthenticationControllerTest extends TestCase
     /** @var ContainerInterface|\PHPUnit\Framework\MockObject\MockObject */
     protected $container;
 
-    /** @var Request|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var Request */
     protected $request;
 
     protected function setUp(): void
@@ -72,7 +71,7 @@ class AuthenticationControllerTest extends TestCase
 
         $this->container = $this->createMock(ContainerInterface::class);
 
-        $this->request = $this->createMock(Request::class);
+        $this->request = new Request();
     }
 
     /**
@@ -83,17 +82,14 @@ class AuthenticationControllerTest extends TestCase
         $authenticationController = new AuthenticationController();
         $authenticationController->setContainer($this->container);
 
-        $this->request
-            ->expects($this->once())
-            ->method('getContent')
-            ->willReturn(json_encode([
-                'security' => [
-                    'credentials' => [
-                        'login' => 'admin',
-                        'password' => 'centreon',
-                    ],
+        $this->request = new Request([], [], [], [], [], [], json_encode([
+            'security' => [
+                'credentials' => [
+                    'login' => 'admin',
+                    'password' => 'centreon',
                 ],
-            ]));
+            ],
+        ]));
 
         $response = new AuthenticateApiResponse();
         $response->setApiAuthentication(
@@ -116,17 +112,14 @@ class AuthenticationControllerTest extends TestCase
         $authenticationController = new AuthenticationController();
         $authenticationController->setContainer($this->container);
 
-        $this->request
-            ->expects($this->once())
-            ->method('getContent')
-            ->willReturn(json_encode([
-                'security' => [
-                    'credentials' => [
-                        'login' => 'toto',
-                        'password' => 'centreon',
-                    ],
+        $this->request = new Request([], [], [], [], [], [], json_encode([
+            'security' => [
+                'credentials' => [
+                    'login' => 'toto',
+                    'password' => 'centreon',
                 ],
-            ]));
+            ],
+        ]));
 
         $response = new AuthenticateApiResponse();
         $response->setApiAuthentication(
@@ -158,9 +151,7 @@ class AuthenticationControllerTest extends TestCase
         $authenticationController = new AuthenticationController();
         $authenticationController->setContainer($this->container);
 
-        $this->request->headers = new HeaderBag([
-            'X-AUTH-TOKEN' => 'token',
-        ]);
+        $this->request->headers->set('X-AUTH-TOKEN', 'token');
 
         $view = $authenticationController->logout($this->request, $this->logout);
 
@@ -176,8 +167,6 @@ class AuthenticationControllerTest extends TestCase
     {
         $authenticationController = new AuthenticationController();
         $authenticationController->setContainer($this->container);
-
-        $this->request->headers = new HeaderBag();
 
         $view = $authenticationController->logout($this->request, $this->logout);
 

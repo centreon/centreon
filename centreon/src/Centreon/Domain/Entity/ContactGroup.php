@@ -21,7 +21,7 @@
 
 namespace Centreon\Domain\Entity;
 
-use Symfony\Component\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Attribute as Serializer;
 
 /**
  * ContactGroup entity

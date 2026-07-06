@@ -32,17 +32,15 @@ if (! isset($limit) || (int) $limit < 0) {
     $limit = $centreon->optGen['maxViewConfiguration'];
 }
 
+$allowedOrders = ['ASC' => 'ASC', 'DESC' => 'DESC'];
+$allowedOrderColumns = ['host_name' => 'host_name', 'service_description' => 'service_description'];
+
 $order = 'ASC';
 $orderBy = 'host_name';
 
-// Use whitelist as we can't bind ORDER BY values
 if (! empty($_POST['order']) && ! empty($_POST['orderby'])) {
-    if (in_array($_POST['order'], ['ASC', 'DESC'])) {
-        $order = $_POST['order'];
-    }
-    if (in_array($_POST['orderby'], ['host_name', 'service_description'])) {
-        $orderBy = $_POST['orderby'];
-    }
+    $order = $allowedOrders[$_POST['order']] ?? 'ASC';
+    $orderBy = $allowedOrderColumns[$_POST['orderby']] ?? 'host_name';
 }
 
 require_once './include/common/autoNumLimit.php';

@@ -21,6 +21,7 @@
 
 namespace CentreonRemote\Application\Webservice;
 
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Centreon\Domain\Entity\Task;
 use Centreon\Domain\PlatformTopology\Model\PlatformPending;
 use CentreonRemote\Application\Validator\WizardConfigurationRequestValidator;
@@ -29,6 +30,7 @@ use CentreonRemote\Domain\Service\ConfigurationWizard\{
     RemoteConnectionConfigurationService
 };
 use CentreonRemote\Domain\Value\ServerWizardIdentity;
+use Webmozart\Assert\InvalidArgumentException;
 
 /**
  * @OA\Tag(name="centreon_configuration_remote", description="")
@@ -410,11 +412,9 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         $serverIP = parse_url($this->arguments['server_ip'], PHP_URL_HOST) ?: $this->arguments['server_ip'];
         $serverName = substr($this->arguments['server_name'], 0, 40);
 
-        // Check IPv6, IPv4 and FQDN format
-        if (
-            ! filter_var($serverIP, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
-            && ! filter_var($serverIP, FILTER_VALIDATE_IP)
-        ) {
+        try {
+            CentreonAssert::ipOrHostname($serverIP);
+        } catch (InvalidArgumentException) {
             return ['error' => true, 'message' => 'Invalid IP address'];
         }
         $dbAdapter = $this->getDi()['centreon.db-manager']->getAdapter('configuration_db');
