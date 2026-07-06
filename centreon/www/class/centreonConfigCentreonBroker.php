@@ -23,6 +23,7 @@ use App\Kernel;
 use Centreon\Domain\Log\Logger;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\UseCase\VaultTrait;
 use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
@@ -50,6 +51,8 @@ require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
  */
 class CentreonConfigCentreonBroker
 {
+    use VaultTrait;
+
     /** @var int */
     public $nbSubGroup = 1;
 
