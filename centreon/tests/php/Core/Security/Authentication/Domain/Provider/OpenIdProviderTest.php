@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2026 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,9 @@ beforeEach(function (): void {
     $authLoggerReflection = new \ReflectionClass(LoggerAuthentication::class);
     $facade = $authLoggerReflection->newInstanceWithoutConstructor();
     $spy = new class () extends \Psr\Log\AbstractLogger {
-        public function log($level, string|\Stringable $message, array $context = []): void {}
+        public function log($level, string|\Stringable $message, array $context = []): void
+        {
+        }
     };
     $authLoggerReflection->getProperty('logger')->setValue($facade, $spy);
     $authLoggerReflection->getProperty('instance')->setValue(null, $facade);
