@@ -37,9 +37,17 @@ beforeEach(function (): void {
         /** @var list<array{level: string, message: string, context: array<string, mixed>}> */
         public array $records = [];
 
+        /**
+         * @param array<string, mixed> $context
+         * @param mixed $level
+         */
         public function log($level, string|\Stringable $message, array $context = []): void
         {
-            $this->records[] = ['level' => (string) $level, 'message' => (string) $message, 'context' => $context];
+            $this->records[] = [
+                'level' => is_scalar($level) ? (string) $level : '',
+                'message' => (string) $message,
+                'context' => $context,
+            ];
         }
     };
 
@@ -109,6 +117,7 @@ it('logs a step failure and re-throws the original exception when the step throw
         ->and($stepFailure['level'])->toBe(LogLevel::ERROR)
         ->and($stepFailure['context']['event'])->toBe('upgrade.step_failure')
         ->and($stepFailure['context']['status'])->toBe('failure')
+        ->and($stepFailure['context']['version'])->toBe('24.10.1')
         ->and($stepFailure['context']['step'])->toBe('configuration_sql')
         ->and($stepFailure['context']['exception'])->toBe($failure);
 });
@@ -146,5 +155,31 @@ it('throws when the temporary resume file exists but is not writable', function 
     } finally {
         chmod($tmpFile, 0o644);
         @unlink($tmpFile);
+    }
+});
+
+it('throws when the resume cursor write fails entirely', function (): void {
+    // A regular file used as a parent makes file_put_contents() fail (ENOTDIR) and return false,
+    // exercising the write-failure branch itself rather than the earlier is_writable guard.
+    $blocker = sys_get_temp_dir() . '/centreon-upgrade-blocker-' . uniqid();
+    file_put_contents($blocker, 'x');
+    $tmpFile = $blocker . '/cursor.tmp';
+
+    // The failed write emits an expected E_WARNING; swallow it so only our exception is asserted.
+    set_error_handler(
+        static fn (int $severity, string $message): bool => $severity === E_WARNING
+            && str_contains($message, 'file_put_contents')
+            && str_contains($message, $tmpFile)
+    );
+    try {
+        (new \ReflectionClass($this->repository))
+            ->getMethod('writeExecutedQueriesCountInTemporaryFile')
+            ->invoke($this->repository, $tmpFile, 5);
+        $this->fail('Expected the failed write to abort the step');
+    } catch (RepositoryException $exception) {
+        expect($exception->getMessage())->toContain('temporary file');
+    } finally {
+        restore_error_handler();
+        @unlink($blocker);
     }
 });

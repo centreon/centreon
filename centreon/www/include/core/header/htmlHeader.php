@@ -258,9 +258,9 @@ $tM = $centreon->optGen['AjaxTimeReloadMonitoring'] * 1000;
         jQuery(function () {
             <?php
         $res = null;
-$query = "SELECT DISTINCT PathName_js, init FROM topology_JS WHERE id_page = '"
-    . $p . "' AND (o = '" . $o . "' OR o IS NULL)";
-$DBRESULT = $pearDB->query($query);
+$query = 'SELECT DISTINCT PathName_js, init FROM topology_JS WHERE id_page = ? AND (o = ? OR o IS NULL)';
+$DBRESULT = $pearDB->prepare($query);
+$DBRESULT->execute([$p, $o]);
 while ($topology_js = $DBRESULT->fetch()) {
     if ($topology_js['init'] == 'initM') {
         if ($o != 'hd' && $o != 'svcd') {
@@ -269,7 +269,7 @@ while ($topology_js = $DBRESULT->fetch()) {
                 $obis .= '_pb';
             }
             if (isset($_GET['acknowledge'])) {
-                $obis .= '_ack_' . $_GET['acknowledge'];
+                $obis .= '_ack_' . htmlspecialchars($_GET['acknowledge'], ENT_QUOTES, 'UTF-8');
             }
             echo "\tsetTimeout('initM({$tM}, \"{$obis}\")', 0);";
         }

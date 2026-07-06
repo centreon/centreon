@@ -54,7 +54,7 @@ try {
     $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
     LoggerUpgrade::create()->success($current, $next, $durationMs);
 } catch (Throwable $e) {
-    LoggerUpgrade::create()->failure($e->getMessage(), $current, $next, $e);
+    LoggerUpgrade::create()->failure($current, $next, $e->getMessage(), $e);
     exitUpgradeProcess(1, $current, $next, $e->getMessage());
 }
 

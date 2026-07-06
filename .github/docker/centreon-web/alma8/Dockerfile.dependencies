@@ -132,6 +132,8 @@ if [[ "$STABILITY" == "stable" ]]; then
     centreon-engine-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
     centreon-broker-cbmod-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
     centreon-broker-cbd-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
+    centreon-broker-graphite-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
+    centreon-broker-influxdb-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
     centreon-connector-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}
 else
   dnf install -y \
@@ -140,6 +142,8 @@ else
     centreon-engine \
     centreon-broker-cbmod \
     centreon-broker-cbd \
+    centreon-broker-graphite \
+    centreon-broker-influxdb \
     centreon-connector
 fi
 
