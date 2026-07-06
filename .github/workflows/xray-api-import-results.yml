@@ -150,22 +150,38 @@ jobs:
 
           echo "Importing $results_file ($RESULT_FORMAT) with Jira fields parameters into Xray..."
 
-          response=$(curl -s -w "\nHTTP_CODE:%{http_code}" \
-            -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" \
-            -F "results=@$results_file" \
-            -F "info=@issueJiraFields.json" \
-            "$import_endpoint")
+          # Retry the import on transient failures (network / 429 / 5xx, e.g. the 504 gateway timeout).
+          max_retries=5
+          retry_delay=2
+          attempt=0
+          while :; do
+            response=$(curl -s -w "\nHTTP_CODE:%{http_code}" \
+              -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" \
+              -F "results=@$results_file" \
+              -F "info=@issueJiraFields.json" \
+              "$import_endpoint" || true)
 
-          http_code=$(echo "$response" | sed -n 's/.*HTTP_CODE://p')
-          body=$(echo "$response" | sed 's/HTTP_CODE:.*//')
+            http_code=$(echo "$response" | sed -n 's/.*HTTP_CODE://p')
+            body=$(echo "$response" | sed 's/HTTP_CODE:.*//')
+            [ -z "$http_code" ] && http_code="000"
 
-          echo "HTTP code: $http_code"
-          echo "Response: $body"
+            echo "HTTP code: $http_code"
+            echo "Response: $body"
 
-          if [ "$http_code" -ne 200 ]; then
+            if [ "$http_code" -eq 200 ]; then
+              break
+            fi
+
+            if [ "$attempt" -lt "$max_retries" ] && { [ "$http_code" = "000" ] || [ "$http_code" = "429" ] || [ "$http_code" -ge 500 ]; }; then
+              echo "Transient import failure (HTTP $http_code), retry $((attempt + 1))/$max_retries in ${retry_delay}s"
+              attempt=$((attempt + 1))
+              sleep "$retry_delay"
+              continue
+            fi
+
             echo "ERROR: Import failed for $results_file with Jira fields parameters into Xray"
             exit 1
-          fi
+          done
 
           test_execution_key=$(jq -r '.key // empty' <<<"$body")
           echo "Created/updated Test Execution: $test_execution_key"
