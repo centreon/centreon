@@ -21,7 +21,9 @@
 
 use App\Kernel;
 use Centreon\Domain\Log\Logger;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\UseCase\VaultTrait;
 use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
@@ -49,6 +51,8 @@ require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
  */
 class CentreonConfigCentreonBroker
 {
+    use VaultTrait;
+
     /** @var int */
     public $nbSubGroup = 1;
 
@@ -755,9 +759,14 @@ class CentreonConfigCentreonBroker
      */
     public function updateConfig(int $id, array $values)
     {
-        // Insert the Centreon Broker configuration
-        $query = '';
+        $ownTransaction = ! $this->db->isTransactionActive();
+
         try {
+            if ($ownTransaction) {
+                $this->db->startTransaction();
+            }
+
+            // Update the Centreon Broker configuration
             $stmt = $this->db->prepare(
                 <<<'SQL'
                     UPDATE cfg_centreonbroker SET
@@ -810,26 +819,23 @@ class CentreonConfigCentreonBroker
                 ? $stmt->bindValue(':pool_size', null, PDO::PARAM_NULL)
                 : $stmt->bindValue(':pool_size', (int) $values['pool_size'], PDO::PARAM_INT);
             $stmt->execute();
-        } catch (PDOException $e) {
-            return false;
-        }
 
-        // Log
-        $logs = $this->getLogsOption();
-        $deleteStmt = $this->db->prepare(
-            <<<'SQL'
-                DELETE FROM cfg_centreonbroker_log WHERE id_centreonbroker = :config_id
-                SQL
-        );
-        $deleteStmt->bindValue(':config_id', $id, PDO::PARAM_INT);
-        $deleteStmt->execute();
+            // Log
+            $logs = $this->getLogsOption();
+            $deleteStmt = $this->db->prepare(
+                <<<'SQL'
+                    DELETE FROM cfg_centreonbroker_log WHERE id_centreonbroker = :config_id
+                    SQL
+            );
+            $deleteStmt->bindValue(':config_id', $id, PDO::PARAM_INT);
+            $deleteStmt->execute();
 
-        $queryLog = 'INSERT INTO cfg_centreonbroker_log (id_centreonbroker, id_log, id_level) VALUES ';
-        foreach (array_keys($logs) as $logId) {
-            $queryLog .= '(:id_centreonbroker, :log_' . $logId . ', :level_' . $logId . '), ';
-        }
-        $queryLog = rtrim($queryLog, ', ');
-        try {
+            $queryLog = 'INSERT INTO cfg_centreonbroker_log (id_centreonbroker, id_log, id_level) VALUES ';
+            foreach (array_keys($logs) as $logId) {
+                $queryLog .= '(:id_centreonbroker, :log_' . $logId . ', :level_' . $logId . '), ';
+            }
+            $queryLog = rtrim($queryLog, ', ');
+
             $stmt = $this->db->prepare($queryLog);
             $stmt->bindValue(':id_centreonbroker', (int) $id, PDO::PARAM_INT);
             foreach ($logs as $logId => $logName) {
@@ -837,7 +843,19 @@ class CentreonConfigCentreonBroker
                 $stmt->bindValue(':level_' . $logId, (int) $values['log_' . $logName], PDO::PARAM_INT);
             }
             $stmt->execute();
-        } catch (PDOException $e) {
+
+            if ($ownTransaction) {
+                $this->db->commitTransaction();
+            }
+        } catch (Throwable $e) {
+            if (! $ownTransaction) {
+                throw $e;
+            }
+
+            if ($this->db->isTransactionActive()) {
+                $this->db->rollBackTransaction();
+            }
+
             return false;
         }
 
@@ -1329,17 +1347,30 @@ class CentreonConfigCentreonBroker
         $featureFlagManager = $kernel->getContainer()->get(FeatureFlags::class);
 
         $vaultConfiguration = $readVaultConfigurationRepository->find();
+        $writeVaultRepository = null;
+        $oldVaultUuids = [];
         if ($featureFlagManager->isEnabled('vault_broker') && $vaultConfiguration !== null) {
+            /** @var ReadVaultRepositoryInterface $readVaultRepository */
+            $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
             /** @var WriteVaultRepositoryInterface $writeVaultRepository */
             $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
             $writeVaultRepository->setCustomPath(AbstractVaultRepository::BROKER_VAULT_PATH);
-            deleteBrokerConfigsFromVault($writeVaultRepository, [$configId]);
+            $this->retrievePasswordsFromVault($values, $readVaultRepository);
+
+            // Capture UUIDs now; deletion is deferred to after the API loop succeeds.
+            $oldVaultUuids = retrieveMultipleBrokerConfigUuidsFromDatabase([$configId]);
         }
 
-        $query = 'DELETE FROM cfg_centreonbroker_info WHERE config_id = '
+        $deleteQuery = 'DELETE FROM cfg_centreonbroker_info WHERE config_id = '
             . $configId
             . ($keepLuaParameters ? ' AND config_key NOT LIKE "lua\_parameter\_%"' : '');
-        $this->db->query($query);
+        $rollbackDeleteQuery = 'DELETE FROM cfg_centreonbroker_info WHERE config_id = ' . $configId;
+
+        // The API re-inserts run on a separate DB connection, so we cannot use a transaction.
+        // Backup all rows and restore them on failure; rollback wipes the lua scope too in case
+        // partial lua rows were committed by the API.
+        $backup = $this->backupBrokerInfos($configId);
+        $this->db->query($deleteQuery);
 
         [$groups_infos] = $this->getGroupsInfos($values);
 
@@ -1363,24 +1394,47 @@ class CentreonConfigCentreonBroker
             $parameters['base_uri'] = $basePath;
         }
 
-        foreach ($groups_infos as $tag => $groups) {
-            $parameters['tag'] = $tag === 'input' ? 'inputs' : 'outputs';
-            $url = $router->generate(
-                'AddBrokerInputOutput',
-                $parameters,
-                Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL,
-            );
+        try {
+            foreach ($groups_infos as $tag => $groups) {
+                $parameters['tag'] = $tag === 'input' ? 'inputs' : 'outputs';
+                $url = $router->generate(
+                    'AddBrokerInputOutput',
+                    $parameters,
+                    Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL,
+                );
 
-            foreach ($groups as $group) {
-                $payload = $this->buildPayload($group);
-                $response = $client->request($url, 'POST', $sessionCookie, $payload);
+                foreach ($groups as $group) {
+                    $payload = $this->buildPayload($group);
+                    $response = $client->request($url, 'POST', $sessionCookie, $payload);
 
-                if ($response['status_code'] !== 201) {
-                    $message = $response['content']['message'] ?? 'Unexpected return status';
+                    if ($response['status_code'] !== 201) {
+                        $message = $response['content']['message'] ?? 'Unexpected return status';
 
-                    throw new Exception($message);
+                        throw new Exception($message);
+                    }
                 }
             }
+        } catch (Throwable $th) {
+            // Capture new vault UUIDs before wiping the partial rows (the lookup reads from DB).
+            $partialVaultUuids = $writeVaultRepository !== null
+                ? retrieveMultipleBrokerConfigUuidsFromDatabase([$configId])
+                : [];
+
+            $this->db->query($rollbackDeleteQuery);
+            $this->restoreBrokerInfos($backup);
+
+            // Drop only the new UUIDs — $oldVaultUuids are still referenced by the restored rows.
+            foreach ($partialVaultUuids as $uuid) {
+                if (! in_array($uuid, $oldVaultUuids, true)) {
+                    $writeVaultRepository->delete($uuid);
+                }
+            }
+
+            throw $th;
+        }
+
+        foreach ($oldVaultUuids as $uuid) {
+            $writeVaultRepository->delete($uuid);
         }
     }
 
@@ -1927,5 +1981,85 @@ class CentreonConfigCentreonBroker
         }
 
         return [$groups_infos, $groups_infos_multiple];
+    }
+
+    private function retrievePasswordsFromVault(array &$values, ReadVaultRepositoryInterface $readVaultRepository): void
+    {
+        foreach ($values['output'] as &$output) {
+            foreach ($output as &$value) {
+                if (is_string($value) && $this->isAVaultPath($value)) {
+                    $vaultValue = $readVaultRepository->findFromPath($value);
+                    $vaultParts = explode('::', $value);
+                    $parameterKey = end($vaultParts);
+                    $value = $vaultValue[$parameterKey] ?? $value;
+                }
+            }
+        }
+    }
+
+    /**
+     * Fetch broker info records that are about to be deleted, so they can be restored
+     * if the subsequent re-insert API calls fail.
+     *
+     * @param int $configId
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    private function backupBrokerInfos(int $configId): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT config_id, config_key, config_value, config_group, config_group_id,'
+            . ' grp_level, subgrp_id, parent_grp_id, fieldIndex'
+            . ' FROM cfg_centreonbroker_info WHERE config_id = :configId'
+        );
+        $stmt->bindValue(':configId', $configId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Re-insert broker info records previously captured by {@see backupBrokerInfos}.
+     *
+     * @param array<int,array<string,mixed>> $backup
+     */
+    private function restoreBrokerInfos(array $backup): void
+    {
+        if ($backup === []) {
+            return;
+        }
+
+        $stmt = $this->db->prepare(
+            'INSERT INTO cfg_centreonbroker_info'
+            . ' (config_id, config_key, config_value, config_group, config_group_id,'
+            . ' grp_level, subgrp_id, parent_grp_id, fieldIndex)'
+            . ' VALUES (:config_id, :config_key, :config_value, :config_group, :config_group_id,'
+            . ' :grp_level, :subgrp_id, :parent_grp_id, :fieldIndex)'
+        );
+
+        foreach ($backup as $record) {
+            $stmt->bindValue(':config_id', (int) $record['config_id'], PDO::PARAM_INT);
+            $stmt->bindValue(':config_key', $record['config_key'], PDO::PARAM_STR);
+            $stmt->bindValue(':config_value', $record['config_value'], PDO::PARAM_STR);
+            $stmt->bindValue(':config_group', $record['config_group'], PDO::PARAM_STR);
+            $stmt->bindValue(':config_group_id', (int) $record['config_group_id'], PDO::PARAM_INT);
+            $stmt->bindValue(':grp_level', (int) $record['grp_level'], PDO::PARAM_INT);
+            $stmt->bindValue(
+                ':subgrp_id',
+                $record['subgrp_id'] !== null ? (int) $record['subgrp_id'] : null,
+                $record['subgrp_id'] !== null ? PDO::PARAM_INT : PDO::PARAM_NULL
+            );
+            $stmt->bindValue(
+                ':parent_grp_id',
+                $record['parent_grp_id'] !== null ? (int) $record['parent_grp_id'] : null,
+                $record['parent_grp_id'] !== null ? PDO::PARAM_INT : PDO::PARAM_NULL
+            );
+            $stmt->bindValue(
+                ':fieldIndex',
+                $record['fieldIndex'] !== null ? (int) $record['fieldIndex'] : null,
+                $record['fieldIndex'] !== null ? PDO::PARAM_INT : PDO::PARAM_NULL
+            );
+            $stmt->execute();
+        }
     }
 }
