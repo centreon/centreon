@@ -1,0 +1,71 @@
+name: Generate a Jira summary
+description: Generate a dynamic summary string based on branch, schedule event, major version, and project type.
+
+inputs:
+  major_version:
+    description: "The major version (ex: develop)"
+    required: true
+  minor_version:
+    description: "The minor version (ex: 1.0)"
+    required: false
+  project_type:
+    description: "The project type to include in summary (ex: MODULES, OSS, COLLECT)"
+    required: true
+  type_summary:
+    description: "The type of summary to generate (ex: TEST_PLAN, TEST_EXECUTION)"
+    required: true
+  component_name:
+    description: "The name of component to include in summary (ex: centreon-web, centreon-map)"
+    required: false
+  operating_system:
+    description: "The operating system to include in summary (ex: Debian 12, AlmaLinux 9)"
+    required: false
+  database_name:
+    description: "The database name to include in summary (ex: MySQL, MariaDB)"
+    required: false
+  test_execution_type:
+    description: "The type of test execution (ex: API, E2E)"
+    required: false
+
+outputs:
+  summary:
+    description: The dynamically generated summary
+    value: ${{ steps.compute.outputs.jira_summary }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Compute summary
+      id: compute
+      shell: bash
+      run: |
+        if [[ "${{ inputs.type_summary }}" == "TEST_PLAN" ]]; then
+          summary_prefix="COMMON"
+          if [[ "${GITHUB_EVENT_NAME}" == "schedule" ]]; then
+            summary_prefix="NIGHTLY"
+          else
+            case "${GITHUB_REF_NAME}" in
+              hotfix*)
+                summary_prefix="HOTFIX"
+                ;;
+              release*)
+                summary_prefix="RELEASE"
+                ;;
+            esac
+          fi
+          summary="$summary_prefix ${{ inputs.project_type }} ${{ inputs.major_version }}"
+        elif [[ "${{ inputs.type_summary }}" == "TEST_EXECUTION" ]]; then
+            summary="[${{ inputs.test_execution_type }}] "
+            summary+="${{ inputs.component_name }} "
+            summary+="${{ inputs.major_version }}.${{ inputs.minor_version }} "
+            summary+="(${{ inputs.operating_system }} - ${{ inputs.database_name }})"
+        else
+          echo "Unknown type_summary: ${{ inputs.type_summary }}"
+          exit 1
+        fi
+
+        # Set output for other steps
+        echo "jira_summary=$summary" >> $GITHUB_OUTPUT
+
+        # Debug log to see the summary in the workflow logs
+        echo "Generated summary: $summary"
