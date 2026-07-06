@@ -67,3 +67,33 @@ jobs:
               pulp "$PLUGIN" repository destroy --name "$NAME"
             done
           done
+
+      # Cleaned up in parallel on Artifactory during the Pulp migration; drop this
+      # step once Pulp is authoritative. Delegates to the delivery-tooling workflow
+      # that removes the Artifactory feature repositories.
+      - name: Send repository dispatch to delete feature repositories on Artifactory
+        if: steps.check_other_feature_prs.outputs.feature_prs_found == 'false'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          feature_ticket=$(echo "$HEAD_REF" | grep -oE 'MON-[0-9]+' | head -1 || true)
+          if [[ -z "$feature_ticket" ]]; then
+            echo "::notice::Ticket ID not found due to the branch name not corresponding to standards."
+            exit 0
+          fi
+
+          echo "Sending repository dispatch to delete Artifactory feature repositories..."
+          curl --fail-with-body -X POST \
+            -H "Authorization: Bearer ${{ secrets.CENTREON_TECHNIQUE_PAT }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/centreon/delivery-tooling/dispatches \
+            -d "$(jq -n \
+              --arg feature_ticket "$feature_ticket" \
+              '{
+                event_type: "delete-feature-repositories",
+                client_payload: {
+                  feature_ticket: $feature_ticket
+                }
+              }'
+            )"

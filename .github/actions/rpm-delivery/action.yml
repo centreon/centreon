@@ -1,0 +1,178 @@
+name: "rpm-delivery"
+description: "Deliver rpm packages"
+inputs:
+  module_name:
+    description: "The package module name"
+    required: true
+  distrib:
+    description: "The distribution used for packaging"
+    required: true
+  version:
+    description: "Centreon packaged major version"
+    required: true
+  cache_key:
+    description: "The cached package key"
+    required: true
+  stability:
+    description: "The package stability (stable, testing, unstable)"
+    required: true
+  artifactory_token:
+    description: "Artifactory token"
+    required: true
+  release_type:
+    description: "Type of release (hotfix, release)"
+    required: true
+  is_cloud:
+    description: "Release context (cloud or not cloud)"
+    required: true
+  delivery_type:
+    description: "Delivery to feature or standard repository"
+    required: true
+  centreon_technique_pat:
+    description: "Token used to handle delivery."
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Use cache RPM files
+      uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      with:
+        path: ./*.rpm
+        key: ${{ inputs.cache_key }}
+        fail-on-cache-miss: true
+
+    - uses: jfrog/setup-jfrog-cli@1641575d87647fb969c0545f0b6a76873e328b7c # v5.0.0
+      env:
+        JF_URL: https://packages.centreon.com
+        JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
+
+    - if: inputs.delivery_type == 'feature'
+      name: Create a rpm feature repository
+      shell: bash
+      env:
+        JF_URL: https://packages.centreon.com
+        JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
+        GH_HEAD_REF: ${{ github.head_ref || github.ref_name }}
+        CENTREON_TECHNIQUE_PAT: ${{ inputs.centreon_technique_pat }}
+      run: |
+        set -eu
+        . .version
+        major_version=$(grep -E "MAJOR" .version | cut -d '=' -f2)
+        feature_ticket=$(echo "$GH_HEAD_REF" | grep -oE 'MON-[0-9]+')
+        echo "[INFO] Creating a rpm feature repository if it does not exist"
+
+        curl --fail-with-body -X POST \
+            -H "Authorization: Bearer $CENTREON_TECHNIQUE_PAT" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/centreon/delivery-tooling/dispatches \
+            -d "$(jq -n \
+              --arg major_version "$major_version" \
+              --arg repo_type "feature" \
+              --arg feature_ticket "$feature_ticket" \
+              '{
+                event_type: "create-feature-repositories",
+                client_payload: {
+                  major_version: $major_version,
+                  repo_type: $repo_type,
+                  feature_ticket: $feature_ticket
+                }
+              }'
+            )"
+
+        attempt=0
+        count=$(jf rt search rpm-standard-feature/$feature_ticket/$major_version/*.repo 2>/dev/null | jq '. | length' 2>/dev/null || echo "0")
+        until [[ $count -eq 2 || $attempt -ge 40 ]]; do
+          attempt=$((attempt+1))
+          echo "[INFO] Checking is the feature repository has been created... [ATTEMPT $attempt]"
+          sleep 15
+          count=$(jf rt search rpm-standard-feature/$feature_ticket/$major_version/*.repo 2>/dev/null | jq '. | length' 2>/dev/null || echo "0")
+        done
+
+        if [[ $attempt -ge 40 ]]; then
+          echo "::error::Timeout waiting for repository creation. Aborting delivery process. Please contact someone from the DevSecOps team."
+          exit 1
+        fi
+
+    - name: Publish RPMs
+      shell: bash
+      env:
+        JF_URL: https://packages.centreon.com
+        JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
+        GH_HEAD_REF: ${{ github.head_ref || github.ref_name }}
+        MODULE_NAME: ${{ inputs.module_name }}
+        DISTRIB: ${{ inputs.distrib }}
+        VERSION: ${{ inputs.version }}
+        STABILITY: ${{ inputs.stability }}
+        RELEASE_TYPE: ${{ inputs.release_type }}
+        IS_CLOUD: ${{ inputs.is_cloud }}
+        DELIVERY_TYPE: ${{ inputs.delivery_type }}
+      run: |
+        set -euo pipefail
+
+        FILES="*.rpm"
+
+        if [ -z "$MODULE_NAME" ]; then
+          echo "::error::module name is required"
+          exit 1
+        fi
+
+        if [ -z "$DISTRIB" ]; then
+          echo "::error::distrib is required"
+          exit 1
+        fi
+
+        # DEBUG
+        echo "[DEBUG] - Version: $VERSION"
+        echo "[DEBUG] - Distrib: $DISTRIB"
+        echo "[DEBUG] - module_name: $MODULE_NAME"
+        echo "[DEBUG] - is_cloud: $IS_CLOUD"
+        echo "[DEBUG] - release_type: $RELEASE_TYPE"
+        echo "[DEBUG] - stability: $STABILITY"
+        echo "[DEBUG] - delivery_type: $DELIVERY_TYPE"
+
+        # Make sure all required inputs are NOT empty
+        if [[ -z "$MODULE_NAME" || -z "$DISTRIB" || -z "$STABILITY" || -z "$VERSION" || -z "$IS_CLOUD" ]]; then
+          echo "::error::some mandatory inputs are empty, please check the logs."
+          exit 1
+        fi
+
+        if [[ "$DELIVERY_TYPE" != "feature" && "$STABILITY" != "testing" && "$STABILITY" != "unstable" ]]; then
+          echo "::error::stability must be one of: testing, unstable (got '$STABILITY')"
+          exit 1
+        fi
+
+        # Create ARCH dirs
+        mkdir noarch x86_64
+
+        # Get ARCH target for files to deliver and regroupe them by ARCH
+        for FILE in $FILES; do
+          echo "[DEBUG] - File: $FILE"
+
+          ARCH=$(echo $FILE | grep -oP '(x86_64|noarch)')
+
+          echo "[DEBUG] - Arch: $ARCH"
+
+          mv "$FILE" "$ARCH"
+        done
+
+        if [[ "$DELIVERY_TYPE" == "feature" ]]; then
+          ROOT_REPO_PATH="rpm-standard-feature-$(echo "$GH_HEAD_REF" | grep -oP '^.*MON-[0-9]+')"
+        elif [[ "$IS_CLOUD" == "true" ]]; then
+          ROOT_REPO_PATH="rpm-standard-internal"
+        else
+          ROOT_REPO_PATH="rpm-standard"
+        fi
+
+        for ARCH in "noarch" "x86_64"; do
+          if [[ "$RELEASE_TYPE" == "hotfix" || "$RELEASE_TYPE" == "release" ]]; then
+            UPLOAD_REPO_PATH="$VERSION/$DISTRIB/$STABILITY-$RELEASE_TYPE/$ARCH/$MODULE_NAME/"
+            REINDEX_STABILITY="$STABILITY-$RELEASE_TYPE"
+          else
+            UPLOAD_REPO_PATH="$VERSION/$DISTRIB/$STABILITY/$ARCH/$MODULE_NAME/"
+            REINDEX_STABILITY="$STABILITY"
+          fi
+          if [ "$(ls -A $ARCH)" ]; then
+            jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --sync-deletes="$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat  --detailed-summary
+          fi
+        done

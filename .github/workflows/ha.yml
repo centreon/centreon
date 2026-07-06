@@ -177,6 +177,36 @@ jobs:
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
           delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
 
+      # Delivered in parallel to Artifactory during the Pulp migration; drop these
+      # two steps (and the deb-delivery/rpm-delivery actions) once Pulp is authoritative.
+      - name: Deliver RPM package on Artifactory
+        if: matrix.package_extension == 'rpm'
+        uses: ./.github/actions/rpm-delivery
+        with:
+          module_name: ha
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-environment.outputs.major_version }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
+          centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
+      - name: Deliver DEB package on Artifactory
+        if: matrix.package_extension == 'deb'
+        uses: ./.github/actions/deb-delivery
+        with:
+          module_name: ha
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-environment.outputs.major_version }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+
   promote:
     needs: [get-environment]
     if: |
@@ -205,5 +235,20 @@ jobs:
           distrib: ${{ matrix.distrib }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
           stability: ${{ needs.get-environment.outputs.stability }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+
+      # Promoted in parallel on Artifactory during the Pulp migration; drop this
+      # step (and the promote-to-stable-artifactory action) once Pulp is authoritative.
+      - name: Promote ${{ matrix.distrib }} to stable on Artifactory
+        uses: ./.github/actions/promote-to-stable-artifactory
+        with:
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          module_name: ha
+          distrib: ${{ matrix.distrib }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          minor_version: ${{ needs.get-environment.outputs.minor_version }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+          github_ref_name: ${{ github.ref_name }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
