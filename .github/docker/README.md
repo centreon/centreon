@@ -60,7 +60,7 @@ Currently, the following profiles are available:
 * `poller`: register automatically a poller to centreon web image (:danger: EXPERIMENTAL)
 * `remote-server`: run a Remote Server alongside the Central, each with its own database — registers automatically (see [Remote Server setup](#satellite-remote-server-setup))
 * `glpi`: must be used with `centreon-open-tickets` image to link glpi automatically in open-tickets providers
-* `vault`: register automatically hashicorp vault and migrate credentials
+* `vault`: run a hashicorp vault (dev mode) and migrate credentials automatically (see [Vault setup](#lock-vault-setup))
 * `openid`: run a docker image of keycloak
   * Add the following entry to your **/etc/hosts** : `127.0.0.1 sso-proxy`
   * :warning: On Windows: **C:\Windows\System32\drivers\etc\hosts**
@@ -149,6 +149,21 @@ The following environment variables are available to customize the setup:
 * `REMOTE_SERVER_NAME`: name displayed for the Remote Server in the Central UI (default: `remote-server`)
 * `CENTRAL_API_USERNAME`: API account used for registration (default: `admin`)
 * `CENTRAL_API_PASSWORD`: password for the API account (default: `Centreon!2021`)
+
+## :lock: Vault setup
+
+The `vault` profile runs a HashiCorp Vault (dev mode) and migrates Centreon credentials into it automatically. All the `VAULT_*` values referenced below are test credentials already set in the committed `.env`, so there is nothing to fill in.
+
+* The `web` and `vault` services must be started together, otherwise the auto-configuration does not trigger.
+* Vault UI available at `https://127.0.0.1:8200/ui` (self-signed HTTPS, accept the browser warning).
+* Log in with method **Token**, using the root token from `VAULT_DEV_ROOT_TOKEN_ID` in `.env`.
+* Centreon authenticates via AppRole (policy `central`, secrets stored under `centreon/`) with `VAULT_ROLE_ID` / `VAULT_SECRET_ID` from `.env`. The UI has no AppRole login, so to sign in as this identity, exchange them for a token and paste it in the Token field:
+
+```bash
+set -a; . .github/docker/.env; set +a
+curl -sk -X POST --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}" \
+  https://127.0.0.1:8200/v1/auth/approle/login | jq -r .auth.client_token
+```
 
 ## :hand: Stop services
 
