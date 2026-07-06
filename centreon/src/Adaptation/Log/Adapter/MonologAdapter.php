@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Adaptation\Log\Adapter;
 
-use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Channel\LogChannelInterface;
 use Adaptation\Log\Exception\LoggerException;
 use Adaptation\Log\Logger;
 use App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor;
@@ -47,7 +47,7 @@ final class MonologAdapter implements LoggerInterface
      */
     private function __construct(
         private readonly MonologLogger $logger,
-        private readonly LogChannelEnum $channel,
+        private readonly LogChannelInterface $channel,
     ) {
         $this->createLoggerFromChannel();
     }
@@ -55,9 +55,9 @@ final class MonologAdapter implements LoggerInterface
     /**
      * @throws LoggerException
      */
-    public static function create(LogChannelEnum $channel): LoggerInterface
+    public static function create(LogChannelInterface $channel): LoggerInterface
     {
-        $logger = new MonologLogger($channel->value);
+        $logger = new MonologLogger($channel->getChannelName());
 
         return new self($logger, $channel);
     }
@@ -150,7 +150,7 @@ final class MonologAdapter implements LoggerInterface
 
             $this->pushPlatformProcessors();
         } catch (\InvalidArgumentException $e) {
-            throw LoggerException::loggerCreationFailed($this->channel->value, $e);
+            throw LoggerException::loggerCreationFailed($this->channel->getChannelName(), $e);
         }
     }
 
@@ -165,16 +165,11 @@ final class MonologAdapter implements LoggerInterface
         $this->logger->pushProcessor(self::$uidProcessor ??= new UidProcessor());
     }
 
-    private function getLogFileFromChannel(LogChannelEnum $channelEnum): string
+    private function getLogFileFromChannel(LogChannelInterface $channel): string
     {
         $appEnv = (isset($_SERVER['APP_ENV']) && is_scalar($_SERVER['APP_ENV']))
             ? (string) $_SERVER['APP_ENV'] : 'prod';
 
-        return sprintf(
-            '%s/%s.%s.log',
-            _CENTREON_LOG_,
-            $appEnv,
-            $channelEnum->getLogFileSlug()
-        );
+        return sprintf('%s/%s', _CENTREON_LOG_, $channel->getLogFileName($appEnv));
     }
 }
