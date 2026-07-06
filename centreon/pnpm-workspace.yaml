@@ -18,7 +18,7 @@ overrides:
   lodash-es: 4.18.1
   protobufjs@<8: 7.6.4
   find-cypress-specs@<=1.54.9: 1.54.9
-  undici@<=6.24.0: 6.24.0
+  undici@<=6.27.0: 6.27.0
   uuid@<11.1.1: 11.1.1
 
 # 7 days
