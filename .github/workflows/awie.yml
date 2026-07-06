@@ -7,6 +7,11 @@ concurrency:
 on:
   workflow_dispatch:
     inputs:
+      nightly_manual_trigger:
+        description: "Set to true to trigger a nightly run"
+        required: false
+        default: false
+        type: boolean
       labels:
         description: "Labels to add to the run (comma separated)"
         required: false
@@ -47,6 +52,7 @@ jobs:
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon-awie/www/modules/centreon-awie/conf.php
+      nightly_manual_trigger: ${{ inputs.nightly_manual_trigger || false }}
       labels: ${{ inputs.labels || '' }}
 
   check-version-consistency:
@@ -420,37 +426,9 @@ jobs:
           push: true
           tags: ${{ steps.docker_tags.outputs.tags }}
 
-  create-xray-test-plan-and-test-execution:
-    needs: [get-environment, changes, dockerize]
-    if: |
-      needs.changes.outputs.trigger_e2e_testing == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      (needs.get-environment.outputs.stability == 'testing' || needs.get-environment.outputs.is_nightly == 'true') &&
-      github.event.pull_request.head.repo.fork != true
-    strategy:
-      fail-fast: false
-      matrix:
-        operating_system: [alma9]
-    name: create-xray-test-plan-and-test-execution-${{ matrix.operating_system }}
-
-    uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
-    with:
-      major_version: ${{ needs.get-environment.outputs.major_version }}
-      minor_version: ${{ needs.get-environment.outputs.minor_version }}
-      os: ${{ matrix.operating_system }}
-      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
-    secrets:
-      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
-      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
-      xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-
   e2e-test:
     needs:
-      [get-environment, changes, create-xray-test-plan-and-test-execution, dockerize]
+      [get-environment, changes, dockerize]
     if: |
       needs.changes.outputs.trigger_e2e_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -483,7 +461,6 @@ jobs:
       package_directory: centreon-awie/tests/e2e/fixtures/packages
       test_tags: ${{ matrix.test_tags }}
       dependencies_lock_file: centreon-awie/tests/e2e/pnpm-lock.yaml
-      xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
       is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
     secrets:

@@ -55,6 +55,7 @@ jobs:
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon-open-tickets/www/modules/centreon-open-tickets/conf.php
+      nightly_manual_trigger: ${{ inputs.nightly_manual_trigger || false }}
       labels: ${{ inputs.labels || '' }}
 
   check-version-consistency:
@@ -516,37 +517,29 @@ jobs:
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
-  create-xray-test-plan-and-test-execution:
-    needs: [get-environment, changes, dockerize]
+  xray-prepare-test-plan:
+    name: xray-prepare-test-plan
+    needs: [get-environment, changes]
     if: |
-      needs.changes.outputs.trigger_e2e_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.changes.outputs.trigger_e2e_testing == 'true' &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       (needs.get-environment.outputs.stability == 'testing' || needs.get-environment.outputs.is_nightly == 'true') &&
       github.event.pull_request.head.repo.fork != true
-    strategy:
-      fail-fast: false
-      matrix:
-        operating_system: [alma9]
-    name: create-xray-test-plan-and-test-execution-${{ matrix.operating_system }}
-
-    uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
+    uses: ./.github/workflows/xray-prepare-test-plan.yml
     with:
       major_version: ${{ needs.get-environment.outputs.major_version }}
       minor_version: ${{ needs.get-environment.outputs.minor_version }}
-      os: ${{ matrix.operating_system }}
-      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+      module_name: centreon-open-tickets
     secrets:
-      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
-      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
-      xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+      XRAY_CLIENT_ID: ${{ secrets.XRAY_CLIENT_ID }}
+      XRAY_CLIENT_SECRET: ${{ secrets.XRAY_CLIENT_SECRET }}
 
   e2e-test:
     needs:
-      [get-environment, changes, create-xray-test-plan-and-test-execution, dockerize]
+      [get-environment, changes, xray-prepare-test-plan, dockerize]
     if: |
       needs.changes.outputs.trigger_e2e_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -579,7 +572,9 @@ jobs:
       package_directory: centreon-open-tickets/tests/e2e/fixtures/packages
       test_tags: ${{ matrix.test_tags }}
       dependencies_lock_file: centreon-open-tickets/tests/e2e/pnpm-lock.yaml
-      xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
+      jira_test_plan_key: ${{ needs.xray-prepare-test-plan.outputs.jira_test_plan_key }}
+      xray_test_plan_issue_id: ${{ needs.xray-prepare-test-plan.outputs.xray_test_plan_issue_id }}
+      database_name: ${{ matrix.database }}
       is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
     secrets:
