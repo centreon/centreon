@@ -119,7 +119,7 @@ it('allows a client whose IP matches one of several trusted addresses', function
 
 it('rejects a client whose IP matches none of the trusted addresses', function (): void {
     ($this->callVerify)('172.16.0.1', ['192\\.168\\.1\\.1', '10\\.0\\.0\\.\\d+']);
-})->throws(SSOAuthenticationException::class);
+})->throws(SSOAuthenticationException::class, 'Your IP is not whitelisted');
 
 it('skips the trusted filter when the trusted address list is empty', function (): void {
     ($this->callVerify)('172.16.0.1');
@@ -131,13 +131,18 @@ it('skips the trusted filter when all trusted addresses are empty strings', func
     expect(true)->toBeTrue();
 });
 
+it('filters out empty strings and still matches the remaining trusted address', function (): void {
+    ($this->callVerify)('192.168.1.10', ['', '192\\.168\\.1\\.10', '']);
+    expect(true)->toBeTrue();
+});
+
 it('rejects a client whose IP is blacklisted', function (): void {
     ($this->callVerify)('192.168.1.10', [], ['192\\.168\\.1\\.10']);
-})->throws(SSOAuthenticationException::class);
+})->throws(SSOAuthenticationException::class, 'Your IP is blacklisted');
 
 it('rejects a blacklisted IP even when it is also trusted', function (): void {
     ($this->callVerify)('192.168.1.10', ['192\\.168\\.1\\.10'], ['192\\.168\\.1\\.10']);
-})->throws(SSOAuthenticationException::class);
+})->throws(SSOAuthenticationException::class, 'Your IP is blacklisted');
 
 it('allows a client not on the blacklist when no trusted list is configured', function (): void {
     ($this->callVerify)('10.0.0.5', [], ['192\\.168\\.1\\.1']);
