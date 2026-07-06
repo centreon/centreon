@@ -19,6 +19,10 @@ overrides:
   protobufjs@<=7.5.5: 7.5.5
   find-cypress-specs@<=1.54.9: 1.54.9
   undici@<=6.24.0: 6.24.0
+  # CVE-2025-64756: glob CLI command injection; fixed in 10.5.0 / 11.1.0.
+  # Ranges are two-sided so unaffected majors (5/7, no CLI) stay untouched.
+  'glob@>=10.0.0 <10.5.0': 10.5.0
+  'glob@>=11.0.0 <11.1.0': 11.1.0
 
 # 7 days
 minimumReleaseAge: 10080
