@@ -626,20 +626,9 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Deliver packages
-        uses: ./.github/actions/package-delivery
-        with:
-          module_name: open-tickets
-          distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-environment.outputs.major_version }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-          release_type: ${{ needs.get-environment.outputs.release_type }}
-          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
-
-      # Delivered in parallel to Artifactory during the Pulp migration; drop these
-      # two steps (and the deb-delivery/rpm-delivery actions) once Pulp is authoritative.
+      # Artifactory is delivered first and stays authoritative during the Pulp
+      # migration; drop these two steps (and the deb-delivery/rpm-delivery actions)
+      # once Pulp is authoritative.
       - name: Deliver RPM package on Artifactory
         if: matrix.package_extension == 'rpm'
         uses: ./.github/actions/rpm-delivery
@@ -668,6 +657,22 @@ jobs:
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
+      # Pulp runs after Artifactory and is non-blocking during the migration:
+      # continue-on-error surfaces a failure (the step is marked failed) without
+      # failing the workflow.
+      - name: Deliver packages on Pulp
+        uses: ./.github/actions/package-delivery
+        continue-on-error: true
+        with:
+          module_name: open-tickets
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-environment.outputs.major_version }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
+
   promote:
     needs: [get-environment, deliver]
     if: |
@@ -690,18 +695,9 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Promote ${{ matrix.distrib }} to stable
-        uses: ./.github/actions/promote-to-stable
-        with:
-          module_name: open-tickets
-          distrib: ${{ matrix.distrib }}
-          major_version: ${{ needs.get-environment.outputs.major_version }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-          release_type: ${{ needs.get-environment.outputs.release_type }}
-          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-
-      # Promoted in parallel on Artifactory during the Pulp migration; drop this
-      # step (and the promote-to-stable-artifactory action) once Pulp is authoritative.
+      # Artifactory is promoted first and stays authoritative during the Pulp
+      # migration; drop this step (and the promote-to-stable-artifactory action)
+      # once Pulp is authoritative.
       - name: Promote ${{ matrix.distrib }} to stable on Artifactory
         uses: ./.github/actions/promote-to-stable-artifactory
         with:
@@ -712,6 +708,18 @@ jobs:
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
           stability: ${{ needs.get-environment.outputs.stability }}
           github_ref_name: ${{ github.ref_name }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+
+      # Pulp runs after Artifactory and is non-blocking during the migration.
+      - name: Promote ${{ matrix.distrib }} to stable on Pulp
+        uses: ./.github/actions/promote-to-stable
+        continue-on-error: true
+        with:
+          module_name: open-tickets
+          distrib: ${{ matrix.distrib }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          stability: ${{ needs.get-environment.outputs.stability }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
