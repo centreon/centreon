@@ -200,7 +200,7 @@ jobs:
       # continue-on-error surfaces a failure (the step is marked failed) without
       # failing the workflow.
       - name: Deliver packages on Pulp
-        uses: ./.github/actions/package-delivery
+        uses: ./.github/actions/package-delivery-pulp
         continue-on-error: true
         with:
           module_name: ha
@@ -234,10 +234,10 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       # Artifactory is promoted first and stays authoritative during the Pulp
-      # migration; drop this step (and the promote-to-stable-artifactory action)
+      # migration; drop this step (and the Artifactory promote-to-stable action)
       # once Pulp is authoritative.
       - name: Promote ${{ matrix.distrib }} to stable on Artifactory
-        uses: ./.github/actions/promote-to-stable-artifactory
+        uses: ./.github/actions/promote-to-stable
         with:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           module_name: ha
@@ -251,7 +251,7 @@ jobs:
 
       # Pulp runs after Artifactory and is non-blocking during the migration.
       - name: Promote ${{ matrix.distrib }} to stable on Pulp
-        uses: ./.github/actions/promote-to-stable
+        uses: ./.github/actions/promote-to-stable-pulp
         continue-on-error: true
         with:
           module_name: ha
