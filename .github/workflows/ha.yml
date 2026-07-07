@@ -151,7 +151,7 @@ jobs:
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
       needs.get-environment.outputs.is_cloud == 'false' &&
       github.event.pull_request.head.repo.fork != true
-    runs-on: centreon-ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     strategy:
       matrix:
@@ -204,7 +204,7 @@ jobs:
       github.event_name != 'workflow_dispatch' &&
       needs.get-environment.outputs.is_cloud == 'false' &&
       github.event.pull_request.head.repo.fork != true
-    runs-on: centreon-ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}

@@ -1325,7 +1325,7 @@ jobs:
           cloudfront_id_doc_api: ${{ secrets.CLOUDFRONT_ID_DOC_API }}
 
   deliver:
-    runs-on: centreon-ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       [
         changes,
@@ -1392,7 +1392,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       github.event.pull_request.head.repo.fork != true
-    runs-on: centreon-ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
