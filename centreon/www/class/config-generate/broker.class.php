@@ -581,10 +581,10 @@ class Broker extends AbstractObjectJSON
 
         // Execute the query
         switch ($s_db) {
-            case db:
+            case 'centreon':
                 $db = $this->backend_instance->db;
                 break;
-            case dbcstg:
+            case 'centreon_storage':
                 $db = $this->backend_instance->db_cs;
                 break;
             default:
