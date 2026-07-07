@@ -45,7 +45,9 @@ const Stepper = ({ steps, currentStep }: Props): JSX.Element | null => {
             classes={{
               alternativeLabel: classes.label
             }}
-            StepIconComponent={StepIcon}
+            slots={{
+              stepIcon: StepIcon
+            }}
           >
             {stepName}
           </StepLabel>

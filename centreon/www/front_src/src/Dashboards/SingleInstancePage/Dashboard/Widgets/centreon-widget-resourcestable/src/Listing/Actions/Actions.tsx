@@ -21,10 +21,20 @@ const Actions = ({
 }: Props): JSX.Element => {
   return (
     <Grid container>
-      <Grid flex={1} item>
+      <Grid
+        item
+        sx={{
+          flex: 1
+        }}
+      >
         <ResourceActions />
       </Grid>
-      <Grid flex={1} item>
+      <Grid
+        item
+        sx={{
+          flex: 1
+        }}
+      >
         <DisplayType
           displayType={displayType}
           hasMetaService={hasMetaService}

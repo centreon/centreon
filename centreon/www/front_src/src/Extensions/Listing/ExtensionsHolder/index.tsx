@@ -175,11 +175,13 @@ const ExtensionsHolder = ({
     <div className={classes.contentWrapper}>
       <Stack>
         <Grid
-          alignItems="center"
           container
           direction="row"
           spacing={1}
           style={{ marginBottom: 8, width: '100%' }}
+          sx={{
+            alignItems: 'center'
+          }}
         >
           <Grid item>
             <Typography className={classes.extensionsTypes} variant="body1">
@@ -191,10 +193,12 @@ const ExtensionsHolder = ({
           </Grid>
         </Grid>
         <Grid
-          alignItems="stretch"
           container
           spacing={2}
           style={{ cursor: 'pointer' }}
+          sx={{
+            alignItems: 'stretch'
+          }}
         >
           {entities.map((entity) => {
             const isLoading =

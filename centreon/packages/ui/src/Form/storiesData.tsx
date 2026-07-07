@@ -1,5 +1,5 @@
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import MailIcon from '@mui/icons-material/MailOutline';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutlined';
+import MailIcon from '@mui/icons-material/MailOutlined';
 import { Typography } from '@mui/material';
 
 import { type FormikValues, useFormikContext } from 'formik';

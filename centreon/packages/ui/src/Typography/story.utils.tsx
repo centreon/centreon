@@ -57,8 +57,10 @@ const TypographyStory = (): JSX.Element => {
             spacing={10}
           >
             <Typography
-              display="block"
               gutterBottom
+              sx={{
+                display: 'block'
+              }}
               variant={typographyVariant}
             >
               {typographyVariant}
@@ -74,10 +76,20 @@ const TypographyStory = (): JSX.Element => {
                       justifyContent: 'space-between'
                     }}
                   >
-                    <Typography color="text.secondary" variant="subtitle1">
+                    <Typography
+                      sx={{
+                        color: 'text.secondary'
+                      }}
+                      variant="subtitle1"
+                    >
                       {key}
                     </Typography>
-                    <Typography color="text.secondary" variant="body2">
+                    <Typography
+                      sx={{
+                        color: 'text.secondary'
+                      }}
+                      variant="body2"
+                    >
                       {value as string}
                     </Typography>
                   </Box>

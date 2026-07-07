@@ -63,7 +63,12 @@ const DataTableItem = forwardRef(
             />
           )}
           <MuiCardContent className={classes.cardContent}>
-            <MuiTypography fontWeight={500} variant="h5">
+            <MuiTypography
+              sx={{
+                fontWeight: 500
+              }}
+              variant="h5"
+            >
               {title}
             </MuiTypography>
             {description && (

@@ -93,10 +93,12 @@ const DialogDowntime = ({
       {deniedTypeAlert && <Alert severity="warning">{deniedTypeAlert}</Alert>}
       <Stack spacing={2}>
         <Box
-          alignItems="center"
-          display="grid"
-          gap={1}
-          gridTemplateColumns="1fr auto 1fr"
+          sx={{
+            alignItems: 'center',
+            display: 'grid',
+            gap: 1,
+            gridTemplateColumns: '1fr auto 1fr'
+          }}
         >
           <DateTimePickerInput
             changeDate={changeTime}
@@ -126,7 +128,13 @@ const DialogDowntime = ({
         <Stack>
           <FormHelperText>{t(labelDuration)}</FormHelperText>
 
-          <Stack alignItems="center" direction="row" spacing={0.5}>
+          <Stack
+            direction="row"
+            spacing={0.5}
+            sx={{
+              alignItems: 'center'
+            }}
+          >
             <TextField
               ariaLabel={t(labelDuration) as string}
               autoSize
@@ -140,9 +148,11 @@ const DialogDowntime = ({
             />
             <Stack
               direction="row"
-              justifyContent="flex-end"
               spacing={1}
-              width="100%"
+              sx={{
+                justifyContent: 'flex-end',
+                width: '100%'
+              }}
             >
               <SelectField
                 dataTestId={labelUnit}
@@ -169,9 +179,11 @@ const DialogDowntime = ({
                   <Checkbox
                     checked={values.fixed}
                     color="primary"
-                    inputProps={{ 'aria-label': t(labelFixed) as string }}
                     onChange={handleChange('fixed')}
                     size="small"
+                    slotProps={{
+                      input: { 'aria-label': t(labelFixed) as string }
+                    }}
                   />
                 }
                 label={t(labelFixed) as string}
@@ -196,9 +208,11 @@ const DialogDowntime = ({
                 checked={canDowntimeServices() && values.isDowntimeWithServices}
                 color="primary"
                 disabled={!canDowntimeServices()}
-                inputProps={{ 'aria-label': labelSetDowntimeOnServices }}
                 onChange={handleChange('isDowntimeWithServices')}
                 size="small"
+                slotProps={{
+                  input: { 'aria-label': labelSetDowntimeOnServices }
+                }}
               />
             }
             label={t(labelSetDowntimeOnServices) as string}

@@ -53,13 +53,15 @@ const Modal = ({
       data-size={size}
       onClose={onClose}
       open={open}
-      TransitionComponent={isFullscreen ? Slide : undefined}
-      TransitionProps={
-        {
+      {...attr}
+      slotProps={{
+        transition: {
           direction: 'up'
         } as Record<string, unknown>
-      }
-      {...attr}
+      }}
+      slots={{
+        transition: isFullscreen ? Slide : undefined
+      }}
     >
       {hasCloseButton && (
         <div className="absolute top-2 right-3 opacity-60">

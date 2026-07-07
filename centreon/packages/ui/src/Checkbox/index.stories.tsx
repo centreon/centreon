@@ -1,4 +1,4 @@
-import MailIcon from '@mui/icons-material/MailOutline';
+import MailIcon from '@mui/icons-material/MailOutlined';
 
 import type { ComponentMeta, ComponentStory } from '@storybook/react';
 

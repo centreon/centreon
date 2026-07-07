@@ -44,7 +44,13 @@ const WidgetRadio = ({
 
   return (
     <div>
-      <Stack alignItems="center" direction="row" gap={1.5}>
+      <Stack
+        direction="row"
+        sx={{
+          alignItems: 'center',
+          gap: 1.5
+        }}
+      >
         <Label>{t(label)}</Label>
         <Tooltip propertyName={propertyName} secondaryLabel={secondaryLabel} />
       </Stack>

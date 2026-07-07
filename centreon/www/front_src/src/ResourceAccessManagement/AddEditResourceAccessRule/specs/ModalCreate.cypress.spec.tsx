@@ -321,7 +321,7 @@ describe('Create modal', () => {
   it('confirms that the Delete dataset filters button is visible when at least two dataset filters are selected', () => {
     fillFormRequiredFields();
 
-    cy.findAllByTestId('DeleteOutlineIcon').should('be.visible');
+    cy.findAllByTestId('DeleteOutlinedIcon').should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -329,11 +329,11 @@ describe('Create modal', () => {
   it('confirms that on click of Delete dataset filters button when two dataset filters are selected, the button disappears', () => {
     fillFormRequiredFields();
 
-    cy.findAllByTestId('DeleteOutlineIcon').should('be.visible');
+    cy.findAllByTestId('DeleteOutlinedIcon').should('be.visible');
 
-    cy.findAllByTestId('DeleteOutlineIcon').first().click();
+    cy.findAllByTestId('DeleteOutlinedIcon').first().click();
 
-    cy.findAllByTestId('DeleteOutlineIcon').should('not.exist');
+    cy.findAllByTestId('DeleteOutlinedIcon').should('not.exist');
 
     cy.makeSnapshot();
   });

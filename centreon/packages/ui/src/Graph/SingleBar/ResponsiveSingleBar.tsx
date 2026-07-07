@@ -5,7 +5,7 @@ import { scaleLinear } from '@visx/scale';
 import { Bar } from '@visx/shape';
 import { Group, Tooltip } from '@visx/visx';
 import { clamp, equals, flatten, head, pluck } from 'ramda';
-import { useMemo, useRef } from 'react';
+import { type CSSProperties, useMemo, useRef } from 'react';
 
 import { Tooltip as MuiTooltip } from '../../components/Tooltip';
 import { margins } from '../common/margins';
@@ -95,10 +95,12 @@ const ResponsiveSingleBar = ({
   const text = showLabels && (
     <text
       dominantBaseline={direction === 'row' ? 'hanging' : 'middle'}
-      style={{
-        fill: barColor,
-        ...textStyle
-      }}
+      style={
+        {
+          fill: barColor,
+          ...textStyle
+        } as CSSProperties
+      }
       textAnchor={direction === 'row' ? 'start' : 'middle'}
       x={direction === 'row' ? 0 : '50%'}
       y={textY}

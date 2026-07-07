@@ -1,4 +1,4 @@
-import HelpIcon from '@mui/icons-material/HelpOutline';
+import HelpIcon from '@mui/icons-material/HelpOutlined';
 import { Box, Tooltip } from '@mui/material';
 
 import { useTranslation } from 'react-i18next';

@@ -1,7 +1,5 @@
 import '@testing-library/cypress/add-commands';
 
-import { createGenerateClassName, StylesProvider } from '@mui/styles';
-
 import {
   Method,
   SnackbarProvider,
@@ -255,23 +253,17 @@ export const initialize = (stubs: DeepPartial<Stubs> = {}): unknown => {
     (stubs.navigationList || allowedPages) as Navigation
   );
 
-  const generateClassName = createGenerateClassName({
-    seed: 'seedName'
-  });
-
   cy.mount({
     Component: (
       <TestQueryProvider>
         <Provider store={store}>
-          <StylesProvider generateClassName={generateClassName}>
-            <ThemeProvider>
-              <SnackbarProvider maxSnackbars={2}>
-                <Router>
-                  <Header />
-                </Router>
-              </SnackbarProvider>
-            </ThemeProvider>
-          </StylesProvider>
+          <ThemeProvider>
+            <SnackbarProvider maxSnackbars={2}>
+              <Router>
+                <Header />
+              </Router>
+            </SnackbarProvider>
+          </ThemeProvider>
         </Provider>
       </TestQueryProvider>
     )

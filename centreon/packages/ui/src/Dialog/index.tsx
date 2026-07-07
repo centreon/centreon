@@ -88,11 +88,13 @@ const Dialog = ({
     <MuiDialog
       onClose={onClose}
       open={open}
-      PaperProps={{
-        className: dialogPaperClassName
-      }}
       scroll="paper"
       {...rest}
+      slotProps={{
+        paper: {
+          className: dialogPaperClassName
+        }
+      }}
     >
       {labelTitle && (
         <DialogTitle className={dialogTitleClassName} {...dialogTitleProps}>

@@ -1,5 +1,5 @@
 import { Chip, type ChipProps, Tooltip } from '@mui/material';
-import type { AutocompleteRenderGetTagProps } from '@mui/material/Autocomplete';
+import type { AutocompleteRenderValueGetItemProps } from '@mui/material/Autocomplete';
 import type { UseAutocompleteProps } from '@mui/material/useAutocomplete';
 
 import { compose, includes, map, prop, reject, sortBy, toLower } from 'ramda';
@@ -16,7 +16,7 @@ type DisableClearable = boolean;
 type FreeSolo = boolean;
 
 export interface Props
-  extends Omit<AutocompleteProps, 'renderTags' | 'renderOption' | 'multiple'>,
+  extends Omit<AutocompleteProps, 'renderValue' | 'renderOption' | 'multiple'>,
     Omit<
       UseAutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>,
       'multiple'
@@ -52,7 +52,7 @@ const MultiAutocompleteField = ({
 
   const renderTags = (
     renderedValue: Array<SelectEntry>,
-    getTagProps: AutocompleteRenderGetTagProps
+    getItemProps: AutocompleteRenderValueGetItemProps<true>
   ): Array<JSX.Element> =>
     renderedValue.map((option: SelectEntry, index: number) => {
       return (
@@ -69,7 +69,7 @@ const MultiAutocompleteField = ({
             data-testid={`tag-option-chip-${option.id}`}
             label={getTagLabel(option)}
             size="medium"
-            {...getTagProps({ index })}
+            {...getItemProps({ index })}
             {...chipProps}
             onDelete={(event) =>
               (
@@ -107,18 +107,6 @@ const MultiAutocompleteField = ({
         disableCloseOnSelect: true,
         displayOptionThumbnail: true,
         getLimitTagsText,
-        ListboxComponent: ListboxComponent({
-          disableSelectAll,
-          isOptionSelected,
-          onChange: onChange as (
-            event: React.SyntheticEvent,
-            value: Array<SelectEntry>,
-            reason: string
-          ) => void,
-          options: options as Array<SelectEntry>,
-          total,
-          value: values
-        }),
         multiple: true,
         onChange,
         options: autocompleteOptions,
@@ -132,10 +120,27 @@ const MultiAutocompleteField = ({
             </Option>
           </li>
         ),
-        renderTags: (renderedValue, getTagProps): React.ReactNode =>
+        renderValue: (
+          renderedValue: Array<SelectEntry>,
+          getItemProps: AutocompleteRenderValueGetItemProps<true>
+        ): React.ReactNode =>
           customRenderTags
-            ? customRenderTags(renderTags(renderedValue, getTagProps))
-            : renderTags(renderedValue, getTagProps),
+            ? customRenderTags(renderTags(renderedValue, getItemProps))
+            : renderTags(renderedValue, getItemProps),
+        slots: {
+          listbox: ListboxComponent({
+            disableSelectAll,
+            isOptionSelected,
+            onChange: onChange as (
+              event: React.SyntheticEvent,
+              value: Array<SelectEntry>,
+              reason: string
+            ) => void,
+            options: options as Array<SelectEntry>,
+            total,
+            value: values
+          })
+        },
         value: values,
         ...props
       } as React.ComponentProps<typeof Autocomplete>)}

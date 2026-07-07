@@ -1,7 +1,7 @@
 // @ts-nocheck
 // TODO: re-enable type-check after fixing this file
 import ArrowIcon from '@mui/icons-material/ArrowForwardSharp';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutlined';
 
 import { SingleConnectedAutocompleteField, TextField } from '@centreon/ui';
 import { IconButton, Tooltip } from '@centreon/ui/components';

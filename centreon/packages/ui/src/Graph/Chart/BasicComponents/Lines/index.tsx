@@ -122,7 +122,6 @@ const Lines = ({
           xScale={xScale}
         />
       )}
-
       {(areaStackedLines?.display ?? true) && (
         <>
           {Object.entries(stackedLinesData).map(
@@ -175,7 +174,6 @@ const Lines = ({
           )}
         </>
       )}
-
       {displayThresholdArea && (
         <WrapperThresholdLines
           areaThresholdLines={areaThresholdLines}
@@ -186,7 +184,6 @@ const Lines = ({
           yScalesPerUnit={yScalesPerUnit}
         />
       )}
-
       {displayAreaRegularLines
         ? regularLines.map(
             ({

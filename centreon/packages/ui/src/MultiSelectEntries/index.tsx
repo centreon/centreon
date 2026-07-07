@@ -135,8 +135,16 @@ const MultiSelectEntries = ({
       onKeyDown={onClick}
       ref={hoverRef as Ref<HTMLDivElement>}
     >
-      <Box display="flex">
-        <Box flexGrow={1}>
+      <Box
+        sx={{
+          display: 'flex'
+        }}
+      >
+        <Box
+          sx={{
+            flexGrow: 1
+          }}
+        >
           <Caption>{caption}</Caption>
         </Box>
         <Box>
@@ -149,7 +157,12 @@ const MultiSelectEntries = ({
           />
         </Box>
       </Box>
-      <Grid container justifyContent="flex-start">
+      <Grid
+        container
+        sx={{
+          justifyContent: 'flex-start'
+        }}
+      >
         {values.slice(0, maxChips).map(({ id, name }) => (
           <EntryChip gridWidth={gridWidth} key={id} label={name} size={size} />
         ))}

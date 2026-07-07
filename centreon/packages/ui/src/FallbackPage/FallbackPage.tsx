@@ -70,7 +70,13 @@ export const FallbackPage: FC<FallbackPageProps> = typedMemo(
         </div>
         <section className={classes.messageBlock}>
           <header>
-            <Typography color="primary" fontWeight="bold" variant="h3">
+            <Typography
+              color="primary"
+              sx={{
+                fontWeight: 'bold'
+              }}
+              variant="h3"
+            >
               {title}
             </Typography>
           </header>

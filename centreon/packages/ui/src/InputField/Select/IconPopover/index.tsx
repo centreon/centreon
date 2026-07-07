@@ -3,6 +3,7 @@ import {
   Button,
   ClickAwayListener,
   MenuItem,
+  MenuList,
   Paper,
   Popper,
   type PopperPlacementType,
@@ -117,20 +118,22 @@ const IconPopoverMultiAutocomplete = ({
                 {t(labelReset)}
               </Button>
             )}
-            {options.map((option) => {
-              const { id, name } = option;
+            <MenuList>
+              {options.map((option) => {
+                const { id, name } = option;
 
-              return (
-                <MenuItem
-                  disabled={option.disabled || false}
-                  key={id}
-                  onClick={(): void => unSelect(option)}
-                  value={name}
-                >
-                  <Option checkboxSelected={isSelected(id)}>{name}</Option>
-                </MenuItem>
-              );
-            })}
+                return (
+                  <MenuItem
+                    disabled={option.disabled || false}
+                    key={id}
+                    onClick={(): void => unSelect(option)}
+                    value={name}
+                  >
+                    <Option checkboxSelected={isSelected(id)}>{name}</Option>
+                  </MenuItem>
+                );
+              })}
+            </MenuList>
           </Paper>
         </Popper>
       </div>

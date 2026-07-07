@@ -1,6 +1,6 @@
 // @ts-nocheck
 // TODO: re-enable type-check after fixing this file
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutlined';
 import { Typography } from '@mui/material';
 
 import { Tooltip } from '@centreon/ui/components';

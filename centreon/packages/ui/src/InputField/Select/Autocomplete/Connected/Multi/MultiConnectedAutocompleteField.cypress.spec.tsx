@@ -157,8 +157,6 @@ describe('Multi connected autocomplete', () => {
     cy.contains(labelUnSelectAll).should('be.visible');
 
     cy.get('[data-testid="CancelIcon"]').should('have.length', 5);
-
-    cy.makeSnapshot('checks all options when Select all button is clicked');
   });
 
   it('unchecks all options when unSelect all button is clicked', () => {

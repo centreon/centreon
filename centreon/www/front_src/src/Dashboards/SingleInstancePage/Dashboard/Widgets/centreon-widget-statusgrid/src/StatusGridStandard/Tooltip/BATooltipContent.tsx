@@ -109,7 +109,6 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
           </Typography>
         </Box>
       </Box>
-
       <Box className={classes.body}>
         {data.businessActivity && (
           <Box className={classes.baParent}>
@@ -123,13 +122,22 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
         <Box className={classes.listContainer}>
           {isLoading && <CircularProgress size={24} />}
           {(isImpact || isRatio) && (
-            <Box mb={1}>
+            <Box
+              sx={{
+                mb: 1
+              }}
+            >
               <Box className={classes.statusInformation}>
                 <Typography variant="body1">
                   <strong>{t(labelStateInformation)}</strong>
                 </Typography>
               </Box>
-              <Box className={classes.thresholdContainer} mt={1}>
+              <Box
+                className={classes.thresholdContainer}
+                sx={{
+                  mt: 1
+                }}
+              >
                 <Box className={classes.threshold}>
                   <Typography variant="body1">
                     {isImpact ? t(labelHealth) : t(labelCriticalKPIs)}
@@ -185,9 +193,17 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
           )}
 
           {hasIndicatorsWithProblems && (
-            <Box mt={1}>
+            <Box
+              sx={{
+                mt: 1
+              }}
+            >
               {(isImpact || isRatio) && (
-                <Box mb={1}>
+                <Box
+                  sx={{
+                    mb: 1
+                  }}
+                >
                   <Divider variant="fullWidth" />
                 </Box>
               )}
@@ -247,13 +263,22 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
           )}
 
           {(areAllIndicatorsOk || statusOk) && (
-            <Typography color="text.secondary">
+            <Typography
+              sx={{
+                color: 'text.secondary'
+              }}
+            >
               {t(labelAllKPIsAreWorkingFine)}
             </Typography>
           )}
 
           {!areAllIndicatorsOk && hasIndicatorsWithProblems && (
-            <Typography color="text.secondary" mt={1}>
+            <Typography
+              sx={{
+                color: 'text.secondary',
+                mt: 1
+              }}
+            >
               {`${indicatorsWithStatusOk?.length}/${total} KPIs ${t(labelAreWorkingFine)}`}
             </Typography>
           )}
@@ -261,7 +286,9 @@ const BATooltipContent = ({ data }: Props): JSX.Element | null => {
         <Divider variant="fullWidth" />
         <Typography
           className={classes.dateContainer}
-          color="text.secondary"
+          sx={{
+            color: 'text.secondary'
+          }}
           variant="body2"
         >
           {format({ date: dayjs().toISOString(), formatString: 'LLL' })}

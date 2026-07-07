@@ -104,9 +104,11 @@ const DialogAcknowledge = ({
                 <Checkbox
                   checked={values.notify}
                   color="primary"
-                  inputProps={{ 'aria-label': t(labelNotify) }}
                   onChange={handleChange('notify')}
                   size="small"
+                  slotProps={{
+                    input: { 'aria-label': t(labelNotify) }
+                  }}
                 />
               }
               label={t(labelNotify) as string}
@@ -122,9 +124,11 @@ const DialogAcknowledge = ({
               <Checkbox
                 checked={values.isSticky}
                 color="primary"
-                inputProps={{ 'aria-label': t(labelStickyForAnyNonOkStatus) }}
                 onChange={handleChange('isSticky')}
                 size="small"
+                slotProps={{
+                  input: { 'aria-label': t(labelStickyForAnyNonOkStatus) }
+                }}
               />
             }
             label={t(labelStickyForAnyNonOkStatus) as string}
@@ -141,9 +145,11 @@ const DialogAcknowledge = ({
                   }
                   color="primary"
                   disabled={!canAcknowledgeServices()}
-                  inputProps={{ 'aria-label': t(labelAcknowledgeServices) }}
                   onChange={handleChange('acknowledgeAttachedResources')}
                   size="small"
+                  slotProps={{
+                    input: { 'aria-label': t(labelAcknowledgeServices) }
+                  }}
                 />
               }
               label={t(labelAcknowledgeServices) as string}

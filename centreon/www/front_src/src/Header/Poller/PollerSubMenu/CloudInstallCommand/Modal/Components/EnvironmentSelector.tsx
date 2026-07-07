@@ -1,4 +1,4 @@
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutlined';
 import { Tooltip, Typography } from '@mui/material';
 
 import { IconButton } from '@centreon/ui';

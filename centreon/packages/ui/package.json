@@ -133,7 +133,11 @@
     "@lexical/rich-text": "^0.27.0",
     "@lexical/selection": "^0.27.0",
     "@lexical/utils": "^0.27.0",
-    "@mui/material": "^7.1.0",
+    "@mui/icons-material": "^9.1.1",
+    "@mui/lab": "^9.0.0-beta.5",
+    "@mui/material": "^9.1.1",
+    "@mui/system": "^9.1.1",
+    "@mui/x-date-pickers": "^9.6.0",
     "@react-spring/web": "^9.7.5",
     "@visx/clip-path": "^3.12.0",
     "@visx/curve": "^3.12.0",
@@ -165,6 +169,7 @@
     "react-router": "7.12.0",
     "react-transition-group": "^4.4.5",
     "sanitize-html": "^2.14.0",
+    "tss-react": "^4.9.21",
     "ulog": "^2.0.0-beta.19"
   },
   "jest-junit": {

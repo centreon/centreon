@@ -72,6 +72,22 @@ const initialize = (args) => {
   });
 };
 
+// The MUI X v9 picker renders an accessible field made of editable sections.
+// Typing happens section by section: focusing the field selects the first
+// section and digits auto-advance through day, month, year, hours, minutes.
+// The formatted value is exposed on the hidden `calendarInput` element.
+const typeDate = (digits: string): void => {
+  cy.get('[data-testid="calendarField"] [role="spinbutton"]').first().click();
+  cy.focused().type(digits);
+};
+
+// Emptying a section makes the date incomplete; the next keystroke triggers
+// the component validation and surfaces the error.
+const emptyOneSection = (): void => {
+  cy.get('[data-testid="calendarField"]').click();
+  cy.focused().type('{selectall}{backspace}{rightArrow}');
+};
+
 describe('DateInput Component', () => {
   beforeEach(() => {
     cy.clock(new Date('2025-08-21T10:00:00.000Z'));
@@ -86,7 +102,7 @@ describe('DateInput Component', () => {
 
     cy.get('[data-testid="test-date-calendarContainer"]').should('be.visible');
     cy.contains('Until').should('be.visible');
-    cy.get('[data-testid="calendarInput"]').should('be.visible');
+    cy.get('[data-testid="calendarField"]').should('be.visible');
   });
 
   it('should render with provided initial date', () => {
@@ -106,7 +122,7 @@ describe('DateInput Component', () => {
   it('should update date when typing in the input field', () => {
     initialize({});
 
-    cy.get('[data-testid="calendarInput"]').clear().type('25/12/2025 15:45');
+    typeDate('251220251545');
 
     // The date should be updated in the input but not yet committed
     cy.get('[data-testid="calendarInput"]').should(
@@ -118,10 +134,7 @@ describe('DateInput Component', () => {
   it('should commit date when pressing Enter key', () => {
     initialize({});
 
-    cy.get('[data-testid="calendarInput"]')
-      .clear()
-      .type('25/12/2025 15:45')
-      .type('{enter}');
+    typeDate('251220251545{enter}');
 
     cy.get('[data-testid="current-date"]').should(
       'contain',
@@ -136,7 +149,7 @@ describe('DateInput Component', () => {
   it('should show error for invalid date format', () => {
     initialize({});
 
-    cy.get('[data-testid="calendarInput"]').clear().type('invalid-date').blur();
+    emptyOneSection();
 
     cy.contains('invalid date').should('be.visible');
   });
@@ -144,16 +157,13 @@ describe('DateInput Component', () => {
   it('should clear error when valid date is entered', () => {
     initialize({});
 
-    // First enter invalid date
-    cy.get('[data-testid="calendarInput"]').clear().type('invalid-date').blur();
+    // First make the date invalid
+    emptyOneSection();
 
     cy.contains('invalid date').should('be.visible');
 
-    // Then enter valid date
-    cy.get('[data-testid="calendarInput"]')
-      .clear()
-      .type('25/12/2025 15:45')
-      .blur();
+    // Then enter a valid date (trailing key re-runs validation on the now-valid date)
+    typeDate('251220251545{rightArrow}');
 
     cy.contains('invalid date').should('not.exist');
   });
@@ -162,10 +172,8 @@ describe('DateInput Component', () => {
     const initialDate = new Date('2025-08-25T14:30:00+02:00'); // Explicit timezone
     initialize({ initialDate });
 
-    cy.get('[data-testid="calendarInput"]')
-      .clear()
-      .type('invalid-date')
-      .type('{enter}');
+    cy.get('[data-testid="calendarField"]').click();
+    cy.focused().type('{selectall}{backspace}{enter}');
 
     // Should show error and not update the date
     cy.contains('invalid date').should('be.visible');
@@ -190,12 +198,10 @@ describe('DateInput Component', () => {
   it('should handle date changes through the date picker interface', () => {
     initialize({});
 
-    // Click on the calendar input to open date picker
-    cy.get('[data-testid="calendarInput"]').click();
+    // Clicking the field focuses an editable section of the picker
+    cy.get('[data-testid="calendarField"]').click();
 
-    // The DateTimePickerInput component should be interactive
-    // Note: Specific date picker interactions would depend on the @centreon/ui implementation
-    cy.get('[data-testid="calendarInput"]').should('be.focused');
+    cy.focused().should('have.attr', 'role', 'spinbutton');
   });
 
   it('should maintain date format consistency', () => {
@@ -214,33 +220,28 @@ describe('DateInput Component', () => {
 
     cy.get('[data-testid="current-date"]').should('contain', 'No date set');
 
-    // Should still render calendar input with default date
-    cy.get('[data-testid="calendarInput"]').should('be.visible');
+    // Should still render the calendar field with the default date
+    cy.get('[data-testid="calendarField"]').should('be.visible');
   });
 
   it('should handle dayjs validation correctly', () => {
     initialize({});
 
-    // Test with clearly invalid date format
-    cy.get('[data-testid="calendarInput"]').clear().type('not-a-date').blur();
+    // Make the date invalid by emptying a section
+    emptyOneSection();
 
     cy.contains('invalid date').should('be.visible');
 
-    // Clear the error by entering a valid date
-    cy.get('[data-testid="calendarInput"]')
-      .clear()
-      .type('21/08/2025 10:00')
-      .blur();
+    // Clear the error by entering a valid date (trailing key re-runs validation)
+    typeDate('210820251000{rightArrow}');
 
     cy.contains('invalid date').should('not.exist');
   });
 
   it('should properly handle time components in date', () => {
     initialize({});
-    cy.get('[data-testid="calendarInput"]')
-      .clear()
-      .type('21/08/2025 23:30')
-      .type('{enter}');
+
+    typeDate('210820252330{enter}');
 
     cy.get('[data-testid="current-date"]').should(
       'contain',

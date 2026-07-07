@@ -45,7 +45,13 @@ const Option = forwardRef(
             size="small"
           />
         )}
-        <Stack alignItems="center" direction="row" spacing={1}>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            alignItems: 'center'
+          }}
+        >
           {thumbnailUrl && (
             <img
               alt={typeof children === 'string' ? children : ''}

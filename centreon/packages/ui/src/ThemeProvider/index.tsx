@@ -1,11 +1,11 @@
 import {
   type ButtonProps,
+  type CSSObject,
   createTheme,
   type InputBaseProps,
   ThemeProvider as MuiThemeProvider,
   type PaletteOptions,
-  StyledEngineProvider,
-  type Theme
+  StyledEngineProvider
 } from '@mui/material';
 import { autocompleteClasses } from '@mui/material/Autocomplete';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -17,17 +17,12 @@ import { ThemeMode, userAtom } from '@centreon/ui-context';
 import { useAtomValue } from 'jotai';
 import { equals, mergeDeepRight } from 'ramda';
 import { type ReactNode, useMemo } from 'react';
-import type { CSSInterpolation } from 'tss-react';
 
 import RobotoBoldWoff2 from '../fonts/roboto-bold-webfont.woff2';
 import RobotoLightWoff2 from '../fonts/roboto-light-webfont.woff2';
 import RobotoMediumWoff2 from '../fonts/roboto-medium-webfont.woff2';
 import RobotoRegularWoff2 from '../fonts/roboto-regular-webfont.woff2';
 import { getPalette } from './palettes';
-
-declare module '@mui/styles/defaultTheme' {
-  interface DefaultTheme extends Theme {}
-}
 
 declare module '@mui/material/TextField' {
   interface TextFieldPropsSizeOverrides {
@@ -39,7 +34,7 @@ declare module '@mui/material/TextField' {
 const getInputBaseRootStyle = ({
   size,
   multiline
-}: InputBaseProps): CSSInterpolation => {
+}: InputBaseProps): CSSObject => {
   if (multiline) {
     return {
       padding: '0px'
@@ -71,7 +66,7 @@ const getInputBaseRootStyle = ({
   };
 };
 
-const getInputBaseInputStyle = ({ size }: InputBaseProps): CSSInterpolation => {
+const getInputBaseInputStyle = ({ size }: InputBaseProps): CSSObject => {
   if (equals(size, 'compact')) {
     return {
       minHeight: '32px'
@@ -93,7 +88,7 @@ const getInputBaseInputStyle = ({ size }: InputBaseProps): CSSInterpolation => {
   };
 };
 
-const getButtonRootStyle = ({ size }: ButtonProps): CSSInterpolation => {
+const getButtonRootStyle = ({ size }: ButtonProps): CSSObject => {
   if (equals(size, 'medium')) {
     return {
       height: '40px'

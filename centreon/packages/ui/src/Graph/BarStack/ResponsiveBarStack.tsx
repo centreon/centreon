@@ -74,8 +74,10 @@ const ResponsiveBarStack = ({
         <Typography
           className={cx(equals(titleVariant, 'md') && classes.clippedTitle)}
           data-testid="Title"
-          fontWeight="bold"
-          textAlign="center"
+          sx={{
+            fontWeight: 'bold',
+            textAlign: 'center'
+          }}
           variant={equals(titleVariant, 'md') ? 'h6' : 'body1'}
         >
           {`${numeral(total).format('0a')}`} {t(title)}

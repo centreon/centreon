@@ -1,7 +1,13 @@
 // @ts-nocheck
 // TODO: re-enable type-check after fixing this file
 import CloseIcon from '@mui/icons-material/Close';
-import { ClickAwayListener, MenuItem, Paper, Popper } from '@mui/material';
+import {
+  ClickAwayListener,
+  MenuItem,
+  MenuList,
+  Paper,
+  Popper
+} from '@mui/material';
 import debounce from '@mui/utils/debounce';
 
 import {
@@ -359,20 +365,22 @@ const Filter = (): JSX.Element => {
                 }}
               >
                 <Paper square>
-                  {autoCompleteSuggestions.map((suggestion, index) => {
-                    return (
-                      <MenuItem
-                        key={suggestion}
-                        onClick={(): void => {
-                          acceptAutocompleteSuggestionAtIndex(index);
-                          searchRef?.current?.focus();
-                        }}
-                        selected={index === selectedSuggestionIndex}
-                      >
-                        {suggestion}
-                      </MenuItem>
-                    );
-                  })}
+                  <MenuList>
+                    {autoCompleteSuggestions.map((suggestion, index) => {
+                      return (
+                        <MenuItem
+                          key={suggestion}
+                          onClick={(): void => {
+                            acceptAutocompleteSuggestionAtIndex(index);
+                            searchRef?.current?.focus();
+                          }}
+                          selected={index === selectedSuggestionIndex}
+                        >
+                          {suggestion}
+                        </MenuItem>
+                      );
+                    })}
+                  </MenuList>
                 </Paper>
               </Popper>
             </div>

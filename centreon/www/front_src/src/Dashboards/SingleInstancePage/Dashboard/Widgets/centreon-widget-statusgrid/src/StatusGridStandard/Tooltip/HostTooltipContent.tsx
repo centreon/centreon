@@ -92,7 +92,11 @@ const HostTooltipContent = ({ data }: Props): JSX.Element => {
             </div>
           )}
           {!hasServices && !isLoading && statusOk && (
-            <Typography color="text.secondary">
+            <Typography
+              sx={{
+                color: 'text.secondary'
+              }}
+            >
               {t(labelAllServicesAreWorkingFine)}
             </Typography>
           )}
@@ -101,7 +105,9 @@ const HostTooltipContent = ({ data }: Props): JSX.Element => {
         <Divider variant="fullWidth" />
         <Typography
           className={classes.dateContainer}
-          color="text.secondary"
+          sx={{
+            color: 'text.secondary'
+          }}
           variant="body2"
         >
           {format({ date: dayjs().toISOString(), formatString: 'LLL' })}

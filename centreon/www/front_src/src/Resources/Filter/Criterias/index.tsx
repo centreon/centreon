@@ -1,5 +1,5 @@
 import TuneIcon from '@mui/icons-material/Tune';
-import { Grid } from '@mui/material';
+import { Stack } from '@mui/material';
 
 import { PopoverMenu, useMemoComponent } from '@centreon/ui';
 
@@ -153,12 +153,12 @@ const CriteriasContent = ({
           };
 
           return (
-            <Grid
-              alignItems="stretch"
+            <Stack
               className={classes.container}
-              container
-              direction="column"
               spacing={1}
+              sx={{
+                alignItems: 'stretch'
+              }}
             >
               <CriteriasNewInterface
                 actions={
@@ -179,11 +179,10 @@ const CriteriasContent = ({
                   selectableCriterias: getSelectableCriterias()
                 }}
               />
-            </Grid>
+            </Stack>
           );
         }}
       </PopoverMenu>
-
       <SaveActions
         dataCreateFilter={{ isCreatingFilter, setIsCreatingFilter }}
       />

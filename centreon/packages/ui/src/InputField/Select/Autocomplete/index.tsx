@@ -2,6 +2,7 @@ import {
   Autocomplete,
   type AutocompleteProps,
   type AutocompleteRenderInputParams,
+  type ChipProps,
   CircularProgress,
   InputAdornment,
   type InputProps,
@@ -34,6 +35,7 @@ import { useAutoCompleteStyles } from './autoComplete.styles';
 export type Props = {
   autoFocus?: boolean;
   autoSize?: boolean;
+  chipProps?: ChipProps;
   helperText?: ReactNode;
   autoSizeCustomPadding?: number;
   autoSizeDefaultWidth?: number;
@@ -176,7 +178,7 @@ const AutocompleteField = forwardRef(
           required={required}
           slotProps={{
             htmlInput: {
-              ...params.inputProps,
+              ...params.slotProps.htmlInput,
               'aria-label': label,
               'data-testid': dataTestId || label,
               id: getNormalizedId(label || ''),
@@ -191,7 +193,7 @@ const AutocompleteField = forwardRef(
               ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput
             },
             input: {
-              ...params.InputProps,
+              ...params.slotProps.input,
               endAdornment: (
                 <>
                   {endAdornment && (
@@ -199,7 +201,7 @@ const AutocompleteField = forwardRef(
                       {endAdornment}
                     </InputAdornment>
                   )}
-                  {params.InputProps.endAdornment}
+                  {params.slotProps.input.endAdornment}
                 </>
               ),
               style: {
@@ -250,7 +252,9 @@ const AutocompleteField = forwardRef(
         getOptionLabel={(option): string =>
           (option as SelectEntry)?.name?.toString() || ''
         }
-        isOptionEqualToValue={areSelectEntriesEqual}
+        isOptionEqualToValue={(option, value): boolean =>
+          areSelectEntriesEqual(option, value as SelectEntry)
+        }
         loading={loading}
         loadingText={<LoadingIndicator />}
         options={options}

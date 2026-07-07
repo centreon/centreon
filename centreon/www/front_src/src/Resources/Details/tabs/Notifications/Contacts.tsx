@@ -81,8 +81,8 @@ const Contacts = ({
     return (
       <Box
         component={Paper}
-        display="grid"
         sx={{
+          display: 'grid',
           justifyContent: 'center',
           py: 1
         }}
@@ -95,9 +95,9 @@ const Contacts = ({
   return (
     <Box
       component={Paper}
-      display="grid"
       sx={{
         alignItems: 'center',
+        display: 'grid',
         gap: 1,
         gridTemplateColumns: templateColumns,
         justifyContent: 'center',
@@ -106,9 +106,7 @@ const Contacts = ({
     >
       {headers}
       <span />
-
       <Divider sx={{ gridColumn: '1 / -1' }} />
-
       {contacts?.map((contact) => {
         return (
           <Fragment key={contact.alias}>

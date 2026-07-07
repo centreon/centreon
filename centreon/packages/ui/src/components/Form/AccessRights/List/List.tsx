@@ -26,7 +26,12 @@ const List = ({ labels, roles }: Props): JSX.Element => {
       <Subtitle>{t(labels.title)}</Subtitle>
       <div className={classes.list}>
         {isEmpty(values) ? (
-          <Typography sx={{ py: 2 }} textAlign="center">
+          <Typography
+            sx={{
+              py: 2,
+              textAlign: 'center'
+            }}
+          >
             {t(labels.empty)}
           </Typography>
         ) : (

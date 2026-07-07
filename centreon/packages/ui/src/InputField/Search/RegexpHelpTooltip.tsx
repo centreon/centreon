@@ -18,7 +18,11 @@ const RegexpHelpTooltipContent = ({
   examples,
   tips
 }: ContentProps): JSX.Element => (
-  <Box padding={1}>
+  <Box
+    sx={{
+      padding: 1
+    }}
+  >
     {description}
     {labelExamples}
     {examples}

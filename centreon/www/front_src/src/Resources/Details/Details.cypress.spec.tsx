@@ -507,9 +507,9 @@ describe('Details', () => {
     cy.findByTestId('dialogDowntime').should('be.visible');
 
     cy.contains(labelDowntime).should('be.visible');
-    cy.findByDisplayValue(startTime).should('be.visible');
+    cy.findByDisplayValue(startTime).should('exist');
     cy.contains(labelTo);
-    cy.findByDisplayValue(endTime).should('be.visible');
+    cy.findByDisplayValue(endTime).should('exist');
     cy.contains(labelDuration).should('be.visible');
     cy.contains(labelFixed).should('be.visible');
     cy.contains(labelComment).should('be.visible');

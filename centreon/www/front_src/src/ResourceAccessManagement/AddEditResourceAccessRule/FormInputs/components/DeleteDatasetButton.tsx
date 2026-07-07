@@ -1,4 +1,4 @@
-import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutline';
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { Chip } from '@mui/material';
 
 import { ReactElement } from 'react';

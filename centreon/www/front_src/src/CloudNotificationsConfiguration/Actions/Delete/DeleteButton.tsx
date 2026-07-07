@@ -1,4 +1,4 @@
-import DeleteIcon from '@mui/icons-material/DeleteOutline';
+import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 
 import { IconButton } from '@centreon/ui';
 

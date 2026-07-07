@@ -26,9 +26,11 @@ const DetailsLine = ({ line }: Props): JSX.Element => {
         <Typography component="div">
           <Box
             className={classes.lineText}
-            lineHeight={1}
             style={{
               maxWidth: width || 'unset'
+            }}
+            sx={{
+              lineHeight: 1
             }}
           >
             {line}

@@ -52,6 +52,7 @@ export const useClockStyles = makeStyles()((theme) => ({
     zIndex: 1
   },
   date: {
+    fontWeight: 'bold',
     justifySelf: 'start'
   },
   icon: {

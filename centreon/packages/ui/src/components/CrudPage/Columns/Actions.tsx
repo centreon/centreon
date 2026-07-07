@@ -1,5 +1,5 @@
 import { EditOutlined } from '@mui/icons-material';
-import DeleteOutline from '@mui/icons-material/DeleteOutline';
+import DeleteOutline from '@mui/icons-material/DeleteOutlined';
 import { Box } from '@mui/material';
 
 import { useAtomValue, useSetAtom } from 'jotai';

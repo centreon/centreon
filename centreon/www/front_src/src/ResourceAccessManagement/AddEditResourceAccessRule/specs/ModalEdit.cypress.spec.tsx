@@ -187,7 +187,7 @@ describe('Edit modal', () => {
   });
 
   it('sends a request to edit a Resource Access Rule when a configured value is changed and the Save button is clicked', () => {
-    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+    cy.findAllByTestId('DeleteOutlinedIcon').last().click();
 
     cy.findByTestId('modal-body').scrollTo('bottom');
     cy.findByLabelText(labelSave).click();
@@ -202,7 +202,7 @@ describe('Edit modal', () => {
   it('sends a request to edit a Resource Access Rule when a configured resources are changed to All resources in datasets', () => {
     store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
 
-    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+    cy.findAllByTestId('DeleteOutlinedIcon').last().click();
 
     cy.findAllByTestId('Delete').last().click();
     cy.findAllByLabelText(labelSelectResourceType).last().click();
@@ -224,7 +224,7 @@ describe('Edit modal', () => {
   it('sends a request to edit a Resource Access Rule when a configured resources are changed to All host groups in datasets', () => {
     store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
 
-    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+    cy.findAllByTestId('DeleteOutlinedIcon').last().click();
 
     cy.findAllByTestId('Delete').last().click();
 
@@ -251,7 +251,7 @@ describe('Edit modal', () => {
     store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
     store.set(platformVersionsAtom, platformVersions);
 
-    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+    cy.findAllByTestId('DeleteOutlinedIcon').last().click();
 
     cy.findAllByTestId('Delete').last().click();
 
@@ -280,7 +280,7 @@ describe('Edit modal', () => {
     store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
     store.set(platformVersionsAtom, platformVersions);
 
-    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+    cy.findAllByTestId('DeleteOutlinedIcon').last().click();
 
     cy.findAllByTestId('Delete').last().click();
 
@@ -304,7 +304,7 @@ describe('Edit modal', () => {
   it('sends a request to edit a Resource Access Rule when configured contacts and contact groups are changed to all', () => {
     store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
 
-    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+    cy.findAllByTestId('DeleteOutlinedIcon').last().click();
 
     cy.findAllByTestId('Delete').last().click();
 
@@ -335,7 +335,7 @@ describe('Edit modal', () => {
   it('displays a confirmation dialog when the form is edited and the Exit button is clicked', () => {
     store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
 
-    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+    cy.findAllByTestId('DeleteOutlinedIcon').last().click();
 
     cy.findAllByTestId('Delete').last().click();
     cy.findByLabelText(labelExit).click();
@@ -351,7 +351,7 @@ describe('Edit modal', () => {
   it('displays a confirmation dialog when the form is edited and the Close button is clicked', () => {
     store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
 
-    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+    cy.findAllByTestId('DeleteOutlinedIcon').last().click();
 
     cy.findAllByTestId('Delete').last().click();
     cy.findByLabelText('close').click();
@@ -367,7 +367,7 @@ describe('Edit modal', () => {
   it('displays a confiramtion dialog when the form is edited and a click occurs outside the modal', () => {
     store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
 
-    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+    cy.findAllByTestId('DeleteOutlinedIcon').last().click();
 
     cy.findAllByTestId('Delete').last().click();
     cy.clickOutside();

@@ -105,11 +105,11 @@ const ResourcesTooltip = ({
       <Box className={classes.header}>
         <Typography
           data-resourceName={status}
-          fontWeight="bold"
           sx={{
             color: getIsUnknownStatus(severityCode)
               ? theme.palette.common.white
-              : getColor({ severityCode, theme })
+              : getColor({ severityCode, theme }),
+            fontWeight: 'bold'
           }}
         >
           {t(labelStatus)}: {t(capitalize(status))}
@@ -166,7 +166,9 @@ const ResourcesTooltip = ({
         <Divider variant="middle" />
         <Typography
           className={classes.dateContainer}
-          color="text.secondary"
+          sx={{
+            color: 'text.secondary'
+          }}
           variant="body2"
         >
           {format({ date: dayjs().toISOString(), formatString: 'LLL' })}

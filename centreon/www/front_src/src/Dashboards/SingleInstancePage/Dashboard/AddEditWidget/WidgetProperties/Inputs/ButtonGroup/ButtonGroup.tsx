@@ -40,7 +40,13 @@ const ButtonGroup = ({
   return (
     <div>
       <Label className={classes.subtitle}>{t(label)}</Label>
-      <Stack alignItems="center" direction="row" gap={1.5}>
+      <Stack
+        direction="row"
+        sx={{
+          alignItems: 'center',
+          gap: 1.5
+        }}
+      >
         <MuiButtonGroup disabled={!canEditField} size="small">
           {options?.map(({ id, name }) => (
             <Button

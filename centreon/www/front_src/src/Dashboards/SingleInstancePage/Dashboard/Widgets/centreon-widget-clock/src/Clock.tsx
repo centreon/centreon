@@ -77,14 +77,18 @@ const Clock = ({
             />
             <div className={classes.clockLabel}>
               <Typography
-                fontSize={fontSize}
+                sx={{
+                  fontSize: fontSize
+                }}
               >{`${hours}:${minutes}`}</Typography>
               {isMeridiem && (
                 <Typography
-                  fontSize={fontSize / 3}
-                  lineHeight={3}
                   style={{ marginBottom: fontSize / 2 }}
-                  sx={{ ml: 1 }}
+                  sx={{
+                    fontSize: fontSize / 3,
+                    lineHeight: 3,
+                    ml: 1
+                  }}
                 >
                   {meridiem}
                 </Typography>

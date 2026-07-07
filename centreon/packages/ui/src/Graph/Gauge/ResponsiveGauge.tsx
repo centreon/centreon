@@ -3,7 +3,7 @@ import { Box, useTheme } from '@mui/material';
 import { Group } from '@visx/group';
 import { Tooltip } from '@visx/visx';
 import { flatten, head, pluck } from 'ramda';
-import { useRef } from 'react';
+import { type CSSProperties, useRef } from 'react';
 
 import { Tooltip as MuiTooltip } from '../../components/Tooltip';
 import { margins } from '../common/margins';
@@ -117,12 +117,14 @@ const ResponsiveGauge = ({
             />
             <text
               dominantBaseline="middle"
-              style={{
-                fill: pieColor,
-                ...theme.typography.h3,
-                fontSize:
-                  Math.min(width, height) / (gaugeValue?.length || 1) + 3
-              }}
+              style={
+                {
+                  fill: pieColor,
+                  ...theme.typography.h3,
+                  fontSize:
+                    Math.min(width, height) / (gaugeValue?.length || 1) + 3
+                } as CSSProperties
+              }
               textAnchor="middle"
               x="0%"
               y="0%"

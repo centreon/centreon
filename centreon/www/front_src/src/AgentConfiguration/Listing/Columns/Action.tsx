@@ -1,4 +1,4 @@
-import { CodeOffTwoTone, DeleteOutline } from '@mui/icons-material';
+import { CodeOffTwoTone, DeleteOutlined } from '@mui/icons-material';
 
 import { IconButton } from '@centreon/ui';
 import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
@@ -76,7 +76,7 @@ const Action = ({ row }: Props): ReactElement => {
             onClick={askBeforeDelete}
             title={t(labelDelete)}
           >
-            <DeleteOutline className="text-5 text-error-main" />
+            <DeleteOutlined className="text-5 text-error-main" />
           </IconButton>
         )}
       </div>

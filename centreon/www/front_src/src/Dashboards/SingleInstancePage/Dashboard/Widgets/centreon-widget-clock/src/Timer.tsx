@@ -85,7 +85,9 @@ const Timer = ({
               <Typography
                 className={classes.timerLabel}
                 data-hidden={equals(countdownHasEnded % 2, 1)}
-                fontSize={fontSize}
+                sx={{
+                  fontSize: fontSize
+                }}
               >
                 {clockLabel}
               </Typography>
@@ -100,8 +102,10 @@ const Timer = ({
             >
               <Typography
                 className={classes.icon}
-                fontSize={fontSize / 3.2}
                 style={{ marginRight: displayFromDays ? fontSize / 4.2 : 0 }}
+                sx={{
+                  fontSize: fontSize / 3.2
+                }}
               >
                 {displayFromDays
                   ? pluralizedT({ count: duration.days(), label: labelDay })
@@ -109,7 +113,9 @@ const Timer = ({
               </Typography>
               <Typography
                 className={classes.timezone}
-                fontSize={fontSize / 3.2}
+                sx={{
+                  fontSize: fontSize / 3.2
+                }}
               >
                 {displayFromDays
                   ? pluralizedT({ count: duration.hours(), label: labelHour })
@@ -120,9 +126,11 @@ const Timer = ({
               </Typography>
               <Typography
                 className={classes.date}
-                fontSize={fontSize / 3.2}
                 style={{
                   marginLeft: displayFromDays ? 0 : -(fontSize / 4.2)
+                }}
+                sx={{
+                  fontSize: fontSize / 3.2
                 }}
               >
                 {displayFromDays
