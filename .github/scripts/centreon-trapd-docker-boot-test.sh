@@ -33,6 +33,10 @@ elif [ "$COMPONENT" = "centreon-centreontrapd" ]; then
   # equivalent here.
   SDB_TMP=$(mktemp /tmp/centreontrapd-boot-test-XXXXXX.sdb)
   sqlite3 "$SDB_TMP" < "$SDB_FIXTURE_SQL"
+  # mktemp defaults to mode 600 (owner-only) - the container's "centreon"
+  # user (uid 900) doesn't match the runner's uid on the bind-mounted file,
+  # so it can't open it unless it's world-readable/writable.
+  chmod 666 "$SDB_TMP"
   run_args=(-v "${SDB_TMP}:/etc/snmp/centreon_traps/centreontrapd.sdb")
 fi
 

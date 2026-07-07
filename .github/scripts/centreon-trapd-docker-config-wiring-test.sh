@@ -22,6 +22,10 @@ TRAP_TIMEOUT="${TRAP_TIMEOUT:-15}"
 # equivalent here.
 CENTREONTRAPD_SDB_FIXTURE=$(mktemp /tmp/centreontrapd-wiring-test-XXXXXX.sdb)
 sqlite3 "$CENTREONTRAPD_SDB_FIXTURE" < .github/docker/centreon-trapd/fixtures/centreontrapd-sdb.sql
+# mktemp defaults to mode 600 (owner-only) - the container's "centreon" user
+# (uid 900) doesn't match the runner's uid on the bind-mounted file, so it
+# can't open it unless it's world-readable/writable.
+chmod 666 "$CENTREONTRAPD_SDB_FIXTURE"
 
 export CENTREONTRAPD_IMAGE SNMPTRAPD_IMAGE CENTREONTRAPD_SDB_FIXTURE
 
