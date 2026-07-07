@@ -32,7 +32,7 @@ RUN --mount=type=bind,source=packages-centreon,target=/packages \
 # USE_SOURCE_TRAPD=true  → copy from local repo source (dev/testing)
 #############################################
 FROM scratch AS centreon-perl-false
-COPY --from=extractor /extracted/usr/share/perl5/centreon /centreon-modules/
+COPY --from=extractor --link /extracted/usr/share/perl5/centreon /centreon-modules/
 
 FROM scratch AS centreon-perl-true
 COPY centreon-collect/perl-libs/lib/centreon/ /centreon-modules/
@@ -46,6 +46,15 @@ FROM centreon-perl-${USE_SOURCE_TRAPD} AS centreon-perl-selected
 #############################################
 FROM debian:13-slim AS snmptrapd
 
+# Configure APT for optimal container usage
+COPY <<EOF /etc/apt/apt.conf.d/99custom
+Acquire::Retries "10";
+Acquire::https::Timeout "300";
+Acquire::http::Timeout "300";
+APT::Install-Recommends "false";
+APT::Install-Suggests "false";
+EOF
+
 # Install runtime dependencies
 # centreontrapdforward only writes spool files — no SQLite or SNMP libs needed here
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -58,6 +67,7 @@ apt-get install -y --no-install-recommends \
     libdbi-perl \
     tzdata \
     ca-certificates
+rm -rf /tmp/* /var/tmp/* /usr/share/doc/* /usr/share/man/*
 EOF
 
 # Create centreon user/group (same UID as other Centreon containers for volume consistency)
