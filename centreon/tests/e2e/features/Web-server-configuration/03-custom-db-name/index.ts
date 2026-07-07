@@ -8,6 +8,18 @@ before(() => {
   cy.startContainers({ dbConfiguration, dbStorage });
 });
 
+beforeEach(() => {
+  cy.intercept({
+    method: 'GET',
+    url: INTERCEPTORS.api.navigation_list
+  }).as('getNavigationList');
+
+  cy.intercept({
+    method: 'GET',
+    url: INTERCEPTORS.api.generate_reload_pollers
+  }).as('generateAndReloadPollers');
+});
+
 after(() => {
   cy.stopContainers();
 });
@@ -15,23 +27,13 @@ after(() => {
 Given(
   'a platform whose databases are not named centreon or centreon_storage',
   () => {
-    cy.intercept({
-      method: 'GET',
-      url: INTERCEPTORS.api.navigation_list
-    }).as('getNavigationList');
-
-    cy.intercept({
-      method: 'GET',
-      url: INTERCEPTORS.api.generate_reload_pollers
-    }).as('generateAndReloadPollers');
-
     cy.loginByTypeOfUser({ jsonName: 'admin' });
   }
 );
 
 When('the administrator exports the central poller configuration', () => {
   cy.get('header').getByLabel({ label: 'Pollers', tag: 'button' }).click();
-  cy.get('button[data-testid="Export configuration"]').click();
+  cy.getByTestId({ tag: 'button', testId: 'Export configuration' }).click();
   cy.getByLabel({ label: 'Export & reload', tag: 'button' }).click();
 });
 
