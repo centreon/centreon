@@ -386,13 +386,6 @@ function updateDebugConfigData($gopt_id = null)
         'debug_centreontrapd',
         isset($ret['debug_centreontrapd']) && $ret['debug_centreontrapd'] ? 1 : 0
     );
-    updateOption(
-        $pearDB,
-        'debug_level',
-        $ret['debug_level']
-    );
-
-    enableApplicationDebug((int) $ret['debug_level']);
 
     $centreon->initOptGen($pearDB);
 }
@@ -985,20 +978,3 @@ function updateRemoteAccessCredentials($db, $form, $centreonEncryption): void
     }
 }
 
-/**
- * Add or remove the debug level from environments files.
- *
- * @param bool $enable
- * @param int $level
- */
-function enableApplicationDebug(int $level = 100)
-{
-    $env = new Utility\EnvironmentFileManager(_CENTREON_PATH_);
-    $env->load();
-    if ($level !== 0) {
-        $env->add('DEBUG_LEVEL', $level);
-    } else {
-        $env->delete('DEBUG_LEVEL');
-    }
-    $env->save();
-}
