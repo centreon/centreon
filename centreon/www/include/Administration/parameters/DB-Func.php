@@ -977,4 +977,3 @@ function updateRemoteAccessCredentials($db, $form, $centreonEncryption): void
         }
     }
 }
-

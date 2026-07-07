@@ -33,7 +33,6 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDB
  * @var ConnectionInterface $pearDBO
  */
-
 $removeDebugLevelFromOptions = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = "Unable to remove 'debug_level' from options table";
     LoggerUpgrade::create()->info($version, "Removing 'debug_level' from options table");
