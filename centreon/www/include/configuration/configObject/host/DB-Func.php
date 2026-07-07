@@ -34,11 +34,11 @@ use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Infrastructure\Common\Api\Router;
-use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -401,10 +401,8 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
     $selectHostStatement = $pearDB->prepare('SELECT * FROM host WHERE host_id = :hostId LIMIT 1');
     foreach ($hosts as $key => $value) {
         if (false === ($key = filter_var($key, FILTER_VALIDATE_INT))) {
@@ -731,7 +729,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                         && str_starts_with(VaultConfiguration::VAULT_PATH_PATTERN, $row['host_snmp_community'])
                         || $macroPasswords !== []
                     ) {
-                        if ($vaultConfiguration !== null) {
+                        if ($vaultEligibilityService->shouldUseVault()) {
                             /** @var ReadVaultRepositoryInterface $readVaultRepository */
                             $readVaultRepository = $kernel->getContainer()->get(
                                 ReadVaultRepositoryInterface::class
@@ -1204,14 +1202,12 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
 
     // Retrieve UUID for vault path before updating values in database.
     $vaultPath = null;
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         $vaultPath = retrieveHostVaultPathFromDatabase($pearDB, $hostId);
     }
 
@@ -1359,7 +1355,7 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
     }
 
     // If there is a vault configuration write into vault
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         /** @var ReadVaultRepositoryInterface $readVaultRepository */
         $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
 
@@ -1407,14 +1403,12 @@ function updateHost_MC($hostId = null)
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
 
     // Retrieve UUID for vault path before updating values in database.
     $vaultPath = null;
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         $vaultPath = retrieveHostVaultPathFromDatabase($pearDB, $hostId);
     }
 
@@ -1525,7 +1519,7 @@ function updateHost_MC($hostId = null)
     }
 
     // If there is a vault configuration write into vault.
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         try {
             /** @var ReadVaultRepositoryInterface $readVaultRepository */
             $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);

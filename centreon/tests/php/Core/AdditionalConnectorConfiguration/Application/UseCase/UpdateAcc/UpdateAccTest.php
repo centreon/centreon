@@ -41,12 +41,14 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 
 beforeEach(function (): void {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
@@ -61,7 +63,10 @@ beforeEach(function (): void {
         $this->factory = $this->createMock(AccFactory::class),
         $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
-        $this->flags = new FeatureFlags(false, ''),
+        $this->vaultEligibilityService = new VaultEligibilityService(
+            new FeatureFlags(false, ''),
+            $this->createMock(ReadVaultConfigurationRepositoryInterface::class),
+        ),
         $this->writeVaultAccRepositories = new \ArrayIterator([]),
         $this->readVaultAccRepositories = new \ArrayIterator([]),
         $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class),
