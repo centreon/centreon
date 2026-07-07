@@ -11,6 +11,9 @@ services:
     image: ${CENTREONTRAPD_IMAGE}
     volumes:
       - trap-spool:/var/spool/centreontrapd
+      # Seeded by centreon-trapd-docker-config-wiring-test.sh - see
+      # fixtures/centreontrapd-sdb.sql for why this is required.
+      - ${CENTREONTRAPD_SDB_FIXTURE}:/etc/snmp/centreon_traps/centreontrapd.sdb
 
   snmptrapd:
     image: ${SNMPTRAPD_IMAGE}
