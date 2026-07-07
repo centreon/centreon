@@ -32,7 +32,7 @@ RUN --mount=type=bind,source=packages-centreon,target=/packages \
 # USE_SOURCE_TRAPD=true  → copy from local repo source (dev/testing)
 #############################################
 FROM scratch AS centreon-perl-false
-COPY --from=extractor /extracted/usr/share/perl5/centreon /centreon-modules/
+COPY --from=extractor --link /extracted/usr/share/perl5/centreon /centreon-modules/
 
 FROM scratch AS centreon-perl-true
 COPY centreon-collect/perl-libs/lib/centreon/ /centreon-modules/
@@ -60,6 +60,15 @@ usermod -aG centreon-gorgone centreon
 usermod -aG centreon-engine centreon
 EOF
 
+# Configure APT for optimal container usage
+COPY <<EOF /etc/apt/apt.conf.d/99custom
+Acquire::Retries "10";
+Acquire::https::Timeout "300";
+Acquire::http::Timeout "300";
+APT::Install-Recommends "false";
+APT::Install-Suggests "false";
+EOF
+
 # Install runtime dependencies
 # libdbd-sqlite3-perl: SQLite access for centreontrapd.sdb (poller mode=1)
 # snmp: SNMP OID resolution via Net::SNMP Perl bindings
@@ -78,6 +87,7 @@ apt-get install -y --no-install-recommends \
     ca-certificates \
     inotify-tools \
     procps
+rm -rf /tmp/* /var/tmp/* /usr/share/doc/* /usr/share/man/*
 EOF
 
 # Create directory structure
