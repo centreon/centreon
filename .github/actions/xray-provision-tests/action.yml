@@ -1,0 +1,46 @@
+name: "Xray provision tests"
+description: "Create Xray Tests for untagged e2e scenarios and inject their @<KEY> tags back into the .feature files."
+
+inputs:
+  features_dir:
+    description: "Directory scanned recursively for .feature files."
+    required: true
+  project_key:
+    description: "Jira project key for the created Tests."
+    required: false
+    default: "MON"
+  dry_run:
+    description: "Preview only: list the scenarios to provision without creating Tests or editing files."
+    required: false
+    default: "false"
+  xray_client_id:
+    description: "Xray client ID (required unless dry_run is true)."
+    required: false
+  xray_client_secret:
+    description: "Xray client secret (required unless dry_run is true)."
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+      with:
+        node-version: 24
+
+    # Only a real run needs a token; a dry run never calls Xray.
+    - name: Authenticate with Xray API
+      id: xray-auth
+      if: ${{ inputs.dry_run != 'true' }}
+      uses: ./.github/actions/xray-api-auth
+      with:
+        client_id: ${{ inputs.xray_client_id }}
+        client_secret: ${{ inputs.xray_client_secret }}
+
+    - name: Provision Xray Tests
+      shell: bash
+      env:
+        FEATURES_DIR: ${{ inputs.features_dir }}
+        PROJECT_KEY: ${{ inputs.project_key }}
+        DRY_RUN: ${{ inputs.dry_run }}
+        XRAY_TOKEN: ${{ steps.xray-auth.outputs.xray_token }}
+      run: node "${{ github.action_path }}/provision-tests.js"
