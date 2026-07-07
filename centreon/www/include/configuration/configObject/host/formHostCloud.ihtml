@@ -196,6 +196,16 @@
 					<td class="FormRowField"><img class="helpTooltip" name="hostcategories"> {$form.host_hcs.label}</td>
 					<td class="FormRowValue">{$form.host_hcs.html} </td>
 				</tr>
+				<!-- PARENT HOSTS RELATIONS -->
+				<tr class="list_one">
+					<td class="FormRowField"><img class="helpTooltip" name="parents"> {$form.host_parents.label}</td>
+					<td class="FormRowValue">{$form.host_parents.html} </td>
+				</tr>
+				<!-- CHILD HOSTS RELATIONS -->
+				<tr class="list_two">
+					<td class="FormRowField"><img class="helpTooltip" name="child_hosts"> {$form.host_childs.label}</td>
+					<td class="FormRowValue">{$form.host_childs.html} </td>
+				</tr>
 			{else}
 				<!-- HOST CATEGORIE RELATIONS -->
 				{if $o == "mc"}

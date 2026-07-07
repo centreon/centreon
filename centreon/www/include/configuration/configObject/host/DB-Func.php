@@ -843,8 +843,8 @@ function updateHostInDB_MC($hostId = null)
     updateHost_MC($hostId);
 
     if ($isCloudPlatform) {
-        resetHostHostParent($hostId);
-        resetHostHostChild($hostId);
+        // Parent/child host relations are managed on the add/modify form only (not massive change),
+        // so they must be left untouched here to avoid wiping existing relationships.
         resetHostContactGroup($hostId);
         resetHostContact($hostId);
     }
@@ -2757,11 +2757,12 @@ function insertHostInAPI(array $formData): int|false
             updateHostTemplateService($hostId);
         }
 
+        if (! $isTemplate) {
+            updateHostHostParent($hostId, $formData);
+            updateHostHostChild($hostId);
+        }
+
         if (! $isCloudPlatform) {
-            if (! $isTemplate) {
-                updateHostHostParent($hostId, $formData);
-                updateHostHostChild($hostId);
-            }
             updateHostContactGroup($hostId, $formData);
             updateHostContact($hostId, $formData);
         }
@@ -2866,11 +2867,12 @@ function updateHostInAPI(int $hostId, array $formData): bool
             updateHostTemplateService($hostId);
         }
 
+        if (! $isTemplate) {
+            updateHostHostParent($hostId, $formData);
+            updateHostHostChild($hostId);
+        }
+
         if (! $isCloudPlatform) {
-            if (! $isTemplate) {
-                updateHostHostParent($hostId, $formData);
-                updateHostHostChild($hostId);
-            }
             updateHostContactGroup($hostId, $formData);
             updateHostContact($hostId, $formData);
         }
