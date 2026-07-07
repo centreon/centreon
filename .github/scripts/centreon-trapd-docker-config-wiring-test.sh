@@ -3,8 +3,9 @@
 # Config/wiring test for the centreon-centreontrapd / centreon-snmptrapd
 # product Docker images. Boots both containers together (sharing the spool
 # volume like a real deployment), sends a real SNMP trap into snmptrapd, and
-# checks it is received, forwarded to the shared spool, and that
-# centreontrapd keeps running while consuming it.
+# checks the full trap-forwarding path end to end: snmptrapd receives it and
+# writes it to the shared spool, then centreontrapd picks it up and removes
+# it from the spool once processed.
 set -e
 
 CENTREONTRAPD_IMAGE="${CENTREONTRAPD_IMAGE:?ERROR: CENTREONTRAPD_IMAGE env var must be set}"
@@ -106,6 +107,36 @@ done
 if [ "$spool_ok" != "true" ]; then
   echo "::error::no trap file appeared under the shared /var/spool/centreontrapd volume"
   "${COMPOSE[@]}" logs || true
+  exit 1
+fi
+
+# The image's default --severity=error hides this - the compose file starts
+# centreontrapd with --severity=debug specifically so this trace is visible.
+echo "=== [wiring] Checking centreontrapd's debug log shows it picked up the trap file ==="
+if ! wait_for_log centreontrapd "Processing file:"; then
+  echo "::error::centreontrapd never logged 'Processing file:' - it did not pick up the trap from the spool"
+  "${COMPOSE[@]}" logs centreontrapd || true
+  exit 1
+fi
+
+# centreontrapd's default policy_trap=1 deletes the spool file once it has
+# been processed - even for an unknown trap (no matching row in `traps`),
+# unlink_trap stays at its default of 1 unless the DB connection itself
+# drops. So the file disappearing again proves centreontrapd actually
+# consumed it, not just that it was sitting in the spool untouched.
+echo "=== [wiring] Checking centreontrapd consumed (removed) the trap from the spool ==="
+consumed_ok=false
+for _ in $(seq 1 "$TRAP_TIMEOUT"); do
+  count=$("${COMPOSE[@]}" exec -T centreontrapd sh -c 'ls -1 /var/spool/centreontrapd | wc -l' | tr -d '\r')
+  if [ "${count:-1}" -eq 0 ]; then
+    consumed_ok=true
+    break
+  fi
+  sleep 1
+done
+if [ "$consumed_ok" != "true" ]; then
+  echo "::error::trap file was never removed from the spool - centreontrapd did not process it"
+  "${COMPOSE[@]}" logs centreontrapd || true
   exit 1
 fi
 
