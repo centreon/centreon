@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# use the org-variable values, falling back to the defaults when passed empty
+# (an unset org variable is forwarded as an empty string, overriding the default)
+PULP_URL="${PULP_URL:-https://pulp-api.apps.centreon.com}"
+PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://pulp-content.apps.centreon.com}"
+
 # wait for a pulp api task to complete
 wait_task() {
   local task_href=$1
-  local state
-  while :; do
+  local state attempt
+  for ((attempt = 0; attempt < 200; attempt++)); do
     state=$(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$PULP_URL$task_href" | jq -r '.state')
     case "$state" in
       completed)
@@ -20,6 +25,8 @@ wait_task() {
         ;;
     esac
   done
+  echo "::error::Task $task_href did not complete in time (~10 min)"
+  return 1
 }
 
 # upload a package through the pulp api, with retry on transient failures
@@ -78,6 +85,9 @@ REPOSITORY_HREF=$(pulp deb repository show --name "$REPOSITORY_NAME" | jq -r '.p
 
 mkdir -p promoted-packages
 
+# module label, built with jq (safe escaping) — consistent with the delivery scripts
+PULP_LABELS=$(jq -cn --arg mod "$MODULE_NAME" '{"module": $mod}')
+
 while read -r PACKAGE; do
   RELATIVE_PATH=$(echo "$PACKAGE" | jq -r '.relative_path')
   SHA256=$(echo "$PACKAGE" | jq -r '.sha256')
@@ -113,7 +123,7 @@ while read -r PACKAGE; do
       -F "distribution=$STABLE_SUITE" \
       -F "component=main" \
       -F "repository=$REPOSITORY_HREF" \
-      -F "pulp_labels={\"module\": \"$MODULE_NAME\"}" \
+      -F "pulp_labels=$PULP_LABELS" \
       "$PULP_URL/api/v3/content/deb/packages/"
   )
   wait_task "$TASK_HREF"

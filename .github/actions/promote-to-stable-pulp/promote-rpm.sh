@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# use the org-variable values, falling back to the defaults when passed empty
+# (an unset org variable is forwarded as an empty string, overriding the default)
+PULP_URL="${PULP_URL:-https://pulp-api.apps.centreon.com}"
+PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://pulp-content.apps.centreon.com}"
+
 # wait for a pulp api task to complete
 wait_task() {
   local task_href=$1
-  local state
-  while :; do
+  local state attempt
+  for ((attempt = 0; attempt < 200; attempt++)); do
     state=$(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$PULP_URL$task_href" | jq -r '.state')
     case "$state" in
       completed)
@@ -20,6 +25,8 @@ wait_task() {
         ;;
     esac
   done
+  echo "::error::Task $task_href did not complete in time (~10 min)"
+  return 1
 }
 
 declare -A ARCH_CONTENT

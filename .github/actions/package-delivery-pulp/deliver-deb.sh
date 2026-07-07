@@ -2,11 +2,16 @@
 set -euo pipefail
 shopt -s nullglob
 
+# use the org-variable values, falling back to the defaults when passed empty
+# (an unset org variable is forwarded as an empty string, overriding the default)
+PULP_URL="${PULP_URL:-https://pulp-api.apps.centreon.com}"
+PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://pulp-content.apps.centreon.com}"
+
 # wait for a pulp api task to complete
 wait_task() {
   local task_href=$1
-  local state
-  while :; do
+  local state attempt
+  for ((attempt = 0; attempt < 200; attempt++)); do
     state=$(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$PULP_URL$task_href" | jq -r '.state')
     case "$state" in
       completed)
@@ -21,6 +26,8 @@ wait_task() {
         ;;
     esac
   done
+  echo "::error::Task $task_href did not complete in time (~10 min)"
+  return 1
 }
 
 # upload a package through the pulp api, with retry on transient failures
@@ -48,7 +55,7 @@ pulp_upload() {
 # deduplicates packages by (package, version, architecture) repository wide, so
 # the new content would silently evict the stable one. bump the version instead.
 assert_not_in_stable() {
-  local file=$1 name version arch packages
+  local file=$1 name version arch packages http_code pkg_file
   name=$(dpkg-deb -f "$file" Package)
   version=$(dpkg-deb -f "$file" Version)
   arch=$(dpkg-deb -f "$file" Architecture)
@@ -57,8 +64,23 @@ assert_not_in_stable() {
   # the release_components api is not listable by the OIDC ci-user (403, and no
   # grantable permission exists for it), so check the served Packages index
   # instead: no api access needed and it reflects exactly what stable publishes.
-  packages=$(curl -fsSL "$PULP_CONTENT_URL/$BASE_PATH/dists/$STABLE_SUITE/main/binary-$arch/Packages" 2>/dev/null || true)
-  # empty: stable suite not published yet (or unreachable) -> treat as not in stable
+  # distinguish "not published yet" (404 -> not in stable) from a fetch failure
+  # (network / 5xx -> unknown): fail closed on the latter, so a transient content
+  # endpoint error cannot let an already-stable version slip through and evict it
+  # (the rpm guardrail is likewise fail-closed).
+  pkg_file=$(mktemp)
+  http_code=$(curl -sSL -o "$pkg_file" -w '%{http_code}' \
+    "$PULP_CONTENT_URL/$BASE_PATH/dists/$STABLE_SUITE/main/binary-$arch/Packages" 2>/dev/null || echo 000)
+  case "$http_code" in
+    404) rm -f "$pkg_file"; return 0 ;;
+    200) packages=$(cat "$pkg_file"); rm -f "$pkg_file" ;;
+    *)
+      rm -f "$pkg_file"
+      echo "::error::Cannot verify the stable suite $STABLE_SUITE (HTTP $http_code) to guard $name $version ($arch); refusing to deliver. Retry once the content endpoint is reachable."
+      return 1
+      ;;
+  esac
+  # empty index -> nothing in stable
   [[ -z "$packages" ]] && return 0
 
   # a package is in stable if a Packages stanza matches both name and version

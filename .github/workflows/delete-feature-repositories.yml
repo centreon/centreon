@@ -24,9 +24,17 @@ jobs:
         id: check
         shell: bash
         run: |
-          set -x
-          if [[ -n $(gh pr list --repo centreon/centreon-modules --head "$HEAD_REF" --state open --json number | jq -r '.[].number') ]] \
-          || [[ -n $(gh pr list --repo centreon/centreon-collect --head "$HEAD_REF" --state open --json number | jq -r '.[].number') ]]; then
+          set -euo pipefail
+
+          # Capture each lookup explicitly: under `set -e`/`pipefail` a transient
+          # `gh` failure (rate limit, 5xx, auth blip) aborts this job instead of
+          # being silently read as "no sibling PR". A failed check job leaves the
+          # deletion jobs skipped (their `needs` failed) — i.e. fail closed: never
+          # delete feature repositories on an uncertain sibling-PR lookup.
+          modules_prs=$(gh pr list --repo centreon/centreon-modules --head "$HEAD_REF" --state open --json number --jq '.[].number')
+          collect_prs=$(gh pr list --repo centreon/centreon-collect --head "$HEAD_REF" --state open --json number --jq '.[].number')
+
+          if [[ -n "$modules_prs" || -n "$collect_prs" ]]; then
             echo "::notice::Other open feature pull requests have been found on other repositories: no feature repository deletion will be requested."
             echo "feature_prs_found=true" >> "$GITHUB_OUTPUT"
           else
@@ -43,6 +51,8 @@ jobs:
     steps:
       - name: Send repository dispatch to delete Artifactory feature repositories
         shell: bash
+        env:
+          CENTREON_TECHNIQUE_PAT: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
         run: |
           set -euo pipefail
 
@@ -54,7 +64,7 @@ jobs:
 
           echo "Sending repository dispatch to delete Artifactory feature repositories..."
           curl --fail-with-body -X POST \
-            -H "Authorization: Bearer ${{ secrets.CENTREON_TECHNIQUE_PAT }}" \
+            -H "Authorization: Bearer $CENTREON_TECHNIQUE_PAT" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/centreon/delivery-tooling/dispatches \
             -d "$(jq -n \
@@ -71,6 +81,9 @@ jobs:
     needs: [check-other-feature-prs]
     if: needs.check-other-feature-prs.outputs.feature_prs_found == 'false'
     runs-on: ubuntu-24.04
+    # non-blocking during the Pulp migration, consistent with the deliver-pulp /
+    # promote-pulp jobs: a Pulp-side failure must not fail the PR-close workflow.
+    continue-on-error: true
     permissions:
       contents: read
       id-token: write

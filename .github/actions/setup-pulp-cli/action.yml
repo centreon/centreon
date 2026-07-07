@@ -35,6 +35,10 @@ runs:
       run: |
         set -euo pipefail
 
+        # fall back to the default when the caller passes an empty value: an unset
+        # org variable is forwarded as "" and would otherwise override the default.
+        AUDIENCE="${AUDIENCE:-https://pulp.dev.centreon.io}"
+
         # the job must grant id-token write permission for these to be set
         if [[ -z "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" || -z "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}" ]]; then
           echo "::error::Missing OIDC token request context, the job needs 'permissions: id-token: write'"
@@ -61,6 +65,10 @@ runs:
         PULP_URL: ${{ inputs.pulp_url }}
       run: |
         set -euo pipefail
+
+        # fall back to the default when the caller passes an empty value (unset
+        # org variable forwarded as "" would otherwise override the default).
+        PULP_URL="${PULP_URL:-https://pulp-api.apps.centreon.com}"
 
         # the GitHub OIDC plugin authenticates requests carrying this header,
         # there is no username/password, the token grants are derived from the
