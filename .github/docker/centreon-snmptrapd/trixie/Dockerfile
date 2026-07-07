@@ -7,6 +7,15 @@ ARG USE_SOURCE_TRAPD=false
 #############################################
 FROM debian:13-slim AS extractor
 
+# Configure APT for optimal container usage
+COPY <<EOF /etc/apt/apt.conf.d/99custom
+Acquire::Retries "10";
+Acquire::https::Timeout "300";
+Acquire::http::Timeout "300";
+APT::Install-Recommends "false";
+APT::Install-Suggests "false";
+EOF
+
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
     bash -e <<EOF
@@ -67,6 +76,7 @@ apt-get install -y --no-install-recommends \
     libdbi-perl \
     tzdata \
     ca-certificates
+apt-get clean
 rm -rf /tmp/* /var/tmp/* /usr/share/doc/* /usr/share/man/*
 EOF
 
