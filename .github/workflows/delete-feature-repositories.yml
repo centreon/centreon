@@ -10,8 +10,6 @@ on:
       - closed
 
 jobs:
-  # Shared gate: skip all deletion if other open feature PRs of the same ticket
-  # still exist on the other repositories.
   check-other-feature-prs:
     if: |
       startsWith(github.head_ref, 'MON-')
@@ -36,9 +34,6 @@ jobs:
             echo "feature_prs_found=false" >> "$GITHUB_OUTPUT"
           fi
 
-  # Cleaned up in parallel on Artifactory during the Pulp migration; drop this job
-  # once Pulp is authoritative. Delegates to the delivery-tooling workflow that
-  # removes the Artifactory feature repositories.
   delete-artifactory-feature-repositories:
     needs: [check-other-feature-prs]
     if: needs.check-other-feature-prs.outputs.feature_prs_found == 'false'

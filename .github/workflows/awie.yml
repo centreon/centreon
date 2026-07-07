@@ -521,9 +521,6 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      # Artifactory is delivered first and stays authoritative during the Pulp
-      # migration; drop these two steps (and the deb-delivery/rpm-delivery actions)
-      # once Pulp is authoritative.
       - name: Deliver RPM package on Artifactory
         if: matrix.package_extension == 'rpm'
         uses: ./.github/actions/rpm-delivery
@@ -573,9 +570,6 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      # Artifactory is promoted first and stays authoritative during the Pulp
-      # migration; drop this step (and the Artifactory promote-to-stable action)
-      # once Pulp is authoritative.
       - name: Promote ${{ matrix.distrib }} to stable on Artifactory
         uses: ./.github/actions/promote-to-stable
         with:
