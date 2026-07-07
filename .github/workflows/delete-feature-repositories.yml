@@ -10,22 +10,20 @@ on:
       - closed
 
 jobs:
-  delete-feature-repositories:
+  # Shared gate: skip all deletion if other open feature PRs of the same ticket
+  # still exist on the other repositories.
+  check-other-feature-prs:
     if: |
       startsWith(github.head_ref, 'MON-')
     runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      id-token: write
     env:
       GH_TOKEN: ${{ github.token }}
       HEAD_REF: ${{ github.head_ref }}
+    outputs:
+      feature_prs_found: ${{ steps.check.outputs.feature_prs_found }}
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
       - name: Check if other feature branches/pull requests of the same ticket exist on other repositories
-        id: check_other_feature_prs
+        id: check
         shell: bash
         run: |
           set -x
@@ -38,41 +36,17 @@ jobs:
             echo "feature_prs_found=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Setup pulp-cli
-        if: steps.check_other_feature_prs.outputs.feature_prs_found == 'false'
-        uses: ./.github/actions/setup-pulp-cli
-
-      - name: Delete feature repositories
-        if: steps.check_other_feature_prs.outputs.feature_prs_found == 'false'
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          FEATURE_TICKET=$(echo "$HEAD_REF" | grep -oE 'MON-[0-9]+' | head -1 || true)
-          if [[ -z "$FEATURE_TICKET" ]]; then
-            echo "::notice::Ticket ID not found due to the branch name not corresponding to standards."
-            exit 0
-          fi
-
-          for PLUGIN in rpm deb; do
-            mapfile -t DISTRIBUTIONS < <(pulp "$PLUGIN" distribution list --base-path-contains "feature/$FEATURE_TICKET/" --limit 1000 | jq -r '.[].name')
-            for NAME in "${DISTRIBUTIONS[@]}"; do
-              echo "[INFO] Deleting $PLUGIN distribution $NAME"
-              pulp "$PLUGIN" distribution destroy --name "$NAME"
-            done
-
-            mapfile -t REPOSITORIES < <(pulp "$PLUGIN" repository list --limit 1000 | jq -r --arg pattern "feature-$FEATURE_TICKET-" '.[] | select(.name | contains($pattern)) | .name')
-            for NAME in "${REPOSITORIES[@]}"; do
-              echo "[INFO] Deleting $PLUGIN repository $NAME"
-              pulp "$PLUGIN" repository destroy --name "$NAME"
-            done
-          done
-
-      # Cleaned up in parallel on Artifactory during the Pulp migration; drop this
-      # step once Pulp is authoritative. Delegates to the delivery-tooling workflow
-      # that removes the Artifactory feature repositories.
-      - name: Send repository dispatch to delete feature repositories on Artifactory
-        if: steps.check_other_feature_prs.outputs.feature_prs_found == 'false'
+  # Cleaned up in parallel on Artifactory during the Pulp migration; drop this job
+  # once Pulp is authoritative. Delegates to the delivery-tooling workflow that
+  # removes the Artifactory feature repositories.
+  delete-artifactory-feature-repositories:
+    needs: [check-other-feature-prs]
+    if: needs.check-other-feature-prs.outputs.feature_prs_found == 'false'
+    runs-on: ubuntu-24.04
+    env:
+      HEAD_REF: ${{ github.head_ref }}
+    steps:
+      - name: Send repository dispatch to delete Artifactory feature repositories
         shell: bash
         run: |
           set -euo pipefail
@@ -97,3 +71,44 @@ jobs:
                 }
               }'
             )"
+
+  delete-pulp-feature-repositories:
+    needs: [check-other-feature-prs]
+    if: needs.check-other-feature-prs.outputs.feature_prs_found == 'false'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      HEAD_REF: ${{ github.head_ref }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup pulp-cli
+        uses: ./.github/actions/setup-pulp-cli
+
+      - name: Delete feature repositories
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          FEATURE_TICKET=$(echo "$HEAD_REF" | grep -oE 'MON-[0-9]+' | head -1 || true)
+          if [[ -z "$FEATURE_TICKET" ]]; then
+            echo "::notice::Ticket ID not found due to the branch name not corresponding to standards."
+            exit 0
+          fi
+
+          for PLUGIN in rpm deb; do
+            mapfile -t DISTRIBUTIONS < <(pulp "$PLUGIN" distribution list --base-path-contains "feature/$FEATURE_TICKET/" --limit 1000 | jq -r '.[].name')
+            for NAME in "${DISTRIBUTIONS[@]}"; do
+              echo "[INFO] Deleting $PLUGIN distribution $NAME"
+              pulp "$PLUGIN" distribution destroy --name "$NAME"
+            done
+
+            mapfile -t REPOSITORIES < <(pulp "$PLUGIN" repository list --limit 1000 | jq -r --arg pattern "feature-$FEATURE_TICKET-" '.[] | select(.name | contains($pattern)) | .name')
+            for NAME in "${REPOSITORIES[@]}"; do
+              echo "[INFO] Deleting $PLUGIN repository $NAME"
+              pulp "$PLUGIN" repository destroy --name "$NAME"
+            done
+          done
