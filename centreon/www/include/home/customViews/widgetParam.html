@@ -104,8 +104,9 @@
             url: triggerSource,
             data: {data: triggerValue},
             success: function (response) {
+                var xmlDoc = (typeof response === 'string') ? jQuery.parseXML(response) : response;
                 jQuery("[name=param_" + targetId + "]").find('option').remove().end();
-                jQuery(response).find('option').each(function () {
+                jQuery(xmlDoc).find('option').each(function () {
                     jQuery("[name=param_" + targetId + "]").append(new Option(jQuery(this).find('label').text(),
                         triggerValue + '-' + jQuery(this).find('id').text(), true, true));
                 });
