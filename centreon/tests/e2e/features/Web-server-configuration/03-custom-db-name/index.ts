@@ -13,7 +13,7 @@ after(() => {
 });
 
 Given(
-  'a platform whose databases are not named centreon / centreon_storage',
+  'a platform whose databases are not named centreon or centreon_storage',
   () => {
     cy.intercept({
       method: 'GET',

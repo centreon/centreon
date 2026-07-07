@@ -5,6 +5,6 @@ Feature: Central poller configuration generation with non-standard database name
 
   @MON-204575
   Scenario: Generate central poller configuration with non-standard database names
-    Given a platform whose databases are not named centreon / centreon_storage
+    Given a platform whose databases are not named centreon or centreon_storage
     When the administrator exports the central poller configuration
     Then the configuration is generated and reloaded successfully
