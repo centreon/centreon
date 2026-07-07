@@ -142,7 +142,7 @@ for ARCH in noarch x86_64; do
     echo "[INFO] Uploading $(basename "$FILE") to $REPOSITORY_NAME (module $MODULE_NAME)"
     TASK_HREF=$(
       pulp_upload \
-        -F "file=@$FILE" \
+        -F "file=@\"$FILE\"" \
         -F "repository=$REPOSITORY_HREF" \
         -F "pulp_labels=$PULP_LABELS" \
         "$PULP_URL/api/v3/content/rpm/packages/"

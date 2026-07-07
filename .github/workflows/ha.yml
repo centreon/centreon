@@ -226,6 +226,7 @@ jobs:
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   deliver-pulp:
+    continue-on-error: true
     needs: [get-environment, changes, package]
     if: |
       needs.changes.outputs.trigger_delivery == 'true' &&
@@ -271,6 +272,7 @@ jobs:
           echo "::warning::Pulp delivery failed (non-blocking during the Artifactory-to-Pulp migration; Artifactory delivery remains authoritative). See the 'Deliver packages on Pulp' step for the guardrail / auth / upload error."
 
   promote-pulp:
+    continue-on-error: true
     needs: [get-environment]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&

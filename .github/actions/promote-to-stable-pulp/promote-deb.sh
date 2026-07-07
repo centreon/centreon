@@ -118,7 +118,7 @@ while read -r PACKAGE; do
   echo "[INFO] Promoting $FILE_NAME to $STABLE_SUITE/main"
   TASK_HREF=$(
     pulp_upload \
-      -F "file=@$FILE" \
+      -F "file=@\"$FILE\"" \
       -F "relative_path=$RELATIVE_PATH" \
       -F "distribution=$STABLE_SUITE" \
       -F "component=main" \

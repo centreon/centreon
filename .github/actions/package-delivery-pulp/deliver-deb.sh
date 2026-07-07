@@ -136,7 +136,7 @@ for FILE in "${FILES[@]}"; do
   # the relative path of deb packages so the api is used directly
   TASK_HREF=$(
     pulp_upload \
-      -F "file=@$FILE" \
+      -F "file=@\"$FILE\"" \
       -F "relative_path=$POOL_PATH/$FILE" \
       -F "distribution=$SUITE" \
       -F "component=main" \

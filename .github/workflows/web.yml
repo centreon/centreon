@@ -1472,6 +1472,7 @@ jobs:
           ticket_reason_for_creation: "Nightly"
 
   deliver-pulp:
+    continue-on-error: true
     runs-on: centreon-ubuntu-22.04
     needs:
       [
@@ -1523,6 +1524,7 @@ jobs:
           echo "::warning::Pulp delivery failed (non-blocking during the Artifactory-to-Pulp migration; Artifactory delivery remains authoritative). See the 'Deliver packages on Pulp' step for the guardrail / auth / upload error."
 
   promote-pulp:
+    continue-on-error: true
     needs: [get-environment, deliver-pulp]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
