@@ -1,0 +1,26 @@
+# Service definitions for the trap-forwarding wiring test on the
+# centreon-centreontrapd / centreon-snmptrapd product images. Driven by
+# .github/scripts/centreon-trapd-docker-config-wiring-test.sh — this file
+# only declares the services.
+#
+# Both containers mount the same named volume at /var/spool/centreontrapd:
+# snmptrapd's centreontrapdforward writes trap files there, centreontrapd
+# watches it - this reproduces the real production wiring.
+services:
+  centreontrapd:
+    image: ${CENTREONTRAPD_IMAGE}
+    volumes:
+      - trap-spool:/var/spool/centreontrapd
+
+  snmptrapd:
+    image: ${SNMPTRAPD_IMAGE}
+    # Required for the non-root (uid 900) daemon to bind UDP/162.
+    cap_add:
+      - NET_BIND_SERVICE
+    volumes:
+      - trap-spool:/var/spool/centreontrapd
+    ports:
+      - "1620:162/udp"
+
+volumes:
+  trap-spool:
