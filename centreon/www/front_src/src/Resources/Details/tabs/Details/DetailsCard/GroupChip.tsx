@@ -77,7 +77,14 @@ const GroupChip = ({ group, type }: Props): JSX.Element => {
   }, [group, type]);
 
   const configureGroup = useCallback((): void => {
-    window.location.href = group.configuration_uri as string;
+    try {
+      const resolved = new URL(group.configuration_uri, window.location.origin);
+      if (resolved.origin === window.location.origin) {
+        window.location.href = resolved.href;
+      }
+    } catch {
+      // invalid URI — do nothing
+    }
   }, [group]);
 
   const { name, id } = group;
