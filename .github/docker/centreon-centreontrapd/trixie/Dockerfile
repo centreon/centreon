@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 ARG USE_SOURCE_TRAPD=false
 
 #############################################
@@ -5,9 +7,12 @@ ARG USE_SOURCE_TRAPD=false
 #############################################
 FROM debian:13-slim AS extractor
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    dpkg \
-    && rm -rf /var/lib/apt/lists/*
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+    bash -e <<EOF
+apt-get update
+apt-get install -y --no-install-recommends dpkg
+EOF
 
 RUN --mount=type=bind,source=packages-centreon,target=/packages \
     mkdir -p /extracted && \
@@ -43,20 +48,26 @@ FROM debian:13-slim AS centreontrapd
 
 # Create users and groups (same UIDs as other Centreon containers for volume consistency)
 # centreon-engine group needed: centreontrapd writes to centengine.cmd pipe (owned by centreon-engine)
-RUN groupadd -g 33 www-data 2>/dev/null || true && \
-    groupadd -g 900 centreon && \
-    useradd -u 900 -g centreon -m -r -d /var/spool/centreon -s /bin/bash centreon && \
-    groupadd -g 901 centreon-engine && \
-    useradd -u 901 -g centreon-engine -m -r -d /var/lib/centreon-engine -s /bin/bash centreon-engine && \
-    groupadd -g 903 centreon-gorgone && \
-    useradd -u 903 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -s /bin/bash centreon-gorgone && \
-    usermod -aG centreon-gorgone centreon && \
-    usermod -aG centreon-engine centreon
+RUN bash -e <<EOF
+groupadd -g 33 www-data 2>/dev/null || true
+groupadd -g 900 centreon
+useradd -u 900 -g centreon -m -r -d /var/spool/centreon -s /bin/bash centreon
+groupadd -g 901 centreon-engine
+useradd -u 901 -g centreon-engine -m -r -d /var/lib/centreon-engine -s /bin/bash centreon-engine
+groupadd -g 903 centreon-gorgone
+useradd -u 903 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -s /bin/bash centreon-gorgone
+usermod -aG centreon-gorgone centreon
+usermod -aG centreon-engine centreon
+EOF
 
 # Install runtime dependencies
 # libdbd-sqlite3-perl: SQLite access for centreontrapd.sdb (poller mode=1)
 # snmp: SNMP OID resolution via Net::SNMP Perl bindings
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+    bash -e <<EOF
+apt-get update
+apt-get install -y --no-install-recommends \
     perl \
     libdbi-perl \
     libdbd-sqlite3-perl \
@@ -66,37 +77,39 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     tzdata \
     ca-certificates \
     inotify-tools \
-    procps \
-    && rm -rf /var/lib/apt/lists/*
+    procps
+EOF
 
 # Create directory structure
-RUN mkdir -p /var/spool/centreontrapd \
-             /etc/snmp/centreon_traps \
-             /etc/centreon \
-             /var/log/centreon \
-             /var/lib/centreon-engine/rw \
-             /usr/share/centreon/bin \
-             /usr/local/lib/centreon-centreontrapd && \
-    chmod 1777 /var/spool/centreontrapd && \
-    chown centreon:centreon /var/spool/centreontrapd && \
-    chown centreon:centreon /etc/snmp/centreon_traps && \
-    chmod 0775 /etc/snmp/centreon_traps && \
-    chown centreon:centreon /var/log/centreon && \
-    chown centreon:centreon /etc/centreon && \
-    chmod 0775 /etc/centreon && \
-    chown centreon-engine:centreon-engine /var/lib/centreon-engine && \
-    chmod 0755 /var/lib/centreon-engine && \
-    chown centreon-engine:centreon-engine /var/lib/centreon-engine/rw && \
-    chmod 0775 /var/lib/centreon-engine/rw
+RUN bash -e <<EOF
+mkdir -p /var/spool/centreontrapd \
+         /etc/snmp/centreon_traps \
+         /etc/centreon \
+         /var/log/centreon \
+         /var/lib/centreon-engine/rw \
+         /usr/share/centreon/bin \
+         /usr/local/lib/centreon-centreontrapd
+chmod 1777 /var/spool/centreontrapd
+chown centreon:centreon /var/spool/centreontrapd
+chown centreon:centreon /etc/snmp/centreon_traps
+chmod 0775 /etc/snmp/centreon_traps
+chown centreon:centreon /var/log/centreon
+chown centreon:centreon /etc/centreon
+chmod 0775 /etc/centreon
+chown centreon-engine:centreon-engine /var/lib/centreon-engine
+chmod 0755 /var/lib/centreon-engine
+chown centreon-engine:centreon-engine /var/lib/centreon-engine/rw
+chmod 0775 /var/lib/centreon-engine/rw
+EOF
 
 # Copy Perl modules from selected source
-COPY --from=centreon-perl-selected /centreon-modules/ /usr/share/perl5/centreon/
+COPY --from=centreon-perl-selected --link /centreon-modules/ /usr/share/perl5/centreon/
 
 # Copy centreontrapd binary from extractor
-COPY --from=extractor --chmod=755 /extracted/usr/share/centreon/bin/centreontrapd /usr/share/centreon/bin/centreontrapd
+COPY --from=extractor --link --chmod=755 /extracted/usr/share/centreon/bin/centreontrapd /usr/share/centreon/bin/centreontrapd
 
 # Copy entrypoint scripts
-COPY --chmod=755 .github/docker/centreon-centreontrapd/trixie/entrypoint /usr/local/lib/centreon-centreontrapd/
+COPY --link --chmod=755 .github/docker/centreon-centreontrapd/trixie/entrypoint /usr/local/lib/centreon-centreontrapd/
 
 # Verify Perl modules are loadable
 RUN echo "=== Verification ===" && \
@@ -112,6 +125,10 @@ ENV DEBUG=false
 WORKDIR /etc/centreon
 
 USER centreon
+
+# container.d/99-logs.sh touches this file once every startup script has run.
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
+    CMD test -f /tmp/docker.ready
 
 ENTRYPOINT ["/usr/local/lib/centreon-centreontrapd/container.sh"]
 CMD ["/usr/bin/perl", "/usr/share/centreon/bin/centreontrapd", \
