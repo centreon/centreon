@@ -38,6 +38,7 @@ use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Contact\Domain\AdminResolver;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -93,6 +94,7 @@ beforeEach(closure: function (): void {
         $this->isCloudPlatform = false,
         $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
+        $this->vaultEligibilityService = $this->createMock(VaultEligibilityService::class),
         $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
         $this->writeAccessGroupRepository = $this->createMock(WriteAccessGroupRepositoryInterface::class),
         $this->adminResolver = $this->createMock(AdminResolver::class),
