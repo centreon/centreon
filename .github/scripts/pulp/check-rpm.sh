@@ -15,6 +15,7 @@ load_expected "RPM"
 # --- load expected packages into parallel arrays ---------------------------
 mapfile -t E_FILENAME   < <(echo "$PACKAGES_JSON" | jq -r '.[].filename')
 mapfile -t E_ARCH       < <(echo "$PACKAGES_JSON" | jq -r '.[].arch')
+mapfile -t E_SHA256     < <(echo "$PACKAGES_JSON" | jq -r '.[].sha256')
 mapfile -t E_REPOSITORY < <(echo "$PACKAGES_JSON" | jq -r '.[].repository')
 mapfile -t E_BASEPATH   < <(echo "$PACKAGES_JSON" | jq -r '.[].base_path')
 
@@ -50,9 +51,12 @@ for i in "${!E_FILENAME[@]}"; do
   fi
 done
 
-# right number: flag content-unit filenames present under the module that were
-# not expected (a count/content mismatch, e.g. a stale package left behind)
-for repo in "${!EXPECTED_COUNT_BY_REPO[@]}"; do
+# right number (delivery only): flag content-unit filenames present under the
+# module that were not expected (e.g. a stale package left behind). the testing
+# and unstable repositories retain a single version per package, so any extra is
+# suspect; the stable repository legitimately keeps the full version history of
+# previous releases, so this sweep would flag every past release on promotion.
+[[ "${CHECK_MODE:-delivery}" == "delivery" ]] && for repo in "${!EXPECTED_COUNT_BY_REPO[@]}"; do
   present_count=$(printf '%s\n' "${PRESENT_BY_REPO[$repo]:-}" | grep -c . || true)
   if [[ "$present_count" -gt "${EXPECTED_COUNT_BY_REPO[$repo]}" ]]; then
     echo "::warning::Repository $repo holds $present_count module packages but only ${EXPECTED_COUNT_BY_REPO[$repo]} were expected (unexpected extras)"
@@ -70,8 +74,24 @@ declare -A META_IDX      # idx -> true|false
 declare -A RESOLVED_IDX  # idx -> published location href
 for i in "${!E_FILENAME[@]}"; do META_IDX[$i]=false; done
 
-# one resolution round: fetch each base_path's primary.xml once, then match the
-# published href whose basename equals the expected filename
+# resolve the published location href of the package whose sha256 checksum
+# matches, from a primary.xml body: matching by checksum (not filename) binds
+# the verification to the exact delivered content, like the DEB by-sha256 match
+resolve_href() {
+  local primary=$1 sha=$2
+  printf '%s' "$primary" | awk -v sha="$sha" '
+    BEGIN { RS = "</package>" }
+    index($0, ">" sha "</checksum>") {
+      if (match($0, /<location[^>]*href="[^"]+"/)) {
+        s = substr($0, RSTART, RLENGTH)
+        sub(/.*href="/, "", s); sub(/"$/, "", s)
+        print s; exit
+      }
+    }'
+}
+
+# one resolution round: fetch each base_path's primary.xml once, then resolve
+# each pending package's published href by sha256
 resolve_pending() {
   local -A primary_cache=()
   local all_resolved=true i base_path repomd primary_href href
@@ -89,9 +109,7 @@ resolve_pending() {
       fi
     fi
 
-    href=$(printf '%s' "${primary_cache[$base_path]}" \
-      | grep -oP '<location[^>]*href="\K[^"]+' \
-      | awk -F/ -v f="${E_FILENAME[$i]}" '$NF==f {print; exit}')
+    href=$(resolve_href "${primary_cache[$base_path]}" "${E_SHA256[$i]}")
     if [[ -n "$href" ]]; then
       META_IDX[$i]=true
       RESOLVED_IDX[$i]=$href

@@ -55,7 +55,7 @@ for ARCH in noarch x86_64; do
       --data-urlencode "pulp_label_select=module=$MODULE_NAME" \
       --data-urlencode "limit=1000" \
       "$PULP_URL/api/v3/content/rpm/packages/" | \
-      jq '[.results[] | {pulp_href, name, version, release, arch, location_href}]'
+      jq '[.results[] | {pulp_href, name, version, release, arch, location_href, sha256}]'
   )
   CONTENT=$(echo "$RESULTS" | jq '[.[].pulp_href]')
   ARCH_PACKAGES_COUNT=$(echo "$CONTENT" | jq 'length')
@@ -121,7 +121,7 @@ for ARCH in noarch x86_64; do
   while read -r PKG; do
     manifest_add "$(echo "$PKG" | jq -c \
       --arg repository "$STABLE_REPOSITORY_NAME" --arg base_path "$STABLE_BASE_PATH" \
-      '{filename: (.location_href | sub(".*/"; "")), name, version, release, arch, repository: $repository, base_path: $base_path}')"
+      '{filename: (.location_href | sub(".*/"; "")), name, version, release, arch, sha256, repository: $repository, base_path: $base_path}')"
   done < <(echo "${ARCH_RESULTS[$ARCH]}" | jq -c '.[]')
 
   echo "::notice::Packages are available at $PULP_CONTENT_URL/$STABLE_BASE_PATH/"
