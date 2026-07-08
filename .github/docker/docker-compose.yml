@@ -32,7 +32,7 @@ services:
     platform: linux/amd64
     env_file:
       - .env
-    image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:10.11}"
+    image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:11.8}"
     ports: ["3306"]
     environment:
       MARIADB_EXTRA_FLAGS: "--skip-ssl"
@@ -161,7 +161,7 @@ services:
     platform: linux/amd64
     env_file:
       - .env
-    image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:10.11}"
+    image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:11.8}"
     ports: ["3306"]
     profiles: ["remote-server"]
     environment:
