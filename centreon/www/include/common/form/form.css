@@ -88,8 +88,8 @@
     align-items: center;
     justify-content: space-between;
     padding: 8px 14px;
-    background: var(--table-header-background, #6b7888);
-    color: #fff;
+    background: #ddd;
+    color: var(--list-color, #333);
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
@@ -99,7 +99,7 @@
 }
 
 .cf-section-header:hover {
-    background: var(--table-header-background, #5a6773);
+    background: #d2d2d2;
 }
 
 .cf-section-chevron {
