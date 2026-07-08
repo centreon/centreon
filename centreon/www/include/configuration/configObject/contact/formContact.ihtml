@@ -8,282 +8,421 @@
 {/literal}
 </style>
 {$form.javascript}
+<link href="./include/common/form/form.css" rel="stylesheet" type="text/css" />
+
 <form {$form.attributes}>
-<div class="headerTabContainer">
-<ul id="mainnav">
-    <li class="a" id='c1'><a href="#" onclick="javascript:montre('1');">{$form.header.information}</a></li>
-    <li class="b" id='c2'><a href="#" onclick="javascript:montre('2');">{$form.header.centreon}</a></li>
-    <li class="b" id='c3'><a href="#" onclick="javascript:montre('3');">{$form.header.additional}</a></li>
-</ul>
-<div id="validFormTop">
-  {if $o == "a" || $o == "c" || $o == "mc"}
-      <p class="oreonbutton">
-        {if isset($form.submitC)}
-            {$form.submitC.html}
-        {elseif isset($form.submitMC)}
-            {$form.submitMC.html}
-        {else}
-            {$form.submitA.html}
-        {/if}
-        &nbsp;&nbsp;&nbsp;{$form.reset.html}
-      </p>
-  {else if $o == "w"}
-      <p class="oreonbutton">
-        {if isset($form.change)}
-            {$form.change.html}
-        {/if}
-      </p>
-  {/if}
-</div>
-</div>
-    <div id='tab1' class='tab'>
-        <table class="formTable table">
-        <tr class="ListHeader">
-            <td class="FormHeader" colspan="2">
-                <h3>| {$form.header.title}</h3>
-            </td>
-        </tr>
-        <tr class="list_lvl_1">
-            <td class="ListColLvl1_name" colspan="2">
-                <h4>{$form.header.information}</h4>
-            </td>
-        </tr>
-        {if $o != "mc"}
-            <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="alias"> {$form.contact_alias.label}</td><td class="FormRowValue">{$form.contact_alias.html}</td></tr>
-            <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="contact_name"> {$form.contact_name.label}</td><td class="FormRowValue">{$form.contact_name.html}</td></tr>
-            <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="email"> {$form.contact_email.label}</td><td class="FormRowValue">{$form.contact_email.html}</td></tr>
-            <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="pager"> {$form.contact_pager.label}</td><td class="FormRowValue">{$form.contact_pager.html}</td></tr>
-        {/if}
-        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="pager"> {$form.contact_template_id.label}</td><td class="FormRowValue">{$form.contact_template_id.html}</td></tr>
+<div class="cf-form-wrapper">
 
-        <tr class="list_lvl_1">
-            <td class="ListColLvl1_name" colspan="2">
-                <h4>{$form.header.groupLinks}</h4>
-            </td>
-        </tr>
-        {if $o == "mc"}
-            <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="mc_update"> {$form.mc_mod_cg.label}</td><td class="FormRowValue">{$form.mc_mod_cg.html}</td></tr>
-        {/if}
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="contactgroups"> {$form.contact_cgNotif.label}</td><td class="FormRowValue"><p  class="oreonbutton">{$form.contact_cgNotif.html}</p></td></tr>
-        {if $o != "mc" and isset($ldapGroups)}
-            <tr class="list_two">
-                <td class="FormRowField"><img class="helpTooltip" name="ldap_group"> {$ldap_group}</td>
-                <td class="FormRowValue">
-                {foreach item=group from=$ldapGroups}&nbsp;{$group}<br/>{/foreach}
-                </td>
-            </tr>
-        {/if}
+    <h1 class="cf-page-title">{$form.header.title}</h1>
 
-        <tr class="list_lvl_1">
-            <td class="ListColLvl1_name" colspan="2">
-                <h4>{$form.header.notification}</h4>
-            </td>
-        </tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="contact_enable_notifications"> {$form.contact_enable_notifications.label}</td><td class="FormRowValue">{$form.contact_enable_notifications.html}</td></tr>
-        <tr class="list_lvl_1">
-            <td class="ListColLvl1_name" colspan="2">
-                <h4>{$form.header.hostNotification}</h4>
-            </td>
-        </tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="host_notification_options"> {$form.contact_hostNotifOpts.label}</td><td class="FormRowValue">{$form.contact_hostNotifOpts.html}</td></tr>
-        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="host_notification_period"> {$form.timeperiod_tp_id.label}</td><td class="FormRowValue">{$form.timeperiod_tp_id.html}</td></tr>
-        {if $o == "mc"}
-            <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="mc_update"> {$form.mc_mod_hcmds.label}</td><td class="FormRowValue">{$form.mc_mod_hcmds.html}</td></tr>
-        {/if}
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="host_notification_commands"> {$form.contact_hostNotifCmds.label}</td><td class="FormRowValue"><p  class="oreonbutton">{$form.contact_hostNotifCmds.html}</p></td></tr>
-        <tr class="list_lvl_1">
-            <td class="ListColLvl1_name" colspan="2">
-                <h4>{$form.header.serviceNotification}</h4>
-            </td>
-        </tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="service_notification_options"> {$form.contact_svNotifOpts.label}</td><td class="FormRowValue">{$form.contact_svNotifOpts.html}</td></tr>
-        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="service_notification_period"> {$form.timeperiod_tp_id2.label}</td><td class="FormRowValue">{$form.timeperiod_tp_id2.html}</td></tr>
-        {if $o == "mc"}
-            <tr class="list_one">
+    <div class="cf-tab-nav">
+        <a href="#cf-sec-info" class="active" onclick="cfScrollTo('cf-sec-info', this); return false;">{$form.header.information}</a>
+        <a href="#cf-sec-notif" onclick="cfScrollTo('cf-sec-notif', this); return false;">{$form.header.notification}</a>
+        <a href="#cf-sec-centreon" onclick="cfScrollTo('cf-sec-centreon', this); return false;">{$form.header.centreon}</a>
+        <a href="#cf-sec-access" onclick="cfScrollTo('cf-sec-access', this); return false;">{t}Access Restriction{/t}</a>
+        <a href="#cf-sec-additional" onclick="cfScrollTo('cf-sec-additional', this); return false;">{$form.header.additional}</a>
+    </div>
 
-                <td class="FormRowField">
-                    <div class="formRowLabel">
-                        <div>
-                            <img class="helpTooltip" name="mc_update">
-                        </div>
-                        <div>
-                            <p class="fieldLabel">
-                                {$form.mc_mod_svcmds.label}
-                            </p>
+    <!-- ================================================================ -->
+    <!-- Section 1: Information & Notifications (was tab1)                 -->
+    <!-- ================================================================ -->
+    <div class="cf-section" id="cf-sec-info">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$form.header.information}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            {if $o != "mc"}
+            <div class="cf-row-inline">
+                <div class="cf-field" style="max-width:320px;">
+                    {$form.contact_alias.html}
+                    <label class="cf-label-float">{$form.contact_alias.label}</label>
+                    <img class="helpTooltip" name="alias">
+                </div>
+                <div class="cf-field" style="max-width:440px;">
+                    {$form.contact_name.html}
+                    <label class="cf-label-float">{$form.contact_name.label}</label>
+                    <img class="helpTooltip" name="contact_name">
+                </div>
+                <div class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                    <span>{$form.contact_activate.label}</span>
+                    <label class="cl-toggle">
+                        <input type="checkbox" id="cf-contact-activate-toggle" />
+                        <span class="cl-toggle-slider"></span>
+                    </label>
+                    <span style="display:none;">{$form.contact_activate.html}</span>
+                </div>
+            </div>
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.contact_email.html}
+                    <label class="cf-label-float">{$form.contact_email.label}</label>
+                    <img class="helpTooltip" name="email">
+                </div>
+                <div class="cf-field">
+                    {$form.contact_pager.html}
+                    <label class="cf-label-float">{$form.contact_pager.label}</label>
+                    <img class="helpTooltip" name="pager">
+                </div>
+            </div>
+            {/if}
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.contact_template_id.html}
+                    <label class="cf-label-float">{$form.contact_template_id.label}</label>
+                    <img class="helpTooltip" name="pager">
+                </div>
+            </div>
 
-                        </div>
-                    </div>
-                   </td>
-                <td class="FormRowValue">{$form.mc_mod_svcmds.html}</td>
+            <div style="margin:18px 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Groups{/t}</div>
+            {if $o == "mc"}
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.mc_mod_cg.html}
+                    <label class="cf-label-float">{$form.mc_mod_cg.label}</label>
+                    <img class="helpTooltip" name="mc_update">
+                </div>
+            </div>
+            {/if}
+            <div class="cf-row">
+                <div class="cf-field">
+                    <p class="oreonbutton">{$form.contact_cgNotif.html}</p>
+                    <label class="cf-label-float">{t}Contact Groups{/t}</label>
+                    <img class="helpTooltip" name="contactgroups">
+                </div>
+            </div>
+            {if $o != "mc" and isset($ldapGroups)}
+            <div class="cf-row">
+                <div class="cf-field">
+                    <div>{foreach item=group from=$ldapGroups}&nbsp;{$group}<br/>{/foreach}</div>
+                    <label class="cf-label-float">{$ldap_group}</label>
+                    <img class="helpTooltip" name="ldap_group">
+                </div>
+            </div>
+            {/if}
 
-            </tr>
-        {/if}
-        <tr class="list_one">
-            <td class="FormRowField">
-                <div class="formRowLabel">
-                    <div>
-                        <img class="helpTooltip" name="service_notification_commands">
-                    </div>
-                    <div>
-                        <p class="fieldLabel">
-                            {$form.contact_svNotifCmds.label}
-                        </p>
+            <div style="margin:18px 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Misc{/t}</div>
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.contact_lang.html}
+                    <label class="cf-label-float">{$form.contact_lang.label}</label>
+                    <img class="helpTooltip" name="language">
+                </div>
+                <div class="cf-field">
+                    {$form.default_page.html}
+                    <label class="cf-label-float">{$form.default_page.label}</label>
+                    <img class="helpTooltip" name="default_page">
+                </div>
+                <div class="cf-field">
+                    {$form.contact_location.html}
+                    <label class="cf-label-float">{$form.contact_location.label}</label>
+                    <img class="helpTooltip" name="location">
+                </div>
+            </div>
+            {if $o == "a" || $o == "c"}
+                {if isset($form.required)}
+                <div class="cf-row"><small>{$form.required._note}</small></div>
+                {/if}
+            {/if}
+            {if isset($modules_template) && is_array($modules_template)}
+                {foreach item=module_template from=$modules_template}
+                    {include file=$module_template}
+                {/foreach}
+            {/if}
+        </div>
+    </div>
 
+    <!-- ================================================================ -->
+    <!-- Section: Notifications                                            -->
+    <!-- ================================================================ -->
+    <div class="cf-section" id="cf-sec-notif">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$form.header.notification}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.contact_enable_notifications.html}
+                    <label class="cf-label-float">{$form.contact_enable_notifications.label}</label>
+                    <img class="helpTooltip" name="contact_enable_notifications">
+                </div>
+            </div>
+
+            <div style="margin:18px 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$form.header.hostNotification}</div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.contact_hostNotifOpts.html}
+                    <label class="cf-label-float">{$form.contact_hostNotifOpts.label}</label>
+                    <img class="helpTooltip" name="host_notification_options">
+                </div>
+            </div>
+            {if $o == "mc"}
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.mc_mod_hcmds.html}
+                    <label class="cf-label-float">{$form.mc_mod_hcmds.label}</label>
+                    <img class="helpTooltip" name="mc_update">
+                </div>
+            </div>
+            {/if}
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.timeperiod_tp_id.html}
+                    <label class="cf-label-float">{$form.timeperiod_tp_id.label}</label>
+                    <img class="helpTooltip" name="host_notification_period">
+                </div>
+                <div class="cf-field">
+                    <p class="oreonbutton">{$form.contact_hostNotifCmds.html}</p>
+                    <label class="cf-label-float">{$form.contact_hostNotifCmds.label}</label>
+                    <img class="helpTooltip" name="host_notification_commands">
+                </div>
+            </div>
+
+            <div style="margin:18px 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$form.header.serviceNotification}</div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.contact_svNotifOpts.html}
+                    <label class="cf-label-float">{$form.contact_svNotifOpts.label}</label>
+                    <img class="helpTooltip" name="service_notification_options">
+                </div>
+            </div>
+            {if $o == "mc"}
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.mc_mod_svcmds.html}
+                    <label class="cf-label-float">{$form.mc_mod_svcmds.label}</label>
+                    <img class="helpTooltip" name="mc_update">
+                </div>
+            </div>
+            {/if}
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.timeperiod_tp_id2.html}
+                    <label class="cf-label-float">{$form.timeperiod_tp_id2.label}</label>
+                    <img class="helpTooltip" name="service_notification_period">
+                </div>
+                <div class="cf-field">
+                    <p class="oreonbutton">{$form.contact_svNotifCmds.html}</p>
+                    <label class="cf-label-float">{$form.contact_svNotifCmds.label}</label>
+                    <img class="helpTooltip" name="service_notification_commands">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- Section 2: Centreon authentication (was tab2)                    -->
+    <!-- ================================================================ -->
+    <div class="cf-section" id="cf-sec-centreon">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$form.header.centreon}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.contact_oreon.html}
+                    <label class="cf-label-float">{$form.contact_oreon.label}</label>
+                    <img class="helpTooltip" name="centreon_login">
+                </div>
+                <div class="cf-field">
+                    {$form.contact_auth_type.html}
+                    <label class="cf-label-float">{$form.contact_auth_type.label}</label>
+                    <img class="helpTooltip" name="auth_type">
+                </div>
+            </div>
+            {if isset($ldap) && $ldap == "1"}
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.contact_ldap_dn.html}
+                    <label class="cf-label-float">{$form.contact_ldap_dn.label}</label>
+                    <img class="helpTooltip" name="ldap_dn">
+                </div>
+            </div>
+            {/if}
+            {if $authTypeConnectedUser == 'local' && $authTypeContact != 'ldap' && $o != "mc" && $o != "w"}
+            <div id="cf-password-block">
+                <div style="margin:18px 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Password{/t}</div>
+                {if $o == "c"}
+                <div class="cf-row">
+                    <div class="cf-field" style="max-width:50%;">
+                        {$form.current_password.html}
+                        <label class="cf-label-float">{$form.current_password.label}</label>
+                        <img class="helpTooltip" name="current_password">
                     </div>
                 </div>
-                </td>
-
-            <td class="FormRowValue"><p  class="oreonbutton">{$form.contact_svNotifCmds.html}</p></td></tr>
-        {if $o == "a" || $o == "c"}
-            <tr class="list_lvl_1"><td class="ListColLvl2_name" colspan="2">
-                {if isset($form.required)}
-                    {$form.required._note}
                 {/if}
-            </td></tr>
-        {/if}
-        {if isset($modules_template) && is_array($modules_template)}
-            {foreach item=module_template from=$modules_template}
-                {include file=$module_template}
-            {/foreach}
-        {/if}
-    </table>
-    </div>
-    <div id='tab2' class='tab'>
-        <table class="formTable table">
-        <tr class="ListHeader">
-            <td class="FormHeader" colspan="2">
-                <h3>| {$form.header.title}</h3>
-            </td>
-        </tr>
-        <tr class="list_lvl_1">
-            <td class="ListColLvl1_name" colspan="2">
-                <h4>{$form.header.oreon}</h4>
-            </td>
-        </tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="centreon_login"> {$form.contact_oreon.label}</td><td class="FormRowValue">{$form.contact_oreon.html}</td></tr>
-        {if $authTypeConnectedUser == 'local' && $authTypeContact != 'ldap' && $o != "mc" && $o != "w"}
-        {if $o == "c"}
-        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="current_password"> {$form.current_password.label}</td><td class="FormRowValue">{$form.current_password.html}</td></tr>
-        {/if}
-        <tr class="list_one">
-            <td class="FormRowField"><img class="helpTooltip" name="password"> {$form.contact_passwd.label}</td>
-            <td class="FormRowValue">{$form.contact_passwd.html} {$form.contact_gen_passwd.html}</td>
-        </tr>
-        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="password2"> {$form.contact_passwd2.label}</td><td class="FormRowValue">{$form.contact_passwd2.html}</td></tr>
-        {/if}
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="language"> {$form.contact_lang.label}</td><td class="FormRowValue">{$form.contact_lang.html}</td></tr>
-        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="default_page"> {$form.default_page.label}</td><td class="FormRowValue">{$form.default_page.html}</td></tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="location"> {$form.contact_location.label}</td><td class="FormRowValue">{$form.contact_location.html}</td></tr>
-        {if $authTypeConnectedUser == 'local' && $authTypeContact != 'ldap' && $o != "mc" && $o != "w" && $autologinEnabled}
-        <tr class="list_two">
-            <td class="FormRowField"><img class="helpTooltip" name="autologin_key"> {$form.contact_autologin_key.label}</td>
-            <td class="FormRowValue">{$form.contact_autologin_key.html} {$form.contact_gen_akey.html}</td>
-        </tr>
-        {/if}
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="auth_type"> {$form.contact_auth_type.label}</td><td class="FormRowValue">{$form.contact_auth_type.html}</td></tr>
-            {if isset($ldap) && $ldap == "1"}
-                <tr class="list_two">
-                    <td class="FormRowField">
-                    <div class="formRowLabel">
-                        <div>
-                            <img class="helpTooltip" name="ldap_dn">
-                        </div>
-                        <div>
-                            <p class="fieldLabel">
-                                {$form.contact_ldap_dn.label}
-                            </p>
-
-                        </div>
-                    </div></td>
-                    <td class="FormRowValue">{$form.contact_ldap_dn.html}</td>
-                </tr>
+                <div class="cf-row-inline">
+                    <div class="cf-field" style="max-width:320px;">
+                        {$form.contact_passwd.html}
+                        <label class="cf-label-float">{$form.contact_passwd.label}</label>
+                        <img class="helpTooltip" name="password">
+                    </div>
+                    <div style="flex:0 0 auto;white-space:nowrap;align-self:center;">
+                        {$form.contact_gen_passwd.html}
+                    </div>
+                    <div class="cf-field" style="max-width:240px;">
+                        {$form.contact_passwd2.html}
+                        <label class="cf-label-float">{$form.contact_passwd2.label}</label>
+                        <img class="helpTooltip" name="password2">
+                    </div>
+                </div>
+            </div>
             {/if}
-        {if $displayAdminFlag == 1}
-        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="admin"> {$form.contact_admin.label}</td><td class="FormRowValue">{$form.contact_admin.html}</td></tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="reach_api"> {$form.reach_api.label}</td><td class="FormRowValue">{$form.reach_api.html}</td></tr>
-        <tr class="list_two">
-            <td class="FormRowField">
-                <img class="helpTooltip" name="reach_api_rt">
-                {$form.reach_api_rt.label}
-            </td>
-            <td class="FormRowValue">{$form.reach_api_rt.html}</td>
-        </tr>
-        {/if}
-        <tr class="list_lvl_1">
-            <td class="ListColLvl1_name" colspan="2">
-                <h4>{$form.header.acl}</h4>
-            </td>
-        </tr>
-        {if $o == "mc"}
-            <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="mc_update"> {$form.mc_mod_acl.label}</td><td class="FormRowValue">{$form.mc_mod_acl.html}</td></tr>
-        {/if}
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="aclgroups"> {$form.contact_acl_groups.label}</td><td class="FormRowValue">{$form.contact_acl_groups.html}</td></tr>
-        {if $o == "a" || $o == "c"}
-            <tr class="list_lvl_2"><td class="ListColLvl2_name" colspan="2">
-                {if isset($form.required)}
-                    {$form.required._note}
-                {/if}
-            </td></tr>
-        {/if}
-        {if $o == "a" || $o == "c"}
-            <tr class="list_lvl_2"><td class="ListColLvl2_name" colspan="2">
-                {if isset($form.required)}
-                    {$form.required._note}
-                {/if}
-            </td></tr>
-        {/if}
-    </table>
+            {if $authTypeConnectedUser == 'local' && $authTypeContact != 'ldap' && $o != "mc" && $o != "w" && $autologinEnabled}
+            <div style="margin:18px 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Autologin{/t}</div>
+            <div class="cf-row-inline">
+                <div class="cf-field" style="max-width:420px;">
+                    {$form.contact_autologin_key.html}
+                    <label class="cf-label-float">{$form.contact_autologin_key.label}</label>
+                    <img class="helpTooltip" name="autologin_key">
+                </div>
+                <div style="flex:0 0 auto;white-space:nowrap;align-self:center;">
+                    {$form.contact_gen_akey.html}
+                </div>
+            </div>
+            {/if}
+        </div>
     </div>
-    <div id='tab3' class='tab'>
-        <table class="formTable table">
-        <tr class="ListHeader">
-            <td class="FormHeader" colspan="2">
-                <h3>| {$form.header.title}</h3>
-            </td>
-        </tr>
-        <tr class="list_lvl_1">
-            <td class="ListColLvl1_name" colspan="2">
-                <h4>{$form.header.furtherAddress}</h4>
-            </td>
-        </tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="addressx"> {$form.contact_address1.label}</td><td class="FormRowValue">{$form.contact_address1.html}</td></tr>
-        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="addressx"> {$form.contact_address2.label}</td><td class="FormRowValue">{$form.contact_address2.html}</td></tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="addressx"> {$form.contact_address3.label}</td><td class="FormRowValue">{$form.contact_address3.html}</td></tr>
-        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="addressx"> {$form.contact_address4.label}</td><td class="FormRowValue">{$form.contact_address4.html}</td></tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="addressx"> {$form.contact_address5.label}</td><td class="FormRowValue">{$form.contact_address5.html}</td></tr>
-        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="addressx"> {$form.contact_address6.label}</td><td class="FormRowValue">{$form.contact_address6.html}</td></tr>
-        <tr class="list_lvl_1">
-            <td class="ListColLvl1_name" colspan="2">
-                <h4>{$form.header.furtherInfos}</h4>
-            </td>
-        </tr>
-        <tr class="list_one"><td class="FormRowField">{$form.contact_activate.label}</td><td class="FormRowValue">{$form.contact_activate.html}</td></tr>
-        <tr class="list_two"><td class="FormRowField">{$form.contact_comment.label}</td><td class="FormRowValue">{$form.contact_comment.html}</td></tr>
-        {if $o == "a" || $o == "c"}
-            <tr class="list_lvl_2"><td class="ListColLvl2_name" colspan="2">
-                {if isset($form.required)}
-                    {$form.required._note}
+
+    <!-- ================================================================ -->
+    <!-- Section 3: Access restriction                                    -->
+    <!-- ================================================================ -->
+    <div class="cf-section" id="cf-sec-access">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {t}Access Restriction{/t}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div style="margin:0 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Global Access Right{/t}</div>
+            {if $o == "mc"}
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.mc_mod_acl.html}
+                    <label class="cf-label-float">{$form.mc_mod_acl.label}</label>
+                    <img class="helpTooltip" name="mc_update">
+                </div>
+            </div>
+            {/if}
+            <div class="cf-row-inline">
+                {if $displayAdminFlag == 1}
+                <div class="cf-field">
+                    {$form.contact_admin.html}
+                    <label class="cf-label-float">{$form.contact_admin.label}</label>
+                    <img class="helpTooltip" name="admin">
+                </div>
                 {/if}
-            </td></tr>
-        {/if}
-    </table>
+                <div class="cf-field">
+                    {$form.contact_acl_groups.html}
+                    <label class="cf-label-float">{$form.contact_acl_groups.label}</label>
+                    <img class="helpTooltip" name="aclgroups">
+                </div>
+            </div>
+            {if $displayAdminFlag == 1}
+            <div style="margin:18px 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}API Access{/t}</div>
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.reach_api.html}
+                    <label class="cf-label-float">{$form.reach_api.label}</label>
+                    <img class="helpTooltip" name="reach_api">
+                </div>
+                <div class="cf-field">
+                    {$form.reach_api_rt.html}
+                    <label class="cf-label-float">{$form.reach_api_rt.label}</label>
+                    <img class="helpTooltip" name="reach_api_rt">
+                </div>
+            </div>
+            {/if}
+            {if $o == "a" || $o == "c"}
+                {if isset($form.required)}
+                <div class="cf-row"><small>{$form.required._note}</small></div>
+                {/if}
+            {/if}
+        </div>
     </div>
-    <div id="validForm">
-    {if $o == "a" || $o == "c" || $o == "mc"}
-        <p class="oreonbutton">
-        {if isset($form.submitC)}
-            {$form.submitC.html}
-        {elseif isset($form.submitMC)}
-            {$form.submitMC.html}
-        {else}
-            {$form.submitA.html}
-        {/if}
-        &nbsp;&nbsp;&nbsp;{$form.reset.html}</p>
-    {else if $o == "w"}
-        <p class="oreonbutton">{if isset($form.change)}{$form.change.html}{/if}</p>
-    {/if}
+
+    <!-- ================================================================ -->
+    <!-- Section 3: Additional (was tab3)                                 -->
+    <!-- ================================================================ -->
+    <div class="cf-section collapsed" id="cf-sec-additional">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$form.header.additional}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div style="margin:0 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$form.header.furtherAddress}</div>
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.contact_address1.html}
+                    <label class="cf-label-float">{$form.contact_address1.label}</label>
+                    <img class="helpTooltip" name="addressx">
+                </div>
+                <div class="cf-field">
+                    {$form.contact_address2.html}
+                    <label class="cf-label-float">{$form.contact_address2.label}</label>
+                    <img class="helpTooltip" name="addressx">
+                </div>
+            </div>
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.contact_address3.html}
+                    <label class="cf-label-float">{$form.contact_address3.label}</label>
+                    <img class="helpTooltip" name="addressx">
+                </div>
+                <div class="cf-field">
+                    {$form.contact_address4.html}
+                    <label class="cf-label-float">{$form.contact_address4.label}</label>
+                    <img class="helpTooltip" name="addressx">
+                </div>
+            </div>
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.contact_address5.html}
+                    <label class="cf-label-float">{$form.contact_address5.label}</label>
+                    <img class="helpTooltip" name="addressx">
+                </div>
+                <div class="cf-field">
+                    {$form.contact_address6.html}
+                    <label class="cf-label-float">{$form.contact_address6.label}</label>
+                    <img class="helpTooltip" name="addressx">
+                </div>
+            </div>
+
+            <div style="margin:18px 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$form.header.furtherInfos}</div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.contact_comment.html}
+                    <label class="cf-label-float">{$form.contact_comment.label}</label>
+                </div>
+            </div>
+            {if $o == "a" || $o == "c"}
+                {if isset($form.required)}
+                <div class="cf-row"><small>{$form.required._note}</small></div>
+                {/if}
+            {/if}
+        </div>
     </div>
-    {$form.hidden}
+
+    <!-- Action buttons -->
+    <div class="cf-actions">
+        {if $o == "a" || $o == "c" || $o == "mc"}
+            {$form.reset.html}
+            {if isset($form.submitC)}
+                {$form.submitC.html}
+            {elseif isset($form.submitMC)}
+                {$form.submitMC.html}
+            {else}
+                {$form.submitA.html}
+            {/if}
+        {else if $o == "w"}
+            {if isset($form.change)}{$form.change.html}{/if}
+        {/if}
+    </div>
+
+</div>
+
+{$form.hidden}
 </form>
 {$helptext}
 <script type="text/javascript">
@@ -319,6 +458,51 @@
 
         if (frontEndYes) frontEndYes.addEventListener('click', handleReachRealTimeChange);
         if (frontEndNo) frontEndNo.addEventListener('click', handleReachRealTimeChange);
+    });
+
+    // Hide all password fields unless the auth source is Centreon (local)
+    function cfToggleContactPasswords() {
+        var authEl = document.getElementById('contact_auth_type');
+        var block = document.getElementById('cf-password-block');
+        if (!block) return;
+        var val = authEl ? String(authEl.value || '').toLowerCase() : 'local';
+        block.style.display = (val === 'local') ? '' : 'none';
+    }
+
+    // Grey out the ACL access list when the contact is an admin (admin = full access)
+    function cfToggleAclByAdmin() {
+        var yes = document.getElementById('contact_admin_yes');
+        var isAdmin = !!(yes && yes.checked);
+        var acl = document.getElementById('contact_acl_groups');
+        if (!acl) return;
+        if (window.jQuery) {
+            jQuery(acl).prop('disabled', isAdmin);
+            if (jQuery(acl).data('select2')) { jQuery(acl).trigger('change.select2'); }
+        } else {
+            acl.disabled = isAdmin;
+        }
+        var wrap = acl.closest('.cf-field') || acl.parentElement;
+        if (wrap) {
+            wrap.style.opacity = isAdmin ? '0.5' : '';
+            wrap.style.pointerEvents = isAdmin ? 'none' : '';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        CentreonForm.initFormPage();
+        CentreonForm.syncToggle('cf-contact-activate-toggle', 'contact_activate', '1', '0');
+        if (window.jQuery) {
+            jQuery('#contact_auth_type').on('change', cfToggleContactPasswords);
+            jQuery('input[name^="contact_admin"]').on('change', cfToggleAclByAdmin);
+        }
+        var authEl = document.getElementById('contact_auth_type');
+        if (authEl) authEl.addEventListener('change', cfToggleContactPasswords);
+        ['contact_admin_yes', 'contact_admin_no'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) el.addEventListener('change', cfToggleAclByAdmin);
+        });
+        cfToggleContactPasswords();
+        cfToggleAclByAdmin();
     });
 {/literal}
 </script>
