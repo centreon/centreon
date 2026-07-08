@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Shared helpers to emit the delivery/promotion manifest consumed by the
-# check-delivery-pulp action. Source this file, append one compact JSON object
-# per package with manifest_add, then finalize the manifest with manifest_write.
+# verification scripts (check-rpm.sh, check-deb.sh). Source this file, append
+# one compact JSON object per package with manifest_add, then finalize the
+# manifest with manifest_write.
 #
 # The manifest is the authoritative "expected packages" list: it is captured at
 # the moment of upload (the packages that were on the runner before/at upload),

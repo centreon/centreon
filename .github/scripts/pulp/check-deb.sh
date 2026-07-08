@@ -7,45 +7,18 @@
 # packages under the canonical pool layout, so the published Filename is resolved
 # from the suite's Packages index by sha256. Architecture "all" packages are
 # listed under every binary-<arch>, so they are looked up across the suite's
-# architectures. The script never exits early — see check-common.sh.
+# architectures.
+#
+# The expected list is the manifest emitted by the delivery/promote step. The
+# script never exits early — see check-common.sh.
 set -uo pipefail
-shopt -s nullglob
 
-# shellcheck source=.github/actions/check-delivery-pulp/check-common.sh
+# shellcheck source=.github/scripts/pulp/check-common.sh
 source "$(dirname "$0")/check-common.sh"
 
-# --- expected package list -------------------------------------------------
-if [[ -n "${MANIFEST:-}" && -s "${MANIFEST:-}" ]]; then
-  echo "[INFO] Reading expected DEB packages from manifest $MANIFEST"
-  PACKAGES_JSON=$(jq -c '.packages' "$MANIFEST")
-elif [[ "${CHECK_MODE:-delivery}" == "delivery" ]]; then
-  echo "[WARN] No manifest available, falling back to workspace *.deb files"
-  entries=()
-  for FILE in *.deb; do
-    [[ -e "$FILE" ]] || continue
-    name=$(dpkg-deb -f "$FILE" Package)
-    version=$(dpkg-deb -f "$FILE" Version)
-    arch=$(dpkg-deb -f "$FILE" Architecture)
-    sha256=$(sha256sum "$FILE" | cut -d' ' -f1)
-    entries+=("$(jq -cn \
-      --arg filename "$FILE" --arg name "$name" --arg version "$version" --arg arch "$arch" \
-      --arg sha256 "$sha256" --arg repository "$REPOSITORY_NAME" --arg base_path "$BASE_PATH" \
-      --arg suite "$SUITE" --arg relative_path "$POOL_PATH/$FILE" \
-      '{filename:$filename,name:$name,version:$version,arch:$arch,sha256:$sha256,repository:$repository,base_path:$base_path,suite:$suite,relative_path:$relative_path}')")
-  done
-  if ((${#entries[@]})); then PACKAGES_JSON=$(printf '%s\n' "${entries[@]}" | jq -s '.'); else PACKAGES_JSON='[]'; fi
-else
-  echo "::error::check-delivery-pulp (promote) requires a manifest from the promote step"
-  exit 1
-fi
+load_expected "DEB"
 
-COUNT=$(echo "$PACKAGES_JSON" | jq 'length')
-if [[ "$COUNT" -eq 0 ]]; then
-  echo "::error::No expected DEB package to verify"
-  exit 1
-fi
-echo "[INFO] $COUNT expected DEB package(s) to verify"
-
+# --- load expected packages into parallel arrays ---------------------------
 mapfile -t E_FILENAME   < <(echo "$PACKAGES_JSON" | jq -r '.[].filename')
 mapfile -t E_ARCH       < <(echo "$PACKAGES_JSON" | jq -r '.[].arch')
 mapfile -t E_SHA256     < <(echo "$PACKAGES_JSON" | jq -r '.[].sha256')
@@ -93,16 +66,16 @@ resolve_filename() {
     }'
 }
 
-declare -A META_IDX
-declare -A FILE_IDX
+declare -A META_IDX      # idx -> true|false
+declare -A RESOLVED_IDX  # idx -> published Filename
 for i in "${!E_FILENAME[@]}"; do META_IDX[$i]=false; done
 
-deadline=$(( SECONDS + METADATA_TIMEOUT ))
-while :; do
-  declare -A PKG_CACHE=()   # key: base_path|suite|arch -> Packages body
-  declare -A ARCHES_CACHE=() # key: base_path|suite -> space separated arches
-  all_resolved=true
-
+# one resolution round: fetch each suite's Packages indexes once, then resolve
+# each pending package's published Filename by sha256
+resolve_pending() {
+  local -A pkg_cache=()    # key: base_path|suite|arch -> Packages body
+  local -A arches_cache=() # key: base_path|suite -> space separated arches
+  local all_resolved=true i base_path suite arch search_arches sk ck a filename
   for i in "${!E_FILENAME[@]}"; do
     [[ "${META_IDX[$i]}" == "true" ]] && continue
     base_path=${E_BASEPATH[$i]}; suite=${E_SUITE[$i]}; arch=${E_ARCH[$i]}
@@ -112,46 +85,33 @@ while :; do
     search_arches="$arch"
     if [[ "$arch" == "all" ]]; then
       sk="$base_path|$suite"
-      if [[ -z "${ARCHES_CACHE[$sk]+set}" ]]; then
-        ARCHES_CACHE[$sk]=$(curl -fsSL "$PULP_CONTENT_URL/$base_path/dists/$suite/Release" 2>/dev/null \
+      if [[ -z "${arches_cache[$sk]+set}" ]]; then
+        arches_cache[$sk]=$(curl -fsSL "$PULP_CONTENT_URL/$base_path/dists/$suite/Release" 2>/dev/null \
           | awk -F': ' '/^Architectures:/ { print $2; exit }')
       fi
-      search_arches="${ARCHES_CACHE[$sk]:-amd64 arm64 all}"
+      search_arches="${arches_cache[$sk]:-amd64 arm64 all}"
     fi
 
     filename=""
     for a in $search_arches; do
       ck="$base_path|$suite|$a"
-      if [[ -z "${PKG_CACHE[$ck]+set}" ]]; then
-        PKG_CACHE[$ck]=$(curl -fsSL "$PULP_CONTENT_URL/$base_path/dists/$suite/main/binary-$a/Packages" 2>/dev/null || true)
+      if [[ -z "${pkg_cache[$ck]+set}" ]]; then
+        pkg_cache[$ck]=$(curl -fsSL "$PULP_CONTENT_URL/$base_path/dists/$suite/main/binary-$a/Packages" 2>/dev/null || true)
       fi
-      filename=$(resolve_filename "${PKG_CACHE[$ck]}" "${E_SHA256[$i]}")
+      filename=$(resolve_filename "${pkg_cache[$ck]}" "${E_SHA256[$i]}")
       [[ -n "$filename" ]] && break
     done
 
     if [[ -n "$filename" ]]; then
       META_IDX[$i]=true
-      FILE_IDX[$i]=$filename
+      RESOLVED_IDX[$i]=$filename
     else
       all_resolved=false
     fi
   done
+  [[ "$all_resolved" == "true" ]]
+}
 
-  [[ "$all_resolved" == "true" ]] && break
-  [[ "$SECONDS" -ge "$deadline" ]] && { echo "[WARN] Metadata resolution timed out after ${METADATA_TIMEOUT}s"; break; }
-  echo "[INFO] Waiting ${METADATA_INTERVAL}s for apt metadata to publish..."
-  sleep "$METADATA_INTERVAL"
-done
-
-# --- fetchability + row accounting -----------------------------------------
-for i in "${!E_FILENAME[@]}"; do
-  fetchable=false
-  if [[ "${META_IDX[$i]}" == "true" ]]; then
-    url="$PULP_CONTENT_URL/${E_BASEPATH[$i]}/${FILE_IDX[$i]}"
-    code=$(curl -fsSL -o /dev/null -w '%{http_code}' -I "$url" 2>/dev/null || echo 000)
-    [[ "$code" == "200" ]] && fetchable=true
-  fi
-  record_row "${E_FILENAME[$i]}" "${E_ARCH[$i]}" "${PRESENT_IDX[$i]}" "${META_IDX[$i]}" "$fetchable"
-done
-
+wait_for_metadata
+check_fetchable_and_record
 render_summary

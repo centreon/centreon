@@ -2,8 +2,8 @@
 set -euo pipefail
 shopt -s nullglob
 
-# shellcheck source=.github/actions/package-delivery-pulp/manifest.sh
-source "$(dirname "$0")/manifest.sh"
+# shellcheck source=.github/scripts/pulp/manifest.sh
+source "$(dirname "$0")/../../scripts/pulp/manifest.sh"
 
 # use the org-variable values, falling back to the defaults when passed empty
 # (an unset org variable is forwarded as an empty string, overriding the default)
@@ -153,7 +153,7 @@ for ARCH in noarch x86_64; do
     wait_task "$TASK_HREF"
 
     # record the uploaded package in the manifest (name-version-release parsed
-    # the same way as assert_not_in_stable) for the check-delivery-pulp step
+    # the same way as assert_not_in_stable) for the verification step
     FILENAME=$(basename "$FILE")
     base=${FILENAME%.rpm}
     base=${base%."$ARCH"}

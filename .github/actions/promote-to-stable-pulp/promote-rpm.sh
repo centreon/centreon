@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# shellcheck source=.github/actions/promote-to-stable-pulp/manifest.sh
-source "$(dirname "$0")/manifest.sh"
+# shellcheck source=.github/scripts/pulp/manifest.sh
+source "$(dirname "$0")/../../scripts/pulp/manifest.sh"
 
 # use the org-variable values, falling back to the defaults when passed empty
 # (an unset org variable is forwarded as an empty string, overriding the default)
@@ -117,7 +117,7 @@ for ARCH in noarch x86_64; do
   pulp rpm publication create --repository "$STABLE_REPOSITORY_NAME" >/dev/null
 
   # record the promoted packages (with their stable target coordinates) so the
-  # check-delivery-pulp step verifies exactly this set against the stable repo
+  # verification step verifies exactly this set against the stable repo
   while read -r PKG; do
     manifest_add "$(echo "$PKG" | jq -c \
       --arg repository "$STABLE_REPOSITORY_NAME" --arg base_path "$STABLE_BASE_PATH" \

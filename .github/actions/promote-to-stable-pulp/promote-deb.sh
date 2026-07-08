@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# shellcheck source=.github/actions/promote-to-stable-pulp/manifest.sh
-source "$(dirname "$0")/manifest.sh"
+# shellcheck source=.github/scripts/pulp/manifest.sh
+source "$(dirname "$0")/../../scripts/pulp/manifest.sh"
 
 # use the org-variable values, falling back to the defaults when passed empty
 # (an unset org variable is forwarded as an empty string, overriding the default)
@@ -132,7 +132,7 @@ while read -r PACKAGE; do
   wait_task "$TASK_HREF"
 
   # record the promoted package (with its stable suite coordinates) so the
-  # check-delivery-pulp step verifies exactly this set against the stable suite
+  # verification step verifies exactly this set against the stable suite
   NAME=$(echo "$PACKAGE" | jq -r '.package')
   VERSION=$(echo "$PACKAGE" | jq -r '.version')
   manifest_add "$(jq -cn \

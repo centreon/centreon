@@ -2,8 +2,8 @@
 set -euo pipefail
 shopt -s nullglob
 
-# shellcheck source=.github/actions/package-delivery-pulp/manifest.sh
-source "$(dirname "$0")/manifest.sh"
+# shellcheck source=.github/scripts/pulp/manifest.sh
+source "$(dirname "$0")/../../scripts/pulp/manifest.sh"
 
 # use the org-variable values, falling back to the defaults when passed empty
 # (an unset org variable is forwarded as an empty string, overriding the default)
@@ -149,7 +149,7 @@ for FILE in "${FILES[@]}"; do
   )
   wait_task "$TASK_HREF"
 
-  # record the uploaded package in the manifest for the check-delivery-pulp step
+  # record the uploaded package in the manifest for the verification step
   name=$(dpkg-deb -f "$FILE" Package)
   version=$(dpkg-deb -f "$FILE" Version)
   arch=$(dpkg-deb -f "$FILE" Architecture)

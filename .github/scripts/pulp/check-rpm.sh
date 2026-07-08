@@ -3,46 +3,14 @@
 # content units in their target pulp repository and (2) resolvable through the
 # published repodata (and actually fetchable from the content url).
 #
-# Source of the expected list: the manifest emitted by the delivery/promote step
-# (primary); a workspace glob of *.rpm using the repository properties (fallback,
-# delivery only). The script never exits early — see check-common.sh.
+# The expected list is the manifest emitted by the delivery/promote step. The
+# script never exits early — see check-common.sh.
 set -uo pipefail
-shopt -s nullglob
 
-# shellcheck source=.github/actions/check-delivery-pulp/check-common.sh
+# shellcheck source=.github/scripts/pulp/check-common.sh
 source "$(dirname "$0")/check-common.sh"
 
-# --- expected package list -------------------------------------------------
-if [[ -n "${MANIFEST:-}" && -s "${MANIFEST:-}" ]]; then
-  echo "[INFO] Reading expected RPM packages from manifest $MANIFEST"
-  PACKAGES_JSON=$(jq -c '.packages' "$MANIFEST")
-elif [[ "${CHECK_MODE:-delivery}" == "delivery" ]]; then
-  echo "[WARN] No manifest available, falling back to workspace *.rpm files"
-  entries=()
-  for FILE in *.rpm noarch/*.rpm x86_64/*.rpm; do
-    [[ -e "$FILE" ]] || continue
-    fn=$(basename "$FILE")
-    arch=$(echo "$fn" | grep -oP '(x86_64|noarch)' | head -1)
-    base=${fn%.rpm}; base=${base%."$arch"}
-    release=${base##*-}; base=${base%-*}; version=${base##*-}; name=${base%-*}
-    entries+=("$(jq -cn \
-      --arg filename "$fn" --arg name "$name" --arg version "$version" \
-      --arg release "$release" --arg arch "$arch" \
-      --arg repository "$REPOSITORY_PREFIX-$arch" --arg base_path "$BASE_PATH_PREFIX/$arch" \
-      '{filename:$filename,name:$name,version:$version,release:$release,arch:$arch,repository:$repository,base_path:$base_path}')")
-  done
-  if ((${#entries[@]})); then PACKAGES_JSON=$(printf '%s\n' "${entries[@]}" | jq -s '.'); else PACKAGES_JSON='[]'; fi
-else
-  echo "::error::check-delivery-pulp (promote) requires a manifest from the promote step"
-  exit 1
-fi
-
-COUNT=$(echo "$PACKAGES_JSON" | jq 'length')
-if [[ "$COUNT" -eq 0 ]]; then
-  echo "::error::No expected RPM package to verify"
-  exit 1
-fi
-echo "[INFO] $COUNT expected RPM package(s) to verify"
+load_expected "RPM"
 
 # --- load expected packages into parallel arrays ---------------------------
 mapfile -t E_FILENAME   < <(echo "$PACKAGES_JSON" | jq -r '.[].filename')
@@ -99,55 +67,41 @@ done
 
 # --- metadata resolvability + fetchability, with a bounded retry window -----
 declare -A META_IDX      # idx -> true|false
-declare -A HREF_IDX      # idx -> published location href
+declare -A RESOLVED_IDX  # idx -> published location href
 for i in "${!E_FILENAME[@]}"; do META_IDX[$i]=false; done
 
-deadline=$(( SECONDS + METADATA_TIMEOUT ))
-while :; do
-  declare -A PRIMARY_CACHE=()
-  all_resolved=true
-
+# one resolution round: fetch each base_path's primary.xml once, then match the
+# published href whose basename equals the expected filename
+resolve_pending() {
+  local -A primary_cache=()
+  local all_resolved=true i base_path repomd primary_href href
   for i in "${!E_FILENAME[@]}"; do
     [[ "${META_IDX[$i]}" == "true" ]] && continue
     base_path=${E_BASEPATH[$i]}
 
-    if [[ -z "${PRIMARY_CACHE[$base_path]+set}" ]]; then
+    if [[ -z "${primary_cache[$base_path]+set}" ]]; then
       repomd=$(curl -fsSL "$PULP_CONTENT_URL/$base_path/repodata/repomd.xml" 2>/dev/null || true)
       primary_href=$(printf '%s' "$repomd" | grep -oP '<location href="\K[^"]+primary\.xml[^"]*' | head -1 || true)
       if [[ -n "$primary_href" ]]; then
-        PRIMARY_CACHE[$base_path]=$(curl -fsSL "$PULP_CONTENT_URL/$base_path/$primary_href" 2>/dev/null | gunzip -c 2>/dev/null || true)
+        primary_cache[$base_path]=$(curl -fsSL "$PULP_CONTENT_URL/$base_path/$primary_href" 2>/dev/null | gunzip -c 2>/dev/null || true)
       else
-        PRIMARY_CACHE[$base_path]=""
+        primary_cache[$base_path]=""
       fi
     fi
 
-    # the published href whose basename matches the expected filename
-    href=$(printf '%s' "${PRIMARY_CACHE[$base_path]}" \
+    href=$(printf '%s' "${primary_cache[$base_path]}" \
       | grep -oP '<location[^>]*href="\K[^"]+' \
       | awk -F/ -v f="${E_FILENAME[$i]}" '$NF==f {print; exit}')
     if [[ -n "$href" ]]; then
       META_IDX[$i]=true
-      HREF_IDX[$i]=$href
+      RESOLVED_IDX[$i]=$href
     else
       all_resolved=false
     fi
   done
+  [[ "$all_resolved" == "true" ]]
+}
 
-  [[ "$all_resolved" == "true" ]] && break
-  [[ "$SECONDS" -ge "$deadline" ]] && { echo "[WARN] Metadata resolution timed out after ${METADATA_TIMEOUT}s"; break; }
-  echo "[INFO] Waiting ${METADATA_INTERVAL}s for repodata to publish..."
-  sleep "$METADATA_INTERVAL"
-done
-
-# --- fetchability + row accounting -----------------------------------------
-for i in "${!E_FILENAME[@]}"; do
-  fetchable=false
-  if [[ "${META_IDX[$i]}" == "true" ]]; then
-    url="$PULP_CONTENT_URL/${E_BASEPATH[$i]}/${HREF_IDX[$i]}"
-    code=$(curl -fsSL -o /dev/null -w '%{http_code}' -I "$url" 2>/dev/null || echo 000)
-    [[ "$code" == "200" ]] && fetchable=true
-  fi
-  record_row "${E_FILENAME[$i]}" "${E_ARCH[$i]}" "${PRESENT_IDX[$i]}" "${META_IDX[$i]}" "$fetchable"
-done
-
+wait_for_metadata
+check_fetchable_and_record
 render_summary
