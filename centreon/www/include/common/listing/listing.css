@@ -417,6 +417,12 @@
     top: -2px;
 }
 
+/* Hide the global breadcrumb on modern listings that carry the page title
+   (the object title replaces it). Scoped to titled listings only. */
+body:has(.cl-page-title) .pathway {
+    display: none;
+}
+
 .cl-listing-table .cl-col-picker .md-checkbox label {
     margin: 0;
     padding: 0;
