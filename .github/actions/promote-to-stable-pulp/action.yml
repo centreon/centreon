@@ -26,7 +26,7 @@ inputs:
   pulp_content_url:
     description: "The pulp server content url"
     required: false
-    default: "https://pulp-content.apps.centreon.com"
+    default: "https://packages.apps.centreon.com"
   audience:
     description: "OIDC audience, must match the pulp server GITHUB_OIDC.audience"
     required: false
