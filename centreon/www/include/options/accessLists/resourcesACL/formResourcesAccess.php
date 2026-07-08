@@ -170,12 +170,13 @@ $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><t
 
 // Form begin
 $form = new HTML_QuickFormCustom('Form', 'POST', '?p=' . $p);
+$aclResourceName = isset($acl['acl_res_name'])
+    ? CentreonUtils::escapeAll($acl['acl_res_name'])
+    : '';
 if ($o == RESOURCE_ACCESS_ADD) {
-    $form->addElement('header', 'title', _('Add an ACL'));
-} elseif ($o == RESOURCE_ACCESS_MODIFY) {
-    $form->addElement('header', 'title', _('Modify an ACL'));
-} elseif ($o == RESOURCE_ACCESS_WATCH) {
-    $form->addElement('header', 'title', _('View an ACL'));
+    $form->addElement('header', 'title', _('Resources ACL'));
+} elseif ($o == RESOURCE_ACCESS_MODIFY || $o == RESOURCE_ACCESS_WATCH) {
+    $form->addElement('header', 'title', _('Resources ACL') . ' - ' . $aclResourceName);
 }
 
 // LCA basic information
@@ -196,7 +197,7 @@ $allHosts[] = $form->createElement(
     'checkbox',
     'all_hosts',
     '&nbsp;',
-    '',
+    _('Include all hosts'),
     ['id' => 'all_hosts', 'onClick' => 'toggleTableDeps(this)']
 );
 $form->addGroup($allHosts, 'all_hosts', _('Include all hosts'), '&nbsp;&nbsp;');
@@ -206,7 +207,7 @@ $allHostgroups[] = $form->createElement(
     'checkbox',
     'all_hostgroups',
     '&nbsp;',
-    '',
+    _('Include all hostgroups'),
     ['id' => 'all_hostgroups', 'onClick' => 'toggleTableDeps(this)']
 );
 $form->addGroup($allHostgroups, 'all_hostgroups', _('Include all hostgroups'), '&nbsp;&nbsp;');
@@ -216,7 +217,7 @@ $allServiceGroups[] = $form->createElement(
     'checkbox',
     'all_servicegroups',
     '&nbsp;',
-    '',
+    _('Include all servicegroups'),
     ['id' => 'all_servicegroups', 'onClick' => 'toggleTableDeps(this)']
 );
 $form->addGroup($allServiceGroups, 'all_servicegroups', _('Include all servicegroups'), '&nbsp;&nbsp;');
@@ -226,7 +227,7 @@ $allImageFolders[] = $form->createElement(
     'checkbox',
     'all_image_folders',
     '&nbsp;',
-    '',
+    _('Include all image folders'),
     ['id' => 'all_image_folders', 'onClick' => 'toggleTableDeps(this)', 'checked' => true]
 );
 $form->addGroup($allImageFolders, 'all_image_folders', _('Include all image folders'), '&nbsp;&nbsp;');
@@ -234,18 +235,13 @@ $form->addGroup($allImageFolders, 'all_image_folders', _('Include all image fold
 // Contact implied
 $form->addElement('header', 'contacts_infos', _('People linked to this Access list'));
 
-$ams1 = $form->addElement(
-    'advmultiselect',
-    'acl_groups',
-    [_('Linked Groups'), _('Available'), _('Selected')],
-    $groups,
-    $attrsAdvSelect,
-    SORT_ASC
-);
-$ams1->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
-$ams1->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
-$ams1->setElementTemplate($eTemplate);
-echo $ams1->getElementJs(false);
+$wsRoute = './include/common/webServices/rest/internal.php?object=%s&action=list';
+$form->addElement('select2', 'acl_groups', _('Linked Access Groups'), [], [
+    'datasourceOrigin' => 'ajax',
+    'availableDatasetRoute' => sprintf($wsRoute, 'centreon_administration_aclgroup'),
+    'multiple' => true,
+    'linkedObject' => 'centreonAclGroup',
+]);
 
 $form->addElement('header', 'Host_infos', _('Shared Resources'));
 $form->addElement('header', 'Image_Folder_info', _('Shared image folders'));
@@ -280,137 +276,74 @@ $form->addElement(
 );
 
 // Pollers
-$ams0 = $form->addElement(
-    'advmultiselect',
-    'acl_pollers',
-    [_('Poller Filter'), _('Available'), _('Selected')],
-    $pollers,
-    $attrsAdvSelect,
-    SORT_ASC
-);
-$ams0->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
-$ams0->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
-$ams0->setElementTemplate($eTemplate);
-echo $ams0->getElementJs(false);
+$form->addElement('select2', 'acl_pollers', _('Poller Filter'), [], [
+    'datasourceOrigin' => 'ajax',
+    'availableDatasetRoute' => sprintf($wsRoute, 'centreon_configuration_poller'),
+    'multiple' => true,
+    'linkedObject' => 'centreonInstance',
+]);
 
 // Hosts
-$attrsAdvSelect['id'] = 'hostAdvancedSelect';
-$ams2 = $form->addElement(
-    'advmultiselect',
-    'acl_hosts',
-    [_('Hosts'), _('Available'), _('Selected')],
-    $hosts,
-    $attrsAdvSelect,
-    SORT_ASC
-);
-$ams2->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
-$ams2->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
-$ams2->setElementTemplate($eTemplate);
-echo $ams2->getElementJs(false);
+$form->addElement('select2', 'acl_hosts', _('Hosts'), [], [
+    'datasourceOrigin' => 'ajax',
+    'availableDatasetRoute' => sprintf($wsRoute, 'centreon_configuration_host'),
+    'multiple' => true,
+    'linkedObject' => 'centreonHost',
+]);
 
 // Host Groups
-$attrsAdvSelect['id'] = 'hostgroupAdvancedSelect';
-$ams2 = $form->addElement(
-    'advmultiselect',
-    'acl_hostgroup',
-    [_('Host Groups'), _('Available'), _('Selected')],
-    $hostGroups,
-    $attrsAdvSelect,
-    SORT_ASC
-);
-$ams2->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
-$ams2->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
-$ams2->setElementTemplate($eTemplate);
-echo $ams2->getElementJs(false);
+$form->addElement('select2', 'acl_hostgroup', _('Host Groups'), [], [
+    'datasourceOrigin' => 'ajax',
+    'availableDatasetRoute' => sprintf($wsRoute, 'centreon_configuration_hostgroup'),
+    'multiple' => true,
+    'linkedObject' => 'centreonHostgroups',
+]);
 
-unset($attrsAdvSelect['id']);
-
-$ams2 = $form->addElement(
-    'advmultiselect',
-    'acl_hostexclude',
-    [_('Exclude hosts from selected host groups'), _('Available'), _('Selected')],
-    $hostsToExclude,
-    $attrsAdvSelect,
-    SORT_ASC
-);
-$ams2->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
-$ams2->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
-$ams2->setElementTemplate($eTemplate);
-echo $ams2->getElementJs(false);
+// Hosts to exclude from the selected host groups
+$form->addElement('select2', 'acl_hostexclude', _('Exclude hosts from selected host groups'), [], [
+    'datasourceOrigin' => 'ajax',
+    'availableDatasetRoute' => sprintf($wsRoute, 'centreon_configuration_host'),
+    'multiple' => true,
+    'linkedObject' => 'centreonHost',
+]);
 
 // Service Filters
-$ams2 = $form->addElement(
-    'advmultiselect',
-    'acl_sc',
-    [_('Service Category Filter'), _('Available'), _('Selected')],
-    $serviceCategories,
-    $attrsAdvSelect,
-    SORT_ASC
-);
-$ams2->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
-$ams2->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
-$ams2->setElementTemplate($eTemplate);
-echo $ams2->getElementJs(false);
+$form->addElement('select2', 'acl_sc', _('Service Category Filter'), [], [
+    'datasourceOrigin' => 'ajax',
+    'availableDatasetRoute' => sprintf($wsRoute, 'centreon_configuration_servicecategory'),
+    'multiple' => true,
+    'linkedObject' => 'centreonServicecategories',
+]);
 
 // Host Filters
-$ams2 = $form->addElement(
-    'advmultiselect',
-    'acl_hc',
-    [_('Host Category Filter'), _('Available'), _('Selected')],
-    $hostCategories,
-    $attrsAdvSelect,
-    SORT_ASC
-);
-$ams2->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
-$ams2->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
-$ams2->setElementTemplate($eTemplate);
-echo $ams2->getElementJs(false);
+$form->addElement('select2', 'acl_hc', _('Host Category Filter'), [], [
+    'datasourceOrigin' => 'ajax',
+    'availableDatasetRoute' => sprintf($wsRoute, 'centreon_configuration_hostcategory'),
+    'multiple' => true,
+    'linkedObject' => 'centreonHostcategories',
+]);
 
-// Service Groups Add
-$attrsAdvSelect['id'] = 'servicegroupAdvancedSelect';
-$ams2 = $form->addElement(
-    'advmultiselect',
-    'acl_sg',
-    [_('Service Groups'), _('Available'), _('Selected')],
-    $serviceGroups,
-    $attrsAdvSelect,
-    SORT_ASC
-);
-$ams2->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
-$ams2->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
-$ams2->setElementTemplate($eTemplate);
-echo $ams2->getElementJs(false);
-unset($attrsAdvSelect['id']);
+// Service Groups
+$form->addElement('select2', 'acl_sg', _('Service Groups'), [], [
+    'datasourceOrigin' => 'ajax',
+    'availableDatasetRoute' => sprintf($wsRoute, 'centreon_configuration_servicegroup'),
+    'multiple' => true,
+    'linkedObject' => 'centreonServicegroups',
+]);
 
 // Meta Services
-$ams2 = $form->addElement(
-    'advmultiselect',
-    'acl_meta',
-    [_('Meta Services'), _('Available'), _('Selected')],
-    $metaServices,
-    $attrsAdvSelect,
-    SORT_ASC
-);
-$ams2->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
-$ams2->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
-$ams2->setElementTemplate($eTemplate);
-echo $ams2->getElementJs(false);
+$form->addElement('select2', 'acl_meta', _('Meta Services'), [], [
+    'datasourceOrigin' => 'ajax',
+    'availableDatasetRoute' => sprintf($wsRoute, 'centreon_configuration_meta'),
+    'multiple' => true,
+    'linkedObject' => 'centreonMeta',
+]);
 
-// Images
-$attrsAdvSelect['id'] = 'imageFolderAdvancedSelect';
-$ams2 = $form->addElement(
-    'advmultiselect',
-    'acl_image_folder',
-    [_('Image folders'), _('Available'), _('Selected')],
-    $imageFolders,
-    $attrsAdvSelect,
-    SORT_ASC
-);
-
-$ams2->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
-$ams2->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
-$ams2->setElementTemplate($eTemplate);
-echo $ams2->getElementJs(false);
+// Images (no ajax datasource exists for media directories, use a static select2;
+// its selected labels are rebuilt from $imageFolders further down, see $formDefaults).
+$form->addElement('select2', 'acl_image_folder', _('Image folders'), $imageFolders, [
+    'multiple' => true,
+]);
 
 // Further informations
 $form->addElement('header', 'furtherInfos', _('Additional Information'));
@@ -445,17 +378,47 @@ $formDefaults['all_servicegroups[all_servicegroups]'] = $formDefaults['all_servi
 // By default we want this to be checked
 $formDefaults['all_image_folders[all_image_folders]'] = $formDefaults['all_image_folders'] ?? '1';
 
+// Performance / safety on large estates: when an "Include all" flag is on, do not
+// preload the individual selection into its picker. Resolving tens of thousands of
+// pre-selected options (e.g. 50k hosts) would make the page extremely heavy. The
+// picker is left empty and the template shows a lightweight "--- All ... ---" hint.
+if ((int) $formDefaults['all_hosts[all_hosts]'] === 1) {
+    $formDefaults['acl_hosts'] = [];
+}
+if ((int) $formDefaults['all_hostgroups[all_hostgroups]'] === 1) {
+    $formDefaults['acl_hostgroup'] = [];
+}
+if ((int) $formDefaults['all_servicegroups[all_servicegroups]'] === 1) {
+    $formDefaults['acl_sg'] = [];
+}
+if ((int) $formDefaults['all_image_folders[all_image_folders]'] === 1) {
+    $formDefaults['acl_image_folder'] = [];
+}
+
+// The image folder picker uses a static select2 (no ajax datasource exists for media
+// directories). Rebuild its default as [label => id] so the selected folders render
+// with their names instead of raw ids.
+if (! empty($formDefaults['acl_image_folder'])) {
+    $labeledImageFolders = [];
+    foreach ($formDefaults['acl_image_folder'] as $dirId) {
+        if ((int) $dirId > 0 && isset($imageFolders[$dirId])) {
+            $labeledImageFolders[$imageFolders[$dirId]] = $dirId;
+        }
+    }
+    $formDefaults['acl_image_folder'] = $labeledImageFolders;
+}
+
 if ($o === RESOURCE_ACCESS_WATCH) {
     $form->addElement('button', 'change', _('Modify'), ['onClick' => "javascript:window.location.href='?p=" . $p . '&o=c&acl_id=' . $aclId . "'", 'class' => 'btc bt_success']);
     $form->setDefaults($formDefaults);
     $form->freeze();
 } elseif ($o === RESOURCE_ACCESS_MODIFY) {
     $subC = $form->addElement('submit', 'submitC', _('Save'), ['class' => 'btc bt_success']);
-    $res = $form->addElement('reset', 'reset', _('Delete'), ['class' => 'btc bt_danger']);
+    $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
     $form->setDefaults($formDefaults);
 } elseif ($o === RESOURCE_ACCESS_ADD) {
     $subA = $form->addElement('submit', 'submitA', _('Save'), ['class' => 'btc bt_success']);
-    $res = $form->addElement('reset', 'reset', _('Delete'), ['class' => 'btc bt_danger']);
+    $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
 }
 $tpl->assign('msg', ['changeL' => 'main.php?p=' . $p . '&o=c&lca_id=' . $aclId, 'changeT' => _('Modify')]);
 
@@ -510,8 +473,8 @@ if ($form->validate()) {
         $tpl->assign('form', $renderer->toArray());
         $tpl->assign('o', $o);
         $tpl->assign('sort1', _('General Information'));
-        $tpl->assign('sort2', _('Host Resources'));
-        $tpl->assign('sort3', _('Service Resources'));
+        $tpl->assign('sort2', _('Hosts'));
+        $tpl->assign('sort3', _('Services'));
         $tpl->assign('sort4', _('Meta Services'));
         $tpl->assign('sort5', _('Filters'));
         $tpl->assign('sort6', _('Image folders'));
@@ -521,9 +484,14 @@ if ($form->validate()) {
 ?>
 <script type='text/javascript'>
     function toggleTableDeps(element) {
-        jQuery(element).parents('td.FormRowValue:first').children('table').toggle(
-            !jQuery(element).is(':checked')
-        );
+        // When the matching "include all" checkbox is ticked, hide the individual
+        // picker entirely and show a lightweight "--- All ... ---" placeholder
+        // instead. This keeps the page fast on large estates (the picker is also
+        // left empty server-side, so nothing heavy is loaded or rendered).
+        var on = jQuery(element).is(':checked');
+        var row = jQuery(element).closest('.cf-row');
+        row.find('.cf-field').toggle(!on);
+        row.find('.cf-all-placeholder').toggle(on);
     }
 
     jQuery(() => {

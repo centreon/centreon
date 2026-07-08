@@ -1,226 +1,322 @@
 <script type="text/javascript" src="./include/common/javascript/tool.js"></script>
 {$form.javascript}
+<link href="./include/common/form/form.css" rel="stylesheet" type="text/css" />
+
+{literal}
+<style type="text/css">
+/* The generic .cf-field label rule (used for floating labels) forces every label
+   inside a field to be absolutely positioned and non-clickable. That breaks the
+   "Include all ..." md-checkbox labels, which must stay inline and clickable to
+   toggle the (visually hidden) checkbox. Restore them here. */
+.cf-field .md-checkbox label,
+.cf-acl-pickhead .md-checkbox label {
+    position: static;
+    top: auto; left: auto;
+    pointer-events: auto;
+    z-index: auto;
+    font-size: 13px;
+    color: var(--list-color, #333);
+    background: transparent;
+}
+/* Header row above a full-width picker: label on the left, "Include all" on the right */
+.cf-acl-pickhead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+.cf-acl-pickhead .cf-acl-picklabel {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--list-color, #555);
+}
+/* Lightweight placeholder shown in place of the picker when "Include all" is on */
+.cf-all-placeholder {
+    padding: 10px 12px;
+    border: 1px dashed var(--color-divider, #cfd6df);
+    border-radius: 6px;
+    background: #f6f7f9;
+    color: var(--body-color, #888);
+    font-size: 13px;
+    font-style: italic;
+}
+</style>
+{/literal}
+
 <form {$form.attributes}>
-<div class="headerTabContainer">
-<ul id="mainnav">
-	<li class="a" id='c1'><a href="#" onclick="javascript:montre('1');">{$sort1}</a></li>
-	<li class="b" id='c2'><a href="#" onclick="javascript:montre('2');">{$sort2}</a></li>
-	<li class="b" id='c3'><a href="#" onclick="javascript:montre('3');">{$sort3}</a></li>
-	<li class="b" id='c4'><a href="#" onclick="javascript:montre('4');">{$sort4}</a></li>
-	<li class="b" id='c5'><a href="#" onclick="javascript:montre('5');">{$sort5}</a></li>
-	<li class="b" id='c6'><a href="#" onclick="javascript:montre('6');">{$sort6}</a></li>
-</ul>
-<div id="validFormTop">
-{if $o == "a" || $o == "c"}
-	<p class="oreonbutton">
-    {if isset($form.submitC)}
-        {$form.submitC.html}
-    {else}
-        {$form.submitA.html}
-    {/if}
-    &nbsp;&nbsp;&nbsp;{$form.reset.html}</p>
-{else if $o == "w"}
-	<p class="oreonbutton">{if isset($form.change)}{$form.change.html}{/if}</p>
-{/if}
-</div>
-</div>
-<div id='tab1' class="tab">
-	 <table class="formTable table">
-	 	<tr class="ListHeader">
-          <td class="FormHeader" colspan="2">
-            <h3>| {$form.header.title}</h3>
-          </td>
-        </tr>
-	 	<tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{$form.header.information}</h4>
-          </td>
-        </tr>
-		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_access_list_name">{$form.acl_res_name.label}</td><td class="FormRowValue">{$form.acl_res_name.html}</td></tr>
-		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_description">{$form.acl_res_alias.label}</td><td class="FormRowValue">{$form.acl_res_alias.html}</td></tr>
+<div class="cf-form-wrapper">
 
-	 	<tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{$form.header.contacts_infos}</h4>
-          </td>
-        </tr>
-		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_linked_groups">{$form.acl_groups.label}</td><td class="FormRowValue">{$form.acl_groups.html}</td></tr>
-	 	<tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{$form.header.furtherInfos}</h4>
-          </td>
-        </tr>
-		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_status">{$form.acl_res_activate.label}</td><td class="FormRowValue">{$form.acl_res_activate.html}</td></tr>
-		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_comments">{$form.acl_res_comment.label}</td><td class="FormRowValue">{$form.acl_res_comment.html}</td></tr>
-		<tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2">
-                {if isset($form.required)}
-                    {$form.required._note}
-                {/if}
-            </td></tr>
-	</table>
-</div>
-<div id='tab2' class="tab">
-	<table class="formTable table">
-		<tr class="ListHeader">
-          <td class="FormHeader" colspan="2">
-            <h3>| {$form.header.title}</h3>
-          </td>
-        </tr>
-	 	<tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{$form.header.Host_infos}</h4>
-          </td>
-        </tr>
-	 	<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_hosts">&nbsp;{$form.acl_hosts.label}</td><td class="FormRowValue">{$form.all_hosts.label}&nbsp;{$form.all_hosts.html}<br/>{$form.acl_hosts.html}</td></tr>
-	 	<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_host_groups">&nbsp;{$form.acl_hostgroup.label}</td><td class="FormRowValue">{$form.all_hostgroups.label}&nbsp;{$form.all_hostgroups.html}<br/>{$form.acl_hostgroup.html}</td></tr>
-		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_exclude_hosts_from_selected_host_groups"><img src='./img/icons/warning.png' class="ico-16">&nbsp;{$form.acl_hostexclude.label}</td><td class="FormRowValue">{$form.acl_hostexclude.html}</td></tr>
-		<tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{$form.header.help}</h4>
-          </td>
-        </tr>
-		<tr class="list_one"><td class="FormRowValue" colspan="2">{$form.header.HSharedExplain}</td></tr>
-		<tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2">
-                {if isset($form.required)}
-                    {$form.required._note}
-                {/if}
-            </td></tr>
-	</table>
-</div>
-<div id='tab3' class="tab">
-	 <table class="formTable table">
-	 	<tr class="ListHeader">
-          <td class="FormHeader" colspan="2">
-            <h3>| {$form.header.title}</h3>
-          </td>
-        </tr>
-	 	<tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{$form.header.Host_infos}</h4>
-          </td>
-        </tr>
-		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_service_groups">&nbsp;{$form.acl_sg.label}</td><td class="FormRowValue">{$form.all_servicegroups.label}&nbsp;{$form.all_servicegroups.html}<br/>{$form.acl_sg.html}</td></tr>
-		<tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{$form.header.help}</h4>
-          </td>
-        </tr>
-		<tr class="list_one"><td class="FormRowValue" colspan="2">{$form.header.SSharedExplain}</td></tr>
-		<tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2">
-                {if isset($form.required)}
-                    {$form.required._note}
-                {/if}
-            </td></tr>
-	</table>
-</div>
-<div id='tab4' class="tab">
-	 <table class="formTable table">
-	 	<tr class="ListHeader">
-          <td class="FormHeader" colspan="2">
-            <h3>| {$form.header.title}</h3>
-          </td>
-        </tr>
-	 	<tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{$form.header.Host_infos}</h4>
-          </td>
-        </tr>
-		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_meta_services">{$form.acl_meta.label}</td><td class="FormRowValue">{$form.acl_meta.html}</td></tr>
-		<tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{$form.header.help}</h4>
-          </td>
-        </tr>
-		<tr class="list_one"><td class="FormRowValue" colspan="2">{$form.header.MSSharedExplain}</td></tr>
-		<tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2">
-                {if isset($form.required)}
-                    {$form.required._note}
-                {/if}
-            </td></tr>
-	</table>
-</div>
-<div id='tab5' class="tab">
-	<table class="formTable table">
-	 	<tr class="ListHeader">
-          <td class="FormHeader" colspan="2">
-            <h3>| {$form.header.title}</h3>
-          </td>
-        </tr>
-	 	<tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{$form.header.services}</h4>
-          </td>
-        </tr>
-		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_poller_filter">&nbsp;{$form.acl_pollers.label}</td><td class="FormRowValue">{$form.acl_pollers.html}</td></tr>
-		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_host_category_filter">&nbsp;{$form.acl_hc.label}</td><td class="FormRowValue">{$form.acl_hc.html}</td></tr>
-		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_service_category_filter">&nbsp;{$form.acl_sc.label}</td><td class="FormRowValue">{$form.acl_sc.html}</td></tr>
-		<tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{$form.header.help}</h4>
-          </td>
-        </tr>
-		<tr class="list_two"><td class="FormRowValue" colspan="2">{$form.header.FilterExplain}</td></tr>
-		<tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2">
-                {if isset($form.required)}
-                    {$form.required._note}
-                {/if}
-            </td></tr>
-	</table>
-</div>
-<div id="tab6" class="tab">
-  <table class="formTable table">
-    <tr class="ListHeader">
-      <td class="FormHeader" colspan="2">
-        <h3>| {$form.header.title}</h3>
-      </td>
-    </tr>
-    <tr class="list_lvl_1">
-      <td class="ListColLvl1_name" colspan="2">
-        <h4>{$form.header.Image_Folder_info}</h4>
-      </td>
-    </tr>
-    <tr class="list_two">
-      <td class="FormRowField">
-        <img class="helpTooltip" name="tip_image_folder">&nbsp;{$form.acl_image_folder.label}
-      </td>
-      <td class="FormRowValue">
-        {$form.all_image_folders.label}&nbsp;{$form.all_image_folders.html}<br />
-        {$form.acl_image_folder.html}
-      </td>
-    </tr>
-    <tr class="list_lvl_1">
-      <td class="ListColLvl1_name" colspan="2">
-        <h4>{$form.header.help}</h4>
-      </td>
-    </tr>
-    <tr class="list_one">
-      <td class="FormRowValue" colspan="2">
-        {$form.header.ImageFoldersSharedExplain}
-      </td>
-    </tr>
-    <tr class="list_lvl_1">
-      <td class="ListColLvl1_name" colspan="2">
-        {if isset($form.required)}
-          {$form.required._note}
+    <h1 class="cf-page-title">{$form.header.title}</h1>
+
+    <div class="cf-tab-nav">
+        <a href="#cf-sec-1" class="active" onclick="cfScrollTo('cf-sec-1', this); return false;">{$sort1}</a>
+        <a href="#cf-sec-2" onclick="cfScrollTo('cf-sec-2', this); return false;">{$sort2}</a>
+        <a href="#cf-sec-3" onclick="cfScrollTo('cf-sec-3', this); return false;">{$sort3}</a>
+        <a href="#cf-sec-4" onclick="cfScrollTo('cf-sec-4', this); return false;">{$sort4}</a>
+        <a href="#cf-sec-5" onclick="cfScrollTo('cf-sec-5', this); return false;">{$sort5}</a>
+        <a href="#cf-sec-6" onclick="cfScrollTo('cf-sec-6', this); return false;">{$sort6}</a>
+        <a href="#cf-sec-misc" onclick="cfScrollTo('cf-sec-misc', this); return false;">{t}Misc{/t}</a>
+    </div>
+
+    <!-- Section 1: General -->
+    <div class="cf-section" id="cf-sec-1">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$sort1}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.acl_res_name.html}
+                    <label class="cf-label-float">{$form.acl_res_name.label}</label>
+                    <img class="helpTooltip" name="tip_access_list_name">
+                </div>
+                <div class="cf-field">
+                    {$form.acl_res_alias.html}
+                    <label class="cf-label-float">{$form.acl_res_alias.label}</label>
+                    <img class="helpTooltip" name="tip_description">
+                </div>
+                <div class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                    <span>{$form.acl_res_activate.label}</span>
+                    <label class="cl-toggle">
+                        <input type="checkbox" id="cf-acl-res-activate-toggle" />
+                        <span class="cl-toggle-slider"></span>
+                    </label>
+                    <span style="display:none;">{$form.acl_res_activate.html}</span>
+                </div>
+            </div>
+            <div style="margin:18px 0 22px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Assign people to this access list{/t}</div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.acl_groups.html}
+                    <label class="cf-label-float">{$form.acl_groups.label}</label>
+                    <img class="helpTooltip" name="tip_linked_groups">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Hosts resources -->
+    <div class="cf-section" id="cf-sec-2">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$sort2}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row">
+                <div class="cf-acl-pickhead">
+                    <span class="cf-acl-picklabel">{t}Select host one by one{/t}</span>
+                    <span class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                        <span>{t}Include All{/t}</span>
+                        <label class="cl-toggle">
+                            <input type="checkbox" id="cf-all-hosts-toggle" />
+                            <span class="cl-toggle-slider"></span>
+                        </label>
+                        <img class="helpTooltip" name="tip_hosts">
+                        <span style="display:none;">{$form.all_hosts.html}</span>
+                    </span>
+                </div>
+                <div class="cf-field">
+                    {$form.acl_hosts.html}
+                </div>
+                <div class="cf-all-placeholder" style="display:none;">--- {t}All Hosts{/t} ---</div>
+            </div>
+
+            <!-- Host groups -->
+            <div style="margin:18px 0 16px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Host groups{/t}</div>
+            <div class="cf-row">
+                <div class="cf-acl-pickhead">
+                    <span class="cf-acl-picklabel">{t}Select hosts by Hostgroups{/t}</span>
+                    <span class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                        <span>{t}Include All{/t}</span>
+                        <label class="cl-toggle">
+                            <input type="checkbox" id="cf-all-hostgroups-toggle" />
+                            <span class="cl-toggle-slider"></span>
+                        </label>
+                        <img class="helpTooltip" name="tip_host_groups">
+                        <span style="display:none;">{$form.all_hostgroups.html}</span>
+                    </span>
+                </div>
+                <div class="cf-field">
+                    {$form.acl_hostgroup.html}
+                </div>
+                <div class="cf-all-placeholder" style="display:none;">--- {t}All Host groups{/t} ---</div>
+            </div>
+
+            <!-- Exclusions -->
+            <div style="margin:18px 0 16px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Exclusions{/t}</div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.acl_hostexclude.html}
+                    <label class="cf-label-float"><img src='./img/icons/warning.png' class="ico-16">&nbsp;{$form.acl_hostexclude.label}</label>
+                    <img class="helpTooltip" name="tip_exclude_hosts_from_selected_host_groups">
+                </div>
+            </div>        </div>
+    </div>
+
+    <!-- Section 3: Service groups -->
+    <div class="cf-section" id="cf-sec-3">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$sort3}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row">
+                <div class="cf-acl-pickhead">
+                    <span class="cf-acl-picklabel">{t}Select Service groups{/t}</span>
+                    <span class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                        <span>{t}Include All{/t}</span>
+                        <label class="cl-toggle">
+                            <input type="checkbox" id="cf-all-servicegroups-toggle" />
+                            <span class="cl-toggle-slider"></span>
+                        </label>
+                        <img class="helpTooltip" name="tip_service_groups">
+                        <span style="display:none;">{$form.all_servicegroups.html}</span>
+                    </span>
+                </div>
+                <div class="cf-field">
+                    {$form.acl_sg.html}
+                </div>
+                <div class="cf-all-placeholder" style="display:none;">--- {t}All Service groups{/t} ---</div>
+            </div>        </div>
+    </div>
+
+    <!-- Section 4: Meta services -->
+    <div class="cf-section" id="cf-sec-4">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$sort4}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.acl_meta.html}
+                    <label class="cf-label-float">{$form.acl_meta.label}</label>
+                    <img class="helpTooltip" name="tip_meta_services">
+                </div>
+            </div>        </div>
+    </div>
+
+    <!-- Section 5: Filters -->
+    <div class="cf-section" id="cf-sec-5">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$sort5}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.acl_pollers.html}
+                    <label class="cf-label-float">{$form.acl_pollers.label}</label>
+                    <img class="helpTooltip" name="tip_poller_filter">
+                </div>
+            </div>
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.acl_hc.html}
+                    <label class="cf-label-float">{$form.acl_hc.label}</label>
+                    <img class="helpTooltip" name="tip_host_category_filter">
+                </div>
+                <div class="cf-field">
+                    {$form.acl_sc.html}
+                    <label class="cf-label-float">{$form.acl_sc.label}</label>
+                    <img class="helpTooltip" name="tip_service_category_filter">
+                </div>
+            </div>        </div>
+    </div>
+
+    <!-- Section 6: Image folders -->
+    <div class="cf-section" id="cf-sec-6">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$sort6}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row">
+                <div class="cf-acl-pickhead">
+                    <span class="cf-acl-picklabel">{t}Select Image folders{/t}</span>
+                    <span class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                        <span>{t}Include All{/t}</span>
+                        <label class="cl-toggle">
+                            <input type="checkbox" id="cf-all-imagefolders-toggle" />
+                            <span class="cl-toggle-slider"></span>
+                        </label>
+                        <img class="helpTooltip" name="tip_image_folder">
+                        <span style="display:none;">{$form.all_image_folders.html}</span>
+                    </span>
+                </div>
+                <div class="cf-field">
+                    {$form.acl_image_folder.html}
+                </div>
+                <div class="cf-all-placeholder" style="display:none;">--- {t}All Image folders{/t} ---</div>
+            </div>        </div>
+    </div>
+
+    <!-- Section: Misc -->
+    <div class="cf-section" id="cf-sec-misc">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {t}Misc{/t}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.acl_res_comment.html}
+                    <label class="cf-label-float">{$form.acl_res_comment.label}</label>
+                    <img class="helpTooltip" name="tip_comments">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="cf-actions">
+        {if $o == "a" || $o == "c"}
+            {$form.reset.html}
+            {if isset($form.submitC)}
+                {$form.submitC.html}
+            {else}
+                {$form.submitA.html}
+            {/if}
+        {else if $o == "w"}
+            {if isset($form.change)}{$form.change.html}{/if}
         {/if}
-      </td>
-    </tr>
+    </div>
 
-  </table>
 </div>
-<div id="validForm">
-{if $o == "a" || $o == "c"}
-	<p>
-    {if isset($form.submitC)}
-        {$form.submitC.html}
-    {else}
-        {$form.submitA.html}
-    {/if}
-    &nbsp;&nbsp;&nbsp;{$form.reset.html}</p>
-{else if $o == "w"}
-	<p>{$form.change.html}</p>
-{/if}
-</div>
+
 {$form.hidden}
 </form>
 {$helptext}
+
+{literal}
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    CentreonForm.initFormPage();
+    CentreonForm.syncToggle('cf-acl-res-activate-toggle', 'acl_res_activate', '1', '0');
+
+    // Bind the iPhone-style toggles to their hidden "Include all" checkboxes,
+    // and grey out the matching picker accordingly.
+    function cfSyncAllToggle(toggleId, checkboxId) {
+        var toggle = document.getElementById(toggleId);
+        var checkbox = document.getElementById(checkboxId);
+        if (!toggle || !checkbox) return;
+        toggle.checked = checkbox.checked;
+        if (typeof toggleTableDeps === 'function') {
+            toggleTableDeps(jQuery(checkbox));
+        }
+        toggle.addEventListener('change', function () {
+            checkbox.checked = toggle.checked;
+            if (typeof toggleTableDeps === 'function') {
+                toggleTableDeps(jQuery(checkbox));
+            }
+        });
+    }
+    cfSyncAllToggle('cf-all-hosts-toggle', 'all_hosts');
+    cfSyncAllToggle('cf-all-hostgroups-toggle', 'all_hostgroups');
+    cfSyncAllToggle('cf-all-servicegroups-toggle', 'all_servicegroups');
+    cfSyncAllToggle('cf-all-imagefolders-toggle', 'all_image_folders');
+});
+</script>
+{/literal}
