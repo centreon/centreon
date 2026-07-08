@@ -26,10 +26,8 @@ namespace App\Shared\Infrastructure\Symfony;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Query\AsQueryHandler;
 use App\Shared\Domain\Event\AsEventHandler;
-use App\Shared\Infrastructure\Messenger\AllowNoHandlersOnEventBusPass;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\ChildDefinition;
-use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
@@ -87,14 +85,6 @@ final class Kernel extends BaseKernel
         $container->registerAttributeForAutoconfiguration(AsEventHandler::class, static function (ChildDefinition $definition): void {
             $definition->addTag('messenger.message_handler', ['bus' => 'event.bus']);
         });
-
-        // Workaround for symfony/symfony#64529 (Symfony 8.1.0 drops the event.bus
-        // allow_no_handlers flag). Runs after MessengerPass/ResolveChildDefinitionsPass
-        // so the resolved handle_message middleware definition exists.
-        $container->addCompilerPass(
-            new AllowNoHandlersOnEventBusPass(),
-            PassConfig::TYPE_BEFORE_REMOVING,
-        );
     }
 
     /**
