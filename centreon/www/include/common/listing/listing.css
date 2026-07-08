@@ -432,7 +432,7 @@ body:has(.cl-page-title) .pathway {
 }
 .cl-title-sep {
     border: none;
-    border-top: 1px solid var(--color-divider, #e3e3e3);
+    border-top: 1px solid rgba(0,0,0,0.045);
     margin: 0 0 8px;
 }
 
