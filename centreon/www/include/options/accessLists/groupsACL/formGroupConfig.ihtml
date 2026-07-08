@@ -1,106 +1,119 @@
 <script type="text/javascript" src="./include/common/javascript/tool.js"></script>
 {$form.javascript}
+<link href="./include/common/form/form.css" rel="stylesheet" type="text/css" />
+
 <form {$form.attributes}>
-	<div class="headerTabContainer">
-	<ul id="mainnav">
-		<li class="a" id='c1'><a href="#" onclick="javascript:montre('1');">{$sort1}</a></li>
-		<li class="b" id='c2'><a href="#" onclick="javascript:montre('2');">{$sort2}</a></li>
-	</ul>
-    <div id="validFormTop">
-	{if $o == "a" || $o == "c"}
-		<p class="oreonbutton">
-			{if isset($form.submitC)}
-				{$form.submitC.html}
-			{else}
-				{$form.submitA.html}
-			{/if}
-			&nbsp;&nbsp;&nbsp;{$form.reset.html}</p>
-	{else if $o == "w"}
-		<p class="oreonbutton">{if isset($form.change)}{$form.change.html}{/if}</p>
-	{/if}
-	</div>
-	</div>
-	<div id='tab1' class='tab'>
- 	 <table class="formTable table">
-	 	<tr class="ListHeader">
-          <td class="FormHeader" colspan="2">
-            <h3>| {$form.header.title}</h3>
-          </td>
-        </tr>	 	
-	 	<tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{$form.header.information}</h4>
-          </td>
-        </tr>
-		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_group_name">{$form.acl_group_name.label}</td><td class="FormRowValue">{$form.acl_group_name.html}</td></tr>
-		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_alias">{$form.acl_group_alias.label}</td><td class="FormRowValue">{$form.acl_group_alias.html}</td></tr>
-	 	<tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{$form.header.notification}</h4>
-          </td>
-        </tr>
-		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_linked_contacts">{$form.cg_contacts.label}</td><td class="FormRowValue">{$form.cg_contacts.html}</td></tr>
-	 	<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="tip_linked_contact_groups">{$form.cg_contactGroups.label}</td><td class="FormRowValue">{$form.cg_contactGroups.html}</td></tr>
-	 	<tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{$form.header.furtherInfos}</h4>
-          </td>
-        </tr>
-		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_status">{$form.acl_group_activate.label}</td><td class="FormRowValue">{$form.acl_group_activate.html}</td></tr>
-		{if $o == "a" || $o == "c"}
-			<tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2">
-                {if isset($form.required)}
-                    {$form.required._note}
-                {/if}
-            </td></tr>
-		{/if}
-	</table>
-	</div>
-	<div id='tab2' class='tab'>
-	 <table class="formTable table">
-	 	<tr class="ListHeader">
-          <td class="FormHeader" colspan="2">
-            <h3>| {$form.header.title}</h3>
-          </td>
-        </tr>
-		<tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{$form.header.resource}</h4>
-          </td>
-        </tr>
-		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_resources_access">{$form.resourceAccess.label}</td><td class="FormRowValue">{$form.resourceAccess.html}</td></tr>
-		<tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{$form.header.menu}</h4>
-          </td>
-        </tr>
-		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_menu_access">{$form.menuAccess.label}</td><td class="FormRowValue">{$form.menuAccess.html}</td></tr>
-	 	<tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{$form.header.actions}</h4>
-          </td>
-        </tr>
-		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_actions_access">{$form.actionAccess.label}</td><td class="FormRowValue">{$form.actionAccess.html}</td></tr>
-		<tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2">
-                {if isset($form.required)}
-                    {$form.required._note}
-                {/if}
-            </td></tr>
-	</table>
-	</div>
-	<div id="validForm">
-	{if $o == "a" || $o == "c"}
-		<p class="oreonbutton">
-			{if isset($form.submitC)}
-				{$form.submitC.html}
-			{else}
-				{$form.submitA.html}
-			{/if}
-			&nbsp;&nbsp;&nbsp;{$form.reset.html}</p>
-	{else if $o == "w"}
-		<p class="oreonbutton">{if isset($form.change)}{$form.change.html}{/if}</p>
-	{/if}
-	</div>
-	{$form.hidden}
+<div class="cf-form-wrapper">
+
+    <h1 class="cf-page-title">{$form.header.title}</h1>
+
+    <div class="cf-tab-nav">
+        <a href="#cf-sec-info" class="active" onclick="cfScrollTo('cf-sec-info', this); return false;">{$sort1}</a>
+        <a href="#cf-sec-access" onclick="cfScrollTo('cf-sec-access', this); return false;">{$sort2}</a>
+    </div>
+
+    <!-- Section: General -->
+    <div class="cf-section" id="cf-sec-info">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$form.header.information}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.acl_group_name.html}
+                    <label class="cf-label-float">{$form.acl_group_name.label}</label>
+                    <img class="helpTooltip" name="tip_group_name">
+                </div>
+                <div class="cf-field">
+                    {$form.acl_group_alias.html}
+                    <label class="cf-label-float">{$form.acl_group_alias.label}</label>
+                    <img class="helpTooltip" name="tip_alias">
+                </div>
+                <div class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                    <span>{$form.acl_group_activate.label}</span>
+                    <label class="cl-toggle">
+                        <input type="checkbox" id="cf-acl-group-activate-toggle" />
+                        <span class="cl-toggle-slider"></span>
+                    </label>
+                    <span style="display:none;">{$form.acl_group_activate.html}</span>
+                </div>
+            </div>
+
+            <div class="cf-subsection">{$form.header.notification}</div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.cg_contacts.html}
+                    <label class="cf-label-float">{$form.cg_contacts.label}</label>
+                    <img class="helpTooltip" name="tip_linked_contacts">
+                </div>
+            </div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.cg_contactGroups.html}
+                    <label class="cf-label-float">{$form.cg_contactGroups.label}</label>
+                    <img class="helpTooltip" name="tip_linked_contact_groups">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section: Authorizations -->
+    <div class="cf-section" id="cf-sec-access">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$sort2}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.resourceAccess.html}
+                    <label class="cf-label-float">{$form.resourceAccess.label}</label>
+                    <img class="helpTooltip" name="tip_resources_access">
+                </div>
+            </div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.menuAccess.html}
+                    <label class="cf-label-float">{$form.menuAccess.label}</label>
+                    <img class="helpTooltip" name="tip_menu_access">
+                </div>
+            </div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.actionAccess.html}
+                    <label class="cf-label-float">{$form.actionAccess.label}</label>
+                    <img class="helpTooltip" name="tip_actions_access">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="cf-actions">
+        {if $o == "a" || $o == "c"}
+            {$form.reset.html}
+            {if isset($form.submitC)}
+                {$form.submitC.html}
+            {else}
+                {$form.submitA.html}
+            {/if}
+        {else if $o == "w"}
+            {if isset($form.change)}{$form.change.html}{/if}
+        {/if}
+    </div>
+
+</div>
+
+{$form.hidden}
 </form>
 {$helptext}
+
+{literal}
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    CentreonForm.initFormPage();
+    CentreonForm.syncToggle('cf-acl-group-activate-toggle', 'acl_group_activate', '1', '0');
+});
+</script>
+{/literal}
