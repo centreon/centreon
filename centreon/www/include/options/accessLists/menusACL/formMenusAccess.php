@@ -138,12 +138,13 @@ $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><t
 // Form begin
 
 $form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
+$aclMenuName = isset($acl['acl_topo_name'])
+    ? CentreonUtils::escapeAll($acl['acl_topo_name'])
+    : '';
 if ($o === ACL_ADD) {
-    $form->addElement('header', 'title', _('Add an ACL'));
-} elseif ($o === ACL_MODIFY) {
-    $form->addElement('header', 'title', _('Modify an ACL'));
-} elseif ($o === ACL_WATCH) {
-    $form->addElement('header', 'title', _('View an ACL'));
+    $form->addElement('header', 'title', _('Menu ACL'));
+} elseif ($o === ACL_MODIFY || $o === ACL_WATCH) {
+    $form->addElement('header', 'title', _('Menu ACL') . ' - ' . $aclMenuName);
 }
 
 // LCA basic information
@@ -151,23 +152,14 @@ $form->addElement('header', 'information', _('General Information'));
 $form->addElement('text', 'acl_topo_name', _('ACL Definition'), $attrsText);
 $form->addElement('text', 'acl_topo_alias', _('Alias'), $attrsText);
 
-/** @var HTML_QuickForm_advmultiselect $ams1 */
-$ams1 = $form->addElement(
-    'advmultiselect',
-    'acl_groups',
-    [
-        _('Linked Groups'),
-        _('Available'),
-        _('Selected'),
-    ],
-    $groups,
-    $attrsAdvSelect,
-    SORT_ASC
-);
-$ams1->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
-$ams1->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
-$ams1->setElementTemplate($eTemplate);
-echo $ams1->getElementJs(false);
+$aclgRoute = './include/common/webServices/rest/internal.php?object=centreon_administration_aclgroup&action=list';
+$attrAclgroups = [
+    'datasourceOrigin' => 'ajax',
+    'availableDatasetRoute' => $aclgRoute,
+    'multiple' => true,
+    'linkedObject' => 'centreonAclGroup',
+];
+$form->addElement('select2', 'acl_groups', _('Linked Groups'), [], $attrAclgroups);
 
 $tab = [];
 $tab[] = $form->createElement('radio', 'acl_topo_activate', null, _('Enabled'), '1');
@@ -369,11 +361,11 @@ if ($o === ACL_WATCH) {
     $form->freeze();
 } elseif ($o === ACL_MODIFY) { // Modify a LCA information
     $subC = $form->addElement('submit', 'submitC', _('Save'), ['class' => 'btc bt_success']);
-    $res = $form->addElement('reset', 'reset', _('Delete'), ['class' => 'btc bt_danger']);
+    $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
     $form->setDefaults($acl);
 } elseif ($o === ACL_ADD) {  // Add a LCA information
     $subA = $form->addElement('submit', 'submitA', _('Save'), ['class' => 'btc bt_success']);
-    $res = $form->addElement('reset', 'reset', _('Delete'), ['class' => 'btc bt_danger']);
+    $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
 }
 $tpl->assign('msg', ['changeL' => 'main.php?p=' . $p . '&o=c&lca_id=' . $aclTopologyId, 'changeT' => _('Modify')]);
 
