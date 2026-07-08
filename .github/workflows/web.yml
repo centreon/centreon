@@ -1330,7 +1330,8 @@ jobs:
       [
         changes,
         get-environment,
-        e2e-test
+        e2e-test,
+        bruno-api-test
       ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
