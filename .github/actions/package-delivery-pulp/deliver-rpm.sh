@@ -8,7 +8,7 @@ source "$(dirname "$0")/manifest.sh"
 # use the org-variable values, falling back to the defaults when passed empty
 # (an unset org variable is forwarded as an empty string, overriding the default)
 PULP_URL="${PULP_URL:-https://pulp-api.apps.centreon.com}"
-PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://pulp-content.apps.centreon.com}"
+PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://packages.apps.centreon.com}"
 
 # wait for a pulp api task to complete
 wait_task() {

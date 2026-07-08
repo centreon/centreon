@@ -76,7 +76,7 @@ services:
     image: "${VAULT_IMAGE:-ghcr.io/centreon/centreon/vault:26.05}"
     env_file:
       - .env
-    ports: ["8200"]
+    ports: ["127.0.0.1:8200:8200"]
     profiles: ["vault"]
 
   openid:

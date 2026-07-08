@@ -21,22 +21,22 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\Exceptions;
+namespace Core\Common\Application;
 
-class VaultException extends \Exception
+use Core\Common\Infrastructure\FeatureFlags;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+
+class VaultEligibilityService
 {
-    public static function unableToMigrateCredentials(): self
-    {
-        return new self(_('Unable to migrate passwords'));
+    public function __construct(
+        private readonly FeatureFlags $featureFlags,
+        private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
+    ) {
     }
 
-    public static function noVaultConfigured(): self
+    public function shouldUseVault(string $featureFlag = 'vault'): bool
     {
-        return new self(_('No vault configured'));
-    }
-
-    public static function vaultNotAvailable(): self
-    {
-        return new self(_('Vault is not available'));
+        return $this->featureFlags->isEnabled($featureFlag)
+            && $this->readVaultConfigurationRepository->exists();
     }
 }

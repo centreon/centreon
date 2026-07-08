@@ -129,7 +129,7 @@ jobs:
             results_file="merged-junit.xml"
             import_endpoint="https://xray.cloud.getxray.app/api/v2/import/execution/junit/multipart"
           else
-            mapfile -t files < <(find "$REPORT_PATH" -type f -path "*xray-reports*" \( -name "report.json" -o -name "cucumber-report.json" \))
+            mapfile -t files < <(find "$REPORT_PATH" -type f \( -name "report.json" -o -name "cucumber-report.json" -o -name "*-report.json" \))
             results_file="cucumber-report-merged.json"
             import_endpoint="https://xray.cloud.getxray.app/api/v2/import/execution/cucumber/multipart"
           fi
