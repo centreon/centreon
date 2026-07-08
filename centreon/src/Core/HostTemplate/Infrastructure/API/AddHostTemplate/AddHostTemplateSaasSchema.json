@@ -116,21 +116,39 @@
                 "type": "integer"
             }
         },
+        "freshness_checked": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "enum": [
+                null,
+                0,
+                1,
+                2
+            ]
+        },
+        "freshness_threshold": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
         "event_handler_enabled": {
-          "type": [
-            "integer"
-          ],
-          "enum": [
-            0,
-            1,
-            2
-          ]
+            "type": [
+                "integer"
+            ],
+            "enum": [
+                0,
+                1,
+                2
+            ]
         },
         "event_handler_command_id": {
-          "type": [
-            "null",
-            "integer"
-          ]
+            "type": [
+                "null",
+                "integer"
+            ]
         },
         "macros": {
             "type": "array",

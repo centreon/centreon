@@ -864,19 +864,31 @@ $form->addElement('select2', 'service_traps', _('Service Trap Relation'), [], $a
 //
 // # Sort 3 - Data treatment
 //
+if ($o === SERVICE_ADD) {
+    $form->addElement('header', 'title3', _('Add Data Processing'));
+} elseif ($o === SERVICE_MODIFY) {
+    $form->addElement('header', 'title3', _('Modify Data Processing'));
+} elseif ($o === SERVICE_WATCH) {
+    $form->addElement('header', 'title3', _('View Data Processing'));
+} elseif ($o === SERVICE_MASSIVE_CHANGE) {
+    $form->addElement('header', 'title2', _('Mass Change'));
+}
+
+$form->addElement('header', 'treatment', _('Data Processing'));
+
+$serviceCF = [
+    $form->createElement('radio', 'service_check_freshness', null, _('Yes'), '1'),
+    $form->createElement('radio', 'service_check_freshness', null, _('No'), '0'),
+    $form->createElement('radio', 'service_check_freshness', null, _('Default'), '2'),
+];
+$form->addGroup($serviceCF, 'service_check_freshness', _('Check Freshness'), '&nbsp;');
+if ($o !== SERVICE_MASSIVE_CHANGE) {
+    $form->setDefaults(['service_check_freshness' => '2']);
+}
+
+$form->addElement('text', 'service_freshness_threshold', _('Freshness Threshold'), $attrsText2);
+
 if (! $isCloudPlatform) {
-    if ($o === SERVICE_ADD) {
-        $form->addElement('header', 'title3', _('Add Data Processing'));
-    } elseif ($o === SERVICE_MODIFY) {
-        $form->addElement('header', 'title3', _('Modify Data Processing'));
-    } elseif ($o === SERVICE_WATCH) {
-        $form->addElement('header', 'title3', _('View Data Processing'));
-    } elseif ($o === SERVICE_MASSIVE_CHANGE) {
-        $form->addElement('header', 'title2', _('Mass Change'));
-    }
-
-    $form->addElement('header', 'treatment', _('Data Processing'));
-
     $serviceOOS = [
         $form->createElement('radio', 'service_obsess_over_service', null, _('Yes'), '1'),
         $form->createElement('radio', 'service_obsess_over_service', null, _('No'), '0'),
@@ -886,16 +898,6 @@ if (! $isCloudPlatform) {
     $form->addGroup($serviceOOS, 'service_obsess_over_service', _('Obsess Over Service'), '&nbsp;');
     if ($o !== SERVICE_MASSIVE_CHANGE) {
         $form->setDefaults(['service_obsess_over_service' => '2']);
-    }
-
-    $serviceCF = [
-        $form->createElement('radio', 'service_check_freshness', null, _('Yes'), '1'),
-        $form->createElement('radio', 'service_check_freshness', null, _('No'), '0'),
-        $form->createElement('radio', 'service_check_freshness', null, _('Default'), '2'),
-    ];
-    $form->addGroup($serviceCF, 'service_check_freshness', _('Check Freshness'), '&nbsp;');
-    if ($o !== SERVICE_MASSIVE_CHANGE) {
-        $form->setDefaults(['service_check_freshness' => '2']);
     }
 
     $serviceFDE = [
@@ -908,7 +910,6 @@ if (! $isCloudPlatform) {
         $form->setDefaults(['service_flap_detection_enabled' => '2']);
     }
 
-    $form->addElement('text', 'service_freshness_threshold', _('Freshness Threshold'), $attrsText2);
     $form->addElement('text', 'service_low_flap_threshold', _('Low Flap Threshold'), $attrsText2);
     $form->addElement('text', 'service_high_flap_threshold', _('High Flap Threshold'), $attrsText2);
 

@@ -3055,6 +3055,12 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
             $formData['macroInput'] ?? [],
             $formData['macroValue'] ?? []
         ),
+        'freshness_checked' => isset($formData['host_check_freshness']['host_check_freshness'])
+            ? (int) $formData['host_check_freshness']['host_check_freshness']
+            : null,
+        'freshness_threshold' => isset($formData['host_freshness_threshold']) && $formData['host_freshness_threshold'] !== ''
+            ? (int) $formData['host_freshness_threshold']
+            : null,
         'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
             ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
             : null,
@@ -3197,6 +3203,12 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
             $formData['macroInput'] ?? [],
             $formData['macroValue'] ?? []
         ),
+        'freshness_checked' => isset($formData['host_check_freshness']['host_check_freshness'])
+            ? (int) $formData['host_check_freshness']['host_check_freshness']
+            : null,
+        'freshness_threshold' => isset($formData['host_freshness_threshold']) && $formData['host_freshness_threshold'] !== ''
+            ? (int) $formData['host_freshness_threshold']
+            : null,
         'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
             ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
             : null,
