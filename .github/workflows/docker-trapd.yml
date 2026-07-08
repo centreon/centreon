@@ -6,6 +6,12 @@ concurrency:
 
 on:
   workflow_dispatch:
+    inputs:
+      test_promote:
+        description: 'TEMP (MON-204507 validation): force a promote-docker-tag test run against disposable "mon-204507-test-promote*" tags. Revert before merge.'
+        required: false
+        type: boolean
+        default: false
   push:
     branches:
       - develop
@@ -188,8 +194,12 @@ jobs:
         env:
           RAW_REF: ${{ github.head_ref || github.ref_name }}
           MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
+          TEST_PROMOTE: ${{ github.event.inputs.test_promote }}
         run: |
-          if [[ "$RAW_REF" == "develop" ]]; then
+          if [[ "$TEST_PROMOTE" == "true" ]]; then
+            echo "tag=mon-204507-test-promote-candidate" >> "$GITHUB_OUTPUT"
+            echo "additional_tag=mon-204507-test-promote-floating" >> "$GITHUB_OUTPUT"
+          elif [[ "$RAW_REF" == "develop" ]]; then
             echo "tag=develop-${MAJOR_VERSION}" >> "$GITHUB_OUTPUT"
             echo "additional_tag=develop" >> "$GITHUB_OUTPUT"
           elif [[ "$RAW_REF" =~ ^dev-[0-9]+\.[0-9]+\.x$ ]]; then
