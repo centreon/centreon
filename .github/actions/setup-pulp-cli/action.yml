@@ -35,9 +35,13 @@ runs:
       run: |
         set -euo pipefail
 
-        # fall back to the default when the caller passes an empty value: an unset
-        # org variable is forwarded as "" and would otherwise override the default.
-        AUDIENCE="${AUDIENCE:-https://pulp.dev.centreon.io}"
+        # an unset org variable is forwarded as "": fail loudly rather than
+        # falling back to a default audience, a token minted for the wrong
+        # audience must never be silently requested against another server
+        if [[ -z "$AUDIENCE" ]]; then
+          echo "::error::audience input is empty (is the PULP_OIDC_AUDIENCE org variable defined?)"
+          exit 1
+        fi
 
         # the job must grant id-token write permission for these to be set
         if [[ -z "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" || -z "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}" ]]; then

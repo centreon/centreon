@@ -80,7 +80,9 @@ jobs:
   delete-pulp-feature-repositories:
     needs: [check-other-feature-prs]
     if: needs.check-other-feature-prs.outputs.feature_prs_found == 'false'
-    runs-on: ubuntu-24.04
+    # same runner as the deliver-pulp / promote-pulp jobs: the Pulp api must be
+    # reachable from here, and continue-on-error would mask a network failure
+    runs-on: centreon-ubuntu-22.04
     # non-blocking during the Pulp migration, consistent with the deliver-pulp /
     # promote-pulp jobs: a Pulp-side failure must not fail the PR-close workflow.
     continue-on-error: true

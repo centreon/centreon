@@ -8,7 +8,7 @@
 # file, call load_expected, verify the packages, then call render_summary.
 
 PULP_URL="${PULP_URL:-https://pulp-api.apps.centreon.com}"
-PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://pulp-content.apps.centreon.com}"
+PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://packages.apps.centreon.com}"
 METADATA_TIMEOUT="${METADATA_TIMEOUT:-300}"
 METADATA_INTERVAL="${METADATA_INTERVAL:-15}"
 
